@@ -52,17 +52,22 @@
 #ifdef TARGET_LPC1768
 
 // --------------------------------------------------------------------------
+// Includes
+// --------------------------------------------------------------------------
+
+#include "LPC_SPI.h"
+#include "../SPI.h"
+
+// --------------------------------------------------------------------------
 // Public functions
 // --------------------------------------------------------------------------
 
 #if ENABLED(LPC_SOFTWARE_SPI)
 
   #include "SoftwareSPI.h"
-  #include "LPC_SPI.h"
-  #include "../SPI.h"
 
   // --------------------------------------------------------------------------
-  // software SPI
+  // Software SPI
   // --------------------------------------------------------------------------
 
   static uint8_t SPI_speed = 0;
@@ -115,20 +120,6 @@
     UNUSED(response);
     WRITE(SS_PIN, HIGH);
   }
-
-  void SPIClass::begin() { spiBegin(); }
-
-  uint8_t SPIClass::transfer(uint8_t B) {
-    return spiTransfer(B);
-  }
-  uint16_t SPIClass::transfer16(uint16_t data) {
-    uint16_t buffer;
-    buffer = transfer((data>>8) & 0xFF) << 8;
-    buffer |= transfer(data & 0xFF) && 0xFF;
-    return buffer;
-  }
-
-  SPIClass SPI;
 
 #else
 
@@ -206,9 +197,8 @@
   void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
   }
 
-
-  uint8_t get_one_byte() {
-   // send a dummy byte so can clock in receive data
+  static uint8_t get_one_byte() {
+    // send a dummy byte so can clock in receive data
     SSP_SendData(LPC_SSP0,0x00FF);
     while (SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY));  // wait for it to finish
     return SSP_ReceiveData(LPC_SSP0) & 0x00FF;
@@ -233,6 +223,13 @@
     }
   }
 
+  static uint8_t spiTransfer(uint8_t b) {
+    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_RXFIFO_NOTEMPTY) || SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY)) SSP_ReceiveData(LPC_SSP0);  //flush the receive buffer
+    SSP_SendData(LPC_SSP0, b);  // send the byte
+    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY));  // wait for it to finish
+    return SSP_ReceiveData(LPC_SSP0) & 0x00FF;
+  }
+
   // Write from buffer to SPI
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
   }
@@ -244,6 +241,20 @@
   }
 
 #endif // ENABLED(LPC_SOFTWARE_SPI)
+
+void SPIClass::begin() { spiBegin(); }
+
+uint8_t SPIClass::transfer(uint8_t B) {
+  return spiTransfer(B);
+}
+uint16_t SPIClass::transfer16(uint16_t data) {
+  uint16_t buffer;
+  buffer = transfer((data>>8) & 0xFF) << 8;
+  buffer |= transfer(data & 0xFF) && 0xFF;
+  return buffer;
+}
+
+SPIClass SPI;
 
 #endif // TARGET_LPC1768
 
