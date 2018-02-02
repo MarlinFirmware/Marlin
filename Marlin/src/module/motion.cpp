@@ -1304,7 +1304,7 @@ void homeaxis(const AxisEnum axis) {
   #endif
 } // homeaxis()
 
-#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
+#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
 
   /**
    * Software endstops can be used to monitor the open end of
@@ -1382,7 +1382,7 @@ void homeaxis(const AxisEnum axis) {
     #endif
   }
 
-#endif // HAS_WORKSPACE_OFFSET || DUAL_X_CARRIAGE
+#endif // HAS_WORKSPACE_OFFSET || DUAL_X_CARRIAGE || DELTA
 
 #if HAS_M206_COMMAND
   /**
