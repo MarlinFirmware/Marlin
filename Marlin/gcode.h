@@ -36,11 +36,7 @@
 //#define DEBUG_GCODE_PARSER
 
 #if ENABLED(DEBUG_GCODE_PARSER)
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    extern char* hex_address(const void * const w);
-  #else
-    #include "hex_print_routines.h"
-  #endif
+  #include "hex_print_routines.h"
   #include "serial.h"
 #endif
 
@@ -101,15 +97,15 @@ public:
 
   #define LETTER_BIT(N) ((N) - 'A')
 
+  FORCE_INLINE static bool valid_signless(const char * const p) {
+    return NUMERIC(p[0]) || (p[0] == '.' && NUMERIC(p[1])); // .?[0-9]
+  }
+
+  FORCE_INLINE static bool valid_float(const char * const p) {
+    return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(&p[1])); // [-+]?.?[0-9]
+  }
+
   #if ENABLED(FASTER_GCODE_PARSER)
-
-    FORCE_INLINE static bool valid_signless(const char * const p) {
-      return NUMERIC(p[0]) || (p[0] == '.' && NUMERIC(p[1])); // .?[0-9]
-    }
-
-    FORCE_INLINE static bool valid_float(const char * const p) {
-      return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(&p[1])); // [-+]?.?[0-9]
-    }
 
     FORCE_INLINE static bool valid_int(const char * const p) {
       return NUMERIC(p[0]) || ((p[0] == '-' || p[0] == '+') && NUMERIC(p[1])); // [-+]?[0-9]
@@ -119,7 +115,7 @@ public:
     static void set(const char c, char * const ptr) {
       const uint8_t ind = LETTER_BIT(c);
       if (ind >= COUNT(param)) return;           // Only A-Z
-      SBI(codebits, ind);                        // parameter exists
+      SBI32(codebits, ind);                      // parameter exists
       param[ind] = ptr ? ptr - command_ptr : 0;  // parameter offset or 0
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (codenum == 800) {
@@ -268,7 +264,7 @@ public:
       FORCE_INLINE static char temp_units_code() {
         return input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C';
       }
-      FORCE_INLINE static char* temp_units_name() {
+      FORCE_INLINE static const char* temp_units_name() {
         return input_temp_units == TEMPUNIT_K ? PSTR("Kelvin") : input_temp_units == TEMPUNIT_F ? PSTR("Fahrenheit") : PSTR("Celsius");
       }
       inline static float to_temp_units(const float &f) {
@@ -322,7 +318,7 @@ public:
 
   // Provide simple value accessors with default option
   FORCE_INLINE static float    floatval(const char c, const float dval=0.0)   { return seenval(c) ? value_float()        : dval; }
-  FORCE_INLINE static bool     boolval(const char c)                          { return seenval(c) ? value_bool()      : seen(c); }
+  FORCE_INLINE static bool     boolval(const char c)                          { return seenval(c) ? value_bool()         : seen(c); }
   FORCE_INLINE static uint8_t  byteval(const char c, const uint8_t dval=0)    { return seenval(c) ? value_byte()         : dval; }
   FORCE_INLINE static int16_t  intval(const char c, const int16_t dval=0)     { return seenval(c) ? value_int()          : dval; }
   FORCE_INLINE static uint16_t ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }
