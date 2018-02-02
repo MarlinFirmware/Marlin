@@ -48,7 +48,7 @@ class SPI<MISO_PIN, MOSI_PIN, SCK_PIN> {
     }
     FORCE_INLINE static uint8_t receive() {
       SPDR = 0;
-      for (;!TEST(SPSR, SPIF););
+      while (!TEST(SPSR, SPIF)) { /* nada */ }
       return SPDR;
     }
 
