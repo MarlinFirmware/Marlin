@@ -55,6 +55,10 @@
   #include "../feature/tmc_util.h"
 #endif
 
+#if ENABLED(FWRETRACT)
+  #include "../feature/fwretract.h"
+#endif
+
 #define XYZ_CONSTS(type, array, CONFIG) const PROGMEM type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }
 
 XYZ_CONSTS(float, base_min_pos,   MIN_POS);
@@ -1283,6 +1287,12 @@ void homeaxis(const AxisEnum axis) {
   // Put away the Z probe
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS && STOW_PROBE()) return;
+  #endif
+
+  // Clear retracted status if homing the Z axis
+  #if ENABLED(FWRETRACT)
+    if (axis == Z_AXIS)
+      for (uint8_t i = 0; i < EXTRUDERS; i++) fwretract.retracted[i] = false;
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
