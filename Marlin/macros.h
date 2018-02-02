@@ -106,7 +106,6 @@
 #define TEST(n,b) !!((n)&_BV(b))
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))
-#define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (_BV(b))
 
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
