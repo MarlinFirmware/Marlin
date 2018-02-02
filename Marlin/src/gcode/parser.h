@@ -32,6 +32,9 @@
 #include "../inc/MarlinConfig.h"
 
 //#define DEBUG_GCODE_PARSER
+#if ENABLED(DEBUG_GCODE_PARSER)
+  #include "../libs/hex_print_routines.h"
+#endif
 
 /**
  * GCode parser
@@ -90,15 +93,15 @@ public:
 
   #define LETTER_BIT(N) ((N) - 'A')
 
+  FORCE_INLINE static bool valid_signless(const char * const p) {
+    return NUMERIC(p[0]) || (p[0] == '.' && NUMERIC(p[1])); // .?[0-9]
+  }
+
+  FORCE_INLINE static bool valid_float(const char * const p) {
+    return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(&p[1])); // [-+]?.?[0-9]
+  }
+
   #if ENABLED(FASTER_GCODE_PARSER)
-
-    FORCE_INLINE static bool valid_signless(const char * const p) {
-      return NUMERIC(p[0]) || (p[0] == '.' && NUMERIC(p[1])); // .?[0-9]
-    }
-
-    FORCE_INLINE static bool valid_float(const char * const p) {
-      return valid_signless(p) || ((p[0] == '-' || p[0] == '+') && valid_signless(&p[1])); // [-+]?.?[0-9]
-    }
 
     FORCE_INLINE static bool valid_int(const char * const p) {
       return NUMERIC(p[0]) || ((p[0] == '-' || p[0] == '+') && NUMERIC(p[1])); // [-+]?[0-9]
