@@ -1,0 +1,18 @@
+This is the configuration file for Marlin 1.1.8 for the Anycubic i3 Mega Ultrabase with Trigorilla 8 bit mainboard.
+Please note that there are also i3 Mega Ultrabase printers with a 32 bit board. Marlin 8 bit can not be flashed on those boards!
+
+Navigate to the info screen on the TFT display, it tells you which version you have. Firmware V1.1.1 = 8 bit Marlin
+and V1.4 is 32 bit 'something' firmware. You can also check by opening the case at the bottom and inspecting the motherboard.
+If you have replaceable drivers, it's probably 8 bit Marlin. Intregraded stepper drivers = 32 bit (and Trigorilla Pro logo)
+Probably, bacause you never know what they change....
+
+Simply download this repository to your PC, and replace this configuration.h with the one in the Marlin folder.
+Then compile and upload to your printer.
+
+After you upload the firmware to the printer, restart it first. Then verify all axis movements via the menu with the smallest steps.
+Then check homing all axis individually. For the z axis test homing by pressing both endstop switches yourself,
+if they dont work you can turn off the printer in time. If something isn't working as expected, check configuration.h again
+and make necessary adjustments.
+
+Manual Mesh Bed levelling is enabled by default. Read about it here: http://marlinfw.org/docs/gcode/G029-mbl.html
+and/ or here: https://github.com/MarlinFirmware/Marlin/wiki/Manual-Mesh-Bed-Leveling.
