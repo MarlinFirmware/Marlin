@@ -28,10 +28,6 @@
 
 #include "../Marlin.h"
 
-#if ENABLED(DEBUG_GCODE_PARSER)
-  #include "../libs/hex_print_routines.h"
-#endif
-
 #if NUM_SERIAL > 1
   #include "queue.h"
 #endif
