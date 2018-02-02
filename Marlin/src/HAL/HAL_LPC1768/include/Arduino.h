@@ -28,15 +28,19 @@
 
 #include "../pinmapping.h"
 
-#define LOW          0x00
 #define HIGH         0x01
-#define CHANGE       0x02
-#define FALLING      0x03
-#define RISING       0x04
+#define LOW          0x00
 
 #define INPUT        0x00
 #define OUTPUT       0x01
 #define INPUT_PULLUP 0x02
+
+#define LSBFIRST     0
+#define MSBFIRST     1
+
+#define CHANGE       0x02
+#define FALLING      0x03
+#define RISING       0x04
 
 #define E2END 0xFFF // EEPROM end address
 
