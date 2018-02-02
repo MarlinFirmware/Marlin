@@ -526,6 +526,9 @@
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
 
+// Show a fanspeed instead of feed rate on HD44780 LCD status screen
+//#define LCD_SHOW_FANSPEED
+
 // Scroll a longer status message into view
 //#define STATUS_MESSAGE_SCROLLING
 
