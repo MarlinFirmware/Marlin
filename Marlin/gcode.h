@@ -136,7 +136,7 @@ public:
     static bool seen(const char c) {
       const uint8_t ind = LETTER_BIT(c);
       if (ind >= COUNT(param)) return false; // Only A-Z
-      const bool b = TEST(codebits, ind);
+      const bool b = TEST32(codebits, ind);
       if (b) {
         #if ENABLED(DEBUG_GCODE_PARSER)
           if (codenum == 800) {
@@ -151,7 +151,7 @@ public:
 
     static bool seen_any() { return !!codebits; }
 
-    #define SEEN_TEST(L) TEST(codebits, LETTER_BIT(L))
+    #define SEEN_TEST(L) TEST32(codebits, LETTER_BIT(L))
 
   #else // !FASTER_GCODE_PARSER
 
