@@ -687,12 +687,9 @@ void GcodeSuite::G26() {
   set_bed_leveling_enabled(!parser.seen('D'));
 
   if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
-//  SERIAL_PROTOCOLLNPGM("! move nozzle to Z_CLEARANCE_BETWEEN_PROBES height.");
-//  SERIAL_ECHOLNPAIR("  Z at:", current_position[Z_AXIS]);
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     stepper.synchronize();
     set_current_from_destination();
-//  SERIAL_ECHOLNPAIR("  Z now at:", current_position[Z_AXIS]);
   }
 
   if (turn_on_heaters() != G26_OK) goto LEAVE;
@@ -700,7 +697,7 @@ void GcodeSuite::G26() {
   current_position[E_AXIS] = 0.0;
   sync_plan_position_e();
 
-  if (g26_prime_flag && prime_nozzle()) goto LEAVE;
+  if (g26_prime_flag && prime_nozzle() != G26_OK) goto LEAVE;
 
   /**
    *  Bed is preheated
@@ -718,14 +715,8 @@ void GcodeSuite::G26() {
 
   // Move nozzle to the specified height for the first layer
   set_destination_from_current();
-//SERIAL_PROTOCOLLNPGM("! moving nozzle to 1st layer height.");
-//SERIAL_ECHOLNPAIR("  Z1 at:", current_position[Z_AXIS]);
-
   destination[Z_AXIS] = g26_layer_height;
   move_to(destination, 0.0);
-//stepper.synchronize();
-//set_destination_from_current();
-//SERIAL_ECHOLNPAIR("  Z2 at:", current_position[Z_AXIS]);
   move_to(destination, g26_ooze_amount);
 
   #if ENABLED(ULTRA_LCD)
@@ -833,7 +824,6 @@ void GcodeSuite::G26() {
         MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
                            // over run the serial character buffer with M105's without
                            // this fix
-
       }
       if (look_for_lines_to_connect())
         goto LEAVE;
