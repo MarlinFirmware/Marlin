@@ -1293,7 +1293,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
 
 #endif // DUAL_X_CARRIAGE
 
-#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
+#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
 
   /**
    * Software endstops can be used to monitor the open end of
@@ -1371,7 +1371,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
     #endif
   }
 
-#endif // HAS_WORKSPACE_OFFSET || DUAL_X_CARRIAGE
+#endif // HAS_WORKSPACE_OFFSET || DUAL_X_CARRIAGE || DELTA
 
 #if HAS_M206_COMMAND
   /**
