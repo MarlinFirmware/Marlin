@@ -30,7 +30,7 @@ extern "C" {
 #include "HAL_timers.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include "include/arduino.h"
+#include "include/Arduino.h"
 #include "serial.h"
 #include "LPC1768_PWM.h"
 

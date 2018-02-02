@@ -23,7 +23,7 @@
  */
 
 #include <stdlib.h>
-#include <arduino.h>
+#include <Arduino.h>
 
 #include "Stream.h"
 

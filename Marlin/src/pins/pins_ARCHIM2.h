@@ -94,6 +94,16 @@
 #define E1_DIAG_PIN        25   // PD0 E2_DIAG
 
 //
+// Software SPI pins for TMC2130 stepper drivers.
+// Required for the Archim2 board.
+//
+#if ENABLED(TMC_USE_SW_SPI)
+  #define TMC_SW_MOSI      28   // PD3
+  #define TMC_SW_MISO      26   // PD1
+  #define TMC_SW_SCK       27   // PD2
+#endif
+
+//
 // Temperature Sensors
 //
 #define TEMP_0_PIN         10   // D10 PB19 THERM AN1 *
