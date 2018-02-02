@@ -33,7 +33,7 @@
 #ifndef SOFTWARESERIAL_H
 #define SOFTWARESERIAL_H
 
-#include "include/arduino.h"
+#include "include/Arduino.h"
 #include <stdint.h>
 //#include "serial.h"
 #include <Stream.h>
