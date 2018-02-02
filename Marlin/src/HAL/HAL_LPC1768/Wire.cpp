@@ -75,7 +75,8 @@ void TwoWire::begin(void) {
   PINSEL_CFG_Type PinCfg;
   PinCfg.OpenDrain = 0;
   PinCfg.Pinmode = 0;
-  #if ((USEDI2CDEV_M == 0))
+
+  #if USEDI2CDEV_M == 0
     PinCfg.Funcnum = 1;
     PinCfg.Pinnum = 27;
     PinCfg.Portnum = 0;
@@ -83,7 +84,8 @@ void TwoWire::begin(void) {
     PinCfg.Pinnum = 28;
     PINSEL_ConfigPin(&PinCfg); // SCL0 / D58  AUX-1
   #endif
-  #if ((USEDI2CDEV_M == 1))
+
+  #if USEDI2CDEV_M == 1
     PinCfg.Funcnum = 3;
     PinCfg.Pinnum = 0;
     PinCfg.Portnum = 0;
@@ -91,7 +93,8 @@ void TwoWire::begin(void) {
     PinCfg.Pinnum = 1;
     PINSEL_ConfigPin(&PinCfg);  // SCL1 / D21 SCL
   #endif
-  #if ((USEDI2CDEV_M == 2))
+
+  #if USEDI2CDEV_M == 2
     PinCfg.Funcnum = 2;
     PinCfg.Pinnum = 10;
     PinCfg.Portnum = 0;
@@ -102,17 +105,16 @@ void TwoWire::begin(void) {
 
   // Initialize I2C peripheral
   I2C_Init(I2CDEV_M, 100000);
-  
+
   // Enable Master I2C operation
   I2C_Cmd(I2CDEV_M, I2C_MASTER_MODE, ENABLE);
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) {
   // clamp to buffer length
-  if(quantity > BUFFER_LENGTH){
+  if (quantity > BUFFER_LENGTH)
     quantity = BUFFER_LENGTH;
-  }
-  
+
   // perform blocking read into buffer
   I2C_M_SETUP_Type transferMCfg;
   transferMCfg.sl_addr7bit = address >> 1; // not sure about the right shift
@@ -158,7 +160,7 @@ uint8_t TwoWire::endTransmission(void) {
 	transferMCfg.rx_length = 0;
 	transferMCfg.retransmissions_max = 3;
   Status status = I2C_MasterTransferData(I2CDEV_M, &transferMCfg, I2C_TRANSFER_POLLING);
-  
+
   // reset tx buffer iterator vars
   txBufferIndex = 0;
   txBufferLength = 0;
@@ -166,25 +168,19 @@ uint8_t TwoWire::endTransmission(void) {
   // indicate that we are done transmitting
   transmitting = 0;
 
-  if (status == SUCCESS)
-    return 0; // success
-  else
-    return 4; // other error
+  return status == SUCCESS ? 0 : 4;
 }
 
 // must be called after beginTransmission(address)
 size_t TwoWire::write(uint8_t data) {
   if (transmitting) {
     // don't bother if buffer is full
-    if (txBufferLength >= BUFFER_LENGTH) {
-      return 0;
-    }
+    if (txBufferLength >= BUFFER_LENGTH) return 0;
 
     // put byte in tx buffer
-    txBuffer[txBufferIndex] = data;
-    ++txBufferIndex;
+    txBuffer[txBufferIndex++] = data;
 
-    // update amount in buffer   
+    // update amount in buffer
     txBufferLength = txBufferIndex;
   }
 
@@ -195,40 +191,25 @@ size_t TwoWire::write(uint8_t data) {
 size_t TwoWire::write(const uint8_t *data, size_t quantity) {
   size_t sent = 0;
   if (transmitting)
-    for(sent = 0; sent < quantity; ++sent)
-      if (!write(data[sent]))
-        break;
+    for (sent = 0; sent < quantity; ++sent)
+      if (!write(data[sent])) break;
 
   return sent;
 }
 
-// must be called after requestFrom(address, numBytes)
+// Must be called after requestFrom(address, numBytes)
 int TwoWire::available(void) {
   return rxBufferLength - rxBufferIndex;
 }
 
-// must be called after requestFrom(address, numBytes)
+// Must be called after requestFrom(address, numBytes)
 int TwoWire::read(void) {
-  int value = -1;
-  
-  // get each successive byte on each call
-  if(rxBufferIndex < rxBufferLength) {
-    value = rxBuffer[rxBufferIndex];
-    ++rxBufferIndex;
-  }
-
-  return value;
+  return rxBufferIndex < rxBufferLength ? rxBuffer[rxBufferIndex++] : -1;
 }
 
-// must be called after requestFrom(address, numBytes)
+// Must be called after requestFrom(address, numBytes)
 int TwoWire::peek(void) {
-  int value = -1;
-  
-  if(rxBufferIndex < rxBufferLength){
-    value = rxBuffer[rxBufferIndex];
-  }
-
-  return value;
+  return rxBufferIndex < rxBufferLength ? rxBuffer[rxBufferIndex] : -1;
 }
 
 // Preinstantiate Objects //////////////////////////////////////////////////////

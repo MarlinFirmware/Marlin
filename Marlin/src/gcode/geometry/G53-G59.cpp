@@ -22,15 +22,15 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
-//#include "../../module/stepper.h"
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
+  #include "../../module/stepper.h"
 
   /**
    * Select a coordinate system and update the workspace offset.
    * System index -1 is used to specify machine-native.
    */
-  bool GCodeSuite::select_coordinate_system(const int8_t _new) {
+  bool GcodeSuite::select_coordinate_system(const int8_t _new) {
     if (active_coordinate_system == _new) return false;
     stepper.synchronize();
     float old_offset[XYZ] = { 0 }, new_offset[XYZ] = { 0 };
@@ -54,7 +54,7 @@
    * It precedes a movement command (or other modifiers) on the same line.
    * This is the first command to use parser.chain() to make this possible.
    */
-  void GCodeSuite::G53() {
+  void GcodeSuite::G53() {
     // If this command has more following...
     if (parser.chain()) {
       const int8_t _system = active_coordinate_system;
@@ -80,11 +80,11 @@
       report_current_position();
     }
   }
-  void GCodeSuite::G54() { G54_59(); }
-  void GCodeSuite::G55() { G54_59(); }
-  void GCodeSuite::G56() { G54_59(); }
-  void GCodeSuite::G57() { G54_59(); }
-  void GCodeSuite::G58() { G54_59(); }
-  void GCodeSuite::G59() { G54_59(parser.subcode); }
+  void GcodeSuite::G54() { G54_59(); }
+  void GcodeSuite::G55() { G54_59(); }
+  void GcodeSuite::G56() { G54_59(); }
+  void GcodeSuite::G57() { G54_59(); }
+  void GcodeSuite::G58() { G54_59(); }
+  void GcodeSuite::G59() { G54_59(parser.subcode); }
 
 #endif // CNC_COORDINATE_SYSTEMS

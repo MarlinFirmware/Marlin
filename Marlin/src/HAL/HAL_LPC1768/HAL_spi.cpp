@@ -56,6 +56,8 @@
 //#include "../../../MarlinConfig.h"  //works except in U8g
 #include "spi_pins.h"
 #include "fastio.h"
+#include "LPC_SPI.h"
+#include "../SPI.h"
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -190,6 +192,20 @@
     UNUSED(response);
     WRITE(SS_PIN, HIGH);
   }
+
+  void SPIClass::begin() { spiBegin(); }
+
+  uint8_t SPIClass::transfer(uint8_t B) {
+    return spiTransfer(B);
+  }
+  uint16_t SPIClass::transfer16(uint16_t data) {
+    uint16_t buffer;
+    buffer = transfer((data>>8) & 0xFF) << 8;
+    buffer |= transfer(data & 0xFF) && 0xFF;
+    return buffer;
+  }
+
+  SPIClass SPI;
 
 #else
 
