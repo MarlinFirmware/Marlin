@@ -379,7 +379,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const uint8_t y) {
   const char * const str = itostr3(temp);
-  u8g.setPrintPos(x - (str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1) * DOG_CHAR_WIDTH / 2, y);
+  u8g.setPrintPos(x - (str[0] != ' ' ? 0 : str[1] != ' ' ? 1 : 2) * DOG_CHAR_WIDTH / 2, y);
   lcd_print(str);
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 }
