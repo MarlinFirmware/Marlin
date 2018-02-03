@@ -107,9 +107,15 @@
 #define MSG_SELECT                          _UxGT("Seç")                                                // Seç
 #define MSG_ACC                             _UxGT("İvme")                                               // İvme
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vx-Jerk")                                            // Vx-Jerk
-#define MSG_VY_JERK                         _UxGT("Vy-Jerk")                                            // Vy-Jerk
-#define MSG_VZ_JERK                         _UxGT("Vz-jerk")                                            // Vz-Jerk
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")                                            // Ve-Jerk
 #define MSG_VMAX                            _UxGT("Vmax ")                                              // Vmax
 #define MSG_VMIN                            _UxGT("Vmin")                                               // Vmin
@@ -117,10 +123,16 @@
 #define MSG_AMAX                            _UxGT("Amax ")                                              // Amax
 #define MSG_A_RETRACT                       _UxGT("A-retract")                                          // A-retract
 #define MSG_A_TRAVEL                        _UxGT("A-travel")                                           // A-travel
-#define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")                                           // Xsteps/mm
-#define MSG_XSTEPS                          _UxGT("Xsteps/mm")                                          // Xsteps/mm
-#define MSG_YSTEPS                          _UxGT("Ysteps/mm")                                          // Ysteps/mm
-#define MSG_ZSTEPS                          _UxGT("Zsteps/mm")                                          // Zsteps/mm
+#define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")                                           // Steps/mm
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Asteps/mm")
+  #define MSG_BSTEPS                        _UxGT("Bsteps/mm")
+  #define MSG_CSTEPS                        _UxGT("Csteps/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xsteps/mm")
+  #define MSG_BSTEPS                        _UxGT("Ysteps/mm")
+  #define MSG_CSTEPS                        _UxGT("Zsteps/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("Esteps/mm")                                          // Esteps/mm
 #define MSG_E1STEPS                         _UxGT("E1steps/mm")                                         // E1steps/mm
 #define MSG_E2STEPS                         _UxGT("E2steps/mm")                                         // E2steps/mm

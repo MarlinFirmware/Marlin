@@ -91,9 +91,15 @@
 #define MSG_SELECT                          _UxGT("Select")
 #define MSG_ACC                             _UxGT("Przyśpieszenie")
 #define MSG_JERK                            _UxGT("Zryw")
-#define MSG_VX_JERK                         _UxGT("Zryw Vx")
-#define MSG_VY_JERK                         _UxGT("Zryw Vy")
-#define MSG_VZ_JERK                         _UxGT("Zryw Vz")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Zryw Va")
+  #define MSG_VB_JERK                       _UxGT("Zryw Vb")
+  #define MSG_VC_JERK                       _UxGT("Zryw Vc")
+#else
+  #define MSG_VA_JERK                       _UxGT("Zryw Vx")
+  #define MSG_VB_JERK                       _UxGT("Zryw Vy")
+  #define MSG_VC_JERK                       _UxGT("Zryw Vz")
+#endif
 #define MSG_VE_JERK                         _UxGT("Zryw Ve")
 #define MSG_VMAX                            _UxGT("Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
@@ -103,9 +109,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-wycofanie")
 #define MSG_A_TRAVEL                        _UxGT("A-przesuń.")
 #define MSG_STEPS_PER_MM                    _UxGT("kroki/mm")
-#define MSG_XSTEPS                          _UxGT("krokiX/mm")
-#define MSG_YSTEPS                          _UxGT("krokiY/mm")
-#define MSG_ZSTEPS                          _UxGT("krokiZ/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("krokiA/mm")
+  #define MSG_BSTEPS                        _UxGT("krokiB/mm")
+  #define MSG_CSTEPS                        _UxGT("krokiC/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("krokiX/mm")
+  #define MSG_BSTEPS                        _UxGT("krokiY/mm")
+  #define MSG_CSTEPS                        _UxGT("krokiZ/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("krokiE/mm")
 #define MSG_E1STEPS                         _UxGT("krokiE1/mm")
 #define MSG_E2STEPS                         _UxGT("krokiE2/mm")

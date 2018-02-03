@@ -103,9 +103,15 @@
 #define MSG_SELECT                          _UxGT("Aukeratu")
 #define MSG_ACC                             _UxGT("Azelerazioa")
 #define MSG_JERK                            _UxGT("Astindua")
-#define MSG_VX_JERK                         _UxGT("Vx-astindua")
-#define MSG_VY_JERK                         _UxGT("Vy-astindua")
-#define MSG_VZ_JERK                         _UxGT("Vz-astindua")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-astindua")
+  #define MSG_VB_JERK                       _UxGT("Vb-astindua")
+  #define MSG_VC_JERK                       _UxGT("Vc-astindua")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-astindua")
+  #define MSG_VB_JERK                       _UxGT("Vy-astindua")
+  #define MSG_VC_JERK                       _UxGT("Vz-astindua")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-astindua")
 #define MSG_VMAX                            _UxGT("Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
@@ -115,9 +121,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-retrakt")
 #define MSG_A_TRAVEL                        _UxGT("A-bidaia")
 #define MSG_STEPS_PER_MM                    _UxGT("Pausoak/mm")
-#define MSG_XSTEPS                          _UxGT("X pausoak/mm")
-#define MSG_YSTEPS                          _UxGT("Y pausoak/mm")
-#define MSG_ZSTEPS                          _UxGT("Z pausoak/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("A pausoak/mm")
+  #define MSG_BSTEPS                        _UxGT("B pausoak/mm")
+  #define MSG_CSTEPS                        _UxGT("C pausoak/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("X pausoak/mm")
+  #define MSG_BSTEPS                        _UxGT("Y pausoak/mm")
+  #define MSG_CSTEPS                        _UxGT("Z pausoak/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("E pausoak/mm")
 #define MSG_E1STEPS                         _UxGT("E1 pausoak/mm")
 #define MSG_E2STEPS                         _UxGT("E2 pausoak/mm")

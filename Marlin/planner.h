@@ -412,8 +412,9 @@ class Planner {
      *  target      - target position in steps units
      *  fr_mm_s     - (target) speed of the move
      *  extruder    - target extruder
+     *  millimeters - the length of the movement, if known
      */
-    static void _buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const uint8_t extruder);
+    static void _buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0);
 
     /**
      * Planner::buffer_segment
@@ -422,11 +423,12 @@ class Planner {
      *
      * Leveling and kinematics should be applied ahead of calling this.
      *
-     *  a,b,c,e   - target positions in mm and/or degrees
-     *  fr_mm_s   - (target) speed of the move
-     *  extruder  - target extruder
+     *  a,b,c,e     - target positions in mm and/or degrees
+     *  fr_mm_s     - (target) speed of the move
+     *  extruder    - target extruder
+     *  millimeters - the length of the movement, if known
      */
-    static void buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder);
+    static void buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
@@ -441,12 +443,13 @@ class Planner {
      *  rx,ry,rz,e   - target position in mm or degrees
      *  fr_mm_s      - (target) speed of the move (mm/s)
      *  extruder     - target extruder
+     *  millimeters  - the length of the movement, if known
      */
-    FORCE_INLINE static void buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder) {
+    FORCE_INLINE static void buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
-      buffer_segment(rx, ry, rz, e, fr_mm_s, extruder);
+      buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters);
     }
 
     /**
@@ -454,11 +457,12 @@ class Planner {
      * The target is cartesian, it's translated to delta/scara if
      * needed.
      *
-     *  cart     - x,y,z,e CARTESIAN target in mm
-     *  fr_mm_s  - (target) speed of the move (mm/s)
-     *  extruder - target extruder
+     *  cart         - x,y,z,e CARTESIAN target in mm
+     *  fr_mm_s      - (target) speed of the move (mm/s)
+     *  extruder     - target extruder
+     *  millimeters  - the length of the movement, if known
      */
-    FORCE_INLINE static void buffer_line_kinematic(const float (&cart)[XYZE], const float &fr_mm_s, const uint8_t extruder) {
+    FORCE_INLINE static void buffer_line_kinematic(const float (&cart)[XYZE], const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
       #if PLANNER_LEVELING
         float raw[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
         apply_leveling(raw);
@@ -467,9 +471,9 @@ class Planner {
       #endif
       #if IS_KINEMATIC
         inverse_kinematics(raw);
-        buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder);
+        buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
       #else
-        buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder);
+        buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
       #endif
     }
 
