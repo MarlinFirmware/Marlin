@@ -342,7 +342,7 @@ void Stepper::set_directions() {
     SET_STEP_DIR(Z); // C
   #endif
 
-  #if DISABLED(LIN_ADVANCE)
+  #if DISABLED(LIN_ADVANCE) && EXTRUDERS > 0
     if (motor_direction(E_AXIS)) {
       REV_E_DIR();
       count_direction[E_AXIS] = -1;
