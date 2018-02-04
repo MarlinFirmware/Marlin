@@ -21,7 +21,7 @@
  */
 
 /**
- * Maylan M150 Configuration
+ * Malyan M150 Configuration
  * Non-Automatic Bed Level config by default
  */
 
@@ -1581,6 +1581,12 @@
 // LCD for Melzi Card with Graphical LCD
 //
 //#define LCD_FOR_MELZI
+
+//
+// LCD for Malyan M200 printers.
+// This requires SDSUPPORT to be enabled
+//
+//#define MALYAN_LCD
 
 //
 // CONTROLLER TYPE: I2C
