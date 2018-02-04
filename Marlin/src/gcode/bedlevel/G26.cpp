@@ -437,9 +437,8 @@ inline bool turn_on_heaters() {
             SERIAL_EOL();
           }
           idle();
-          MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
-                             // over run the serial character buffer with M105's without
-                             // this fix
+          MYSERIAL0.flush(); // G26 takes a long time to complete. PronterFace may
+                             // overwhelm the serial buffer with M105's without this fix.
         }
     #if ENABLED(ULTRA_LCD)
       }
@@ -513,8 +512,8 @@ inline bool prime_nozzle() {
 
       wait_for_release();
 
-      strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
-                                                          // So... We cheat to get a message up.
+      strcpy_P(lcd_status_message, PSTR("Done Priming")); // Hack to get the message up. May be obsolete.
+
       lcd_setstatusPGM(PSTR("Done Priming"), 99);
       lcd_quick_feedback(true);
       lcd_external_control = false;
