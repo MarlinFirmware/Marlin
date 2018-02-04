@@ -10,7 +10,7 @@
  *      warranties of fitness for purpose, satisfactory quality and
  *      noninfringement. Keil extends you a royalty-free right to reproduce
  *      and distribute executable files created using this software for use
- *      on NXP Semiconductors LPC family microcontroller devices only. Nothing 
+ *      on NXP Semiconductors LPC family microcontroller devices only. Nothing
  *      else gives you the right to use this software.
  *
  * Copyright (c) 2009 Keil - An ARM Company. All rights reserved.

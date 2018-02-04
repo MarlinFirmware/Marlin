@@ -58,7 +58,7 @@ uint8_t swSpiTransfer(uint8_t b, uint8_t spi_speed, pin_t sck_pin, pin_t miso_pi
         WRITE(mosi_pin, LOW);
 
       WRITE(sck_pin, HIGH);
-      
+
       b <<= 1;
 
       if (miso_pin >= 0)
@@ -76,7 +76,7 @@ uint8_t swSpiTransfer(uint8_t b, uint8_t spi_speed, pin_t sck_pin, pin_t miso_pi
 
       for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
         WRITE(sck_pin, HIGH);
-      
+
       b <<= 1;
 
       if (miso_pin >= 0)
