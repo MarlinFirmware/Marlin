@@ -28,6 +28,10 @@
 
 #if ENABLED(M114_DETAIL)
 
+  #ifdef ARDUINO_ARCH_SAM
+    extern "C" char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s);
+  #endif
+
   void report_xyze(const float pos[], const uint8_t n = 4, const uint8_t precision = 3) {
     char str[12];
     for (uint8_t i = 0; i < n; i++) {
