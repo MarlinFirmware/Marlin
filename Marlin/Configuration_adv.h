@@ -362,6 +362,10 @@
 // When G28 is called, this option will make Y home before X
 //#define HOME_Y_BEFORE_X
 
+// When G28 is called Marlin will try to move the Z axis to a safe position so that homing X and Y can safely proceed. 
+// Enable the following option to keep G28 from moving the Z axis unless explicitly requested (using, for example, “G28 Z”)
+//#define DONT_IMPLICITLY_MOVE_Z_WHEN_HOMING
+
 // @section machine
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}

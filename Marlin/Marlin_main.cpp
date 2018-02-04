@@ -3914,7 +3914,11 @@ inline void gcode_G28(const bool always_home_all) {
 
     const bool homeX = always_home_all || parser.seen('X'),
                homeY = always_home_all || parser.seen('Y'),
+               #if ENABLED(DONT_IMPLICITLY_MOVE_Z_WHEN_HOMING)
+               homeZ = parser.seen('Z'),
+               #else               
                homeZ = always_home_all || parser.seen('Z'),
+               #endif
                home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
 
     set_destination_from_current();
@@ -3930,19 +3934,21 @@ inline void gcode_G28(const bool always_home_all) {
 
     #endif
 
-    if (home_all || homeX || homeY) {
-      // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      destination[Z_AXIS] = Z_HOMING_HEIGHT;
-      if (destination[Z_AXIS] > current_position[Z_AXIS]) {
+    #if DISABLED(DONT_IMPLICITLY_MOVE_Z_WHEN_HOMING)  
+      if (home_all || homeX || homeY) {
+        // Raise Z before homing any other axes and z is not already high enough (never lower z)
+        destination[Z_AXIS] = Z_HOMING_HEIGHT;
+        if (destination[Z_AXIS] > current_position[Z_AXIS]) {
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING))
-            SERIAL_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
-        #endif
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING))
+              SERIAL_ECHOLNPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
+          #endif
 
-        do_blocking_move_to_z(destination[Z_AXIS]);
+          do_blocking_move_to_z(destination[Z_AXIS]);
+        }
       }
-    }
+    #endif
 
     #if ENABLED(QUICK_HOME)
 
