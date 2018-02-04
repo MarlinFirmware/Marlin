@@ -1549,6 +1549,19 @@ static_assert(1 >= 0
   #endif
 #endif
 
+
+/**
+ * Enhanced command injection requirements
+ */
+#if ENABLED(ENHANCED_COMMAND_INJECTION)
+  #if !defined(ENHANCED_COMMAND_INJECTION_STACK) || (ENHANCED_COMMAND_INJECTION_STACK < 2)
+    #error "ENHANCED_COMMAND_INJECTION requires ENHANCED_COMMAND_INJECTION_STACK >= 2."
+  #endif
+#endif
+
+
+
+
 /**
  * Require 4 or more elements in per-axis initializers
  */
@@ -1591,5 +1604,6 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
     #endif
   #endif
 #endif
+
 
 #endif // _SANITYCHECK_H_
