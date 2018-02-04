@@ -162,6 +162,7 @@
 #define BOARD_AZSMZ_MINI          1751  // AZSMZ Mini
 #define BOARD_AZTEEG_X5_GT        1752  // Azteeg X5 GT (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_BIQU_BQ111_A4       1753  // BIQU BQ111-A4 (Power outputs: Hotend, Fan, Bed)
+#define BOARD_SELENA_COMPACT      1754  // Selena Compact (Power outputs: Hotend0, Hotend1, Bed0, Bed1, Fan0, Fan1)
 
 //
 // SAM3X8E ARM Cortex M3

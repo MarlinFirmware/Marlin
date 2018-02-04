@@ -341,6 +341,8 @@
   #include "pins_BIQU_BQ111_A4.h"
 #elif MB(THE_BORG)
   #include "pins_THE_BORG.h"
+#elif MB(SELENA_COMPACT)
+  #include "pins_SELENA_COMPACT.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
