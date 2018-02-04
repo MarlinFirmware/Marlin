@@ -24,6 +24,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(USE_WATCHDOG)
+
 #include "lpc17xx_wdt.h"
 #include "watchdog.h"
 
@@ -47,5 +49,7 @@ void watchdog_reset() {
     TOGGLE(LED_PIN);  // heart beat indicator
   #endif
 }
+
+#endif // USE_WATCHDOG
 
 #endif // TARGET_LPC1768
