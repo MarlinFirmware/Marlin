@@ -20,6 +20,7 @@
  *
  */
 
+// R25 = 100 kOhm, beta25 = 3950 K, 4.7 kOhm pull-up,
 // Maker's Tool Works Kapton Bed Thermistor
 // ./createTemperatureLookup.py --r0=100000 --t0=25 --r1=0 --r2=4700 --beta=3950
 // r0: 100000

@@ -20,7 +20,7 @@
  *
  */
 
-// QU-BD silicone bed QWG-104F-3950 thermistor
+// R25 = 100 kOhm, beta25 = 3950 K, 4.7 kOhm pull-up, QU-BD silicone bed QWG-104F-3950 thermistor
 const short temptable_11[][2] PROGMEM = {
   { OV(   1), 938 },
   { OV(  31), 314 },
