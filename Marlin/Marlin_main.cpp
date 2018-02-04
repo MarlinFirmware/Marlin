@@ -350,8 +350,6 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl.h"
-  extern bool defer_return_to_status;
-  unified_bed_leveling ubl;
 #endif
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
@@ -2069,7 +2067,7 @@ static void clean_up_after_endstop_or_probe_move() {
   #endif // BLTOUCH
 
   // returns false for ok and true for failure
-  bool set_probe_deployed(bool deploy) {
+  bool set_probe_deployed(const bool deploy) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
