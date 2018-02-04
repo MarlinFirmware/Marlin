@@ -165,9 +165,15 @@
 #define MSG_SELECT                          _UxGT("Выбор")
 #define MSG_ACC                             _UxGT("Ускорение")
 #define MSG_JERK                            _UxGT("Рывок")
-#define MSG_VX_JERK                         _UxGT("Vx-рывок")
-#define MSG_VY_JERK                         _UxGT("Vy-рывок")
-#define MSG_VZ_JERK                         _UxGT("Vz-рывок")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-рывок")
+  #define MSG_VB_JERK                       _UxGT("Vb-рывок")
+  #define MSG_VC_JERK                       _UxGT("Vc-рывок")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-рывок")
+  #define MSG_VB_JERK                       _UxGT("Vy-рывок")
+  #define MSG_VC_JERK                       _UxGT("Vz-рывок")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-рывок")
 #define MSG_VELOCITY                        _UxGT("Скорость")
 #define MSG_VMAX                            _UxGT("Vмакс ")
@@ -178,9 +184,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-втягивание")
 #define MSG_A_TRAVEL                        _UxGT("A-путеш.")
 #define MSG_STEPS_PER_MM                    _UxGT("Шаг/мм")
-#define MSG_XSTEPS                          _UxGT("X шаг/мм")
-#define MSG_YSTEPS                          _UxGT("Y шаг/мм")
-#define MSG_ZSTEPS                          _UxGT("Z шаг/мм")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("A шаг/мм")
+  #define MSG_BSTEPS                        _UxGT("B шаг/мм")
+  #define MSG_CSTEPS                        _UxGT("C шаг/мм")
+#else
+  #define MSG_ASTEPS                        _UxGT("X шаг/мм")
+  #define MSG_BSTEPS                        _UxGT("Y шаг/мм")
+  #define MSG_CSTEPS                        _UxGT("Z шаг/мм")
+#endif
 #define MSG_ESTEPS                          _UxGT("E шаг/мм")
 #define MSG_E1STEPS                         _UxGT("E1 шаг/мм")
 #define MSG_E2STEPS                         _UxGT("E2 шаг/мм")
