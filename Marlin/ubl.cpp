@@ -20,15 +20,18 @@
  *
  */
 
-#include "Marlin.h"
-#include "math.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
+  #include "Marlin.h"
   #include "ubl.h"
   #include "hex_print_routines.h"
   #include "temperature.h"
   #include "planner.h"
+  #include "math.h"
+
+  unified_bed_leveling ubl;
 
   uint8_t ubl_cnt = 0;
 
