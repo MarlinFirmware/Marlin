@@ -2340,8 +2340,7 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      * UBL LCD "radar" map point editing
-     */
-    
+     */   
     void _lcd_ubl_map_lcd_edit_cmd() {
       char UBL_LCD_GCODE[50], str[10], str2[10];
       dtostrf(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]), 0, 2, str);
