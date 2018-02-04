@@ -208,10 +208,10 @@
 #define MSG_HOTEND_TOO_COLD                 "Hotend too cold"
 
 #define MSG_FILAMENT_CHANGE_HEAT            "Press button (or M108) to heat nozzle"
-#define MSG_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
-#define MSG_FILAMENT_CHANGE_HEAT_M108       "Send M108 to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT          "Insert filament and press button (or M108)"
+#define MSG_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_LCD      "Insert filament and press button"
+#define MSG_FILAMENT_CHANGE_HEAT_M108       "Send M108 to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_M108     "Insert filament and send M108"
 
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE     "Error in menu structure"

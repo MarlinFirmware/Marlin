@@ -262,7 +262,7 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filament te")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("laden")
-        #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor print")
+  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor print")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("om verder")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("te gaan")
 #else // LCD_HEIGHT < 4
