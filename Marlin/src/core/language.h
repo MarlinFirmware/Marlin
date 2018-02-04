@@ -208,13 +208,11 @@
 #define MSG_HOTEND_TOO_COLD                 "Hotend too cold"
 
 #define MSG_FILAMENT_CHANGE_HEAT            "Press button (or M108) to heat nozzle"
-#define MSG_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
-#define MSG_FILAMENT_CHANGE_HEAT_M108       "Send M108 to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT          "Insert filament and press button (or M108)"
+#define MSG_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_LCD      "Insert filament and press button"
+#define MSG_FILAMENT_CHANGE_HEAT_M108       "Send M108 to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_M108     "Insert filament and send M108"
-
-#define MSG_SERIAL_ERROR_MENU_STRUCTURE     "Error in menu structure"
 
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
@@ -240,8 +238,6 @@
 #define MSG_KP                              " Kp: "
 #define MSG_KI                              " Ki: "
 #define MSG_KD                              " Kd: "
-#define MSG_B                               "B:"
-#define MSG_T                               "T:"
 #define MSG_AT                              " @:"
 #define MSG_PID_AUTOTUNE_FINISHED           MSG_PID_AUTOTUNE " finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
 #define MSG_PID_DEBUG                       " PID_DEBUG "
@@ -282,6 +278,15 @@
 #define MSG_Y "Y"
 #define MSG_Z "Z"
 #define MSG_E "E"
+#if IS_KINEMATIC
+  #define MSG_A "A"
+  #define MSG_B "B"
+  #define MSG_C "C"
+#else
+  #define MSG_A "X"
+  #define MSG_B "Y"
+  #define MSG_C "Z"
+#endif
 #define MSG_H1 "1"
 #define MSG_H2 "2"
 #define MSG_H3 "3"

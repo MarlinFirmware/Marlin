@@ -47,113 +47,41 @@
  * https://github.com/MarlinFirmware/Marlin/tree/071c7a78f27078fd4aee9a3ef365fcf5e143531e
  */
 
+#include "../../inc/MarlinConfig.h"
+
 #ifdef TARGET_LPC1768
 
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
 
-//#include "../../../MarlinConfig.h"  //works except in U8g
-#include "spi_pins.h"
-#include "fastio.h"
 #include "LPC_SPI.h"
 #include "../SPI.h"
-
-// --------------------------------------------------------------------------
-// Public Variables
-// --------------------------------------------------------------------------
-
 
 // --------------------------------------------------------------------------
 // Public functions
 // --------------------------------------------------------------------------
 
 #if ENABLED(LPC_SOFTWARE_SPI)
-  // --------------------------------------------------------------------------
-  // software SPI
-  // --------------------------------------------------------------------------
 
-  /**
-   * This software SPI runs at three rates. The SD software provides an index
-   * (spiRate) of 0-6. The mapping is:
-   *     0-1 - about 5 MHz peak
-   *     2-3 - about 2 MHz peak
-   *     all others - about 250 KHz
-   */
+  #include "SoftwareSPI.h"
+
+  // --------------------------------------------------------------------------
+  // Software SPI
+  // --------------------------------------------------------------------------
 
   static uint8_t SPI_speed = 0;
 
   static uint8_t spiTransfer(uint8_t b) {
-
-    if (!SPI_speed) {       // fastest - about 5 MHz peak
-      for (int bits = 0; bits < 8; bits++) {
-        if (b & 0x80) {
-          WRITE(MOSI_PIN, HIGH);
-          WRITE(MOSI_PIN, HIGH);  // delay to (hopefully) guarantee setup time
-        }
-        else {
-          WRITE(MOSI_PIN, LOW);
-          WRITE(MOSI_PIN, LOW);  // delay to (hopefully) guarantee setup time
-        }
-        b <<= 1;
-        WRITE(SCK_PIN, HIGH);
-        if (READ(MISO_PIN)) {
-          b |= 1;
-        }
-        WRITE(SCK_PIN, LOW);
-      }
-    }
-    else if (SPI_speed == 1) { // medium - about 1 MHz
-      for (int bits = 0; bits < 8; bits++) {
-        if (b & 0x80) {
-          for (uint8_t i = 0; i < 9; i++) WRITE(MOSI_PIN, HIGH);
-        }
-        else {
-          for (uint8_t i = 0; i < 9; i++) WRITE(MOSI_PIN, LOW);
-        }
-        b <<= 1;
-
-        for (uint8_t i = 0; i < 7; i++) WRITE(SCK_PIN, HIGH);
-
-        if (READ(MISO_PIN)) {
-          b |= 1;
-        }
-        WRITE(SCK_PIN, LOW);
-      }
-    }
-    else { // slow - about 250 KHz
-      for (int bits = 0; bits < 8; bits++) {
-        if (b & 0x80) {
-          WRITE(MOSI_PIN, HIGH);
-        }
-        else {
-          WRITE(MOSI_PIN, LOW);
-        }
-        b <<= 1;
-        delayMicroseconds(1U);
-        WRITE(SCK_PIN, HIGH);
-        delayMicroseconds(2U);
-
-        if (READ(MISO_PIN)) {
-          b |= 1;
-        }
-        WRITE(SCK_PIN, LOW);
-        delayMicroseconds(1U);
-      }
-    }
-    return b;
+    return swSpiTransfer(b, SPI_speed, SCK_PIN, MISO_PIN, MOSI_PIN);
   }
 
   void spiBegin() {
-    SET_OUTPUT(SCK_PIN);
-    SET_INPUT(MISO_PIN);
-    SET_OUTPUT(MOSI_PIN);
+    swSpiBegin(SCK_PIN, MISO_PIN, MOSI_PIN);
   }
 
   void spiInit(uint8_t spiRate) {
-    SPI_speed = spiRate >> 1;
-    WRITE(MOSI_PIN, HIGH);
-    WRITE(SCK_PIN, LOW);
+    SPI_speed = swSpiInit(spiRate, SCK_PIN, MOSI_PIN);
   }
 
   uint8_t spiRec() {
@@ -193,20 +121,6 @@
     WRITE(SS_PIN, HIGH);
   }
 
-  void SPIClass::begin() { spiBegin(); }
-
-  uint8_t SPIClass::transfer(uint8_t B) {
-    return spiTransfer(B);
-  }
-  uint16_t SPIClass::transfer16(uint16_t data) {
-    uint16_t buffer;
-    buffer = transfer((data>>8) & 0xFF) << 8;
-    buffer |= transfer(data & 0xFF) && 0xFF;
-    return buffer;
-  }
-
-  SPIClass SPI;
-
 #else
 
   // hardware SPI
@@ -221,13 +135,13 @@
     PinCfg.Funcnum = 2;
     PinCfg.OpenDrain = 0;
     PinCfg.Pinmode = 0;
-  PinCfg.Pinnum = LPC1768_PIN_PIN(SCK_PIN);
-PinCfg.Portnum = LPC1768_PIN_PORT(SCK_PIN);
+    PinCfg.Pinnum = LPC1768_PIN_PIN(SCK_PIN);
+    PinCfg.Portnum = LPC1768_PIN_PORT(SCK_PIN);
     PINSEL_ConfigPin(&PinCfg);
     SET_OUTPUT(SCK_PIN);
 
-PinCfg.Pinnum = LPC1768_PIN_PIN(MISO_PIN);
-PinCfg.Portnum = LPC1768_PIN_PORT(MISO_PIN);
+    PinCfg.Pinnum = LPC1768_PIN_PIN(MISO_PIN);
+    PinCfg.Portnum = LPC1768_PIN_PORT(MISO_PIN);
     PINSEL_ConfigPin(&PinCfg);
     SET_INPUT(MISO_PIN);
 
@@ -237,10 +151,9 @@ PinCfg.Portnum = LPC1768_PIN_PORT(MISO_PIN);
     SET_OUTPUT(MOSI_PIN);
   }
 
-
   void spiInit(uint8_t spiRate) {
 
-   // table to convert Marlin spiRates (0-5 plus default) into bit rates
+    // table to convert Marlin spiRates (0-5 plus default) into bit rates
     uint32_t Marlin_speed[7]; // CPSR is always 2
     Marlin_speed[0] = 8333333; //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
     Marlin_speed[1] = 4166667; //(SCR:  5)  desired: 4,000,000  actual: 4,166,667  +4.2%  SPI_HALF_SPEED
@@ -250,11 +163,10 @@ PinCfg.Portnum = LPC1768_PIN_PORT(MISO_PIN);
     Marlin_speed[5] =  250000; //(SCR: 99)  desired:   250,000  actual:   250,000         SPI_SPEED_6
     Marlin_speed[6] =  125000; //(SCR:199)  desired:   125,000  actual:   125,000         Default from HAL.h
 
-
-   // select 50MHz PCLK for SSP0
+    // divide PCLK by 2 for SSP0
     CLKPWR_SetPCLKDiv(CLKPWR_PCLKSEL_SSP0, CLKPWR_PCLKSEL_CCLK_DIV_2);
 
-   // setup for SPI mode
+    // setup for SPI mode
     SSP_CFG_Type HW_SPI_init; // data structure to hold init values
     SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode
     HW_SPI_init.ClockRate = Marlin_speed[MIN(spiRate, 6)]; // put in the specified bit rate
@@ -285,9 +197,8 @@ PinCfg.Portnum = LPC1768_PIN_PORT(MISO_PIN);
   void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
   }
 
-
-  uint8_t get_one_byte() {
-   // send a dummy byte so can clock in receive data
+  static uint8_t get_one_byte() {
+    // send a dummy byte so can clock in receive data
     SSP_SendData(LPC_SSP0,0x00FF);
     while (SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY));  // wait for it to finish
     return SSP_ReceiveData(LPC_SSP0) & 0x00FF;
@@ -312,6 +223,13 @@ PinCfg.Portnum = LPC1768_PIN_PORT(MISO_PIN);
     }
   }
 
+  static uint8_t spiTransfer(uint8_t b) {
+    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_RXFIFO_NOTEMPTY) || SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY)) SSP_ReceiveData(LPC_SSP0);  //flush the receive buffer
+    SSP_SendData(LPC_SSP0, b);  // send the byte
+    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY));  // wait for it to finish
+    return SSP_ReceiveData(LPC_SSP0) & 0x00FF;
+  }
+
   // Write from buffer to SPI
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
   }
@@ -323,6 +241,20 @@ PinCfg.Portnum = LPC1768_PIN_PORT(MISO_PIN);
   }
 
 #endif // ENABLED(LPC_SOFTWARE_SPI)
+
+void SPIClass::begin() { spiBegin(); }
+
+uint8_t SPIClass::transfer(uint8_t B) {
+  return spiTransfer(B);
+}
+uint16_t SPIClass::transfer16(uint16_t data) {
+  uint16_t buffer;
+  buffer = transfer((data>>8) & 0xFF) << 8;
+  buffer |= transfer(data & 0xFF) && 0xFF;
+  return buffer;
+}
+
+SPIClass SPI;
 
 #endif // TARGET_LPC1768
 

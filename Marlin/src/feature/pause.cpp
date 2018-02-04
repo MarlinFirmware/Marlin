@@ -488,7 +488,7 @@ void resume_print(const float &load_length/*=0*/, const float &purge_length/*=AD
   #endif
   // If resume_position is negative
   if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
-  
+
   // Move XY to starting position, then Z
   do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
 

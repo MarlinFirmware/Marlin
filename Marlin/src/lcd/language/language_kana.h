@@ -105,11 +105,18 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_SELECT                          "\xbe\xdd\xc0\xb8"                                                 // "ｾﾝﾀｸ" ("Select")
+#define MSG_JERK                            "\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                            // ヤクド mm/s ("Jerk")
 #if LCD_WIDTH >= 20
   #define MSG_ACC                           "\xb6\xbf\xb8\xc4\xde mm/s2"                                       // "ｶｿｸﾄﾞ mm/s2" ("Accel")
-  #define MSG_VX_JERK                       "X\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Xｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vx-jerk")
-  #define MSG_VY_JERK                       "Y\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Yｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vy-jerk")
-  #define MSG_VZ_JERK                       "Z\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Zｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vz-jerk")
+  #if IS_KINEMATIC
+    #define MSG_VA_JERK                     "A\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Aｼﾞｸ ﾔｸﾄﾞ mm/s" ("Va-jerk")
+    #define MSG_VB_JERK                     "B\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Bｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vb-jerk")
+    #define MSG_VC_JERK                     "C\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Cｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vc-jerk")
+  #else
+    #define MSG_VA_JERK                     "X\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Xｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vx-jerk")
+    #define MSG_VB_JERK                     "Y\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Yｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vy-jerk")
+    #define MSG_VC_JERK                     "Z\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Zｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vz-jerk")
+  #endif
   #define MSG_VE_JERK                       "\xb4\xb8\xbd\xc4\xd9\xb0\xc0\xde\xb0\x20\xd4\xb8\xc4\xde"         // "ｴｸｽﾄﾙｰﾀﾞｰ ﾔｸﾄﾞ" ("Ve-jerk")
   #define MSG_VMAX                          "\xbb\xb2\xc0\xde\xb2\xb5\xb8\xd8\xbf\xb8\xc4\xde "                // "ｻｲﾀﾞｲｵｸﾘｿｸﾄﾞ " ("Vmax ")
   #define MSG_VMIN                          "\xbb\xb2\xbc\xae\xb3\xb5\xb8\xd8\xbf\xb8\xc4\xde"                 // "ｻｲｼｮｳｵｸﾘｿｸﾄﾞ" ("Vmin")
@@ -117,9 +124,15 @@
   #define MSG_AMAX                          "\xbb\xb2\xc0\xde\xb2\xb6\xbf\xb8\xc4\xde "                        // "ｻｲﾀﾞｲｶｿｸﾄﾞ " ("Amax ")
 #else
   #define MSG_ACC                           "\xb6\xbf\xb8\xc4\xde"                                             // "ｶｿｸﾄﾞ" ("Accel")
-  #define MSG_VX_JERK                       "X\xbc\xde\xb8\x20\xd4\xb8\xc4\xde"                                // "XYｼﾞｸ ﾔｸﾄﾞ" ("Vx-jerk")
-  #define MSG_VY_JERK                       "Y\xbc\xde\xb8\x20\xd4\xb8\xc4\xde"                                // "XYｼﾞｸ ﾔｸﾄﾞ" ("Vy-jerk")
-  #define MSG_VZ_JERK                       "Z\xbc\xde\xb8\x20\xd4\xb8\xc4\xde"                                // "Zｼﾞｸ ﾔｸﾄﾞ" ("Vz-jerk")
+  #if IS_KINEMATIC
+    #define MSG_VA_JERK                     "A\x20\xd4\xb8\xc4\xde"                                            // "Aｼﾞｸ ﾔｸﾄﾞ" ("Va-jerk")
+    #define MSG_VB_JERK                     "B\x20\xd4\xb8\xc4\xde"                                            // "Bｼﾞｸ ﾔｸﾄﾞ" ("Vb-jerk")
+    #define MSG_VC_JERK                     "C\x20\xd4\xb8\xc4\xde"                                            // "Cｼﾞｸ ﾔｸﾄﾞ" ("Vc-jerk")
+  #else
+    #define MSG_VA_JERK                     "X\x20\xd4\xb8\xc4\xde"                                            // "Xｼﾞｸ ﾔｸﾄﾞ" ("Vx-jerk")
+    #define MSG_VB_JERK                     "Y\x20\xd4\xb8\xc4\xde"                                            // "Yｼﾞｸ ﾔｸﾄﾞ" ("Vy-jerk")
+    #define MSG_VC_JERK                     "Z\x20\xd4\xb8\xc4\xde"                                            // "Zｼﾞｸ ﾔｸﾄﾞ" ("Vz-jerk")
+  #endif
   #define MSG_VE_JERK                       "E\x20\xd4\xb8\xc4\xde"                                            // "E ﾔｸﾄﾞ" ("Ve-jerk")
   #define MSG_VMAX                          "max\xb5\xb8\xd8\xbf\xb8\xc4\xde "                                 // "maxｵｸﾘｿｸﾄﾞ" ("Vmax ")
   #define MSG_VMIN                          "min\xb5\xb8\xd8\xbf\xb8\xc4\xde"                                  // "minｵｸﾘｿｸﾄﾞ" ("Vmin")
@@ -129,27 +142,39 @@
 #define MSG_A_RETRACT                       "\xcb\xb7\xba\xd0\xb6\xbf\xb8\xc4\xde"                             // "ﾋｷｺﾐｶｿｸﾄﾞ" ("A-retract")
 #define MSG_A_TRAVEL                        "\xb2\xc4\xde\xb3\xb6\xbf\xb8\xc4\xde"                             // "ｲﾄﾞｳｶｿｸﾄﾞ" ("A-travel")
 #if LCD_WIDTH >= 20
-  #define MSG_STEPS_PER_MM                    "Steps/mm"
-  #define MSG_XSTEPS                          "Xsteps/mm"
-  #define MSG_YSTEPS                          "Ysteps/mm"
-  #define MSG_ZSTEPS                          "Zsteps/mm"
-  #define MSG_ESTEPS                          "Esteps/mm"
-  #define MSG_E1STEPS                         "E1steps/mm"
-  #define MSG_E2STEPS                         "E2steps/mm"
-  #define MSG_E3STEPS                         "E3steps/mm"
-  #define MSG_E4STEPS                         "E4steps/mm"
-  #define MSG_E5STEPS                         "E5steps/mm"
+  #define MSG_STEPS_PER_MM                  "Steps/mm"
+  #if IS_KINEMATIC
+    #define MSG_ASTEPS                      "Asteps/mm"
+    #define MSG_BSTEPS                      "Bsteps/mm"
+    #define MSG_CSTEPS                      "Csteps/mm"
+  #else
+    #define MSG_ASTEPS                      "Xsteps/mm"
+    #define MSG_BSTEPS                      "Ysteps/mm"
+    #define MSG_CSTEPS                      "Zsteps/mm"
+  #endif
+  #define MSG_ESTEPS                        "Esteps/mm"
+  #define MSG_E1STEPS                       "E1steps/mm"
+  #define MSG_E2STEPS                       "E2steps/mm"
+  #define MSG_E3STEPS                       "E3steps/mm"
+  #define MSG_E4STEPS                       "E4steps/mm"
+  #define MSG_E5STEPS                       "E5steps/mm"
 #else
-  #define MSG_STEPS_PER_MM                    "Steps"
-  #define MSG_XSTEPS                          "Xsteps"
-  #define MSG_YSTEPS                          "Ysteps"
-  #define MSG_ZSTEPS                          "Zsteps"
-  #define MSG_ESTEPS                          "Esteps"
-  #define MSG_E1STEPS                         "E1steps"
-  #define MSG_E2STEPS                         "E2steps"
-  #define MSG_E3STEPS                         "E3steps"
-  #define MSG_E4STEPS                         "E4steps"
-  #define MSG_E5STEPS                         "E5steps"
+  #define MSG_STEPS_PER_MM                  "Steps"
+  #if IS_KINEMATIC
+    #define MSG_ASTEPS                      "Asteps"
+    #define MSG_BSTEPS                      "Bsteps"
+    #define MSG_CSTEPS                      "Csteps"
+  #else
+    #define MSG_ASTEPS                      "Xsteps"
+    #define MSG_BSTEPS                      "Ysteps"
+    #define MSG_CSTEPS                      "Zsteps"
+  #endif
+  #define MSG_ESTEPS                        "Esteps"
+  #define MSG_E1STEPS                       "E1steps"
+  #define MSG_E2STEPS                       "E2steps"
+  #define MSG_E3STEPS                       "E3steps"
+  #define MSG_E4STEPS                       "E4steps"
+  #define MSG_E5STEPS                       "E5steps"
 #endif
 #define MSG_TEMPERATURE                     "\xb5\xdd\xc4\xde"                                                 // "ｵﾝﾄﾞ" ("Temperature")
 #define MSG_MOTION                          "\xb3\xba\xde\xb7\xbe\xaf\xc3\xb2"                                 // "ｳｺﾞｷｾｯﾃｲ" ("Motion")

@@ -41,6 +41,8 @@ void HardwareSerial::begin(uint32_t baudrate) {
   PINSEL_CFG_Type PinCfg;
   UART_FIFO_CFG_Type FIFOConfig;
 
+  if (Baudrate == baudrate) return; // No need to re-initialize
+
   if (UARTx == LPC_UART0) {
     // Initialize UART0 pin connect
     PinCfg.Funcnum = 1;
@@ -117,6 +119,9 @@ void HardwareSerial::begin(uint32_t baudrate) {
   #if TX_BUFFER_SIZE > 0
     TxQueueWritePos = TxQueueReadPos = 0;
   #endif
+
+  // Save the configured baudrate
+  Baudrate = baudrate;
 }
 
 int HardwareSerial::peek() {

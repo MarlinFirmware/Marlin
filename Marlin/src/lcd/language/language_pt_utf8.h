@@ -33,7 +33,7 @@
 
 #define DISPLAY_CHARSET_ISO10646_1
 
-#define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
+#define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronta.")
 #define MSG_SD_INSERTED                     _UxGT("Cartão inserido")
 #define MSG_SD_REMOVED                      _UxGT("Cartão removido")
 #define MSG_MAIN                            _UxGT("Menu principal")
@@ -92,9 +92,15 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_ACC                             _UxGT("Acc")
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vx-jerk")
-#define MSG_VY_JERK                         _UxGT("Vy-jerk")
-#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT(" Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
@@ -103,9 +109,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-retracção")
 #define MSG_A_TRAVEL                        _UxGT("A-movimento")
 #define MSG_STEPS_PER_MM                    _UxGT("Passo/mm")
-#define MSG_XSTEPS                          _UxGT("X passo/mm")
-#define MSG_YSTEPS                          _UxGT("Y passo/mm")
-#define MSG_ZSTEPS                          _UxGT("Z passo/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("A passo/mm")
+  #define MSG_BSTEPS                        _UxGT("B passo/mm")
+  #define MSG_CSTEPS                        _UxGT("C passo/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("X passo/mm")
+  #define MSG_BSTEPS                        _UxGT("Y passo/mm")
+  #define MSG_CSTEPS                        _UxGT("Z passo/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("E passo/mm")
 #define MSG_E1STEPS                         _UxGT("E1 passo/mm")
 #define MSG_E2STEPS                         _UxGT("E2 passo/mm")
