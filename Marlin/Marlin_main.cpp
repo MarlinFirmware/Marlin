@@ -4078,12 +4078,6 @@ void home_all_axes() { gcode_G28(true); }
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
 
-  #if ENABLED(LCD_BED_LEVELING)
-    extern bool lcd_wait_for_move;
-  #else
-    constexpr bool lcd_wait_for_move = false;
-  #endif
-
   inline void _manual_goto_xy(const float &rx, const float &ry) {
 
     #if MANUAL_PROBE_HEIGHT > 0

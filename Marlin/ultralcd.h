@@ -31,9 +31,8 @@
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     extern bool lcd_external_control;
-    #if ENABLED(G26_MESH_VALIDATION)
-      void lcd_chirp();
-    #endif
+  #else
+    constexpr bool lcd_external_control = false;
   #endif
 
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
@@ -83,6 +82,14 @@
 
   #if ENABLED(ULTIPANEL)
 
+    extern bool defer_return_to_status;
+
+    // Function pointer to menu functions.
+    typedef void (*screenFunc_t)();
+    typedef void (*menuAction_t)();
+
+    void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
+
     #define BLEN_A 0
     #define BLEN_B 1
     // Encoder click is directly connected
@@ -99,10 +106,26 @@
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      extern uint8_t active_extruder;
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
                                            const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT,
                                            const uint8_t extruder=active_extruder);
     #endif // ADVANCED_PAUSE_FEATURE
+
+    #if ENABLED(G26_MESH_VALIDATION)
+      void lcd_chirp();
+    #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      void lcd_mesh_edit_setup(const float &initial);
+      float lcd_mesh_edit();
+      void lcd_z_offset_edit_setup(const float &initial);
+      float lcd_z_offset_edit();
+    #endif
+
+    #if ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE
+      float lcd_probe_pt(const float &rx, const float &ry);
+    #endif
 
   #else
 
@@ -207,17 +230,6 @@
 #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatusPGM(PSTR(x))
 
 void lcd_reset_status();
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  void lcd_mesh_edit_setup(const float initial);
-  float lcd_mesh_edit();
-  void lcd_z_offset_edit_setup(float);
-  float lcd_z_offset_edit();
-#endif
-
-#if ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE
-  float lcd_probe_pt(const float &rx, const float &ry);
-#endif
 
 #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
   void lcd_reselect_last_file();
