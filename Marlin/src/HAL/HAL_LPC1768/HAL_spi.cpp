@@ -47,7 +47,7 @@
  * https://github.com/MarlinFirmware/Marlin/tree/071c7a78f27078fd4aee9a3ef365fcf5e143531e
  */
 
-#include "src/inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #ifdef TARGET_LPC1768
 

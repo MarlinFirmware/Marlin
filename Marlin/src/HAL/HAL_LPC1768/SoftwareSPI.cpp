@@ -26,11 +26,10 @@
  */
 
 /**
- *
  * For TARGET_LPC1768
  */
 
-#include "src/inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #ifdef TARGET_LPC1768
 
@@ -49,68 +48,43 @@
  *     6 - about 125 kHz peak
  */
 
-uint8_t swSpiTransfer(uint8_t b, uint8_t spi_speed, pin_t sck_pin, pin_t miso_pin, pin_t mosi_pin) {
+uint8_t swSpiTransfer(uint8_t b, const uint8_t spi_speed, const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin) {
   for (uint8_t i = 0; i < 8; i++) {
     if (spi_speed == 0) {
-      if (b & 0x80)
-        WRITE(mosi_pin, HIGH);
-      else
-        WRITE(mosi_pin, LOW);
-
+      WRITE(mosi_pin, !!(b & 0x80));
       WRITE(sck_pin, HIGH);
-
       b <<= 1;
-
-      if (miso_pin >= 0)
-        if (READ(miso_pin)) b |= 1;
-
+      if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
       WRITE(sck_pin, LOW);
     }
     else {
-      if (b & 0x80)
-        for (uint8_t j = 0; j < spi_speed; j++)
-          WRITE(mosi_pin, HIGH);
-      else
-        for (uint8_t j = 0; j < spi_speed; j++)
-          WRITE(mosi_pin, LOW);
+      const uint8_t state = (b & 0x80) ? HIGH : LOW;
+      for (uint8_t j = 0; j < spi_speed; j++)
+        WRITE(mosi_pin, state);
 
       for (uint8_t j = 0; j < spi_speed + (miso_pin >= 0 ? 0 : 1); j++)
         WRITE(sck_pin, HIGH);
 
       b <<= 1;
-
-      if (miso_pin >= 0)
-        if (READ(miso_pin)) b |= 1;
+      if (miso_pin >= 0 && READ(miso_pin)) b |= 1;
 
       for (uint8_t j = 0; j < spi_speed; j++)
         WRITE(sck_pin, LOW);
     }
   }
-
   return b;
 }
 
-void swSpiBegin(pin_t sck_pin, pin_t miso_pin, pin_t mosi_pin) {
+void swSpiBegin(const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin) {
   SET_OUTPUT(sck_pin);
-  if (VALID_PIN(miso_pin))
-    SET_INPUT(miso_pin);
+  if (VALID_PIN(miso_pin)) SET_INPUT(miso_pin);
   SET_OUTPUT(mosi_pin);
 }
 
-uint8_t swSpiInit(uint8_t spiRate, pin_t sck_pin, pin_t mosi_pin) {
-  uint8_t spi_speed = 0;
-
-  spiRate = MIN(spiRate, 6);
-
-  if (SystemCoreClock == 120000000)
-    spi_speed = 44 / POW(2, 6 - spiRate);
-  else
-    spi_speed = 38 / POW(2, 6 - spiRate);
-
+uint8_t swSpiInit(const uint8_t spiRate, const pin_t sck_pin, const pin_t mosi_pin) {
   WRITE(mosi_pin, HIGH);
   WRITE(sck_pin, LOW);
-
-  return spi_speed;
+  return (SystemCoreClock == 120000000 ? 44 : 38) / POW(2, 6 - min(spiRate, 6));
 }
 
 #endif // TARGET_LPC1768
