@@ -23,7 +23,7 @@
 #ifdef TARGET_LPC1768
 #include <stdint.h>
 
-#define MSBFIRST 0
+#define MSBFIRST 1
 #define SPI_MODE3 0
 
 class SPISettings {

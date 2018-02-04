@@ -235,16 +235,32 @@
       _TMC2130_INIT(E0, planner.axis_steps_per_mm[E_AXIS]);
     #endif
     #if ENABLED(E1_IS_TMC2130)
-      { constexpr int extruder = 1; _TMC2130_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2130_INIT(E1, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 1
+        #endif
+      ]);
     #endif
     #if ENABLED(E2_IS_TMC2130)
-      { constexpr int extruder = 2; _TMC2130_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2130_INIT(E2, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 2
+        #endif
+      ]);
     #endif
     #if ENABLED(E3_IS_TMC2130)
-      { constexpr int extruder = 3; _TMC2130_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2130_INIT(E3, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 3
+        #endif
+      ]);
     #endif
     #if ENABLED(E4_IS_TMC2130)
-      { constexpr int extruder = 4; _TMC2130_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2130_INIT(E4, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 4
+        #endif
+      ]);
     #endif
 
   }
@@ -440,16 +456,32 @@
       _TMC2208_INIT(E0, planner.axis_steps_per_mm[E_AXIS]);
     #endif
     #if ENABLED(E1_IS_TMC2208)
-      { constexpr int extruder = 1; _TMC2208_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2208_INIT(E1, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 1
+        #endif
+      ]);
     #endif
     #if ENABLED(E2_IS_TMC2208)
-      { constexpr int extruder = 2; _TMC2208_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2208_INIT(E2, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 2
+        #endif
+      ]);
     #endif
     #if ENABLED(E3_IS_TMC2208)
-      { constexpr int extruder = 3; _TMC2208_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2208_INIT(E3, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 3
+        #endif
+      ]);
     #endif
     #if ENABLED(E4_IS_TMC2208)
-      { constexpr int extruder = 4; _TMC2208_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2208_INIT(E4, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 4
+        #endif
+      ]);
     #endif
   }
 #endif // HAVE_TMC2208
