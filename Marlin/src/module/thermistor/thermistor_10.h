@@ -20,7 +20,7 @@
  *
  */
 
-// 100k RS thermistor 198-961 (4.7k pullup)
+// R25 = 100 kOhm, beta25 = 3960 K, 4.7 kOhm pull-up, RS thermistor 198-961
 const short temptable_10[][2] PROGMEM = {
   { OV(   1), 929 },
   { OV(  36), 299 },
