@@ -78,7 +78,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN   12
+  #define Z_MIN_PROBE_PIN   22
 #endif
 
 //
@@ -154,7 +154,7 @@
 #define FAN2_PIN			5	//CHAMBER FAN
 
 //Filament runout - Dyze Sentinel
-#define FIL_RUNOUT_PIN      22
+#define FIL_RUNOUT_PIN      49
 
 //
 // LCD / Controller
