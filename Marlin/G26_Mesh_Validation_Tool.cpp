@@ -730,14 +730,15 @@
      * All angles are offset by 15 degrees to allow for a smaller table.
      */
     #define A_CNT ((360 / 30) / 2)
-    #define _COS(A) (trig_table[((N + A_CNT * 8) % A_CNT)] * (A >= A_CNT ? -1 : 1))
+    #define _COS(A) (trig_table[((A + A_CNT * 8) % A_CNT)] * (A >= A_CNT ? -1 : 1))
     #define _SIN(A) (-_COS((A + A_CNT / 2) % (A_CNT * 2)))
     float trig_table[A_CNT];
     for (uint8_t i = 0; i < A_CNT; i++)
       trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * 30 + 15));
 
+    const mesh_index_pair location;
     do {
-      const mesh_index_pair location = g26_continue_with_closest
+       location = g26_continue_with_closest
         ? find_closest_circle_to_print(current_position[X_AXIS], current_position[Y_AXIS])
         : find_closest_circle_to_print(g26_x_pos, g26_y_pos); // Find the closest Mesh Intersection to where we are now.
 
