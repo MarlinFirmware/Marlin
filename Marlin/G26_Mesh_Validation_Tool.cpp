@@ -736,7 +736,7 @@
     for (uint8_t i = 0; i < A_CNT; i++)
       trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * 30 + 15));
 
-    const mesh_index_pair location;
+    mesh_index_pair location;
     do {
        location = g26_continue_with_closest
         ? find_closest_circle_to_print(current_position[X_AXIS], current_position[Y_AXIS])
