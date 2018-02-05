@@ -1,4 +1,3 @@
-//======================================================================
 /**************** TEVO TARANTULA EASY CONFIG ***************************
             Original idea by terryb.print3d@gmail.com
              Modified by jb.github@rcairgallery.com
@@ -158,6 +157,27 @@
 // More info here: http://reprap.org/wiki/PID_Tuning
 
 /**
+ * Enable a custom menu that contains three preheat presets for PLA, ABS and PETG
+ */
+#define CUSTOM_USER_MENUS
+
+/**
+ * Set your custom preheat presets here
+ *
+ * NOTE: Only PLA and ABS will appear under the Prepare menu. You must enable
+ *       CUSTOM_USER_MENUS for PETG to appear, along with PLA and ABS, under Custom Commands.
+ *       PLA and ABS will appear under both Custom Command and Prepare.
+ */
+#define Hot_PLA 		200
+#define Bed_PLA 		 65
+
+#define Hot_ABS 		240
+#define Bed_ABS 		100
+
+#define Hot_PETG 		230
+#define Bed_PETG 		 75
+
+/**
  * Fan Soft PWM. Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
  * which is not as annoying as with the hardware PWM. Redo PID Autotune.
  */
@@ -182,7 +202,7 @@
  * Extra movement of Y axis. Can help with probing more of the bed.
  * Set both to 0 (zero) if you do not have a Z-Probe.
  */
-#define XTRA_BED_FRONT    0  // Distance bed can move towards the front past Y = 200
+#define XTRA_BED_FRONT    0  // Distance bed can move towards the front past Y = 200 (Y=280 for large bed)
 #define XTRA_BED_BACK     0  // Distance bed can move towards the back past Y = 0
 
 /************************ END OF EASY CONFIG ***************************
@@ -1477,13 +1497,17 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     70
+#define PREHEAT_1_TEMP_HOTEND   Hot_PLA // PLA
+#define PREHEAT_1_TEMP_BED      Bed_PLA
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_TEMP_HOTEND 235
-#define PREHEAT_2_TEMP_BED    100
+#define PREHEAT_2_TEMP_HOTEND   Hot_ABS  // ABS
+#define PREHEAT_2_TEMP_BED      Bed_ABS
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
+
+#define PREHEAT_3_TEMP_HOTEND   Hot_PETG  // PETG
+#define PREHEAT_3_TEMP_BED      Bed_PETG
+#define PREHEAT_3_FAN_SPEED     0 // Value from 0 to 255
 
 /**
  * Nozzle Park
@@ -1500,7 +1524,7 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z }
-  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
+  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 5 }
   #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
