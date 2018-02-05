@@ -914,7 +914,7 @@ static_assert(1 >= 0
  */
 #if ENABLED(DISABLE_X) || ENABLED(DISABLE_Y) || ENABLED(DISABLE_Z)
   #if ENABLED(HOME_AFTER_DEACTIVATE) || ENABLED(Z_SAFE_HOMING)
-    #error "DISABLE_[XYZ] not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
+    #error "DISABLE_[XYZ] is not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
   #endif
 #endif // DISABLE_[XYZ]
 
@@ -1427,8 +1427,8 @@ static_assert(1 >= 0
 /**
  * Make sure HAVE_TMCDRIVER is warranted
  */
-#if ENABLED(HAVE_TMCDRIVER)
-  #if !( ENABLED(  X_IS_TMC ) \
+#if ENABLED(HAVE_TMCDRIVER) && !( \
+         ENABLED(  X_IS_TMC ) \
       || ENABLED( X2_IS_TMC ) \
       || ENABLED(  Y_IS_TMC ) \
       || ENABLED( Y2_IS_TMC ) \
@@ -1439,8 +1439,28 @@ static_assert(1 >= 0
       || ENABLED( E2_IS_TMC ) \
       || ENABLED( E3_IS_TMC ) \
       || ENABLED( E4_IS_TMC ) \
-    )
-    #error "HAVE_TMCDRIVER requires at least one TMC stepper to be set."
+  )
+  #error "HAVE_TMCDRIVER requires at least one TMC stepper to be set."
+#endif
+
+/**
+ * Make sure HAVE_TMC2130 is warranted
+ */
+#if ENABLED(HAVE_TMC2130)
+  #if !( ENABLED(  X_IS_TMC2130 ) \
+      || ENABLED( X2_IS_TMC2130 ) \
+      || ENABLED(  Y_IS_TMC2130 ) \
+      || ENABLED( Y2_IS_TMC2130 ) \
+      || ENABLED(  Z_IS_TMC2130 ) \
+      || ENABLED( Z2_IS_TMC2130 ) \
+      || ENABLED( E0_IS_TMC2130 ) \
+      || ENABLED( E1_IS_TMC2130 ) \
+      || ENABLED( E2_IS_TMC2130 ) \
+      || ENABLED( E3_IS_TMC2130 ) \
+      || ENABLED( E4_IS_TMC2130 ) )
+    #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
+  #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
+    #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
   #endif
 
   #if ENABLED(X_IS_TMC2130) && !PIN_EXISTS(X_CS)
@@ -1467,26 +1487,10 @@ static_assert(1 >= 0
     #error "E4_CS_PIN is required for E4_IS_TMC2130. Define E4_CS_PIN in Configuration_adv.h."
   #endif
 
-#endif
-
-/**
- * Make sure HAVE_TMC2130 is warranted
- */
-#if ENABLED(HAVE_TMC2130) && !( \
-       ENABLED(  X_IS_TMC2130 ) \
-    || ENABLED( X2_IS_TMC2130 ) \
-    || ENABLED(  Y_IS_TMC2130 ) \
-    || ENABLED( Y2_IS_TMC2130 ) \
-    || ENABLED(  Z_IS_TMC2130 ) \
-    || ENABLED( Z2_IS_TMC2130 ) \
-    || ENABLED( E0_IS_TMC2130 ) \
-    || ENABLED( E1_IS_TMC2130 ) \
-    || ENABLED( E2_IS_TMC2130 ) \
-    || ENABLED( E3_IS_TMC2130 ) \
-    || ENABLED( E4_IS_TMC2130 ) )
-  #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
 #elif ENABLED(SENSORLESS_HOMING)
+
   #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
+
 #endif
 
 /**
