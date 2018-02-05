@@ -25,6 +25,11 @@
 
 #include "MarlinConfig.h"
 
+#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+  void lcd_init();
+  bool lcd_detected();
+#endif
+
 #if ENABLED(ULTRA_LCD)
 
   #include "Marlin.h"
@@ -40,19 +45,23 @@
 
   extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
+  #if ENABLED(LCD_BED_LEVELING)
+    extern bool lcd_wait_for_move;
+  #else
+    constexpr bool lcd_wait_for_move = false;
+  #endif
+
   int16_t lcd_strlen(const char* s);
   int16_t lcd_strlen_P(const char* s);
   void lcd_update();
-  void lcd_init();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatusPGM(const char* message, const int8_t level=0);
   void lcd_setalertstatusPGM(const char* message);
-  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_reset_alert_level();
+  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
-  bool lcd_detected(void);
 
   extern uint8_t lcdDrawUpdate;
   inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
@@ -63,6 +72,10 @@
 
   #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
     void dontExpireStatus();
+  #endif
+
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    extern uint8_t progress_bar_percent;
   #endif
 
   #if ENABLED(ADC_KEYPAD)
@@ -206,23 +219,21 @@
     void wait_for_release();
   #endif
 
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
-    extern uint8_t progress_bar_percent;
-  #endif
-
 #else // no LCD
 
-  inline void lcd_update() {}
+  constexpr bool lcd_wait_for_move = false;
+
   inline void lcd_init() {}
+  inline bool lcd_detected() { return true; }
+  inline void lcd_update() {}
+  inline void lcd_refresh() {}
+  inline void lcd_buttons_update() {}
   inline bool lcd_hasstatus() { return false; }
   inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
   inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
-  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
-  inline void lcd_buttons_update() {}
+  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_reset_alert_level() {}
-  inline bool lcd_detected() { return true; }
-  inline void lcd_refresh() {}
 
 #endif // ULTRA_LCD
 
