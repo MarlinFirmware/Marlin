@@ -46,11 +46,11 @@
 #define PRIME_LENGTH 10.0
 #define OOZE_AMOUNT 0.3
 
-#define SIZE_OF_INTERSECTION_CIRCLES 5
-#define SIZE_OF_CROSSHAIRS 3
+#define INTERSECTION_CIRCLE_RADIUS 5
+#define CROSSHAIRS_SIZE 3
 
-#if SIZE_OF_CROSSHAIRS >= SIZE_OF_INTERSECTION_CIRCLES
-  #error "SIZE_OF_CROSSHAIRS must be less than SIZE_OF_INTERSECTION_CIRCLES."
+#if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
+  #error "CROSSHAIRS_SIZE must be less than INTERSECTION_CIRCLE_RADIUS."
 #endif
 
 #define G26_OK false
@@ -305,7 +305,7 @@ void print_line_from_here_to_there(const float &sx, const float &sy, const float
 
   // If the end point of the line is closer to the nozzle, flip the direction,
   // moving from the end to the start. On very small lines the optimization isn't worth it.
-  if (dist_end < dist_start && (SIZE_OF_INTERSECTION_CIRCLES) < FABS(line_length))
+  if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < FABS(line_length))
     return print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
 
   // Decide whether to retract & bump
@@ -345,8 +345,8 @@ inline bool look_for_lines_to_connect() {
             // We found two circles that need a horizontal line to connect them
             // Print it!
             //
-            sx = _GET_MESH_X(  i  ) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
-            ex = _GET_MESH_X(i + 1) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
+            sx = _GET_MESH_X(  i  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // right edge
+            ex = _GET_MESH_X(i + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // left edge
 
             sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);
             sy = ey = constrain(_GET_MESH_Y(j), Y_MIN_POS + 1, Y_MAX_POS - 1);
@@ -378,8 +378,8 @@ inline bool look_for_lines_to_connect() {
               // We found two circles that need a vertical line to connect them
               // Print it!
               //
-              sy = _GET_MESH_Y(  j  ) + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
-              ey = _GET_MESH_Y(j + 1) - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
+              sy = _GET_MESH_Y(  j  ) + (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // top edge
+              ey = _GET_MESH_Y(j + 1) - (INTERSECTION_CIRCLE_RADIUS - (CROSSHAIRS_SIZE)); // bottom edge
 
               sx = ex = constrain(_GET_MESH_X(i), X_MIN_POS + 1, X_MAX_POS - 1);
               sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
@@ -437,9 +437,8 @@ inline bool turn_on_heaters() {
             SERIAL_EOL();
           }
           idle();
-          MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
-                             // over run the serial character buffer with M105's without
-                             // this fix
+          MYSERIAL0.flush(); // G26 takes a long time to complete. PronterFace may
+                             // overwhelm the serial buffer with M105's without this fix.
         }
     #if ENABLED(ULTRA_LCD)
       }
@@ -513,8 +512,8 @@ inline bool prime_nozzle() {
 
       wait_for_release();
 
-      strcpy_P(lcd_status_message, PSTR("Done Priming")); // We can't do lcd_setstatusPGM() without having it continue;
-                                                          // So... We cheat to get a message up.
+      strcpy_P(lcd_status_message, PSTR("Done Priming")); // Hack to get the message up. May be obsolete.
+
       lcd_setstatusPGM(PSTR("Done Priming"), 99);
       lcd_quick_feedback(true);
       lcd_external_control = false;
@@ -551,9 +550,6 @@ float valid_trig_angle(float d) {
  */
 void GcodeSuite::G26() {
   SERIAL_ECHOLNPGM("G26 command started. Waiting for heater(s).");
-  float tmp, start_angle, end_angle;
-  int   i, xi, yi;
-  mesh_index_pair location;
 
   // Don't allow Mesh Validation without homing first,
   // or if the parameter parsing did not go OK, abort
@@ -687,12 +683,9 @@ void GcodeSuite::G26() {
   set_bed_leveling_enabled(!parser.seen('D'));
 
   if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
-//  SERIAL_PROTOCOLLNPGM("! move nozzle to Z_CLEARANCE_BETWEEN_PROBES height.");
-//  SERIAL_ECHOLNPAIR("  Z at:", current_position[Z_AXIS]);
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     stepper.synchronize();
     set_current_from_destination();
-//  SERIAL_ECHOLNPAIR("  Z now at:", current_position[Z_AXIS]);
   }
 
   if (turn_on_heaters() != G26_OK) goto LEAVE;
@@ -700,7 +693,7 @@ void GcodeSuite::G26() {
   current_position[E_AXIS] = 0.0;
   sync_plan_position_e();
 
-  if (g26_prime_flag && prime_nozzle()) goto LEAVE;
+  if (g26_prime_flag && prime_nozzle() != G26_OK) goto LEAVE;
 
   /**
    *  Bed is preheated
@@ -718,14 +711,8 @@ void GcodeSuite::G26() {
 
   // Move nozzle to the specified height for the first layer
   set_destination_from_current();
-//SERIAL_PROTOCOLLNPGM("! moving nozzle to 1st layer height.");
-//SERIAL_ECHOLNPAIR("  Z1 at:", current_position[Z_AXIS]);
-
   destination[Z_AXIS] = g26_layer_height;
   move_to(destination, 0.0);
-//stepper.synchronize();
-//set_destination_from_current();
-//SERIAL_ECHOLNPAIR("  Z2 at:", current_position[Z_AXIS]);
   move_to(destination, g26_ooze_amount);
 
   #if ENABLED(ULTRA_LCD)
@@ -735,17 +722,18 @@ void GcodeSuite::G26() {
   //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
 
   /**
-   * Declare and generate a sin() & cos() table to be used during the circle drawing. This will lighten
-   * the CPU load and make the arc drawing faster and more smooth
+   * Pre-generate radius offset values at 30 degree intervals to reduce CPU load.
+   * All angles are offset by 15 degrees to allow for a smaller table.
    */
-  float sin_table[360 / 30 + 1], cos_table[360 / 30 + 1];
-  for (i = 0; i <= 360 / 30; i++) {
-    cos_table[i] = SIZE_OF_INTERSECTION_CIRCLES * cos(RADIANS(valid_trig_angle(i * 30.0)));
-    sin_table[i] = SIZE_OF_INTERSECTION_CIRCLES * sin(RADIANS(valid_trig_angle(i * 30.0)));
-  }
+  #define A_CNT ((360 / 30) / 2)
+  #define _COS(A) (trig_table[((N + A_CNT * 8) % A_CNT)] * (A >= A_CNT ? -1 : 1))
+  #define _SIN(A) (-_COS((A + A_CNT / 2) % (A_CNT * 2)))
+  float trig_table[A_CNT];
+  for (uint8_t i = 0; i < A_CNT; i++)
+    trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * 30 + 15));
 
   do {
-    location = g26_continue_with_closest
+    const mesh_index_pair location = g26_continue_with_closest
       ? find_closest_circle_to_print(current_position[X_AXIS], current_position[Y_AXIS])
       : find_closest_circle_to_print(g26_x_pos, g26_y_pos); // Find the closest Mesh Intersection to where we are now.
 
@@ -754,12 +742,29 @@ void GcodeSuite::G26() {
                   circle_y = _GET_MESH_Y(location.y_index);
 
       // If this mesh location is outside the printable_radius, skip it.
-
       if (!position_is_reachable(circle_x, circle_y)) continue;
 
-      xi = location.x_index;  // Just to shrink the next few lines and make them easier to understand
-      yi = location.y_index;
-
+      // Determine where to start and end the circle,
+      // which is always drawn counter-clockwise.
+      const uint8_t xi = location.x_index, yi = location.y_index;
+      const bool f = yi == 0, r = xi == GRID_MAX_POINTS_X - 1, b = yi == GRID_MAX_POINTS_Y - 1;
+      int8_t start_ind = -2, end_ind = 10;  // Assume a full circle (from 4:30 to 4:30)
+      if (xi == 0) {                        // Left edge? Just right half.
+        start_ind = f ?  0 : -3;            // 05:30 (02:30 for front-left)
+        end_ind   = b ? -1 :  2;            // 12:30 (03:30 for back-left)
+      }
+      else if (r) {                         // Right edge? Just left half.
+        start_ind = f ? 5 : 3;              // 11:30 (09:30 for front-right)
+        end_ind   = b ? 6 : 8;              // 06:30 (08:30 for back-right)
+      }
+      else if (f) {                         // Front edge? Just back half.
+        start_ind = 0;                      // 02:30
+        end_ind   = 5;                      // 09:30
+      }
+      else if (b) {                         // Back edge? Just front half.
+        start_ind =  6;                     // 08:30
+        end_ind   = 11;                     // 03:30
+      }
       if (g26_debug_flag) {
         SERIAL_ECHOPAIR("   Doing circle at: (xi=", xi);
         SERIAL_ECHOPAIR(", yi=", yi);
@@ -767,47 +772,17 @@ void GcodeSuite::G26() {
         SERIAL_EOL();
       }
 
-      start_angle = 0.0;    // assume it is going to be a full circle
-      end_angle   = 360.0;
-      if (xi == 0) {       // Check for bottom edge
-        start_angle = -90.0;
-        end_angle   =  90.0;
-        if (yi == 0)        // it is an edge, check for the two left corners
-          start_angle = 0.0;
-        else if (yi == GRID_MAX_POINTS_Y - 1)
-          end_angle = 0.0;
-      }
-      else if (xi == GRID_MAX_POINTS_X - 1) { // Check for top edge
-        start_angle =  90.0;
-        end_angle   = 270.0;
-        if (yi == 0)                  // it is an edge, check for the two right corners
-          end_angle = 180.0;
-        else if (yi == GRID_MAX_POINTS_Y - 1)
-          start_angle = 180.0;
-      }
-      else if (yi == 0) {
-        start_angle =   0.0;         // only do the top   side of the cirlce
-        end_angle   = 180.0;
-      }
-      else if (yi == GRID_MAX_POINTS_Y - 1) {
-        start_angle = 180.0;         // only do the bottom side of the cirlce
-        end_angle   = 360.0;
-      }
-
-      for (tmp = start_angle; tmp < end_angle - 0.1; tmp += 30.0) {
+      for (int8_t ind = start_ind; ind < end_ind; ind++) {
 
         #if ENABLED(NEWPANEL)
-          if (user_canceled()) goto LEAVE;              // Check if the user wants to stop the Mesh Validation
+          if (user_canceled()) goto LEAVE;          // Check if the user wants to stop the Mesh Validation
         #endif
 
-        int tmp_div_30 = tmp / 30.0;
-        if (tmp_div_30 < 0) tmp_div_30 += 360 / 30;
-        if (tmp_div_30 > 11) tmp_div_30 -= 360 / 30;
+        float rx = circle_x + _COS(ind),            // For speed, these are now a lookup table entry
+              ry = circle_y + _SIN(ind),
+              xe = circle_x + _COS(ind + 1),
+              ye = circle_y + _SIN(ind + 1);
 
-        float rx = circle_x + cos_table[tmp_div_30],    // for speed, these are now a lookup table entry
-              ry = circle_y + sin_table[tmp_div_30],
-              xe = circle_x + cos_table[tmp_div_30 + 1],
-              ye = circle_y + sin_table[tmp_div_30 + 1];
         #if IS_KINEMATIC
           // Check to make sure this segment is entirely on the bed, skip if not.
           if (!position_is_reachable(rx, ry) || !position_is_reachable(xe, ye)) continue;
@@ -833,7 +808,6 @@ void GcodeSuite::G26() {
         MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
                            // over run the serial character buffer with M105's without
                            // this fix
-
       }
       if (look_for_lines_to_connect())
         goto LEAVE;
