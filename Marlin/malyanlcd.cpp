@@ -427,7 +427,7 @@ void lcd_init() {
   // Signal init
   write_to_lcd_P(PSTR("{SYS:STARTED}\r\n"));
 
-  // send a version that says "unsuported"
+  // send a version that says "unsupported"
   write_to_lcd_P(PSTR("{VER:66}\r\n"));
 
   // No idea why it does this twice.
