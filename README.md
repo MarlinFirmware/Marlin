@@ -1,3 +1,24 @@
+============================================================================
+
+__Configured for MY Tevo Tarantula. It works for me, it may not work for you!__
+
+Open configuration.h file in a text editor and make the changes at the top (EasyConfig)
+section of the file. You should not have to make any other changes.
+
+See [this video](https://youtu.be/-sQ8p00pG5E) for an excellent tutorial on using this firmware.
+(NOTE: It is no longer necessary to copy the configuration files from the example configurations folder).
+
+Do you have a configuration for the Tarantula that is not covered in the EasyConfig? Would
+you like to share it with others by having it added to the EasyConfig?
+If so, please contact me at jb.github (at) rcairgallery (dot) com and we'll work something
+out. (Note: Please do not contact me for support questions. I'm afraid I just do not have
+the time for answering such inquiries. Best bet is to ask in the Tevo Tarantuala
+Facebook group at https://www.facebook.com/groups/TEVO.3dprinter.owners/.)
+
+Thanks!
+
+============================================================================
+
 # Marlin 3D Printer Firmware
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
