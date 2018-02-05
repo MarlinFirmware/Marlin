@@ -21,11 +21,11 @@
  */
 
 #include "MarlinConfig.h"
+#include "gcode.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER) || ENABLED(DEBUG_GCODE_PARSER)
 
 #include "Marlin.h"
-#include "gcode.h"
 #include "hex_print_routines.h"
 
 static char _hex[7] = "0x0000";
