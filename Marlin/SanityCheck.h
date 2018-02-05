@@ -1485,8 +1485,8 @@ static_assert(1 >= 0
     || ENABLED( E3_IS_TMC2130 ) \
     || ENABLED( E4_IS_TMC2130 ) )
   #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
-#elif ENABLED(SENSORLESS_HOMING) && DISABLED(HAVE_TMC2130)
-  #error "Enable HAVE_TMC2130 to use SENSORLESS_HOMING."
+#elif ENABLED(SENSORLESS_HOMING)
+  #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
 #endif
 
 /**
