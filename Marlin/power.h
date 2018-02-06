@@ -20,25 +20,23 @@
  *
  */
 
-#ifndef HEX_PRINT_ROUTINES_H
-#define HEX_PRINT_ROUTINES_H
+/**
+ * power.h - power control
+ */
 
-#include <stdint.h>
+#ifndef POWER_H
+#define POWER_H
 
-//
-// Utility functions to create and print hex strings as nybble, byte, and word.
-//
+class Power {
+  public:
+    static void check();
+    static void power_on();
+    static void power_off();
+  private:
+    static millis_t lastPowerOn;
+    static bool is_power_needed();
+};
 
-inline char hex_nybble(const uint8_t n) {
-  return (n & 0xF) + ((n & 0xF) < 10 ? '0' : 'A' - 10);
-}
-char* hex_byte(const uint8_t b);
-char* hex_word(const uint16_t w);
-char* hex_address(const void * const w);
+extern Power powerManager;
 
-void print_hex_nybble(const uint8_t n);
-void print_hex_byte(const uint8_t b);
-void print_hex_word(const uint16_t w);
-void print_hex_address(const void * const w);
-
-#endif // HEX_PRINT_ROUTINES_H
+#endif // POWER_H

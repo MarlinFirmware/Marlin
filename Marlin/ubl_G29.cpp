@@ -44,21 +44,12 @@
 
   #if ENABLED(NEWPANEL)
     void lcd_return_to_status();
-    void lcd_mesh_edit_setup(const float initial);
-    float lcd_mesh_edit();
-    void lcd_z_offset_edit_setup(float);
-    extern void _lcd_ubl_output_map_lcd();
-    float lcd_z_offset_edit();
+    void _lcd_ubl_output_map_lcd();
   #endif
 
   extern float meshedit_done;
   extern long babysteps_done;
-  extern float probe_pt(const float &rx, const float &ry, const bool, const uint8_t, const bool=true);
-  extern bool set_probe_deployed(bool);
-  extern void set_bed_leveling_enabled(bool);
-
-  typedef void (*screenFunc_t)();
-  extern void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
+  float probe_pt(const float &rx, const float &ry, const bool, const uint8_t, const bool=true);
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0

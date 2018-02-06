@@ -20,6 +20,10 @@
  *
  */
 
+#include "MarlinConfig.h"
+
+#if ENABLED(PRINTCOUNTER)
+
 #include "Marlin.h"
 #include "printcounter.h"
 #include "duration_t.h"
@@ -232,3 +236,5 @@ void PrintCounter::reset() {
   }
 
 #endif
+
+#endif // PRINTCOUNTER

@@ -142,10 +142,21 @@
     #define DEFAULT_LCD_CONTRAST 17
   #endif
 
-  // Generic support for SSD1306 / SH1106 OLED based LCDs.
-  #if ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SH1106)
+  #if ENABLED(ULTI_CONTROLLER)
+    #define U8GLIB_SSD1309
+    #define REVERSE_ENCODER_DIRECTION
+    #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
+    #define LCD_CONTRAST_MIN 0
+    #define LCD_CONTRAST_MAX 254
+    #define DEFAULT_LCD_CONTRAST 127
+    #define ENCODER_PULSES_PER_STEP 2
+    #define ENCODER_STEPS_PER_MENU_ITEM 2
+  #endif
+
+  // Generic support for SSD1306 / SSD1309 / SH1106 OLED based LCDs.
+  #if ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SSD1309) || ENABLED(U8GLIB_SH1106)
     #define ULTRA_LCD  //general LCD support, also 16x2
-    #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 / SH1106 graphic Display Family)
+    #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 / SSD1309 / SH1106 graphic Display Family)
   #endif
 
   #if ENABLED(PANEL_ONE) || ENABLED(U8GLIB_SH1106)
@@ -169,7 +180,8 @@
   #if ENABLED(ULTIMAKERCONTROLLER)              \
    || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
    || ENABLED(G3D_PANEL)                        \
-   || ENABLED(RIGIDBOT_PANEL)
+   || ENABLED(RIGIDBOT_PANEL)                   \
+   || ENABLED(ULTI_CONTROLLER)
     #define ULTIPANEL
   #endif
 
@@ -446,7 +458,7 @@
 
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
       #undef Z_MIN_ENDSTOP_INVERTING
-      #define Z_MIN_ENDSTOP_INVERTING false
+      #define Z_MIN_ENDSTOP_INVERTING Z_MIN_PROBE_ENDSTOP_INVERTING
       #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN)
     #else
       #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN_PROBE)

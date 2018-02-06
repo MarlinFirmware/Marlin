@@ -25,15 +25,19 @@
 
 #include "MarlinConfig.h"
 
+#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+  void lcd_init();
+  bool lcd_detected();
+#endif
+
 #if ENABLED(ULTRA_LCD)
 
   #include "Marlin.h"
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     extern bool lcd_external_control;
-    #if ENABLED(G26_MESH_VALIDATION)
-      void lcd_chirp();
-    #endif
+  #else
+    constexpr bool lcd_external_control = false;
   #endif
 
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
@@ -41,19 +45,23 @@
 
   extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
+  #if ENABLED(LCD_BED_LEVELING)
+    extern bool lcd_wait_for_move;
+  #else
+    constexpr bool lcd_wait_for_move = false;
+  #endif
+
   int16_t lcd_strlen(const char* s);
   int16_t lcd_strlen_P(const char* s);
   void lcd_update();
-  void lcd_init();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatusPGM(const char* message, const int8_t level=0);
   void lcd_setalertstatusPGM(const char* message);
-  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_reset_alert_level();
+  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
-  bool lcd_detected(void);
 
   extern uint8_t lcdDrawUpdate;
   inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
@@ -64,6 +72,10 @@
 
   #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
     void dontExpireStatus();
+  #endif
+
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    extern uint8_t progress_bar_percent;
   #endif
 
   #if ENABLED(ADC_KEYPAD)
@@ -83,6 +95,14 @@
 
   #if ENABLED(ULTIPANEL)
 
+    extern bool defer_return_to_status;
+
+    // Function pointer to menu functions.
+    typedef void (*screenFunc_t)();
+    typedef void (*menuAction_t)();
+
+    void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
+
     #define BLEN_A 0
     #define BLEN_B 1
     // Encoder click is directly connected
@@ -99,10 +119,26 @@
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      extern uint8_t active_extruder;
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
                                            const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT,
                                            const uint8_t extruder=active_extruder);
     #endif // ADVANCED_PAUSE_FEATURE
+
+    #if ENABLED(G26_MESH_VALIDATION)
+      void lcd_chirp();
+    #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      void lcd_mesh_edit_setup(const float &initial);
+      float lcd_mesh_edit();
+      void lcd_z_offset_edit_setup(const float &initial);
+      float lcd_z_offset_edit();
+    #endif
+
+    #if ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE
+      float lcd_probe_pt(const float &rx, const float &ry);
+    #endif
 
   #else
 
@@ -183,23 +219,21 @@
     void wait_for_release();
   #endif
 
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
-    extern uint8_t progress_bar_percent;
-  #endif
-
 #else // no LCD
 
-  inline void lcd_update() {}
+  constexpr bool lcd_wait_for_move = false;
+
   inline void lcd_init() {}
+  inline bool lcd_detected() { return true; }
+  inline void lcd_update() {}
+  inline void lcd_refresh() {}
+  inline void lcd_buttons_update() {}
   inline bool lcd_hasstatus() { return false; }
   inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
   inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
-  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
-  inline void lcd_buttons_update() {}
+  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_reset_alert_level() {}
-  inline bool lcd_detected() { return true; }
-  inline void lcd_refresh() {}
 
 #endif // ULTRA_LCD
 
@@ -207,17 +241,6 @@
 #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatusPGM(PSTR(x))
 
 void lcd_reset_status();
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  void lcd_mesh_edit_setup(const float initial);
-  float lcd_mesh_edit();
-  void lcd_z_offset_edit_setup(float);
-  float lcd_z_offset_edit();
-#endif
-
-#if ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE
-  float lcd_probe_pt(const float &rx, const float &ry);
-#endif
 
 #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
   void lcd_reselect_last_file();

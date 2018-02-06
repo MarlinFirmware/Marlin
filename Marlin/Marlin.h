@@ -417,6 +417,7 @@ void report_current_position();
 
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
+  bool set_probe_deployed(const bool deploy);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
 #else
@@ -441,6 +442,10 @@ void report_current_position();
     extern bool fans_paused;
     extern int16_t paused_fanSpeeds[FAN_COUNT];
   #endif
+#endif
+
+#if HAS_CONTROLLERFAN
+  extern int controllerFanSpeed;
 #endif
 
 #if ENABLED(BARICUDA)
