@@ -149,7 +149,7 @@ float g26_extrusion_multiplier,
       g26_layer_height,
       g26_prime_length;
 
-float g26_x_pos=0, g26_y_pos=0;
+float g26_x_pos = 0, g26_y_pos = 0;
 
 int16_t g26_bed_temp,
         g26_hotend_temp;
@@ -547,6 +547,24 @@ float valid_trig_angle(float d) {
  *
  * Used to interactively edit the mesh by placing the
  * nozzle in a problem area and doing a G29 P4 R command.
+ *
+ * Parameters:
+ *
+ *  B  Bed Temperature
+ *  C  Continue from the Closest mesh point
+ *  D  Disable leveling before starting
+ *  F  Filament diameter
+ *  H  Hotend Temperature
+ *  K  Keep heaters on when completed
+ *  L  Layer Height
+ *  O  Ooze extrusion length
+ *  P  Prime length
+ *  Q  Retraction multiplier
+ *  R  Repetitions (number of grid points)
+ *  S  Nozzle Size (diameter) in mm
+ *  U  Random deviation (50 if no value given)
+ *  X  X position
+ *  Y  Y position
  */
 void GcodeSuite::G26() {
   SERIAL_ECHOLNPGM("G26 command started. Waiting for heater(s).");
@@ -726,14 +744,15 @@ void GcodeSuite::G26() {
    * All angles are offset by 15 degrees to allow for a smaller table.
    */
   #define A_CNT ((360 / 30) / 2)
-  #define _COS(A) (trig_table[((N + A_CNT * 8) % A_CNT)] * (A >= A_CNT ? -1 : 1))
+  #define _COS(A) (trig_table[((A + A_CNT * 8) % A_CNT)] * (A >= A_CNT ? -1 : 1))
   #define _SIN(A) (-_COS((A + A_CNT / 2) % (A_CNT * 2)))
   float trig_table[A_CNT];
   for (uint8_t i = 0; i < A_CNT; i++)
     trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * 30 + 15));
 
+  mesh_index_pair location;
   do {
-    const mesh_index_pair location = g26_continue_with_closest
+     location = g26_continue_with_closest
       ? find_closest_circle_to_print(current_position[X_AXIS], current_position[Y_AXIS])
       : find_closest_circle_to_print(g26_x_pos, g26_y_pos); // Find the closest Mesh Intersection to where we are now.
 
