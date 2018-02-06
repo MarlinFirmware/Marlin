@@ -95,7 +95,7 @@
 #define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
 #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Editer maille perso")
 #define MSG_UBL_FINE_TUNE_MESH              _UxGT("Réglage fin maille")
-#define MSG_UBL_DONE_EDITING_MESH           _UxGT("Termier maille")
+#define MSG_UBL_DONE_EDITING_MESH           _UxGT("Terminer maille")
 #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("Créer maille perso")
 #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Créer maille")
 #define MSG_UBL_BUILD_PLA_MESH              _UxGT("Créer maille PLA")
@@ -146,7 +146,7 @@
 #define MSG_MOVE_01MM                       _UxGT("Dépl. 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Dépl. 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Dépl. 10mm")
-#define MSG_SPEED                           _UxGT(" Vitesse")
+#define MSG_SPEED                           _UxGT("Vitesse")
 #define MSG_BED_Z                           _UxGT("Lit Z")
 #define MSG_NOZZLE                          _UxGT("Buse")
 #define MSG_BED                             _UxGT("Lit")
@@ -166,9 +166,15 @@
 #define MSG_SELECT                          _UxGT("Sélectionner")
 #define MSG_ACC                             _UxGT("Accélération")
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vx-jerk")
-#define MSG_VY_JERK                         _UxGT("Vy-jerk")
-#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VELOCITY                        _UxGT("Vélocité")
 #define MSG_VMAX                            _UxGT("Vmax")
@@ -179,15 +185,21 @@
 #define MSG_A_RETRACT                       _UxGT("A-retract")
 #define MSG_A_TRAVEL                        _UxGT("A-Dépl.")
 #define MSG_STEPS_PER_MM                    _UxGT("Pas/mm")
-#define MSG_XSTEPS                          _UxGT("Xpas/mm")
-#define MSG_YSTEPS                          _UxGT("Ypas/mm")
-#define MSG_ZSTEPS                          _UxGT("Zpas/mm")
-#define MSG_ESTEPS                          _UxGT("Epas/mm")
-#define MSG_E1STEPS                         _UxGT("E1pas/mm")
-#define MSG_E2STEPS                         _UxGT("E2pas/mm")
-#define MSG_E3STEPS                         _UxGT("E3pas/mm")
-#define MSG_E4STEPS                         _UxGT("E4pas/mm")
-#define MSG_E5STEPS                         _UxGT("E5pas/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("A pas/mm")
+  #define MSG_BSTEPS                        _UxGT("B pas/mm")
+  #define MSG_CSTEPS                        _UxGT("C pas/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("X pas/mm")
+  #define MSG_BSTEPS                        _UxGT("Y pas/mm")
+  #define MSG_CSTEPS                        _UxGT("Z pas/mm")
+#endif
+#define MSG_ESTEPS                          _UxGT("E pas/mm")
+#define MSG_E1STEPS                         _UxGT("E1 pas/mm")
+#define MSG_E2STEPS                         _UxGT("E2 pas/mm")
+#define MSG_E3STEPS                         _UxGT("E3 pas/mm")
+#define MSG_E4STEPS                         _UxGT("E4 pas/mm")
+#define MSG_E5STEPS                         _UxGT("E5 pas/mm")
 #define MSG_TEMPERATURE                     _UxGT("Température")
 #define MSG_MOTION                          _UxGT("Mouvement")
 #define MSG_FILAMENT                        _UxGT("Filament")
@@ -304,11 +316,7 @@
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM sauv.")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("+ extrusion")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Reprendre impr.")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("La temp. minimum est ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Buse: ")
 
 #if LCD_HEIGHT >= 4
@@ -327,8 +335,6 @@
   #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("Patientez SVP...")
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("attente de")
   #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("chargement filament")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     _UxGT("attente de")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2     _UxGT("extrusion filament")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("attente impression")
   #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("pour reprendre")
 #else // LCD_HEIGHT < 4
@@ -337,7 +343,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Ejection...")
   #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Insérer et clic")
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Chargement...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     _UxGT("Extrusion...")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Reprise...")
 #endif // LCD_HEIGHT < 4
 

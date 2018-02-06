@@ -103,9 +103,15 @@
 #define MSG_SELECT                          _UxGT("Selecteer")
 #define MSG_ACC                             _UxGT("Versn")
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vx-jerk")
-#define MSG_VY_JERK                         _UxGT("Vy-jerk")
-#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT("Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
@@ -114,9 +120,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-retract")
 #define MSG_A_TRAVEL                        _UxGT("A-travel")
 #define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")
-#define MSG_XSTEPS                          _UxGT("Xsteps/mm")
-#define MSG_YSTEPS                          _UxGT("Ysteps/mm")
-#define MSG_ZSTEPS                          _UxGT("Zsteps/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Asteps/mm")
+  #define MSG_BSTEPS                        _UxGT("Bsteps/mm")
+  #define MSG_CSTEPS                        _UxGT("Csteps/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xsteps/mm")
+  #define MSG_BSTEPS                        _UxGT("Ysteps/mm")
+  #define MSG_CSTEPS                        _UxGT("Zsteps/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("Esteps/mm")
 #define MSG_E1STEPS                         _UxGT("E1steps/mm")
 #define MSG_E2STEPS                         _UxGT("E2steps/mm")
@@ -226,11 +238,7 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Motorstroom")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")  //accepted English term in Dutch
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC Opslaan")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrudeer meer")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Hervat print")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Minimum Temp is ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT(" Nozzle: ") //accepeted English term
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -254,9 +262,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filament te")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("laden")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Wacht voor")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("filament te")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("extruderen")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor print")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("om verder")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("te gaan")
@@ -273,8 +278,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("en druk knop")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("inladen...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Wacht voor")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("extrudering")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("printing...")
 #endif // LCD_HEIGHT < 4

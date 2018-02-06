@@ -22,10 +22,10 @@ before_install:
   #
 install:
   #
-  # Install arduino 1.6.10
-  - wget http://downloads-02.arduino.cc/arduino-1.6.10-linux64.tar.xz
-  - tar xf arduino-1.6.10-linux64.tar.xz
-  - sudo mv arduino-1.6.10 /usr/local/share/arduino
+  # Install arduino 1.8.5
+  - wget http://downloads-02.arduino.cc/arduino-1.8.5-linux64.tar.xz
+  - tar xf arduino-1.8.5-linux64.tar.xz
+  - sudo mv arduino-1.8.5 /usr/local/share/arduino
   - ln -s /usr/local/share/arduino/arduino ${TRAVIS_BUILD_DIR}/buildroot/bin/arduino
   #
   # Install: LiquidCrystal_I2C library
@@ -94,7 +94,7 @@ script:
   - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS
   - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_LED
   - opt_enable AUTO_BED_LEVELING_LINEAR Z_MIN_PROBE_REPEATABILITY_TEST DEBUG_LEVELING_FEATURE SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
-  - opt_enable_adv FWRETRACT MAX7219_DEBUG LED_CONTROL_MENU
+  - opt_enable_adv FWRETRACT MAX7219_DEBUG LED_CONTROL_MENU CASE_LIGHT_ENABLE CASE_LIGHT_USE_NEOPIXEL
   - opt_set ABL_GRID_POINTS_X 16
   - opt_set ABL_GRID_POINTS_Y 16
   - opt_set_adv FANMUX0_PIN 53
@@ -146,7 +146,7 @@ script:
   - opt_enable ULTIMAKERCONTROLLER SDSUPPORT
   - opt_enable PRINTCOUNTER NOZZLE_PARK_FEATURE NOZZLE_CLEAN_FEATURE PCA9632 USE_XMAX_PLUG
   - opt_enable_adv BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
-  - opt_enable_adv ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU M114_DETAIL
+  - opt_enable_adv ADVANCED_PAUSE_FEATURE FILAMENT_LOAD_UNLOAD_GCODES PARK_HEAD_ON_PAUSE LCD_INFO_MENU M114_DETAIL
   - opt_set_adv PWM_MOTOR_CURRENT {1300,1300,1250}
   - opt_set_adv I2C_SLAVE_ADDRESS 63
   - build_marlin

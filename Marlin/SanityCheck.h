@@ -131,6 +131,8 @@
   #error "FILAMENT_CHANGE_EXTRUDE_LENGTH is now ADVANCED_PAUSE_EXTRUDE_LENGTH. Please update your configuration."
 #elif defined(FILAMENT_CHANGE_NOZZLE_TIMEOUT)
   #error "FILAMENT_CHANGE_NOZZLE_TIMEOUT is now PAUSE_PARK_NOZZLE_TIMEOUT. Please update your configuration."
+#elif defined(FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS)
+  #error "FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS is now FILAMENT_CHANGE_ALERT_BEEPS. Please update your configuration."
 #elif ENABLED(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
   #error "FILAMENT_CHANGE_NO_STEPPER_TIMEOUT is now PAUSE_PARK_NO_STEPPER_TIMEOUT. Please update your configuration."
 #elif defined(PLA_PREHEAT_HOTEND_TEMP)
@@ -239,6 +241,8 @@
   #error "ANET_KEYPAD_LCD is now ZONESTAR_LCD. Please update your configuration."
 #elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
+#elif defined(AUTOMATIC_CURRENT_CONTROL)
+  #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
 #endif
 
 /**
@@ -273,8 +277,8 @@
   #elif TX_BUFFER_SIZE && (TX_BUFFER_SIZE < 2 || TX_BUFFER_SIZE > 256 || !IS_POWER_OF_2(TX_BUFFER_SIZE))
     #error "TX_BUFFER_SIZE must be 0, a power of 2 greater than 1, and no greater than 256."
   #endif
-#elif ENABLED(SERIAL_XON_XOFF)
-  #error "SERIAL_XON_XOFF is not supported on USB-native AVR devices."
+#elif ENABLED(SERIAL_XON_XOFF) || ENABLED(SERIAL_STATS_MAX_RX_QUEUED) || ENABLED(SERIAL_STATS_DROPPED_RX)
+  #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
 #endif
 
 /**
@@ -406,16 +410,20 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Advanced Pause
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if DISABLED(NEWPANEL)
-    #error "ADVANCED_PAUSE_FEATURE currently requires an LCD controller."
+  #if !HAS_RESUME_CONTINUE
+    #error "ADVANCED_PAUSE_FEATURE currently requires an LCD controller or EMERGENCY_PARSER."
   #elif ENABLED(EXTRUDER_RUNOUT_PREVENT)
     #error "EXTRUDER_RUNOUT_PREVENT is incompatible with ADVANCED_PAUSE_FEATURE."
   #elif ENABLED(PARK_HEAD_ON_PAUSE) && DISABLED(SDSUPPORT) && DISABLED(NEWPANEL) && DISABLED(EMERGENCY_PARSER)
     #error "PARK_HEAD_ON_PAUSE requires SDSUPPORT, EMERGENCY_PARSER, or an LCD controller."
   #elif ENABLED(HOME_BEFORE_FILAMENT_CHANGE) && DISABLED(PAUSE_PARK_NO_STEPPER_TIMEOUT)
-    #error "HOME_BEFORE_FILAMENT_CHANGE requires PAUSE_PARK_NO_STEPPER_TIMEOUT"
+    #error "HOME_BEFORE_FILAMENT_CHANGE requires PAUSE_PARK_NO_STEPPER_TIMEOUT."
   #elif DISABLED(NOZZLE_PARK_FEATURE)
-    #error "ADVANCED_PAUSE_FEATURE requires NOZZLE_PARK_FEATURE"
+    #error "ADVANCED_PAUSE_FEATURE requires NOZZLE_PARK_FEATURE."
+  #elif ENABLED(PREVENT_LENGTHY_EXTRUDE) && FILAMENT_CHANGE_UNLOAD_LENGTH > EXTRUDE_MAXLENGTH
+    #error "FILAMENT_CHANGE_UNLOAD_LENGTH must be less than or equal to EXTRUDE_MAXLENGTH."
+  #elif ENABLED(PREVENT_LENGTHY_EXTRUDE) && FILAMENT_CHANGE_LOAD_LENGTH > EXTRUDE_MAXLENGTH
+    #error "FILAMENT_CHANGE_LOAD_LENGTH must be less than or equal to EXTRUDE_MAXLENGTH."
   #endif
 #endif
 
@@ -454,8 +462,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #ifdef SNMM
   #error "SNMM is now MK2_MULTIPLEXER. Please update your configuration."
-#elif ENABLED(MK2_MULTIPLEXER) && DISABLED(ADVANCED_PAUSE_FEATURE)
-  #error "ADVANCED_PAUSE_FEATURE is required with MK2_MULTIPLEXER."
 #endif
 
 /**
@@ -908,7 +914,7 @@ static_assert(1 >= 0
  */
 #if ENABLED(DISABLE_X) || ENABLED(DISABLE_Y) || ENABLED(DISABLE_Z)
   #if ENABLED(HOME_AFTER_DEACTIVATE) || ENABLED(Z_SAFE_HOMING)
-    #error "DISABLE_[XYZ] not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
+    #error "DISABLE_[XYZ] is not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
   #endif
 #endif // DISABLE_[XYZ]
 
@@ -1455,15 +1461,41 @@ static_assert(1 >= 0
     #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
   #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
-  #elif defined(AUTOMATIC_CURRENT_CONTROL)
-    #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
   #endif
+
+  #if ENABLED(X_IS_TMC2130) && !PIN_EXISTS(X_CS)
+    #error "X_CS_PIN is required for X_IS_TMC2130. Define X_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(X2_IS_TMC2130) && !PIN_EXISTS(X2_CS)
+    #error "X2_CS_PIN is required for X2_IS_TMC2130. Define X2_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(Y_IS_TMC2130) && !PIN_EXISTS(Y_CS)
+    #error "Y_CS_PIN is required for Y_IS_TMC2130. Define Y_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(Y2_IS_TMC2130) && !PIN_EXISTS(Y2_CS)
+    #error "Y2_CS_PIN is required for Y2_IS_TMC2130. Define Y2_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(Z_IS_TMC2130) && !PIN_EXISTS(Z_CS)
+    #error "Z_CS_PIN is required for Z_IS_TMC2130. Define Z_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(Z2_IS_TMC2130) && !PIN_EXISTS(Z2_CS)
+    #error "Z2_CS_PIN is required for Z2_IS_TMC2130. Define Z2_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(E0_IS_TMC2130) && !PIN_EXISTS(E0_CS)
+    #error "E0_CS_PIN is required for E0_IS_TMC2130. Define E0_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(E1_IS_TMC2130) && !PIN_EXISTS(E1_CS)
+    #error "E1_CS_PIN is required for E1_IS_TMC2130. Define E1_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(E2_IS_TMC2130) && !PIN_EXISTS(E2_CS)
+    #error "E2_CS_PIN is required for E2_IS_TMC2130. Define E2_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(E3_IS_TMC2130) && !PIN_EXISTS(E3_CS)
+    #error "E3_CS_PIN is required for E3_IS_TMC2130. Define E3_CS_PIN in Configuration_adv.h."
+  #elif ENABLED(E4_IS_TMC2130) && !PIN_EXISTS(E4_CS)
+    #error "E4_CS_PIN is required for E4_IS_TMC2130. Define E4_CS_PIN in Configuration_adv.h."
+  #endif
+
+#elif ENABLED(SENSORLESS_HOMING)
+
+  #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
+
 #endif
 
 /**
  * Make sure HAVE_TMC2208 is warranted
  */
-
 #if ENABLED(HAVE_TMC2208) && !( \
        ENABLED(  X_IS_TMC2208 ) \
     || ENABLED( X2_IS_TMC2208 ) \
@@ -1478,8 +1510,30 @@ static_assert(1 >= 0
   #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
 #endif
 
+/**
+ * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
+ */
+#if ENABLED(HAVE_TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
+       defined(X_HARDWARE_SERIAL ) \
+    || defined(X2_HARDWARE_SERIAL) \
+    || defined(Y_HARDWARE_SERIAL ) \
+    || defined(Y2_HARDWARE_SERIAL) \
+    || defined(Z_HARDWARE_SERIAL ) \
+    || defined(Z2_HARDWARE_SERIAL) \
+    || defined(E0_HARDWARE_SERIAL) \
+    || defined(E1_HARDWARE_SERIAL) \
+    || defined(E2_HARDWARE_SERIAL) \
+    || defined(E3_HARDWARE_SERIAL) \
+    || defined(E4_HARDWARE_SERIAL) )
+  #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+#endif
+
 #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
   #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
+#endif
+
+#if ENABLED(TMC_Z_CALIBRATION) && !Z_IS_TRINAMIC && !Z2_IS_TRINAMIC
+  #error "TMC_Z_CALIBRATION requires at least one TMC driver on Z axis"
 #endif
 
 /**
@@ -1595,6 +1649,10 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
 
 #if ENABLED(LED_CONTROL_MENU) && DISABLED(ULTIPANEL)
   #error "LED_CONTROL_MENU requires an LCD controller."
+#endif
+
+#if ENABLED(CASE_LIGHT_USE_NEOPIXEL) && DISABLED(NEOPIXEL_LED)
+  #error "CASE_LIGHT_USE_NEOPIXEL requires NEOPIXEL_LED."
 #endif
 
 #if ENABLED(SKEW_CORRECTION)

@@ -282,7 +282,7 @@ void CardReader::openAndPrintFile(const char *name) {
   char cmd[4 + strlen(name) + 1]; // Room for "M23 ", filename, and null
   sprintf_P(cmd, PSTR("M23 %s"), name);
   for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
-  enqueue_and_echo_command(cmd);
+  enqueue_and_echo_command_now(cmd);
   enqueue_and_echo_commands_P(PSTR("M24"));
 }
 
@@ -335,7 +335,7 @@ void CardReader::openFile(char* name, const bool read, const bool subcall/*=fals
       if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
         SERIAL_ERROR_START();
         SERIAL_ERRORPGM("trying to call sub-gcode files with too many levels. MAX level is:");
-        SERIAL_ERRORLN(SD_PROCEDURE_DEPTH);
+        SERIAL_ERRORLN((int)SD_PROCEDURE_DEPTH);
         kill(PSTR(MSG_KILLED));
         return;
       }
