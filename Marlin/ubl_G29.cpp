@@ -205,8 +205,8 @@
    *                    adhesion.
    *
    *                    P4 moves to the closest Mesh Point (and/or the given X Y), raises the nozzle above the mesh height
-   *                    by the given 'H' offset (or default Z_CLEARANCE_BETWEEN_PROBES), and waits while the controller is
-   *                    used to adjust the nozzle height. On click the displayed height is saved in the mesh.
+   *                    by the given 'H' offset (or default 0), and waits while the controller is used to adjust the nozzle
+   *                    height. On click the displayed height is saved in the mesh.
    *
    *                    Start Phase 4 at a specific location with X and Y. Adjust a specific number of Mesh Points with
    *                    the 'R' (Repeat) parameter. (If 'R' is left out, the whole matrix is assumed.) This command can be
@@ -1347,7 +1347,7 @@
 
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
         const bool is_offset = parser.seen('H');
-        const float h_offset = is_offset ? parser.value_linear_units() : Z_CLEARANCE_BETWEEN_PROBES;
+        const float h_offset = is_offset ? parser.value_linear_units() : 0;
         if (is_offset && !WITHIN(h_offset, 0, 10)) {
           SERIAL_PROTOCOLLNPGM("Offset out of bounds. (0 to 10mm)\n");
           return;
@@ -1365,7 +1365,7 @@
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
 
-      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
+      do_blocking_move_to(rx, ry, 0);
 
       uint16_t not_done[16];
       memset(not_done, 0xFF, sizeof(not_done));
@@ -1383,7 +1383,7 @@
         if (!position_is_reachable(rawx, rawy)) // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
           break;
 
-        do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point
+        do_blocking_move_to(rawx, rawy, 0); // Move the nozzle to the edit point
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         lcd_external_control = true;
