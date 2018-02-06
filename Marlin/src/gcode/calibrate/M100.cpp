@@ -54,7 +54,7 @@
  *
  * Initial version by Roxy-3D
  */
-#define M100_FREE_MEMORY_DUMPER     // Enable for the `M110 D` Dump sub-command
+#define M100_FREE_MEMORY_DUMPER     // Enable for the `M100 D` Dump sub-command
 #define M100_FREE_MEMORY_CORRUPTOR  // Enable for the `M100 C` Corrupt sub-command
 
 #define TEST_BYTE ((char) 0xE5)
