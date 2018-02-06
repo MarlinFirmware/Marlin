@@ -36,6 +36,10 @@
 
 #if HAS_POWER_SWITCH
 
+  #if ENABLED(AUTO_POWER_CONTROL)
+    #include "../../feature/power.h"
+  #endif
+
   // Could be moved to a feature, but this is all the data
   bool powersupply_on =
     #if ENABLED(PS_DEFAULT_OFF)
@@ -61,7 +65,7 @@
       return;
     }
 
-    OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); // GND
+    PSU_ON();
 
     /**
      * If you have a switch on suicide pin, this is useful
@@ -114,7 +118,7 @@ void GcodeSuite::M81() {
     stepper.synchronize();
     suicide();
   #elif HAS_POWER_SWITCH
-    OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+    PSU_OFF();
     powersupply_on = false;
   #endif
 

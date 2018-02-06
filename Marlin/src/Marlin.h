@@ -42,6 +42,15 @@ void idle(
 
 void manage_inactivity(bool ignore_stepper_queue = false);
 
+// Auto Power Control
+#if ENABLED(AUTO_POWER_CONTROL)
+  #define PSU_ON()  powerManager.power_on()
+  #define PSU_OFF() powerManager.power_off()
+#else
+  #define PSU_ON()  OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE)
+  #define PSU_OFF() OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP)
+#endif
+
 #if HAS_X2_ENABLE
   #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
   #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
