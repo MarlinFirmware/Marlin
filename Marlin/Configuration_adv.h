@@ -1504,6 +1504,10 @@
 //#define I2C_POSITION_ENCODERS
 #if ENABLED(I2C_POSITION_ENCODERS)
 
+  #ifndef BABYSTEP_XY                                       // Required for correcting for skips in X and Y
+    #define BABYSTEP_XY
+  #endif
+
   #define I2CPE_ENCODER_CNT         1                       // The number of encoders installed; max of 5
                                                             // encoders supported currently.
 
