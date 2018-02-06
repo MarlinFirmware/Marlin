@@ -264,6 +264,10 @@
 #include "types.h"
 #include "gcode.h"
 
+#if ENABLED(AUTO_POWER_CONTROL)
+  #include "power.h"
+#endif
+
 #if HAS_ABL
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -483,6 +487,10 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
   #endif
 #endif
 
+#if HAS_CONTROLLERFAN
+  int controllerFanSpeed = 0;
+#endif
+
 // The active extruder (tool). Set with T<extruder> command.
 uint8_t active_extruder = 0;
 
@@ -512,6 +520,15 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   PrintCounter print_job_timer = PrintCounter();
 #else
   Stopwatch print_job_timer = Stopwatch();
+#endif
+
+// Auto Power Control
+#if ENABLED(AUTO_POWER_CONTROL)
+  #define PSU_ON()  powerManager.power_on()
+  #define PSU_OFF() powerManager.power_off()
+#else
+  #define PSU_ON()  OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE)
+  #define PSU_OFF() OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP)
 #endif
 
 // Buzzer - I2C on the LCD or a BEEPER_PIN
@@ -925,9 +942,9 @@ void setup_powerhold() {
   #endif
   #if HAS_POWER_SWITCH
     #if ENABLED(PS_DEFAULT_OFF)
-      OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+      PSU_OFF();
     #else
-      OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
+      PSU_ON();
     #endif
   #endif
 }
@@ -8203,7 +8220,7 @@ inline void gcode_M140() {
       return;
     }
 
-    OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); // GND
+    PSU_ON();
 
     /**
      * If you have a switch on suicide pin, this is useful
@@ -8256,7 +8273,7 @@ inline void gcode_M81() {
     stepper.synchronize();
     suicide();
   #elif HAS_POWER_SWITCH
-    OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+    PSU_OFF();
     powersupply_on = false;
   #endif
 
@@ -13065,7 +13082,8 @@ void prepare_move_to_destination() {
       }
 
       // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
-      uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
+      const uint8_t speed = (lastMotorOn && PENDING(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? CONTROLLERFAN_SPEED : 0;
+      controllerFanSpeed = speed;
 
       // allows digital or PWM fan output to be used (see M42 handling)
       WRITE(CONTROLLER_FAN_PIN, speed);
@@ -13239,6 +13257,9 @@ void prepare_move_to_destination() {
 #endif // FAST_PWM_FAN
 
 void enable_all_steppers() {
+  #if ENABLED(AUTO_POWER_CONTROL)
+    powerManager.power_on();
+  #endif
   enable_X();
   enable_Y();
   enable_Z();
@@ -13380,6 +13401,10 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(USE_CONTROLLER_FAN)
     controllerFan(); // Check if fan should be turned on to cool stepper drivers down
+  #endif
+
+  #if ENABLED(AUTO_POWER_CONTROL)
+    powerManager.check();
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
