@@ -1504,10 +1504,7 @@
 //#define I2C_POSITION_ENCODERS
 #if ENABLED(I2C_POSITION_ENCODERS)
 
-  #ifndef BABYSTEP_XY                                       // Required for correcting for skips in X and Y
-    #define BABYSTEP_XY
-  #endif
-
+  
   #define I2CPE_ENCODER_CNT         1                       // The number of encoders installed; max of 5
                                                             // encoders supported currently.
 
@@ -1521,7 +1518,7 @@
   //#define I2CPE_ENC_1_TICKS_REV     (16 * 200)            // Only needed for rotary encoders; number of stepper
                                                             // steps per full revolution (motor steps/rev * microstepping)
   //#define I2CPE_ENC_1_INVERT                              // Invert the direction of axis travel.
-  #define I2CPE_ENC_1_EC_METHOD     I2CPE_ECM_NONE          // Type of error error correction.
+  #define I2CPE_ENC_1_EC_METHOD     I2CPE_ECM_MICROSTEP          // Type of error error correction.
   #define I2CPE_ENC_1_EC_THRESH     0.10                    // Threshold size for error (in mm) above which the
                                                             // printer will attempt to correct the error; errors
                                                             // smaller than this are ignored to minimize effects of
@@ -1533,7 +1530,7 @@
   #define I2CPE_ENC_2_TICKS_UNIT    2048
   //#define I2CPE_ENC_2_TICKS_REV   (16 * 200)
   //#define I2CPE_ENC_2_INVERT
-  #define I2CPE_ENC_2_EC_METHOD     I2CPE_ECM_NONE
+  #define I2CPE_ENC_2_EC_METHOD     I2CPE_ECM_MICROSTEP
   #define I2CPE_ENC_2_EC_THRESH     0.10
 
   #define I2CPE_ENC_3_ADDR          I2CPE_PRESET_ADDR_Z     // Encoder 3.  Add additional configuration options
@@ -1559,6 +1556,16 @@
   #define I2CPE_TIME_TRUSTED        10000                   // After an encoder fault, there must be no further fault
                                                             // for this amount of time (in ms) before the encoder
                                                             // is trusted again.
+
+  // Enable babystepping and babystep_XY if using the ECM Microstep correction method
+  #if(I2CPE_ENC_1_EC_METHOD == I2CPE_ECM_MICROSTEP || I2CPE_ENC_2_EC_METHOD == I2CPE_ECM_MICROSTEP || I2CPE_ENC_3_EC_METHOD == I2CPE_ECM_MICROSTEP || I2CPE_ENC_4_EC_METHOD == I2CPE_ECM_MICROSTEP || I2CPE_ENC_5_EC_METHOD == I2CPE_ECM_MICROSTEP)
+    #ifndef BABYSTEPPING
+      #define BABYSTEPPING
+    #endif
+    #ifndef BABYSTEP_XY                                       // Required for correcting for skips in X and Y
+      #define BABYSTEP_XY
+    #endif
+  #endif
 
   /**
    * Position is checked every time a new command is executed from the buffer but during long moves,
