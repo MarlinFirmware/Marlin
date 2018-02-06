@@ -66,31 +66,41 @@
 #define X_STEP_PIN         38   // PC6 X-STEP *
 #define X_DIR_PIN          37   // PC5 X-DIR *
 #define X_ENABLE_PIN       41   // PC9 EN1
-#define X_CS_PIN           39   // PC7 X_nCS
+#ifndef X_CS_PIN
+  #define X_CS_PIN         39   // PC7 X_nCS
+#endif
 #define X_DIAG_PIN         59   // PA4 X_DIAG
 
 #define Y_STEP_PIN         51   // PC12 Y-STEP *
 #define Y_DIR_PIN          92   // PC11 Y-DIR -AddOns *
 #define Y_ENABLE_PIN       49   // PC14 Y-EN *
-#define Y_CS_PIN           50   // PC13 Y_nCS
+#ifndef Y_CS_PIN
+  #define Y_CS_PIN         50   // PC13 Y_nCS
+#endif
 #define Y_DIAG_PIN         48   // PC15 Y_DIAG
 
 #define Z_STEP_PIN         46   // PC17 Z-STEP *
 #define Z_DIR_PIN          47   // PC16 Z-DIR *
 #define Z_ENABLE_PIN       44   // PC19 Z-END *
-#define Z_CS_PIN           45   // PC18 Z_nCS
+#ifndef Z_CS_PIN
+  #define Z_CS_PIN         45   // PC18 Z_nCS
+#endif
 #define Z_DIAG_PIN         36   // PC4 Z_DIAG
 
 #define E0_STEP_PIN       107   // PB10 E1-STEP -AddOns *
 #define E0_DIR_PIN         96   // PC10 E1-DIR -AddOns *
 #define E0_ENABLE_PIN     105   // PB22 E1-EN -AddOns *
-#define E0_CS_PIN         104   // PC20 E1_nCS -AddOns *
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN       104   // PC20 E1_nCS -AddOns *
+#endif
 #define E0_DIAG_PIN        78   // PB23 E1_DIAG
 
 #define E1_STEP_PIN        22   // PB26 E2_STEP *
 #define E1_DIR_PIN         97   // PB24 E2_DIR -AddOns *
 #define E1_ENABLE_PIN      18   // PA11 E2-EN
-#define E1_CS_PIN          19   // PA10 E2_nCS
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN        19   // PA10 E2_nCS
+#endif
 #define E1_DIAG_PIN        25   // PD0 E2_DIAG
 
 //

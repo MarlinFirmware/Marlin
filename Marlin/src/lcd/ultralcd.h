@@ -25,6 +25,11 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+  void lcd_init();
+  bool lcd_detected();
+#endif
+
 #if ENABLED(ULTRA_LCD)
 
   #include "../Marlin.h"
@@ -53,16 +58,14 @@
   int16_t lcd_strlen(const char* s);
   int16_t lcd_strlen_P(const char* s);
   void lcd_update();
-  void lcd_init();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatusPGM(const char* message, const int8_t level=0);
   void lcd_setalertstatusPGM(const char* message);
-  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_reset_alert_level();
+  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
-  bool lcd_detected(void);
 
   extern uint8_t lcdDrawUpdate;
   inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
@@ -131,9 +134,9 @@
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      void lcd_mesh_edit_setup(float initial);
+      void lcd_mesh_edit_setup(const float &initial);
       float lcd_mesh_edit();
-      void lcd_z_offset_edit_setup(float);
+      void lcd_z_offset_edit_setup(const float &initial);
       float lcd_z_offset_edit();
     #endif
 
@@ -224,17 +227,17 @@
 
   constexpr bool lcd_wait_for_move = false;
 
-  inline void lcd_update() {}
   inline void lcd_init() {}
+  inline bool lcd_detected() { return true; }
+  inline void lcd_update() {}
+  inline void lcd_refresh() {}
+  inline void lcd_buttons_update() {}
   inline bool lcd_hasstatus() { return false; }
   inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
   inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
-  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
-  inline void lcd_buttons_update() {}
+  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_reset_alert_level() {}
-  inline bool lcd_detected() { return true; }
-  inline void lcd_refresh() {}
 
 #endif // ULTRA_LCD
 

@@ -55,7 +55,7 @@
 
 */
 
-#if defined (TARGET_LPC1768)
+#ifdef TARGET_LPC1768
 
 #include <U8glib.h>
 #include "SoftwareSPI.h"
@@ -125,4 +125,4 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   return 1;
 }
 
-#endif  // TARGET_LPC1768
+#endif // TARGET_LPC1768

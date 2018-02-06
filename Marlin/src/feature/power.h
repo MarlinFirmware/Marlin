@@ -20,36 +20,23 @@
  *
  */
 
-#ifdef TARGET_LPC1768
+/**
+ * power.h - power control
+ */
 
-#include "../../inc/MarlinConfig.h"
+#ifndef POWER_H
+#define POWER_H
 
-#if ENABLED(USE_WATCHDOG)
+class Power {
+  public:
+    static void check();
+    static void power_on();
+    static void power_off();
+  private:
+    static millis_t lastPowerOn;
+    static bool is_power_needed();
+};
 
-#include "lpc17xx_wdt.h"
-#include "watchdog.h"
+extern Power powerManager;
 
-void watchdog_init(void) {
-  WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
-  WDT_Start(WDT_TIMEOUT);
-}
-
-void HAL_clear_reset_source(void) {
-  WDT_ClrTimeOutFlag();
-}
-
-uint8_t HAL_get_reset_source(void) {
-  if (TEST(WDT_ReadTimeOutFlag(), 0)) return RST_WATCHDOG;
-  return RST_POWER_ON;
-}
-
-void watchdog_reset() {
-  WDT_Feed();
-  #if PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heart beat indicator
-  #endif
-}
-
-#endif // USE_WATCHDOG
-
-#endif // TARGET_LPC1768
+#endif // POWER_H

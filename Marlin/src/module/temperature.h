@@ -28,9 +28,14 @@
 #define TEMPERATURE_H
 
 #include "thermistor/thermistors.h"
+#include "../inc/MarlinConfig.h"
 
 #if ENABLED(BABYSTEPPING)
   extern bool axis_known_position[XYZ];
+#endif
+
+#if ENABLED(AUTO_POWER_CONTROL)
+  #include "power.h"
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -112,6 +117,10 @@ class Temperature {
     static int16_t current_temperature_raw[HOTENDS],
                    target_temperature[HOTENDS],
                    current_temperature_bed_raw;
+
+    #if ENABLED(AUTO_POWER_E_FANS)
+      static int16_t autofan_speed[HOTENDS];
+    #endif
 
     #if HAS_HEATER_BED
       static int16_t target_temperature_bed;
@@ -393,6 +402,9 @@ class Temperature {
         else if (target_temperature[HOTEND_INDEX] == 0)
           start_preheat_time(HOTEND_INDEX);
       #endif
+      #if ENABLED(AUTO_POWER_CONTROL)
+        powerManager.power_on();
+      #endif
       target_temperature[HOTEND_INDEX] = celsius;
       #if WATCH_HOTENDS
         start_watching_heater(HOTEND_INDEX);
@@ -401,6 +413,9 @@ class Temperature {
 
     static void setTargetBed(const int16_t celsius) {
       #if HAS_HEATER_BED
+        #if ENABLED(AUTO_POWER_CONTROL)
+          powerManager.power_on();
+        #endif
         target_temperature_bed =
           #ifdef BED_MAXTEMP
             min(celsius, BED_MAXTEMP)
