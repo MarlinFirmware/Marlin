@@ -551,6 +551,24 @@
    *
    * Used to interactively edit the mesh by placing the
    * nozzle in a problem area and doing a G29 P4 R command.
+   *
+   * Parameters:
+   *
+   *  B  Bed Temperature
+   *  C  Continue from the Closest mesh point
+   *  D  Disable leveling before starting
+   *  F  Filament diameter
+   *  H  Hotend Temperature
+   *  K  Keep heaters on when completed
+   *  L  Layer Height
+   *  O  Ooze extrusion length
+   *  P  Prime length
+   *  Q  Retraction multiplier
+   *  R  Repetitions (number of grid points)
+   *  S  Nozzle Size (diameter) in mm
+   *  U  Random deviation (50 if no value given)
+   *  X  X position
+   *  Y  Y position
    */
   void gcode_G26() {
     SERIAL_ECHOLNPGM("G26 command started. Waiting for heater(s).");
