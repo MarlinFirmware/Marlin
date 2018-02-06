@@ -29,7 +29,7 @@ void safe_delay(millis_t ms);
   void crc16(uint16_t *crc, const void * const data, uint16_t cnt);
 #endif
 
-#if ENABLED(ULTRA_LCD)
+#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE)
 
   // Convert uint8_t to string with 123 format
   char* i8tostr3(const uint8_t x);
