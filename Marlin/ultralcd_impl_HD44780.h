@@ -34,7 +34,7 @@
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl.h"
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_ENCODER
     #define ULTRA_X_PIXELS_PER_CHAR    5
     #define ULTRA_Y_PIXELS_PER_CHAR    8
     #define ULTRA_COLUMNS_FOR_MESH_MAP 7
@@ -58,7 +58,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 // macro name. The mapping is independent of whether the button is directly connected or
 // via a shift/i2c register.
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_DISPLAY && HAS_ENCODER
 
   //
   // Setup other button mappings of each panel
@@ -119,7 +119,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define LCD_CLICKED ((buttons & B_MI) || (buttons & B_ST))
   #endif
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_DISPLAY && HAS_ENCODER
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
@@ -946,7 +946,7 @@ static void lcd_implementation_status_screen() {
   #endif
 }
 
-#if ENABLED(ULTIPANEL)
+#if HAS_ENCODER
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -1579,6 +1579,6 @@ static void lcd_implementation_status_screen() {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-#endif // ULTIPANEL
+#endif // HAS_ENCODER
 
 #endif // ULTRALCD_IMPL_HD44780_H

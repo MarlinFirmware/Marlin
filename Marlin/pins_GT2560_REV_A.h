@@ -93,11 +93,11 @@
 #define SUICIDE_PIN        54  // Must be enabled at startup to keep power flowing
 #define KILL_PIN           -1
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_LCD_DISPLAY
 
   #define BEEPER_PIN       18
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
 
     #if ENABLED(MKS_MINI_12864)
       #define DOGLCD_A0     5
@@ -118,7 +118,7 @@
     #define BTN_ENC        19
     #define SD_DETECT_PIN  38
 
-  #else // !NEWPANEL
+  #else // !HAS_ENCODER
 
     #define SHIFT_CLK      38
     #define SHIFT_LD       42
@@ -134,6 +134,6 @@
 
     #define SD_DETECT_PIN  -1
 
-  #endif // !NEWPANEL
+  #endif // !HAS_ENCODER
 
-#endif // ULTRA_LCD
+#endif // HAS_LCD_DISPLAY

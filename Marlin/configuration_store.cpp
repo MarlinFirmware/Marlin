@@ -568,7 +568,7 @@ void MarlinSettings::postprocess() {
 
     _FIELD_TEST(lcd_preheat_hotend_temp);
 
-    #if DISABLED(ULTIPANEL)
+    #if !HAS_ENCODER
       constexpr int lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
                     lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED },
                     lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
@@ -1096,7 +1096,7 @@ void MarlinSettings::postprocess() {
 
       _FIELD_TEST(lcd_preheat_hotend_temp);
 
-      #if DISABLED(ULTIPANEL)
+      #if !HAS_ENCODER
         int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
       #endif
       EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
@@ -1669,7 +1669,7 @@ void MarlinSettings::reset() {
 
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_ENCODER
     lcd_preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     lcd_preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
     lcd_preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
@@ -1854,7 +1854,7 @@ void MarlinSettings::reset() {
       SERIAL_ECHOLNPGM("  G21    ; Units in mm");
     #endif
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
 
       // Temperature units - for Ultipanel temperature options
 
@@ -2135,7 +2135,7 @@ void MarlinSettings::reset() {
       SERIAL_EOL();
     #endif // DELTA
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Material heatup parameters:");

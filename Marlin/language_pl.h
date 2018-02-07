@@ -36,7 +36,7 @@
 /**
  * One version with accented characters and one without
  */
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
   #include "language_pl-DOGM.h"
 #else
   #include "language_pl-HD44780.h"

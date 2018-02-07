@@ -167,7 +167,7 @@ void Endstops::init() {
 
 void Endstops::report_state() {
   if (endstop_hit_bits) {
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_LCD_DISPLAY
       char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -198,7 +198,7 @@ void Endstops::report_state() {
     #endif
     SERIAL_EOL();
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_LCD_DISPLAY
       lcd_status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 

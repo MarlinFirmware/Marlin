@@ -137,7 +137,7 @@
   #define LCD_BACKLIGHT_PIN 17 // LCD backlight LED
 #endif
 
-#if DISABLED(SPINDLE_LASER_ENABLE) && ENABLED(SANGUINOLOLU_V_1_2) && !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL))  // try to use IO Header
+#if DISABLED(SPINDLE_LASER_ENABLE) && ENABLED(SANGUINOLOLU_V_1_2) && !HAS_ENCODER  // try to use IO Header
   #define CASE_LIGHT_PIN     4 // MUST BE HARDWARE PWM  - see if IO Header is available
 #endif
 
@@ -153,9 +153,9 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if HAS_ENCODER
 
-  #if ENABLED(DOGLCD)
+  #if HAS_GRAPHICAL_LCD
 
     #if ENABLED(U8GLIB_ST7920) // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
@@ -271,13 +271,13 @@
 
   #define SD_DETECT_PIN         -1
 
-#endif // ULTRA_LCD && NEWPANEL
+#endif // HAS_ENCODER
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if ENABLED(SPINDLE_LASER_ENABLE)
-  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL))  // try to use IO Header
+  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !HAS_ENCODER  // try to use IO Header
 
     #define SPINDLE_LASER_ENABLE_PIN 10  // Pin should have a pullup/pulldown!
     #define SPINDLE_LASER_PWM_PIN     4  // MUST BE HARDWARE PWM

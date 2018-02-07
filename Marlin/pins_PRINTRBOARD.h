@@ -126,7 +126,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if HAS_ENCODER
 
   #define LCD_PINS_RS       9   // E1       JP11-11
   #define LCD_PINS_ENABLE   8   // E0       JP11-10
@@ -166,4 +166,4 @@
 
   #endif
 
-#endif // ULTRA_LCD && NEWPANEL
+#endif // HAS_ENCODER

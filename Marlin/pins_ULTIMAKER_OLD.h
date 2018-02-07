@@ -145,17 +145,19 @@
 // LCD / Controller
 //
 #if ENABLED(board_rev_1_0) || ENABLED(board_rev_1_1_TO_1_3)
+
   #define LCD_PINS_RS        24
   #define LCD_PINS_ENABLE    22
   #define LCD_PINS_D4        36
   #define LCD_PINS_D5        34
   #define LCD_PINS_D6        32
   #define LCD_PINS_D7        30
-#elif ENABLED(board_rev_1_5) && ENABLED(ULTRA_LCD)
+
+#elif ENABLED(board_rev_1_5) && HAS_LCD_DISPLAY
 
   #define BEEPER_PIN 18
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
 
     #define LCD_PINS_RS 20
     #define LCD_PINS_ENABLE 17
@@ -171,7 +173,7 @@
 
     #define SD_DETECT_PIN 38
 
-  #else // !NEWPANEL - Old style panel with shift register
+  #else // !HAS_ENCODER - Old style panel with shift register
 
     // buttons are attached to a shift register
     #define SHIFT_CLK 38
@@ -188,9 +190,9 @@
 
     #define SD_DETECT_PIN -1
 
-  #endif // !NEWPANEL
+  #endif // !HAS_ENCODER
 
-#endif // ULTRA_LCD
+#endif // HAS_LCD_DISPLAY
 
 //
 // case light  - see spindle section for more info on available hardware PWMs

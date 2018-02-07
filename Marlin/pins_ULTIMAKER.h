@@ -113,11 +113,11 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_LCD_DISPLAY
 
   #define BEEPER_PIN 18
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
 
     #define LCD_PINS_RS    20
     #define LCD_PINS_ENABLE 17
@@ -133,7 +133,7 @@
 
     #define SD_DETECT_PIN 38
 
-  #else // !NEWPANEL - Old style panel with shift register
+  #else // !HAS_ENCODER - Old style panel with shift register
 
     // buttons are attached to a shift register
     #define SHIFT_CLK 38
@@ -150,9 +150,9 @@
 
     #define SD_DETECT_PIN -1
 
-  #endif // !NEWPANEL
+  #endif // !HAS_ENCODER
 
-#endif // ULTRA_LCD
+#endif // HAS_LCD_DISPLAY
 
 //
 // M3/M4/M5 - Spindle/Laser Control

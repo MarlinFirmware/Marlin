@@ -181,7 +181,7 @@ float Planner::previous_speed[NUM_AXIS],
         Planner::lin_dist_e;
 #endif
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_LCD_DISPLAY
   volatile uint32_t Planner::block_buffer_runtime_us = 0;
 #endif
 
@@ -1055,7 +1055,7 @@ void Planner::_buffer_steps(const int32_t (&target)[ABCE], float fr_mm_s, const 
   const uint8_t moves_queued = movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
-  #if ENABLED(SLOWDOWN) || ENABLED(ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
+  #if ENABLED(SLOWDOWN) || HAS_LCD_DISPLAY || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
     uint32_t segment_time_us = LROUND(1000000.0 / inverse_secs);
   #endif
@@ -1066,14 +1066,14 @@ void Planner::_buffer_steps(const int32_t (&target)[ABCE], float fr_mm_s, const 
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
         const uint32_t nst = segment_time_us + LROUND(2 * (min_segment_time_us - segment_time_us) / moves_queued);
         inverse_secs = 1000000.0 / nst;
-        #if defined(XY_FREQUENCY_LIMIT) || ENABLED(ULTRA_LCD)
+        #if defined(XY_FREQUENCY_LIMIT) || HAS_LCD_DISPLAY
           segment_time_us = nst;
         #endif
       }
     }
   #endif
 
-  #if ENABLED(ULTRA_LCD)
+  #if HAS_LCD_DISPLAY
     CRITICAL_SECTION_START
       block_buffer_runtime_us += segment_time_us;
     CRITICAL_SECTION_END

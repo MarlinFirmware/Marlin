@@ -162,7 +162,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTIPANEL)
+#if HAS_ENCODER
   #define LCD_PINS_RS       8   // E0
   #define LCD_PINS_ENABLE   9   // E1
   #define LCD_PINS_D4      10   // C0

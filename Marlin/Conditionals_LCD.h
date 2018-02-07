@@ -28,8 +28,6 @@
 #ifndef CONDITIONALS_LCD_H // Get the LCD defines which are needed first
 #define CONDITIONALS_LCD_H
 
-  #define LCD_HAS_DIRECTIONAL_BUTTONS (BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT))
-
   #if ENABLED(CARTESIO_UI)
 
     #define DOGLCD
@@ -56,19 +54,15 @@
     #define ENCODER_FEEDRATE_DEADZONE 2
     #define REVERSE_MENU_DIRECTION
 
-  #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
-
-    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-
-  #elif ENABLED(BQ_LCD_SMART_CONTROLLER)
+  #elif ENABLED(ANET_FULL_GRAPHICS_LCD) || ENABLED(BQ_LCD_SMART_CONTROLLER)
 
     #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
   #elif ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
-    #define ULTRA_LCD  //general LCD support, also 16x2
-    #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-    #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
+    #define ULTRA_LCD
+    #define DOGLCD
+    #define ULTIMAKERCONTROLLER
 
     #if ENABLED(miniVIKI)
       #define LCD_CONTRAST_MIN      75
@@ -145,7 +139,7 @@
   #if ENABLED(ULTI_CONTROLLER)
     #define U8GLIB_SSD1309
     #define REVERSE_ENCODER_DIRECTION
-    #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
+    #define LCD_RESET_PIN LCD_PINS_D6 //  This controller needs a reset pin
     #define LCD_CONTRAST_MIN 0
     #define LCD_CONTRAST_MAX 254
     #define DEFAULT_LCD_CONTRAST 127
@@ -155,8 +149,8 @@
 
   // Generic support for SSD1306 / SSD1309 / SH1106 OLED based LCDs.
   #if ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SSD1309) || ENABLED(U8GLIB_SH1106)
-    #define ULTRA_LCD  //general LCD support, also 16x2
-    #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 / SSD1309 / SH1106 graphic Display Family)
+    #define ULTRA_LCD
+    #define DOGLCD
   #endif
 
   #if ENABLED(PANEL_ONE) || ENABLED(U8GLIB_SH1106)
@@ -185,9 +179,8 @@
     #define ULTIPANEL
   #endif
 
-  #if ENABLED(REPRAPWORLD_KEYPAD)
-    #define NEWPANEL
-    #if ENABLED(ULTIPANEL) && !defined(REPRAPWORLD_KEYPAD_MOVE_STEP)
+  #if ENABLED(REPRAPWORLD_KEYPAD) && ENABLED(ULTIPANEL)
+    #ifndef REPRAPWORLD_KEYPAD_MOVE_STEP
       #define REPRAPWORLD_KEYPAD_MOVE_STEP 1.0
     #endif
   #endif
@@ -289,8 +282,8 @@
   #endif
 
   #if ENABLED(ULTIPANEL)
-    #define NEWPANEL  // Disable this if you actually have no click-encoder panel
     #define ULTRA_LCD
+    #define NEWPANEL
     #ifndef LCD_WIDTH
       #define LCD_WIDTH 20
     #endif
@@ -364,15 +357,6 @@
       #endif
     #endif
   #endif
-
-  // Boot screens
-  #if DISABLED(ULTRA_LCD)
-    #undef SHOW_BOOTSCREEN
-  #elif !defined(BOOTSCREEN_TIMEOUT)
-    #define BOOTSCREEN_TIMEOUT 2500
-  #endif
-
-  #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
   // MK2 Multiplexer forces SINGLENOZZLE to be enabled
   #if ENABLED(MK2_MULTIPLEXER)
@@ -487,8 +471,23 @@
     #undef Z_MIN_PROBE_ENDSTOP
   #endif
 
-  #define HAS_SOFTWARE_ENDSTOPS (ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS))
-  #define HAS_RESUME_CONTINUE (ENABLED(NEWPANEL) || ENABLED(EMERGENCY_PARSER))
-  #define HAS_COLOR_LEDS (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_LED))
+  #define HAS_LCD_DISPLAY         (ENABLED(ULTRA_LCD) || ENABLED(DOGLCD))
+  #define HAS_GRAPHICAL_LCD       ENABLED(DOGLCD)
+  #define HAS_CHARACTER_LCD       (ENABLED(ULTRA_LCD) && DISABLED(DOGLCD))
+  #define HAS_ENCODER             ENABLED(NEWPANEL) || ENABLED(SR_LCD_2W_NL) || ENABLED(REPRAPWORLD_KEYPAD)
+  #define HAS_DIRECTIONAL_BUTTONS (BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT))
+  #define HAS_RESUME_CONTINUE     (HAS_ENCODER || ENABLED(EMERGENCY_PARSER))
+  #define HAS_COLOR_LEDS          (ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_LED))
+  #define HAS_SOFTWARE_ENDSTOPS   (ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS))
+
+  // Debug menu for features that need it
+  #define HAS_DEBUG_MENU        ENABLED(LCD_PROGRESS_BAR_TEST)
+
+  // Boot screens
+  #if !HAS_LCD_DISPLAY
+    #undef SHOW_BOOTSCREEN
+  #elif !defined(BOOTSCREEN_TIMEOUT)
+    #define BOOTSCREEN_TIMEOUT 2500
+  #endif
 
 #endif // CONDITIONALS_LCD_H

@@ -791,7 +791,7 @@ static void lcd_implementation_status_screen() {
   }
 }
 
-#if ENABLED(ULTIPANEL)
+#if HAS_ENCODER
 
   uint8_t row_y1, row_y2;
   uint8_t constexpr row_height = DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION);
@@ -1104,6 +1104,6 @@ static void lcd_implementation_status_screen() {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-#endif // ULTIPANEL
+#endif // HAS_ENCODER
 
 #endif // __ULTRALCD_IMPL_DOGM_H
