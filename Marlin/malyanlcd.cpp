@@ -97,7 +97,7 @@ void write_to_lcd(const char * const message) {
  * Set temp for hotend to 190
  * {C:P050}
  * Set temp for bed to 50
- * 
+ *
  * the command portion begins after the :
  */
 void process_lcd_c_command(const char* command) {
@@ -162,7 +162,7 @@ void process_lcd_eb_command(const char* command) {
  * These are currently all movement commands.
  * The command portion begins after the :
  * Move X Axis
- * 
+ *
  * {J:E}{J:X-200}{J:E}
  * {J:E}{J:X+200}{J:E}
  * X, Y, Z, A (extruder)
@@ -201,10 +201,10 @@ void process_lcd_j_command(const char* command) {
  * Process an LCD 'P' command, related to homing and printing.
  * Cancel:
  * {P:X}
- * 
+ *
  * Home all axes:
  * {P:H}
- * 
+ *
  * Print a file:
  * {P:000}
  * The File number is specified as a three digit value.
@@ -271,7 +271,7 @@ void process_lcd_p_command(const char* command) {
  * Handle an lcd 'S' command
  * {S:I} - Temperature request
  * {T0:999/000}{T1:000/000}{TP:004/000}
- * 
+ *
  * {S:L} - File Listing request
  * Printer Response:
  * {FILE:buttons.gcode}
