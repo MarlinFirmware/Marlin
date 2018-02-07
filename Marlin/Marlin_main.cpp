@@ -1114,15 +1114,15 @@ inline void get_serial_commands() {
       }
 
       #if DISABLED(EMERGENCY_PARSER)
-        // If command was e-stop process now
+        // Process critical commands early
         if (strcmp(command, "M108") == 0) {
           wait_for_heatup = false;
-          #if ENABLED(ULTIPANEL)
+          #if HAS_DISPLAY
             wait_for_user = false;
           #endif
         }
         if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
-        if (strcmp(command, "M410") == 0) { quickstop_stepper(); }
+        if (strcmp(command, "M410") == 0) quickstop_stepper();
       #endif
 
       #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
