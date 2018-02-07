@@ -1815,8 +1815,8 @@
  */
 #if ENABLED(ULTIMAKERCONTROLLER) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL) || ENABLED(MKS_MINI_12864)
   #define SDSUPPORT   // Force SD Card support on for these displays
-#elif ENABLED(ULTRA_LCD) && ENABLED(DOGLCD) // No panel, just graphical LCD?
-  #define LCD_WIDTH 20 // Default is 22. For this Geeetech use 20
+#else
+  #define LCD_WIDTH_OVERRIDE 20 // Default is 22. For this Geeetech use 20.
 #endif
 
 #endif // CONFIGURATION_H
