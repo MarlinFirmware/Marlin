@@ -923,11 +923,11 @@ static void lcd_implementation_status_screen() {
     const uint8_t labellen = lcd_strlen_P(pstr),
                   vallen = lcd_strlen(value);
 
-    constexpr uint8_t lcd_width_edit = (LCD_WIDTH) / (DOG_CHAR_WIDTH_EDIT);
-
     uint8_t rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
+      constexpr uint8_t lcd_width_edit = (LCD_WIDTH) / (DOG_CHAR_WIDTH_EDIT);
+
       uint8_t lcd_width, char_width;
       if (labellen <= lcd_width_edit - 1) {
         if (labellen + vallen + 2 >= lcd_width_edit) rows = 2;
