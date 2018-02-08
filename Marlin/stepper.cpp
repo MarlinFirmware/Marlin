@@ -54,10 +54,6 @@
 #include "cardreader.h"
 #include "speed_lookuptable.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
-  #include "ubl.h"
-#endif
-
 #if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif
