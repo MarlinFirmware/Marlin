@@ -28,6 +28,7 @@
 #ifdef USBCON
   #include <HardwareSerial.h>
   #if ENABLED(BLUETOOTH)
+    extern HardwareSerial bluetoothSerial;
     #define MYSERIAL bluetoothSerial
   #else
     #define MYSERIAL Serial

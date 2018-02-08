@@ -277,7 +277,11 @@
 
   #if ENABLED(DOGLCD) // Change number of lines to match the DOG graphic display
     #ifndef LCD_WIDTH
-      #define LCD_WIDTH 22
+      #ifdef LCD_WIDTH_OVERRIDE
+        #define LCD_WIDTH LCD_WIDTH_OVERRIDE
+      #else
+        #define LCD_WIDTH 22
+      #endif
     #endif
     #ifndef LCD_HEIGHT
       #define LCD_HEIGHT 5
