@@ -564,8 +564,8 @@
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
 #if defined(AON_DEBUG_MODE)
-    #define X_MAX_ACCELERATION_SCALAR 0.5
-    #define Y_MAX_ACCELERATION_SCALAR 0.5
+    #define X_MAX_ACCELERATION_SCALAR 3
+    #define Y_MAX_ACCELERATION_SCALAR 3
     #define Z_MAX_ACCELERATION_SCALAR 1.0
     #define E_MAX_ACCELERATION_SCALAR 1.0
     #define DEFAULT_MAX_ACCELERATION      { 3000*X_MAX_ACCELERATION_SCALAR, 3000*Y_MAX_ACCELERATION_SCALAR, 50*Z_MAX_ACCELERATION_SCALAR, 10000*E_MAX_ACCELERATION_SCALAR }
@@ -595,8 +595,8 @@
  */
 
 #if defined(AON_DEBUG_MODE)
-  #define DEFAULT_XJERK_SCALAR 1.5         
-  #define DEFAULT_YJERK_SCALAR 1.5                
+  #define DEFAULT_XJERK_SCALAR 2.5         
+  #define DEFAULT_YJERK_SCALAR 2.5                
   #define DEFAULT_ZJERK_SCALAR 1.0                 
   #define DEFAULT_EJERK_SCALAR 1.0              
 
