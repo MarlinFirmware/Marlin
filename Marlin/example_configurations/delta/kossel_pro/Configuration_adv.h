@@ -1151,20 +1151,21 @@
   /**
    * Use stallGuard2 to sense an obstacle and trigger an endstop.
    * You need to place a wire from the driver's DIAG1 pin to the X/Y endstop pin.
-   * X and Y homing will always be done in spreadCycle mode.
+   * X, Y, and Z homing will always be done in spreadCycle mode.
    *
-   * X/Y_HOMING_SENSITIVITY is used for tuning the trigger sensitivity.
+   * X/Y/Z_HOMING_SENSITIVITY is used for tuning the trigger sensitivity.
    * Higher values make the system LESS sensitive.
    * Lower value make the system MORE sensitive.
    * Too low values can lead to false positives, while too high values will collide the axis without triggering.
-   * It is advised to set X/Y_HOME_BUMP_MM to 0.
-   * M914 X/Y to live tune the setting
+   * It is advised to set X/Y_Z_HOME_BUMP_MM to 0.
+   * M914 X/Y/Z to live tune the setting
    */
   //#define SENSORLESS_HOMING // TMC2130 only
 
   #if ENABLED(SENSORLESS_HOMING)
     #define X_HOMING_SENSITIVITY  8
     #define Y_HOMING_SENSITIVITY  8
+    #define Z_HOMING_SENSITIVITY  8
   #endif
 
   /**
