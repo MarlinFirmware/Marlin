@@ -132,17 +132,29 @@ void GcodeSuite::M912() {
       if (parser.seen(axis_codes[P##_AXIS])) tmc_set_sgt(stepper##Q, extended_axis_codes[TMC_##Q], parser.value_int()); \
       else tmc_get_sgt(stepper##Q, extended_axis_codes[TMC_##Q]); } while(0)
 
-    #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-      TMC_SET_GET_SGT(X,X);
+    #ifdef X_HOMING_SENSITIVITY
+      #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+        TMC_SET_GET_SGT(X,X);
+      #endif
+      #if ENABLED(X2_IS_TMC2130)
+        TMC_SET_GET_SGT(X,X2);
+      #endif
     #endif
-    #if ENABLED(X2_IS_TMC2130)
-      TMC_SET_GET_SGT(X,X2);
+    #ifdef Y_HOMING_SENSITIVITY
+      #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+        TMC_SET_GET_SGT(Y,Y);
+      #endif
+      #if ENABLED(Y2_IS_TMC2130)
+        TMC_SET_GET_SGT(Y,Y2);
+      #endif
     #endif
-    #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-      TMC_SET_GET_SGT(Y,Y);
-    #endif
-    #if ENABLED(Y2_IS_TMC2130)
-      TMC_SET_GET_SGT(Y,Y2);
+    #ifdef Z_HOMING_SENSITIVITY
+      #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+        TMC_SET_GET_SGT(Z,Z);
+      #endif
+      #if ENABLED(Z2_IS_TMC2130)
+        TMC_SET_GET_SGT(Z,Z2);
+      #endif
     #endif
   }
 #endif // SENSORLESS_HOMING
