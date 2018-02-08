@@ -150,7 +150,7 @@ char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1",
       const uint32_t pwm_scale = get_pwm_scale(st);
       SERIAL_ECHO(axisID);
       SERIAL_ECHOPAIR(":", pwm_scale);
-      SERIAL_ECHOPGM(" |0b"); MYSERIAL0.print(get_status_response(st), BIN);
+      SERIAL_ECHOPGM(" |0b"); SERIAL_PRINT(get_status_response(st), BIN);
       SERIAL_ECHOPGM("| ");
       if (data.is_error) SERIAL_CHAR('E');
       else if (data.is_ot) SERIAL_CHAR('O');
@@ -239,7 +239,7 @@ void _tmc_say_pwmthrs(const char name[], const uint32_t thrs) {
 void _tmc_say_sgt(const char name[], const uint32_t sgt) {
   SERIAL_ECHO(name);
   SERIAL_ECHOPGM(" driver homing sensitivity set to ");
-  MYSERIAL0.println(sgt, DEC);
+  SERIAL_PRINTLN(sgt, DEC);
 }
 
 #if ENABLED(TMC_DEBUG)
@@ -325,7 +325,7 @@ void _tmc_say_sgt(const char name[], const uint32_t sgt) {
   #if ENABLED(HAVE_TMC2208)
     static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch(i) {
-        case TMC_TSTEP: { uint32_t data = 0; st.TSTEP(&data); MYSERIAL0.print(data); break; }
+        case TMC_TSTEP: { uint32_t data = 0; st.TSTEP(&data); SERIAL_PROTOCOL(data); break; }
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
         case TMC_STEALTHCHOP: serialprintPGM(st.stealth() ? PSTR("true") : PSTR("false")); break;
         case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('X'); break;
@@ -351,7 +351,7 @@ void _tmc_say_sgt(const char name[], const uint32_t sgt) {
       case TMC_CODES: SERIAL_ECHO(extended_axis_codes[axis]); break;
       case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getCurrent()); break;
-      case TMC_RMS_CURRENT: MYSERIAL0.print(st.rms_current()); break;
+      case TMC_RMS_CURRENT: SERIAL_PROTOCOL(st.rms_current()); break;
       case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
       case TMC_IRUN:
         SERIAL_PRINT(st.irun(), DEC);
