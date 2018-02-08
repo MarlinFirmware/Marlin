@@ -813,7 +813,7 @@ void kill_screen(const char* lcd_msg) {
 
     extern uint8_t case_light_brightness;
     extern bool case_light_on;
-    extern void update_case_light();-
+    extern void update_case_light();
 
     void case_light_menu() {
       START_MENU();
