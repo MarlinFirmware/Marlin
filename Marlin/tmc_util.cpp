@@ -236,7 +236,7 @@ void _tmc_say_pwmthrs(const char name[], const uint32_t thrs) {
 void _tmc_say_sgt(const char name[], const uint32_t sgt) {
   SERIAL_ECHO(name);
   SERIAL_ECHOPGM(" driver homing sensitivity set to ");
-  MYSERIAL.println(sgt, DEC);
+  SERIAL_PRINTLN(sgt, DEC);
 }
 
 #if ENABLED(TMC_DEBUG)
@@ -325,7 +325,7 @@ void _tmc_say_sgt(const char name[], const uint32_t sgt) {
         case TMC_TSTEP: {
             uint32_t data = 0;
             st.TSTEP(&data);
-            MYSERIAL.print(data);
+            SERIAL_PROTOCOL(data);
             break;
           }
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
@@ -353,7 +353,7 @@ void _tmc_say_sgt(const char name[], const uint32_t sgt) {
       case TMC_CODES: SERIAL_ECHO(extended_axis_codes[axis]); break;
       case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getCurrent()); break;
-      case TMC_RMS_CURRENT: MYSERIAL.print(st.rms_current()); break;
+      case TMC_RMS_CURRENT: SERIAL_PROTOCOL(st.rms_current()); break;
       case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
       case TMC_IRUN:
         SERIAL_PRINT(st.irun(), DEC);
