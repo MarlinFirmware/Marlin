@@ -713,8 +713,7 @@ static bool send_ok[BUFSIZE];
 
 #if ENABLED(I2C_POSITION_ENCODERS)
   I2CPositionEncodersMgr I2CPEM;
-  uint8_t blockBufferIndexRef = 0;
-  millis_t lastUpdateMillis;
+  millis_t i2cpem_next_update_ms;
 #endif
 
 #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -13564,12 +13563,9 @@ void idle(
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
-    if (planner.blocks_queued() &&
-        ( (blockBufferIndexRef != planner.block_buffer_head) ||
-          ((lastUpdateMillis + I2CPE_MIN_UPD_TIME_MS) < millis())) ) {
-      blockBufferIndexRef = planner.block_buffer_head;
+    if (planner.blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
       I2CPEM.update();
-      lastUpdateMillis = millis();
+      i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
   #endif
 }
