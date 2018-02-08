@@ -713,8 +713,6 @@ static bool send_ok[BUFSIZE];
 
 #if ENABLED(I2C_POSITION_ENCODERS)
   I2CPositionEncodersMgr I2CPEM;
-  uint8_t blockBufferIndexRef = 0;
-  millis_t lastUpdateMillis;
 #endif
 
 #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -1114,15 +1112,15 @@ inline void get_serial_commands() {
       }
 
       #if DISABLED(EMERGENCY_PARSER)
-        // If command was e-stop process now
+        // Process critical commands early
         if (strcmp(command, "M108") == 0) {
           wait_for_heatup = false;
-          #if ENABLED(ULTIPANEL)
+          #if ENABLED(NEWPANEL)
             wait_for_user = false;
           #endif
         }
         if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
-        if (strcmp(command, "M410") == 0) { quickstop_stepper(); }
+        if (strcmp(command, "M410") == 0) quickstop_stepper();
       #endif
 
       #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
@@ -2857,6 +2855,19 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     if (axis == Z_AXIS) probing_pause(true);
   #endif
 
+  // Disable stealthChop if used. Enable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
+      if (axis == X_AXIS) tmc_sensorless_homing(stepperX);
+    #endif
+    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
+      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY);
+    #endif
+    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
+      if (axis == Z_AXIS) tmc_sensorless_homing(stepperZ);
+    #endif
+  #endif
+
   // Tell the planner the axis is at 0
   current_position[axis] = 0;
 
@@ -2882,6 +2893,19 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
   #endif
 
   endstops.hit_on_purpose();
+
+  // Re-enable stealthChop if used. Disable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
+      if (axis == X_AXIS) tmc_sensorless_homing(stepperX, false);
+    #endif
+    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
+      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY, false);
+    #endif
+    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
+      if (axis == Z_AXIS) tmc_sensorless_homing(stepperZ, false);
+    #endif
+  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -2944,16 +2968,6 @@ static void homeaxis(const AxisEnum axis) {
   #endif
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) stepper.set_homing_flag_z(true);
-  #endif
-
-  // Disable stealthChop if used. Enable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    #if ENABLED(X_IS_TMC2130)
-      if (axis == X_AXIS) tmc_sensorless_homing(stepperX);
-    #endif
-    #if ENABLED(Y_IS_TMC2130)
-      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY);
-    #endif
   #endif
 
   // Fast move towards endstop until triggered
@@ -3054,16 +3068,6 @@ static void homeaxis(const AxisEnum axis) {
       if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
     #endif
 
-  #endif
-
-  // Re-enable stealthChop if used. Disable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    #if ENABLED(X_IS_TMC2130)
-      if (axis == X_AXIS) tmc_sensorless_homing(stepperX, false);
-    #endif
-    #if ENABLED(Y_IS_TMC2130)
-      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY, false);
-    #endif
   #endif
 
   // Put away the Z probe
@@ -3757,11 +3761,37 @@ inline void gcode_G4() {
     ZERO(current_position);
     sync_plan_position();
 
+    // Disable stealthChop if used. Enable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+      #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
+        tmc_sensorless_homing(stepperX);
+      #endif
+      #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
+        tmc_sensorless_homing(stepperY);
+      #endif
+      #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
+        tmc_sensorless_homing(stepperZ);
+      #endif
+    #endif
+
     // Move all carriages together linearly until an endstop is hit.
     current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
     feedrate_mm_s = homing_feedrate(X_AXIS);
     buffer_line_to_current_position();
     stepper.synchronize();
+
+    // Re-enable stealthChop if used. Disable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+      #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
+        tmc_sensorless_homing(stepperX, false);
+      #endif
+      #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
+        tmc_sensorless_homing(stepperY, false);
+      #endif
+      #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
+        tmc_sensorless_homing(stepperZ, false);
+      #endif
+    #endif
 
     // If an endstop was not hit, then damage can occur if homing is continued.
     // This can occur if the delta height not set correctly.
@@ -10586,17 +10616,29 @@ inline void gcode_M502() {
         if (parser.seen(axis_codes[X_AXIS])) tmc_set_sgt(stepperX, extended_axis_codes[TMC_X], parser.value_int()); \
         else tmc_get_sgt(stepperX, extended_axis_codes[TMC_X]); } while(0)
 
-      #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-        TMC_SET_GET_SGT(X,X);
+      #ifdef X_HOMING_SENSITIVITY
+        #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+          TMC_SET_GET_SGT(X,X);
+        #endif
+        #if ENABLED(X2_IS_TMC2130)
+          TMC_SET_GET_SGT(X,X2);
+        #endif
       #endif
-      #if ENABLED(X2_IS_TMC2130)
-        TMC_SET_GET_SGT(X,X2);
+      #ifdef Y_HOMING_SENSITIVITY
+        #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+          TMC_SET_GET_SGT(Y,Y);
+        #endif
+        #if ENABLED(Y2_IS_TMC2130)
+          TMC_SET_GET_SGT(Y,Y2);
+        #endif
       #endif
-      #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-        TMC_SET_GET_SGT(Y,Y);
-      #endif
-      #if ENABLED(Y2_IS_TMC2130)
-        TMC_SET_GET_SGT(Y,Y2);
+      #ifdef Z_HOMING_SENSITIVITY
+        #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+          TMC_SET_GET_SGT(Z,Z);
+        #endif
+        #if ENABLED(Z2_IS_TMC2130)
+          TMC_SET_GET_SGT(Z,Z2);
+        #endif
       #endif
     }
   #endif // SENSORLESS_HOMING
@@ -13520,12 +13562,10 @@ void idle(
   #endif
 
   #if ENABLED(I2C_POSITION_ENCODERS)
-    if (planner.blocks_queued() &&
-        ( (blockBufferIndexRef != planner.block_buffer_head) ||
-          ((lastUpdateMillis + I2CPE_MIN_UPD_TIME_MS) < millis())) ) {
-      blockBufferIndexRef = planner.block_buffer_head;
+    static millis_t i2cpem_next_update_ms;
+    if (planner.blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
       I2CPEM.update();
-      lastUpdateMillis = millis();
+      i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
   #endif
 }

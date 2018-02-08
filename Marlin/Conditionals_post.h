@@ -649,6 +649,11 @@
   #define E3_IS_TRINAMIC (ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208))
   #define E4_IS_TRINAMIC (ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208))
 
+  // Disable Z axis sensorless homing if a probe is used to home the Z axis
+  #if ENABLED(SENSORLESS_HOMING) && HOMING_Z_WITH_PROBE
+    #undef Z_HOMING_SENSITIVITY
+  #endif
+
   // Endstops and bed probe
   #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_X2_ENDSTOP(X,MIN) && !IS_Y2_ENDSTOP(X,MIN) && !IS_Z2_OR_PROBE(X,MIN))
   #define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_X2_ENDSTOP(X,MAX) && !IS_Y2_ENDSTOP(X,MAX) && !IS_Z2_OR_PROBE(X,MAX))
