@@ -1115,7 +1115,7 @@ inline void get_serial_commands() {
         // Process critical commands early
         if (strcmp(command, "M108") == 0) {
           wait_for_heatup = false;
-          #if HAS_DISPLAY
+          #if ENABLED(NEWPANEL)
             wait_for_user = false;
           #endif
         }
