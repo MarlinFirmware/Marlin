@@ -1492,6 +1492,14 @@ static_assert(1 >= 0
     #error "E4_CS_PIN is required for E4_IS_TMC2130. Define E4_CS_PIN in Configuration_adv.h."
   #endif
 
+  // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
+  // is necessary in order to reset the stallGuard indication between the initial movement of all three
+  // towers to +Z and the individual homing of each tower. This restriction can be removed once a means of
+  // clearing the stallGuard activated status is found.
+  #if ENABLED(SENSORLESS_HOMING) && ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
+    #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
+  #endif
+
 #elif ENABLED(SENSORLESS_HOMING)
 
   #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
