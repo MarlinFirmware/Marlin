@@ -22,7 +22,7 @@
  */
 
 /**
- * Cohesion3D ReMix and Mini pin assignments
+ * Cohesion3D ReMix pin assignments
  */
 
 #ifndef TARGET_LPC1768
@@ -30,21 +30,13 @@
 #endif
 
 #ifndef BOARD_NAME
-  #if MB(COHESION3D_REMIX)
-    #define BOARD_NAME "Cohesion3D ReMix"
-  #elif MB(COHESION3D_MINI)
-    #define BOARD_NAME "Cohesion3D Mini"
-  #endif
+  #define BOARD_NAME "Cohesion3D ReMix"
 #endif
 
 //
 // Servos
 //
-#if MB(COHESION3D_REMIX)
-  #define SERVO0_PIN        P2_04
-#elif MB(COHESION3D_MINI)
-  #define SERVO0_PIN        P1_23
-#endif
+#define SERVO0_PIN        P2_04
 
 //
 // Limit Switches
@@ -79,17 +71,15 @@
 #define E0_ENABLE_PIN       P0_21
 #define E0_CS_PIN           P1_04 // Ethernet Expansion - Pin 12
 
-#if MB(COHESION3D_REMIX)
-  #define E1_STEP_PIN       P2_08
-  #define E1_DIR_PIN        P2_13
-  #define E1_ENABLE_PIN     P4_29
-  #define E1_CS_PIN         P1_01 // Ethernet Expansion - Pin 14
+#define E1_STEP_PIN         P2_08
+#define E1_DIR_PIN          P2_13
+#define E1_ENABLE_PIN       P4_29
+#define E1_CS_PIN           P1_01 // Ethernet Expansion - Pin 14
 
-  #define E2_STEP_PIN       P1_20
-  #define E2_DIR_PIN        P1_19
-  #define E2_ENABLE_PIN     P1_21
-  #define E2_CS_PIN         P1_18 // FET 6
-#endif
+#define E2_STEP_PIN         P1_20
+#define E2_DIR_PIN          P1_19
+#define E2_ENABLE_PIN       P1_21
+#define E2_CS_PIN           P1_18 // FET 6
 
 //
 // Default pins for TMC software SPI
@@ -112,13 +102,11 @@
 //
 #define TEMP_0_PIN          0 // P0_23
 #define TEMP_BED_PIN        1 // P0_24
-#if MB(COHESION3D_REMIX)
-  #define TEMP_1_PIN        2 // P0_25
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    #define FILWIDTH_PIN    3 // P0_26
-  #else
-    #define TEMP_2_PIN      3 // P0_26
-  #endif
+#define TEMP_1_PIN          2 // P0_25
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  #define FILWIDTH_PIN      3 // P0_26
+#else
+  #define TEMP_2_PIN        3 // P0_26
 #endif
 
 //
@@ -126,16 +114,12 @@
 //
 #define HEATER_BED_PIN      P2_05
 #define HEATER_0_PIN        P2_07 // FET 1
-#if MB(COHESION3D_REMIX)
-  #define HEATER_1_PIN      P1_23 // FET 2
-  #if HOTENDS == 3
-    #define HEATER_2_PIN    P1_22 // FET 3
-    #define AUTO_FAN_PIN    P1_18 // FET 6
-  #else
-    #define AUTO_FAN_PIN    P1_22 // FET 3
-  #endif
-#elif MB(COHESION3D_MINI)
-  #define AUTO_FAN_PIN      P2_04 // FET 4
+#define HEATER_1_PIN        P1_23 // FET 2
+#if HOTENDS == 3
+  #define HEATER_2_PIN      P1_22 // FET 3
+  #define AUTO_FAN_PIN      P1_18 // FET 6
+#else
+  #define AUTO_FAN_PIN      P1_22 // FET 3
 #endif
 #define FAN_PIN             P2_06 // ReMix FET 4, Mini FET 3
 
@@ -166,21 +150,17 @@
 //
 // LCD / Controller
 //
-// LCD_PINS_D5, LCD_PINS_D6 or LCD_PINS_D7 are not present in the EXP1 connector,
-// and will need to be defined in order to use the REPRAP_DISCOUNT_SMART_CONTROLLER.
+// LCD_PINS_D5, D6, and D7 are not present in the EXP1 connector, and will need to be
+// defined to use the REPRAP_DISCOUNT_SMART_CONTROLLER.
 //
-// A remote SD card is currently not supported due to the pins routed to the EXP2
-// conecter are shared with the onboard SD card, and Marlin does not support reading
+// A remote SD card is currently not supported because the pins routed to the EXP2
+// connector are shared with the onboard SD card, and Marlin does not support reading
 // G-code files from the onboard SD card.
 //
 #if ENABLED(ULTRA_LCD)
 
-  #if MB(COHESION3D_REMIX)
-    #define BEEPER_PIN      P1_31 // EXP1-1
-    #define SD_DETECT_PIN   P0_27 // EXP2-7
-  #elif MB(COHESION3D_MINI)
-    #define BEEPER_PIN      P0_27 // EXP2-7 - open drain
-  #endif
+  #define BEEPER_PIN        P1_31 // EXP1-1
+  #define SD_DETECT_PIN     P0_27 // EXP2-7
 
   #define BTN_EN1           P3_26 // EXP2-5
   #define BTN_EN2           P3_25 // EXP2-3
