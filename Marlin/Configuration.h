@@ -563,7 +563,15 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 50, 10000 }
+#if defined(AON_DEBUG_MODE)
+    #define X_MAX_ACCELERATION_SCALAR 0.5
+    #define Y_MAX_ACCELERATION_SCALAR 0.5
+    #define Z_MAX_ACCELERATION_SCALAR 1.0
+    #define E_MAX_ACCELERATION_SCALAR 1.0
+    #define DEFAULT_MAX_ACCELERATION      { 3000*X_MAX_ACCELERATION_SCALAR, 3000*Y_MAX_ACCELERATION_SCALAR, 50*Z_MAX_ACCELERATION_SCALAR, 10000*E_MAX_ACCELERATION_SCALAR }
+#else
+  #define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 50, 10000 }
+#endif
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -585,10 +593,25 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define DEFAULT_XJERK                 15.0/2 //half jerks
-#define DEFAULT_YJERK                 15.0/2
-#define DEFAULT_ZJERK                  0.4/2
-#define DEFAULT_EJERK                  5.0
+
+#if defined(AON_DEBUG_MODE)
+  #define DEFAULT_XJERK_SCALAR 1.5         
+  #define DEFAULT_YJERK_SCALAR 1.5                
+  #define DEFAULT_ZJERK_SCALAR 1.0                 
+  #define DEFAULT_EJERK_SCALAR 1.0              
+
+  #define DEFAULT_XJERK                 15.0 * DEFAULT_XJERK_SCALAR
+  #define DEFAULT_YJERK                 15.0 * DEFAULT_YJERK_SCALAR
+  #define DEFAULT_ZJERK                  0.4 * DEFAULT_ZJERK_SCALAR
+  #define DEFAULT_EJERK                  5.0 * DEFAULT_EJERK_SCALAR
+
+#else
+  #define DEFAULT_XJERK                 15.0
+  #define DEFAULT_YJERK                 15.0
+  #define DEFAULT_ZJERK                  0.4
+  #define DEFAULT_EJERK                  5.0
+#endif
+
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -942,7 +965,7 @@
   #define LEFT_PROBE_BED_POSITION 110
   #define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - 50)
   #define FRONT_PROBE_BED_POSITION 60
-  #define BACK_PROBE_BED_POSITION (Y_BED_SIZE)
+  #define BACK_PROBE_BED_POSITION (Y_BED_SIZE - 20)
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST

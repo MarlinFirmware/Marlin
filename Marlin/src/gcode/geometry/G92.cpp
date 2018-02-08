@@ -126,10 +126,11 @@ void GcodeSuite::G92() {
 
   bool didR = parser.seenval('R');
   if (didR){
-    primaryZTO = 0;
-    secondaryZTO = 0;
+    const float z_reset_value = parser.value_axis_units(Z_AXIS);
+    primaryZTO = z_reset_value;
+    secondaryZTO = z_reset_value;
     SERIAL_ECHO_START();
-    SERIAL_PROTOCOLLNPGM("Z toolhead offsets have been reset.");
+    SERIAL_ECHOLNPAIR("Z toolhead offset values reset to: ", z_reset_value);
   }
 
   if (didXYZ || didA)
