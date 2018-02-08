@@ -804,6 +804,7 @@ void kill_screen(const char* lcd_msg) {
       wait_for_heatup = false;
       lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
       lcd_return_to_status();
+      enqueue_and_echo_commands_P(PSTR("G91\nG1 Z10 F1000\nG90\nG28 X0 Y0\nG1 Z200 F1000"));
     }
 
   #endif // SDSUPPORT
@@ -812,7 +813,7 @@ void kill_screen(const char* lcd_msg) {
 
     extern uint8_t case_light_brightness;
     extern bool case_light_on;
-    extern void update_case_light();
+    extern void update_case_light();-
 
     void case_light_menu() {
       START_MENU();
@@ -1027,16 +1028,16 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if HAS_M206_COMMAND
+  //#if HAS_M206_COMMAND
     /**
      * Set the home offset based on the current_position
      */
-    void lcd_set_home_offsets() {
+    //void lcd_set_home_offsets() {
       // M428 Command
-      enqueue_and_echo_commands_P(PSTR("M428"));
-      lcd_return_to_status();
-    }
-  #endif
+      //enqueue_and_echo_commands_P(PSTR("M428"));
+      //lcd_return_to_status();
+    //}
+  //#endif
 
   #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
 
@@ -2566,7 +2567,7 @@ void kill_screen(const char* lcd_msg) {
       //
       // Set Home Offsets
       //
-      MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
+      //MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
       //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
     #endif
 
