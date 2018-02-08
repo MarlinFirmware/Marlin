@@ -216,7 +216,7 @@ typedef struct SettingsDataStruct {
   // HAS_TRINAMIC
   //
   uint16_t tmc_stepper_current[11];                     // M906 X Y Z X2 Y2 Z2 E0 E1 E2 E3 E4
-  int16_t tmc_sgt[3];                                   // M914 X Y Z
+  int16_t tmc_sgt[XYZ];                                 // M914 X Y Z
 
   //
   // LIN_ADVANCE
@@ -740,7 +740,7 @@ void MarlinSettings::postprocess() {
     //
     // TMC2130 Sensorless homing threshold
     //
-    int16_t thrs[3] = {
+    int16_t thrs[XYZ] = {
       #if ENABLED(SENSORLESS_HOMING)
         #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
           stepperX.sgt(),
@@ -1270,7 +1270,7 @@ void MarlinSettings::postprocess() {
        * Y and Y2 use the same value
        * Z and Z2 use the same value
        */
-      int16_t thrs[3];
+      int16_t thrs[XYZ];
       EEPROM_READ(thrs);
       #if ENABLED(SENSORLESS_HOMING)
         if (!validating) {
@@ -1798,8 +1798,8 @@ void MarlinSettings::reset() {
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
-    uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
-    for (uint8_t q = 3; q--;)
+    uint32_t tmp_motor_current_setting[XYZ] = PWM_MOTOR_CURRENT;
+    for (uint8_t q = XYZ; q--;)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
   #endif
 
