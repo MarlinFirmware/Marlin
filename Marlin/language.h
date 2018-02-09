@@ -214,8 +214,6 @@
 #define MSG_FILAMENT_CHANGE_HEAT_M108       "Send M108 to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_M108     "Insert filament and send M108"
 
-#define MSG_SERIAL_ERROR_MENU_STRUCTURE     "Error in menu structure"
-
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
 #define MSG_STOP_BLTOUCH                    "STOP called because of BLTouch error - restart with M999"
