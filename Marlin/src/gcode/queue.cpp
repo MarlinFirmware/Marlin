@@ -389,7 +389,7 @@ inline void get_serial_commands() {
       else if (serial_char == '\\') {  // Handle escapes
         // if we have one more character, copy it over
         if ((c = read_serial(i)) >= 0 && !serial_comment_mode[i])
-          serial_line_buffer[i][serial_count[i]++] = serial_char;
+          serial_line_buffer[i][serial_count[i]++] = (char)c;
       }
       else { // it's not a newline, carriage return or escape char
         if (serial_char == ';') serial_comment_mode[i] = true;
