@@ -89,8 +89,6 @@ void GcodeSuite::M203() {
  *    P = Printing moves
  *    R = Retract only (no X, Y, Z) moves
  *    T = Travel (non printing) moves
- *
- *  Also sets minimum segment time in ms (B20000) to prevent buffer under-runs and M20 minimum feedrate
  */
 void GcodeSuite::M204() {
   if (parser.seen('S')) {  // Kept for legacy compatibility. Should NOT BE USED for new developments.
