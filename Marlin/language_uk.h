@@ -32,6 +32,7 @@
 
 #define MAPPER_D0D1                // For Cyrillic
 #define DISPLAY_CHARSET_ISO10646_5
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" готовий.")
 #define MSG_SD_INSERTED                     _UxGT("Картка вставлена")
