@@ -226,10 +226,6 @@ void clear_command_queue();
 extern millis_t previous_cmd_ms;
 inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
-#if ENABLED(FAST_PWM_FAN)
-  void setPwmFrequency(uint8_t pin, int val);
-#endif
-
 /**
  * Feedrate scaling and conversion
  */

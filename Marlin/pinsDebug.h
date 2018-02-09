@@ -71,7 +71,7 @@ bool endstop_monitor_flag = false;
 
 typedef struct {
   const char * const name;
-  uint8_t pin;
+  pin_t pin;
   bool is_digital;
 } PinInfo;
 
