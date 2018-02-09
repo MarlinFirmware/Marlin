@@ -107,8 +107,9 @@ script:
   - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING BABYSTEP_XY NANODLP_Z_SYNC
   - build_marlin
   #
-  # Add a Sled Z Probe, use UBL Cartesian moves
+  # Add a Sled Z Probe, use UBL Cartesian moves, use Japanese language
   #
+  - opt_set LANGUAGE kana_utf8
   - opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
   - opt_disable SEGMENT_LEVELED_MOVES
   - opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING

@@ -31,6 +31,7 @@
 #define LANGUAGE_HR_H
 
 #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" spreman.")
 #define MSG_SD_INSERTED                     _UxGT("SD kartica umetnuta")

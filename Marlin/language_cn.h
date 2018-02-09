@@ -31,6 +31,7 @@
 #define LANGUAGE_CN_H
 
 #define DISPLAY_CHARSET_ISO10646_CN
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         "\xa4\xa5\xa6\xa7"
 #define MSG_SD_INSERTED                     "\xa8\xa9\xaa\xab"

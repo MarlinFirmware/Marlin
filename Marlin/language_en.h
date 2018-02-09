@@ -36,6 +36,10 @@
 #endif
 #undef en
 
+#ifndef CHARSIZE
+  #define CHARSIZE 1
+#endif
+
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Ready.")
 #endif

@@ -32,6 +32,7 @@
 
 #define MAPPER_NON
 #define NOT_EXTENDED_ISO10646_1_5X7
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" prete.")
 #define MSG_BACK                            _UxGT("Retour")
