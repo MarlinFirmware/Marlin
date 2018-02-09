@@ -74,6 +74,7 @@
 #define BOARD_RUMBA             80    // Rumba
 #define BOARD_BQ_ZUM_MEGA_3D    503   // bq ZUM Mega 3D
 #define BOARD_MAKEBOARD_MINI    431   // MakeBoard Mini v2.1.2 is a control board sold by MicroMake
+#define BOARD_TRIGORILLA        343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
 
 //
 // Other ATmega1280, ATmega2560
@@ -97,7 +98,6 @@
 #define BOARD_SCOOVO_X9H        321   // abee Scoovo X9H
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
-#define BOARD_TRIGORILLA        364   // Tri(3)G(6)orilla A(4)nycubic version 1.3 based on RAMPS EFB
 
 //
 // ATmega1281, ATmega2561
