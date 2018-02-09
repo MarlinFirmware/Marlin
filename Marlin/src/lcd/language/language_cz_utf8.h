@@ -37,6 +37,7 @@
 
 #define MAPPER_C3C4C5_CZ
 #define DISPLAY_CHARSET_ISO10646_CZ
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" připraven.")
 #define MSG_BACK                            _UxGT("Zpět")

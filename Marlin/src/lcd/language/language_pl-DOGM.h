@@ -26,6 +26,7 @@
 
 #ifndef LANGUAGE_PL_DOGM_H
 #define LANGUAGE_PL_DOGM_H
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
 #define MSG_SD_INSERTED                     _UxGT("Karta włożona")

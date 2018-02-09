@@ -32,7 +32,7 @@
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
-
+#define CHARSIZE 2
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
 #define MSG_BACK                            _UxGT("Atras")
 #define MSG_SD_INSERTED                     _UxGT("Tarjeta colocada")
