@@ -1051,7 +1051,8 @@ inline void get_serial_commands() {
 
       serial_comment_mode = false;                      // end of line == end of comment
 
-      if (!serial_count) continue;                      // Skip empty lines
+      // Skip empty lines and comments
+      if (!serial_count) { thermalManager.manage_heater(); continue; }
 
       serial_line_buffer[serial_count] = 0;             // Terminate string
       serial_count = 0;                                 // Reset buffer
@@ -1211,7 +1212,8 @@ inline void get_serial_commands() {
 
         sd_comment_mode = false; // for new command
 
-        if (!sd_count) continue; // skip empty lines (and comment lines)
+        // Skip empty lines and comments
+        if (!sd_count) { thermalManager.manage_heater(); continue; }
 
         command_queue[cmd_queue_index_w][sd_count] = '\0'; // terminate string
         sd_count = 0; // clear sd line buffer
