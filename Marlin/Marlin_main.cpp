@@ -1135,12 +1135,9 @@ inline void get_serial_commands() {
       // Keep fetching, but ignore normal characters beyond the max length
       // The command will be injected when EOL is reached
     }
-    else if (serial_char == '\\') {  // Handle escapes
-      if ((c = MYSERIAL.read()) >= 0) {
-        // if we have one more character, copy it over
-        serial_char = c;
-        if (!serial_comment_mode) serial_line_buffer[serial_count++] = serial_char;
-      }
+    else if (serial_char == '\\') {   // Handle escapes
+      if ((c = MYSERIAL.read()) >= 0 && !serial_comment_mode) // if we have one more character, copy it over
+        serial_line_buffer[serial_count++] = (char)c;
       // otherwise do nothing
     }
     else { // it's not a newline, carriage return or escape char
