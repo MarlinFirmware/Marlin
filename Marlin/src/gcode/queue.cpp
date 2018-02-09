@@ -30,6 +30,7 @@
 #include "../lcd/ultralcd.h"
 #include "../sd/cardreader.h"
 #include "../module/planner.h"
+#include "../module/temperature.h"
 #include "../Marlin.h"
 
 #if HAS_COLOR_LEDS
@@ -297,7 +298,8 @@ inline void get_serial_commands() {
 
         serial_comment_mode[i] = false;                   // end of line == end of comment
 
-        if (!serial_count[i]) continue;                   // Skip empty lines
+        // Skip empty lines and comments
+        if (!serial_count[i]) { thermalManager.manage_heater(); continue; }
 
         serial_line_buffer[i][serial_count[i]] = 0;       // Terminate string
         serial_count[i] = 0;                              // Reset buffer
@@ -458,7 +460,8 @@ inline void get_serial_commands() {
 
         sd_comment_mode = false; // for new command
 
-        if (!sd_count) continue; // skip empty lines (and comment lines)
+        // Skip empty lines and comments
+        if (!sd_count) { thermalManager.manage_heater(); continue; }
 
         command_queue[cmd_queue_index_w][sd_count] = '\0'; // terminate string
         sd_count = 0; // clear sd line buffer
