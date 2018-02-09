@@ -32,6 +32,7 @@
 
 #define MAPPER_CECF
 #define DISPLAY_CHARSET_ISO10646_GREEK
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" έτοιμο.")
 #define MSG_SD_INSERTED                     _UxGT("Εισαγωγή κάρτας")

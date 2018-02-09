@@ -30,6 +30,8 @@
 #ifndef LANGUAGE_ZH_TW_H
 #define LANGUAGE_ZH_TW_H
 
+#define CHARSIZE 3
+
 #define WELCOME_MSG                         MACHINE_NAME _UxGT("已就緒.")  //" ready."
 #define MSG_SD_INSERTED                     _UxGT("記憶卡已插入")  //"Card inserted"
 #define MSG_SD_REMOVED                      _UxGT("記憶卡被拔出")  //"Card removed"
