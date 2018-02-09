@@ -27,38 +27,22 @@
  * Defines FAN_PIN RAMPS_D44_PIN or -1
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+#ifndef BOARD_NAME
+  #define BOARD_NAME "Anycubic RAMPS 1.4"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "RAMPS 1.4 for Anycubic"
-#endif
-#define IS_RAMPS_13
 #define IS_RAMPS_EFB
 #define RAMPS_D44_PIN 44
 
-#include "pins_RAMPS.h"
+#include "pins_RAMPS_13.h"
 
-#ifdef FAN_PIN
-  #undef FAN_PIN
-#endif
+#undef FAN_PIN
 #define FAN_PIN RAMPS_D44_PIN
 
-#ifdef ORIG_E0_AUTO_FAN_PIN
-  #undef ORIG_E0_AUTO_FAN_PIN
-#endif
+#undef ORIG_E0_AUTO_FAN_PIN
 #define ORIG_E0_AUTO_FAN_PIN  RAMPS_D44_PIN
 
-#ifdef E1_STEP_PIN
-  #undef E1_STEP_PIN
-#endif
-#ifdef E1_DIR_PIN
-  #undef E1_DIR_PIN
-#endif
-#ifdef E1_ENABLE_PIN
-  #undef E1_ENABLE_PIN
-#endif
-#ifdef E1_CS_PIN
-  #undef E1_CS_PIN
-#endif
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+#undef E1_ENABLE_PIN
+#undef E1_CS_PIN
