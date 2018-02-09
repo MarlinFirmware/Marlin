@@ -1051,7 +1051,8 @@ inline void get_serial_commands() {
 
       serial_comment_mode = false;                      // end of line == end of comment
 
-      if (!serial_count) continue;                      // Skip empty lines
+      // Skip empty lines and comments
+      if (!serial_count) { thermalManager.manage_heater(); continue; }
 
       serial_line_buffer[serial_count] = 0;             // Terminate string
       serial_count = 0;                                 // Reset buffer
@@ -1134,12 +1135,9 @@ inline void get_serial_commands() {
       // Keep fetching, but ignore normal characters beyond the max length
       // The command will be injected when EOL is reached
     }
-    else if (serial_char == '\\') {  // Handle escapes
-      if ((c = MYSERIAL.read()) >= 0) {
-        // if we have one more character, copy it over
-        serial_char = c;
-        if (!serial_comment_mode) serial_line_buffer[serial_count++] = serial_char;
-      }
+    else if (serial_char == '\\') {   // Handle escapes
+      if ((c = MYSERIAL.read()) >= 0 && !serial_comment_mode) // if we have one more character, copy it over
+        serial_line_buffer[serial_count++] = (char)c;
       // otherwise do nothing
     }
     else { // it's not a newline, carriage return or escape char
@@ -1211,7 +1209,8 @@ inline void get_serial_commands() {
 
         sd_comment_mode = false; // for new command
 
-        if (!sd_count) continue; // skip empty lines (and comment lines)
+        // Skip empty lines and comments
+        if (!sd_count) { thermalManager.manage_heater(); continue; }
 
         command_queue[cmd_queue_index_w][sd_count] = '\0'; // terminate string
         sd_count = 0; // clear sd line buffer
@@ -13409,8 +13408,10 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
-      && thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
+    if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
+      && ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
+      && !planner.blocks_queued()
+    ) {
       #if ENABLED(SWITCHING_EXTRUDER)
         const bool oldstatus = E0_ENABLE_READ;
         enable_E0();
