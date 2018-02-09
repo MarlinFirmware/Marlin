@@ -32,6 +32,7 @@
 
 #define MAPPER_C2C3  // because of "ó"
 #define DISPLAY_CHARSET_ISO10646_1
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" preparada.")
 #define MSG_SD_INSERTED                     _UxGT("Targeta detectada.")
