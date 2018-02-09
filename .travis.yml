@@ -86,8 +86,9 @@ script:
   - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING BABYSTEP_XY LIN_ADVANCE NANODLP_Z_SYNC
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # Add a Sled Z Probe, do non-segmented moves
+  # Add a Sled Z Probe, do non-segmented moves, use Japanese language
   #
+  - opt_set LANGUAGE kana_utf8
   - opt_enable Z_PROBE_SLED
   - opt_disable SEGMENT_LEVELED_MOVES
   - opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING

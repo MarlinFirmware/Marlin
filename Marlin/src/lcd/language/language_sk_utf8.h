@@ -36,6 +36,7 @@
 
 #define MAPPER_C3C4C5_SK
 #define DISPLAY_CHARSET_ISO10646_SK
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pripravená.")
 #define MSG_BACK                            _UxGT("Naspať")

@@ -34,6 +34,7 @@
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 #define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_KANA
+#define CHARSIZE 2
 
 // 片仮名表示定義
 #define WELCOME_MSG                         MACHINE_NAME " ready."
