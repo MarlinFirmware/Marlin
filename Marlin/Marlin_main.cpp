@@ -6996,10 +6996,10 @@ inline void gcode_M31() {
 /**
  * Sensitive pin test for M42, M226
  */
-static bool pin_is_protected(const int8_t pin) {
-  static const int8_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
+static bool pin_is_protected(const pin_t pin) {
+  static const pin_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
   for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
-    if (pin == (int8_t)pgm_read_byte(&sensitive_pins[i])) return true;
+    if (pin == (pin_t)pgm_read_byte(&sensitive_pins[i])) return true;
   return false;
 }
 
@@ -7013,7 +7013,7 @@ inline void gcode_M42() {
   if (!parser.seenval('S')) return;
   const byte pin_status = parser.value_byte();
 
-  const int pin_number = parser.intval('P', LED_PIN);
+  const pin_t pin_number = parser.byteval('P', LED_PIN);
   if (pin_number < 0) return;
 
   if (pin_is_protected(pin_number)) {
@@ -7270,8 +7270,8 @@ inline void gcode_M42() {
     }
 
     // Get the range of pins to test or watch
-    const uint8_t first_pin = parser.byteval('P'),
-                  last_pin = parser.seenval('P') ? first_pin : NUM_DIGITAL_PINS - 1;
+    const pin_t first_pin = parser.byteval('P'),
+                last_pin = parser.seenval('P') ? first_pin : NUM_DIGITAL_PINS - 1;
 
     if (first_pin > last_pin) return;
 
@@ -7281,7 +7281,7 @@ inline void gcode_M42() {
     if (parser.boolval('W')) {
       SERIAL_PROTOCOLLNPGM("Watching pins");
       byte pin_state[last_pin - first_pin + 1];
-      for (int8_t pin = first_pin; pin <= last_pin; pin++) {
+      for (pin_t pin = first_pin; pin <= last_pin; pin++) {
         if (pin_is_protected(pin) && !ignore_protection) continue;
         pinMode(pin, INPUT_PULLUP);
         delay(1);
@@ -7299,7 +7299,7 @@ inline void gcode_M42() {
       #endif
 
       for (;;) {
-        for (int8_t pin = first_pin; pin <= last_pin; pin++) {
+        for (pin_t pin = first_pin; pin <= last_pin; pin++) {
           if (pin_is_protected(pin) && !ignore_protection) continue;
           const byte val =
             /*
@@ -7327,7 +7327,7 @@ inline void gcode_M42() {
     }
 
     // Report current state of selected pin(s)
-    for (uint8_t pin = first_pin; pin <= last_pin; pin++)
+    for (pin_t pin = first_pin; pin <= last_pin; pin++)
       report_pin_state_extended(pin, ignore_protection, true);
   }
 
@@ -9144,16 +9144,16 @@ inline void gcode_M221() {
  */
 inline void gcode_M226() {
   if (parser.seen('P')) {
-    const int pin_number = parser.value_int(),
+    const int pin = parser.value_int(),
               pin_state = parser.intval('S', -1); // required pin state - default is inverted
 
-    if (WITHIN(pin_state, -1, 1) && pin_number > -1 && !pin_is_protected(pin_number)) {
+    if (WITHIN(pin_state, -1, 1) && pin > -1 && !pin_is_protected(pin)) {
 
       int target = LOW;
 
       stepper.synchronize();
 
-      pinMode(pin_number, INPUT);
+      pinMode(pin, INPUT);
       switch (pin_state) {
         case 1:
           target = HIGH;
@@ -9162,13 +9162,13 @@ inline void gcode_M226() {
           target = LOW;
           break;
         case -1:
-          target = !digitalRead(pin_number);
+          target = !digitalRead(pin);
           break;
       }
 
-      while (digitalRead(pin_number) != target) idle();
+      while (digitalRead(pin) != target) idle();
 
-    } // pin_state -1 0 1 && pin_number > -1
+    } // pin_state -1 0 1 && pin > -1
   } // parser.seen('P')
 }
 
@@ -13258,45 +13258,6 @@ void prepare_move_to_destination() {
   }
 
 #endif // FILAMENT_RUNOUT_SENSOR
-
-#if ENABLED(FAST_PWM_FAN)
-
-  void setPwmFrequency(uint8_t pin, int val) {
-    val &= 0x07;
-    switch (digitalPinToTimer(pin)) {
-      #ifdef TCCR0A
-        #if !AVR_AT90USB1286_FAMILY
-          case TIMER0A:
-        #endif
-        case TIMER0B:                           //_SET_CS(0, val);
-                                                  break;
-      #endif
-      #ifdef TCCR1A
-        case TIMER1A: case TIMER1B:             //_SET_CS(1, val);
-                                                  break;
-      #endif
-      #if defined(TCCR2) || defined(TCCR2A)
-        #ifdef TCCR2
-          case TIMER2:
-        #endif
-        #ifdef TCCR2A
-          case TIMER2A: case TIMER2B:
-        #endif
-                                                  _SET_CS(2, val); break;
-      #endif
-      #ifdef TCCR3A
-        case TIMER3A: case TIMER3B: case TIMER3C: _SET_CS(3, val); break;
-      #endif
-      #ifdef TCCR4A
-        case TIMER4A: case TIMER4B: case TIMER4C: _SET_CS(4, val); break;
-      #endif
-      #ifdef TCCR5A
-        case TIMER5A: case TIMER5B: case TIMER5C: _SET_CS(5, val); break;
-      #endif
-    }
-  }
-
-#endif // FAST_PWM_FAN
 
 void enable_all_steppers() {
   #if ENABLED(AUTO_POWER_CONTROL)

@@ -508,7 +508,7 @@ int Temperature::getHeaterPower(int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    static const int8_t fanPin[] PROGMEM = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
+    static const pin_t fanPin[] PROGMEM = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN };
     static const uint8_t fanBit[] PROGMEM = {
                     0,
       AUTO_1_IS_0 ? 0 :               1,
@@ -524,7 +524,7 @@ int Temperature::getHeaterPower(int heater) {
 
     uint8_t fanDone = 0;
     for (uint8_t f = 0; f < COUNT(fanPin); f++) {
-      int8_t pin = pgm_read_byte(&fanPin[f]);
+      pin_t pin = pgm_read_byte(&fanPin[f]);
       const uint8_t bit = pgm_read_byte(&fanBit[f]);
       if (pin >= 0 && !TEST(fanDone, bit)) {
         uint8_t newFanSpeed = TEST(fanState, bit) ? EXTRUDER_AUTO_FAN_SPEED : 0;
@@ -1266,6 +1266,45 @@ void Temperature::init() {
     paused = false;
   #endif
 }
+
+#if ENABLED(FAST_PWM_FAN)
+
+  void setPwmFrequency(const pin_t pin, int val) {
+    val &= 0x07;
+    switch (digitalPinToTimer(pin)) {
+      #ifdef TCCR0A
+        #if !AVR_AT90USB1286_FAMILY
+          case TIMER0A:
+        #endif
+        case TIMER0B:                           //_SET_CS(0, val);
+                                                  break;
+      #endif
+      #ifdef TCCR1A
+        case TIMER1A: case TIMER1B:             //_SET_CS(1, val);
+                                                  break;
+      #endif
+      #if defined(TCCR2) || defined(TCCR2A)
+        #ifdef TCCR2
+          case TIMER2:
+        #endif
+        #ifdef TCCR2A
+          case TIMER2A: case TIMER2B:
+        #endif
+                                                  _SET_CS(2, val); break;
+      #endif
+      #ifdef TCCR3A
+        case TIMER3A: case TIMER3B: case TIMER3C: _SET_CS(3, val); break;
+      #endif
+      #ifdef TCCR4A
+        case TIMER4A: case TIMER4B: case TIMER4C: _SET_CS(4, val); break;
+      #endif
+      #ifdef TCCR5A
+        case TIMER5A: case TIMER5B: case TIMER5C: _SET_CS(5, val); break;
+      #endif
+    }
+  }
+
+#endif // FAST_PWM_FAN
 
 #if WATCH_HOTENDS
   /**
