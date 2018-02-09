@@ -78,6 +78,7 @@
 
   #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
     #define I2CPE_ERR_ARRAY_SIZE        32
+    #define I2CPE_ERR_PRST_ARRAY_SIZE   10
   #endif
 
   // Error Correction Methods
@@ -96,8 +97,6 @@
 
   #define LOOP_PE(VAR) LOOP_L_N(VAR, I2CPE_ENCODER_CNT)
   #define CHECK_IDX() do{ if (!WITHIN(idx, 0, I2CPE_ENCODER_CNT - 1)) return; }while(0)
-
-  extern const char axis_codes[XYZE];
 
   typedef union {
     volatile int32_t val = 0;
@@ -138,8 +137,9 @@
     //double        positionMm; //calculate
 
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
-      uint8_t errIdx = 0;
-      int     err[I2CPE_ERR_ARRAY_SIZE] = { 0 };
+      uint8_t errIdx = 0, errPrstIdx = 0;
+      int err[I2CPE_ERR_ARRAY_SIZE] = { 0 },
+          errPrst[I2CPE_ERR_PRST_ARRAY_SIZE] = { 0 };
     #endif
 
     //float        positionMm; //calculate

@@ -63,64 +63,48 @@
 
 static uint8_t LEDs[8] = { 0 };
 
+#ifdef CPU_32_BIT
+  #define MS_DELAY() delayMicroseconds(5)  // 32-bit processors need a delay to stabilize the signal
+#else
+  #define MS_DELAY() NOOP
+#endif
+
 void Max7219_PutByte(uint8_t data) {
   CRITICAL_SECTION_START
   for (uint8_t i = 8; i--;) {
-    #ifdef CPU_32_BIT                    // The 32-bit processors are so fast, a small delay in the code is needed
-      delayMicroseconds(5);              // to let the signal wires stabilize.
-      WRITE(MAX7219_CLK_PIN, LOW);       // tick
-      delayMicroseconds(5);
-      WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
-      delayMicroseconds(5);
-      WRITE(MAX7219_CLK_PIN, HIGH);      // tock
-      delayMicroseconds(5);
-    #else
-      WRITE(MAX7219_CLK_PIN, LOW);       // tick
-      WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
-      WRITE(MAX7219_CLK_PIN, HIGH);      // tock
-    #endif
-
+    MS_DELAY();
+    WRITE(MAX7219_CLK_PIN, LOW);       // tick
+    MS_DELAY();
+    WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
+    MS_DELAY();
+    WRITE(MAX7219_CLK_PIN, HIGH);      // tock
+    MS_DELAY();
     data <<= 1;
   }
   CRITICAL_SECTION_END
 }
 
 void Max7219(const uint8_t reg, const uint8_t data) {
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
   CRITICAL_SECTION_START
   WRITE(MAX7219_LOAD_PIN, LOW);  // begin
-  #ifdef CPU_32_BIT              // The 32-bit processors are so fast, a small delay in the code is needed
-    delayMicroseconds(5);        // to let the signal wires stabilize.
-  #endif
+  MS_DELAY();
   Max7219_PutByte(reg);          // specify register
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
   Max7219_PutByte(data);         // put data
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
   WRITE(MAX7219_LOAD_PIN, LOW);  // and tell the chip to load the data
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
   WRITE(MAX7219_LOAD_PIN, HIGH);
   CRITICAL_SECTION_END
-  #ifdef CPU_32_BIT
-    delayMicroseconds(5);
-  #endif
+  MS_DELAY();
 }
 
 void Max7219_LED_Set(const uint8_t row, const uint8_t col, const bool on) {
   if (row > 7 || col > 7) {
-    int r,c;
-    r = row;
-    c = col;
-    SERIAL_ECHOPAIR("??? Max7219_LED_Set(",r);
-    SERIAL_ECHOPAIR(",",c);
-    SERIAL_ECHO(")\n");
+    SERIAL_ECHOPAIR("??? Max7219_LED_Set(", (int)row);
+    SERIAL_ECHOPAIR(",", (int)col);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
   if (TEST(LEDs[row], col) == on) return; // if LED is already on/off, leave alone
@@ -130,12 +114,9 @@ void Max7219_LED_Set(const uint8_t row, const uint8_t col, const bool on) {
 
 void Max7219_LED_On(const uint8_t col, const uint8_t row) {
   if (row > 7 || col > 7) {
-    int r,c;
-    r = row;
-    c = col;
-    SERIAL_ECHOPAIR("??? Max7219_LED_On(",c);
-    SERIAL_ECHOPAIR(",",r);
-    SERIAL_ECHO(")\n");
+    SERIAL_ECHOPAIR("??? Max7219_LED_On(", (int)col);
+    SERIAL_ECHOPAIR(",", (int)row);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
   Max7219_LED_Set(col, row, true);
@@ -143,12 +124,9 @@ void Max7219_LED_On(const uint8_t col, const uint8_t row) {
 
 void Max7219_LED_Off(const uint8_t col, const uint8_t row) {
   if (row > 7 || col > 7) {
-    int r,c;
-    r = row;
-    c = col;
-    SERIAL_ECHOPAIR("??? Max7219_LED_Off(",r);
-    SERIAL_ECHOPAIR(",",c);
-    SERIAL_ECHO(")\n");
+    SERIAL_ECHOPAIR("??? Max7219_LED_Off(", (int)row);
+    SERIAL_ECHOPAIR(",", (int)col);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
   Max7219_LED_Set(col, row, false);
@@ -156,12 +134,9 @@ void Max7219_LED_Off(const uint8_t col, const uint8_t row) {
 
 void Max7219_LED_Toggle(const uint8_t col, const uint8_t row) {
   if (row > 7 || col > 7) {
-    int r,c;
-    r = row;
-    c = col;
-    SERIAL_ECHOPAIR("??? Max7219_LED_Toggle(",r);
-    SERIAL_ECHOPAIR(",",c);
-    SERIAL_ECHO(")\n");
+    SERIAL_ECHOPAIR("??? Max7219_LED_Toggle(", (int)row);
+    SERIAL_ECHOPAIR(",", (int)col);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
   if (TEST(LEDs[row], col))
@@ -172,10 +147,8 @@ void Max7219_LED_Toggle(const uint8_t col, const uint8_t row) {
 
 void Max7219_Clear_Column(const uint8_t col) {
   if (col > 7) {
-    int c;
-    c = col;
-    SERIAL_ECHOPAIR("??? Max7219_Clear_Column(",c);
-    SERIAL_ECHO(")\n");
+    SERIAL_ECHOPAIR("??? Max7219_Clear_Column(", (int)col);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
   LEDs[col] = 0;
@@ -184,10 +157,8 @@ void Max7219_Clear_Column(const uint8_t col) {
 
 void Max7219_Clear_Row(const uint8_t row) {
   if (row > 7) {
-    int r;
-    r = row;
-    SERIAL_ECHOPAIR("??? Max7219_Clear_Row(",r);
-    SERIAL_ECHO(")\n");
+    SERIAL_ECHOPAIR("??? Max7219_Clear_Row(", (int)row);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
   for (uint8_t c = 0; c <= 7; c++)
@@ -195,13 +166,10 @@ void Max7219_Clear_Row(const uint8_t row) {
 }
 
 void Max7219_Set_Row(const uint8_t row, const uint8_t val) {
-  if (row > 7 || val>255) {
-    int r, v;
-    r = row;
-    v = val;
-    SERIAL_ECHOPAIR("??? Max7219_Set_Row(",r);
-    SERIAL_ECHOPAIR(",",v);
-    SERIAL_ECHO(")\n");
+  if (row > 7) {
+    SERIAL_ECHOPAIR("??? Max7219_Set_Row(", (int)row);
+    SERIAL_ECHOPAIR(",", (int)val);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
   for (uint8_t b = 0; b <= 7; b++)
@@ -212,44 +180,34 @@ void Max7219_Set_Row(const uint8_t row, const uint8_t val) {
 }
 
 void Max7219_Set_2_Rows(const uint8_t row, const uint16_t val) {
-  if (row > 6 || val>65535) {
-    int r, v;
-    r = row;
-    v = val;
-    SERIAL_ECHOPAIR("??? Max7219_Set_2_Rows(",r);
-    SERIAL_ECHOPAIR(",",v);
-    SERIAL_ECHO(")\n");
+  if (row > 6) {
+    SERIAL_ECHOPAIR("??? Max7219_Set_2_Rows(", (int)row);
+    SERIAL_ECHOPAIR(",", (int)val);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
-  Max7219_Set_Row(row+1, (val & 0xff00) >> 8 );
-  Max7219_Set_Row(row+0, (val & 0xff));
+  Max7219_Set_Row(row + 1, (val >> 8) & 0xFF);
+  Max7219_Set_Row(row + 0, (val     ) & 0xFF);
 }
 
 void Max7219_Set_4_Rows(const uint8_t row, const uint32_t val) {
-  if (row > 4 ) {
-    int r;
-    long v;
-    r = row;
-    v = val;
-    SERIAL_ECHOPAIR("??? Max7219_Set_4_Rows(",r);
-    SERIAL_ECHOPAIR(",",v);
-    SERIAL_ECHO(")\n");
+  if (row > 4) {
+    SERIAL_ECHOPAIR("??? Max7219_Set_4_Rows(", (int)row);
+    SERIAL_ECHOPAIR(",", (long)val);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
-  Max7219_Set_Row(row+3, (val & 0xff000000) >> 24);
-  Max7219_Set_Row(row+2, (val & 0xff0000) >> 16);
-  Max7219_Set_Row(row+1, (val & 0xff00) >> 8);
-  Max7219_Set_Row(row+0, (val & 0xff));
+  Max7219_Set_Row(row + 3, (val >> 24) & 0xFF);
+  Max7219_Set_Row(row + 2, (val >> 16) & 0xFF);
+  Max7219_Set_Row(row + 1, (val >>  8) & 0xFF);
+  Max7219_Set_Row(row + 0, (val      ) & 0xFF);
 }
 
 void Max7219_Set_Column(const uint8_t col, const uint8_t val) {
-  if (val > 255 || col > 7) {
-    int v,c;
-    v = val;
-    c = col;
-    SERIAL_ECHOPAIR("??? Max7219_Column(",c);
-    SERIAL_ECHOPAIR(",",v);
-    SERIAL_ECHO(")\n");
+  if (col > 7) {
+    SERIAL_ECHOPAIR("??? Max7219_Column(", (int)col);
+    SERIAL_ECHOPAIR(",", (int)val);
+    SERIAL_ECHOLNPGM(")");
     return;
   }
   LEDs[col] = val;
@@ -317,54 +275,51 @@ void Max7219_idle_tasks() {
 #if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
   CRITICAL_SECTION_START
   #if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_QUEUE
-    uint8_t head;
-    head = planner.block_buffer_head;
+    const uint8_t head = planner.block_buffer_head;
   #endif
   #if MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
-    uint8_t tail;
-    tail = planner.block_buffer_tail;
+    const uint8_t tail = planner.block_buffer_tail;
   #endif
   CRITICAL_SECTION_END
 #endif
 
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     static millis_t next_blink = 0;
-
     if (ELAPSED(millis(), next_blink)) {
-        Max7219_LED_Toggle(7, 7);
-        next_blink = millis() + 750;
+      Max7219_LED_Toggle(7, 7);
+      next_blink = millis() + 750;
     }
   #endif
 
   #ifdef MAX7219_DEBUG_STEPPER_HEAD
-    static int16_t last_head_cnt=0;
+    static int16_t last_head_cnt = 0;
     if (last_head_cnt != head) {
-      if ( last_head_cnt < 8)
-        Max7219_LED_Off( last_head_cnt, MAX7219_DEBUG_STEPPER_HEAD);
+      if (last_head_cnt < 8)
+        Max7219_LED_Off(last_head_cnt, MAX7219_DEBUG_STEPPER_HEAD);
       else
-        Max7219_LED_Off( last_head_cnt-8, MAX7219_DEBUG_STEPPER_HEAD+1);
+        Max7219_LED_Off(last_head_cnt - 8, MAX7219_DEBUG_STEPPER_HEAD + 1);
 
       last_head_cnt = head;
-      if ( head < 8)
+      if (head < 8)
         Max7219_LED_On(head, MAX7219_DEBUG_STEPPER_HEAD);
       else
-        Max7219_LED_On(head-8, MAX7219_DEBUG_STEPPER_HEAD+1);
+        Max7219_LED_On(head - 8, MAX7219_DEBUG_STEPPER_HEAD + 1);
     }
   #endif
 
   #ifdef MAX7219_DEBUG_STEPPER_TAIL
-    static int16_t last_tail_cnt=0;
+    static int16_t last_tail_cnt = 0;
     if (last_tail_cnt != tail) {
-      if ( last_tail_cnt < 8)
-        Max7219_LED_Off( last_tail_cnt, MAX7219_DEBUG_STEPPER_TAIL);
+      if (last_tail_cnt < 8)
+        Max7219_LED_Off(last_tail_cnt, MAX7219_DEBUG_STEPPER_TAIL);
       else
-        Max7219_LED_Off( last_tail_cnt-8, MAX7219_DEBUG_STEPPER_TAIL+1);
+        Max7219_LED_Off(last_tail_cnt - 8, MAX7219_DEBUG_STEPPER_TAIL + 1);
 
       last_tail_cnt = tail;
-      if ( tail < 8)
+      if (tail < 8)
         Max7219_LED_On(tail, MAX7219_DEBUG_STEPPER_TAIL);
       else
-        Max7219_LED_On(tail-8, MAX7219_DEBUG_STEPPER_TAIL+1);
+        Max7219_LED_On(tail - 8, MAX7219_DEBUG_STEPPER_TAIL + 1);
     }
   #endif
 
@@ -381,10 +336,10 @@ void Max7219_idle_tasks() {
                     en = max(current_depth, last_depth);
       if (current_depth < last_depth)
         for (uint8_t i = st; i <= en; i++)   // clear the highest order LEDs
-            Max7219_LED_Off(i/2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
+          Max7219_LED_Off(i / 2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
       else
-          for (uint8_t i = st; i <= en; i++)   // set the LEDs to current depth
-            Max7219_LED_On(i/2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
+        for (uint8_t i = st; i <= en; i++)   // set the LEDs to current depth
+          Max7219_LED_On(i / 2, MAX7219_DEBUG_STEPPER_QUEUE + (i & 1));
 
       last_depth = current_depth;
     }

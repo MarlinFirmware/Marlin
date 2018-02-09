@@ -89,7 +89,7 @@
       #define CORE_AXIS_1 B_AXIS
       #define CORE_AXIS_2 C_AXIS
     #endif
-    #if (ENABLED(COREYX) || ENABLED(COREZX) || ENABLED(COREZY))
+    #if ENABLED(COREYX) || ENABLED(COREZX) || ENABLED(COREZY)
       #define CORESIGN(n) (-(n))
     #else
       #define CORESIGN(n) (n)
@@ -635,6 +635,25 @@
   #define HAS_E4_MICROSTEPS (PIN_EXISTS(E4_MS1))
   #define HAS_SOLENOID_4    (PIN_EXISTS(SOL4))
 
+  // Trinamic Stepper Drivers
+  #define HAS_TRINAMIC (ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208) || ENABLED(IS_TRAMS))
+  #define  X_IS_TRINAMIC (ENABLED( X_IS_TMC2130) || ENABLED( X_IS_TMC2208) || ENABLED(IS_TRAMS))
+  #define X2_IS_TRINAMIC (ENABLED(X2_IS_TMC2130) || ENABLED(X2_IS_TMC2208))
+  #define  Y_IS_TRINAMIC (ENABLED( Y_IS_TMC2130) || ENABLED( Y_IS_TMC2208) || ENABLED(IS_TRAMS))
+  #define Y2_IS_TRINAMIC (ENABLED(Y2_IS_TMC2130) || ENABLED(Y2_IS_TMC2208))
+  #define  Z_IS_TRINAMIC (ENABLED( Z_IS_TMC2130) || ENABLED( Z_IS_TMC2208) || ENABLED(IS_TRAMS))
+  #define Z2_IS_TRINAMIC (ENABLED(Z2_IS_TMC2130) || ENABLED(Z2_IS_TMC2208))
+  #define E0_IS_TRINAMIC (ENABLED(E0_IS_TMC2130) || ENABLED(E0_IS_TMC2208) || ENABLED(IS_TRAMS))
+  #define E1_IS_TRINAMIC (ENABLED(E1_IS_TMC2130) || ENABLED(E1_IS_TMC2208))
+  #define E2_IS_TRINAMIC (ENABLED(E2_IS_TMC2130) || ENABLED(E2_IS_TMC2208))
+  #define E3_IS_TRINAMIC (ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208))
+  #define E4_IS_TRINAMIC (ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208))
+
+  // Disable Z axis sensorless homing if a probe is used to home the Z axis
+  #if ENABLED(SENSORLESS_HOMING) && HOMING_Z_WITH_PROBE
+    #undef Z_HOMING_SENSITIVITY
+  #endif
+
   // Endstops and bed probe
   #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_X2_ENDSTOP(X,MIN) && !IS_Y2_ENDSTOP(X,MIN) && !IS_Z2_OR_PROBE(X,MIN))
   #define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_X2_ENDSTOP(X,MAX) && !IS_Y2_ENDSTOP(X,MAX) && !IS_Z2_OR_PROBE(X,MAX))
@@ -804,8 +823,7 @@
     #endif
   #endif
 
-  #define PROBE_PIN_CONFIGURED (HAS_Z_MIN_PROBE_PIN || (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)))
-  #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED && DISABLED(PROBE_MANUALLY))
+  #define HAS_BED_PROBE (PROBE_SELECTED && DISABLED(PROBE_MANUALLY))
 
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     #define PROBE_IS_TRIGGERED_WHEN_STOWED_TEST
@@ -844,6 +862,49 @@
     #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
   #endif
+
+  /**
+   * XYZ Bed Skew Correction
+   */
+  #if ENABLED(SKEW_CORRECTION)
+    #define SKEW_FACTOR_MIN -1
+    #define SKEW_FACTOR_MAX 1
+
+    #define _GET_SIDE(a,b,c) (SQRT(2*sq(a)+2*sq(b)-4*sq(c))*0.5)
+    #define _SKEW_SIDE(a,b,c) tan(M_PI*0.5-acos((sq(a)-sq(b)-sq(c))/(2*c*b)))
+    #define _SKEW_FACTOR(a,b,c) _SKEW_SIDE(float(a),_GET_SIDE(float(a),float(b),float(c)),float(c))
+
+    #ifndef XY_SKEW_FACTOR
+      constexpr float XY_SKEW_FACTOR = (
+        #if defined(XY_DIAG_AC) && defined(XY_DIAG_BD) && defined(XY_SIDE_AD)
+          _SKEW_FACTOR(XY_DIAG_AC, XY_DIAG_BD, XY_SIDE_AD)
+        #else
+          0.0
+        #endif
+      );
+    #endif
+    #ifndef XZ_SKEW_FACTOR
+      #if defined(XY_SIDE_AD) && !defined(XZ_SIDE_AD)
+        #define XZ_SIDE_AD XY_SIDE_AD
+      #endif
+      constexpr float XZ_SKEW_FACTOR = (
+        #if defined(XZ_DIAG_AC) && defined(XZ_DIAG_BD) && defined(XZ_SIDE_AD)
+          _SKEW_FACTOR(XZ_DIAG_AC, XZ_DIAG_BD, XZ_SIDE_AD)
+        #else
+          0.0
+        #endif
+      );
+    #endif
+    #ifndef YZ_SKEW_FACTOR
+      constexpr float YZ_SKEW_FACTOR = (
+        #if defined(YZ_DIAG_AC) && defined(YZ_DIAG_BD) && defined(YZ_SIDE_AD)
+          _SKEW_FACTOR(YZ_DIAG_AC, YZ_DIAG_BD, YZ_SIDE_AD)
+        #else
+          0.0
+        #endif
+      );
+    #endif
+  #endif // SKEW_CORRECTION
 
   /**
    * Heater & Fan Pausing
@@ -891,19 +952,23 @@
   /**
    * Set granular options based on the specific type of leveling
    */
-  #define UBL_DELTA  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA) || ENABLED(UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN)))
-  #define ABL_PLANAR (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
-  #define ABL_GRID   (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
-  #define OLDSCHOOL_ABL         (ABL_PLANAR || ABL_GRID)
-  #define HAS_ABL               (OLDSCHOOL_ABL || ENABLED(AUTO_BED_LEVELING_UBL))
-  #define HAS_LEVELING          (HAS_ABL || ENABLED(MESH_BED_LEVELING))
-  #define HAS_AUTOLEVEL         (HAS_ABL && DISABLED(PROBE_MANUALLY))
-  #define HAS_MESH              (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING))
-  #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_DELTA)
+  #define UBL_SEGMENTED  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA) || ENABLED(SEGMENT_LEVELED_MOVES)))
+  #define ABL_PLANAR     (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
+  #define ABL_GRID       (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
+  #define OLDSCHOOL_ABL  (ABL_PLANAR || ABL_GRID)
+  #define HAS_ABL        (OLDSCHOOL_ABL || ENABLED(AUTO_BED_LEVELING_UBL))
+  #define HAS_LEVELING   (HAS_ABL || ENABLED(MESH_BED_LEVELING))
+  #define HAS_AUTOLEVEL  (HAS_ABL && DISABLED(PROBE_MANUALLY))
+  #define HAS_MESH       (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING))
+  #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_SEGMENTED || ENABLED(SKEW_CORRECTION))
   #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
   #if HAS_PROBING_PROCEDURE
     #define PROBE_BED_WIDTH abs(RIGHT_PROBE_BED_POSITION - (LEFT_PROBE_BED_POSITION))
     #define PROBE_BED_HEIGHT abs(BACK_PROBE_BED_POSITION - (FRONT_PROBE_BED_POSITION))
+  #endif
+
+  #if ENABLED(SEGMENT_LEVELED_MOVES) && !defined(LEVELED_SEGMENT_LENGTH)
+    #define LEVELED_SEGMENT_LENGTH 5
   #endif
 
   /**
@@ -914,22 +979,36 @@
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
-    #define MIN_PROBE_X (X_CENTER - (DELTA_PROBEABLE_RADIUS))
-    #define MIN_PROBE_Y (Y_CENTER - (DELTA_PROBEABLE_RADIUS))
-    #define MAX_PROBE_X (X_CENTER +  DELTA_PROBEABLE_RADIUS)
-    #define MAX_PROBE_Y (Y_CENTER +  DELTA_PROBEABLE_RADIUS)
+    #define _MIN_PROBE_X (X_CENTER - DELTA_PRINTABLE_RADIUS)
+    #define _MIN_PROBE_Y (Y_CENTER - DELTA_PRINTABLE_RADIUS)
+    #define _MAX_PROBE_X (X_CENTER + DELTA_PRINTABLE_RADIUS)
+    #define _MAX_PROBE_Y (Y_CENTER + DELTA_PRINTABLE_RADIUS)
   #elif IS_SCARA
     #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
-    #define MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
-    #define MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS))
-    #define MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS)
-    #define MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
+    #define _MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
+    #define _MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS))
+    #define _MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS)
+    #define _MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
   #else
     // Boundaries for Cartesian probing based on bed limits
-    #define MIN_PROBE_X (max(X_MIN_BED, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MIN_PROBE_Y (max(Y_MIN_BED, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MAX_PROBE_X (min(X_MAX_BED, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-    #define MAX_PROBE_Y (min(Y_MAX_BED, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+    #define _MIN_PROBE_X (max(X_MIN_BED, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+    #define _MIN_PROBE_Y (max(Y_MIN_BED, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+    #define _MAX_PROBE_X (min(X_MAX_BED, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+    #define _MAX_PROBE_Y (min(Y_MAX_BED, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #endif
+
+  // Allow configuration to override these for special purposes
+  #ifndef MIN_PROBE_X
+    #define MIN_PROBE_X _MIN_PROBE_X
+  #endif
+  #ifndef MIN_PROBE_Y
+    #define MIN_PROBE_Y _MIN_PROBE_Y
+  #endif
+  #ifndef MAX_PROBE_X
+    #define MAX_PROBE_X _MAX_PROBE_X
+  #endif
+  #ifndef MAX_PROBE_Y
+    #define MAX_PROBE_Y _MAX_PROBE_Y
   #endif
 
   /**
@@ -946,10 +1025,18 @@
       #define _MESH_MAX_Y (MAX_PROBE_Y - (MESH_INSET))
     #else
       // Boundaries for Cartesian probing based on set limits
-      #define _MESH_MIN_X (max(X_MIN_BED + MESH_INSET, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-      #define _MESH_MIN_Y (max(Y_MIN_BED + MESH_INSET, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-      #define _MESH_MAX_X (min(X_MAX_BED - (MESH_INSET), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-      #define _MESH_MAX_Y (min(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        #define _MESH_MIN_X (max(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
+        #define _MESH_MIN_Y (max(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need *_PROBE_OFFSET_FROM_EXTRUDER in the mesh dimensions
+        #define _MESH_MAX_X (min(X_MAX_BED - (MESH_INSET), X_MAX_POS))
+        #define _MESH_MAX_Y (min(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
+      #else
+        #define _MESH_MIN_X (max(X_MIN_BED + MESH_INSET, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+        #define _MESH_MIN_Y (max(Y_MIN_BED + MESH_INSET, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+        #define _MESH_MAX_X (min(X_MAX_BED - (MESH_INSET), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+        #define _MESH_MAX_Y (min(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+      #endif
+
     #endif
     /**
      * These may be overridden in Configuration if a smaller area is wanted
@@ -1030,7 +1117,7 @@
   // Updated G92 behavior shifts the workspace
   #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
   // The home offset also shifts the coordinate space
-  #define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DELTA))
+  #define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA))
   // Either offset yields extra calculations on all moves
   #define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT || HAS_HOME_OFFSET)
   // M206 doesn't apply to DELTA
@@ -1039,21 +1126,6 @@
   // LCD timeout to status screen default is 15s
   #ifndef LCD_TIMEOUT_TO_STATUS
     #define LCD_TIMEOUT_TO_STATUS 15000
-  #endif
-
-  /**
-   * DELTA_SEGMENT_MIN_LENGTH for UBL_DELTA
-   */
-  #if UBL_DELTA
-    #ifndef DELTA_SEGMENT_MIN_LENGTH
-      #if IS_SCARA
-        #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
-      #elif ENABLED(DELTA)
-        #define DELTA_SEGMENT_MIN_LENGTH 0.10 // mm (still subject to DELTA_SEGMENTS_PER_SECOND)
-      #else // CARTESIAN
-        #define DELTA_SEGMENT_MIN_LENGTH 1.00 // mm (similar to G2/G3 arc segmentation)
-      #endif
-    #endif
   #endif
 
   // Shorthand
@@ -1077,6 +1149,35 @@
     #define MAX_VFAT_ENTRIES (5)
   #else
     #define MAX_VFAT_ENTRIES (2)
+  #endif
+
+  // Set defaults for unspecified LED user colors
+  #if ENABLED(LED_CONTROL_MENU)
+    #ifndef LED_USER_PRESET_RED
+      #define LED_USER_PRESET_RED       255
+    #endif
+    #ifndef LED_USER_PRESET_GREEN
+      #define LED_USER_PRESET_GREEN     255
+    #endif
+    #ifndef LED_USER_PRESET_BLUE
+      #define LED_USER_PRESET_BLUE      255
+    #endif
+    #ifndef LED_USER_PRESET_WHITE
+      #define LED_USER_PRESET_WHITE     0
+    #endif
+    #ifndef LED_USER_PRESET_BRIGHTNESS
+      #ifdef NEOPIXEL_BRIGHTNESS
+        #define LED_USER_PRESET_BRIGHTNESS NEOPIXEL_BRIGHTNESS
+      #else
+        #define LED_USER_PRESET_BRIGHTNESS 255
+      #endif
+    #endif
+  #endif
+
+  // Nozzle park
+  #if ENABLED(NOZZLE_PARK_FEATURE) && ENABLED(DELTA)
+    #undef NOZZLE_PARK_Z_FEEDRATE
+    #define NOZZLE_PARK_Z_FEEDRATE NOZZLE_PARK_XY_FEEDRATE
   #endif
 
 #endif // CONDITIONALS_POST_H

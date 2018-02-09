@@ -20,26 +20,26 @@
  *
  */
 
-// 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
+// R25 = 100 kOhm, beta25 = 3950 K, 10 kOhm pull-up, NTCS0603E3104FHT
 const short temptable_8[][2] PROGMEM = {
-  {    1 * OVERSAMPLENR, 704 },
-  {   54 * OVERSAMPLENR, 216 },
-  {  107 * OVERSAMPLENR, 175 },
-  {  160 * OVERSAMPLENR, 152 },
-  {  213 * OVERSAMPLENR, 137 },
-  {  266 * OVERSAMPLENR, 125 },
-  {  319 * OVERSAMPLENR, 115 },
-  {  372 * OVERSAMPLENR, 106 },
-  {  425 * OVERSAMPLENR,  99 },
-  {  478 * OVERSAMPLENR,  91 },
-  {  531 * OVERSAMPLENR,  85 },
-  {  584 * OVERSAMPLENR,  78 },
-  {  637 * OVERSAMPLENR,  71 },
-  {  690 * OVERSAMPLENR,  65 },
-  {  743 * OVERSAMPLENR,  58 },
-  {  796 * OVERSAMPLENR,  50 },
-  {  849 * OVERSAMPLENR,  42 },
-  {  902 * OVERSAMPLENR,  31 },
-  {  955 * OVERSAMPLENR,  17 },
-  { 1008 * OVERSAMPLENR,   0 }
+  { OV(   1), 704 },
+  { OV(  54), 216 },
+  { OV( 107), 175 },
+  { OV( 160), 152 },
+  { OV( 213), 137 },
+  { OV( 266), 125 },
+  { OV( 319), 115 },
+  { OV( 372), 106 },
+  { OV( 425),  99 },
+  { OV( 478),  91 },
+  { OV( 531),  85 },
+  { OV( 584),  78 },
+  { OV( 637),  71 },
+  { OV( 690),  65 },
+  { OV( 743),  58 },
+  { OV( 796),  50 },
+  { OV( 849),  42 },
+  { OV( 902),  31 },
+  { OV( 955),  17 },
+  { OV(1008),   0 }
 };

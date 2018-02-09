@@ -46,8 +46,6 @@
 
 #define BOARD_NAME "Rambo"
 
-#define LARGE_FLASH true
-
 //
 // Servos
 //
@@ -191,7 +189,7 @@
       #define STAT_LED_RED_PIN 22
       #define STAT_LED_BLUE_PIN 32
 
-    #else
+    #else // !VIKI2 && !miniVIKI
 
       #define BEEPER_PIN 79 // AUX-4
 
@@ -202,7 +200,7 @@
 
       #define SD_DETECT_PIN 81
 
-    #endif // VIKI2/miniVIKI
+    #endif  // !VIKI2 && !miniVIKI
 
   #else // !NEWPANEL - old style panel with shift register
 

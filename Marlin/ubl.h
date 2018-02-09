@@ -26,6 +26,9 @@
 #include "MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
+
+  //#define UBL_DEVEL_DEBUGGING
+
   #include "Marlin.h"
   #include "planner.h"
   #include "math.h"
@@ -39,20 +42,13 @@
   #define USE_NOZZLE_AS_REFERENCE 0
   #define USE_PROBE_AS_REFERENCE 1
 
-  typedef struct {
-    int8_t x_index, y_index;
-    float distance; // When populated, the distance from the search location
-  } mesh_index_pair;
-
-  // ubl.cpp
-
-void bit_clear(uint16_t bits[16], const uint8_t x, const uint8_t y);
-void bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
-bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
-
   // ubl_motion.cpp
 
-  void debug_current_and_destination(const char * const title);
+  #if ENABLED(UBL_DEVEL_DEBUGGING)
+    void debug_current_and_destination(const char * const title);
+  #else
+    FORCE_INLINE void debug_current_and_destination(const char * const title) { UNUSED(title); }
+  #endif
 
   // ubl_G29.cpp
 
@@ -61,7 +57,6 @@ bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
   // External references
 
   char *ftostr43sign(const float&, char);
-  bool ubl_lcd_clicked();
   void home_all_axes();
 
   extern uint8_t ubl_cnt;
@@ -70,7 +65,7 @@ bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
 
   #if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
-    void lcd_quick_feedback();
+    void lcd_quick_feedback(const bool clear_buttons);
   #endif
 
   #define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
@@ -93,52 +88,25 @@ bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
         static int  g29_grid_size;
       #endif
 
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
-        static float   g26_extrusion_multiplier,
-                       g26_retraction_multiplier,
-                       g26_nozzle,
-                       g26_filament_diameter,
-                       g26_prime_length,
-                       g26_x_pos, g26_y_pos,
-                       g26_ooze_amount,
-                       g26_layer_height;
-        static int16_t g26_bed_temp,
-                       g26_hotend_temp,
-                       g26_repeats;
-        static int8_t  g26_prime_flag;
-        static bool    g26_continue_with_closest, g26_keep_heaters_on;
+      #if ENABLED(NEWPANEL)
+        static void move_z_with_encoder(const float &multiplier);
+        static float measure_point_with_encoder();
+        static float measure_business_card_thickness(const float);
+        static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool) _O0;
+        static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) _O0;
       #endif
 
-      static float measure_point_with_encoder();
-      static float measure_business_card_thickness(float);
-      static bool g29_parameter_parsing();
+      static bool g29_parameter_parsing() _O0;
       static void find_mean_mesh_height();
       static void shift_mesh_height();
-      static void probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest);
-      static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
+      static void probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest) _O0;
       static void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
       static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
       static void g29_what_command();
       static void g29_eeprom_dump();
       static void g29_compare_current_mesh_to_stored_mesh();
-      static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map);
       static bool smart_fill_one(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir);
       static void smart_fill_mesh();
-
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
-        static bool exit_from_g26();
-        static bool parse_G26_parameters();
-        static void G26_line_to_destination(const float &feed_rate);
-        static mesh_index_pair find_closest_circle_to_print(const float&, const float&);
-        static bool look_for_lines_to_connect();
-        static bool turn_on_heaters();
-        static bool prime_nozzle();
-        static void retract_filament(const float where[XYZE]);
-        static void recover_filament(const float where[XYZE]);
-        static void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
-        static void move_to(const float&, const float&, const float&, const float&);
-        inline static void move_to(const float where[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
-      #endif
 
     public:
 
@@ -146,21 +114,16 @@ bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
       static void report_state();
       static void save_ubl_active_state_and_disable();
       static void restore_ubl_active_state_and_leave();
-      static void display_map(const int);
-    static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16]);
-    static mesh_index_pair find_furthest_invalid_mesh_point();
+      static void display_map(const int) _O0;
+      static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16]) _O0;
+      static mesh_index_pair find_furthest_invalid_mesh_point() _O0;
       static void reset();
       static void invalidate();
       static void set_all_mesh_points_to_value(const float);
       static bool sanity_check();
 
-      static void G29() _O0;                          // O0 for no optimization
-      static void smart_fill_wlsf(const float &) _O2; // O2 gives smaller code than Os on A2560
-
-      #if ENABLED(UBL_G26_MESH_VALIDATION)
-        static void G26();
-      #endif
-
+      static void G29() _O0;                      // O0 for no optimization
+      static void smart_fill_wlsf(const float &); // O2 gives smaller code than Os on A2560
       static int8_t storage_slot;
 
       static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -189,7 +152,9 @@ bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
                                 MESH_MIN_Y + 14 * (MESH_Y_DIST), MESH_MIN_Y + 15 * (MESH_Y_DIST)
                               };
 
-      static bool g26_debug_flag, has_control_of_lcd_panel;
+      #if ENABLED(ULTIPANEL)
+        static bool lcd_map_control;
+      #endif
 
       static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
 
@@ -246,48 +211,52 @@ bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
        * the case where the printer is making a vertical line that only crosses horizontal mesh lines.
        */
       inline static float z_correction_for_x_on_horizontal_mesh_line(const float &rx0, const int x1_i, const int yi) {
-        if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 2) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-          serialprintPGM( !WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) ? PSTR("x1l_i") : PSTR("yi") );
-          SERIAL_ECHOPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0);
-          SERIAL_ECHOPAIR(",x1_i=", x1_i);
-          SERIAL_ECHOPAIR(",yi=", yi);
-          SERIAL_CHAR(')');
-          SERIAL_EOL();
-          }
-        #endif
+        if (!WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(yi, 0, GRID_MAX_POINTS_Y - 1)) {
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              serialprintPGM( !WITHIN(x1_i, 0, GRID_MAX_POINTS_X - 1) ? PSTR("x1_i") : PSTR("yi") );
+              SERIAL_ECHOPAIR(" out of bounds in z_correction_for_x_on_horizontal_mesh_line(rx0=", rx0);
+              SERIAL_ECHOPAIR(",x1_i=", x1_i);
+              SERIAL_ECHOPAIR(",yi=", yi);
+              SERIAL_CHAR(')');
+              SERIAL_EOL();
+            }
+          #endif
           return NAN;
         }
 
         const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0 / (MESH_X_DIST)),
                     z1 = z_values[x1_i][yi];
 
-        return z1 + xratio * (z_values[x1_i + 1][yi] - z1);
+        return z1 + xratio * (z_values[min(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
+                                                                                        // If it is, it is clamped to the last element of the
+                                                                                        // z_values[][] array and no correction is applied.
       }
 
       //
       // See comments above for z_correction_for_x_on_horizontal_mesh_line
       //
       inline static float z_correction_for_y_on_vertical_mesh_line(const float &ry0, const int xi, const int y1_i) {
-        if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 2)) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-          serialprintPGM( !WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("yl_i") );
-          SERIAL_ECHOPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0);
-          SERIAL_ECHOPAIR(", xi=", xi);
-          SERIAL_ECHOPAIR(", y1_i=", y1_i);
-          SERIAL_CHAR(')');
-          SERIAL_EOL();
-          }
-        #endif
+        if (!WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(y1_i, 0, GRID_MAX_POINTS_Y - 1)) {
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              serialprintPGM( !WITHIN(xi, 0, GRID_MAX_POINTS_X - 1) ? PSTR("xi") : PSTR("y1_i") );
+              SERIAL_ECHOPAIR(" out of bounds in z_correction_for_y_on_vertical_mesh_line(ry0=", ry0);
+              SERIAL_ECHOPAIR(", xi=", xi);
+              SERIAL_ECHOPAIR(", y1_i=", y1_i);
+              SERIAL_CHAR(')');
+              SERIAL_EOL();
+            }
+          #endif
           return NAN;
         }
 
         const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0 / (MESH_Y_DIST)),
                     z1 = z_values[xi][y1_i];
 
-        return z1 + yratio * (z_values[xi][y1_i + 1] - z1);
+        return z1 + yratio * (z_values[xi][min(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array
+                                                                                        // If it is, it is clamped to the last element of the
+                                                                                        // z_values[][] array and no correction is applied.
       }
 
       /**
@@ -298,29 +267,15 @@ bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
        */
       static float get_z_correction(const float &rx0, const float &ry0) {
         const int8_t cx = get_cell_index_x(rx0),
-                     cy = get_cell_index_y(ry0);
-
-        if (!WITHIN(cx, 0, GRID_MAX_POINTS_X - 2) || !WITHIN(cy, 0, GRID_MAX_POINTS_Y - 2)) {
-
-          SERIAL_ECHOPAIR("? in get_z_correction(rx0=", rx0);
-          SERIAL_ECHOPAIR(", ry0=", ry0);
-          SERIAL_CHAR(')');
-          SERIAL_EOL();
-
-          #if ENABLED(ULTRA_LCD)
-            strcpy(lcd_status_message, "get_z_correction() indexes out of range.");
-            lcd_quick_feedback();
-          #endif
-          return NAN;
-        }
+                     cy = get_cell_index_y(ry0); // return values are clamped
 
         const float z1 = calc_z0(rx0,
                                  mesh_index_to_xpos(cx), z_values[cx][cy],
-                                 mesh_index_to_xpos(cx + 1), z_values[cx + 1][cy]);
+                                 mesh_index_to_xpos(cx + 1), z_values[min(cx, GRID_MAX_POINTS_X - 2) + 1][cy]);
 
         const float z2 = calc_z0(rx0,
-                                 mesh_index_to_xpos(cx), z_values[cx][cy + 1],
-                                 mesh_index_to_xpos(cx + 1), z_values[cx + 1][cy + 1]);
+                                 mesh_index_to_xpos(cx), z_values[cx][min(cy, GRID_MAX_POINTS_Y - 2) + 1],
+                                 mesh_index_to_xpos(cx + 1), z_values[min(cx, GRID_MAX_POINTS_X - 2) + 1][min(cy, GRID_MAX_POINTS_Y - 2) + 1]);
 
         float z0 = calc_z0(ry0,
                            mesh_index_to_ypos(cy), z1,
@@ -371,29 +326,27 @@ bool is_bit_set(uint16_t bits[16], const uint8_t x, const uint8_t y);
         return i < GRID_MAX_POINTS_Y ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
       }
 
-      static bool prepare_segmented_line_to(const float rtarget[XYZE], const float &feedrate);
-      static void line_to_destination_cartesian(const float &fr, uint8_t e);
+      #if UBL_SEGMENTED
+        static bool prepare_segmented_line_to(const float (&rtarget)[XYZE], const float &feedrate);
+      #else
+        static void line_to_destination_cartesian(const float &fr, const uint8_t e);
+      #endif
 
-    #define _CMPZ(a,b) (z_values[a][b] == z_values[a][b+1])
-    #define CMPZ(a) (_CMPZ(a, 0) && _CMPZ(a, 1))
-    #define ZZER(a) (z_values[a][0] == 0)
+      #define _CMPZ(a,b) (z_values[a][b] == z_values[a][b+1])
+      #define CMPZ(a) (_CMPZ(a, 0) && _CMPZ(a, 1))
+      #define ZZER(a) (z_values[a][0] == 0)
 
-    FORCE_INLINE bool mesh_is_valid() {
-      return !(
-        (    CMPZ(0) && CMPZ(1) && CMPZ(2) // adjacent z values all equal?
-          && ZZER(0) && ZZER(1) && ZZER(2) // all zero at the edge?
-        )
-        || isnan(z_values[0][0])
-      );
-    }
-
+      FORCE_INLINE bool mesh_is_valid() {
+        return !(
+          (    CMPZ(0) && CMPZ(1) && CMPZ(2) // adjacent z values all equal?
+            && ZZER(0) && ZZER(1) && ZZER(2) // all zero at the edge?
+          )
+          || isnan(z_values[0][0])
+        );
+      }
   }; // class unified_bed_leveling
 
   extern unified_bed_leveling ubl;
-
-  #if ENABLED(UBL_G26_MESH_VALIDATION)
-    FORCE_INLINE void gcode_G26() { ubl.G26(); }
-  #endif
 
   FORCE_INLINE void gcode_G29() { ubl.G29(); }
 

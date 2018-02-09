@@ -32,6 +32,7 @@
 
 #define MAPPER_D0D1                // For Cyrillic
 #define DISPLAY_CHARSET_ISO10646_5
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" готовий.")
 #define MSG_SD_INSERTED                     _UxGT("Картка вставлена")
@@ -96,9 +97,15 @@
 #define MSG_SELECT                          _UxGT("Вибрати")
 #define MSG_ACC                             _UxGT("Приск.")
 #define MSG_JERK                            _UxGT("Ривок")
-#define MSG_VX_JERK                         _UxGT("Vx-ривок")
-#define MSG_VY_JERK                         _UxGT("Vy-ривок")
-#define MSG_VZ_JERK                         _UxGT("Vz-ривок")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-ривок")
+  #define MSG_VB_JERK                       _UxGT("Vb-ривок")
+  #define MSG_VC_JERK                       _UxGT("Vc-ривок")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-ривок")
+  #define MSG_VB_JERK                       _UxGT("Vy-ривок")
+  #define MSG_VC_JERK                       _UxGT("Vz-ривок")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-ривок")
 #define MSG_VMAX                            _UxGT("Vмакс")
 #define MSG_VMIN                            _UxGT("Vмін")
@@ -107,9 +114,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-втягув.")
 #define MSG_A_TRAVEL                        _UxGT("A-руху")
 #define MSG_STEPS_PER_MM                    _UxGT("Кроків/мм")
-#define MSG_XSTEPS                          _UxGT("Xкроків/мм")
-#define MSG_YSTEPS                          _UxGT("Yкроків/мм")
-#define MSG_ZSTEPS                          _UxGT("Zкроків/мм")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Aкроків/мм")
+  #define MSG_BSTEPS                        _UxGT("Bкроків/мм")
+  #define MSG_CSTEPS                        _UxGT("Cкроків/мм")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xкроків/мм")
+  #define MSG_BSTEPS                        _UxGT("Yкроків/мм")
+  #define MSG_CSTEPS                        _UxGT("Zкроків/мм")
+#endif
 #define MSG_ESTEPS                          _UxGT("Eкроків/мм")
 #define MSG_E1STEPS                         _UxGT("E1кроків/мм")
 #define MSG_E2STEPS                         _UxGT("E2кроків/мм")
@@ -204,9 +217,6 @@
 #define MSG_DAC_PERCENT                     _UxGT("% мотору")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Запис ЦАП на ПЗП")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Екструдувати")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Відновити друк")
 
 #if LCD_HEIGHT >= 4
@@ -221,9 +231,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("продовження...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Зачекайте на")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("ввід волокна")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Зачекайте на")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("екструзію")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("волокна")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Зачекайте на")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("відновлення")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("друку")
@@ -233,7 +240,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Вивід...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Вставте і нат.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ввід...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Екструзія...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Відновлення...")
 #endif // LCD_HEIGHT < 4
 

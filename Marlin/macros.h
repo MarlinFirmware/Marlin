@@ -24,6 +24,7 @@
 #define MACROS_H
 
 #define NUM_AXIS 4
+#define ABCE 4
 #define XYZE 4
 #define ABC  3
 #define XYZ  3
@@ -101,10 +102,16 @@
 #define STRINGIFY(M) STRINGIFY_(M)
 
 // Macros for bit masks
-#define TEST(n,b) (((n)&_BV(b))!=0)
+#undef _BV
+#define _BV(b) (1<<(b))
+#define TEST(n,b) !!((n)&_BV(b))
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))
-#define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (_BV(b))
+
+#define _BV32(b) (1UL << (b))
+#define TEST32(n,b) !!((n)&_BV32(b))
+#define SBI32(n,b) (n |= _BV32(b))
+#define CBI32(n,b) (n &= ~_BV32(b))
 
 // Macro to check that a number if a power if 2
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
@@ -117,7 +124,11 @@
 #define DEGREES(r) ((r)*180.0/M_PI)
 #define HYPOT2(x,y) (sq(x)+sq(y))
 
+#define CIRCLE_AREA(R) (M_PI * sq(R))
+#define CIRCLE_CIRC(R) (2.0 * M_PI * (R))
+
 #define SIGN(a) ((a>0)-(a<0))
+#define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
@@ -183,6 +194,9 @@
 
 #define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
+
+#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
+#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
 
 #define NOOP do{} while(0)
 

@@ -32,6 +32,7 @@
 
 #define MAPPER_C2C3  // because of "ó"
 #define DISPLAY_CHARSET_ISO10646_1
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" preparada.")
 #define MSG_SD_INSERTED                     _UxGT("Targeta detectada.")
@@ -100,9 +101,15 @@
 #define MSG_SELECT                          _UxGT("Select")
 #define MSG_ACC                             _UxGT("Accel")
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vx-jerk")
-#define MSG_VY_JERK                         _UxGT("Vy-jerk")
-#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT("Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
@@ -111,9 +118,15 @@
 #define MSG_A_RETRACT                       _UxGT("Accel. retracc")
 #define MSG_A_TRAVEL                        _UxGT("Accel. Viatge")
 #define MSG_STEPS_PER_MM                    _UxGT("Passos/mm")
-#define MSG_XSTEPS                          _UxGT("Xpassos/mm")
-#define MSG_YSTEPS                          _UxGT("Ypassos/mm")
-#define MSG_ZSTEPS                          _UxGT("Zpassos/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Apassos/mm")
+  #define MSG_BSTEPS                        _UxGT("Bpassos/mm")
+  #define MSG_CSTEPS                        _UxGT("Cpassos/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xpassos/mm")
+  #define MSG_BSTEPS                        _UxGT("Ypassos/mm")
+  #define MSG_CSTEPS                        _UxGT("Zpassos/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("Epassos/mm")
 #define MSG_E1STEPS                         _UxGT("E1passos/mm")
 #define MSG_E2STEPS                         _UxGT("E2passos/mm")
@@ -219,11 +232,7 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Força motor")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC EEPROM Write")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrudeix mes")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Repren impressió")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Temp minima es ")
 
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -244,8 +253,6 @@
   #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Espereu...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperant carrega")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("de filament")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Esperant per")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("extreure filament")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperant per")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("reprendre")
 #else // LCD_HEIGHT < 4
@@ -254,7 +261,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insereix i prem")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Escalfant...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Carregant...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Extrudint...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Reprenent...")
 #endif // LCD_HEIGHT < 4
 

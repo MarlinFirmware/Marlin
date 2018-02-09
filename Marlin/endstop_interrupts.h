@@ -111,7 +111,7 @@ void endstop_ISR(void) { endstop_ISR_worker(); }
 void setup_endstop_interrupts( void ) {
 
   #if HAS_X_MAX
-    #if (digitalPinToInterrupt(X_MAX_PIN) != NOT_AN_INTERRUPT) // if pin has an external interrupt
+    #if digitalPinToInterrupt(X_MAX_PIN) != NOT_AN_INTERRUPT // if pin has an external interrupt
       attachInterrupt(digitalPinToInterrupt(X_MAX_PIN), endstop_ISR, CHANGE); // assign it
     #else
       // Not all used endstop/probe -pins can raise interrupts. Please deactivate ENDSTOP_INTERRUPTS or change the pin configuration!
@@ -121,7 +121,7 @@ void setup_endstop_interrupts( void ) {
   #endif
 
   #if HAS_X_MIN
-    #if (digitalPinToInterrupt(X_MIN_PIN) != NOT_AN_INTERRUPT)
+    #if digitalPinToInterrupt(X_MIN_PIN) != NOT_AN_INTERRUPT
       attachInterrupt(digitalPinToInterrupt(X_MIN_PIN), endstop_ISR, CHANGE);
     #else
       // Not all used endstop/probe -pins can raise interrupts. Please deactivate ENDSTOP_INTERRUPTS or change the pin configuration!
@@ -131,7 +131,7 @@ void setup_endstop_interrupts( void ) {
   #endif
 
   #if HAS_Y_MAX
-    #if (digitalPinToInterrupt(Y_MAX_PIN) != NOT_AN_INTERRUPT)
+    #if digitalPinToInterrupt(Y_MAX_PIN) != NOT_AN_INTERRUPT
       attachInterrupt(digitalPinToInterrupt(Y_MAX_PIN), endstop_ISR, CHANGE);
     #else
       // Not all used endstop/probe -pins can raise interrupts. Please deactivate ENDSTOP_INTERRUPTS or change the pin configuration!
@@ -141,7 +141,7 @@ void setup_endstop_interrupts( void ) {
   #endif
 
   #if HAS_Y_MIN
-    #if (digitalPinToInterrupt(Y_MIN_PIN) != NOT_AN_INTERRUPT)
+    #if digitalPinToInterrupt(Y_MIN_PIN) != NOT_AN_INTERRUPT
       attachInterrupt(digitalPinToInterrupt(Y_MIN_PIN), endstop_ISR, CHANGE);
     #else
       // Not all used endstop/probe -pins can raise interrupts. Please deactivate ENDSTOP_INTERRUPTS or change the pin configuration!
@@ -151,7 +151,7 @@ void setup_endstop_interrupts( void ) {
   #endif
 
   #if HAS_Z_MAX
-    #if (digitalPinToInterrupt(Z_MAX_PIN) != NOT_AN_INTERRUPT)
+    #if digitalPinToInterrupt(Z_MAX_PIN) != NOT_AN_INTERRUPT
       attachInterrupt(digitalPinToInterrupt(Z_MAX_PIN), endstop_ISR, CHANGE);
     #else
       // Not all used endstop/probe -pins can raise interrupts. Please deactivate ENDSTOP_INTERRUPTS or change the pin configuration!
@@ -161,7 +161,7 @@ void setup_endstop_interrupts( void ) {
   #endif
 
   #if HAS_Z_MIN
-    #if (digitalPinToInterrupt(Z_MIN_PIN) != NOT_AN_INTERRUPT)
+    #if digitalPinToInterrupt(Z_MIN_PIN) != NOT_AN_INTERRUPT
       attachInterrupt(digitalPinToInterrupt(Z_MIN_PIN), endstop_ISR, CHANGE);
     #else
       // Not all used endstop/probe -pins can raise interrupts. Please deactivate ENDSTOP_INTERRUPTS or change the pin configuration!
@@ -211,7 +211,7 @@ void setup_endstop_interrupts( void ) {
   #endif
 
   #if HAS_Z2_MAX
-    #if (digitalPinToInterrupt(Z2_MAX_PIN) != NOT_AN_INTERRUPT)
+    #if digitalPinToInterrupt(Z2_MAX_PIN) != NOT_AN_INTERRUPT
       attachInterrupt(digitalPinToInterrupt(Z2_MAX_PIN), endstop_ISR, CHANGE);
     #else
       // Not all used endstop/probe -pins can raise interrupts. Please deactivate ENDSTOP_INTERRUPTS or change the pin configuration!
@@ -221,7 +221,7 @@ void setup_endstop_interrupts( void ) {
   #endif
 
   #if HAS_Z2_MIN
-    #if (digitalPinToInterrupt(Z2_MIN_PIN) != NOT_AN_INTERRUPT)
+    #if digitalPinToInterrupt(Z2_MIN_PIN) != NOT_AN_INTERRUPT
       attachInterrupt(digitalPinToInterrupt(Z2_MIN_PIN), endstop_ISR, CHANGE);
     #else
       // Not all used endstop/probe -pins can raise interrupts. Please deactivate ENDSTOP_INTERRUPTS or change the pin configuration!
@@ -231,7 +231,7 @@ void setup_endstop_interrupts( void ) {
   #endif
 
   #if HAS_Z_MIN_PROBE_PIN
-    #if (digitalPinToInterrupt(Z_MIN_PROBE_PIN) != NOT_AN_INTERRUPT)
+    #if digitalPinToInterrupt(Z_MIN_PROBE_PIN) != NOT_AN_INTERRUPT
       attachInterrupt(digitalPinToInterrupt(Z_MIN_PROBE_PIN), endstop_ISR, CHANGE);
     #else
       // Not all used endstop/probe -pins can raise interrupts. Please deactivate ENDSTOP_INTERRUPTS or change the pin configuration!

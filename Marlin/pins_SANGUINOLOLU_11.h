@@ -59,10 +59,6 @@
   #define BOARD_NAME "Sanguinololu <1.2"
 #endif
 
-#ifdef __AVR_ATmega1284P__
-  #define LARGE_FLASH true
-#endif
-
 //
 // Limit Switches
 //
@@ -118,7 +114,7 @@
 
 #endif
 
-#if MB(AZTEEG_X1) || MB(STB_11) || ENABLED(IS_MELZI)
+#if MB(AZTEEG_X1) || MB(STB_11) || MB(CREALITY_ENDER) || ENABLED(IS_MELZI)
   #define FAN_PIN           4 // Works for Panelolu2 too
 #endif
 
@@ -191,6 +187,11 @@
         #define DOGLCD_CS       17
         #define LCD_BACKLIGHT_PIN 28 // PA3
 
+      #elif MB(CREALITY_ENDER)
+
+        #define BEEPER_PIN      27
+        #define DOGLCD_CS       28
+
       #else // !MAKRPANEL
 
         #define DOGLCD_CS       29
@@ -247,7 +248,21 @@
       #define ST7920_DELAY_3 DELAY_0_NOP
     #endif
 
-  #else  // !LCD_I2C_PANELOLU2 && !LCD_FOR_MELZI
+  #elif ENABLED(ZONESTAR_LCD) // For the Tronxy Melzi boards
+
+    #define LCD_PINS_RS         28
+    #define LCD_PINS_ENABLE     29
+    #define LCD_PINS_D4         10
+    #define LCD_PINS_D5         11
+    #define LCD_PINS_D6         16
+    #define LCD_PINS_D7         17
+    #define ADC_KEYPAD_PIN       1
+
+    // Not used
+    #define BTN_EN1             -1
+    #define BTN_EN2             -1
+
+  #else  // !LCD_I2C_PANELOLU2 && !LCD_FOR_MELZI && !ZONESTAR_LCD
 
     #define BTN_ENC             16
     #define LCD_SDSS            28 // Smart Controller SD card reader rather than the Melzi

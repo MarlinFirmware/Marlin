@@ -47,7 +47,7 @@ void safe_delay(millis_t ms) {
 
 #endif // EEPROM_SETTINGS
 
-#if ENABLED(ULTRA_LCD)
+#if ENABLED(ULTRA_LCD) || (ENABLED(DEBUG_LEVELING_FEATURE) && (ENABLED(MESH_BED_LEVELING) || (HAS_ABL && !ABL_PLANAR)))
 
   char conv[8] = { 0 };
 
@@ -254,4 +254,4 @@ void safe_delay(millis_t ms) {
     return &conv[1];
   }
 
-#endif // ULTRA_LCD
+#endif // ULTRA_LCD || (DEBUG_LEVELING_FEATURE && (MESH_BED_LEVELING || (HAS_ABL && !ABL_PLANAR)))

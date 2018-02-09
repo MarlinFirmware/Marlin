@@ -96,9 +96,15 @@
 #define MSG_SELECT                          _UxGT("Trigar")
 #define MSG_ACC                             _UxGT("Aceleracion")
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vx-jerk")
-#define MSG_VY_JERK                         _UxGT("Vy-jerk")
-#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT("Vmax")
 #define MSG_VMIN                            _UxGT("Vmin")
@@ -108,9 +114,15 @@
 #define MSG_A_RETRACT                       _UxGT("Acel. retrac.")
 #define MSG_A_TRAVEL                        _UxGT("Acel. Viaje")
 #define MSG_STEPS_PER_MM                    _UxGT("Trangos/mm")
-#define MSG_XSTEPS                          _UxGT("X trangos/mm")
-#define MSG_YSTEPS                          _UxGT("Y trangos/mm")
-#define MSG_ZSTEPS                          _UxGT("Z trangos/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("A trangos/mm")
+  #define MSG_BSTEPS                        _UxGT("B trangos/mm")
+  #define MSG_CSTEPS                        _UxGT("C trangos/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("X trangos/mm")
+  #define MSG_BSTEPS                        _UxGT("Y trangos/mm")
+  #define MSG_CSTEPS                        _UxGT("Z trangos/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("E trangos/mm")
 #define MSG_E1STEPS                         _UxGT("E1 trangos/mm")
 #define MSG_E2STEPS                         _UxGT("E2 trangos/mm")
@@ -217,9 +229,6 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Fuerza d'o driver")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Escri. DAC EEPROM")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extruir mas")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Resumir imp.")
 
 //
@@ -246,8 +255,6 @@
 #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("expulsar filament")
 #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Aguardando a")
 #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("cargar filamento")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Aguardando a")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("extruir filamento")
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Aguardando impre.")
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("pa continar")
 
