@@ -42,6 +42,9 @@
  */
 
 #include "../inc/MarlinConfig.h"
+
+#if ENABLED(MALYAN_LCD)
+
 #include "../sd/cardreader.h"
 #include "../sd/SdFatConfig.h"
 #include "../module/temperature.h"
@@ -56,8 +59,6 @@
 #include "../module/configuration_store.h"
 
 #include "../Marlin.h"
-
-#if ENABLED(MALYAN_LCD)
 
 // On the Malyan M200, this will be Serial1. On a RAMPS board,
 // it might not be.
