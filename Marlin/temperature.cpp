@@ -738,6 +738,10 @@ float Temperature::get_pid_output(const int8_t e) {
  */
 void Temperature::manage_heater() {
 
+  #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+    static bool last_pause_state;
+  #endif
+
   if (!temp_meas_ready) return;
 
   updateTemperaturesFromRawValues(); // also resets the watchdog
@@ -814,8 +818,15 @@ void Temperature::manage_heater() {
   #endif // WATCH_THE_BED
 
   #if DISABLED(PIDTEMPBED)
-    if (PENDING(ms, next_bed_check_ms)) return;
+    if (PENDING(ms, next_bed_check_ms)
+      #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+        && paused == last_pause_state
+      #endif
+    ) return;
     next_bed_check_ms = ms + BED_CHECK_INTERVAL;
+    #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+      last_pause_state = paused;
+    #endif
   #endif
 
   #if HAS_TEMP_BED
