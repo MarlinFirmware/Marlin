@@ -27,6 +27,8 @@
 #ifndef POWER_H
 #define POWER_H
 
+#include "types.h"
+
 class Power {
   public:
     static void check();
