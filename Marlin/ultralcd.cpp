@@ -84,7 +84,7 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
         lcd_status_message_level;    // Higher level blocks lower level
 
 #if ENABLED(STATUS_MESSAGE_SCROLLING)
-  #define MAX_MESSAGE_LENGTH max(2 * CHARSIZE * LCD_WIDTH, LONG_FILENAME_LENGTH)
+  #define MAX_MESSAGE_LENGTH max(CHARSIZE * 2 * (LCD_WIDTH), LONG_FILENAME_LENGTH)
   uint8_t status_scroll_pos = 0;
 #else
   #define MAX_MESSAGE_LENGTH CHARSIZE * (LCD_WIDTH)
@@ -5204,7 +5204,7 @@ bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 
 void lcd_setstatus(const char * const message, const bool persist) {
   if (lcd_status_message_level > 0) return;
-  strncpy(lcd_status_message, message, 3 * (LCD_WIDTH));
+  strncpy(lcd_status_message, message, COUNT(lcd_status_message) - 1);
   lcd_finishstatus(persist);
 }
 
@@ -5212,7 +5212,7 @@ void lcd_setstatusPGM(const char * const message, int8_t level) {
   if (level < 0) level = lcd_status_message_level = 0;
   if (level < lcd_status_message_level) return;
   lcd_status_message_level = level;
-  strncpy_P(lcd_status_message, message, 3 * (LCD_WIDTH));
+  strncpy_P(lcd_status_message, message, COUNT(lcd_status_message) - 1);
   lcd_finishstatus(level > 0);
 }
 
@@ -5221,7 +5221,7 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   lcd_status_message_level = level;
   va_list args;
   va_start(args, fmt);
-  vsnprintf_P(lcd_status_message, 3 * (LCD_WIDTH), fmt, args);
+  vsnprintf_P(lcd_status_message, COUNT(lcd_status_message) - 1, fmt, args);
   va_end(args);
   lcd_finishstatus(level > 0);
 }
