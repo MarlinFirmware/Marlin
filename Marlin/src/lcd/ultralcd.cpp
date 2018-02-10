@@ -92,7 +92,7 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
         lcd_status_message_level;    // Higher level blocks lower level
 
 #if ENABLED(STATUS_MESSAGE_SCROLLING)
-  #define MAX_MESSAGE_LENGTH max(2 * CHARSIZE * (LCD_WIDTH), LONG_FILENAME_LENGTH)
+  #define MAX_MESSAGE_LENGTH max(CHARSIZE * (LCD_WIDTH), LONG_FILENAME_LENGTH)
   uint8_t status_scroll_pos = 0;
 #else
   #define MAX_MESSAGE_LENGTH CHARSIZE * (LCD_WIDTH)
