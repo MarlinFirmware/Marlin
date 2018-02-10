@@ -11,10 +11,12 @@
 /
 /-------------------------------------------------------------------------*/
 
+#include "lpc17xx_ssp.h"
+#include "lpc17xx_clkpwr.h"
+#include "LPC176x.h"
+
 #define SSP_CH	1	/* SSP channel to use (0:SSP0, 1:SSP1) */
 
-#define	CCLK		100000000UL	/* cclk frequency [Hz] */
-#define PCLK_SSP	50000000UL	/* PCLK frequency to be supplied for SSP [Hz] */
 #define SCLK_FAST	25000000UL	/* SCLK frequency under normal operation [Hz] */
 #define	SCLK_SLOW	400000UL	/* SCLK frequency under initialization [Hz] */
 
@@ -55,21 +57,49 @@
 		}
 #endif
 
-#if PCLK_SSP * 1 == CCLK
-#define PCLKDIV_SSP	PCLKDIV_1
-#elif PCLK_SSP * 2 == CCLK
 #define PCLKDIV_SSP	PCLKDIV_2
-#elif PCLK_SSP * 4 == CCLK
-#define PCLKDIV_SSP	PCLKDIV_4
-#elif PCLK_SSP * 8 == CCLK
-#define PCLKDIV_SSP	PCLKDIV_8
-#else
-#error Invalid CCLK:PCLK_SSP combination.
-#endif
+
+static void set_spi_clock(uint32_t target_clock)
+{
+  uint32_t prescale, cr0_div, cmp_clk, ssp_clk;
+
+  /* The SSP clock is derived from the (main system oscillator / 2),
+      so compute the best divider from that clock */
+  #if SSP_CH == 0
+    ssp_clk = CLKPWR_GetPCLK (CLKPWR_PCLKSEL_SSP0);
+  #elif SSP_CH == 1
+    ssp_clk = CLKPWR_GetPCLK (CLKPWR_PCLKSEL_SSP1);
+  #endif
+
+	/* Find closest divider to get at or under the target frequency.
+	   Use smallest prescale possible and rely on the divider to get
+	   the closest target frequency */
+	cr0_div = 0;
+	cmp_clk = 0xFFFFFFFF;
+	prescale = 2;
+	while (cmp_clk > target_clock)
+	{
+		cmp_clk = ssp_clk / ((cr0_div + 1) * prescale);
+		if (cmp_clk > target_clock)
+		{
+			cr0_div++;
+			if (cr0_div > 0xFF)
+			{
+				cr0_div = 0;
+				prescale += 2;
+			}
+		}
+	}
+
+  /* Write computed prescaler and divider back to register */
+  SSPxCR0 &= (~SSP_CR0_SCR(0xFF)) & SSP_CR0_BITMASK;
+  SSPxCR0 |= (SSP_CR0_SCR(cr0_div)) & SSP_CR0_BITMASK;
+  SSPxCPSR = prescale & SSP_CPSR_BITMASK;
+}
 
 
-#define FCLK_FAST() { SSPxCR0 = (SSPxCR0 & 0x00FF) | ((PCLK_SSP / 2 / SCLK_FAST) - 1) << 8; }
-#define FCLK_SLOW() { SSPxCR0 = (SSPxCR0 & 0x00FF) | ((PCLK_SSP / 2 / SCLK_SLOW) - 1) << 8; }
+#define FCLK_FAST() set_spi_clock(SCLK_FAST)
+#define FCLK_SLOW() set_spi_clock(SCLK_SLOW)
 
 
 
@@ -79,7 +109,6 @@
 
 ---------------------------------------------------------------------------*/
 
-#include "LPC176x.h"
 #include "diskio.h"
 
 
@@ -276,7 +305,6 @@ void power_on (void)	/* Enable SSP module and attach it to I/O pads */
 {
 	__set_PCONP(PCSSPx, 1);	/* Enable SSP module */
 	__set_PCLKSEL(PCLKSSPx, PCLKDIV_SSP);	/* Select PCLK frequency for SSP */
-	SSPxCPSR = 2;			/* CPSDVSR=2 */
 	SSPxCR0 = 0x0007;		/* Set mode: SPI mode 0, 8-bit */
 	SSPxCR1 = 0x2;			/* Enable SSP with Master */
 	ATTACH_SSP();			/* Attach SSP module to I/O pads */

@@ -132,6 +132,8 @@
   #include "pins_BQ_ZUM_MEGA_3D.h"    // ATmega2560
 #elif MB(MAKEBOARD_MINI)
   #include "pins_MAKEBOARD_MINI.h"    // ATmega2560
+#elif MB(TRIGORILLA)
+  #include "pins_TRIGORILLA.h"        // ATmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -197,6 +199,8 @@
   #include "pins_MELZI_MALYAN.h"      // ATmega644P, ATmega1284P
 #elif MB(CREALITY_ENDER)
   #include "pins_CREALITY_ENDER.h"    // ATmega1284P
+#elif MB(MELZI_TRONXY)
+  #include "pins_MELZI_TRONXY.h"      // ATmega644P, ATmega1284P
 #elif MB(STB_11)
   #include "pins_STB_11.h"            // ATmega644P, ATmega1284P
 #elif MB(AZTEEG_X1)
@@ -341,6 +345,12 @@
   #include "pins_BIQU_BQ111_A4.h"
 #elif MB(THE_BORG)
   #include "pins_THE_BORG.h"
+#elif MB(SELENA_COMPACT)
+  #include "pins_SELENA_COMPACT.h"
+#elif MB(COHESION3D_REMIX)
+  #include "pins_COHESION3D_REMIX.h"
+#elif MB(COHESION3D_MINI)
+  #include "pins_COHESION3D_MINI.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
@@ -516,6 +526,9 @@
 #endif
 #ifndef SDPOWER
   #define SDPOWER -1
+#endif
+#ifndef SDSS
+  #define SDSS -1
 #endif
 #ifndef LED_PIN
   #define LED_PIN -1

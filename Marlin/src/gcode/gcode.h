@@ -397,7 +397,6 @@ private:
   #endif
 
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
-    bool select_coordinate_system(const int8_t _new);
     static void G53();
     static void G54();
     static void G55();

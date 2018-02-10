@@ -20,7 +20,7 @@
  *
  */
 
-// bqh2 stock thermistor
+// R25 = 100 kOhm, beta25 = 4100 K, 4.7 kOhm pull-up, bqh2 stock thermistor
 const short temptable_70[][2] PROGMEM = {
   { OV(  22), 300 },
   { OV(  24), 295 },

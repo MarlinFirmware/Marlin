@@ -143,8 +143,10 @@ constexpr int8_t LPC1768_PIN_ADC(const pin_t pin) { return (int8_t)((pin >> 10) 
 #define P0_26   LPC1768_PIN(PORT(0), PIN(26), INTERRUPT(1), PWM(0), ADC_CHAN(3))
 #define P0_27   LPC1768_PIN(PORT(0), PIN(27), INTERRUPT(1), PWM(0), ADC_NONE)
 #define P0_28   LPC1768_PIN(PORT(0), PIN(28), INTERRUPT(1), PWM(0), ADC_NONE)
-#define P0_29   LPC1768_PIN(PORT(0), PIN(29), INTERRUPT(1), PWM(0), ADC_NONE)
-#define P0_30   LPC1768_PIN(PORT(0), PIN(30), INTERRUPT(1), PWM(0), ADC_NONE)
+#if SERIAL_PORT != -1 && SERIAL_PORT_2 != -1
+  #define P0_29 LPC1768_PIN(PORT(0), PIN(29), INTERRUPT(1), PWM(0), ADC_NONE)
+  #define P0_30 LPC1768_PIN(PORT(0), PIN(30), INTERRUPT(1), PWM(0), ADC_NONE)
+#endif
 #define P1_00   LPC1768_PIN(PORT(1), PIN( 0), INTERRUPT(0), PWM(0), ADC_NONE)
 #define P1_01   LPC1768_PIN(PORT(1), PIN( 1), INTERRUPT(0), PWM(0), ADC_NONE)
 #define P1_04   LPC1768_PIN(PORT(1), PIN( 4), INTERRUPT(0), PWM(0), ADC_NONE)
@@ -216,7 +218,13 @@ constexpr pin_t pin_map[] = {
     P_NC,
   #endif
            P0_17, P0_18, P0_19, P0_20, P0_21, P0_22, P0_23,
-    P0_24, P0_25, P0_26, P0_27, P0_28, P0_29, P0_30, P_NC,
+    P0_24, P0_25, P0_26, P0_27, P0_28,
+  #if SERIAL_PORT != -1 && SERIAL_PORT_2 != -1
+                                       P0_29, P0_30,
+  #else
+                                       P_NC,  P_NC,
+  #endif
+                                                   P_NC,
 
   P1_00, P1_01, P_NC,  P_NC,  P1_04, P_NC,  P_NC,  P_NC,
   P1_08, P1_09, P1_10, P_NC,  P_NC,  P_NC,  P1_14, P1_15,
@@ -248,15 +256,14 @@ constexpr pin_t adc_pin_table[] = {
   #endif
 };
 
-#if SERIAL_PORT != 0
+#if SERIAL_PORT != 0 && SERIAL_PORT_2 != 0
   #define NUM_ANALOG_INPUTS 8
 #else
   #define NUM_ANALOG_INPUTS 6
 #endif
 
 // P0.6 thru P0.9 are for the onboard SD card
-// P0.29 and P0.30 are for the USB port
-#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09, P0_29, P0_30
+#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
 
 // Get the digital pin for an analog index
 pin_t analogInputToDigitalPin(const int8_t p);
