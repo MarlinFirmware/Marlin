@@ -5330,7 +5330,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
           if (false) {
             // for the else-ifs below
           }
-          #if BUTTON_EXISTS(UP)3 * 
+          #if BUTTON_EXISTS(UP)
             else if (BUTTON_PRESSED(UP)) {
               encoderDiff = -(ENCODER_UD_STEPS);
               next_button_update_ms = now + 300;
