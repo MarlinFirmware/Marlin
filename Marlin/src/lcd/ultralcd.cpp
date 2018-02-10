@@ -5218,7 +5218,7 @@ bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 
 void lcd_setstatus(const char * const message, const bool persist) {
   if (lcd_status_message_level > 0) return;
-  strncpy_P(lcd_status_message, message, COUNT(lcd_status_message) - 1);
+  strncpy(lcd_status_message, message, COUNT(lcd_status_message) - 1);
   lcd_finishstatus(persist);
 }
 
