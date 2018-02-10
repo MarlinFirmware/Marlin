@@ -6540,6 +6540,7 @@ inline void gcode_M17() {
       }
 
       // Unload filament
+      do_pause_e_move(50, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);//edited by crive
       do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
     }
 

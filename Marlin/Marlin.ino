@@ -27,6 +27,7 @@
  *  - https://github.com/kliment/Sprinter
  *  - https://github.com/simen/grbl/tree
  */
+ //core 200 firmware 1.1.8 edited by crive
 
 #include "MarlinConfig.h"
 
