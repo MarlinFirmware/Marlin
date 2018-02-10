@@ -199,6 +199,8 @@
   #include "pins_MELZI_MALYAN.h"      // ATmega644P, ATmega1284P
 #elif MB(CREALITY_ENDER)
   #include "pins_CREALITY_ENDER.h"    // ATmega1284P
+#elif MB(MELZI_TRONXY)
+  #include "pins_MELZI_TRONXY.h"      // ATmega644P, ATmega1284P
 #elif MB(STB_11)
   #include "pins_STB_11.h"            // ATmega644P, ATmega1284P
 #elif MB(AZTEEG_X1)
@@ -524,6 +526,9 @@
 #endif
 #ifndef SDPOWER
   #define SDPOWER -1
+#endif
+#ifndef SDSS
+  #define SDSS -1
 #endif
 #ifndef LED_PIN
   #define LED_PIN -1
