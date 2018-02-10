@@ -35,7 +35,7 @@
 #endif
 
 #if ENABLED(AUTO_POWER_CONTROL)
-  #include "power.h"
+  #include "../feature/power.h"
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
