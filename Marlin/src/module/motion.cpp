@@ -55,6 +55,10 @@
   #include "../feature/tmc_util.h"
 #endif
 
+#if ENABLED(FWRETRACT)
+  #include "../feature/fwretract.h"
+#endif
+
 #define XYZ_CONSTS(type, array, CONFIG) const PROGMEM type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }
 
 XYZ_CONSTS(float, base_min_pos,   MIN_POS);
@@ -576,6 +580,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
     // The approximate length of each segment
     const float inv_segments = 1.0 / float(segments),
+                cartesian_segment_mm = cartesian_mm * inv_segments,
                 segment_distance[XYZE] = {
                   xdiff * inv_segments,
                   ydiff * inv_segments,
@@ -586,6 +591,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     // SERIAL_ECHOPAIR("mm=", cartesian_mm);
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
+    // SERIAL_ECHOLNPAIR(" segment_mm=", cartesian_segment_mm);
 
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       // SCARA needs to scale the feed rate from mm/s to degrees/s
@@ -622,10 +628,10 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
         // i.e., Complete the angular vector in the given time.
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder, cartesian_segment_mm);
         oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
       #else
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder, cartesian_segment_mm);
       #endif
     }
 
@@ -633,9 +639,9 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       inverse_kinematics(rtarget);
       ADJUST_DELTA(rtarget);
-      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
+      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder, cartesian_segment_mm);
     #else
-      planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
+      planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder, cartesian_segment_mm);
     #endif
 
     return false; // caller will update current_position
@@ -681,6 +687,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
       // The approximate length of each segment
       const float inv_segments = 1.0 / float(segments),
+                  cartesian_segment_mm = cartesian_mm * inv_segments,
                   segment_distance[XYZE] = {
                     xdiff * inv_segments,
                     ydiff * inv_segments,
@@ -690,6 +697,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
       // SERIAL_ECHOPAIR("mm=", cartesian_mm);
       // SERIAL_ECHOLNPAIR(" segments=", segments);
+      // SERIAL_ECHOLNPAIR(" segment_mm=", cartesian_segment_mm);
 
       // Get the raw current position as starting point
       float raw[XYZE];
@@ -704,12 +712,12 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           idle();
         }
         LOOP_XYZE(i) raw[i] += segment_distance[i];
-        planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder);
+        planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder, cartesian_segment_mm);
       }
 
       // Since segment_distance is only approximate,
       // the final move must be to the exact destination.
-      planner.buffer_line_kinematic(destination, fr_mm_s, active_extruder);
+      planner.buffer_line_kinematic(destination, fr_mm_s, active_extruder, cartesian_segment_mm);
     }
 
   #endif // SEGMENT_LEVELED_MOVES
@@ -982,6 +990,19 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     if (axis == Z_AXIS) probing_pause(true);
   #endif
 
+  // Disable stealthChop if used. Enable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
+      if (axis == X_AXIS) tmc_sensorless_homing(stepperX);
+    #endif
+    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
+      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY);
+    #endif
+    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
+      if (axis == Z_AXIS) tmc_sensorless_homing(stepperZ);
+    #endif
+  #endif
+
   // Tell the planner the axis is at 0
   current_position[axis] = 0;
 
@@ -1007,6 +1028,19 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
   #endif
 
   endstops.hit_on_purpose();
+
+  // Re-enable stealthChop if used. Disable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
+      if (axis == X_AXIS) tmc_sensorless_homing(stepperX, false);
+    #endif
+    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
+      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY, false);
+    #endif
+    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
+      if (axis == Z_AXIS) tmc_sensorless_homing(stepperZ, false);
+    #endif
+  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -1160,16 +1194,6 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS) stepper.set_homing_flag_z(true);
   #endif
 
-  // Disable stealthChop if used. Enable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    #if ENABLED(X_IS_TMC2130)
-      if (axis == X_AXIS) tmc_sensorless_homing(stepperX);
-    #endif
-    #if ENABLED(Y_IS_TMC2130)
-      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY);
-    #endif
-  #endif
-
   // Fast move towards endstop until triggered
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 1 Fast:");
@@ -1270,19 +1294,15 @@ void homeaxis(const AxisEnum axis) {
 
   #endif
 
-  // Re-enable stealthChop if used. Disable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    #if ENABLED(X_IS_TMC2130)
-      if (axis == X_AXIS) tmc_sensorless_homing(stepperX, false);
-    #endif
-    #if ENABLED(Y_IS_TMC2130)
-      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY, false);
-    #endif
-  #endif
-
   // Put away the Z probe
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS && STOW_PROBE()) return;
+  #endif
+
+  // Clear retracted status if homing the Z axis
+  #if ENABLED(FWRETRACT)
+    if (axis == Z_AXIS)
+      for (uint8_t i = 0; i < EXTRUDERS; i++) fwretract.retracted[i] = false;
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1294,7 +1314,7 @@ void homeaxis(const AxisEnum axis) {
   #endif
 } // homeaxis()
 
-#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE)
+#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
 
   /**
    * Software endstops can be used to monitor the open end of
@@ -1372,7 +1392,7 @@ void homeaxis(const AxisEnum axis) {
     #endif
   }
 
-#endif // HAS_WORKSPACE_OFFSET || DUAL_X_CARRIAGE
+#endif // HAS_WORKSPACE_OFFSET || DUAL_X_CARRIAGE || DELTA
 
 #if HAS_M206_COMMAND
   /**

@@ -63,9 +63,14 @@ Temperature thermalManager;
 
 float Temperature::current_temperature[HOTENDS] = { 0.0 },
       Temperature::current_temperature_bed = 0.0;
+
 int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
         Temperature::target_temperature[HOTENDS] = { 0 },
         Temperature::current_temperature_bed_raw = 0;
+
+#if ENABLED(AUTO_POWER_E_FANS)
+  int16_t Temperature::autofan_speed[HOTENDS] = { 0 };
+#endif
 
 #if HAS_HEATER_BED
   int16_t Temperature::target_temperature_bed = 0;
@@ -529,6 +534,9 @@ int Temperature::getHeaterPower(int heater) {
       const uint8_t bit = pgm_read_byte(&fanBit[f]);
       if (pin >= 0 && !TEST(fanDone, bit)) {
         uint8_t newFanSpeed = TEST(fanState, bit) ? EXTRUDER_AUTO_FAN_SPEED : 0;
+        #if ENABLED(AUTO_POWER_E_FANS)
+          autofan_speed[f] = newFanSpeed;
+        #endif
         // this idiom allows both digital and PWM fan outputs (see M42 handling).
         digitalWrite(pin, newFanSpeed);
         analogWrite(pin, newFanSpeed);
@@ -736,6 +744,10 @@ float Temperature::get_pid_output(const int8_t e) {
  */
 void Temperature::manage_heater() {
 
+  #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+    static bool last_pause_state;
+  #endif
+
   if (!temp_meas_ready) return;
 
   updateTemperaturesFromRawValues(); // also resets the watchdog
@@ -812,8 +824,15 @@ void Temperature::manage_heater() {
   #endif // WATCH_THE_BED
 
   #if DISABLED(PIDTEMPBED)
-    if (PENDING(ms, next_bed_check_ms)) return;
+    if (PENDING(ms, next_bed_check_ms)
+      #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+        && paused == last_pause_state
+      #endif
+    ) return;
     next_bed_check_ms = ms + BED_CHECK_INTERVAL;
+    #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
+      last_pause_state = paused;
+    #endif
   #endif
 
   #if HAS_TEMP_BED

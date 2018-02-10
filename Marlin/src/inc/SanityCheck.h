@@ -241,6 +241,8 @@
   #error "ANET_KEYPAD_LCD is now ZONESTAR_LCD. Please update your configuration."
 #elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
+#elif defined(AUTOMATIC_CURRENT_CONTROL)
+  #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
 #endif
 
 /**
@@ -277,6 +279,10 @@
   #endif
 #elif ENABLED(SERIAL_XON_XOFF) || ENABLED(SERIAL_STATS_MAX_RX_QUEUED) || ENABLED(SERIAL_STATS_DROPPED_RX)
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
+#endif
+
+#if SERIAL_PORT > 7
+  #error "Set SERIAL_PORT to the port on your board. Usually this is 0."
 #endif
 
 /**
@@ -365,8 +371,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * I2C Position Encoders
  */
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #if DISABLED(BABYSTEPPING)
-    #error "I2C_POSITION_ENCODERS requires BABYSTEPPING."
+  #if DISABLED(BABYSTEPPING) || DISABLED(BABYSTEP_XY)
+    #error "I2C_POSITION_ENCODERS requires BABYSTEPPING and BABYSTEP_XY."
   #elif !WITHIN(I2CPE_ENCODER_CNT, 1, 5)
     #error "I2CPE_ENCODER_CNT must be between 1 and 5."
   #endif
@@ -1424,6 +1430,9 @@ static_assert(1 >= 0
   #if ENABLED(ZONESTAR_LCD)
     + 1
   #endif
+  #if ENABLED(ULTI_CONTROLLER)
+    + 1
+  #endif
   , "Please select no more than one LCD controller option."
 );
 
@@ -1464,8 +1473,6 @@ static_assert(1 >= 0
     #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
   #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
-  #elif defined(AUTOMATIC_CURRENT_CONTROL)
-    #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
   #endif
 
   #if ENABLED(X_IS_TMC2130) && !PIN_EXISTS(X_CS)
@@ -1492,12 +1499,23 @@ static_assert(1 >= 0
     #error "E4_CS_PIN is required for E4_IS_TMC2130. Define E4_CS_PIN in Configuration_adv.h."
   #endif
 
+  // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
+  // is necessary in order to reset the stallGuard indication between the initial movement of all three
+  // towers to +Z and the individual homing of each tower. This restriction can be removed once a means of
+  // clearing the stallGuard activated status is found.
+  #if ENABLED(SENSORLESS_HOMING) && ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
+    #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
+  #endif
+
+#elif ENABLED(SENSORLESS_HOMING)
+
+  #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
+
 #endif
 
 /**
  * Make sure HAVE_TMC2208 is warranted
  */
-
 #if ENABLED(HAVE_TMC2208) && !( \
        ENABLED(  X_IS_TMC2208 ) \
     || ENABLED( X2_IS_TMC2208 ) \

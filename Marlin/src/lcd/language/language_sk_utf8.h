@@ -36,6 +36,7 @@
 
 #define MAPPER_C3C4C5_SK
 #define DISPLAY_CHARSET_ISO10646_SK
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pripravená.")
 #define MSG_BACK                            _UxGT("Naspať")
@@ -170,9 +171,15 @@
 #define MSG_SELECT                          _UxGT("Vybrať")
 #define MSG_ACC                             _UxGT("Zrýchl")
 #define MSG_JERK                            _UxGT("Skok")
-#define MSG_VX_JERK                         _UxGT("Vx-skok")
-#define MSG_VY_JERK                         _UxGT("Vy-skok")
-#define MSG_VZ_JERK                         _UxGT("Vz-skok")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-skok")
+  #define MSG_VB_JERK                       _UxGT("Vb-skok")
+  #define MSG_VC_JERK                       _UxGT("Vc-skok")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-skok")
+  #define MSG_VB_JERK                       _UxGT("Vy-skok")
+  #define MSG_VC_JERK                       _UxGT("Vz-skok")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-skok")
 #define MSG_VELOCITY                        _UxGT("Rýchlosť")
 #define MSG_VMAX                            _UxGT("Vmax ")
@@ -183,9 +190,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-retrakt")
 #define MSG_A_TRAVEL                        _UxGT("A-prejazd")
 #define MSG_STEPS_PER_MM                    _UxGT("Krokov/mm")
-#define MSG_XSTEPS                          _UxGT("Xkrokov/mm")
-#define MSG_YSTEPS                          _UxGT("Ykrokov/mm")
-#define MSG_ZSTEPS                          _UxGT("Zkrokov/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Akrokov/mm")
+  #define MSG_BSTEPS                        _UxGT("Bkrokov/mm")
+  #define MSG_CSTEPS                        _UxGT("Ckrokov/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xkrokov/mm")
+  #define MSG_BSTEPS                        _UxGT("Ykrokov/mm")
+  #define MSG_CSTEPS                        _UxGT("Zkrokov/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("Ekrokov/mm")
 #define MSG_E1STEPS                         _UxGT("E1krokov/mm")
 #define MSG_E2STEPS                         _UxGT("E2krokov/mm")

@@ -75,6 +75,7 @@
 
 #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
   #define I2CPE_ERR_ARRAY_SIZE        32
+  #define I2CPE_ERR_PRST_ARRAY_SIZE   10
 #endif
 
 // Error Correction Methods
@@ -135,8 +136,9 @@ class I2CPositionEncoder {
     //double        positionMm; //calculate
 
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
-      uint8_t errIdx = 0;
-      int     err[I2CPE_ERR_ARRAY_SIZE] = { 0 };
+      uint8_t errIdx = 0, errPrstIdx = 0;
+      int err[I2CPE_ERR_ARRAY_SIZE] = { 0 },
+          errPrst[I2CPE_ERR_PRST_ARRAY_SIZE] = { 0 };
     #endif
 
     //float        positionMm; //calculate

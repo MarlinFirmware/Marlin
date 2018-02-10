@@ -63,37 +63,38 @@
 #define X_STEP_PIN         37 // Support Extension Board
 #define X_DIR_PIN          36
 #define X_ENABLE_PIN       38
-#define X_CS_PIN           -1
 
 #define Y_STEP_PIN         32 // Support Extension Board
 #define Y_DIR_PIN          35
 #define Y_ENABLE_PIN       34
-#define Y_CS_PIN           -1
 
 #define Z_STEP_PIN         30 // Support Extension Board
 #define Z_DIR_PIN           2
 #define Z_ENABLE_PIN       33
-#define Z_CS_PIN           -1
 
 #define E0_STEP_PIN        29
 #define E0_DIR_PIN         28
 #define E0_ENABLE_PIN      31
-#define E0_CS_PIN          -1
 
 #define E1_STEP_PIN        22
 #define E1_DIR_PIN         24
 #define E1_ENABLE_PIN      26
-#define E1_CS_PIN          -1
 
 #define E2_STEP_PIN        25
 #define E2_DIR_PIN         23
 #define E2_ENABLE_PIN      27
-#define E2_CS_PIN          -1
 
 #define E3_STEP_PIN        15 // Only For Extension Board
 #define E3_DIR_PIN         14
 #define E3_ENABLE_PIN      61
-#define E3_CS_PIN          -1
+
+//#define X_CS_PIN           -1
+//#define Y_CS_PIN           -1
+//#define Z_CS_PIN           -1
+//#define E0_CS_PIN          -1
+//#define E1_CS_PIN          -1
+//#define E2_CS_PIN          -1
+//#define E3_CS_PIN          -1
 
 // For Future: Microstepping pins - Mapping not from fastio.h (?)
 //#define E3_MS1_PIN         ?

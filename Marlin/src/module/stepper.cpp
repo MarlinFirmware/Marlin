@@ -65,10 +65,6 @@
   #include "../feature/dac/dac_dac084s085.h"
 #endif
 
-#if HAS_LEVELING
-  #include "../feature/bedlevel/bedlevel.h"
-#endif
-
 #if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif

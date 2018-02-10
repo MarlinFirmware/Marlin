@@ -25,5 +25,4 @@
  */
 
 #define BOARD_NAME "Melzi (ATmega1284)"
-#define IS_MELZI
-#include "pins_SANGUINOLOLU_12.h"
+#include "pins_MELZI.h"
