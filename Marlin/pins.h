@@ -456,20 +456,40 @@
 //
 // Assign auto fan pins if needed
 //
-#if !defined(E0_AUTO_FAN_PIN) && defined(ORIG_E0_AUTO_FAN_PIN)
-  #define E0_AUTO_FAN_PIN ORIG_E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #ifdef ORIG_E0_AUTO_FAN_PIN
+    #define E0_AUTO_FAN_PIN ORIG_E0_AUTO_FAN_PIN
+  #else
+    #define E0_AUTO_FAN_PIN -1
+  #endif
 #endif
-#if !defined(E1_AUTO_FAN_PIN) && defined(ORIG_E1_AUTO_FAN_PIN)
-  #define E1_AUTO_FAN_PIN ORIG_E1_AUTO_FAN_PIN
+#ifndef E1_AUTO_FAN_PIN
+  #ifdef ORIG_E1_AUTO_FAN_PIN
+    #define E1_AUTO_FAN_PIN ORIG_E1_AUTO_FAN_PIN
+  #else
+    #define E1_AUTO_FAN_PIN -1
+  #endif
 #endif
-#if !defined(E2_AUTO_FAN_PIN) && defined(ORIG_E2_AUTO_FAN_PIN)
-  #define E2_AUTO_FAN_PIN ORIG_E2_AUTO_FAN_PIN
+#ifndef E2_AUTO_FAN_PIN
+  #ifdef ORIG_E2_AUTO_FAN_PIN
+    #define E2_AUTO_FAN_PIN ORIG_E2_AUTO_FAN_PIN
+  #else
+    #define E2_AUTO_FAN_PIN -1
+  #endif
 #endif
-#if !defined(E3_AUTO_FAN_PIN) && defined(ORIG_E3_AUTO_FAN_PIN)
-  #define E3_AUTO_FAN_PIN ORIG_E3_AUTO_FAN_PIN
+#ifndef E3_AUTO_FAN_PIN
+  #ifdef ORIG_E3_AUTO_FAN_PIN
+    #define E3_AUTO_FAN_PIN ORIG_E3_AUTO_FAN_PIN
+  #else
+    #define E3_AUTO_FAN_PIN -1
+  #endif
 #endif
-#if !defined(E4_AUTO_FAN_PIN) && defined(ORIG_E4_AUTO_FAN_PIN)
-  #define E4_AUTO_FAN_PIN ORIG_E4_AUTO_FAN_PIN
+#ifndef E4_AUTO_FAN_PIN
+  #ifdef ORIG_E4_AUTO_FAN_PIN
+    #define E4_AUTO_FAN_PIN ORIG_E4_AUTO_FAN_PIN
+  #else
+    #define E4_AUTO_FAN_PIN -1
+  #endif
 #endif
 
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
