@@ -2163,7 +2163,7 @@ static void clean_up_after_endstop_or_probe_move() {
 	
     #if ENABLED(PROBING_HEATERS_OFF)
       // Wait for bed to heat back up between probing
-      while(thermalManager.degBed() < thermalManager.degTargetBed()) 
+      while(thermalManager.isHeatingBed()) 
       {
         safe_delay(1000);
       }
