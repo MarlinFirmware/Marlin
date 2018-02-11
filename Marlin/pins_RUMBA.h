@@ -44,18 +44,24 @@
 // Limit Switches
 //
 #define X_MIN_PIN          37
-#define X_MAX_PIN          36
+#define X_MAX_PIN          -1/36
 #define Y_MIN_PIN          35
-#define Y_MAX_PIN          34
+#define Y_MAX_PIN          -/34
 #define Z_MIN_PIN          33
-#define Z_MAX_PIN          32
+#define Z_MAX_PIN          -/32
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  32
+  #define Z_MIN_PROBE_PIN  36
 #endif
+
+//
+// Filament Runout Sensors
+//
+#define E0_MATERIAL_LACK_PIN    34//34
+#define E1_MATERIAL_LACK_PIN    32//32
 
 //
 // Steppers
@@ -88,13 +94,13 @@
 // Temperature Sensors
 //
 #if TEMP_SENSOR_0 == -1
-  #define TEMP_0_PIN        6   // Analog Input (connector *K1* on RUMBA thermocouple ADD ON is used)
+  #define TEMP_0_PIN       15//6   // Analog Input (connector *K1* on RUMBA thermocouple ADD ON is used)
 #else
   #define TEMP_0_PIN       15   // Analog Input (default connector for thermistor *T0* on rumba board is used)
 #endif
 
 #if TEMP_SENSOR_1 == -1
-  #define TEMP_1_PIN        5   // Analog Input (connector *K2* on RUMBA thermocouple ADD ON is used)
+  #define TEMP_1_PIN       14//5   // Analog Input (connector *K2* on RUMBA thermocouple ADD ON is used)
 #else
   #define TEMP_1_PIN       14   // Analog Input (default connector for thermistor *T1* on rumba board is used)
 #endif
@@ -109,7 +115,7 @@
 //#define TEMP_X_PIN         12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
 
 #if TEMP_SENSOR_BED == -1
-  #define TEMP_BED_PIN      7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_2 is defined as thermocouple)
+  #define TEMP_BED_PIN     11// 7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_2 is defined as thermocouple)
 #else
   #define TEMP_BED_PIN     11   // Analog Input (default connector for thermistor *THB* on rumba board is used)
 #endif
@@ -138,6 +144,7 @@
 //
 // LCD / Controller
 //
+#define SDPOWER            -1
 #define SD_DETECT_PIN      49
 #define BEEPER_PIN         44
 #define LCD_PINS_RS        19

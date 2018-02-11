@@ -184,6 +184,14 @@
 #define MSG_SOFT_MIN                        "  Min: "
 #define MSG_SOFT_MAX                        "  Max: "
 
+#define MSG_INVALID_SENSOR                  "Invalid Filament Sensor"
+#define MSG_INVALID_SENSOR_STATE            "Invalid Filament Sensor State. Use 0 for extruder 0 or 1 for extruder 1"
+#define MSG_INVALID_SENSOR_NORMAL           "Invalid Filament Sensor Normal State. Use 0 for extruder 0 or 1 for extruder 1"
+#define MSG_SENSOR_STATE_ON                 "On"
+#define MSG_SENSOR_STATE_OFF                "Off"
+#define MSG_SENSOR_NORMAL_STATE_OPEN        "Open"
+#define MSG_SENSOR_NORMAL_STATE_CLOSED      "Closed"
+
 #define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define MSG_SD_INIT_FAIL                    "SD init fail"
 #define MSG_SD_VOL_INIT_FAIL                "volume.init failed"

@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V47"
+#define EEPROM_VERSION "V48"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -161,6 +161,12 @@
  * LIN_ADVANCE:                                     8 bytes
  *  586  M900 K    extruder_advance_k               (float)
  *  590  M900 WHD  advance_ed_ratio                 (float)
+ *
+ * RAISETOUCH
+ *                 lack sensor state E0
+ *                 lack sensor state E1
+ *                 lack sensor state normal E0
+ *                 lack sensor state normal E1
  *
  * HAS_MOTOR_CURRENT_PWM:
  *  594  M907 X    Stepper XY current               (uint32_t)
@@ -694,6 +700,17 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(dummy);
     #endif
 
+    //
+    // Raisetouch Filament Runout Sensor
+    //
+
+    #if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
+      EEPROM_WRITE(planner.lack_materia_sensor_state[0]);
+      EEPROM_WRITE(planner.lack_materia_sensor_state[1]);
+      EEPROM_WRITE(planner.lack_materia_sensor_norm[0]);
+      EEPROM_WRITE(planner.lack_materia_sensor_norm[1]);
+    #endif
+
     #if HAS_MOTOR_CURRENT_PWM
       for (uint8_t q = 3; q--;) EEPROM_WRITE(stepper.motor_current_setting[q]);
     #else
@@ -1169,6 +1186,17 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Raisetouch Filament Runout Sensor
+      //
+
+      #if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
+        EEPROM_READ(planner.lack_materia_sensor_state[0]);
+        EEPROM_READ(planner.lack_materia_sensor_state[1]);
+        EEPROM_READ(planner.lack_materia_sensor_norm[0]);
+        EEPROM_READ(planner.lack_materia_sensor_norm[1]);
+      #endif
+
+      //
       // Motor Current PWM
       //
 
@@ -1596,6 +1624,21 @@ void MarlinSettings::reset() {
   #if ENABLED(LIN_ADVANCE)
     planner.extruder_advance_k = LIN_ADVANCE_K;
     planner.advance_ed_ratio = LIN_ADVANCE_E_D_RATIO;
+  #endif
+
+  #if ENABLED(RAISETOUCH_FILAMENT_RUNOUT_SENSOR)
+    #if ENABLED(RAISETOUCH_E0_FILAMENT_SENSOR)
+      planner.lack_materia_sensor_state[0] = true;
+    #else
+      planner.lack_materia_sensor_state[0] = false;
+    #endif
+    #if ENABLED(RAISETOUCH_E1_FILAMENT_SENSOR)
+      planner.lack_materia_sensor_state[1] = true;
+    #else
+      planner.lack_materia_sensor_state[1] = false;
+    #endif      
+    planner.lack_materia_sensor_norm[0] = E0_LACK_ENDSTOP_INVERTING;
+    planner.lack_materia_sensor_norm[1] = E1_LACK_ENDSTOP_INVERTING;
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
@@ -2154,6 +2197,12 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR(" Z", stepper.motor_current_setting[1]);
       SERIAL_ECHOPAIR(" E", stepper.motor_current_setting[2]);
       SERIAL_EOL();
+    #endif
+
+    #if ENABLED(RAISETOUCH)
+      #if DISABLED(SDSUPPORT)
+        SERIAL_ECHOLNPGM(MSG_SD_INIT_FAIL);
+      #endif
     #endif
   }
 

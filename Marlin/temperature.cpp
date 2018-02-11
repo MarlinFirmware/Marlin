@@ -370,6 +370,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
               SERIAL_PROTOCOLPAIR(MSG_D, d);
               SERIAL_PROTOCOLPAIR(MSG_T_MIN, min);
               SERIAL_PROTOCOLPAIR(MSG_T_MAX, max);
+              #if ENABLED(RAISETOUCH) 
+                SERIAL_EOL();
+              #endif
               if (cycles > 2) {
                 Ku = (4.0 * d) / (M_PI * (max - min) * 0.5);
                 Tu = ((float)(t_low + t_high) * 0.001);
@@ -380,8 +383,17 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
                 workKd = workKp * Tu * 0.125;
                 SERIAL_PROTOCOLLNPGM("\n" MSG_CLASSIC_PID);
                 SERIAL_PROTOCOLPAIR(MSG_KP, workKp);
+                #if ENABLED(RAISETOUCH) 
+                  SERIAL_EOL();
+                #endif
                 SERIAL_PROTOCOLPAIR(MSG_KI, workKi);
+                #if ENABLED(RAISETOUCH) 
+                  SERIAL_EOL();
+                #endif
                 SERIAL_PROTOCOLLNPAIR(MSG_KD, workKd);
+                #if ENABLED(RAISETOUCH) 
+                  SERIAL_EOL();
+                #endif
                 /**
                 workKp = 0.33*Ku;
                 workKi = workKp/Tu;
@@ -423,7 +435,13 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       // Every 2 seconds...
       if (ELAPSED(ms, next_temp_ms)) {
         #if HAS_TEMP_HOTEND || HAS_TEMP_BED
-          print_heaterstates();
+          #if ENABLED(RAISETOUCH)
+            SERIAL_PROTOCOLPGM("ok ");
+            SERIAL_PROTOCOLPAIR(MSG_T, input);
+            SERIAL_PROTOCOLPAIR(MSG_AT, soft_pwm_amount[hotend]);
+          #else
+            print_heaterstates();
+          #endif
           SERIAL_EOL();
         #endif
 
@@ -2225,7 +2243,7 @@ void Temperature::isr() {
       print_heater_state(degHotend(target_extruder), degTargetHotend(target_extruder)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawHotendTemp(target_extruder)
-        #endif
+        #endif        
       );
     #endif
     #if HAS_TEMP_BED
@@ -2237,25 +2255,43 @@ void Temperature::isr() {
       );
     #endif
     #if HOTENDS > 1
-      HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
+      HOTEND_LOOP() {
+      print_heater_state(degHotend(e), degTargetHotend(e)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawHotendTemp(e)
         #endif
         , e
       );
-    #endif
-    SERIAL_PROTOCOLPGM(" @:");
-    SERIAL_PROTOCOL(getHeaterPower(target_extruder));
-    #if HAS_TEMP_BED
-      SERIAL_PROTOCOLPGM(" B@:");
-      SERIAL_PROTOCOL(getHeaterPower(-1));
-    #endif
-    #if HOTENDS > 1
-      HOTEND_LOOP() {
-        SERIAL_PROTOCOLPAIR(" @", e);
-        SERIAL_PROTOCOLCHAR(':');
-        SERIAL_PROTOCOL(getHeaterPower(e));
+      #if ENABLED(RAISETOUCH)
+        SERIAL_PROTOCOLCHAR(" ");
+        SERIAL_PROTOCOLCHAR("F");
+        #if HOTENDS > 1
+          if (e >= 0) SERIAL_PROTOCOLCHAR('0' + e);
+        #endif
+        SERIAL_PROTOCOLCHAR(":");
+        SERIAL_PROTOCOL(planner.flow_percentage[e]);
+      #endif
       }
+    #endif
+    #if ENABLED(RAISETOUCH)
+      SERIAL_PROTOCOLPGM(" S:");
+      SERIAL_PROTOCOL(fanSpeeds[0]);
+      SERIAL_PROTOCOLPGM(" P:");
+      SERIAL_PROTOCOL(feedrate_percentage);
+    #else
+      SERIAL_PROTOCOLPGM(" @:");
+      SERIAL_PROTOCOL(getHeaterPower(target_extruder));
+      #if HAS_TEMP_BED
+        SERIAL_PROTOCOLPGM(" B@:");
+        SERIAL_PROTOCOL(getHeaterPower(-1));
+      #endif
+      #if HOTENDS > 1
+        HOTEND_LOOP() {
+          SERIAL_PROTOCOLPAIR(" @", e);
+          SERIAL_PROTOCOLCHAR(':');
+          SERIAL_PROTOCOL(getHeaterPower(e));
+        }
+      #endif
     #endif
   }
 
