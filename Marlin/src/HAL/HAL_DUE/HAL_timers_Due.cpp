@@ -127,9 +127,9 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
 }
 
 #if 0
-  void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
+  void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare) {
     const tTimerConfig * const pConfig = &TimerConfig[timer_num];
-    TC_SetRC(pConfig->pTimerRegs, pConfig->channel, count);
+    TC_SetRC(pConfig->pTimerRegs, pConfig->channel, compare);
   }
 
   void HAL_timer_isr_prologue(const uint8_t timer_num) {

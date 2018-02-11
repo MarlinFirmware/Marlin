@@ -371,7 +371,7 @@ void Stepper::isr() {
 
     #if DISABLED(LIN_ADVANCE)
       #ifdef CPU_32_BIT
-        HAL_timer_set_count(STEP_TIMER_NUM, ocr_val);
+        HAL_timer_set_compare(STEP_TIMER_NUM, ocr_val);
       #else
         NOLESS(OCR1A, TCNT1 + 16);
       #endif
@@ -750,9 +750,9 @@ void Stepper::isr() {
   #if DISABLED(LIN_ADVANCE)
     #ifdef CPU_32_BIT
       // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
-      hal_timer_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
+      hal_timer_t stepper_timer_count = HAL_timer_get_compare(STEP_TIMER_NUM),
                   stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
-      HAL_timer_set_count(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
+      HAL_timer_set_compare(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
     #else
       NOLESS(OCR1A, TCNT1 + 16);
     #endif
@@ -878,7 +878,7 @@ void Stepper::isr() {
     // Is the next advance ISR scheduled before the next main ISR?
     if (nextAdvanceISR <= nextMainISR) {
       // Set up the next interrupt
-      HAL_timer_set_count(STEP_TIMER_NUM, nextAdvanceISR);
+      HAL_timer_set_compare(STEP_TIMER_NUM, nextAdvanceISR);
       // New interval for the next main ISR
       if (nextMainISR) nextMainISR -= nextAdvanceISR;
       // Will call Stepper::advance_isr on the next interrupt
@@ -886,7 +886,7 @@ void Stepper::isr() {
     }
     else {
       // The next main ISR comes first
-      HAL_timer_set_count(STEP_TIMER_NUM, nextMainISR);
+      HAL_timer_set_compare(STEP_TIMER_NUM, nextMainISR);
       // New interval for the next advance ISR, if any
       if (nextAdvanceISR && nextAdvanceISR != ADV_NEVER)
         nextAdvanceISR -= nextMainISR;
@@ -897,9 +897,9 @@ void Stepper::isr() {
     // Don't run the ISR faster than possible
     #ifdef CPU_32_BIT
       // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
-      uint32_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM),
+      uint32_t stepper_timer_count = HAL_timer_get_compare(STEP_TIMER_NUM),
                stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
-      HAL_timer_set_count(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
+      HAL_timer_set_compare(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
     #else
       NOLESS(OCR1A, TCNT1 + 16);
     #endif
