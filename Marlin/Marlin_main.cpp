@@ -10614,8 +10614,8 @@ inline void gcode_M502() {
   #if ENABLED(SENSORLESS_HOMING)
     inline void gcode_M914() {
       #define TMC_SET_GET_SGT(P,Q) do { \
-        if (parser.seen(axis_codes[X_AXIS])) tmc_set_sgt(stepperX, extended_axis_codes[TMC_X], parser.value_int()); \
-        else tmc_get_sgt(stepperX, extended_axis_codes[TMC_X]); } while(0)
+        if (parser.seen(axis_codes[P##_AXIS])) tmc_set_sgt(stepper##Q, extended_axis_codes[TMC_##Q], parser.value_int()); \
+        else tmc_get_sgt(stepper##Q, extended_axis_codes[TMC_##Q]); } while(0)
 
       #ifdef X_HOMING_SENSITIVITY
         #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
