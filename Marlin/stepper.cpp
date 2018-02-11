@@ -100,14 +100,21 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(LIN_ADVANCE)
 
+  uint32_t Stepper::LA_decelerate_after;
+
   constexpr uint16_t ADV_NEVER = 65535;
 
   uint16_t Stepper::nextMainISR = 0,
            Stepper::nextAdvanceISR = ADV_NEVER,
            Stepper::eISR_Rate = ADV_NEVER,
-           Stepper::current_adv_steps = 0;
+           Stepper::current_adv_steps = 0,
+           Stepper::final_adv_steps,
+           Stepper::max_adv_steps;
 
-  int8_t Stepper::e_steps[E_STEPPERS];
+  int8_t Stepper::e_steps = 0,
+         Stepper::LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+
+  bool Stepper::use_advance_lead;
 
 #endif // LIN_ADVANCE
 
@@ -483,7 +490,7 @@ void Stepper::isr() {
         #if DISABLED(MIXING_EXTRUDER)
           // Don't step E here for mixing extruder
           count_position[E_AXIS] += count_direction[E_AXIS];
-          motor_direction(E_AXIS) ? --e_steps[TOOL_E_INDEX] : ++e_steps[TOOL_E_INDEX];
+          motor_direction(E_AXIS) ? --e_steps : ++e_steps;
         #endif
       }
 
@@ -682,13 +689,13 @@ void Stepper::isr() {
     #if ENABLED(LIN_ADVANCE)
 
       if (current_block->use_advance_lead) {
-        if (step_events_completed == step_loops || (e_steps[TOOL_E_INDEX] && eISR_Rate != current_block->advance_speed)) {
+        if (step_events_completed == step_loops || (e_steps && eISR_Rate != current_block->advance_speed)) {
           nextAdvanceISR = 0; // Wake up eISR on first acceleration loop and fire ISR if final adv_rate is reached
           eISR_Rate = current_block->advance_speed;
         }
       } else {
         eISR_Rate = ADV_NEVER;
-        if (e_steps[TOOL_E_INDEX]) nextAdvanceISR = 0;
+        if (e_steps) nextAdvanceISR = 0;
       }
 
     #endif // LIN_ADVANCE
@@ -715,13 +722,13 @@ void Stepper::isr() {
     #if ENABLED(LIN_ADVANCE)
 
       if (current_block->use_advance_lead) {
-        if (step_events_completed <= (uint32_t)current_block->decelerate_after + step_loops || (e_steps[TOOL_E_INDEX] && eISR_Rate != current_block->advance_speed)) {
+        if (step_events_completed <= (uint32_t)current_block->decelerate_after + step_loops || (e_steps && eISR_Rate != current_block->advance_speed)) {
           nextAdvanceISR = 0; // Wake up eISR on first deceleration loop
           eISR_Rate = current_block->advance_speed;
         }
       } else {
         eISR_Rate = ADV_NEVER;
-        if (e_steps[TOOL_E_INDEX]) nextAdvanceISR = 0;
+        if (e_steps) nextAdvanceISR = 0;
       }
 
     #endif // LIN_ADVANCE
@@ -731,7 +738,7 @@ void Stepper::isr() {
     #if ENABLED(LIN_ADVANCE)
 
       // If we have esteps to execute, fire the next advance_isr "now"
-      if (e_steps[TOOL_E_INDEX] && eISR_Rate != current_block->advance_speed) nextAdvanceISR = 0;
+      if (e_steps && eISR_Rate != current_block->advance_speed) nextAdvanceISR = 0;
 
     #endif
 
@@ -774,79 +781,98 @@ void Stepper::isr() {
     #if ENABLED(MK2_MULTIPLEXER)
       // Even-numbered steppers are reversed
       #define SET_E_STEP_DIR(INDEX) \
-        if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? !INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0) : INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0))
+        if (e_steps) E## INDEX ##_DIR_WRITE(e_steps < 0 ? !INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0) : INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0))
     #else
       #define SET_E_STEP_DIR(INDEX) \
-        if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
+        if (e_steps) E## INDEX ##_DIR_WRITE(e_steps < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
     #endif
 
     #define START_E_PULSE(INDEX) \
-      if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN)
+      if (e_steps) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN)
 
     #define STOP_E_PULSE(INDEX) \
-      if (e_steps[INDEX]) { \
-        e_steps[INDEX] < 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
+      if (e_steps) { \
+        e_steps < 0 ? ++e_steps : --e_steps; \
         E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
       }
 
-    if (current_block) {
-      if (current_block->use_advance_lead) {
-        if (step_events_completed > (uint32_t)current_block->decelerate_after && current_adv_steps > current_block->final_adv_steps) {
-          e_steps[0]--;
-          current_adv_steps--;
-          nextAdvanceISR = eISR_Rate;
-        }
-        else if (step_events_completed < (uint32_t)current_block->decelerate_after && current_adv_steps < current_block->max_adv_steps) {
-          e_steps[0]++;
-          current_adv_steps++;
-          nextAdvanceISR = eISR_Rate;
-        }
-        else {
-          nextAdvanceISR = ADV_NEVER;
-          eISR_Rate = ADV_NEVER;
-        }
+    if (current_block->use_advance_lead) {
+      if (step_events_completed > LA_decelerate_after && current_adv_steps > final_adv_steps) {
+        e_steps--;
+        current_adv_steps--;
+        nextAdvanceISR = eISR_Rate;
       }
-      else
+      else if (step_events_completed < LA_decelerate_after && current_adv_steps < max_adv_steps) { //step_events_completed <= (uint32_t)current_block->accelerate_until) {
+        e_steps++;
+        current_adv_steps++;
+        nextAdvanceISR = eISR_Rate;
+      }
+      else {
         nextAdvanceISR = ADV_NEVER;
+        eISR_Rate = ADV_NEVER;
+      }
     }
-    else {
-      nextAdvanceISR = eISR_Rate;
-    }
+    else
+      nextAdvanceISR = ADV_NEVER;
     
-    SET_E_STEP_DIR(0);
-    #if E_STEPPERS > 1
-      SET_E_STEP_DIR(1);
-      #if E_STEPPERS > 2
-        SET_E_STEP_DIR(2);
-        #if E_STEPPERS > 3
-          SET_E_STEP_DIR(3);
-          #if E_STEPPERS > 4
-            SET_E_STEP_DIR(4);
-          #endif
-        #endif
-      #endif
-    #endif
+    switch(LA_active_extruder) {
+      case 0:
+        SET_E_STEP_DIR(0);
+      break;
+      #if EXTRUDERS > 1
+        case 1:
+          SET_E_STEP_DIR(1);
+        break;
+        #if EXTRUDERS > 2
+          case 2:
+            SET_E_STEP_DIR(2);
+          break;
+          #if EXTRUDERS > 3
+            case 3:
+              SET_E_STEP_DIR(3);
+            break;
+            #if EXTRUDERS > 4
+            case 4:
+              SET_E_STEP_DIR(4);
+            break;
+            #endif // EXTRUDERS > 4
+          #endif // EXTRUDERS > 3
+        #endif // EXTRUDERS > 2
+      #endif // EXTRUDERS > 1
+    }
 
     // Step all E steppers that have steps
-    while (e_steps[0]) {
+    while (e_steps) {
 
       #if EXTRA_CYCLES_E > 20
         uint32_t pulse_start = TCNT0;
       #endif
 
-      START_E_PULSE(0);
-      #if E_STEPPERS > 1
-        START_E_PULSE(1);
-        #if E_STEPPERS > 2
-          START_E_PULSE(2);
-          #if E_STEPPERS > 3
-            START_E_PULSE(3);
-            #if E_STEPPERS > 4
-              START_E_PULSE(4);
-            #endif
-          #endif
-        #endif
-      #endif
+      switch(LA_active_extruder) {
+        case 0:
+          START_E_PULSE(0);
+        break;
+        #if EXTRUDERS > 1
+          case 1:
+            START_E_PULSE(1);
+          break;
+          #if EXTRUDERS > 2
+            case 2:
+              START_E_PULSE(2);
+            break;
+            #if EXTRUDERS > 3
+              case 3:
+                START_E_PULSE(3);
+              break;
+              #if EXTRUDERS > 4
+              case 4:
+                START_E_PULSE(4);
+              break;
+              #endif // EXTRUDERS > 4
+            #endif // EXTRUDERS > 3
+          #endif // EXTRUDERS > 2
+        #endif // EXTRUDERS > 1
+      }
 
       // For minimum pulse time wait before stopping pulses
       #if EXTRA_CYCLES_E > 20
@@ -856,19 +882,31 @@ void Stepper::isr() {
         DELAY_NOPS(EXTRA_CYCLES_E);
       #endif
 
-      STOP_E_PULSE(0);
-      #if E_STEPPERS > 1
-        STOP_E_PULSE(1);
-        #if E_STEPPERS > 2
-          STOP_E_PULSE(2);
-          #if E_STEPPERS > 3
-            STOP_E_PULSE(3);
-            #if E_STEPPERS > 4
-              STOP_E_PULSE(4);
-            #endif
-          #endif
-        #endif
-      #endif
+      switch(LA_active_extruder) {
+        case 0:
+          STOP_E_PULSE(0);
+        break;
+        #if EXTRUDERS > 1
+          case 1:
+            STOP_E_PULSE(1);
+          break;
+          #if EXTRUDERS > 2
+            case 2:
+              STOP_E_PULSE(2);
+            break;
+            #if EXTRUDERS > 3
+              case 3:
+                STOP_E_PULSE(3);
+              break;
+              #if EXTRUDERS > 4
+              case 4:
+                STOP_E_PULSE(4);
+              break;
+              #endif // EXTRUDERS > 4
+            #endif // EXTRUDERS > 3
+          #endif // EXTRUDERS > 2
+        #endif // EXTRUDERS > 1
+      }
 
       // For minimum pulse time wait before looping
       #if EXTRA_CYCLES_E > 20

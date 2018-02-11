@@ -1227,16 +1227,10 @@ void Planner::check_axes_activity() {
        *
        * extruder_advance_k                 : There is an advance factor set.
        *
-       * esteps != block->step_event_count  : This is a work around for the following problem:
-       *                                      A problem occurs if the move before a retract is too small.
-       *                                      In that case, the retract and move will be executed together.
-       *                                      This leads to too many advance steps due to a huge e_acceleration.
-       *                                      The math is good, but we must avoid retract moves with advance!
        * de > 0                       : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
        */
-      block->use_advance_lead =  esteps // && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
+      block->use_advance_lead =  esteps
                               && extruder_advance_K
-                              && (uint32_t)esteps != block->step_event_count
                               && de > 0;
   
       if (block->use_advance_lead) {
@@ -1245,11 +1239,18 @@ void Planner::check_axes_activity() {
         #else
           block->e_D_ratio = (target_float[E_AXIS] - position_float[E_AXIS]) / SQRT(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS])+ sq(target_float[Z_AXIS] - position_float[Z_AXIS]));
         #endif
-
-        const uint32_t max_accel_steps_per_s2 = max_jerk[E_AXIS] / (extruder_advance_K * block->e_D_ratio) * steps_per_mm; //SQRT(extruder_advance_K * 10 * max_jerk[E_AXIS]) / (extruder_advance_K * block->e_D_ratio) * steps_per_mm;
-        if (accel > max_accel_steps_per_s2)
-          SERIAL_ECHOLN("Limited accel!");
-        NOMORE(accel, max_accel_steps_per_s2);
+        
+        // Check for unusual high e_D ratio to detect if a retract move was combined with the last print move due to min. steps per segment
+        // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
+        if (block->e_D_ratio > 3.0) {
+          block->use_advance_lead = false;
+        }
+        else {
+          const uint32_t max_accel_steps_per_s2 = max_jerk[E_AXIS] / (extruder_advance_K * block->e_D_ratio) * steps_per_mm; //SQRT(extruder_advance_K * 10 * max_jerk[E_AXIS]) / (extruder_advance_K * block->e_D_ratio) * steps_per_mm;
+          if (accel > max_accel_steps_per_s2)
+            SERIAL_ECHOLN("Limited accel!");
+          NOMORE(accel, max_accel_steps_per_s2);
+        }
       }
     #endif
 
