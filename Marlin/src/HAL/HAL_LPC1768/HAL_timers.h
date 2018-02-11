@@ -110,14 +110,14 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   return 0;
 }
 
-FORCE_INLINE static void HAL_timer_set_current_count(const uint8_t timer_num, const hal_timer_t count) {
+FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
   switch (timer_num) {
     case 0: LPC_TIM0->TC = count; break;
     case 1: LPC_TIM1->TC = count; break;
   }
 }
 
-FORCE_INLINE static hal_timer_t HAL_timer_get_current_count(const uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
     case 0: return LPC_TIM0->TC;
     case 1: return LPC_TIM1->TC;
