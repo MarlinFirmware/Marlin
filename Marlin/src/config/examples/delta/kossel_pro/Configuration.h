@@ -111,12 +111,12 @@
 #define SERIAL_PORT 0
 
 /**
-  * Select a secondary serial port on the board to use for communication with the host.
-  * This allows the connection of wireless adapters (for instance) to non-default port pins.
-  * Serial port -1 is the USB emulated serial port, if avaialble.
-  *
-  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
-  */
+ * Select a secondary serial port on the board to use for communication with the host.
+ * This allows the connection of wireless adapters (for instance) to non-default port pins.
+ * Serial port -1 is the USB emulated serial port, if avaialble.
+ *
+ * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+ */
 #define SERIAL_PORT_2 -1
 
 /**
@@ -671,7 +671,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+//#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 /**
  * Z_MIN_PROBE_ENDSTOP
@@ -692,7 +692,7 @@
  * disastrous consequences. Use with caution and do your homework.
  *
  */
-//#define Z_MIN_PROBE_ENDSTOP
+#define Z_MIN_PROBE_ENDSTOP
 
 /**
  * Probe Type

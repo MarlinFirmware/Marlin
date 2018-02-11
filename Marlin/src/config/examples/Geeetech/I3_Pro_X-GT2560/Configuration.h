@@ -107,12 +107,12 @@
 #define SERIAL_PORT 0
 
 /**
-  * Select a secondary serial port on the board to use for communication with the host.
-  * This allows the connection of wireless adapters (for instance) to non-default port pins.
-  * Serial port -1 is the USB emulated serial port, if avaialble.
-  *
-  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
-  */
+ * Select a secondary serial port on the board to use for communication with the host.
+ * This allows the connection of wireless adapters (for instance) to non-default port pins.
+ * Serial port -1 is the USB emulated serial port, if avaialble.
+ *
+ * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+ */
 #define SERIAL_PORT_2 -1
 
 /**
@@ -132,7 +132,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ULTIMAKER
+  #define MOTHERBOARD BOARD_GT2560_REV_A_PLUS
 #endif
 
 // Optional custom name for your RepStrap or other custom machine

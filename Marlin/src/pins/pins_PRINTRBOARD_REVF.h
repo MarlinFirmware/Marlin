@@ -70,7 +70,7 @@
   #error "USBCON should be defined by the platform for this board."
 #endif
 
-#define BOARD_NAME         "Printrboard Rev F"
+#define BOARD_NAME         "Printrboard Rev.F"
 // Disable JTAG pins so EXP1 pins work correctly
 // (Its pins are used for the Extrudrboard and filament sensor, for example).
 #define DISABLE_JTAG
@@ -83,7 +83,7 @@
  * See https://printrbot.zendesk.com/hc/en-us/articles/115003072346
  *
  * If you have REV F6 you probably also want to set E0_AUTO_FAN_PIN
- * to PRINTRBOARD_F6_HEATER_FAN_PIN
+ * to PRINTRBOARD_F6_HEATER_FAN_PIN (44).
  *
  * Define NO_EXTRUDRBOARD if you don't have an EXTRUDRBOARD and wish to
  * reassign different functions to EXP1.
