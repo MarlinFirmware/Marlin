@@ -22,7 +22,7 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_LCD_DISPLAY
 
 #include "ultralcd.h"
 #include "Marlin.h"
@@ -100,14 +100,15 @@ char lcd_status_message[MAX_MESSAGE_LENGTH + 1] = WELCOME_MSG;
   uint8_t progress_bar_percent;
 #endif
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
   #include "ultralcd_impl_DOGM.h"
   #include <U8glib.h>
 #else
   #include "ultralcd_impl_HD44780.h"
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_ENCODER
+
   #define DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(_type, _name, _strFunc) \
     inline void lcd_implementation_drawmenu_setting_edit_ ## _name (const bool sel, const uint8_t row, const char* pstr, const char* pstr2, _type * const data, ...) { \
       UNUSED(pstr2); \
@@ -135,7 +136,7 @@ char lcd_status_message[MAX_MESSAGE_LENGTH + 1] = WELCOME_MSG;
   #define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data)                    DRAW_BOOL_SETTING(sel, row, pstr, data)
   #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) DRAW_BOOL_SETTING(sel, row, pstr, data)
   #define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset)     DRAW_BOOL_SETTING(sel, row, pstr, data)
-#endif // ULTIPANEL
+#endif // HAS_ENCODER
 
 // The main status screen
 void lcd_status_screen();
@@ -145,7 +146,7 @@ millis_t next_lcd_update_ms;
 uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
 uint16_t max_display_update_time = 0;
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
   bool drawing_screen = false;
 #endif
 
@@ -154,7 +155,7 @@ uint16_t max_display_update_time = 0;
   uint8_t driverPercent[XYZE];
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_ENCODER
 
   #ifndef TALL_FONT_CORRECTION
     #define TALL_FONT_CORRECTION 0
@@ -549,21 +550,27 @@ uint16_t max_display_update_time = 0;
         screen_history_depth = 0;
       }
       lcd_implementation_clear();
-      // Re-initialize custom characters that may be re-used
-      #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)
-        if (!ubl.lcd_map_control) {
+
+      // Prepare custom characters
+      #if HAS_CHARACTER_LCD
+        if (
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            !ubl.lcd_map_control
+          #else
+            true
+          #endif
+        ) {
           lcd_set_custom_characters(
             #if ENABLED(LCD_PROGRESS_BAR)
               screen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU
             #endif
           );
         }
-      #elif ENABLED(LCD_PROGRESS_BAR)
-        lcd_set_custom_characters(screen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU);
-      #endif
+      #endif // HAS_CHARACTER_LCD
+
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       screen_changed = true;
-      #if ENABLED(DOGLCD)
+      #if HAS_GRAPHICAL_LCD
         drawing_screen = false;
       #endif
     }
@@ -626,7 +633,7 @@ uint16_t max_display_update_time = 0;
     lcd_goto_previous_menu();
   }
 
-#endif // ULTIPANEL
+#endif // HAS_ENCODER
 
 /**
  *
@@ -637,7 +644,7 @@ uint16_t max_display_update_time = 0;
 
 void lcd_status_screen() {
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_ENCODER
     ENCODER_DIRECTION_NORMAL();
     ENCODER_RATE_MULTIPLY(false);
   #endif
@@ -691,7 +698,7 @@ void lcd_status_screen() {
 
   #endif // LCD_PROGRESS_BAR
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_ENCODER
 
     if (use_click()) {
       #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
@@ -731,7 +738,7 @@ void lcd_status_screen() {
 
     feedrate_percentage = constrain(feedrate_percentage, 10, 999);
 
-  #endif // ULTIPANEL
+  #endif // HAS_ENCODER
 
   lcd_implementation_status_screen();
 }
@@ -749,7 +756,7 @@ void kill_screen(const char* lcd_msg) {
   lcd_kill_screen();
 }
 
-#if ENABLED(ULTIPANEL)
+#if HAS_ENCODER
 
   /**
    *
@@ -3799,7 +3806,7 @@ void kill_screen(const char* lcd_msg) {
 
       void lcd_reselect_last_file() {
         if (last_sdfile_encoderPosition == 0xFFFF) return;
-        #if ENABLED(DOGLCD)
+        #if HAS_GRAPHICAL_LCD
           // Some of this is a hack to force the screen update to work.
           // TODO: Fix the real issue that causes this!
           lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
@@ -3814,7 +3821,7 @@ void kill_screen(const char* lcd_msg) {
         defer_return_to_status = true;
         last_sdfile_encoderPosition = 0xFFFF;
 
-        #if ENABLED(DOGLCD)
+        #if HAS_GRAPHICAL_LCD
           lcd_update();
         #endif
       }
@@ -4778,13 +4785,14 @@ void kill_screen(const char* lcd_msg) {
     (*callback)();
   }
 
-#endif // ULTIPANEL
+#endif // HAS_ENCODER
 
 void lcd_init() {
 
   lcd_implementation_init();
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
+
     #if BUTTON_EXISTS(EN1)
       SET_INPUT_PULLUP(BTN_EN1);
     #endif
@@ -4816,7 +4824,7 @@ void lcd_init() {
       SET_INPUT(BTN_RT);
     #endif
 
-  #else // !NEWPANEL
+  #else // !HAS_ENCODER
 
     #if ENABLED(SR_LCD_2W_NL) // Non latching 2 wire shift register
       SET_OUTPUT(SR_DATA_PIN);
@@ -4828,7 +4836,7 @@ void lcd_init() {
       SET_INPUT_PULLUP(SHIFT_OUT);
     #endif // SR_LCD_2W_NL
 
-  #endif // !NEWPANEL
+  #endif // !HAS_ENCODER
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
@@ -4841,7 +4849,7 @@ void lcd_init() {
 
   lcd_buttons_update();
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_ENCODER
     encoderDiff = 0;
   #endif
 }
@@ -4909,7 +4917,7 @@ bool lcd_blink() {
  */
 void lcd_update() {
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_ENCODER
     static millis_t return_to_status_ms = 0;
 
     // Handle any queued Move Axis motion
@@ -4967,7 +4975,7 @@ void lcd_update() {
 
   const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
-    #if ENABLED(DOGLCD)
+    #if HAS_GRAPHICAL_LCD
       || drawing_screen
     #endif
   ) {
@@ -4978,7 +4986,7 @@ void lcd_update() {
       lcd_implementation_update_indicators();
     #endif
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
 
       #if ENABLED(LCD_HAS_SLOW_BUTTONS)
         slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
@@ -5033,18 +5041,18 @@ void lcd_update() {
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       }
-    #endif // ULTIPANEL
+    #endif // HAS_ENCODER
 
     // We arrive here every ~100ms when idling often enough.
     // Instead of tracking the changes simply redraw the Info Screen ~1 time a second.
     if (
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         currentScreen == lcd_status_screen &&
       #endif
       !lcd_status_update_delay--
     ) {
       lcd_status_update_delay = 9
-        #if ENABLED(DOGLCD)
+        #if HAS_GRAPHICAL_LCD
           + 3
         #endif
       ;
@@ -5066,7 +5074,7 @@ void lcd_update() {
     // then we want to use 1/2 of the time only.
     uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
-    #if ENABLED(DOGLCD)
+    #if HAS_GRAPHICAL_LCD
       #define IS_DRAWING drawing_screen
     #else
       #define IS_DRAWING false
@@ -5091,13 +5099,13 @@ void lcd_update() {
         buttons_reprapworld_keypad = 0;
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         #define CURRENTSCREEN() (*currentScreen)()
       #else
         #define CURRENTSCREEN() lcd_status_screen()
       #endif
 
-      #if ENABLED(DOGLCD)
+      #if HAS_GRAPHICAL_LCD
         if (!drawing_screen) {                        // If not already drawing pages
           u8g.firstPage();                            // Start the first page
           drawing_screen = 1;                         // Flag as drawing pages
@@ -5117,7 +5125,7 @@ void lcd_update() {
         CURRENTSCREEN();
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         lcd_clicked = false;
       #endif
 
@@ -5126,7 +5134,7 @@ void lcd_update() {
       NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
 
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
@@ -5227,7 +5235,7 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
 
 void lcd_setalertstatusPGM(const char * const message) {
   lcd_setstatusPGM(message, 1);
-  #if ENABLED(ULTIPANEL)
+  #if HAS_ENCODER
     lcd_return_to_status();
   #endif
 }
@@ -5243,7 +5251,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_ENCODER
 
   /**
    * Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
@@ -5279,7 +5287,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     const millis_t now = millis();
     if (ELAPSED(now, next_button_update_ms)) {
 
-      #if ENABLED(NEWPANEL)
+      #if HAS_ENCODER
         uint8_t newbutton = 0;
 
         #if BUTTON_EXISTS(EN1)
@@ -5363,7 +5371,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
         #endif
 
-      #else // !NEWPANEL
+      #else // !HAS_ENCODER
 
         GET_SHIFT_BUTTON_STATES(buttons);
 
@@ -5471,4 +5479,4 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   }
 #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_LCD_DISPLAY

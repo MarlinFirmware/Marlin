@@ -1116,7 +1116,7 @@ inline void get_serial_commands() {
         // Process critical commands early
         if (strcmp(command, "M108") == 0) {
           wait_for_heatup = false;
-          #if ENABLED(NEWPANEL)
+          #if HAS_ENCODER
             wait_for_user = false;
           #endif
         }
@@ -1782,7 +1782,7 @@ static void clean_up_after_endstop_or_probe_move() {
       if (zz) SERIAL_ECHOPGM(MSG_Z);
       SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
-      #if ENABLED(ULTRA_LCD)
+      #if HAS_LCD_DISPLAY
         lcd_status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
       #endif
       return true;
@@ -6196,7 +6196,7 @@ inline void gcode_G92() {
       hasS = ms > 0;
     }
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_DISPLAY
 
       if (!hasP && !hasS && args && *args)
         lcd_setstatus(args, true);
@@ -6227,7 +6227,7 @@ inline void gcode_G92() {
       while (PENDING(millis(), ms) && wait_for_user) idle();
     }
     else {
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_DISPLAY
         if (lcd_detected()) {
           while (wait_for_user) idle();
           print_job_timer.isPaused() ? LCD_MESSAGEPGM(WELCOME_MSG) : LCD_MESSAGEPGM(MSG_RESUMING);
@@ -6414,7 +6414,7 @@ inline void gcode_M17() {
       }
     #endif
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT, mode);
     #else
       UNUSED(mode);
@@ -6444,12 +6444,12 @@ inline void gcode_M17() {
                             const bool show_lcd=false, const bool pause_for_user=false,
                             const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT
   ) {
-    #if DISABLED(ULTIPANEL)
+    #if !HAS_ENCODER
       UNUSED(show_lcd);
     #endif
 
     if (!ensure_safe_temperature(mode)) {
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         if (show_lcd) // Show status screen
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
       #endif
@@ -6458,7 +6458,7 @@ inline void gcode_M17() {
     }
 
     if (pause_for_user) {
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         if (show_lcd) // Show "insert filament"
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT, mode);
       #endif
@@ -6482,7 +6482,7 @@ inline void gcode_M17() {
       KEEPALIVE_STATE(IN_HANDLER);
     }
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       if (show_lcd) // Show "wait for load" message
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, mode);
     #endif
@@ -6493,7 +6493,7 @@ inline void gcode_M17() {
     do {
       if (purge_length > 0) {
         // "Wait for filament purge"
-        #if ENABLED(ULTIPANEL)
+        #if HAS_ENCODER
           if (show_lcd)
             lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_PURGE, mode);
         #endif
@@ -6503,7 +6503,7 @@ inline void gcode_M17() {
       }
 
       // Show "Purge More" / "Resume" menu and wait for reply
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         if (show_lcd) {
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
@@ -6515,7 +6515,7 @@ inline void gcode_M17() {
 
       // Keep looping if "Purge More" was selected
     } while (
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
       #else
         0
@@ -6539,7 +6539,7 @@ inline void gcode_M17() {
                               const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT
   ) {
     if (!ensure_safe_temperature(mode)) {
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         if (show_lcd) // Show status screen
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
       #endif
@@ -6547,11 +6547,11 @@ inline void gcode_M17() {
       return false;
     }
 
-    #if DISABLED(ULTIPANEL)
-      UNUSED(show_lcd);
-    #else
+    #if HAS_ENCODER
       if (show_lcd)
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD, mode);
+    #else
+      UNUSED(show_lcd);
     #endif
 
     // Retract filament
@@ -6591,6 +6591,10 @@ inline void gcode_M17() {
   static bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false) {
     if (did_pause_print) return false; // already paused
 
+    #if !HAS_ENCODER
+      UNUSED(show_lcd);
+    #endif
+
     #ifdef ACTION_ON_PAUSE
       SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
     #endif
@@ -6599,10 +6603,13 @@ inline void gcode_M17() {
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_HOTEND_TOO_COLD);
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         if (show_lcd) // Show status screen
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
-          LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
+      #endif
+
+      #if HAS_LCD_DISPLAY
+        LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
       #endif
 
       return false; // unable to reach safe temperature
@@ -6653,7 +6660,7 @@ inline void gcode_M17() {
   static void wait_for_filament_reload(const int8_t max_beep_count=0) {
     bool nozzle_timed_out = false;
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
     #endif
     SERIAL_ECHO_START();
@@ -6684,11 +6691,11 @@ inline void gcode_M17() {
           nozzle_timed_out |= thermalManager.is_heater_idle(e);
 
       if (nozzle_timed_out) {
-        #if ENABLED(ULTIPANEL)
+        #if HAS_ENCODER
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
         #endif
         SERIAL_ECHO_START();
-        #if ENABLED(ULTIPANEL) && ENABLED(EMERGENCY_PARSER)
+        #if HAS_ENCODER && ENABLED(EMERGENCY_PARSER)
           SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_HEAT);
         #elif ENABLED(EMERGENCY_PARSER)
           SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_HEAT_M108);
@@ -6705,11 +6712,11 @@ inline void gcode_M17() {
         // Wait for the heaters to reach the target temperatures
         ensure_safe_temperature();
 
-        #if ENABLED(ULTIPANEL)
+        #if HAS_ENCODER
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
         #endif
         SERIAL_ECHO_START();
-        #if ENABLED(ULTIPANEL) && ENABLED(EMERGENCY_PARSER)
+        #if HAS_ENCODER && ENABLED(EMERGENCY_PARSER)
           SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_INSERT);
         #elif ENABLED(EMERGENCY_PARSER)
           SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_INSERT_M108);
@@ -6769,7 +6776,7 @@ inline void gcode_M17() {
       load_filament(load_length, purge_length, max_beep_count, true, nozzle_timed_out);
     }
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       // "Wait for print to resume"
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME);
     #endif
@@ -6798,7 +6805,7 @@ inline void gcode_M17() {
       filament_ran_out = false;
     #endif
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       // Show status screen
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
     #endif
@@ -7599,7 +7606,7 @@ inline void gcode_M42() {
 
 #endif // G26_MESH_VALIDATION
 
-#if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+#if HAS_LCD_DISPLAY && ENABLED(LCD_SET_PROGRESS_MANUALLY)
   /**
    * M73: Set percentage complete (for display on LCD)
    *
@@ -7615,7 +7622,7 @@ inline void gcode_M42() {
       NOMORE(progress_bar_percent, 100);
     }
   }
-#endif // ULTRA_LCD && LCD_SET_PROGRESS_MANUALLY
+#endif // HAS_LCD_DISPLAY && LCD_SET_PROGRESS_MANUALLY
 
 /**
  * M75: Start print timer
@@ -7678,7 +7685,7 @@ inline void gcode_M104() {
       }
     #endif
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_LCD_DISPLAY
       if (parser.value_celsius() > thermalManager.degHotend(target_extruder))
         lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
     #endif
@@ -7838,7 +7845,7 @@ inline void gcode_M109() {
         print_job_timer.start();
     #endif
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_LCD_DISPLAY
       if (thermalManager.isHeatingHotend(target_extruder))
         lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
     #endif
@@ -8191,7 +8198,7 @@ inline void gcode_M140() {
   if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
 }
 
-#if ENABLED(ULTIPANEL)
+#if HAS_ENCODER
 
   /**
    * M145: Set the heatup state for a material in the LCD menu
@@ -8226,7 +8233,7 @@ inline void gcode_M140() {
     }
   }
 
-#endif // ULTIPANEL
+#endif // HAS_ENCODER
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   /**
@@ -8271,7 +8278,7 @@ inline void gcode_M140() {
 
     powersupply_on = true;
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_DISPLAY
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
 
@@ -8310,7 +8317,7 @@ inline void gcode_M81() {
     powersupply_on = false;
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_DISPLAY
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
   #endif
 }
@@ -8347,7 +8354,7 @@ inline void gcode_M18_M84() {
       #endif
     }
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && HAS_ENCODER  // Only needed with an LCD
       ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }
@@ -10120,7 +10127,7 @@ inline void gcode_M502() {
     if (get_target_extruder_from_command(600)) return;
 
     // Show initial message
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, target_extruder);
     #endif
 
@@ -10316,7 +10323,7 @@ inline void gcode_M502() {
                                                       filament_change_load_length[target_extruder]);
 
     // Show initial "wait for load" message
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, ADVANCED_PAUSE_MODE_LOAD_FILAMENT, target_extruder);
     #endif
 
@@ -10345,7 +10352,7 @@ inline void gcode_M502() {
     #endif
 
     // Show status screen
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
     #endif
   }
@@ -10374,7 +10381,7 @@ inline void gcode_M502() {
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
     // Show initial message
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD, ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT, target_extruder);
     #endif
 
@@ -10418,7 +10425,7 @@ inline void gcode_M502() {
     #endif
 
     // Show status screen
-    #if ENABLED(ULTIPANEL)
+    #if HAS_ENCODER
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
     #endif
   }
@@ -11640,7 +11647,7 @@ void process_parsed_command() {
         case 49: gcode_M49(); break;                              // M49: Toggle the G26 Debug Flag
       #endif
 
-      #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      #if HAS_LCD_DISPLAY && ENABLED(LCD_SET_PROGRESS_MANUALLY)
         case 73: gcode_M73(); break;                              // M73: Set Print Progress %
       #endif
       case 75: gcode_M75(); break;                                // M75: Start Print Job Timer
@@ -11720,7 +11727,7 @@ void process_parsed_command() {
       case 120: gcode_M120(); break;                              // M120: Enable Endstops
       case 121: gcode_M121(); break;                              // M121: Disable Endstops
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         case 145: gcode_M145(); break;                            // M145: Set material heatup parameters
       #endif
 
@@ -13352,7 +13359,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     #if ENABLED(DISABLE_INACTIVE_E)
       disable_e_steppers();
     #endif
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && HAS_ENCODER  // Only needed with an LCD
       ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }
@@ -13545,7 +13552,7 @@ void kill(const char* lcd_msg) {
   thermalManager.disable_all_heaters();
   disable_all_steppers();
 
-  #if ENABLED(ULTRA_LCD)
+  #if HAS_LCD_DISPLAY
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);

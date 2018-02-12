@@ -34,7 +34,7 @@
 #define DISPLAY_CHARSET_ISO10646_TR
 #define CHARSIZE 2
 
-#if DISABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
   #error "Turkish needs a graphical display."
 #endif
 

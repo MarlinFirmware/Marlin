@@ -157,11 +157,11 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_LCD_DISPLAY
 
   #define KILL_PIN 80
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
 
     #define LCD_PINS_RS     70
     #define LCD_PINS_ENABLE 71
@@ -202,7 +202,7 @@
 
     #endif  // !VIKI2 && !miniVIKI
 
-  #else // !NEWPANEL - old style panel with shift register
+  #else // !HAS_ENCODER - old style panel with shift register
 
     // No Beeper added
     #define BEEPER_PIN 33
@@ -221,6 +221,6 @@
     #define LCD_PINS_D6     27
     #define LCD_PINS_D7     29
 
-  #endif // !NEWPANEL
+  #endif // !HAS_ENCODER
 
-#endif // ULTRA_LCD
+#endif // HAS_LCD_DISPLAY

@@ -76,7 +76,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if HAS_ENCODER
   #undef BEEPER_PIN
   #define BEEPER_PIN       -1
 
@@ -101,11 +101,11 @@
   #define BTN_EN2          17
   #define BTN_ENC          23
 
-#else
+#else // !HAS_ENCODER
 
   #define BEEPER_PIN       33
 
-#endif // ULTRA_LCD && NEWPANEL
+#endif // !HAS_ENCODER
 
 /**
  *  M3/M4/M5 - Spindle/Laser Control
@@ -156,7 +156,7 @@
     #define SPINDLE_LASER_PWM_PIN    46  // MUST BE HARDWARE PWM
     #define SPINDLE_LASER_ENABLE_PIN 62  // Pin should have a pullup!
     #define SPINDLE_DIR_PIN          48
-  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)) // use expansion header if no LCD in use
+  #elif !HAS_ENCODER                 // use expansion header if no LCD in use
     #define SPINDLE_LASER_ENABLE_PIN 16  // Pin should have a pullup/pulldown!
     #define SPINDLE_DIR_PIN          17
   #endif

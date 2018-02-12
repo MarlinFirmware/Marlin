@@ -68,20 +68,18 @@
 #define HEATER_BED_PIN      8
 #define TEMP_BED_PIN        6
 
-#if ENABLED(DOGLCD)
-  #if ENABLED(U8GLIB_ST7920)    // SPI GLCD 12864 ST7920
-    #define LCD_PINS_RS    30
-    #define LCD_PINS_ENABLE 20
-    #define LCD_PINS_D4    25
-    #define BEEPER_PIN     29
-    #define BTN_EN1        19
-    #define BTN_EN2        22
-    #define BTN_ENC        24
-    #define LCD_BACKLIGHT_PIN  6
-    #if ENABLED(SILVER_GATE_GLCD_CONTROLLER)
-      #define KILL_PIN     21
-      #define HOME_PIN     28
-    #endif
+#if ENABLED(U8GLIB_ST7920) // SPI GLCD 12864 ST7920
+  #define LCD_PINS_RS    30
+  #define LCD_PINS_ENABLE 20
+  #define LCD_PINS_D4    25
+  #define BEEPER_PIN     29
+  #define BTN_EN1        19
+  #define BTN_EN2        22
+  #define BTN_ENC        24
+  #define LCD_BACKLIGHT_PIN  6
+  #if ENABLED(SILVER_GATE_GLCD_CONTROLLER)
+    #define KILL_PIN     21
+    #define HOME_PIN     28
   #endif
 #endif
 

@@ -150,7 +150,7 @@
  *  REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
  */
 
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if HAS_ENCODER
   #define LCD_SDSS           28
   #if ENABLED(ADC_KEYPAD)
     #define SERVO0_PIN       27 // free for BLTouch/3D-Touch
@@ -184,7 +184,7 @@
   #endif
 #else
   #define SERVO0_PIN         27
-#endif  // ULTRA_LCD && NEWPANEL
+#endif
 
 /**
  * ====================================================================

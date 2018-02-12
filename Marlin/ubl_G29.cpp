@@ -44,7 +44,7 @@
 
   extern float destination[XYZE], current_position[XYZE];
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
     void lcd_return_to_status();
     void _lcd_ubl_output_map_lcd();
   #endif
@@ -429,7 +429,7 @@
         #endif // HAS_BED_PROBE
 
         case 2: {
-          #if ENABLED(NEWPANEL)
+          #if HAS_ENCODER
             //
             // Manually Probe Mesh in areas that can't be reached by the probe
             //
@@ -535,7 +535,7 @@
         }
 
         case 4: // Fine Tune (i.e., Edit) the Mesh
-          #if ENABLED(NEWPANEL)
+          #if HAS_ENCODER
             fine_tune_mesh(g29_x_pos, g29_y_pos, parser.seen('T'));
           #else
             SERIAL_PROTOCOLLNPGM("?P4 is only available when an LCD is present.");
@@ -636,7 +636,7 @@
 
     LEAVE:
 
-    #if ENABLED(NEWPANEL)
+    #if HAS_ENCODER
       lcd_reset_alert_level();
       LCD_MESSAGEPGM("");
       lcd_quick_feedback(true);
@@ -691,7 +691,7 @@
           z_values[x][y] += g29_constant;
   }
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
 
     typedef void (*clickFunc_t)();
 
@@ -715,7 +715,7 @@
       return false;
     }
 
-  #endif // NEWPANEL
+  #endif // HAS_ENCODER
 
   #if HAS_BED_PROBE
     /**
@@ -725,7 +725,7 @@
     void unified_bed_leveling::probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool close_or_far) {
       mesh_index_pair location;
 
-      #if ENABLED(NEWPANEL)
+      #if HAS_ENCODER
         lcd_external_control = true;
       #endif
 
@@ -737,7 +737,7 @@
       do {
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
-        #if ENABLED(NEWPANEL)
+        #if HAS_ENCODER
           if (is_lcd_clicked()) {
             SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
             lcd_quick_feedback(false);
@@ -781,7 +781,7 @@
 
   #endif // HAS_BED_PROBE
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
 
     void unified_bed_leveling::move_z_with_encoder(const float &multiplier) {
       wait_for_release();
@@ -915,12 +915,12 @@
       KEEPALIVE_STATE(IN_HANDLER);
       do_blocking_move_to(rx, ry, Z_CLEARANCE_DEPLOY_PROBE);
     }
-  #endif // NEWPANEL
+  #endif // HAS_ENCODER
 
   bool unified_bed_leveling::g29_parameter_parsing() {
     bool err_flag = false;
 
-    #if ENABLED(NEWPANEL)
+    #if HAS_ENCODER
       LCD_MESSAGEPGM(MSG_UBL_DOING_G29);
       lcd_quick_feedback(true);
     #endif
@@ -1043,7 +1043,7 @@
       ubl_state_recursion_chk++;
       if (ubl_state_recursion_chk != 1) {
         SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
-        #if ENABLED(NEWPANEL)
+        #if HAS_ENCODER
           LCD_MESSAGEPGM(MSG_UBL_SAVE_ERROR);
           lcd_quick_feedback(true);
         #endif
@@ -1058,7 +1058,7 @@
     #ifdef UBL_DEVEL_DEBUGGING
       if (--ubl_state_recursion_chk) {
         SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
-        #if ENABLED(NEWPANEL)
+        #if HAS_ENCODER
           LCD_MESSAGEPGM(MSG_UBL_RESTORE_ERROR);
           lcd_quick_feedback(true);
         #endif
@@ -1346,7 +1346,7 @@
     return out_mesh;
   }
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
 
     void abort_fine_tune() {
       lcd_return_to_status();
@@ -1460,7 +1460,7 @@
         lcd_return_to_status();
     }
 
-  #endif // NEWPANEL
+  #endif // HAS_ENCODER
 
   /**
    * 'Smart Fill': Scan from the outward edges of the mesh towards the center.

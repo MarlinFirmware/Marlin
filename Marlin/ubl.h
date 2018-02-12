@@ -63,8 +63,7 @@
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  #if ENABLED(ULTRA_LCD)
-    extern char lcd_status_message[];
+  #if HAS_ENCODER
     void lcd_quick_feedback(const bool clear_buttons);
   #endif
 
@@ -88,7 +87,7 @@
         static int  g29_grid_size;
       #endif
 
-      #if ENABLED(NEWPANEL)
+      #if HAS_ENCODER
         static void move_z_with_encoder(const float &multiplier);
         static float measure_point_with_encoder();
         static float measure_business_card_thickness(float in_height);
@@ -152,7 +151,7 @@
                                 MESH_MIN_Y + 14 * (MESH_Y_DIST), MESH_MIN_Y + 15 * (MESH_Y_DIST)
                               };
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_ENCODER
         static bool lcd_map_control;
       #endif
 

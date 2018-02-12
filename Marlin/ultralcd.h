@@ -25,12 +25,12 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+#if HAS_LCD_DISPLAY || ENABLED(MALYAN_LCD)
   void lcd_init();
   bool lcd_detected();
 #endif
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_LCD_DISPLAY
 
   #include "Marlin.h"
 
@@ -82,7 +82,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if ENABLED(DOGLCD)
+  #if HAS_GRAPHICAL_LCD
     extern int16_t lcd_contrast;
     void set_lcd_contrast(const int16_t value);
   #endif
@@ -152,7 +152,7 @@
 
   bool lcd_blink();
 
-  #if ENABLED(REPRAPWORLD_KEYPAD) // is also ULTIPANEL and NEWPANEL
+  #if ENABLED(REPRAPWORLD_KEYPAD)
 
     #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
 
@@ -208,7 +208,7 @@
                                               EN_REPRAPWORLD_KEYPAD_LEFT) \
                                             )
 
-  #elif ENABLED(NEWPANEL)
+  #elif HAS_ENCODER
     #define LCD_CLICKED (buttons & EN_C)
   #else
     #define LCD_CLICKED false
@@ -219,7 +219,7 @@
     void wait_for_release();
   #endif
 
-#else // no LCD
+#else // !HAS_LCD_DISPLAY
 
   constexpr bool lcd_wait_for_move = false;
 
@@ -235,7 +235,7 @@
   inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_reset_alert_level() {}
 
-#endif // ULTRA_LCD
+#endif // !HAS_LCD_DISPLAY
 
 #define LCD_MESSAGEPGM(x)      lcd_setstatusPGM(PSTR(x))
 #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatusPGM(PSTR(x))

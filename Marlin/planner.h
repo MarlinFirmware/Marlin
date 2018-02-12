@@ -256,7 +256,7 @@ class Planner {
       static uint32_t axis_segment_time_us[2][3];
     #endif
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_LCD_DISPLAY
       volatile static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
     #endif
 
@@ -544,21 +544,21 @@ class Planner {
         else if (TEST(block->flag, BLOCK_BIT_RECALCULATE))
           return NULL;
 
-        #if ENABLED(ULTRA_LCD)
+        #if HAS_LCD_DISPLAY
           block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
         #endif
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
       }
       else {
-        #if ENABLED(ULTRA_LCD)
+        #if HAS_LCD_DISPLAY
           clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
         #endif
         return NULL;
       }
     }
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_LCD_DISPLAY
 
       static uint16_t block_buffer_runtime() {
         CRITICAL_SECTION_START

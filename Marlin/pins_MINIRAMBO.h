@@ -138,13 +138,13 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if HAS_LCD_DISPLAY
 
   #if !MB(MINIRAMBO_10A)
     #define KILL_PIN       32
   #endif
 
-  #if ENABLED(NEWPANEL)
+  #if HAS_ENCODER
 
     #if MB(MINIRAMBO_10A)
 
@@ -184,6 +184,6 @@
 
     #endif // !MINIRAMBO_10A
 
-  #endif // NEWPANEL
+  #endif // HAS_ENCODER
 
-#endif // ULTRA_LCD
+#endif // HAS_LCD_DISPLAY
