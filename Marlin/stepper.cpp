@@ -758,6 +758,7 @@ void Stepper::isr() {
     current_block = NULL;
     planner.discard_current_block();
     
+    // TBD: This should be not gone, check and delete!
     #if ENABLED(LIN_ADVANCE)
       eISR_Rate = ADV_NEVER;
     #endif
@@ -841,7 +842,7 @@ void Stepper::isr() {
       #endif // EXTRUDERS > 1
     }
 
-    // Step all E steppers that have steps
+    // Step E stepper if we have steps
     while (e_steps) {
 
       #if EXTRA_CYCLES_E > 20

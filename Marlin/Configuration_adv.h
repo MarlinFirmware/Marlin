@@ -687,11 +687,13 @@
  * If we have a true, linear acceleration this results in the exact same result.
  * K=0 means advance disabled.
  * See Marlin documentation for calibration instructions.
+ * If you have an issue, always mention "@Sebastianv650" on GitHub! I will get a notification this way.
  */
 //#define LIN_ADVANCE
 
 #if ENABLED(LIN_ADVANCE)
-  #define LIN_ADVANCE_K 0.22   // Unit: mm compression needed at 1mm/s extruder speed
+  #define LIN_ADVANCE_K 0.22  // Unit: mm compression needed at 1mm/s extruder speed
+  //#define LA_DEBUG          // If enabled, this will generate debug information output over USB.
 #endif
 
 // @section leveling

@@ -1223,11 +1223,11 @@ void Planner::check_axes_activity() {
        *
        * Use LIN_ADVANCE for blocks if all these are true:
        *
-       * esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS]) : This is a print move
+       * esteps             : This is a print move, because we checked for A, B, C steps before.
        *
-       * extruder_advance_k                 : There is an advance factor set.
+       * extruder_advance_k : There is an advance factor set.
        *
-       * de > 0                       : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+       * de > 0             : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
        */
       block->use_advance_lead =  esteps
                               && extruder_advance_K
@@ -1240,15 +1240,17 @@ void Planner::check_axes_activity() {
           block->e_D_ratio = (target_float[E_AXIS] - position_float[E_AXIS]) / SQRT(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS])+ sq(target_float[Z_AXIS] - position_float[Z_AXIS]));
         #endif
         
-        // Check for unusual high e_D ratio to detect if a retract move was combined with the last print move due to min. steps per segment
+        // Check for unusual high e_D ratio to detect if a retract move was combined with the last print move due to min. steps per segment. Never execute this with advance!
         // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
         if (block->e_D_ratio > 3.0) {
           block->use_advance_lead = false;
         }
         else {
-          const uint32_t max_accel_steps_per_s2 = max_jerk[E_AXIS] / (extruder_advance_K * block->e_D_ratio) * steps_per_mm; //SQRT(extruder_advance_K * 10 * max_jerk[E_AXIS]) / (extruder_advance_K * block->e_D_ratio) * steps_per_mm;
-          if (accel > max_accel_steps_per_s2)
-            SERIAL_ECHOLN("Limited accel!");
+          const uint32_t max_accel_steps_per_s2 = max_jerk[E_AXIS] / (extruder_advance_K * block->e_D_ratio) * steps_per_mm;
+          #if ENABLED(LA_DEBUG)
+            if (accel > max_accel_steps_per_s2)
+              SERIAL_ECHOLN("Acceleration limited.");
+          #endif
           NOMORE(accel, max_accel_steps_per_s2);
         }
       }
@@ -1279,7 +1281,13 @@ void Planner::check_axes_activity() {
   block->acceleration_rate = (long)(accel * 16777216.0 / ((F_CPU) * 0.125)); // * 8.388608
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead)
-      block->advance_speed = 2000000 / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS]); //20000000 / (extruder_advance_K * sq(block->e_D_ratio * block->acceleration) * axis_steps_per_mm[E_AXIS]);
+      block->advance_speed = 2000000 / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS]);
+    #if ENABLED(LA_DEBUG)
+      if (block->advance_speed > block->nominal_rate * block->e_D_ratio * 2)
+        SERIAL_ECHOLN("More than 2 steps per eISR loop executed.");
+      if (block->advance_speed < 200)
+        SERIAL_ECHOLN("eISR running at > 10kHz.");
+    #endif
   #endif
 
   // Initial limit on the segment entry velocity
