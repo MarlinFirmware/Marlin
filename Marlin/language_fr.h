@@ -177,7 +177,7 @@
 #define MSG_NOZZLE                          _UxGT("Buse")
 #define MSG_BED                             _UxGT("Lit")
 #define MSG_FAN_SPEED                       _UxGT("Vitesse ventil.")
-#define MSG_EXTRA_FAN_SPEED                 _UxGT("+Vitesse ventil.")
+#define MSG_EXTRA_FAN_SPEED                 _UxGT("Extra V ventil.")
 
 #define MSG_FLOW                            _UxGT("Flux")
 #define MSG_CONTROL                         _UxGT("Controler")
@@ -288,7 +288,7 @@
 #define MSG_BABYSTEP_Z                      _UxGT("Babystep Z")
 #define MSG_ENDSTOP_ABORT                   _UxGT("Butee abandon")
 #define MSG_HEATING_FAILED_LCD              _UxGT("Erreur de chauffe")
-#define MSG_ERR_REDUNDANT_TEMP              _UxGT("Err: TEMP. REDONDANT")
+#define MSG_ERR_REDUNDANT_TEMP              _UxGT("Err: TEMP. REDONDANTE")
 #define MSG_THERMAL_RUNAWAY                 _UxGT("EMBALLEMENT THERM.")
 #define MSG_ERR_MAXTEMP                     _UxGT("Err: TEMP. MAX")
 #define MSG_ERR_MINTEMP                     _UxGT("Err: TEMP. MIN")
