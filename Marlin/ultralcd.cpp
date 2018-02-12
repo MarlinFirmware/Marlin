@@ -90,7 +90,7 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
   #define MAX_MESSAGE_LENGTH CHARSIZE * (LCD_WIDTH)
 #endif
 
-char lcd_status_message[MAX_MESSAGE_LENGTH + 1];
+char lcd_status_message[MAX_MESSAGE_LENGTH + 1] = WELCOME_MSG;
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
   uint8_t filename_scroll_pos, filename_scroll_max, filename_scroll_hash;
