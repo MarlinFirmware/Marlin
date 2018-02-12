@@ -10427,18 +10427,18 @@ inline void gcode_M502() {
 
 #if ENABLED(LIN_ADVANCE)
   /**
-   * M900: Set and/or Get advance V offset
+   * M900: Set and/or Get advance K factor
    *
-   *  V<offset>                  Set advance V offset
+   *  K<factor>                  Set advance K factor
    */
   inline void gcode_M900() {
     stepper.synchronize();
 
-    const float newV = parser.floatval('V', -1);
-    if (newV >= 0) planner.extruder_advance_V = newV;
+    const float newK = parser.floatval('K', -1);
+    if (newK >= 0) planner.extruder_advance_K = newK;
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR("Advance V=", planner.extruder_advance_V);
+    SERIAL_ECHOPAIR("Advance K=", planner.extruder_advance_K);
     SERIAL_EOL();
   }
 #endif // LIN_ADVANCE

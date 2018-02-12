@@ -624,8 +624,8 @@
 #ifndef MSG_FILAMENT_LOAD
   #define MSG_FILAMENT_LOAD                   _UxGT("Load mm")
 #endif
-#ifndef MSG_ADVANCE_V
-  #define MSG_ADVANCE_V                       _UxGT("Advance V")
+#ifndef MSG_ADVANCE_K
+  #define MSG_ADVANCE_K                       _UxGT("Advance K")
 #endif
 #ifndef MSG_CONTRAST
   #define MSG_CONTRAST                        _UxGT("LCD contrast")

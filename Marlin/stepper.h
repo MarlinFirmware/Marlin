@@ -123,7 +123,7 @@ class Stepper {
 
     #if ENABLED(LIN_ADVANCE)
 
-      static uint16_t nextMainISR, nextAdvanceISR, eISR_Rate;
+      static uint16_t nextMainISR, nextAdvanceISR, eISR_Rate, current_adv_steps;
       #define _NEXT_ISR(T) nextMainISR = T
       static int8_t e_steps[E_STEPPERS];
       

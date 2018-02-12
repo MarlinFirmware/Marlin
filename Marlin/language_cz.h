@@ -235,7 +235,7 @@
 #define MSG_FILAMENT                        _UxGT("Filament")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E na mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Prum.")
-#define MSG_ADVANCE_V                       _UxGT("K pro posun")
+#define MSG_ADVANCE_K                       _UxGT("K pro posun")
 #define MSG_CONTRAST                        _UxGT("Kontrast LCD")
 #define MSG_STORE_EEPROM                    _UxGT("Ulozit nastaveni")
 #define MSG_LOAD_EEPROM                     _UxGT("Nacist nastaveni")

@@ -685,13 +685,13 @@
  * Assumption: advance [steps] = k * (delta velocity [steps/s])
  * For performance reasons (and other things) we are using extruder speed in relation to extruder acceleration.
  * If we have a true, linear acceleration this results in the exact same result.
- * V=0 means advance disabled.
+ * K=0 means advance disabled.
  * See Marlin documentation for calibration instructions.
  */
 //#define LIN_ADVANCE
 
 #if ENABLED(LIN_ADVANCE)
-  #define LIN_ADVANCE_V 1.47 // Unit: Speed offset [mm/s] at an extruder acceleration of 10mm/s²
+  #define LIN_ADVANCE_K 0.22   // Unit: mm compression needed at 1mm/s extruder speed
 #endif
 
 // @section leveling

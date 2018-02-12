@@ -205,7 +205,7 @@
 #define MSG_FILAMENT                        _UxGT("Пруток")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E в mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Диаметр прутка")
-#define MSG_ADVANCE_V                       _UxGT("K продвижения")
+#define MSG_ADVANCE_K                       _UxGT("K продвижения")
 #define MSG_CONTRAST                        _UxGT("Контраст LCD")
 #define MSG_STORE_EEPROM                    _UxGT("Сохранить в EEPROM")
 #define MSG_LOAD_EEPROM                     _UxGT("Считать из EEPROM")

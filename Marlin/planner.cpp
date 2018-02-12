@@ -174,7 +174,7 @@ float Planner::previous_speed[NUM_AXIS],
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  float Planner::extruder_advance_V, // Initialized by settings.load()
+  float Planner::extruder_advance_K, // Initialized by settings.load()
         Planner::position_float[XYZE]; // Needed for accurate maths. Steps cannot be used!
 #endif
 
@@ -350,6 +350,13 @@ void Planner::recalculate_trapezoids() {
         // NOTE: Entry and exit factors always > 0 by all previous logic operations.
         const float nomr = 1.0 / current->nominal_speed;
         calculate_trapezoid_for_block(current, current->entry_speed * nomr, next->entry_speed * nomr);
+        #if ENABLED(LIN_ADVANCE)
+          if (current->use_advance_lead) {
+            const float comp = current->e_D_ratio * extruder_advance_K * axis_steps_per_mm[E_AXIS];
+            current->max_adv_steps = current->nominal_speed * comp;
+            current->final_adv_steps = next->entry_speed * comp;
+          }
+        #endif
         CBI(current->flag, BLOCK_BIT_RECALCULATE); // Reset current only to ensure next trapezoid is computed
       }
     }
@@ -359,6 +366,13 @@ void Planner::recalculate_trapezoids() {
   if (next) {
     const float nomr = 1.0 / next->nominal_speed;
     calculate_trapezoid_for_block(next, next->entry_speed * nomr, (MINIMUM_PLANNER_SPEED) * nomr);
+    #if ENABLED(LIN_ADVANCE)
+      if (next->use_advance_lead) {
+        const float comp = next->e_D_ratio * extruder_advance_K * axis_steps_per_mm[E_AXIS];
+        next->max_adv_steps = next->nominal_speed * comp;
+        next->final_adv_steps = (MINIMUM_PLANNER_SPEED) * comp;
+      }
+    #endif
     CBI(next->flag, BLOCK_BIT_RECALCULATE);
   }
 }
@@ -1182,6 +1196,9 @@ void Planner::check_axes_activity() {
   if (!block->steps[A_AXIS] && !block->steps[B_AXIS] && !block->steps[C_AXIS]) {
     // convert to: acceleration steps/sec^2
     accel = CEIL(retract_acceleration * steps_per_mm);
+    #if ENABLED(LIN_ADVANCE)
+      block->use_advance_lead = false;
+    #endif
   }
   else {
     #define LIMIT_ACCEL_LONG(AXIS,INDX) do{ \
@@ -1200,6 +1217,41 @@ void Planner::check_axes_activity() {
 
     // Start with print or travel acceleration
     accel = CEIL((esteps ? acceleration : travel_acceleration) * steps_per_mm);
+    
+    #if ENABLED(LIN_ADVANCE)
+      /**
+       *
+       * Use LIN_ADVANCE for blocks if all these are true:
+       *
+       * esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS]) : This is a print move
+       *
+       * extruder_advance_k                 : There is an advance factor set.
+       *
+       * esteps != block->step_event_count  : This is a work around for the following problem:
+       *                                      A problem occurs if the move before a retract is too small.
+       *                                      In that case, the retract and move will be executed together.
+       *                                      This leads to too many advance steps due to a huge e_acceleration.
+       *                                      The math is good, but we must avoid retract moves with advance!
+       * de > 0                       : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+       */
+      block->use_advance_lead =  esteps // && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
+                              && extruder_advance_K
+                              && (uint32_t)esteps != block->step_event_count
+                              && de > 0;
+  
+      if (block->use_advance_lead) {
+        #if IS_KINEMATIC
+          block->e_D_ratio = (target_float[E_AXIS] - position_float[E_AXIS]) / block->millimeters;
+        #else
+          block->e_D_ratio = (target_float[E_AXIS] - position_float[E_AXIS]) / SQRT(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS])+ sq(target_float[Z_AXIS] - position_float[Z_AXIS]));
+        #endif
+
+        const uint32_t max_accel_steps_per_s2 = max_jerk[E_AXIS] / (extruder_advance_K * block->e_D_ratio) * steps_per_mm; //SQRT(extruder_advance_K * 10 * max_jerk[E_AXIS]) / (extruder_advance_K * block->e_D_ratio) * steps_per_mm;
+        if (accel > max_accel_steps_per_s2)
+          SERIAL_ECHOLN("Limited accel!");
+        NOMORE(accel, max_accel_steps_per_s2);
+      }
+    #endif
 
     #if ENABLED(DISTINCT_E_FACTORS)
       #define ACCEL_IDX extruder
@@ -1224,6 +1276,10 @@ void Planner::check_axes_activity() {
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
   block->acceleration_rate = (long)(accel * 16777216.0 / ((F_CPU) * 0.125)); // * 8.388608
+  #if ENABLED(LIN_ADVANCE)
+    if (block->use_advance_lead)
+      block->advance_speed = 2000000 / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS]); //20000000 / (extruder_advance_K * sq(block->e_D_ratio * block->acceleration) * axis_steps_per_mm[E_AXIS]);
+  #endif
 
   // Initial limit on the segment entry velocity
   float vmax_junction;
@@ -1379,54 +1435,18 @@ void Planner::check_axes_activity() {
   previous_nominal_speed = block->nominal_speed;
   previous_safe_speed = safe_speed;
 
-  #if ENABLED(LIN_ADVANCE)
-    /**
-     *
-     * Use LIN_ADVANCE for blocks if all these are true:
-     *
-     * esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS]) : This is a print move
-     *
-     * extruder_advance_V                 : There is an advance offset set.
-     *
-     * esteps != block->step_event_count  : A problem occurs if the move before a retract is too small.
-     *                                      In that case, the retract and move will be executed together.
-     *                                      This leads to too many advance steps due to a huge e_acceleration.
-     *                                      The math is good, but we must avoid retract moves with advance!
-     * de > 0                       : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
-     */
-    block->use_advance_lead =  esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
-                            && extruder_advance_V
-                            && (uint32_t)esteps != block->step_event_count
-                            && de > 0;
-
-    if (block->use_advance_lead) {
-      #if IS_KINEMATIC
-        const float e_accel_sq = sq((target_float[E_AXIS] - position_float[E_AXIS]) / block->millimeters * block->acceleration); // Requires PR #8778!
-      #else
-        const float e_accel_sq = sq(target_float[E_AXIS] - position_float[E_AXIS]) / (sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS])+ sq(target_float[Z_AXIS] - position_float[Z_AXIS])) * sq(block->acceleration);
-      #endif
-      block->advance_speed = 200000000 / (extruder_advance_V * e_accel_sq * axis_steps_per_mm[E_AXIS]); // 2000000 / (extruder_advance_V * 0.01 * e_accel_sq * axis_steps_per_mm[E_AXIS]) == 200000000 / (extruder_advance_V * e_accel_sq * axis_steps_per_mm[E_AXIS])
-
-      const float jerklimit = 2000000 / (max_jerk[E_AXIS] * axis_steps_per_mm[E_AXIS]);
-      if (block->advance_speed < jerklimit) {
-        block->advance_speed = jerklimit;
-        SERIAL_ECHOLNPGM("WARNING: LIN_ADVANCE needed speed offset exceeds jerk limit. Reduce V or print acceleration.");
-      }
-    }
-
-    position_float[X_AXIS] = target_float[X_AXIS];
-    position_float[Y_AXIS] = target_float[Y_AXIS];
-    position_float[Z_AXIS] = target_float[Z_AXIS];
-    position_float[E_AXIS] = target_float[E_AXIS];
-
-  #endif // LIN_ADVANCE
-
   // Move buffer head
   block_buffer_head = next_buffer_head;
 
   // Update the position (only when a move was queued)
   static_assert(COUNT(target) > 1, "Parameter to _buffer_steps must be (&target)[XYZE]!");
   COPY(position, target);
+  #if ENABLED(LIN_ADVANCE)
+    position_float[X_AXIS] = target_float[X_AXIS];
+    position_float[Y_AXIS] = target_float[Y_AXIS];
+    position_float[Z_AXIS] = target_float[Z_AXIS];
+    position_float[E_AXIS] = target_float[E_AXIS];
+  #endif // LIN_ADVANCE
 
   recalculate();
 

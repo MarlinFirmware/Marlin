@@ -100,6 +100,9 @@ typedef struct {
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead;
     uint16_t advance_speed;                 // Timer value for extruder speed offset
+    uint16_t max_adv_steps;                 // max. advance steps to get cruising speed pressure (not always nominal_speed!)
+    uint16_t final_adv_steps;               // advance steps due to exit speed
+    float e_D_ratio;
   #endif
 
   // Fields used by the motion planner to manage acceleration
@@ -191,7 +194,7 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static float extruder_advance_V,
+      static float extruder_advance_K,
                    position_float[XYZE];
     #endif
 

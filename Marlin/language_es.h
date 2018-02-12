@@ -142,7 +142,7 @@
 #define MSG_FILAMENT                        _UxGT("Filamento")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
-#define MSG_ADVANCE_V                       _UxGT("Avance K")
+#define MSG_ADVANCE_K                       _UxGT("Avance K")
 #define MSG_CONTRAST                        _UxGT("Contraste")
 #define MSG_STORE_EEPROM                    _UxGT("Guardar memoria")
 #define MSG_LOAD_EEPROM                     _UxGT("Cargar memoria")
