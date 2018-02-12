@@ -1280,14 +1280,15 @@ void Planner::check_axes_activity() {
   block->acceleration = accel / steps_per_mm;
   block->acceleration_rate = (long)(accel * 16777216.0 / ((F_CPU) * 0.125)); // * 8.388608
   #if ENABLED(LIN_ADVANCE)
-    if (block->use_advance_lead)
+    if (block->use_advance_lead) {
       block->advance_speed = 2000000 / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS]);
-    #if ENABLED(LA_DEBUG)
-      if (block->advance_speed > block->nominal_rate * block->e_D_ratio * 2)
-        SERIAL_ECHOLN("More than 2 steps per eISR loop executed.");
-      if (block->advance_speed < 200)
-        SERIAL_ECHOLN("eISR running at > 10kHz.");
-    #endif
+      #if ENABLED(LA_DEBUG)
+        if (block->advance_speed > block->nominal_rate * block->e_D_ratio * 2)
+          SERIAL_ECHOLN("More than 2 steps per eISR loop executed.");
+        if (block->advance_speed < 200)
+          SERIAL_ECHOLN("eISR running at > 10kHz.");
+      #endif
+    }
   #endif
 
   // Initial limit on the segment entry velocity

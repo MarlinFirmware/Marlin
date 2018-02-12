@@ -757,11 +757,6 @@ void Stepper::isr() {
   if (all_steps_done) {
     current_block = NULL;
     planner.discard_current_block();
-    
-    // TBD: This should be not gone, check and delete!
-    #if ENABLED(LIN_ADVANCE)
-      eISR_Rate = ADV_NEVER;
-    #endif
   }
   #if DISABLED(LIN_ADVANCE)
     _ENABLE_ISRs(); // re-enable ISRs
