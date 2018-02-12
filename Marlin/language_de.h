@@ -150,7 +150,7 @@
 #define MSG_FILAMENT                        _UxGT("Filament")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm³")
 #define MSG_FILAMENT_DIAM                   _UxGT("D Fil.")
-#define MSG_ADVANCE_K                       _UxGT("Advance Faktor")
+#define MSG_ADVANCE_V                       _UxGT("Advance Offset")
 #define MSG_CONTRAST                        _UxGT("LCD Kontrast")
 #define MSG_STORE_EEPROM                    _UxGT("Konfig. speichern")
 #define MSG_LOAD_EEPROM                     _UxGT("Konfig. laden")

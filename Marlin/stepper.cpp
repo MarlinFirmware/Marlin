@@ -107,24 +107,6 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
            Stepper::eISR_Rate = ADV_NEVER;
 
   volatile int Stepper::e_steps[E_STEPPERS];
-  int Stepper::final_estep_rate,
-      Stepper::current_estep_rate[E_STEPPERS],
-      Stepper::current_adv_steps[E_STEPPERS];
-
-  /**
-   * See https://github.com/MarlinFirmware/Marlin/issues/5699#issuecomment-309264382
-   *
-   * This fix isn't perfect and may lose steps - but better than locking up completely
-   * in future the planner should slow down if advance stepping rate would be too high
-   */
-  FORCE_INLINE uint16_t adv_rate(const int steps, const uint16_t timer, const uint8_t loops) {
-    if (steps) {
-      const uint16_t rate = (timer * loops) / abs(steps);
-      //return constrain(rate, 1, ADV_NEVER - 1)
-      return rate ? rate : 1;
-    }
-    return ADV_NEVER;
-  }
 
 #endif // LIN_ADVANCE
 
@@ -679,25 +661,6 @@ void Stepper::isr() {
 
   } // steps_loop
 
-  #if ENABLED(LIN_ADVANCE)
-
-    if (current_block->use_advance_lead) {
-      const int delta_adv_steps = current_estep_rate[TOOL_E_INDEX] - current_adv_steps[TOOL_E_INDEX];
-      current_adv_steps[TOOL_E_INDEX] += delta_adv_steps;
-      #if ENABLED(MIXING_EXTRUDER)
-        // Mixing extruders apply advance lead proportionally
-        MIXING_STEPPERS_LOOP(j)
-          e_steps[j] += delta_adv_steps * current_block->step_event_count / current_block->mix_event_count[j];
-      #else
-        // For most extruders, advance the single E stepper
-        e_steps[TOOL_E_INDEX] += delta_adv_steps;
-      #endif
-    }
-    // If we have esteps to execute, fire the next advance_isr "now"
-    if (e_steps[TOOL_E_INDEX]) nextAdvanceISR = 0;
-
-  #endif // LIN_ADVANCE
-
   // Calculate new timer value
   if (step_events_completed <= (uint32_t)current_block->accelerate_until) {
 
@@ -718,14 +681,12 @@ void Stepper::isr() {
     #if ENABLED(LIN_ADVANCE)
 
       if (current_block->use_advance_lead) {
-        #if ENABLED(MIXING_EXTRUDER)
-          MIXING_STEPPERS_LOOP(j)
-            current_estep_rate[j] = ((uint32_t)acc_step_rate * current_block->abs_adv_steps_multiplier8 * current_block->step_event_count / current_block->mix_event_count[j]) >> 17;
-        #else
-          current_estep_rate[TOOL_E_INDEX] = ((uint32_t)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
-        #endif
+        eISR_Rate = current_block->advance_speed;
+        if (step_events_completed == step_loops) nextAdvanceISR = 0; // Wake up eISR on first acceleration loop
+      } else {
+        eISR_Rate = ADV_NEVER;
+        if (e_steps[TOOL_E_INDEX]) nextAdvanceISR = 0;
       }
-      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], interval, step_loops);
 
     #endif // LIN_ADVANCE
   }
@@ -751,14 +712,12 @@ void Stepper::isr() {
     #if ENABLED(LIN_ADVANCE)
 
       if (current_block->use_advance_lead) {
-        #if ENABLED(MIXING_EXTRUDER)
-          MIXING_STEPPERS_LOOP(j)
-            current_estep_rate[j] = ((uint32_t)step_rate * current_block->abs_adv_steps_multiplier8 * current_block->step_event_count / current_block->mix_event_count[j]) >> 17;
-        #else
-          current_estep_rate[TOOL_E_INDEX] = ((uint32_t)step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
-        #endif
+        eISR_Rate = current_block->advance_speed;
+        if (step_events_completed <= (uint32_t)current_block->decelerate_after + step_loops) nextAdvanceISR = 0; // Wake up eISR on first deceleration loop
+      } else {
+        eISR_Rate = ADV_NEVER;
+        if (e_steps[TOOL_E_INDEX]) nextAdvanceISR = 0;
       }
-      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], interval, step_loops);
 
     #endif // LIN_ADVANCE
   }
@@ -766,10 +725,9 @@ void Stepper::isr() {
 
     #if ENABLED(LIN_ADVANCE)
 
-      if (current_block->use_advance_lead)
-        current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
-
-      eISR_Rate = adv_rate(e_steps[TOOL_E_INDEX], OCR1A_nominal, step_loops_nominal);
+      eISR_Rate = ADV_NEVER;
+      // If we have esteps to execute, fire the next advance_isr "now"
+      if (e_steps[TOOL_E_INDEX]) nextAdvanceISR = 0;
 
     #endif
 
@@ -823,6 +781,11 @@ void Stepper::isr() {
         E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
       }
 
+    if (step_events_completed <= (uint32_t)current_block->accelerate_until)
+      e_steps[0]++;
+    else  if (step_events_completed > (uint32_t)current_block->decelerate_after)
+      e_steps[0]--;
+    
     SET_E_STEP_DIR(0);
     #if E_STEPPERS > 1
       SET_E_STEP_DIR(1);
@@ -838,7 +801,7 @@ void Stepper::isr() {
     #endif
 
     // Step all E steppers that have steps
-    for (uint8_t i = step_loops; i--;) {
+    while (e_steps[0]) {
 
       #if EXTRA_CYCLES_E > 20
         uint32_t pulse_start = TCNT0;
@@ -1120,11 +1083,6 @@ void Stepper::init() {
   OCR1A = 0x4000;
   TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
-
-  #if ENABLED(LIN_ADVANCE)
-    for (uint8_t i = 0; i < COUNT(e_steps); i++) e_steps[i] = 0;
-    ZERO(current_adv_steps);
-  #endif
 
   endstops.enable(true); // Start with endstops active. After homing they can be disabled
   sei();

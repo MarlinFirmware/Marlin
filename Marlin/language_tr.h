@@ -145,7 +145,7 @@
 #define MSG_FILAMENT                        _UxGT("Filaman")                                            // Filaman
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")                                           // E in mm3
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Çap")                                           // Fil. Çap
-#define MSG_ADVANCE_K                       _UxGT("K İlerlet")                                          // K İlerlet
+#define MSG_ADVANCE_V                       _UxGT("K İlerlet")                                          // K İlerlet
 #define MSG_CONTRAST                        _UxGT("LCD Kontrast")                                       // LCD Kontrast
 #define MSG_STORE_EEPROM                    _UxGT("Hafızaya Al")                                        // Hafızaya Al
 #define MSG_LOAD_EEPROM                     _UxGT("Hafızadan Yükle")                                    // Hafızadan Yükle
