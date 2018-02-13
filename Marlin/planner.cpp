@@ -1283,7 +1283,7 @@ void Planner::check_axes_activity() {
     if (block->use_advance_lead) {
       block->advance_speed = 2000000 / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS]);
       #if ENABLED(LA_DEBUG)
-        if (block->advance_speed > block->nominal_rate * block->e_D_ratio * 2)
+        if (extruder_advance_K * block->e_D_ratio * block->acceleration * 2 < block->nominal_speed * block->e_D_ratio)
           SERIAL_ECHOLN("More than 2 steps per eISR loop executed.");
         if (block->advance_speed < 200)
           SERIAL_ECHOLN("eISR running at > 10kHz.");
