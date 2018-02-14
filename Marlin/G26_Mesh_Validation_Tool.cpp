@@ -807,9 +807,7 @@
           #endif
 
           print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);
-          MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
-                           // over run the serial character buffer with M105's without
-                           // this fix
+          MYSERIAL0.flush();  // Prevent host M105 buffer overrun.
         }
         if (look_for_lines_to_connect())
           goto LEAVE;
