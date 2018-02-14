@@ -40,7 +40,7 @@
  * M48: Z probe repeatability measurement function.
  *
  * Usage:
- *   M48 <P#> <X#> <Y#> <V#> <E> <L#>
+ *   M48 <P#> <X#> <Y#> <V#> <E> <L#> <S>
  *     P = Number of sampled points (4-50, default 10)
  *     X = Sample X position
  *     Y = Sample Y position
