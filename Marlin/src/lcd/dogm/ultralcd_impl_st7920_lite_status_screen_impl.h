@@ -99,7 +99,7 @@ void ST7920_Lite_Status_Screen::write_str(progmem_str str) {
   write_str_P((const char*)str);
 }
 
-void ST7920_Lite_Status_Screen::write_number(uint8_t value, uint8_t digits=3) {
+void ST7920_Lite_Status_Screen::write_number(uint8_t value, uint8_t digits) {
   char  str[7];
   const char *fmt;
   switch(digits) {
@@ -435,7 +435,7 @@ void ST7920_Lite_Status_Screen::draw_feedrate_percentage(uint8_t percentage) {
   #endif
 }
 
-void ST7920_Lite_Status_Screen::draw_status_message(const unsigned char *str) {
+void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
   set_ddram_address(DDRAM_LINE_4);
   begin_data();
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
