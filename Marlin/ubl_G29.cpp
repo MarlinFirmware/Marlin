@@ -763,9 +763,7 @@
           const float measured_z = probe_pt(rawx, rawy, stow_probe, g29_verbose_level); // TODO: Needs error handling
           z_values[location.x_index][location.y_index] = measured_z;
         }
-        MYSERIAL.flush();  // G29 P2's take a long time to complete.   PronterFace can
-                           // over run the serial character buffer with M105's without
-                           // this fix
+        MYSERIAL0.flush(); // Prevent host M105 buffer overrun.
 
       } while (location.x_index >= 0 && --max_iterations);
 
@@ -904,9 +902,7 @@
           SERIAL_PROTOCOL_F(z_values[location.x_index][location.y_index], 6);
           SERIAL_EOL();
         }
-        MYSERIAL.flush();  // G29 P2's take a long time to complete.   PronterFace can
-                           // over run the serial character buffer with M105's without
-                           // this fix
+        MYSERIAL0.flush(); // Prevent host M105 buffer overrun.
       } while (location.x_index >= 0 && location.y_index >= 0);
 
       if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
@@ -1418,9 +1414,7 @@
             do_blocking_move_to_z(h_offset + new_z); // Move the nozzle as the point is edited
           #endif
           idle();
-          MYSERIAL.flush(); // G29 P2's take a long time to complete.   PronterFace can
-                             // over run the serial character buffer with M105's without
-                             // this fix
+          MYSERIAL0.flush(); // Prevent host M105 buffer overrun.
         } while (!is_lcd_clicked());
 
         if (!lcd_map_control) lcd_return_to_status();

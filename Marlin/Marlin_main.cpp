@@ -1030,7 +1030,7 @@ inline void get_serial_commands() {
   #if NO_TIMEOUTS > 0
     static millis_t last_command_time = 0;
     const millis_t ms = millis();
-    if (commands_in_queue == 0 && !MYSERIAL.available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
+    if (commands_in_queue == 0 && !MYSERIAL0.available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(MSG_WAIT);
       last_command_time = ms;
     }
@@ -1040,7 +1040,7 @@ inline void get_serial_commands() {
    * Loop while serial characters are incoming and the queue is not full
    */
   int c;
-  while (commands_in_queue < BUFSIZE && (c = MYSERIAL.read()) >= 0) {
+  while (commands_in_queue < BUFSIZE && (c = MYSERIAL0.read()) >= 0) {
 
     char serial_char = c;
 
@@ -1136,7 +1136,7 @@ inline void get_serial_commands() {
       // The command will be injected when EOL is reached
     }
     else if (serial_char == '\\') {   // Handle escapes
-      if ((c = MYSERIAL.read()) >= 0 && !serial_comment_mode) // if we have one more character, copy it over
+      if ((c = MYSERIAL0.read()) >= 0 && !serial_comment_mode) // if we have one more character, copy it over
         serial_line_buffer[serial_count++] = (char)c;
       // otherwise do nothing
     }
@@ -11981,7 +11981,7 @@ void process_next_command() {
  */
 void FlushSerialRequestResend() {
   //char command_queue[cmd_queue_index_r][100]="Resend:";
-  MYSERIAL.flush();
+  MYSERIAL0.flush();
   SERIAL_PROTOCOLPGM(MSG_RESEND);
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ok_to_send();
@@ -13636,7 +13636,7 @@ void setup() {
     disableStepperDrivers();
   #endif
 
-  MYSERIAL.begin(BAUDRATE);
+  MYSERIAL0.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
