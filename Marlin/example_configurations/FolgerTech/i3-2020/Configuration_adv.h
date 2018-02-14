@@ -458,8 +458,7 @@
 
 //#define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
 #define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
-// Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
-// These correspond to the physical drivers, so be mindful if the order is changed.
+// Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
 #define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }  //  AZTEEG_X3_PRO
 
 //===========================================================================
@@ -1581,17 +1580,17 @@
  */
 #define MAX7219_DEBUG
 #if ENABLED(MAX7219_DEBUG)
-//#define MAX7219_CLK_PIN   64  // on RAMPS       // Configuration of the 3 pins to control the display
-//#define MAX7219_DIN_PIN   57  // on RAMPS
-//#define MAX7219_LOAD_PIN  44  // on RAMPS
+#define MAX7219_CLK_PIN   64  // on RAMPS       // Configuration of the 3 pins to control the display
+#define MAX7219_DIN_PIN   57  // on RAMPS
+#define MAX7219_LOAD_PIN  44  // on RAMPS
 
 //#define MAX7219_CLK_PIN   77 // on Re-ARM       // Configuration of the 3 pins to control the display
 //#define MAX7219_DIN_PIN   78 // on Re-ARM
 //#define MAX7219_LOAD_PIN  79 // on Re-ARM
 
-  #define MAX7219_CLK_PIN   30 // for RAMPS E1     // Configuration of the 3 pins to control the display
-  #define MAX7219_DIN_PIN   34 // for RAMPS E1
-  #define MAX7219_LOAD_PIN  36 // for RAMPS E1
+//#define MAX7219_CLK_PIN   30 // for RAMPS E1     // Configuration of the 3 pins to control the display
+//#define MAX7219_DIN_PIN   34 // for RAMPS E1
+//#define MAX7219_LOAD_PIN  36 // for RAMPS E1
 
   /**
    * Sample debug features
