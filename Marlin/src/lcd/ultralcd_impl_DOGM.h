@@ -54,6 +54,11 @@
 
 #include "dogm/dogm_bitmaps.h"
 
+#if ENABLED(USE_ST7920_LIGHTWEIGHT_UI)
+  typedef const __FlashStringHelper *progmem_str;
+  #include "dogm/ultralcd_impl_st7920_lite_status_screen_impl.h"
+#endif
+
 #if ENABLED(SDSUPPORT)
   #include "../libs/duration_t.h"
 #endif
@@ -373,6 +378,9 @@ static void lcd_implementation_init() {
 
 // The kill screen is displayed for unrecoverable conditions
 void lcd_kill_screen() {
+  #if ENABLED(USE_ST7920_LIGHTWEIGHT_UI)
+    ST7920_Lite_Status_Screen::clear_text_buffer();
+  #endif
   const uint8_t h4 = u8g.getHeight() / 4;
   u8g.firstPage();
   do {
@@ -498,6 +506,7 @@ inline void lcd_implementation_status_message(const bool blink) {
   #endif
 }
 
+#if !ENABLED(USE_ST7920_LIGHTWEIGHT_UI)
 static void lcd_implementation_status_screen() {
 
   const bool blink = lcd_blink();
@@ -801,6 +810,7 @@ static void lcd_implementation_status_screen() {
     #endif
   }
 }
+#endif
 
 #if ENABLED(ULTIPANEL)
 

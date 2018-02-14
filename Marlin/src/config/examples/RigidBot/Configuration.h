@@ -1515,6 +1515,18 @@
 //
 //#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
+// If USE_ST7920_LIGHTWEIGHT_UI is uncommented, then an alternative
+// light-weight status screen will be used that takes advantage of
+// the ST7920 character-generator to conserve MCU resources.
+//
+// Since the lightweight status screen can only show a status
+// message or the position, but not both, set DELAY_TO_SHOW_POSITION
+// to the number of seconds until the position is revealed after a new
+// status message is drawn.
+
+//#define USE_ST7920_LIGHTWEIGHT_UI
+//#define DELAY_TO_SHOW_POSITION 20
+
 //
 // MakerLab Mini Panel with graphic
 // controller and SD support - http://reprap.org/wiki/Mini_panel
