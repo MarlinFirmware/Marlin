@@ -459,8 +459,9 @@
 
 #define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
 #define DIGIPOT_I2C_NUM_CHANNELS 5 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
-// Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
-#define DIGIPOT_I2C_MOTOR_CURRENTS {0.22, 0.22, 0.39, 0.42, 0.42}
+// Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
+// These correspond to the physical drivers, so be mindful if the order is changed.
+#define DIGIPOT_I2C_MOTOR_CURRENTS { 0.22, 0.22, 0.39, 0.42, 0.42 }  // MIGHTYBOARD_REVE
 
 //===========================================================================
 //=============================Additional Features===========================
