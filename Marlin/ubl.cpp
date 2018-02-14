@@ -199,7 +199,7 @@
         if (map_type == 1 && i < GRID_MAX_POINTS_X - 1) SERIAL_CHAR(',');
 
         #if TX_BUFFER_SIZE > 0
-          MYSERIAL.flushTX();
+          MYSERIAL0.flushTX();
         #endif
         safe_delay(15);
         if (map_type == 0) {

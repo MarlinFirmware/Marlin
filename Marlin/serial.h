@@ -29,30 +29,30 @@
   #include <HardwareSerial.h>
   #if ENABLED(BLUETOOTH)
     extern HardwareSerial bluetoothSerial;
-    #define MYSERIAL bluetoothSerial
+    #define MYSERIAL0 bluetoothSerial
   #else
-    #define MYSERIAL Serial
+    #define MYSERIAL0 Serial
   #endif // BLUETOOTH
 #else
   #include "MarlinSerial.h"
-  #define MYSERIAL customizedSerial
+  #define MYSERIAL0 customizedSerial
 #endif
 
 extern const char echomagic[] PROGMEM;
 extern const char errormagic[] PROGMEM;
 
-#define SERIAL_CHAR(x) ((void)MYSERIAL.write(x))
+#define SERIAL_CHAR(x) ((void)MYSERIAL0.write(x))
 #define SERIAL_EOL() SERIAL_CHAR('\n')
 
-#define SERIAL_PRINT(x,b)      MYSERIAL.print(x,b)
-#define SERIAL_PRINTLN(x,b)    MYSERIAL.println(x,b)
-#define SERIAL_PRINTF(args...) MYSERIAL.printf(args)
+#define SERIAL_PRINT(x,b)      MYSERIAL0.print(x,b)
+#define SERIAL_PRINTLN(x,b)    MYSERIAL0.println(x,b)
+#define SERIAL_PRINTF(args...) MYSERIAL0.printf(args)
 
 #define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)
-#define SERIAL_PROTOCOL(x)                  MYSERIAL.print(x)
-#define SERIAL_PROTOCOL_F(x,y)              MYSERIAL.print(x,y)
+#define SERIAL_PROTOCOL(x)                  MYSERIAL0.print(x)
+#define SERIAL_PROTOCOL_F(x,y)              MYSERIAL0.print(x,y)
 #define SERIAL_PROTOCOLPGM(x)               serialprintPGM(PSTR(x))
-#define SERIAL_PROTOCOLLN(x)                do{ MYSERIAL.print(x); SERIAL_EOL(); }while(0)
+#define SERIAL_PROTOCOLLN(x)                do{ MYSERIAL0.print(x); SERIAL_EOL(); }while(0)
 #define SERIAL_PROTOCOLLNPGM(x)             serialprintPGM(PSTR(x "\n"))
 #define SERIAL_PROTOCOLPAIR(name, value)    serial_echopair_P(PSTR(name),(value))
 #define SERIAL_PROTOCOLLNPAIR(name, value)  do{ SERIAL_PROTOCOLPAIR(name, value); SERIAL_EOL(); }while(0)
@@ -100,7 +100,7 @@ void serial_spaces(uint8_t count);
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
 FORCE_INLINE void serialprintPGM(const char* str) {
-  while (char ch = pgm_read_byte(str++)) MYSERIAL.write(ch);
+  while (char ch = pgm_read_byte(str++)) MYSERIAL0.write(ch);
 }
 
 #endif // __SERIAL_H__

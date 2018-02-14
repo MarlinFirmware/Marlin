@@ -474,9 +474,9 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
       for (uint8_t y = 0; y < 28; y++) {                   // always print pin name
         temp_char = pgm_read_byte(name_mem_pointer + y);
         if (temp_char != 0)
-          MYSERIAL.write(temp_char);
+          MYSERIAL0.write(temp_char);
         else {
-          for (uint8_t i = 0; i < 28 - y; i++) MYSERIAL.write(' ');
+          for (uint8_t i = 0; i < 28 - y; i++) MYSERIAL0.write(' ');
           break;
         }
       }
