@@ -199,9 +199,9 @@
   #define MSG_VB_JERK                       _UxGT("Vb jerk")
   #define MSG_VC_JERK                       _UxGT("Vc jerk")
 #else
-  #define MSG_VX_JERK                       _UxGT("Vx jerk")
-  #define MSG_VY_JERK                       _UxGT("Vy jerk")
-  #define MSG_VZ_JERK                       _UxGT("Vz jerk")
+  #define MSG_VA_JERK                       _UxGT("Vx jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz jerk")
 #endif
 #define MSG_VE_JERK                         _UxGT("Ve jerk")
 #define MSG_VELOCITY                        _UxGT("Velocite")
@@ -218,9 +218,9 @@
   #define MSG_BSTEPS                        _UxGT("B pas/mm")
   #define MSG_CSTEPS                        _UxGT("C pas/mm")
 #else
-  #define MSG_XSTEPS                        _UxGT("X pas/mm")
-  #define MSG_YSTEPS                        _UxGT("Y pas/mm")
-  #define MSG_ZSTEPS                        _UxGT("Z pas/mm")
+  #define MSG_ASTEPS                        _UxGT("X pas/mm")
+  #define MSG_BSTEPS                        _UxGT("Y pas/mm")
+  #define MSG_CSTEPS                        _UxGT("Z pas/mm")
 #endif
 #define MSG_ESTEPS                          _UxGT("E pas/mm")
 #define MSG_E1STEPS                         _UxGT("E1 pas/mm")
