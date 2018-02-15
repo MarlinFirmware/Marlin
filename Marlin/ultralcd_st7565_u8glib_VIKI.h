@@ -82,12 +82,16 @@
   #define ST7565_DELAY_3 CPU_ST7565_DELAY_3
 #endif
 
-#if ENABLED(SHARED_SPI)  // Re-ARM requires that the LCD and the SD card share a single SPI
+// On Viki2 the LCD and the SD card share a single SPI
+#define HARDWARE_SPI ((DOGLCD_SCK == SCK_PIN) && (DOGLCD_MOSI == MOSI_PIN))
 
-  #define ST7565_WRITE_BYTE(a)                 { spiSend((uint8_t)a); U8G_DELAY(); }
-  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i <  count; i++) {spiSend( *ptr++);} DELAY_10US; }
+#if HARDWARE_SPI  // using the hardware SPI
 
-#else
+  #define ST7565_WRITE_BYTE(a)                 { SPDR = a; while (!TEST(SPSR, SPIF)); U8G_DELAY(); }
+  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i <  count; i++) {SPDR = *ptr++; while (!TEST(SPSR, SPIF));} DELAY_10US; }
+
+#else // !HARDWARE_SPI
+
   #define ST7565_SND_BIT \
     WRITE(ST7565_CLK_PIN, LOW);        ST7565_DELAY_1; \
     WRITE(ST7565_DAT_PIN, val & 0x80); ST7565_DELAY_2; \
@@ -107,8 +111,9 @@
   }
 
   #define ST7565_WRITE_BYTE(a)                 { ST7565_SWSPI_SND_8BIT((uint8_t)a); U8G_DELAY(); }
-  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i <  count; i++) {ST7565_SWSPI_SND_8BIT( *ptr++);} DELAY_10US; }
-#endif
+  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i < count; i++) { ST7565_SWSPI_SND_8BIT(*ptr++); } DELAY_10US; }
+
+#endif // !HARDWARE_SPI
 
 #if defined(DOGM_SPI_DELAY_US) && DOGM_SPI_DELAY_US > 0
   #define U8G_DELAY() delayMicroseconds(DOGM_SPI_DELAY_US)
@@ -116,27 +121,26 @@
   #define U8G_DELAY() u8g_10MicroDelay()
 #endif
 
-#define ST7565_CS()                          { WRITE(ST7565_CS_PIN,1); U8G_DELAY(); }
-#define ST7565_NCS()                         { WRITE(ST7565_CS_PIN,0); }
-#define ST7565_A0()                          { WRITE(ST7565_A0_PIN,1); U8G_DELAY(); }
-#define ST7565_NA0()                         { WRITE(ST7565_A0_PIN,0); }
-
+#define ST7565_CS()   { WRITE(ST7565_CS_PIN,1); U8G_DELAY(); }
+#define ST7565_NCS()  { WRITE(ST7565_CS_PIN,0); }
+#define ST7565_A0()   { WRITE(ST7565_A0_PIN,1); U8G_DELAY(); }
+#define ST7565_NA0()  { WRITE(ST7565_A0_PIN,0); }
 
 uint8_t u8g_dev_st7565_64128n_2x_VIKI_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   switch (msg) {
+
     case U8G_DEV_MSG_INIT: {
+
       OUT_WRITE(ST7565_CS_PIN, LOW);
-      #if ENABLED(SHARED_SPI)
-        u8g_Delay(250);
-        spiBegin();
-        #ifndef SPI_SPEED
-          #define SPI_SPEED SPI_FULL_SPEED  // use same SPI speed as SD card
-        #endif
-        spiInit(SPI_SPEED);
-      #else
-        OUT_WRITE(ST7565_DAT_PIN, LOW);
-        OUT_WRITE(ST7565_CLK_PIN, LOW);
+      OUT_WRITE(ST7565_DAT_PIN, LOW);
+      OUT_WRITE(ST7565_CLK_PIN, LOW);
+
+      #if HARDWARE_SPI
+        OUT_WRITE(SDSS, 1);  // must be set to an output first or else will never go into master mode
+        SPCR = 0x50;  // enable SPI in master mode at fast speed
+        SPSR = 1;  // kick it up to 2x speed mode
       #endif
+
       OUT_WRITE(ST7565_A0_PIN, LOW);
 
       ST7565_CS();                      /* disable chip */
