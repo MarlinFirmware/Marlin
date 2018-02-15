@@ -1581,17 +1581,17 @@
  */
 #define MAX7219_DEBUG
 #if ENABLED(MAX7219_DEBUG)
-//#define MAX7219_CLK_PIN   64  // on RAMPS       // Configuration of the 3 pins to control the display
-//#define MAX7219_DIN_PIN   57  // on RAMPS
-//#define MAX7219_LOAD_PIN  44  // on RAMPS
+#define MAX7219_CLK_PIN   64  // on RAMPS       // Configuration of the 3 pins to control the display
+#define MAX7219_DIN_PIN   57  // on RAMPS
+#define MAX7219_LOAD_PIN  44  // on RAMPS
 
 //#define MAX7219_CLK_PIN   77 // on Re-ARM       // Configuration of the 3 pins to control the display
 //#define MAX7219_DIN_PIN   78 // on Re-ARM
 //#define MAX7219_LOAD_PIN  79 // on Re-ARM
 
-  #define MAX7219_CLK_PIN   30 // for RAMPS E1     // Configuration of the 3 pins to control the display
-  #define MAX7219_DIN_PIN   34 // for RAMPS E1
-  #define MAX7219_LOAD_PIN  36 // for RAMPS E1
+//#define MAX7219_CLK_PIN   30 // for RAMPS E1     // Configuration of the 3 pins to control the display
+//#define MAX7219_DIN_PIN   34 // for RAMPS E1
+//#define MAX7219_LOAD_PIN  36 // for RAMPS E1
 
   /**
    * Sample debug features
