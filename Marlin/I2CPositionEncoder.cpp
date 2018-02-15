@@ -117,7 +117,7 @@
 
             SERIAL_ECHOPGM("New position reads as ");
             SERIAL_ECHO(get_position());
-            SERIAL_ECHOPGM("(");
+            SERIAL_CHAR('(');
             SERIAL_ECHO(mm_from_count(get_position()));
             SERIAL_ECHOLNPGM(")");
           #endif
@@ -173,22 +173,30 @@
 
       #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
         if (errIdx == 0) {
-          // in order to correct for "error" but avoid correcting for noise and non skips
+          // In order to correct for "error" but avoid correcting for noise and non-skips
           // it must be > threshold and have a difference average of < 10 and be < 2000 steps
           if (labs(error) > threshold * planner.axis_steps_per_mm[encoderAxis] &&
-              diffSum < 10 * (I2CPE_ERR_ARRAY_SIZE - 1) && labs(error) < 2000) { //Check for persistent error (skip)
-            SERIAL_ECHO(axis_codes[encoderAxis]);
-            SERIAL_ECHOPAIR(" diffSum: ", diffSum / (I2CPE_ERR_ARRAY_SIZE - 1));
-            SERIAL_ECHOPAIR(" - err detected: ", error / planner.axis_steps_per_mm[encoderAxis]);
-            SERIAL_ECHOLNPGM("mm; correcting!");
-            thermalManager.babystepsTodo[encoderAxis] = -LROUND(error);
+              diffSum < 10 * (I2CPE_ERR_ARRAY_SIZE - 1) && labs(error) < 2000) { // Check for persistent error (skip)
+            errPrst[errPrstIdx++] = error; // Error must persist for I2CPE_ERR_PRST_ARRAY_SIZE error cycles. This also serves to improve the average accuracy
+            if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
+              float sumP = 0;
+              LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i]; 
+              const int32_t errorP = int32_t(sumP * (1.0 / (I2CPE_ERR_PRST_ARRAY_SIZE)));
+              SERIAL_ECHO(axis_codes[encoderAxis]);
+              SERIAL_ECHOPAIR(" - err detected: ", errorP * planner.steps_to_mm[encoderAxis]);
+              SERIAL_ECHOLNPGM("mm; correcting!");
+              thermalManager.babystepsTodo[encoderAxis] = -LROUND(errorP);
+              errPrstIdx = 0;
+            }
           }
+          else
+            errPrstIdx = 0;
         }
       #else
         if (labs(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
           //SERIAL_ECHOLN(error);
           //SERIAL_ECHOLN(position);
-          thermalManager.babystepsTodo[encoderAxis] = -LROUND(error/2);
+          thermalManager.babystepsTodo[encoderAxis] = -LROUND(error / 2);
         }
       #endif
 

@@ -114,7 +114,7 @@
     SERIAL_ECHOPAIR(" (",   dac_amps(Z_AXIS));
     SERIAL_ECHOPAIR(") E:", dac_perc(E_AXIS));
     SERIAL_ECHOPAIR(" (",   dac_amps(E_AXIS));
-    SERIAL_ECHOLN(")");
+    SERIAL_ECHOLNPGM(")");
   }
 
   void dac_commit_eeprom() {

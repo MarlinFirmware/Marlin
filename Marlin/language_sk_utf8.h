@@ -36,6 +36,7 @@
 
 #define MAPPER_C3C4C5_SK
 #define DISPLAY_CHARSET_ISO10646_SK
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pripravená.")
 #define MSG_BACK                            _UxGT("Naspať")
@@ -170,9 +171,15 @@
 #define MSG_SELECT                          _UxGT("Vybrať")
 #define MSG_ACC                             _UxGT("Zrýchl")
 #define MSG_JERK                            _UxGT("Skok")
-#define MSG_VX_JERK                         _UxGT("Vx-skok")
-#define MSG_VY_JERK                         _UxGT("Vy-skok")
-#define MSG_VZ_JERK                         _UxGT("Vz-skok")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-skok")
+  #define MSG_VB_JERK                       _UxGT("Vb-skok")
+  #define MSG_VC_JERK                       _UxGT("Vc-skok")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-skok")
+  #define MSG_VB_JERK                       _UxGT("Vy-skok")
+  #define MSG_VC_JERK                       _UxGT("Vz-skok")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-skok")
 #define MSG_VELOCITY                        _UxGT("Rýchlosť")
 #define MSG_VMAX                            _UxGT("Vmax ")
@@ -183,9 +190,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-retrakt")
 #define MSG_A_TRAVEL                        _UxGT("A-prejazd")
 #define MSG_STEPS_PER_MM                    _UxGT("Krokov/mm")
-#define MSG_XSTEPS                          _UxGT("Xkrokov/mm")
-#define MSG_YSTEPS                          _UxGT("Ykrokov/mm")
-#define MSG_ZSTEPS                          _UxGT("Zkrokov/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Akrokov/mm")
+  #define MSG_BSTEPS                        _UxGT("Bkrokov/mm")
+  #define MSG_CSTEPS                        _UxGT("Ckrokov/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xkrokov/mm")
+  #define MSG_BSTEPS                        _UxGT("Ykrokov/mm")
+  #define MSG_CSTEPS                        _UxGT("Zkrokov/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("Ekrokov/mm")
 #define MSG_E1STEPS                         _UxGT("E1krokov/mm")
 #define MSG_E2STEPS                         _UxGT("E2krokov/mm")
@@ -305,11 +318,9 @@
 #define MSG_DAC_PERCENT                     _UxGT("Motor %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Uložiť do EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PAUZA TLAČE")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("PAUZA TLAČE")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("MOŽN. POKRAČ.:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Ešte vytlačiť")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Obnoviť tlač")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. teplota je ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Tryska: ")
 
 #if LCD_HEIGHT >= 4
@@ -330,9 +341,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Čakajte prosím")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("na zavedenie")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("filamentu")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Čakajte prosím")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("na vytlačenie")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("filamentu")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Čakajte prosím")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("na pokračovanie")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("tlače")
@@ -343,7 +351,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vložte, kliknite")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Ohrev...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Zavádzanie...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Vytlačovanie...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Pokračovanie...")
 #endif // LCD_HEIGHT < 4
 

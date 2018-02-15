@@ -34,6 +34,7 @@
 
 #define MAPPER_E382E383
 #define DISPLAY_CHARSET_ISO10646_KANA
+#define CHARSIZE 3
 
 // This just to show the potential benefit of unicode.
 // This translation can be improved by using the full charset of unicode codeblock U+30A0 to U+30FF.
@@ -106,9 +107,15 @@
 #define MSG_SELECT                          _UxGT("センタク")                     // "Select"
 #define MSG_ACC                             _UxGT("カソクド mm/s2")               // "Accel"
 #define MSG_JERK                            _UxGT("ヤクド mm/s")                  // "Jerk"
-#define MSG_VX_JERK                         _UxGT("Xジク ヤクド mm/s")             // "Vx-jerk"
-#define MSG_VY_JERK                         _UxGT("Yジク ヤクド mm/s")             // "Vy-jerk"
-#define MSG_VZ_JERK                         _UxGT("Zジク ヤクド mm/s")             // "Vz-jerk"
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Aジク ヤクド mm/s")             // "Va-jerk"
+  #define MSG_VB_JERK                       _UxGT("Bジク ヤクド mm/s")             // "Vb-jerk"
+  #define MSG_VC_JERK                       _UxGT("Cジク ヤクド mm/s")             // "Vc-jerk"
+#else
+  #define MSG_VA_JERK                       _UxGT("Xジク ヤクド mm/s")             // "Vx-jerk"
+  #define MSG_VB_JERK                       _UxGT("Yジク ヤクド mm/s")             // "Vy-jerk"
+  #define MSG_VC_JERK                       _UxGT("Zジク ヤクド mm/s")             // "Vz-jerk"
+#endif
 #define MSG_VE_JERK                         _UxGT("エクストルーダー ヤクド")          // "Ve-jerk"
 #define MSG_VMAX                            _UxGT("サイダイオクリソクド ")            // "Vmax "
 #define MSG_VMIN                            _UxGT("サイショウオクリソクド")           // "Vmin"
@@ -204,10 +211,7 @@
 #define MSG_INFO_PSU                        _UxGT("デンゲンシュベツ")                // "Power Supply"
 #define MSG_DRIVE_STRENGTH                  _UxGT("モータークドウリョク")              // "Drive Strength"
 #define MSG_DAC_PERCENT                     _UxGT("DACシュツリョク %")               // "Driver %"
-#define MSG_DAC_EEPROM_WRITE                MSG_STORE_EPROM                     // "DAC EEPROM Write"
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("サラニオシダス")                 // "Extrude more"
+#define MSG_DAC_EEPROM_WRITE                MSG_STORE_EEPROM                    // "DAC EEPROM Write"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("プリントサイカイ")                // "Resume print"
 #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("コウカンヲカイシシマス")            // "Wait for start"
 #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("シバラクオマチクダサイ")            // "of the filament"
@@ -217,8 +221,6 @@
 #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("クリックスルトゾッコウシマス")         // "and press button"
 #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("フィラメントソウテンチュウ")          // "Wait for"
 #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("シバラクオマチクダサイ")            // "filament load"
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("フィラメントオシダシチュウ")          // "Wait for"
-#define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("シバラクオマチクダサイ")            // "filament extrude"
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("プリントヲサイカイシマス")           // "Wait for print"
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("シバラクオマチクダサイ")            // "to resume"
 

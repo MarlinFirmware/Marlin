@@ -37,6 +37,7 @@
 
 #define MAPPER_C3C4C5_CZ
 #define DISPLAY_CHARSET_ISO10646_CZ
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" připraven.")
 #define MSG_BACK                            _UxGT("Zpět")
@@ -151,15 +152,15 @@
 #define MSG_LEDS_ON                         _UxGT("Světla Zap")
 #define MSG_LEDS_OFF                        _UxGT("Světla Vyp")
 #define MSG_LED_PRESETS                     _UxGT("Světla Předvolby")
-#define MSG_SET_LEDS_RED                    _UxGT("Světla Červená")
-#define MSG_SET_LEDS_ORANGE                 _UxGT("Světla Oranžová")
-#define MSG_SET_LEDS_YELLOW                 _UxGT("Světla Žlutá")
-#define MSG_SET_LEDS_GREEN                  _UxGT("Světla Zelená")
-#define MSG_SET_LEDS_BLUE                   _UxGT("Světla Modrá")
-#define MSG_SET_LEDS_INDIGO                 _UxGT("Světla Indigo")
-#define MSG_SET_LEDS_VIOLET                 _UxGT("Světla Fialová")
-#define MSG_SET_LEDS_WHITE                  _UxGT("Světla Bílá")
-#define MSG_SET_LEDS_DEFAULT                _UxGT("Světla Výchozí")
+#define MSG_SET_LEDS_RED                    _UxGT("Červená")
+#define MSG_SET_LEDS_ORANGE                 _UxGT("Oranžová")
+#define MSG_SET_LEDS_YELLOW                 _UxGT("Žlutá")
+#define MSG_SET_LEDS_GREEN                  _UxGT("Zelená")
+#define MSG_SET_LEDS_BLUE                   _UxGT("Modrá")
+#define MSG_SET_LEDS_INDIGO                 _UxGT("Indigo")
+#define MSG_SET_LEDS_VIOLET                 _UxGT("Fialová")
+#define MSG_SET_LEDS_WHITE                  _UxGT("Bílá")
+#define MSG_SET_LEDS_DEFAULT                _UxGT("Výchozí")
 #define MSG_CUSTOM_LEDS                     _UxGT("Vlastní světla")
 #define MSG_INTENSITY_R                     _UxGT("Červená intenzita")
 #define MSG_INTENSITY_G                     _UxGT("Zelená intezita")
@@ -198,9 +199,15 @@
 #define MSG_SELECT                          _UxGT("Vybrat")
 #define MSG_ACC                             _UxGT("Zrychl")
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vx-jerk")
-#define MSG_VY_JERK                         _UxGT("Vy-jerk")
-#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VELOCITY                        _UxGT("Rychlost")
 #define MSG_VMAX                            _UxGT("Vmax ")
@@ -211,9 +218,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-retrakt")
 #define MSG_A_TRAVEL                        _UxGT("A-přejezd")
 #define MSG_STEPS_PER_MM                    _UxGT("Kroků/mm")
-#define MSG_XSTEPS                          _UxGT("Xkroků/mm")
-#define MSG_YSTEPS                          _UxGT("Ykroků/mm")
-#define MSG_ZSTEPS                          _UxGT("Zkroků/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Akroků/mm")
+  #define MSG_BSTEPS                        _UxGT("Bkroků/mm")
+  #define MSG_CSTEPS                        _UxGT("Ckroků/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xkroků/mm")
+  #define MSG_BSTEPS                        _UxGT("Ykroků/mm")
+  #define MSG_CSTEPS                        _UxGT("Zkroků/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("Ekroků/mm")
 #define MSG_E1STEPS                         _UxGT("E1kroků/mm")
 #define MSG_E2STEPS                         _UxGT("E2kroků/mm")
@@ -338,11 +351,7 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Buzení motorů")
 #define MSG_DAC_PERCENT                     _UxGT("Motor %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Uložit do EEPROM")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Ještě vytlačit")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Obnovit tisk")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Min. teplota je ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Tryska: ")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Parkování selhalo")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Kalibrace selhala")
@@ -365,9 +374,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Čekejte prosím")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("na zavedení")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("filamentu")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Čekejte prosím")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("na vytlačení")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("filamentu")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Čekejte prosím")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("na pokračování")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("tisku")
@@ -378,7 +384,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vložte, klikněte")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Nahřívání...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Zavádění...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Vytlačování...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Pokračování...")
 #endif // LCD_HEIGHT < 4
 

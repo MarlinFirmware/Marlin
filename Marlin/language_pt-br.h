@@ -88,9 +88,15 @@
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Acc"
 #define MSG_JERK                            "Jogo"
-#define MSG_VX_JERK                         "jogo VX"
-#define MSG_VY_JERK                         "jogo VY"
-#define MSG_VZ_JERK                         "jogo VZ"
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       "jogo VA"
+  #define MSG_VB_JERK                       "jogo VB"
+  #define MSG_VC_JERK                       "jogo VC"
+#else
+  #define MSG_VA_JERK                       "jogo VX"
+  #define MSG_VB_JERK                       "jogo VY"
+  #define MSG_VC_JERK                       "jogo VZ"
+#endif
 #define MSG_VE_JERK                         "jogo VE"
 #define MSG_VMAX                            " Vmax "
 #define MSG_VMIN                            "Vmin"
@@ -99,9 +105,15 @@
 #define MSG_A_RETRACT                       "Retrair A"
 #define MSG_A_TRAVEL                        "A-movimento"
 #define MSG_STEPS_PER_MM                    "Passo/mm"
-#define MSG_XSTEPS                          "Passo X/mm"
-#define MSG_YSTEPS                          "Passo Y/mm"
-#define MSG_ZSTEPS                          "Passo Z/mm"
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        "A/mm"
+  #define MSG_BSTEPS                        "B/mm"
+  #define MSG_CSTEPS                        "C/mm"
+#else
+  #define MSG_ASTEPS                        "X/mm"
+  #define MSG_BSTEPS                        "Y/mm"
+  #define MSG_CSTEPS                        "Z/mm"
+#endif
 #define MSG_ESTEPS                          "E/mm"
 #define MSG_E1STEPS                         "E1/mm"
 #define MSG_E2STEPS                         "E2/mm"

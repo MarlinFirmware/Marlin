@@ -32,6 +32,7 @@
 
 #define MAPPER_D0D1                // For Cyrillic
 #define DISPLAY_CHARSET_ISO10646_5
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Готов.")
 #define MSG_BACK                            _UxGT("Назад")
@@ -165,9 +166,15 @@
 #define MSG_SELECT                          _UxGT("Выбор")
 #define MSG_ACC                             _UxGT("Ускорение")
 #define MSG_JERK                            _UxGT("Рывок")
-#define MSG_VX_JERK                         _UxGT("Vx-рывок")
-#define MSG_VY_JERK                         _UxGT("Vy-рывок")
-#define MSG_VZ_JERK                         _UxGT("Vz-рывок")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-рывок")
+  #define MSG_VB_JERK                       _UxGT("Vb-рывок")
+  #define MSG_VC_JERK                       _UxGT("Vc-рывок")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-рывок")
+  #define MSG_VB_JERK                       _UxGT("Vy-рывок")
+  #define MSG_VC_JERK                       _UxGT("Vz-рывок")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-рывок")
 #define MSG_VELOCITY                        _UxGT("Скорость")
 #define MSG_VMAX                            _UxGT("Vмакс ")
@@ -178,9 +185,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-втягивание")
 #define MSG_A_TRAVEL                        _UxGT("A-путеш.")
 #define MSG_STEPS_PER_MM                    _UxGT("Шаг/мм")
-#define MSG_XSTEPS                          _UxGT("X шаг/мм")
-#define MSG_YSTEPS                          _UxGT("Y шаг/мм")
-#define MSG_ZSTEPS                          _UxGT("Z шаг/мм")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("A шаг/мм")
+  #define MSG_BSTEPS                        _UxGT("B шаг/мм")
+  #define MSG_CSTEPS                        _UxGT("C шаг/мм")
+#else
+  #define MSG_ASTEPS                        _UxGT("X шаг/мм")
+  #define MSG_BSTEPS                        _UxGT("Y шаг/мм")
+  #define MSG_CSTEPS                        _UxGT("Z шаг/мм")
+#endif
 #define MSG_ESTEPS                          _UxGT("E шаг/мм")
 #define MSG_E1STEPS                         _UxGT("E1 шаг/мм")
 #define MSG_E2STEPS                         _UxGT("E2 шаг/мм")
@@ -296,11 +309,9 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Сила привода")
 #define MSG_DAC_PERCENT                     _UxGT("Привод %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Записи DAC EEPROM")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ПЕЧАТЬ ОСТАНОВЛЕНА")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("ПЕЧАТЬ ОСТАНОВЛЕНА")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ОПЦИИ ВОЗОБНОВЛЕНИЯ:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Выдавить ещё")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Возобновить печать")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Мин. температура")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Сопла: ")
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -329,7 +340,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1    _UxGT("Вставь и нажми")
   #define MSG_FILAMENT_CHANGE_HEATING_1   _UxGT("Нагрев...")
   #define MSG_FILAMENT_CHANGE_LOAD_1      _UxGT("Загрузка...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1   _UxGT("Выдавливание...")
   #define MSG_FILAMENT_CHANGE_RESUME_1    _UxGT("Возобновление...")
 #endif // LCD_HEIGHT < 4
 

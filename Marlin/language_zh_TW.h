@@ -30,6 +30,8 @@
 #ifndef LANGUAGE_ZH_TW_H
 #define LANGUAGE_ZH_TW_H
 
+#define CHARSIZE 3
+
 #define WELCOME_MSG                         MACHINE_NAME _UxGT("已就緒.")  //" ready."
 #define MSG_SD_INSERTED                     _UxGT("記憶卡已插入")  //"Card inserted"
 #define MSG_SD_REMOVED                      _UxGT("記憶卡被拔出")  //"Card removed"
@@ -93,9 +95,15 @@
 #define MSG_SELECT                          _UxGT("選擇")  //"Select"
 #define MSG_ACC                             _UxGT("加速度")  //"Accel" acceleration
 #define MSG_JERK                            _UxGT("抖動速率")  //"Jerk"
-#define MSG_VX_JERK                         _UxGT("X軸抖動速率")  //"Vx-jerk"
-#define MSG_VY_JERK                         _UxGT("Y軸抖動速率")  //"Vy-jerk"
-#define MSG_VZ_JERK                         _UxGT("Z軸抖動速率")  //"Vz-jerk"
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("A軸抖動速率")  //"Va-jerk"
+  #define MSG_VB_JERK                       _UxGT("B軸抖動速率")  //"Vb-jerk"
+  #define MSG_VC_JERK                       _UxGT("C軸抖動速率")  //"Vc-jerk"
+#else
+  #define MSG_VA_JERK                       _UxGT("X軸抖動速率")  //"Vx-jerk"
+  #define MSG_VB_JERK                       _UxGT("Y軸抖動速率")  //"Vy-jerk"
+  #define MSG_VC_JERK                       _UxGT("Z軸抖動速率")  //"Vz-jerk"
+#endif
 #define MSG_VE_JERK                         _UxGT("擠出機抖動速率")  //"Ve-jerk"
 #define MSG_VMAX                            _UxGT("最大進料速率")  //"Vmax " max_feedrate_mm_s
 #define MSG_VMIN                            _UxGT("最小進料速率")  //"Vmin"  min_feedrate_mm_s
@@ -104,9 +112,15 @@
 #define MSG_A_RETRACT                       _UxGT("回縮加速度")  //"A-retract" retract_acceleration, E acceleration in mm/s^2 for retracts
 #define MSG_A_TRAVEL                        _UxGT("非列印移動加速度")  //"A-travel" travel_acceleration, X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
 #define MSG_STEPS_PER_MM                    _UxGT("軸步數/mm")  //"Steps/mm" axis_steps_per_mm, axis steps-per-unit G92
-#define MSG_XSTEPS                          _UxGT("X軸步數/mm")  //"Xsteps/mm" axis_steps_per_mm, axis steps-per-unit G92
-#define MSG_YSTEPS                          _UxGT("Y軸步數/mm")  //"Ysteps/mm"
-#define MSG_ZSTEPS                          _UxGT("Z軸步數/mm")  //"Zsteps/mm"
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("A軸步數/mm")  //"Asteps/mm" axis_steps_per_mm, axis steps-per-unit G92
+  #define MSG_BSTEPS                        _UxGT("B軸步數/mm")  //"Bsteps/mm"
+  #define MSG_CSTEPS                        _UxGT("C軸步數/mm")  //"Csteps/mm"
+#else
+  #define MSG_ASTEPS                        _UxGT("X軸步數/mm")  //"Xsteps/mm" axis_steps_per_mm, axis steps-per-unit G92
+  #define MSG_BSTEPS                        _UxGT("Y軸步數/mm")  //"Ysteps/mm"
+  #define MSG_CSTEPS                        _UxGT("Z軸步數/mm")  //"Zsteps/mm"
+#endif
 #define MSG_ESTEPS                          _UxGT("擠出機步數/mm")  //"Esteps/mm"
 #define MSG_TEMPERATURE                     _UxGT("溫度")  //"Temperature"
 #define MSG_MOTION                          _UxGT("運作")  //"Motion"
@@ -201,9 +215,6 @@
 #define MSG_INFO_MAX_TEMP                   _UxGT("最高溫度")  //"Max Temp"
 #define MSG_INFO_PSU                        _UxGT("電源供應")  //"Power Supply"
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("擠出更多")  //"Extrude more"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("恢復列印")  //"Resume print"
 
 #if LCD_HEIGHT >= 4
@@ -219,9 +230,6 @@
 #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("等待")  //"Wait for"
 #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("進料")  //"filament load"
 #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("")  //""
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("等待")  //"Wait for"
-#define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("絲料擠出")  //"filament extrude"
-#define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("")  //""
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("等待列印")  //"Wait for print"
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("恢復")  //"to resume"
 #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("")  //""
@@ -231,7 +239,6 @@
 #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("退出中 ...")  //"Ejecting..."
 #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("插入並點擊")  //"Insert and Click"
 #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("載入中 ...")  //"Loading..."
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("擠出中 ...")  //"Extruding..."
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("恢復中 ...")  //"Resuming..."
 #endif // LCD_HEIGHT < 4
 

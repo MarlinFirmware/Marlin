@@ -54,10 +54,6 @@
 #include "cardreader.h"
 #include "speed_lookuptable.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)
-  #include "ubl.h"
-#endif
-
 #if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif
@@ -174,28 +170,28 @@ volatile long Stepper::endstops_trigsteps[XYZ];
 
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
-  #if ENABLED(DUAL_X_CARRIAGE)
-    #define X_APPLY_DIR(v,ALWAYS) \
-      if (extruder_duplication_enabled || ALWAYS) { \
-        X_DIR_WRITE(v); \
-        X2_DIR_WRITE(v); \
-      } \
-      else { \
-        if (current_block->active_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
-      }
-    #define X_APPLY_STEP(v,ALWAYS) \
-      if (extruder_duplication_enabled || ALWAYS) { \
-        X_STEP_WRITE(v); \
-        X2_STEP_WRITE(v); \
-      } \
-      else { \
-        if (current_block->active_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
-      }
-  #elif ENABLED(X_DUAL_ENDSTOPS)
+  #if ENABLED(X_DUAL_ENDSTOPS)
     #define X_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(X,v)
   #else
     #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
   #endif
+#elif ENABLED(DUAL_X_CARRIAGE)
+  #define X_APPLY_DIR(v,ALWAYS) \
+    if (extruder_duplication_enabled || ALWAYS) { \
+      X_DIR_WRITE(v); \
+      X2_DIR_WRITE(v); \
+    } \
+    else { \
+      if (current_block->active_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
+    }
+  #define X_APPLY_STEP(v,ALWAYS) \
+    if (extruder_duplication_enabled || ALWAYS) { \
+      X_STEP_WRITE(v); \
+      X2_STEP_WRITE(v); \
+    } \
+    else { \
+      if (current_block->active_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
+    }
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
   #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
@@ -1010,7 +1006,7 @@ void Stepper::init() {
   #if HAS_X_ENABLE
     X_ENABLE_INIT;
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
-    #if ENABLED(DUAL_X_CARRIAGE) && HAS_X2_ENABLE
+    #if (ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)) && HAS_X2_ENABLE
       X2_ENABLE_INIT;
       if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
     #endif

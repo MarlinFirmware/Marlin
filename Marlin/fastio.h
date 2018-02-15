@@ -29,8 +29,11 @@
 #ifndef _FASTIO_ARDUINO_H
 #define _FASTIO_ARDUINO_H
 
+#include <stdint.h>
+
+typedef int8_t pin_t;
+
 #include <avr/io.h>
-#include "macros.h"
 
 #define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__)  || defined(__AVR_AT90USB647__))
 #define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
@@ -56,9 +59,7 @@
   #error "Pins for this chip not defined in Arduino.h! If you have a working pins definition, please contribute!"
 #endif
 
-#ifndef _BV
-  #define _BV(PIN) (1UL << PIN)
-#endif
+#include "macros.h"
 
 /**
  * Magic I/O routines
