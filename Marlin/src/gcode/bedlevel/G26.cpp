@@ -586,8 +586,8 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('B')) {
     g26_bed_temp = parser.value_celsius();
-      if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, 140)) {
-        SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible (40-140C).");
+    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, 140)) {
+      SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible (40-140C).");
       return;
     }
   }
@@ -765,21 +765,21 @@ void GcodeSuite::G26() {
       const uint8_t xi = location.x_index, yi = location.y_index;
         const bool f = yi == 0, r = xi >= GRID_MAX_POINTS_X - 1, b = yi >= GRID_MAX_POINTS_Y - 1;
         int8_t start_ind = -2, end_ind = 9;  // Assume a full circle (from 5:00 to 5:00)
-      if (xi == 0) {                        // Left edge? Just right half.
-        start_ind = f ? 0 : -3;            //  03:00 to 12:00 for front-left
-        end_ind   = b ? 0 :  2;            //  06:00 to 03:00 for back-left
+      if (xi == 0) {                     // Left edge? Just right half.
+        start_ind = f ? 0 : -3;          //  03:00 to 12:00 for front-left
+        end_ind   = b ? 0 :  2;          //  06:00 to 03:00 for back-left
       }
-      else if (r) {                         // Right edge? Just left half.
-        start_ind = b ? 6 : 3;             //  12:00 to 09:00 for front-right
-        end_ind   = f ? 5 : 8;             //  09:00 to 06:00 for back-right
+      else if (r) {                      // Right edge? Just left half.
+        start_ind = b ? 6 : 3;           //  12:00 to 09:00 for front-right
+        end_ind   = f ? 5 : 8;           //  09:00 to 06:00 for back-right
       }
-      else if (f) {                         // Front edge? Just back half.
-        start_ind = 0;                     //  03:00
-        end_ind   = 5;                     //  09:00
+      else if (f) {                      // Front edge? Just back half.
+        start_ind = 0;                   //  03:00
+        end_ind   = 5;                   //  09:00
       }
-      else if (b) {                         // Back edge? Just front half.
-        start_ind =  6;                    //  09:00
-        end_ind   = 11;                    //  03:00
+      else if (b) {                      // Back edge? Just front half.
+        start_ind =  6;                  //  09:00
+        end_ind   = 11;                  //  03:00
       }
 
       for (int8_t ind = start_ind; ind <= end_ind; ind++) {
