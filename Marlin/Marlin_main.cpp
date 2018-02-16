@@ -11981,7 +11981,7 @@ void process_next_command() {
  */
 void FlushSerialRequestResend() {
   //char command_queue[cmd_queue_index_r][100]="Resend:";
-  MYSERIAL0.flush();
+  SERIAL_FLUSH();
   SERIAL_PROTOCOLPGM(MSG_RESEND);
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ok_to_send();

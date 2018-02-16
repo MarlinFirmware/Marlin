@@ -274,7 +274,7 @@
                                     // action to give the user a more responsive 'Stop'.
           set_destination_from_current();
           idle();
-          MYSERIAL0.flush(); // Prevent host M105 buffer overrun.
+          SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
         }
 
         wait_for_release();
@@ -501,7 +501,7 @@
               SERIAL_EOL();
             }
             idle();
-            MYSERIAL0.flush(); // Prevent host M105 buffer overrun.
+            SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
           }
       #if ENABLED(ULTRA_LCD)
         }
@@ -525,7 +525,7 @@
       }
       idle();
 
-      MYSERIAL0.flush(); // Prevent host M105 buffer overrun.
+      SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
     }
     #if ENABLED(ULTRA_LCD)
       lcd_reset_status();
@@ -811,12 +811,12 @@
           #endif
 
           print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);
-          MYSERIAL0.flush();  // Prevent host M105 buffer overrun.
+          SERIAL_FLUSH();  // Prevent host M105 buffer overrun.
         }
         if (look_for_lines_to_connect())
           goto LEAVE;
       }
-      MYSERIAL0.flush(); // Prevent host M105 buffer overrun.
+      SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
     } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
     LEAVE:
