@@ -223,7 +223,15 @@ class unified_bed_leveling {
             SERIAL_EOL();
           }
         #endif
-        return NAN;
+
+        // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
+        return (
+          #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
+            UBL_Z_RAISE_WHEN_OFF_MESH
+          #else
+            NAN
+          #endif
+        );
       }
 
       const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0 / (MESH_X_DIST)),
@@ -249,7 +257,15 @@ class unified_bed_leveling {
             SERIAL_EOL();
           }
         #endif
-        return NAN;
+
+        // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
+        return (
+          #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
+            UBL_Z_RAISE_WHEN_OFF_MESH
+          #else
+            NAN
+          #endif
+        );
       }
 
       const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0 / (MESH_Y_DIST)),
@@ -269,6 +285,15 @@ class unified_bed_leveling {
     static float get_z_correction(const float &rx0, const float &ry0) {
       const int8_t cx = get_cell_index_x(rx0),
                    cy = get_cell_index_y(ry0); // return values are clamped
+
+      /**
+       * Check if the requested location is off the mesh.  If so, and
+       * UBL_Z_RAISE_WHEN_OFF_MESH is specified, that value is returned.
+       */
+      #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
+        if (!WITHIN(rx0, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(ry0, 0, GRID_MAX_POINTS_Y - 1))
+          return UBL_Z_RAISE_WHEN_OFF_MESH;
+      #endif
 
       const float z1 = calc_z0(rx0,
                                mesh_index_to_xpos(cx), z_values[cx][cy],

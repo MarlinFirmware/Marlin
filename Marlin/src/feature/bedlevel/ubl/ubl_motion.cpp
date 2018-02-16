@@ -86,9 +86,14 @@
       if (!WITHIN(cell_dest_xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(cell_dest_yi, 0, GRID_MAX_POINTS_Y - 1)) {
 
         // Note: There is no Z Correction in this case. We are off the grid and don't know what
-        // a reasonable correction would be.
-
-        planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS], end[E_AXIS], feed_rate, extruder);
+        // a reasonable correction would be.  If the user has specified a UBL_Z_RAISE_WHEN_OFF_MESH
+        // value, that will be used instead of a calculated (Bi-Linear interpolation) correction.
+        const float z_raise = 0.0
+          #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
+            + UBL_Z_RAISE_WHEN_OFF_MESH
+          #endif
+        ;
+        planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z_raise, end[E_AXIS], feed_rate, extruder);
         set_current_from_destination();
 
         if (g26_debug_flag)

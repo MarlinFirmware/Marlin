@@ -104,7 +104,7 @@
 //#define Z2_MS2_PIN         ? // shared with E3_MS2_PIN
 //#define Z2_MS3_PIN         ? // shared with E3_MS3_PIN
 
-#if !ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+#if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define Z_PROBE_PIN      49
 #endif // else Z_PROBE_PIN = Z_MIN_PIN
 
