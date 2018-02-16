@@ -233,7 +233,7 @@ void _tmc_say_pwmthrs(const char name[], const uint32_t thrs) {
   SERIAL_ECHO(name);
   SERIAL_ECHOLNPAIR(" stealthChop max speed set to ", thrs);
 }
-void _tmc_say_sgt(const char name[], const uint32_t sgt) {
+void _tmc_say_sgt(const char name[], const int8_t sgt) {
   SERIAL_ECHO(name);
   SERIAL_ECHOPGM(" driver homing sensitivity set to ");
   SERIAL_PRINTLN(sgt, DEC);

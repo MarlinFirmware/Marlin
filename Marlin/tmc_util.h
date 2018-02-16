@@ -43,7 +43,7 @@ void _tmc_say_current(const char name[], const uint16_t curr);
 void _tmc_say_otpw(const char name[], const bool otpw);
 void _tmc_say_otpw_cleared(const char name[]);
 void _tmc_say_pwmthrs(const char name[], const uint32_t thrs);
-void _tmc_say_sgt(const char name[], const uint32_t sgt);
+void _tmc_say_sgt(const char name[], const int8_t sgt);
 
 template<typename TMC>
 void tmc_get_current(TMC &st, const char name[]) {
