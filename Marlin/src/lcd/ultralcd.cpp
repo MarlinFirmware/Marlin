@@ -5116,23 +5116,19 @@ void lcd_update() {
       #endif
 
       #if ENABLED(DOGLCD)
-        #if defined(USE_ST7920_LIGHTWEIGHT_UI)
+        #if ENABLED(LIGHTWEIGHT_UI)
           #if ENABLED(ULTIPANEL)
-            bool do_U8G_loop = true;
-            lcd_in_status(currentScreen == lcd_status_screen);
-            if(currentScreen == lcd_status_screen) {
-              lcd_status_screen();
-              do_U8G_loop = false;
-            }
+            const bool in_status = currentScreen == lcd_status_screen;
           #else
-            const bool do_U8G_loop = false;
-            lcd_in_status(true);
-            lcd_status_screen();
+            constexpr bool in_status = true;
           #endif
+          const bool do_u8g_loop = !in_status;
+          lcd_in_status(in_status);
+          if (in_status) lcd_status_screen();
         #else
-          const bool do_U8G_loop = true;
+          constexpr bool do_u8g_loop = true;
         #endif
-        if(do_U8G_loop) {
+        if (do_u8g_loop) {
           if (!drawing_screen) {                        // If not already drawing pages
             u8g.firstPage();                            // Start the first page
             drawing_screen = 1;                         // Flag as drawing pages

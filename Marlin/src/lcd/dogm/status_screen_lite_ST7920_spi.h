@@ -1,4 +1,4 @@
-/*
+/**
  * Lightweight Status Screen for the RepRapDiscount Full
  * Graphics Smart Controller (ST7920-based 128x64 LCD)
  *
@@ -14,7 +14,7 @@
  *
  */
 
-#include "ultralcd_impl_st7920_lite_status_screen.h"
+#include "status_screen_lite_ST7920_class.h"
 
 void ST7920_Lite_Status_Screen::cs() {
   ST7920_CS();
@@ -34,6 +34,6 @@ void ST7920_Lite_Status_Screen::sync_dat() {
   ST7920_SET_DAT();
 }
 
-void ST7920_Lite_Status_Screen::write_byte(uint8_t data) {
-  ST7920_WRITE_NIBBLES(data);
+void ST7920_Lite_Status_Screen::write_byte(const uint8_t data) {
+  ST7920_WRITE_BYTE(data);
 }

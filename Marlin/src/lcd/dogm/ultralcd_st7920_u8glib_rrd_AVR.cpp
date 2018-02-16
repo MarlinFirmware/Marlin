@@ -183,12 +183,10 @@ uint8_t   u8g_dev_st7920_128x64_rrd_buf[(LCD_PIXEL_WIDTH) * (PAGE_HEIGHT) / 8] U
 u8g_pb_t  u8g_dev_st7920_128x64_rrd_pb = {{PAGE_HEIGHT, LCD_PIXEL_HEIGHT, 0, 0, 0}, LCD_PIXEL_WIDTH, u8g_dev_st7920_128x64_rrd_buf};
 u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = {u8g_dev_rrd_st7920_128x64_fn, &u8g_dev_st7920_128x64_rrd_pb, &u8g_com_null_fn};
 
-#if ENABLED(USE_ST7920_LIGHTWEIGHT_UI)
-  typedef const __FlashStringHelper *progmem_str;
-
+#if ENABLED(LIGHTWEIGHT_UI)
   // We have to include the code for the lightweight UI here
   // as it relies on macros that are only defined in this file.
-  #include "ultralcd_impl_st7920_lite_status_screen_impl_spi.h"
+  #include "status_screen_lite_ST7920_spi.h"
 #endif
 
 #pragma GCC reset_options
