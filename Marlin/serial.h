@@ -83,6 +83,13 @@ extern const char errormagic[] PROGMEM;
 #define SERIAL_ECHOPAIR_F(pre,value)         SERIAL_ECHOPAIR(pre, FIXFLOAT(value))
 #define SERIAL_ECHOLNPAIR_F(pre, value)      SERIAL_ECHOLNPAIR(pre, FIXFLOAT(value))
 
+//
+// Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
+//
+FORCE_INLINE void serialprintPGM(const char* str) {
+  while (char ch = pgm_read_byte(str++)) SERIAL_CHAR(ch);
+}
+
 void serial_echopair_PGM(const char* s_P, const char *v);
 void serial_echopair_PGM(const char* s_P, char v);
 void serial_echopair_PGM(const char* s_P, int v);
@@ -100,12 +107,5 @@ void serial_spaces(uint8_t count);
 #define SERIAL_ECHO_SP(C)     serial_spaces(C)
 #define SERIAL_ERROR_SP(C)    serial_spaces(C)
 #define SERIAL_PROTOCOL_SP(C) serial_spaces(C)
-
-//
-// Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
-//
-FORCE_INLINE void serialprintPGM(const char* str) {
-  while (char ch = pgm_read_byte(str++)) MYSERIAL0.write(ch);
-}
 
 #endif // __SERIAL_H__
