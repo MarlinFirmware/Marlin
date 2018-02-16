@@ -95,7 +95,7 @@
           return;
         }
 
-      FINAL_MOVE:
+        FINAL_MOVE:
 
         /**
          * Optimize some floating point operations here. We could call float get_z_correction(float x0, float y0) to
