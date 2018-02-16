@@ -71,19 +71,22 @@
       }
 
       if (cell_start_xi == cell_dest_xi && cell_start_yi == cell_dest_yi) { // if the whole move is within the same cell,
+                                                                            // we don't need to break up the move
         /**
-         * we don't need to break up the move
-         *
          * If we are moving off the print bed, we are going to allow the move at this level.
          * But we detect it and isolate it. For now, we just pass along the request.
          */
-
         if (!WITHIN(cell_dest_xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(cell_dest_yi, 0, GRID_MAX_POINTS_Y - 1)) {
 
           // Note: There is no Z Correction in this case. We are off the grid and don't know what
-          // a reasonable correction would be.
+          // a reasonable correction would be.  If the user has specified a UBL_Z_RAISE_WHEN_OFF_MESH 
+          // value, that will be used instead of a calculated (Bi-Linear interpolation) correction.
 
-          planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS], end[E_AXIS], feed_rate, extruder);
+          float z_raise = 0.0;
+          #if ENABLED(UBL_Z_RAISE_WHEN_OFF_MESH)
+            z_raise = UBL_Z_RAISE_WHEN_OFF_MESH;
+          #endif
+          planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z_raise, end[E_AXIS], feed_rate, extruder);
           set_current_from_destination();
 
           if (g26_debug_flag)
