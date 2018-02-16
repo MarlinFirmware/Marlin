@@ -227,10 +227,14 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     #endif
 
+    // Home Y (before X)
     #if ENABLED(HOME_Y_BEFORE_X)
 
-      // Home Y
-      if (home_all || homeY) {
+      if (home_all || homeY
+        #if ENABLED(CODEPENDENT_XY_HOMING)
+          || homeX
+        #endif
+      ) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -240,7 +244,11 @@ void GcodeSuite::G28(const bool always_home_all) {
     #endif
 
     // Home X
-    if (home_all || homeX) {
+    if (home_all || homeX
+      #if ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X)
+        || homeY
+      #endif
+    ) {
 
       #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -271,8 +279,8 @@ void GcodeSuite::G28(const bool always_home_all) {
       #endif
     }
 
+    // Home Y (after X)
     #if DISABLED(HOME_Y_BEFORE_X)
-      // Home Y
       if (home_all || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
