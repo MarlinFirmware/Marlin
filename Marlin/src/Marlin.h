@@ -208,6 +208,10 @@ extern millis_t max_inactive_time, stepper_inactive_time;
   #endif
 #endif
 
+#if ENABLED(USE_CONTROLLER_FAN)
+  extern uint8_t controllerFanSpeed;
+#endif
+
 #if ENABLED(PID_EXTRUSION_SCALING)
   extern int lpq_len;
 #endif
