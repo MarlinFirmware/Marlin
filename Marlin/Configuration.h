@@ -1001,6 +1001,7 @@
 
   //#define UBL_Z_RAISE_WHEN_OFF_MESH 2.5 // When the nozzle is off the mesh, this value is used
                                           // as the Z-Height correction value.
+
 #elif ENABLED(MESH_BED_LEVELING)
 
   //===========================================================================
