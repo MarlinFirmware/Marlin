@@ -339,38 +339,38 @@ int8_t SdBaseFile::lsPrintNext(uint8_t flags, uint8_t indent) {
         && DIR_IS_FILE_OR_SUBDIR(&dir)) break;
   }
   // indent for dir level
-  for (uint8_t i = 0; i < indent; i++) MYSERIAL0.write(' ');
+  for (uint8_t i = 0; i < indent; i++) SERIAL_CHAR(' ');
 
   // print name
   for (uint8_t i = 0; i < 11; i++) {
     if (dir.name[i] == ' ')continue;
     if (i == 8) {
-      MYSERIAL0.write('.');
+      SERIAL_CHAR('.');
       w++;
     }
-    MYSERIAL0.write(dir.name[i]);
+    SERIAL_CHAR(dir.name[i]);
     w++;
   }
   if (DIR_IS_SUBDIR(&dir)) {
-    MYSERIAL0.write('/');
+    SERIAL_CHAR('/');
     w++;
   }
   if (flags & (LS_DATE | LS_SIZE)) {
-    while (w++ < 14) MYSERIAL0.write(' ');
+    while (w++ < 14) SERIAL_CHAR(' ');
   }
   // print modify date/time if requested
   if (flags & LS_DATE) {
-    MYSERIAL0.write(' ');
+    SERIAL_CHAR(' ');
     printFatDate(dir.lastWriteDate);
-    MYSERIAL0.write(' ');
+    SERIAL_CHAR(' ');
     printFatTime(dir.lastWriteTime);
   }
   // print size if requested
   if (!DIR_IS_SUBDIR(&dir) && (flags & LS_SIZE)) {
-    MYSERIAL0.write(' ');
-    MYSERIAL0.print(dir.fileSize);
+    SERIAL_CHAR(' ');
+    SERIAL_PROTOCOL(dir.fileSize);
   }
-  MYSERIAL0.println();
+  SERIAL_EOL();
   return DIR_IS_FILE(&dir) ? 1 : 2;
 }
 
@@ -905,8 +905,8 @@ int SdBaseFile::peek() {
 
 // print uint8_t with width 2
 static void print2u(uint8_t v) {
-  if (v < 10) MYSERIAL0.write('0');
-  MYSERIAL0.print(v, DEC);
+  if (v < 10) SERIAL_CHAR('0');
+  SERIAL_PRINT(v, DEC);
 }
 
 /**
@@ -927,10 +927,10 @@ static void print2u(uint8_t v) {
  * \param[in] fatDate The date field from a directory entry.
  */
 void SdBaseFile::printFatDate(uint16_t fatDate) {
-  MYSERIAL0.print(FAT_YEAR(fatDate));
-  MYSERIAL0.write('-');
+  SERIAL_PROTOCOL(FAT_YEAR(fatDate));
+  SERIAL_CHAR('-');
   print2u(FAT_MONTH(fatDate));
-  MYSERIAL0.write('-');
+  SERIAL_CHAR('-');
   print2u(FAT_DAY(fatDate));
 }
 
@@ -945,9 +945,9 @@ void SdBaseFile::printFatDate(uint16_t fatDate) {
  */
 void SdBaseFile::printFatTime(uint16_t fatTime) {
   print2u(FAT_HOUR(fatTime));
-  MYSERIAL0.write(':');
+  SERIAL_CHAR(':');
   print2u(FAT_MINUTE(fatTime));
-  MYSERIAL0.write(':');
+  SERIAL_CHAR(':');
   print2u(FAT_SECOND(fatTime));
 }
 
@@ -959,7 +959,7 @@ void SdBaseFile::printFatTime(uint16_t fatTime) {
 bool SdBaseFile::printName() {
   char name[FILENAME_LENGTH];
   if (!getFilename(name)) return false;
-  MYSERIAL0.print(name);
+  SERIAL_PROTOCOL(name);
   return true;
 }
 
