@@ -487,7 +487,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
   #endif
 #endif
 
-#if HAS_CONTROLLERFAN
+#if ENABLED(USE_CONTROLLER_FAN)
   int controllerFanSpeed = 0;
 #endif
 

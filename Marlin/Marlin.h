@@ -440,7 +440,7 @@ void report_current_position();
   #endif
 #endif
 
-#if HAS_CONTROLLERFAN
+#if ENABLED(USE_CONTROLLER_FAN)
   extern int controllerFanSpeed;
 #endif
 
