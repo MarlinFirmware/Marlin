@@ -222,15 +222,14 @@
               SERIAL_EOL();
             }
           #endif
-          /**
-           * The requested location is off the mesh.  Check if UBL_Z_RAISE_WHEN_OFF_MESH
-           * is specified. If so, that value is returned.
-           */
-          #if ENABLED(UBL_Z_RAISE_WHEN_OFF_MESH)
-            return UBL_Z_RAISE_WHEN_OFF_MESH;
-          #else
-            return NAN;
-          #endif
+          // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
+          return (
+            #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
+              UBL_Z_RAISE_WHEN_OFF_MESH
+            #else
+              NAN
+            #endif
+          );
         }
 
         const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0 / (MESH_X_DIST)),
@@ -256,15 +255,14 @@
               SERIAL_EOL();
             }
           #endif
-          /**
-           * The requested location is off the mesh.  Check if UBL_Z_RAISE_WHEN_OFF_MESH
-           * is specified. If so, that value is returned.
-           */
-          #if ENABLED(UBL_Z_RAISE_WHEN_OFF_MESH)
-            return UBL_Z_RAISE_WHEN_OFF_MESH;
-          #else
-            return NAN;
-          #endif
+           // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
+          return (
+            #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
+              UBL_Z_RAISE_WHEN_OFF_MESH
+            #else
+              NAN
+            #endif
+          );
         }
 
         const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0 / (MESH_Y_DIST)),
@@ -289,9 +287,9 @@
          * Check if the requested location is off the mesh.  If so, and
          * UBL_Z_RAISE_WHEN_OFF_MESH is specified, that value is returned.
          */
-        #if ENABLED(UBL_Z_RAISE_WHEN_OFF_MESH)
+        #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
           if (!WITHIN(rx0, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(ry0, 0, GRID_MAX_POINTS_Y - 1))
-            return UBL_Z_RAISE_WHEN_OFF_MESHH;
+            return UBL_Z_RAISE_WHEN_OFF_MESH;
         #endif
 
         const float z1 = calc_z0(rx0,
