@@ -29,7 +29,6 @@
 #include <inttypes.h>
 
 #include <util/delay.h>
-#include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
