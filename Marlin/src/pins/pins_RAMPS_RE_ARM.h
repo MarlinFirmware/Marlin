@@ -197,6 +197,7 @@
 // Misc. Functions
 //
 #define LED_PIN           P4_28 // (13)
+#define SDSS              P1_23 // (53)
 
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
 #define FIL_RUNOUT_PIN    P1_18  // (4)
