@@ -357,13 +357,13 @@
 #define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("TISK POZASTAVEN")
 #define MSG_FILAMENT_CHANGE_HEADER_LOAD     _UxGT("ZAVEDENI FILAMENTU")
 #define MSG_FILAMENT_CHANGE_HEADER_UNLOAD   _UxGT("VYSUNUTI FILAMENTU")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("MOŽNOSTI OBNOVENI:")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("MOZNOSTI OBNOVENI:")
 #define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Vytlacit vic")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Obnovit tisk")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Tryska: ")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Parkovani selhalo")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Kalibrace selhala")
-#define MSG_M600_TOO_COLD                   _UxGT("M600: Moc studený")
+#define MSG_M600_TOO_COLD                   _UxGT("M600: Moc studeny")
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
