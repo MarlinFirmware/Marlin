@@ -38,4 +38,6 @@
 #include "Conditionals_post.h"
 #include "SanityCheck.h"
 
+#include <avr/pgmspace.h>
+
 #endif // MARLIN_CONFIG_H
