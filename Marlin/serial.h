@@ -48,13 +48,18 @@ extern const char errormagic[] PROGMEM;
 #define SERIAL_PRINTLN(x,b)    MYSERIAL0.println(x,b)
 #define SERIAL_PRINTF(args...) MYSERIAL0.printf(args)
 
+#define SERIAL_FLUSH()         MYSERIAL0.flush()
+#if TX_BUFFER_SIZE > 0
+  #define SERIAL_FLUSHTX()     MYSERIAL0.flushTX()
+#endif
+
 #define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)
 #define SERIAL_PROTOCOL(x)                  MYSERIAL0.print(x)
 #define SERIAL_PROTOCOL_F(x,y)              MYSERIAL0.print(x,y)
 #define SERIAL_PROTOCOLPGM(x)               serialprintPGM(PSTR(x))
 #define SERIAL_PROTOCOLLN(x)                do{ MYSERIAL0.print(x); SERIAL_EOL(); }while(0)
 #define SERIAL_PROTOCOLLNPGM(x)             serialprintPGM(PSTR(x "\n"))
-#define SERIAL_PROTOCOLPAIR(name, value)    serial_echopair_P(PSTR(name),(value))
+#define SERIAL_PROTOCOLPAIR(name, value)    serial_echopair_PGM(PSTR(name),(value))
 #define SERIAL_PROTOCOLLNPAIR(name, value)  do{ SERIAL_PROTOCOLPAIR(name, value); SERIAL_EOL(); }while(0)
 
 #define SERIAL_ECHO_START()            serialprintPGM(echomagic)
@@ -78,29 +83,29 @@ extern const char errormagic[] PROGMEM;
 #define SERIAL_ECHOPAIR_F(pre,value)         SERIAL_ECHOPAIR(pre, FIXFLOAT(value))
 #define SERIAL_ECHOLNPAIR_F(pre, value)      SERIAL_ECHOLNPAIR(pre, FIXFLOAT(value))
 
-void serial_echopair_P(const char* s_P, const char *v);
-void serial_echopair_P(const char* s_P, char v);
-void serial_echopair_P(const char* s_P, int v);
-void serial_echopair_P(const char* s_P, long v);
-void serial_echopair_P(const char* s_P, float v);
-void serial_echopair_P(const char* s_P, double v);
-void serial_echopair_P(const char* s_P, unsigned int v);
-void serial_echopair_P(const char* s_P, unsigned long v);
-FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
+//
+// Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
+//
+FORCE_INLINE void serialprintPGM(const char* str) {
+  while (char ch = pgm_read_byte(str++)) SERIAL_CHAR(ch);
+}
+
+void serial_echopair_PGM(const char* s_P, const char *v);
+void serial_echopair_PGM(const char* s_P, char v);
+void serial_echopair_PGM(const char* s_P, int v);
+void serial_echopair_PGM(const char* s_P, long v);
+void serial_echopair_PGM(const char* s_P, float v);
+void serial_echopair_PGM(const char* s_P, double v);
+void serial_echopair_PGM(const char* s_P, unsigned int v);
+void serial_echopair_PGM(const char* s_P, unsigned long v);
+FORCE_INLINE void serial_echopair_PGM(const char* s_P, uint8_t v) { serial_echopair_PGM(s_P, (int)v); }
+FORCE_INLINE void serial_echopair_PGM(const char* s_P, uint16_t v) { serial_echopair_PGM(s_P, (int)v); }
+FORCE_INLINE void serial_echopair_PGM(const char* s_P, bool v) { serial_echopair_PGM(s_P, (int)v); }
+FORCE_INLINE void serial_echopair_PGM(const char* s_P, void *v) { serial_echopair_PGM(s_P, (unsigned long)v); }
 
 void serial_spaces(uint8_t count);
 #define SERIAL_ECHO_SP(C)     serial_spaces(C)
 #define SERIAL_ERROR_SP(C)    serial_spaces(C)
 #define SERIAL_PROTOCOL_SP(C) serial_spaces(C)
-
-//
-// Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
-//
-FORCE_INLINE void serialprintPGM(const char* str) {
-  while (char ch = pgm_read_byte(str++)) MYSERIAL0.write(ch);
-}
 
 #endif // __SERIAL_H__

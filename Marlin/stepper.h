@@ -336,8 +336,8 @@ class Stepper {
       }
       if (timer < 100) { // (20kHz - this should never happen)
         timer = 100;
-        MYSERIAL0.print(MSG_STEPPER_TOO_HIGH);
-        MYSERIAL0.println(step_rate);
+        SERIAL_PROTOCOL(MSG_STEPPER_TOO_HIGH);
+        SERIAL_PROTOCOLLN(step_rate);
       }
       return timer;
     }
