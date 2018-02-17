@@ -518,7 +518,6 @@ static void lcd_implementation_status_screen() {
   //   entry to the status screen. Nozzle, bed, and
   //   fan outline bits don't change.
   //
-
   if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1)) {
 
     u8g.drawBitmapP(
@@ -567,11 +566,9 @@ static void lcd_implementation_status_screen() {
   }
 
   #if ENABLED(SDSUPPORT)
-
     //
     // SD Card Symbol
     //
-
     if (card.isFileOpen() && PAGE_CONTAINS(42 - (TALL_FONT_CORRECTION), 51 - (TALL_FONT_CORRECTION))) {
       // Upper box
       u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);     // 42-48 (or 41-47)
@@ -582,11 +579,12 @@ static void lcd_implementation_status_screen() {
       // Corner pixel
       u8g.drawPixel(50, 43 - (TALL_FONT_CORRECTION));         // 43 (or 42)
     }
+  #endif // SDSUPPORT
 
+  #if ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY)
     //
     // Progress bar frame
     //
-
     #define PROGRESS_BAR_X 54
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
@@ -637,7 +635,6 @@ static void lcd_implementation_status_screen() {
     #endif
 
     if (PAGE_CONTAINS(41, 48)) {
-
       char buffer[10];
       duration_t elapsed = print_job_timer.duration();
       bool has_days = (elapsed.value >= 60*60*24L);
@@ -646,7 +643,7 @@ static void lcd_implementation_status_screen() {
       lcd_print(buffer);
     }
 
-  #endif
+  #endif // SDSUPPORT || LCD_SET_PROGRESS_MANUALLY
 
   //
   // XYZ Coordinates
