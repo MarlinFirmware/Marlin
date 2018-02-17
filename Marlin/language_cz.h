@@ -235,6 +235,8 @@
 #define MSG_FILAMENT                        _UxGT("Filament")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E na mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Prum.")
+#define MSG_FILAMENT_UNLOAD                 _UxGT("Vysunout mm")
+#define MSG_FILAMENT_LOAD                   _UxGT("Zavest mm")
 #define MSG_ADVANCE_K                       _UxGT("K pro posun")
 #define MSG_CONTRAST                        _UxGT("Kontrast LCD")
 #define MSG_STORE_EEPROM                    _UxGT("Ulozit nastaveni")
@@ -268,6 +270,10 @@
 #define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V")
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Vymenit filament")
+#define MSG_FILAMENTLOAD                    _UxGT("Zavest filament")
+#define MSG_FILAMENTUNLOAD                  _UxGT("Vysunout filament")
+#define MSG_FILAMENTUNLOAD_ALL              _UxGT("Vysunout vse")
+
 #define MSG_INIT_SDCARD                     _UxGT("Nacist SD kartu")
 #define MSG_CNG_SDCARD                      _UxGT("Vymenit SD kartu")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z mimo podl")
@@ -348,10 +354,16 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Buzeni motoru")
 #define MSG_DAC_PERCENT                     _UxGT("Motor %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Ulozit do EEPROM")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("TISK POZASTAVEN")
+#define MSG_FILAMENT_CHANGE_HEADER_LOAD     _UxGT("ZAVEDENI FILAMENTU")
+#define MSG_FILAMENT_CHANGE_HEADER_UNLOAD   _UxGT("VYSUNUTI FILAMENTU")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("MOZNOSTI OBNOVENI:")
+#define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Vytlacit vic")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Obnovit tisk")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Tryska: ")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Parkovani selhalo")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Kalibrace selhala")
+#define MSG_M600_TOO_COLD                   _UxGT("M600: Moc studeny")
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
@@ -371,6 +383,8 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Cekejte prosim")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("na zavedeni")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("filamentu")
+  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Vyckejte na")
+  #define MSG_FILAMENT_CHANGE_PURGE_2         _UxGT("vytlaceni")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Cekejte prosim")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("na pokracovani")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("tisku")
@@ -381,6 +395,7 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vlozte, kliknete")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Nahrivani...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Zavadeni...")
+  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Vytlacovani...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Pokracovani...")
 #endif // LCD_HEIGHT < 4
 
