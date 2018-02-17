@@ -30,6 +30,10 @@
 
 #include "neopixel.h"
 
+#if ENABLED(NEOPIXEL_STARTUP_TEST)
+  #include "utility.h"
+#endif
+
 Adafruit_NeoPixel pixels(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800);
 
 void set_neopixel_color(const uint32_t color) {
