@@ -1269,7 +1269,7 @@ void Temperature::init() {
 
 #if ENABLED(FAST_PWM_FAN)
 
-  void setPwmFrequency(const pin_t pin, int val) {
+  void Temperature::setPwmFrequency(const pin_t pin, int val) {
     val &= 0x07;
     switch (digitalPinToTimer(pin)) {
       #ifdef TCCR0A
