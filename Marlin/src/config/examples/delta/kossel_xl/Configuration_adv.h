@@ -477,6 +477,14 @@
 
 // @section lcd
 
+// To use Sofware SPI, connect LCD SPI pins to two free pins on
+// the board and set LCD_SOFT_SCK, LCD_SOFT_MOSI to those pins.
+//#define LCD_SOFTWARE_SPI
+#if ENABLED(LCD_SOFTWARE_SPI)
+  #define LCD_SOFT_SCK  -1
+  #define LCD_SOFT_MOSI -1
+#endif
+
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
 
