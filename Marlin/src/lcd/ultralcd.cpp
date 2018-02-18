@@ -225,7 +225,7 @@ uint16_t max_display_update_time = 0;
   #endif
 
   #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
-    void lcd_filament_load_unload() ;
+    void lcd_filament_load_unload();
     void lcd_filament_load_unload_menu();    
   #endif
 
@@ -1324,7 +1324,7 @@ void kill_screen(const char* lcd_msg) {
         enqueue_and_echo_commands_P(command);
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
         }
-      #endif //EXTRUDERS >  
+      #endif //EXTRUDERS > 1 
    
       // Extrude
       if (extruder ==3) {
