@@ -35,9 +35,15 @@
   #define BOARD_NAME       "RAMPS-FD"
 #endif
 
-#define INVERTED_HEATER_PINS
-#define INVERTED_BED_PINS
-#define INVERTED_FAN_PINS
+#ifndef HEATER_HOTEND_INVERTING
+  #define HEATER_HOTEND_INVERTING true
+#endif
+#ifndef HEATER_BED_INVERTING
+  #define HEATER_BED_INVERTING true
+#endif
+#ifndef FAN_PIN_INVERTING
+  #define FAN_PIN_INVERTING true
+#endif
 
 //
 // Servos

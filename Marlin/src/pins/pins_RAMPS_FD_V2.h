@@ -29,10 +29,10 @@
 
 #define BOARD_NAME         "RAMPS-FD v2"
 
-#include "pins_RAMPS_FD_V1.h"
+#define HEATER_HOTEND_INVERTING false
+#define HEATER_BED_INVERTING    false
+#define FAN_PIN_INVERTING       false
 
-#undef INVERTED_HEATER_PINS
-#undef INVERTED_BED_PINS
-#undef INVERTED_FAN_PINS
+#include "pins_RAMPS_FD_V1.h"
 
 #define I2C_EEPROM
