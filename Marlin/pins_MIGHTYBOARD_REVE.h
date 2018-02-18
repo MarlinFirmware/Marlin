@@ -119,6 +119,7 @@
 #define DIGIPOTS_I2C_SDA_Z  65   // K3
 #define DIGIPOTS_I2C_SDA_E0 27   // A5
 #define DIGIPOTS_I2C_SDA_E1 77   // J6
+#define DIGIPOT_I2C_ADDRESS_A 0x2F  // unshifted slave address (5E <- 2F << 1)
 
 //
 // Temperature Sensors
