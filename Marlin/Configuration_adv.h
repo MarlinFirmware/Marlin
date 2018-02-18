@@ -1163,6 +1163,9 @@
     #define X_HOMING_SENSITIVITY  8
     #define Y_HOMING_SENSITIVITY  8
     #define Z_HOMING_SENSITIVITY  8
+    #if ENABLED(Z_SAFE_HOMING)
+      #define Z_SAFE_HOMING_DELAY 500 // (ms) delay before moving into safe position
+    #endif
   #endif
 
   /**

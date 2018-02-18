@@ -3867,6 +3867,8 @@ inline void gcode_G4() {
         active_extruder_parked = false;
       #endif
 
+      safe_delay(Z_SAFE_HOMING_DELAY);
+
       do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
       HOMEAXIS(Z);
     }
