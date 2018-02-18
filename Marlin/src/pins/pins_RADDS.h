@@ -157,8 +157,9 @@
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD)
-  // RADDS LCD panel
+
   #if ENABLED(RADDS_DISPLAY)
+
     #define LCD_PINS_RS     42
     #define LCD_PINS_ENABLE 43
     #define LCD_PINS_D4     44
@@ -179,6 +180,7 @@
     #define SD_DETECT_PIN   14
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+
     #define LCD_PINS_RS     46
     #define LCD_PINS_ENABLE 47
     #define LCD_PINS_D4     44
@@ -190,6 +192,7 @@
     #define BTN_ENC         48
 
   #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
+
     #define BTN_EN1         50
     #define BTN_EN2         52
     #define BTN_ENC         48
@@ -198,6 +201,7 @@
     #define SD_DETECT_PIN   14
 
   #elif ENABLED(SPARK_FULL_GRAPHICS)
+
     #define LCD_PINS_D4     29
     #define LCD_PINS_ENABLE 27
     #define LCD_PINS_RS     25
@@ -207,4 +211,5 @@
     #define BTN_ENC         37
 
   #endif // SPARK_FULL_GRAPHICS
+
 #endif // ULTRA_LCD
