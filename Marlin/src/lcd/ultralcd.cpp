@@ -1293,8 +1293,9 @@ void kill_screen(const char* lcd_msg) {
       #endif // EXTRUDERS > 3
     #endif // EXTRUDERS > 2
   #endif // EXTRUDERS > 1
+
 /**
- * LCD Filament menu
+ * LCD Filament Load/Unload menu
  */
  #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)			
    void lcd_filament_load_unload(
@@ -1322,35 +1323,35 @@ void kill_screen(const char* lcd_msg) {
         }
         enqueue_and_echo_commands_P(command);
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-       }
-    #endif //EXTRUDERS > 1
-    else
-    // Extrude
-    if (extruder ==3) {
-     current_position[E_AXIS] -=  LCD_LOAD_MENU_EXTRUDE_L / planner.e_factor[active_extruder];
-     sync_plan_position_e();
-     feedrate_mm_s = LCD_LOAD_MENU_F;
-     prepare_move_to_destination();
-     feedrate_mm_s = old_feedrate_mm_s;
-    }				
-    else					
-     // Load
-     if (extruder ==2) {
-     current_position[E_AXIS] -=  LCD_LOAD_MENU_FEEDING_L  / planner.e_factor[active_extruder];
-     sync_plan_position_e();
-     feedrate_mm_s = LCD_LOAD_MENU_FEEDING_F;
-     prepare_move_to_destination();
-     feedrate_mm_s = old_feedrate_mm_s;
-    }					
-     else						
-     // Unload
-     if (extruder ==1) {
-     current_position[E_AXIS] +=  LCD_LOAD_MENU_UNFEEDING_L / planner.e_factor[active_extruder];
-     sync_plan_position_e();
-     feedrate_mm_s = LCD_LOAD_MENU_FEEDING_F;
-     prepare_move_to_destination();
-     feedrate_mm_s = old_feedrate_mm_s;
-     }			
+        }
+      #endif //EXTRUDERS > 1
+   
+      // Extrude
+      if (extruder ==3) {
+       current_position[E_AXIS] -=  LCD_LOAD_MENU_EXTRUDE_L / planner.e_factor[active_extruder];
+       sync_plan_position_e();
+       feedrate_mm_s = LCD_LOAD_MENU_F;
+       prepare_move_to_destination();
+       feedrate_mm_s = old_feedrate_mm_s;
+      }				
+      else					
+       // Load
+       if (extruder ==2) {
+       current_position[E_AXIS] -=  LCD_LOAD_MENU_FEEDING_L  / planner.e_factor[active_extruder];
+       sync_plan_position_e();
+       feedrate_mm_s = LCD_LOAD_MENU_FEEDING_F;
+       prepare_move_to_destination();
+       feedrate_mm_s = old_feedrate_mm_s;
+       }					
+       else						
+        // Unload
+        if (extruder ==1) {
+        current_position[E_AXIS] +=  LCD_LOAD_MENU_UNFEEDING_L / planner.e_factor[active_extruder];
+        sync_plan_position_e();
+        feedrate_mm_s = LCD_LOAD_MENU_FEEDING_F;
+        prepare_move_to_destination();
+        feedrate_mm_s = old_feedrate_mm_s;
+        }			
     }	//lcd_filament_load_unload 
 
     void lcd_unload_extruder(){ lcd_filament_load_unload(1); }
