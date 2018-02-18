@@ -1398,7 +1398,8 @@ void kill_screen(const char* lcd_msg) {
       #if EXTRUDERS > 4
         if (active_extruder !=4) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E5, lcd_toolchange_extruder_e4);
       #endif										
-    }									
+    }
+    else STATIC_ITEM(MSG_ERR_MINTEMP, true);
     END_MENU();
   }		
 #endif //LCD_FILAMENT_LOAD_UNLOAD_MENU
