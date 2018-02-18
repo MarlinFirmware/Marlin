@@ -881,6 +881,18 @@
 //#define EXTRA_FAN_SPEED
 
 /**
+ * Lcd Filament Loading Menu
+ * Utility to quickly manage filament loading
+ * One or more click to increase value
+ */
+//#define FILAMENT_LOAD_UNLOAD_MENU   
+#if ENABLED(FILAMENT_LOAD_UNLOAD_MENU)
+  #define FILAMENT_LOAD_UNLOAD_LENGTH			     20 // Length by click
+  #define FILAMENT_LOAD_UNLOAD_FEED_LENGTH     10 // Feeding Length by click
+  #define FILAMENT_TOOLCHANGE_SWAP_LENGTH      50 // Unload distance without ejection
+#endif 
+
+/**
  * Advanced Pause
  * Experimental feature for filament change support and for parking the nozzle when paused.
  * Adds the GCode M600 for initiating filament change.
