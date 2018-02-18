@@ -1324,7 +1324,7 @@ void kill_screen(const char* lcd_msg) {
         enqueue_and_echo_commands_P(command);
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
         }
-      #endif //EXTRUDERS > 1
+      #endif //EXTRUDERS >  
    
       // Extrude
       if (extruder ==3) {
