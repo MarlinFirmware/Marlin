@@ -1309,6 +1309,105 @@ void kill_screen(const char* lcd_msg) {
     #endif // EXTRUDERS > 2
   #endif // EXTRUDERS > 1
 
+  #if ENABLED(FILAMENT_LOAD_UNLOAD_MENU)
+
+    /**
+     * LCD Filament Load/Unload menu and tool change
+     */
+
+    void lcd_filament_move(const float length, const float fr_mm_s) {
+      set_destination_from_current();
+      current_position[E_AXIS] -= length / planner.e_factor[active_extruder];
+      sync_plan_position_e();
+      const float old_feedrate_mm_s = feedrate_mm_s;
+      feedrate_mm_s = fr_mm_s;
+      prepare_move_to_destination();
+      feedrate_mm_s = old_feedrate_mm_s;
+    }
+
+    void lcd_unload_extruder() { lcd_filament_move(-(LCD_UNLOAD_LENGTH), LCD_LOAD_UNLOAD_FEEDRATE); }
+    void lcd_load_extruder() { lcd_filament_move(LCD_LOAD_LENGTH, LCD_LOAD_UNLOAD_FEEDRATE); }
+    void lcd_extrude_extruder() { lcd_filament_move(LCD_PURGE_LENGTH, LCD_PURGE_FEEDRATE); }
+
+    void lcd_tool_change(const uint8_t eindex) {
+      #if EXTRUDERS > 1
+        // Change tools options
+        if (eindex != active_eindex) {
+          const char *command;
+          switch (eindex) {
+            case 0: command = PSTR("T0"); break;
+            case 1: command = PSTR("T1"); break;
+            #if EXTRUDERS > 2
+              case 2: command = PSTR("T2"); break;
+              #if EXTRUDERS > 3
+                case 3: command = PSTR("T3"); break;
+                #if EXTRUDERS > 4
+                  case 4: command = PSTR("T4"); break;
+                #endif // EXTRUDERS > 4
+              #endif // EXTRUDERS > 3
+            #endif // EXTRUDERS > 2
+          }
+          enqueue_and_echo_commands_P(command);
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+        }
+      #endif // EXTRUDERS > 1
+    }
+
+    #if EXTRUDERS > 1
+      void lcd_tool_change_e0() { lcd_tool_change(0); }
+      void lcd_tool_change_e1() { lcd_tool_change(1); }
+      #if EXTRUDERS > 2
+        void lcd_tool_change_e2() { lcd_tool_change(2); }
+        #if EXTRUDERS > 3
+          void lcd_tool_change_e3() { lcd_tool_change(3); }
+          #if EXTRUDERS > 4
+            void lcd_tool_change_e4() { lcd_tool_change(4); }
+          #endif // EXTRUDERS > 4
+        #endif // EXTRUDERS > 3
+      #endif // EXTRUDERS > 2
+    #endif // EXTRUDERS > 1
+
+    void lcd_filament_load_unload_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MAIN);
+      if (!thermalManager.tooColdToExtrude(active_extruder)) {
+        #if EXTRUDERS > 1
+          switch (active_extruder) {
+            case 0: STATIC_ITEM(MSG_MOVE_E " " MSG_E1, true); break;
+            case 1: STATIC_ITEM(MSG_MOVE_E " " MSG_E2, true); break;
+            #if EXTRUDERS > 2
+              case 2: STATIC_ITEM(MSG_MOVE_E " " MSG_E3, true); break;
+              #if EXTRUDERS > 3
+                case 3: STATIC_ITEM(MSG_MOVE_E " " MSG_E4, true); break;
+                #if EXTRUDERS > 4
+                  case 4: STATIC_ITEM(MSG_MOVE_E " " MSG_E5, true); break;
+                #endif // EXTRUDERS > 4
+              #endif // EXTRUDERS > 3
+            #endif // EXTRUDERS > 2
+          }
+        #endif // EXTRUDERS > 1
+        MENU_ITEM(function, MSG_FILAMENTUNLOAD, lcd_unload_extruder);
+        MENU_ITEM(function, MSG_FILAMENTLOAD, lcd_load_extruder);
+        MENU_ITEM(function, MSG_EXTRUDE, lcd_extrude_extruder);
+      }
+      #if EXTRUDERS > 1
+        if (active_extruder != 0) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E1, lcd_tool_change_e0);
+        if (active_extruder != 1) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E2, lcd_tool_change_e1);
+        #if EXTRUDERS > 2
+          if (active_extruder != 2) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E3, lcd_tool_change_e2);
+          #if EXTRUDERS > 3
+            if (active_extruder != 3) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E4, lcd_tool_change_e3);
+            #if EXTRUDERS > 4
+              if (active_extruder != 4) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E5, lcd_tool_change_e4);
+            #endif // EXTRUDERS > 4
+          #endif // EXTRUDERS > 3
+        #endif // EXTRUDERS > 2
+      #endif // EXTRUDERS > 1
+      END_MENU();
+    }
+
+  #endif // FILAMENT_LOAD_UNLOAD_MENU
+
   /**
    *
    * "Tune" submenu
@@ -1421,6 +1520,13 @@ void kill_screen(const char* lcd_msg) {
       #else
         MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
       #endif
+    #endif
+
+    //
+    // Simple filament load/unload menu
+    //
+    #if ENABLED(FILAMENT_LOAD_UNLOAD_MENU)
+      MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_filament_load_unload_menu);
     #endif
 
     //
@@ -2636,6 +2742,9 @@ void kill_screen(const char* lcd_msg) {
     //
     // Change filament
     //
+    #if ENABLED(FILAMENT_LOAD_UNLOAD_MENU)
+      MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_filament_load_unload_menu);
+    #endif
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       if (!IS_SD_FILE_OPEN) {
         #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
