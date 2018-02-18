@@ -262,7 +262,7 @@
 #endif
 
 #ifndef FAN_PIN
-  #define FAN_PIN 4      // IO pin. Buffer needed
+  #define FAN_PIN           4   // IO pin. Buffer needed
 #endif
 
 //
