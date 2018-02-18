@@ -226,7 +226,7 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
     void lcd_filament_load_unload() ;
-    void lcd_LCD_FILAMENT_LOAD_UNLOAD_MENU();    
+    void lcd_filament_load_unload_menu();    
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
@@ -1365,7 +1365,7 @@ void kill_screen(const char* lcd_msg) {
       void lcd_toolchange_extruder_e4() { lcd_filament_load_unload(44); }
     #endif
 
-    void lcd_LCD_FILAMENT_LOAD_UNLOAD_MENU() {				
+    void lcd_filament_load_unload_menu() {				
       START_MENU();
       MENU_BACK(MSG_MAIN);     					
       if (!thermalManager.tooColdToExtrude(active_extruder)) {																				
@@ -1518,6 +1518,10 @@ void kill_screen(const char* lcd_msg) {
     //
     // Change filament
     //
+    #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
+			MENU_ITEM(submenu, MSG_FILAMENTCHANGE , lcd_filament_load_unload_menu);
+		#endif
+    
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         if (thermalManager.targetHotEnoughToExtrude(active_extruder))
@@ -2723,6 +2727,10 @@ void kill_screen(const char* lcd_msg) {
     //
     // Change filament
     //
+    #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
+			MENU_ITEM(submenu, MSG_FILAMENTCHANGE , lcd_filament_load_unload_menu);
+		#endif
+    
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       if (!IS_SD_FILE_OPEN) {
         #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
