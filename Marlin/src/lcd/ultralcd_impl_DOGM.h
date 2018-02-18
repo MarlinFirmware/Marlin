@@ -156,9 +156,11 @@
 
 #define START_COL              0
 
+#define LCD_SD_SHARED_BUS (DISABLED(SDSUPPORT) && LCD_PINS_D4 == SCK_PIN && LCD_PINS_ENABLE == MOSI_PIN)
+
 // LCD selection
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-  #ifdef DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
+  #if LCD_SD_SHARED_BUS
     U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_RS); // 2 stripes, HW SPI (shared with SD card)
   #else
     U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // Original u8glib device. 2 stripes, SW SPI
@@ -166,10 +168,11 @@
 
 #elif ENABLED(U8GLIB_ST7920)
   // RepRap Discount Full Graphics Smart Controller
-  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
+  #if LCD_SD_SHARED_BUS
     U8GLIB_ST7920_128X64_4X_HAL u8g(LCD_PINS_RS); // 2 stripes, HW SPI (shared with SD card, on AVR does not use standard LCD adapter)
+  #elif defined(__SAM3X8E__)
+    U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // Original u8glib device. 2 stripes, SW SPI
   #else
-    //U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // Original u8glib device. 2 stripes, SW SPI
     U8GLIB_ST7920_128X64_RRD u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // Number of stripes can be adjusted in ultralcd_st7920_u8glib_rrd.h with PAGE_HEIGHT
                                                                            // AVR version ignores these pin settings
                                                                            // HAL version uses these pin settings
