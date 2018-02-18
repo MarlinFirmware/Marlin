@@ -216,6 +216,7 @@
       #define STAT_LED_BLUE_PIN 35
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+
       #define BTN_EN1           35
       #define BTN_EN2           37
       #define BTN_ENC           31
@@ -226,7 +227,9 @@
       #define DOGLCD_CS         29
       #define DOGLCD_A0         27
       #define LCD_BACKLIGHT_PIN 33
+
     #elif ENABLED(MINIPANEL)
+
       #define BEEPER_PIN        42
       // Pins for DOGM SPI LCD Support
       #define DOGLCD_A0         44
