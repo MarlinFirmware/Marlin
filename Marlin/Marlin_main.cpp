@@ -3621,6 +3621,9 @@ inline void gcode_G4() {
     do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
     endstops.hit_on_purpose(); // clear endstop hit flags
     current_position[X_AXIS] = current_position[Y_AXIS] = 0.0;
+    #if ENABLED(SENSORLESS_HOMING)
+      safe_delay(500); // Short delay needed to settle
+    #endif
   }
 
 #endif // QUICK_HOME
