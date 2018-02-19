@@ -402,18 +402,28 @@
     #endif
   #endif
 
-  #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(MIXING_EXTRUDER)   // Unified E axis
-    #if ENABLED(MIXING_EXTRUDER)
-      #define E_STEPPERS  MIXING_STEPPERS
+  #if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
+    #if EXTRUDERS > 4
+      #define E_STEPPERS    3
+      #define E_MANUAL      3
+      #define TOOL_E_INDEX  current_block->active_extruder
+    #elif EXTRUDERS > 2
+      #define E_STEPPERS    2
+      #define E_MANUAL      2
+      #define TOOL_E_INDEX  current_block->active_extruder
     #else
-      #define E_STEPPERS  1                                     // One E stepper
+      #define E_STEPPERS    1
+      #define TOOL_E_INDEX  0
     #endif
-    #define E_MANUAL      1
-    #define TOOL_E_INDEX  0
+    #define E_MANUAL        E_STEPPERS
+  #elif ENABLED(MIXING_EXTRUDER)
+    #define E_STEPPERS      MIXING_STEPPERS
+    #define E_MANUAL        1
+    #define TOOL_E_INDEX    0
   #else
-    #define E_STEPPERS    EXTRUDERS
-    #define E_MANUAL      EXTRUDERS
-    #define TOOL_E_INDEX  current_block->active_extruder
+    #define E_STEPPERS      EXTRUDERS
+    #define E_MANUAL        EXTRUDERS
+    #define TOOL_E_INDEX    current_block->active_extruder
   #endif
 
   /**
