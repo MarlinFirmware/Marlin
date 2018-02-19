@@ -31,9 +31,10 @@
 #define HIGH         0x01
 #define LOW          0x00
 
-#define INPUT        0x00
-#define OUTPUT       0x01
-#define INPUT_PULLUP 0x02
+#define INPUT          0x00
+#define OUTPUT         0x01
+#define INPUT_PULLUP   0x02
+#define INPUT_PULLDOWN 0x03
 
 #define LSBFIRST     0
 #define MSBFIRST     1
@@ -104,7 +105,7 @@ void delayMicroseconds(unsigned long);
 uint32_t millis();
 
 //IO functions
-void pinMode(pin_t, uint8_t);
+void pinMode(const pin_t, const uint8_t);
 void digitalWrite(pin_t, uint8_t);
 bool digitalRead(pin_t);
 void analogWrite(pin_t, int);
