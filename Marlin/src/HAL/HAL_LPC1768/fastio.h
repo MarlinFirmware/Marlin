@@ -85,6 +85,9 @@ bool useable_hardware_PWM(pin_t pin);
 /// set pin as input with pullup mode
 #define _PULLUP(IO, v) (pinMode(IO, (v!=LOW ? INPUT_PULLUP : INPUT)))
 
+/// set pin as input with pulldown mode
+#define _PULLDOWN(IO, v) (pinMode(IO, (v!=LOW ? INPUT_PULLDOWN : INPUT)))
+
 // hg42: all pins can be input or output (I hope)
 // hg42: undefined pins create compile error (IO, is no pin)
 // hg42: currently not used, but was used by pinsDebug
@@ -119,6 +122,8 @@ bool useable_hardware_PWM(pin_t pin);
 #define SET_INPUT(IO)  _SET_INPUT(IO)
 /// set pin as input with pullup wrapper
 #define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
+/// set pin as input with pulldown wrapper
+#define SET_INPUT_PULLDOWN(IO) do{ _SET_INPUT(IO); _PULLDOWN(IO, HIGH); }while(0)
 /// set pin as output wrapper  -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO)  do{ _WRITE(IO, _READ(IO)); _SET_OUTPUT(IO); }while(0)
 

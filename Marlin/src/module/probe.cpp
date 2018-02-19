@@ -374,8 +374,15 @@ bool set_probe_deployed(const bool deploy) {
 
   if (endstops.z_probe_enabled == deploy) return false;
 
-  // Make room for probe
-  do_probe_raise(_Z_CLEARANCE_DEPLOY_PROBE);
+  // Fix-mounted probe should only raise for deploy
+  #if ENABLED(FIX_MOUNTED_PROBE)
+    #define RAISE_COND deploy
+  #else
+    #define RAISE_COND true
+  #endif
+
+  // Make room for probe to deploy (or stow)
+  if (RAISE_COND) do_probe_raise(_Z_CLEARANCE_DEPLOY_PROBE);
 
   #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
     #if ENABLED(Z_PROBE_SLED)
