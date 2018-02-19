@@ -24,21 +24,39 @@
  * feature/runout.cpp - Runout sensor support
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
-#include "../module/stepper.h"
-#include "../gcode/queue.h"
+#include "runout.h"
 
-bool filament_ran_out = false;
+FilamentRunoutSensor runout;
 
-void handle_filament_runout() {
-  if (!filament_ran_out) {
-    filament_ran_out = true;
-    enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
-    stepper.synchronize();
-  }
+bool FilamentRunoutSensor::filament_ran_out; // = false;
+
+void FilamentRunoutSensor::setup() {
+
+  #if ENABLED(FIL_RUNOUT_PULLUP)
+    #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLUP(P)
+  #elif ENABLED(FIL_RUNOUT_PULLDOWN)
+    #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLDOWN(P)
+  #else
+    #define INIT_RUNOUT_PIN(P) SET_INPUT(P)
+  #endif
+
+  INIT_RUNOUT_PIN(FIL_RUNOUT_PIN);
+  #if NUM_RUNOUT_SENSORS > 1
+    INIT_RUNOUT_PIN(FIL_RUNOUT2_PIN);
+    #if NUM_RUNOUT_SENSORS > 2
+      INIT_RUNOUT_PIN(FIL_RUNOUT3_PIN);
+      #if NUM_RUNOUT_SENSORS > 3
+        INIT_RUNOUT_PIN(FIL_RUNOUT4_PIN);
+        #if NUM_RUNOUT_SENSORS > 4
+          INIT_RUNOUT_PIN(FIL_RUNOUT5_PIN);
+        #endif
+      #endif
+    #endif
+  #endif
 }
 
 #endif // FILAMENT_RUNOUT_SENSOR
