@@ -724,7 +724,6 @@
 
   // Sensors
   #define HAS_FILAMENT_WIDTH_SENSOR (PIN_EXISTS(FILWIDTH))
-  #define HAS_FIL_RUNOUT (PIN_EXISTS(FIL_RUNOUT))
 
   // User Interface
   #define HAS_HOME (PIN_EXISTS(HOME))
