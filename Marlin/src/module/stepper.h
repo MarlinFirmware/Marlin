@@ -112,10 +112,10 @@ class Stepper {
     #endif // LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
-    //unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
-    static hal_timer_t acc_step_rate; // needed for deceleration start point
     static uint8_t step_loops, step_loops_nominal;
-    static hal_timer_t OCR1A_nominal;
+
+    static hal_timer_t OCR1A_nominal,
+                       acc_step_rate; // needed for deceleration start point
 
     static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;

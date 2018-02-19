@@ -59,10 +59,10 @@ public:
   FORCE_INLINE static int rxMaxEnqueued() { return 0; }
   #endif
 
-  static FORCE_INLINE void write(const char* str) { while (*str) write(*str++); }
-  static FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-  static FORCE_INLINE void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-  static FORCE_INLINE void print(const char* str) { write(str); }
+  FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
+  FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
+  FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
+  FORCE_INLINE static void print(const char* str) { write(str); }
 
   static void print(char, int = 0);
   static void print(unsigned char, int = 0);
