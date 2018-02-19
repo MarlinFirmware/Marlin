@@ -924,15 +924,30 @@ void setup_killpin() {
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
-  void setup_filrunoutpin() {
-    #if ENABLED(ENDSTOPPULLUP_FIL_RUNOUT)
-      SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
+  void setup_filament_runout_pins() {
+
+    #if ENABLED(FIL_RUNOUT_PULLUP)
+      #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLUP(P)
     #else
-      SET_INPUT(FIL_RUNOUT_PIN);
+      #define INIT_RUNOUT_PIN(P) SET_INPUT(P)
+    #endif
+
+    INIT_RUNOUT_PIN(FIL_RUNOUT_PIN);
+    #if NUM_RUNOUT_SENSORS > 1
+      INIT_RUNOUT_PIN(FIL_RUNOUT2_PIN);
+      #if NUM_RUNOUT_SENSORS > 2
+        INIT_RUNOUT_PIN(FIL_RUNOUT3_PIN);
+        #if NUM_RUNOUT_SENSORS > 3
+          INIT_RUNOUT_PIN(FIL_RUNOUT4_PIN);
+          #if NUM_RUNOUT_SENSORS > 4
+            INIT_RUNOUT_PIN(FIL_RUNOUT5_PIN);
+          #endif
+        #endif
+      #endif
     #endif
   }
 
-#endif
+#endif // FILAMENT_RUNOUT_SENSOR
 
 void setup_powerhold() {
   #if HAS_SUICIDE
@@ -13289,6 +13304,38 @@ void disable_all_steppers() {
   disable_e_steppers();
 }
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+
+  FORCE_INLINE bool check_filament_runout() {
+
+    if (IS_SD_PRINTING || print_job_timer.isRunning()) {
+
+      #if NUM_RUNOUT_SENSORS < 2
+        // A single sensor applying to all extruders
+        return READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING;
+      #else
+        // Read the sensor for the active extruder
+        switch (active_extruder) {
+          case 0: return READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING;
+          case 1: return READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING;
+          #if NUM_RUNOUT_SENSORS > 2
+            case 2: return READ(FIL_RUNOUT3_PIN) == FIL_RUNOUT_INVERTING;
+            #if NUM_RUNOUT_SENSORS > 3
+              case 3: return READ(FIL_RUNOUT4_PIN) == FIL_RUNOUT_INVERTING;
+              #if NUM_RUNOUT_SENSORS > 4
+                case 4: return READ(FIL_RUNOUT5_PIN) == FIL_RUNOUT_INVERTING;
+              #endif
+            #endif
+          #endif
+        }
+      #endif
+
+    }
+    return false;
+  }
+
+#endif // FILAMENT_RUNOUT_SENSOR
+
 /**
  * Manage several activities:
  *  - Check for Filament Runout
@@ -13304,11 +13351,7 @@ void disable_all_steppers() {
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    if ((IS_SD_PRINTING || print_job_timer.isRunning())
-       && READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING
-       && thermalManager.targetHotEnoughToExtrude(active_extruder)
-    )
-      handle_filament_runout();
+    if (check_filament_runout()) handle_filament_runout();
   #endif
 
   if (commands_in_queue < BUFSIZE) get_available_commands();
@@ -13615,7 +13658,7 @@ void setup() {
   #endif
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    setup_filrunoutpin();
+    setup_filament_runout_pins();
   #endif
 
   setup_killpin();
