@@ -48,7 +48,6 @@
 
 #define _STM32_PIN(_PORT,_PIN) ((_PORT * 16) + _PIN)
 
-
 //
 // Limit Switches
 //
@@ -60,6 +59,7 @@
 #define Z_MAX_PIN          _STM32_PIN(PORTG, 0)
 #define E_MIN_PIN          _STM32_PIN(PORTE, 2)
 #define E_MAX_PIN          _STM32_PIN(PORTE, 3)
+
 //
 // Z Probe (when not Z_MIN_PIN)
 //
@@ -70,7 +70,6 @@
 //
 // Steppers
 //
-
 #define STEPPER_ENABLE_PIN _STM32_PIN(PORTE, 0)
 
 #define X_STEP_PIN         _STM32_PIN(PORTC, 6) //96, 39 in arduino
@@ -106,11 +105,6 @@
 #define Z2_ENABLE_PIN      _STM32_PIN(PORTC, 15)
 
 
-
-
-
-
-
 #define SCK_PIN            _STM32_PIN(PORTA, 5)
 #define MISO_PIN           _STM32_PIN(PORTA, 6)
 #define MOSI_PIN           _STM32_PIN(PORTA, 7)
@@ -122,9 +116,6 @@
 #define SPI6_SCK_PIN       _STM32_PIN(PORTG, 13)
 #define SPI6_MISO_PIN      _STM32_PIN(PORTG, 12)
 #define SPI6_MOSI_PIN      _STM32_PIN(PORTG, 14)
-
-
-
 
 //
 // Temperature Sensors
@@ -139,7 +130,6 @@
 
 #define TEMP_5_PIN         _STM32_PIN(PORTE, 12)  // Analog Input, Probe temp
 
-
 //
 // Heaters / Fans
 //
@@ -151,7 +141,7 @@
 #define FAN1_PIN           _STM32_PIN(PORTA, 0)
 #define FAN2_PIN           _STM32_PIN(PORTA, 1)
 
-//#define E0_AUTO_FAN_PIN  _STM32_PIN(PORTA, 1)
+#define ORIG_E0_AUTO_FAN_PIN  _STM32_PIN(PORTA, 1) // Use this by NOT overriding E0_AUTO_FAN_PIN
 
 //
 // Misc. Functions
@@ -184,13 +174,11 @@
 #define PWR_LOSS           _STM32_PIN(PORTG, 5)         //Power loss / nAC_FAULT
 
 //
-//MAX7219_DEBUG
+// MAX7219_DEBUG
 //
 #define MAX7219_CLK_PIN    _STM32_PIN(PORTG, 10)     //EXP1-1
 #define MAX7219_DIN_PIN    _STM32_PIN(PORTD, 7)      //EXP1-3
 #define MAX7219_LOAD_PIN   _STM32_PIN(PORTD, 1)     //EXP1-5
-
-//#define NEOPIXEL_PIN    4
 
 //
 // LCD / Controller

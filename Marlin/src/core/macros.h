@@ -46,7 +46,9 @@
 #define _O3          __attribute__((optimize("O3")))
 
 // Clock speed factors
-#define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
+#ifndef CYCLES_PER_MICROSECOND
+  #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
+#endif
 
 // Highly granular delays for step pulses, etc.
 #define DELAY_0_NOP NOOP

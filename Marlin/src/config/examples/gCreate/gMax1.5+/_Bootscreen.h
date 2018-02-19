@@ -29,7 +29,6 @@
  * Use the Marlin Bitmap Converter to make your own:
  * http://marlinfw.org/tools/u8glib/converter.html
  */
-#include <avr/pgmspace.h>
 
 #define CUSTOM_BOOTSCREEN_BMPWIDTH  112
 

@@ -105,7 +105,7 @@
     #define BTN_EN1             P3_25
     #define BTN_EN2             P3_26
     #define BTN_ENC             P1_30
-    
+
     #define SD_DETECT_PIN       -1
 #endif // REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
