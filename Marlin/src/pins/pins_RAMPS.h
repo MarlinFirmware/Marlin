@@ -48,7 +48,7 @@
   #error "Oops!  Use 'BOARD_RAMPS_RE_ARM' to build for Re-ARM."
 #endif
 
-#if !ENABLED(IS_RAMPS_SMART) && !ENABLED(IS_RAMPS_DUO) && !ENABLED(IS_RAMPS4DUE) && !ENABLED(TARGET_LPC1768)
+#if DISABLED(IS_RAMPS_SMART) && DISABLED(IS_RAMPS_DUO) && DISABLED(IS_RAMPS4DUE) && DISABLED(TARGET_LPC1768)
   #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
     #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
   #endif
@@ -97,30 +97,55 @@
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
-#define X_CS_PIN           53
+#ifndef X_CS_PIN
+  #define X_CS_PIN         53
+#endif
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
-#define Y_CS_PIN           49
+#ifndef Y_CS_PIN
+  #define Y_CS_PIN         49
+#endif
 
 #define Z_STEP_PIN         46
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
-#define Z_CS_PIN           40
+#ifndef Z_CS_PIN
+  #define Z_CS_PIN         40
+#endif
 
 #define E0_STEP_PIN        26
 #define E0_DIR_PIN         28
 #define E0_ENABLE_PIN      24
-#define E0_CS_PIN          42
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN        42
+#endif
 
 #define E1_STEP_PIN        36
 #define E1_DIR_PIN         34
 #define E1_ENABLE_PIN      30
-#define E1_CS_PIN          44
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN        44
+#endif
+
+/**
+ * Default pins for TMC software SPI
+ */
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI    66
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO    44
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK     64
+  #endif
+#endif
 
 #if ENABLED(HAVE_TMC2208)
-  /*
+  /**
    * TMC2208 stepper drivers
    *
    * Hardware serial communication ports.
@@ -130,35 +155,35 @@
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
-  #define Z_HARDWARE_SERIAL  Serial3
-  #define Z2_HARDWARE_SERIAL Serial1
+  //#define Z_HARDWARE_SERIAL  Serial1
+  //#define Z2_HARDWARE_SERIAL Serial1
   //#define E0_HARDWARE_SERIAL Serial1
   //#define E1_HARDWARE_SERIAL Serial1
   //#define E2_HARDWARE_SERIAL Serial1
   //#define E3_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
+  //#define E4_HARDWARE_SERIAL Serial1
 
-  /*
+  /**
    * Software serial
    */
 
-  #define X_SERIAL_TX_PIN    59
+  #define X_SERIAL_TX_PIN    40
   #define X_SERIAL_RX_PIN    63
   #define X2_SERIAL_TX_PIN   -1
   #define X2_SERIAL_RX_PIN   -1
 
-  #define Y_SERIAL_TX_PIN    64
-  #define Y_SERIAL_RX_PIN    40
+  #define Y_SERIAL_TX_PIN    59
+  #define Y_SERIAL_RX_PIN    64
   #define Y2_SERIAL_TX_PIN   -1
   #define Y2_SERIAL_RX_PIN   -1
 
-  #define Z_SERIAL_TX_PIN    44
-  #define Z_SERIAL_RX_PIN    42
+  #define Z_SERIAL_TX_PIN    42
+  #define Z_SERIAL_RX_PIN    65
   #define Z2_SERIAL_TX_PIN   -1
   #define Z2_SERIAL_RX_PIN   -1
 
-  #define E0_SERIAL_TX_PIN   66
-  #define E0_SERIAL_RX_PIN   65
+  #define E0_SERIAL_TX_PIN   44
+  #define E0_SERIAL_RX_PIN   66
   #define E1_SERIAL_TX_PIN   -1
   #define E1_SERIAL_RX_PIN   -1
   #define E2_SERIAL_TX_PIN   -1

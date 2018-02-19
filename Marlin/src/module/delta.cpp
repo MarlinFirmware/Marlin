@@ -37,6 +37,10 @@
 #include "../lcd/ultralcd.h"
 #include "../Marlin.h"
 
+#if ENABLED(SENSORLESS_HOMING)
+  #include "../feature/tmc_util.h"
+#endif
+
 // Initialized by settings.load()
 float delta_height,
       delta_endstop_adj[ABC] = { 0 },
@@ -226,11 +230,37 @@ bool home_delta() {
   ZERO(current_position);
   sync_plan_position();
 
+  // Disable stealthChop if used. Enable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
+      tmc_sensorless_homing(stepperX);
+    #endif
+    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
+      tmc_sensorless_homing(stepperY);
+    #endif
+    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
+      tmc_sensorless_homing(stepperZ);
+    #endif
+  #endif
+
   // Move all carriages together linearly until an endstop is hit.
   current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
   feedrate_mm_s = homing_feedrate(X_AXIS);
   line_to_current_position();
   stepper.synchronize();
+
+  // Re-enable stealthChop if used. Disable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
+      tmc_sensorless_homing(stepperX, false);
+    #endif
+    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
+      tmc_sensorless_homing(stepperY, false);
+    #endif
+    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
+      tmc_sensorless_homing(stepperZ, false);
+    #endif
+  #endif
 
   // If an endstop was not hit, then damage can occur if homing is continued.
   // This can occur if the delta height not set correctly.

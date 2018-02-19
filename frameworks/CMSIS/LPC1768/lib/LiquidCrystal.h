@@ -60,7 +60,7 @@ public:
   void init(uint8_t fourbitmode, pin_t rs, pin_t rw, pin_t enable,
             pin_t d0, pin_t d1, pin_t d2, pin_t d3,
             pin_t d4, pin_t d5, pin_t d6, pin_t d7);
-    
+
   void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
 
   void clear();
@@ -81,10 +81,10 @@ public:
 
   void setRowOffsets(int row1, int row2, int row3, int row4);
   void createChar(uint8_t, uint8_t[]);
-  void setCursor(uint8_t, uint8_t); 
+  void setCursor(uint8_t, uint8_t);
   virtual size_t write(uint8_t);
   void command(uint8_t);
-  
+
   using Print::write;
 private:
   void send(uint8_t, uint8_t);

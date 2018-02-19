@@ -43,6 +43,10 @@
  * Utility functions
  */
 
+// Due has 12 PWMs assigned to logical pins 2-13.
+// 6, 7, 8 & 9 come from the PWM controller. The others come from the timers.
+#define USEABLE_HARDWARE_PWM(p) ((2 <= p) && (p <= 13))
+
 #ifndef MASK
   #define MASK(PIN)  (1 << PIN)
 #endif
@@ -85,6 +89,7 @@
 #define _SET_OUTPUT(IO) do{ pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
                             PIO_Configure(g_APinDescription[IO].pPort, _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, \
                                           g_APinDescription[IO].ulPin, g_APinDescription[IO].ulPinConfiguration); \
+                            g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT;\
                         }while(0)
 
 /// set pin as input with pullup mode

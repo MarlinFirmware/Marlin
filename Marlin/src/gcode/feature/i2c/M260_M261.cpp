@@ -73,7 +73,7 @@ void GcodeSuite::M261() {
   }
   else {
     SERIAL_ERROR_START();
-    SERIAL_ERRORLN("Bad i2c request");
+    SERIAL_ERRORLNPGM("Bad i2c request");
   }
 }
 

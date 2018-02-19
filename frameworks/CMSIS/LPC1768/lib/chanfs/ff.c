@@ -2053,7 +2053,7 @@ FRESULT load_xdir (	/* FR_INT_ERR: invalid entry block */
 /* exFAT: Load the object's directory entry block */
 /*------------------------------------------------*/
 static
-FRESULT load_obj_xdir (	
+FRESULT load_obj_xdir (
 	DIR* dp,			/* Blank directory object to be used to access containing direcotry */
 	const FFOBJID* obj	/* Object with its containing directory information */
 )

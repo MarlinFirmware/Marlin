@@ -21,14 +21,24 @@
  */
 
 /**
- * Creality Ender pin assignments
- *
- * Applies to the following boards:
- *
- *  Creality Ender-2
- *  Creality Ender-4
+ * power.h - power control
  */
 
-#define BOARD_NAME "Creality Ender"
+#ifndef POWER_H
+#define POWER_H
 
-#include "pins_SANGUINOLOLU_12.h"
+#include "../core/types.h"
+
+class Power {
+  public:
+    static void check();
+    static void power_on();
+    static void power_off();
+  private:
+    static millis_t lastPowerOn;
+    static bool is_power_needed();
+};
+
+extern Power powerManager;
+
+#endif // POWER_H

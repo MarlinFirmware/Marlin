@@ -78,7 +78,9 @@
 #elif defined(SDEXTRASLOW)
   #error "SDEXTRASLOW deprecated. Set SPI_SPEED to SPI_QUARTER_SPEED instead."
 #elif defined(FILAMENT_SENSOR)
-  #error "FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead."
+  #error "FILAMENT_SENSOR is now FILAMENT_WIDTH_SENSOR. Please update your configuration."
+#elif defined(ENDSTOPPULLUP_FIL_RUNOUT)
+  #error "ENDSTOPPULLUP_FIL_RUNOUT is now FIL_RUNOUT_PULLUP. Please update your configuration."
 #elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
   #error "DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead."
 #elif defined(LANGUAGE_INCLUDE)
@@ -241,6 +243,8 @@
   #error "ANET_KEYPAD_LCD is now ZONESTAR_LCD. Please update your configuration."
 #elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
+#elif defined(AUTOMATIC_CURRENT_CONTROL)
+  #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
 #endif
 
 /**
@@ -277,6 +281,10 @@
   #endif
 #elif ENABLED(SERIAL_XON_XOFF) || ENABLED(SERIAL_STATS_MAX_RX_QUEUED) || ENABLED(SERIAL_STATS_DROPPED_RX)
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
+#endif
+
+#if SERIAL_PORT > 7
+  #error "Set SERIAL_PORT to the port on your board. Usually this is 0."
 #endif
 
 /**
@@ -317,12 +325,41 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #endif
 #endif
 
+#if !defined(TARGET_LPC1768) && ( \
+     ENABLED(ENDSTOPPULLDOWNS) \
+  || ENABLED(ENDSTOPPULLDOWN_XMAX) \
+  || ENABLED(ENDSTOPPULLDOWN_YMAX) \
+  || ENABLED(ENDSTOPPULLDOWN_ZMAX) \
+  || ENABLED(ENDSTOPPULLDOWN_XMIN) \
+  || ENABLED(ENDSTOPPULLDOWN_YMIN) \
+  || ENABLED(ENDSTOPPULLDOWN_ZMIN) )
+  #error "PULLDOWN pin mode is not available on the selected board."
+#endif
+
+#if ENABLED(ENDSTOPPULLUPS) && ENABLED(ENDSTOPPULLDOWNS)
+  #error "Enable only one of ENDSTOPPULLUPS or ENDSTOPPULLDOWNS."
+#elif ENABLED(FIL_RUNOUT_PULLUP) && ENABLED(FIL_RUNOUT_PULLDOWN)
+  #error "Enable only one of FIL_RUNOUT_PULLUP or FIL_RUNOUT_PULLDOWN."
+#elif ENABLED(ENDSTOPPULLUP_XMAX) && ENABLED(ENDSTOPPULLDOWN_XMAX)
+  #error "Enable only one of ENDSTOPPULLUP_X_MAX or ENDSTOPPULLDOWN_X_MAX."
+#elif ENABLED(ENDSTOPPULLUP_YMAX) && ENABLED(ENDSTOPPULLDOWN_YMAX)
+  #error "Enable only one of ENDSTOPPULLUP_Y_MAX or ENDSTOPPULLDOWN_Y_MAX."
+#elif ENABLED(ENDSTOPPULLUP_ZMAX) && ENABLED(ENDSTOPPULLDOWN_ZMAX)
+  #error "Enable only one of ENDSTOPPULLUP_Z_MAX or ENDSTOPPULLDOWN_Z_MAX."
+#elif ENABLED(ENDSTOPPULLUP_XMIN) && ENABLED(ENDSTOPPULLDOWN_XMIN)
+  #error "Enable only one of ENDSTOPPULLUP_X_MIN or ENDSTOPPULLDOWN_X_MIN."
+#elif ENABLED(ENDSTOPPULLUP_YMIN) && ENABLED(ENDSTOPPULLDOWN_YMIN)
+  #error "Enable only one of ENDSTOPPULLUP_Y_MIN or ENDSTOPPULLDOWN_Y_MIN."
+#elif ENABLED(ENDSTOPPULLUP_ZMIN) && ENABLED(ENDSTOPPULLDOWN_ZMIN)
+  #error "Enable only one of ENDSTOPPULLUP_Z_MIN or ENDSTOPPULLDOWN_Z_MIN."
+#endif
+
 /**
  * Progress Bar
  */
 #if ENABLED(LCD_PROGRESS_BAR)
-  #if DISABLED(SDSUPPORT)
-    #error "LCD_PROGRESS_BAR requires SDSUPPORT."
+  #if DISABLED(SDSUPPORT) && DISABLED(LCD_SET_PROGRESS_MANUALLY)
+    #error "LCD_PROGRESS_BAR requires SDSUPPORT or LCD_SET_PROGRESS_MANUALLY."
   #elif DISABLED(ULTRA_LCD)
     #error "LCD_PROGRESS_BAR requires a character LCD."
   #elif ENABLED(DOGLCD)
@@ -365,8 +402,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * I2C Position Encoders
  */
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #if DISABLED(BABYSTEPPING)
-    #error "I2C_POSITION_ENCODERS requires BABYSTEPPING."
+  #if DISABLED(BABYSTEPPING) || DISABLED(BABYSTEP_XY)
+    #error "I2C_POSITION_ENCODERS requires BABYSTEPPING and BABYSTEP_XY."
   #elif !WITHIN(I2CPE_ENCODER_CNT, 1, 5)
     #error "I2CPE_ENCODER_CNT must be between 1 and 5."
   #endif
@@ -615,9 +652,7 @@ static_assert(1 >= 0
  * Delta requirements
  */
 #if ENABLED(DELTA)
-  #if HAS_BED_PROBE && ENABLED(Z_MIN_PROBE_ENDSTOP)
-    #error "Delta probably shouldn't use Z_MIN_PROBE_ENDSTOP. Comment out this line to continue."
-  #elif DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
+  #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
     #error "You probably want to use Max Endstops for DELTA!"
   #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(AUTO_BED_LEVELING_BILINEAR) && !UBL_SEGMENTED
     #error "ENABLE_LEVELING_FADE_HEIGHT on DELTA requires AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
@@ -882,10 +917,18 @@ static_assert(1 >= 0
 #endif
 
 /**
- * Homing Bump
+ * Homing
  */
 #if X_HOME_BUMP_MM < 0 || Y_HOME_BUMP_MM < 0 || Z_HOME_BUMP_MM < 0
   #error "[XYZ]_HOME_BUMP_MM must be greater than or equal to 0."
+#endif
+
+#if ENABLED(CODEPENDENT_XY_HOMING)
+  #if ENABLED(QUICK_HOME)
+    #error "QUICK_HOME is incompatible with CODEPENDENT_XY_HOMING."
+  #elif IS_KINEMATIC
+    #error "CODEPENDENT_XY_HOMING requires a Cartesian setup."
+  #endif
 #endif
 
 /**
@@ -1424,6 +1467,9 @@ static_assert(1 >= 0
   #if ENABLED(ZONESTAR_LCD)
     + 1
   #endif
+  #if ENABLED(ULTI_CONTROLLER)
+    + 1
+  #endif
   , "Please select no more than one LCD controller option."
 );
 
@@ -1464,8 +1510,6 @@ static_assert(1 >= 0
     #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
   #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
-  #elif defined(AUTOMATIC_CURRENT_CONTROL)
-    #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
   #endif
 
   #if ENABLED(X_IS_TMC2130) && !PIN_EXISTS(X_CS)
@@ -1492,12 +1536,23 @@ static_assert(1 >= 0
     #error "E4_CS_PIN is required for E4_IS_TMC2130. Define E4_CS_PIN in Configuration_adv.h."
   #endif
 
+  // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
+  // is necessary in order to reset the stallGuard indication between the initial movement of all three
+  // towers to +Z and the individual homing of each tower. This restriction can be removed once a means of
+  // clearing the stallGuard activated status is found.
+  #if ENABLED(SENSORLESS_HOMING) && ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
+    #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
+  #endif
+
+#elif ENABLED(SENSORLESS_HOMING)
+
+  #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
+
 #endif
 
 /**
  * Make sure HAVE_TMC2208 is warranted
  */
-
 #if ENABLED(HAVE_TMC2208) && !( \
        ENABLED(  X_IS_TMC2208 ) \
     || ENABLED( X2_IS_TMC2208 ) \

@@ -24,6 +24,7 @@
 #define MACROS_H
 
 #define NUM_AXIS 4
+#define ABCE 4
 #define XYZE 4
 #define ABC  3
 #define XYZ  3
@@ -45,7 +46,9 @@
 #define _O3          __attribute__((optimize("O3")))
 
 // Clock speed factors
-#define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
+#ifndef CYCLES_PER_MICROSECOND
+  #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
+#endif
 
 // Highly granular delays for step pulses, etc.
 #define DELAY_0_NOP NOOP
@@ -95,13 +98,16 @@
 #define STRINGIFY(M) STRINGIFY_(M)
 
 // Macros for bit masks
-#ifndef _BV
-  #define _BV(n)  (1<<(n))
-#endif
-#define TEST(n,b) (((n)&_BV(b))!=0)
+#undef _BV
+#define _BV(b) (1<<(b))
+#define TEST(n,b) !!((n)&_BV(b))
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))
-#define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (_BV(b))
+
+#define _BV32(b) (1UL << (b))
+#define TEST32(n,b) !!((n)&_BV32(b))
+#define SBI32(n,b) (n |= _BV32(b))
+#define CBI32(n,b) (n &= ~_BV32(b))
 
 // Macros for maths shortcuts
 #ifndef M_PI

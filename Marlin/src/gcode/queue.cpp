@@ -30,6 +30,7 @@
 #include "../lcd/ultralcd.h"
 #include "../sd/cardreader.h"
 #include "../module/planner.h"
+#include "../module/temperature.h"
 #include "../Marlin.h"
 
 #if HAS_COLOR_LEDS
@@ -271,7 +272,7 @@ inline void get_serial_commands() {
 
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
-  #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
+  #if NO_TIMEOUTS > 0
     static millis_t last_command_time = 0;
     const millis_t ms = millis();
     if (commands_in_queue == 0 && !serial_data_available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
@@ -297,7 +298,8 @@ inline void get_serial_commands() {
 
         serial_comment_mode[i] = false;                   // end of line == end of comment
 
-        if (!serial_count[i]) continue;                   // Skip empty lines
+        // Skip empty lines and comments
+        if (!serial_count[i]) { thermalManager.manage_heater(); continue; }
 
         serial_line_buffer[i][serial_count[i]] = 0;       // Terminate string
         serial_count[i] = 0;                              // Reset buffer
@@ -358,7 +360,7 @@ inline void get_serial_commands() {
         }
 
         #if DISABLED(EMERGENCY_PARSER)
-          // If command was e-stop process now
+          // Process critical commands early
           if (strcmp(command, "M108") == 0) {
             wait_for_heatup = false;
             #if ENABLED(ULTIPANEL)
@@ -366,7 +368,7 @@ inline void get_serial_commands() {
             #endif
           }
           if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
-          if (strcmp(command, "M410") == 0) { quickstop_stepper(); }
+          if (strcmp(command, "M410") == 0) quickstop_stepper();
         #endif
 
         #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
@@ -387,7 +389,7 @@ inline void get_serial_commands() {
       else if (serial_char == '\\') {  // Handle escapes
         // if we have one more character, copy it over
         if ((c = read_serial(i)) >= 0 && !serial_comment_mode[i])
-          serial_line_buffer[i][serial_count[i]++] = serial_char;
+          serial_line_buffer[i][serial_count[i]++] = (char)c;
       }
       else { // it's not a newline, carriage return or escape char
         if (serial_char == ';') serial_comment_mode[i] = true;
@@ -458,7 +460,8 @@ inline void get_serial_commands() {
 
         sd_comment_mode = false; // for new command
 
-        if (!sd_count) continue; // skip empty lines (and comment lines)
+        // Skip empty lines and comments
+        if (!sd_count) { thermalManager.manage_heater(); continue; }
 
         command_queue[cmd_queue_index_w][sd_count] = '\0'; // terminate string
         sd_count = 0; // clear sd line buffer

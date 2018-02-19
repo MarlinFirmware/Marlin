@@ -74,6 +74,7 @@
 #define BOARD_RUMBA             80    // Rumba
 #define BOARD_BQ_ZUM_MEGA_3D    503   // bq ZUM Mega 3D
 #define BOARD_MAKEBOARD_MINI    431   // MakeBoard Mini v2.1.2 is a control board sold by MicroMake
+#define BOARD_TRIGORILLA        343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
 
 //
 // Other ATmega1280, ATmega2560
@@ -115,7 +116,7 @@
 #define BOARD_MELZI_MAKR3D      66    // Melzi with ATmega1284 (MaKr3d version)
 #define BOARD_MELZI_CREALITY    89    // Melzi Creality3D board (for CR-10 etc)
 #define BOARD_MELZI_MALYAN      92    // Melzi Malyan M150 board
-#define BOARD_CREALITY_ENDER    601   // Creality Ender
+#define BOARD_MELZI_TRONXY      505   // Tronxy X5S
 #define BOARD_STB_11            64    // STB V1.1
 #define BOARD_AZTEEG_X1         65    // Azteeg X1
 
@@ -162,6 +163,9 @@
 #define BOARD_AZSMZ_MINI          1751  // AZSMZ Mini
 #define BOARD_AZTEEG_X5_GT        1752  // Azteeg X5 GT (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_BIQU_BQ111_A4       1753  // BIQU BQ111-A4 (Power outputs: Hotend, Fan, Bed)
+#define BOARD_SELENA_COMPACT      1754  // Selena Compact (Power outputs: Hotend0, Hotend1, Bed0, Bed1, Fan0, Fan1)
+#define BOARD_COHESION3D_REMIX    1755  // Cohesion3D ReMix
+#define BOARD_COHESION3D_MINI     1756  // Cohesion3D Mini
 
 //
 // SAM3X8E ARM Cortex M3
@@ -197,8 +201,8 @@
 #define BOARD_TEENSY35_36       841   // Teensy3.5 and Teensy3.6
 #define BOARD_STM32F1R         1800   // STM3R Libmaple based STM32F1 controller
 #define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
-#define BOARD_BEAST            1802  // STM32FxxxVxT6 Libmaple based stm32f4 controller
-#define BOARD_STM3R_MINI       1803  // STM32 Libmaple based stm32f1 controller
+#define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
+#define BOARD_STM3R_MINI       1803   // STM32 Libmaple based stm32f1 controller
 
 //
 // ARM Cortex M7

@@ -20,6 +20,7 @@
  *
  */
 
+// R25 = 100 kOhm, beta25 = 4267 K, 4.7 kOhm pull-up
 // 100k ParCan thermistor (104GT-2)
 // ATC Semitec 104GT-2/104NT-4-R025H42G (Used in ParCan)
 // Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf

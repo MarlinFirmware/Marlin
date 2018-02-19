@@ -123,7 +123,7 @@ inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_CHAR('T');
   SERIAL_ECHO_F(e, DEC);
   SERIAL_CHAR(' ');
-  SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+  SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
 }
 
 /**

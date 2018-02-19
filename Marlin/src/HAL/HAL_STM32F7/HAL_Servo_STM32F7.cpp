@@ -23,7 +23,7 @@
 
 #ifdef STM32F7
 
-#include "../../../src/inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_SERVOS
 

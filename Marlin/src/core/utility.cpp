@@ -335,6 +335,10 @@ void safe_delay(millis_t ms) {
       #endif
       if (planner.leveling_active) {
         SERIAL_ECHOLNPGM(" (enabled)");
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          if (planner.z_fade_height)
+            SERIAL_ECHOLNPAIR("Z Fade: ", planner.z_fade_height);
+        #endif
         #if ABL_PLANAR
           const float diff[XYZ] = {
             stepper.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
@@ -350,10 +354,21 @@ void safe_delay(millis_t ms) {
           SERIAL_ECHOPGM(" Z");
           if (diff[Z_AXIS] > 0) SERIAL_CHAR('+');
           SERIAL_ECHO(diff[Z_AXIS]);
-        #elif ENABLED(AUTO_BED_LEVELING_UBL)
-          SERIAL_ECHOPAIR("UBL Adjustment Z", stepper.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]);
-        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          SERIAL_ECHOPAIR("ABL Adjustment Z", bilinear_z_offset(current_position));
+        #else
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            SERIAL_ECHOPGM("UBL Adjustment Z");
+            const float rz = ubl.get_z_correction(current_position[X_AXIS], current_position[Y_AXIS]);
+          #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+            SERIAL_ECHOPGM("ABL Adjustment Z");
+            const float rz = bilinear_z_offset(current_position);
+          #endif
+          SERIAL_ECHO(ftostr43sign(rz, '+'));
+          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+            if (planner.z_fade_height) {
+              SERIAL_ECHOPAIR(" (", ftostr43sign(rz * planner.fade_scaling_factor_for_z(current_position[Z_AXIS]), '+'));
+              SERIAL_CHAR(')');
+            }
+          #endif
         #endif
       }
       else
@@ -365,10 +380,16 @@ void safe_delay(millis_t ms) {
 
       SERIAL_ECHOPGM("Mesh Bed Leveling");
       if (planner.leveling_active) {
-        float rz = current_position[Z_AXIS];
-        planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], rz);
         SERIAL_ECHOLNPGM(" (enabled)");
-        SERIAL_ECHOPAIR("MBL Adjustment Z", rz);
+        SERIAL_ECHOPAIR("MBL Adjustment Z", ftostr43sign(mbl.get_z(current_position[X_AXIS], current_position[Y_AXIS], 1.0), '+'));
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          if (planner.z_fade_height) {
+            SERIAL_ECHOPAIR(" (", ftostr43sign(
+              mbl.get_z(current_position[X_AXIS], current_position[Y_AXIS], planner.fade_scaling_factor_for_z(current_position[Z_AXIS])), '+'
+            ));
+            SERIAL_CHAR(')');
+          }
+        #endif
       }
       else
         SERIAL_ECHOPGM(" (disabled)");

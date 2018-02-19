@@ -32,6 +32,7 @@
 
 #define MAPPER_CECF
 #define DISPLAY_CHARSET_ISO10646_GREEK
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" έτοιμο.")
 #define MSG_SD_INSERTED                     _UxGT("Εισαγωγή κάρτας")
@@ -95,10 +96,16 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_ACC                             _UxGT("Επιτάχυνση")
 #define MSG_JERK                            _UxGT("Vαντίδραση")
-#define MSG_VX_JERK                         _UxGT("Vαντίδραση x")
-#define MSG_VY_JERK                         _UxGT("Vαντίδραση y")
-#define MSG_VZ_JERK                         _UxGT("Vαντίδραση z")
-#define MSG_VE_JERK                         _UxGT("Vαντίδραση e")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Vαντίδραση A")
+  #define MSG_VB_JERK                       _UxGT("Vαντίδραση B")
+  #define MSG_VC_JERK                       _UxGT("Vαντίδραση C")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vαντίδραση X")
+  #define MSG_VB_JERK                       _UxGT("Vαντίδραση Y")
+  #define MSG_VC_JERK                       _UxGT("Vαντίδραση Z")
+#endif
+#define MSG_VE_JERK                         _UxGT("Vαντίδραση E")
 #define MSG_VMAX                            _UxGT("Vμεγ ")
 #define MSG_VMIN                            _UxGT("Vελαχ")
 #define MSG_VTRAV_MIN                       _UxGT("Vελάχ. μετατόπιση")
@@ -107,9 +114,15 @@
 #define MSG_A_RETRACT                       _UxGT("Α-ανάσυρση")
 #define MSG_A_TRAVEL                        _UxGT("Α-μετατόπιση")
 #define MSG_STEPS_PER_MM                    _UxGT("Bήματα ανά μμ")
-#define MSG_XSTEPS                          _UxGT("Bήματα X ανά μμ")
-#define MSG_YSTEPS                          _UxGT("Bήματα Υ ανά μμ")
-#define MSG_ZSTEPS                          _UxGT("Bήματα Ζ ανά μμ")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Bήματα A ανά μμ")
+  #define MSG_BSTEPS                        _UxGT("Bήματα B ανά μμ")
+  #define MSG_CSTEPS                        _UxGT("Bήματα C ανά μμ")
+#else
+  #define MSG_ASTEPS                        _UxGT("Bήματα X ανά μμ")
+  #define MSG_BSTEPS                        _UxGT("Bήματα Y ανά μμ")
+  #define MSG_CSTEPS                        _UxGT("Bήματα Z ανά μμ")
+#endif
 #define MSG_ESTEPS                          _UxGT("Bήματα Ε ανά μμ")
 #define MSG_E1STEPS                         _UxGT("Bήματα Ε1 ανά μμ")
 #define MSG_E2STEPS                         _UxGT("Bήματα Ε2 ανά μμ")

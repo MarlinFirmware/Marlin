@@ -63,37 +63,38 @@
 #define X_STEP_PIN         37 // Support Extension Board
 #define X_DIR_PIN          36
 #define X_ENABLE_PIN       38
-#define X_CS_PIN           -1
 
 #define Y_STEP_PIN         32 // Support Extension Board
 #define Y_DIR_PIN          35
 #define Y_ENABLE_PIN       34
-#define Y_CS_PIN           -1
 
 #define Z_STEP_PIN         30 // Support Extension Board
 #define Z_DIR_PIN           2
 #define Z_ENABLE_PIN       33
-#define Z_CS_PIN           -1
 
 #define E0_STEP_PIN        29
 #define E0_DIR_PIN         28
 #define E0_ENABLE_PIN      31
-#define E0_CS_PIN          -1
 
 #define E1_STEP_PIN        22
 #define E1_DIR_PIN         24
 #define E1_ENABLE_PIN      26
-#define E1_CS_PIN          -1
 
 #define E2_STEP_PIN        25
 #define E2_DIR_PIN         23
 #define E2_ENABLE_PIN      27
-#define E2_CS_PIN          -1
 
 #define E3_STEP_PIN        15 // Only For Extension Board
 #define E3_DIR_PIN         14
 #define E3_ENABLE_PIN      61
-#define E3_CS_PIN          -1
+
+//#define X_CS_PIN           -1
+//#define Y_CS_PIN           -1
+//#define Z_CS_PIN           -1
+//#define E0_CS_PIN          -1
+//#define E1_CS_PIN          -1
+//#define E2_CS_PIN          -1
+//#define E3_CS_PIN          -1
 
 // For Future: Microstepping pins - Mapping not from fastio.h (?)
 //#define E3_MS1_PIN         ?
@@ -103,7 +104,7 @@
 //#define Z2_MS2_PIN         ? // shared with E3_MS2_PIN
 //#define Z2_MS3_PIN         ? // shared with E3_MS3_PIN
 
-#if !ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+#if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define Z_PROBE_PIN      49
 #endif // else Z_PROBE_PIN = Z_MIN_PIN
 
@@ -189,8 +190,9 @@
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD)
-  // RADDS LCD panel
+
   #if ENABLED(RADDS_DISPLAY) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+
     #define LCD_PINS_RS     63
     #define LCD_PINS_ENABLE 64
     #define LCD_PINS_D4     48
@@ -207,6 +209,7 @@
     #define SD_DETECT_PIN   51
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+
     #define LCD_PINS_RS     52
     #define LCD_PINS_ENABLE 53
     #define LCD_PINS_D4     48
@@ -224,6 +227,7 @@
     #endif
 
   #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
+
     #define BTN_EN1         44
     #define BTN_EN2         42
     #define BTN_ENC         40
@@ -232,14 +236,16 @@
     #define SD_DETECT_PIN   51
 
   #elif ENABLED(SPARK_FULL_GRAPHICS)
+
     //http://doku.radds.org/dokumentation/other-electronics/sparklcd/
-    #error "Oops! SPARK_FULL_GRAPHICS not supported with this board"
+    #error "Oops! SPARK_FULL_GRAPHICS not supported with RURAMPS4D."
     //#define LCD_PINS_D4     29//?
     //#define LCD_PINS_ENABLE 27//?
     //#define LCD_PINS_RS     25//?
     //#define BTN_EN1         35//?
     //#define BTN_EN2         33//?
     //#define BTN_ENC         37//?
+
   #endif // SPARK_FULL_GRAPHICS
 
 #endif // ULTRA_LCD

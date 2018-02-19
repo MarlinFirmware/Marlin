@@ -32,6 +32,7 @@
 
 #define MAPPER_D0D1                // For Cyrillic
 #define DISPLAY_CHARSET_ISO10646_5
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Готов.")
 #define MSG_SD_INSERTED                     _UxGT("Картата е поставена")
@@ -83,9 +84,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-откат")
 #define MSG_A_TRAVEL                        _UxGT("A-travel")
 #define MSG_STEPS_PER_MM                    _UxGT("Стъпки/mm")
-#define MSG_XSTEPS                          _UxGT("X стъпки/mm")
-#define MSG_YSTEPS                          _UxGT("Y стъпки/mm")
-#define MSG_ZSTEPS                          _UxGT("Z стъпки/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Aстъпки/mm")
+  #define MSG_BSTEPS                        _UxGT("Bстъпки/mm")
+  #define MSG_CSTEPS                        _UxGT("Cстъпки/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xстъпки/mm")
+  #define MSG_BSTEPS                        _UxGT("Yстъпки/mm")
+  #define MSG_CSTEPS                        _UxGT("Zстъпки/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("E стъпки/mm")
 #define MSG_E1STEPS                         _UxGT("E1 стъпки/mm")
 #define MSG_E2STEPS                         _UxGT("E2 стъпки/mm")

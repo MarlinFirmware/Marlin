@@ -52,6 +52,8 @@
   #endif
 #endif
 
+#include <binary.h>
+
 extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
 ////////////////////////////////////
@@ -424,23 +426,21 @@ static void lcd_set_custom_characters(
           createChar_P(LCD_FEEDRATE_CHAR, feedrate);
           createChar_P(LCD_CLOCK_CHAR, clock);
 
-          #if ENABLED(SDSUPPORT)
-            #if ENABLED(LCD_PROGRESS_BAR)
-              if (screen_charset == CHARSET_INFO) { // 3 Progress bar characters for info screen
-                for (int16_t i = 3; i--;)
-                  createChar_P(LCD_STR_PROGRESS[i], progress[i]);
-              }
-              else
-            #endif
-              { // SD Card sub-menu special characters
-                createChar_P(LCD_UPLEVEL_CHAR, uplevel);
+          #if ENABLED(LCD_PROGRESS_BAR)
+            if (screen_charset == CHARSET_INFO) { // 3 Progress bar characters for info screen
+              for (int16_t i = 3; i--;)
+                createChar_P(LCD_STR_PROGRESS[i], progress[i]);
+            }
+            else
+          #endif
+            {
+              createChar_P(LCD_UPLEVEL_CHAR, uplevel);
+              #if ENABLED(SDSUPPORT)
+                // SD Card sub-menu special characters
                 createChar_P(LCD_STR_REFRESH[0], refresh);
                 createChar_P(LCD_STR_FOLDER[0], folder);
-              }
-          #else
-            // With no SD support, only need the uplevel character
-            createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-          #endif
+              #endif
+            }
         }
   }
 }
@@ -1326,18 +1326,18 @@ static void lcd_implementation_status_screen() {
         }
 
         clear_custom_char(&new_char);
-        new_char.custom_char_bits[0] = 0B11111U;              // char #0 is used for the top line of the box
+        new_char.custom_char_bits[0] = 0b11111U;              // char #0 is used for the top line of the box
         lcd.createChar(0, (uint8_t*)&new_char);
 
         clear_custom_char(&new_char);
         k = (GRID_MAX_POINTS_Y) * pixels_per_y_mesh_pnt + 1;  // row of pixels for the bottom box line
         l = k % (ULTRA_Y_PIXELS_PER_CHAR);                    // row within relevant character cell
-        new_char.custom_char_bits[l] = 0B11111U;              // char #1 is used for the bottom line of the box
+        new_char.custom_char_bits[l] = 0b11111U;              // char #1 is used for the bottom line of the box
         lcd.createChar(1, (uint8_t*)&new_char);
 
         clear_custom_char(&new_char);
         for (j = 0; j < ULTRA_Y_PIXELS_PER_CHAR; j++)
-          new_char.custom_char_bits[j] = 0B10000U;            // char #2 is used for the left edge of the box
+          new_char.custom_char_bits[j] = 0b10000U;            // char #2 is used for the left edge of the box
         lcd.createChar(2, (uint8_t*)&new_char);
 
         clear_custom_char(&new_char);

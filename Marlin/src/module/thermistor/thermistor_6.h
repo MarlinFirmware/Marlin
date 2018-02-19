@@ -20,7 +20,7 @@
  *
  */
 
-// 100k Epcos thermistor
+// R25 = 100 kOhm, beta25 = 4092 K, 8.2 kOhm pull-up, 100k Epcos (?) thermistor
 const short temptable_6[][2] PROGMEM = {
   { OV(   1), 350 },
   { OV(  28), 250 }, // top rating 250C

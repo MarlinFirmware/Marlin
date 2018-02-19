@@ -137,7 +137,11 @@
   #include "planner.h"
   #include "../core/enum.h"
 
-  #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN)
+  #if ENABLED(TMC_USE_SW_SPI)
+    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+  #else
+    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN)
+  #endif
 
   // Stepper objects of TMC2130 steppers used
   #if ENABLED(X_IS_TMC2130)
@@ -231,16 +235,32 @@
       _TMC2130_INIT(E0, planner.axis_steps_per_mm[E_AXIS]);
     #endif
     #if ENABLED(E1_IS_TMC2130)
-      { constexpr int extruder = 1; _TMC2130_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2130_INIT(E1, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 1
+        #endif
+      ]);
     #endif
     #if ENABLED(E2_IS_TMC2130)
-      { constexpr int extruder = 2; _TMC2130_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2130_INIT(E2, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 2
+        #endif
+      ]);
     #endif
     #if ENABLED(E3_IS_TMC2130)
-      { constexpr int extruder = 3; _TMC2130_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2130_INIT(E3, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 3
+        #endif
+      ]);
     #endif
     #if ENABLED(E4_IS_TMC2130)
-      { constexpr int extruder = 4; _TMC2130_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2130_INIT(E4, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 4
+        #endif
+      ]);
     #endif
 
   }
@@ -258,7 +278,7 @@
 
   #define _TMC2208_DEFINE_HARDWARE(ST) TMC2208Stepper stepper##ST(&ST##_HARDWARE_SERIAL)
   #define _TMC2208_DEFINE_SOFTWARE(ST) SoftwareSerial ST##_HARDWARE_SERIAL = SoftwareSerial(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN); \
-                                       TMC2208Stepper stepper##ST(&stepper##ST##_serial, ST##_SERIAL_RX_PIN > -1)
+                                       TMC2208Stepper stepper##ST(&ST##_HARDWARE_SERIAL, ST##_SERIAL_RX_PIN > -1)
 
   // Stepper objects of TMC2208 steppers used
   #if ENABLED(X_IS_TMC2208)
@@ -436,16 +456,32 @@
       _TMC2208_INIT(E0, planner.axis_steps_per_mm[E_AXIS]);
     #endif
     #if ENABLED(E1_IS_TMC2208)
-      { constexpr int extruder = 1; _TMC2208_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2208_INIT(E1, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 1
+        #endif
+      ]);
     #endif
     #if ENABLED(E2_IS_TMC2208)
-      { constexpr int extruder = 2; _TMC2208_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2208_INIT(E2, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 2
+        #endif
+      ]);
     #endif
     #if ENABLED(E3_IS_TMC2208)
-      { constexpr int extruder = 3; _TMC2208_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2208_INIT(E3, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 3
+        #endif
+      ]);
     #endif
     #if ENABLED(E4_IS_TMC2208)
-      { constexpr int extruder = 4; _TMC2208_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); }
+      _TMC2208_INIT(E4, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 4
+        #endif
+      ]);
     #endif
   }
 #endif // HAVE_TMC2208

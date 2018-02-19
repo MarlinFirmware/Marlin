@@ -150,7 +150,7 @@ char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1",
       const uint32_t pwm_scale = get_pwm_scale(st);
       SERIAL_ECHO(axisID);
       SERIAL_ECHOPAIR(":", pwm_scale);
-      SERIAL_ECHOPGM(" |0b"); MYSERIAL0.print(get_status_response(st), BIN);
+      SERIAL_ECHOPGM(" |0b"); SERIAL_PRINT(get_status_response(st), BIN);
       SERIAL_ECHOPGM("| ");
       if (data.is_error) SERIAL_CHAR('E');
       else if (data.is_ot) SERIAL_CHAR('O');
@@ -236,10 +236,10 @@ void _tmc_say_pwmthrs(const char name[], const uint32_t thrs) {
   SERIAL_ECHO(name);
   SERIAL_ECHOLNPAIR(" stealthChop max speed set to ", thrs);
 }
-void _tmc_say_sgt(const char name[], const uint32_t sgt) {
+void _tmc_say_sgt(const char name[], const int8_t sgt) {
   SERIAL_ECHO(name);
   SERIAL_ECHOPGM(" driver homing sensitivity set to ");
-  MYSERIAL0.println(sgt, DEC);
+  SERIAL_PRINTLN(sgt, DEC);
 }
 
 #if ENABLED(TMC_DEBUG)
@@ -325,7 +325,7 @@ void _tmc_say_sgt(const char name[], const uint32_t sgt) {
   #if ENABLED(HAVE_TMC2208)
     static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch(i) {
-        case TMC_TSTEP: { uint32_t data = 0; st.TSTEP(&data); MYSERIAL0.print(data); break; }
+        case TMC_TSTEP: { uint32_t data = 0; st.TSTEP(&data); SERIAL_PROTOCOL(data); break; }
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
         case TMC_STEALTHCHOP: serialprintPGM(st.stealth() ? PSTR("true") : PSTR("false")); break;
         case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('X'); break;
@@ -351,7 +351,7 @@ void _tmc_say_sgt(const char name[], const uint32_t sgt) {
       case TMC_CODES: SERIAL_ECHO(extended_axis_codes[axis]); break;
       case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getCurrent()); break;
-      case TMC_RMS_CURRENT: MYSERIAL0.print(st.rms_current()); break;
+      case TMC_RMS_CURRENT: SERIAL_PROTOCOL(st.rms_current()); break;
       case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
       case TMC_IRUN:
         SERIAL_PRINT(st.irun(), DEC);
@@ -436,16 +436,32 @@ void _tmc_say_sgt(const char name[], const uint32_t sgt) {
       tmc_status(stepperE0, TMC_E0, i, planner.axis_steps_per_mm[E_AXIS]);
     #endif
     #if E1_IS_TRINAMIC
-      tmc_status(stepperE1, TMC_E1, i, planner.axis_steps_per_mm[E_AXIS+1]);
+      tmc_status(stepperE1, TMC_E1, i, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 1
+        #endif
+      ]);
     #endif
     #if E2_IS_TRINAMIC
-      tmc_status(stepperE2, TMC_E2, i, planner.axis_steps_per_mm[E_AXIS+2]);
+      tmc_status(stepperE2, TMC_E2, i, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 2
+        #endif
+      ]);
     #endif
     #if E3_IS_TRINAMIC
-      tmc_status(stepperE3, TMC_E3, i, planner.axis_steps_per_mm[E_AXIS+3]);
+      tmc_status(stepperE3, TMC_E3, i, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 3
+        #endif
+      ]);
     #endif
     #if E4_IS_TRINAMIC
-      tmc_status(stepperE4, TMC_E4, i, planner.axis_steps_per_mm[E_AXIS+4]);
+      tmc_status(stepperE4, TMC_E4, i, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 4
+        #endif
+      ]);
     #endif
 
     SERIAL_EOL();
@@ -565,5 +581,44 @@ void _tmc_say_sgt(const char name[], const uint32_t sgt) {
   }
 
 #endif // SENSORLESS_HOMING
+
+#if ENABLED(HAVE_TMC2130)
+  #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
+  void tmc_init_cs_pins() {
+    #if ENABLED(X_IS_TMC2130)
+      SET_CS_PIN(X);
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      SET_CS_PIN(Y);
+    #endif
+    #if ENABLED(Z_IS_TMC2130)
+      SET_CS_PIN(Z);
+    #endif
+    #if ENABLED(X2_IS_TMC2130)
+      SET_CS_PIN(X2);
+    #endif
+    #if ENABLED(Y2_IS_TMC2130)
+      SET_CS_PIN(Y2);
+    #endif
+    #if ENABLED(Z2_IS_TMC2130)
+      SET_CS_PIN(Z2);
+    #endif
+    #if ENABLED(E0_IS_TMC2130)
+      SET_CS_PIN(E0);
+    #endif
+    #if ENABLED(E1_IS_TMC2130)
+      SET_CS_PIN(E1);
+    #endif
+    #if ENABLED(E2_IS_TMC2130)
+      SET_CS_PIN(E2);
+    #endif
+    #if ENABLED(E3_IS_TMC2130)
+      SET_CS_PIN(E3);
+    #endif
+    #if ENABLED(E4_IS_TMC2130)
+      SET_CS_PIN(E4);
+    #endif
+  }
+#endif // HAVE_TMC2130
 
 #endif // HAS_TRINAMIC

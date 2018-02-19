@@ -170,6 +170,7 @@ extern "C" {
 #endif
 void HAL_idletask(void);
 void HAL_init(void);
+char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s);
 #ifdef __cplusplus
 }
 #endif

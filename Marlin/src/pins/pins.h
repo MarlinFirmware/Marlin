@@ -132,6 +132,8 @@
   #include "pins_BQ_ZUM_MEGA_3D.h"    // ATmega2560
 #elif MB(MAKEBOARD_MINI)
   #include "pins_MAKEBOARD_MINI.h"    // ATmega2560
+#elif MB(TRIGORILLA)
+  #include "pins_TRIGORILLA.h"        // ATmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -197,6 +199,8 @@
   #include "pins_MELZI_MALYAN.h"      // ATmega644P, ATmega1284P
 #elif MB(CREALITY_ENDER)
   #include "pins_CREALITY_ENDER.h"    // ATmega1284P
+#elif MB(MELZI_TRONXY)
+  #include "pins_MELZI_TRONXY.h"      // ATmega644P, ATmega1284P
 #elif MB(STB_11)
   #include "pins_STB_11.h"            // ATmega644P, ATmega1284P
 #elif MB(AZTEEG_X1)
@@ -341,6 +345,12 @@
   #include "pins_BIQU_BQ111_A4.h"
 #elif MB(THE_BORG)
   #include "pins_THE_BORG.h"
+#elif MB(SELENA_COMPACT)
+  #include "pins_SELENA_COMPACT.h"
+#elif MB(COHESION3D_REMIX)
+  #include "pins_COHESION3D_REMIX.h"
+#elif MB(COHESION3D_MINI)
+  #include "pins_COHESION3D_MINI.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
@@ -517,6 +527,9 @@
 #ifndef SDPOWER
   #define SDPOWER -1
 #endif
+#ifndef SDSS
+  #define SDSS -1
+#endif
 #ifndef LED_PIN
   #define LED_PIN -1
 #endif
@@ -537,20 +550,40 @@
 //
 // Assign auto fan pins if needed
 //
-#if !defined(E0_AUTO_FAN_PIN) && defined(ORIG_E0_AUTO_FAN_PIN)
-  #define E0_AUTO_FAN_PIN ORIG_E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #ifdef ORIG_E0_AUTO_FAN_PIN
+    #define E0_AUTO_FAN_PIN ORIG_E0_AUTO_FAN_PIN
+  #else
+    #define E0_AUTO_FAN_PIN -1
+  #endif
 #endif
-#if !defined(E1_AUTO_FAN_PIN) && defined(ORIG_E1_AUTO_FAN_PIN)
-  #define E1_AUTO_FAN_PIN ORIG_E1_AUTO_FAN_PIN
+#ifndef E1_AUTO_FAN_PIN
+  #ifdef ORIG_E1_AUTO_FAN_PIN
+    #define E1_AUTO_FAN_PIN ORIG_E1_AUTO_FAN_PIN
+  #else
+    #define E1_AUTO_FAN_PIN -1
+  #endif
 #endif
-#if !defined(E2_AUTO_FAN_PIN) && defined(ORIG_E2_AUTO_FAN_PIN)
-  #define E2_AUTO_FAN_PIN ORIG_E2_AUTO_FAN_PIN
+#ifndef E2_AUTO_FAN_PIN
+  #ifdef ORIG_E2_AUTO_FAN_PIN
+    #define E2_AUTO_FAN_PIN ORIG_E2_AUTO_FAN_PIN
+  #else
+    #define E2_AUTO_FAN_PIN -1
+  #endif
 #endif
-#if !defined(E3_AUTO_FAN_PIN) && defined(ORIG_E3_AUTO_FAN_PIN)
-  #define E3_AUTO_FAN_PIN ORIG_E3_AUTO_FAN_PIN
+#ifndef E3_AUTO_FAN_PIN
+  #ifdef ORIG_E3_AUTO_FAN_PIN
+    #define E3_AUTO_FAN_PIN ORIG_E3_AUTO_FAN_PIN
+  #else
+    #define E3_AUTO_FAN_PIN -1
+  #endif
 #endif
-#if !defined(E4_AUTO_FAN_PIN) && defined(ORIG_E4_AUTO_FAN_PIN)
-  #define E4_AUTO_FAN_PIN ORIG_E4_AUTO_FAN_PIN
+#ifndef E4_AUTO_FAN_PIN
+  #ifdef ORIG_E4_AUTO_FAN_PIN
+    #define E4_AUTO_FAN_PIN ORIG_E4_AUTO_FAN_PIN
+  #else
+    #define E4_AUTO_FAN_PIN -1
+  #endif
 #endif
 
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!

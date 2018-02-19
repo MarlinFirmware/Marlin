@@ -19,7 +19,7 @@
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
-#include "include/arduino.h"
+#include "include/Arduino.h"
 #include "pinmapping.h"
 //#include "HAL_timers.h"
 #include "fastio.h"
@@ -130,8 +130,8 @@ extern "C" void GpioDisableInt(const uint32_t port, const uint32_t pin) {
   }
 }
 
-bool isPowerOf2(unsigned int n) {
-  return n == 1 || (n & (n - 1)) == 0;
+constexpr bool isPowerOf2(const uint16_t n) {
+  return IS_POWER_OF_2(n);
 }
 
 #if 0

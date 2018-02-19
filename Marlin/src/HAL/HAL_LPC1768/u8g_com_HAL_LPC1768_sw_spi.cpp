@@ -55,95 +55,44 @@
 
 */
 
-
-
-#if defined (TARGET_LPC1768)
-
+#ifdef TARGET_LPC1768
 
 #include <U8glib.h>
+#include "SoftwareSPI.h"
 
-#include <lpc17xx_pinsel.h>
+#define SPI_SPEED 2  // About 2 MHz
 
-#define LPC_PORT_OFFSET         (0x0020)
-#define LPC_PIN(pin)            (1UL << pin)
-#define LPC_GPIO(port)          ((volatile LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + LPC_PORT_OFFSET * port))
-
-void delayMicroseconds(uint32_t us);
-void pinMode(int16_t pin, uint8_t mode);
-void digitalWrite(int16_t pin, uint8_t pin_status);
-
-
-uint8_t SCK_pin, SCK_port, MOSI_pin, MOSI_port;
-
-#define SPI_SPEED 2  //20: 200KHz 5:750KHz 2:3-4MHz
+static uint8_t SPI_speed = 0;
 
 static void u8g_sw_spi_HAL_LPC1768_shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t val)
 {
-  for (uint8_t i = 0; i < 8; i++) {
-
-    if (val & 0x80)
-      for (uint8_t j = 0; j < SPI_SPEED; j++) {
-        LPC_GPIO(MOSI_port)->FIOSET = LPC_PIN(MOSI_pin);
-        LPC_GPIO(MOSI_port)->FIOSET = LPC_PIN(MOSI_pin);
-        LPC_GPIO(MOSI_port)->FIOSET = LPC_PIN(MOSI_pin);
-      }
-    else
-      for (uint8_t j = 0; j < SPI_SPEED; j++) {
-        LPC_GPIO(MOSI_port)->FIOCLR = LPC_PIN(MOSI_pin);
-        LPC_GPIO(MOSI_port)->FIOCLR = LPC_PIN(MOSI_pin);
-        LPC_GPIO(MOSI_port)->FIOCLR = LPC_PIN(MOSI_pin);
-      }
-
-    for (uint8_t j = 0; j < SPI_SPEED; j++) {
-      LPC_GPIO(SCK_port)->FIOSET = LPC_PIN(SCK_pin);
-      LPC_GPIO(SCK_port)->FIOSET = LPC_PIN(SCK_pin);
-      LPC_GPIO(SCK_port)->FIOSET = LPC_PIN(SCK_pin);
-      LPC_GPIO(SCK_port)->FIOSET = LPC_PIN(SCK_pin);
-      LPC_GPIO(SCK_port)->FIOSET = LPC_PIN(SCK_pin);
-    }
-
-    for (uint8_t j = 0; j < SPI_SPEED; j++) {
-      LPC_GPIO(SCK_port)->FIOCLR = LPC_PIN(SCK_pin);
-      LPC_GPIO(SCK_port)->FIOCLR = LPC_PIN(SCK_pin);
-    }
-    val = val << 1;
-  }
+  swSpiTransfer(val, SPI_speed, clockPin, -1, dataPin);
 }
-
 
 uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
 {
-
-
   switch(msg)
   {
     case U8G_COM_MSG_INIT:
-      #define LPC1768_PIN_PORT(pin) ((uint8_t)((pin >> 5) & 0b111))
-      #define LPC1768_PIN_PIN(pin) ((uint8_t)(pin & 0b11111))
-      SCK_pin = LPC1768_PIN_PIN(u8g->pin_list[U8G_PI_SCK]);
-      SCK_port = LPC1768_PIN_PORT(u8g->pin_list[U8G_PI_SCK]);
-      MOSI_pin = LPC1768_PIN_PIN(u8g->pin_list[U8G_PI_MOSI]);
-      MOSI_port = LPC1768_PIN_PORT(u8g->pin_list[U8G_PI_MOSI]);
-      // As defined by Arduino INPUT(0x0), OUPUT(0x1), INPUT_PULLUP(0x2)
-      #define OUPUT 0x1
-      pinMode(u8g->pin_list[U8G_PI_SCK], OUPUT);
-      pinMode(u8g->pin_list[U8G_PI_MOSI], OUPUT);
-      pinMode(u8g->pin_list[U8G_PI_CS], OUPUT);
-      pinMode(u8g->pin_list[U8G_PI_A0], OUPUT);
-      if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_RESET])  pinMode(u8g->pin_list[U8G_PI_RESET], OUPUT);
-      digitalWrite(u8g->pin_list[U8G_PI_SCK], 0);
-      digitalWrite(u8g->pin_list[U8G_PI_MOSI], 0);
+      u8g_SetPIOutput(u8g, U8G_PI_SCK);
+      u8g_SetPIOutput(u8g, U8G_PI_MOSI);
+      u8g_SetPIOutput(u8g, U8G_PI_CS);
+      u8g_SetPIOutput(u8g, U8G_PI_A0);
+      if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_RESET]) u8g_SetPIOutput(u8g, U8G_PI_RESET);
+      SPI_speed = swSpiInit(SPI_SPEED, u8g->pin_list[U8G_PI_SCK], u8g->pin_list[U8G_PI_MOSI]);
+      u8g_SetPILevel(u8g, U8G_PI_SCK, 0);
+      u8g_SetPILevel(u8g, U8G_PI_MOSI, 0);
       break;
 
     case U8G_COM_MSG_STOP:
       break;
 
     case U8G_COM_MSG_RESET:
-      digitalWrite(u8g->pin_list[U8G_PI_RESET], arg_val);
+      if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_RESET]) u8g_SetPILevel(u8g, U8G_PI_RESET, arg_val);
       break;
 
     case U8G_COM_MSG_CHIP_SELECT:
-      digitalWrite(u8g->pin_list[U8G_PI_CS], !arg_val);
+      u8g_SetPILevel(u8g, U8G_PI_CS, !arg_val);
       break;
 
     case U8G_COM_MSG_WRITE_BYTE:
@@ -170,10 +119,10 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
 
     case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
-      digitalWrite(u8g->pin_list[U8G_PI_A0], arg_val);
+      u8g_SetPILevel(u8g, U8G_PI_A0, arg_val);
       break;
   }
   return 1;
 }
 
-#endif  // TARGET_LPC1768
+#endif // TARGET_LPC1768

@@ -617,6 +617,30 @@
 #endif
 
 /**
+ * Set ENDSTOPPULLDOWNS for active endstop switches
+ */
+#if ENABLED(ENDSTOPPULLDOWNS)
+  #if ENABLED(USE_XMAX_PLUG)
+    #define ENDSTOPPULLDOWN_XMAX
+  #endif
+  #if ENABLED(USE_YMAX_PLUG)
+    #define ENDSTOPPULLDOWN_YMAX
+  #endif
+  #if ENABLED(USE_ZMAX_PLUG)
+    #define ENDSTOPPULLDOWN_ZMAX
+  #endif
+  #if ENABLED(USE_XMIN_PLUG)
+    #define ENDSTOPPULLDOWN_XMIN
+  #endif
+  #if ENABLED(USE_YMIN_PLUG)
+    #define ENDSTOPPULLDOWN_YMIN
+  #endif
+  #if ENABLED(USE_ZMIN_PLUG)
+    #define ENDSTOPPULLDOWN_ZMIN
+  #endif
+#endif
+
+/**
  * Shorthand for pin tests, used wherever needed
  */
 
@@ -692,6 +716,11 @@
 #define E2_IS_TRINAMIC (ENABLED(E2_IS_TMC2130) || ENABLED(E2_IS_TMC2208))
 #define E3_IS_TRINAMIC (ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208))
 #define E4_IS_TRINAMIC (ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208))
+
+// Disable Z axis sensorless homing if a probe is used to home the Z axis
+#if ENABLED(SENSORLESS_HOMING) && HOMING_Z_WITH_PROBE
+  #undef Z_HOMING_SENSITIVITY
+#endif
 
 // Endstops and bed probe
 #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_X2_ENDSTOP(X,MIN) && !IS_Y2_ENDSTOP(X,MIN) && !IS_Z2_OR_PROBE(X,MIN))
@@ -991,7 +1020,7 @@
 /**
  * Set granular options based on the specific type of leveling
  */
-#define UBL_SEGMENTED  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA) || ENABLED(SEGMENT_LEVELED_MOVES)))
+#define UBL_SEGMENTED  (ENABLED(AUTO_BED_LEVELING_UBL) && (ENABLED(DELTA)))
 #define ABL_PLANAR     (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
 #define ABL_GRID       (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
 #define OLDSCHOOL_ABL  (ABL_PLANAR || ABL_GRID)
@@ -1115,9 +1144,9 @@
 #endif
 
 /**
- * VIKI2, miniVIKI, and AZSMZ_12864 require DOGLCD_SCK and DOGLCD_MOSI to be defined.
+ * VIKI2, miniVIKI, AZSMZ_12864, and MKS_12864OLED_SSD1306 require DOGLCD_SCK and DOGLCD_MOSI to be defined.
  */
-#if ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(AZSMZ_12864)
+#if ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(AZSMZ_12864) || ENABLED(MKS_12864OLED_SSD1306)
   #ifndef DOGLCD_SCK
     #define DOGLCD_SCK  SCK_PIN
   #endif

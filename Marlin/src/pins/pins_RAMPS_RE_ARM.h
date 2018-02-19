@@ -68,26 +68,53 @@
 #define X_STEP_PIN         P2_01  // (54)
 #define X_DIR_PIN          P0_11  // (55)
 #define X_ENABLE_PIN       P0_10  // (38)
+#ifndef X_CS_PIN
+  #define X_CS_PIN         P1_01  // ETH
+#endif
 
 #define Y_STEP_PIN         P2_02  // (60)
 #define Y_DIR_PIN          P0_20  // (61)
 #define Y_ENABLE_PIN       P0_19  // (56)
+#ifndef Y_CS_PIN
+  #define Y_CS_PIN         P1_04  // ETH
+#endif
 
 #define Z_STEP_PIN         P2_03  // (46)
 #define Z_DIR_PIN          P0_22  // (48)
 #define Z_ENABLE_PIN       P0_21  // (62)
+#ifndef Z_CS_PIN
+  #define Z_CS_PIN         P1_10  // ETH
+#endif
 
 #define E0_STEP_PIN        P2_00  // (26)
 #define E0_DIR_PIN         P0_05  // (28)
 #define E0_ENABLE_PIN      P0_04  // (24)
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN        P1_14  // ETH
+#endif
 
 #define E1_STEP_PIN        P2_08  // (36)
 #define E1_DIR_PIN         P2_13  // (34)
 #define E1_ENABLE_PIN      P4_29  // (30)
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN        -1
+#endif
 
-#define E2_STEP_PIN        P2_08  // (36)
-#define E2_DIR_PIN         P2_13  // (34)
-#define E2_ENABLE_PIN      P4_29  // (30)
+//#define E2_STEP_PIN        P2_08  // (36)
+//#define E2_DIR_PIN         P2_13  // (34)
+//#define E2_ENABLE_PIN      P4_29  // (30)
+//#ifndef E2_CS_PIN
+//  #define E2_CS_PIN        -1
+//#endif
+
+//
+// Software SPI pins for TMC2130 stepper drivers
+//
+#if ENABLED(TMC_USE_SW_SPI)
+  #define TMC_SW_MOSI      P1_00  // ETH
+  #define TMC_SW_MISO      P1_08  // ETH
+  #define TMC_SW_SCK       P1_09  // ETH
+#endif
 
 //
 // Temperature Sensors
@@ -163,18 +190,21 @@
 #endif
 
 #ifndef FAN_PIN
-  #define FAN_PIN         P1_18 // (4) IO pin. Buffer needed
+  #define FAN_PIN         P1_18  // (4) IO pin. Buffer needed
 #endif
 
 //
 // Misc. Functions
 //
-#define LED_PIN           P4_28 // (13)
+#define LED_PIN           P4_28  // (13)
+#define SDSS              P1_23  // (53)
 
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-#define FIL_RUNOUT_PIN    P1_18  // (4)
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN  P1_18  // (4)
+#endif
 
-#define PS_ON_PIN         P2_12 // (12)
+#define PS_ON_PIN         P2_12  // (12)
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
   #if !defined(NUM_SERVOS) || NUM_SERVOS < 4 // try to use servo connector
@@ -199,8 +229,10 @@
 //
 // Průša i3 MK2 Multiplexer Support
 //
-#define E_MUX0_PIN         P0_03   // ( 0) Z_CS_PIN
-#define E_MUX1_PIN         P0_02   // ( 1) E0_CS_PIN
+#if SERIAL_PORT != 0 && SERIAL_PORT_2 != 0
+  #define E_MUX0_PIN         P0_03   // ( 0) Z_CS_PIN
+  #define E_MUX1_PIN         P0_02   // ( 1) E0_CS_PIN
+#endif
 #define E_MUX2_PIN         P0_26   // (63) E1_CS_PIN
 
 /**

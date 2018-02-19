@@ -132,32 +132,40 @@
  */
 void GcodeSuite::G29() {
 
+  #if ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(PROBE_MANUALLY)
+    const bool seenQ = parser.seen('Q');
+  #else
+    constexpr bool seenQ = false;
+  #endif
+
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    const bool query = parser.seen('Q');
     const uint8_t old_debug_flags = marlin_debug_flags;
-    if (query) marlin_debug_flags |= DEBUG_LEVELING;
+    if (seenQ) marlin_debug_flags |= DEBUG_LEVELING;
     if (DEBUGGING(LEVELING)) {
       DEBUG_POS(">>> G29", current_position);
       log_machine_info();
     }
     marlin_debug_flags = old_debug_flags;
     #if DISABLED(PROBE_MANUALLY)
-      if (query) return;
+      if (seenQ) return;
     #endif
   #endif
 
   #if ENABLED(PROBE_MANUALLY)
-    const bool seenA = parser.seen('A'), seenQ = parser.seen('Q'), no_action = seenA || seenQ;
+    const bool seenA = parser.seen('A');
+  #else
+    constexpr bool seenA = false;
   #endif
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY)
-    const bool faux = parser.boolval('C');
-  #elif ENABLED(PROBE_MANUALLY)
-    const bool faux = no_action;
-  #else
-    bool constexpr faux = false;
-  #endif
+  const bool  no_action = seenA || seenQ,
+              faux =
+                #if ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY)
+                  parser.boolval('C')
+                #else
+                  no_action
+                #endif
+              ;
 
   // Don't allow auto-leveling without homing first
   if (axis_unhomed_error()) return;
@@ -252,7 +260,8 @@ void GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      if (parser.seen('W')) {
+      const bool seen_w = parser.seen('W');
+      if (seen_w) {
         if (!leveling_is_valid()) {
           SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM("No bilinear grid");
@@ -290,10 +299,14 @@ void GcodeSuite::G29() {
         return;
       } // parser.seen('W')
 
+    #else
+
+      constexpr bool seen_w = false;
+
     #endif
 
     // Jettison bed leveling data
-    if (parser.seen('J')) {
+    if (!seen_w && parser.seen('J')) {
       reset_bed_level();
       return;
     }
@@ -320,8 +333,12 @@ void GcodeSuite::G29() {
       abl_grid_points_y = parser.intval('Y', GRID_MAX_POINTS_Y);
       if (parser.seenval('P')) abl_grid_points_x = abl_grid_points_y = parser.value_int();
 
-      if (abl_grid_points_x < 2 || abl_grid_points_y < 2) {
-        SERIAL_PROTOCOLLNPGM("?Number of probe points is implausible (2 minimum).");
+      if (!WITHIN(abl_grid_points_x, 2, GRID_MAX_POINTS_X)) {
+        SERIAL_PROTOCOLLNPGM("?Probe points (X) is implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ").");
+        return;
+      }
+      if (!WITHIN(abl_grid_points_y, 2, GRID_MAX_POINTS_Y)) {
+        SERIAL_PROTOCOLLNPGM("?Probe points (Y) is implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
         return;
       }
 
@@ -388,7 +405,7 @@ void GcodeSuite::G29() {
 
     // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.
-    set_bed_leveling_enabled(false);
+    if (!no_action) set_bed_leveling_enabled(false);
 
     #if HAS_BED_PROBE
       // Deploy the probe. Probe will raise if needed.

@@ -31,17 +31,17 @@
 
 #define defaultVDD     DAC_STEPPER_MAX //was 5000 but differs with internal Vref
 #define BASE_ADDR      0x60
-#define RESET          0B00000110
-#define WAKE           0B00001001
-#define UPDATE         0B00001000
-#define MULTIWRITE     0B01000000
-#define SINGLEWRITE    0B01011000
-#define SEQWRITE       0B01010000
-#define VREFWRITE      0B10000000
-#define GAINWRITE      0B11000000
-#define POWERDOWNWRITE 0B10100000
-#define GENERALCALL    0B00000000
-#define GAINWRITE      0B11000000
+#define RESET          0b00000110
+#define WAKE           0b00001001
+#define UPDATE         0b00001000
+#define MULTIWRITE     0b01000000
+#define SINGLEWRITE    0b01011000
+#define SEQWRITE       0b01010000
+#define VREFWRITE      0b10000000
+#define GAINWRITE      0b11000000
+#define POWERDOWNWRITE 0b10100000
+#define GENERALCALL    0b00000000
+#define GAINWRITE      0b11000000
 
 // This is taken from the original lib, makes it easy to edit if needed
 // DAC_OR_ADDRESS defined in pins_BOARD.h  file

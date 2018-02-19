@@ -20,6 +20,7 @@
  *
  */
 
+// R25 = 100 kOhm, beta25 = 4092 K, 1 kOhm pull-up,
 // 100k EPCOS (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
 // Verified by linagee.
 // Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance

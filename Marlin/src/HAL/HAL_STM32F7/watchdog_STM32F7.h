@@ -23,7 +23,7 @@
 #ifndef WATCHDOG_STM32F7_H
 #define WATCHDOG_STM32F7_H
 
-#include "../../../src/inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 extern IWDG_HandleTypeDef hiwdg;
 
