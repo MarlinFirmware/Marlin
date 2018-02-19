@@ -617,6 +617,30 @@
 #endif
 
 /**
+ * Set ENDSTOPPULLDOWNS for active endstop switches
+ */
+#if ENABLED(ENDSTOPPULLDOWNS)
+  #if ENABLED(USE_XMAX_PLUG)
+    #define ENDSTOPPULLDOWN_XMAX
+  #endif
+  #if ENABLED(USE_YMAX_PLUG)
+    #define ENDSTOPPULLDOWN_YMAX
+  #endif
+  #if ENABLED(USE_ZMAX_PLUG)
+    #define ENDSTOPPULLDOWN_ZMAX
+  #endif
+  #if ENABLED(USE_XMIN_PLUG)
+    #define ENDSTOPPULLDOWN_XMIN
+  #endif
+  #if ENABLED(USE_YMIN_PLUG)
+    #define ENDSTOPPULLDOWN_YMIN
+  #endif
+  #if ENABLED(USE_ZMIN_PLUG)
+    #define ENDSTOPPULLDOWN_ZMIN
+  #endif
+#endif
+
+/**
  * Shorthand for pin tests, used wherever needed
  */
 

@@ -71,7 +71,7 @@ extern "C" void delay(const int msec) {
 
 // IO functions
 // As defined by Arduino INPUT(0x0), OUPUT(0x1), INPUT_PULLUP(0x2)
-void pinMode(pin_t pin, uint8_t mode) {
+void pinMode(const pin_t pin, const uint8_t mode) {
   if (!VALID_PIN(pin)) return;
 
   PINSEL_CFG_Type config = { LPC1768_PIN_PORT(pin),
@@ -79,23 +79,24 @@ void pinMode(pin_t pin, uint8_t mode) {
                              PINSEL_FUNC_0,
                              PINSEL_PINMODE_TRISTATE,
                              PINSEL_PINMODE_NORMAL };
-  switch(mode) {
-  case INPUT:
-    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
-    PINSEL_ConfigPin(&config);
-    break;
-  case OUTPUT:
-    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(pin));
-    PINSEL_ConfigPin(&config);
-    break;
-  case INPUT_PULLUP:
-    LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
-    config.Pinmode = PINSEL_PINMODE_PULLUP;
-    PINSEL_ConfigPin(&config);
-    break;
-  default:
-    break;
+  switch (mode) {
+    case INPUT:
+      LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
+      break;
+    case OUTPUT:
+      LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(pin));
+      break;
+    case INPUT_PULLUP:
+      LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
+      config.Pinmode = PINSEL_PINMODE_PULLUP;
+      break;
+    case INPUT_PULLDOWN:
+      LPC_GPIO(LPC1768_PIN_PORT(pin))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(pin));
+      config.Pinmode = PINSEL_PINMODE_PULLDOWN;
+      break;
+    default: return;
   }
+  PINSEL_ConfigPin(&config);
 }
 
 void digitalWrite(pin_t pin, uint8_t pin_status) {
@@ -108,13 +109,13 @@ void digitalWrite(pin_t pin, uint8_t pin_status) {
 
   pinMode(pin, OUTPUT);  // Set pin mode on every write (Arduino version does this)
 
-    /**
-     * Must be done AFTER the output state is set. Doing this before will cause a
-     * 2uS glitch if writing a "1".
-     *
-     * When the Port Direction bit is written to a "1" the output is immediately set
-     * to the value of the FIOPIN bit which is "0" because of power up defaults.
-     */
+  /**
+   * Must be done AFTER the output state is set. Doing this before will cause a
+   * 2uS glitch if writing a "1".
+   *
+   * When the Port Direction bit is written to a "1" the output is immediately set
+   * to the value of the FIOPIN bit which is "0" because of power up defaults.
+   */
 }
 
 bool digitalRead(pin_t pin) {
