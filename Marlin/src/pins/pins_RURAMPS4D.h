@@ -104,7 +104,7 @@
 //#define Z2_MS2_PIN         ? // shared with E3_MS2_PIN
 //#define Z2_MS3_PIN         ? // shared with E3_MS3_PIN
 
-#if !ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+#if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define Z_PROBE_PIN      49
 #endif // else Z_PROBE_PIN = Z_MIN_PIN
 
@@ -190,8 +190,9 @@
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD)
-  // RADDS LCD panel
+
   #if ENABLED(RADDS_DISPLAY) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+
     #define LCD_PINS_RS     63
     #define LCD_PINS_ENABLE 64
     #define LCD_PINS_D4     48
@@ -208,6 +209,7 @@
     #define SD_DETECT_PIN   51
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+
     #define LCD_PINS_RS     52
     #define LCD_PINS_ENABLE 53
     #define LCD_PINS_D4     48
@@ -225,6 +227,7 @@
     #endif
 
   #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
+
     #define BTN_EN1         44
     #define BTN_EN2         42
     #define BTN_ENC         40
@@ -233,14 +236,16 @@
     #define SD_DETECT_PIN   51
 
   #elif ENABLED(SPARK_FULL_GRAPHICS)
+
     //http://doku.radds.org/dokumentation/other-electronics/sparklcd/
-    #error "Oops! SPARK_FULL_GRAPHICS not supported with this board"
+    #error "Oops! SPARK_FULL_GRAPHICS not supported with RURAMPS4D."
     //#define LCD_PINS_D4     29//?
     //#define LCD_PINS_ENABLE 27//?
     //#define LCD_PINS_RS     25//?
     //#define BTN_EN1         35//?
     //#define BTN_EN2         33//?
     //#define BTN_ENC         37//?
+
   #endif // SPARK_FULL_GRAPHICS
 
 #endif // ULTRA_LCD

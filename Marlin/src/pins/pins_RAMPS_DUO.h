@@ -77,6 +77,7 @@
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD)
+
   #if ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
     #undef LCD_PINS_D4
     #define LCD_PINS_D4  68
@@ -89,13 +90,17 @@
   #endif
 
   #if ENABLED(NEWPANEL)
+
     #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+
       #undef BTN_EN1
       #define BTN_EN1 67
 
       #undef BTN_ENC
       #define BTN_ENC 66
+
     #elif ENABLED(MINIPANEL)
+
       #undef DOGLCD_CS
       #define DOGLCD_CS    69
 
@@ -107,7 +112,9 @@
 
       #undef BTN_EN2
       #define BTN_EN2      66
+
     #else
+
       #if ENABLED(REPRAPWORLD_KEYPAD)
         #undef BTN_EN1
         #define BTN_EN1    67 // encoder
@@ -119,5 +126,7 @@
         #define BTN_EN2    66 // AUX2 PIN 4
       #endif
     #endif
+
   #endif // NEWPANEL
+
 #endif // ULTRA_LCD

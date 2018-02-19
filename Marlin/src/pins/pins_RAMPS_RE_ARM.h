@@ -100,12 +100,12 @@
   #define E1_CS_PIN        -1
 #endif
 
-#define E2_STEP_PIN        P2_08  // (36)
-#define E2_DIR_PIN         P2_13  // (34)
-#define E2_ENABLE_PIN      P4_29  // (30)
-#ifndef E2_CS_PIN
-  #define E2_CS_PIN        -1
-#endif
+//#define E2_STEP_PIN        P2_08  // (36)
+//#define E2_DIR_PIN         P2_13  // (34)
+//#define E2_ENABLE_PIN      P4_29  // (30)
+//#ifndef E2_CS_PIN
+//  #define E2_CS_PIN        -1
+//#endif
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -197,6 +197,7 @@
 // Misc. Functions
 //
 #define LED_PIN           P4_28 // (13)
+#define SDSS              P1_23 // (53)
 
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
 #define FIL_RUNOUT_PIN    P1_18  // (4)

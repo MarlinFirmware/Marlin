@@ -98,7 +98,7 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
   #define MAX_MESSAGE_LENGTH CHARSIZE * (LCD_WIDTH)
 #endif
 
-char lcd_status_message[MAX_MESSAGE_LENGTH + 1] = WELCOME_MSG;
+char lcd_status_message[MAX_MESSAGE_LENGTH + 1];
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
   uint8_t filename_scroll_pos, filename_scroll_max, filename_scroll_hash;
@@ -2818,7 +2818,10 @@ void kill_screen(const char* lcd_msg) {
         manual_move_offset = 0.0;
         manual_move_axis = (int8_t)NO_AXIS;
 
-        // Set a blocking flag so no new moves can be added until all segments are done
+        // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
+        // move_to_destination. This will cause idle() to be called, which can then call this function while the
+        // previous invocation is being blocked. Modifications to manual_move_offset shouldn't be made while
+        // processing_manual_move is true or the planner will get out of sync.
         processing_manual_move = true;
         prepare_move_to_destination(); // will call set_current_from_destination()
         processing_manual_move = false;
@@ -2930,11 +2933,11 @@ void kill_screen(const char* lcd_msg) {
     }
     encoderPosition = 0;
     if (lcdDrawUpdate) {
-      const float pos = current_position[axis]
+      const float pos = (processing_manual_move ? destination[axis] : current_position[axis]
         #if IS_KINEMATIC
           + manual_move_offset
         #endif
-      ;
+      );
       lcd_implementation_drawedit(name, move_menu_scale >= 0.1 ? ftostr41sign(pos) : ftostr43sign(pos));
     }
   }
@@ -5113,23 +5116,19 @@ void lcd_update() {
       #endif
 
       #if ENABLED(DOGLCD)
-        #if defined(USE_ST7920_LIGHTWEIGHT_UI)
+        #if ENABLED(LIGHTWEIGHT_UI)
           #if ENABLED(ULTIPANEL)
-            bool do_U8G_loop = true;
-            lcd_in_status(currentScreen == lcd_status_screen);
-            if(currentScreen == lcd_status_screen) {
-              lcd_status_screen();
-              do_U8G_loop = false;
-            }
+            const bool in_status = currentScreen == lcd_status_screen;
           #else
-            const bool do_U8G_loop = false;
-            lcd_in_status(true);
-            lcd_status_screen();
+            constexpr bool in_status = true;
           #endif
+          const bool do_u8g_loop = !in_status;
+          lcd_in_status(in_status);
+          if (in_status) lcd_status_screen();
         #else
-          const bool do_U8G_loop = true;
+          constexpr bool do_u8g_loop = true;
         #endif
-        if(do_U8G_loop) {
+        if (do_u8g_loop) {
           if (!drawing_screen) {                        // If not already drawing pages
             u8g.firstPage();                            // Start the first page
             drawing_screen = 1;                         // Flag as drawing pages

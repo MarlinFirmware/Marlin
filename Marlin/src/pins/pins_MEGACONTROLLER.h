@@ -133,6 +133,7 @@
 // LCD / Controller
 //
 #if ENABLED(MINIPANEL)
+
   #define BEEPER_PIN       46
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0        47
@@ -152,6 +153,7 @@
   #define BTN_ENC          10
 
   #define SD_DETECT_PIN    49
+
 #endif // MINIPANEL
 
 //

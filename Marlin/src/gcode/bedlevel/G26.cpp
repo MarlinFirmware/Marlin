@@ -437,8 +437,7 @@ inline bool turn_on_heaters() {
             SERIAL_EOL();
           }
           idle();
-          MYSERIAL0.flush(); // G26 takes a long time to complete. PronterFace may
-                             // overwhelm the serial buffer with M105's without this fix.
+          SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
         }
     #if ENABLED(ULTRA_LCD)
       }
@@ -461,10 +460,7 @@ inline bool turn_on_heaters() {
       SERIAL_EOL();
     }
     idle();
-
-    MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
-                       // over run the serial character buffer with M105's without
-                       // this fix
+    SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
   }
 
   #if ENABLED(ULTRA_LCD)
@@ -590,8 +586,8 @@ void GcodeSuite::G26() {
 
   if (parser.seenval('B')) {
     g26_bed_temp = parser.value_celsius();
-    if (!WITHIN(g26_bed_temp, 15, 140)) {
-      SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible.");
+    if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, 140)) {
+      SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible (40-140C).");
       return;
     }
   }
@@ -741,14 +737,19 @@ void GcodeSuite::G26() {
 
   /**
    * Pre-generate radius offset values at 30 degree intervals to reduce CPU load.
-   * All angles are offset by 15 degrees to allow for a smaller table.
    */
-  #define A_CNT ((360 / 30) / 2)
-  #define _COS(A) (trig_table[((A + A_CNT * 8) % A_CNT)] * (A >= A_CNT ? -1 : 1))
-  #define _SIN(A) (-_COS((A + A_CNT / 2) % (A_CNT * 2)))
+  #define A_INT 30
+  #define _ANGS (360 / A_INT)
+  #define A_CNT (_ANGS / 2)
+  #define _IND(A) ((A + _ANGS * 8) % _ANGS)
+  #define _COS(A) (trig_table[_IND(A) % A_CNT] * (_IND(A) >= A_CNT ? -1 : 1))
+  #define _SIN(A) (-_COS((A + A_CNT / 2) % _ANGS))
+  #if A_CNT & 1
+    #error "A_CNT must be a positive value. Please change A_INT."
+  #endif
   float trig_table[A_CNT];
   for (uint8_t i = 0; i < A_CNT; i++)
-    trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * 30 + 15));
+    trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * A_INT));
 
   mesh_index_pair location;
   do {
@@ -766,32 +767,26 @@ void GcodeSuite::G26() {
       // Determine where to start and end the circle,
       // which is always drawn counter-clockwise.
       const uint8_t xi = location.x_index, yi = location.y_index;
-      const bool f = yi == 0, r = xi == GRID_MAX_POINTS_X - 1, b = yi == GRID_MAX_POINTS_Y - 1;
-      int8_t start_ind = -2, end_ind = 10;  // Assume a full circle (from 4:30 to 4:30)
-      if (xi == 0) {                        // Left edge? Just right half.
-        start_ind = f ?  0 : -3;            // 05:30 (02:30 for front-left)
-        end_ind   = b ? -1 :  2;            // 12:30 (03:30 for back-left)
+        const bool f = yi == 0, r = xi >= GRID_MAX_POINTS_X - 1, b = yi >= GRID_MAX_POINTS_Y - 1;
+        int8_t start_ind = -2, end_ind = 9;  // Assume a full circle (from 5:00 to 5:00)
+      if (xi == 0) {                     // Left edge? Just right half.
+        start_ind = f ? 0 : -3;          //  03:00 to 12:00 for front-left
+        end_ind   = b ? 0 :  2;          //  06:00 to 03:00 for back-left
       }
-      else if (r) {                         // Right edge? Just left half.
-        start_ind = f ? 5 : 3;              // 11:30 (09:30 for front-right)
-        end_ind   = b ? 6 : 8;              // 06:30 (08:30 for back-right)
+      else if (r) {                      // Right edge? Just left half.
+        start_ind = b ? 6 : 3;           //  12:00 to 09:00 for front-right
+        end_ind   = f ? 5 : 8;           //  09:00 to 06:00 for back-right
       }
-      else if (f) {                         // Front edge? Just back half.
-        start_ind = 0;                      // 02:30
-        end_ind   = 5;                      // 09:30
+      else if (f) {                      // Front edge? Just back half.
+        start_ind = 0;                   //  03:00
+        end_ind   = 5;                   //  09:00
       }
-      else if (b) {                         // Back edge? Just front half.
-        start_ind =  6;                     // 08:30
-        end_ind   = 11;                     // 03:30
-      }
-      if (g26_debug_flag) {
-        SERIAL_ECHOPAIR("   Doing circle at: (xi=", xi);
-        SERIAL_ECHOPAIR(", yi=", yi);
-        SERIAL_CHAR(')');
-        SERIAL_EOL();
+      else if (b) {                      // Back edge? Just front half.
+        start_ind =  6;                  //  09:00
+        end_ind   = 11;                  //  03:00
       }
 
-      for (int8_t ind = start_ind; ind < end_ind; ind++) {
+      for (int8_t ind = start_ind; ind <= end_ind; ind++) {
 
         #if ENABLED(NEWPANEL)
           if (user_canceled()) goto LEAVE;          // Check if the user wants to stop the Mesh Validation
@@ -812,28 +807,14 @@ void GcodeSuite::G26() {
           ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
         #endif
 
-        //if (g26_debug_flag) {
-        //  char ccc, *cptr, seg_msg[50], seg_num[10];
-        //  strcpy(seg_msg, "   segment: ");
-        //  strcpy(seg_num, "    \n");
-        //  cptr = (char*) "01234567890ABCDEF????????";
-        //  ccc = cptr[tmp_div_30];
-        //  seg_num[1] = ccc;
-        //  strcat(seg_msg, seg_num);
-        //  debug_current_and_destination(seg_msg);
-        //}
 
         print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);
-        MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
-                           // over run the serial character buffer with M105's without
-                           // this fix
+        SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
       }
       if (look_for_lines_to_connect())
         goto LEAVE;
     }
-    MYSERIAL0.flush(); // G26 takes a long time to complete.   PronterFace can
-                       // over run the serial character buffer with M105's without
-                       // this fix
+    SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
   } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
   LEAVE:
