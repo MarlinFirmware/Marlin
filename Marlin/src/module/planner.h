@@ -424,8 +424,8 @@ class Planner {
       #if ENABLED(LIN_ADVANCE)
         , const float (&target_float)[XYZE]
       #endif
-      , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0);
-    #endif
+      , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+    );
 
     /**
      * Planner::buffer_segment
