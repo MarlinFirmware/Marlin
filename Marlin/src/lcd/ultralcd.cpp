@@ -1383,9 +1383,9 @@ void kill_screen(const char* lcd_msg) {
           case 4: STATIC_ITEM(MSG_MOVE_E " " MSG_E5, true); break;
         #endif	
       }
-      MENU_ITEM(function,MSG_FILAMENT_CHANGE_UNLOAD_2, lcd_unload_extruder);
-      MENU_ITEM(function,MSG_FILAMENT_CHANGE_INSERT_1, lcd_load_extruder);
-      MENU_ITEM(function,MSG_FILAMENT_CHANGE_EXTRUDE_2, lcd_extrude_extruder);	
+      MENU_ITEM(function,MSG_FILAMENTUNLOAD , lcd_unload_extruder);
+      MENU_ITEM(function,MSG_FILAMENTLOAD , lcd_load_extruder);
+      MENU_ITEM(function,MSG_EXTRUDE, lcd_extrude_extruder);	
       if (active_extruder !=0) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E1, lcd_toolchange_extruder_e0);					
       if (active_extruder !=1) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E2, lcd_toolchange_extruder_e1);
       #endif
