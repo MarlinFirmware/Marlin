@@ -129,6 +129,13 @@
   #define E1_CS_PIN        42 //44
 #endif
 
+#define E2_STEP_PIN        36
+#define E2_DIR_PIN         34
+#define E2_ENABLE_PIN      30
+#ifndef E2_CS_PIN
+  #define E2_CS_PIN        44
+#endif
+
 /**
  * Default pins for TMC software SPI
  */
