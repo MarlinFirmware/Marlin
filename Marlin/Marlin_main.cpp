@@ -3867,6 +3867,10 @@ inline void gcode_G4() {
         active_extruder_parked = false;
       #endif
 
+      #if ENABLED(SENSORLESS_HOMING)
+        safe_delay(500); // Short delay needed to settle
+      #endif
+
       do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
       HOMEAXIS(Z);
     }
