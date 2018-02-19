@@ -46,7 +46,7 @@
 typedef uint16_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
-#if defined MCU_STM32F103CB  || defined(MCU_STM32F103C8)
+#if defined(MCU_STM32F103CB) || defined(MCU_STM32F103C8)
   #define STEP_TIMER_NUM 4 // For C8/CB boards, use timer 4
 #else
   #define STEP_TIMER_NUM 5 // for other boards, five is fine.
@@ -82,8 +82,8 @@ typedef uint16_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT() timer_enable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
 #define DISABLE_TEMPERATURE_INTERRUPT() timer_disable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
 
-#define HAL_timer_get_current_count(timer_num) timer_get_count(TIMER_DEV(timer_num))
-#define HAL_timer_set_current_count(timer_num, count) timer_set_count(TIMER_DEV(timer_num), (uint16)count)
+#define HAL_timer_get_count(timer_num) timer_get_count(TIMER_DEV(timer_num))
+#define HAL_timer_set_count(timer_num, count) timer_set_count(TIMER_DEV(timer_num), (uint16)count)
 
 
 #define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
@@ -128,21 +128,21 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
  * Todo: Look at that possibility later.
  */
 
-FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
-  //count = min(count, HAL_TIMER_TYPE_MAX);
+FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
+  //compare = min(compare, HAL_TIMER_TYPE_MAX);
   switch (timer_num) {
   case STEP_TIMER_NUM:
-    timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, count);
+    timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, compare);
     return;
   case TEMP_TIMER_NUM:
-    timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, count);
+    timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, compare);
     return;
   default:
     return;
   }
 }
 
-FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   switch (timer_num) {
   case STEP_TIMER_NUM:
     return timer_get_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN);

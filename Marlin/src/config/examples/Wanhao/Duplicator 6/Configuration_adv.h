@@ -185,7 +185,7 @@
  */
 //#define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
-  //#define CONTROLLER_FAN_PIN FAN1_PIN  // Set a custom pin for the controller fan
+  //#define CONTROLLER_FAN_PIN -1        // Set a custom pin for the controller fan
   #define CONTROLLERFAN_SECS 60          // Duration in seconds for the fan to run after all motors are disabled
   #define CONTROLLERFAN_SPEED 255        // 255 == full speed
 #endif
@@ -362,6 +362,9 @@
 // When G28 is called, this option will make Y home before X
 //#define HOME_Y_BEFORE_X
 
+// Enable this if X or Y can't home without homing the other axis first.
+//#define CODEPENDENT_XY_HOMING
+
 // @section machine
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
@@ -460,7 +463,8 @@
 
 //#define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
 #define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
-// Actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
+// Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
+// These correspond to the physical drivers, so be mindful if the order is changed.
 #define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }  //  AZTEEG_X3_PRO
 
 //===========================================================================
@@ -490,6 +494,9 @@
 
 // The timeout (in ms) to return to the status screen from sub-menus
 #define LCD_TIMEOUT_TO_STATUS 60000
+
+// Add an 'M73' G-code to set the current percentage
+//#define LCD_SET_PROGRESS_MANUALLY
 
 /**
  * LED Control Menu
@@ -580,9 +587,6 @@
     // Add a menu item to test the progress bar:
     //#define LCD_PROGRESS_BAR_TEST
   #endif
-
-  // Add an 'M73' G-code to set the current percentage
-  //#define LCD_SET_PROGRESS_MANUALLY
 
   // This allows hosts to request long names for files and folders with M33
   //#define LONG_FILENAME_HOST_SUPPORT

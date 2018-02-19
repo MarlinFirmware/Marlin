@@ -87,22 +87,22 @@ typedef uint32_t hal_timer_t;
 void HAL_timer_init(void);
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
-FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
+FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
     case 0:
-      LPC_TIM0->MR0 = count;
-      if (LPC_TIM0->TC > count)
-        LPC_TIM0->TC = count - 5; // generate an immediate stepper ISR
+      LPC_TIM0->MR0 = compare;
+      if (LPC_TIM0->TC > compare)
+        LPC_TIM0->TC = compare - 5; // generate an immediate stepper ISR
       break;
     case 1:
-      LPC_TIM1->MR0 = count;
-      if (LPC_TIM1->TC > count)
-        LPC_TIM1->TC = count - 5; // make sure we don't have one extra long period
+      LPC_TIM1->MR0 = compare;
+      if (LPC_TIM1->TC > compare)
+        LPC_TIM1->TC = compare - 5; // make sure we don't have one extra long period
       break;
   }
 }
 
-FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   switch (timer_num) {
     case 0: return LPC_TIM0->MR0;
     case 1: return LPC_TIM1->MR0;
@@ -110,14 +110,14 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   return 0;
 }
 
-FORCE_INLINE static void HAL_timer_set_current_count(const uint8_t timer_num, const hal_timer_t count) {
+FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
   switch (timer_num) {
     case 0: LPC_TIM0->TC = count; break;
     case 1: LPC_TIM1->TC = count; break;
   }
 }
 
-FORCE_INLINE static hal_timer_t HAL_timer_get_current_count(const uint8_t timer_num) {
+FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
     case 0: return LPC_TIM0->TC;
     case 1: return LPC_TIM1->TC;

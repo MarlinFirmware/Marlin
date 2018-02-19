@@ -116,7 +116,6 @@
 #define BOARD_MELZI_MAKR3D      66    // Melzi with ATmega1284 (MaKr3d version)
 #define BOARD_MELZI_CREALITY    89    // Melzi Creality3D board (for CR-10 etc)
 #define BOARD_MELZI_MALYAN      92    // Melzi Malyan M150 board
-#define BOARD_CREALITY_ENDER    601   // Creality Ender
 #define BOARD_MELZI_TRONXY      505   // Tronxy X5S
 #define BOARD_STB_11            64    // STB V1.1
 #define BOARD_AZTEEG_X1         65    // Azteeg X1
@@ -202,8 +201,8 @@
 #define BOARD_TEENSY35_36       841   // Teensy3.5 and Teensy3.6
 #define BOARD_STM32F1R         1800   // STM3R Libmaple based STM32F1 controller
 #define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
-#define BOARD_BEAST            1802  // STM32FxxxVxT6 Libmaple based stm32f4 controller
-#define BOARD_STM3R_MINI       1803  // STM32 Libmaple based stm32f1 controller
+#define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
+#define BOARD_STM3R_MINI       1803   // STM32 Libmaple based stm32f1 controller
 
 //
 // ARM Cortex M7

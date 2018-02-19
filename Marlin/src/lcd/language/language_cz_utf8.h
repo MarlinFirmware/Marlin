@@ -238,6 +238,8 @@
 #define MSG_FILAMENT                        _UxGT("Filament")
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E na mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Prum.")
+#define MSG_FILAMENT_UNLOAD                 _UxGT("Vysunout mm")
+#define MSG_FILAMENT_LOAD                   _UxGT("Zavést mm")
 #define MSG_ADVANCE_K                       _UxGT("K pro posun")
 #define MSG_CONTRAST                        _UxGT("Kontrast LCD")
 #define MSG_STORE_EEPROM                    _UxGT("Uložit nastavení")
@@ -271,6 +273,10 @@
 #define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V")
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Vyměnit filament")
+#define MSG_FILAMENTLOAD                    _UxGT("Zavést filament")
+#define MSG_FILAMENTUNLOAD                  _UxGT("Vysunout filament")
+#define MSG_FILAMENTUNLOAD_ALL              _UxGT("Vysunout vše")
+
 #define MSG_INIT_SDCARD                     _UxGT("Načíst SD kartu")
 #define MSG_CNG_SDCARD                      _UxGT("Vyměnit SD kartu")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z mimo podl")
@@ -351,10 +357,16 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Buzení motorů")
 #define MSG_DAC_PERCENT                     _UxGT("Motor %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Uložit do EEPROM")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("TISK POZASTAVEN")
+#define MSG_FILAMENT_CHANGE_HEADER_LOAD     _UxGT("ZAVEDENÍ FILAMENTU")
+#define MSG_FILAMENT_CHANGE_HEADER_UNLOAD   _UxGT("VYSUNUTÍ FILAMENTU")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("MOŽNOSTI OBNOVENÍ:")
+#define MSG_FILAMENT_CHANGE_OPTION_PURGE    _UxGT("Vytlačit víc")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Obnovit tisk")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Tryska: ")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Parkování selhalo")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Kalibrace selhala")
+#define MSG_M600_TOO_COLD                   _UxGT("M600: Moc studený")
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
@@ -374,6 +386,8 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Čekejte prosím")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("na zavedení")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("filamentu")
+  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Vyčkejte na")
+  #define MSG_FILAMENT_CHANGE_PURGE_2         _UxGT("vytlačení")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Čekejte prosím")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("na pokračování")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("tisku")
@@ -384,6 +398,7 @@
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vložte, klikněte")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Nahřívání...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Zavádění...")
+  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Vytlačování...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Pokračování...")
 #endif // LCD_HEIGHT < 4
 

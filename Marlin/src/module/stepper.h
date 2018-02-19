@@ -108,7 +108,7 @@ class Stepper {
                                                  // i.e., the current amount of pressure applied
                                                  // to the spring (=filament).
     #else
-      #define _NEXT_ISR(T) HAL_timer_set_count(STEP_TIMER_NUM, T);
+      #define _NEXT_ISR(T) HAL_timer_set_compare(STEP_TIMER_NUM, T);
     #endif // LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
