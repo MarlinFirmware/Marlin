@@ -1180,9 +1180,4 @@
     #define NOZZLE_PARK_Z_FEEDRATE NOZZLE_PARK_XY_FEEDRATE
   #endif
 
-  #if ENABLED(Z_SAFE_HOMING)
-    #ifndef Z_SAFE_HOMING_DELAY
-      #define Z_SAFE_HOMING_DELAY 0
-    #endif
-  #endif
 #endif // CONDITIONALS_POST_H
