@@ -268,9 +268,11 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
   draw_gdram_icon(1,1,nozzle_icon);
   #if EXTRUDERS == 2
   draw_gdram_icon(1,2,nozzle_icon);
+  draw_gdram_icon(1,3,bed_icon);
+  #else
+  draw_gdram_icon(1,2,bed_icon);
   #endif
   draw_gdram_icon(6,2,feedrate_icon);
-  draw_gdram_icon(1,2,bed_icon);
 
   // Draw the initial fan icon
   draw_fan_icon(false);
