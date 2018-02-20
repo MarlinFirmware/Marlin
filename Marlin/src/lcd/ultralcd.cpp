@@ -1521,9 +1521,8 @@ void kill_screen(const char* lcd_msg) {
     // Change filament
     //
     #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
-			MENU_ITEM(submenu, MSG_FILAMENTCHANGE , lcd_filament_load_unload_menu);
-		#endif
-    
+      MENU_ITEM(submenu, MSG_FILAMENTCHANGE , lcd_filament_load_unload_menu);
+    #endif    
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         if (thermalManager.targetHotEnoughToExtrude(active_extruder))
@@ -2730,9 +2729,8 @@ void kill_screen(const char* lcd_msg) {
     // Change filament
     //
     #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
-			MENU_ITEM(submenu, MSG_FILAMENTCHANGE , lcd_filament_load_unload_menu);
-		#endif
-    
+      MENU_ITEM(submenu, MSG_FILAMENTCHANGE , lcd_filament_load_unload_menu);
+    #endif    
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       if (!IS_SD_FILE_OPEN) {
         #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
