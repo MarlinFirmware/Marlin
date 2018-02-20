@@ -78,7 +78,7 @@ void write_to_lcd_P(const char * const message) {
   uint8_t message_length = min(strlen_P(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
-    encoded_message[i] = pgm_read_byte(message[i]) | 0x80;
+    encoded_message[i] = pgm_read_byte(message+i) | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
 }
