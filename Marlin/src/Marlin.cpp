@@ -272,6 +272,9 @@ void quickstop_stepper() {
 }
 
 void enable_all_steppers() {
+  #if ENABLED(AUTO_POWER_CONTROL)
+    powerManager.power_on();
+  #endif
   enable_X();
   enable_Y();
   enable_Z();
@@ -409,6 +412,10 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(USE_CONTROLLER_FAN)
     controllerfan_update(); // Check if fan should be turned on to cool stepper drivers down
+  #endif
+
+  #if ENABLED(AUTO_POWER_CONTROL)
+    powerManager.check();
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
