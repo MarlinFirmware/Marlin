@@ -923,7 +923,7 @@ static void lcd_implementation_status_screen() {
     uint8_t rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
-      constexpr uint8_t lcd_width_edit = (LCD_WIDTH) / (DOG_CHAR_WIDTH_EDIT);
+      constexpr uint8_t lcd_width_edit = (LCD_PIXEL_WIDTH) / (DOG_CHAR_WIDTH_EDIT);
 
       uint8_t lcd_width, char_width;
       if (labellen <= lcd_width_edit - 1) {
