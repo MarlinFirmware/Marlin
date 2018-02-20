@@ -152,6 +152,7 @@
 #define PS_ON_PIN          40
 
 #define I2C_EEPROM
+#define E2END 0x2000
 
 //
 // LCD / Controller
