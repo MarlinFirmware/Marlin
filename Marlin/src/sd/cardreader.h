@@ -40,8 +40,6 @@ public:
   // the sd card to some seconds after the normal init, so the
   // device is available soon after a reset.
 
-  int16_t write(const void* buf, const uint16_t& nbyte);
-  int16_t read(void* buf, const uint16_t& nbyte);
   void checkautostart(bool x);
   void openFile(char* name, const bool read, const bool subcall=false);
   void openLogFile(char* name);

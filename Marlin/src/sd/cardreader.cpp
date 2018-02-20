@@ -559,16 +559,6 @@ void CardReader::write_command(char *buf) {
   }
 }
 
-int16_t CardReader::write(const void* buf, const uint16_t& nbyte) {
-    file.writeError = false;
-    if (nbyte == 0) return 0;
-    return file.write(buf, nbyte);
-}
-
-int16_t CardReader::read(void* buf, const uint16_t& nbyte) {
-    return file.read(buf, nbyte);
-}
-
 void CardReader::checkautostart(bool force) {
   if (!force && (!autostart_stilltocheck || PENDING(millis(), next_autostart_ms)))
     return;
