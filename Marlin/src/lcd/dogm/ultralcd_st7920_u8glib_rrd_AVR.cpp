@@ -24,7 +24,6 @@
 // file u8g_dev_st7920_128x64_HAL.cpp for the HAL version.
 
 #include "../../inc/MarlinConfig.h"
-#include <U8glib.h>
 
 #if ENABLED(U8GLIB_ST7920)
 
@@ -40,6 +39,8 @@
 
 #define LCD_PIXEL_WIDTH 128
 #define LCD_PIXEL_HEIGHT 64
+
+#include <U8glib.h>
 
 //set optimization so ARDUINO optimizes this file
 #pragma GCC optimize (3)
