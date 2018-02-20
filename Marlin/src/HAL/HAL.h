@@ -52,6 +52,10 @@
   #define CPU_32_BIT
   #include "math_32bit.h"
   #include "HAL_STM32F7/HAL_STM32F7.h"
+#elif defined(STM32F4)
+  #define CPU_32_BIT
+  #include "math_32bit.h"
+  #include "HAL_STM32F4/HAL_STM32F4.h"  
 #else
   #error "Unsupported Platform!"
 #endif

@@ -203,12 +203,12 @@
 #define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
 #define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM3R_MINI       1803   // STM32 Libmaple based stm32f1 controller
+#define BOARD_ARMED            1804   // STM32F407 based controller (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1, Fan2)
 
 //
 // ARM Cortex M7
 //
 #define BOARD_THE_BORG         1860   // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
-
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 

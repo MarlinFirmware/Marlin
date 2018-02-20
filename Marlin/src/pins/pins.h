@@ -351,6 +351,8 @@
   #include "pins_COHESION3D_REMIX.h"
 #elif MB(COHESION3D_MINI)
   #include "pins_COHESION3D_MINI.h"
+#elif MB(ARMED)
+  #include "pins_ARMED.h"  
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

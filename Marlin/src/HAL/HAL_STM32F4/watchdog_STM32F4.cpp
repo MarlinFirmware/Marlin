@@ -20,30 +20,33 @@
  *
  */
 
-#ifndef HAL_SANITYCHECK_H
+#ifdef STM32F4
 
-#ifdef __AVR__
-  #include "HAL_AVR/SanityCheck_AVR_8_bit.h"
+#include "../../inc/MarlinConfig.h"
 
-  #elif defined(ARDUINO_ARCH_SAM)
-  #include "HAL_DUE/SanityCheck_Due.h"
+#if ENABLED(USE_WATCHDOG)
 
-  #elif IS_32BIT_TEENSY
-  #include "HAL_TEENSY35_36/SanityCheck_Teensy_35_36.h"
+  #include "watchdog_STM32F4.h"
 
-  #elif defined(TARGET_LPC1768)
-  #include "HAL_LPC1768/SanityCheck_Re_ARM.h"
+  IWDG_HandleTypeDef hiwdg;
 
-  #elif defined(__STM32F1__)
-    #include "HAL_STM32F1/SanityCheck_Stm32f1.h"
+  void watchdog_init() {
+    hiwdg.Instance = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_32; //32kHz LSI clock and 32x prescalar = 1024Hz IWDG clock
+    hiwdg.Init.Reload = 4095;           //4095 counts = 4 seconds at 1024Hz
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK) {
+      //Error_Handler();
+    }
+  }
 
-  #elif defined(STM32F7)
-    #include "HAL_STM32F7/SanityCheck_STM32F7.h"
-    
-  #elif defined(STM32F4)
-    #include "HAL_STM32F4/SanityCheck_STM32F4.h"
-#else
-  #error Unsupported Platform!
-#endif
+  void watchdog_reset() {
+    /* Refresh IWDG: reload counter */
+    if (HAL_IWDG_Refresh(&hiwdg) != HAL_OK) {
+      /* Refresh Error */
+      //Error_Handler();
+    }
+  }
 
-#endif
+#endif // USE_WATCHDOG
+
+#endif // STM32F4
