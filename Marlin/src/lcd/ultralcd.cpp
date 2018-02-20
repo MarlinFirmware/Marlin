@@ -1369,26 +1369,29 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_MAIN);     					
       if (!thermalManager.tooColdToExtrude(active_extruder)) {																				
-      #if EXTRUDERS > 1										
-        switch (active_extruder) {
-        case 0: STATIC_ITEM(MSG_MOVE_E " " MSG_E1, true); break;
-        case 1: STATIC_ITEM(MSG_MOVE_E " " MSG_E2, true); break;
-        #if EXTRUDERS > 2
-          case 2: STATIC_ITEM(MSG_MOVE_E " " MSG_E3, true); break;
-        #endif
-        #if EXTRUDERS > 3
-          case 3: STATIC_ITEM(MSG_MOVE_E " " MSG_E4, true); break;
-        #endif
-        #if EXTRUDERS > 4
-          case 4: STATIC_ITEM(MSG_MOVE_E " " MSG_E5, true); break;
-        #endif	
+        #if EXTRUDERS > 1										
+          switch (active_extruder) {
+            case 0: STATIC_ITEM(MSG_MOVE_E " " MSG_E1, true); break;
+            case 1: STATIC_ITEM(MSG_MOVE_E " " MSG_E2, true); break;
+            #if EXTRUDERS > 2
+              case 2: STATIC_ITEM(MSG_MOVE_E " " MSG_E3, true); break;
+            #endif
+            #if EXTRUDERS > 3
+              case 3: STATIC_ITEM(MSG_MOVE_E " " MSG_E4, true); break;
+            #endif
+            #if EXTRUDERS > 4
+              case 4: STATIC_ITEM(MSG_MOVE_E " " MSG_E5, true); break;
+            #endif	
+          }
+        #endif      
+        MENU_ITEM(function,MSG_FILAMENTUNLOAD , lcd_unload_extruder);
+        MENU_ITEM(function,MSG_FILAMENTLOAD , lcd_load_extruder);
+        MENU_ITEM(function,MSG_EXTRUDE, lcd_extrude_extruder);
       }
-      MENU_ITEM(function,MSG_FILAMENTUNLOAD , lcd_unload_extruder);
-      MENU_ITEM(function,MSG_FILAMENTLOAD , lcd_load_extruder);
-      MENU_ITEM(function,MSG_EXTRUDE, lcd_extrude_extruder);	
-      if (active_extruder !=0) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E1, lcd_toolchange_extruder_e0);					
-      if (active_extruder !=1) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E2, lcd_toolchange_extruder_e1);
-      #endif
+      #if EXTRUDERS > 1	      
+        if (active_extruder !=0) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E1, lcd_toolchange_extruder_e0);					
+        if (active_extruder !=1) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E2, lcd_toolchange_extruder_e1);
+      #endif      
       #if EXTRUDERS > 2
         if (active_extruder !=2) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E3, lcd_toolchange_extruder_e2);
       #endif
@@ -1397,11 +1400,9 @@ void kill_screen(const char* lcd_msg) {
       #endif
       #if EXTRUDERS > 4
         if (active_extruder !=4) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E5, lcd_toolchange_extruder_e4);
-      #endif										
-    }
-    else STATIC_ITEM(MSG_ERR_MINTEMP, true);
-    END_MENU();
-  }		
+      #endif
+      END_MENU();
+    }		
 #endif //LCD_FILAMENT_LOAD_UNLOAD_MENU
 
   /**
