@@ -149,7 +149,6 @@ extern "C" {
 #define _CAT(a, ...) a ## __VA_ARGS__
 #define HAL_timer_set_compare(timer, compare) (_CAT(TIMER_OCR_, timer) = compare)
 #define HAL_timer_get_compare(timer) _CAT(TIMER_OCR_, timer)
-#define HAL_timer_set_count(timer, count) (_CAT(TIMER_COUNTER_, timer) = count)
 #define HAL_timer_get_count(timer) _CAT(TIMER_COUNTER_, timer)
 
 #define HAL_timer_isr_prologue(timer_num)
