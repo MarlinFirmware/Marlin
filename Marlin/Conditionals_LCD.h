@@ -196,14 +196,16 @@
    * I2C PANELS
    */
 
-  #if ENABLED(LCD_I2C_SAINSMART_YWROBOT)
-
-    // Note: This controller requires F.Malpartida's LiquidCrystal_I2C library
-    // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home
+  #if ENABLED(LCD_SAINSMART_I2C_1602) || ENABLED(LCD_SAINSMART_I2C_2004)
 
     #define LCD_I2C_TYPE_PCF8575
     #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
-    #define ULTIPANEL
+    #define ULTRA_LCD
+
+    #if ENABLED(LCD_SAINSMART_I2C_2004)
+      #define LCD_WIDTH 20
+      #define LCD_HEIGHT 4
+    #endif
 
   #elif ENABLED(LCD_I2C_PANELOLU2)
 
@@ -211,7 +213,7 @@
 
     #define LCD_I2C_TYPE_MCP23017
     #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
-    #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
+    #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (optional)
     #define ULTIPANEL
 
   #elif ENABLED(LCD_I2C_VIKI)
@@ -226,7 +228,7 @@
      */
     #define LCD_I2C_TYPE_MCP23017
     #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
-    #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
+    #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
     #define ULTIPANEL
 
     #define ENCODER_FEEDRATE_DEADZONE 4

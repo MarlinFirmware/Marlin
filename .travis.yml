@@ -299,10 +299,10 @@ script:
   # Most I2C configurations are failing at the moment because they require
   # a different Liquid Crystal library "LiquidTWI2".
   #
-  # LCD_I2C_SAINSMART_YWROBOT
+  # LCD_SAINSMART_I2C_1602
   #
   #- restore_configs
-  #- opt_enable LCD_I2C_SAINSMART_YWROBOT
+  #- opt_enable LCD_SAINSMART_I2C_1602
   #- build_marlin
   #
   # LCD_I2C_PANELOLU2
