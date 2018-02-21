@@ -95,13 +95,6 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   return 0;
 }
 
-FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
-  switch (timer_num) {
-    case 0: FTM0_CNT = count;
-    case 1: FTM1_CNT = count;
-  }
-}
-
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
     case 0: return FTM0_CNT;
