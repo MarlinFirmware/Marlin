@@ -281,13 +281,23 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
     void lcd_custom_bootscreen() {
+      constexpr u8g_uint_t left = (LCD_PIXEL_WIDTH  - (CUSTOM_BOOTSCREEN_BMPWIDTH)) / 2,
+                           top = (LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2,
+                           right = left + CUSTOM_BOOTSCREEN_BMPWIDTH,
+                           bottom = top + CUSTOM_BOOTSCREEN_BMPHEIGHT;
       u8g.firstPage();
       do {
         u8g.drawBitmapP(
-          (LCD_PIXEL_WIDTH  - (CUSTOM_BOOTSCREEN_BMPWIDTH))  / 2,
-          (LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2,
+          left, top,
           CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, custom_start_bmp
         );
+        #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
+          u8g.setColorIndex(1);
+          if (top) u8g.drawBox(0, 0, LCD_PIXEL_WIDTH, top);
+          if (left) u8g.drawBox(0, top, left, CUSTOM_BOOTSCREEN_BMPHEIGHT);
+          if (right < LCD_PIXEL_WIDTH) u8g.drawBox(right, top, LCD_PIXEL_WIDTH - right, CUSTOM_BOOTSCREEN_BMPHEIGHT);
+          if (bottom < LCD_PIXEL_HEIGHT) u8g.drawBox(0, bottom, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT - bottom);
+        #endif
       } while (u8g.nextPage());
       safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
     }
