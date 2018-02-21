@@ -288,7 +288,7 @@
          * UBL_Z_RAISE_WHEN_OFF_MESH is specified, that value is returned.
          */
         #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
-          if (!WITHIN(rx0, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(ry0, 0, GRID_MAX_POINTS_Y - 1))
+          if (!WITHIN(rx0, MESH_MIN_X, MESH_MAX_X) || !WITHIN(ry0, MESH_MIN_Y, MESH_MAX_Y))
             return UBL_Z_RAISE_WHEN_OFF_MESH;
         #endif
 
