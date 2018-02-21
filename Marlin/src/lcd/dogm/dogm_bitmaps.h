@@ -134,7 +134,7 @@
   // This file must define STATUS_SCREENWIDTH and status_screen{0,1}_bmp.
   // It can also define STATUS_SCREEN_X, STATUS_SCREEN_{BED,FAN}_TEXT_X and
   // STATUS_SCREEN_HOTEND_TEXT_X(i) to modify draw locations.
-  #include "_Statusscreen.h"
+  #include "../../_Statusscreen.h"
 
 #elif HAS_TEMP_BED
 
