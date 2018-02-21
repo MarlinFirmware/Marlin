@@ -49,7 +49,7 @@ class ST7920_Lite_Status_Screen {
     static void write_str(const char *str, const uint8_t len);
     static void write_str_P(const char * const str);
     static void write_str(progmem_str str);
-    static void write_number(const uint8_t value, const uint8_t digits=3);
+    static void write_number(const int16_t value, const uint8_t digits=3);
 
     static void _extended_function_set(const bool extended, const bool graphics);
     static void _scroll_or_addr_select(const bool sa);
@@ -79,9 +79,9 @@ class ST7920_Lite_Status_Screen {
     static void draw_progress_bar(const uint8_t value);
     static void draw_fan_icon(const bool whichIcon);
     static void draw_heat_icon(const bool whichIcon, const bool heating);
-    static void draw_extruder_1_temp(const uint8_t temp, const uint8_t target);
-    static void draw_extruder_2_temp(const uint8_t temp, const uint8_t target);
-    static void draw_bed_temp(const uint8_t temp, const uint8_t target);
+    static void draw_extruder_1_temp(const int16_t temp, const int16_t target);
+    static void draw_extruder_2_temp(const int16_t temp, const int16_t target);
+    static void draw_bed_temp(const int16_t temp, const int16_t target);
     static void draw_fan_speed(const uint8_t value);
     static void draw_print_time(const uint32_t elapsed);
     static void draw_feedrate_percentage(const uint8_t percentage);

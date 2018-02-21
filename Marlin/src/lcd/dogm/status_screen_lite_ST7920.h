@@ -85,7 +85,7 @@ void ST7920_Lite_Status_Screen::write_str(progmem_str str) {
   write_str_P((const char*)str);
 }
 
-void ST7920_Lite_Status_Screen::write_number(const uint8_t value, const uint8_t digits/*=3*/) {
+void ST7920_Lite_Status_Screen::write_number(const int16_t value, const uint8_t digits/*=3*/) {
   char str[7];
   const char *fmt;
   switch (digits) {
@@ -482,7 +482,7 @@ void ST7920_Lite_Status_Screen::draw_heat_icon(const bool whichIcon, const bool 
 
 #define FAR(a,b) (((a > b) ? (a-b) : (b-a)) > 1)
 
-void ST7920_Lite_Status_Screen::draw_extruder_1_temp(const uint8_t temp, const uint8_t target) {
+void ST7920_Lite_Status_Screen::draw_extruder_1_temp(const int16_t temp, const int16_t target) {
   set_ddram_address(DDRAM_LINE_1 + 1);
   begin_data();
   write_number(temp);
@@ -494,7 +494,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_1_temp(const uint8_t temp, const u
     write_str(F("    "));
 }
 
-void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const uint8_t temp, const uint8_t target) {
+void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const int16_t temp, const int16_t target) {
   set_ddram_address(DDRAM_LINE_2 + 1);
   begin_data();
   write_number(temp);
@@ -506,7 +506,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const uint8_t temp, const u
     write_str(F("    "));
 }
 
-void ST7920_Lite_Status_Screen::draw_bed_temp(const uint8_t temp, const uint8_t target) {
+void ST7920_Lite_Status_Screen::draw_bed_temp(const int16_t temp, const int16_t target) {
   set_ddram_address(
     #if EXTRUDERS == 1
       DDRAM_LINE_2 + 1
