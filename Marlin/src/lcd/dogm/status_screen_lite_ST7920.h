@@ -60,7 +60,6 @@ void ST7920_Lite_Status_Screen::cmd(const uint8_t cmd) {
 }
 
 void ST7920_Lite_Status_Screen::begin_data() {
-  extended_function_set(false);
   if (!current_bits.synced || current_bits.cmd) {
     current_bits.synced = true;
     current_bits.cmd    = false;
