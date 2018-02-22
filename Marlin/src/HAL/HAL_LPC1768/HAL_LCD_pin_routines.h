@@ -30,18 +30,7 @@
  * resulted in using about about 25% of the CPU's time.
  */
 
-
-
-
-
 void u8g_SetPinOutput(uint8_t internal_pin_number);
-
 void u8g_SetPinInput(uint8_t internal_pin_number);
-
 void u8g_SetPinLevel(uint8_t  pin, uint8_t  pin_status);
-
 uint8_t u8g_GetPinLevel(uint8_t pin);
-
-
-
-

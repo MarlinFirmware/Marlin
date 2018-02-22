@@ -29,16 +29,12 @@
  * one microsecond delay being about 4uS.
  */
 
-
-
 #ifdef __cplusplus
   extern "C" {
 #endif
 
 void U8g_delay(int msec);
-
 void u8g_MicroDelay(void);
-
 void u8g_10MicroDelay(void);
 
 #ifdef __cplusplus

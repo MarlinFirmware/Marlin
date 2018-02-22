@@ -116,9 +116,7 @@ int main(void) {
   LPC1768_PWM_init();
 
   setup();
-  while (true) {
-    loop();
-  }
+  for (;;) loop();
 }
 
 #endif // TARGET_LPC1768
