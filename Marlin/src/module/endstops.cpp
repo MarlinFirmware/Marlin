@@ -73,6 +73,8 @@ void Endstops::init() {
   #if HAS_X_MIN
     #if ENABLED(ENDSTOPPULLUP_XMIN)
       SET_INPUT_PULLUP(X_MIN_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_XMIN)
+      SET_INPUT_PULLDOWN(X_MIN_PIN);
     #else
       SET_INPUT(X_MIN_PIN);
     #endif
@@ -81,6 +83,8 @@ void Endstops::init() {
   #if HAS_X2_MIN
     #if ENABLED(ENDSTOPPULLUP_XMIN)
       SET_INPUT_PULLUP(X2_MIN_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_XMIN)
+      SET_INPUT_PULLDOWN(X2_MIN_PIN);
     #else
       SET_INPUT(X2_MIN_PIN);
     #endif
@@ -89,6 +93,8 @@ void Endstops::init() {
   #if HAS_Y_MIN
     #if ENABLED(ENDSTOPPULLUP_YMIN)
       SET_INPUT_PULLUP(Y_MIN_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_YMIN)
+      SET_INPUT_PULLDOWN(Y_MIN_PIN);
     #else
       SET_INPUT(Y_MIN_PIN);
     #endif
@@ -97,6 +103,8 @@ void Endstops::init() {
   #if HAS_Y2_MIN
     #if ENABLED(ENDSTOPPULLUP_YMIN)
       SET_INPUT_PULLUP(Y2_MIN_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_YMIN)
+      SET_INPUT_PULLDOWN(Y2_MIN_PIN);
     #else
       SET_INPUT(Y2_MIN_PIN);
     #endif
@@ -105,6 +113,8 @@ void Endstops::init() {
   #if HAS_Z_MIN
     #if ENABLED(ENDSTOPPULLUP_ZMIN)
       SET_INPUT_PULLUP(Z_MIN_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_ZMIN)
+      SET_INPUT_PULLDOWN(Z_MIN_PIN);
     #else
       SET_INPUT(Z_MIN_PIN);
     #endif
@@ -113,6 +123,8 @@ void Endstops::init() {
   #if HAS_Z2_MIN
     #if ENABLED(ENDSTOPPULLUP_ZMIN)
       SET_INPUT_PULLUP(Z2_MIN_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_ZMIN)
+      SET_INPUT_PULLDOWN(Z2_MIN_PIN);
     #else
       SET_INPUT(Z2_MIN_PIN);
     #endif
@@ -121,6 +133,8 @@ void Endstops::init() {
   #if HAS_X_MAX
     #if ENABLED(ENDSTOPPULLUP_XMAX)
       SET_INPUT_PULLUP(X_MAX_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_XMAX)
+      SET_INPUT_PULLDOWN(X_MAX_PIN);
     #else
       SET_INPUT(X_MAX_PIN);
     #endif
@@ -129,6 +143,8 @@ void Endstops::init() {
   #if HAS_X2_MAX
     #if ENABLED(ENDSTOPPULLUP_XMAX)
       SET_INPUT_PULLUP(X2_MAX_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_XMAX)
+      SET_INPUT_PULLDOWN(X2_MAX_PIN);
     #else
       SET_INPUT(X2_MAX_PIN);
     #endif
@@ -137,6 +153,8 @@ void Endstops::init() {
   #if HAS_Y_MAX
     #if ENABLED(ENDSTOPPULLUP_YMAX)
       SET_INPUT_PULLUP(Y_MAX_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_YMAX)
+      SET_INPUT_PULLDOWN(Y_MAX_PIN);
     #else
       SET_INPUT(Y_MAX_PIN);
     #endif
@@ -145,6 +163,8 @@ void Endstops::init() {
   #if HAS_Y2_MAX
     #if ENABLED(ENDSTOPPULLUP_YMAX)
       SET_INPUT_PULLUP(Y2_MAX_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_YMAX)
+      SET_INPUT_PULLDOWN(Y2_MAX_PIN);
     #else
       SET_INPUT(Y2_MAX_PIN);
     #endif
@@ -153,6 +173,8 @@ void Endstops::init() {
   #if HAS_Z_MAX
     #if ENABLED(ENDSTOPPULLUP_ZMAX)
       SET_INPUT_PULLUP(Z_MAX_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_ZMAX)
+      SET_INPUT_PULLDOWN(Z_MAX_PIN);
     #else
       SET_INPUT(Z_MAX_PIN);
     #endif
@@ -161,6 +183,8 @@ void Endstops::init() {
   #if HAS_Z2_MAX
     #if ENABLED(ENDSTOPPULLUP_ZMAX)
       SET_INPUT_PULLUP(Z2_MAX_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_ZMAX)
+      SET_INPUT_PULLDOWN(Z2_MAX_PIN);
     #else
       SET_INPUT(Z2_MAX_PIN);
     #endif
@@ -169,6 +193,8 @@ void Endstops::init() {
   #if ENABLED(Z_MIN_PROBE_ENDSTOP)
     #if ENABLED(ENDSTOPPULLUP_ZMIN_PROBE)
       SET_INPUT_PULLUP(Z_MIN_PROBE_PIN);
+    #elif ENABLED(ENDSTOPPULLDOWN_ZMIN_PROBE)
+      SET_INPUT_PULLDOWN(Z_MIN_PROBE_PIN);
     #else
       SET_INPUT(Z_MIN_PROBE_PIN);
     #endif

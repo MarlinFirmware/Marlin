@@ -205,14 +205,15 @@
  * I2C PANELS
  */
 
-#if ENABLED(LCD_I2C_SAINSMART_YWROBOT)
-
-  // Note: This controller requires F.Malpartida's LiquidCrystal_I2C library
-  // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home
+#if ENABLED(LCD_SAINSMART_I2C_1602) || ENABLED(LCD_SAINSMART_I2C_2004)
 
   #define LCD_I2C_TYPE_PCF8575
   #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
-  #define ULTIPANEL
+
+  #if ENABLED(LCD_SAINSMART_I2C_2004)
+    #define LCD_WIDTH 20
+    #define LCD_HEIGHT 4
+  #endif
 
 #elif ENABLED(LCD_I2C_PANELOLU2)
 
@@ -220,7 +221,7 @@
 
   #define LCD_I2C_TYPE_MCP23017
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
-  #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
+  #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (optional)
   #define ULTIPANEL
 
 #elif ENABLED(LCD_I2C_VIKI)
@@ -235,7 +236,7 @@
    */
   #define LCD_I2C_TYPE_MCP23017
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
-  #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
+  #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
   #define ULTIPANEL
 
   #define ENCODER_FEEDRATE_DEADZONE 4
@@ -421,18 +422,28 @@
   #define HOTEND_INDEX  e
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER) || ENABLED(MIXING_EXTRUDER)   // Unified E axis
-  #if ENABLED(MIXING_EXTRUDER)
-    #define E_STEPPERS  MIXING_STEPPERS
+#if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
+  #if EXTRUDERS > 4
+    #define E_STEPPERS    3
+    #define E_MANUAL      3
+    #define TOOL_E_INDEX  current_block->active_extruder
+  #elif EXTRUDERS > 2
+    #define E_STEPPERS    2
+    #define E_MANUAL      2
+    #define TOOL_E_INDEX  current_block->active_extruder
   #else
-    #define E_STEPPERS  1                                     // One E stepper
+    #define E_STEPPERS    1
+    #define TOOL_E_INDEX  0
   #endif
-  #define E_MANUAL      1
-  #define TOOL_E_INDEX  0
+  #define E_MANUAL        E_STEPPERS
+#elif ENABLED(MIXING_EXTRUDER)
+  #define E_STEPPERS      MIXING_STEPPERS
+  #define E_MANUAL        1
+  #define TOOL_E_INDEX    0
 #else
-  #define E_STEPPERS    EXTRUDERS
-  #define E_MANUAL      EXTRUDERS
-  #define TOOL_E_INDEX  current_block->active_extruder
+  #define E_STEPPERS      EXTRUDERS
+  #define E_MANUAL        EXTRUDERS
+  #define TOOL_E_INDEX    current_block->active_extruder
 #endif
 
 /**

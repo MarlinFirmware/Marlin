@@ -26,8 +26,8 @@
  * Standard Status Screen for Graphical Display
  */
 
-#ifndef ULTRALCD_IMPL_STATUS_SCREEN_DOGM_H
-#define ULTRALCD_IMPL_STATUS_SCREEN_DOGM_H
+#ifndef _STATUS_SCREEN_DOGM_H_
+#define _STATUS_SCREEN_DOGM_H_
 
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const uint8_t y) {
   const char * const str = itostr3(temp);
@@ -439,4 +439,4 @@ static void lcd_implementation_status_screen() {
   }
 }
 
-#endif // ULTRALCD_IMPL_STATUS_SCREEN_DOGM_H
+#endif // _STATUS_SCREEN_DOGM_H_
