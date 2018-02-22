@@ -25,7 +25,7 @@
 #define CONFIGURATION_H_VERSION 010107
 
 //===========================================================================
-//================================= README ==================================
+//============================= Getting Started =============================
 //===========================================================================
 
 /**
@@ -34,15 +34,9 @@
  * This configuration supports the standard Hephestos 2 with or without the
  * heated bed kit featured at https://store.bq.com/en/heated-bed-kit-hephestos2
  *
- * Enable the following option to activate all functionality related to the heated bed.
- */
-//#define HEPHESTOS2_HEATED_BED_KIT
-
-//===========================================================================
-//============================= Getting Started =============================
-//===========================================================================
-
-/**
+ * Enable HEPHESTOS2_HEATED_BED_KIT in Configuration_adv.h for all functionality
+ * related to the heated bed.
+ *
  * Here are some standard links for getting your machine calibrated:
  *
  * http://reprap.org/wiki/Calibration
@@ -304,13 +298,7 @@
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
-
-#if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
-  #define TEMP_SENSOR_BED 70
-  #define HEATER_BED_INVERTING true
-#else
-  #define TEMP_SENSOR_BED 0
-#endif
+#define TEMP_SENSOR_BED 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
@@ -403,10 +391,7 @@
 // all forms of bed control obey this (PID, bang-bang, bang-bang with hysteresis)
 // setting this to anything other than 255 enables a form of PWM to the bed just like HEATER_BED_DUTY_CYCLE_DIVIDER did,
 // so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
-
-#if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
-  #define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
-#endif
+#define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
 
 #if ENABLED(PIDTEMPBED)
 
