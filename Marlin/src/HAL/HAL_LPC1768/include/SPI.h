@@ -21,7 +21,9 @@
  */
 
 #pragma once
-#ifdef TARGET_LPC1768
+
+#include "../../HAL_SPI.h"
+
 #include <stdint.h>
 
 #define MSBFIRST 1
@@ -42,4 +44,3 @@ class SPIClass {
 };
 
 extern SPIClass SPI;
-#endif

@@ -28,7 +28,7 @@ extern "C" {
   #include <lpc17xx_libcfg_default.h>
 }
 
-#include "Wire.h"
+#include <Wire.h>
 
 #define USEDI2CDEV_M 1
 
