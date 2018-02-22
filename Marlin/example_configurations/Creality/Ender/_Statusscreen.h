@@ -29,9 +29,6 @@
  * Use the Marlin Bitmap Converter to make your own:
  * http://marlinfw.org/tools/u8glib/converter.html
  */
-#include "MarlinConfig.h"
-
-//============================================
 
 #define STATUS_SCREENWIDTH 128
 #define STATUS_SCREEN_HOTEND_TEXT_X(E) (38 + (E) * 20)
