@@ -1415,6 +1415,11 @@
 #define EXTENDED_CAPABILITIES_REPORT
 
 /**
+ * Auto-report SdCard status with M27 S<seconds>
+ */
+//#define AUTO_REPORT_SD_STATUS
+
+/**
  * Disable all Volumetric extrusion options
  */
 //#define NO_VOLUMETRICS

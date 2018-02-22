@@ -99,6 +99,23 @@ public:
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
 
   Sd2Card& getSd2Card() { return card; }
+
+  #if ENABLED(AUTO_REPORT_SD_STATUS)
+    void auto_report_sd_status(void);
+    FORCE_INLINE void set_auto_report_interval(uint8_t v
+      #if NUM_SERIAL > 1
+        , int8_t port
+      #endif
+    ) {
+      #if NUM_SERIAL > 1
+        serialport = port;
+      #endif
+      NOMORE(v, 60);
+      auto_report_sd_interval = v;
+      next_sd_report_ms = millis() + 1000UL * v;
+    }
+  #endif
+
 public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
@@ -182,6 +199,14 @@ private:
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     void flush_presort();
+  #endif
+
+  #if ENABLED(AUTO_REPORT_SD_STATUS)
+    static uint8_t auto_report_sd_interval;
+    static millis_t next_sd_report_ms;
+    #if NUM_SERIAL > 1
+      static int8_t serialport;
+    #endif
   #endif
 };
 
