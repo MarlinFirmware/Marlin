@@ -183,8 +183,8 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      const bool ubl_state_at_entry = planner.leveling_active;
+    #if ENABLED(RESTORE_LEVELING_AFTER_G28)
+      const bool leveling_state_at_entry = planner.leveling_active;
     #endif
     set_bed_leveling_enabled(false);
   #endif
@@ -319,8 +319,8 @@ void GcodeSuite::G28(const bool always_home_all) {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    set_bed_leveling_enabled(ubl_state_at_entry);
+  #if ENABLED(RESTORE_LEVELING_AFTER_G28)
+    set_bed_leveling_enabled(leveling_state_at_entry);
   #endif
 
   clean_up_after_endstop_or_probe_move();
