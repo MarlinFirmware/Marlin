@@ -449,6 +449,7 @@ void report_current_position();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
+  extern int8_t did_pause_print;
   extern AdvancedPauseMenuResponse advanced_pause_menu_response;
   extern float filament_change_unload_length[EXTRUDERS],
                filament_change_load_length[EXTRUDERS];
