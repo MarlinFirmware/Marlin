@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V51"
+#define EEPROM_VERSION "V52"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -225,8 +225,7 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_k,                     // M900 K    planner.extruder_advance_k
-        planner_advance_ed_ratio;                       // M900 WHD  planner.advance_ed_ratio
+  float planner_extruder_advance_K;                     // M900 K    planner.extruder_advance_K
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -751,14 +750,12 @@ void MarlinSettings::postprocess() {
     // Linear Advance
     //
 
-    _FIELD_TEST(planner_extruder_advance_k);
+    _FIELD_TEST(planner_extruder_advance_K);
 
     #if ENABLED(LIN_ADVANCE)
-      EEPROM_WRITE(planner.extruder_advance_k);
-      EEPROM_WRITE(planner.advance_ed_ratio);
+      EEPROM_WRITE(planner.extruder_advance_K);
     #else
       dummy = 0.0f;
-      EEPROM_WRITE(dummy);
       EEPROM_WRITE(dummy);
     #endif
 
@@ -1301,13 +1298,11 @@ void MarlinSettings::postprocess() {
       // Linear Advance
       //
 
-      _FIELD_TEST(planner_extruder_advance_k);
+      _FIELD_TEST(planner_extruder_advance_K);
 
       #if ENABLED(LIN_ADVANCE)
-        EEPROM_READ(planner.extruder_advance_k);
-        EEPROM_READ(planner.advance_ed_ratio);
+        EEPROM_READ(planner.extruder_advance_K);
       #else
-        EEPROM_READ(dummy);
         EEPROM_READ(dummy);
       #endif
 
@@ -1832,8 +1827,7 @@ void MarlinSettings::reset(
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    planner.extruder_advance_k = LIN_ADVANCE_K;
-    planner.advance_ed_ratio = LIN_ADVANCE_E_D_RATIO;
+    planner.extruder_advance_K = LIN_ADVANCE_K;
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
@@ -2409,8 +2403,7 @@ void MarlinSettings::reset(
         SERIAL_ECHOLNPGM_P(port, "Linear Advance:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR_P(port, "  M900 K", planner.extruder_advance_k);
-      SERIAL_ECHOLNPAIR_P(port, " R", planner.advance_ed_ratio);
+      SERIAL_ECHOLNPAIR_P(port, "  M900 K", planner.extruder_advance_K);
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM

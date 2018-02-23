@@ -29,34 +29,19 @@
 #include "../../../module/stepper.h"
 
 /**
- * M900: Set and/or Get advance K factor and WH/D ratio
+ * M900: Set and/or Get advance K factor
  *
  *  K<factor>                  Set advance K factor
- *  R<ratio>                   Set ratio directly (overrides WH/D)
- *  W<width> H<height> D<diam> Set ratio from WH/D
  */
 void GcodeSuite::M900() {
-  stepper.synchronize();
+    stepper.synchronize();
 
-  const float newK = parser.floatval('K', -1);
-  if (newK >= 0) planner.extruder_advance_k = newK;
+    const float newK = parser.floatval('K', -1);
+    if (newK >= 0) planner.extruder_advance_K = newK;
 
-  float newR = parser.floatval('R', -1);
-  if (newR < 0) {
-    const float newD = parser.floatval('D', -1),
-                newW = parser.floatval('W', -1),
-                newH = parser.floatval('H', -1);
-    if (newD >= 0 && newW >= 0 && newH >= 0)
-      newR = newD ? (newW * newH) / CIRCLE_AREA(newD * 0.5) : 0;
-  }
-  if (newR >= 0) planner.advance_ed_ratio = newR;
-
-  SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR("Advance K=", planner.extruder_advance_k);
-  SERIAL_ECHOPGM(" E/D=");
-  const float ratio = planner.advance_ed_ratio;
-  if (ratio) SERIAL_ECHO(ratio); else SERIAL_ECHOPGM("Auto");
-  SERIAL_EOL();
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPAIR("Advance K=", planner.extruder_advance_K);
+    SERIAL_EOL();
 }
 
 #endif // LIN_ADVANCE

@@ -711,43 +711,25 @@
 // @section extruder
 
 /**
- * Implementation of linear pressure control
+ * Linear Pressure Control v1.5
  *
- * Assumption: advance = k * (delta velocity)
+ * Assumption: advance [steps] = k * (delta velocity [steps/s])
  * K=0 means advance disabled.
- * See Marlin documentation for calibration instructions.
+ *
+ * NOTE: K values for LIN_ADVANCE 1.5 differ from earlier versions!
+ *
+ * Set K around 0.22 for 3mm PLA Direct Drive with ~6.5cm between the drive gear and heatbreak.
+ * Larger K values will be needed for flexible filament and greater distances.
+ * If this algorithm produces a higher speed offset than the extruder can handle (compared to E jerk)
+ * print acceleration will be reduced during the affected moves to keep within the limit.
+ *
+ * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
+ * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
 //#define LIN_ADVANCE
-
 #if ENABLED(LIN_ADVANCE)
-  #define LIN_ADVANCE_K 75
-
-  /**
-   * Some Slicers produce Gcode with randomly jumping extrusion widths occasionally.
-   * For example within a 0.4mm perimeter it may produce a single segment of 0.05mm width.
-   * While this is harmless for normal printing (the fluid nature of the filament will
-   * close this very, very tiny gap), it throws off the LIN_ADVANCE pressure adaption.
-   *
-   * For this case LIN_ADVANCE_E_D_RATIO can be used to set the extrusion:distance ratio
-   * to a fixed value. Note that using a fixed ratio will lead to wrong nozzle pressures
-   * if the slicer is using variable widths or layer heights within one print!
-   *
-   * This option sets the default E:D ratio at startup. Use `M900` to override this value.
-   *
-   * Example: `M900 W0.4 H0.2 D1.75`, where:
-   *   - W is the extrusion width in mm
-   *   - H is the layer height in mm
-   *   - D is the filament diameter in mm
-   *
-   * Example: `M900 R0.0458` to set the ratio directly.
-   *
-   * Set to 0 to auto-detect the ratio based on given Gcode G1 print moves.
-   *
-   * Slic3r (including Průša Control) produces Gcode compatible with the automatic mode.
-   * Cura (as of this writing) may produce Gcode incompatible with the automatic mode.
-   */
-  #define LIN_ADVANCE_E_D_RATIO 0 // The calculated ratio (or 0) according to the formula W * H / ((D / 2) ^ 2 * PI)
-                                  // Example: 0.4 * 0.2 / ((1.75 / 2) ^ 2 * PI) = 0.033260135
+  #define LIN_ADVANCE_K 0.22  // Unit: mm compression per 1mm/s extruder speed
+  //#define LA_DEBUG          // If enabled, this will generate debug information output over USB.
 #endif
 
 // @section leveling

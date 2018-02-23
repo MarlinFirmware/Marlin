@@ -3228,7 +3228,7 @@ void kill_screen(const char* lcd_msg) {
     #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
       MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
-      MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
+      MENU_ITEM_EDIT(float32, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
     #endif
 
     #if HAS_LCD_CONTRAST
@@ -3742,7 +3742,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_BACK(MSG_CONTROL);
 
       #if ENABLED(LIN_ADVANCE)
-        MENU_ITEM_EDIT(float3, MSG_ADVANCE_K, &planner.extruder_advance_k, 0, 999);
+        MENU_ITEM_EDIT(float32, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
       #endif
 
       #if DISABLED(NO_VOLUMETRICS)
