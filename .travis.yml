@@ -266,7 +266,7 @@ script:
   #
   - restore_configs
   - opt_enable G3D_PANEL SDSUPPORT
-  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
+  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES LIGHTWEIGHT_UI
   - opt_set_adv SDSORT_GCODE true
   - opt_set_adv SDSORT_USES_RAM true
   - opt_set_adv SDSORT_USES_STACK true
