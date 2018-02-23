@@ -125,10 +125,12 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       ST7920_CS();
       u8g_Delay(120);                 //initial delay for boot up
       ST7920_SET_CMD();
+      ST7920_WRITE_BYTE(0x20);       //non-extended mode
       ST7920_WRITE_BYTE(0x08);       //display off, cursor+blink off
-      ST7920_WRITE_BYTE(0x01);       //clear CGRAM ram
-      u8g_Delay(15);                 //delay for CGRAM clear
-      ST7920_WRITE_BYTE(0x3E);       //extended mode + GDRAM active
+      ST7920_WRITE_BYTE(0x01);       //clear DDRAM ram
+      u8g_Delay(15);                    //delay for DDRAM clear
+      ST7920_WRITE_BYTE(0x24);       //extended mode
+      ST7920_WRITE_BYTE(0x26);       //extended mode + GDRAM active
       for (y = 0; y < (LCD_PIXEL_HEIGHT) / 2; y++) { //clear GDRAM
         ST7920_WRITE_BYTE(0x80 | y); //set y
         ST7920_WRITE_BYTE(0x80);     //set x = 0
@@ -181,6 +183,12 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
 uint8_t   u8g_dev_st7920_128x64_rrd_buf[(LCD_PIXEL_WIDTH) * (PAGE_HEIGHT) / 8] U8G_NOCOMMON;
 u8g_pb_t  u8g_dev_st7920_128x64_rrd_pb = {{PAGE_HEIGHT, LCD_PIXEL_HEIGHT, 0, 0, 0}, LCD_PIXEL_WIDTH, u8g_dev_st7920_128x64_rrd_buf};
 u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = {u8g_dev_rrd_st7920_128x64_fn, &u8g_dev_st7920_128x64_rrd_pb, &u8g_com_null_fn};
+
+#if ENABLED(LIGHTWEIGHT_UI)
+  // We have to include the code for the lightweight UI here
+  // as it relies on macros that are only defined in this file.
+  #include "status_screen_lite_ST7920_spi.h"
+#endif
 
 #pragma GCC reset_options
 

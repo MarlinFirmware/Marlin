@@ -295,6 +295,7 @@
 #define MSG_HEATING_FAILED_LCD              _UxGT("Chyba ohrevu")
 #define MSG_ERR_REDUNDANT_TEMP              _UxGT("REDUND. TEPLOTA")
 #define MSG_THERMAL_RUNAWAY                 _UxGT("TEPLOTNÝ SKOK")
+#define MSG_THERMAL_RUNAWAY_BED             _UxGT("TEPLOTNÝ SKOK PODL.")
 #define MSG_ERR_MAXTEMP                     _UxGT("VYSOKÁ TEPLOTA")
 #define MSG_ERR_MINTEMP                     _UxGT("NÍZKA TEPLOTA")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("VYS. TEPL. PODL.")

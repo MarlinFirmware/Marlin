@@ -22,9 +22,9 @@
 
 #ifdef TARGET_LPC1768
 
-#include "pinmapping.h"
+#include <pinmapping.h>
 
-#include "../../gcode/parser.h"
+#include "../../../gcode/parser.h"
 
 // Get the digital pin for an analog index
 pin_t analogInputToDigitalPin(const int8_t p) {

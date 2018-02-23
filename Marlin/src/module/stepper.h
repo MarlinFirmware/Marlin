@@ -98,18 +98,20 @@ class Stepper {
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(LIN_ADVANCE)
-      static hal_timer_t nextMainISR, nextAdvanceISR, eISR_Rate;
-      #define _NEXT_ISR(T) nextMainISR = T
 
-      static volatile int e_steps[E_STEPPERS];
-      static int final_estep_rate;
-      static int current_estep_rate[E_STEPPERS]; // Actual extruder speed [steps/s]
-      static int current_adv_steps[E_STEPPERS];  // The amount of current added esteps due to advance.
-                                                 // i.e., the current amount of pressure applied
-                                                 // to the spring (=filament).
-    #else
+      static uint32_t LA_decelerate_after; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+      static hal_timer_t nextMainISR, nextAdvanceISR, eISR_Rate;
+      static uint16_t current_adv_steps, final_adv_steps, max_adv_steps; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+      #define _NEXT_ISR(T) nextMainISR = T
+      static int8_t e_steps;
+      static int8_t LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+      static bool use_advance_lead;
+
+    #else // !LIN_ADVANCE
+
       #define _NEXT_ISR(T) HAL_timer_set_compare(STEP_TIMER_NUM, T);
-    #endif // LIN_ADVANCE
+
+    #endif // !LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
     static uint8_t step_loops, step_loops_nominal;
@@ -239,13 +241,11 @@ class Stepper {
       FORCE_INLINE static void set_x_lock(const bool state) { locked_x_motor = state; }
       FORCE_INLINE static void set_x2_lock(const bool state) { locked_x2_motor = state; }
     #endif
-
     #if ENABLED(Y_DUAL_ENDSTOPS)
       FORCE_INLINE static void set_homing_flag_y(const bool state) { performing_homing = state; }
       FORCE_INLINE static void set_y_lock(const bool state) { locked_y_motor = state; }
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_y2_motor = state; }
     #endif
-
     #if ENABLED(Z_DUAL_ENDSTOPS)
       FORCE_INLINE static void set_homing_flag_z(const bool state) { performing_homing = state; }
       FORCE_INLINE static void set_z_lock(const bool state) { locked_z_motor = state; }
@@ -351,6 +351,22 @@ class Stepper {
 
       static int8_t last_extruder = -1;
 
+      #if ENABLED(LIN_ADVANCE)
+        if (current_block->active_extruder != last_extruder) {
+          current_adv_steps = 0; // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
+          LA_active_extruder = current_block->active_extruder;
+        }
+
+        if (current_block->use_advance_lead) {
+          LA_decelerate_after = current_block->decelerate_after;
+          final_adv_steps = current_block->final_adv_steps;
+          max_adv_steps = current_block->max_adv_steps;
+          use_advance_lead = true;
+        }
+        else
+          use_advance_lead = false;
+      #endif
+
       if (current_block->direction_bits != last_direction_bits || current_block->active_extruder != last_extruder) {
         last_direction_bits = current_block->direction_bits;
         last_extruder = current_block->active_extruder;
@@ -366,22 +382,6 @@ class Stepper {
       acceleration_time = calc_timer_interval(acc_step_rate);
       _NEXT_ISR(acceleration_time);
 
-      #if ENABLED(LIN_ADVANCE)
-        if (current_block->use_advance_lead) {
-          current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
-          final_estep_rate = (current_block->nominal_rate * current_block->abs_adv_steps_multiplier8) >> 17;
-        }
-      #endif
-
-      // SERIAL_ECHO_START();
-      // SERIAL_ECHOPGM("advance :");
-      // SERIAL_ECHO(current_block->advance/256.0);
-      // SERIAL_ECHOPGM("advance rate :");
-      // SERIAL_ECHO(current_block->advance_rate/256.0);
-      // SERIAL_ECHOPGM("initial advance :");
-      // SERIAL_ECHO(current_block->initial_advance/256.0);
-      // SERIAL_ECHOPGM("final advance :");
-      // SERIAL_ECHOLN(current_block->final_advance/256.0);
     }
 
     #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM

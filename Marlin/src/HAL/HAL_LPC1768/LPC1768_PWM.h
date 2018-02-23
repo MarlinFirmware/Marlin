@@ -63,7 +63,7 @@
 #ifndef _LPC1768_PWM_H_
 #define _LPC1768_PWM_H_
 
-#include "pinmapping.h"
+#include <pinmapping.h>
 #include <lpc17xx_clkpwr.h>
 
 #define LPC_PWM1_MR0 19999  // base repetition rate minus one count - 20mS
