@@ -51,6 +51,7 @@
 
 #include "../libs/buzzer.h"
 #include "../libs/nozzle.h"
+#include "pause.h"
 
 // private:
 

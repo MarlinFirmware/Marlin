@@ -71,6 +71,10 @@
   #include "../feature/fwretract.h"
 #endif
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 typedef struct PID { float Kp, Ki, Kd; } PID;
