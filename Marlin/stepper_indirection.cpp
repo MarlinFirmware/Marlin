@@ -251,6 +251,7 @@
 //
 #if ENABLED(HAVE_TMC2208)
 
+  #undef HardwareSerial_h // undo Marlin trickery
   #include <SoftwareSerial.h>
   #include <HardwareSerial.h>
   #include <TMC2208Stepper.h>
