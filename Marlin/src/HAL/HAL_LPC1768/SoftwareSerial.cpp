@@ -39,8 +39,8 @@
 #include "../../inc/MarlinConfig.h"
 #include <stdint.h>
 #include <stdarg.h>
-#include "include/Arduino.h"
-#include "pinmapping.h"
+#include <Arduino.h>
+#include <pinmapping.h>
 #include "fastio.h"
 #include "SoftwareSerial.h"
 
