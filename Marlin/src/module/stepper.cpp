@@ -852,9 +852,9 @@ void Stepper::isr() {
 
       // For minimum pulse time wait before looping
       #if EXTRA_CYCLES_E > 20
-        if (i) while (EXTRA_CYCLES_E > (hal_timer_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
+        while (EXTRA_CYCLES_E > (hal_timer_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
       #elif EXTRA_CYCLES_E > 0
-        if (i) DELAY_NOPS(EXTRA_CYCLES_E);
+        DELAY_NOPS(EXTRA_CYCLES_E);
       #endif
 
     } // steps_loop
