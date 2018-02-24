@@ -107,6 +107,7 @@
 
 // optional for extruder 4 or chamber:
 //#define TEMP_X_PIN         12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
+//#define TEMP_CHAMBER_PIN   12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
 
 #if TEMP_SENSOR_BED == -1
   #define TEMP_BED_PIN      7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_2 is defined as thermocouple)
