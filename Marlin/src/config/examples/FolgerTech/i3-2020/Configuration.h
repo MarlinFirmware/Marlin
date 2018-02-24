@@ -570,7 +570,8 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 52.2 }
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 52.2 }  // 52.4 is correct for printer as shipped
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 104.4 }   // 104.4 with 32 micro steps enabled gives better results
 
 /**
  * Default Max Feed Rate (mm/s)
