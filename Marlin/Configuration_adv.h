@@ -747,6 +747,14 @@
   //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
 #endif
 
+/**
+ * Move Z axis by holding down the control knob
+ */
+//#define LONG_PRESS_FOR_MOVE_Z
+#if ENABLED(LONG_PRESS_FOR_MOVE_Z)
+  #define LONG_PRESS_MIN_INTERVAL 1000 // Minimum interval of long press, in milliseconds.
+#endif
+
 // @section extruder
 
 /**

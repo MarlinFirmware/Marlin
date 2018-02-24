@@ -101,6 +101,10 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
   uint8_t progress_bar_percent;
 #endif
 
+#if ENABLED(LONG_PRESS_FOR_MOVE_Z)
+  static void lcd_move_z();
+#endif
+
 #if ENABLED(DOGLCD)
   #include "ultralcd_impl_DOGM.h"
   bool drawing_screen, first_page; // = false
@@ -150,6 +154,8 @@ uint16_t max_display_update_time = 0;
   #ifndef TALL_FONT_CORRECTION
     #define TALL_FONT_CORRECTION 0
   #endif
+
+  float move_menu_scale;
 
   bool no_reentry = false;
   constexpr int8_t menu_bottom = LCD_HEIGHT - (TALL_FONT_CORRECTION);
@@ -525,6 +531,21 @@ uint16_t max_display_update_time = 0;
               lcd_babystep_z
             #endif
           ;
+      #endif
+
+      #if ENABLED(LONG_PRESS_FOR_MOVE_Z) && BUTTON_EXISTS(ENC)
+        if (screen == lcd_main_menu && currentScreen == lcd_status_screen) {
+          const millis_t long_press_expire_ms = millis() + LONG_PRESS_MIN_INTERVAL;
+          while (BUTTON_PRESSED(ENC)) {
+            if (ELAPSED(millis(), long_press_expire_ms)) {
+              wait_for_unclick = true;
+              move_menu_scale = 1.0;
+              screen = lcd_move_z;
+              break;
+            }
+            safe_delay(50);
+          }
+        }
       #endif
 
       currentScreen = screen;
@@ -2562,7 +2583,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-
   #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
     void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
   #endif
@@ -2795,8 +2815,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     END_MENU();
   }
-
-  float move_menu_scale;
 
   #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
 
