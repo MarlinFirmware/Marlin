@@ -521,6 +521,13 @@
     #define E4_AUTO_FAN_PIN -1
   #endif
 #endif
+#ifndef CHAMBER_AUTO_FAN_PIN
+  #ifdef ORIG_CHAMBER_AUTO_FAN_PIN
+    #define CHAMBER_AUTO_FAN_PIN ORIG_CHAMBER_AUTO_FAN_PIN
+  #else
+    #define CHAMBER_AUTO_FAN_PIN -1
+  #endif
+#endif
 
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
 #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN, E0_CS_PIN,
