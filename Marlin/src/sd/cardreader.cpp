@@ -33,6 +33,10 @@
 #include "../core/language.h"
 #include "../gcode/queue.h"
 
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h"
+#endif
+
 #include <ctype.h>
 
 #define LONGEST_FILENAME (longFilename[0] ? longFilename : filename)
@@ -325,6 +329,9 @@ void CardReader::startFileprint() {
 }
 
 void CardReader::stopSDPrint() {
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    did_pause_print = 0;
+  #endif
   sdprinting = false;
   if (isFileOpen()) file.close();
 }
