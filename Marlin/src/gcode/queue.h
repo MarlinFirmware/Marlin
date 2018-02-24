@@ -92,6 +92,15 @@ void ok_to_send();
  */
 void enqueue_and_echo_commands_P(const char * const pgcode);
 
+#if ENABLED(ENHANCED_COMMAND_INJECTION)
+  /**
+  * Record one or many commands to run from memory.
+  * Aborts the current queue, if any.
+  * Note: drain_injected_commands_SRAM() must be called repeatedly to drain the commands afterwards
+  */
+  void enqueue_and_echo_commands_SRAM(const char * const gcode);
+#endif
+
 /**
  * Enqueue with Serial Echo
  */

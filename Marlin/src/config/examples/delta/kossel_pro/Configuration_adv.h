@@ -1461,6 +1461,21 @@
 #define FASTER_GCODE_PARSER
 
 /**
+ * Enhanced command injection.
+ * 
+ * Allow to inject commands from PROGMEM and SRAM. The required stack size depends on
+ * the complexity and encapsulation of the injected commands. For every injected command
+ * which triggers another command injection an additional stack slot is required.
+ * The default value of 3 should work for most use cases.
+ */
+//#define ENHANCED_COMMAND_INJECTION
+#if ENABLED(ENHANCED_COMMAND_INJECTION)
+  #ifndef ENHANCED_COMMAND_INJECTION_STACK
+    #define ENHANCED_COMMAND_INJECTION_STACK  2
+  #endif
+#endif
+
+/**
  * User-defined menu items that execute custom GCode
  */
 //#define CUSTOM_USER_MENUS

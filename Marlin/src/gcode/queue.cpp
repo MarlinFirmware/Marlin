@@ -82,6 +82,54 @@ bool send_ok[BUFSIZE];
  */
 static const char *injected_commands_P = NULL;
 
+#if ENABLED(ENHANCED_COMMAND_INJECTION)
+  /**
+   * Stack of injected commands.
+   * Used by Marlin internally to ensure that commands initiated from within
+   * are enqueued ahead of any pending serial or sd card commands.
+   */
+  static struct command_injection_stack_t {
+    const char *commands;
+    bool progmem;
+  } command_injection_stack [ENHANCED_COMMAND_INJECTION_STACK];
+
+  static int8_t command_injection_stack_top = -1; 
+
+
+  bool push_injected_commands(const char *cmd, bool progmem) {
+      uint8_t next = command_injection_stack_top + 1;
+
+      if (next >= ENHANCED_COMMAND_INJECTION_STACK) {
+       // stack is full
+        return false;
+      }
+
+      command_injection_stack[next].commands = cmd;
+      command_injection_stack[next].progmem = progmem;
+      command_injection_stack_top = next;
+
+      return true;
+  }
+
+
+  command_injection_stack_t * pop_injected_commands() {
+    if (command_injection_stack_top == -1) {
+      // stack is empty
+      return NULL;
+    }
+
+    if (command_injection_stack[command_injection_stack_top].commands == NULL) {
+      command_injection_stack_top--;
+      if (command_injection_stack_top == -1) {
+        return NULL;
+      }
+    }
+
+    return &(command_injection_stack[command_injection_stack_top]);
+
+  }
+#endif
+
 void queue_setup() {
   // Send "ok" after commands by default
   for (uint8_t i = 0; i < COUNT(send_ok); i++) send_ok[i] = true;
@@ -144,6 +192,71 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   return false;
 }
 
+
+#if ENABLED(ENHANCED_COMMAND_INJECTION)
+
+  static bool drain_injected_commands_P();
+  static bool drain_injected_commands_SRAM(command_injection_stack_t * stack_entry);
+  /**
+   * Inject the next "immediate" command, when possible, onto the front of the queue.
+   * Return true if any immediate PROGMEM or SRAM commands remain to inject.
+   */
+
+  static bool drain_injected_commands() {
+    command_injection_stack_t * stack_entry = pop_injected_commands();
+
+    if (stack_entry == NULL) {
+      return false;
+    }
+
+    if (stack_entry->progmem) {
+      injected_commands_P = stack_entry->commands;
+      drain_injected_commands_P();
+      stack_entry->commands = injected_commands_P;
+    } else {
+      drain_injected_commands_SRAM(stack_entry);
+    }
+
+    return pop_injected_commands() != NULL;
+  }
+
+  /**
+   * Inject the next "immediate" command from SRAM, when possible, onto the front of the queue.
+   * Return true if any immediate commands remain to inject.
+   */
+  static bool drain_injected_commands_SRAM(command_injection_stack_t * stack_entry) {
+    if (stack_entry->commands != NULL) {
+      size_t len = strlen(stack_entry->commands);
+
+      if (len == 0) {
+        stack_entry->commands = NULL;
+      } else {
+        if (enqueue_and_echo_command(stack_entry->commands)) {    // success?
+          stack_entry->commands = stack_entry->commands + len + 1; // next command
+        }
+      }
+    }
+    return (stack_entry->commands != NULL);    // return whether any more remain
+  }
+
+
+  /**
+  * Record one or many commands to run from memory. Commands have to be separated by \0
+  * Aborts the current queue, if any.
+  * Note: drain_injected_commands_SRAM() must be called repeatedly to drain the commands afterwards
+  */
+  void enqueue_and_echo_commands_SRAM(const char * const gcode) {
+    if (!push_injected_commands(gcode, false)) {
+      // what should we do in this case?
+      kill(PSTR(MSG_ERR_STOPPED));
+      return;
+    }
+    drain_injected_commands();
+  }
+
+#endif
+
+
 /**
  * Inject the next "immediate" command, when possible, onto the front of the queue.
  * Return true if any immediate commands remain to inject.
@@ -169,8 +282,22 @@ static bool drain_injected_commands_P() {
  */
 void enqueue_and_echo_commands_P(const char * const pgcode) {
   injected_commands_P = pgcode;
-  (void)drain_injected_commands_P(); // first command executed asap (when possible)
+
+  #if ENABLED(ENHANCED_COMMAND_INJECTION)
+    if (!push_injected_commands(pgcode, true)) {
+      // what should we do in this case?
+      kill(PSTR(MSG_ERR_STOPPED));
+      return;
+    }
+    drain_injected_commands();
+  #else
+    (void)drain_injected_commands_P(); // first command executed asap (when possible)
+  #endif
 }
+
+
+
+
 
 #if HAS_QUEUE_NOW
   /**
@@ -491,8 +618,12 @@ inline void get_serial_commands() {
  */
 void get_available_commands() {
 
-  // if any immediate commands remain, don't get other commands yet
-  if (drain_injected_commands_P()) return;
+    // if any immediate commands remain, don't get other commands yet
+  #if ENABLED(ENHANCED_COMMAND_INJECTION)
+    if (drain_injected_commands()) return;
+  #else
+    if (drain_injected_commands_P()) return;
+  #endif
 
   get_serial_commands();
 
