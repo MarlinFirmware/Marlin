@@ -1294,10 +1294,10 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
   }
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
-  block->acceleration_rate = (long)(accel * 16777216.0 / ((F_CPU) * 0.125)); // * 8.388608
+  block->acceleration_rate = (long)(accel * (4096.0 * 4096.0 / (HAL_STEPPER_TIMER_RATE)));
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
-      block->advance_speed = ((F_CPU) * 0.125) / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N]);
+      block->advance_speed = (HAL_STEPPER_TIMER_RATE) / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N]);
       #if ENABLED(LA_DEBUG)
         if (extruder_advance_K * block->e_D_ratio * block->acceleration * 2 < block->nominal_speed * block->e_D_ratio)
           SERIAL_ECHOLNPGM("More than 2 steps per eISR loop executed.");
