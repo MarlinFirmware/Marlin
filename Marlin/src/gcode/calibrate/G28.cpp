@@ -231,7 +231,13 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     if (home_all || homeX || homeY) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      destination[Z_AXIS] = Z_HOMING_HEIGHT;
+      destination[Z_AXIS] =
+        #if HOMING_Z_WITH_PROBE
+          max(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_BETWEEN_PROBES)
+        #else
+          Z_HOMING_HEIGHT
+        #endif
+      ;
       if (destination[Z_AXIS] > current_position[Z_AXIS]) {
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
