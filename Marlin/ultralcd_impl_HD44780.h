@@ -335,6 +335,40 @@ static void lcd_set_custom_characters(
     B00000
   };
 
+  #if ENABLED(LCD_PROGRESS_BAR)
+
+    // CHARSET_INFO
+    const static PROGMEM byte progress[3][8] = { {
+      B00000,
+      B10000,
+      B10000,
+      B10000,
+      B10000,
+      B10000,
+      B10000,
+      B00000
+    }, {
+      B00000,
+      B10100,
+      B10100,
+      B10100,
+      B10100,
+      B10100,
+      B10100,
+      B00000
+    }, {
+      B00000,
+      B10101,
+      B10101,
+      B10101,
+      B10101,
+      B10101,
+      B10101,
+      B00000
+    } };
+
+  #endif // LCD_PROGRESS_BAR
+
   #if ENABLED(SDSUPPORT)
 
     // CHARSET_MENU
@@ -358,40 +392,6 @@ static void lcd_set_custom_characters(
       B00000,
       B00000
     };
-
-    #if ENABLED(LCD_PROGRESS_BAR)
-
-      // CHARSET_INFO
-      const static PROGMEM byte progress[3][8] = { {
-        B00000,
-        B10000,
-        B10000,
-        B10000,
-        B10000,
-        B10000,
-        B10000,
-        B00000
-      }, {
-        B00000,
-        B10100,
-        B10100,
-        B10100,
-        B10100,
-        B10100,
-        B10100,
-        B00000
-      }, {
-        B00000,
-        B10101,
-        B10101,
-        B10101,
-        B10101,
-        B10101,
-        B10101,
-        B00000
-      } };
-
-    #endif // LCD_PROGRESS_BAR
 
   #endif // SDSUPPORT
 
