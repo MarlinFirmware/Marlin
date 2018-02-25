@@ -733,7 +733,7 @@ void GcodeSuite::G29() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
-    // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
+    // Stow the probe, raising if not fix-mounted.
     if (STOW_PROBE()) {
       set_bed_leveling_enabled(abl_should_enable);
       measured_z = NAN;
