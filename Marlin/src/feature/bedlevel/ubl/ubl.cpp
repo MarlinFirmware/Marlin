@@ -44,6 +44,28 @@
     SERIAL_PROTOCOLPGM_P(port, "Unified Bed Leveling");
   }
 
+  void unified_bed_leveling::report_current_mesh(
+    #if NUM_SERIAL > 1
+      const int8_t port/*= -1*/
+    #endif
+  ) {
+    if (!leveling_is_valid()) return;
+    SERIAL_ECHO_START_P(port);
+    SERIAL_ECHOLNPGM_P(port, "  G29 I 999");
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+      for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
+        if (!isnan(z_values[x][y])) {
+          SERIAL_ECHO_START_P(port);
+          SERIAL_ECHOPAIR_P(port, "  M421 I", x);
+          SERIAL_ECHOPAIR_P(port, " J", y);
+          SERIAL_ECHOPGM_P(port, " Z");
+          SERIAL_ECHO_F_P(port, z_values[x][y], 6);
+          SERIAL_ECHOPAIR_P(port, " ; X", LOGICAL_X_POSITION(mesh_index_to_xpos(x)));
+          SERIAL_ECHOPAIR_P(port, ", Y", LOGICAL_Y_POSITION(mesh_index_to_ypos(y)));
+          SERIAL_EOL_P(port);
+        }
+  }
+
   void unified_bed_leveling::report_state(
     #if NUM_SERIAL > 1
       const int8_t port/*= -1*/

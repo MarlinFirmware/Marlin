@@ -107,6 +107,11 @@ class unified_bed_leveling {
         const int8_t port = -1
       #endif
     );
+    static void report_current_mesh(
+      #if NUM_SERIAL > 1
+        const int8_t port = -1
+      #endif
+    );
     static void report_state(
       #if NUM_SERIAL > 1
         const int8_t port = -1
