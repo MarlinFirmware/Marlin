@@ -1706,6 +1706,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 //
 //#define AZSMZ_12864
 
+//
 // Silvergate GLCD controller
 // http://github.com/android444/Silvergate
 //
