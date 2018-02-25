@@ -1822,7 +1822,11 @@ void MarlinSettings::reset() {
 
 #if DISABLED(DISABLE_M503)
 
-  #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
+  #if ADD_PORT_ARG
+    #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START_P(port); }while(0)
+  #else
+    #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
+  #endif
 
   /**
    * M503 - Report current settings in RAM
