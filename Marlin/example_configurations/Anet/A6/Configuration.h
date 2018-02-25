@@ -1043,6 +1043,9 @@
   #define GRID_MAX_POINTS_X 4
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
+  // The Z probe minimum outer margin (to validate G29 parameters).
+  #define MIN_PROBE_EDGE 10
+
   // Set the boundaries for probing (where the probe can reach).
   //#define LEFT_PROBE_BED_POSITION 15
   //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - 15)
@@ -1072,9 +1075,6 @@
   //#define RIGHT_PROBE_BED_POSITION 194
   //#define FRONT_PROBE_BED_POSITION 20
   //#define BACK_PROBE_BED_POSITION 194
-
-  // The Z probe minimum outer margin (to validate G29 parameters).
-  #define MIN_PROBE_EDGE 10
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1821,6 +1821,7 @@
 //#define MKS_12864OLED          // Uses the SH1106 controller (default)
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
 
+//
 // Silvergate GLCD controller
 // http://github.com/android444/Silvergate
 //
