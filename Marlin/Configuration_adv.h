@@ -935,7 +935,7 @@
  *  Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
  *  Transfer all properties : Temp + Flow + Gear position + Fwretract 
  *  Utility to : Finish old ended spool without human intervention 
- *             : Swap the current extruder automaticly with only one click
+ *             : Swap the current extruder automaticly in one click
  *             : Rescue a broken spool/jammed extruder by using others extruders/spools 
  *
  * M606 : L[int]: 0=disable : 1/2/3/4 - Last extruder to reach after runouts - One or more migrations possible(By LCD/Gcode)
@@ -943,7 +943,7 @@
  *      : Default value     : Migration to next extruder (By Runout/LCD/Gcode)
  * 
  * Requires 2 or more extruders.
- * Require FILAMENT_RUNOUT for automatic migration after runout
+ * Requires FILAMENT_RUNOUT for automatic migration after runout
  * Requires same nozzle size / No dual extrusion printing
  *
  */
