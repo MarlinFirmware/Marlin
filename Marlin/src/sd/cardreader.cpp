@@ -536,7 +536,7 @@ void CardReader::getStatus(
     const int8_t port/*= -1*/
   #endif
 ) {
-  if (cardOK) {
+  if (cardOK && sdprinting) {
     SERIAL_PROTOCOLPGM_P(port, MSG_SD_PRINTING_BYTE);
     SERIAL_PROTOCOL_P(port, sdpos);
     SERIAL_PROTOCOLCHAR_P(port, '/');
@@ -963,7 +963,6 @@ void CardReader::printingHasFinished() {
           serialport
         #endif
       );
-      SERIAL_EOL();
     }
   }
 #endif // AUTO_REPORT_SD_STATUS
