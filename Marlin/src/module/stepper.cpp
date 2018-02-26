@@ -747,7 +747,6 @@ void Stepper::isr() {
   // Timer interrupt for E. e_steps is set in the main routine;
 
   void Stepper::advance_isr() {
-    nextAdvanceISR = eISR_Rate;
 
     #if ENABLED(MK2_MULTIPLEXER)
       // Even-numbered steppers are reversed
