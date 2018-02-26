@@ -640,6 +640,10 @@ void GcodeSuite::process_parsed_command() {
       #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
         case 605: M605(); break;  // M605: Set Dual X Carriage movement mode
       #endif
+        
+      #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+        case 606: M606(); break;  // M600: Migrate extruder to another
+      #endif
 
       #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         case 701: M701(); break;  // M701: Load Filament
