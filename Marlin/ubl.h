@@ -109,6 +109,7 @@ class unified_bed_leveling {
   public:
 
     static void echo_name();
+    static void report_current_mesh();
     static void report_state();
     static void save_ubl_active_state_and_disable();
     static void restore_ubl_active_state_and_leave();
