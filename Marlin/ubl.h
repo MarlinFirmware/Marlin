@@ -90,11 +90,11 @@ class unified_bed_leveling {
       static void move_z_with_encoder(const float &multiplier);
       static float measure_point_with_encoder();
       static float measure_business_card_thickness(float in_height);
-      static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool) _O0;
-      static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) _O0;
+      static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
+      static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map);
     #endif
 
-    static bool g29_parameter_parsing() _O0;
+    static bool g29_parameter_parsing();
     static void find_mean_mesh_height();
     static void shift_mesh_height();
     static void probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest) _O0;
@@ -112,7 +112,7 @@ class unified_bed_leveling {
     static void report_state();
     static void save_ubl_active_state_and_disable();
     static void restore_ubl_active_state_and_leave();
-    static void display_map(const int) _O0;
+    static void display_map(const int);
     static mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, uint16_t[16]) _O0;
     static mesh_index_pair find_furthest_invalid_mesh_point() _O0;
     static void reset();
@@ -120,8 +120,9 @@ class unified_bed_leveling {
     static void set_all_mesh_points_to_value(const float);
     static bool sanity_check();
 
-    static void G29() _O0;                      // O0 for no optimization
-    static void smart_fill_wlsf(const float &); // O2 gives smaller code than Os on A2560
+    static void G29() _O0;                          // O0 for no optimization
+    static void smart_fill_wlsf(const float &) _O2; // O2 gives smaller code than Os on A2560
+
     static int8_t storage_slot;
 
     static float z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
@@ -220,6 +221,7 @@ class unified_bed_leveling {
             SERIAL_EOL();
           }
         #endif
+
         // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
         return (
           #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
@@ -253,7 +255,8 @@ class unified_bed_leveling {
             SERIAL_EOL();
           }
         #endif
-         // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
+
+        // The requested location is off the mesh. Return UBL_Z_RAISE_WHEN_OFF_MESH or NAN.
         return (
           #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
             UBL_Z_RAISE_WHEN_OFF_MESH
@@ -281,7 +284,7 @@ class unified_bed_leveling {
       const int8_t cx = get_cell_index_x(rx0),
                    cy = get_cell_index_y(ry0); // return values are clamped
 
-     /**
+      /**
        * Check if the requested location is off the mesh.  If so, and
        * UBL_Z_RAISE_WHEN_OFF_MESH is specified, that value is returned.
        */
@@ -365,6 +368,7 @@ class unified_bed_leveling {
         || isnan(z_values[0][0])
       );
     }
+
 }; // class unified_bed_leveling
 
 extern unified_bed_leveling ubl;
