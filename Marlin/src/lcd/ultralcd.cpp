@@ -2603,7 +2603,7 @@ void kill_screen(const char* lcd_msg) {
           _lcd_goto_ubl_level_bed
         #else
           _lcd_ubl_level_bed
-        #endif        
+        #endif
       );
     #elif ENABLED(LCD_BED_LEVELING)
       #if ENABLED(PROBE_MANUALLY)
