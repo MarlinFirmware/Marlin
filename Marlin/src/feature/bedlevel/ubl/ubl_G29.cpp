@@ -1668,7 +1668,7 @@
             }
           #endif
 
-          z_values[i][j] += z_tmp - lsf_results.D;
+          z_values[i][j] = z_tmp - lsf_results.D;
         }
       }
 
