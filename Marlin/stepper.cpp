@@ -774,8 +774,6 @@ void Stepper::isr() {
 
   void Stepper::advance_isr() {
 
-    nextAdvanceISR = eISR_Rate;
-
     #if ENABLED(MK2_MULTIPLEXER)
       // Even-numbered steppers are reversed
       #define SET_E_STEP_DIR(INDEX) \
