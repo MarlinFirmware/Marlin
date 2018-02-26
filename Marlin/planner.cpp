@@ -58,19 +58,19 @@
  *
  */
 
-#include "MarlinConfig.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
-#include "ubl.h"
 #include "gcode.h"
 
 #include "Marlin.h"
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "ubl.h"
 #endif
 
 #if ENABLED(AUTO_POWER_CONTROL)
