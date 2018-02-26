@@ -63,6 +63,7 @@
           SERIAL_ECHOPAIR_P(port, " ; X", LOGICAL_X_POSITION(mesh_index_to_xpos(x)));
           SERIAL_ECHOPAIR_P(port, ", Y", LOGICAL_Y_POSITION(mesh_index_to_ypos(y)));
           SERIAL_EOL_P(port);
+          safe_delay(75); // Prevent Printrun from exploding
         }
   }
 
