@@ -2098,14 +2098,16 @@ void MarlinSettings::reset(
 
       #if ENABLED(MESH_BED_LEVELING)
 
-        for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
-          for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
-            CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR_P(port, "  G29 S3 X", (int)px + 1);
-            SERIAL_ECHOPAIR_P(port, " Y", (int)py + 1);
-            SERIAL_ECHOPGM_P(port, " Z");
-            SERIAL_PROTOCOL_F_P(port, LINEAR_UNIT(mbl.z_values[px][py]), 5);
-            SERIAL_EOL_P(port);
+        if (leveling_is_valid()) {
+          for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
+            for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
+              CONFIG_ECHO_START;
+              SERIAL_ECHOPAIR_P(port, "  G29 S3 X", (int)px + 1);
+              SERIAL_ECHOPAIR_P(port, " Y", (int)py + 1);
+              SERIAL_ECHOPGM_P(port, " Z");
+              SERIAL_PROTOCOL_F_P(port, LINEAR_UNIT(mbl.z_values[px][py]), 5);
+              SERIAL_EOL_P(port);
+            }
           }
         }
 
@@ -2117,6 +2119,27 @@ void MarlinSettings::reset(
           SERIAL_ECHOLNPAIR_P(port, "\nActive Mesh Slot: ", ubl.storage_slot);
           SERIAL_ECHOPAIR_P(port, "EEPROM can hold ", calc_num_meshes());
           SERIAL_ECHOLNPGM_P(port, " meshes.\n");
+        }
+
+        ubl.report_current_mesh(
+          #if ADD_PORT_ARG
+            port
+          #endif
+        );
+
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+        if (leveling_is_valid()) {
+          for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
+            for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
+              CONFIG_ECHO_START;
+              SERIAL_ECHOPAIR_P(port, "  G29 W I", (int)px + 1);
+              SERIAL_ECHOPAIR_P(port, " J", (int)py + 1);
+              SERIAL_ECHOPGM_P(port, " Z");
+              SERIAL_PROTOCOL_F_P(port, LINEAR_UNIT(z_values[px][py]), 5);
+              SERIAL_EOL_P(port);
+            }
+          }
         }
 
       #endif
