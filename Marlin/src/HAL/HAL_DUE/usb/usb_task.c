@@ -256,8 +256,6 @@ bool usb_task_other_requests(void) {
 
 void HAL_init(void) {
 
-  toneInit();
-
   uint16_t *ptr;
 
   udd_disable();

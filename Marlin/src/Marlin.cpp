@@ -637,6 +637,9 @@ void setup() {
 
   #ifdef HAL_INIT
     HAL_init();
+    #ifdef ARDUINO_ARCH_SAM
+      toneInit();
+    #endif
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
