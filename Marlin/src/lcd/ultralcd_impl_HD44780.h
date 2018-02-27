@@ -78,13 +78,12 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define B_DW (BUTTON_DOWN<<B_I2C_BTN_OFFSET)
     #define B_RI (BUTTON_RIGHT<<B_I2C_BTN_OFFSET)
 
+    #undef LCD_CLICKED
     #if BUTTON_EXISTS(ENC)
       // the pause/stop/restart button is connected to BTN_ENC when used
       #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
-      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
     #else
-      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&(B_MI|B_RI))
     #endif
 

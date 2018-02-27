@@ -4862,11 +4862,9 @@ void lcd_init() {
     #if BUTTON_EXISTS(EN1)
       SET_INPUT_PULLUP(BTN_EN1);
     #endif
-
     #if BUTTON_EXISTS(EN2)
       SET_INPUT_PULLUP(BTN_EN2);
     #endif
-
     #if BUTTON_EXISTS(ENC)
       SET_INPUT_PULLUP(BTN_ENC);
     #endif
@@ -5011,6 +5009,14 @@ void lcd_update() {
       }
     }
     else wait_for_unclick = false;
+
+    #if BUTTON_EXISTS(BACK)
+      if (LCD_BACK_CLICKED) {
+        lcd_quick_feedback();
+        lcd_goto_previous_menu();
+      }
+    #endif
+
   #endif
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
@@ -5374,13 +5380,14 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         #if BUTTON_EXISTS(EN1)
           if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
         #endif
-
         #if BUTTON_EXISTS(EN2)
           if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
         #endif
-
         #if BUTTON_EXISTS(ENC)
           if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+        #endif
+        #if BUTTON_EXISTS(BACK)
+          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
         #endif
 
         //
