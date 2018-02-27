@@ -115,6 +115,14 @@ void GcodeSuite::M27() {
       command_queue_port[cmd_queue_index_r]
     #endif
   );
+  #if ENABLED(AUTO_REPORT_SD_STATUS)
+  if (parser.seenval('S'))
+    card.set_auto_report_interval(parser.value_byte()
+      #if NUM_SERIAL > 1
+        , command_queue_port[cmd_queue_index_r]
+      #endif
+    );
+  #endif
 }
 
 /**

@@ -547,6 +547,10 @@ void idle(
     }
   #endif
 
+  #if ENABLED(AUTO_REPORT_SD_STATUS)
+    card.auto_report_sd_status();
+  #endif
+
   #ifdef HAL_IDLETASK
     HAL_idletask();
   #endif

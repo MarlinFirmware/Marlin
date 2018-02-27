@@ -536,7 +536,7 @@ void CardReader::getStatus(
     const int8_t port/*= -1*/
   #endif
 ) {
-  if (cardOK) {
+  if (cardOK && sdprinting) {
     SERIAL_PROTOCOLPGM_P(port, MSG_SD_PRINTING_BYTE);
     SERIAL_PROTOCOL_P(port, sdpos);
     SERIAL_PROTOCOLCHAR_P(port, '/');
@@ -946,5 +946,25 @@ void CardReader::printingHasFinished() {
     #endif
   }
 }
+
+#if ENABLED(AUTO_REPORT_SD_STATUS)
+  uint8_t CardReader::auto_report_sd_interval = 0;
+  millis_t CardReader::next_sd_report_ms;
+  #if NUM_SERIAL > 1
+    int8_t CardReader::serialport;
+  #endif
+
+  void CardReader::auto_report_sd_status() {
+    millis_t current_ms = millis();
+    if (auto_report_sd_interval && ELAPSED(current_ms, next_sd_report_ms)) {
+      next_sd_report_ms = current_ms + 1000UL * auto_report_sd_interval;
+      getStatus(
+        #if NUM_SERIAL > 1
+          serialport
+        #endif
+      );
+    }
+  }
+#endif // AUTO_REPORT_SD_STATUS
 
 #endif // SDSUPPORT

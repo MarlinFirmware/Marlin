@@ -1413,6 +1413,11 @@
 #define AUTO_REPORT_TEMPERATURES
 
 /**
+ * Auto-report SdCard status with M27 S<seconds>
+ */
+//#define AUTO_REPORT_SD_STATUS
+
+/**
  * Include capabilities in M115 output
  */
 #define EXTENDED_CAPABILITIES_REPORT
