@@ -57,7 +57,11 @@
 
 #define VALID_PIN(pin) (pin >= 0 && pin < NUM_DIGITAL_PINS ? 1 : 0)
 #define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
-#define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
+#if AVR_ATmega1284_FAMILY
+  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(7) && (P) <= analogInputToDigitalPin(0)) 
+#else  
+  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
+#endif
 #define GET_ARRAY_PIN(p) pgm_read_byte(&pin_array[p].pin)
 #define MULTI_NAME_PAD 26 // space needed to be pretty if not first name assigned to a pin
 
