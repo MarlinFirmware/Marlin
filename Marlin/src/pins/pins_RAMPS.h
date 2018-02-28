@@ -366,6 +366,15 @@
         #define BEEPER_PIN      37
       #endif
 
+    #elif ENABLED(ZONESTAR_LCD)
+
+      #define LCD_PINS_RS       64
+      #define LCD_PINS_ENABLE   44
+      #define LCD_PINS_D4       63
+      #define LCD_PINS_D5       40
+      #define LCD_PINS_D6       42
+      #define LCD_PINS_D7       65
+
     #else
 
       #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
@@ -534,6 +543,10 @@
       #define SD_DETECT_PIN     49
       #define KILL_PIN          64
 
+    #elif ENABLED(ZONESTAR_LCD)
+
+      #define ADC_KEYPAD_PIN    12
+
     #else
 
       // Beeper on AUX-4
@@ -566,17 +579,3 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
-
-#if ENABLED(ZONESTAR_LCD)
-  #define LCD_PINS_RS        64
-  #define LCD_PINS_ENABLE    44
-  #define LCD_PINS_D4        63
-  #define LCD_PINS_D5        40
-  #define LCD_PINS_D6        42
-  #define LCD_PINS_D7        65
-  #define ADC_KEYPAD_PIN     12
-  #define BTN_EN1            -1
-  #define BTN_EN2            -1
-  #define BTN_ENC            -1
-  // pin 29 N/C
-#endif // ZONESTAR_LCD
