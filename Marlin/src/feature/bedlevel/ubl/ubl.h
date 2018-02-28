@@ -91,7 +91,7 @@ class unified_bed_leveling {
     static bool g29_parameter_parsing() _O0;
     static void find_mean_mesh_height();
     static void shift_mesh_height();
-    static void probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest) _O0;
+    static void probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) _O0;
     static void tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3);
     static void tilt_mesh_based_on_probed_grid(const bool do_ubl_mesh_map);
     static void g29_what_command();

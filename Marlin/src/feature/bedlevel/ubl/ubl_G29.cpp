@@ -713,7 +713,7 @@
      * Probe all invalidated locations of the mesh that can be reached by the probe.
      * This attempts to fill in locations closest to the nozzle's start location first.
      */
-    void unified_bed_leveling::probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, bool close_or_far) {
+    void unified_bed_leveling::probe_entire_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) {
       mesh_index_pair location;
 
       #if ENABLED(NEWPANEL)
@@ -723,7 +723,7 @@
       save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
       DEPLOY_PROBE();
 
-      uint16_t max_iterations = GRID_MAX_POINTS;
+      uint16_t count = GRID_MAX_POINTS;
 
       do {
         if (do_ubl_mesh_map) display_map(g29_map_type);
@@ -742,7 +742,7 @@
           }
         #endif
 
-        if (close_or_far)
+        if (do_furthest)
           location = find_furthest_invalid_mesh_point();
         else
           location = find_closest_mesh_point_of_type(INVALID, rx, ry, USE_PROBE_AS_REFERENCE, NULL);
@@ -755,7 +755,7 @@
           z_values[location.x_index][location.y_index] = measured_z;
         }
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
-      } while (location.x_index >= 0 && --max_iterations);
+      } while (location.x_index >= 0 && --count);
 
       STOW_PROBE();
       restore_ubl_active_state_and_leave();
