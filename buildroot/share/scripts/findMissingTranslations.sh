@@ -40,5 +40,8 @@ done
 echo
 
 for K in $( printf "%s\n" "${!STRING_MAP[@]}" | sort ); do
-  printf "%-35s :%s\n" "$K" "${STRING_MAP[$K]}"
+  case "$#" in
+    1 ) echo $K ;;
+    * ) printf "%-35s :%s\n" "$K" "${STRING_MAP[$K]}" ;;
+  esac
 done
