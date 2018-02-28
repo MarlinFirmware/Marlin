@@ -318,13 +318,13 @@ class Temperature {
     /**
      * Static (class) methods
      */
-    static float analog2temp(const int raw, const uint8_t e);
+    static float analog_to_celsius_hotend(const int raw, const uint8_t e);
 
     #if HAS_HEATED_BED
-      static float analog2tempBed(const int raw);
+      static float analog_to_celsius_bed(const int raw);
     #endif
     #if HAS_TEMP_CHAMBER
-      static float analog2tempChamber(const int raw);
+      static float analog_to_celsius_chamber(const int raw);
     #endif
 
     /**
@@ -365,7 +365,7 @@ class Temperature {
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static float analog2widthFil();         // Convert raw Filament Width to millimeters
+      static float analog_to_mm_fil_width();         // Convert raw Filament Width to millimeters
       static int8_t widthFil_to_size_ratio(); // Convert Filament Width (mm) to an extrusion ratio
     #endif
 
@@ -489,13 +489,13 @@ class Temperature {
      * Perform auto-tuning for hotend or bed in response to M303
      */
     #if HAS_PID_HEATING
-      static void PID_autotune(const float &target, const int8_t hotend, const int8_t ncycles, const bool set_result=false);
+      static void pid_autotune(const float &target, const int8_t hotend, const int8_t ncycles, const bool set_result=false);
 
       /**
        * Update the temp manager when PID values change
        */
       #if ENABLED(PIDTEMP)
-        FORCE_INLINE static void updatePID() {
+        FORCE_INLINE static void update_pid() {
           #if ENABLED(PID_EXTRUSION_SCALING)
             last_e_position = 0;
           #endif
@@ -612,13 +612,13 @@ class Temperature {
 
     static void set_current_temp_raw();
 
-    static void updateTemperaturesFromRawValues();
+    static void calculate_celsius_temperatures();
 
     #if ENABLED(HEATER_0_USES_MAX6675)
       static int read_max6675();
     #endif
 
-    static void checkExtruderAutoFans();
+    static void check_extruder_auto_fans();
 
     static float get_pid_output(const int8_t e);
 

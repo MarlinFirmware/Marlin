@@ -10073,7 +10073,7 @@ inline void gcode_M226() {
         NOLESS(thermalManager.lpq_len, 0);
       #endif
 
-      thermalManager.updatePID();
+      thermalManager.update_pid();
       SERIAL_ECHO_START();
       #if ENABLED(PID_PARAMS_PER_HOTEND)
         SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
@@ -10219,7 +10219,7 @@ inline void gcode_M303() {
       KEEPALIVE_STATE(NOT_BUSY);
     #endif
 
-    thermalManager.PID_autotune(temp, e, c, u);
+    thermalManager.pid_autotune(temp, e, c, u);
 
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
