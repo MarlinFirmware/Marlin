@@ -29,9 +29,9 @@
 #include "../../../module/stepper.h"
 
 /**
- * M900: Set and/or Get advance K factor
+ * M900: Get or Set Linear Advance K-factor
  *
- *  K<factor>                  Set advance K factor
+ *  K<factor>   Set advance K factor
  */
 void GcodeSuite::M900() {
   if (parser.seenval('K')) {
