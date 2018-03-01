@@ -856,7 +856,8 @@
  * With auto-retract enabled, all G1 E moves within the set range
  * will be converted to firmware-based retract/recover moves.
  *
- * Be sure to turn off auto-retract during filament change.
+ * Note: Be sure to turn off auto-retract during filament change.
+ * Note: Current status (Retract / Swap / Zlift) isn't reset by G28.
  *
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *
