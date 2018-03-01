@@ -555,6 +555,16 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * Linear Advance 1.5 - Check K value range
+ */
+#if ENABLED(LIN_ADVANCE)
+  static_assert(
+    WITHIN(LIN_ADVANCE_K, 0, 10),
+    "LIN_ADVANCE_K must be a value from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9)."
+  );
+#endif
+
+/**
  * Parking Extruder requirements
  */
 #if ENABLED(PARKING_EXTRUDER)
@@ -1067,7 +1077,9 @@ static_assert(1 >= 0
   #error "HEATER_0_PIN not defined for this board."
 #elif !PIN_EXISTS(TEMP_0) && !(defined(MAX6675_SS) && MAX6675_SS >= 0)
   #error "TEMP_0_PIN not defined for this board."
-#elif !PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)
+#elif ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR)))
+  #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
+#elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)))
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
 #elif TEMP_SENSOR_0 == 0
   #error "TEMP_SENSOR_0 is required."
@@ -1555,6 +1567,15 @@ static_assert(1 >= 0
   // clearing the stallGuard activated status is found.
   #if ENABLED(SENSORLESS_HOMING) && ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
     #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
+  #endif
+
+  // Sensorless homing is required for both combined steppers in an H-bot
+  #if CORE_IS_XY && X_SENSORLESS != Y_SENSORLESS
+    #error "CoreXY requires both X and Y to use sensorless homing if either does."
+  #elif CORE_IS_XZ && X_SENSORLESS != Z_SENSORLESS
+    #error "CoreXZ requires both X and Z to use sensorless homing if either does."
+  #elif CORE_IS_YZ && Y_SENSORLESS != Z_SENSORLESS
+    #error "CoreYZ requires both Y and Z to use sensorless homing if either does."
   #endif
 
 #elif ENABLED(SENSORLESS_HOMING)

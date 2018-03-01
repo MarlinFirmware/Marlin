@@ -2964,11 +2964,11 @@ void kill_screen(const char* lcd_msg) {
     }
     encoderPosition = 0;
     if (lcdDrawUpdate) {
-      const float pos = (processing_manual_move ? destination[axis] : current_position[axis]
+      const float pos = NATIVE_TO_LOGICAL(processing_manual_move ? destination[axis] : current_position[axis]
         #if IS_KINEMATIC
           + manual_move_offset
         #endif
-      );
+      , axis);
       lcd_implementation_drawedit(name, move_menu_scale >= 0.1 ? ftostr41sign(pos) : ftostr43sign(pos));
     }
   }
@@ -5012,7 +5012,7 @@ void lcd_update() {
 
     #if BUTTON_EXISTS(BACK)
       if (LCD_BACK_CLICKED) {
-        lcd_quick_feedback();
+        lcd_quick_feedback(true);
         lcd_goto_previous_menu();
       }
     #endif

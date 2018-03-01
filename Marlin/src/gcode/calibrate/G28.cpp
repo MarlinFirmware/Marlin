@@ -63,12 +63,8 @@
                 fr_mm_s = min(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
 
     #if ENABLED(SENSORLESS_HOMING)
-      #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
-        tmc_sensorless_homing(stepperX);
-      #endif
-      #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
-        tmc_sensorless_homing(stepperY);
-      #endif
+      sensorless_homing_per_axis(X_AXIS);
+      sensorless_homing_per_axis(Y_AXIS);
     #endif
 
     do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
@@ -76,12 +72,8 @@
     current_position[X_AXIS] = current_position[Y_AXIS] = 0.0;
 
     #if ENABLED(SENSORLESS_HOMING)
-      #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
-        tmc_sensorless_homing(stepperX, false);
-      #endif
-      #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
-        tmc_sensorless_homing(stepperY, false);
-      #endif
+      sensorless_homing_per_axis(X_AXIS, false);
+      sensorless_homing_per_axis(Y_AXIS, false);
       safe_delay(500); // Short delay needed to settle
     #endif
   }

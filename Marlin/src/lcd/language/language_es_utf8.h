@@ -32,6 +32,7 @@
 
 #define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
 #define MSG_BACK                            _UxGT("Atrás")
