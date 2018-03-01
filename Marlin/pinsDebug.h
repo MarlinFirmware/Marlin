@@ -25,7 +25,12 @@ bool endstop_monitor_flag = false;
 #define NAME_FORMAT "%-35s"   // one place to specify the format of all the sources of names
                                // "-" left justify, "28" minimum width of name, pad with blanks
 
-#define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
+#if AVR_ATmega1284_FAMILY
+  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(7) && (P) <= analogInputToDigitalPin(0)) 
+#else  
+  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
+#endif
+
 
 /**
  *  This routine minimizes RAM usage by creating a FLASH resident array to
