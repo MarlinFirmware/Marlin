@@ -191,6 +191,10 @@ void set_axis_is_at_home(const AxisEnum axis);
 void homeaxis(const AxisEnum axis);
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
+#if ENABLED(SENSORLESS_HOMING)
+  void sensorless_homing_per_axis(const AxisEnum axis, const bool enable=true);
+#endif
+
 //
 // Macros
 //
