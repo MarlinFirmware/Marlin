@@ -1557,6 +1557,15 @@ static_assert(1 >= 0
     #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
   #endif
 
+  // Sensorless homing is required for both combined steppers in an H-bot
+  #if CORE_IS_XY && X_SENSORLESS != Y_SENSORLESS
+    #error "CoreXY requires both X and Y to use sensorless homing if either does."
+  #elif CORE_IS_XZ && X_SENSORLESS != Z_SENSORLESS
+    #error "CoreXZ requires both X and Z to use sensorless homing if either does."
+  #elif CORE_IS_YZ && Y_SENSORLESS != Z_SENSORLESS
+    #error "CoreYZ requires both Y and Z to use sensorless homing if either does."
+  #endif
+
 #elif ENABLED(SENSORLESS_HOMING)
 
   #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
