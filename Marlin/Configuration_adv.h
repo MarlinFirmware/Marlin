@@ -857,6 +857,7 @@
  * will be converted to firmware-based retract/recover moves.
  *
  * Be sure to turn off auto-retract during filament change.
+ * Current statuses(Retract, Swap and Zlift) not resetted after homing
  *
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *
