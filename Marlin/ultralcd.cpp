@@ -4997,7 +4997,7 @@ void lcd_update() {
 
     #if BUTTON_EXISTS(BACK)
       if (LCD_BACK_CLICKED) {
-        lcd_quick_feedback();
+        lcd_quick_feedback(true);
         lcd_goto_previous_menu();
       }
     #endif
