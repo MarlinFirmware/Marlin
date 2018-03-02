@@ -2177,17 +2177,16 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
     #endif
+	
+    #if ENABLED(WAIT_FOR_BED_HEATER)
+      if(thermalManager.isHeatingBed()) SERIAL_ECHOPGM("Waiting for bed to heat...");
+      // Wait for bed to heat back up between probing points
+      while(thermalManager.isHeatingBed()) safe_delay(200);
+    #endif
 
     // Deploy BLTouch at the start of any probe
     #if ENABLED(BLTOUCH)
       if (set_bltouch_deployed(true)) return true;
-    #endif
-	
-	#if ENABLED(WAIT_FOR_BED_HEATER)
-      // Wait for bed to heat back up between probing points
-      while(thermalManager.isHeatingBed()) {
-        safe_delay(1000);
-      }
     #endif
 
     #if QUIET_PROBING
@@ -2849,6 +2848,15 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
       SERIAL_ECHOPAIR(", ", fr_mm_s);
       SERIAL_CHAR(')');
       SERIAL_EOL();
+    }
+  #endif
+
+  #if HOMING_Z_WITH_PROBE && ENABLED(WAIT_FOR_BED_HEATER)
+    const bool probing_down = (axis == Z_AXIS && distance < 0);
+    if(probing_down){
+      if (thermalManager.isHeatingBed())SERIAL_ECHOLNPGM("Waiting for bed to heat...");
+      // Wait for bed to heat back up between probing points
+      while(thermalManager.isHeatingBed()) safe_delay(200);
     }
   #endif
 
