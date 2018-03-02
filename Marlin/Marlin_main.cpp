@@ -2204,6 +2204,11 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(BLTOUCH)
       if (set_bltouch_deployed(true)) return true;
     #endif
+	
+    #if ENABLED(WAIT_FOR_BED_HEATER)
+      // Wait for bed to heat back up between probing points
+      while (thermalManager.isHeatingBed()) safe_delay(200);
+    #endif
 
     #if QUIET_PROBING
       probing_pause(true);
