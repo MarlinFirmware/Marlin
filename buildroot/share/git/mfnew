@@ -9,7 +9,7 @@ usage() {
   echo "Usage: `basename $0` [1|2] [name]" 1>&2
 }
 
-[[ $# < 3 ]] || { usage ; exit 1 ; }
+[[ $# < 3 && $1 != "-h" && $1 != "--help" ]] || { usage; exit 1; }
 
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"

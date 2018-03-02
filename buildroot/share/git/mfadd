@@ -2,12 +2,22 @@
 #
 # mfadd
 #
-# Add a remote and fetch it
+# Add a remote and fetch it. Optionally copy a branch.
+#
+# Example: mfadd thinkyhead:patch-1 copy_of_patch-1
 #
 
-[[ $# == 1 ]] || { echo "Usage: `basename $0` user" 1>&2 ; exit 1; }
+[[ $# > 0 && $# < 3 && $1 != "-h" && $1 != "--help" ]] || { echo "Usage: `basename $0` (user | ref copyname)" 1>&2 ; exit 1; }
 
-USER=$1
+# If a colon is included, split the parts
+if [[ $1 =~ ":" ]]; then
+  IFS=':' read -a DATA <<< "$1"
+  USER=${DATA[0]}
+  BRANCH=${DATA[1]}
+  NAME=$2
+else
+  USER=$1
+fi
 
 MFINFO=$(mfinfo) || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
@@ -16,5 +26,7 @@ REPO=${INFO[2]}
 set -e
 
 echo "Adding and fetching $USER..."
-git remote add "$USER" "git@github.com:$USER/$REPO.git"
+git remote add "$USER" "git@github.com:$USER/$REPO.git" >/dev/null 2>&1 || echo "Remote exists."
 git fetch "$USER"
+
+[[ ! -z "$BRANCH" && ! -z "$NAME" ]] && git checkout $USER/$BRANCH -b $NAME
