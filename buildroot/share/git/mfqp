@@ -5,7 +5,7 @@
 # Add all changed files, commit as "patch", do `mfrb` and `git push -f`
 #
 
-[[ $# < 2 ]] || { echo "Usage: `basename $0` [1|2]" 1>&2 ; exit 1; }
+[[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "Usage: `basename $0` [1|2]" 1>&2 ; exit 1; }
 
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
