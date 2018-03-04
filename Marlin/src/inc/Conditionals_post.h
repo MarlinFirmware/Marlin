@@ -252,8 +252,12 @@
 
 // MS1 MS2 Stepper Driver Microstepping mode table
 #define MICROSTEP1 LOW,LOW
-#define MICROSTEP2 HIGH,LOW
-#define MICROSTEP4 LOW,HIGH
+#if ENABLED(HEROIC_STEPPER_DRIVERS)
+  #define MICROSTEP128 LOW,HIGH
+#else
+  #define MICROSTEP2 HIGH,LOW
+  #define MICROSTEP4 LOW,HIGH
+#endif
 #define MICROSTEP8 HIGH,HIGH
 #ifdef __SAM3X8E__
   #if MB(ALLIGATOR)
@@ -263,7 +267,7 @@
     #define MICROSTEP16 HIGH,HIGH
   #endif
 #else
-#define MICROSTEP16 HIGH,HIGH
+  #define MICROSTEP16 HIGH,HIGH
 #endif
 
 /**
