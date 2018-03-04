@@ -2889,6 +2889,7 @@ static void clean_up_after_endstop_or_probe_move() {
           #endif
           break;
       #endif
+      default: break;
     }
   }
 
@@ -10684,11 +10685,11 @@ inline void gcode_M502() {
       }
 
       #if Z_IS_TRINAMIC
-        uint16_t Z_current_1 = stepperZ.getCurrent(),
+        uint16_t Z_current_1 = stepperZ.getCurrent();
         stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
       #endif
       #if Z2_IS_TRINAMIC
-        uint16_t Z2_current_1 = stepperZ.getCurrent();
+        uint16_t Z2_current_1 = stepperZ2.getCurrent();
         stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
       #endif
 
