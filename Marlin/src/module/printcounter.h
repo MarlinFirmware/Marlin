@@ -99,10 +99,14 @@ class PrintCounter: public Stopwatch {
     millis_t deltaDuration();
 
   public:
+
     /**
-     * @brief Class constructor
+     * @brief Initialize the print counter
      */
-    PrintCounter();
+    inline void init() {
+      super::init();
+      this->loadStats();
+    }
 
     /**
      * @brief Checks if Print Statistics has been loaded

@@ -730,7 +730,11 @@ void setup() {
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
   (void)settings.load();
-
+  
+  #if ENABLED(PRINTCOUNTER)
+    print_job_timer.init();
+  #endif  
+  
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
     COPY(current_position, home_offset);
