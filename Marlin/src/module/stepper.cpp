@@ -856,7 +856,7 @@ void Stepper::isr() {
         DELAY_NOPS(EXTRA_CYCLES_E);
       #endif
 
-    } // steps_loop
+    } // e_steps
   }
 
   void Stepper::advance_isr_scheduler() {
