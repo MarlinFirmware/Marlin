@@ -750,6 +750,10 @@ void Temperature::manage_heater() {
     static bool last_pause_state;
   #endif
 
+  #if ENABLED(EMERGENCY_PARSER)
+    if (killed_by_M112) kill(PSTR(MSG_KILLED));
+  #endif
+
   if (!temp_meas_ready) return;
 
   updateTemperaturesFromRawValues(); // also resets the watchdog

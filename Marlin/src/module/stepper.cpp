@@ -856,7 +856,7 @@ void Stepper::isr() {
         DELAY_NOPS(EXTRA_CYCLES_E);
       #endif
 
-    } // steps_loop
+    } // e_steps
   }
 
   void Stepper::advance_isr_scheduler() {
@@ -1591,13 +1591,18 @@ void Stepper::report_positions() {
   void Stepper::microstep_mode(const uint8_t driver, const uint8_t stepping_mode) {
     switch (stepping_mode) {
       case 1: microstep_ms(driver, MICROSTEP1); break;
-      case 2: microstep_ms(driver, MICROSTEP2); break;
-      case 4: microstep_ms(driver, MICROSTEP4); break;
+      #if ENABLED(HEROIC_STEPPER_DRIVERS)
+        case 128: microstep_ms(driver, MICROSTEP128); break;
+      #else
+        case 2: microstep_ms(driver, MICROSTEP2); break;
+        case 4: microstep_ms(driver, MICROSTEP4); break;
+      #endif
       case 8: microstep_ms(driver, MICROSTEP8); break;
       case 16: microstep_ms(driver, MICROSTEP16); break;
       #if MB(ALLIGATOR)
         case 32: microstep_ms(driver, MICROSTEP32); break;
       #endif
+      default: SERIAL_ERROR_START(); SERIAL_ERRORLNPGM("Microsteps unavailable"); break;
     }
   }
 
