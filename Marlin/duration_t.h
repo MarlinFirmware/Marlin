@@ -154,7 +154,7 @@ struct duration_t {
       return d >= 10 ? 9 : 8;
     }
     else if (h < 100) {
-      sprintf_P(buffer, PSTR("%02u:%02u"), h % 24, m);
+      sprintf_P(buffer, PSTR("%02u:%02u"), h, m);
       return 5;
     }
     else {
