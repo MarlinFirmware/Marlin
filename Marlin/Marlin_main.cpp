@@ -260,6 +260,7 @@
 #include "pins_arduino.h"
 #include "math.h"
 #include "nozzle.h"
+#include "printcounter.h"
 #include "duration_t.h"
 #include "types.h"
 #include "gcode.h"
@@ -514,13 +515,6 @@ static int serial_count = 0;
 millis_t previous_cmd_ms = 0;
 static millis_t max_inactive_time = 0;
 static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
-
-// Print Job Timer
-#if ENABLED(PRINTCOUNTER)
-  PrintCounter print_job_timer = PrintCounter();
-#else
-  Stopwatch print_job_timer = Stopwatch();
-#endif
 
 // Auto Power Control
 #if ENABLED(AUTO_POWER_CONTROL)
@@ -13702,6 +13696,8 @@ void setup() {
   SYNC_PLAN_POSITION_KINEMATIC();
 
   thermalManager.init();    // Initialize temperature loop
+
+  print_job_timer.init();   // Initial setup of print job timer
 
   #if ENABLED(USE_WATCHDOG)
     watchdog_init();

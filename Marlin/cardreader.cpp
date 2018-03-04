@@ -29,6 +29,7 @@
 #include "ultralcd.h"
 #include "stepper.h"
 #include "language.h"
+#include "printcounter.h"
 
 #define LONGEST_FILENAME (longFilename[0] ? longFilename : filename)
 
