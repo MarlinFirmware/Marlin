@@ -53,6 +53,11 @@ class Stopwatch {
     Stopwatch();
 
     /**
+     * @brief Initialize the stopwatch
+     */
+    inline void init() {}
+
+    /**
      * @brief Stops the stopwatch
      * @details Stops the running timer, it will silently ignore the request if
      * no timer is currently running.

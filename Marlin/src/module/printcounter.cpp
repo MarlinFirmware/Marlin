@@ -28,10 +28,6 @@
 
 #include "../Marlin.h"
 
-PrintCounter::PrintCounter(): super() {
-  this->loadStats();
-}
-
 millis_t PrintCounter::deltaDuration() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     PrintCounter::debug(PSTR("deltaDuration"));
