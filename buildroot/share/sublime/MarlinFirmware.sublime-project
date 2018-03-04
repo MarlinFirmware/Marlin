@@ -13,7 +13,6 @@
 			],
 			"folder_exclude_patterns":
 			[
-				".github",
 				".pio*",
 				"Marlin/lib",
 				"datatmp",
