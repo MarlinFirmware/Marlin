@@ -21,13 +21,12 @@
  */
 
 /**
-  MarlinSerial.h - Hardware serial library for Wiring
-  Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
-
-  Modified 28 September 2010 by Mark Sproul
-  Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
-
-*/
+ * MarlinSerial.h - Hardware serial library for Wiring
+ * Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
+ *
+ * Modified 28 September 2010 by Mark Sproul
+ * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
+ */
 
 #ifndef MARLINSERIAL_H
 #define MARLINSERIAL_H
@@ -100,6 +99,10 @@
 
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
     extern ring_buffer_pos_t rx_max_enqueued;
+  #endif
+
+  #if ENABLED(EMERGENCY_PARSER)
+    extern bool killed_by_M112;
   #endif
 
   class MarlinSerial { //: public Stream
