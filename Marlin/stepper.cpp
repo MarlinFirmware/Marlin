@@ -877,12 +877,12 @@ void Stepper::isr() {
 
       // For minimum pulse time wait before looping
       #if EXTRA_CYCLES_E > 20
-        if (i) while (EXTRA_CYCLES_E > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
+        if (e_steps) while (EXTRA_CYCLES_E > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
       #elif EXTRA_CYCLES_E > 0
-        if (i) DELAY_NOPS(EXTRA_CYCLES_E);
+        if (e_steps) DELAY_NOPS(EXTRA_CYCLES_E);
       #endif
 
-    } // steps_loop
+    } // e_steps
   }
 
   void Stepper::advance_isr_scheduler() {
