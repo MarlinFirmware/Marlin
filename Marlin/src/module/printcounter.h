@@ -23,12 +23,19 @@
 #ifndef PRINTCOUNTER_H
 #define PRINTCOUNTER_H
 
-#include "../inc/MarlinConfig.h"
 #include "../libs/stopwatch.h"
 #include "../libs/duration_t.h"
+#include "../inc/MarlinConfig.h"
 
 // Print debug messages with M111 S2
 //#define DEBUG_PRINTCOUNTER
+
+#if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM)
+  // round up address to next page boundary (assuming 32 byte pages)
+  #define STATS_EEPROM_ADDRESS 0x40
+#else
+  #define STATS_EEPROM_ADDRESS 0x32
+#endif
 
 struct printStatistics {    // 16 bytes (20 with real doubles)
   //const uint8_t magic;    // Magic header, it will always be 0x16
@@ -43,20 +50,20 @@ class PrintCounter: public Stopwatch {
   private:
     typedef Stopwatch super;
 
-    printStatistics data;
+    #if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM) || defined(CPU_32_BIT)
+      typedef uint32_t promdress;
+    #else
+      typedef uint16_t promdress;
+    #endif
+
+    static printStatistics data;
 
     /**
      * @brief EEPROM address
      * @details Defines the start offset address where the data is stored.
      */
-    #if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM)
-      // round up address to next page boundary (assuming 32 byte pages)
-      const uint32_t address = 0x40;
-    #elif defined(CPU_32_BIT)
-      const uint32_t address = 0x32;
-    #else
-      const uint16_t address = 0x32;
-    #endif
+    static const promdress address;
+
     /**
      * @brief Interval in seconds between counter updates
      * @details This const value defines what will be the time between each
@@ -65,7 +72,7 @@ class PrintCounter: public Stopwatch {
      * @note The max value for this option is 60(s), otherwise integer
      * overflow will happen.
      */
-    const uint16_t updateInterval = 10;
+    static const uint16_t updateInterval;
 
     /**
      * @brief Interval in seconds between EEPROM saves
@@ -73,110 +80,114 @@ class PrintCounter: public Stopwatch {
      * EEPROM save cycle, the development team recommends to set this value
      * no lower than 3600 secs (1 hour).
      */
-    const uint16_t saveInterval = 3600;
+    static const uint16_t saveInterval;
 
     /**
      * @brief Timestamp of the last call to deltaDuration()
-     * @details Stores the timestamp of the last deltaDuration(), this is
+     * @details Store the timestamp of the last deltaDuration(), this is
      * required due to the updateInterval cycle.
      */
-    millis_t lastDuration;
+    static millis_t lastDuration;
 
     /**
-     * @brief Stats were loaded from EERPROM
+     * @brief Stats were loaded from EEPROM
      * @details If set to true it indicates if the statistical data was already
      * loaded from the EEPROM.
      */
-    bool loaded = false;
+    static bool loaded;
 
   protected:
     /**
      * @brief dT since the last call
-     * @details Returns the elapsed time in seconds since the last call, this is
+     * @details Return the elapsed time in seconds since the last call, this is
      * used internally for print statistics accounting is not intended to be a
      * user callable function.
      */
-    millis_t deltaDuration();
+    static millis_t deltaDuration();
 
   public:
-    /**
-     * @brief Class constructor
-     */
-    PrintCounter();
 
     /**
-     * @brief Checks if Print Statistics has been loaded
-     * @details Returns true if the statistical data has been loaded.
+     * @brief Initialize the print counter
+     */
+    static inline void init() {
+      super::init();
+      loadStats();
+    }
+
+    /**
+     * @brief Check if Print Statistics has been loaded
+     * @details Return true if the statistical data has been loaded.
      * @return bool
      */
-    bool isLoaded();
+    FORCE_INLINE static bool isLoaded() { return loaded; }
 
     /**
-     * @brief Increments the total filament used
+     * @brief Increment the total filament used
      * @details The total filament used counter will be incremented by "amount".
      *
      * @param amount The amount of filament used in mm
      */
-    void incFilamentUsed(double const &amount);
+    static void incFilamentUsed(double const &amount);
 
     /**
-     * @brief Resets the Print Statistics
-     * @details Resets the statistics to zero and saves them to EEPROM creating
+     * @brief Reset the Print Statistics
+     * @details Reset the statistics to zero and saves them to EEPROM creating
      * also the magic header.
      */
-    void initStats();
+    static void initStats();
 
     /**
-     * @brief Loads the Print Statistics
-     * @details Loads the statistics from EEPROM
+     * @brief Load the Print Statistics
+     * @details Load the statistics from EEPROM
      */
-    void loadStats();
+    static void loadStats();
 
     /**
-     * @brief Saves the Print Statistics
-     * @details Saves the statistics to EEPROM
+     * @brief Save the Print Statistics
+     * @details Save the statistics to EEPROM
      */
-    void saveStats();
+    static void saveStats();
 
     /**
      * @brief Serial output the Print Statistics
      * @details This function may change in the future, for now it directly
      * prints the statistical data to serial.
      */
-    void showStats();
+    static void showStats();
 
     /**
      * @brief Return the currently loaded statistics
      * @details Return the raw data, in the same structure used internally
      */
-    printStatistics getStats() { return this->data; }
+    static printStatistics getStats() { return data; }
 
     /**
      * @brief Loop function
      * @details This function should be called at loop, it will take care of
      * periodically save the statistical data to EEPROM and do time keeping.
      */
-    void tick();
+    static void tick();
 
     /**
      * The following functions are being overridden
      */
-    bool start();
-    bool stop();
-    void reset();
+    static bool start();
+    static bool stop();
+    static void reset();
 
     #if ENABLED(DEBUG_PRINTCOUNTER)
 
       /**
-       * @brief Prints a debug message
-       * @details Prints a simple debug message "PrintCounter::function"
+       * @brief Print a debug message
+       * @details Print a simple debug message
        */
       static void debug(const char func[]);
 
     #endif
 };
 
-// Print Job Timer
+// Global Print Job Timer instance
 #if ENABLED(PRINTCOUNTER)
   extern PrintCounter print_job_timer;
 #else

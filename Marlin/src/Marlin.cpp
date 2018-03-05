@@ -743,6 +743,8 @@ void setup() {
 
   thermalManager.init();    // Initialize temperature loop
 
+  print_job_timer.init();   // Initial setup of print job timer
+
   stepper.init();    // Initialize stepper, this enables interrupts!
 
   #if HAS_SERVOS
