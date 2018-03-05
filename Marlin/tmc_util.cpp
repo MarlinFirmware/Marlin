@@ -26,6 +26,7 @@
 
 #include "tmc_util.h"
 #include "Marlin.h"
+#include "printcounter.h"
 #include "duration_t.h"
 #include "stepper_indirection.h"
 
