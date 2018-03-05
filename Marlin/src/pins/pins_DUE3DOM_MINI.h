@@ -156,5 +156,16 @@
     #define BTN_ENC         37
 
     #define BEEPER_PIN      -1
+    
+   #elif ENABLED(MINIPANEL)
+    #define BTN_EN1         52
+    #define BTN_EN2         50
+    #define BTN_ENC         48
+    #define LCD_SDSS        4
+    #define SD_DETECT_PIN   14
+    #define BEEPER_PIN      41
+    #define DOGLCD_A0       46
+    #define DOGLCD_CS       45
+    
   #endif // SPARK_FULL_GRAPHICS
 #endif // ULTRA_LCD
