@@ -39,8 +39,9 @@
   #include "buzzer.h"
 #endif
 
+#include "printcounter.h"
+
 #if ENABLED(PRINTCOUNTER)
-  #include "printcounter.h"
   #include "duration_t.h"
 #endif
 

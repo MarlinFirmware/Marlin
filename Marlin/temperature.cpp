@@ -30,6 +30,7 @@
 #include "ultralcd.h"
 #include "planner.h"
 #include "language.h"
+#include "printcounter.h"
 
 #if ENABLED(HEATER_0_USES_MAX6675)
   #include "MarlinSPI.h"
