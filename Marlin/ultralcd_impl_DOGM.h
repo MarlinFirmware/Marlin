@@ -282,9 +282,11 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
     void lcd_custom_bootscreen() {
       constexpr u8g_uint_t left = (LCD_PIXEL_WIDTH  - (CUSTOM_BOOTSCREEN_BMPWIDTH)) / 2,
-                           top = (LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2,
-                           right = left + CUSTOM_BOOTSCREEN_BMPWIDTH,
-                           bottom = top + CUSTOM_BOOTSCREEN_BMPHEIGHT;
+                           top = (LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2;
+      #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
+        constexpr u8g_uint_t right = left + CUSTOM_BOOTSCREEN_BMPWIDTH,
+                             bottom = top + CUSTOM_BOOTSCREEN_BMPHEIGHT;
+      #endif
       u8g.firstPage();
       do {
         u8g.drawBitmapP(
