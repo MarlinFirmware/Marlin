@@ -3475,7 +3475,7 @@ inline void gcode_G4() {
    */
   inline void gcode_G10() {
     #if EXTRUDERS > 1
-      const bool rs = parser.boolval('S');      
+      const bool rs = parser.boolval('S');
     #endif
     fwretract.retract(true
       #if EXTRUDERS > 1
