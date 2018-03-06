@@ -123,8 +123,7 @@ void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare)
   __HAL_TIM_SetAutoreload(&timerConfig[timer_num].timerdef, compare);
 }
 
-void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count)
-{
+void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count) {
   __HAL_TIM_SetAutoreload(&timerConfig[timer_num].timerdef, count);
 }
 

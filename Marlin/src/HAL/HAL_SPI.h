@@ -29,6 +29,7 @@
 #define _HAL_SPI_H_
 
 #include <stdint.h>
+#include <SPI.h>
 
 /**
  * SPI speed where 0 <= index <= 6
