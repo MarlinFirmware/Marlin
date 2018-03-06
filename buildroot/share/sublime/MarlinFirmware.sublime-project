@@ -16,7 +16,8 @@
 				".pio*",
 				"Marlin/lib",
 				"datatmp",
-				"Marlin/*/src"
+				"Marlin/*/src",
+				".vscode"
 			],
 			"path": "../../.."
 		}
