@@ -157,22 +157,28 @@ void HAL_enable_AdcFreerun(void);
 /**
  * Pin Map
  */
-
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+/**
+ * Tone
+ */
+void toneInit();
+void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
+void noTone(const pin_t _pin);
 
 // Enable hooks into idle and setup for USB stack
 #define HAL_IDLETASK 1
 #define HAL_INIT 1
 #ifdef __cplusplus
-extern "C" {
+  extern "C" {
 #endif
 void HAL_idletask(void);
 void HAL_init(void);
 char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s);
 #ifdef __cplusplus
-}
+  }
 #endif
 
 #endif // _HAL_DUE_H

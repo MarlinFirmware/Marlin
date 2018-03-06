@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,12 +20,27 @@
  *
  */
 
-#ifdef TARGET_LPC1768
+#pragma once
 
-  void u8g_i2c_init(uint8_t options);
-  uint8_t u8g_i2c_wait(uint8_t mask, uint8_t pos);
-  uint8_t u8g_i2c_start(uint8_t sla);
-  uint8_t u8g_i2c_send_byte(uint8_t data);
-  void u8g_i2c_stop(void);
+#include "../../HAL_SPI.h"
 
-#endif
+#include <stdint.h>
+
+#define MSBFIRST 1
+#define SPI_MODE3 0
+
+class SPISettings {
+  public:
+    SPISettings(int a, int b, int c) {};
+};
+
+class SPIClass {
+  public:
+    void begin();
+    void beginTransaction(SPISettings foo) {};
+    void endTransaction() {};
+    uint8_t transfer(uint8_t data);
+    uint16_t transfer16(uint16_t data);
+};
+
+extern SPIClass SPI;

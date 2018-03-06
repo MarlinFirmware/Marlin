@@ -27,6 +27,10 @@
 #include "Stream.h"
 #include <Wire.h>
 
+#if MB(MKS_SBASE)
+  #include "digipot_mcp4451_I2C_routines.h"
+#endif
+
 // Settings for the I2C based DIGIPOT (MCP4451) on Azteeg X3 Pro
 #if MB(5DPRINT)
   #define DIGIPOT_I2C_FACTOR 117.96
@@ -41,10 +45,16 @@ static byte current_to_wiper(const float current) {
 }
 
 static void i2c_send(const byte addr, const byte a, const byte b) {
-  Wire.beginTransmission(addr);
-  Wire.write(a);
-  Wire.write(b);
-  Wire.endTransmission();
+  #if MB(MKS_SBASE)
+    digipot_mcp4451_start(addr);
+    digipot_mcp4451_send_byte(a);
+    digipot_mcp4451_send_byte(b);
+  #else
+    Wire.beginTransmission(addr);
+    Wire.write(a);
+    Wire.write(b);
+    Wire.endTransmission();
+  #endif
 }
 
 // This is for the MCP4451 I2C based digipot
@@ -63,9 +73,13 @@ void digipot_i2c_set_current(const uint8_t channel, const float current) {
 }
 
 void digipot_i2c_init() {
-  static const float digipot_motor_current[] PROGMEM = DIGIPOT_I2C_MOTOR_CURRENTS;
-  Wire.begin();
+  #if MB(MKS_SBASE)
+    digipot_mcp4451_init();
+  #else
+    Wire.begin();
+  #endif
   // setup initial currents as defined in Configuration_adv.h
+  static const float digipot_motor_current[] PROGMEM = DIGIPOT_I2C_MOTOR_CURRENTS;
   for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++)
     digipot_i2c_set_current(i, pgm_read_float(&digipot_motor_current[i]));
 }

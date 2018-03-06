@@ -59,6 +59,7 @@
 #define BOARD_BAM_DICE          401   // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402   // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_MKS_BASE          40    // MKS BASE 1.0
+#define BOARD_MKS_BASE_HEROIC   41    // MKS BASE 1.0 with Heroic HR4982 stepper drivers
 #define BOARD_MKS_13            47    // MKS v1.3 or 1.4 (maybe higher)
 #define BOARD_MKS_GEN_L         53    // MKS GEN L
 #define BOARD_ZRIB_V20          504   // zrib V2.0 control board (Chinese knock off RAMPS replica)
@@ -92,6 +93,7 @@
 #define BOARD_RAMBO             301   // Rambo
 #define BOARD_MINIRAMBO         302   // Mini-Rambo
 #define BOARD_MINIRAMBO_10A     303   // Mini-Rambo 1.0a
+#define BOARD_EINSY_RAMBO       304   // Einsy Rambo
 #define BOARD_ELEFU_3           21    // Elefu Ra Board (v3)
 #define BOARD_LEAPFROG          999   // Leapfrog
 #define BOARD_MEGACONTROLLER    310   // Mega controller

@@ -46,7 +46,7 @@
 #define _O3          __attribute__((optimize("O3")))
 
 // Clock speed factors
-#ifndef CYCLES_PER_MICROSECOND
+#if !defined(CYCLES_PER_MICROSECOND) && !defined(__STM32F1__)
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
 #endif
 

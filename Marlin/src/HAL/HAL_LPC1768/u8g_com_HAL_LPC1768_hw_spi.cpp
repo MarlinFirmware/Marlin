@@ -59,10 +59,10 @@
 
 #ifdef TARGET_LPC1768
 
-//  #include <inttypes.h>
+  //#include <inttypes.h>
 
-//  #include "src/core/macros.h"
-//  #include "Configuration.h"
+  //#include "src/core/macros.h"
+  //#include "Configuration.h"
 
   #include <U8glib.h>
 

@@ -53,9 +53,6 @@ enum BlockFlagBit {
   // from a safe speed (in consideration of jerking from zero speed).
   BLOCK_BIT_NOMINAL_LENGTH,
 
-  // Start from a halt at the start of this block, respecting the maximum allowed jerk.
-  BLOCK_BIT_START_FROM_FULL_HALT,
-
   // The block is busy
   BLOCK_BIT_BUSY,
 
@@ -66,7 +63,6 @@ enum BlockFlagBit {
 enum BlockFlag {
   BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
   BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
-  BLOCK_FLAG_START_FROM_FULL_HALT = _BV(BLOCK_BIT_START_FROM_FULL_HALT),
   BLOCK_FLAG_BUSY                 = _BV(BLOCK_BIT_BUSY),
   BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED)
 };
@@ -103,7 +99,10 @@ typedef struct {
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead;
-    uint32_t abs_adv_steps_multiplier8; // Factorised by 2^8 to avoid float
+    uint16_t advance_speed,                 // Timer value for extruder speed offset
+             max_adv_steps,                 // max. advance steps to get cruising speed pressure (not always nominal_speed!)
+             final_adv_steps;               // advance steps due to exit speed
+    float e_D_ratio;
   #endif
 
   // Fields used by the motion planner to manage acceleration
@@ -195,9 +194,8 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static float extruder_advance_k, advance_ed_ratio,
-                   position_float[XYZE],
-                   lin_dist_xy, lin_dist_e;
+      static float extruder_advance_K,
+                   position_float[XYZE];
     #endif
 
     #if ENABLED(SKEW_CORRECTION)
@@ -418,7 +416,12 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-    static void _buffer_steps(const int32_t (&target)[XYZE], float fr_mm_s, const uint8_t extruder, const float &millimeters = 0.0);
+    static void _buffer_steps(const int32_t (&target)[XYZE]
+      #if ENABLED(LIN_ADVANCE)
+        , const float (&target_float)[XYZE]
+      #endif
+      , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+    );
 
     /**
      * Planner::buffer_segment
@@ -432,7 +435,7 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-    static void buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters = 0.0);
+    static void buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 

@@ -17,8 +17,11 @@ if __name__ == "__main__":
                     "--specs=nano.specs",
                     "--specs=nosys.specs",
 
-                    "-IMarlin/src/HAL",
+                    # For external libraries
                     "-IMarlin/src/HAL/HAL_LPC1768/include",
+
+                    # For MarlinFirmware/U8glib-HAL
+                    "-IMarlin/src/HAL/HAL_LPC1768/u8g",
 
                     "-MMD",
                     "-MP",

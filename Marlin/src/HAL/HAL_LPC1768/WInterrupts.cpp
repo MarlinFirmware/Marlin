@@ -19,8 +19,8 @@
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
-#include "include/Arduino.h"
-#include "pinmapping.h"
+#include <Arduino.h>
+#include <pinmapping.h>
 //#include "HAL_timers.h"
 #include "fastio.h"
 
