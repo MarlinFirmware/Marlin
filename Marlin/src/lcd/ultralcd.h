@@ -44,9 +44,6 @@
     constexpr bool lcd_external_control = false;
   #endif
 
-  #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
-  #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
-
   extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
   #if ENABLED(LCD_BED_LEVELING)
@@ -96,6 +93,8 @@
   #endif
 
   #define LCD_UPDATE_INTERVAL 100
+  #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
+  #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
   #if ENABLED(ULTIPANEL)
 
@@ -107,15 +106,24 @@
 
     void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
 
+    // Encoder click is directly connected
+
     #define BLEN_A 0
     #define BLEN_B 1
-    // Encoder click is directly connected
-    #if BUTTON_EXISTS(ENC)
-      #define BLEN_C 2
-    #endif
+
     #define EN_A (_BV(BLEN_A))
     #define EN_B (_BV(BLEN_B))
-    #define EN_C (_BV(BLEN_C))
+
+    #if BUTTON_EXISTS(ENC)
+      #define BLEN_C 2
+      #define EN_C (_BV(BLEN_C))
+    #endif
+
+    #if BUTTON_EXISTS(BACK)
+      #define BLEN_D 3
+      #define EN_D _BV(BLEN_D)
+      #define LCD_BACK_CLICKED (buttons & EN_D)
+    #endif
 
     extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
     void lcd_buttons_update();
@@ -213,9 +221,13 @@
                                             )
 
   #elif ENABLED(NEWPANEL)
+
     #define LCD_CLICKED (buttons & EN_C)
+
   #else
+
     #define LCD_CLICKED false
+
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)

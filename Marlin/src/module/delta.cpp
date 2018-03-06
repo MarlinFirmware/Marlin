@@ -232,15 +232,9 @@ bool home_delta() {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
-      tmc_sensorless_homing(stepperX);
-    #endif
-    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
-      tmc_sensorless_homing(stepperY);
-    #endif
-    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
-      tmc_sensorless_homing(stepperZ);
-    #endif
+    sensorless_homing_per_axis(A_AXIS);
+    sensorless_homing_per_axis(B_AXIS);
+    sensorless_homing_per_axis(C_AXIS);
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
@@ -251,15 +245,9 @@ bool home_delta() {
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
-      tmc_sensorless_homing(stepperX, false);
-    #endif
-    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
-      tmc_sensorless_homing(stepperY, false);
-    #endif
-    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
-      tmc_sensorless_homing(stepperZ, false);
-    #endif
+    sensorless_homing_per_axis(A_AXIS, false);
+    sensorless_homing_per_axis(B_AXIS, false);
+    sensorless_homing_per_axis(C_AXIS, false);
   #endif
 
   // If an endstop was not hit, then damage can occur if homing is continued.

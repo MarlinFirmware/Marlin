@@ -28,7 +28,7 @@ extern "C" {
 #include "cdc.h"
 #include "cdcuser.h"
 
-#include <HAL_LPC1768/serial.h>
+#include <serial.h>
 
 unsigned char BulkBufIn[USB_CDC_BUFSIZE];            // Buffer to store USB IN  packet
 unsigned char BulkBufOut[USB_CDC_BUFSIZE];            // Buffer to store USB OUT packet

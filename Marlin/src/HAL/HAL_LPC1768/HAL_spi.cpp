@@ -26,7 +26,6 @@
  */
 
 /**
- *
  * For TARGET_LPC1768
  */
 
@@ -47,16 +46,15 @@
  * https://github.com/MarlinFirmware/Marlin/tree/071c7a78f27078fd4aee9a3ef365fcf5e143531e
  */
 
-#include "../../inc/MarlinConfig.h"
-
 #ifdef TARGET_LPC1768
+
+#include "../../inc/MarlinConfig.h"
 
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
 
-#include "LPC_SPI.h"
-#include "../SPI.h"
+#include <SPI.h>
 
 // --------------------------------------------------------------------------
 // Public functions

@@ -34,46 +34,50 @@
 
 #include "../inc/MarlinConfig.h"
 
+#define FIL_RUNOUT_THRESHOLD 5
+
 class FilamentRunoutSensor {
+  public:
+    FilamentRunoutSensor() {}
 
-  FilamentRunoutSensor() {}
+    static void setup();
 
-  static bool filament_ran_out;
-  static void setup();
+    FORCE_INLINE static void reset() { runout_count = 0; filament_ran_out = false; }
 
-  FORCE_INLINE static reset() { filament_ran_out = false; }
+    FORCE_INLINE static void run() {
+      if ((IS_SD_PRINTING || print_job_timer.isRunning()) && check() && !filament_ran_out) {
+        filament_ran_out = true;
+        enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+        stepper.synchronize();
+      }
+    }
+  private:
+    static bool filament_ran_out;
+    static uint8_t runout_count;
 
-  FORCE_INLINE static bool check() {
-    #if NUM_RUNOUT_SENSORS < 2
-      // A single sensor applying to all extruders
-      return READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING;
-    #else
-      // Read the sensor for the active extruder
-      switch (active_extruder) {
-        case 0: return READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING;
-        case 1: return READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING;
-        #if NUM_RUNOUT_SENSORS > 2
-          case 2: return READ(FIL_RUNOUT3_PIN) == FIL_RUNOUT_INVERTING;
-          #if NUM_RUNOUT_SENSORS > 3
-            case 3: return READ(FIL_RUNOUT4_PIN) == FIL_RUNOUT_INVERTING;
-            #if NUM_RUNOUT_SENSORS > 4
-              case 4: return READ(FIL_RUNOUT5_PIN) == FIL_RUNOUT_INVERTING;
+    FORCE_INLINE static bool check() {
+      #if NUM_RUNOUT_SENSORS < 2
+        // A single sensor applying to all extruders
+        const bool is_out = READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING;
+      #else
+        // Read the sensor for the active extruder
+        bool is_out;
+        switch (active_extruder) {
+          case 0: is_out = READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING; break;
+          case 1: is_out = READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING; break;
+          #if NUM_RUNOUT_SENSORS > 2
+            case 2: is_out = READ(FIL_RUNOUT3_PIN) == FIL_RUNOUT_INVERTING; break;
+            #if NUM_RUNOUT_SENSORS > 3
+              case 3: is_out = READ(FIL_RUNOUT4_PIN) == FIL_RUNOUT_INVERTING; break;
+              #if NUM_RUNOUT_SENSORS > 4
+                case 4: is_out = READ(FIL_RUNOUT5_PIN) == FIL_RUNOUT_INVERTING; break;
+              #endif
             #endif
           #endif
-        #endif
-      }
-    #endif
-    return false;
-  }
-
-  FORCE_INLINE static void run() {
-    if ((IS_SD_PRINTING || print_job_timer.isRunning()) && check() && !filament_ran_out) {
-      filament_ran_out = true;
-      enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
-      stepper.synchronize();
+        }
+      #endif
+      return (is_out ? ++runout_count : (runout_count = 0)) > FIL_RUNOUT_THRESHOLD;
     }
-  }
-
 };
 
 extern FilamentRunoutSensor runout;

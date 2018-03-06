@@ -34,8 +34,8 @@
 
 #include <LPC17xx.h>
 #include <lpc17xx_pinsel.h>
-#include "../core/macros.h"
-//#include "pinmapping.h"
+#include "../../../core/macros.h"
+//#include <pinmapping.h>
 
 #define LPC_PORT_OFFSET         (0x0020)
 #define LPC_PIN(pin)            (1UL << pin)

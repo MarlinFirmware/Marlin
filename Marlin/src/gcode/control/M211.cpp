@@ -30,12 +30,11 @@
  */
 void GcodeSuite::M211() {
   SERIAL_ECHO_START();
+  SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
   #if HAS_SOFTWARE_ENDSTOPS
     if (parser.seen('S')) soft_endstops_enabled = parser.value_bool();
-    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
     serialprintPGM(soft_endstops_enabled ? PSTR(MSG_ON) : PSTR(MSG_OFF));
   #else
-    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
     SERIAL_ECHOPGM(MSG_OFF);
   #endif
   SERIAL_ECHOPGM(MSG_SOFT_MIN);

@@ -108,6 +108,8 @@
 
   #if ENABLED(EMERGENCY_PARSER)
 
+    bool killed_by_M112; // = false
+
     // Currently looking for: M108, M112, M410
     // If you alter the parser please don't forget to update the capabilities in Conditionals_post.h
 
@@ -180,7 +182,7 @@
                 wait_for_user = wait_for_heatup = false;
                 break;
               case state_M112:
-                kill(PSTR(MSG_KILLED));
+                killed_by_M112 = true;
                 break;
               case state_M410:
                 quickstop_stepper();

@@ -20,24 +20,8 @@
  *
  */
 
-
-#ifndef HAL_LCD_DEFINES_H_
-#define HAL_LCD_DEFINES_H_
-
-#ifdef ARDUINO_ARCH_SAM
-//  #include "HAL_DUE/HAL_DUE_LCD_defines.h"
-
-#elif defined(IS_32BIT_TEENSY)
-//  #include "HAL_TEENSY35_36/HAL_TEENSY_LCD_defines.h"
-
-#elif defined(ARDUINO_ARCH_AVR)
-//  #include "HAL_AVR/HAL_ARDUINO_LCD_defines.h"
-
-#elif defined(TARGET_LPC1768)
-  #include "HAL_LPC1768/HAL_LPC1768_LCD_defines.h"
-
-#else
-  #error "Unsupported Platform!"
-#endif
-
-#endif // HAL_LCD_DEFINES_H_
+void u8g_i2c_init(uint8_t options);
+uint8_t u8g_i2c_wait(uint8_t mask, uint8_t pos);
+uint8_t u8g_i2c_start(uint8_t sla);
+uint8_t u8g_i2c_send_byte(uint8_t data);
+void u8g_i2c_stop(void);

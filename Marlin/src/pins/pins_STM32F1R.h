@@ -20,8 +20,8 @@
  *
  */
 
-#if !defined(__STM32F1__)
-    #error "Oops!  Make sure you have an STM32F1 board selected from the 'Tools -> Boards' menu."
+#ifndef __STM32F1__
+  #error "Oops!  Make sure you have an STM32F1 board selected from the 'Tools -> Boards' menu."
 #endif
 
 /**

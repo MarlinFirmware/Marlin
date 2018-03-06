@@ -30,7 +30,7 @@ extern "C" {
 #include "HAL_timers.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include "include/Arduino.h"
+#include <Arduino.h>
 #include "serial.h"
 #include "LPC1768_PWM.h"
 
@@ -116,9 +116,7 @@ int main(void) {
   LPC1768_PWM_init();
 
   setup();
-  while (true) {
-    loop();
-  }
+  for (;;) loop();
 }
 
 #endif // TARGET_LPC1768

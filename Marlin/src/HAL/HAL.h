@@ -29,7 +29,7 @@
 #ifndef _HAL_H
 #define _HAL_H
 
-#include "SPI.h"
+#include "HAL_SPI.h"
 
 #define CPU_32_BIT
 

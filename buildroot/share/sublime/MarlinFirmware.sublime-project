@@ -13,11 +13,11 @@
 			],
 			"folder_exclude_patterns":
 			[
-				".github",
 				".pio*",
 				"Marlin/lib",
 				"datatmp",
-				"Marlin/*/src"
+				"Marlin/*/src",
+				".vscode"
 			],
 			"path": "../../.."
 		}

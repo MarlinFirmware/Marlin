@@ -95,11 +95,6 @@ void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare);
 hal_timer_t HAL_timer_get_compare(const uint8_t timer_num);
 uint32_t HAL_timer_get_count(const uint8_t timer_num);
 
-void HAL_timer_set_count(const uint8_t timer_num, const uint32_t count); // New
-/*FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
-  // To do ??
-}*/
-
 void HAL_timer_isr_prologue(const uint8_t timer_num);
 
 #endif // _HAL_TIMERS_STM32F7_H

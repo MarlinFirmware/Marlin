@@ -66,7 +66,7 @@
 
 // This is based on longest sys command + a filename, plus some buffer
 // in case we encounter some data we don't recognize
-// There is no evidence a line will ever be this long, but better safe than sory
+// There is no evidence a line will ever be this long, but better safe than sorry
 #define MAX_CURLY_COMMAND (32 + LONG_FILENAME_LENGTH) * 2
 
 // Track incoming command bytes from the LCD
@@ -78,7 +78,7 @@ void write_to_lcd_P(const char * const message) {
   uint8_t message_length = min(strlen_P(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
-    encoded_message[i] = pgm_read_byte(message[i]) | 0x80;
+    encoded_message[i] = pgm_read_byte(&message[i]) | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
 }
@@ -228,6 +228,7 @@ void process_lcd_p_command(const char* command) {
     case 'X':
       // cancel print
       write_to_lcd_P(PSTR("{SYS:CANCELING}"));
+      card.stopSDPrint();
       clear_command_queue();
       quickstop_stepper();
       print_job_timer.stop();
@@ -431,7 +432,7 @@ void lcd_init() {
   write_to_lcd_P(PSTR("{SYS:STARTED}\r\n"));
 
   // send a version that says "unsupported"
-  write_to_lcd_P(PSTR("{VER:66}\r\n"));
+  write_to_lcd_P(PSTR("{VER:99}\r\n"));
 
   // No idea why it does this twice.
   write_to_lcd_P(PSTR("{SYS:STARTED}\r\n"));

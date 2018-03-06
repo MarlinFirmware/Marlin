@@ -46,6 +46,10 @@ void endstop_ISR(void) { endstop_ISR_worker(); }
 
   #include "HAL_TEENSY35_36/endstop_interrupts.h"
 
+#elif defined(__STM32F1__)
+
+  #include "HAL_STM32F1/endstop_interrupts.h"
+
 #elif defined(STM32F7)
 
   #include "HAL_STM32F7/endstop_interrupts.h"
