@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <math.h>
 
-#include "../pinmapping.h"
+#include <pinmapping.h>
 
 #define HIGH         0x01
 #define LOW          0x00

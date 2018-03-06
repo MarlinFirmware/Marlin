@@ -74,7 +74,7 @@
 #include "../../inc/MarlinConfig.h"
 #include <lpc17xx_pinsel.h>
 #include "LPC1768_PWM.h"
-#include "Arduino.h"
+#include <Arduino.h>
 
 #define NUM_ISR_PWMS 20
 

@@ -23,7 +23,7 @@
 #ifndef _PINMAPPING_H_
 #define _PINMAPPING_H_
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #include <stdint.h>
 

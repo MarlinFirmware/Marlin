@@ -23,7 +23,7 @@
 #ifndef _SOFTWARE_SPI_H_
 #define _SOFTWARE_SPI_H_
 
-#include "pinmapping.h"
+#include <pinmapping.h>
 
 // --------------------------------------------------------------------------
 // Software SPI

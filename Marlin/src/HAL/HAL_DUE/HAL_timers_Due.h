@@ -45,6 +45,7 @@ typedef uint32_t hal_timer_t;
 
 #define STEP_TIMER_NUM 3  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 4  // index of timer to use for temperature
+#define TONE_TIMER_NUM 6  // index of timer to use for beeper tones
 
 #define HAL_TIMER_RATE         ((F_CPU) / 2)    // frequency of timers peripherals
 #define STEPPER_TIMER_PRESCALE 1.0              // prescaler for setting stepper frequency
@@ -64,6 +65,7 @@ typedef uint32_t hal_timer_t;
 
 #define HAL_STEP_TIMER_ISR  void TC3_Handler()
 #define HAL_TEMP_TIMER_ISR  void TC4_Handler()
+#define HAL_TONE_TIMER_ISR  void TC6_Handler()
 
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
 #define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
@@ -99,11 +101,6 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ha
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   const tTimerConfig * const pConfig = &TimerConfig[timer_num];
   return pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_RC;
-}
-
-FORCE_INLINE static void HAL_timer_set_count(const uint8_t timer_num, const hal_timer_t count) {
-  const tTimerConfig * const pConfig = &TimerConfig[timer_num];
-  pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_CV = count;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {

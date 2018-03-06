@@ -541,7 +541,7 @@
     // increment to first segment destination
     LOOP_XYZE(i) raw[i] += diff[i];
 
-    for(;;) {  // for each mesh cell encountered during the move
+    for (;;) {  // for each mesh cell encountered during the move
 
       // Compute mesh cell invariants that remain constant for all segments within cell.
       // Note for cell index, if point is outside the mesh grid (in MESH_INSET perimeter)
@@ -591,7 +591,7 @@
       const float z_sxy0 = z_xmy0 * diff[X_AXIS],                                     // per-segment adjustment to z_cxy0
                   z_sxym = (z_xmy1 - z_xmy0) * (1.0 / (MESH_Y_DIST)) * diff[X_AXIS];  // per-segment adjustment to z_cxym
 
-      for(;;) {  // for all segments within this mesh cell
+      for (;;) {  // for all segments within this mesh cell
 
         if (--segments == 0)                      // if this is last segment, use rtarget for exact
           COPY(raw, rtarget);

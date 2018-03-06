@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include "binary.h"
 #include "Print.h"
-#include <HAL_LPC1768/pinmapping.h>
+#include <pinmapping.h>
 
 // commands
 #define LCD_CLEARDISPLAY 0x01

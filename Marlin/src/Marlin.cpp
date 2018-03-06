@@ -272,6 +272,9 @@ void quickstop_stepper() {
 }
 
 void enable_all_steppers() {
+  #if ENABLED(AUTO_POWER_CONTROL)
+    powerManager.power_on();
+  #endif
   enable_X();
   enable_Y();
   enable_Z();
@@ -357,7 +360,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       disable_e_steppers();
     #endif
     #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
-      ubl.lcd_map_control = defer_return_to_status = false;
+      if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }
 
@@ -409,6 +412,10 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(USE_CONTROLLER_FAN)
     controllerfan_update(); // Check if fan should be turned on to cool stepper drivers down
+  #endif
+
+  #if ENABLED(AUTO_POWER_CONTROL)
+    powerManager.check();
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
@@ -540,6 +547,10 @@ void idle(
     }
   #endif
 
+  #if ENABLED(AUTO_REPORT_SD_STATUS)
+    card.auto_report_sd_status();
+  #endif
+
   #ifdef HAL_IDLETASK
     HAL_idletask();
   #endif
@@ -630,6 +641,9 @@ void setup() {
 
   #ifdef HAL_INIT
     HAL_init();
+    #ifdef ARDUINO_ARCH_SAM
+      toneInit();
+    #endif
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
@@ -728,6 +742,8 @@ void setup() {
   SYNC_PLAN_POSITION_KINEMATIC();
 
   thermalManager.init();    // Initialize temperature loop
+
+  print_job_timer.init();   // Initial setup of print job timer
 
   stepper.init();    // Initialize stepper, this enables interrupts!
 

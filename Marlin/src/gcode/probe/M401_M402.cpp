@@ -28,12 +28,12 @@
 #include "../../module/probe.h"
 
 /**
- * M401: Engage Z Servo endstop if available
+ * M401: Deploy and activate the Z probe
  */
 void GcodeSuite::M401() { DEPLOY_PROBE(); }
 
 /**
- * M402: Retract Z Servo endstop if enabled
+ * M402: Deactivate and stow the Z probe
  */
 void GcodeSuite::M402() { STOW_PROBE(); }
 
