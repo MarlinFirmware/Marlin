@@ -18,6 +18,7 @@
 #define STATUS_SCREEN_LITE_ST7920_CLASS_H
 
 #include "../../core/macros.h"
+#include "../../libs/duration_t.h"
 
 typedef const __FlashStringHelper *progmem_str;
 
@@ -75,15 +76,17 @@ class ST7920_Lite_Status_Screen {
     static uint8_t string_checksum(const char *str);
 
   protected:
+    static void draw_degree_symbol(uint8_t x, uint8_t y, bool draw);
     static void draw_static_elements();
     static void draw_progress_bar(const uint8_t value);
     static void draw_fan_icon(const bool whichIcon);
     static void draw_heat_icon(const bool whichIcon, const bool heating);
-    static void draw_extruder_1_temp(const int16_t temp, const int16_t target);
-    static void draw_extruder_2_temp(const int16_t temp, const int16_t target);
-    static void draw_bed_temp(const int16_t temp, const int16_t target);
+    static void draw_temps(uint8_t line, const int16_t temp, const int16_t target, bool showTarget, bool targetStateChange);
+    static void draw_extruder_1_temp(const int16_t temp, const int16_t target, bool forceUpdate = false);
+    static void draw_extruder_2_temp(const int16_t temp, const int16_t target, bool forceUpdate = false);
+    static void draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate = false);
     static void draw_fan_speed(const uint8_t value);
-    static void draw_print_time(const uint32_t elapsed);
+    static void draw_print_time(const duration_t &elapsed);
     static void draw_feedrate_percentage(const uint8_t percentage);
     static void draw_status_message(const char *str);
     static void draw_position(const float x, const float y, const float z, bool position_known = true);
