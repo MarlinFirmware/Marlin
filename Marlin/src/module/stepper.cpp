@@ -773,7 +773,7 @@ void Stepper::isr() {
         E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
       }
 
-    if (current_block->use_advance_lead) {
+    if (use_advance_lead) {
       if (step_events_completed > LA_decelerate_after && current_adv_steps > final_adv_steps) {
         e_steps--;
         current_adv_steps--;
