@@ -50,7 +50,7 @@
 
 // ubl_G29.cpp
 
-enum MeshPointType { INVALID, REAL, SET_IN_BITMAP };
+enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
 
 // External references
 

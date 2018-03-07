@@ -36,7 +36,7 @@
  */
 class Stopwatch {
   private:
-    enum State {
+    enum State : char {
       STOPPED,
       RUNNING,
       PAUSED
