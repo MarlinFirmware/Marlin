@@ -642,7 +642,7 @@ void GcodeSuite::process_parsed_command() {
       #endif
         
       #if ENABLED(DYNAMIC_TOOL_MIGRATION)
-        case 606: M606(); break;  // M600: Migrate extruder to another
+        case 606: M606(); break;  // M606: Migrate extruder to another
       #endif
 
       #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
