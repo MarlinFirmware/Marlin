@@ -222,9 +222,11 @@ static void createChar_P(const char c, const byte * const ptr) {
   lcd.createChar(c, temp);
 }
 
-#define CHARSET_MENU 0
-#define CHARSET_INFO 1
-#define CHARSET_BOOT 2
+enum HD44780CharSet : char {
+  CHARSET_MENU,
+  CHARSET_INFO,
+  CHARSET_BOOT
+};
 
 static void lcd_set_custom_characters(
   #if ENABLED(LCD_PROGRESS_BAR) || ENABLED(SHOW_BOOTSCREEN)
@@ -399,49 +401,38 @@ static void lcd_set_custom_characters(
 
   #endif // SDSUPPORT
 
-  #if ENABLED(SHOW_BOOTSCREEN) || ENABLED(LCD_PROGRESS_BAR)
-    static uint8_t char_mode = CHARSET_MENU;
-    #define CHAR_COND (screen_charset != char_mode)
-  #else
-    #define CHAR_COND true
+  #if ENABLED(SHOW_BOOTSCREEN)
+    // Set boot screen corner characters
+    if (screen_charset == CHARSET_BOOT) {
+      for (uint8_t i = 4; i--;)
+        createChar_P(i, corner[i]);
+    }
+    else
   #endif
+    { // Info Screen uses 5 special characters
+      createChar_P(LCD_BEDTEMP_CHAR, bedTemp);
+      createChar_P(LCD_DEGREE_CHAR, degree);
+      createChar_P(LCD_STR_THERMOMETER[0], thermometer);
+      createChar_P(LCD_FEEDRATE_CHAR, feedrate);
+      createChar_P(LCD_CLOCK_CHAR, clock);
 
-  if (CHAR_COND) {
-    #if ENABLED(SHOW_BOOTSCREEN) || ENABLED(LCD_PROGRESS_BAR)
-      char_mode = screen_charset;
-      #if ENABLED(SHOW_BOOTSCREEN)
-        // Set boot screen corner characters
-        if (screen_charset == CHARSET_BOOT) {
-          for (uint8_t i = 4; i--;)
-            createChar_P(i, corner[i]);
+      #if ENABLED(LCD_PROGRESS_BAR)
+        if (screen_charset == CHARSET_INFO) { // 3 Progress bar characters for info screen
+          for (int16_t i = 3; i--;)
+            createChar_P(LCD_STR_PROGRESS[i], progress[i]);
         }
         else
       #endif
-    #endif
-        { // Info Screen uses 5 special characters
-          createChar_P(LCD_BEDTEMP_CHAR, bedTemp);
-          createChar_P(LCD_DEGREE_CHAR, degree);
-          createChar_P(LCD_STR_THERMOMETER[0], thermometer);
-          createChar_P(LCD_FEEDRATE_CHAR, feedrate);
-          createChar_P(LCD_CLOCK_CHAR, clock);
-
-          #if ENABLED(LCD_PROGRESS_BAR)
-            if (screen_charset == CHARSET_INFO) { // 3 Progress bar characters for info screen
-              for (int16_t i = 3; i--;)
-                createChar_P(LCD_STR_PROGRESS[i], progress[i]);
-            }
-            else
+        {
+          createChar_P(LCD_UPLEVEL_CHAR, uplevel);
+          #if ENABLED(SDSUPPORT)
+            // SD Card sub-menu special characters
+            createChar_P(LCD_STR_REFRESH[0], refresh);
+            createChar_P(LCD_STR_FOLDER[0], folder);
           #endif
-            {
-              createChar_P(LCD_UPLEVEL_CHAR, uplevel);
-              #if ENABLED(SDSUPPORT)
-                // SD Card sub-menu special characters
-                createChar_P(LCD_STR_REFRESH[0], refresh);
-                createChar_P(LCD_STR_FOLDER[0], folder);
-              #endif
-            }
         }
-  }
+    }
+
 }
 
 static void lcd_implementation_init(
