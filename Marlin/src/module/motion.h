@@ -288,7 +288,7 @@ void homeaxis(const AxisEnum axis);
  */
 #if ENABLED(DUAL_X_CARRIAGE)
 
-  enum DualXMode {
+  enum DualXMode : char {
     DXC_FULL_CONTROL_MODE,  // DUAL_X_CARRIAGE only
     DXC_AUTO_PARK_MODE,     // DUAL_X_CARRIAGE only
     DXC_DUPLICATION_MODE
@@ -308,7 +308,7 @@ void homeaxis(const AxisEnum axis);
 
 #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
 
-  enum DualXMode {
+  enum DualXMode : char {
     DXC_DUPLICATION_MODE = 2
   };
 

@@ -44,7 +44,7 @@
   #include "../libs/vector_3.h"
 #endif
 
-enum BlockFlagBit {
+enum BlockFlagBit : char {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
 
@@ -60,7 +60,7 @@ enum BlockFlagBit {
   BLOCK_BIT_CONTINUED
 };
 
-enum BlockFlag {
+enum BlockFlag : char {
   BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
   BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
   BLOCK_FLAG_BUSY                 = _BV(BLOCK_BIT_BUSY),
