@@ -6887,7 +6887,6 @@ inline void gcode_M17() {
 
   /**
    * M27: Get SD Card status or set the SD status auto-report interval.
-
    */
   inline void gcode_M27() {
     #if ENABLED(AUTO_REPORT_SD_STATUS)
