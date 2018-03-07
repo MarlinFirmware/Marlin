@@ -315,7 +315,7 @@ class TMC26XStepper {
     /*!
      * \brief readout the motor maximum current in mA (1000 is an Amp)
      * This is the maximum current. to get the current current - which may be affected by CoolStep us getCurrentCurrent()
-     *\return the maximum motor current in milli amps
+     * \return the maximum motor current in milli amps
      * \sa getCurrentCurrent()
      */
     unsigned int getCurrent(void);
