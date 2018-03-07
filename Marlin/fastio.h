@@ -41,7 +41,6 @@ typedef int8_t pin_t;
 #define AVR_ATmega2561_FAMILY (defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
 #define AVR_ATmega328_FAMILY (defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328p__))
 
-
 /**
  * Include Ports and Functions
  */
@@ -118,7 +117,7 @@ typedef int8_t pin_t;
  */
 
 // Waveform Generation Modes
-typedef enum {
+enum WaveGenMode : char {
   WGM_NORMAL,          //  0
   WGM_PWM_PC_8,        //  1
   WGM_PWM_PC_9,        //  2
@@ -135,18 +134,18 @@ typedef enum {
   WGM_reserved,        // 13
   WGM_FAST_PWM_ICRn,   // 14  COM OCnA
   WGM_FAST_PWM_OCRnA   // 15  COM OCnA
-} WaveGenMode;
+};
 
 // Compare Modes
-typedef enum {
+enum CompareMode : char {
   COM_NORMAL,          //  0
   COM_TOGGLE,          //  1  Non-PWM: OCnx ... Both PWM (WGM 9,11,14,15): OCnA only ... else NORMAL
   COM_CLEAR_SET,       //  2  Non-PWM: OCnx ... Fast PWM: OCnx/Bottom ... PF-FC: OCnx Up/Down
   COM_SET_CLEAR        //  3  Non-PWM: OCnx ... Fast PWM: OCnx/Bottom ... PF-FC: OCnx Up/Down
-} CompareMode;
+};
 
 // Clock Sources
-typedef enum {
+enum ClockSource : char {
   CS_NONE,             //  0
   CS_PRESCALER_1,      //  1
   CS_PRESCALER_8,      //  2
@@ -155,10 +154,10 @@ typedef enum {
   CS_PRESCALER_1024,   //  5
   CS_EXT_FALLING,      //  6
   CS_EXT_RISING        //  7
-} ClockSource;
+};
 
 // Clock Sources (Timer 2 only)
-typedef enum {
+enum ClockSource2 : char {
   CS2_NONE,            //  0
   CS2_PRESCALER_1,     //  1
   CS2_PRESCALER_8,     //  2
@@ -167,7 +166,7 @@ typedef enum {
   CS2_PRESCALER_128,   //  5
   CS2_PRESCALER_256,   //  6
   CS2_PRESCALER_1024   //  7
-} ClockSource2;
+};
 
 // Get interrupt bits in an orderly way
 #define GET_WGM(T)   (((TCCR##T##A >> WGM##T##0) & 0x3) | ((TCCR##T##B >> WGM##T##2 << 2) & 0xC))
