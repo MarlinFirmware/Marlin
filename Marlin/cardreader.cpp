@@ -911,4 +911,17 @@ void CardReader::printingHasFinished() {
   }
 }
 
+#if ENABLED(AUTO_REPORT_SD_STATUS)
+  uint8_t CardReader::auto_report_sd_interval = 0;
+  millis_t CardReader::next_sd_report_ms;
+
+  void CardReader::auto_report_sd_status() {
+    millis_t current_ms = millis();
+    if (auto_report_sd_interval && ELAPSED(current_ms, next_sd_report_ms)) {
+      next_sd_report_ms = current_ms + 1000UL * auto_report_sd_interval;
+      getStatus();
+    }
+  }
+#endif // AUTO_REPORT_SD_STATUS
+
 #endif // SDSUPPORT
