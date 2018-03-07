@@ -122,8 +122,13 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
            Stepper::final_adv_steps,
            Stepper::max_adv_steps;
 
-  int8_t Stepper::e_steps = 0,
-         Stepper::LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+  int8_t Stepper::e_steps = 0;
+
+  #if E_STEPPERS > 1
+    int8_t Stepper::LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+  #else
+    constexpr int8_t Stepper::LA_active_extruder;
+  #endif
 
   bool Stepper::use_advance_lead;
 
@@ -755,25 +760,23 @@ void Stepper::isr() {
 
   void Stepper::advance_isr() {
 
-    #if ENABLED(MK2_MULTIPLEXER)
-      // Even-numbered steppers are reversed
-      #define SET_E_STEP_DIR(INDEX) \
-        if (e_steps) E## INDEX ##_DIR_WRITE(e_steps < 0 ? !INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0) : INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0))
+    #if ENABLED(MK2_MULTIPLEXER) // For SNMM even-numbered steppers are reversed
+      #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) E## INDEX ##_DIR_WRITE(e_steps < 0 ? !INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0) : INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0)); }while(0)
+    #elif ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+      #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) { if (e_steps < 0) REV_E_DIR(); else NORM_E_DIR(); } }while(0)
     #else
-      #define SET_E_STEP_DIR(INDEX) \
-        if (e_steps) E## INDEX ##_DIR_WRITE(e_steps < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
+      #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) E## INDEX ##_DIR_WRITE(e_steps < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR); }while(0)
     #endif
 
-    #define START_E_PULSE(INDEX) \
-      if (e_steps) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN)
+    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+      #define START_E_PULSE(INDEX) do{ if (e_steps) E_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
+      #define STOP_E_PULSE(INDEX) do{ if (e_steps) { E_STEP_WRITE(INVERT_E_STEP_PIN); e_steps < 0 ? ++e_steps : --e_steps; } }while(0)
+    #else
+      #define START_E_PULSE(INDEX) do{ if (e_steps) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
+      #define STOP_E_PULSE(INDEX) do { if (e_steps) { E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); e_steps < 0 ? ++e_steps : --e_steps; } }while(0)
+    #endif
 
-    #define STOP_E_PULSE(INDEX) \
-      if (e_steps) { \
-        e_steps < 0 ? ++e_steps : --e_steps; \
-        E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
-      }
-
-    if (current_block->use_advance_lead) {
+    if (use_advance_lead) {
       if (step_events_completed > LA_decelerate_after && current_adv_steps > final_adv_steps) {
         e_steps--;
         current_adv_steps--;
@@ -793,7 +796,7 @@ void Stepper::isr() {
     else
       nextAdvanceISR = ADV_NEVER;
 
-    switch(LA_active_extruder) {
+    switch (LA_active_extruder) {
       case 0: SET_E_STEP_DIR(0); break;
       #if EXTRUDERS > 1
         case 1: SET_E_STEP_DIR(1); break;
@@ -816,7 +819,7 @@ void Stepper::isr() {
         hal_timer_t pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM);
       #endif
 
-      switch(LA_active_extruder) {
+      switch (LA_active_extruder) {
         case 0: START_E_PULSE(0); break;
         #if EXTRUDERS > 1
           case 1: START_E_PULSE(1); break;
@@ -840,7 +843,7 @@ void Stepper::isr() {
         DELAY_NOPS(EXTRA_CYCLES_E);
       #endif
 
-      switch(LA_active_extruder) {
+      switch (LA_active_extruder) {
         case 0: STOP_E_PULSE(0); break;
         #if EXTRUDERS > 1
           case 1: STOP_E_PULSE(1); break;

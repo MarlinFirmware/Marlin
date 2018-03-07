@@ -37,9 +37,8 @@
 #endif
 
 bool report_tmc_status = false;
-char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1", "E2", "E3", "E4" };
 
-/*
+/**
  * Check for over temperature or short to ground error flags.
  * Report and log warning of overtemperature condition.
  * Reduce driver current in a persistent otpw condition.
@@ -96,18 +95,17 @@ char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1",
   #endif
 
   template<typename TMC>
-  void monitor_tmc_driver(TMC &st, const char axisID, uint8_t &otpw_cnt) {
+  void monitor_tmc_driver(TMC &st, const TMC_AxisEnum axis, uint8_t &otpw_cnt) {
     TMC_driver_data data = get_driver_data(st);
 
     #if ENABLED(STOP_ON_ERROR)
       if (data.is_error) {
         SERIAL_EOL();
-        SERIAL_ECHO(axisID);
-        SERIAL_ECHOPGM(" driver error detected:");
-        if (data.is_ot) SERIAL_ECHOPGM("\novertemperature");
-        if (st.s2ga()) SERIAL_ECHOPGM("\nshort to ground (coil A)");
-        if (st.s2gb()) SERIAL_ECHOPGM("\nshort to ground (coil B)");
-        SERIAL_EOL();
+        _tmc_say_axis(axis);
+        SERIAL_ECHOLNPGM(" driver error detected:");
+        if (data.is_ot) SERIAL_ECHOLNPGM("overtemperature");
+        if (st.s2ga()) SERIAL_ECHOLNPGM("short to ground (coil A)");
+        if (st.s2gb()) SERIAL_ECHOLNPGM("short to ground (coil B)");
         #if ENABLED(TMC_DEBUG)
           tmc_report_all();
         #endif
@@ -124,7 +122,7 @@ char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1",
       SERIAL_EOL();
       SERIAL_ECHO(timestamp);
       SERIAL_ECHOPGM(": ");
-      SERIAL_ECHO(axisID);
+      _tmc_say_axis(axis);
       SERIAL_ECHOPGM(" driver overtemperature warning! (");
       SERIAL_ECHO(st.getCurrent());
       SERIAL_ECHOLNPGM("mA)");
@@ -134,7 +132,7 @@ char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1",
       if (data.is_otpw && !st.isEnabled() && otpw_cnt > 4) {
         st.setCurrent(st.getCurrent() - CURRENT_STEP_DOWN, R_SENSE, HOLD_MULTIPLIER);
         #if ENABLED(REPORT_CURRENT_CHANGE)
-          SERIAL_ECHO(axisID);
+          _tmc_say_axis(axis);
           SERIAL_ECHOLNPAIR(" current decreased to ", st.getCurrent());
         #endif
       }
@@ -148,7 +146,7 @@ char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1",
 
     if (report_tmc_status) {
       const uint32_t pwm_scale = get_pwm_scale(st);
-      SERIAL_ECHO(axisID);
+      _tmc_say_axis(axis);
       SERIAL_ECHOPAIR(":", pwm_scale);
       SERIAL_ECHOPGM(" |0b"); SERIAL_PRINT(get_status_response(st), BIN);
       SERIAL_ECHOPGM("| ");
@@ -169,47 +167,47 @@ char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1",
       next_cOT = millis() + 500;
       #if HAS_HW_COMMS(X) || ENABLED(IS_TRAMS)
         static uint8_t x_otpw_cnt = 0;
-        monitor_tmc_driver(stepperX, axis_codes[X_AXIS], x_otpw_cnt);
+        monitor_tmc_driver(stepperX, TMC_X, x_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(Y) || ENABLED(IS_TRAMS)
         static uint8_t y_otpw_cnt = 0;
-        monitor_tmc_driver(stepperY, axis_codes[Y_AXIS], y_otpw_cnt);
+        monitor_tmc_driver(stepperY, TMC_Y, y_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(Z) || ENABLED(IS_TRAMS)
         static uint8_t z_otpw_cnt = 0;
-        monitor_tmc_driver(stepperZ, axis_codes[Z_AXIS], z_otpw_cnt);
+        monitor_tmc_driver(stepperZ, TMC_Z, z_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(X2)
         static uint8_t x2_otpw_cnt = 0;
-        monitor_tmc_driver(stepperX2, axis_codes[X_AXIS], x2_otpw_cnt);
+        monitor_tmc_driver(stepperX2, TMC_X, x2_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(Y2)
         static uint8_t y2_otpw_cnt = 0;
-        monitor_tmc_driver(stepperY2, axis_codes[Y_AXIS], y2_otpw_cnt);
+        monitor_tmc_driver(stepperY2, TMC_Y, y2_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(Z2)
         static uint8_t z2_otpw_cnt = 0;
-        monitor_tmc_driver(stepperZ2, axis_codes[Z_AXIS], z2_otpw_cnt);
+        monitor_tmc_driver(stepperZ2, TMC_Z, z2_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(E0) || ENABLED(IS_TRAMS)
         static uint8_t e0_otpw_cnt = 0;
-        monitor_tmc_driver(stepperE0, axis_codes[E_AXIS], e0_otpw_cnt);
+        monitor_tmc_driver(stepperE0, TMC_E0, e0_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(E1)
         static uint8_t e1_otpw_cnt = 0;
-        monitor_tmc_driver(stepperE1, axis_codes[E_AXIS], e1_otpw_cnt);
+        monitor_tmc_driver(stepperE1, TMC_E1, e1_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(E2)
         static uint8_t e2_otpw_cnt = 0;
-        monitor_tmc_driver(stepperE2, axis_codes[E_AXIS], e2_otpw_cnt);
+        monitor_tmc_driver(stepperE2, TMC_E2, e2_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(E3)
         static uint8_t e3_otpw_cnt = 0;
-        monitor_tmc_driver(stepperE3, axis_codes[E_AXIS], e3_otpw_cnt);
+        monitor_tmc_driver(stepperE3, TMC_E3, e3_otpw_cnt);
       #endif
       #if HAS_HW_COMMS(E4)
         static uint8_t e4_otpw_cnt = 0;
-        monitor_tmc_driver(stepperE4, axis_codes[E_AXIS], e4_otpw_cnt);
+        monitor_tmc_driver(stepperE4, TMC_E4, e4_otpw_cnt);
       #endif
 
       if (report_tmc_status) SERIAL_EOL();
@@ -218,33 +216,44 @@ char extended_axis_codes[11][3] = { "X", "X2", "Y", "Y2", "Z", "Z2", "E0", "E1",
 
 #endif // MONITOR_DRIVER_STATUS
 
-void _tmc_say_current(const char name[], const uint16_t curr) {
-  SERIAL_ECHO(name);
+void _tmc_say_axis(const TMC_AxisEnum axis) {
+  const static char ext_X[]  PROGMEM = "X",  ext_X2[] PROGMEM = "X2",
+                    ext_Y[]  PROGMEM = "Y",  ext_Y2[] PROGMEM = "Y2",
+                    ext_Z[]  PROGMEM = "Z",  ext_Z2[] PROGMEM = "Z2",
+                    ext_E0[] PROGMEM = "E0", ext_E1[] PROGMEM = "E1",
+                    ext_E2[] PROGMEM = "E2", ext_E3[] PROGMEM = "E3",
+                    ext_E4[] PROGMEM = "E4";
+  const static char* const tmc_axes[] PROGMEM = { ext_X, ext_X2, ext_Y, ext_Y2, ext_Z, ext_Z2, ext_E0, ext_E1, ext_E2, ext_E3, ext_E4 };
+  serialprintPGM(tmc_axes[axis]);
+}
+
+void _tmc_say_current(const TMC_AxisEnum axis, const uint16_t curr) {
+  _tmc_say_axis(axis);
   SERIAL_ECHOLNPAIR(" axis driver current: ", curr);
 }
-void _tmc_say_otpw(const char name[], const bool otpw) {
-  SERIAL_ECHO(name);
+void _tmc_say_otpw(const TMC_AxisEnum axis, const bool otpw) {
+  _tmc_say_axis(axis);
   SERIAL_ECHOPGM(" axis temperature prewarn triggered: ");
   serialprintPGM(otpw ? PSTR("true") : PSTR("false"));
   SERIAL_EOL();
 }
-void _tmc_say_otpw_cleared(const char name[]) {
-  SERIAL_ECHO(name);
+void _tmc_say_otpw_cleared(const TMC_AxisEnum axis) {
+  _tmc_say_axis(axis);
   SERIAL_ECHOLNPGM(" prewarn flag cleared");
 }
-void _tmc_say_pwmthrs(const char name[], const uint32_t thrs) {
-  SERIAL_ECHO(name);
+void _tmc_say_pwmthrs(const TMC_AxisEnum axis, const uint32_t thrs) {
+  _tmc_say_axis(axis);
   SERIAL_ECHOLNPAIR(" stealthChop max speed set to ", thrs);
 }
-void _tmc_say_sgt(const char name[], const int8_t sgt) {
-  SERIAL_ECHO(name);
+void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
+  _tmc_say_axis(axis);
   SERIAL_ECHOPGM(" driver homing sensitivity set to ");
   SERIAL_PRINTLN(sgt, DEC);
 }
 
 #if ENABLED(TMC_DEBUG)
 
-  enum TMC_debug_enum {
+  enum TMC_debug_enum : char {
     TMC_CODES,
     TMC_ENABLED,
     TMC_CURRENT,
@@ -268,7 +277,7 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
     TMC_HSTRT,
     TMC_SGT
   };
-  enum TMC_drv_status_enum {
+  enum TMC_drv_status_enum : char {
     TMC_DRV_CODES,
     TMC_STST,
     TMC_OLB,
@@ -290,8 +299,8 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
     TMC_S2VSB,
     TMC_S2VSA
   };
-  static void drv_status_print_hex(const char name[], const uint32_t drv_status) {
-    SERIAL_ECHO(name);
+  static void drv_status_print_hex(const TMC_AxisEnum axis, const uint32_t drv_status) {
+    _tmc_say_axis(axis);
     SERIAL_ECHOPGM(" = 0x");
     for (int B = 24; B >= 8; B -= 8){
       SERIAL_PRINT((drv_status >> (B + 4)) & 0xF, HEX);
@@ -299,7 +308,7 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
       SERIAL_CHAR(':');
     }
     SERIAL_PRINT((drv_status >> 4) & 0xF, HEX);
-    SERIAL_PRINT(drv_status & 0xF, HEX);
+    SERIAL_PRINT((drv_status) & 0xF, HEX);
     SERIAL_EOL();
   }
 
@@ -345,10 +354,10 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
   #endif
 
   template <typename TMC>
-  static void tmc_status(TMC &st, TMC_AxisEnum axis, const TMC_debug_enum i, const float spmm) {
+  static void tmc_status(TMC &st, const TMC_AxisEnum axis, const TMC_debug_enum i, const float spmm) {
     SERIAL_ECHO('\t');
     switch(i) {
-      case TMC_CODES: SERIAL_ECHO(extended_axis_codes[axis]); break;
+      case TMC_CODES: _tmc_say_axis(axis); break;
       case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getCurrent()); break;
       case TMC_RMS_CURRENT: SERIAL_PROTOCOL(st.rms_current()); break;
@@ -376,10 +385,7 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
         break;
       case TMC_TPWMTHRS_MMS: {
           uint32_t tpwmthrs_val = st.TPWMTHRS();
-          if (tpwmthrs_val)
-            SERIAL_ECHO(12650000UL * st.microsteps() / (256 * tpwmthrs_val * spmm));
-          else
-            SERIAL_CHAR('-');
+          tpwmthrs_val ? SERIAL_ECHO(12650000UL * st.microsteps() / (256 * tpwmthrs_val * spmm)) : SERIAL_CHAR('-');
         }
         break;
       case TMC_OTPW: serialprintPGM(st.otpw() ? PSTR("true") : PSTR("false")); break;
@@ -393,10 +399,10 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
   }
 
   template <typename TMC>
-  static void tmc_parse_drv_status(TMC &st, TMC_AxisEnum axis, const TMC_drv_status_enum i) {
+  static void tmc_parse_drv_status(TMC &st, const TMC_AxisEnum axis, const TMC_drv_status_enum i) {
     SERIAL_CHAR('\t');
     switch(i) {
-      case TMC_DRV_CODES:     SERIAL_ECHO(extended_axis_codes[axis]);  break;
+      case TMC_DRV_CODES:     _tmc_say_axis(axis);  break;
       case TMC_STST:          if (st.stst())         SERIAL_CHAR('X'); break;
       case TMC_OLB:           if (st.olb())          SERIAL_CHAR('X'); break;
       case TMC_OLA:           if (st.ola())          SERIAL_CHAR('X'); break;
@@ -405,7 +411,7 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
       case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('X'); break;
       case TMC_OT:            if (st.ot())           SERIAL_CHAR('X'); break;
       case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC);       break;
-      case TMC_DRV_STATUS_HEX:drv_status_print_hex(extended_axis_codes[axis], st.DRV_STATUS()); break;
+      case TMC_DRV_STATUS_HEX:drv_status_print_hex(axis, st.DRV_STATUS()); break;
       default: tmc_parse_drv_status(st, i); break;
     }
   }

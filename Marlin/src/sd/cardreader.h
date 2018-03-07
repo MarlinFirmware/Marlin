@@ -23,11 +23,15 @@
 #ifndef _CARDREADER_H_
 #define _CARDREADER_H_
 
+#include "../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#define SD_RESORT ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_DYNAMIC_RAM)
+
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
 #include "SdFile.h"
-
-#include "../inc/MarlinConfig.h"
 
 class CardReader {
 public:
@@ -48,7 +52,11 @@ public:
   void release();
   void openAndPrintFile(const char *name);
   void startFileprint();
-  void stopSDPrint();
+  void stopSDPrint(
+    #if SD_RESORT
+      const bool re_sort=false
+    #endif
+  );
   void getStatus(
     #if NUM_SERIAL > 1
       const int8_t port = -1
@@ -217,9 +225,13 @@ private:
     #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == LOW)
   #endif
 #else
-  //No card detect line? Assume the card is inserted.
+  // No card detect line? Assume the card is inserted.
   #define IS_SD_INSERTED true
 #endif
+
+extern CardReader card;
+
+#endif // SDSUPPORT
 
 #if ENABLED(SDSUPPORT)
   #define IS_SD_PRINTING (card.sdprinting)
@@ -228,7 +240,5 @@ private:
   #define IS_SD_PRINTING (false)
   #define IS_SD_FILE_OPEN (false)
 #endif
-
-extern CardReader card;
 
 #endif // _CARDREADER_H_

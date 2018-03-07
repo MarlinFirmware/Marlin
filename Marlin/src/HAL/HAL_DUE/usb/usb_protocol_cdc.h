@@ -239,13 +239,13 @@ typedef struct {
 	uint8_t bDataBits;
 } usb_cdc_line_coding_t;
 //! Possible values of bCharFormat
-enum cdc_char_format {
+enum cdc_char_format : char {
 	CDC_STOP_BITS_1 = 0,	//!< 1 stop bit
 	CDC_STOP_BITS_1_5 = 1,	//!< 1.5 stop bits
 	CDC_STOP_BITS_2 = 2,	//!< 2 stop bits
 };
 //! Possible values of bParityType
-enum cdc_parity {
+enum cdc_parity : char {
 	CDC_PAR_NONE = 0,	//!< No parity
 	CDC_PAR_ODD = 1,	//!< Odd parity
 	CDC_PAR_EVEN = 2,	//!< Even parity

@@ -85,7 +85,7 @@
  * M24  - Start/resume SD print. (Requires SDSUPPORT)
  * M25  - Pause SD print. (Requires SDSUPPORT)
  * M26  - Set SD position in bytes: "M26 S12345". (Requires SDSUPPORT)
- * M27  - Report SD print status. (Requires SDSUPPORT) With 'S<seconds>' sets the SD status auto-report interval. (Requires AUTO_REPORT_SD_STATUS)
+ * M27  - Report SD print status. (Requires SDSUPPORT) Or, with 'S<seconds>' set the SD status auto-report interval. (Requires AUTO_REPORT_SD_STATUS)
  * M28  - Start SD write: "M28 /path/file.gco". (Requires SDSUPPORT)
  * M29  - Stop SD write. (Requires SDSUPPORT)
  * M30  - Delete file from SD: "M30 /path/file.gco"
@@ -267,7 +267,7 @@ public:
      * Workspace planes only apply to G2/G3 moves
      * (and "canned cycles" - not a current feature)
      */
-    enum WorkspacePlane { PLANE_XY, PLANE_ZX, PLANE_YZ };
+    enum WorkspacePlane : char { PLANE_XY, PLANE_ZX, PLANE_YZ };
     static WorkspacePlane workspace_plane;
   #endif
 
@@ -304,7 +304,7 @@ public:
      * States for managing Marlin and host communication
      * Marlin sends messages if blocked or busy
      */
-    enum MarlinBusyState {
+    enum MarlinBusyState : char {
       NOT_BUSY,           // Not in a handler
       IN_HANDLER,         // Processing a GCode
       IN_PROCESS,         // Known to be blocking command input (as in G29)
@@ -547,7 +547,7 @@ private:
     static void M150();
   #endif
 
-  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+  #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
     static void M155();
   #endif
 

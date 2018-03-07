@@ -612,6 +612,11 @@
    */
   //#define SD_REPRINT_LAST_SELECTED_FILE
 
+  /**
+   * Auto-report SdCard status with M27 S<seconds>
+   */
+  //#define AUTO_REPORT_SD_STATUS
+
 #endif // SDSUPPORT
 
 /**
@@ -1413,11 +1418,6 @@
  * Include capabilities in M115 output
  */
 #define EXTENDED_CAPABILITIES_REPORT
-
-/**
- * Auto-report SdCard status with M27 S<seconds>
- */
-//#define AUTO_REPORT_SD_STATUS
 
 /**
  * Disable all Volumetric extrusion options

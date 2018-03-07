@@ -328,12 +328,19 @@ void CardReader::startFileprint() {
   }
 }
 
-void CardReader::stopSDPrint() {
+void CardReader::stopSDPrint(
+  #if SD_RESORT
+    const bool re_sort/*=false*/
+  #endif
+) {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     did_pause_print = 0;
   #endif
   sdprinting = false;
   if (isFileOpen()) file.close();
+  #if SD_RESORT
+    if (re_sort) presort();
+  #endif
 }
 
 void CardReader::openLogFile(char* name) {
@@ -700,13 +707,13 @@ int8_t CardReader::updir() {
    */
   void CardReader::presort() {
 
+    // Throw away old sort index
+    flush_presort();
+
     // Sorting may be turned off
     #if ENABLED(SDSORT_GCODE)
       if (!sort_alpha) return;
     #endif
-
-    // Throw away old sort index
-    flush_presort();
 
     // If there are files, sort up to the limit
     uint16_t fileCnt = getnrfilenames();
@@ -940,7 +947,6 @@ void CardReader::printingHasFinished() {
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
-
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       lcd_reselect_last_file();
     #endif

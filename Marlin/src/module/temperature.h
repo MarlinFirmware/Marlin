@@ -49,7 +49,7 @@
 /**
  * States for ADC reading in the ISR
  */
-enum ADCSensorState {
+enum ADCSensorState : char {
   #if HAS_TEMP_0
     PrepareTemp_0,
     MeasureTemp_0,
@@ -564,7 +564,7 @@ class Temperature {
 
     #endif // HEATER_IDLE_HANDLER
 
-    #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+    #if HAS_TEMP_SENSOR
       static void print_heaterstates(
         #if NUM_SERIAL > 1
           const int8_t port = -1
@@ -610,7 +610,7 @@ class Temperature {
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED
 
-      typedef enum TRState { TRInactive, TRFirstHeating, TRStable, TRRunaway } TRstate;
+      typedef enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway } TRstate;
 
       static void thermal_runaway_protection(TRState * const state, millis_t * const timer, const float &current, const float &target, const int8_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc);
 
