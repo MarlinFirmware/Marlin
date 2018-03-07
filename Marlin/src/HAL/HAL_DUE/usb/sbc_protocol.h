@@ -80,7 +80,7 @@
 //! \name SBC-2 Mode page definitions
 //@{
 
-enum scsi_sbc_mode {
+enum scsi_sbc_mode : char {
 	SCSI_MS_MODE_RW_ERR_RECOV = 0x01,	//!< Read-Write Error Recovery mode page
 	SCSI_MS_MODE_FORMAT_DEVICE = 0x03,	//!< Format Device mode page
 	SCSI_MS_MODE_FLEXIBLE_DISK = 0x05,	//!< Flexible Disk mode page

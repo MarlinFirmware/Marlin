@@ -76,7 +76,7 @@ extern "C" {
 
 #define PLL_COUNT           0x3fU
 
-enum pll_source {
+enum pll_source : char {
 	PLL_SRC_MAINCK_4M_RC        = OSC_MAINCK_4M_RC,     //!< Internal 4MHz RC oscillator.
 	PLL_SRC_MAINCK_8M_RC        = OSC_MAINCK_8M_RC,     //!< Internal 8MHz RC oscillator.
 	PLL_SRC_MAINCK_12M_RC       = OSC_MAINCK_12M_RC,    //!< Internal 12MHz RC oscillator.

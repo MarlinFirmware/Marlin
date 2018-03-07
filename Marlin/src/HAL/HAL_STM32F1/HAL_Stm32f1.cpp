@@ -87,7 +87,7 @@ uint8 adc_pins[] = {
   #endif
 };
 
-enum TEMP_PINS {
+enum TEMP_PINS : char {
   #if HAS_TEMP_0
     TEMP_0,
   #endif

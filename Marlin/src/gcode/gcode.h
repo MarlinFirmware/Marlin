@@ -267,7 +267,7 @@ public:
      * Workspace planes only apply to G2/G3 moves
      * (and "canned cycles" - not a current feature)
      */
-    enum WorkspacePlane { PLANE_XY, PLANE_ZX, PLANE_YZ };
+    enum WorkspacePlane : char { PLANE_XY, PLANE_ZX, PLANE_YZ };
     static WorkspacePlane workspace_plane;
   #endif
 
@@ -304,7 +304,7 @@ public:
      * States for managing Marlin and host communication
      * Marlin sends messages if blocked or busy
      */
-    enum MarlinBusyState {
+    enum MarlinBusyState : char {
       NOT_BUSY,           // Not in a handler
       IN_HANDLER,         // Processing a GCode
       IN_PROCESS,         // Known to be blocking command input (as in G29)

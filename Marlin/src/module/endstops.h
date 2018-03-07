@@ -30,7 +30,7 @@
 #include "../inc/MarlinConfig.h"
 #include <stdint.h>
 
-enum EndstopEnum {
+enum EndstopEnum : char {
   X_MIN,
   Y_MIN,
   Z_MIN,

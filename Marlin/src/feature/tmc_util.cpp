@@ -253,7 +253,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
 
 #if ENABLED(TMC_DEBUG)
 
-  enum TMC_debug_enum {
+  enum TMC_debug_enum : char {
     TMC_CODES,
     TMC_ENABLED,
     TMC_CURRENT,
@@ -277,7 +277,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
     TMC_HSTRT,
     TMC_SGT
   };
-  enum TMC_drv_status_enum {
+  enum TMC_drv_status_enum : char {
     TMC_DRV_CODES,
     TMC_STST,
     TMC_OLB,
