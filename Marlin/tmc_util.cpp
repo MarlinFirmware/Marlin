@@ -323,12 +323,7 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
   #if ENABLED(HAVE_TMC2208)
     static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch(i) {
-        case TMC_TSTEP: {
-            uint32_t data = 0;
-            st.TSTEP(&data);
-            SERIAL_PROTOCOL(data);
-            break;
-          }
+        case TMC_TSTEP: { uint32_t data = 0; st.TSTEP(&data); SERIAL_PROTOCOL(data); break; }
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
         case TMC_STEALTHCHOP: serialprintPGM(st.stealth() ? PSTR("true") : PSTR("false")); break;
         case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('X'); break;
@@ -404,7 +399,7 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
       case TMC_S2GA:          if (st.s2ga())         SERIAL_CHAR('X'); break;
       case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('X'); break;
       case TMC_OT:            if (st.ot())           SERIAL_CHAR('X'); break;
-      case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC);        break;
+      case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC);       break;
       case TMC_DRV_STATUS_HEX:drv_status_print_hex(extended_axis_codes[axis], st.DRV_STATUS()); break;
       default: tmc_parse_drv_status(st, i); break;
     }
@@ -436,16 +431,32 @@ void _tmc_say_sgt(const char name[], const int8_t sgt) {
       tmc_status(stepperE0, TMC_E0, i, planner.axis_steps_per_mm[E_AXIS]);
     #endif
     #if E1_IS_TRINAMIC
-      tmc_status(stepperE1, TMC_E1, i, planner.axis_steps_per_mm[E_AXIS+1]);
+      tmc_status(stepperE1, TMC_E1, i, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 1
+        #endif
+      ]);
     #endif
     #if E2_IS_TRINAMIC
-      tmc_status(stepperE2, TMC_E2, i, planner.axis_steps_per_mm[E_AXIS+2]);
+      tmc_status(stepperE2, TMC_E2, i, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 2
+        #endif
+      ]);
     #endif
     #if E3_IS_TRINAMIC
-      tmc_status(stepperE3, TMC_E3, i, planner.axis_steps_per_mm[E_AXIS+3]);
+      tmc_status(stepperE3, TMC_E3, i, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 3
+        #endif
+      ]);
     #endif
     #if E4_IS_TRINAMIC
-      tmc_status(stepperE4, TMC_E4, i, planner.axis_steps_per_mm[E_AXIS+4]);
+      tmc_status(stepperE4, TMC_E4, i, planner.axis_steps_per_mm[E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + 4
+        #endif
+      ]);
     #endif
 
     SERIAL_EOL();
