@@ -232,6 +232,10 @@ extern volatile bool wait_for_heatup;
   extern volatile bool wait_for_user;
 #endif
 
+#if HAS_AUTO_REPORTING
+  extern bool suspend_auto_report;
+#endif
+
 extern float current_position[XYZE], destination[XYZE];
 
 /**

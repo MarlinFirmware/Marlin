@@ -510,6 +510,10 @@ volatile bool wait_for_heatup = true;
   volatile bool wait_for_user = false;
 #endif
 
+#if HAS_AUTO_REPORTING
+  bool suspend_auto_report; // = false
+#endif
+
 const char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
 
 // Number of characters read in the current line of serial input
@@ -13454,10 +13458,6 @@ void idle(
 
   host_keepalive();
 
-  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-    thermalManager.auto_report_temperatures();
-  #endif
-
   manage_inactivity(
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       no_stepper_sleep
@@ -13482,8 +13482,15 @@ void idle(
     }
   #endif
 
-  #if ENABLED(AUTO_REPORT_SD_STATUS)
-    card.auto_report_sd_status();
+  #if HAS_AUTO_REPORTING
+    if (!suspend_auto_report) {
+      #if ENABLED(AUTO_REPORT_TEMPERATURES)
+        thermalManager.auto_report_temperatures();
+      #endif
+      #if ENABLED(AUTO_REPORT_SD_STATUS)
+        card.auto_report_sd_status();
+      #endif
+    }
   #endif
 }
 
