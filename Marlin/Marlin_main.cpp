@@ -89,7 +89,7 @@
  * M24  - Start/resume SD print. (Requires SDSUPPORT)
  * M25  - Pause SD print. (Requires SDSUPPORT)
  * M26  - Set SD position in bytes: "M26 S12345". (Requires SDSUPPORT)
- * M27  - Report SD print status. (Requires SDSUPPORT)
+ * M27  - Report SD print status. (Requires SDSUPPORT) Or, with 'S<seconds>' sets the SD status auto-report interval. (Requires AUTO_REPORT_SD_STATUS)
  * M28  - Start SD write: "M28 /path/file.gco". (Requires SDSUPPORT)
  * M29  - Stop SD write. (Requires SDSUPPORT)
  * M30  - Delete file from SD: "M30 /path/file.gco"
@@ -6886,9 +6886,17 @@ inline void gcode_M17() {
   }
 
   /**
-   * M27: Get SD Card status
+   * M27: Get SD Card status or set the SD status auto-report interval.
+
    */
-  inline void gcode_M27() { card.getStatus(); }
+  inline void gcode_M27() {
+    #if ENABLED(AUTO_REPORT_SD_STATUS)
+      if (parser.seenval('S'))
+        card.set_auto_report_interval(parser.value_byte());
+      else
+    #endif
+        card.getStatus();
+  }
 
   /**
    * M28: Start SD Write
@@ -8632,6 +8640,13 @@ inline void gcode_M115() {
     // EMERGENCY_PARSER (M108, M112, M410)
     cap_line(PSTR("EMERGENCY_PARSER")
       #if ENABLED(EMERGENCY_PARSER)
+        , true
+      #endif
+    );
+
+    // AUTOREPORT_SD_STATUS (M27 extension)
+    cap_line(PSTR("AUTOREPORT_SD_STATUS")
+      #if ENABLED(AUTO_REPORT_SD_STATUS)
         , true
       #endif
     );
@@ -13466,6 +13481,10 @@ void idle(
       I2CPEM.update();
       i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
+  #endif
+
+  #if ENABLED(AUTO_REPORT_SD_STATUS)
+    card.auto_report_sd_status();
   #endif
 }
 
