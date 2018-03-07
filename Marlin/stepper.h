@@ -132,7 +132,7 @@ class Stepper {
       #if E_STEPPERS > 1
         static int8_t LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
       #else
-        constexpr int8_t LA_active_extruder = 0;
+        static constexpr int8_t LA_active_extruder = 0;
       #endif
 
     #else // !LIN_ADVANCE
