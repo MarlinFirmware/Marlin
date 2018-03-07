@@ -753,6 +753,8 @@
     #undef AUTO_REPORT_TEMPERATURES
   #endif
 
+  #define HAS_AUTO_REPORTING (ENABLED(AUTO_REPORT_TEMPERATURES) || ENABLED(AUTO_REPORT_SD_STATUS))
+
   /**
    * This setting is also used by M109 when trying to calculate
    * a ballpark safe margin to prevent wait-forever situation.
