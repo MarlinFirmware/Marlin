@@ -519,7 +519,7 @@ void idle(
     gcode.host_keepalive();
   #endif
 
-  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+  #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
     thermalManager.auto_report_temperatures();
   #endif
 
