@@ -122,8 +122,13 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
            Stepper::final_adv_steps,
            Stepper::max_adv_steps;
 
-  int8_t Stepper::e_steps = 0,
-         Stepper::LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+  int8_t Stepper::e_steps = 0;
+
+  #if E_STEPPERS > 1
+    int8_t Stepper::LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+  #else
+    constexpr int8_t Stepper::LA_active_extruder;
+  #endif
 
   bool Stepper::use_advance_lead;
 
