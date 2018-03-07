@@ -571,7 +571,7 @@ class Temperature {
 
     #endif // HEATER_IDLE_HANDLER
 
-    #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+    #if HAS_TEMP_SENSOR
       static void print_heaterstates();
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         static uint8_t auto_report_temp_interval;

@@ -510,6 +510,10 @@ volatile bool wait_for_heatup = true;
   volatile bool wait_for_user = false;
 #endif
 
+#if HAS_AUTO_REPORTING
+  bool suspend_auto_report; // = false
+#endif
+
 const char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
 
 // Number of characters read in the current line of serial input
@@ -7706,7 +7710,7 @@ inline void gcode_M104() {
 inline void gcode_M105() {
   if (get_target_extruder_from_command(105)) return;
 
-  #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+  #if HAS_TEMP_SENSOR
     SERIAL_PROTOCOLPGM(MSG_OK);
     thermalManager.print_heaterstates();
   #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
@@ -7717,7 +7721,7 @@ inline void gcode_M105() {
   SERIAL_EOL();
 }
 
-#if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+#if ENABLED(AUTO_REPORT_TEMPERATURES)
 
   /**
    * M155: Set temperature auto-report interval. M155 S<seconds>
@@ -11682,7 +11686,7 @@ void process_parsed_command() {
 
       case 105: gcode_M105(); KEEPALIVE_STATE(NOT_BUSY); return;  // M105: Report Temperatures (and say "ok")
 
-      #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+      #if ENABLED(AUTO_REPORT_TEMPERATURES)
         case 155: gcode_M155(); break;                            // M155: Set Temperature Auto-report Interval
       #endif
 
@@ -13454,10 +13458,6 @@ void idle(
 
   host_keepalive();
 
-  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-    thermalManager.auto_report_temperatures();
-  #endif
-
   manage_inactivity(
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       no_stepper_sleep
@@ -13482,8 +13482,15 @@ void idle(
     }
   #endif
 
-  #if ENABLED(AUTO_REPORT_SD_STATUS)
-    card.auto_report_sd_status();
+  #if HAS_AUTO_REPORTING
+    if (!suspend_auto_report) {
+      #if ENABLED(AUTO_REPORT_TEMPERATURES)
+        thermalManager.auto_report_temperatures();
+      #endif
+      #if ENABLED(AUTO_REPORT_SD_STATUS)
+        card.auto_report_sd_status();
+      #endif
+    }
   #endif
 }
 
