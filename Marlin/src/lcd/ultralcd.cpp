@@ -4861,6 +4861,7 @@ void kill_screen(const char* lcd_msg) {
       encoderTopLine = 0;
       encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
       screen_changed = true;
+      first_page = false;
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
     }
 
