@@ -154,8 +154,8 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   }
 }
 
-FORCE_INLINE static void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_us) {
-  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_us * HAL_TICKS_PER_US;
+FORCE_INLINE static void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks) {
+  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_ticks;
   if (HAL_timer_get_compare(timer_num) < mincmp) HAL_timer_set_compare(timer_num, mincmp);
 }
 

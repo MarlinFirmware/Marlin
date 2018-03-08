@@ -365,8 +365,8 @@ void Stepper::isr() {
     _NEXT_ISR(ocr_val);
 
     #if DISABLED(LIN_ADVANCE)
-      HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL);
-      HAL_ENABLE_ISRs(); // re-enable ISRs
+      HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL * HAL_TICKS_PER_US);
+      HAL_ENABLE_ISRs();
     #endif
 
     return;
@@ -419,14 +419,14 @@ void Stepper::isr() {
         if (current_block->steps[Z_AXIS] > 0) {
           enable_Z();
           _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
-          HAL_ENABLE_ISRs(); // re-enable ISRs
+          HAL_ENABLE_ISRs();
           return;
         }
       #endif
     }
     else {
       _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
-      HAL_ENABLE_ISRs(); // re-enable ISRs
+      HAL_ENABLE_ISRs();
       return;
     }
   }
@@ -727,7 +727,8 @@ void Stepper::isr() {
   }
 
   #if DISABLED(LIN_ADVANCE)
-    HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL);
+    // Make sure stepper ISR doesn't monopolize the CPU
+    HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL * HAL_TICKS_PER_US);
   #endif
 
   // If current block is finished, reset pointer
@@ -736,7 +737,7 @@ void Stepper::isr() {
     planner.discard_current_block();
   }
   #if DISABLED(LIN_ADVANCE)
-    HAL_ENABLE_ISRs(); // re-enable ISRs
+    HAL_ENABLE_ISRs();
   #endif
 }
 
@@ -889,9 +890,8 @@ void Stepper::isr() {
       nextMainISR = 0;
     }
 
-    // Don't run the ISR faster than possible
-    // Make sure stepper interrupt does not monopolise CPU by adjusting compare to give about 8µs room
-    HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL);
+    // Make sure stepper ISR doesn't monopolize the CPU
+    HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL * HAL_TICKS_PER_US);
 
     // Restore original ISR settings
     HAL_ENABLE_ISRs();
