@@ -102,6 +102,8 @@
   #include "pins_BAM_DICE_DUE.h"      // ATmega1280, ATmega2560
 #elif MB(MKS_BASE)
   #include "pins_MKS_BASE.h"          // ATmega1280, ATmega2560
+#elif MB(MKS_BASE_HEROIC)
+  #include "pins_MKS_BASE_HEROIC.h"   // ATmega1280, ATmega2560
 #elif MB(MKS_13)
   #include "pins_MKS_13.h"            // ATmega1280, ATmega2560
 #elif MB(MKS_GEN_L)
@@ -159,6 +161,8 @@
   #include "pins_RAMBO.h"             // ATmega2560
 #elif MB(MINIRAMBO) || MB(MINIRAMBO_10A)
   #include "pins_MINIRAMBO.h"         // ATmega2560
+#elif MB(EINSY_RAMBO)
+  #include "pins_EINSY_RAMBO.h"       // ATmega2560
 #elif MB(ELEFU_3)
   #include "pins_ELEFU_3.h"           // ATmega2560
 #elif MB(LEAPFROG)

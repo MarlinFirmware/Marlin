@@ -292,8 +292,8 @@
   #define PS_ON_PIN        12
 #endif
 
-#if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_LASER_ENABLE_PIN)
-  #if !defined(NUM_SERVOS) || NUM_SERVOS <= 1 // try to use servo connector first
+#if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENABLE_PIN)
+  #if NUM_SERVOS <= 1 // try to use servo connector first
     #define CASE_LIGHT_PIN   6      // MUST BE HARDWARE PWM
   #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
       && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
@@ -365,6 +365,15 @@
       #if DISABLED(NEWPANEL)
         #define BEEPER_PIN      37
       #endif
+
+    #elif ENABLED(ZONESTAR_LCD)
+
+      #define LCD_PINS_RS       64
+      #define LCD_PINS_ENABLE   44
+      #define LCD_PINS_D4       63
+      #define LCD_PINS_D5       40
+      #define LCD_PINS_D6       42
+      #define LCD_PINS_D7       65
 
     #else
 
@@ -534,6 +543,10 @@
       #define SD_DETECT_PIN     49
       #define KILL_PIN          64
 
+    #elif ENABLED(ZONESTAR_LCD)
+
+      #define ADC_KEYPAD_PIN    12
+
     #else
 
       // Beeper on AUX-4
@@ -566,17 +579,3 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
-
-#if ENABLED(ZONESTAR_LCD)
-  #define LCD_PINS_RS        64
-  #define LCD_PINS_ENABLE    44
-  #define LCD_PINS_D4        63
-  #define LCD_PINS_D5        40
-  #define LCD_PINS_D6        42
-  #define LCD_PINS_D7        65
-  #define ADC_KEYPAD_PIN     12
-  #define BTN_EN1            -1
-  #define BTN_EN2            -1
-  #define BTN_ENC            -1
-  // pin 29 N/C
-#endif // ZONESTAR_LCD

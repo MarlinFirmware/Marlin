@@ -31,8 +31,7 @@
  *  - X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship
  *    between X_AXIS and X Head movement, like CoreXY bots
  */
-enum AxisEnum {
-  NO_AXIS   = -1,
+enum AxisEnum : unsigned char {
   X_AXIS    = 0,
   A_AXIS    = 0,
   Y_AXIS    = 1,
@@ -43,7 +42,8 @@ enum AxisEnum {
   X_HEAD    = 4,
   Y_HEAD    = 5,
   Z_HEAD    = 6,
-  ALL_AXES  = 100
+  ALL_AXES  = 0xFE,
+  NO_AXIS   = 0xFF
 };
 
 #define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=S; VAR<=N; VAR++)
@@ -73,12 +73,12 @@ typedef enum {
 /**
  * SD Card
  */
-enum LsAction { LS_SerialPrint, LS_Count, LS_GetFilename };
+enum LsAction : char { LS_SerialPrint, LS_Count, LS_GetFilename };
 
 /**
  * Ultra LCD
  */
-enum LCDViewAction {
+enum LCDViewAction : char {
   LCDVIEW_NONE,
   LCDVIEW_REDRAW_NOW,
   LCDVIEW_CALL_REDRAW_NEXT,

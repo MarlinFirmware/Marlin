@@ -391,7 +391,7 @@ void GcodeSuite::process_parsed_command() {
         KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
 
-      #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+      #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
         case 155: M155(); break;  // M155: Set temperature auto-report interval
       #endif
 

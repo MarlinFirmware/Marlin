@@ -376,6 +376,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * Custom Boot and Status screens
+ */
+#if DISABLED(DOGLCD) && (ENABLED(SHOW_CUSTOM_BOOTSCREEN) || ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
+  #error "Graphical LCD is required for SHOW_CUSTOM_BOOTSCREEN and CUSTOM_STATUS_SCREEN_IMAGE."
+#endif
+
+/**
  * SD File Sorting
  */
 #if ENABLED(SDCARD_SORT_ALPHA)
@@ -552,6 +559,16 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #elif ENABLED(LIN_ADVANCE)
     #error "MIXING_EXTRUDER is incompatible with LIN_ADVANCE."
   #endif
+#endif
+
+/**
+ * Linear Advance 1.5 - Check K value range
+ */
+#if ENABLED(LIN_ADVANCE)
+  static_assert(
+    WITHIN(LIN_ADVANCE_K, 0, 10),
+    "LIN_ADVANCE_K must be a value from 0 to 10 (Changed in LIN_ADVANCE v1.5, Marlin 1.1.9)."
+  );
 #endif
 
 /**
@@ -947,18 +964,16 @@ static_assert(1 >= 0
  * Make sure Z_SAFE_HOMING point is reachable
  */
 #if ENABLED(Z_SAFE_HOMING)
-  #if !WITHIN(Z_SAFE_HOMING_X_POINT, MIN_PROBE_X, MAX_PROBE_X)
-    #if HAS_BED_PROBE
+  #if HAS_BED_PROBE
+    #if !WITHIN(Z_SAFE_HOMING_X_POINT, MIN_PROBE_X, MAX_PROBE_X)
       #error "Z_SAFE_HOMING_X_POINT can't be reached by the Z probe."
-    #else
-      #error "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle."
-    #endif
-  #elif !WITHIN(Z_SAFE_HOMING_Y_POINT, MIN_PROBE_Y, MAX_PROBE_Y)
-    #if HAS_BED_PROBE
+    #elif !WITHIN(Z_SAFE_HOMING_Y_POINT, MIN_PROBE_Y, MAX_PROBE_Y)
       #error "Z_SAFE_HOMING_Y_POINT can't be reached by the Z probe."
-    #else
-      #error "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle."
     #endif
+  #elif !WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS)
+    #error "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle."
+  #elif !WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS)
+    #error "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle."
   #endif
 #endif // Z_SAFE_HOMING
 
@@ -1069,7 +1084,9 @@ static_assert(1 >= 0
   #error "HEATER_0_PIN not defined for this board."
 #elif !PIN_EXISTS(TEMP_0) && !(defined(MAX6675_SS) && MAX6675_SS >= 0)
   #error "TEMP_0_PIN not defined for this board."
-#elif !PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)
+#elif ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR)))
+  #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
+#elif ( !(defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)))
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
 #elif TEMP_SENSOR_0 == 0
   #error "TEMP_SENSOR_0 is required."
@@ -1557,6 +1574,15 @@ static_assert(1 >= 0
   // clearing the stallGuard activated status is found.
   #if ENABLED(SENSORLESS_HOMING) && ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
     #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
+  #endif
+
+  // Sensorless homing is required for both combined steppers in an H-bot
+  #if CORE_IS_XY && X_SENSORLESS != Y_SENSORLESS
+    #error "CoreXY requires both X and Y to use sensorless homing if either does."
+  #elif CORE_IS_XZ && X_SENSORLESS != Z_SENSORLESS
+    #error "CoreXZ requires both X and Z to use sensorless homing if either does."
+  #elif CORE_IS_YZ && Y_SENSORLESS != Z_SENSORLESS
+    #error "CoreYZ requires both Y and Z to use sensorless homing if either does."
   #endif
 
 #elif ENABLED(SENSORLESS_HOMING)

@@ -417,7 +417,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
       // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
-        #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+        #if HAS_TEMP_SENSOR
           print_heaterstates();
           SERIAL_EOL();
         #endif
@@ -748,6 +748,10 @@ void Temperature::manage_heater() {
 
   #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
     static bool last_pause_state;
+  #endif
+
+  #if ENABLED(EMERGENCY_PARSER)
+    if (killed_by_M112) kill(PSTR(MSG_KILLED));
   #endif
 
   if (!temp_meas_ready) return;
@@ -2140,7 +2144,7 @@ void Temperature::isr() {
   ENABLE_TEMPERATURE_INTERRUPT(); //re-enable Temperature ISR
 }
 
-#if HAS_TEMP_HOTEND || HAS_TEMP_BED
+#if HAS_TEMP_SENSOR
 
   #include "../gcode/gcode.h"
 
@@ -2247,4 +2251,4 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-#endif // HAS_TEMP_HOTEND || HAS_TEMP_BED
+#endif // HAS_TEMP_SENSOR

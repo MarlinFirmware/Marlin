@@ -43,7 +43,7 @@
 constexpr uint8_t _7P_STEP = 1,              // 7-point step - to change number of calibration points
                   _4P_STEP = _7P_STEP * 2,   // 4-point step
                   NPP      = _7P_STEP * 6;   // number of calibration points on the radius
-enum CalEnum {                               // the 7 main calibration points - add definitions if needed
+enum CalEnum : char {                               // the 7 main calibration points - add definitions if needed
   CEN      = 0,
   __A      = 1,
   _AB      = __A + _7P_STEP,

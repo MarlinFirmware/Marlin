@@ -50,9 +50,10 @@ typedef uint32_t hal_timer_t;
 #define HAL_TIMER_RATE         ((F_CPU) / 2)    // frequency of timers peripherals
 #define STEPPER_TIMER_PRESCALE 1.0              // prescaler for setting stepper frequency
 #define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
-#define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per us
+#define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
+#define STEP_TIMER_MIN_INTERVAL   8 // minimum time in µs between stepper interrupts
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(STEP_TIMER_NUM)
@@ -106,6 +107,11 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   const tTimerConfig * const pConfig = &TimerConfig[timer_num];
   return pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_CV;
+}
+
+FORCE_INLINE static void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks) {
+  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_ticks;
+  if (HAL_timer_get_compare(timer_num) < mincmp) HAL_timer_set_compare(timer_num, mincmp);
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num);

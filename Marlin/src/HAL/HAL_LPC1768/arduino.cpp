@@ -70,7 +70,7 @@ extern "C" void delay(const int msec) {
 }
 
 // IO functions
-// As defined by Arduino INPUT(0x0), OUPUT(0x1), INPUT_PULLUP(0x2)
+// As defined by Arduino INPUT(0x0), OUTPUT(0x1), INPUT_PULLUP(0x2)
 void pinMode(const pin_t pin, const uint8_t mode) {
   if (!VALID_PIN(pin)) return;
 

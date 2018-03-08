@@ -28,58 +28,55 @@
 #include "../inc/MarlinConfig.h"
 
 extern bool report_tmc_status;
-extern char extended_axis_codes[11][3];
 
-enum TMC_AxisEnum {
-  TMC_X, TMC_X2, TMC_Y, TMC_Y2, TMC_Z, TMC_Z2,
-  TMC_E0, TMC_E1, TMC_E2, TMC_E3, TMC_E4
-};
+enum TMC_AxisEnum : char { TMC_X, TMC_X2, TMC_Y, TMC_Y2, TMC_Z, TMC_Z2, TMC_E0, TMC_E1, TMC_E2, TMC_E3, TMC_E4 };
 
 constexpr uint32_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
   return 12650000UL * msteps / (256 * thrs * spmm);
 }
 
-void _tmc_say_current(const char name[], const uint16_t curr);
-void _tmc_say_otpw(const char name[], const bool otpw);
-void _tmc_say_otpw_cleared(const char name[]);
-void _tmc_say_pwmthrs(const char name[], const uint32_t thrs);
-void _tmc_say_sgt(const char name[], const int8_t sgt);
+void _tmc_say_axis(const TMC_AxisEnum axis);
+void _tmc_say_current(const TMC_AxisEnum axis, const uint16_t curr);
+void _tmc_say_otpw(const TMC_AxisEnum axis, const bool otpw);
+void _tmc_say_otpw_cleared(const TMC_AxisEnum axis);
+void _tmc_say_pwmthrs(const TMC_AxisEnum axis, const uint32_t thrs);
+void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt);
 
 template<typename TMC>
-void tmc_get_current(TMC &st, const char name[]) {
-  _tmc_say_current(name, st.getCurrent());
+void tmc_get_current(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_current(axis, st.getCurrent());
 }
 template<typename TMC>
-void tmc_set_current(TMC &st, const char name[], const int mA) {
+void tmc_set_current(TMC &st, const TMC_AxisEnum axis, const int mA) {
   st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
-  tmc_get_current(st, name);
+  tmc_get_current(st, axis);
 }
 template<typename TMC>
-void tmc_report_otpw(TMC &st, const char name[]) {
-  _tmc_say_otpw(name, st.getOTPW());
+void tmc_report_otpw(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_otpw(axis, st.getOTPW());
 }
 template<typename TMC>
-void tmc_clear_otpw(TMC &st, const char name[]) {
+void tmc_clear_otpw(TMC &st, const TMC_AxisEnum axis) {
   st.clear_otpw();
-  _tmc_say_otpw_cleared(name);
+  _tmc_say_otpw_cleared(axis);
 }
 template<typename TMC>
-void tmc_get_pwmthrs(TMC &st, const char name[], const uint16_t spmm) {
-  _tmc_say_pwmthrs(name, _tmc_thrs(st.microsteps(), st.TPWMTHRS(), spmm));
+void tmc_get_pwmthrs(TMC &st, const TMC_AxisEnum axis, const uint16_t spmm) {
+  _tmc_say_pwmthrs(axis, _tmc_thrs(st.microsteps(), st.TPWMTHRS(), spmm));
 }
 template<typename TMC>
-void tmc_set_pwmthrs(TMC &st, const char name[], const int32_t thrs, const uint32_t spmm) {
+void tmc_set_pwmthrs(TMC &st, const TMC_AxisEnum axis, const int32_t thrs, const uint32_t spmm) {
   st.TPWMTHRS(_tmc_thrs(st.microsteps(), thrs, spmm));
-  tmc_get_pwmthrs(st, name, spmm);
+  tmc_get_pwmthrs(st, axis, spmm);
 }
 template<typename TMC>
-void tmc_get_sgt(TMC &st, const char name[]) {
-  _tmc_say_sgt(name, st.sgt());
+void tmc_get_sgt(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_sgt(axis, st.sgt());
 }
 template<typename TMC>
-void tmc_set_sgt(TMC &st, const char name[], const int8_t sgt_val) {
+void tmc_set_sgt(TMC &st, const TMC_AxisEnum axis, const int8_t sgt_val) {
   st.sgt(sgt_val);
-  tmc_get_sgt(st, name);
+  tmc_get_sgt(st, axis);
 }
 
 void monitor_tmc_driver();

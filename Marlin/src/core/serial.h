@@ -32,7 +32,7 @@
 /**
  * Define debug bit-masks
  */
-enum DebugFlags {
+enum DebugFlags : unsigned char {
   DEBUG_NONE          = 0,
   DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
   DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
@@ -45,7 +45,7 @@ enum DebugFlags {
 };
 
 #if ENABLED(EMERGENCY_PARSER)
-  enum e_parser_state {
+  enum e_parser_state : char {
     state_RESET,
     state_N,
     state_M,

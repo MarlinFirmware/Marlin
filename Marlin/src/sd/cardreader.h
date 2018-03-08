@@ -23,11 +23,15 @@
 #ifndef _CARDREADER_H_
 #define _CARDREADER_H_
 
+#include "../inc/MarlinConfig.h"
+
+#if ENABLED(SDSUPPORT)
+
+#define SD_RESORT ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_DYNAMIC_RAM)
+
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
 #include "SdFile.h"
-
-#include "../inc/MarlinConfig.h"
 
 class CardReader {
 public:
@@ -48,7 +52,11 @@ public:
   void release();
   void openAndPrintFile(const char *name);
   void startFileprint();
-  void stopSDPrint();
+  void stopSDPrint(
+    #if SD_RESORT
+      const bool re_sort=false
+    #endif
+  );
   void getStatus(
     #if NUM_SERIAL > 1
       const int8_t port = -1
@@ -99,6 +107,23 @@ public:
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
 
   Sd2Card& getSd2Card() { return card; }
+
+  #if ENABLED(AUTO_REPORT_SD_STATUS)
+    void auto_report_sd_status(void);
+    FORCE_INLINE void set_auto_report_interval(uint8_t v
+      #if NUM_SERIAL > 1
+        , int8_t port
+      #endif
+    ) {
+      #if NUM_SERIAL > 1
+        serialport = port;
+      #endif
+      NOMORE(v, 60);
+      auto_report_sd_interval = v;
+      next_sd_report_ms = millis() + 1000UL * v;
+    }
+  #endif
+
 public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
@@ -183,6 +208,14 @@ private:
   #if ENABLED(SDCARD_SORT_ALPHA)
     void flush_presort();
   #endif
+
+  #if ENABLED(AUTO_REPORT_SD_STATUS)
+    static uint8_t auto_report_sd_interval;
+    static millis_t next_sd_report_ms;
+    #if NUM_SERIAL > 1
+      static int8_t serialport;
+    #endif
+  #endif
 };
 
 #if PIN_EXISTS(SD_DETECT)
@@ -192,9 +225,13 @@ private:
     #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == LOW)
   #endif
 #else
-  //No card detect line? Assume the card is inserted.
+  // No card detect line? Assume the card is inserted.
   #define IS_SD_INSERTED true
 #endif
+
+extern CardReader card;
+
+#endif // SDSUPPORT
 
 #if ENABLED(SDSUPPORT)
   #define IS_SD_PRINTING (card.sdprinting)
@@ -203,7 +240,5 @@ private:
   #define IS_SD_PRINTING (false)
   #define IS_SD_FILE_OPEN (false)
 #endif
-
-extern CardReader card;
 
 #endif // _CARDREADER_H_

@@ -139,5 +139,12 @@ void GcodeSuite::M115() {
       #endif
     );
 
+    // AUTOREPORT_SD_STATUS (M27 extension)
+    cap_line(PSTR("AUTOREPORT_SD_STATUS")
+      #if ENABLED(AUTO_REPORT_SD_STATUS)
+        , true
+      #endif
+    );
+
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

@@ -593,14 +593,6 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     // SERIAL_ECHOLNPAIR(" segments=", segments);
     // SERIAL_ECHOLNPAIR(" segment_mm=", cartesian_segment_mm);
 
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
-      // SCARA needs to scale the feed rate from mm/s to degrees/s
-      const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
-                  inverse_secs = inv_segment_length * _feedrate_mm_s;
-      float oldA = stepper.get_axis_position_degrees(A_AXIS),
-            oldB = stepper.get_axis_position_degrees(B_AXIS);
-    #endif
-
     // Get the current position as starting point
     float raw[XYZE];
     COPY(raw, current_position);
@@ -625,24 +617,11 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       #endif
       ADJUST_DELTA(raw); // Adjust Z if bed leveling is enabled
 
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        // For SCARA scale the feed rate from mm/s to degrees/s
-        // i.e., Complete the angular vector in the given time.
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder, cartesian_segment_mm);
-        oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
-      #else
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder, cartesian_segment_mm);
-      #endif
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder, cartesian_segment_mm);
     }
 
     // Ensure last segment arrives at target location.
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
-      inverse_kinematics(rtarget);
-      ADJUST_DELTA(rtarget);
-      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder, cartesian_segment_mm);
-    #else
-      planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder, cartesian_segment_mm);
-    #endif
+    planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder, cartesian_segment_mm);
 
     return false; // caller will update current_position
   }
@@ -966,6 +945,48 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
   return homing_feedrate(axis) / hbd;
 }
 
+#if ENABLED(SENSORLESS_HOMING)
+
+  /**
+   * Set sensorless homing if the axis has it, accounting for Core Kinematics.
+   */
+  void sensorless_homing_per_axis(const AxisEnum axis, const bool enable/*=true*/) {
+    switch (axis) {
+      #if X_SENSORLESS
+        case X_AXIS:
+          tmc_sensorless_homing(stepperX, enable);
+          #if CORE_IS_XY && Y_SENSORLESS
+            tmc_sensorless_homing(stepperY, enable);
+          #elif CORE_IS_XZ && Z_SENSORLESS
+            tmc_sensorless_homing(stepperZ, enable);
+          #endif
+          break;
+      #endif
+      #if Y_SENSORLESS
+        case Y_AXIS:
+          tmc_sensorless_homing(stepperY, enable);
+          #if CORE_IS_XY && X_SENSORLESS
+            tmc_sensorless_homing(stepperX, enable);
+          #elif CORE_IS_YZ && Z_SENSORLESS
+            tmc_sensorless_homing(stepperZ, enable);
+          #endif
+          break;
+      #endif
+      #if Z_SENSORLESS
+        case Z_AXIS:
+          tmc_sensorless_homing(stepperZ, enable);
+          #if CORE_IS_XZ && X_SENSORLESS
+            tmc_sensorless_homing(stepperX, enable);
+          #elif CORE_IS_YZ && Y_SENSORLESS
+            tmc_sensorless_homing(stepperY, enable);
+          #endif
+          break;
+      #endif
+    }
+  }
+
+#endif // SENSORLESS_HOMING
+
 /**
  * Home an individual linear axis
  */
@@ -992,15 +1013,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
-      if (axis == X_AXIS) tmc_sensorless_homing(stepperX);
-    #endif
-    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
-      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY);
-    #endif
-    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
-      if (axis == Z_AXIS) tmc_sensorless_homing(stepperZ);
-    #endif
+    sensorless_homing_per_axis(axis);
   #endif
 
   // Tell the planner the axis is at 0
@@ -1031,15 +1044,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    #if ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY)
-      if (axis == X_AXIS) tmc_sensorless_homing(stepperX, false);
-    #endif
-    #if ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY)
-      if (axis == Y_AXIS) tmc_sensorless_homing(stepperY, false);
-    #endif
-    #if ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY)
-      if (axis == Z_AXIS) tmc_sensorless_homing(stepperZ, false);
-    #endif
+    sensorless_homing_per_axis(axis, false);
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)

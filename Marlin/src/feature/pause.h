@@ -32,13 +32,13 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-enum AdvancedPauseMode {
+enum AdvancedPauseMode : char {
   ADVANCED_PAUSE_MODE_PAUSE_PRINT,
   ADVANCED_PAUSE_MODE_LOAD_FILAMENT,
   ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT
 };
 
-enum AdvancedPauseMessage {
+enum AdvancedPauseMessage : char {
   ADVANCED_PAUSE_MESSAGE_INIT,
   ADVANCED_PAUSE_MESSAGE_UNLOAD,
   ADVANCED_PAUSE_MESSAGE_INSERT,
@@ -51,7 +51,7 @@ enum AdvancedPauseMessage {
   ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT
 };
 
-enum AdvancedPauseMenuResponse {
+enum AdvancedPauseMenuResponse : char {
   ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
   ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE,
   ADVANCED_PAUSE_RESPONSE_RESUME_PRINT

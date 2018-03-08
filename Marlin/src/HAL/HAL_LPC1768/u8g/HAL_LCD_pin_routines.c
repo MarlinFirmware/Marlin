@@ -54,7 +54,7 @@ uint8_t LPC1768_PIN_PIN(const uint8_t pin);
 #endif
 
 // I/O functions
-// As defined by Arduino INPUT(0x0), OUPUT(0x1), INPUT_PULLUP(0x2)
+// As defined by Arduino INPUT(0x0), OUTPUT(0x1), INPUT_PULLUP(0x2)
 void pinMode_LCD(uint8_t pin, uint8_t mode) {
   #define LPC1768_PIN_PORT(pin) ((uint8_t)((pin >> 5) & 0b111))
   #define LPC1768_PIN_PIN(pin) ((uint8_t)(pin & 0b11111))

@@ -221,7 +221,7 @@ void spiBegin (void) {
   /** Soft SPI receive byte */
   uint8_t spiRec() {
     uint8_t data = 0;
-    // no interrupts during byte receive - about 8 us
+    // no interrupts during byte receive - about 8µs
     cli();
     // output pin high - like sending 0xFF
     WRITE(MOSI_PIN, HIGH);
@@ -252,7 +252,7 @@ void spiBegin (void) {
   //------------------------------------------------------------------------------
   /** Soft SPI send byte */
   void spiSend(uint8_t data) {
-    // no interrupts during byte send - about 8 us
+    // no interrupts during byte send - about 8µs
     cli();
     for (uint8_t i = 0; i < 8; i++) {
       WRITE(SCK_PIN, LOW);

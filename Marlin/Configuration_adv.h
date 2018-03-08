@@ -612,6 +612,11 @@
    */
   //#define SD_REPRINT_LAST_SELECTED_FILE
 
+  /**
+   * Auto-report SdCard status with M27 S<seconds>
+   */
+  //#define AUTO_REPORT_SD_STATUS
+
 #endif // SDSUPPORT
 
 /**
@@ -771,7 +776,8 @@
 
 // The minimum pulse width (in µs) for stepping a stepper.
 // Set this if you find stepping unreliable, or if using a very fast CPU.
-#define MINIMUM_STEPPER_PULSE 0 // (µs) The smallest stepper pulse allowed
+// 0 is OK for AVR, 0 is OK for A4989 drivers, 2 is needed for DRV8825 drivers
+#define MINIMUM_STEPPER_PULSE 2 // (µs)   DRV8825 on 32bit CPUs
 
 // @section temperature
 
@@ -856,7 +862,8 @@
  * With auto-retract enabled, all G1 E moves within the set range
  * will be converted to firmware-based retract/recover moves.
  *
- * Be sure to turn off auto-retract during filament change.
+ * Note: Be sure to turn off auto-retract during filament change.
+ * Note: Current status (Retract / Swap / Zlift) isn't reset by G28.
  *
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *

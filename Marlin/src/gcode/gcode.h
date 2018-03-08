@@ -85,7 +85,7 @@
  * M24  - Start/resume SD print. (Requires SDSUPPORT)
  * M25  - Pause SD print. (Requires SDSUPPORT)
  * M26  - Set SD position in bytes: "M26 S12345". (Requires SDSUPPORT)
- * M27  - Report SD print status. (Requires SDSUPPORT)
+ * M27  - Report SD print status. (Requires SDSUPPORT) Or, with 'S<seconds>' set the SD status auto-report interval. (Requires AUTO_REPORT_SD_STATUS)
  * M28  - Start SD write: "M28 /path/file.gco". (Requires SDSUPPORT)
  * M29  - Stop SD write. (Requires SDSUPPORT)
  * M30  - Delete file from SD: "M30 /path/file.gco"
@@ -182,8 +182,8 @@
  * M380 - Activate solenoid on active extruder. (Requires EXT_SOLENOID)
  * M381 - Disable all solenoids. (Requires EXT_SOLENOID)
  * M400 - Finish all moves.
- * M401 - Lower Z probe. (Requires a probe)
- * M402 - Raise Z probe. (Requires a probe)
+ * M401 - Deploy and activate Z probe. (Requires a probe)
+ * M402 - Deactivate and stow Z probe. (Requires a probe)
  * M404 - Display or set the Nominal Filament Width: "W<diameter>". (Requires FILAMENT_WIDTH_SENSOR)
  * M405 - Enable Filament Sensor flow control. "M405 D<delay_cm>". (Requires FILAMENT_WIDTH_SENSOR)
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
@@ -216,7 +216,7 @@
  * M867 - Enable/disable or toggle error correction for position encoder modules.
  * M868 - Report or set position encoder module error correction threshold.
  * M869 - Report position encoder module error.
- * M900 - Get and/or Set advance K factor and WH/D ratio. (Requires LIN_ADVANCE)
+ * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
  * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires HAVE_TMC2130)
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires DAC_STEPPER_CURRENT or DIGIPOTSS_PIN)
@@ -267,7 +267,7 @@ public:
      * Workspace planes only apply to G2/G3 moves
      * (and "canned cycles" - not a current feature)
      */
-    enum WorkspacePlane { PLANE_XY, PLANE_ZX, PLANE_YZ };
+    enum WorkspacePlane : char { PLANE_XY, PLANE_ZX, PLANE_YZ };
     static WorkspacePlane workspace_plane;
   #endif
 
@@ -304,7 +304,7 @@ public:
      * States for managing Marlin and host communication
      * Marlin sends messages if blocked or busy
      */
-    enum MarlinBusyState {
+    enum MarlinBusyState : char {
       NOT_BUSY,           // Not in a handler
       IN_HANDLER,         // Processing a GCode
       IN_PROCESS,         // Known to be blocking command input (as in G29)
@@ -547,7 +547,7 @@ private:
     static void M150();
   #endif
 
-  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+  #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
     static void M155();
   #endif
 
