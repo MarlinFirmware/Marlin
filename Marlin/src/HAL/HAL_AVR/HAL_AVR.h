@@ -126,6 +126,8 @@ extern "C" {
 #define HAL_STEPPER_TIMER_RATE  HAL_TIMER_RATE
 #define STEPPER_TIMER_PRESCALE  8
 
+#define STEP_TIMER_MIN_INTERVAL 8 // minimum time in µs between stepper interrupts
+
 #define STEP_TIMER_NUM          1
 #define TIMER_OCR_1             OCR1A
 #define TIMER_COUNTER_1         TCNT1
@@ -148,6 +150,8 @@ extern "C" {
 
 #define _CAT(a, ...) a ## __VA_ARGS__
 #define HAL_timer_set_compare(timer, compare) (_CAT(TIMER_OCR_, timer) = compare)
+#define HAL_timer_restrain(timer, interval_ticks) NOLESS(_CAT(TIMER_OCR_, timer), _CAT(TIMER_COUNTER_, timer) + interval_ticks)
+
 #define HAL_timer_get_compare(timer) _CAT(TIMER_OCR_, timer)
 #define HAL_timer_get_count(timer) _CAT(TIMER_COUNTER_, timer)
 

@@ -365,12 +365,8 @@ void Stepper::isr() {
     _NEXT_ISR(ocr_val);
 
     #if DISABLED(LIN_ADVANCE)
-      #ifdef CPU_32_BIT
-        HAL_timer_set_compare(STEP_TIMER_NUM, ocr_val);
-      #else
-        NOLESS(OCR1A, TCNT1 + 16);
-      #endif
-      HAL_ENABLE_ISRs(); // re-enable ISRs
+      HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL * HAL_TICKS_PER_US);
+      HAL_ENABLE_ISRs();
     #endif
 
     return;
@@ -423,14 +419,14 @@ void Stepper::isr() {
         if (current_block->steps[Z_AXIS] > 0) {
           enable_Z();
           _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
-          HAL_ENABLE_ISRs(); // re-enable ISRs
+          HAL_ENABLE_ISRs();
           return;
         }
       #endif
     }
     else {
       _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
-      HAL_ENABLE_ISRs(); // re-enable ISRs
+      HAL_ENABLE_ISRs();
       return;
     }
   }
@@ -731,14 +727,8 @@ void Stepper::isr() {
   }
 
   #if DISABLED(LIN_ADVANCE)
-    #ifdef CPU_32_BIT
-      // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
-      hal_timer_t stepper_timer_count = HAL_timer_get_compare(STEP_TIMER_NUM),
-                  stepper_timer_current_count = HAL_timer_get_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
-      HAL_timer_set_compare(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
-    #else
-      NOLESS(OCR1A, TCNT1 + 16);
-    #endif
+    // Make sure stepper ISR doesn't monopolize the CPU
+    HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL * HAL_TICKS_PER_US);
   #endif
 
   // If current block is finished, reset pointer
@@ -747,7 +737,7 @@ void Stepper::isr() {
     planner.discard_current_block();
   }
   #if DISABLED(LIN_ADVANCE)
-    HAL_ENABLE_ISRs(); // re-enable ISRs
+    HAL_ENABLE_ISRs();
   #endif
 }
 
@@ -900,15 +890,8 @@ void Stepper::isr() {
       nextMainISR = 0;
     }
 
-    // Don't run the ISR faster than possible
-    #ifdef CPU_32_BIT
-      // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
-      uint32_t stepper_timer_count = HAL_timer_get_compare(STEP_TIMER_NUM),
-               stepper_timer_current_count = HAL_timer_get_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
-      HAL_timer_set_compare(STEP_TIMER_NUM, max(stepper_timer_count, stepper_timer_current_count));
-    #else
-      NOLESS(OCR1A, TCNT1 + 16);
-    #endif
+    // Make sure stepper ISR doesn't monopolize the CPU
+    HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL * HAL_TICKS_PER_US);
 
     // Restore original ISR settings
     HAL_ENABLE_ISRs();

@@ -314,7 +314,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
 
   #if ENABLED(HAVE_TMC2130)
     static void tmc_status(TMC2130Stepper &st, const TMC_debug_enum i) {
-      switch(i) {
+      switch (i) {
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
         case TMC_TSTEP: SERIAL_ECHO(st.TSTEP()); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
@@ -323,7 +323,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
       }
     }
     static void tmc_parse_drv_status(TMC2130Stepper &st, const TMC_drv_status_enum i) {
-      switch(i) {
+      switch (i) {
         case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('X'); break;
         case TMC_SG_RESULT:  SERIAL_PRINT(st.sg_result(), DEC);   break;
         case TMC_FSACTIVE:   if (st.fsactive())   SERIAL_CHAR('X'); break;
@@ -333,7 +333,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
   #endif
   #if ENABLED(HAVE_TMC2208)
     static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
-      switch(i) {
+      switch (i) {
         case TMC_TSTEP: { uint32_t data = 0; st.TSTEP(&data); SERIAL_PROTOCOL(data); break; }
         case TMC_PWM_SCALE: SERIAL_PRINT(st.pwm_scale_sum(), DEC); break;
         case TMC_STEALTHCHOP: serialprintPGM(st.stealth() ? PSTR("true") : PSTR("false")); break;
@@ -343,7 +343,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
       }
     }
     static void tmc_parse_drv_status(TMC2208Stepper &st, const TMC_drv_status_enum i) {
-      switch(i) {
+      switch (i) {
         case TMC_T157: if (st.t157()) SERIAL_CHAR('X'); break;
         case TMC_T150: if (st.t150()) SERIAL_CHAR('X'); break;
         case TMC_T143: if (st.t143()) SERIAL_CHAR('X'); break;
@@ -356,7 +356,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
   template <typename TMC>
   static void tmc_status(TMC &st, const TMC_AxisEnum axis, const TMC_debug_enum i, const float spmm) {
     SERIAL_ECHO('\t');
-    switch(i) {
+    switch (i) {
       case TMC_CODES: _tmc_say_axis(axis); break;
       case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getCurrent()); break;
@@ -401,7 +401,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
   template <typename TMC>
   static void tmc_parse_drv_status(TMC &st, const TMC_AxisEnum axis, const TMC_drv_status_enum i) {
     SERIAL_CHAR('\t');
-    switch(i) {
+    switch (i) {
       case TMC_DRV_CODES:     _tmc_say_axis(axis);  break;
       case TMC_STST:          if (st.stst())         SERIAL_CHAR('X'); break;
       case TMC_OLB:           if (st.olb())          SERIAL_CHAR('X'); break;

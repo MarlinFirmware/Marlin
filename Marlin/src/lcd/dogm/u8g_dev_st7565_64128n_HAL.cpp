@@ -20,42 +20,38 @@
  *
  */
 
-
-/*
-
-  u8g_dev_st7565_64128n_HAL.c (Displaytech)
-
-  Universal 8bit Graphics Library
-
-  Copyright (c) 2011, olikraus@gmail.com
-  All rights reserved.
-
-  Redistribution and use in source and binary forms, with or without modification,
-  are permitted provided that the following conditions are met:
-
-  * Redistributions of source code must retain the above copyright notice, this list
-    of conditions and the following disclaimer.
-
-  * Redistributions in binary form must reproduce the above copyright notice, this
-    list of conditions and the following disclaimer in the documentation and/or other
-    materials provided with the distribution.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
-  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-*/
+/**
+ * u8g_dev_st7565_64128n_HAL.c (Displaytech)
+ *
+ * Universal 8bit Graphics Library
+ *
+ * Copyright (c) 2011, olikraus@gmail.com
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice, this list
+ *    of conditions and the following disclaimer.
+ *
+ *  * Redistributions in binary form must reproduce the above copyright notice, this
+ *    list of conditions and the following disclaimer in the documentation and/or other
+ *    materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "../../inc/MarlinConfig.h"
 
@@ -71,78 +67,76 @@
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
 static const uint8_t u8g_dev_st7565_64128n_HAL_init_seq[] PROGMEM = {
-   U8G_ESC_CS(0),            /* disable chip */
-    U8G_ESC_ADR(0),          /* instruction mode */
-    U8G_ESC_CS(1),           /* enable chip */
-    U8G_ESC_RST(15),         /* do reset low pulse with (15*16)+2 milliseconds (=maximum delay)*/
+   U8G_ESC_CS(0),       // disable chip
+    U8G_ESC_ADR(0),     // instruction mode
+    U8G_ESC_CS(1),      // enable chip
+    U8G_ESC_RST(15),    // do reset low pulse with (15*16)+2 milliseconds (=maximum delay)*/
 
-    0x0A2,             /* 0x0a2: LCD bias 1/9 (according to Displaytech 64128N datasheet) */
-    0x0A0,             /* Normal ADC Select (according to Displaytech 64128N datasheet) */
+    0x0A2,              // 0x0a2: LCD bias 1/9 (according to Displaytech 64128N datasheet)
+    0x0A0,              // Normal ADC Select (according to Displaytech 64128N datasheet)
 
-    0x0c8,                   /* common output mode: set scan direction normal operation/SHL Select, 0x0c0 --> SHL = 0, normal, 0x0c8 --> SHL = 1 */
-    0x040,               /* Display start line for Displaytech 64128N */
+    0x0c8,              // common output mode: set scan direction normal operation/SHL Select, 0x0c0 --> SHL = 0, normal, 0x0c8 --> SHL = 1
+    0x040,              // Display start line for Displaytech 64128N
 
-    0x028 | 0x04,            /* power control: turn on voltage converter */
-    U8G_ESC_DLY(50),         /* delay 50 ms */
+    0x028 | 0x04,       // power control: turn on voltage converter
+    U8G_ESC_DLY(50),    // delay 50 ms
 
-    0x028 | 0x06,            /* power control: turn on voltage regulator */
-    U8G_ESC_DLY(50),         /* delay 50 ms */
+    0x028 | 0x06,       // power control: turn on voltage regulator
+    U8G_ESC_DLY(50),    // delay 50 ms
 
-    0x028 | 0x07,            /* power control: turn on voltage follower */
-    U8G_ESC_DLY(50),         /* delay 50 ms */
+    0x028 | 0x07,       // power control: turn on voltage follower
+    U8G_ESC_DLY(50),    // delay 50 ms
 
-    0x010,                   /* Set V0 voltage resistor ratio. Setting for controlling brightness of Displaytech 64128N */
+    0x010,              // Set V0 voltage resistor ratio. Setting for controlling brightness of Displaytech 64128N
 
-    0x0a6,                   /* display normal, bit val 0: LCD pixel off. */
+    0x0a6,              // display normal, bit val 0: LCD pixel off.
 
-    0x081,                   /* set contrast */
-    0x01e,                 /* Contrast value. Setting for controlling brightness of Displaytech 64128N */
+    0x081,              // set contrast
+    0x01e,              // Contrast value. Setting for controlling brightness of Displaytech 64128N
 
 
-    0x0af,               /* display on */
+    0x0af,              // display on
 
-    U8G_ESC_DLY(100),        /* delay 100 ms */
-    0x0a5,               /* display all points, ST7565 */
-    U8G_ESC_DLY(100),        /* delay 100 ms */
-    U8G_ESC_DLY(100),        /* delay 100 ms */
-    0x0a4,               /* normal display */
-    U8G_ESC_CS(0),           /* disable chip */
-    U8G_ESC_END              /* end of sequence */
+    U8G_ESC_DLY(100),   // delay 100 ms
+    0x0a5,              // display all points, ST7565
+    U8G_ESC_DLY(100),   // delay 100 ms
+    U8G_ESC_DLY(100),   // delay 100 ms
+    0x0a4,              // normal display
+    U8G_ESC_CS(0),      // disable chip
+    U8G_ESC_END         // end of sequence
 };
 
 static const uint8_t u8g_dev_st7565_64128n_HAL_data_start[] PROGMEM = {
-  U8G_ESC_ADR(0),           /* instruction mode */
-  U8G_ESC_CS(1),            /* enable chip */
-  0x010,                  /* set upper 4 bit of the col adr to 0x10 */
-  0x000,                /* set lower 4 bit of the col adr to 0x00. Changed for DisplayTech 64128N */
-  U8G_ESC_END               /* end of sequence */
+  U8G_ESC_ADR(0),       // instruction mode
+  U8G_ESC_CS(1),        // enable chip
+  0x010,                // set upper 4 bit of the col adr to 0x10
+  0x000,                // set lower 4 bit of the col adr to 0x00. Changed for DisplayTech 64128N
+  U8G_ESC_END           // end of sequence
 };
 
 static const uint8_t u8g_dev_st7565_64128n_HAL_sleep_on[] PROGMEM = {
-  U8G_ESC_ADR(0),           /* instruction mode */
-  U8G_ESC_CS(1),             /* enable chip */
-  0x0ac,    /* static indicator off */
-  0x000,                    /* indicator register set (not sure if this is required) */
-  0x0ae,    /* display off */
-  0x0a5,    /* all points on */
-  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
-  U8G_ESC_END                /* end of sequence */
+  U8G_ESC_ADR(0),       // instruction mode
+  U8G_ESC_CS(1),        // enable chip
+  0x0ac,                // static indicator off
+  0x000,                // indicator register set (not sure if this is required)
+  0x0ae,                // display off
+  0x0a5,                // all points on
+  U8G_ESC_CS(0),        // disable chip, bugfix 12 nov 2014
+  U8G_ESC_END           // end of sequence
   };
 
 static const uint8_t u8g_dev_st7565_64128n_HAL_sleep_off[] PROGMEM = {
-  U8G_ESC_ADR(0),           /* instruction mode */
-  U8G_ESC_CS(1),             /* enable chip */
-  0x0a4,    /* all points off */
-  0x0af,    /* display on */
-  U8G_ESC_DLY(50),       /* delay 50 ms */
-  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
-  U8G_ESC_END                /* end of sequence */
+  U8G_ESC_ADR(0),       // instruction mode
+  U8G_ESC_CS(1),        // enable chip
+  0x0a4,                // all points off
+  0x0af,                // display on
+  U8G_ESC_DLY(50),      // delay 50 ms
+  U8G_ESC_CS(0),        // disable chip, bugfix 12 nov 2014
+  U8G_ESC_END           // end of sequence
 };
 
-uint8_t u8g_dev_st7565_64128n_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg)
-{
-  switch(msg)
-  {
+uint8_t u8g_dev_st7565_64128n_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
+  switch(msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_64128n_HAL_init_seq);
@@ -176,10 +170,8 @@ uint8_t u8g_dev_st7565_64128n_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
   return u8g_dev_pb8v1_base_fn(u8g, dev, msg, arg);
 }
 
-uint8_t u8g_dev_st7565_64128n_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg)
-{
-  switch(msg)
-  {
+uint8_t u8g_dev_st7565_64128n_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
+  switch(msg) {
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_64128n_HAL_init_seq);

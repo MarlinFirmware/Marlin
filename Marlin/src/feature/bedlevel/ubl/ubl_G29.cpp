@@ -513,7 +513,7 @@
           }
           else {
             const float cvf = parser.value_float();
-            switch((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
+            switch ((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
               #if ENABLED(UBL_G29_P31)
                 case 1: {
 
