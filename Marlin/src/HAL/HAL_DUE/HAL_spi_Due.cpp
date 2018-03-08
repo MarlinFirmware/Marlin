@@ -93,11 +93,11 @@
       #define MAXNOPS 4
 
       if (x <= (MAXNOPS)) {
-        switch(x) { case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
+        switch (x) { case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
       }
       else { // because of +1 cycle inside delay_4cycles
         const uint32_t rem = (x - 1) % (MAXNOPS);
-        switch(rem) { case 3: nop(); case 2: nop(); case 1: nop(); }
+        switch (rem) { case 3: nop(); case 2: nop(); case 1: nop(); }
         if ((x = (x - 1) / (MAXNOPS)))
           __delay_4cycles(x); // if need more then 4 nop loop is more optimal
       }

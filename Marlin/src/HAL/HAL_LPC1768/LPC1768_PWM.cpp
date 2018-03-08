@@ -218,7 +218,7 @@ bool LPC1768_PWM_attach_pin(pin_t pin, uint32_t min /* = 1 */, uint32_t max /* =
   pin = GET_PIN_MAP_PIN(GET_PIN_MAP_INDEX(pin & 0xFF));  // Sometimes the upper byte is garbled
 
 ////  direct control PWM code
-  switch(pin) {
+  switch (pin) {
     case P1_23:                                       // MKS Sbase Servo 0, PWM1 channel 4  (J3-8 PWM1.4)
       direct_table[P1_23_PWM_channel - 1].min = min;
       direct_table[P1_23_PWM_channel - 1].max = MIN(max, LPC_PWM1_MR0 - MR0_MARGIN);
@@ -298,7 +298,7 @@ bool LPC1768_PWM_detach_pin(pin_t pin) {
   pin = GET_PIN_MAP_PIN(GET_PIN_MAP_INDEX(pin & 0xFF));
 
 ////  direct control PWM code
-  switch(pin) {
+  switch (pin) {
     case P1_23:                                       // MKS Sbase Servo 0, PWM1 channel 4  (J3-8 PWM1.4)
       if (!direct_table[P1_23_PWM_channel - 1].assigned) return false;
       CBI(LPC_PWM1->PCR, 8 + P1_23_PWM_channel);      // disable PWM1 module control of this pin
@@ -373,7 +373,7 @@ bool LPC1768_PWM_write(pin_t pin, uint32_t value) {
   pin = GET_PIN_MAP_PIN(GET_PIN_MAP_INDEX(pin & 0xFF));
 
 ////  direct control PWM code
-  switch(pin) {
+  switch (pin) {
     case P1_23:                                                           // MKS Sbase Servo 0, PWM1 channel 4  (J3-8 PWM1.4)
       if (!direct_table[P1_23_PWM_channel - 1].assigned) return false;
       LPC_PWM1->PCR |=  _BV(8 + P1_23_PWM_channel); // enable PWM1 module control of this pin
