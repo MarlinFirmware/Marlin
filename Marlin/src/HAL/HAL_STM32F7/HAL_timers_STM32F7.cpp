@@ -137,8 +137,8 @@ uint32_t HAL_timer_get_count(const uint8_t timer_num) {
   return __HAL_TIM_GetCounter(&timerConfig[timer_num].timerdef);
 }
 
-void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_µs) {
-  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_µs * HAL_TICKS_PER_US;
+void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_us) {
+  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_us * HAL_TICKS_PER_US;
   if (HAL_timer_get_compare(timer_num) < mincmp) HAL_timer_set_compare(timer_num, mincmp);
 }
 
