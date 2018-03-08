@@ -13655,10 +13655,6 @@ void setup() {
 
   print_job_timer.init();   // Initial setup of print job timer
 
-  #if ENABLED(USE_WATCHDOG)
-    watchdog_init();
-  #endif
-
   stepper.init();    // Initialize stepper, this enables interrupts!
   servo_init();
 
@@ -13809,6 +13805,10 @@ void setup() {
     OUT_WRITE(LCD_PINS_RS, LOW);
     delay(1000);
     WRITE(LCD_PINS_RS, HIGH);
+  #endif
+
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_init();
   #endif
 }
 
