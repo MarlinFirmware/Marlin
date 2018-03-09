@@ -184,7 +184,7 @@ struct scsi_request_sense_data {
 COMPILER_PACK_RESET()
 
 /* Vital Product Data page codes */
-enum scsi_vpd_page_code : char {
+enum scsi_vpd_page_code {
 	SCSI_VPD_SUPPORTED_PAGES = 0x00,
 	SCSI_VPD_UNIT_SERIAL_NUMBER = 0x80,
 	SCSI_VPD_DEVICE_IDENTIFICATION = 0x83,
@@ -202,7 +202,7 @@ enum scsi_vpd_page_code : char {
 
 
 /* Sense keys */
-enum scsi_sense_key : char {
+enum scsi_sense_key {
 	SCSI_SK_NO_SENSE = 0x0,
 	SCSI_SK_RECOVERED_ERROR = 0x1,
 	SCSI_SK_NOT_READY = 0x2,
@@ -220,7 +220,7 @@ enum scsi_sense_key : char {
 };
 
 /* Additional Sense Code / Additional Sense Code Qualifier pairs */
-enum scsi_asc_ascq : char {
+enum scsi_asc_ascq {
 	SCSI_ASC_NO_ADDITIONAL_SENSE_INFO = 0x0000,
 	SCSI_ASC_LU_NOT_READY_REBUILD_IN_PROGRESS = 0x0405,
 	SCSI_ASC_WRITE_ERROR = 0x0c00,
@@ -239,7 +239,7 @@ enum scsi_asc_ascq : char {
  * used with MODE SELECT and MODE SENSE commands
  * that are applicable to all SCSI devices.
  */
-enum scsi_spc_mode : char {
+enum scsi_spc_mode {
 	SCSI_MS_MODE_VENDOR_SPEC = 0x00,
 	SCSI_MS_MODE_INFEXP = 0x1C,    // Informational exceptions control page
 	SCSI_MS_MODE_ALL = 0x3f,
@@ -273,7 +273,7 @@ struct spc_control_page_info_execpt {
 };
 
 
-enum scsi_spc_mode_sense_pc : char {
+enum scsi_spc_mode_sense_pc {
 	SCSI_MS_SENSE_PC_CURRENT = 0,
 	SCSI_MS_SENSE_PC_CHANGEABLE = 1,
 	SCSI_MS_SENSE_PC_DEFAULT = 2,

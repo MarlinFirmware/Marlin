@@ -429,6 +429,17 @@ script:
   - pins_set RAMPS X_MAX_PIN -1
   - opt_add_adv Z2_MAX_PIN 2
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  
+  #############################
+  # DUE default config test
+  #############################
+  
+  - export TEST_PLATFORM="-e DUE"
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_RAMPS4DUE_EFB
+  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
+  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
 
   #############################
   # LPC1768 default config test

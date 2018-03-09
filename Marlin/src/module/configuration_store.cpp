@@ -1462,7 +1462,11 @@ void MarlinSettings::postprocess() {
       const int8_t port/*=-1*/
     #endif
   ) {
-    if (validate()) return _load(
+    if (validate(
+      #if ADD_PORT_ARG
+        port
+      #endif
+    )) return _load(
       #if ADD_PORT_ARG
         port
       #endif
@@ -1864,7 +1868,7 @@ void MarlinSettings::reset(
    * Unless specifically disabled, M503 is available even without EEPROM
    */
   void MarlinSettings::report(const bool forReplay
-    #if ADD_PORT_ARG
+    #if NUM_SERIAL > 1
       , const int8_t port/*=-1*/
     #endif
   ) {

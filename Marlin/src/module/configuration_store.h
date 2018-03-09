@@ -86,7 +86,7 @@ class MarlinSettings {
 
     #if DISABLED(DISABLE_M503)
       static void report(const bool forReplay=false
-        #if ADD_PORT_ARG
+        #if NUM_SERIAL > 1
           , const int8_t port=-1
         #endif
       );

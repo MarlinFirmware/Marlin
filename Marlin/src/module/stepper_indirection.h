@@ -79,7 +79,7 @@
 #if ENABLED(HAVE_L6470DRIVER) && ENABLED(X_IS_L6470)
   extern L6470 stepperX;
   #define X_ENABLE_INIT NOOP
-  #define X_ENABLE_WRITE(STATE) do{if(STATE) stepperX.Step_Clock(stepperX.getStatus() & STATUS_HIZ); else stepperX.softFree();}while(0)
+  #define X_ENABLE_WRITE(STATE) do{ if (STATE) stepperX.Step_Clock(stepperX.getStatus() & STATUS_HIZ); else stepperX.softFree(); }while(0)
   #define X_ENABLE_READ (stepperX.getStatus() & STATUS_HIZ)
   #define X_DIR_INIT NOOP
   #define X_DIR_WRITE(STATE) stepperX.Step_Clock(STATE)
@@ -112,7 +112,7 @@
 #if ENABLED(HAVE_L6470DRIVER) && ENABLED(Y_IS_L6470)
   extern L6470 stepperY;
   #define Y_ENABLE_INIT NOOP
-  #define Y_ENABLE_WRITE(STATE) do{if(STATE) stepperY.Step_Clock(stepperY.getStatus() & STATUS_HIZ); else stepperY.softFree();}while(0)
+  #define Y_ENABLE_WRITE(STATE) do{ if (STATE) stepperY.Step_Clock(stepperY.getStatus() & STATUS_HIZ); else stepperY.softFree(); }while(0)
   #define Y_ENABLE_READ (stepperY.getStatus() & STATUS_HIZ)
   #define Y_DIR_INIT NOOP
   #define Y_DIR_WRITE(STATE) stepperY.Step_Clock(STATE)
@@ -145,7 +145,7 @@
 #if ENABLED(HAVE_L6470DRIVER) && ENABLED(Z_IS_L6470)
   extern L6470 stepperZ;
   #define Z_ENABLE_INIT NOOP
-  #define Z_ENABLE_WRITE(STATE) do{if(STATE) stepperZ.Step_Clock(stepperZ.getStatus() & STATUS_HIZ); else stepperZ.softFree();}while(0)
+  #define Z_ENABLE_WRITE(STATE) do{ if (STATE) stepperZ.Step_Clock(stepperZ.getStatus() & STATUS_HIZ); else stepperZ.softFree(); }while(0)
   #define Z_ENABLE_READ (stepperZ.getStatus() & STATUS_HIZ)
   #define Z_DIR_INIT NOOP
   #define Z_DIR_WRITE(STATE) stepperZ.Step_Clock(STATE)
@@ -179,7 +179,7 @@
   #if ENABLED(HAVE_L6470DRIVER) && ENABLED(X2_IS_L6470)
     extern L6470 stepperX2;
     #define X2_ENABLE_INIT NOOP
-    #define X2_ENABLE_WRITE(STATE) do{if(STATE) stepperX2.Step_Clock(stepperX2.getStatus() & STATUS_HIZ); else stepperX2.softFree();}while(0)
+    #define X2_ENABLE_WRITE(STATE) do{ if (STATE) stepperX2.Step_Clock(stepperX2.getStatus() & STATUS_HIZ); else stepperX2.softFree(); }while(0)
     #define X2_ENABLE_READ (stepperX2.getStatus() & STATUS_HIZ)
     #define X2_DIR_INIT NOOP
     #define X2_DIR_WRITE(STATE) stepperX2.Step_Clock(STATE)
@@ -214,7 +214,7 @@
   #if ENABLED(HAVE_L6470DRIVER) && ENABLED(Y2_IS_L6470)
     extern L6470 stepperY2;
     #define Y2_ENABLE_INIT NOOP
-    #define Y2_ENABLE_WRITE(STATE) do{if(STATE) stepperY2.Step_Clock(stepperY2.getStatus() & STATUS_HIZ); else stepperY2.softFree();}while(0)
+    #define Y2_ENABLE_WRITE(STATE) do{ if (STATE) stepperY2.Step_Clock(stepperY2.getStatus() & STATUS_HIZ); else stepperY2.softFree(); }while(0)
     #define Y2_ENABLE_READ (stepperY2.getStatus() & STATUS_HIZ)
     #define Y2_DIR_INIT NOOP
     #define Y2_DIR_WRITE(STATE) stepperY2.Step_Clock(STATE)
@@ -249,7 +249,7 @@
   #if ENABLED(HAVE_L6470DRIVER) && ENABLED(Z2_IS_L6470)
     extern L6470 stepperZ2;
     #define Z2_ENABLE_INIT NOOP
-    #define Z2_ENABLE_WRITE(STATE) do{if(STATE) stepperZ2.Step_Clock(stepperZ2.getStatus() & STATUS_HIZ); else stepperZ2.softFree();}while(0)
+    #define Z2_ENABLE_WRITE(STATE) do{ if (STATE) stepperZ2.Step_Clock(stepperZ2.getStatus() & STATUS_HIZ); else stepperZ2.softFree(); }while(0)
     #define Z2_ENABLE_READ (stepperZ2.getStatus() & STATUS_HIZ)
     #define Z2_DIR_INIT NOOP
     #define Z2_DIR_WRITE(STATE) stepperZ2.Step_Clock(STATE)
@@ -283,7 +283,7 @@
 #if ENABLED(HAVE_L6470DRIVER) && ENABLED(E0_IS_L6470)
   extern L6470 stepperE0;
   #define E0_ENABLE_INIT NOOP
-  #define E0_ENABLE_WRITE(STATE) do{if(STATE) stepperE0.Step_Clock(stepperE0.getStatus() & STATUS_HIZ); else stepperE0.softFree();}while(0)
+  #define E0_ENABLE_WRITE(STATE) do{ if (STATE) stepperE0.Step_Clock(stepperE0.getStatus() & STATUS_HIZ); else stepperE0.softFree(); }while(0)
   #define E0_ENABLE_READ (stepperE0.getStatus() & STATUS_HIZ)
   #define E0_DIR_INIT NOOP
   #define E0_DIR_WRITE(STATE) stepperE0.Step_Clock(STATE)
@@ -316,7 +316,7 @@
 #if ENABLED(HAVE_L6470DRIVER) && ENABLED(E1_IS_L6470)
   extern L6470 stepperE1;
   #define E1_ENABLE_INIT NOOP
-  #define E1_ENABLE_WRITE(STATE) do{if(STATE) stepperE1.Step_Clock(stepperE1.getStatus() & STATUS_HIZ); else stepperE1.softFree();}while(0)
+  #define E1_ENABLE_WRITE(STATE) do{ if (STATE) stepperE1.Step_Clock(stepperE1.getStatus() & STATUS_HIZ); else stepperE1.softFree(); }while(0)
   #define E1_ENABLE_READ (stepperE1.getStatus() & STATUS_HIZ)
   #define E1_DIR_INIT NOOP
   #define E1_DIR_WRITE(STATE) stepperE1.Step_Clock(STATE)
@@ -349,7 +349,7 @@
 #if ENABLED(HAVE_L6470DRIVER) && ENABLED(E2_IS_L6470)
   extern L6470 stepperE2;
   #define E2_ENABLE_INIT NOOP
-  #define E2_ENABLE_WRITE(STATE) do{if(STATE) stepperE2.Step_Clock(stepperE2.getStatus() & STATUS_HIZ); else stepperE2.softFree();}while(0)
+  #define E2_ENABLE_WRITE(STATE) do{ if (STATE) stepperE2.Step_Clock(stepperE2.getStatus() & STATUS_HIZ); else stepperE2.softFree(); }while(0)
   #define E2_ENABLE_READ (stepperE2.getStatus() & STATUS_HIZ)
   #define E2_DIR_INIT NOOP
   #define E2_DIR_WRITE(STATE) stepperE2.Step_Clock(STATE)
@@ -382,7 +382,7 @@
 #if ENABLED(HAVE_L6470DRIVER) && ENABLED(E3_IS_L6470)
   extern L6470 stepperE3;
   #define E3_ENABLE_INIT NOOP
-  #define E3_ENABLE_WRITE(STATE) do{if(STATE) stepperE3.Step_Clock(stepperE3.getStatus() & STATUS_HIZ); else stepperE3.softFree();}while(0)
+  #define E3_ENABLE_WRITE(STATE) do{ if (STATE) stepperE3.Step_Clock(stepperE3.getStatus() & STATUS_HIZ); else stepperE3.softFree(); }while(0)
   #define E3_ENABLE_READ (stepperE3.getStatus() & STATUS_HIZ)
   #define E3_DIR_INIT NOOP
   #define E3_DIR_WRITE(STATE) stepperE3.Step_Clock(STATE)
@@ -450,8 +450,8 @@
 #if ENABLED(SWITCHING_EXTRUDER)
   #if EXTRUDERS == 2
     #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-    #define NORM_E_DIR() E0_DIR_WRITE(current_block->active_extruder ?  INVERT_E0_DIR : !INVERT_E0_DIR)
-    #define  REV_E_DIR() E0_DIR_WRITE(current_block->active_extruder ? !INVERT_E0_DIR :  INVERT_E0_DIR)
+    #define NORM_E_DIR() do{ E0_DIR_WRITE(current_block->active_extruder ?  INVERT_E0_DIR : !INVERT_E0_DIR); }while(0)
+    #define  REV_E_DIR() do{ E0_DIR_WRITE(current_block->active_extruder ? !INVERT_E0_DIR :  INVERT_E0_DIR); }while(0)
   #elif EXTRUDERS > 4
     #define E_STEP_WRITE(v) do{ if (current_block->active_extruder < 2) E0_STEP_WRITE(v); else if (current_block->active_extruder < 4) E1_STEP_WRITE(v); else E2_STEP_WRITE(v); }while(0)
     #define NORM_E_DIR() do{ switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(INVERT_E1_DIR); break; case 4: E2_DIR_WRITE(!INVERT_E2_DIR); } }while(0)
@@ -463,8 +463,8 @@
   #endif
 #elif ENABLED(MK2_MULTIPLEXER) // Even-numbered steppers are reversed
   #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-  #define NORM_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? !INVERT_E0_DIR: INVERT_E0_DIR)
-  #define REV_E_DIR() E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? INVERT_E0_DIR: !INVERT_E0_DIR)
+  #define NORM_E_DIR() do{ E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? !INVERT_E0_DIR: INVERT_E0_DIR); }while(0)
+  #define REV_E_DIR() do{ E0_DIR_WRITE(TEST(current_block->active_extruder, 0) ? INVERT_E0_DIR: !INVERT_E0_DIR); }while(0)
 #elif EXTRUDERS > 4
   #define E_STEP_WRITE(v) do{ switch (current_block->active_extruder) { case 0: E0_STEP_WRITE(v); break; case 1: E1_STEP_WRITE(v); break; case 2: E2_STEP_WRITE(v); break; case 3: E3_STEP_WRITE(v); break; case 4: E4_STEP_WRITE(v); } }while(0)
   #define NORM_E_DIR() do{ switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 2: E2_DIR_WRITE(!INVERT_E2_DIR); break; case 3: E3_DIR_WRITE(!INVERT_E3_DIR); break; case 4: E4_DIR_WRITE(!INVERT_E4_DIR); } }while(0)

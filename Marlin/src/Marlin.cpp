@@ -710,10 +710,6 @@ void setup() {
   if (mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
-  #if ENABLED(USE_WATCHDOG) //reinit watchdog after HAL_get_reset_source call
-    watchdog_init();
-  #endif
-
   SERIAL_ECHOPGM(MSG_MARLIN);
   SERIAL_CHAR(' ');
   SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
@@ -878,6 +874,10 @@ void setup() {
 
   #if ENABLED(PARKING_EXTRUDER)
     pe_magnet_init();
+  #endif
+
+  #if ENABLED(USE_WATCHDOG) // Reinit watchdog after HAL_get_reset_source call
+    watchdog_init();
   #endif
 }
 

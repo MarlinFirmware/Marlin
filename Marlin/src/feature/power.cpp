@@ -87,11 +87,11 @@ void Power::check() {
 
 void Power::power_on() {
   lastPowerOn = millis();
-  OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
+  PSU_PIN_ON();
 }
 
 void Power::power_off() {
-  OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+  PSU_PIN_OFF();
 }
 
 #endif // AUTO_POWER_CONTROL

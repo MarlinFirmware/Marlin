@@ -894,7 +894,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
-        powerManager.power_on();
+      powerManager.power_on();
   #endif
 
   //enable active axes
