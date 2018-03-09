@@ -42,15 +42,6 @@ void idle(
 
 void manage_inactivity(bool ignore_stepper_queue = false);
 
-// Auto Power Control
-#if ENABLED(AUTO_POWER_CONTROL)
-  #define PSU_ON()  powerManager.power_on()
-  #define PSU_OFF() powerManager.power_off()
-#else
-  #define PSU_ON()  OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE)
-  #define PSU_OFF() OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP)
-#endif
-
 #if HAS_X2_ENABLE
   #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
   #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
@@ -218,6 +209,19 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   extern int lpq_len;
+#endif
+
+#if HAS_POWER_SWITCH
+  extern bool powersupply_on;
+  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); powersupply_on = true; }while(0)
+  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP); powersupply_on = false; }while(0)
+  #if ENABLED(AUTO_POWER_CONTROL)
+    #define PSU_ON()  powerManager.power_on()
+    #define PSU_OFF() powerManager.power_off()
+  #else
+    #define PSU_ON()  PSU_PIN_ON()
+    #define PSU_OFF() PSU_PIN_OFF()
+  #endif
 #endif
 
 bool pin_is_protected(const pin_t pin);
