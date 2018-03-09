@@ -56,7 +56,7 @@ typedef uint32_t hal_timer_t;
 #define STEP_TIMER_MIN_INTERVAL   8 // minimum time in µs between stepper interrupts
 
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
-#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_PRESCALE   (CYCLES_PER_MICROSECOND / HAL_TICKS_PER_US)
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)

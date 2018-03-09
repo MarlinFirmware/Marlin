@@ -69,7 +69,7 @@ typedef uint32_t hal_timer_t;
 #define HAL_TONE_TIMER_ISR  void TC6_Handler()
 
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
-#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_PRESCALE   (CYCLES_PER_MICROSECOND / HAL_TICKS_PER_US)
 
 // --------------------------------------------------------------------------
 // Types
