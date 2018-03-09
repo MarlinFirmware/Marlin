@@ -1,4 +1,6 @@
-# Marlin 3D Printer Firmware
+# STUDIODYNE Marlin 3D Printer Firmware
+# TOOL MIGRATION FEATURE
+# FILAMENT LOADING FEATURE
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
