@@ -1,6 +1,7 @@
 # STUDIODYNE Firmware
 - TOOL MIGRATION FEATURE ' Finish spool or change current extruder to a desired , or the next on runout '
 - FILAMENT LOADING FEATURE  ' The best filament loading '
+- Authoring of some improvements on FwRetract/M600/Filament Runout multi pins/ and of the TOOL MIGRATION / FILAMENT LOADING
 
 # Marlin 3D Printer Firmware
 
