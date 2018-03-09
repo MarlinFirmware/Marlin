@@ -728,7 +728,7 @@
  */
 #define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
-  #define LIN_ADVANCE_K 0.22  // Unit: mm compression per 1mm/s extruder speed
+  #define LIN_ADVANCE_K 0.06 // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG          // If enabled, this will generate debug information output over USB.
 #endif
 
@@ -901,8 +901,7 @@
 	#define LCD_LOAD_MENU_F               6  // mm/s - Extrusion Feedrate
 	#define LCD_LOAD_MENU_FEEDING_L       10 // mm - Feeding loading Length by click
 	#define LCD_LOAD_MENU_UNFEEDING_L     50 // mm - Feeding unloading Length by click
-	#define LCD_LOAD_MENU_FEEDING_F       50 // mm/s - Feeding Feedrate
-	
+	#define LCD_LOAD_MENU_FEEDING_F       50 // mm/s - Feeding Feedrate	
 #endif 					
 
 /**
@@ -949,21 +948,21 @@
   //#define FILAMENT_LOAD_UNLOAD_GCODES       // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS     // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 		
-		#if ENABLED(SINGLENOZZLE)
-				#undef  FILAMENT_CHANGE_UNLOAD_LENGTH
-				#undef  FILAMENT_CHANGE_UNLOAD_FEEDRATE
-				#undef  FILAMENT_CHANGE_LOAD_LENGTH 
-				#undef  FILAMENT_CHANGE_LOAD_FEEDRATE
-				#undef  ADVANCED_PAUSE_EXTRUDE_FEEDRATE
-				#undef  ADVANCED_PAUSE_EXTRUDE_LENGTH
-				
-				#define FILAMENT_CHANGE_UNLOAD_FEEDRATE     50 // Unload filament feedrate in mm/s - filament unloading can be fast
-				#define FILAMENT_CHANGE_UNLOAD_LENGTH      100 // 0  for manual unloading
-				#define FILAMENT_CHANGE_LOAD_FEEDRATE       15 // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
-				#define FILAMENT_CHANGE_LOAD_LENGTH        100 // Load filament length over hotend in mm
-				#define ADVANCED_PAUSE_EXTRUDE_FEEDRATE   4.6 // Extrude filament feedrate in mm/s - must be slower than load feedrate
-		  #define ADVANCED_PAUSE_EXTRUDE_LENGTH     100 // Purge/load - 0 to disable for manual extrusion
-  #endif
+  #if ENABLED(SINGLENOZZLE)
+	#undef  FILAMENT_CHANGE_UNLOAD_LENGTH
+	#undef  FILAMENT_CHANGE_UNLOAD_FEEDRATE
+	#undef  FILAMENT_CHANGE_LOAD_LENGTH 
+	#undef  FILAMENT_CHANGE_LOAD_FEEDRATE
+	#undef  ADVANCED_PAUSE_EXTRUDE_FEEDRATE
+	#undef  ADVANCED_PAUSE_EXTRUDE_LENGTH
+
+	#define FILAMENT_CHANGE_UNLOAD_FEEDRATE     50 // Unload filament feedrate in mm/s - filament unloading can be fast
+	#define FILAMENT_CHANGE_UNLOAD_LENGTH      100 // 0  for manual unloading
+	#define FILAMENT_CHANGE_LOAD_FEEDRATE       15 // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+	#define FILAMENT_CHANGE_LOAD_LENGTH        100 // Load filament length over hotend in mm
+	#define ADVANCED_PAUSE_EXTRUDE_FEEDRATE   4.6 // Extrude filament feedrate in mm/s - must be slower than load feedrate
+  #define ADVANCED_PAUSE_EXTRUDE_LENGTH     100 // Purge/load - 0 to disable for manual extrusion
+#endif
 
 #endif
 
