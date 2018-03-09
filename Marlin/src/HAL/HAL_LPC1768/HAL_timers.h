@@ -47,7 +47,7 @@ typedef uint32_t hal_timer_t;
 #define TEMP_TIMER_NUM 1  // index of timer to use for temperature
 
 #define HAL_TIMER_RATE         ((SystemCoreClock) / 4)  // frequency of timers peripherals
-#define STEPPER_TIMER_PRESCALE 1.0              // prescaler for setting stepper frequency
+#define STEPPER_TIMER_PRESCALE (CYCLES_PER_MICROSECOND / HAL_TICKS_PER_US)
 #define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
 #define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 #define HAL_TEMP_TIMER_RATE    1000000
