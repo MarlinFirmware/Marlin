@@ -107,7 +107,7 @@
 /**
  * \brief Standard USB requests (bRequest)
  */
-enum usb_reqid : char {
+enum usb_reqid {
 	USB_REQ_GET_STATUS = 0,
 	USB_REQ_CLEAR_FEATURE = 1,
 	USB_REQ_SET_FEATURE = 3,
@@ -125,7 +125,7 @@ enum usb_reqid : char {
  * \brief Standard USB device status flags
  *
  */
-enum usb_device_status : char {
+enum usb_device_status {
 	USB_DEV_STATUS_BUS_POWERED = 0,
 	USB_DEV_STATUS_SELF_POWERED = 1,
 	USB_DEV_STATUS_REMOTEWAKEUP = 2
@@ -135,7 +135,7 @@ enum usb_device_status : char {
  * \brief Standard USB Interface status flags
  *
  */
-enum usb_interface_status : char {
+enum usb_interface_status {
 	USB_IFACE_STATUS_RESERVED = 0
 };
 
@@ -143,7 +143,7 @@ enum usb_interface_status : char {
  * \brief Standard USB endpoint status flags
  *
  */
-enum usb_endpoint_status : char {
+enum usb_endpoint_status {
 	USB_EP_STATUS_HALTED = 1,
 };
 
@@ -152,7 +152,7 @@ enum usb_endpoint_status : char {
  *
  * \note valid for SetFeature request.
  */
-enum usb_device_feature : char {
+enum usb_device_feature {
 	USB_DEV_FEATURE_REMOTE_WAKEUP = 1, //!< Remote wakeup enabled
 	USB_DEV_FEATURE_TEST_MODE = 2,     //!< USB test mode
 	USB_DEV_FEATURE_OTG_B_HNP_ENABLE = 3,
@@ -165,7 +165,7 @@ enum usb_device_feature : char {
  *
  * \note valid for USB_DEV_FEATURE_TEST_MODE request.
  */
-enum usb_device_hs_test_mode : char {
+enum usb_device_hs_test_mode {
 	USB_DEV_TEST_MODE_J = 1,
 	USB_DEV_TEST_MODE_K = 2,
 	USB_DEV_TEST_MODE_SE0_NAK = 3,
@@ -176,14 +176,14 @@ enum usb_device_hs_test_mode : char {
 /**
  * \brief Standard USB endpoint feature/status flags
  */
-enum usb_endpoint_feature : char {
+enum usb_endpoint_feature {
 	USB_EP_FEATURE_HALT = 0,
 };
 
 /**
  * \brief Standard USB Test Mode Selectors
  */
-enum usb_test_mode_selector : char {
+enum usb_test_mode_selector {
 	USB_TEST_J = 0x01,
 	USB_TEST_K = 0x02,
 	USB_TEST_SE0_NAK = 0x03,
@@ -194,7 +194,7 @@ enum usb_test_mode_selector : char {
 /**
  * \brief Standard USB descriptor types
  */
-enum usb_descriptor_type : char {
+enum usb_descriptor_type {
 	USB_DT_DEVICE = 1,
 	USB_DT_CONFIGURATION = 2,
 	USB_DT_STRING = 3,
@@ -212,7 +212,7 @@ enum usb_descriptor_type : char {
 /**
  * \brief USB Device Capability types
  */
-enum usb_capability_type : char {
+enum usb_capability_type {
 	USB_DC_USB20_EXTENSION = 0x02,
 };
 
@@ -220,7 +220,7 @@ enum usb_capability_type : char {
  * \brief USB Device Capability - USB 2.0 Extension
  * To fill bmAttributes field of usb_capa_ext_desc_t structure.
  */
-enum usb_capability_extension_attr : char {
+enum usb_capability_extension_attr {
 	USB_DC_EXT_LPM  = 0x00000002,
 };
 
@@ -253,7 +253,7 @@ enum usb_capability_extension_attr : char {
 /**
  * \brief Standard USB endpoint transfer types
  */
-enum usb_ep_type : char {
+enum usb_ep_type {
 	USB_EP_TYPE_CONTROL = 0x00,
 	USB_EP_TYPE_ISOCHRONOUS = 0x01,
 	USB_EP_TYPE_BULK = 0x02,
@@ -264,7 +264,7 @@ enum usb_ep_type : char {
 /**
  * \brief Standard USB language IDs for string descriptors
  */
-enum usb_langid : char {
+enum usb_langid {
 	USB_LANGID_EN_US = 0x0409, //!< English (United States)
 };
 
