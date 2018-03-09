@@ -224,7 +224,7 @@ void _tmc_say_axis(const TMC_AxisEnum axis) {
                     ext_E2[] PROGMEM = "E2", ext_E3[] PROGMEM = "E3",
                     ext_E4[] PROGMEM = "E4";
   const static char* const tmc_axes[] PROGMEM = { ext_X, ext_X2, ext_Y, ext_Y2, ext_Z, ext_Z2, ext_E0, ext_E1, ext_E2, ext_E3, ext_E4 };
-  serialprintPGM(tmc_axes[axis]);
+  serialprintPGM((char*)pgm_read_word(&tmc_axes[axis]));
 }
 
 void _tmc_say_current(const TMC_AxisEnum axis, const uint16_t curr) {
