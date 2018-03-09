@@ -892,16 +892,17 @@
  *   'M106 P<fan> T1'     : Restore the previous fan speed
  */
 #define EXTRA_FAN_SPEED
+
 /**
  * Loading/Unloading LCD menu
  */
 #define LCD_FILAMENT_LOAD_UNLOAD_MENU   
 #if ENABLED(LCD_FILAMENT_LOAD_UNLOAD_MENU)
-	#define LCD_LOAD_MENU_EXTRUDE_L       20 // mm - Extrusion Length by click
-	#define LCD_LOAD_MENU_F               6  // mm/s - Extrusion Feedrate
-	#define LCD_LOAD_MENU_FEEDING_L       10 // mm - Feeding loading Length by click
-	#define LCD_LOAD_MENU_UNFEEDING_L     50 // mm - Feeding unloading Length by click
-	#define LCD_LOAD_MENU_FEEDING_F       50 // mm/s - Feeding Feedrate	
+  #define LCD_LOAD_MENU_EXTRUDE_L       20 // mm - Extrusion Length by click
+  #define LCD_LOAD_MENU_F               6  // mm/s - Extrusion Feedrate
+  #define LCD_LOAD_MENU_FEEDING_L       10 // mm - Feeding loading Length by click
+  #define LCD_LOAD_MENU_UNFEEDING_L     50 // mm - Feeding unloading Length by click
+  #define LCD_LOAD_MENU_FEEDING_F       50 // mm/s - Feeding Feedrate	
 #endif 					
 
 /**
