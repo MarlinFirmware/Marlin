@@ -73,7 +73,7 @@ extern "C" {
 //! \name Programmable Clock Sources (PCK)
 //@{
 
-enum genclk_source : char {
+enum genclk_source {
 	GENCLK_PCK_SRC_SLCK_RC       = 0, //!< Internal 32kHz RC oscillator as PCK source clock
 	GENCLK_PCK_SRC_SLCK_XTAL     = 1, //!< External 32kHz crystal oscillator as PCK source clock
 	GENCLK_PCK_SRC_SLCK_BYPASS   = 2, //!< External 32kHz bypass oscillator as PCK source clock
@@ -92,7 +92,7 @@ enum genclk_source : char {
 //! \name Programmable Clock Prescalers (PCK)
 //@{
 
-enum genclk_divider : char {
+enum genclk_divider {
 	GENCLK_PCK_PRES_1  = PMC_PCK_PRES_CLK_1, //!< Set PCK clock prescaler to 1
 	GENCLK_PCK_PRES_2  = PMC_PCK_PRES_CLK_2, //!< Set PCK clock prescaler to 2
 	GENCLK_PCK_PRES_4  = PMC_PCK_PRES_CLK_4, //!< Set PCK clock prescaler to 4
