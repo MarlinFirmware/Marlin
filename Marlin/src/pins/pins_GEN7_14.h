@@ -24,95 +24,122 @@
  * Gen7 v1.4 pin assignments
  */
 
-/**
- * Rev B    26 DEC 2016
- *
- * 1) added pointer to a current Arduino IDE extension
- * 2) added support for M3, M4 & M5 spindle control commands
- * 3) added case light pin definition
- *
- */
-
-/**
- * A useable Arduino IDE extension (board manager) can be found at
- * https://github.com/Lauszus/Sanguino
- *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
- * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
- *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
- *
- */
-
-#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
-  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
+#if !defined(__AVR_ATmega2560__) && !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
+  #error "Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define BOARD_NAME "Gen7 v1.4"
 
 #define GEN7_VERSION 14 // v1.4
 
-//
-// Limit switches
-//
-#define X_STOP_PIN          0
-#define Y_STOP_PIN          1
-#define Z_STOP_PIN          2
+#define KNOWN_BOARD 1
 
-//
-// Steppers
-//
-#define X_STEP_PIN         29
-#define X_DIR_PIN          28
-#define X_ENABLE_PIN       25
+#define LARGE_FLASH        true
 
-#define Y_STEP_PIN         27
-#define Y_DIR_PIN          26
-#define Y_ENABLE_PIN       25
+#define X_STEP_PIN         54
+#define X_DIR_PIN          55
+#define X_ENABLE_PIN       38 
+#define X_MIN_PIN           3
+#define X_MAX_PIN          -1 // 2
 
-#define Z_STEP_PIN         23
-#define Z_DIR_PIN          22
-#define Z_ENABLE_PIN       25
+#define Y_STEP_PIN         60
+#define Y_DIR_PIN          61
+#define Y_ENABLE_PIN       56
+#define Y_MIN_PIN          14 
+#define Y_MAX_PIN          -1 // 15
 
-#define E0_STEP_PIN        19
-#define E0_DIR_PIN         18
-#define E0_ENABLE_PIN      25
+#define Z_STEP_PIN         46
+#define Z_DIR_PIN          48
+#define Z_ENABLE_PIN       62
+#define Z_MIN_PIN          18
+#define Z_MAX_PIN          -1 // 19
 
-//
-// Temperature Sensors
-//
-#define TEMP_0_PIN          1   // Analog Input
-#define TEMP_BED_PIN        0   // Analog Input
+#define Z2_STEP_PIN        36
+#define Z2_DIR_PIN         34
+#define Z2_ENABLE_PIN      30
 
-//
-// Heaters
-//
-#define HEATER_0_PIN        4
-#define HEATER_BED_PIN      3
+#define E0_STEP_PIN        26
+#define E0_DIR_PIN         28
+#define E0_ENABLE_PIN      24
 
-//
-// Misc. Functions
-//
-#define PS_ON_PIN          15
-#define CASE_LIGHT_PIN     15    // MUST BE HARDWARE PWM
+#define E1_STEP_PIN        36
+#define E1_DIR_PIN         34
+#define E1_ENABLE_PIN      30
 
-// A pin for debugging
-#define DEBUG_PIN           0
+#define SDPOWER            -1
+#define SDSS               53
+//#define LED_PIN            -1
 
-// RS485 pins
-#define TX_ENABLE_PIN      12
-#define RX_ENABLE_PIN      13
+#define FAN_PIN            9// D8 for dual extruder 131227
 
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#define SPINDLE_LASER_ENABLE_PIN 20  // Pin should have a pullup/pulldown!
-#define SPINDLE_LASER_PWM_PIN    16  // MUST BE HARDWARE PWM
-#define SPINDLE_DIR_PIN          21
+#define PS_ON_PIN          12
+
+#define FIL_RUNOUT_PIN 15
+#define FIL_RUNOUT2_PIN 2
+
+//#define LASER_PIN   -1
+
+#define HEATER_0_PIN       7   // EXTRUDER 1
+#define HEATER_1_PIN       10    // EXTRUDER 2 (FAN On Sprinter)
+
+#define TEMP_0_PIN         3   // ANALOG NUMBERING
+#define TEMP_1_PIN         4 //14   // ANALOG NUMBERING
+
+#define HEATER_BED_PIN     8    // was 14 or 15 BED
+#define TEMP_BED_PIN       14   // ANALOG NUMBERING
+
+#define SERVO0_PIN         11
+//#define SERVO1_PIN         -1
+//#define SERVO2_PIN         -1
+//#define SERVO3_PIN         -1
+
+#ifdef ULTRA_LCD
+  #ifdef NEWPANEL
+       #define BEEPER_PIN 37
+              #define DOGLCD_A0  27
+       #define DOGLCD_CS  25
+       #define LCD_BACKLIGHT_PIN 65  // backlight LED on A11/D65
+       #define SDSS   53
+       
+       #define KILL_PIN 64
+       // GLCD features
+       //#define LCD_CONTRAST 190
+       // Uncomment screen orientation
+         //#define LCD_SCREEN_ROT_90
+         //#define LCD_SCREEN_ROT_180
+         //#define LCD_SCREEN_ROT_270
+       //The encoder and click button
+       
+       #define BTN_EN1 31
+       #define BTN_EN2 33
+       #define BTN_ENC 35  //the click switch
+       #define SD_DETECT_PIN 49
+    #endif
+#endif //ULTRA_LCD
+
+//Test----------------------
+#define FIL_RUNOUT3_PIN 15
+#define FIL_RUNOUT4_PIN 2
+#define FIL_RUNOUT5_PIN 2
+
+#define E2_STEP_PIN        36
+#define E2_DIR_PIN         34
+#define E2_ENABLE_PIN      30
+
+#define E3_STEP_PIN        36
+#define E3_DIR_PIN         34
+#define E3_ENABLE_PIN      30
+
+#define E4_STEP_PIN        36
+#define E4_DIR_PIN         34
+#define E4_ENABLE_PIN      30
+
+#define TEMP_2_PIN         3   // ANALOG NUMBERING
+#define TEMP_3_PIN         3   // ANALOG NUMBERING
+#define TEMP_4_PIN         3
+
+#define HEATER_2_PIN       7
+#define HEATER_3_PIN       7
+#define HEATER_4_PIN       7
+
+//Test----------------------
