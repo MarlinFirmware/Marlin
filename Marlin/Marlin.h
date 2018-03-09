@@ -453,6 +453,12 @@ void report_current_position();
   extern int lpq_len;
 #endif
 
+#if HAS_POWER_SWITCH
+  extern bool powersupply_on;
+  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); powersupply_on = true; }while(0)
+  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP); powersupply_on = false; }while(0)
+#endif
+
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
 
