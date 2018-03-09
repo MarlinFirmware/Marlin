@@ -524,15 +524,6 @@ millis_t previous_cmd_ms = 0;
 static millis_t max_inactive_time = 0;
 static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
-// Auto Power Control
-#if ENABLED(AUTO_POWER_CONTROL)
-  #define PSU_ON()  powerManager.power_on()
-  #define PSU_OFF() powerManager.power_off()
-#else
-  #define PSU_ON()  OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE)
-  #define PSU_OFF() OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP)
-#endif
-
 // Buzzer - I2C on the LCD or a BEEPER_PIN
 #if ENABLED(LCD_USE_I2C_BUZZER)
   #define BUZZ(d,f) lcd_buzz(d, f)
@@ -606,6 +597,13 @@ uint8_t target_extruder;
       true
     #endif
   ;
+  #if ENABLED(AUTO_POWER_CONTROL)
+    #define PSU_ON()  powerManager.power_on()
+    #define PSU_OFF() powerManager.power_off()
+  #else
+    #define PSU_ON()  PSU_PIN_ON()
+    #define PSU_OFF() PSU_PIN_OFF()
+  #endif
 #endif
 
 #if ENABLED(DELTA)
@@ -8284,8 +8282,6 @@ inline void gcode_M140() {
       tmc2130_init(); // Settings only stick when the driver has power
     #endif
 
-    powersupply_on = true;
-
     #if ENABLED(ULTIPANEL)
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
@@ -8322,7 +8318,6 @@ inline void gcode_M81() {
     suicide();
   #elif HAS_POWER_SWITCH
     PSU_OFF();
-    powersupply_on = false;
   #endif
 
   #if ENABLED(ULTIPANEL)
