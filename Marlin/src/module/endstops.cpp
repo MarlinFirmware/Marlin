@@ -351,7 +351,7 @@ void Endstops::update() {
 
   #define UPDATE_ENDSTOP(AXIS,MINMAX) do { \
       UPDATE_ENDSTOP_BIT(AXIS, MINMAX); \
-      if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX)) && stepper.current_block->steps[_AXIS(AXIS)] > 0) { \
+      if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))) { \
         _ENDSTOP_HIT(AXIS, MINMAX); \
         stepper.endstop_triggered(_AXIS(AXIS)); \
       } \
@@ -482,7 +482,6 @@ void Endstops::update() {
         #else
           if (X_MAX_TEST) UPDATE_ENDSTOP(X, MAX);
         #endif
-
       #endif
     }
   }
