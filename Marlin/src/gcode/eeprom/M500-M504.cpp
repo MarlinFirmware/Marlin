@@ -22,21 +22,24 @@
 
 #include "../gcode.h"
 #include "../../module/configuration_store.h"
+#include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 
 #if NUM_SERIAL > 1
   #include "../../gcode/queue.h"
 #endif
 
+#if ADD_PORT_ARG
+  #define CHAT_PORT command_queue_port[cmd_queue_index_r]
+#else
+  #define CHAT_PORT
+#endif
+
 /**
  * M500: Store settings in EEPROM
  */
 void GcodeSuite::M500() {
-  (void)settings.save(
-    #if ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
-      command_queue_port[cmd_queue_index_r]
-    #endif
-  );
+  (void)settings.save(CHAT_PORT);
 }
 
 /**
@@ -44,8 +47,8 @@ void GcodeSuite::M500() {
  */
 void GcodeSuite::M501() {
   (void)settings.load(
-    #if ENABLED(EEPROM_SETTINGS) && ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
-      command_queue_port[cmd_queue_index_r]
+    #if ENABLED(EEPROM_SETTINGS)
+      CHAT_PORT
     #endif
   );
 }
@@ -54,11 +57,7 @@ void GcodeSuite::M501() {
  * M502: Revert to default settings
  */
 void GcodeSuite::M502() {
-  (void)settings.reset(
-    #if ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
-      command_queue_port[cmd_queue_index_r]
-    #endif
-  );
+  (void)settings.reset(CHAT_PORT);
 }
 
 #if DISABLED(DISABLE_M503)
@@ -67,8 +66,9 @@ void GcodeSuite::M502() {
    * M503: print settings currently in memory
    */
   void GcodeSuite::M503() {
-    (void)settings.report(parser.seen('S') && !parser.value_bool()
-      #if ADD_PORT_ARG
+    (void)settings.report(
+      parser.seen('S') && !parser.value_bool()
+      #if NUM_SERIAL > 1
         , command_queue_port[cmd_queue_index_r]
       #endif
     );
@@ -81,9 +81,9 @@ void GcodeSuite::M502() {
    * M504: Validate EEPROM Contents
    */
   void GcodeSuite::M504() {
-    if (settings.validate()) {
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM("EEPROM OK");
+    if (settings.validate(CHAT_PORT)) {
+      SERIAL_ECHO_START_P(command_queue_port[cmd_queue_index_r]);
+      SERIAL_ECHOLNPGM_P(command_queue_port[cmd_queue_index_r], "EEPROM OK");
     }
   }
 #endif
