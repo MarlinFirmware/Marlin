@@ -86,8 +86,6 @@
       tmc2208_init();
     #endif
 
-    powersupply_on = true;
-
     #if ENABLED(ULTIPANEL)
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
@@ -119,7 +117,6 @@ void GcodeSuite::M81() {
     suicide();
   #elif HAS_POWER_SWITCH
     PSU_OFF();
-    powersupply_on = false;
   #endif
 
   #if ENABLED(ULTIPANEL)
