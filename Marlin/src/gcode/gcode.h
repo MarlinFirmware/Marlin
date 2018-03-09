@@ -696,7 +696,11 @@ private:
   #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
     static void M605();
   #endif
-
+            +  
+  #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+    static void M606();
+  #endif
+            
   #if IS_KINEMATIC
     static void M665();
   #endif
