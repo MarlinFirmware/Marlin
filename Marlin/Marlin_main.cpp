@@ -8021,7 +8021,7 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
       const float start_temp = thermalManager.degBed();
-      uint8_t old_red = 255;
+      uint8_t old_red = 127;
     #endif
 
     do {
