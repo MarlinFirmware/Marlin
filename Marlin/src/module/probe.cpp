@@ -57,25 +57,6 @@ float zprobe_zoffset; // Initialized by settings.load()
   const int z_servo_angle[2] = Z_SERVO_ANGLES;
 #endif
 
-/**
- * Raise Z to a minimum height to make room for a probe to move
- */
-inline void do_probe_raise(const float z_raise) {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
-    }
-  #endif
-
-  float z_dest = z_raise;
-  if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
-
-  if (z_dest > current_position[Z_AXIS])
-    do_blocking_move_to_z(z_dest);
-}
-
 #if ENABLED(Z_PROBE_SLED)
 
   #ifndef SLED_DOCKING_OFFSET
@@ -352,6 +333,27 @@ inline void do_probe_raise(const float z_raise) {
   }
 
 #endif // BLTOUCH
+
+/**
+ * Raise Z to a minimum height to make room for a probe to move
+ */
+inline void do_probe_raise(const float z_raise) {
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
+      SERIAL_CHAR(')');
+      SERIAL_EOL();
+    }
+  #endif
+
+  float z_dest = z_raise;
+  if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
+
+  NOMORE(z_dest, Z_MAX_POS);
+
+  if (z_dest > current_position[Z_AXIS])
+    do_blocking_move_to_z(z_dest);
+}
 
 // returns false for ok and true for failure
 bool set_probe_deployed(const bool deploy) {
