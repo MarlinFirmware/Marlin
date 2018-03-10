@@ -42,26 +42,22 @@ Endstops endstops;
 bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load()
 volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
-#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-  uint16_t
-#else
-  byte
-#endif
-    Endstops::current_endstop_bits = 0,
-    Endstops::old_endstop_bits = 0;
+Endstops::esbits_t Endstops::current_endstop_bits = 0,
+                   Endstops::old_endstop_bits = 0;
 
 #if HAS_BED_PROBE
   volatile bool Endstops::z_probe_enabled = false;
 #endif
 
+// Initialized by settings.load()
 #if ENABLED(X_DUAL_ENDSTOPS)
-  float Endstops::x_endstop_adj; // Initialized by settings.load()
+  float Endstops::x_endstop_adj;
 #endif
 #if ENABLED(Y_DUAL_ENDSTOPS)
-  float Endstops::y_endstop_adj; // Initialized by settings.load()
+  float Endstops::y_endstop_adj;
 #endif
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  float Endstops::z_endstop_adj; // Initialized by settings.load()
+  float Endstops::z_endstop_adj;
 #endif
 
 /**
@@ -355,7 +351,7 @@ void Endstops::update() {
         _ENDSTOP_HIT(AXIS, MINMAX); \
         stepper.endstop_triggered(_AXIS(AXIS)); \
       } \
-    } while(0)
+    }while(0)
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     // If G38 command is active check Z_MIN_PROBE for ALL movement
@@ -452,7 +448,6 @@ void Endstops::update() {
   /**
    * Check and update endstops according to conditions
    */
-
   if (X_MOVE_TEST) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN
