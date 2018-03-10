@@ -151,8 +151,9 @@
 #define SDSS                4
 #define PS_ON_PIN          40
 
+// I2C EEPROM with 8K of space
 #define I2C_EEPROM
-#define E2END 0x2000
+#define E2END 0x1FFF
 
 //
 // LCD / Controller

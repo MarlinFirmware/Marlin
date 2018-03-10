@@ -1167,13 +1167,13 @@
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("EEPROM Dump:");
-    for (uint16_t i = 0; i < E2END + 1; i += 16) {
+    for (uint16_t i = 0; i <= E2END; i += 16) {
       if (!(i & 0x3)) idle();
       print_hex_word(i);
       SERIAL_ECHOPGM(": ");
       for (uint16_t j = 0; j < 16; j++) {
         kkkk = i + j;
-        eeprom_read_block(&cccc, (const void *) kkkk, sizeof(unsigned char));
+        eeprom_read_block(&cccc, (const void *)kkkk, sizeof(unsigned char));
         print_hex_byte(cccc);
         SERIAL_ECHO(' ');
       }
