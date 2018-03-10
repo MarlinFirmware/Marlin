@@ -41,16 +41,22 @@ Endstops endstops;
 bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load()
 volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
-#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-  uint16_t
-#else
-  byte
-#endif
-    Endstops::current_endstop_bits = 0,
-    Endstops::old_endstop_bits = 0;
+Endstops::esbits_t Endstops::current_endstop_bits = 0,
+                   Endstops::old_endstop_bits = 0;
 
 #if HAS_BED_PROBE
   volatile bool Endstops::z_probe_enabled = false;
+#endif
+
+// Initialized by settings.load()
+#if ENABLED(X_DUAL_ENDSTOPS)
+  float Endstops::x_endstop_adj;
+#endif
+#if ENABLED(Y_DUAL_ENDSTOPS)
+  float Endstops::y_endstop_adj;
+#endif
+#if ENABLED(Z_DUAL_ENDSTOPS)
+  float Endstops::z_endstop_adj;
 #endif
 
 /**
@@ -269,7 +275,7 @@ void Endstops::M119() {
 
 #if ENABLED(X_DUAL_ENDSTOPS)
   void Endstops::test_dual_x_endstops(const EndstopEnum es1, const EndstopEnum es2) {
-    byte x_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for X, bit 1 for X2
+    const byte x_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for X, bit 1 for X2
     if (x_test && stepper.current_block->steps[X_AXIS] > 0) {
       SBI(endstop_hit_bits, X_MIN);
       if (!stepper.performing_homing || (x_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
@@ -279,7 +285,7 @@ void Endstops::M119() {
 #endif
 #if ENABLED(Y_DUAL_ENDSTOPS)
   void Endstops::test_dual_y_endstops(const EndstopEnum es1, const EndstopEnum es2) {
-    byte y_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for Y, bit 1 for Y2
+    const byte y_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for Y, bit 1 for Y2
     if (y_test && stepper.current_block->steps[Y_AXIS] > 0) {
       SBI(endstop_hit_bits, Y_MIN);
       if (!stepper.performing_homing || (y_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
@@ -289,7 +295,7 @@ void Endstops::M119() {
 #endif
 #if ENABLED(Z_DUAL_ENDSTOPS)
   void Endstops::test_dual_z_endstops(const EndstopEnum es1, const EndstopEnum es2) {
-    byte z_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for Z, bit 1 for Z2
+    const byte z_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for Z, bit 1 for Z2
     if (z_test && stepper.current_block->steps[Z_AXIS] > 0) {
       SBI(endstop_hit_bits, Z_MIN);
       if (!stepper.performing_homing || (z_test == 0x3))  //if not performing home or if both endstops were trigged during homing...

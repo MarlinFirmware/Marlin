@@ -386,16 +386,6 @@ void report_current_position();
   void set_z_fade_height(const float zfh, const bool do_report=true);
 #endif
 
-#if ENABLED(X_DUAL_ENDSTOPS)
-  extern float x_endstop_adj;
-#endif
-#if ENABLED(Y_DUAL_ENDSTOPS)
-  extern float y_endstop_adj;
-#endif
-#if ENABLED(Z_DUAL_ENDSTOPS)
-  extern float z_endstop_adj;
-#endif
-
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
