@@ -236,6 +236,7 @@ void homeaxis(const AxisEnum axis);
 
 #if IS_KINEMATIC // (DELTA or SCARA)
 
+  // Return true if the given point is within the printable area
   inline bool position_is_reachable(const float &rx, const float &ry) {
     #if ENABLED(DELTA)
       return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
@@ -251,28 +252,35 @@ void homeaxis(const AxisEnum axis);
     #endif
   }
 
+  // Return true if the both nozzle and the probe can reach the given point.
+  // Note: This won't work on SCARA since the probe offset rotates with the arm.
   inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-
-    // Both the nozzle and the probe must be able to reach the point.
-    // This won't work on SCARA since the probe offset rotates with the arm.
-
     return position_is_reachable(rx, ry)
         && position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER));
   }
 
 #else // CARTESIAN
 
+   // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
     // Add 0.001 margin to deal with float imprecision
     return WITHIN(rx, X_MIN_POS - 0.001, X_MAX_POS + 0.001)
         && WITHIN(ry, Y_MIN_POS - 0.001, Y_MAX_POS + 0.001);
   }
 
+  /**
+   * Return whether the given position is within the bed, and whether the nozzle
+   * can reach the position required to put the probe at the given position.
+   *
+   * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
+   *          nozzle must be be able to reach +10,-10.
+   */
   inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-    const float nx = rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ny = ry - (Y_PROBE_OFFSET_FROM_EXTRUDER);
-    return position_is_reachable(rx, ry)
-        && WITHIN(nx, X_MIN_BED - 0.001, X_MAX_BED + 0.001)
-        && WITHIN(ny, Y_MIN_BED - 0.001, Y_MAX_BED + 0.001);
+    const float nx = rx - (X_PROBE_OFFSET_FROM_EXTRUDER),
+                ny = ry - (Y_PROBE_OFFSET_FROM_EXTRUDER);
+    return position_is_reachable(nx, ny)
+        && WITHIN(rx, X_MIN_BED - 0.001, X_MAX_BED + 0.001)
+        && WITHIN(ry, Y_MIN_BED - 0.001, Y_MAX_BED + 0.001);
   }
 
 #endif // CARTESIAN
