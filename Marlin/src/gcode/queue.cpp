@@ -517,7 +517,7 @@ void advance_command_queue() {
         card.closefile();
         SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
 
-        #if !defined(__AVR__) || !defined(USBCON)
+        #ifndef USBCON
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
             SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
           #endif
@@ -525,7 +525,7 @@ void advance_command_queue() {
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
             SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
           #endif
-        #endif //  !defined(__AVR__) || !defined(USBCON)
+        #endif // !USBCON
 
         ok_to_send();
       }
