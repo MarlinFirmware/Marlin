@@ -1724,28 +1724,6 @@ static void clean_up_after_endstop_or_probe_move() {
   refresh_cmd_timeout();
 }
 
-#if HAS_BED_PROBE
-  /**
-   * Raise Z to a minimum height to make room for a probe to move
-   */
-  inline void do_probe_raise(const float z_raise) {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
-        SERIAL_CHAR(')');
-        SERIAL_EOL();
-      }
-    #endif
-
-    float z_dest = z_raise;
-    if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
-
-    if (z_dest > current_position[Z_AXIS])
-      do_blocking_move_to_z(z_dest);
-  }
-
-#endif // HAS_BED_PROBE
-
 #if HAS_AXIS_UNHOMED_ERR
 
   bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
@@ -2063,6 +2041,27 @@ static void clean_up_after_endstop_or_probe_move() {
     }
 
   #endif // BLTOUCH
+
+  /**
+   * Raise Z to a minimum height to make room for a probe to move
+   */
+  inline void do_probe_raise(const float z_raise) {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
+        SERIAL_CHAR(')');
+        SERIAL_EOL();
+      }
+    #endif
+
+    float z_dest = z_raise;
+    if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
+
+    NOMORE(z_dest, Z_MAX_POS);
+
+    if (z_dest > current_position[Z_AXIS])
+      do_blocking_move_to_z(z_dest);
+  }
 
   // returns false for ok and true for failure
   bool set_probe_deployed(const bool deploy) {
