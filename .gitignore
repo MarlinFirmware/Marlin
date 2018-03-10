@@ -149,6 +149,7 @@ Marlin/*/*/*/*/readme.txt
 #Visual Studio
 *.sln
 *.vcxproj
+*.vcxproj.user
 *.vcxproj.filters
 Release/
 Debug/
