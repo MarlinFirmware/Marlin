@@ -41,7 +41,15 @@
 // Defines
 //
 #define NUM_SERIAL 1
-#define MYSERIAL0 customizedSerial
+
+//#undef SERIAL_PORT
+//#define SERIAL_PORT -1
+
+#if SERIAL_PORT == -1
+  #define MYSERIAL0 SerialUSB
+#else
+  #define MYSERIAL0 customizedSerial
+#endif
 
 // We need the previous define before the include, or compilation bombs...
 #include "MarlinSerial_Due.h"
