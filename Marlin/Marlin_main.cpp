@@ -2077,13 +2077,21 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // Make room for probe to deploy (or stow)
     // Fix-mounted probe should only raise for deploy
-    if (
-      #if ENABLED(FIX_MOUNTED_PROBE)
-        deploy
-      #else
-        true
-      #endif
-    ) do_probe_raise(max(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+    #if ENABLED(FIX_MOUNTED_PROBE)
+      const bool deploy_stow_condition = deploy;
+    #else
+      constexpr bool deploy_stow_condition = true;
+    #endif
+
+    // For beds that fall when Z is powered off only raise for trusted Z
+    #if ENABLED(UNKNOWN_Z_NO_RAISE)
+      const bool unknown_condition = axis_known_position[Z_AXIS];
+    #else
+      constexpr float unknown_condition = true;
+    #endif
+
+    if (deploy_stow_condition && unknown_condition)
+      do_probe_raise(max(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
     #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
       #if ENABLED(Z_PROBE_SLED)
@@ -3988,9 +3996,15 @@ inline void gcode_G28(const bool always_home_all) {
 
     #endif
 
-    if (home_all || homeX || homeY) {
+    #if ENABLED(UNKNOWN_Z_NO_RAISE)
+      const float z_homing_height = axis_known_position[Z_AXIS] ? Z_HOMING_HEIGHT : 0;
+    #else
+      constexpr float z_homing_height = Z_HOMING_HEIGHT;
+    #endif
+
+    if (z_homing_height && (home_all || homeX || homeY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      destination[Z_AXIS] = Z_HOMING_HEIGHT;
+      destination[Z_AXIS] = z_homing_height;
       if (destination[Z_AXIS] > current_position[Z_AXIS]) {
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
