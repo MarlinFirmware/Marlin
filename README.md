@@ -1,3 +1,8 @@
+# STUDIODYNE Firmware 10.03.2018
+- TOOL MIGRATION FEATURE ' Finish spool or change current extruder to a desired , or the next on runout '
+- FILAMENT LOADING FEATURE  ' The best filament loading '
+- Authoring of some improvements on FwRetract/M600/Filament Runout multi pins/ and of the TOOL MIGRATION / FILAMENT LOADING' this one here only '
+
 # Marlin 3D Printer Firmware
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)

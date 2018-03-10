@@ -43,6 +43,13 @@
   #include "../feature/pause.h"
 #endif
 
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  #include "../feature/pause.h"
+  #define TOOL_MIGRATION_COMMAND "M606 T"
+  void tool_migration_submenu() ;	
+  void tool_migration_gcode(const char * const cmd);
+#endif
+
 #if ENABLED(PRINTCOUNTER) && ENABLED(LCD_INFO_MENU)
   #include "../libs/duration_t.h"
 #endif
@@ -226,6 +233,11 @@ uint16_t max_display_update_time = 0;
     void lcd_advanced_pause_heat_nozzle();
     void lcd_advanced_pause_purge_message();
     void lcd_advanced_pause_resume_message();
+  #endif
+
+  #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
+    void lcd_filament_load_unload();
+    void lcd_filament_load_unload_menu();
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
@@ -1328,6 +1340,117 @@ void kill_screen(const char* lcd_msg) {
     #endif // EXTRUDERS > 2
   #endif // EXTRUDERS > 1
 
+/**
+ * LCD Filament Load/Unload menu
+ */
+ #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
+   void lcd_filament_load_unload(
+     const uint8_t extruder
+   ) {
+     set_destination_from_current();
+     const float old_feedrate_mm_s = feedrate_mm_s;
+
+     // Toolchange
+     #if  EXTRUDERS > 1
+       if (extruder >=40 && (extruder-40) != active_extruder) {
+        char *command;
+        switch (extruder-40) {
+          case 0: command = PSTR("T0"); break;
+          case 1: command = PSTR("T1"); break;
+          #if EXTRUDERS > 2
+            case 2: command = PSTR("T2"); break;
+            #if EXTRUDERS > 3
+              case 3: command = PSTR("T3"); break;
+              #if EXTRUDERS > 4
+                case 4: command = PSTR("T4"); break;
+              #endif // EXTRUDERS > 4
+            #endif // EXTRUDERS > 3
+          #endif // EXTRUDERS > 2
+        }
+        enqueue_and_echo_commands_P(command);
+        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+        }
+      #endif //EXTRUDERS > 1
+
+      // Extrude
+      if (extruder ==3) {
+       current_position[E_AXIS] -=  LCD_LOAD_MENU_EXTRUDE_L / planner.e_factor[active_extruder];
+       sync_plan_position_e();
+       feedrate_mm_s = LCD_LOAD_MENU_F;
+       prepare_move_to_destination();
+       feedrate_mm_s = old_feedrate_mm_s;
+      }
+      else
+       // Load
+       if (extruder ==2) {
+       current_position[E_AXIS] -=  LCD_LOAD_MENU_FEEDING_L  / planner.e_factor[active_extruder];
+       sync_plan_position_e();
+       feedrate_mm_s = LCD_LOAD_MENU_FEEDING_F;
+       prepare_move_to_destination();
+       feedrate_mm_s = old_feedrate_mm_s;
+       }
+       else
+        // Unload
+        if (extruder ==1) {
+        current_position[E_AXIS] +=  LCD_LOAD_MENU_UNFEEDING_L / planner.e_factor[active_extruder];
+        sync_plan_position_e();
+        feedrate_mm_s = LCD_LOAD_MENU_FEEDING_F;
+        prepare_move_to_destination();
+        feedrate_mm_s = old_feedrate_mm_s;
+        }
+    }	//lcd_filament_load_unload
+
+    void lcd_unload_extruder(){ lcd_filament_load_unload(1); }
+    void lcd_load_extruder(){ lcd_filament_load_unload(2); }
+    void lcd_extrude_extruder(){ lcd_filament_load_unload(3); }
+    #if EXTRUDERS > 1
+      void lcd_toolchange_extruder_e0() { lcd_filament_load_unload(40); }
+      void lcd_toolchange_extruder_e1() { lcd_filament_load_unload(41); }
+      void lcd_toolchange_extruder_e2() { lcd_filament_load_unload(42); }
+      void lcd_toolchange_extruder_e3() { lcd_filament_load_unload(43); }
+      void lcd_toolchange_extruder_e4() { lcd_filament_load_unload(44); }
+    #endif
+
+    void lcd_filament_load_unload_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MAIN);
+      if (!thermalManager.tooColdToExtrude(active_extruder)) {
+        #if EXTRUDERS > 1
+          switch (active_extruder) {
+            case 0: STATIC_ITEM(MSG_MOVE_E " " MSG_E1, true); break;
+            case 1: STATIC_ITEM(MSG_MOVE_E " " MSG_E2, true); break;
+            #if EXTRUDERS > 2
+              case 2: STATIC_ITEM(MSG_MOVE_E " " MSG_E3, true); break;
+            #endif
+            #if EXTRUDERS > 3
+              case 3: STATIC_ITEM(MSG_MOVE_E " " MSG_E4, true); break;
+            #endif
+            #if EXTRUDERS > 4
+              case 4: STATIC_ITEM(MSG_MOVE_E " " MSG_E5, true); break;
+            #endif
+          }
+        #endif
+        MENU_ITEM(function,MSG_FILAMENTUNLOAD , lcd_unload_extruder);
+        MENU_ITEM(function,MSG_FILAMENTLOAD , lcd_load_extruder);
+        MENU_ITEM(function,MSG_EXTRUDE, lcd_extrude_extruder);
+      }
+      #if EXTRUDERS > 1
+        if (active_extruder !=0) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E1, lcd_toolchange_extruder_e0);
+        if (active_extruder !=1) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E2, lcd_toolchange_extruder_e1);
+      #endif
+      #if EXTRUDERS > 2
+        if (active_extruder !=2) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E3, lcd_toolchange_extruder_e2);
+      #endif
+      #if EXTRUDERS > 3
+        if (active_extruder !=3) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E4, lcd_toolchange_extruder_e3);
+      #endif
+      #if EXTRUDERS > 4
+        if (active_extruder !=4) MENU_ITEM(function, MSG_PREPARE " " MSG_MOVE_E " " MSG_E5, lcd_toolchange_extruder_e4);
+      #endif
+      END_MENU();
+    }
+  #endif //LCD_FILAMENT_LOAD_UNLOAD_MENU
+
   /**
    *
    * "Tune" submenu
@@ -1345,6 +1468,10 @@ void kill_screen(const char* lcd_msg) {
     // Speed:
     //
     MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999);
+    
+    #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+      MENU_ITEM(submenu, MSG_TOOL_MIGRATION, tool_migration_submenu); 
+    #endif
 
     // Manual bed leveling, Bed Z:
     #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
@@ -1444,7 +1571,11 @@ void kill_screen(const char* lcd_msg) {
 
     //
     // Change filament
-    //
+    //    
+    #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
+      MENU_ITEM(submenu, MSG_FILAMENTCHANGE , lcd_filament_load_unload_menu);
+    #endif
+    
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         if (thermalManager.targetHotEnoughToExtrude(active_extruder))
@@ -2661,6 +2792,10 @@ void kill_screen(const char* lcd_msg) {
     //
     // Change filament
     //
+    #if ENABLED (LCD_FILAMENT_LOAD_UNLOAD_MENU)
+      MENU_ITEM(submenu, MSG_FILAMENTCHANGE , lcd_filament_load_unload_menu);
+    #endif
+    
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       if (!IS_SD_FILE_OPEN) {
         #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
@@ -3245,7 +3380,11 @@ void kill_screen(const char* lcd_msg) {
     MENU_BACK(MSG_MAIN);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-
+    
+    #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+      MENU_ITEM(submenu, MSG_TOOL_MIGRATION, tool_migration_submenu); 
+    #endif
+  
     #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
       MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
@@ -3835,6 +3974,53 @@ void kill_screen(const char* lcd_msg) {
       END_MENU();
     }
   #endif // !NO_VOLUMETRICS || ADVANCED_PAUSE_FEATURE
+
+  /**
+    *
+    * "Dynamic Tool Migration"  submenu
+    *
+    */					
+  #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+    //Menu function to have ' return to status after click '
+    void tool_migration_gcode(const char * const cmd) {
+    enqueue_and_echo_commands_P(cmd);
+    lcd_return_to_status();
+    }				
+    void tool_migration_gcode_T0() {tool_migration_gcode(PSTR(TOOL_MIGRATION_COMMAND "0") );}
+    void tool_migration_gcode_T1() {tool_migration_gcode(PSTR(TOOL_MIGRATION_COMMAND "1") );}
+    #if EXTRUDERS > 2
+      void tool_migration_gcode_T2() {tool_migration_gcode(PSTR(TOOL_MIGRATION_COMMAND "2") );}
+    #endif
+    #if EXTRUDERS > 3
+      void tool_migration_gcode_T3() {tool_migration_gcode(PSTR(TOOL_MIGRATION_COMMAND "3") );}
+    #endif
+    #if EXTRUDERS > 4
+      void tool_migration_gcode_T4() {tool_migration_gcode(PSTR(TOOL_MIGRATION_COMMAND "4") );}
+    #endif
+
+    //Submenu
+    void tool_migration_submenu() {	
+      //Show Auto on/off
+      const char * msg_on_off = tool_migration_last_target? PSTR(MSG_TOOL_MIGRATION_ON): PSTR(MSG_TOOL_MIGRATION_OFF);			
+
+      START_MENU();
+      MENU_BACK(MSG_MAIN);				
+      STATIC_ITEM_P(msg_on_off, false, false);
+      MENU_ITEM_EDIT(int3,MSG_TOOL_MIGRATION_LAST, &tool_migration_last_target, 0, EXTRUDERS-1);
+      if (active_extruder !=0) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E1,tool_migration_gcode_T0);		
+      if (active_extruder !=1) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E2,tool_migration_gcode_T1);
+      #if EXTRUDERS > 2
+        if (active_extruder !=2) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E3,tool_migration_gcode_T2);
+      #endif
+      #if EXTRUDERS > 3
+        if (active_extruder !=3) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E4,tool_migration_gcode_T3);
+      #endif
+      #if EXTRUDERS > 4
+        if (active_extruder !=4) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E5,tool_migration_gcode_T4);
+      #endif					
+      END_MENU();
+    }
+  #endif
 
   /**
    *

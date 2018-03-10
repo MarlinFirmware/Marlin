@@ -75,4 +75,8 @@ bool load_filament(const float &load_length=0, const float &extrude_length=0, co
 
 bool unload_filament(const float &unload_length, const bool show_lcd=false, const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT);
 
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  extern int tool_migration_last_target; // Define if tool migration enabled and the last extruder to reach
+#endif
+
 #endif // _PAUSE_H_

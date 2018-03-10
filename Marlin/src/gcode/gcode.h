@@ -697,6 +697,10 @@ private:
     static void M605();
   #endif
 
+  #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+    static void M606();
+  #endif
+            
   #if IS_KINEMATIC
     static void M665();
   #endif

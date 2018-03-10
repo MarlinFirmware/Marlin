@@ -271,6 +271,13 @@
 #define MSG_FILAMENTLOAD                    _UxGT("Charger fil.")
 #define MSG_FILAMENTUNLOAD                  _UxGT("Decharger fil.")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Decharger tout")
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  #define MSG_TOOL_MIGRATION                _UxGT("Migration Extrudeur")
+  #define MSG_TOOL_MIGRATION_LAST           _UxGT("Dernier Extrudeur")
+  #define MSG_TOOL_MIGRATION_SWAP           _UxGT("Migrer vers ")
+  #define MSG_TOOL_MIGRATION_ON             _UxGT("Auto ON")
+  #define MSG_TOOL_MIGRATION_OFF            _UxGT("Auto OFF")
+#endif
 #define MSG_INIT_SDCARD                     _UxGT("Init. la carte SD")
 #define MSG_CNG_SDCARD                      _UxGT("Changer de carte")
 #define MSG_ZPROBE_OUT                      _UxGT("Z sonde hors lit")
