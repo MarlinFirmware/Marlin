@@ -1494,6 +1494,10 @@ void MarlinSettings::postprocess() {
       return (meshes_end - meshes_start_index()) / sizeof(ubl.z_values);
     }
 
+    int void MarlinSettings::mesh_slot_offset(const uint8_t slot) {
+      return meshes_end - (slot + 1) * sizeof(ubl.z_values);
+    }
+
     void MarlinSettings::store_mesh(const int8_t slot) {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -1510,10 +1514,9 @@ void MarlinSettings::postprocess() {
         }
 
         uint16_t crc = 0;
-        int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
 
         HAL::PersistentStore::access_start();
-        const bool status = HAL::PersistentStore::write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
+        const bool status = HAL::PersistentStore::write_data(mesh_slot_offset(slot), (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
         HAL::PersistentStore::access_finish();
 
         if (status)
@@ -1547,11 +1550,10 @@ void MarlinSettings::postprocess() {
         }
 
         uint16_t crc = 0;
-        int pos = meshes_end - (slot + 1) * sizeof(ubl.z_values);
         uint8_t * const dest = into ? (uint8_t*)into : (uint8_t*)&ubl.z_values;
 
         HAL::PersistentStore::access_start();
-        const uint16_t status = HAL::PersistentStore::read_data(pos, dest, sizeof(ubl.z_values), &crc);
+        const uint16_t status = HAL::PersistentStore::read_data(mesh_slot_offset(slot), dest, sizeof(ubl.z_values), &crc);
         HAL::PersistentStore::access_finish();
 
         if (status)
