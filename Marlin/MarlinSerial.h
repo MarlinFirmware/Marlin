@@ -85,7 +85,7 @@
   #define TX_BUFFER_SIZE 32
 #endif
 
-#ifndef USBCON
+#if !(defined(__AVR__) && defined(USBCON))
 
   #if RX_BUFFER_SIZE > 256
     typedef uint16_t ring_buffer_pos_t;
@@ -163,10 +163,10 @@
 
   extern MarlinSerial customizedSerial;
 
-#endif // !USBCON
+#endif // !(__AVR__ && USBCON)
 
 // Use the UART for Bluetooth in AT90USB configurations
-#if defined(USBCON) && ENABLED(BLUETOOTH)
+#if defined(__AVR__) && defined(USBCON) && ENABLED(BLUETOOTH)
   extern HardwareSerial bluetoothSerial;
 #endif
 
