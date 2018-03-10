@@ -21,7 +21,7 @@
  */
 
 /**
- *  endstops.h - manages endstops
+ * endstops.h - manages endstops
  */
 
 #ifndef __ENDSTOPS_H__
@@ -53,17 +53,17 @@ class Endstops {
     static bool enabled, enabled_globally;
     static volatile char endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
-    #if ENABLED(X_DUAL_ENDSTOPS)
-      static float x_endstop_adj;
-    #endif
-    #if ENABLED(Y_DUAL_ENDSTOPS)
-      static float y_endstop_adj;
-    #endif
-    #if ENABLED(Z_DUAL_ENDSTOPS)
-      static float z_endstop_adj;
-    #endif
     #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
       typedef uint16_t esbits_t;
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        static float x_endstop_adj;
+      #endif
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        static float y_endstop_adj;
+      #endif
+      #if ENABLED(Z_DUAL_ENDSTOPS)
+        static float z_endstop_adj;
+      #endif
     #else
       typedef byte esbits_t;
     #endif
@@ -151,6 +151,5 @@ extern Endstops endstops;
 #else
   #define ENDSTOPS_ENABLED  endstops.enabled
 #endif
-
 
 #endif // __ENDSTOPS_H__

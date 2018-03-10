@@ -28,7 +28,7 @@
 #ifndef CONDITIONALS_ADV_H
 #define CONDITIONALS_ADV_H
 
-  #ifndef USBCON
+  #if !defined(__AVR__) || !defined(USBCON)
     // Define constants and variables for buffering serial data.
     // Use only 0 or powers of 2 greater than 1
     // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]

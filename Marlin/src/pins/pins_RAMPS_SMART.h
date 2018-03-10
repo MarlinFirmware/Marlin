@@ -60,6 +60,10 @@
 #define IS_RAMPS_SMART
 #include "pins_RAMPS.h"
 
+// I2C EEPROM with 4K of space
+#define I2C_EEPROM
+#define E2END 0xFFF
+
 //
 // Temperature Sensors
 //

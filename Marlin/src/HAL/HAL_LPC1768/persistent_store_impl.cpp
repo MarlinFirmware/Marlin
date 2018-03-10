@@ -132,7 +132,7 @@ bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const boo
   UINT bytes_read = 0;
   FRESULT s;
   s = f_lseek(&eeprom_file, pos);
-  if ( s ) {
+  if (s) {
    SERIAL_PROTOCOLPAIR(" read_data(", pos);          // This extra chit-chat goes away soon.  But it is helpful
    SERIAL_PROTOCOLPAIR(",", (int)value);            // right now to see errors that are happening in the
    SERIAL_PROTOCOLPAIR(",", size);             // read_data() and write_data() functions
