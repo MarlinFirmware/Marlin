@@ -732,6 +732,23 @@
 #ifndef MSG_FILAMENTUNLOAD_ALL
   #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Unload All")
 #endif
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  #ifndef MSG_TOOL_MIGRATION
+    #define MSG_TOOL_MIGRATION                  _UxGT("Tool Migration")
+  #endif
+  #ifndef MSG_TOOL_MIGRATION_LAST
+    #define MSG_TOOL_MIGRATION_LAST             _UxGT("Final Extruder")
+  #endif
+  #ifndef MSG_TOOL_MIGRATION_SWAP
+    #define MSG_TOOL_MIGRATION_SWAP             _UxGT("Migrate to ")
+  #endif
+  #ifndef MSG_TOOL_MIGRATION_ON
+    #define MSG_TOOL_MIGRATION_ON               _UxGT("Auto ON")
+  #endif
+  #ifndef MSG_TOOL_MIGRATION_OFF 
+    #define MSG_TOOL_MIGRATION_OFF              _UxGT("Auto OFF")
+  #endif
+#endif
 #ifndef MSG_INIT_SDCARD
   #define MSG_INIT_SDCARD                     _UxGT("Init. SD card")
 #endif

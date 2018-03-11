@@ -34,6 +34,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  #include "../feature/pause.h"
+#endif
+
 #define FIL_RUNOUT_THRESHOLD 5
 
 class FilamentRunoutSensor {
@@ -47,6 +51,15 @@ class FilamentRunoutSensor {
     FORCE_INLINE static void run() {
       if ((IS_SD_PRINTING || print_job_timer.isRunning()) && check() && !filament_ran_out) {
         filament_ran_out = true;
+        
+        #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+          //If last migration tool enabled
+          if (active_extruder < tool_migration_last_target ) {																						
+            enqueue_and_echo_commands_P(PSTR("M606"));											
+            return;
+          }
+        #endif
+  
         enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
         stepper.synchronize();
       }

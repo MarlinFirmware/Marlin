@@ -940,6 +940,37 @@
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS     // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
+/**
+ * Dynamic Tool Migration
+ *  Tool/Spool Swapping during a print(On Runout/LCD/Gcode)
+ *  Transfer all properties : Temp + Flow + Gear position + Fwretract 
+ *  Utility to : Finish old ended spool without human intervention 
+ *             : Swap the current extruder to automaticly with only one click
+ *             : Rescue a broken spool/jammed extruder by using others extruders/spools 
+ *
+ * M606 : L[int]: 0=disable : 1/2/3/4 - Last extruder to reach after runouts - One or more migrations possible(By LCD/Gcode)
+        : T[int]: 0/1/2/3/4 : Migration to desired extruder(By LCD/Gcode)
+ *      : Default value     : Migration to next extruder (By Runout/LCD/Gcode)
+ * 
+ * Requires 2 or more extruders.
+ * Require FILAMENT_RUNOUT for automatic migration after runout
+ * Requires same nozzle size / No dual extrusion printing
+ *
+ */
+#define DYNAMIC_TOOL_MIGRATION //Experimental - No test/support for exotic systems
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  #define DYNAMIC_TOOL_MIGRATION_UNLOAD_LENGTH    50  //mm - Must not be ejected - Print continue and filament need to stay inserted
+  #define DYNAMIC_TOOL_MIGRATION_UNLOAD_F         50  //mm/s
+  #define DYNAMIC_TOOL_MIGRATION_LOAD_LENGTH      50  //Usually the same as 'load'
+  #define DYNAMIC_TOOL_MIGRATION_LOAD_F           25  //mm/s
+  #define DYNAMIC_TOOL_MIGRATION_EXTRUDE_LENGTH   10  //Initialisation/Purge - Just a little because same color/material
+  #define DYNAMIC_TOOL_MIGRATION_EXTRUDE_F        6.6 //mm/s		
+  #define DYNAMIC_TOOL_MIGRATION_FANSPEED        120  //Blowing after purge - To ensure the back of the nozzle without hot filament
+  #define DYNAMIC_TOOL_MIGRATION_FAN               0  //Fan number
+  #define DYNAMIC_TOOL_MIGRATION_DWELL        4*1000  //ms - Pause for filament cooling																																																						
+  #define DYNAMIC_TOOL_MIGRATION_NOZZLE_PARK          //Park Nozzle before migration / Require NOZZLE_PARK_FEATURE
+#endif
+
 // @section tmc
 
 /**
