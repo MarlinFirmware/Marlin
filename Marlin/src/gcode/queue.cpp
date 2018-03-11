@@ -233,6 +233,7 @@ void flush_and_request_resend() {
   SERIAL_FLUSH_P(port);
   SERIAL_PROTOCOLPGM_P(port, MSG_RESEND);
   SERIAL_PROTOCOLLN_P(port, gcode_LastN + 1);
+  ok_to_send();
 }
 
 void gcode_line_error(const char* err, uint8_t port) {
