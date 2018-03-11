@@ -1016,6 +1016,13 @@ static_assert(1 >= 0
 #endif
 
 /**
+ * LCD_SOFTWARE_SPI compatibility
+ */
+#if ENABLED(LCD_SOFTWARE_SPI) && DISABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)
+  #error "LCD_SOFTWARE_SPI is only implemented for MINIPANEL and MKS_MINI_12864 at this time."
+#endif
+
+/**
  * Allen Key
  * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
  */
@@ -1380,6 +1387,7 @@ static_assert(1 >= 0
  *       SAV_3DGLCD => U8GLIB_SH1106 => ULTIMAKERCONTROLLER
  *       MKS_12864OLED => U8GLIB_SH1106 => ULTIMAKERCONTROLLER
  *       MKS_12864OLED_SSD1306 => U8GLIB_SSD1306 => ULTIMAKERCONTROLLER
+ *       MKS_MINI_12864 => MINIPANEL
  *       miniVIKI => ULTIMAKERCONTROLLER
  *       VIKI2 => ULTIMAKERCONTROLLER
  *       ELB_FULL_GRAPHIC_CONTROLLER => ULTIMAKERCONTROLLER
