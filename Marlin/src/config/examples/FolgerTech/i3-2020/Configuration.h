@@ -760,6 +760,7 @@
  */
 #define Z_CLEARANCE_DEPLOY_PROBE    3 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  3 // Z Clearance between probe points
+//#define Z_AFTER_PROBING           3 // Z position after probing is done
 
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -20
