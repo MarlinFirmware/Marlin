@@ -63,6 +63,11 @@ public:
     #endif
   );
   void printingHasFinished();
+  void printFilename(
+    #if NUM_SERIAL > 1
+      const int8_t port = -1
+    #endif
+  );
 
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
     void printLongPath(char *path
