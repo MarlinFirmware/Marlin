@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
+#if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
 #include "../gcode.h"
 
@@ -67,7 +67,7 @@
    * M666: Set Dual Endstops offsets for X, Y, and/or Z.
    *       With no parameters report current offsets.
    */
-  inline void gcode_M666() {
+  inline void GcodeSuite::M666() {
     bool report = true;
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (parser.seen('X')) {
@@ -104,4 +104,4 @@
 
 #endif // X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS
 
-#endif // DELTA || Z_DUAL_ENDSTOPS
+#endif // DELTA || X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS
