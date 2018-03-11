@@ -162,7 +162,7 @@
 #elif defined(MIN_Z_HEIGHT_FOR_HOMING)
   #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_HOMING_HEIGHT. Please update your configuration."
 #elif defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
-  #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_CLEARANCE_DEPLOY_PROBE instead."
+  #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_CLEARANCE_DEPLOY_PROBE and Z_AFTER_PROBING instead."
 #elif defined(Z_RAISE_PROBE_DEPLOY_STOW) || defined(Z_RAISE_BETWEEN_PROBINGS)
   #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_CLEARANCE_DEPLOY_PROBE and Z_CLEARANCE_BETWEEN_PROBES. Please update your configuration."
 #elif defined(Z_PROBE_DEPLOY_HEIGHT) || defined(Z_PROBE_TRAVEL_HEIGHT)
@@ -789,6 +789,8 @@ static_assert(1 >= 0
     #error "Probes need Z_CLEARANCE_DEPLOY_PROBE >= 0."
   #elif Z_CLEARANCE_BETWEEN_PROBES < 0
     #error "Probes need Z_CLEARANCE_BETWEEN_PROBES >= 0."
+  #elif Z_AFTER_PROBING < 0
+    #error "Probes need Z_AFTER_PROBING >= 0."
   #endif
 
   #if MULTIPLE_PROBING && MULTIPLE_PROBING < 2
