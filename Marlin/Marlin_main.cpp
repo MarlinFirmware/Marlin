@@ -3839,6 +3839,15 @@ inline void gcode_G4() {
 
 #endif // DELTA
 
+#ifdef Z_AFTER_PROBING
+  void move_z_after_probing() {
+    if (current_position[Z_AXIS] != Z_AFTER_PROBING) {
+      do_blocking_move_to_z(Z_AFTER_PROBING);
+      current_position[Z_AXIS] = Z_AFTER_PROBING;
+    }
+  }
+#endif
+
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
@@ -4068,6 +4077,11 @@ inline void gcode_G28(const bool always_home_all) {
         #else
           HOMEAXIS(Z);
         #endif
+
+        #if HOMING_Z_WITH_PROBE
+          move_z_after_probing();
+        #endif
+
       } // home_all || homeZ
     #endif // Z_HOME_DIR < 0
 
@@ -5015,7 +5029,7 @@ void home_all_axes() { gcode_G28(true); }
 
       #endif // AUTO_BED_LEVELING_3POINT
 
-      // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
+      // Stow the probe. No raise for FIX_MOUNTED_PROBE.
       if (STOW_PROBE()) {
         set_bed_leveling_enabled(abl_should_enable);
         measured_z = NAN;
@@ -5249,12 +5263,16 @@ void home_all_axes() { gcode_G28(true); }
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G29");
     #endif
 
-    report_current_position();
-
     KEEPALIVE_STATE(IN_HANDLER);
 
     if (planner.leveling_active)
       SYNC_PLAN_POSITION_KINEMATIC();
+
+    #if HAS_BED_PROBE
+      move_z_after_probing();
+    #endif
+
+    report_current_position();
   }
 
 #endif // OLDSCHOOL_ABL
@@ -5283,7 +5301,8 @@ void home_all_axes() { gcode_G28(true); }
 
     setup_for_endstop_or_probe_move();
 
-    const float measured_z = probe_pt(xpos, ypos, parser.boolval('E'), 1);
+    const bool do_stow = parser.boolval('E');
+    const float measured_z = probe_pt(xpos, ypos, do_stow, 1);
 
     if (!isnan(measured_z)) {
       SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
@@ -5292,6 +5311,8 @@ void home_all_axes() { gcode_G28(true); }
     }
 
     clean_up_after_endstop_or_probe_move();
+
+    if (do_stow) move_z_after_probing();
 
     report_current_position();
   }
@@ -7600,6 +7621,7 @@ inline void gcode_M42() {
       set_bed_leveling_enabled(was_enabled);
     #endif
 
+    move_z_after_probing();
     report_current_position();
   }
 
@@ -9665,12 +9687,19 @@ inline void gcode_M400() { stepper.synchronize(); }
   /**
    * M401: Deploy and activate the Z probe
    */
-  inline void gcode_M401() { DEPLOY_PROBE(); }
+  inline void gcode_M401() {
+    DEPLOY_PROBE();
+    report_current_position();
+  }
 
   /**
    * M402: Deactivate and stow the Z probe
    */
-  inline void gcode_M402() { STOW_PROBE(); }
+  inline void gcode_M402() {
+    STOW_PROBE();
+    move_z_after_probing();
+    report_current_position();
+  }
 
 #endif // HAS_BED_PROBE
 
