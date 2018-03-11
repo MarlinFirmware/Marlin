@@ -184,7 +184,7 @@ void sync_plan_position_e();
   #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
 #endif
 
-void FlushSerialRequestResend();
+void flush_and_request_resend();
 void ok_to_send();
 
 void kill(const char*);

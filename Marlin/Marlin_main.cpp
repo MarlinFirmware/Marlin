@@ -986,7 +986,7 @@ void gcode_line_error(const char* err, bool doFlush = true) {
   serialprintPGM(err);
   SERIAL_ERRORLN(gcode_LastN);
   //Serial.println(gcode_N);
-  if (doFlush) FlushSerialRequestResend();
+  if (doFlush) flush_and_request_resend();
   serial_count = 0;
 }
 
@@ -10975,7 +10975,7 @@ inline void gcode_M999() {
   if (parser.boolval('S')) return;
 
   // gcode_LastN = Stopped_gcode_LastN;
-  FlushSerialRequestResend();
+  flush_and_request_resend();
 }
 
 #if ENABLED(SWITCHING_EXTRUDER)
@@ -12014,7 +12014,7 @@ void process_next_command() {
  * Send a "Resend: nnn" message to the host to
  * indicate that a command needs to be re-sent.
  */
-void FlushSerialRequestResend() {
+void flush_and_request_resend() {
   //char command_queue[cmd_queue_index_r][100]="Resend:";
   SERIAL_FLUSH();
   SERIAL_PROTOCOLPGM(MSG_RESEND);
