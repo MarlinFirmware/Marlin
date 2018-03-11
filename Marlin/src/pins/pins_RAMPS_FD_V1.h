@@ -125,7 +125,7 @@
 #define HEATER_0_PIN        9
 #define HEATER_1_PIN       10
 #define HEATER_2_PIN       11
-#define HEATER_BED_PIN      8 // BED
+#define HEATER_BED_PIN      8
 
 #define FAN_PIN            12
 #define CONTROLLER_FAN_PIN -1
@@ -142,13 +142,13 @@
 #if ENABLED(ULTRA_LCD)
   // ramps-fd lcd adaptor
   
-  #if ENABLED(DOGLCD)
-    #define BEEPER_PIN          37
-    #define BTN_EN1             33
-    #define BTN_EN2             31
-    #define BTN_ENC             35
-    #define SD_DETECT_PIN       49
-  #endif
+  
+  #define BEEPER_PIN          37
+  #define BTN_EN1             33
+  #define BTN_EN2             31
+  #define BTN_ENC             35
+  #define SD_DETECT_PIN       49
+
   
   #if ENABLED(NEWPANEL)
     #define LCD_PINS_RS         16

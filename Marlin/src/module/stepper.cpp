@@ -157,20 +157,20 @@ volatile long Stepper::endstops_trigsteps[XYZ];
   #define LOCKED_X2_MOTOR locked_x2_motor
   #define LOCKED_Y2_MOTOR locked_y2_motor
   #define LOCKED_Z2_MOTOR locked_z2_motor
-  #define DUAL_ENDSTOP_APPLY_STEP(AXIS,v)                                                                                                             \
-    if (performing_homing) {                                                                                                                          \
-      if (AXIS##_HOME_DIR < 0) {                                                                                                                      \
-        if (!(TEST(endstops.old_endstop_bits, AXIS##_MIN) && (count_direction[AXIS##_AXIS] < 0)) && !LOCKED_##AXIS##_MOTOR) AXIS##_STEP_WRITE(v);     \
-        if (!(TEST(endstops.old_endstop_bits, AXIS##2_MIN) && (count_direction[AXIS##_AXIS] < 0)) && !LOCKED_##AXIS##2_MOTOR) AXIS##2_STEP_WRITE(v);  \
-      }                                                                                                                                               \
-      else {                                                                                                                                          \
-        if (!(TEST(endstops.old_endstop_bits, AXIS##_MAX) && (count_direction[AXIS##_AXIS] > 0)) && !LOCKED_##AXIS##_MOTOR) AXIS##_STEP_WRITE(v);     \
-        if (!(TEST(endstops.old_endstop_bits, AXIS##2_MAX) && (count_direction[AXIS##_AXIS] > 0)) && !LOCKED_##AXIS##2_MOTOR) AXIS##2_STEP_WRITE(v);  \
-      }                                                                                                                                               \
-    }                                                                                                                                                 \
-    else {                                                                                                                                            \
-      AXIS##_STEP_WRITE(v);                                                                                                                           \
-      AXIS##2_STEP_WRITE(v);                                                                                                                          \
+  #define DUAL_ENDSTOP_APPLY_STEP(AXIS,v)                                                                                                           \
+    if (performing_homing) {                                                                                                                        \
+      if (AXIS##_HOME_DIR < 0) {                                                                                                                    \
+        if (!(TEST(endstops.old_endstop_bits, AXIS##_MIN) && count_direction[AXIS##_AXIS] < 0) && !LOCKED_##AXIS##_MOTOR) AXIS##_STEP_WRITE(v);     \
+        if (!(TEST(endstops.old_endstop_bits, AXIS##2_MIN) && count_direction[AXIS##_AXIS] < 0) && !LOCKED_##AXIS##2_MOTOR) AXIS##2_STEP_WRITE(v);  \
+      }                                                                                                                                             \
+      else {                                                                                                                                        \
+        if (!(TEST(endstops.old_endstop_bits, AXIS##_MAX) && count_direction[AXIS##_AXIS] > 0) && !LOCKED_##AXIS##_MOTOR) AXIS##_STEP_WRITE(v);     \
+        if (!(TEST(endstops.old_endstop_bits, AXIS##2_MAX) && count_direction[AXIS##_AXIS] > 0) && !LOCKED_##AXIS##2_MOTOR) AXIS##2_STEP_WRITE(v);  \
+      }                                                                                                                                             \
+    }                                                                                                                                               \
+    else {                                                                                                                                          \
+      AXIS##_STEP_WRITE(v);                                                                                                                         \
+      AXIS##2_STEP_WRITE(v);                                                                                                                        \
     }
 #endif
 
@@ -230,8 +230,6 @@ volatile long Stepper::endstops_trigsteps[XYZ];
 #if DISABLED(MIXING_EXTRUDER)
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(v)
 #endif
-
-
 
 /**
  *         __________________________
@@ -452,13 +450,16 @@ void Stepper::isr() {
     // Advance the Bresenham counter; start a pulse if the axis needs a step
     #define PULSE_START(AXIS) do{ \
       _COUNTER(AXIS) += current_block->steps[_AXIS(AXIS)]; \
-      if (_COUNTER(AXIS) > 0) _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); }while(0)
+      if (_COUNTER(AXIS) > 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); } \
+    }while(0)
 
     // Advance the Bresenham counter; start a pulse if the axis needs a step
-    #define STEP_TICK(AXIS) \
+    #define STEP_TICK(AXIS) do { \
       if (_COUNTER(AXIS) > 0) { \
         _COUNTER(AXIS) -= current_block->step_event_count; \
-        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; }
+        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+      } \
+    }while(0)
 
     // Stop an active pulse, if any
     #define PULSE_STOP(AXIS) _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0)

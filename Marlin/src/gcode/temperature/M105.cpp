@@ -44,7 +44,7 @@ void GcodeSuite::M105() {
         port
       #endif
     );
-  #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
+  #else // !HAS_TEMP_SENSOR
     SERIAL_ERROR_START_P(port);
     SERIAL_ERRORLNPGM_P(port, MSG_ERR_NO_THERMISTORS);
   #endif
