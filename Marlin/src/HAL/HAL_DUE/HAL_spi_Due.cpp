@@ -532,7 +532,7 @@
       (void) spiTransferTx(token);
       spiTxBlock(buf,512);
       WRITE(SS_PIN, HIGH);
-      
+
   #else   // let calling routine control SDSS
     void spiBegin() {
       SET_OUTPUT(SS_PIN);
@@ -564,7 +564,7 @@
       spiTxBlock(buf,512);
 
     #endif
-  
+
   }
 
   /**
@@ -602,7 +602,7 @@
 
     #if MB(ALLIGATOR)
       WRITE(SS_PIN, HIGH);
-    #endif  
+    #endif
     WRITE(MOSI_PIN, HIGH);
     WRITE(SCK_PIN, LOW);
   }
@@ -616,11 +616,11 @@
 
 #else
 
-  #if MB(ALLIGATOR)  
-    
+  #if MB(ALLIGATOR)
+
     // slave selects controlled by SPI controller
     // doesn't support changing SPI speeds for SD card
-      
+
     // --------------------------------------------------------------------------
     // hardware SPI
     // --------------------------------------------------------------------------
@@ -666,15 +666,15 @@
           WRITE(SPI_FLASH_CS, HIGH );
           WRITE(SS_PIN, HIGH );
         #endif // MB(ALLIGATOR)
-        
+
         OUT_WRITE(SDSS,0);
-  
+
         PIO_Configure(
           g_APinDescription[SPI_PIN].pPort,
           g_APinDescription[SPI_PIN].ulPinType,
           g_APinDescription[SPI_PIN].ulPin,
           g_APinDescription[SPI_PIN].ulPinConfiguration);
-         
+
         spiInit(1);
         spiInitMaded = true;
       }
@@ -824,7 +824,7 @@
     }
 
   #else  // U8G compatible hardware SPI
- 
+
     void spiInit(uint8_t spiRate = 6 ) {  // default to slowest rate if not specified)
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
       int spiDueDividors[] = { 10, 21, 42, 84, 168, 255, 255 };
@@ -849,7 +849,7 @@
 
       /* SPI mode 0, 8 Bit data transfer, baud rate */
       SPI0->SPI_CSR[0] = SPI_CSR_SCBR(spiDueDividors[spiRate]) | 1;
-    }     
+    }
 
     static uint8_t spiTransfer(uint8_t data) {
 
@@ -897,8 +897,8 @@
       spiTransfer(token);
       for (uint16_t i = 0; i < 512; i++)
         spiTransfer(buf[i]);
-    }  
-      
+    }
+
   #endif  //MB(ALLIGATOR)
 #endif // ENABLED(SOFTWARE_SPI)
 

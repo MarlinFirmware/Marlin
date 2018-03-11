@@ -141,15 +141,13 @@
 //
 #if ENABLED(ULTRA_LCD)
   // ramps-fd lcd adaptor
-  
-  
+
   #define BEEPER_PIN          37
   #define BTN_EN1             33
   #define BTN_EN2             31
   #define BTN_ENC             35
   #define SD_DETECT_PIN       49
 
-  
   #if ENABLED(NEWPANEL)
     #define LCD_PINS_RS         16
     #define LCD_PINS_ENABLE     17
@@ -158,11 +156,11 @@
     #define LCD_PINS_D6         27
     #define LCD_PINS_D7         29
   #endif
-  
+
   #if ENABLED(MINIPANEL)
     #define DOGLCD_CS           25
     #define DOGLCD_A0           27
-  #endif  
+  #endif
 #endif // ULTRA_LCD
 
 #if ENABLED(HAVE_TMC2208)
