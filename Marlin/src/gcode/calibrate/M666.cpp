@@ -67,7 +67,7 @@
    * M666: Set Dual Endstops offsets for X, Y, and/or Z.
    *       With no parameters report current offsets.
    */
-  inline void GcodeSuite::M666() {
+  void GcodeSuite::M666() {
     bool report = true;
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (parser.seen('X')) {
