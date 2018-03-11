@@ -453,11 +453,11 @@
     #define NORM_E_DIR() do{ E0_DIR_WRITE(current_block->active_extruder ?  INVERT_E0_DIR : !INVERT_E0_DIR); }while(0)
     #define  REV_E_DIR() do{ E0_DIR_WRITE(current_block->active_extruder ? !INVERT_E0_DIR :  INVERT_E0_DIR); }while(0)
   #elif EXTRUDERS > 4
-    #define E_STEP_WRITE(v) do{ if (current_block->active_extruder < 2) E0_STEP_WRITE(v); else if (current_block->active_extruder < 4) E1_STEP_WRITE(v); else E2_STEP_WRITE(v); }while(0)
+    #define E_STEP_WRITE(v) do{ if (current_block->active_extruder < 2) { E0_STEP_WRITE(v); } else if (current_block->active_extruder < 4) { E1_STEP_WRITE(v); } else { E2_STEP_WRITE(v); } }while(0)
     #define NORM_E_DIR() do{ switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(INVERT_E1_DIR); break; case 4: E2_DIR_WRITE(!INVERT_E2_DIR); } }while(0)
     #define REV_E_DIR() do{ switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 4: E2_DIR_WRITE(INVERT_E2_DIR); } }while(0)
   #elif EXTRUDERS > 2
-    #define E_STEP_WRITE(v) do{ if (current_block->active_extruder < 2) E0_STEP_WRITE(v); else if (current_block->active_extruder < 4) E1_STEP_WRITE(v); else E1_STEP_WRITE(v); }while(0)
+    #define E_STEP_WRITE(v) do{ if (current_block->active_extruder < 2) { E0_STEP_WRITE(v); } else if (current_block->active_extruder < 4) { E1_STEP_WRITE(v); } else { E1_STEP_WRITE(v); } }while(0)
     #define NORM_E_DIR() do{ switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(!INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(INVERT_E1_DIR); } }while(0)
     #define REV_E_DIR() do{ switch (current_block->active_extruder) { case 0: E0_DIR_WRITE(INVERT_E0_DIR); break; case 1: E0_DIR_WRITE(!INVERT_E0_DIR); break; case 2: E1_DIR_WRITE(INVERT_E1_DIR); break; case 3: E1_DIR_WRITE(!INVERT_E1_DIR); } }while(0)
   #endif
