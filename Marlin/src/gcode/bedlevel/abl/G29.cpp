@@ -733,7 +733,7 @@ void GcodeSuite::G29() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
-    // Stow the probe, raising if not fix-mounted.
+    // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (STOW_PROBE()) {
       set_bed_leveling_enabled(abl_should_enable);
       measured_z = NAN;
@@ -967,12 +967,16 @@ void GcodeSuite::G29() {
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G29");
   #endif
 
-  report_current_position();
-
   KEEPALIVE_STATE(IN_HANDLER);
 
   if (planner.leveling_active)
     SYNC_PLAN_POSITION_KINEMATIC();
+
+  #if HAS_BED_PROBE
+    move_z_after_probing();
+  #endif
+
+  report_current_position();
 }
 
 #endif // OLDSCHOOL_ABL

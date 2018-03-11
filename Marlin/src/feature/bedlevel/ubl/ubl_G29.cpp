@@ -391,6 +391,7 @@
           restore_ubl_active_state_and_leave();
         }
         do_blocking_move_to_xy(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)));
+        report_current_position();
       }
 
     #endif // HAS_BED_PROBE
@@ -428,6 +429,8 @@
             }
             probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
+
+            report_current_position();
             break;
 
         #endif // HAS_BED_PROBE
@@ -474,6 +477,8 @@
             manually_probe_remaining_mesh(g29_x_pos, g29_y_pos, height, g29_card_thickness, parser.seen('T'));
 
             SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
+
+            report_current_position();
 
           #else
 
@@ -758,6 +763,8 @@
       } while (location.x_index >= 0 && --count);
 
       STOW_PROBE();
+      move_z_after_probing();
+
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(

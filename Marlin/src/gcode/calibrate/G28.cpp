@@ -39,6 +39,10 @@
   #include "../../feature/tmc_util.h"
 #endif
 
+#if HOMING_Z_WITH_PROBE
+  #include "../../module/probe.h"
+#endif
+
 #include "../../lcd/ultralcd.h"
 
 #if ENABLED(QUICK_HOME)
@@ -304,6 +308,9 @@ void GcodeSuite::G28(const bool always_home_all) {
           HOMEAXIS(Z);
         #endif
       } // home_all || homeZ
+      #if HOMING_Z_WITH_PROBE
+        move_z_after_probing();
+      #endif
     #endif // Z_HOME_DIR < 0
 
     SYNC_PLAN_POSITION_KINEMATIC();

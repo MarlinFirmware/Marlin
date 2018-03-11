@@ -465,6 +465,16 @@ bool set_probe_deployed(const bool deploy) {
   return false;
 }
 
+#ifdef Z_AFTER_PROBING
+  // After probing move to a preferred Z position
+  void move_z_after_probing() {
+    if (current_position[Z_AXIS] != Z_AFTER_PROBING) {
+      do_blocking_move_to_z(Z_AFTER_PROBING);
+      current_position[Z_AXIS] = Z_AFTER_PROBING;
+    }
+  }
+#endif
+
 /**
  * @brief Used by run_z_probe to do a single Z probe move.
  *
