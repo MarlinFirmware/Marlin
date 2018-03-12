@@ -1557,10 +1557,11 @@ inline void buffer_line_to_destination(const float &fr_mm_s) {
 #endif // IS_KINEMATIC
 
 /**
- *  Plan a move to (X, Y, Z) and set the current_position
- *  The final current_position may not be the one that was requested
+ * Plan a move to (X, Y, Z) and set the current_position.
+ * The final current_position may not be the one that was requested
+ * Caution: 'destination' is modified by this function.
  */
-void do_blocking_move_to(const float &rx, const float &ry, const float &rz, const float &fr_mm_s/*=0.0*/) {
+void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s/*=0.0*/) {
   const float old_feedrate_mm_s = feedrate_mm_s;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)

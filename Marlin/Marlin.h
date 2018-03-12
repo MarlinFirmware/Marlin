@@ -468,10 +468,10 @@ void prepare_move_to_destination();
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s=0.0);
-void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
-void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
-void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
+void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0.0);
+void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0.0);
+void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0.0);
+void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0.0);
 
 #define HAS_AXIS_UNHOMED_ERR (                                                     \
          ENABLED(Z_PROBE_ALLEN_KEY)                                                \
