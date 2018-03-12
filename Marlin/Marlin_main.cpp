@@ -165,7 +165,7 @@
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT)
           Every normal extrude-only move will be classified as retract depending on the direction.
  * M211 - Enable, Disable, and/or Report software endstops: S<0|1> (Requires MIN_SOFTWARE_ENDSTOPS or MAX_SOFTWARE_ENDSTOPS)
- * M218 - Set a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
+ * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
  * M221 - Set Flow Percentage: "M221 S<percent>"
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>"
@@ -9154,7 +9154,7 @@ inline void gcode_M211() {
 #if HOTENDS > 1
 
   /**
-   * M218 - set hotend offset (in linear units)
+   * M218 - Set/get hotend offset (in linear units)
    *
    *   T<tool>
    *   X<xoffset>
@@ -9164,26 +9164,38 @@ inline void gcode_M211() {
   inline void gcode_M218() {
     if (get_target_extruder_from_command(218) || target_extruder == 0) return;
 
-    if (parser.seenval('X')) hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
-    if (parser.seenval('Y')) hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
+    bool report = true;
+    if (parser.seenval('X')) {
+      hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
+      report = false;
+    }
+    if (parser.seenval('Y')) {
+      hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
+      report = false;
+    }
 
     #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
-      if (parser.seenval('Z')) hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
+      if (parser.seenval('Z')) {
+        hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
+        report = false;
+      }
     #endif
 
-    SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-    HOTEND_LOOP() {
-      SERIAL_CHAR(' ');
-      SERIAL_ECHO(hotend_offset[X_AXIS][e]);
-      SERIAL_CHAR(',');
-      SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+    if (report) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
+      HOTEND_LOOP() {
+        SERIAL_CHAR(' ');
+        SERIAL_ECHO(hotend_offset[X_AXIS][e]);
         SERIAL_CHAR(',');
-        SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
-      #endif
+        SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
+        #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+          SERIAL_CHAR(',');
+          SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
+        #endif
+      }
+      SERIAL_EOL();
     }
-    SERIAL_EOL();
   }
 
 #endif // HOTENDS > 1
