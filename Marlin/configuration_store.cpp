@@ -240,9 +240,6 @@ void MarlinSettings::postprocess() {
 
   #if DISABLED(NO_VOLUMETRICS)
     planner.calculate_volumetric_multipliers();
-  #else
-    for (uint8_t i = COUNT(planner.e_factor); i--;)
-      planner.refresh_e_factor(i);
   #endif
 
   #if HAS_HOME_OFFSET || ENABLED(DUAL_X_CARRIAGE)
