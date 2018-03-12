@@ -793,13 +793,20 @@
     #define X2_STEP_PIN   _EPIN(E_STEPPERS, STEP)
     #define X2_DIR_PIN    _EPIN(E_STEPPERS, DIR)
     #define X2_ENABLE_PIN _EPIN(E_STEPPERS, ENABLE)
-    #define X2_CS_PIN     _EPIN(E_STEPPERS, CS)
+    #ifndef X2_CS_PIN
+      #define X2_CS_PIN   _EPIN(E_STEPPERS, CS)
+    #endif
     #if E_STEPPERS > 4 || !PIN_EXISTS(X2_ENABLE)
       #error "No E stepper plug left for X2!"
     #endif
   #endif
   #undef _X2_PINS
-  #define _X2_PINS X2_STEP_PIN, X2_DIR_PIN, X2_ENABLE_PIN, X2_CS_PIN,
+  #define __X2_PINS X2_STEP_PIN, X2_DIR_PIN, X2_ENABLE_PIN,
+  #ifdef X2_CS_PIN
+    #define _X2_PINS __X2_PINS X2_CS_PIN,
+  #else
+    #define _X2_PINS __X2_PINS
+  #endif
   #define Y2_E_INDEX INCREMENT(E_STEPPERS)
 #else
   #define Y2_E_INDEX E_STEPPERS
@@ -811,13 +818,20 @@
     #define Y2_STEP_PIN   _EPIN(Y2_E_INDEX, STEP)
     #define Y2_DIR_PIN    _EPIN(Y2_E_INDEX, DIR)
     #define Y2_ENABLE_PIN _EPIN(Y2_E_INDEX, ENABLE)
-    #define Y2_CS_PIN     _EPIN(Y2_E_INDEX, CS)
+    #ifndef Y2_CS_PIN
+      #define Y2_CS_PIN   _EPIN(Y2_E_INDEX, CS)
+    #endif
     #if Y2_E_INDEX > 4 || !PIN_EXISTS(Y2_ENABLE)
       #error "No E stepper plug left for Y2!"
     #endif
   #endif
   #undef _Y2_PINS
-  #define _Y2_PINS Y2_STEP_PIN, Y2_DIR_PIN, Y2_ENABLE_PIN, Y2_CS_PIN,
+  #define __Y2_PINS Y2_STEP_PIN, Y2_DIR_PIN, Y2_ENABLE_PIN,
+  #ifdef Y2_CS_PIN
+    #define _Y2_PINS __Y2_PINS Y2_CS_PIN,
+  #else
+    #define _Y2_PINS __Y2_PINS
+  #endif
   #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
 #else
   #define Z2_E_INDEX Y2_E_INDEX
@@ -829,13 +843,20 @@
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
     #define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
     #define Z2_ENABLE_PIN _EPIN(Z2_E_INDEX, ENABLE)
-    #define Z2_CS_PIN     _EPIN(Z2_E_INDEX, CS)
+    #ifndef Z2_CS_PIN
+      #define Z2_CS_PIN   _EPIN(Z2_E_INDEX, CS)
+    #endif
     #if Z2_E_INDEX > 4 || !PIN_EXISTS(Z2_ENABLE)
       #error "No E stepper plug left for Z2!"
     #endif
   #endif
   #undef _Z2_PINS
-  #define _Z2_PINS Z2_STEP_PIN, Z2_DIR_PIN, Z2_ENABLE_PIN, Z2_CS_PIN,
+  #define __Z2_PINS Z2_STEP_PIN, Z2_DIR_PIN, Z2_ENABLE_PIN,
+  #ifdef Z2_CS_PIN
+    #define _Z2_PINS __Z2_PINS Z2_CS_PIN,
+  #else
+    #define _Z2_PINS __Z2_PINS
+  #endif
 #endif
 
 #ifndef HAL_SENSITIVE_PINS
