@@ -876,34 +876,33 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-#if ENABLED(ULTIPANEL)
-  #define ADVANCED_PAUSE_FEATURE
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    #define PAUSE_PARK_RETRACT_FEEDRATE 60      // Initial retract feedrate in mm/s
-    #define PAUSE_PARK_RETRACT_LENGTH 2         // Initial retract in mm
-                                                // It is a short retract used immediately after print interrupt before move to filament exchange position
-    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
-    #define FILAMENT_CHANGE_UNLOAD_LENGTH 0   // Unload filament length from hotend in mm
-                                                // Longer length for bowden printers to unload filament from whole bowden tube,
-                                                // shorter length for printers without bowden to unload filament from extruder only,
-                                                // 0 to disable unloading for manual unloading
-    #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
-    #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
-                                                // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
-                                                // Short or zero length for printers without bowden where loading is not used
-    #define ADVANCED_PAUSE_EXTRUDE_FEEDRATE 3   // Extrude filament feedrate in mm/s - must be slower than load feedrate
-    #define ADVANCED_PAUSE_EXTRUDE_LENGTH 0    // Extrude filament length in mm after filament is loaded over the hotend,
-                                                // 0 to disable for manual extrusion
-                                                // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
-                                                // or until outcoming filament color is not clear for filament color change
-    #define PAUSE_PARK_NOZZLE_TIMEOUT 45        // Turn off nozzle if user doesn't change filament within this time limit in seconds
-    #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
-    #define PAUSE_PARK_NO_STEPPER_TIMEOUT       // Enable to have stepper motors hold position during filament change
-                                                // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
-    #define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
-    #define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
-  #endif
+#define ADVANCED_PAUSE_FEATURE
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #define PAUSE_PARK_RETRACT_FEEDRATE 60      // Initial retract feedrate in mm/s
+  #define PAUSE_PARK_RETRACT_LENGTH 2         // Initial retract in mm
+                                              // It is a short retract used immediately after print interrupt before move to filament exchange position
+  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
+  #define FILAMENT_CHANGE_UNLOAD_LENGTH 500   // Unload filament length from hotend in mm
+                                              // Longer length for bowden printers to unload filament from whole bowden tube,
+                                              // shorter length for printers without bowden to unload filament from extruder only,
+                                              // 0 to disable unloading for manual unloading
+  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+  #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
+                                              // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
+                                              // Short or zero length for printers without bowden where loading is not used
+  #define ADVANCED_PAUSE_EXTRUDE_FEEDRATE 3   // Extrude filament feedrate in mm/s - must be slower than load feedrate
+  #define ADVANCED_PAUSE_EXTRUDE_LENGTH 50    // Extrude filament length in mm after filament is loaded over the hotend,
+                                              // 0 to disable for manual extrusion
+                                              // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
+                                              // or until outcoming filament color is not clear for filament color change
+  #define PAUSE_PARK_NOZZLE_TIMEOUT 45        // Turn off nozzle if user doesn't change filament within this time limit in seconds
+  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
+  #define PAUSE_PARK_NO_STEPPER_TIMEOUT       // Enable to have stepper motors hold position during filament change
+                                              // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
+  #define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
+  //#define HOME_BEFORE_FILAMENT_CHANGE       // Ensure homing has been completed prior to parking for filament change
 #endif
+
 // @section tmc
 
 /**
@@ -1374,7 +1373,7 @@
 /**
  * Disable all Volumetric extrusion options
  */
-//#define NO_VOLUMETRICS
+#define NO_VOLUMETRICS
 
 #if DISABLED(NO_VOLUMETRICS)
   /**
@@ -1384,7 +1383,7 @@
    *
    * M200 D0 to disable, M200 Dn to set a new diameter.
    */
-  #define VOLUMETRIC_DEFAULT_ON
+  //#define VOLUMETRIC_DEFAULT_ON
 #endif
 
 /**
@@ -1431,24 +1430,6 @@
 
   #define USER_DESC_5 "Rear Left"
   #define USER_GCODE_5 "G1 Z10 F5000\nG1 X20 Y280\nG1 Z0"
-  
-  #define USER_DESC_6 "Center"
-  #define USER_GCODE_6 "G1 Z10 F5000\nG1 X140 Y140\nG1 Z0"
-
-  #define USER_DESC_7 "Load Filament"
-  #define USER_GCODE_7 "M83\nG1 E420 F300\nG1 E75 F100"
-
-  #define USER_DESC_8 "Unload Filament"
-  #define USER_GCODE_8 "M83\nG1 E-100 F300\nG1 E-300 F200"
-
-  #define USER_DESC_9 "Push Filament"
-  #define USER_GCODE_9 "M83\nG1 E60 F100"
-
-  #define USER_DESC_10 "Change Color"
-  #define USER_GCODE_10 "M600"
-
-  #define USER_DESC_11 "Home & Info"
-  #define USER_GCODE_12 "G28\nM503"
 #endif
 
 /**
