@@ -38,26 +38,38 @@
 void GcodeSuite::M218() {
   if (get_target_extruder_from_command() || target_extruder == 0) return;
 
-  if (parser.seenval('X')) hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
-  if (parser.seenval('Y')) hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
+  bool report = true;
+  if (parser.seenval('X')) {
+    hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
+    report = false;
+  }
+  if (parser.seenval('Y')) {
+    hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
+    report = false;
+  }
 
   #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
-    if (parser.seenval('Z')) hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
+    if (parser.seenval('Z')) {
+      hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
+      report = false;
+    }
   #endif
 
-  SERIAL_ECHO_START();
-  SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-  HOTEND_LOOP() {
-    SERIAL_CHAR(' ');
-    SERIAL_ECHO(hotend_offset[X_AXIS][e]);
-    SERIAL_CHAR(',');
-    SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+  if (report) {
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
+    HOTEND_LOOP() {
+      SERIAL_CHAR(' ');
+      SERIAL_ECHO(hotend_offset[X_AXIS][e]);
       SERIAL_CHAR(',');
-      SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
-    #endif
+      SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
+      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+        SERIAL_CHAR(',');
+        SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
+      #endif
+    }
+    SERIAL_EOL();
   }
-  SERIAL_EOL();
 }
 
 #endif // HOTENDS > 1
