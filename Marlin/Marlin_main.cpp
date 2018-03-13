@@ -4134,16 +4134,6 @@ inline void gcode_G28(const bool always_home_all) {
 
 void home_all_axes() { gcode_G28(true); }
 
-#if HAS_PROBING_PROCEDURE
-
-  void out_of_range_error(const char* p_edge) {
-    SERIAL_PROTOCOLPGM("?Probe ");
-    serialprintPGM(p_edge);
-    SERIAL_PROTOCOLLNPGM(" position out of range.");
-  }
-
-#endif
-
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(PROBE_MANUALLY)
 
   inline void _manual_goto_xy(const float &rx, const float &ry) {
@@ -4657,32 +4647,9 @@ void home_all_axes() { gcode_G28(true); }
         front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
         back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
 
-        const bool left_out_l = left_probe_bed_position < MIN_PROBE_X,
-                   left_out = left_out_l || left_probe_bed_position > right_probe_bed_position - (MIN_PROBE_EDGE),
-                   right_out_r = right_probe_bed_position > MAX_PROBE_X,
-                   right_out = right_out_r || right_probe_bed_position < left_probe_bed_position + MIN_PROBE_EDGE,
-                   front_out_f = front_probe_bed_position < MIN_PROBE_Y,
-                   front_out = front_out_f || front_probe_bed_position > back_probe_bed_position - (MIN_PROBE_EDGE),
-                   back_out_b = back_probe_bed_position > MAX_PROBE_Y,
-                   back_out = back_out_b || back_probe_bed_position < front_probe_bed_position + MIN_PROBE_EDGE;
-
-        if (left_out || right_out || front_out || back_out) {
-          if (left_out) {
-            out_of_range_error(PSTR("(L)eft"));
-            left_probe_bed_position = left_out_l ? MIN_PROBE_X : right_probe_bed_position - (MIN_PROBE_EDGE);
-          }
-          if (right_out) {
-            out_of_range_error(PSTR("(R)ight"));
-            right_probe_bed_position = right_out_r ? MAX_PROBE_X : left_probe_bed_position + MIN_PROBE_EDGE;
-          }
-          if (front_out) {
-            out_of_range_error(PSTR("(F)ront"));
-            front_probe_bed_position = front_out_f ? MIN_PROBE_Y : back_probe_bed_position - (MIN_PROBE_EDGE);
-          }
-          if (back_out) {
-            out_of_range_error(PSTR("(B)ack"));
-            back_probe_bed_position = back_out_b ? MAX_PROBE_Y : front_probe_bed_position + MIN_PROBE_EDGE;
-          }
+        if ( !position_is_reachable_by_probe(left_probe_bed_position, front_probe_bed_position)
+          || !position_is_reachable_by_probe(right_probe_bed_position, back_probe_bed_position)) {
+          SERIAL_PROTOCOLLNPGM("? (L,R,F,B) out of bounds.");
           return;
         }
 
@@ -7418,21 +7385,10 @@ inline void gcode_M42() {
     const float X_probe_location = parser.linearval('X', X_current + X_PROBE_OFFSET_FROM_EXTRUDER),
                 Y_probe_location = parser.linearval('Y', Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-    #if DISABLED(DELTA)
-      if (!WITHIN(X_probe_location, MIN_PROBE_X, MAX_PROBE_X)) {
-        out_of_range_error(PSTR("X"));
-        return;
-      }
-      if (!WITHIN(Y_probe_location, MIN_PROBE_Y, MAX_PROBE_Y)) {
-        out_of_range_error(PSTR("Y"));
-        return;
-      }
-    #else
-      if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
-        SERIAL_PROTOCOLLNPGM("? (X,Y) location outside of probeable radius.");
-        return;
-      }
-    #endif
+    if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
+      SERIAL_PROTOCOLLNPGM("? (X,Y) out of bounds.");
+      return;
+    }
 
     bool seen_L = parser.seen('L');
     uint8_t n_legs = seen_L ? parser.value_byte() : 0;
@@ -7477,8 +7433,8 @@ inline void gcode_M42() {
           float angle = random(0.0, 360.0);
           const float radius = random(
             #if ENABLED(DELTA)
-              0.1250000000 * (DELTA_PROBEABLE_RADIUS),
-              0.3333333333 * (DELTA_PROBEABLE_RADIUS)
+              0.1250000000 * (DELTA_PRINTABLE_RADIUS),
+              0.3333333333 * (DELTA_PRINTABLE_RADIUS)
             #else
               5.0, 0.125 * min(X_BED_SIZE, Y_BED_SIZE)
             #endif
