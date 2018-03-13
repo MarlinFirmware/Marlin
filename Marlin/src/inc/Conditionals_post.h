@@ -1007,9 +1007,6 @@
  * Delta radius/rod trimmers/angle trimmers
  */
 #if ENABLED(DELTA)
-  #ifndef DELTA_PROBEABLE_RADIUS
-    #define DELTA_PROBEABLE_RADIUS DELTA_PRINTABLE_RADIUS
-  #endif
   #ifndef DELTA_CALIBRATION_RADIUS
     #define DELTA_CALIBRATION_RADIUS DELTA_PRINTABLE_RADIUS - 10
   #endif
@@ -1053,29 +1050,34 @@
  * Bed Probing rectangular bounds
  * These can be further constrained in code for Delta and SCARA
  */
+
+#ifndef MIN_PROBE_EDGE
+  #define MIN_PROBE_EDGE 0
+#endif
+
 #if ENABLED(DELTA)
   // Probing points may be verified at compile time within the radius
   // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
   // so that may be added to SanityCheck.h in the future.
-  #define _MIN_PROBE_X (X_CENTER - DELTA_PRINTABLE_RADIUS)
-  #define _MIN_PROBE_Y (Y_CENTER - DELTA_PRINTABLE_RADIUS)
-  #define _MAX_PROBE_X (X_CENTER + DELTA_PRINTABLE_RADIUS)
-  #define _MAX_PROBE_Y (Y_CENTER + DELTA_PRINTABLE_RADIUS)
+  #define _MIN_PROBE_X (X_CENTER - (DELTA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
+  #define _MIN_PROBE_Y (Y_CENTER - (DELTA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
+  #define _MAX_PROBE_X (X_CENTER + DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  #define _MAX_PROBE_Y (Y_CENTER + DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
 #elif IS_SCARA
   #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
-  #define _MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS))
-  #define _MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS))
-  #define _MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS)
-  #define _MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS)
+  #define _MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
+  #define _MIN_PROBE_Y (Y_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
+  #define _MAX_PROBE_X (X_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  #define _MAX_PROBE_Y (Y_CENTER +  SCARA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
 #else
   // Boundaries for Cartesian probing based on bed limits
-  #define _MIN_PROBE_X (max(X_MIN_BED, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define _MIN_PROBE_Y (max(Y_MIN_BED, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-  #define _MAX_PROBE_X (min(X_MAX_BED, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define _MAX_PROBE_Y (min(Y_MAX_BED, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MIN_PROBE_X (max(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MIN_PROBE_Y (max(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MAX_PROBE_X (min(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MAX_PROBE_Y (min(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
 #endif
 
-// Allow configuration to override these for special purposes
+// These may be overridden in Configuration.h if a smaller area is desired
 #ifndef MIN_PROBE_X
   #define MIN_PROBE_X _MIN_PROBE_X
 #endif
@@ -1097,10 +1099,10 @@
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
-    #define _MESH_MIN_X (MIN_PROBE_X + MESH_INSET)
-    #define _MESH_MIN_Y (MIN_PROBE_Y + MESH_INSET)
-    #define _MESH_MAX_X (MAX_PROBE_X - (MESH_INSET))
-    #define _MESH_MAX_Y (MAX_PROBE_Y - (MESH_INSET))
+    #define _MESH_MIN_X (X_MIN_BED + MESH_INSET)
+    #define _MESH_MIN_Y (Y_MIN_BED + MESH_INSET)
+    #define _MESH_MAX_X (X_MAX_BED - (MESH_INSET))
+    #define _MESH_MAX_Y (Y_MAX_BED - (MESH_INSET))
   #else
     // Boundaries for Cartesian probing based on set limits
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -1114,24 +1116,24 @@
       #define _MESH_MAX_X (min(X_MAX_BED - (MESH_INSET), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
       #define _MESH_MAX_Y (min(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
     #endif
+
   #endif
-  /**
-   * These may be overridden in Configuration if a smaller area is wanted
-   */
-  #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_UBL)
-    #ifndef MESH_MIN_X
-      #define MESH_MIN_X _MESH_MIN_X
-    #endif
-    #ifndef MESH_MIN_Y
-      #define MESH_MIN_Y _MESH_MIN_Y
-    #endif
-    #ifndef MESH_MAX_X
-      #define MESH_MAX_X _MESH_MAX_X
-    #endif
-    #ifndef MESH_MAX_Y
-      #define MESH_MAX_Y _MESH_MAX_Y
-    #endif
+
+
+  // These may be overridden in Configuration.h if a smaller area is desired
+  #ifndef MESH_MIN_X
+    #define MESH_MIN_X _MESH_MIN_X
   #endif
+  #ifndef MESH_MIN_Y
+    #define MESH_MIN_Y _MESH_MIN_Y
+  #endif
+  #ifndef MESH_MAX_X
+    #define MESH_MAX_X _MESH_MAX_X
+  #endif
+  #ifndef MESH_MAX_Y
+    #define MESH_MAX_Y _MESH_MAX_Y
+  #endif
+
 #endif // MESH_BED_LEVELING || AUTO_BED_LEVELING_UBL
 
 /**

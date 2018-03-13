@@ -236,28 +236,33 @@ void homeaxis(const AxisEnum axis);
 
 #if IS_KINEMATIC // (DELTA or SCARA)
 
+  #if IS_SCARA
+    extern const float L1, L2;
+  #endif
+
   // Return true if the given point is within the printable area
-  inline bool position_is_reachable(const float &rx, const float &ry) {
+  inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
     #if ENABLED(DELTA)
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS);
+      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset);
     #elif IS_SCARA
-      #if MIDDLE_DEAD_ZONE_R > 0
-        const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
-        return R2 >= sq(float(MIDDLE_DEAD_ZONE_R)) && R2 <= sq(L1 + L2);
-      #else
-        return HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y) <= sq(L1 + L2);
-      #endif
-    #else // CARTESIAN
-      // To be migrated from MakerArm branch in future
+      const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
+      return (
+        R2 <= sq(L1 + L2) - inset
+        #if MIDDLE_DEAD_ZONE_R > 0
+          && R2 >= sq(float(MIDDLE_DEAD_ZONE_R))
+        #endif
+      );
     #endif
   }
 
-  // Return true if the both nozzle and the probe can reach the given point.
-  // Note: This won't work on SCARA since the probe offset rotates with the arm.
-  inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-    return position_is_reachable(rx, ry)
-        && position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER));
-  }
+  #if HAS_BED_PROBE
+    // Return true if the both nozzle and the probe can reach the given point.
+    // Note: This won't work on SCARA since the probe offset rotates with the arm.
+    inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
+      return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+             && position_is_reachable(rx, ry, FABS(MIN_PROBE_EDGE));
+    }
+  #endif
 
 #else // CARTESIAN
 
@@ -268,22 +273,26 @@ void homeaxis(const AxisEnum axis);
         && WITHIN(ry, Y_MIN_POS - 0.001, Y_MAX_POS + 0.001);
   }
 
-  /**
-   * Return whether the given position is within the bed, and whether the nozzle
-   * can reach the position required to put the probe at the given position.
-   *
-   * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
-   *          nozzle must be be able to reach +10,-10.
-   */
-  inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-    const float nx = rx - (X_PROBE_OFFSET_FROM_EXTRUDER),
-                ny = ry - (Y_PROBE_OFFSET_FROM_EXTRUDER);
-    return position_is_reachable(nx, ny)
-        && WITHIN(rx, X_MIN_BED - 0.001, X_MAX_BED + 0.001)
-        && WITHIN(ry, Y_MIN_BED - 0.001, Y_MAX_BED + 0.001);
-  }
+  #if HAS_BED_PROBE
+    /**
+     * Return whether the given position is within the bed, and whether the nozzle
+     * can reach the position required to put the probe at the given position.
+     *
+     * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
+     *          nozzle must be be able to reach +10,-10.
+     */
+    inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
+      return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+          && WITHIN(rx, MIN_PROBE_X - 0.001, MAX_PROBE_X + 0.001)
+          && WITHIN(ry, MIN_PROBE_Y - 0.001, MAX_PROBE_Y + 0.001);
+    }
+  #endif
 
 #endif // CARTESIAN
+
+#if !HAS_BED_PROBE
+  FORCE_INLINE bool position_is_reachable_by_probe(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
+#endif
 
 /**
  * Dual X Carriage / Dual Nozzle
