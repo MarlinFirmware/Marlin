@@ -67,10 +67,6 @@ void reset_bed_level();
   void _manual_goto_xy(const float &x, const float &y);
 #endif
 
-#if HAS_PROBING_PROCEDURE
-  void out_of_range_error(const char* p_edge);
-#endif
-
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
   #define _GET_MESH_X(I) (bilinear_start[X_AXIS] + (I) * bilinear_grid_spacing[X_AXIS])
   #define _GET_MESH_Y(J) (bilinear_start[Y_AXIS] + (J) * bilinear_grid_spacing[Y_AXIS])
