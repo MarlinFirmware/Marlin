@@ -364,15 +364,15 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 // Initialize or re-initialize the LCD
 static void lcd_implementation_init() {
 
+  #if PIN_EXISTS(LCD_BACKLIGHT) // Enable LCD backlight
+    OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
+  #endif
+
   #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
     SET_OUTPUT(LCD_PINS_DC);
     OUT_WRITE(LCD_PINS_RS, LOW);
-    delay(1000);
+    _delay_ms(500);
     WRITE(LCD_PINS_RS, HIGH);
-  #endif
-
-  #if PIN_EXISTS(LCD_BACKLIGHT) // Enable LCD backlight
-    OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
@@ -380,7 +380,10 @@ static void lcd_implementation_init() {
     _delay_ms(5);
     OUT_WRITE(LCD_RESET_PIN, HIGH);
     _delay_ms(5); // delay to allow the display to initalize
-    u8g.begin(); // re-initialize the display
+  #endif
+
+  #if PIN_EXISTS(LCD_RESET) || ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
+    u8g.begin();
   #endif
 
   #if DISABLED(MINIPANEL) // setContrast not working for Mini Panel
