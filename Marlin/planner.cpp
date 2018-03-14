@@ -63,7 +63,7 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
-#include "gcode.h"
+#include "parser.h"
 
 #include "Marlin.h"
 

@@ -52,7 +52,7 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "stepper.h"
-#include "gcode.h"
+#include "parser.h"
 #include "vector_3.h"
 
 #if ENABLED(MESH_BED_LEVELING)

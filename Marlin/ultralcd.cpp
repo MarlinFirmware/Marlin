@@ -33,7 +33,7 @@
 #include "stepper.h"
 #include "configuration_store.h"
 #include "utility.h"
-#include "gcode.h"
+#include "parser.h"
 
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
