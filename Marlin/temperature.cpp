@@ -1100,7 +1100,7 @@ void Temperature::init() {
   #endif // HEATER_0_USES_MAX6675
 
   #ifdef DIDR2
-    #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
+    #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin & 0x07); }while(0)
   #else
     #define ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
   #endif
