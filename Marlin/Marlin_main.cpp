@@ -263,7 +263,7 @@
 #include "printcounter.h"
 #include "duration_t.h"
 #include "types.h"
-#include "gcode.h"
+#include "parser.h"
 
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "power.h"

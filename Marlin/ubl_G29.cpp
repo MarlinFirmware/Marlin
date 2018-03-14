@@ -33,7 +33,7 @@
   #include "ultralcd.h"
   #include "stepper.h"
   #include "planner.h"
-  #include "gcode.h"
+  #include "parser.h"
   #include "serial.h"
   #include "bitmap_flags.h"
 

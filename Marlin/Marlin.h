@@ -35,7 +35,7 @@
 #include "MarlinConfig.h"
 
 #ifdef DEBUG_GCODE_PARSER
-  #include "gcode.h"
+  #include "parser.h"
 #endif
 
 #include "enum.h"

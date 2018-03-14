@@ -52,7 +52,7 @@
 #include "stepper.h"
 #include "duration_t.h"
 #include "printcounter.h"
-#include "gcode.h"
+#include "parser.h"
 #include "configuration_store.h"
 
 #include "Marlin.h"

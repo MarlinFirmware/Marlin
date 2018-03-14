@@ -54,7 +54,7 @@
 #define M100_FREE_MEMORY_CORRUPTOR  // Enable for the `M100 C` Corrupt sub-command
 
 #include "Marlin.h"
-#include "gcode.h"
+#include "parser.h"
 #include "hex_print_routines.h"
 
 #define TEST_BYTE ((char) 0xE5)

@@ -36,7 +36,7 @@
   #include "temperature.h"
   #include "stepper.h"
   #include "I2CPositionEncoder.h"
-  #include "gcode.h"
+  #include "parser.h"
 
   #include <Wire.h>
 
