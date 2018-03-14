@@ -43,7 +43,8 @@ public:
                retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
                swap_retract_length,                // M207 W - G10 Swap Retract length
                swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-               swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
+               swap_retract_recover_feedrate_mm_s, // M208 R - G11 Swap Recover feedrate
+               hop_amount;
 
   FWRetract() { reset(); }
 

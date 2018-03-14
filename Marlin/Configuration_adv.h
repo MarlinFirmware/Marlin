@@ -863,7 +863,7 @@
  * will be converted to firmware-based retract/recover moves.
  *
  * Note: Be sure to turn off auto-retract during filament change.
- * Note: Current status (Retract / Swap / Zlift) isn't reset by G28.
+ * Note: Current Zlift reset by G28 or G28 Z.
  *
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *
