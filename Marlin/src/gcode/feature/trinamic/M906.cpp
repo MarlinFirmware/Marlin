@@ -37,50 +37,54 @@ void GcodeSuite::M906() {
   #define TMC_SET_CURRENT(Q) tmc_set_current(stepper##Q, TMC_##Q, value)
 
   bool report = true;
+  const uint8_t index = parser.byteval('I');
   LOOP_XYZE(i) if (uint16_t value = parser.intval(axis_codes[i])) {
     report = false;
     switch (i) {
       case X_AXIS:
         #if X_IS_TRINAMIC
-          TMC_SET_CURRENT(X);
+          if (index == 0) TMC_SET_CURRENT(X);
         #endif
         #if X2_IS_TRINAMIC
-          TMC_SET_CURRENT(X2);
+          if (index == 1) TMC_SET_CURRENT(X2);
         #endif
         break;
       case Y_AXIS:
         #if Y_IS_TRINAMIC
-          TMC_SET_CURRENT(Y);
+          if (index == 0) TMC_SET_CURRENT(Y);
         #endif
         #if Y2_IS_TRINAMIC
-          TMC_SET_CURRENT(Y2);
+          if (index == 1) TMC_SET_CURRENT(Y2);
         #endif
         break;
       case Z_AXIS:
         #if Z_IS_TRINAMIC
-          TMC_SET_CURRENT(Z);
+          if (index == 0) TMC_SET_CURRENT(Z);
         #endif
         #if Z2_IS_TRINAMIC
-          TMC_SET_CURRENT(Z2);
+          if (index == 1) TMC_SET_CURRENT(Z2);
         #endif
         break;
-      case E_AXIS:
-        #if E0_IS_TRINAMIC
-          TMC_SET_CURRENT(E0);
-        #endif
-        #if E1_IS_TRINAMIC
-          TMC_SET_CURRENT(E1);
-        #endif
-        #if E2_IS_TRINAMIC
-          TMC_SET_CURRENT(E2);
-        #endif
-        #if E3_IS_TRINAMIC
-          TMC_SET_CURRENT(E3);
-        #endif
-        #if E4_IS_TRINAMIC
-          TMC_SET_CURRENT(E4);
-        #endif
-        break;
+      case E_AXIS: {
+        if (get_target_extruder_from_command()) return;
+        switch (target_extruder) {
+          #if E0_IS_TRINAMIC
+            case 0: TMC_SET_CURRENT(E0); break;
+          #endif
+          #if E1_IS_TRINAMIC
+            case 1: TMC_SET_CURRENT(E1); break;
+          #endif
+          #if E2_IS_TRINAMIC
+            case 2: TMC_SET_CURRENT(E2); break;
+          #endif
+          #if E3_IS_TRINAMIC
+            case 3: TMC_SET_CURRENT(E3); break;
+          #endif
+          #if E4_IS_TRINAMIC
+            case 4: TMC_SET_CURRENT(E4); break;
+          #endif
+        }
+      } break;
     }
   }
 
