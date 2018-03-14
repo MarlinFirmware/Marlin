@@ -324,9 +324,9 @@
 
     #if ENABLED(CR10_STOCKDISPLAY)
 
-      #define LCD_PINS_RS       27
-      #define LCD_PINS_ENABLE   29
-      #define LCD_PINS_D4       25
+      #define LCD_PINS_RS       27	// LCD PIN RS
+      #define LCD_PINS_ENABLE   29	// LCD PIN R/W
+      #define LCD_PINS_D4       25	// LCD PIN E
 
       #if DISABLED(NEWPANEL)
         #define BEEPER_PIN      37
