@@ -385,7 +385,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
         break;
       case TMC_TPWMTHRS_MMS: {
           uint32_t tpwmthrs_val = st.TPWMTHRS();
-          tpwmthrs_val ? SERIAL_ECHO(12650000UL * st.microsteps() / (256 * tpwmthrs_val * spmm)) : SERIAL_CHAR('-');
+          tpwmthrs_val ? SERIAL_ECHO(12650000UL * st.microsteps() / (256 * tpwmthrs_val * spmm)) : (void)SERIAL_CHAR('-');
         }
         break;
       case TMC_OTPW: serialprintPGM(st.otpw() ? PSTR("true") : PSTR("false")); break;

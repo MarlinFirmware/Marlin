@@ -23,9 +23,15 @@
 #ifndef _TMC_UTIL_H_
 #define _TMC_UTIL_H_
 
-#include <TMC2130Stepper.h>
+#include "../inc/MarlinConfigPre.h"
 
-#include "../inc/MarlinConfig.h"
+#if ENABLED(HAVE_TMC2130)
+  #include <TMC2130Stepper.h>
+#endif
+
+#if ENABLED(HAVE_TMC2208)
+  #include <TMC2208Stepper.h>
+#endif
 
 extern bool report_tmc_status;
 

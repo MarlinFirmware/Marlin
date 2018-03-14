@@ -47,14 +47,14 @@
 #include "../inc/MarlinConfig.h"
 
 // TMC26X drivers have STEP/DIR on normal pins, but ENABLE via SPI
-#if ENABLED(HAVE_TMCDRIVER)
+#if ENABLED(HAVE_TMC26X)
   #include <SPI.h>
   #ifdef STM32F7
     #include "../HAL/HAL_STM32F7/TMC2660.h"
   #else
     #include <TMC26XStepper.h>
   #endif
-  void tmc_init();
+  void tmc26x_init();
 #endif
 
 #if ENABLED(HAVE_TMC2130)
@@ -85,7 +85,7 @@
   #define X_DIR_WRITE(STATE) stepperX.Step_Clock(STATE)
   #define X_DIR_READ (stepperX.getStatus() & STATUS_DIR)
 #else
-  #if ENABLED(HAVE_TMCDRIVER) && ENABLED(X_IS_TMC)
+  #if ENABLED(X_IS_TMC26X)
     extern TMC26XStepper stepperX;
     #define X_ENABLE_INIT NOOP
     #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
@@ -118,7 +118,7 @@
   #define Y_DIR_WRITE(STATE) stepperY.Step_Clock(STATE)
   #define Y_DIR_READ (stepperY.getStatus() & STATUS_DIR)
 #else
-  #if ENABLED(HAVE_TMCDRIVER) && ENABLED(Y_IS_TMC)
+  #if ENABLED(Y_IS_TMC26X)
     extern TMC26XStepper stepperY;
     #define Y_ENABLE_INIT NOOP
     #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
@@ -151,7 +151,7 @@
   #define Z_DIR_WRITE(STATE) stepperZ.Step_Clock(STATE)
   #define Z_DIR_READ (stepperZ.getStatus() & STATUS_DIR)
 #else
-  #if ENABLED(HAVE_TMCDRIVER) && ENABLED(Z_IS_TMC)
+  #if ENABLED(Z_IS_TMC26X)
     extern TMC26XStepper stepperZ;
     #define Z_ENABLE_INIT NOOP
     #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
@@ -185,7 +185,7 @@
     #define X2_DIR_WRITE(STATE) stepperX2.Step_Clock(STATE)
     #define X2_DIR_READ (stepperX2.getStatus() & STATUS_DIR)
   #else
-    #if ENABLED(HAVE_TMCDRIVER) && ENABLED(X2_IS_TMC)
+    #if ENABLED(X2_IS_TMC26X)
       extern TMC26XStepper stepperX2;
       #define X2_ENABLE_INIT NOOP
       #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
@@ -220,7 +220,7 @@
     #define Y2_DIR_WRITE(STATE) stepperY2.Step_Clock(STATE)
     #define Y2_DIR_READ (stepperY2.getStatus() & STATUS_DIR)
   #else
-    #if ENABLED(HAVE_TMCDRIVER) && ENABLED(Y2_IS_TMC)
+    #if ENABLED(Y2_IS_TMC26X)
       extern TMC26XStepper stepperY2;
       #define Y2_ENABLE_INIT NOOP
       #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
@@ -255,7 +255,7 @@
     #define Z2_DIR_WRITE(STATE) stepperZ2.Step_Clock(STATE)
     #define Z2_DIR_READ (stepperZ2.getStatus() & STATUS_DIR)
   #else
-    #if ENABLED(HAVE_TMCDRIVER) && ENABLED(Z2_IS_TMC)
+    #if ENABLED(Z2_IS_TMC26X)
       extern TMC26XStepper stepperZ2;
       #define Z2_ENABLE_INIT NOOP
       #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
@@ -289,7 +289,7 @@
   #define E0_DIR_WRITE(STATE) stepperE0.Step_Clock(STATE)
   #define E0_DIR_READ (stepperE0.getStatus() & STATUS_DIR)
 #else
-  #if ENABLED(HAVE_TMCDRIVER) && ENABLED(E0_IS_TMC)
+  #if ENABLED(E0_IS_TMC26X)
     extern TMC26XStepper stepperE0;
     #define E0_ENABLE_INIT NOOP
     #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
@@ -322,7 +322,7 @@
   #define E1_DIR_WRITE(STATE) stepperE1.Step_Clock(STATE)
   #define E1_DIR_READ (stepperE1.getStatus() & STATUS_DIR)
 #else
-  #if ENABLED(HAVE_TMCDRIVER) && ENABLED(E1_IS_TMC)
+  #if ENABLED(E1_IS_TMC26X)
     extern TMC26XStepper stepperE1;
     #define E1_ENABLE_INIT NOOP
     #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
@@ -355,7 +355,7 @@
   #define E2_DIR_WRITE(STATE) stepperE2.Step_Clock(STATE)
   #define E2_DIR_READ (stepperE2.getStatus() & STATUS_DIR)
 #else
-  #if ENABLED(HAVE_TMCDRIVER) && ENABLED(E2_IS_TMC)
+  #if ENABLED(E2_IS_TMC26X)
     extern TMC26XStepper stepperE2;
     #define E2_ENABLE_INIT NOOP
     #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
@@ -388,7 +388,7 @@
   #define E3_DIR_WRITE(STATE) stepperE3.Step_Clock(STATE)
   #define E3_DIR_READ (stepperE3.getStatus() & STATUS_DIR)
 #else
-  #if ENABLED(HAVE_TMCDRIVER) && ENABLED(E3_IS_TMC)
+  #if ENABLED(E3_IS_TMC26X)
     extern TMC26XStepper stepperE3;
     #define E3_ENABLE_INIT NOOP
     #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
@@ -421,7 +421,7 @@
   #define E4_DIR_WRITE(STATE) stepperE4.Step_Clock(STATE)
   #define E4_DIR_READ (stepperE4.getStatus() & STATUS_DIR)
 #else
-  #if ENABLED(HAVE_TMCDRIVER) && ENABLED(E4_IS_TMC)
+  #if ENABLED(E4_IS_TMC26X)
     extern TMC26XStepper stepperE4;
     #define E4_ENABLE_INIT NOOP
     #define E4_ENABLE_WRITE(STATE) stepperE4.setEnabled(STATE)

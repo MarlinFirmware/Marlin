@@ -649,10 +649,7 @@
   #endif // EXTRUDERS > 2
 #endif // EXTRUDERS > 1
 
-// Marlin needs to account for pins that equal -1
-#define marlinAnalogInputToDigitalPin(p) ((p) == -1 ? -1 : analogInputToDigitalPin(p))
-
-#define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
+#define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_0_PIN),
 #define _H1_PINS
 #define _H2_PINS
 #define _H3_PINS
@@ -660,16 +657,16 @@
 
 #if HOTENDS > 1
   #undef _H1_PINS
-  #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_1_PIN),
+  #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_1_PIN),
   #if HOTENDS > 2
     #undef _H2_PINS
-    #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_2_PIN),
+    #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_2_PIN),
     #if HOTENDS > 3
       #undef _H3_PINS
-      #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
+      #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
       #if HOTENDS > 4
         #undef _H4_PINS
-        #define _H4_PINS HEATER_4_PIN, marlinAnalogInputToDigitalPin(TEMP_4_PIN),
+        #define _H4_PINS HEATER_4_PIN, analogInputToDigitalPin(TEMP_4_PIN),
       #endif // HOTENDS > 4
     #endif // HOTENDS > 3
   #endif // HOTENDS > 2
@@ -690,7 +687,7 @@
   #endif // MIXING_STEPPERS > 2
 #endif // MIXING_STEPPERS > 1
 
-#define BED_PINS HEATER_BED_PIN, marlinAnalogInputToDigitalPin(TEMP_BED_PIN),
+#define BED_PINS HEATER_BED_PIN, analogInputToDigitalPin(TEMP_BED_PIN),
 
 //
 // Assign endstop pins for boards with only 3 connectors

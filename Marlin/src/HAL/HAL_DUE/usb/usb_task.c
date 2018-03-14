@@ -48,6 +48,7 @@
 #include "conf_usb.h"
 #include "udc.h"
 #include <Arduino.h>
+#include <Reset.h>
 
 static volatile bool main_b_msc_enable = false;
 static volatile bool main_b_cdc_enable = false;
@@ -80,11 +81,24 @@ void usb_task_cdc_rx_notify(const uint8_t port) { }
  *
  * \param cfg      line configuration
  */
-void usb_task_cdc_config(const uint8_t port, usb_cdc_line_coding_t *cfg) { }
+static uint16_t dwDTERate = 0;
+void usb_task_cdc_config(const uint8_t port, usb_cdc_line_coding_t *cfg) {
+    // Store last DTE rate
+    dwDTERate = cfg->dwDTERate;
+}
 
 void usb_task_cdc_set_dtr(const uint8_t port, const bool b_enable) {
-  if (b_enable) {
-  } else {
+  //  Implement Arduino-Compatible kludge to enter programming mode from
+  // the native port:
+  //  "Auto-reset into the bootloader is triggered when the port, already
+  // open at 1200 bps, is closed."
+    
+  if (1200 == dwDTERate) {
+    // We check DTR state to determine if host port is open (bit 0 of lineState).
+    if (!b_enable)
+      initiateReset(250);
+    else
+      cancelReset();
   }
 }
 

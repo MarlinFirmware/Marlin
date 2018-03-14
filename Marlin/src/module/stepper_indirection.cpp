@@ -38,8 +38,7 @@
 //
 // TMC26X Driver objects and inits
 //
-#if ENABLED(HAVE_TMCDRIVER)
-
+#if ENABLED(HAVE_TMC26X)
   #include <SPI.h>
 
   #ifdef STM32F7
@@ -50,37 +49,37 @@
 
   #define _TMC_DEFINE(ST) TMC26XStepper stepper##ST(200, ST##_ENABLE_PIN, ST##_STEP_PIN, ST##_DIR_PIN, ST##_MAX_CURRENT, ST##_SENSE_RESISTOR)
 
-  #if ENABLED(X_IS_TMC)
+  #if ENABLED(X_IS_TMC26X)
     _TMC_DEFINE(X);
   #endif
-  #if ENABLED(X2_IS_TMC)
+  #if ENABLED(X2_IS_TMC26X)
     _TMC_DEFINE(X2);
   #endif
-  #if ENABLED(Y_IS_TMC)
+  #if ENABLED(Y_IS_TMC26X)
     _TMC_DEFINE(Y);
   #endif
-  #if ENABLED(Y2_IS_TMC)
+  #if ENABLED(Y2_IS_TMC26X)
     _TMC_DEFINE(Y2);
   #endif
-  #if ENABLED(Z_IS_TMC)
+  #if ENABLED(Z_IS_TMC26X)
     _TMC_DEFINE(Z);
   #endif
-  #if ENABLED(Z2_IS_TMC)
+  #if ENABLED(Z2_IS_TMC26X)
     _TMC_DEFINE(Z2);
   #endif
-  #if ENABLED(E0_IS_TMC)
+  #if ENABLED(E0_IS_TMC26X)
     _TMC_DEFINE(E0);
   #endif
-  #if ENABLED(E1_IS_TMC)
+  #if ENABLED(E1_IS_TMC26X)
     _TMC_DEFINE(E1);
   #endif
-  #if ENABLED(E2_IS_TMC)
+  #if ENABLED(E2_IS_TMC26X)
     _TMC_DEFINE(E2);
   #endif
-  #if ENABLED(E3_IS_TMC)
+  #if ENABLED(E3_IS_TMC26X)
     _TMC_DEFINE(E3);
   #endif
-  #if ENABLED(E4_IS_TMC)
+  #if ENABLED(E4_IS_TMC26X)
     _TMC_DEFINE(E4);
   #endif
 
@@ -89,43 +88,43 @@
     stepper##A.start(); \
   }while(0)
 
-  void tmc_init() {
-    #if ENABLED(X_IS_TMC)
+  void tmc26x_init() {
+    #if ENABLED(X_IS_TMC26X)
       _TMC_INIT(X);
     #endif
-    #if ENABLED(X2_IS_TMC)
+    #if ENABLED(X2_IS_TMC26X)
       _TMC_INIT(X2);
     #endif
-    #if ENABLED(Y_IS_TMC)
+    #if ENABLED(Y_IS_TMC26X)
       _TMC_INIT(Y);
     #endif
-    #if ENABLED(Y2_IS_TMC)
+    #if ENABLED(Y2_IS_TMC26X)
       _TMC_INIT(Y2);
     #endif
-    #if ENABLED(Z_IS_TMC)
+    #if ENABLED(Z_IS_TMC26X)
       _TMC_INIT(Z);
     #endif
-    #if ENABLED(Z2_IS_TMC)
+    #if ENABLED(Z2_IS_TMC26X)
       _TMC_INIT(Z2);
     #endif
-    #if ENABLED(E0_IS_TMC)
+    #if ENABLED(E0_IS_TMC26X)
       _TMC_INIT(E0);
     #endif
-    #if ENABLED(E1_IS_TMC)
+    #if ENABLED(E1_IS_TMC26X)
       _TMC_INIT(E1);
     #endif
-    #if ENABLED(E2_IS_TMC)
+    #if ENABLED(E2_IS_TMC26X)
       _TMC_INIT(E2);
     #endif
-    #if ENABLED(E3_IS_TMC)
+    #if ENABLED(E3_IS_TMC26X)
       _TMC_INIT(E3);
     #endif
-    #if ENABLED(E4_IS_TMC)
+    #if ENABLED(E4_IS_TMC26X)
       _TMC_INIT(E4);
     #endif
   }
 
-#endif // HAVE_TMCDRIVER
+#endif // HAVE_TMC26X
 
 //
 // TMC2130 Driver objects and inits
