@@ -164,7 +164,7 @@ extern "C" {
 
 // ADC
 #ifdef DIDR2
-  #define HAL_ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
+  #define HAL_ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin & 0x07); }while(0)
 #else
   #define HAL_ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
 #endif
