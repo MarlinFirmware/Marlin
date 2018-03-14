@@ -665,6 +665,9 @@
      * Since LIGHTWEIGHT_UI has limited space, the position and status
      * message occupy the same line. Set STATUS_EXPIRE_SECONDS to the
      * length of time to display the status message before clearing.
+     *
+     * Set STATUS_EXPIRE_SECONDS to zero to never clear the status.
+     * This will prevent position updates from being displayed.
      */
     //#define LIGHTWEIGHT_UI
     #if ENABLED(LIGHTWEIGHT_UI)
