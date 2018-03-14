@@ -331,6 +331,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
       }
     }
   #endif
+
   #if ENABLED(HAVE_TMC2208)
     static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {

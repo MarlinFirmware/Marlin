@@ -33,46 +33,100 @@
  * Report driver currents when no axis specified
  */
 void GcodeSuite::M906() {
-  uint16_t values[XYZE];
-  LOOP_XYZE(i) values[i] = parser.intval(axis_codes[i]);
+  #define TMC_SAY_CURRENT(Q) tmc_get_current(stepper##Q, TMC_##Q)
+  #define TMC_SET_CURRENT(Q) tmc_set_current(stepper##Q, TMC_##Q, value)
 
-  #define TMC_SET_GET_CURRENT(P,Q) do { \
-    if (values[P##_AXIS]) tmc_set_current(stepper##Q, TMC_##Q, values[P##_AXIS]); \
-    else tmc_get_current(stepper##Q, TMC_##Q); } while(0)
+  bool report = true;
+  LOOP_XYZE(i) if (uint16_t value = parser.intval(axis_codes[i])) {
+    report = false;
+    switch (i) {
+      case X_AXIS:
+        #if X_IS_TRINAMIC
+          TMC_SET_CURRENT(X);
+        #endif
+        #if X2_IS_TRINAMIC
+          TMC_SET_CURRENT(X2);
+        #endif
+        break;
+      case Y_AXIS:
+        #if Y_IS_TRINAMIC
+          TMC_SET_CURRENT(Y);
+        #endif
+        #if Y2_IS_TRINAMIC
+          TMC_SET_CURRENT(Y2);
+        #endif
+        break;
+      case Z_AXIS:
+        #if Z_IS_TRINAMIC
+          TMC_SET_CURRENT(Z);
+        #endif
+        #if Z2_IS_TRINAMIC
+          TMC_SET_CURRENT(Z2);
+        #endif
+        break;
+      case E_AXIS:
+        #if E0_IS_TRINAMIC
+          TMC_SET_CURRENT(E0);
+        #endif
+        #if E1_IS_TRINAMIC
+          TMC_SET_CURRENT(E1);
+        #endif
+        #if E2_IS_TRINAMIC
+          TMC_SET_CURRENT(E2);
+        #endif
+        #if E3_IS_TRINAMIC
+          TMC_SET_CURRENT(E3);
+        #endif
+        #if E4_IS_TRINAMIC
+          TMC_SET_CURRENT(E4);
+        #endif
+        break;
+    }
+  }
 
-  #if X_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(X,X);
-  #endif
-  #if X2_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(X,X2);
-  #endif
-  #if Y_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(Y,Y);
-  #endif
-  #if Y2_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(Y,Y2);
-  #endif
-  #if Z_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(Z,Z);
-  #endif
-  #if Z2_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(Z,Z2);
-  #endif
-  #if E0_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(E,E0);
-  #endif
-  #if E1_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(E,E1);
-  #endif
-  #if E2_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(E,E2);
-  #endif
-  #if E3_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(E,E3);
-  #endif
-  #if E4_IS_TRINAMIC
-    TMC_SET_GET_CURRENT(E,E4);
-  #endif
+  if (report) LOOP_XYZE(i) switch (i) {
+    case X_AXIS:
+      #if X_IS_TRINAMIC
+        TMC_SAY_CURRENT(X);
+      #endif
+      #if X2_IS_TRINAMIC
+        TMC_SAY_CURRENT(X2);
+      #endif
+      break;
+    case Y_AXIS:
+      #if Y_IS_TRINAMIC
+        TMC_SAY_CURRENT(Y);
+      #endif
+      #if Y2_IS_TRINAMIC
+        TMC_SAY_CURRENT(Y2);
+      #endif
+      break;
+    case Z_AXIS:
+      #if Z_IS_TRINAMIC
+        TMC_SAY_CURRENT(Z);
+      #endif
+      #if Z2_IS_TRINAMIC
+        TMC_SAY_CURRENT(Z2);
+      #endif
+      break;
+    case E_AXIS:
+      #if E0_IS_TRINAMIC
+        TMC_SAY_CURRENT(E0);
+      #endif
+      #if E1_IS_TRINAMIC
+        TMC_SAY_CURRENT(E1);
+      #endif
+      #if E2_IS_TRINAMIC
+        TMC_SAY_CURRENT(E2);
+      #endif
+      #if E3_IS_TRINAMIC
+        TMC_SAY_CURRENT(E3);
+      #endif
+      #if E4_IS_TRINAMIC
+        TMC_SAY_CURRENT(E4);
+      #endif
+      break;
+  }
 }
 
 #endif // HAS_TRINAMIC
