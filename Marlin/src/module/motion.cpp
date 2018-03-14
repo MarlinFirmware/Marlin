@@ -952,6 +952,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
    */
   void sensorless_homing_per_axis(const AxisEnum axis, const bool enable/*=true*/) {
     switch (axis) {
+      default: break;
       #if X_SENSORLESS
         case X_AXIS:
           tmc_sensorless_homing(stepperX, enable);
