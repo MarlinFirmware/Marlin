@@ -157,7 +157,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 
         case LS_SerialPrint:
           createFilename(filename, p);
-          SERIAL_PROTOCOL_P(port, prepend);
+          if (prepend) SERIAL_PROTOCOL_P(port, prepend);
           SERIAL_PROTOCOL_P(port, filename);
           SERIAL_PROTOCOLCHAR_P(port, ' ');
           SERIAL_PROTOCOLLN_P(port, p.fileSize);
@@ -184,7 +184,7 @@ void CardReader::ls(
 ) {
   lsAction = LS_SerialPrint;
   root.rewind();
-  lsDive("", root
+  lsDive(NULL, root
     #if NUM_SERIAL > 1
       , NULL, port
     #endif
@@ -227,7 +227,7 @@ void CardReader::ls(
 
       // Find the item, setting the long filename
       diveDir.rewind();
-      lsDive("", diveDir, segment
+      lsDive(NULL, diveDir, segment
         #if NUM_SERIAL > 1
           , port
         #endif
@@ -322,7 +322,7 @@ void CardReader::openAndPrintFile(const char *name) {
 void CardReader::startFileprint() {
   if (cardOK) {
     sdprinting = true;
-    #if ENABLED(SDCARD_SORT_ALPHA)
+    #if SD_RESORT
       flush_presort();
     #endif
   }
@@ -639,7 +639,7 @@ void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/) {
   lsAction = LS_GetFilename;
   nrFile_index = nr;
   curDir->rewind();
-  lsDive("", *curDir, match);
+  lsDive(NULL, *curDir, match);
 }
 
 uint16_t CardReader::getnrfilenames() {
@@ -647,7 +647,7 @@ uint16_t CardReader::getnrfilenames() {
   lsAction = LS_Count;
   nrFiles = 0;
   curDir->rewind();
-  lsDive("", *curDir);
+  lsDive(NULL, *curDir);
   //SERIAL_ECHOLN(nrFiles);
   return nrFiles;
 }
