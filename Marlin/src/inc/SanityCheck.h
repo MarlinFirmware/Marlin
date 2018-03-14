@@ -247,6 +247,11 @@
   #error "LCD_I2C_SAINSMART_YWROBOT is now LCD_SAINSMART_I2C_(1602|2004). Please update your configuration."
 #elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
+#elif defined(HAVE_TMCDRIVER)
+  #error "HAVE_TMCDRIVER is now HAVE_TMC26X. Please update your Configuration_adv.h."
+#elif defined(X_IS_TMC) || defined(X2_IS_TMC) || defined(Y_IS_TMC) || defined(Y2_IS_TMC) || defined(Z_IS_TMC) || defined(Z2_IS_TMC) \
+   || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC)
+  #error "[AXIS]_IS_TMC is now [AXIS]_IS_TMC26X. Please update your Configuration_adv.h."
 #elif defined(AUTOMATIC_CURRENT_CONTROL)
   #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
 #endif
@@ -1497,22 +1502,22 @@ static_assert(1 >= 0
 );
 
 /**
- * Make sure HAVE_TMCDRIVER is warranted
+ * Make sure HAVE_TMC26X is warranted
  */
-#if ENABLED(HAVE_TMCDRIVER) && !( \
-         ENABLED(  X_IS_TMC ) \
-      || ENABLED( X2_IS_TMC ) \
-      || ENABLED(  Y_IS_TMC ) \
-      || ENABLED( Y2_IS_TMC ) \
-      || ENABLED(  Z_IS_TMC ) \
-      || ENABLED( Z2_IS_TMC ) \
-      || ENABLED( E0_IS_TMC ) \
-      || ENABLED( E1_IS_TMC ) \
-      || ENABLED( E2_IS_TMC ) \
-      || ENABLED( E3_IS_TMC ) \
-      || ENABLED( E4_IS_TMC ) \
+#if ENABLED(HAVE_TMC26X) && !( \
+         ENABLED(  X_IS_TMC26X ) \
+      || ENABLED( X2_IS_TMC26X ) \
+      || ENABLED(  Y_IS_TMC26X ) \
+      || ENABLED( Y2_IS_TMC26X ) \
+      || ENABLED(  Z_IS_TMC26X ) \
+      || ENABLED( Z2_IS_TMC26X ) \
+      || ENABLED( E0_IS_TMC26X ) \
+      || ENABLED( E1_IS_TMC26X ) \
+      || ENABLED( E2_IS_TMC26X ) \
+      || ENABLED( E3_IS_TMC26X ) \
+      || ENABLED( E4_IS_TMC26X ) \
   )
-  #error "HAVE_TMCDRIVER requires at least one TMC stepper to be set."
+  #error "HAVE_TMC26X requires at least one TMC26X stepper to be set."
 #endif
 
 /**
@@ -1625,6 +1630,175 @@ static_assert(1 >= 0
   )
   #error "HAVE_L6470DRIVER requires at least one L6470 stepper to be set."
 #endif
+
+/**
+ * Check that each axis has only one driver selected
+ */
+static_assert(1 >= 0
+  #if ENABLED(X_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(X_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(X_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(X_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the X axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(X2_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(X2_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(X2_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(X2_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the X2 axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(Y_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(Y_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(Y_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(Y_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the Y axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(Y2_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(Y2_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(Y2_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(Y2_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the Y2 axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(Z_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(Z_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(Z_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(Z_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the Z axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(Z2_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(Z2_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(Z2_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(Z2_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the Z2 axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(E0_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(E0_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(E0_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(E0_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the E0 axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(E1_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(E1_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(E1_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(E1_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the E1 axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(E2_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(E2_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(E2_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(E2_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the E2 axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(E3_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(E3_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(E3_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(E3_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the E3 axis."
+);
+static_assert(1 >= 0
+  #if ENABLED(E4_IS_TMC26X)
+    + 1
+  #endif
+  #if ENABLED(E4_IS_TMC2130)
+    + 1
+  #endif
+  #if ENABLED(E4_IS_TMC2208)
+    + 1
+  #endif
+  #if ENABLED(E4_IS_L6470)
+    + 1
+  #endif
+  , "Please enable only one stepper driver for the E4 axis."
+);
 
 /**
  * Digipot requirement

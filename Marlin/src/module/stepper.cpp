@@ -922,8 +922,8 @@ void Stepper::init() {
   #endif
 
   // Init TMC Steppers
-  #if ENABLED(HAVE_TMCDRIVER)
-    tmc_init();
+  #if ENABLED(HAVE_TMC26X)
+    tmc26x_init();
   #endif
 
   // Init TMC2130 Steppers
