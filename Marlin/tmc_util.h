@@ -55,7 +55,6 @@ void tmc_get_current(TMC &st, const TMC_AxisEnum axis) {
 template<typename TMC>
 void tmc_set_current(TMC &st, const TMC_AxisEnum axis, const int mA) {
   st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
-  tmc_get_current(st, axis);
 }
 template<typename TMC>
 void tmc_report_otpw(TMC &st, const TMC_AxisEnum axis) {
@@ -73,7 +72,6 @@ void tmc_get_pwmthrs(TMC &st, const TMC_AxisEnum axis, const uint16_t spmm) {
 template<typename TMC>
 void tmc_set_pwmthrs(TMC &st, const TMC_AxisEnum axis, const int32_t thrs, const uint32_t spmm) {
   st.TPWMTHRS(_tmc_thrs(st.microsteps(), thrs, spmm));
-  tmc_get_pwmthrs(st, axis, spmm);
 }
 template<typename TMC>
 void tmc_get_sgt(TMC &st, const TMC_AxisEnum axis) {
@@ -82,7 +80,6 @@ void tmc_get_sgt(TMC &st, const TMC_AxisEnum axis) {
 template<typename TMC>
 void tmc_set_sgt(TMC &st, const TMC_AxisEnum axis, const int8_t sgt_val) {
   st.sgt(sgt_val);
-  tmc_get_sgt(st, axis);
 }
 
 void monitor_tmc_driver();
