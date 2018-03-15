@@ -45,6 +45,17 @@
 //#define DEBUG_EEPROM_READWRITE
 
 #include "configuration_store.h"
+
+#if ADD_PORT_ARG
+  #define PORTARG_SOLO     const int8_t port
+  #define PORTARG_AFTER   ,const int8_t port
+  #define PORTVAR_SOLO     port
+#else
+  #define PORTARG_SOLO
+  #define PORTARG_AFTER
+  #define PORTVAR_SOLO
+#endif
+
 #include "endstops.h"
 #include "planner.h"
 #include "stepper.h"
@@ -345,11 +356,7 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::eeprom_error, MarlinSettings::validating;
 
-  bool MarlinSettings::size_error(const uint16_t size
-    #if ADD_PORT_ARG
-      , const int8_t port/*=-1*/
-    #endif
-  ) {
+  bool MarlinSettings::size_error(const uint16_t size PORTARG_AFTER) {
     if (size != datasize()) {
       #if ENABLED(EEPROM_CHITCHAT)
         SERIAL_ERROR_START_P(port);
@@ -363,11 +370,7 @@ void MarlinSettings::postprocess() {
   /**
    * M500 - Store Configuration
    */
-  bool MarlinSettings::save(
-    #if ADD_PORT_ARG
-      const int8_t port/*=-1*/
-    #endif
-  ) {
+  bool MarlinSettings::save(PORTARG_SOLO) {
     float dummy = 0.0f;
     char ver[4] = "ERR";
 
@@ -853,11 +856,7 @@ void MarlinSettings::postprocess() {
   /**
    * M501 - Retrieve Configuration
    */
-  bool MarlinSettings::_load(
-    #if ADD_PORT_ARG
-      const int8_t port/*=-1*/
-    #endif
-  ) {
+  bool MarlinSettings::_load(PORTARG_SOLO) {
     uint16_t working_crc = 0;
 
     EEPROM_START();
@@ -1431,46 +1430,22 @@ void MarlinSettings::postprocess() {
     }
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
-      if (!validating) report(
-        #if ADD_PORT_ARG
-          port
-        #endif
-      );
+      if (!validating) report(PORTVAR_SOLO);
     #endif
     EEPROM_FINISH();
 
     return !eeprom_error;
   }
 
-  bool MarlinSettings::validate(
-    #if ADD_PORT_ARG
-      const int8_t port/*=-1*/
-    #endif
-  ) {
+  bool MarlinSettings::validate(PORTARG_SOLO) {
     validating = true;
-    const bool success = _load(
-      #if ADD_PORT_ARG
-        port
-      #endif
-    );
+    const bool success = _load(PORTVAR_SOLO);
     validating = false;
     return success;
   }
 
-  bool MarlinSettings::load(
-    #if ADD_PORT_ARG
-      const int8_t port/*=-1*/
-    #endif
-  ) {
-    if (validate(
-      #if ADD_PORT_ARG
-        port
-      #endif
-    )) return _load(
-      #if ADD_PORT_ARG
-        port
-      #endif
-    );
+  bool MarlinSettings::load(PORTARG_SOLO) {
+    if (validate(PORTVAR_SOLO)) return _load(PORTVAR_SOLO);
     reset();
     return true;
   }
@@ -1581,11 +1556,7 @@ void MarlinSettings::postprocess() {
 
 #else // !EEPROM_SETTINGS
 
-  bool MarlinSettings::save(
-    #if ADD_PORT_ARG
-      const int8_t port/*=-1*/
-    #endif
-  ) {
+  bool MarlinSettings::save(PORTARG_SOLO) {
     #if ENABLED(EEPROM_CHITCHAT)
       SERIAL_ERROR_START_P(port);
       SERIAL_ERRORLNPGM_P(port, "EEPROM disabled");
@@ -1598,11 +1569,7 @@ void MarlinSettings::postprocess() {
 /**
  * M502 - Reset Configuration
  */
-void MarlinSettings::reset(
-  #if ADD_PORT_ARG
-    const int8_t port/*=-1*/
-  #endif
-) {
+void MarlinSettings::reset(PORTARG_SOLO) {
   static const float tmp1[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] PROGMEM = DEFAULT_MAX_FEEDRATE;
   static const uint32_t tmp3[] PROGMEM = DEFAULT_MAX_ACCELERATION;
   LOOP_XYZE_N(i) {
@@ -1860,11 +1827,7 @@ void MarlinSettings::reset(
 
 #if DISABLED(DISABLE_M503)
 
-  #if ADD_PORT_ARG
-    #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START_P(port); }while(0)
-  #else
-    #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
-  #endif
+  #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START_P(PORTVAR_SOLO); }while(0)
 
   /**
    * M503 - Report current settings in RAM
@@ -2129,11 +2092,7 @@ void MarlinSettings::reset(
           SERIAL_ECHOLNPGM_P(port, " meshes.\n");
         }
 
-        ubl.report_current_mesh(
-          #if ADD_PORT_ARG
-            port
-          #endif
-        );
+        ubl.report_current_mesh(PORTVAR_SOLO);
 
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
