@@ -70,6 +70,11 @@ void GcodeSuite::M218() {
     }
     SERIAL_EOL();
   }
+
+  #if ENABLED(DELTA)
+    if (target_extruder == active_extruder)
+      do_blocking_move_to_xy(current_position[X_AXIS], current_position[Y_AXIS], planner.max_feedrate_mm_s[X_AXIS]);
+  #endif
 }
 
 #endif // HOTENDS > 1

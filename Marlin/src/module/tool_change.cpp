@@ -382,7 +382,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
                         z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
 
-            // Always raise by some amount (destination copied from current_position earlier)
+            // Always raise by some amount
             current_position[Z_AXIS] += z_raise;
             planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
             move_nozzle_servo(tmp_extruder);
@@ -492,11 +492,24 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         // Tell the planner the new "current position"
         SYNC_PLAN_POSITION_KINEMATIC();
 
+        #if ENABLED(DELTA)
+          //LOOP_XYZ(i) update_software_endstops(i); // or modify the constrain function
+          // Do a small lift to avoid the workpiece in the move back (below)
+          const bool safe_to_move = current_position[Z_AXIS] < delta_clip_start_height - 1;
+          if (safe_to_move && !no_move && IsRunning()) {
+            ++current_position[Z_AXIS];
+            planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+          }
+        #else
+          constexpr bool safe_to_move = true;
+        #endif
+ 
         // Move to the "old position" (move the extruder into place)
         #if ENABLED(SWITCHING_NOZZLE)
           destination[Z_AXIS] += z_diff;  // Include the Z restore with the "move back"
         #endif
-        if (!no_move && IsRunning()) {
+
+        if (safe_to_move && !no_move && IsRunning()) {
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
           #endif
