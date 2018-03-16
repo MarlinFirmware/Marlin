@@ -392,8 +392,8 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
       case TMC_OTPW_TRIGGERED: serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false")); break;
       case TMC_TOFF: SERIAL_PRINT(st.toff(), DEC); break;
       case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
-      case TMC_HEND: SERIAL_PRINT(st.hysterisis_end(), DEC); break;
-      case TMC_HSTRT: SERIAL_PRINT(st.hysterisis_start(), DEC); break;
+      case TMC_HEND: SERIAL_PRINT(st.hysteresis_end(), DEC); break;
+      case TMC_HSTRT: SERIAL_PRINT(st.hysteresis_start(), DEC); break;
       default: tmc_status(st, i); break;
     }
   }
@@ -545,7 +545,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
                "been triggered",     TMC_OTPW_TRIGGERED);
     TMC_REPORT("off time\t",         TMC_TOFF);
     TMC_REPORT("blank time",         TMC_TBL);
-    TMC_REPORT("hysterisis\n-end\t", TMC_HEND);
+    TMC_REPORT("hysteresis\n-end\t", TMC_HEND);
     TMC_REPORT("-start\t",           TMC_HSTRT);
     TMC_REPORT("Stallguard thrs",    TMC_SGT);
 

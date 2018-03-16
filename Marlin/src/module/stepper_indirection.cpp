@@ -188,8 +188,8 @@
     st.off_time(5); // Only enables the driver if used with stealthChop
     st.interpolate(INTERPOLATE);
     st.power_down_delay(128); // ~2s until driver lowers to hold current
-    st.hysterisis_start(3);
-    st.hysterisis_end(2);
+    st.hysteresis_start(3);
+    st.hysteresis_end(2);
     st.diag1_active_high(1); // For sensorless homing
     #if ENABLED(STEALTHCHOP)
       st.stealth_freq(1); // f_pwm = 2/683 f_clk
@@ -406,8 +406,8 @@
     st.toff(5);
     st.intpol(INTERPOLATE);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
-    st.hysterisis_start(3);
-    st.hysterisis_end(2);
+    st.hysteresis_start(3);
+    st.hysteresis_end(2);
     #if ENABLED(STEALTHCHOP)
       st.pwm_lim(12);
       st.pwm_reg(8);
