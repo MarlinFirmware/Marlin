@@ -370,15 +370,15 @@ static float probe_G33_points(float z_at_pt[NPP + 1], const int8_t probe_points,
  *      P1     Probe center and set height only.
  *      P2     Probe center and towers. Set height, endstops and delta radius.
  *      P3     Probe all positions: center, towers and opposite towers. Set all.
- *      P4-P10 Probe all positions + at different itermediate locations and average them.
+ *      P4-P10 Probe all positions + at different intermediate locations and average them.
  *
  *   T   Don't calibrate tower angle corrections
  *
  *   Cn.nn  Calibration precision; when omitted calibrates to maximum precision
  *
- *   Fn  Force to run at least n iterations and takes the best result
+ *   Fn  Force to run at least n iterations and take the best result
  *
- *   A   Auto tune calibartion factors (set in Configuration.h)
+ *   A   Auto-tune calibration factors (set in Configuration.h)
  *
  *   Vn  Verbose level:
  *      V0  Dry-run mode. Report settings and probe results. No calibration.
