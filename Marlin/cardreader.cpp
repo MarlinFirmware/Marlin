@@ -141,7 +141,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 
         case LS_SerialPrint:
           createFilename(filename, p);
-          SERIAL_PROTOCOL(prepend);
+          if (prepend) SERIAL_PROTOCOL(prepend);
           SERIAL_PROTOCOL(filename);
           SERIAL_PROTOCOLCHAR(' ');
           SERIAL_PROTOCOLLN(p.fileSize);
@@ -164,7 +164,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 void CardReader::ls() {
   lsAction = LS_SerialPrint;
   root.rewind();
-  lsDive("", root);
+  lsDive(NULL, root);
 }
 
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -199,7 +199,7 @@ void CardReader::ls() {
 
       // Find the item, setting the long filename
       diveDir.rewind();
-      lsDive("", diveDir, segment);
+      lsDive(NULL, diveDir, segment);
 
       // Print /LongNamePart to serial output
       SERIAL_PROTOCOLCHAR('/');
@@ -603,7 +603,7 @@ void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/) {
   lsAction = LS_GetFilename;
   nrFile_index = nr;
   curDir->rewind();
-  lsDive("", *curDir, match);
+  lsDive(NULL, *curDir, match);
 }
 
 uint16_t CardReader::getnrfilenames() {
@@ -611,7 +611,7 @@ uint16_t CardReader::getnrfilenames() {
   lsAction = LS_Count;
   nrFiles = 0;
   curDir->rewind();
-  lsDive("", *curDir);
+  lsDive(NULL, *curDir);
   //SERIAL_ECHOLN(nrFiles);
   return nrFiles;
 }
