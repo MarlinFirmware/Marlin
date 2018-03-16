@@ -61,6 +61,7 @@ public:
   );
   void getStatus();
   void printingHasFinished();
+  void printFilename();
 
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
     void printLongPath(char *path);
