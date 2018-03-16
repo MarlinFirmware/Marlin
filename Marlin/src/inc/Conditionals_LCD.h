@@ -431,7 +431,7 @@
   #else
     #define E_STEPPERS    1
   #endif
-  #define E_MANUAL        E_STEPPERS
+  #define E_MANUAL        EXTRUDERS
 #elif ENABLED(MIXING_EXTRUDER)
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
