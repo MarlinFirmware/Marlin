@@ -230,6 +230,28 @@ void CardReader::ls() {
 
 #endif // LONG_FILENAME_HOST_SUPPORT
 
+/**
+ * Echo the DOS 8.3 filename (and long filename, if any)
+ */
+void CardReader::printFilename() {
+  if (file.isOpen()) {
+    char lfilename[FILENAME_LENGTH];
+    file.getFilename(lfilename);
+    SERIAL_ECHO(lfilename);
+    #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+      getfilename(0, lfilename);
+      if (longFilename[0]) {
+        SERIAL_ECHO(' ');
+        SERIAL_ECHO(longFilename);
+      }
+    #endif
+  }
+  else
+    SERIAL_ECHOPGM("(no file)");
+
+  SERIAL_EOL();
+}
+
 void CardReader::initsd() {
   cardOK = false;
   if (root.isOpen()) root.close();
@@ -428,8 +450,12 @@ void CardReader::openFile(char* name, const bool read, const bool subcall/*=fals
       SERIAL_PROTOCOLPAIR(MSG_SD_FILE_OPENED, fname);
       SERIAL_PROTOCOLLNPAIR(MSG_SD_SIZE, filesize);
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
+
       getfilename(0, fname);
       lcd_setstatus(longFilename[0] ? longFilename : fname);
+      //if (longFilename[0]) {
+      //  SERIAL_PROTOCOLPAIR(MSG_SD_FILE_LONG_NAME, longFilename);
+      //}
     }
     else {
       SERIAL_PROTOCOLPAIR(MSG_SD_OPEN_FILE_FAIL, fname);
