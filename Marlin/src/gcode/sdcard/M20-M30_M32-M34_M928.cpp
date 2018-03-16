@@ -107,24 +107,35 @@ void GcodeSuite::M26() {
 }
 
 /**
- * M27: Get SD Card status or set the SD status auto-report interval.
+ * M27: Get SD Card status
+ *      OR, with 'S<seconds>' set the SD status auto-report interval. (Requires AUTO_REPORT_SD_STATUS)
+ *      OR, with 'C' get the current filename.
  */
 void GcodeSuite::M27() {
+  #if NUM_SERIAL > 1
+    const int16_t port = command_queue_port[cmd_queue_index_r];
+  #endif
+
+  if (parser.seen('C')) {
+    SERIAL_ECHOPGM_P(port, "Current file: ");
+    card.printFilename();
+  }
+
   #if ENABLED(AUTO_REPORT_SD_STATUS)
-    if (parser.seenval('S')) {
+    else if (parser.seenval('S'))
       card.set_auto_report_interval(parser.value_byte()
         #if NUM_SERIAL > 1
-          , command_queue_port[cmd_queue_index_r]
+          , port
         #endif
       );
-    }
-    else
   #endif
-      card.getStatus(
-        #if NUM_SERIAL > 1
-          command_queue_port[cmd_queue_index_r]
-        #endif
-      );
+
+  else
+    card.getStatus(
+      #if NUM_SERIAL > 1
+        port
+      #endif
+    );
 }
 
 /**
