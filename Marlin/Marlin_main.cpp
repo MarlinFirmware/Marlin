@@ -3962,7 +3962,9 @@ inline void gcode_G28(const bool always_home_all) {
 
   // Always home with tool 0 active
   #if HOTENDS > 1
-    const uint8_t old_tool_index = active_extruder;
+    #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
+      const uint8_t old_tool_index = active_extruder;
+    #endif
     tool_change(0, 0, true);
   #endif
 
@@ -4104,7 +4106,7 @@ inline void gcode_G28(const bool always_home_all) {
   clean_up_after_endstop_or_probe_move();
 
   // Restore the active tool after homing
-  #if HOTENDS > 1
+  #if HOTENDS > 1 && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
     #if ENABLED(PARKING_EXTRUDER)
       #define NO_FETCH false // fetch the previous toolhead
     #else
@@ -8701,7 +8703,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     // Lift Z axis
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
-    #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
+    #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE) && DISABLED(DELTA)
       park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
       park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
     #endif
@@ -9152,6 +9154,11 @@ inline void gcode_M211() {
       }
       SERIAL_EOL();
     }
+
+    #if ENABLED(DELTA)
+      if (target_extruder == active_extruder)
+        do_blocking_move_to_xy(current_position[X_AXIS], current_position[Y_AXIS], planner.max_feedrate_mm_s[X_AXIS]);
+    #endif
   }
 
 #endif // HOTENDS > 1
@@ -10193,7 +10200,7 @@ inline void gcode_M502() {
     if (parser.seenval('X')) park_point.x = parser.linearval('X');
     if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
 
-    #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE)
+    #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE) && DISABLED(DELTA)
       park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
       park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
     #endif
@@ -11320,7 +11327,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             const float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
                         z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
 
-            // Always raise by some amount (destination copied from current_position earlier)
+            // Always raise by some amount
             current_position[Z_AXIS] += z_raise;
             planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
             move_nozzle_servo(tmp_extruder);
@@ -11430,11 +11437,24 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         // Tell the planner the new "current position"
         SYNC_PLAN_POSITION_KINEMATIC();
 
-        // Move to the "old position" (move the extruder into place)
+        #if ENABLED(DELTA)
+          //LOOP_XYZ(i) update_software_endstops(i); // or modify the constrain function
+          // Do a small lift to avoid the workpiece in the move back (below)
+          const bool safe_to_move = current_position[Z_AXIS] < delta_clip_start_height - 1;
+          if (!no_move && IsRunning() && safe_to_move) {
+            ++current_position[Z_AXIS];
+            planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+          }
+        #else
+          constexpr bool safe_to_move = true;
+        #endif
+
         #if ENABLED(SWITCHING_NOZZLE)
           destination[Z_AXIS] += z_diff;  // Include the Z restore with the "move back"
         #endif
-        if (!no_move && IsRunning()) {
+
+        // Move to the "old position" (move the extruder into place)
+        if (safe_to_move && !no_move && IsRunning()) {
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
           #endif
@@ -12253,18 +12273,29 @@ void ok_to_send() {
    *   (see above)
    */
 
-  #define DELTA_DEBUG() do { \
-      SERIAL_ECHOPAIR("cartesian X:", raw[X_AXIS]); \
-      SERIAL_ECHOPAIR(" Y:", raw[Y_AXIS]);          \
-      SERIAL_ECHOLNPAIR(" Z:", raw[Z_AXIS]);        \
+  #define DELTA_DEBUG(VAR) do { \
+      SERIAL_ECHOPAIR("cartesian X:", VAR[X_AXIS]); \
+      SERIAL_ECHOPAIR(" Y:", VAR[Y_AXIS]);          \
+      SERIAL_ECHOLNPAIR(" Z:", VAR[Z_AXIS]);        \
       SERIAL_ECHOPAIR("delta A:", delta[A_AXIS]);   \
       SERIAL_ECHOPAIR(" B:", delta[B_AXIS]);        \
       SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
     }while(0)
 
   void inverse_kinematics(const float raw[XYZ]) {
-    DELTA_IK(raw);
-    // DELTA_DEBUG();
+    #if HOTENDS > 1
+      // Delta hotend offsets must be applied in Cartesian space with no "spoofing"
+      const float pos[XYZ] = {
+        raw[X_AXIS] - hotend_offset[X_AXIS][active_extruder],
+        raw[Y_AXIS] - hotend_offset[Y_AXIS][active_extruder],
+        raw[Z_AXIS]
+      };
+      DELTA_IK(pos);
+      //DELTA_DEBUG(pos);
+    #else
+      DELTA_IK(raw);
+      //DELTA_DEBUG(raw);
+    #endif
   }
 
   /**
@@ -12274,10 +12305,10 @@ void ok_to_send() {
   float delta_safe_distance_from_top() {
     float cartesian[XYZ] = { 0, 0, 0 };
     inverse_kinematics(cartesian);
-    float distance = delta[A_AXIS];
+    const float centered_extent = delta[A_AXIS];
     cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
     inverse_kinematics(cartesian);
-    return FABS(distance - delta[A_AXIS]);
+    return FABS(centered_extent - delta[A_AXIS]);
   }
 
   /**
@@ -12716,7 +12747,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       }
 
       LOOP_XYZE(i) raw[i] += segment_distance[i];
-      #if ENABLED(DELTA)
+      #if ENABLED(DELTA) && HOTENDS < 2
         DELTA_IK(raw); // Delta can inline its kinematics
       #else
         inverse_kinematics(raw);
