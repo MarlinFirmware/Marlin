@@ -533,7 +533,7 @@ void CardReader::removeFile(const char * const name) {
 }
 
 void CardReader::getStatus() {
-  if (cardOK) {
+  if (cardOK && sdprinting) {
     SERIAL_PROTOCOLPGM(MSG_SD_PRINTING_BYTE);
     SERIAL_PROTOCOL(sdpos);
     SERIAL_PROTOCOLCHAR('/');
