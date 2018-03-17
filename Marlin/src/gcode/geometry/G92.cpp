@@ -50,13 +50,11 @@ void GcodeSuite::G92() {
         #endif // Not SCARA
         return;
     }
-  #endif
 
-  #if ENABLED(CNC_COORDINATE_SYSTEMS)
     #define IS_G92_0 (parser.subcode == 0)
   #else
     #define IS_G92_0 true
-  #endif
+  #endif // CNC_COORDINATE_SYSTEMS
 
   bool didE = false;
   #if IS_SCARA || !HAS_POSITION_SHIFT
