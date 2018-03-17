@@ -243,9 +243,15 @@
     //#define MISO         23  //        13               B3                ICSP-06             EXP2-05
 
     // increase delays
-    #define ST7920_DELAY_1 DELAY_5_NOP
-    #define ST7920_DELAY_2 DELAY_5_NOP
-    #define ST7920_DELAY_3 DELAY_5_NOP
+    #ifndef ST7920_DELAY_1
+      #define ST7920_DELAY_1 DELAY_5_NOP
+    #endif
+    #ifndef ST7920_DELAY_2
+      #define ST7920_DELAY_2 DELAY_5_NOP
+    #endif
+    #ifndef ST7920_DELAY_3
+      #define ST7920_DELAY_3 DELAY_5_NOP
+    #endif
 
   #else
 
