@@ -41,20 +41,39 @@
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)
-#define X_DIAG_PIN      64
-#define Y_DIAG_PIN      69
-#define Z_DIAG_PIN      68
-#define E0_DIAG_PIN     65
+//#define X_DIAG_PIN      64
+//#define Y_DIAG_PIN      69
+//#define Z_DIAG_PIN      68
+//#define E0_DIAG_PIN     65
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN          64 //12
+// Only use Diag Pins when SENSORLESS_HOMING is enabled for the TMC2130 drivers. 
+// Otherwise use a physical endstop based configuration.
+//
+// SERVO0_PIN and Z_MIN_PIN configuration for BLTOUCH sensor when combined with SENSORLESS_HOMING.
+//
+
 #define X_MAX_PIN          -1
-#define Y_MIN_PIN          69 //11
 #define Y_MAX_PIN          -1
-#define Z_MIN_PIN          68 //10
 #define Z_MAX_PIN          -1
+
+#if ENABLED(SENSORLESS_HOMING)
+  #define X_MIN_PIN          64
+  #define Y_MIN_PIN          69
+
+  #if ENABLED(BLTOUCH)
+    #define Z_MIN_PIN        11 //Y-MIN on board
+    #define SERVO0_PIN       10 //Z-MIN on board
+  #else
+    #define Z_MIN_PIN        10 
+  #endif
+#else
+  #define X_MIN_PIN          12
+  #define Y_MIN_PIN          11
+  #define Z_MIN_PIN          10
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
