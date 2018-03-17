@@ -649,36 +649,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * Allow only one kinematic type to be defined
  */
-static_assert(1 >= 0
-  #if ENABLED(DELTA)
-    + 1
-  #endif
-  #if ENABLED(MORGAN_SCARA)
-    + 1
-  #endif
-  #if ENABLED(MAKERARM_SCARA)
-    + 1
-  #endif
-  #if ENABLED(COREXY)
-    + 1
-  #endif
-  #if ENABLED(COREXZ)
-    + 1
-  #endif
-  #if ENABLED(COREYZ)
-    + 1
-  #endif
-  #if ENABLED(COREYX)
-    + 1
-  #endif
-  #if ENABLED(COREZX)
-    + 1
-  #endif
-  #if ENABLED(COREZY)
-    + 1
-  #endif
-  , "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, or COREZY."
-);
+#if 1 < 0 \
+  + ENABLED(DELTA) \
+  + ENABLED(MORGAN_SCARA) \
+  + ENABLED(MAKERARM_SCARA) \
+  + ENABLED(COREXY) \
+  + ENABLED(COREXZ) \
+  + ENABLED(COREYZ) \
+  + ENABLED(COREYX) \
+  + ENABLED(COREZX) \
+  + ENABLED(COREZY)
+  #error "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, or COREZY."
+#endif
 
 /**
  * Delta requirements
@@ -706,30 +688,16 @@ static_assert(1 >= 0
 /**
  * Allow only one probe option to be defined
  */
-static_assert(1 >= 0
-  #if ENABLED(PROBE_MANUALLY)
-    + 1
-  #endif
-  #if ENABLED(FIX_MOUNTED_PROBE)
-    + 1
-  #endif
-  #if HAS_Z_SERVO_ENDSTOP && DISABLED(BLTOUCH)
-    + 1
-  #endif
-  #if ENABLED(BLTOUCH)
-    + 1
-  #endif
-  #if ENABLED(SOLENOID_PROBE)
-    + 1
-  #endif
-  #if ENABLED(Z_PROBE_ALLEN_KEY)
-    + 1
-  #endif
-  #if ENABLED(Z_PROBE_SLED)
-    + 1
-  #endif
-  , "Please enable only one probe option: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
-);
+#if 1 < 0 \
+  + ENABLED(PROBE_MANUALLY) \
+  + ENABLED(FIX_MOUNTED_PROBE) \
+  + (HAS_Z_SERVO_ENDSTOP && DISABLED(BLTOUCH)) \
+  + ENABLED(BLTOUCH) \
+  + ENABLED(SOLENOID_PROBE) \
+  + ENABLED(Z_PROBE_ALLEN_KEY) \
+  + ENABLED(Z_PROBE_SLED)
+  #error "Please enable only one probe option: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
+#endif
 
 #if HAS_BED_PROBE
 
@@ -820,24 +788,14 @@ static_assert(1 >= 0
 /**
  * Allow only one bed leveling option to be defined
  */
-static_assert(1 >= 0
-  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-    + 1
-  #endif
-  #if ENABLED(AUTO_BED_LEVELING_3POINT)
-    + 1
-  #endif
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    + 1
-  #endif
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    + 1
-  #endif
-  #if ENABLED(MESH_BED_LEVELING)
-    + 1
-  #endif
-  , "Select only one of: MESH_BED_LEVELING, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
-);
+#if 1 < 0 \
+  + ENABLED(AUTO_BED_LEVELING_LINEAR) \
+  + ENABLED(AUTO_BED_LEVELING_3POINT) \
+  + ENABLED(AUTO_BED_LEVELING_BILINEAR) \
+  + ENABLED(AUTO_BED_LEVELING_UBL) \
+  + ENABLED(MESH_BED_LEVELING)
+  #error "Select only one of: MESH_BED_LEVELING, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
+#endif
 
 /**
  * Bed Leveling Requirements
@@ -1382,8 +1340,8 @@ static_assert(1 >= 0
  *       AZSMZ_12864 => ULTIMAKERCONTROLLER
  *       PANEL_ONE => ULTIMAKERCONTROLLER
  */
-static_assert(1 >= 0
-  #if ENABLED(ULTIMAKERCONTROLLER) \
+#if 1 < 0 \
+  + (     ENABLED(ULTIMAKERCONTROLLER) \
       && DISABLED(SAV_3DGLCD) \
       && DISABLED(miniVIKI) \
       && DISABLED(VIKI2) \
@@ -1391,115 +1349,46 @@ static_assert(1 >= 0
       && DISABLED(AZSMZ_12864) \
       && DISABLED(PANEL_ONE) \
       && DISABLED(MKS_12864OLED) \
-      && DISABLED(MKS_12864OLED_SSD1306)
-    + 1
-  #endif
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
+      && DISABLED(MKS_12864OLED_SSD1306) ) \
+  + (     ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
       && DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
       && DISABLED(LCD_FOR_MELZI) \
       && DISABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
       && DISABLED(MKS_12864OLED) \
-      && DISABLED(MKS_12864OLED_SSD1306)
-    + 1
-  #endif
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) \
-      && DISABLED(BQ_LCD_SMART_CONTROLLER)
-    + 1
-  #endif
-  #if ENABLED(LCD_FOR_MELZI)
-    + 1
-  #endif
-  #if ENABLED(MKS_12864OLED)
-    + 1
-  #endif
-  #if ENABLED(MKS_12864OLED_SSD1306)
-    + 1
-  #endif
-  #if ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602)
-    + 1
-  #endif
-  #if ENABLED(CARTESIO_UI)
-    + 1
-  #endif
-  #if ENABLED(PANEL_ONE)
-    + 1
-  #endif
-  #if ENABLED(MAKRPANEL)
-    + 1
-  #endif
-  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-    + 1
-  #endif
-  #if ENABLED(VIKI2)
-    + 1
-  #endif
-  #if ENABLED(miniVIKI)
-    + 1
-  #endif
-  #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-    + 1
-  #endif
-  #if ENABLED(AZSMZ_12864)
-    + 1
-  #endif
-  #if ENABLED(G3D_PANEL)
-    + 1
-  #endif
-  #if ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)
-    + 1
-  #endif
-  #if ENABLED(MKS_MINI_12864)
-    + 1
-  #endif
-  #if ENABLED(REPRAPWORLD_KEYPAD) \
-      && DISABLED(CARTESIO_UI) \
-      && DISABLED(ZONESTAR_LCD)
-    + 1
-  #endif
-  #if ENABLED(RIGIDBOT_PANEL)
-    + 1
-  #endif
-  #if ENABLED(RA_CONTROL_PANEL)
-    + 1
-  #endif
-  #if ENABLED(LCD_SAINSMART_I2C_1602)
-    + 1
-  #endif
-  #if ENABLED(LCD_SAINSMART_I2C_2004)
-    + 1
-  #endif
-  #if ENABLED(LCM1602)
-    + 1
-  #endif
-  #if ENABLED(LCD_I2C_PANELOLU2)
-    + 1
-  #endif
-  #if ENABLED(LCD_I2C_VIKI)
-    + 1
-  #endif
-  #if ENABLED(U8GLIB_SSD1306) && DISABLED(OLED_PANEL_TINYBOY2) && DISABLED(MKS_12864OLED_SSD1306)
-    + 1
-  #endif
-  #if ENABLED(SAV_3DLCD)
-    + 1
-  #endif
-  #if ENABLED(BQ_LCD_SMART_CONTROLLER)
-    + 1
-  #endif
-  #if ENABLED(SAV_3DGLCD)
-    + 1
-  #endif
-  #if ENABLED(OLED_PANEL_TINYBOY2)
-    + 1
-  #endif
-  #if ENABLED(ZONESTAR_LCD)
-    + 1
-  #endif
-  #if ENABLED(ULTI_CONTROLLER)
-    + 1
-  #endif
-  , "Please select no more than one LCD controller option."
-);
+      && DISABLED(MKS_12864OLED_SSD1306) ) \
+  + (ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER)) \
+  + ENABLED(LCD_FOR_MELZI) \
+  + ENABLED(MKS_12864OLED) \
+  + ENABLED(MKS_12864OLED_SSD1306) \
+  + ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
+  + ENABLED(CARTESIO_UI) \
+  + ENABLED(PANEL_ONE) \
+  + ENABLED(MAKRPANEL) \
+  + ENABLED(REPRAPWORLD_GRAPHICAL_LCD) \
+  + ENABLED(VIKI2) \
+  + ENABLED(miniVIKI) \
+  + ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+  + ENABLED(AZSMZ_12864) \
+  + ENABLED(G3D_PANEL) \
+  + (ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)) \
+  + ENABLED(MKS_MINI_12864) \
+  + (ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(CARTESIO_UI) && DISABLED(ZONESTAR_LCD)) \
+  + ENABLED(RIGIDBOT_PANEL) \
+  + ENABLED(RA_CONTROL_PANEL) \
+  + ENABLED(LCD_SAINSMART_I2C_1602) \
+  + ENABLED(LCD_SAINSMART_I2C_2004) \
+  + ENABLED(LCM1602) \
+  + ENABLED(LCD_I2C_PANELOLU2) \
+  + ENABLED(LCD_I2C_VIKI) \
+  + (ENABLED(U8GLIB_SSD1306) && DISABLED(OLED_PANEL_TINYBOY2) && DISABLED(MKS_12864OLED_SSD1306)) \
+  + ENABLED(SAV_3DLCD) \
+  + ENABLED(BQ_LCD_SMART_CONTROLLER) \
+  + ENABLED(SAV_3DGLCD) \
+  + ENABLED(OLED_PANEL_TINYBOY2) \
+  + ENABLED(ZONESTAR_LCD) \
+  + ENABLED(ULTI_CONTROLLER)
+  #error "Please select no more than one LCD controller option."
+#endif
 
 /**
  * Make sure HAVE_TMC26X is warranted
@@ -1604,6 +1493,24 @@ static_assert(1 >= 0
   #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
 #endif
 
+/**
+ * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
+ */
+#if ENABLED(HAVE_TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
+       defined(X_HARDWARE_SERIAL ) \
+    || defined(X2_HARDWARE_SERIAL) \
+    || defined(Y_HARDWARE_SERIAL ) \
+    || defined(Y2_HARDWARE_SERIAL) \
+    || defined(Z_HARDWARE_SERIAL ) \
+    || defined(Z2_HARDWARE_SERIAL) \
+    || defined(E0_HARDWARE_SERIAL) \
+    || defined(E1_HARDWARE_SERIAL) \
+    || defined(E2_HARDWARE_SERIAL) \
+    || defined(E3_HARDWARE_SERIAL) \
+    || defined(E4_HARDWARE_SERIAL) )
+  #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+#endif
+
 #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
   #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
 #endif
@@ -1634,171 +1541,83 @@ static_assert(1 >= 0
 /**
  * Check that each axis has only one driver selected
  */
-static_assert(1 >= 0
-  #if ENABLED(X_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(X_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(X_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(X_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the X axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(X2_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(X2_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(X2_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(X2_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the X2 axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(Y_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(Y_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(Y_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(Y_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the Y axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(Y2_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(Y2_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(Y2_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(Y2_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the Y2 axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(Z_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(Z_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(Z_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(Z_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the Z axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(Z2_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(Z2_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(Z2_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(Z2_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the Z2 axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(E0_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(E0_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(E0_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(E0_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the E0 axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(E1_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(E1_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(E1_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(E1_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the E1 axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(E2_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(E2_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(E2_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(E2_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the E2 axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(E3_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(E3_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(E3_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(E3_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the E3 axis."
-);
-static_assert(1 >= 0
-  #if ENABLED(E4_IS_TMC26X)
-    + 1
-  #endif
-  #if ENABLED(E4_IS_TMC2130)
-    + 1
-  #endif
-  #if ENABLED(E4_IS_TMC2208)
-    + 1
-  #endif
-  #if ENABLED(E4_IS_L6470)
-    + 1
-  #endif
-  , "Please enable only one stepper driver for the E4 axis."
-);
+#if 1 < 0 \
+  + ENABLED(X_IS_TMC26X) \
+  + ENABLED(X_IS_TMC2130) \
+  + ENABLED(X_IS_TMC2208) \
+  + ENABLED(X_IS_L6470)
+  #error "Please enable only one stepper driver for the X axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(X2_IS_TMC26X) \
+  + ENABLED(X2_IS_TMC2130) \
+  + ENABLED(X2_IS_TMC2208) \
+  + ENABLED(X2_IS_L6470)
+  #error "Please enable only one stepper driver for the X2 axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(Y_IS_TMC26X) \
+  + ENABLED(Y_IS_TMC2130) \
+  + ENABLED(Y_IS_TMC2208) \
+  + ENABLED(Y_IS_L6470)
+  #error "Please enable only one stepper driver for the Y axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(Y2_IS_TMC26X) \
+  + ENABLED(Y2_IS_TMC2130) \
+  + ENABLED(Y2_IS_TMC2208) \
+  + ENABLED(Y2_IS_L6470)
+  #error "Please enable only one stepper driver for the Y2 axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(Z_IS_TMC26X) \
+  + ENABLED(Z_IS_TMC2130) \
+  + ENABLED(Z_IS_TMC2208) \
+  + ENABLED(Z_IS_L6470)
+  #error "Please enable only one stepper driver for the Z axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(Z2_IS_TMC26X) \
+  + ENABLED(Z2_IS_TMC2130) \
+  + ENABLED(Z2_IS_TMC2208) \
+  + ENABLED(Z2_IS_L6470)
+  #error "Please enable only one stepper driver for the Z2 axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(E0_IS_TMC26X) \
+  + ENABLED(E0_IS_TMC2130) \
+  + ENABLED(E0_IS_TMC2208) \
+  + ENABLED(E0_IS_L6470)
+  #error "Please enable only one stepper driver for the E0 axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(E1_IS_TMC26X) \
+  + ENABLED(E1_IS_TMC2130) \
+  + ENABLED(E1_IS_TMC2208) \
+  + ENABLED(E1_IS_L6470)
+  #error "Please enable only one stepper driver for the E1 axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(E2_IS_TMC26X) \
+  + ENABLED(E2_IS_TMC2130) \
+  + ENABLED(E2_IS_TMC2208) \
+  + ENABLED(E2_IS_L6470)
+  #error "Please enable only one stepper driver for the E2 axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(E3_IS_TMC26X) \
+  + ENABLED(E3_IS_TMC2130) \
+  + ENABLED(E3_IS_TMC2208) \
+  + ENABLED(E3_IS_L6470)
+  #error "Please enable only one stepper driver for the E3 axis."
+#endif
+#if 1 < 0 \
+  + ENABLED(E4_IS_TMC26X) \
+  + ENABLED(E4_IS_TMC2130) \
+  + ENABLED(E4_IS_TMC2208) \
+  + ENABLED(E4_IS_L6470)
+  #error "Please enable only one stepper driver for the E4 axis."
+#endif
 
 /**
  * Digipot requirement
