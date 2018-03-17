@@ -391,6 +391,7 @@
           restore_ubl_active_state_and_leave();
         }
         do_blocking_move_to_xy(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)));
+        report_current_position();
       }
 
     #endif // HAS_BED_PROBE
@@ -428,6 +429,8 @@
             }
             probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
+
+            report_current_position();
             break;
 
         #endif // HAS_BED_PROBE
@@ -475,6 +478,8 @@
 
             SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
 
+            report_current_position();
+
           #else
 
             SERIAL_PROTOCOLLNPGM("?P2 is only available when an LCD is present.");
@@ -513,7 +518,7 @@
           }
           else {
             const float cvf = parser.value_float();
-            switch((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
+            switch ((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
               #if ENABLED(UBL_G29_P31)
                 case 1: {
 
@@ -758,6 +763,8 @@
       } while (location.x_index >= 0 && --count);
 
       STOW_PROBE();
+      move_z_after_probing();
+
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
@@ -775,6 +782,7 @@
       wait_for_release();
       while (!is_lcd_clicked()) {
         idle();
+        gcode.refresh_cmd_timeout();
         if (encoder_diff) {
           do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * multiplier);
           encoder_diff = 0;
@@ -1166,13 +1174,13 @@
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("EEPROM Dump:");
-    for (uint16_t i = 0; i < E2END + 1; i += 16) {
+    for (uint16_t i = 0; i <= E2END; i += 16) {
       if (!(i & 0x3)) idle();
       print_hex_word(i);
       SERIAL_ECHOPGM(": ");
       for (uint16_t j = 0; j < 16; j++) {
         kkkk = i + j;
-        eeprom_read_block(&cccc, (const void *) kkkk, sizeof(unsigned char));
+        eeprom_read_block(&cccc, (const void *)kkkk, sizeof(unsigned char));
         print_hex_byte(cccc);
         SERIAL_ECHO(' ');
       }

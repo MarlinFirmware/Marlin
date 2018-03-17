@@ -284,12 +284,4 @@ void reset_bed_level() {
 
 #endif
 
-#if HAS_PROBING_PROCEDURE
-  void out_of_range_error(const char* p_edge) {
-    SERIAL_PROTOCOLPGM("?Probe ");
-    serialprintPGM(p_edge);
-    SERIAL_PROTOCOLLNPGM(" position out of range.");
-  }
-#endif
-
 #endif // HAS_LEVELING

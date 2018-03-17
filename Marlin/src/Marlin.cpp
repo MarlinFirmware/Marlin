@@ -187,6 +187,10 @@ volatile bool wait_for_heatup = true;
   volatile bool wait_for_user = false;
 #endif
 
+#if HAS_AUTO_REPORTING
+  bool suspend_auto_report; // = false
+#endif
+
 // Inactivity shutdown
 millis_t max_inactive_time = 0,
          stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
@@ -519,10 +523,6 @@ void idle(
     gcode.host_keepalive();
   #endif
 
-  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
-    thermalManager.auto_report_temperatures();
-  #endif
-
   manage_inactivity(
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       no_stepper_sleep
@@ -547,12 +547,19 @@ void idle(
     }
   #endif
 
-  #if ENABLED(AUTO_REPORT_SD_STATUS)
-    card.auto_report_sd_status();
-  #endif
-
   #ifdef HAL_IDLETASK
     HAL_idletask();
+  #endif
+
+  #if HAS_AUTO_REPORTING
+    if (!suspend_auto_report) {
+      #if ENABLED(AUTO_REPORT_TEMPERATURES)
+        thermalManager.auto_report_temperatures();
+      #endif
+      #if ENABLED(AUTO_REPORT_SD_STATUS)
+        card.auto_report_sd_status();
+      #endif
+    }
   #endif
 }
 
@@ -702,10 +709,6 @@ void setup() {
   if (mcu &  8) SERIAL_ECHOLNPGM(MSG_WATCHDOG_RESET);
   if (mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
   HAL_clear_reset_source();
-
-  #if ENABLED(USE_WATCHDOG) //reinit watchdog after HAL_get_reset_source call
-    watchdog_init();
-  #endif
 
   SERIAL_ECHOPGM(MSG_MARLIN);
   SERIAL_CHAR(' ');
@@ -871,6 +874,10 @@ void setup() {
 
   #if ENABLED(PARKING_EXTRUDER)
     pe_magnet_init();
+  #endif
+
+  #if ENABLED(USE_WATCHDOG) // Reinit watchdog after HAL_get_reset_source call
+    watchdog_init();
   #endif
 }
 

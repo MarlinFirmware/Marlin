@@ -47,7 +47,7 @@
 
 // ubl_G29.cpp
 
-enum MeshPointType { INVALID, REAL, SET_IN_BITMAP };
+enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
 
 // External references
 
@@ -136,7 +136,7 @@ class unified_bed_leveling {
 
     // 15 is the maximum nubmer of grid points supported + 1 safety margin for now,
     // until determinism prevails
-    constexpr static float _mesh_index_to_xpos[16] PROGMEM = {
+    static constexpr float _mesh_index_to_xpos[16] PROGMEM = {
                               MESH_MIN_X +  0 * (MESH_X_DIST), MESH_MIN_X +  1 * (MESH_X_DIST),
                               MESH_MIN_X +  2 * (MESH_X_DIST), MESH_MIN_X +  3 * (MESH_X_DIST),
                               MESH_MIN_X +  4 * (MESH_X_DIST), MESH_MIN_X +  5 * (MESH_X_DIST),
@@ -147,7 +147,7 @@ class unified_bed_leveling {
                               MESH_MIN_X + 14 * (MESH_X_DIST), MESH_MIN_X + 15 * (MESH_X_DIST)
                             };
 
-    constexpr static float _mesh_index_to_ypos[16] PROGMEM = {
+    static constexpr float _mesh_index_to_ypos[16] PROGMEM = {
                               MESH_MIN_Y +  0 * (MESH_Y_DIST), MESH_MIN_Y +  1 * (MESH_Y_DIST),
                               MESH_MIN_Y +  2 * (MESH_Y_DIST), MESH_MIN_Y +  3 * (MESH_Y_DIST),
                               MESH_MIN_Y +  4 * (MESH_Y_DIST), MESH_MIN_Y +  5 * (MESH_Y_DIST),

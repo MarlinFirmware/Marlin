@@ -78,21 +78,10 @@ void GcodeSuite::M48() {
   const float X_probe_location = parser.linearval('X', X_current + X_PROBE_OFFSET_FROM_EXTRUDER),
               Y_probe_location = parser.linearval('Y', Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-  #if DISABLED(DELTA)
-    if (!WITHIN(X_probe_location, MIN_PROBE_X, MAX_PROBE_X)) {
-      out_of_range_error(PSTR("X"));
-      return;
-    }
-    if (!WITHIN(Y_probe_location, MIN_PROBE_Y, MAX_PROBE_Y)) {
-      out_of_range_error(PSTR("Y"));
-      return;
-    }
-  #else
-    if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
-      SERIAL_PROTOCOLLNPGM("? (X,Y) location outside of probeable radius.");
-      return;
-    }
-  #endif
+  if (!position_is_reachable_by_probe(X_probe_location, Y_probe_location)) {
+    SERIAL_PROTOCOLLNPGM("? (X,Y) out of bounds.");
+    return;
+  }
 
   bool seen_L = parser.seen('L');
   uint8_t n_legs = seen_L ? parser.value_byte() : 0;
@@ -137,8 +126,8 @@ void GcodeSuite::M48() {
         float angle = random(0, 360);
         const float radius = random(
           #if ENABLED(DELTA)
-            (int) (0.1250000000 * (DELTA_PROBEABLE_RADIUS)),
-            (int) (0.3333333333 * (DELTA_PROBEABLE_RADIUS))
+            (int) (0.1250000000 * (DELTA_PRINTABLE_RADIUS)),
+            (int) (0.3333333333 * (DELTA_PRINTABLE_RADIUS))
           #else
             (int) 5.0, (int) (0.125 * min(X_BED_SIZE, Y_BED_SIZE))
           #endif

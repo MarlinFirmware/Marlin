@@ -115,18 +115,29 @@ void recalc_delta_settings() {
   }
 #endif
 
-#define DELTA_DEBUG() do { \
-    SERIAL_ECHOPAIR("cartesian X:", raw[X_AXIS]); \
-    SERIAL_ECHOPAIR(" Y:", raw[Y_AXIS]);          \
-    SERIAL_ECHOLNPAIR(" Z:", raw[Z_AXIS]);        \
+#define DELTA_DEBUG(VAR) do { \
+    SERIAL_ECHOPAIR("cartesian X:", VAR[X_AXIS]); \
+    SERIAL_ECHOPAIR(" Y:", VAR[Y_AXIS]);          \
+    SERIAL_ECHOLNPAIR(" Z:", VAR[Z_AXIS]);        \
     SERIAL_ECHOPAIR("delta A:", delta[A_AXIS]);   \
     SERIAL_ECHOPAIR(" B:", delta[B_AXIS]);        \
     SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
   }while(0)
 
 void inverse_kinematics(const float raw[XYZ]) {
-  DELTA_IK(raw);
-  // DELTA_DEBUG();
+  #if HOTENDS > 1
+    // Delta hotend offsets must be applied in Cartesian space with no "spoofing"
+    const float pos[XYZ] = {
+      raw[X_AXIS] - hotend_offset[X_AXIS][active_extruder],
+      raw[Y_AXIS] - hotend_offset[Y_AXIS][active_extruder],
+      raw[Z_AXIS]
+    };
+    DELTA_IK(pos);
+    //DELTA_DEBUG(pos);
+  #else
+    DELTA_IK(raw);
+    //DELTA_DEBUG(raw);
+  #endif
 }
 
 /**
@@ -136,10 +147,10 @@ void inverse_kinematics(const float raw[XYZ]) {
 float delta_safe_distance_from_top() {
   float cartesian[XYZ] = { 0, 0, 0 };
   inverse_kinematics(cartesian);
-  float distance = delta[A_AXIS];
+  float centered_extent = delta[A_AXIS];
   cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
   inverse_kinematics(cartesian);
-  return FABS(distance - delta[A_AXIS]);
+  return FABS(centered_extent - delta[A_AXIS]);
 }
 
 /**

@@ -195,6 +195,10 @@
   // 2 : disply of the map data on a RepRap Graphical LCD Panel
 
   void unified_bed_leveling::display_map(const int map_type) {
+    #if HAS_AUTO_REPORTING
+      suspend_auto_report = true;
+    #endif
+
     constexpr uint8_t spaces = 8 * (GRID_MAX_POINTS_X - 2);
 
     SERIAL_PROTOCOLPGM("\nBed Topography Report");
@@ -259,6 +263,10 @@
       serial_echo_xy(GRID_MAX_POINTS_X - 1, 0);
       SERIAL_EOL();
     }
+
+    #if HAS_AUTO_REPORTING
+      suspend_auto_report = false;
+    #endif
   }
 
   bool unified_bed_leveling::sanity_check() {
