@@ -27,22 +27,22 @@
 
 #define ADD_PORT_ARG ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
 
+#if ADD_PORT_ARG
+  #define PORTINIT_SOLO    const int8_t port=-1
+  #define PORTINIT_AFTER  ,const int8_t port=-1
+#else
+  #define PORTINIT_SOLO
+  #define PORTINIT_AFTER
+#endif
+
 class MarlinSettings {
   public:
     MarlinSettings() { }
 
     static uint16_t datasize();
 
-    static void reset(
-      #if ADD_PORT_ARG
-        const int8_t port=-1
-      #endif
-    );
-    static bool save(
-      #if ADD_PORT_ARG
-        const int8_t port=-1
-      #endif
-    );   // Return 'true' if data was saved
+    static void reset(PORTINIT_SOLO);
+    static bool save(PORTINIT_SOLO);    // Return 'true' if data was saved
 
     FORCE_INLINE static bool init_eeprom() {
       bool success = true;
@@ -57,16 +57,8 @@ class MarlinSettings {
     }
 
     #if ENABLED(EEPROM_SETTINGS)
-      static bool load(
-        #if ADD_PORT_ARG
-          const int8_t port=-1
-        #endif
-      );     // Return 'true' if data was loaded ok
-      static bool validate(
-        #if ADD_PORT_ARG
-          const int8_t port=-1
-        #endif
-      ); // Return 'true' if EEPROM data is ok
+      static bool load(PORTINIT_SOLO);      // Return 'true' if data was loaded ok
+      static bool validate(PORTINIT_SOLO);  // Return 'true' if EEPROM data is ok
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
                                          // That can store is enabled
@@ -110,19 +102,14 @@ class MarlinSettings {
 
       #endif
 
-      static bool _load(
-        #if ADD_PORT_ARG
-          const int8_t port=-1
-        #endif
-      );
-      static bool size_error(const uint16_t size
-        #if ADD_PORT_ARG
-          , const int8_t port=-1
-        #endif
-      );
+      static bool _load(PORTINIT_SOLO);
+      static bool size_error(const uint16_t size PORTINIT_AFTER);
     #endif
 };
 
 extern MarlinSettings settings;
+
+#undef PORTINIT_SOLO
+#undef PORTINIT_AFTER
 
 #endif // CONFIGURATION_STORE_H

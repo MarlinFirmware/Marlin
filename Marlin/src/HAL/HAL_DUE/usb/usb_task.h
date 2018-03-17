@@ -78,6 +78,19 @@ void usb_task_cdc_disable(const uint8_t port);
  */
 void usb_task_cdc_set_dtr(const uint8_t port, const bool b_enable);
 
+/*! \brief Check if MSC is enumerated and configured on the PC side
+ */
+bool usb_task_msc_isenabled(void);
+
+/*! \brief Check if CDC is enumerated and configured on the PC side
+ */
+bool usb_task_cdc_isenabled(void);
+
+/*! \brief Check if CDC is actually OPEN by an application on the PC side
+ *  assuming DTR signal means a program is listening to messages
+ */
+bool usb_task_cdc_dtr_active(void);
+
 /*! \brief Called by UDC when USB Host request a extra string different
  * of this specified in USB device descriptor
  */
