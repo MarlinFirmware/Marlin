@@ -233,6 +233,7 @@ void flush_and_request_resend() {
   SERIAL_FLUSH_P(port);
   SERIAL_PROTOCOLPGM_P(port, MSG_RESEND);
   SERIAL_PROTOCOLLN_P(port, gcode_LastN + 1);
+  ok_to_send();
 }
 
 void gcode_line_error(const char* err, uint8_t port) {
@@ -517,7 +518,7 @@ void advance_command_queue() {
         card.closefile();
         SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
 
-        #ifndef USBCON
+        #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
             SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
           #endif
@@ -525,7 +526,7 @@ void advance_command_queue() {
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
             SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
           #endif
-        #endif // !USBCON
+        #endif //  !defined(__AVR__) || !defined(USBCON)
 
         ok_to_send();
       }

@@ -36,16 +36,16 @@
  */
 void GcodeSuite::M911() {
   #if ENABLED(X_IS_TMC2130) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX)) || ENABLED(IS_TRAMS)
-    tmc_report_otpw(stepperX, extended_axis_codes[TMC_X]);
+    tmc_report_otpw(stepperX, TMC_X);
   #endif
   #if ENABLED(Y_IS_TMC2130) || (ENABLED(Y_IS_TMC2208) && PIN_EXISTS(Y_SERIAL_RX)) || ENABLED(IS_TRAMS)
-    tmc_report_otpw(stepperY, extended_axis_codes[TMC_Y]);
+    tmc_report_otpw(stepperY, TMC_Y);
   #endif
   #if ENABLED(Z_IS_TMC2130) || (ENABLED(Z_IS_TMC2208) && PIN_EXISTS(Z_SERIAL_RX)) || ENABLED(IS_TRAMS)
-    tmc_report_otpw(stepperZ, extended_axis_codes[TMC_Z]);
+    tmc_report_otpw(stepperZ, TMC_Z);
   #endif
   #if ENABLED(E0_IS_TMC2130) || (ENABLED(E0_IS_TMC2208) && PIN_EXISTS(E0_SERIAL_RX)) || ENABLED(IS_TRAMS)
-    tmc_report_otpw(stepperE0, extended_axis_codes[TMC_E0]);
+    tmc_report_otpw(stepperE0, TMC_E0);
   #endif
 }
 
@@ -56,22 +56,22 @@ void GcodeSuite::M912() {
   const bool clearX = parser.seen(axis_codes[X_AXIS]), clearY = parser.seen(axis_codes[Y_AXIS]), clearZ = parser.seen(axis_codes[Z_AXIS]), clearE = parser.seen(axis_codes[E_AXIS]),
            clearAll = (!clearX && !clearY && !clearZ && !clearE) || (clearX && clearY && clearZ && clearE);
   #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX))
-    if (clearX || clearAll) tmc_clear_otpw(stepperX, extended_axis_codes[TMC_X]);
+    if (clearX || clearAll) tmc_clear_otpw(stepperX, TMC_X);
   #endif
   #if ENABLED(X2_IS_TMC2130) || (ENABLED(X2_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX))
-    if (clearX || clearAll) tmc_clear_otpw(stepperX, extended_axis_codes[TMC_X]);
+    if (clearX || clearAll) tmc_clear_otpw(stepperX, TMC_X);
   #endif
 
   #if ENABLED(Y_IS_TMC2130) || (ENABLED(Y_IS_TMC2208) && PIN_EXISTS(Y_SERIAL_RX))
-    if (clearY || clearAll) tmc_clear_otpw(stepperY, extended_axis_codes[TMC_Y]);
+    if (clearY || clearAll) tmc_clear_otpw(stepperY, TMC_Y);
   #endif
 
   #if ENABLED(Z_IS_TMC2130) || (ENABLED(Z_IS_TMC2208) && PIN_EXISTS(Z_SERIAL_RX))
-    if (clearZ || clearAll) tmc_clear_otpw(stepperZ, extended_axis_codes[TMC_Z]);
+    if (clearZ || clearAll) tmc_clear_otpw(stepperZ, TMC_Z);
   #endif
 
   #if ENABLED(E0_IS_TMC2130) || (ENABLED(E0_IS_TMC2208) && PIN_EXISTS(E0_SERIAL_RX))
-    if (clearE || clearAll) tmc_clear_otpw(stepperE0, extended_axis_codes[TMC_E0]);
+    if (clearE || clearAll) tmc_clear_otpw(stepperE0, TMC_E0);
   #endif
 }
 
@@ -84,8 +84,8 @@ void GcodeSuite::M912() {
     LOOP_XYZE(i) values[i] = parser.intval(axis_codes[i]);
 
     #define TMC_SET_GET_PWMTHRS(P,Q) do { \
-      if (values[P##_AXIS]) tmc_set_pwmthrs(stepper##Q, extended_axis_codes[TMC_##Q], values[P##_AXIS], planner.axis_steps_per_mm[P##_AXIS]); \
-      else tmc_get_pwmthrs(stepper##Q, extended_axis_codes[TMC_##Q], planner.axis_steps_per_mm[P##_AXIS]); } while(0)
+      if (values[P##_AXIS]) tmc_set_pwmthrs(stepper##Q, TMC_##Q, values[P##_AXIS], planner.axis_steps_per_mm[P##_AXIS]); \
+      else tmc_get_pwmthrs(stepper##Q, TMC_##Q, planner.axis_steps_per_mm[P##_AXIS]); } while(0)
 
     #if X_IS_TRINAMIC
       TMC_SET_GET_PWMTHRS(X,X);
@@ -129,8 +129,8 @@ void GcodeSuite::M912() {
 #if ENABLED(SENSORLESS_HOMING)
   void GcodeSuite::M914() {
     #define TMC_SET_GET_SGT(P,Q) do { \
-      if (parser.seen(axis_codes[P##_AXIS])) tmc_set_sgt(stepper##Q, extended_axis_codes[TMC_##Q], parser.value_int()); \
-      else tmc_get_sgt(stepper##Q, extended_axis_codes[TMC_##Q]); } while(0)
+      if (parser.seen(axis_codes[P##_AXIS])) tmc_set_sgt(stepper##Q, TMC_##Q, parser.value_int()); \
+      else tmc_get_sgt(stepper##Q, TMC_##Q); } while(0)
 
     #ifdef X_HOMING_SENSITIVITY
       #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)

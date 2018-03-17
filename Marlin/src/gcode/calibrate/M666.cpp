@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
+#if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
 #include "../gcode.h"
 
@@ -59,30 +59,49 @@
     #endif
   }
 
-#elif ENABLED(Z_DUAL_ENDSTOPS) // !DELTA && ENABLED(Z_DUAL_ENDSTOPS)
+#elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
   #include "../../module/endstops.h"
 
   /**
-   * M666: For a Dual Endstop setup, set offsets for any 2nd endstops.
+   * M666: Set Dual Endstops offsets for X, Y, and/or Z.
+   *       With no parameters report current offsets.
    */
   void GcodeSuite::M666() {
-    SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
+    bool report = true;
     #if ENABLED(X_DUAL_ENDSTOPS)
-      if (parser.seen('X')) endstops.x_endstop_adj = parser.value_linear_units();
-      SERIAL_ECHOPAIR(" X", endstops.x_endstop_adj);
+      if (parser.seen('X')) {
+        endstops.x_endstop_adj = parser.value_linear_units();
+        report = false;
+      }
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
-      if (parser.seen('Y')) endstops.y_endstop_adj = parser.value_linear_units();
-      SERIAL_ECHOPAIR(" Y", endstops.y_endstop_adj);
+      if (parser.seen('Y')) {
+        endstops.y_endstop_adj = parser.value_linear_units();
+        report = false;
+      }
     #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      if (parser.seen('Z')) endstops.z_endstop_adj = parser.value_linear_units();
-      SERIAL_ECHOPAIR(" Z", endstops.z_endstop_adj);
+      if (parser.seen('Z')) {
+        endstops.z_endstop_adj = parser.value_linear_units();
+        report = false;
+      }
     #endif
-    SERIAL_EOL();
+    if (report) {
+      SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        SERIAL_ECHOPAIR(" X", endstops.x_endstop_adj);
+      #endif
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        SERIAL_ECHOPAIR(" Y", endstops.y_endstop_adj);
+      #endif
+      #if ENABLED(Z_DUAL_ENDSTOPS)
+        SERIAL_ECHOPAIR(" Z", endstops.z_endstop_adj);
+      #endif
+      SERIAL_EOL();
+    }
   }
 
-#endif
+#endif // X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS
 
-#endif // DELTA || Z_DUAL_ENDSTOPS
+#endif // DELTA || X_DUAL_ENDSTOPS || Y_DUAL_ENDSTOPS || Z_DUAL_ENDSTOPS

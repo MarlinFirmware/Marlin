@@ -551,7 +551,7 @@
       // for mesh inset area.
 
       int8_t cell_xi = (raw[X_AXIS] - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST)),
-             cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * (1.0 / (MESH_X_DIST));
+             cell_yi = (raw[Y_AXIS] - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
 
       cell_xi = constrain(cell_xi, 0, (GRID_MAX_POINTS_X) - 1);
       cell_yi = constrain(cell_yi, 0, (GRID_MAX_POINTS_Y) - 1);

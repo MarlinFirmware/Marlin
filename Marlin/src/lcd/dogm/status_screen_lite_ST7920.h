@@ -622,7 +622,7 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
 
     // Trim whitespace at the end of the str, as for some reason
     // messages like "Card Inserted" are padded with many spaces
-    while (str_len > 0 && str[str_len - 1] == ' ') str_len--;
+    while (str_len && str[str_len - 1] == ' ') str_len--;
 
     if (str_len <= lcd_len) {
       // It all fits on the LCD without scrolling
@@ -765,8 +765,15 @@ bool ST7920_Lite_Status_Screen::blink_changed() {
   return true;
 }
 
+#ifndef STATUS_EXPIRE_SECONDS
+  #define STATUS_EXPIRE_SECONDS 20
+#endif
+
 void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
-  static uint8_t countdown = 0;
+
+  #if STATUS_EXPIRE_SECONDS
+    static uint8_t countdown = 0;
+  #endif
 
   /**
    * There is only enough room in the display for either the
@@ -779,51 +786,60 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
    *    countdown > 1    -- Show status
    *    countdown = 1    -- Show status, until movement
    *    countdown = 0    -- Show position
+   *
+   * If STATUS_EXPIRE_SECONDS is zero, the position display
+   * will be disabled and only the status will be shown.
    */
   if (forceUpdate || status_changed()) {
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
       status_scroll_pos = 0;
     #endif
-    #ifndef STATUS_EXPIRE_SECONDS
-      #define STATUS_EXPIRE_SECONDS 20
+    #if STATUS_EXPIRE_SECONDS
+      countdown = lcd_status_message[0] ? STATUS_EXPIRE_SECONDS : 0;
     #endif
-    countdown = lcd_strlen(lcd_status_message) ? STATUS_EXPIRE_SECONDS : 0;
     draw_status_message(lcd_status_message);
     blink_changed(); // Clear changed flag
   }
-  else if (countdown > 1 && blink_changed()) {
-    countdown--;
+  #if !STATUS_EXPIRE_SECONDS
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      draw_status_message(lcd_status_message);
+      else
+        draw_status_message(lcd_status_message);
     #endif
-  }
-  else if (countdown > 0 && blink_changed()) {
-    if (position_changed()) {
+  #else
+    else if (countdown > 1 && blink_changed()) {
       countdown--;
-      forceUpdate = true;
-    }
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      draw_status_message(lcd_status_message);
-    #endif
-  }
-  if (countdown == 0 && (forceUpdate || position_changed() ||
-    #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-      blink_changed()
-    #endif
-  )) {
-    draw_position(
-      current_position[X_AXIS],
-      current_position[Y_AXIS],
-      current_position[Z_AXIS],
-      #if ENABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        true
-      #else
-        axis_known_position[X_AXIS] &&
-        axis_known_position[Y_AXIS] &&
-        axis_known_position[Z_AXIS]
+      #if ENABLED(STATUS_MESSAGE_SCROLLING)
+        draw_status_message(lcd_status_message);
       #endif
-    );
-  }
+    }
+    else if (countdown > 0 && blink_changed()) {
+      if (position_changed()) {
+        countdown--;
+        forceUpdate = true;
+      }
+      #if ENABLED(STATUS_MESSAGE_SCROLLING)
+        draw_status_message(lcd_status_message);
+      #endif
+    }
+    if (countdown == 0 && (forceUpdate || position_changed() ||
+      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+        blink_changed()
+      #endif
+    )) {
+      draw_position(
+        current_position[X_AXIS],
+        current_position[Y_AXIS],
+        current_position[Z_AXIS],
+        #if ENABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+          true
+        #else
+          axis_known_position[X_AXIS] &&
+          axis_known_position[Y_AXIS] &&
+          axis_known_position[Z_AXIS]
+        #endif
+      );
+    }
+  #endif
 }
 
 void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {

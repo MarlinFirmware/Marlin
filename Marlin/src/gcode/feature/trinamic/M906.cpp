@@ -37,8 +37,8 @@ void GcodeSuite::M906() {
   LOOP_XYZE(i) values[i] = parser.intval(axis_codes[i]);
 
   #define TMC_SET_GET_CURRENT(P,Q) do { \
-    if (values[P##_AXIS]) tmc_set_current(stepper##Q, extended_axis_codes[TMC_##Q], values[P##_AXIS]); \
-    else tmc_get_current(stepper##Q, extended_axis_codes[TMC_##Q]); } while(0)
+    if (values[P##_AXIS]) tmc_set_current(stepper##Q, TMC_##Q, values[P##_AXIS]); \
+    else tmc_get_current(stepper##Q, TMC_##Q); } while(0)
 
   #if X_IS_TRINAMIC
     TMC_SET_GET_CURRENT(X,X);

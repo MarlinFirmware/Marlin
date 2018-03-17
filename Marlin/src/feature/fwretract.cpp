@@ -53,7 +53,8 @@ float FWRetract::retract_length,                     // M207 S - G10 Retract len
       FWRetract::retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
       FWRetract::swap_retract_length,                // M207 W - G10 Swap Retract length
       FWRetract::swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-      FWRetract::swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
+      FWRetract::swap_retract_recover_feedrate_mm_s, // M208 R - G11 Swap Recover feedrate
+      FWRetract::hop_amount;
 
 void FWRetract::reset() {
   autoretract_enabled = false;
@@ -65,6 +66,7 @@ void FWRetract::reset() {
   swap_retract_length = RETRACT_LENGTH_SWAP;
   swap_retract_recover_length = RETRACT_RECOVER_LENGTH_SWAP;
   swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
+  hop_amount = 0.0;
 
   for (uint8_t i = 0; i < EXTRUDERS; ++i) {
     retracted[i] = false;

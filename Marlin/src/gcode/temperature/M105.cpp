@@ -37,14 +37,14 @@ void GcodeSuite::M105() {
     const int16_t port = command_queue_port[cmd_queue_index_r];
   #endif
 
-  #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+  #if HAS_TEMP_SENSOR
     SERIAL_PROTOCOLPGM_P(port, MSG_OK);
     thermalManager.print_heaterstates(
       #if NUM_SERIAL > 1
         port
       #endif
     );
-  #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
+  #else // !HAS_TEMP_SENSOR
     SERIAL_ERROR_START_P(port);
     SERIAL_ERRORLNPGM_P(port, MSG_ERR_NO_THERMISTORS);
   #endif

@@ -95,7 +95,7 @@
  */
 enum usb_reqid_msc {
 	USB_REQ_MSC_BULK_RESET = 0xFF,	//!< Mass Storage Reset
-	USB_REQ_MSC_GET_MAX_LUN = 0xFE,	//!< Get Max LUN
+	USB_REQ_MSC_GET_MAX_LUN = 0xFE 	//!< Get Max LUN
 };
 
 

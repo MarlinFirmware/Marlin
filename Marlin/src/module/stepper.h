@@ -104,8 +104,12 @@ class Stepper {
       static uint16_t current_adv_steps, final_adv_steps, max_adv_steps; // Copy from current executed block. Needed because current_block is set to NULL "too early".
       #define _NEXT_ISR(T) nextMainISR = T
       static int8_t e_steps;
-      static int8_t LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
       static bool use_advance_lead;
+      #if E_STEPPERS > 1
+        static int8_t LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+      #else
+        static constexpr int8_t LA_active_extruder = 0;
+      #endif
 
     #else // !LIN_ADVANCE
 
@@ -352,19 +356,18 @@ class Stepper {
       static int8_t last_extruder = -1;
 
       #if ENABLED(LIN_ADVANCE)
-        if (current_block->active_extruder != last_extruder) {
-          current_adv_steps = 0; // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
-          LA_active_extruder = current_block->active_extruder;
-        }
+        #if E_STEPPERS > 1
+          if (current_block->active_extruder != last_extruder) {
+            current_adv_steps = 0; // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
+            LA_active_extruder = current_block->active_extruder;
+          }
+        #endif
 
-        if (current_block->use_advance_lead) {
+        if ((use_advance_lead = current_block->use_advance_lead)) {
           LA_decelerate_after = current_block->decelerate_after;
           final_adv_steps = current_block->final_adv_steps;
           max_adv_steps = current_block->max_adv_steps;
-          use_advance_lead = true;
         }
-        else
-          use_advance_lead = false;
       #endif
 
       if (current_block->direction_bits != last_direction_bits || current_block->active_extruder != last_extruder) {

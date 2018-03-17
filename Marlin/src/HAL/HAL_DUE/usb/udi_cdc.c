@@ -1012,7 +1012,7 @@ iram_size_t udi_cdc_read_buf(void* buf, iram_size_t size)
 	return udi_cdc_multi_read_buf(0, buf, size);
 }
 
-iram_size_t udi_cdc_multi_get_free_tx_buffer(uint8_t port)
+iram_size_t __attribute__((optimize("O0"))) udi_cdc_multi_get_free_tx_buffer(uint8_t port)
 {
 	irqflags_t flags;
 	iram_size_t buf_sel_nb, retval;
@@ -1097,7 +1097,7 @@ int udi_cdc_putc(int value)
 	return udi_cdc_multi_putc(0, value);
 }
 
-iram_size_t udi_cdc_multi_write_buf(uint8_t port, const void* buf, iram_size_t size)
+iram_size_t __attribute__((optimize("O0"))) udi_cdc_multi_write_buf(uint8_t port, const void* buf, iram_size_t size)
 {
 	irqflags_t flags;
 	uint8_t buf_sel;
