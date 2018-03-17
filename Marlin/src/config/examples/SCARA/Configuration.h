@@ -406,9 +406,9 @@
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // Merlin Hotend: From Autotune
-  #define  DEFAULT_Kp 24.5
-  #define  DEFAULT_Ki 1.72
-  #define  DEFAULT_Kd 87.73
+  #define DEFAULT_Kp 24.5
+  #define DEFAULT_Ki 1.72
+  #define DEFAULT_Kd 87.73
 
 #endif // PIDTEMP
 
@@ -440,9 +440,9 @@
 
   //12v Heatbed Mk3 12V in parallel
   //from pidautotune
-  #define  DEFAULT_bedKp 630.14
-  #define  DEFAULT_bedKi 121.71
-  #define  DEFAULT_bedKd 815.64
+  #define DEFAULT_bedKp 630.14
+  #define DEFAULT_bedKi 121.71
+  #define DEFAULT_bedKd 815.64
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED

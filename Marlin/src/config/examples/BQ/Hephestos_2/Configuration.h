@@ -385,14 +385,14 @@
                                     // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // Tuned PID values using M303
-  #define  DEFAULT_Kp 19.18
-  #define  DEFAULT_Ki 1.36
-  #define  DEFAULT_Kd 67.42
+  #define DEFAULT_Kp 19.18
+  #define DEFAULT_Ki 1.36
+  #define DEFAULT_Kd 67.42
 
   // BQ firmware stock PID values
-  //#define  DEFAULT_Kp 10.7
-  //#define  DEFAULT_Ki 0.45
-  //#define  DEFAULT_Kd 3
+  //#define DEFAULT_Kp 10.7
+  //#define DEFAULT_Ki 0.45
+  //#define DEFAULT_Kd 3
 
 #endif // PIDTEMP
 
@@ -424,15 +424,15 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define  DEFAULT_bedKp 10.00
-  #define  DEFAULT_bedKi .023
-  #define  DEFAULT_bedKd 305.4
+  #define DEFAULT_bedKp 10.00
+  #define DEFAULT_bedKi .023
+  #define DEFAULT_bedKd 305.4
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
-  //#define  DEFAULT_bedKp 97.1
-  //#define  DEFAULT_bedKi 1.41
-  //#define  DEFAULT_bedKd 1675.16
+  //#define DEFAULT_bedKp 97.1
+  //#define DEFAULT_bedKi 1.41
+  //#define DEFAULT_bedKd 1675.16
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED

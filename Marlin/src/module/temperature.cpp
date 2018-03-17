@@ -452,17 +452,17 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
         #if HAS_PID_FOR_BOTH
           const char* estring = hotend < 0 ? "bed" : "";
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd); SERIAL_EOL();
         #elif ENABLED(PIDTEMP)
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kp ", workKp); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Ki ", workKi); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kd ", workKd); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_Kp ", workKp); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_Ki ", workKi); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_Kd ", workKd); SERIAL_EOL();
         #else
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKp ", workKp); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKi ", workKi); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKd ", workKd); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_bedKp ", workKp); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_bedKi ", workKi); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_bedKd ", workKd); SERIAL_EOL();
         #endif
 
         #define _SET_BED_PID() do { \

@@ -380,19 +380,19 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
     // Cartesio extruderV6 40W Normal
-    #define  DEFAULT_Kp 18
-    #define  DEFAULT_Ki 1
-    #define  DEFAULT_Kd 100
+    #define DEFAULT_Kp 18
+    #define DEFAULT_Ki 1
+    #define DEFAULT_Kd 100
 
     // Cartesio extruderV6 40W Volcano
-    //#define  DEFAULT_Kp 50
-    //#define  DEFAULT_Ki 9
-    //#define  DEFAULT_Kd 70
+    //#define DEFAULT_Kp 50
+    //#define DEFAULT_Ki 9
+    //#define DEFAULT_Kd 70
 
     // Cartesio extruderV6 40W Cyclops
-    //#define  DEFAULT_Kp 18
-    //#define  DEFAULT_Ki 1
-    //#define  DEFAULT_Kd 100
+    //#define DEFAULT_Kp 18
+    //#define DEFAULT_Ki 1
+    //#define DEFAULT_Kd 100
 
 #endif // PIDTEMP
 
@@ -423,14 +423,14 @@
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
     //24V 500W silicone heater on to 4mm glass CartesioW
-    #define  DEFAULT_bedKp 390
-    #define  DEFAULT_bedKi 70
-    #define  DEFAULT_bedKd 546
+    #define DEFAULT_bedKp 390
+    #define DEFAULT_bedKi 70
+    #define DEFAULT_bedKd 546
 
     //24V 250W silicone heater on to 4mm glass CartesioM
-    //#define  DEFAULT_bedKp 303
-    //#define  DEFAULT_bedKi 42
-    //#define  DEFAULT_bedKd 539
+    //#define DEFAULT_bedKp 303
+    //#define DEFAULT_bedKi 42
+    //#define DEFAULT_bedKd 539
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED

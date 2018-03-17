@@ -382,19 +382,19 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Rigidbot hotend
-  #define  DEFAULT_Kp 16.17
-  #define  DEFAULT_Ki 0.85
-  #define  DEFAULT_Kd 76.55
+  #define DEFAULT_Kp 16.17
+  #define DEFAULT_Ki 0.85
+  #define DEFAULT_Kd 76.55
 
   // Base DGlass3D/E3Dv6 hotend
-  //#define  DEFAULT_Kp 10
-  //#define  DEFAULT_Ki 0.85
-  //#define  DEFAULT_Kd 245
+  //#define DEFAULT_Kp 10
+  //#define DEFAULT_Ki 0.85
+  //#define DEFAULT_Kd 245
 
   // E3D w/ rigidbot cartridge
-  //#define  DEFAULT_Kp 16.30
-  //#define  DEFAULT_Ki 0.95
-  //#define  DEFAULT_Kd 69.69
+  //#define DEFAULT_Kp 16.30
+  //#define DEFAULT_Ki 0.95
+  //#define DEFAULT_Kd 69.69
 
 #endif // PIDTEMP
 
@@ -425,9 +425,9 @@
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
   //RigidBot, from pid autotune
-  #define  DEFAULT_bedKp 355
-  #define  DEFAULT_bedKi 66.5
-  #define  DEFAULT_bedKd 480
+  #define DEFAULT_bedKp 355
+  #define DEFAULT_bedKi 66.5
+  #define DEFAULT_bedKd 480
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
