@@ -91,13 +91,12 @@
 //! To define a Full speed device
 //#define  USB_DEVICE_FULL_SPEED
 
-
 //! To authorize the High speed
 #ifndef USB_DEVICE_FULL_SPEED
   #if (UC3A3||UC3A4)
-  //#  define  USB_DEVICE_HS_SUPPORT
+    #define  USB_DEVICE_HS_SUPPORT
   #elif (SAM3XA||SAM3U)
-  //#  define  USB_DEVICE_HS_SUPPORT
+    #define  USB_DEVICE_HS_SUPPORT
   #endif
 #endif
 //@}
