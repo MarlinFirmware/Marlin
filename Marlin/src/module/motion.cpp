@@ -1109,11 +1109,12 @@ void set_axis_is_at_home(const AxisEnum axis) {
   /**
    * Z Probe Z Homing? Account for the probe's Z offset.
    */
-  #if HAS_BED_PROBE && Z_HOME_DIR < 0
+  #if HAS_BED_PROBE
     if (axis == Z_AXIS) {
+      current_position[axis] -= zprobe_zoffset - Z_PROBE_OFFSET_FROM_EXTRUDER;
       #if HOMING_Z_WITH_PROBE
 
-        current_position[Z_AXIS] -= zprobe_zoffset;
+        current_position[Z_AXIS] -= Z_PROBE_OFFSET_FROM_EXTRUDER;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
