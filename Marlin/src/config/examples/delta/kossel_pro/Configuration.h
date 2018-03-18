@@ -381,9 +381,9 @@
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // Kossel Pro
-  #define  DEFAULT_Kp 19.30
-  #define  DEFAULT_Ki 3.51
-  #define  DEFAULT_Kd 26.56
+  #define DEFAULT_Kp 19.30
+  #define DEFAULT_Ki 3.51
+  #define DEFAULT_Kd 26.56
 
 #endif // PIDTEMP
 
@@ -415,9 +415,9 @@
 
   //Kossel Pro heated bed plate with borosilicate glass
   //from pidautotune (M303 E-1 S60 C8)
-  #define  DEFAULT_bedKp 370.25
-  #define  DEFAULT_bedKi 62.77
-  #define  DEFAULT_bedKd 545.98
+  #define DEFAULT_bedKp 370.25
+  #define DEFAULT_bedKi 62.77
+  #define DEFAULT_bedKd 545.98
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
