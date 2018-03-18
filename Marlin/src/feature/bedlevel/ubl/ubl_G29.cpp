@@ -281,26 +281,22 @@
    *   You MUST do M502, M500 to initialize the storage. Failure to do this will cause all
    *   kinds of problems. Enabling EEPROM Storage is required.
    *
-   *   When you do a G28 and then a G29 P1 to automatically build your first mesh, you are going to notice
-   *   the Unified Bed Leveling probes points further and further away from the starting location. (The
-   *   starting location defaults to the center of the bed.)   The original Grid and Mesh leveling used
-   *   a Zig Zag pattern. The new pattern is better, especially for people with Delta printers. This
-   *   allows you to get the center area of the Mesh populated (and edited) quicker. This allows you to
-   *   perform a small print and check out your settings quicker. You do not need to populate the
-   *   entire mesh to use it. (You don't want to spend a lot of time generating a mesh only to realize
-   *   you don't have the resolution or zprobe_zoffset set correctly. The Mesh generation
-   *   gathers points closest to where the nozzle is located unless you specify an (X,Y) coordinate pair.
+   *   When you do a G28 and G29 P1 to automatically build your first mesh, you are going to notice that
+   *   UBL probes points increasingly further from the starting location. (The starting location defaults
+   *   to the center of the bed.) In contrast, ABL and MBL follow a zigzag pattern. The spiral pattern is
+   *   especially better for Delta printers, since it populates the center of the mesh first, allowing for
+   *   a quicker test print to verify settings. You don't need to populate the entire mesh to use it.
+   *   After all, you don't want to spend a lot of time generating a mesh only to realize the resolution
+   *   or zprobe_zoffset are incorrect. Mesh-generation gathers points starting closest to the nozzle unless
+   *   an (X,Y) coordinate pair is given.
    *
-   *   The Unified Bed Leveling uses a lot of EEPROM storage to hold its data. And it takes some effort
-   *   to get this Mesh data correct for a user's printer. We do not want this data destroyed as
-   *   new versions of Marlin add or subtract to the items stored in EEPROM. So, for the benefit of
-   *   the users, we store the Mesh data at the end of the EEPROM and do not keep it contiguous with the
-   *   other data stored in the EEPROM. (For sure the developers are going to complain about this, but
-   *   this is going to be helpful to the users!)
+   *   Unified Bed Leveling uses a lot of EEPROM storage to hold its data, and it takes some effort to get
+   *   the mesh just right. To prevent this valuable data from being destroyed as the EEPROM structure
+   *   evolves, UBL stores all mesh data at the end of EEPROM.
    *
-   *   The foundation of this Bed Leveling System is built on Epatel's Mesh Bed Leveling code. A big
-   *   'Thanks!' to him and the creators of 3-Point and Grid Based leveling. Combining their contributions
-   *   we now have the functionality and features of all three systems combined.
+   *   UBL is founded on Edward Patel's Mesh Bed Leveling code. A big 'Thanks!' to him and the creators of
+   *   3-Point and Grid Based leveling. Combining their contributions we now have the functionality and
+   *   features of all three systems combined.
    */
 
   void unified_bed_leveling::G29() {
