@@ -8278,18 +8278,13 @@ inline void gcode_M140() {
       OUT_WRITE(SUICIDE_PIN, HIGH);
     #endif
 
-    #if ENABLED(HAVE_TMC2130)
-      delay(100);
-      tmc2130_init(); // Settings only stick when the driver has power
+    #if DISABLED(AUTO_POWER_CONTROL)
+      delay(100); // Wait for power to settle
+      restore_stepper_drivers();
     #endif
 
     #if ENABLED(ULTIPANEL)
       LCD_MESSAGEPGM(WELCOME_MSG);
-    #endif
-
-    #if ENABLED(HAVE_TMC2208)
-      delay(100);
-      tmc2208_init();
     #endif
   }
 
@@ -13667,6 +13662,7 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
+  // Prepare communication for TMC drivers
   #if ENABLED(HAVE_TMC2130)
     tmc_init_cs_pins();
   #endif
@@ -13722,8 +13718,9 @@ void setup() {
 
   print_job_timer.init();   // Initial setup of print job timer
 
-  stepper.init();    // Initialize stepper, this enables interrupts!
-  servo_init();
+  stepper.init();           // Initialize stepper, this enables interrupts!
+
+  servo_init();             // Initialize all servos, stow servo probe
 
   #if HAS_PHOTOGRAPH
     OUT_WRITE(PHOTOGRAPH_PIN, LOW);
