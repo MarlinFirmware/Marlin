@@ -142,10 +142,8 @@
    *                    a subsequent G or T leveling operation for backward compatibility.
    *
    *   P1    Phase 1    Invalidate entire Mesh and continue with automatic generation of the Mesh data using
-   *                    the Z-Probe. Usually the probe can't reach all areas that the nozzle can reach. On
-   *                    Cartesian printers, points within the X_PROBE_OFFSET_FROM_EXTRUDER and Y_PROBE_OFFSET_FROM_EXTRUDER
-   *                    area cannot be automatically probed. For Delta printers the area in which DELTA_PROBEABLE_RADIUS
-   *                    and DELTA_PRINTABLE_RADIUS do not overlap will not be automatically probed.
+   *                    the Z-Probe. Usually the probe can't reach all areas that the nozzle can reach. For delta
+   *                    printers only the areas where the probe and nozzle can both reach will be automatically probed.
    *
    *                    Unreachable points will be handled in Phase 2 and Phase 3.
    *
@@ -1517,46 +1515,46 @@
       incremental_LSF_reset(&lsf_results);
 
       if (do_3_pt_leveling) {
-        measured_z = probe_pt(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, false, g29_verbose_level);
+        measured_z = probe_pt(PROBE_PT_1_X, PROBE_PT_1_Y, false, g29_verbose_level);
         if (isnan(measured_z))
           abort_flag = true;
         else {
-          measured_z -= get_z_correction(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y);
+          measured_z -= get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y);
           //z1 = measured_z;
           if (g29_verbose_level > 3) {
             serial_spaces(16);
             SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
           }
-          incremental_LSF(&lsf_results, UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, measured_z);
+          incremental_LSF(&lsf_results, PROBE_PT_1_X, PROBE_PT_1_Y, measured_z);
         }
 
         if (!abort_flag) {
-          measured_z = probe_pt(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, false, g29_verbose_level);
+          measured_z = probe_pt(PROBE_PT_2_X, PROBE_PT_2_Y, false, g29_verbose_level);
           //z2 = measured_z;
           if (isnan(measured_z))
             abort_flag = true;
           else {
-            measured_z -= get_z_correction(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y);
+            measured_z -= get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y);
             if (g29_verbose_level > 3) {
               serial_spaces(16);
               SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
             }
-            incremental_LSF(&lsf_results, UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, measured_z);
+            incremental_LSF(&lsf_results, PROBE_PT_2_X, PROBE_PT_2_Y, measured_z);
           }
         }
 
         if (!abort_flag) {
-          measured_z = probe_pt(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, true, g29_verbose_level);
+          measured_z = probe_pt(PROBE_PT_3_X, PROBE_PT_3_Y, true, g29_verbose_level);
           //z3 = measured_z;
           if (isnan(measured_z))
             abort_flag = true;
           else {
-            measured_z -= get_z_correction(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y);
+            measured_z -= get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y);
             if (g29_verbose_level > 3) {
               serial_spaces(16);
               SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
             }
-            incremental_LSF(&lsf_results, UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, measured_z);
+            incremental_LSF(&lsf_results, PROBE_PT_3_X, PROBE_PT_3_Y, measured_z);
           }
         }
 
@@ -1703,29 +1701,29 @@
            */
           #if 0
           float t, t1, d;
-          t = normal.x * (UBL_PROBE_PT_1_X) + normal.y * (UBL_PROBE_PT_1_Y);
+          t = normal.x * (PROBE_PT_1_X) + normal.y * (PROBE_PT_1_Y);
           d = t + normal.z * z1;
           SERIAL_ECHOPGM("D from 1st point: ");
           SERIAL_ECHO_F(d, 6);
           SERIAL_ECHOPGM("   Z error: ");
-          SERIAL_ECHO_F(normal.z*z1-get_z_correction(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y), 6);
+          SERIAL_ECHO_F(normal.z*z1-get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y), 6);
           SERIAL_EOL();
 
-          t = normal.x * (UBL_PROBE_PT_2_X) + normal.y * (UBL_PROBE_PT_2_Y);
+          t = normal.x * (PROBE_PT_2_X) + normal.y * (PROBE_PT_2_Y);
           d = t + normal.z * z2;
           SERIAL_EOL();
           SERIAL_ECHOPGM("D from 2nd point: ");
           SERIAL_ECHO_F(d, 6);
           SERIAL_ECHOPGM("   Z error: ");
-          SERIAL_ECHO_F(normal.z*z2-get_z_correction(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y), 6);
+          SERIAL_ECHO_F(normal.z*z2-get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y), 6);
           SERIAL_EOL();
 
-          t = normal.x * (UBL_PROBE_PT_3_X) + normal.y * (UBL_PROBE_PT_3_Y);
+          t = normal.x * (PROBE_PT_3_X) + normal.y * (PROBE_PT_3_Y);
           d = t + normal.z * z3;
           SERIAL_ECHOPGM("D from 3rd point: ");
           SERIAL_ECHO_F(d, 6);
           SERIAL_ECHOPGM("   Z error: ");
-          SERIAL_ECHO_F(normal.z*z3-get_z_correction(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y), 6);
+          SERIAL_ECHO_F(normal.z*z3-get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y), 6);
           SERIAL_EOL();
 
           t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);

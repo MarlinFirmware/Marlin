@@ -939,8 +939,14 @@
    * Delta radius/rod trimmers/angle trimmers
    */
   #if ENABLED(DELTA)
+    #define _DELTA_PROBE_RADIUS (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+
     #ifndef DELTA_CALIBRATION_RADIUS
-      #define DELTA_CALIBRATION_RADIUS DELTA_PRINTABLE_RADIUS - 10
+      #ifdef X_PROBE_OFFSET_FROM_EXTRUDER
+        #define DELTA_CALIBRATION_RADIUS (DELTA_PRINTABLE_RADIUS - MAX3(abs(X_PROBE_OFFSET_FROM_EXTRUDER), abs(Y_PROBE_OFFSET_FROM_EXTRUDER), abs(MIN_PROBE_EDGE)))
+      #else
+        #define DELTA_CALIBRATION_RADIUS _DELTA_PROBE_RADIUS
+      #endif
     #endif
     #ifndef DELTA_ENDSTOP_ADJ
       #define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
@@ -969,10 +975,6 @@
   #define HAS_MESH       (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING))
   #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_SEGMENTED || ENABLED(SKEW_CORRECTION))
   #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
-  #if HAS_PROBING_PROCEDURE
-    #define PROBE_BED_WIDTH abs(RIGHT_PROBE_BED_POSITION - (LEFT_PROBE_BED_POSITION))
-    #define PROBE_BED_HEIGHT abs(BACK_PROBE_BED_POSITION - (FRONT_PROBE_BED_POSITION))
-  #endif
 
   #if ENABLED(SEGMENT_LEVELED_MOVES) && !defined(LEVELED_SEGMENT_LENGTH)
     #define LEVELED_SEGMENT_LENGTH 5
@@ -988,13 +990,14 @@
   #endif
 
   #if ENABLED(DELTA)
+
     // Probing points may be verified at compile time within the radius
     // using static_assert(HYPOT2(X2-X1,Y2-Y1)<=sq(DELTA_PRINTABLE_RADIUS),"bad probe point!")
     // so that may be added to SanityCheck.h in the future.
-    #define _MIN_PROBE_X (X_CENTER - (DELTA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
-    #define _MIN_PROBE_Y (Y_CENTER - (DELTA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
-    #define _MAX_PROBE_X (X_CENTER + DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
-    #define _MAX_PROBE_Y (Y_CENTER + DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+    #define _MIN_PROBE_X (X_CENTER - (_DELTA_PROBE_RADIUS))
+    #define _MIN_PROBE_Y (Y_CENTER - (_DELTA_PROBE_RADIUS))
+    #define _MAX_PROBE_X (X_CENTER + _DELTA_PROBE_RADIUS)
+    #define _MAX_PROBE_Y (Y_CENTER + _DELTA_PROBE_RADIUS)
   #elif IS_SCARA
     #define SCARA_PRINTABLE_RADIUS (SCARA_LINKAGE_1 + SCARA_LINKAGE_2)
     #define _MIN_PROBE_X (X_CENTER - (SCARA_PRINTABLE_RADIUS) + MIN_PROBE_EDGE)
@@ -1048,9 +1051,7 @@
         #define _MESH_MAX_X (min(X_MAX_BED - (MESH_INSET), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
         #define _MESH_MAX_Y (min(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
       #endif
-
     #endif
-
 
     // These may be overridden in Configuration.h if a smaller area is desired
     #ifndef MESH_MIN_X
@@ -1067,6 +1068,69 @@
     #endif
 
   #endif // MESH_BED_LEVELING || AUTO_BED_LEVELING_UBL
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_3POINT)
+    #if IS_KINEMATIC
+      #define SIN0    0.0
+      #define SIN120  0.866025
+      #define SIN240 -0.866025
+      #define COS0    1.0
+      #define COS120 -0.5
+      #define COS240 -0.5
+      #ifndef PROBE_PT_1_X
+        #define PROBE_PT_1_X (X_CENTER + (_PROBE_RADIUS) * COS0)
+      #endif
+      #ifndef PROBE_PT_1_Y
+        #define PROBE_PT_1_Y (Y_CENTER + (_PROBE_RADIUS) * SIN0)
+      #endif
+      #ifndef PROBE_PT_2_X
+        #define PROBE_PT_2_X (X_CENTER + (_PROBE_RADIUS) * COS120)
+      #endif
+      #ifndef PROBE_PT_2_Y
+        #define PROBE_PT_2_Y (Y_CENTER + (_PROBE_RADIUS) * SIN120)
+      #endif
+      #ifndef PROBE_PT_3_X
+        #define PROBE_PT_3_X (X_CENTER + (_PROBE_RADIUS) * COS240)
+      #endif
+      #ifndef PROBE_PT_3_Y
+        #define PROBE_PT_3_Y (Y_CENTER + (_PROBE_RADIUS) * SIN240)
+      #endif
+    #else
+      #ifndef PROBE_PT_1_X
+        #define PROBE_PT_1_X MIN_PROBE_X
+      #endif
+      #ifndef PROBE_PT_1_Y
+        #define PROBE_PT_1_Y MIN_PROBE_Y
+      #endif
+      #ifndef PROBE_PT_2_X
+        #define PROBE_PT_2_X MAX_PROBE_X
+      #endif
+      #ifndef PROBE_PT_2_Y
+        #define PROBE_PT_2_Y MIN_PROBE_Y
+      #endif
+      #ifndef PROBE_PT_3_X
+        #define PROBE_PT_3_X X_CENTER
+      #endif
+      #ifndef PROBE_PT_3_Y
+        #define PROBE_PT_3_Y MAX_PROBE_Y
+      #endif
+    #endif
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #ifndef LEFT_PROBE_BED_POSITION
+      #define LEFT_PROBE_BED_POSITION MIN_PROBE_X
+    #endif
+    #ifndef RIGHT_PROBE_BED_POSITION
+      #define RIGHT_PROBE_BED_POSITION MAX_PROBE_X
+    #endif
+    #ifndef FRONT_PROBE_BED_POSITION
+      #define FRONT_PROBE_BED_POSITION MIN_PROBE_Y
+    #endif
+    #ifndef BACK_PROBE_BED_POSITION
+      #define BACK_PROBE_BED_POSITION MAX_PROBE_Y
+    #endif
+  #endif
 
   /**
    * Buzzer/Speaker
