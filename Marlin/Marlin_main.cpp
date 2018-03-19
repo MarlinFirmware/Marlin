@@ -6484,7 +6484,7 @@ inline void gcode_M17() {
    *
    * Returns 'true' if load was completed, 'false' for abort
    */
-  static bool load_filament(const float &load_length=0, const float &purge_length=0, const int8_t max_beep_count=0,
+  static bool load_filament(const float &slow_load_length=0, const float &fast_load_length=0, const float &purge_length=0, const int8_t max_beep_count=0,
                             const bool show_lcd=false, const bool pause_for_user=false,
                             const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT
   ) {
@@ -6531,8 +6531,16 @@ inline void gcode_M17() {
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, mode);
     #endif
 
-    // Load filament
-    if (load_length) do_pause_e_move(load_length, FILAMENT_CHANGE_LOAD_FEEDRATE);
+    // Slow Load filament
+    if (slow_load_length) do_pause_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
+
+    // Fast Load Filament
+    if (fast_load_length) {
+      float saved_acceleration = planner.retract_acceleration;
+      planner.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
+      do_pause_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
+      planner.retract_acceleration = saved_acceleration;
+    }
 
     #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
 
@@ -6624,7 +6632,10 @@ inline void gcode_M17() {
     do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.max_feedrate_mm_s[E_AXIS]);
 
     // Unload filament
+    float saved_acceleration = planner.retract_acceleration;
+    planner.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
     do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
+    planner.retract_acceleration = saved_acceleration;
 
     // Disable extruders steppers for manual filament changing (only on boards that have separate ENABLE_PINS)
     #if E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN
@@ -6662,7 +6673,7 @@ inline void gcode_M17() {
       #if ENABLED(ULTIPANEL)
         if (show_lcd) // Show status screen
           lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
-          LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
+        LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
       #endif
 
       return false; // unable to reach safe temperature
@@ -6693,8 +6704,8 @@ inline void gcode_M17() {
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       if (!axis_unhomed_error())
     #endif
-        // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-        Nozzle::park(2, park_point);
+    // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+    Nozzle::park(2, park_point);
 
     // Unload the filament
     if (unload_length)
@@ -6814,7 +6825,7 @@ inline void gcode_M17() {
    * - Send host action for resume, if configured
    * - Resume the current SD print job, if any
    */
-  static void resume_print(const float &load_length=0, const float &purge_length=ADVANCED_PAUSE_EXTRUDE_LENGTH, const int8_t max_beep_count=0) {
+  static void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &purge_length=ADVANCED_PAUSE_EXTRUDE_LENGTH, const int8_t max_beep_count=0) {
     if (!did_pause_print) return;
 
     // Re-enable the heaters if they timed out
@@ -6824,9 +6835,9 @@ inline void gcode_M17() {
       thermalManager.reset_heater_idle_timer(e);
     }
 
-    if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) {
+    if (slow_load_length && (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder))) {
       // Load the new filament
-      load_filament(load_length, purge_length, max_beep_count, true, nozzle_timed_out);
+      load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out);
     }
 
     #if ENABLED(ULTIPANEL)
@@ -10231,6 +10242,10 @@ inline void gcode_M502() {
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
+  #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
+    #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH 0
+  #endif
+
   /**
    * M600: Pause for filament change
    *
@@ -10290,8 +10305,11 @@ inline void gcode_M502() {
     const float unload_length = -FABS(parser.seen('U') ? parser.value_axis_units(E_AXIS) :
                                                          filament_change_unload_length[active_extruder]);
 
-    // Load filament
-    const float load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
+    // Slow load filament
+    constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+
+    // Fast load filament
+    const float fast_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
                                                       filament_change_load_length[active_extruder]);
 
     const int beep_count = parser.intval('B',
@@ -10306,7 +10324,7 @@ inline void gcode_M502() {
 
     if (pause_print(retract, park_point, unload_length, true)) {
       wait_for_filament_reload(beep_count);
-      resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
+      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
     }
 
     #if EXTRUDERS > 1
@@ -10442,10 +10460,6 @@ inline void gcode_M502() {
     // Z axis lift
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
-    // Load filament
-    const float load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
-                                                      filament_change_load_length[target_extruder]);
-
     // Show initial "wait for load" message
     #if ENABLED(ULTIPANEL)
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, ADVANCED_PAUSE_MODE_LOAD_FILAMENT, target_extruder);
@@ -10462,8 +10476,10 @@ inline void gcode_M502() {
     if (park_point.z > 0)
       do_blocking_move_to_z(min(current_position[Z_AXIS] + park_point.z, Z_MAX_POS), NOZZLE_PARK_Z_FEEDRATE);
 
-    load_filament(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS, true,
-                  thermalManager.wait_for_heating(target_extruder), ADVANCED_PAUSE_MODE_LOAD_FILAMENT);
+    constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+    const float fast_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : filament_change_load_length[active_extruder]);
+    load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS,
+                  true, thermalManager.wait_for_heating(target_extruder), ADVANCED_PAUSE_MODE_LOAD_FILAMENT);
 
     // Restore Z axis
     if (park_point.z > 0)
