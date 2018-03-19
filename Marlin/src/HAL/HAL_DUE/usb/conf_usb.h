@@ -114,48 +114,51 @@
 #define  USB_DEVICE_SPECIFIC_REQUEST()  usb_task_other_requests()
 //@}
 
-/**
- * USB Device low level configuration
- * When only one interface is used, these configurations are defined by the class module.
- * For composite device, these configuration must be defined here
- * @{
- */
-//! Control endpoint size
-#define  USB_DEVICE_EP_CTRL_SIZE       64
+#if ENABLED(SDSUPPORT)
+  /**
+   * USB Device low level configuration
+   * When only one interface is used, these configurations are defined by the class module.
+   * For composite device, these configuration must be defined here
+   * @{
+   */
+  //! Control endpoint size
+  #define  USB_DEVICE_EP_CTRL_SIZE       64
 
-//! Two interfaces for this device (CDC COM + CDC DATA + MSC)
-#define  USB_DEVICE_NB_INTERFACE       3
+  //! Two interfaces for this device (CDC COM + CDC DATA + MSC)
+  #define  USB_DEVICE_NB_INTERFACE       3
 
-//! 5 endpoints used by CDC and MSC interfaces
-#if SAM3U
-// (3 | USB_EP_DIR_IN)  // CDC Notify endpoint
-// (6 | USB_EP_DIR_IN)  // CDC TX
-// (5 | USB_EP_DIR_OUT) // CDC RX
-// (1 | USB_EP_DIR_IN)  // MSC IN
-// (2 | USB_EP_DIR_OUT) // MSC OUT
-#  define  USB_DEVICE_MAX_EP           6
-#  if defined(USB_DEVICE_HS_SUPPORT)
-// In HS mode, size of bulk endpoints are 512
-// If CDC and MSC endpoints all uses 2 banks, DPRAM is not enough: 4 bulk
-// endpoints requires 4K bytes. So reduce the number of banks of CDC bulk
-// endpoints to use less DPRAM. Keep MSC setting to keep MSC performance.
-#     define  UDD_BULK_NB_BANK(ep) ((ep == 5 || ep== 6) ? 1 : 2)
+  //! 5 endpoints used by CDC and MSC interfaces
+  #if SAM3U
+  // (3 | USB_EP_DIR_IN)  // CDC Notify endpoint
+  // (6 | USB_EP_DIR_IN)  // CDC TX
+  // (5 | USB_EP_DIR_OUT) // CDC RX
+  // (1 | USB_EP_DIR_IN)  // MSC IN
+  // (2 | USB_EP_DIR_OUT) // MSC OUT
+  #  define  USB_DEVICE_MAX_EP           6
+  #  if defined(USB_DEVICE_HS_SUPPORT)
+  // In HS mode, size of bulk endpoints are 512
+  // If CDC and MSC endpoints all uses 2 banks, DPRAM is not enough: 4 bulk
+  // endpoints requires 4K bytes. So reduce the number of banks of CDC bulk
+  // endpoints to use less DPRAM. Keep MSC setting to keep MSC performance.
+  #     define  UDD_BULK_NB_BANK(ep) ((ep == 5 || ep== 6) ? 1 : 2)
+  #endif
+  #else
+  // (3 | USB_EP_DIR_IN)  // CDC Notify endpoint
+  // (4 | USB_EP_DIR_IN)  // CDC TX
+  // (5 | USB_EP_DIR_OUT) // CDC RX
+  // (1 | USB_EP_DIR_IN)  // MSC IN
+  // (2 | USB_EP_DIR_OUT) // MSC OUT
+  #  define  USB_DEVICE_MAX_EP           5
+  #  if SAM3XA && defined(USB_DEVICE_HS_SUPPORT)
+  // In HS mode, size of bulk endpoints are 512
+  // If CDC and MSC endpoints all uses 2 banks, DPRAM is not enough: 4 bulk
+  // endpoints requires 4K bytes. So reduce the number of banks of CDC bulk
+  // endpoints to use less DPRAM. Keep MSC setting to keep MSC performance.
+  #     define  UDD_BULK_NB_BANK(ep) ((ep == 4 || ep== 5) ? 1 : 2)
+  #  endif
+  #endif
 #endif
-#else
-// (3 | USB_EP_DIR_IN)  // CDC Notify endpoint
-// (4 | USB_EP_DIR_IN)  // CDC TX
-// (5 | USB_EP_DIR_OUT) // CDC RX
-// (1 | USB_EP_DIR_IN)  // MSC IN
-// (2 | USB_EP_DIR_OUT) // MSC OUT
-#  define  USB_DEVICE_MAX_EP           5
-#  if SAM3XA && defined(USB_DEVICE_HS_SUPPORT)
-// In HS mode, size of bulk endpoints are 512
-// If CDC and MSC endpoints all uses 2 banks, DPRAM is not enough: 4 bulk
-// endpoints requires 4K bytes. So reduce the number of banks of CDC bulk
-// endpoints to use less DPRAM. Keep MSC setting to keep MSC performance.
-#     define  UDD_BULK_NB_BANK(ep) ((ep == 4 || ep== 5) ? 1 : 2)
-#  endif
-#endif
+
 //@}
 
 //@}
@@ -195,107 +198,112 @@
 //! Enable id string of interface to add an extra USB string
 #define  UDI_CDC_IAD_STRING_ID            4
 
-/**
- * USB CDC low level configuration
- * In standalone these configurations are defined by the CDC module.
- * For composite device, these configuration must be defined here
- * @{
- */
-//! Endpoint numbers definition
-#if SAM3U
-#  define  UDI_CDC_COMM_EP_0             (3 | USB_EP_DIR_IN) // Notify endpoint
-#  define  UDI_CDC_DATA_EP_IN_0          (6 | USB_EP_DIR_IN) // TX
-#  define  UDI_CDC_DATA_EP_OUT_0         (5 | USB_EP_DIR_OUT)// RX
+#if ENABLED(SDSUPPORT)
+  /**
+   * USB CDC low level configuration
+   * In standalone these configurations are defined by the CDC module.
+   * For composite device, these configuration must be defined here
+   * @{
+   */
+  //! Endpoint numbers definition
+  #if SAM3U
+  #  define  UDI_CDC_COMM_EP_0             (3 | USB_EP_DIR_IN) // Notify endpoint
+  #  define  UDI_CDC_DATA_EP_IN_0          (6 | USB_EP_DIR_IN) // TX
+  #  define  UDI_CDC_DATA_EP_OUT_0         (5 | USB_EP_DIR_OUT)// RX
+  #else
+  #  define  UDI_CDC_COMM_EP_0             (3 | USB_EP_DIR_IN) // Notify endpoint
+  #  define  UDI_CDC_DATA_EP_IN_0          (4 | USB_EP_DIR_IN) // TX
+  #  define  UDI_CDC_DATA_EP_OUT_0         (5 | USB_EP_DIR_OUT)// RX
+  #endif
+
+  //! Interface numbers
+  #define  UDI_CDC_COMM_IFACE_NUMBER_0   0
+  #define  UDI_CDC_DATA_IFACE_NUMBER_0   1
+
+  //@}
+  //@}
+
+
+  /**
+   * Configuration of MSC interface
+   * @{
+   */
+  //! Vendor name and Product version of MSC interface
+  #define UDI_MSC_GLOBAL_VENDOR_ID            \
+     'M', 'A', 'R', 'L', 'I', 'N', '3', 'D'
+  #define UDI_MSC_GLOBAL_PRODUCT_VERSION            \
+     '1', '.', '0', '0'
+
+  //! Interface callback definition
+  #define  UDI_MSC_ENABLE_EXT()          usb_task_msc_enable()
+  #define  UDI_MSC_DISABLE_EXT()         usb_task_msc_disable()
+
+  //! Enable id string of interface to add an extra USB string
+  #define  UDI_MSC_STRING_ID             5
+
+  /**
+   * USB MSC low level configuration
+   * In standalone these configurations are defined by the MSC module.
+   * For composite device, these configuration must be defined here
+   * @{
+   */
+  //! Endpoint numbers definition
+  #define  UDI_MSC_EP_IN                 (1 | USB_EP_DIR_IN)
+  #define  UDI_MSC_EP_OUT                (2 | USB_EP_DIR_OUT)
+
+  //! Interface number
+  #define  UDI_MSC_IFACE_NUMBER          2
+  //@}
+  //@}
+
+  //@}
+
+
+  /**
+   * Description of Composite Device
+   * @{
+   */
+  //! USB Interfaces descriptor structure
+  #define UDI_COMPOSITE_DESC_T \
+    usb_iad_desc_t       udi_cdc_iad; \
+    udi_cdc_comm_desc_t  udi_cdc_comm; \
+    udi_cdc_data_desc_t  udi_cdc_data; \
+    udi_msc_desc_t       udi_msc
+
+  //! USB Interfaces descriptor value for Full Speed
+  #define UDI_COMPOSITE_DESC_FS \
+    .udi_cdc_iad   = UDI_CDC_IAD_DESC_0, \
+    .udi_cdc_comm  = UDI_CDC_COMM_DESC_0, \
+    .udi_cdc_data  = UDI_CDC_DATA_DESC_0_FS, \
+    .udi_msc       = UDI_MSC_DESC_FS
+
+  //! USB Interfaces descriptor value for High Speed
+  #define UDI_COMPOSITE_DESC_HS \
+    .udi_cdc_iad   = UDI_CDC_IAD_DESC_0, \
+    .udi_cdc_comm  = UDI_CDC_COMM_DESC_0, \
+    .udi_cdc_data  = UDI_CDC_DATA_DESC_0_HS, \
+    .udi_msc       = UDI_MSC_DESC_HS
+
+  //! USB Interface APIs
+  #define UDI_COMPOSITE_API \
+    &udi_api_cdc_comm, \
+    &udi_api_cdc_data, \
+    &udi_api_msc
+  //@}
+
+  /**
+   * USB Device Driver Configuration
+   * @{
+   */
+  //@}
+
+  //! The includes of classes and other headers must be done at the end of this file to avoid compile error
+  #include "udi_cdc.h"
+  #include "udi_msc.h"
 #else
-#  define  UDI_CDC_COMM_EP_0             (3 | USB_EP_DIR_IN) // Notify endpoint
-#  define  UDI_CDC_DATA_EP_IN_0          (4 | USB_EP_DIR_IN) // TX
-#  define  UDI_CDC_DATA_EP_OUT_0         (5 | USB_EP_DIR_OUT)// RX
+  #include "udi_cdc_conf.h"
 #endif
 
-//! Interface numbers
-#define  UDI_CDC_COMM_IFACE_NUMBER_0   0
-#define  UDI_CDC_DATA_IFACE_NUMBER_0   1
-//@}
-//@}
-
-
-/**
- * Configuration of MSC interface
- * @{
- */
-//! Vendor name and Product version of MSC interface
-#define UDI_MSC_GLOBAL_VENDOR_ID            \
-   'M', 'A', 'R', 'L', 'I', 'N', '3', 'D'
-#define UDI_MSC_GLOBAL_PRODUCT_VERSION            \
-   '1', '.', '0', '0'
-
-//! Interface callback definition
-#define  UDI_MSC_ENABLE_EXT()          usb_task_msc_enable()
-#define  UDI_MSC_DISABLE_EXT()         usb_task_msc_disable()
-
-//! Enable id string of interface to add an extra USB string
-#define  UDI_MSC_STRING_ID                5
-
-/**
- * USB MSC low level configuration
- * In standalone these configurations are defined by the MSC module.
- * For composite device, these configuration must be defined here
- * @{
- */
-//! Endpoint numbers definition
-#define  UDI_MSC_EP_IN                 (1 | USB_EP_DIR_IN)
-#define  UDI_MSC_EP_OUT                (2 | USB_EP_DIR_OUT)
-
-//! Interface number
-#define  UDI_MSC_IFACE_NUMBER          2
-//@}
-//@}
-
-//@}
-
-
-/**
- * Description of Composite Device
- * @{
- */
-//! USB Interfaces descriptor structure
-#define UDI_COMPOSITE_DESC_T \
-  usb_iad_desc_t       udi_cdc_iad; \
-  udi_cdc_comm_desc_t  udi_cdc_comm; \
-  udi_cdc_data_desc_t  udi_cdc_data; \
-  udi_msc_desc_t       udi_msc
-
-//! USB Interfaces descriptor value for Full Speed
-#define UDI_COMPOSITE_DESC_FS \
-  .udi_cdc_iad   = UDI_CDC_IAD_DESC_0, \
-  .udi_cdc_comm  = UDI_CDC_COMM_DESC_0, \
-  .udi_cdc_data  = UDI_CDC_DATA_DESC_0_FS, \
-  .udi_msc       = UDI_MSC_DESC_FS
-
-//! USB Interfaces descriptor value for High Speed
-#define UDI_COMPOSITE_DESC_HS \
-  .udi_cdc_iad   = UDI_CDC_IAD_DESC_0, \
-  .udi_cdc_comm  = UDI_CDC_COMM_DESC_0, \
-  .udi_cdc_data  = UDI_CDC_DATA_DESC_0_HS, \
-  .udi_msc       = UDI_MSC_DESC_HS
-
-//! USB Interface APIs
-#define UDI_COMPOSITE_API \
-  &udi_api_cdc_comm, \
-  &udi_api_cdc_data, \
-  &udi_api_msc
-//@}
-
-
-/**
- * USB Device Driver Configuration
- * @{
- */
-//@}
-
-//! The includes of classes and other headers must be done at the end of this file to avoid compile error
-#include "udi_cdc.h"
-#include "udi_msc.h"
 #include "usb_task.h"
 
 #endif // _CONF_USB_H_
