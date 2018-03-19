@@ -13589,7 +13589,7 @@ void kill(const char* lcd_msg) {
   #endif
 
   #if HAS_POWER_SWITCH
-    SET_INPUT(PS_ON_PIN);
+    PSU_OFF();
   #endif
 
   suicide();
