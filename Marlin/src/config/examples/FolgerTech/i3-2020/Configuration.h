@@ -133,8 +133,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-//#define MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB   // For people switching over to the Panucatt Re-ARM board
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB          // For unmodified printers using Atmega-2560 and RAMPS boards.
+  #define MOTHERBOARD BOARD_RAMPS_14_EFB
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -728,10 +727,10 @@
  */
 #define X_PROBE_OFFSET_FROM_EXTRUDER 38     // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -10.35 // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -10.30 // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 10
+#define MIN_PROBE_EDGE 0
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 7500
@@ -971,11 +970,10 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 39
-  #define RIGHT_PROBE_BED_POSITION 170
-  #define FRONT_PROBE_BED_POSITION 10
-  #define BACK_PROBE_BED_POSITION 170
-
+  //#define LEFT_PROBE_BED_POSITION (X_MIN_POS + 33)
+  //#define RIGHT_PROBE_BED_POSITION (X_MAX_POS - 37)
+  //#define FRONT_PROBE_BED_POSITION (Y_MIN_POS + 7)
+  //#define BACK_PROBE_BED_POSITION (Y_MAX_POS - 12)
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1002,12 +1000,12 @@
 
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
-  #define ABL_PROBE_PT_1_X 39
-  #define ABL_PROBE_PT_1_Y 170
-  #define ABL_PROBE_PT_2_X 39
-  #define ABL_PROBE_PT_2_Y 10
-  #define ABL_PROBE_PT_3_X 170
-  #define ABL_PROBE_PT_3_Y 10
+  #define PROBE_PT_1_X 39
+  #define PROBE_PT_1_Y 170
+  #define PROBE_PT_2_X 39
+  #define PROBE_PT_2_Y 10
+  #define PROBE_PT_3_X 170
+  #define PROBE_PT_3_Y 10
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -1021,17 +1019,17 @@
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y 10
 
-  #define UBL_PROBE_PT_1_X 45       // Probing points for 3-Point leveling of the mesh
-  #define UBL_PROBE_PT_1_Y 170
-  #define UBL_PROBE_PT_2_X 45
-  #define UBL_PROBE_PT_2_Y 25
-  #define UBL_PROBE_PT_3_X 180
-  #define UBL_PROBE_PT_3_Y 25
+  #define PROBE_PT_1_X 45       // Probing points for 3-Point leveling of the mesh
+  #define PROBE_PT_1_Y 170
+  #define PROBE_PT_2_X 45
+  #define PROBE_PT_2_Y 25
+  #define PROBE_PT_3_X 180
+  #define PROBE_PT_3_Y 25
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
 
-  #define UBL_Z_RAISE_WHEN_OFF_MESH 2.5 // When the nozzle is off the mesh, this value is used
+  #define UBL_Z_RAISE_WHEN_OFF_MESH 2.50// When the nozzle is off the mesh, this value is used
                                         // as the Z-Height correction value.
 
 #elif ENABLED(MESH_BED_LEVELING)
@@ -1047,6 +1045,19 @@
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
 
 #endif // BED_LEVELING
+
+/**
+ * Points to probe for all 3-point Leveling procedures.
+ * Override if the automatically selected points are inadequate.
+ */
+#if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
+  //#define PROBE_PT_1_X 15
+  //#define PROBE_PT_1_Y 180
+  //#define PROBE_PT_2_X 15
+  //#define PROBE_PT_2_Y 20
+  //#define PROBE_PT_3_X 170
+  //#define PROBE_PT_3_Y 20
+#endif
 
 /**
  * Use the LCD controller for bed leveling

@@ -1,7 +1,7 @@
 /**
  * \file
  *
- * \brief Descriptors for an USB Composite Device
+ * \brief Default descriptors for a USB Device with a single interface CDC
  *
  * Copyright (c) 2009-2016 Atmel Corporation. All rights reserved.
  *
@@ -49,48 +49,64 @@
 #include "conf_usb.h"
 #include "udd.h"
 #include "udc_desc.h"
+#include "udi_cdc.h"
 
-#if ENABLED(SDSUPPORT)
+#if DISABLED(SDSUPPORT)
 
 /**
- * \defgroup udi_group_desc Descriptors for a USB Device
- * composite
+ * \defgroup udi_cdc_group_single_desc USB device descriptors for a single interface
+ *
+ * The following structures provide the USB device descriptors required for
+ * USB Device with a single interface CDC.
+ *
+ * It is ready to use and do not require more definition.
  *
  * @{
  */
 
-/**INDENT-OFF**/
+//! Two interfaces for a CDC device
+#define  USB_DEVICE_NB_INTERFACE       (2*UDI_CDC_PORT_NB)
+
+#ifdef USB_DEVICE_LPM_SUPPORT
+# define USB_VERSION   USB_V2_1
+#else
+# define USB_VERSION   USB_V2_0
+#endif
 
 //! USB Device Descriptor
 COMPILER_WORD_ALIGNED
 UDC_DESC_STORAGE usb_dev_desc_t udc_device_desc = {
   .bLength                   = sizeof(usb_dev_desc_t),
   .bDescriptorType           = USB_DT_DEVICE,
-  .bcdUSB                    = LE16(USB_V2_0),
+  .bcdUSB                    = LE16(USB_VERSION),
+#if UDI_CDC_PORT_NB > 1
   .bDeviceClass              = 0,
+#else
+  .bDeviceClass              = CDC_CLASS_DEVICE,
+#endif
   .bDeviceSubClass           = 0,
   .bDeviceProtocol           = 0,
   .bMaxPacketSize0           = USB_DEVICE_EP_CTRL_SIZE,
   .idVendor                  = LE16(USB_DEVICE_VENDOR_ID),
   .idProduct                 = LE16(USB_DEVICE_PRODUCT_ID),
   .bcdDevice                 = LE16((USB_DEVICE_MAJOR_VERSION << 8)
-    | USB_DEVICE_MINOR_VERSION),
+      | USB_DEVICE_MINOR_VERSION),
 #ifdef USB_DEVICE_MANUFACTURE_NAME
-  .iManufacturer             = 1,
+  .iManufacturer = 1,
 #else
   .iManufacturer             = 0,  // No manufacture string
 #endif
 #ifdef USB_DEVICE_PRODUCT_NAME
-  .iProduct                  = 2,
+  .iProduct = 2,
 #else
   .iProduct                  = 0,  // No product string
 #endif
 #if (defined USB_DEVICE_SERIAL_NAME || defined USB_DEVICE_GET_SERIAL_NAME_POINTER)
-  .iSerialNumber             = 3,
+  .iSerialNumber = 3,
 #else
   .iSerialNumber             = 0,  // No serial string
 #endif
-  .bNumConfigurations        = 1
+  .bNumConfigurations = 1
 };
 
 
@@ -100,8 +116,12 @@ COMPILER_WORD_ALIGNED
 UDC_DESC_STORAGE usb_dev_qual_desc_t udc_device_qual = {
   .bLength                   = sizeof(usb_dev_qual_desc_t),
   .bDescriptorType           = USB_DT_DEVICE_QUALIFIER,
-  .bcdUSB                    = LE16(USB_V2_0),
+  .bcdUSB                    = LE16(USB_VERSION),
+#if UDI_CDC_PORT_NB > 1
   .bDeviceClass              = 0,
+#else
+  .bDeviceClass              = CDC_CLASS_DEVICE,
+#endif
   .bDeviceSubClass           = 0,
   .bDeviceProtocol           = 0,
   .bMaxPacketSize0           = USB_DEVICE_EP_CTRL_SIZE,
@@ -109,15 +129,40 @@ UDC_DESC_STORAGE usb_dev_qual_desc_t udc_device_qual = {
 };
 #endif
 
+#ifdef USB_DEVICE_LPM_SUPPORT
+//! USB Device Qualifier Descriptor
+COMPILER_WORD_ALIGNED
+UDC_DESC_STORAGE usb_dev_lpm_desc_t udc_device_lpm = {
+  .bos.bLength               = sizeof(usb_dev_bos_desc_t),
+  .bos.bDescriptorType       = USB_DT_BOS,
+  .bos.wTotalLength          = LE16(sizeof(usb_dev_bos_desc_t) + sizeof(usb_dev_capa_ext_desc_t)),
+  .bos.bNumDeviceCaps        = 1,
+  .capa_ext.bLength          = sizeof(usb_dev_capa_ext_desc_t),
+  .capa_ext.bDescriptorType  = USB_DT_DEVICE_CAPABILITY,
+  .capa_ext.bDevCapabilityType = USB_DC_USB20_EXTENSION,
+  .capa_ext.bmAttributes     = USB_DC_EXT_LPM,
+};
+#endif
+
 //! Structure for USB Device Configuration Descriptor
 COMPILER_PACK_SET(1)
 typedef struct {
   usb_conf_desc_t conf;
-  UDI_COMPOSITE_DESC_T;
+#if UDI_CDC_PORT_NB == 1
+  udi_cdc_comm_desc_t udi_cdc_comm_0;
+  udi_cdc_data_desc_t udi_cdc_data_0;
+#else
+#  define UDI_CDC_DESC_STRUCTURE(index, unused) \
+  usb_iad_desc_t      udi_cdc_iad_##index; \
+  udi_cdc_comm_desc_t udi_cdc_comm_##index; \
+  udi_cdc_data_desc_t udi_cdc_data_##index;
+  MREPEAT(UDI_CDC_PORT_NB, UDI_CDC_DESC_STRUCTURE, ~)
+#  undef UDI_CDC_DESC_STRUCTURE
+#endif
 } udc_desc_t;
 COMPILER_PACK_RESET()
 
-//! USB Device Configuration Descriptor filled for FS
+//! USB Device Configuration Descriptor filled for full and high speed
 COMPILER_WORD_ALIGNED
 UDC_DESC_STORAGE udc_desc_t udc_desc_fs = {
   .conf.bLength              = sizeof(usb_conf_desc_t),
@@ -128,11 +173,20 @@ UDC_DESC_STORAGE udc_desc_t udc_desc_fs = {
   .conf.iConfiguration       = 0,
   .conf.bmAttributes         = USB_CONFIG_ATTR_MUST_SET | USB_DEVICE_ATTR,
   .conf.bMaxPower            = USB_CONFIG_MAX_POWER(USB_DEVICE_POWER),
-  UDI_COMPOSITE_DESC_FS
+#if UDI_CDC_PORT_NB == 1
+  .udi_cdc_comm_0            = UDI_CDC_COMM_DESC_0,
+  .udi_cdc_data_0            = UDI_CDC_DATA_DESC_0_FS,
+#else
+#  define UDI_CDC_DESC_FS(index, unused) \
+  .udi_cdc_iad_##index             = UDI_CDC_IAD_DESC_##index,\
+  .udi_cdc_comm_##index            = UDI_CDC_COMM_DESC_##index,\
+  .udi_cdc_data_##index            = UDI_CDC_DATA_DESC_##index##_FS,
+  MREPEAT(UDI_CDC_PORT_NB, UDI_CDC_DESC_FS, ~)
+#  undef UDI_CDC_DESC_FS
+#endif
 };
 
 #ifdef USB_DEVICE_HS_SUPPORT
-//! USB Device Configuration Descriptor filled for HS
 COMPILER_WORD_ALIGNED
 UDC_DESC_STORAGE udc_desc_t udc_desc_hs = {
   .conf.bLength              = sizeof(usb_conf_desc_t),
@@ -143,49 +197,63 @@ UDC_DESC_STORAGE udc_desc_t udc_desc_hs = {
   .conf.iConfiguration       = 0,
   .conf.bmAttributes         = USB_CONFIG_ATTR_MUST_SET | USB_DEVICE_ATTR,
   .conf.bMaxPower            = USB_CONFIG_MAX_POWER(USB_DEVICE_POWER),
-  UDI_COMPOSITE_DESC_HS
+#if UDI_CDC_PORT_NB == 1
+  .udi_cdc_comm_0            = UDI_CDC_COMM_DESC_0,
+  .udi_cdc_data_0            = UDI_CDC_DATA_DESC_0_HS,
+#else
+#  define UDI_CDC_DESC_HS(index, unused) \
+  .udi_cdc_iad_##index             = UDI_CDC_IAD_DESC_##index, \
+  .udi_cdc_comm_##index            = UDI_CDC_COMM_DESC_##index, \
+  .udi_cdc_data_##index            = UDI_CDC_DATA_DESC_##index##_HS,
+  MREPEAT(UDI_CDC_PORT_NB, UDI_CDC_DESC_HS, ~)
+#  undef UDI_CDC_DESC_HS
+#endif
 };
 #endif
 
-
 /**
- * \name UDC structures which contains all USB Device definitions
+ * \name UDC structures which content all USB Device definitions
  */
 //@{
 
 //! Associate an UDI for each USB interface
 UDC_DESC_STORAGE udi_api_t *udi_apis[USB_DEVICE_NB_INTERFACE] = {
-  UDI_COMPOSITE_API
+#  define UDI_CDC_API(index, unused) \
+  &udi_api_cdc_comm, \
+  &udi_api_cdc_data,
+  MREPEAT(UDI_CDC_PORT_NB, UDI_CDC_API, ~)
+#  undef UDI_CDC_API
 };
 
-//! Add UDI with USB Descriptors FS
-UDC_DESC_STORAGE udc_config_speed_t   udc_config_lsfs[1] = {{
+//! Add UDI with USB Descriptors FS & HS
+UDC_DESC_STORAGE udc_config_speed_t udc_config_fs[1] = { {
   .desc          = (usb_conf_desc_t UDC_DESC_STORAGE*)&udc_desc_fs,
-  .udi_apis      = udi_apis,
+  .udi_apis = udi_apis,
 }};
-
 #ifdef USB_DEVICE_HS_SUPPORT
-//! Add UDI with USB Descriptors HS
-UDC_DESC_STORAGE udc_config_speed_t   udc_config_hs[1] = {{
+UDC_DESC_STORAGE udc_config_speed_t udc_config_hs[1] = { {
   .desc          = (usb_conf_desc_t UDC_DESC_STORAGE*)&udc_desc_hs,
-  .udi_apis      = udi_apis,
+  .udi_apis = udi_apis,
 }};
 #endif
 
 //! Add all information about USB Device in global structure for UDC
 UDC_DESC_STORAGE udc_config_t udc_config = {
   .confdev_lsfs = &udc_device_desc,
-  .conf_lsfs = udc_config_lsfs,
+  .conf_lsfs = udc_config_fs,
 #ifdef USB_DEVICE_HS_SUPPORT
   .confdev_hs = &udc_device_desc,
   .qualifier = &udc_device_qual,
   .conf_hs = udc_config_hs,
 #endif
+#ifdef USB_DEVICE_LPM_SUPPORT
+  .conf_bos = &udc_device_lpm.bos,
+#else
+  .conf_bos = NULL,
+#endif
 };
 
 //@}
-/**INDENT-ON**/
 //@}
-
 #endif
 #endif

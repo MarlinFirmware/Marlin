@@ -229,11 +229,11 @@ void _tmc_say_axis(const TMC_AxisEnum axis) {
 
 void _tmc_say_current(const TMC_AxisEnum axis, const uint16_t curr) {
   _tmc_say_axis(axis);
-  SERIAL_ECHOLNPAIR(" axis driver current: ", curr);
+  SERIAL_ECHOLNPAIR(" driver current: ", curr);
 }
 void _tmc_say_otpw(const TMC_AxisEnum axis, const bool otpw) {
   _tmc_say_axis(axis);
-  SERIAL_ECHOPGM(" axis temperature prewarn triggered: ");
+  SERIAL_ECHOPGM(" temperature prewarn triggered: ");
   serialprintPGM(otpw ? PSTR("true") : PSTR("false"));
   SERIAL_EOL();
 }
@@ -243,11 +243,11 @@ void _tmc_say_otpw_cleared(const TMC_AxisEnum axis) {
 }
 void _tmc_say_pwmthrs(const TMC_AxisEnum axis, const uint32_t thrs) {
   _tmc_say_axis(axis);
-  SERIAL_ECHOLNPAIR(" stealthChop max speed set to ", thrs);
+  SERIAL_ECHOLNPAIR(" stealthChop max speed: ", thrs);
 }
 void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
   _tmc_say_axis(axis);
-  SERIAL_ECHOPGM(" driver homing sensitivity set to ");
+  SERIAL_ECHOPGM(" homing sensitivity: ");
   SERIAL_PRINTLN(sgt, DEC);
 }
 

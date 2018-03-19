@@ -591,7 +591,7 @@ void kill(const char* lcd_msg) {
   #endif
 
   #if HAS_POWER_SWITCH
-    SET_INPUT(PS_ON_PIN);
+    PSU_OFF();
   #endif
 
   #if HAS_SUICIDE
@@ -648,7 +648,7 @@ void setup() {
 
   #ifdef HAL_INIT
     HAL_init();
-    #if defined(ARDUINO_ARCH_SAM) && PIN_EXISTS(BEEPER)
+    #if defined(ARDUINO_ARCH_SAM) && PIN_EXISTS(BEEPER) && ENABLED(SPEAKER)
       toneInit();
     #endif
   #endif

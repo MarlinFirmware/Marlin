@@ -1225,21 +1225,6 @@
   #define MESH_BED_LEVELING
 #endif
 
-/**
- * Normally G28 leaves leveling disabled on completion. Enable
- * this option to have G28 restore the prior leveling state.
- */
-#if ENABLED(UBL)
-  #define RESTORE_LEVELING_AFTER_G28
-#endif
-
-/**
- * Enable detailed logging of G28, G29, M48, etc.
- * Turn on with the command 'M111 S32'.
- * NOTE: Requires a lot of PROGMEM!
- */
-//#define DEBUG_LEVELING_FEATURE
-
 #if XTRA_BED_BACK > SENSOR_BEHIND
   #define PROBE_Y_FRONT BED_MARGIN + SENSOR_BEHIND - (XTRA_BED_BACK - (XTRA_BED_BACK - SENSOR_BEHIND))
 #elif XTRA_BED_BACK > 0 && XTRA_BED_BACK <= SENSOR_BEHIND
@@ -1269,6 +1254,19 @@
   #define PROBE_X_RIGHT X_BED_SIZE - BED_MARGIN - SENSOR_LEFT
 #endif
 #define PROBE_X_MIDDLE (X_BED_SIZE / 2)
+
+/**
+ * Normally G28 leaves leveling disabled on completion. Enable
+ * this option to have G28 restore the prior leveling state.
+ */
+#define RESTORE_LEVELING_AFTER_G28
+
+/**
+ * Enable detailed logging of G28, G29, M48, etc.
+ * Turn on with the command 'M111 S32'.
+ * NOTE: Requires a lot of PROGMEM!
+ */
+//#define DEBUG_LEVELING_FEATURE
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,
@@ -1328,17 +1326,6 @@
 
   #endif
 
-#elif ENABLED(AUTO_BED_LEVELING_3POINT)
-
-  // 3 arbitrary points to probe.
-  // A simple cross-product is used to estimate the plane of the bed.
-  #define ABL_PROBE_PT_1_X PROBE_X_LEFT
-  #define ABL_PROBE_PT_1_Y PROBE_Y_FRONT
-  #define ABL_PROBE_PT_2_X PROBE_X_RIGHT
-  #define ABL_PROBE_PT_2_Y PROBE_Y_FRONT
-  #define ABL_PROBE_PT_3_X PROBE_X_MIDDLE
-  #define ABL_PROBE_PT_3_Y PROBE_Y_BACK
-
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
   //===========================================================================
@@ -1350,13 +1337,6 @@
   #define MESH_INSET BED_MARGIN     // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X GRID_POINTS      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
-
-  #define UBL_PROBE_PT_1_X PROBE_X_LEFT // Probing points for 3-Point leveling of the mesh
-  #define UBL_PROBE_PT_1_Y PROBE_Y_FRONT
-  #define UBL_PROBE_PT_2_X PROBE_X_RIGHT
-  #define UBL_PROBE_PT_2_Y PROBE_Y_FRONT
-  #define UBL_PROBE_PT_3_X PROBE_X_MIDDLE
-  #define UBL_PROBE_PT_3_Y PROBE_Y_BACK
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
@@ -1377,6 +1357,19 @@
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
 
 #endif // BED_LEVELING
+
+/**
+ * Points to probe for all 3-point Leveling procedures.
+ * Override if the automatically selected points are inadequate.
+ */
+#if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
+  #define PROBE_PT_1_X PROBE_X_LEFT // Probing points for 3-Point leveling of the mesh
+  #define PROBE_PT_1_Y PROBE_Y_FRONT
+  #define PROBE_PT_2_X PROBE_X_RIGHT
+  #define PROBE_PT_2_Y PROBE_Y_FRONT
+  #define PROBE_PT_3_X PROBE_X_MIDDLE
+  #define PROBE_PT_3_Y PROBE_Y_BACK
+#endif
 
 /**
  * Use the LCD controller for bed leveling
