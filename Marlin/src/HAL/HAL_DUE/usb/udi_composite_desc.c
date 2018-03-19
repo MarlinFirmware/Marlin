@@ -187,5 +187,6 @@ UDC_DESC_STORAGE udc_config_t udc_config = {
 /**INDENT-ON**/
 //@}
 
-#endif
-#endif
+#endif // ARDUINO_ARCH_SAM
+
+#endif // SDSUPPORT

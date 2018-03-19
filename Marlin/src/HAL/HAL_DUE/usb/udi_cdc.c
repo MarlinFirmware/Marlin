@@ -1152,4 +1152,4 @@ iram_size_t udi_cdc_write_buf(const void* buf, iram_size_t size)
 
 //@}
 
-#endif
+#endif // ARDUINO_ARCH_SAM

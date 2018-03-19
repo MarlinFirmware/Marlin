@@ -1396,4 +1396,7 @@
   #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
 #endif
 
+// If platform requires early initialization of watchdog to properly boot
+#define EARLY_WATCHDOG (ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM))
+
 #endif // CONDITIONALS_POST_H
