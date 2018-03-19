@@ -146,7 +146,10 @@ matrix_3x3 matrix_3x3::transpose(matrix_3x3 original) {
 }
 
 void matrix_3x3::debug(const char * const title) {
-  serialprintPGM(title);
+  if (title != NULL) {
+    serialprintPGM(title);
+    SERIAL_EOL();
+  }
   uint8_t count = 0;
   for (uint8_t i = 0; i < 3; i++) {
     for (uint8_t j = 0; j < 3; j++) {
