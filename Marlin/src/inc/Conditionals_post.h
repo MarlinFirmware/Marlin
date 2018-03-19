@@ -1139,6 +1139,69 @@
 
 #endif // MESH_BED_LEVELING || AUTO_BED_LEVELING_UBL
 
+#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_3POINT)
+  #if IS_KINEMATIC
+    #define SIN0    0.0
+    #define SIN120  0.866025
+    #define SIN240 -0.866025
+    #define COS0    1.0
+    #define COS120 -0.5
+    #define COS240 -0.5
+    #ifndef PROBE_PT_1_X
+      #define PROBE_PT_1_X (X_CENTER + (_PROBE_RADIUS) * COS0)
+    #endif
+    #ifndef PROBE_PT_1_Y
+      #define PROBE_PT_1_Y (Y_CENTER + (_PROBE_RADIUS) * SIN0)
+    #endif
+    #ifndef PROBE_PT_2_X
+      #define PROBE_PT_2_X (X_CENTER + (_PROBE_RADIUS) * COS120)
+    #endif
+    #ifndef PROBE_PT_2_Y
+      #define PROBE_PT_2_Y (Y_CENTER + (_PROBE_RADIUS) * SIN120)
+    #endif
+    #ifndef PROBE_PT_3_X
+      #define PROBE_PT_3_X (X_CENTER + (_PROBE_RADIUS) * COS240)
+    #endif
+    #ifndef PROBE_PT_3_Y
+      #define PROBE_PT_3_Y (Y_CENTER + (_PROBE_RADIUS) * SIN240)
+    #endif
+  #else
+    #ifndef PROBE_PT_1_X
+      #define PROBE_PT_1_X MIN_PROBE_X
+    #endif
+    #ifndef PROBE_PT_1_Y
+      #define PROBE_PT_1_Y MIN_PROBE_Y
+    #endif
+    #ifndef PROBE_PT_2_X
+      #define PROBE_PT_2_X MAX_PROBE_X
+    #endif
+    #ifndef PROBE_PT_2_Y
+      #define PROBE_PT_2_Y MIN_PROBE_Y
+    #endif
+    #ifndef PROBE_PT_3_X
+      #define PROBE_PT_3_X X_CENTER
+    #endif
+    #ifndef PROBE_PT_3_Y
+      #define PROBE_PT_3_Y MAX_PROBE_Y
+    #endif
+  #endif
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  #ifndef LEFT_PROBE_BED_POSITION
+    #define LEFT_PROBE_BED_POSITION MIN_PROBE_X
+  #endif
+  #ifndef RIGHT_PROBE_BED_POSITION
+    #define RIGHT_PROBE_BED_POSITION MAX_PROBE_X
+  #endif
+  #ifndef FRONT_PROBE_BED_POSITION
+    #define FRONT_PROBE_BED_POSITION MIN_PROBE_Y
+  #endif
+  #ifndef BACK_PROBE_BED_POSITION
+    #define BACK_PROBE_BED_POSITION MAX_PROBE_Y
+  #endif
+#endif
+
 /**
  * Buzzer/Speaker
  */
