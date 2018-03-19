@@ -164,11 +164,6 @@ extern const char axis_codes[XYZE];
               G38_endstop_hit; // flag from the interrupt handler to indicate if the endstop went active
 #endif
 
-/**
- * The axis order in all axis related arrays is X, Y, Z, E
- */
-#define _AXIS(AXIS) AXIS ##_AXIS
-
 void enable_all_steppers();
 void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
