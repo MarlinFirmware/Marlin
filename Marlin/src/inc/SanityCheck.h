@@ -227,10 +227,16 @@
   #error "LIN_ADVANCE (1.5) no longer uses LIN_ADVANCE_E_D_RATIO. Check your configuration."
 #elif defined(NEOPIXEL_RGBW_LED)
   #error "NEOPIXEL_RGBW_LED is now NEOPIXEL_LED. Please update your configuration."
+#elif ENABLED(DELTA) && defined(DELTA_PROBEABLE_RADIUS)
+  #error "Remove DELTA_PROBEABLE_RADIUS and use MIN_PROBE_EDGE to inset the probe area instead."
 #elif defined(UBL_MESH_INSET)
   #error "UBL_MESH_INSET is now just MESH_INSET. Please update your configuration."
 #elif defined(UBL_MESH_MIN_X) || defined(UBL_MESH_MIN_Y) || defined(UBL_MESH_MAX_X)  || defined(UBL_MESH_MAX_Y)
   #error "UBL_MESH_(MIN|MAX)_[XY] is now just MESH_(MIN|MAX)_[XY]. Please update your configuration."
+#elif defined(ABL_PROBE_PT_1_X) || defined(ABL_PROBE_PT_1_Y) || defined(ABL_PROBE_PT_2_X) || defined(ABL_PROBE_PT_2_Y) || defined(ABL_PROBE_PT_3_X) || defined(ABL_PROBE_PT_3_Y)
+  #error "ABL_PROBE_PT_[123]_[XY] is now PROBE_PT_[123]_[XY]. Please update your configuration."
+#elif defined(UBL_PROBE_PT_1_X) || defined(UBL_PROBE_PT_1_Y) || defined(UBL_PROBE_PT_2_X) || defined(UBL_PROBE_PT_2_Y) || defined(UBL_PROBE_PT_3_X) || defined(UBL_PROBE_PT_3_Y)
+  #error "UBL_PROBE_PT_[123]_[XY] is now PROBE_PT_[123]_[XY]. Please update your configuration."
 #elif defined(ENABLE_MESH_EDIT_GFX_OVERLAY)
   #error "ENABLE_MESH_EDIT_GFX_OVERLAY is now MESH_EDIT_GFX_OVERLAY. Please update your configuration."
 #elif defined(BABYSTEP_ZPROBE_GFX_REVERSE)
@@ -801,6 +807,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Bed Leveling Requirements
  */
 
+#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_3POINT)
+  static_assert(WITHIN(PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X), "PROBE_PT_1_X is outside the probe region.");
+  static_assert(WITHIN(PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X), "PROBE_PT_2_X is outside the probe region.");
+  static_assert(WITHIN(PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X), "PROBE_PT_3_X is outside the probe region.");
+  static_assert(WITHIN(PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y), "PROBE_PT_1_Y is outside the probe region.");
+  static_assert(WITHIN(PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y), "PROBE_PT_2_Y is outside the probe region.");
+  static_assert(WITHIN(PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y), "PROBE_PT_3_Y is outside the probe region.");
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
   /**
@@ -818,13 +833,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "GRID_MAX_POINTS_[XY] must be a whole number between 3 and 15."
   #elif DISABLED(RESTORE_LEVELING_AFTER_G28)
     #error "AUTO_BED_LEVELING_UBL (<=1.1.8) always has RESTORE_LEVELING_AFTER_G28 enabled. To keep this behavior, #define RESTORE_LEVELING_AFTER_G28. To keep it disabled comment out this line in SanityCheck.h."
-  #else
-    static_assert(WITHIN(UBL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X), "UBL_PROBE_PT_1_X is outside the probe region.");
-    static_assert(WITHIN(UBL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X), "UBL_PROBE_PT_2_X is outside the probe region.");
-    static_assert(WITHIN(UBL_PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X), "UBL_PROBE_PT_3_X is outside the probe region.");
-    static_assert(WITHIN(UBL_PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_1_Y is outside the probe region.");
-    static_assert(WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_2_Y is outside the probe region.");
-    static_assert(WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y), "UBL_PROBE_PT_3_Y is outside the probe region.");
   #endif
 
 #elif OLDSCHOOL_ABL
@@ -837,7 +845,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
    * Delta and SCARA have limited bed leveling options
    */
   #if IS_SCARA && DISABLED(AUTO_BED_LEVELING_BILINEAR)
-    #error "Only AUTO_BED_LEVELING_BILINEAR currently supports SCARA bed leveling."
+    #error "SCARA machines can only use the AUTO_BED_LEVELING_BILINEAR leveling option."
   #endif
 
   /**
@@ -851,15 +859,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     static_assert(RIGHT_PROBE_BED_POSITION <= MAX_PROBE_X, "RIGHT_PROBE_BED_POSITION is outside the probe region.");
     static_assert(FRONT_PROBE_BED_POSITION >= MIN_PROBE_Y, "FRONT_PROBE_BED_POSITION is outside the probe region.");
     static_assert(BACK_PROBE_BED_POSITION <= MAX_PROBE_Y, "BACK_PROBE_BED_POSITION is outside the probe region.");
-
-  #else // AUTO_BED_LEVELING_3POINT
-
-    static_assert(WITHIN(ABL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X), "ABL_PROBE_PT_1_X is outside the probe region.");
-    static_assert(WITHIN(ABL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X), "ABL_PROBE_PT_2_X is outside the probe region.");
-    static_assert(WITHIN(ABL_PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X), "ABL_PROBE_PT_3_X is outside the probe region.");
-    static_assert(WITHIN(ABL_PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y), "ABL_PROBE_PT_1_Y is outside the probe region.");
-    static_assert(WITHIN(ABL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y), "ABL_PROBE_PT_2_Y is outside the probe region.");
-    static_assert(WITHIN(ABL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y), "ABL_PROBE_PT_3_Y is outside the probe region.");
 
   #endif // AUTO_BED_LEVELING_3POINT
 

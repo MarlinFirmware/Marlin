@@ -159,7 +159,7 @@
 #define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -965,11 +965,10 @@
   #define GRID_MAX_POINTS_Y 4
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION  X_MIN_POS + (X_PROBE_OFFSET_FROM_EXTRUDER)
-  #define RIGHT_PROBE_BED_POSITION X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-  #define FRONT_PROBE_BED_POSITION Y_MIN_POS + (Y_PROBE_OFFSET_FROM_EXTRUDER)
-  #define BACK_PROBE_BED_POSITION  Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
-
+  //#define LEFT_PROBE_BED_POSITION  X_MIN_POS + (X_PROBE_OFFSET_FROM_EXTRUDER)
+  //#define RIGHT_PROBE_BED_POSITION X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
+  //#define FRONT_PROBE_BED_POSITION Y_MIN_POS + (Y_PROBE_OFFSET_FROM_EXTRUDER)
+  //#define BACK_PROBE_BED_POSITION  Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -996,12 +995,12 @@
 
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
-  #define ABL_PROBE_PT_1_X X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER
-  #define ABL_PROBE_PT_1_Y Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER
-  #define ABL_PROBE_PT_2_X X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-  #define ABL_PROBE_PT_2_Y Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER
-  #define ABL_PROBE_PT_3_X ((X_MIN_POS + X_MAX_POS) / 2)
-  #define ABL_PROBE_PT_3_Y Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
+  #define PROBE_PT_1_X X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER
+  #define PROBE_PT_1_Y Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER
+  #define PROBE_PT_2_X X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
+  #define PROBE_PT_2_Y Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER
+  #define PROBE_PT_3_X ((X_MIN_POS + X_MAX_POS) / 2)
+  #define PROBE_PT_3_Y Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -1014,13 +1013,6 @@
   #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
-
-  #define UBL_PROBE_PT_1_X 39       // Probing points for 3-Point leveling of the mesh
-  #define UBL_PROBE_PT_1_Y 180
-  #define UBL_PROBE_PT_2_X 39
-  #define UBL_PROBE_PT_2_Y 20
-  #define UBL_PROBE_PT_3_X 180
-  #define UBL_PROBE_PT_3_Y 20
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
@@ -1041,6 +1033,19 @@
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
 
 #endif // BED_LEVELING
+
+/**
+ * Points to probe for all 3-point Leveling procedures.
+ * Override if the automatically selected points are inadequate.
+ */
+#if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
+  //#define PROBE_PT_1_X 15
+  //#define PROBE_PT_1_Y 180
+  //#define PROBE_PT_2_X 15
+  //#define PROBE_PT_2_Y 20
+  //#define PROBE_PT_3_X 170
+  //#define PROBE_PT_3_Y 20
+#endif
 
 /**
  * Use the LCD controller for bed leveling
