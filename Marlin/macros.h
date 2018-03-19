@@ -29,6 +29,9 @@
 #define ABC  3
 #define XYZ  3
 
+// For use in macros that take a single axis letter
+#define _AXIS(AXIS) AXIS ##_AXIS
+
 #define _XMIN_ 100
 #define _YMIN_ 200
 #define _ZMIN_ 300
