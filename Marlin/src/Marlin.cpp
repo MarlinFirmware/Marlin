@@ -648,7 +648,7 @@ void setup() {
 
   #ifdef HAL_INIT
     HAL_init();
-    #if defined(ARDUINO_ARCH_SAM) && PIN_EXISTS(BEEPER)
+    #if defined(ARDUINO_ARCH_SAM) && PIN_EXISTS(BEEPER) && ENABLED(SPEAKER)
       toneInit();
     #endif
   #endif
