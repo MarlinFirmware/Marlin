@@ -1225,6 +1225,10 @@
   #define MESH_BED_LEVELING
 #endif
 
+/**
+ * Added by Jim Brown for EasyConfig use. Does the math to set probe points determined by nozzle,
+ * probe, and bed offsets.
+ */
 #if XTRA_BED_BACK > SENSOR_BEHIND
   #define PROBE_Y_FRONT BED_MARGIN + SENSOR_BEHIND - (XTRA_BED_BACK - (XTRA_BED_BACK - SENSOR_BEHIND))
 #elif XTRA_BED_BACK > 0 && XTRA_BED_BACK <= SENSOR_BEHIND
