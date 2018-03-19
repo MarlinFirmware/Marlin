@@ -10529,50 +10529,54 @@ inline void gcode_M502() {
     #define TMC_SET_CURRENT(Q) tmc_set_current(stepper##Q, TMC_##Q, value)
 
     bool report = true;
+    const uint8_t index = parser.byteval('I');
     LOOP_XYZE(i) if (uint16_t value = parser.intval(axis_codes[i])) {
       report = false;
       switch (i) {
         case X_AXIS:
           #if X_IS_TRINAMIC
-            TMC_SET_CURRENT(X);
+            if (index == 0) TMC_SET_CURRENT(X);
           #endif
           #if X2_IS_TRINAMIC
-            TMC_SET_CURRENT(X2);
+            if (index == 1) TMC_SET_CURRENT(X2);
           #endif
           break;
         case Y_AXIS:
           #if Y_IS_TRINAMIC
-            TMC_SET_CURRENT(Y);
+            if (index == 0) TMC_SET_CURRENT(Y);
           #endif
           #if Y2_IS_TRINAMIC
-            TMC_SET_CURRENT(Y2);
+            if (index == 1) TMC_SET_CURRENT(Y2);
           #endif
           break;
         case Z_AXIS:
           #if Z_IS_TRINAMIC
-            TMC_SET_CURRENT(Z);
+            if (index == 0) TMC_SET_CURRENT(Z);
           #endif
           #if Z2_IS_TRINAMIC
-            TMC_SET_CURRENT(Z2);
+            if (index == 1) TMC_SET_CURRENT(Z2);
           #endif
           break;
-        case E_AXIS:
-          #if E0_IS_TRINAMIC
-            TMC_SET_CURRENT(E0);
-          #endif
-          #if E1_IS_TRINAMIC
-            TMC_SET_CURRENT(E1);
-          #endif
-          #if E2_IS_TRINAMIC
-            TMC_SET_CURRENT(E2);
-          #endif
-          #if E3_IS_TRINAMIC
-            TMC_SET_CURRENT(E3);
-          #endif
-          #if E4_IS_TRINAMIC
-            TMC_SET_CURRENT(E4);
-          #endif
-          break;
+        case E_AXIS: {
+          if (get_target_extruder_from_command(906)) return;
+          switch (target_extruder) {
+            #if E0_IS_TRINAMIC
+              case 0: TMC_SET_CURRENT(E0); break;
+            #endif
+            #if E1_IS_TRINAMIC
+              case 1: TMC_SET_CURRENT(E1); break;
+            #endif
+            #if E2_IS_TRINAMIC
+              case 2: TMC_SET_CURRENT(E2); break;
+            #endif
+            #if E3_IS_TRINAMIC
+              case 3: TMC_SET_CURRENT(E3); break;
+            #endif
+            #if E4_IS_TRINAMIC
+              case 4: TMC_SET_CURRENT(E4); break;
+            #endif
+          }
+        } break;
       }
     }
 
@@ -10677,50 +10681,54 @@ inline void gcode_M502() {
       #define TMC_SET_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_set_pwmthrs(stepperE##E, TMC_E##E, value, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
 
       bool report = true;
+      const uint8_t index = parser.byteval('I');
       LOOP_XYZE(i) if (int32_t value = parser.longval(axis_codes[i])) {
         report = false;
         switch (i) {
           case X_AXIS:
             #if X_IS_TRINAMIC
-              TMC_SET_PWMTHRS(X,X);
+              if (index == 0) TMC_SET_PWMTHRS(X,X);
             #endif
             #if X2_IS_TRINAMIC
-              TMC_SET_PWMTHRS(X,X2);
+              if (index == 1) TMC_SET_PWMTHRS(X,X2);
             #endif
             break;
           case Y_AXIS:
             #if Y_IS_TRINAMIC
-              TMC_SET_PWMTHRS(Y,Y);
+              if (index == 0) TMC_SET_PWMTHRS(Y,Y);
             #endif
             #if Y2_IS_TRINAMIC
-              TMC_SET_PWMTHRS(Y,Y2);
+              if (index == 1) TMC_SET_PWMTHRS(Y,Y2);
             #endif
             break;
           case Z_AXIS:
             #if Z_IS_TRINAMIC
-              TMC_SET_PWMTHRS(Z,Z);
+              if (index == 0) TMC_SET_PWMTHRS(Z,Z);
             #endif
             #if Z2_IS_TRINAMIC
-              TMC_SET_PWMTHRS(Z,Z2);
+              if (index == 1) TMC_SET_PWMTHRS(Z,Z2);
             #endif
             break;
-          case E_AXIS:
-            #if E0_IS_TRINAMIC
-              TMC_SET_PWMTHRS_E(0);
-            #endif
-            #if E1_IS_TRINAMIC
-              TMC_SET_PWMTHRS_E(1);
-            #endif
-            #if E2_IS_TRINAMIC
-              TMC_SET_PWMTHRS_E(2);
-            #endif
-            #if E3_IS_TRINAMIC
-              TMC_SET_PWMTHRS_E(3);
-            #endif
-            #if E4_IS_TRINAMIC
-              TMC_SET_PWMTHRS_E(4);
-            #endif
-            break;
+          case E_AXIS: {
+            if (get_target_extruder_from_command(913)) return;
+            switch (target_extruder) {
+              #if E0_IS_TRINAMIC
+                case 0: TMC_SET_PWMTHRS_E(0); break;
+              #endif
+              #if E_STEPPERS > 1 && E1_IS_TRINAMIC
+                case 1: TMC_SET_PWMTHRS_E(1); break;
+              #endif
+              #if E_STEPPERS > 2 && E2_IS_TRINAMIC
+                case 2: TMC_SET_PWMTHRS_E(2); break;
+              #endif
+              #if E_STEPPERS > 3 && E3_IS_TRINAMIC
+                case 3: TMC_SET_PWMTHRS_E(3); break;
+              #endif
+              #if E_STEPPERS > 4 && E4_IS_TRINAMIC
+                case 4: TMC_SET_PWMTHRS_E(4); break;
+              #endif
+            }
+          } break;
         }
       }
 
@@ -10753,16 +10761,16 @@ inline void gcode_M502() {
           #if E0_IS_TRINAMIC
             TMC_SAY_PWMTHRS_E(0);
           #endif
-          #if E1_IS_TRINAMIC
+          #if E_STEPPERS > 1 && E1_IS_TRINAMIC
             TMC_SAY_PWMTHRS_E(1);
           #endif
-          #if E2_IS_TRINAMIC
+          #if E_STEPPERS > 2 && E2_IS_TRINAMIC
             TMC_SAY_PWMTHRS_E(2);
           #endif
-          #if E3_IS_TRINAMIC
+          #if E_STEPPERS > 3 && E3_IS_TRINAMIC
             TMC_SAY_PWMTHRS_E(3);
           #endif
-          #if E4_IS_TRINAMIC
+          #if E_STEPPERS > 4 && E4_IS_TRINAMIC
             TMC_SAY_PWMTHRS_E(4);
           #endif
           break;
@@ -10779,32 +10787,33 @@ inline void gcode_M502() {
       #define TMC_SET_SGT(Q) tmc_set_sgt(stepper##Q, TMC_##Q, value)
 
       bool report = true;
+      const uint8_t index = parser.byteval('I');
       LOOP_XYZ(i) if (parser.seen(axis_codes[i])) {
         const int8_t value = (int8_t)constrain(parser.value_int(), -63, 64);
         report = false;
         switch (i) {
           case X_AXIS:
             #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-              TMC_SET_SGT(X);
+              if (index == 0) TMC_SET_SGT(X);
             #endif
             #if ENABLED(X2_IS_TMC2130)
-              TMC_SET_SGT(X2);
+              if (index == 1) TMC_SET_SGT(X2);
             #endif
             break;
           case Y_AXIS:
             #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-              TMC_SET_SGT(Y);
+              if (index == 0) TMC_SET_SGT(Y);
             #endif
             #if ENABLED(Y2_IS_TMC2130)
-              TMC_SET_SGT(Y2);
+              if (index == 1) TMC_SET_SGT(Y2);
             #endif
             break;
           case Z_AXIS:
             #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
-              TMC_SET_SGT(Z);
+              if (index == 0) TMC_SET_SGT(Z);
             #endif
             #if ENABLED(Z2_IS_TMC2130)
-              TMC_SET_SGT(Z2);
+              if (index == 1) TMC_SET_SGT(Z2);
             #endif
             break;
         }
