@@ -752,7 +752,10 @@
       } while (location.x_index >= 0 && --max_iterations);
 
       STOW_PROBE();
-      move_z_after_probing();
+
+      #if Z_AFTER_PROBING
+        move_z_after_probing();
+      #endif
 
       restore_ubl_active_state_and_leave();
 
