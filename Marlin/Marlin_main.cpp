@@ -2313,13 +2313,15 @@ static void clean_up_after_endstop_or_probe_move() {
    *   - Raise to the BETWEEN height
    * - Return the probed Z position
    */
-  float probe_pt(const float &rx, const float &ry, const bool stow, const uint8_t verbose_level, const bool probe_relative=true) {
+  float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
         SERIAL_ECHOPAIR(", ", LOGICAL_Y_POSITION(ry));
-        SERIAL_ECHOPAIR(", ", stow ? "" : "no ");
-        SERIAL_ECHOLNPGM("stow)");
+        SERIAL_ECHOPAIR(", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none");
+        SERIAL_ECHOPAIR(", ", int(verbose_level));
+        SERIAL_ECHOPAIR(", ", probe_relative ? "probe" : "nozzle");
+        SERIAL_ECHOLNPGM("_relative)");
         DEBUG_POS("", current_position);
       }
     #endif
@@ -2352,9 +2354,9 @@ static void clean_up_after_endstop_or_probe_move() {
     if (!DEPLOY_PROBE()) {
       measured_z = run_z_probe() + zprobe_zoffset;
 
-      if (!stow)
+      if (raise_after == PROBE_PT_RAISE)
         do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
-      else
+      else if (raise_after == PROBE_PT_STOW)
         if (STOW_PROBE()) measured_z = NAN;
     }
 
@@ -4902,7 +4904,7 @@ void home_all_axes() { gcode_G28(true); }
 
     #else // !PROBE_MANUALLY
     {
-      const bool stow_probe_after_each = parser.boolval('E');
+      const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
       measured_z = 0;
 
@@ -4948,7 +4950,7 @@ void home_all_axes() { gcode_G28(true); }
               if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
             #endif
 
-            measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+            measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
 
             if (isnan(measured_z)) {
               set_bed_leveling_enabled(abl_should_enable);
@@ -4985,7 +4987,7 @@ void home_all_axes() { gcode_G28(true); }
           // Retain the last probe position
           xProbe = points[i].x;
           yProbe = points[i].y;
-          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
           if (isnan(measured_z)) {
             set_bed_leveling_enabled(abl_should_enable);
             break;
@@ -5280,8 +5282,8 @@ void home_all_axes() { gcode_G28(true); }
 
     setup_for_endstop_or_probe_move();
 
-    const bool do_stow = parser.boolval('E');
-    const float measured_z = probe_pt(xpos, ypos, do_stow, 1);
+    const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_NONE;
+    const float measured_z = probe_pt(xpos, ypos, raise_after, parser.intval('V', 1));
 
     if (!isnan(measured_z)) {
       SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
@@ -5291,7 +5293,7 @@ void home_all_axes() { gcode_G28(true); }
 
     clean_up_after_endstop_or_probe_move();
 
-    if (do_stow) move_z_after_probing();
+    if (raise_after == PROBE_PT_STOW) move_z_after_probing();
 
     report_current_position();
   }
@@ -5411,7 +5413,7 @@ void home_all_axes() { gcode_G28(true); }
 
   inline float calibration_probe(const float nx, const float ny, const bool stow) {
     #if HAS_BED_PROBE
-      return probe_pt(nx, ny, stow, 0, false);
+      return probe_pt(nx, ny, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, false);
     #else
       UNUSED(stow);
       return lcd_probe_pt(nx, ny);
@@ -7396,7 +7398,7 @@ inline void gcode_M42() {
       return;
     }
 
-    const bool stow_probe_after_each = parser.boolval('E');
+    const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
     float X_current = current_position[X_AXIS],
           Y_current = current_position[Y_AXIS];
@@ -7440,7 +7442,7 @@ inline void gcode_M42() {
     double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
 
     // Move to the first point, deploy, and probe
-    const float t = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
+    const float t = probe_pt(X_probe_location, Y_probe_location, raise_after, verbose_level);
     bool probing_good = !isnan(t);
 
     if (probing_good) {
@@ -7516,7 +7518,7 @@ inline void gcode_M42() {
         } // n_legs
 
         // Probe a single point
-        sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, 0);
+        sample_set[n] = probe_pt(X_probe_location, Y_probe_location, raise_after);
 
         // Break the loop if the probe fails
         probing_good = !isnan(sample_set[n]);
