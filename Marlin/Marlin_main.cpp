@@ -10276,8 +10276,7 @@ inline void gcode_M502() {
     // Unload filament
     const float unload_length = -FABS(parser.seen('U') ? parser.value_axis_units(E_AXIS) :
                                                          filament_change_unload_length[active_extruder]);
-<<<<<<< HEAD
-    
+
     // Slow load filament            
     const float slow_load_length = 0
       #ifdef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
@@ -10288,19 +10287,6 @@ inline void gcode_M502() {
     // Fast load filament
     const float fast_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
                                                       filament_change_load_length[active_extruder]);       
-=======
-
-    // Slow load filament
-    const float fast_load_length = 0
-      #ifdef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
-        + FILAMENT_CHANGE_SLOW_LOAD_LENGTH
-      #endif
-    ;
-
-    // Fast load filament
-    const float slow_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
-                                                      filament_change_load_length[active_extruder]);
->>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
 
     const int beep_count = parser.intval('B',
       #ifdef FILAMENT_CHANGE_ALERT_BEEPS
