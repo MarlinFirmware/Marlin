@@ -408,7 +408,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       }
 
       // Did the temperature overshoot very far?
-      #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+      #ifndef MAX_OVERSHOOT_PID_AUTOTUNE
+        #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+      #endif
       if (current > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
         break;
@@ -451,7 +453,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       } // every 2 seconds
 
       // Timeout after MAX_CYCLE_TIME_PID_AUTOTUNE minutes since the last undershoot/overshoot cycle
-	  #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
+      #ifndef MAX_CYCLE_TIME_PID_AUTOTUNE
+        #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
+      #endif
       if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
         break;
