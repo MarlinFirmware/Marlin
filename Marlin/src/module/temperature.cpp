@@ -409,7 +409,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       }
 
       // Did the temperature overshoot very far?
-      #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+      #ifndef MAX_OVERSHOOT_PID_AUTOTUNE
+        #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+      #endif
       if (current > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
         break;
@@ -425,24 +427,37 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
         // Make sure heating is actually working
         #if WATCH_THE_BED || WATCH_HOTENDS
-          if (!heated) {                                          // If not yet reached target...
-            if (current > next_watch_temp) {                      // Over the watch temp?
-              next_watch_temp = current + watch_temp_increase;    // - set the next temp to watch for
-              temp_change_ms = ms + watch_temp_period * 1000UL;   // - move the expiration timer up
-              if (current > watch_temp_target) heated = true;     // - Flag if target temperature reached
+          if (
+            #if WATCH_THE_BED && WATCH_HOTENDS
+              true
+            #elif WATCH_THE_BED
+              hotend < 0
+            #else
+              hotend >= 0
+            #endif
+          ) {
+            if (!heated) {                                          // If not yet reached target...
+              if (current > next_watch_temp) {                      // Over the watch temp?
+                next_watch_temp = current + watch_temp_increase;    // - set the next temp to watch for
+                temp_change_ms = ms + watch_temp_period * 1000UL;   // - move the expiration timer up
+                if (current > watch_temp_target) heated = true;     // - Flag if target temperature reached
+              }
+              else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
+                _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
             }
-            else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
-              _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+            else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
+              _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY),
+                hotend >= 0 ? PSTR(MSG_THERMAL_RUNAWAY) : PSTR(MSG_THERMAL_RUNAWAY_BED)
+              );
           }
-          else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
-            _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY),
-              hotend >= 0 ? PSTR(MSG_THERMAL_RUNAWAY) : PSTR(MSG_THERMAL_RUNAWAY_BED)
-            );
         #endif
       } // every 2 seconds
 
-      // Timeout after 20 minutes since the last undershoot/overshoot cycle
-      if (((ms - t1) + (ms - t2)) > (20L * 60L * 1000L)) {
+      // Timeout after MAX_CYCLE_TIME_PID_AUTOTUNE minutes since the last undershoot/overshoot cycle
+      #ifndef MAX_CYCLE_TIME_PID_AUTOTUNE
+        #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
+      #endif
+      if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
         break;
       }
