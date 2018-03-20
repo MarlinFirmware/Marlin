@@ -176,9 +176,15 @@
     #define BTN_EN1          11
     #define BTN_EN2          10
     #define BTN_ENC          16
-    #define ST7920_DELAY_1 DELAY_0_NOP
-    #define ST7920_DELAY_2 DELAY_1_NOP
-    #define ST7920_DELAY_3 DELAY_2_NOP
+    #ifndef ST7920_DELAY_1
+      #define ST7920_DELAY_1 DELAY_0_NOP
+    #endif
+    #ifndef ST7920_DELAY_2
+      #define ST7920_DELAY_2 DELAY_1_NOP
+    #endif
+    #ifndef ST7920_DELAY_3
+      #define ST7920_DELAY_3 DELAY_2_NOP
+    #endif
     #define STD_ENCODER_PULSES_PER_STEP 4
     #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
   #endif
