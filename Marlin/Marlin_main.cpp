@@ -6449,7 +6449,11 @@ inline void gcode_M17() {
    *
    * Returns 'true' if load was completed, 'false' for abort
    */
+<<<<<<< HEAD
   static bool load_filament(const float &slow_load_length = 0, const float &fast_load_length=0, const float &purge_length=0, const int8_t max_beep_count=0,
+=======
+  static bool load_filament(const float &slow_load_length=0, const float &fast_load_length=0, const float &purge_length=0, const int8_t max_beep_count=0,
+>>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
                             const bool show_lcd=false, const bool pause_for_user=false,
                             const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT
   ) {
@@ -6500,14 +6504,22 @@ inline void gcode_M17() {
     if (slow_load_length || fast_load_length) {
       // Slow Load filament
       do_pause_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
+<<<<<<< HEAD
       
       // Fast Load Filament
       float saved_acceleration = planner.retract_acceleration;
       planner.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCELERATION;	
+=======
+
+      // Fast Load Filament
+      float saved_acceleration = planner.retract_acceleration;
+      planner.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
+>>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
       do_pause_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
       planner.retract_acceleration = saved_acceleration;
     }
 
+<<<<<<< HEAD
       do {
         if (purge_length > 0) {
           // "Wait for filament purge"
@@ -6515,11 +6527,25 @@ inline void gcode_M17() {
             if (show_lcd)
               lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_PURGE, mode);
           #endif
+=======
+    do {
+      if (purge_length > 0) {
+        // "Wait for filament purge"
+        #if ENABLED(ULTIPANEL)
+          if (show_lcd)
+            lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_PURGE, mode);
+        #endif
+
+        // Extrude filament to get into hotend
+        do_pause_e_move(purge_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+      }
+>>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
 
           // Extrude filament to get into hotend
           do_pause_e_move(purge_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
         }
 
+<<<<<<< HEAD
         // Show "Purge More" / "Resume" menu and wait for reply
         #if ENABLED(ULTIPANEL)
             if (show_lcd) {
@@ -6539,6 +6565,16 @@ inline void gcode_M17() {
           0
         #endif
       );
+=======
+      // Keep looping if "Purge More" was selected
+    } while (
+      #if ENABLED(ULTIPANEL)
+        show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
+      #else
+        0
+      #endif
+    );
+>>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
     return true;
   }
 
@@ -6582,7 +6618,11 @@ inline void gcode_M17() {
 
     // Unload filament
     float saved_acceleration = planner.retract_acceleration;
+<<<<<<< HEAD
     planner.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCELERATION;	
+=======
+    planner.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
+>>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
     do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
     planner.retract_acceleration = saved_acceleration;
 
@@ -10236,6 +10276,7 @@ inline void gcode_M502() {
     // Unload filament
     const float unload_length = -FABS(parser.seen('U') ? parser.value_axis_units(E_AXIS) :
                                                          filament_change_unload_length[active_extruder]);
+<<<<<<< HEAD
     
     // Slow load filament            
     const float slow_load_length = 0
@@ -10247,6 +10288,19 @@ inline void gcode_M502() {
     // Fast load filament
     const float fast_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
                                                       filament_change_load_length[active_extruder]);       
+=======
+
+    // Slow load filament
+    const float fast_load_length = 0
+      #ifdef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
+        + FILAMENT_CHANGE_SLOW_LOAD_LENGTH
+      #endif
+    ;
+
+    // Fast load filament
+    const float slow_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
+                                                      filament_change_load_length[active_extruder]);
+>>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
 
     const int beep_count = parser.intval('B',
       #ifdef FILAMENT_CHANGE_ALERT_BEEPS
@@ -10395,18 +10449,32 @@ inline void gcode_M502() {
 
     // Z axis lift
     if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
+<<<<<<< HEAD
     
     // Slow load filament            
+=======
+
+    // Slow load filament
+>>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
     const float fast_load_length = 0
       #ifdef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
         + FILAMENT_CHANGE_SLOW_LOAD_LENGTH
       #endif
+<<<<<<< HEAD
     ;    
     
     // Fast load filament
     const float slow_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
                                                       filament_change_load_length[active_extruder]);       
                                                       
+=======
+    ;
+
+    // Fast load filament
+    const float slow_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
+                                                      filament_change_load_length[active_extruder]);
+
+>>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
     // Show initial "wait for load" message
     #if ENABLED(ULTIPANEL)
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, ADVANCED_PAUSE_MODE_LOAD_FILAMENT, target_extruder);
@@ -10423,7 +10491,11 @@ inline void gcode_M502() {
     if (park_point.z > 0)
       do_blocking_move_to_z(min(current_position[Z_AXIS] + park_point.z, Z_MAX_POS), NOZZLE_PARK_Z_FEEDRATE);
 
+<<<<<<< HEAD
     load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS, 
+=======
+    load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS,
+>>>>>>> 9282d456f1e73c93b01f8f03e1d11ecba8cb68a9
                   true, thermalManager.wait_for_heating(target_extruder), ADVANCED_PAUSE_MODE_LOAD_FILAMENT);
 
     // Restore Z axis
