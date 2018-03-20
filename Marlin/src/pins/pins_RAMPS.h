@@ -547,6 +547,10 @@
 
       #define ADC_KEYPAD_PIN    12
 
+    #elif ENABLED(AZSMZ_12864)
+
+      // Pins only defined for RAMPS_SMART currently
+
     #else
 
       // Beeper on AUX-4
