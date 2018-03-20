@@ -187,37 +187,53 @@ bool load_filament(const float &load_length/*=0*/, const float &purge_length/*=0
   // Load filament
   if (load_length) do_pause_e_move(load_length, FILAMENT_CHANGE_LOAD_FEEDRATE);
 
-  do {
-    if (purge_length > 0) {
-      // "Wait for filament purge"
+  #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+
+    #if ENABLED(ULTIPANEL)
+      if (show_lcd)
+        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE);
+    #endif
+
+    wait_for_user = true;
+    for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
+      do_pause_e_move(1, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+    wait_for_user = false;
+
+  #else
+
+    do {
+      if (purge_length > 0) {
+        // "Wait for filament purge"
+        #if ENABLED(ULTIPANEL)
+          if (show_lcd)
+            lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_PURGE, mode);
+        #endif
+
+        // Extrude filament to get into hotend
+        do_pause_e_move(purge_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+      }
+
+      // Show "Purge More" / "Resume" menu and wait for reply
       #if ENABLED(ULTIPANEL)
-        if (show_lcd)
-          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_PURGE, mode);
+        if (show_lcd) {
+          KEEPALIVE_STATE(PAUSED_FOR_USER);
+          wait_for_user = false;
+          lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION, mode);
+          while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
+          KEEPALIVE_STATE(IN_HANDLER);
+        }
       #endif
 
-      // Extrude filament to get into hotend
-      do_pause_e_move(purge_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
-    }
+      // Keep looping if "Purge More" was selected
+    } while (
+      #if ENABLED(ULTIPANEL)
+        show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
+      #else
+        0
+      #endif
+    );
 
-    // Show "Purge More" / "Resume" menu and wait for reply
-    #if ENABLED(ULTIPANEL)
-      if (show_lcd) {
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        wait_for_user = false;
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_OPTION, mode);
-        while (advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_WAIT_FOR) idle(true);
-        KEEPALIVE_STATE(IN_HANDLER);
-      }
-    #endif
-
-    // Keep looping if "Purge More" was selected
-  } while (
-    #if ENABLED(ULTIPANEL)
-      show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
-    #else
-      0
-    #endif
-  );
+  #endif      
 
   return true;
 }

@@ -218,14 +218,6 @@ uint16_t max_display_update_time = 0;
     #else
       void lcd_temp_menu_e0_filament_change();
     #endif
-    void lcd_advanced_pause_option_menu();
-    void lcd_advanced_pause_init_message();
-    void lcd_advanced_pause_unload_message();
-    void lcd_advanced_pause_insert_message();
-    void lcd_advanced_pause_load_message();
-    void lcd_advanced_pause_heat_nozzle();
-    void lcd_advanced_pause_purge_message();
-    void lcd_advanced_pause_resume_message();
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
@@ -4598,9 +4590,34 @@ void kill_screen(const char* lcd_msg) {
       #if LCD_HEIGHT > _FC_LINES_G + 1
         STATIC_ITEM(" ");
       #endif
-      HOTEND_STATUS_ITEM();
+      HOTEND_STATUS_ITEM();                         
       END_SCREEN();
     }
+
+    #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+      void lcd_advanced_pause_continuous_purge_menu() {
+        START_SCREEN();
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_1);
+        #ifdef MSG_FILAMENT_CHANGE_PURGE_2
+          STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_2);
+          #define __FC_LINES_G 3
+        #else
+          #define __FC_LINES_G 2
+        #endif
+        #ifdef MSG_FILAMENT_CHANGE_PURGE_3
+          STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_3);
+          #define _FC_LINES_G (__FC_LINES_G + 1)
+        #else
+          #define _FC_LINES_G __FC_LINES_G
+        #endif
+        #if LCD_HEIGHT > _FC_LINES_G + 1
+          STATIC_ITEM(" ");
+        #endif
+        HOTEND_STATUS_ITEM();
+        STATIC_ITEM(MSG_USERWAIT);
+        END_SCREEN();
+      }
+    #endif
 
     void lcd_advanced_pause_resume_message() {
       START_SCREEN();
@@ -4627,6 +4644,9 @@ void kill_screen(const char* lcd_msg) {
         case ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT: return lcd_advanced_pause_wait_for_nozzles_to_heat;
         case ADVANCED_PAUSE_MESSAGE_OPTION: advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_WAIT_FOR;
                                             return lcd_advanced_pause_option_menu;
+        #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+          case ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE: return lcd_advanced_pause_continuous_purge_menu;                                                                                              
+        #endif
         case ADVANCED_PAUSE_MESSAGE_STATUS:
         default: break;
       }
