@@ -142,7 +142,7 @@ bool report_tmc_status = false;
       otpw_cnt++;
       st.flag_otpw = true;
     }
-    else if (otpw_cnt > 0) otpw_cnt=0;
+    else if (otpw_cnt > 0) otpw_cnt = 0;
 
     if (report_tmc_status) {
       const uint32_t pwm_scale = get_pwm_scale(st);
