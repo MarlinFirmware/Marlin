@@ -8278,18 +8278,13 @@ inline void gcode_M140() {
       OUT_WRITE(SUICIDE_PIN, HIGH);
     #endif
 
-    #if ENABLED(HAVE_TMC2130)
-      delay(100);
-      tmc2130_init(); // Settings only stick when the driver has power
+    #if DISABLED(AUTO_POWER_CONTROL)
+      delay(100); // Wait for power to settle
+      restore_stepper_drivers();
     #endif
 
     #if ENABLED(ULTIPANEL)
       LCD_MESSAGEPGM(WELCOME_MSG);
-    #endif
-
-    #if ENABLED(HAVE_TMC2208)
-      delay(100);
-      tmc2208_init();
     #endif
   }
 
@@ -10530,46 +10525,104 @@ inline void gcode_M502() {
    * Report driver currents when no axis specified
    */
   inline void gcode_M906() {
-    uint16_t values[XYZE];
-    LOOP_XYZE(i) values[i] = parser.intval(axis_codes[i]);
+    #define TMC_SAY_CURRENT(Q) tmc_get_current(stepper##Q, TMC_##Q)
+    #define TMC_SET_CURRENT(Q) tmc_set_current(stepper##Q, TMC_##Q, value)
 
-    #define TMC_SET_GET_CURRENT(P,Q) do { \
-      if (values[P##_AXIS]) tmc_set_current(stepper##Q, TMC_##Q, values[P##_AXIS]); \
-      else tmc_get_current(stepper##Q, TMC_##Q); } while(0)
+    bool report = true;
+    const uint8_t index = parser.byteval('I');
+    LOOP_XYZE(i) if (uint16_t value = parser.intval(axis_codes[i])) {
+      report = false;
+      switch (i) {
+        case X_AXIS:
+          #if X_IS_TRINAMIC
+            if (index == 0) TMC_SET_CURRENT(X);
+          #endif
+          #if X2_IS_TRINAMIC
+            if (index == 1) TMC_SET_CURRENT(X2);
+          #endif
+          break;
+        case Y_AXIS:
+          #if Y_IS_TRINAMIC
+            if (index == 0) TMC_SET_CURRENT(Y);
+          #endif
+          #if Y2_IS_TRINAMIC
+            if (index == 1) TMC_SET_CURRENT(Y2);
+          #endif
+          break;
+        case Z_AXIS:
+          #if Z_IS_TRINAMIC
+            if (index == 0) TMC_SET_CURRENT(Z);
+          #endif
+          #if Z2_IS_TRINAMIC
+            if (index == 1) TMC_SET_CURRENT(Z2);
+          #endif
+          break;
+        case E_AXIS: {
+          if (get_target_extruder_from_command(906)) return;
+          switch (target_extruder) {
+            #if E0_IS_TRINAMIC
+              case 0: TMC_SET_CURRENT(E0); break;
+            #endif
+            #if E1_IS_TRINAMIC
+              case 1: TMC_SET_CURRENT(E1); break;
+            #endif
+            #if E2_IS_TRINAMIC
+              case 2: TMC_SET_CURRENT(E2); break;
+            #endif
+            #if E3_IS_TRINAMIC
+              case 3: TMC_SET_CURRENT(E3); break;
+            #endif
+            #if E4_IS_TRINAMIC
+              case 4: TMC_SET_CURRENT(E4); break;
+            #endif
+          }
+        } break;
+      }
+    }
 
-    #if X_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(X,X);
-    #endif
-    #if X2_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(X,X2);
-    #endif
-    #if Y_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(Y,Y);
-    #endif
-    #if Y2_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(Y,Y2);
-    #endif
-    #if Z_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(Z,Z);
-    #endif
-    #if Z2_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(Z,Z2);
-    #endif
-    #if E0_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(E,E0);
-    #endif
-    #if E1_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(E,E1);
-    #endif
-    #if E2_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(E,E2);
-    #endif
-    #if E3_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(E,E3);
-    #endif
-    #if E4_IS_TRINAMIC
-      TMC_SET_GET_CURRENT(E,E4);
-    #endif
+    if (report) LOOP_XYZE(i) switch (i) {
+      case X_AXIS:
+        #if X_IS_TRINAMIC
+          TMC_SAY_CURRENT(X);
+        #endif
+        #if X2_IS_TRINAMIC
+          TMC_SAY_CURRENT(X2);
+        #endif
+        break;
+      case Y_AXIS:
+        #if Y_IS_TRINAMIC
+          TMC_SAY_CURRENT(Y);
+        #endif
+        #if Y2_IS_TRINAMIC
+          TMC_SAY_CURRENT(Y2);
+        #endif
+        break;
+      case Z_AXIS:
+        #if Z_IS_TRINAMIC
+          TMC_SAY_CURRENT(Z);
+        #endif
+        #if Z2_IS_TRINAMIC
+          TMC_SAY_CURRENT(Z2);
+        #endif
+        break;
+      case E_AXIS:
+        #if E0_IS_TRINAMIC
+          TMC_SAY_CURRENT(E0);
+        #endif
+        #if E1_IS_TRINAMIC
+          TMC_SAY_CURRENT(E1);
+        #endif
+        #if E2_IS_TRINAMIC
+          TMC_SAY_CURRENT(E2);
+        #endif
+        #if E3_IS_TRINAMIC
+          TMC_SAY_CURRENT(E3);
+        #endif
+        #if E4_IS_TRINAMIC
+          TMC_SAY_CURRENT(E4);
+        #endif
+        break;
+    }
   }
 
   /**
@@ -10622,46 +10675,106 @@ inline void gcode_M502() {
    */
   #if ENABLED(HYBRID_THRESHOLD)
     inline void gcode_M913() {
-      uint16_t values[XYZE];
-      LOOP_XYZE(i) values[i] = parser.intval(axis_codes[i]);
+      #define TMC_SAY_PWMTHRS(P,Q) tmc_get_pwmthrs(stepper##Q, TMC_##Q, planner.axis_steps_per_mm[P##_AXIS])
+      #define TMC_SET_PWMTHRS(P,Q) tmc_set_pwmthrs(stepper##Q, TMC_##Q, value, planner.axis_steps_per_mm[P##_AXIS])
+      #define TMC_SAY_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_get_pwmthrs(stepperE##E, TMC_E##E, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
+      #define TMC_SET_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_set_pwmthrs(stepperE##E, TMC_E##E, value, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
 
-      #define TMC_SET_GET_PWMTHRS(P,Q) do { \
-        if (values[P##_AXIS]) tmc_set_pwmthrs(stepper##Q, TMC_##Q, values[P##_AXIS], planner.axis_steps_per_mm[P##_AXIS]); \
-        else tmc_get_pwmthrs(stepper##Q, TMC_##Q, planner.axis_steps_per_mm[P##_AXIS]); } while(0)
+      bool report = true;
+      const uint8_t index = parser.byteval('I');
+      LOOP_XYZE(i) if (int32_t value = parser.longval(axis_codes[i])) {
+        report = false;
+        switch (i) {
+          case X_AXIS:
+            #if X_IS_TRINAMIC
+              if (index == 0) TMC_SET_PWMTHRS(X,X);
+            #endif
+            #if X2_IS_TRINAMIC
+              if (index == 1) TMC_SET_PWMTHRS(X,X2);
+            #endif
+            break;
+          case Y_AXIS:
+            #if Y_IS_TRINAMIC
+              if (index == 0) TMC_SET_PWMTHRS(Y,Y);
+            #endif
+            #if Y2_IS_TRINAMIC
+              if (index == 1) TMC_SET_PWMTHRS(Y,Y2);
+            #endif
+            break;
+          case Z_AXIS:
+            #if Z_IS_TRINAMIC
+              if (index == 0) TMC_SET_PWMTHRS(Z,Z);
+            #endif
+            #if Z2_IS_TRINAMIC
+              if (index == 1) TMC_SET_PWMTHRS(Z,Z2);
+            #endif
+            break;
+          case E_AXIS: {
+            if (get_target_extruder_from_command(913)) return;
+            switch (target_extruder) {
+              #if E0_IS_TRINAMIC
+                case 0: TMC_SET_PWMTHRS_E(0); break;
+              #endif
+              #if E_STEPPERS > 1 && E1_IS_TRINAMIC
+                case 1: TMC_SET_PWMTHRS_E(1); break;
+              #endif
+              #if E_STEPPERS > 2 && E2_IS_TRINAMIC
+                case 2: TMC_SET_PWMTHRS_E(2); break;
+              #endif
+              #if E_STEPPERS > 3 && E3_IS_TRINAMIC
+                case 3: TMC_SET_PWMTHRS_E(3); break;
+              #endif
+              #if E_STEPPERS > 4 && E4_IS_TRINAMIC
+                case 4: TMC_SET_PWMTHRS_E(4); break;
+              #endif
+            }
+          } break;
+        }
+      }
 
-      #if X_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(X,X);
-      #endif
-      #if X2_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(X,X2);
-      #endif
-      #if Y_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(Y,Y);
-      #endif
-      #if Y2_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(Y,Y2);
-      #endif
-      #if Z_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(Z,Z);
-      #endif
-      #if Z2_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(Z,Z2);
-      #endif
-      #if E0_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(E,E0);
-      #endif
-      #if E1_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(E,E1);
-      #endif
-      #if E2_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(E,E2);
-      #endif
-      #if E3_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(E,E3);
-      #endif
-      #if E4_IS_TRINAMIC
-        TMC_SET_GET_PWMTHRS(E,E4);
-      #endif
+      if (report) LOOP_XYZE(i) switch (i) {
+        case X_AXIS:
+          #if X_IS_TRINAMIC
+            TMC_SAY_PWMTHRS(X,X);
+          #endif
+          #if X2_IS_TRINAMIC
+            TMC_SAY_PWMTHRS(X,X2);
+          #endif
+          break;
+        case Y_AXIS:
+          #if Y_IS_TRINAMIC
+            TMC_SAY_PWMTHRS(Y,Y);
+          #endif
+          #if Y2_IS_TRINAMIC
+            TMC_SAY_PWMTHRS(Y,Y2);
+          #endif
+          break;
+        case Z_AXIS:
+          #if Z_IS_TRINAMIC
+            TMC_SAY_PWMTHRS(Z,Z);
+          #endif
+          #if Z2_IS_TRINAMIC
+            TMC_SAY_PWMTHRS(Z,Z2);
+          #endif
+          break;
+        case E_AXIS:
+          #if E0_IS_TRINAMIC
+            TMC_SAY_PWMTHRS_E(0);
+          #endif
+          #if E_STEPPERS > 1 && E1_IS_TRINAMIC
+            TMC_SAY_PWMTHRS_E(1);
+          #endif
+          #if E_STEPPERS > 2 && E2_IS_TRINAMIC
+            TMC_SAY_PWMTHRS_E(2);
+          #endif
+          #if E_STEPPERS > 3 && E3_IS_TRINAMIC
+            TMC_SAY_PWMTHRS_E(3);
+          #endif
+          #if E_STEPPERS > 4 && E4_IS_TRINAMIC
+            TMC_SAY_PWMTHRS_E(4);
+          #endif
+          break;
+      }
     }
   #endif // HYBRID_THRESHOLD
 
@@ -10670,34 +10783,68 @@ inline void gcode_M502() {
    */
   #if ENABLED(SENSORLESS_HOMING)
     inline void gcode_M914() {
-      #define TMC_SET_GET_SGT(P,Q) do { \
-        if (parser.seen(axis_codes[P##_AXIS])) tmc_set_sgt(stepper##Q, TMC_##Q, parser.value_int()); \
-        else tmc_get_sgt(stepper##Q, TMC_##Q); } while(0)
+      #define TMC_SAY_SGT(Q) tmc_get_sgt(stepper##Q, TMC_##Q)
+      #define TMC_SET_SGT(Q) tmc_set_sgt(stepper##Q, TMC_##Q, value)
 
-      #ifdef X_HOMING_SENSITIVITY
-        #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-          TMC_SET_GET_SGT(X,X);
-        #endif
-        #if ENABLED(X2_IS_TMC2130)
-          TMC_SET_GET_SGT(X,X2);
-        #endif
-      #endif
-      #ifdef Y_HOMING_SENSITIVITY
-        #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-          TMC_SET_GET_SGT(Y,Y);
-        #endif
-        #if ENABLED(Y2_IS_TMC2130)
-          TMC_SET_GET_SGT(Y,Y2);
-        #endif
-      #endif
-      #ifdef Z_HOMING_SENSITIVITY
-        #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
-          TMC_SET_GET_SGT(Z,Z);
-        #endif
-        #if ENABLED(Z2_IS_TMC2130)
-          TMC_SET_GET_SGT(Z,Z2);
-        #endif
-      #endif
+      bool report = true;
+      const uint8_t index = parser.byteval('I');
+      LOOP_XYZ(i) if (parser.seen(axis_codes[i])) {
+        const int8_t value = (int8_t)constrain(parser.value_int(), -63, 64);
+        report = false;
+        switch (i) {
+          case X_AXIS:
+            #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+              if (index == 0) TMC_SET_SGT(X);
+            #endif
+            #if ENABLED(X2_IS_TMC2130)
+              if (index == 1) TMC_SET_SGT(X2);
+            #endif
+            break;
+          case Y_AXIS:
+            #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+              if (index == 0) TMC_SET_SGT(Y);
+            #endif
+            #if ENABLED(Y2_IS_TMC2130)
+              if (index == 1) TMC_SET_SGT(Y2);
+            #endif
+            break;
+          case Z_AXIS:
+            #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+              if (index == 0) TMC_SET_SGT(Z);
+            #endif
+            #if ENABLED(Z2_IS_TMC2130)
+              if (index == 1) TMC_SET_SGT(Z2);
+            #endif
+            break;
+        }
+      }
+
+      if (report) LOOP_XYZ(i) switch (i) {
+        case X_AXIS:
+          #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+            TMC_SAY_SGT(X);
+          #endif
+          #if ENABLED(X2_IS_TMC2130)
+            TMC_SAY_SGT(X2);
+          #endif
+          break;
+        case Y_AXIS:
+          #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+            TMC_SAY_SGT(Y);
+          #endif
+          #if ENABLED(Y2_IS_TMC2130)
+            TMC_SAY_SGT(Y2);
+          #endif
+          break;
+        case Z_AXIS:
+          #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+            TMC_SAY_SGT(Z);
+          #endif
+          #if ENABLED(Z2_IS_TMC2130)
+            TMC_SAY_SGT(Z2);
+          #endif
+          break;
+      }
     }
   #endif // SENSORLESS_HOMING
 
@@ -13667,6 +13814,7 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
+  // Prepare communication for TMC drivers
   #if ENABLED(HAVE_TMC2130)
     tmc_init_cs_pins();
   #endif
@@ -13722,8 +13870,9 @@ void setup() {
 
   print_job_timer.init();   // Initial setup of print job timer
 
-  stepper.init();    // Initialize stepper, this enables interrupts!
-  servo_init();
+  stepper.init();           // Initialize stepper, this enables interrupts!
+
+  servo_init();             // Initialize all servos, stow servo probe
 
   #if HAS_PHOTOGRAPH
     OUT_WRITE(PHOTOGRAPH_PIN, LOW);
