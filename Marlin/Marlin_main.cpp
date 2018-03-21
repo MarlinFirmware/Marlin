@@ -10865,8 +10865,8 @@ inline void gcode_M502() {
    */
   #if ENABLED(TMC_Z_CALIBRATION)
     inline void gcode_M915() {
-      uint16_t _rms = parser.seenval('S') ? parser.value_int() : CALIBRATION_CURRENT;
-      uint16_t _z = parser.seenval('Z') ? parser.value_int() : CALIBRATION_EXTRA_HEIGHT;
+      const uint16_t _rms = parser.seenval('S') ? parser.value_int() : CALIBRATION_CURRENT,
+                     _z = parser.seenval('Z') ? parser.value_linear_units() : CALIBRATION_EXTRA_HEIGHT;
 
       if (!axis_known_position[Z_AXIS]) {
         SERIAL_ECHOLNPGM("\nPlease home Z axis first");
@@ -10874,11 +10874,11 @@ inline void gcode_M502() {
       }
 
       #if Z_IS_TRINAMIC
-        uint16_t Z_current_1 = stepperZ.getCurrent();
+        const uint16_t Z_current_1 = stepperZ.getCurrent();
         stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
       #endif
       #if Z2_IS_TRINAMIC
-        uint16_t Z2_current_1 = stepperZ2.getCurrent();
+        const uint16_t Z2_current_1 = stepperZ2.getCurrent();
         stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
       #endif
 
