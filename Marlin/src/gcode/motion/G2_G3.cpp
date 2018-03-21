@@ -269,7 +269,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
 
       // Send the arc to the planner
       plan_arc(destination, arc_offset, clockwise);
-      refresh_cmd_timeout();
+      reset_stepper_timeout();
     }
     else {
       // Bad arguments

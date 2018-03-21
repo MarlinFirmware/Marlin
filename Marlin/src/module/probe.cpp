@@ -545,9 +545,6 @@ static float run_z_probe() {
     if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
   #endif
 
-  // Prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
-  gcode.refresh_cmd_timeout();
-
   // Double-probing does a fast probe followed by a slow probe
   #if MULTIPLE_PROBING == 2
 

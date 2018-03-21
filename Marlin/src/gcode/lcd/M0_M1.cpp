@@ -75,10 +75,9 @@ void GcodeSuite::M0_M1() {
   wait_for_user = true;
 
   stepper.synchronize();
-  refresh_cmd_timeout();
 
   if (ms > 0) {
-    ms += previous_cmd_ms;  // wait until this time for a click
+    ms += previous_move_ms;  // wait until this time for a click
     while (PENDING(millis(), ms) && wait_for_user) idle();
   }
   else {

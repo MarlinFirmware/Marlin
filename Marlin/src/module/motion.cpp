@@ -266,8 +266,6 @@ void buffer_line_to_destination(const float fr_mm_s) {
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
 
-    gcode.refresh_cmd_timeout();
-
     #if UBL_SEGMENTED
       // ubl segmented line will do z-only moves in single segment
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
@@ -435,12 +433,10 @@ void bracket_probe_move(const bool before) {
     saved_feedrate_mm_s = feedrate_mm_s;
     saved_feedrate_percentage = feedrate_percentage;
     feedrate_percentage = 100;
-    gcode.refresh_cmd_timeout();
   }
   else {
     feedrate_mm_s = saved_feedrate_mm_s;
     feedrate_percentage = saved_feedrate_percentage;
-    gcode.refresh_cmd_timeout();
   }
 }
 
@@ -859,7 +855,6 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
  */
 void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
-  gcode.refresh_cmd_timeout();
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
 
