@@ -50,15 +50,18 @@
   }
 
   /**
-   * In CNC G-code G53 is like a modifier
+   * G53: Apply native workspace to the current move
+   *
+   * In CNC G-code G53 is a modifier.
    * It precedes a movement command (or other modifiers) on the same line.
    * This is the first command to use parser.chain() to make this possible.
+   *
+   * Marlin also uses G53 on a line by itself to go back to native space.
    */
-  void GcodeSuite::G53() {
-    // If this command has more following...
-    if (parser.chain()) {
-      const int8_t _system = active_coordinate_system;
-      active_coordinate_system = -1;
+  inline void gcode_G53() {
+    const int8_t _system = active_coordinate_system;
+    active_coordinate_system = -1;
+    if (parser.chain()) { // If this command has more following...
       process_parsed_command();
       active_coordinate_system = _system;
     }
