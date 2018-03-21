@@ -350,7 +350,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
 
   if (stepper_inactive_time) {
-    if (planner.blocks_queued())
+    if (planner.has_blocks_queued())
       gcode.previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
     else if (MOVE_AWAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
       #if ENABLED(DISABLE_INACTIVE_X)
@@ -428,7 +428,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
       && ELAPSED(ms, gcode.previous_move_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
-      && !planner.blocks_queued()
+      && !planner.has_blocks_queued()
     ) {
       #if ENABLED(SWITCHING_EXTRUDER)
         const bool oldstatus = E0_ENABLE_READ;
@@ -544,7 +544,7 @@ void idle(
 
   #if ENABLED(I2C_POSITION_ENCODERS)
     static millis_t i2cpem_next_update_ms;
-    if (planner.blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
+    if (planner.has_blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
       I2CPEM.update();
       i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
