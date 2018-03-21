@@ -174,7 +174,7 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
             new_fanSpeeds[FAN_COUNT];
   #endif
   #if ENABLED(PROBING_FANS_OFF)
-    bool fans_paused = false;
+    bool fans_paused; // = false;
     int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
   #endif
 #endif
@@ -184,7 +184,7 @@ volatile bool wait_for_heatup = true;
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if HAS_RESUME_CONTINUE
-  volatile bool wait_for_user = false;
+  volatile bool wait_for_user; // = false;
 #endif
 
 #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -192,12 +192,12 @@ volatile bool wait_for_heatup = true;
 #endif
 
 // Inactivity shutdown
-millis_t max_inactive_time = 0,
+millis_t max_inactive_time, // = 0
          stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
 #ifdef CHDK
-  millis_t chdkHigh = 0;
-  bool chdkActive = false;
+  millis_t chdkHigh; // = 0;
+  bool chdkActive; // = false;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)

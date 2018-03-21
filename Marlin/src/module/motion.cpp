@@ -69,7 +69,7 @@ XYZ_CONSTS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_CONSTS(signed char, home_dir, HOME_DIR);
 
 // Relative Mode. Enable with G91, disable with G90.
-bool relative_mode = false;
+bool relative_mode; // = false;
 
 /**
  * Cartesian Current Position
@@ -89,7 +89,7 @@ float destination[XYZE] = { 0.0 };
 
 
 // The active extruder (tool). Set with T<extruder> command.
-uint8_t active_extruder = 0;
+uint8_t active_extruder; // = 0;
 
 // Extruder offsets
 #if HOTENDS > 1
