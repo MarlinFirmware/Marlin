@@ -207,8 +207,8 @@ void clear_command_queue();
   #endif
 #endif
 
-extern millis_t previous_cmd_ms;
-inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
+extern millis_t previous_move_ms;
+inline void reset_stepper_timeout() { previous_move_ms = millis(); }
 
 /**
  * Feedrate scaling and conversion
