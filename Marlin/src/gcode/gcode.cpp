@@ -40,7 +40,7 @@ GcodeSuite gcode;
   #include "../feature/mixing.h"
 #endif
 
-#include "../Marlin.h" // for idle()
+#include "../Marlin.h" // for idle() and suspend_auto_report
 
 uint8_t GcodeSuite::target_extruder;
 millis_t GcodeSuite::previous_cmd_ms;
@@ -749,7 +749,7 @@ void GcodeSuite::process_next_command() {
   void GcodeSuite::host_keepalive() {
     const millis_t ms = millis();
     static millis_t next_busy_signal_ms = 0;
-    if (host_keepalive_interval && busy_state != NOT_BUSY) {
+    if (!suspend_auto_report && host_keepalive_interval && busy_state != NOT_BUSY) {
       if (PENDING(ms, next_busy_signal_ms)) return;
       switch (busy_state) {
         case IN_HANDLER:

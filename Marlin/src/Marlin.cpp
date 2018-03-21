@@ -187,7 +187,7 @@ volatile bool wait_for_heatup = true;
   volatile bool wait_for_user = false;
 #endif
 
-#if HAS_AUTO_REPORTING
+#if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
   bool suspend_auto_report; // = false
 #endif
 
