@@ -386,9 +386,10 @@
 
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
-// MK2 Multiplexer forces SINGLENOZZLE to be enabled
+// MK2 Multiplexer forces SINGLENOZZLE and kills DISABLE_INACTIVE_EXTRUDER
 #if ENABLED(MK2_MULTIPLEXER)
   #define SINGLENOZZLE
+  #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
 /**

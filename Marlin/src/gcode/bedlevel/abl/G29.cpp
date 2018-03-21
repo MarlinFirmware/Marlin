@@ -604,7 +604,7 @@ void GcodeSuite::G29() {
 
   #else // !PROBE_MANUALLY
   {
-    const bool stow_probe_after_each = parser.boolval('E');
+    const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
     measured_z = 0;
 
@@ -650,7 +650,7 @@ void GcodeSuite::G29() {
             if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
           #endif
 
-          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
 
           if (isnan(measured_z)) {
             set_bed_leveling_enabled(abl_should_enable);
@@ -687,7 +687,7 @@ void GcodeSuite::G29() {
         // Retain the last probe position
         xProbe = points[i].x;
         yProbe = points[i].y;
-        measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+        measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
         if (isnan(measured_z)) {
           set_bed_leveling_enabled(abl_should_enable);
           break;
@@ -949,7 +949,7 @@ void GcodeSuite::G29() {
   if (planner.leveling_active)
     SYNC_PLAN_POSITION_KINEMATIC();
 
-  #if HAS_BED_PROBE
+  #if HAS_BED_PROBE && Z_AFTER_PROBING
     move_z_after_probing();
   #endif
 

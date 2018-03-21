@@ -47,7 +47,7 @@
   #define MOSI_PIN          75
 #else
   // defaults
-  #define SOFTWARE_SPI
+  #define DUE_SOFTWARE_SPI
   #define SCK_PIN           52
   #define MISO_PIN          50
   #define MOSI_PIN          51

@@ -51,8 +51,8 @@ void GcodeSuite::G30() {
 
   setup_for_endstop_or_probe_move();
 
-  const bool do_stow = parser.boolval('E');
-  const float measured_z = probe_pt(xpos, ypos, do_stow, 1);
+  const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_NONE;
+  const float measured_z = probe_pt(xpos, ypos, raise_after, 1);
 
   if (!isnan(measured_z)) {
     SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
@@ -62,7 +62,9 @@ void GcodeSuite::G30() {
 
   clean_up_after_endstop_or_probe_move();
 
-  if (do_stow) move_z_after_probing();
+  #if Z_AFTER_PROBING
+    if (raise_after == PROBE_PT_STOW) move_z_after_probing();
+  #endif
 
   report_current_position();
 }

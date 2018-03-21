@@ -41,7 +41,9 @@ void GcodeSuite::M401() {
  */
 void GcodeSuite::M402() {
   STOW_PROBE();
-  move_z_after_probing();
+  #if Z_AFTER_PROBING
+    move_z_after_probing();
+  #endif
   report_current_position();
 }
 

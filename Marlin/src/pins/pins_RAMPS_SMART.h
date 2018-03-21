@@ -90,12 +90,12 @@
 //
 // Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel
 #if ENABLED(AZSMZ_12864)
-  #define BEEPER_PIN       66
+  #define BEEPER_PIN       66 // Smart RAMPS 1.42 pinout diagram on RepRap WIKI erroneously says this should be pin 65
   #define DOGLCD_A0        59
   #define DOGLCD_CS        44
   #define BTN_EN1          58
   #define BTN_EN2          40
-  #define BTN_ENC          67
+  #define BTN_ENC          67 // Smart RAMPS 1.42 pinout diagram on RepRap WIKI erroneously says this should be pin 66
   #define SD_DETECT_PIN    49 // Pin 49 for display sd interface, 72 for easy adapter board
   #define KILL_PIN         42
 #endif

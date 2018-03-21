@@ -128,8 +128,8 @@ bool report_tmc_status = false;
       SERIAL_ECHOLNPGM("mA)");
     }
     #if CURRENT_STEP_DOWN > 0
-      // Decrease current if is_otpw is true and driver is enabled and there's been more then 4 warnings
-      if (data.is_otpw && !st.isEnabled() && otpw_cnt > 4) {
+      // Decrease current if is_otpw is true and driver is enabled and there's been more than 4 warnings
+      if (data.is_otpw && st.isEnabled() && otpw_cnt > 4) {
         st.setCurrent(st.getCurrent() - CURRENT_STEP_DOWN, R_SENSE, HOLD_MULTIPLIER);
         #if ENABLED(REPORT_CURRENT_CHANGE)
           _tmc_say_axis(axis);
@@ -142,7 +142,7 @@ bool report_tmc_status = false;
       otpw_cnt++;
       st.flag_otpw = true;
     }
-    else if (otpw_cnt > 0) otpw_cnt--;
+    else if (otpw_cnt > 0) otpw_cnt = 0;
 
     if (report_tmc_status) {
       const uint32_t pwm_scale = get_pwm_scale(st);
@@ -331,6 +331,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
       }
     }
   #endif
+
   #if ENABLED(HAVE_TMC2208)
     static void tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
       switch (i) {

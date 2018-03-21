@@ -32,12 +32,15 @@
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
-  #ifdef Z_AFTER_PROBING
+  #if Z_AFTER_PROBING
     void move_z_after_probing();
-  #else
-    inline void move_z_after_probing() {}
   #endif
-  float probe_pt(const float &rx, const float &ry, const bool, const uint8_t, const bool probe_relative=true);
+  enum ProbePtRaise : unsigned char {
+    PROBE_PT_NONE,  // No raise or stow after run_z_probe
+    PROBE_PT_STOW,  // Do a complete stow after run_z_probe
+    PROBE_PT_RAISE  // Raise to "between" clearance after run_z_probe
+  };
+  float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
 #else

@@ -179,7 +179,7 @@ extern volatile bool wait_for_heatup;
   extern volatile bool wait_for_user;
 #endif
 
-#if HAS_AUTO_REPORTING
+#if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
   extern bool suspend_auto_report;
 #endif
 

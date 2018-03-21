@@ -157,6 +157,13 @@
 // More info here: http://reprap.org/wiki/PID_Tuning
 
 /**
+ * If PID Autotune stops because the temp overshoots the requested S value, enable this and
+ * set the overshoot temp to a value 5 or 10 degrees higher. If the overshoot value is more
+ * than 40 degrees, things may not be ok with your system.
+ */
+//#define MAX_OVERSHOOT_PID_AUTOTUNE 20
+
+/**
  * Enable a custom menu that contains three preheat presets for PLA, ABS and PETG
  */
 #define CUSTOM_USER_MENUS

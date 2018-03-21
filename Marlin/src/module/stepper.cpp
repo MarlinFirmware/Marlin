@@ -921,31 +921,6 @@ void Stepper::init() {
     microstep_init();
   #endif
 
-  // Init TMC Steppers
-  #if ENABLED(HAVE_TMC26X)
-    tmc26x_init();
-  #endif
-
-  // Init TMC2130 Steppers
-  #if ENABLED(HAVE_TMC2130)
-    tmc2130_init();
-  #endif
-
-  // Init TMC2208 Steppers
-  #if ENABLED(HAVE_TMC2208)
-    tmc2208_init();
-  #endif
-
-  // TRAMS, TMC2130 and TMC2208 advanced settings
-  #if HAS_TRINAMIC
-    TMC_ADV()
-  #endif
-
-  // Init L6470 Steppers
-  #if ENABLED(HAVE_L6470DRIVER)
-    L6470_init();
-  #endif
-
   // Init Dir Pins
   #if HAS_X_DIR
     X_DIR_INIT;
