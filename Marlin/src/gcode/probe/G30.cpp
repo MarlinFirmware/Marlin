@@ -62,7 +62,9 @@ void GcodeSuite::G30() {
 
   clean_up_after_endstop_or_probe_move();
 
-  if (raise_after == PROBE_PT_STOW) move_z_after_probing();
+  #if Z_AFTER_PROBING
+    if (raise_after == PROBE_PT_STOW) move_z_after_probing();
+  #endif
 
   report_current_position();
 }

@@ -32,10 +32,8 @@
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
-  #ifdef Z_AFTER_PROBING
+  #if Z_AFTER_PROBING
     void move_z_after_probing();
-  #else
-    inline void move_z_after_probing() {}
   #endif
   enum ProbePtRaise : unsigned char {
     PROBE_PT_NONE,  // No raise or stow after run_z_probe

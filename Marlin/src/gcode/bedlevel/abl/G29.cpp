@@ -949,7 +949,7 @@ void GcodeSuite::G29() {
   if (planner.leveling_active)
     SYNC_PLAN_POSITION_KINEMATIC();
 
-  #if HAS_BED_PROBE
+  #if HAS_BED_PROBE && Z_AFTER_PROBING
     move_z_after_probing();
   #endif
 
