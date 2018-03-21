@@ -54,29 +54,32 @@
   #else
     #include <TMC26XStepper.h>
   #endif
-  void tmc26x_init();
+  void tmc26x_init_to_defaults();
 #endif
 
 #if ENABLED(HAVE_TMC2130)
   #include <TMC2130Stepper.h>
-  void tmc2130_init();
+  void tmc2130_init_to_defaults();
 #endif
 
 #if ENABLED(HAVE_TMC2208)
   #include <TMC2208Stepper.h>
   void tmc2208_serial_begin();
-  void tmc2208_init();
+  void tmc2208_init_to_defaults();
 #endif
 
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
 #if ENABLED(HAVE_L6470DRIVER)
   #include <SPI.h>
   #include <L6470.h>
-  void L6470_init();
+  void L6470_init_to_defaults();
 #endif
 
+void restore_stepper_drivers();  // Called by PSU_ON
+void reset_stepper_drivers();    // Called by settings.load / settings.reset
+
 // X Stepper
-#if ENABLED(HAVE_L6470DRIVER) && ENABLED(X_IS_L6470)
+#if ENABLED(X_IS_L6470)
   extern L6470 stepperX;
   #define X_ENABLE_INIT NOOP
   #define X_ENABLE_WRITE(STATE) do{ if (STATE) stepperX.Step_Clock(stepperX.getStatus() & STATUS_HIZ); else stepperX.softFree(); }while(0)
@@ -91,9 +94,9 @@
     #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
     #define X_ENABLE_READ stepperX.isEnabled()
   #else
-    #if ENABLED(HAVE_TMC2130) && ENABLED(X_IS_TMC2130)
+    #if ENABLED(X_IS_TMC2130)
       extern TMC2130Stepper stepperX;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(X_IS_TMC2208)
+    #elif ENABLED(X_IS_TMC2208)
       extern TMC2208Stepper stepperX;
     #endif
     #define X_ENABLE_INIT SET_OUTPUT(X_ENABLE_PIN)
@@ -109,7 +112,7 @@
 #define X_STEP_READ READ(X_STEP_PIN)
 
 // Y Stepper
-#if ENABLED(HAVE_L6470DRIVER) && ENABLED(Y_IS_L6470)
+#if ENABLED(Y_IS_L6470)
   extern L6470 stepperY;
   #define Y_ENABLE_INIT NOOP
   #define Y_ENABLE_WRITE(STATE) do{ if (STATE) stepperY.Step_Clock(stepperY.getStatus() & STATUS_HIZ); else stepperY.softFree(); }while(0)
@@ -124,9 +127,9 @@
     #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
     #define Y_ENABLE_READ stepperY.isEnabled()
   #else
-    #if ENABLED(HAVE_TMC2130) && ENABLED(Y_IS_TMC2130)
+    #if ENABLED(Y_IS_TMC2130)
       extern TMC2130Stepper stepperY;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(Y_IS_TMC2208)
+    #elif ENABLED(Y_IS_TMC2208)
       extern TMC2208Stepper stepperY;
     #endif
     #define Y_ENABLE_INIT SET_OUTPUT(Y_ENABLE_PIN)
@@ -142,7 +145,7 @@
 #define Y_STEP_READ READ(Y_STEP_PIN)
 
 // Z Stepper
-#if ENABLED(HAVE_L6470DRIVER) && ENABLED(Z_IS_L6470)
+#if ENABLED(Z_IS_L6470)
   extern L6470 stepperZ;
   #define Z_ENABLE_INIT NOOP
   #define Z_ENABLE_WRITE(STATE) do{ if (STATE) stepperZ.Step_Clock(stepperZ.getStatus() & STATUS_HIZ); else stepperZ.softFree(); }while(0)
@@ -157,9 +160,9 @@
     #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
     #define Z_ENABLE_READ stepperZ.isEnabled()
   #else
-    #if ENABLED(HAVE_TMC2130) && ENABLED(Z_IS_TMC2130)
+    #if ENABLED(Z_IS_TMC2130)
       extern TMC2130Stepper stepperZ;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(Z_IS_TMC2208)
+    #elif ENABLED(Z_IS_TMC2208)
       extern TMC2208Stepper stepperZ;
     #endif
     #define Z_ENABLE_INIT SET_OUTPUT(Z_ENABLE_PIN)
@@ -176,7 +179,7 @@
 
 // X2 Stepper
 #if HAS_X2_ENABLE
-  #if ENABLED(HAVE_L6470DRIVER) && ENABLED(X2_IS_L6470)
+  #if ENABLED(X2_IS_L6470)
     extern L6470 stepperX2;
     #define X2_ENABLE_INIT NOOP
     #define X2_ENABLE_WRITE(STATE) do{ if (STATE) stepperX2.Step_Clock(stepperX2.getStatus() & STATUS_HIZ); else stepperX2.softFree(); }while(0)
@@ -191,9 +194,9 @@
       #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
       #define X2_ENABLE_READ stepperX2.isEnabled()
     #else
-      #if ENABLED(HAVE_TMC2130) && ENABLED(X2_IS_TMC2130)
+      #if ENABLED(X2_IS_TMC2130)
         extern TMC2130Stepper stepperX2;
-      #elif ENABLED(HAVE_TMC2208) && ENABLED(X2_IS_TMC2208)
+      #elif ENABLED(X2_IS_TMC2208)
         extern TMC2208Stepper stepperX2;
       #endif
       #define X2_ENABLE_INIT SET_OUTPUT(X2_ENABLE_PIN)
@@ -211,7 +214,7 @@
 
 // Y2 Stepper
 #if HAS_Y2_ENABLE
-  #if ENABLED(HAVE_L6470DRIVER) && ENABLED(Y2_IS_L6470)
+  #if ENABLED(Y2_IS_L6470)
     extern L6470 stepperY2;
     #define Y2_ENABLE_INIT NOOP
     #define Y2_ENABLE_WRITE(STATE) do{ if (STATE) stepperY2.Step_Clock(stepperY2.getStatus() & STATUS_HIZ); else stepperY2.softFree(); }while(0)
@@ -226,9 +229,9 @@
       #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
       #define Y2_ENABLE_READ stepperY2.isEnabled()
     #else
-      #if ENABLED(HAVE_TMC2130) && ENABLED(Y2_IS_TMC2130)
+      #if ENABLED(Y2_IS_TMC2130)
         extern TMC2130Stepper stepperY2;
-      #elif ENABLED(HAVE_TMC2208) && ENABLED(Y2_IS_TMC2208)
+      #elif ENABLED(Y2_IS_TMC2208)
         extern TMC2208Stepper stepperY2;
       #endif
       #define Y2_ENABLE_INIT SET_OUTPUT(Y2_ENABLE_PIN)
@@ -246,7 +249,7 @@
 
 // Z2 Stepper
 #if HAS_Z2_ENABLE
-  #if ENABLED(HAVE_L6470DRIVER) && ENABLED(Z2_IS_L6470)
+  #if ENABLED(Z2_IS_L6470)
     extern L6470 stepperZ2;
     #define Z2_ENABLE_INIT NOOP
     #define Z2_ENABLE_WRITE(STATE) do{ if (STATE) stepperZ2.Step_Clock(stepperZ2.getStatus() & STATUS_HIZ); else stepperZ2.softFree(); }while(0)
@@ -261,9 +264,9 @@
       #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
       #define Z2_ENABLE_READ stepperZ2.isEnabled()
     #else
-      #if ENABLED(HAVE_TMC2130) && ENABLED(Z2_IS_TMC2130)
+      #if ENABLED(Z2_IS_TMC2130)
         extern TMC2130Stepper stepperZ2;
-      #elif ENABLED(HAVE_TMC2208) && ENABLED(Z2_IS_TMC2208)
+      #elif ENABLED(Z2_IS_TMC2208)
         extern TMC2208Stepper stepperZ2;
       #endif
       #define Z2_ENABLE_INIT SET_OUTPUT(Z2_ENABLE_PIN)
@@ -280,7 +283,7 @@
 #endif
 
 // E0 Stepper
-#if ENABLED(HAVE_L6470DRIVER) && ENABLED(E0_IS_L6470)
+#if ENABLED(E0_IS_L6470)
   extern L6470 stepperE0;
   #define E0_ENABLE_INIT NOOP
   #define E0_ENABLE_WRITE(STATE) do{ if (STATE) stepperE0.Step_Clock(stepperE0.getStatus() & STATUS_HIZ); else stepperE0.softFree(); }while(0)
@@ -295,9 +298,9 @@
     #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
     #define E0_ENABLE_READ stepperE0.isEnabled()
   #else
-    #if ENABLED(HAVE_TMC2130) && ENABLED(E0_IS_TMC2130)
+    #if ENABLED(E0_IS_TMC2130)
       extern TMC2130Stepper stepperE0;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E0_IS_TMC2208)
+    #elif ENABLED(E0_IS_TMC2208)
       extern TMC2208Stepper stepperE0;
     #endif
     #define E0_ENABLE_INIT SET_OUTPUT(E0_ENABLE_PIN)
@@ -313,7 +316,7 @@
 #define E0_STEP_READ READ(E0_STEP_PIN)
 
 // E1 Stepper
-#if ENABLED(HAVE_L6470DRIVER) && ENABLED(E1_IS_L6470)
+#if ENABLED(E1_IS_L6470)
   extern L6470 stepperE1;
   #define E1_ENABLE_INIT NOOP
   #define E1_ENABLE_WRITE(STATE) do{ if (STATE) stepperE1.Step_Clock(stepperE1.getStatus() & STATUS_HIZ); else stepperE1.softFree(); }while(0)
@@ -328,9 +331,9 @@
     #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
     #define E1_ENABLE_READ stepperE1.isEnabled()
   #else
-    #if ENABLED(HAVE_TMC2130) && ENABLED(E1_IS_TMC2130)
+    #if ENABLED(E1_IS_TMC2130)
       extern TMC2130Stepper stepperE1;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E1_IS_TMC2208)
+    #elif ENABLED(E1_IS_TMC2208)
       extern TMC2208Stepper stepperE1;
     #endif
     #define E1_ENABLE_INIT SET_OUTPUT(E1_ENABLE_PIN)
@@ -346,7 +349,7 @@
 #define E1_STEP_READ READ(E1_STEP_PIN)
 
 // E2 Stepper
-#if ENABLED(HAVE_L6470DRIVER) && ENABLED(E2_IS_L6470)
+#if ENABLED(E2_IS_L6470)
   extern L6470 stepperE2;
   #define E2_ENABLE_INIT NOOP
   #define E2_ENABLE_WRITE(STATE) do{ if (STATE) stepperE2.Step_Clock(stepperE2.getStatus() & STATUS_HIZ); else stepperE2.softFree(); }while(0)
@@ -361,9 +364,9 @@
     #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
     #define E2_ENABLE_READ stepperE2.isEnabled()
   #else
-    #if ENABLED(HAVE_TMC2130) && ENABLED(E2_IS_TMC2130)
+    #if ENABLED(E2_IS_TMC2130)
       extern TMC2130Stepper stepperE2;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E2_IS_TMC2208)
+    #elif ENABLED(E2_IS_TMC2208)
       extern TMC2208Stepper stepperE2;
     #endif
     #define E2_ENABLE_INIT SET_OUTPUT(E2_ENABLE_PIN)
@@ -379,7 +382,7 @@
 #define E2_STEP_READ READ(E2_STEP_PIN)
 
 // E3 Stepper
-#if ENABLED(HAVE_L6470DRIVER) && ENABLED(E3_IS_L6470)
+#if ENABLED(E3_IS_L6470)
   extern L6470 stepperE3;
   #define E3_ENABLE_INIT NOOP
   #define E3_ENABLE_WRITE(STATE) do{ if (STATE) stepperE3.Step_Clock(stepperE3.getStatus() & STATUS_HIZ); else stepperE3.softFree(); }while(0)
@@ -394,9 +397,9 @@
     #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
     #define E3_ENABLE_READ stepperE3.isEnabled()
   #else
-    #if ENABLED(HAVE_TMC2130) && ENABLED(E3_IS_TMC2130)
+    #if ENABLED(E3_IS_TMC2130)
       extern TMC2130Stepper stepperE3;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E3_IS_TMC2208)
+    #elif ENABLED(E3_IS_TMC2208)
       extern TMC2208Stepper stepperE3;
     #endif
     #define E3_ENABLE_INIT SET_OUTPUT(E3_ENABLE_PIN)
@@ -412,7 +415,7 @@
 #define E3_STEP_READ READ(E3_STEP_PIN)
 
 // E4 Stepper
-#if ENABLED(HAVE_L6470DRIVER) && ENABLED(E4_IS_L6470)
+#if ENABLED(E4_IS_L6470)
   extern L6470 stepperE4;
   #define E4_ENABLE_INIT NOOP
   #define E4_ENABLE_WRITE(STATE) do{ if (STATE) stepperE4.Step_Clock(stepperE4.getStatus() & STATUS_HIZ); else stepperE4.softFree(); }while(0)
@@ -427,9 +430,9 @@
     #define E4_ENABLE_WRITE(STATE) stepperE4.setEnabled(STATE)
     #define E4_ENABLE_READ stepperE4.isEnabled()
   #else
-    #if ENABLED(HAVE_TMC2130) && ENABLED(E4_IS_TMC2130)
+    #if ENABLED(E4_IS_TMC2130)
       extern TMC2130Stepper stepperE4;
-    #elif ENABLED(HAVE_TMC2208) && ENABLED(E4_IS_TMC2208)
+    #elif ENABLED(E4_IS_TMC2208)
       extern TMC2208Stepper stepperE4;
     #endif
     #define E4_ENABLE_INIT SET_OUTPUT(E4_ENABLE_PIN)
