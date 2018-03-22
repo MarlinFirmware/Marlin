@@ -117,6 +117,10 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 
 // private:
 
+#if EARLY_WATCHDOG
+  bool Temperature::inited = false;
+#endif
+
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   uint16_t Temperature::redundant_temperature_raw = 0;
   float Temperature::redundant_temperature = 0.0;
@@ -761,6 +765,14 @@ float Temperature::get_pid_output(const int8_t e) {
  */
 void Temperature::manage_heater() {
 
+  #if EARLY_WATCHDOG
+    // If thermal manager is still not running, make sure to at least reset the watchdog!
+    if (!inited) {
+      watchdog_reset();
+      return;
+    }
+  #endif
+
   #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
     static bool last_pause_state;
   #endif
@@ -1052,6 +1064,12 @@ void Temperature::updateTemperaturesFromRawValues() {
  * The manager is implemented by periodic calls to manage_heater()
  */
 void Temperature::init() {
+
+  #if EARLY_WATCHDOG
+    // Flag that the thermalManager should be running
+    if (inited) return;
+    inited = true;
+  #endif
 
   #if MB(RUMBA) && (TEMP_SENSOR_0 == -1 || TEMP_SENSOR_1 == -1 || TEMP_SENSOR_2 == -1 || TEMP_SENSOR_BED == -1)
     // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector

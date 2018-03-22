@@ -1146,4 +1146,4 @@ bool udc_process_setup(void)
 
 //! @}
 
-#endif
+#endif // ARDUINO_ARCH_SAM
