@@ -779,7 +779,7 @@
       wait_for_release();
       while (!is_lcd_clicked()) {
         idle();
-        gcode.refresh_cmd_timeout();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
           do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * multiplier);
           encoder_diff = 0;
