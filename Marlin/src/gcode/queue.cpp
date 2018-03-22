@@ -204,7 +204,6 @@ void ok_to_send() {
     const int16_t port = command_queue_port[cmd_queue_index_r];
     if (port < 0) return;
   #endif
-  gcode.refresh_cmd_timeout();
   if (!send_ok[cmd_queue_index_r]) return;
   SERIAL_PROTOCOLPGM_P(port, MSG_OK);
   #if ENABLED(ADVANCED_OK)

@@ -34,6 +34,7 @@
 #include "../HAL.h"
 
 #include <Wire.h>
+#include "usb/usb_task.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -73,6 +74,18 @@ uint16_t HAL_adc_result;
 // Public functions
 // --------------------------------------------------------------------------
 
+// HAL initialization task
+void HAL_init(void) {
+  // Initialize the USB stack
+  usb_task_init();
+}
+
+// HAL idle task
+void HAL_idletask(void) {
+  // Perform USB stack housekeeping
+  usb_task_idle();
+}
+
 // disable interrupts
 void cli(void) { noInterrupts(); }
 
@@ -82,14 +95,13 @@ void sei(void) { interrupts(); }
 void HAL_clear_reset_source(void) { }
 
 uint8_t HAL_get_reset_source(void) {
-  switch ((RSTC->RSTC_SR >> 8) & 7) {
-    case 0: return RST_POWER_ON; break;
-    case 1: return RST_BACKUP; break;
-    case 2: return RST_WATCHDOG; break;
-    case 3: return RST_SOFTWARE; break;
-    case 4: return RST_EXTERNAL; break;
-    default:
-      return 0;
+  switch ((RSTC->RSTC_SR >> 8) & 0x07) {
+    case 0: return RST_POWER_ON;
+    case 1: return RST_BACKUP;
+    case 2: return RST_WATCHDOG;
+    case 3: return RST_SOFTWARE;
+    case 4: return RST_EXTERNAL;
+    default: return 0;
   }
 }
 

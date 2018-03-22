@@ -599,8 +599,8 @@
     if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
       g29_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
 
-      if (g29_storage_slot == -1)                     // Special case, we are going to 'Export' the mesh to the
-        return report_current_mesh();
+      if (g29_storage_slot == -1)                     // Special case, the user wants to 'Export' the mesh to the
+        return report_current_mesh();                 // host program to be saved on the user's computer
 
       int16_t a = settings.calc_num_meshes();
 
@@ -779,7 +779,7 @@
       wait_for_release();
       while (!is_lcd_clicked()) {
         idle();
-        gcode.refresh_cmd_timeout();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
           do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * multiplier);
           encoder_diff = 0;

@@ -155,8 +155,6 @@ inline void servo_probe_test() {
     } while (++i < 4);
     if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
 
-    gcode.refresh_cmd_timeout();
-
     if (deploy_state != stow_state) {
       SERIAL_PROTOCOLLNPGM("BLTouch clone detected");
       if (deploy_state) {
@@ -182,8 +180,7 @@ inline void servo_probe_test() {
 
         safe_delay(2);
 
-        if (0 == j % (500 * 1)) // keep cmd_timeout happy
-          gcode.refresh_cmd_timeout();
+        if (0 == j % (500 * 1)) gcode.reset_stepper_timeout(); // Keep steppers powered
 
         if (deploy_state != READ(PROBE_TEST_PIN)) { // probe triggered
 

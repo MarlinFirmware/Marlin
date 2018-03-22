@@ -43,7 +43,7 @@ GcodeSuite gcode;
 #include "../Marlin.h" // for idle() and suspend_auto_report
 
 uint8_t GcodeSuite::target_extruder;
-millis_t GcodeSuite::previous_cmd_ms;
+millis_t GcodeSuite::previous_move_ms;
 
 bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
 
@@ -121,8 +121,7 @@ void GcodeSuite::get_destination_from_command() {
  * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
  */
 void GcodeSuite::dwell(millis_t time) {
-  refresh_cmd_timeout();
-  time += previous_cmd_ms;
+  time += millis();
   while (PENDING(millis(), time)) idle();
 }
 
@@ -734,6 +733,8 @@ void GcodeSuite::process_next_command() {
       M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
     #endif
   }
+
+  reset_stepper_timeout(); // Keep steppers powered
 
   // Parse the next command in the queue
   parser.parse(current_command);

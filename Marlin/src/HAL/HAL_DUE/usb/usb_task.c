@@ -56,7 +56,7 @@
 static volatile bool main_b_cdc_enable = false;
 static volatile bool main_b_dtr_active = false;
 
-void HAL_idletask(void) {
+void usb_task_idle(void) {
   #if ENABLED(SDSUPPORT)
     // Attend SD card access from the USB MSD -- Prioritize access to improve speed
     int delay = 2;
@@ -107,8 +107,15 @@ void usb_task_cdc_set_dtr(const uint8_t port, const bool b_enable) {
 
   if (1200 == dwDTERate) {
     // We check DTR state to determine if host port is open (bit 0 of lineState).
-    if (!b_enable)
+    if (!b_enable) {
+
+      // Set RST pin to go low for 65535 clock cycles on reset
+      //  This helps restarting when firmware flash ends
+      RSTC->RSTC_MR = 0xA5000F01;
+
+      // Schedule delayed reset
       initiateReset(250);
+    }
     else
       cancelReset();
   }
@@ -290,7 +297,7 @@ bool usb_task_other_requests(void) {
   return true;
 }
 
-void HAL_init(void) {
+void usb_task_init(void) {
 
   uint16_t *ptr;
 

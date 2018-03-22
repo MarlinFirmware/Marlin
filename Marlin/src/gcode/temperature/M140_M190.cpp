@@ -122,7 +122,7 @@ void GcodeSuite::M190() {
     }
 
     idle();
-    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
+    reset_stepper_timeout(); // Keep steppers powered
 
     const float temp = thermalManager.degBed();
 

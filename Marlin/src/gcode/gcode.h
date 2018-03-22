@@ -280,8 +280,8 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
-  static millis_t previous_cmd_ms;
-  FORCE_INLINE static void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
+  static millis_t previous_move_ms;
+  FORCE_INLINE static void reset_stepper_timeout() { previous_move_ms = millis(); }
 
   static bool get_target_extruder_from_command();
   static void get_destination_from_command();
