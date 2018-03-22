@@ -774,7 +774,7 @@
       wait_for_release();
       while (!is_lcd_clicked()) {
         idle();
-        refresh_cmd_timeout();
+        reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
           do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * multiplier);
           encoder_diff = 0;

@@ -522,7 +522,7 @@ const char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
 static int serial_count; // = 0;
 
 // Inactivity shutdown
-millis_t previous_cmd_ms; // = 0;
+millis_t previous_move_ms; // = 0;
 static millis_t max_inactive_time; // = 0;
 static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
@@ -1539,8 +1539,6 @@ inline void buffer_line_to_destination(const float &fr_mm_s) {
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
 
-    refresh_cmd_timeout();
-
     #if UBL_SEGMENTED
       // ubl segmented line will do z-only moves in single segment
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
@@ -1705,7 +1703,6 @@ static void setup_for_endstop_or_probe_move() {
   saved_feedrate_mm_s = feedrate_mm_s;
   saved_feedrate_percentage = feedrate_percentage;
   feedrate_percentage = 100;
-  refresh_cmd_timeout();
 }
 
 static void clean_up_after_endstop_or_probe_move() {
@@ -1714,7 +1711,6 @@ static void clean_up_after_endstop_or_probe_move() {
   #endif
   feedrate_mm_s = saved_feedrate_mm_s;
   feedrate_percentage = saved_feedrate_percentage;
-  refresh_cmd_timeout();
 }
 
 #if HAS_AXIS_UNHOMED_ERR
@@ -2226,9 +2222,6 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
     #endif
-
-    // Prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
-    refresh_cmd_timeout();
 
     // Double-probing does a fast probe followed by a slow probe
     #if MULTIPLE_PROBING == 2
@@ -3360,7 +3353,6 @@ inline void gcode_G0_G1(
 
         // Send the arc to the planner
         plan_arc(destination, arc_offset, clockwise);
-        refresh_cmd_timeout();
       }
       else {
         // Bad arguments
@@ -3373,8 +3365,7 @@ inline void gcode_G0_G1(
 #endif // ARC_SUPPORT
 
 void dwell(millis_t time) {
-  refresh_cmd_timeout();
-  time += previous_cmd_ms;
+  time += millis();
   while (PENDING(millis(), time)) idle();
 }
 
@@ -6236,10 +6227,9 @@ inline void gcode_G92() {
     wait_for_user = true;
 
     stepper.synchronize();
-    refresh_cmd_timeout();
 
     if (ms > 0) {
-      ms += previous_cmd_ms;  // wait until this time for a click
+      ms += millis();  // wait until this time for a click
       while (PENDING(millis(), ms) && wait_for_user) idle();
     }
     else {
@@ -7198,8 +7188,6 @@ inline void gcode_M42() {
       }
       if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
 
-      refresh_cmd_timeout();
-
       if (deploy_state != stow_state) {
         SERIAL_PROTOCOLLNPGM("BLTouch clone detected");
         if (deploy_state) {
@@ -7226,8 +7214,7 @@ inline void gcode_M42() {
 
           safe_delay(2);
 
-          if (0 == j % (500 * 1)) // keep cmd_timeout happy
-            refresh_cmd_timeout();
+          if (0 == j % (500 * 1)) reset_stepper_timeout(); // Keep steppers powered
 
           if (deploy_state != READ(PROBE_TEST_PIN)) { // probe triggered
 
@@ -7921,7 +7908,7 @@ inline void gcode_M109() {
     }
 
     idle();
-    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
+    reset_stepper_timeout(); // Keep steppers powered
 
     const float temp = thermalManager.degHotend(target_extruder);
 
@@ -8058,7 +8045,7 @@ inline void gcode_M109() {
       }
 
       idle();
-      refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
+      reset_stepper_timeout(); // Keep steppers powered
 
       const float temp = thermalManager.degBed();
 
@@ -12199,6 +12186,8 @@ void process_next_command() {
     #endif
   }
 
+  reset_stepper_timeout(); // Keep steppers powered
+
   // Parse the next command in the queue
   parser.parse(current_command);
   process_parsed_command();
@@ -12226,7 +12215,6 @@ void flush_and_request_resend() {
  *   B<int>  Block queue space remaining
  */
 void ok_to_send() {
-  refresh_cmd_timeout();
   if (!send_ok[cmd_queue_index_r]) return;
   SERIAL_PROTOCOLPGM(MSG_OK);
   #if ENABLED(ADVANCED_OK)
@@ -13074,7 +13062,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
  */
 void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
-  refresh_cmd_timeout();
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
 
@@ -13504,7 +13491,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   const millis_t ms = millis();
 
-  if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) {
+  if (max_inactive_time && ELAPSED(ms, previous_move_ms + max_inactive_time)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(MSG_KILL_INACTIVE_TIME, parser.command_ptr);
     kill(PSTR(MSG_KILLED));
@@ -13517,23 +13504,26 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     #define MOVE_AWAY_TEST true
   #endif
 
-  if (MOVE_AWAY_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
-      && !ignore_stepper_queue && !planner.blocks_queued()) {
-    #if ENABLED(DISABLE_INACTIVE_X)
-      disable_X();
-    #endif
-    #if ENABLED(DISABLE_INACTIVE_Y)
-      disable_Y();
-    #endif
-    #if ENABLED(DISABLE_INACTIVE_Z)
-      disable_Z();
-    #endif
-    #if ENABLED(DISABLE_INACTIVE_E)
-      disable_e_steppers();
-    #endif
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
-      if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
-    #endif
+  if (stepper_inactive_time) {
+    if (planner.has_blocks_queued())
+      previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
+    else if (MOVE_AWAY_TEST && !ignore_stepper_queue && ELAPSED(ms, previous_move_ms + stepper_inactive_time)) {
+      #if ENABLED(DISABLE_INACTIVE_X)
+        disable_X();
+      #endif
+      #if ENABLED(DISABLE_INACTIVE_Y)
+        disable_Y();
+      #endif
+      #if ENABLED(DISABLE_INACTIVE_Z)
+        disable_Z();
+      #endif
+      #if ENABLED(DISABLE_INACTIVE_E)
+        disable_e_steppers();
+      #endif
+      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
+        if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
+      #endif
+    }
   }
 
   #ifdef CHDK // Check if pin should be set to LOW after M240 set it to HIGH
@@ -13592,8 +13582,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
-      && ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
-      && !planner.blocks_queued()
+      && ELAPSED(ms, previous_move_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
+      && !planner.has_blocks_queued()
     ) {
       #if ENABLED(SWITCHING_EXTRUDER)
         const bool oldstatus = E0_ENABLE_READ;
@@ -13616,8 +13606,6 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
           #endif // E_STEPPERS > 1
         }
       #endif // !SWITCHING_EXTRUDER
-
-      previous_cmd_ms = ms; // refresh_cmd_timeout()
 
       const float olde = current_position[E_AXIS];
       current_position[E_AXIS] += EXTRUDER_RUNOUT_EXTRUDE;
@@ -13644,6 +13632,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
           #endif // E_STEPPERS > 1
         }
       #endif // !SWITCHING_EXTRUDER
+
+      previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
     }
   #endif // EXTRUDER_RUNOUT_PREVENT
 
@@ -13702,7 +13692,7 @@ void idle(
 
   #if ENABLED(I2C_POSITION_ENCODERS)
     static millis_t i2cpem_next_update_ms;
-    if (planner.blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
+    if (planner.has_blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
       I2CPEM.update();
       i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
