@@ -217,14 +217,13 @@ bool report_tmc_status = false;
 #endif // MONITOR_DRIVER_STATUS
 
 void _tmc_say_axis(const TMC_AxisEnum axis) {
-  const static char ext_X[]  PROGMEM = "X",  ext_X2[] PROGMEM = "X2",
-                    ext_Y[]  PROGMEM = "Y",  ext_Y2[] PROGMEM = "Y2",
-                    ext_Z[]  PROGMEM = "Z",  ext_Z2[] PROGMEM = "Z2",
+  const static char ext_X[]  PROGMEM = "X",  ext_Y[]  PROGMEM = "Y",  ext_Z[]  PROGMEM = "Z",
+                    ext_X2[] PROGMEM = "X2", ext_Y2[] PROGMEM = "Y2", ext_Z2[] PROGMEM = "Z2",
                     ext_E0[] PROGMEM = "E0", ext_E1[] PROGMEM = "E1",
                     ext_E2[] PROGMEM = "E2", ext_E3[] PROGMEM = "E3",
                     ext_E4[] PROGMEM = "E4";
-  const static char* const tmc_axes[] PROGMEM = { ext_X, ext_X2, ext_Y, ext_Y2, ext_Z, ext_Z2, ext_E0, ext_E1, ext_E2, ext_E3, ext_E4 };
-  serialprintPGM((char*)pgm_read_word(&tmc_axes[axis]));
+  const static char* const tmc_axes[] PROGMEM = { ext_X, ext_Y, ext_Z, ext_X2, ext_Y2, ext_Z2, ext_E0, ext_E1, ext_E2, ext_E3, ext_E4 };
+  serialprintPGM((char*)pgm_read_ptr(&tmc_axes[axis]));
 }
 
 void _tmc_say_current(const TMC_AxisEnum axis, const uint16_t curr) {
