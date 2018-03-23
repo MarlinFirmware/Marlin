@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V53"
+#define EEPROM_VERSION "V54"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -1327,7 +1327,7 @@ void MarlinSettings::postprocess() {
 
       #if HAS_TRINAMIC
         #define TMC_SET_PWMTHRS(P,Q) tmc_set_pwmthrs(stepper##Q, TMC_##Q, tmc_hybrid_threshold[TMC_##Q], planner.axis_steps_per_mm[P##_AXIS])
-        uint16_t tmc_hybrid_threshold[TMC_AXES];
+        uint32_t tmc_hybrid_threshold[TMC_AXES];
         EEPROM_READ(tmc_hybrid_threshold);
         if (!validating) {
           #if X_IS_TRINAMIC
