@@ -1363,37 +1363,39 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Make sure HAVE_TMC26X is warranted
  */
 #if ENABLED(HAVE_TMC26X) && !( \
-         ENABLED(  X_IS_TMC26X ) \
-      || ENABLED( X2_IS_TMC26X ) \
-      || ENABLED(  Y_IS_TMC26X ) \
-      || ENABLED( Y2_IS_TMC26X ) \
-      || ENABLED(  Z_IS_TMC26X ) \
-      || ENABLED( Z2_IS_TMC26X ) \
-      || ENABLED( E0_IS_TMC26X ) \
-      || ENABLED( E1_IS_TMC26X ) \
-      || ENABLED( E2_IS_TMC26X ) \
-      || ENABLED( E3_IS_TMC26X ) \
-      || ENABLED( E4_IS_TMC26X ) \
+         ENABLED( X_IS_TMC26X) \
+      || ENABLED(X2_IS_TMC26X) \
+      || ENABLED( Y_IS_TMC26X) \
+      || ENABLED(Y2_IS_TMC26X) \
+      || ENABLED( Z_IS_TMC26X) \
+      || ENABLED(Z2_IS_TMC26X) \
+      || ENABLED(E0_IS_TMC26X) \
+      || ENABLED(E1_IS_TMC26X) \
+      || ENABLED(E2_IS_TMC26X) \
+      || ENABLED(E3_IS_TMC26X) \
+      || ENABLED(E4_IS_TMC26X) \
   )
   #error "HAVE_TMC26X requires at least one TMC26X stepper to be set."
 #endif
 
 /**
- * Make sure HAVE_TMC2130 is warranted
+ * TMC2130 Requirements
  */
 #if ENABLED(HAVE_TMC2130)
-  #if !( ENABLED(  X_IS_TMC2130 ) \
-      || ENABLED( X2_IS_TMC2130 ) \
-      || ENABLED(  Y_IS_TMC2130 ) \
-      || ENABLED( Y2_IS_TMC2130 ) \
-      || ENABLED(  Z_IS_TMC2130 ) \
-      || ENABLED( Z2_IS_TMC2130 ) \
-      || ENABLED( E0_IS_TMC2130 ) \
-      || ENABLED( E1_IS_TMC2130 ) \
-      || ENABLED( E2_IS_TMC2130 ) \
-      || ENABLED( E3_IS_TMC2130 ) \
-      || ENABLED( E4_IS_TMC2130 ) )
+  #if !( ENABLED( X_IS_TMC2130) \
+      || ENABLED(X2_IS_TMC2130) \
+      || ENABLED( Y_IS_TMC2130) \
+      || ENABLED(Y2_IS_TMC2130) \
+      || ENABLED( Z_IS_TMC2130) \
+      || ENABLED(Z2_IS_TMC2130) \
+      || ENABLED(E0_IS_TMC2130) \
+      || ENABLED(E1_IS_TMC2130) \
+      || ENABLED(E2_IS_TMC2130) \
+      || ENABLED(E3_IS_TMC2130) \
+      || ENABLED(E4_IS_TMC2130) )
     #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
+  #elif TMC2130STEPPER_VERSION < 0x020201
+    #error "Update TMC2130Stepper library to 2.2.1 or newer."
   #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
   #endif
@@ -1446,38 +1448,37 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
- * Make sure HAVE_TMC2208 is warranted
+ * TMC2208 Requirements
  */
-#if ENABLED(HAVE_TMC2208) && !( \
-       ENABLED(  X_IS_TMC2208 ) \
-    || ENABLED( X2_IS_TMC2208 ) \
-    || ENABLED(  Y_IS_TMC2208 ) \
-    || ENABLED( Y2_IS_TMC2208 ) \
-    || ENABLED(  Z_IS_TMC2208 ) \
-    || ENABLED( Z2_IS_TMC2208 ) \
-    || ENABLED( E0_IS_TMC2208 ) \
-    || ENABLED( E1_IS_TMC2208 ) \
-    || ENABLED( E2_IS_TMC2208 ) \
-    || ENABLED( E3_IS_TMC2208 ) )
-  #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
-#endif
-
-/**
- * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
- */
-#if ENABLED(HAVE_TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
-       defined(X_HARDWARE_SERIAL ) \
-    || defined(X2_HARDWARE_SERIAL) \
-    || defined(Y_HARDWARE_SERIAL ) \
-    || defined(Y2_HARDWARE_SERIAL) \
-    || defined(Z_HARDWARE_SERIAL ) \
-    || defined(Z2_HARDWARE_SERIAL) \
-    || defined(E0_HARDWARE_SERIAL) \
-    || defined(E1_HARDWARE_SERIAL) \
-    || defined(E2_HARDWARE_SERIAL) \
-    || defined(E3_HARDWARE_SERIAL) \
-    || defined(E4_HARDWARE_SERIAL) )
-  #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+#if ENABLED(HAVE_TMC2208)
+  #if !( ENABLED( X_IS_TMC2208) \
+      || ENABLED(X2_IS_TMC2208) \
+      || ENABLED( Y_IS_TMC2208) \
+      || ENABLED(Y2_IS_TMC2208) \
+      || ENABLED( Z_IS_TMC2208) \
+      || ENABLED(Z2_IS_TMC2208) \
+      || ENABLED(E0_IS_TMC2208) \
+      || ENABLED(E1_IS_TMC2208) \
+      || ENABLED(E2_IS_TMC2208) \
+      || ENABLED(E3_IS_TMC2208) \
+      || ENABLED(E4_IS_TMC2208 ) )
+    #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
+  #elif ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && \  // Software UART and ENDSTOP_INTERRUPTS both use Pin Change interrupts (PCI)
+      !( defined( X_HARDWARE_SERIAL) \
+      || defined(X2_HARDWARE_SERIAL) \
+      || defined( Y_HARDWARE_SERIAL) \
+      || defined(Y2_HARDWARE_SERIAL) \
+      || defined( Z_HARDWARE_SERIAL) \
+      || defined(Z2_HARDWARE_SERIAL) \
+      || defined(E0_HARDWARE_SERIAL) \
+      || defined(E1_HARDWARE_SERIAL) \
+      || defined(E2_HARDWARE_SERIAL) \
+      || defined(E3_HARDWARE_SERIAL) \
+      || defined(E4_HARDWARE_SERIAL) )
+    #error "Select *_HARDWARE_SERIAL to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+  #elif TMC2208STEPPER_VERSION < 0x000101
+    #error "Update TMC2130Stepper library to 0.1.1 or newer."
+  #endif
 #endif
 
 #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
@@ -1492,17 +1493,17 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Make sure HAVE_L6470DRIVER is warranted
  */
 #if ENABLED(HAVE_L6470DRIVER) && !( \
-         ENABLED(  X_IS_L6470 ) \
-      || ENABLED( X2_IS_L6470 ) \
-      || ENABLED(  Y_IS_L6470 ) \
-      || ENABLED( Y2_IS_L6470 ) \
-      || ENABLED(  Z_IS_L6470 ) \
-      || ENABLED( Z2_IS_L6470 ) \
-      || ENABLED( E0_IS_L6470 ) \
-      || ENABLED( E1_IS_L6470 ) \
-      || ENABLED( E2_IS_L6470 ) \
-      || ENABLED( E3_IS_L6470 ) \
-      || ENABLED( E4_IS_L6470 ) \
+         ENABLED( X_IS_L6470) \
+      || ENABLED(X2_IS_L6470) \
+      || ENABLED( Y_IS_L6470) \
+      || ENABLED(Y2_IS_L6470) \
+      || ENABLED( Z_IS_L6470) \
+      || ENABLED(Z2_IS_L6470) \
+      || ENABLED(E0_IS_L6470) \
+      || ENABLED(E1_IS_L6470) \
+      || ENABLED(E2_IS_L6470) \
+      || ENABLED(E3_IS_L6470) \
+      || ENABLED(E4_IS_L6470) \
   )
   #error "HAVE_L6470DRIVER requires at least one L6470 stepper to be set."
 #endif
