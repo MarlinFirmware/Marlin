@@ -1365,7 +1365,7 @@ void MarlinSettings::postprocess() {
           #endif
         }
       #else
-        uint16_t thrs_val;
+        uint32_t thrs_val;
         for (uint8_t q=TMC_AXES; q--;) EEPROM_READ(thrs_val);
       #endif
 
