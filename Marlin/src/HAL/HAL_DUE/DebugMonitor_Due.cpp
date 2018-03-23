@@ -114,7 +114,9 @@ static void TXDec(uint32_t v) {
 
 // Dump a backtrace entry
 static void backtrace_dump_fn(int idx, const backtrace_t* bte, void* ctx) {
-  TX('#'); TXDec(idx); TX(' '); TX(bte->name); TX(" @ ");TXHex((uint32_t)bte->address); TX('\n');
+  TX('#'); TXDec(idx); TX(' ');
+  TX(bte->name); TX('@');TXHex((uint32_t)bte->function); TX('+'); TXDec((uint32_t)bte->address - (uint32_t)bte->function);
+  TX(" PC:");TXHex((uint32_t)bte->address); TX('\n');
 }
 
 /**
@@ -175,6 +177,19 @@ void HardFault_HandlerC(unsigned long *hardfault_args, unsigned long cause) {
   btf.lr = ((unsigned long)hardfault_args[5]);
   btf.pc = ((unsigned long)hardfault_args[6]);
   backtrace_dump(&btf, backtrace_dump_fn, nullptr);
+
+  // Disable all NVIC interrupts
+  NVIC->ICER[0] = 0xFFFFFFFF;
+  NVIC->ICER[1] = 0xFFFFFFFF;
+
+  // Relocate VTOR table to default position
+  SCB->VTOR = 0;
+
+  // Disable USB
+  otg_disable();
+
+  // Restart watchdog
+  WDT_Restart(WDT);
 
   // Reset controller
   NVIC_SystemReset();
