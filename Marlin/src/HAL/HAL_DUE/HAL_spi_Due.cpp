@@ -825,6 +825,11 @@
 
   #else  // U8G compatible hardware SPI
 
+    #define SPI_MODE_0_DUE_HW 2  // DUE CPHA control bit is inverted
+    #define SPI_MODE_1_DUE_HW 3
+    #define SPI_MODE_2_DUE_HW 0
+    #define SPI_MODE_3_DUE_HW 1
+
     void spiInit(uint8_t spiRate = 6 ) {  // default to slowest rate if not specified)
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
       int spiDueDividors[] = { 10, 21, 42, 84, 168, 255, 255 };
@@ -848,7 +853,7 @@
       SPI0->SPI_MR = SPI_MR_MSTR | SPI_MR_PCSDEC | SPI_MR_MODFDIS;
 
       /* SPI mode 0, 8 Bit data transfer, baud rate */
-      SPI0->SPI_CSR[0] = SPI_CSR_SCBR(spiDueDividors[spiRate]) | 1;
+      SPI0->SPI_CSR[0] = SPI_CSR_SCBR(spiDueDividors[spiRate]) | SPI_MODE_0_DUE_HW;
     }
 
     static uint8_t spiTransfer(uint8_t data) {
