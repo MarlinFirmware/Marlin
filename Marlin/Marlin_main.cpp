@@ -2491,30 +2491,16 @@ static void clean_up_after_endstop_or_probe_move() {
 
     void set_z_fade_height(const float zfh, const bool do_report/*=true*/) {
 
-      if (planner.z_fade_height == zfh) return; // do nothing if no change
+      if (planner.z_fade_height == zfh) return;
 
-      const bool level_active = planner.leveling_active;
-
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        if (level_active) set_bed_leveling_enabled(false);  // turn off before changing fade height for proper apply/unapply leveling to maintain current_position
-      #endif
+      const bool leveling_was_active = planner.leveling_active;
+      set_bed_leveling_enabled(false);
 
       planner.set_z_fade_height(zfh);
 
-      if (level_active) {
+      if (leveling_was_active) {
         const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          set_bed_leveling_enabled(true);  // turn back on after changing fade height
-        #else
-          set_current_from_steppers_for_axis(
-            #if ABL_PLANAR
-              ALL_AXES
-            #else
-              Z_AXIS
-            #endif
-          );
-          SYNC_PLAN_POSITION_KINEMATIC();
-        #endif
+        set_bed_leveling_enabled(true);
         if (do_report && memcmp(oldpos, current_position, sizeof(oldpos)))
           report_current_position();
       }
@@ -3988,7 +3974,7 @@ inline void gcode_G28(const bool always_home_all) {
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
     #if ENABLED(RESTORE_LEVELING_AFTER_G28)
-      const bool leveling_state_at_entry = planner.leveling_active;
+      const bool leveling_was_active = planner.leveling_active;
     #endif
     set_bed_leveling_enabled(false);
   #endif
@@ -4137,7 +4123,7 @@ inline void gcode_G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(RESTORE_LEVELING_AFTER_G28)
-    set_bed_leveling_enabled(leveling_state_at_entry);
+    set_bed_leveling_enabled(leveling_was_active);
   #endif
 
   clean_up_after_endstop_or_probe_move();
