@@ -1506,8 +1506,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       || defined(E3_HARDWARE_SERIAL) \
       || defined(E4_HARDWARE_SERIAL) )
     #error "Select *_HARDWARE_SERIAL to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
-  #elif TMC2208STEPPER_VERSION < 0x000101
-    #error "Update TMC2130Stepper library to 0.1.1 or newer."
   #endif
 #endif
 
