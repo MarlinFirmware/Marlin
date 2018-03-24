@@ -1424,8 +1424,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       || ENABLED(E3_IS_TMC2130) \
       || ENABLED(E4_IS_TMC2130) )
     #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
-  #elif TMC2130STEPPER_VERSION < 0x020201
-    #error "Update TMC2130Stepper library to 2.2.1 or newer."
   #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
   #endif
