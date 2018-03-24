@@ -1394,8 +1394,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       || ENABLED(E3_IS_TMC2130) \
       || ENABLED(E4_IS_TMC2130) )
     #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
-  #elif TMC2130STEPPER_VERSION < 0x020201
-    #error "Update TMC2130Stepper library to 2.2.1 or newer."
   #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
   #endif
@@ -1463,7 +1461,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       || ENABLED(E3_IS_TMC2208) \
       || ENABLED(E4_IS_TMC2208 ) )
     #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
-  #elif ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && \  // Software UART and ENDSTOP_INTERRUPTS both use Pin Change interrupts (PCI)
+  // Software UART and ENDSTOP_INTERRUPTS both use Pin Change interrupts (PCI)
+  #elif ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && \
       !( defined( X_HARDWARE_SERIAL) \
       || defined(X2_HARDWARE_SERIAL) \
       || defined( Y_HARDWARE_SERIAL) \
@@ -1476,8 +1475,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       || defined(E3_HARDWARE_SERIAL) \
       || defined(E4_HARDWARE_SERIAL) )
     #error "Select *_HARDWARE_SERIAL to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
-  #elif TMC2208STEPPER_VERSION < 0x000101
-    #error "Update TMC2130Stepper library to 0.1.1 or newer."
   #endif
 #endif
 
