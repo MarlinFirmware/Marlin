@@ -402,6 +402,47 @@
  *  E_MANUAL     - Number of E steppers for LCD move options
  *
  */
+
+ #if EXTRUDERS == 0
+  #define NO_EXTRUDERS
+  #undef  EXTRUDERS
+  #define EXTRUDERS       1  // can't have zero length arrays
+  #define E_STEPPERS      0  // make E0 socket available for dual X, Y, Z steppers
+  #define E_MANUAL        1  // or else get compiler error
+  // prevent extruder motion
+  #ifndef PREVENT_COLD_EXTRUSION
+    #define PREVENT_COLD_EXTRUSION  // disable extruder motion
+  #endif
+  #undef  TEMP_SENSOR_0
+  #define TEMP_SENSOR_0 998
+  #undef  EXTRUDE_MINTEMP
+  #define EXTRUDE_MINTEMP 170
+  #undef  DUMMY_THERMISTOR_998_VALUE
+  #define DUMMY_THERMISTOR_998_VALUE 25
+  #ifdef  LIN_ADVANCE
+    #undef LIN_ADVANCE   // disable LIN_ADVANCE so it doesn't play with the E0 socket direction
+  #endif
+#else
+  #if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
+    #if EXTRUDERS > 4
+      #define E_STEPPERS    3
+      #define E_MANUAL      3
+    #elif EXTRUDERS > 2
+      #define E_STEPPERS    2
+      #define E_MANUAL      2
+    #else
+      #define E_STEPPERS    1
+    #endif
+    #define E_MANUAL        EXTRUDERS
+  #elif ENABLED(MIXING_EXTRUDER)
+    #define E_STEPPERS      MIXING_STEPPERS
+    #define E_MANUAL        1
+  #else
+    #define E_STEPPERS      EXTRUDERS
+    #define E_MANUAL        EXTRUDERS
+  #endif
+#endif
+
 #if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
   #define HOTENDS       1
   #undef TEMP_SENSOR_1_AS_REDUNDANT
@@ -422,24 +463,6 @@
   #define HOTEND_INDEX  e
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
-  #if EXTRUDERS > 4
-    #define E_STEPPERS    3
-    #define E_MANUAL      3
-  #elif EXTRUDERS > 2
-    #define E_STEPPERS    2
-    #define E_MANUAL      2
-  #else
-    #define E_STEPPERS    1
-  #endif
-  #define E_MANUAL        EXTRUDERS
-#elif ENABLED(MIXING_EXTRUDER)
-  #define E_STEPPERS      MIXING_STEPPERS
-  #define E_MANUAL        1
-#else
-  #define E_STEPPERS      EXTRUDERS
-  #define E_MANUAL        EXTRUDERS
-#endif
 
 /**
  * DISTINCT_E_FACTORS affects how some E factors are accessed

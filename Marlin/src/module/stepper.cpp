@@ -282,16 +282,18 @@ void Stepper::set_directions() {
     SET_STEP_DIR(Z); // C
   #endif
 
-  #if DISABLED(LIN_ADVANCE)
-    if (motor_direction(E_AXIS)) {
-      REV_E_DIR();
-      count_direction[E_AXIS] = -1;
-    }
-    else {
-      NORM_E_DIR();
-      count_direction[E_AXIS] = 1;
-    }
-  #endif // !LIN_ADVANCE
+  #ifndef NO_EXTRUDERS  // don't set extruder direction if there are no extruders
+    #if DISABLED(LIN_ADVANCE)
+      if (motor_direction(E_AXIS)) {
+        REV_E_DIR();
+        count_direction[E_AXIS] = -1;
+      }
+      else {
+        NORM_E_DIR();
+        count_direction[E_AXIS] = 1;
+      }
+    #endif // !LIN_ADVANCE
+  #endif
 }
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)

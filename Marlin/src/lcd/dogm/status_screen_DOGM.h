@@ -139,82 +139,86 @@ static void lcd_implementation_status_screen() {
 
   const bool blink = lcd_blink();
 
-  #if FAN_ANIM_FRAMES > 2
-    static bool old_blink;
-    static uint8_t fan_frame;
-    if (old_blink != blink) {
-      old_blink = blink;
-      if (!fanSpeeds[0] || ++fan_frame >= FAN_ANIM_FRAMES) fan_frame = 0;
-    }
-  #endif
-
-  // Status Menu Font
   lcd_setFont(FONT_STATUSMENU);
 
-  //
-  // Fan Animation
-  //
-  // Draws the whole heading image as a B/W bitmap rather than
-  // drawing the elements separately.
-  // This was done as an optimization, as it was slower to draw
-  // multiple parts compared to a single bitmap.
-  //
-  // The bitmap:
-  // - May be offset in X
-  // - Includes all nozzle(s), bed(s), and the fan.
-  //
-  // TODO:
-  //
-  // - Only draw the whole header on the first
-  //   entry to the status screen. Nozzle, bed, and
-  //   fan outline bits don't change.
-  //
-  if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1)) {
-
-    u8g.drawBitmapP(
-      STATUS_SCREEN_X, STATUS_SCREEN_Y,
-      (STATUS_SCREENWIDTH + 7) / 8, STATUS_SCREENHEIGHT,
-      #if HAS_FAN0
-        #if FAN_ANIM_FRAMES > 2
-          fan_frame == 1 ? status_screen1_bmp :
-          fan_frame == 2 ? status_screen2_bmp :
-          #if FAN_ANIM_FRAMES > 3
-            fan_frame == 3 ? status_screen3_bmp :
-          #endif
-        #else
-          blink && fanSpeeds[0] ? status_screen1_bmp :
-        #endif
-      #endif
-      status_screen0_bmp
-    );
-
-  }
-
-  //
-  // Temperature Graphics and Info
-  //
-
-  if (PAGE_UNDER(28)) {
-    // Extruders
-    HOTEND_LOOP() _draw_heater_status(STATUS_SCREEN_HOTEND_TEXT_X(e), e, blink);
-
-    // Heated bed
-    #if HOTENDS < 4 && HAS_TEMP_BED
-      _draw_heater_status(STATUS_SCREEN_BED_TEXT_X, -1, blink);
-    #endif
-
-    #if HAS_FAN0
-      if (PAGE_CONTAINS(20, 27)) {
-        // Fan
-        const int16_t per = ((fanSpeeds[0] + 1) * 100) / 256;
-        if (per) {
-          u8g.setPrintPos(STATUS_SCREEN_FAN_TEXT_X, STATUS_SCREEN_FAN_TEXT_Y);
-          lcd_print(itostr3(per));
-          u8g.print('%');
-        }
+  #ifndef NO_EXTRUDERS
+    #if FAN_ANIM_FRAMES > 2
+      static bool old_blink;
+      static uint8_t fan_frame;
+      if (old_blink != blink) {
+        old_blink = blink;
+        if (!fanSpeeds[0] || ++fan_frame >= FAN_ANIM_FRAMES) fan_frame = 0;
       }
     #endif
-  }
+
+    // Status Menu Font
+
+
+    //
+    // Fan Animation
+    //
+    // Draws the whole heading image as a B/W bitmap rather than
+    // drawing the elements separately.
+    // This was done as an optimization, as it was slower to draw
+    // multiple parts compared to a single bitmap.
+    //
+    // The bitmap:
+    // - May be offset in X
+    // - Includes all nozzle(s), bed(s), and the fan.
+    //
+    // TODO:
+    //
+    // - Only draw the whole header on the first
+    //   entry to the status screen. Nozzle, bed, and
+    //   fan outline bits don't change.
+    //
+    if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1)) {
+
+      u8g.drawBitmapP(
+        STATUS_SCREEN_X, STATUS_SCREEN_Y,
+        (STATUS_SCREENWIDTH + 7) / 8, STATUS_SCREENHEIGHT,
+        #if HAS_FAN0
+          #if FAN_ANIM_FRAMES > 2
+            fan_frame == 1 ? status_screen1_bmp :
+            fan_frame == 2 ? status_screen2_bmp :
+            #if FAN_ANIM_FRAMES > 3
+              fan_frame == 3 ? status_screen3_bmp :
+            #endif
+          #else
+            blink && fanSpeeds[0] ? status_screen1_bmp :
+          #endif
+        #endif
+        status_screen0_bmp
+      );
+
+    }
+
+    //
+    // Temperature Graphics and Info
+    //
+
+    if (PAGE_UNDER(28)) {
+      // Extruders
+      HOTEND_LOOP() _draw_heater_status(STATUS_SCREEN_HOTEND_TEXT_X(e), e, blink);
+
+      // Heated bed
+      #if HOTENDS < 4 && HAS_TEMP_BED
+        _draw_heater_status(STATUS_SCREEN_BED_TEXT_X, -1, blink);
+      #endif
+
+      #if HAS_FAN0
+        if (PAGE_CONTAINS(20, 27)) {
+          // Fan
+          const int16_t per = ((fanSpeeds[0] + 1) * 100) / 256;
+          if (per) {
+            u8g.setPrintPos(STATUS_SCREEN_FAN_TEXT_X, STATUS_SCREEN_FAN_TEXT_Y);
+            lcd_print(itostr3(per));
+            u8g.print('%');
+          }
+        }
+      #endif
+    }
+  #endif  //   NO_EXTRUDERS
 
   #if ENABLED(SDSUPPORT)
     //
