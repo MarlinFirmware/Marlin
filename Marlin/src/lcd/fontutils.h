@@ -11,7 +11,6 @@
 
 #define DEBUG 0
 
-
 #if defined(ARDUINO)
 #include <Arduino.h>
 #else // ARDUINO
@@ -20,7 +19,7 @@
 #include <stdlib.h>
 #endif // ARDUINO
 
-#if ! defined(__AVR__)
+#if ! defined(pgm_read_word_near) // __AVR__
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
@@ -28,14 +27,18 @@
 #define pgm_read_word_near(a) (*(a))
 #define pgm_read_byte_near(a) *((uint8_t *)(a))
 #define pgm_read_byte pgm_read_byte_near
+#else
+#if defined(__AVR__)
+#include <avr/pgmspace.h>
+#endif
+#endif
+
+#ifndef PROGMEM
+#define PROGMEM
 #define strlen_P strlen
 #define memcpy_P memcpy
 #define vsnprintf_P vsnprintf
-#define PROGMEM
-#else
-#include <avr/pgmspace.h>
-#define assert(a)
-#endif
+#endif // PROGMEM
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,13 +74,21 @@ uint8_t read_byte_rom(uint8_t * str);
 //#define wchar_t uint32_t
 #define wchar_t size_t
 
+#ifndef PRIu32
 #define PRIu32 "lu"
+#endif
+#ifndef PRIX32
 #define PRIX32 "lX"
+#endif
+
 #endif
 
 
 #define UNUSED_VARIABLE(a) ((void)(a))
+
+#ifndef MIN
 #define MIN(a,b) (((a)>(b))?(b):(a))
+#endif
 
 #ifndef NUM_ARRAY
 #define NUM_ARRAY(a) (sizeof(a)/sizeof((a)[0]))
@@ -114,7 +125,7 @@ char * utf8_strncpy_P(char * destination, const char * source, size_t num);
 #else
 #define TRACE(fmt, ...) {static const PROGMEM char CONSTSTR[] = "%d " fmt " {ln:%d, fn:" __FILE__ "}\n"; serial_printf_P(CONSTSTR, millis(), ##__VA_ARGS__, __LINE__);  }
 #endif
-#define assert(a) if (!(a)) {TRACE("Assert: " # a ); }
+#define FU_ASSERT(a) if (!(a)) {TRACE("Assert: " # a ); }
 
 #ifdef __cplusplus
 extern "C" {
@@ -126,16 +137,16 @@ void serial_printf_P(const char *format, ...);
 
 #else // ARDUINO
 #include <stdio.h>
-#define assert(a) if (!(a)) {printf("Assert: " # a); exit(1);}
+#define FU_ASSERT(a) if (!(a)) {printf("Assert: " # a); exit(1);}
 #define TRACE(fmt, ...) fprintf(stdout, "[%s()] " fmt " {ln:%d, fn:" __FILE__ "}\n", __func__, ##__VA_ARGS__, __LINE__)
 //#else
-//#define assert(a)
+//#define FU_ASSERT(a)
 //#define TRACE(...)
 #endif // ARDUINO
 
 #else // DEBUG
 #define TRACE(fmt, ...)
-#define assert(a)
+#define FU_ASSERT(a)
 #endif // DEBUG
 
 

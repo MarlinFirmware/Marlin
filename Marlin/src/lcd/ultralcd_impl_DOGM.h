@@ -222,26 +222,6 @@ u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
 #define PAGE_UNDER(yb) (u8g.getU8g()->current_page.y0 <= (yb))
 #define PAGE_CONTAINS(ya, yb) (PAGE_UNDER(yb) && u8g.getU8g()->current_page.y1 >= (ya))
 
-#if ENABLED(USE_SMALL_INFOFONT) || !DISABLED(SIMULATE_ROMFONT)
-  #include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
-  #define FONT_SPECIAL_NAME Marlin_symbols
-  static void lcd_setFont(char font_nr);
-  char lcd_print_u(wchar_t c) {
-    if (WITHIN(c, 1, LCD_STR_SPECIAL_MAX)) {
-      u8g.setFont(FONT_SPECIAL_NAME);
-      u8g.print(c);
-      lcd_setFont(currentfont);
-      return 1;
-    }
-    else
-      return lcd_put_wchar(c);
-  }
-#else
-  // The Marlin special symbols is merged in the ISO10646_1_5x7
-  #define FONT_SPECIAL_NAME FONT_MENU_NAME
-  #define _u lcd_put_wchar
-#endif
-
 static void lcd_setFont(const char font_nr) {
   switch (font_nr) {
     case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
@@ -443,7 +423,6 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
     if (lcd_implementation_mark_as_selected(row, invert)) {
 
-      char c;
       uint8_t n = LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * (START_COL); // pixel width of string allowed
 
       if (center && !valstr) {

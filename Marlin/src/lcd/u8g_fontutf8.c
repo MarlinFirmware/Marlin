@@ -16,7 +16,7 @@
 #define font_t void
 
 /**
- * @brief the callback function to draw somthing
+ * @brief the callback function to draw something
  *
  * @param userdata : User's data
  * @param msg : the u8g's string
@@ -36,8 +36,8 @@ typedef int (* fontgroup_cb_draw_t)(void *userdata, const font_t *fnt_current, c
 ////////////////////////////////////////////////////////////
 /* return v1 - v2 */
 static int fontinfo_compare(uxg_fontinfo_t * v1, uxg_fontinfo_t * v2) {
-  assert(NULL != v1);
-  assert(NULL != v2);
+  FU_ASSERT(NULL != v1);
+  FU_ASSERT(NULL != v2);
   if (v1->page < v2->page)
     return -1;
   else if (v1->page > v2->page)
@@ -157,7 +157,7 @@ struct _uxg_drawu8_data_t {
 static int fontgroup_cb_draw_u8g (void *userdata, const font_t *fnt_current, const char *msg) {
   struct _uxg_drawu8_data_t * pdata = userdata;
 
-  assert(NULL != userdata);
+  FU_ASSERT(NULL != userdata);
   if (pdata->fnt_prev != fnt_current) {
     u8g_SetFont(pdata->pu8g, fnt_current);
     //u8g_SetFontPosBottom(pdata->pu8g);
@@ -282,7 +282,7 @@ unsigned int uxg_DrawUtf8StrP(u8g_t *pu8g, unsigned int x, unsigned int y, const
 static int fontgroup_cb_draw_u8gstrlen(void *userdata, const font_t *fnt_current, const char *msg) {
   struct _uxg_drawu8_data_t * pdata = userdata;
 
-  assert(NULL != userdata);
+  FU_ASSERT(NULL != userdata);
   if (pdata->fnt_prev != fnt_current) {
     u8g_SetFont(pdata->pu8g, fnt_current);
     u8g_SetFontPosBottom(pdata->pu8g);

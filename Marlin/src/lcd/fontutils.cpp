@@ -7,7 +7,13 @@
  * @copyright GPL/BSD
  */
 
+#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
+
+#if ENABLED(ULTRA_LCD)
+#include "ultralcd.h"
 #include "../Marlin.h"
+#endif
 
 #include "fontutils.h"
 
@@ -77,7 +83,7 @@ uint8_t read_byte_rom(uint8_t * str) { return pgm_read_byte(str); }
 int pf_bsearch_r(void *userdata, size_t num_data, pf_bsearch_cb_comp_t cb_comp, void *data_pinpoint, size_t *ret_idx) {
   int retcomp;
 
-  assert(NULL != ret_idx);
+  FU_ASSERT(NULL != ret_idx);
   /* 查找合适的位置 */
   if (num_data < 1) {
     *ret_idx = 0;
@@ -136,8 +142,8 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
   uint32_t val = 0;
   uint8_t *p = pstart;
 
-  assert(NULL != pstart);
-  assert(NULL != cb_read_byte);
+  FU_ASSERT(NULL != pstart);
+  FU_ASSERT(NULL != cb_read_byte);
 
   uint8_t valcur = cb_read_byte(p);
   if (0 == (0x80 & valcur)) {
@@ -252,6 +258,16 @@ int utf8_strlen_cb(const char *pstart, read_byte_cb_t cb_read_byte) {
   return cnt;
 }
 
+static int
+my_strlen_P(const char *pstart)
+{
+  const char *p;
+  FU_ASSERT(NULL != pstart);
+  p = pstart;
+  while (p && pgm_read_byte(p) != '\0') p ++;
+  return (p - pstart);
+}
+
 uint8_t utf8_strlen(const char *pstart)   { return utf8_strlen_cb(pstart, read_byte_ram); }
 uint8_t utf8_strlen_P(const char *pstart) { return utf8_strlen_cb(pstart, read_byte_rom); }
 
@@ -259,15 +275,15 @@ char* utf8_strncpy_cb( char * destination, const char *source, size_t num, int l
   uint8_t *p = (uint8_t *)source;
   uint8_t *d = (uint8_t *)destination;
 
-  assert(NULL != destination);
-  assert(NULL != source);
-  assert(NULL != cb_read_byte);
+  FU_ASSERT(NULL != destination);
+  FU_ASSERT(NULL != source);
+  FU_ASSERT(NULL != cb_read_byte);
 
   uint8_t *pend = p + len_src;
 
   while (p < pend) {
     uint8_t valcur = cb_read_byte(p);
-    int len = 0;
+    size_t len = 0;
     if (0 == (0x80 & valcur))
       len = 1;
     else if (0xC0 == (0xE0 & valcur))
@@ -289,7 +305,7 @@ char* utf8_strncpy_cb( char * destination, const char *source, size_t num, int l
       for (; ((0xFE & valcur) > 0xFC) && (p < pend); ) { p++; valcur = cb_read_byte(p); }
     }
     if (len < num) {
-      for (int i = 0; i < len; i++) {
+      for (size_t i = 0; i < len; i++) {
         valcur = cb_read_byte(p);
         *d = valcur;
         d++;
@@ -308,5 +324,5 @@ char* utf8_strncpy(char * destination, const char * source, size_t num) {
 }
 
 char* utf8_strncpy_P(char * destination, const char * source, size_t num) {
-  return utf8_strncpy_cb(destination, source, num, strlen_P(source), read_byte_rom);
+  return utf8_strncpy_cb(destination, source, num, my_strlen_P(source), read_byte_rom);
 }
