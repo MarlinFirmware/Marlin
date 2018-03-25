@@ -30,8 +30,6 @@ before_install:
 install:
   #- pip install -U platformio
   - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
-  # expose the C API
-  - sudo cp -f /usr/local/share/arduino/libraries/U8glib/src/clib/u8g.h /usr/local/share/arduino/libraries/U8glib/src/u8g.h
 
 before_script:
   # Update PlatformIO packages
@@ -54,6 +52,13 @@ script:
   #
   - restore_configs
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #
+  # find U8glib files
+  - sudo find / -iname u8g.h
+  - sudo find / -iname U8glib.h
+  # expose the C API
+  #- sudo cp -f ${TRAVIS_BUILD_DIR}/.piolibdeps/U8glib-HAL_ID1932/src/lib/u8g.h ${TRAVIS_BUILD_DIR}/.piolibdeps/U8glib-HAL_ID1932/src/u8g.h
+  #
   #
   # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
   # Test a "Fix Mounted" Probe with Safe Homing, some arc options,
@@ -288,7 +293,11 @@ script:
   #
   - restore_configs
   - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-  - for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it kana_utf8 nl pl pt-br_utf8 pt_utf8 ru tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin; done
+  - for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it kana_utf8 nl pl pt-br_utf8 pt_utf8 ru sk_utf8 tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
+  #
+  - restore_configs
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
+  - for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it kana_utf8 nl pl pt-br_utf8 pt_utf8 ru sk_utf8 tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
   #
   #
   ######## Example Configurations ##############
