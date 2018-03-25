@@ -9,8 +9,6 @@
 #ifndef _LCDPRINT_H
 #define _LCDPRINT_H
 
-#include "../Marlin.h"
-
 #include "fontutils.h"
 
 #if DISABLED(DOGLCD)

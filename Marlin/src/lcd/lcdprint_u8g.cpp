@@ -7,13 +7,19 @@
  * @copyright GPL/BSD
  */
 
-#include "fontutils.h"
-#include "u8g_fontutf8.h"
+#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 
-#include "lcdprint.h"
+#if ENABLED(ULTRA_LCD)
+#include "ultralcd.h"
+#include "../Marlin.h"
 
 ////////////////////////////////////////////////////////////
 #if ENABLED(DOGLCD)
+
+#include "fontutils.h"
+#include "u8g_fontutf8.h"
+#include "lcdprint.h"
 
 #ifdef ARDUINO
   #include <U8glib.h>
@@ -71,4 +77,6 @@ int lcd_put_u8str_max_rom(const char * utf8_str_P, pixel_len_t max_length) {
   return ret;
 }
 
-#endif // ! USE_HD44780
+#endif // DOGLCD
+#endif // ULTRA_LCD
+
