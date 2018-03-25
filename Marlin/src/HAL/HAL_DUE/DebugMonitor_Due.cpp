@@ -24,6 +24,7 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../../Marlin.h"
+#include "backtrace/backtrace.h"
 
 // Debug monitor that dumps to the Programming port all status when
 // an exception or WDT timeout happens - And then resets the board
@@ -57,8 +58,8 @@ static void TXBegin(void) {
   // Configure mode: 8bit, No parity, 1 bit stop
   UART->UART_MR = UART_MR_CHMODE_NORMAL | US_MR_CHRL_8_BIT | US_MR_NBSTOP_1_BIT | UART_MR_PAR_NO;
 
-  // Configure baudrate (asynchronous, no oversampling) to 250000 bauds
-  UART->UART_BRGR = (SystemCoreClock / (250000 << 4));
+  // Configure baudrate (asynchronous, no oversampling) to BAUDRATE bauds
+  UART->UART_BRGR = (SystemCoreClock / (BAUDRATE << 4));
 
   // Enable receiver and transmitter
   UART->UART_CR = UART_CR_RXEN | UART_CR_TXEN;
@@ -90,6 +91,32 @@ static void TXHex(uint32_t v) {
   for (int i=0; i<8; i++, v <<= 4) {
     TXDigit((v >> 28) & 0xF);
   }
+}
+
+// Send Decimal number thru UART
+static void TXDec(uint32_t v) {
+  if (!v) {
+    TX('0');
+    return;
+  }
+
+  char nbrs[14];
+  char *p = &nbrs[0];
+  while (v != 0) {
+    *p++ = '0' + (v % 10);
+    v /= 10;
+  }
+  do {
+    p--;
+    TX(*p);
+  } while (p != &nbrs[0]);
+}
+
+// Dump a backtrace entry
+static void backtrace_dump_fn(int idx, const backtrace_t* bte, void* ctx) {
+  TX('#'); TXDec(idx); TX(' ');
+  TX(bte->name); TX('@');TXHex((uint32_t)bte->function); TX('+'); TXDec((uint32_t)bte->address - (uint32_t)bte->function);
+  TX(" PC:");TXHex((uint32_t)bte->address); TX('\n');
 }
 
 /**
@@ -141,6 +168,28 @@ void HardFault_HandlerC(unsigned long *hardfault_args, unsigned long cause) {
 
   // Bus Fault Address Register
   TX("BFAR : "); TXHex((*((volatile unsigned long *)(0xE000ED38)))); TX('\n');
+
+  // Perform a backtrace
+  TX("\nBacktrace:\n\n");
+  backtrace_frame_t btf;
+  btf.sp = ((unsigned long)hardfault_args[7]);
+  btf.fp = btf.sp;
+  btf.lr = ((unsigned long)hardfault_args[5]);
+  btf.pc = ((unsigned long)hardfault_args[6]);
+  backtrace_dump(&btf, backtrace_dump_fn, nullptr);
+
+  // Disable all NVIC interrupts
+  NVIC->ICER[0] = 0xFFFFFFFF;
+  NVIC->ICER[1] = 0xFFFFFFFF;
+
+  // Relocate VTOR table to default position
+  SCB->VTOR = 0;
+
+  // Disable USB
+  otg_disable();
+
+  // Restart watchdog
+  WDT_Restart(WDT);
 
   // Reset controller
   NVIC_SystemReset();

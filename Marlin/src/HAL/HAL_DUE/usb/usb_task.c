@@ -301,7 +301,11 @@ void usb_task_init(void) {
 
   uint16_t *ptr;
 
+  // Disable USB peripheral so we start clean and avoid lockups
+  otg_disable();
   udd_disable();
+
+  // Set the USB interrupt to our stack
   UDD_SetStack(&USBD_ISR);
 
   // Start USB stack to authorize VBus monitoring

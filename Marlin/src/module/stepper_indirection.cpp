@@ -135,6 +135,10 @@
   #include "planner.h"
   #include "../core/enum.h"
 
+  #if TMC2130STEPPER_VERSION < 0x020201
+    #error "Update TMC2130Stepper library to 2.2.1 or newer."
+  #endif
+
   #if ENABLED(TMC_USE_SW_SPI)
     #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CS_PIN, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
   #else
@@ -284,6 +288,10 @@
   #include <HardwareSerial.h>
   #include <TMC2208Stepper.h>
   #include "planner.h"
+
+  #if TMC2208STEPPER_VERSION < 0x000101
+    #error "Update TMC2208Stepper library to 0.1.1 or newer."
+  #endif
 
   #define _TMC2208_DEFINE_HARDWARE(ST) TMC2208Stepper stepper##ST(&ST##_HARDWARE_SERIAL)
   #define _TMC2208_DEFINE_SOFTWARE(ST) SoftwareSerial ST##_HARDWARE_SERIAL = SoftwareSerial(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN); \
