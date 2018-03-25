@@ -24,7 +24,7 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../../Marlin.h"
-#include "backtrace/backtrace.h"
+#include "backtrace/unwinder.h"
 
 // Debug monitor that dumps to the Programming port all status when
 // an exception or WDT timeout happens - And then resets the board
@@ -33,6 +33,19 @@
 // under an ISR execution context. That is why we cannot reuse the
 // Serial interrupt routines or any C runtime, as we don't know the
 // state we are when running them
+
+
+/* These symbols point to the start and end of stack */
+extern "C" const int _sstack;
+extern "C" const int _estack;
+
+/* These symbols point to the start and end of the code section */
+extern "C" const int _sfixed;
+extern "C" const int _efixed;
+
+/* These symbols point to the start and end of initialized data (could be SRAM functions!) */
+extern "C" const int _srelocate;
+extern "C" const int _erelocate;
 
 // A SW memory barrier, to ensure GCC does not overoptimize loops
 #define sw_barrier() asm volatile("": : :"memory");
@@ -112,12 +125,71 @@ static void TXDec(uint32_t v) {
   } while (p != &nbrs[0]);
 }
 
-// Dump a backtrace entry
-static void backtrace_dump_fn(int idx, const backtrace_t* bte, void* ctx) {
-  TX('#'); TXDec(idx); TX(' ');
-  TX(bte->name); TX('@');TXHex((uint32_t)bte->function); TX('+'); TXDec((uint32_t)bte->address - (uint32_t)bte->function);
-  TX(" PC:");TXHex((uint32_t)bte->address); TX('\n');
+/* Validate address */
+static bool validate_addr(uint16_t addr) {
+
+  // PC must point into the text (CODE) area
+  if (addr >= (uint32_t)&_sfixed && addr <= (uint32_t)&_efixed)
+    return true;
+
+  // Or into the SRAM function area
+  if (addr >= (uint32_t)&_srelocate && addr <= (uint32_t)&_erelocate)
+    return true;
+
+  // SP must point into the allocated stack area
+  if (addr >= (uint32_t)&_sstack && addr <= (uint32_t)&_estack)
+    return true;
+
+  return false;
 }
+
+static bool UnwReadW(const uint32_t a, uint32_t *v) {
+
+  if (!validate_addr(a))
+    return false;
+
+  *v = *(uint32_t *)a;
+  return true;
+}
+
+static bool UnwReadH(const uint32_t a, uint16_t *v) {
+
+  if (!validate_addr(a))
+    return false;
+
+  *v = *(uint16_t *)a;
+  return true;
+}
+
+static bool UnwReadB(const uint32_t a, uint8_t *v) {
+
+  if (!validate_addr(a))
+    return false;
+
+  *v = *(uint8_t *)a;
+  return true;
+}
+
+
+// Dump a backtrace entry
+static bool UnwReportOut(void* ctx, const UnwReport* bte) {
+
+  TX(bte->name?bte->name:"unknown"); TX('@');TXHex(bte->function);
+  TX('+'); TXDec(bte->address - bte->function);
+  TX(" PC:");TXHex(bte->address); TX('\n');
+  return true;
+}
+
+/* Table of function pointers for passing to the unwinder */
+static const UnwindCallbacks UnwCallbacks = {
+  UnwReportOut,
+  UnwReadW,
+  UnwReadH,
+  UnwReadB
+#if defined(UNW_DEBUG)
+ ,printf
+#endif
+};
 
 /**
  * HardFaultHandler_C:
@@ -171,12 +243,12 @@ void HardFault_HandlerC(unsigned long *hardfault_args, unsigned long cause) {
 
   // Perform a backtrace
   TX("\nBacktrace:\n\n");
-  backtrace_frame_t btf;
+  UnwindFrame btf;
   btf.sp = ((unsigned long)hardfault_args[7]);
   btf.fp = btf.sp;
   btf.lr = ((unsigned long)hardfault_args[5]);
   btf.pc = ((unsigned long)hardfault_args[6]);
-  backtrace_dump(&btf, backtrace_dump_fn, nullptr);
+  UnwindStart(&btf, &UnwCallbacks, nullptr);
 
   // Disable all NVIC interrupts
   NVIC->ICER[0] = 0xFFFFFFFF;
