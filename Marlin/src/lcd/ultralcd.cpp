@@ -4923,24 +4923,6 @@ void lcd_init() {
   #endif
 }
 
-int16_t lcd_strlen(const char* s) {
-  int16_t i = 0, j = 0;
-  while (s[i]) {
-    if (PRINTABLE(s[i])) j++;
-    i++;
-  }
-  return j;
-}
-
-int16_t lcd_strlen_P(const char* s) {
-  int16_t j = 0;
-  while (pgm_read_byte(s)) {
-    if (PRINTABLE(pgm_read_byte(s))) j++;
-    s++;
-  }
-  return j;
-}
-
 bool lcd_blink() {
   static uint8_t blink = 0;
   static millis_t next_blink_ms = 0;

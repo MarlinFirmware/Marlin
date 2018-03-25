@@ -50,7 +50,6 @@
 // an         Aragonese
 // bg         Bulgarian
 // ca         Catalan
-// cn         Chinese
 // cz         Czech
 // cz_utf8    Czech (UTF8)
 // de         German
@@ -79,7 +78,7 @@
 // tr         Turkish
 // uk         Ukrainian
 // zh_CN      Chinese (Simplified)
-// zh_TW      Chinese (Taiwan)
+// zh_TW      Chinese (Traditional)
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
@@ -269,6 +268,10 @@
 #define MSG_DEBUG_LEVELING                  "LEVELING"
 
 // LCD Menu Messages
+
+#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(../lcd/dogm/language_data_##M.h)
+#define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
+#define INCLUDE_LANGUAGE_DATA LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
 #define LANGUAGE_INCL_(M) STRINGIFY_(../lcd/language/language_##M.h)
 #define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
