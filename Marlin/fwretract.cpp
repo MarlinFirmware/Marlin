@@ -117,8 +117,10 @@ void FWRetract::retract(const bool retracting
     for (uint8_t i = 0; i < EXTRUDERS; ++i) {
       SERIAL_ECHOPAIR("retracted[", i);
       SERIAL_ECHOLNPAIR("] ", retracted[i]);
-      SERIAL_ECHOPAIR("retracted_swap[", i);
-      SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+      #if EXTRUDERS > 1
+        SERIAL_ECHOPAIR("retracted_swap[", i);
+        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+      #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
     SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
@@ -186,8 +188,10 @@ void FWRetract::retract(const bool retracting
     for (uint8_t i = 0; i < EXTRUDERS; ++i) {
       SERIAL_ECHOPAIR("retracted[", i);
       SERIAL_ECHOLNPAIR("] ", retracted[i]);
-      SERIAL_ECHOPAIR("retracted_swap[", i);
-      SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+      #if EXTRUDERS > 1
+        SERIAL_ECHOPAIR("retracted_swap[", i);
+        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+      #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
     SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
