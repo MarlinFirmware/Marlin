@@ -15,6 +15,30 @@
 ////////////////////////////////////////////////////////////
 #define font_t void
 
+#ifndef PSTR
+#define PSTR(a) a
+
+void *
+memcpy_from_rom(void *dest, const void * rom_src, size_t sz)
+{
+  uint8_t * p;
+  uint8_t * s;
+
+  FU_ASSERT(NULL != dest);
+  p = dest;
+  s = rom_src;
+  uint8_t c;
+  while ((p - (uint8_t *)dest) < sz) {
+    *p = pgm_read_byte(s);
+    p ++;
+    s ++;
+  }
+  return p;
+}
+#else
+#define memcpy_from_rom memcpy_P
+#endif
+
 /**
  * @brief the callback function to draw something
  *
@@ -55,7 +79,7 @@ static int fontinfo_compare(uxg_fontinfo_t * v1, uxg_fontinfo_t * v2) {
 static int pf_bsearch_cb_comp_fntifo_pgm (void *userdata, size_t idx, void *data_pin) {
   uxg_fontinfo_t *fntinfo = (uxg_fontinfo_t*)userdata;
   uxg_fontinfo_t localval;
-  memcpy_P(&localval, fntinfo + idx, sizeof(localval));
+  memcpy_from_rom(&localval, fntinfo + idx, sizeof(localval));
   return fontinfo_compare(&localval, data_pin);
 }
 
@@ -80,7 +104,7 @@ static const font_t* fontgroup_find(font_group_t * root, wchar_t val) {
   if (pf_bsearch_r((void*)root->m_fntifo, root->m_fntinfo_num, pf_bsearch_cb_comp_fntifo_pgm, (void*)&vcmp, &idx) < 0)
     return NULL;
 
-  memcpy_P(&vcmp, root->m_fntifo + idx, sizeof(vcmp));
+  memcpy_from_rom(&vcmp, root->m_fntifo + idx, sizeof(vcmp));
   return vcmp.fntdata;
 }
 
@@ -271,7 +295,7 @@ unsigned int uxg_DrawUtf8StrP(u8g_t *pu8g, unsigned int x, unsigned int y, const
   data.max_width = max_width;
   data.fnt_prev = NULL;
   TRACE("call fontgroup_drawstring");
-  fontgroup_drawstring(group, fnt_default, utf8_msg, strlen_P(utf8_msg), read_byte_rom, (void*)&data, fontgroup_cb_draw_u8g);
+  fontgroup_drawstring(group, fnt_default, utf8_msg, my_strlen_P(utf8_msg), read_byte_rom, (void*)&data, fontgroup_cb_draw_u8g);
   TRACE("restore font");
   u8g_SetFont(pu8g, fnt_default);
 
@@ -343,7 +367,7 @@ int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, const char *utf8_msg) {
   memset(&data, 0, sizeof(data));
   data.pu8g = pu8g;
   data.adv = 0;
-  fontgroup_drawstring(group, fnt_default, utf8_msg, strlen_P(utf8_msg), read_byte_rom, (void*)&data, fontgroup_cb_draw_u8gstrlen);
+  fontgroup_drawstring(group, fnt_default, utf8_msg, my_strlen_P(utf8_msg), read_byte_rom, (void*)&data, fontgroup_cb_draw_u8gstrlen);
   u8g_SetFont(pu8g, fnt_default);
   return data.adv;
 }

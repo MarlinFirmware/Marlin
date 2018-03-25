@@ -258,7 +258,7 @@ int utf8_strlen_cb(const char *pstart, read_byte_cb_t cb_read_byte) {
   return cnt;
 }
 
-static int
+int
 my_strlen_P(const char *pstart)
 {
   const char *p;

@@ -11,17 +11,12 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(ULTRA_LCD)
-#include "ultralcd.h"
-#include "../Marlin.h"
-
-////////////////////////////////////////////////////////////
 #if ENABLED(DOGLCD)
+#define USE_LCDPRINT_U8G 1
+#endif // DOGLCD
+#endif // ULTRA_LCD
 
-#include "fontutils.h"
-#include "u8g_fontutf8.h"
-#include "lcdprint.h"
-
-#ifdef ARDUINO
+#if defined(USE_LCDPRINT_U8G) && (USE_LCDPRINT_U8G == 1)
   #include <U8glib.h>
   extern U8GLIB *pu8g;
   #define _lcd_write(a) pu8g->print(a)
@@ -30,6 +25,16 @@
   #define _lcd_write(a) TRACE("Write LCD: %c (%d)", (a), (int)(a));
   #define _lcd_setcursor(col, row) TRACE("Set cursor LCD: (%d,%d)", (col), (row));
 #endif
+
+////////////////////////////////////////////////////////////
+#if defined(USE_LCDPRINT_U8G) && (USE_LCDPRINT_U8G == 1)
+#include "ultralcd.h"
+#include "../Marlin.h"
+
+#include "fontutils.h"
+#include "u8g_fontutf8.h"
+#include "lcdprint.h"
+
 
 int lcd_glyph_height(void) {
   return u8g_GetFontBBXHeight(pu8g->getU8g());
@@ -77,6 +82,5 @@ int lcd_put_u8str_max_rom(const char * utf8_str_P, pixel_len_t max_length) {
   return ret;
 }
 
-#endif // DOGLCD
-#endif // ULTRA_LCD
+#endif // USE_LCDPRINT_U8G
 

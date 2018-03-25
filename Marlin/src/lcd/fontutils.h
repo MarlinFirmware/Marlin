@@ -117,6 +117,7 @@ uint8_t utf8_strlen_P(const char *pstart);
 
 char * utf8_strncpy(char * destination, const char * source, size_t num);
 char * utf8_strncpy_P(char * destination, const char * source, size_t num);
+int my_strlen_P(const char *pstart);
 
 #if 0 // DEBUG
 #if 0 //defined(ARDUINO)
