@@ -393,7 +393,7 @@ void update_usb_status(const bool forceUpdate) {
  * The optimize attribute fixes a register Compile
  * error for amtel.
  */
-void lcd_update() _O2 {
+void lcd_update() {
   static char inbound_buffer[MAX_CURLY_COMMAND];
 
   // First report USB status.

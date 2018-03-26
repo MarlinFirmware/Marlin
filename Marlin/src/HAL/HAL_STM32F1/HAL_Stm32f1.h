@@ -69,6 +69,7 @@
   #error "SERIAL_PORT must be from -1 to 3"
 #endif
 #if SERIAL_PORT == -1
+extern USBSerial SerialUSB;
   #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 0
   #define MYSERIAL0 Serial
@@ -88,6 +89,7 @@
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
+  extern USBSerial SerialUSB;
     #define MYSERIAL1 SerialUSB
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 Serial
