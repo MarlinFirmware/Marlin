@@ -149,7 +149,7 @@ typedef struct {
 
 #if defined(UNW_DEBUG)
   /** Print a formatted line for debug. */
-  int (*printf)(const char *format, ...);
+  void (*printf)(const char *format, ...);
 #endif
 } UnwindCallbacks;
 
@@ -169,6 +169,11 @@ extern "C" {
  * This will unwind the stack starting at the PC value supplied to in the
  * link register (i.e. not a normal register) and the stack pointer value
  * supplied.
+ *
+ * -If the program was compiled with -funwind-tables , it will use them to
+ * perform the traceback. Otherwise, brute force will be employed
+ * -If the program was compiled with -mpoke-function-name, then you will
+ * get function names in the traceback. Otherwise, you will not.
  */
 UnwResult UnwindStart(UnwindFrame* frame, const UnwindCallbacks *cb, void *data);
 

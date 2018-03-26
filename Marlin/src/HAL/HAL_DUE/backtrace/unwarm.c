@@ -79,7 +79,7 @@ void UnwInitState(UnwState * const state,     /**< Pointer to structure to fill.
 // Detect if function names are available
 static int __attribute__ ((noinline)) has_function_names(void) {
 
-  uint32_t flag_word = ((uint32_t*)&has_function_names)[-1];
+  uint32_t flag_word = ((uint32_t*)(((uint32_t)(&has_function_names)) & (-4))) [-1];
   return ((flag_word & 0xff000000) == 0xff000000) ? 1 : 0;
 }
 
@@ -93,7 +93,7 @@ bool UnwReportRetAddr(UnwState * const state, uint32_t addr) {
 
   // We found two acceptable values.
   entry.name = NULL;
-  entry.address = addr;
+  entry.address = addr & 0xFFFFFFFE; // Remove Thumb bit
   entry.function = 0;
 
   // If there are function names, try to solve name
@@ -108,7 +108,7 @@ bool UnwReportRetAddr(UnwState * const state, uint32_t addr) {
     uint32_t v;
     while(state->cb->readW(pf-4,&v)) {
 
-      // Check if name descriptor is valid and name is terminated in 0.
+      // Check if name descriptor is valid
       if ((v & 0xffffff00) == 0xff000000 &&
           (v & 0xff) > 1) {
 

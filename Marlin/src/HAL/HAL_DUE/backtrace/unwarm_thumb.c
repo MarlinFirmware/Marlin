@@ -38,6 +38,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
 
   bool found = false;
   uint16_t t = UNW_MAX_INSTR_COUNT;
+  uint32_t lastJumpAddr = 0;  // Last JUMP address, to try to detect infinite loops
+  bool loopDetected = false;  // If a loop was detected
 
   do {
     uint16_t instr;
@@ -61,12 +63,332 @@ UnwResult UnwStartThumb(UnwState * const state) {
       return UNWIND_INCONSISTENT;
     }
 
+    /*
+     * Detect 32bit thumb instructions
+     */
+    if ((instr & 0xe000) == 0xe000 && (instr & 0x1800) != 0) {
+      uint16_t instr2;
+
+      /* Check next address */
+      state->regData[15].v += 2;
+
+      /* Attempt to read the 2nd part of the instruction */
+      if(!state->cb->readH(state->regData[15].v & (~0x1), &instr2)) {
+        return UNWIND_IREAD_H_FAIL;
+      }
+
+      UnwPrintd3(" %x %04x:", state->regData[15].v, instr2);
+
+      /*
+       * Load/Store multiple: Only interpret
+       *  PUSH and POP
+       */
+      if ((instr & 0xfe6f) == 0xe82d) {
+        bool     L     = (instr &  0x10) ? true : false;
+        uint16_t rList = instr2;
+
+        if(L) {
+          uint8_t r;
+
+          /* Load from memory: POP */
+          UnwPrintd1("POP {Rlist}\n");
+
+          /* Load registers from stack */
+          for(r = 0; r < 16; r++) {
+            if(rList & (0x1 << r)) {
+
+              /* Read the word */
+              if(!UnwMemReadRegister(state, state->regData[13].v, &state->regData[r])) {
+                return UNWIND_DREAD_W_FAIL;
+              }
+
+              /* Alter the origin to be from the stack if it was valid */
+              if(M_IsOriginValid(state->regData[r].o)) {
+
+                state->regData[r].o = REG_VAL_FROM_STACK;
+
+                /* If restoring the PC */
+                if (r == 15) {
+
+                  /* The bottom bit should have been set to indicate that
+                   *  the caller was from Thumb.  This would allow return
+                   *  by BX for interworking APCS.
+                   */
+                  if((state->regData[15].v & 0x1) == 0) {
+                    UnwPrintd2("Warning: Return address not to Thumb: 0x%08x\n", state->regData[15].v);
+
+                    /* Pop into the PC will not switch mode */
+                    return UNWIND_INCONSISTENT;
+                  }
+
+                  /* Store the return address */
+                  if(!UnwReportRetAddr(state, state->regData[15].v)) {
+                    return UNWIND_TRUNCATED;
+                  }
+
+                  /* Now have the return address */
+                  UnwPrintd2(" Return PC=%x\n", state->regData[15].v);
+
+                  /* Compensate for the auto-increment, which isn't needed here */
+                  state->regData[15].v -= 2;
+
+                }
+
+              } else {
+
+                if (r == 15) {
+                  /* Return address is not valid */
+                  UnwPrintd1("PC popped with invalid address\n");
+                  return UNWIND_FAILURE;
+                }
+              }
+
+              state->regData[13].v += 4;
+
+              UnwPrintd3("  r%d = 0x%08x\n", r, state->regData[r].v);
+            }
+          }
+        }
+        else {
+          int8_t r;
+
+          /* Store to memory: PUSH */
+          UnwPrintd1("PUSH {Rlist}");
+
+          for(r = 15; r >= 0; r--) {
+            if(rList & (0x1 << r)) {
+              UnwPrintd4("\n  r%d = 0x%08x\t; %s", r, state->regData[r].v, M_Origin2Str(state->regData[r].o));
+
+              state->regData[13].v -= 4;
+
+              if(!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r])) {
+                return UNWIND_DWRITE_W_FAIL;
+              }
+            }
+          }
+        }
+      }
+      /*
+       * PUSH register
+       */
+      else if (instr == 0xf84d && (instr2 & 0x0fff) == 0x0d04) {
+        uint8_t r = instr2 >> 12;
+
+        /* Store to memory: PUSH */
+        UnwPrintd2("PUSH {R%d}\n", r);
+        UnwPrintd4("\n  r%d = 0x%08x\t; %s", r, state->regData[r].v, M_Origin2Str(state->regData[r].o));
+
+        state->regData[13].v -= 4;
+
+        if(!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r])) {
+          return UNWIND_DWRITE_W_FAIL;
+        }
+      }
+      /*
+       * POP register
+       */
+      else if (instr == 0xf85d && (instr2 & 0x0fff) == 0x0b04) {
+        uint8_t r = instr2 >> 12;
+
+        /* Load from memory: POP */
+        UnwPrintd2("POP {R%d}\n", r);
+
+        /* Read the word */
+        if(!UnwMemReadRegister(state, state->regData[13].v, &state->regData[r])) {
+          return UNWIND_DREAD_W_FAIL;
+        }
+
+        /* Alter the origin to be from the stack if it was valid */
+        if(M_IsOriginValid(state->regData[r].o)) {
+
+          state->regData[r].o = REG_VAL_FROM_STACK;
+
+          /* If restoring the PC */
+          if (r == 15) {
+
+            /* The bottom bit should have been set to indicate that
+             *  the caller was from Thumb.  This would allow return
+             *  by BX for interworking APCS.
+             */
+            if((state->regData[15].v & 0x1) == 0) {
+              UnwPrintd2("Warning: Return address not to Thumb: 0x%08x\n", state->regData[15].v);
+
+              /* Pop into the PC will not switch mode */
+              return UNWIND_INCONSISTENT;
+            }
+
+            /* Store the return address */
+            if(!UnwReportRetAddr(state, state->regData[15].v)) {
+              return UNWIND_TRUNCATED;
+            }
+
+            /* Now have the return address */
+            UnwPrintd2(" Return PC=%x\n", state->regData[15].v);
+
+            /* Compensate for the auto-increment, which isn't needed here */
+            state->regData[15].v -= 2;
+
+          }
+
+        } else {
+
+          if (r == 15) {
+            /* Return address is not valid */
+            UnwPrintd1("PC popped with invalid address\n");
+            return UNWIND_FAILURE;
+          }
+        }
+
+        state->regData[13].v += 4;
+
+        UnwPrintd3("  r%d = 0x%08x\n", r, state->regData[r].v);
+      }
+      /*
+       * Unconditional branch
+       */
+      else if ((instr & 0xf800) == 0xf000 && (instr2 & 0xd000) == 0x9000) {
+        uint32_t v;
+
+        uint8_t      S = (instr & 0x400) >> 10;
+        uint16_t imm10 = (instr & 0x3ff);
+        uint8_t     J1 = (instr2 & 0x2000) >> 13;
+        uint8_t     J2 = (instr2 & 0x0800) >> 11;
+        uint16_t imm11 = (instr2 & 0x7ff);
+
+        uint8_t I1 = J1 ^ S ^ 1;
+        uint8_t I2 = J2 ^ S ^ 1;
+        uint32_t imm32 = (S << 24) | (I1 << 23) | (I2 << 22) |(imm10 << 12) | (imm11 << 1);
+        if (S) imm32 |= 0xfe000000;
+
+        UnwPrintd2("B %d \n", imm32);
+
+        /* Update PC */
+        state->regData[15].v += imm32;
+
+        /* Need to advance by a word to account for pre-fetch.
+         *  Advance by a half word here, allowing the normal address
+         *  advance to account for the other half word.
+         */
+        state->regData[15].v += 2;
+
+        /* Compute the jump address */
+        v = state->regData[15].v + 2;
+
+        /* Display PC of next instruction */
+        UnwPrintd2(" New PC=%x", v);
+
+        /* Did we detect an infinite loop ? */
+        loopDetected = lastJumpAddr == v;
+
+        /* Remember the last address we jumped to  */
+        lastJumpAddr = v;
+      }
+
+      /*
+       * Branch with link
+       */
+      else if ((instr & 0xf800) == 0xf000 && (instr2 & 0xd000) == 0xd000) {
+
+        uint8_t      S = (instr & 0x400) >> 10;
+        uint16_t imm10 = (instr & 0x3ff);
+        uint8_t     J1 = (instr2 & 0x2000) >> 13;
+        uint8_t     J2 = (instr2 & 0x0800) >> 11;
+        uint16_t imm11 = (instr2 & 0x7ff);
+
+        uint8_t I1 = J1 ^ S ^ 1;
+        uint8_t I2 = J2 ^ S ^ 1;
+        uint32_t imm32 = (S << 24) | (I1 << 23) | (I2 << 22) |(imm10 << 12) | (imm11 << 1);
+        if (S) imm32 |= 0xfe000000;
+
+        UnwPrintd2("BL %d \n", imm32);
+
+        /* Never taken, as we are unwinding the stack */
+        if (0) {
+
+          /* Store return address in LR register */
+          state->regData[14].v = state->regData[15].v + 2;
+          state->regData[14].o = REG_VAL_FROM_CONST;
+
+          /* Update PC */
+          state->regData[15].v += imm32;
+
+          /* Need to advance by a word to account for pre-fetch.
+           *  Advance by a half word here, allowing the normal address
+           *  advance to account for the other half word.
+           */
+          state->regData[15].v += 2;
+
+          /* Display PC of next instruction */
+          UnwPrintd2(" Return PC=%x", state->regData[15].v);
+
+          /* Report the return address, including mode bit */
+          if(!UnwReportRetAddr(state, state->regData[15].v)) {
+            return UNWIND_TRUNCATED;
+          }
+
+          /* Determine the new mode */
+          if(state->regData[15].v & 0x1) {
+            /* Branching to THUMB */
+
+            /* Account for the auto-increment which isn't needed */
+            state->regData[15].v -= 2;
+          }
+          else {
+            /* Branch to ARM */
+            return UnwStartArm(state);
+          }
+        }
+      }
+
+      /*
+       * Conditional branches. Usually not taken, unless infinite loop is detected
+       */
+      else if ((instr & 0xf800) == 0xf000 && (instr2 & 0xd000) == 0x8000) {
+
+        uint8_t      S = (instr & 0x400) >> 10;
+        uint16_t  imm6 = (instr &  0x3f);
+        uint8_t     J1 = (instr2 & 0x2000) >> 13;
+        uint8_t     J2 = (instr2 & 0x0800) >> 11;
+        uint16_t imm11 = (instr2 & 0x7ff);
+
+        uint8_t I1 = J1 ^ S ^ 1;
+        uint8_t I2 = J2 ^ S ^ 1;
+        uint32_t imm32 = (S << 20) | (I1 << 19) | (I2 << 18) |(imm6 << 12) | (imm11 << 1);
+        if (S) imm32 |= 0xffe00000;
+
+        UnwPrintd2("Bcond %d\n", imm32);
+
+        /* Take the jump only if a loop is detected */
+        if (loopDetected) {
+
+          /* Update PC */
+          state->regData[15].v += imm32;
+
+          /* Need to advance by a word to account for pre-fetch.
+           *  Advance by a half word here, allowing the normal address
+           *  advance to account for the other half word.
+           */
+          state->regData[15].v += 2;
+
+          /* Display PC of next instruction */
+          UnwPrintd2(" New PC=%x", state->regData[15].v + 2);
+        }
+      }
+      else {
+        UnwPrintd1("???? (32)");
+
+        /* Unknown/undecoded.  May alter some register, so invalidate file */
+        UnwInvalidateRegisterFile(state->regData);
+      }
+      /* End of thumb 32bit code */
+
+    }
     /* Format 1: Move shifted register
      *  LSL Rd, Rs, #Offset5
      *  LSR Rd, Rs, #Offset5
      *  ASR Rd, Rs, #Offset5
      */
-    if((instr & 0xe000) == 0x0000 && (instr & 0x1800) != 0x1800) {
+    else if((instr & 0xe000) == 0x0000 && (instr & 0x1800) != 0x1800) {
       bool signExtend;
       uint8_t op      = (instr & 0x1800) >> 11;
       uint8_t offset5 = (instr & 0x07c0) >>  6;
@@ -355,8 +677,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
     }
     /* Format 5: Hi register operations/branch exchange
      *  ADD Rd, Hs
-     *  ADD Hd, Rs
-     *  ADD Hd, Hs
+     *  CMP Hd, Rs
+     *  MOV Hd, Hs
      */
     else if((instr & 0xfc00) == 0x4400) {
       uint8_t op  = (instr & 0x0300) >> 8;
@@ -370,11 +692,6 @@ UnwResult UnwStartThumb(UnwState * const state) {
         rhs += 8;
       if(h1)
         rhd += 8;
-
-      if(op != 3 && !h1 && !h2) {
-        UnwPrintd1("\nError: h1 or h2 must be set for ADD, CMP or MOV\n");
-        return UNWIND_ILLEGAL_INSTR;
-      }
 
       switch(op) {
         case 0: /* ADD */
@@ -406,6 +723,10 @@ UnwResult UnwStartThumb(UnwState * const state) {
             if(!UnwReportRetAddr(state, state->regData[rhs].v)) {
               return UNWIND_TRUNCATED;
             }
+
+            /* Store return address in LR register */
+            state->regData[14].v = state->regData[15].v + 2;
+            state->regData[14].o = REG_VAL_FROM_CONST;
 
             /* Update the PC */
             state->regData[15].v = state->regData[rhs].v;
@@ -570,10 +891,42 @@ UnwResult UnwStartThumb(UnwState * const state) {
         }
       }
     }
+
+    /*
+     * Conditional branches
+     * Bcond
+     */
+    else if((instr & 0xf000) == 0xd000) {
+      int32_t branchValue = (instr & 0xff);
+      if (branchValue & 0x80) branchValue |= 0xffffff00;
+
+      /* Branch distance is twice that specified in the instruction. */
+      branchValue *= 2;
+
+      UnwPrintd2("Bcond %d \n", branchValue);
+
+      /* Only take the branch if a loop was detected */
+      if (loopDetected) {
+
+        /* Update PC */
+        state->regData[15].v += branchValue;
+
+        /* Need to advance by a word to account for pre-fetch.
+         *  Advance by a half word here, allowing the normal address
+         *  advance to account for the other half word.
+         */
+        state->regData[15].v += 2;
+
+        /* Display PC of next instruction */
+        UnwPrintd2(" New PC=%x", state->regData[15].v + 2);
+      }
+    }
+
     /* Format 18: unconditional branch
      *  B label
      */
     else if((instr & 0xf800) == 0xe000) {
+      uint32_t v;
       int16_t branchValue = signExtend11(instr & 0x07ff);
 
       /* Branch distance is twice that specified in the instruction. */
@@ -590,9 +943,17 @@ UnwResult UnwStartThumb(UnwState * const state) {
        */
       state->regData[15].v += 2;
 
-      /* Display PC of next instruction */
-      UnwPrintd2(" New PC=%x", state->regData[15].v + 2);
+      /* Compute the jump address */
+      v = state->regData[15].v + 2;
 
+      /* Display PC of next instruction */
+      UnwPrintd2(" New PC=%x", v);
+
+      /* Did we detect an infinite loop ? */
+      loopDetected = lastJumpAddr == v;
+
+      /* Remember the last address we jumped to  */
+      lastJumpAddr = v;
     }
     else {
       UnwPrintd1("????");
