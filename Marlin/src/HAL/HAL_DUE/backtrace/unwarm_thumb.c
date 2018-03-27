@@ -25,10 +25,10 @@
  * \param value   The value to sign extend.
  * \return The signed-11 bit value stored in a 16bit data type.
  */
-static int16_t signExtend11(uint16_t value) {
+static int32_t signExtend11(uint16_t value) {
 
   if(value & 0x400) {
-    value |= 0xf800;
+    value |= 0xfffff800;
   }
 
   return value;
@@ -243,6 +243,40 @@ UnwResult UnwStartThumb(UnwState * const state) {
 
         UnwPrintd3("  r%d = 0x%08x\n", r, state->regData[r].v);
       }
+			/*
+			 * TBB / TBH
+			 */
+			else if ((instr & 0xfff0) == 0xe8d0 && (instr2 & 0xffe0) == 0xf000) {
+				/* We are only interested in 
+				 * the forms 
+				 *	TBB [PC, ...]
+				 *  TBH [PC, ..., LSL #1]
+				 * as those are used by the C compiler to implement
+				 * the switch clauses
+				 */
+				uint8_t rn = instr & 0xf;
+				uint8_t rm = instr2 & 0xf;
+				bool H = (instr2 & 0x10) ? true : false;
+				
+				UnwPrintd5("TB%c [r%d,r%d%s]\n", H ? 'H' : 'B', rn, rm, H ? ",LSL #1" : "");				
+				
+				// We are only interested if the RN is the PC. Let´s choose the 1st destination
+				if (rn == 15) {
+					if (H) {
+						uint16_t rv;
+						if(!state->cb->readH((state->regData[15].v & (~1)) + 2, &rv)) {
+							return UNWIND_DREAD_H_FAIL;
+						}
+						state->regData[15].v += rv * 2;
+					} else {
+						uint8_t rv;
+						if(!state->cb->readB((state->regData[15].v & (~1)) + 2, &rv)) {
+							return UNWIND_DREAD_B_FAIL;
+						}
+						state->regData[15].v += rv * 2;
+					}
+				}
+			}
       /*
        * Unconditional branch
        */
@@ -374,6 +408,118 @@ UnwResult UnwStartThumb(UnwState * const state) {
           UnwPrintd2(" New PC=%x", state->regData[15].v + 2);
         }
       }
+			/*
+			 * PC-relative load
+       *  LDR Rd,[PC, #+/-imm]
+       */
+			else if((instr & 0xff7f) == 0xf85f) {
+				uint8_t  rt    = (instr2 & 0xf000) >> 12;
+				uint8_t  imm12 = (instr2 & 0x0fff);
+				bool     A     = (instr  & 0x80) ? true : false;
+				uint32_t address;
+
+				/* Compute load address, adding a word to account for prefetch */
+				address = (state->regData[15].v & (~0x3)) + 4;
+				if (A) address += imm12;
+				else address -= imm12;
+
+				UnwPrintd4("LDR r%d,[PC #%c0x%08x]", rt, A?'+':'-', address);
+
+				if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+					return UNWIND_DREAD_W_FAIL;
+				}
+			}
+			/*
+			 * LDR immediate. 
+			 *  We are only interested when destination is PC.
+			 *  LDR Rt,[Rn , #n]
+			 */
+			else if ((instr & 0xfff0) == 0xf8d0) {
+				uint8_t     rn = (instr  & 0xf);
+				uint8_t     rt = (instr2 & 0xf000) >> 12;
+				uint16_t imm12 = (instr2 & 0xfff);
+				
+				/* If destination is PC and we don't know the source value, then fail */
+				if (!M_IsOriginValid(state->regData[rn].o)) {
+					state->regData[rt].o = state->regData[rn].o;
+				} else {
+					uint32_t address = state->regData[rn].v + imm12;
+					if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+						return UNWIND_DREAD_W_FAIL;
+					}
+				}
+			}
+			/*
+			 * LDR immediate
+			 *  We are only interested when destination is PC.
+			 *  LDR Rt,[Rn , #-n]
+			 *  LDR Rt,[Rn], #+/-n]
+			 *  LDR Rt,[Rn, #+/-n]!
+			 */
+			else if ((instr & 0xfff0) == 0xf850 && (instr2 & 0x0800) == 0x0800) {
+				uint8_t     rn = (instr  & 0xf);
+				uint8_t     rt = (instr2 & 0xf000) >> 12;
+				uint16_t  imm8 = (instr2 & 0xff);
+				bool         P = (instr2 & 0x400) ? true : false;
+				bool         U = (instr2 & 0x200) ? true : false;
+				bool         W = (instr2 & 0x100) ? true : false;
+				
+				if (!M_IsOriginValid(state->regData[rn].o)) {
+					state->regData[rt].o = state->regData[rn].o;
+				} else {
+					uint32_t offaddress = state->regData[rn].v + imm8;
+					if (U) offaddress += imm8;
+					else offaddress -= imm8;
+					
+					uint32_t address;
+					if (P) {
+						address = offaddress;
+					} else {
+						address = state->regData[rn].v;
+					}
+					
+					if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+						return UNWIND_DREAD_W_FAIL;
+					}
+					
+					if (W) {
+						state->regData[rn].v = offaddress;
+					}
+				}
+			}
+			/*
+			 * LDR (register).
+			 *  We are interested in the form
+			 *   ldr	Rt, [Rn, Rm, lsl #x]
+			 *  Where Rt is PC, Rn value is known, Rm is not known or unknown
+			 */
+			else if ((instr & 0xfff0) == 0xf850 && (instr2 & 0x0fc0) == 0x0000) {
+				uint8_t   rn = (instr  & 0xf);
+				uint8_t   rt = (instr2 & 0xf000) >> 12;
+				uint8_t   rm = (instr2 & 0xf);
+				uint8_t imm2 = (instr2 & 0x30) >> 4;
+				
+				if (!M_IsOriginValid(state->regData[rn].o) ||
+						!M_IsOriginValid(state->regData[rm].o)) {
+						
+					/* If Rt is PC, and Rn is known, then do an exception and assume
+					   Rm equals 0 => This takes the first case in a switch() */
+					if (rt == 15 && M_IsOriginValid(state->regData[rn].o)) {
+						uint32_t address = state->regData[rn].v;
+						if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+							return UNWIND_DREAD_W_FAIL;
+						}
+					} else {
+						/* Propagate unknown value */
+						state->regData[rt].o = state->regData[rn].o;
+					}
+				} else {
+					uint32_t address = state->regData[rn].v + (state->regData[rm].v << imm2);
+					if(!UnwMemReadRegister(state, address, &state->regData[rt])) {
+						return UNWIND_DREAD_W_FAIL;
+					}
+				}
+			}
       else {
         UnwPrintd1("???? (32)");
 
@@ -452,8 +598,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
         }
 
         /* Propagate the origin */
-        if(M_IsOriginValid(state->regData[rs].v) &&
-           M_IsOriginValid(state->regData[rn].v)) {
+        if(M_IsOriginValid(state->regData[rs].o) &&
+           M_IsOriginValid(state->regData[rn].o)) {
           state->regData[rd].o = state->regData[rs].o;
           state->regData[rd].o |= REG_VAL_ARITHMETIC;
         }
@@ -715,18 +861,14 @@ UnwResult UnwStartThumb(UnwState * const state) {
         case 3: /* BX */
           UnwPrintd4("BX r%d\t; r%d %s\n", rhs, rhs, M_Origin2Str(state->regData[rhs].o));
 
-          /* Only follow BX if the data was from the stack */
-          if(state->regData[rhs].o == REG_VAL_FROM_STACK) {
+          /* Only follow BX if the data was from the stack or BX LR */
+          if(rhs == 14 || state->regData[rhs].o == REG_VAL_FROM_STACK) {
             UnwPrintd2(" Return PC=0x%x\n", state->regData[rhs].v & (~0x1));
 
             /* Report the return address, including mode bit */
             if(!UnwReportRetAddr(state, state->regData[rhs].v)) {
               return UNWIND_TRUNCATED;
             }
-
-            /* Store return address in LR register */
-            state->regData[14].v = state->regData[15].v + 2;
-            state->regData[14].o = REG_VAL_FROM_CONST;
 
             /* Update the PC */
             state->regData[15].v = state->regData[rhs].v;
@@ -927,7 +1069,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
      */
     else if((instr & 0xf800) == 0xe000) {
       uint32_t v;
-      int16_t branchValue = signExtend11(instr & 0x07ff);
+      int32_t branchValue = signExtend11(instr & 0x07ff);
 
       /* Branch distance is twice that specified in the instruction. */
       branchValue *= 2;
