@@ -583,19 +583,23 @@ void kill(const char* lcd_msg) {
     UNUSED(lcd_msg);
   #endif
 
-  _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
-  cli(); // Stop interrupts
-
-  _delay_ms(250); //Wait to ensure all interrupts routines stopped
-  thermalManager.disable_all_heaters(); //turn off heaters again
-
   #ifdef ACTION_ON_KILL
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_KILL);
   #endif
 
+  _delay_ms(850); // Wait a short time (allows messages to get out before shutting down.
+
+  thermalManager.disable_all_heaters(); //turn off heaters again
+
   #if HAS_POWER_SWITCH
     PSU_OFF();
   #endif
+
+  #if defined(__arm__) && defined(WATCHDOG_RESET_MANUAL)
+    while(1){};  // traceback function enabled - cause WDT timeout so debug info will be generated
+  #endif
+
+  cli(); // Stop interrupts
 
   #if HAS_SUICIDE
     suicide();
