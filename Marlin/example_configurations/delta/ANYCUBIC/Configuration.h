@@ -121,14 +121,15 @@
  */
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
+#define AUTO_BED_LEVELING_UBL
 
 /* Autolevel / Autocalibration Grid Points
  * Number of points to probe on autolevel / autocalibration routines
- * min 3 max 7
+ * min 3 max 10
  * A higher the value means better results
  * Keep a low value for manual leveling
  */
-#define GRID_POINTS        5
+#define GRID_POINTS        10
 
 /* Bed Margin For Probing
  * Margin around perimiter of bed for probing
@@ -195,6 +196,7 @@
  * If your using Linux, set this to 115200, to Linux doesn't like
  * non-standard baudrates
  * If your using Windows you probably need to set this to 250000
+ * If your using Octopi you probably want to set this to 500000
  */
 #define BAUDRATE 115200
 
@@ -415,7 +417,7 @@
  *
  * :{ 0:'No power switch', 1:'ATX', 2:'X-Box 360' }
  */
-#define POWER_SUPPLY 1
+#define POWER_SUPPLY 0
 
 #if POWER_SUPPLY > 0
   // Enable this option to leave the PSU off at startup.
@@ -669,7 +671,7 @@
   // Make delta curves from many straight lines (linear interpolation).
   // This is a trade-off between visible corners (not enough segments)
   // and processor overload (too many expensive sqrt calls).
-  #define DELTA_SEGMENTS_PER_SECOND 160
+  #define DELTA_SEGMENTS_PER_SECOND 80
 
   // After homing move down to a height where XY movement is unconstrained
   #define DELTA_HOME_TO_SAFE_ZONE
@@ -677,7 +679,9 @@
   // Delta calibration menu
   // uncomment to add three points calibration menu option.
   // See http://minow.blogspot.com/index.html#4918805519571907051
-  #define DELTA_CALIBRATION_MENU
+  #if ENABLED(PROBE_MANUALLY)
+    #define DELTA_CALIBRATION_MENU
+  #endif
 
   // uncomment to add G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
   #define DELTA_AUTO_CALIBRATION
@@ -962,7 +966,7 @@
  */
 //#define PROBING_HEATERS_OFF       // Turn heaters off when probing
 //#define PROBING_FANS_OFF          // Turn fans off when probing
-#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
+//#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
@@ -1002,15 +1006,15 @@
 #define XY_PROBE_SPEED 4000
 
 // Speed for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_SPEED_FAST (HOMING_FEEDRATE_Z / 4)
+#define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 
 // Speed for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 12)
 
 // The number of probes to perform at each point.
 //   Set to 2 for a fast/slow probe, using the second probe result.
 //   Set to 3 or more for slow probes, averaging the results.
-#define MULTIPLE_PROBING 2
+//#define MULTIPLE_PROBING 1
 
 /**
  * Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
@@ -1263,7 +1267,7 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  //#define ENABLE_LEVELING_FADE_HEIGHT
+  #define ENABLE_LEVELING_FADE_HEIGHT
 
   // Set the boundaries for probing (where the probe can reach).
   #define DELTA_PROBEABLE_RADIUS (DELTA_PRINTABLE_RADIUS - BED_MARGIN)
@@ -1301,7 +1305,7 @@
   #define BACK_PROBE_BED_POSITION DELTA_PROBEABLE_RADIUS
 
   // The Z probe minimum outer margin (to validate G29 parameters).
-  #define MIN_PROBE_EDGE 10
+  #define MIN_PROBE_EDGE BED_MARGIN
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1344,7 +1348,7 @@
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
   #define MESH_INSET 1              // Mesh inset margin on print area
-  #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_X GRID_POINTS  // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define _PX(R,A) (R) * cos(RADIANS(A))
@@ -1377,7 +1381,7 @@
  * Use the LCD controller for bed leveling
  * Requires MESH_BED_LEVELING or PROBE_MANUALLY
  */
-#if ENABLED(PROBE_MANUALLY) && (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_LINEAR))
+#if ENABLED(PROBE_MANUALLY) && (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_UBL))
   #define LCD_BED_LEVELING
 #endif
 
@@ -1552,9 +1556,9 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z }
-  #define NOZZLE_PARK_POINT { 0, 0, Z_MAX_POS } // An undocumented feature is that the Z point is added to the current postion in the pause menu (G27 P2 NOZZLE_PARK_POINT.Z)
-  #define NOZZLE_PARK_XY_FEEDRATE 225   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
-  #define NOZZLE_PARK_Z_FEEDRATE 200      // Z axis feedrate in mm/s (not used for delta printers)
+  #define NOZZLE_PARK_POINT { 0, 0, 50 } // An undocumented feature is that the Z point is added to the current postion in the pause menu (G27 P2 NOZZLE_PARK_POINT.Z)
+  #define NOZZLE_PARK_XY_FEEDRATE Z_PROBE_SPEED_SLOW   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+  #define NOZZLE_PARK_Z_FEEDRATE Z_PROBE_SPEED_SLOW      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
 
 /**
