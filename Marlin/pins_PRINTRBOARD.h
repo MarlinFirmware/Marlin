@@ -148,8 +148,8 @@
 
     #define SDSS           43   // F5 TMS   JP2-8
 
-    #define STAT_LED_RED_PIN  12  // C2       JP11-14
-    #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
+    #define STAT_LED_RED_PIN  12   // C2       JP11-14
+    #define STAT_LED_BLUE_PIN 10   // C0       JP11-12
 
   #elif ENABLED(LCD_I2C_PANELOLU2)
 

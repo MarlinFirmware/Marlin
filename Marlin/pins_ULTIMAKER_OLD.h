@@ -72,21 +72,21 @@
 // Limit Switches
 //
 #if ENABLED(board_rev_1_1_TO_1_3)
-  #define X_MIN_PIN          15  // SW1
-  #define X_MAX_PIN          14  // SW2
-  #define Y_MIN_PIN          17  // SW3
-  #define Y_MAX_PIN          16  // SW4
-  #define Z_MIN_PIN          19  // SW5
-  #define Z_MAX_PIN          18  // SW6
+  #define X_MIN_PIN          15   // SW1
+  #define X_MAX_PIN          14   // SW2
+  #define Y_MIN_PIN          17   // SW3
+  #define Y_MAX_PIN          16   // SW4
+  #define Z_MIN_PIN          19   // SW5
+  #define Z_MAX_PIN          18   // SW6
 #endif
 
 #if ENABLED(board_rev_1_0)
-  #define X_MIN_PIN          13  // SW1
-  #define X_MAX_PIN          12  // SW2
-  #define Y_MIN_PIN          11  // SW3
-  #define Y_MAX_PIN          10  // SW4
-  #define Z_MIN_PIN           9  // SW5
-  #define Z_MAX_PIN           8  // SW6
+  #define X_MIN_PIN          13   // SW1
+  #define X_MAX_PIN          12   // SW2
+  #define Y_MIN_PIN          11   // SW3
+  #define Y_MAX_PIN          10   // SW4
+  #define Z_MIN_PIN           9   // SW5
+  #define Z_MAX_PIN           8   // SW6
 #endif
 
 #if ENABLED(board_rev_1_5)
@@ -124,9 +124,9 @@
 #define E0_DIR_PIN         45
 #define E0_ENABLE_PIN      41
 
-#define E1_STEP_PIN        -1  // 49
-#define E1_DIR_PIN         -1  // 47
-#define E1_ENABLE_PIN      -1  // 48
+#define E1_STEP_PIN        -1   // 49
+#define E1_DIR_PIN         -1   // 47
+#define E1_ENABLE_PIN      -1   // 48
 
 //
 // Temperature Sensors
@@ -138,7 +138,7 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN        2
-//#define HEATER_1_PIN        3 // used for case light   Rev A said "1"
+//#define HEATER_1_PIN        3   // used for case light   Rev A said "1"
 #define HEATER_BED_PIN      4
 
 //
@@ -196,7 +196,7 @@
 // case light  - see spindle section for more info on available hardware PWMs
 //
 #if !PIN_EXISTS(CASE_LIGHT) && ENABLED(board_rev_1_5)
-  #define CASE_LIGHT_PIN        7  // use PWM -  MUST BE HARDWARE PWM
+  #define CASE_LIGHT_PIN        7   // use PWM -  MUST BE HARDWARE PWM
 #endif
 
 //
@@ -214,19 +214,19 @@
     #undef Z_MIN_PIN              // SW5
     #undef Z_MAX_PIN              // SW6
 
-    #define X_STOP_PIN         13  // SW1  (didn't change) - also has a useable hardware PWM
-    #define Y_STOP_PIN         12  // SW2
-    #define Z_STOP_PIN         11  // SW3
+    #define X_STOP_PIN         13   // SW1  (didn't change) - also has a useable hardware PWM
+    #define Y_STOP_PIN         12   // SW2
+    #define Z_STOP_PIN         11   // SW3
 
-    #define SPINDLE_DIR_PIN          10  // SW4
-    #define SPINDLE_LASER_PWM_PIN     9  // SW5  MUST BE HARDWARE PWM
-    #define SPINDLE_LASER_ENABLE_PIN  8  // SW6  Pin should have a pullup!
+    #define SPINDLE_DIR_PIN          10   // SW4
+    #define SPINDLE_LASER_PWM_PIN     9   // SW5  MUST BE HARDWARE PWM
+    #define SPINDLE_LASER_ENABLE_PIN  8   // SW6  Pin should have a pullup!
 
   #elif ENABLED(board_rev_1_5)      // use the same pins - but now they are on a different connector
 
-    #define SPINDLE_DIR_PIN          10  // EXP3-6 (silkscreen says 10)
-    #define SPINDLE_LASER_PWM_PIN     9  // EXP3-7 (silkscreen says 9) MUST BE HARDWARE PWM
-    #define SPINDLE_LASER_ENABLE_PIN  8  // EXP3-8 (silkscreen says 8) Pin should have a pullup!
+    #define SPINDLE_DIR_PIN          10   // EXP3-6 (silkscreen says 10)
+    #define SPINDLE_LASER_PWM_PIN     9   // EXP3-7 (silkscreen says 9) MUST BE HARDWARE PWM
+    #define SPINDLE_LASER_ENABLE_PIN  8   // EXP3-8 (silkscreen says 8) Pin should have a pullup!
 
   #elif ENABLED(board_rev_1_1_TO_1_3)
 
@@ -249,14 +249,14 @@
       #define E0_DIR_PIN               47
       #define E0_ENABLE_PIN            48
       #define SPINDLE_DIR_PIN          43
-      #define SPINDLE_LASER_PWM_PIN    45  // MUST BE HARDWARE PWM
-      #define SPINDLE_LASER_ENABLE_PIN 41  // Pin should have a pullup!
+      #define SPINDLE_LASER_PWM_PIN    45   // MUST BE HARDWARE PWM
+      #define SPINDLE_LASER_ENABLE_PIN 41   // Pin should have a pullup!
     #elif TEMP_SENSOR_BED == 0  // Can't use E0 so see if HEATER_BED_PIN is available
       #undef HEATER_BED_PIN
-      #define SPINDLE_DIR_PIN          38  // Probably pin 4 on 10 pin connector closest to the E0 socket
-      #define SPINDLE_LASER_PWM_PIN     4  // MUST BE HARDWARE PWM - Special precautions usually needed.
-      #define SPINDLE_LASER_ENABLE_PIN 40  // Pin should have a pullup! (Probably pin 6 on the 10-pin
-                                           // connector closest to the E0 socket)
+      #define SPINDLE_DIR_PIN          38   // Probably pin 4 on 10 pin connector closest to the E0 socket
+      #define SPINDLE_LASER_PWM_PIN     4   // MUST BE HARDWARE PWM - Special precautions usually needed.
+      #define SPINDLE_LASER_ENABLE_PIN 40   // Pin should have a pullup! (Probably pin 6 on the 10-pin
+                                            // connector closest to the E0 socket)
     #endif
   #endif
 #endif
