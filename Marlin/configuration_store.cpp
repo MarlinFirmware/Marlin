@@ -824,7 +824,7 @@ void MarlinSettings::postprocess() {
         #if defined(Y_HOMING_SENSITIVITY) && (ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS))
           stepperY.sgt(),
         #else
-          0
+          0,
         #endif
         #if defined(Z_HOMING_SENSITIVITY) && (ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS))
           stepperZ.sgt()
