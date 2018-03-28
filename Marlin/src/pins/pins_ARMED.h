@@ -27,9 +27,11 @@
 #define DEFAULT_MACHINE_NAME "Arm'ed"
 #define BOARD_NAME "Arm'ed"
 
+#define I2C_EEPROM
+
 #define LARGE_FLASH true
 
-#define E2END 0xFFF // EEPROM end address
+#define E2END 0xFFF // EEPROM end address (4kB)
 
 // Ignore temp readings during develpment.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
@@ -70,37 +72,37 @@
 #define X_STEP_PIN         _STM32_PIN(PORTD, 3)
 #define X_DIR_PIN          _STM32_PIN(PORTD, 2)
 #define X_ENABLE_PIN       _STM32_PIN(PORTD, 0)
-#ifndef X_CS_PIN
-  #define X_CS_PIN         _STM32_PIN(PORTD, 1)
-#endif
+// #ifndef X_CS_PIN
+//   #define X_CS_PIN         _STM32_PIN(PORTD, 1)
+// #endif
 
 #define Y_STEP_PIN         _STM32_PIN(PORTE, 11)
 #define Y_DIR_PIN          _STM32_PIN(PORTE, 10)
 #define Y_ENABLE_PIN       _STM32_PIN(PORTE, 13)
-#ifndef Y_CS_PIN
-  #define Y_CS_PIN         _STM32_PIN(PORTE, 12)
-#endif
+// #ifndef Y_CS_PIN
+//   #define Y_CS_PIN         _STM32_PIN(PORTE, 12)
+// #endif
 
 #define Z_STEP_PIN         _STM32_PIN(PORTD, 6)
 #define Z_DIR_PIN          _STM32_PIN(PORTD, 7)
 #define Z_ENABLE_PIN       _STM32_PIN(PORTD, 4)
-#ifndef Z_CS_PIN
-  #define Z_CS_PIN         _STM32_PIN(PORTD, 5)
-#endif
+// #ifndef Z_CS_PIN
+//   #define Z_CS_PIN         _STM32_PIN(PORTD, 5)
+// #endif
 
 #define E0_STEP_PIN        _STM32_PIN(PORTB, 5)
 #define E0_DIR_PIN         _STM32_PIN(PORTB, 6)
 #define E0_ENABLE_PIN      _STM32_PIN(PORTB, 3)
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN         _STM32_PIN(PORTB, 4)
-#endif
+// #ifndef E0_CS_PIN
+//   #define E0_CS_PIN         _STM32_PIN(PORTB, 4)
+// #endif
 
 #define E1_STEP_PIN        _STM32_PIN(PORTE, 4)
 #define E1_DIR_PIN         _STM32_PIN(PORTE, 2)
 #define E1_ENABLE_PIN      _STM32_PIN(PORTE, 3)
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN         _STM32_PIN(PORTE, 5)
-#endif
+// #ifndef E1_CS_PIN
+//   #define E1_CS_PIN         _STM32_PIN(PORTE, 5)
+// #endif
 
 #define SCK_PIN            _STM32_PIN(PORTA, 5)
 #define MISO_PIN           _STM32_PIN(PORTA, 6)
