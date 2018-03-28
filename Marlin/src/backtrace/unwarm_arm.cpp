@@ -12,7 +12,7 @@
  * File Description: Abstract interpreter for ARM mode.
  **************************************************************************/
 
-#ifdef ARDUINO_ARCH_SAM
+#if defined(__arm__) || defined(__thumb__)
 
 #define MODULE_NAME "UNWARM_ARM"
 
@@ -180,7 +180,7 @@ UnwResult UnwStartArm(UnwState * const state) {
       uint8_t        rd = (instr & 0x0000f000) >> 12;
       uint16_t operand2 = (instr & 0x00000fff);
       uint32_t        op2val;
-      RegValOrigin op2origin;
+      int             op2origin;
 
       switch(opcode) {
         case  0: UnwPrintd4("AND%s r%d,r%d,", S ? "S" : "", rd, rn); break;
@@ -344,7 +344,7 @@ UnwResult UnwStartArm(UnwState * const state) {
           }
           else {
             state->regData[rd].o = state->regData[rn].o;
-            state->regData[rd].o |= op2origin;
+            state->regData[rd].o = (RegValOrigin)(state->regData[rd].o | op2origin);
           }
           break;
 
@@ -363,7 +363,7 @@ UnwResult UnwStartArm(UnwState * const state) {
 
         case 13: /* MOV: Rd:= Op2 */
         case 15: /* MVN: Rd:= NOT Op2 */
-          state->regData[rd].o = op2origin;
+          state->regData[rd].o = (RegValOrigin) op2origin;
           break;
       }
 
