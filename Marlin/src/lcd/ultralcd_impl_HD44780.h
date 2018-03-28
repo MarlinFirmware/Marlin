@@ -712,63 +712,63 @@ Possible status screens:
 */
 static void lcd_implementation_status_screen() {
   const bool blink = lcd_blink();
-
-  //
-  // Line 1
-  //
-
-  lcd.setCursor(0, 0);
-
-  #if LCD_WIDTH < 20
-
+  #ifndef NO_EXTRUDERS
     //
-    // Hotend 0 Temperature
+    // Line 1
     //
-    _draw_heater_status(0, -1, blink);
 
-    //
-    // Hotend 1 or Bed Temperature
-    //
-    #if HOTENDS > 1 || TEMP_SENSOR_BED
+    lcd.setCursor(0, 0);
 
-      lcd.setCursor(8, 0);
-      #if HOTENDS > 1
-        lcd.print((char)LCD_STR_THERMOMETER[0]);
-        _draw_heater_status(1, -1, blink);
-      #else
-        lcd.print((char)LCD_BEDTEMP_CHAR);
-        _draw_heater_status(-1, -1, blink);
-      #endif
+    #if LCD_WIDTH < 20
 
-    #endif // HOTENDS > 1 || TEMP_SENSOR_BED
+      //
+      // Hotend 0 Temperature
+      //
+      _draw_heater_status(0, -1, blink);
 
-  #else // LCD_WIDTH >= 20
+      //
+      // Hotend 1 or Bed Temperature
+      //
+      #if HOTENDS > 1 || TEMP_SENSOR_BED
 
-    //
-    // Hotend 0 Temperature
-    //
-    _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
+        lcd.setCursor(8, 0);
+        #if HOTENDS > 1
+          lcd.print((char)LCD_STR_THERMOMETER[0]);
+          _draw_heater_status(1, -1, blink);
+        #else
+          lcd.print((char)LCD_BEDTEMP_CHAR);
+          _draw_heater_status(-1, -1, blink);
+        #endif
 
-    //
-    // Hotend 1 or Bed Temperature
-    //
-    #if HOTENDS > 1 || TEMP_SENSOR_BED
-      lcd.setCursor(10, 0);
-      #if HOTENDS > 1
-        _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
-      #else
-        _draw_heater_status(-1, (
-          #if HAS_LEVELING
-            planner.leveling_active && blink ? '_' :
-          #endif
-          LCD_BEDTEMP_CHAR
-        ), blink);
-      #endif
+      #endif // HOTENDS > 1 || TEMP_SENSOR_BED
 
-    #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
+    #else // LCD_WIDTH >= 20
 
-  #endif // LCD_WIDTH >= 20
+      //
+      // Hotend 0 Temperature
+      //
+      _draw_heater_status(0, LCD_STR_THERMOMETER[0], blink);
 
+      //
+      // Hotend 1 or Bed Temperature
+      //
+      #if HOTENDS > 1 || TEMP_SENSOR_BED
+        lcd.setCursor(10, 0);
+        #if HOTENDS > 1
+          _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
+        #else
+          _draw_heater_status(-1, (
+            #if HAS_LEVELING
+              planner.leveling_active && blink ? '_' :
+            #endif
+            LCD_BEDTEMP_CHAR
+          ), blink);
+        #endif
+
+      #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
+
+    #endif // LCD_WIDTH >= 20
+  #endif // NO_EXTRUDERS
   //
   // Line 2
   //

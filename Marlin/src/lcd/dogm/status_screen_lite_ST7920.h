@@ -418,17 +418,20 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
   load_cgram_icon(CGRAM_ICON_4_ADDR, fan2_icon);
 
   // Draw the static icons in GDRAM
-  draw_gdram_icon(1, 1, nozzle_icon);
-  #if EXTRUDERS == 2
-    draw_gdram_icon(1,2,nozzle_icon);
-    draw_gdram_icon(1,3,bed_icon);
-  #else
-    draw_gdram_icon(1,2,bed_icon);
+  #ifndef NO_EXTRUDERS
+    draw_gdram_icon(1, 1, nozzle_icon);
+    #if EXTRUDERS == 2
+      draw_gdram_icon(1,2,nozzle_icon);
+      draw_gdram_icon(1,3,bed_icon);
+    #else
+      draw_gdram_icon(1,2,bed_icon);
+    #endif
+      // Draw the initial fan icon
+    draw_fan_icon(false);
   #endif
   draw_gdram_icon(6,2,feedrate_icon);
 
-  // Draw the initial fan icon
-  draw_fan_icon(false);
+
 }
 
 /**
@@ -713,26 +716,26 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
       const int16_t  bed_temp          = thermalManager.degBed(),
                      bed_target        = thermalManager.degTargetBed();
     #endif
-
-    draw_extruder_1_temp(extruder_1_temp, extruder_1_target, forceUpdate);
-    #if EXTRUDERS == 2
-      draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate);
-    #endif
-    #if HAS_HEATER_BED
-      draw_bed_temp(bed_temp, bed_target, forceUpdate);
-    #endif
-    draw_fan_speed(fan_speed);
+    #ifndef NO_EXTRUDERS
+      draw_extruder_1_temp(extruder_1_temp, extruder_1_target, forceUpdate);
+      #if EXTRUDERS == 2
+        draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate);
+      #endif
+      #if HAS_HEATER_BED
+        draw_bed_temp(bed_temp, bed_target, forceUpdate);
+      #endif
+      draw_fan_speed(fan_speed);
+      // Update the fan and bed animations
+      if (fan_speed > 0) draw_fan_icon(blink);
+      #if HAS_HEATER_BED
+        if (bed_target > 0)
+          draw_heat_icon(blink, true);
+        else
+          draw_heat_icon(false, false);
+      #endif
+    #endif //NO_EXTRUDERS
     draw_print_time(elapsed);
     draw_feedrate_percentage(feedrate_perc);
-
-    // Update the fan and bed animations
-    if (fan_speed > 0) draw_fan_icon(blink);
-    #if HAS_HEATER_BED
-      if (bed_target > 0)
-        draw_heat_icon(blink, true);
-      else
-        draw_heat_icon(false, false);
-    #endif
   }
 }
 
