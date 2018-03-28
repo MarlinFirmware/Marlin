@@ -108,13 +108,13 @@
 #define E0_DIR_PIN         21
 #define E0_ENABLE_PIN      10
 
-#define E1_STEP_PIN        -1 // 21
-#define E1_DIR_PIN         -1 // 20
-#define E1_ENABLE_PIN      -1 // 19
+#define E1_STEP_PIN        -1   // 21
+#define E1_DIR_PIN         -1   // 20
+#define E1_ENABLE_PIN      -1   // 19
 
-#define E2_STEP_PIN        -1 // 21
-#define E2_DIR_PIN         -1 // 20
-#define E2_ENABLE_PIN      -1 // 18
+#define E2_STEP_PIN        -1   // 21
+#define E2_DIR_PIN         -1   // 20
+#define E2_ENABLE_PIN      -1   // 18
 
 //
 // Temperature Sensors
@@ -126,10 +126,10 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        3 // DONE PWM on RIGHT connector
+#define HEATER_0_PIN        3   // DONE PWM on RIGHT connector
 #define HEATER_BED_PIN      4
 
-#define FAN_PIN            14 // PWM on MIDDLE connector
+#define FAN_PIN            14   // PWM on MIDDLE connector
 
 //
 // Misc. Functions
@@ -145,4 +145,4 @@
 #define __GS  18
 #define __GD  13
 
-#define UNUSED_PWM         14 // PWM on LEFT connector
+#define UNUSED_PWM         14   // PWM on LEFT connector

@@ -35,7 +35,7 @@
 //
 #define SERVO0_PIN          5
 #define SERVO1_PIN          6
-#define SERVO2_PIN          8 // 4-pin header FAN0
+#define SERVO2_PIN          8   // 4-pin header FAN0
 #define SERVO3_PIN         -1
 
 //
@@ -85,13 +85,13 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       13 // HOTEND0 MOSFET
-#define HEATER_BED_PIN      7 // BED MOSFET
+#define HEATER_0_PIN       13   // HOTEND0 MOSFET
+#define HEATER_BED_PIN      7   // BED MOSFET
 
-#define FAN_PIN            11 // FAN1 header on board - PRINT FAN
-#define FAN1_PIN           12 // FAN2 header on board - CONTROLLER FAN
-#define FAN2_PIN            9 // FAN3 header on board - EXTRUDER0 FAN
-//#define FAN3_PIN          8 // FAN0 4-pin header on board
+#define FAN_PIN            11   // FAN1 header on board - PRINT FAN
+#define FAN1_PIN           12   // FAN2 header on board - CONTROLLER FAN
+#define FAN2_PIN            9   // FAN3 header on board - EXTRUDER0 FAN
+//#define FAN3_PIN          8   // FAN0 4-pin header on board
 
 //
 // Misc. Functions

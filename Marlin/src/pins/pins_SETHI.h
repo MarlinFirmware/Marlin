@@ -56,7 +56,7 @@
 #define BOARD_NAME "Sethi 3D_1"
 
 #ifndef GEN7_VERSION
-  #define GEN7_VERSION 12 // v1.x
+  #define GEN7_VERSION 12   // v1.x
 #endif
 
 //

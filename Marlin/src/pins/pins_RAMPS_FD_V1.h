@@ -142,24 +142,24 @@
 #if ENABLED(ULTRA_LCD)
   // ramps-fd lcd adaptor
 
-  #define BEEPER_PIN          37
-  #define BTN_EN1             33
-  #define BTN_EN2             31
-  #define BTN_ENC             35
-  #define SD_DETECT_PIN       49
+  #define BEEPER_PIN       37
+  #define BTN_EN1          33
+  #define BTN_EN2          31
+  #define BTN_ENC          35
+  #define SD_DETECT_PIN    49
 
   #if ENABLED(NEWPANEL)
-    #define LCD_PINS_RS         16
-    #define LCD_PINS_ENABLE     17
-    #define LCD_PINS_D4         23
-    #define LCD_PINS_D5         25
-    #define LCD_PINS_D6         27
-    #define LCD_PINS_D7         29
+    #define LCD_PINS_RS    16
+    #define LCD_PINS_ENABLE 17
+    #define LCD_PINS_D4    23
+    #define LCD_PINS_D5    25
+    #define LCD_PINS_D6    27
+    #define LCD_PINS_D7    29
   #endif
 
   #if ENABLED(MINIPANEL)
-    #define DOGLCD_CS           25
-    #define DOGLCD_A0           27
+    #define DOGLCD_CS      25
+    #define DOGLCD_A0      27
   #endif
 #endif // ULTRA_LCD
 
@@ -188,8 +188,8 @@
 //
 #if ENABLED(SPINDLE_LASER_ENABLE) && !PIN_EXISTS(SPINDLE_LASER_ENABLE)
   #if HOTENDS < 3
-    #define SPINDLE_LASER_ENABLE_PIN  45  // Use E2 ENA
-    #define SPINDLE_LASER_PWM_PIN     12  // MUST BE HARDWARE PWM
-    #define SPINDLE_DIR_PIN           47 // Use E2 DIR
+    #define SPINDLE_LASER_ENABLE_PIN  45   // Use E2 ENA
+    #define SPINDLE_LASER_PWM_PIN     12   // MUST BE HARDWARE PWM
+    #define SPINDLE_DIR_PIN           47   // Use E2 DIR
   #endif
 #endif
