@@ -29,7 +29,7 @@
 #define __PINSDEBUG_TEENSYDUINO_H__
 
 #undef NUM_DIGITAL_PINS
-#define NUM_DIGITAL_PINS 48  // Teensy says 46 but FASTIO is 48
+#define NUM_DIGITAL_PINS 48   // Teensy says 46 but FASTIO is 48
 
 // "digitalPinToPort" function just returns the pin number so need to create our own.
 // Can't use the name "digitalPinToPort" for our own because it interferes with the
@@ -41,7 +41,6 @@
 #define PD 4
 #define PE 5
 #define PF 6
-
 
 const uint8_t PROGMEM digital_pin_to_port_PGM_Teensy[] = {
   PD, // 0  - PD0 - INT0 - PWM

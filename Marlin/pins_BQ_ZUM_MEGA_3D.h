@@ -49,13 +49,13 @@
 //
 // Misc. Functions
 //
-#define CASE_LIGHT_PIN   44     // MUST BE HARDWARE PWM
+#define CASE_LIGHT_PIN     44   // MUST BE HARDWARE PWM
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENABLE_PIN 40  // Pin should have a pullup/pulldown!
-#define SPINDLE_LASER_PWM_PIN    44  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 40   // Pin should have a pullup/pulldown!
+#define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
 #define SPINDLE_DIR_PIN          42
 
 #include "pins_RAMPS_13.h"
@@ -64,16 +64,16 @@
 // Limit Switches
 //
 #undef X_MAX_PIN
-#define X_MAX_PIN         79 // 2
+#define X_MAX_PIN         79   // 2
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #undef Z_MIN_PROBE_PIN
-#define Z_MIN_PROBE_PIN   19 // IND_S_5V
+#define Z_MIN_PROBE_PIN   19   // IND_S_5V
 
 #undef Z_ENABLE_PIN
-#define Z_ENABLE_PIN      77 // 62
+#define Z_ENABLE_PIN      77   // 62
 
 //
 // Steppers
@@ -93,8 +93,8 @@
 //
 // Misc. Functions
 //
-#undef PS_ON_PIN             // 12
-#define PS_ON_PIN         81 // External Power Supply
+#undef PS_ON_PIN               // 12
+#define PS_ON_PIN         81   // External Power Supply
 
 
 // This board has headers for Z-min, Z-max and IND_S_5V *but* as the bq team
@@ -104,8 +104,8 @@
 #ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef Z_MIN_PIN
   #undef Z_MAX_PIN
-  #define Z_MIN_PIN       19 // IND_S_5V
-  #define Z_MAX_PIN       18 // Z-MIN Label
+  #define Z_MIN_PIN       19   // IND_S_5V
+  #define Z_MAX_PIN       18   // Z-MIN Label
 #endif
 
 
