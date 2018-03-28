@@ -27,6 +27,10 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 
+#if ENABLED(DELTA)
+  #include "../../module/planner.h"
+#endif
+
 /**
  * M218 - set hotend offset (in linear units)
  *
