@@ -851,7 +851,7 @@ void MarlinSettings::postprocess() {
     _FIELD_TEST(coordinate_system);
 
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
-      EEPROM_WRITE(coordinate_system); // 27 floats
+      EEPROM_WRITE(gcode.coordinate_system); // 27 floats
     #else
       dummy = 0.0f;
       for (uint8_t q = MAX_COORDINATE_SYSTEMS * XYZ; q--;) EEPROM_WRITE(dummy);
