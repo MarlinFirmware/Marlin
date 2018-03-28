@@ -29,15 +29,7 @@ typedef struct {
   uint32_t insn;
 } UnwTabEntry;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 UnwResult UnwindByTableStart(UnwindFrame* frame, const UnwindCallbacks *cb, void *data);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 

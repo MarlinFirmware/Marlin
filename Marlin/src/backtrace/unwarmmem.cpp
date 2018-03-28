@@ -12,7 +12,7 @@
  * File Description: Implementation of the memory tracking sub-system.
  **************************************************************************/
 
-#ifdef ARDUINO_ARCH_SAM
+#if defined(__arm__) || defined(__thumb__)
 #define MODULE_NAME "UNWARMMEM"
 
 #include <stdio.h>

@@ -9,25 +9,18 @@
  * don't guarantee that the software is fit for any purpose or accept any
  * liablity for it's use or misuse - this software is without warranty.
  ***************************************************************************
- * File Description: Interface to the memory tracking sub-system.
+ * File Description: Utility functions to access memory
  **************************************************************************/
 
-#ifndef UNWARMMEM_H
-#define UNWARMMEM_H
+#ifndef UNWMEMACCESS_H
+#define UNWMEMACCESS_H
 
 #include "unwarm.h"
+#include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-bool UnwMemHashRead(MemData * const memData, uint32_t addr, uint32_t * const data, bool * const tracked);
-bool UnwMemHashWrite(MemData * const memData, uint32_t addr, uint32_t val, bool valValid);
-void UnwMemHashGC(UnwState * const state);
-
-#ifdef __cplusplus
-}
-#endif
+bool UnwReadW(const uint32_t a, uint32_t *v);
+bool UnwReadH(const uint32_t a, uint16_t *v);
+bool UnwReadB(const uint32_t a, uint8_t *v);
 
 #endif
 

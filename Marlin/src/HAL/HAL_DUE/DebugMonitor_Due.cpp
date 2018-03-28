@@ -24,7 +24,8 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../../Marlin.h"
-#include "backtrace/unwinder.h"
+#include "../../backtrace/unwinder.h"
+#include "../../backtrace/unwmemaccess.h"
 
 // Debug monitor that dumps to the Programming port all status when
 // an exception or WDT timeout happens - And then resets the board
@@ -111,45 +112,6 @@ static void TXDec(uint32_t v) {
     TX(*p);
   } while (p != &nbrs[0]);
 }
-
-/* Validate address */
-static bool validate_addr(uint32_t addr) {
-
-  // Address must be in SRAM (0x20070000 - 0x20088000)
-  if (addr >= 0x20070000 && addr < 0x20088000)
-    return true;
-
-  // Or in FLASH (0x00080000 - 0x00100000)
-  if (addr >= 0x00080000 && addr < 0x00100000)
-    return true;
-
-  return false;
-}
-
-static bool UnwReadW(const uint32_t a, uint32_t *v) {
-  if (!validate_addr(a))
-    return false;
-
-  *v = *(uint32_t *)a;
-  return true;
-}
-
-static bool UnwReadH(const uint32_t a, uint16_t *v) {
-  if (!validate_addr(a))
-    return false;
-
-  *v = *(uint16_t *)a;
-  return true;
-}
-
-static bool UnwReadB(const uint32_t a, uint8_t *v) {
-  if (!validate_addr(a))
-    return false;
-
-  *v = *(uint8_t *)a;
-  return true;
-}
-
 
 // Dump a backtrace entry
 static bool UnwReportOut(void* ctx, const UnwReport* bte) {
@@ -270,7 +232,8 @@ void HardFault_HandlerC(unsigned long *sp, unsigned long lr, unsigned long cause
 }
 
 __attribute__((naked)) void NMI_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
@@ -282,7 +245,8 @@ __attribute__((naked)) void NMI_Handler(void) {
 }
 
 __attribute__((naked)) void HardFault_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
@@ -294,7 +258,8 @@ __attribute__((naked)) void HardFault_Handler(void) {
 }
 
 __attribute__((naked)) void MemManage_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
@@ -306,7 +271,8 @@ __attribute__((naked)) void MemManage_Handler(void) {
 }
 
 __attribute__((naked)) void BusFault_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
@@ -318,7 +284,8 @@ __attribute__((naked)) void BusFault_Handler(void) {
 }
 
 __attribute__((naked)) void UsageFault_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
@@ -330,7 +297,8 @@ __attribute__((naked)) void UsageFault_Handler(void) {
 }
 
 __attribute__((naked)) void DebugMon_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
@@ -343,7 +311,8 @@ __attribute__((naked)) void DebugMon_Handler(void) {
 
 /* This is NOT an exception, it is an interrupt handler - Nevertheless, the framing is the same */
 __attribute__((naked)) void WDT_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
@@ -355,7 +324,8 @@ __attribute__((naked)) void WDT_Handler(void) {
 }
 
 __attribute__((naked)) void RSTC_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
