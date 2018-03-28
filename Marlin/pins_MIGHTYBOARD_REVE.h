@@ -119,7 +119,7 @@
 #define DIGIPOTS_I2C_SDA_Z  65   // K3
 #define DIGIPOTS_I2C_SDA_E0 27   // A5
 #define DIGIPOTS_I2C_SDA_E1 77   // J6
-#define DIGIPOT_I2C_ADDRESS_A 0x2F  // unshifted slave address (5E <- 2F << 1)
+#define DIGIPOT_I2C_ADDRESS_A 0x2F   // unshifted slave address (5E <- 2F << 1)
 
 //
 // Temperature Sensors
@@ -267,9 +267,9 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENABLE_PIN 66  // K4   Pin should have a pullup!
-#define SPINDLE_LASER_PWM_PIN     8  // H5   MUST BE HARDWARE PWM
-#define SPINDLE_DIR_PIN          67  // K5
+#define SPINDLE_LASER_ENABLE_PIN 66   // K4   Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     8   // H5   MUST BE HARDWARE PWM
+#define SPINDLE_DIR_PIN          67   // K5
 
 
 
