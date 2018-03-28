@@ -1901,7 +1901,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    #define say_M603(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M603 "); }
+    void say_M603(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M603 "); }
   #endif
 
   /**
