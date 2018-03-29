@@ -1132,6 +1132,10 @@ inline void get_serial_commands() {
 
 #if ENABLED(SDSUPPORT)
 
+  #if ENABLED(PRINTER_EVENT_LEDS) && HAS_RESUME_CONTINUE
+    static bool lights_off_after_print; // = false
+  #endif
+
   /**
    * Get commands from the SD Card until the command buffer is full
    * or until the end of the file is reached. The special character '#'
@@ -1174,12 +1178,19 @@ inline void get_serial_commands() {
               LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
               leds.set_green();
               #if HAS_RESUME_CONTINUE
-                enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
+                lights_off_after_print = true;
+                enqueue_and_echo_commands_P(PSTR("M0 S"
+                  #if ENABLED(NEWPANEL)
+                    "1800"
+                  #else
+                    "60"
+                  #endif
+                ));
               #else
-                safe_delay(1000);
+                safe_delay(2000);
+                leds.set_off();
               #endif
-              leds.set_off();
-            #endif
+            #endif // PRINTER_EVENT_LEDS
             card.checkautostart(true);
           }
         }
@@ -6253,6 +6264,13 @@ inline void gcode_G92() {
         while (wait_for_user) idle();
       #endif
     }
+
+    #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
+      if (lights_off_after_print) {
+        leds.set_off();
+        lights_off_after_print = false;
+      }
+    #endif
 
     wait_for_user = false;
     KEEPALIVE_STATE(IN_HANDLER);
