@@ -446,7 +446,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
             };
 
-            #if HAS_MESH
+            #if HAS_MESH && PLANNER_LEVELING
 
               if (planner.leveling_active) {
                 #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -464,7 +464,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                 #endif
               }
 
-            #endif // HAS_MESH
+            #endif // HAS_MESH && PLANNER_LEVELING
 
           #endif // !HAS_ABL
 
