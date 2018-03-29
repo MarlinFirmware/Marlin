@@ -444,7 +444,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           destination[Z_AXIS] += z_diff;  // Include the Z restore with the "move back"
         #endif
 
+        // Raise, move, and lower again
         if (safe_to_move && !no_move && IsRunning()) {
+          // Do a small lift to avoid the workpiece in the move back (below)
+          current_position[Z_AXIS] += 1.0;
+          planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
           #endif
