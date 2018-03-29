@@ -12,7 +12,7 @@
  * File Description: Implementation of the interface into the ARM unwinder.
  **************************************************************************/
 
-#ifdef ARDUINO_ARCH_SAM
+#if defined(__arm__) || defined(__thumb__)
 
 #define MODULE_NAME "UNWINDER"
 
@@ -23,8 +23,8 @@
 #include "unwarmbytab.h"
 
 /* These symbols point to the unwind index and should be provide by the linker script */
-extern const UnwTabEntry __exidx_start[];
-extern const UnwTabEntry __exidx_end[];
+extern "C" const UnwTabEntry __exidx_start[];
+extern "C" const UnwTabEntry __exidx_end[];
 
 // Detect if unwind information is present or not
 static int HasUnwindTableInfo(void) {

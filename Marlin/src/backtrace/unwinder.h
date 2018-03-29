@@ -17,7 +17,6 @@
 #define UNWINDER_H
 
 #include <stdint.h>
-#include <stdbool.h>
 
 /** \def UNW_DEBUG
  * If this define is set, additional information will be produced while
@@ -161,10 +160,6 @@ typedef struct {
   uint32_t pc;
 } UnwindFrame;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** Start unwinding the current stack.
  * This will unwind the stack starting at the PC value supplied to in the
  * link register (i.e. not a normal register) and the stack pointer value
@@ -176,9 +171,5 @@ extern "C" {
  * get function names in the traceback. Otherwise, you will not.
  */
 UnwResult UnwindStart(UnwindFrame* frame, const UnwindCallbacks *cb, void *data);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* UNWINDER_H */

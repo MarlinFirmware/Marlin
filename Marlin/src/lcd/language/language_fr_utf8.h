@@ -295,7 +295,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err: TEMP. MIN")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: TEMP. MAX LIT")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: TEMP. MIN LIT")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z interdit")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 
 #define MSG_HALTED                          _UxGT("IMPR. STOPPÉE")
 #define MSG_PLEASE_RESET                    _UxGT("RàZ. SVP")

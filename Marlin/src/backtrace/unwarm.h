@@ -54,7 +54,7 @@ typedef struct {
   /** The origin of the register value.
    * This is used to track how the value in the register was loaded.
    */
-  RegValOrigin o;
+  int o; /* (RegValOrigin) */
 } RegData;
 
 
@@ -131,10 +131,6 @@ typedef struct {
  *  Function Prototypes
  **************************************************************************/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 UnwResult UnwStartArm(UnwState * const state);
 UnwResult UnwStartThumb(UnwState * const state);
 void UnwInvalidateRegisterFile(RegData *regFile);
@@ -143,10 +139,6 @@ bool UnwReportRetAddr(UnwState * const state, uint32_t addr);
 bool UnwMemWriteRegister(UnwState * const state, const uint32_t addr, const RegData * const reg);
 bool UnwMemReadRegister(UnwState * const state, const uint32_t addr, RegData * const reg);
 void UnwMemHashGC(UnwState * const state);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* UNWARM_H */
 

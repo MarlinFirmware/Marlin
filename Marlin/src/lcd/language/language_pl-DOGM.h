@@ -178,7 +178,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err min temp")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err max temp stołu")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err min temp stołu")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z Forbidden")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("Drukarka zatrzym.")
 #define MSG_PLEASE_RESET                    _UxGT("Proszę zresetować")
 #define MSG_SHORT_DAY                       _UxGT("d") // One character only

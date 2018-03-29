@@ -182,7 +182,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err: temp. min.")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: MAXTEMP BED")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: MINTEMP BED")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z impedido")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("SISTEMA MORTO")
 #define MSG_PLEASE_RESET                    _UxGT("Debe reiniciar!")
 #define MSG_SHORT_DAY                       _UxGT("d") // One character only

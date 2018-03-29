@@ -11,7 +11,7 @@
  * for exceptions for debugging purposes in 2018 by Eduardo José Tagle.
  */
 
-#ifdef ARDUINO_ARCH_SAM
+#if defined(__arm__) || defined(__thumb__)
 
 #include "unwarmbytab.h"
 
@@ -19,8 +19,8 @@
 #include <string.h>
 
 /* These symbols point to the unwind index and should be provide by the linker script */
-extern const UnwTabEntry __exidx_start[];
-extern const UnwTabEntry __exidx_end[];
+extern "C" const UnwTabEntry __exidx_start[];
+extern "C" const UnwTabEntry __exidx_end[];
 
 /* This prevents the linking of libgcc unwinder code */
 void __aeabi_unwind_cpp_pr0(void) {};
