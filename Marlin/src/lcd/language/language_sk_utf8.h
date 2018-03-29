@@ -300,7 +300,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("NÍZKA TEPLOTA")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("VYS. TEPL. PODL.")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("NÍZ. TEPL. PODL.")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z ZAKÁZANÉ")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("TLAČ. ZASTAVENÁ")
 #define MSG_PLEASE_RESET                    _UxGT("Spravte reset")
 #define MSG_SHORT_DAY                       _UxGT("d")

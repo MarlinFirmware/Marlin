@@ -177,7 +177,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("エラー:サイテイオンミマン")          // "Err: MINTEMP"
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("エラー:ベッド サイコウオンチョウカ")    // "Err: MAXTEMP BED"
 #define MSG_ERR_MINTEMP_BED                 _UxGT("エラー:ベッド サイテイオンミマン")     // "Err: MINTEMP BED"
-#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST // "G28 Z Forbidden"
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST // "Home XY first"
 #define MSG_HALTED                          _UxGT("プリンターハテイシシマシタ")         // "PRINTER HALTED"
 #define MSG_PLEASE_RESET                    _UxGT("リセットシテクダサイ")              // "Please reset"
 #define MSG_SHORT_DAY                       _UxGT("d")                          // One character only

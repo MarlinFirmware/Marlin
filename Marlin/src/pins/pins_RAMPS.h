@@ -44,8 +44,16 @@
  *         7 | 11
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+#if ENABLED(TARGET_LPC1768)
+  #error "Oops!  Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
+#elif defined(__STM32F1__)
+  #error "Oops!  Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
+#endif
+
+#if DISABLED(IS_RAMPS_SMART) && DISABLED(IS_RAMPS_DUO) && DISABLED(IS_RAMPS4DUE) && DISABLED(TARGET_LPC1768)
+  #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+    #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+  #endif
 #endif
 
 #ifndef BOARD_NAME
@@ -538,6 +546,10 @@
     #elif ENABLED(ZONESTAR_LCD)
 
       #define ADC_KEYPAD_PIN    12
+
+    #elif ENABLED(AZSMZ_12864)
+
+      // Pins only defined for RAMPS_SMART currently
 
     #else
 
