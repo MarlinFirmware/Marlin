@@ -6240,9 +6240,11 @@ inline void gcode_G92() {
       hasS = ms > 0;
     }
 
+    const bool has_message = !hasP && !hasS && args && *args;
+
     #if ENABLED(ULTIPANEL)
 
-      if (!hasP && !hasS && args && *args)
+      if (has_message)
         lcd_setstatus(args, true);
       else {
         LCD_MESSAGEPGM(MSG_USERWAIT);
@@ -6253,7 +6255,7 @@ inline void gcode_G92() {
 
     #else
 
-      if (!hasP && !hasS && args && *args) {
+      if (has_message) {
         SERIAL_ECHO_START();
         SERIAL_ECHOLN(args);
       }
@@ -6271,19 +6273,21 @@ inline void gcode_G92() {
     }
     else {
       #if ENABLED(ULTIPANEL)
-        if (lcd_detected()) {
-          while (wait_for_user) idle();
-          print_job_timer.isPaused() ? LCD_MESSAGEPGM(WELCOME_MSG) : LCD_MESSAGEPGM(MSG_RESUMING);
-        }
-      #else
-        while (wait_for_user) idle();
+        if (lcd_detected())
       #endif
+          while (wait_for_user) idle();
     }
 
     #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
       if (lights_off_after_print) {
         leds.set_off();
         lights_off_after_print = false;
+      }
+    #endif
+
+    #if ENABLED(ULTIPANEL)
+      if (lcd_detected()) {
+        print_job_timer.isPaused() ? LCD_MESSAGEPGM(WELCOME_MSG) : LCD_MESSAGEPGM(MSG_RESUMING);
       }
     #endif
 
