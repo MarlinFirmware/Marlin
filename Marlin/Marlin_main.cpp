@@ -2891,19 +2891,29 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     }
   #endif
 
-  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    const bool deploy_bltouch = (axis == Z_AXIS && distance < 0);
-    if (deploy_bltouch) set_bltouch_deployed(true);
-  #endif
+  // Only do some things when moving towards an endstop
+  const int8_t axis_home_dir =
+    #if ENABLED(DUAL_X_CARRIAGE)
+      (axis == X_AXIS) ? x_home_dir(active_extruder) :
+    #endif
+    home_dir(axis);
+  const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
 
-  #if QUIET_PROBING
-    if (axis == Z_AXIS) probing_pause(true);
-  #endif
+  if (is_home_dir) {
+    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+      const bool deploy_bltouch = (axis == Z_AXIS && is_home_dir);
+      if (deploy_bltouch) set_bltouch_deployed(true);
+    #endif
 
-  // Disable stealthChop if used. Enable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    sensorless_homing_per_axis(axis);
-  #endif
+    #if QUIET_PROBING
+      if (axis == Z_AXIS) probing_pause(true);
+    #endif
+
+    // Disable stealthChop if used. Enable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+      sensorless_homing_per_axis(axis);
+    #endif
+  }
 
   // Tell the planner the axis is at 0
   current_position[axis] = 0;
@@ -2921,20 +2931,22 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   stepper.synchronize();
 
-  #if QUIET_PROBING
-    if (axis == Z_AXIS) probing_pause(false);
-  #endif
+  if (is_home_dir) {
+    #if QUIET_PROBING
+      if (axis == Z_AXIS) probing_pause(false);
+    #endif
 
-  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    if (deploy_bltouch) set_bltouch_deployed(false);
-  #endif
+    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+      if (deploy_bltouch) set_bltouch_deployed(false);
+    #endif
 
-  endstops.hit_on_purpose();
+    endstops.hit_on_purpose();
 
-  // Re-enable stealthChop if used. Disable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    sensorless_homing_per_axis(axis, false);
-  #endif
+    // Re-enable stealthChop if used. Disable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+      sensorless_homing_per_axis(axis, false);
+    #endif
+  }
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -3820,15 +3832,17 @@ inline void gcode_G4() {
     buffer_line_to_current_position();
     stepper.synchronize();
 
+    // Re-enable stealthChop if used. Disable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+      delta_sensorless_homing(false);
+    #endif
+
     // If an endstop was not hit, then damage can occur if homing is continued.
     // This can occur if the delta height not set correctly.
     if (!(Endstops::endstop_hit_bits & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
       LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_HOMING_FAILED);
-      #if ENABLED(SENSORLESS_HOMING)
-        delta_sensorless_homing(false);
-      #endif
       return false;
     }
 
@@ -3839,11 +3853,6 @@ inline void gcode_G4() {
     HOMEAXIS(A);
     HOMEAXIS(B);
     HOMEAXIS(C);
-
-    // Re-enable stealthChop if used. Disable diag1 pin on driver.
-    #if ENABLED(SENSORLESS_HOMING)
-      delta_sensorless_homing(false);
-    #endif
 
     // Set all carriages to their home positions
     // Do this here all at once for Delta, because
