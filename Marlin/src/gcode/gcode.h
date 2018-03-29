@@ -324,6 +324,10 @@ public:
     #define KEEPALIVE_STATE(n) NOOP
   #endif
 
+  #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT) && HAS_RESUME_CONTINUE
+    static bool lights_off_after_print;
+  #endif
+
   static void dwell(millis_t time);
 
 private:
