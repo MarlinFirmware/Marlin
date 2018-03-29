@@ -2900,14 +2900,17 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
   const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
 
   if (is_home_dir) {
-    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-      const bool deploy_bltouch = (axis == Z_AXIS && is_home_dir);
-      if (deploy_bltouch) set_bltouch_deployed(true);
-    #endif
 
-    #if QUIET_PROBING
-      if (axis == Z_AXIS) probing_pause(true);
-    #endif
+    if (axis == Z_AXIS) {
+      #if HOMING_Z_WITH_PROBE
+        #if ENABLED(BLTOUCH)
+          set_bltouch_deployed(true);
+        #endif
+        #if QUIET_PROBING
+          probing_pause(true);
+        #endif
+      #endif
+    }
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
@@ -2932,13 +2935,17 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
   stepper.synchronize();
 
   if (is_home_dir) {
-    #if QUIET_PROBING
-      if (axis == Z_AXIS) probing_pause(false);
-    #endif
 
-    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-      if (deploy_bltouch) set_bltouch_deployed(false);
-    #endif
+    if (axis == Z_AXIS) {
+      #if HOMING_Z_WITH_PROBE
+        #if QUIET_PROBING
+          probing_pause(false);
+        #endif
+        #if ENABLED(BLTOUCH)
+          set_bltouch_deployed(false);
+        #endif
+      #endif
+    }
 
     endstops.hit_on_purpose();
 
