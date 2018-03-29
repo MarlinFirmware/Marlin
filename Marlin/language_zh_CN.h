@@ -290,7 +290,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("错误：最低温度")  //"Err: MINTEMP"
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("错误：最高热床温度")  //"Err: MAXTEMP BED"
 #define MSG_ERR_MINTEMP_BED                 _UxGT("错误：最低热床温度")  //"Err: MINTEMP BED"
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z 已禁止") // "G28 Z Forbidden"
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("打印停机")  //"PRINTER HALTED"
 #define MSG_PLEASE_RESET                    _UxGT("请重置")  //"Please reset"
 #define MSG_SHORT_DAY                       _UxGT("天")  //"d" // One character only

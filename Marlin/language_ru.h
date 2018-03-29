@@ -294,7 +294,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Ошибка: Т мин.")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Ошибка: Т стола макс")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Ошибка: Т стола мин.")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z Запрещено")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("ПРИНТЕР ОСТАНОВЛЕН")
 #define MSG_PLEASE_RESET                    _UxGT("Сделайте сброс")
 #define MSG_SHORT_DAY                       _UxGT("д") // One character only
