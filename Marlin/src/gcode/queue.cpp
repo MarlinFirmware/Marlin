@@ -343,7 +343,7 @@ inline void get_serial_commands() {
         }
         #if ENABLED(SDSUPPORT)
           else if (card.saving) {
-            gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
+            gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
             return;
           }
         #endif
