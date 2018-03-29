@@ -265,7 +265,7 @@
   #define MSG_ERR_MAXTEMP_BED               "\xb4\xd7\xb0:\xcd\xde\xaf\xc4\xde\x20\xbb\xb2\xba\xb3\xb5\xdd"                 // "ｴﾗｰ:ﾍﾞｯﾄﾞ ｻｲｺｳｵﾝ" ("Err: MAXTEMP BED")
   #define MSG_ERR_MINTEMP_BED               "\xb4\xd7\xb0:\xcd\xde\xaf\xc4\xde\x20\xbb\xb2\xc3\xb2\xb5\xdd"                 // "ｴﾗｰ:ﾍﾞｯﾄﾞ ｻｲﾃｲｵﾝ" ("Err: MINTEMP BED")
 #endif
-#define MSG_ERR_Z_HOMING                    MSG_HOME " " MSG_X MSG_Y " " MSG_FIRST                             // "ｻｷﾆ XY ｦﾌｯｷｻｾﾃｸﾀﾞｻｲ" or "ｻｷﾆ XY ｦﾌｯｷｻｾﾖ" ("G28 Z Forbidden")
+#define MSG_ERR_Z_HOMING                    MSG_HOME " " MSG_X MSG_Y " " MSG_FIRST                             // "ｻｷﾆ XY ｦﾌｯｷｻｾﾃｸﾀﾞｻｲ" or "ｻｷﾆ XY ｦﾌｯｷｻｾﾖ" ("Home XY first")
 #define MSG_HALTED                          "\xcc\xdf\xd8\xdd\xc0\xb0\xca\xc3\xb2\xbc\xbc\xcf\xbc\xc0"         // "ﾌﾟﾘﾝﾀｰﾊﾃｲｼｼﾏｼﾀ" ("PRINTER HALTED")
 #define MSG_PLEASE_RESET                    "\xd8\xbe\xaf\xc4\xbc\xc3\xb8\xc0\xde\xbb\xb2"                     // "ﾘｾｯﾄｼﾃｸﾀﾞｻｲ" ("Please reset")
 #define MSG_SHORT_DAY                       "d"                                                                // One character only

@@ -194,7 +194,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Hata: MINSICAKLIK")                                  // Hata: MINSICAKLIK
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Hata: MAXSIC. TABLA")                                // Hata: MAXSIC. TABLA
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Hata: MINSIC. TABLA")                                // Hata: MINSIC. TABLA
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z Yapılamaz")                                    // G28 Z Yapılamaz
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("YAZICI DURDURULDU")                                  // YAZICI DURDURULDU
 #define MSG_PLEASE_RESET                    _UxGT("Lütfen resetleyin")                                  // Lütfen resetleyin
 #define MSG_SHORT_DAY                       _UxGT("G") // One character only                            // G

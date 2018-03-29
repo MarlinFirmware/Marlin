@@ -213,7 +213,7 @@
 #define MSG_ERR_MINTEMP                     LCD_STR_THERMOMETER _UxGT(" UNTERSCHRITTEN")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("BETT ") LCD_STR_THERMOMETER _UxGT(" ÜBERSCHRITTEN")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("BETT ") LCD_STR_THERMOMETER _UxGT(" UNTERSCHRITTEN")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z verboten")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("DRUCKER STOPP")
 #define MSG_PLEASE_RESET                    _UxGT("Bitte Resetten")
 #define MSG_SHORT_DAY                       _UxGT("t") // One character only

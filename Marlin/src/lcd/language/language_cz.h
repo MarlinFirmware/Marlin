@@ -297,7 +297,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("NIZKA TEPLOTA")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("VYS. TEPL. PODL.")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("NIZ. TEPL. PODL.")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z ZAKAZANO")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("TISK. ZASTAVENA")
 #define MSG_PLEASE_RESET                    _UxGT("Provedte reset")
 #define MSG_SHORT_DAY                       _UxGT("d")
