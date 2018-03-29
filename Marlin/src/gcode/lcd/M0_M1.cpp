@@ -33,6 +33,11 @@
 
 #include "../../sd/cardreader.h"
 
+#if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
+  bool GcodeSuite::lights_off_after_print;
+  #include "../../feature/leds/leds.h"
+#endif
+
 /**
  * M0: Unconditional stop - Wait for user button press on LCD
  * M1: Conditional stop   - Wait for user button press on LCD
@@ -90,6 +95,13 @@ void GcodeSuite::M0_M1() {
       while (wait_for_user) idle();
     #endif
   }
+
+  #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
+    if (lights_off_after_print) {
+      leds.set_off();
+      lights_off_after_print = false;
+    }
+  #endif
 
   wait_for_user = false;
   KEEPALIVE_STATE(IN_HANDLER);
