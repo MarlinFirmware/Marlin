@@ -3650,7 +3650,6 @@ inline void gcode_G4() {
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_homing_per_axis(X_AXIS, false);
       sensorless_homing_per_axis(Y_AXIS, false);
-      safe_delay(500); // Short delay needed to settle
     #endif
   }
 
