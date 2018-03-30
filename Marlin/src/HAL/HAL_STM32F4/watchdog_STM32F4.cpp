@@ -45,6 +45,11 @@
       /* Refresh Error */
       //Error_Handler();
     }
+    else {
+    #if PIN_EXISTS(LED)
+      TOGGLE(LED_PIN);  // heart beat indicator
+    #endif
+    }
   }
 
 #endif // USE_WATCHDOG
