@@ -53,13 +53,13 @@
 #define X_DIR_PIN          28
 #define X_ENABLE_PIN       24
 
-#define Y_STEP_PIN         60 // A6
-#define Y_DIR_PIN          61 // A7
+#define Y_STEP_PIN         60   // A6
+#define Y_DIR_PIN          61   // A7
 #define Y_ENABLE_PIN       22
 
-#define Z_STEP_PIN         54 // A0
-#define Z_DIR_PIN          55 // A1
-#define Z_ENABLE_PIN       56 // A2
+#define Z_STEP_PIN         54   // A0
+#define Z_DIR_PIN          55   // A1
+#define Z_ENABLE_PIN       56   // A2
 
 #define E0_STEP_PIN        31
 #define E0_DIR_PIN         32
@@ -123,6 +123,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_PWM_PIN     3  // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN  4  // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     3   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN  4   // Pin should have a pullup!
 #define SPINDLE_DIR_PIN          11

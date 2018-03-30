@@ -157,7 +157,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 
         case LS_SerialPrint:
           createFilename(filename, p);
-          SERIAL_PROTOCOL_P(port, prepend);
+          if (prepend) SERIAL_PROTOCOL_P(port, prepend);
           SERIAL_PROTOCOL_P(port, filename);
           SERIAL_PROTOCOLCHAR_P(port, ' ');
           SERIAL_PROTOCOLLN_P(port, p.fileSize);
@@ -184,7 +184,7 @@ void CardReader::ls(
 ) {
   lsAction = LS_SerialPrint;
   root.rewind();
-  lsDive("", root
+  lsDive(NULL, root
     #if NUM_SERIAL > 1
       , NULL, port
     #endif
@@ -227,7 +227,7 @@ void CardReader::ls(
 
       // Find the item, setting the long filename
       diveDir.rewind();
-      lsDive("", diveDir, segment
+      lsDive(NULL, diveDir, segment
         #if NUM_SERIAL > 1
           , port
         #endif
@@ -261,6 +261,32 @@ void CardReader::ls(
   }
 
 #endif // LONG_FILENAME_HOST_SUPPORT
+
+/**
+ * Echo the DOS 8.3 filename (and long filename, if any)
+ */
+void CardReader::printFilename(
+  #if NUM_SERIAL > 1
+    const int8_t port/*= -1*/
+  #endif
+) {
+  if (file.isOpen()) {
+    char lfilename[FILENAME_LENGTH];
+    file.getFilename(lfilename);
+    SERIAL_ECHO_P(port, lfilename);
+    #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+      getfilename(0, lfilename);
+      if (longFilename[0]) {
+        SERIAL_ECHO_P(port, ' ');
+        SERIAL_ECHO_P(port, longFilename);
+      }
+    #endif
+  }
+  else
+    SERIAL_ECHOPGM_P(port, "(no file)");
+
+  SERIAL_EOL_P(port);
+}
 
 void CardReader::initsd() {
   cardOK = false;
@@ -322,18 +348,25 @@ void CardReader::openAndPrintFile(const char *name) {
 void CardReader::startFileprint() {
   if (cardOK) {
     sdprinting = true;
-    #if ENABLED(SDCARD_SORT_ALPHA)
+    #if SD_RESORT
       flush_presort();
     #endif
   }
 }
 
-void CardReader::stopSDPrint() {
+void CardReader::stopSDPrint(
+  #if SD_RESORT
+    const bool re_sort/*=false*/
+  #endif
+) {
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     did_pause_print = 0;
   #endif
   sdprinting = false;
   if (isFileOpen()) file.close();
+  #if SD_RESORT
+    if (re_sort) presort();
+  #endif
 }
 
 void CardReader::openLogFile(char* name) {
@@ -453,8 +486,12 @@ void CardReader::openFile(char* name, const bool read, const bool subcall/*=fals
       SERIAL_PROTOCOLPAIR(MSG_SD_FILE_OPENED, fname);
       SERIAL_PROTOCOLLNPAIR(MSG_SD_SIZE, filesize);
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
+
       getfilename(0, fname);
       lcd_setstatus(longFilename[0] ? longFilename : fname);
+      //if (longFilename[0]) {
+      //  SERIAL_PROTOCOLPAIR(MSG_SD_FILE_LONG_NAME, longFilename);
+      //}
     }
     else {
       SERIAL_PROTOCOLPAIR(MSG_SD_OPEN_FILE_FAIL, fname);
@@ -632,7 +669,7 @@ void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/) {
   lsAction = LS_GetFilename;
   nrFile_index = nr;
   curDir->rewind();
-  lsDive("", *curDir, match);
+  lsDive(NULL, *curDir, match);
 }
 
 uint16_t CardReader::getnrfilenames() {
@@ -640,7 +677,7 @@ uint16_t CardReader::getnrfilenames() {
   lsAction = LS_Count;
   nrFiles = 0;
   curDir->rewind();
-  lsDive("", *curDir);
+  lsDive(NULL, *curDir);
   //SERIAL_ECHOLN(nrFiles);
   return nrFiles;
 }
@@ -700,13 +737,13 @@ int8_t CardReader::updir() {
    */
   void CardReader::presort() {
 
+    // Throw away old sort index
+    flush_presort();
+
     // Sorting may be turned off
     #if ENABLED(SDSORT_GCODE)
       if (!sort_alpha) return;
     #endif
-
-    // Throw away old sort index
-    flush_presort();
 
     // If there are files, sort up to the limit
     uint16_t fileCnt = getnrfilenames();
@@ -940,7 +977,6 @@ void CardReader::printingHasFinished() {
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
-
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       lcd_reselect_last_file();
     #endif

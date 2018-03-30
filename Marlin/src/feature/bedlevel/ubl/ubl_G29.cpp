@@ -146,10 +146,8 @@
    *                    a subsequent G or T leveling operation for backward compatibility.
    *
    *   P1    Phase 1    Invalidate entire Mesh and continue with automatic generation of the Mesh data using
-   *                    the Z-Probe. Usually the probe can't reach all areas that the nozzle can reach. On
-   *                    Cartesian printers, points within the X_PROBE_OFFSET_FROM_EXTRUDER and Y_PROBE_OFFSET_FROM_EXTRUDER
-   *                    area cannot be automatically probed. For Delta printers the area in which DELTA_PROBEABLE_RADIUS
-   *                    and DELTA_PRINTABLE_RADIUS do not overlap will not be automatically probed.
+   *                    the Z-Probe. Usually the probe can't reach all areas that the nozzle can reach. For delta
+   *                    printers only the areas where the probe and nozzle can both reach will be automatically probed.
    *
    *                    Unreachable points will be handled in Phase 2 and Phase 3.
    *
@@ -281,26 +279,22 @@
    *   You MUST do M502, M500 to initialize the storage. Failure to do this will cause all
    *   kinds of problems. Enabling EEPROM Storage is required.
    *
-   *   When you do a G28 and then a G29 P1 to automatically build your first mesh, you are going to notice
-   *   the Unified Bed Leveling probes points further and further away from the starting location. (The
-   *   starting location defaults to the center of the bed.)   The original Grid and Mesh leveling used
-   *   a Zig Zag pattern. The new pattern is better, especially for people with Delta printers. This
-   *   allows you to get the center area of the Mesh populated (and edited) quicker. This allows you to
-   *   perform a small print and check out your settings quicker. You do not need to populate the
-   *   entire mesh to use it. (You don't want to spend a lot of time generating a mesh only to realize
-   *   you don't have the resolution or zprobe_zoffset set correctly. The Mesh generation
-   *   gathers points closest to where the nozzle is located unless you specify an (X,Y) coordinate pair.
+   *   When you do a G28 and G29 P1 to automatically build your first mesh, you are going to notice that
+   *   UBL probes points increasingly further from the starting location. (The starting location defaults
+   *   to the center of the bed.) In contrast, ABL and MBL follow a zigzag pattern. The spiral pattern is
+   *   especially better for Delta printers, since it populates the center of the mesh first, allowing for
+   *   a quicker test print to verify settings. You don't need to populate the entire mesh to use it.
+   *   After all, you don't want to spend a lot of time generating a mesh only to realize the resolution
+   *   or zprobe_zoffset are incorrect. Mesh-generation gathers points starting closest to the nozzle unless
+   *   an (X,Y) coordinate pair is given.
    *
-   *   The Unified Bed Leveling uses a lot of EEPROM storage to hold its data. And it takes some effort
-   *   to get this Mesh data correct for a user's printer. We do not want this data destroyed as
-   *   new versions of Marlin add or subtract to the items stored in EEPROM. So, for the benefit of
-   *   the users, we store the Mesh data at the end of the EEPROM and do not keep it contiguous with the
-   *   other data stored in the EEPROM. (For sure the developers are going to complain about this, but
-   *   this is going to be helpful to the users!)
+   *   Unified Bed Leveling uses a lot of EEPROM storage to hold its data, and it takes some effort to get
+   *   the mesh just right. To prevent this valuable data from being destroyed as the EEPROM structure
+   *   evolves, UBL stores all mesh data at the end of EEPROM.
    *
-   *   The foundation of this Bed Leveling System is built on Epatel's Mesh Bed Leveling code. A big
-   *   'Thanks!' to him and the creators of 3-Point and Grid Based leveling. Combining their contributions
-   *   we now have the functionality and features of all three systems combined.
+   *   UBL is founded on Edward Patel's Mesh Bed Leveling code. A big 'Thanks!' to him and the creators of
+   *   3-Point and Grid Based leveling. Combining their contributions we now have the functionality and
+   *   features of all three systems combined.
    */
 
   void unified_bed_leveling::G29() {
@@ -391,6 +385,7 @@
           restore_ubl_active_state_and_leave();
         }
         do_blocking_move_to_xy(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)));
+        report_current_position();
       }
 
     #endif // HAS_BED_PROBE
@@ -428,6 +423,8 @@
             }
             probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
+
+            report_current_position();
             break;
 
         #endif // HAS_BED_PROBE
@@ -475,6 +472,8 @@
 
             SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
 
+            report_current_position();
+
           #else
 
             SERIAL_PROTOCOLLNPGM("?P2 is only available when an LCD is present.");
@@ -513,7 +512,7 @@
           }
           else {
             const float cvf = parser.value_float();
-            switch((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
+            switch ((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
               #if ENABLED(UBL_G29_P31)
                 case 1: {
 
@@ -600,8 +599,8 @@
     if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
       g29_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
 
-      if (g29_storage_slot == -1)                     // Special case, we are going to 'Export' the mesh to the
-        return report_current_mesh();
+      if (g29_storage_slot == -1)                     // Special case, the user wants to 'Export' the mesh to the
+        return report_current_mesh();                 // host program to be saved on the user's computer
 
       int16_t a = settings.calc_num_meshes();
 
@@ -751,13 +750,18 @@
           const float rawx = mesh_index_to_xpos(location.x_index),
                       rawy = mesh_index_to_ypos(location.y_index);
 
-          const float measured_z = probe_pt(rawx, rawy, stow_probe, g29_verbose_level); // TODO: Needs error handling
+          const float measured_z = probe_pt(rawx, rawy, stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
           z_values[location.x_index][location.y_index] = measured_z;
         }
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
       } while (location.x_index >= 0 && --count);
 
       STOW_PROBE();
+
+      #if Z_AFTER_PROBING
+        move_z_after_probing();
+      #endif
+
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
@@ -775,6 +779,7 @@
       wait_for_release();
       while (!is_lcd_clicked()) {
         idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
           do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * multiplier);
           encoder_diff = 0;
@@ -1166,13 +1171,13 @@
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("EEPROM Dump:");
-    for (uint16_t i = 0; i < E2END + 1; i += 16) {
+    for (uint16_t i = 0; i <= E2END; i += 16) {
       if (!(i & 0x3)) idle();
       print_hex_word(i);
       SERIAL_ECHOPGM(": ");
       for (uint16_t j = 0; j < 16; j++) {
         kkkk = i + j;
-        eeprom_read_block(&cccc, (const void *) kkkk, sizeof(unsigned char));
+        eeprom_read_block(&cccc, (const void *)kkkk, sizeof(unsigned char));
         print_hex_byte(cccc);
         SERIAL_ECHO(' ');
       }
@@ -1517,46 +1522,46 @@
       incremental_LSF_reset(&lsf_results);
 
       if (do_3_pt_leveling) {
-        measured_z = probe_pt(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, false, g29_verbose_level);
+        measured_z = probe_pt(PROBE_PT_1_X, PROBE_PT_1_Y, PROBE_PT_RAISE, g29_verbose_level);
         if (isnan(measured_z))
           abort_flag = true;
         else {
-          measured_z -= get_z_correction(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y);
+          measured_z -= get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y);
           //z1 = measured_z;
           if (g29_verbose_level > 3) {
             serial_spaces(16);
             SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
           }
-          incremental_LSF(&lsf_results, UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, measured_z);
+          incremental_LSF(&lsf_results, PROBE_PT_1_X, PROBE_PT_1_Y, measured_z);
         }
 
         if (!abort_flag) {
-          measured_z = probe_pt(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, false, g29_verbose_level);
+          measured_z = probe_pt(PROBE_PT_2_X, PROBE_PT_2_Y, PROBE_PT_RAISE, g29_verbose_level);
           //z2 = measured_z;
           if (isnan(measured_z))
             abort_flag = true;
           else {
-            measured_z -= get_z_correction(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y);
+            measured_z -= get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y);
             if (g29_verbose_level > 3) {
               serial_spaces(16);
               SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
             }
-            incremental_LSF(&lsf_results, UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, measured_z);
+            incremental_LSF(&lsf_results, PROBE_PT_2_X, PROBE_PT_2_Y, measured_z);
           }
         }
 
         if (!abort_flag) {
-          measured_z = probe_pt(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, true, g29_verbose_level);
+          measured_z = probe_pt(PROBE_PT_3_X, PROBE_PT_3_Y, PROBE_PT_STOW, g29_verbose_level);
           //z3 = measured_z;
           if (isnan(measured_z))
             abort_flag = true;
           else {
-            measured_z -= get_z_correction(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y);
+            measured_z -= get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y);
             if (g29_verbose_level > 3) {
               serial_spaces(16);
               SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
             }
-            incremental_LSF(&lsf_results, UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, measured_z);
+            incremental_LSF(&lsf_results, PROBE_PT_3_X, PROBE_PT_3_Y, measured_z);
           }
         }
 
@@ -1574,7 +1579,7 @@
             const float ry = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
 
             if (!abort_flag) {
-              measured_z = probe_pt(rx, ry, parser.seen('E'), g29_verbose_level); // TODO: Needs error handling
+              measured_z = probe_pt(rx, ry, parser.seen('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
 
               abort_flag = isnan(measured_z);
 
@@ -1703,29 +1708,29 @@
            */
           #if 0
           float t, t1, d;
-          t = normal.x * (UBL_PROBE_PT_1_X) + normal.y * (UBL_PROBE_PT_1_Y);
+          t = normal.x * (PROBE_PT_1_X) + normal.y * (PROBE_PT_1_Y);
           d = t + normal.z * z1;
           SERIAL_ECHOPGM("D from 1st point: ");
           SERIAL_ECHO_F(d, 6);
           SERIAL_ECHOPGM("   Z error: ");
-          SERIAL_ECHO_F(normal.z*z1-get_z_correction(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y), 6);
+          SERIAL_ECHO_F(normal.z*z1-get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y), 6);
           SERIAL_EOL();
 
-          t = normal.x * (UBL_PROBE_PT_2_X) + normal.y * (UBL_PROBE_PT_2_Y);
+          t = normal.x * (PROBE_PT_2_X) + normal.y * (PROBE_PT_2_Y);
           d = t + normal.z * z2;
           SERIAL_EOL();
           SERIAL_ECHOPGM("D from 2nd point: ");
           SERIAL_ECHO_F(d, 6);
           SERIAL_ECHOPGM("   Z error: ");
-          SERIAL_ECHO_F(normal.z*z2-get_z_correction(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y), 6);
+          SERIAL_ECHO_F(normal.z*z2-get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y), 6);
           SERIAL_EOL();
 
-          t = normal.x * (UBL_PROBE_PT_3_X) + normal.y * (UBL_PROBE_PT_3_Y);
+          t = normal.x * (PROBE_PT_3_X) + normal.y * (PROBE_PT_3_Y);
           d = t + normal.z * z3;
           SERIAL_ECHOPGM("D from 3rd point: ");
           SERIAL_ECHO_F(d, 6);
           SERIAL_ECHOPGM("   Z error: ");
-          SERIAL_ECHO_F(normal.z*z3-get_z_correction(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y), 6);
+          SERIAL_ECHO_F(normal.z*z3-get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y), 6);
           SERIAL_EOL();
 
           t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);

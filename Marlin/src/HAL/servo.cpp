@@ -54,18 +54,14 @@
 
 #include "../inc/MarlinConfig.h"
 
-#include "HAL.h"
-
 #if HAS_SERVOS && !(IS_32BIT_TEENSY || defined(TARGET_LPC1768))
 
 //#include <Arduino.h>
-
 #include "servo.h"
 #include "servo_private.h"
 
 ServoInfo_t servo_info[MAX_SERVOS];                  // static array of servo info structures
 uint8_t ServoCount = 0;                              // the total number of attached servos
-
 
 #define SERVO_MIN() (MIN_PULSE_WIDTH - this->min * 4)  // minimum value in uS for this servo
 #define SERVO_MAX() (MAX_PULSE_WIDTH - this->max * 4)  // maximum value in uS for this servo
@@ -92,11 +88,11 @@ Servo::Servo() {
     this->servoIndex = INVALID_SERVO;  // too many servos
 }
 
-int8_t Servo::attach(int pin) {
+int8_t Servo::attach(const int pin) {
   return this->attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
-int8_t Servo::attach(int pin, int min, int max) {
+int8_t Servo::attach(const int pin, const int min, const int max) {
 
   if (this->servoIndex >= MAX_SERVOS) return -1;
 
@@ -151,12 +147,12 @@ int Servo::readMicroseconds() {
 
 bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 
-void Servo::move(int value) {
+void Servo::move(const int value) {
   constexpr uint16_t servo_delay[] = SERVO_DELAY;
   static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
   if (this->attach(0) >= 0) {
     this->write(value);
-    delay(servo_delay[this->servoIndex]);
+    safe_delay(servo_delay[this->servoIndex]);
     #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
       this->detach();
     #endif

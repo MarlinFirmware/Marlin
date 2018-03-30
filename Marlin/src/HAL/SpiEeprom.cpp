@@ -53,7 +53,6 @@ uint8_t eeprom_read_byte(uint8_t* pos) {
   return v;
 }
 
-
 void eeprom_read_block(void* dest, const void* eeprom_address, size_t n) {
   uint8_t eeprom_temp[3];
 

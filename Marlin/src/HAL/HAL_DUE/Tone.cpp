@@ -33,15 +33,10 @@
 static pin_t tone_pin;
 volatile static int32_t toggles;
 
-void toneInit() {
-  HAL_timer_start(TONE_TIMER_NUM, 1); // Lowest frequency possible
-}
-
 void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration) {
   tone_pin = _pin;
   toggles = 2 * frequency * duration / 1000;
-  HAL_timer_set_compare(TONE_TIMER_NUM, VARIANT_MCK / 2 / frequency); // 84MHz / 2 prescaler / Hz
-  HAL_timer_enable_interrupt(TONE_TIMER_NUM);
+  HAL_timer_start(TONE_TIMER_NUM, 2 * frequency);
 }
 
 void noTone(const pin_t _pin) {
@@ -52,11 +47,12 @@ void noTone(const pin_t _pin) {
 HAL_TONE_TIMER_ISR {
   static uint8_t pin_state = 0;
   HAL_timer_isr_prologue(TONE_TIMER_NUM);
+
   if (toggles) {
     toggles--;
     digitalWrite(tone_pin, (pin_state ^= 1));
   }
-  else noTone(tone_pin);                                  // seems superfluous ?
+  else noTone(tone_pin);                         // turn off interrupt
 }
 
 #endif // ARDUINO_ARCH_SAM

@@ -117,6 +117,10 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 
 // private:
 
+#if EARLY_WATCHDOG
+  bool Temperature::inited = false;
+#endif
+
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   uint16_t Temperature::redundant_temperature_raw = 0;
   float Temperature::redundant_temperature = 0.0;
@@ -409,7 +413,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
       }
 
       // Did the temperature overshoot very far?
-      #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+      #ifndef MAX_OVERSHOOT_PID_AUTOTUNE
+        #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+      #endif
       if (current > target + MAX_OVERSHOOT_PID_AUTOTUNE) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
         break;
@@ -417,7 +423,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
       // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
-        #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+        #if HAS_TEMP_SENSOR
           print_heaterstates();
           SERIAL_EOL();
         #endif
@@ -425,24 +431,37 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
         // Make sure heating is actually working
         #if WATCH_THE_BED || WATCH_HOTENDS
-          if (!heated) {                                          // If not yet reached target...
-            if (current > next_watch_temp) {                      // Over the watch temp?
-              next_watch_temp = current + watch_temp_increase;    // - set the next temp to watch for
-              temp_change_ms = ms + watch_temp_period * 1000UL;   // - move the expiration timer up
-              if (current > watch_temp_target) heated = true;     // - Flag if target temperature reached
+          if (
+            #if WATCH_THE_BED && WATCH_HOTENDS
+              true
+            #elif WATCH_THE_BED
+              hotend < 0
+            #else
+              hotend >= 0
+            #endif
+          ) {
+            if (!heated) {                                          // If not yet reached target...
+              if (current > next_watch_temp) {                      // Over the watch temp?
+                next_watch_temp = current + watch_temp_increase;    // - set the next temp to watch for
+                temp_change_ms = ms + watch_temp_period * 1000UL;   // - move the expiration timer up
+                if (current > watch_temp_target) heated = true;     // - Flag if target temperature reached
+              }
+              else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
+                _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
             }
-            else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
-              _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+            else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
+              _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY),
+                hotend >= 0 ? PSTR(MSG_THERMAL_RUNAWAY) : PSTR(MSG_THERMAL_RUNAWAY_BED)
+              );
           }
-          else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
-            _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY),
-              hotend >= 0 ? PSTR(MSG_THERMAL_RUNAWAY) : PSTR(MSG_THERMAL_RUNAWAY_BED)
-            );
         #endif
       } // every 2 seconds
 
-      // Timeout after 20 minutes since the last undershoot/overshoot cycle
-      if (((ms - t1) + (ms - t2)) > (20L * 60L * 1000L)) {
+      // Timeout after MAX_CYCLE_TIME_PID_AUTOTUNE minutes since the last undershoot/overshoot cycle
+      #ifndef MAX_CYCLE_TIME_PID_AUTOTUNE
+        #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
+      #endif
+      if (((ms - t1) + (ms - t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
         break;
       }
@@ -452,17 +471,17 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
 
         #if HAS_PID_FOR_BOTH
           const char* estring = hotend < 0 ? "bed" : "";
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd); SERIAL_EOL();
         #elif ENABLED(PIDTEMP)
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kp ", workKp); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Ki ", workKi); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kd ", workKd); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_Kp ", workKp); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_Ki ", workKi); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_Kd ", workKd); SERIAL_EOL();
         #else
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKp ", workKp); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKi ", workKi); SERIAL_EOL();
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKd ", workKd); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_bedKp ", workKp); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_bedKi ", workKi); SERIAL_EOL();
+          SERIAL_PROTOCOLPAIR("#define DEFAULT_bedKd ", workKd); SERIAL_EOL();
         #endif
 
         #define _SET_BED_PID() do { \
@@ -745,6 +764,14 @@ float Temperature::get_pid_output(const int8_t e) {
  *  - Update the heated bed PID output value
  */
 void Temperature::manage_heater() {
+
+  #if EARLY_WATCHDOG
+    // If thermal manager is still not running, make sure to at least reset the watchdog!
+    if (!inited) {
+      watchdog_reset();
+      return;
+    }
+  #endif
 
   #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
     static bool last_pause_state;
@@ -1037,6 +1064,12 @@ void Temperature::updateTemperaturesFromRawValues() {
  * The manager is implemented by periodic calls to manage_heater()
  */
 void Temperature::init() {
+
+  #if EARLY_WATCHDOG
+    // Flag that the thermalManager should be running
+    if (inited) return;
+    inited = true;
+  #endif
 
   #if MB(RUMBA) && (TEMP_SENSOR_0 == -1 || TEMP_SENSOR_1 == -1 || TEMP_SENSOR_2 == -1 || TEMP_SENSOR_BED == -1)
     // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
@@ -2144,7 +2177,7 @@ void Temperature::isr() {
   ENABLE_TEMPERATURE_INTERRUPT(); //re-enable Temperature ISR
 }
 
-#if HAS_TEMP_HOTEND || HAS_TEMP_BED
+#if HAS_TEMP_SENSOR
 
   #include "../gcode/gcode.h"
 
@@ -2251,4 +2284,4 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-#endif // HAS_TEMP_HOTEND || HAS_TEMP_BED
+#endif // HAS_TEMP_SENSOR

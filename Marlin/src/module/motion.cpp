@@ -69,7 +69,7 @@ XYZ_CONSTS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_CONSTS(signed char, home_dir, HOME_DIR);
 
 // Relative Mode. Enable with G91, disable with G90.
-bool relative_mode = false;
+bool relative_mode; // = false;
 
 /**
  * Cartesian Current Position
@@ -89,7 +89,7 @@ float destination[XYZE] = { 0.0 };
 
 
 // The active extruder (tool). Set with T<extruder> command.
-uint8_t active_extruder = 0;
+uint8_t active_extruder; // = 0;
 
 // Extruder offsets
 #if HOTENDS > 1
@@ -266,8 +266,6 @@ void buffer_line_to_destination(const float fr_mm_s) {
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
 
-    gcode.refresh_cmd_timeout();
-
     #if UBL_SEGMENTED
       // ubl segmented line will do z-only moves in single segment
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
@@ -290,7 +288,7 @@ void buffer_line_to_destination(const float fr_mm_s) {
  *  Plan a move to (X, Y, Z) and set the current_position
  *  The final current_position may not be the one that was requested
  */
-void do_blocking_move_to(const float &rx, const float &ry, const float &rz, const float &fr_mm_s/*=0.0*/) {
+void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s/*=0.0*/) {
   const float old_feedrate_mm_s = feedrate_mm_s;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -435,12 +433,10 @@ void bracket_probe_move(const bool before) {
     saved_feedrate_mm_s = feedrate_mm_s;
     saved_feedrate_percentage = feedrate_percentage;
     feedrate_percentage = 100;
-    gcode.refresh_cmd_timeout();
   }
   else {
     feedrate_mm_s = saved_feedrate_mm_s;
     feedrate_percentage = saved_feedrate_percentage;
-    gcode.refresh_cmd_timeout();
   }
 }
 
@@ -610,7 +606,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
       LOOP_XYZE(i) raw[i] += segment_distance[i];
 
-      #if ENABLED(DELTA)
+      #if ENABLED(DELTA) && HOTENDS < 2
         DELTA_IK(raw); // Delta can inline its kinematics
       #else
         inverse_kinematics(raw);
@@ -859,7 +855,6 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
  */
 void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
-  gcode.refresh_cmd_timeout();
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
 
@@ -952,6 +947,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
    */
   void sensorless_homing_per_axis(const AxisEnum axis, const bool enable/*=true*/) {
     switch (axis) {
+      default: break;
       #if X_SENSORLESS
         case X_AXIS:
           tmc_sensorless_homing(stepperX, enable);
@@ -1002,19 +998,32 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     }
   #endif
 
-  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    const bool deploy_bltouch = (axis == Z_AXIS && distance < 0);
-    if (deploy_bltouch) set_bltouch_deployed(true);
-  #endif
+  // Only do some things when moving towards an endstop
+  const int8_t axis_home_dir =
+    #if ENABLED(DUAL_X_CARRIAGE)
+      (axis == X_AXIS) ? x_home_dir(active_extruder) :
+    #endif
+    home_dir(axis);
+  const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
 
-  #if QUIET_PROBING
-    if (axis == Z_AXIS) probing_pause(true);
-  #endif
+  if (is_home_dir) {
 
-  // Disable stealthChop if used. Enable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    sensorless_homing_per_axis(axis);
-  #endif
+    if (axis == Z_AXIS) {
+      #if HOMING_Z_WITH_PROBE
+        #if ENABLED(BLTOUCH)
+          set_bltouch_deployed(true);
+        #endif
+        #if QUIET_PROBING
+          probing_pause(true);
+        #endif
+      #endif
+    }
+
+    // Disable stealthChop if used. Enable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+      sensorless_homing_per_axis(axis);
+    #endif
+  }
 
   // Tell the planner the axis is at 0
   current_position[axis] = 0;
@@ -1032,20 +1041,26 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   stepper.synchronize();
 
-  #if QUIET_PROBING
-    if (axis == Z_AXIS) probing_pause(false);
-  #endif
+  if (is_home_dir) {
 
-  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    if (deploy_bltouch) set_bltouch_deployed(false);
-  #endif
+    if (axis == Z_AXIS) {
+      #if HOMING_Z_WITH_PROBE
+        #if QUIET_PROBING
+          probing_pause(false);
+        #endif
+        #if ENABLED(BLTOUCH)
+          set_bltouch_deployed(false);
+        #endif
+      #endif
+    }
 
-  endstops.hit_on_purpose();
+    endstops.hit_on_purpose();
 
-  // Re-enable stealthChop if used. Disable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    sensorless_homing_per_axis(axis, false);
-  #endif
+    // Re-enable stealthChop if used. Disable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+      sensorless_homing_per_axis(axis, false);
+    #endif
+  }
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -1304,10 +1319,10 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && STOW_PROBE()) return;
   #endif
 
-  // Clear retracted status if homing the Z axis
+  // Clear z_lift if homing the Z axis
   #if ENABLED(FWRETRACT)
     if (axis == Z_AXIS)
-      for (uint8_t i = 0; i < EXTRUDERS; i++) fwretract.retracted[i] = false;
+      fwretract.hop_amount = 0.0;
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)

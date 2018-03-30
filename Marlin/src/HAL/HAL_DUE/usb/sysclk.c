@@ -119,4 +119,4 @@ void sysclk_disable_usb(void)
 /**INDENT-ON**/
 /// @endcond
 
-#endif
+#endif // ARDUINO_ARCH_SAM

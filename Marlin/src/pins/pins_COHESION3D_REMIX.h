@@ -41,12 +41,12 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN           P1_24 // 10k pullup to 3.3V
-#define X_MAX_PIN           P1_25 // 10k pullup to 3.3V
-#define Y_MIN_PIN           P1_26 // 10k pullup to 3.3V
-#define Y_MAX_PIN           P1_27 // 10k pullup to 3.3V
-#define Z_MIN_PIN           P1_28 // 10k pullup to 3.3V
-#define Z_MAX_PIN           P1_29 // 10k pullup to 3.3V
+#define X_MIN_PIN           P1_24   // 10k pullup to 3.3V
+#define X_MAX_PIN           P1_25   // 10k pullup to 3.3V
+#define Y_MIN_PIN           P1_26   // 10k pullup to 3.3V
+#define Y_MAX_PIN           P1_27   // 10k pullup to 3.3V
+#define Z_MIN_PIN           P1_28   // 10k pullup to 3.3V
+#define Z_MAX_PIN           P1_29   // 10k pullup to 3.3V
 
 //
 // Steppers
@@ -54,45 +54,45 @@
 #define X_STEP_PIN          P2_00
 #define X_DIR_PIN           P0_05
 #define X_ENABLE_PIN        P0_04
-#define X_CS_PIN            P1_10 // Ethernet Expansion - Pin 9
+#define X_CS_PIN            P1_10   // Ethernet Expansion - Pin 9
 
 #define Y_STEP_PIN          P2_01
 #define Y_DIR_PIN           P0_11
 #define Y_ENABLE_PIN        P0_10
-#define Y_CS_PIN            P1_09 // Ethernet Expansion - Pin 10
+#define Y_CS_PIN            P1_09   // Ethernet Expansion - Pin 10
 
 #define Z_STEP_PIN          P2_02
 #define Z_DIR_PIN           P0_20
 #define Z_ENABLE_PIN        P0_19
-#define Z_CS_PIN            P1_00 // Ethernet Expansion - Pin 11
+#define Z_CS_PIN            P1_00   // Ethernet Expansion - Pin 11
 
 #define E0_STEP_PIN         P2_03
 #define E0_DIR_PIN          P0_22
 #define E0_ENABLE_PIN       P0_21
-#define E0_CS_PIN           P1_04 // Ethernet Expansion - Pin 12
+#define E0_CS_PIN           P1_04   // Ethernet Expansion - Pin 12
 
 #define E1_STEP_PIN         P2_08
 #define E1_DIR_PIN          P2_13
 #define E1_ENABLE_PIN       P4_29
-#define E1_CS_PIN           P1_01 // Ethernet Expansion - Pin 14
+#define E1_CS_PIN           P1_01   // Ethernet Expansion - Pin 14
 
 #define E2_STEP_PIN         P1_20
 #define E2_DIR_PIN          P1_19
 #define E2_ENABLE_PIN       P1_21
-#define E2_CS_PIN           P1_18 // FET 6
+#define E2_CS_PIN           P1_18   // FET 6
 
 //
 // Default pins for TMC software SPI
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI     P1_16 // Ethernet Expansion - Pin 5
+    #define TMC_SW_MOSI     P1_16   // Ethernet Expansion - Pin 5
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO     P1_17 // Ethernet Expansion - Pin 6
+    #define TMC_SW_MISO     P1_17   // Ethernet Expansion - Pin 6
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK      P1_08 // Ethernet Expansion - Pin 7
+    #define TMC_SW_SCK      P1_08   // Ethernet Expansion - Pin 7
   #endif
 #endif
 
@@ -100,28 +100,28 @@
 // Analog Inputs
 //  3.3V max when defined as an analog input
 //
-#define TEMP_0_PIN          0 // P0_23
-#define TEMP_BED_PIN        1 // P0_24
-#define TEMP_1_PIN          2 // P0_25
+#define TEMP_0_PIN          0   // P0_23
+#define TEMP_BED_PIN        1   // P0_24
+#define TEMP_1_PIN          2   // P0_25
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  #define FILWIDTH_PIN      3 // P0_26
+  #define FILWIDTH_PIN      3   // P0_26
 #else
-  #define TEMP_2_PIN        3 // P0_26
+  #define TEMP_2_PIN        3   // P0_26
 #endif
 
 //
 // Heaters / Fans
 //
 #define HEATER_BED_PIN      P2_05
-#define HEATER_0_PIN        P2_07 // FET 1
-#define HEATER_1_PIN        P1_23 // FET 2
+#define HEATER_0_PIN        P2_07   // FET 1
+#define HEATER_1_PIN        P1_23   // FET 2
 #if HOTENDS == 3
-  #define HEATER_2_PIN      P1_22 // FET 3
-  #define AUTO_FAN_PIN      P1_18 // FET 6
+  #define HEATER_2_PIN      P1_22   // FET 3
+  #define AUTO_FAN_PIN      P1_18   // FET 6
 #else
-  #define AUTO_FAN_PIN      P1_22 // FET 3
+  #define AUTO_FAN_PIN      P1_22   // FET 3
 #endif
-#define FAN_PIN             P2_06 // ReMix FET 4, Mini FET 3
+#define FAN_PIN             P2_06   // ReMix FET 4, Mini FET 3
 
 //
 // Auto fans
@@ -133,18 +133,18 @@
 //
 // Misc. Functions
 //
-#define LED_PIN             P4_28 // Play LED
+#define LED_PIN             P4_28   // Play LED
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if ENABLED(SPINDLE_LASER_ENABLE)
   #undef HEATER_0_PIN
-  #define SPINDLE_LASER_ENABLE_PIN  P2_07 // FET 1
+  #define SPINDLE_LASER_ENABLE_PIN  P2_07   // FET 1
   #undef HEATER_BED_PIN
-  #define SPINDLE_LASER_PWM_PIN     P2_05 // Bed FET
+  #define SPINDLE_LASER_PWM_PIN     P2_05   // Bed FET
   #undef FAN_PIN
-  #define SPINDLE_DIR_PIN           P2_06 // ReMix FET 4, Mini FET 3
+  #define SPINDLE_DIR_PIN           P2_06   // ReMix FET 4, Mini FET 3
 #endif
 
 //
@@ -159,19 +159,19 @@
 //
 #if ENABLED(ULTRA_LCD)
 
-  #define BEEPER_PIN        P1_31 // EXP1-1
-  #define SD_DETECT_PIN     P0_27 // EXP2-7
+  #define BEEPER_PIN        P1_31   // EXP1-1
+  #define SD_DETECT_PIN     P0_27   // EXP2-7
 
-  #define BTN_EN1           P3_26 // EXP2-5
-  #define BTN_EN2           P3_25 // EXP2-3
-  #define BTN_ENC           P1_30 // EXP1-2
+  #define BTN_EN1           P3_26   // EXP2-5
+  #define BTN_EN2           P3_25   // EXP2-3
+  #define BTN_ENC           P1_30   // EXP1-2
 
-  #define LCD_PINS_RS       P0_16 // EXP1-4
-  #define LCD_SDSS          P0_28 // EXP2-4
-  #define LCD_PINS_ENABLE   P0_18 // EXP1-3
-  #define LCD_PINS_D4       P0_15 // EXP1-5
+  #define LCD_PINS_RS       P0_16   // EXP1-4
+  #define LCD_SDSS          P0_28   // EXP2-4
+  #define LCD_PINS_ENABLE   P0_18   // EXP1-3
+  #define LCD_PINS_D4       P0_15   // EXP1-5
 
-  #define KILL_PIN          P2_11 // EXP2-10
+  #define KILL_PIN          P2_11   // EXP2-10
 
   #if ENABLED(SDSUPPORT)
     #error "SDSUPPORT is not currently supported by the Cohesion3D boards"

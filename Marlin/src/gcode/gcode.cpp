@@ -40,10 +40,10 @@ GcodeSuite gcode;
   #include "../feature/mixing.h"
 #endif
 
-#include "../Marlin.h" // for idle()
+#include "../Marlin.h" // for idle() and suspend_auto_report
 
 uint8_t GcodeSuite::target_extruder;
-millis_t GcodeSuite::previous_cmd_ms;
+millis_t GcodeSuite::previous_move_ms;
 
 bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
 
@@ -121,8 +121,7 @@ void GcodeSuite::get_destination_from_command() {
  * Dwell waits immediately. It does not synchronize. Use M400 instead of G4
  */
 void GcodeSuite::dwell(millis_t time) {
-  refresh_cmd_timeout();
-  time += previous_cmd_ms;
+  time += millis();
   while (PENDING(millis(), time)) idle();
 }
 
@@ -391,7 +390,7 @@ void GcodeSuite::process_parsed_command() {
         KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
 
-      #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+      #if ENABLED(AUTO_REPORT_TEMPERATURES) && HAS_TEMP_SENSOR
         case 155: M155(); break;  // M155: Set temperature auto-report interval
       #endif
 
@@ -488,7 +487,7 @@ void GcodeSuite::process_parsed_command() {
         case 665: M665(); break;  // M665: Set delta configurations
       #endif
 
-      #if ENABLED(DELTA) || ENABLED(Z_DUAL_ENDSTOPS)
+      #if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
         case 666: M666(); break;  // M666: Set delta or dual endstop adjustment
       #endif
 
@@ -735,6 +734,8 @@ void GcodeSuite::process_next_command() {
     #endif
   }
 
+  reset_stepper_timeout(); // Keep steppers powered
+
   // Parse the next command in the queue
   parser.parse(current_command);
   process_parsed_command();
@@ -749,7 +750,7 @@ void GcodeSuite::process_next_command() {
   void GcodeSuite::host_keepalive() {
     const millis_t ms = millis();
     static millis_t next_busy_signal_ms = 0;
-    if (host_keepalive_interval && busy_state != NOT_BUSY) {
+    if (!suspend_auto_report && host_keepalive_interval && busy_state != NOT_BUSY) {
       if (PENDING(ms, next_busy_signal_ms)) return;
       switch (busy_state) {
         case IN_HANDLER:

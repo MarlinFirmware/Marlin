@@ -55,6 +55,7 @@
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
+USBSerial SerialUSB;
 
 uint16_t HAL_adc_result;
 
@@ -87,7 +88,7 @@ uint8 adc_pins[] = {
   #endif
 };
 
-enum TEMP_PINS {
+enum TEMP_PINS : char {
   #if HAS_TEMP_0
     TEMP_0,
   #endif

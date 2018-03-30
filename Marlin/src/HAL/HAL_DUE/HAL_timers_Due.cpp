@@ -61,15 +61,15 @@
 // --------------------------------------------------------------------------
 
 const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
-  { TC0, 0, TC0_IRQn, 0},  // 0 - [servo timer5]
-  { TC0, 1, TC1_IRQn, 0},  // 1
-  { TC0, 2, TC2_IRQn, 0},  // 2
-  { TC1, 0, TC3_IRQn, 2},  // 3 - stepper
+  { TC0, 0, TC0_IRQn,  0}, // 0 - [servo timer5]
+  { TC0, 1, TC1_IRQn,  0}, // 1
+  { TC0, 2, TC2_IRQn,  0}, // 2
+  { TC1, 0, TC3_IRQn,  2}, // 3 - stepper
   { TC1, 1, TC4_IRQn, 15}, // 4 - temperature
-  { TC1, 2, TC5_IRQn, 0},  // 5 - [servo timer3]
-  { TC2, 0, TC6_IRQn, 0},  // 6 - tone
-  { TC2, 1, TC7_IRQn, 0},  // 7
-  { TC2, 2, TC8_IRQn, 0},  // 8
+  { TC1, 2, TC5_IRQn,  0}, // 5 - [servo timer3]
+  { TC2, 0, TC6_IRQn, 15}, // 6 - tone
+  { TC2, 1, TC7_IRQn,  0}, // 7
+  { TC2, 2, TC8_IRQn,  0}, // 8
 };
 
 // --------------------------------------------------------------------------
@@ -96,18 +96,32 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
   uint32_t channel = TimerConfig[timer_num].channel;
 
+  // Disable interrupt, just in case it was already enabled
+  NVIC_DisableIRQ(irq);
+
+  // Disable timer interrupt
+  tc->TC_CHANNEL[channel].TC_IDR = TC_IDR_CPCS;
+
+  // Stop timer, just in case, to be able to reconfigure it
+  TC_Stop(tc, channel);
+
   pmc_set_writeprotect(false);
   pmc_enable_periph_clk((uint32_t)irq);
   NVIC_SetPriority(irq, TimerConfig [timer_num].priority);
 
+  // wave mode, reset counter on match with RC,
   TC_Configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK1);
 
+  // Set compare value
   TC_SetRC(tc, channel, VARIANT_MCK / 2 / frequency);
+
+  // And start timer
   TC_Start(tc, channel);
 
   // enable interrupt on RC compare
   tc->TC_CHANNEL[channel].TC_IER = TC_IER_CPCS;
 
+  // Finally, enable IRQ
   NVIC_EnableIRQ(irq);
 }
 

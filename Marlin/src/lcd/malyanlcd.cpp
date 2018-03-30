@@ -228,7 +228,11 @@ void process_lcd_p_command(const char* command) {
     case 'X':
       // cancel print
       write_to_lcd_P(PSTR("{SYS:CANCELING}"));
-      card.stopSDPrint();
+      card.stopSDPrint(
+        #if SD_RESORT
+          true
+        #endif
+      );
       clear_command_queue();
       quickstop_stepper();
       print_job_timer.stop();
@@ -389,7 +393,7 @@ void update_usb_status(const bool forceUpdate) {
  * The optimize attribute fixes a register Compile
  * error for amtel.
  */
-void lcd_update() _O2 {
+void lcd_update() {
   static char inbound_buffer[MAX_CURLY_COMMAND];
 
   // First report USB status.
@@ -448,4 +452,4 @@ void lcd_setalertstatusPGM(const char* message) {
   write_to_lcd(message_buffer);
 }
 
-#endif // Malyan LCD
+#endif // MALYAN_LCD

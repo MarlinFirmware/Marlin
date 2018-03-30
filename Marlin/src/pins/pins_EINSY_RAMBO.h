@@ -49,12 +49,35 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          64 //12
+// Only use Diag Pins when SENSORLESS_HOMING is enabled for the TMC2130 drivers.
+// Otherwise use a physical endstop based configuration.
+//
+// SERVO0_PIN and Z_MIN_PIN configuration for BLTOUCH sensor when combined with SENSORLESS_HOMING.
+//
+
 #define X_MAX_PIN          -1
-#define Y_MIN_PIN          69 //11
 #define Y_MAX_PIN          -1
-#define Z_MIN_PIN          68 //10
 #define Z_MAX_PIN          -1
+
+#if DISABLED(SENSORLESS_HOMING)
+
+  #define X_MIN_PIN          12
+  #define Y_MIN_PIN          11
+  #define Z_MIN_PIN          10
+
+#else
+
+  #define X_MIN_PIN          X_DIAG_PIN
+  #define Y_MIN_PIN          Y_DIAG_PIN
+
+  #if ENABLED(BLTOUCH)
+    #define Z_MIN_PIN        11   // Y-MIN
+    #define SERVO0_PIN       10   // Z-MIN
+  #else
+    #define Z_MIN_PIN        10
+  #endif
+
+#endif
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -129,8 +152,8 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 // use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN     9  // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 18  // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     9   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 18   // Pin should have a pullup!
 #define SPINDLE_DIR_PIN          19
 
 //
@@ -138,7 +161,7 @@
 //
 #define E_MUX0_PIN         17
 #define E_MUX1_PIN         16
-#define E_MUX2_PIN         78  // 84 in MK2 Firmware, with BEEPER as 78
+#define E_MUX2_PIN         78   // 84 in MK2 Firmware, with BEEPER as 78
 
 //
 // LCD / Controller
@@ -166,8 +189,8 @@
       #define BTN_EN2         72
     #endif
 
-    #define BTN_ENC            9  // AUX-2
-    #define BEEPER_PIN        84  // AUX-4
+    #define BTN_ENC            9   // AUX-2
+    #define BEEPER_PIN        84   // AUX-4
     #define SD_DETECT_PIN     15
 
   #endif // NEWPANEL

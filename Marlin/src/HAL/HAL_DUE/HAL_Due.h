@@ -41,15 +41,7 @@
 // Defines
 //
 #define NUM_SERIAL 1
-
-//#undef SERIAL_PORT
-//#define SERIAL_PORT -1
-
-#if SERIAL_PORT == -1
-  #define MYSERIAL0 SerialUSB
-#else
-  #define MYSERIAL0 customizedSerial
-#endif
+#define MYSERIAL0 customizedSerial
 
 // We need the previous define before the include, or compilation bombs...
 #include "MarlinSerial_Due.h"
@@ -168,14 +160,15 @@ void toneInit();
 void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
 void noTone(const pin_t _pin);
 
-// Enable hooks into idle and setup for USB stack
+// Enable hooks into idle and setup for HAL
 #define HAL_IDLETASK 1
 #define HAL_INIT 1
+void HAL_idletask(void);
+void HAL_init(void);
+
 #ifdef __cplusplus
   extern "C" {
 #endif
-void HAL_idletask(void);
-void HAL_init(void);
 char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__s);
 #ifdef __cplusplus
   }

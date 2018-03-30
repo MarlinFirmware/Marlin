@@ -25,7 +25,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-enum MeshLevelingState {
+enum MeshLevelingState : char {
   MeshReport,
   MeshStart,
   MeshNext,

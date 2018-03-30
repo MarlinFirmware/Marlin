@@ -60,7 +60,7 @@
 
 #define HEATER_0_PIN        7
 
-#define ORIG_E0_AUTO_FAN_PIN 3  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#define ORIG_E0_AUTO_FAN_PIN 3   // Use this by NOT overriding E0_AUTO_FAN_PIN
 #define CONTROLLER_FAN_PIN  2
 
 #define TEMP_0_PIN          7   // Analog Input

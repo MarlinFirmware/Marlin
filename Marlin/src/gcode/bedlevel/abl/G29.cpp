@@ -209,9 +209,9 @@ void GcodeSuite::G29() {
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-      ABL_VAR int abl2;
+      ABL_VAR int abl_points;
     #elif ENABLED(PROBE_MANUALLY) // Bilinear
-      int constexpr abl2 = GRID_MAX_POINTS;
+      int constexpr abl_points = GRID_MAX_POINTS;
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -230,14 +230,14 @@ void GcodeSuite::G29() {
   #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
     #if ENABLED(PROBE_MANUALLY)
-      int constexpr abl2 = 3; // used to show total points
+      int constexpr abl_points = 3; // used to show total points
     #endif
 
     // Probe at 3 arbitrary points
     ABL_VAR vector_3 points[3] = {
-      vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, 0),
-      vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, 0),
-      vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, 0)
+      vector_3(PROBE_PT_1_X, PROBE_PT_1_Y, 0),
+      vector_3(PROBE_PT_2_X, PROBE_PT_2_Y, 0),
+      vector_3(PROBE_PT_3_X, PROBE_PT_3_Y, 0)
     };
 
   #endif // AUTO_BED_LEVELING_3POINT
@@ -342,7 +342,7 @@ void GcodeSuite::G29() {
         return;
       }
 
-      abl2 = abl_grid_points_x * abl_grid_points_y;
+      abl_points = abl_grid_points_x * abl_grid_points_y;
       mean = 0;
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -360,32 +360,9 @@ void GcodeSuite::G29() {
       front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
       back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
 
-      const bool left_out_l = left_probe_bed_position < MIN_PROBE_X,
-                 left_out = left_out_l || left_probe_bed_position > right_probe_bed_position - (MIN_PROBE_EDGE),
-                 right_out_r = right_probe_bed_position > MAX_PROBE_X,
-                 right_out = right_out_r || right_probe_bed_position < left_probe_bed_position + MIN_PROBE_EDGE,
-                 front_out_f = front_probe_bed_position < MIN_PROBE_Y,
-                 front_out = front_out_f || front_probe_bed_position > back_probe_bed_position - (MIN_PROBE_EDGE),
-                 back_out_b = back_probe_bed_position > MAX_PROBE_Y,
-                 back_out = back_out_b || back_probe_bed_position < front_probe_bed_position + MIN_PROBE_EDGE;
-
-      if (left_out || right_out || front_out || back_out) {
-        if (left_out) {
-          out_of_range_error(PSTR("(L)eft"));
-          left_probe_bed_position = left_out_l ? MIN_PROBE_X : right_probe_bed_position - (MIN_PROBE_EDGE);
-        }
-        if (right_out) {
-          out_of_range_error(PSTR("(R)ight"));
-          right_probe_bed_position = right_out_r ? MAX_PROBE_X : left_probe_bed_position + MIN_PROBE_EDGE;
-        }
-        if (front_out) {
-          out_of_range_error(PSTR("(F)ront"));
-          front_probe_bed_position = front_out_f ? MIN_PROBE_Y : back_probe_bed_position - (MIN_PROBE_EDGE);
-        }
-        if (back_out) {
-          out_of_range_error(PSTR("(B)ack"));
-          back_probe_bed_position = back_out_b ? MAX_PROBE_Y : front_probe_bed_position + MIN_PROBE_EDGE;
-        }
+      if ( !position_is_reachable_by_probe(left_probe_bed_position, front_probe_bed_position)
+        || !position_is_reachable_by_probe(right_probe_bed_position, back_probe_bed_position)) {
+        SERIAL_PROTOCOLLNPGM("? (L,R,F,B) out of bounds.");
         return;
       }
 
@@ -481,8 +458,8 @@ void GcodeSuite::G29() {
     if (verbose_level || seenQ) {
       SERIAL_PROTOCOLPGM("Manual G29 ");
       if (g29_in_progress) {
-        SERIAL_PROTOCOLPAIR("point ", min(abl_probe_index + 1, abl2));
-        SERIAL_PROTOCOLLNPAIR(" of ", abl2);
+        SERIAL_PROTOCOLPAIR("point ", min(abl_probe_index + 1, abl_points));
+        SERIAL_PROTOCOLLNPAIR(" of ", abl_points);
       }
       else
         SERIAL_PROTOCOLLNPGM("idle");
@@ -497,6 +474,11 @@ void GcodeSuite::G29() {
       #endif
     }
     else {
+
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT)
+        const uint16_t index = abl_probe_index - 1;
+      #endif
+
       // For G29 after adjusting Z.
       // Save the previous Z before going to the next point
       measured_z = current_position[Z_AXIS];
@@ -504,12 +486,16 @@ void GcodeSuite::G29() {
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
         mean += measured_z;
-        eqnBVector[abl_probe_index] = measured_z;
-        eqnAMatrix[abl_probe_index + 0 * abl2] = xProbe;
-        eqnAMatrix[abl_probe_index + 1 * abl2] = yProbe;
-        eqnAMatrix[abl_probe_index + 2 * abl2] = 1;
+        eqnBVector[index] = measured_z;
+        eqnAMatrix[index + 0 * abl_points] = xProbe;
+        eqnAMatrix[index + 1 * abl_points] = yProbe;
+        eqnAMatrix[index + 2 * abl_points] = 1;
 
         incremental_LSF(&lsf_results, xProbe, yProbe, measured_z);
+
+      #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+
+        points[index].z = measured_z;
 
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -523,10 +509,6 @@ void GcodeSuite::G29() {
           }
         #endif
 
-      #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-
-        points[abl_probe_index].z = measured_z;
-
       #endif
     }
 
@@ -537,7 +519,7 @@ void GcodeSuite::G29() {
     #if ABL_GRID
 
       // Skip any unreachable points
-      while (abl_probe_index < abl2) {
+      while (abl_probe_index < abl_points) {
 
         // Set xCount, yCount based on abl_probe_index, with zig-zag
         PR_OUTER_VAR = abl_probe_index / PR_INNER_END;
@@ -564,7 +546,7 @@ void GcodeSuite::G29() {
       }
 
       // Is there a next point to move to?
-      if (abl_probe_index < abl2) {
+      if (abl_probe_index < abl_points) {
         _manual_goto_xy(xProbe, yProbe); // Can be used here too!
         #if HAS_SOFTWARE_ENDSTOPS
           // Disable software endstops to allow manual adjustment
@@ -588,7 +570,7 @@ void GcodeSuite::G29() {
     #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
       // Probe at 3 arbitrary points
-      if (abl_probe_index < abl2) {
+      if (abl_probe_index < abl_points) {
         xProbe = points[abl_probe_index].x;
         yProbe = points[abl_probe_index].y;
         _manual_goto_xy(xProbe, yProbe);
@@ -627,7 +609,7 @@ void GcodeSuite::G29() {
 
   #else // !PROBE_MANUALLY
   {
-    const bool stow_probe_after_each = parser.boolval('E');
+    const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
     measured_z = 0;
 
@@ -673,7 +655,7 @@ void GcodeSuite::G29() {
             if (!position_is_reachable_by_probe(xProbe, yProbe)) continue;
           #endif
 
-          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+          measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
 
           if (isnan(measured_z)) {
             set_bed_leveling_enabled(abl_should_enable);
@@ -684,9 +666,9 @@ void GcodeSuite::G29() {
 
             mean += measured_z;
             eqnBVector[abl_probe_index] = measured_z;
-            eqnAMatrix[abl_probe_index + 0 * abl2] = xProbe;
-            eqnAMatrix[abl_probe_index + 1 * abl2] = yProbe;
-            eqnAMatrix[abl_probe_index + 2 * abl2] = 1;
+            eqnAMatrix[abl_probe_index + 0 * abl_points] = xProbe;
+            eqnAMatrix[abl_probe_index + 1 * abl_points] = yProbe;
+            eqnAMatrix[abl_probe_index + 2 * abl_points] = 1;
 
             incremental_LSF(&lsf_results, xProbe, yProbe, measured_z);
 
@@ -710,7 +692,7 @@ void GcodeSuite::G29() {
         // Retain the last probe position
         xProbe = points[i].x;
         yProbe = points[i].y;
-        measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+        measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, raise_after, verbose_level);
         if (isnan(measured_z)) {
           set_bed_leveling_enabled(abl_should_enable);
           break;
@@ -733,7 +715,7 @@ void GcodeSuite::G29() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
-    // Stow the probe, raising if not fix-mounted.
+    // Stow the probe. No raise for FIX_MOUNTED_PROBE.
     if (STOW_PROBE()) {
       set_bed_leveling_enabled(abl_should_enable);
       measured_z = NAN;
@@ -794,7 +776,7 @@ void GcodeSuite::G29() {
       plane_equation_coefficients[1] = -lsf_results.B;  // but that is not yet tested.
       plane_equation_coefficients[2] = -lsf_results.D;
 
-      mean /= abl2;
+      mean /= abl_points;
 
       if (verbose_level) {
         SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
@@ -838,8 +820,8 @@ void GcodeSuite::G29() {
           for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
             int ind = indexIntoAB[xx][yy];
             float diff = eqnBVector[ind] - mean,
-                  x_tmp = eqnAMatrix[ind + 0 * abl2],
-                  y_tmp = eqnAMatrix[ind + 1 * abl2],
+                  x_tmp = eqnAMatrix[ind + 0 * abl_points],
+                  y_tmp = eqnAMatrix[ind + 1 * abl_points],
                   z_tmp = 0;
 
             apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
@@ -862,8 +844,8 @@ void GcodeSuite::G29() {
           for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
             for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
               int ind = indexIntoAB[xx][yy];
-              float x_tmp = eqnAMatrix[ind + 0 * abl2],
-                    y_tmp = eqnAMatrix[ind + 1 * abl2],
+              float x_tmp = eqnAMatrix[ind + 0 * abl_points],
+                    y_tmp = eqnAMatrix[ind + 1 * abl_points],
                     z_tmp = 0;
 
               apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
@@ -967,12 +949,16 @@ void GcodeSuite::G29() {
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G29");
   #endif
 
-  report_current_position();
-
   KEEPALIVE_STATE(IN_HANDLER);
 
   if (planner.leveling_active)
     SYNC_PLAN_POSITION_KINEMATIC();
+
+  #if HAS_BED_PROBE && Z_AFTER_PROBING
+    move_z_after_probing();
+  #endif
+
+  report_current_position();
 }
 
 #endif // OLDSCHOOL_ABL

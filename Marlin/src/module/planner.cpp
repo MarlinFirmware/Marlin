@@ -468,7 +468,7 @@ void Planner::check_axes_activity() {
     #endif
   #endif
 
-  if (blocks_queued()) {
+  if (has_blocks_queued()) {
 
     #if FAN_COUNT > 0
       for (uint8_t i = 0; i < FAN_COUNT; i++)
@@ -894,7 +894,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
-        powerManager.power_on();
+      powerManager.power_on();
   #endif
 
   //enable active axes
@@ -1547,7 +1547,7 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
   //*/
 
   // Always split the first move into two (if not homing or probing)
-  if (!blocks_queued()) {
+  if (!has_blocks_queued()) {
 
     #define _BETWEEN(A) (position[A##_AXIS] + target[A##_AXIS]) >> 1
     const int32_t between[ABCE] = { _BETWEEN(A), _BETWEEN(B), _BETWEEN(C), _BETWEEN(E) };

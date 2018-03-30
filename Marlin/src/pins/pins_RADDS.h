@@ -113,9 +113,9 @@
 //#define E3_MS1_PIN         67
 //#define E3_MS2_PIN         68
 //#define E3_MS3_PIN         69
-//#define Z2_MS1_PIN         67 // shared with E3_MS1_PIN
-//#define Z2_MS2_PIN         68 // shared with E3_MS2_PIN
-//#define Z2_MS3_PIN         69 // shared with E3_MS3_PIN
+//#define Z2_MS1_PIN         67   // shared with E3_MS1_PIN
+//#define Z2_MS2_PIN         68   // shared with E3_MS2_PIN
+//#define Z2_MS3_PIN         69   // shared with E3_MS3_PIN
 
 //
 // Temperature Sensors
@@ -140,7 +140,7 @@
 #define HEATER_0_PIN       13
 #define HEATER_1_PIN       12
 #define HEATER_2_PIN       11
-#define HEATER_BED_PIN      7 // BED
+#define HEATER_BED_PIN      7   // BED
 
 #define FAN_PIN             9
 #define FAN1_PIN            8
@@ -151,8 +151,9 @@
 #define SDSS                4
 #define PS_ON_PIN          40
 
+// I2C EEPROM with 8K of space
 #define I2C_EEPROM
-#define E2END 0x2000
+#define E2END 0x1FFF
 
 //
 // LCD / Controller

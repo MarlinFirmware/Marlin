@@ -87,11 +87,16 @@ void Power::check() {
 
 void Power::power_on() {
   lastPowerOn = millis();
-  OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
+  PSU_PIN_ON();
+
+  #if HAS_TRINAMIC
+    delay(100); // Wait for power to settle
+    restore_stepper_drivers();
+  #endif
 }
 
 void Power::power_off() {
-  OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+  PSU_PIN_OFF();
 }
 
 #endif // AUTO_POWER_CONTROL

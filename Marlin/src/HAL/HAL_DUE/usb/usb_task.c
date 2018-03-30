@@ -48,27 +48,35 @@
 #include "conf_usb.h"
 #include "udc.h"
 #include <Arduino.h>
+#include <Reset.h>
 
-static volatile bool main_b_msc_enable = false;
+#if ENABLED(SDSUPPORT)
+  static volatile bool main_b_msc_enable = false;
+#endif
 static volatile bool main_b_cdc_enable = false;
+static volatile bool main_b_dtr_active = false;
 
-void HAL_idletask(void) {
-  // Attend SD card access from the USB MSD -- Prioritize access to improve speed
-  int delay = 2;
-  while (main_b_msc_enable && --delay > 0) {
-    if (udi_msc_process_trans()) delay = 10000;
+void usb_task_idle(void) {
+  #if ENABLED(SDSUPPORT)
+    // Attend SD card access from the USB MSD -- Prioritize access to improve speed
+    int delay = 2;
+    while (main_b_msc_enable && --delay > 0) {
+      if (udi_msc_process_trans()) delay = 10000;
 
-    // Reset the watchdog, just to be sure
-    REG_WDT_CR = WDT_CR_WDRSTT | WDT_CR_KEY(0xA5);
-  }
+      // Reset the watchdog, just to be sure
+      REG_WDT_CR = WDT_CR_WDRSTT | WDT_CR_KEY(0xA5);
+    }
+  #endif
 }
 
-bool usb_task_msc_enable(void)                { return ((main_b_msc_enable = true)); }
-void usb_task_msc_disable(void)               { main_b_msc_enable = false; }
-bool usb_task_msc_isenabled(void)             { return main_b_msc_enable; }
+#if ENABLED(SDSUPPORT)
+  bool usb_task_msc_enable(void)                { return ((main_b_msc_enable = true)); }
+  void usb_task_msc_disable(void)               { main_b_msc_enable = false; }
+  bool usb_task_msc_isenabled(void)             { return main_b_msc_enable; }
+#endif
 
 bool usb_task_cdc_enable(const uint8_t port)  { return ((main_b_cdc_enable = true)); }
-void usb_task_cdc_disable(const uint8_t port) { main_b_cdc_enable = false; }
+void usb_task_cdc_disable(const uint8_t port) { main_b_cdc_enable = false; main_b_dtr_active = false; }
 bool usb_task_cdc_isenabled(void)             { return main_b_cdc_enable; }
 
 /*! \brief Called by CDC interface
@@ -80,13 +88,40 @@ void usb_task_cdc_rx_notify(const uint8_t port) { }
  *
  * \param cfg      line configuration
  */
-void usb_task_cdc_config(const uint8_t port, usb_cdc_line_coding_t *cfg) { }
+static uint16_t dwDTERate = 0;
+void usb_task_cdc_config(const uint8_t port, usb_cdc_line_coding_t *cfg) {
+    // Store last DTE rate
+    dwDTERate = cfg->dwDTERate;
+}
+
 
 void usb_task_cdc_set_dtr(const uint8_t port, const bool b_enable) {
-  if (b_enable) {
-  } else {
+
+  // Keep DTR status
+  main_b_dtr_active = b_enable;
+
+  //  Implement Arduino-Compatible kludge to enter programming mode from
+  // the native port:
+  //  "Auto-reset into the bootloader is triggered when the port, already
+  // open at 1200 bps, is closed."
+
+  if (1200 == dwDTERate) {
+    // We check DTR state to determine if host port is open (bit 0 of lineState).
+    if (!b_enable) {
+
+      // Set RST pin to go low for 65535 clock cycles on reset
+      //  This helps restarting when firmware flash ends
+      RSTC->RSTC_MR = 0xA5000F01;
+
+      // Schedule delayed reset
+      initiateReset(250);
+    }
+    else
+      cancelReset();
   }
 }
+
+bool usb_task_cdc_dtr_active(void)             { return main_b_dtr_active; }
 
 /// Microsoft WCID descriptor
 typedef struct USB_MicrosoftCompatibleDescriptor_Interface {
@@ -170,11 +205,17 @@ static USB_MicrosoftExtendedPropertiesDescriptor microsoft_extended_properties_d
 bool usb_task_extra_string(void) {
   static uint8_t udi_msft_magic[] = "MSFT100\xEE";
   static uint8_t udi_cdc_name[] = "CDC interface";
-  static uint8_t udi_msc_name[] = "MSC interface";
+  #if ENABLED(SDSUPPORT)
+    static uint8_t udi_msc_name[] = "MSC interface";
+  #endif
 
   struct extra_strings_desc_t {
     usb_str_desc_t header;
-    le16_t string[Max(Max(sizeof(udi_cdc_name) - 1, sizeof(udi_msc_name) - 1), sizeof(udi_msft_magic) - 1)];
+    #if ENABLED(SDSUPPORT)
+      le16_t string[Max(Max(sizeof(udi_cdc_name) - 1, sizeof(udi_msc_name) - 1), sizeof(udi_msft_magic) - 1)];
+    #else
+      le16_t string[Max(sizeof(udi_cdc_name) - 1, sizeof(udi_msft_magic) - 1)];
+    #endif
   };
   static UDC_DESC_STORAGE struct extra_strings_desc_t extra_strings_desc = {
     .header.bDescriptorType = USB_DT_STRING
@@ -189,10 +230,12 @@ bool usb_task_extra_string(void) {
     str_lgt = sizeof(udi_cdc_name) - 1;
     str = udi_cdc_name;
     break;
-  case UDI_MSC_STRING_ID:
-    str_lgt = sizeof(udi_msc_name) - 1;
-    str = udi_msc_name;
-    break;
+  #if ENABLED(SDSUPPORT)
+    case UDI_MSC_STRING_ID:
+      str_lgt = sizeof(udi_msc_name) - 1;
+      str = udi_msc_name;
+      break;
+  #endif
   case 0xEE:
     str_lgt = sizeof(udi_msft_magic) - 1;
     str = udi_msft_magic;
@@ -254,11 +297,15 @@ bool usb_task_other_requests(void) {
   return true;
 }
 
-void HAL_init(void) {
+void usb_task_init(void) {
 
   uint16_t *ptr;
 
+  // Disable USB peripheral so we start clean and avoid lockups
+  otg_disable();
   udd_disable();
+
+  // Set the USB interrupt to our stack
   UDD_SetStack(&USBD_ISR);
 
   // Start USB stack to authorize VBus monitoring

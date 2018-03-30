@@ -25,16 +25,26 @@
 #if HAS_BED_PROBE
 
 #include "../gcode.h"
+#include "../../module/motion.h"
 #include "../../module/probe.h"
 
 /**
  * M401: Deploy and activate the Z probe
  */
-void GcodeSuite::M401() { DEPLOY_PROBE(); }
+void GcodeSuite::M401() {
+  DEPLOY_PROBE();
+  report_current_position();
+}
 
 /**
  * M402: Deactivate and stow the Z probe
  */
-void GcodeSuite::M402() { STOW_PROBE(); }
+void GcodeSuite::M402() {
+  STOW_PROBE();
+  #if Z_AFTER_PROBING
+    move_z_after_probing();
+  #endif
+  report_current_position();
+}
 
 #endif // HAS_BED_PROBE

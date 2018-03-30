@@ -189,7 +189,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err: Min. temp")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: Max.tmp bed")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: Min.tmp bed")
-#define MSG_ERR_Z_HOMING                    _UxGT("Fout Z homing")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("PRINTER GESTOPT")
 #define MSG_PLEASE_RESET                    _UxGT("Reset A.U.B.")
 #define MSG_SHORT_DAY                       _UxGT("d") //  One character only. Keep English standard

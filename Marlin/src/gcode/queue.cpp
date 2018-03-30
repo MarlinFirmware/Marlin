@@ -204,7 +204,6 @@ void ok_to_send() {
     const int16_t port = command_queue_port[cmd_queue_index_r];
     if (port < 0) return;
   #endif
-  gcode.refresh_cmd_timeout();
   if (!send_ok[cmd_queue_index_r]) return;
   SERIAL_PROTOCOLPGM_P(port, MSG_OK);
   #if ENABLED(ADVANCED_OK)
@@ -233,6 +232,7 @@ void flush_and_request_resend() {
   SERIAL_FLUSH_P(port);
   SERIAL_PROTOCOLPGM_P(port, MSG_RESEND);
   SERIAL_PROTOCOLLN_P(port, gcode_LastN + 1);
+  ok_to_send();
 }
 
 void gcode_line_error(const char* err, uint8_t port) {
@@ -341,6 +341,12 @@ inline void get_serial_commands() {
 
           gcode_LastN = gcode_N;
         }
+        #if ENABLED(SDSUPPORT)
+          else if (card.saving) {
+            gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
+            return;
+          }
+        #endif
 
         // Movement commands alert when stopped
         if (IsStopped()) {
@@ -443,12 +449,19 @@ inline void get_serial_commands() {
               LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
               leds.set_green();
               #if HAS_RESUME_CONTINUE
-                enqueue_and_echo_commands_P(PSTR("M0")); // end of the queue!
+                gcode.lights_off_after_print = true;
+                enqueue_and_echo_commands_P(PSTR("M0 S"
+                  #if ENABLED(NEWPANEL)
+                    "1800"
+                  #else
+                    "60"
+                  #endif
+                ));
               #else
-                safe_delay(1000);
+                safe_delay(2000);
+                leds.set_off();
               #endif
-              leds.set_off();
-            #endif
+            #endif // PRINTER_EVENT_LEDS
             card.checkautostart(true);
           }
         }
@@ -517,7 +530,7 @@ void advance_command_queue() {
         card.closefile();
         SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
 
-        #ifndef USBCON
+        #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
             SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
           #endif
@@ -525,7 +538,7 @@ void advance_command_queue() {
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
             SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
           #endif
-        #endif // !USBCON
+        #endif //  !defined(__AVR__) || !defined(USBCON)
 
         ok_to_send();
       }

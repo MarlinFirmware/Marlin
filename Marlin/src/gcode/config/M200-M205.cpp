@@ -91,21 +91,27 @@ void GcodeSuite::M203() {
  *    T = Travel (non printing) moves
  */
 void GcodeSuite::M204() {
-  if (parser.seen('S')) {  // Kept for legacy compatibility. Should NOT BE USED for new developments.
+  bool report = true;
+  if (parser.seenval('S')) { // Kept for legacy compatibility. Should NOT BE USED for new developments.
     planner.travel_acceleration = planner.acceleration = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Setting Print and Travel Acceleration: ", planner.acceleration);
+    report = false;
   }
-  if (parser.seen('P')) {
+  if (parser.seenval('P')) {
     planner.acceleration = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Setting Print Acceleration: ", planner.acceleration);
+    report = false;
   }
-  if (parser.seen('R')) {
+  if (parser.seenval('R')) {
     planner.retract_acceleration = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Setting Retract Acceleration: ", planner.retract_acceleration);
+    report = false;
   }
-  if (parser.seen('T')) {
+  if (parser.seenval('T')) {
     planner.travel_acceleration = parser.value_linear_units();
-    SERIAL_ECHOLNPAIR("Setting Travel Acceleration: ", planner.travel_acceleration);
+    report = false;
+  }
+  if (report) {
+    SERIAL_ECHOPAIR("Acceleration: P", planner.acceleration);
+    SERIAL_ECHOPAIR(" R", planner.retract_acceleration);
+    SERIAL_ECHOLNPAIR(" T", planner.travel_acceleration);
   }
 }
 
@@ -126,6 +132,12 @@ void GcodeSuite::M205() {
   if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
   if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
   if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
-  if (parser.seen('Z')) planner.max_jerk[Z_AXIS] = parser.value_linear_units();
+  if (parser.seen('Z')) {
+    planner.max_jerk[Z_AXIS] = parser.value_linear_units();
+    #if HAS_MESH
+      if (planner.max_jerk[Z_AXIS] <= 0.1)
+        SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
+    #endif
+  }
   if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
 }
