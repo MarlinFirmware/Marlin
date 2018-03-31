@@ -835,34 +835,24 @@
  * Heater signal inversion defaults
  */
 
-#if HAS_HEATER_0
-  #ifndef HEATER_0_INVERTING
-    #define HEATER_0_INVERTING false
-  #endif
+#if HAS_HEATER_0 && !defined(HEATER_0_INVERTING)
+  #define HEATER_0_INVERTING false
 #endif
 
-#if HAS_HEATER_1
-  #ifndef HEATER_1_INVERTING
-    #define HEATER_1_INVERTING false
-  #endif
+#if HAS_HEATER_1 && !defined(HEATER_1_INVERTING)
+  #define HEATER_1_INVERTING false
 #endif
 
-#if HAS_HEATER_2
-  #ifndef HEATER_2_INVERTING
-    #define HEATER_2_INVERTING false
-  #endif
+#if HAS_HEATER_2 && !defined(HEATER_2_INVERTING)
+  #define HEATER_2_INVERTING false
 #endif
 
-#if HAS_HEATER_3
-  #ifndef HEATER_3_INVERTING
-    #define HEATER_3_INVERTING false
-  #endif
+#if HAS_HEATER_3 && !defined(HEATER_3_INVERTING)
+  #define HEATER_3_INVERTING false
 #endif
 
-#if HAS_HEATER_4
-  #ifndef HEATER_4_INVERTING
-    #define HEATER_4_INVERTING false
-  #endif
+#if HAS_HEATER_4 && !defined(HEATER_4_INVERTING)
+  #define HEATER_4_INVERTING false
 #endif
 
 /**
