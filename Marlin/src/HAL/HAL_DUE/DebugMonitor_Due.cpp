@@ -75,9 +75,7 @@ static void TX(char c) {
 
 // Send String through UART
 static void TX(const char* s) {
-  while (*s) {
-    TX(*s++);
-  }
+  while (*s) TX(*s++);
 }
 
 static void TXDigit(uint32_t d) {
@@ -89,9 +87,8 @@ static void TXDigit(uint32_t d) {
 // Send Hex number thru UART
 static void TXHex(uint32_t v) {
   TX("0x");
-  for (int i=0; i<8; i++, v <<= 4) {
+  for (uint8_t i = 0; i < 8; i++, v <<= 4)
     TXDigit((v >> 28) & 0xF);
-  }
 }
 
 // Send Decimal number thru UART
@@ -125,15 +122,15 @@ static bool UnwReportOut(void* ctx, const UnwReport* bte) {
   return true;
 }
 
-#if defined(UNW_DEBUG)
-void UnwPrintf(const char* format, ...) {
-  char dest[256];
-  va_list argptr;
-  va_start(argptr, format);
-  vsprintf(dest, format, argptr);
-  va_end(argptr);
-  TX(&dest[0]);
-}
+#ifdef UNW_DEBUG
+  void UnwPrintf(const char* format, ...) {
+    char dest[256];
+    va_list argptr;
+    va_start(argptr, format);
+    vsprintf(dest, format, argptr);
+    va_end(argptr);
+    TX(&dest[0]);
+  }
 #endif
 
 /* Table of function pointers for passing to the unwinder */
@@ -142,9 +139,9 @@ static const UnwindCallbacks UnwCallbacks = {
   UnwReadW,
   UnwReadH,
   UnwReadB
-#if defined(UNW_DEBUG)
- ,UnwPrintf
-#endif
+  #if defined(UNW_DEBUG)
+   ,UnwPrintf
+  #endif
 };
 
 /**
