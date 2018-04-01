@@ -121,15 +121,16 @@
  */
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
-#define AUTO_BED_LEVELING_UBL
+//#define AUTO_BED_LEVELING_UBL
 
 /* Autolevel / Autocalibration Grid Points
  * Number of points to probe on autolevel / autocalibration routines
  * min 3 max 10
  * A higher the value means better results
  * Keep a low value for manual leveling
+ * Use odd values for linear and bilinear
  */
-#define GRID_POINTS        10
+#define GRID_POINTS        7
 
 /* Bed Margin For Probing
  * Margin around perimiter of bed for probing
@@ -799,7 +800,7 @@
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-#define ENDSTOP_INTERRUPTS_FEATURE
+// #define ENDSTOP_INTERRUPTS_FEATURE
 
 //=============================================================================
 //============================== Movement Settings ============================
@@ -1381,7 +1382,7 @@
  * Use the LCD controller for bed leveling
  * Requires MESH_BED_LEVELING or PROBE_MANUALLY
  */
-#if ENABLED(PROBE_MANUALLY) && (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_UBL))
+#if ENABLED(PROBE_MANUALLY) && (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_LINEAR))
   #define LCD_BED_LEVELING
 #endif
 
