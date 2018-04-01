@@ -178,8 +178,8 @@
 #define LCD_PINS_D5        _STM32_PIN(PORTB, 13)     
 #define LCD_PINS_D6        _STM32_PIN(PORTB, 14)     
 #define LCD_PINS_D7        _STM32_PIN(PORTB, 15)     
-#define BTN_EN1            _STM32_PIN(PORTC, 3)      
-#define BTN_EN2            _STM32_PIN(PORTC, 4)      
-#define BTN_ENC            _STM32_PIN(PORTC, 5)      
+#define BTN_EN1            _STM32_PIN(PORTC, 4)      
+#define BTN_EN2            _STM32_PIN(PORTC, 5)      
+#define BTN_ENC            _STM32_PIN(PORTC, 3)      
 
 #define FIL_RUNOUT_PIN    _STM32_PIN(PORTA, 3)

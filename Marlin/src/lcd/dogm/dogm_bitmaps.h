@@ -27,7 +27,9 @@
  * http://marlinfw.org/tools/u8glib/converter.html
  */
 
-#include <binary.h>
+#if !defined(STM32F4)
+  #include <binary.h>
+#endif
 
 #include "../../inc/MarlinConfig.h"
 
