@@ -944,6 +944,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * LCD_SOFTWARE_SPI compatibility
+ */
+#if ENABLED(LCD_SOFTWARE_SPI) && DISABLED(MINIPANEL) && DISABLED(MKS_MINI_12864)
+  #error "LCD_SOFTWARE_SPI is only implemented for MINIPANEL and MKS_MINI_12864 at this time."
+#endif
+
+/**
  * Allen Key
  * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
  */
