@@ -30,26 +30,26 @@
 
 // Dump a backtrace entry
 static bool UnwReportOut(void* ctx, const UnwReport* bte) {
-  int* p = (int*)ctx;
+  int *p = (int*)ctx;
 
   (*p)++;
 
   SERIAL_CHAR('#'); SERIAL_PRINT(*p,DEC); SERIAL_ECHOPGM(" : ");
-  SERIAL_ECHOPGM(bte->name?bte->name:"unknown"); SERIAL_ECHOPGM("@0x"); SERIAL_PRINT(bte->function,HEX);
+  SERIAL_ECHOPGM(bte->name ? bte->name : "unknown"); SERIAL_ECHOPGM("@0x"); SERIAL_PRINT(bte->function, HEX);
   SERIAL_CHAR('+'); SERIAL_PRINT(bte->address - bte->function,DEC);
   SERIAL_ECHOPGM(" PC:"); SERIAL_PRINT(bte->address,HEX); SERIAL_CHAR('\n');
   return true;
 }
 
-#if defined(UNW_DEBUG)
-void UnwPrintf(const char* format, ...) {
-  char dest[256];
-  va_list argptr;
-  va_start(argptr, format);
-  vsprintf(dest, format, argptr);
-  va_end(argptr);
-  TX(&dest[0]);
-}
+#ifdef UNW_DEBUG
+  void UnwPrintf(const char* format, ...) {
+    char dest[256];
+    va_list argptr;
+    va_start(argptr, format);
+    vsprintf(dest, format, argptr);
+    va_end(argptr);
+    TX(&dest[0]);
+  }
 #endif
 
 /* Table of function pointers for passing to the unwinder */
@@ -58,9 +58,9 @@ static const UnwindCallbacks UnwCallbacks = {
   UnwReadW,
   UnwReadH,
   UnwReadB
-#if defined(UNW_DEBUG)
- ,UnwPrintf
-#endif
+  #ifdef UNW_DEBUG
+   , UnwPrintf
+  #endif
 };
 
 void backtrace(void) {
@@ -92,11 +92,8 @@ void backtrace(void) {
   UnwindStart(&btf, &UnwCallbacks, &ctr);
 }
 
-#else
+#else // !__arm__ && !__thumb__
 
 void backtrace(void) {}
 
 #endif
-
-
-

@@ -412,9 +412,9 @@ void lcd_kill_screen() {
     u8g.setPrintPos(0, h4 * 1);
     lcd_print_utf(lcd_status_message);
     u8g.setPrintPos(0, h4 * 2);
-    lcd_printPGM(PSTR(MSG_HALTED));
+    lcd_printPGM_utf(PSTR(MSG_HALTED));
     u8g.setPrintPos(0, h4 * 3);
-    lcd_printPGM(PSTR(MSG_PLEASE_RESET));
+    lcd_printPGM_utf(PSTR(MSG_PLEASE_RESET));
   } while (u8g.nextPage());
 }
 
@@ -581,7 +581,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     bool onpage = PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline);
     if (onpage) {
       u8g.setPrintPos(0, baseline);
-      lcd_printPGM(pstr);
+      lcd_printPGM_utf(pstr);
     }
 
     if (value != NULL) {
