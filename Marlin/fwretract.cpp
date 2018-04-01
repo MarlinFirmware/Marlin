@@ -149,8 +149,8 @@ void FWRetract::retract(const bool retracting
       hop_amount += retract_zlift;                        // Add to the hop total (again, only once)
       destination[Z_AXIS] += retract_zlift;               // Raise Z by the zlift (M207 Z) amount
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Maximum Z feedrate
-      prepare_move_to_destination();                      // Raise up to the old current pos
-      current_position[Z_AXIS] = old_z;                   // Spoof the Z position
+      prepare_move_to_destination();                      // Raise up
+      current_position[Z_AXIS] = old_z;                   // Spoof the Z position in the planner
       SYNC_PLAN_POSITION_KINEMATIC();
     }
   }
@@ -158,9 +158,9 @@ void FWRetract::retract(const bool retracting
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (hop_amount) {
       current_position[Z_AXIS] += hop_amount;             // Set actual Z (due to the prior hop)
+      SYNC_PLAN_POSITION_KINEMATIC();                     // Spoof the Z position in the planner
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
       prepare_move_to_destination();                      // Lower Z and update current_position
-      SYNC_PLAN_POSITION_KINEMATIC();                     // Update the planner
       hop_amount = 0.0;                                   // Clear the hop amount
     }
 
