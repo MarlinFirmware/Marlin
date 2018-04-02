@@ -833,8 +833,8 @@
    */
 
   #if HAS_SERVOS
-    #ifndef Z_ENDSTOP_SERVO_NR
-      #define Z_ENDSTOP_SERVO_NR -1
+    #ifndef Z_PROBE_SERVO_NR
+      #define Z_PROBE_SERVO_NR -1
     #endif
   #endif
 
