@@ -754,7 +754,7 @@ void setup() {
     servo_init();
   #endif
 
-  #if HAS_Z_SERVO_ENDSTOP
+  #if HAS_Z_SERVO_PROBE
     servo_probe_init();
   #endif
 
