@@ -86,6 +86,9 @@ WIRE               ?= 0
 # this defines if U8GLIB is needed (may require RELOC_WORKAROUND)
 U8GLIB             ?= 1
 
+# this defines whether to include the Trinamic TMC2630Stepper
+TMC2630            ?= 1
+
 ############
 # Try to automatically determine whether RELOC_WORKAROUND is needed based
 # on GCC versions:
@@ -461,7 +464,11 @@ VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Adafruit_NeoPixel
 endif
 ifeq ($(U8GLIB), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib/utility
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib/clib
+endif
+ifeq ($(TMC2630), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/TMC2130Stepper/src
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/TMC2130Stepper/src/source
 endif
 
 ifeq ($(HARDWARE_VARIANT), arduino)
@@ -504,7 +511,12 @@ LIB_CXXSRC += Wire.cpp
 endif
 
 ifeq ($(U8GLIB), 1)
+LIB_CXXSRC += U8glib.cpp
 LIB_SRC += u8g_ll_api.c u8g_bitmap.c u8g_clip.c u8g_com_null.c u8g_delay.c u8g_page.c u8g_pb.c u8g_pb16h1.c u8g_rect.c u8g_state.c u8g_font.c u8g_font_data.c
+endif
+
+ifeq ($(TMC2630), 1)
+LIB_CXXSRC += TMC2130Stepper.cpp TMC2130Stepper_COOLCONF.cpp TMC2130Stepper_DRV_STATUS.cpp TMC2130Stepper_IHOLD_IRUN.cpp TMC2130Stepper_CHOPCONF.cpp TMC2130Stepper_GCONF.cpp  TMC2130Stepper_PWMCONF.cpp SW_SPI.cpp
 endif
 
 ifeq ($(RELOC_WORKAROUND), 1)
