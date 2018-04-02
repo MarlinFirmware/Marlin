@@ -1484,9 +1484,11 @@ void MarlinSettings::postprocess() {
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
-        SERIAL_ECHO_START_P(port);
-        SERIAL_ECHOPAIR_P(port, "Index: ", int(eeprom_index - (EEPROM_OFFSET)));
-        SERIAL_ECHOLNPAIR_P(port, " Size: ", datasize());
+        #if ENABLED(EEPROM_CHITCHAT)
+          SERIAL_ECHO_START_P(port);
+          SERIAL_ECHOPAIR_P(port, "Index: ", int(eeprom_index - (EEPROM_OFFSET)));
+          SERIAL_ECHOLNPAIR_P(port, " Size: ", datasize());
+        #endif
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
