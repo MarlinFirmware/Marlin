@@ -950,7 +950,7 @@
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
 #if ENABLED(SERVO_PROBE)
-  #define Z_ENDSTOP_SERVO_NR 0   // Defaults to SERVO 0 connector.
+  #define Z_PROBE_SERVO_NR 0   // Defaults to SERVO 0 connector.
   #define Z_SERVO_ANGLES {SERVO_DEPLOY,SERVO_STOW}  // Z Servo Deploy and Stow angles
 #endif
 

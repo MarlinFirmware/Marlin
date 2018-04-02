@@ -1,4 +1,4 @@
-# Sprinter Arduino Project Makefile
+# Marlin Firmware Arduino Project Makefile
 #
 # Makefile Based on:
 # Arduino 0011 Makefile
@@ -149,6 +149,139 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),48)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega2560
 
+#RAMPS equivalents
+else ifeq  ($(HARDWARE_MOTHERBOARD),143)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),144)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),145)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),146)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),148)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),77)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),78)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),79)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),401)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),402)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),40)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),41)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),47)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),53)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),504)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),37)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),42)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),52)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),49)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),72)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),80)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),503)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),431)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),343)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),243)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+
+#Other ATmega1280, ATmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),111)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),112)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),2)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),21)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),200)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),70)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),701)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),703)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),704)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),302)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),303)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),304)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),21)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),999)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),310)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),321)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),74)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),75)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+
 #Gen6
 else ifeq  ($(HARDWARE_MOTHERBOARD),5)
 HARDWARE_VARIANT ?= Gen6
@@ -167,6 +300,9 @@ MCU              ?= atmega644p
 else ifeq  ($(HARDWARE_MOTHERBOARD),63)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega644p
+else ifeq  ($(HARDWARE_MOTHERBOARD),64)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega1284p
 else ifeq  ($(HARDWARE_MOTHERBOARD),65)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega1284p
@@ -174,6 +310,15 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),66)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega1284p
 else ifeq  ($(HARDWARE_MOTHERBOARD),69)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega1284p
+else ifeq  ($(HARDWARE_MOTHERBOARD),89)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega1284p
+else ifeq  ($(HARDWARE_MOTHERBOARD),92)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega1284p
+else ifeq  ($(HARDWARE_MOTHERBOARD),505)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega1284p
 else ifeq  ($(HARDWARE_MOTHERBOARD),601)
@@ -187,6 +332,14 @@ MCU              ?= atmega2560
 else ifeq  ($(HARDWARE_MOTHERBOARD),71)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega1280
+
+#ATmega1281, ATmega2561
+else ifeq  ($(HARDWARE_MOTHERBOARD),702)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega1281
+else ifeq  ($(HARDWARE_MOTHERBOARD),25)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega1281
 
 #Teensylu
 else ifeq  ($(HARDWARE_MOTHERBOARD),8)
@@ -205,6 +358,9 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),83)
 HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb1286
 else ifeq  ($(HARDWARE_MOTHERBOARD),84)
+HARDWARE_VARIANT ?= Teensy
+MCU              ?= at90usb1286
+else ifeq  ($(HARDWARE_MOTHERBOARD),88)
 HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb1286
 
@@ -233,12 +389,17 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),91)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega644p
 
+#Sethi 3D_1
+else ifeq  ($(HARDWARE_MOTHERBOARD),20)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega644p
+
 #Rambo
 else ifeq  ($(HARDWARE_MOTHERBOARD),301)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega2560
 
-# Azteeg
+#Azteeg
 else ifeq  ($(HARDWARE_MOTHERBOARD),67)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega2560
