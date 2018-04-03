@@ -131,9 +131,6 @@ typedef struct SettingsDataStruct {
     float mbl_z_values[3][3];
   #endif
 
-  //
-  // HAS_BED_PROBE
-  //
   float zprobe_zoffset;                                 // M851 Z
 
   //
@@ -490,10 +487,6 @@ void MarlinSettings::postprocess() {
     #endif // MESH_BED_LEVELING
 
     _FIELD_TEST(zprobe_zoffset);
-
-    #if !HAS_BED_PROBE
-      const float zprobe_zoffset = 0;
-    #endif
     EEPROM_WRITE(zprobe_zoffset);
 
     //
@@ -1094,10 +1087,6 @@ void MarlinSettings::postprocess() {
       #endif // MESH_BED_LEVELING
 
       _FIELD_TEST(zprobe_zoffset);
-
-      #if !HAS_BED_PROBE
-        float zprobe_zoffset;
-      #endif
       EEPROM_READ(zprobe_zoffset);
 
       //
@@ -1770,9 +1759,7 @@ void MarlinSettings::reset() {
     reset_bed_level();
   #endif
 
-  #if HAS_BED_PROBE
-    zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
-  #endif
+  zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
 
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
@@ -2391,15 +2378,13 @@ void MarlinSettings::reset() {
     /**
      * Probe Offset
      */
-    #if HAS_BED_PROBE
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOPGM("Z-Probe Offset");
-        say_units(true);
-      }
+    if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR("  M851 Z", LINEAR_UNIT(zprobe_zoffset));
-    #endif
+      SERIAL_ECHOPGM("Z-Probe Offset");
+      say_units(true);
+    }
+    CONFIG_ECHO_START;
+    SERIAL_ECHOLNPAIR("  M851 Z", LINEAR_UNIT(zprobe_zoffset));
 
     /**
      * Bed Skew Correction

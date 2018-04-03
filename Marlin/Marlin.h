@@ -390,8 +390,9 @@ void report_current_position();
   void set_z_fade_height(const float zfh, const bool do_report=true);
 #endif
 
+extern float zprobe_zoffset;
+
 #if HAS_BED_PROBE
-  extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
   #ifdef Z_AFTER_PROBING
     void move_z_after_probing();

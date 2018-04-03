@@ -1075,11 +1075,9 @@
 
     adjust_mesh_to_mean(g29_c_flag, g29_constant);
 
-    #if HAS_BED_PROBE
-      SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
-      SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
-      SERIAL_EOL();
-    #endif
+    SERIAL_PROTOCOLPGM("z_offset: ");
+    SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
+    SERIAL_EOL();
 
     SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X);
     safe_delay(50);

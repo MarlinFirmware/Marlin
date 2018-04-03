@@ -167,6 +167,7 @@
  * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT)
           Every normal extrude-only move will be classified as retract depending on the direction.
  * M211 - Enable, Disable, and/or Report software endstops: S<0|1> (Requires MIN_SOFTWARE_ENDSTOPS or MAX_SOFTWARE_ENDSTOPS)
+ * M212 - Set Z additional Z offset in current units. (Negative = below the nozzle.)
  * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
  * M221 - Set Flow Percentage: "M221 S<percent>"
@@ -535,9 +536,7 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 
 uint8_t target_extruder;
 
-#if HAS_BED_PROBE
-  float zprobe_zoffset; // Initialized by settings.load()
-#endif
+float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_ABL
   float xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
@@ -1352,6 +1351,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
     #elif ENABLED(DELTA)
       soft_endstop_min[axis] = base_min_pos(axis);
       soft_endstop_max[axis] = axis == Z_AXIS ? delta_height : base_max_pos(axis);
+      if (axis == Z_AXIS) soft_endstop_max[axis] -= zprobe_zoffset - Z_PROBE_OFFSET_FROM_EXTRUDER;
     #else
       soft_endstop_min[axis] = base_min_pos(axis);
       soft_endstop_max[axis] = base_max_pos(axis);
@@ -1491,16 +1491,16 @@ static void set_axis_is_at_home(const AxisEnum axis) {
   /**
    * Z Probe Z Homing? Account for the probe's Z offset.
    */
-  #if HAS_BED_PROBE && Z_HOME_DIR < 0
     if (axis == Z_AXIS) {
+      current_position[axis] -= zprobe_zoffset - Z_PROBE_OFFSET_FROM_EXTRUDER;
       #if HOMING_Z_WITH_PROBE
 
-        current_position[Z_AXIS] -= zprobe_zoffset;
+        current_position[Z_AXIS] -= Z_PROBE_OFFSET_FROM_EXTRUDER;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***");
-            SERIAL_ECHOLNPAIR("> zprobe_zoffset = ", zprobe_zoffset);
+            SERIAL_ECHOLNPAIR("> zprobe-zoffset = ", Z_PROBE_OFFSET_FROM_EXTRUDER);
           }
         #endif
 
@@ -1510,7 +1510,6 @@ static void set_axis_is_at_home(const AxisEnum axis) {
 
       #endif
     }
-  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -2302,7 +2301,7 @@ void clean_up_after_endstop_or_probe_move() {
       // If the nozzle is well over the travel height then
       // move down quickly before doing the slow probe
       float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0;
-      if (zprobe_zoffset < 0) z -= zprobe_zoffset;
+      if (Z_PROBE_OFFSET_FROM_EXTRUDER < 0) z -= Z_PROBE_OFFSET_FROM_EXTRUDER;
 
       if (current_position[Z_AXIS] > z) {
         // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
@@ -3772,7 +3771,7 @@ inline void gcode_G4() {
     #if HAS_BED_PROBE
       SERIAL_ECHOPAIR("Probe Offset X:", X_PROBE_OFFSET_FROM_EXTRUDER);
       SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
-      SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
+      SERIAL_ECHOPAIR(" Z:", Z_PROBE_OFFSET_FROM_EXTRUDER);
       #if X_PROBE_OFFSET_FROM_EXTRUDER > 0
         SERIAL_ECHOPGM(" (Right");
       #elif X_PROBE_OFFSET_FROM_EXTRUDER < 0
@@ -3797,9 +3796,9 @@ inline void gcode_G4() {
       #elif X_PROBE_OFFSET_FROM_EXTRUDER != 0
         SERIAL_ECHOPGM("-Center");
       #endif
-      if (zprobe_zoffset < 0)
+      if (Z_PROBE_OFFSET_FROM_EXTRUDER < 0)
         SERIAL_ECHOPGM(" & Below");
-      else if (zprobe_zoffset > 0)
+      else if (Z_PROBE_OFFSET_FROM_EXTRUDER > 0)
         SERIAL_ECHOPGM(" & Above");
       else
         SERIAL_ECHOPGM(" & Same Z as");
@@ -10434,7 +10433,21 @@ inline void gcode_M502() {
 
 #endif // ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
-#if HAS_BED_PROBE
+  inline void gcode_M212() {
+    if (parser.seenval('Z')) {
+      const float value = parser.value_linear_units() + Z_PROBE_OFFSET_FROM_EXTRUDER;
+      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+        zprobe_zoffset = value;
+      else {
+        SERIAL_ERROR_START();
+        SERIAL_ERRORLNPGM("?Z out of range (" STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " to " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX) ")");
+      }
+      return;
+    }
+    SERIAL_ECHO_START();
+    SERIAL_ECHOPGM(MSG_PROBE_Z_OFFSET);
+    SERIAL_ECHOLNPAIR(": ", zprobe_zoffset);
+  }
 
   inline void gcode_M851() {
     if (parser.seenval('Z')) {
@@ -10451,8 +10464,6 @@ inline void gcode_M502() {
     SERIAL_ECHOPGM(MSG_PROBE_Z_OFFSET);
     SERIAL_ECHOLNPAIR(": ", zprobe_zoffset);
   }
-
-#endif // HAS_BED_PROBE
 
 #if ENABLED(SKEW_CORRECTION_GCODE)
 
@@ -12511,9 +12522,9 @@ void process_parsed_command() {
         case 800: parser.debug(); break;                          // M800: GCode Parser Test for M
       #endif
 
-      #if HAS_BED_PROBE
-        case 851: gcode_M851(); break;                            // M851: Set Z Probe Z Offset
-      #endif
+      case 212: gcode_M212(); break;                              // M212: Set additional Z Offset
+
+      case 851: gcode_M851(); break;                              // M851: Set Z Probe Z Offset
 
       #if ENABLED(SKEW_CORRECTION_GCODE)
         case 852: gcode_M852(); break;                            // M852: Set Skew factors
