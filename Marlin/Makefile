@@ -4,6 +4,7 @@
 # Arduino 0011 Makefile
 # Arduino adaptation by mellis, eighthave, oli.keller
 # Marlin adaption by Daid
+# Marlin 2.0 support and RELOC_WORKAROUND by @marcio-ao
 #
 # This has been tested with Arduino 0022.
 #
@@ -85,9 +86,22 @@ WIRE               ?= 0
 # this defines if U8GLIB is needed (may require RELOC_WORKAROUND)
 U8GLIB             ?= 1
 
-# this defines whether to add a workaround for the avr-gcc relocation bug
-#	  https://www.stix.id.au/wiki/AVR_relocation_truncations_workaround
-RELOC_WORKAROUND   ?= 1
+# this defines whether to include the Trinamic TMC2630Stepper
+TMC2630            ?= 1
+
+############
+# Try to automatically determine whether RELOC_WORKAROUND is needed based
+# on GCC versions:
+#   http://www.avrfreaks.net/comment/1789106#comment-1789106
+
+CC_MAJ:=$(shell $(CC) -dM -E - < /dev/null | grep __GNUC__ | cut -f3 -d\ )
+CC_MIN:=$(shell $(CC) -dM -E - < /dev/null | grep __GNUC_MINOR__ | cut -f3 -d\ )
+CC_PATCHLEVEL:=$(shell $(CC) -dM -E - < /dev/null | grep __GNUC_PATCHLEVEL__ | cut -f3 -d\ )
+CC_VER:=$(shell echo $$(( $(CC_MAJ) * 10000 + $(CC_MIN) * 100 + $(CC_PATCHLEVEL) )))
+ifeq ($(shell test $(CC_VER) -lt 40901 && echo 1),1)
+  @echo This version of GCC is likely broken. Enabling relocation workaround.
+	RELOC_WORKAROUND = 1
+endif
 
 ############################################################################
 # Below here nothing should be changed...
@@ -425,6 +439,10 @@ TARGET = $(notdir $(CURDIR))
 # there is no need to specify explicit pathnames as long as the
 # directory is added here
 
+# The Makefile for previous versions of Marlin used VPATH for all
+# source files, but for Marlin 2.0, we use VPATH only for arduino
+# library files.
+
 VPATH = .
 VPATH += $(BUILD_DIR)
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/cores/arduino
@@ -446,7 +464,11 @@ VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Adafruit_NeoPixel
 endif
 ifeq ($(U8GLIB), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib/utility
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib/clib
+endif
+ifeq ($(TMC2630), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/TMC2130Stepper/src
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/TMC2130Stepper/src/source
 endif
 
 ifeq ($(HARDWARE_VARIANT), arduino)
@@ -460,37 +482,41 @@ HARDWARE_SUB_VARIANT ?= standard
 VPATH += $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/variants/$(HARDWARE_SUB_VARIANT)
 endif
 endif
-SRC = wiring.c \
+LIB_SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
 	wiring_pulse.c \
 	wiring_shift.c WInterrupts.c hooks.c
 
 ifeq ($(HARDWARE_VARIANT), Teensy)
-SRC = wiring.c
+LIB_SRC = wiring.c
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/teensy/cores/teensy
 endif
 
-CXXSRC = WMath.cpp WString.cpp Print.cpp SPI.cpp Tone.cpp
-CXXSRC += $(wildcard *.cpp)
+LIB_CXXSRC = WMath.cpp WString.cpp Print.cpp SPI.cpp Tone.cpp
 
 ifeq ($(NEOPIXEL), 1)
-CXXSRC += Adafruit_NeoPixel.cpp
+LIB_CXXSRC += Adafruit_NeoPixel.cpp
 endif
 
 ifeq ($(LIQUID_TWI2), 0)
-CXXSRC += LiquidCrystal.cpp
+LIB_CXXSRC += LiquidCrystal.cpp
 else
-SRC += twi.c
-CXXSRC += Wire.cpp LiquidTWI2.cpp
+LIB_SRC += twi.c
+LIB_CXXSRC += Wire.cpp LiquidTWI2.cpp
 endif
 
 ifeq ($(WIRE), 1)
-SRC += twi.c
-CXXSRC += Wire.cpp
+LIB_SRC += twi.c
+LIB_CXXSRC += Wire.cpp
 endif
 
 ifeq ($(U8GLIB), 1)
-SRC += u8g_ll_api.c u8g_bitmap.c u8g_clip.c u8g_com_null.c u8g_delay.c u8g_page.c u8g_pb.c u8g_pb16h1.c u8g_rect.c u8g_state.c u8g_font.c u8g_font_data.c
+LIB_CXXSRC += U8glib.cpp
+LIB_SRC += u8g_ll_api.c u8g_bitmap.c u8g_clip.c u8g_com_null.c u8g_delay.c u8g_page.c u8g_pb.c u8g_pb16h1.c u8g_rect.c u8g_state.c u8g_font.c u8g_font_data.c
+endif
+
+ifeq ($(TMC2630), 1)
+LIB_CXXSRC += TMC2130Stepper.cpp TMC2130Stepper_COOLCONF.cpp TMC2130Stepper_DRV_STATUS.cpp TMC2130Stepper_IHOLD_IRUN.cpp TMC2130Stepper_CHOPCONF.cpp TMC2130Stepper_GCONF.cpp  TMC2130Stepper_PWMCONF.cpp SW_SPI.cpp
 endif
 
 ifeq ($(RELOC_WORKAROUND), 1)
@@ -500,9 +526,9 @@ endif
 
 #Check for Arduino 1.0.0 or higher and use the correct source files for that version
 ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
-CXXSRC += main.cpp
+LIB_CXXSRC += main.cpp
 else
-SRC += pins_arduino.c main.c
+LIB_SRC += pins_arduino.c main.c
 endif
 
 FORMAT = ihex
@@ -537,8 +563,8 @@ CXXDEFS  = $(CDEFS)
 
 ifeq ($(HARDWARE_VARIANT), Teensy)
 CDEFS  += -DUSB_SERIAL
-SRC    += usb.c pins_teensy.c
-CXXSRC += usb_api.cpp
+LIB_SRC    += usb.c pins_teensy.c
+LIB_CXXSRC += usb_api.cpp
 endif
 
 # Add all the source directories as include directories too
@@ -578,13 +604,21 @@ AVRDUDE_FLAGS = -D -C$(AVRDUDE_CONF) \
 	-p$(MCU) -P$(AVRDUDE_PORT) -c$(AVRDUDE_PROGRAMMER) \
 	-b$(UPLOAD_RATE)
 
+# Since Marlin 2.0, the source files may be distributed into several
+# different directories, so it is necessary to find them recursively
+
+SRC    = $(shell find src -name '*.c'   -type f)
+CXXSRC = $(shell find src -name '*.cpp' -type f)
+
 # Define all object files.
-OBJ = ${patsubst %.c, $(BUILD_DIR)/%.o, ${SRC}}
+OBJ  = ${patsubst %.c,   $(BUILD_DIR)/arduino/%.o, ${LIB_SRC}}
+OBJ += ${patsubst %.cpp, $(BUILD_DIR)/arduino/%.o, ${LIB_CXXSRC}}
+OBJ += ${patsubst %.S,   $(BUILD_DIR)/arduino/%.o, ${LIB_ASRC}}
+OBJ += ${patsubst %.c,   $(BUILD_DIR)/%.o, ${SRC}}
 OBJ += ${patsubst %.cpp, $(BUILD_DIR)/%.o, ${CXXSRC}}
-OBJ += ${patsubst %.S, $(BUILD_DIR)/%.o, ${ASRC}}
 
 # Define all listing files.
-LST = $(ASRC:.S=.lst) $(CXXSRC:.cpp=.lst) $(SRC:.c=.lst)
+LST = $(LIB_ASRC:.S=.lst) $(LIB_CXXSRC:.cpp=.lst) $(LIB_SRC:.c=.lst)
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
@@ -601,14 +635,14 @@ else
  P=
 endif
 
+# Create required build hierarchy if it does not exist
+
+$(shell mkdir -p $(dir $(OBJ)))
+
 # Default target.
 all: sizeafter
 
-build: $(BUILD_DIR) elf hex
-
-# Creates the object directory
-$(BUILD_DIR):
-	$P mkdir -p $(BUILD_DIR)
+build: elf hex
 
 elf: $(BUILD_DIR)/$(TARGET).elf
 hex: $(BUILD_DIR)/$(TARGET).hex
@@ -674,29 +708,34 @@ extcoff: $(TARGET).elf
 	$(NM) -n $< > $@
 
 	# Link: create ELF output file from library.
+
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
 	$(Pecho) "  CXX   $@"
 	$P $(CC) $(LD_PREFIX) $(ALL_CXXFLAGS) -Wl,--gc-sections,--relax -o $@ -L. $(OBJ) $(LDFLAGS) $(LD_SUFFIX)
+
+# Object files that were found in "src" will be stored in $(BUILD_DIR)
+# in directories that mirror the structure of "src"
 
 $(BUILD_DIR)/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
 	$(Pecho) "  CC    $<"
 	$P $(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
 
-$(BUILD_DIR)/%.o: $(BUILD_DIR)/%.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CXX   $<"
-	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
-
 $(BUILD_DIR)/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
 	$(Pecho) "  CXX   $<"
 	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
 
+# Object files for Arduino libs will be created in $(BUILD_DIR)/arduino
+
+$(BUILD_DIR)/arduino/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
+	$(Pecho) "  CC    $<"
+	$P $(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
+
+$(BUILD_DIR)/arduino/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
+	$(Pecho) "  CXX   $<"
+	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
 
 # Target: clean project.
 clean:
-	$(Pecho) "  RM    $(BUILD_DIR)/*"
-	$P $(REMOVE) $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).eep $(BUILD_DIR)/$(TARGET).cof $(BUILD_DIR)/$(TARGET).elf \
-		$(BUILD_DIR)/$(TARGET).map $(BUILD_DIR)/$(TARGET).sym $(BUILD_DIR)/$(TARGET).lss $(BUILD_DIR)/$(TARGET).cpp \
-		$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
 	$(Pecho) "  RMDIR $(BUILD_DIR)/"
 	$P rm -rf $(BUILD_DIR)
 
@@ -704,4 +743,4 @@ clean:
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter
 
 # Automaticaly include the dependency files created by gcc
--include ${wildcard $(BUILD_DIR)/*.d}
+-include ${patsubst %.o, %.d, ${OBJ}}
