@@ -107,7 +107,7 @@ public:
                 z2 = calc_z0(x0, index_to_xpos[cx], z_values[cx][cy + 1], index_to_xpos[cx + 1], z_values[cx + 1][cy + 1]),
                 z0 = calc_z0(y0, index_to_ypos[cy], z1, index_to_ypos[cy + 1], z2);
 
-    return z_offset + z0
+    return (z_offset + z0)
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         * factor
       #endif
