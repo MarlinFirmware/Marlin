@@ -64,18 +64,21 @@ Temperature thermalManager;
  * elimination should (hopefully) optimize out the unused strings.
  */
 #if HAS_TEMP_BED
-  #define _BED_ERR_PSTR(MSG, E) (E) == -1 ? PSTR(MSG ## _BED) :
+  #define TEMP_ERR_PSTR(MSG, E) \
+    (E) == -1 ? PSTR(MSG ## _BED) : \
+    (HOTENDS > 1 && (E) == 1) ? PSTR(MSG_E2 " " MSG) : \
+    (HOTENDS > 2 && (E) == 2) ? PSTR(MSG_E3 " " MSG) : \
+    (HOTENDS > 3 && (E) == 3) ? PSTR(MSG_E4 " " MSG) : \
+    (HOTENDS > 4 && (E) == 4) ? PSTR(MSG_E5 " " MSG) : \
+    PSTR(MSG_E1 " " MSG)
 #else
-  #define _BED_ERR_PSTR(MSG, E)
+  #define TEMP_ERR_PSTR(MSG, E) \
+    (HOTENDS > 1 && (E) == 1) ? PSTR(MSG_E2 " " MSG) : \
+    (HOTENDS > 2 && (E) == 2) ? PSTR(MSG_E3 " " MSG) : \
+    (HOTENDS > 3 && (E) == 3) ? PSTR(MSG_E4 " " MSG) : \
+    (HOTENDS > 4 && (E) == 4) ? PSTR(MSG_E5 " " MSG) : \
+    PSTR(MSG_E1 " " MSG)
 #endif
-
-#define TEMP_ERR_PSTR(MSG, E) \
-  _BED_ERR_PSTR(MSG, E) \
-  (HOTENDS > 1 && (E) == 1) ? PSTR(MSG_E2 " " MSG) : \
-  (HOTENDS > 2 && (E) == 2) ? PSTR(MSG_E3 " " MSG) : \
-  (HOTENDS > 3 && (E) == 3) ? PSTR(MSG_E4 " " MSG) : \
-  (HOTENDS > 4 && (E) == 4) ? PSTR(MSG_E5 " " MSG) : \
-  PSTR(MSG_E1 " " MSG)
 
 // public:
 
