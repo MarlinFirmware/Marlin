@@ -658,12 +658,11 @@ void Planner::check_axes_activity() {
       rx = dx + X_TILT_FULCRUM;
       ry = dy + Y_TILT_FULCRUM;
 
-    #else
+    #elif HAS_MESH
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         const float fade_scaling_factor = fade_scaling_factor_for_z(rz);
-        if (!fade_scaling_factor) return;
-      #elif HAS_MESH
+      #else
         constexpr float fade_scaling_factor = 1.0;
       #endif
 
@@ -672,18 +671,16 @@ void Planner::check_axes_activity() {
       #endif
 
       rz += (
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.get_z_correction(rx, ry) * fade_scaling_factor
-        #elif ENABLED(MESH_BED_LEVELING)
+        #if ENABLED(MESH_BED_LEVELING)
           mbl.get_z(rx, ry
             #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
               , fade_scaling_factor
             #endif
           )
+        #elif ENABLED(AUTO_BED_LEVELING_UBL)
+          fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(rx, ry) : 0.0
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          bilinear_z_offset(raw) * fade_scaling_factor
-        #else
-          0
+          fade_scaling_factor ? fade_scaling_factor * bilinear_z_offset(raw) : 0.0
         #endif
       );
 
@@ -692,13 +689,7 @@ void Planner::check_axes_activity() {
 
   void Planner::unapply_leveling(float raw[XYZ]) {
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      const float fade_scaling_factor = fade_scaling_factor_for_z(raw[Z_AXIS]);
-    #else
-      constexpr float fade_scaling_factor = 1.0;
-    #endif
-
-    if (leveling_active && fade_scaling_factor) {
+    if (leveling_active) {
 
       #if ABL_PLANAR
 
@@ -712,25 +703,29 @@ void Planner::check_axes_activity() {
         raw[X_AXIS] = dx + X_TILT_FULCRUM;
         raw[Y_AXIS] = dy + Y_TILT_FULCRUM;
 
-      #else // !ABL_PLANAR
+      #elif HAS_MESH
+
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          const float fade_scaling_factor = fade_scaling_factor_for_z(raw[Z_AXIS]);
+        #else
+          constexpr float fade_scaling_factor = 1.0;
+        #endif
 
         raw[Z_AXIS] -= (
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
-            ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]) * fade_scaling_factor
-          #elif ENABLED(MESH_BED_LEVELING)
+          #if ENABLED(MESH_BED_LEVELING)
             mbl.get_z(raw[X_AXIS], raw[Y_AXIS]
               #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
                 , fade_scaling_factor
               #endif
             )
+          #elif ENABLED(AUTO_BED_LEVELING_UBL)
+            fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]) : 0.0
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-            bilinear_z_offset(raw) * fade_scaling_factor
-          #else
-            0
+            fade_scaling_factor ? fade_scaling_factor * bilinear_z_offset(raw) : 0.0
           #endif
         );
 
-      #endif // !ABL_PLANAR
+      #endif
     }
 
     #if ENABLED(SKEW_CORRECTION)
