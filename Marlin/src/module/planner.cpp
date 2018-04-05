@@ -185,8 +185,11 @@ float Planner::previous_speed[NUM_AXIS],
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  float Planner::extruder_advance_K, // Initialized by settings.load()
-        Planner::position_float[XYZE]; // Needed for accurate maths. Steps cannot be used!
+  float Planner::extruder_advance_K; // Initialized by settings.load()
+#endif
+
+#if HAS_POSITION_FLOAT
+  float Planner::position_float[XYZE]; // Needed for accurate maths. Steps cannot be used!
 #endif
 
 #if ENABLED(ULTRA_LCD)
@@ -202,7 +205,7 @@ Planner::Planner() { init(); }
 void Planner::init() {
   block_buffer_head = block_buffer_tail = 0;
   ZERO(position);
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     ZERO(position_float);
   #endif
   ZERO(previous_speed);
@@ -745,7 +748,7 @@ void Planner::check_axes_activity() {
  *  extruder    - target extruder
  */
 void Planner::_buffer_steps(const int32_t (&target)[XYZE]
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     , const float (&target_float)[XYZE]
   #endif
   , float fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
@@ -775,7 +778,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (thermalManager.tooColdToExtrude(extruder)) {
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          #if ENABLED(LIN_ADVANCE)
+          #if HAS_POSITION_FLOAT
             position_float[E_AXIS] = target_float[E_AXIS];
           #endif
           de = 0; // no difference
@@ -786,7 +789,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
         if (labs(de * e_factor[extruder]) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          #if ENABLED(LIN_ADVANCE)
+          #if HAS_POSITION_FLOAT
             position_float[E_AXIS] = target_float[E_AXIS];
           #endif
           de = 0; // no difference
@@ -857,6 +860,10 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
     block->steps[X_AXIS] = labs(da);
     block->steps[B_AXIS] = labs(db + dc);
     block->steps[C_AXIS] = labs(db - dc);
+  #elif IS_SCARA
+    block->steps[A_AXIS] = labs(da);
+    block->steps[B_AXIS] = labs(db);
+    block->steps[Z_AXIS] = labs(dc);
   #else
     // default non-h-bot planning
     block->steps[A_AXIS] = labs(da);
@@ -892,7 +899,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
       powerManager.power_on();
   #endif
 
-  //enable active axes
+  // Enable active axes
   #if CORE_IS_XY
     if (block->steps[A_AXIS] || block->steps[B_AXIS]) {
       enable_X();
@@ -1463,7 +1470,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
   // Update the position (only when a move was queued)
   static_assert(COUNT(target) > 1, "Parameter to _buffer_steps must be (&target)[XYZE]!");
   COPY(position, target);
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     COPY(position_float, target_float);
   #endif
 
@@ -1501,14 +1508,14 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
     LROUND(e * axis_steps_per_mm[E_AXIS_N])
   };
 
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     const float target_float[XYZE] = { a, b, c, e };
   #endif
 
   // DRYRUN prevents E moves from taking place
   if (DEBUGGING(DRYRUN)) {
     position[E_AXIS] = target[E_AXIS];
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_POSITION_FLOAT
       position_float[E_AXIS] = e;
     #endif
   }
@@ -1547,7 +1554,7 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
     #define _BETWEEN(A) (position[A##_AXIS] + target[A##_AXIS]) >> 1
     const int32_t between[ABCE] = { _BETWEEN(A), _BETWEEN(B), _BETWEEN(C), _BETWEEN(E) };
 
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_POSITION_FLOAT
       #define _BETWEEN_F(A) (position_float[A##_AXIS] + target_float[A##_AXIS]) * 0.5
       const float between_float[ABCE] = { _BETWEEN_F(A), _BETWEEN_F(B), _BETWEEN_F(C), _BETWEEN_F(E) };
     #endif
@@ -1555,7 +1562,7 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
     DISABLE_STEPPER_DRIVER_INTERRUPT();
 
     _buffer_steps(between
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_POSITION_FLOAT
         , between_float
       #endif
       , fr_mm_s, extruder, millimeters * 0.5
@@ -1564,7 +1571,7 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
     const uint8_t next = block_buffer_head;
 
     _buffer_steps(target
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_POSITION_FLOAT
         , target_float
       #endif
       , fr_mm_s, extruder, millimeters * 0.5
@@ -1575,7 +1582,7 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
   }
   else
     _buffer_steps(target
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_POSITION_FLOAT
         , target_float
       #endif
       , fr_mm_s, extruder, millimeters
@@ -1603,7 +1610,7 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
                 nb = position[B_AXIS] = LROUND(b * axis_steps_per_mm[B_AXIS]),
                 nc = position[C_AXIS] = LROUND(c * axis_steps_per_mm[C_AXIS]),
                 ne = position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     position_float[X_AXIS] = a;
     position_float[Y_AXIS] = b;
     position_float[Z_AXIS] = c;
@@ -1635,7 +1642,7 @@ void Planner::set_position_mm_kinematic(const float (&cart)[XYZE]) {
 void Planner::sync_from_steppers() {
   LOOP_XYZE(i) {
     position[i] = stepper.position((AxisEnum)i);
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_POSITION_FLOAT
       position_float[i] = position[i] * steps_to_mm[i
         #if ENABLED(DISTINCT_E_FACTORS)
           + (i == E_AXIS ? active_extruder : 0)
@@ -1656,7 +1663,7 @@ void Planner::set_position_mm(const AxisEnum axis, const float &v) {
     const uint8_t axis_index = axis;
   #endif
   position[axis] = LROUND(v * axis_steps_per_mm[axis_index]);
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     position_float[axis] = v;
   #endif
   stepper.set_position(axis, v);
