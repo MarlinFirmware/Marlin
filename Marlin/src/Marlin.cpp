@@ -892,14 +892,15 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
   #endif
 
-  advance_command_queue();
-
-  endstops.report_state();
-  idle();
+  for (;;) {
+    if (commands_in_queue < BUFSIZE) get_available_commands();
+    advance_command_queue();
+    endstops.report_state();
+    idle();
+  }
 }

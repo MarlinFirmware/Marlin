@@ -1,23 +1,21 @@
-/* **************************************************************************
-
- Marlin 3D Printer Firmware
- Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-****************************************************************************/
-
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /**
  * Description: HAL for Arduino Due and compatible (SAM3X8E)
@@ -77,6 +75,9 @@ uint16_t HAL_adc_result;
 // HAL initialization task
 void HAL_init(void) {
   // Initialize the USB stack
+  #if ENABLED(SDSUPPORT)
+    OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
+  #endif
   usb_task_init();
 }
 
@@ -86,10 +87,10 @@ void HAL_idletask(void) {
   usb_task_idle();
 }
 
-// disable interrupts
+// Disable interrupts
 void cli(void) { noInterrupts(); }
 
-// enable interrupts
+// Enable interrupts
 void sei(void) { interrupts(); }
 
 void HAL_clear_reset_source(void) { }
@@ -106,7 +107,7 @@ uint8_t HAL_get_reset_source(void) {
 }
 
 void _delay_ms(const int delay_ms) {
-  // todo: port for Due?
+  // Todo: port for Due?
   delay(delay_ms);
 }
 
@@ -114,7 +115,7 @@ extern "C" {
   extern unsigned int _ebss; // end of bss section
 }
 
-// return free memory between end of heap (or end bss) and whatever is current
+// Return free memory between end of heap (or end bss) and whatever is current
 int freeMemory() {
   int free_memory, heap_end = (int)_sbrk(0);
   return (int)&free_memory - (heap_end ? heap_end : (int)&_ebss);

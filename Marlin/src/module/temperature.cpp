@@ -59,6 +59,27 @@
 
 Temperature thermalManager;
 
+/**
+ * Macros to include the heater id in temp errors. The compiler's dead-code
+ * elimination should (hopefully) optimize out the unused strings.
+ */
+#if HAS_TEMP_BED
+  #define TEMP_ERR_PSTR(MSG, E) \
+    (E) == -1 ? PSTR(MSG ## _BED) : \
+    (HOTENDS > 1 && (E) == 1) ? PSTR(MSG_E2 " " MSG) : \
+    (HOTENDS > 2 && (E) == 2) ? PSTR(MSG_E3 " " MSG) : \
+    (HOTENDS > 3 && (E) == 3) ? PSTR(MSG_E4 " " MSG) : \
+    (HOTENDS > 4 && (E) == 4) ? PSTR(MSG_E5 " " MSG) : \
+    PSTR(MSG_E1 " " MSG)
+#else
+  #define TEMP_ERR_PSTR(MSG, E) \
+    (HOTENDS > 1 && (E) == 1) ? PSTR(MSG_E2 " " MSG) : \
+    (HOTENDS > 2 && (E) == 2) ? PSTR(MSG_E3 " " MSG) : \
+    (HOTENDS > 3 && (E) == 3) ? PSTR(MSG_E4 " " MSG) : \
+    (HOTENDS > 4 && (E) == 4) ? PSTR(MSG_E5 " " MSG) : \
+    PSTR(MSG_E1 " " MSG)
+#endif
+
 // public:
 
 float Temperature::current_temperature[HOTENDS] = { 0.0 },
@@ -447,12 +468,10 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS],
                 if (current > watch_temp_target) heated = true;     // - Flag if target temperature reached
               }
               else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
-                _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+                _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, hotend));
             }
             else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
-              _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY),
-                hotend >= 0 ? PSTR(MSG_THERMAL_RUNAWAY) : PSTR(MSG_THERMAL_RUNAWAY_BED)
-              );
+              _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, hotend));
           }
         #endif
       } // every 2 seconds
@@ -591,24 +610,10 @@ void Temperature::_temp_error(const int8_t e, const char * const serial_msg, con
 }
 
 void Temperature::max_temp_error(const int8_t e) {
-  #if HAS_TEMP_BED
-    _temp_error(e, PSTR(MSG_T_MAXTEMP), e >= 0 ? PSTR(MSG_ERR_MAXTEMP) : PSTR(MSG_ERR_MAXTEMP_BED));
-  #else
-    _temp_error(HOTEND_INDEX, PSTR(MSG_T_MAXTEMP), PSTR(MSG_ERR_MAXTEMP));
-    #if HOTENDS == 1
-      UNUSED(e);
-    #endif
-  #endif
+  _temp_error(e, PSTR(MSG_T_MAXTEMP), TEMP_ERR_PSTR(MSG_ERR_MAXTEMP, e));
 }
 void Temperature::min_temp_error(const int8_t e) {
-  #if HAS_TEMP_BED
-    _temp_error(e, PSTR(MSG_T_MINTEMP), e >= 0 ? PSTR(MSG_ERR_MINTEMP) : PSTR(MSG_ERR_MINTEMP_BED));
-  #else
-    _temp_error(HOTEND_INDEX, PSTR(MSG_T_MINTEMP), PSTR(MSG_ERR_MINTEMP));
-    #if HOTENDS == 1
-      UNUSED(e);
-    #endif
-  #endif
+  _temp_error(e, PSTR(MSG_T_MINTEMP), TEMP_ERR_PSTR(MSG_ERR_MINTEMP, e));
 }
 
 float Temperature::get_pid_output(const int8_t e) {
@@ -812,7 +817,7 @@ void Temperature::manage_heater() {
       // Make sure temperature is increasing
       if (watch_heater_next_ms[e] && ELAPSED(ms, watch_heater_next_ms[e])) { // Time to check this extruder?
         if (degHotend(e) < watch_target_temp[e])                             // Failed to increase enough?
-          _temp_error(e, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+          _temp_error(e, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, e));
         else                                                                 // Start again if the target is still far off
           start_watching_heater(e);
       }
@@ -850,7 +855,7 @@ void Temperature::manage_heater() {
     // Make sure temperature is increasing
     if (watch_bed_next_ms && ELAPSED(ms, watch_bed_next_ms)) {        // Time to check the bed?
       if (degBed() < watch_target_bed_temp)                           // Failed to increase enough?
-        _temp_error(-1, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+        _temp_error(-1, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, -1));
       else                                                            // Start again if the target is still far off
         start_watching_bed();
     }
@@ -1453,9 +1458,7 @@ void Temperature::init() {
         else if (PENDING(millis(), *timer)) break;
         *state = TRRunaway;
       case TRRunaway:
-        _temp_error(heater_id, PSTR(MSG_T_THERMAL_RUNAWAY),
-          heater_id >= 0 ? PSTR(MSG_THERMAL_RUNAWAY) : PSTR(MSG_THERMAL_RUNAWAY_BED)
-        );
+        _temp_error(heater_id, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, heater_id));
     }
   }
 
