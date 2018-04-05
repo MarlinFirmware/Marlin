@@ -46,7 +46,7 @@ void UnwInvalidateRegisterFile(RegData *regFile) {
   do {
     regFile[t].o = REG_VAL_INVALID;
     t++;
-  } while(t < 13);
+  } while (t < 13);
 }
 
 
@@ -107,7 +107,7 @@ bool UnwReportRetAddr(UnwState * const state, uint32_t addr) {
 
     // Scan backwards until we find the function name
     uint32_t v;
-    while(state->cb->readW(pf-4,&v)) {
+    while (state->cb->readW(pf-4,&v)) {
 
       // Check if name descriptor is valid
       if ((v & 0xFFFFFF00) == 0xFF000000 && (v & 0xFF) > 1) {
@@ -118,7 +118,7 @@ bool UnwReportRetAddr(UnwState * const state, uint32_t addr) {
       }
 
       // Go backwards to the previous word
-      pf -= 4;;
+      pf -= 4;
     }
   }
 
