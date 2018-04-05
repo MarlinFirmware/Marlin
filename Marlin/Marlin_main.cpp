@@ -7729,7 +7729,11 @@ inline void gcode_M104() {
 
     #if ENABLED(ULTRA_LCD)
       if (parser.value_celsius() > thermalManager.degHotend(target_extruder))
-        lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
+        #if HOTENDS > 1
+          lcd_status_printf_P(0, PSTR("E%i " MSG_HEATING), target_extruder + 1);
+        #else
+          LCD_MESSAGEPGM("E " MSG_HEATING);
+        #endif
     #endif
   }
 
@@ -7888,8 +7892,13 @@ inline void gcode_M109() {
     #endif
 
     #if ENABLED(ULTRA_LCD)
-      if (thermalManager.isHeatingHotend(target_extruder))
-        lcd_status_printf_P(0, PSTR("E%i %s"), target_extruder + 1, MSG_HEATING);
+      const bool heating = thermalManager.isHeatingHotend(target_extruder);
+      if (heating || !no_wait_for_cooling)
+        #if HOTENDS > 1
+          lcd_status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), target_extruder + 1);
+        #else
+          lcd_setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
+        #endif
     #endif
   }
   else return;
@@ -7995,7 +8004,7 @@ inline void gcode_M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
-    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+    lcd_setstatusPGM(wants_to_cool ? PSTR(MSG_COOLING_COMPLETE) : PSTR(MSG_HEATING_COMPLETE));
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
     #endif
@@ -8022,7 +8031,6 @@ inline void gcode_M109() {
   inline void gcode_M190() {
     if (DEBUGGING(DRYRUN)) return;
 
-    LCD_MESSAGEPGM(MSG_BED_HEATING);
     const bool no_wait_for_cooling = parser.seenval('S');
     if (no_wait_for_cooling || parser.seenval('R')) {
       thermalManager.setTargetBed(parser.value_celsius());
@@ -8032,6 +8040,8 @@ inline void gcode_M109() {
       #endif
     }
     else return;
+
+    lcd_setstatusPGM(thermalManager.isHeatingBed() ? PSTR(MSG_BED_HEATING) : PSTR(MSG_BED_COOLING));
 
     #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
