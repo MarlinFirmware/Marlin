@@ -287,6 +287,7 @@
 #define MSG_BABYSTEP_Z                      _UxGT("Микрошаг Z")
 #define MSG_ENDSTOP_ABORT                   _UxGT("Сработал концевик")
 #define MSG_HEATING_FAILED_LCD              _UxGT("Разогрев не удался")
+#define MSG_HEATING_FAILED_LCD_BED          _UxGT("Разогр. стола не уд.")
 #define MSG_ERR_REDUNDANT_TEMP              _UxGT("Ошибка: Избыточная Т")
 #define MSG_THERMAL_RUNAWAY                 _UxGT("УБЕГАНИЕ ТЕПЛА")
 #define MSG_THERMAL_RUNAWAY_BED             _UxGT("УБЕГАНИЕ ТЕПЛА СТОЛА")
@@ -302,7 +303,10 @@
 #define MSG_SHORT_MINUTE                    _UxGT("м") // One character only
 #define MSG_HEATING                         _UxGT("Нагрев...")
 #define MSG_HEATING_COMPLETE                _UxGT("Нагрев выполнен")
+#define MSG_COOLING                         _UxGT("Охлаждение...")
+#define MSG_COOLING_COMPLETE                _UxGT("Охлаждение выполнено")
 #define MSG_BED_HEATING                     _UxGT("Нагрев стола")
+#define MSG_BED_COOLING                     _UxGT("Охлаждение стола")
 #define MSG_BED_DONE                        _UxGT("Стол разогрет")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Калибровка Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Калибровать X")
