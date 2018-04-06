@@ -340,4 +340,20 @@ void homeaxis(const AxisEnum axis);
   void set_home_offset(const AxisEnum axis, const float v);
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  #if ENABLED(DELTA)
+    #define ADJUST_DELTA(V) \
+      if (planner.leveling_active) { \
+        const float zadj = bilinear_z_offset(V); \
+        delta[A_AXIS] += zadj; \
+        delta[B_AXIS] += zadj; \
+        delta[C_AXIS] += zadj; \
+      }
+  #else
+    #define ADJUST_DELTA(V) if (planner.leveling_active) { delta[Z_AXIS] += bilinear_z_offset(V); }
+  #endif
+#else
+  #define ADJUST_DELTA(V) NOOP
+#endif
+
 #endif // MOTION_H
