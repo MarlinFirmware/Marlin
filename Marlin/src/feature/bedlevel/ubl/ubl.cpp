@@ -195,7 +195,7 @@
   // 2 : disply of the map data on a RepRap Graphical LCD Panel
 
   void unified_bed_leveling::display_map(const int map_type) {
-    #if HAS_AUTO_REPORTING
+    #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
       suspend_auto_report = true;
     #endif
 
@@ -264,7 +264,7 @@
       SERIAL_EOL();
     }
 
-    #if HAS_AUTO_REPORTING
+    #if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
       suspend_auto_report = false;
     #endif
   }

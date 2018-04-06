@@ -218,29 +218,29 @@
 
     #define SDSS            3   // F5 TMS   JP2-8
 
-    #define STAT_LED_RED_PIN  12  // C2       JP11-14
-    #define STAT_LED_BLUE_PIN 10  // C0       JP11-12
+    #define STAT_LED_RED_PIN  12   // C2       JP11-14
+    #define STAT_LED_BLUE_PIN 10   // C0       JP11-12
 
   #elif ENABLED(MINIPANEL)
 
     #if DISABLED(USE_INTERNAL_SD)
       //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-      #define SDSS               11  //        36               C1                EXP2-13             EXP2-07
-      #define SD_DETECT_PIN       9  //        34               E1                EXP2-11             EXP2-04
+      #define SDSS          11   //      36               C1                EXP2-13             EXP2-07
+      #define SD_DETECT_PIN  9   //      34               E1                EXP2-11             EXP2-04
     #endif
 
     //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-    #define DOGLCD_A0       4  //        29               D4                EXP2-05             EXP1-04
-    #define DOGLCD_CS       5  //        30               D5                EXP2-06             EXP1-05
-    #define BTN_ENC         6  //        31               D6                EXP2-07             EXP1-09
-    #define BEEPER_PIN      7  //        32               D7                EXP2-08             EXP1-10
-    #define KILL_PIN        8  //        33               E0                EXP2-10             EXP2-03
-    #define BTN_EN1        10  //        35               C0                EXP2-12             EXP2-06
-    #define BTN_EN2        12  //        37               C2                EXP2-14             EXP2-08
-    //#define LCD_BACKLIGHT_PIN 43  //        56               F5                EXP1-12     Not Implemented
-    //#define SCK          21  //        11               B1                ICSP-04             EXP2-09
-    //#define MOSI         22  //        12               B2                ICSP-03             EXP2-05
-    //#define MISO         23  //        13               B3                ICSP-06             EXP2-05
+    #define DOGLCD_A0       4   //       29               D4                EXP2-05             EXP1-04
+    #define DOGLCD_CS       5   //       30               D5                EXP2-06             EXP1-05
+    #define BTN_ENC         6   //       31               D6                EXP2-07             EXP1-09
+    #define BEEPER_PIN      7   //       32               D7                EXP2-08             EXP1-10
+    #define KILL_PIN        8   //       33               E0                EXP2-10             EXP2-03
+    #define BTN_EN1        10   //       35               C0                EXP2-12             EXP2-06
+    #define BTN_EN2        12   //       37               C2                EXP2-14             EXP2-08
+    //#define LCD_BACKLIGHT_PIN 43   //    56               F5                EXP1-12     Not Implemented
+    //#define SCK          21   //         11               B1                ICSP-04             EXP2-09
+    //#define MOSI         22   //         12               B2                ICSP-03             EXP2-05
+    //#define MISO         23   //         13               B3                ICSP-06             EXP2-05
 
     // increase delays
     #ifndef ST7920_DELAY_1
@@ -268,7 +268,7 @@
 //
 //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.
 #ifndef SDSS
-  #define SDSS             20  //        10               B0
+  #define SDSS             20   //       10               B0
 #endif
 
 /**

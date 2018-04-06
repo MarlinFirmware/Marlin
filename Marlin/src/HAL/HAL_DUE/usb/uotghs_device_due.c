@@ -2070,4 +2070,4 @@ static bool udd_ep_interrupt(void)
 
 //@}
 
-#endif
+#endif // ARDUINO_ARCH_SAM

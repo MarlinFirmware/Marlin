@@ -238,5 +238,4 @@ void otg_dual_disable(void);
 }
 #endif
 
-
 #endif /* UOTGHS_OTG_H_INCLUDED */

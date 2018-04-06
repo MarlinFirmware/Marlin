@@ -202,6 +202,11 @@ class Temperature {
 
   private:
 
+    #if EARLY_WATCHDOG
+      // If temperature controller is running
+      static bool inited;
+    #endif
+
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       static uint16_t redundant_temperature_raw;
       static float redundant_temperature;

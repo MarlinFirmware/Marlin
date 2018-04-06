@@ -185,8 +185,11 @@ float Planner::previous_speed[NUM_AXIS],
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  float Planner::extruder_advance_K, // Initialized by settings.load()
-        Planner::position_float[XYZE]; // Needed for accurate maths. Steps cannot be used!
+  float Planner::extruder_advance_K; // Initialized by settings.load()
+#endif
+
+#if HAS_POSITION_FLOAT
+  float Planner::position_float[XYZE]; // Needed for accurate maths. Steps cannot be used!
 #endif
 
 #if ENABLED(ULTRA_LCD)
@@ -202,7 +205,7 @@ Planner::Planner() { init(); }
 void Planner::init() {
   block_buffer_head = block_buffer_tail = 0;
   ZERO(position);
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     ZERO(position_float);
   #endif
   ZERO(previous_speed);
@@ -468,7 +471,7 @@ void Planner::check_axes_activity() {
     #endif
   #endif
 
-  if (blocks_queued()) {
+  if (has_blocks_queued()) {
 
     #if FAN_COUNT > 0
       for (uint8_t i = 0; i < FAN_COUNT; i++)
@@ -658,12 +661,11 @@ void Planner::check_axes_activity() {
       rx = dx + X_TILT_FULCRUM;
       ry = dy + Y_TILT_FULCRUM;
 
-    #else
+    #elif HAS_MESH
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         const float fade_scaling_factor = fade_scaling_factor_for_z(rz);
-        if (!fade_scaling_factor) return;
-      #elif HAS_MESH
+      #else
         constexpr float fade_scaling_factor = 1.0;
       #endif
 
@@ -672,18 +674,16 @@ void Planner::check_axes_activity() {
       #endif
 
       rz += (
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.get_z_correction(rx, ry) * fade_scaling_factor
-        #elif ENABLED(MESH_BED_LEVELING)
+        #if ENABLED(MESH_BED_LEVELING)
           mbl.get_z(rx, ry
             #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
               , fade_scaling_factor
             #endif
           )
+        #elif ENABLED(AUTO_BED_LEVELING_UBL)
+          fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(rx, ry) : 0.0
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          bilinear_z_offset(raw) * fade_scaling_factor
-        #else
-          0
+          fade_scaling_factor ? fade_scaling_factor * bilinear_z_offset(raw) : 0.0
         #endif
       );
 
@@ -692,13 +692,7 @@ void Planner::check_axes_activity() {
 
   void Planner::unapply_leveling(float raw[XYZ]) {
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      const float fade_scaling_factor = fade_scaling_factor_for_z(raw[Z_AXIS]);
-    #else
-      constexpr float fade_scaling_factor = 1.0;
-    #endif
-
-    if (leveling_active && fade_scaling_factor) {
+    if (leveling_active) {
 
       #if ABL_PLANAR
 
@@ -712,25 +706,29 @@ void Planner::check_axes_activity() {
         raw[X_AXIS] = dx + X_TILT_FULCRUM;
         raw[Y_AXIS] = dy + Y_TILT_FULCRUM;
 
-      #else // !ABL_PLANAR
+      #elif HAS_MESH
+
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          const float fade_scaling_factor = fade_scaling_factor_for_z(raw[Z_AXIS]);
+        #else
+          constexpr float fade_scaling_factor = 1.0;
+        #endif
 
         raw[Z_AXIS] -= (
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
-            ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]) * fade_scaling_factor
-          #elif ENABLED(MESH_BED_LEVELING)
+          #if ENABLED(MESH_BED_LEVELING)
             mbl.get_z(raw[X_AXIS], raw[Y_AXIS]
               #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
                 , fade_scaling_factor
               #endif
             )
+          #elif ENABLED(AUTO_BED_LEVELING_UBL)
+            fade_scaling_factor ? fade_scaling_factor * ubl.get_z_correction(raw[X_AXIS], raw[Y_AXIS]) : 0.0
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-            bilinear_z_offset(raw) * fade_scaling_factor
-          #else
-            0
+            fade_scaling_factor ? fade_scaling_factor * bilinear_z_offset(raw) : 0.0
           #endif
         );
 
-      #endif // !ABL_PLANAR
+      #endif
     }
 
     #if ENABLED(SKEW_CORRECTION)
@@ -750,7 +748,7 @@ void Planner::check_axes_activity() {
  *  extruder    - target extruder
  */
 void Planner::_buffer_steps(const int32_t (&target)[XYZE]
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     , const float (&target_float)[XYZE]
   #endif
   , float fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/
@@ -780,7 +778,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         if (thermalManager.tooColdToExtrude(extruder)) {
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          #if ENABLED(LIN_ADVANCE)
+          #if HAS_POSITION_FLOAT
             position_float[E_AXIS] = target_float[E_AXIS];
           #endif
           de = 0; // no difference
@@ -791,7 +789,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
         if (labs(de * e_factor[extruder]) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          #if ENABLED(LIN_ADVANCE)
+          #if HAS_POSITION_FLOAT
             position_float[E_AXIS] = target_float[E_AXIS];
           #endif
           de = 0; // no difference
@@ -862,6 +860,10 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
     block->steps[X_AXIS] = labs(da);
     block->steps[B_AXIS] = labs(db + dc);
     block->steps[C_AXIS] = labs(db - dc);
+  #elif IS_SCARA
+    block->steps[A_AXIS] = labs(da);
+    block->steps[B_AXIS] = labs(db);
+    block->steps[Z_AXIS] = labs(dc);
   #else
     // default non-h-bot planning
     block->steps[A_AXIS] = labs(da);
@@ -897,7 +899,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
       powerManager.power_on();
   #endif
 
-  //enable active axes
+  // Enable active axes
   #if CORE_IS_XY
     if (block->steps[A_AXIS] || block->steps[B_AXIS]) {
       enable_X();
@@ -939,16 +941,8 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
       for (uint8_t i = 0; i < EXTRUDERS; i++)
         if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
 
-      switch(extruder) {
+      switch (extruder) {
         case 0:
-          enable_E0();
-          g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
-          #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-            if (extruder_duplication_enabled) {
-              enable_E1();
-              g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-            }
-          #endif
           #if EXTRUDERS > 1
             DISABLE_IDLE_E(1);
             #if EXTRUDERS > 2
@@ -961,11 +955,17 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
               #endif // EXTRUDERS > 3
             #endif // EXTRUDERS > 2
           #endif // EXTRUDERS > 1
+          enable_E0();
+          g_uc_extruder_last_move[0] = (BLOCK_BUFFER_SIZE) * 2;
+          #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+            if (extruder_duplication_enabled) {
+              enable_E1();
+              g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
+            }
+          #endif
         break;
         #if EXTRUDERS > 1
           case 1:
-            enable_E1();
-            g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
             DISABLE_IDLE_E(0);
             #if EXTRUDERS > 2
               DISABLE_IDLE_E(2);
@@ -976,11 +976,11 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
                 #endif // EXTRUDERS > 4
               #endif // EXTRUDERS > 3
             #endif // EXTRUDERS > 2
+            enable_E1();
+            g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
           break;
           #if EXTRUDERS > 2
             case 2:
-              enable_E2();
-              g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
               DISABLE_IDLE_E(0);
               DISABLE_IDLE_E(1);
               #if EXTRUDERS > 3
@@ -989,26 +989,28 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
                   DISABLE_IDLE_E(4);
                 #endif
               #endif
+              enable_E2();
+              g_uc_extruder_last_move[2] = (BLOCK_BUFFER_SIZE) * 2;
             break;
             #if EXTRUDERS > 3
               case 3:
-                enable_E3();
-                g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
                 DISABLE_IDLE_E(0);
                 DISABLE_IDLE_E(1);
                 DISABLE_IDLE_E(2);
                 #if EXTRUDERS > 4
                   DISABLE_IDLE_E(4);
                 #endif
+                enable_E3();
+                g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
               break;
               #if EXTRUDERS > 4
                 case 4:
-                  enable_E4();
-                  g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
                   DISABLE_IDLE_E(0);
                   DISABLE_IDLE_E(1);
                   DISABLE_IDLE_E(2);
                   DISABLE_IDLE_E(3);
+                  enable_E4();
+                  g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
                 break;
               #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
@@ -1468,7 +1470,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
   // Update the position (only when a move was queued)
   static_assert(COUNT(target) > 1, "Parameter to _buffer_steps must be (&target)[XYZE]!");
   COPY(position, target);
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     COPY(position_float, target_float);
   #endif
 
@@ -1506,14 +1508,14 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
     LROUND(e * axis_steps_per_mm[E_AXIS_N])
   };
 
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     const float target_float[XYZE] = { a, b, c, e };
   #endif
 
   // DRYRUN prevents E moves from taking place
   if (DEBUGGING(DRYRUN)) {
     position[E_AXIS] = target[E_AXIS];
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_POSITION_FLOAT
       position_float[E_AXIS] = e;
     #endif
   }
@@ -1547,12 +1549,12 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
   //*/
 
   // Always split the first move into two (if not homing or probing)
-  if (!blocks_queued()) {
+  if (!has_blocks_queued()) {
 
     #define _BETWEEN(A) (position[A##_AXIS] + target[A##_AXIS]) >> 1
     const int32_t between[ABCE] = { _BETWEEN(A), _BETWEEN(B), _BETWEEN(C), _BETWEEN(E) };
 
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_POSITION_FLOAT
       #define _BETWEEN_F(A) (position_float[A##_AXIS] + target_float[A##_AXIS]) * 0.5
       const float between_float[ABCE] = { _BETWEEN_F(A), _BETWEEN_F(B), _BETWEEN_F(C), _BETWEEN_F(E) };
     #endif
@@ -1560,7 +1562,7 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
     DISABLE_STEPPER_DRIVER_INTERRUPT();
 
     _buffer_steps(between
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_POSITION_FLOAT
         , between_float
       #endif
       , fr_mm_s, extruder, millimeters * 0.5
@@ -1569,7 +1571,7 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
     const uint8_t next = block_buffer_head;
 
     _buffer_steps(target
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_POSITION_FLOAT
         , target_float
       #endif
       , fr_mm_s, extruder, millimeters * 0.5
@@ -1580,7 +1582,7 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
   }
   else
     _buffer_steps(target
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_POSITION_FLOAT
         , target_float
       #endif
       , fr_mm_s, extruder, millimeters
@@ -1608,7 +1610,7 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
                 nb = position[B_AXIS] = LROUND(b * axis_steps_per_mm[B_AXIS]),
                 nc = position[C_AXIS] = LROUND(c * axis_steps_per_mm[C_AXIS]),
                 ne = position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     position_float[X_AXIS] = a;
     position_float[Y_AXIS] = b;
     position_float[Z_AXIS] = c;
@@ -1640,7 +1642,7 @@ void Planner::set_position_mm_kinematic(const float (&cart)[XYZE]) {
 void Planner::sync_from_steppers() {
   LOOP_XYZE(i) {
     position[i] = stepper.position((AxisEnum)i);
-    #if ENABLED(LIN_ADVANCE)
+    #if HAS_POSITION_FLOAT
       position_float[i] = position[i] * steps_to_mm[i
         #if ENABLED(DISTINCT_E_FACTORS)
           + (i == E_AXIS ? active_extruder : 0)
@@ -1661,7 +1663,7 @@ void Planner::set_position_mm(const AxisEnum axis, const float &v) {
     const uint8_t axis_index = axis;
   #endif
   position[axis] = LROUND(v * axis_steps_per_mm[axis_index]);
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_POSITION_FLOAT
     position_float[axis] = v;
   #endif
   stepper.set_position(axis, v);

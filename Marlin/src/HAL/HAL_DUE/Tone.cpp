@@ -33,17 +33,10 @@
 static pin_t tone_pin;
 volatile static int32_t toggles;
 
-void toneInit() {
-  HAL_timer_start(TONE_TIMER_NUM, 100000);
-  HAL_timer_disable_interrupt(TONE_TIMER_NUM);
-}
-
 void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration) {
   tone_pin = _pin;
   toggles = 2 * frequency * duration / 1000;
-  HAL_timer_set_count(TONE_TIMER_NUM, 0);  // ensure first beep is correct (make sure counter is less than the compare value)
-  HAL_timer_set_compare(TONE_TIMER_NUM, VARIANT_MCK / 2 / 2 / frequency); // 84MHz / 2 prescaler / 2 interrupts per cycle /Hz
-  HAL_timer_enable_interrupt(TONE_TIMER_NUM);
+  HAL_timer_start(TONE_TIMER_NUM, 2 * frequency);
 }
 
 void noTone(const pin_t _pin) {
@@ -60,7 +53,6 @@ HAL_TONE_TIMER_ISR {
     digitalWrite(tone_pin, (pin_state ^= 1));
   }
   else noTone(tone_pin);                         // turn off interrupt
-  HAL_timer_restrain_count(TONE_TIMER_NUM, 10);  // make sure next ISR isn't delayed by up to 2 minutes
 }
 
 #endif // ARDUINO_ARCH_SAM

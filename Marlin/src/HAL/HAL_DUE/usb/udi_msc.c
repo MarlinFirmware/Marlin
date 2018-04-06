@@ -1127,5 +1127,6 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
 
 //@}
 
-#endif
-#endif
+#endif // SDSUPPORT
+
+#endif // ARDUINO_ARCH_SAM

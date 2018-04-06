@@ -49,6 +49,13 @@
 #define Z_MAX_PIN          38
 
 //
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  38
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN         24
@@ -113,9 +120,9 @@
 //#define E3_MS1_PIN         67
 //#define E3_MS2_PIN         68
 //#define E3_MS3_PIN         69
-//#define Z2_MS1_PIN         67 // shared with E3_MS1_PIN
-//#define Z2_MS2_PIN         68 // shared with E3_MS2_PIN
-//#define Z2_MS3_PIN         69 // shared with E3_MS3_PIN
+//#define Z2_MS1_PIN         67   // shared with E3_MS1_PIN
+//#define Z2_MS2_PIN         68   // shared with E3_MS2_PIN
+//#define Z2_MS3_PIN         69   // shared with E3_MS3_PIN
 
 //
 // Temperature Sensors
@@ -129,9 +136,9 @@
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS        53
+  #define MAX6675_SS       53
 #else
-  #define MAX6675_SS        49
+  #define MAX6675_SS       49
 #endif
 
 //
@@ -140,7 +147,7 @@
 #define HEATER_0_PIN       13
 #define HEATER_1_PIN       12
 #define HEATER_2_PIN       11
-#define HEATER_BED_PIN      7 // BED
+#define HEATER_BED_PIN      7   // BED
 
 #define FAN_PIN             9
 #define FAN1_PIN            8
@@ -149,7 +156,11 @@
 // Misc. Functions
 //
 #define SDSS                4
-#define PS_ON_PIN          40
+#define PS_ON_PIN          40   // SERVO3_PIN
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   39   // SERVO2_PIN
+#endif
 
 // I2C EEPROM with 8K of space
 #define I2C_EEPROM

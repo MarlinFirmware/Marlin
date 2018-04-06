@@ -218,14 +218,6 @@ uint16_t max_display_update_time = 0;
     #else
       void lcd_temp_menu_e0_filament_change();
     #endif
-    void lcd_advanced_pause_option_menu();
-    void lcd_advanced_pause_init_message();
-    void lcd_advanced_pause_unload_message();
-    void lcd_advanced_pause_insert_message();
-    void lcd_advanced_pause_load_message();
-    void lcd_advanced_pause_heat_nozzle();
-    void lcd_advanced_pause_purge_message();
-    void lcd_advanced_pause_resume_message();
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)
@@ -893,10 +885,10 @@ void kill_screen(const char* lcd_msg) {
       // ^ Main
       //
       MENU_BACK(MSG_MAIN);
-      MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-      MENU_ITEM(gcode, MSG_BLTOUCH_DEPLOY, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_DEPLOY)));
-      MENU_ITEM(gcode, MSG_BLTOUCH_STOW, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_STOW)));
+      MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
+      MENU_ITEM(gcode, MSG_BLTOUCH_DEPLOY, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_DEPLOY)));
+      MENU_ITEM(gcode, MSG_BLTOUCH_STOW, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_STOW)));
       END_MENU();
     }
 
@@ -1340,7 +1332,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
     #endif
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
     #endif
     //
     // Nozzle:
@@ -1885,7 +1877,6 @@ void kill_screen(const char* lcd_msg) {
       // Encoder knob or keypad buttons adjust the Z position
       //
       if (encoderPosition) {
-        gcode.refresh_cmd_timeout();
         const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MBL_Z_STEP);
         line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5));
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
@@ -2409,7 +2400,6 @@ void kill_screen(const char* lcd_msg) {
       stepper.cleaning_buffer_counter = 0;
       set_current_from_steppers_for_axis(ALL_AXES);
       sync_plan_position();
-      gcode.refresh_cmd_timeout();
     }
 
     void _lcd_ubl_output_map_lcd() {
@@ -2424,10 +2414,7 @@ void kill_screen(const char* lcd_msg) {
       if (encoderPosition) {
         step_scaler += (int32_t)encoderPosition;
         x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
-        if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM)
-          step_scaler = 0;
-        gcode.refresh_cmd_timeout();
-
+        if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM) step_scaler = 0;
         encoderPosition = 0;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       }
@@ -2564,7 +2551,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(submenu, MSG_UBL_TOOLS, _lcd_ubl_tools_menu);
       MENU_ITEM(gcode, MSG_UBL_INFO_UBL, PSTR("G29 W"));
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
       #endif
       END_MENU();
     }
@@ -2691,9 +2678,9 @@ void kill_screen(const char* lcd_msg) {
     // BLTouch Self-Test and Reset
     //
     #if ENABLED(BLTOUCH)
-      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
+      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
       if (!endstops.z_probe_enabled && TEST_BLTOUCH())
-        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
     #endif
 
     //
@@ -2909,7 +2896,6 @@ void kill_screen(const char* lcd_msg) {
     if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition && !processing_manual_move) {
-      gcode.refresh_cmd_timeout();
 
       // Start with no limits to movement
       float min = current_position[axis] - 1000,
@@ -4604,9 +4590,34 @@ void kill_screen(const char* lcd_msg) {
       #if LCD_HEIGHT > _FC_LINES_G + 1
         STATIC_ITEM(" ");
       #endif
-      HOTEND_STATUS_ITEM();
+      HOTEND_STATUS_ITEM();                         
       END_SCREEN();
     }
+
+    #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+      void lcd_advanced_pause_continuous_purge_menu() {
+        START_SCREEN();
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_1);
+        #ifdef MSG_FILAMENT_CHANGE_PURGE_2
+          STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_2);
+          #define __FC_LINES_G 3
+        #else
+          #define __FC_LINES_G 2
+        #endif
+        #ifdef MSG_FILAMENT_CHANGE_PURGE_3
+          STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_3);
+          #define _FC_LINES_G (__FC_LINES_G + 1)
+        #else
+          #define _FC_LINES_G __FC_LINES_G
+        #endif
+        #if LCD_HEIGHT > _FC_LINES_G + 1
+          STATIC_ITEM(" ");
+        #endif
+        HOTEND_STATUS_ITEM();
+        STATIC_ITEM(MSG_USERWAIT);
+        END_SCREEN();
+      }
+    #endif
 
     void lcd_advanced_pause_resume_message() {
       START_SCREEN();
@@ -4633,6 +4644,9 @@ void kill_screen(const char* lcd_msg) {
         case ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT: return lcd_advanced_pause_wait_for_nozzles_to_heat;
         case ADVANCED_PAUSE_MESSAGE_OPTION: advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_WAIT_FOR;
                                             return lcd_advanced_pause_option_menu;
+        #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+          case ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE: return lcd_advanced_pause_continuous_purge_menu;                                                                                              
+        #endif
         case ADVANCED_PAUSE_MESSAGE_STATUS:
         default: break;
       }
