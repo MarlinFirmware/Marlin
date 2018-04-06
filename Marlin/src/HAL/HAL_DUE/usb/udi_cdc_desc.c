@@ -255,5 +255,7 @@ UDC_DESC_STORAGE udc_config_t udc_config = {
 
 //@}
 //@}
-#endif
-#endif
+
+#endif // SDSUPPORT
+
+#endif // ARDUINO_ARCH_SAM

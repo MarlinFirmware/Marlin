@@ -33,10 +33,10 @@
 //
 // Servos
 //
-#define SERVO0_PIN 22 // Motor header MX1
-#define SERVO1_PIN 23 // Motor header MX2
-#define SERVO2_PIN 24 // Motor header MX3
-#define SERVO3_PIN  5 // PWM header pin 5
+#define SERVO0_PIN 22   // Motor header MX1
+#define SERVO1_PIN 23   // Motor header MX2
+#define SERVO2_PIN 24   // Motor header MX3
+#define SERVO3_PIN  5   // PWM header pin 5
 
 //
 // Limit Switches
@@ -91,7 +91,7 @@
 #define E1_MS2_PIN          64
 
 #define DIGIPOTSS_PIN       38
-#define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
+#define DIGIPOT_CHANNELS {4,5,3,0,1}   // X Y Z E0 E1 digipot channels to stepper driver mapping
 
 //
 // Temperature Sensors

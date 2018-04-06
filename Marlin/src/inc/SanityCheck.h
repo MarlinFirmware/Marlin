@@ -95,6 +95,8 @@
   #error "SERVO_ENDSTOP_ANGLES is deprecated. Use Z_SERVO_ANGLES instead."
 #elif defined(X_ENDSTOP_SERVO_NR) || defined(Y_ENDSTOP_SERVO_NR)
   #error "X_ENDSTOP_SERVO_NR and Y_ENDSTOP_SERVO_NR are deprecated and should be removed."
+#elif defined(Z_ENDSTOP_SERVO_NR)
+  #error "Z_ENDSTOP_SERVO_NR is now Z_PROBE_SERVO_NR. Please update your configuration."
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
 #elif defined(XY_TRAVEL_SPEED)
@@ -630,8 +632,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR)
-  #error "Z_ENDSTOP_SERVO_NR, switching nozzle, or switching extruder is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_PROBE && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR)
+  #error "Z_PROBE_SERVO_NR, switching nozzle, or switching extruder is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**
@@ -697,7 +699,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #if 1 < 0 \
   + ENABLED(PROBE_MANUALLY) \
   + ENABLED(FIX_MOUNTED_PROBE) \
-  + (HAS_Z_SERVO_ENDSTOP && DISABLED(BLTOUCH)) \
+  + (HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)) \
   + ENABLED(BLTOUCH) \
   + ENABLED(SOLENOID_PROBE) \
   + ENABLED(Z_PROBE_ALLEN_KEY) \
@@ -728,11 +730,11 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   /**
    * NUM_SERVOS is required for a Z servo probe
    */
-  #if HAS_Z_SERVO_ENDSTOP
+  #if HAS_Z_SERVO_PROBE
     #ifndef NUM_SERVOS
-      #error "You must set NUM_SERVOS for a Z servo probe (Z_ENDSTOP_SERVO_NR)."
-    #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
+      #error "You must set NUM_SERVOS for a Z servo probe (Z_PROBE_SERVO_NR)."
+    #elif Z_PROBE_SERVO_NR >= NUM_SERVOS
+      #error "Z_PROBE_SERVO_NR must be smaller than NUM_SERVOS."
     #endif
   #endif
 
@@ -879,7 +881,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 
 #endif
 
-#if !HAS_MESH && ENABLED(G26_MESH_VALIDATION)
+#if HAS_MESH
+  static_assert(DEFAULT_ZJERK > 0.1, "Low DEFAULT_ZJERK values are incompatible with mesh-based leveling.");
+#elif ENABLED(G26_MESH_VALIDATION)
   #error "G26_MESH_VALIDATION requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL."
 #endif
 
@@ -918,15 +922,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #if ENABLED(Z_SAFE_HOMING)
   #if HAS_BED_PROBE
-    #if !WITHIN(Z_SAFE_HOMING_X_POINT, MIN_PROBE_X, MAX_PROBE_X)
-      #error "Z_SAFE_HOMING_X_POINT is outside the probe region."
-    #elif !WITHIN(Z_SAFE_HOMING_Y_POINT, MIN_PROBE_Y, MAX_PROBE_Y)
-      #error "Z_SAFE_HOMING_Y_POINT is outside the probe region."
-    #endif
-  #elif !WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS)
-    #error "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle."
-  #elif !WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS)
-    #error "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle."
+    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, MIN_PROBE_X, MAX_PROBE_X),
+      "Z_SAFE_HOMING_X_POINT is outside the probe region.");
+    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, MIN_PROBE_Y, MAX_PROBE_Y),
+      "Z_SAFE_HOMING_Y_POINT is outside the probe region.");
+  #else
+    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS),
+      "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
+    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS),
+      "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
   #endif
 #endif // Z_SAFE_HOMING
 
@@ -1333,6 +1337,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  *       SAV_3DGLCD => U8GLIB_SH1106 => ULTIMAKERCONTROLLER
  *       MKS_12864OLED => U8GLIB_SH1106 => ULTIMAKERCONTROLLER
  *       MKS_12864OLED_SSD1306 => U8GLIB_SSD1306 => ULTIMAKERCONTROLLER
+ *       MKS_MINI_12864 => MINIPANEL
  *       miniVIKI => ULTIMAKERCONTROLLER
  *       VIKI2 => ULTIMAKERCONTROLLER
  *       ELB_FULL_GRAPHIC_CONTROLLER => ULTIMAKERCONTROLLER

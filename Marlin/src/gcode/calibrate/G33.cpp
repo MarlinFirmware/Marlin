@@ -137,7 +137,7 @@ static void G33_cleanup(
 
 inline float calibration_probe(const float nx, const float ny, const bool stow) {
   #if HAS_BED_PROBE
-    return probe_pt(nx, ny, stow, 0, false);
+    return probe_pt(nx, ny, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, false);
   #else
     UNUSED(stow);
     return lcd_probe_pt(nx, ny);

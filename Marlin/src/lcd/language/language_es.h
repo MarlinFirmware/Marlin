@@ -190,7 +190,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Error: Temp Minima")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Error: Temp Max Plat")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Error: Temp Min Plat")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z Prohibido")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("IMPRESORA PARADA")
 #define MSG_PLEASE_RESET                    _UxGT("Por favor, reinicie")
 #define MSG_SHORT_DAY                       _UxGT("d") // One character only

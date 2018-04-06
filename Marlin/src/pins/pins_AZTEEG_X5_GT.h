@@ -73,9 +73,9 @@
 // Temperature Sensors
 // 3.3V max when defined as an analog input
 //
-#define TEMP_BED_PIN        0  // A0 (TH1)
-#define TEMP_0_PIN          1  // A1 (TH2)
-#define TEMP_1_PIN          2  // A2 (TH3)
+#define TEMP_BED_PIN        0   // A0 (TH1)
+#define TEMP_0_PIN          1   // A1 (TH2)
+#define TEMP_1_PIN          2   // A2 (TH3)
 
 
 //
@@ -101,7 +101,7 @@
     #define BTN_EN2           P3_26
     #define BTN_ENC           P2_11
 
-    #define SD_DETECT_PIN     -1 // Pin 49 for display sd interface, 72 for easy adapter board
+    #define SD_DETECT_PIN     -1   // Pin 49 for display sd interface, 72 for easy adapter board
 
     #define KILL_PIN          -1
 

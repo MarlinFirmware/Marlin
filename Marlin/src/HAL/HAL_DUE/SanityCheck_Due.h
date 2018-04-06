@@ -27,3 +27,11 @@
 /**
  * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
  */
+
+#if ENABLED(SDSUPPORT) && ENABLED(HAVE_TMC2130)
+  #if ENABLED(DUE_SOFTWARE_SPI) && !ENABLED(TMC_USE_SW_SPI)
+    #error "DUE software SPI is incompatible with TMC2130 hardware SPI. Enable TMC_USE_SW_SPI to fix."
+  #elif !ENABLED(DUE_SOFTWARE_SPI) && ENABLED(TMC_USE_SW_SPI)
+    #error "DUE hardware SPI is incompatible with TMC2130 software SPI. Disable TMC_USE_SW_SPI to fix."
+  #endif
+#endif

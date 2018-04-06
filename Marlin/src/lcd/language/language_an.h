@@ -182,7 +182,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Error: Temp Menima")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Error: Temp Max base")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Error: Temp Min base")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z vedau")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("IMPRESORA ATURADA")
 #define MSG_PLEASE_RESET                    _UxGT("Per favor reinic.")
 #define MSG_SHORT_DAY                       _UxGT("d")

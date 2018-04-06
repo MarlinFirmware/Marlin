@@ -49,6 +49,10 @@
 
 #include "usb_protocol_cdc.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! \brief Called by MSC interface
  * Callback running when USB Host enable MSC interface
  *
@@ -111,8 +115,20 @@ void usb_task_cdc_rx_notify(const uint8_t port);
  */
 void usb_task_cdc_config(const uint8_t port, usb_cdc_line_coding_t *cfg);
 
-/* The USB device interrupt
+/*! \brief The USB device interrupt
  */
 void USBD_ISR(void);
 
-#endif // _MAIN_H_
+/*! \brief USB task init
+ */
+void usb_task_init(void);
+
+/*! \brief USB task idle
+ */
+void usb_task_idle(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // _USB_TASK_H_

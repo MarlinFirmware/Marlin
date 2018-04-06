@@ -174,7 +174,7 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
             new_fanSpeeds[FAN_COUNT];
   #endif
   #if ENABLED(PROBING_FANS_OFF)
-    bool fans_paused = false;
+    bool fans_paused; // = false;
     int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
   #endif
 #endif
@@ -184,20 +184,20 @@ volatile bool wait_for_heatup = true;
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if HAS_RESUME_CONTINUE
-  volatile bool wait_for_user = false;
+  volatile bool wait_for_user; // = false;
 #endif
 
-#if HAS_AUTO_REPORTING
+#if HAS_AUTO_REPORTING || ENABLED(HOST_KEEPALIVE_FEATURE)
   bool suspend_auto_report; // = false
 #endif
 
 // Inactivity shutdown
-millis_t max_inactive_time = 0,
+millis_t max_inactive_time, // = 0
          stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
 #ifdef CHDK
-  millis_t chdkHigh = 0;
-  bool chdkActive = false;
+  millis_t chdkHigh; // = 0;
+  bool chdkActive; // = false;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -336,7 +336,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   const millis_t ms = millis();
 
-  if (max_inactive_time && ELAPSED(ms, gcode.previous_cmd_ms + max_inactive_time)) {
+  if (max_inactive_time && ELAPSED(ms, gcode.previous_move_ms + max_inactive_time)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(MSG_KILL_INACTIVE_TIME, parser.command_ptr);
     kill(PSTR(MSG_KILLED));
@@ -349,23 +349,26 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     #define MOVE_AWAY_TEST true
   #endif
 
-  if (MOVE_AWAY_TEST && stepper_inactive_time && ELAPSED(ms, gcode.previous_cmd_ms + stepper_inactive_time)
-      && !ignore_stepper_queue && !planner.blocks_queued()) {
-    #if ENABLED(DISABLE_INACTIVE_X)
-      disable_X();
-    #endif
-    #if ENABLED(DISABLE_INACTIVE_Y)
-      disable_Y();
-    #endif
-    #if ENABLED(DISABLE_INACTIVE_Z)
-      disable_Z();
-    #endif
-    #if ENABLED(DISABLE_INACTIVE_E)
-      disable_e_steppers();
-    #endif
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
-      if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
-    #endif
+  if (stepper_inactive_time) {
+    if (planner.has_blocks_queued())
+      gcode.previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
+    else if (MOVE_AWAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
+      #if ENABLED(DISABLE_INACTIVE_X)
+        disable_X();
+      #endif
+      #if ENABLED(DISABLE_INACTIVE_Y)
+        disable_Y();
+      #endif
+      #if ENABLED(DISABLE_INACTIVE_Z)
+        disable_Z();
+      #endif
+      #if ENABLED(DISABLE_INACTIVE_E)
+        disable_e_steppers();
+      #endif
+      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
+        if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
+      #endif
+    }
   }
 
   #ifdef CHDK // Check if pin should be set to LOW after M240 set it to HIGH
@@ -424,8 +427,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP
-      && ELAPSED(ms, gcode.previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
-      && !planner.blocks_queued()
+      && ELAPSED(ms, gcode.previous_move_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
+      && !planner.has_blocks_queued()
     ) {
       #if ENABLED(SWITCHING_EXTRUDER)
         const bool oldstatus = E0_ENABLE_READ;
@@ -448,8 +451,6 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
           #endif // E_STEPPERS > 1
         }
       #endif // !SWITCHING_EXTRUDER
-
-      gcode.refresh_cmd_timeout();
 
       const float olde = current_position[E_AXIS];
       current_position[E_AXIS] += EXTRUDER_RUNOUT_EXTRUDE;
@@ -476,6 +477,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
           #endif // E_STEPPERS > 1
         }
       #endif // !SWITCHING_EXTRUDER
+
+      gcode.previous_move_ms = ms; // reset_stepper_timeout to keep steppers powered
     }
   #endif // EXTRUDER_RUNOUT_PREVENT
 
@@ -541,7 +544,7 @@ void idle(
 
   #if ENABLED(I2C_POSITION_ENCODERS)
     static millis_t i2cpem_next_update_ms;
-    if (planner.blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
+    if (planner.has_blocks_queued() && ELAPSED(millis(), i2cpem_next_update_ms)) {
       I2CPEM.update();
       i2cpem_next_update_ms = millis() + I2CPE_MIN_UPD_TIME_MS;
     }
@@ -648,9 +651,6 @@ void setup() {
 
   #ifdef HAL_INIT
     HAL_init();
-    #if defined(ARDUINO_ARCH_SAM) && PIN_EXISTS(BEEPER) && ENABLED(SPEAKER)
-      toneInit();
-    #endif
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
@@ -754,7 +754,7 @@ void setup() {
     servo_init();
   #endif
 
-  #if HAS_Z_SERVO_ENDSTOP
+  #if HAS_Z_SERVO_PROBE
     servo_probe_init();
   #endif
 
@@ -892,14 +892,15 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
   #endif
 
-  advance_command_queue();
-
-  endstops.report_state();
-  idle();
+  for (;;) {
+    if (commands_in_queue < BUFSIZE) get_available_commands();
+    advance_command_queue();
+    endstops.report_state();
+    idle();
+  }
 }

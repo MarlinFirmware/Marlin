@@ -69,7 +69,7 @@ XYZ_CONSTS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_CONSTS(signed char, home_dir, HOME_DIR);
 
 // Relative Mode. Enable with G91, disable with G90.
-bool relative_mode = false;
+bool relative_mode; // = false;
 
 /**
  * Cartesian Current Position
@@ -89,7 +89,7 @@ float destination[XYZE] = { 0.0 };
 
 
 // The active extruder (tool). Set with T<extruder> command.
-uint8_t active_extruder = 0;
+uint8_t active_extruder; // = 0;
 
 // Extruder offsets
 #if HOTENDS > 1
@@ -266,8 +266,6 @@ void buffer_line_to_destination(const float fr_mm_s) {
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
 
-    gcode.refresh_cmd_timeout();
-
     #if UBL_SEGMENTED
       // ubl segmented line will do z-only moves in single segment
       ubl.prepare_segmented_line_to(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s));
@@ -435,12 +433,10 @@ void bracket_probe_move(const bool before) {
     saved_feedrate_mm_s = feedrate_mm_s;
     saved_feedrate_percentage = feedrate_percentage;
     feedrate_percentage = 100;
-    gcode.refresh_cmd_timeout();
   }
   else {
     feedrate_mm_s = saved_feedrate_mm_s;
     feedrate_percentage = saved_feedrate_percentage;
-    gcode.refresh_cmd_timeout();
   }
 }
 
@@ -502,20 +498,18 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 #if !UBL_SEGMENTED
 #if IS_KINEMATIC
 
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    #if ENABLED(DELTA)
-      #define ADJUST_DELTA(V) \
-        if (planner.leveling_active) { \
-          const float zadj = bilinear_z_offset(V); \
-          delta[A_AXIS] += zadj; \
-          delta[B_AXIS] += zadj; \
-          delta[C_AXIS] += zadj; \
-        }
-    #else
-      #define ADJUST_DELTA(V) if (planner.leveling_active) { delta[Z_AXIS] += bilinear_z_offset(V); }
-    #endif
-  #else
-    #define ADJUST_DELTA(V) NOOP
+  #if IS_SCARA
+    /**
+     * Before raising this value, use M665 S[seg_per_sec] to decrease
+     * the number of segments-per-second. Default is 200. Some deltas
+     * do better with 160 or lower. It would be good to know how many
+     * segments-per-second are actually possible for SCARA on AVR.
+     *
+     * Longer segments result in less kinematic overhead
+     * but may produce jagged lines. Try 0.5mm, 1.0mm, and 2.0mm
+     * and compare the difference.
+     */
+    #define SCARA_MIN_SEGMENT_LENGTH 0.5
   #endif
 
   /**
@@ -570,9 +564,9 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     // gives the number of segments
     uint16_t segments = delta_segments_per_second * seconds;
 
-    // For SCARA minimum segment size is 0.25mm
+    // For SCARA enforce a minimum segment size
     #if IS_SCARA
-      NOMORE(segments, cartesian_mm * 4);
+      NOMORE(segments, cartesian_mm * (1.0 / SCARA_MIN_SEGMENT_LENGTH));
     #endif
 
     // At least one segment is required
@@ -580,7 +574,6 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
     // The approximate length of each segment
     const float inv_segments = 1.0 / float(segments),
-                cartesian_segment_mm = cartesian_mm * inv_segments,
                 segment_distance[XYZE] = {
                   xdiff * inv_segments,
                   ydiff * inv_segments,
@@ -588,15 +581,47 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
                   ediff * inv_segments
                 };
 
-    // SERIAL_ECHOPAIR("mm=", cartesian_mm);
-    // SERIAL_ECHOPAIR(" seconds=", seconds);
-    // SERIAL_ECHOLNPAIR(" segments=", segments);
-    // SERIAL_ECHOLNPAIR(" segment_mm=", cartesian_segment_mm);
+    #if DISABLED(SCARA_FEEDRATE_SCALING)
+      const float cartesian_segment_mm = cartesian_mm * inv_segments;
+    #endif
 
-    // Get the current position as starting point
+
+    /*
+    SERIAL_ECHOPAIR("mm=", cartesian_mm);
+    SERIAL_ECHOPAIR(" seconds=", seconds);
+    SERIAL_ECHOPAIR(" segments=", segments);
+    #if DISABLED(SCARA_FEEDRATE_SCALING)
+      SERIAL_ECHOLNPAIR(" segment_mm=", cartesian_segment_mm);
+    #else
+      SERIAL_EOL();
+    #endif
+    //*/
+
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
+      // SCARA needs to scale the feed rate from mm/s to degrees/s
+      // i.e., Complete the angular vector in the given time.
+      const float segment_length = cartesian_mm * inv_segments,
+                  inv_segment_length = 1.0 / segment_length, // 1/mm/segs
+                  inverse_secs = inv_segment_length * _feedrate_mm_s;
+
+      float oldA = planner.position_float[A_AXIS],
+            oldB = planner.position_float[B_AXIS];
+
+      /*
+      SERIAL_ECHOPGM("Scaled kinematic move: ");
+      SERIAL_ECHOPAIR(" segment_length (inv)=", segment_length);
+      SERIAL_ECHOPAIR(" (", inv_segment_length);
+      SERIAL_ECHOPAIR(") _feedrate_mm_s=", _feedrate_mm_s);
+      SERIAL_ECHOPAIR(" inverse_secs=", inverse_secs);
+      SERIAL_ECHOPAIR(" oldA=", oldA);
+      SERIAL_ECHOLNPAIR(" oldB=", oldB);
+      safe_delay(5);
+      //*/
+    #endif
+ 
+     // Get the current position as starting point
     float raw[XYZE];
     COPY(raw, current_position);
-
 
     // Calculate and execute the segments
     while (--segments) {
@@ -617,11 +642,41 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       #endif
       ADJUST_DELTA(raw); // Adjust Z if bed leveling is enabled
 
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder, cartesian_segment_mm);
+      #if ENABLED(SCARA_FEEDRATE_SCALING)
+        // For SCARA scale the feed rate from mm/s to degrees/s
+        // i.e., Complete the angular vector in the given time.
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
+        /*
+        SERIAL_ECHO(segments);
+        SERIAL_ECHOPAIR(": X=", raw[X_AXIS]); SERIAL_ECHOPAIR(" Y=", raw[Y_AXIS]);
+        SERIAL_ECHOPAIR(" A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]);
+        SERIAL_ECHOLNPAIR(" F", HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs * 60);
+        safe_delay(5);
+        //*/
+        oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
+      #else
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder, cartesian_segment_mm);
+      #endif
     }
 
     // Ensure last segment arrives at target location.
-    planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder, cartesian_segment_mm);
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
+      inverse_kinematics(rtarget);
+      ADJUST_DELTA(rtarget);
+      const float diff2 = HYPOT2(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB);
+      if (diff2) {
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
+        /*
+        SERIAL_ECHOPAIR("final: A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]);
+        SERIAL_ECHOPAIR(" adiff=", delta[A_AXIS] - oldA); SERIAL_ECHOPAIR(" bdiff=", delta[B_AXIS] - oldB);
+        SERIAL_ECHOLNPAIR(" F", (SQRT(diff2) * inverse_secs) * 60);
+        SERIAL_EOL();
+        safe_delay(5);
+        //*/
+      }
+    #else
+      planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder, cartesian_segment_mm);
+    #endif
 
     return false; // caller will update current_position
   }
@@ -859,7 +914,6 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
  */
 void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
-  gcode.refresh_cmd_timeout();
 
   #if ENABLED(PREVENT_COLD_EXTRUSION) || ENABLED(PREVENT_LENGTHY_EXTRUDE)
 
@@ -1003,19 +1057,32 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     }
   #endif
 
-  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    const bool deploy_bltouch = (axis == Z_AXIS && distance < 0);
-    if (deploy_bltouch) set_bltouch_deployed(true);
-  #endif
+  // Only do some things when moving towards an endstop
+  const int8_t axis_home_dir =
+    #if ENABLED(DUAL_X_CARRIAGE)
+      (axis == X_AXIS) ? x_home_dir(active_extruder) :
+    #endif
+    home_dir(axis);
+  const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
 
-  #if QUIET_PROBING
-    if (axis == Z_AXIS) probing_pause(true);
-  #endif
+  if (is_home_dir) {
 
-  // Disable stealthChop if used. Enable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    sensorless_homing_per_axis(axis);
-  #endif
+    if (axis == Z_AXIS) {
+      #if HOMING_Z_WITH_PROBE
+        #if ENABLED(BLTOUCH)
+          set_bltouch_deployed(true);
+        #endif
+        #if QUIET_PROBING
+          probing_pause(true);
+        #endif
+      #endif
+    }
+
+    // Disable stealthChop if used. Enable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+      sensorless_homing_per_axis(axis);
+    #endif
+  }
 
   // Tell the planner the axis is at 0
   current_position[axis] = 0;
@@ -1033,20 +1100,26 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   stepper.synchronize();
 
-  #if QUIET_PROBING
-    if (axis == Z_AXIS) probing_pause(false);
-  #endif
+  if (is_home_dir) {
 
-  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    if (deploy_bltouch) set_bltouch_deployed(false);
-  #endif
+    if (axis == Z_AXIS) {
+      #if HOMING_Z_WITH_PROBE
+        #if QUIET_PROBING
+          probing_pause(false);
+        #endif
+        #if ENABLED(BLTOUCH)
+          set_bltouch_deployed(false);
+        #endif
+      #endif
+    }
 
-  endstops.hit_on_purpose();
+    endstops.hit_on_purpose();
 
-  // Re-enable stealthChop if used. Disable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_HOMING)
-    sensorless_homing_per_axis(axis, false);
-  #endif
+    // Re-enable stealthChop if used. Disable diag1 pin on driver.
+    #if ENABLED(SENSORLESS_HOMING)
+      sensorless_homing_per_axis(axis, false);
+    #endif
+  }
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {

@@ -183,7 +183,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Fejl: Min temp")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Fejl: Maks Plade temp")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Fejl: Min Plade temp")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z Forbudt")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("PRINTER STOPPET")
 #define MSG_PLEASE_RESET                    _UxGT("Reset Venligst")
 #define MSG_SHORT_DAY                       _UxGT("d") // Kun et bogstav

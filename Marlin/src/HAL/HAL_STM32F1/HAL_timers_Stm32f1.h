@@ -32,6 +32,7 @@
 // --------------------------------------------------------------------------
 
 #include <stdint.h>
+#include <libmaple/timer.h>
 
 // --------------------------------------------------------------------------
 // Defines
@@ -56,8 +57,9 @@ typedef uint16_t hal_timer_t;
 #define TEMP_TIMER_NUM 2  // index of timer to use for temperature
 #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 
-#define CAT(a, ...) a ## __VA_ARGS__
-#define TIMER_DEV(num) CAT (&timer, num)
+timer_dev* get_timer_dev(int number);
+
+#define TIMER_DEV(num) get_timer_dev(num)
 
 #define STEP_TIMER_DEV TIMER_DEV(STEP_TIMER_NUM)
 #define TEMP_TIMER_DEV TIMER_DEV(TEMP_TIMER_NUM)
@@ -85,7 +87,6 @@ typedef uint16_t hal_timer_t;
 #define DISABLE_TEMPERATURE_INTERRUPT() timer_disable_irq(TEMP_TIMER_DEV, TEMP_TIMER_CHAN)
 
 #define HAL_timer_get_count(timer_num) timer_get_count(TIMER_DEV(timer_num))
-
 
 #define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 // TODO change this

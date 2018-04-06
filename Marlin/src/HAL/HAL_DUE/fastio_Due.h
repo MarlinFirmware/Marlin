@@ -100,7 +100,7 @@
 /// check if pin is an output
 #define _GET_OUTPUT(IO)
 
-/// check if pin is an timer
+/// check if pin is a timer
 #define _GET_TIMER(IO)
 
 /// Read a pin wrapper
@@ -124,7 +124,7 @@
 /// check if pin is an output wrapper
 #define GET_OUTPUT(IO)  _GET_OUTPUT(IO)
 
-/// check if pin is an timer wrapper
+/// check if pin is a timer (wrapper)
 #define GET_TIMER(IO)  _GET_TIMER(IO)
 
 // Shorthand

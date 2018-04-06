@@ -642,5 +642,6 @@ U16 stream_stop(U8 id)
 
 //! @}
 
-#endif  // ACCESS_STREAM == true
-#endif
+#endif // ACCESS_STREAM
+
+#endif // ARDUINO_ARCH_SAM

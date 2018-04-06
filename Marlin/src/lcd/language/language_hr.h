@@ -181,7 +181,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err: MINTEMP")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: MAXTEMP BED")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: MINTEMP BED")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z Forbidden")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("PRINTER HALTED")
 #define MSG_PLEASE_RESET                    _UxGT("Please reset")
 #define MSG_SHORT_DAY                       _UxGT("d") // One character only

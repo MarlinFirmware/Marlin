@@ -599,8 +599,8 @@
     if (parser.seen('S')) {     // Store (or Save) Current Mesh Data
       g29_storage_slot = parser.has_value() ? parser.value_int() : storage_slot;
 
-      if (g29_storage_slot == -1)                     // Special case, we are going to 'Export' the mesh to the
-        return report_current_mesh();
+      if (g29_storage_slot == -1)                     // Special case, the user wants to 'Export' the mesh to the
+        return report_current_mesh();                 // host program to be saved on the user's computer
 
       int16_t a = settings.calc_num_meshes();
 
@@ -750,14 +750,17 @@
           const float rawx = mesh_index_to_xpos(location.x_index),
                       rawy = mesh_index_to_ypos(location.y_index);
 
-          const float measured_z = probe_pt(rawx, rawy, stow_probe, g29_verbose_level); // TODO: Needs error handling
+          const float measured_z = probe_pt(rawx, rawy, stow_probe ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
           z_values[location.x_index][location.y_index] = measured_z;
         }
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
       } while (location.x_index >= 0 && --count);
 
       STOW_PROBE();
-      move_z_after_probing();
+
+      #if Z_AFTER_PROBING
+        move_z_after_probing();
+      #endif
 
       restore_ubl_active_state_and_leave();
 
@@ -776,7 +779,7 @@
       wait_for_release();
       while (!is_lcd_clicked()) {
         idle();
-        gcode.refresh_cmd_timeout();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
           do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * multiplier);
           encoder_diff = 0;
@@ -1519,7 +1522,7 @@
       incremental_LSF_reset(&lsf_results);
 
       if (do_3_pt_leveling) {
-        measured_z = probe_pt(PROBE_PT_1_X, PROBE_PT_1_Y, false, g29_verbose_level);
+        measured_z = probe_pt(PROBE_PT_1_X, PROBE_PT_1_Y, PROBE_PT_RAISE, g29_verbose_level);
         if (isnan(measured_z))
           abort_flag = true;
         else {
@@ -1533,7 +1536,7 @@
         }
 
         if (!abort_flag) {
-          measured_z = probe_pt(PROBE_PT_2_X, PROBE_PT_2_Y, false, g29_verbose_level);
+          measured_z = probe_pt(PROBE_PT_2_X, PROBE_PT_2_Y, PROBE_PT_RAISE, g29_verbose_level);
           //z2 = measured_z;
           if (isnan(measured_z))
             abort_flag = true;
@@ -1548,7 +1551,7 @@
         }
 
         if (!abort_flag) {
-          measured_z = probe_pt(PROBE_PT_3_X, PROBE_PT_3_Y, true, g29_verbose_level);
+          measured_z = probe_pt(PROBE_PT_3_X, PROBE_PT_3_Y, PROBE_PT_STOW, g29_verbose_level);
           //z3 = measured_z;
           if (isnan(measured_z))
             abort_flag = true;
@@ -1576,7 +1579,7 @@
             const float ry = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
 
             if (!abort_flag) {
-              measured_z = probe_pt(rx, ry, parser.seen('E'), g29_verbose_level); // TODO: Needs error handling
+              measured_z = probe_pt(rx, ry, parser.seen('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
 
               abort_flag = isnan(measured_z);
 

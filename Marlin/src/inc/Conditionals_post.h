@@ -832,17 +832,42 @@
 #endif
 
 /**
+ * Heater signal inversion defaults
+ */
+
+#if HAS_HEATER_0 && !defined(HEATER_0_INVERTING)
+  #define HEATER_0_INVERTING false
+#endif
+
+#if HAS_HEATER_1 && !defined(HEATER_1_INVERTING)
+  #define HEATER_1_INVERTING false
+#endif
+
+#if HAS_HEATER_2 && !defined(HEATER_2_INVERTING)
+  #define HEATER_2_INVERTING false
+#endif
+
+#if HAS_HEATER_3 && !defined(HEATER_3_INVERTING)
+  #define HEATER_3_INVERTING false
+#endif
+
+#if HAS_HEATER_4 && !defined(HEATER_4_INVERTING)
+  #define HEATER_4_INVERTING false
+#endif
+
+/**
  * Helper Macros for heaters and extruder fan
  */
-#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, v)
+
+#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, (v) ^ HEATER_0_INVERTING)
 #if HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)
-  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, v)
+  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, (v) ^ HEATER_1_INVERTING)
   #if HOTENDS > 2
-    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, v)
+    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, (v) ^ HEATER_2_INVERTING)
     #if HOTENDS > 3
-      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, v)
+      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, (v) ^ HEATER_3_INVERTING)
       #if HOTENDS > 4
-        #define WRITE_HEATER_4(v) WRITE(HEATER_4_PIN, v)
+        #define WRITE_HEATER_4(v) WRITE(HEATER_4_PIN, (v) ^ HEATER_4_INVERTING)
       #endif // HOTENDS > 4
     #endif // HOTENDS > 3
   #endif // HOTENDS > 2
@@ -901,8 +926,8 @@
  */
 
 #if HAS_SERVOS
-  #ifndef Z_ENDSTOP_SERVO_NR
-    #define Z_ENDSTOP_SERVO_NR -1
+  #ifndef Z_PROBE_SERVO_NR
+    #define Z_PROBE_SERVO_NR -1
   #endif
 #endif
 
@@ -1395,5 +1420,8 @@
 #if ENABLED(SDCARD_SORT_ALPHA)
   #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
 #endif
+
+// If platform requires early initialization of watchdog to properly boot
+#define EARLY_WATCHDOG (ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM))
 
 #endif // CONDITIONALS_POST_H

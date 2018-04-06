@@ -249,18 +249,24 @@ bool Sd2Card::init(uint8_t sckRateID, pin_t chipSelectPin) {
     watchdog_reset();
   #endif
 
-  // set pin modes
-  pinMode(chipSelectPin_, OUTPUT); // Solution for #8746 by @benlye
+  // Set pin modes
+  digitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
+  pinMode(chipSelectPin_, OUTPUT);     // Solution for #8746 by @benlye
   spiBegin();
 
-  // set SCK rate for initialization commands
+  // Set SCK rate for initialization commands
   spiRate_ = SPI_SD_INIT_RATE;
   spiInit(spiRate_);
 
-  // must supply min of 74 clock cycles with CS high.
+  // Must supply min of 74 clock cycles with CS high.
   for (uint8_t i = 0; i < 10; i++) spiSend(0xFF);
 
-  // command to go idle in SPI mode
+  // Initialization can cause the watchdog to timeout, so reinit it here
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_reset();
+  #endif
+
+  // Command to go idle in SPI mode
   while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
     if (((uint16_t)millis() - t0) > SD_INIT_TIMEOUT) {
       error(SD_CARD_ERROR_CMD0);
@@ -270,6 +276,11 @@ bool Sd2Card::init(uint8_t sckRateID, pin_t chipSelectPin) {
 
   #if ENABLED(SD_CHECK_AND_RETRY)
     crcSupported = (cardCommand(CMD59, 1) == R1_IDLE_STATE);
+  #endif
+
+  // Initialization can cause the watchdog to timeout, so reinit it here
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_reset();
   #endif
 
   // check SD version
@@ -291,6 +302,11 @@ bool Sd2Card::init(uint8_t sckRateID, pin_t chipSelectPin) {
       goto FAIL;
     }
   }
+
+  // Initialization can cause the watchdog to timeout, so reinit it here
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_reset();
+  #endif
 
   // initialize card and send host supports SDHC if SD2
   arg = type() == SD_CARD_TYPE_SD2 ? 0x40000000 : 0;
