@@ -226,6 +226,15 @@
 #if defined(DOGLCD_SCK) && DOGLCD_SCK >= 0
   REPORT_NAME_DIGITAL(__LINE__, DOGLCD_SCK)
 #endif
+#if defined(TMC_SW_MISO) && TMC_SW_MISO >= 0
+  REPORT_NAME_DIGITAL(__LINE__, TMC_SW_MISO)
+#endif
+#if defined(TMC_SW_MOSI) && TMC_SW_MOSI >= 0
+  REPORT_NAME_DIGITAL(__LINE__, TMC_SW_MOSI)
+#endif
+#if defined(TMC_SW_SCK) && TMC_SW_SCK >= 0
+  REPORT_NAME_DIGITAL(__LINE__, TMC_SW_SCK)
+#endif
 #if PIN_EXISTS(E_MUX0)
   REPORT_NAME_DIGITAL(__LINE__, E_MUX0_PIN)
 #endif
