@@ -21,22 +21,22 @@
  */
 
 /**
- * Einsy-Rambo pin assignments
+ * Einsy-Retro pin assignments
  */
 
 #ifndef __AVR_ATmega2560__
   #error "Oops!  Make sure you have 'Arduino Mega 2560 or Rambo' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define BOARD_NAME         "Einsy Rambo"
+#define BOARD_NAME         "Einsy Retro"
 
 //
-// TMC2130 Configuration_adv defaults for EinsyRambo
+// TMC2130 Configuration_adv defaults for EinsyRetro
 //
 #if DISABLED(HAVE_TMC2130)
-  #error "You must enable TMC2130 support in Configuration_adv.h for EinsyRambo."
+  #error "You must enable TMC2130 support in Configuration_adv.h for EinsyRetro."
 #elif DISABLED(X_IS_TMC2130) || DISABLED(Y_IS_TMC2130) || DISABLED(Z_IS_TMC2130) || DISABLED(E0_IS_TMC2130)
-  #error "You must enable ([XYZ]|E0)_IS_TMC2130 in Configuration_adv.h for EinsyRambo."
+  #error "You must enable ([XYZ]|E0)_IS_TMC2130 in Configuration_adv.h for EinsyRetro."
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)
@@ -56,23 +56,40 @@
 
 #if DISABLED(SENSORLESS_HOMING)
 
-  #define X_STOP_PIN       12
-  #define Y_STOP_PIN       11
-  #define Z_STOP_PIN       10
+  #define X_MIN_PIN        12
+  #define Y_MIN_PIN        11
+  #define Z_MIN_PIN        10
+  #define X_MAX_PIN        81
+  #define Y_MAX_PIN        57
 
 #else
 
-  #define X_STOP_PIN       X_DIAG_PIN
-  #define Y_STOP_PIN       Y_DIAG_PIN
+  #if X_HOME_DIR == -1
+    #define X_MIN_PIN      X_DIAG_PIN
+    #define X_MAX_PIN      81
+  #else
+    #define X_MIN_PIN      12
+    #define X_MAX_PIN      X_DIAG_PIN
+  #endif
+
+  #if Y_HOME_DIR == -1
+    #define Y_MIN_PIN      Y_DIAG_PIN
+    #define Y_MAX_PIN      57
+  #else
+    #define Y_MIN_PIN      11
+    #define Y_MAX_PIN      Y_DIAG_PIN
+  #endif
 
   #if ENABLED(BLTOUCH)
-    #define Z_STOP_PIN     11   // Y-MIN
+    #define Z_MIN_PIN      11   // Y-MIN
     #define SERVO0_PIN     10   // Z-MIN
   #else
-    #define Z_STOP_PIN     10
+    #define Z_MIN_PIN      10
   #endif
 
 #endif
+
+#define Z_MAX_PIN           7
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -123,7 +140,7 @@
 //
 // Misc. Functions
 //
-#define SDSS               77
+#define SDSS               53
 #define LED_PIN            13
 #define CASE_LIGHT_PIN      9
 
@@ -155,12 +172,12 @@
       #define LCD_PINS_RS     85
       #define LCD_PINS_ENABLE 71
       #define LCD_PINS_D4     70
-      #define BTN_EN1         61
-      #define BTN_EN2         59
+      #define BTN_EN1         18
+      #define BTN_EN2         19
     #else
       #define LCD_PINS_RS     82
-      #define LCD_PINS_ENABLE 61
-      #define LCD_PINS_D4     59
+      #define LCD_PINS_ENABLE 18
+      #define LCD_PINS_D4     19
       #define LCD_PINS_D5     70
       #define LCD_PINS_D6     85
       #define LCD_PINS_D7     71

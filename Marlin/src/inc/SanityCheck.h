@@ -1457,12 +1457,22 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "E4_CS_PIN is required for E4_IS_TMC2130. Define E4_CS_PIN in Configuration_adv.h."
   #endif
 
-  // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
-  // is necessary in order to reset the stallGuard indication between the initial movement of all three
-  // towers to +Z and the individual homing of each tower. This restriction can be removed once a means of
-  // clearing the stallGuard activated status is found.
-  #if ENABLED(SENSORLESS_HOMING) && ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
-    #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
+  #if ENABLED(SENSORLESS_HOMING)
+    // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
+    // is necessary in order to reset the stallGuard indication between the initial movement of all three
+    // towers to +Z and the individual homing of each tower. This restriction can be removed once a means of
+    // clearing the stallGuard activated status is found.
+    #if ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
+      #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
+    #elif X_HOME_DIR == -1 && DISABLED(X_MIN_ENDSTOP_INVERTING)
+      #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_INVERTING when homing to X_MIN."
+    #elif X_HOME_DIR ==  1 && DISABLED(X_MAX_ENDSTOP_INVERTING)
+      #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_INVERTING when homing to X_MAX."
+    #elif Y_HOME_DIR == -1 && DISABLED(Y_MIN_ENDSTOP_INVERTING)
+      #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_INVERTING when homing to Y_MIN."
+    #elif Y_HOME_DIR ==  1 && DISABLED(Y_MAX_ENDSTOP_INVERTING)
+      #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_INVERTING when homing to Y_MAX."
+    #endif
   #endif
 
   // Sensorless homing is required for both combined steppers in an H-bot

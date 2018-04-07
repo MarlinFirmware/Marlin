@@ -277,6 +277,9 @@ MCU              ?= atmega2560
 else ifeq  ($(HARDWARE_MOTHERBOARD),304)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),305)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
 else ifeq  ($(HARDWARE_MOTHERBOARD),21)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega2560
