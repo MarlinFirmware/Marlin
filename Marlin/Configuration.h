@@ -44,7 +44,7 @@
                                     // stock controller is a RepRap Discount Smart Controller)
 //#define Z_DUAL_STEPPER_DRIVERS    // Enable this if you have dual Z stepper motors with the second stepper motor
                                     // connected to the next available E plug (usually E1)
-#define MOTHERBOARD BOARD_MKS_13    // Original controller board with built in stepper drivers
+#define MOTHERBOARD BOARD_MKS_13    // Original controller board with built in stepper drivers. Works with both MKS BASE 1.3 and 1.4.
 //#define MOTHERBOARD BOARD_MKS_GEN_L // Newer controller board with replacable stepper drivers
 
 /**
