@@ -135,7 +135,7 @@
 #define FAN1_PIN           _STM32_PIN(PORTC, 7)
 #define FAN2_PIN           _STM32_PIN(PORTC, 8)
 
-#define ORIG_E0_AUTO_FAN_PIN  _STM32_PIN(PORTC, 8) // Use this by NOT overriding E0_AUTO_FAN_PIN
+#define ORIG_E0_AUTO_FAN_PIN  FAN1_PIN // Use this by NOT overriding E0_AUTO_FAN_PIN
 
 //
 // Misc. Functions
