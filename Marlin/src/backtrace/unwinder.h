@@ -146,10 +146,10 @@ typedef struct {
    */
   bool (*readB)(const uint32_t address, uint8_t  *val);
 
-#if defined(UNW_DEBUG)
-  /** Print a formatted line for debug. */
-  void (*printf)(const char *format, ...);
-#endif
+  #ifdef UNW_DEBUG
+    /** Print a formatted line for debug. */
+    void (*printf)(const char *format, ...);
+  #endif
 } UnwindCallbacks;
 
 /* A frame */

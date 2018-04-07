@@ -69,39 +69,39 @@
 
 // TESTSTRINGS
 
-#define STRG_ASCII_2 " !\"#$%&'()*+,-./"
-#define STRG_ASCII_3 "0123456789:;<=>?"
-#define STRG_ASCII_4 "@ABCDEFGHIJKLMNO"
-#define STRG_ASCII_5 "PQRSTUVWXYZ[\]^_"
-#define STRG_ASCII_6 "`abcdefghijklmno"
-#define STRG_ASCII_7 "pqrstuvwxyz{|}~"
+#define STRG_ASCII_2 _UxGT(" !\"#$%&'()*+,-./")
+#define STRG_ASCII_3 _UxGT("0123456789:;<=>?")
+#define STRG_ASCII_4 _UxGT("@ABCDEFGHIJKLMNO")
+#define STRG_ASCII_5 _UxGT("PQRSTUVWXYZ[\]^_")
+#define STRG_ASCII_6 _UxGT("`abcdefghijklmno")
+#define STRG_ASCII_7 _UxGT("pqrstuvwxyz{|}~")
 
-#define STRG_C2_8 ""
-#define STRG_C2_9 ""
-#define STRG_C2_a " ¡¢£¤¥¦§¨©ª«¬­®¯"
-#define STRG_C2_b "°±²³´µ¶·¸¹º»¼½¾¿"
-#define STRG_C3_8 "ÈÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ"
-#define STRG_C3_9 "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß"
-#define STRG_C3_a "àáâãäåæçèéêëìíîï"
-#define STRG_C3_b "ðñòóôõö÷øùúûüýþÿ"
+#define STRG_C2_8 _UxGT("")
+#define STRG_C2_9 _UxGT("")
+#define STRG_C2_a _UxGT(" ¡¢£¤¥¦§¨©ª«¬­®¯")
+#define STRG_C2_b _UxGT("°±²³´µ¶·¸¹º»¼½¾¿")
+#define STRG_C3_8 _UxGT("ÈÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ")
+#define STRG_C3_9 _UxGT("ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß")
+#define STRG_C3_a _UxGT("àáâãäåæçèéêëìíîï")
+#define STRG_C3_b _UxGT("ðñòóôõö÷øùúûüýþÿ")
 
-#define STRG_D0_8 "ЀЁЂЃЄЅІЇЈЉЊЋЌЍЎЏ"
-#define STRG_D0_9 "АБВГДЕЖЗИЙКЛМНОП"
-#define STRG_D0_a "РСТУФХЦЧШЩЪЫЬЭЮЯ"
-#define STRG_D0_b "абвгдежзийклмноп"
-#define STRG_D1_8 "рстуфхцчшщъыьэюя"
-#define STRG_D1_9 "ѐёђѓєѕіїјљњћќѝўџ"
-#define STRG_D1_a "ѠѡѢѣѤѥѦѧѨѩѪѫѬѭѮѯ"
-#define STRG_D1_b "ѰѱѲѳѴѵѶѷѸѹѺѻѼѽѾѿ"
+#define STRG_D0_8 _UxGT("ЀЁЂЃЄЅІЇЈЉЊЋЌЍЎЏ")
+#define STRG_D0_9 _UxGT("АБВГДЕЖЗИЙКЛМНОП")
+#define STRG_D0_a _UxGT("РСТУФХЦЧШЩЪЫЬЭЮЯ")
+#define STRG_D0_b _UxGT("абвгдежзийклмноп")
+#define STRG_D1_8 _UxGT("рстуфхцчшщъыьэюя")
+#define STRG_D1_9 _UxGT("ѐёђѓєѕіїјљњћќѝўџ")
+#define STRG_D1_a _UxGT("ѠѡѢѣѤѥѦѧѨѩѪѫѬѭѮѯ")
+#define STRG_D1_b _UxGT("ѰѱѲѳѴѵѶѷѸѹѺѻѼѽѾѿ")
 
-#define STRG_E382_8 "よめもゃやゅゆょよらりるれろゎわ"
-#define STRG_E382_9 "ゐゑをんゔゕゖ゗゘゙゚゛ ゜ゝゞゟ"
-#define STRG_E382_a "゠ァアィイゥウェエォオカガキギク"
-#define STRG_E382_b "グケゲコゴサザシジスズセゼソゾタ"
-#define STRG_E383_8 "トチヂッツヅテデトドナニヌネノハ"
-#define STRG_E383_9 "バパヒビピフブプヘベペホボポマミ"
-#define STRG_E383_a "ムメモャヤュユョヨラリルレロヮワ"
-#define STRG_E383_b "ヰヱヲンヴヵヶヷヸヹヺ・ーヽヾヿ"
+#define STRG_E382_8 _UxGT("よめもゃやゅゆょよらりるれろゎわ")
+#define STRG_E382_9 _UxGT("ゐゑをんゔゕゖ゗゘゙゚゛ ゜ゝゞゟ")
+#define STRG_E382_a _UxGT("゠ァアィイゥウェエォオカガキギク")
+#define STRG_E382_b _UxGT("グケゲコゴサザシジスズセゼソゾタ")
+#define STRG_E383_8 _UxGT("トチヂッツヅテデトドナニヌネノハ")
+#define STRG_E383_9 _UxGT("バパヒビピフブプヘベペホボポマミ")
+#define STRG_E383_a _UxGT("ムメモャヤュユョヨラリルレロヮワ")
+#define STRG_E383_b _UxGT("ヰヱヲンヴヵヶヷヸヹヺ・ーヽヾヿ")
 
 #define STRG_OKTAL_0 "\000\001\002\003\004\005\006\007\010\011\012\013\014\015\016\017"
 #define STRG_OKTAL_1 "\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037"
@@ -121,21 +121,21 @@
 #define STRG_OKTAL_f "\360\361\362\363\364\365\366\367\370\371\372\373\374\375\376\377"
 
 #if ENABLED(DISPLAYTEST)
-  #define WELCOME_MSG                         "Language TEST"
+  #define WELCOME_MSG                         _UxGT("Language TEST")
 
-  #define MSG_WATCH                           "Display test"
+  #define MSG_WATCH                           _UxGT("Display test")
   #define MSG_PREPARE                         STRG_OKTAL_b
   #define MSG_CONTROL                         STRG_OKTAL_c
 #endif
 
 #if ENABLED(WEST)
-  #define WELCOME_MSG                         "Language TEST"
+  #define WELCOME_MSG                         _UxGT("Language TEST")
 
-  #define MSG_WATCH                           "\001\002\003\004\005\006\007\010\011"
-  #define MSG_PREPARE                         "UTF8"
-  #define MSG_CONTROL                         "ASCII"
+  #define MSG_WATCH                           _UxGT("\001\002\003\004\005\006\007\010\011")
+  #define MSG_PREPARE                         _UxGT("UTF8")
+  #define MSG_CONTROL                         _UxGT("ASCII")
 
-  //#define MSG_MAIN                            ".."
+  //#define MSG_MAIN                            _UxGT("..")
   #define MSG_DISABLE_STEPPERS                STRG_C2_8
   #define MSG_AUTO_HOME                       STRG_C2_9
   #define MSG_SET_HOME_OFFSETS                STRG_C2_a
@@ -164,13 +164,13 @@
 #endif
 
 #if ENABLED(CYRIL)
-  #define WELCOME_MSG                         "Language TEST"
+  #define WELCOME_MSG                         _UxGT("Language TEST")
 
-  #define MSG_WATCH                           "\001\002\003\004\005\006\007\010\011"
-  #define MSG_PREPARE                         "UTF8"
-  #define MSG_CONTROL                         "ASCII"
+  #define MSG_WATCH                           _UxGT("\001\002\003\004\005\006\007\010\011")
+  #define MSG_PREPARE                         _UxGT("UTF8")
+  #define MSG_CONTROL                         _UxGT("ASCII")
 
-  //#define MSG_MAIN                            ".."
+  //#define MSG_MAIN                            _UxGT("..")
   #define MSG_DISABLE_STEPPERS                STRG_D0_8
   #define MSG_AUTO_HOME                       STRG_D0_9
   #define MSG_SET_HOME_OFFSETS                STRG_D0_a
@@ -199,13 +199,13 @@
 #endif
 
 #if ENABLED(KANA)
-  #define WELCOME_MSG                         "Language TEST"
+  #define WELCOME_MSG                         _UxGT("Language TEST")
 
-  #define MSG_WATCH                           "\001\002\003\004\005\006\007\010\011"
-  #define MSG_PREPARE                         "UTF8"
-  #define MSG_CONTROL                         "ASCII"
+  #define MSG_WATCH                           _UxGT("\001\002\003\004\005\006\007\010\011")
+  #define MSG_PREPARE                         _UxGT("UTF8")
+  #define MSG_CONTROL                         _UxGT("ASCII")
 
-  //#define MSG_MAIN                            ".."
+  //#define MSG_MAIN                            _UxGT("..")
   #define MSG_DISABLE_STEPPERS                STRG_E382_8
   #define MSG_AUTO_HOME                       STRG_E382_9
   #define MSG_SET_HOME_OFFSETS                STRG_E382_a

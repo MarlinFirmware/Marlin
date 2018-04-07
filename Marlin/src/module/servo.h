@@ -36,9 +36,9 @@ extern void servo_init();
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_Z_SERVO_ENDSTOP
-  #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[0])
-  #define STOW_Z_SERVO() MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[1])
+#if HAS_Z_SERVO_PROBE
+  #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, z_servo_angle[0])
+  #define STOW_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, z_servo_angle[1])
 #endif
 
 #endif // _SERVO_H_

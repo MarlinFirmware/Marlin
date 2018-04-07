@@ -35,6 +35,10 @@
   #include "../../module/scara.h"
 #endif
 
+#if ENABLED(SCARA_FEEDRATE_SCALING) && ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  #include "../../feature/bedlevel/abl/abl.h"
+#endif
+
 #if N_ARC_CORRECTION < 1
   #undef N_ARC_CORRECTION
   #define N_ARC_CORRECTION 1
@@ -137,6 +141,14 @@ void plan_arc(
 
   millis_t next_idle_ms = millis() + 200UL;
 
+  #if ENABLED(SCARA_FEEDRATE_SCALING)
+    // SCARA needs to scale the feed rate from mm/s to degrees/s
+    const float inv_segment_length = 1.0 / (MM_PER_ARC_SEGMENT),
+                inverse_secs = inv_segment_length * fr_mm_s;
+    float oldA = planner.position_float[A_AXIS],
+          oldB = planner.position_float[B_AXIS];
+  #endif
+
   #if N_ARC_CORRECTION > 1
     int8_t arc_recalc_count = N_ARC_CORRECTION;
   #endif
@@ -180,11 +192,28 @@ void plan_arc(
 
     clamp_to_software_endstops(raw);
 
-    planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder);
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
+      // For SCARA scale the feed rate from mm/s to degrees/s
+      // i.e., Complete the angular vector in the given time.
+      inverse_kinematics(raw);
+      ADJUST_DELTA(raw);
+      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
+      oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
+    #else
+      planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder);
+    #endif
   }
 
   // Ensure last segment arrives at target location.
-  planner.buffer_line_kinematic(cart, fr_mm_s, active_extruder);
+  #if ENABLED(SCARA_FEEDRATE_SCALING)
+    inverse_kinematics(cart);
+    ADJUST_DELTA(cart);
+    const float diff2 = HYPOT2(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB);
+    if (diff2)
+      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], cart[Z_AXIS], cart[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
+  #else
+    planner.buffer_line_kinematic(cart, fr_mm_s, active_extruder);
+  #endif
 
   // As far as the parser is concerned, the position is now == target. In reality the
   // motion control system might still be processing the action and the real tool position
