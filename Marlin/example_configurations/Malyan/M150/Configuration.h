@@ -315,6 +315,7 @@
 // For Malyan M150, some discussions around changing the TEMP_SENSOR_BED from 1 to 3 on a french discussion board.
 // The reasons are inconclusive so I leave at 1
 #define TEMP_SENSOR_BED 1
+#define TEMP_SENSOR_CHAMBER 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25

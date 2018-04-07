@@ -315,6 +315,7 @@
                              // to print on glass.   And I'm using a 400mm x 400mm silicon heat pad powered through
                              // a Fortek SSR to do it.   If you are using an unaltered gCreate machine, this needs
                              // to be set to 0
+#define TEMP_SENSOR_CHAMBER 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
