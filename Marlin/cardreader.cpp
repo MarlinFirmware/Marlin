@@ -937,6 +937,9 @@ void CardReader::printingHasFinished() {
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
+    #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      progress_bar_percent = 0;
+    #endif
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       lcd_reselect_last_file();
     #endif
