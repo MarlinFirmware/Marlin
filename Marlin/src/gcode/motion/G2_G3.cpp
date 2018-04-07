@@ -35,6 +35,10 @@
   #include "../../module/scara.h"
 #endif
 
+#if ENABLED(SCARA_FEEDRATE_SCALING) && ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  #include "../../feature/bedlevel/abl/abl.h"
+#endif
+
 #if N_ARC_CORRECTION < 1
   #undef N_ARC_CORRECTION
   #define N_ARC_CORRECTION 1

@@ -25,13 +25,28 @@
  */
 
 /**
- * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
+ * HARDWARE VS. SOFTWARE SPI COMPATIBILITY
+ *
+ * DUE selects hardware vs. software SPI depending on whether one of the hardware-controllable SDSS pins is in use.
+ *
+ * The hardware SPI controller doesn't allow software SPIs to control any shared pins.
+ *
+ * When DUE software SPI is used then Trinamic drivers must use the TMC softSPI.
+ *
+ * When DUE hardware SPI is used then a Trinamic driver can use either its hardware SPI or, if there are no shared
+ * pins, its software SPI.
+ *
+ * Usually the hardware SPI pins are only available to the LCD. This makes the DUE hard SPI used at the same time
+ * as the TMC2130 soft SPI the most common setup.
  */
+#define _IS_HW_SPI(P) (defined(P) && (P == MOSI_PIN || P == MISO_PIN || P == SCK_PIN))
 
 #if ENABLED(SDSUPPORT) && ENABLED(HAVE_TMC2130)
-  #if ENABLED(DUE_SOFTWARE_SPI) && !ENABLED(TMC_USE_SW_SPI)
-    #error "DUE software SPI is incompatible with TMC2130 hardware SPI. Enable TMC_USE_SW_SPI to fix."
-  #elif !ENABLED(DUE_SOFTWARE_SPI) && ENABLED(TMC_USE_SW_SPI)
-    #error "DUE hardware SPI is incompatible with TMC2130 software SPI. Disable TMC_USE_SW_SPI to fix."
+  #if ENABLED(TMC_USE_SW_SPI)
+    #if DISABLED(DUE_SOFTWARE_SPI) && (_IS_HW_SPI(TMC_SW_MOSI) || _IS_HW_SPI(TMC_SW_MISO) || _IS_HW_SPI(TMC_SW_SCK))
+      #error "DUE hardware SPI is required but is incompatible with TMC2130 software SPI. Either disable TMC_USE_SW_SPI or use separate pins for the two SPIs."
+    #endif
+  #elif ENABLED(DUE_SOFTWARE_SPI)
+    #error "DUE software SPI is required but is incompatible with TMC2130 hardware SPI. Enable TMC_USE_SW_SPI to fix."
   #endif
 #endif

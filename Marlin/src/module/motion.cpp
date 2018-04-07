@@ -585,7 +585,6 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       const float cartesian_segment_mm = cartesian_mm * inv_segments;
     #endif
 
-
     /*
     SERIAL_ECHOPAIR("mm=", cartesian_mm);
     SERIAL_ECHOPAIR(" seconds=", seconds);

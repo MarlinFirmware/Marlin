@@ -47,6 +47,10 @@
   #define HEATER_BED_RAW_HI_TEMP 16383
   #define HEATER_BED_RAW_LO_TEMP 0
 #endif
+#if THERMISTORCHAMBER == 20
+  #define HEATER_CHAMBER_RAW_HI_TEMP 16383
+  #define HEATER_CHAMBER_RAW_LO_TEMP 0
+#endif
 const short temptable_20[][2] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },
