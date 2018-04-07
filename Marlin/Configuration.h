@@ -33,14 +33,16 @@
  */
 //#define LARGE_BED
 #define SDSUPPORT
-//#define CHANGE_Y_DIRECTION      // If your bed homes in the wrong direction (it should move front to back) enable this.
-//#define CHANGE_X_DIRECTION      // If your X carriage homes in the wrong direction (it should move right to left) enable this.
-//#define CHANGE_Z_DIRECTION      // If your Z homes in the wrong direction (it should move top to bottom) enable this.
-//#define HOTEND_E3DV6            // Genuine E3D v6 hotend.
-//#define FULL_GRAPHIC_SMART      // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The
-                                  // stock controller is a RepRap Discount Smart Controller)
-//#define Z_DUAL_STEPPER_DRIVERS  // Enable this if you have dual Z stepper motors with the second stepper motor
-                                  // connected to the next available E plug (usually E1)
+//#define CHANGE_Y_DIRECTION        // If your bed homes in the wrong direction (it should move front to back) enable this.
+//#define CHANGE_X_DIRECTION        // If your X carriage homes in the wrong direction (it should move right to left) enable this.
+//#define CHANGE_Z_DIRECTION        // If your Z homes in the wrong direction (it should move top to bottom) enable this.
+//#define HOTEND_E3DV6              // Genuine E3D v6 hotend.
+//#define FULL_GRAPHIC_SMART        // Enable this if you have a RepRap Discount Full Graphic Smart Controller (The
+                                    // stock controller is a RepRap Discount Smart Controller)
+//#define Z_DUAL_STEPPER_DRIVERS    // Enable this if you have dual Z stepper motors with the second stepper motor
+                                    // connected to the next available E plug (usually E1)
+#define MOTHERBOARD BOARD_MKS_13    // Original controller board with built in stepper drivers
+//#define MOTHERBOARD BOARD_MKS_GEN_L // Newer controller board with replacable stepper drivers
 
 /**
  * Offset from endpoints to get nozzle to 0,0 (front/left of bed)
