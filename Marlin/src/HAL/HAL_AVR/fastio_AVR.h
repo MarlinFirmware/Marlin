@@ -242,9 +242,9 @@ typedef enum {
 
 //find out which harware PWMs are already in use
 #if PIN_EXISTS(CONTROLLER_FAN)
-  #define PWM_CHK_FAN_B(p) (p == CONTROLLER_FAN_PIN || p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN)
+  #define PWM_CHK_FAN_B(p) (p == CONTROLLER_FAN_PIN || p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN || p == CHAMBER_AUTO_FAN_PIN)
 #else
-  #define PWM_CHK_FAN_B(p) (p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN)
+  #define PWM_CHK_FAN_B(p) (p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN || p == CHAMBER_AUTO_FAN_PIN)
 #endif
 
 #if PIN_EXISTS(FAN) || PIN_EXISTS(FAN1) || PIN_EXISTS(FAN2)
