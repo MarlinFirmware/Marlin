@@ -33,18 +33,18 @@
  */
 static bool isDataProc(uint32_t instr) {
 
-  uint8_t opcode = (instr & 0x01e00000) >> 21;
+  uint8_t opcode = (instr & 0x01E00000) >> 21;
   bool    S      = (instr & 0x00100000) ? true : false;
 
-  if((instr & 0xfc000000) != 0xe0000000) {
+  if ((instr & 0xFC000000) != 0xE0000000) {
     return false;
-  } else
-  if(!S && opcode >= 8 && opcode <= 11) {
+  }
+  else if (!S && opcode >= 8 && opcode <= 11) {
     /* TST, TEQ, CMP and CMN all require S to be set */
     return false;
-  } else {
-    return true;
   }
+  else
+    return true;
 }
 
 UnwResult UnwStartArm(UnwState * const state) {
@@ -56,20 +56,20 @@ UnwResult UnwStartArm(UnwState * const state) {
     uint32_t instr;
 
     /* Attempt to read the instruction */
-    if(!state->cb->readW(state->regData[15].v, &instr)) {
+    if (!state->cb->readW(state->regData[15].v, &instr)) {
       return UNWIND_IREAD_W_FAIL;
     }
 
     UnwPrintd4("A %x %x %08x:", state->regData[13].v, state->regData[15].v, instr);
 
     /* Check that the PC is still on Arm alignment */
-    if(state->regData[15].v & 0x3) {
+    if (state->regData[15].v & 0x3) {
       UnwPrintd1("\nError: PC misalignment\n");
       return UNWIND_INCONSISTENT;
     }
 
     /* Check that the SP and PC have not been invalidated */
-    if(!M_IsOriginValid(state->regData[13].o) || !M_IsOriginValid(state->regData[15].o)) {
+    if (!M_IsOriginValid(state->regData[13].o) || !M_IsOriginValid(state->regData[15].o)) {
       UnwPrintd1("\nError: PC or SP invalidated\n");
       return UNWIND_INCONSISTENT;
     }
@@ -78,12 +78,12 @@ UnwResult UnwStartArm(UnwState * const state) {
      *  This is tested prior to data processing to prevent
      *  mis-interpretation as an invalid TEQ instruction.
      */
-    if((instr & 0xfffffff0) == 0xe12fff10) {
-      uint8_t rn = instr & 0xf;
+    if ((instr & 0xFFFFFFF0) == 0xE12FFF10) {
+      uint8_t rn = instr & 0xF;
 
       UnwPrintd4("BX r%d\t ; r%d %s\n", rn, rn, M_Origin2Str(state->regData[rn].o));
 
-      if(!M_IsOriginValid(state->regData[rn].o)) {
+      if (!M_IsOriginValid(state->regData[rn].o)) {
         UnwPrintd1("\nUnwind failure: BX to untracked register\n");
         return UNWIND_FAILURE;
       }
@@ -92,19 +92,18 @@ UnwResult UnwStartArm(UnwState * const state) {
       state->regData[15].v = state->regData[rn].v;
 
       /* Check if the return value is from the stack */
-      if(state->regData[rn].o == REG_VAL_FROM_STACK) {
+      if (state->regData[rn].o == REG_VAL_FROM_STACK) {
 
         /* Now have the return address */
         UnwPrintd2(" Return PC=%x\n", state->regData[15].v & (~0x1));
 
         /* Report the return address */
-        if(!UnwReportRetAddr(state, state->regData[rn].v)) {
-            return UNWIND_TRUNCATED;
-        }
+        if (!UnwReportRetAddr(state, state->regData[rn].v))
+          return UNWIND_TRUNCATED;
       }
 
       /* Determine the return mode */
-      if(state->regData[rn].v & 0x1) {
+      if (state->regData[rn].v & 0x1) {
 
         /* Branching to THUMB */
         return UnwStartThumb(state);
@@ -118,16 +117,16 @@ UnwResult UnwStartArm(UnwState * const state) {
       }
     }
     /* Branch */
-    else if((instr & 0xff000000) == 0xea000000) {
+    else if ((instr & 0xFF000000) == 0xEA000000) {
 
-      int32_t offset = (instr & 0x00ffffff);
+      int32_t offset = (instr & 0x00FFFFFF);
 
       /* Shift value */
       offset = offset << 2;
 
       /* Sign extend if needed */
-      if(offset & 0x02000000) {
-        offset |= 0xfc000000;
+      if (offset & 0x02000000) {
+        offset |= 0xFC000000;
       }
 
       UnwPrintd2("B %d\n", offset);
@@ -142,11 +141,11 @@ UnwResult UnwStartArm(UnwState * const state) {
     }
 
     /* MRS */
-    else if((instr & 0xffbf0fff) == 0xe10f0000) {
+    else if ((instr & 0xFFBF0FFF) == 0xE10F0000) {
 #if defined(UNW_DEBUG)
       bool R     = (instr & 0x00400000) ? true : false;
 #endif
-      uint8_t rd = (instr & 0x0000f000) >> 12;
+      uint8_t rd = (instr & 0x0000F000) >> 12;
 
       UnwPrintd4("MRS r%d,%s\t; r%d invalidated", rd, R ? "SPSR" : "CPSR", rd);
 
@@ -154,7 +153,7 @@ UnwResult UnwStartArm(UnwState * const state) {
       state->regData[rd].o = REG_VAL_INVALID;
     }
     /* MSR */
-    else if((instr & 0xffb0f000) == 0xe120f000) {
+    else if ((instr & 0xFFB0F000) == 0xE120F000) {
 #if defined(UNW_DEBUG)
       bool R = (instr & 0x00400000) ? true : false;
 
@@ -170,15 +169,15 @@ UnwResult UnwStartArm(UnwState * const state) {
        */
     }
     /* Data processing */
-    else if(isDataProc(instr)) {
+    else if (isDataProc(instr)) {
       bool            I = (instr & 0x02000000) ? true : false;
-      uint8_t    opcode = (instr & 0x01e00000) >> 21;
+      uint8_t    opcode = (instr & 0x01E00000) >> 21;
 #if defined(UNW_DEBUG)
       bool            S = (instr & 0x00100000) ? true : false;
 #endif
-      uint8_t        rn = (instr & 0x000f0000) >> 16;
-      uint8_t        rd = (instr & 0x0000f000) >> 12;
-      uint16_t operand2 = (instr & 0x00000fff);
+      uint8_t        rn = (instr & 0x000F0000) >> 16;
+      uint8_t        rd = (instr & 0x0000F000) >> 12;
+      uint16_t operand2 = (instr & 0x00000FFF);
       uint32_t        op2val;
       int             op2origin;
 
@@ -203,8 +202,8 @@ UnwResult UnwStartArm(UnwState * const state) {
 
       /* Decode operand 2 */
       if (I) {
-        uint8_t shiftDist  = (operand2 & 0x0f00) >> 8;
-        uint8_t shiftConst = (operand2 & 0x00ff);
+        uint8_t shiftDist  = (operand2 & 0x0F00) >> 8;
+        uint8_t shiftConst = (operand2 & 0x00FF);
 
         /* rotate const right by 2 * shiftDist */
         shiftDist *= 2;
@@ -217,7 +216,7 @@ UnwResult UnwStartArm(UnwState * const state) {
       else {
 
         /* Register and shift */
-        uint8_t  rm        = (operand2 & 0x000f);
+        uint8_t  rm        = (operand2 & 0x000F);
         uint8_t  regShift  = (operand2 & 0x0010) ? true : false;
         uint8_t  shiftType = (operand2 & 0x0060) >> 5;
         uint32_t shiftDist;
@@ -227,16 +226,16 @@ UnwResult UnwStartArm(UnwState * const state) {
         UnwPrintd2("r%d ", rm);
 
         /* Get the shift distance */
-        if(regShift) {
+        if (regShift) {
 
-          uint8_t rs = (operand2 & 0x0f00) >> 8;
+          uint8_t rs = (operand2 & 0x0F00) >> 8;
 
-          if(operand2 & 0x00800) {
+          if (operand2 & 0x00800) {
 
             UnwPrintd1("\nError: Bit should be zero\n");
             return UNWIND_ILLEGAL_INSTR;
           }
-          else if(rs == 15) {
+          else if (rs == 15) {
 
             UnwPrintd1("\nError: Cannot use R15 with register shift\n");
             return UNWIND_ILLEGAL_INSTR;
@@ -249,10 +248,10 @@ UnwResult UnwStartArm(UnwState * const state) {
           UnwPrintd7("%s r%d\t; r%d %s r%d %s", shiftMnu[shiftType], rs, rm, M_Origin2Str(state->regData[rm].o), rs, M_Origin2Str(state->regData[rs].o));
         }
         else {
-          shiftDist = (operand2 & 0x0f80) >> 7;
+          shiftDist = (operand2 & 0x0F80) >> 7;
           op2origin = REG_VAL_FROM_CONST;
 
-          if(shiftDist) {
+          if (shiftDist) {
             UnwPrintd3("%s #%d", shiftMnu[shiftType], shiftDist);
           }
           UnwPrintd3("\t; r%d %s", rm, M_Origin2Str(state->regData[rm].o));
@@ -265,7 +264,7 @@ UnwResult UnwStartArm(UnwState * const state) {
             break;
 
           case 1: /* logical right */
-            if(!regShift && shiftDist == 0) {
+            if (!regShift && shiftDist == 0) {
               shiftDist = 32;
             }
 
@@ -273,19 +272,19 @@ UnwResult UnwStartArm(UnwState * const state) {
             break;
 
           case 2: /* arithmetic right */
-            if(!regShift && shiftDist == 0) {
+            if (!regShift && shiftDist == 0) {
               shiftDist = 32;
             }
 
-            if(state->regData[rm].v & 0x80000000) {
+            if (state->regData[rm].v & 0x80000000) {
 
               /* Register shifts maybe greater than 32 */
-              if(shiftDist >= 32) {
-                op2val = 0xffffffff;
+              if (shiftDist >= 32) {
+                op2val = 0xFFFFFFFF;
               }
               else {
                 op2val = state->regData[rm].v >> shiftDist;
-                op2val |= 0xffffffff << (32 - shiftDist);
+                op2val |= 0xFFFFFFFF << (32 - shiftDist);
               }
             }
             else {
@@ -295,7 +294,7 @@ UnwResult UnwStartArm(UnwState * const state) {
 
           case 3: /* rotate right */
 
-            if(!regShift && shiftDist == 0) {
+            if (!regShift && shiftDist == 0) {
               /* Rotate right with extend.
                *  This uses the carry bit and so always has an
                *  untracked result.
@@ -305,7 +304,7 @@ UnwResult UnwStartArm(UnwState * const state) {
             }
             else {
               /* Limit shift distance to 0-31 incase of register shift */
-              shiftDist &= 0x1f;
+              shiftDist &= 0x1F;
 
               op2val = (state->regData[rm].v >> shiftDist) |
                        (state->regData[rm].v << (32 - shiftDist));
@@ -318,7 +317,7 @@ UnwResult UnwStartArm(UnwState * const state) {
         }
 
         /* Decide the data origin */
-        if(M_IsOriginValid(op2origin) &&
+        if (M_IsOriginValid(op2origin) &&
            M_IsOriginValid(state->regData[rm].o)) {
 
           op2origin = state->regData[rm].o;
@@ -338,7 +337,7 @@ UnwResult UnwStartArm(UnwState * const state) {
         case  4: /* ADD: Rd:= Op1 + Op2 */
         case 12: /* ORR: Rd:= Op1 OR Op2 */
         case 14: /* BIC: Rd:= Op1 AND NOT Op2 */
-          if(!M_IsOriginValid(state->regData[rn].o) ||
+          if (!M_IsOriginValid(state->regData[rn].o) ||
              !M_IsOriginValid(op2origin)) {
             state->regData[rd].o = REG_VAL_INVALID;
           }
@@ -368,14 +367,14 @@ UnwResult UnwStartArm(UnwState * const state) {
       }
 
       /* Account for pre-fetch by temporarily adjusting PC */
-      if(rn == 15) {
+      if (rn == 15) {
 
         /* If the shift amount is specified in the instruction,
          *  the PC will be 8 bytes ahead. If a register is used
          *  to specify the shift amount the PC will be 12 bytes
          *  ahead.
          */
-        if(!I && (operand2 & 0x0010))
+        if (!I && (operand2 & 0x0010))
           state->regData[rn].v += 12;
         else
           state->regData[rn].v += 8;
@@ -430,8 +429,8 @@ UnwResult UnwStartArm(UnwState * const state) {
       }
 
       /* Remove the prefetch offset from the PC */
-      if(rd != 15 && rn == 15) {
-        if(!I && (operand2 & 0x0010))
+      if (rd != 15 && rn == 15) {
+        if (!I && (operand2 & 0x0010))
           state->regData[rn].v -= 12;
         else
           state->regData[rn].v -= 8;
@@ -441,22 +440,22 @@ UnwResult UnwStartArm(UnwState * const state) {
     /* Block Data Transfer
      *  LDM, STM
      */
-    else if((instr & 0xfe000000) == 0xe8000000) {
+    else if ((instr & 0xFE000000) == 0xE8000000) {
 
       bool     P         = (instr & 0x01000000) ? true : false;
       bool     U         = (instr & 0x00800000) ? true : false;
       bool     S         = (instr & 0x00400000) ? true : false;
       bool     W         = (instr & 0x00200000) ? true : false;
       bool     L         = (instr & 0x00100000) ? true : false;
-      uint16_t baseReg   = (instr & 0x000f0000) >> 16;
-      uint16_t regList   = (instr & 0x0000ffff);
+      uint16_t baseReg   = (instr & 0x000F0000) >> 16;
+      uint16_t regList   = (instr & 0x0000FFFF);
       uint32_t addr      = state->regData[baseReg].v;
       bool     addrValid = M_IsOriginValid(state->regData[baseReg].o);
       int8_t r;
 
 #if defined(UNW_DEBUG)
       /* Display the instruction */
-      if(L) {
+      if (L) {
         UnwPrintd6("LDM%c%c r%d%s, {reglist}%s\n", P ? 'E' : 'F', U ? 'D' : 'A', baseReg, W ? "!" : "", S ? "^" : "");
       }
       else {
@@ -467,15 +466,15 @@ UnwResult UnwStartArm(UnwState * const state) {
        *  this is a load including the PC when the S-bit indicates that
        *  that CPSR is loaded from SPSR (also untracked, but ignored).
        */
-      if(S && (!L || (regList & (0x01 << 15)) == 0)) {
+      if (S && (!L || (regList & (0x01 << 15)) == 0)) {
         UnwPrintd1("\nError:S-bit set requiring banked registers\n");
         return UNWIND_FAILURE;
       }
-      else if(baseReg == 15) {
+      else if (baseReg == 15) {
         UnwPrintd1("\nError: r15 used as base register\n");
         return UNWIND_FAILURE;
       }
-      else if(regList == 0) {
+      else if (regList == 0) {
         UnwPrintd1("\nError: Register list empty\n");
         return UNWIND_FAILURE;
       }
@@ -488,21 +487,21 @@ UnwResult UnwStartArm(UnwState * const state) {
       do {
 
         /* Check if the register is to be transferred */
-        if(regList & (0x01 << r)) {
+        if (regList & (0x01 << r)) {
 
-          if(P)
+          if (P)
             addr += U ? 4 : -4;
 
-          if(L) {
+          if (L) {
 
-            if(addrValid) {
+            if (addrValid) {
 
-              if(!UnwMemReadRegister(state, addr, &state->regData[r])) {
+              if (!UnwMemReadRegister(state, addr, &state->regData[r])) {
                 return UNWIND_DREAD_W_FAIL;
               }
 
               /* Update the origin if read via the stack pointer */
-              if(M_IsOriginValid(state->regData[r].o) && baseReg == 13) {
+              if (M_IsOriginValid(state->regData[r].o) && baseReg == 13) {
                 state->regData[r].o = REG_VAL_FROM_STACK;
               }
 
@@ -517,8 +516,8 @@ UnwResult UnwStartArm(UnwState * const state) {
             }
           }
           else {
-            if(addrValid) {
-              if(!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r])) {
+            if (addrValid) {
+              if (!UnwMemWriteRegister(state, state->regData[13].v, &state->regData[r])) {
                 return UNWIND_DWRITE_W_FAIL;
               }
             }
@@ -526,36 +525,36 @@ UnwResult UnwStartArm(UnwState * const state) {
             UnwPrintd2(" R%d = 0x%08x\n", r);
           }
 
-          if(!P)
+          if (!P)
             addr += U ? 4 : -4;
         }
 
         /* Check the next register */
         r += U ? 1 : -1;
 
-      } while(r >= 0 && r <= 15);
+      } while (r >= 0 && r <= 15);
 
       /* Check the writeback bit */
-      if(W)
+      if (W)
         state->regData[baseReg].v = addr;
 
       /* Check if the PC was loaded */
-      if(L && (regList & (0x01 << 15))) {
-        if(!M_IsOriginValid(state->regData[15].o)) {
+      if (L && (regList & (0x01 << 15))) {
+        if (!M_IsOriginValid(state->regData[15].o)) {
           /* Return address is not valid */
           UnwPrintd1("PC popped with invalid address\n");
           return UNWIND_FAILURE;
         }
         else {
           /* Store the return address */
-          if(!UnwReportRetAddr(state, state->regData[15].v)) {
+          if (!UnwReportRetAddr(state, state->regData[15].v)) {
             return UNWIND_TRUNCATED;
           }
 
           UnwPrintd2("  Return PC=0x%x", state->regData[15].v);
 
           /* Determine the return mode */
-          if(state->regData[15].v & 0x1) {
+          if (state->regData[15].v & 0x1) {
             /* Branching to THUMB */
             return UnwStartThumb(state);
           }
@@ -578,7 +577,7 @@ UnwResult UnwStartArm(UnwState * const state) {
     UnwPrintd1("\n");
 
     /* Should never hit the reset vector */
-    if(state->regData[15].v == 0) return UNWIND_RESET;
+    if (state->regData[15].v == 0) return UNWIND_RESET;
 
     /* Check next address */
     state->regData[15].v += 4;
@@ -587,10 +586,10 @@ UnwResult UnwStartArm(UnwState * const state) {
     UnwMemHashGC(state);
 
     t--;
-    if(t == 0)
+    if (t == 0)
       return UNWIND_EXHAUSTED;
 
-  } while(!found);
+  } while (!found);
 
   return UNWIND_UNSUPPORTED;
 }

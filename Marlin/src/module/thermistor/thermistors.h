@@ -28,7 +28,7 @@
 #define OVERSAMPLENR 16
 #define OV(N) int16_t((N) * (OVERSAMPLENR))
 
-#define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORBED == n)
+#define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORBED == n || THERMISTORCHAMBER == n)
 
 // Pt1000 and Pt100 handling
 //
@@ -190,6 +190,15 @@
   #endif
 #endif
 
+#ifdef THERMISTORCHAMBER
+  #define CHAMBERTEMPTABLE TT_NAME(THERMISTORCHAMBER)
+  #define CHAMBERTEMPTABLE_LEN COUNT(CHAMBERTEMPTABLE)
+#else
+  #ifdef CHAMBER_USES_THERMISTOR
+    #error "No chamber thermistor table specified"
+  #endif
+#endif
+
 // Set the high and low raw values for the heaters
 // For thermistors the highest temperature results in the lowest ADC value
 // For thermocouples the highest temperature results in the highest ADC value
@@ -245,6 +254,15 @@
   #else
     #define HEATER_BED_RAW_HI_TEMP 16383
     #define HEATER_BED_RAW_LO_TEMP 0
+  #endif
+#endif
+#ifndef HEATER_CHAMBER_RAW_HI_TEMP
+  #ifdef CHAMBER_USES_THERMISTOR
+    #define HEATER_CHAMBER_RAW_HI_TEMP 0
+    #define HEATER_CHAMBER_RAW_LO_TEMP 16383
+  #else
+    #define HEATER_CHAMBER_RAW_HI_TEMP 16383
+    #define HEATER_CHAMBER_RAW_LO_TEMP 0
   #endif
 #endif
 

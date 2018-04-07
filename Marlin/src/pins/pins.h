@@ -163,6 +163,8 @@
   #include "pins_MINIRAMBO.h"         // ATmega2560
 #elif MB(EINSY_RAMBO)
   #include "pins_EINSY_RAMBO.h"       // ATmega2560
+#elif MB(EINSY_RETRO)
+  #include "pins_EINSY_RETRO.h"       // ATmega2560
 #elif MB(ELEFU_3)
   #include "pins_ELEFU_3.h"           // ATmega2560
 #elif MB(LEAPFROG)
@@ -175,6 +177,8 @@
   #include "pins_GT2560_REV_A.h"      // ATmega1280, ATmega2560
 #elif MB(GT2560_REV_A_PLUS)
   #include "pins_GT2560_REV_A_PLUS.h" // ATmega1280, ATmega2560
+#elif MB(RAMPS_ENDER_4)
+  #include "pins_RAMPS_ENDER_4.h"     // ATmega2560
 
 //
 // ATmega1281, ATmega2561
@@ -614,6 +618,13 @@
     #define E4_AUTO_FAN_PIN ORIG_E4_AUTO_FAN_PIN
   #else
     #define E4_AUTO_FAN_PIN -1
+  #endif
+#endif
+#ifndef CHAMBER_AUTO_FAN_PIN
+  #ifdef ORIG_CHAMBER_AUTO_FAN_PIN
+    #define CHAMBER_AUTO_FAN_PIN ORIG_CHAMBER_AUTO_FAN_PIN
+  #else
+    #define CHAMBER_AUTO_FAN_PIN -1
   #endif
 #endif
 

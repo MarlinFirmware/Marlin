@@ -528,7 +528,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
       lcd_erase_line(3); \
       if (strlen(STRING) <= LCD_WIDTH) { \
         lcd.setCursor((LCD_WIDTH - lcd_strlen_P(PSTR(STRING))) / 2, 3); \
-        lcd_printPGM(PSTR(STRING)); \
+        lcd_printPGM_utf(PSTR(STRING)); \
         safe_delay(DELAY); \
       } \
       else { \
@@ -601,10 +601,10 @@ void lcd_kill_screen() {
     lcd.setCursor(0, 2);
   #else
     lcd.setCursor(0, 2);
-    lcd_printPGM(PSTR(MSG_HALTED));
+    lcd_printPGM_utf(PSTR(MSG_HALTED));
     lcd.setCursor(0, 3);
   #endif
-  lcd_printPGM(PSTR(MSG_PLEASE_RESET));
+  lcd_printPGM_utf(PSTR(MSG_PLEASE_RESET));
 }
 
 FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
@@ -1017,7 +1017,7 @@ static void lcd_implementation_status_screen() {
 
   void lcd_implementation_drawedit(const char* pstr, const char* const value=NULL) {
     lcd.setCursor(1, 1);
-    lcd_printPGM(pstr);
+    lcd_printPGM_utf(pstr);
     if (value != NULL) {
       lcd.write(':');
       const uint8_t valrow = (lcd_strlen_P(pstr) + 1 + lcd_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1;  // Value on the next row if it won't fit

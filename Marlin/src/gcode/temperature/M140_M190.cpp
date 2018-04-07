@@ -61,7 +61,6 @@ void GcodeSuite::M140() {
 void GcodeSuite::M190() {
   if (DEBUGGING(DRYRUN)) return;
 
-  LCD_MESSAGEPGM(MSG_BED_HEATING);
   const bool no_wait_for_cooling = parser.seenval('S');
   if (no_wait_for_cooling || parser.seenval('R')) {
     thermalManager.setTargetBed(parser.value_celsius());
@@ -71,6 +70,8 @@ void GcodeSuite::M190() {
     #endif
   }
   else return;
+
+  lcd_setstatusPGM(thermalManager.isHeatingBed() ? PSTR(MSG_BED_HEATING) : PSTR(MSG_BED_COOLING));
 
   #if TEMP_BED_RESIDENCY_TIME > 0
     millis_t residency_start_ms = 0;

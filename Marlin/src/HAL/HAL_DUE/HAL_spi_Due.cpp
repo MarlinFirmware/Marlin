@@ -486,7 +486,7 @@
 
   static void spiRxBlockX(uint8_t* buf, uint32_t todo) {
     do {
-      *buf++ = spiTransferRx(0xff);
+      *buf++ = spiTransferRx(0xFF);
     } while (--todo);
   }
 
@@ -629,7 +629,7 @@
     bool spiInitMaded = false;
 
     void spiBegin() {
-      if(spiInitMaded == false) {
+      if (spiInitMaded == false) {
         // Configure SPI pins
         PIO_Configure(
            g_APinDescription[SCK_PIN].pPort,
@@ -681,8 +681,8 @@
     }
 
     void spiInit(uint8_t spiRate) {
-      if(spiInitMaded == false) {
-        if(spiRate > 6) spiRate = 1;
+      if (spiInitMaded == false) {
+        if (spiRate > 6) spiRate = 1;
 
         #if MB(ALLIGATOR)
           // Set SPI mode 1, clock, select not active after transfer, with delay between transfers
@@ -789,7 +789,7 @@
     }
 
     // Read from SPI into buffer
-    void spiRead(uint8_t*buf, uint16_t nbyte) {
+    void spiRead(uint8_t* buf, uint16_t nbyte) {
       if (nbyte-- == 0) return;
 
       for (int i = 0; i < nbyte; i++) {
@@ -830,38 +830,37 @@
     #define SPI_MODE_2_DUE_HW 0
     #define SPI_MODE_3_DUE_HW 1
 
-    void spiInit(uint8_t spiRate = 6 ) {  // default to slowest rate if not specified)
+    void spiInit(uint8_t spiRate=6) {  // Default to slowest rate if not specified)
       // 8.4 MHz, 4 MHz, 2 MHz, 1 MHz, 0.5 MHz, 0.329 MHz, 0.329 MHz
       int spiDueDividors[] = { 10, 21, 42, 84, 168, 255, 255 };
-      if(spiRate > 6) spiRate = 1;
+      if (spiRate > 6) spiRate = 1;
 
-          /* enable PIOA and SPI0 */
+      // Enable PIOA and SPI0
       REG_PMC_PCER0 = (1UL << ID_PIOA) | (1UL << ID_SPI0);
 
-      /* disable PIO on A26 and A27 */
+      // Disable PIO on A26 and A27
       REG_PIOA_PDR = 0x0c000000;
       OUT_WRITE(SDSS, 1);
 
-      /* reset SPI0 (from sam lib) */
+      // Reset SPI0 (from sam lib)
       SPI0->SPI_CR = SPI_CR_SPIDIS;
       SPI0->SPI_CR = SPI_CR_SWRST;
       SPI0->SPI_CR = SPI_CR_SWRST;
       SPI0->SPI_CR = SPI_CR_SPIEN;
 
-
-      /* master mode, no fault detection, chip select 0 */
-      SPI0->SPI_MR = SPI_MR_MSTR | SPI_MR_PCSDEC | SPI_MR_MODFDIS;
-
-      /* SPI mode 0, 8 Bit data transfer, baud rate */
-      SPI0->SPI_CSR[0] = SPI_CSR_SCBR(spiDueDividors[spiRate]) | SPI_MODE_0_DUE_HW;
+      // TMC2103 compatible setup
+      // Master mode, no fault detection, PCS bits in data written to TDR select CSR register
+      SPI0->SPI_MR = SPI_MR_MSTR | SPI_MR_PS | SPI_MR_MODFDIS;
+      // SPI mode 0, 8 Bit data transfer, baud rate
+      SPI0->SPI_CSR[3] = SPI_CSR_SCBR(spiDueDividors[spiRate]) | SPI_CSR_CSAAT | SPI_MODE_0_DUE_HW;  // use same CSR as TMC2130
     }
 
     static uint8_t spiTransfer(uint8_t data) {
 
-      /* wait until tx register is empty */
+      // Wait until tx register is empty
       while( (SPI0->SPI_SR & SPI_SR_TDRE) == 0 );
-      /* send data */
-      SPI0->SPI_TDR = (uint32_t)data; // | SPI_PCS(0xF);
+      // Send data
+      SPI0->SPI_TDR = (uint32_t)data | 0x00070000UL;  // Add TMC2130 PCS bits to every byte
 
       // wait for transmit register empty
       while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
@@ -877,15 +876,14 @@
     }
 
     uint8_t spiRec() {
-      uint8_t data = spiTransfer(0xff);
+      uint8_t data = spiTransfer(0xFF);
       return data;
     }
 
-    void spiRead(uint8_t*buf, uint16_t nbyte) {
+    void spiRead(uint8_t* buf, uint16_t nbyte) {
       if (nbyte == 0) return;
-      for (int i = 0; i < nbyte; i++) {
-        buf[i] = spiTransfer(0xff);
-      }
+      for (int i = 0; i < nbyte; i++)
+        buf[i] = spiTransfer(0xFF);
     }
 
     void spiSend(uint8_t data) {
