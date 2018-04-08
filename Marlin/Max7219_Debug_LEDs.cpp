@@ -64,9 +64,9 @@
 static uint8_t LEDs[8] = { 0 };
 
 #ifdef CPU_32_BIT
-  #define MS_DELAY() delayMicroseconds(5)  // 32-bit processors need a delay to stabilize the signal
+  #define MS_DELAY() delayMicroseconds(7)  // 32-bit processors need a delay to stabilize the signal
 #else
-  #define MS_DELAY() NOOP
+  #define MS_DELAY() DELAY_3_NOP
 #endif
 
 void Max7219_PutByte(uint8_t data) {
@@ -214,6 +214,16 @@ void Max7219_Set_Column(const uint8_t col, const uint8_t val) {
   Max7219(8 - col, LEDs[col]);
 }
 
+void Max7219_register_setup() {
+  //initiation of the max 7219
+  Max7219(max7219_reg_scanLimit, 0x07);
+  Max7219(max7219_reg_decodeMode, 0x00);       // using an led matrix (not digits)
+  Max7219(max7219_reg_shutdown, 0x01);         // not in shutdown mode
+  Max7219(max7219_reg_displayTest, 0x00);      // no display test
+  Max7219(max7219_reg_intensity, 0x01 & 0x0F); // the first 0x0F is the value you can set
+                                               // range: 0x00 to 0x0F
+}
+
 void Max7219_init() {
   uint8_t i, x, y;
 
@@ -223,13 +233,8 @@ void Max7219_init() {
   OUT_WRITE(MAX7219_LOAD_PIN, HIGH);
   delay(1);
 
-  //initiation of the max 7219
-  Max7219(max7219_reg_scanLimit, 0x07);
-  Max7219(max7219_reg_decodeMode, 0x00);  // using an led matrix (not digits)
-  Max7219(max7219_reg_shutdown, 0x01);    // not in shutdown mode
-  Max7219(max7219_reg_displayTest, 0x00); // no display test
-  Max7219(max7219_reg_intensity, 0x01 & 0x0F); // the first 0x0F is the value you can set
-                                               // range: 0x00 to 0x0F
+  Max7219_register_setup();
+
   for (i = 0; i <= 7; i++) {      // empty registers, turn all LEDs off
     LEDs[i] = 0x00;
     Max7219(i + 1, 0);
@@ -282,6 +287,13 @@ void Max7219_idle_tasks() {
     #endif
     CRITICAL_SECTION_END
   #endif
+      
+  static uint16_t refresh_cnt = 0;  // The Max7219 circuit boards available for several dollars on eBay 
+  if (refresh_cnt++ > 50000) {      // are vulnerable to electrical noise, especially with long wires
+    Max7219_register_setup();       // next to high current wires. If the display becomes corrupted due
+    Max7219_LED_Toggle(7, 0);       // to electrical noise, this will fix it within a couple of seconds.
+    refresh_cnt = 0;
+  }
 
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     static millis_t next_blink = 0;
