@@ -260,7 +260,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
 
         UnwPrintd5("TB%c [r%d,r%d%s]\n", H ? 'H' : 'B', rn, rm, H ? ",LSL #1" : "");
 
-        // We are only interested if the RN is the PC. Let´s choose the 1st destination
+        // We are only interested if the RN is the PC. Let's choose the 1st destination
         if (rn == 15) {
           if (H) {
             uint16_t rv;

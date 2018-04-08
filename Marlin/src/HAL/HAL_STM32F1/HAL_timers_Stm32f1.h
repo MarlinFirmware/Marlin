@@ -75,7 +75,7 @@ timer_dev* get_timer_dev(int number);
 #define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 
 #define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz
-#define TEMP_TIMER_FREQUENCY     100 // temperature interrupt frequency
+#define TEMP_TIMER_FREQUENCY    1000 // temperature interrupt frequency
 
 #define STEP_TIMER_MIN_INTERVAL    8 // minimum time in µs between stepper interrupts
 

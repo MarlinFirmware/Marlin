@@ -44,6 +44,13 @@
 /* The timer calculations of this module informed by the 'RepRap cartesian firmware' by Zack Smith
    and Philipp Tiefenbacher. */
 
+/* Jerk controlled movements planner added by Eduardo José Tagle in April
+   2018, Equations based on Synthethos TinyG2 sources, but the fixed-point
+   implementation is a complete new one, as we are running the ISR with a
+   variable period.
+   Also implemented the Bézier velocity curve evaluation in ARM assembler,
+   to avoid impacting ISR speed. */
+
 #include "stepper.h"
 
 #ifdef __AVR__
@@ -109,6 +116,15 @@ long Stepper::counter_X = 0,
 
 volatile uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
 
+#if ENABLED(BEZIER_JERK_CONTROL)
+  int32_t Stepper::bezier_A,        // A coefficient in Bézier speed curve
+          Stepper::bezier_B,        // B coefficient in Bézier speed curve
+          Stepper::bezier_C,        // C coefficient in Bézier speed curve
+          Stepper::bezier_F;        // F coefficient in Bézier speed curve
+  uint32_t Stepper::bezier_AV;      // AV coefficient in Bézier speed curve
+  bool Stepper::bezier_2nd_half;    // =false If Bézier curve has been initialized or not
+#endif
+
 #if ENABLED(LIN_ADVANCE)
 
   uint32_t Stepper::LA_decelerate_after;
@@ -134,9 +150,9 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #endif // LIN_ADVANCE
 
-long Stepper::acceleration_time, Stepper::deceleration_time;
+int32_t Stepper::acceleration_time, Stepper::deceleration_time;
 
-volatile long Stepper::count_position[NUM_AXIS] = { 0 };
+volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
 volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -145,8 +161,10 @@ volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
 uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
 
-hal_timer_t Stepper::OCR1A_nominal,
-            Stepper::acc_step_rate; // needed for deceleration start point
+hal_timer_t Stepper::OCR1A_nominal;
+#if DISABLED(BEZIER_JERK_CONTROL)
+  hal_timer_t Stepper::acc_step_rate; // needed for deceleration start point
+#endif
 
 volatile long Stepper::endstops_trigsteps[XYZ];
 
@@ -298,6 +316,207 @@ void Stepper::set_directions() {
   extern volatile uint8_t e_hit;
 #endif
 
+#if ENABLED(BEZIER_JERK_CONTROL)
+  /**
+   *   We are using a quintic (fifth-degree) Bézier polynomial for the velocity curve.
+   *  This gives us a "linear pop" velocity curve; with pop being the sixth derivative of position:
+   *  velocity - 1st, acceleration - 2nd, jerk - 3rd, snap - 4th, crackle - 5th, pop - 6th
+   *
+   *  The Bézier curve takes the form:
+   *
+   *  V(t) = P_0 * B_0(t) + P_1 * B_1(t) + P_2 * B_2(t) + P_3 * B_3(t) + P_4 * B_4(t) + P_5 * B_5(t)
+   *
+   *   Where 0 <= t <= 1, and V(t) is the velocity. P_0 through P_5 are the control points, and B_0(t)
+   *  through B_5(t) are the Bernstein basis as follows:
+   *
+   *        B_0(t) =   (1-t)^5        =   -t^5 +  5t^4 - 10t^3 + 10t^2 -  5t   +   1
+   *        B_1(t) =  5(1-t)^4 * t    =   5t^5 - 20t^4 + 30t^3 - 20t^2 +  5t
+   *        B_2(t) = 10(1-t)^3 * t^2  = -10t^5 + 30t^4 - 30t^3 + 10t^2
+   *        B_3(t) = 10(1-t)^2 * t^3  =  10t^5 - 20t^4 + 10t^3
+   *        B_4(t) =  5(1-t)   * t^4  =  -5t^5 +  5t^4
+   *        B_5(t) =             t^5  =    t^5
+   *                                      ^       ^       ^       ^       ^       ^
+   *                                      |       |       |       |       |       |
+   *                                      A       B       C       D       E       F
+   *
+   *   Unfortunately, we cannot use forward-differencing to calculate each position through
+   *  the curve, as Marlin uses variable timer periods. So, we require a formula of the form:
+   *
+   *        V_f(t) = A*t^5 + B*t^4 + C*t^3 + D*t^2 + E*t + F
+   *
+   *   Looking at the above B_0(t) through B_5(t) expanded forms, if we take the coefficients of t^5
+   *  through t of the Bézier form of V(t), we can determine that:
+   *
+   *        A =    -P_0 +  5*P_1 - 10*P_2 + 10*P_3 -  5*P_4 +  P_5
+   *        B =   5*P_0 - 20*P_1 + 30*P_2 - 20*P_3 +  5*P_4
+   *        C = -10*P_0 + 30*P_1 - 30*P_2 + 10*P_3
+   *        D =  10*P_0 - 20*P_1 + 10*P_2
+   *        E = - 5*P_0 +  5*P_1
+   *        F =     P_0
+   *
+   *   Now, since we will (currently) *always* want the initial acceleration and jerk values to be 0,
+   *  We set P_i = P_0 = P_1 = P_2 (initial velocity), and P_t = P_3 = P_4 = P_5 (target velocity),
+   *  which, after simplification, resolves to:
+   *
+   *        A = - 6*P_i +  6*P_t =  6*(P_t - P_i)
+   *        B =  15*P_i - 15*P_t = 15*(P_i - P_t)
+   *        C = -10*P_i + 10*P_t = 10*(P_t - P_i)
+   *        D = 0
+   *        E = 0
+   *        F = P_i
+   *
+   *   As the t is evaluated in non uniform steps here, there is no other way rather than evaluating
+   *  the Bézier curve at each point:
+   *
+   *        V_f(t) = A*t^5 + B*t^4 + C*t^3 + F          [0 <= t <= 1]
+   *
+   *   Floating point arithmetic execution time cost is prohibitive, so we will transform the math to
+   * use fixed point values to be able to evaluate it in realtime. Assuming a maximum of 250000 steps
+   * per second (driver pulses should at least be 2uS hi/2uS lo), and allocating 2 bits to avoid
+   * overflows on the evaluation of the Bézier curve, means we can use
+   *
+   *   t: unsigned Q0.32 (0 <= t < 1) |range 0 to 0xFFFFFFFF unsigned
+   *   A:   signed Q24.7 ,            |range = +/- 250000 * 6 * 128 = +/- 192000000 = 0x0B71B000 | 28 bits + sign
+   *   B:   signed Q24.7 ,            |range = +/- 250000 *15 * 128 = +/- 480000000 = 0x1C9C3800 | 29 bits + sign
+   *   C:   signed Q24.7 ,            |range = +/- 250000 *10 * 128 = +/- 320000000 = 0x1312D000 | 29 bits + sign
+   *   F:   signed Q24.7 ,            |range = +/- 250000     * 128 =      32000000 = 0x01E84800 | 25 bits + sign
+   *
+   *  The trapezoid generator state contains the following information, that we will use to create and evaluate
+   * the Bézier curve:
+   *
+   *  blk->step_event_count [TS] = The total count of steps for this movement. (=distance)
+   *  blk->initial_rate     [VI] = The initial steps per second (=velocity)
+   *  blk->final_rate       [VF] = The ending steps per second  (=velocity)
+   *  and the count of events completed (step_events_completed) [CS] (=distance until now)
+   *
+   *  Note the abbreviations we use in the following formulae are between []s
+   *
+   *  At the start of each trapezoid, we calculate the coefficients A,B,C,F and Advance [AV], as follows:
+   *
+   *   A =  6*128*(VF - VI) =  768*(VF - VI)
+   *   B = 15*128*(VI - VF) = 1920*(VI - VF)
+   *   C = 10*128*(VF - VI) = 1280*(VF - VI)
+   *   F =    128*VI        =  128*VI
+   *  AV = (1<<32)/TS      ~= 0xFFFFFFFF / TS (To use ARM UDIV, that is 32 bits)
+   *
+   *  And for each point, we will evaluate the curve with the following sequence:
+   *
+   *    uint32_t t = bezier_AV * curr_step;               // t: Range 0 - 1^32 = 32 bits
+   *    uint64_t f = t;
+   *    f *= t;                                           // Range 32*2 = 64 bits (unsigned)
+   *    f >>= 32;                                         // Range 32 bits  (unsigned)
+   *    f *= t;                                           // Range 32*2 = 64 bits  (unsigned)
+   *    f >>= 32;                                         // Range 32 bits : f = t^3  (unsigned)
+   *    int64_t acc = (int64_t) bezier_F << 31;           // Range 63 bits (signed)
+   *    acc += ((uint32_t) f >> 1) * (int64_t) bezier_C;  // Range 29bits + 31 = 60bits (plus sign)
+   *    f *= t;                                           // Range 32*2 = 64 bits
+   *    f >>= 32;                                         // Range 32 bits : f = t^3  (unsigned)
+   *    acc += ((uint32_t) f >> 1) * (int64_t) bezier_B;  // Range 29bits + 31 = 60bits (plus sign)
+   *    f *= t;                                           // Range 32*2 = 64 bits
+   *    f >>= 32;                                         // Range 32 bits : f = t^3  (unsigned)
+   *    acc += ((uint32_t) f >> 1) * (int64_t) bezier_A;  // Range 28bits + 31 = 59bits (plus sign)
+   *    acc >>= (31 + 7);                                 // Range 24bits (plus sign)
+   *
+   * This can be translated to the following ARM assembly sequence:
+   *
+   * At start:
+   *  fhi = AV, flo = CS, alo = F
+   *
+   *  muls  fhi,flo               | f = AV * CS       1 cycles
+   *  mov   t,fhi                 | t = AV * CS       1 cycles
+   *  lsrs  ahi,alo,#1            | a  = F << 31      1 cycles
+   *  lsls  alo,alo,#31           |                   1 cycles
+   *  umull flo,fhi,fhi,t         | f *= t            5 cycles [fhi:flo=64bits
+   *  umull flo,fhi,fhi,t         | f>>=32; f*=t      5 cycles [fhi:flo=64bits
+   *  lsrs  flo,fhi,#1            |                   1 cycles [31bits
+   *  smlal alo,ahi,flo,C         | a+=(f>>33)*C;     5 cycles
+   *  umull flo,fhi,fhi,t         | f>>=32; f*=t      5 cycles [fhi:flo=64bits
+   *  lsrs  flo,fhi,#1            |                   1 cycles [31bits
+   *  smlal alo,ahi,flo,B         | a+=(f>>33)*B;     5 cycles
+   *  umull flo,fhi,fhi,t         | f>>=32; f*=t      5 cycles [fhi:flo=64bits
+   *  lsrs  flo,fhi,#1            | f>>=33;           1 cycles [31bits
+   *  smlal alo,ahi,flo,A         | a+=(f>>33)*A;     5 cycles
+   *  lsrs  alo,ahi,#6            | a>>=38            1 cycles
+   *  43 cycles total
+   */
+
+  FORCE_INLINE void Stepper::_calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t interval) {
+    // Calculate the Bézier coefficients
+    bezier_A =  768 * (v1 - v0);
+    bezier_B = 1920 * (v0 - v1);
+    bezier_C = 1280 * (v1 - v0);
+    bezier_F =  128 * v0;
+    bezier_AV = 0xFFFFFFFF / interval;
+  }
+
+  FORCE_INLINE int32_t Stepper::_eval_bezier_curve(const uint32_t curr_step) {
+    #if defined(__ARM__) || defined(__thumb__)
+
+      // For ARM CORTEX M3/M4 CPUs, we have the optimized assembler version, that takes 43 cycles to execute
+      register uint32_t flo = 0;
+      register uint32_t fhi = bezier_AV * curr_step;
+      register uint32_t t = fhi;
+      register int32_t alo = bezier_F;
+      register int32_t ahi = 0;
+      register int32_t A = bezier_A;
+      register int32_t B = bezier_B;
+      register int32_t C = bezier_C;
+
+       __asm__ __volatile__(
+        ".syntax unified"                   "\n\t"  // is to prevent CM0,CM1 non-unified syntax
+        " lsrs  %[ahi],%[alo],#1"           "\n\t"  // a  = F << 31      1 cycles
+        " lsls  %[alo],%[alo],#31"          "\n\t"  //                   1 cycles
+        " umull %[flo],%[fhi],%[fhi],%[t]"  "\n\t"  // f *= t            5 cycles [fhi:flo=64bits]
+        " umull %[flo],%[fhi],%[fhi],%[t]"  "\n\t"  // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
+        " lsrs  %[flo],%[fhi],#1"           "\n\t"  //                   1 cycles [31bits]
+        " smlal %[alo],%[ahi],%[flo],%[C]"  "\n\t"  // a+=(f>>33)*C;     5 cycles
+        " umull %[flo],%[fhi],%[fhi],%[t]"  "\n\t"  // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
+        " lsrs  %[flo],%[fhi],#1"           "\n\t"  //                   1 cycles [31bits]
+        " smlal %[alo],%[ahi],%[flo],%[B]"  "\n\t"  // a+=(f>>33)*B;     5 cycles
+        " umull %[flo],%[fhi],%[fhi],%[t]"  "\n\t"  // f>>=32; f*=t      5 cycles [fhi:flo=64bits]
+        " lsrs  %[flo],%[fhi],#1"           "\n\t"  // f>>=33;           1 cycles [31bits]
+        " smlal %[alo],%[ahi],%[flo],%[A]"  "\n\t"  // a+=(f>>33)*A;     5 cycles
+        " lsrs  %[alo],%[ahi],#6"           "\n\t"  // a>>=38            1 cycles
+        : [alo]"+r"( alo ) ,
+          [flo]"+r"( flo ) ,
+          [fhi]"+r"( fhi ) ,
+          [ahi]"+r"( ahi ) ,
+          [A]"+r"( A ) ,  // <== Note: Even if A, B, C, and t registers are INPUT ONLY
+          [B]"+r"( B ) ,  //  GCC does bad optimizations on the code if we list them as
+          [C]"+r"( C ) ,  //  such, breaking this function. So, to avoid that problem,
+          [t]"+r"( t )    //  we list all registers as input-outputs.
+        :
+        : "cc"
+      );
+      return alo;
+
+    #else
+
+      // For non ARM targets, we provide a fallback implementation. Really doubt it
+      // will be useful, unless the processor is extremely fast.
+
+      uint32_t t = bezier_AV * curr_step;               // t: Range 0 - 1^32 = 32 bits
+      uint64_t f = t;
+      f *= t;                                           // Range 32*2 = 64 bits (unsigned)
+      f >>= 32;                                         // Range 32 bits  (unsigned)
+      f *= t;                                           // Range 32*2 = 64 bits  (unsigned)
+      f >>= 32;                                         // Range 32 bits : f = t^3  (unsigned)
+      int64_t acc = (int64_t) bezier_F << 31;           // Range 63 bits (signed)
+      acc += ((uint32_t) f >> 1) * (int64_t) bezier_C;  // Range 29bits + 31 = 60bits (plus sign)
+      f *= t;                                           // Range 32*2 = 64 bits
+      f >>= 32;                                         // Range 32 bits : f = t^3  (unsigned)
+      acc += ((uint32_t) f >> 1) * (int64_t) bezier_B;  // Range 29bits + 31 = 60bits (plus sign)
+      f *= t;                                           // Range 32*2 = 64 bits
+      f >>= 32;                                         // Range 32 bits : f = t^3  (unsigned)
+      acc += ((uint32_t) f >> 1) * (int64_t) bezier_A;  // Range 28bits + 31 = 59bits (plus sign)
+      acc >>= (31 + 7);                                 // Range 24bits (plus sign)
+      return (int32_t) acc;
+
+    #endif
+  }
+
+#endif // BEZIER_JERK_CONTROL
+
 /**
  * Stepper Driver Interrupt
  *
@@ -394,19 +613,65 @@ void Stepper::isr() {
 
   // If there is no current block, attempt to pop one from the buffer
   if (!current_block) {
+
     // Anything in the buffer?
     if ((current_block = planner.get_current_block())) {
-      trapezoid_generator_reset();
+
+      // Initialize the trapezoid generator from the current block.
+      static int8_t last_extruder = -1;
+
+      #if ENABLED(LIN_ADVANCE)
+        #if E_STEPPERS > 1
+          if (current_block->active_extruder != last_extruder) {
+            current_adv_steps = 0; // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
+            LA_active_extruder = current_block->active_extruder;
+          }
+        #endif
+
+        if ((use_advance_lead = current_block->use_advance_lead)) {
+          LA_decelerate_after = current_block->decelerate_after;
+          final_adv_steps = current_block->final_adv_steps;
+          max_adv_steps = current_block->max_adv_steps;
+        }
+      #endif
+
+      if (current_block->direction_bits != last_direction_bits || current_block->active_extruder != last_extruder) {
+        last_direction_bits = current_block->direction_bits;
+        last_extruder = current_block->active_extruder;
+        set_directions();
+      }
+
+      // No acceleration / deceleration time elapsed so far
+      acceleration_time = deceleration_time = 0;
+
+      // No step events completed so far
+      step_events_completed = 0;
+
+      // step_rate to timer interval
+      OCR1A_nominal = calc_timer_interval(current_block->nominal_rate);
+
+      // make a note of the number of step loops required at nominal speed
+      step_loops_nominal = step_loops;
+
+      #if DISABLED(BEZIER_JERK_CONTROL)
+        // Set as deceleration point the initial rate of the block
+        acc_step_rate = current_block->initial_rate;
+      #endif
+
+      #if ENABLED(BEZIER_JERK_CONTROL)
+        // Initialize the Bézier speed curve
+        _calc_bezier_curve_coeffs(current_block->initial_rate, current_block->cruise_rate, current_block->acceleration_time);
+
+        // We have not started the 2nd half of the trapezoid
+        bezier_2nd_half = false;
+      #endif
 
       // Initialize Bresenham counters to 1/2 the ceiling
       counter_X = counter_Y = counter_Z = counter_E = -(current_block->step_event_count >> 1);
-
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(i)
           counter_m[i] = -(current_block->mix_event_count[i] >> 1);
       #endif
-
-      step_events_completed = 0;
 
       #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
         e_hit = 2; // Needed for the case an endstop is already triggered before the new move begins.
@@ -414,6 +679,7 @@ void Stepper::isr() {
       #endif
 
       #if ENABLED(Z_LATE_ENABLE)
+        // If delayed Z enable, postpone move for 1mS
         if (current_block->steps[Z_AXIS] > 0) {
           enable_Z();
           _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
@@ -423,6 +689,7 @@ void Stepper::isr() {
       #endif
     }
     else {
+      // If no more queued moves, postpone next check for 1mS
       _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
       HAL_ENABLE_ISRs();
       return;
@@ -542,7 +809,6 @@ void Stepper::isr() {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-
       counter_E += current_block->steps[E_AXIS];
       if (counter_E > 0) {
         #if DISABLED(MIXING_EXTRUDER)
@@ -640,15 +906,23 @@ void Stepper::isr() {
   // Calculate new timer value
   if (step_events_completed <= (uint32_t)current_block->accelerate_until) {
 
-    #ifdef CPU_32_BIT
-      MultiU32X24toH32(acc_step_rate, acceleration_time, current_block->acceleration_rate);
+    #if ENABLED(BEZIER_JERK_CONTROL)
+      // Get the next speed to use (Jerk limited!)
+      hal_timer_t acc_step_rate =
+        acceleration_time < current_block->acceleration_time
+          ? _eval_bezier_curve(acceleration_time)
+          : current_block->cruise_rate;
     #else
-      MultiU24X32toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
-    #endif
-    acc_step_rate += current_block->initial_rate;
+      #ifdef CPU_32_BIT
+        MultiU32X24toH32(acc_step_rate, acceleration_time, current_block->acceleration_rate);
+      #else
+        MultiU24X32toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
+      #endif
+      acc_step_rate += current_block->initial_rate;
 
-    // upper limit
-    NOMORE(acc_step_rate, current_block->nominal_rate);
+      // upper limit
+      NOMORE(acc_step_rate, current_block->nominal_rate);
+    #endif
 
     // step_rate to timer interval
     const hal_timer_t interval = calc_timer_interval(acc_step_rate);
@@ -659,7 +933,6 @@ void Stepper::isr() {
     acceleration_time += interval;
 
     #if ENABLED(LIN_ADVANCE)
-
       if (current_block->use_advance_lead) {
         if (step_events_completed == step_loops || (e_steps && eISR_Rate != current_block->advance_speed)) {
           nextAdvanceISR = 0; // Wake up eISR on first acceleration loop and fire ISR if final adv_rate is reached
@@ -670,23 +943,40 @@ void Stepper::isr() {
         eISR_Rate = ADV_NEVER;
         if (e_steps) nextAdvanceISR = 0;
       }
-
     #endif // LIN_ADVANCE
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
     hal_timer_t step_rate;
-    #ifdef CPU_32_BIT
-      MultiU32X24toH32(step_rate, deceleration_time, current_block->acceleration_rate);
-    #else
-      MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
-    #endif
 
-    if (step_rate < acc_step_rate) { // Still decelerating?
-      step_rate = acc_step_rate - step_rate;
-      NOLESS(step_rate, current_block->final_rate);
-    }
-    else
-      step_rate = current_block->final_rate;
+    #if ENABLED(BEZIER_JERK_CONTROL)
+      // If this is the 1st time we process the 2nd half of the trapezoid...
+      if (!bezier_2nd_half) {
+
+        // Initialize the Bézier speed curve
+        _calc_bezier_curve_coeffs(current_block->cruise_rate, current_block->final_rate, current_block->deceleration_time);
+        bezier_2nd_half = true;
+      }
+
+      // Calculate the next speed to use
+      step_rate = deceleration_time < current_block->deceleration_time
+        ? _eval_bezier_curve(deceleration_time)
+        : current_block->final_rate;
+    #else
+
+      // Using the old trapezoidal control
+      #ifdef CPU_32_BIT
+        MultiU32X24toH32(step_rate, deceleration_time, current_block->acceleration_rate);
+      #else
+        MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
+      #endif
+
+      if (step_rate < acc_step_rate) { // Still decelerating?
+        step_rate = acc_step_rate - step_rate;
+        NOLESS(step_rate, current_block->final_rate);
+      }
+      else
+        step_rate = current_block->final_rate;
+    #endif
 
     // step_rate to timer interval
     const hal_timer_t interval = calc_timer_interval(step_rate);
@@ -697,7 +987,6 @@ void Stepper::isr() {
     deceleration_time += interval;
 
     #if ENABLED(LIN_ADVANCE)
-
       if (current_block->use_advance_lead) {
         if (step_events_completed <= (uint32_t)current_block->decelerate_after + step_loops || (e_steps && eISR_Rate != current_block->advance_speed)) {
           nextAdvanceISR = 0; // Wake up eISR on first deceleration loop
@@ -708,16 +997,13 @@ void Stepper::isr() {
         eISR_Rate = ADV_NEVER;
         if (e_steps) nextAdvanceISR = 0;
       }
-
     #endif // LIN_ADVANCE
   }
   else {
 
     #if ENABLED(LIN_ADVANCE)
-
       // If we have esteps to execute, fire the next advance_isr "now"
       if (e_steps && eISR_Rate != current_block->advance_speed) nextAdvanceISR = 0;
-
     #endif
 
     SPLIT(OCR1A_nominal);  // split step into multiple ISRs if larger than ENDSTOP_NOMINAL_OCR_VAL
