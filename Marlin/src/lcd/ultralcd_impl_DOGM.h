@@ -83,30 +83,14 @@
   #define INFO_FONT_HEIGHT 8
 #endif
 
-#include "dogm/dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
-#define FONT_SPECIAL_NAME Marlin_symbols
+// The Marlin special symbols is now in the dogm_font_data_ISO10646_1.h
+#define FONT_SPECIAL_NAME ISO10646_1_5x7
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 #define TALL_FONT_CORRECTION 1
 
-#if DISABLED(SIMULATE_ROMFONT)
-  #include "dogm/dogm_font_data_ISO10646_1.h"
-  #define FONT_MENU_NAME ISO10646_1_5x7
-#else // SIMULATE_ROMFONT
-  #if DISPLAY_CHARSET_HD44780 == JAPANESE
-    #include "dogm/dogm_font_data_HD44780_J.h"
-    #define FONT_MENU_NAME HD44780_J_5x7
-  #elif DISPLAY_CHARSET_HD44780 == WESTERN
-    #include "dogm/dogm_font_data_HD44780_W.h"
-    #define FONT_MENU_NAME HD44780_W_5x7
-  #elif DISPLAY_CHARSET_HD44780 == CYRILLIC
-    #include "dogm/dogm_font_data_HD44780_C.h"
-    #define FONT_MENU_NAME HD44780_C_5x7
-  #else // fall-back
-    #include "dogm/dogm_font_data_ISO10646_1.h"
-    #define FONT_MENU_NAME ISO10646_1_5x7
-  #endif
-#endif // SIMULATE_ROMFONT
+#include "dogm/dogm_font_data_ISO10646_1.h"
+#define FONT_MENU_NAME ISO10646_1_5x7
 
 //#define FONT_STATUSMENU_NAME FONT_MENU_NAME
 

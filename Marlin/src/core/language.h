@@ -27,9 +27,6 @@
 
 #define _UxGT(a) a
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
-
 // Fallback if no language is set. DON'T CHANGE
 #ifndef LCD_LANGUAGE
   #define LCD_LANGUAGE en
@@ -319,8 +316,7 @@
 
 #include INCLUDE_LANGUAGE
 
-#if DISABLED(SIMULATE_ROMFONT) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_1) \
+#if DISABLED(DISPLAY_CHARSET_ISO10646_1) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_5) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) \
