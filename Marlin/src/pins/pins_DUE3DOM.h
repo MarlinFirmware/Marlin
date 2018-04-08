@@ -59,21 +59,21 @@
 #define Y_DIR_PIN          16
 #define Y_ENABLE_PIN       26
 
-#define Z_STEP_PIN         61 // Z1 STP
-#define Z_DIR_PIN          60 // Z1 DIR
-#define Z_ENABLE_PIN       15 // Z1 ENA
+#define Z_STEP_PIN         61   // Z1 STP
+#define Z_DIR_PIN          60   // Z1 DIR
+#define Z_ENABLE_PIN       15   // Z1 ENA
 
-#define E0_STEP_PIN        64 // Z2 STP
-#define E0_DIR_PIN         63 // Z2 DIR
-#define E0_ENABLE_PIN      62 // Z2 ENA
+#define E0_STEP_PIN        64   // Z2 STP
+#define E0_DIR_PIN         63   // Z2 DIR
+#define E0_ENABLE_PIN      62   // Z2 ENA
 
-#define E1_STEP_PIN        51 // E1 STP
-#define E1_DIR_PIN         53 // E1 DIR
-#define E1_ENABLE_PIN      65 // E1 ENA
+#define E1_STEP_PIN        51   // E1 STP
+#define E1_DIR_PIN         53   // E1 DIR
+#define E1_ENABLE_PIN      65   // E1 ENA
 
-#define E2_STEP_PIN        24 // E2 STP
-#define E2_DIR_PIN         23 // E2 DIR
-#define E2_ENABLE_PIN      49 // E2 ENA
+#define E2_STEP_PIN        24   // E2 STP
+#define E2_DIR_PIN         23   // E2 DIR
+#define E2_ENABLE_PIN      49   // E2 ENA
 
 //
 // Temperature Sensors
@@ -93,13 +93,13 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        7 // HOTEND0 MOSFET
-#define HEATER_1_PIN        8 // HOTEND1 MOSFET
-#define HEATER_BED_PIN     39 // BED MOSFET
+#define HEATER_0_PIN        7   // HOTEND0 MOSFET
+#define HEATER_1_PIN        8   // HOTEND1 MOSFET
+#define HEATER_BED_PIN     39   // BED MOSFET
 
-#define FAN_PIN            11 // FAN1 header on board - PRINT FAN
-#define FAN1_PIN            9 // FAN2 header on board - CONTROLLER FAN
-#define FAN2_PIN           12 // FAN3 header on board - EXTRUDER0 FAN
+#define FAN_PIN            11   // FAN1 header on board - PRINT FAN
+#define FAN1_PIN            9   // FAN2 header on board - CONTROLLER FAN
+#define FAN2_PIN           12   // FAN3 header on board - EXTRUDER0 FAN
 
 //
 // Misc. Functions

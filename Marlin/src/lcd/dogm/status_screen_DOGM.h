@@ -300,12 +300,6 @@ static void lcd_implementation_status_screen() {
   // XYZ Coordinates
   //
 
-  #if ENABLED(USE_SMALL_INFOFONT)
-    #define INFO_FONT_HEIGHT 7
-  #else
-    #define INFO_FONT_HEIGHT 8
-  #endif
-
   #define XYZ_BASELINE (30 + INFO_FONT_HEIGHT)
 
   #define X_LABEL_POS  3

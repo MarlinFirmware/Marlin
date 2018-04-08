@@ -326,7 +326,7 @@ void disable_all_steppers() {
  *  - Check if cooling fan needs to be switched on
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  */
-void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
+void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     runout.run();
@@ -754,7 +754,7 @@ void setup() {
     servo_init();
   #endif
 
-  #if HAS_Z_SERVO_ENDSTOP
+  #if HAS_Z_SERVO_PROBE
     servo_probe_init();
   #endif
 
@@ -892,14 +892,15 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
   #endif
 
-  advance_command_queue();
-
-  endstops.report_state();
-  idle();
+  for (;;) {
+    if (commands_in_queue < BUFSIZE) get_available_commands();
+    advance_command_queue();
+    endstops.report_state();
+    idle();
+  }
 }

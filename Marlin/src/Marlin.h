@@ -40,7 +40,7 @@ void idle(
   #endif
 );
 
-void manage_inactivity(bool ignore_stepper_queue = false);
+void manage_inactivity(const bool ignore_stepper_queue=false);
 
 #if HAS_X2_ENABLE
   #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)

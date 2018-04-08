@@ -29,7 +29,7 @@
 #include "../../pins/pinsDebug.h"
 #include "../../module/endstops.h"
 
-#if HAS_Z_SERVO_ENDSTOP
+#if HAS_Z_SERVO_PROBE
   #include "../../module/probe.h"
   #include "../../module/servo.h"
 #endif
@@ -92,14 +92,14 @@ inline void servo_probe_test() {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM("SERVO not setup");
 
-  #elif !HAS_Z_SERVO_ENDSTOP
+  #elif !HAS_Z_SERVO_PROBE
 
     SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM("Z_ENDSTOP_SERVO_NR not setup");
+    SERIAL_ERRORLNPGM("Z_PROBE_SERVO_NR not setup");
 
-  #else // HAS_Z_SERVO_ENDSTOP
+  #else // HAS_Z_SERVO_PROBE
 
-    const uint8_t probe_index = parser.byteval('P', Z_ENDSTOP_SERVO_NR);
+    const uint8_t probe_index = parser.byteval('P', Z_PROBE_SERVO_NR);
 
     SERIAL_PROTOCOLLNPGM("Servo probe test");
     SERIAL_PROTOCOLLNPAIR(".  using index:  ", probe_index);

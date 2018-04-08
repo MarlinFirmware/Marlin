@@ -52,7 +52,7 @@
 
 float zprobe_zoffset; // Initialized by settings.load()
 
-#if HAS_Z_SERVO_ENDSTOP
+#if HAS_Z_SERVO_PROBE
   #include "../module/servo.h"
   const int z_servo_angle[2] = Z_SERVO_ANGLES;
 #endif
@@ -299,7 +299,7 @@ float zprobe_zoffset; // Initialized by settings.load()
 #if ENABLED(BLTOUCH)
 
   void bltouch_command(const int angle) {
-    MOVE_SERVO(Z_ENDSTOP_SERVO_NR, angle);  // Give the BL-Touch the command and wait
+    MOVE_SERVO(Z_PROBE_SERVO_NR, angle);  // Give the BL-Touch the command and wait
     safe_delay(BLTOUCH_DELAY);
   }
 
@@ -433,9 +433,9 @@ bool set_probe_deployed(const bool deploy) {
 
         dock_sled(!deploy);
 
-      #elif HAS_Z_SERVO_ENDSTOP && DISABLED(BLTOUCH)
+      #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
 
-        MOVE_SERVO(Z_ENDSTOP_SERVO_NR, z_servo_angle[deploy ? 0 : 1]);
+        MOVE_SERVO(Z_PROBE_SERVO_NR, z_servo_angle[deploy ? 0 : 1]);
 
       #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
@@ -700,7 +700,7 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   return measured_z;
 }
 
-#if HAS_Z_SERVO_ENDSTOP
+#if HAS_Z_SERVO_PROBE
 
   void servo_probe_init() {
     /**
@@ -715,6 +715,6 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
     STOW_Z_SERVO();
   }
 
-#endif // HAS_Z_SERVO_ENDSTOP
+#endif // HAS_Z_SERVO_PROBE
 
 #endif // HAS_BED_PROBE

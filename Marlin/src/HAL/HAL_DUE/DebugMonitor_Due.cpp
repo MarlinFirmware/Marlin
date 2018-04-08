@@ -24,7 +24,8 @@
 
 #include "../../inc/MarlinConfig.h"
 #include "../../Marlin.h"
-#include "backtrace/backtrace.h"
+#include "../../backtrace/unwinder.h"
+#include "../../backtrace/unwmemaccess.h"
 
 // Debug monitor that dumps to the Programming port all status when
 // an exception or WDT timeout happens - And then resets the board
@@ -74,9 +75,7 @@ static void TX(char c) {
 
 // Send String through UART
 static void TX(const char* s) {
-  while (*s) {
-    TX(*s++);
-  }
+  while (*s) TX(*s++);
 }
 
 static void TXDigit(uint32_t d) {
@@ -88,9 +87,8 @@ static void TXDigit(uint32_t d) {
 // Send Hex number thru UART
 static void TXHex(uint32_t v) {
   TX("0x");
-  for (int i=0; i<8; i++, v <<= 4) {
+  for (uint8_t i = 0; i < 8; i++, v <<= 4)
     TXDigit((v >> 28) & 0xF);
-  }
 }
 
 // Send Decimal number thru UART
@@ -113,11 +111,38 @@ static void TXDec(uint32_t v) {
 }
 
 // Dump a backtrace entry
-static void backtrace_dump_fn(int idx, const backtrace_t* bte, void* ctx) {
-  TX('#'); TXDec(idx); TX(' ');
-  TX(bte->name); TX('@');TXHex((uint32_t)bte->function); TX('+'); TXDec((uint32_t)bte->address - (uint32_t)bte->function);
-  TX(" PC:");TXHex((uint32_t)bte->address); TX('\n');
+static bool UnwReportOut(void* ctx, const UnwReport* bte) {
+  int* p = (int*)ctx;
+
+  (*p)++;
+  TX('#'); TXDec(*p); TX(" : ");
+  TX(bte->name?bte->name:"unknown"); TX('@'); TXHex(bte->function);
+  TX('+'); TXDec(bte->address - bte->function);
+  TX(" PC:");TXHex(bte->address); TX('\n');
+  return true;
 }
+
+#ifdef UNW_DEBUG
+  void UnwPrintf(const char* format, ...) {
+    char dest[256];
+    va_list argptr;
+    va_start(argptr, format);
+    vsprintf(dest, format, argptr);
+    va_end(argptr);
+    TX(&dest[0]);
+  }
+#endif
+
+/* Table of function pointers for passing to the unwinder */
+static const UnwindCallbacks UnwCallbacks = {
+  UnwReportOut,
+  UnwReadW,
+  UnwReadH,
+  UnwReadB
+  #if defined(UNW_DEBUG)
+   ,UnwPrintf
+  #endif
+};
 
 /**
  * HardFaultHandler_C:
@@ -129,24 +154,27 @@ static void backtrace_dump_fn(int idx, const backtrace_t* bte, void* ctx) {
  * The function ends with a BKPT instruction to force control back into the debugger
  */
 extern "C"
-void HardFault_HandlerC(unsigned long *hardfault_args, unsigned long cause) {
+void HardFault_HandlerC(unsigned long *sp, unsigned long lr, unsigned long cause) {
 
   static const char* causestr[] = {
     "NMI","Hard","Mem","Bus","Usage","Debug","WDT","RSTC"
   };
 
+  UnwindFrame btf;
+
   // Dump report to the Programming port (interrupts are DISABLED)
   TXBegin();
   TX("\n\n## Software Fault detected ##\n");
   TX("Cause: "); TX(causestr[cause]); TX('\n');
-  TX("R0   : "); TXHex(((unsigned long)hardfault_args[0])); TX('\n');
-  TX("R1   : "); TXHex(((unsigned long)hardfault_args[1])); TX('\n');
-  TX("R2   : "); TXHex(((unsigned long)hardfault_args[2])); TX('\n');
-  TX("R3   : "); TXHex(((unsigned long)hardfault_args[3])); TX('\n');
-  TX("R12  : "); TXHex(((unsigned long)hardfault_args[4])); TX('\n');
-  TX("LR   : "); TXHex(((unsigned long)hardfault_args[5])); TX('\n');
-  TX("PC   : "); TXHex(((unsigned long)hardfault_args[6])); TX('\n');
-  TX("PSR  : "); TXHex(((unsigned long)hardfault_args[7])); TX('\n');
+
+  TX("R0   : "); TXHex(((unsigned long)sp[0])); TX('\n');
+  TX("R1   : "); TXHex(((unsigned long)sp[1])); TX('\n');
+  TX("R2   : "); TXHex(((unsigned long)sp[2])); TX('\n');
+  TX("R3   : "); TXHex(((unsigned long)sp[3])); TX('\n');
+  TX("R12  : "); TXHex(((unsigned long)sp[4])); TX('\n');
+  TX("LR   : "); TXHex(((unsigned long)sp[5])); TX('\n');
+  TX("PC   : "); TXHex(((unsigned long)sp[6])); TX('\n');
+  TX("PSR  : "); TXHex(((unsigned long)sp[7])); TX('\n');
 
   // Configurable Fault Status Register
   // Consists of MMSR, BFSR and UFSR
@@ -169,14 +197,18 @@ void HardFault_HandlerC(unsigned long *hardfault_args, unsigned long cause) {
   // Bus Fault Address Register
   TX("BFAR : "); TXHex((*((volatile unsigned long *)(0xE000ED38)))); TX('\n');
 
+  TX("ExcLR: "); TXHex(lr); TX('\n');
+  TX("ExcSP: "); TXHex((unsigned long)sp); TX('\n');
+
+  btf.sp = ((unsigned long)sp) + 8*4; // The original stack pointer
+  btf.fp = btf.sp;
+  btf.lr = ((unsigned long)sp[5]);
+  btf.pc = ((unsigned long)sp[6]) | 1; // Force Thumb, as CORTEX only support it
+
   // Perform a backtrace
   TX("\nBacktrace:\n\n");
-  backtrace_frame_t btf;
-  btf.sp = ((unsigned long)hardfault_args[7]);
-  btf.fp = btf.sp;
-  btf.lr = ((unsigned long)hardfault_args[5]);
-  btf.pc = ((unsigned long)hardfault_args[6]);
-  backtrace_dump(&btf, backtrace_dump_fn, nullptr);
+  int ctr = 0;
+  UnwindStart(&btf, &UnwCallbacks, &ctr);
 
   // Disable all NVIC interrupts
   NVIC->ICER[0] = 0xFFFFFFFF;
@@ -197,89 +229,106 @@ void HardFault_HandlerC(unsigned long *hardfault_args, unsigned long cause) {
 }
 
 __attribute__((naked)) void NMI_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
     " mrsne r0, psp         \n"
-    " mov r1,#0             \n"
+    " mov r1,lr             \n"
+    " mov r2,#0             \n"
     " b HardFault_HandlerC  \n"
   );
 }
 
 __attribute__((naked)) void HardFault_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
     " mrsne r0, psp         \n"
-    " mov r1,#1             \n"
+    " mov r1,lr             \n"
+    " mov r2,#1             \n"
     " b HardFault_HandlerC  \n"
   );
 }
 
 __attribute__((naked)) void MemManage_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
     " mrsne r0, psp         \n"
-    " mov r1,#2             \n"
+    " mov r1,lr             \n"
+    " mov r2,#2             \n"
     " b HardFault_HandlerC  \n"
   );
 }
 
 __attribute__((naked)) void BusFault_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
     " mrsne r0, psp         \n"
-    " mov r1,#3             \n"
+    " mov r1,lr             \n"
+    " mov r2,#3             \n"
     " b HardFault_HandlerC  \n"
   );
 }
 
 __attribute__((naked)) void UsageFault_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
     " mrsne r0, psp         \n"
-    " mov r1,#4             \n"
+    " mov r1,lr             \n"
+    " mov r2,#4             \n"
     " b HardFault_HandlerC  \n"
   );
 }
 
 __attribute__((naked)) void DebugMon_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
     " mrsne r0, psp         \n"
-    " mov r1,#5             \n"
+    " mov r1,lr             \n"
+    " mov r2,#5             \n"
     " b HardFault_HandlerC  \n"
   );
 }
 
+/* This is NOT an exception, it is an interrupt handler - Nevertheless, the framing is the same */
 __attribute__((naked)) void WDT_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
     " mrsne r0, psp         \n"
-    " mov r1,#6             \n"
+    " mov r1,lr             \n"
+    " mov r2,#6             \n"
     " b HardFault_HandlerC  \n"
   );
 }
 
 __attribute__((naked)) void RSTC_Handler(void) {
-  __asm volatile (
+  __asm__ __volatile__ (
+    ".syntax unified        \n"
     " tst lr, #4            \n"
     " ite eq                \n"
     " mrseq r0, msp         \n"
     " mrsne r0, psp         \n"
-    " mov r1,#7             \n"
+    " mov r1,lr             \n"
+    " mov r2,#7             \n"
     " b HardFault_HandlerC  \n"
   );
 }

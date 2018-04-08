@@ -205,12 +205,12 @@ class TMC26XStepper {
      * The more regurlarly you call this function the better. In both senses of 'regularly': Calling it as often as
      * possible is not a bad idea and if you even manage that the intervals you call this function are not too irregular helps too.
      *
-     * You can call this routine even if you know that the motor is not miving. It introduces just a very small penalty in your code.
+     * You can call this routine even if you know that the motor is not moving. It introduces just a very small penalty in your code.
      * You must not call isMoving() to determine if you need to call this function, since taht is done internally already and only
      * slows down you code.
      *
-     * How often you call this function directly influences your top miving speed for the motor. It may be a good idea to call this
-     * from an timer overflow interrupt to ensure proper calling.
+     * How often you call this function directly influences your top moving speed for the motor. It may be a good idea to call this
+     * from a timer overflow interrupt to ensure proper calling.
      * \sa step()
      */
     char move(void);

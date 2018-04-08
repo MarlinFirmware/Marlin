@@ -28,8 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega 2560 or Rambo' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define BOARD_NAME          "Einsy Rambo"
-#define LARGE_FLASH         true
+#define BOARD_NAME         "Einsy Rambo"
 
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
@@ -41,10 +40,10 @@
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)
-#define X_DIAG_PIN      64
-#define Y_DIAG_PIN      69
-#define Z_DIAG_PIN      68
-#define E0_DIAG_PIN     65
+#define X_DIAG_PIN         64
+#define Y_DIAG_PIN         69
+#define Z_DIAG_PIN         68
+#define E0_DIAG_PIN        65
 
 //
 // Limit Switches
@@ -55,26 +54,22 @@
 // SERVO0_PIN and Z_MIN_PIN configuration for BLTOUCH sensor when combined with SENSORLESS_HOMING.
 //
 
-#define X_MAX_PIN          -1
-#define Y_MAX_PIN          -1
-#define Z_MAX_PIN          -1
-
 #if DISABLED(SENSORLESS_HOMING)
 
-  #define X_MIN_PIN          12
-  #define Y_MIN_PIN          11
-  #define Z_MIN_PIN          10
+  #define X_STOP_PIN       12
+  #define Y_STOP_PIN       11
+  #define Z_STOP_PIN       10
 
 #else
 
-  #define X_MIN_PIN          X_DIAG_PIN
-  #define Y_MIN_PIN          Y_DIAG_PIN
+  #define X_STOP_PIN       X_DIAG_PIN
+  #define Y_STOP_PIN       Y_DIAG_PIN
 
   #if ENABLED(BLTOUCH)
-    #define Z_MIN_PIN        11 // Y-MIN
-    #define SERVO0_PIN       10 // Z-MIN
+    #define Z_STOP_PIN     11   // Y-MIN
+    #define SERVO0_PIN     10   // Z-MIN
   #else
-    #define Z_MIN_PIN        10
+    #define Z_STOP_PIN     10
   #endif
 
 #endif
@@ -109,20 +104,6 @@
 #define E0_ENABLE_PIN      26
 #define E0_CS_PIN          66
 
-#define E1_STEP_PIN        -1
-#define E1_DIR_PIN         -1
-#define E1_ENABLE_PIN      -1
-
-// Microstepping pins - uses SPI instead
-#define X_MS1_PIN          -1
-#define X_MS2_PIN          -1
-#define Y_MS1_PIN          -1
-#define Y_MS2_PIN          -1
-#define Z_MS1_PIN          -1
-#define Z_MS2_PIN          -1
-#define E0_MS1_PIN         -1
-#define E0_MS2_PIN         -1
-
 //
 // Temperature Sensors
 //
@@ -134,8 +115,6 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN        3
-#define HEATER_1_PIN       -1
-#define HEATER_2_PIN       -1
 #define HEATER_BED_PIN      4
 
 #define FAN_PIN             8
@@ -152,8 +131,8 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 // use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN     9  // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 18  // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     9   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 18   // Pin should have a pullup!
 #define SPINDLE_DIR_PIN          19
 
 //
@@ -161,14 +140,14 @@
 //
 #define E_MUX0_PIN         17
 #define E_MUX1_PIN         16
-#define E_MUX2_PIN         78  // 84 in MK2 Firmware, with BEEPER as 78
+#define E_MUX2_PIN         78   // 84 in MK2 Firmware, with BEEPER as 78
 
 //
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD)
 
-  #define KILL_PIN 32
+  #define KILL_PIN         32
 
   #if ENABLED(NEWPANEL)
 
@@ -189,8 +168,8 @@
       #define BTN_EN2         72
     #endif
 
-    #define BTN_ENC            9  // AUX-2
-    #define BEEPER_PIN        84  // AUX-4
+    #define BTN_ENC            9   // AUX-2
+    #define BEEPER_PIN        84   // AUX-4
     #define SD_DETECT_PIN     15
 
   #endif // NEWPANEL

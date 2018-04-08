@@ -132,6 +132,12 @@ void GcodeSuite::M205() {
   if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
   if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
   if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
-  if (parser.seen('Z')) planner.max_jerk[Z_AXIS] = parser.value_linear_units();
+  if (parser.seen('Z')) {
+    planner.max_jerk[Z_AXIS] = parser.value_linear_units();
+    #if HAS_MESH
+      if (planner.max_jerk[Z_AXIS] <= 0.1)
+        SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
+    #endif
+  }
   if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
 }

@@ -57,7 +57,7 @@
 
 #define BOARD_NAME "Gen7 v1.4"
 
-#define GEN7_VERSION 14 // v1.4
+#define GEN7_VERSION 14   // v1.4
 
 //
 // Limit switches
@@ -113,6 +113,6 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENABLE_PIN 20  // Pin should have a pullup/pulldown!
-#define SPINDLE_LASER_PWM_PIN    16  // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 20   // Pin should have a pullup/pulldown!
+#define SPINDLE_LASER_PWM_PIN    16   // MUST BE HARDWARE PWM
 #define SPINDLE_DIR_PIN          21

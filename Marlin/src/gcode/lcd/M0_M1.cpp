@@ -33,6 +33,11 @@
 
 #include "../../sd/cardreader.h"
 
+#if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
+  bool GcodeSuite::lights_off_after_print;
+  #include "../../feature/leds/leds.h"
+#endif
+
 /**
  * M0: Unconditional stop - Wait for user button press on LCD
  * M1: Conditional stop   - Wait for user button press on LCD
@@ -51,9 +56,11 @@ void GcodeSuite::M0_M1() {
     hasS = ms > 0;
   }
 
+  const bool has_message = !hasP && !hasS && args && *args;
+
   #if ENABLED(ULTIPANEL)
 
-    if (!hasP && !hasS && args && *args)
+    if (has_message)
       lcd_setstatus(args, true);
     else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
@@ -64,7 +71,7 @@ void GcodeSuite::M0_M1() {
 
   #else
 
-    if (!hasP && !hasS && args && *args) {
+    if (has_message) {
       SERIAL_ECHO_START();
       SERIAL_ECHOLN(args);
     }
@@ -77,19 +84,28 @@ void GcodeSuite::M0_M1() {
   stepper.synchronize();
 
   if (ms > 0) {
-    ms += previous_move_ms;  // wait until this time for a click
+    ms += millis();  // wait until this time for a click
     while (PENDING(millis(), ms) && wait_for_user) idle();
   }
   else {
     #if ENABLED(ULTIPANEL)
-      if (lcd_detected()) {
-        while (wait_for_user) idle();
-        IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
-      }
-    #else
-      while (wait_for_user) idle();
+      if (lcd_detected())
     #endif
+        while (wait_for_user) idle();
   }
+
+  #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
+    if (lights_off_after_print) {
+      leds.set_off();
+      lights_off_after_print = false;
+    }
+  #endif
+
+  #if ENABLED(ULTIPANEL)
+    if (lcd_detected()) {
+      IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
+    }
+  #endif
 
   wait_for_user = false;
   KEEPALIVE_STATE(IN_HANDLER);

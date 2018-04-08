@@ -290,7 +290,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err: Tenp Minimoa")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: Ohe Tenp Max")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: Ohe Tenp Min")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z Debekatua")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("INPRIMA. GELDIRIK")
 #define MSG_PLEASE_RESET                    _UxGT("Berrabia. Mesedez")
 #define MSG_SHORT_DAY                       _UxGT("d") // One character only

@@ -107,6 +107,7 @@
 
 // optional for extruder 4 or chamber:
 //#define TEMP_X_PIN         12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
+//#define TEMP_CHAMBER_PIN   12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
 
 #if TEMP_SENSOR_BED == -1
   #define TEMP_BED_PIN      7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_2 is defined as thermocouple)
@@ -154,10 +155,10 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #ifndef SPINDLE_LASER_PWM_PIN
-  #define SPINDLE_LASER_PWM_PIN     4  // MUST BE HARDWARE PWM. Pin 4 interrupts OC0* and OC1* always in use?
+  #define SPINDLE_LASER_PWM_PIN     4   // MUST BE HARDWARE PWM. Pin 4 interrupts OC0* and OC1* always in use?
 #endif
 #ifndef SPINDLE_LASER_ENABLE_PIN
-  #define SPINDLE_LASER_ENABLE_PIN 14  // Pin should have a pullup!
+  #define SPINDLE_LASER_ENABLE_PIN 14   // Pin should have a pullup!
 #endif
 #ifndef SPINDLE_DIR_PIN
   #define SPINDLE_DIR_PIN          15

@@ -90,9 +90,17 @@ typedef struct {
     uint32_t mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
   #endif
 
+  // Settings for the trapezoid generator
   int32_t accelerate_until,                 // The index of the step event on which to stop acceleration
-          decelerate_after,                 // The index of the step event on which to start decelerating
-          acceleration_rate;                // The acceleration rate used for acceleration calculation
+          decelerate_after;                 // The index of the step event on which to start decelerating
+
+  #if ENABLED(BEZIER_JERK_CONTROL)
+    uint32_t cruise_rate;                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
+    int32_t acceleration_time,              // Acceleration time and deceleration time in STEP timer counts
+            deceleration_time;
+  #else
+    int32_t acceleration_rate;              // The acceleration rate used for acceleration calculation
+  #endif
 
   uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
@@ -112,7 +120,6 @@ typedef struct {
         millimeters,                        // The total travel of this block in mm
         acceleration;                       // acceleration mm/sec^2
 
-  // Settings for the trapezoid generator
   uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
            initial_rate,                    // The jerk-adjusted step rate at start of block
            final_rate,                      // The minimal rate at exit
@@ -129,6 +136,8 @@ typedef struct {
   uint32_t segment_time_us;
 
 } block_t;
+
+#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || ENABLED(SCARA_FEEDRATE_SCALING))
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
@@ -194,8 +203,11 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      static float extruder_advance_K,
-                   position_float[XYZE];
+      static float extruder_advance_K;
+    #endif
+
+    #if HAS_POSITION_FLOAT
+      static float position_float[XYZE];
     #endif
 
     #if ENABLED(SKEW_CORRECTION)
@@ -417,7 +429,7 @@ class Planner {
      *  millimeters - the length of the movement, if known
      */
     static void _buffer_steps(const int32_t (&target)[XYZE]
-      #if ENABLED(LIN_ADVANCE)
+      #if HAS_POSITION_FLOAT
         , const float (&target_float)[XYZE]
       #endif
       , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
@@ -633,6 +645,15 @@ class Planner {
     static float max_allowable_speed(const float &accel, const float &target_velocity, const float &distance) {
       return SQRT(sq(target_velocity) - 2 * accel * distance);
     }
+
+    #if ENABLED(BEZIER_JERK_CONTROL)
+      /**
+       * Calculate the speed reached given initial speed, acceleration and distance
+       */
+      static float final_speed(const float &initial_velocity, const float &accel, const float &distance) {
+        return SQRT(sq(initial_velocity) + 2 * accel * distance);
+      }
+    #endif
 
     static void calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor);
 

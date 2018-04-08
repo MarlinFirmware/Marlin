@@ -76,6 +76,7 @@
 #define BOARD_BQ_ZUM_MEGA_3D    503   // bq ZUM Mega 3D
 #define BOARD_MAKEBOARD_MINI    431   // MakeBoard Mini v2.1.2 is a control board sold by MicroMake
 #define BOARD_TRIGORILLA        343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
+#define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
 
 //
 // Other ATmega1280, ATmega2560
@@ -94,6 +95,7 @@
 #define BOARD_MINIRAMBO         302   // Mini-Rambo
 #define BOARD_MINIRAMBO_10A     303   // Mini-Rambo 1.0a
 #define BOARD_EINSY_RAMBO       304   // Einsy Rambo
+#define BOARD_EINSY_RETRO       305   // Einsy Retro
 #define BOARD_ELEFU_3           21    // Elefu Ra Board (v3)
 #define BOARD_LEAPFROG          999   // Leapfrog
 #define BOARD_MEGACONTROLLER    310   // Mega controller
