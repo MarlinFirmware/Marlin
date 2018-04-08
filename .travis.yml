@@ -436,6 +436,7 @@ script:
   - export TEST_PLATFORM="-e DUE"
   - restore_configs
   - opt_set MOTHERBOARD BOARD_RAMPS4DUE_EFB
+  - opt_set BEZIER_JERK_CONTROL
   - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
   - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
