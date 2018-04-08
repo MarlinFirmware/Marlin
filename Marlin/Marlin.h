@@ -50,7 +50,7 @@ void idle(
   #endif
 );
 
-void manage_inactivity(bool ignore_stepper_queue = false);
+void manage_inactivity(const bool ignore_stepper_queue=false);
 
 extern const char axis_codes[XYZE];
 
