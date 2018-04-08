@@ -262,6 +262,8 @@
   #error "[AXIS]_IS_TMC is now [AXIS]_IS_TMC26X. Please update your Configuration_adv.h."
 #elif defined(AUTOMATIC_CURRENT_CONTROL)
   #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
+#elif defined(FILAMENT_CHANGE_LOAD_LENGTH)
+  #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH. Please update your configuration."
 #endif
 
 /**
