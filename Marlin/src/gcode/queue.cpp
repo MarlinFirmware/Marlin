@@ -335,10 +335,10 @@ inline void get_serial_commands() {
 
           gcode_LastN = gcode_N;
         }
-        else if (card.saving) {
-          gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
-          return;
-        }
+        #if ENABLED(SDSUPPORT)
+          else if (card.saving)
+            return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
+        #endif
 
         // Movement commands alert when stopped
         if (IsStopped()) {
