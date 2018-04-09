@@ -69,6 +69,7 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     {IV('·'), 0xA5, 0}, // 0387
     {IV('Ω'), 0xF4, 0}, // 038F
     {IV('Θ'), 0xF2, 0}, // 0398, Theta
+    {IV('Ξ'), 0xE3, 0}, // 039E, Xi
     {IV('Σ'), 0xF6, 0}, // 03A3, Sigma
     {IV('Ω'), 0xF4, 0}, // 03A9, Omega
     {IV('ά'), 0xE0, 0}, // 03AC
@@ -78,6 +79,7 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     {IV('ε'), 0xE3, 0}, // 03B5, epsilon
     {IV('θ'), 0xF2, 0}, // 03B8, theta
     {IV('μ'), 0xE4, 0}, // 03BC, mu
+    {IV('ξ'), 0xE3, 0}, // 03BE, xi
     {IV('π'), 0xF7, 0}, // 03C0, pi
     {IV('ρ'), 0xE6, 0}, // 03C1, rho
     {IV('σ'), 0xE5, 0}, // 03C3, sigma
