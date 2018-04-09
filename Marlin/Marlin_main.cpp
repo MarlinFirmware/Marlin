@@ -6551,7 +6551,7 @@ inline void gcode_M17() {
 
       wait_for_user = true;
       for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
-        do_pause_e_move(1, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+        do_pause_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
       wait_for_user = false;
 
     #else
@@ -6565,7 +6565,7 @@ inline void gcode_M17() {
           #endif
 
           // Extrude filament to get into hotend
-          do_pause_e_move(purge_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+          do_pause_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
         }
 
         // Show "Purge More" / "Resume" menu and wait for reply
@@ -6825,7 +6825,7 @@ inline void gcode_M17() {
    * - Send host action for resume, if configured
    * - Resume the current SD print job, if any
    */
-  static void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &purge_length=ADVANCED_PAUSE_EXTRUDE_LENGTH, const int8_t max_beep_count=0) {
+  static void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &purge_length=ADVANCED_PAUSE_PURGE_LENGTH, const int8_t max_beep_count=0) {
     if (!did_pause_print) return;
 
     // Re-enable the heaters if they timed out
@@ -10324,7 +10324,7 @@ inline void gcode_M502() {
 
     if (pause_print(retract, park_point, unload_length, true)) {
       wait_for_filament_reload(beep_count);
-      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
+      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count);
     }
 
     #if EXTRUDERS > 1
@@ -10478,7 +10478,7 @@ inline void gcode_M502() {
 
     constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
     const float fast_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : filament_change_load_length[active_extruder]);
-    load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS,
+    load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS,
                   true, thermalManager.wait_for_heating(target_extruder), ADVANCED_PAUSE_MODE_LOAD_FILAMENT);
 
     // Restore Z axis
