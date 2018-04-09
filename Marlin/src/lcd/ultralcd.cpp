@@ -184,11 +184,11 @@ uint16_t max_display_update_time = 0;
 
   void lcd_main_menu();
   void lcd_tune_menu();
-  void lcd_prepare_menu();
+  void lcd_movement_menu();
   void lcd_move_menu();
-  void lcd_control_menu();
-  void lcd_control_temperature_menu();
-  void lcd_control_motion_menu();
+  void lcd_configuration_menu();
+  void lcd_temperature_menu();
+  void lcd_advanced_settings_menu();
 
   #if DISABLED(SLIM_LCD_MENUS)
     void lcd_control_temperature_preheat_material1_settings_menu();
@@ -1031,20 +1031,6 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     #endif
 
-    if (planner.movesplanned() || IS_SD_PRINTING) {
-      MENU_ITEM(submenu, MSG_TUNE,
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          _lcd_goto_tune_menu
-        #else
-          lcd_tune_menu
-        #endif
-      );
-    }
-    else {
-      MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-    }
-    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
-
     #if ENABLED(SDSUPPORT)
       if (card.cardOK) {
         if (card.isFileOpen()) {
@@ -1069,12 +1055,55 @@ void kill_screen(const char* lcd_msg) {
       }
     #endif // SDSUPPORT
 
+    if (planner.movesplanned() || IS_SD_PRINTING) {
+      MENU_ITEM(submenu, MSG_TUNE,
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          _lcd_goto_tune_menu
+        #else
+          lcd_tune_menu
+        #endif
+      );
+    }
+    else {
+      MENU_ITEM(submenu, MSG_MOTION, lcd_movement_menu);
+      MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_temperature_menu);
+      MENU_ITEM(submenu, MSG_CONFIGURATION, lcd_configuration_menu);
+    }
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+        if (thermalManager.targetHotEnoughToExtrude(active_extruder))
+          MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
+        else
+          MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
+      #else
+        MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_change_filament_menu);
+      #endif
+    #endif
+
     #if ENABLED(LCD_INFO_MENU)
       MENU_ITEM(submenu, MSG_INFO_MENU, lcd_info_menu);
     #endif
 
     #if ENABLED(LED_CONTROL_MENU)
       MENU_ITEM(submenu, MSG_LED_CONTROL, lcd_led_menu);
+    #endif
+
+    //
+    // Switch power on/off
+    //
+    #if HAS_POWER_SWITCH
+      if (powersupply_on)
+        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
+      else
+        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
+    #endif
+
+    //
+    // Autostart
+    //
+    #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
+      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
     #endif
 
     END_MENU();
@@ -1420,20 +1449,6 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
       #else
         MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
-      #endif
-    #endif
-
-    //
-    // Change filament
-    //
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-        if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-          MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-        else
-          MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
-      #else
-        MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_change_filament_menu);
       #endif
     #endif
 
@@ -2560,11 +2575,11 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
-   * "Prepare" submenu
+   * "Movement" submenu
    *
    */
 
-  void lcd_prepare_menu() {
+  void lcd_movement_menu() {
     START_MENU();
 
     //
@@ -2621,91 +2636,10 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
     #endif
 
-    #if HAS_M206_COMMAND && DISABLED(SLIM_LCD_MENUS)
-      //
-      // Set Home Offsets
-      //
-      MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
-    #endif
-
     //
     // Disable Steppers
     //
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
-
-    //
-    // Change filament
-    //
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      if (!IS_SD_FILE_OPEN) {
-        #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-          if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-            MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-          else
-            MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
-        #else
-          MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_change_filament_menu);
-        #endif
-      }
-    #endif // ADVANCED_PAUSE_FEATURE
-
-    #if TEMP_SENSOR_0 != 0
-
-      //
-      // Cooldown
-      //
-      bool has_heat = false;
-      HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
-      #if HAS_TEMP_BED
-        if (thermalManager.target_temperature_bed) has_heat = true;
-      #endif
-      if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
-
-      //
-      // Preheat for Material 1 and 2
-      //
-      #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_BED != 0
-        MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_m1_menu);
-        MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_m2_menu);
-      #else
-        MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
-        MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
-      #endif
-
-    #endif // TEMP_SENSOR_0 != 0
-
-    //
-    // BLTouch Self-Test and Reset
-    //
-    #if ENABLED(BLTOUCH)
-      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-      if (!endstops.z_probe_enabled && TEST_BLTOUCH())
-        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-    #endif
-
-    //
-    // Switch power on/off
-    //
-    #if HAS_POWER_SWITCH
-      if (powersupply_on)
-        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
-      else
-        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
-    #endif
-
-    //
-    // Autostart
-    //
-    #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
-      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
-    #endif
-
-    //
-    // Delta Calibration
-    //
-    #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
-    #endif
 
     END_MENU();
   }
@@ -3214,16 +3148,17 @@ void kill_screen(const char* lcd_msg) {
 
   #endif
 
-  void lcd_control_menu() {
+  void lcd_configuration_menu() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
-    MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
 
-    #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
-      MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
-    #elif ENABLED(LIN_ADVANCE)
-      MENU_ITEM_EDIT(float32, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
+    MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, lcd_advanced_settings_menu);
+
+    //
+    // Delta Calibration
+    //
+    #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
+      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
     #endif
 
     #if HAS_LCD_CONTRAST
@@ -3242,6 +3177,16 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(BLTOUCH)
       MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
     #endif
+
+    //
+    // Preheat Material 1 conf
+    //
+    MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
+
+    //
+    // Preheat Material 2 conf
+    //
+    MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
 
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
@@ -3339,16 +3284,12 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
-   * "Control" > "Temperature" submenu
+   * "Temperature" submenu
    *
    */
-  void lcd_control_temperature_menu() {
+  void lcd_temperature_menu() {
     START_MENU();
-
-    //
-    // ^ Control
-    //
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_MAIN);
 
     //
     // Nozzle:
@@ -3462,17 +3403,30 @@ void kill_screen(const char* lcd_msg) {
 
     #endif // PIDTEMP
 
-    #if DISABLED(SLIM_LCD_MENUS)
-      //
-      // Preheat Material 1 conf
-      //
-      MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
+    #if TEMP_SENSOR_0 != 0
 
       //
-      // Preheat Material 2 conf
+      // Cooldown
       //
-      MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
-    #endif
+      bool has_heat = false;
+      HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
+      #if HAS_TEMP_BED
+        if (thermalManager.target_temperature_bed) has_heat = true;
+      #endif
+      if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+
+      //
+      // Preheat for Material 1 and 2
+      //
+      #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_BED != 0
+        MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_m1_menu);
+        MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_m2_menu);
+      #else
+        MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
+        MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
+      #endif
+
+    #endif // TEMP_SENSOR_0 != 0
 
     END_MENU();
   }
@@ -3687,13 +3641,13 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
-   * "Control" > "Motion" submenu
+   * "Advanced Settings" submenu
    *
    */
 
-  void lcd_control_motion_menu() {
+  void lcd_advanced_settings_menu() {
     START_MENU();
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_CONFIGURATION);
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
       MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
@@ -3702,6 +3656,11 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     #if DISABLED(SLIM_LCD_MENUS)
+
+      //
+      // Set Home Offsets
+      //
+      MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
 
       // M203 / M205 - Feedrate items
       MENU_ITEM(submenu, MSG_VELOCITY, lcd_control_motion_velocity_menu);
@@ -3717,9 +3676,24 @@ void kill_screen(const char* lcd_msg) {
 
     #endif // !SLIM_LCD_MENUS
 
+    #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+      MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
+    #elif ENABLED(LIN_ADVANCE)
+      MENU_ITEM_EDIT(float32, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
+    #endif
+
     // M540 S - Abort on endstop hit when SD printing
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
       MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &stepper.abort_on_endstop_hit);
+    #endif
+
+    //
+    // BLTouch Self-Test and Reset
+    //
+    #if ENABLED(BLTOUCH)
+      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
+      if (!endstops.z_probe_enabled && TEST_BLTOUCH())
+        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
     #endif
 
     END_MENU();
@@ -4590,7 +4564,7 @@ void kill_screen(const char* lcd_msg) {
       #if LCD_HEIGHT > _FC_LINES_G + 1
         STATIC_ITEM(" ");
       #endif
-      HOTEND_STATUS_ITEM();                         
+      HOTEND_STATUS_ITEM();
       END_SCREEN();
     }
 
@@ -4645,7 +4619,7 @@ void kill_screen(const char* lcd_msg) {
         case ADVANCED_PAUSE_MESSAGE_OPTION: advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_WAIT_FOR;
                                             return lcd_advanced_pause_option_menu;
         #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-          case ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE: return lcd_advanced_pause_continuous_purge_menu;                                                                                              
+          case ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE: return lcd_advanced_pause_continuous_purge_menu;
         #endif
         case ADVANCED_PAUSE_MESSAGE_STATUS:
         default: break;
