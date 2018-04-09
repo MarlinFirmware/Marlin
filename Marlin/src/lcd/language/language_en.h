@@ -100,9 +100,6 @@
 #ifndef MSG_LEVEL_BED_DONE
   #define MSG_LEVEL_BED_DONE                  _UxGT("Leveling Done!")
 #endif
-#ifndef MSG_REWIPE && defined(LULZBOT_PROBE_Z_WITH_REWIPE)
-  #define MSG_REWIPE                          _UxGT("Rewiping")
-#endif
 #ifndef MSG_Z_FADE_HEIGHT
   #define MSG_Z_FADE_HEIGHT                   _UxGT("Fade Height")
 #endif
