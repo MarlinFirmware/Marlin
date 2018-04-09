@@ -1323,6 +1323,24 @@
   #define E5_MICROSTEPS       16
 
   /**
+   * Override default SPI pins for TMC2130 and TMC2660 drivers here.
+   * The default pins can be found in your board's pins file.
+   */
+  //#define X_CS_PIN          -1
+  //#define Y_CS_PIN          -1
+  //#define Z_CS_PIN          -1
+  //#define X2_CS_PIN         -1
+  //#define Y2_CS_PIN         -1
+  //#define Z2_CS_PIN         -1
+  //#define Z3_CS_PIN         -1
+  //#define E0_CS_PIN         -1
+  //#define E1_CS_PIN         -1
+  //#define E2_CS_PIN         -1
+  //#define E3_CS_PIN         -1
+  //#define E4_CS_PIN         -1
+  //#define E5_CS_PIN         -1
+
+  /**
    * Use software SPI for TMC2130.
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
