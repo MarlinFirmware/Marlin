@@ -6536,10 +6536,16 @@ inline void gcode_M17() {
 
     // Fast Load Filament
     if (fast_load_length) {
-      float saved_acceleration = planner.retract_acceleration;
-      planner.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
+      #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
+        const float saved_acceleration = planner.retract_acceleration;
+        planner.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
+      #endif
+
       do_pause_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
-      planner.retract_acceleration = saved_acceleration;
+
+      #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
+        planner.retract_acceleration = saved_acceleration;
+      #endif
     }
 
     #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
@@ -6632,10 +6638,16 @@ inline void gcode_M17() {
     do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.max_feedrate_mm_s[E_AXIS]);
 
     // Unload filament
-    float saved_acceleration = planner.retract_acceleration;
-    planner.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
+    #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
+      const float saved_acceleration = planner.retract_acceleration;
+      planner.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
+    #endif
+
     do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
-    planner.retract_acceleration = saved_acceleration;
+
+    #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
+      planner.retract_acceleration = saved_acceleration;
+    #endif
 
     // Disable extruders steppers for manual filament changing (only on boards that have separate ENABLE_PINS)
     #if E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN
@@ -6704,8 +6716,8 @@ inline void gcode_M17() {
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       if (!axis_unhomed_error())
     #endif
-    // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-    Nozzle::park(2, park_point);
+        // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+        Nozzle::park(2, park_point);
 
     // Unload the filament
     if (unload_length)
@@ -6835,7 +6847,7 @@ inline void gcode_M17() {
       thermalManager.reset_heater_idle_timer(e);
     }
 
-    if (slow_load_length && (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder))) {
+    if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) {
       // Load the new filament
       load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out);
     }
