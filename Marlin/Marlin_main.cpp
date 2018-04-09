@@ -2238,17 +2238,34 @@ static void clean_up_after_endstop_or_probe_move() {
    *
    * @return The raw Z position where the probe was triggered
    */
-  static float run_z_probe() {
+  #define HAS_CALIBRATION_PROBE (ENABLED(DELTA_AUTO_CALIBRATION) && Z_PROBE_LOW_POINT < 0)
+  static float run_z_probe(
+    #if HAS_CALIBRATION_PROBE
+      const bool is_calibration
+    #endif
+  ) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
+    #endif
+
+    #if Z_PROBE_LOW_POINT < 0
+      // Stop the probe before it goes too low to prevent damage.
+      // If Z isn't known or this is a "calibration probe" then probe to -10mm.
+      #if !HAS_CALIBRATION_PROBE
+        constexpr bool is_calibration = false;
+      #endif
+      const float z_probe_low_point = !is_calibration && axis_known_position[Z_AXIS] ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
+    #else
+      // Assertively move down in all cases
+      constexpr float z_probe_low_point = -10.0;
     #endif
 
     // Double-probing does a fast probe followed by a slow probe
     #if MULTIPLE_PROBING == 2
 
       // Do a first probe at the fast speed
-      if (do_probe_move(-10, Z_PROBE_SPEED_FAST)) return NAN;
+      if (do_probe_move(z_probe_low_point, Z_PROBE_SPEED_FAST)) return NAN;
 
       float first_probe_z = current_position[Z_AXIS];
 
@@ -2279,7 +2296,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
         // move down slowly to find bed
-        if (do_probe_move(-10, Z_PROBE_SPEED_SLOW)) return NAN;
+        if (do_probe_move(z_probe_low_point, Z_PROBE_SPEED_SLOW)) return NAN;
 
     #if MULTIPLE_PROBING > 2
         probes_total += current_position[Z_AXIS];
@@ -2327,14 +2344,14 @@ static void clean_up_after_endstop_or_probe_move() {
    *   - Raise to the BETWEEN height
    * - Return the probed Z position
    */
-  float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/) {
+  float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool is_calibration/*=false*/) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR(">>> probe_pt(", LOGICAL_X_POSITION(rx));
         SERIAL_ECHOPAIR(", ", LOGICAL_Y_POSITION(ry));
         SERIAL_ECHOPAIR(", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none");
         SERIAL_ECHOPAIR(", ", int(verbose_level));
-        SERIAL_ECHOPAIR(", ", probe_relative ? "probe" : "nozzle");
+        SERIAL_ECHOPAIR(", ", is_calibration ? "nozzle" : "probe");
         SERIAL_ECHOLNPGM("_relative)");
         DEBUG_POS("", current_position);
       }
@@ -2342,7 +2359,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // TODO: Adapt for SCARA, where the offset rotates
     float nx = rx, ny = ry;
-    if (probe_relative) {
+    if (!is_calibration) {
       if (!position_is_reachable_by_probe(rx, ry)) return NAN;  // The given position is in terms of the probe
       nx -= (X_PROBE_OFFSET_FROM_EXTRUDER);                     // Get the nozzle position
       ny -= (Y_PROBE_OFFSET_FROM_EXTRUDER);
@@ -2366,7 +2383,11 @@ static void clean_up_after_endstop_or_probe_move() {
 
     float measured_z = NAN;
     if (!DEPLOY_PROBE()) {
-      measured_z = run_z_probe() + zprobe_zoffset;
+      measured_z = run_z_probe(
+        #if HAS_CALIBRATION_PROBE
+          is_calibration
+        #endif
+      ) + zprobe_zoffset;
 
       if (raise_after == PROBE_PT_RAISE)
         do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
@@ -5436,7 +5457,7 @@ void home_all_axes() { gcode_G28(true); }
 
   inline float calibration_probe(const float nx, const float ny, const bool stow) {
     #if HAS_BED_PROBE
-      return probe_pt(nx, ny, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, false);
+      return probe_pt(nx, ny, stow ? PROBE_PT_STOW : PROBE_PT_RAISE, 0, true);
     #else
       UNUSED(stow);
       return lcd_probe_pt(nx, ny);
