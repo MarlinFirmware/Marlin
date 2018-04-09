@@ -191,12 +191,12 @@ uint16_t max_display_update_time = 0;
   void lcd_advanced_settings_menu();
 
   #if DISABLED(SLIM_LCD_MENUS)
-    void lcd_control_temperature_preheat_material1_settings_menu();
-    void lcd_control_temperature_preheat_material2_settings_menu();
+    void lcd_configuration_temperature_preheat_material1_settings_menu();
+    void lcd_configuration_temperature_preheat_material2_settings_menu();
   #endif
 
   #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
-    void lcd_control_filament_menu();
+    void lcd_advanced_filament_menu();
   #endif
 
   #if ENABLED(LCD_INFO_MENU)
@@ -229,7 +229,7 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(FWRETRACT)
     #include "../feature/fwretract.h"
-    void lcd_control_retract_menu();
+    void lcd_config_retract_menu();
   #endif
 
   #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
@@ -1505,7 +1505,7 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
-   * "Prepare" submenu items
+   * "Temperature" submenu items
    *
    */
   void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const int16_t fan) {
@@ -1618,7 +1618,7 @@ void kill_screen(const char* lcd_msg) {
 
     void lcd_preheat_m1_menu() {
       START_MENU();
-      MENU_BACK(MSG_PREPARE);
+      MENU_BACK(MSG_TEMPERATURE);
       #if HOTENDS == 1
         #if TEMP_SENSOR_BED != 0
           MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0);
@@ -1670,7 +1670,7 @@ void kill_screen(const char* lcd_msg) {
 
     void lcd_preheat_m2_menu() {
       START_MENU();
-      MENU_BACK(MSG_PREPARE);
+      MENU_BACK(MSG_TEMPERATURE);
       #if HOTENDS == 1
         #if TEMP_SENSOR_BED != 0
           MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0);
@@ -1813,7 +1813,7 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      *
-     * "Prepare" > "Level Bed" handlers
+     * "Motion" > "Level Bed" handlers
      *
      */
 
@@ -1977,7 +1977,7 @@ void kill_screen(const char* lcd_msg) {
     /**
      * Step 1: Bed Level entry-point
      *
-     * << Prepare
+     * << Motion
      *    Auto Home           (if homing needed)
      *    Leveling On/Off     (if data exists, and homed)
      *    Fade Height: ---    (Req: ENABLE_LEVELING_FADE_HEIGHT)
@@ -1990,7 +1990,7 @@ void kill_screen(const char* lcd_msg) {
      */
     void lcd_bed_leveling() {
       START_MENU();
-      MENU_BACK(MSG_PREPARE);
+      MENU_BACK(MSG_MOTION);
 
       #if DISABLED(MESH_BED_LEVELING)
         if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
@@ -2543,7 +2543,7 @@ void kill_screen(const char* lcd_msg) {
     /**
      * UBL System submenu
      *
-     * << Prepare
+     * << Motion
      *  - Manually Build Mesh >>
      *  - Activate UBL >>
      *  - Deactivate UBL >>
@@ -2556,7 +2556,7 @@ void kill_screen(const char* lcd_msg) {
 
     void _lcd_ubl_level_bed() {
       START_MENU();
-      MENU_BACK(MSG_PREPARE);
+      MENU_BACK(MSG_MOTION);
       MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
       MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
       MENU_ITEM(submenu, MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
@@ -2822,7 +2822,7 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
-   * "Prepare" > "Move Axis" submenu
+   * "Motion" > "Move Axis" submenu
    *
    */
 
@@ -2972,7 +2972,7 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
-   * "Prepare" > "Move Xmm" > "Move XYZ" submenu
+   * "Motion" > "Move Xmm" > "Move XYZ" submenu
    *
    */
 
@@ -3028,7 +3028,7 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
-   * "Prepare" > "Move Axis" submenu
+   * "Motion" > "Move Axis" submenu
    *
    */
 
@@ -3050,7 +3050,7 @@ void kill_screen(const char* lcd_msg) {
 
   void lcd_move_menu() {
     START_MENU();
-    MENU_BACK(MSG_PREPARE);
+    MENU_BACK(MSG_MOTION);
 
     if (_MOVE_XYZ_ALLOWED) {
       if (_MOVE_XY_ALLOWED) {
@@ -3119,7 +3119,7 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
-   * "Control" submenu
+   * "Configuration" submenu
    *
    */
 
@@ -3141,7 +3141,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_init_eeprom_confirm() {
       START_MENU();
-      MENU_BACK(MSG_CONTROL);
+      MENU_BACK(MSG_ADVANCED_SETTINGS);
       MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
       END_MENU();
     }
@@ -3165,7 +3165,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
     #endif
     #if ENABLED(FWRETRACT)
-      MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
+      MENU_ITEM(submenu, MSG_RETRACT, lcd_config_retract_menu);
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
       MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu);
@@ -3181,12 +3181,12 @@ void kill_screen(const char* lcd_msg) {
     //
     // Preheat Material 1 conf
     //
-    MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
+    MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_configuration_temperature_preheat_material1_settings_menu);
 
     //
     // Preheat Material 2 conf
     //
-    MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
+    MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_configuration_temperature_preheat_material2_settings_menu);
 
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
@@ -3363,6 +3363,17 @@ void kill_screen(const char* lcd_msg) {
 
     #endif // TEMP_SENSOR_0 != 0
 
+    END_MENU();
+  }
+
+  /**
+   *
+   * "Advanced Settings" -> "Temperature" submenu
+   *
+   */
+  void lcd_advanced_temperature_menu() {
+    START_MENU();
+    MENU_BACK(MSG_ADVANCED_SETTINGS);
     //
     // Autotemp, Min, Max, Fact
     //
@@ -3429,7 +3440,7 @@ void kill_screen(const char* lcd_msg) {
 
   #if DISABLED(SLIM_LCD_MENUS)
 
-    void _lcd_control_temperature_preheat_settings_menu(const uint8_t material) {
+    void _lcd_configuration_temperature_preheat_settings_menu(const uint8_t material) {
       #if HOTENDS > 4
         #define MINTEMP_ALL MIN5(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP)
         #define MAXTEMP_ALL MAX5(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP)
@@ -3447,7 +3458,7 @@ void kill_screen(const char* lcd_msg) {
         #define MAXTEMP_ALL HEATER_0_MAXTEMP
       #endif
       START_MENU();
-      MENU_BACK(MSG_TEMPERATURE);
+      MENU_BACK(MSG_CONFIGURATION);
       MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &lcd_preheat_fan_speed[material], 0, 255);
       #if TEMP_SENSOR_0 != 0
         MENU_ITEM_EDIT(int3, MSG_NOZZLE, &lcd_preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
@@ -3466,14 +3477,14 @@ void kill_screen(const char* lcd_msg) {
      * "Temperature" > "Preheat Material 1 conf" submenu
      *
      */
-    void lcd_control_temperature_preheat_material1_settings_menu() { _lcd_control_temperature_preheat_settings_menu(0); }
+    void lcd_configuration_temperature_preheat_material1_settings_menu() { _lcd_configuration_temperature_preheat_settings_menu(0); }
 
     /**
      *
      * "Temperature" > "Preheat Material 2 conf" submenu
      *
      */
-    void lcd_control_temperature_preheat_material2_settings_menu() { _lcd_control_temperature_preheat_settings_menu(1); }
+    void lcd_configuration_temperature_preheat_material2_settings_menu() { _lcd_configuration_temperature_preheat_settings_menu(1); }
 
     void _reset_acceleration_rates() { planner.reset_acceleration_rates(); }
     #if ENABLED(DISTINCT_E_FACTORS)
@@ -3513,7 +3524,7 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     // M203 / M205 Velocity options
-    void lcd_control_motion_velocity_menu() {
+    void lcd_advanced_velocity_menu() {
       START_MENU();
       MENU_BACK(MSG_MOTION);
 
@@ -3549,7 +3560,7 @@ void kill_screen(const char* lcd_msg) {
     }
 
     // M201 / M204 Accelerations
-    void lcd_control_motion_acceleration_menu() {
+    void lcd_advanced_acceleration_menu() {
       START_MENU();
       MENU_BACK(MSG_MOTION);
 
@@ -3588,7 +3599,7 @@ void kill_screen(const char* lcd_msg) {
     }
 
     // M205 Jerk
-    void lcd_control_motion_jerk_menu() {
+    void lcd_advanced_jerk_menu() {
       START_MENU();
       MENU_BACK(MSG_MOTION);
 
@@ -3605,7 +3616,7 @@ void kill_screen(const char* lcd_msg) {
     }
 
     // M92 Steps-per-mm
-    void lcd_control_motion_steps_per_mm_menu() {
+    void lcd_advanced_steps_per_mm_menu() {
       START_MENU();
       MENU_BACK(MSG_MOTION);
 
@@ -3659,21 +3670,23 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
 
       // M203 / M205 - Feedrate items
-      MENU_ITEM(submenu, MSG_VELOCITY, lcd_control_motion_velocity_menu);
+      MENU_ITEM(submenu, MSG_VELOCITY, lcd_advanced_velocity_menu);
 
       // M201 - Acceleration items
-      MENU_ITEM(submenu, MSG_ACCELERATION, lcd_control_motion_acceleration_menu);
+      MENU_ITEM(submenu, MSG_ACCELERATION, lcd_advanced_acceleration_menu);
 
       // M205 - Max Jerk
-      MENU_ITEM(submenu, MSG_JERK, lcd_control_motion_jerk_menu);
+      MENU_ITEM(submenu, MSG_JERK, lcd_advanced_jerk_menu);
 
       // M92 - Steps Per mm
-      MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_control_motion_steps_per_mm_menu);
+      MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_advanced_steps_per_mm_menu);
 
     #endif // !SLIM_LCD_MENUS
 
+    MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_advanced_temperature_menu);
+
     #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
-      MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
+      MENU_ITEM(submenu, MSG_FILAMENT, lcd_advanced_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
       MENU_ITEM_EDIT(float32, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
     #endif
@@ -3702,10 +3715,10 @@ void kill_screen(const char* lcd_msg) {
   #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
     /**
      *
-     * "Control" > "Filament" submenu
+     * "Advanced Settings" > "Filament" submenu
      *
      */
-    void lcd_control_filament_menu() {
+    void lcd_advanced_filament_menu() {
       START_MENU();
       MENU_BACK(MSG_CONTROL);
 
@@ -3786,12 +3799,12 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
-   * "Control" > "Retract" submenu
+   * "Configuration" > "Retract" submenu
    *
    */
   #if ENABLED(FWRETRACT)
 
-    void lcd_control_retract_menu() {
+    void lcd_config_retract_menu() {
       START_MENU();
       MENU_BACK(MSG_CONTROL);
       MENU_ITEM_EDIT_CALLBACK(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
@@ -4225,7 +4238,7 @@ void kill_screen(const char* lcd_msg) {
     #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       void lcd_change_filament_menu() {
         START_MENU();
-        MENU_BACK(MSG_PREPARE);
+        MENU_BACK(MSG_MAIN);
 
         // Change filament
         #if E_STEPPERS == 1
