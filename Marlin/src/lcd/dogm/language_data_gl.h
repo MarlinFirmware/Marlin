@@ -4,7 +4,6 @@
 
 #include <u8g.h>
 
-
 #define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
 };

@@ -11,33 +11,31 @@
 
 #define DEBUG 0
 
-#if defined(ARDUINO)
-#include <Arduino.h>
+#ifdef ARDUINO
+  #include <Arduino.h>
 #else // ARDUINO
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
+  #include <stdint.h>
+  #include <stdio.h>
+  #include <stdlib.h>
 #endif // ARDUINO
 
-#if ! defined(pgm_read_word_near) // __AVR__
-#include <stdint.h>
-#include <string.h>
-#include <assert.h>
-//#define pgm_read_word_near(a) *((uint16_t *)(a))
-#define pgm_read_word_near(a) (*(a))
-#define pgm_read_byte_near(a) *((uint8_t *)(a))
-#define pgm_read_byte pgm_read_byte_near
-#else
-#if defined(__AVR__)
-#include <avr/pgmspace.h>
-#endif
+#ifndef pgm_read_word_near // __AVR__
+  #include <stdint.h>
+  #include <string.h>
+  #include <assert.h>
+  //#define pgm_read_word_near(a) *((uint16_t *)(a))
+  #define pgm_read_word_near(a) (*(a))
+  #define pgm_read_byte_near(a) *((uint8_t *)(a))
+  #define pgm_read_byte pgm_read_byte_near
+#elif defined(__AVR__)
+  #include <avr/pgmspace.h>
 #endif
 
 #ifndef PROGMEM
-#define PROGMEM
-#define strlen_P strlen
-#define memcpy_P memcpy
-#define vsnprintf_P vsnprintf
+  #define PROGMEM
+  #define strlen_P strlen
+  #define memcpy_P memcpy
+  #define vsnprintf_P vsnprintf
 #endif // PROGMEM
 
 #ifdef __cplusplus
@@ -58,40 +56,43 @@ uint8_t read_byte_rom(uint8_t * str);
 
 #include <stddef.h> // wchar_t
 #include <stdint.h> // uint32_t
-#if defined(ARDUINO)
-// there's overflow of the wchar_t due to the 2-byte size in Arduino
-// sizeof(wchar_t)=2; sizeof(size_t)=2; sizeof(uint32_t)=4;
-// sizeof(int)=2; sizeof(long)=4; sizeof(unsigned)=2;
-//#undef wchar_t
-#define wchar_t uint32_t
-//typedef uint32_t wchar_t;
+
+#ifdef ARDUINO
+
+  // there's overflow of the wchar_t due to the 2-byte size in Arduino
+  // sizeof(wchar_t)=2; sizeof(size_t)=2; sizeof(uint32_t)=4;
+  // sizeof(int)=2; sizeof(long)=4; sizeof(unsigned)=2;
+  //#undef wchar_t
+  #define wchar_t uint32_t
+  //typedef uint32_t wchar_t;
+
 #else
-#include <sys/types.h> // ssize_t
-#include <assert.h>
-// x86_64
-// sizeof(wchar_t)=4; sizeof(size_t)=8; sizeof(uint32_t)=4;
-// sizeof(int)=4; sizeof(long)=8; sizeof(unsigned)=4;
-//#define wchar_t uint32_t
-#define wchar_t size_t
 
-#ifndef PRIu32
-#define PRIu32 "lu"
-#endif
-#ifndef PRIX32
-#define PRIX32 "lX"
-#endif
+  #include <sys/types.h> // ssize_t
+  #include <assert.h>
+  // x86_64
+  // sizeof(wchar_t)=4; sizeof(size_t)=8; sizeof(uint32_t)=4;
+  // sizeof(int)=4; sizeof(long)=8; sizeof(unsigned)=4;
+  //#define wchar_t uint32_t
+  #define wchar_t size_t
+
+  #ifndef PRIu32
+    #define PRIu32 "lu"
+  #endif
+  #ifndef PRIX32
+    #define PRIX32 "lX"
+  #endif
 
 #endif
-
 
 #define UNUSED_VARIABLE(a) ((void)(a))
 
 #ifndef MIN
-#define MIN(a,b) (((a)>(b))?(b):(a))
+  #define MIN(a,b) (((a)>(b))?(b):(a))
 #endif
 
 #ifndef NUM_ARRAY
-#define NUM_ARRAY(a) (sizeof(a)/sizeof((a)[0]))
+  #define NUM_ARRAY(a) (sizeof(a)/sizeof((a)[0]))
 #endif // NUM_ARRAY
 
 
@@ -146,8 +147,8 @@ void serial_printf_P(const char *format, ...);
 #endif // ARDUINO
 
 #else // DEBUG
-#define TRACE(fmt, ...)
-#define FU_ASSERT(a)
+  #define TRACE(fmt, ...)
+  #define FU_ASSERT(a)
 #endif // DEBUG
 
 

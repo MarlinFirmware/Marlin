@@ -26,9 +26,9 @@ my_getpath () {
 #DN_EXEC=`echo "$0" | ${EXEC_AWK} -F/ '{b=$1; for (i=2; i < NF; i ++) {b=b "/" $(i)}; print b}'`
 DN_EXEC=$(dirname $(my_getpath "$0") )
 if [ ! "${DN_EXEC}" = "" ]; then
-    DN_EXEC="$(my_getpath "${DN_EXEC}")/"
+  DN_EXEC="$(my_getpath "${DN_EXEC}")/"
 else
-    DN_EXEC="${DN_EXEC}/"
+  DN_EXEC="${DN_EXEC}/"
 fi
 #####################################################################
 EXEC_GENPAGES=${DN_EXEC}/genpages
@@ -64,20 +64,20 @@ echo "FN_FONT=${FN_FONT}"
 [ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/misc/${FN_FONT_BASE}.bdf"
 echo "FN_FONT2=${FN_FONT}"
 if [ ! -f "${FN_FONT}" ]; then
-    FN_FONT_PCF="$FONTHOME/X11/misc/${FN_FONT_BASE}.pcf"
-    [ -f "${FN_FONT_PCF}" ] || FN_FONT_PCF="$FONTHOME/misc/${FN_FONT_BASE}.pcf"
-    [ -f "${FN_FONT_PCF}" ] || FN_FONT_PCF="$FONTHOME/wenquanyi/${FN_FONT_BASE}.pcf"
-    if [ -f "${FN_FONT_PCF}" ]; then
-        EXEC_PCF2BDF=$(which pcf2bdf)
-        if [ ! -x "${EXEC_PCF2BDF}" ]; then
-            echo "Error: not found pcf2bdf!"
-            echo "  Please install pcf2bdf."
-            exit 1
-        fi
-        FN_FONT="./${FN_FONT_BASE}.bdf"
-        echo ${EXEC_PCF2BDF} -o "${FN_FONT}" "${FN_FONT_PCF}"
-        ${EXEC_PCF2BDF} -o "${FN_FONT}" "${FN_FONT_PCF}"
+  FN_FONT_PCF="$FONTHOME/X11/misc/${FN_FONT_BASE}.pcf"
+  [ -f "${FN_FONT_PCF}" ] || FN_FONT_PCF="$FONTHOME/misc/${FN_FONT_BASE}.pcf"
+  [ -f "${FN_FONT_PCF}" ] || FN_FONT_PCF="$FONTHOME/wenquanyi/${FN_FONT_BASE}.pcf"
+  if [ -f "${FN_FONT_PCF}" ]; then
+    EXEC_PCF2BDF=$(which pcf2bdf)
+    if [ ! -x "${EXEC_PCF2BDF}" ]; then
+      echo "Error: not found pcf2bdf!"
+      echo "  Please install pcf2bdf."
+      exit 1
     fi
+    FN_FONT="./${FN_FONT_BASE}.bdf"
+    echo ${EXEC_PCF2BDF} -o "${FN_FONT}" "${FN_FONT_PCF}"
+    ${EXEC_PCF2BDF} -o "${FN_FONT}" "${FN_FONT_PCF}"
+  fi
 fi
 
 [ -f "${FN_FONT}" ] || { echo "Error: can't find font ${FN_FONT}!" ; exit 1; }
@@ -92,46 +92,46 @@ rm -f fontpage_*.h
 
 cat << EOF > tmp-proc-page.awk
 BEGIN {
-    cur_page=0;
-    val_begin=0;
-    val_pre=0;
-    utf8_pre="";
-    utf8_begin="";
+  cur_page=0;
+  val_begin=0;
+  val_pre=0;
+  utf8_pre="";
+  utf8_begin="";
 }{
-    page=\$1;
-    val_real=\$2;
-    utf8=\$3;
-    # assert (val_real < 128);
-    val=val_real + 128;
-    if (cur_page != page) {
-        if (cur_page != 0) {
-            if (val_begin != 0) {
-                print cur_page " " val_begin " " val_pre " " utf8_begin " " utf8_pre;
-            }
-        }
-        cur_page=page;
-        val_begin=val;
-        val_pre=val;
-        utf8_begin=utf8;
-        utf8_pre=utf8;
-    } else {
-        if (val_pre + 1 != val) {
-            if (cur_page != 0) {
-                print cur_page " " val_begin " " val_pre " " utf8_begin " " utf8_pre;
-            }
-            val_begin=val;
-            val_pre=val;
-            utf8_begin=utf8;
-            utf8_pre=utf8;
-        } else {
-            val_pre = val;
-            utf8_pre=utf8;
-        }
-    }
-} END {
+  page=\$1;
+  val_real=\$2;
+  utf8=\$3;
+  # assert (val_real < 128);
+  val=val_real + 128;
+  if (cur_page != page) {
     if (cur_page != 0) {
+      if (val_begin != 0) {
         print cur_page " " val_begin " " val_pre " " utf8_begin " " utf8_pre;
+      }
     }
+    cur_page=page;
+    val_begin=val;
+    val_pre=val;
+    utf8_begin=utf8;
+    utf8_pre=utf8;
+  } else {
+    if (val_pre + 1 != val) {
+      if (cur_page != 0) {
+        print cur_page " " val_begin " " val_pre " " utf8_begin " " utf8_pre;
+      }
+      val_begin=val;
+      val_pre=val;
+      utf8_begin=utf8;
+      utf8_pre=utf8;
+    } else {
+      val_pre = val;
+      utf8_pre=utf8;
+    }
+  }
+} END {
+  if (cur_page != 0) {
+    print cur_page " " val_begin " " val_pre " " utf8_begin " " utf8_pre;
+  }
 }
 EOF
 
