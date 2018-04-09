@@ -759,6 +759,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "MULTIPLE_PROBING must be >= 2."
   #endif
 
+  #if Z_PROBE_LOW_POINT > 0
+    #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
+  #endif
+
 #else
 
   /**
