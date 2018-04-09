@@ -58,6 +58,12 @@
 #ifndef MSG_MAIN
   #define MSG_MAIN                            _UxGT("Main")
 #endif
+#ifndef MSG_ADVANCED_SETTINGS
+  #define MSG_ADVANCED_SETTINGS               _UxGT("Advanced Settings")
+#endif
+#ifndef MSG_CONFIGURATION
+  #define MSG_CONFIGURATION                   _UxGT("Configuration")
+#endif
 #ifndef MSG_AUTOSTART
   #define MSG_AUTOSTART                       _UxGT("Autostart")
 #endif
@@ -93,6 +99,9 @@
 #endif
 #ifndef MSG_LEVEL_BED_DONE
   #define MSG_LEVEL_BED_DONE                  _UxGT("Leveling Done!")
+#endif
+#ifndef MSG_REWIPE && defined(LULZBOT_PROBE_Z_WITH_REWIPE)
+  #define MSG_REWIPE                          _UxGT("Rewiping")
 #endif
 #ifndef MSG_Z_FADE_HEIGHT
   #define MSG_Z_FADE_HEIGHT                   _UxGT("Fade Height")
