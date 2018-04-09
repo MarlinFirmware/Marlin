@@ -48,30 +48,24 @@
 // bg         Bulgarian
 // ca         Catalan
 // cz         Czech
-// cz_utf8    Czech (UTF8)
 // de         German
 // el         Greek
 // el-gr      Greek (Greece)
 // en         English
 // es         Spanish
-// es_utf8    Spanish (UTF8)
 // eu         Basque-Euskera
 // fi         Finnish
 // fr         French
-// fr_utf8    French (UTF8)
 // gl         Galician
 // hr         Croatian
 // it         Italian
-// kana       Japanese
-// kana_utf8  Japanese (UTF8)
+// jp-kana    Japanese
 // nl         Dutch
 // pl         Polish
 // pt         Portuguese
 // pt-br      Portuguese (Brazilian)
-// pt-br_utf8 Portuguese (Brazilian) (UTF8)
-// pt_utf8    Portuguese (UTF8)
 // ru         Russian
-// sk         Slovak (UTF8)
+// sk         Slovak
 // tr         Turkish
 // uk         Ukrainian
 // zh_CN      Chinese (Simplified)
