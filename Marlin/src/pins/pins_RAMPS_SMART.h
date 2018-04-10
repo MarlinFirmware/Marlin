@@ -47,23 +47,16 @@
  *       A13 | A9
  *       A14 | A10
  *       A15 | A11
- */
-
-/**
- * Additional information:
- * PIN 42 is connected via Jumper "EN_RESET" to the DUE reset pin. You have to remove the jumper 
- * to use this pin for anything else than resetting the board.
- * 
- * RepRapDiscount Full Graphic Smart Controller works fine without additional configuration but uncommenting 
- * "#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER" on AUX-4 with SMART ADAPTER, but you have to remove the AUX3 pin header
- * on the smart adapter, as it physically doesn't fit to the AUX-3 header on the SMART-RAMPS Board. 
- * If you also want to use the sd-card-reader you have to wire these PINS by yourself to AUX-3. (Software-SPI!)
- * For using hardware SPI please read on. Additionally for SD-CARD-HARDWARE-SPI SDSS must be set to Pin 52 (Hardware-SPI-chip-select-pin)
- * instead of default PIN 53. 
  *
- * If you would like to use the DUE hardware-SPI, this doesn't work without additional wiring, 
- * because the SMART-RAMPS board does not breakout the 6-pin SPI Header from the DUE board.
- * Google for "Arduino DUE Board Pinout" and you will see the right header.
+ *
+ * REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER works fine connected to AUX-4 with
+ * Smart Adapter, but requires removing the AUX3 pin header on the adapter to fit.
+ * To use the SD card reader, wire its pins to AUX-3 (and use Software SPI).
+ *
+ * To use Hardware SPI for SD, the SDSS pin must be set to 52 instead of 53.
+ * Hardware SPI also requires additional wiring because the board doesn't pass
+ * the 6-pin SPI header from the DUE board.
+ * (Search the web for "Arduino DUE Board Pinout" to see the correct header.)
  */
 
 #ifndef __SAM3X8E__
