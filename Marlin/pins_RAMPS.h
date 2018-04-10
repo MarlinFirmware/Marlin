@@ -441,7 +441,7 @@
       #define BTN_EN1           47
       #define BTN_EN2           43
       #define BTN_ENC           32
-      #define LCD_SDSS          53
+      #define LCD_SDSS          SDSS
       #define KILL_PIN          41
 
     #elif ENABLED(LCD_I2C_VIKI)
@@ -450,7 +450,7 @@
       #define BTN_EN2            7   // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
       #define BTN_ENC           -1
 
-      #define LCD_SDSS          53
+      #define LCD_SDSS          SDSS
       #define SD_DETECT_PIN     49
 
     #elif ENABLED(VIKI2) || ENABLED(miniVIKI)
@@ -467,7 +467,6 @@
       #define BTN_EN2            7
       #define BTN_ENC           39
 
-      #define SDSS              53
       #define SD_DETECT_PIN     -1   // Pin 49 for display sd interface, 72 for easy adapter board
       #define KILL_PIN          31
 
@@ -483,7 +482,7 @@
       #define BTN_EN2           37
       #define BTN_ENC           31
 
-      #define LCD_SDSS          53
+      #define LCD_SDSS          SDSS
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
@@ -507,7 +506,6 @@
       #define BTN_EN2           33
       #define BTN_ENC           35
 
-      #define SDSS              53
       #define SD_DETECT_PIN     49
       #define KILL_PIN          64
 
@@ -531,7 +529,6 @@
       #define BTN_EN2           63
       #define BTN_ENC           59
 
-      #define SDSS              53
       #define SD_DETECT_PIN     49
       #define KILL_PIN          64
 
