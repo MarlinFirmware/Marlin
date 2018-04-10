@@ -117,11 +117,11 @@ long Stepper::counter_X = 0,
 volatile uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
 
 #if ENABLED(BEZIER_JERK_CONTROL)
-  volatile int32_t bezier_A __asm__("bezier_A"),    // A coefficient in Bézier speed curve with alias for assembler
-           bezier_B __asm__("bezier_B"),            // B coefficient in Bézier speed curve with alias for assembler
-           bezier_C __asm__("bezier_C"),            // C coefficient in Bézier speed curve with alias for assembler
-           bezier_F __asm__("bezier_F");            // F coefficient in Bézier speed curve with alias for assembler
-  volatile uint32_t bezier_AV __asm__("bezier_AV"); // AV coefficient in Bézier speed curve with alias for assembler
+  static int32_t __attribute__((used)) Stepper::bezier_A __asm__("bezier_A");    // A coefficient in Bézier speed curve with alias for assembler
+  static int32_t __attribute__((used)) Stepper::bezier_B __asm__("bezier_B");    // B coefficient in Bézier speed curve with alias for assembler
+  static int32_t __attribute__((used)) Stepper::bezier_C __asm__("bezier_C");    // C coefficient in Bézier speed curve with alias for assembler
+  static uint32_t __attribute__((used)) Stepper::bezier_F __asm__("bezier_F");    // F coefficient in Bézier speed curve with alias for assembler
+  static uint32_t __attribute__((used)) Stepper::bezier_AV __asm__("bezier_AV"); // AV coefficient in Bézier speed curve with alias for assembler
   bool Stepper::bezier_2nd_half;    // =false If Bézier curve has been initialized or not
 #endif
 
@@ -456,7 +456,7 @@ void Stepper::set_directions() {
    *
    *    This will be rewritten in ARM assembly to get peak performance and will take 43 cycles to execute
    *
-   *  For AVR, we scale precision of coefficients to make it possible to evaluate the bezier curve in
+   *  For AVR, we scale precision of coefficients to make it possible to evaluate the Bézier curve in
    *    realtime: Let's reduce precision as much as possible. After some experimentation we found that:
    *
    *    Assume t and AV with 24 bits is enough
@@ -481,7 +481,7 @@ void Stepper::set_directions() {
    *    And for each curve, we estimate its coefficients with:
    *
    *      void _calc_bezier_curve_coeffs(int32_t v0, int32_t v1, uint32_t av) {
-   *       // Calculate the bezier coefficients
+   *       // Calculate the Bézier coefficients
    *       if (v1 < v0) {
    *         A_negative = true;
    *         bezier_A = 6 * (v0 - v1);
@@ -570,7 +570,7 @@ void Stepper::set_directions() {
       register uint8_t r4,r8,r9,r10,r11;
 
       __asm__ __volatile__(
-        /* Calculate the bezier coefficients */
+        /* Calculate the Bézier coefficients */
         /*  %10:%1:%0 = v0*/
         /*  %5:%4:%3 = v1*/
         /*  %7:%6:%10 = temporary*/
@@ -758,7 +758,7 @@ void Stepper::set_directions() {
         " sub %9,r1" "\n\t"
         " sbc %2,%0" "\n\t"
         " sbc %3,%0" "\n\t"
-        " sbc %3,%0" "\n\t"              /* %4:%3:%2:%9 -= HI(LO(bezier_C) * LO(f))*/
+        " sbc %4,%0" "\n\t"              /* %4:%3:%2:%9 -= HI(LO(bezier_C) * LO(f))*/
         " lds %11, bezier_C+1" "\n\t"    /* %11 = MI(bezier_C)*/
         " mul %11,%5" "\n\t"             /* r1:r0 = MI(bezier_C) * LO(f)*/
         " sub %9,r0" "\n\t"
@@ -809,7 +809,7 @@ void Stepper::set_directions() {
         " add %9,r1" "\n\t"
         " adc %2,%0" "\n\t"
         " adc %3,%0" "\n\t"
-        " adc %3,%0" "\n\t"              /* %4:%3:%2:%9 += HI(LO(bezier_B) * LO(f))*/
+        " adc %4,%0" "\n\t"              /* %4:%3:%2:%9 += HI(LO(bezier_B) * LO(f))*/
         " lds %11, bezier_B+1" "\n\t"    /* %11 = MI(bezier_B)*/
         " mul %11,%5" "\n\t"             /* r1:r0 = MI(bezier_B) * LO(f)*/
         " add %9,r0" "\n\t"
@@ -860,7 +860,7 @@ void Stepper::set_directions() {
         " sub %9,r1" "\n\t"
         " sbc %2,%0" "\n\t"
         " sbc %3,%0" "\n\t"
-        " sbc %3,%0" "\n\t"              /* %4:%3:%2:%9 -= HI(LO(bezier_A) * LO(f))*/
+        " sbc %4,%0" "\n\t"              /* %4:%3:%2:%9 -= HI(LO(bezier_A) * LO(f))*/
         " lds %11, bezier_A+1" "\n\t"    /* %11 = MI(bezier_A)*/
         " mul %11,%5" "\n\t"             /* r1:r0 = MI(bezier_A) * LO(f)*/
         " sub %9,r0" "\n\t"
@@ -896,7 +896,7 @@ void Stepper::set_directions() {
         " add %9,r1" "\n\t"
         " adc %2,%0" "\n\t"
         " adc %3,%0" "\n\t"
-        " adc %3,%0" "\n\t"              /* %4:%3:%2:%9 += HI(LO(bezier_C) * LO(f))*/
+        " adc %4,%0" "\n\t"              /* %4:%3:%2:%9 += HI(LO(bezier_C) * LO(f))*/
         " lds %11, bezier_C+1" "\n\t"    /* %11 = MI(bezier_C)*/
         " mul %11,%5" "\n\t"             /* r1:r0 = MI(bezier_C) * LO(f)*/
         " add %9,r0" "\n\t"
@@ -947,7 +947,7 @@ void Stepper::set_directions() {
         " sub %9,r1" "\n\t"
         " sbc %2,%0" "\n\t"
         " sbc %3,%0" "\n\t"
-        " sbc %3,%0" "\n\t"              /* %4:%3:%2:%9 -= HI(LO(bezier_B) * LO(f))*/
+        " sbc %4,%0" "\n\t"              /* %4:%3:%2:%9 -= HI(LO(bezier_B) * LO(f))*/
         " lds %11, bezier_B+1" "\n\t"    /* %11 = MI(bezier_B)*/
         " mul %11,%5" "\n\t"             /* r1:r0 = MI(bezier_B) * LO(f)*/
         " sub %9,r0" "\n\t"
@@ -998,7 +998,7 @@ void Stepper::set_directions() {
         " add %9,r1" "\n\t"
         " adc %2,%0" "\n\t"
         " adc %3,%0" "\n\t"
-        " adc %3,%0" "\n\t"              /* %4:%3:%2:%9 += HI(LO(bezier_A) * LO(f))*/
+        " adc %4,%0" "\n\t"              /* %4:%3:%2:%9 += HI(LO(bezier_A) * LO(f))*/
         " lds %11, bezier_A+1" "\n\t"    /* %11 = MI(bezier_A)*/
         " mul %11,%5" "\n\t"             /* r1:r0 = MI(bezier_A) * LO(f)*/
         " add %9,r0" "\n\t"
@@ -1057,7 +1057,7 @@ void Stepper::set_directions() {
     FORCE_INLINE int32_t Stepper::_eval_bezier_curve(const uint32_t curr_step) {
       #if defined(__ARM__) || defined(__thumb__)
 
-        // For ARM CORTEX M3/M4 CPUs, we have the optimized assembler version, that takes 43 cycles to execute
+        // For ARM Cortex M3/M4 CPUs, we have the optimized assembler version, that takes 43 cycles to execute
         register uint32_t flo = 0;
         register uint32_t fhi = bezier_AV * curr_step;
         register uint32_t t = fhi;
@@ -1098,7 +1098,7 @@ void Stepper::set_directions() {
       #else
 
         // For non ARM targets, we provide a fallback implementation. Really doubt it
-        // will be useful, unless the processor is extremely fast.
+        // will be useful, unless the processor is fast and 32bit
 
         uint32_t t = bezier_AV * curr_step;               // t: Range 0 - 1^32 = 32 bits
         uint64_t f = t;

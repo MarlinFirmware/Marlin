@@ -58,8 +58,8 @@
  *
  * --
  *
- * The fast inverse function needed for bezier interpolation for AVR
- * was designed, written and tested by  Eduardo José Tagle on April/2018
+ * The fast inverse function needed for Bézier interpolation for AVR
+ * was designed, written and tested by Eduardo José Tagle on April/2018
  */
 
 #include "planner.h"
@@ -223,9 +223,10 @@ void Planner::init() {
 
   #ifdef __AVR__
     // This routine, for AVR, returns 0x1000000 / d, but trying to get the inverse as
-    //  fast as possible. A fast converging iterative Newton-Raphon method is able to
-    //  reach full precision in just 2 iterations, and takes 300 cycles, instead of the
-    //  500 cycles a normal division would take.
+    //  fast as possible. A fast converging iterative Newton-Raphson method is able to
+    //  reach full precision in just 1 iteration, and takes 211 cycles (worst case, mean
+    //  case is less, up to 30 cycles for small divisors), instead of the 500 cycles a
+    //  normal division would take.
     //
     // Inspired by the following page,
     //  https://stackoverflow.com/questions/27801397/newton-raphson-division-with-big-integers
@@ -268,10 +269,13 @@ void Planner::init() {
     //  The paper "Software Integer Division" by Thomas L.Rodeheffer, Microsoft
     // Research, Silicon Valley,August 26, 2008, that is available at
     // https://www.microsoft.com/en-us/research/wp-content/uploads/2008/08/tr-2008-141.pdf
-    // suggests using a table to supply the first 8 bits of precision, and due to
-    // the quadratic convergence nature of the Newton-Raphon iteration, then
-    // just 2 iterations should be enough to get maximum precision of the division.
-    // We just use the top 9 bits of the denominator as index.
+    // suggests , for its integer division algorithm, that using a table to supply the
+    // first 8 bits of precision, and due to the quadratic convergence nature of the
+    // Newton-Raphon iteration, then just 2 iterations should be enough to get
+    // maximum precision of the division.
+    //  If we precompute values of inverses for small denominator values, then
+    // just one Newton-Raphson iteration is enough to reach full precision
+    //  We will use the top 9 bits of the denominator as index.
     //
     //  The AVR assembly function is implementing the following C code, included
     // here as reference:
@@ -296,8 +300,23 @@ void Planner::init() {
     //    8,7,7,6,6,5,5,4,4,3,3,2,2,1,0,0
     //  };
     //
-    //  if (!d)
-    //    return (uint32_t) -1;
+    //  // For small denominators, it is cheaper to directly store the result,
+    //  //  because those denominators would require 2 Newton-Raphson iterations
+    //  //  to converge to the required result precision. For bigger ones, just
+    //  //  ONE Newton-Raphson iteration is enough to get maximum precision!
+    //  static const uint32_t small_inv_tab[111] PROGMEM = {
+    //    16777216,16777216,8388608,5592405,4194304,3355443,2796202,2396745,2097152,1864135,1677721,1525201,1398101,1290555,1198372,1118481,
+    //    1048576,986895,932067,883011,838860,798915,762600,729444,699050,671088,645277,621378,599186,578524,559240,541200,
+    //    524288,508400,493447,479349,466033,453438,441505,430185,419430,409200,399457,390167,381300,372827,364722,356962,
+    //    349525,342392,335544,328965,322638,316551,310689,305040,299593,294337,289262,284359,279620,275036,270600,266305,
+    //    262144,258111,254200,250406,246723,243148,239674,236298,233016,229824,226719,223696,220752,217885,215092,212369,
+    //    209715,207126,204600,202135,199728,197379,195083,192841,190650,188508,186413,184365,182361,180400,178481,176602,
+    //    174762,172960,171196,169466,167772,166111,164482,162885,161319,159783,158275,156796,155344,153919,152520
+    //  };
+    //
+    //  // For small divisors, it is best to directly retrieve the results
+    //  if (d <= 110)
+    //    return pgm_read_dword(&small_inv_tab[d]);
     //
     //  // Compute initial estimation of 0x1000000/x -
     //  // Get most significant bit set on divider
@@ -309,10 +328,6 @@ void Planner::init() {
     //    if (!(nr & 0xff0000)) {
     //      nr <<= 8;
     //      idx += 8;
-    //      if (!(nr & 0xff0000)) {
-    //        nr <<= 8;
-    //        idx += 8;
-    //      }
     //    }
     //  }
     //  if (!(nr & 0xf00000)) {
@@ -333,8 +348,7 @@ void Planner::init() {
     //  uint32_t ie = inv_tab[tidx & 0xFF] + 256; // Get the table value. bit9 is always set
     //  uint32_t x = idx <= 8 ? (ie >> (8 - idx)) : (ie << (idx - 8)); // Position the estimation at the proper place
     //
-    //  // Now, refine estimation by newton-raphson. 2 iterations are enough
-    //  x = uint32_t((x * uint64_t((1 << 25) - x * d)) >> 24);
+    //  // Now, refine estimation by newton-raphson. 1 iteration is enough
     //  x = uint32_t((x * uint64_t((1 << 25) - x * d)) >> 24);
     //
     //  // Estimate remainder
@@ -368,11 +382,22 @@ void Planner::init() {
         8,7,7,6,6,5,5,4,4,3,3,2,2,1,0,0
       };
 
-      /* Handle special cases */
-      if (!d)
-        return uint32_t(-1); /* "infinity*/
-      if (d == 1)
-        return 0x1000000;    /* Result does not fit into 24 bits */
+      // For small denominators, it is cheaper to directly store the result.
+      //  For bigger ones, just ONE Newton-Raphson iteration is enough to get
+      //  maximum precision we need
+      static const uint32_t small_inv_tab[111] PROGMEM = {
+        16777216,16777216,8388608,5592405,4194304,3355443,2796202,2396745,2097152,1864135,1677721,1525201,1398101,1290555,1198372,1118481,
+        1048576,986895,932067,883011,838860,798915,762600,729444,699050,671088,645277,621378,599186,578524,559240,541200,
+        524288,508400,493447,479349,466033,453438,441505,430185,419430,409200,399457,390167,381300,372827,364722,356962,
+        349525,342392,335544,328965,322638,316551,310689,305040,299593,294337,289262,284359,279620,275036,270600,266305,
+        262144,258111,254200,250406,246723,243148,239674,236298,233016,229824,226719,223696,220752,217885,215092,212369,
+        209715,207126,204600,202135,199728,197379,195083,192841,190650,188508,186413,184365,182361,180400,178481,176602,
+        174762,172960,171196,169466,167772,166111,164482,162885,161319,159783,158275,156796,155344,153919,152520
+      };
+
+      // For small divisors, it is best to directly retrieve the results
+      if (d <= 110)
+        return pgm_read_dword(&small_inv_tab[d]);
 
       register uint8_t r8 = d & 0xFF;
       register uint8_t r9 = (d >> 8) & 0xFF;
@@ -381,7 +406,6 @@ void Planner::init() {
       register const uint8_t* ptab = inv_tab;
 
       __asm__ __volatile__(
-
         /*  %8:%7:%6 = interval*/
         /*  r31:r30: MUST be those registers, and they must point to the inv_tab */
 
@@ -411,9 +435,6 @@ void Planner::init() {
         " mov %16,%15" "\n\t"             /* nr <<= 8, %14 not needed */
         " clr %15" "\n\t"                 /* We clear %14 */
         " subi %3,-8" "\n\t"              /* idx += 8 */
-        " tst %16" "\n\t"                 /* nr & 0xFF0000 == 0 ? */
-        " brne 2f" "\n\t"                 /* No, skip this */
-        " subi %3,-8" "\n\t"              /* idx += 8, %16 = 0, other registers not needed */
 
         /*  here %16 != 0 and %16:%15 contains at least 9 MSBits, or both %16:%15 are 0 */
         "2:" "\n\t"
@@ -450,7 +471,6 @@ void Planner::init() {
         " adc %16,%16" "\n\t"             /* %16:%15 = tidx = (nr <<= 1), we lose the top MSBit (always set to 1, %16 is the index into the inverse table)*/
         " add r30,%16" "\n\t"             /* Only use top 8 bits */
         " adc r31,%13" "\n\t"             /* r31:r30 = inv_tab + (tidx) */
-
         " lpm %14, Z" "\n\t"              /* %14 = inv_tab[tidx] */
         " ldi %15, 1" "\n\t"              /* %15 = 1  %15:%14 = inv_tab[tidx] + 256 */
 
@@ -516,14 +536,12 @@ void Planner::init() {
         " rjmp 6f" "\n\t"                 /* No, skip it*/
         " mov %14,%15" "\n\t"
         " clr %15" "\n\t"
+        "6:" "\n\t"                       /* %16:%15:%14 = initial estimation of 0x1000000 / d*/
 
-        "6:" "\n\t"
-                                          /* %16:%15:%14 = initial estimation of 0x1000000 / d*/
-
-        /*  Now, we must refine the estimation present on %16:%15:%14 using 2 iterations*/
-        /*   of Newton-Raphson. As it has a quadratic convergence, 2 iterations are enough*/
-        /*   to get more than 24bits of precision (the initial table lookup gives 9 bits of*/
-        /*   precision to start from).*/
+        /*  Now, we must refine the estimation present on %16:%15:%14 using 1 iteration*/
+        /*   of Newton-Raphson. As it has a quadratic convergence, 1 iteration is enough*/
+        /*   to get more than 18bits of precision (the initial table lookup gives 9 bits of*/
+        /*   precision to start from). 18bits of precision is all what is needed here for result */
 
         /*  %8:%7:%6 = d = interval*/
         /*  %16:%15:%14 = x = initial estimation of 0x1000000 / d*/
@@ -531,8 +549,6 @@ void Planner::init() {
         /*  %3:%2:%1:%0 = working accumulator*/
 
         /*  Compute 1<<25 - x*d. Result should never exceed 25 bits and should always be positive*/
-        " ldi %12,2" "\n\t"               /* 2 iterations  [139]*/
-        "13:" "\n\t"
         " clr %0" "\n\t"
         " clr %1" "\n\t"
         " clr %2" "\n\t"
@@ -630,69 +646,60 @@ void Planner::init() {
         " add %11,r0" "\n\t"              /* %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 32*/
 
         /*  At this point, %11:%10:%9 contains the new estimation of x. */
-        /* %16:%15:%14 = x*/
-        " mov %16,%11" "\n\t"
-        " mov %15,%10" "\n\t"
-        " mov %14,%9" "\n\t"              /* Store as the new estimation*/
-
-        " dec %12" "\n\t"                 /* Decrement loop counter*/
-        " breq 15f" "\n\t"
-        " jmp 13b" "\n\t"                 /* Repeat the 2 iterations*/
-        "15:" "\n\t"
 
         /*  Finally, we must correct the result. Estimate remainder as*/
         /*  (1<<24) - x*d*/
-        /*  %16:%15:%14 = x*/
+        /*  %11:%10:%9 = x*/
         /*  %8:%7:%6 = d = interval" "\n\t" /*  */
         " ldi %3,1" "\n\t"
         " clr %2" "\n\t"
         " clr %1" "\n\t"
         " clr %0" "\n\t"                  /* %3:%2:%1:%0 = 0x1000000*/
-        " mul %6,%14" "\n\t"              /* r1:r0 = LO(d) * LO(x)*/
+        " mul %6,%9" "\n\t"              /* r1:r0 = LO(d) * LO(x)*/
         " sub %0,r0" "\n\t"
         " sbc %1,r1" "\n\t"
         " sbc %2,%13" "\n\t"
         " sbc %3,%13" "\n\t"              /* %3:%2:%1:%0 -= LO(d) * LO(x)*/
-        " mul %7,%14" "\n\t"              /* r1:r0 = MI(d) * LO(x)*/
+        " mul %7,%9" "\n\t"              /* r1:r0 = MI(d) * LO(x)*/
         " sub %1,r0" "\n\t"
         " sbc %2,r1" "\n\t"
         " sbc %3,%13" "\n\t"              /* %3:%2:%1:%0 -= MI(d) * LO(x) << 8*/
-        " mul %8,%14" "\n\t"              /* r1:r0 = HI(d) * LO(x)*/
+        " mul %8,%9" "\n\t"              /* r1:r0 = HI(d) * LO(x)*/
         " sub %2,r0" "\n\t"
         " sbc %3,r1" "\n\t"               /* %3:%2:%1:%0 -= MIL(d) * LO(x) << 16*/
-        " mul %6,%15" "\n\t"              /* r1:r0 = LO(d) * MI(x)*/
+        " mul %6,%10" "\n\t"              /* r1:r0 = LO(d) * MI(x)*/
         " sub %1,r0" "\n\t"
         " sbc %2,r1" "\n\t"
         " sbc %3,%13" "\n\t"              /* %3:%2:%1:%0 -= LO(d) * MI(x) << 8*/
-        " mul %7,%15" "\n\t"              /* r1:r0 = MI(d) * MI(x)*/
+        " mul %7,%10" "\n\t"              /* r1:r0 = MI(d) * MI(x)*/
         " sub %2,r0" "\n\t"
         " sbc %3,r1" "\n\t"               /* %3:%2:%1:%0 -= MI(d) * MI(x) << 16*/
-        " mul %8,%15" "\n\t"              /* r1:r0 = HI(d) * MI(x)*/
+        " mul %8,%10" "\n\t"              /* r1:r0 = HI(d) * MI(x)*/
         " sub %3,r0" "\n\t"               /* %3:%2:%1:%0 -= MIL(d) * MI(x) << 24*/
-        " mul %6,%16" "\n\t"              /* r1:r0 = LO(d) * HI(x)*/
+        " mul %6,%11" "\n\t"              /* r1:r0 = LO(d) * HI(x)*/
         " sub %2,r0" "\n\t"
         " sbc %3,r1" "\n\t"               /* %3:%2:%1:%0 -= LO(d) * HI(x) << 16*/
-        " mul %7,%16" "\n\t"              /* r1:r0 = MI(d) * HI(x)*/
+        " mul %7,%11" "\n\t"              /* r1:r0 = MI(d) * HI(x)*/
         " sub %3,r0" "\n\t"               /* %3:%2:%1:%0 -= MI(d) * HI(x) << 24*/
         /*  %3:%2:%1:%0 = r = (1<<24) - x*d*/
         /*  %8:%7:%6 = d = interval */
 
         /*  Perform the final correction*/
-        " sub %0, %6" "\n\t"
-        " sbc %1, %7" "\n\t"
-        " sbc %2, %8" "\n\t"              /* r -= d*/
+        " sub %0,%6" "\n\t"
+        " sbc %1,%7" "\n\t"
+        " sbc %2,%8" "\n\t"              /* r -= d*/
         " brcs 14f" "\n\t"                /* if ( r >= d) */
 
-        /*  %16:%15:%14 = x */
+        /*  %11:%10:%9 = x */
         " ldi %3,1" "\n\t"
-        " add %14,%3" "\n\t"
-        " adc %15,%13" "\n\t"
-        " adc %16,%13" "\n\t"             /* x++*/
+        " add %9,%3" "\n\t"
+        " adc %10,%13" "\n\t"
+        " adc %11,%13" "\n\t"             /* x++*/
         "14:" "\n\t"
 
-        /*  Estimation is done. %16:%15:%14 = x */
+        /*  Estimation is done. %11:%10:%9 = x */
         " clr __zero_reg__" "\n\t"        /* Make C runtime happy */
-        /*  [300 cycles total]*/
+        /*  [211 cycles total]*/
         : "=r" (r2),
           "=r" (r3),
           "=r" (r4),
@@ -702,7 +709,7 @@ void Planner::init() {
           "+r" (r8),
           "+r" (r9),
           "+r" (r10),
-          "=r" (r11),
+          "=d" (r11),
           "=r" (r12),
           "=r" (r13),
           "=d" (r14),
@@ -716,7 +723,7 @@ void Planner::init() {
       );
 
       // Return the result
-      return r16 | (uint16_t(r17) << 8) | (uint32_t(r18) << 16);
+      return r11 | (uint16_t(r12) << 8) | (uint32_t(r13) << 16);
     }
   #else
     // All the other 32 CPUs can easily perform the inverse using hardware division,
