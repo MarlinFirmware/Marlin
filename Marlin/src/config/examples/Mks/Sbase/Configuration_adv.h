@@ -942,6 +942,18 @@
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS     // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
+/**
+ * Filament load/unload LCD menu and tool-changing
+ */
+//#define FILAMENT_LOAD_UNLOAD_MENU
+#if ENABLED(FILAMENT_LOAD_UNLOAD_MENU)
+  #define LCD_LOAD_UNLOAD_FEEDRATE  50 // (mm/s) Filament load feedrate
+  #define LCD_LOAD_LENGTH           10 // (mm) Filament load length per-click
+  #define LCD_UNLOAD_LENGTH         50 // (mm) Filament unload length per-click
+  #define LCD_PURGE_FEEDRATE         6 // (mm/s) Filament purge feedrate
+  #define LCD_PURGE_LENGTH          20 // (mm) Filament purge length
+#endif
+
 // @section tmc
 
 /**
