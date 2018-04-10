@@ -1317,6 +1317,12 @@
 // @section extras
 
 /**
+ * Laser connected to a fan pin. Enable and set to the fan index.
+ * M3 or M4 will set the laser power. M5 will turn it off.
+ */
+//#define USE_FAN_FOR_LASER 1
+
+/**
  * Spindle & Laser control
  *
  * Add the M3, M4, and M5 commands to turn the spindle/laser on and off, and

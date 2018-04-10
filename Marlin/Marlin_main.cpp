@@ -6421,6 +6421,24 @@ inline void gcode_G92() {
 
 #endif // SPINDLE_LASER_ENABLE
 
+#ifdef USE_FAN_FOR_LASER
+  /**
+   * M3, M4: Laser On
+   */
+  inline void gcode_M3_M4() {
+    stepper.synchronize();
+    fanSpeeds[USE_FAN_FOR_LASER] = parser.byteval('S', 255);
+  }
+
+  /**
+   * M5: Laser Off
+   */
+  inline void gcode_M5() {
+    stepper.synchronize();
+    fanSpeeds[USE_FAN_FOR_LASER] = 0;
+  }
+#endif
+
 /**
  * M17: Enable power on all stepper motors
  */
@@ -11885,6 +11903,11 @@ void process_parsed_command() {
         case 3: gcode_M3_M4(true); break;                         // M3: Laser/CW-Spindle Power
         case 4: gcode_M3_M4(false); break;                        // M4: Laser/CCW-Spindle Power
         case 5: gcode_M5(); break;                                // M5: Laser/Spindle OFF
+      #endif
+
+      #ifdef USE_FAN_FOR_LASER
+        case 3: gcode_M3(); break;                                // M3: Laser Power On
+        case 5: gcode_M5(); break;                                // M5: Laser OFF
       #endif
 
       case 17: gcode_M17(); break;                                // M17: Enable all steppers

@@ -468,6 +468,12 @@
 #ifndef MSG_EXTRA_FAN_SPEED
   #define MSG_EXTRA_FAN_SPEED                 _UxGT("Extra fan speed")
 #endif
+#ifndef MSG_LASER_ON
+  #define MSG_LASER_ON                       _UxGT("Laser On")
+#endif
+#ifndef MSG_LASER_OFF
+  #define MSG_LASER_OFF                       _UxGT("Laser Off")
+#endif
 #ifndef MSG_FLOW
   #define MSG_FLOW                            _UxGT("Flow")
 #endif

@@ -1357,22 +1357,30 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     //
+    // Laser ON/OFF:
+    //
+    #ifdef USE_FAN_FOR_LASER
+      MENU_ITEM(gcode, MSG_LASER_ON, PSTR("M3"));
+      MENU_ITEM(gcode, MSG_LASER_OFF, PSTR("M5"));
+    #endif
+
+    //
     // Fan Speed:
     //
     #if FAN_COUNT > 0
-      #if HAS_FAN0
+      #if (HAS_FAN0 && FAN_NUM_AS_LASER!=0)
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
           MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
         #endif
       #endif
-      #if HAS_FAN1
+      #if (HAS_FAN1 && FAN_NUM_AS_LASER!=1)
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
           MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
         #endif
       #endif
-      #if HAS_FAN2
+      #if (HAS_FAN2 && FAN_NUM_AS_LASER!=2)
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
           MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
@@ -3371,23 +3379,28 @@ void kill_screen(const char* lcd_msg) {
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
     #endif
 
+    #ifdef USE_FAN_FOR_LASER
+      MENU_ITEM(gcode, MSG_LASER_ON, PSTR("M3"));
+      MENU_ITEM(gcode, MSG_LASER_OFF, PSTR("M5"));
+    #endif
+
     //
     // Fan Speed:
     //
     #if FAN_COUNT > 0
-      #if HAS_FAN0
+      #if  (HAS_FAN0 && FAN_NUM_AS_LASER!=0)
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
           MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
         #endif
       #endif
-      #if HAS_FAN1
+      #if (HAS_FAN1 && FAN_NUM_AS_LASER!=1)
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
           MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
         #endif
       #endif
-      #if HAS_FAN2
+      #if (HAS_FAN2 && FAN_NUM_AS_LASER!=2)
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
           MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
