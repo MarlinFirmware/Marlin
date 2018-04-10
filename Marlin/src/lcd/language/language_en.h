@@ -61,6 +61,12 @@
 #ifndef MSG_MAIN
   #define MSG_MAIN                            _UxGT("Main")
 #endif
+#ifndef MSG_ADVANCED_SETTINGS
+  #define MSG_ADVANCED_SETTINGS               _UxGT("Advanced Settings")
+#endif
+#ifndef MSG_CONFIGURATION
+  #define MSG_CONFIGURATION                   _UxGT("Configuration")
+#endif
 #ifndef MSG_AUTOSTART
   #define MSG_AUTOSTART                       _UxGT("Autostart")
 #endif
