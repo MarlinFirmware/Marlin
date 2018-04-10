@@ -64,6 +64,8 @@
 #define I2C_EEPROM
 #define E2END 0xFFF
 
+#define RESET_PIN          42   // Resets the board if the jumper is attached
+
 //
 // Temperature Sensors
 //
