@@ -99,8 +99,6 @@
   #error "Z_ENDSTOP_SERVO_NR is now Z_PROBE_SERVO_NR. Please update your configuration."
 #elif defined(DEFAULT_XYJERK)
   #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
-#elif ENABLED(BEZIER_JERK_CONTROL) && !defined(CPU_32_BIT)
-  #error "BEZIER_JERK_CONTROL is computationally intensive and requires a 32-bit board."
 #elif defined(XY_TRAVEL_SPEED)
   #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
 #elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
