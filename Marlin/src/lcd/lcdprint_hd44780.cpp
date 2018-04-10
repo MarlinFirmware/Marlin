@@ -62,12 +62,12 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     {IV('°'), 0xDF, 0}, // B0, Marlin special: '°'  LCD_STR_DEGREE (0x09)
     {IV('ä'), 0xE1, 0}, // E4
     {IV('ö'), 0xEF, 0}, // F6
-    {IV('÷'), 0xFD, 0},
-    {IV('ü'), 0xF5, 0},
-    {IV('ˣ'), 0xEB, 0},
+    {IV('÷'), 0xFD, 0}, // 00F7
+    {IV('ü'), 0xF5, 0}, // 00FC
+    {IV('ˣ'), 0xEB, 0}, // 02E3
 
     {IV('·'), 0xA5, 0}, // 0387
-    {IV('Ω'), 0xF4, 0}, // 038F
+    {IV('Ώ'), 0xF4, 0}, // 038F
     {IV('Θ'), 0xF2, 0}, // 0398, Theta
     {IV('Ξ'), 0xE3, 0}, // 039E, Xi
     {IV('Σ'), 0xF6, 0}, // 03A3, Sigma
@@ -84,14 +84,11 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     {IV('ρ'), 0xE6, 0}, // 03C1, rho
     {IV('σ'), 0xE5, 0}, // 03C3, sigma
 
-    {IV('←'), 0x7F, 0},
-    {IV('→'), 0x7E, 0}, // Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
-    {IV('↰'), 0x03, 0}, // Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
-    {IV('↻'), 0x04, 0}, // Marlin special: '↻↺⟳⟲'  LCD_STR_REFRESH (0x01)
-    {IV('√'), 0xE8, 0},
-    {IV('∞'), 0xF3, 0},
-    {IV('⏱'), 0x07, 0}, // Marlin special: '🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧 ⌚⌛⏰⏱⏳⧖⧗'  LCD_STR_CLOCK (0x05)
-    {IV('█'), 0xFF, 0},
+    {IV('←'), 0x7F, 0}, // 2190
+    {IV('→'), 0x7E, 0}, // 2192, Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
+    {IV('√'), 0xE8, 0}, // 221A
+    {IV('∞'), 0xF3, 0}, // 221E
+    {IV('█'), 0xFF, 0}, // 2588
 
     //{IV(''), 0xA0, 0},
     {IV('。'), 0xA1, 0},
@@ -298,12 +295,13 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     {IV('³'), 0x1F, 0},
     {IV('¶'), 0xD3, 0}, // pilcrow sign
     {IV('º'), 0x9E, 0},
-    {IV('»'), 0xBC, 0},
+    {IV('»'), 0xBC, 0}, // 00BB
     //{IV(''), 0xB3, 0}, // error
     //{IV(''), 0xB4, 0}, // error
-    {IV('¼'), 0xB6, 0},
-    {IV('½'), 0xB5, 0},
-    {IV('¿'), 0x9F, 0},
+    {IV('¼'), 0xB6, 0}, // 00BC
+    {IV('½'), 0xB5, 0}, // 00BD
+    //{IV('¾'), '3', 0}, // 00BE
+    {IV('¿'), 0x9F, 0}, // 00BF
 
     {IV('Â'), 0x8F, 0},
     {IV('Ã'), 0xAA, 0},
@@ -348,24 +346,33 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     {IV('ü'), 0x81, 0},
     {IV('ÿ'), 0x98, 0},
 
-
     //{IV(''), 0xB0, 0}, // error
     //{IV(''), 0xB1, 0}, // error
-    {IV('ƒ'), 0xA8, 0},
+    {IV('ƒ'), 0xA8, 0}, // 0192
 
-    {IV('Γ'), 0xD4, 0}, // Gamma
-    {IV('Δ'), 0xD5, 0}, // Delta, ◿
-    {IV('Θ'), 0xD6, 0}, // Theta
-    {IV('Λ'), 0xD7, 0}, // Lambda
-    {IV('Ξ'), 0xD8, 0}, // Xi
+    {IV('Ύ'), 0xDB, 0}, // 038E
+    {IV('Ώ'), 0xDE, 0}, // 038F
+    {IV('ΐ'), 0xE7, 0}, // 0390
+
+    {IV('Γ'), 0xD4, 0}, // 0393, Gamma
+    {IV('Δ'), 0xD5, 0}, // 0394, Delta, ◿
+    {IV('Θ'), 0xD6, 0}, // 0398, Theta
+    {IV('Λ'), 0xD7, 0}, // 039B, Lambda
+    {IV('Ξ'), 0xD8, 0}, // 039E, Xi
     {IV('Π'), 0xD9, 0}, // Pi
     {IV('Σ'), 0xDA, 0}, // Sigma
     {IV('Υ'), 0xDB, 0}, // Upsilon
     {IV('Φ'), 0xDC, 0}, // Phi
     {IV('Ψ'), 0xDD, 0}, // Psi
     {IV('Ω'), 0xDE, 0}, // Omega
-    {IV('α'), 0xDF, 0}, // alpha
 
+    {IV('ά'), 0xDF, 0}, // 03AC
+    {IV('έ'), 0xE3, 0}, // 03AD
+    {IV('ή'), 0xE5, 0}, // 03AE
+    {IV('ί'), 0xE7, 0}, // 03AF
+    {IV('ΰ'), 0xF1, 0}, // 03B0
+
+    {IV('α'), 0xDF, 0}, // alpha
     {IV('β'), 0xE0, 0}, // beta
     {IV('γ'), 0xE1, 0}, // gamma
     {IV('δ'), 0xE2, 0}, // delta
@@ -387,14 +394,16 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     {IV('υ'), 0xF1, 0}, // upsilon
     {IV('χ'), 0xF2, 0}, // chi
     {IV('ψ'), 0xF3, 0}, // psi
-    {IV('ω'), 0xF4, 0}, // omega
+    {IV('ω'), 0xF4, 0}, // 03C9, omega
+    {IV('ϊ'), 0xE7, 0}, // 03CA
+    {IV('ϋ'), 0xF1, 0}, // 03CB
+    {IV('ύ'), 0xF1, 0}, // 03CD
+    {IV('ώ'), 0xF4, 0}, // 03CE
 
     {IV('•'), 0xCD, 0}, // ·
     {IV('℞'), 0xA7, 0}, // ℞ Pt ASCII 158
     {IV('™'), 0xD0, 0},
-    {IV('→'), '>', 0}, // Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
     {IV('↤'), 0xF9, 0}, // ⟻
-    {IV('↰'), 0x03, 0}, // Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
     {IV('↵'), 0xC4, 0},
     {IV('↻'), 0x04, 0}, // Marlin special: '↻↺⟳⟲'  LCD_STR_REFRESH (0x01)
     {IV('⇥'), 0xFB, 0},
@@ -445,8 +454,9 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
 
   #elif DISPLAY_CHARSET_HD44780 == CYRILLIC
 
-    {IV('¢'), 0x5C, 0},
-    {IV('°'), 0x01, 0}, // Marlin special: '°'  LCD_STR_DEGREE (0x09)
+    {IV('¢'), 0x5C, 0}, // 00A2
+    {IV('£'), 0xCF, 0}, // 00A3
+    {IV('°'), 0x01, 0}, // 00B0, Marlin special: '°'  LCD_STR_DEGREE (0x09)
 
     //{IV(''), 0x80, 0},
     //{IV(''), 0x81, 0},
@@ -482,8 +492,15 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     //{IV(''), 0x9E, 0},
     //{IV(''), 0x9F, 0},
 
-    {IV('Ё'), 0xA2, 0},
-    {IV('А'), 'A', 0},
+
+    {IV('¼'), 0xF0, 0}, // 00BC
+    //{IV('¹/³'), 0xF1, 0},
+    {IV('½'), 0xF2, 0}, // 00BD
+    {IV('¾'), 0xF3, 0}, // 00BE
+    {IV('¿'), 0xCD, 0}, // 00BF
+
+    {IV('Ё'), 0xA2, 0}, // 0401
+    {IV('А'), 'A', 0}, // 0410
     {IV('Б'), 0xA0, 0},
     {IV('В'), 'B', 0},
     {IV('Г'), 0xA1, 0},
@@ -557,7 +574,6 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     //{IV(''), 0xCC, 0},
     //{IV(''), 0xCD, 0},
     //{IV(''), 0xCE, 0},
-    //{IV(''), 0xCF, 0},
 
     //{IV(''), 0xD0, 0},
     //{IV(''), 0xD1, 0},
@@ -584,10 +600,6 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     //{IV(''), 0xEE, 0},
     //{IV(''), 0xEF, 0},
 
-    //{IV(''), 0xF0, 0},
-    //{IV(''), 0xF1, 0},
-    //{IV(''), 0xF2, 0},
-    //{IV(''), 0xF3, 0},
     //{IV(''), 0xF4, 0},
     //{IV(''), 0xF5, 0},
     //{IV(''), 0xF6, 0},
@@ -602,12 +614,7 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     //{IV(''), 0xFF, 0},
 
     {IV('↑'), 0xD9, 0}, // 2191 ←↑→↓
-    {IV('→'), '>', 0}, // 2192, Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
     {IV('↓'), 0xDA, 0}, // 2193
-
-    {IV('↰'), 0x03, 0}, // 21B0, Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
-    {IV('↻'), 0x04, 0}, // 21BB, Marlin special: '↻↺⟳⟲'  LCD_STR_REFRESH (0x01)
-    {IV('⏱'), 0x07, 0}, // 23F1, Marlin special: '🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧 ⌚⌛⏰⏱⏳⧖⧗'  LCD_STR_CLOCK (0x05)
   #endif
 };
 
@@ -666,9 +673,9 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
   {IV('ý'), 'y', 0}, // FD
   {IV('ÿ'), 'y', 0}, // FF
 
-  {IV('Ą'), 'a', 0}, // 0104
+  {IV('Ą'), 'A', 0}, // 0104
   {IV('ą'), 'a', 0}, // 0105
-  {IV('Ć'), 'a', 0}, // 0106
+  {IV('Ć'), 'C', 0}, // 0106
   {IV('ć'), 'c', 0}, // 0107
   {IV('Č'), 'C', 0}, // 010C
   {IV('č'), 'c', 0}, // 010D
@@ -732,10 +739,10 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
   {IV('Σ'), 'E', 0}, // 03A3, Sigma
   {IV('Τ'), 'T', 0}, // 03A4
   {IV('Υ'), 'Y', 0}, // 03A5, Upsilon
-  {IV('Φ'), 'o', 0}, // 03A6, Phi
+  {IV('Φ'), 'p', 0}, // 03A6, Phi
   {IV('Χ'), 'X', 0}, // 03A7
-  {IV('Ψ'), 'y', 0}, // 03A8, Psi
-  {IV('Ω'), 'M', 0}, // 03A9, Omega
+  {IV('Ψ'), 'P', 0}, // 03A8, Psi
+  {IV('Ω'), 'O', 0}, // 03A9, Omega
   {IV('Ϊ'), 'I', 0}, // 03AA
   {IV('Ϋ'), 'Y', 0}, // 03AB
   {IV('ά'), 'a', 0}, // 03AC
@@ -753,7 +760,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
   {IV('θ'), '0', 0}, // 03B8, theta
   {IV('ι'), 'i', 0}, // 03B9, lota
   {IV('κ'), 'k', 0}, // 03BA, kappa
-  {IV('λ'), '^', 0}, // 03BB, lambda
+  {IV('λ'), 'L', 0}, // 03BB, lambda
   {IV('μ'), 'u', 0}, // 03BC, mu
   {IV('ν'), 'v', 0}, // 03BD, nu
   {IV('ξ'), 'e', 0}, // 03BE, xi
@@ -761,7 +768,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
   {IV('π'), 'n', 0}, // 03C0, pi
   {IV('ρ'), 'p', 0}, // 03C1, rho
   {IV('ς'), 'c', 0}, // 03C2
-  {IV('σ'), 'd', 0}, // 03C3, sigma
+  {IV('σ'), 'o', 0}, // 03C3, sigma
   {IV('τ'), 't', 0}, // 03C4, tau
   {IV('υ'), 'v', 0}, // 03C5, upsilon
   {IV('φ'), 'p', 0}, // 03C6
@@ -782,7 +789,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
   {IV('Г'), 'T', 0}, // 0413, error (0x02)
   {IV('Д'), 'Q', 0}, // 0414, error (0x03)
   {IV('Е'), 'E', 0}, // 0415
-  {IV('Ж'), 'E', 0}, // 0416, error 'E' + ''(0xC8)
+  {IV('Ж'), '*', 0}, // 0416, error 'E' + ''(0xC8)
   {IV('З'), 'E', 0}, // 0417
   {IV('И'), 'N', 0}, // 0418, error (0x05)
   {IV('Й'), 'N', 0}, // 0419, error (0x05 + '`'0x60)
@@ -796,7 +803,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
   {IV('С'), 'C', 0}, // 0421
   {IV('Т'), 'T', 0}, // 0422
   {IV('У'), 'Y', 0},
-  {IV('Ф'), 'E', 0}, // error ('E' + '¢'0xEC)
+  {IV('Ф'), 'o', 0}, // error ('E' + '¢'0xEC)
   {IV('Х'), 'X', 0},
   {IV('Ц'), 'U', 0}, // error (0x07)
   {IV('Ч'), 'y', 0}, // error ('ム'0xD1)
@@ -848,7 +855,8 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
   {IV('™'), 'T', 'M'}, // 2122
   {IV('←'), '<', '-'}, // 2190
   {IV('→'), '-', '>'}, // 2192, Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
-  {IV('↰'), '<', 0}, // 21B0, Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
+  //{IV('↰'), '<', 0}, // 21B0, Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
+  {IV('↰'), 0x03, 0}, // 21B0, Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
   {IV('↻'), 0x04, 0}, // 21BB Marlin special: '↻↺⟳⟲'  LCD_STR_REFRESH (0x01)
   {IV('∼'), '~', 0}, // 223C
   {IV('≈'), '~', '='}, // 2248
@@ -900,49 +908,14 @@ static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data
 
 #if DEBUG
 
-  void test_show_uchar() {
-    wchar_t pre = 0;
-    hd44780_charmap_t cur;
-
-    TRACE("--- hd44780 device", i);
-    for (int i = 0; i < NUM_ARRAY(g_hd44780_charmap_device); i ++) {
-      memcpy_P(&cur, g_hd44780_charmap_device + i, sizeof(cur));
-      //fprintf(stdout, "[% 2d] %" PRIu32 "(0x06%" PRIX32 ") --> 0x%02X,0x%02X%s\n", i, cur.uchar, cur.uchar, (int)(cur.idx), (int)(cur.idx2), (pre < cur.uchar?"":" <--- ERROR"));
-      #if 1
-        TRACE("[% 2d] %" PRIu32 "(0x%" PRIX32 ") --> 0x%02X,0x%02X%s", i, cur.uchar, cur.uchar, (unsigned int)(cur.idx), (unsigned int)(cur.idx2), (pre < cur.uchar?"":" <--- ERROR"));
-      #else
-        TRACE("[% 2d]", i);
-        TRACE("%" PRIu32 "(0x%" PRIX32 "),", cur.uchar, cur.uchar);
-        TRACE("0x%02X,", (unsigned int)(cur.idx));
-        TRACE("0x%02X,", (unsigned int)(cur.idx2));
-        TRACE("%s", (pre < cur.uchar?"":" <--- ERROR"));
-      #endif
-      pre = cur.uchar;
-    }
-    TRACE("--- hd44780 common", i);
-    for (int i = 0; i < NUM_ARRAY(g_hd44780_charmap_common); i ++) {
-      memcpy_P(&cur, g_hd44780_charmap_common + i, sizeof(cur));
-      //fprintf(stdout, "[% 2d] %" PRIu32 "(0x06%" PRIX32 ") --> 0x%02X,0x%02X%s\n", i, cur.uchar, cur.uchar, (int)(cur.idx), (int)(cur.idx2), (pre < cur.uchar?"":" <--- ERROR"));
-      #if 1
-        TRACE("[% 2d] %" PRIu32 "(0x%" PRIX32 ") --> 0x%02X,0x%02X%s", i, cur.uchar, cur.uchar, (unsigned int)(cur.idx), (unsigned int)(cur.idx2), (pre < cur.uchar?"":" <--- ERROR"));
-      #else
-        TRACE("[% 2d]", i);
-        TRACE("%" PRIu32 "(0x%" PRIX32 "),", cur.uchar, cur.uchar);
-        TRACE("0x%02X,", (unsigned int)(cur.idx));
-        TRACE("0x%02X,", (unsigned int)(cur.idx2));
-        TRACE("%s", (pre < cur.uchar?"":" <--- ERROR"));
-      #endif
-      pre = cur.uchar;
-    }
-  }
-
-void
-test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name)
+int
+test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents)
 {
   int ret;
   size_t idx = 0;
   hd44780_charmap_t preval = {0, 0, 0};
   hd44780_charmap_t pinval = {0, 0, 0};
+  char flg_error = 0;
 
   int i;
 
@@ -951,30 +924,62 @@ test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name)
   for (i = 0; i < size; i ++) {
     memcpy_P (&pinval, &(data[i]), sizeof(pinval));
 
+    if (flg_show_contents) {
+    #if 1
+      TRACE("[% 4d] % 6" PRIu32 "(0x%04" PRIX32 ") --> 0x%02X,0x%02X%s\n", i, pinval.uchar, pinval.uchar, (unsigned int)(pinval.idx), (unsigned int)(pinval.idx2), (preval.uchar < pinval.uchar?"":" <--- ERROR"));
+    #else
+      TRACE("[% 4d]", i);
+      TRACE("% 6" PRIu32 "(0x%04" PRIX32 "),", pinval.uchar, pinval.uchar);
+      TRACE("0x%02X,", (unsigned int)(pinval.idx));
+      TRACE("0x%02X,", (unsigned int)(pinval.idx2));
+      TRACE("%s", (preval.uchar < pinval.uchar?"":" <--- ERROR"));
+    #endif
+    }
     if (preval.uchar >= pinval.uchar) {
-      TRACE("Error: out of order in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
-      return -1;
+      flg_error = 1;
+    //  TRACE("Error: out of order in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
+    //  return -1;
     }
     memcpy (&preval, &pinval, sizeof(pinval));
 
     ret = pf_bsearch_r((void *)data, size, pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
     if (ret < 0) {
+      flg_error = 1;
       TRACE("Error: not found item in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
-      return -1;
+      //return -1;
     }
     if (idx != i) {
+      flg_error = 1;
       TRACE("Error: wrong index found item in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
-      return -1;
+      //return -1;
     }
   }
+  if (flg_error) {
+    TRACE("\nError: in array %s\n\n", name);
+    return -1;
+  }
+  TRACE("\nPASS array %s\n\n", name);
   return 0;
 }
 
-void
+int
 test_hd44780_charmap_all(void)
 {
-  test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device");
-  test_hd44780_charmap(g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), "g_hd44780_charmap_common");
+  int flg_error = 0;
+  if (test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
+    flg_error = 1;
+    test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device", 1);
+  }
+  if (test_hd44780_charmap(g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), "g_hd44780_charmap_common", 0) < 0) {
+    flg_error = 1;
+    test_hd44780_charmap(g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), "g_hd44780_charmap_common", 1);
+  }
+  if (flg_error) {
+    TRACE("\nFAILED in hd44780 tests!\n");
+    return -1;
+  }
+  TRACE("\nPASS in hd44780 tests.\n");
+  return 0;
 }
 
 #endif // DEBUG
@@ -992,7 +997,7 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   size_t idx = 0;
   hd44780_charmap_t pinval;
   hd44780_charmap_t localval;
-  hd44780_charmap_t *copy_address;
+  hd44780_charmap_t *copy_address = NULL;
   pinval.uchar = c;
   pinval.idx = -1;
 
@@ -1014,6 +1019,7 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
       copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_common + idx);
     }
   }
+
   if (ret >= 0) {
     // found
     FU_ASSERT(NULL != copy_address);
@@ -1059,7 +1065,8 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, uint16_t len, uint8_t (*c
       TRACE("No more char, break ...");
       break;
     }
-    ret += lcd_put_wchar_max(ch, PIXEL_LEN_NOLIMIT);
+    FU_ASSERT(ret < max_length);
+    ret += lcd_put_wchar_max(ch, max_length - ret);
   }
   return (int)ret;
 }
