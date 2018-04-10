@@ -1065,6 +1065,8 @@
 #define Z_CLEARANCE_BETWEEN_PROBES  Z_HOMING_HEIGHT // Z Clearance between probe points
 #define Z_AFTER_PROBING           	Z_HOMING_HEIGHT // Z position after probing is done
 
+#define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
+
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -20
 #define Z_PROBE_OFFSET_RANGE_MAX 20
