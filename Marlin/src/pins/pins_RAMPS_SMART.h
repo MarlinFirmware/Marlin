@@ -47,6 +47,16 @@
  *       A13 | A9
  *       A14 | A10
  *       A15 | A11
+ *
+ *
+ * REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER works fine connected to AUX-4 with
+ * Smart Adapter, but requires removing the AUX3 pin header on the adapter to fit.
+ * To use the SD card reader, wire its pins to AUX-3 (and use Software SPI).
+ *
+ * To use Hardware SPI for SD, the SDSS pin must be set to 52 instead of 53.
+ * Hardware SPI also requires additional wiring because the board doesn't pass
+ * the 6-pin SPI header from the DUE board.
+ * (Search the web for "Arduino DUE Board Pinout" to see the correct header.)
  */
 
 #ifndef __SAM3X8E__
