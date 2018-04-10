@@ -98,13 +98,15 @@ class Stepper {
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(BEZIER_JERK_CONTROL)
-      static int32_t Stepper::bezier_A,     // A coefficient in Bézier speed curve
-                     Stepper::bezier_B,     // B coefficient in Bézier speed curve
-                     Stepper::bezier_C;     // C coefficient in Bézier speed curve
-      static uint32_t Stepper::bezier_F;    // F coefficient in Bézier speed curve
-      static uint32_t Stepper::bezier_AV;   // AV coefficient in Bézier speed curve
-
-      static bool bezier_2nd_half;    // If Bézier curve has been initialized or not
+      static int32_t bezier_A,     // A coefficient in Bézier speed curve
+                     bezier_B,     // B coefficient in Bézier speed curve
+                     bezier_C;     // C coefficient in Bézier speed curve
+      static uint32_t bezier_F;    // F coefficient in Bézier speed curve
+      static uint32_t bezier_AV;   // AV coefficient in Bézier speed curve
+      #ifdef __AVR__
+        static bool A_negative;    // If A coefficient was negative
+      #endif
+      static bool bezier_2nd_half; // If Bézier curve has been initialized or not
     #endif
 
     #if ENABLED(LIN_ADVANCE)
