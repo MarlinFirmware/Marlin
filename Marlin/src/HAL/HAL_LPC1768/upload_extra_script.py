@@ -98,8 +98,8 @@ if current_OS == 'Linux':
     if target_file_found == True or target_drive_found == True:
       Import("env")
       env.Replace(
-  #            UPLOAD_FLAGS = "-P$UPLOAD_PORT",
-  #       UPLOAD_PORT = upload_disk
+        UPLOAD_FLAGS = "-P$UPLOAD_PORT",
+        UPLOAD_PORT = upload_disk
       )
 
 
