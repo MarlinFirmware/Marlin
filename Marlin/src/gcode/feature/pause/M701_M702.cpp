@@ -60,10 +60,6 @@ void GcodeSuite::M701() {
   // Z axis lift
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
-  // Load filament
-  const float load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) :
-                                                    filament_change_load_length[target_extruder]);
-
   // Show initial "wait for load" message
   #if ENABLED(ULTIPANEL)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, ADVANCED_PAUSE_MODE_LOAD_FILAMENT, target_extruder);
@@ -80,8 +76,12 @@ void GcodeSuite::M701() {
   if (park_point.z > 0)
     do_blocking_move_to_z(min(current_position[Z_AXIS] + park_point.z, Z_MAX_POS), NOZZLE_PARK_Z_FEEDRATE);
 
-  load_filament(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS, true,
-                thermalManager.wait_for_heating(target_extruder), ADVANCED_PAUSE_MODE_LOAD_FILAMENT);
+  // Load filament
+  constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+  const float fast_load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
+                                                       : filament_change_load_length[active_extruder]);
+  load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS,
+                true, thermalManager.wait_for_heating(target_extruder), ADVANCED_PAUSE_MODE_LOAD_FILAMENT);
 
   // Restore Z axis
   if (park_point.z > 0)

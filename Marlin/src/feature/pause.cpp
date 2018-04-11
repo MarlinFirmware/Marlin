@@ -137,7 +137,7 @@ static void do_pause_e_move(const float &length, const float &fr) {
  *
  * Returns 'true' if load was completed, 'false' for abort
  */
-bool load_filament(const float &load_length/*=0*/, const float &purge_length/*=0*/, const int8_t max_beep_count/*=0*/,
+bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=0*/, const int8_t max_beep_count/*=0*/,
                    const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/,
                    const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
 ) {
@@ -184,8 +184,22 @@ bool load_filament(const float &load_length/*=0*/, const float &purge_length/*=0
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, mode);
   #endif
 
-  // Load filament
-  if (load_length) do_pause_e_move(load_length, FILAMENT_CHANGE_LOAD_FEEDRATE);
+  // Slow Load filament
+  if (slow_load_length) do_pause_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
+
+  // Fast Load Filament
+  if (fast_load_length) {
+    #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
+      const float saved_acceleration = planner.retract_acceleration;
+      planner.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
+    #endif
+
+    do_pause_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
+
+    #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
+      planner.retract_acceleration = saved_acceleration;
+    #endif
+  }
 
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
 
@@ -196,7 +210,7 @@ bool load_filament(const float &load_length/*=0*/, const float &purge_length/*=0
 
     wait_for_user = true;
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
-      do_pause_e_move(1, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+      do_pause_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
     wait_for_user = false;
 
   #else
@@ -210,7 +224,7 @@ bool load_filament(const float &load_length/*=0*/, const float &purge_length/*=0
         #endif
 
         // Extrude filament to get into hotend
-        do_pause_e_move(purge_length, ADVANCED_PAUSE_EXTRUDE_FEEDRATE);
+        do_pause_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
 
       // Show "Purge More" / "Resume" menu and wait for reply
@@ -233,7 +247,7 @@ bool load_filament(const float &load_length/*=0*/, const float &purge_length/*=0
       #endif
     );
 
-  #endif      
+  #endif
 
   return true;
 }
@@ -277,7 +291,16 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
   do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.max_feedrate_mm_s[E_AXIS]);
 
   // Unload filament
+  #if FILAMENT_CHANGE_UNLOAD_ACCEL > 0
+    const float saved_acceleration = planner.retract_acceleration;
+    planner.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
+  #endif
+
   do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
+
+  #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
+    planner.retract_acceleration = saved_acceleration;
+  #endif
 
   // Disable extruders steppers for manual filament changing (only on boards that have separate ENABLE_PINS)
   #if E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN
@@ -477,7 +500,7 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
  * - Send host action for resume, if configured
  * - Resume the current SD print job, if any
  */
-void resume_print(const float &load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_EXTRUDE_LENGTH*/, const int8_t max_beep_count/*=0*/) {
+void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/) {
   if (!did_pause_print) return;
 
   // Re-enable the heaters if they timed out
@@ -489,7 +512,7 @@ void resume_print(const float &load_length/*=0*/, const float &purge_length/*=AD
 
   if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) {
     // Load the new filament
-    load_filament(load_length, purge_length, max_beep_count, true, nozzle_timed_out);
+    load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out);
   }
 
   #if ENABLED(ULTIPANEL)
@@ -503,6 +526,7 @@ void resume_print(const float &load_length/*=0*/, const float &purge_length/*=AD
     if (fwretract.retracted[active_extruder])
       do_pause_e_move(-fwretract.retract_length, fwretract.retract_feedrate_mm_s);
   #endif
+
   // If resume_position is negative
   if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
 
@@ -514,7 +538,7 @@ void resume_print(const float &load_length/*=0*/, const float &purge_length/*=AD
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
-  planner.set_e_position_mm(destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS]);
+  planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS]));
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     runout.reset();
