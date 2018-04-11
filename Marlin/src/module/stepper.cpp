@@ -117,13 +117,13 @@ long Stepper::counter_X = 0,
 volatile uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
 
 #if ENABLED(BEZIER_JERK_CONTROL)
-  static int32_t __attribute__((used)) Stepper::bezier_A __asm__("bezier_A");    // A coefficient in Bézier speed curve with alias for assembler
-  static int32_t __attribute__((used)) Stepper::bezier_B __asm__("bezier_B");    // B coefficient in Bézier speed curve with alias for assembler
-  static int32_t __attribute__((used)) Stepper::bezier_C __asm__("bezier_C");    // C coefficient in Bézier speed curve with alias for assembler
-  static uint32_t __attribute__((used)) Stepper::bezier_F __asm__("bezier_F");   // F coefficient in Bézier speed curve with alias for assembler
-  static uint32_t __attribute__((used)) Stepper::bezier_AV __asm__("bezier_AV"); // AV coefficient in Bézier speed curve with alias for assembler
+  int32_t __attribute__((used)) Stepper::bezier_A __asm__("bezier_A");    // A coefficient in Bézier speed curve with alias for assembler
+  int32_t __attribute__((used)) Stepper::bezier_B __asm__("bezier_B");    // B coefficient in Bézier speed curve with alias for assembler
+  int32_t __attribute__((used)) Stepper::bezier_C __asm__("bezier_C");    // C coefficient in Bézier speed curve with alias for assembler
+  uint32_t __attribute__((used)) Stepper::bezier_F __asm__("bezier_F");   // F coefficient in Bézier speed curve with alias for assembler
+  uint32_t __attribute__((used)) Stepper::bezier_AV __asm__("bezier_AV"); // AV coefficient in Bézier speed curve with alias for assembler
   #ifdef __AVR__
-    static bool __attribute__((used)) Stepper::A_negative __asm__("A_negative");   // If A coefficient was negative
+    bool __attribute__((used)) Stepper::A_negative __asm__("A_negative");   // If A coefficient was negative
   #endif
   bool Stepper::bezier_2nd_half;    // =false If Bézier curve has been initialized or not
 #endif
