@@ -104,7 +104,11 @@
 #define MSG_SELECT                          _UxGT("Seleccionar")
 #define MSG_ACC                             _UxGT("Aceleracion")
 #define MSG_JERK                            _UxGT("Jerk")
-#if IS_KINEMATIC
+#if IS_SCARA
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#elif IS_DELTA
   #define MSG_VA_JERK                       _UxGT("Va-jerk")
   #define MSG_VB_JERK                       _UxGT("Vb-jerk")
   #define MSG_VC_JERK                       _UxGT("Vc-jerk")
@@ -122,7 +126,11 @@
 #define MSG_A_RETRACT                       _UxGT("Acel. retrac.")
 #define MSG_A_TRAVEL                        _UxGT("Acel. Viaje")
 #define MSG_STEPS_PER_MM                    _UxGT("Pasos/mm")
-#if IS_KINEMATIC
+#if IS_SCARA
+  #define MSG_ASTEPS                        _UxGT("A pasos/deg")
+  #define MSG_BSTEPS                        _UxGT("B pasos/deg")
+  #define MSG_CSTEPS                        _UxGT("C pasos/mm")
+#elif IS_DELTA
   #define MSG_ASTEPS                        _UxGT("A pasos/mm")
   #define MSG_BSTEPS                        _UxGT("B pasos/mm")
   #define MSG_CSTEPS                        _UxGT("C pasos/mm")
