@@ -25,9 +25,17 @@
  * Define SPI Pins: SCK, MISO, MOSI, SS
  *
  */
-#define SCK_PIN   PA5
-#define MISO_PIN  PA6
-#define MOSI_PIN  PA7
-#define SS_PIN    PA8
+#ifndef SCK_PIN
+    #define SCK_PIN   PA5
+#endif
+#ifndef MISO_PIN
+    #define MISO_PIN  PA6
+#endif
+#ifndef MOSI_PIN
+    #define MOSI_PIN  PA7
+#endif
+#ifndef SS_PIN
+    #define SS_PIN    PA8
+#endif
 
 #endif // SPI_PINS_H_
