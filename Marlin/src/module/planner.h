@@ -96,8 +96,10 @@ typedef struct {
 
   #if ENABLED(BEZIER_JERK_CONTROL)
     uint32_t cruise_rate;                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
-    int32_t acceleration_time,              // Acceleration time and deceleration time in STEP timer counts
-            deceleration_time;
+    uint32_t acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
+             deceleration_time;
+    uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
+             deceleration_time_inverse;
   #else
     int32_t acceleration_rate;              // The acceleration rate used for acceleration calculation
   #endif
