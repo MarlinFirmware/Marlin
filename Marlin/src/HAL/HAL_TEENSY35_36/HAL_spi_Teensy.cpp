@@ -1,6 +1,6 @@
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
-#include "../HAL.h"
+#include "HAL.h"
 #include <SPI.h>
 #include <pins_arduino.h>
 #include "spi_pins.h"

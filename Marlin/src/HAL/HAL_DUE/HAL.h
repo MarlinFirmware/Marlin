@@ -29,10 +29,14 @@
 #ifndef _HAL_DUE_H
 #define _HAL_DUE_H
 
+#define CPU_32_BIT
+
 #include <stdint.h>
 
 #include <Arduino.h>
 
+#include "../math_32bit.h"
+#include "../HAL_SPI.h"
 #include "fastio_Due.h"
 #include "watchdog_Due.h"
 #include "HAL_timers_Due.h"

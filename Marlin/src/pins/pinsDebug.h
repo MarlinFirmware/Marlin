@@ -100,7 +100,7 @@ const PinInfo pin_array[] PROGMEM = {
 };
 
 
-#include "../HAL/HAL_pinsDebug.h"  // get the correct support file for this CPU
+#include HAL_PATH(../HAL/, pinsDebug.h)  // get the correct support file for this CPU
 
 
 static void print_input_or_output(const bool isout) {
