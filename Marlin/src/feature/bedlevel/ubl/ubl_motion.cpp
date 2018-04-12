@@ -75,19 +75,16 @@
       debug_current_and_destination(PSTR("Start of ubl.line_to_destination_cartesian()"));
     }
 
-    if (cell_start_xi == cell_dest_xi && cell_start_yi == cell_dest_yi) { // if the whole move is within the same cell,
-      /**
-       * we don't need to break up the move
-       *
-       * If we are moving off the print bed, we are going to allow the move at this level.
-       * But we detect it and isolate it. For now, we just pass along the request.
-       */
+    // A move within the same cell needs no splitting
+    if (cell_start_xi == cell_dest_xi && cell_start_yi == cell_dest_yi) {
 
+      // For a move off the bed, use a constant Z raise
       if (!WITHIN(cell_dest_xi, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(cell_dest_yi, 0, GRID_MAX_POINTS_Y - 1)) {
 
         // Note: There is no Z Correction in this case. We are off the grid and don't know what
         // a reasonable correction would be.  If the user has specified a UBL_Z_RAISE_WHEN_OFF_MESH
         // value, that will be used instead of a calculated (Bi-Linear interpolation) correction.
+
         const float z_raise = 0.0
           #ifdef UBL_Z_RAISE_WHEN_OFF_MESH
             + UBL_Z_RAISE_WHEN_OFF_MESH
@@ -104,15 +101,7 @@
 
       FINAL_MOVE:
 
-      /**
-       * Optimize some floating point operations here. We could call float get_z_correction(float x0, float y0) to
-       * generate the correction for us. But we can lighten the load on the CPU by doing a modified version of the function.
-       * We are going to only calculate the amount we are from the first mesh line towards the second mesh line once.
-       * We will use this fraction in both of the original two Z Height calculations for the bi-linear interpolation. And,
-       * instead of doing a generic divide of the distance, we know the distance is MESH_X_DIST so we can use the preprocessor
-       * to create a 1-over number for us. That will allow us to do a floating point multiply instead of a floating point divide.
-       */
-
+      // The distance is always MESH_X_DIST so multiply by the constant reciprocal.
       const float xratio = (end[X_AXIS] - mesh_index_to_xpos(cell_dest_xi)) * (1.0 / (MESH_X_DIST));
 
       float z1 = z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
@@ -122,22 +111,13 @@
 
       if (cell_dest_xi >= GRID_MAX_POINTS_X - 1) z1 = z2 = 0.0;
 
-      // we are done with the fractional X distance into the cell. Now with the two Z-Heights we have calculated, we
-      // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
+      // X cell-fraction done. Interpolate the two Z offsets with the Y fraction for the final Z offset.
+      const float yratio = (end[Y_AXIS] - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST)),
+                  z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
 
-      const float yratio = (end[Y_AXIS] - mesh_index_to_ypos(cell_dest_yi)) * (1.0 / (MESH_Y_DIST));
-      float z0 = cell_dest_yi < GRID_MAX_POINTS_Y - 1 ? (z1 + (z2 - z1) * yratio) * planner.fade_scaling_factor_for_z(end[Z_AXIS]) : 0.0;
-
-      /**
-       * If part of the Mesh is undefined, it will show up as NAN
-       * in z_values[][] and propagate through the
-       * calculations. If our correction is NAN, we throw it out
-       * because part of the Mesh is undefined and we don't have the
-       * information we need to complete the height correction.
-       */
-      if (isnan(z0)) z0 = 0.0;
-
-      planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + z0, end[E_AXIS], feed_rate, extruder);
+      // Undefined parts of the Mesh in z_values[][] are NAN.
+      // Replace NAN corrections with 0.0 to prevent NAN propagation.
+      planner.buffer_segment(end[X_AXIS], end[Y_AXIS], end[Z_AXIS] + (isnan(z0) ? 0.0 : z0), end[E_AXIS], feed_rate, extruder);
 
       if (g26_debug_flag)
         debug_current_and_destination(PSTR("FINAL_MOVE in ubl.line_to_destination_cartesian()"));
@@ -147,11 +127,8 @@
     }
 
     /**
-     * If we get here, we are processing a move that crosses at least one Mesh Line. We will check
-     * for the simple case of just crossing X or just crossing Y Mesh Lines after we get all the details
-     * of the move figured out. We can process the easy case of just crossing an X or Y Mesh Line with less
-     * computation and in fact most lines are of this nature. We will check for that in the following
-     * blocks of code:
+     * Past this point the move is known to cross one or more mesh lines. Check for the most common
+     * case - crossing only one X or Y line - after details are worked out to reduce computation.
      */
 
     const float dx = end[X_AXIS] - start[X_AXIS],
@@ -167,12 +144,11 @@
               dyi = cell_start_yi == cell_dest_yi ? 0 : down_flag ? -1 : 1;
 
     /**
-     * Compute the scaling factor for the extruder for each partial move.
-     * We need to watch out for zero length moves because it will cause us to
-     * have an infinate scaling factor. We are stuck doing a floating point
-     * divide to get our scaling factor, but after that, we just multiply by this
-     * number. We also pick our scaling factor based on whether the X or Y
-     * component is larger. We use the biggest of the two to preserve precision.
+     * Compute the extruder scaling factor for each partial move, checking for
+     * zero-length moves that would result in an infinite scaling factor.
+     * A float divide is required for this, but then it just multiplies.
+     * Also select a scaling factor based on the larger of the X and Y
+     * components. The larger of the two is used to preserve precision.
      */
 
     const bool use_x_dist = adx > ady;
@@ -192,43 +168,37 @@
 
     const bool inf_normalized_flag = (isinf(e_normalized_dist) != 0),
                inf_m_flag = (isinf(m) != 0);
+
     /**
-     * This block handles vertical lines. These are lines that stay within the same
-     * X Cell column. They do not need to be perfectly vertical. They just can
-     * not cross into another X Cell column.
+     * Handle vertical lines that stay within one column.
+     * These need not be perfectly vertical.
      */
-    if (dxi == 0) {       // Check for a vertical line
-      current_yi += down_flag;  // Line is heading down, we just want to go to the bottom
+    if (dxi == 0) {             // Vertical line?
+      current_yi += down_flag;  // Line going down? Just go to the bottom.
       while (current_yi != cell_dest_yi + down_flag) {
         current_yi += dyi;
         const float next_mesh_line_y = mesh_index_to_ypos(current_yi);
 
         /**
-         * if the slope of the line is infinite, we won't do the calculations
-         * else, we know the next X is the same so we can recover and continue!
-         * Calculate X at the next Y mesh line
+         * Skip the calculations for an infinite slope.
+         * For others the next X is the same so this can continue.
+         * Calculate X at the next Y mesh line.
          */
         const float rx = inf_m_flag ? start[X_AXIS] : (next_mesh_line_y - c) / m;
 
         float z0 = z_correction_for_x_on_horizontal_mesh_line(rx, current_xi, current_yi)
                    * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
-        /**
-         * If part of the Mesh is undefined, it will show up as NAN
-         * in z_values[][] and propagate through the
-         * calculations. If our correction is NAN, we throw it out
-         * because part of the Mesh is undefined and we don't have the
-         * information we need to complete the height correction.
-         */
+        // Undefined parts of the Mesh in z_values[][] are NAN.
+        // Replace NAN corrections with 0.0 to prevent NAN propagation.
         if (isnan(z0)) z0 = 0.0;
 
         const float ry = mesh_index_to_ypos(current_yi);
 
         /**
-         * Without this check, it is possible for the algorithm to generate a zero length move in the case
-         * where the line is heading down and it is starting right on a Mesh Line boundary. For how often that
-         * happens, it might be best to remove the check and always 'schedule' the move because
-         * the planner.buffer_segment() routine will filter it if that happens.
+         * Without this check, it's possible to generate a zero length move, as in the case where
+         * the line is heading down, starting exactly on a mesh line boundary. Since this is rare
+         * it might be fine to remove this check and let planner.buffer_segment() filter it out.
          */
         if (ry != start[Y_AXIS]) {
           if (!inf_normalized_flag) {
@@ -248,9 +218,7 @@
       if (g26_debug_flag)
         debug_current_and_destination(PSTR("vertical move done in ubl.line_to_destination_cartesian()"));
 
-      //
-      // Check if we are at the final destination. Usually, we won't be, but if it is on a Y Mesh Line, we are done.
-      //
+      // At the final destination? Usually not, but when on a Y Mesh Line it's completed.
       if (current_position[X_AXIS] != end[X_AXIS] || current_position[Y_AXIS] != end[Y_AXIS])
         goto FINAL_MOVE;
 
@@ -259,16 +227,11 @@
     }
 
     /**
-     *
-     * This block handles horizontal lines. These are lines that stay within the same
-     * Y Cell row. They do not need to be perfectly horizontal. They just can
-     * not cross into another Y Cell row.
-     *
+     * Handle horizontal lines that stay within one row.
+     * These need not be perfectly horizontal.
      */
-
-    if (dyi == 0) {             // Check for a horizontal line
-      current_xi += left_flag;  // Line is heading left, we just want to go to the left
-                                // edge of this cell for the first move.
+    if (dyi == 0) {             // Horizontal line?
+      current_xi += left_flag;  // Heading left? Just go to the left edge of the cell for the first move.
       while (current_xi != cell_dest_xi + left_flag) {
         current_xi += dxi;
         const float next_mesh_line_x = mesh_index_to_xpos(current_xi),
@@ -277,22 +240,16 @@
         float z0 = z_correction_for_y_on_vertical_mesh_line(ry, current_xi, current_yi)
                    * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
-        /**
-         * If part of the Mesh is undefined, it will show up as NAN
-         * in z_values[][] and propagate through the
-         * calculations. If our correction is NAN, we throw it out
-         * because part of the Mesh is undefined and we don't have the
-         * information we need to complete the height correction.
-         */
+        // Undefined parts of the Mesh in z_values[][] are NAN.
+        // Replace NAN corrections with 0.0 to prevent NAN propagation.
         if (isnan(z0)) z0 = 0.0;
 
         const float rx = mesh_index_to_xpos(current_xi);
 
         /**
-         * Without this check, it is possible for the algorithm to generate a zero length move in the case
-         * where the line is heading left and it is starting right on a Mesh Line boundary. For how often
-         * that happens, it might be best to remove the check and always 'schedule' the move because
-         * the planner.buffer_segment() routine will filter it if that happens.
+         * Without this check, it's possible to generate a zero length move, as in the case where
+         * the line is heading left, starting exactly on a mesh line boundary. Since this is rare
+         * it might be fine to remove this check and let planner.buffer_segment() filter it out.
          */
         if (rx != start[X_AXIS]) {
           if (!inf_normalized_flag) {
@@ -321,7 +278,7 @@
 
     /**
      *
-     * This block handles the generic case of a line crossing both X and Y Mesh lines.
+     * Handle the generic case of a line crossing both X and Y Mesh lines.
      *
      */
 
@@ -334,7 +291,7 @@
     current_xi += left_flag;
     current_yi += down_flag;
 
-    while (xi_cnt > 0 || yi_cnt > 0) {
+    while (xi_cnt || yi_cnt) {
 
       const float next_mesh_line_x = mesh_index_to_xpos(current_xi + dxi),
                   next_mesh_line_y = mesh_index_to_ypos(current_yi + dyi),
@@ -349,13 +306,8 @@
         float z0 = z_correction_for_x_on_horizontal_mesh_line(rx, current_xi - left_flag, current_yi + dyi)
                    * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
-        /**
-         * If part of the Mesh is undefined, it will show up as NAN
-         * in z_values[][] and propagate through the
-         * calculations. If our correction is NAN, we throw it out
-         * because part of the Mesh is undefined and we don't have the
-         * information we need to complete the height correction.
-         */
+        // Undefined parts of the Mesh in z_values[][] are NAN.
+        // Replace NAN corrections with 0.0 to prevent NAN propagation.
         if (isnan(z0)) z0 = 0.0;
 
         if (!inf_normalized_flag) {
@@ -376,13 +328,8 @@
         float z0 = z_correction_for_y_on_vertical_mesh_line(ry, current_xi + dxi, current_yi - down_flag)
                    * planner.fade_scaling_factor_for_z(end[Z_AXIS]);
 
-        /**
-         * If part of the Mesh is undefined, it will show up as NAN
-         * in z_values[][] and propagate through the
-         * calculations. If our correction is NAN, we throw it out
-         * because part of the Mesh is undefined and we don't have the
-         * information we need to complete the height correction.
-         */
+        // Undefined parts of the Mesh in z_values[][] are NAN.
+        // Replace NAN corrections with 0.0 to prevent NAN propagation.
         if (isnan(z0)) z0 = 0.0;
 
         if (!inf_normalized_flag) {
@@ -400,7 +347,7 @@
         xi_cnt--;
       }
 
-      if (xi_cnt < 0 || yi_cnt < 0) break; // we've gone too far, so exit the loop and move on to FINAL_MOVE
+      //if (xi_cnt < 0 || yi_cnt < 0) break; // Too far! Exit the loop and go to FINAL_MOVE
     }
 
     if (g26_debug_flag)
