@@ -390,7 +390,8 @@ void report_current_position();
   enum ProbePtRaise : unsigned char {
     PROBE_PT_NONE,  // No raise or stow after run_z_probe
     PROBE_PT_STOW,  // Do a complete stow after run_z_probe
-    PROBE_PT_RAISE  // Raise to "between" clearance after run_z_probe
+    PROBE_PT_RAISE, // Raise to "between" clearance after run_z_probe
+    PROBE_PT_BIG_RAISE  // Raise to big clearance after run_z_probe
   };
   float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true);
   #define DEPLOY_PROBE() set_probe_deployed(true)
