@@ -123,6 +123,12 @@ void GcodeSuite::G29() {
           soft_endstops_enabled = false;
         #endif
 
+        // Move close to the bed for the first point
+        if (!mbl_probe_index) {
+          current_position[Z_AXIS] = Z_MIN_POS;
+          buffer_line_to_current_position();
+        }
+
         mbl_probe_index++;
       }
       else {
