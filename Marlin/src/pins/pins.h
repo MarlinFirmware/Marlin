@@ -886,6 +886,6 @@
 
 // Note: default SPI pins are defined in the HAL
 
-#include "../HAL/HAL_spi_pins.h"
+#include HAL_PATH(../HAL, spi_pins.h)
 
 #endif // __PINS_H__

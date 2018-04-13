@@ -96,7 +96,7 @@
 #endif
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-  #include "HAL/HAL_endstop_interrupts.h"
+  #include HAL_PATH(HAL, endstop_interrupts.h)
 #endif
 
 #if HAS_TRINAMIC

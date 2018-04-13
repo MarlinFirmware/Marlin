@@ -34,10 +34,6 @@
 #define DISPLAY_CHARSET_ISO10646_TR
 #define CHARSIZE 2
 
-#if DISABLED(DOGLCD)
-  #error "Turkish needs a graphical display."
-#endif
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" hazır.")                               // hazır.
 #define MSG_SD_INSERTED                     _UxGT("SD Yerleşti.")                                       // SD Yerleşti.
 #define MSG_SD_REMOVED                      _UxGT("SD Çıkarıldı.")                                      // SD Çıkarıldı.

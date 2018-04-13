@@ -22,169 +22,171 @@
 
 /**
  * Portuguese
+ * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_PT_H
-#define LANGUAGE_PT_H
+#ifndef LANGUAGE_PT_UTF_H
+#define LANGUAGE_PT_UTF_H
 
+#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
-#define NOT_EXTENDED_ISO10646_1_5X7
+#define CHARSIZE 2
 
-#define WELCOME_MSG                         MACHINE_NAME " pronta."
-#define MSG_SD_INSERTED                     "Cartao inserido"
-#define MSG_SD_REMOVED                      "Cartao removido"
-#define MSG_MAIN                            "Menu principal"
-#define MSG_AUTOSTART                       "Autostart"
-#define MSG_DISABLE_STEPPERS                "Desactivar motores"
-#define MSG_AUTO_HOME                       "Ir para origem"
-#define MSG_AUTO_HOME_X                     "Ir para origem X"
-#define MSG_AUTO_HOME_Y                     "Ir para origem Y"
-#define MSG_AUTO_HOME_Z                     "Ir para origem Z"
-#define MSG_LEVEL_BED_HOMING                "Indo para origem"
-#define MSG_LEVEL_BED_WAITING               "Click para iniciar"
-#define MSG_LEVEL_BED_NEXT_POINT            "Proximo ponto"
-#define MSG_LEVEL_BED_DONE                  "Pronto !"
-#define MSG_SET_HOME_OFFSETS                "Definir desvio"
-#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
-#define MSG_SET_ORIGIN                      "Definir origem"
-#define MSG_PREHEAT_1                       "Pre-aquecer PLA"
-#define MSG_PREHEAT_1_N                     "Pre-aquecer PLA"
-#define MSG_PREHEAT_1_ALL                   "Pre-aq. PLA Tudo"
-#define MSG_PREHEAT_1_BEDONLY               "Pre-aq. PLA " LCD_STR_THERMOMETER "Base"
-#define MSG_PREHEAT_1_SETTINGS              "Definicoes PLA"
-#define MSG_PREHEAT_2                       "Pre-aquecer ABS"
-#define MSG_PREHEAT_2_N                     "Pre-aquecer ABS "
-#define MSG_PREHEAT_2_ALL                   "Pre-aq. ABS Tudo"
-#define MSG_PREHEAT_2_BEDONLY               "Pre-aq. ABS " LCD_STR_THERMOMETER "Base"
-#define MSG_PREHEAT_2_SETTINGS              "Definicoes ABS"
-#define MSG_COOLDOWN                        "Arrefecer"
-#define MSG_SWITCH_PS_ON                    "Ligar"
-#define MSG_SWITCH_PS_OFF                   "Desligar"
-#define MSG_EXTRUDE                         "Extrudir"
-#define MSG_RETRACT                         "Retrair"
-#define MSG_MOVE_AXIS                       "Mover eixo"
-#define MSG_MOVE_X                          "Mover X"
-#define MSG_MOVE_Y                          "Mover Y"
-#define MSG_MOVE_Z                          "Mover Z"
-#define MSG_MOVE_E                          "Mover Extrusor"
-#define MSG_MOVE_01MM                       "Mover 0.1mm"
-#define MSG_MOVE_1MM                        "Mover 1mm"
-#define MSG_MOVE_10MM                       "Mover 10mm"
-#define MSG_SPEED                           "Velocidade"
-#define MSG_BED_Z                           "Base Z"
-#define MSG_NOZZLE                          LCD_STR_THERMOMETER " Bico"
-#define MSG_BED                             LCD_STR_THERMOMETER " Base"
-#define MSG_FAN_SPEED                       "Vel. ventoinha"
-#define MSG_FLOW                            "Fluxo"
-#define MSG_CONTROL                         "Controlo"
-#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
-#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
-#define MSG_FACTOR                          LCD_STR_THERMOMETER " Fact"
-#define MSG_AUTOTEMP                        "Temp. Automatica"
-#define MSG_ON                              "On "
-#define MSG_OFF                             "Off"
-#define MSG_PID_P                           "PID-P"
-#define MSG_PID_I                           "PID-I"
-#define MSG_PID_D                           "PID-D"
-#define MSG_PID_C                           "PID-C"
-#define MSG_ACC                             "Acc"
-#define MSG_JERK                            "Jerk"
+#define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronta.")
+#define MSG_SD_INSERTED                     _UxGT("Cartão inserido")
+#define MSG_SD_REMOVED                      _UxGT("Cartão removido")
+#define MSG_MAIN                            _UxGT("Menu principal")
+#define MSG_AUTOSTART                       _UxGT("Autostart")
+#define MSG_DISABLE_STEPPERS                _UxGT("Desactivar motores")
+#define MSG_AUTO_HOME                       _UxGT("Ir para origem")
+#define MSG_AUTO_HOME_X                     _UxGT("Ir para origem X")
+#define MSG_AUTO_HOME_Y                     _UxGT("Ir para origem Y")
+#define MSG_AUTO_HOME_Z                     _UxGT("Ir para origem Z")
+#define MSG_LEVEL_BED_HOMING                _UxGT("Indo para origem")
+#define MSG_LEVEL_BED_WAITING               _UxGT("Click para iniciar")
+#define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Próximo ponto")
+#define MSG_LEVEL_BED_DONE                  _UxGT("Pronto !")
+#define MSG_SET_HOME_OFFSETS                _UxGT("Definir desvio")
+#define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsets aplicados")
+#define MSG_SET_ORIGIN                      _UxGT("Definir origem")
+#define MSG_PREHEAT_1                       _UxGT("Pre-aquecer PLA")
+#define MSG_PREHEAT_1_N                     _UxGT("Pre-aquecer PLA")
+#define MSG_PREHEAT_1_ALL                   _UxGT("Pre-aq. PLA Tudo")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Pre-aq. PLA ") LCD_STR_THERMOMETER _UxGT("Base")
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Definições PLA")
+#define MSG_PREHEAT_2                       _UxGT("Pre-aquecer ABS")
+#define MSG_PREHEAT_2_N                     _UxGT("Pre-aquecer ABS ")
+#define MSG_PREHEAT_2_ALL                   _UxGT("Pre-aq. ABS Tudo")
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Pre-aq. ABS ") LCD_STR_THERMOMETER _UxGT("Base")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Definições ABS")
+#define MSG_COOLDOWN                        _UxGT("Arrefecer")
+#define MSG_SWITCH_PS_ON                    _UxGT("Ligar")
+#define MSG_SWITCH_PS_OFF                   _UxGT("Desligar")
+#define MSG_EXTRUDE                         _UxGT("Extrudir")
+#define MSG_RETRACT                         _UxGT("Retrair")
+#define MSG_MOVE_AXIS                       _UxGT("Mover eixo")
+#define MSG_MOVE_X                          _UxGT("Mover X")
+#define MSG_MOVE_Y                          _UxGT("Mover Y")
+#define MSG_MOVE_Z                          _UxGT("Mover Z")
+#define MSG_MOVE_E                          _UxGT("Mover Extrusor")
+#define MSG_MOVE_01MM                       _UxGT("Mover 0.1mm")
+#define MSG_MOVE_1MM                        _UxGT("Mover 1mm")
+#define MSG_MOVE_10MM                       _UxGT("Mover 10mm")
+#define MSG_SPEED                           _UxGT("Velocidade")
+#define MSG_BED_Z                           _UxGT("Base Z")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Bico")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Base")
+#define MSG_FAN_SPEED                       _UxGT("Vel. ventoinha")
+#define MSG_FLOW                            _UxGT("Fluxo")
+#define MSG_CONTROL                         _UxGT("Controlo")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
+#define MSG_AUTOTEMP                        _UxGT("Temp. Automática")
+#define MSG_ON                              _UxGT("On ")
+#define MSG_OFF                             _UxGT("Off")
+#define MSG_PID_P                           _UxGT("PID-P")
+#define MSG_PID_I                           _UxGT("PID-I")
+#define MSG_PID_D                           _UxGT("PID-D")
+#define MSG_PID_C                           _UxGT("PID-C")
+#define MSG_ACC                             _UxGT("Acc")
+#define MSG_JERK                            _UxGT("Jerk")
 #if IS_KINEMATIC
-  #define MSG_VA_JERK                       "Va-jerk"
-  #define MSG_VB_JERK                       "Vb-jerk"
-  #define MSG_VC_JERK                       "Vc-jerk"
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
 #else
-  #define MSG_VA_JERK                       "Vx-jerk"
-  #define MSG_VB_JERK                       "Vy-jerk"
-  #define MSG_VC_JERK                       "Vz-jerk"
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
 #endif
-#define MSG_VE_JERK                         "Ve-jerk"
-#define MSG_VMAX                            " Vmax "
-#define MSG_VMIN                            "Vmin"
-#define MSG_VTRAV_MIN                       "VTrav min"
-#define MSG_AMAX                            "Amax "
-#define MSG_A_RETRACT                       "A-retraccao"
-#define MSG_A_TRAVEL                        "A-movimento"
-#define MSG_STEPS_PER_MM                    "Passo/mm"
+#define MSG_VE_JERK                         _UxGT("Ve-jerk")
+#define MSG_VMAX                            _UxGT(" Vmax ")
+#define MSG_VMIN                            _UxGT("Vmin")
+#define MSG_VTRAV_MIN                       _UxGT("VTrav min")
+#define MSG_AMAX                            _UxGT("Amax ")
+#define MSG_A_RETRACT                       _UxGT("A-retracção")
+#define MSG_A_TRAVEL                        _UxGT("A-movimento")
+#define MSG_STEPS_PER_MM                    _UxGT("Passo/mm")
 #if IS_KINEMATIC
-  #define MSG_ASTEPS                        "A passo/mm"
-  #define MSG_BSTEPS                        "B passo/mm"
-  #define MSG_CSTEPS                        "C passo/mm"
+  #define MSG_ASTEPS                        _UxGT("A passo/mm")
+  #define MSG_BSTEPS                        _UxGT("B passo/mm")
+  #define MSG_CSTEPS                        _UxGT("C passo/mm")
 #else
-  #define MSG_ASTEPS                        "X passo/mm"
-  #define MSG_BSTEPS                        "Y passo/mm"
-  #define MSG_CSTEPS                        "Z passo/mm"
+  #define MSG_ASTEPS                        _UxGT("X passo/mm")
+  #define MSG_BSTEPS                        _UxGT("Y passo/mm")
+  #define MSG_CSTEPS                        _UxGT("Z passo/mm")
 #endif
-#define MSG_ESTEPS                          "E passo/mm"
-#define MSG_E1STEPS                         "E1 passo/mm"
-#define MSG_E2STEPS                         "E2 passo/mm"
-#define MSG_E3STEPS                         "E3 passo/mm"
-#define MSG_E4STEPS                         "E4 passo/mm"
-#define MSG_E5STEPS                         "E5 passo/mm"
-#define MSG_TEMPERATURE                     "Temperatura"
-#define MSG_MOTION                          "Movimento"
-#define MSG_FILAMENT                        "Filamento"
-#define MSG_VOLUMETRIC_ENABLED              "E em mm3"
-#define MSG_FILAMENT_DIAM                   "Fil. Diam."
-#define MSG_CONTRAST                        "Contraste"
-#define MSG_STORE_EEPROM                    "Guardar na memoria"
-#define MSG_LOAD_EEPROM                     "Carregar da memoria"
-#define MSG_RESTORE_FAILSAFE                "Rest. de emergen."
-#define MSG_REFRESH                         LCD_STR_REFRESH " Recarregar"
-#define MSG_WATCH                           "Monitorizar"
-#define MSG_PREPARE                         "Preparar"
-#define MSG_TUNE                            "Afinar"
-#define MSG_PAUSE_PRINT                     "Pausar impressao"
-#define MSG_RESUME_PRINT                    "Retomar impressao"
-#define MSG_STOP_PRINT                      "Parar impressao"
-#define MSG_CARD_MENU                       "Imprimir do SD"
-#define MSG_NO_CARD                         "Sem cartao SD"
-#define MSG_DWELL                           "Em espera..."
-#define MSG_USERWAIT                        "A espera de ordem"
-#define MSG_RESUMING                        "Retomando impressao"
-#define MSG_PRINT_ABORTED                   "Impressao cancelada"
-#define MSG_NO_MOVE                         "Sem movimento"
-#define MSG_KILLED                          "EMERGENCIA. "
-#define MSG_STOPPED                         "PARADO. "
-#define MSG_CONTROL_RETRACT                 " Retrair mm"
-#define MSG_CONTROL_RETRACT_SWAP            "Troca Retrair mm"
-#define MSG_CONTROL_RETRACTF                " Retrair  V"
-#define MSG_CONTROL_RETRACT_ZLIFT           " Levantar mm"
-#define MSG_CONTROL_RETRACT_RECOVER         " DesRet mm"
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    "Troca DesRet mm"
-#define MSG_CONTROL_RETRACT_RECOVERF        " DesRet  V"
-#define MSG_AUTORETRACT                     " AutoRetr."
-#define MSG_FILAMENTCHANGE                  "Trocar filamento"
-#define MSG_INIT_SDCARD                     "Inici. cartao SD"
-#define MSG_CNG_SDCARD                      "Trocar cartao SD"
-#define MSG_ZPROBE_OUT                      "Sensor fora/base"
-#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           "first"
-#define MSG_ZPROBE_ZOFFSET                  "Desvio Z"
-#define MSG_BABYSTEP_X                      "Babystep X"
-#define MSG_BABYSTEP_Y                      "Babystep Y"
-#define MSG_BABYSTEP_Z                      "Babystep Z"
-#define MSG_ENDSTOP_ABORT                   "Fim de curso"
-#define MSG_HEATING_FAILED_LCD              "Aquecimento falhou"
-#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP"
-#define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
-#define MSG_ERR_MAXTEMP                     "Err: T Maxima"
-#define MSG_ERR_MINTEMP                     "Err: T Minima"
-#define MSG_ERR_MAXTEMP_BED                 "Err: T Base Maxima"
-#define MSG_ERR_MINTEMP_BED                 "Err: T Base Minima"
-#define MSG_HEATING                         "Aquecendo..."
-#define MSG_HEATING_COMPLETE                "Aquecida."
-#define MSG_BED_HEATING                     "Aquecendo base.."
-#define MSG_BED_DONE                        "Base aquecida."
-#define MSG_DELTA_CALIBRATE                 "Calibracao Delta"
-#define MSG_DELTA_CALIBRATE_X               "Calibrar X"
-#define MSG_DELTA_CALIBRATE_Y               "Calibrar Y"
-#define MSG_DELTA_CALIBRATE_Z               "Calibrar Z"
-#define MSG_DELTA_CALIBRATE_CENTER          "Calibrar Centro"
+#define MSG_ESTEPS                          _UxGT("E passo/mm")
+#define MSG_E1STEPS                         _UxGT("E1 passo/mm")
+#define MSG_E2STEPS                         _UxGT("E2 passo/mm")
+#define MSG_E3STEPS                         _UxGT("E3 passo/mm")
+#define MSG_E4STEPS                         _UxGT("E4 passo/mm")
+#define MSG_E5STEPS                         _UxGT("E5 passo/mm")
+#define MSG_TEMPERATURE                     _UxGT("Temperatura")
+#define MSG_MOTION                          _UxGT("Movimento")
+#define MSG_FILAMENT                        _UxGT("Filamento")
+#define MSG_VOLUMETRIC_ENABLED              _UxGT("E em mm3")
+#define MSG_FILAMENT_DIAM                   _UxGT("Fil. Diam.")
+#define MSG_CONTRAST                        _UxGT("Contraste")
+#define MSG_STORE_EEPROM                    _UxGT("Guardar na memoria")
+#define MSG_LOAD_EEPROM                     _UxGT("Carregar da memoria")
+#define MSG_RESTORE_FAILSAFE                _UxGT("Rest. de emergen.")
+#define MSG_REFRESH                         LCD_STR_REFRESH _UxGT(" Recarregar")
+#define MSG_WATCH                           _UxGT("Monitorizar")
+#define MSG_PREPARE                         _UxGT("Preparar")
+#define MSG_TUNE                            _UxGT("Afinar")
+#define MSG_PAUSE_PRINT                     _UxGT("Pausar impressão")
+#define MSG_RESUME_PRINT                    _UxGT("Retomar impressão")
+#define MSG_STOP_PRINT                      _UxGT("Parar impressão")
+#define MSG_CARD_MENU                       _UxGT("Imprimir do SD")
+#define MSG_NO_CARD                         _UxGT("Sem cartão SD")
+#define MSG_DWELL                           _UxGT("Em espera...")
+#define MSG_USERWAIT                        _UxGT("Á espera de ordem")
+#define MSG_RESUMING                        _UxGT("Retomando impressão")
+#define MSG_PRINT_ABORTED                   _UxGT("Impressão cancelada")
+#define MSG_NO_MOVE                         _UxGT("Sem movimento")
+#define MSG_KILLED                          _UxGT("EMERGÊNCIA. ")
+#define MSG_STOPPED                         _UxGT("PARADO. ")
+#define MSG_CONTROL_RETRACT                 _UxGT(" Retrair mm")
+#define MSG_CONTROL_RETRACT_SWAP            _UxGT("Troca Retrair mm")
+#define MSG_CONTROL_RETRACTF                _UxGT(" Retrair  V")
+#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT(" Levantar mm")
+#define MSG_CONTROL_RETRACT_RECOVER         _UxGT(" DesRet mm")
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Troca DesRet mm")
+#define MSG_CONTROL_RETRACT_RECOVERF        _UxGT(" DesRet  V")
+#define MSG_AUTORETRACT                     _UxGT(" AutoRetr.")
+#define MSG_FILAMENTCHANGE                  _UxGT("Trocar filamento")
+#define MSG_INIT_SDCARD                     _UxGT("Inici. cartão SD")
+#define MSG_CNG_SDCARD                      _UxGT("Trocar cartão SD")
+#define MSG_ZPROBE_OUT                      _UxGT("Sensor fora/base")
+#define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           _UxGT("first")
+#define MSG_ZPROBE_ZOFFSET                  _UxGT("Desvio Z")
+#define MSG_BABYSTEP_X                      _UxGT("Babystep X")
+#define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")
+#define MSG_BABYSTEP_Z                      _UxGT("Babystep Z")
+#define MSG_ENDSTOP_ABORT                   _UxGT("Fim de curso")
+#define MSG_HEATING_FAILED_LCD              _UxGT("Aquecimento falhou")
+#define MSG_ERR_REDUNDANT_TEMP              _UxGT("Err: REDUNDANT TEMP")
+#define MSG_THERMAL_RUNAWAY                 _UxGT("THERMAL RUNAWAY")
+#define MSG_ERR_MAXTEMP                     _UxGT("Err: T Máxima")
+#define MSG_ERR_MINTEMP                     _UxGT("Err: T Mínima")
+#define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: T Base Máxima")
+#define MSG_ERR_MINTEMP_BED                 _UxGT("Err: T Base Mínima")
+#define MSG_HEATING                         _UxGT("Aquecendo...")
+#define MSG_HEATING_COMPLETE                _UxGT("Aquecida.")
+#define MSG_BED_HEATING                     _UxGT("Aquecendo base..")
+#define MSG_BED_DONE                        _UxGT("Base aquecida.")
+#define MSG_DELTA_CALIBRATE                 _UxGT("Calibração Delta")
+#define MSG_DELTA_CALIBRATE_X               _UxGT("Calibrar X")
+#define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibrar Y")
+#define MSG_DELTA_CALIBRATE_Z               _UxGT("Calibrar Z")
+#define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrar Centro")
 
-#define MSG_LCD_ENDSTOPS                    "Fim de curso"
+#define MSG_LCD_ENDSTOPS                    _UxGT("Fim de curso")
 
-#endif // LANGUAGE_PT_H
+#endif // LANGUAGE_PT_UTF_H
