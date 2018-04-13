@@ -52,8 +52,6 @@
     constexpr bool lcd_wait_for_move = false;
   #endif
 
-  int16_t lcd_strlen(const char* s);
-  int16_t lcd_strlen_P(const char* s);
   void lcd_update();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
