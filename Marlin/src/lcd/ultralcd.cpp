@@ -2721,7 +2721,7 @@ void kill_screen(const char* lcd_msg) {
       do_blocking_move_to_xy(rx, ry);
 
       lcd_synchronize();
-      move_menu_scale = PROBE_MANUALLY_STEP;
+      move_menu_scale = max(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
       lcd_goto_screen(lcd_move_z);
     }
 
