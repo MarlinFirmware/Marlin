@@ -29,7 +29,16 @@
  *  E1  Have the host 'echo:' the text
  */
 void GcodeSuite::M118() {
-  if (parser.seenval('E') && parser.value_bool()) SERIAL_ECHO_START();
-  if (parser.seenval('A') && parser.value_bool()) SERIAL_ECHOPGM("// ");
-  SERIAL_ECHOLN(parser.string_arg);
+  bool hasE = false, hasA = false;
+  char *p = parser.string_arg;
+  for (uint8_t i = 2; i--;)
+    if ((p[0] == 'A' || p[0] == 'E') && p[1] == '1') {
+      if (p[0] == 'A') hasA = true;
+      if (p[0] == 'E') hasE = true;
+      p += 2;
+      while (*p == ' ') ++p;
+    }
+  if (hasE) SERIAL_ECHO_START();
+  if (hasA) SERIAL_ECHOPGM("// ");
+  SERIAL_ECHOLN(p);
 }
