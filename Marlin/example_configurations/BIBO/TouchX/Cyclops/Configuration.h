@@ -846,6 +846,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
   #define MAX_SOFTWARE_ENDSTOP_Z
 #endif
 
+#if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+  //#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
+#endif
+
 /**
  * Filament Runout Sensors
  * Mechanical or opto endstops are used to check for the presence of filament.
