@@ -21,13 +21,12 @@
  *
  */
 
-/**
- * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
- */
 
-#ifndef _HAL_STM32F1_H
-#define _HAL_STM32F1_H
 
+#ifndef _HAL_STM32F7_H
+#define _HAL_STM32F7_H
+
+#define CPU_32_BIT
 #undef DEBUG_NONE
 
 #ifndef vsnprintf_P
@@ -40,69 +39,70 @@
 
 #include <stdint.h>
 
-#include <Arduino.h>
+#include "Arduino.h"
 
-// --------------------------------------------------------------------------
-// Undefine DEBUG_ settings
-// --------------------------------------------------------------------------
+#include "../math_32bit.h"
+#include "../HAL_SPI.h"
 
+#include "fastio_STM32F7.h"
+#include "watchdog_STM32F7.h"
 
-#undef DEBUG_NONE
-#undef DEBUG_FAULT
-#undef DEBUG_ALL
-
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
-#include "fastio_Stm32f1.h"
-#include "watchdog_Stm32f1.h"
-
-#include "HAL_timers_Stm32f1.h"
+#include "HAL_timers_STM32F7.h"
 
 
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
 
-#if !WITHIN(SERIAL_PORT, -1, 3)
-  #error "SERIAL_PORT must be from -1 to 3"
+//Serial override
+//extern HalSerial usb_serial;
+
+#if !WITHIN(SERIAL_PORT, -1, 6)
+  #error "SERIAL_PORT must be from -1 to 6"
 #endif
 #if SERIAL_PORT == -1
-extern USBSerial SerialUSB;
   #define MYSERIAL0 SerialUSB
-#elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial
 #elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
+  #define MYSERIAL0 SerialUART1
 #elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
+  #define MYSERIAL0 SerialUART2
 #elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
+  #define MYSERIAL0 SerialUART3
+#elif SERIAL_PORT == 4
+  #define MYSERIAL0 SerialUART4
+#elif SERIAL_PORT == 5
+  #define MYSERIAL0 SerialUART5
+#elif SERIAL_PORT == 6
+  #define MYSERIAL0 SerialUART6
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if !WITHIN(SERIAL_PORT_2, -1, 3)
-    #error "SERIAL_PORT_2 must be from -1 to 3"
+  #if !WITHIN(SERIAL_PORT_2, -1, 6)
+    #error "SERIAL_PORT_2 must be from -1 to 6"
   #elif SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-  extern USBSerial SerialUSB;
     #define MYSERIAL1 SerialUSB
-  #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 Serial
   #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 Serial1
+    #define MYSERIAL1 SerialUART1
   #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 Serial2
+    #define MYSERIAL1 SerialUART2
   #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 Serial3
+    #define MYSERIAL1 SerialUART3
+  #elif SERIAL_PORT_2 == 4
+    #define MYSERIAL1 SerialUART4
+  #elif SERIAL_PORT_2 == 5
+    #define MYSERIAL1 SerialUART5
+  #elif SERIAL_PORT_2 == 6
+    #define MYSERIAL1 SerialUART6
   #endif
 #else
   #define NUM_SERIAL 1
 #endif
+
+#define _BV(b) (1 << (b))
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -151,10 +151,10 @@ extern uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 
 // Disable interrupts
-#define cli() noInterrupts()
+#define cli() do {  DISABLE_TEMPERATURE_INTERRUPT(); DISABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
 // Enable interrupts
-#define sei() interrupts()
+#define sei() do {  ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
 // Memory related
 #define __bss_end __bss_end__
@@ -208,9 +208,9 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
 // ADC
 
-#define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT_ANALOG);
+#define HAL_ANALOG_SELECT(pin) pinMode(pin, INPUT)
 
-void HAL_adc_init(void);
+inline void HAL_adc_init(void) {}
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC        HAL_adc_result
@@ -237,4 +237,4 @@ void HAL_enable_AdcFreerun(void);
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#endif // _HAL_STM32F1_H
+#endif // _HAL_STM32F7_H

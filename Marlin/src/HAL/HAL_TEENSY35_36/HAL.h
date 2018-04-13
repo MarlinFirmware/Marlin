@@ -26,6 +26,8 @@
 #ifndef _HAL_TEENSY_H
 #define _HAL_TEENSY_H
 
+#define CPU_32_BIT
+
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
@@ -38,6 +40,9 @@
 // Redefine sq macro defined by teensy3/wiring.h
 #undef sq
 #define sq(x) ((x)*(x))
+
+#include "../math_32bit.h"
+#include "../HAL_SPI.h"
 
 #include "fastio_Teensy.h"
 #include "watchdog_Teensy.h"

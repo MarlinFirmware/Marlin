@@ -28,6 +28,8 @@
 #ifndef _HAL_LPC1768_H_
 #define _HAL_LPC1768_H_
 
+#define CPU_32_BIT
+
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
@@ -58,6 +60,8 @@ extern "C" volatile uint32_t _millis;
 #include <Arduino.h>
 #include <pinmapping.h>
 
+#include "../math_32bit.h"
+#include "../HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
 #include "serial.h"

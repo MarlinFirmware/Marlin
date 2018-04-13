@@ -1,10 +1,7 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,19 +15,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
+/**
+ * Description: HAL for Arduino Due and compatible (SAM3X8E)
+ *
+ * For ARDUINO_ARCH_SAM
+ */
 
-#ifdef STM32F7
+#ifdef ARDUINO_ARCH_SAM
 
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
 
-#include "../HAL.h"
+#include "HAL.h"
 
-//#include <Wire.h>
+#include <Wire.h>
+#include "usb/usb_task.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -70,60 +72,54 @@ uint16_t HAL_adc_result;
 // Public functions
 // --------------------------------------------------------------------------
 
-/* VGPV Done with defines
-// disable interrupts
-void cli(void) { noInterrupts(); }
-
-// enable interrupts
-void sei(void) { interrupts(); }
-*/
-
-void HAL_clear_reset_source(void) { __HAL_RCC_CLEAR_RESET_FLAGS(); }
-
-uint8_t HAL_get_reset_source (void) {
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET)
-    return RST_WATCHDOG;
-
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_SFTRST) != RESET)
-    return RST_SOFTWARE;
-
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST) != RESET)
-    return RST_EXTERNAL;
-
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_PORRST) != RESET)
-    return RST_POWER_ON;
-  return 0;
+// HAL initialization task
+void HAL_init(void) {
+  // Initialize the USB stack
+  #if ENABLED(SDSUPPORT)
+    OUT_WRITE(SDSS, HIGH);  // Try to set SDSS inactive before any other SPI users start up
+  #endif
+  usb_task_init();
 }
 
-void _delay_ms(const int delay_ms) { delay(delay_ms); }
+// HAL idle task
+void HAL_idletask(void) {
+  // Perform USB stack housekeeping
+  usb_task_idle();
+}
+
+// Disable interrupts
+void cli(void) { noInterrupts(); }
+
+// Enable interrupts
+void sei(void) { interrupts(); }
+
+void HAL_clear_reset_source(void) { }
+
+uint8_t HAL_get_reset_source(void) {
+  switch ((RSTC->RSTC_SR >> 8) & 0x07) {
+    case 0: return RST_POWER_ON;
+    case 1: return RST_BACKUP;
+    case 2: return RST_WATCHDOG;
+    case 3: return RST_SOFTWARE;
+    case 4: return RST_EXTERNAL;
+    default: return 0;
+  }
+}
+
+void _delay_ms(const int delay_ms) {
+  // Todo: port for Due?
+  delay(delay_ms);
+}
 
 extern "C" {
   extern unsigned int _ebss; // end of bss section
 }
 
-// return free memory between end of heap (or end bss) and whatever is current
-
-/*
-#include "wirish/syscalls.c"
-//extern caddr_t _sbrk(int incr);
-#ifndef CONFIG_HEAP_END
-extern char _lm_heap_end;
-#define CONFIG_HEAP_END ((caddr_t)&_lm_heap_end)
-#endif
-
-extern "C" {
-  static int freeMemory() {
-    char top = 't';
-    return &top - reinterpret_cast<char*>(sbrk(0));
-  }
-  int freeMemory() {
-    int free_memory;
-    int heap_end = (int)_sbrk(0);
-    free_memory = ((int)&free_memory) - ((int)heap_end);
-    return free_memory;
-  }
+// Return free memory between end of heap (or end bss) and whatever is current
+int freeMemory() {
+  int free_memory, heap_end = (int)_sbrk(0);
+  return (int)&free_memory - (heap_end ? heap_end : (int)&_ebss);
 }
-*/
 
 // --------------------------------------------------------------------------
 // ADC
@@ -134,7 +130,8 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
 }
 
 uint16_t HAL_adc_get_result(void) {
+  // nop
   return HAL_adc_result;
 }
 
-#endif // STM32F7
+#endif // ARDUINO_ARCH_SAM
