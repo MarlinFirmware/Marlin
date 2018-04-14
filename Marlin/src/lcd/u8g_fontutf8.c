@@ -8,7 +8,7 @@
  */
 
 #include <string.h>
-#include "u8g.h"
+#include "clib/u8g.h"
 #include "fontutils.h"
 #include "u8g_fontutf8.h"
 

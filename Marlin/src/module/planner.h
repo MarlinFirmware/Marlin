@@ -309,6 +309,8 @@ class Planner {
      */
     FORCE_INLINE static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
+    FORCE_INLINE static void clear_block_buffer() { block_buffer_head = block_buffer_tail = 0; }
+
     FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
 
     // Update multipliers based on new diameter measurements
@@ -594,7 +596,7 @@ class Planner {
         return bbru;
       }
 
-      static void clear_block_buffer_runtime(){
+      static void clear_block_buffer_runtime() {
         CRITICAL_SECTION_START
           block_buffer_runtime_us = 0;
         CRITICAL_SECTION_END
