@@ -85,8 +85,8 @@ Planner planner;
  * A ring buffer of moves described in steps
  */
 block_t Planner::block_buffer[BLOCK_BUFFER_SIZE];
-volatile uint8_t Planner::block_buffer_head = 0,           // Index of the next block to be pushed
-                 Planner::block_buffer_tail = 0;
+volatile uint8_t Planner::block_buffer_head, // Index of the next block to be pushed
+                 Planner::block_buffer_tail;
 
 float Planner::max_feedrate_mm_s[XYZE_N], // Max speeds in mm per second
       Planner::axis_steps_per_mm[XYZE_N],
@@ -192,7 +192,6 @@ float Planner::previous_speed[NUM_AXIS],
 Planner::Planner() { init(); }
 
 void Planner::init() {
-  block_buffer_head = block_buffer_tail = 0;
   ZERO(position);
   #if HAS_POSITION_FLOAT
     ZERO(position_float);
@@ -202,6 +201,7 @@ void Planner::init() {
   #if ABL_PLANAR
     bed_level_matrix.set_to_identity();
   #endif
+  clear_block_buffer();
 }
 
 #define MINIMAL_STEP_RATE 120
