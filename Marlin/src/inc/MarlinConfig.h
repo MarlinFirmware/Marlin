@@ -25,7 +25,6 @@
 
 #include "MarlinConfigPre.h"
 
-#include "../HAL/platforms.h"
 #include HAL_PATH(../HAL, HAL.h)
 
 #include "../pins/pins.h"
