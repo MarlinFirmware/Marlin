@@ -261,4 +261,10 @@ void lcd_reset_status();
   void lcd_reselect_last_file();
 #endif
 
+#if ENABLED(ULTIPANEL) && ENABLED(SDSUPPORT)
+  extern bool abort_sd_printing;
+#else
+  constexpr bool abort_sd_printing = false;
+#endif
+
 #endif // ULTRALCD_H

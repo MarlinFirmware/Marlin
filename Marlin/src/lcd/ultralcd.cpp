@@ -836,20 +836,10 @@ void kill_screen(const char* lcd_msg) {
       lcd_reset_status();
     }
 
+    bool abort_sd_printing; // =false
+
     void lcd_sdcard_stop() {
-      card.stopSDPrint(
-        #if SD_RESORT
-          true
-        #endif
-      );
-      clear_command_queue();
-      quickstop_stepper();
-      print_job_timer.stop();
-      thermalManager.disable_all_heaters();
-      #if FAN_COUNT > 0
-        for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
-      #endif
-      wait_for_heatup = false;
+      abort_sd_printing = true;
       lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
       lcd_return_to_status();
     }
