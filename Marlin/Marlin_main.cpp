@@ -1023,6 +1023,9 @@ inline void get_serial_commands() {
   while (commands_in_queue < BUFSIZE && (c = MYSERIAL0.read()) >= 0) {
 
     char serial_char = c;
+    #if ENABLED(SERIAL_ECHO_INPUT)
+      MYSERIAL0.write(serial_char);
+    #endif
 
     /**
      * If the character ends the line
