@@ -4793,6 +4793,8 @@ void home_all_axes() { gcode_G28(true); }
         #if HAS_SOFTWARE_ENDSTOPS
           enable_soft_endstops = soft_endstops_enabled;
         #endif
+        // Move close to the bed before the first point
+        do_blocking_move_to_z(Z_MIN_POS);
       }
       else {
 
