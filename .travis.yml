@@ -44,6 +44,10 @@ before_script:
   #
 script:
   #
+  # Fix include path problem in platformio.ini, U8glib-HAL_ID1932/src/lib/u8g.h
+  #
+  - find Marlin/ -name "*.h" | while read a; do sed -e 's|clib/u8g.h|u8g.h|' -i "$a"; done
+  #
   # Backup pins_RAMPS.h
   #
   - cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
