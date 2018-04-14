@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_BG_H
 #define LANGUAGE_BG_H
 
-#define MAPPER_D0D1                // For Cyrillic
 #define DISPLAY_CHARSET_ISO10646_5
 #define CHARSIZE 2
 

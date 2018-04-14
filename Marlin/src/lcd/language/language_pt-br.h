@@ -31,8 +31,9 @@
 #ifndef LANGUAGE_PT_BR_UTF_H
 #define LANGUAGE_PT_BR_UTF_H
 
-#define MAPPER_C2C3
-#define DISPLAY_CHARSET_ISO10646_1
+// Put characters here that should be displayed with M117
+//_UxGT("áãàçÉéêíóõ")
+
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")

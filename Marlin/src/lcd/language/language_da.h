@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_DA_H
 #define LANGUAGE_DA_H
 
-#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
