@@ -54,7 +54,7 @@
 #define MSG_LEVEL_BED_WAITING               _UxGT("Clique para Iniciar")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Próximo Ponto")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Fim nivelação!")
-#define MSG_Z_FADE_HEIGHT                   _UxGT("Suavizar altura") 
+#define MSG_Z_FADE_HEIGHT                   _UxGT("Suavizar altura")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Compensar origem")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Alteração feita")
 #define MSG_SET_ORIGIN                      _UxGT("Ajustar Origem")
@@ -192,7 +192,7 @@
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
 #define MSG_PID_C                           _UxGT("PID-C")
-#define MSG_SELECT                          _UxGT("Selecionar")  
+#define MSG_SELECT                          _UxGT("Selecionar")
 #define MSG_ACC                             _UxGT("Acel.")
 #define MSG_JERK                            _UxGT("Jogo")
 #if IS_SCARA
@@ -246,7 +246,7 @@
 #define MSG_STORE_EEPROM                    _UxGT("Salvar Configuração")
 #define MSG_LOAD_EEPROM                     _UxGT("Ler Configuração")
 #define MSG_RESTORE_FAILSAFE                _UxGT("Restauro seguro")
-#define MSG_INIT_EEPROM                     _UxGT("Iniciar EEPROM")  
+#define MSG_INIT_EEPROM                     _UxGT("Iniciar EEPROM")
 #define MSG_REFRESH                         LCD_STR_REFRESH _UxGT(" Atualização")
 #define MSG_WATCH                           _UxGT("Informações")
 #define MSG_PREPARE                         _UxGT("Preparar")
@@ -386,6 +386,4 @@
 #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Extrusando...")
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Continuando...")
 
-
-  
 #endif // LANGUAGE_PT_BR_UTF_H
