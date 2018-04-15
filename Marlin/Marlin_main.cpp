@@ -14220,6 +14220,7 @@ void setup() {
 /**
  * The main Marlin program loop
  *
+ *  - Abort SD printing if flagged
  *  - Save or log commands to SD
  *  - Process available commands (if not saving)
  *  - Call heater manager
@@ -14228,11 +14229,33 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   #if ENABLED(SDSUPPORT)
+
     card.checkautostart(false);
-  #endif
+
+    #if ENABLED(ULTIPANEL)
+      if (abort_sd_printing) {
+        abort_sd_printing = false;
+        card.stopSDPrint(
+          #if SD_RESORT
+            true
+          #endif
+        );
+        clear_command_queue();
+        quickstop_stepper();
+        print_job_timer.stop();
+        thermalManager.disable_all_heaters();
+        #if FAN_COUNT > 0
+          for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+        #endif
+        wait_for_heatup = false;
+      }
+    #endif
+
+  #endif // SDSUPPORT
+
+  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   if (commands_in_queue) {
 
