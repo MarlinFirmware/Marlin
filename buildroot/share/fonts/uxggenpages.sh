@@ -41,7 +41,7 @@ echo "EXEC_GENPAGES=${EXEC_GENPAGES}"
 EXEC_BDF2U8G=${DN_EXEC}/bdf2u8g
 [ -x "${EXEC_BDF2U8G}" ] || EXEC_BDF2U8G="${DN_EXEC}/../../../bdf2u8g"
 [ -x "${EXEC_BDF2U8G}" ] || EXEC_BDF2U8G=$(which bdf2u8g)
-[ -x "${EXEC_BDF2U8G}" ] || { echo "Error: bdf2u8g not found!" ; echo "Please compile u8blib/tools/font/bdf2u8g/bdf2u8g and link to it from here!"; exit 1; }
+[ -x "${EXEC_BDF2U8G}" ] || { echo "Error: bdf2u8g not found!" ; echo "Please compile u8glib/tools/font/bdf2u8g/bdf2u8g and link to it from here!"; exit 1; }
 
 DN_CUR=$(pwd)
 DN_DATA=$(pwd)/datatmp
