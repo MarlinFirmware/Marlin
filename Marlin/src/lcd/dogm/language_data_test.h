@@ -2,7 +2,7 @@
 /* This file is generated automatically, any changes to the file may be REPLACED by future processing. */
 /* Please turn to the tools call this script to change the contents! */
 
-#include <U8glib.h>
+#include <clib/u8g.h>
 
 const u8g_fntpgm_uint8_t fontpage_8_128_255[1255] U8G_FONT_SECTION("fontpage_8_128_255") = {
   0x00,0x06,0x0a,0x00,0xfe,0x00,0x00,0x00,0x00,0x00,0x80,0xff,0x00,0x08,0xff,0x00,
