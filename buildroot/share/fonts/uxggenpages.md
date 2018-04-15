@@ -3,7 +3,7 @@
 ### Supported hardware
 
 Marlin supports HD44780 character LCD and 128x64 graphical LCD via U8GLIB.
-Because of the limitation of HD44780 hardware, Marlin can only support three
+Because of the limitation of HD44780 hardwares, Marlin can only support three
 character sets for that hardware:
 Japanese (kana_utf8), Russian/Cyrillic (ru), or Western (Roman characters)
 
@@ -61,18 +61,19 @@ ln -s u8glib-master/tools/font/bdf2u8g/bdf2u8g
 ```
 
 The 'genallfont.sh' script will generate the font data for all of the
-language translation files. You may edit the script to change the variable
-LANGS to the list of languages you want to process. For example:
+language translation files.
+
+You may specify the language list you want to process. For example:
 
 ```bash
-LANGS="zh_TW"
+MARLIN_LANGS="zh_CN zh_TW"
 ```
 
-and then run the script to generate the font data (`language_data_xx.h`):
+and run the script to generate the font data (`language_data_xx.h`):
 
 ```bash
 cd marlin-git/Marlin/
-../buildroot/share/fonts/genallfont.sh
+MARLIN_LANGS="zh_CN zh_TW" ../buildroot/share/fonts/genallfont.sh
 ```
 
 3. Change the language settings
@@ -108,6 +109,9 @@ example, your new font file name is `newfont.bdf`, then run the following comman
 ```bash
 cd Marlin/
 ../buildroot/share/fonts/genallfont.sh ./newfont.bdf
+
+# OR if you just want to regenerate the language font data for a specific language:
+MARLIN_LANGS="zh_TW" ../buildroot/share/fonts/genallfont.sh ./newfont.bdf
 ```
 
 ### Suggestions for Maintainers
