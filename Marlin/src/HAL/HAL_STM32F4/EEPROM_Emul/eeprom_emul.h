@@ -9,7 +9,11 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright © 2016 STMicroelectronics International N.V.
+<<<<<<< HEAD
+  * <h2><center>&copy; Copyright ï¿½ 2016 STMicroelectronics International N.V.
+=======
+  * <h2><center>&copy; Copyright ï¿½ 2016 STMicroelectronics International N.V.
+>>>>>>> bugfix-2.0.x-stm32f4hal
   * All rights reserved.</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without
@@ -54,7 +58,7 @@
 // Includes
 // --------------------------------------------------------------------------
 #include "../../../inc/MarlinConfig.h"
-#include "../../HAL.h"
+#include "../HAL.h"
 
 /* Exported constants --------------------------------------------------------*/
 /* EEPROM emulation firmware error codes */
@@ -71,9 +75,8 @@
 #define VOLTAGE_RANGE           (uint8_t)VOLTAGE_RANGE_3
 
 /* EEPROM start address in Flash */
-#define EEPROM_START_ADDRESS  ((uint32_t)0x08100000) /* EEPROM emulation start address:
-                                                  from sector2 : after 16KByte of used
-                                                  Flash memory */
+#define EEPROM_START_ADDRESS  ((uint32_t)0x08078000) /* EEPROM emulation start address:
+                                                  after 480KByte of used Flash memory */
 
 /* Pages 0 and 1 base and end addresses */
 #define PAGE0_BASE_ADDRESS    ((uint32_t)(EEPROM_START_ADDRESS + 0x0000))

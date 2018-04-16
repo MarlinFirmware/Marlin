@@ -32,7 +32,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include "../HAL.h"
+#include "HAL.h"
 #include "EEPROM_Emul/eeprom_emul.h"
 
 

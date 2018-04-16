@@ -53,6 +53,13 @@ script:
   - restore_configs
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
+  # find U8glib files
+  - sudo find / -iname u8g.h
+  - sudo find / -iname U8glib.h
+  # expose the C API
+  #- sudo cp -f ${TRAVIS_BUILD_DIR}/.piolibdeps/U8glib-HAL_ID1932/src/lib/u8g.h ${TRAVIS_BUILD_DIR}/.piolibdeps/U8glib-HAL_ID1932/src/u8g.h
+  #
+  #
   # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
   # Test a "Fix Mounted" Probe with Safe Homing, some arc options,
   # linear bed leveling, M48, leveling debug, and firmware retraction.
@@ -89,7 +96,7 @@ script:
   #
   # Add a Sled Z Probe, use UBL Cartesian moves, use Japanese language
   #
-  - opt_set LANGUAGE kana_utf8
+  - opt_set LANGUAGE jp-kana
   - opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
   - opt_disable SEGMENT_LEVELED_MOVES
   - opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING
@@ -281,6 +288,16 @@ script:
   - restore_configs
   - opt_enable LCM1602
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #
+  # Language files test with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #
+  - restore_configs
+  - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
+  - for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
+  #
+  - restore_configs
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
+  - for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
   #
   #
   ######## Example Configurations ##############

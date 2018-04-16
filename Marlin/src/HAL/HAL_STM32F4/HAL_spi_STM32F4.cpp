@@ -36,15 +36,12 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include "../HAL.h"
+#include "HAL.h"
 #include "../HAL_SPI.h"
-//#include "../SPI.h"
-//#include "SPI.h"
-//#include <SPI.h>
 #include "pins_arduino.h"
 #include "spi_pins.h"
 #include "../../core/macros.h"
-
+#include <SPI.h>
 
 // --------------------------------------------------------------------------
 // Public Variables

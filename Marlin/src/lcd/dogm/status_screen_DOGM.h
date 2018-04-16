@@ -31,9 +31,9 @@
 
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const uint8_t y) {
   const char * const str = itostr3(temp);
-  u8g.setPrintPos(x - (str[0] != ' ' ? 0 : str[1] != ' ' ? 1 : 2) * DOG_CHAR_WIDTH / 2, y);
-  lcd_print(str);
-  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+  lcd_moveto(x - (str[0] != ' ' ? 0 : str[1] != ' ' ? 1 : 2) * DOG_CHAR_WIDTH / 2, y);
+  lcd_put_u8str(str);
+  lcd_put_u8str_rom(PSTR(LCD_STR_DEGREE " "));
 }
 
 #ifndef HEAT_INDICATOR_X
@@ -84,17 +84,17 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
 
 FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
   if (blink)
-    lcd_printPGM(pstr);
+    lcd_put_u8str_rom(pstr);
   else {
     if (!axis_homed[axis])
-      u8g.print('?');
+      lcd_put_wchar('?');
     else {
       #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
-          u8g.print(' ');
+          lcd_put_wchar(' ');
         else
       #endif
-          lcd_printPGM(pstr);
+          lcd_put_u8str_rom(pstr);
     }
   }
 }
@@ -102,24 +102,24 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 inline void lcd_implementation_status_message(const bool blink) {
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
-    const uint8_t slen = lcd_strlen(lcd_status_message);
+    const uint8_t slen = utf8_strlen(lcd_status_message);
     const char *stat = lcd_status_message + status_scroll_pos;
     if (slen <= LCD_WIDTH)
-      lcd_print_utf(stat);                                      // The string isn't scrolling
+      lcd_put_u8str(stat);                                      // The string isn't scrolling
     else {
       if (status_scroll_pos <= slen - LCD_WIDTH)
-        lcd_print_utf(stat);                                    // The string fills the screen
+        lcd_put_u8str(stat);                                    // The string fills the screen
       else {
         uint8_t chars = LCD_WIDTH;
         if (status_scroll_pos < slen) {                         // First string still visible
-          lcd_print_utf(stat);                                  // The string leaves space
+          lcd_put_u8str(stat);                                  // The string leaves space
           chars -= slen - status_scroll_pos;                    // Amount of space left
         }
-        u8g.print('.');                                         // Always at 1+ spaces left, draw a dot
+        lcd_put_wchar('.');                                         // Always at 1+ spaces left, draw a dot
         if (--chars) {
           if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
-            --chars, u8g.print('.');
-          if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
+            --chars, lcd_put_wchar('.');
+          if (chars) lcd_put_u8str_max(lcd_status_message, chars);  // Print a second copy of the message
         }
       }
       if (last_blink != blink) {
@@ -131,7 +131,7 @@ inline void lcd_implementation_status_message(const bool blink) {
     }
   #else
     UNUSED(blink);
-    lcd_print_utf(lcd_status_message);
+    lcd_put_u8str(lcd_status_message);
   #endif
 }
 
@@ -208,9 +208,9 @@ static void lcd_implementation_status_screen() {
         // Fan
         const int16_t per = ((fanSpeeds[0] + 1) * 100) / 256;
         if (per) {
-          u8g.setPrintPos(STATUS_SCREEN_FAN_TEXT_X, STATUS_SCREEN_FAN_TEXT_Y);
-          lcd_print(itostr3(per));
-          u8g.print('%');
+          lcd_moveto(STATUS_SCREEN_FAN_TEXT_X, STATUS_SCREEN_FAN_TEXT_Y);
+          lcd_put_u8str(itostr3(per));
+          lcd_put_wchar('%');
         }
       }
     #endif
@@ -268,9 +268,9 @@ static void lcd_implementation_status_screen() {
       #if ENABLED(DOGM_SD_PERCENT)
         if (PAGE_CONTAINS(41, 48)) {
           // Percent complete
-          u8g.setPrintPos(55, 48);
-          u8g.print(itostr3(progress_bar_percent));
-          u8g.print('%');
+          lcd_moveto(55, 48);
+          lcd_put_u8str(itostr3(progress_bar_percent));
+          lcd_put_wchar('%');
         }
       #endif
     }
@@ -290,8 +290,8 @@ static void lcd_implementation_status_screen() {
       duration_t elapsed = print_job_timer.duration();
       bool has_days = (elapsed.value >= 60*60*24L);
       uint8_t len = elapsed.toDigital(buffer, has_days);
-      u8g.setPrintPos(SD_DURATION_X, 48);
-      lcd_print(buffer);
+      lcd_moveto(SD_DURATION_X, 48);
+      lcd_put_u8str(buffer);
     }
 
   #endif // SDSUPPORT || LCD_SET_PROGRESS_MANUALLY
@@ -353,20 +353,20 @@ static void lcd_implementation_status_screen() {
         u8g.setColorIndex(0); // white on black
       #endif
 
-      u8g.setPrintPos(0 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
+      lcd_moveto(0 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-      u8g.setPrintPos(0 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_print(xstring);
+      lcd_moveto(0 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
+      lcd_put_u8str(xstring);
 
-      u8g.setPrintPos(1 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
+      lcd_moveto(1 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-      u8g.setPrintPos(1 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_print(ystring);
+      lcd_moveto(1 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
+      lcd_put_u8str(ystring);
 
-      u8g.setPrintPos(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
+      lcd_moveto(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
       _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
-      u8g.setPrintPos(2 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_print(zstring);
+      lcd_moveto(2 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
+      lcd_put_u8str(zstring);
 
       #if DISABLED(XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white
@@ -380,28 +380,28 @@ static void lcd_implementation_status_screen() {
 
   if (PAGE_CONTAINS(51 - INFO_FONT_HEIGHT, 49)) {
     lcd_setFont(FONT_MENU);
-    u8g.setPrintPos(3, 50);
-    lcd_print(LCD_STR_FEEDRATE[0]);
+    lcd_moveto(3, 50);
+    lcd_put_wchar(LCD_STR_FEEDRATE[0]);
 
     lcd_setFont(FONT_STATUSMENU);
-    u8g.setPrintPos(12, 50);
-    lcd_print(itostr3(feedrate_percentage));
-    u8g.print('%');
+    lcd_moveto(12, 50);
+    lcd_put_u8str(itostr3(feedrate_percentage));
+    lcd_put_wchar('%');
 
     //
     // Filament sensor display if SD is disabled
     //
     #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
-      u8g.setPrintPos(56, 50);
-      lcd_print(wstring);
-      u8g.setPrintPos(102, 50);
-      lcd_print(mstring);
-      u8g.print('%');
+      lcd_moveto(56, 50);
+      lcd_put_u8str(wstring);
+      lcd_moveto(102, 50);
+      lcd_put_u8str(mstring);
+      lcd_put_wchar('%');
       lcd_setFont(FONT_MENU);
-      u8g.setPrintPos(47, 50);
-      lcd_print(LCD_STR_FILAM_DIA);
-      u8g.setPrintPos(93, 50);
-      lcd_print(LCD_STR_FILAM_MUL);
+      lcd_moveto(47, 50);
+      lcd_put_wchar(LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_rom(PSTR(LCD_STR_FILAM_DIA));
+      lcd_moveto(93, 50);
+      lcd_put_wchar(LCD_STR_FILAM_MUL[0]);
     #endif
   }
 
@@ -412,20 +412,20 @@ static void lcd_implementation_status_screen() {
   #define STATUS_BASELINE (55 + INFO_FONT_HEIGHT)
 
   if (PAGE_CONTAINS(STATUS_BASELINE - (INFO_FONT_HEIGHT - 1), STATUS_BASELINE)) {
-    u8g.setPrintPos(0, STATUS_BASELINE);
+    lcd_moveto(0, STATUS_BASELINE);
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
       if (PENDING(millis(), previous_lcd_status_ms + 5000UL)) {  //Display both Status message line and Filament display on the last line
         lcd_implementation_status_message(blink);
       }
       else {
-        lcd_printPGM(PSTR(LCD_STR_FILAM_DIA));
-        u8g.print(':');
-        lcd_print(wstring);
-        lcd_printPGM(PSTR("  " LCD_STR_FILAM_MUL));
-        u8g.print(':');
-        lcd_print(mstring);
-        u8g.print('%');
+        lcd_put_u8str_rom(PSTR(LCD_STR_FILAM_DIA));
+        lcd_put_wchar(':');
+        lcd_put_u8str(wstring);
+        lcd_put_u8str_rom(PSTR("  " LCD_STR_FILAM_MUL));
+        lcd_put_wchar(':');
+        lcd_put_u8str(mstring);
+        lcd_put_wchar('%');
       }
     #else
       lcd_implementation_status_message(blink);

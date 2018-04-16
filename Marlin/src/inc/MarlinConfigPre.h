@@ -23,6 +23,7 @@
 #ifndef _MARLIN_CONFIGPRE_H_
 #define _MARLIN_CONFIGPRE_H_
 
+#include "../HAL/platforms.h"
 #include "../core/boards.h"
 #include "../core/macros.h"
 #include "Version.h"

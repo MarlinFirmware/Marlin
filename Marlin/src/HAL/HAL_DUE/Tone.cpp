@@ -27,7 +27,7 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
-#include "HAL_Due.h"
+#include "HAL.h"
 #include "HAL_timers_Due.h"
 
 static pin_t tone_pin;

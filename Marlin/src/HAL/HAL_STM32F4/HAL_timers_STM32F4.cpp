@@ -26,7 +26,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include "../HAL.h"
+#include "HAL.h"
 
 #include "HAL_timers_STM32F4.h"
 

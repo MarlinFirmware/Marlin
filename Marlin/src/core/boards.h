@@ -207,7 +207,9 @@
 #define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
 #define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM3R_MINI       1803   // STM32 Libmaple based stm32f1 controller
-#define BOARD_ARMED            1804   // STM32F407 based controller (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1, Fan2)
+#define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
+#define BOARD_ARMED            1805   // STM32F407 based controller (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1, Fan2)
+
 
 //
 // ARM Cortex M7

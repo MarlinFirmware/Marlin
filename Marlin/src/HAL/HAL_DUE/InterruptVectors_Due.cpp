@@ -32,7 +32,7 @@
  */
 #ifdef ARDUINO_ARCH_SAM
 
-#include "HAL_Due.h"
+#include "HAL.h"
 #include "InterruptVectors_Due.h"
 
 /* The relocated Exception/Interrupt Table - According to the ARM

@@ -64,6 +64,9 @@ HARDWARE_MOTHERBOARD ?= 11
 ARDUINO_INSTALL_DIR  ?= ${HOME}/Arduino
 ARDUINO_VERSION      ?= 106
 
+# The installed Libraries are in the User folder
+ARDUINO_USER_DIR ?= ${HOME}/Arduino
+
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
 AVR_TOOLS_PATH ?=
 
@@ -448,6 +451,17 @@ TARGET = $(notdir $(CURDIR))
 
 VPATH = .
 VPATH += $(BUILD_DIR)
+VPATH += $(HARDWARE_SRC)
+
+# U8glib
+VPATH += $(ARDUINO_USER_DIR)/libraries/U8glib
+VPATH += $(ARDUINO_USER_DIR)/libraries/U8glib/clib
+
+ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy Sanguino))
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/marlin/avr/libraries/LiquidCrystal/src
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/marlin/avr/libraries/SPI
+endif
+
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/cores/arduino
 
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
@@ -479,10 +493,10 @@ HARDWARE_SUB_VARIANT ?= mega
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/$(HARDWARE_SUB_VARIANT)
 else
 ifeq ($(HARDWARE_VARIANT), Sanguino)
-VPATH += $(HARDWARE_DIR)/marlin/avr/variants/sanguino
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/marlin/avr/variants/sanguino
 else
 HARDWARE_SUB_VARIANT ?= standard
-VPATH += $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/variants/$(HARDWARE_SUB_VARIANT)
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/$(HARDWARE_VARIANT)/variants/$(HARDWARE_SUB_VARIANT)
 endif
 endif
 LIB_SRC = wiring.c \

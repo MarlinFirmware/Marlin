@@ -183,3 +183,22 @@
 #define BTN_ENC            _STM32_PIN(PORTC, 3)      
 
 #define FIL_RUNOUT_PIN    _STM32_PIN(PORTA, 3)
+
+//
+// ST7920 Delays
+//
+
+#define STM_DELAY_LONG       { __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); }
+#define STM_DELAY_SHORT      { __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); }
+
+#ifndef ST7920_DELAY_1
+#define ST7920_DELAY_1 { STM_DELAY_SHORT; STM_DELAY_SHORT; }
+#endif
+
+#ifndef ST7920_DELAY_2
+#define ST7920_DELAY_2 { STM_DELAY_SHORT; }
+#endif
+
+#ifndef ST7920_DELAY_3
+#define ST7920_DELAY_3 { STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; }
+#endif

@@ -6,7 +6,7 @@
 
 target_filename = "FIRMWARE.CUR"
 target_drive = "REARM"
-
+upload_disk = ""
 
 import platform
 current_OS = platform.system()

@@ -27,9 +27,6 @@
 
 #define _UxGT(a) a
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
-
 // Fallback if no language is set. DON'T CHANGE
 #ifndef LCD_LANGUAGE
   #define LCD_LANGUAGE en
@@ -50,36 +47,29 @@
 // an         Aragonese
 // bg         Bulgarian
 // ca         Catalan
-// cn         Chinese
 // cz         Czech
-// cz_utf8    Czech (UTF8)
 // de         German
 // el         Greek
 // el-gr      Greek (Greece)
 // en         English
 // es         Spanish
-// es_utf8    Spanish (UTF8)
 // eu         Basque-Euskera
 // fi         Finnish
 // fr         French
-// fr_utf8    French (UTF8)
 // gl         Galician
 // hr         Croatian
 // it         Italian
-// kana       Japanese
-// kana_utf8  Japanese (UTF8)
+// jp-kana    Japanese
 // nl         Dutch
 // pl         Polish
 // pt         Portuguese
 // pt-br      Portuguese (Brazilian)
-// pt-br_utf8 Portuguese (Brazilian) (UTF8)
-// pt_utf8    Portuguese (UTF8)
 // ru         Russian
-// sk         Slovak (UTF8)
+// sk         Slovak
 // tr         Turkish
 // uk         Ukrainian
 // zh_CN      Chinese (Simplified)
-// zh_TW      Chinese (Taiwan)
+// zh_TW      Chinese (Traditional)
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
@@ -270,6 +260,10 @@
 
 // LCD Menu Messages
 
+#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(../lcd/dogm/language_data_##M.h)
+#define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
+#define INCLUDE_LANGUAGE_DATA LANGUAGE_DATA_INCL(LCD_LANGUAGE)
+
 #define LANGUAGE_INCL_(M) STRINGIFY_(../lcd/language/language_##M.h)
 #define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
 #define INCLUDE_LANGUAGE LANGUAGE_INCL(LCD_LANGUAGE)
@@ -316,8 +310,7 @@
 
 #include INCLUDE_LANGUAGE
 
-#if DISABLED(SIMULATE_ROMFONT) \
- && DISABLED(DISPLAY_CHARSET_ISO10646_1) \
+#if DISABLED(DISPLAY_CHARSET_ISO10646_1) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_5) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) \
  && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) \

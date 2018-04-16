@@ -359,6 +359,8 @@
   #include "pins_COHESION3D_REMIX.h"
 #elif MB(COHESION3D_MINI)
   #include "pins_COHESION3D_MINI.h"
+#elif MB(STM32F4)
+  #include "pins_STM32F4.h"
 #elif MB(ARMED)
   #include "pins_ARMED.h"  
 #else
@@ -888,6 +890,6 @@
 
 // Note: default SPI pins are defined in the HAL
 
-#include "../HAL/HAL_spi_pins.h"
+#include HAL_PATH(../HAL, spi_pins.h)
 
 #endif // __PINS_H__
