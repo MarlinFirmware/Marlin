@@ -207,6 +207,7 @@
 #define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
 #define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM3R_MINI       1803   // STM32 Libmaple based stm32f1 controller
+#define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
 
 //
 // ARM Cortex M7
