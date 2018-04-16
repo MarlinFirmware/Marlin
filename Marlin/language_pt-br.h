@@ -325,11 +325,6 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocolo")
 #define MSG_CASE_LIGHT                      _UxGT("Luz da Estrutura")
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Intensidade Brilho")
-#define MSG_INFO_PRINT_COUNT                _UxGT("Qtd de Impressoes")
-#define MSG_INFO_COMPLETED_PRINTS           _UxGT("Fim")
-#define MSG_INFO_PRINT_TIME                 _UxGT("Tempo de Impressao")
-#define MSG_INFO_PRINT_LONGEST              _UxGT("Trabalho Mais longo")
-#define MSG_INFO_PRINT_FILAMENT             _UxGT("Total Depositado")
 #define MSG_INFO_PRINT_COUNT                _UxGT("Qtd Impressoes")
 #define MSG_INFO_COMPLETED_PRINTS           _UxGT("Completas")
 #define MSG_INFO_PRINT_TIME                 _UxGT("Tempo de Imprimindo")
@@ -350,38 +345,41 @@
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Bocal: ")
 #define MSG_ERR_HOMING_FAILED               _UxGT("Falha ao ir a origem")
 #define MSG_ERR_PROBING_FAILED              _UxGT("Falha ao sondar")
-#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Esperando o")
-#define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("inicio da")
-#define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("troca de Filamento")
 
-#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Esperando")
-#define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("remocao de filamento")
+#if LCD_HEIGHT >= 4
+  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Esperando o")
+  #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("inicio da")
+  #define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("troca de Filamento")
 
-#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Coloque Filamento")
-#define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("pressione o botao")
-#define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("para continuar...")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Esperando")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("remocao de filamento")
 
-#define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Pressione o botao")
-#define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("p/ Aquecer o Bocal")
+  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Coloque Filamento")
+  #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("pressione o botao")
+  #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("para continuar...")
 
-#define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Aquecendo o Bocal")
-#define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Aguarde...")
+  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Pressione o botao")
+  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("p/ Aquecer o Bocal")
 
-#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperando")
-#define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filamento")
+  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Aquecendo o Bocal")
+  #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Aguarde...")
 
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Esperando extrusao")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("de filamento")
+  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Esperando")
+  #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filamento")
 
-#define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando impressao")
-#define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("continuar")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Esperando extrusao")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("de filamento")
 
-#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Aguarde...")
-#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Ejetando...")
-#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insira e Clique")
-#define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Aquecendo...")
-#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Carregando...")
-#define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Extrusando...")
-#define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Continuando...")
+  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Esperando impressao")
+  #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("continuar")
+#else LCD_HEIGHT < 4
+  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Aguarde...")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Ejetando...")
+  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insira e Clique")
+  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Aquecendo...")
+  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Carregando...")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Extrusando...")
+  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Continuando...")
+#endif
 
 #endif // LANGUAGE_PT_BR_H
