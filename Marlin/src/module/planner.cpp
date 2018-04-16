@@ -2220,7 +2220,7 @@ void Planner::set_position_mm(const AxisEnum axis, const float &v) {
   #if HAS_POSITION_FLOAT
     position_float[axis] = v;
   #endif
-  stepper.set_position(axis, v);
+  stepper.set_position(axis, position[axis]);
   previous_speed[axis] = 0.0;
 }
 
