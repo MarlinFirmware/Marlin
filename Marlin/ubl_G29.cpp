@@ -1367,6 +1367,10 @@
 
       do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
 
+      #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+        do_blocking_move_to_z(h_offset); // Move down to the given 'H' offset
+      #endif
+
       uint16_t not_done[16];
       memset(not_done, 0xFF, sizeof(not_done));
       do {
@@ -1384,6 +1388,10 @@
           break;
 
         do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point
+
+        #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+          do_blocking_move_to_z(h_offset); // Move down to the given 'H' offset
+        #endif
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         lcd_external_control = true;
