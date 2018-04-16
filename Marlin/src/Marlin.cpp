@@ -898,6 +898,26 @@ void loop() {
   #endif
 
   for (;;) {
+
+    #if ENABLED(SDSUPPORT) && ENABLED(ULTIPANEL)
+      if (abort_sd_printing) {
+        abort_sd_printing = false;
+        card.stopSDPrint(
+          #if SD_RESORT
+            true
+          #endif
+        );
+        clear_command_queue();
+        quickstop_stepper();
+        print_job_timer.stop();
+        thermalManager.disable_all_heaters();
+        #if FAN_COUNT > 0
+          for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+        #endif
+        wait_for_heatup = false;
+      }
+    #endif // SDSUPPORT && ULTIPANEL
+
     if (commands_in_queue < BUFSIZE) get_available_commands();
     advance_command_queue();
     endstops.report_state();

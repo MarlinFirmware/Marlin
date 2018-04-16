@@ -143,7 +143,7 @@ grep -Hrn _UxGT . | grep '"' | \
   while read PAGE BEGIN END UTF8BEGIN UTF8END; do \
     if [ ! -f ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h ]; then \
       ${EXEC_BDF2U8G} -u ${PAGE} -b ${BEGIN} -e ${END} ${FN_FONT} fontpage_${PAGE}_${BEGIN}_${END} ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h > /dev/null 2>&1 ;
-      #sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h ;
+      #sed -i 's|#include "u8g.h"|#include <clib/u8g.h>|' ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h ;
     fi ;\
     grep -A 10000000000 u8g_fntpgm_uint8_t ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h >> tmpa ;\
     echo "    FONTDATA_ITEM(${PAGE}, ${BEGIN}, ${END}, fontpage_${PAGE}_${BEGIN}_${END}), // '${UTF8BEGIN}' -- '${UTF8END}'" >> tmpb ;\
