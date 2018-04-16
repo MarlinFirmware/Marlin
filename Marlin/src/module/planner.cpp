@@ -406,300 +406,300 @@ void Planner::init() {
       register const uint8_t* ptab = inv_tab;
 
       __asm__ __volatile__(
-        /*  %8:%7:%6 = interval*/
-        /*  r31:r30: MUST be those registers, and they must point to the inv_tab */
+        // %8:%7:%6 = interval
+        // r31:r30: MUST be those registers, and they must point to the inv_tab 
 
-        " clr %13" "\n\t"                 /* %13 = 0 */
+        " clr %13" "\n\t"                 // %13 = 0 
 
-        /*  Now we must compute */
-        /*   result = 0xFFFFFF / d */
-        /*  %8:%7:%6 = interval*/
-        /*  %16:%15:%14 = nr */
-        /*  %13 = 0*/
+        // Now we must compute 
+        // result = 0xFFFFFF / d 
+        // %8:%7:%6 = interval
+        // %16:%15:%14 = nr 
+        // %13 = 0
 
-        /*  A plain division of 24x24 bits should take 388 cycles to complete. We will */
-        /*  use Newton-Raphson for the calculation, and will strive to get way less cycles*/
-        /*  for the same result - Using C division, it takes 500cycles to complete .*/
+        // A plain division of 24x24 bits should take 388 cycles to complete. We will 
+        // use Newton-Raphson for the calculation, and will strive to get way less cycles
+        // for the same result - Using C division, it takes 500cycles to complete .
 
-        " clr %3" "\n\t"                  /* idx = 0 */
+        " clr %3" "\n\t"                  // idx = 0 
         " mov %14,%6" "\n\t"
         " mov %15,%7" "\n\t"
-        " mov %16,%8" "\n\t"              /* nr = interval */
-        " tst %16" "\n\t"                 /* nr & 0xFF0000 == 0 ? */
-        " brne 2f" "\n\t"                 /* No, skip this */
+        " mov %16,%8" "\n\t"              // nr = interval 
+        " tst %16" "\n\t"                 // nr & 0xFF0000 == 0 ? 
+        " brne 2f" "\n\t"                 // No, skip this 
         " mov %16,%15" "\n\t"
-        " mov %15,%14" "\n\t"             /* nr <<= 8, %14 not needed */
-        " subi %3,-8" "\n\t"              /* idx += 8 */
-        " tst %16" "\n\t"                 /* nr & 0xFF0000 == 0 ? */
-        " brne 2f" "\n\t"                 /* No, skip this */
-        " mov %16,%15" "\n\t"             /* nr <<= 8, %14 not needed */
-        " clr %15" "\n\t"                 /* We clear %14 */
-        " subi %3,-8" "\n\t"              /* idx += 8 */
+        " mov %15,%14" "\n\t"             // nr <<= 8, %14 not needed 
+        " subi %3,-8" "\n\t"              // idx += 8 
+        " tst %16" "\n\t"                 // nr & 0xFF0000 == 0 ? 
+        " brne 2f" "\n\t"                 // No, skip this 
+        " mov %16,%15" "\n\t"             // nr <<= 8, %14 not needed 
+        " clr %15" "\n\t"                 // We clear %14 
+        " subi %3,-8" "\n\t"              // idx += 8 
 
-        /*  here %16 != 0 and %16:%15 contains at least 9 MSBits, or both %16:%15 are 0 */
+        // here %16 != 0 and %16:%15 contains at least 9 MSBits, or both %16:%15 are 0 
         "2:" "\n\t"
-        " cpi %16,0x10" "\n\t"            /* (nr & 0xf00000) == 0 ? */
-        " brcc 3f" "\n\t"                 /* No, skip this */
-        " swap %15" "\n\t"                /* Swap nibbles */
-        " swap %16" "\n\t"                /* Swap nibbles. Low nibble is 0 */
+        " cpi %16,0x10" "\n\t"            // (nr & 0xf00000) == 0 ? 
+        " brcc 3f" "\n\t"                 // No, skip this 
+        " swap %15" "\n\t"                // Swap nibbles 
+        " swap %16" "\n\t"                // Swap nibbles. Low nibble is 0 
         " mov %14, %15" "\n\t"
-        " andi %14,0x0f" "\n\t"           /* Isolate low nibble */
-        " andi %15,0xf0" "\n\t"           /* Keep proper nibble in %15 */
-        " or %16, %14" "\n\t"             /* %16:%15 <<= 4 */
-        " subi %3,-4" "\n\t"              /* idx += 4 */
+        " andi %14,0x0f" "\n\t"           // Isolate low nibble 
+        " andi %15,0xf0" "\n\t"           // Keep proper nibble in %15 
+        " or %16, %14" "\n\t"             // %16:%15 <<= 4 
+        " subi %3,-4" "\n\t"              // idx += 4 
 
         "3:" "\n\t"
-        " cpi %16,0x40" "\n\t"            /* (nr & 0xc00000) == 0 ? */
-        " brcc 4f" "\n\t"                 /* No, skip this*/
+        " cpi %16,0x40" "\n\t"            // (nr & 0xc00000) == 0 ? 
+        " brcc 4f" "\n\t"                 // No, skip this
         " add %15,%15" "\n\t"
         " adc %16,%16" "\n\t"
         " add %15,%15" "\n\t"
-        " adc %16,%16" "\n\t"             /* %16:%15 <<= 2 */
-        " subi %3,-2" "\n\t"              /* idx += 2 */
+        " adc %16,%16" "\n\t"             // %16:%15 <<= 2 
+        " subi %3,-2" "\n\t"              // idx += 2 
 
         "4:" "\n\t"
-        " cpi %16,0x80" "\n\t"            /* (nr & 0x800000) == 0 ? */
-        " brcc 5f" "\n\t"                 /* No, skip this */
+        " cpi %16,0x80" "\n\t"            // (nr & 0x800000) == 0 ? 
+        " brcc 5f" "\n\t"                 // No, skip this 
         " add %15,%15" "\n\t"
-        " adc %16,%16" "\n\t"             /* %16:%15 <<= 1 */
-        " inc %3" "\n\t"                  /* idx += 1 */
+        " adc %16,%16" "\n\t"             // %16:%15 <<= 1 
+        " inc %3" "\n\t"                  // idx += 1 
 
-        /*  Now %16:%15 contains its MSBit set to 1, or %16:%15 is == 0. We are now absolutely sure*/
-        /*  we have at least 9 MSBits available to enter the initial estimation table*/
+        // Now %16:%15 contains its MSBit set to 1, or %16:%15 is == 0. We are now absolutely sure
+        // we have at least 9 MSBits available to enter the initial estimation table
         "5:" "\n\t"
         " add %15,%15" "\n\t"
-        " adc %16,%16" "\n\t"             /* %16:%15 = tidx = (nr <<= 1), we lose the top MSBit (always set to 1, %16 is the index into the inverse table)*/
-        " add r30,%16" "\n\t"             /* Only use top 8 bits */
-        " adc r31,%13" "\n\t"             /* r31:r30 = inv_tab + (tidx) */
-        " lpm %14, Z" "\n\t"              /* %14 = inv_tab[tidx] */
-        " ldi %15, 1" "\n\t"              /* %15 = 1  %15:%14 = inv_tab[tidx] + 256 */
+        " adc %16,%16" "\n\t"             // %16:%15 = tidx = (nr <<= 1), we lose the top MSBit (always set to 1, %16 is the index into the inverse table)
+        " add r30,%16" "\n\t"             // Only use top 8 bits 
+        " adc r31,%13" "\n\t"             // r31:r30 = inv_tab + (tidx) 
+        " lpm %14, Z" "\n\t"              // %14 = inv_tab[tidx] 
+        " ldi %15, 1" "\n\t"              // %15 = 1  %15:%14 = inv_tab[tidx] + 256 
 
-        /*  We must scale the approximation to the proper place*/
-        " clr %16" "\n\t"                 /* %16 will always be 0 here */
-        " subi %3,8" "\n\t"               /* idx == 8 ? */
-        " breq 6f" "\n\t"                 /* yes, no need to scale*/
-        " brcs 7f" "\n\t"                 /* If C=1, means idx < 8, result was negative!*/
+        // We must scale the approximation to the proper place
+        " clr %16" "\n\t"                 // %16 will always be 0 here 
+        " subi %3,8" "\n\t"               // idx == 8 ? 
+        " breq 6f" "\n\t"                 // yes, no need to scale
+        " brcs 7f" "\n\t"                 // If C=1, means idx < 8, result was negative!
 
-        /*  idx > 8, now %3 = idx - 8. We must perform a left shift. idx range:[1-8]*/
-        " sbrs %3,0" "\n\t"               /* shift by 1bit position?*/
-        " rjmp 8f" "\n\t"                 /* No*/
+        // idx > 8, now %3 = idx - 8. We must perform a left shift. idx range:[1-8]
+        " sbrs %3,0" "\n\t"               // shift by 1bit position?
+        " rjmp 8f" "\n\t"                 // No
         " add %14,%14" "\n\t"
-        " adc %15,%15" "\n\t"             /* %15:16 <<= 1*/
+        " adc %15,%15" "\n\t"             // %15:16 <<= 1
         "8:" "\n\t"
-        " sbrs %3,1" "\n\t"               /* shift by 2bit position?*/
-        " rjmp 9f" "\n\t"                 /* No*/
+        " sbrs %3,1" "\n\t"               // shift by 2bit position?
+        " rjmp 9f" "\n\t"                 // No
         " add %14,%14" "\n\t"
         " adc %15,%15" "\n\t"
         " add %14,%14" "\n\t"
-        " adc %15,%15" "\n\t"             /* %15:16 <<= 1*/
+        " adc %15,%15" "\n\t"             // %15:16 <<= 1
         "9:" "\n\t"
-        " sbrs %3,2" "\n\t"               /* shift by 4bits position?*/
-        " rjmp 16f" "\n\t"                /* No*/
-        " swap %15" "\n\t"                /* Swap nibbles. lo nibble of %15 will always be 0*/
-        " swap %14" "\n\t"                /* Swap nibbles*/
+        " sbrs %3,2" "\n\t"               // shift by 4bits position?
+        " rjmp 16f" "\n\t"                // No
+        " swap %15" "\n\t"                // Swap nibbles. lo nibble of %15 will always be 0
+        " swap %14" "\n\t"                // Swap nibbles
         " mov %12,%14" "\n\t"
-        " andi %12,0x0f" "\n\t"           /* isolate low nibble*/
-        " andi %14,0xf0" "\n\t"           /* and clear it*/
-        " or %15,%12" "\n\t"              /* %15:%16 <<= 4*/
+        " andi %12,0x0f" "\n\t"           // isolate low nibble
+        " andi %14,0xf0" "\n\t"           // and clear it
+        " or %15,%12" "\n\t"              // %15:%16 <<= 4
         "16:" "\n\t"
-        " sbrs %3,3" "\n\t"               /* shift by 8bits position?*/
-        " rjmp 6f" "\n\t"                 /* No, we are done */
+        " sbrs %3,3" "\n\t"               // shift by 8bits position?
+        " rjmp 6f" "\n\t"                 // No, we are done 
         " mov %16,%15" "\n\t"
         " mov %15,%14" "\n\t"
         " clr %14" "\n\t"
         " jmp 6f" "\n\t"
 
-        /*  idx < 8, now %3 = idx - 8. Get the count of bits */
+        // idx < 8, now %3 = idx - 8. Get the count of bits 
         "7:" "\n\t"
-        " neg %3" "\n\t"                  /* %3 = -idx = count of bits to move right. idx range:[1...8]*/
-        " sbrs %3,0" "\n\t"               /* shift by 1 bit position ?*/
-        " rjmp 10f" "\n\t"                /* No, skip it*/
-        " asr %15" "\n\t"                 /* (bit7 is always 0 here)*/
+        " neg %3" "\n\t"                  // %3 = -idx = count of bits to move right. idx range:[1...8]
+        " sbrs %3,0" "\n\t"               // shift by 1 bit position ?
+        " rjmp 10f" "\n\t"                // No, skip it
+        " asr %15" "\n\t"                 // (bit7 is always 0 here)
         " ror %14" "\n\t"
         "10:" "\n\t"
-        " sbrs %3,1" "\n\t"               /* shift by 2 bit position ?*/
-        " rjmp 11f" "\n\t"                /* No, skip it*/
-        " asr %15" "\n\t"                 /* (bit7 is always 0 here)*/
+        " sbrs %3,1" "\n\t"               // shift by 2 bit position ?
+        " rjmp 11f" "\n\t"                // No, skip it
+        " asr %15" "\n\t"                 // (bit7 is always 0 here)
         " ror %14" "\n\t"
-        " asr %15" "\n\t"                 /* (bit7 is always 0 here)*/
+        " asr %15" "\n\t"                 // (bit7 is always 0 here)
         " ror %14" "\n\t"
         "11:" "\n\t"
-        " sbrs %3,2" "\n\t"               /* shift by 4 bit position ?*/
-        " rjmp 12f" "\n\t"                /* No, skip it*/
-        " swap %15" "\n\t"                /* Swap nibbles*/
-        " andi %14, 0xf0" "\n\t"          /* Lose the lowest nibble*/
-        " swap %14" "\n\t"                /* Swap nibbles. Upper nibble is 0*/
-        " or %14,%15" "\n\t"              /* Pass nibble from upper byte*/
-        " andi %15, 0x0f" "\n\t"          /* And get rid of that nibble*/
+        " sbrs %3,2" "\n\t"               // shift by 4 bit position ?
+        " rjmp 12f" "\n\t"                // No, skip it
+        " swap %15" "\n\t"                // Swap nibbles
+        " andi %14, 0xf0" "\n\t"          // Lose the lowest nibble
+        " swap %14" "\n\t"                // Swap nibbles. Upper nibble is 0
+        " or %14,%15" "\n\t"              // Pass nibble from upper byte
+        " andi %15, 0x0f" "\n\t"          // And get rid of that nibble
         "12:" "\n\t"
-        " sbrs %3,3" "\n\t"               /* shift by 8 bit position ?*/
-        " rjmp 6f" "\n\t"                 /* No, skip it*/
+        " sbrs %3,3" "\n\t"               // shift by 8 bit position ?
+        " rjmp 6f" "\n\t"                 // No, skip it
         " mov %14,%15" "\n\t"
         " clr %15" "\n\t"
-        "6:" "\n\t"                       /* %16:%15:%14 = initial estimation of 0x1000000 / d*/
+        "6:" "\n\t"                       // %16:%15:%14 = initial estimation of 0x1000000 / d
 
-        /*  Now, we must refine the estimation present on %16:%15:%14 using 1 iteration*/
-        /*   of Newton-Raphson. As it has a quadratic convergence, 1 iteration is enough*/
-        /*   to get more than 18bits of precision (the initial table lookup gives 9 bits of*/
-        /*   precision to start from). 18bits of precision is all what is needed here for result */
+        // Now, we must refine the estimation present on %16:%15:%14 using 1 iteration
+        // of Newton-Raphson. As it has a quadratic convergence, 1 iteration is enough
+        // to get more than 18bits of precision (the initial table lookup gives 9 bits of
+        // precision to start from). 18bits of precision is all what is needed here for result 
 
-        /*  %8:%7:%6 = d = interval*/
-        /*  %16:%15:%14 = x = initial estimation of 0x1000000 / d*/
-        /*  %13 = 0*/
-        /*  %3:%2:%1:%0 = working accumulator*/
+        // %8:%7:%6 = d = interval
+        // %16:%15:%14 = x = initial estimation of 0x1000000 / d
+        // %13 = 0
+        // %3:%2:%1:%0 = working accumulator
 
-        /*  Compute 1<<25 - x*d. Result should never exceed 25 bits and should always be positive*/
+        // Compute 1<<25 - x*d. Result should never exceed 25 bits and should always be positive
         " clr %0" "\n\t"
         " clr %1" "\n\t"
         " clr %2" "\n\t"
-        " ldi %3,2" "\n\t"                /* %3:%2:%1:%0 = 0x2000000*/
-        " mul %6,%14" "\n\t"              /* r1:r0 = LO(d) * LO(x)*/
+        " ldi %3,2" "\n\t"                // %3:%2:%1:%0 = 0x2000000
+        " mul %6,%14" "\n\t"              // r1:r0 = LO(d) * LO(x)
         " sub %0,r0" "\n\t"
         " sbc %1,r1" "\n\t"
         " sbc %2,%13" "\n\t"
-        " sbc %3,%13" "\n\t"              /* %3:%2:%1:%0 -= LO(d) * LO(x)*/
-        " mul %7,%14" "\n\t"              /* r1:r0 = MI(d) * LO(x)*/
+        " sbc %3,%13" "\n\t"              // %3:%2:%1:%0 -= LO(d) * LO(x)
+        " mul %7,%14" "\n\t"              // r1:r0 = MI(d) * LO(x)
         " sub %1,r0" "\n\t"
         " sbc %2,r1"  "\n\t"
-        " sbc %3,%13" "\n\t"              /* %3:%2:%1:%0 -= MI(d) * LO(x) << 8*/
-        " mul %8,%14" "\n\t"              /* r1:r0 = HI(d) * LO(x)*/
+        " sbc %3,%13" "\n\t"              // %3:%2:%1:%0 -= MI(d) * LO(x) << 8
+        " mul %8,%14" "\n\t"              // r1:r0 = HI(d) * LO(x)
         " sub %2,r0" "\n\t"
-        " sbc %3,r1" "\n\t"               /* %3:%2:%1:%0 -= MIL(d) * LO(x) << 16*/
-        " mul %6,%15" "\n\t"              /* r1:r0 = LO(d) * MI(x)*/
+        " sbc %3,r1" "\n\t"               // %3:%2:%1:%0 -= MIL(d) * LO(x) << 16
+        " mul %6,%15" "\n\t"              // r1:r0 = LO(d) * MI(x)
         " sub %1,r0" "\n\t"
         " sbc %2,r1" "\n\t"
-        " sbc %3,%13" "\n\t"              /* %3:%2:%1:%0 -= LO(d) * MI(x) << 8*/
-        " mul %7,%15" "\n\t"              /* r1:r0 = MI(d) * MI(x)*/
+        " sbc %3,%13" "\n\t"              // %3:%2:%1:%0 -= LO(d) * MI(x) << 8
+        " mul %7,%15" "\n\t"              // r1:r0 = MI(d) * MI(x)
         " sub %2,r0" "\n\t"
-        " sbc %3,r1" "\n\t"               /* %3:%2:%1:%0 -= MI(d) * MI(x) << 16*/
-        " mul %8,%15" "\n\t"              /* r1:r0 = HI(d) * MI(x)*/
-        " sub %3,r0" "\n\t"               /* %3:%2:%1:%0 -= MIL(d) * MI(x) << 24*/
-        " mul %6,%16" "\n\t"              /* r1:r0 = LO(d) * HI(x)*/
+        " sbc %3,r1" "\n\t"               // %3:%2:%1:%0 -= MI(d) * MI(x) << 16
+        " mul %8,%15" "\n\t"              // r1:r0 = HI(d) * MI(x)
+        " sub %3,r0" "\n\t"               // %3:%2:%1:%0 -= MIL(d) * MI(x) << 24
+        " mul %6,%16" "\n\t"              // r1:r0 = LO(d) * HI(x)
         " sub %2,r0" "\n\t"
-        " sbc %3,r1" "\n\t"               /* %3:%2:%1:%0 -= LO(d) * HI(x) << 16*/
-        " mul %7,%16" "\n\t"              /* r1:r0 = MI(d) * HI(x)*/
-        " sub %3,r0" "\n\t"               /* %3:%2:%1:%0 -= MI(d) * HI(x) << 24*/
-        /*  %3:%2:%1:%0 = (1<<25) - x*d     [169]*/
+        " sbc %3,r1" "\n\t"               // %3:%2:%1:%0 -= LO(d) * HI(x) << 16
+        " mul %7,%16" "\n\t"              // r1:r0 = MI(d) * HI(x)
+        " sub %3,r0" "\n\t"               // %3:%2:%1:%0 -= MI(d) * HI(x) << 24
+        // %3:%2:%1:%0 = (1<<25) - x*d     [169]
 
-        /*  We need to multiply that result by x, and we are only interested in the top 24bits of that multiply*/
+        // We need to multiply that result by x, and we are only interested in the top 24bits of that multiply
 
-        /*  %16:%15:%14 = x = initial estimation of 0x1000000 / d*/
-        /*  %3:%2:%1:%0 = (1<<25) - x*d = acc*/
-        /*  %13 = 0 */
+        // %16:%15:%14 = x = initial estimation of 0x1000000 / d
+        // %3:%2:%1:%0 = (1<<25) - x*d = acc
+        // %13 = 0 
 
-        /*  result = %11:%10:%9:%5:%4*/
-        " mul %14,%0" "\n\t"              /* r1:r0 = LO(x) * LO(acc)*/
+        // result = %11:%10:%9:%5:%4
+        " mul %14,%0" "\n\t"              // r1:r0 = LO(x) * LO(acc)
         " mov %4,r1" "\n\t"
         " clr %5" "\n\t"
         " clr %9" "\n\t"
         " clr %10" "\n\t"
-        " clr %11" "\n\t"                 /* %11:%10:%9:%5:%4 = LO(x) * LO(acc) >> 8*/
-        " mul %15,%0" "\n\t"              /* r1:r0 = MI(x) * LO(acc)*/
+        " clr %11" "\n\t"                 // %11:%10:%9:%5:%4 = LO(x) * LO(acc) >> 8
+        " mul %15,%0" "\n\t"              // r1:r0 = MI(x) * LO(acc)
         " add %4,r0" "\n\t"
         " adc %5,r1" "\n\t"
         " adc %9,%13" "\n\t"
         " adc %10,%13" "\n\t"
-        " adc %11,%13" "\n\t"             /* %11:%10:%9:%5:%4 += MI(x) * LO(acc) */
-        " mul %16,%0" "\n\t"              /* r1:r0 = HI(x) * LO(acc)*/
+        " adc %11,%13" "\n\t"             // %11:%10:%9:%5:%4 += MI(x) * LO(acc) 
+        " mul %16,%0" "\n\t"              // r1:r0 = HI(x) * LO(acc)
         " add %5,r0" "\n\t"
         " adc %9,r1" "\n\t"
         " adc %10,%13" "\n\t"
-        " adc %11,%13" "\n\t"             /* %11:%10:%9:%5:%4 += MI(x) * LO(acc) << 8*/
+        " adc %11,%13" "\n\t"             // %11:%10:%9:%5:%4 += MI(x) * LO(acc) << 8
 
-        " mul %14,%1" "\n\t"              /* r1:r0 = LO(x) * MIL(acc)*/
+        " mul %14,%1" "\n\t"              // r1:r0 = LO(x) * MIL(acc)
         " add %4,r0" "\n\t"
         " adc %5,r1" "\n\t"
         " adc %9,%13" "\n\t"
         " adc %10,%13" "\n\t"
-        " adc %11,%13" "\n\t"             /* %11:%10:%9:%5:%4 = LO(x) * MIL(acc)*/
-        " mul %15,%1" "\n\t"              /* r1:r0 = MI(x) * MIL(acc)*/
+        " adc %11,%13" "\n\t"             // %11:%10:%9:%5:%4 = LO(x) * MIL(acc)
+        " mul %15,%1" "\n\t"              // r1:r0 = MI(x) * MIL(acc)
         " add %5,r0" "\n\t"
         " adc %9,r1" "\n\t"
         " adc %10,%13" "\n\t"
-        " adc %11,%13" "\n\t"             /* %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 8*/
-        " mul %16,%1" "\n\t"              /* r1:r0 = HI(x) * MIL(acc)*/
+        " adc %11,%13" "\n\t"             // %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 8
+        " mul %16,%1" "\n\t"              // r1:r0 = HI(x) * MIL(acc)
         " add %9,r0" "\n\t"
         " adc %10,r1" "\n\t"
-        " adc %11,%13" "\n\t"             /* %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 16*/
+        " adc %11,%13" "\n\t"             // %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 16
 
-        " mul %14,%2" "\n\t"              /* r1:r0 = LO(x) * MIH(acc)*/
+        " mul %14,%2" "\n\t"              // r1:r0 = LO(x) * MIH(acc)
         " add %5,r0" "\n\t"
         " adc %9,r1" "\n\t"
         " adc %10,%13" "\n\t"
-        " adc %11,%13" "\n\t"             /* %11:%10:%9:%5:%4 = LO(x) * MIH(acc) << 8*/
-        " mul %15,%2" "\n\t"              /* r1:r0 = MI(x) * MIH(acc)*/
+        " adc %11,%13" "\n\t"             // %11:%10:%9:%5:%4 = LO(x) * MIH(acc) << 8
+        " mul %15,%2" "\n\t"              // r1:r0 = MI(x) * MIH(acc)
         " add %9,r0" "\n\t"
         " adc %10,r1" "\n\t"
-        " adc %11,%13" "\n\t"             /* %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 16*/
-        " mul %16,%2" "\n\t"              /* r1:r0 = HI(x) * MIH(acc)*/
+        " adc %11,%13" "\n\t"             // %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 16
+        " mul %16,%2" "\n\t"              // r1:r0 = HI(x) * MIH(acc)
         " add %10,r0" "\n\t"
-        " adc %11,r1" "\n\t"              /* %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 24*/
+        " adc %11,r1" "\n\t"              // %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 24
 
-        " mul %14,%3" "\n\t"              /* r1:r0 = LO(x) * HI(acc)*/
+        " mul %14,%3" "\n\t"              // r1:r0 = LO(x) * HI(acc)
         " add %9,r0" "\n\t"
         " adc %10,r1" "\n\t"
-        " adc %11,%13" "\n\t"             /* %11:%10:%9:%5:%4 = LO(x) * HI(acc) << 16*/
-        " mul %15,%3" "\n\t"              /* r1:r0 = MI(x) * HI(acc)*/
+        " adc %11,%13" "\n\t"             // %11:%10:%9:%5:%4 = LO(x) * HI(acc) << 16
+        " mul %15,%3" "\n\t"              // r1:r0 = MI(x) * HI(acc)
         " add %10,r0" "\n\t"
-        " adc %11,r1" "\n\t"              /* %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 24*/
-        " mul %16,%3" "\n\t"              /* r1:r0 = HI(x) * HI(acc)*/
-        " add %11,r0" "\n\t"              /* %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 32*/
+        " adc %11,r1" "\n\t"              // %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 24
+        " mul %16,%3" "\n\t"              // r1:r0 = HI(x) * HI(acc)
+        " add %11,r0" "\n\t"              // %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 32
 
-        /*  At this point, %11:%10:%9 contains the new estimation of x. */
+        // At this point, %11:%10:%9 contains the new estimation of x. 
 
-        /*  Finally, we must correct the result. Estimate remainder as*/
-        /*  (1<<24) - x*d*/
-        /*  %11:%10:%9 = x*/
-        /*  %8:%7:%6 = d = interval" "\n\t" /*  */
+        // Finally, we must correct the result. Estimate remainder as
+        // (1<<24) - x*d 
+        // %11:%10:%9 = x 
+        // %8:%7:%6 = d = interval" "\n\t"  
         " ldi %3,1" "\n\t"
         " clr %2" "\n\t"
         " clr %1" "\n\t"
-        " clr %0" "\n\t"                  /* %3:%2:%1:%0 = 0x1000000*/
-        " mul %6,%9" "\n\t"              /* r1:r0 = LO(d) * LO(x)*/
+        " clr %0" "\n\t"                  // %3:%2:%1:%0 = 0x1000000
+        " mul %6,%9" "\n\t"               // r1:r0 = LO(d) * LO(x)
         " sub %0,r0" "\n\t"
         " sbc %1,r1" "\n\t"
         " sbc %2,%13" "\n\t"
-        " sbc %3,%13" "\n\t"              /* %3:%2:%1:%0 -= LO(d) * LO(x)*/
-        " mul %7,%9" "\n\t"              /* r1:r0 = MI(d) * LO(x)*/
+        " sbc %3,%13" "\n\t"              // %3:%2:%1:%0 -= LO(d) * LO(x)
+        " mul %7,%9" "\n\t"               // r1:r0 = MI(d) * LO(x)
         " sub %1,r0" "\n\t"
         " sbc %2,r1" "\n\t"
-        " sbc %3,%13" "\n\t"              /* %3:%2:%1:%0 -= MI(d) * LO(x) << 8*/
-        " mul %8,%9" "\n\t"              /* r1:r0 = HI(d) * LO(x)*/
+        " sbc %3,%13" "\n\t"              // %3:%2:%1:%0 -= MI(d) * LO(x) << 8
+        " mul %8,%9" "\n\t"               // r1:r0 = HI(d) * LO(x)
         " sub %2,r0" "\n\t"
-        " sbc %3,r1" "\n\t"               /* %3:%2:%1:%0 -= MIL(d) * LO(x) << 16*/
-        " mul %6,%10" "\n\t"              /* r1:r0 = LO(d) * MI(x)*/
+        " sbc %3,r1" "\n\t"               // %3:%2:%1:%0 -= MIL(d) * LO(x) << 16
+        " mul %6,%10" "\n\t"              // r1:r0 = LO(d) * MI(x)
         " sub %1,r0" "\n\t"
         " sbc %2,r1" "\n\t"
-        " sbc %3,%13" "\n\t"              /* %3:%2:%1:%0 -= LO(d) * MI(x) << 8*/
-        " mul %7,%10" "\n\t"              /* r1:r0 = MI(d) * MI(x)*/
+        " sbc %3,%13" "\n\t"              // %3:%2:%1:%0 -= LO(d) * MI(x) << 8
+        " mul %7,%10" "\n\t"              // r1:r0 = MI(d) * MI(x)
         " sub %2,r0" "\n\t"
-        " sbc %3,r1" "\n\t"               /* %3:%2:%1:%0 -= MI(d) * MI(x) << 16*/
-        " mul %8,%10" "\n\t"              /* r1:r0 = HI(d) * MI(x)*/
-        " sub %3,r0" "\n\t"               /* %3:%2:%1:%0 -= MIL(d) * MI(x) << 24*/
-        " mul %6,%11" "\n\t"              /* r1:r0 = LO(d) * HI(x)*/
+        " sbc %3,r1" "\n\t"               // %3:%2:%1:%0 -= MI(d) * MI(x) << 16
+        " mul %8,%10" "\n\t"              // r1:r0 = HI(d) * MI(x)
+        " sub %3,r0" "\n\t"               // %3:%2:%1:%0 -= MIL(d) * MI(x) << 24
+        " mul %6,%11" "\n\t"              // r1:r0 = LO(d) * HI(x)
         " sub %2,r0" "\n\t"
-        " sbc %3,r1" "\n\t"               /* %3:%2:%1:%0 -= LO(d) * HI(x) << 16*/
-        " mul %7,%11" "\n\t"              /* r1:r0 = MI(d) * HI(x)*/
-        " sub %3,r0" "\n\t"               /* %3:%2:%1:%0 -= MI(d) * HI(x) << 24*/
-        /*  %3:%2:%1:%0 = r = (1<<24) - x*d*/
-        /*  %8:%7:%6 = d = interval */
+        " sbc %3,r1" "\n\t"               // %3:%2:%1:%0 -= LO(d) * HI(x) << 16
+        " mul %7,%11" "\n\t"              // r1:r0 = MI(d) * HI(x)
+        " sub %3,r0" "\n\t"               // %3:%2:%1:%0 -= MI(d) * HI(x) << 24
+        // %3:%2:%1:%0 = r = (1<<24) - x*d
+        // %8:%7:%6 = d = interval 
 
-        /*  Perform the final correction*/
+        // Perform the final correction
         " sub %0,%6" "\n\t"
         " sbc %1,%7" "\n\t"
-        " sbc %2,%8" "\n\t"              /* r -= d*/
-        " brcs 14f" "\n\t"                /* if ( r >= d) */
+        " sbc %2,%8" "\n\t"               // r -= d
+        " brcs 14f" "\n\t"                // if ( r >= d) 
 
-        /*  %11:%10:%9 = x */
+        // %11:%10:%9 = x 
         " ldi %3,1" "\n\t"
         " add %9,%3" "\n\t"
         " adc %10,%13" "\n\t"
-        " adc %11,%13" "\n\t"             /* x++*/
+        " adc %11,%13" "\n\t"             // x++
         "14:" "\n\t"
 
-        /*  Estimation is done. %11:%10:%9 = x */
-        " clr __zero_reg__" "\n\t"        /* Make C runtime happy */
-        /*  [211 cycles total]*/
+        // Estimation is done. %11:%10:%9 = x 
+        " clr __zero_reg__" "\n\t"        // Make C runtime happy 
+        // [211 cycles total]
         : "=r" (r2),
           "=r" (r3),
           "=r" (r4),
