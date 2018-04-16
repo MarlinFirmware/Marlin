@@ -21,7 +21,7 @@
  */
 
 #if !defined(STM32F4)
-    #error "Oops!  Make sure you have an STM32F4 board selected from the 'Tools -> Boards' menu."
+  #error "Oops!  Make sure you have an STM32F4 board selected from the 'Tools -> Boards' menu."
 #endif
 
 #define DEFAULT_MACHINE_NAME "STM32F407VET6"
@@ -187,17 +187,18 @@
 // ST7920 Delays
 //
 
-#define STM_DELAY_LONG       { __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); }
-#define STM_DELAY_SHORT      { __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); }
+#define STM_NOP __asm__("nop\n\t")
+#define STM_DELAY_SHORT { STM_NOP; STM_NOP; STM_NOP; STM_NOP; }
+#define STM_DELAY_LONG  { STM_DELAY_SHORT; STM_DELAY_SHORT; STM_NOP; STM_NOP; }
 
 #ifndef ST7920_DELAY_1
-#define ST7920_DELAY_1 { STM_DELAY_SHORT; STM_DELAY_SHORT; }
+  #define ST7920_DELAY_1 { STM_DELAY_SHORT; STM_DELAY_SHORT; }
 #endif
 
 #ifndef ST7920_DELAY_2
-#define ST7920_DELAY_2 { STM_DELAY_SHORT; }
+  #define ST7920_DELAY_2 { STM_DELAY_SHORT; }
 #endif
 
 #ifndef ST7920_DELAY_3
-#define ST7920_DELAY_3 { STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; }
+  #define ST7920_DELAY_3 { STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; }
 #endif
