@@ -21,7 +21,6 @@
  *
  */
 
-
 #ifdef STM32F4
 
 #include "../persistent_store_api.h"
@@ -33,13 +32,9 @@
 namespace HAL {
 namespace PersistentStore {
 
-bool access_start() {
-  return true;
-}
+bool access_start() { return true; }
 
-bool access_finish(){
-  return true;
-}
+bool access_finish() { return true; }
 
 bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   while (size--) {
@@ -73,10 +68,8 @@ bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const boo
   return false;
 }
 
-}
-}
+} // PersistentStore
+} // HAL
 
 #endif // EEPROM_SETTINGS
 #endif // STM32F4
-
-
