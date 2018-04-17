@@ -29,35 +29,40 @@
   #include <HardwareSerial.h>
   #if ENABLED(BLUETOOTH)
     extern HardwareSerial bluetoothSerial;
-    #define MYSERIAL0 bluetoothSerial
+    #define PRIM_SERIAL bluetoothSerial
   #else
-    #define MYSERIAL0 Serial
+    #define PRIM_SERIAL Serial
   #endif // BLUETOOTH
 #else
   #include "MarlinSerial.h"
-  #define MYSERIAL0 customizedSerial
+  #define PRIM_SERIAL SERIAL_REGNAME(customizedSerial,SERIAL_PORT,)
+  #ifdef SEC_SERIAL_PORT
+    #define SEC_SERIAL SERIAL_REGNAME(customizedSerial,SEC_SERIAL_PORT,)
+  #endif
 #endif
+// myserial is the currently active serial port
+extern Stream *myserial;
 
 extern const char echomagic[] PROGMEM;
 extern const char errormagic[] PROGMEM;
 
-#define SERIAL_CHAR(x) ((void)MYSERIAL0.write(x))
+#define SERIAL_CHAR(x) ((void)myserial->write(x))
 #define SERIAL_EOL() SERIAL_CHAR('\n')
 
-#define SERIAL_PRINT(x,b)      MYSERIAL0.print(x,b)
-#define SERIAL_PRINTLN(x,b)    MYSERIAL0.println(x,b)
-#define SERIAL_PRINTF(args...) MYSERIAL0.printf(args)
+#define SERIAL_PRINT(x,b)      myserial->print(x,b)
+#define SERIAL_PRINTLN(x,b)    myserial->println(x,b)
+#define SERIAL_PRINTF(args...) myserial->printf(args)
 
-#define SERIAL_FLUSH()         MYSERIAL0.flush()
+#define SERIAL_FLUSH()         myserial->flush()
 #if TX_BUFFER_SIZE > 0
-  #define SERIAL_FLUSHTX()     MYSERIAL0.flushTX()
+  #define SERIAL_FLUSHTX()     myserial->flushTX()
 #endif
 
 #define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)
-#define SERIAL_PROTOCOL(x)                  MYSERIAL0.print(x)
-#define SERIAL_PROTOCOL_F(x,y)              MYSERIAL0.print(x,y)
+#define SERIAL_PROTOCOL(x)                  myserial->print(x)
+#define SERIAL_PROTOCOL_F(x,y)              myserial->print(x,y)
 #define SERIAL_PROTOCOLPGM(x)               serialprintPGM(PSTR(x))
-#define SERIAL_PROTOCOLLN(x)                do{ MYSERIAL0.print(x); SERIAL_EOL(); }while(0)
+#define SERIAL_PROTOCOLLN(x)                do{ myserial->print(x); SERIAL_EOL(); }while(0)
 #define SERIAL_PROTOCOLLNPGM(x)             serialprintPGM(PSTR(x "\n"))
 #define SERIAL_PROTOCOLPAIR(name, value)    serial_echopair_PGM(PSTR(name),(value))
 #define SERIAL_PROTOCOLLNPAIR(name, value)  do{ SERIAL_PROTOCOLPAIR(name, value); SERIAL_EOL(); }while(0)

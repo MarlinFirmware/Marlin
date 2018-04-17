@@ -1001,7 +1001,7 @@ void gcode_line_error(const char* err, bool doFlush = true) {
  * Exit when the buffer is full or when no more characters are
  * left on the serial port.
  */
-inline void get_serial_commands() {
+inline void get_serial_commands(Stream &serial_stream) {
   static char serial_line_buffer[MAX_CMD_SIZE];
   static bool serial_comment_mode = false;
 
@@ -1010,9 +1010,29 @@ inline void get_serial_commands() {
   #if NO_TIMEOUTS > 0
     static millis_t last_command_time = 0;
     const millis_t ms = millis();
-    if (commands_in_queue == 0 && !MYSERIAL0.available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
+    if (commands_in_queue == 0 && !serial_stream.available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(MSG_WAIT);
       last_command_time = ms;
+    }
+  #endif
+
+  #ifdef SEC_SERIAL_PORT
+  /**
+     * Ignore other serial port while we still receive data from the active port (myserial)
+     * Otherwise switch to current ports if we receive data on this port.
+     */
+    if ( &serial_stream != myserial ) {
+      if ( serial_stream.available() ) {
+        if ( serial_count || busy_state != NOT_BUSY ) {
+          // there is an incomplete command from the active port in the queue / processed
+          serial_stream.print(MSG_SERIAL_PORT_BLOCKED"\n");
+          while (serial_stream.read() >= 0) {} // clear input buffer
+          return; 
+        }
+        myserial = &serial_stream; // switch active port
+      }
+      else
+        return; // no data on serial port
     }
   #endif
 
@@ -1020,9 +1040,12 @@ inline void get_serial_commands() {
    * Loop while serial characters are incoming and the queue is not full
    */
   int c;
-  while (commands_in_queue < BUFSIZE && (c = MYSERIAL0.read()) >= 0) {
+  while (commands_in_queue < BUFSIZE && (c = serial_stream.read()) >= 0) {
 
     char serial_char = c;
+    #if ENABLED(SERIAL_ECHO_INPUT)
+      serial_stream.write(serial_char);
+    #endif
 
     /**
      * If the character ends the line
@@ -1122,7 +1145,7 @@ inline void get_serial_commands() {
       // The command will be injected when EOL is reached
     }
     else if (serial_char == '\\') {   // Handle escapes
-      if ((c = MYSERIAL0.read()) >= 0 && !serial_comment_mode) // if we have one more character, copy it over
+      if ((c = serial_stream.read()) >= 0 && !serial_comment_mode) // if we have one more character, copy it over
         serial_line_buffer[serial_count++] = (char)c;
       // otherwise do nothing
     }
@@ -1240,7 +1263,11 @@ void get_available_commands() {
   // if any immediate commands remain, don't get other commands yet
   if (drain_injected_commands_P()) return;
 
-  get_serial_commands();
+  get_serial_commands(PRIM_SERIAL);
+  #ifdef SEC_SERIAL
+    // read commands from alternative serial port
+    get_serial_commands(SEC_SERIAL);
+  #endif
 
   #if ENABLED(SDSUPPORT)
     get_sdcard_commands();
@@ -14005,7 +14032,10 @@ void setup() {
     disableStepperDrivers();
   #endif
 
-  MYSERIAL0.begin(BAUDRATE);
+  PRIM_SERIAL.begin(BAUDRATE);
+  #ifdef SEC_SERIAL
+    SEC_SERIAL.begin(BAUDRATE);
+  #endif
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 

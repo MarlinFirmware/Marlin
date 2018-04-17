@@ -309,7 +309,9 @@
 #elif ENABLED(SERIAL_XON_XOFF) || ENABLED(SERIAL_STATS_MAX_RX_QUEUED) || ENABLED(SERIAL_STATS_DROPPED_RX)
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
 #endif
-
+#if defined(SEC_SERIAL_PORT) && SERIAL_PORT == SEC_SERIAL_PORT
+  #error "SEC_SERIAL_PORT (secondary serial port) cannot be the same as SERIAL_PORT"
+#endif  
 #if SERIAL_PORT > 7
   #error "Set SERIAL_PORT to the port on your board. Usually this is 0."
 #endif
