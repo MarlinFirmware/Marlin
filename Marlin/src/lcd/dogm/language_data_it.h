@@ -2,7 +2,7 @@
 /* This file is generated automatically, any changes to the file may be REPLACED by future processing. */
 /* Please turn to the tools call this script to change the contents! */
 
-#include <clib/u8g.h>
+#include <U8glib.h>
 
 #define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
