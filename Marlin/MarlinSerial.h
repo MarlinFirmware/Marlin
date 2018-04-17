@@ -26,10 +26,13 @@
  *
  * Modified 28 September 2010 by Mark Sproul
  * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
+ * Modified 15 April 2018 by Stephan Veigl (multi instance version)
  */
 
 #ifndef MARLINSERIAL_H
 #define MARLINSERIAL_H
+
+#include "Stream.h"
 
 #include "MarlinConfig.h"
 
@@ -51,29 +54,6 @@
   #define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##number##suffix
 #endif
 
-// Registers used by MarlinSerial class (expanded depending on selected serial port)
-#define M_UCSRxA           SERIAL_REGNAME(UCSR,SERIAL_PORT,A) // defines M_UCSRxA to be UCSRnA where n is the serial port number
-#define M_UCSRxB           SERIAL_REGNAME(UCSR,SERIAL_PORT,B)
-#define M_RXENx            SERIAL_REGNAME(RXEN,SERIAL_PORT,)
-#define M_TXENx            SERIAL_REGNAME(TXEN,SERIAL_PORT,)
-#define M_TXCx             SERIAL_REGNAME(TXC,SERIAL_PORT,)
-#define M_RXCIEx           SERIAL_REGNAME(RXCIE,SERIAL_PORT,)
-#define M_UDREx            SERIAL_REGNAME(UDRE,SERIAL_PORT,)
-#define M_UDRIEx           SERIAL_REGNAME(UDRIE,SERIAL_PORT,)
-#define M_UDRx             SERIAL_REGNAME(UDR,SERIAL_PORT,)
-#define M_UBRRxH           SERIAL_REGNAME(UBRR,SERIAL_PORT,H)
-#define M_UBRRxL           SERIAL_REGNAME(UBRR,SERIAL_PORT,L)
-#define M_RXCx             SERIAL_REGNAME(RXC,SERIAL_PORT,)
-#define M_USARTx_RX_vect   SERIAL_REGNAME(USART,SERIAL_PORT,_RX_vect)
-#define M_U2Xx             SERIAL_REGNAME(U2X,SERIAL_PORT,)
-#define M_USARTx_UDRE_vect SERIAL_REGNAME(USART,SERIAL_PORT,_UDRE_vect)
-
-#define DEC 10
-#define HEX 16
-#define OCT 8
-#define BIN 2
-#define BYTE 0
-
 // Define constants and variables for buffering serial data.
 // Use only 0 or powers of 2 greater than 1
 // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
@@ -86,82 +66,36 @@
 #endif
 
 #if !(defined(__AVR__) && defined(USBCON))
-
+  
   #if RX_BUFFER_SIZE > 256
     typedef uint16_t ring_buffer_pos_t;
   #else
     typedef uint8_t ring_buffer_pos_t;
   #endif
 
-  #if ENABLED(SERIAL_STATS_DROPPED_RX)
-    extern uint8_t rx_dropped_bytes;
-  #endif
+  typedef struct {
+    unsigned char buffer[RX_BUFFER_SIZE];
+    volatile ring_buffer_pos_t head, tail;
+  } ring_buffer_r;
 
-  #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-    extern ring_buffer_pos_t rx_max_enqueued;
-  #endif
+  typedef struct {
+    unsigned char buffer[TX_BUFFER_SIZE];
+    volatile uint8_t head, tail;
+  } ring_buffer_t;
 
   #if ENABLED(EMERGENCY_PARSER)
     extern bool killed_by_M112;
   #endif
 
-  class MarlinSerial { //: public Stream
-
-    public:
-      MarlinSerial() {};
-      static void begin(const long);
-      static void end();
-      static int peek(void);
-      static int read(void);
-      static void flush(void);
-      static ring_buffer_pos_t available(void);
-      static void checkRx(void);
-      static void write(const uint8_t c);
-      #if TX_BUFFER_SIZE > 0
-        static uint8_t availableForWrite(void);
-        static void flushTX(void);
-      #endif
-      static void writeNoHandshake(const uint8_t c);
-
-      #if ENABLED(SERIAL_STATS_DROPPED_RX)
-        FORCE_INLINE static uint32_t dropped() { return rx_dropped_bytes; }
-      #endif
-
-      #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-        FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return rx_max_enqueued; }
-      #endif
-
-    private:
-      static void printNumber(unsigned long, const uint8_t);
-      static void printFloat(double, uint8_t);
-
-    public:
-      FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
-      FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-      FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-      FORCE_INLINE static void print(const char* str) { write(str); }
-
-      static void print(char, int = BYTE);
-      static void print(unsigned char, int = BYTE);
-      static void print(int, int = DEC);
-      static void print(unsigned int, int = DEC);
-      static void print(long, int = DEC);
-      static void print(unsigned long, int = DEC);
-      static void print(double, int = 2);
-
-      static void println(const String& s);
-      static void println(const char[]);
-      static void println(char, int = BYTE);
-      static void println(unsigned char, int = BYTE);
-      static void println(int, int = DEC);
-      static void println(unsigned int, int = DEC);
-      static void println(long, int = DEC);
-      static void println(unsigned long, int = DEC);
-      static void println(double, int = 2);
-      static void println(void);
-  };
-
-  extern MarlinSerial customizedSerial;
+  // include declaration of MarlinSerial for SERIAL_PORT
+  #define T_PORT SERIAL_PORT
+  #include "MarlinSerial_Template.h"
+  #undef T_PORT
+  #ifdef SEC_SERIAL_PORT
+    #define T_PORT SEC_SERIAL_PORT
+    #include "MarlinSerial_Template.h"
+    #undef T_PORT
+  #endif
 
 #endif // !(__AVR__ && USBCON)
 

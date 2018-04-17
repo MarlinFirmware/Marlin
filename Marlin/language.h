@@ -184,6 +184,7 @@
 #define MSG_SOFT_ENDSTOPS                   "Soft endstops: "
 #define MSG_SOFT_MIN                        "  Min: "
 #define MSG_SOFT_MAX                        "  Max: "
+#define MSG_SERIAL_PORT_BLOCKED             "Other serial port in use!"
 
 #define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define MSG_SD_INIT_FAIL                    "SD init fail"
