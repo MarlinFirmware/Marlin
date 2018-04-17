@@ -422,9 +422,13 @@
       #endif
 
       #define BTN_ENC           35
-      #define SD_DETECT_PIN     49
-      #define KILL_PIN          41
-
+      #if(ENABLED(BoardRev2))
+        #define SD_DETECT_PIN     49
+        
+      #else
+        #define SD_DETECT_PIN     -1
+      #endif
+    #define KILL_PIN          41
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
         #define LCD_BACKLIGHT_PIN 39
       #endif
@@ -434,8 +438,13 @@
       #define BTN_EN1           64
       #define BTN_EN2           59
       #define BTN_ENC           63
-      #define SD_DETECT_PIN     42
-
+       #if(ENABLED(BoardRev2))
+        #define SD_DETECT_PIN     49
+      #else
+        #define SD_DETECT_PIN     -1
+      #endif
+      #define KILL_PIN          41
+      
     #elif ENABLED(LCD_I2C_PANELOLU2)
 
       #define BTN_EN1           47
@@ -451,7 +460,7 @@
       #define BTN_ENC           -1
 
       #define LCD_SDSS          SDSS
-      #define SD_DETECT_PIN     49
+      //#define SD_DETECT_PIN     49
 
     #elif ENABLED(VIKI2) || ENABLED(miniVIKI)
 
@@ -482,8 +491,12 @@
       #define BTN_EN2           37
       #define BTN_ENC           31
 
-      #define LCD_SDSS          SDSS
-      #define SD_DETECT_PIN     49
+      #define LCD_SDSS          SDSS 
+      #if(ENABLED(BoardRev2))
+        #define SD_DETECT_PIN     49
+      #else
+        #define SD_DETECT_PIN     -1
+      #endif
       #define KILL_PIN          41
 
     #elif ENABLED(MKS_MINI_12864)   // Added in Marlin 1.1.6
@@ -506,9 +519,13 @@
       #define BTN_EN2           33
       #define BTN_ENC           35
 
-      #define SD_DETECT_PIN     49
-      #define KILL_PIN          64
-
+       #if(ENABLED(BoardRev2))
+        #define SD_DETECT_PIN     49
+      #else
+        #define SD_DETECT_PIN     -1
+      #endif
+      #define KILL_PIN          41
+      
     #elif ENABLED(MINIPANEL)
 
       #define BEEPER_PIN        42
@@ -529,9 +546,13 @@
       #define BTN_EN2           63
       #define BTN_ENC           59
 
-      #define SD_DETECT_PIN     49
-      #define KILL_PIN          64
-
+       #if(ENABLED(BoardRev2))
+        #define SD_DETECT_PIN     49
+      #else
+        #define SD_DETECT_PIN     -1
+      #endif
+      #define KILL_PIN          41
+      
     #elif ENABLED(ZONESTAR_LCD)
 
       #define ADC_KEYPAD_PIN    12
@@ -560,8 +581,13 @@
       #endif
 
       #if ENABLED(G3D_PANEL)
-        #define SD_DETECT_PIN   49
-        #define KILL_PIN        41
+         #if(ENABLED(BoardRev2))
+        #define SD_DETECT_PIN     49
+      #else
+        #define SD_DETECT_PIN     -1
+      #endif
+      #define KILL_PIN          41
+      
       #endif
 
     #endif

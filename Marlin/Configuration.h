@@ -155,7 +155,7 @@
 //#define ABL_BI
 #define ABL_UBL
 
-
+//#define BoardRev2
 
 
 #if(!ENABLED(MachineCR10Orig))
