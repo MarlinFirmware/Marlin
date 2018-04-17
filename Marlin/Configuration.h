@@ -98,12 +98,39 @@
 
 // @section machine
 
+// CUSTOMIZE FOR YOUR MACHINE BELOW
+// CUSTOMIZE FOR YOUR MACHINE BELOW
+// CUSTOMIZE FOR YOUR MACHINE BELOW
+// CUSTOMIZE FOR YOUR MACHINE BELOW
+// CUSTOMIZE FOR YOUR MACHINE BELOW
 
-#define X_2208
-#define Y_2208
-#define BED_AC
-#define RunoutSensor
-#define UBL
+/**
+ * Enable if you replace the stepper drivers with TMC 2208. Be sure to remove MS3 jumper 
+ * underneath the stepper driver! Plug and Play will result in Stealth Chop 2 Mode enabled
+ */
+//#define X_2208
+//#define Y_2208
+
+/**
+ * Enable if you install a KEENOVO AC BED with Solid State Relay
+ */
+//#define BED_AC
+
+/**
+ * Enable if you install a filament runout sensor from www.formbotusa.com
+ */
+//#define RunoutSensor
+
+/**
+ * Enable if you wish to change the auto level strategy to Unified Bed Leveling. Under CUSTOM COMMANDS, run Step 1 and 2 before setting Z Offset
+ */
+//#define UBL
+
+//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
+//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
+//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
+//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
+//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
 
 /**
  * Select the serial port on the board to use for communication with the host.
@@ -731,7 +758,7 @@
 // The number of probes to perform at each point.
 //   Set to 2 for a fast/slow probe, using the second probe result.
 //   Set to 3 or more for slow probes, averaging the results.
-#define MULTIPLE_PROBING 2
+//#define MULTIPLE_PROBING 2
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
