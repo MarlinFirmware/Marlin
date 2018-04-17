@@ -20,7 +20,7 @@
  *
  */
 
-#include <clib/u8g.h>
+#include <U8glib.h>
 
 #if defined(__AVR__) && ENABLED(NOT_EXTENDED_ISO10646_1_5X7)
   // reduced font (only sysmbols 1 - 127) - saves about 1278 bytes of FLASH
