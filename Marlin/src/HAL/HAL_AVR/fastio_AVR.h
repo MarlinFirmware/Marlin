@@ -112,7 +112,7 @@
  */
 
 // Waveform Generation Modes
-typedef enum {
+enum WaveGenMode : char {
   WGM_NORMAL,          //  0
   WGM_PWM_PC_8,        //  1
   WGM_PWM_PC_9,        //  2
@@ -129,18 +129,18 @@ typedef enum {
   WGM_reserved,        // 13
   WGM_FAST_PWM_ICRn,   // 14  COM OCnA
   WGM_FAST_PWM_OCRnA   // 15  COM OCnA
-} WaveGenMode;
+};
 
 // Compare Modes
-typedef enum {
+enum CompareMode : char {
   COM_NORMAL,          //  0
   COM_TOGGLE,          //  1  Non-PWM: OCnx ... Both PWM (WGM 9,11,14,15): OCnA only ... else NORMAL
   COM_CLEAR_SET,       //  2  Non-PWM: OCnx ... Fast PWM: OCnx/Bottom ... PF-FC: OCnx Up/Down
   COM_SET_CLEAR        //  3  Non-PWM: OCnx ... Fast PWM: OCnx/Bottom ... PF-FC: OCnx Up/Down
-} CompareMode;
+};
 
 // Clock Sources
-typedef enum {
+enum ClockSource : char {
   CS_NONE,             //  0
   CS_PRESCALER_1,      //  1
   CS_PRESCALER_8,      //  2
@@ -149,10 +149,10 @@ typedef enum {
   CS_PRESCALER_1024,   //  5
   CS_EXT_FALLING,      //  6
   CS_EXT_RISING        //  7
-} ClockSource;
+};
 
 // Clock Sources (Timer 2 only)
-typedef enum {
+enum ClockSource2 : char {
   CS2_NONE,            //  0
   CS2_PRESCALER_1,     //  1
   CS2_PRESCALER_8,     //  2
@@ -161,7 +161,7 @@ typedef enum {
   CS2_PRESCALER_128,   //  5
   CS2_PRESCALER_256,   //  6
   CS2_PRESCALER_1024   //  7
-} ClockSource2;
+};
 
 // Get interrupt bits in an orderly way
 // Ex: cs = GET_CS(0); coma1 = GET_COM(A,1);
@@ -240,7 +240,7 @@ typedef enum {
  * PWM availability macros
  */
 
-//find out which harware PWMs are already in use
+// Determine which harware PWMs are already in use
 #if PIN_EXISTS(CONTROLLER_FAN)
   #define PWM_CHK_FAN_B(p) (p == CONTROLLER_FAN_PIN || p == E0_AUTO_FAN_PIN || p ==  E1_AUTO_FAN_PIN || p ==  E2_AUTO_FAN_PIN || p ==  E3_AUTO_FAN_PIN || p ==  E4_AUTO_FAN_PIN || p == CHAMBER_AUTO_FAN_PIN)
 #else
@@ -253,7 +253,7 @@ typedef enum {
   #elif PIN_EXISTS(FAN1)
     #define PWM_CHK_FAN_A(p) (p == FAN_PIN || p == FAN1_PIN)
   #else
-    #define PWM_CHK_FAN_A(p) p == FAN_PIN
+    #define PWM_CHK_FAN_A(p) (p == FAN_PIN)
   #endif
 #else
   #define PWM_CHK_FAN_A(p) false
@@ -273,13 +273,13 @@ typedef enum {
 
 #ifdef NUM_SERVOS
   #if AVR_ATmega2560_FAMILY
-    #define PWM_CHK_SERVO(p) ( p == 5 || NUM_SERVOS > 12 && p == 6 || NUM_SERVOS > 24 && p == 46)  //PWMS 3A, 4A & 5A
+    #define PWM_CHK_SERVO(p) (p == 5 || (NUM_SERVOS > 12 && p == 6) || (NUM_SERVOS > 24 && p == 46))  // PWMS 3A, 4A & 5A
   #elif AVR_ATmega2561_FAMILY
-    #define PWM_CHK_SERVO(p)   p ==  5  //PWM3A
+    #define PWM_CHK_SERVO(p)   (p == 5)  // PWM3A
   #elif AVR_ATmega1284_FAMILY
     #define PWM_CHK_SERVO(p)   false
   #elif AVR_AT90USB1286_FAMILY
-    #define PWM_CHK_SERVO(p)   p ==  16 //PWM3A
+    #define PWM_CHK_SERVO(p)   (p == 16) // PWM3A
   #elif AVR_ATmega328_FAMILY
     #define PWM_CHK_SERVO(p)   false
   #endif
@@ -303,15 +303,15 @@ typedef enum {
 // define which hardware PWMs are available for the current CPU
 // all timer 1 PWMS deleted from this list because they are never available
 #if AVR_ATmega2560_FAMILY
-  #define PWM_PINS(p)  ((p >= 2 && p <= 10 ) || p ==  13 || p ==  44 || p ==  45 || p ==  46 )
+  #define PWM_PINS(p)  ((p >= 2 && p <= 10) || p == 13 || p == 44 || p == 45 || p == 46)
 #elif AVR_ATmega2561_FAMILY
-  #define PWM_PINS(p)  ((p >= 2 && p <= 6 ) || p ==  9)
+  #define PWM_PINS(p)  ((p >= 2 && p <= 6) || p == 9)
 #elif AVR_ATmega1284_FAMILY
-  #define PWM_PINS(p)  (p == 3 || p ==  4 || p ==  14 || p ==  15)
+  #define PWM_PINS(p)  (p == 3 || p == 4 || p == 14 || p == 15)
 #elif AVR_AT90USB1286_FAMILY
-  #define PWM_PINS(p)  (p == 0 || p ==  1 || p ==  14 || p ==  15 || p ==  16 || p ==  24)
+  #define PWM_PINS(p)  (p == 0 || p == 1 || p == 14 || p == 15 || p == 16 || p == 24)
 #elif AVR_ATmega328_FAMILY
-  #define PWM_PINS(p)  (p == 3 || p ==  5 || p ==  6 || p ==  11)
+  #define PWM_PINS(p)  (p == 3 || p == 5 || p == 6 || p == 11)
 #else
   #error "unknown CPU"
 #endif
