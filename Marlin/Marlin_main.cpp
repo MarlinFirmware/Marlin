@@ -2461,7 +2461,21 @@ void clean_up_after_endstop_or_probe_move() {
             planner.unapply_leveling(current_position);
           }
         #else
-          planner.leveling_active = enable;                    // just flip the bit, current_position will be wrong until next move.
+          // UBL equivalents for apply/unapply_leveling
+          #if ENABLED(SKEW_CORRECTION)
+            float pos[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+            planner.skew(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS]);
+          #else
+            const float (&pos)[XYZE] = current_position;
+          #endif
+          if (planner.leveling_active) {
+            current_position[Z_AXIS] += ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS]);
+            planner.leveling_active = false;
+          }
+          else {
+            planner.leveling_active = true;
+            current_position[Z_AXIS] -= ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS]);
+          }
         #endif
 
       #else // ABL
@@ -9327,6 +9341,14 @@ inline void gcode_M221() {
     planner.flow_percentage[target_extruder] = parser.value_int();
     planner.refresh_e_factor(target_extruder);
   }
+  else {
+    SERIAL_ECHO_START();
+    SERIAL_CHAR('E');
+    SERIAL_CHAR('0' + target_extruder);
+    SERIAL_ECHOPAIR(" Flow: ", planner.flow_percentage[target_extruder]);
+    SERIAL_CHAR('%');
+    SERIAL_EOL();
+  }
 }
 
 /**
@@ -9904,6 +9926,7 @@ void quickstop_stepper() {
    * With AUTO_BED_LEVELING_UBL only:
    *
    *   L[index]  Load UBL mesh from index (0 is default)
+   *   T[map]    0:Human-readable 1:CSV 2:"LCD" 4:Compact
    */
   inline void gcode_M420() {
 
@@ -9942,7 +9965,7 @@ void quickstop_stepper() {
 
       // L to load a mesh from the EEPROM
       if (parser.seen('L') || parser.seen('V')) {
-        ubl.display_map(0);  // Currently only supports one map type
+        ubl.display_map(parser.byteval('T'));  // 0=
         SERIAL_ECHOLNPAIR("ubl.mesh_is_valid = ", ubl.mesh_is_valid());
         SERIAL_ECHOLNPAIR("ubl.storage_slot = ", ubl.storage_slot);
       }
@@ -10073,6 +10096,7 @@ void quickstop_stepper() {
    * Usage:
    *   M421 I<xindex> J<yindex> Z<linear>
    *   M421 I<xindex> J<yindex> Q<offset>
+   *   M421 I<xindex> J<yindex> N
    *   M421 C Z<linear>
    *   M421 C Q<offset>
    */
@@ -10081,6 +10105,7 @@ void quickstop_stepper() {
     const bool hasI = ix >= 0,
                hasJ = iy >= 0,
                hasC = parser.seen('C'),
+               hasN = parser.seen('N'),
                hasZ = parser.seen('Z'),
                hasQ = !hasZ && parser.seen('Q');
 
@@ -10090,7 +10115,7 @@ void quickstop_stepper() {
       iy = location.y_index;
     }
 
-    if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ)) {
+    if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ || hasN)) {
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
@@ -10099,7 +10124,7 @@ void quickstop_stepper() {
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
     else
-      ubl.z_values[ix][iy] = parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
+      ubl.z_values[ix][iy] = hasN ? NAN : parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
   }
 
 #endif // AUTO_BED_LEVELING_UBL
