@@ -9,11 +9,11 @@
 # License: GPL/BSD
 #####################################################################
 my_getpath () {
-  PARAM_DN="$1"
+  local PARAM_DN="$1"
   shift
   #readlink -f
-  DN="${PARAM_DN}"
-  FN=
+  local DN="${PARAM_DN}"
+  local FN=
   if [ ! -d "${DN}" ]; then
     FN=$(basename "${DN}")
     DN=$(dirname "${DN}")
@@ -47,10 +47,21 @@ if [ ! -x "${EXEC_BDF2U8G}" ]; then
   exit 1
 fi
 
-FN_NEWFONT="${DN_EXEC}/ISO10646-0-3.bdf"
+#FN_FONT="${1:-}"
+FN_FONT="${DN_EXEC}/marlin-6x12-3.bdf"
 if [ ! "$1" = "" ]; then
-  FN_NEWFONT="$1"
+  FN_FONT="$1"
 fi
+
+DN_FONT0=`dirname ${FN_FONT}`
+DN_FONT="$(my_getpath  ${DN_FONT0})"
+FN_FONT="$(my_getpath "${DN_FONT}")/"`basename ${FN_FONT}`
+[ -z "${FN_FONT}" ] && FN_FONT=${DN_DATA}/../${FN_FONT_BASE}.bdf
+[ -f "${FN_FONT}" ] || FN_FONT=${DN_EXEC}/${FN_FONT_BASE}.bdf
+[ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/wenquanyi/${FN_FONT_BASE}.bdf"
+[ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/X11/misc/${FN_FONT_BASE}.bdf"
+[ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/misc/${FN_FONT_BASE}.bdf"
+echo "genallfont.sh: FN_FONT=${FN_FONT}"
 
 DN_WORK=./tmp1
 
@@ -66,7 +77,7 @@ for LANG in ${MARLIN_LANGS:=$LANGS_DEFAULT} ; do
     cp Configuration.h    ${DN_WORK}/
     cp src/lcd/language/language_${LANG}.h ${DN_WORK}/
     cd ${DN_WORK}/
-    ${EXEC_WXGGEN} "${FN_NEWFONT}"
+    ${EXEC_WXGGEN} "${FN_FONT}"
     sed -e 's|fonts//|fonts/|g' -e 's|fonts//|fonts/|g' -e 's|[/0-9a-zA-Z_\-]*buildroot/share/fonts|buildroot/share/fonts|' -i fontutf8-data.h
     cd ../
     mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/language_data_${LANG}.h
@@ -81,8 +92,8 @@ if [ 1 = 1 ]; then
     rm -rf ${DN_WORK}/
     mkdir -p ${DN_WORK}
     cd ${DN_WORK}/
-    ${EXEC_BDF2U8G} -b 1 -e 127 ${FN_NEWFONT} ISO10646_1_5x7 tmp1.h
-    ${EXEC_BDF2U8G} -b 1 -e 255 ${FN_NEWFONT} ISO10646_1_5x7 tmp2.h
+    ${EXEC_BDF2U8G} -b 1 -e 127 ${FN_FONT} ISO10646_1_5x7 tmp1.h
+    ${EXEC_BDF2U8G} -b 1 -e 255 ${FN_FONT} ISO10646_1_5x7 tmp2.h
 
     cat << EOF >tmp3.h
 #include <U8glib.h>

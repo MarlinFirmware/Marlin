@@ -9,11 +9,12 @@
 # License: GPL/BSD
 #####################################################################
 my_getpath () {
-  PARAM_DN="$1"
+  local PARAM_DN="$1"
   shift
+
   #readlink -f
-  DN="${PARAM_DN}"
-  FN=
+  local DN="${PARAM_DN}"
+  local FN=
   if [ ! -d "${DN}" ]; then
     FN=$(basename "${DN}")
     DN=$(dirname "${DN}")
@@ -50,19 +51,22 @@ mkdir -p "${DN_DATA}"
 #####################################################################
 FONTHOME=/usr/share/fonts
 
-FN_FONT_BASE="ISO10646-0-1"
+FN_FONT_BASE="marlin-6x12-3"
 #FN_FONT_BASE=unifont
 #FN_FONT_BASE=wenquanyi_12pt
 #FN_FONT_BASE=wenquanyi_9pt
 
 FN_FONT="${1:-}"
+DN_FONT0=`dirname ${FN_FONT}`
+DN_FONT="$(my_getpath  ${DN_FONT0})"
+FN_FONT="$(my_getpath "${DN_FONT}")/"`basename ${FN_FONT}`
 [ -z "${FN_FONT}" ] && FN_FONT=${DN_DATA}/../${FN_FONT_BASE}.bdf
 [ -f "${FN_FONT}" ] || FN_FONT=${DN_EXEC}/${FN_FONT_BASE}.bdf
 [ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/wenquanyi/${FN_FONT_BASE}.bdf"
 [ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/X11/misc/${FN_FONT_BASE}.bdf"
-echo "FN_FONT=${FN_FONT}"
 [ -f "${FN_FONT}" ] || FN_FONT="$FONTHOME/misc/${FN_FONT_BASE}.bdf"
-echo "FN_FONT2=${FN_FONT}"
+echo "uxggenpages.sh: FN_FONT=${FN_FONT}"
+
 if [ ! -f "${FN_FONT}" ]; then
   FN_FONT_PCF="$FONTHOME/X11/misc/${FN_FONT_BASE}.pcf"
   [ -f "${FN_FONT_PCF}" ] || FN_FONT_PCF="$FONTHOME/misc/${FN_FONT_BASE}.pcf"
