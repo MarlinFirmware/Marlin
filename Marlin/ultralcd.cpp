@@ -168,10 +168,6 @@ uint16_t max_display_update_time = 0;
     #define TALL_FONT_CORRECTION 0
   #endif
 
-  #if HAS_POWER_SWITCH
-    extern bool powersupply_on;
-  #endif
-
   bool no_reentry = false;
   constexpr int8_t menu_bottom = LCD_HEIGHT - (TALL_FONT_CORRECTION);
 
