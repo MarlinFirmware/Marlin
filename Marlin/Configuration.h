@@ -124,7 +124,7 @@
 /**
  * Enable if you wish to change the auto level strategy to Unified Bed Leveling. Under CUSTOM COMMANDS, run Step 1 and 2 before setting Z Offset
  */
-//#define UBL
+#define UBL
 
 //ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
 //ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
@@ -840,6 +840,7 @@
 
 #define Z_HOMING_HEIGHT 4  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
+#define Z_PROBE_LOW_POINT          -3 // Farthest distance below the trigger-point to go before stopping
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
@@ -1050,12 +1051,12 @@
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
-  #define UBL_PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
-  #define UBL_PROBE_PT_1_Y 350
-  #define UBL_PROBE_PT_2_X 50
-  #define UBL_PROBE_PT_2_Y 50
-  #define UBL_PROBE_PT_3_X 350
-  #define UBL_PROBE_PT_3_Y 50
+  #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
+  #define PROBE_PT_1_Y 350
+  #define PROBE_PT_2_X 50
+  #define PROBE_PT_2_Y 50
+  #define PROBE_PT_3_X 350
+  #define PROBE_PT_3_Y 50
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
