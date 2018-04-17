@@ -359,6 +359,8 @@
   #include "pins_COHESION3D_REMIX.h"
 #elif MB(COHESION3D_MINI)
   #include "pins_COHESION3D_MINI.h"
+#elif MB(STM32F4)
+  #include "pins_STM32F4.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
