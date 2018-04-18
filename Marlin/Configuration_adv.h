@@ -748,18 +748,26 @@
 
 /* Uncomment G29_ADVANCED_RECOVERY_AND_RETRY to cause G29 to
  * repeat until it succeeds or until G29_MAX_RETRIES has been
- * reached. Optionally execute G29_RECOVER_COMMANDS between
- * each try. Run G29_SUCCESS_COMMANDS on success, or run
- * G29_FAILURE_COMMANDS on fail, halt if G29_HALT_ON_FAILURE
- * is enabled.
+ * reached.
  */
 #define G29_ADVANCED_RECOVERY_AND_RETRY
 #if ENABLED(G29_ADVANCED_RECOVERY_AND_RETRY)
   #define G29_MAX_RETRIES 3
   #define G29_HALT_ON_FAILURE
+  /**
+   * Specify the GCODE commands that will be executed when the bed leveling succeeds,
+   * in between attempts, and after the maximum number of retries have been tried.
+   */
   #define G29_SUCCESS_COMMANDS "M117 Bed leveling done."
   #define G29_RECOVER_COMMANDS "M117 Probe failed. Rewiping.\nG28\nG12 P0 S12 T0"
-  #define G29_FAILURE_COMMANDS "M117 Bed leveling failed.\nG0 Z10\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0"
+  #define G29_FAILURE_COMMANDS "M117 Bed leveling failed.\nG0 Z10\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nG4 S1"
+  /**
+   * Specify an action command to send to the host on a recovery attempt or failure.
+   * Will be sent in the form '//action:ACTION_ON_G29_FAILURE', e.g. '//action:probe_failed'.
+   * The host must be configured to handle the action command.
+   */
+  #define G29_ACTION_ON_RECOVER "probe_rewipe"
+  #define G29_ACTION_ON_FAILURE "probe_failed"
 #endif
 
 // @section extras

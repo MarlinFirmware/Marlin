@@ -5337,6 +5337,9 @@ void home_all_axes() { gcode_G28(true); }
     for(uint8_t i = 0; i < G29_MAX_RETRIES; i++) {
       gcode_G29();
       if(planner.leveling_active) break;
+      #if defined(G29_ACTION_ON_RECOVER)
+        SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_RECOVER);
+      #endif
       #if defined(G29_RECOVERY_COMMANDS)
         execute_commands_immediate_P(PSTR(G29_RECOVER_COMMANDS));
       #endif
@@ -5348,6 +5351,9 @@ void home_all_axes() { gcode_G28(true); }
     } else {
       #if defined(G29_FAILURE_COMMANDS)
         execute_commands_immediate_P(PSTR(G29_FAILURE_COMMANDS));
+      #endif
+      #if defined(G29_ACTION_ON_FAILURE)
+        SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_FAILURE);
       #endif
       #if ENABLED(G29_HALT_ON_FAILURE)
         kill(PSTR(MSG_ERR_PROBING_FAILED));

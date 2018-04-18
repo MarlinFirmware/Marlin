@@ -768,19 +768,6 @@
 // Warn on display about possibly reduced accuracy
 //#define DISABLE_REDUCED_ACCURACY_WARNING
 
-// Uncomment G29_RECOVER_AND_RETRY to cause G29 to repeat a probe
-// until it succeeds or until G29_RECOVERY_MAX_RETRIES has been
-// reached, optionally execute G29_RECOVERY_COMMANDS between each
-// retry attempt. Once all attempts have taken place, run
-// G29_RECOVERY_FAIL_COMMANDS and halt if G29_RECOVERY_HALT_ON_FAIL
-// is uncommented.
-
-//#define G29_RECOVER_AND_RETRY
-//#define G29_RECOVERY_MAX_RETRIES 3
-//#define G29_RECOVERY_COMMANDS "M117 Probe failed. Rewiping.\nG28\nG12 P0 S12 T0"
-//#define G29_RECOVERY_FAIL_COMMANDS "M300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nG0 Z10"
-//#define G29_RECOVERY_HALT_ON_FAIL
-
 // @section extruder
 
 #define DISABLE_E false // For all extruders
