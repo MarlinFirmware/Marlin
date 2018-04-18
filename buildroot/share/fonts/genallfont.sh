@@ -101,10 +101,7 @@ EOF
 
 #endif
 EOF
-    sed -e 's|#include "u8g.h"|#include <clib/u8g.h>|' -i tmp3.h
 
     cd ..
     mv ${DN_WORK}/tmp3.h src/lcd/dogm/dogm_font_data_ISO10646_1.h
 fi
-
-
