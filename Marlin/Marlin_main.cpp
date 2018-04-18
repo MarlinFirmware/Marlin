@@ -11921,7 +11921,17 @@ void process_parsed_command(
             for(uint8_t i = 0; i < G29_RECOVERY_MAX_RETRIES; i++) {
               gcode_G29();
               if(planner.leveling_active) break;
-              execute_commands_immediate_P(PSTR(G29_RECOVERY_COMMANDS));
+              #if defined(G29_RECOVERY_COMMANDS)
+                execute_commands_immediate_P(PSTR(G29_RECOVERY_COMMANDS));
+              #endif
+            }
+            if(!planner.leveling_active) {
+              #if defined(G29_RECOVERY_FAIL_COMMANDS)
+                execute_commands_immediate_P(PSTR(G29_FAIL_COMMANDS));
+              #endif
+              #if ENABLED(G29_RECOVERY_HALT_ON_FAIL)
+                kill(PSTR(MSG_ERR_PROBING_FAILED));
+              #endif
             }
           #else
             gcode_G29();
