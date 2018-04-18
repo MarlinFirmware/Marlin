@@ -783,6 +783,15 @@ void report_current_position_detail();
 #endif
 
 #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  /**
+   * Runs a series of commands, bypassing the command queue. This
+   * allows GCODE "macros" to be called from within other GCODE
+   * routines.
+   *
+   * NOTE: execute_commands_immediate_P() should only be called after the
+   *       parsing stage of a GCODE routine, as the state of the parser
+   *       object will be destroyed.
+   */
   void execute_commands_immediate_P(const char *pgcode) {
     char cmd[30];
     while(pgm_read_byte_near(pgcode) != '\0') {
@@ -794,7 +803,6 @@ void report_current_position_detail();
       if(delim) {
           pgcode++;
       }
-      SERIAL_ECHOLNPAIR("Executing: ", cmd);
       parser.parse(cmd);
       process_parsed_command(true);
     }
@@ -5322,6 +5330,31 @@ void home_all_axes() { gcode_G28(true); }
   }
 
 #endif // OLDSCHOOL_ABL
+
+#if HAS_LEVELING && ENABLED(G29_ADVANCED_RECOVERY_AND_RETRY)
+  void gcode_G29_with_retry() {
+    set_bed_leveling_enabled(false);
+    for(uint8_t i = 0; i < G29_MAX_RETRIES; i++) {
+      gcode_G29();
+      if(planner.leveling_active) break;
+      #if defined(G29_RECOVERY_COMMANDS)
+        execute_commands_immediate_P(PSTR(G29_RECOVER_COMMANDS));
+      #endif
+    }
+    if(planner.leveling_active) {
+      #if defined(G29_SUCCESS_COMMANDS)
+        execute_commands_immediate_P(PSTR(G29_SUCCESS_COMMANDS));
+      #endif
+    } else {
+      #if defined(G29_FAILURE_COMMANDS)
+        execute_commands_immediate_P(PSTR(G29_FAILURE_COMMANDS));
+      #endif
+      #if ENABLED(G29_HALT_ON_FAILURE)
+        kill(PSTR(MSG_ERR_PROBING_FAILED));
+      #endif
+    }
+  }
+#endif
 
 #if HAS_BED_PROBE
 
@@ -11916,23 +11949,8 @@ void process_parsed_command(
 
       #if HAS_LEVELING
         case 29:
-          #if ENABLED(G29_RECOVER_AND_RETRY)
-            set_bed_leveling_enabled(false);
-            for(uint8_t i = 0; i < G29_RECOVERY_MAX_RETRIES; i++) {
-              gcode_G29();
-              if(planner.leveling_active) break;
-              #if defined(G29_RECOVERY_COMMANDS)
-                execute_commands_immediate_P(PSTR(G29_RECOVERY_COMMANDS));
-              #endif
-            }
-            if(!planner.leveling_active) {
-              #if defined(G29_RECOVERY_FAIL_COMMANDS)
-                execute_commands_immediate_P(PSTR(G29_FAIL_COMMANDS));
-              #endif
-              #if ENABLED(G29_RECOVERY_HALT_ON_FAIL)
-                kill(PSTR(MSG_ERR_PROBING_FAILED));
-              #endif
-            }
+          #if ENABLED(G29_ADVANCED_RECOVERY_AND_RETRY)
+            gcode_G29_with_retry();
           #else
             gcode_G29();
           #endif

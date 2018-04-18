@@ -746,6 +746,22 @@
   //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
 #endif
 
+/* Uncomment G29_ADVANCED_RECOVERY_AND_RETRY to cause G29 to
+ * repeat until it succeeds or until G29_MAX_RETRIES has been
+ * reached. Optionally execute G29_RECOVER_COMMANDS between
+ * each try. Run G29_SUCCESS_COMMANDS on success, or run
+ * G29_FAILURE_COMMANDS on fail, halt if G29_HALT_ON_FAILURE
+ * is enabled.
+ */
+#define G29_ADVANCED_RECOVERY_AND_RETRY
+#if ENABLED(G29_ADVANCED_RECOVERY_AND_RETRY)
+  #define G29_MAX_RETRIES 3
+  #define G29_HALT_ON_FAILURE
+  #define G29_SUCCESS_COMMANDS "M117 Bed leveling done."
+  #define G29_RECOVER_COMMANDS "M117 Probe failed. Rewiping.\nG28\nG12 P0 S12 T0"
+  #define G29_FAILURE_COMMANDS "M117 Bed leveling failed.\nG0 Z10\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0\nM300 P25 S880\nM300 P50 S0"
+#endif
+
 // @section extras
 
 //
