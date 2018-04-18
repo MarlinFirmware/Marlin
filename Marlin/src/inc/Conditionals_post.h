@@ -1448,4 +1448,8 @@
 // If platform requires early initialization of watchdog to properly boot
 #define EARLY_WATCHDOG (ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM))
 
+#if ENABLED(G29_RETRY_AND_RECOVER)
+  #define USE_EXECUTE_COMMANDS_IMMEDIATE
+#endif
+
 #endif // CONDITIONALS_POST_H
