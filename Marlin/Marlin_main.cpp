@@ -736,7 +736,11 @@ void stop();
 
 void get_available_commands();
 void process_next_command();
+#if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+void process_parsed_command(bool no_ok = false);
+#else
 void process_parsed_command();
+#endif
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -776,6 +780,25 @@ void report_current_position_detail();
 
   #define DEBUG_POS(SUFFIX,VAR) do { \
     print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
+#endif
+
+#if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  void execute_commands_immediate_P(const char *pgcode) {
+    char cmd[30];
+    while(pgm_read_byte_near(pgcode) != '\0') {
+      const char *delim = strchr_P(pgcode, '\n');
+      size_t len = delim ? delim - pgcode : strlen_P(pgcode);
+      strncpy_P(cmd, pgcode, len);
+      cmd[len] = '\0';
+      pgcode += len;
+      if(delim) {
+          pgcode++;
+      }
+      SERIAL_ECHOLNPAIR("Executing: ", cmd);
+      parser.parse(cmd);
+      process_parsed_command(true);
+    }
+  }
 #endif
 
 /**
@@ -5613,7 +5636,7 @@ void home_all_axes() { gcode_G28(true); }
 
   /**
    * kinematics routines and auto tune matrix scaling parameters:
-   * see https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation for  
+   * see https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation for
    *  - formulae for approximative forward kinematics in the end-stop displacement matrix
    *  - definition of the matrix scaling parameters
    */
@@ -5627,7 +5650,7 @@ void home_all_axes() { gcode_G28(true); }
       pos[Y_AXIS] = sin(a) * r;
       pos[Z_AXIS] = z_pt[rad];
       inverse_kinematics(pos);
-      LOOP_XYZ(axis) mm_at_pt_axis[rad][axis] = delta[axis];           
+      LOOP_XYZ(axis) mm_at_pt_axis[rad][axis] = delta[axis];
     }
   }
 
@@ -5691,7 +5714,7 @@ void home_all_axes() { gcode_G28(true); }
           delta_t[ABC] = {0.0};
 
     delta_r = diff;
-    calc_kinematics_diff_probe_points(z_pt, delta_e, delta_r, delta_t);     
+    calc_kinematics_diff_probe_points(z_pt, delta_e, delta_r, delta_t);
     r_fac = -(z_pt[__A] + z_pt[__B] + z_pt[__C] + z_pt[_BC] + z_pt[_CA] + z_pt[_AB]) / 6.0;
     r_fac = diff / r_fac / 3.0; // 1/(3*delta_Z)
     return r_fac;
@@ -5708,7 +5731,7 @@ void home_all_axes() { gcode_G28(true); }
     LOOP_XYZ(axis) {
       LOOP_XYZ(axis_2) delta_t[axis_2] = 0.0;
       delta_t[axis] = diff;
-      calc_kinematics_diff_probe_points(z_pt, delta_e, delta_r, delta_t);     
+      calc_kinematics_diff_probe_points(z_pt, delta_e, delta_r, delta_t);
       a_fac += z_pt[uint8_t((axis * _4P_STEP) - _7P_STEP + NPP) % NPP + 1] / 6.0;
       a_fac -= z_pt[uint8_t((axis * _4P_STEP) + 1 + _7P_STEP)] / 6.0;
     }
@@ -5890,7 +5913,7 @@ void home_all_axes() { gcode_G28(true); }
 
         /**
          * convergence matrices:
-         * see https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation for  
+         * see https://github.com/LVD-AC/Marlin-AC/tree/1.1.x-AC/documentation for
          *  - definition of the matrix scaling parameters
          *  - matrices for 4 and 7 point calibration
          */
@@ -5956,7 +5979,7 @@ void home_all_axes() { gcode_G28(true); }
         delta_radius += r_delta;
         LOOP_XYZ(axis) delta_tower_angle_trim[axis] += t_delta[axis];
       }
-      else if (zero_std_dev >= test_precision) {   
+      else if (zero_std_dev >= test_precision) {
         // roll back
         COPY(delta_endstop_adj, e_old);
         delta_radius = r_old;
@@ -5982,7 +6005,7 @@ void home_all_axes() { gcode_G28(true); }
       NOMORE(zero_std_dev_min, zero_std_dev);
 
       // print report
-  
+
       if (verbose_level == 3)
         print_calibration_results(z_at_pt, _tower_results, _opposite_results);
 
@@ -11834,7 +11857,11 @@ inline void gcode_T(const uint8_t tmp_extruder) {
 /**
  * Process the parsed command and dispatch it to its handler
  */
-void process_parsed_command() {
+void process_parsed_command(
+  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+   bool no_ok
+  #endif
+) {
   KEEPALIVE_STATE(IN_HANDLER);
 
   // Handle a known G, M, or T
@@ -11888,7 +11915,18 @@ void process_parsed_command() {
       case 28: gcode_G28(false); break;                           // G28: Home one or more axes
 
       #if HAS_LEVELING
-        case 29: gcode_G29(); break;                              // G29: Detailed Z probe
+        case 29:
+          #if ENABLED(G29_RECOVER_AND_RETRY)
+            set_bed_leveling_enabled(false);
+            for(uint8_t i = 0; i < G29_RECOVERY_MAX_RETRIES; i++) {
+              gcode_G29();
+              if(planner.leveling_active) break;
+              execute_commands_immediate_P(PSTR(G29_RECOVERY_COMMANDS));
+            }
+          #else
+            gcode_G29();
+          #endif
+          break;                              // G29: Detailed Z probe
       #endif
 
       #if HAS_BED_PROBE
@@ -12290,6 +12328,10 @@ void process_parsed_command() {
   }
 
   KEEPALIVE_STATE(NOT_BUSY);
+
+  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  if(!no_ok)
+  #endif
   ok_to_send();
 }
 
