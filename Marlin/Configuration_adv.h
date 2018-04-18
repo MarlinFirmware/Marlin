@@ -750,7 +750,7 @@
  * repeat until it succeeds or until G29_MAX_RETRIES has been
  * reached.
  */
-#define G29_ADVANCED_RECOVERY_AND_RETRY
+//#define G29_ADVANCED_RECOVERY_AND_RETRY
 #if ENABLED(G29_ADVANCED_RECOVERY_AND_RETRY)
   #define G29_MAX_RETRIES 3
   #define G29_HALT_ON_FAILURE
