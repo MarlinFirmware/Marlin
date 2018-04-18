@@ -473,7 +473,7 @@ void GcodeSuite::G29() {
         enable_soft_endstops = soft_endstops_enabled;
       #endif
       // Move close to the bed before the first point
-      do_blocking_move_to_z(Z_MIN_POS);
+      do_blocking_move_to_z(0);
     }
     else {
 
