@@ -9,11 +9,7 @@
   ******************************************************************************
   * @attention
   *
-<<<<<<< HEAD
   * <h2><center>&copy; Copyright � 2016 STMicroelectronics International N.V.
-=======
-  * <h2><center>&copy; Copyright � 2016 STMicroelectronics International N.V.
->>>>>>> bugfix-2.0.x-stm32f4hal
   * All rights reserved.</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without

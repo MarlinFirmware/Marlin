@@ -21,8 +21,6 @@
  *
  */
 
-
-
 #ifndef _ENDSTOP_INTERRUPTS_H_
 #define _ENDSTOP_INTERRUPTS_H_
 

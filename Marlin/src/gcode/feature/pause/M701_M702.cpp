@@ -85,7 +85,7 @@ void GcodeSuite::M701() {
 
   // Restore Z axis
   if (park_point.z > 0)
-    do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, Z_MIN_POS), NOZZLE_PARK_Z_FEEDRATE);
+    do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
   #if EXTRUDERS > 1
     // Restore toolhead if it was changed
@@ -158,7 +158,7 @@ void GcodeSuite::M702() {
 
   // Restore Z axis
   if (park_point.z > 0)
-    do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, Z_MIN_POS), NOZZLE_PARK_Z_FEEDRATE);
+    do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
   #if EXTRUDERS > 1
     // Restore toolhead if it was changed

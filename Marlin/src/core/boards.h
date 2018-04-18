@@ -210,7 +210,6 @@
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
 #define BOARD_ARMED            1805   // STM32F407 based controller (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1, Fan2)
 
-
 //
 // ARM Cortex M7
 //

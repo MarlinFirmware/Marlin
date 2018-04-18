@@ -24,7 +24,7 @@
 #ifndef HAL_SERVO_STM32F4_H
 #define HAL_SERVO_STM32F4_H
 
-#include <../../libraries/Servo/src/Servo.h>
+#include <Servo.h>
 
 // Inherit and expand on the official library
 class libServo : public Servo {

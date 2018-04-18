@@ -87,16 +87,18 @@ void Power::check() {
 
 void Power::power_on() {
   lastPowerOn = millis();
-  PSU_PIN_ON();
+  if (!powersupply_on) {
+    PSU_PIN_ON();
 
-  #if HAS_TRINAMIC
-    delay(100); // Wait for power to settle
-    restore_stepper_drivers();
-  #endif
+    #if HAS_TRINAMIC
+      delay(100); // Wait for power to settle
+      restore_stepper_drivers();
+    #endif
+  }
 }
 
 void Power::power_off() {
-  PSU_PIN_OFF();
+  if (powersupply_on) PSU_PIN_OFF();
 }
 
 #endif // AUTO_POWER_CONTROL
