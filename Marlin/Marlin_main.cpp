@@ -4273,7 +4273,7 @@ void home_all_axes() { gcode_G28(true); }
             enable_soft_endstops = soft_endstops_enabled;
           #endif
           // Move close to the bed before the first point
-          do_blocking_move_to_z(Z_MIN_POS);
+          do_blocking_move_to_z(0);
         }
         else {
           // For G29 S2 after adjusting Z.
@@ -4295,7 +4295,7 @@ void home_all_axes() { gcode_G28(true); }
         }
         else {
           // One last "return to the bed" (as originally coded) at completion
-          current_position[Z_AXIS] = Z_MIN_POS + MANUAL_PROBE_HEIGHT;
+          current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
           buffer_line_to_current_position();
           stepper.synchronize();
 
@@ -4309,7 +4309,7 @@ void home_all_axes() { gcode_G28(true); }
           set_bed_leveling_enabled(true);
 
           #if ENABLED(MESH_G28_REST_ORIGIN)
-            current_position[Z_AXIS] = Z_MIN_POS;
+            current_position[Z_AXIS] = 0;
             set_destination_from_current();
             buffer_line_to_destination(homing_feedrate(Z_AXIS));
             stepper.synchronize();
@@ -4808,7 +4808,7 @@ void home_all_axes() { gcode_G28(true); }
           enable_soft_endstops = soft_endstops_enabled;
         #endif
         // Move close to the bed before the first point
-        do_blocking_move_to_z(Z_MIN_POS);
+        do_blocking_move_to_z(0);
       }
       else {
 
@@ -10566,7 +10566,7 @@ inline void gcode_M502() {
 
     // Restore Z axis
     if (park_point.z > 0)
-      do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, Z_MIN_POS), NOZZLE_PARK_Z_FEEDRATE);
+      do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
     #if EXTRUDERS > 1
       // Restore toolhead if it was changed
@@ -10639,7 +10639,7 @@ inline void gcode_M502() {
 
     // Restore Z axis
     if (park_point.z > 0)
-      do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, Z_MIN_POS), NOZZLE_PARK_Z_FEEDRATE);
+      do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
     #if EXTRUDERS > 1
       // Restore toolhead if it was changed
