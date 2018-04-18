@@ -99,13 +99,13 @@ if [ 1 = 1 ]; then
 #include <U8glib.h>
 
 #if defined(__AVR__) && ENABLED(NOT_EXTENDED_ISO10646_1_5X7)
-  // reduced font (only sysmbols 1 - 127) - saves about 1278 bytes of FLASH
+  // reduced font (only symbols 1 - 127) - saves about 1278 bytes of FLASH
 
 EOF
     cat tmp1.h >>tmp3.h
     cat << EOF >>tmp3.h
 #else
-  // extended (original) font (sysmbols 1 - 255)
+  // extended (original) font (symbols 1 - 255)
 EOF
     cat tmp2.h >>tmp3.h
     cat << EOF >>tmp3.h

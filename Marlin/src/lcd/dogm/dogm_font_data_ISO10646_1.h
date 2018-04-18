@@ -22,7 +22,7 @@
 #include <U8glib.h>
 
 #if defined(__AVR__) && ENABLED(NOT_EXTENDED_ISO10646_1_5X7)
-  // reduced font (only sysmbols 1 - 127) - saves about 1278 bytes of FLASH
+  // reduced font (only symbols 1 - 127) - saves about 1278 bytes of FLASH
 
 /*
   Fontname: -Marlin6x12-Fixed-Medium-R-SemiCondensed--12-110-75-75-C-60-ISO10646-1
@@ -35,7 +35,7 @@
   X Font      ascent = 8 descent=-2
   Max Font    ascent = 8 descent=-2
 */
-#include <clib/u8g.h>
+
 const u8g_fntpgm_uint8_t ISO10646_1_5x7[1328] U8G_FONT_SECTION("ISO10646_1_5x7") = {
   0x00,0x06,0x0c,0x00,0xfe,0x07,0x02,0x29,0x03,0xbf,0x01,0x7f,0xfe,0x08,0xfe,0x08,
   0xfe,0x05,0x08,0x08,0x06,0x00,0x00,0x40,0xf0,0xc8,0x88,0x88,0x98,0x78,0x10,0x05,
@@ -122,7 +122,8 @@ const u8g_fntpgm_uint8_t ISO10646_1_5x7[1328] U8G_FONT_SECTION("ISO10646_1_5x7")
   0x40,0x20,0x40,0x40,0x40,0x80,0x05,0x03,0x03,0x06,0x00,0x02,0x48,0xa8,0x90,0xff
   };
 #else
-  // extended (original) font (sysmbols 1 - 255)
+  // extended (original) font (symbols 1 - 255)
+
 /*
   Fontname: -Marlin6x12-Fixed-Medium-R-SemiCondensed--12-110-75-75-C-60-ISO10646-1
   Copyright: Public domain terminal emulator font.  Share and enjoy. original font -Misc-Fixed-Medium-R-SemiCondensed--12-110-75-75-C-60-ISO10646-1
@@ -134,7 +135,6 @@ const u8g_fntpgm_uint8_t ISO10646_1_5x7[1328] U8G_FONT_SECTION("ISO10646_1_5x7")
   X Font      ascent = 8 descent=-2
   Max Font    ascent =10 descent=-2
 */
-#include <clib/u8g.h>
 const u8g_fntpgm_uint8_t ISO10646_1_5x7[2651] U8G_FONT_SECTION("ISO10646_1_5x7") = {
   0x00,0x06,0x0c,0x00,0xfe,0x07,0x02,0x29,0x03,0xbf,0x01,0xff,0xfe,0x0a,0xfe,0x08,
   0xfe,0x05,0x08,0x08,0x06,0x00,0x00,0x40,0xf0,0xc8,0x88,0x88,0x98,0x78,0x10,0x05,
