@@ -44,8 +44,11 @@
                                     // stock controller is a RepRap Discount Smart Controller)
 //#define Z_DUAL_STEPPER_DRIVERS    // Enable this if you have dual Z stepper motors with the second stepper motor
                                     // connected to the next available E plug (usually E1)
-#define MOTHERBOARD BOARD_MKS_13    // Original controller board with built in stepper drivers. Works with MKS BASE 1.3, 1.4, 1.5 and 1.6
-//#define MOTHERBOARD BOARD_MKS_GEN_L // Newer controller board with replacable stepper drivers
+
+#define MOTHERBOARD BOARD_MKS_GEN_13        // Original controller board with built in stepper drivers. Works with MKS BASE 1.3, 1.4
+//#define MOTHERBOARD BOARD_MKS_BASE_15       // MKS v1.5 with Allegro A4982 stepper drivers
+//#define MOTHERBOARD BOARD_MKS_BASE_HEROIC   // MKS BASE 1.0 with Heroic HR4982 stepper drivers
+//#define MOTHERBOARD BOARD_MKS_GEN_L         // Newer controller board with replacable stepper drivers
 
 /**
  * Offset from endpoints to get nozzle to 0,0 (front/left of bed)
@@ -359,7 +362,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_MKS_13
+  #define MOTHERBOARD BOARD_MKS_GEN_13
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
