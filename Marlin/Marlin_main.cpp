@@ -8783,6 +8783,13 @@ inline void gcode_M115() {
       #endif
     );
 
+    // Thermal Protection capability
+    #if ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(THERMAL_PROTECTION_BED)
+    cap_line(PSTR("THERMAL_PROTECTION"), true);
+    #else
+    cap_line(PSTR("THERMAL_PROTECTION"), false);
+    #endif
+
   #endif // EXTENDED_CAPABILITIES_REPORT
 }
 
