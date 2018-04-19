@@ -34,7 +34,12 @@
 #ifndef LANGUAGE_SK_UTF_H
 #define LANGUAGE_SK_UTF_H
 
-#define MAPPER_C3C4C5_SK
+// Put characters here that should be displayed with M117
+//_UxGT("aäAÄaáAÁeéEÉiíIÍlĺLĹ")
+//_UxGT("oóOÓoôOÔrŕRŔuúUÚyýYÝ")
+//_UxGT("cčCČdďDĎlľLĽnňNŇsšSŠ")
+//_UxGT("tťTŤzžZŽ")
+
 #define DISPLAY_CHARSET_ISO10646_SK
 #define CHARSIZE 2
 

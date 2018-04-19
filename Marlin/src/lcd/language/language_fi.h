@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_FI_H
 #define LANGUAGE_FI_H
 
-#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 

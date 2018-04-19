@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_IT_H
 #define LANGUAGE_IT_H
 
-#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")

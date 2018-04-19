@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_EL_H
 #define LANGUAGE_EL_H
 
-#define MAPPER_CECF
 #define DISPLAY_CHARSET_ISO10646_GREEK
 #define CHARSIZE 2
 
