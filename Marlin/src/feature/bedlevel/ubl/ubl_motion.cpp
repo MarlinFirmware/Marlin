@@ -347,7 +347,7 @@
         xi_cnt--;
       }
 
-      //if (xi_cnt < 0 || yi_cnt < 0) break; // Too far! Exit the loop and go to FINAL_MOVE
+      if (xi_cnt < 0 || yi_cnt < 0) break; // Too far! Exit the loop and go to FINAL_MOVE
     }
 
     if (g26_debug_flag)
