@@ -272,6 +272,11 @@
   #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH. Please update your configuration."
 #endif
 
+#define BOARD_MKS_13 -47
+#if MB(MKS_13)
+  #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
+#endif
+
 /**
  * Marlin release, version and default string
  */
