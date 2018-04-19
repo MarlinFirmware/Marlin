@@ -87,7 +87,6 @@
 #define FONT_SPECIAL_NAME ISO10646_1_5x7
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
-#define TALL_FONT_CORRECTION 1
 
 #include "dogm/dogm_font_data_ISO10646_1.h"
 #define FONT_MENU_NAME ISO10646_1_5x7

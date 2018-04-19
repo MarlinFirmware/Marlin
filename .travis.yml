@@ -53,13 +53,6 @@ script:
   - restore_configs
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # find U8glib files
-  - sudo find / -iname u8g.h
-  - sudo find / -iname U8glib.h
-  # expose the C API
-  #- sudo cp -f ${TRAVIS_BUILD_DIR}/.piolibdeps/U8glib-HAL_ID1932/src/lib/u8g.h ${TRAVIS_BUILD_DIR}/.piolibdeps/U8glib-HAL_ID1932/src/u8g.h
-  #
-  #
   # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
   # Test a "Fix Mounted" Probe with Safe Homing, some arc options,
   # linear bed leveling, M48, leveling debug, and firmware retraction.

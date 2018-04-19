@@ -1,47 +1,32 @@
---- tools/font/bdf2u8g/bdf2u8g.c	2017-04-08 01:04:48.000000000 -0400
-+++ tools/font/bdf2u8g/bdf2u8g.c	2018-02-24 17:24:26.368926703 -0500
-@@ -175,9 +175,9 @@
-   for( i = 0; i < data_pos; i++ )
-   {
- #ifdef BDF2U8G_COMPACT_OUTPUT
--    fprintf(out_fp, "%d", data_buf[i]);
-+    fprintf(out_fp, "0x%02x", data_buf[i]);
- #else
--    fprintf(out_fp, "%3d", data_buf[i]);
-+    fprintf(out_fp, "0x%02x", data_buf[i]);
- #endif
-     if ( i+1 != data_pos )
-       fprintf(out_fp, ",");
-@@ -484,7 +484,8 @@
- int bdf_char_max_y;
- int bdf_char_min_y;
- 
--int bdf_delta_x;           /* DWIDTH arg 1 */
-+int bdf_delta_x_default = -1;
-+int bdf_delta_x = -1;           /* DWIDTH arg 1 */
- int bdf_delta_max_x;
- int bdf_delta_min_x;
- int bdf_delta_y;           /* DWIDTH arg 2 */
-@@ -1095,6 +1096,22 @@
-       bdf_char_ascent = bdf_char_height + bdf_char_y;
-       //printf("h:%d w:%d ascent: %d\n", bdf_char_height, bdf_char_width, bdf_char_ascent);
-     }
-+    else if ( strcmp(p_buf, "CHARS") == 0 )
-+    {
-+        if (bdf_delta_x < 0) {
-+            bdf_delta_x = 0;
-+        }
-+        if (bdf_delta_x_default < 0) {
-+            bdf_delta_x_default = bdf_delta_x;
-+        }
-+    }
-+    else if ( strcmp(p_buf, "STARTCHAR") == 0 )
-+    {
-+        if (bdf_delta_x_default < 0) {
-+            bdf_delta_x_default = 0;
-+        }
-+        bdf_delta_x = bdf_delta_x_default;
-+    }
-     else if ( strcmp(p_buf, "BITMAP") == 0 )
-     {
-       bdf_line_state = BDF_LINE_STATE_BITMAP;
+178c178
+<     fprintf(out_fp, "%d", data_buf[i]);
+---
+>     fprintf(out_fp, "0x%02x", data_buf[i]);
+180c180
+<     fprintf(out_fp, "%3d", data_buf[i]);
+---
+>     fprintf(out_fp, "0x%02x", data_buf[i]);
+487c487,488
+< int bdf_delta_x;           /* DWIDTH arg 1 */
+---
+> int bdf_delta_x_default = -1;
+> int bdf_delta_x = -1;           /* DWIDTH arg 1 */
+1097a1099,1114
+>     else if ( strcmp(p_buf, "CHARS") == 0 )
+>     {
+>         if (bdf_delta_x < 0) {
+>             bdf_delta_x = 0;
+>         }
+>         if (bdf_delta_x_default < 0) {
+>             bdf_delta_x_default = bdf_delta_x;
+>         }
+>     }
+>     else if ( strcmp(p_buf, "STARTCHAR") == 0 )
+>     {
+>         if (bdf_delta_x_default < 0) {
+>             bdf_delta_x_default = 0;
+>         }
+>         bdf_delta_x = bdf_delta_x_default;
+>     }
+1293d1309
+<   fprintf(out_fp, "#include \"u8g.h\"\n");  
