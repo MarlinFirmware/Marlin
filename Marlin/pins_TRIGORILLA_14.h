@@ -21,18 +21,18 @@
  */
 
 /**
- * Arduino Mega with RAMPS v1.3 for Anycubic
+ * Arduino Mega with RAMPS v1.4 for Anycubic
  */
 
 #ifndef BOARD_NAME
-  #define BOARD_NAME "Anycubic RAMPS 1.3"
+  #define BOARD_NAME "Anycubic RAMPS 1.4"
 #endif
 
 #define IS_RAMPS_EFB
-#define RAMPS_D9_PIN       44
-#define ORIG_E0_AUTO_FAN_PIN RAMPS_D9_PIN
 
 #include "pins_RAMPS_13.h"
+
+#define FAN2_PIN           44
 
 #undef E1_STEP_PIN
 #undef E1_DIR_PIN
