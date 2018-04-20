@@ -61,6 +61,11 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
   float GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
 #endif
 
+#if HAS_LEVELING && ENABLED(G29_RETRY_AND_RECOVER)
+  #include "../feature/bedlevel/bedlevel.h"
+  #include "../module/planner.h"
+#endif
+
 /**
  * Set target_extruder from the T parameter or the active_extruder
  *
@@ -125,6 +130,44 @@ void GcodeSuite::dwell(millis_t time) {
   while (PENDING(millis(), time)) idle();
 }
 
+/**
+ * When G29_RETRY_AND_RECOVER is enabled, call G29() in
+ * a loop with recovery and retry handling.
+ */
+#if HAS_LEVELING && ENABLED(G29_RETRY_AND_RECOVER)
+
+  void GcodeSuite::G29_with_retry() {
+    set_bed_leveling_enabled(false);
+    for (uint8_t i = G29_MAX_RETRIES; i--;) {
+      G29();
+      if (planner.leveling_active) break;
+      #ifdef G29_ACTION_ON_RECOVER
+        SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_RECOVER);
+      #endif
+      #ifdef G29_RECOVERY_COMMANDS
+        process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+      #endif
+    }
+    if (planner.leveling_active) {
+      #ifdef G29_SUCCESS_COMMANDS
+        process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
+      #endif
+    }
+    else {
+      #ifdef G29_FAILURE_COMMANDS
+        process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+      #endif
+      #ifdef G29_ACTION_ON_FAILURE
+        SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_FAILURE);
+      #endif
+      #if ENABLED(G29_HALT_ON_FAILURE)
+        kill(PSTR(MSG_ERR_PROBING_FAILED));
+      #endif
+    }
+  }
+
+#endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
+
 //
 // Placeholders for non-migrated codes
 //
@@ -135,7 +178,11 @@ void GcodeSuite::dwell(millis_t time) {
 /**
  * Process the parsed command and dispatch it to its handler
  */
-void GcodeSuite::process_parsed_command() {
+void GcodeSuite::process_parsed_command(
+  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+    const bool no_ok
+  #endif
+) {
   KEEPALIVE_STATE(IN_HANDLER);
 
   // Handle a known G, M, or T
@@ -190,8 +237,14 @@ void GcodeSuite::process_parsed_command() {
       case 28: G28(false); break;                                 // G28: Home all axes, one at a time
 
       #if HAS_LEVELING
-        case 29: G29(); break;                                    // G29: Bed leveling calibration
-      #endif
+        case 29:                                                  // G29: Bed leveling calibration
+          #if ENABLED(G29_RETRY_AND_RECOVER)
+            G29_with_retry();
+          #else
+            G29();
+          #endif
+          break;
+      #endif // HAS_LEVELING
 
       #if HAS_BED_PROBE
         case 30: G30(); break;                                    // G30: Single Z probe
@@ -612,7 +665,10 @@ void GcodeSuite::process_parsed_command() {
 
   KEEPALIVE_STATE(NOT_BUSY);
 
-  ok_to_send();
+  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+    if (!no_ok)
+  #endif
+      ok_to_send();
 }
 
 /**
@@ -637,6 +693,37 @@ void GcodeSuite::process_next_command() {
   parser.parse(current_command);
   process_parsed_command();
 }
+
+#if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  /**
+   * Run a series of commands, bypassing the command queue to allow
+   * G-code "macros" to be called from within other G-code handlers.
+   */
+  void GcodeSuite::process_subcommands_now_P(const char *pgcode) {
+    // Save the parser state
+    char saved_cmd[strlen(parser.command_ptr) + 1];
+    strcpy(saved_cmd, parser.command_ptr);
+
+    // Process individual commands in string
+    while (pgm_read_byte_near(pgcode)) {
+      // Break up string at '\n' delimiters
+      const char *delim = strchr_P(pgcode, '\n');
+      size_t len = delim ? delim - pgcode : strlen_P(pgcode);
+      char cmd[len + 1];
+      strncpy_P(cmd, pgcode, len);
+      cmd[len] = '\0';
+      pgcode += len;
+      if (delim) pgcode++;
+
+      // Parse the next command in the string
+      parser.parse(cmd);
+      process_parsed_command(true);
+    }
+
+    // Restore the parser state
+    parser.parse(saved_cmd);
+  }
+#endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
