@@ -90,8 +90,11 @@ void GcodeSuite::G29() {
     case MeshStart:
       mbl.reset();
       mbl_probe_index = 0;
-      enqueue_and_echo_commands_P(lcd_wait_for_move ? PSTR("G29 S2") : PSTR("G28\nG29 S2"));
-      break;
+      if (!lcd_wait_for_move) {
+        enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+        return;
+      }
+      state = MeshNext;
 
     case MeshNext:
       if (mbl_probe_index < 0) {
@@ -108,7 +111,7 @@ void GcodeSuite::G29() {
         do_blocking_move_to_z(0);
       }
       else {
-        // For G29 S2 after adjusting Z.
+        // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
         #if HAS_SOFTWARE_ENDSTOPS
           soft_endstops_enabled = enable_soft_endstops;
@@ -201,7 +204,7 @@ void GcodeSuite::G29() {
 
   } // switch(state)
 
-  if (state == MeshStart || state == MeshNext) {
+  if (state == MeshNext) {
     SERIAL_PROTOCOLPAIR("MBL G29 point ", min(mbl_probe_index, GRID_MAX_POINTS));
     SERIAL_PROTOCOLLNPAIR(" of ", int(GRID_MAX_POINTS));
   }
