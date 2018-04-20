@@ -205,8 +205,6 @@
   #include "pins_MELZI_CREALITY.h"    // ATmega644P, ATmega1284P
 #elif MB(MELZI_MALYAN)
   #include "pins_MELZI_MALYAN.h"      // ATmega644P, ATmega1284P
-#elif MB(CREALITY_ENDER)
-  #include "pins_CREALITY_ENDER.h"    // ATmega1284P
 #elif MB(MELZI_TRONXY)
   #include "pins_MELZI_TRONXY.h"      // ATmega644P, ATmega1284P
 #elif MB(STB_11)
