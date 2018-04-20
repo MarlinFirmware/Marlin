@@ -124,6 +124,7 @@
 #define BOARD_MELZI_TRONXY      505   // Tronxy X5S
 #define BOARD_STB_11            64    // STB V1.1
 #define BOARD_AZTEEG_X1         65    // Azteeg X1
+#define BOARD_ANET_10           69    // Anet 1.0 (Melzi clone)
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
@@ -140,7 +141,6 @@
 #define BOARD_OMCA_A            90    // Alpha OMCA board
 #define BOARD_OMCA              91    // Final OMCA board
 #define BOARD_SETHI             20    // Sethi 3D_1
-#define BOARD_ANET_10           69    // Anet 1.0 (Melzi clone)
 
 //
 // Teensyduino - AT90USB1286, AT90USB1286P
