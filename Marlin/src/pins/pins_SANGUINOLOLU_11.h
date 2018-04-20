@@ -114,7 +114,7 @@
 
 #endif
 
-#if MB(AZTEEG_X1) || MB(STB_11) || MB(CREALITY_ENDER) || ENABLED(IS_MELZI)
+#if MB(AZTEEG_X1) || MB(STB_11) || ENABLED(IS_MELZI)
   #define FAN_PIN           4   // Works for Panelolu2 too
 #endif
 
@@ -187,7 +187,7 @@
         #define DOGLCD_CS       17
         #define LCD_BACKLIGHT_PIN 28   // PA3
 
-      #elif MB(CREALITY_ENDER)
+      #elif ENABLED(IS_MELZI)
 
         #define BEEPER_PIN      27
         #define DOGLCD_CS       28
