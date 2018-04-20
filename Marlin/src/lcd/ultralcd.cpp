@@ -1719,7 +1719,7 @@ void kill_screen(const char* lcd_msg) {
 
     void lcd_enqueue_commands_P(const char * const cmd) {
       no_reentry = true;
-      enqueue_and_echo_commands_P_now(cmd);
+      enqueue_and_echo_commands_now_P(cmd);
       no_reentry = false;
     }
 
