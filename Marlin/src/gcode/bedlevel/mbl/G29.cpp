@@ -104,6 +104,8 @@ void GcodeSuite::G29() {
           // For the initial G29 S2 save software endstop state
           enable_soft_endstops = soft_endstops_enabled;
         #endif
+        // Move close to the bed before the first point
+        do_blocking_move_to_z(0);
       }
       else {
         // For G29 S2 after adjusting Z.
@@ -114,20 +116,18 @@ void GcodeSuite::G29() {
       }
       // If there's another point to sample, move there with optional lift.
       if (mbl_probe_index < GRID_MAX_POINTS) {
-        mbl.zigzag(mbl_probe_index, px, py);
-        _manual_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
-
         #if HAS_SOFTWARE_ENDSTOPS
           // Disable software endstops to allow manual adjustment
           // If G29 is not completed, they will not be re-enabled
           soft_endstops_enabled = false;
         #endif
 
-        mbl_probe_index++;
+        mbl.zigzag(mbl_probe_index++, px, py);
+        _manual_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
-        current_position[Z_AXIS] = Z_MIN_POS + MANUAL_PROBE_HEIGHT;
+        current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
         line_to_current_position();
         stepper.synchronize();
 
@@ -141,7 +141,7 @@ void GcodeSuite::G29() {
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
-          current_position[Z_AXIS] = Z_MIN_POS;
+          current_position[Z_AXIS] = 0;
           set_destination_from_current();
           buffer_line_to_destination(homing_feedrate(Z_AXIS));
           stepper.synchronize();

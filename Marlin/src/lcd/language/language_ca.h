@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_CA_H
 #define LANGUAGE_CA_H
 
-#define MAPPER_C2C3  // because of "ó"
-#define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" preparada.")

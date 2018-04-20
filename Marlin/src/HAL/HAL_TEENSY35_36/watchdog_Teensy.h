@@ -23,7 +23,7 @@
 #ifndef WATCHDOG_TEENSY_H
 #define WATCHDOG_TEENSY_H
 
-#include "../HAL.h"
+#include "HAL.h"
 
 // Arduino Due core now has watchdog support
 

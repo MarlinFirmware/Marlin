@@ -176,14 +176,14 @@ void enqueue_and_echo_commands_P(const char * const pgcode) {
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  void enqueue_and_echo_command_now(const char* cmd, bool say_ok/*=false*/) {
-    while (!enqueue_and_echo_command(cmd, say_ok)) idle();
+  void enqueue_and_echo_command_now(const char* cmd) {
+    while (!enqueue_and_echo_command(cmd)) idle();
   }
   #if HAS_LCD_QUEUE_NOW
     /**
      * Enqueue from program memory and return only when commands are actually enqueued
      */
-    void enqueue_and_echo_commands_P_now(const char * const pgcode) {
+    void enqueue_and_echo_commands_now_P(const char * const pgcode) {
       enqueue_and_echo_commands_P(pgcode);
       while (drain_injected_commands_P()) idle();
     }
@@ -320,32 +320,24 @@ inline void get_serial_commands() {
 
           gcode_N = strtol(npos + 1, NULL, 10);
 
-          if (gcode_N != gcode_LastN + 1 && !M110) {
-            gcode_line_error(PSTR(MSG_ERR_LINE_NO), i);
-            return;
-          }
+          if (gcode_N != gcode_LastN + 1 && !M110)
+            return gcode_line_error(PSTR(MSG_ERR_LINE_NO), i);
 
           char *apos = strrchr(command, '*');
           if (apos) {
             uint8_t checksum = 0, count = uint8_t(apos - command);
             while (count) checksum ^= command[--count];
-            if (strtol(apos + 1, NULL, 10) != checksum) {
-              gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH), i);
-              return;
-            }
+            if (strtol(apos + 1, NULL, 10) != checksum)
+              return gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH), i);
           }
-          else {
-            gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
-            return;
-          }
+          else
+            return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
 
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.saving) {
-            gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
-            return;
-          }
+          else if (card.saving)
+            return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
         // Movement commands alert when stopped

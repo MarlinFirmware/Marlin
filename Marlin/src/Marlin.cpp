@@ -96,7 +96,7 @@
 #endif
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-  #include "HAL/HAL_endstop_interrupts.h"
+  #include HAL_PATH(HAL, endstop_interrupts.h)
 #endif
 
 #if HAS_TRINAMIC
@@ -326,7 +326,7 @@ void disable_all_steppers() {
  *  - Check if cooling fan needs to be switched on
  *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  */
-void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
+void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     runout.run();
@@ -898,6 +898,26 @@ void loop() {
   #endif
 
   for (;;) {
+
+    #if ENABLED(SDSUPPORT) && ENABLED(ULTIPANEL)
+      if (abort_sd_printing) {
+        abort_sd_printing = false;
+        card.stopSDPrint(
+          #if SD_RESORT
+            true
+          #endif
+        );
+        clear_command_queue();
+        quickstop_stepper();
+        print_job_timer.stop();
+        thermalManager.disable_all_heaters();
+        #if FAN_COUNT > 0
+          for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+        #endif
+        wait_for_heatup = false;
+      }
+    #endif // SDSUPPORT && ULTIPANEL
+
     if (commands_in_queue < BUFSIZE) get_available_commands();
     advance_command_queue();
     endstops.report_state();

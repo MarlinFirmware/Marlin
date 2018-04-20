@@ -89,7 +89,7 @@ script:
   #
   # Add a Sled Z Probe, use UBL Cartesian moves, use Japanese language
   #
-  - opt_set LANGUAGE kana_utf8
+  - opt_set LANGUAGE jp-kana
   - opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
   - opt_disable SEGMENT_LEVELED_MOVES
   - opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING
@@ -282,6 +282,16 @@ script:
   - opt_enable LCM1602
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
+  # Language files test with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #
+  - restore_configs
+  - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
+  - for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
+  #
+  - restore_configs
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
+  - for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
+  #
   #
   ######## Example Configurations ##############
   #
@@ -436,6 +446,7 @@ script:
   - export TEST_PLATFORM="-e DUE"
   - restore_configs
   - opt_set MOTHERBOARD BOARD_RAMPS4DUE_EFB
+  - opt_set BEZIER_JERK_CONTROL
   - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
   - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

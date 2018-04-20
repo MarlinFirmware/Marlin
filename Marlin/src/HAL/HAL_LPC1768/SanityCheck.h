@@ -24,10 +24,6 @@
  * Test Re-ARM specific configuration values for errors at compile-time.
  */
 
-/**
- * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
- */
-
 #if ENABLED(SPINDLE_LASER_ENABLE)
   #if !PIN_EXISTS(SPINDLE_LASER_ENABLE)
     #error "SPINDLE_LASER_ENABLE requires SPINDLE_LASER_ENABLE_PIN."
@@ -69,3 +65,12 @@
     #endif
   #endif
 #endif // SPINDLE_LASER_ENABLE
+
+#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && ENABLED(HAVE_TMC2130) && DISABLED(TMC_USE_SW_SPI) \
+    && (MB(RAMPS_14_RE_ARM_EFB) \
+    ||  MB(RAMPS_14_RE_ARM_EEB) \
+    ||  MB(RAMPS_14_RE_ARM_EFF) \
+    ||  MB(RAMPS_14_RE_ARM_EEF) \
+    ||  MB(RAMPS_14_RE_ARM_SF))
+  #error "Re-ARM with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER and TMC2130 require TMC_USE_SW_SPI"
+#endif

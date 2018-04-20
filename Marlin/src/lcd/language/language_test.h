@@ -46,11 +46,6 @@
 //   Kanji (an other Japanese symbol set) uses far more than two codepages. So currently I don't see a chance to map the Unicodes. Its not
 //   impossible to have a close to direct mapping but will need giant conversion tables and fonts (we don't want to have in a embedded system).
 
-//#define MAPPER_C2C3        // For most European languages when language file is in utf8
-//#define MAPPER_D0D1        // For Cyrillic
-//#define MAPPER_E382E383    // For Katakana
-//#define MAPPER_NON         // For direct ascii codes. Fall back mapper - if no other is defined.
-
 
 // Select the better font for full graphic displays.
 //#define DISPLAY_CHARSET_ISO10646_1

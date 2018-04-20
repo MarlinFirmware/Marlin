@@ -102,14 +102,16 @@
   #include "pins_BAM_DICE_DUE.h"      // ATmega1280, ATmega2560
 #elif MB(MKS_BASE)
   #include "pins_MKS_BASE.h"          // ATmega1280, ATmega2560
+#elif MB(MKS_BASE_15)
+  #include "pins_MKS_BASE_15.h"       // ATmega1280, ATmega2560
 #elif MB(MKS_BASE_HEROIC)
   #include "pins_MKS_BASE_HEROIC.h"   // ATmega1280, ATmega2560
-#elif MB(MKS_13)
-  #include "pins_MKS_13.h"            // ATmega1280, ATmega2560
+#elif MB(MKS_GEN_13)
+  #include "pins_MKS_GEN_13.h"        // ATmega1280, ATmega2560
 #elif MB(MKS_GEN_L)
   #include "pins_MKS_GEN_L.h"         // ATmega1280, ATmega2560
 #elif MB(ZRIB_V20)
-  #include "pins_ZRIB_V20.h"          // ATmega1280, ATmega2560 (MKS_13)
+  #include "pins_ZRIB_V20.h"          // ATmega1280, ATmega2560 (MKS_GEN_13)
 #elif MB(FELIX2)
   #include "pins_FELIX2.h"            // ATmega1280, ATmega2560
 #elif MB(RIGIDBOARD)
@@ -163,6 +165,8 @@
   #include "pins_MINIRAMBO.h"         // ATmega2560
 #elif MB(EINSY_RAMBO)
   #include "pins_EINSY_RAMBO.h"       // ATmega2560
+#elif MB(EINSY_RETRO)
+  #include "pins_EINSY_RETRO.h"       // ATmega2560
 #elif MB(ELEFU_3)
   #include "pins_ELEFU_3.h"           // ATmega2560
 #elif MB(LEAPFROG)
@@ -357,6 +361,8 @@
   #include "pins_COHESION3D_REMIX.h"
 #elif MB(COHESION3D_MINI)
   #include "pins_COHESION3D_MINI.h"
+#elif MB(STM32F4)
+  #include "pins_STM32F4.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
@@ -614,6 +620,13 @@
     #define E4_AUTO_FAN_PIN ORIG_E4_AUTO_FAN_PIN
   #else
     #define E4_AUTO_FAN_PIN -1
+  #endif
+#endif
+#ifndef CHAMBER_AUTO_FAN_PIN
+  #ifdef ORIG_CHAMBER_AUTO_FAN_PIN
+    #define CHAMBER_AUTO_FAN_PIN ORIG_CHAMBER_AUTO_FAN_PIN
+  #else
+    #define CHAMBER_AUTO_FAN_PIN -1
   #endif
 #endif
 
@@ -877,6 +890,6 @@
 
 // Note: default SPI pins are defined in the HAL
 
-#include "../HAL/HAL_spi_pins.h"
+#include HAL_PATH(../HAL, spi_pins.h)
 
 #endif // __PINS_H__

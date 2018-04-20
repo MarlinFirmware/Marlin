@@ -539,17 +539,21 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
  *
  * @return The raw Z position where the probe was triggered
  */
-static float run_z_probe() {
+  static float run_z_probe() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
   #endif
 
+  // Stop the probe before it goes too low to prevent damage.
+  // If Z isn't known then probe to -10mm.
+  const float z_probe_low_point = axis_known_position[Z_AXIS] ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
+
   // Double-probing does a fast probe followed by a slow probe
   #if MULTIPLE_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (do_probe_move(-10, Z_PROBE_SPEED_FAST)) return NAN;
+    if (do_probe_move(z_probe_low_point, Z_PROBE_SPEED_FAST)) return NAN;
 
     float first_probe_z = current_position[Z_AXIS];
 
@@ -580,7 +584,7 @@ static float run_z_probe() {
   #endif
 
       // Move down slowly to find bed, not too far
-      if (do_probe_move(-10, Z_PROBE_SPEED_SLOW)) return NAN;
+      if (do_probe_move(z_probe_low_point, Z_PROBE_SPEED_SLOW)) return NAN;
 
   #if MULTIPLE_PROBING > 2
       probes_total += current_position[Z_AXIS];
@@ -669,8 +673,9 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   if (!DEPLOY_PROBE()) {
     measured_z = run_z_probe() + zprobe_zoffset;
 
-    if (raise_after == PROBE_PT_RAISE)
-      do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+    const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
+    if (big_raise || raise_after == PROBE_PT_RAISE)
+      do_blocking_move_to_z(current_position[Z_AXIS] + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     else if (raise_after == PROBE_PT_STOW)
       if (STOW_PROBE()) measured_z = NAN;
   }

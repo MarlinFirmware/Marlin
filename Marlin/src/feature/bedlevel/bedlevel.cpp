@@ -99,7 +99,21 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
           planner.unapply_leveling(current_position);
         }
       #else
-        planner.leveling_active = enable;                    // just flip the bit, current_position will be wrong until next move.
+        // UBL equivalents for apply/unapply_leveling
+        #if ENABLED(SKEW_CORRECTION)
+          float pos[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+          planner.skew(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS]);
+        #else
+          const float (&pos)[XYZE] = current_position;
+        #endif
+        if (planner.leveling_active) {
+          current_position[Z_AXIS] += ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS]);
+          planner.leveling_active = false;
+        }
+        else {
+          planner.leveling_active = true;
+          current_position[Z_AXIS] -= ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS]);
+        }
       #endif
 
     #else // OLDSCHOOL_ABL

@@ -31,4 +31,4 @@ case "$#" in
 esac
 
 git fetch upstream
-git checkout upstream/$TARG -b $BRANCH
+git checkout --no-track upstream/$TARG -b $BRANCH

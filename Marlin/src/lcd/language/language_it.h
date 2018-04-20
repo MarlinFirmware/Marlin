@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_IT_H
 #define LANGUAGE_IT_H
 
-#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
@@ -287,6 +286,7 @@
 #define MSG_BABYSTEP_Z                      _UxGT("Babystep Z")
 #define MSG_ENDSTOP_ABORT                   _UxGT("Finecorsa abort")
 #define MSG_HEATING_FAILED_LCD              _UxGT("Riscald. Fallito")
+#define MSG_HEATING_FAILED_LCD_BED          _UxGT("Risc. piatto fallito")
 #define MSG_ERR_REDUNDANT_TEMP              _UxGT("Err: TEMP RIDONDANTI")
 #define MSG_THERMAL_RUNAWAY                 _UxGT("TEMP FUORI CONTROLLO")
 #define MSG_ERR_MAXTEMP                     _UxGT("Err: TEMP MASSIMA")
@@ -299,10 +299,13 @@
 #define MSG_SHORT_DAY                       _UxGT("g") // One character only
 #define MSG_SHORT_HOUR                      _UxGT("h") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
-#define MSG_HEATING                         _UxGT("Riscaldamento..")
+#define MSG_HEATING                         _UxGT("Riscaldamento...")
 #define MSG_HEATING_COMPLETE                _UxGT("Risc. completato")
-#define MSG_BED_HEATING                     _UxGT("Risc. Piatto..")
-#define MSG_BED_DONE                        _UxGT("Piatto Pronto")
+#define MSG_COOLING                         _UxGT("Raffreddamento..")
+#define MSG_COOLING_COMPLETE                _UxGT("Raff.completato.")
+#define MSG_BED_HEATING                     _UxGT("Risc. piatto...")
+#define MSG_BED_COOLING                     _UxGT("Raffr. piatto...")
+#define MSG_BED_DONE                        _UxGT("Piatto pronto")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibraz. Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibra X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibra Y")
