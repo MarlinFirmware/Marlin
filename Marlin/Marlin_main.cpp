@@ -4237,7 +4237,7 @@ void home_all_axes() { gcode_G28(true); }
       static bool enable_soft_endstops;
     #endif
 
-    const MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
+    MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
     if (!WITHIN(state, 0, 5)) {
       SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
       return;
@@ -4258,8 +4258,11 @@ void home_all_axes() { gcode_G28(true); }
       case MeshStart:
         mbl.reset();
         mbl_probe_index = 0;
-        enqueue_and_echo_commands_P(lcd_wait_for_move ? PSTR("G29 S2") : PSTR("G28\nG29 S2"));
-        break;
+        if (!lcd_wait_for_move) {
+          enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+          return;
+        }
+        state = MeshNext;
 
       case MeshNext:
         if (mbl_probe_index < 0) {
@@ -4276,7 +4279,7 @@ void home_all_axes() { gcode_G28(true); }
           do_blocking_move_to_z(0);
         }
         else {
-          // For G29 S2 after adjusting Z.
+          // Save Z for the previous mesh position
           mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
           #if HAS_SOFTWARE_ENDSTOPS
             soft_endstops_enabled = enable_soft_endstops;
@@ -4369,7 +4372,7 @@ void home_all_axes() { gcode_G28(true); }
 
     } // switch(state)
 
-    if (state == MeshStart || state == MeshNext) {
+    if (state == MeshNext) {
       SERIAL_PROTOCOLPAIR("MBL G29 point ", min(mbl_probe_index, GRID_MAX_POINTS));
       SERIAL_PROTOCOLLNPAIR(" of ", int(GRID_MAX_POINTS));
     }
