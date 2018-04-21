@@ -288,6 +288,10 @@
   #include "fwretract.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "power_loss_recovery.h"
+#endif
+
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #include "runout.h"
 #endif
@@ -415,14 +419,11 @@ static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
  * the main loop. The process_next_command function parses the next
  * command and hands off execution to individual handler functions.
  */
-uint8_t commands_in_queue = 0; // Count of commands in the queue
-static uint8_t cmd_queue_index_r = 0, // Ring buffer read position
-               cmd_queue_index_w = 0; // Ring buffer write position
-#if ENABLED(M100_FREE_MEMORY_WATCHER)
-  char command_queue[BUFSIZE][MAX_CMD_SIZE];  // Necessary so M100 Free Memory Dumper can show us the commands and any corruption
-#else                                         // This can be collapsed back to the way it was soon.
-static char command_queue[BUFSIZE][MAX_CMD_SIZE];
-#endif
+uint8_t commands_in_queue = 0, // Count of commands in the queue
+        cmd_queue_index_r = 0, // Ring buffer read (out) position
+        cmd_queue_index_w = 0; // Ring buffer write (in) position
+
+char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
 /**
  * Next Injected Command pointer. NULL if no commands are being injected.
@@ -1231,20 +1232,42 @@ inline void get_serial_commands() {
     }
   }
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+
+    inline bool drain_job_recovery_commands() {
+      static uint8_t job_recovery_commands_index = 0; // Resets on reboot
+      if (job_recovery_commands_count) {
+        if (_enqueuecommand(job_recovery_commands[job_recovery_commands_index])) {
+          ++job_recovery_commands_index;
+          if (!--job_recovery_commands_count) job_recovery_phase = JOB_RECOVERY_IDLE;
+        }
+        return true;
+      }
+      return false;
+    }
+
+  #endif
+
 #endif // SDSUPPORT
 
 /**
  * Add to the circular command queue the next command from:
  *  - The command-injection queue (injected_commands_P)
  *  - The active serial input (usually USB)
+ *  - Commands left in the queue after power-loss
  *  - The SD card file being actively printed
  */
 void get_available_commands() {
 
-  // if any immediate commands remain, don't get other commands yet
+  // Immediate commands block the other queues
   if (drain_injected_commands_P()) return;
 
   get_serial_commands();
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    // Commands for power-loss recovery take precedence
+    if (job_recovery_phase == JOB_RECOVERY_YES && drain_job_recovery_commands()) return;
+  #endif
 
   #if ENABLED(SDSUPPORT)
     get_sdcard_commands();
@@ -7017,6 +7040,10 @@ inline void gcode_M17() {
    * M24: Start or Resume SD Print
    */
   inline void gcode_M24() {
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      card.removeJobRecoveryFile();
+    #endif
+
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       resume_print();
     #endif
@@ -14274,6 +14301,10 @@ void setup() {
     #endif
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    do_print_job_recovery();
+  #endif
+
   #if ENABLED(USE_WATCHDOG)
     watchdog_init();
   #endif
@@ -14351,8 +14382,12 @@ void loop() {
             ok_to_send();
         }
       }
-      else
+      else {
         process_next_command();
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          if (card.cardOK && card.sdprinting) save_job_recovery_info();
+        #endif
+      }
 
     #else
 
