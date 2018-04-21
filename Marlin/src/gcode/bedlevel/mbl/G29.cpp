@@ -69,7 +69,7 @@ void GcodeSuite::G29() {
     static bool enable_soft_endstops;
   #endif
 
-  const MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
+  MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
   if (!WITHIN(state, 0, 5)) {
     SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
     return;

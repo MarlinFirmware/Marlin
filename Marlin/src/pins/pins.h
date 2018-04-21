@@ -136,8 +136,12 @@
   #include "pins_BQ_ZUM_MEGA_3D.h"    // ATmega2560
 #elif MB(MAKEBOARD_MINI)
   #include "pins_MAKEBOARD_MINI.h"    // ATmega2560
-#elif MB(TRIGORILLA)
-  #include "pins_TRIGORILLA.h"        // ATmega2560
+#elif MB(TRIGORILLA_13)
+  #include "pins_TRIGORILLA_13.h"     // ATmega2560
+#elif MB(TRIGORILLA_14)
+  #include "pins_TRIGORILLA_14.h"     // ATmega2560
+#elif MB(RAMPS_ENDER_4)
+  #include "pins_RAMPS_ENDER_4.h"     // ATmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -179,8 +183,6 @@
   #include "pins_GT2560_REV_A.h"      // ATmega1280, ATmega2560
 #elif MB(GT2560_REV_A_PLUS)
   #include "pins_GT2560_REV_A_PLUS.h" // ATmega1280, ATmega2560
-#elif MB(RAMPS_ENDER_4)
-  #include "pins_RAMPS_ENDER_4.h"     // ATmega2560
 
 //
 // ATmega1281, ATmega2561
