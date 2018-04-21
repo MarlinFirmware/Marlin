@@ -243,7 +243,7 @@ void GcodeSuite::M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
-    lcd_setstatusPGM(wants_to_cool ? PSTR(MSG_COOLING_COMPLETE) : PSTR(MSG_HEATING_COMPLETE));
+    lcd_reset_status();
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
     #endif
