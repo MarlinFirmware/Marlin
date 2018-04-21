@@ -6339,12 +6339,9 @@ inline void gcode_G92() {
       ms += millis();  // wait until this time for a click
       while (PENDING(millis(), ms) && wait_for_user) idle();
     }
-    else {
-      #if ENABLED(ULTIPANEL)
-        if (lcd_detected())
-      #endif
-          while (wait_for_user) idle();
-    }
+    else
+      while (wait_for_user) idle();
+
 
     #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
       if (lights_off_after_print) {
@@ -6353,11 +6350,7 @@ inline void gcode_G92() {
       }
     #endif
 
-    #if ENABLED(ULTIPANEL)
-      if (lcd_detected()) {
-        print_job_timer.isPaused() ? LCD_MESSAGEPGM(WELCOME_MSG) : LCD_MESSAGEPGM(MSG_RESUMING);
-      }
-    #endif
+    lcd_reset_status();
 
     wait_for_user = false;
     KEEPALIVE_STATE(IN_HANDLER);
@@ -8121,7 +8114,7 @@ inline void gcode_M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
-    lcd_setstatusPGM(wants_to_cool ? PSTR(MSG_COOLING_COMPLETE) : PSTR(MSG_HEATING_COMPLETE));
+    lcd_reset_status();
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
     #endif
@@ -8258,7 +8251,7 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-    if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
+    if (wait_for_heatup) lcd_reset_status();
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
     #endif
@@ -8820,7 +8813,12 @@ inline void gcode_M115() {
 /**
  * M117: Set LCD Status Message
  */
-inline void gcode_M117() { lcd_setstatus(parser.string_arg); }
+inline void gcode_M117() {
+  if (parser.string_arg[0])
+    lcd_setstatus(parser.string_arg);
+  else
+    lcd_reset_status();
+}
 
 /**
  * M118: Display a message in the host console.
