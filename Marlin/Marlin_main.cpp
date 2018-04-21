@@ -3994,6 +3994,8 @@ inline void gcode_G4() {
  *  None  Home to all axes with no parameters.
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
+ *  Rn  Raise by n mm/inches before homing
+ *
  * Cartesian parameters
  *
  *  X   Home to the X endstop
@@ -4068,11 +4070,12 @@ inline void gcode_G28(const bool always_home_all) {
 
     #endif
 
-    #if ENABLED(UNKNOWN_Z_NO_RAISE)
-      const float z_homing_height = axis_known_position[Z_AXIS] ? Z_HOMING_HEIGHT : 0;
-    #else
-      constexpr float z_homing_height = Z_HOMING_HEIGHT;
-    #endif
+    const float z_homing_height = (
+      #if ENABLED(UNKNOWN_Z_NO_RAISE)
+        !axis_known_position[Z_AXIS] ? 0 :
+      #endif
+          (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
+    );
 
     if (z_homing_height && (home_all || homeX || homeY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
