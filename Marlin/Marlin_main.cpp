@@ -5827,7 +5827,7 @@ void home_all_axes() { gcode_G28(true); }
                _opposite_results    = (_4p_calibration && !towers_set) || probe_points >= 3,
                _endstop_results     = probe_points != 1 && probe_points != -1 && probe_points != 0,
                _angle_results       = probe_points >= 3  && towers_set;
-    const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
+    static const char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
     int8_t iterations = 0;
     float test_precision,
           zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
@@ -8272,7 +8272,7 @@ inline void gcode_M110() {
 inline void gcode_M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
-  const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
+  static const char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
                     str_debug_2[] PROGMEM = MSG_DEBUG_INFO,
                     str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS,
                     str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN,
@@ -8282,7 +8282,7 @@ inline void gcode_M111() {
                     #endif
                     ;
 
-  const static char* const debug_strings[] PROGMEM = {
+  static const char* const debug_strings[] PROGMEM = {
     str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       , str_debug_32
