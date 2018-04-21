@@ -1056,6 +1056,16 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     }
   #endif
 
+  #if HOMING_Z_WITH_PROBE && HAS_TEMP_BED && ENABLED(WAIT_FOR_BED_HEATER)
+    // Wait for bed to heat back up between probing points
+    if (axis == Z_AXIS && distance < 0 && thermalManager.isHeatingBed()) {
+      serialprintPGM(msg_wait_for_bed_heating);
+      LCD_MESSAGEPGM(MSG_BED_HEATING);
+      while (thermalManager.isHeatingBed()) safe_delay(200);
+      lcd_reset_status();
+    }
+  #endif
+
   // Only do some things when moving towards an endstop
   const int8_t axis_home_dir =
     #if ENABLED(DUAL_X_CARRIAGE)
