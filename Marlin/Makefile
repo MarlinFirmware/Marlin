@@ -193,6 +193,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),503)
 else ifeq ($(HARDWARE_MOTHERBOARD),431)
 # TriGorilla Anycubic version 1.3 based on RAMPS EFB
 else ifeq ($(HARDWARE_MOTHERBOARD),343)
+# TriGorilla Anycubic version 1.4 based on RAMPS EFB
+else ifeq ($(HARDWARE_MOTHERBOARD),443)
 # Creality: Ender-4, CR-8
 else ifeq ($(HARDWARE_MOTHERBOARD),243)
 
