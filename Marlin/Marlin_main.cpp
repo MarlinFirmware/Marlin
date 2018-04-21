@@ -571,6 +571,10 @@ uint8_t target_extruder;
   #define ADJUST_DELTA(V) NOOP
 #endif
 
+#if HAS_TEMP_BED && ENABLED(WAIT_FOR_BED_HEATER)
+  const static char msg_wait_for_bed_heating[] PROGMEM = "Wait for bed heating...\n";
+#endif
+
 // Extruder offsets
 #if HOTENDS > 1
   float hotend_offset[XYZ][HOTENDS];  // Initialized by settings.load()
@@ -586,13 +590,13 @@ uint8_t target_extruder;
 #endif
 
 #if HAS_POWER_SWITCH
-  bool powersupply_on =
+  bool powersupply_on = (
     #if ENABLED(PS_DEFAULT_OFF)
       false
     #else
       true
     #endif
-  ;
+  );
   #if ENABLED(AUTO_POWER_CONTROL)
     #define PSU_ON()  powerManager.power_on()
     #define PSU_OFF() powerManager.power_off()
@@ -2186,6 +2190,16 @@ void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
     #endif
 
+    #if HAS_TEMP_BED && ENABLED(WAIT_FOR_BED_HEATER)
+      // Wait for bed to heat back up between probing points
+      if (thermalManager.isHeatingBed()) {
+        serialprintPGM(msg_wait_for_bed_heating);
+        LCD_MESSAGEPGM(MSG_BED_HEATING);
+        while (thermalManager.isHeatingBed()) safe_delay(200);
+        lcd_reset_status();
+      }
+    #endif	
+	
     // Deploy BLTouch at the start of any probe
     #if ENABLED(BLTOUCH)
       if (set_bltouch_deployed(true)) return true;
@@ -2897,6 +2911,16 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
       SERIAL_ECHOPAIR(", ", fr_mm_s);
       SERIAL_CHAR(')');
       SERIAL_EOL();
+    }
+  #endif
+  
+  #if HOMING_Z_WITH_PROBE && HAS_TEMP_BED && ENABLED(WAIT_FOR_BED_HEATER)
+    // Wait for bed to heat back up between probing points
+    if (axis == Z_AXIS && distance < 0 && thermalManager.isHeatingBed()) {
+      serialprintPGM(msg_wait_for_bed_heating);
+      LCD_MESSAGEPGM(MSG_BED_HEATING);
+      while (thermalManager.isHeatingBed()) safe_delay(200);
+      lcd_reset_status();
     }
   #endif
 
