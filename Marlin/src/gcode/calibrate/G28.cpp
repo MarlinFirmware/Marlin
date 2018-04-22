@@ -311,10 +311,12 @@ void GcodeSuite::G28(const bool always_home_all) {
         #else
           HOMEAXIS(Z);
         #endif
+
+        #if HOMING_Z_WITH_PROBE && Z_AFTER_PROBING
+          move_z_after_probing();
+        #endif
+
       } // home_all || homeZ
-      #if HOMING_Z_WITH_PROBE && Z_AFTER_PROBING
-        move_z_after_probing();
-      #endif
     #endif // Z_HOME_DIR < 0
 
     SYNC_PLAN_POSITION_KINEMATIC();
