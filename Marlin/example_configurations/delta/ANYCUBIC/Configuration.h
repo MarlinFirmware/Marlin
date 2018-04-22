@@ -161,7 +161,6 @@
  */
 //#define NOZZLE_OFFSET_X 0
 //#define NOZZLE_OFFSET_Y 0
-//#define NOZZLE_OFFSET_Y 0
 
 /* Extruder(s) Stepper Direction
  * If your extruder goes backwards, uncomment the line
@@ -403,8 +402,8 @@
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
 #if ENABLED(DUAL_EXTRUDER) && DISABLED(SINGLENOZZLE)
-  #define HOTEND_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
-  #define HOTEND_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
+  #define HOTEND_OFFSET_X {0.0, NOZZLE_OFFSET_X} // (in mm) for each extruder, offset of the hotend on the X axis
+  #define HOTEND_OFFSET_Y {0.0, NOZZLE_OFFSET_Y}  // (in mm) for each extruder, offset of the hotend on the Y axis
 #endif
 
 // @section machine
