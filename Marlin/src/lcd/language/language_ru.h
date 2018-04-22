@@ -38,6 +38,7 @@
 #define MSG_SD_INSERTED                     _UxGT("Карта вставлена")
 #define MSG_SD_REMOVED                      _UxGT("Карта извлечена")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Эндстопы") // Max length 8 characters
+#define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Прогр. эндстопы")
 #define MSG_MAIN                            _UxGT("Меню")
 #define MSG_AUTOSTART                       _UxGT("Автостарт")
 #define MSG_DISABLE_STEPPERS                _UxGT("Выкл. двигатели")
@@ -251,7 +252,6 @@
 #define MSG_DWELL                           _UxGT("Сон...")
 #define MSG_USERWAIT                        _UxGT("Продолжить...")
 #define MSG_PRINT_PAUSED                    _UxGT("Печать на паузе")
-#define MSG_RESUMING                        _UxGT("Возобновление...")
 #define MSG_PRINT_ABORTED                   _UxGT("Печать отменена")
 #define MSG_NO_MOVE                         _UxGT("Нет движения.")
 #define MSG_KILLED                          _UxGT("УБИТО. ")
@@ -301,12 +301,10 @@
 #define MSG_SHORT_HOUR                      _UxGT("ч") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("м") // One character only
 #define MSG_HEATING                         _UxGT("Нагрев...")
-#define MSG_HEATING_COMPLETE                _UxGT("Нагрев выполнен")
 #define MSG_COOLING                         _UxGT("Охлаждение...")
 #define MSG_COOLING_COMPLETE                _UxGT("Охлаждение выполнено")
-#define MSG_BED_HEATING                     _UxGT("Нагрев стола")
-#define MSG_BED_COOLING                     _UxGT("Охлаждение стола")
-#define MSG_BED_DONE                        _UxGT("Стол разогрет")
+#define MSG_BED_HEATING                     _UxGT("Нагрев стола...")
+#define MSG_BED_COOLING                     _UxGT("Охлаждение стола...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Калибровка Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Калибровать X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Калибровать Y")
@@ -315,6 +313,7 @@
 #define MSG_DELTA_SETTINGS                  _UxGT("Настройки Delta")
 #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Авто калибровка")
 #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Задать высоту Delta")
+#define MSG_DELTA_Z_OFFSET_CALIBRATE        _UxGT("Задать Z-смещение")
 #define MSG_DELTA_DIAG_ROD                  _UxGT("Диаг. стержень")
 #define MSG_DELTA_HEIGHT                    _UxGT("Высота")
 #define MSG_DELTA_RADIUS                    _UxGT("Радиус")

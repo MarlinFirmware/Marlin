@@ -148,7 +148,6 @@
 #define MSG_NO_CARD                         _UxGT("Відсутня SD карт.")
 #define MSG_DWELL                           _UxGT("Сплячка...")
 #define MSG_USERWAIT                        _UxGT("Очікування дій...")
-#define MSG_RESUMING                        _UxGT("Відновлення друку")
 #define MSG_PRINT_ABORTED                   _UxGT("Друк скасовано")
 #define MSG_NO_MOVE                         _UxGT("Немає руху.")
 #define MSG_KILLED                          _UxGT("ПЕРЕРВАНО. ")
@@ -175,9 +174,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("г") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("х") // One character only
 #define MSG_HEATING                         _UxGT("Нагрівання...")
-#define MSG_HEATING_COMPLETE                _UxGT("Нагріто.")
-#define MSG_BED_HEATING                     _UxGT("Нагрівання столу.")
-#define MSG_BED_DONE                        _UxGT("Стіл нагрітий.")
+#define MSG_BED_HEATING                     _UxGT("Нагрівання столу...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Калібр. Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Калібрування X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Калібрування Y")

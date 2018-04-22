@@ -251,7 +251,6 @@
 #define MSG_DWELL                           _UxGT("Sospensione...")
 #define MSG_USERWAIT                        _UxGT("Premi tasto..")
 #define MSG_PRINT_PAUSED                    _UxGT("Stampa sospesa")
-#define MSG_RESUMING                        _UxGT("Riprendi Stampa")
 #define MSG_PRINT_ABORTED                   _UxGT("Stampa annullata")
 #define MSG_NO_MOVE                         _UxGT("Nessun Movimento")
 #define MSG_KILLED                          _UxGT("UCCISO. ")
@@ -300,12 +299,10 @@
 #define MSG_SHORT_HOUR                      _UxGT("h") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Riscaldamento...")
-#define MSG_HEATING_COMPLETE                _UxGT("Risc. completato")
 #define MSG_COOLING                         _UxGT("Raffreddamento..")
 #define MSG_COOLING_COMPLETE                _UxGT("Raff.completato.")
 #define MSG_BED_HEATING                     _UxGT("Risc. piatto...")
 #define MSG_BED_COOLING                     _UxGT("Raffr. piatto...")
-#define MSG_BED_DONE                        _UxGT("Piatto pronto")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibraz. Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibra X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibra Y")
