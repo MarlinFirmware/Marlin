@@ -126,6 +126,10 @@
   #include "feature/pause.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "feature/power_loss_recovery.h"
+#endif
+
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #include "feature/runout.h"
 #endif
@@ -874,6 +878,10 @@ void setup() {
 
   #if ENABLED(PARKING_EXTRUDER)
     pe_magnet_init();
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    do_print_job_recovery();
   #endif
 
   #if ENABLED(USE_WATCHDOG) // Reinit watchdog after HAL_get_reset_source call

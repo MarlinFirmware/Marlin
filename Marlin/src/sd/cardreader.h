@@ -103,11 +103,21 @@ public:
     #endif
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    void openJobRecoveryFile(const bool read);
+    void closeJobRecoveryFile();
+    bool jobRecoverFileExists();
+    int16_t saveJobRecoveryInfo();
+    int16_t loadJobRecoveryInfo();
+    void removeJobRecoveryFile();
+  #endif
+
   FORCE_INLINE void pauseSDPrint() { sdprinting = false; }
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
   FORCE_INLINE bool eof() { return sdpos >= filesize; }
   FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
-  FORCE_INLINE void setIndex(long index) { sdpos = index; file.seekSet(index); }
+  FORCE_INLINE void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
+  FORCE_INLINE uint32_t getIndex() { return sdpos; }
   FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
 
@@ -190,6 +200,10 @@ private:
   Sd2Card card;
   SdVolume volume;
   SdFile file;
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    SdFile jobRecoveryFile;
+  #endif
 
   #define SD_PROCEDURE_DEPTH 1
   #define MAXPATHNAMELENGTH (FILENAME_LENGTH*MAX_DIR_DEPTH + MAX_DIR_DEPTH + 1)

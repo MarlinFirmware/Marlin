@@ -33,6 +33,10 @@
 #include "../core/language.h"
 #include "../gcode/queue.h"
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
 #endif
@@ -968,6 +972,15 @@ void CardReader::printingHasFinished() {
   }
   else {
     sdprinting = false;
+
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      openJobRecoveryFile(false);
+      job_recovery_info.valid_head = job_recovery_info.valid_foot = 0;
+      (void)saveJobRecoveryInfo();
+      closeJobRecoveryFile();
+      job_recovery_commands_count = 0;
+    #endif
+
     #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
       stepper.cleaning_buffer_counter = 1; // The command will fire from the Stepper ISR
     #endif
@@ -1005,5 +1018,47 @@ void CardReader::printingHasFinished() {
     }
   }
 #endif // AUTO_REPORT_SD_STATUS
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+
+  char job_recovery_file_name[4] = "bin";
+
+  void CardReader::openJobRecoveryFile(const bool read) {
+    if (!cardOK) return;
+    if (jobRecoveryFile.isOpen()) return;
+    if (!jobRecoveryFile.open(&root, job_recovery_file_name, read ? O_READ : O_CREAT | O_WRITE | O_TRUNC | O_SYNC)) {
+      SERIAL_PROTOCOLPAIR(MSG_SD_OPEN_FILE_FAIL, job_recovery_file_name);
+      SERIAL_PROTOCOLCHAR('.');
+      SERIAL_EOL();
+    }
+    else
+      SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, job_recovery_file_name);
+  }
+
+  void CardReader::closeJobRecoveryFile() { jobRecoveryFile.close(); }
+
+  bool CardReader::jobRecoverFileExists() {
+    return jobRecoveryFile.open(&root, job_recovery_file_name, O_READ);
+  }
+
+  int16_t CardReader::saveJobRecoveryInfo() {
+    jobRecoveryFile.seekSet(0);
+    const int16_t ret = jobRecoveryFile.write(&job_recovery_info, sizeof(job_recovery_info));
+    if (ret == -1) SERIAL_PROTOCOLLNPGM("Power-loss file write failed.");
+    return ret;
+  }
+
+  int16_t CardReader::loadJobRecoveryInfo() {
+    return jobRecoveryFile.read(&job_recovery_info, sizeof(job_recovery_info));
+  }
+
+  void CardReader::removeJobRecoveryFile() {
+    if (jobRecoveryFile.remove(&root, job_recovery_file_name))
+      SERIAL_PROTOCOLLNPGM("Power-loss file deleted.");
+    else
+      SERIAL_PROTOCOLLNPGM("Power-loss file delete failed.");
+  }
+
+#endif // POWER_LOSS_RECOVERY
 
 #endif // SDSUPPORT

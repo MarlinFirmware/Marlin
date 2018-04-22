@@ -25,6 +25,7 @@
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
 
 #include "../gcode.h"
+#include "../queue.h"
 #include "../../libs/hex_print_routines.h"
 
 #include "../../Marlin.h" // for idle()
@@ -58,8 +59,6 @@
 #define M100_FREE_MEMORY_CORRUPTOR  // Enable for the `M100 C` Corrupt sub-command
 
 #define TEST_BYTE ((char) 0xE5)
-
-extern char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
 extern char* __brkval;
 extern size_t  __heap_start, __heap_end, __flp;

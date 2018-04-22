@@ -95,7 +95,7 @@ void enqueue_and_echo_commands_P(const char * const pgcode);
 /**
  * Enqueue with Serial Echo
  */
-bool enqueue_and_echo_command(const char* cmd, bool say_ok=false);
+bool enqueue_and_echo_command(const char* cmd);
 
 #define HAS_LCD_QUEUE_NOW (ENABLED(MALYAN_LCD) || (ENABLED(ULTIPANEL) && (ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE))))
 #define HAS_QUEUE_NOW (ENABLED(SDSUPPORT) || HAS_LCD_QUEUE_NOW)
