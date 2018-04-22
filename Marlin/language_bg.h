@@ -119,7 +119,6 @@
 #define MSG_NO_CARD                         _UxGT("Няма карта")
 #define MSG_DWELL                           _UxGT("Почивка...")
 #define MSG_USERWAIT                        _UxGT("Изчакване")
-#define MSG_RESUMING                        _UxGT("Продълж. печата")
 #define MSG_PRINT_ABORTED                   _UxGT("Печатът е прекъснат")
 #define MSG_NO_MOVE                         _UxGT("Няма движение")
 #define MSG_KILLED                          _UxGT("УБИТО.")
