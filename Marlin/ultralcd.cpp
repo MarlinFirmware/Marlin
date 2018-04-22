@@ -1825,27 +1825,43 @@ void kill_screen(const char* lcd_msg) {
       line_to_z(4.0);
       switch (bed_corner) {
         case 0:
-          current_position[X_AXIS] = X_MIN_BED + 10;
-          current_position[Y_AXIS] = Y_MIN_BED + 10;
+          current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
+          current_position[Y_AXIS] = Y_MIN_BED + LEVEL_CORNERS_INSET;
           break;
         case 1:
-          current_position[X_AXIS] = X_MAX_BED - 10;
+          current_position[X_AXIS] = X_MAX_BED - LEVEL_CORNERS_INSET;
           break;
         case 2:
-          current_position[Y_AXIS] = Y_MAX_BED - 10;
+          current_position[Y_AXIS] = Y_MAX_BED - LEVEL_CORNERS_INSET;
           break;
         case 3:
-          current_position[X_AXIS] = X_MIN_BED + 10;
+          current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
           break;
+        #if ENABLED(LEVEL_CENTER_TOO)
+          case 4:
+            current_position[X_AXIS] = X_CENTER;
+            current_position[Y_AXIS] = Y_CENTER;
+            break;
+        #endif
       }
       planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
       line_to_z(0.0);
-      if (++bed_corner > 3) bed_corner = 0;
+      if (++bed_corner > 3
+        #if ENABLED(LEVEL_CENTER_TOO)
+          + 1
+        #endif
+      ) bed_corner = 0;
     }
 
     void _lcd_corner_submenu() {
       START_MENU();
-      MENU_ITEM(function, MSG_NEXT_CORNER, _lcd_goto_next_corner);
+      MENU_ITEM(function,
+        #if ENABLED(LEVEL_CENTER_TOO)
+          MSG_LEVEL_BED_NEXT_POINT
+        #else
+          MSG_NEXT_CORNER
+        #endif
+        , _lcd_goto_next_corner);
       MENU_ITEM(function, MSG_BACK, lcd_goto_previous_menu_no_defer);
       END_MENU();
     }
@@ -2835,7 +2851,7 @@ void kill_screen(const char* lcd_msg) {
       #endif
       recalc_delta_settings();
     }
-      
+
     void lcd_delta_settings() {
       START_MENU();
       MENU_BACK(MSG_DELTA_CALIBRATE);
