@@ -253,6 +253,7 @@
 #define MSG_DWELL                           _UxGT("Сон...")
 #define MSG_USERWAIT                        _UxGT("Продолжить...")
 #define MSG_PRINT_PAUSED                    _UxGT("Печать на паузе")
+#define MSG_PRINTING                        _UxGT("Печать...")
 #define MSG_PRINT_ABORTED                   _UxGT("Печать отменена")
 #define MSG_NO_MOVE                         _UxGT("Нет движения.")
 #define MSG_KILLED                          _UxGT("УБИТО. ")
