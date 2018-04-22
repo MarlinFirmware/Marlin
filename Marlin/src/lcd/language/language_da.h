@@ -149,7 +149,6 @@
 #define MSG_NO_CARD                         _UxGT("Intet SD kort")
 #define MSG_DWELL                           _UxGT("Dvale...")
 #define MSG_USERWAIT                        _UxGT("Venter på bruger...")
-#define MSG_RESUMING                        _UxGT("Forsætter printet")
 #define MSG_PRINT_ABORTED                   _UxGT("Print annulleret")
 #define MSG_NO_MOVE                         _UxGT("Ingen bevægelse.")
 #define MSG_KILLED                          _UxGT("DRÆBT. ")
@@ -189,9 +188,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("h") // Kun et bogstav
 #define MSG_SHORT_MINUTE                    _UxGT("m") // Kun et bogstav
 #define MSG_HEATING                         _UxGT("Opvarmer...")
-#define MSG_HEATING_COMPLETE                _UxGT("Opvarmet")
-#define MSG_BED_HEATING                     _UxGT("Opvarmer plade")
-#define MSG_BED_DONE                        _UxGT("Plade opvarmet")
+#define MSG_BED_HEATING                     _UxGT("Opvarmer plade...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Delta Kalibrering")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibrer X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibrer Y")

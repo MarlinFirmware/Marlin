@@ -171,7 +171,7 @@ void GcodeSuite::M190() {
 
   } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-  if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
+  if (wait_for_heatup) lcd_reset_status();
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(IN_HANDLER);
   #endif

@@ -169,7 +169,6 @@
 #define MSG_DWELL                           _UxGT("Warten...")
 #define MSG_USERWAIT                        _UxGT("Warte auf Nutzer")
 #define MSG_PRINT_PAUSED                    _UxGT("Druck pausiert")
-#define MSG_RESUMING                        _UxGT("Druckfortsetzung")
 #define MSG_PRINT_ABORTED                   _UxGT("Druck abgebrochen")
 #define MSG_NO_MOVE                         _UxGT("Motoren eingeschaltet")
 #define MSG_KILLED                          _UxGT("ABGEBROCHEN")
@@ -218,9 +217,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("h") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Extr. heizt...")
-#define MSG_HEATING_COMPLETE                _UxGT("Extr. aufgeheizt")
 #define MSG_BED_HEATING                     _UxGT("Bett heizt...")
-#define MSG_BED_DONE                        _UxGT("Bett aufgeheizt")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Delta kalibrieren")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibriere X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibriere Y")

@@ -145,7 +145,6 @@
 #define MSG_NO_CARD                         _UxGT("No hay tarjeta SD")
 #define MSG_DWELL                           _UxGT("Reposo...")
 #define MSG_USERWAIT                        _UxGT("Esperando órdenes")
-#define MSG_RESUMING                        _UxGT("Resumiendo impresión")
 #define MSG_PRINT_ABORTED                   _UxGT("Impresión cancelada")
 #define MSG_NO_MOVE                         _UxGT("Sin movimiento")
 #define MSG_KILLED                          _UxGT("Parada de emergencia")
@@ -185,9 +184,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("h") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Calentando...")
-#define MSG_HEATING_COMPLETE                _UxGT("Calentamiento listo")
 #define MSG_BED_HEATING                     _UxGT("Calentando Cama...")
-#define MSG_BED_DONE                        _UxGT("Cama Caliente")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibración Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibrar X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibrar Y")

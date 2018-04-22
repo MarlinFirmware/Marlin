@@ -87,12 +87,8 @@ void GcodeSuite::M0_M1() {
     ms += millis();  // wait until this time for a click
     while (PENDING(millis(), ms) && wait_for_user) idle();
   }
-  else {
-    #if ENABLED(ULTIPANEL)
-      if (lcd_detected())
-    #endif
-        while (wait_for_user) idle();
-  }
+  else
+    while (wait_for_user) idle();
 
   #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
     if (lights_off_after_print) {
@@ -101,11 +97,7 @@ void GcodeSuite::M0_M1() {
     }
   #endif
 
-  #if ENABLED(ULTIPANEL)
-    if (lcd_detected()) {
-      IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
-    }
-  #endif
+  lcd_reset_status();
 
   wait_for_user = false;
   KEEPALIVE_STATE(IN_HANDLER);
