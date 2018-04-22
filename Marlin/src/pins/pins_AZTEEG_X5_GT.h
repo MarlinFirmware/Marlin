@@ -93,23 +93,22 @@
 //
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-    #define BEEPER_PIN        P1_30
-    #define DOGLCD_A0         P2_06
-    #define DOGLCD_CS         P0_16
+  #define BEEPER_PIN       P1_30
+  #define DOGLCD_A0        P2_06
+  #define DOGLCD_CS        P0_16
 
-    #define BTN_EN1           P3_25
-    #define BTN_EN2           P3_26
-    #define BTN_ENC           P2_11
+  #define BTN_EN1          P3_25
+  #define BTN_EN2          P3_26
+  #define BTN_ENC          P2_11
 
-    #define SD_DETECT_PIN     -1   // Pin 49 for display sd interface, 72 for easy adapter board
+  //#define SD_DETECT_PIN    P1_18
+  //#define SDSS             P1_21
 
-    #define KILL_PIN          -1
-
-    #define STAT_LED_RED_PIN  P0_26
-    #define STAT_LED_BLUE_PIN P1_21
+  #define STAT_LED_RED_PIN P0_26
+  #define STAT_LED_BLUE_PIN P1_21
 #endif
 
 //
 // Servo
 //
-#define SERVO0_PIN        P1_23
+#define SERVO0_PIN         P1_23
