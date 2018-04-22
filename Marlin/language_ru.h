@@ -39,6 +39,7 @@
 #define MSG_SD_INSERTED                     _UxGT("Карта вставлена")
 #define MSG_SD_REMOVED                      _UxGT("Карта извлечена")
 #define MSG_LCD_ENDSTOPS                    _UxGT("Эндстопы") // Max length 8 characters
+#define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Прогр. эндстопы")
 #define MSG_MAIN                            _UxGT("Меню")
 #define MSG_AUTOSTART                       _UxGT("Автостарт")
 #define MSG_DISABLE_STEPPERS                _UxGT("Выкл. двигатели")
@@ -316,6 +317,7 @@
 #define MSG_DELTA_SETTINGS                  _UxGT("Настройки Delta")
 #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Авто калибровка")
 #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Задать высоту Delta")
+#define MSG_DELTA_Z_OFFSET_CALIBRATE        _UxGT("Задать Z-смещение")
 #define MSG_DELTA_DIAG_ROD                  _UxGT("Диаг. стержень")
 #define MSG_DELTA_HEIGHT                    _UxGT("Высота")
 #define MSG_DELTA_RADIUS                    _UxGT("Радиус")
