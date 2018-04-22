@@ -5827,7 +5827,7 @@ void home_all_axes() { gcode_G28(true); }
                _opposite_results    = (_4p_calibration && !towers_set) || probe_points >= 3,
                _endstop_results     = probe_points != 1 && probe_points != -1 && probe_points != 0,
                _angle_results       = probe_points >= 3  && towers_set;
-    const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
+    static const char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
     int8_t iterations = 0;
     float test_precision,
           zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
@@ -6339,12 +6339,9 @@ inline void gcode_G92() {
       ms += millis();  // wait until this time for a click
       while (PENDING(millis(), ms) && wait_for_user) idle();
     }
-    else {
-      #if ENABLED(ULTIPANEL)
-        if (lcd_detected())
-      #endif
-          while (wait_for_user) idle();
-    }
+    else
+      while (wait_for_user) idle();
+
 
     #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
       if (lights_off_after_print) {
@@ -6353,11 +6350,7 @@ inline void gcode_G92() {
       }
     #endif
 
-    #if ENABLED(ULTIPANEL)
-      if (lcd_detected()) {
-        print_job_timer.isPaused() ? LCD_MESSAGEPGM(WELCOME_MSG) : LCD_MESSAGEPGM(MSG_RESUMING);
-      }
-    #endif
+    lcd_reset_status();
 
     wait_for_user = false;
     KEEPALIVE_STATE(IN_HANDLER);
@@ -8121,7 +8114,7 @@ inline void gcode_M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
-    lcd_setstatusPGM(wants_to_cool ? PSTR(MSG_COOLING_COMPLETE) : PSTR(MSG_HEATING_COMPLETE));
+    lcd_reset_status();
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
     #endif
@@ -8258,7 +8251,7 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-    if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
+    if (wait_for_heatup) lcd_reset_status();
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
     #endif
@@ -8279,7 +8272,7 @@ inline void gcode_M110() {
 inline void gcode_M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
-  const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
+  static const char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
                     str_debug_2[] PROGMEM = MSG_DEBUG_INFO,
                     str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS,
                     str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN,
@@ -8289,7 +8282,7 @@ inline void gcode_M111() {
                     #endif
                     ;
 
-  const static char* const debug_strings[] PROGMEM = {
+  static const char* const debug_strings[] PROGMEM = {
     str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       , str_debug_32
@@ -8820,7 +8813,12 @@ inline void gcode_M115() {
 /**
  * M117: Set LCD Status Message
  */
-inline void gcode_M117() { lcd_setstatus(parser.string_arg); }
+inline void gcode_M117() {
+  if (parser.string_arg[0])
+    lcd_setstatus(parser.string_arg);
+  else
+    lcd_reset_status();
+}
 
 /**
  * M118: Display a message in the host console.
