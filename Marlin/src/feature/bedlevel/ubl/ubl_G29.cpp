@@ -626,8 +626,8 @@
 
     #if ENABLED(NEWPANEL)
       lcd_reset_alert_level();
-      LCD_MESSAGEPGM("");
       lcd_quick_feedback(true);
+      lcd_reset_status();
       lcd_external_control = false;
     #endif
 

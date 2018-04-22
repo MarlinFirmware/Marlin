@@ -31,8 +31,9 @@
 #ifndef LANGUAGE_PT_BR_UTF_H
 #define LANGUAGE_PT_BR_UTF_H
 
-#define MAPPER_C2C3
-#define DISPLAY_CHARSET_ISO10646_1
+// Put characters here that should be displayed with M117
+//_UxGT("áãàçÉéêíóõ")
+
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
@@ -258,7 +259,6 @@
 #define MSG_NO_CARD                         _UxGT("Sem cartão SD")
 #define MSG_DWELL                           _UxGT("ZzZzZz...")
 #define MSG_USERWAIT                        _UxGT("Clique para retomar")
-#define MSG_RESUMING                        _UxGT("Resumindo Impressão")
 #define MSG_PRINT_ABORTED                   _UxGT("Impressão Abortada")
 #define MSG_NO_MOVE                         _UxGT("Sem movimento")
 #define MSG_KILLED                          _UxGT("PARADA DE EMERGÊNCIA")
@@ -297,9 +297,7 @@
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Erro:Temp Mesa Máx")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Erro:Temp Mesa Mín")
 #define MSG_HEATING                         _UxGT("Aquecendo...")
-#define MSG_HEATING_COMPLETE                _UxGT("Aquecida.")
-#define MSG_BED_HEATING                     _UxGT("Aquecendo base..")
-#define MSG_BED_DONE                        _UxGT("Base aquecida.")
+#define MSG_BED_HEATING                     _UxGT("Aquecendo base...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibrar Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibrar X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibrar Y")

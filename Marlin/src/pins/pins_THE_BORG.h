@@ -27,8 +27,6 @@
 #define DEFAULT_MACHINE_NAME "The-Borge"
 #define BOARD_NAME "The-Borge"
 
-#define LARGE_FLASH true
-
 #define E2END 0xFFF   // EEPROM end address
 
 // Ignore temp readings during develpment.
@@ -38,159 +36,149 @@
   #error "The-Borg supports up to 3 hotends / E-steppers."
 #endif
 
-#define PORTA 0
-#define PORTB 1
-#define PORTC 2
-#define PORTD 3
-#define PORTE 4
-#define PORTF 5
-#define PORTG 6
-
-#define _STM32_PIN(_PORT,_PIN) ((_PORT * 16) + _PIN)
-
 //
 // Limit Switches
 //
-#define X_MIN_PIN          _STM32_PIN(PORTE,  9)
-#define X_MAX_PIN          _STM32_PIN(PORTE, 10)
-#define Y_MIN_PIN          _STM32_PIN(PORTE,  7)
-#define Y_MAX_PIN          _STM32_PIN(PORTE,  8)
-#define Z_MIN_PIN          _STM32_PIN(PORTF, 15)
-#define Z_MAX_PIN          _STM32_PIN(PORTG,  0)
-#define E_MIN_PIN          _STM32_PIN(PORTE,  2)
-#define E_MAX_PIN          _STM32_PIN(PORTE,  3)
+#define X_MIN_PIN          PE9
+#define X_MAX_PIN          PE10
+#define Y_MIN_PIN          PE7
+#define Y_MAX_PIN          PE8
+#define Z_MIN_PIN          PF15
+#define Z_MAX_PIN          PG0
+#define E_MIN_PIN          PE2
+#define E_MAX_PIN          PE3
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  _STM32_PIN(PORTA,  4)
+  #define Z_MIN_PROBE_PIN  PA4
 #endif
 
 //
 // Steppers
 //
-#define STEPPER_ENABLE_PIN _STM32_PIN(PORTE,  0)
+#define STEPPER_ENABLE_PIN PE0
 
-#define X_STEP_PIN         _STM32_PIN(PORTC,  6)   // 96, 39 in Arduino
-#define X_DIR_PIN          _STM32_PIN(PORTC,  7)
-#define X_ENABLE_PIN       _STM32_PIN(PORTC,  8)
-
-
-#define Y_STEP_PIN         _STM32_PIN(PORTD,  9)
-#define Y_DIR_PIN          _STM32_PIN(PORTD, 10)
-#define Y_ENABLE_PIN       _STM32_PIN(PORTD, 11)
-
-#define Z_STEP_PIN         _STM32_PIN(PORTE, 15)
-#define Z_DIR_PIN          _STM32_PIN(PORTG,  1)
-#define Z_ENABLE_PIN       _STM32_PIN(PORTD,  8)
+#define X_STEP_PIN         PC6   // 96, 39 in Arduino
+#define X_DIR_PIN          PC7
+#define X_ENABLE_PIN       PC8
 
 
-#define E0_STEP_PIN        _STM32_PIN(PORTB,  1)
-#define E0_DIR_PIN         _STM32_PIN(PORTB,  2)
-#define E0_ENABLE_PIN      _STM32_PIN(PORTE, 11)
+#define Y_STEP_PIN         PD9
+#define Y_DIR_PIN          PD10
+#define Y_ENABLE_PIN       PD11
+
+#define Z_STEP_PIN         PE15
+#define Z_DIR_PIN          PG1
+#define Z_ENABLE_PIN       PD8
 
 
-#define E1_STEP_PIN        _STM32_PIN(PORTC,  4)
-#define E1_DIR_PIN         _STM32_PIN(PORTC,  5)
-#define E1_ENABLE_PIN      _STM32_PIN(PORTB,  0)
+#define E0_STEP_PIN        PB1
+#define E0_DIR_PIN         PB2
+#define E0_ENABLE_PIN      PE11
 
 
-#define E2_STEP_PIN        _STM32_PIN(PORTC, 13)
-#define E2_DIR_PIN         _STM32_PIN(PORTC, 14)
-#define E2_ENABLE_PIN      _STM32_PIN(PORTC, 15)
-
-#define Z2_STEP_PIN        _STM32_PIN(PORTC, 13)
-#define Z2_DIR_PIN         _STM32_PIN(PORTC, 14)
-#define Z2_ENABLE_PIN      _STM32_PIN(PORTC, 15)
+#define E1_STEP_PIN        PC4
+#define E1_DIR_PIN         PC5
+#define E1_ENABLE_PIN      PB0
 
 
-#define SCK_PIN            _STM32_PIN(PORTA,  5)
-#define MISO_PIN           _STM32_PIN(PORTA,  6)
-#define MOSI_PIN           _STM32_PIN(PORTA,  7)
+#define E2_STEP_PIN        PC13
+#define E2_DIR_PIN         PC14
+#define E2_ENABLE_PIN      PC15
 
-#define SPI1_SCK_PIN       _STM32_PIN(PORTA,  5)
-#define SPI1_MISO_PIN      _STM32_PIN(PORTA,  6)
-#define SPI1_MOSI_PIN      _STM32_PIN(PORTA,  7)
+#define Z2_STEP_PIN        PC13
+#define Z2_DIR_PIN         PC14
+#define Z2_ENABLE_PIN      PC15
 
-#define SPI6_SCK_PIN       _STM32_PIN(PORTG, 13)
-#define SPI6_MISO_PIN      _STM32_PIN(PORTG, 12)
-#define SPI6_MOSI_PIN      _STM32_PIN(PORTG, 14)
+
+#define SCK_PIN            PA5
+#define MISO_PIN           PA6
+#define MOSI_PIN           PA7
+
+#define SPI1_SCK_PIN       PA5
+#define SPI1_MISO_PIN      PA6
+#define SPI1_MOSI_PIN      PA7
+
+#define SPI6_SCK_PIN       PG13
+#define SPI6_MISO_PIN      PG12
+#define SPI6_MOSI_PIN      PG14
 
 //
 // Temperature Sensors
 //
 
-#define TEMP_0_PIN         _STM32_PIN(PORTC,  3)   // Analog Input
-#define TEMP_1_PIN         _STM32_PIN(PORTC,  2)   // Analog Input
-#define TEMP_2_PIN         _STM32_PIN(PORTC,  1)   // Analog Input
-#define TEMP_3_PIN         _STM32_PIN(PORTC,  0)   // Analog Input
+#define TEMP_0_PIN         PC3   // Analog Input
+#define TEMP_1_PIN         PC2   // Analog Input
+#define TEMP_2_PIN         PC1   // Analog Input
+#define TEMP_3_PIN         PC0   // Analog Input
 
-#define TEMP_BED_PIN       _STM32_PIN(PORTF, 10)   // Analog Input
+#define TEMP_BED_PIN       PF10  // Analog Input
 
-#define TEMP_5_PIN         _STM32_PIN(PORTE, 12)   // Analog Input, Probe temp
+#define TEMP_5_PIN         PE12  // Analog Input, Probe temp
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       _STM32_PIN(PORTD, 15)
-#define HEATER_1_PIN       _STM32_PIN(PORTD, 14)
-#define HEATER_BED_PIN     _STM32_PIN(PORTF,  6)
+#define HEATER_0_PIN       PD15
+#define HEATER_1_PIN       PD14
+#define HEATER_BED_PIN     PF6
 
-#define FAN_PIN            _STM32_PIN(PORTD, 13)
-#define FAN1_PIN           _STM32_PIN(PORTA,  0)
-#define FAN2_PIN           _STM32_PIN(PORTA,  1)
+#define FAN_PIN            PD13
+#define FAN1_PIN           PA0
+#define FAN2_PIN           PA1
 
-#define ORIG_E0_AUTO_FAN_PIN  _STM32_PIN(PORTA, 1)   // Use this by NOT overriding E0_AUTO_FAN_PIN
+#define ORIG_E0_AUTO_FAN_PIN  PA1   // Use this by NOT overriding E0_AUTO_FAN_PIN
 
 //
 // Misc. Functions
 //
 
-//#define CASE_LIGHT_PIN_CI _STM32_PIN(PORTF, 13)
-//#define CASE_LIGHT_PIN_DO _STM32_PIN(PORTF, 14)
-//#define NEOPIXEL_PIN     _STM32_PIN(PORTF, 13)
+//#define CASE_LIGHT_PIN_CI PF13
+//#define CASE_LIGHT_PIN_DO PF14
+//#define NEOPIXEL_PIN      PF13
 
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
 //
 
-#define E_MUX0_PIN         _STM32_PIN(PORTG,  3)
-#define E_MUX1_PIN         _STM32_PIN(PORTG,  4)
+#define E_MUX0_PIN         PG3
+#define E_MUX1_PIN         PG4
 
 //
 // Servos
 //
 
-#define SERVO0_PIN         _STM32_PIN(PORTE, 13)
-#define SERVO1_PIN         _STM32_PIN(PORTE, 14)
+#define SERVO0_PIN         PE13
+#define SERVO1_PIN         PE14
 
 
-#define SDSS               _STM32_PIN(PORTA,  8)
-#define SS_PIN             _STM32_PIN(PORTA,  8)
-#define LED_PIN            _STM32_PIN(PORTA,  2)   // Alive
-#define PS_ON_PIN          _STM32_PIN(PORTA,  3)
-#define KILL_PIN           -1//_STM32_PIN(PORTD,  5)   // EXP2-10
-#define PWR_LOSS           _STM32_PIN(PORTG,  5)   // Power loss / nAC_FAULT
+#define SDSS               PA8
+#define SS_PIN             PA8
+#define LED_PIN            PA2   // Alive
+#define PS_ON_PIN          PA3
+#define KILL_PIN           -1 //PD5   // EXP2-10
+#define PWR_LOSS           PG5   // Power loss / nAC_FAULT
 
 //
 // MAX7219_DEBUG
 //
-#define MAX7219_CLK_PIN    _STM32_PIN(PORTG, 10)   // EXP1-1
-#define MAX7219_DIN_PIN    _STM32_PIN(PORTD,  7)   // EXP1-3
-#define MAX7219_LOAD_PIN   _STM32_PIN(PORTD,  1)   // EXP1-5
+#define MAX7219_CLK_PIN    PG10  // EXP1-1
+#define MAX7219_DIN_PIN    PD7   // EXP1-3
+#define MAX7219_LOAD_PIN   PD1   // EXP1-5
 
 //
 // LCD / Controller
 //
-//#define SD_DETECT_PIN      -1 //_STM32_PIN(PORTB, 6))     // EXP2-4
-#define BEEPER_PIN         _STM32_PIN(PORTG, 10)   // EXP1-1
-#define LCD_PINS_RS        _STM32_PIN(PORTG,  9)   // EXP1-4
-#define LCD_PINS_ENABLE    _STM32_PIN(PORTD,  7)   // EXP1-3
-#define LCD_PINS_D4        _STM32_PIN(PORTD,  1)   // EXP1-5
-#define LCD_PINS_D5        _STM32_PIN(PORTF,  0)   // EXP1-6
-#define LCD_PINS_D6        _STM32_PIN(PORTD,  3)   // EXP1-7
-#define LCD_PINS_D7        _STM32_PIN(PORTD,  4)   // EXP1-8
-#define BTN_EN1            _STM32_PIN(PORTD,  6)   // EXP2-5
-#define BTN_EN2            _STM32_PIN(PORTD,  0)   // EXP2-3
-#define BTN_ENC            _STM32_PIN(PORTG, 11)   // EXP1-2
+//#define SD_DETECT_PIN      -1 //PB6)     // EXP2-4
+#define BEEPER_PIN         PG10  // EXP1-1
+#define LCD_PINS_RS        PG9   // EXP1-4
+#define LCD_PINS_ENABLE    PD7   // EXP1-3
+#define LCD_PINS_D4        PD1   // EXP1-5
+#define LCD_PINS_D5        PF0   // EXP1-6
+#define LCD_PINS_D6        PD3   // EXP1-7
+#define LCD_PINS_D7        PD4   // EXP1-8
+#define BTN_EN1            PD6   // EXP2-5
+#define BTN_EN2            PD0   // EXP2-3
+#define BTN_ENC            PG11  // EXP1-2

@@ -107,12 +107,12 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
           const float (&pos)[XYZE] = current_position;
         #endif
         if (planner.leveling_active) {
-          current_position[Z_AXIS] += ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS]);
+          current_position[Z_AXIS] += ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS]);
           planner.leveling_active = false;
         }
         else {
           planner.leveling_active = true;
-          current_position[Z_AXIS] -= ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS]);
+          current_position[Z_AXIS] -= ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS]);
         }
       #endif
 
