@@ -500,7 +500,7 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
       while (thermalManager.isHeatingBed()) safe_delay(200);
       lcd_reset_status();
     }
-  #endif  
+  #endif
 
   // Deploy BLTouch at the start of any probe
   #if ENABLED(BLTOUCH)
