@@ -572,7 +572,7 @@ uint8_t target_extruder;
   #define ADJUST_DELTA(V) NOOP
 #endif
 
-#if HAS_TEMP_BED && ENABLED(WAIT_FOR_BED_HEATER)
+#if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
   const static char msg_wait_for_bed_heating[] PROGMEM = "Wait for bed heating...\n";
 #endif
 
@@ -2213,7 +2213,7 @@ void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
     #endif
 
-    #if HAS_TEMP_BED && ENABLED(WAIT_FOR_BED_HEATER)
+    #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
       // Wait for bed to heat back up between probing points
       if (thermalManager.isHeatingBed()) {
         serialprintPGM(msg_wait_for_bed_heating);
@@ -2937,7 +2937,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     }
   #endif
   
-  #if HOMING_Z_WITH_PROBE && HAS_TEMP_BED && ENABLED(WAIT_FOR_BED_HEATER)
+  #if HOMING_Z_WITH_PROBE && HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
     // Wait for bed to heat back up between probing points
     if (axis == Z_AXIS && distance < 0 && thermalManager.isHeatingBed()) {
       serialprintPGM(msg_wait_for_bed_heating);
@@ -7891,7 +7891,7 @@ inline void gcode_M105() {
   #if HAS_TEMP_SENSOR
     SERIAL_PROTOCOLPGM(MSG_OK);
     thermalManager.print_heaterstates();
-  #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
+  #else // !HAS_TEMP_SENSOR
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
   #endif
@@ -8155,7 +8155,15 @@ inline void gcode_M109() {
   #endif
 }
 
-#if HAS_TEMP_BED
+#if HAS_HEATED_BED
+
+  /**
+   * M140: Set bed temperature
+   */
+  inline void gcode_M140() {
+    if (DEBUGGING(DRYRUN)) return;
+    if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
+  }
 
   #ifndef MIN_COOLING_SLOPE_DEG_BED
     #define MIN_COOLING_SLOPE_DEG_BED 1.50
@@ -8287,7 +8295,7 @@ inline void gcode_M109() {
     #endif
   }
 
-#endif // HAS_TEMP_BED
+#endif // HAS_HEATED_BED
 
 /**
  * M110: Set Current Line Number
@@ -8381,14 +8389,6 @@ inline void gcode_M111() {
   #endif
 
 #endif // BARICUDA
-
-/**
- * M140: Set bed temperature
- */
-inline void gcode_M140() {
-  if (DEBUGGING(DRYRUN)) return;
-  if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
-}
 
 #if ENABLED(ULTIPANEL)
 
@@ -12065,8 +12065,6 @@ void process_parsed_command() {
         case 113: gcode_M113(); break;                            // M113: Set Host Keepalive Interval
       #endif
 
-      case 140: gcode_M140(); break;                              // M140: Set Bed Temperature
-
       case 105: gcode_M105(); KEEPALIVE_STATE(NOT_BUSY); return;  // M105: Report Temperatures (and say "ok")
 
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
@@ -12075,7 +12073,8 @@ void process_parsed_command() {
 
       case 109: gcode_M109(); break;                              // M109: Set Hotend Temperature. Wait for target.
 
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
+        case 140: gcode_M140(); break;                            // M140: Set Bed Temperature
         case 190: gcode_M190(); break;                            // M190: Set Bed Temperature. Wait for target.
       #endif
 
@@ -13688,7 +13687,7 @@ void prepare_move_to_destination() {
     if (ELAPSED(millis(), next_status_led_update_ms)) {
       next_status_led_update_ms += 500; // Update every 0.5s
       float max_temp = 0.0;
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
         max_temp = MAX3(max_temp, thermalManager.degTargetBed(), thermalManager.degBed());
       #endif
       HOTEND_LOOP()
