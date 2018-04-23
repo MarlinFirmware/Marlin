@@ -1219,11 +1219,10 @@ void Temperature::init() {
     // Use timer0 for temperature measurement
     // Interleave temperature interrupt with millies interrupt
     OCR0B = 128;
-    SBI(TIMSK0, OCIE0B);
   #else
     HAL_timer_start(TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
-    HAL_timer_enable_interrupt(TEMP_TIMER_NUM);
   #endif
+  ENABLE_TEMPERATURE_INTERRUPT();
 
   #if HAS_AUTO_FAN_0
     #if E0_AUTO_FAN_PIN == FAN1_PIN
@@ -1716,22 +1715,13 @@ void Temperature::set_current_temp_raw() {
  */
 HAL_TEMP_TIMER_ISR {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
+
   Temperature::isr();
+
+  HAL_timer_isr_epilogue(TEMP_TIMER_NUM);
 }
 
-volatile bool Temperature::in_temp_isr = false;
-
 void Temperature::isr() {
-  // The stepper ISR can interrupt this ISR. When it does it re-enables this ISR
-  // at the end of its run, potentially causing re-entry. This flag prevents it.
-  if (in_temp_isr) return;
-  in_temp_isr = true;
-
-  // Allow UART and stepper ISRs
-  DISABLE_TEMPERATURE_INTERRUPT(); //Disable Temperature ISR
-  #ifndef CPU_32_BIT
-    sei();
-  #endif
 
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
@@ -2255,12 +2245,6 @@ void Temperature::isr() {
       e_hit--;
     }
   #endif
-
-  #ifndef CPU_32_BIT
-    cli();
-  #endif
-  in_temp_isr = false;
-  ENABLE_TEMPERATURE_INTERRUPT(); //re-enable Temperature ISR
 }
 
 #if HAS_TEMP_SENSOR

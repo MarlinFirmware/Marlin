@@ -88,7 +88,6 @@ timer_dev* get_timer_dev(int number);
 
 #define HAL_timer_get_count(timer_num) timer_get_count(TIMER_DEV(timer_num))
 
-#define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 // TODO change this
 
 
@@ -174,5 +173,7 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
     return;
   }
 }
+
+#define HAL_timer_isr_epilogue(TIMER_NUM)
 
 #endif // _HAL_TIMERS_STM32F1_H
