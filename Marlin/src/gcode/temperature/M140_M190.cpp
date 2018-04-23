@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_HEATER_BED && HAS_TEMP_BED
+#if HAS_HEATED_BED
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
@@ -177,4 +177,4 @@ void GcodeSuite::M190() {
   #endif
 }
 
-#endif // HAS_HEATER_BED && HAS_TEMP_BED
+#endif // HAS_HEATED_BED

@@ -547,7 +547,7 @@ private:
     #endif
   #endif
 
-  #if HAS_HEATER_BED && HAS_TEMP_BED
+  #if HAS_HEATED_BED
     static void M140();
     static void M190();
   #endif

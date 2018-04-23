@@ -476,14 +476,13 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 }
 
 FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, const bool blink) {
-  #if TEMP_SENSOR_BED
+  #if HAS_HEATED_BED
     const bool isBed = heater < 0;
+    const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater)),
+                t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater));
   #else
-    constexpr bool isBed = false;
+    const float t1 = thermalManager.degHotend(heater), t2 = thermalManager.degTargetHotend(heater);
   #endif
-
-  const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater)),
-              t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater));
 
   if (prefix >= 0) lcd_put_wchar(prefix);
 
@@ -493,12 +492,11 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
   #else
-    const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
-      #if HAS_TEMP_BED
-        thermalManager.is_bed_idle()
-      #else
-        false
+    const bool is_idle = (
+      #if HAS_HEATED_BED
+        isBed ? thermalManager.is_bed_idle() :
       #endif
+      thermalManager.is_heater_idle(heater)
     );
 
     if (!blink && is_idle) {
