@@ -43,6 +43,10 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
+#define ENABLE_TEMPERATURE_INTERRUPT()  SBI(TIMSK0, OCIE0B)
+#define DISABLE_TEMPERATURE_INTERRUPT() CBI(TIMSK0, OCIE0B)
+#define TEMPERATURE_ISR_ENABLED()      TEST(TIMSK0, OCIE0B)
+
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 
 #if HOTENDS == 1
@@ -118,8 +122,6 @@ enum ADCSensorState : char {
 class Temperature {
 
   public:
-
-    static volatile bool in_temp_isr;
 
     static float current_temperature[HOTENDS];
     static int16_t current_temperature_raw[HOTENDS],
