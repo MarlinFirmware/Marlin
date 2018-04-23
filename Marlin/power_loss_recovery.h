@@ -41,8 +41,11 @@ typedef struct {
   // Machine state
   float current_position[NUM_AXIS], feedrate;
   int16_t target_temperature[HOTENDS],
-          target_temperature_bed,
           fanSpeeds[FAN_COUNT];
+
+  #if HAS_HEATED_BED
+    int16_t target_temperature_bed;
+  #endif
 
   #if HAS_LEVELING
     bool leveling;

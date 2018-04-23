@@ -481,7 +481,7 @@
    */
   inline bool turn_on_heaters() {
     millis_t next = millis() + 5000UL;
-    #if HAS_TEMP_BED
+    #if HAS_HEATED_BED
       #if ENABLED(ULTRA_LCD)
         if (g26_bed_temp > 25) {
           lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
@@ -841,7 +841,7 @@
     #endif
 
     if (!g26_keep_heaters_on) {
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
         thermalManager.setTargetBed(0);
       #endif
       thermalManager.setTargetHotend(0, 0);

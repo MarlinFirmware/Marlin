@@ -69,7 +69,9 @@ static char sd_filename[MAXPATHNAMELENGTH];
           SERIAL_PROTOCOLPAIR("leveling: ", int(job_recovery_info.leveling));
           SERIAL_PROTOCOLLNPAIR(" fade: ", int(job_recovery_info.fade));
         #endif
-        SERIAL_PROTOCOLLNPAIR("target_temperature_bed: ", job_recovery_info.target_temperature_bed);
+        #if HAS_HEATED_BED
+          SERIAL_PROTOCOLLNPAIR("target_temperature_bed: ", job_recovery_info.target_temperature_bed);
+        #endif
         SERIAL_PROTOCOLLNPAIR("cmd_queue_index_r: ", job_recovery_info.cmd_queue_index_r);
         SERIAL_PROTOCOLLNPAIR("commands_in_queue: ", job_recovery_info.commands_in_queue);
         if (recovery)
@@ -198,7 +200,9 @@ void save_job_recovery_info() {
     COPY(job_recovery_info.current_position, current_position);
     job_recovery_info.feedrate = feedrate_mm_s;
     COPY(job_recovery_info.target_temperature, thermalManager.target_temperature);
-    job_recovery_info.target_temperature_bed = thermalManager.target_temperature_bed;
+    #if HAS_HEATED_BED
+      job_recovery_info.target_temperature_bed = thermalManager.target_temperature_bed;
+    #endif
     COPY(job_recovery_info.fanSpeeds, fanSpeeds);
 
     #if HAS_LEVELING
