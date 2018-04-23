@@ -93,7 +93,7 @@
 //
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN       P1_30
+  #define BEEPER_PIN       P1_31
   #define DOGLCD_A0        P2_06
   #define DOGLCD_CS        P0_16
 
@@ -101,11 +101,11 @@
   #define BTN_EN2          P3_26
   #define BTN_ENC          P2_11
 
-  //#define SD_DETECT_PIN    P1_18
-  //#define SDSS             P1_21
+  #define SD_DETECT_PIN    P1_18
+  #define SDSS             P1_21
 
-  #define STAT_LED_RED_PIN P0_26
-  #define STAT_LED_BLUE_PIN P1_21
+  #define STAT_LED_RED_PIN P1_19
+  #define STAT_LED_BLUE_PIN P1_20
 #endif
 
 //
