@@ -80,7 +80,7 @@ uint8 adc_pins[] = {
   #if HAS_TEMP_4
     TEMP_4_PIN,
   #endif
-  #if HAS_TEMP_BED
+  #if HAS_HEATED_BED
     TEMP_BED_PIN,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -104,7 +104,7 @@ enum TEMP_PINS : char {
   #if HAS_TEMP_4
     TEMP_4,
   #endif
-  #if HAS_TEMP_BED
+  #if HAS_HEATED_BED
     TEMP_BED,
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -211,7 +211,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_TEMP_4
       case TEMP_4_PIN: pin_index = TEMP_4; break;
     #endif
-    #if HAS_TEMP_BED
+    #if HAS_HEATED_BED
       case TEMP_BED_PIN: pin_index = TEMP_BED; break;
     #endif
     #if ENABLED(FILAMENT_WIDTH_SENSOR)

@@ -45,7 +45,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
     UNUSED(blink);
   #endif
 
-  #if HAS_TEMP_BED
+  #if HAS_HEATED_BED
     const bool isBed = heater < 0;
   #else
     constexpr bool isBed = false;
@@ -53,32 +53,48 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
 
   if (PAGE_UNDER(7)) {
     #if HEATER_IDLE_HANDLER
-      const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
-        #if HAS_TEMP_BED
-          thermalManager.is_bed_idle()
-        #else
-          false
+      const bool is_idle = (
+        #if HAS_HEATED_BED
+          isBed ? thermalManager.is_bed_idle() :
         #endif
+        thermalManager.is_heater_idle(heater)
       );
 
       if (blink || !is_idle)
     #endif
-    _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7); }
+        _draw_centered_temp(0.5 + (
+            #if HAS_HEATED_BED
+              isBed ? thermalManager.degTargetBed() :
+            #endif
+            thermalManager.degTargetHotend(heater)
+          ), x, 7
+        );
+  }
 
   if (PAGE_CONTAINS(21, 28))
-    _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
+    _draw_centered_temp(0.5 + (
+        #if HAS_HEATED_BED
+          isBed ? thermalManager.degBed() :
+        #endif
+        thermalManager.degHotend(heater)
+      ), x, 28
+    );
 
   if (PAGE_CONTAINS(17, 20)) {
     const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
                   y = isBed ? 18 : 17;
-    if (isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater)) {
+    if (
+      #if HAS_HEATED_BED
+        isBed ? thermalManager.isHeatingBed() :
+      #endif
+      thermalManager.isHeatingHotend(heater)
+    ) {
       u8g.setColorIndex(0); // white on black
       u8g.drawBox(x + h, y, 2, 2);
       u8g.setColorIndex(1); // black on white
     }
-    else {
+    else
       u8g.drawBox(x + h, y, 2, 2);
-    }
   }
 }
 
@@ -199,7 +215,7 @@ static void lcd_implementation_status_screen() {
     HOTEND_LOOP() _draw_heater_status(STATUS_SCREEN_HOTEND_TEXT_X(e), e, blink);
 
     // Heated bed
-    #if HOTENDS < 4 && HAS_TEMP_BED
+    #if HOTENDS < 4 && HAS_HEATED_BED
       _draw_heater_status(STATUS_SCREEN_BED_TEXT_X, -1, blink);
     #endif
 
