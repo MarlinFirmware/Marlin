@@ -28,6 +28,13 @@
 #if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
   void lcd_init();
   bool lcd_detected();
+  void lcd_update();
+  void lcd_setalertstatusPGM(const char* message);
+#else
+  inline void lcd_init() {}
+  inline bool lcd_detected() { return true; }
+  inline void lcd_update() {}
+  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
 #endif
 
 #if ENABLED(ULTRA_LCD)
@@ -52,7 +59,6 @@
     constexpr bool lcd_wait_for_move = false;
   #endif
 
-  void lcd_update();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatusPGM(const char* message, const int8_t level=0);
@@ -230,20 +236,16 @@
     void wait_for_release();
   #endif
 
-#else // no LCD
+#else // MALYAN_LCD or no LCD
 
   constexpr bool lcd_wait_for_move = false;
 
-  inline void lcd_init() {}
-  inline bool lcd_detected() { return true; }
-  inline void lcd_update() {}
   inline void lcd_refresh() {}
   inline void lcd_buttons_update() {}
   inline bool lcd_hasstatus() { return false; }
   inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
   inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
   inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
-  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_reset_alert_level() {}
   inline void lcd_reset_status() {}
 
