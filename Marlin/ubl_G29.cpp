@@ -247,9 +247,7 @@
    *                    for subsequent Load and Store operations. Valid storage slot numbers begin at 0 and
    *                    extend to a limit related to the available EEPROM storage.
    *
-   *   S -1  Store      Store the current Mesh as a print out that is suitable to be feed back into the system
-   *                    at a later date. The GCode output can be saved and later replayed by the host software
-   *                    to reconstruct the current mesh on another machine.
+   *   S -1  Store      Print the current Mesh as G-code that can be used to restore the mesh anytime.
    *
    *   T     Topology   Display the Mesh Map Topology.
    *                    'T' can be used alone (e.g., G29 T) or in combination with most of the other commands.
@@ -623,8 +621,8 @@
 
     #if ENABLED(NEWPANEL)
       lcd_reset_alert_level();
-      LCD_MESSAGEPGM("");
       lcd_quick_feedback(true);
+      lcd_reset_status();
       lcd_external_control = false;
     #endif
 
@@ -1384,7 +1382,7 @@
         const float rawx = mesh_index_to_xpos(location.x_index),
                     rawy = mesh_index_to_ypos(location.y_index);
 
-        //if (!position_is_reachable(rawx, rawy)) break;            // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
+        if (!position_is_reachable(rawx, rawy)) break;               // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
 
         do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point with probe clearance
 

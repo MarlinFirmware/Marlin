@@ -288,6 +288,10 @@
   #include "fwretract.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "power_loss_recovery.h"
+#endif
+
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #include "runout.h"
 #endif
@@ -415,14 +419,11 @@ static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
  * the main loop. The process_next_command function parses the next
  * command and hands off execution to individual handler functions.
  */
-uint8_t commands_in_queue = 0; // Count of commands in the queue
-static uint8_t cmd_queue_index_r = 0, // Ring buffer read position
-               cmd_queue_index_w = 0; // Ring buffer write position
-#if ENABLED(M100_FREE_MEMORY_WATCHER)
-  char command_queue[BUFSIZE][MAX_CMD_SIZE];  // Necessary so M100 Free Memory Dumper can show us the commands and any corruption
-#else                                         // This can be collapsed back to the way it was soon.
-static char command_queue[BUFSIZE][MAX_CMD_SIZE];
-#endif
+uint8_t commands_in_queue = 0, // Count of commands in the queue
+        cmd_queue_index_r = 0, // Ring buffer read (out) position
+        cmd_queue_index_w = 0; // Ring buffer write (in) position
+
+char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
 /**
  * Next Injected Command pointer. NULL if no commands are being injected.
@@ -571,6 +572,10 @@ uint8_t target_extruder;
   #define ADJUST_DELTA(V) NOOP
 #endif
 
+#if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
+  const static char msg_wait_for_bed_heating[] PROGMEM = "Wait for bed heating...\n";
+#endif
+
 // Extruder offsets
 #if HOTENDS > 1
   float hotend_offset[XYZ][HOTENDS];  // Initialized by settings.load()
@@ -586,13 +591,13 @@ uint8_t target_extruder;
 #endif
 
 #if HAS_POWER_SWITCH
-  bool powersupply_on =
+  bool powersupply_on = (
     #if ENABLED(PS_DEFAULT_OFF)
       false
     #else
       true
     #endif
-  ;
+  );
   #if ENABLED(AUTO_POWER_CONTROL)
     #define PSU_ON()  powerManager.power_on()
     #define PSU_OFF() powerManager.power_off()
@@ -897,11 +902,11 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
 }
 
 #if HAS_QUEUE_NOW
-  void enqueue_and_echo_command_now(const char* cmd, bool say_ok/*=false*/) {
-    while (!enqueue_and_echo_command(cmd, say_ok)) idle();
+  void enqueue_and_echo_command_now(const char* cmd) {
+    while (!enqueue_and_echo_command(cmd)) idle();
   }
   #if HAS_LCD_QUEUE_NOW
-    void enqueue_and_echo_commands_P_now(const char * const pgcode) {
+    void enqueue_and_echo_commands_now_P(const char * const pgcode) {
       enqueue_and_echo_commands_P(pgcode);
       while (drain_injected_commands_P()) idle();
     }
@@ -1227,20 +1232,42 @@ inline void get_serial_commands() {
     }
   }
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+
+    inline bool drain_job_recovery_commands() {
+      static uint8_t job_recovery_commands_index = 0; // Resets on reboot
+      if (job_recovery_commands_count) {
+        if (_enqueuecommand(job_recovery_commands[job_recovery_commands_index])) {
+          ++job_recovery_commands_index;
+          if (!--job_recovery_commands_count) job_recovery_phase = JOB_RECOVERY_IDLE;
+        }
+        return true;
+      }
+      return false;
+    }
+
+  #endif
+
 #endif // SDSUPPORT
 
 /**
  * Add to the circular command queue the next command from:
  *  - The command-injection queue (injected_commands_P)
  *  - The active serial input (usually USB)
+ *  - Commands left in the queue after power-loss
  *  - The SD card file being actively printed
  */
 void get_available_commands() {
 
-  // if any immediate commands remain, don't get other commands yet
+  // Immediate commands block the other queues
   if (drain_injected_commands_P()) return;
 
   get_serial_commands();
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    // Commands for power-loss recovery take precedence
+    if (job_recovery_phase == JOB_RECOVERY_YES && drain_job_recovery_commands()) return;
+  #endif
 
   #if ENABLED(SDSUPPORT)
     get_sdcard_commands();
@@ -2186,6 +2213,16 @@ void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
     #endif
 
+    #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
+      // Wait for bed to heat back up between probing points
+      if (thermalManager.isHeatingBed()) {
+        serialprintPGM(msg_wait_for_bed_heating);
+        LCD_MESSAGEPGM(MSG_BED_HEATING);
+        while (thermalManager.isHeatingBed()) safe_delay(200);
+        lcd_reset_status();
+      }
+    #endif	
+	
     // Deploy BLTouch at the start of any probe
     #if ENABLED(BLTOUCH)
       if (set_bltouch_deployed(true)) return true;
@@ -2461,7 +2498,21 @@ void clean_up_after_endstop_or_probe_move() {
             planner.unapply_leveling(current_position);
           }
         #else
-          planner.leveling_active = enable;                    // just flip the bit, current_position will be wrong until next move.
+          // UBL equivalents for apply/unapply_leveling
+          #if ENABLED(SKEW_CORRECTION)
+            float pos[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+            planner.skew(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS]);
+          #else
+            const float (&pos)[XYZE] = current_position;
+          #endif
+          if (planner.leveling_active) {
+            current_position[Z_AXIS] += ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS]);
+            planner.leveling_active = false;
+          }
+          else {
+            planner.leveling_active = true;
+            current_position[Z_AXIS] -= ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS]);
+          }
         #endif
 
       #else // ABL
@@ -2883,6 +2934,16 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
       SERIAL_ECHOPAIR(", ", fr_mm_s);
       SERIAL_CHAR(')');
       SERIAL_EOL();
+    }
+  #endif
+  
+  #if HOMING_Z_WITH_PROBE && HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
+    // Wait for bed to heat back up between probing points
+    if (axis == Z_AXIS && distance < 0 && thermalManager.isHeatingBed()) {
+      serialprintPGM(msg_wait_for_bed_heating);
+      LCD_MESSAGEPGM(MSG_BED_HEATING);
+      while (thermalManager.isHeatingBed()) safe_delay(200);
+      lcd_reset_status();
     }
   #endif
 
@@ -3956,6 +4017,8 @@ inline void gcode_G4() {
  *  None  Home to all axes with no parameters.
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
+ *  Rn  Raise by n mm/inches before homing
+ *
  * Cartesian parameters
  *
  *  X   Home to the X endstop
@@ -4030,11 +4093,12 @@ inline void gcode_G28(const bool always_home_all) {
 
     #endif
 
-    #if ENABLED(UNKNOWN_Z_NO_RAISE)
-      const float z_homing_height = axis_known_position[Z_AXIS] ? Z_HOMING_HEIGHT : 0;
-    #else
-      constexpr float z_homing_height = Z_HOMING_HEIGHT;
-    #endif
+    const float z_homing_height = (
+      #if ENABLED(UNKNOWN_Z_NO_RAISE)
+        !axis_known_position[Z_AXIS] ? 0 :
+      #endif
+          (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
+    );
 
     if (z_homing_height && (home_all || homeX || homeY)) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
@@ -4223,7 +4287,7 @@ void home_all_axes() { gcode_G28(true); }
       static bool enable_soft_endstops;
     #endif
 
-    const MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
+    MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
     if (!WITHIN(state, 0, 5)) {
       SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
       return;
@@ -4244,8 +4308,11 @@ void home_all_axes() { gcode_G28(true); }
       case MeshStart:
         mbl.reset();
         mbl_probe_index = 0;
-        enqueue_and_echo_commands_P(lcd_wait_for_move ? PSTR("G29 S2") : PSTR("G28\nG29 S2"));
-        break;
+        if (!lcd_wait_for_move) {
+          enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+          return;
+        }
+        state = MeshNext;
 
       case MeshNext:
         if (mbl_probe_index < 0) {
@@ -4259,10 +4326,10 @@ void home_all_axes() { gcode_G28(true); }
             enable_soft_endstops = soft_endstops_enabled;
           #endif
           // Move close to the bed before the first point
-          do_blocking_move_to_z(Z_MIN_POS);
+          do_blocking_move_to_z(0);
         }
         else {
-          // For G29 S2 after adjusting Z.
+          // Save Z for the previous mesh position
           mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
           #if HAS_SOFTWARE_ENDSTOPS
             soft_endstops_enabled = enable_soft_endstops;
@@ -4281,7 +4348,7 @@ void home_all_axes() { gcode_G28(true); }
         }
         else {
           // One last "return to the bed" (as originally coded) at completion
-          current_position[Z_AXIS] = Z_MIN_POS + MANUAL_PROBE_HEIGHT;
+          current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
           buffer_line_to_current_position();
           stepper.synchronize();
 
@@ -4295,7 +4362,7 @@ void home_all_axes() { gcode_G28(true); }
           set_bed_leveling_enabled(true);
 
           #if ENABLED(MESH_G28_REST_ORIGIN)
-            current_position[Z_AXIS] = Z_MIN_POS;
+            current_position[Z_AXIS] = 0;
             set_destination_from_current();
             buffer_line_to_destination(homing_feedrate(Z_AXIS));
             stepper.synchronize();
@@ -4355,7 +4422,7 @@ void home_all_axes() { gcode_G28(true); }
 
     } // switch(state)
 
-    if (state == MeshStart || state == MeshNext) {
+    if (state == MeshNext) {
       SERIAL_PROTOCOLPAIR("MBL G29 point ", min(mbl_probe_index, GRID_MAX_POINTS));
       SERIAL_PROTOCOLLNPAIR(" of ", int(GRID_MAX_POINTS));
     }
@@ -4794,7 +4861,7 @@ void home_all_axes() { gcode_G28(true); }
           enable_soft_endstops = soft_endstops_enabled;
         #endif
         // Move close to the bed before the first point
-        do_blocking_move_to_z(Z_MIN_POS);
+        do_blocking_move_to_z(0);
       }
       else {
 
@@ -5786,7 +5853,7 @@ void home_all_axes() { gcode_G28(true); }
                _opposite_results    = (_4p_calibration && !towers_set) || probe_points >= 3,
                _endstop_results     = probe_points != 1 && probe_points != -1 && probe_points != 0,
                _angle_results       = probe_points >= 3  && towers_set;
-    const static char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
+    static const char save_message[] PROGMEM = "Save with M500 and/or copy to Configuration.h";
     int8_t iterations = 0;
     float test_precision,
           zero_std_dev = (verbose_level ? 999.0 : 0.0), // 0.0 in dry-run mode : forced end
@@ -6298,12 +6365,9 @@ inline void gcode_G92() {
       ms += millis();  // wait until this time for a click
       while (PENDING(millis(), ms) && wait_for_user) idle();
     }
-    else {
-      #if ENABLED(ULTIPANEL)
-        if (lcd_detected())
-      #endif
-          while (wait_for_user) idle();
-    }
+    else
+      while (wait_for_user) idle();
+
 
     #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
       if (lights_off_after_print) {
@@ -6312,11 +6376,7 @@ inline void gcode_G92() {
       }
     #endif
 
-    #if ENABLED(ULTIPANEL)
-      if (lcd_detected()) {
-        print_job_timer.isPaused() ? LCD_MESSAGEPGM(WELCOME_MSG) : LCD_MESSAGEPGM(MSG_RESUMING);
-      }
-    #endif
+    lcd_reset_status();
 
     wait_for_user = false;
     KEEPALIVE_STATE(IN_HANDLER);
@@ -6973,6 +7033,10 @@ inline void gcode_M17() {
    * M24: Start or Resume SD Print
    */
   inline void gcode_M24() {
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      card.removeJobRecoveryFile();
+    #endif
+
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       resume_print();
     #endif
@@ -7827,7 +7891,7 @@ inline void gcode_M105() {
   #if HAS_TEMP_SENSOR
     SERIAL_PROTOCOLPGM(MSG_OK);
     thermalManager.print_heaterstates();
-  #else // !HAS_TEMP_HOTEND && !HAS_TEMP_BED
+  #else // !HAS_TEMP_SENSOR
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
   #endif
@@ -8080,7 +8144,7 @@ inline void gcode_M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
-    lcd_setstatusPGM(wants_to_cool ? PSTR(MSG_COOLING_COMPLETE) : PSTR(MSG_HEATING_COMPLETE));
+    lcd_reset_status();
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
     #endif
@@ -8091,7 +8155,15 @@ inline void gcode_M109() {
   #endif
 }
 
-#if HAS_TEMP_BED
+#if HAS_HEATED_BED
+
+  /**
+   * M140: Set bed temperature
+   */
+  inline void gcode_M140() {
+    if (DEBUGGING(DRYRUN)) return;
+    if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
+  }
 
   #ifndef MIN_COOLING_SLOPE_DEG_BED
     #define MIN_COOLING_SLOPE_DEG_BED 1.50
@@ -8217,13 +8289,13 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-    if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
+    if (wait_for_heatup) lcd_reset_status();
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
     #endif
   }
 
-#endif // HAS_TEMP_BED
+#endif // HAS_HEATED_BED
 
 /**
  * M110: Set Current Line Number
@@ -8238,7 +8310,7 @@ inline void gcode_M110() {
 inline void gcode_M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
-  const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
+  static const char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
                     str_debug_2[] PROGMEM = MSG_DEBUG_INFO,
                     str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS,
                     str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN,
@@ -8248,7 +8320,7 @@ inline void gcode_M111() {
                     #endif
                     ;
 
-  const static char* const debug_strings[] PROGMEM = {
+  static const char* const debug_strings[] PROGMEM = {
     str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       , str_debug_32
@@ -8317,14 +8389,6 @@ inline void gcode_M111() {
   #endif
 
 #endif // BARICUDA
-
-/**
- * M140: Set bed temperature
- */
-inline void gcode_M140() {
-  if (DEBUGGING(DRYRUN)) return;
-  if (parser.seenval('S')) thermalManager.setTargetBed(parser.value_celsius());
-}
 
 #if ENABLED(ULTIPANEL)
 
@@ -8766,13 +8830,25 @@ inline void gcode_M115() {
       #endif
     );
 
+    // THERMAL_PROTECTION
+    cap_line(PSTR("THERMAL_PROTECTION")
+      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(THERMAL_PROTECTION_BED)
+        , true
+      #endif
+    );
+
   #endif // EXTENDED_CAPABILITIES_REPORT
 }
 
 /**
  * M117: Set LCD Status Message
  */
-inline void gcode_M117() { lcd_setstatus(parser.string_arg); }
+inline void gcode_M117() {
+  if (parser.string_arg[0])
+    lcd_setstatus(parser.string_arg);
+  else
+    lcd_reset_status();
+}
 
 /**
  * M118: Display a message in the host console.
@@ -9326,6 +9402,14 @@ inline void gcode_M221() {
   if (parser.seenval('S')) {
     planner.flow_percentage[target_extruder] = parser.value_int();
     planner.refresh_e_factor(target_extruder);
+  }
+  else {
+    SERIAL_ECHO_START();
+    SERIAL_CHAR('E');
+    SERIAL_CHAR('0' + target_extruder);
+    SERIAL_ECHOPAIR(" Flow: ", planner.flow_percentage[target_extruder]);
+    SERIAL_CHAR('%');
+    SERIAL_EOL();
   }
 }
 
@@ -9904,6 +9988,7 @@ void quickstop_stepper() {
    * With AUTO_BED_LEVELING_UBL only:
    *
    *   L[index]  Load UBL mesh from index (0 is default)
+   *   T[map]    0:Human-readable 1:CSV 2:"LCD" 4:Compact
    */
   inline void gcode_M420() {
 
@@ -9942,7 +10027,7 @@ void quickstop_stepper() {
 
       // L to load a mesh from the EEPROM
       if (parser.seen('L') || parser.seen('V')) {
-        ubl.display_map(0);  // Currently only supports one map type
+        ubl.display_map(parser.byteval('T'));  // 0=
         SERIAL_ECHOLNPAIR("ubl.mesh_is_valid = ", ubl.mesh_is_valid());
         SERIAL_ECHOLNPAIR("ubl.storage_slot = ", ubl.storage_slot);
       }
@@ -10073,6 +10158,7 @@ void quickstop_stepper() {
    * Usage:
    *   M421 I<xindex> J<yindex> Z<linear>
    *   M421 I<xindex> J<yindex> Q<offset>
+   *   M421 I<xindex> J<yindex> N
    *   M421 C Z<linear>
    *   M421 C Q<offset>
    */
@@ -10081,6 +10167,7 @@ void quickstop_stepper() {
     const bool hasI = ix >= 0,
                hasJ = iy >= 0,
                hasC = parser.seen('C'),
+               hasN = parser.seen('N'),
                hasZ = parser.seen('Z'),
                hasQ = !hasZ && parser.seen('Q');
 
@@ -10090,7 +10177,7 @@ void quickstop_stepper() {
       iy = location.y_index;
     }
 
-    if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ)) {
+    if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ || hasN)) {
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
@@ -10099,7 +10186,7 @@ void quickstop_stepper() {
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
     }
     else
-      ubl.z_values[ix][iy] = parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
+      ubl.z_values[ix][iy] = hasN ? NAN : parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
   }
 
 #endif // AUTO_BED_LEVELING_UBL
@@ -10541,7 +10628,7 @@ inline void gcode_M502() {
 
     // Restore Z axis
     if (park_point.z > 0)
-      do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, Z_MIN_POS), NOZZLE_PARK_Z_FEEDRATE);
+      do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
     #if EXTRUDERS > 1
       // Restore toolhead if it was changed
@@ -10614,7 +10701,7 @@ inline void gcode_M502() {
 
     // Restore Z axis
     if (park_point.z > 0)
-      do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, Z_MIN_POS), NOZZLE_PARK_Z_FEEDRATE);
+      do_blocking_move_to_z(max(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
     #if EXTRUDERS > 1
       // Restore toolhead if it was changed
@@ -11978,8 +12065,6 @@ void process_parsed_command() {
         case 113: gcode_M113(); break;                            // M113: Set Host Keepalive Interval
       #endif
 
-      case 140: gcode_M140(); break;                              // M140: Set Bed Temperature
-
       case 105: gcode_M105(); KEEPALIVE_STATE(NOT_BUSY); return;  // M105: Report Temperatures (and say "ok")
 
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
@@ -11988,7 +12073,8 @@ void process_parsed_command() {
 
       case 109: gcode_M109(); break;                              // M109: Set Hotend Temperature. Wait for target.
 
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
+        case 140: gcode_M140(); break;                            // M140: Set Bed Temperature
         case 190: gcode_M190(); break;                            // M190: Set Bed Temperature. Wait for target.
       #endif
 
@@ -13601,7 +13687,7 @@ void prepare_move_to_destination() {
     if (ELAPSED(millis(), next_status_led_update_ms)) {
       next_status_led_update_ms += 500; // Update every 0.5s
       float max_temp = 0.0;
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
         max_temp = MAX3(max_temp, thermalManager.degTargetBed(), thermalManager.degBed());
       #endif
       HOTEND_LOOP()
@@ -14212,6 +14298,10 @@ void setup() {
     #endif
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    do_print_job_recovery();
+  #endif
+
   #if ENABLED(USE_WATCHDOG)
     watchdog_init();
   #endif
@@ -14289,8 +14379,12 @@ void loop() {
             ok_to_send();
         }
       }
-      else
+      else {
         process_next_command();
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          if (card.cardOK && card.sdprinting) save_job_recovery_info();
+        #endif
+      }
 
     #else
 

@@ -525,12 +525,12 @@ void ST7920_Lite_Status_Screen::draw_heat_icon(const bool whichIcon, const bool 
 static struct {
   bool E1_show_target  : 1;
   bool E2_show_target  : 1;
-  #if HAS_HEATER_BED
+  #if HAS_HEATED_BED
     bool bed_show_target : 1;
   #endif
 } display_state = {
   true, true
-  #if HAS_HEATER_BED
+  #if HAS_HEATED_BED
     , true
   #endif
 };
@@ -569,7 +569,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const int16_t temp, const i
   display_state.E2_show_target = show_target;
 }
 
-#if HAS_HEATER_BED
+#if HAS_HEATED_BED
   void ST7920_Lite_Status_Screen::draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate) {
     const bool show_target = target && FAR(temp, target);
     draw_temps(2
@@ -680,7 +680,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #if EXTRUDERS == 2
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
   #endif
-  #if HAS_HEATER_BED
+  #if HAS_HEATED_BED
     const int16_t  bed_target        = thermalManager.degTargetBed();
   #endif
   static uint16_t last_checksum = 0;
@@ -688,7 +688,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     #if EXTRUDERS == 2
       ^ extruder_2_target
     #endif
-    #if HAS_HEATER_BED
+    #if HAS_HEATED_BED
       ^ bed_target
     #endif
   ;
@@ -709,7 +709,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
       const int16_t  extruder_2_temp   = thermalManager.degHotend(1),
                      extruder_2_target = thermalManager.degTargetHotend(1);
     #endif
-    #if HAS_HEATER_BED
+    #if HAS_HEATED_BED
       const int16_t  bed_temp          = thermalManager.degBed(),
                      bed_target        = thermalManager.degTargetBed();
     #endif
@@ -718,7 +718,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #if EXTRUDERS == 2
       draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate);
     #endif
-    #if HAS_HEATER_BED
+    #if HAS_HEATED_BED
       draw_bed_temp(bed_temp, bed_target, forceUpdate);
     #endif
     draw_fan_speed(fan_speed);
@@ -727,7 +727,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
 
     // Update the fan and bed animations
     if (fan_speed > 0) draw_fan_icon(blink);
-    #if HAS_HEATER_BED
+    #if HAS_HEATED_BED
       if (bed_target > 0)
         draw_heat_icon(blink, true);
       else
