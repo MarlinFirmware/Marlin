@@ -123,6 +123,7 @@ void FWRetract::retract(const bool retracting
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
+    SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
     SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
   //*/
 
@@ -139,7 +140,7 @@ void FWRetract::retract(const bool retracting
     feedrate_mm_s = retract_feedrate_mm_s;
     current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) * renormalize;
     sync_plan_position_e();
-    prepare_move_to_destination();
+    prepare_move_to_destination();  // set_current_to_destination
 
     // Is a Z hop set, and has the hop not yet been done?
     // No double zlifting
@@ -149,7 +150,7 @@ void FWRetract::retract(const bool retracting
       hop_amount += retract_zlift;                        // Add to the hop total (again, only once)
       destination[Z_AXIS] += retract_zlift;               // Raise Z by the zlift (M207 Z) amount
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Maximum Z feedrate
-      prepare_move_to_destination();                      // Raise up
+      prepare_move_to_destination();                      // Raise up, set_current_to_destination
       current_position[Z_AXIS] = old_z;                   // Spoof the Z position in the planner
       SYNC_PLAN_POSITION_KINEMATIC();
     }
@@ -160,17 +161,17 @@ void FWRetract::retract(const bool retracting
       current_position[Z_AXIS] += hop_amount;             // Set actual Z (due to the prior hop)
       SYNC_PLAN_POSITION_KINEMATIC();                     // Spoof the Z position in the planner
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
-      prepare_move_to_destination();                      // Lower Z and update current_position
+      prepare_move_to_destination();                      // Lower Z, set_current_to_destination
       hop_amount = 0.0;                                   // Clear the hop amount
     }
 
     // A retract multiplier has been added here to get faster swap recovery
     feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
 
-    const float move_e = swapping ? swap_retract_length + swap_retract_recover_length : retract_length + retract_recover_length;
-    current_position[E_AXIS] -= move_e * renormalize;
+    current_position[E_AXIS] -= (swapping ? swap_retract_length + swap_retract_recover_length
+                                          : retract_length + retract_recover_length) * renormalize;
     sync_plan_position_e();
-    prepare_move_to_destination();  // Recover E
+    prepare_move_to_destination();                        // Recover E, set_current_to_destination
   }
 
   feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
@@ -195,6 +196,7 @@ void FWRetract::retract(const bool retracting
       #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
+    SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
     SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
   //*/
 

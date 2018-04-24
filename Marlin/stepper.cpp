@@ -360,14 +360,33 @@ void Stepper::set_directions() {
  *  4000   500  Hz - init rate
  */
 ISR(TIMER1_COMPA_vect) {
+  /**
+   * On AVR there is no hardware prioritization and preemption of
+   * interrupts, so this emulates it. The UART has first priority
+   * (otherwise, characters will be lost due to UART overflow).
+   * Then: Stepper, Endstops, Temperature, and -finally- all others.
+   *
+   * This ISR needs to run with as little preemption as possible, so
+   * the Temperature ISR is disabled here. Now only the UART, Endstops,
+   * and Arduino-defined interrupts can preempt.
+   */
+  const bool temp_isr_was_enabled = TEMPERATURE_ISR_ENABLED();
+  DISABLE_TEMPERATURE_INTERRUPT();
+  DISABLE_STEPPER_DRIVER_INTERRUPT();
+  sei();
+
   #if ENABLED(LIN_ADVANCE)
     Stepper::advance_isr_scheduler();
   #else
     Stepper::isr();
   #endif
-}
 
-#define _ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr) CBI(TIMSK0, OCIE0B); else SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
+  // Disable global interrupts and reenable this ISR
+  cli();
+  ENABLE_STEPPER_DRIVER_INTERRUPT();
+  // Reenable the temperature ISR (if it was enabled)
+  if (temp_isr_was_enabled) ENABLE_TEMPERATURE_INTERRUPT();
+}
 
 void Stepper::isr() {
 
@@ -375,13 +394,6 @@ void Stepper::isr() {
 
   #define ENDSTOP_NOMINAL_OCR_VAL 3000 // Check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
   #define OCR_VAL_TOLERANCE       1000 // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
-
-  #if DISABLED(LIN_ADVANCE)
-    // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
-    CBI(TIMSK0, OCIE0B); // Temperature ISR
-    DISABLE_STEPPER_DRIVER_INTERRUPT();
-    sei();
-  #endif
 
   #define _SPLIT(L) (ocr_val = (uint16_t)L)
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
@@ -409,7 +421,6 @@ void Stepper::isr() {
       step_remaining -= ocr_val;
       _NEXT_ISR(ocr_val);
       NOLESS(OCR1A, TCNT1 + 16);
-      _ENABLE_ISRs(); // re-enable ISRs
       return;
     }
 
@@ -433,7 +444,6 @@ void Stepper::isr() {
     }
     current_block = NULL;                       // Prep to get a new block after cleaning
     _NEXT_ISR(200);                             // Run at max speed - 10 KHz
-    _ENABLE_ISRs();
     return;
   }
 
@@ -462,14 +472,12 @@ void Stepper::isr() {
         if (current_block->steps[Z_AXIS] > 0) {
           enable_Z();
           _NEXT_ISR(2000); // Run at slow speed - 1 KHz
-          _ENABLE_ISRs(); // re-enable ISRs
           return;
         }
       #endif
     }
     else {
       _NEXT_ISR(2000); // Run at slow speed - 1 KHz
-      _ENABLE_ISRs(); // re-enable ISRs
       return;
     }
   }
@@ -773,9 +781,6 @@ void Stepper::isr() {
     current_block = NULL;
     planner.discard_current_block();
   }
-  #if DISABLED(LIN_ADVANCE)
-    _ENABLE_ISRs(); // re-enable ISRs
-  #endif
 }
 
 #if ENABLED(LIN_ADVANCE)
@@ -897,11 +902,6 @@ void Stepper::isr() {
   }
 
   void Stepper::advance_isr_scheduler() {
-    // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
-    CBI(TIMSK0, OCIE0B); // Temperature ISR
-    DISABLE_STEPPER_DRIVER_INTERRUPT();
-    sei();
-
     // Run main stepping ISR if flagged
     if (!nextMainISR) isr();
 
@@ -929,9 +929,6 @@ void Stepper::isr() {
 
     // Don't run the ISR faster than possible
     NOLESS(OCR1A, TCNT1 + 16);
-
-    // Restore original ISR settings
-    _ENABLE_ISRs();
   }
 
 #endif // LIN_ADVANCE

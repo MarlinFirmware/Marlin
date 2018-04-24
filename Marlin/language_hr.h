@@ -148,7 +148,6 @@
 #define MSG_NO_CARD                         _UxGT("Nema SD kartice")
 #define MSG_DWELL                           _UxGT("Sleep...")
 #define MSG_USERWAIT                        _UxGT("Čekaj korisnika...")
-#define MSG_RESUMING                        _UxGT("Nastavljam print")
 #define MSG_PRINT_ABORTED                   _UxGT("Print otkazan")
 #define MSG_NO_MOVE                         _UxGT("No move.")
 #define MSG_KILLED                          _UxGT("KILLED. ")
@@ -188,9 +187,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("h") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Grijanje...")
-#define MSG_HEATING_COMPLETE                _UxGT("Grijanje gotovo.")
-#define MSG_BED_HEATING                     _UxGT("Grijanje Bed-a.")
-#define MSG_BED_DONE                        _UxGT("Bed gotov.")
+#define MSG_BED_HEATING                     _UxGT("Grijanje Bed-a...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Delta Kalibracija")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibriraj X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibriraj Y")

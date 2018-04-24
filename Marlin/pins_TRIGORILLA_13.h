@@ -21,15 +21,20 @@
  */
 
 /**
- * MKS BASE with Heroic HR4982 stepper drivers
+ * Arduino Mega with RAMPS v1.3 for Anycubic
  */
 
-#include "pins_MKS_BASE_15.h"
+#ifndef BOARD_NAME
+  #define BOARD_NAME "Anycubic RAMPS 1.3"
+#endif
 
-/**
- * Some new boards use HR4982 (Heroic) instead of the A4982 (Allegro) stepper drivers.
- * Most the functionality is similar, the HR variant obviously doesn't work with diode
- * smoothers (no fast decay). And the Heroic has a 128 µStepping mode where the A4982
- * is doing quarter steps (MS1=0, MS2=1).
- */
-#define HEROIC_STEPPER_DRIVERS
+#define IS_RAMPS_EFB
+#define RAMPS_D9_PIN       44
+#define ORIG_E0_AUTO_FAN_PIN RAMPS_D9_PIN
+
+#include "pins_RAMPS_13.h"
+
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+#undef E1_ENABLE_PIN
+#undef E1_CS_PIN
