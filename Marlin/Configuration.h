@@ -102,8 +102,12 @@
  * Base machine
  * Choose one option below to define machine size, board, and parameters
  * 
+ * 
+ Choose this for CR10 Original Melzi Board
  */
 //#define MachineCR10Orig
+
+
 //#define MachineMini
 #define MachineCR10S
 //#define MachineS4
@@ -155,6 +159,18 @@
 //#define ABL_BI
 #define ABL_UBL
 
+/*
+ * 
+ * Choose a probe grid density below. Faster probes less points, but is less accurate.
+ * Extreme is for extremely uneven or tilted bed surfaces.
+ * UBL and Extreme are recommended with solid bed mounts as it becomes a one time commissioning.
+ * Standard is recommended in most other scenarios.
+ */
+//#define MeshFast
+#define MeshStd
+//#define MeshFine
+//#define MeshExtreme
+
 //#define BoardRev2
 
 
@@ -165,7 +181,7 @@
 #if(ENABLED(MachineMini))
 #define CUSTOM_MACHINE_NAME "Mini SuPeR"
 #elif(ENABLED(MachineCR10Orig))
-#define CUSTOM_MACHINE_NAME "300 Orig"
+#define CUSTOM_MACHINE_NAME "SuPeR CR-10"
 #elif(ENABLED(MachineCR10S))
 #define CUSTOM_MACHINE_NAME "300 SuPeR"
 #elif(ENABLED(MachineS4))
@@ -1023,10 +1039,12 @@
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
+#define INVERT_E0_DIR true
 #else
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
+#define INVERT_E0_DIR false
 #endif
 // Enable this option for Toshiba stepper drivers
 //#define CONFIG_STEPPERS_TOSHIBA
@@ -1034,7 +1052,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1062,7 +1080,7 @@
 #define Z_MAX_POS 300
 #endif
 
-#if (ENABLED(MachineCR10S) || ENABLED(MachineCR10Orig))
+#if (ENABLED(MachineCR10S))
 #define X_BED_SIZE 315
 #define Y_BED_SIZE 310
 #define Z_MAX_POS 400
@@ -1220,23 +1238,22 @@
 #endif
 
 #endif
+#if ENABLED(MeshFast)
+#define GRID_MAX_POINTS_X 3
+#elif (ENABLED(MeshStd) )
+#define GRID_MAX_POINTS_X 5
+#elif ENABLED( MeshFine)
+#define GRID_MAX_POINTS_X 8
+#elif ENABLED(MeshExtreme)
+#define GRID_MAX_POINTS_X 15
+#else
+  GRID_MAX_POINTS_X 3
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-#if ENABLED(MachineMini)
-#define GRID_MAX_POINTS_X 3
-#endif
 
-#if (ENABLED(MachineCR10S) || ENABLED(MachineCR10Orig))
-#define GRID_MAX_POINTS_X 5
-#endif
 
-#if ENABLED( MachineS4)
-#define GRID_MAX_POINTS_X 8
-#endif
-#if ENABLED(MachineS5)
-#define GRID_MAX_POINTS_X 10
-#endif
 // Set the number of grid points per dimension.
 #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
@@ -1310,7 +1327,6 @@
 #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 #endif
 #if ENABLED(MachineMini)
-#define GRID_MAX_POINTS_X 3      // Don't use more than 15 points per axis, implementation limited.
 #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
 #define PROBE_PT_1_Y 180
 #define PROBE_PT_2_X 180
@@ -1320,8 +1336,7 @@
 #define MESH_INSET 15
 #endif
 
-#if (ENABLED(MachineCR10S) || ENABLED(MachineCR10Orig))
-#define GRID_MAX_POINTS_X 5      // Don't use more than 15 points per axis, implementation limited.
+#if (ENABLED(MachineCR10S) )
 #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
 #define PROBE_PT_1_Y 270
 #define PROBE_PT_2_X 250
@@ -1332,7 +1347,6 @@
 #endif
 
 #if ENABLED( MachineS4)
-#define GRID_MAX_POINTS_X 8      // Don't use more than 15 points per axis, implementation limited.
 #define PROBE_PT_1_X 60       // Probing points for 3-Point leveling of the mesh
 #define PROBE_PT_1_Y 340
 #define PROBE_PT_2_X 340
@@ -1342,7 +1356,6 @@
 #define MESH_INSET 20
 #endif
 #if ENABLED(MachineS5)
-#define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
 #define PROBE_PT_1_X 80       // Probing points for 3-Point leveling of the mesh
 #define PROBE_PT_1_Y 420
 #define PROBE_PT_2_X 420
@@ -1368,7 +1381,6 @@
 //===========================================================================
 
 #define MESH_INSET 20          // Mesh inset margin on print area
-#define GRID_MAX_POINTS_X 5    // Don't use more than 7 points per axis, implementation limited.
 #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
 //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
@@ -1567,7 +1579,7 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 // Specify a park position as { X, Y, Z }
-#define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MIN_POS + 10), 10 }
+#define NOZZLE_PARK_POINT { (10), (10), 20 }
 #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
 #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
 #endif
