@@ -893,9 +893,11 @@ void kill_screen(const char* lcd_msg) {
         #endif
       ));
 
-      // Restore the bed temperature
-      sprintf_P(cmd, PSTR("M190 S%i"), job_recovery_info.target_temperature_bed);
-      enqueue_and_echo_command(cmd);
+      #if HAS_HEATED_BED
+        // Restore the bed temperature
+        sprintf_P(cmd, PSTR("M190 S%i"), job_recovery_info.target_temperature_bed);
+        enqueue_and_echo_command(cmd);
+      #endif
 
       // Restore all hotend temperatures
       HOTEND_LOOP() {
@@ -1431,7 +1433,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Bed:
     //
-    #if HAS_TEMP_BED
+    #if HAS_HEATED_BED
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
     #endif
 
@@ -2136,7 +2138,7 @@ void kill_screen(const char* lcd_msg) {
                x_plot = 0,
                y_plot = 0;
 
-    #if HAS_TEMP_BED
+    #if HAS_HEATED_BED
       static int16_t custom_bed_temp = 50;
     #endif
 
@@ -2146,7 +2148,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_build_custom_mesh() {
       char UBL_LCD_GCODE[20];
       enqueue_and_echo_commands_P(PSTR("G28"));
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
         sprintf_P(UBL_LCD_GCODE, PSTR("M190 S%i"), custom_bed_temp);
         lcd_enqueue_command(UBL_LCD_GCODE);
       #endif
@@ -2167,7 +2169,7 @@ void kill_screen(const char* lcd_msg) {
       START_MENU();
       MENU_BACK(MSG_UBL_BUILD_MESH_MENU);
       MENU_ITEM_EDIT(int3, MSG_UBL_CUSTOM_HOTEND_TEMP, &custom_hotend_temp, EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP - 10));
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
         MENU_ITEM_EDIT(int3, MSG_UBL_CUSTOM_BED_TEMP, &custom_bed_temp, BED_MINTEMP, (BED_MAXTEMP - 15));
       #endif
       MENU_ITEM(function, MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_build_custom_mesh);
@@ -2226,7 +2228,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_validate_custom_mesh() {
       char UBL_LCD_GCODE[24];
       const int temp =
-        #if HAS_TEMP_BED
+        #if HAS_HEATED_BED
           custom_bed_temp
         #else
           0
@@ -2249,7 +2251,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_validate_mesh() {
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
         MENU_ITEM(gcode, MSG_UBL_VALIDATE_PLA_MESH, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_1_TEMP_BED) " H" STRINGIFY(PREHEAT_1_TEMP_HOTEND) " P"));
         MENU_ITEM(gcode, MSG_UBL_VALIDATE_ABS_MESH, PSTR("G28\nG26 C B" STRINGIFY(PREHEAT_2_TEMP_BED) " H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
       #else
@@ -2353,7 +2355,7 @@ void kill_screen(const char* lcd_msg) {
     void _lcd_ubl_build_mesh() {
       START_MENU();
       MENU_BACK(MSG_UBL_TOOLS);
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
         MENU_ITEM(gcode, MSG_UBL_BUILD_PLA_MESH, PSTR(
           "G28\n"
           "M190 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\n"
@@ -2746,7 +2748,7 @@ void kill_screen(const char* lcd_msg) {
       //
       bool has_heat = false;
       HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
-      #if HAS_TEMP_BED
+      #if HAS_HEATED_BED
         if (thermalManager.target_temperature_bed) has_heat = true;
       #endif
       if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
@@ -3466,7 +3468,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Bed:
     //
-    #if HAS_TEMP_BED
+    #if HAS_HEATED_BED
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
     #endif
 
@@ -5117,7 +5119,7 @@ void lcd_update() {
       }
     #endif
 
-  #endif
+  #endif // ULTIPANEL
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 

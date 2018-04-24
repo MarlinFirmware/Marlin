@@ -64,3 +64,7 @@
     #endif
   #endif
 #endif // SPINDLE_LASER_ENABLE
+
+#if ENABLED(EMERGENCY_PARSER)
+  #error "EMERGENCY_PARSER is not yet implemented for STM32F4. Disable EMERGENCY_PARSER to continue."
+#endif

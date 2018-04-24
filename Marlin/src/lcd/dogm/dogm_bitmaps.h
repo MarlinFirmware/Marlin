@@ -21,7 +21,7 @@
  */
 
 /**
- * Standard Marlin Boot Screen bitmaps
+ * Standard Marlin Boot and Status Screen bitmaps
  *
  * Use the Marlin Bitmap Converter to make your own:
  * http://marlinfw.org/tools/u8glib/converter.html
@@ -136,7 +136,7 @@
   // STATUS_SCREEN_HOTEND_TEXT_X(i) to modify draw locations.
   #include "../../../_Statusscreen.h"
 
-#elif HAS_TEMP_BED
+#elif HAS_HEATED_BED
 
   #define STATUS_SCREEN_X        (  8 + (HOTENDS ? 0 : 64))
   #define STATUS_SCREENWIDTH     (120 - (HOTENDS ? 0 : 64))
@@ -321,7 +321,7 @@
     };
   #endif // HOTENDS
 
-#else // !HAS_TEMP_BED
+#else // !HAS_HEATED_BED
 
   #define STATUS_SCREEN_X        (  8 + (HOTENDS ? 0 : 96))
   #define STATUS_SCREENWIDTH     (120 - (HOTENDS ? 0 : 96))
@@ -507,7 +507,7 @@
 
   #endif // HOTENDS
 
-#endif // !HAS_TEMP_BED
+#endif // !HAS_HEATED_BED
 
 #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
 

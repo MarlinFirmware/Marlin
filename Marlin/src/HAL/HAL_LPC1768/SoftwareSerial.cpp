@@ -66,7 +66,7 @@ typedef struct _DELAY_TABLE {
 static const DELAY_TABLE table[] = {
   //baud    |rxcenter|rxintra |rxstop  |tx { 250000,   2,      4,       4,       4,   }, //Done but not good due to instruction cycle error { 115200,   4,      8,       8,       8,   }, //Done but not good due to instruction cycle error
   //{ 74880,   69,       139,       62,      162,  }, // estimation
-//  { 57600,   100,       185,      1,       208,  }, // Done but not good due to instruction cycle error
+  //{ 57600,   100,       185,      1,       208,  }, // Done but not good due to instruction cycle error
   //{ 38400,   13,      26,      26,      26,  }, // Done
   //{ 19200,   26,      52,      52,      52,  }, // Done { 9600,    52,      104,     104,     104, }, // Done
   //{ 4800,    104,     208,     208,     208, },

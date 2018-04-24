@@ -125,8 +125,8 @@
 // Misc. Functions
 //
 
-//#define CASE_LIGHT_PIN_CI PF13  
-//#define CASE_LIGHT_PIN_DO PF14  
+//#define CASE_LIGHT_PIN_CI PF13
+//#define CASE_LIGHT_PIN_DO PF14
 //#define NEOPIXEL_PIN      PF13
 
 //
@@ -148,24 +148,24 @@
 #define SS_PIN             PE7
 #define LED_PIN            PB7         //Alive
 #define PS_ON_PIN          PA10
-#define KILL_PIN           PA8     
+#define KILL_PIN           PA8
 #define PWR_LOSS           PA4         //Power loss / nAC_FAULT
 
 //
 // LCD / Controller
 //
 
-#define SD_DETECT_PIN      PA15     
-#define BEEPER_PIN         PC9      
-#define LCD_PINS_RS        PE9      
-#define LCD_PINS_ENABLE    PE8      
-#define LCD_PINS_D4        PB12     
-#define LCD_PINS_D5        PB13     
-#define LCD_PINS_D6        PB14     
-#define LCD_PINS_D7        PB15     
-#define BTN_EN1            PC4      
-#define BTN_EN2            PC5      
-#define BTN_ENC            PC3      
+#define SD_DETECT_PIN      PA15
+#define BEEPER_PIN         PC9
+#define LCD_PINS_RS        PE9
+#define LCD_PINS_ENABLE    PE8
+#define LCD_PINS_D4        PB12
+#define LCD_PINS_D5        PB13
+#define LCD_PINS_D6        PB14
+#define LCD_PINS_D7        PB15
+#define BTN_EN1            PC4
+#define BTN_EN2            PC5
+#define BTN_ENC            PC3
 
 //
 // Filament runout

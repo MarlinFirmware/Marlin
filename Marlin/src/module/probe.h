@@ -44,7 +44,7 @@
   float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
-  #if HAS_TEMP_BED && ENABLED(WAIT_FOR_BED_HEATER)
+  #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
     extern const char msg_wait_for_bed_heating[25];
   #endif
 #else
