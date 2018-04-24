@@ -1144,26 +1144,20 @@ void Stepper::set_directions() {
 
 HAL_STEP_TIMER_ISR {
   HAL_timer_isr_prologue(STEP_TIMER_NUM);
+
   #if ENABLED(LIN_ADVANCE)
     Stepper::advance_isr_scheduler();
   #else
     Stepper::isr();
   #endif
+
+  HAL_timer_isr_epilogue(STEP_TIMER_NUM);
 }
 
 void Stepper::isr() {
 
   #define ENDSTOP_NOMINAL_OCR_VAL 1500 * HAL_TICKS_PER_US // Check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
   #define OCR_VAL_TOLERANCE        500 * HAL_TICKS_PER_US // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
-
-  #if DISABLED(LIN_ADVANCE)
-    // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
-    DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
-    DISABLE_STEPPER_DRIVER_INTERRUPT();
-    #ifndef CPU_32_BIT
-      sei();
-    #endif
-  #endif
 
   hal_timer_t ocr_val;
   static uint32_t step_remaining = 0;  // SPLIT function always runs.  This allows 16 bit timers to be
@@ -1191,7 +1185,6 @@ void Stepper::isr() {
 
     #if DISABLED(LIN_ADVANCE)
       HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL * HAL_TICKS_PER_US);
-      HAL_ENABLE_ISRs();
     #endif
 
     return;
@@ -1215,7 +1208,6 @@ void Stepper::isr() {
     }
     current_block = NULL;                       // Prep to get a new block after cleaning
     _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 10000);  // Run at max speed - 10 KHz
-    HAL_ENABLE_ISRs();
     return;
   }
 
@@ -1291,7 +1283,6 @@ void Stepper::isr() {
         if (current_block->steps[Z_AXIS] > 0) {
           enable_Z();
           _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
-          HAL_ENABLE_ISRs();
           return;
         }
       #endif
@@ -1299,7 +1290,6 @@ void Stepper::isr() {
     else {
       // If no more queued moves, postpone next check for 1mS
       _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
-      HAL_ENABLE_ISRs();
       return;
     }
   }
@@ -1631,9 +1621,6 @@ void Stepper::isr() {
     current_block = NULL;
     planner.discard_current_block();
   }
-  #if DISABLED(LIN_ADVANCE)
-    HAL_ENABLE_ISRs();
-  #endif
 }
 
 #if ENABLED(LIN_ADVANCE)
@@ -1755,10 +1742,6 @@ void Stepper::isr() {
   }
 
   void Stepper::advance_isr_scheduler() {
-    // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
-    DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
-    DISABLE_STEPPER_DRIVER_INTERRUPT();
-    sei();
 
     // Run main stepping ISR if flagged
     if (!nextMainISR) isr();
@@ -1787,9 +1770,6 @@ void Stepper::isr() {
 
     // Make sure stepper ISR doesn't monopolize the CPU
     HAL_timer_restrain(STEP_TIMER_NUM, STEP_TIMER_MIN_INTERVAL * HAL_TICKS_PER_US);
-
-    // Restore original ISR settings
-    HAL_ENABLE_ISRs();
   }
 
 #endif // LIN_ADVANCE

@@ -353,6 +353,11 @@
     // Install interrupt handler
     install_isr(HWUART_IRQ, UART_ISR);
 
+    // Configure priority. We need a very high priority to avoid losing characters
+    // and we need to be able to preempt the Stepper ISR and everything else!
+    // (this could probably be fixed by using DMA with the Serial port)
+    NVIC_SetPriority(HWUART_IRQ, 1);
+
     // Enable UART interrupt in NVIC
     NVIC_EnableIRQ(HWUART_IRQ);
 

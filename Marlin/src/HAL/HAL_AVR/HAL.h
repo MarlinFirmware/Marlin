@@ -142,10 +142,11 @@ extern "C" {
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
-#define STEPPER_ISR_ENABLED() TEST(TIMSK1, OCIE1A)
+#define STEPPER_ISR_ENABLED()             TEST(TIMSK1, OCIE1A)
 
-#define ENABLE_TEMPERATURE_INTERRUPT()  SBI(TIMSK0, OCIE0B)
-#define DISABLE_TEMPERATURE_INTERRUPT() CBI(TIMSK0, OCIE0B)
+#define ENABLE_TEMPERATURE_INTERRUPT()     SBI(TIMSK0, OCIE0B)
+#define DISABLE_TEMPERATURE_INTERRUPT()    CBI(TIMSK0, OCIE0B)
+#define TEMPERATURE_ISR_ENABLED()         TEST(TIMSK0, OCIE0B)
 
 #define HAL_timer_start(timer_num, frequency)
 
@@ -156,12 +157,30 @@ extern "C" {
 #define HAL_timer_get_compare(timer) _CAT(TIMER_OCR_, timer)
 #define HAL_timer_get_count(timer) _CAT(TIMER_COUNTER_, timer)
 
-#define HAL_timer_isr_prologue(timer_num)
+/**
+ * On AVR there is no hardware prioritization and preemption of
+ * interrupts, so this emulates it. The UART has first priority
+ * (otherwise, characters will be lost due to UART overflow).
+ * Then: Stepper, Endstops, Temperature, and -finally- all others.
+ */
+#define HAL_timer_isr_prologue_0 do{ DISABLE_TEMPERATURE_INTERRUPT(); sei(); }while(0)
+#define HAL_timer_isr_epilogue_0 do{ cli(); ENABLE_TEMPERATURE_INTERRUPT(); }while(0)
+
+#define HAL_timer_isr_prologue_1 \
+  const bool temp_isr_was_enabled = TEMPERATURE_ISR_ENABLED(); \
+  do{ \
+    DISABLE_TEMPERATURE_INTERRUPT(); \
+    DISABLE_STEPPER_DRIVER_INTERRUPT(); \
+    sei(); \
+  }while(0)
+
+#define HAL_timer_isr_epilogue_1 do{ cli(); ENABLE_STEPPER_DRIVER_INTERRUPT(); if (temp_isr_was_enabled) ENABLE_TEMPERATURE_INTERRUPT(); }while(0)
+
+#define HAL_timer_isr_prologue(TIMER_NUM) _CAT(HAL_timer_isr_prologue_, TIMER_NUM)
+#define HAL_timer_isr_epilogue(TIMER_NUM) _CAT(HAL_timer_isr_epilogue_, TIMER_NUM)
 
 #define HAL_STEP_TIMER_ISR ISR(TIMER1_COMPA_vect)
 #define HAL_TEMP_TIMER_ISR ISR(TIMER0_COMPB_vect)
-
-#define HAL_ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr) DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
 // ADC
 #ifdef DIDR2
