@@ -97,7 +97,9 @@ void GcodeSuite::M0_M1() {
     }
   #endif
 
-  lcd_reset_status();
+  #if ENABLED(ULTIPANEL)
+    lcd_reset_status();
+  #endif
 
   wait_for_user = false;
   KEEPALIVE_STATE(IN_HANDLER);

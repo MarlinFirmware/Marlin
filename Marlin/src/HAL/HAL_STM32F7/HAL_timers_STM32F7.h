@@ -60,7 +60,6 @@
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 // TODO change this
 
 
@@ -99,5 +98,6 @@ uint32_t HAL_timer_get_count(const uint8_t timer_num);
 void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
+#define HAL_timer_isr_epilogue(TIMER_NUM)
 
 #endif // _HAL_TIMERS_STM32F7_H

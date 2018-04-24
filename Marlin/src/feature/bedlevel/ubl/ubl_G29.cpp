@@ -1387,7 +1387,7 @@
         const float rawx = mesh_index_to_xpos(location.x_index),
                     rawy = mesh_index_to_ypos(location.y_index);
 
-        //if (!position_is_reachable(rawx, rawy)) break;            // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
+        if (!position_is_reachable(rawx, rawy)) break;              // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
 
         do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point with probe clearance
 
