@@ -1263,7 +1263,7 @@ void Temperature::init() {
   // Use timer0 for temperature measurement
   // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
-  SBI(TIMSK0, OCIE0B);
+  ENABLE_TEMPERATURE_INTERRUPT();
 
   // Wait for temperature measurement to settle
   delay(250);
@@ -1778,20 +1778,26 @@ void Temperature::set_current_temp_raw() {
  *  - For PINS_DEBUGGING, monitor and report endstop pins
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
  */
-ISR(TIMER0_COMPB_vect) { Temperature::isr(); }
-
-volatile bool Temperature::in_temp_isr = false;
-
-void Temperature::isr() {
-  // The stepper ISR can interrupt this ISR. When it does it re-enables this ISR
-  // at the end of its run, potentially causing re-entry. This flag prevents it.
-  if (in_temp_isr) return;
-  in_temp_isr = true;
-
-  // Allow UART and stepper ISRs
-  CBI(TIMSK0, OCIE0B); //Disable Temperature ISR
+ISR(TIMER0_COMPB_vect) {
+  /**
+   * AVR has no hardware interrupt preemption, so emulate priorization
+   * and preemption of this ISR by all others by disabling the timer
+   * interrupt generation capability and reenabling global interrupts.
+   * Any interrupt can then interrupt this handler and preempt it.
+   * This ISR becomes the lowest priority one so the UART, Endstops
+   * and Stepper ISRs can all preempt it.
+   */
+  DISABLE_TEMPERATURE_INTERRUPT();
   sei();
 
+  Temperature::isr();
+
+  // Disable global interrupts and reenable this ISR
+  cli();
+  ENABLE_TEMPERATURE_INTERRUPT();
+}
+
+void Temperature::isr() {
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
@@ -2328,10 +2334,6 @@ void Temperature::isr() {
       e_hit--;
     }
   #endif
-
-  cli();
-  in_temp_isr = false;
-  SBI(TIMSK0, OCIE0B); //re-enable Temperature ISR
 }
 
 #if HAS_TEMP_SENSOR
