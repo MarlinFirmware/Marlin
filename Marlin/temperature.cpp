@@ -559,8 +559,11 @@ int Temperature::getHeaterPower(const int heater) {
     HOTEND_LOOP()
       if (current_temperature[e] > EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, pgm_read_byte(&fanBit[e]));
-    if (current_temperature_chamber > EXTRUDER_AUTO_FAN_TEMPERATURE)
-      SBI(fanState, pgm_read_byte(&fanBit[5]));
+
+    #if HAS_TEMP_CHAMBER
+      if (current_temperature_chamber > EXTRUDER_AUTO_FAN_TEMPERATURE)
+        SBI(fanState, pgm_read_byte(&fanBit[5]));
+    #endif
 
     uint8_t fanDone = 0;
     for (uint8_t f = 0; f < COUNT(fanPin); f++) {

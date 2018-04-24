@@ -168,11 +168,6 @@ class Temperature {
       #endif
     #endif
 
-    #if HAS_TEMP_CHAMBER
-      static float current_temperature_chamber;
-      static int16_t current_temperature_chamber_raw;
-    #endif
-
     #if ENABLED(BABYSTEPPING)
       static volatile int babystepsTodo[3];
     #endif
@@ -270,8 +265,9 @@ class Temperature {
 
     #if HAS_TEMP_CHAMBER
       static uint16_t raw_temp_chamber_value;
+      static float current_temperature_chamber;
+      static int16_t current_temperature_chamber_raw;
     #endif
-
 
     #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
       static uint8_t consecutive_low_temperature_error[HOTENDS];
