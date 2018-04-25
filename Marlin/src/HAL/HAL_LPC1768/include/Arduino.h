@@ -95,6 +95,7 @@ extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 #define vsnprintf_P vsnprintf
 #define strcpy_P strcpy
 #define snprintf_P snprintf
+#define strlen_P strlen
 
 // Time functions
 extern "C" {
