@@ -109,7 +109,11 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
        */
       break;
   }
-  nvic_irq_set_priority(irq_num, 0xF); // this is the lowest settable priority, but should still be over USB
+
+  /*
+   * Set the stepper isr to have a higher priority (lower number)
+   * so it will automatically preempt the temp isr
+   */
 
   switch (timer_num) {
     case STEP_TIMER_NUM:
@@ -119,6 +123,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       timer_set_reload(STEP_TIMER_DEV, 0xFFFF);
       timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, min(HAL_TIMER_TYPE_MAX, (HAL_STEPPER_TIMER_RATE / frequency)));
       timer_attach_interrupt(STEP_TIMER_DEV, STEP_TIMER_CHAN, stepTC_Handler);
+      nvic_irq_set_priority(irq_num, 1);
       timer_generate_update(STEP_TIMER_DEV);
       timer_resume(STEP_TIMER_DEV);
       break;
@@ -129,6 +134,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       timer_set_reload(TEMP_TIMER_DEV, 0xFFFF);
       timer_set_compare(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, min(HAL_TIMER_TYPE_MAX, ((F_CPU / TEMP_TIMER_PRESCALE) / frequency)));
       timer_attach_interrupt(TEMP_TIMER_DEV, TEMP_TIMER_CHAN, tempTC_Handler);
+      nvic_irq_set_priority(irq_num, 2);
       timer_generate_update(TEMP_TIMER_DEV);
       timer_resume(TEMP_TIMER_DEV);
       break;

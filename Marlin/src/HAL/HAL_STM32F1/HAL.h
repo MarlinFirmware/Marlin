@@ -108,6 +108,10 @@ extern USBSerial SerialUSB;
   #define NUM_SERIAL 1
 #endif
 
+// Use HAL_init() to set interrupt grouping.
+#define HAL_INIT
+void HAL_init(); 
+
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
