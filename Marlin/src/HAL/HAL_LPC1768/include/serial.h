@@ -23,6 +23,11 @@
 #ifndef _HAL_SERIAL_H_
 #define _HAL_SERIAL_H_
 
+#include "../../../inc/MarlinConfigPre.h"
+#if ENABLED(EMERGENCY_PARSER)
+  #include "../../../feature/emergency_parser.h"
+#endif
+
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -73,6 +78,11 @@ private:
 
 class HalSerial {
 public:
+
+  #if ENABLED(EMERGENCY_PARSER)
+    EmergencyParser::State emergency_state;
+  #endif
+
   HalSerial() { host_connected = false; }
 
   void begin(int32_t baud) {

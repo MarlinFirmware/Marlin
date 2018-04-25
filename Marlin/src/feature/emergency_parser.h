@@ -29,6 +29,8 @@
 
 class EmergencyParser {
 
+public:
+
   // Currently looking for: M108, M112, M410
   enum State : char {
     EP_RESET,
@@ -45,14 +47,11 @@ class EmergencyParser {
     EP_IGNORE // to '\n'
   };
 
-public:
-
-  static EmergencyParser::State state;
   static bool killed_by_M112;
 
   EmergencyParser() {}
 
-  static void update(const uint8_t c);
+  static void update(State &state, const uint8_t c);
 
 };
 

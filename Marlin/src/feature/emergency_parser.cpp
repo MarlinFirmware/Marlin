@@ -30,15 +30,17 @@
 
 #include "emergency_parser.h"
 
+// Static data members
+bool EmergencyParser::killed_by_M112; // = false
+
+// External references
 extern volatile bool wait_for_user, wait_for_heatup;
 void quickstop_stepper();
 
-EmergencyParser::State EmergencyParser::state = EP_RESET;
-bool EmergencyParser::killed_by_M112; // = false
-
+// Global instance
 EmergencyParser emergency_parser;
 
-void EmergencyParser::update(const uint8_t c) {
+void EmergencyParser::update(State &state, const uint8_t c) {
 
   switch (state) {
     case EP_RESET:
