@@ -20,39 +20,42 @@
  *
  */
 
-#ifdef TARGET_LPC1768
+/**
+ * emergency_parser.h - Intercept special commands directly in the serial stream
+ */
 
-#include "../../inc/MarlinConfig.h"
+#ifndef _EMERGENCY_PARSER_H_
+#define _EMERGENCY_PARSER_H_
 
-#if ENABLED(USE_WATCHDOG)
+class EmergencyParser {
 
-#include "lpc17xx_wdt.h"
-#include "watchdog.h"
+  // Currently looking for: M108, M112, M410
+  enum State : char {
+    EP_RESET,
+    EP_N,
+    EP_M,
+    EP_M1,
+    EP_M10,
+    EP_M108,
+    EP_M11,
+    EP_M112,
+    EP_M4,
+    EP_M41,
+    EP_M410,
+    EP_IGNORE // to '\n'
+  };
 
-void watchdog_init(void) {
-  WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
-  WDT_Start(WDT_TIMEOUT);
-}
+public:
 
-void HAL_clear_reset_source(void) {
-  WDT_ClrTimeOutFlag();
-}
+  static EmergencyParser::State state;
+  static bool killed_by_M112;
 
-uint8_t HAL_get_reset_source(void) {
-  if (TEST(WDT_ReadTimeOutFlag(), 0)) return RST_WATCHDOG;
-  return RST_POWER_ON;
-}
+  EmergencyParser() {}
 
-void watchdog_reset() {
-  WDT_Feed();
-  #if PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heart beat indicator
-  #endif
-}
+  static void update(const uint8_t c);
 
-#else
-  void HAL_clear_reset_source(void) {}
-  uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
-#endif // USE_WATCHDOG
+};
 
-#endif // TARGET_LPC1768
+extern EmergencyParser emergency_parser;
+
+#endif // _EMERGENCY_PARSER_H_

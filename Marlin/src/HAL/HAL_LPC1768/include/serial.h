@@ -26,10 +26,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-extern "C" {
-#include <debug_frmwrk.h>
-}
-
 /**
  * Generic RingBuffer
  * T type of the buffer array

@@ -63,49 +63,43 @@
  * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
  */
 
-#define _READ(IO) ((bool)(DIO ## IO ## _RPORT & _BV(DIO ## IO ## _PIN)))
+#define _READ(IO)             TEST(DIO ## IO ## _RPORT, DIO ## IO ## _PIN)
 
-// On some boards pins > 0x100 are used. These are not converted to atomic actions. A critical section is needed.
+#define _WRITE_NC(IO,V) do{ \
+  if (V) SBI(DIO ## IO ## _WPORT, DIO ## IO ## _PIN); \
+  else   CBI(DIO ## IO ## _WPORT, DIO ## IO ## _PIN); \
+}while(0)
 
-#define _WRITE_NC(IO, v)  do { if (v) {DIO ##  IO ## _WPORT |= _BV(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~_BV(DIO ## IO ## _PIN); }; } while (0)
+#define _WRITE_C(IO,V) do{ \
+  uint8_t port_bits = DIO ## IO ## _WPORT;                  /* Get a mask from the current port bits */ \
+  if (V) port_bits = ~port_bits;                            /* For setting bits, invert the mask */ \
+  DIO ## IO ## _RPORT = port_bits & _BV(DIO ## IO ## _PIN); /* Atomically toggle the output port bits */ \
+}while(0)
 
-#define _WRITE_C(IO, v)   do { if (v) { \
-                                         CRITICAL_SECTION_START; \
-                                         {DIO ##  IO ## _WPORT |= _BV(DIO ## IO ## _PIN); } \
-                                         CRITICAL_SECTION_END; \
-                                       } \
-                                       else { \
-                                         CRITICAL_SECTION_START; \
-                                         {DIO ##  IO ## _WPORT &= ~_BV(DIO ## IO ## _PIN); } \
-                                         CRITICAL_SECTION_END; \
-                                       } \
-                                     } \
-                                     while (0)
+#define _WRITE(IO,V)          do{ if (&(DIO ## IO ## _RPORT) < (uint8_t*)0x100) _WRITE_NC(IO,V); else _WRITE_C(IO,V); }while(0)
 
-#define _WRITE(IO, v) do { if (&(DIO ## IO ## _RPORT) >= (uint8_t *)0x100) {_WRITE_C(IO, v); } else {_WRITE_NC(IO, v); }; } while (0)
+#define _TOGGLE(IO)           (DIO ## IO ## _RPORT = _BV(DIO ## IO ## _PIN))
 
-#define _TOGGLE(IO) do {DIO ## IO ## _RPORT ^= _BV(DIO ## IO ## _PIN); } while (0)
+#define _SET_INPUT(IO)        CBI(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
+#define _SET_OUTPUT(IO)       SBI(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
 
-#define _SET_INPUT(IO) do {DIO ## IO ## _DDR &= ~_BV(DIO ## IO ## _PIN); } while (0)
-#define _SET_OUTPUT(IO) do {DIO ## IO ## _DDR |= _BV(DIO ## IO ## _PIN); } while (0)
+#define _GET_INPUT(IO)       !TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
+#define _GET_OUTPUT(IO)       TEST(DIO ## IO ## _DDR, DIO ## IO ## _PIN)
+#define _GET_TIMER(IO)        DIO ## IO ## _PWM
 
-#define _GET_INPUT(IO) ((DIO ## IO ## _DDR & _BV(DIO ## IO ## _PIN)) == 0)
-#define _GET_OUTPUT(IO) ((DIO ## IO ## _DDR & _BV(DIO ## IO ## _PIN)) != 0)
-#define _GET_TIMER(IO) (DIO ## IO ## _PWM)
+#define READ(IO)              _READ(IO)
+#define WRITE(IO,V)           _WRITE(IO,V)
+#define TOGGLE(IO)            _TOGGLE(IO)
 
-#define READ(IO) _READ(IO)
-#define WRITE(IO,V) _WRITE(IO,V)
-#define TOGGLE(IO) _TOGGLE(IO)
+#define SET_INPUT(IO)         _SET_INPUT(IO)
+#define SET_INPUT_PULLUP(IO)  do{ _SET_INPUT(IO); _WRITE(IO, HIGH); }while(0)
+#define SET_OUTPUT(IO)        _SET_OUTPUT(IO)
 
-#define SET_INPUT(IO) _SET_INPUT(IO)
-#define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _WRITE(IO, HIGH); }while(0)
-#define SET_OUTPUT(IO) _SET_OUTPUT(IO)
+#define GET_INPUT(IO)         _GET_INPUT(IO)
+#define GET_OUTPUT(IO)        _GET_OUTPUT(IO)
+#define GET_TIMER(IO)         _GET_TIMER(IO)
 
-#define GET_INPUT(IO) _GET_INPUT(IO)
-#define GET_OUTPUT(IO) _GET_OUTPUT(IO)
-#define GET_TIMER(IO) _GET_TIMER(IO)
-
-#define OUT_WRITE(IO, v) do{ SET_OUTPUT(IO); WRITE(IO, v); }while(0)
+#define OUT_WRITE(IO,V)       do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
 /**
  * Timer and Interrupt Control
