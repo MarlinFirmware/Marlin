@@ -33,7 +33,7 @@
 extern volatile bool wait_for_user, wait_for_heatup;
 void quickstop_stepper();
 
-EmergencyParser::State EmergencyParser::state = EmergencyParser::State::RESET;
+EmergencyParser::State EmergencyParser::state = EP_RESET;
 bool EmergencyParser::killed_by_M112; // = false
 
 EmergencyParser emergency_parser;
@@ -41,79 +41,79 @@ EmergencyParser emergency_parser;
 void EmergencyParser::update(const uint8_t c) {
 
   switch (state) {
-    case EmergencyParser::State::RESET:
+    case EP_RESET:
       switch (c) {
         case ' ': break;
-        case 'N': state = EmergencyParser::State::N;      break;
-        case 'M': state = EmergencyParser::State::M;      break;
-        default: state  = EmergencyParser::State::IGNORE;
+        case 'N': state = EP_N;      break;
+        case 'M': state = EP_M;      break;
+        default: state  = EP_IGNORE;
       }
       break;
 
-    case EmergencyParser::State::N:
+    case EP_N:
       switch (c) {
         case '0': case '1': case '2':
         case '3': case '4': case '5':
         case '6': case '7': case '8':
         case '9': case '-': case ' ':   break;
-        case 'M': state = EmergencyParser::State::M;      break;
-        default:  state = EmergencyParser::State::IGNORE;
+        case 'M': state = EP_M;      break;
+        default:  state = EP_IGNORE;
       }
       break;
 
-    case EmergencyParser::State::M:
+    case EP_M:
       switch (c) {
         case ' ': break;
-        case '1': state = EmergencyParser::State::M1;     break;
-        case '4': state = EmergencyParser::State::M4;     break;
-        default: state  = EmergencyParser::State::IGNORE;
+        case '1': state = EP_M1;     break;
+        case '4': state = EP_M4;     break;
+        default: state  = EP_IGNORE;
       }
       break;
 
-    case EmergencyParser::State::M1:
+    case EP_M1:
       switch (c) {
-        case '0': state = EmergencyParser::State::M10;    break;
-        case '1': state = EmergencyParser::State::M11;    break;
-        default: state  = EmergencyParser::State::IGNORE;
+        case '0': state = EP_M10;    break;
+        case '1': state = EP_M11;    break;
+        default: state  = EP_IGNORE;
       }
       break;
 
-    case EmergencyParser::State::M10:
-      state = (c == '8') ? EmergencyParser::State::M108 : EmergencyParser::State::IGNORE;
+    case EP_M10:
+      state = (c == '8') ? EP_M108 : EP_IGNORE;
       break;
 
-    case EmergencyParser::State::M11:
-      state = (c == '2') ? EmergencyParser::State::M112 : EmergencyParser::State::IGNORE;
+    case EP_M11:
+      state = (c == '2') ? EP_M112 : EP_IGNORE;
       break;
 
-    case EmergencyParser::State::M4:
-      state = (c == '1') ? EmergencyParser::State::M41 : EmergencyParser::State::IGNORE;
+    case EP_M4:
+      state = (c == '1') ? EP_M41 : EP_IGNORE;
       break;
 
-    case EmergencyParser::State::M41:
-      state = (c == '0') ? EmergencyParser::State::M410 : EmergencyParser::State::IGNORE;
+    case EP_M41:
+      state = (c == '0') ? EP_M410 : EP_IGNORE;
       break;
 
-    case EmergencyParser::State::IGNORE:
-      if (c == '\n') state = EmergencyParser::State::RESET;
+    case EP_IGNORE:
+      if (c == '\n') state = EP_RESET;
       break;
 
     default:
       if (c == '\n') {
         switch (state) {
-          case EmergencyParser::State::M108:
+          case EP_M108:
             wait_for_user = wait_for_heatup = false;
             break;
-          case EmergencyParser::State::M112:
+          case EP_M112:
             killed_by_M112 = true;
             break;
-          case EmergencyParser::State::M410:
+          case EP_M410:
             quickstop_stepper();
             break;
           default:
             break;
         }
-        state = EmergencyParser::State::RESET;
+        state = EP_RESET;
       }
   }
 }

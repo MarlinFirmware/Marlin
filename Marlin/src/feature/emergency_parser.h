@@ -31,18 +31,18 @@ class EmergencyParser {
 
   // Currently looking for: M108, M112, M410
   enum State : char {
-    RESET,
-    N,
-    M,
-    M1,
-    M10,
-    M108,
-    M11,
-    M112,
-    M4,
-    M41,
-    M410,
-    IGNORE // to '\n'
+    EP_RESET,
+    EP_N,
+    EP_M,
+    EP_M1,
+    EP_M10,
+    EP_M108,
+    EP_M11,
+    EP_M112,
+    EP_M4,
+    EP_M41,
+    EP_M410,
+    EP_IGNORE // to '\n'
   };
 
 public:
