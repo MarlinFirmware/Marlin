@@ -168,6 +168,13 @@
 #define PWR_LOSS           _STM32_PIN(PORTA, 4)         //Power loss / nAC_FAULT
 
 //
+// MAX7219_DEBUG
+//
+#define MAX7219_CLK_PIN    _STM32_PIN(PORTB, 10)  // EXT_8
+#define MAX7219_DIN_PIN    _STM32_PIN(PORTD, 11)  // EXT_6
+#define MAX7219_LOAD_PIN   _STM32_PIN(PORTD, 12)  // EXT_7
+
+//
 // LCD / Controller
 //
 #define SD_DETECT_PIN      _STM32_PIN(PORTA, 15)     
