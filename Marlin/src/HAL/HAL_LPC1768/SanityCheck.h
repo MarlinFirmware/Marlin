@@ -74,7 +74,3 @@
     ||  MB(RAMPS_14_RE_ARM_SF))
   #error "Re-ARM with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER and TMC2130 require TMC_USE_SW_SPI"
 #endif
-
-#if ENABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is not yet implemented for LPC1768. Disable EMERGENCY_PARSER to continue."
-#endif

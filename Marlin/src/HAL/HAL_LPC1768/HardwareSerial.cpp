@@ -22,8 +22,13 @@
 
 #ifdef TARGET_LPC1768
 
-#include "../../inc/MarlinConfig.h"
 #include "HardwareSerial.h"
+
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(EMERGENCY_PARSER)
+  #include "../../feature/emergency_parser.h"
+#endif
 
 #if SERIAL_PORT == 0 || SERIAL_PORT_2 == 0
   HardwareSerial Serial = HardwareSerial(LPC_UART0);
@@ -248,6 +253,9 @@ void HardwareSerial::IRQHandler() {
   if (IIRValue == UART_IIR_INTID_RDA) {
     // Clear the FIFO
     while (UART_Receive(UARTx, &byte, 1, NONE_BLOCKING)) {
+      #if ENABLED(EMERGENCY_PARSER)
+        emergency_parser.update(byte);
+      #endif
       if ((RxQueueWritePos + 1) % RX_BUFFER_SIZE != RxQueueReadPos) {
         RxBuffer[RxQueueWritePos] = byte;
         RxQueueWritePos = (RxQueueWritePos + 1) % RX_BUFFER_SIZE;

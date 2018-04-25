@@ -32,6 +32,8 @@ extern "C" {
   #include "lpc17xx_pinsel.h"
 }
 
+#include "../../inc/MarlinConfigPre.h"
+
 class HardwareSerial : public Stream {
 private:
   LPC_UART_TypeDef *UARTx;
@@ -137,8 +139,6 @@ public:
   void print(double value, int round = 6) {
     printf("%f" , value );
   }
-
-
 
   void println(const char value[]) {
     printf("%s\n" , value);
