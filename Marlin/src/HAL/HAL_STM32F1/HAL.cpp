@@ -159,8 +159,7 @@ uint16_t HAL_adc_results[ADC_PIN_COUNT];
 // --------------------------------------------------------------------------
 // Private functions
 // --------------------------------------------------------------------------
-static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup)
-{
+static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup) {
   uint32_t reg_value;
   uint32_t PriorityGroupTmp = (PriorityGroup & (uint32_t)0x07);               /* only values 0..7 are used          */
 
@@ -176,8 +175,7 @@ static void NVIC_SetPriorityGrouping(uint32_t PriorityGroup)
 // Public functions
 // --------------------------------------------------------------------------
 
-void HAL_init(void)
-{
+void HAL_init(void) {
   NVIC_SetPriorityGrouping(0x3);
 }
 
