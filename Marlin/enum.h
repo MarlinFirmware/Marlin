@@ -104,23 +104,6 @@ enum EndstopEnum : char {
   Z2_MAX
 };
 
-#if ENABLED(EMERGENCY_PARSER)
-  enum e_parser_state : char {
-    state_RESET,
-    state_N,
-    state_M,
-    state_M1,
-    state_M10,
-    state_M108,
-    state_M11,
-    state_M112,
-    state_M4,
-    state_M41,
-    state_M410,
-    state_IGNORE // to '\n'
-  };
-#endif
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   enum AdvancedPauseMenuResponse : char {
     ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
