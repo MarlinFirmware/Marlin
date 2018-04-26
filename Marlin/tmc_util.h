@@ -97,7 +97,7 @@ void monitor_tmc_driver();
  * Defined here because of limitations with templates and headers.
  */
 #if ENABLED(SENSORLESS_HOMING)
-  void tmc_sensorless_homing(TMC2130Stepper &st, bool enable=true);
+  void tmc_sensorless_homing(TMC2130Stepper &st, const bool enable=true);
 #endif
 
 #if ENABLED(HAVE_TMC2130)
