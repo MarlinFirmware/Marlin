@@ -403,12 +403,6 @@
 #endif
 
 /**
- * Flags for PID handling
- */
-#define HAS_PID_HEATING (ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED))
-#define HAS_PID_FOR_BOTH (ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED))
-
-/**
  * Default hotend offsets, if not defined
  */
 #if HOTENDS > 1
@@ -773,8 +767,16 @@
 #define HAS_HEATER_4 (PIN_EXISTS(HEATER_4))
 #define HAS_HEATER_BED (PIN_EXISTS(HEATER_BED))
 
+// Shorthand for common combinations
 #define HAS_HEATED_BED (HAS_TEMP_BED && HAS_HEATER_BED)
 #define HAS_TEMP_SENSOR (HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_TEMP_CHAMBER)
+
+// PID heating
+#if !HAS_HEATED_BED
+  #undef PIDTEMPBED
+#endif
+#define HAS_PID_HEATING (ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED))
+#define HAS_PID_FOR_BOTH (ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED))
 
 // Thermal protection
 #define HAS_THERMALLY_PROTECTED_BED (HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED))
