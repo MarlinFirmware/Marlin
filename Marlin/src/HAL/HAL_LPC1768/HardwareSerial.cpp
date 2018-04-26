@@ -24,12 +24,6 @@
 
 #include "HardwareSerial.h"
 
-#include "../../inc/MarlinConfigPre.h"
-
-#if ENABLED(EMERGENCY_PARSER)
-  #include "../../feature/emergency_parser.h"
-#endif
-
 #if SERIAL_PORT == 0 || SERIAL_PORT_2 == 0
   HardwareSerial Serial = HardwareSerial(LPC_UART0);
 #elif SERIAL_PORT == 1 || SERIAL_PORT_2 == 1
@@ -254,7 +248,7 @@ void HardwareSerial::IRQHandler() {
     // Clear the FIFO
     while (UART_Receive(UARTx, &byte, 1, NONE_BLOCKING)) {
       #if ENABLED(EMERGENCY_PARSER)
-        emergency_parser.update(byte);
+        emergency_parser.update(emergency_state, byte);
       #endif
       if ((RxQueueWritePos + 1) % RX_BUFFER_SIZE != RxQueueReadPos) {
         RxBuffer[RxQueueWritePos] = byte;

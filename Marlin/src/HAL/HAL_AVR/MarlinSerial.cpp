@@ -85,6 +85,10 @@
 
   FORCE_INLINE void store_rxd_char() {
 
+    #if ENABLED(EMERGENCY_PARSER)
+      static EmergencyParser::State emergency_state; // = EP_RESET
+    #endif
+
     const ring_buffer_pos_t h = rx_buffer.head,
                             i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
 
@@ -160,7 +164,7 @@
     #endif // SERIAL_XON_XOFF
 
     #if ENABLED(EMERGENCY_PARSER)
-      emergency_parser.update(c);
+      emergency_parser.update(emergency_state, c);
     #endif
   }
 
