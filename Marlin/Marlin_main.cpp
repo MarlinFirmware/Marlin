@@ -10458,10 +10458,6 @@ inline void gcode_M502() {
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-  #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
-    #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH 0
-  #endif
-
   /**
    * M600: Pause for filament change
    *
