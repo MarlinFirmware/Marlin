@@ -20,39 +20,20 @@
  *
  */
 
-#ifdef TARGET_LPC1768
+/**
+ * emergency_parser.cpp - Intercept special commands directly in the serial stream
+ */
 
-#include "../../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(USE_WATCHDOG)
+#if ENABLED(EMERGENCY_PARSER)
 
-#include "lpc17xx_wdt.h"
-#include "watchdog.h"
+#include "emergency_parser.h"
 
-void watchdog_init(void) {
-  WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
-  WDT_Start(WDT_TIMEOUT);
-}
+// Static data members
+bool EmergencyParser::killed_by_M112; // = false
 
-void HAL_clear_reset_source(void) {
-  WDT_ClrTimeOutFlag();
-}
+// Global instance
+EmergencyParser emergency_parser;
 
-uint8_t HAL_get_reset_source(void) {
-  if (TEST(WDT_ReadTimeOutFlag(), 0)) return RST_WATCHDOG;
-  return RST_POWER_ON;
-}
-
-void watchdog_reset() {
-  WDT_Feed();
-  #if PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heart beat indicator
-  #endif
-}
-
-#else
-  void HAL_clear_reset_source(void) {}
-  uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
-#endif // USE_WATCHDOG
-
-#endif // TARGET_LPC1768
+#endif // EMERGENCY_PARSER

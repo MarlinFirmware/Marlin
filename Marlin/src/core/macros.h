@@ -99,7 +99,7 @@
 
 // Macros for bit masks
 #undef _BV
-#define _BV(b) (1<<(b))
+#define _BV(b) (1 << (b))
 #define TEST(n,b) !!((n)&_BV(b))
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))

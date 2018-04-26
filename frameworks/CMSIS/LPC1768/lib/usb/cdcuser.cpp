@@ -39,7 +39,6 @@ unsigned short CDC_DepInEmpty = 1;                   // Data IN EP is empty
 unsigned short CDC_LineState = 0;
 unsigned short CDC_SerialState = 0;
 
-
 extern HalSerial usb_serial;
 /*----------------------------------------------------------------------------
  write data to CDC_OutBuf
@@ -52,6 +51,9 @@ uint32_t CDC_WrOutBuf(const char *buffer, uint32_t *length) {
   bytesWritten = bytesToWrite;
 
   while (bytesToWrite) {
+    #if ENABLED(EMERGENCY_PARSER)
+      emergency_parser.update(usb_serial.emergency_state, *buffer);
+    #endif
     usb_serial.receive_buffer.write(*buffer++);           // Copy Data to buffer
     bytesToWrite--;
   }
