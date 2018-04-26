@@ -64,7 +64,7 @@
 static uint8_t LEDs[8] = { 0 };
 
 #ifdef CPU_32_BIT
-  #define MS_DELAY() delayMicroseconds(7)  // 32-bit processors need a delay to stabilize the signal
+void MS_DELAY() { DELAY_1US; }  // 32-bit processors need a delay to stabilize the signal
 #else
   #define MS_DELAY() DELAY_3_NOP
 #endif
