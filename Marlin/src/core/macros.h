@@ -53,10 +53,10 @@
 // Highly granular delays for step pulses, etc.
 #define DELAY_0_NOP NOOP
 #define DELAY_1_NOP __asm__("nop\n\t")
-#define DELAY_2_NOP DELAY_1_NOP; DELAY_1_NOP
-#define DELAY_3_NOP DELAY_1_NOP; DELAY_2_NOP
-#define DELAY_4_NOP DELAY_1_NOP; DELAY_3_NOP
-#define DELAY_5_NOP DELAY_1_NOP; DELAY_4_NOP
+#define DELAY_2_NOP do{ DELAY_1_NOP; DELAY_1_NOP; }while(0)
+#define DELAY_3_NOP do{ DELAY_1_NOP; DELAY_2_NOP; }while(0)
+#define DELAY_4_NOP do{ DELAY_1_NOP; DELAY_3_NOP; }while(0)
+#define DELAY_5_NOP do{ DELAY_1_NOP; DELAY_4_NOP; }while(0)
 
 #define DELAY_NOPS(X) \
   switch (X) { \
@@ -72,23 +72,23 @@
     case 2:  DELAY_1_NOP; case 1:  DELAY_1_NOP; \
   }
 
-#define DELAY_10_NOP DELAY_5_NOP;  DELAY_5_NOP
-#define DELAY_20_NOP DELAY_10_NOP; DELAY_10_NOP
+#define DELAY_10_NOP do{ DELAY_5_NOP;  DELAY_5_NOP;  }while(0)
+#define DELAY_20_NOP do{ DELAY_10_NOP; DELAY_10_NOP; }while(0)
 
 #if CYCLES_PER_MICROSECOND == 16
-  #define DELAY_1US DELAY_10_NOP; DELAY_5_NOP; DELAY_1_NOP
+  #define DELAY_1US do { DELAY_10_NOP; DELAY_5_NOP; DELAY_1_NOP; }while(0)
 #else
   #define DELAY_1US DELAY_20_NOP
 #endif
-#define DELAY_2US  DELAY_1US; DELAY_1US
-#define DELAY_3US  DELAY_1US; DELAY_2US
-#define DELAY_4US  DELAY_1US; DELAY_3US
-#define DELAY_5US  DELAY_1US; DELAY_4US
-#define DELAY_6US  DELAY_1US; DELAY_5US
-#define DELAY_7US  DELAY_1US; DELAY_6US
-#define DELAY_8US  DELAY_1US; DELAY_7US
-#define DELAY_9US  DELAY_1US; DELAY_8US
-#define DELAY_10US DELAY_1US; DELAY_9US
+#define DELAY_2US  do{ DELAY_1US; DELAY_1US; }while(0)
+#define DELAY_3US  do{ DELAY_1US; DELAY_2US; }while(0)
+#define DELAY_4US  do{ DELAY_1US; DELAY_3US; }while(0)
+#define DELAY_5US  do{ DELAY_1US; DELAY_4US; }while(0)
+#define DELAY_6US  do{ DELAY_1US; DELAY_5US; }while(0)
+#define DELAY_7US  do{ DELAY_1US; DELAY_6US; }while(0)
+#define DELAY_8US  do{ DELAY_1US; DELAY_7US; }while(0)
+#define DELAY_9US  do{ DELAY_1US; DELAY_8US; }while(0)
+#define DELAY_10US do{ DELAY_1US; DELAY_9US; }while(0)
 
 // Remove compiler warning on an unused variable
 #define UNUSED(x) (void) (x)
