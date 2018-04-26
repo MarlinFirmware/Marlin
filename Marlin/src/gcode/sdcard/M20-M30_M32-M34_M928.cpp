@@ -72,9 +72,17 @@ void GcodeSuite::M22() { card.release(); }
  * M23: Open a file
  */
 void GcodeSuite::M23() {
-  // Simplify3D includes the size, so zero out all spaces (#7227)
-  for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
-  card.openFile(parser.string_arg, true);
+  // Simplify3D includes the size, so truncate string at spaces (#7227)
+  const char *space = strchr(parser.string_arg,' ');
+  if(space) {
+    const size_t len = space - parser.string_arg;
+    char tmp[len+1];
+    strncpy(tmp, parser.string_arg, len);
+    tmp[len] = '\0';
+    card.openFile(tmp, true);
+   } else {
+    card.openFile(parser.string_arg, true);
+   }
 }
 
 /**

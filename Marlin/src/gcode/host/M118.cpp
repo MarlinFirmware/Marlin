@@ -30,7 +30,7 @@
  */
 void GcodeSuite::M118() {
   bool hasE = false, hasA = false;
-  char *p = parser.string_arg;
+  const char *p = parser.string_arg;
   for (uint8_t i = 2; i--;)
     if ((p[0] == 'A' || p[0] == 'E') && p[1] == '1') {
       if (p[0] == 'A') hasA = true;

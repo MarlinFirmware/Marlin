@@ -373,7 +373,7 @@ void CardReader::stopSDPrint(
   #endif
 }
 
-void CardReader::openLogFile(char* name) {
+void CardReader::openLogFile(const char* name) {
   logging = true;
   openFile(name, false);
 }
@@ -398,7 +398,7 @@ void CardReader::getAbsFilename(char *t) {
   *t = '\0';
 }
 
-void CardReader::openFile(char* name, const bool read, const bool subcall/*=false*/) {
+void CardReader::openFile(const char* name, const bool read, const bool subcall/*=false*/) {
 
   if (!cardOK) return;
 
@@ -446,8 +446,8 @@ void CardReader::openFile(char* name, const bool read, const bool subcall/*=fals
 
   SdFile myDir;
   curDir = &root;
-  char *fname = name;
-  char *dirname_start, *dirname_end;
+  const char *fname = name;
+  const char *dirname_start, *dirname_end;
 
   if (name[0] == '/') {
     dirname_start = &name[1];

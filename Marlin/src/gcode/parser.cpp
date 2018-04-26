@@ -45,7 +45,7 @@ bool GCodeParser::volumetric_enabled;
   TempUnit GCodeParser::input_temp_units;
 #endif
 
-char *GCodeParser::command_ptr,
+const char *GCodeParser::command_ptr,
      *GCodeParser::string_arg,
      *GCodeParser::value_ptr;
 char GCodeParser::command_letter;
@@ -86,7 +86,7 @@ void GCodeParser::reset() {
 
 // Populate all fields by parsing a single line of GCode
 // 58 bytes of SRAM are used to speed up seen/value
-void GCodeParser::parse(char *p) {
+void GCodeParser::parse(const char * p) {
 
   reset(); // No codes to report
 
