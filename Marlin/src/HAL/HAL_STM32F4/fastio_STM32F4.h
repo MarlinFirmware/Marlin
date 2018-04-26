@@ -31,25 +31,26 @@
 
 #define _BV(b) (1 << (b))
 
-#define READ(IO)              digitalRead(IO)
-#define WRITE(IO, v)          digitalWrite(IO,v)
-#define TOGGLE(IO)            do{ _SET_OUTPUT(IO); digitalWrite(IO,!digitalRead(IO)); }while(0)
-#define WRITE_VAR(IO, v)      digitalWrite(IO,v)
+#define READ(IO)                digitalRead(IO)
+#define WRITE(IO,V)             digitalWrite(IO,V)
+#define WRITE_VAR(IO,V)         WRITE(IO,V)
 
 #define _GET_MODE(IO)
-#define _SET_MODE(IO,M)       pinMode(IO, M)
-#define _SET_OUTPUT(IO)       pinMode(IO, OUTPUT)                               /*!< Output Push Pull Mode & GPIO_NOPULL   */
+#define _SET_MODE(IO,M)         pinMode(IO, M)
+#define _SET_OUTPUT(IO)         pinMode(IO, OUTPUT)                               /*!< Output Push Pull Mode & GPIO_NOPULL   */
 
-#define SET_INPUT(IO)         _SET_MODE(IO, INPUT)                              /*!< Input Floating Mode                   */
-#define SET_INPUT_PULLUP(IO)  _SET_MODE(IO, INPUT_PULLUP)                       /*!< Input with Pull-up activation         */
-#define SET_INPUT_PULLDOW(IO) _SET_MODE(IO, INPUT_PULLDOWN)                     /*!< Input with Pull-down activation       */
-#define SET_OUTPUT(IO)        do{ _SET_OUTPUT(IO); WRITE(IO, LOW); }while(0)
+#define OUT_WRITE(IO,V)         do{ _SET_OUTPUT(IO); WRITE(IO,V); }while(0)
+
+#define SET_INPUT(IO)           _SET_MODE(IO, INPUT)                              /*!< Input Floating Mode                   */
+#define SET_INPUT_PULLUP(IO)    _SET_MODE(IO, INPUT_PULLUP)                       /*!< Input with Pull-up activation         */
+#define SET_INPUT_PULLDOWN(IO)  _SET_MODE(IO, INPUT_PULLDOWN)                     /*!< Input with Pull-down activation       */
+#define SET_OUTPUT(IO)          OUT_WRITE(IO, LOW)
+
+#define TOGGLE(IO)              OUT_WRITE(IO, !READ(IO))
 
 #define GET_INPUT(IO)
 #define GET_OUTPUT(IO)
 #define GET_TIMER(IO)
-
-#define OUT_WRITE(IO, v) { _SET_OUTPUT(IO); WRITE(IO, v); }
 
 #define PORTA 0
 #define PORTB 1
