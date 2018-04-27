@@ -158,7 +158,6 @@
   #define BTN_ENC          P1_30   // EXP1.2
   #define BTN_EN1          P3_26   // EXP2.5
   #define BTN_EN2          P3_25   // EXP2.3
-  #define SD_DETECT_PIN    P0_27   // EXP2.7
   #define LCD_PINS_RS      P0_16   // EXP1.4
   #define LCD_SDSS         P0_28   // EXP2.4
   #define LCD_PINS_ENABLE  P0_18   // EXP1.3
@@ -194,7 +193,8 @@
 #define MISO_PIN           P1_23   // J8-3 (moved from EXP2 P0.8)
 #define MOSI_PIN           P2_12   // J8-4 (moved from EXP2 P0.5)
 #define SS_PIN             P0_28
-#define SD_DETECT_PIN      P0_27
+#define SD_DETECT_PIN      P2_11   // J8-5 (moved from EXP2 P0.27)  P0.27 is used by
+                                   // the on board SD card so it can't by the LCD's SD card
 #define SDSS               P0_06
 
 /**
