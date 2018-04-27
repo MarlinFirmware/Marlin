@@ -705,7 +705,7 @@ void GcodeSuite::process_next_command() {
    */
   void GcodeSuite::process_subcommands_now_P(const char *pgcode) {
     // Save the parser state
-    const char * const saved_cmd = parser.command_ptr;
+    char * const saved_cmd = parser.command_ptr;
 
     // Process individual commands in string
     while (pgm_read_byte_near(pgcode)) {
