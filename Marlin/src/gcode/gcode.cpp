@@ -144,7 +144,7 @@ void GcodeSuite::dwell(millis_t time) {
       #ifdef G29_ACTION_ON_RECOVER
         SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_RECOVER);
       #endif
-      #ifdef G29_RECOVERY_COMMANDS
+      #ifdef G29_RECOVER_COMMANDS
         process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
       #endif
     }
