@@ -185,9 +185,9 @@ public:
         const char c = *e;
         if (c == '\0' || c == ' ') break;
         if (c == 'E' || c == 'e') {
-          char tmp[strlen(value_ptr)+1];
-          strcpy(tmp,value_ptr);
-          tmp[e-value_ptr] = '\0';
+          char tmp[strlen(value_ptr) + 1];
+          strcpy(tmp, value_ptr);
+          tmp[e - value_ptr] = '\0';
           return strtod(tmp, NULL);
         }
         ++e;
