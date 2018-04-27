@@ -12061,6 +12061,8 @@ void process_parsed_command() {
       #if ENABLED(DEBUG_GCODE_PARSER)
         case 800: parser.debug(); break;                          // G800: GCode Parser Test for G
       #endif
+
+      default: parser.unknown_command_error();
     }
     break;
 
@@ -12418,6 +12420,8 @@ void process_parsed_command() {
       #endif
 
       case 999: gcode_M999(); break;                              // M999: Restart after being Stopped
+      
+      default: parser.unknown_command_error();
     }
     break;
 
