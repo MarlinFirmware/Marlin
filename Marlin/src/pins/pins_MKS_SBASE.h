@@ -193,9 +193,13 @@
 #define MISO_PIN           P1_23   // J8-3 (moved from EXP2 P0.8)
 #define MOSI_PIN           P2_12   // J8-4 (moved from EXP2 P0.5)
 #define SS_PIN             P0_28
-#define SD_DETECT_PIN      P2_11   // J8-5 (moved from EXP2 P0.27)  P0.27 is used by
-                                   // the on board SD card so it can't by the LCD's SD card
 #define SDSS               P0_06
+
+// P0.27 is used by the on-board SD card's SD_DETECT so it can't be used as a
+// SD_DETECT for the LCD's SD card.
+// If you can't find a pin to use for the LCD's SD_DETECT then comment out SD_DETECT_PIN.
+#define SD_DETECT_PIN      P2_11   // J8-5 (moved from EXP2 P0.27)
+
 
 /**
  *  PWMs
