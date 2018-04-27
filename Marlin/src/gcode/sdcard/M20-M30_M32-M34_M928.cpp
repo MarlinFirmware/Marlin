@@ -73,16 +73,16 @@ void GcodeSuite::M22() { card.release(); }
  */
 void GcodeSuite::M23() {
   // Simplify3D includes the size, so truncate string at spaces (#7227)
-  const char *space = strchr(parser.string_arg,' ');
-  if(space) {
+  const char *space = strchr(parser.string_arg, ' ');
+  if (space) {
     const size_t len = space - parser.string_arg;
-    char tmp[len+1];
+    char tmp[len + 1];
     strncpy(tmp, parser.string_arg, len);
     tmp[len] = '\0';
     card.openFile(tmp, true);
-   } else {
+  }
+  else
     card.openFile(parser.string_arg, true);
-   }
 }
 
 /**
