@@ -51,7 +51,7 @@
 class GCodeParser {
 
 private:
-  static char *value_ptr;           // Set by seen, used to fetch the value
+  static const char *value_ptr;           // Set by seen, used to fetch the value
 
   #if ENABLED(FASTER_GCODE_PARSER)
     static uint32_t codebits;       // Parameters pre-scanned
@@ -75,7 +75,7 @@ public:
   #endif
 
   // Command line state
-  static char *command_ptr,               // The command, so it can be echoed
+  static const char *command_ptr,         // The command, so it can be echoed
               *string_arg;                // string of command line
 
   static char command_letter;             // G, M, or T
@@ -108,7 +108,7 @@ public:
     }
 
     // Set the flag and pointer for a parameter
-    static void set(const char c, char * const ptr) {
+    static void set(const char c, const char * const ptr) {
       const uint8_t ind = LETTER_BIT(c);
       if (ind >= COUNT(param)) return;           // Only A-Z
       SBI32(codebits, ind);                      // parameter exists
@@ -130,7 +130,7 @@ public:
       if (ind >= COUNT(param)) return false; // Only A-Z
       const bool b = TEST32(codebits, ind);
       if (b) {
-        char * const ptr = command_ptr + param[ind];
+        const char * const ptr = command_ptr + param[ind];
         value_ptr = param[ind] && valid_float(ptr) ? ptr : (char*)NULL;
       }
       return b;
@@ -164,7 +164,7 @@ public:
 
   // Populate all fields by parsing a single line of GCode
   // This uses 54 bytes of SRAM to speed up seen/value
-  static void parse(char * p);
+  static void parse(const char * p);
 
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
     // Parse the next parameter as a new command
@@ -180,15 +180,15 @@ public:
   // Float removes 'E' to prevent scientific notation interpretation
   inline static float value_float() {
     if (value_ptr) {
-      char *e = value_ptr;
+      const char *e = value_ptr;
       for (;;) {
         const char c = *e;
         if (c == '\0' || c == ' ') break;
         if (c == 'E' || c == 'e') {
-          *e = '\0';
-          const float ret = strtod(value_ptr, NULL);
-          *e = c;
-          return ret;
+          char tmp[strlen(value_ptr) + 1];
+          strcpy(tmp, value_ptr);
+          tmp[e - value_ptr] = '\0';
+          return strtod(tmp, NULL);
         }
         ++e;
       }
