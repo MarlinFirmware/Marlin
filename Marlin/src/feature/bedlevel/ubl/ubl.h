@@ -124,7 +124,7 @@ class unified_bed_leveling {
     static void reset();
     static void invalidate();
     static void set_all_mesh_points_to_value(const float value);
-    static void adjust_mesh_to_mean(const float value);
+    static void adjust_mesh_to_mean(const bool cflag, const float value);
     static bool sanity_check();
 
     static void G29() _O0;                          // O0 for no optimization

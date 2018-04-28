@@ -1632,9 +1632,7 @@ void Temperature::disable_all_heaters() {
 
     WRITE(MAX6675_SS, 0); // enable TT_MAX6675
 
-    // ensure 100ns delay - a bit extra is fine
-    asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
-    asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
+    DELAY_100NS;          // Ensure 100ns delay
 
     // Read a big-endian temperature value
     max6675_temp = 0;
