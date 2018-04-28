@@ -245,7 +245,7 @@
  */
 
 #include "Marlin.h"
-
+// #include "MyHardwareSerial.h"
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
@@ -346,6 +346,10 @@
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
   int8_t active_coordinate_system = -1; // machine space
   float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+#endif
+
+#ifdef ANYCUBIC_TFT_MODEL
+#include "AnycubicTFT.h"
 #endif
 
 bool Running = true;
@@ -7756,6 +7760,10 @@ inline void gcode_M109() {
   }
   else return;
 
+#ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.HeatingStart();
+#endif
+
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
   #endif
@@ -7828,6 +7836,10 @@ inline void gcode_M109() {
       }
     #endif
 
+    #ifdef ANYCUBIC_TFT_MODEL
+      AnycubicTFT.CommandScan();
+    #endif
+    
     #if TEMP_RESIDENCY_TIME > 0
 
       const float temp_diff = FABS(target_temp - temp);
@@ -7863,6 +7875,10 @@ inline void gcode_M109() {
     #endif
   }
 
+  #ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.HeatingDone();
+  #endif
+  
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(IN_HANDLER);
   #endif
@@ -7894,6 +7910,10 @@ inline void gcode_M109() {
       #endif
     }
     else return;
+
+#ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.BedHeatingStart();
+#endif
 
     #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
@@ -7964,7 +7984,11 @@ inline void gcode_M109() {
           }
         }
       #endif
-
+      
+      #ifdef ANYCUBIC_TFT_MODEL
+      AnycubicTFT.CommandScan();
+      #endif
+      
       #if TEMP_BED_RESIDENCY_TIME > 0
 
         const float temp_diff = FABS(target_temp - temp);
@@ -7993,6 +8017,10 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
+    #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.BedHeatingDone();
+    #endif
+    
     if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
@@ -8185,6 +8213,10 @@ inline void gcode_M140() {
     #if ENABLED(ULTIPANEL)
       LCD_MESSAGEPGM(WELCOME_MSG);
     #endif
+    
+    #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.CommandScan();
+    #endif
 
     #if ENABLED(HAVE_TMC2208)
       delay(100);
@@ -8223,6 +8255,10 @@ inline void gcode_M81() {
 
   #if ENABLED(ULTIPANEL)
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
+  #endif
+  
+  #ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.CommandScan();
   #endif
 }
 
@@ -14018,6 +14054,10 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if ((IS_SD_PRINTING || print_job_timer.isRunning()) && (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING))
       handle_filament_runout();
   #endif
+  
+  #if ENABLED(ANYCUBIC_TFT_MODEL) && ENABLED(ANYCUBIC_FILAMENT_RUNOUT_SENSOR)
+  AnycubicTFT.FilamentRunout();
+  #endif
 
   if (commands_in_queue < BUFSIZE) get_available_commands();
 
@@ -14193,6 +14233,10 @@ void idle(
     Max7219_idle_tasks();
   #endif  // MAX7219_DEBUG
 
+#ifdef ANYCUBIC_TFT_MODEL
+  AnycubicTFT.CommandScan();
+#endif
+  
   lcd_update();
 
   host_keepalive();
@@ -14244,6 +14288,11 @@ void kill(const char* lcd_msg) {
   #else
     UNUSED(lcd_msg);
   #endif
+  
+  #ifdef ANYCUBIC_TFT_MODEL
+    // Kill AnycubicTFT
+    AnycubicTFT.KillTFT();
+  #endif
 
   _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
   cli(); // Stop interrupts
@@ -14287,6 +14336,7 @@ void stop() {
     Running = false;
   }
 }
+
 
 /**
  * Marlin entry-point: Set up before the program loop
@@ -14333,6 +14383,11 @@ void setup() {
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
+  
+  #ifdef ANYCUBIC_TFT_MODEL
+    // Setup AnycubicTFT
+    AnycubicTFT.Setup();
+  #endif
 
   #if ENABLED(HAVE_TMC2208)
     tmc2208_serial_begin();
@@ -14540,6 +14595,7 @@ void setup() {
   #endif
 }
 
+
 /**
  * The main Marlin program loop
  *
@@ -14604,4 +14660,8 @@ void loop() {
   }
   endstops.report_state();
   idle();
+
+  #ifdef ANYCUBIC_TFT_MODEL
+    AnycubicTFT.CommandScan();
+  #endif
 }

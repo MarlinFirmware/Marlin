@@ -147,6 +147,8 @@
 #define BOARD_TEENSY2           84    // Teensy++2.0 (AT90USB1286) - CLI compile: HARDWARE_MOTHERBOARD=84  make
 #define BOARD_5DPRINT           88    // 5DPrint D8 Driver Board
 
+#define BOARD_TRIGORILLA        998  // Tigorilla
+
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
 #endif // __BOARDS_H
