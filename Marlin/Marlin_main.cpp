@@ -1552,6 +1552,9 @@ static void set_axis_is_at_home(const AxisEnum axis) {
  * Some planner shorthand inline functions
  */
 inline float get_homing_bump_feedrate(const AxisEnum axis) {
+  #if HOMING_Z_WITH_PROBE
+    if (axis == Z_AXIS) return Z_PROBE_SPEED_SLOW;
+  #endif
   static const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
   uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
   if (hbd < 1) {
