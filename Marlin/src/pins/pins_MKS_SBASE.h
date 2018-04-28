@@ -195,9 +195,16 @@
 #define SS_PIN             P0_28
 #define SDSS               P0_06
 
-// P0.27 is used by the on-board SD card's SD_DETECT so it can't be used as a
-// SD_DETECT for the LCD's SD card.
-// If you can't find a pin to use for the LCD's SD_DETECT then comment out SD_DETECT_PIN.
+/**
+ * P0.27 is on EXP2 and the on-board SD card's socket. That means it can't be
+ * used as the SD_DETECT for the LCD's SD card.
+ *
+ * The best solution is to use the custom cable to connect the LCD's SD_DETECT
+ * to a pin NOT on EXP2.
+ *
+ * If you can't find a pin to use for the LCD's SD_DETECT then comment out
+ * SD_DETECT_PIN entirely and remove that wire from the the custom cable.
+ */
 #define SD_DETECT_PIN      P2_11   // J8-5 (moved from EXP2 P0.27)
 
 
