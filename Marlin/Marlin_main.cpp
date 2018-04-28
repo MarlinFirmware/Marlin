@@ -10072,7 +10072,7 @@ void quickstop_stepper() {
         #if ENABLED(AUTO_BED_LEVELING_UBL)
 
           set_bed_leveling_enabled(false);
-          ubl.adjust_mesh_to_mean(cval);
+          ubl.adjust_mesh_to_mean(true, cval);
 
         #else
 
