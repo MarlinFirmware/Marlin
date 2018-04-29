@@ -144,7 +144,7 @@ void GcodeSuite::dwell(millis_t time) {
       #ifdef G29_ACTION_ON_RECOVER
         SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_RECOVER);
       #endif
-      #ifdef G29_RECOVERY_COMMANDS
+      #ifdef G29_RECOVER_COMMANDS
         process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
       #endif
     }
@@ -277,6 +277,8 @@ void GcodeSuite::process_parsed_command(
       #if ENABLED(DEBUG_GCODE_PARSER)
         case 800: parser.debug(); break;                          // G800: GCode Parser Test for G
       #endif
+
+      default: parser.unknown_command_error(); break;
     }
     break;
 
@@ -655,6 +657,8 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped
+
+      default: parser.unknown_command_error(); break;
     }
     break;
 
@@ -701,7 +705,7 @@ void GcodeSuite::process_next_command() {
    */
   void GcodeSuite::process_subcommands_now_P(const char *pgcode) {
     // Save the parser state
-    const char * const saved_cmd = parser.command_ptr;
+    char * const saved_cmd = parser.command_ptr;
 
     // Process individual commands in string
     while (pgm_read_byte_near(pgcode)) {

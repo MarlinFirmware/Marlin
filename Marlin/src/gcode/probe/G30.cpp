@@ -55,9 +55,9 @@ void GcodeSuite::G30() {
   const float measured_z = probe_pt(xpos, ypos, raise_after, 1);
 
   if (!isnan(measured_z)) {
-    SERIAL_PROTOCOLPAIR("Bed X: ", FIXFLOAT(xpos));
-    SERIAL_PROTOCOLPAIR(" Y: ", FIXFLOAT(ypos));
-    SERIAL_PROTOCOLLNPAIR(" Z: ", FIXFLOAT(measured_z));
+    SERIAL_PROTOCOLPAIR_F("Bed X: ", xpos);
+    SERIAL_PROTOCOLPAIR_F(" Y: ", ypos);
+    SERIAL_PROTOCOLLNPAIR_F(" Z: ", measured_z);
   }
 
   clean_up_after_endstop_or_probe_move();
