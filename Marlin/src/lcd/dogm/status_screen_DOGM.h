@@ -343,7 +343,7 @@ static void lcd_implementation_status_screen() {
   if (page.page == 0) {
     strcpy(xstring, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
     strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
-    strcpy(zstring, ftostr52sp(FIXFLOAT(LOGICAL_Z_POSITION(current_position[Z_AXIS]))));
+    strcpy(zstring, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])));
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filament_width_meas));
       strcpy(mstring, itostr3(100.0 * (

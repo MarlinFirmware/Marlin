@@ -52,7 +52,7 @@
 #elif AVR_ATmega2561_FAMILY
   #include "fastio_1281.h"
 #else
-  #error "Pins for this chip not defined in Arduino.h! If you have a working pins definition, please contribute!"
+  #error "No FastIO definition for the selected AVR Board."
 #endif
 
 /**
