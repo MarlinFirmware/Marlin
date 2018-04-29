@@ -24,6 +24,7 @@
 #define __UTILITY_H__
 
 #include "types.h"
+#include "macros.h"
 
 void safe_delay(millis_t ms);
 
@@ -43,7 +44,7 @@ void safe_delay(millis_t ms);
   char* itostr3left(const int xx);
 
   // Convert signed int to rj string with _123, -123, _-12, or __-1 format
-  char *itostr4sign(const int x);
+  char* itostr4sign(const int x);
 
   // Convert unsigned float to string with 1.23 format
   char* ftostr12ns(const float &x);
@@ -73,14 +74,14 @@ void safe_delay(millis_t ms);
   char* ftostr62rj(const float &x);
 
   // Convert float to rj string with 123 or -12 format
-  FORCE_INLINE char *ftostr3(const float &x) { return itostr3((int)x); }
+  FORCE_INLINE char* ftostr3(const float &x) { return itostr3(int(FIXFLOAT(x))); }
 
   #if ENABLED(LCD_DECIMAL_SMALL_XY)
     // Convert float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.2 format
-    char *ftostr4sign(const float &fx);
+    char* ftostr4sign(const float &fx);
   #else
     // Convert float to rj string with 1234, _123, -123, __12, _-12, ___1, or __-1 format
-    FORCE_INLINE char *ftostr4sign(const float &x) { return itostr4sign((int)x); }
+    FORCE_INLINE char* ftostr4sign(const float &x) { return itostr4sign(int(FIXFLOAT(x))); }
   #endif
 
 #endif // ULTRA_LCD || (DEBUG_LEVELING_FEATURE && (MESH_BED_LEVELING || (HAS_ABL && !ABL_PLANAR)))
