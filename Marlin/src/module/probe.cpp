@@ -487,7 +487,7 @@ bool set_probe_deployed(const bool deploy) {
   const char msg_wait_for_bed_heating[25] PROGMEM = "Wait for bed heating...\n";
 #endif
 
-static bool do_probe_move(const float z, const float fr_mm_m) {
+static bool do_probe_move(const float z, const float fr_mm_s) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
   #endif
@@ -512,7 +512,7 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
   #endif
 
   // Move down until probe triggered
-  do_blocking_move_to_z(z, MMM_TO_MMS(fr_mm_m));
+  do_blocking_move_to_z(z, fr_mm_s);
 
   // Check to see if the probe was triggered
   const bool probe_triggered = TEST(Endstops::endstop_hit_bits,
