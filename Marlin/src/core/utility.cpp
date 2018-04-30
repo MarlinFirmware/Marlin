@@ -41,7 +41,7 @@ void safe_delay(millis_t ms) {
     uint8_t *ptr = (uint8_t *)data;
     while (cnt--) {
       *crc = (uint16_t)(*crc ^ (uint16_t)(((uint16_t)*ptr++) << 8));
-      for (uint8_t x = 0; x < 8; x++)
+      for (uint8_t i = 0; i < 8; i++)
         *crc = (uint16_t)((*crc & 0x8000) ? ((uint16_t)(*crc << 1) ^ 0x1021) : (*crc << 1));
     }
   }
@@ -58,193 +58,190 @@ void safe_delay(millis_t ms) {
   #define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
 
   // Convert unsigned int to string 123 format
-  char* i8tostr3(const uint8_t xx) {
-    conv[4] = RJDIGIT(xx, 100);
-    conv[5] = RJDIGIT(xx, 10);
-    conv[6] = DIGIMOD(xx, 1);
+  char* i8tostr3(const uint8_t i) {
+    conv[4] = RJDIGIT(i, 100);
+    conv[5] = RJDIGIT(i, 10);
+    conv[6] = DIGIMOD(i, 1);
     return &conv[4];
   }
 
   // Convert signed int to rj string with 123 or -12 format
-  char* itostr3(const int x) {
-    int xx = x;
-    conv[4] = MINUSOR(xx, RJDIGIT(xx, 100));
-    conv[5] = RJDIGIT(xx, 10);
-    conv[6] = DIGIMOD(xx, 1);
+  char* itostr3(int i) {
+    conv[4] = MINUSOR(i, RJDIGIT(i, 100));
+    conv[5] = RJDIGIT(i, 10);
+    conv[6] = DIGIMOD(i, 1);
     return &conv[4];
   }
 
   // Convert unsigned int to lj string with 123 format
-  char* itostr3left(const int xx) {
+  char* itostr3left(const int i) {
     char *str = &conv[6];
-    *str = DIGIMOD(xx, 1);
-    if (xx >= 10) {
-      *(--str) = DIGIMOD(xx, 10);
-      if (xx >= 100)
-        *(--str) = DIGIMOD(xx, 100);
+    *str = DIGIMOD(i, 1);
+    if (i >= 10) {
+      *(--str) = DIGIMOD(i, 10);
+      if (i >= 100)
+        *(--str) = DIGIMOD(i, 100);
     }
     return str;
   }
 
   // Convert signed int to rj string with 1234, _123, -123, _-12, or __-1 format
-  char* itostr4sign(const int x) {
-    const bool neg = x < 0;
-    const int xx = neg ? -x : x;
-    if (x >= 1000) {
-      conv[3] = DIGIMOD(xx, 1000);
-      conv[4] = DIGIMOD(xx, 100);
-      conv[5] = DIGIMOD(xx, 10);
+  char* itostr4sign(const int i) {
+    const bool neg = i < 0;
+    const int ii = neg ? -i : i;
+    if (i >= 1000) {
+      conv[3] = DIGIMOD(ii, 1000);
+      conv[4] = DIGIMOD(ii, 100);
+      conv[5] = DIGIMOD(ii, 10);
+    }
+    else if (ii >= 100) {
+      conv[3] = neg ? '-' : ' ';
+      conv[4] = DIGIMOD(ii, 100);
+      conv[5] = DIGIMOD(ii, 10);
     }
     else {
-      if (xx >= 100) {
-        conv[3] = neg ? '-' : ' ';
-        conv[4] = DIGIMOD(xx, 100);
-        conv[5] = DIGIMOD(xx, 10);
+      conv[3] = ' ';
+      conv[4] = ' ';
+      if (ii >= 10) {
+        conv[4] = neg ? '-' : ' ';
+        conv[5] = DIGIMOD(ii, 10);
       }
       else {
-        conv[3] = ' ';
-        conv[4] = ' ';
-        if (xx >= 10) {
-          conv[4] = neg ? '-' : ' ';
-          conv[5] = DIGIMOD(xx, 10);
-        }
-        else {
-          conv[5] = neg ? '-' : ' ';
-        }
+        conv[5] = neg ? '-' : ' ';
       }
     }
-    conv[6] = DIGIMOD(xx, 1);
+    conv[6] = DIGIMOD(ii, 1);
     return &conv[3];
   }
 
   // Convert unsigned float to string with 1.23 format
-  char* ftostr12ns(const float &x) {
-    const long xx = ((x < 0 ? -x : x) + 0.001) * 100;
-    conv[3] = DIGIMOD(xx, 100);
+  char* ftostr12ns(const float &f) {
+    const long i = ((f < 0 ? -f : f) * 1000 + 5) / 10;
+    conv[3] = DIGIMOD(i, 100);
     conv[4] = '.';
-    conv[5] = DIGIMOD(xx, 10);
-    conv[6] = DIGIMOD(xx, 1);
+    conv[5] = DIGIMOD(i, 10);
+    conv[6] = DIGIMOD(i, 1);
     return &conv[3];
   }
 
   // Convert signed float to fixed-length string with 023.45 / -23.45 format
-  char* ftostr32(const float &x) {
-    long xx = FIXFLOAT(x) * 100;
-    conv[1] = MINUSOR(xx, DIGIMOD(xx, 10000));
-    conv[2] = DIGIMOD(xx, 1000);
-    conv[3] = DIGIMOD(xx, 100);
+  char* ftostr32(const float &f) {
+    long i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
+    conv[1] = MINUSOR(i, DIGIMOD(i, 10000));
+    conv[2] = DIGIMOD(i, 1000);
+    conv[3] = DIGIMOD(i, 100);
     conv[4] = '.';
-    conv[5] = DIGIMOD(xx, 10);
-    conv[6] = DIGIMOD(xx, 1);
+    conv[5] = DIGIMOD(i, 10);
+    conv[6] = DIGIMOD(i, 1);
     return &conv[1];
   }
 
   #if ENABLED(LCD_DECIMAL_SMALL_XY)
 
     // Convert float to rj string with 1234, _123, -123, _-12, 12.3, _1.2, or -1.2 format
-    char* ftostr4sign(const float &fx) {
-      const int x = FIXFLOAT(fx) * 10;
-      if (!WITHIN(x, -99, 999)) return itostr4sign((int)fx);
-      const bool neg = x < 0;
-      const int xx = neg ? -x : x;
-      conv[3] = neg ? '-' : (xx >= 100 ? DIGIMOD(xx, 100) : ' ');
-      conv[4] = DIGIMOD(xx, 10);
+    char* ftostr4sign(const float &f) {
+      const int i = (f * 100 + (f < 0 ? -5: 5)) / 10;
+      if (!WITHIN(i, -99, 999)) return itostr4sign((int)f);
+      const bool neg = i < 0;
+      const int ii = neg ? -i : i;
+      conv[3] = neg ? '-' : (ii >= 100 ? DIGIMOD(ii, 100) : ' ');
+      conv[4] = DIGIMOD(ii, 10);
       conv[5] = '.';
-      conv[6] = DIGIMOD(xx, 1);
+      conv[6] = DIGIMOD(ii, 1);
       return &conv[3];
     }
 
   #endif // LCD_DECIMAL_SMALL_XY
 
   // Convert float to fixed-length string with +123.4 / -123.4 format
-  char* ftostr41sign(const float &x) {
-    int xx = FIXFLOAT(x) * 10;
-    conv[1] = MINUSOR(xx, '+');
-    conv[2] = DIGIMOD(xx, 1000);
-    conv[3] = DIGIMOD(xx, 100);
-    conv[4] = DIGIMOD(xx, 10);
+  char* ftostr41sign(const float &f) {
+    int i = (f * 100 + (f < 0 ? -5: 5)) / 10;
+    conv[1] = MINUSOR(i, '+');
+    conv[2] = DIGIMOD(i, 1000);
+    conv[3] = DIGIMOD(i, 100);
+    conv[4] = DIGIMOD(i, 10);
     conv[5] = '.';
-    conv[6] = DIGIMOD(xx, 1);
+    conv[6] = DIGIMOD(i, 1);
     return &conv[1];
   }
 
   // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
-  char* ftostr43sign(const float &x, char plus/*=' '*/) {
-    long xx = FIXFLOAT(x) * 1000;
-    conv[1] = xx ? MINUSOR(xx, plus) : ' ';
-    conv[2] = DIGIMOD(xx, 1000);
+  char* ftostr43sign(const float &f, char plus/*=' '*/) {
+    long i = (f * 10000 + (f < 0 ? -5: 5)) / 10;
+    conv[1] = i ? MINUSOR(i, plus) : ' ';
+    conv[2] = DIGIMOD(i, 1000);
     conv[3] = '.';
-    conv[4] = DIGIMOD(xx, 100);
-    conv[5] = DIGIMOD(xx, 10);
-    conv[6] = DIGIMOD(xx, 1);
+    conv[4] = DIGIMOD(i, 100);
+    conv[5] = DIGIMOD(i, 10);
+    conv[6] = DIGIMOD(i, 1);
     return &conv[1];
   }
 
   // Convert unsigned float to rj string with 12345 format
-  char* ftostr5rj(const float &x) {
-    const long xx = x < 0 ? -x : x;
-    conv[2] = RJDIGIT(xx, 10000);
-    conv[3] = RJDIGIT(xx, 1000);
-    conv[4] = RJDIGIT(xx, 100);
-    conv[5] = RJDIGIT(xx, 10);
-    conv[6] = DIGIMOD(xx, 1);
+  char* ftostr5rj(const float &f) {
+    const long i = ((f < 0 ? -f : f) * 10 + 5) / 10;
+    conv[2] = RJDIGIT(i, 10000);
+    conv[3] = RJDIGIT(i, 1000);
+    conv[4] = RJDIGIT(i, 100);
+    conv[5] = RJDIGIT(i, 10);
+    conv[6] = DIGIMOD(i, 1);
     return &conv[2];
   }
 
   // Convert signed float to string with +1234.5 format
-  char* ftostr51sign(const float &x) {
-    long xx = FIXFLOAT(x) * 10;
-    conv[0] = MINUSOR(xx, '+');
-    conv[1] = DIGIMOD(xx, 10000);
-    conv[2] = DIGIMOD(xx, 1000);
-    conv[3] = DIGIMOD(xx, 100);
-    conv[4] = DIGIMOD(xx, 10);
+  char* ftostr51sign(const float &f) {
+    long i = (f * 100 + (f < 0 ? -5: 5)) / 10;
+    conv[0] = MINUSOR(i, '+');
+    conv[1] = DIGIMOD(i, 10000);
+    conv[2] = DIGIMOD(i, 1000);
+    conv[3] = DIGIMOD(i, 100);
+    conv[4] = DIGIMOD(i, 10);
     conv[5] = '.';
-    conv[6] = DIGIMOD(xx, 1);
+    conv[6] = DIGIMOD(i, 1);
     return conv;
   }
 
   // Convert signed float to string with +123.45 format
-  char* ftostr52sign(const float &x) {
-    long xx = FIXFLOAT(x) * 100;
-    conv[0] = MINUSOR(xx, '+');
-    conv[1] = DIGIMOD(xx, 10000);
-    conv[2] = DIGIMOD(xx, 1000);
-    conv[3] = DIGIMOD(xx, 100);
+  char* ftostr52sign(const float &f) {
+    long i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
+    conv[0] = MINUSOR(i, '+');
+    conv[1] = DIGIMOD(i, 10000);
+    conv[2] = DIGIMOD(i, 1000);
+    conv[3] = DIGIMOD(i, 100);
     conv[4] = '.';
-    conv[5] = DIGIMOD(xx, 10);
-    conv[6] = DIGIMOD(xx, 1);
+    conv[5] = DIGIMOD(i, 10);
+    conv[6] = DIGIMOD(i, 1);
     return conv;
   }
 
   // Convert unsigned float to string with 1234.56 format omitting trailing zeros
-  char* ftostr62rj(const float &x) {
-    const long xx = ((x < 0 ? -x : x) + 0.001) * 100;
-    conv[0] = RJDIGIT(xx, 100000);
-    conv[1] = RJDIGIT(xx, 10000);
-    conv[2] = RJDIGIT(xx, 1000);
-    conv[3] = DIGIMOD(xx, 100);
+  char* ftostr62rj(const float &f) {
+    const long i = ((f < 0 ? -f : f) * 1000 + 5) / 10;
+    conv[0] = RJDIGIT(i, 100000);
+    conv[1] = RJDIGIT(i, 10000);
+    conv[2] = RJDIGIT(i, 1000);
+    conv[3] = DIGIMOD(i, 100);
     conv[4] = '.';
-    conv[5] = DIGIMOD(xx, 10);
-    conv[6] = DIGIMOD(xx, 1);
+    conv[5] = DIGIMOD(i, 10);
+    conv[6] = DIGIMOD(i, 1);
     return conv;
   }
 
   // Convert signed float to space-padded string with -_23.4_ format
-  char* ftostr52sp(const float &x) {
-    long xx = FIXFLOAT(x) * 100;
+  char* ftostr52sp(const float &f) {
+    long i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
     uint8_t dig;
-    conv[1] = MINUSOR(xx, RJDIGIT(xx, 10000));
-    conv[2] = RJDIGIT(xx, 1000);
-    conv[3] = DIGIMOD(xx, 100);
+    conv[1] = MINUSOR(i, RJDIGIT(i, 10000));
+    conv[2] = RJDIGIT(i, 1000);
+    conv[3] = DIGIMOD(i, 100);
 
-    if ((dig = xx % 10)) {          // second digit after decimal point?
+    if ((dig = i % 10)) {          // second digit after decimal point?
       conv[4] = '.';
-      conv[5] = DIGIMOD(xx, 10);
+      conv[5] = DIGIMOD(i, 10);
       conv[6] = DIGIT(dig);
     }
     else {
-      if ((dig = (xx / 10) % 10)) { // first digit after decimal point?
+      if ((dig = (i / 10) % 10)) { // first digit after decimal point?
         conv[4] = '.';
         conv[5] = DIGIT(dig);
       }
