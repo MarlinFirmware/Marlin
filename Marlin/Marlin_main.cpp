@@ -1549,11 +1549,11 @@ static void set_axis_is_at_home(const AxisEnum axis) {
 }
 
 /**
- * Some planner shorthand inline functions
+ * Homing bump feedrate (mm/s)
  */
 inline float get_homing_bump_feedrate(const AxisEnum axis) {
   #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS) return Z_PROBE_SPEED_SLOW;
+    if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_SPEED_SLOW);
   #endif
   static const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
   uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
@@ -1564,6 +1564,10 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
   }
   return homing_feedrate(axis) / hbd;
 }
+
+/**
+ * Some planner shorthand inline functions
+ */
 
 /**
  * Move the planner to the current position from wherever it last moved
@@ -2211,7 +2215,7 @@ void clean_up_after_endstop_or_probe_move() {
    * @param  fr_mm_s  Feedrate in mm/s
    * @return true to indicate an error
    */
-  static bool do_probe_move(const float z, const float fr_mm_m) {
+  static bool do_probe_move(const float z, const float fr_mm_s) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
     #endif
@@ -2236,7 +2240,7 @@ void clean_up_after_endstop_or_probe_move() {
     #endif
 
     // Move down until probe triggered
-    do_blocking_move_to_z(z, MMM_TO_MMS(fr_mm_m));
+    do_blocking_move_to_z(z, fr_mm_s);
 
     // Check to see if the probe was triggered
     const bool probe_triggered = TEST(Endstops::endstop_hit_bits,
@@ -2292,7 +2296,7 @@ void clean_up_after_endstop_or_probe_move() {
     #if MULTIPLE_PROBING == 2
 
       // Do a first probe at the fast speed
-      if (do_probe_move(z_probe_low_point, Z_PROBE_SPEED_FAST)) return NAN;
+      if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) return NAN;
 
       float first_probe_z = current_position[Z_AXIS];
 
@@ -2312,7 +2316,7 @@ void clean_up_after_endstop_or_probe_move() {
 
       if (current_position[Z_AXIS] > z) {
         // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
-        if (!do_probe_move(z, Z_PROBE_SPEED_FAST))
+        if (!do_probe_move(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
           do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
       }
     #endif
@@ -2323,7 +2327,7 @@ void clean_up_after_endstop_or_probe_move() {
     #endif
 
         // move down slowly to find bed
-        if (do_probe_move(z_probe_low_point, Z_PROBE_SPEED_SLOW)) return NAN;
+        if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) return NAN;
 
     #if MULTIPLE_PROBING > 2
         probes_total += current_position[Z_AXIS];
@@ -3086,7 +3090,7 @@ static void homeaxis(const AxisEnum axis) {
   // When homing Z with probe respect probe clearance
   const float bump = axis_home_dir * (
     #if HOMING_Z_WITH_PROBE
-      (axis == Z_AXIS && (Z_HOME_BUMP_MM)) ? max(Z_CLEARANCE_BETWEEN_PROBES, home_bump_mm(Z_AXIS)) :
+      (axis == Z_AXIS && (Z_HOME_BUMP_MM)) ? max(Z_CLEARANCE_BETWEEN_PROBES, Z_HOME_BUMP_MM) :
     #endif
     home_bump_mm(axis)
   );
@@ -3097,7 +3101,11 @@ static void homeaxis(const AxisEnum axis) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Move Away:");
     #endif
-    do_homing_move(axis, -bump);
+    do_homing_move(axis, -bump
+      #if HOMING_Z_WITH_PROBE
+        , MMM_TO_MMS(Z_PROBE_SPEED_FAST)
+      #endif
+    );
 
     // Slow move towards endstop until triggered
     #if ENABLED(DEBUG_LEVELING_FEATURE)
