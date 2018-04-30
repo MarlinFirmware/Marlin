@@ -48,7 +48,7 @@ void safe_delay(millis_t ms) {
 
 #endif // EEPROM_SETTINGS
 
-#if ENABLED(ULTRA_LCD)
+#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE)
 
   char conv[8] = { 0 };
 
