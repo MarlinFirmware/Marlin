@@ -388,7 +388,7 @@ void report_current_position();
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
-  #if Z_AFTER_PROBING
+  #ifdef Z_AFTER_PROBING
     void move_z_after_probing();
   #endif
   enum ProbePtRaise : unsigned char {

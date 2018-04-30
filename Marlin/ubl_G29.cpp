@@ -751,7 +751,7 @@
 
       STOW_PROBE();
 
-      #if Z_AFTER_PROBING
+      #ifdef Z_AFTER_PROBING
         move_z_after_probing();
       #endif
 
