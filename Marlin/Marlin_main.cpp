@@ -3936,7 +3936,7 @@ inline void gcode_G4() {
 
 #endif // DELTA
 
-#if Z_AFTER_PROBING
+#ifdef Z_AFTER_PROBING
   void move_z_after_probing() {
     if (current_position[Z_AXIS] != Z_AFTER_PROBING) {
       do_blocking_move_to_z(Z_AFTER_PROBING);
@@ -4180,7 +4180,7 @@ inline void gcode_G28(const bool always_home_all) {
           HOMEAXIS(Z);
         #endif
 
-        #if HOMING_Z_WITH_PROBE && Z_AFTER_PROBING
+        #if HOMING_Z_WITH_PROBE && defined(Z_AFTER_PROBING)
           move_z_after_probing();
         #endif
 
@@ -5356,7 +5356,7 @@ void home_all_axes() { gcode_G28(true); }
     if (planner.leveling_active)
       SYNC_PLAN_POSITION_KINEMATIC();
 
-    #if HAS_BED_PROBE && Z_AFTER_PROBING
+    #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
       move_z_after_probing();
     #endif
 
@@ -5400,7 +5400,7 @@ void home_all_axes() { gcode_G28(true); }
 
     clean_up_after_endstop_or_probe_move();
 
-    #if Z_AFTER_PROBING
+    #ifdef Z_AFTER_PROBING
       if (raise_after == PROBE_PT_STOW) move_z_after_probing();
     #endif
 
@@ -7781,7 +7781,7 @@ inline void gcode_M42() {
       set_bed_leveling_enabled(was_enabled);
     #endif
 
-    #if Z_AFTER_PROBING
+    #ifdef Z_AFTER_PROBING
       move_z_after_probing();
     #endif
 
@@ -9917,7 +9917,7 @@ inline void gcode_M400() { stepper.synchronize(); }
    */
   inline void gcode_M402() {
     STOW_PROBE();
-    #if Z_AFTER_PROBING
+    #ifdef Z_AFTER_PROBING
       move_z_after_probing();
     #endif
     report_current_position();
