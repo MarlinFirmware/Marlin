@@ -1147,6 +1147,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * LED Control Menu
+ */
+#if ENABLED(LED_CONTROL_MENU) && !HAS_COLOR_LEDS
+  #error "LED_CONTROL_MENU requires BLINKM, RGB_LED, RGBW_LED, PCA9632, or NEOPIXEL_LED."
+#endif
+
+/**
  * Basic 2-nozzle duplication mode
  */
 #if ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)

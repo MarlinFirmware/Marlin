@@ -465,7 +465,7 @@ bool set_probe_deployed(const bool deploy) {
   return false;
 }
 
-#if Z_AFTER_PROBING
+#ifdef Z_AFTER_PROBING
   // After probing move to a preferred Z position
   void move_z_after_probing() {
     if (current_position[Z_AXIS] != Z_AFTER_PROBING) {
@@ -568,7 +568,7 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
   #if MULTIPLE_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (do_probe_move(z_probe_low_point, Z_PROBE_SPEED_FAST)) return NAN;
+    if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) return NAN;
 
     float first_probe_z = current_position[Z_AXIS];
 
@@ -588,7 +588,7 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
 
     if (current_position[Z_AXIS] > z) {
       // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
-      if (!do_probe_move(z, Z_PROBE_SPEED_FAST))
+      if (!do_probe_move(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
         do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
   #endif
@@ -599,7 +599,7 @@ static bool do_probe_move(const float z, const float fr_mm_m) {
   #endif
 
       // Move down slowly to find bed, not too far
-      if (do_probe_move(z_probe_low_point, Z_PROBE_SPEED_SLOW)) return NAN;
+      if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) return NAN;
 
   #if MULTIPLE_PROBING > 2
       probes_total += current_position[Z_AXIS];

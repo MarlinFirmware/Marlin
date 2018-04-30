@@ -312,7 +312,7 @@ void GcodeSuite::G28(const bool always_home_all) {
           HOMEAXIS(Z);
         #endif
 
-        #if HOMING_Z_WITH_PROBE && Z_AFTER_PROBING
+        #if HOMING_Z_WITH_PROBE && defined(Z_AFTER_PROBING)
           move_z_after_probing();
         #endif
 
