@@ -30,7 +30,6 @@
 #include "Marlin.h"
 #include "planner.h"
 #include "math.h"
-#include "vector_3.h"
 #include "configuration_store.h"
 
 #define UBL_VERSION "1.01"

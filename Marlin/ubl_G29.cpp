@@ -1491,6 +1491,8 @@
 
   #if HAS_BED_PROBE
 
+    #include "vector_3.h"
+
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
       constexpr int16_t x_min = max(MIN_PROBE_X, MESH_MIN_X),
                         x_max = min(MAX_PROBE_X, MESH_MAX_X),
