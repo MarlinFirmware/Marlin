@@ -789,9 +789,9 @@ void lcd_buzz(const long duration, const uint16_t freq) {
 }
 
 void lcd_quick_feedback(const bool clear_buttons) {
-  lcd_refresh();
 
   #if ENABLED(ULTIPANEL)
+    lcd_refresh();
     if (clear_buttons) buttons = 0;
     next_button_update_ms = millis() + 500;
   #else
@@ -800,10 +800,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   // Buzz and wait. The delay is needed for buttons to settle!
   lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-  #if ENABLED(LCD_USE_I2C_BUZZER)
-    delay(10);
-  #elif PIN_EXISTS(BEEPER)
-    for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+
+  #if ENABLED(ULTIPANEL)
+    #if ENABLED(LCD_USE_I2C_BUZZER)
+      delay(10);
+    #elif PIN_EXISTS(BEEPER)
+      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+    #endif
   #endif
 }
 
@@ -917,7 +920,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       END_MENU();
     }
 
-  #endif
+  #endif // POWER_LOSS_RECOVERY
 
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
 
