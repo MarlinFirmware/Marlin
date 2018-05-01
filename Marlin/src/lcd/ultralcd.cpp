@@ -1814,11 +1814,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
 
-    void lcd_autostart_sd() {
-      card.autostart_index = 0;
-      card.setroot();
-      card.checkautostart(true);
-    }
+    void lcd_autostart_sd() { card.beginautostart(); }
 
   #endif
 
@@ -5131,9 +5127,12 @@ void lcd_update() {
       lcd_sd_status = sd_status;
 
       if (sd_status) {
-        safe_delay(1000); // some boards need a delay or the LCD won't show the new status
+        safe_delay(500); // Some boards need a delay to get settled
         card.initsd();
-        if (old_sd_status != 2) LCD_MESSAGEPGM(MSG_SD_INSERTED);
+        if (old_sd_status == 2)
+          card.beginautostart();  // Initial boot
+        else
+          LCD_MESSAGEPGM(MSG_SD_INSERTED);
       }
       else {
         card.release();
