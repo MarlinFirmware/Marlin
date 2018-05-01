@@ -305,7 +305,9 @@
 /**
  * Temp Sensor defines
  */
-#if TEMP_SENSOR_0 == -3
+#if TEMP_SENSOR_0 == -4
+  #define HEATER_0_USES_AD8495
+#elif TEMP_SENSOR_0 == -3
   #define HEATER_0_USES_MAX6675
   #define MAX6675_IS_MAX31855
   #define MAX6675_TMIN -270
@@ -324,7 +326,9 @@
   #define HEATER_0_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_1 <= -2
+#if TEMP_SENSOR_1 == -4
+  #define HEATER_1_USES_AD8495
+#elif TEMP_SENSOR_1 <= -2
   #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_1"
 #elif TEMP_SENSOR_1 == -1
   #define HEATER_1_USES_AD595
@@ -336,7 +340,9 @@
   #define HEATER_1_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_2 <= -2
+#if TEMP_SENSOR_2 == -4
+  #define HEATER_2_USES_AD8495
+#elif TEMP_SENSOR_2 <= -2
   #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_2"
 #elif TEMP_SENSOR_2 == -1
   #define HEATER_2_USES_AD595
@@ -348,7 +354,9 @@
   #define HEATER_2_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_3 <= -2
+#if TEMP_SENSOR_3 == -4
+  #define HEATER_3_USES_AD8495
+#elif TEMP_SENSOR_3 <= -2
   #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_3"
 #elif TEMP_SENSOR_3 == -1
   #define HEATER_3_USES_AD595
@@ -360,7 +368,9 @@
   #define HEATER_3_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_4 <= -2
+#if TEMP_SENSOR_4 == -4
+  #define HEATER_4_USES_AD8495
+#elif TEMP_SENSOR_4 <= -2
   #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_4"
 #elif TEMP_SENSOR_4 == -1
   #define HEATER_4_USES_AD595
@@ -372,7 +382,9 @@
   #define HEATER_4_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_BED <= -2
+#if TEMP_SENSOR_BED == -4
+  #define BED_USES_AD8495
+#elif TEMP_SENSOR_BED <= -2
   #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_BED"
 #elif TEMP_SENSOR_BED == -1
   #define BED_USES_AD595
@@ -384,7 +396,9 @@
   #define BED_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_CHAMBER <= -2
+#if TEMP_SENSOR_CHAMBER == -4
+  #define CHAMBER_USES_AD8495
+#elif TEMP_SENSOR_CHAMBER <= -2
   #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_CHAMBER"
 #elif TEMP_SENSOR_CHAMBER == -1
   #define CHAMBER_USES_AD595
@@ -392,6 +406,8 @@
   #define THERMISTORCHAMBER TEMP_SENSOR_CHAMBER
   #define CHAMBER_USES_THERMISTOR
 #endif
+
+#define HEATER_USES_AD8495 (ENABLED(HEATER_0_USES_AD8495) || ENABLED(HEATER_1_USES_AD8495) || ENABLED(HEATER_2_USES_AD8495) || ENABLED(HEATER_3_USES_AD8495))
 
 #ifdef __SAM3X8E__
   #define HEATER_USES_AD595 (ENABLED(HEATER_0_USES_AD595) || ENABLED(HEATER_1_USES_AD595) || ENABLED(HEATER_2_USES_AD595) || ENABLED(HEATER_3_USES_AD595))
@@ -751,7 +767,7 @@
 #define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0 && TEMP_SENSOR_3 > -2)
 #define HAS_TEMP_4 (PIN_EXISTS(TEMP_4) && TEMP_SENSOR_4 != 0 && TEMP_SENSOR_4 > -2)
 #define HAS_TEMP_HOTEND (HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675))
-#define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0 && TEMP_SENSOR_BED > -2)
+#define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0 && (TEMP_SENSOR_BED > -2 || TEMP_SENSOR_BED == -4))
 #define HAS_TEMP_CHAMBER (PIN_EXISTS(TEMP_CHAMBER) && TEMP_SENSOR_CHAMBER != 0 && TEMP_SENSOR_CHAMBER > -2)
 
 // Heaters
