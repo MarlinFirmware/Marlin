@@ -299,6 +299,10 @@
   #endif
 #endif
 
+#if ENABLED(NO_LCD_MENUS)
+  #undef ULTIPANEL
+#endif
+
 #if ENABLED(ULTIPANEL)
   #define NEWPANEL  // Disable this if you actually have no click-encoder panel
   #define ULTRA_LCD
@@ -384,7 +388,7 @@
   #define BOOTSCREEN_TIMEOUT 2500
 #endif
 
-#define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
+#define HAS_DEBUG_MENU (ENABLED(ULTIPANEL) && ENABLED(LCD_PROGRESS_BAR_TEST))
 
 // MK2 Multiplexer forces SINGLENOZZLE and kills DISABLE_INACTIVE_EXTRUDER
 #if ENABLED(MK2_MULTIPLEXER)
