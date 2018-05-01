@@ -41,7 +41,7 @@
   #include "../../../feature/bedlevel/bedlevel.h"
   #include "../../../libs/least_squares_fit.h"
 
-#include "../../../feature/Max7219_Debug_LEDs.h"
+  #include "../../../feature/Max7219_Debug_LEDs.h"
 
   #include <math.h>
 
@@ -1495,6 +1495,8 @@
   }
 
   #if HAS_BED_PROBE
+
+    #include "../../../libs/vector_3.h"
 
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
       constexpr int16_t x_min = max(MIN_PROBE_X, MESH_MIN_X),
