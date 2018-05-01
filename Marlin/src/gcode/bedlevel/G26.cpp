@@ -135,7 +135,7 @@
 
 // External references
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SMART_LCD
   extern char lcd_status_message[];
 #endif
 
@@ -160,7 +160,7 @@ int16_t g26_bed_temp,
 
 int8_t g26_prime_flag;
 
-#if ENABLED(ULTIPANEL)
+#if HAS_BUTTONS
 
   /**
    * If the LCD is clicked, cancel, wait for release, return true
@@ -168,7 +168,7 @@ int8_t g26_prime_flag;
   bool user_canceled() {
     if (!is_lcd_clicked()) return false; // Return if the button isn't pressed
     lcd_setstatusPGM(PSTR("Mesh Validation Stopped."), 99);
-    #if ENABLED(ULTIPANEL)
+    #if HAS_SMART_LCD
       lcd_quick_feedback(true);
     #endif
     wait_for_release();
@@ -181,7 +181,7 @@ int8_t g26_prime_flag;
     return G26_ERR;
   }
 
-#endif
+#endif // HAS_BUTTONS
 
 mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
   float closest = 99999.99;
@@ -331,7 +331,7 @@ inline bool look_for_lines_to_connect() {
   for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
     for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_BUTTONS
         if (user_canceled()) return true;     // Check if the user wants to stop the Mesh Validation
       #endif
 
@@ -418,7 +418,7 @@ inline bool look_for_lines_to_connect() {
 inline bool turn_on_heaters() {
   millis_t next = millis() + 5000UL;
   #if HAS_HEATED_BED
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SMART_LCD
       if (g26_bed_temp > 25) {
         lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
         lcd_quick_feedback(true);
@@ -441,7 +441,7 @@ inline bool turn_on_heaters() {
           idle();
           SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
         }
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SMART_LCD
       }
       lcd_setstatusPGM(PSTR("G26 Heating Nozzle."), 99);
       lcd_quick_feedback(true);
@@ -465,7 +465,7 @@ inline bool turn_on_heaters() {
     SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
   }
 
-  #if ENABLED(ULTRA_LCD)
+  #if HAS_SMART_LCD
     lcd_reset_status();
     lcd_quick_feedback(true);
   #endif
@@ -517,7 +517,7 @@ inline bool prime_nozzle() {
     else
   #endif
   {
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SMART_LCD
       lcd_setstatusPGM(PSTR("Fixed Length Prime."), 99);
       lcd_quick_feedback(true);
     #endif
@@ -835,7 +835,7 @@ void GcodeSuite::G26() {
         plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
         feedrate_mm_s = save_feedrate;
         set_destination_from_current();
-        #if ENABLED(ULTIPANEL)
+        #if HAS_BUTTONS
           if (user_canceled()) goto LEAVE; // Check if the user wants to stop the Mesh Validation
         #endif
 

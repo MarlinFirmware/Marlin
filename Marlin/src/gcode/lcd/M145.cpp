@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
 #include "../gcode.h"
 #include "../../lcd/ultralcd.h"
@@ -60,4 +60,4 @@ void GcodeSuite::M145() {
   }
 }
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU

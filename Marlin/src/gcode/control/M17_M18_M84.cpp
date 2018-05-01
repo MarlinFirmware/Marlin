@@ -25,7 +25,7 @@
 #include "../../lcd/ultralcd.h"
 #include "../../module/stepper.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTRA_LCD)
+#if ENABLED(AUTO_BED_LEVELING_UBL) && HAS_SMART_LCD
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
@@ -59,7 +59,7 @@ void GcodeSuite::M18_M84() {
       #endif
     }
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
+    #if ENABLED(AUTO_BED_LEVELING_UBL) && HAS_LCD_MENU  // Only needed with an LCD
       if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }

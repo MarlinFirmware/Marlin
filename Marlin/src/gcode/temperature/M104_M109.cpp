@@ -121,7 +121,7 @@ void GcodeSuite::M109() {
         print_job_timer.start();
     #endif
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SMART_LCD
       const bool heating = thermalManager.isHeatingHotend(target_extruder);
       if (heating || !no_wait_for_cooling)
         #if HOTENDS > 1

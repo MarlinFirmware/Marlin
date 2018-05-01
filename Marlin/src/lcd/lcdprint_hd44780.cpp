@@ -13,18 +13,16 @@
  */
 
 #include "../inc/MarlinConfigPre.h"
-#include "../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_CHARACTER_LCD
+
 #include "ultralcd.h"
-#include "../Marlin.h"
-
-#if DISABLED(DOGLCD)
-#include <string.h>
 #include "fontutils.h"
 #include "lcdprint.h"
+#include "../Marlin.h"
+#include <string.h>
 
-#if defined(ARDUINO)
+#ifdef ARDUINO
   #include "ultralcd_common_HD44780.h"
   #ifndef LCD_CLASS
     #include <LiquidCrystal.h>
@@ -909,9 +907,7 @@ static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data
 
 #if DEBUG
 
-int
-test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents)
-{
+int test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents) {
   int ret;
   size_t idx = 0;
   hd44780_charmap_t preval = {0, 0, 0};
@@ -963,9 +959,7 @@ test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_
   return 0;
 }
 
-int
-test_hd44780_charmap_all(void)
-{
+int test_hd44780_charmap_all(void) {
   int flg_error = 0;
   if (test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
     flg_error = 1;
@@ -1087,5 +1081,4 @@ int lcd_put_u8str_max_rom(const char * utf8_str_P, pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str_P, strlen_P(utf8_str_P), read_byte_rom, max_length);
 }
 
-#endif // DOGLCD
-#endif // ULTRA_LCD
+#endif // HAS_CHARACTER_LCD

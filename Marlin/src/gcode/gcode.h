@@ -478,7 +478,7 @@ private:
     static void M49();
   #endif
 
-  #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  #if HAS_SMART_LCD && ENABLED(LCD_SET_PROGRESS_MANUALLY)
     static void M73();
   #endif
 
@@ -552,7 +552,7 @@ private:
     static void M190();
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     static void M145();
   #endif
 

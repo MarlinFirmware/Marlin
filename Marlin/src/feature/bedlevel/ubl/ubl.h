@@ -55,7 +55,7 @@ extern uint8_t ubl_cnt;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SMART_LCD
   extern char lcd_status_message[];
   void lcd_quick_feedback(const bool clear_buttons);
 #endif
@@ -80,7 +80,7 @@ class unified_bed_leveling {
       static int  g29_grid_size;
     #endif
 
-    #if ENABLED(NEWPANEL)
+    #if HAS_LCD_MENU
       static void move_z_with_encoder(const float &multiplier);
       static float measure_point_with_encoder();
       static float measure_business_card_thickness(float in_height);
@@ -158,7 +158,7 @@ class unified_bed_leveling {
                               MESH_MIN_Y + 14 * (MESH_Y_DIST), MESH_MIN_Y + 15 * (MESH_Y_DIST)
                             };
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
       static bool lcd_map_control;
     #endif
 

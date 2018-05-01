@@ -11,10 +11,10 @@
 
 #include "fontutils.h"
 
-#if DISABLED(DOGLCD)
-  #define _UxGT(a) a
-#else
+#if HAS_GRAPHIC_LCD
   #include "u8g_fontutf8.h"
+#else
+  #define _UxGT(a) a
 #endif
 
 #define PRINTABLE(C) (((C) & 0xC0u) != 0x80u)

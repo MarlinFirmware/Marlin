@@ -9,10 +9,10 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SMART_LCD
+
 #include "ultralcd.h"
 #include "../Marlin.h"
-#endif
 
 #include "fontutils.h"
 
@@ -52,7 +52,6 @@ uint8_t read_byte_rom(uint8_t * str) { return pgm_read_byte(str); }
 
 #define DBGMSG(a,b, ...) TRACE( #__VA_ARGS__ )
 
-//typedef int (* pf_bsearch_cb_comp_t)(void *userdata, size_t idx, void * data_pin); /*"data_list[idx] - *data_pin"*/
 /**
  * @brief 折半方式查找记录
  *
@@ -66,6 +65,8 @@ uint8_t read_byte_rom(uint8_t * str) { return pgm_read_byte(str); }
  *
  * 折半方式查找记录, psl->marr 中指向的数据已经以先小后大方式排好序
  */
+//typedef int (* pf_bsearch_cb_comp_t)(void *userdata, size_t idx, void * data_pin); /*"data_list[idx] - *data_pin"*/
+
 /**
  * @brief Using binary search to find the position by data_pin
  *
@@ -257,9 +258,7 @@ int utf8_strlen_cb(const char *pstart, read_byte_cb_t cb_read_byte) {
   return cnt;
 }
 
-int
-my_strlen_P(const char *pstart)
-{
+int my_strlen_P(const char *pstart) {
   const char *p;
   FU_ASSERT(NULL != pstart);
   p = pstart;
@@ -325,3 +324,5 @@ char* utf8_strncpy(char * destination, const char * source, size_t num) {
 char* utf8_strncpy_P(char * destination, const char * source, size_t num) {
   return utf8_strncpy_cb(destination, source, num, my_strlen_P(source), read_byte_rom);
 }
+
+#endif // HAS_SMART_LCD

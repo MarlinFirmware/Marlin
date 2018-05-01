@@ -361,7 +361,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       #if ENABLED(DISABLE_INACTIVE_E)
         disable_e_steppers();
       #endif
-      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
+      #if ENABLED(AUTO_BED_LEVELING_UBL) && HAS_LCD_MENU  // Only needed with an LCD
         if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
       #endif
     }
@@ -573,7 +573,7 @@ void kill(const char* lcd_msg) {
   thermalManager.disable_all_heaters();
   disable_all_steppers();
 
-  #if ENABLED(ULTRA_LCD)
+  #if HAS_SMART_LCD
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
@@ -895,7 +895,7 @@ void loop() {
       card.checkautostart();
     #endif
 
-    #if ENABLED(SDSUPPORT) && ENABLED(ULTIPANEL)
+    #if ENABLED(SDSUPPORT) && HAS_LCD_MENU
       if (abort_sd_printing) {
         abort_sd_printing = false;
         card.stopSDPrint(
@@ -912,7 +912,7 @@ void loop() {
         #endif
         wait_for_heatup = false;
       }
-    #endif // SDSUPPORT && ULTIPANEL
+    #endif // SDSUPPORT && HAS_LCD_MENU
 
     if (commands_in_queue < BUFSIZE) get_available_commands();
     advance_command_queue();

@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+#if HAS_SMART_LCD && ENABLED(LCD_SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
 #include "../../lcd/ultralcd.h"

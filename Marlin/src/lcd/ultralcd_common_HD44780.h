@@ -106,7 +106,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
     #endif
 
-  #elif DISABLED(NEWPANEL) // old style ULTIPANEL
+  #elif DISABLED(NEWPANEL) // Old-style ULTIPANEL with a shift register
     // Shift register bits correspond to buttons:
     #define BL_LE 7   // Left
     #define BL_UP 6   // Up

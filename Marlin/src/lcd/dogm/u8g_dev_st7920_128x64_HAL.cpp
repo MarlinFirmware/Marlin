@@ -55,7 +55,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHIC_LCD
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized"
