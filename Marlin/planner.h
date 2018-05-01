@@ -36,7 +36,7 @@
 #include "enum.h"
 #include "Marlin.h"
 
-#if HAS_ABL
+#if ABL_PLANAR
   #include "vector_3.h"
 #endif
 

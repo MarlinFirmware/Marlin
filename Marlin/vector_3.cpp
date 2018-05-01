@@ -41,7 +41,7 @@
 
 #include "MarlinConfig.h"
 
-#if HAS_ABL
+#if ABL_PLANAR || (HAS_BED_PROBE && ENABLED(AUTO_BED_LEVELING_UBL))
 
 #include "vector_3.h"
 #include "serial.h"
