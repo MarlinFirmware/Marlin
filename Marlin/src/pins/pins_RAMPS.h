@@ -96,39 +96,77 @@
 //
 // Steppers
 //
-#define X_STEP_PIN         54
-#define X_DIR_PIN          55
-#define X_ENABLE_PIN       38
-#ifndef X_CS_PIN
+#if ENABLED(X_AXIS_USE_E1)
+  #define X_STEP_PIN         36
+  #define X_DIR_PIN          34
+  #define X_ENABLE_PIN       30
+  #ifndef X_CS_PIN
+    #define X_CS_PIN         44
+  #endif
+#else
+  #define X_STEP_PIN         54
+  #define X_DIR_PIN          55
+  #define X_ENABLE_PIN       38
+  #ifndef X_CS_PIN
   #define X_CS_PIN         53
+  #endif
 #endif
 
-#define Y_STEP_PIN         60
-#define Y_DIR_PIN          61
-#define Y_ENABLE_PIN       56
-#ifndef Y_CS_PIN
+#if ENABLED(Y_AXIS_USE_E1)
+  #define Y_STEP_PIN         36
+  #define Y_DIR_PIN          34
+  #define Y_ENABLE_PIN       30
+  #ifndef Y_CS_PIN
+    #define Y_CS_PIN         44
+  #endif
+#else
+  #define Y_STEP_PIN         60
+  #define Y_DIR_PIN          61
+  #define Y_ENABLE_PIN       56
+  #ifndef Y_CS_PIN
   #define Y_CS_PIN         49
+  #endif
 #endif
 
-#define Z_STEP_PIN         46
-#define Z_DIR_PIN          48
-#define Z_ENABLE_PIN       62
-#ifndef Z_CS_PIN
+#if ENABLED(Z_AXIS_USE_E1)
+  #define Z_STEP_PIN         36
+  #define Z_DIR_PIN          34
+  #define Z_ENABLE_PIN       30
+  #ifndef Z_CS_PIN
+    #define Z_CS_PIN         44
+  #endif
+#else
+  #define Z_STEP_PIN         46
+  #define Z_DIR_PIN          48
+  #define Z_ENABLE_PIN       62
+  #ifndef Z_CS_PIN
   #define Z_CS_PIN         40
+  #endif
 #endif
 
-#define E0_STEP_PIN        26
-#define E0_DIR_PIN         28
-#define E0_ENABLE_PIN      24
-#ifndef E0_CS_PIN
+#if ENABLED(EXTRUDER_USE_E1)
+  #define E0_STEP_PIN        36
+  #define E0_DIR_PIN         34
+  #define E0_ENABLE_PIN      30
+  #ifndef E0_CS_PIN
+    #define E0_CS_PIN        44
+  #endif
+#else
+  #define E0_STEP_PIN        26
+  #define E0_DIR_PIN         28
+  #define E0_ENABLE_PIN      24
+  #ifndef E0_CS_PIN
   #define E0_CS_PIN        42
+  #endif
 #endif
 
-#define E1_STEP_PIN        36
-#define E1_DIR_PIN         34
-#define E1_ENABLE_PIN      30
-#ifndef E1_CS_PIN
+#if DISABLED(X_AXIS_USE_E1) && DISABLED(Y_AXIS_USE_E1) && DISABLED(Z_AXIS_USE_E1) && DISABLED(EXTRUDER_USE_E1)
+  #define E1_STEP_PIN        36
+  #define E1_DIR_PIN         34
+  #define E1_ENABLE_PIN      30
+  #ifndef E1_CS_PIN
   #define E1_CS_PIN        44
+  #endif
 #endif
 
 /**
@@ -243,13 +281,21 @@
   #define RAMPS_D10_PIN 10
 #endif
 
-#define HEATER_0_PIN     RAMPS_D10_PIN
+#if ENABLED(HOTEND_USE_E1)
+  #define HEATER_0_PIN     RAMPS_D10_PIN
+#else
+  #define HEATER_0_PIN     RAMPS_D9_PIN
+#endif
 
 #if ENABLED(IS_RAMPS_EFB)                      // Hotend, Fan, Bed
   #define FAN_PIN        RAMPS_D9_PIN
   #define HEATER_BED_PIN RAMPS_D8_PIN
 #elif ENABLED(IS_RAMPS_EEF)                    // Hotend, Hotend, Fan
+  #if ENABLED(HOTEND_USE_E1)
   #define HEATER_1_PIN   RAMPS_D9_PIN
+  #else
+    #define HEATER_1_PIN     RAMPS_D10_PIN
+  #endif
   #define FAN_PIN        RAMPS_D8_PIN
 #elif ENABLED(IS_RAMPS_EEB)                    // Hotend, Hotend, Bed
   #define HEATER_1_PIN   RAMPS_D9_PIN

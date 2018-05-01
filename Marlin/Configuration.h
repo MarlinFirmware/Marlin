@@ -220,6 +220,21 @@
 #define XTRA_BED_FRONT    0  // Distance bed can move towards the front past Y = 200 (Y=280 for large bed)
 #define XTRA_BED_BACK     0  // Distance bed can move towards the back past Y = 0
 
+/**
+ * Enable ONLY ONE of these if one of your stepper ports is not working and you wish to use the E1 stepper port.
+ * NOTE: Can NOT be used with dual extruders. Works only on RAMPS based boards (such as MKS boards)
+ */
+//#define EXTRUDER_USE_E1
+//#define X_AXIS_USE_E1
+//#define Y_AXIS_USE_E1
+//#define Z_AXIS_USE_E1
+
+/**
+ * Enable this if your E0 heater port is not working and you wish to use the E1 heater port.
+ * NOTE: Can NOT be used with dual nozzles. Works only on RAMPS based boards (such as MKS boards)
+ */
+//#define HOTEND_USE_E1
+
 /*
  ************************ END OF EASY CONFIG ****************************
  *======================================================================*
