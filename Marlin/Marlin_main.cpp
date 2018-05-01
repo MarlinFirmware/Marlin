@@ -271,7 +271,7 @@
   #include "power.h"
 #endif
 
-#if HAS_ABL
+#if ABL_PLANAR
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
     #include "least_squares_fit.h"
@@ -772,12 +772,6 @@ void report_current_position_detail();
   void print_xyz(const char* prefix, const char* suffix, const float xyz[]) {
     print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
   }
-
-  #if HAS_ABL
-    void print_xyz(const char* prefix, const char* suffix, const vector_3 &xyz) {
-      print_xyz(prefix, suffix, xyz.x, xyz.y, xyz.z);
-    }
-  #endif
 
   #define DEBUG_POS(SUFFIX,VAR) do { \
     print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
