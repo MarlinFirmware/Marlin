@@ -3103,7 +3103,7 @@ static void homeaxis(const AxisEnum axis) {
     #endif
     do_homing_move(axis, -bump
       #if HOMING_Z_WITH_PROBE
-        , MMM_TO_MMS(Z_PROBE_SPEED_FAST)
+        , axis == Z_AXIS ? MMM_TO_MMS(Z_PROBE_SPEED_FAST) : 0.00
       #endif
     );
 
