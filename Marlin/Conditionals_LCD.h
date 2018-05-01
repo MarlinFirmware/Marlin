@@ -367,6 +367,11 @@
     #endif
   #endif
 
+  #if ENABLED(NO_LCD_MENUS)
+    #undef ULTIPANEL
+    #undef NEWPANEL
+  #endif
+
   // Boot screens
   #if DISABLED(ULTRA_LCD)
     #undef SHOW_BOOTSCREEN
@@ -374,7 +379,7 @@
     #define BOOTSCREEN_TIMEOUT 2500
   #endif
 
-  #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
+  #define HAS_DEBUG_MENU (ENABLED(ULTIPANEL) && ENABLED(LCD_PROGRESS_BAR_TEST))
 
   // MK2 Multiplexer forces SINGLENOZZLE and kills DISABLE_INACTIVE_EXTRUDER
   #if ENABLED(MK2_MULTIPLEXER)

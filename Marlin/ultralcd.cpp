@@ -61,32 +61,9 @@
   #include "fwretract.h"
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
-  bool lcd_external_control; // = false
-#endif
-
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "power_loss_recovery.h"
 #endif
-
-// Initialized by settings.load()
-int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
-
-#if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
-  millis_t previous_lcd_status_ms = 0;
-#endif
-
-#if ENABLED(BABYSTEPPING)
-  long babysteps_done = 0;
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    static void lcd_babystep_zoffset();
-  #else
-    static void lcd_babystep_z();
-  #endif
-#endif
-
-uint8_t lcd_status_update_delay = 1, // First update one loop delayed
-        lcd_status_message_level;    // Higher level blocks lower level
 
 #if ENABLED(STATUS_MESSAGE_SCROLLING)
   #if LONG_FILENAME_LENGTH > CHARSIZE * 2 * (LCD_WIDTH)
@@ -100,8 +77,14 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
 #endif
 
 char lcd_status_message[MAX_MESSAGE_LENGTH + 1];
+uint8_t lcd_status_update_delay = 1, // First update one loop delayed
+        lcd_status_message_level;    // Higher level blocks lower level
 
-#if ENABLED(SCROLL_LONG_FILENAMES)
+#if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+  millis_t previous_lcd_status_ms = 0;
+#endif
+
+#if ENABLED(ULTIPANEL) && ENABLED(SCROLL_LONG_FILENAMES)
   uint8_t filename_scroll_pos, filename_scroll_max, filename_scroll_hash;
 #endif
 
@@ -112,11 +95,23 @@ char lcd_status_message[MAX_MESSAGE_LENGTH + 1];
 #if ENABLED(DOGLCD)
   #include "ultralcd_impl_DOGM.h"
   #include <U8glib.h>
+  bool drawing_screen, // = false
+       first_page;
 #else
   #include "ultralcd_impl_HD44780.h"
+  constexpr bool first_page = true;
 #endif
 
+// The main status screen
+void lcd_status_screen();
+
+millis_t next_lcd_update_ms;
+
+uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
+uint16_t max_display_update_time = 0;
+
 #if ENABLED(ULTIPANEL)
+
   #define DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(_type, _name, _strFunc) \
     inline void lcd_implementation_drawmenu_setting_edit_ ## _name (const bool sel, const uint8_t row, const char* pstr, const char* pstr2, _type * const data, ...) { \
       UNUSED(pstr2); \
@@ -144,29 +139,6 @@ char lcd_status_message[MAX_MESSAGE_LENGTH + 1];
   #define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data)                    DRAW_BOOL_SETTING(sel, row, pstr, data)
   #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) DRAW_BOOL_SETTING(sel, row, pstr, data)
   #define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset)     DRAW_BOOL_SETTING(sel, row, pstr, data)
-#endif // ULTIPANEL
-
-// The main status screen
-void lcd_status_screen();
-
-millis_t next_lcd_update_ms;
-
-uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
-uint16_t max_display_update_time = 0;
-
-#if ENABLED(DOGLCD)
-  bool drawing_screen, // = false
-       first_page;
-#else
-  constexpr bool first_page = true;
-#endif
-
-#if ENABLED(DAC_STEPPER_CURRENT)
-  #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
-  uint8_t driverPercent[XYZE];
-#endif
-
-#if ENABLED(ULTIPANEL)
 
   #ifndef TALL_FONT_CORRECTION
     #define TALL_FONT_CORRECTION 0
@@ -174,6 +146,27 @@ uint16_t max_display_update_time = 0;
 
   bool no_reentry = false;
   constexpr int8_t menu_bottom = LCD_HEIGHT - (TALL_FONT_CORRECTION);
+
+  // Initialized by settings.load()
+  int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    bool lcd_external_control; // = false
+  #endif
+
+  #if ENABLED(BABYSTEPPING)
+    long babysteps_done = 0;
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      static void lcd_babystep_zoffset();
+    #else
+      static void lcd_babystep_z();
+    #endif
+  #endif
+
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
+    uint8_t driverPercent[XYZE];
+  #endif
 
   ////////////////////////////////////////////
   ///////////////// Menu Tree ////////////////
@@ -780,36 +773,41 @@ void kill_screen(const char* lcd_msg) {
   lcd_kill_screen();
 }
 
-#if ENABLED(ULTIPANEL)
+/**
+ *
+ * Audio feedback for controller clicks
+ *
+ */
+void lcd_buzz(const long duration, const uint16_t freq) {
+  #if ENABLED(LCD_USE_I2C_BUZZER)
+    lcd.buzz(duration, freq);
+  #elif PIN_EXISTS(BEEPER)
+    buzzer.tone(duration, freq);
+  #else
+    UNUSED(duration); UNUSED(freq);
+  #endif
+}
 
-  /**
-   *
-   * Audio feedback for controller clicks
-   *
-   */
-  void lcd_buzz(const long duration, const uint16_t freq) {
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      lcd.buzz(duration, freq);
-    #elif PIN_EXISTS(BEEPER)
-      buzzer.tone(duration, freq);
-    #else
-      UNUSED(duration); UNUSED(freq);
-    #endif
-  }
+void lcd_quick_feedback(const bool clear_buttons) {
+  lcd_refresh();
 
-  void lcd_quick_feedback(const bool clear_buttons) {
-    lcd_refresh();
+  #if ENABLED(ULTIPANEL)
     if (clear_buttons) buttons = 0;
     next_button_update_ms = millis() + 500;
+  #else
+    UNUSED(clear_buttons);
+  #endif
 
-    // Buzz and wait. The delay is needed for buttons to settle!
-    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      delay(10);
-    #elif PIN_EXISTS(BEEPER)
-      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
-    #endif
-  }
+  // Buzz and wait. The delay is needed for buttons to settle!
+  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+  #if ENABLED(LCD_USE_I2C_BUZZER)
+    delay(10);
+  #elif PIN_EXISTS(BEEPER)
+    for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+  #endif
+}
+
+#if ENABLED(ULTIPANEL)
 
   void lcd_completion_feedback(const bool good/*=true*/) {
     if (good) {
@@ -5251,7 +5249,7 @@ void lcd_update() {
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
 
-    #if ENABLED(SCROLL_LONG_FILENAMES)
+    #if ENABLED(ULTIPANEL) && ENABLED(SCROLL_LONG_FILENAMES)
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
       if (currentScreen == lcd_sdcard_menu && filename_scroll_pos < filename_scroll_max && !lcd_status_update_delay--) {

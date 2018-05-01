@@ -486,7 +486,9 @@
         if (g26_bed_temp > 25) {
           lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
           lcd_quick_feedback(true);
-          lcd_external_control = true;
+          #if ENABLED(NEWPANEL)
+            lcd_external_control = true;
+          #endif
       #endif
           thermalManager.setTargetBed(g26_bed_temp);
           while (abs(thermalManager.degBed() - g26_bed_temp) > 3) {
@@ -732,7 +734,7 @@
     move_to(destination, 0.0);
     move_to(destination, g26_ooze_amount);
 
-    #if ENABLED(ULTRA_LCD)
+    #if ENABLED(NEWPANEL)
       lcd_external_control = true;
     #endif
 
@@ -836,7 +838,7 @@
     move_to(destination, 0); // Move back to the starting position
     //debug_current_and_destination(PSTR("done doing X/Y move."));
 
-    #if ENABLED(ULTRA_LCD)
+    #if ENABLED(NEWPANEL)
       lcd_external_control = false;     // Give back control of the LCD Panel!
     #endif
 
