@@ -1404,13 +1404,20 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999);
 
+    //
     // Manual bed leveling, Bed Z:
+    //
     #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
       MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
     #endif
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+
+    //
+    // Leveling Fade Height
+    //
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(SLIM_LCD_MENUS)
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
     #endif
+
     //
     // Nozzle:
     // Nozzle [1-4]:
@@ -1883,7 +1890,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // LEVEL_BED_CORNERS
 
-  #if ENABLED(LCD_BED_LEVELING)
+  #if ENABLED(LCD_BED_LEVELING) && (ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING))
 
     /**
      *
@@ -2044,76 +2051,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
       lcd_goto_screen(_lcd_level_bed_homing);
       enqueue_and_echo_commands_P(PSTR("G28"));
     }
-
-    static bool new_level_state;
-    void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(new_level_state); }
-
-    /**
-     * Step 1: Bed Level entry-point
-     *
-     * << Prepare
-     *    Auto Home           (if homing needed)
-     *    Leveling On/Off     (if data exists, and homed)
-     *    Fade Height: ---    (Req: ENABLE_LEVELING_FADE_HEIGHT)
-     *    Mesh Z Offset: ---  (Req: MESH_BED_LEVELING)
-     *    Z Probe Offset: --- (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
-     *    Level Bed >
-     *    Level Corners >     (if homed)
-     *    Load Settings       (Req: EEPROM_SETTINGS)
-     *    Save Settings       (Req: EEPROM_SETTINGS)
-     */
-    void lcd_bed_leveling() {
-      START_MENU();
-      MENU_BACK(MSG_PREPARE);
-
-      #if DISABLED(MESH_BED_LEVELING)
-        if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
-          MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
-        else
-      #endif
-        if (leveling_is_valid()) {
-          new_level_state = planner.leveling_active;
-          MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &new_level_state, _lcd_toggle_bed_leveling);
-        }
-
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
-      #endif
-
-      //
-      // MBL Z Offset
-      //
-      #if ENABLED(MESH_BED_LEVELING)
-        MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
-      #endif
-
-      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-        MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-      #elif HAS_BED_PROBE
-        MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
-      #endif
-
-      MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
-
-      #if ENABLED(LEVEL_BED_CORNERS)
-        // Move to the next corner for leveling
-        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-          MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
-      #endif
-
-      #if ENABLED(EEPROM_SETTINGS)
-        MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
-        MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
-      #endif
-      END_MENU();
-    }
-
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      void _lcd_goto_bed_leveling() {
-        lcd_goto_screen(lcd_bed_leveling);
-        new_z_fade_height = planner.z_fade_height;
-      }
-    #endif
 
   #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -2647,6 +2584,93 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
+
+  #if ENABLED(LCD_BED_LEVELING) || (PLANNER_LEVELING && DISABLED(SLIM_LCD_MENUS))
+    void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
+  #endif
+
+  #if ENABLED(LCD_BED_LEVELING)
+
+    /**
+     * Step 1: Bed Level entry-point
+     *
+     * << Prepare
+     *    Auto Home           (if homing needed)
+     *    Leveling On/Off     (if data exists, and homed)
+     *    Fade Height: ---    (Req: ENABLE_LEVELING_FADE_HEIGHT)
+     *    Mesh Z Offset: ---  (Req: MESH_BED_LEVELING)
+     *    Z Probe Offset: --- (Req: HAS_BED_PROBE, Opt: BABYSTEP_ZPROBE_OFFSET)
+     *    Level Bed >
+     *    Level Corners >     (if homed)
+     *    Load Settings       (Req: EEPROM_SETTINGS)
+     *    Save Settings       (Req: EEPROM_SETTINGS)
+     */
+    void lcd_bed_leveling() {
+      START_MENU();
+      MENU_BACK(MSG_PREPARE);
+
+      const bool is_homed = axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS];
+
+      // Auto Home if not using manual probing
+      #if DISABLED(PROBE_MANUALLY) && DISABLED(MESH_BED_LEVELING)
+        if (!is_homed) MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+      #endif
+
+      // Level Bed
+      #if ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING)
+        // Manual leveling uses a guided procedure
+        MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
+      #else
+        // Automatic leveling can just run the G-code
+        MENU_ITEM(gcode, MSG_LEVEL_BED, is_homed ? PSTR("G29") : PSTR("G28\nG29"));
+      #endif
+
+      // Homed and leveling is valid? Then leveling can be toggled.
+      if (is_homed && leveling_is_valid()) {
+        bool new_level_state = planner.leveling_active;
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &new_level_state, _lcd_toggle_bed_leveling);
+      }
+
+      // Z Fade Height
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+      #endif
+
+      //
+      // MBL Z Offset
+      //
+      #if ENABLED(MESH_BED_LEVELING)
+        MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+      #endif
+
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+        MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+      #elif HAS_BED_PROBE
+        MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      #endif
+
+      #if ENABLED(LEVEL_BED_CORNERS)
+        // Move to the next corner for leveling
+        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+          MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+      #endif
+
+      #if ENABLED(EEPROM_SETTINGS)
+        MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+        MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
+      #endif
+      END_MENU();
+    }
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      void _lcd_goto_bed_leveling() {
+        lcd_goto_screen(lcd_bed_leveling);
+        new_z_fade_height = planner.z_fade_height;
+      }
+    #endif
+
+  #endif // LCD_BED_LEVELING
+
   /**
    *
    * "Prepare" submenu
@@ -2683,26 +2707,44 @@ void lcd_quick_feedback(const bool clear_buttons) {
     // Level Bed
     //
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      MENU_ITEM(submenu, MSG_UBL_LEVEL_BED,
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          _lcd_goto_ubl_level_bed
-        #else
-          _lcd_ubl_level_bed
-        #endif
+
+      MENU_ITEM(submenu, MSG_UBL_LEVEL_BED, (
+          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+            _lcd_goto_ubl_level_bed
+          #else
+            _lcd_ubl_level_bed
+          #endif
+        )
       );
+
     #elif ENABLED(LCD_BED_LEVELING)
+
       #if ENABLED(PROBE_MANUALLY)
         if (!g29_in_progress)
       #endif
-          MENU_ITEM(submenu, MSG_BED_LEVELING,
-            #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-              _lcd_goto_bed_leveling
-            #else
-              lcd_bed_leveling
-            #endif
+
+          MENU_ITEM(submenu, MSG_BED_LEVELING, (
+              #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+                _lcd_goto_bed_leveling
+              #else
+                lcd_bed_leveling
+              #endif
+            )
           );
-    #elif PLANNER_LEVELING && DISABLED(PROBE_MANUALLY) && DISABLED(SLIM_LCD_MENUS)
-      MENU_ITEM(gcode, MSG_BED_LEVELING, PSTR("G28\nG29"));
+
+    #elif PLANNER_LEVELING && DISABLED(SLIM_LCD_MENUS)
+
+      #if DISABLED(PROBE_MANUALLY)
+        MENU_ITEM(gcode, MSG_LEVEL_BED, PSTR("G28\nG29"));
+      #endif
+      if (leveling_is_valid()) {
+        bool new_level_state = planner.leveling_active;
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &new_level_state, _lcd_toggle_bed_leveling);
+      }
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+      #endif
+
     #endif
 
     #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
