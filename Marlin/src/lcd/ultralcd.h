@@ -45,19 +45,6 @@
     #include "../feature/pause.h"
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
-    extern bool lcd_external_control;
-  #else
-    constexpr bool lcd_external_control = false;
-  #endif
-
-  extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
-
-  #if ENABLED(LCD_BED_LEVELING)
-    extern bool lcd_wait_for_move;
-  #else
-    constexpr bool lcd_wait_for_move = false;
-  #endif
 
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
@@ -75,6 +62,8 @@
   #if HAS_BUZZER
     void lcd_buzz(const long duration, const uint16_t freq);
   #endif
+
+  void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
 
   #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
     void dontExpireStatus();
@@ -109,6 +98,20 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
+    extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+      extern bool lcd_external_control;
+    #else
+      constexpr bool lcd_external_control = false;
+    #endif
+
+    #if ENABLED(LCD_BED_LEVELING)
+      extern bool lcd_wait_for_move;
+    #else
+      constexpr bool lcd_wait_for_move = false;
+    #endif
+
     void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
 
     // Encoder click is directly connected
@@ -132,7 +135,6 @@
 
     extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
     void lcd_buttons_update();
-    void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)

@@ -1054,8 +1054,8 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
       SERIAL_ECHOPAIR(">>> do_homing_move(", axis_codes[axis]);
       SERIAL_ECHOPAIR(", ", distance);
       SERIAL_ECHOPAIR(", ", fr_mm_s);
-      SERIAL_CHAR(')');
-      SERIAL_EOL();
+      SERIAL_ECHOPAIR(" [", fr_mm_s ? fr_mm_s : homing_feedrate(axis));
+      SERIAL_ECHOLNPGM("])");
     }
   #endif
 
@@ -1307,7 +1307,7 @@ void homeaxis(const AxisEnum axis) {
     #endif
     do_homing_move(axis, -bump
       #if HOMING_Z_WITH_PROBE
-        , MMM_TO_MMS(Z_PROBE_SPEED_FAST)
+        , axis == Z_AXIS ? MMM_TO_MMS(Z_PROBE_SPEED_FAST) : 0.0
       #endif
     );
 
