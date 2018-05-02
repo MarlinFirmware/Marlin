@@ -952,27 +952,31 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
     if (e == 0) return 0.25 * raw;
   #endif
 
+  // Thermistor with conversion table?
   if (heater_ttbl_map[e] != NULL) {
-    float celsius = 0;
-    uint8_t i;
     short(*tt)[][2] = (short(*)[][2])(heater_ttbl_map[e]);
-
-    for (i = 1; i < heater_ttbllen_map[e]; i++) {
-      if (PGM_RD_W((*tt)[i][0]) > raw) {
-        celsius = PGM_RD_W((*tt)[i - 1][1]) +
-                  (raw - PGM_RD_W((*tt)[i - 1][0])) *
-                  (float)(PGM_RD_W((*tt)[i][1]) - PGM_RD_W((*tt)[i - 1][1])) /
-                  (float)(PGM_RD_W((*tt)[i][0]) - PGM_RD_W((*tt)[i - 1][0]));
-        break;
+    for (uint8_t i = 1; i < heater_ttbllen_map[e]; i++) {
+      const short entry10 = PGM_RD_W((*tt)[i][0]);
+      if (entry10 > raw) {
+        const short entry00 = PGM_RD_W((*tt)[i - 1][0]),
+                    entry01 = PGM_RD_W((*tt)[i - 1][1]),
+                    entry11 = PGM_RD_W((*tt)[i][1]);
+        return entry01 + (raw - entry00) * float(entry11 - entry01) / float(entry10 - entry00);
       }
     }
-
-    // Overflow: Set to last value in the table
-    if (i == heater_ttbllen_map[e]) celsius = PGM_RD_W((*tt)[i - 1][1]);
-
-    return celsius;
+    return PGM_RD_W((*tt)[heater_ttbllen_map[e] - 1][1]); // Overflow: Return last value in the table
   }
-  return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
+
+  // Thermocouple with amplifier ADC interface
+  return (raw *
+    #if HEATER_USES_AD8495
+      660.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET
+    #elif HEATER_USES_AD595
+      5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET
+    #else
+      0
+    #endif
+  );
 }
 
 #if HAS_HEATED_BED
@@ -980,32 +984,31 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
   // For bed temperature measurement.
   float Temperature::analog2tempBed(const int raw) {
     #if ENABLED(BED_USES_THERMISTOR)
-      float celsius = 0;
-      byte i;
 
-      for (i = 1; i < BEDTEMPTABLE_LEN; i++) {
-        if (PGM_RD_W(BEDTEMPTABLE[i][0]) > raw) {
-          celsius  = PGM_RD_W(BEDTEMPTABLE[i - 1][1]) +
-                     (raw - PGM_RD_W(BEDTEMPTABLE[i - 1][0])) *
-                     (float)(PGM_RD_W(BEDTEMPTABLE[i][1]) - PGM_RD_W(BEDTEMPTABLE[i - 1][1])) /
-                     (float)(PGM_RD_W(BEDTEMPTABLE[i][0]) - PGM_RD_W(BEDTEMPTABLE[i - 1][0]));
-          break;
+      // Thermistor with conversion table
+      for (uint8_t i = 1; i < BEDTEMPTABLE_LEN; i++) {
+        const short entry10 = PGM_RD_W(BEDTEMPTABLE[i][0]);
+        if (entry10 > raw) {
+          const short entry00 = PGM_RD_W(BEDTEMPTABLE[i - 1][0]),
+                      entry01 = PGM_RD_W(BEDTEMPTABLE[i - 1][1]),
+                      entry11 = PGM_RD_W(BEDTEMPTABLE[i][1]);
+          return entry01 + (raw - entry00) * float(entry11 - entry01) / float(entry10 - entry00);
         }
       }
-
-      // Overflow: Set to last value in the table
-      if (i == BEDTEMPTABLE_LEN) celsius = PGM_RD_W(BEDTEMPTABLE[i - 1][1]);
-
-      return celsius;
-
-    #elif defined(BED_USES_AD595)
-
-      return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
+      return PGM_RD_W(BEDTEMPTABLE[BEDTEMPTABLE_LEN - 1][1]); // Overflow: Return last value in the table
 
     #else
 
-      UNUSED(raw);
-      return 0;
+      // Thermocouple with amplifier ADC interface
+      return (raw *
+        #if ENABLED(BED_USES_AD595)
+          5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET
+        #elif ENABLED(BED_USES_AD8495)
+          660.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET
+        #else
+          0
+        #endif
+      );
 
     #endif
   }
@@ -1016,32 +1019,31 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
   // For chamber temperature measurement.
   float Temperature::analog2tempChamber(const int raw) {
     #if ENABLED(CHAMBER_USES_THERMISTOR)
-      float celsius = 0;
-      byte i;
 
-      for (i = 1; i < CHAMBERTEMPTABLE_LEN; i++) {
-        if (PGM_RD_W(CHAMBERTEMPTABLE[i][0]) > raw) {
-          celsius  = PGM_RD_W(CHAMBERTEMPTABLE[i - 1][1]) +
-                     (raw - PGM_RD_W(CHAMBERTEMPTABLE[i - 1][0])) *
-                     (float)(PGM_RD_W(CHAMBERTEMPTABLE[i][1]) - PGM_RD_W(CHAMBERTEMPTABLE[i - 1][1])) /
-                     (float)(PGM_RD_W(CHAMBERTEMPTABLE[i][0]) - PGM_RD_W(CHAMBERTEMPTABLE[i - 1][0]));
-          break;
+      // Thermistor with conversion table
+      for (uint8_t i = 1; i < CHAMBERTEMPTABLE_LEN; i++) {
+        const short entry10 = PGM_RD_W(CHAMBERTEMPTABLE[i][0]);
+        if (entry10 > raw) {
+          const short entry00 = PGM_RD_W(CHAMBERTEMPTABLE[i - 1][0]),
+                      entry01 = PGM_RD_W(CHAMBERTEMPTABLE[i - 1][1]),
+                      entry11 = PGM_RD_W(CHAMBERTEMPTABLE[i][1]);
+          return entry01 + (raw - entry00) * float(entry11 - entry01) / float(entry10 - entry00);
         }
       }
-
-      // Overflow: Set to last value in the table
-      if (i == CHAMBERTEMPTABLE_LEN) celsius = PGM_RD_W(CHAMBERTEMPTABLE[i - 1][1]);
-
-      return celsius;
-
-    #elif defined(CHAMBER_USES_AD595)
-
-      return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
+      return PGM_RD_W(CHAMBERTEMPTABLE[CHAMBERTEMPTABLE_LEN - 1][1]); // Overflow: Return last value in the table
 
     #else
 
-      UNUSED(raw);
-      return 0;
+      // Thermocouple with amplifier ADC interface
+      return (raw *
+        #if ENABLED(CHAMBER_USES_AD595)
+          5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET
+        #elif ENABLED(CHAMBER_USES_AD8495)
+          660.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET
+        #else
+          0
+        #endif
+      );
 
     #endif
   }
@@ -1196,19 +1198,19 @@ void Temperature::init() {
 
   HAL_adc_init();
 
-  #if HAS_TEMP_0
+  #if HAS_TEMP_ADC_0
     HAL_ANALOG_SELECT(TEMP_0_PIN);
   #endif
-  #if HAS_TEMP_1
+  #if HAS_TEMP_ADC_1
     HAL_ANALOG_SELECT(TEMP_1_PIN);
   #endif
-  #if HAS_TEMP_2
+  #if HAS_TEMP_ADC_2
     HAL_ANALOG_SELECT(TEMP_2_PIN);
   #endif
-  #if HAS_TEMP_3
+  #if HAS_TEMP_ADC_3
     HAL_ANALOG_SELECT(TEMP_3_PIN);
   #endif
-  #if HAS_TEMP_4
+  #if HAS_TEMP_ADC_4
     HAL_ANALOG_SELECT(TEMP_4_PIN);
   #endif
   #if HAS_HEATED_BED
@@ -1675,20 +1677,20 @@ void Temperature::disable_all_heaters() {
  * Get raw temperatures
  */
 void Temperature::set_current_temp_raw() {
-  #if HAS_TEMP_0 && DISABLED(HEATER_0_USES_MAX6675)
+  #if HAS_TEMP_ADC_0 && DISABLED(HEATER_0_USES_MAX6675)
     current_temperature_raw[0] = raw_temp_value[0];
   #endif
-  #if HAS_TEMP_1
+  #if HAS_TEMP_ADC_1
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       redundant_temperature_raw = raw_temp_value[1];
     #else
       current_temperature_raw[1] = raw_temp_value[1];
     #endif
-    #if HAS_TEMP_2
+    #if HAS_TEMP_ADC_2
       current_temperature_raw[2] = raw_temp_value[2];
-      #if HAS_TEMP_3
+      #if HAS_TEMP_ADC_3
         current_temperature_raw[3] = raw_temp_value[3];
-        #if HAS_TEMP_4
+        #if HAS_TEMP_ADC_4
           current_temperature_raw[4] = raw_temp_value[4];
         #endif
       #endif
@@ -2038,7 +2040,7 @@ void Temperature::isr() {
         adc_sensor_state = (ADCSensorState)0; // Fall-through to start first sensor now
     }
 
-    #if HAS_TEMP_0
+    #if HAS_TEMP_ADC_0
       case PrepareTemp_0:
         HAL_START_ADC(TEMP_0_PIN);
         break;
@@ -2065,7 +2067,7 @@ void Temperature::isr() {
         break;
     #endif
 
-    #if HAS_TEMP_1
+    #if HAS_TEMP_ADC_1
       case PrepareTemp_1:
         HAL_START_ADC(TEMP_1_PIN);
         break;
@@ -2074,7 +2076,7 @@ void Temperature::isr() {
         break;
     #endif
 
-    #if HAS_TEMP_2
+    #if HAS_TEMP_ADC_2
       case PrepareTemp_2:
         HAL_START_ADC(TEMP_2_PIN);
         break;
@@ -2083,7 +2085,7 @@ void Temperature::isr() {
         break;
     #endif
 
-    #if HAS_TEMP_3
+    #if HAS_TEMP_ADC_3
       case PrepareTemp_3:
         HAL_START_ADC(TEMP_3_PIN);
         break;
@@ -2092,7 +2094,7 @@ void Temperature::isr() {
         break;
     #endif
 
-    #if HAS_TEMP_4
+    #if HAS_TEMP_ADC_4
       case PrepareTemp_4:
         HAL_START_ADC(TEMP_4_PIN);
         break;

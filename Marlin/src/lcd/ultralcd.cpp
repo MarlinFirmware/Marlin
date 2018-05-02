@@ -1579,7 +1579,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
    */
   void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const int16_t fan) {
     if (temph > 0) thermalManager.setTargetHotend(min(heater_maxtemp[endnum], temph), endnum);
-    #if TEMP_SENSOR_BED != 0
+    #if HAS_HEATED_BED
       if (tempb >= 0) thermalManager.setTargetBed(tempb);
     #else
       UNUSED(tempb);
@@ -1596,10 +1596,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
     lcd_return_to_status();
   }
 
-  #if TEMP_SENSOR_0 != 0
+  #if HAS_TEMP_HOTEND
     void lcd_preheat_m1_e0_only() { _lcd_preheat(0, lcd_preheat_hotend_temp[0], -1, lcd_preheat_fan_speed[0]); }
     void lcd_preheat_m2_e0_only() { _lcd_preheat(0, lcd_preheat_hotend_temp[1], -1, lcd_preheat_fan_speed[1]); }
-    #if TEMP_SENSOR_BED != 0
+    #if HAS_HEATED_BED
       void lcd_preheat_m1_e0() { _lcd_preheat(0, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
       void lcd_preheat_m2_e0() { _lcd_preheat(0, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
     #endif
@@ -1608,28 +1608,28 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #if HOTENDS > 1
     void lcd_preheat_m1_e1_only() { _lcd_preheat(1, lcd_preheat_hotend_temp[0], -1, lcd_preheat_fan_speed[0]); }
     void lcd_preheat_m2_e1_only() { _lcd_preheat(1, lcd_preheat_hotend_temp[1], -1, lcd_preheat_fan_speed[1]); }
-    #if TEMP_SENSOR_BED != 0
+    #if HAS_HEATED_BED
       void lcd_preheat_m1_e1() { _lcd_preheat(1, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
       void lcd_preheat_m2_e1() { _lcd_preheat(1, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
     #endif
     #if HOTENDS > 2
       void lcd_preheat_m1_e2_only() { _lcd_preheat(2, lcd_preheat_hotend_temp[0], -1, lcd_preheat_fan_speed[0]); }
       void lcd_preheat_m2_e2_only() { _lcd_preheat(2, lcd_preheat_hotend_temp[1], -1, lcd_preheat_fan_speed[1]); }
-      #if TEMP_SENSOR_BED != 0
+      #if HAS_HEATED_BED
         void lcd_preheat_m1_e2() { _lcd_preheat(2, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
         void lcd_preheat_m2_e2() { _lcd_preheat(2, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
       #endif
       #if HOTENDS > 3
         void lcd_preheat_m1_e3_only() { _lcd_preheat(3, lcd_preheat_hotend_temp[0], -1, lcd_preheat_fan_speed[0]); }
         void lcd_preheat_m2_e3_only() { _lcd_preheat(3, lcd_preheat_hotend_temp[1], -1, lcd_preheat_fan_speed[1]); }
-        #if TEMP_SENSOR_BED != 0
+        #if HAS_HEATED_BED
           void lcd_preheat_m1_e3() { _lcd_preheat(3, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
           void lcd_preheat_m2_e3() { _lcd_preheat(3, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
         #endif
         #if HOTENDS > 4
           void lcd_preheat_m1_e4_only() { _lcd_preheat(4, lcd_preheat_hotend_temp[0], -1, lcd_preheat_fan_speed[0]); }
           void lcd_preheat_m2_e4_only() { _lcd_preheat(4, lcd_preheat_hotend_temp[1], -1, lcd_preheat_fan_speed[1]); }
-          #if TEMP_SENSOR_BED != 0
+          #if HAS_HEATED_BED
             void lcd_preheat_m1_e4() { _lcd_preheat(4, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
             void lcd_preheat_m2_e4() { _lcd_preheat(4, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
           #endif
@@ -1650,7 +1650,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
       #endif // HOTENDS > 1
-      #if TEMP_SENSOR_BED != 0
+      #if HAS_HEATED_BED
         lcd_preheat_m1_e0();
       #else
         lcd_preheat_m1_e0_only();
@@ -1669,7 +1669,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
       #endif // HOTENDS > 1
-      #if TEMP_SENSOR_BED != 0
+      #if HAS_HEATED_BED
         lcd_preheat_m2_e0();
       #else
         lcd_preheat_m2_e0_only();
@@ -1678,25 +1678,25 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // HOTENDS > 1
 
-  #if TEMP_SENSOR_BED != 0
+  #if HAS_HEATED_BED
     void lcd_preheat_m1_bedonly() { _lcd_preheat(0, 0, lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
     void lcd_preheat_m2_bedonly() { _lcd_preheat(0, 0, lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
   #endif
 
-  #if TEMP_SENSOR_0 != 0 && (TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_BED != 0)
+  #if HAS_TEMP_HOTEND && (TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || HAS_HEATED_BED)
 
     void lcd_preheat_m1_menu() {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
       #if HOTENDS == 1
-        #if TEMP_SENSOR_BED != 0
+        #if HAS_HEATED_BED
           MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0);
           MENU_ITEM(function, MSG_PREHEAT_1_END, lcd_preheat_m1_e0_only);
         #else
           MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
         #endif
       #else
-        #if TEMP_SENSOR_BED != 0
+        #if HAS_HEATED_BED
           MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H1, lcd_preheat_m1_e0);
           MENU_ITEM(function, MSG_PREHEAT_1_END " " MSG_E1, lcd_preheat_m1_e0_only);
           MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H2, lcd_preheat_m1_e1);
@@ -1706,21 +1706,21 @@ void lcd_quick_feedback(const bool clear_buttons) {
           MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H2, lcd_preheat_m1_e1_only);
         #endif
         #if HOTENDS > 2
-          #if TEMP_SENSOR_BED != 0
+          #if HAS_HEATED_BED
             MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H3, lcd_preheat_m1_e2);
             MENU_ITEM(function, MSG_PREHEAT_1_END " " MSG_E3, lcd_preheat_m1_e2_only);
           #else
             MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H3, lcd_preheat_m1_e2_only);
           #endif
           #if HOTENDS > 3
-            #if TEMP_SENSOR_BED != 0
+            #if HAS_HEATED_BED
               MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H4, lcd_preheat_m1_e3);
               MENU_ITEM(function, MSG_PREHEAT_1_END " " MSG_E4, lcd_preheat_m1_e3_only);
             #else
               MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H4, lcd_preheat_m1_e3_only);
             #endif
             #if HOTENDS > 4
-              #if TEMP_SENSOR_BED != 0
+              #if HAS_HEATED_BED
                 MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H5, lcd_preheat_m1_e4);
                 MENU_ITEM(function, MSG_PREHEAT_1_END " " MSG_E5, lcd_preheat_m1_e4_only);
               #else
@@ -1731,7 +1731,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #endif // HOTENDS > 2
         MENU_ITEM(function, MSG_PREHEAT_1_ALL, lcd_preheat_m1_all);
       #endif // HOTENDS > 1
-      #if TEMP_SENSOR_BED != 0
+      #if HAS_HEATED_BED
         MENU_ITEM(function, MSG_PREHEAT_1_BEDONLY, lcd_preheat_m1_bedonly);
       #endif
       END_MENU();
@@ -1741,14 +1741,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
       #if HOTENDS == 1
-        #if TEMP_SENSOR_BED != 0
+        #if HAS_HEATED_BED
           MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0);
           MENU_ITEM(function, MSG_PREHEAT_2_END, lcd_preheat_m2_e0_only);
         #else
           MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
         #endif
       #else
-        #if TEMP_SENSOR_BED != 0
+        #if HAS_HEATED_BED
           MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H1, lcd_preheat_m2_e0);
           MENU_ITEM(function, MSG_PREHEAT_2_END " " MSG_E1, lcd_preheat_m2_e0_only);
           MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H2, lcd_preheat_m2_e1);
@@ -1758,21 +1758,21 @@ void lcd_quick_feedback(const bool clear_buttons) {
           MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H2, lcd_preheat_m2_e1_only);
         #endif
         #if HOTENDS > 2
-          #if TEMP_SENSOR_BED != 0
+          #if HAS_HEATED_BED
             MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H3, lcd_preheat_m2_e2);
             MENU_ITEM(function, MSG_PREHEAT_2_END " " MSG_E3, lcd_preheat_m2_e2_only);
           #else
             MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H3, lcd_preheat_m2_e2_only);
           #endif
           #if HOTENDS > 3
-            #if TEMP_SENSOR_BED != 0
+            #if HAS_HEATED_BED
               MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H4, lcd_preheat_m2_e3);
               MENU_ITEM(function, MSG_PREHEAT_2_END " " MSG_E4, lcd_preheat_m2_e3_only);
             #else
               MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H4, lcd_preheat_m2_e3_only);
             #endif
             #if HOTENDS > 4
-              #if TEMP_SENSOR_BED != 0
+              #if HAS_HEATED_BED
                 MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H5, lcd_preheat_m2_e4);
                 MENU_ITEM(function, MSG_PREHEAT_2_END " " MSG_E5, lcd_preheat_m2_e4_only);
               #else
@@ -1783,13 +1783,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #endif // HOTENDS > 2
         MENU_ITEM(function, MSG_PREHEAT_2_ALL, lcd_preheat_m2_all);
       #endif // HOTENDS > 1
-      #if TEMP_SENSOR_BED != 0
+      #if HAS_HEATED_BED
         MENU_ITEM(function, MSG_PREHEAT_2_BEDONLY, lcd_preheat_m2_bedonly);
       #endif
       END_MENU();
     }
 
-  #endif // TEMP_SENSOR_0 && (TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_4 || TEMP_SENSOR_BED)
+  #endif // HAS_TEMP_HOTEND && (TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_4 || TEMP_SENSOR_BED)
 
   void lcd_cooldown() {
     #if FAN_COUNT > 0
@@ -2780,7 +2780,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       }
     #endif // ADVANCED_PAUSE_FEATURE
 
-    #if TEMP_SENSOR_0 != 0
+    #if HAS_TEMP_HOTEND
 
       //
       // Cooldown
@@ -2795,7 +2795,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       //
       // Preheat for Material 1 and 2
       //
-      #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_BED != 0
+      #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || HAS_HEATED_BED
         MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_m1_menu);
         MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_m2_menu);
       #else
@@ -2803,7 +2803,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
       #endif
 
-    #endif // TEMP_SENSOR_0 != 0
+    #endif // HAS_TEMP_HOTEND
 
     //
     // BLTouch Self-Test and Reset
@@ -3538,7 +3538,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     // Autotemp, Min, Max, Fact
     //
-    #if ENABLED(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
+    #if ENABLED(AUTOTEMP) && (HAS_TEMP_HOTEND)
       MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
       MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, HEATER_0_MAXTEMP - 15);
       MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, HEATER_0_MAXTEMP - 15);
@@ -3633,10 +3633,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
       START_MENU();
       MENU_BACK(MSG_TEMPERATURE);
       MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &lcd_preheat_fan_speed[material], 0, 255);
-      #if TEMP_SENSOR_0 != 0
+      #if HAS_TEMP_HOTEND
         MENU_ITEM_EDIT(int3, MSG_NOZZLE, &lcd_preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
       #endif
-      #if TEMP_SENSOR_BED != 0
+      #if HAS_HEATED_BED
         MENU_ITEM_EDIT(int3, MSG_BED, &lcd_preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 15);
       #endif
       #if ENABLED(EEPROM_SETTINGS)
@@ -4154,7 +4154,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_4_MAXTEMP), false);
       #endif
 
-      #if TEMP_SENSOR_BED != 0
+      #if HAS_HEATED_BED
         #undef THERMISTOR_ID
         #define THERMISTOR_ID TEMP_SENSOR_BED
         #include "thermistornames.h"

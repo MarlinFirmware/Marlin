@@ -101,19 +101,19 @@ uint16_t HAL_adc_result;
 STM32ADC adc(ADC1);
 
 uint8 adc_pins[] = {
-  #if HAS_TEMP_0
+  #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
   #endif
-  #if HAS_TEMP_1
+  #if HAS_TEMP_ADC_1
     TEMP_1_PIN
   #endif
-  #if HAS_TEMP_2
+  #if HAS_TEMP_ADC_2
     TEMP_2_PIN,
   #endif
-  #if HAS_TEMP_3
+  #if HAS_TEMP_ADC_3
     TEMP_3_PIN,
   #endif
-  #if HAS_TEMP_4
+  #if HAS_TEMP_ADC_4
     TEMP_4_PIN,
   #endif
   #if HAS_HEATED_BED
@@ -125,19 +125,19 @@ uint8 adc_pins[] = {
 };
 
 enum TEMP_PINS : char {
-  #if HAS_TEMP_0
+  #if HAS_TEMP_ADC_0
     TEMP_0,
   #endif
-  #if HAS_TEMP_1
+  #if HAS_TEMP_ADC_1
     TEMP_1,
   #endif
-  #if HAS_TEMP_2
+  #if HAS_TEMP_ADC_2
     TEMP_2,
   #endif
-  #if HAS_TEMP_3
+  #if HAS_TEMP_ADC_3
     TEMP_3,
   #endif
-  #if HAS_TEMP_4
+  #if HAS_TEMP_ADC_4
     TEMP_4,
   #endif
   #if HAS_HEATED_BED
@@ -247,19 +247,19 @@ void HAL_adc_init(void) {
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
   TEMP_PINS pin_index;
   switch (adc_pin) {
-    #if HAS_TEMP_0
+    #if HAS_TEMP_ADC_0
       case TEMP_0_PIN: pin_index = TEMP_0; break;
     #endif
-    #if HAS_TEMP_1
+    #if HAS_TEMP_ADC_1
       case TEMP_1_PIN: pin_index = TEMP_1; break;
     #endif
-    #if HAS_TEMP_2
+    #if HAS_TEMP_ADC_2
       case TEMP_2_PIN: pin_index = TEMP_2; break;
     #endif
-    #if HAS_TEMP_3
+    #if HAS_TEMP_ADC_3
       case TEMP_3_PIN: pin_index = TEMP_3; break;
     #endif
-    #if HAS_TEMP_4
+    #if HAS_TEMP_ADC_4
       case TEMP_4_PIN: pin_index = TEMP_4; break;
     #endif
     #if HAS_HEATED_BED
