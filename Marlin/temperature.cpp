@@ -951,7 +951,15 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
   }
 
   // Thermocouple with amplifier ADC interface
-  return raw * 5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
+  return (raw *
+    #if HEATER_USES_AD8495
+      660.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET
+    #elif HEATER_USES_AD595
+      5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET
+    #else
+      0
+    #endif
+  );
 }
 
 #if HAS_HEATED_BED
@@ -975,7 +983,15 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
     #else
 
       // Thermocouple with amplifier ADC interface
-      return raw * 5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
+      return (raw *
+        #if ENABLED(CHAMBER_USES_AD595)
+          5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET
+        #elif ENABLED(CHAMBER_USES_AD8495)
+          660.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET
+        #else
+          0
+        #endif
+      );
 
     #endif
   }
@@ -1002,7 +1018,15 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
     #else
 
       // Thermocouple with amplifier ADC interface
-      return raw * 5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
+      return (raw *
+        #if ENABLED(BED_USES_AD595)
+          5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET
+        #elif ENABLED(BED_USES_AD8495)
+          660.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET
+        #else
+          0
+        #endif
+      );
 
     #endif
   }
@@ -1783,6 +1807,7 @@ ISR(TIMER0_COMPB_vect) {
 }
 
 void Temperature::isr() {
+
   static int8_t temp_count = -1;
   static ADCSensorState adc_sensor_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
