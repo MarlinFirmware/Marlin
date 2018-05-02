@@ -1776,13 +1776,14 @@
  * LED Type. Enable only one of the following two options.
  *
  */
-//#define RGB_LED
+//#define RGB_LED  // Enable for the Velleman RGB LED Add-on. https://www.velleman.eu/products/view/?id=430100
 //#define RGBW_LED
 
 #if ENABLED(RGB_LED) || ENABLED(RGBW_LED)
-  #define RGB_LED_R_PIN 34
-  #define RGB_LED_G_PIN 43
-  #define RGB_LED_B_PIN 35
+  // Pin defines for the RGB LED Add-on.
+  #define RGB_LED_R_PIN 41
+  #define RGB_LED_G_PIN 40
+  #define RGB_LED_B_PIN 12
   #define RGB_LED_W_PIN -1
 #endif
 
