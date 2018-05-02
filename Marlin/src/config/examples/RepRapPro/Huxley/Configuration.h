@@ -1113,8 +1113,8 @@ Black rubber belt(MXL), 18 - tooth aluminium pulley : 87.489 step per mm (Huxley
 #endif
 
 /**
- * Use the LCD controller for bed leveling
- * Requires MESH_BED_LEVELING or PROBE_MANUALLY
+ * Add a bed leveling sub-menu for ABL or MBL.
+ * Include a guided procedure if manual probing is enabled.
  */
 //#define LCD_BED_LEVELING
 

@@ -125,7 +125,7 @@ void safe_delay(millis_t ms) {
   }
 
   // Convert signed float to fixed-length string with 023.45 / -23.45 format
-  char* ftostr32(const float &f) {
+  char* ftostr52(const float &f) {
     long i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
     conv[1] = MINUSOR(i, DIGIMOD(i, 10000));
     conv[2] = DIGIMOD(i, 1000);
