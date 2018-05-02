@@ -265,7 +265,9 @@
   /**
    * Temp Sensor defines
    */
-  #if TEMP_SENSOR_0 == -3
+  #if TEMP_SENSOR_0 == -4
+    #define HEATER_0_USES_AD8495
+  #elif TEMP_SENSOR_0 == -3
     #define HEATER_0_USES_MAX6675
     #define MAX6675_IS_MAX31855
     #define MAX6675_TMIN -270
@@ -284,7 +286,9 @@
     #define HEATER_0_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_1 == -3
+  #if TEMP_SENSOR_1 == -4
+    #define HEATER_1_USES_AD8495
+  #elif TEMP_SENSOR_1 == -3
     #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_1"
   #elif TEMP_SENSOR_1 == -2
     #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_1"
@@ -298,7 +302,9 @@
     #define HEATER_1_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_2 == -3
+  #if TEMP_SENSOR_2 == -4
+    #define HEATER_2_USES_AD8495
+  #elif TEMP_SENSOR_2 == -3
     #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_2"
   #elif TEMP_SENSOR_2 == -2
     #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_2"
@@ -312,7 +318,9 @@
     #define HEATER_2_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_3 == -3
+  #if TEMP_SENSOR_3 == -4
+    #define HEATER_3_USES_AD8495
+  #elif TEMP_SENSOR_3 == -3
     #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_3"
   #elif TEMP_SENSOR_3 == -2
     #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_3"
@@ -326,7 +334,9 @@
     #define HEATER_3_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_4 == -3
+  #if TEMP_SENSOR_4 == -4
+    #define HEATER_4_USES_AD8495
+  #elif TEMP_SENSOR_4 == -3
     #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_4"
   #elif TEMP_SENSOR_4 == -2
     #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_4"
@@ -340,7 +350,9 @@
     #define HEATER_4_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_BED == -3
+  #if TEMP_SENSOR_BED == -4
+    #define BED_USES_AD8495
+  #elif TEMP_SENSOR_BED == -3
     #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_BED"
   #elif TEMP_SENSOR_BED == -2
     #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_BED"
@@ -354,7 +366,9 @@
     #define BED_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_CHAMBER == -3
+  #if TEMP_SENSOR_CHAMBER == -4
+    #define CHAMBER_USES_AD8495
+  #elif TEMP_SENSOR_CHAMBER == -3
     #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_CHAMBER"
   #elif TEMP_SENSOR_CHAMBER == -2
     #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_CHAMBER"
@@ -364,6 +378,9 @@
     #define THERMISTORCHAMBER TEMP_SENSOR_CHAMBER
     #define CHAMBER_USES_THERMISTOR
   #endif
+
+  #define HEATER_USES_AD8495 (ENABLED(HEATER_0_USES_AD8495) || ENABLED(HEATER_1_USES_AD8495) || ENABLED(HEATER_2_USES_AD8495) || ENABLED(HEATER_3_USES_AD8495) || ENABLED(HEATER_4_USES_AD8495))
+  #define HEATER_USES_AD595 (ENABLED(HEATER_0_USES_AD595) || ENABLED(HEATER_1_USES_AD595) || ENABLED(HEATER_2_USES_AD595) || ENABLED(HEATER_3_USES_AD595) || ENABLED(HEATER_4_USES_AD595))
 
   /**
    * Default hotend offsets, if not defined
