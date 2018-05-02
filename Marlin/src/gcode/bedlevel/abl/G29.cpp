@@ -44,6 +44,10 @@
   #include "../../../libs/least_squares_fit.h"
 #endif
 
+#if ABL_PLANAR
+  #include "../../../libs/vector_3.h"
+#endif
+
 #if ABL_GRID
   #if ENABLED(PROBE_Y_FIRST)
     #define PR_OUTER_VAR xCount
