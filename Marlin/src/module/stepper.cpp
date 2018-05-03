@@ -1217,6 +1217,16 @@ void Stepper::isr() {
     // Anything in the buffer?
     if ((current_block = planner.get_current_block())) {
 
+      // Sync block? Sync the stepper counts and return
+      while (TEST(current_block->flag, BLOCK_BIT_SYNC_POSITION)) {
+        _set_position(
+          current_block->steps[A_AXIS], current_block->steps[B_AXIS],
+          current_block->steps[C_AXIS], current_block->steps[E_AXIS]
+        );
+        planner.discard_current_block();
+        if (!(current_block = planner.get_current_block())) return;
+      }
+
       // Initialize the trapezoid generator from the current block.
       static int8_t last_extruder = -1;
 
@@ -1976,12 +1986,7 @@ void Stepper::synchronize() { while (planner.has_blocks_queued() || cleaning_buf
  * This allows get_axis_position_mm to correctly
  * derive the current XYZ position later on.
  */
-void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
-
-  synchronize(); // Bad to set stepper counts in the middle of a move
-
-  CRITICAL_SECTION_START;
-
+void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
   #if CORE_IS_XY
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
@@ -2004,21 +2009,7 @@ void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c,
     count_position[Y_AXIS] = b;
     count_position[Z_AXIS] = c;
   #endif
-
   count_position[E_AXIS] = e;
-  CRITICAL_SECTION_END;
-}
-
-void Stepper::set_position(const AxisEnum &axis, const int32_t &v) {
-  CRITICAL_SECTION_START;
-  count_position[axis] = v;
-  CRITICAL_SECTION_END;
-}
-
-void Stepper::set_e_position(const int32_t &e) {
-  CRITICAL_SECTION_START;
-  count_position[E_AXIS] = e;
-  CRITICAL_SECTION_END;
 }
 
 /**

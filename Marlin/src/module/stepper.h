@@ -191,9 +191,32 @@ class Stepper {
     //
     // Set the current position in steps
     //
-    static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
-    static void set_position(const AxisEnum &a, const int32_t &v);
-    static void set_e_position(const int32_t &e);
+    static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
+
+    FORCE_INLINE static void _set_position(const AxisEnum a, const int32_t &v) { count_position[a] = v; }
+
+    FORCE_INLINE static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+      synchronize();
+      CRITICAL_SECTION_START;
+      _set_position(a, b, c, e);
+      CRITICAL_SECTION_END;
+    }
+
+    static void set_position(const AxisEnum a, const int32_t &v) {
+      synchronize();
+      CRITICAL_SECTION_START;
+      count_position[a] = v;
+      CRITICAL_SECTION_END;
+    }
+
+    FORCE_INLINE static void _set_e_position(const int32_t &e) { count_position[E_AXIS] = e; }
+
+    static void set_e_position(const int32_t &e) {
+      synchronize();
+      CRITICAL_SECTION_START;
+      count_position[E_AXIS] = e;
+      CRITICAL_SECTION_END;
+    }
 
     //
     // Set direction bits for all steppers
