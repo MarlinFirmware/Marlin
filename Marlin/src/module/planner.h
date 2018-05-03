@@ -40,7 +40,7 @@
   #include "delta.h"
 #endif
 
-#if HAS_ABL
+#if ABL_PLANAR
   #include "../libs/vector_3.h"
 #endif
 

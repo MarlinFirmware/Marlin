@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_HEATER_BED && HAS_TEMP_BED
+#if HAS_HEATED_BED
 
 #include "../gcode.h"
 #include "../../module/temperature.h"
@@ -171,10 +171,10 @@ void GcodeSuite::M190() {
 
   } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-  if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
+  if (wait_for_heatup) lcd_reset_status();
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(IN_HANDLER);
   #endif
 }
 
-#endif // HAS_HEATER_BED && HAS_TEMP_BED
+#endif // HAS_HEATED_BED

@@ -161,6 +161,19 @@
     #define DOGLCD_CS      25
     #define DOGLCD_A0      27
   #endif
+
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #define DOGLCD_A0           16
+    #define KILL_PIN            51
+    #define STAT_LED_BLUE_PIN   29
+    #define STAT_LED_RED_PIN    23
+    #define DOGLCD_CS           17
+    #define DOGLCD_SCK          76 //SCK_PIN   - required so that the DUE hardware SPI will be used
+    #define DOGLCD_MOSI         75 //MOSI_PIN  - required so that the DUE hardware SPI will be used
+    #define DOGLCD_MISO         74 //MISO_PIN
+  #endif
+
+
 #endif // ULTRA_LCD
 
 #if ENABLED(HAVE_TMC2208)

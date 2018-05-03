@@ -44,6 +44,10 @@
   #include "../../../libs/least_squares_fit.h"
 #endif
 
+#if ABL_PLANAR
+  #include "../../../libs/vector_3.h"
+#endif
+
 #if ABL_GRID
   #if ENABLED(PROBE_Y_FIRST)
     #define PR_OUTER_VAR xCount
@@ -360,8 +364,17 @@ void GcodeSuite::G29() {
       front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
       back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
 
-      if ( !position_is_reachable_by_probe(left_probe_bed_position, front_probe_bed_position)
-        || !position_is_reachable_by_probe(right_probe_bed_position, back_probe_bed_position)) {
+      if (
+        #if IS_SCARA || ENABLED(DELTA)
+             !position_is_reachable_by_probe(left_probe_bed_position, 0)
+          || !position_is_reachable_by_probe(right_probe_bed_position, 0)
+          || !position_is_reachable_by_probe(0, front_probe_bed_position)
+          || !position_is_reachable_by_probe(0, back_probe_bed_position)
+        #else
+             !position_is_reachable_by_probe(left_probe_bed_position, front_probe_bed_position)
+          || !position_is_reachable_by_probe(right_probe_bed_position, back_probe_bed_position)
+        #endif
+      ) {
         SERIAL_PROTOCOLLNPGM("? (L,R,F,B) out of bounds.");
         return;
       }
@@ -956,7 +969,7 @@ void GcodeSuite::G29() {
   if (planner.leveling_active)
     SYNC_PLAN_POSITION_KINEMATIC();
 
-  #if HAS_BED_PROBE && Z_AFTER_PROBING
+  #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
     move_z_after_probing();
   #endif
 

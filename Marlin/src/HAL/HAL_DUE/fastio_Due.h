@@ -48,7 +48,7 @@
 #define USEABLE_HARDWARE_PWM(p) ((2 <= p) && (p <= 13))
 
 #ifndef MASK
-  #define MASK(PIN)  (1 << PIN)
+  #define MASK(PIN) (1 << PIN)
 #endif
 
 /**
@@ -59,76 +59,78 @@
  * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
  */
 
-/// Read a pin
-#define _READ(IO) ((bool)(DIO ## IO ## _WPORT -> PIO_PDSR & (MASK(DIO ## IO ## _PIN))))
+// Read a pin
+#define _READ(IO) bool(DIO ## IO ## _WPORT -> PIO_PDSR & MASK(DIO ## IO ## _PIN))
 
-/// Write to a pin
-#define _WRITE_VAR(IO, v)  do { \
+// Write to a pin
+#define _WRITE_VAR(IO,V) do { \
   volatile Pio* port = g_APinDescription[IO].pPort; \
   uint32_t mask = g_APinDescription[IO].ulPin; \
-  if (v) port->PIO_SODR = mask; \
+  if (V) port->PIO_SODR = mask; \
   else port->PIO_CODR = mask; \
 } while(0)
 
-/// Write to a pin
-#define _WRITE(IO, v) do { \
+// Write to a pin
+#define _WRITE(IO,V) do { \
   volatile Pio* port = (DIO ##  IO ## _WPORT); \
   uint32_t mask = MASK(DIO ## IO ## _PIN); \
-  if (v) port->PIO_SODR = mask; \
+  if (V) port->PIO_SODR = mask; \
   else port->PIO_CODR = mask; \
 } while(0)
 
-/// toggle a pin
-#define _TOGGLE(IO)  _WRITE(IO, !READ(IO))
+// toggle a pin
+#define _TOGGLE(IO) _WRITE(IO, !READ(IO))
 
-/// set pin as input
-#define _SET_INPUT(IO)  do{ pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
-                            PIO_Configure(g_APinDescription[IO].pPort, PIO_INPUT, g_APinDescription[IO].ulPin, 0); \
-                        }while(0)
-/// set pin as output
-#define _SET_OUTPUT(IO) do{ pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
-                            PIO_Configure(g_APinDescription[IO].pPort, _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, \
-                                          g_APinDescription[IO].ulPin, g_APinDescription[IO].ulPinConfiguration); \
-                            g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT;\
-                        }while(0)
+// set pin as input
+#define _SET_INPUT(IO) do{ \
+  pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
+  PIO_Configure(g_APinDescription[IO].pPort, PIO_INPUT, g_APinDescription[IO].ulPin, 0); \
+}while(0)
 
-/// set pin as input with pullup mode
-#define _PULLUP(IO, v)  { pinMode(IO, v != LOW ? INPUT_PULLUP : INPUT); }
+// set pin as output
+#define _SET_OUTPUT(IO) do{ \
+  pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
+  PIO_Configure(g_APinDescription[IO].pPort, _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, g_APinDescription[IO].ulPin, g_APinDescription[IO].ulPinConfiguration); \
+  g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT;\
+}while(0)
 
-/// check if pin is an input
+// set pin as input with pullup mode
+#define _PULLUP(IO,V) pinMode(IO, (V) ? INPUT_PULLUP : INPUT)
+
+// check if pin is an input
 #define _GET_INPUT(IO)
-/// check if pin is an output
+// check if pin is an output
 #define _GET_OUTPUT(IO)
 
-/// check if pin is a timer
+// check if pin is a timer
 #define _GET_TIMER(IO)
 
-/// Read a pin wrapper
-#define READ(IO)  _READ(IO)
+// Read a pin wrapper
+#define READ(IO) _READ(IO)
 
-/// Write to a pin wrapper
-#define WRITE_VAR(IO, v)  _WRITE_VAR(IO, v)
-#define WRITE(IO, v)  _WRITE(IO, v)
+// Write to a pin wrapper
+#define WRITE_VAR(IO,V) _WRITE_VAR(IO,V)
+#define WRITE(IO,V) _WRITE(IO,V)
 
-/// toggle a pin wrapper
-#define TOGGLE(IO)  _TOGGLE(IO)
+// toggle a pin wrapper
+#define TOGGLE(IO) _TOGGLE(IO)
 
-/// set pin as input wrapper
-#define SET_INPUT(IO)  _SET_INPUT(IO)
-/// set pin as input with pullup wrapper
+// set pin as input wrapper
+#define SET_INPUT(IO) _SET_INPUT(IO)
+// set pin as input with pullup wrapper
 #define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
-/// set pin as output wrapper -  reads the pin and sets the output to that value
-#define SET_OUTPUT(IO)  _SET_OUTPUT(IO)
-/// check if pin is an input wrapper
-#define GET_INPUT(IO)  _GET_INPUT(IO)
-/// check if pin is an output wrapper
-#define GET_OUTPUT(IO)  _GET_OUTPUT(IO)
+// set pin as output wrapper -  reads the pin and sets the output to that value
+#define SET_OUTPUT(IO) _SET_OUTPUT(IO)
+// check if pin is an input wrapper
+#define GET_INPUT(IO) _GET_INPUT(IO)
+// check if pin is an output wrapper
+#define GET_OUTPUT(IO) _GET_OUTPUT(IO)
 
-/// check if pin is a timer (wrapper)
-#define GET_TIMER(IO)  _GET_TIMER(IO)
+// check if pin is a timer (wrapper)
+#define GET_TIMER(IO) _GET_TIMER(IO)
 
 // Shorthand
-#define OUT_WRITE(IO, v) { SET_OUTPUT(IO); WRITE(IO, v); }
+#define OUT_WRITE(IO,V) { SET_OUTPUT(IO); WRITE(IO,V); }
 
 /**
  * Ports and functions

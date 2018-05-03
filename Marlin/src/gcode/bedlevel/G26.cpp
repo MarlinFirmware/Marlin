@@ -417,12 +417,14 @@ inline bool look_for_lines_to_connect() {
  */
 inline bool turn_on_heaters() {
   millis_t next = millis() + 5000UL;
-  #if HAS_TEMP_BED
+  #if HAS_HEATED_BED
     #if ENABLED(ULTRA_LCD)
       if (g26_bed_temp > 25) {
         lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
         lcd_quick_feedback(true);
-        lcd_external_control = true;
+        #if ENABLED(NEWPANEL)
+          lcd_external_control = true;
+        #endif
     #endif
         thermalManager.setTargetBed(g26_bed_temp);
         while (abs(thermalManager.degBed() - g26_bed_temp) > 3) {
@@ -729,7 +731,7 @@ void GcodeSuite::G26() {
   move_to(destination, 0.0);
   move_to(destination, g26_ooze_amount);
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(NEWPANEL)
     lcd_external_control = true;
   #endif
 
@@ -834,12 +836,12 @@ void GcodeSuite::G26() {
   move_to(destination, 0); // Move back to the starting position
   //debug_current_and_destination(PSTR("done doing X/Y move."));
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(NEWPANEL)
     lcd_external_control = false;     // Give back control of the LCD Panel!
   #endif
 
   if (!g26_keep_heaters_on) {
-    #if HAS_TEMP_BED
+    #if HAS_HEATED_BED
       thermalManager.setTargetBed(0);
     #endif
     thermalManager.setTargetHotend(0, 0);

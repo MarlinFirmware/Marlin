@@ -41,13 +41,13 @@
   #endif
 
   // Could be moved to a feature, but this is all the data
-  bool powersupply_on =
+  bool powersupply_on = (
     #if ENABLED(PS_DEFAULT_OFF)
       false
     #else
       true
     #endif
-  ;
+  );
 
   #if HAS_TRINAMIC
     #include "../../feature/tmc_util.h"

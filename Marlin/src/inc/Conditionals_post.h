@@ -167,11 +167,6 @@
 #endif
 
 /**
- * Auto Bed Leveling and Z Probe Repeatability Test
- */
-#define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
-
-/**
  * Z Sled Probe requires Z_SAFE_HOMING
  */
 #if ENABLED(Z_PROBE_SLED)
@@ -310,7 +305,9 @@
 /**
  * Temp Sensor defines
  */
-#if TEMP_SENSOR_0 == -3
+#if TEMP_SENSOR_0 == -4
+  #define HEATER_0_USES_AD8495
+#elif TEMP_SENSOR_0 == -3
   #define HEATER_0_USES_MAX6675
   #define MAX6675_IS_MAX31855
   #define MAX6675_TMIN -270
@@ -329,8 +326,12 @@
   #define HEATER_0_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_1 <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_1"
+#if TEMP_SENSOR_1 == -4
+  #define HEATER_1_USES_AD8495
+#elif TEMP_SENSOR_1 == -3
+  #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_1"
+#elif TEMP_SENSOR_1 == -2
+  #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_1"
 #elif TEMP_SENSOR_1 == -1
   #define HEATER_1_USES_AD595
 #elif TEMP_SENSOR_1 == 0
@@ -341,8 +342,12 @@
   #define HEATER_1_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_2 <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_2"
+#if TEMP_SENSOR_2 == -4
+  #define HEATER_2_USES_AD8495
+#elif TEMP_SENSOR_2 == -3
+  #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_2"
+#elif TEMP_SENSOR_2 == -2
+  #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_2"
 #elif TEMP_SENSOR_2 == -1
   #define HEATER_2_USES_AD595
 #elif TEMP_SENSOR_2 == 0
@@ -353,8 +358,12 @@
   #define HEATER_2_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_3 <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_3"
+#if TEMP_SENSOR_3 == -4
+  #define HEATER_3_USES_AD8495
+#elif TEMP_SENSOR_3 == -3
+  #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_3"
+#elif TEMP_SENSOR_3 == -2
+  #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_3"
 #elif TEMP_SENSOR_3 == -1
   #define HEATER_3_USES_AD595
 #elif TEMP_SENSOR_3 == 0
@@ -365,8 +374,12 @@
   #define HEATER_3_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_4 <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_4"
+#if TEMP_SENSOR_4 == -4
+  #define HEATER_4_USES_AD8495
+#elif TEMP_SENSOR_4 == -3
+  #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_4"
+#elif TEMP_SENSOR_4 == -2
+  #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_4"
 #elif TEMP_SENSOR_4 == -1
   #define HEATER_4_USES_AD595
 #elif TEMP_SENSOR_4 == 0
@@ -377,8 +390,12 @@
   #define HEATER_4_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_BED <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_BED"
+#if TEMP_SENSOR_BED == -4
+  #define BED_USES_AD8495
+#elif TEMP_SENSOR_BED == -3
+  #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_BED"
+#elif TEMP_SENSOR_BED == -2
+  #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_BED"
 #elif TEMP_SENSOR_BED == -1
   #define BED_USES_AD595
 #elif TEMP_SENSOR_BED == 0
@@ -389,8 +406,12 @@
   #define BED_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_CHAMBER <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_CHAMBER"
+#if TEMP_SENSOR_CHAMBER == -4
+  #define CHAMBER_USES_AD8495
+#elif TEMP_SENSOR_CHAMBER == -3
+  #error "MAX31855 Thermocouples not supported for TEMP_SENSOR_CHAMBER"
+#elif TEMP_SENSOR_CHAMBER == -2
+  #error "MAX6675 Thermocouples not supported for TEMP_SENSOR_CHAMBER"
 #elif TEMP_SENSOR_CHAMBER == -1
   #define CHAMBER_USES_AD595
 #elif TEMP_SENSOR_CHAMBER > 0
@@ -398,15 +419,11 @@
   #define CHAMBER_USES_THERMISTOR
 #endif
 
-#ifdef __SAM3X8E__
-  #define HEATER_USES_AD595 (ENABLED(HEATER_0_USES_AD595) || ENABLED(HEATER_1_USES_AD595) || ENABLED(HEATER_2_USES_AD595) || ENABLED(HEATER_3_USES_AD595))
-#endif
+#define HEATER_USES_AD8495 (ENABLED(HEATER_0_USES_AD8495) || ENABLED(HEATER_1_USES_AD8495) || ENABLED(HEATER_2_USES_AD8495) || ENABLED(HEATER_3_USES_AD8495) || ENABLED(HEATER_4_USES_AD8495))
 
-/**
- * Flags for PID handling
- */
-#define HAS_PID_HEATING (ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED))
-#define HAS_PID_FOR_BOTH (ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED))
+#ifdef __SAM3X8E__
+  #define HEATER_USES_AD595 (ENABLED(HEATER_0_USES_AD595) || ENABLED(HEATER_1_USES_AD595) || ENABLED(HEATER_2_USES_AD595) || ENABLED(HEATER_3_USES_AD595) || ENABLED(HEATER_4_USES_AD595))
+#endif
 
 /**
  * Default hotend offsets, if not defined
@@ -730,23 +747,24 @@
 #define E3_IS_TRINAMIC (ENABLED(E3_IS_TMC2130) || ENABLED(E3_IS_TMC2208))
 #define E4_IS_TRINAMIC (ENABLED(E4_IS_TMC2130) || ENABLED(E4_IS_TMC2208))
 
-// Disable Z axis sensorless homing if a probe is used to home the Z axis
 #if ENABLED(SENSORLESS_HOMING)
-  #define X_SENSORLESS (ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY))
-  #define Y_SENSORLESS (ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY))
-  #define Z_SENSORLESS (ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY))
+  // Disable Z axis sensorless homing if a probe is used to home the Z axis
   #if HOMING_Z_WITH_PROBE
     #undef Z_HOMING_SENSITIVITY
   #endif
+  #define X_SENSORLESS (ENABLED(X_IS_TMC2130) && defined(X_HOMING_SENSITIVITY))
+  #define Y_SENSORLESS (ENABLED(Y_IS_TMC2130) && defined(Y_HOMING_SENSITIVITY))
+  #define Z_SENSORLESS (ENABLED(Z_IS_TMC2130) && defined(Z_HOMING_SENSITIVITY))
 #endif
 
 // Endstops and bed probe
-#define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_X2_ENDSTOP(X,MIN) && !IS_Y2_ENDSTOP(X,MIN) && !IS_Z2_OR_PROBE(X,MIN))
-#define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_X2_ENDSTOP(X,MAX) && !IS_Y2_ENDSTOP(X,MAX) && !IS_Z2_OR_PROBE(X,MAX))
-#define HAS_Y_MIN (PIN_EXISTS(Y_MIN) && !IS_X2_ENDSTOP(Y,MIN) && !IS_Y2_ENDSTOP(Y,MIN) && !IS_Z2_OR_PROBE(Y,MIN))
-#define HAS_Y_MAX (PIN_EXISTS(Y_MAX) && !IS_X2_ENDSTOP(Y,MAX) && !IS_Y2_ENDSTOP(Y,MAX) && !IS_Z2_OR_PROBE(Y,MAX))
-#define HAS_Z_MIN (PIN_EXISTS(Z_MIN) && !IS_X2_ENDSTOP(Z,MIN) && !IS_Y2_ENDSTOP(Z,MIN) && !IS_Z2_OR_PROBE(Z,MIN))
-#define HAS_Z_MAX (PIN_EXISTS(Z_MAX) && !IS_X2_ENDSTOP(Z,MAX) && !IS_Y2_ENDSTOP(Z,MAX) && !IS_Z2_OR_PROBE(Z,MAX))
+#define HAS_STOP_TEST(A,M) (PIN_EXISTS(A##_##M) && !IS_X2_ENDSTOP(A,M) && !IS_Y2_ENDSTOP(A,M) && !IS_Z2_OR_PROBE(A,M))
+#define HAS_X_MIN HAS_STOP_TEST(X,MIN)
+#define HAS_X_MAX HAS_STOP_TEST(X,MAX)
+#define HAS_Y_MIN HAS_STOP_TEST(Y,MIN)
+#define HAS_Y_MAX HAS_STOP_TEST(Y,MAX)
+#define HAS_Z_MIN HAS_STOP_TEST(Z,MIN)
+#define HAS_Z_MAX HAS_STOP_TEST(Z,MAX)
 #define HAS_X2_MIN (PIN_EXISTS(X2_MIN))
 #define HAS_X2_MAX (PIN_EXISTS(X2_MAX))
 #define HAS_Y2_MIN (PIN_EXISTS(Y2_MIN))
@@ -756,15 +774,18 @@
 #define HAS_Z_MIN_PROBE_PIN (PIN_EXISTS(Z_MIN_PROBE))
 
 // Thermistors
-#define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 > -2)
-#define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0 && TEMP_SENSOR_1 > -2)
-#define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0 && TEMP_SENSOR_2 > -2)
-#define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0 && TEMP_SENSOR_3 > -2)
-#define HAS_TEMP_4 (PIN_EXISTS(TEMP_4) && TEMP_SENSOR_4 != 0 && TEMP_SENSOR_4 > -2)
-#define HAS_TEMP_HOTEND (HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675))
-#define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0 && TEMP_SENSOR_BED > -2)
-#define HAS_TEMP_CHAMBER (PIN_EXISTS(TEMP_CHAMBER) && TEMP_SENSOR_CHAMBER != 0 && TEMP_SENSOR_CHAMBER > -2)
-#define HAS_TEMP_SENSOR (HAS_TEMP_HOTEND || HAS_TEMP_BED || HAS_TEMP_CHAMBER)
+#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && TEMP_SENSOR_##P > -2)
+#define HAS_TEMP_ADC_0 (HAS_ADC_TEST(0) && DISABLED(HEATER_0_USES_MAX6675))
+#define HAS_TEMP_ADC_1 HAS_ADC_TEST(1)
+#define HAS_TEMP_ADC_2 HAS_ADC_TEST(2)
+#define HAS_TEMP_ADC_3 HAS_ADC_TEST(3)
+#define HAS_TEMP_ADC_4 HAS_ADC_TEST(4)
+#define HAS_TEMP_ADC_BED HAS_ADC_TEST(BED)
+#define HAS_TEMP_ADC_CHAMBER HAS_ADC_TEST(CHAMBER)
+
+#define HAS_TEMP_HOTEND (HAS_TEMP_ADC_0 || ENABLED(HEATER_0_USES_MAX6675))
+#define HAS_TEMP_BED HAS_TEMP_ADC_BED
+#define HAS_TEMP_CHAMBER HAS_TEMP_ADC_CHAMBER
 
 // Heaters
 #define HAS_HEATER_0 (PIN_EXISTS(HEATER_0))
@@ -774,8 +795,19 @@
 #define HAS_HEATER_4 (PIN_EXISTS(HEATER_4))
 #define HAS_HEATER_BED (PIN_EXISTS(HEATER_BED))
 
+// Shorthand for common combinations
+#define HAS_HEATED_BED (HAS_TEMP_BED && HAS_HEATER_BED)
+#define HAS_TEMP_SENSOR (HAS_TEMP_HOTEND || HAS_HEATED_BED || HAS_TEMP_CHAMBER)
+
+// PID heating
+#if !HAS_HEATED_BED
+  #undef PIDTEMPBED
+#endif
+#define HAS_PID_HEATING (ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED))
+#define HAS_PID_FOR_BOTH (ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED))
+
 // Thermal protection
-#define HAS_THERMALLY_PROTECTED_BED (ENABLED(THERMAL_PROTECTION_BED) && HAS_TEMP_BED && HAS_HEATER_BED)
+#define HAS_THERMALLY_PROTECTED_BED (HAS_HEATED_BED && ENABLED(THERMAL_PROTECTION_BED))
 #define WATCH_HOTENDS (ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0)
 #define WATCH_THE_BED (HAS_THERMALLY_PROTECTED_BED && WATCH_BED_TEMP_PERIOD > 0)
 
@@ -810,11 +842,15 @@
 #define HAS_CONTROLLER_FAN (PIN_EXISTS(CONTROLLER_FAN))
 
 // Servos
-#define HAS_SERVOS (defined(NUM_SERVOS) && NUM_SERVOS > 0)
 #define HAS_SERVO_0 (PIN_EXISTS(SERVO0))
 #define HAS_SERVO_1 (PIN_EXISTS(SERVO1))
 #define HAS_SERVO_2 (PIN_EXISTS(SERVO2))
 #define HAS_SERVO_3 (PIN_EXISTS(SERVO3))
+#define HAS_SERVOS (defined(NUM_SERVOS) && NUM_SERVOS > 0)
+
+#if HAS_SERVOS && !defined(Z_PROBE_SERVO_NR)
+  #define Z_PROBE_SERVO_NR -1
+#endif
 
 // Sensors
 #define HAS_FILAMENT_WIDTH_SENSOR (PIN_EXISTS(FILWIDTH))
@@ -897,7 +933,7 @@
 /**
  * Heated bed requires settings
  */
-#if HAS_HEATER_BED
+#if HAS_HEATED_BED
   #ifndef MAX_BED_POWER
     #define MAX_BED_POWER 255
   #endif
@@ -936,22 +972,6 @@
  * Part Cooling fan multipliexer
  */
 #define HAS_FANMUX PIN_EXISTS(FANMUX0)
-
-/**
- * Servos and probes
- */
-
-#if HAS_SERVOS
-  #ifndef Z_PROBE_SERVO_NR
-    #define Z_PROBE_SERVO_NR -1
-  #endif
-#endif
-
-#define HAS_BED_PROBE (PROBE_SELECTED && DISABLED(PROBE_MANUALLY))
-
-#if ENABLED(Z_PROBE_ALLEN_KEY)
-  #define PROBE_IS_TRIGGERED_WHEN_STOWED_TEST
-#endif
 
 /**
  * Bed Probe dependencies
@@ -1334,7 +1354,7 @@
 #define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
 
 // Add commands that need sub-codes to this list
-#define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET) || ENABLED(CNC_COORDINATE_SYSTEMS)
+#define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET) || ENABLED(CNC_COORDINATE_SYSTEMS) || ENABLED(POWER_LOSS_RECOVERY)
 
 // Parking Extruder
 #if ENABLED(PARKING_EXTRUDER)
@@ -1447,5 +1467,9 @@
 
 // If platform requires early initialization of watchdog to properly boot
 #define EARLY_WATCHDOG (ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM))
+
+#if ENABLED(G29_RETRY_AND_RECOVER)
+  #define USE_EXECUTE_COMMANDS_IMMEDIATE
+#endif
 
 #endif // CONDITIONALS_POST_H

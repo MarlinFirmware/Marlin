@@ -61,7 +61,7 @@
 #define BOARD_MKS_BASE          40    // MKS BASE v1.0
 #define BOARD_MKS_BASE_15       405   // MKS v1.5 with Allegro A4982 stepper drivers
 #define BOARD_MKS_BASE_HEROIC   41    // MKS BASE 1.0 with Heroic HR4982 stepper drivers
-#define BOARD_MKS_GEN_13        47    // MKS v1.3 or 1.4
+#define BOARD_MKS_GEN_13        47    // MKS GEN v1.3 or 1.4
 #define BOARD_MKS_GEN_L         53    // MKS GEN L
 #define BOARD_ZRIB_V20          504   // zrib V2.0 control board (Chinese knock off RAMPS replica)
 #define BOARD_FELIX2            37    // Felix 2.0+ Electronics Board (RAMPS like)
@@ -76,7 +76,8 @@
 #define BOARD_RUMBA             80    // Rumba
 #define BOARD_BQ_ZUM_MEGA_3D    503   // bq ZUM Mega 3D
 #define BOARD_MAKEBOARD_MINI    431   // MakeBoard Mini v2.1.2 is a control board sold by MicroMake
-#define BOARD_TRIGORILLA        343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
+#define BOARD_TRIGORILLA_13     343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
+#define BOARD_TRIGORILLA_14     443   // TriGorilla Anycubic version 1.4 based on RAMPS EFB
 #define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
 
 //
@@ -124,6 +125,7 @@
 #define BOARD_MELZI_TRONXY      505   // Tronxy X5S
 #define BOARD_STB_11            64    // STB V1.1
 #define BOARD_AZTEEG_X1         65    // Azteeg X1
+#define BOARD_ANET_10           69    // Anet 1.0 (Melzi clone)
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
@@ -140,7 +142,6 @@
 #define BOARD_OMCA_A            90    // Alpha OMCA board
 #define BOARD_OMCA              91    // Final OMCA board
 #define BOARD_SETHI             20    // Sethi 3D_1
-#define BOARD_ANET_10           69    // Anet 1.0 (Melzi clone)
 
 //
 // Teensyduino - AT90USB1286, AT90USB1286P
@@ -152,7 +153,7 @@
 #define BOARD_BRAINWAVE         82    // Brainwave (AT90USB646)
 #define BOARD_BRAINWAVE_PRO     85    // Brainwave Pro (AT90USB1286)
 #define BOARD_SAV_MKI           83    // SAV Mk-I (AT90USB1286)
-#define BOARD_TEENSY2           84    // Teensy++2.0 (AT90USB1286) - CLI compile: HARDWARE_MOTHERBOARD=84  make
+#define BOARD_TEENSY2           84    // Teensy++2.0 (AT90USB1286)
 #define BOARD_5DPRINT           88    // 5DPrint D8 Driver Board
 
 //

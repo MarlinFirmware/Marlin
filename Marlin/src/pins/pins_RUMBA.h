@@ -137,21 +137,6 @@
 #define CASE_LIGHT_PIN     45
 
 //
-// LCD / Controller
-//
-#define SD_DETECT_PIN      49
-#define BEEPER_PIN         44
-#define LCD_PINS_RS        19
-#define LCD_PINS_ENABLE    42
-#define LCD_PINS_D4        18
-#define LCD_PINS_D5        38
-#define LCD_PINS_D6        41
-#define LCD_PINS_D7        40
-#define BTN_EN1            11
-#define BTN_EN2            12
-#define BTN_ENC            43
-
-//
 // M3/M4/M5 - Spindle/Laser Control
 //
 #ifndef SPINDLE_LASER_PWM_PIN
@@ -162,4 +147,30 @@
 #endif
 #ifndef SPINDLE_DIR_PIN
   #define SPINDLE_DIR_PIN          15
+#endif
+
+//
+// LCD / Controller
+//
+#define SD_DETECT_PIN      49
+#define BEEPER_PIN         44
+#define LCD_PINS_D7        40
+#define BTN_EN1            11
+#define BTN_EN2            12
+#define BTN_ENC            43
+
+#if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
+  #define LCD_PINS_DC      38 // Set as output on init
+  #define LCD_PINS_RS      41 // Pull low for 1s to init
+  // DOGM SPI LCD Support
+  #define DOGLCD_CS        19
+  #define DOGLCD_MOSI      42
+  #define DOGLCD_SCK       18
+  #define DOGLCD_A0        LCD_PINS_DC
+#else
+  #define LCD_PINS_RS      19
+  #define LCD_PINS_ENABLE  42
+  #define LCD_PINS_D4      18
+  #define LCD_PINS_D5      38
+  #define LCD_PINS_D6      41
 #endif

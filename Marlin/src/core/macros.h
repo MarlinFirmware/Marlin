@@ -50,45 +50,58 @@
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
 #endif
 
-// Highly granular delays for step pulses, etc.
-#define DELAY_0_NOP NOOP
-#define DELAY_1_NOP __asm__("nop\n\t")
-#define DELAY_2_NOP DELAY_1_NOP; DELAY_1_NOP
-#define DELAY_3_NOP DELAY_1_NOP; DELAY_2_NOP
-#define DELAY_4_NOP DELAY_1_NOP; DELAY_3_NOP
-#define DELAY_5_NOP DELAY_1_NOP; DELAY_4_NOP
-
+// Processor-level delays for hardware interfaces
+#ifndef _NOP
+  #define _NOP() do { __asm__ volatile ("nop"); } while (0)
+#endif
 #define DELAY_NOPS(X) \
   switch (X) { \
-    case 20: DELAY_1_NOP; case 19: DELAY_1_NOP; \
-    case 18: DELAY_1_NOP; case 17: DELAY_1_NOP; \
-    case 16: DELAY_1_NOP; case 15: DELAY_1_NOP; \
-    case 14: DELAY_1_NOP; case 13: DELAY_1_NOP; \
-    case 12: DELAY_1_NOP; case 11: DELAY_1_NOP; \
-    case 10: DELAY_1_NOP; case 9:  DELAY_1_NOP; \
-    case 8:  DELAY_1_NOP; case 7:  DELAY_1_NOP; \
-    case 6:  DELAY_1_NOP; case 5:  DELAY_1_NOP; \
-    case 4:  DELAY_1_NOP; case 3:  DELAY_1_NOP; \
-    case 2:  DELAY_1_NOP; case 1:  DELAY_1_NOP; \
+    case 20: _NOP(); case 19: _NOP(); case 18: _NOP(); case 17: _NOP(); \
+    case 16: _NOP(); case 15: _NOP(); case 14: _NOP(); case 13: _NOP(); \
+    case 12: _NOP(); case 11: _NOP(); case 10: _NOP(); case  9: _NOP(); \
+    case  8: _NOP(); case  7: _NOP(); case  6: _NOP(); case  5: _NOP(); \
+    case  4: _NOP(); case  3: _NOP(); case  2: _NOP(); case  1: _NOP(); \
   }
+#define DELAY_0_NOP   NOOP
+#define DELAY_1_NOP   DELAY_NOPS( 1)
+#define DELAY_2_NOP   DELAY_NOPS( 2)
+#define DELAY_3_NOP   DELAY_NOPS( 3)
+#define DELAY_4_NOP   DELAY_NOPS( 4)
+#define DELAY_5_NOP   DELAY_NOPS( 5)
+#define DELAY_10_NOP  DELAY_NOPS(10)
+#define DELAY_20_NOP  DELAY_NOPS(20)
 
-#define DELAY_10_NOP DELAY_5_NOP;  DELAY_5_NOP
-#define DELAY_20_NOP DELAY_10_NOP; DELAY_10_NOP
-
-#if CYCLES_PER_MICROSECOND == 16
-  #define DELAY_1US DELAY_10_NOP; DELAY_5_NOP; DELAY_1_NOP
+#if CYCLES_PER_MICROSECOND <= 200
+  #define DELAY_100NS DELAY_NOPS((CYCLES_PER_MICROSECOND + 9) / 10)
 #else
-  #define DELAY_1US DELAY_20_NOP
+  #define DELAY_100NS DELAY_20_NOP
 #endif
-#define DELAY_2US  DELAY_1US; DELAY_1US
-#define DELAY_3US  DELAY_1US; DELAY_2US
-#define DELAY_4US  DELAY_1US; DELAY_3US
-#define DELAY_5US  DELAY_1US; DELAY_4US
-#define DELAY_6US  DELAY_1US; DELAY_5US
-#define DELAY_7US  DELAY_1US; DELAY_6US
-#define DELAY_8US  DELAY_1US; DELAY_7US
-#define DELAY_9US  DELAY_1US; DELAY_8US
-#define DELAY_10US DELAY_1US; DELAY_9US
+
+// Microsecond delays for hardware interfaces
+#if CYCLES_PER_MICROSECOND <= 20
+  #define DELAY_1US DELAY_NOPS(CYCLES_PER_MICROSECOND)
+  #define DELAY_US(X) \
+    switch (X) { \
+      case 20: DELAY_1US; case 19: DELAY_1US; case 18: DELAY_1US; case 17: DELAY_1US; \
+      case 16: DELAY_1US; case 15: DELAY_1US; case 14: DELAY_1US; case 13: DELAY_1US; \
+      case 12: DELAY_1US; case 11: DELAY_1US; case 10: DELAY_1US; case  9: DELAY_1US; \
+      case  8: DELAY_1US; case  7: DELAY_1US; case  6: DELAY_1US; case  5: DELAY_1US; \
+      case  4: DELAY_1US; case  3: DELAY_1US; case  2: DELAY_1US; case  1: DELAY_1US; \
+    }
+#else
+  #define DELAY_US(X) delayMicroseconds(X) // May not be usable in CRITICAL_SECTION
+  #define DELAY_1US DELAY_US(1)
+#endif
+#define DELAY_2US  DELAY_US( 2)
+#define DELAY_3US  DELAY_US( 3)
+#define DELAY_4US  DELAY_US( 4)
+#define DELAY_5US  DELAY_US( 5)
+#define DELAY_6US  DELAY_US( 6)
+#define DELAY_7US  DELAY_US( 7)
+#define DELAY_8US  DELAY_US( 8)
+#define DELAY_9US  DELAY_US( 9)
+#define DELAY_10US DELAY_US(10)
+#define DELAY_20US DELAY_US(20)
 
 // Remove compiler warning on an unused variable
 #define UNUSED(x) (void) (x)
@@ -99,7 +112,7 @@
 
 // Macros for bit masks
 #undef _BV
-#define _BV(b) (1<<(b))
+#define _BV(b) (1 << (b))
 #define TEST(n,b) !!((n)&_BV(b))
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))
@@ -134,9 +147,11 @@
 #define SWITCH_ENABLED_true  1
 #define SWITCH_ENABLED_0     0
 #define SWITCH_ENABLED_1     1
+#define SWITCH_ENABLED_0x0   0
+#define SWITCH_ENABLED_0x1   1
 #define SWITCH_ENABLED_      1
 #define ENABLED(b) _CAT(SWITCH_ENABLED_, b)
-#define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
+#define DISABLED(b) !ENABLED(b)
 
 #define WITHIN(V,L,H) ((V) >= (L) && (V) <= (H))
 #define NUMERIC(a) WITHIN(a, '0', '9')
@@ -208,7 +223,7 @@
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
-#define FIXFLOAT(f) (f + (f < 0.0 ? -0.00001 : 0.00001))
+#define FIXFLOAT(f) (f + (f < 0.0 ? -0.00005 : 0.00005))
 
 //
 // Maths macros that can be overridden by HAL

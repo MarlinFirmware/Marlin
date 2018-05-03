@@ -24,6 +24,6 @@
  * Test TEENSY35_36 specific configuration values for errors at compile-time.
  */
 
-/**
- * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
- */
+#if ENABLED(EMERGENCY_PARSER)
+  #error "EMERGENCY_PARSER is not yet implemented for Teensy 3.5/3.6. Disable EMERGENCY_PARSER to continue."
+#endif

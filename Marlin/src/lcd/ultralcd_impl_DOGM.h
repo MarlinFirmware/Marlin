@@ -619,10 +619,10 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       if (PAGE_UNDER(7)) {
         lcd_moveto(5, 7);
         lcd_put_u8str("X:");
-        lcd_put_u8str(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
         lcd_moveto(74, 7);
         lcd_put_u8str("Y:");
-        lcd_put_u8str(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
       }
 
       // Print plot position

@@ -126,6 +126,10 @@
   #include "feature/pause.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "feature/power_loss_recovery.h"
+#endif
+
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #include "feature/runout.h"
 #endif
@@ -876,6 +880,10 @@ void setup() {
     pe_magnet_init();
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    do_print_job_recovery();
+  #endif
+
   #if ENABLED(USE_WATCHDOG) // Reinit watchdog after HAL_get_reset_source call
     watchdog_init();
   #endif
@@ -886,18 +894,16 @@ void setup() {
  *
  *  - Save or log commands to SD
  *  - Process available commands (if not saving)
- *  - Call heater manager
- *  - Call inactivity manager
  *  - Call endstop manager
- *  - Call LCD update
+ *  - Call inactivity manager
  */
 void loop() {
 
-  #if ENABLED(SDSUPPORT)
-    card.checkautostart(false);
-  #endif
-
   for (;;) {
+
+    #if ENABLED(SDSUPPORT)
+      card.checkautostart();
+    #endif
 
     #if ENABLED(SDSUPPORT) && ENABLED(ULTIPANEL)
       if (abort_sd_printing) {
