@@ -89,7 +89,6 @@ script:
   #
   # Add a Sled Z Probe, use UBL Cartesian moves, use Japanese language
   #
-  - opt_set LANGUAGE jp-kana
   - opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
   - opt_disable SEGMENT_LEVELED_MOVES
   - opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING
@@ -136,8 +135,9 @@ script:
   #
   - restore_configs
   - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
-  - opt_enable MIXING_EXTRUDER
+  - opt_enable MIXING_EXTRUDER CR10_STOCKDISPLAY
   - opt_set MIXING_STEPPERS 5
+  - opt_set LCD_LANGUAGE jp-kana
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Test DUAL_X_CARRIAGE
