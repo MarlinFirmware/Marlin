@@ -935,8 +935,6 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
 
   // Thermistor with conversion table?
   if (heater_ttbl_map[e] != NULL) {
-    float celsius = 0;
-    uint8_t i;
     short(*tt)[][2] = (short(*)[][2])(heater_ttbl_map[e]);
     for (uint8_t i = 1; i < heater_ttbllen_map[e]; i++) {
       const short entry10 = PGM_RD_W((*tt)[i][0]);
