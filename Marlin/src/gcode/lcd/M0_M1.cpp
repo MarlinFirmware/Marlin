@@ -58,6 +58,8 @@ void GcodeSuite::M0_M1() {
 
   const bool has_message = !hasP && !hasS && args && *args;
 
+  stepper.synchronize();
+
   #if ENABLED(ULTIPANEL)
 
     if (has_message)
@@ -80,8 +82,6 @@ void GcodeSuite::M0_M1() {
 
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   wait_for_user = true;
-
-  stepper.synchronize();
 
   if (ms > 0) {
     ms += millis();  // wait until this time for a click
