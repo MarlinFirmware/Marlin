@@ -819,15 +819,9 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
   const float esteps_float = de * e_factor[extruder];
   const int32_t esteps = abs(esteps_float) + 0.5;
 
-  // Calculate the buffer head after we push this byte
-  const uint8_t next_buffer_head = next_block_index(block_buffer_head);
-
-  // If the buffer is full: good! That means we are well ahead of the robot.
-  // Rest here until there is room in the buffer.
-  while (block_buffer_tail == next_buffer_head) idle();
-
-  // Prepare to set up new block
-  block_t* block = &block_buffer[block_buffer_head];
+  // Wait for the next available block
+  uint8_t next_buffer_head;
+  block_t * const block = get_next_free_block(next_buffer_head);
 
   // Clear all flags, including the "busy" bit
   block->flag = 0x00;
@@ -1468,6 +1462,26 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
 } // _buffer_steps()
 
 /**
+ * Planner::buffer_sync_block
+ * Add a block to the buffer that just updates the position
+ */
+void Planner::buffer_sync_block() {
+  // Wait for the next available block
+  uint8_t next_buffer_head;
+  block_t * const block = get_next_free_block(next_buffer_head);
+
+  block->steps[A_AXIS] = position[A_AXIS];
+  block->steps[B_AXIS] = position[B_AXIS];
+  block->steps[C_AXIS] = position[C_AXIS];
+  block->steps[E_AXIS] = position[E_AXIS];
+
+  block->flag = BLOCK_FLAG_SYNC_POSITION;
+
+  block_buffer_head = next_buffer_head;
+  stepper.wake_up();
+} // buffer_sync_block()
+
+/**
  * Planner::buffer_segment
  *
  * Add a new linear movement to the buffer in axis units.
@@ -1595,19 +1609,19 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
   #else
     #define _EINDEX E_AXIS
   #endif
-  const int32_t na = position[A_AXIS] = LROUND(a * axis_steps_per_mm[A_AXIS]),
-                nb = position[B_AXIS] = LROUND(b * axis_steps_per_mm[B_AXIS]),
-                nc = position[C_AXIS] = LROUND(c * axis_steps_per_mm[C_AXIS]),
-                ne = position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
+  position[A_AXIS] = LROUND(a * axis_steps_per_mm[A_AXIS]),
+  position[B_AXIS] = LROUND(b * axis_steps_per_mm[B_AXIS]),
+  position[C_AXIS] = LROUND(c * axis_steps_per_mm[C_AXIS]),
+  position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
   #if HAS_POSITION_FLOAT
-    position_float[X_AXIS] = a;
-    position_float[Y_AXIS] = b;
-    position_float[Z_AXIS] = c;
+    position_float[A_AXIS] = a;
+    position_float[B_AXIS] = b;
+    position_float[C_AXIS] = c;
     position_float[E_AXIS] = e;
   #endif
-  stepper.set_position(na, nb, nc, ne);
   previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
   ZERO(previous_speed);
+  buffer_sync_block();
 }
 
 void Planner::set_position_mm_kinematic(const float (&cart)[XYZE]) {
@@ -1655,23 +1669,23 @@ void Planner::set_position_mm(const AxisEnum axis, const float &v) {
   #if HAS_POSITION_FLOAT
     position_float[axis] = v;
   #endif
-  stepper.set_position(axis, position[axis]);
   previous_speed[axis] = 0.0;
+  buffer_sync_block();
 }
 
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
 void Planner::reset_acceleration_rates() {
   #if ENABLED(DISTINCT_E_FACTORS)
-    #define HIGHEST_CONDITION (i < E_AXIS || i == E_AXIS + active_extruder)
+    #define AXIS_CONDITION (i < E_AXIS || i == E_AXIS + active_extruder)
   #else
-    #define HIGHEST_CONDITION true
+    #define AXIS_CONDITION true
   #endif
   uint32_t highest_rate = 1;
   LOOP_XYZE_N(i) {
     max_acceleration_steps_per_s2[i] = max_acceleration_mm_per_s2[i] * axis_steps_per_mm[i];
-    if (HIGHEST_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
+    if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
-  cutoff_long = 4294967295UL / highest_rate;
+  cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
 }
 
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!
