@@ -449,18 +449,30 @@ void Stepper::isr() {
 
   // If there is no current block, attempt to pop one from the buffer
   if (!current_block) {
+
     // Anything in the buffer?
     if ((current_block = planner.get_current_block())) {
+
+      // Sync block? Sync the stepper counts and return
+      while (TEST(current_block->flag, BLOCK_BIT_SYNC_POSITION)) {
+        _set_position(
+          current_block->steps[A_AXIS], current_block->steps[B_AXIS],
+          current_block->steps[C_AXIS], current_block->steps[E_AXIS]
+        );
+        planner.discard_current_block();
+        if (!(current_block = planner.get_current_block())) return;
+      }
+
       trapezoid_generator_reset();
 
       // Initialize Bresenham counters to 1/2 the ceiling
       counter_X = counter_Y = counter_Z = counter_E = -(current_block->step_event_count >> 1);
-
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(i)
           counter_m[i] = -(current_block->mix_event_count[i] >> 1);
       #endif
 
+      // No step events completed so far
       step_events_completed = 0;
 
       #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
@@ -469,6 +481,7 @@ void Stepper::isr() {
       #endif
 
       #if ENABLED(Z_LATE_ENABLE)
+        // If delayed Z enable, postpone move for 1mS
         if (current_block->steps[Z_AXIS] > 0) {
           enable_Z();
           _NEXT_ISR(2000); // Run at slow speed - 1 KHz
@@ -595,7 +608,6 @@ void Stepper::isr() {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-
       counter_E += current_block->steps[E_AXIS];
       if (counter_E > 0) {
         #if DISABLED(MIXING_EXTRUDER)
@@ -708,7 +720,6 @@ void Stepper::isr() {
     acceleration_time += interval;
 
     #if ENABLED(LIN_ADVANCE)
-
       if (current_block->use_advance_lead) {
         if (step_events_completed == step_loops || (e_steps && eISR_Rate != current_block->advance_speed)) {
           nextAdvanceISR = 0; // Wake up eISR on first acceleration loop and fire ISR if final adv_rate is reached
@@ -719,7 +730,6 @@ void Stepper::isr() {
         eISR_Rate = ADV_NEVER;
         if (e_steps) nextAdvanceISR = 0;
       }
-
     #endif // LIN_ADVANCE
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -742,7 +752,6 @@ void Stepper::isr() {
     deceleration_time += interval;
 
     #if ENABLED(LIN_ADVANCE)
-
       if (current_block->use_advance_lead) {
         if (step_events_completed <= (uint32_t)current_block->decelerate_after + step_loops || (e_steps && eISR_Rate != current_block->advance_speed)) {
           nextAdvanceISR = 0; // Wake up eISR on first deceleration loop
@@ -753,16 +762,13 @@ void Stepper::isr() {
         eISR_Rate = ADV_NEVER;
         if (e_steps) nextAdvanceISR = 0;
       }
-
     #endif // LIN_ADVANCE
   }
   else {
 
     #if ENABLED(LIN_ADVANCE)
-
       // If we have esteps to execute, fire the next advance_isr "now"
       if (e_steps && eISR_Rate != current_block->advance_speed) nextAdvanceISR = 0;
-
     #endif
 
     SPLIT(OCR1A_nominal);  // split step into multiple ISRs if larger than ENDSTOP_NOMINAL_OCR_VAL
@@ -902,6 +908,7 @@ void Stepper::isr() {
   }
 
   void Stepper::advance_isr_scheduler() {
+
     // Run main stepping ISR if flagged
     if (!nextMainISR) isr();
 
@@ -1120,12 +1127,7 @@ void Stepper::synchronize() { while (planner.has_blocks_queued() || cleaning_buf
  * This allows get_axis_position_mm to correctly
  * derive the current XYZ position later on.
  */
-void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
-
-  synchronize(); // Bad to set stepper counts in the middle of a move
-
-  CRITICAL_SECTION_START;
-
+void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
   #if CORE_IS_XY
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
@@ -1148,21 +1150,7 @@ void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c,
     count_position[Y_AXIS] = b;
     count_position[Z_AXIS] = c;
   #endif
-
   count_position[E_AXIS] = e;
-  CRITICAL_SECTION_END;
-}
-
-void Stepper::set_position(const AxisEnum &axis, const int32_t &v) {
-  CRITICAL_SECTION_START;
-  count_position[axis] = v;
-  CRITICAL_SECTION_END;
-}
-
-void Stepper::set_e_position(const int32_t &e) {
-  CRITICAL_SECTION_START;
-  count_position[E_AXIS] = e;
-  CRITICAL_SECTION_END;
 }
 
 /**
