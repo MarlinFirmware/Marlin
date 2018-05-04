@@ -27,6 +27,10 @@
 #include "buzzer.h"
 #include "../module/temperature.h"
 
+#if ENABLED(FTDI_EVE_TOUCHSCREEN)
+  #include "../extensible-ui/ui_api.h"
+#endif
+
 Buzzer::state_t Buzzer::state;
 CircularQueue<tone_t, TONE_QUEUE_LENGTH> Buzzer::buffer;
 Buzzer buzzer;
@@ -58,7 +62,11 @@ void Buzzer::tick() {
     state.endtime = now + state.tone.duration;
 
     if (state.tone.frequency > 0) {
-      #if ENABLED(SPEAKER)
+      #if ENABLED(FTDI_EVE_TOUCHSCREEN)
+        CRITICAL_SECTION_START;
+        Marlin_LCD_API::onPlayTone(state.tone.frequency, state.tone.duration);
+        CRITICAL_SECTION_END;
+      #elif ENABLED(SPEAKER)
         CRITICAL_SECTION_START;
         ::tone(BEEPER_PIN, state.tone.frequency, state.tone.duration);
         CRITICAL_SECTION_END;

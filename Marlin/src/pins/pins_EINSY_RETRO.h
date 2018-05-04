@@ -162,11 +162,11 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if ENABLED(ULTRA_LCD) || defined(FTDI_EVE_TOUCHSCREEN)
 
   #define KILL_PIN         32
 
-  #if ENABLED(NEWPANEL)
+  #if ENABLED(NEWPANEL) || defined(FTDI_EVE_TOUCHSCREEN)
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS     85
@@ -187,7 +187,8 @@
 
     #define BTN_ENC            9   // AUX-2
     #define BEEPER_PIN        84   // AUX-4
-    #define SD_DETECT_PIN     15
+
+    #define SD_DETECT_PIN  15
 
   #endif // NEWPANEL
 #endif // ULTRA_LCD
