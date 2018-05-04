@@ -91,10 +91,10 @@ int16_t Stepper::cleaning_buffer_counter = 0;
   bool Stepper::locked_z_motor = false, Stepper::locked_z2_motor = false;
 #endif
 
-long Stepper::counter_X = 0,
-     Stepper::counter_Y = 0,
-     Stepper::counter_Z = 0,
-     Stepper::counter_E = 0;
+int32_t Stepper::counter_X = 0,
+        Stepper::counter_Y = 0,
+        Stepper::counter_Z = 0,
+        Stepper::counter_E = 0;
 
 volatile uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
 
@@ -123,13 +123,13 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #endif // LIN_ADVANCE
 
-long Stepper::acceleration_time, Stepper::deceleration_time;
+int32_t Stepper::acceleration_time, Stepper::deceleration_time;
 
-volatile long Stepper::count_position[NUM_AXIS] = { 0 };
+volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
 volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
 #if ENABLED(MIXING_EXTRUDER)
-  long Stepper::counter_m[MIXING_STEPPERS];
+  int32_t Stepper::counter_m[MIXING_STEPPERS];
 #endif
 
 uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
@@ -137,7 +137,7 @@ uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
 uint16_t Stepper::OCR1A_nominal,
          Stepper::acc_step_rate; // needed for deceleration start point
 
-volatile long Stepper::endstops_trigsteps[XYZ];
+volatile int32_t Stepper::endstops_trigsteps[XYZ];
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
   #define LOCKED_X_MOTOR  locked_x_motor
@@ -1120,7 +1120,7 @@ void Stepper::synchronize() { while (planner.has_blocks_queued() || cleaning_buf
  * This allows get_axis_position_mm to correctly
  * derive the current XYZ position later on.
  */
-void Stepper::set_position(const long &a, const long &b, const long &c, const long &e) {
+void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
 
   synchronize(); // Bad to set stepper counts in the middle of a move
 
@@ -1153,13 +1153,13 @@ void Stepper::set_position(const long &a, const long &b, const long &c, const lo
   CRITICAL_SECTION_END;
 }
 
-void Stepper::set_position(const AxisEnum &axis, const long &v) {
+void Stepper::set_position(const AxisEnum &axis, const int32_t &v) {
   CRITICAL_SECTION_START;
   count_position[axis] = v;
   CRITICAL_SECTION_END;
 }
 
-void Stepper::set_e_position(const long &e) {
+void Stepper::set_e_position(const int32_t &e) {
   CRITICAL_SECTION_START;
   count_position[E_AXIS] = e;
   CRITICAL_SECTION_END;
@@ -1168,9 +1168,9 @@ void Stepper::set_e_position(const long &e) {
 /**
  * Get a stepper's position in steps.
  */
-long Stepper::position(const AxisEnum axis) {
+int32_t Stepper::position(const AxisEnum axis) {
   CRITICAL_SECTION_START;
-  const long count_pos = count_position[axis];
+  const int32_t count_pos = count_position[axis];
   CRITICAL_SECTION_END;
   return count_pos;
 }
@@ -1239,9 +1239,9 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
 
 void Stepper::report_positions() {
   CRITICAL_SECTION_START;
-  const long xpos = count_position[X_AXIS],
-             ypos = count_position[Y_AXIS],
-             zpos = count_position[Z_AXIS];
+  const int32_t xpos = count_position[X_AXIS],
+                ypos = count_position[Y_AXIS],
+                zpos = count_position[Z_AXIS];
   CRITICAL_SECTION_END;
 
   #if CORE_IS_XY || CORE_IS_XZ || IS_DELTA || IS_SCARA
