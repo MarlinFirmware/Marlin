@@ -33,8 +33,6 @@
  */
 void GcodeSuite::G92() {
 
-  stepper.synchronize();
-
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
     switch (parser.subcode) {
       case 1:
@@ -94,10 +92,8 @@ void GcodeSuite::G92() {
       COPY(coordinate_system[active_coordinate_system], position_shift);
   #endif
 
-  if (didXYZ)
-    SYNC_PLAN_POSITION_KINEMATIC();
-  else if (didE)
-    sync_plan_position_e();
+  if    (didXYZ) SYNC_PLAN_POSITION_KINEMATIC();
+  else if (didE) sync_plan_position_e();
 
   report_current_position();
 }

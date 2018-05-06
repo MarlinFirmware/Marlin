@@ -43,8 +43,6 @@
 
   void report_current_position_detail() {
 
-    stepper.synchronize();
-
     SERIAL_PROTOCOLPGM("\nLogical:");
     const float logical[XYZ] = {
       LOGICAL_X_POSITION(current_position[X_AXIS]),
@@ -78,6 +76,8 @@
       inverse_kinematics(leveled);  // writes delta[]
       report_xyz(delta);
     #endif
+
+    stepper.synchronize();
 
     SERIAL_PROTOCOLPGM("Stepper:");
     LOOP_XYZE(i) {
