@@ -839,8 +839,7 @@
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE XY_PROBE_SPEED
 
   #define Z_PROBE_ALLEN_KEY_STOW_DEPTH 20
-  // Move the probe into position
-  #define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0
+  #define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0 // Move the probe into position
   #define Z_PROBE_ALLEN_KEY_STOW_1_Y 56.0
   #define Z_PROBE_ALLEN_KEY_STOW_1_Z 23.0
   #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_PROBE_SPEED
