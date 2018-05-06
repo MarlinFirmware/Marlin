@@ -154,6 +154,10 @@
   #include "feature/controllerfan.h"
 #endif
 
+#if defined(FTDI_EVE_TOUCHSCREEN)
+  #include "extensible-ui/ui_api.h"
+#endif
+
 bool Running = true;
 
 /**
@@ -581,7 +585,9 @@ void kill(const char* lcd_msg) {
   thermalManager.disable_all_heaters();
   disable_all_steppers();
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(FTDI_EVE_TOUCHSCREEN)
+    Marlin_LCD_API::onPrinterKilled(lcd_msg);
+  #elif ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);

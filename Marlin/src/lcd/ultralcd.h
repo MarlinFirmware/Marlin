@@ -30,6 +30,16 @@
   bool lcd_detected();
   void lcd_update();
   void lcd_setalertstatusPGM(const char* message);
+#elif defined(FTDI_EVE_TOUCHSCREEN)
+  // We will use our own definitions of these functions
+  void lcd_setstatusPGM(const char * const message, int8_t level = 0);
+  void lcd_refresh();
+  bool lcd_hasstatus();
+  void lcd_reset_alert_level();
+  void lcd_setalertstatusPGM(const char * const message);
+  void lcd_setstatus(const char * const message, const bool persist = false);
+  void lcd_reset_status();
+  void lcd_init();
 #else
   inline void lcd_init() {}
   inline bool lcd_detected() { return true; }
@@ -238,6 +248,8 @@
     void wait_for_release();
   #endif
 
+#elif defined(FTDI_EVE_TOUCHSCREEN)
+  // We will use our own definitions for these functions.
 #else // MALYAN_LCD or no LCD
 
   constexpr bool lcd_wait_for_move = false;

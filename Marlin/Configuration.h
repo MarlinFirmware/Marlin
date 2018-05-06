@@ -1400,6 +1400,7 @@
  */
 //#define ULTRA_LCD   // Character based
 //#define DOGLCD      // Full graphics display
+//#define FTDI_EVE_TOUCHSCREEN  // Display based on the FTDI EVE chipset
 
 /**
  * SD CARD

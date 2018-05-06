@@ -49,7 +49,6 @@
 #define Z_DIAG_PIN         36   // PC4 Z_DIAG
 #define E0_DIAG_PIN        78   // PB23 E1_DIAG
 #define E1_DIAG_PIN        25   // PD0 E2_DIAG
-
 //
 // Limit Switches
 //
@@ -82,6 +81,7 @@
  #define Z_MIN_PIN          31   // PA7 MIN ES3
  #define Z_MAX_PIN          30   // PD9 MAX ES3
 
+
 //
 // Z Probe (when not Z_MIN_PIN)
 //
@@ -99,12 +99,14 @@
   #define X_CS_PIN         39   // PC7 X_nCS
 #endif
 
+
 #define Y_STEP_PIN         51   // PC12 Y-STEP *
 #define Y_DIR_PIN          92   // PC11 Y-DIR -AddOns *
 #define Y_ENABLE_PIN       49   // PC14 Y-EN *
 #ifndef Y_CS_PIN
   #define Y_CS_PIN         50   // PC13 Y_nCS
 #endif
+
 
 #define Z_STEP_PIN         46   // PC17 Z-STEP *
 #define Z_DIR_PIN          47   // PC16 Z-DIR *
@@ -113,6 +115,7 @@
   #define Z_CS_PIN         45   // PC18 Z_nCS
 #endif
 
+
 #define E0_STEP_PIN       107   // PB10 E1-STEP -AddOns *
 #define E0_DIR_PIN         96   // PC10 E1-DIR -AddOns *
 #define E0_ENABLE_PIN     105   // PB22 E1-EN -AddOns *
@@ -120,12 +123,14 @@
   #define E0_CS_PIN       104   // PC20 E1_nCS -AddOns *
 #endif
 
+
 #define E1_STEP_PIN        22   // PB26 E2_STEP *
 #define E1_DIR_PIN         97   // PB24 E2_DIR -AddOns *
 #define E1_ENABLE_PIN      18   // PA11 E2-EN
 #ifndef E1_CS_PIN
   #define E1_CS_PIN        19   // PA10 E2_nCS
 #endif
+
 
 //
 // Software SPI pins for TMC2130 stepper drivers.
@@ -156,17 +161,19 @@
 #define HEATER_2_PIN        8   // D8 PC22 FET_PWM5
 #define HEATER_BED_PIN      9   // D9 PC21 BED_PWM
 
+
 //
 // Misc. Functions
 //
 #define SDSS               87   // D87 PA29 CS
 
+
 //////////////////////////
 // LCDs and Controllers //
 //////////////////////////
 
-#if ENABLED(ULTRA_LCD)
-  #if ENABLED(NEWPANEL)
+#if ENABLED(ULTRA_LCD)  || defined(FTDI_EVE_TOUCHSCREEN)
+  #if ENABLED(NEWPANEL) || defined(FTDI_EVE_TOUCHSCREEN)
     #define BEEPER_PIN     23   // D24 PA15_CTS1
     #define LCD_PINS_RS    17   // D17 PA12_RXD1
     #define LCD_PINS_ENABLE 24  // D23 PA14_RTS1
