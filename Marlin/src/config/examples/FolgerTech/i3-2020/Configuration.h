@@ -998,10 +998,10 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  //#define LEFT_PROBE_BED_POSITION (X_MIN_POS + 33)
-  //#define RIGHT_PROBE_BED_POSITION (X_MAX_POS - 37)
-  //#define FRONT_PROBE_BED_POSITION (Y_MIN_POS + 7)
-  //#define BACK_PROBE_BED_POSITION (Y_MAX_POS - 12)
+  //#define LEFT_PROBE_BED_POSITION MIN_PROBE_EDGE
+  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - MIN_PROBE_EDGE)
+  //#define FRONT_PROBE_BED_POSITION MIN_PROBE_EDGE
+  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - MIN_PROBE_EDGE)
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1024,17 +1024,6 @@
 
   #endif
 
-#elif ENABLED(AUTO_BED_LEVELING_3POINT)
-
-  // 3 arbitrary points to probe.
-  // A simple cross-product is used to estimate the plane of the bed.
-  #define PROBE_PT_1_X 39
-  #define PROBE_PT_1_Y 170
-  #define PROBE_PT_2_X 39
-  #define PROBE_PT_2_Y 10
-  #define PROBE_PT_3_X 170
-  #define PROBE_PT_3_Y 10
-
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
   //===========================================================================
@@ -1045,14 +1034,7 @@
 
   #define MESH_INSET 0              // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
-  #define GRID_MAX_POINTS_Y 10
-
-  #define PROBE_PT_1_X 45       // Probing points for 3-Point leveling of the mesh
-  #define PROBE_PT_1_Y 170
-  #define PROBE_PT_2_X 45
-  #define PROBE_PT_2_Y 25
-  #define PROBE_PT_3_X 180
-  #define PROBE_PT_3_Y 25
+  #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
   #define UBL_SAVE_ACTIVE_ON_M500   // Save the currently active mesh in the current slot on M500
@@ -1079,12 +1061,12 @@
  * Override if the automatically selected points are inadequate.
  */
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
-  //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 180
-  //#define PROBE_PT_2_X 15
-  //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 170
-  //#define PROBE_PT_3_Y 20
+  #define PROBE_PT_1_X 45
+  #define PROBE_PT_1_Y 170
+  #define PROBE_PT_2_X 45
+  #define PROBE_PT_2_Y 25
+  #define PROBE_PT_3_X 180
+  #define PROBE_PT_3_Y 25
 #endif
 
 /**

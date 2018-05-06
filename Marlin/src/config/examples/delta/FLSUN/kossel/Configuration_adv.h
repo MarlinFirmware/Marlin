@@ -1243,7 +1243,7 @@
    *   stepperY.interpolate(0); \
    * }
    */
-  #define  TMC_ADV() {  }
+  #define TMC_ADV() {  }
 
 #endif // TMC2130 || TMC2208
 
