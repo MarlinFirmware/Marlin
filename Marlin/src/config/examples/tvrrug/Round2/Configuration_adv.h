@@ -951,7 +951,6 @@
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.
   //#define ADVANCED_PAUSE_CONTINUOUS_PURGE       // Purge continuously up to the purge length until interrupted.
-  //#define ADVANCED_PAUSE_CONTINUOUS_PURGE       // Purge continuously up to the purge length until interrupted.
   #define ADVANCED_PAUSE_PURGE_FEEDRATE        3  // (mm/s) Extrude feedrate (after loading). Should be slower than load feedrate.
   #define ADVANCED_PAUSE_PURGE_LENGTH         50  // (mm) Length to extrude after loading.
                                                   //   Set to 0 for manual extrusion.
@@ -1242,7 +1241,7 @@
    *   stepperY.interpolate(0); \
    * }
    */
-  #define  TMC_ADV() {  }
+  #define TMC_ADV() {  }
 
 #endif // TMC2130 || TMC2208
 

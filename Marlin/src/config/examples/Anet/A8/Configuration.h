@@ -999,10 +999,10 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  //#define LEFT_PROBE_BED_POSITION 15
-  //#define RIGHT_PROBE_BED_POSITION 190
-  //#define FRONT_PROBE_BED_POSITION 15
-  //#define BACK_PROBE_BED_POSITION 170
+  //#define LEFT_PROBE_BED_POSITION MIN_PROBE_EDGE
+  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - MIN_PROBE_EDGE)
+  //#define FRONT_PROBE_BED_POSITION MIN_PROBE_EDGE
+  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - MIN_PROBE_EDGE)
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1024,17 +1024,6 @@
     #endif
 
   #endif
-
-#elif ENABLED(AUTO_BED_LEVELING_3POINT)
-
-  // 3 arbitrary points to probe.
-  // A simple cross-product is used to estimate the plane of the bed.
-  #define PROBE_PT_1_X 20
-  #define PROBE_PT_1_Y 160
-  #define PROBE_PT_2_X 20
-  #define PROBE_PT_2_Y 10
-  #define PROBE_PT_3_X 180
-  #define PROBE_PT_3_Y 10
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -1073,12 +1062,12 @@
  * Override if the automatically selected points are inadequate.
  */
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
-  //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 180
-  //#define PROBE_PT_2_X 15
-  //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 170
-  //#define PROBE_PT_3_Y 20
+  #define PROBE_PT_1_X 20
+  #define PROBE_PT_1_Y 160
+  #define PROBE_PT_2_X 20
+  #define PROBE_PT_2_Y 10
+  #define PROBE_PT_3_X 180
+  #define PROBE_PT_3_Y 10
 #endif
 
 /**

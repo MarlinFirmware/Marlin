@@ -113,9 +113,9 @@ void Max7219_LED_Set(const uint8_t col, const uint8_t row, const bool on) {
     SERIAL_ECHOLNPGM(")");
     return;
   }
-  if (TEST(LEDs[row], col) == on) return; // if LED is already on/off, leave alone
-  if (on) SBI(LEDs[row], col); else CBI(LEDs[row], col);
-  Max7219(8 - row, LEDs[row]);
+  if (TEST(LEDs[col], row) == on) return; // if LED is already on/off, leave alone
+  if (on) SBI(LEDs[col], row); else CBI(LEDs[col], row);
+  Max7219(8 - col, LEDs[col]);
 }
 
 void Max7219_LED_On(const uint8_t col, const uint8_t row) {

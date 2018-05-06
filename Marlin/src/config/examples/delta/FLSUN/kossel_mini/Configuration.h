@@ -871,8 +871,7 @@
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE XY_PROBE_SPEED
 
   #define Z_PROBE_ALLEN_KEY_STOW_DEPTH 20
-  // Move the probe into position
-  #define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0
+  #define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0 // Move the probe into position
   #define Z_PROBE_ALLEN_KEY_STOW_1_Y 56.0
   #define Z_PROBE_ALLEN_KEY_STOW_1_Z 23.0
   #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_PROBE_SPEED
@@ -1120,6 +1119,7 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
+  // Works best with 5 or more points in each dimension.
   #define GRID_MAX_POINTS_X 9
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 

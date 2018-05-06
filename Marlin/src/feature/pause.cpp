@@ -121,8 +121,8 @@ static void do_pause_e_move(const float &length, const float &fr) {
   set_destination_from_current();
   destination[E_AXIS] += length / planner.e_factor[active_extruder];
   planner.buffer_line_kinematic(destination, fr, active_extruder);
-  stepper.synchronize();
   set_current_from_destination();
+  stepper.synchronize();
 }
 
 /**
@@ -366,11 +366,11 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   #endif
   print_job_timer.pause();
 
-  // Wait for synchronize steppers
-  stepper.synchronize();
-
   // Save current position
   COPY(resume_position, current_position);
+
+  // Wait for buffered blocks to complete
+  stepper.synchronize();
 
   // Initial retract before move to filament change position
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder))

@@ -74,7 +74,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(Rob Mendon, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(Phr3d13, default config)" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
@@ -133,12 +133,12 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ULTIMAIN_2
+  #define MOTHERBOARD BOARD_GT2560_REV_A
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "Duplicator 6"
+#define CUSTOM_MACHINE_NAME "Pro C"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -148,7 +148,7 @@
 
 // This defines the number of extruders
 // :[1, 2, 3, 4, 5]
-#define EXTRUDERS 1
+#define EXTRUDERS 2
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
@@ -226,7 +226,7 @@
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-//#define HOTEND_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
+#define HOTEND_OFFSET_X {0.0, 32.00} // (in mm) for each extruder, offset of the hotend on the X axis
 //#define HOTEND_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 // @section machine
@@ -310,8 +310,8 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-4':"Thermocouple + AD8495", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 20
-#define TEMP_SENSOR_1 0
+#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_1 1
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -350,12 +350,12 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 260
+#define HEATER_0_MAXTEMP 275
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
-#define BED_MAXTEMP 120
+#define BED_MAXTEMP 150
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -368,7 +368,7 @@
 #define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #define PID_K1 0.95      // Smoothing factor within any PID loop
 #if ENABLED(PIDTEMP)
-  #define PID_AUTOTUNE_MENU // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result.
+  //#define PID_AUTOTUNE_MENU // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result.
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
@@ -380,9 +380,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  //#define DEFAULT_Kp 22.2
-  //#define DEFAULT_Ki 1.08
-  //#define DEFAULT_Kd 114
+  #define DEFAULT_Kp 22.2
+  #define DEFAULT_Ki 1.08
+  #define DEFAULT_Kd 114
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -393,11 +393,6 @@
   //#define DEFAULT_Kp 63.0
   //#define DEFAULT_Ki 2.25
   //#define DEFAULT_Kd 440
-
-  // Duplicator 6
-  #define DEFAULT_Kp 9.12
-  #define DEFAULT_Ki 0.41
-  #define DEFAULT_Kd 50.98
 
 #endif // PIDTEMP
 
@@ -418,7 +413,7 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
-#define PIDTEMPBED
+//#define PIDTEMPBED
 
 //#define BED_LIMIT_SWITCHING
 
@@ -436,20 +431,15 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-//  #define DEFAULT_bedKp 10.00
-//  #define DEFAULT_bedKi .023
-//  #define DEFAULT_bedKd 305.4
+  #define DEFAULT_bedKp 10.00
+  #define DEFAULT_bedKi .023
+  #define DEFAULT_bedKd 305.4
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
   //#define DEFAULT_bedKp 97.1
   //#define DEFAULT_bedKi 1.41
   //#define DEFAULT_bedKd 1675.16
-
-  // Duplicator 6
-  #define DEFAULT_bedKp 124.55
-  #define DEFAULT_bedKi 23.46
-  #define DEFAULT_bedKd 165.29
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -546,9 +536,9 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -576,14 +566,14 @@
  * following movement settings. If fewer factors are given than the
  * total number of extruders, the last value applies to the rest.
  */
-//#define DISTINCT_E_FACTORS
+#define DISTINCT_E_FACTORS
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.0395, 80.0395, 400.48, 99.1 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 2560, 95, 95 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -598,7 +588,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 500 }
+#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -608,8 +598,8 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          1500    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1500    // E acceleration for retracts
+#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
@@ -623,7 +613,7 @@
 #define DEFAULT_XJERK                 10.0
 #define DEFAULT_YJERK                 10.0
 #define DEFAULT_ZJERK                  0.3
-#define DEFAULT_EJERK                  1.0
+#define DEFAULT_EJERK                  5.0
 
 /**
  * Realtime Jerk Control
@@ -650,7 +640,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-//#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
 /**
  * Z_MIN_PROBE_ENDSTOP
@@ -824,7 +814,7 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR false
-#define INVERT_Z_DIR true
+#define INVERT_Z_DIR false
 
 // Enable this option for Toshiba stepper drivers
 //#define CONFIG_STEPPERS_TOSHIBA
@@ -865,7 +855,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 170
+#define Z_MAX_POS 180
 
 /**
  * Software Endstops
@@ -1233,12 +1223,12 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     70
+#define PREHEAT_1_TEMP_HOTEND 200
+#define PREHEAT_1_TEMP_BED     65
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_TEMP_HOTEND 235
+#define PREHEAT_2_TEMP_BED    95
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 /**
@@ -1451,13 +1441,13 @@
 // This option overrides the default number of encoder pulses needed to
 // produce one step. Should be increased for high-resolution encoders.
 //
-#define ENCODER_PULSES_PER_STEP 2
+//#define ENCODER_PULSES_PER_STEP 4
 
 //
 // Use this option to override the number of step signals required to
 // move between next/prev menu items.
 //
-#define ENCODER_STEPS_PER_MENU_ITEM 1
+//#define ENCODER_STEPS_PER_MENU_ITEM 1
 
 /**
  * Encoder Direction Options
@@ -1474,7 +1464,7 @@
 //
 //  Set this option if CLOCKWISE causes values to DECREASE
 //
-#define REVERSE_ENCODER_DIRECTION
+//#define REVERSE_ENCODER_DIRECTION
 
 //
 // This option reverses the encoder direction for navigating LCD menus.
@@ -1489,7 +1479,7 @@
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-#define INDIVIDUAL_AXIS_HOMING_MENU
+//#define INDIVIDUAL_AXIS_HOMING_MENU
 
 //
 // SPEAKER/BUZZER
@@ -1506,8 +1496,8 @@
 // Note: Test audio output with the G-Code:
 //  M300 S<frequency Hz> P<duration ms>
 //
-#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 5
-#define LCD_FEEDBACK_FREQUENCY_HZ 1000
+//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
+//#define LCD_FEEDBACK_FREQUENCY_HZ 5000
 
 //
 // CONTROLLER TYPE: Standard
@@ -1530,7 +1520,7 @@
 //
 // ULTIPANEL as seen on Thingiverse.
 //
-#define ULTIPANEL
+//#define ULTIPANEL
 
 //
 // PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
@@ -1570,7 +1560,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 //
 // GADGETS3D G3D LCD/SD Controller
@@ -1691,10 +1681,7 @@
 //
 // SSD1306 OLED full graphics generic display
 //
-#define U8GLIB_SSD1306
-#define LCD_WIDTH 22
-#define LCD_HEIGHT 5
-#define LCD_RESET_PIN 5
+//#define U8GLIB_SSD1306
 
 //
 // SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
@@ -1811,7 +1798,7 @@
 //#define BLINKM
 
 // Support for PCA9632 PWM LED driver
-#define PCA9632
+//#define PCA9632
 
 /**
  * RGB LED / LED Strip Control

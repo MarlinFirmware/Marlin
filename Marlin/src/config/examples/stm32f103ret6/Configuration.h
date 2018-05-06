@@ -606,7 +606,7 @@
 
 /**
  * Default Jerk (mm/s)
- * Override with M205 X Y Z EM
+ * Override with M205 X Y Z E
  *
  * "Jerk" specifies the minimum speed change that requires acceleration.
  * When changing speed and direction, if the difference is less than the
@@ -711,6 +711,7 @@
   //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
 #endif
 //#define PROBING_FANS_OFF          // Turn fans off when probing
+//#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 //#define SOLENOID_PROBE
@@ -1209,7 +1210,7 @@
 //
 // M100 Free Memory Watcher
 //
-//#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
+//#define M100_FREE_MEMORY_WATCHER    // Add M100 (Free Memory Watcher) to debug memory usage
 
 //
 // G20/G21 Inch mode support
