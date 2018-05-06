@@ -1031,8 +1031,7 @@
  * You may also use software SPI if you wish to use general purpose IO pins.
  */
 //#define HAVE_TMC2130
-#if ENABLED(HAVE_TMC2130)
-  // Choose your axes here. This is mandatory!
+#if ENABLED(HAVE_TMC2130)  // Choose your axes here. This is mandatory!
   //#define X_IS_TMC2130
   //#define X2_IS_TMC2130
   //#define Y_IS_TMC2130
@@ -1219,7 +1218,7 @@
    *   stepperY.interpolate(0); \
    * }
    */
-  #define  TMC_ADV() {  }
+  #define TMC_ADV() {  }
 
 #endif // TMC2130 || TMC2208
 

@@ -864,6 +864,7 @@
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
+
 #define Z_PROBE_OFFSET_RANGE_MIN -15
 #define Z_PROBE_OFFSET_RANGE_MAX   5
 
