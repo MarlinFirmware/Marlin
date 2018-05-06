@@ -713,7 +713,7 @@
   //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
   #define BABYSTEP_MULTIPLICATOR 1   // Babysteps are very small. Increase for faster motion.
-  #if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC) || ENABLED(SERVO_PROBE)
+  #if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC) || ENABLED(SERVO_PROBE) || ENABLED(NOZZLE_PROBE)
     #define BABYSTEP_ZPROBE_OFFSET     // Enable to combine M851 and Babystepping
   #endif
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.

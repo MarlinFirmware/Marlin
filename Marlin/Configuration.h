@@ -84,6 +84,7 @@
 //#define INDUCTIVE_NO  // Normally open inductive sensor
 //#define INDUCTIVE_NC  // Normally closed inductive sensor
 //#define SERVO_PROBE   // Endstop switch on rotating arm. Set servo angles!
+//#define NOZZLE_PROBE	// Nozzle wired up to contact metal on bed
 
 /**
  * Bed leveling type (see: https://github.com/JimBrown/MarlinTarantula/wiki/Bed-leveling-types-(EasyConfig))
@@ -787,7 +788,7 @@
   //#define ENDSTOPPULLUP_ZMAX
   #define ENDSTOPPULLUP_XMIN
   #define ENDSTOPPULLUP_YMIN
-  #if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO)
+  #if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO) || ENABLED(NOZZLE_PROBE)
     //#define ENDSTOPPULLUP_ZMIN
     #define ENDSTOPPULLUP_ZMIN_PROBE
   #else
@@ -824,7 +825,7 @@
 //#define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #if ENABLED(BLTOUCH) || ENABLED(INDUCTIVE_NC)
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#elif ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE)
+#elif ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE) || ENABLED(NOZZLE_PROBE)
   #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
   //#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -940,7 +941,7 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC) || ENABLED(SERVO_PROBE)
+#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC) || ENABLED(SERVO_PROBE) || ENABLED(NOZZLE_PROBE)
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 
@@ -985,7 +986,7 @@
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-#if ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO)
+#if ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO) || ENABLED(NOZZLE_PROBE)
   #define FIX_MOUNTED_PROBE
 #endif
 
@@ -1094,7 +1095,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-#if (ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE)) && DISABLED(MANUAL)
+#if (ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE) || ENABLED(NOZZLE_PROBE)) && DISABLED(MANUAL)
   #define Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
@@ -1324,7 +1325,7 @@
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC) || ENABLED(SERVO_PROBE) || ENABLED(MANUAL)
+#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NO) || ENABLED(INDUCTIVE_NC) || ENABLED(SERVO_PROBE) || ENABLED(NOZZLE_PROBE) || ENABLED(MANUAL)
   #define RESTORE_LEVELING_AFTER_G28
 #endif
 
@@ -1442,7 +1443,7 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if DISABLED(BLTOUCH) && DISABLED(SN04) && DISABLED(INDUCTIVE_NC) && DISABLED(INDUCTIVE_NO) && DISABLED(SERVO_PROBE) && ENABLED(MANUAL)
+#if DISABLED(BLTOUCH) && DISABLED(SN04) && DISABLED(INDUCTIVE_NC) && DISABLED(INDUCTIVE_NO) && DISABLED(SERVO_PROBE) && DISABLED(NOZZLE_PROBE) && ENABLED(MANUAL)
   #define LCD_BED_LEVELING
 #endif
 
