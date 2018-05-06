@@ -2035,12 +2035,27 @@ void Planner::buffer_sync_block() {
   uint8_t next_buffer_head;
   block_t * const block = get_next_free_block(next_buffer_head);
 
+  block->flag = BLOCK_FLAG_SYNC_POSITION;
+
   block->steps[A_AXIS] = position[A_AXIS];
   block->steps[B_AXIS] = position[B_AXIS];
   block->steps[C_AXIS] = position[C_AXIS];
   block->steps[E_AXIS] = position[E_AXIS];
 
-  block->flag = BLOCK_FLAG_SYNC_POSITION;
+  block->use_advance_lead = false;
+
+  block->nominal_speed   =
+  block->entry_speed     =
+  block->max_entry_speed =
+  block->millimeters     =  
+  block->acceleration    = 0;
+
+  block->step_event_count          =
+  block->nominal_rate              =
+  block->initial_rate              =
+  block->final_rate                =
+  block->acceleration_steps_per_s2 =
+  block->segment_time_us           = 0;
 
   block_buffer_head = next_buffer_head;
   stepper.wake_up();
