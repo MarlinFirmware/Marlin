@@ -993,8 +993,12 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * SAV_3DGLCD display options
  */
-#if ENABLED(U8GLIB_SSD1306) && ENABLED(U8GLIB_SH1106)
-  #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+#if ENABLED(SAV_3DGLCD)
+  #if DISABLED(U8GLIB_SSD1306) && DISABLED(U8GLIB_SH1106)
+    #error "Enable a SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+  #elif ENABLED(U8GLIB_SSD1306) && ENABLED(U8GLIB_SH1106)
+    #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+  #endif
 #endif
 
 /**
