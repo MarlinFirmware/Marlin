@@ -40,6 +40,8 @@
   void lcd_setstatus(const char * const message, const bool persist = false);
   void lcd_reset_status();
   void lcd_init();
+  void lcd_update();
+  void lcd_buttons_update();
 #else
   inline void lcd_init() {}
   inline bool lcd_detected() { return true; }
