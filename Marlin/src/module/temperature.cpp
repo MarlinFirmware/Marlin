@@ -2014,8 +2014,10 @@ void Temperature::isr() {
   //
   // Update lcd buttons 488 times per second
   //
-  static bool do_buttons;
-  if ((do_buttons ^= true)) lcd_buttons_update();
+  #if ENABLED(ULTIPANEL)
+    static bool do_buttons;
+    if ((do_buttons ^= true)) lcd_buttons_update();
+  #endif
 
   /**
    * One sensor is sampled on every other call of the ISR.

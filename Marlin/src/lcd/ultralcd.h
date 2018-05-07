@@ -25,16 +25,31 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
   void lcd_init();
   bool lcd_detected();
   void lcd_update();
   void lcd_setalertstatusPGM(const char* message);
-#else
+#else // No LCD
   inline void lcd_init() {}
   inline bool lcd_detected() { return true; }
   inline void lcd_update() {}
   inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
+#endif
+
+#if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+  // These functions are defined in "src/extensible_ui/ui_api.cpp"
+  bool lcd_hasstatus();
+  void lcd_setstatus(const char * const message, const bool persist=false);
+  void lcd_setstatusPGM(const char * const message, const int8_t level=0);
+  void lcd_reset_alert_level();
+  void lcd_reset_status();
+#else // MALYAN_LCD or no LCD
+  inline bool lcd_hasstatus() { return false; }
+  inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
+  inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
+  inline void lcd_reset_alert_level() {}
+  inline void lcd_reset_status() {}
 #endif
 
 #if ENABLED(ULTRA_LCD)
@@ -45,13 +60,6 @@
     #include "../feature/pause.h"
   #endif
 
-
-  bool lcd_hasstatus();
-  void lcd_setstatus(const char* message, const bool persist=false);
-  void lcd_setstatusPGM(const char* message, const int8_t level=0);
-  void lcd_setalertstatusPGM(const char* message);
-  void lcd_reset_alert_level();
-  void lcd_reset_status();
   void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
@@ -155,11 +163,7 @@
       float lcd_z_offset_edit();
     #endif
 
-  #else
-
-    inline void lcd_buttons_update() {}
-
-  #endif
+  #endif // ULTIPANEL
 
   #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
     extern millis_t previous_lcd_status_ms;
@@ -167,7 +171,7 @@
 
   bool lcd_blink();
 
-  #if ENABLED(REPRAPWORLD_KEYPAD) // is also ULTIPANEL and NEWPANEL
+  #if ENABLED(REPRAPWORLD_KEYPAD)
 
     #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
 
@@ -243,15 +247,9 @@
   constexpr bool lcd_wait_for_move = false;
 
   inline void lcd_refresh() {}
-  inline void lcd_buttons_update() {}
-  inline bool lcd_hasstatus() { return false; }
-  inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
-  inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
   inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
-  inline void lcd_reset_alert_level() {}
-  inline void lcd_reset_status() {}
 
-#endif // ULTRA_LCD
+#endif
 
 #define LCD_MESSAGEPGM(x)      lcd_setstatusPGM(PSTR(x))
 #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatusPGM(PSTR(x))
