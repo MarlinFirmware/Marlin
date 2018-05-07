@@ -42,11 +42,12 @@
  * the bleeding-edge source code, but sometimes this is not enough. This check
  * forces a minimum config file revision. Otherwise Marlin will not build.
  */
-#if !defined(CONFIGURATION_H_VERSION) || CONFIGURATION_H_VERSION < REQUIRED_CONFIGURATION_H_VERSION
+#define HEXIFY(H) _CAT(0x,H)
+#if !defined(CONFIGURATION_H_VERSION) || HEXIFY(CONFIGURATION_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
   #error "You are using an old Configuration.h file, update it before building Marlin."
 #endif
 
-#if !defined(CONFIGURATION_ADV_H_VERSION) || CONFIGURATION_ADV_H_VERSION < REQUIRED_CONFIGURATION_ADV_H_VERSION
+#if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
   #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
 
@@ -965,8 +966,12 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * SAV_3DGLCD display options
  */
-#if ENABLED(U8GLIB_SSD1306) && ENABLED(U8GLIB_SH1106)
-  #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+#if ENABLED(SAV_3DGLCD)
+  #if DISABLED(U8GLIB_SSD1306) && DISABLED(U8GLIB_SH1106)
+    #error "Only a SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+  #elif ENABLED(U8GLIB_SSD1306) && ENABLED(U8GLIB_SH1106)
+    #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+  #endif
 #endif
 
 /**
