@@ -138,13 +138,13 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)
+#if ENABLED(ULTRA_LCD) || defined(EXTENSIBLE_UI)
 
   #if !MB(MINIRAMBO_10A)
     #define KILL_PIN       32
   #endif
 
-  #if ENABLED(NEWPANEL)
+  #if ENABLED(NEWPANEL) || defined(EXTENSIBLE_UI)
 
     #if MB(MINIRAMBO_10A)
 

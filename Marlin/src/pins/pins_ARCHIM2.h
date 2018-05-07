@@ -165,8 +165,8 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if ENABLED(ULTRA_LCD)
-  #if ENABLED(NEWPANEL)
+#if ENABLED(ULTRA_LCD)  || defined(EXTENSIBLE_UI)
+  #if ENABLED(NEWPANEL) || defined(EXTENSIBLE_UI)
     #define BEEPER_PIN     23   // D24 PA15_CTS1
     #define LCD_PINS_RS    17   // D17 PA12_RXD1
     #define LCD_PINS_ENABLE 24  // D23 PA14_RTS1
