@@ -291,7 +291,7 @@ static inline __attribute__((always_inline)) uint32_t read_psp(void) {
   /* Read the current PSP and return its value as a pointer */
   uint32_t psp;
 
-  __asm volatile (
+  __asm__ volatile (
     "   mrs %0, psp \n"
     : "=r" (psp) : :
   );
