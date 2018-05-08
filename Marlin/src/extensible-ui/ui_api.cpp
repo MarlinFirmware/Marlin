@@ -230,12 +230,8 @@ namespace Extensible_UI_API {
   }
 
   bool isMediaInserted() {
-    #if (ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)) || ENABLED(USE_USB_STICK)
-      #if ENABLED(USE_USB_STICK)
-        return Sd2Card::isInserted();
-      #else
-        return IS_SD_INSERTED;
-      #endif
+    #if ENABLED(SDSUPPORT)
+      return IS_SD_INSERTED;
     #else
       return false;
     #endif
@@ -248,7 +244,7 @@ namespace Extensible_UI_API {
       #if ENABLED(PARK_HEAD_ON_PAUSE)
         enqueue_and_echo_commands_P(PSTR("M125"));
       #endif
-      lcd_setstatusPGM(PSTR(MSG_PRINT_PAUSED), -1);
+      Extensible_UI_API::onStatusChanged(PSTR(MSG_PRINT_PAUSED));
     #endif
   }
 
@@ -274,7 +270,7 @@ namespace Extensible_UI_API {
         for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
       #endif
       wait_for_heatup = false;
-      lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
+      Extensible_UI_API::onStatusChanged(PSTR(MSG_PRINT_ABORTED));
     #endif
   }
 
@@ -358,20 +354,20 @@ void lcd_init() {
 }
 
 void lcd_update() {
-  #if (ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)) || ENABLED(USE_USB_STICK)
-    const bool sd_status = isMediaInserted();
+  #if ENABLED(SDSUPPORT)
+    const bool sd_status = Extensible_UI_API::isMediaInserted();
     if (sd_status != lcd_sd_status) {
       if (sd_status) {
         card.initsd();
-        if (lcd_sd_status != 2) onCardInserted();
+        if (lcd_sd_status != 2) Extensible_UI_API::onMediaInserted();
       }
       else {
         card.release();
-        if (lcd_sd_status != 2) onCardRemoved();
+        if (lcd_sd_status != 2) Extensible_UI_API::onMediaRemoved();
       }
       lcd_sd_status = sd_status;
     }
-  #endif // SDSUPPORT && SD_DETECT_PIN
+  #endif // SDSUPPORT
   Extensible_UI_API::onUpdate();
 }
 
