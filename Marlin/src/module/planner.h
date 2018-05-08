@@ -404,19 +404,24 @@ class Planner {
 
     #endif // SKEW_CORRECTION
 
-    #if PLANNER_LEVELING
-
-      #define ARG_X float rx
-      #define ARG_Y float ry
-      #define ARG_Z float rz
+    #if PLANNER_LEVELING || HAS_UBL_AND_CURVES
 
       /**
        * Apply leveling to transform a cartesian position
        * as it will be given to the planner and steppers.
        */
       static void apply_leveling(float &rx, float &ry, float &rz);
-      static void apply_leveling(float (&raw)[XYZ]) { apply_leveling(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
-      static void unapply_leveling(float raw[XYZ]);
+      FORCE_INLINE static void apply_leveling(float (&raw)[XYZ]) { apply_leveling(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
+
+      #if PLANNER_LEVELING
+
+        #define ARG_X float rx
+        #define ARG_Y float ry
+        #define ARG_Z float rz
+
+        static void unapply_leveling(float raw[XYZ]);
+
+      #endif
 
     #else
 
