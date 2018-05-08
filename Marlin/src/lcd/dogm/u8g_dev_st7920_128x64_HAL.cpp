@@ -75,7 +75,7 @@ static const uint8_t u8g_dev_st7920_128x64_HAL_init_seq[] PROGMEM = {
   U8G_ESC_DLY(50),    // delay 50 ms
 
   0x038,              // 8 Bit interface (DL=1), basic instruction set (RE=0)
-  0x00c,              // display on, cursor & blink off; 0x08: all off
+  0x00C,              // display on, cursor & blink off; 0x08: all off
   0x006,              // Entry mode: Cursor move to right ,DDRAM address counter (AC) plus 1, no shift
   0x002,              // disable scroll, enable CGRAM adress
   0x001,              // clear RAM, needs 1.6 ms
@@ -125,7 +125,7 @@ uint8_t u8g_dev_st7920_128x64_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       ptr = (uint8_t *)pb->buf;
       for (i = 0; i < 8; i ++) {
         u8g_SetAddress(u8g, dev, 0);           /* cmd mode */
-        u8g_WriteByte(u8g, dev, 0x03e );      /* enable extended mode */
+        u8g_WriteByte(u8g, dev, 0x03E );      /* enable extended mode */
 
         if (y < 32) {
           u8g_WriteByte(u8g, dev, 0x080 | y );      /* y pos  */
@@ -170,7 +170,7 @@ uint8_t u8g_dev_st7920_128x64_HAL_4x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
       ptr = (uint8_t *)pb->buf;
       for (i = 0; i < 32; i ++) {
         u8g_SetAddress(u8g, dev, 0);           /* cmd mode */
-        u8g_WriteByte(u8g, dev, 0x03e );      /* enable extended mode */
+        u8g_WriteByte(u8g, dev, 0x03E );      /* enable extended mode */
 
         if (y < 32) {
           u8g_WriteByte(u8g, dev, 0x080 | y );      /* y pos  */

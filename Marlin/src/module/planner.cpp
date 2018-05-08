@@ -322,19 +322,19 @@ void Planner::init() {
     //  // Get most significant bit set on divider
     //  uint8_t idx = 0;
     //  uint32_t nr = d;
-    //  if (!(nr & 0xff0000)) {
+    //  if (!(nr & 0xFF0000)) {
     //    nr <<= 8;
     //    idx += 8;
-    //    if (!(nr & 0xff0000)) {
+    //    if (!(nr & 0xFF0000)) {
     //      nr <<= 8;
     //      idx += 8;
     //    }
     //  }
-    //  if (!(nr & 0xf00000)) {
+    //  if (!(nr & 0xF00000)) {
     //    nr <<= 4;
     //    idx += 4;
     //  }
-    //  if (!(nr & 0xc00000)) {
+    //  if (!(nr & 0xC00000)) {
     //    nr <<= 2;
     //    idx += 2;
     //  }

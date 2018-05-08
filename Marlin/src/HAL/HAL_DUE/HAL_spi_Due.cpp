@@ -839,7 +839,7 @@
       REG_PMC_PCER0 = (1UL << ID_PIOA) | (1UL << ID_SPI0);
 
       // Disable PIO on A26 and A27
-      REG_PIOA_PDR = 0x0c000000;
+      REG_PIOA_PDR = 0x0C000000;
       OUT_WRITE(SDSS, 1);
 
       // Reset SPI0 (from sam lib)

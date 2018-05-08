@@ -122,16 +122,16 @@ static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
 
     if ( rs == 0 )
       /* command */
-      spiSend_sw_DUE(0x0f8);
+      spiSend_sw_DUE(0x0F8);
     else
        /* data */
-      spiSend_sw_DUE(0x0fa);
+      spiSend_sw_DUE(0x0FA);
 
     for (i = 0; i < 4; i++)   // give the controller some time to process the data
       u8g_10MicroDelay();     // 2 is bad, 3 is OK, 4 is safe
   }
 
-  spiSend_sw_DUE(val & 0x0f0);
+  spiSend_sw_DUE(val & 0x0F0);
   spiSend_sw_DUE(val << 4);
 }
 

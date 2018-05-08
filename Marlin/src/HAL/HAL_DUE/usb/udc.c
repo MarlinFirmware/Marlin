@@ -527,7 +527,7 @@ static bool udc_req_std_dev_set_feature(void)
 		if (!udd_is_high_speed()) {
 			break;
 		}
-		if (udd_g_ctrlreq.req.wIndex & 0xff) {
+		if (udd_g_ctrlreq.req.wIndex & 0xFF) {
 			break;
 		}
 		// Unconfigure the device, terminating all ongoing requests
@@ -618,7 +618,7 @@ static bool udc_req_std_dev_get_str_desc(void)
 	uint8_t str_length = 0;
 
 	// Link payload pointer to the string corresponding at request
-	switch (udd_g_ctrlreq.req.wValue & 0xff) {
+	switch (udd_g_ctrlreq.req.wValue & 0xFF) {
 	case 0:
 		udd_set_setup_payload((uint8_t *) &udc_string_desc_languageid,
 				sizeof(udc_string_desc_languageid));
@@ -674,7 +674,7 @@ static bool udc_req_std_dev_get_descriptor(void)
 {
 	uint8_t conf_num;
 
-	conf_num = udd_g_ctrlreq.req.wValue & 0xff;
+	conf_num = udd_g_ctrlreq.req.wValue & 0xFF;
 
 	// Check descriptor ID
 	switch ((uint8_t) (udd_g_ctrlreq.req.wValue >> 8)) {

@@ -87,16 +87,16 @@
 
       if ( rs == 0 )
         /* command */
-        spiSend(0x0f8);
+        spiSend(0x0F8);
       else
          /* data */
-        spiSend(0x0fa);
+        spiSend(0x0FA);
 
       for( i = 0; i < 4; i++ )   // give the controller some time to process the data
         u8g_10MicroDelay();      // 2 is bad, 3 is OK, 4 is safe
     }
 
-    spiSend(val & 0x0f0);
+    spiSend(val & 0x0F0);
     spiSend(val << 4);
   }
 
