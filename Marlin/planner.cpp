@@ -1166,7 +1166,7 @@ void Planner::check_axes_activity() {
   }
 #endif
 
-#if PLANNER_LEVELING
+#if PLANNER_LEVELING || HAS_UBL_AND_CURVES
   /**
    * rx, ry, rz - Cartesian positions in mm
    *              Leveled XYZ on completion
@@ -1217,6 +1217,10 @@ void Planner::check_axes_activity() {
 
     #endif
   }
+
+#endif
+
+#if PLANNER_LEVELING
 
   void Planner::unapply_leveling(float raw[XYZ]) {
 
