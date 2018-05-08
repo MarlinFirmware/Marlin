@@ -787,8 +787,8 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
 
   #if ENABLED(BEZIER_JERK_CONTROL)
     // Jerk controlled speed requires to express speed versus time, NOT steps
-    uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * HAL_STEPPER_TIMER_RATE,
-             deceleration_time = ((float)(cruise_rate - final_rate) / accel) * HAL_STEPPER_TIMER_RATE;
+    uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * (HAL_STEPPER_TIMER_RATE),
+             deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (HAL_STEPPER_TIMER_RATE);
 
     // And to offload calculations from the ISR, we also calculate the inverse of those times here
     uint32_t acceleration_time_inverse = get_period_inverse(acceleration_time);
@@ -1864,129 +1864,161 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
     }
   #endif
 
-  // Initial limit on the segment entry velocity
-  float vmax_junction;
+  float vmax_junction; // Initial limit on the segment entry velocity
 
-  #if 0  // Use old jerk for now
+  #if ENABLED(JUNCTION_DEVIATION)
 
-    float junction_deviation = 0.1;
+    /**
+     * Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
+     * Let a circle be tangent to both previous and current path line segments, where the junction 
+     * deviation is defined as the distance from the junction to the closest edge of the circle, 
+     * colinear with the circle center. The circular segment joining the two paths represents the 
+     * path of centripetal acceleration. Solve for max velocity based on max acceleration about the
+     * radius of the circle, defined indirectly by junction deviation. This may be also viewed as 
+     * path width or max_jerk in the previous Grbl version. This approach does not actually deviate 
+     * from path, but used as a robust way to compute cornering speeds, as it takes into account the
+     * nonlinearities of both the junction angle and junction velocity.
+     *
+     * NOTE: If the junction deviation value is finite, Grbl executes the motions in an exact path 
+     * mode (G61). If the junction deviation value is zero, Grbl will execute the motion in an exact
+     * stop mode (G61.1) manner. In the future, if continuous mode (G64) is desired, the math here
+     * is exactly the same. Instead of motioning all the way to junction point, the machine will
+     * just follow the arc circle defined here. The Arduino doesn't have the CPU cycles to perform
+     * a continuous mode path, but ARM-based microcontrollers most certainly do. 
+     * 
+     * NOTE: The max junction speed is a fixed value, since machine acceleration limits cannot be
+     * changed dynamically during operation nor can the line move geometry. This must be kept in
+     * memory in the event of a feedrate override changing the nominal speeds of blocks, which can 
+     * change the overall maximum entry speed conditions of all blocks.
+     */
 
-    // Compute path unit vector
-    double unit_vec[XYZ] = {
+    // Unit vector of previous path line segment
+    static float previous_unit_vec[
+      #if ENABLED(JUNCTION_DEVIATION_INCLUDE_E)
+        XYZE
+      #else
+        XYZ
+      #endif
+    ];
+
+    float unit_vec[] = {
       delta_mm[A_AXIS] * inverse_millimeters,
       delta_mm[B_AXIS] * inverse_millimeters,
       delta_mm[C_AXIS] * inverse_millimeters
+      #if ENABLED(JUNCTION_DEVIATION_INCLUDE_E)
+        , delta_mm[E_AXIS] * inverse_millimeters
+      #endif
     };
-
-    /*
-       Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
-
-       Let a circle be tangent to both previous and current path line segments, where the junction
-       deviation is defined as the distance from the junction to the closest edge of the circle,
-       collinear with the circle center.
-
-       The circular segment joining the two paths represents the path of centripetal acceleration.
-       Solve for max velocity based on max acceleration about the radius of the circle, defined
-       indirectly by junction deviation.
-
-       This may be also viewed as path width or max_jerk in the previous grbl version. This approach
-       does not actually deviate from path, but used as a robust way to compute cornering speeds, as
-       it takes into account the nonlinearities of both the junction angle and junction velocity.
-     */
-
-    vmax_junction = MINIMUM_PLANNER_SPEED; // Set default max junction speed
 
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
     if (moves_queued && !UNEAR_ZERO(previous_nominal_speed)) {
       // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
       // NOTE: Max junction velocity is computed without sin() or acos() by trig half angle identity.
-      const float cos_theta = - previous_unit_vec[X_AXIS] * unit_vec[X_AXIS]
-                              - previous_unit_vec[Y_AXIS] * unit_vec[Y_AXIS]
-                              - previous_unit_vec[Z_AXIS] * unit_vec[Z_AXIS];
-      // Skip and use default max junction speed for 0 degree acute junction.
-      if (cos_theta < 0.95) {
-        vmax_junction = min(previous_nominal_speed, block->nominal_speed);
-        // Skip and avoid divide by zero for straight junctions at 180 degrees. Limit to min() of nominal speeds.
-        if (cos_theta > -0.95) {
-          // Compute maximum junction velocity based on maximum acceleration and junction deviation
-          float sin_theta_d2 = SQRT(0.5 * (1.0 - cos_theta)); // Trig half angle identity. Always positive.
-          NOMORE(vmax_junction, SQRT(block->acceleration * junction_deviation * sin_theta_d2 / (1.0 - sin_theta_d2)));
+      float junction_cos_theta = -previous_unit_vec[X_AXIS] * unit_vec[X_AXIS]
+                                 -previous_unit_vec[Y_AXIS] * unit_vec[Y_AXIS]
+                                 -previous_unit_vec[Z_AXIS] * unit_vec[Z_AXIS]
+                                  #if ENABLED(JUNCTION_DEVIATION_INCLUDE_E)
+                                    -previous_unit_vec[E_AXIS] * unit_vec[E_AXIS]
+                                  #endif
+                                ;
+
+      // NOTE: Computed without any expensive trig, sin() or acos(), by trig half angle identity of cos(theta).
+      if (junction_cos_theta > 0.999999) {
+        // For a 0 degree acute junction, just set minimum junction speed.
+        vmax_junction = MINIMUM_PLANNER_SPEED;
+      }
+      else {
+        junction_cos_theta = max(junction_cos_theta, -0.999999); // Check for numerical round-off to avoid divide by zero.
+        const float sin_theta_d2 = SQRT(0.5 * (1.0 - junction_cos_theta)); // Trig half angle identity. Always positive.
+
+        // TODO: Technically, the acceleration used in calculation needs to be limited by the minimum of the
+        // two junctions. However, this shouldn't be a significant problem except in extreme circumstances.
+        vmax_junction = SQRT((block->acceleration * JUNCTION_DEVIATION_FACTOR * sin_theta_d2) / (1.0 - sin_theta_d2));
+      }
+
+      vmax_junction = MIN3(vmax_junction, block->nominal_speed, previous_nominal_speed);
+    }
+    else // Init entry speed to zero. Assume it starts from rest. Planner will correct this later.
+      vmax_junction = 0.0;
+
+    COPY(previous_unit_vec, unit_vec);
+
+  #else // Classic Jerk Limiting
+
+    /**
+     * Adapted from Průša MKS firmware
+     * https://github.com/prusa3d/Prusa-Firmware
+     *
+     * Start with a safe speed (from which the machine may halt to stop immediately).
+     */
+
+    // Exit speed limited by a jerk to full halt of a previous last segment
+    static float previous_safe_speed;
+
+    float safe_speed = block->nominal_speed;
+    uint8_t limited = 0;
+    LOOP_XYZE(i) {
+      const float jerk = FABS(current_speed[i]), maxj = max_jerk[i];
+      if (jerk > maxj) {
+        if (limited) {
+          const float mjerk = maxj * block->nominal_speed;
+          if (jerk * safe_speed > mjerk) safe_speed = mjerk / jerk;
+        }
+        else {
+          ++limited;
+          safe_speed = maxj;
         }
       }
     }
-  #endif
 
-  /**
-   * Adapted from Průša MKS firmware
-   * https://github.com/prusa3d/Prusa-Firmware
-   *
-   * Start with a safe speed (from which the machine may halt to stop immediately).
-   */
+    if (moves_queued && !UNEAR_ZERO(previous_nominal_speed)) {
+      // Estimate a maximum velocity allowed at a joint of two successive segments.
+      // If this maximum velocity allowed is lower than the minimum of the entry / exit safe velocities,
+      // then the machine is not coasting anymore and the safe entry / exit velocities shall be used.
 
-  // Exit speed limited by a jerk to full halt of a previous last segment
-  static float previous_safe_speed;
+      // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
+      // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
+      vmax_junction = min(block->nominal_speed, previous_nominal_speed);
 
-  float safe_speed = block->nominal_speed;
-  uint8_t limited = 0;
-  LOOP_XYZE(i) {
-    const float jerk = FABS(current_speed[i]), maxj = max_jerk[i];
-    if (jerk > maxj) {
-      if (limited) {
-        const float mjerk = maxj * block->nominal_speed;
-        if (jerk * safe_speed > mjerk) safe_speed = mjerk / jerk;
+      // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
+      float v_factor = 1;
+      limited = 0;
+
+      // Now limit the jerk in all axes.
+      const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
+      LOOP_XYZE(axis) {
+        // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
+        float v_exit = previous_speed[axis] * smaller_speed_factor,
+              v_entry = current_speed[axis];
+        if (limited) {
+          v_exit *= v_factor;
+          v_entry *= v_factor;
+        }
+
+        // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
+        const float jerk = (v_exit > v_entry)
+            ? //                                  coasting             axis reversal
+              ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
+            : // v_exit <= v_entry                coasting             axis reversal
+              ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
+
+        if (jerk > max_jerk[axis]) {
+          v_factor *= max_jerk[axis] / jerk;
+          ++limited;
+        }
       }
-      else {
-        ++limited;
-        safe_speed = maxj;
-      }
+      if (limited) vmax_junction *= v_factor;
+      // Now the transition velocity is known, which maximizes the shared exit / entry velocity while
+      // respecting the jerk factors, it may be possible, that applying separate safe exit / entry velocities will achieve faster prints.
+      const float vmax_junction_threshold = vmax_junction * 0.99f;
+      if (previous_safe_speed > vmax_junction_threshold && safe_speed > vmax_junction_threshold)
+        vmax_junction = safe_speed;
     }
-  }
-
-  if (moves_queued && !UNEAR_ZERO(previous_nominal_speed)) {
-    // Estimate a maximum velocity allowed at a joint of two successive segments.
-    // If this maximum velocity allowed is lower than the minimum of the entry / exit safe velocities,
-    // then the machine is not coasting anymore and the safe entry / exit velocities shall be used.
-
-    // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-    // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
-    vmax_junction = min(block->nominal_speed, previous_nominal_speed);
-
-    // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
-    float v_factor = 1;
-    limited = 0;
-
-    // Now limit the jerk in all axes.
-    const float smaller_speed_factor = vmax_junction / previous_nominal_speed;
-    LOOP_XYZE(axis) {
-      // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
-      float v_exit = previous_speed[axis] * smaller_speed_factor,
-            v_entry = current_speed[axis];
-      if (limited) {
-        v_exit *= v_factor;
-        v_entry *= v_factor;
-      }
-
-      // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
-      const float jerk = (v_exit > v_entry)
-          ? //                                  coasting             axis reversal
-            ( (v_entry > 0 || v_exit < 0) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
-          : // v_exit <= v_entry                coasting             axis reversal
-            ( (v_entry < 0 || v_exit > 0) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
-
-      if (jerk > max_jerk[axis]) {
-        v_factor *= max_jerk[axis] / jerk;
-        ++limited;
-      }
-    }
-    if (limited) vmax_junction *= v_factor;
-    // Now the transition velocity is known, which maximizes the shared exit / entry velocity while
-    // respecting the jerk factors, it may be possible, that applying separate safe exit / entry velocities will achieve faster prints.
-    const float vmax_junction_threshold = vmax_junction * 0.99f;
-    if (previous_safe_speed > vmax_junction_threshold && safe_speed > vmax_junction_threshold)
+    else
       vmax_junction = safe_speed;
-  }
-  else
-    vmax_junction = safe_speed;
+  
+    previous_safe_speed = safe_speed;
+  #endif // Classic Jerk Limiting
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed = vmax_junction;
@@ -2010,7 +2042,6 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
   // Update previous path unit_vector and nominal speed
   COPY(previous_speed, current_speed);
   previous_nominal_speed = block->nominal_speed;
-  previous_safe_speed = safe_speed;
 
   // Move buffer head
   block_buffer_head = next_buffer_head;
