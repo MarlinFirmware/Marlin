@@ -110,6 +110,9 @@
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
 
+#define A(CODE) " " CODE "\n\t"
+#define L(CODE) CODE ":\n\t"
+
 // Macros for bit masks
 #undef _BV
 #define _BV(b) (1 << (b))

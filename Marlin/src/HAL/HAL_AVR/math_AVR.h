@@ -23,6 +23,8 @@
 #ifndef _MATH_AVR_H_
 #define _MATH_AVR_H_
 
+#define a(CODE) " " CODE "\n\t"
+
 /**
  * Optimized math functions for AVR
  */
@@ -39,41 +41,41 @@
 //
 #define MultiU24X32toH16(intRes, longIn1, longIn2) \
   asm volatile ( \
-                 "clr r26 \n\t" \
-                 "mul %A1, %B2 \n\t" \
-                 "mov r27, r1 \n\t" \
-                 "mul %B1, %C2 \n\t" \
-                 "movw %A0, r0 \n\t" \
-                 "mul %C1, %C2 \n\t" \
-                 "add %B0, r0 \n\t" \
-                 "mul %C1, %B2 \n\t" \
-                 "add %A0, r0 \n\t" \
-                 "adc %B0, r1 \n\t" \
-                 "mul %A1, %C2 \n\t" \
-                 "add r27, r0 \n\t" \
-                 "adc %A0, r1 \n\t" \
-                 "adc %B0, r26 \n\t" \
-                 "mul %B1, %B2 \n\t" \
-                 "add r27, r0 \n\t" \
-                 "adc %A0, r1 \n\t" \
-                 "adc %B0, r26 \n\t" \
-                 "mul %C1, %A2 \n\t" \
-                 "add r27, r0 \n\t" \
-                 "adc %A0, r1 \n\t" \
-                 "adc %B0, r26 \n\t" \
-                 "mul %B1, %A2 \n\t" \
-                 "add r27, r1 \n\t" \
-                 "adc %A0, r26 \n\t" \
-                 "adc %B0, r26 \n\t" \
-                 "lsr r27 \n\t" \
-                 "adc %A0, r26 \n\t" \
-                 "adc %B0, r26 \n\t" \
-                 "mul %D2, %A1 \n\t" \
-                 "add %A0, r0 \n\t" \
-                 "adc %B0, r1 \n\t" \
-                 "mul %D2, %B1 \n\t" \
-                 "add %B0, r0 \n\t" \
-                 "clr r1 \n\t" \
+                 A("clr r26")      \
+                 A("mul %A1, %B2") \
+                 A("mov r27, r1")  \
+                 A("mul %B1, %C2") \
+                 A("movw %A0, r0") \
+                 A("mul %C1, %C2") \
+                 A("add %B0, r0")  \
+                 A("mul %C1, %B2") \
+                 A("add %A0, r0")  \
+                 A("adc %B0, r1")  \
+                 A("mul %A1, %C2") \
+                 A("add r27, r0")  \
+                 A("adc %A0, r1")  \
+                 A("adc %B0, r26") \
+                 A("mul %B1, %B2") \
+                 A("add r27, r0")  \
+                 A("adc %A0, r1")  \
+                 A("adc %B0, r26") \
+                 A("mul %C1, %A2") \
+                 A("add r27, r0")  \
+                 A("adc %A0, r1")  \
+                 A("adc %B0, r26") \
+                 A("mul %B1, %A2") \
+                 A("add r27, r1")  \
+                 A("adc %A0, r26") \
+                 A("adc %B0, r26") \
+                 A("lsr r27")      \
+                 A("adc %A0, r26") \
+                 A("adc %B0, r26") \
+                 A("mul %D2, %A1") \
+                 A("add %A0, r0")  \
+                 A("adc %B0, r1")  \
+                 A("mul %D2, %B1") \
+                 A("add %B0, r0")  \
+                 A("clr r1")       \
                  : \
                  "=&r" (intRes) \
                  : \
@@ -89,16 +91,16 @@
 // r27 to store the byte 1 of the 24 bit result
 #define MultiU16X8toH16(intRes, charIn1, intIn2) \
   asm volatile ( \
-                 "clr r26 \n\t" \
-                 "mul %A1, %B2 \n\t" \
-                 "movw %A0, r0 \n\t" \
-                 "mul %A1, %A2 \n\t" \
-                 "add %A0, r1 \n\t" \
-                 "adc %B0, r26 \n\t" \
-                 "lsr r0 \n\t" \
-                 "adc %A0, r26 \n\t" \
-                 "adc %B0, r26 \n\t" \
-                 "clr r1 \n\t" \
+                 A("clr r26")      \
+                 A("mul %A1, %B2") \
+                 A("movw %A0, r0") \
+                 A("mul %A1, %A2") \
+                 A("add %A0, r1")  \
+                 A("adc %B0, r26") \
+                 A("lsr r0")       \
+                 A("adc %A0, r26") \
+                 A("adc %B0, r26") \
+                 A("clr r1")       \
                  : \
                  "=&r" (intRes) \
                  : \
