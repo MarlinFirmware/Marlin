@@ -5071,10 +5071,9 @@ void lcd_init() {
     slow_buttons = 0;
   #endif
 
-  lcd_buttons_update();
-
   #if ENABLED(ULTIPANEL)
     encoderDiff = 0;
+    lcd_buttons_update();
   #endif
 }
 
@@ -5457,7 +5456,7 @@ void lcd_setstatus(const char * const message, const bool persist) {
   lcd_finishstatus(persist);
 }
 
-void lcd_setstatusPGM(const char * const message, int8_t level) {
+void lcd_setstatusPGM(const char * const message, int8_t level/*=0*/) {
   if (level < 0) level = lcd_status_message_level = 0;
   if (level < lcd_status_message_level) return;
   lcd_status_message_level = level;

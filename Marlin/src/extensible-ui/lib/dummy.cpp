@@ -19,9 +19,11 @@
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#include "../ui_api.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if defined(EXTENSIBLE_UI)
+#if ENABLED(EXTENSIBLE_UI)
+
+#include "../ui_api.h"
 
 // To implement a new UI, complete the functions below and
 // read or update Marlin's state using the methods in the

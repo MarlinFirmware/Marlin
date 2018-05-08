@@ -21,7 +21,8 @@
 
 #include "../Marlin.h"
 
-#if defined(EXTENSIBLE_UI)
+#if ENABLED(EXTENSIBLE_UI)
+
 #include "../gcode/queue.h"
 #include "../module/motion.h"
 #include "../module/planner.h"
@@ -40,7 +41,7 @@ inline float clamp(float value, float minimum, float maximum) {
 namespace Extensible_UI_API {
 
   float getActualTemp_celsius(const uint8_t extruder) {
-    if(extruder) {
+    if (extruder) {
       return thermalManager.degHotend(extruder-1);
     }
     #if HAS_HEATED_BED
@@ -51,7 +52,7 @@ namespace Extensible_UI_API {
   }
 
   float getTargetTemp_celsius(const uint8_t extruder) {
-    if(extruder) {
+    if (extruder) {
       return thermalManager.degTargetHotend(extruder-1);
     }
     #if HAS_HEATED_BED
@@ -165,7 +166,7 @@ namespace Extensible_UI_API {
   }
 
   void setTargetTemp_celsius(const uint8_t extruder, float temp) {
-    if(extruder) {
+    if (extruder) {
       thermalManager.setTargetHotend(clamp(temp,0,500), extruder-1);
     }
     #if HAS_HEATED_BED
@@ -177,7 +178,7 @@ namespace Extensible_UI_API {
 
   void setFan_percent(const uint8_t fan, float percent) {
     if (fan < FAN_COUNT) {
-      fanSpeeds[fan] = clamp(round(percent*256/100-1), 0, 255);
+      fanSpeeds[fan] = clamp(round(percent * 255 / 100), 0, 255);
     }
   }
 
@@ -220,17 +221,17 @@ namespace Extensible_UI_API {
 
   bool isPrinting() {
     return (planner.movesplanned() || IS_SD_PRINTING ||
-    #if ENABLED(SDSUPPORT)
-      (card.cardOK && card.isFileOpen())
-    #else
-      false
-    #endif
+      #if ENABLED(SDSUPPORT)
+        (card.cardOK && card.isFileOpen())
+      #else
+        false
+      #endif
     );
   }
 
   bool isMediaInserted() {
-    #if (ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)) || defined(USE_USB_STICK)
-      #if defined(USE_USB_STICK)
+    #if (ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)) || ENABLED(USE_USB_STICK)
+      #if ENABLED(USE_USB_STICK)
         return Sd2Card::isInserted();
       #else
         return IS_SD_INSERTED;
@@ -279,9 +280,9 @@ namespace Extensible_UI_API {
 
   Media_Iterator::Media_Iterator(uint16_t start_index /* = 0*/) {
     #if ENABLED(SDSUPPORT)
-    num_files = card.get_num_Files();
-    index     = min(start_index, num_files-1);
-    seek(index);
+      num_files = card.get_num_Files();
+      index     = min(start_index, num_files-1);
+      seek(index);
     #endif
   }
 
@@ -291,10 +292,10 @@ namespace Extensible_UI_API {
 
   void Media_Iterator::next() {
     #if ENABLED(SDSUPPORT)
-    if(hasMore()) {
-      index++;
-      seek(index);
-    }
+      if (hasMore()) {
+        index++;
+        seek(index);
+      }
     #endif
   }
 
@@ -314,7 +315,7 @@ namespace Extensible_UI_API {
     #endif
   }
 
-  const char *Media_Iterator::filename() {
+  const char* Media_Iterator::filename() {
     #if ENABLED(SDSUPPORT)
       return (card.longFilename && card.longFilename[0]) ? card.longFilename : card.filename;
     #else
@@ -322,7 +323,7 @@ namespace Extensible_UI_API {
     #endif
   }
 
-  const char *Media_Iterator::shortFilename() {
+  const char* Media_Iterator::shortFilename() {
     #if ENABLED(SDSUPPORT)
       return card.filename;
     #else
@@ -330,7 +331,7 @@ namespace Extensible_UI_API {
     #endif
   }
 
-  const char *Media_Iterator::longFilename() {
+  const char* Media_Iterator::longFilename() {
     #if ENABLED(SDSUPPORT)
       return card.longFilename;
     #else
@@ -357,7 +358,7 @@ void lcd_init() {
 }
 
 void lcd_update() {
-  #if (ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)) || defined(USE_USB_STICK)
+  #if (ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)) || ENABLED(USE_USB_STICK)
     const bool sd_status = isMediaInserted();
     if (sd_status != lcd_sd_status) {
       if (sd_status) {
@@ -376,14 +377,14 @@ void lcd_update() {
 
 // At the moment, we piggy-back off the ultralcd calls, but this could change in the future.
 
-bool lcd_hasstatus()                                                             {return true;}
-void lcd_buttons_update()                                                        {}
+bool lcd_hasstatus()                                                             { return true; }
+bool lcd_detected()                                                              { return true; }
 void lcd_reset_alert_level()                                                     {}
-void lcd_refresh()                                                               {Extensible_UI_API::onIdle();}
-void lcd_setstatus(const char * const message, const bool persist /* = false */) {Extensible_UI_API::onStatusChanged(message);}
-void lcd_setstatusPGM(const char * const message, int8_t level /* = 0 */)        {Extensible_UI_API::onStatusChanged((progmem_str)message);}
+void lcd_refresh()                                                               { Extensible_UI_API::onIdle(); }
+void lcd_setstatus(const char * const message, const bool persist /* = false */) { Extensible_UI_API::onStatusChanged(message); }
+void lcd_setstatusPGM(const char * const message, int8_t level /* = 0 */)        { Extensible_UI_API::onStatusChanged((progmem_str)message); }
 void lcd_reset_status()                                                          {}
-void lcd_setalertstatusPGM(const char * const message)                           {lcd_setstatusPGM(message, 0);}
+void lcd_setalertstatusPGM(const char * const message)                           { lcd_setstatusPGM(message, 0); }
 
 void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   char buff[64];

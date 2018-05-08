@@ -162,11 +162,11 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD)  || defined(EXTENSIBLE_UI)
+#if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
 
   #define KILL_PIN         32
 
-  #if ENABLED(NEWPANEL) || defined(EXTENSIBLE_UI)
+  #if ENABLED(NEWPANEL) || ENABLED(EXTENSIBLE_UI)
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS     85
