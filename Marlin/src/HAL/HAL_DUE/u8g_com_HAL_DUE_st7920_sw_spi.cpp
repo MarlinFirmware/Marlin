@@ -71,8 +71,6 @@ void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
   else port->PIO_CODR = mask;
 }
 
-#define nop() __asm__ __volatile__("nop;\n\t":::)
-
 void __delay_4cycles(uint32_t cy) __attribute__ ((weak));
 
 FORCE_INLINE void __delay_4cycles(uint32_t cy) { // +1 cycle
@@ -85,10 +83,10 @@ FORCE_INLINE void __delay_4cycles(uint32_t cy) { // +1 cycle
   __asm__ __volatile__(
     ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
 
-    "loop%=:" "\n\t"
-    " subs %[cnt],#1" "\n\t"
-    EXTRA_NOP_CYCLES "\n\t"
-    " bne loop%=" "\n\t"
+    L("loop%=")
+    A("subs %[cnt],#1")
+    A(EXTRA_NOP_CYCLES)
+    A("bne loop%=")
     : [cnt]"+r"(cy) // output: +r means input+output
     : // input:
     : "cc" // clobbers:
@@ -122,16 +120,16 @@ static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
 
     if ( rs == 0 )
       /* command */
-      spiSend_sw_DUE(0x0f8);
+      spiSend_sw_DUE(0x0F8);
     else
        /* data */
-      spiSend_sw_DUE(0x0fa);
+      spiSend_sw_DUE(0x0FA);
 
     for (i = 0; i < 4; i++)   // give the controller some time to process the data
       u8g_10MicroDelay();     // 2 is bad, 3 is OK, 4 is safe
   }
 
-  spiSend_sw_DUE(val & 0x0f0);
+  spiSend_sw_DUE(val & 0x0F0);
   spiSend_sw_DUE(val << 4);
 }
 

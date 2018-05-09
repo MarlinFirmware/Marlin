@@ -225,7 +225,7 @@ bool usb_task_extra_string(void) {
   uint8_t str_lgt = 0;
 
   // Link payload pointer to the string corresponding at request
-  switch (udd_g_ctrlreq.req.wValue & 0xff) {
+  switch (udd_g_ctrlreq.req.wValue & 0xFF) {
   case UDI_CDC_IAD_STRING_ID:
     str_lgt = sizeof(udi_cdc_name) - 1;
     str = udi_cdc_name;

@@ -29,7 +29,7 @@ void __aeabi_unwind_cpp_pr2(void) {};
 
 static inline __attribute__((always_inline)) uint32_t prel31_to_addr(const uint32_t *prel31) {
   uint32_t offset = (((uint32_t)(*prel31)) << 1) >> 1;
-  return ((uint32_t)prel31 + offset) & 0x7fffffff;
+  return ((uint32_t)prel31 + offset) & 0x7FFFFFFF;
 }
 
 static const UnwTabEntry *UnwTabSearchIndex(const UnwTabEntry *start, const UnwTabEntry *end, uint32_t ip) {
@@ -54,8 +54,8 @@ static const char *UnwTabGetFunctionName(const UnwindCallbacks *cb, uint32_t add
   if (!cb->readW(address-4,&flag_word))
     return NULL;
 
-  if ((flag_word & 0xff000000) == 0xff000000) {
-    return (const char *)(address - 4 - (flag_word & 0x00ffffff));
+  if ((flag_word & 0xFF000000) == 0xFF000000) {
+    return (const char *)(address - 4 - (flag_word & 0x00FFFFFF));
   }
   return NULL;
 }
@@ -77,7 +77,7 @@ static int UnwTabGetNextInstruction(const UnwindCallbacks *cb, UnwTabState *ucb)
   uint32_t v = 0;
   if (!cb->readW(ucb->current, &v))
     return -1;
-  instruction = (v >> (ucb->byte << 3)) & 0xff;
+  instruction = (v >> (ucb->byte << 3)) & 0xFF;
 
   /* Move the next byte */
   --ucb->byte;
@@ -104,12 +104,12 @@ static UnwResult UnwTabStateInit(const UnwindCallbacks *cb, UnwTabState *ucb, ui
   if (!cb->readW(instructions, &v))
     return UNWIND_DREAD_W_FAIL;
 
-  if ((v & 0xff000000) == 0x80000000) {
+  if ((v & 0xFF000000) == 0x80000000) {
     ucb->remaining = 3;
     ucb->byte = 2;
   /* Is a long unwind description */
-  } else if ((v & 0xff000000) == 0x81000000) {
-    ucb->remaining = ((v & 0x00ff0000) >> 14) + 2;
+  } else if ((v & 0xFF000000) == 0x81000000) {
+    ucb->remaining = ((v & 0x00FF0000) >> 14) + 2;
     ucb->byte = 1;
   } else
     return UNWIND_UNSUPPORTED_DWARF_PERSONALITY;
@@ -138,15 +138,15 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
   /* Consume all instruction byte */
   while ((instruction = UnwTabGetNextInstruction(cb, ucb)) != -1) {
 
-    if ((instruction & 0xc0) == 0x00) { // ARM_EXIDX_CMD_DATA_POP
+    if ((instruction & 0xC0) == 0x00) { // ARM_EXIDX_CMD_DATA_POP
       /* vsp = vsp + (xxxxxx << 2) + 4 */
-      ucb->vrs[13] += ((instruction & 0x3f) << 2) + 4;
+      ucb->vrs[13] += ((instruction & 0x3F) << 2) + 4;
     } else
-    if ((instruction & 0xc0) == 0x40) { // ARM_EXIDX_CMD_DATA_PUSH
+    if ((instruction & 0xC0) == 0x40) { // ARM_EXIDX_CMD_DATA_PUSH
       /* vsp = vsp - (xxxxxx << 2) - 4 */
-      ucb->vrs[13] -= ((instruction & 0x3f) << 2) - 4;
+      ucb->vrs[13] -= ((instruction & 0x3F) << 2) - 4;
     } else
-    if ((instruction & 0xf0) == 0x80) {
+    if ((instruction & 0xF0) == 0x80) {
       /* pop under mask {r15-r12},{r11-r4} or refuse to unwind */
       instruction = instruction << 8 | UnwTabGetNextInstruction(cb, ucb);
 
@@ -156,7 +156,7 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
 
       /* Pop registers using mask */    // ARM_EXIDX_CMD_REG_POP
       vsp = ucb->vrs[13];
-      mask = instruction & 0xfff;
+      mask = instruction & 0xFFF;
 
       reg = 4;
       while (mask) {
@@ -176,13 +176,13 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
         ucb->vrs[13] = vsp;
 
     } else
-    if ((instruction & 0xf0) == 0x90 && // ARM_EXIDX_CMD_REG_TO_SP
-        instruction != 0x9d &&
-        instruction != 0x9f) {
+    if ((instruction & 0xF0) == 0x90 && // ARM_EXIDX_CMD_REG_TO_SP
+        instruction != 0x9D &&
+        instruction != 0x9F) {
       /* vsp = r[nnnn] */
-      ucb->vrs[13] = ucb->vrs[instruction & 0x0f];
+      ucb->vrs[13] = ucb->vrs[instruction & 0x0F];
     } else
-    if ((instruction & 0xf0) == 0xa0) { // ARM_EXIDX_CMD_REG_POP
+    if ((instruction & 0xF0) == 0xA0) { // ARM_EXIDX_CMD_REG_POP
       /* pop r4-r[4+nnn] or pop r4-r[4+nnn], r14*/
       vsp = ucb->vrs[13];
 
@@ -206,7 +206,7 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
       ucb->vrs[13] = vsp;
 
     } else
-    if (instruction == 0xb0) { // ARM_EXIDX_CMD_FINISH
+    if (instruction == 0xB0) { // ARM_EXIDX_CMD_FINISH
       /* finished */
       if (ucb->vrs[15] == 0)
         ucb->vrs[15] = ucb->vrs[14];
@@ -215,7 +215,7 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
       return UNWIND_SUCCESS;
 
     } else
-    if (instruction == 0xb1) { // ARM_EXIDX_CMD_REG_POP
+    if (instruction == 0xB1) { // ARM_EXIDX_CMD_REG_POP
       /* pop register under mask {r3,r2,r1,r0} */
       vsp = ucb->vrs[13];
       mask = UnwTabGetNextInstruction(cb, ucb);
@@ -236,14 +236,14 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
       ucb->vrs[13] = (uint32_t)vsp;
 
     } else
-    if (instruction == 0xb2) { // ARM_EXIDX_CMD_DATA_POP
+    if (instruction == 0xB2) { // ARM_EXIDX_CMD_DATA_POP
       /* vps = vsp + 0x204 + (uleb128 << 2) */
       ucb->vrs[13] += 0x204 + (UnwTabGetNextInstruction(cb, ucb) << 2);
 
     } else
-    if (instruction == 0xb3 || // ARM_EXIDX_CMD_VFP_POP
-      instruction == 0xc8 ||
-      instruction == 0xc9) {
+    if (instruction == 0xB3 || // ARM_EXIDX_CMD_VFP_POP
+      instruction == 0xC8 ||
+      instruction == 0xC9) {
 
       /* pop VFP double-precision registers */
       vsp = ucb->vrs[13];
@@ -256,12 +256,12 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
       ucb->vrs[14] = v;
       vsp += 4;
 
-      if (instruction == 0xc8) {
+      if (instruction == 0xC8) {
         /* D[16+sssss]-D[16+ssss+cccc] */
         ucb->vrs[14] |= 1 << 16;
       }
 
-      if (instruction != 0xb3) {
+      if (instruction != 0xB3) {
         /* D[sssss]-D[ssss+cccc] */
         ucb->vrs[14] |= 1 << 17;
       }
@@ -269,13 +269,13 @@ static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabStat
       ucb->vrs[13] = vsp;
 
     } else
-    if ((instruction & 0xf8) == 0xb8 ||
-        (instruction & 0xf8) == 0xd0) {
+    if ((instruction & 0xF8) == 0xB8 ||
+        (instruction & 0xF8) == 0xD0) {
 
       /* Pop VFP double precision registers D[8]-D[8+nnn] */
       ucb->vrs[14] = 0x80 | (instruction & 0x07);
 
-      if ((instruction & 0xf8) == 0xd0) {
+      if ((instruction & 0xF8) == 0xD0) {
         ucb->vrs[14] = 1 << 17;
       }
 
@@ -291,7 +291,7 @@ static inline __attribute__((always_inline)) uint32_t read_psp(void) {
   /* Read the current PSP and return its value as a pointer */
   uint32_t psp;
 
-  __asm volatile (
+  __asm__ volatile (
     "   mrs %0, psp \n"
     : "=r" (psp) : :
   );
@@ -337,7 +337,7 @@ static UnwResult UnwTabUnwindFrame(const UnwindCallbacks *cb, UnwindFrame *frame
 
   /* Check for exception return */
   /* TODO Test with other ARM processors to verify this method. */
-  if ((ucb.vrs[15] & 0xf0000000) == 0xf0000000) {
+  if ((ucb.vrs[15] & 0xF0000000) == 0xF0000000) {
     /* According to the Cortex Programming Manual (p.44), the stack address is always 8-byte aligned (Cortex-M7).
        Depending on where the exception came from (MSP or PSP), we need the right SP value to work with.
 
@@ -354,20 +354,20 @@ static UnwResult UnwTabUnwindFrame(const UnwindCallbacks *cb, UnwindFrame *frame
        If we need to start from the PSP, we need to go up exactly 6 words to find the PC.
        See the ARMv7-M Architecture Reference Manual p.594 and Cortex-M7 Processor Programming Manual p.44/p.45 for details.
     */
-    if ((ucb.vrs[15] & 0xc) == 0) {
-      /* Return to Handler Mode: MSP (0xffffff-1) */
+    if ((ucb.vrs[15] & 0xC) == 0) {
+      /* Return to Handler Mode: MSP (0xFFFFFF-1) */
       stack = ucb.vrs[13];
 
       /* The PC is always 2 words down from the MSP, if it was a non-floating-point exception */
       stack -= 2*4;
 
-      /* If there was a VFP exception (0xffffffe1), the PC is located another 18 words down */
-      if ((ucb.vrs[15] & 0xf0) == 0xe0) {
+      /* If there was a VFP exception (0xFFFFFFE1), the PC is located another 18 words down */
+      if ((ucb.vrs[15] & 0xF0) == 0xE0) {
         stack -= 18*4;
       }
     }
     else {
-      /* Return to Thread Mode: PSP (0xffffff-d) */
+      /* Return to Thread Mode: PSP (0xFFFFFF-d) */
       stack = read_psp();
 
       /* The PC is always 6 words up from the PSP */
@@ -423,7 +423,7 @@ UnwResult UnwindByTableStart(UnwindFrame* frame, const UnwindCallbacks *cb, void
     const UnwTabEntry *index = UnwTabSearchIndex(__exidx_start, __exidx_end, frame->pc);
 
     /* Clear last bit (Thumb indicator) */
-    frame->pc &= 0xfffffffeU;
+    frame->pc &= 0xFFFFFFFEU;
 
     /* Generate the backtrace information */
     entry.address = frame->pc;

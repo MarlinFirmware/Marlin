@@ -79,7 +79,7 @@
 
   #include <U8glib.h>
 
-  #define I2C_SLA         (0x3c*2)
+  #define I2C_SLA         (0x3C*2)
   //#define I2C_CMD_MODE  0x080
   #define I2C_CMD_MODE    0x000
   #define I2C_DATA_MODE   0x040

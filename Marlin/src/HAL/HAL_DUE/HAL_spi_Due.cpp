@@ -77,10 +77,10 @@
     __asm__ __volatile__(
       ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
 
-      "loop%=:" "\n\t"
-      " subs %[cnt],#1" "\n\t"
-      EXTRA_NOP_CYCLES "\n\t"
-      " bne loop%=" "\n\t"
+      L("loop%=")
+      A("subs %[cnt],#1")
+      A(EXTRA_NOP_CYCLES)
+      A("bne loop%=")
       : [cnt]"+r"(cy) // output: +r means input+output
       : // input:
       : "cc" // clobbers:
@@ -141,54 +141,54 @@
       ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
 
       /* Bit 7 */
-      " ubfx %[idx],%[txval],#7,#1" "\n\t"                      /* Place bit 7 in bit 0 of idx*/
+      A("ubfx %[idx],%[txval],#7,#1")                      /* Place bit 7 in bit 0 of idx*/
 
-      " str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[idx],%[txval],#6,#1" "\n\t"                      /* Place bit 6 in bit 0 of idx*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[idx],%[txval],#6,#1")                      /* Place bit 6 in bit 0 of idx*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 6 */
-      " str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[idx],%[txval],#5,#1" "\n\t"                      /* Place bit 5 in bit 0 of idx*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[idx],%[txval],#5,#1")                      /* Place bit 5 in bit 0 of idx*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 5 */
-      " str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[idx],%[txval],#4,#1" "\n\t"                      /* Place bit 4 in bit 0 of idx*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[idx],%[txval],#4,#1")                      /* Place bit 4 in bit 0 of idx*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 4 */
-      " str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[idx],%[txval],#3,#1" "\n\t"                      /* Place bit 3 in bit 0 of idx*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[idx],%[txval],#3,#1")                      /* Place bit 3 in bit 0 of idx*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 3 */
-      " str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[idx],%[txval],#2,#1" "\n\t"                      /* Place bit 2 in bit 0 of idx*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[idx],%[txval],#2,#1")                      /* Place bit 2 in bit 0 of idx*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 2 */
-      " str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[idx],%[txval],#1,#1" "\n\t"                      /* Place bit 1 in bit 0 of idx*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[idx],%[txval],#1,#1")                      /* Place bit 1 in bit 0 of idx*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 1 */
-      " str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[idx],%[txval],#0,#1" "\n\t"                      /* Place bit 0 in bit 0 of idx*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[idx],%[txval],#0,#1")                      /* Place bit 0 in bit 0 of idx*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 0 */
-      " str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " nop" "\n\t"                                             /* Result will be 0 */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[idx],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("nop")                                             /* Result will be 0 */
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       : [idx]"+r"( idx )
       : [txval]"r"( bout ) ,
@@ -222,52 +222,52 @@
       ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
 
       /* bit 7 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#7,#1" "\n\t"                /* Store read bit as the bit 7 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#7,#1")                /* Store read bit as the bit 7 */
 
       /* bit 6 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#6,#1" "\n\t"                /* Store read bit as the bit 6 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#6,#1")                /* Store read bit as the bit 6 */
 
       /* bit 5 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#5,#1" "\n\t"                /* Store read bit as the bit 5 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#5,#1")                /* Store read bit as the bit 5 */
 
       /* bit 4 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#4,#1" "\n\t"                /* Store read bit as the bit 4 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#4,#1")                /* Store read bit as the bit 4 */
 
       /* bit 3 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#3,#1" "\n\t"                /* Store read bit as the bit 3 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#3,#1")                /* Store read bit as the bit 3 */
 
       /* bit 2 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#2,#1" "\n\t"                /* Store read bit as the bit 2 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#2,#1")                /* Store read bit as the bit 2 */
 
       /* bit 1 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#1,#1" "\n\t"                /* Store read bit as the bit 1 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#1,#1")                /* Store read bit as the bit 1 */
 
       /* bit 0 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#0,#1" "\n\t"                /* Store read bit as the bit 0 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#0,#1")                /* Store read bit as the bit 0 */
 
       : [bin]"+r"(bin),
         [work]"+r"(work)
@@ -335,60 +335,60 @@
     __asm__ __volatile__(
       ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
 
-      " loop%=:" "\n\t"
-      " ldrb.w %[txval], [%[ptr]], #1" "\n\t"                   /* Load value to send, increment buffer */
-      " mvn %[txval],%[txval]" "\n\t"                           /* Negate value */
+      L("loop%=")
+      A("ldrb.w %[txval], [%[ptr]], #1")                   /* Load value to send, increment buffer */
+      A("mvn %[txval],%[txval]")                           /* Negate value */
 
       /* Bit 7 */
-      " ubfx %[work],%[txval],#7,#1" "\n\t"                     /* Place bit 7 in bit 0 of work*/
+      A("ubfx %[work],%[txval],#7,#1")                     /* Place bit 7 in bit 0 of work*/
 
-      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[work],%[txval],#6,#1" "\n\t"                     /* Place bit 6 in bit 0 of work*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[work],%[txval],#6,#1")                     /* Place bit 6 in bit 0 of work*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 6 */
-      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[work],%[txval],#5,#1" "\n\t"                     /* Place bit 5 in bit 0 of work*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[work],%[txval],#5,#1")                     /* Place bit 5 in bit 0 of work*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 5 */
-      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[work],%[txval],#4,#1" "\n\t"                     /* Place bit 4 in bit 0 of work*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[work],%[txval],#4,#1")                     /* Place bit 4 in bit 0 of work*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 4 */
-      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[work],%[txval],#3,#1" "\n\t"                     /* Place bit 3 in bit 0 of work*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[work],%[txval],#3,#1")                     /* Place bit 3 in bit 0 of work*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 3 */
-      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[work],%[txval],#2,#1" "\n\t"                     /* Place bit 2 in bit 0 of work*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[work],%[txval],#2,#1")                     /* Place bit 2 in bit 0 of work*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 2 */
-      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[work],%[txval],#1,#1" "\n\t"                     /* Place bit 1 in bit 0 of work*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[work],%[txval],#1,#1")                     /* Place bit 1 in bit 0 of work*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 1 */
-      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t" /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " ubfx %[work],%[txval],#0,#1" "\n\t"                     /* Place bit 0 in bit 0 of work*/
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("ubfx %[work],%[txval],#0,#1")                     /* Place bit 0 in bit 0 of work*/
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 0 */
-      " str %[mosi_mask],[%[mosi_port], %[work],LSL #2]" "\n\t"  /* Access the proper SODR or CODR registers based on that bit */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"                   /* SODR */
-      " subs %[todo],#1" "\n\t"                                 /* Decrement count of pending words to send, update status */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"              /* CODR */
-      " bne.n loop%=" "\n\t"                                    /* Repeat until done */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
+      A("subs %[todo],#1")                                 /* Decrement count of pending words to send, update status */
+      A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
+      A("bne.n loop%=")                                    /* Repeat until done */
 
       : [ptr]"+r" ( ptr ) ,
         [todo]"+r" ( todo ) ,
@@ -413,59 +413,59 @@
     __asm__ __volatile__(
       ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
 
-      " loop%=:" "\n\t"
+      L("loop%=")
 
       /* bit 7 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#7,#1" "\n\t"                /* Store read bit as the bit 7 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#7,#1")                /* Store read bit as the bit 7 */
 
       /* bit 6 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#6,#1" "\n\t"                /* Store read bit as the bit 6 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#6,#1")                /* Store read bit as the bit 6 */
 
       /* bit 5 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#5,#1" "\n\t"                /* Store read bit as the bit 5 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#5,#1")                /* Store read bit as the bit 5 */
 
       /* bit 4 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#4,#1" "\n\t"                /* Store read bit as the bit 4 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#4,#1")                /* Store read bit as the bit 4 */
 
       /* bit 3 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#3,#1" "\n\t"                /* Store read bit as the bit 3 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#3,#1")                /* Store read bit as the bit 3 */
 
       /* bit 2 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#2,#1" "\n\t"                /* Store read bit as the bit 2 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#2,#1")                /* Store read bit as the bit 2 */
 
       /* bit 1 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#1,#1" "\n\t"                /* Store read bit as the bit 1 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#1,#1")                /* Store read bit as the bit 1 */
 
       /* bit 0 */
-      " str %[sck_mask],[%[sck_port]]" "\n\t"           /* SODR */
-      " ldr %[work],[%[bitband_miso_port]]" "\n\t"      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
-      " str %[sck_mask],[%[sck_port],#0x4]" "\n\t"      /* CODR */
-      " bfi %[bin],%[work],#0,#1" "\n\t"                /* Store read bit as the bit 0 */
+      A("str %[sck_mask],[%[sck_port]]")           /* SODR */
+      A("ldr %[work],[%[bitband_miso_port]]")      /* PDSR on bitband area for required bit: work will be 1 or 0 based on port */
+      A("str %[sck_mask],[%[sck_port],#0x4]")      /* CODR */
+      A("bfi %[bin],%[work],#0,#1")                /* Store read bit as the bit 0 */
 
-      " subs %[todo],#1" "\n\t"                         /* Decrement count of pending words to send, update status */
-      " strb.w %[bin], [%[ptr]], #1" "\n\t"             /* Store read value into buffer, increment buffer pointer */
-      " bne.n loop%=" "\n\t"                            /* Repeat until done */
+      A("subs %[todo],#1")                         /* Decrement count of pending words to send, update status */
+      A("strb.w %[bin], [%[ptr]], #1")             /* Store read value into buffer, increment buffer pointer */
+      A("bne.n loop%=")                            /* Repeat until done */
 
       : [ptr]"+r"(ptr),
         [todo]"+r"(todo),
@@ -839,7 +839,7 @@
       REG_PMC_PCER0 = (1UL << ID_PIOA) | (1UL << ID_SPI0);
 
       // Disable PIO on A26 and A27
-      REG_PIOA_PDR = 0x0c000000;
+      REG_PIOA_PDR = 0x0C000000;
       OUT_WRITE(SDSS, 1);
 
       // Reset SPI0 (from sam lib)

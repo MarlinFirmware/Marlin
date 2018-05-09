@@ -80,7 +80,7 @@ void UnwInitState(UnwState * const state,     /**< Pointer to structure to fill.
 // Detect if function names are available
 static int __attribute__ ((noinline)) has_function_names(void) {
   uint32_t flag_word = ((uint32_t*)(((uint32_t)(&has_function_names)) & (-4))) [-1];
-  return ((flag_word & 0xff000000) == 0xff000000) ? 1 : 0;
+  return ((flag_word & 0xFF000000) == 0xFF000000) ? 1 : 0;
 }
 
 /**

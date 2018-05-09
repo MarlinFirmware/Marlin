@@ -123,13 +123,13 @@ uint8_t u8g_dev_sh1106_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
         u8g_SetAddress(u8g, dev, 0);           // instruction mode
         u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_data_start_2_wire);
-        u8g_WriteByte(u8g, dev, 0x0b0 | (pb->p.page*2)); // select current page
+        u8g_WriteByte(u8g, dev, 0x0B0 | (pb->p.page*2)); // select current page
         u8g_SetAddress(u8g, dev, 1);           // data mode
         u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *) pb->buf);
         u8g_SetChipSelect(u8g, dev, 0);
         u8g_SetAddress(u8g, dev, 0);           // instruction mode
         u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_sh1106_128x64_data_start_2_wire);
-        u8g_WriteByte(u8g, dev, 0x0b0 | (pb->p.page*2+1)); // select current page
+        u8g_WriteByte(u8g, dev, 0x0B0 | (pb->p.page*2+1)); // select current page
         u8g_SetAddress(u8g, dev, 1);           // data mode
         u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
         u8g_SetChipSelect(u8g, dev, 0);
@@ -191,13 +191,13 @@ uint8_t u8g_dev_ssd1306_128x64_2x_2_wire_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t 
         u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
         u8g_SetAddress(u8g, dev, 0);           // instruction mode
         u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
-        u8g_WriteByte(u8g, dev, 0x0b0 | (pb->p.page*2)); // select current page
+        u8g_WriteByte(u8g, dev, 0x0B0 | (pb->p.page*2)); // select current page
         u8g_SetAddress(u8g, dev, 1);           // data mode
         u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *) pb->buf);
         u8g_SetChipSelect(u8g, dev, 0);
         u8g_SetAddress(u8g, dev, 0);           // instruction mode
         u8g_WriteEscSeqP_2_wire(u8g, dev, u8g_dev_ssd1306_128x64_data_start_2_wire);
-        u8g_WriteByte(u8g, dev, 0x0b0 | (pb->p.page*2+1)); // select current page
+        u8g_WriteByte(u8g, dev, 0x0B0 | (pb->p.page*2+1)); // select current page
         u8g_SetAddress(u8g, dev, 1);           // data mode
         u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
         u8g_SetChipSelect(u8g, dev, 0);
@@ -250,25 +250,25 @@ uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_s
       else if (value == 254) {
         break;
       }
-      else if (value >= 0x0f0) {
+      else if (value >= 0x0F0) {
         /* not yet used, do nothing */
       }
-      else if (value >= 0xe0 ) {
-        u8g_SetAddress(u8g, dev, value & 0x0f);
+      else if (value >= 0xE0 ) {
+        u8g_SetAddress(u8g, dev, value & 0x0F);
       }
-      else if (value >= 0xd0) {
-        u8g_SetChipSelect(u8g, dev, value & 0x0f);
+      else if (value >= 0xD0) {
+        u8g_SetChipSelect(u8g, dev, value & 0x0F);
       }
-      else if (value >= 0xc0) {
+      else if (value >= 0xC0) {
         u8g_SetResetLow(u8g, dev);
-        value &= 0x0f;
+        value &= 0x0F;
         value <<= 4;
         value+=2;
         u8g_Delay(value);
         u8g_SetResetHigh(u8g, dev);
         u8g_Delay(value);
       }
-      else if (value >= 0xbe) {                       /* not yet implemented */
+      else if (value >= 0xBE) {                       /* not yet implemented */
         /* u8g_SetVCC(u8g, dev, value & 0x01); */
       }
       else if (value <= 127) {

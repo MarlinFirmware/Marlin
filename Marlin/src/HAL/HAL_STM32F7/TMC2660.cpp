@@ -68,7 +68,7 @@
 //definitions for the chopper config register
 #define CHOPPER_MODE_STANDARD 0x0ul
 #define CHOPPER_MODE_T_OFF_FAST_DECAY 0x4000ul
-#define T_OFF_PATTERN 0xful
+#define T_OFF_PATTERN 0xFul
 #define RANDOM_TOFF_TIME 0x2000ul
 #define BLANK_TIMING_PATTERN 0x18000ul
 #define BLANK_TIMING_SHIFT 15
@@ -85,7 +85,7 @@
 #define CURRENT_DOWN_STEP_SPEED_PATTERN 0x6000ul
 #define SE_MAX_PATTERN 0xF00ul
 #define SE_CURRENT_STEP_WIDTH_PATTERN 0x60ul
-#define SE_MIN_PATTERN 0xful
+#define SE_MIN_PATTERN 0xFul
 
 //definitions for stall guard2 current register
 #define STALL_GUARD_FILTER_ENABLED 0x10000ul
