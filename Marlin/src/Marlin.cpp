@@ -269,7 +269,7 @@ bool pin_is_protected(const pin_t pin) {
 }
 
 void quickstop_stepper() {
-  stepper.quick_stop();
+  planner.quick_stop();
   planner.synchronize();
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();

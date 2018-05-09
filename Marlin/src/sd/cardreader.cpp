@@ -29,7 +29,6 @@
 #include "../Marlin.h"
 #include "../lcd/ultralcd.h"
 #include "../module/planner.h"
-#include "../module/stepper.h"
 #include "../module/printcounter.h"
 #include "../core/language.h"
 #include "../gcode/queue.h"
@@ -983,7 +982,7 @@ void CardReader::printingHasFinished() {
     #endif
 
     #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
-      stepper.cleaning_buffer_counter = 1; // The command will fire from the Stepper ISR
+      planner.finish_and_disable();
     #endif
     print_job_timer.stop();
     if (print_job_timer.duration() > 60)

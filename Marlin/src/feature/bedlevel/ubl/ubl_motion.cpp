@@ -262,7 +262,8 @@
             z_position = end[Z_AXIS];
           }
 
-          planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder);
+          if (!planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder))
+            break;
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -319,7 +320,8 @@
           e_position = end[E_AXIS];
           z_position = end[Z_AXIS];
         }
-        planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder);
+        if (!planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder))
+          break;
         current_yi += dyi;
         yi_cnt--;
       }
@@ -342,7 +344,8 @@
           z_position = end[Z_AXIS];
         }
 
-        planner.buffer_segment(next_mesh_line_x, ry, z_position + z0, e_position, feed_rate, extruder);
+        if (!planner.buffer_segment(next_mesh_line_x, ry, z_position + z0, e_position, feed_rate, extruder))
+          break;
         current_xi += dxi;
         xi_cnt--;
       }

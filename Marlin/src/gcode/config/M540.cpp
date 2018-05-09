@@ -33,7 +33,7 @@
 void GcodeSuite::M540() {
 
   if (parser.seen('S'))
-    stepper.abort_on_endstop_hit = parser.value_bool();
+    planner.abort_on_endstop_hit = parser.value_bool();
 
 }
 

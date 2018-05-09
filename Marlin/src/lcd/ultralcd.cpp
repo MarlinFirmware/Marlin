@@ -2421,12 +2421,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     void _lcd_do_nothing() {}
     void _lcd_hard_stop() {
-      stepper.quick_stop();
       const screenFunc_t old_screen = currentScreen;
       currentScreen = _lcd_do_nothing;
-      while (planner.movesplanned()) idle();
+      planner.quick_stop();
       currentScreen = old_screen;
-      stepper.cleaning_buffer_counter = 0;
       set_current_from_steppers_for_axis(ALL_AXES);
       sync_plan_position();
     }
@@ -3856,7 +3854,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     // M540 S - Abort on endstop hit when SD printing
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-      MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &stepper.abort_on_endstop_hit);
+      MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
     #endif
 
     END_MENU();
