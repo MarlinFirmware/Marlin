@@ -1909,10 +1909,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   inline void say_units(
-    #if ADD_PORT_ARG
-      PORTARG_SOLO,
+    #if NUM_SERIAL > 1
+      const int8_t port,
     #endif
-    const bool colon=false
+    const bool colon
   ) {
     serialprintPGM_P(port,
       #if ENABLED(INCH_MODE_SUPPORT)
@@ -1922,6 +1922,11 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     );
     if (colon) SERIAL_ECHOLNPGM_P(port, ":");
   }
+  #if NUM_SERIAL > 1
+    #define SAY_UNITS_P(PORT, COLON) say_units(PORT, COLON)
+  #else
+    #define SAY_UNITS_P(PORT, COLON) say_units(COLON)
+  #endif
 
   /**
    * M503 - Report current settings in RAM
@@ -1943,12 +1948,12 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOPGM_P(port, "  G2");
       SERIAL_CHAR_P(port, parser.linear_unit_factor == 1.0 ? '1' : '0');
       SERIAL_ECHOPGM_P(port, " ;");
-      say_units(PORTVAR_SOLO);
+      SAY_UNITS_P(port, false);
     #else
       #define LINEAR_UNIT(N) (N)
       #define VOLUMETRIC_UNIT(N) (N)
       SERIAL_ECHOPGM_P(port, "  G21    ; Units in mm");
-      say_units(PORTVAR_SOLO);
+      SAY_UNITS_P(port, false);
     #endif
     SERIAL_EOL_P(port);
 
@@ -2363,12 +2368,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOPGM_P(port, "Z-Probe Offset (mm):");
-        say_units(
-          #if ADD_PORT_ARG
-            port,
-          #endif
-          true
-        );
+        SAY_UNITS_P(port, true);
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOLNPAIR_P(port, "  M851 Z", LINEAR_UNIT(zprobe_zoffset));
