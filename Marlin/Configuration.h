@@ -167,8 +167,8 @@
  * Standard is recommended in most other scenarios.
  */
 //#define MeshFast
-#define MeshStd
-//#define MeshFine
+//#define MeshStd
+#define MeshFine
 //#define MeshExtreme
 
 //#define BoardRev2

@@ -573,7 +573,7 @@
    * an option on the LCD screen to continue the print from the last-known
    * point in the file.
    */
-  #define POWER_LOSS_RECOVERY
+  //#define POWER_LOSS_RECOVERY
 
   /**
    * Sort SD file listings in alphabetical order.
