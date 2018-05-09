@@ -1904,16 +1904,6 @@ void MarlinSettings::reset() {
     void say_M603() { SERIAL_ECHOPGM("  M603 "); }
   #endif
 
-  inline void say_units(const bool colon=false) {
-    serialprintPGM(
-      #if ENABLED(INCH_MODE_SUPPORT)
-        parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :
-      #endif
-      PSTR(" (mm)")
-    );
-    if (colon) SERIAL_ECHOLNPGM(":");
-  }
-
   /**
    * M503 - Report current settings in RAM
    *
@@ -1930,15 +1920,13 @@ void MarlinSettings::reset() {
       #define VOLUMETRIC_UNIT(N) (float(N) / (parser.volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
       SERIAL_ECHOPGM("  G2");
       SERIAL_CHAR(parser.linear_unit_factor == 1.0 ? '1' : '0');
-      SERIAL_ECHOPGM(" ;");
-      say_units();
+      SERIAL_ECHOPGM(" ; Units in ");
+      serialprintPGM(parser.linear_unit_factor == 1.0 ? PSTR("mm\n") : PSTR("inches\n"));
     #else
       #define LINEAR_UNIT(N) (N)
       #define VOLUMETRIC_UNIT(N) (N)
-      SERIAL_ECHOPGM("  G21    ;");
-      say_units();
+      SERIAL_ECHOLNPGM("  G21    ; Units in mm");
     #endif
-    SERIAL_EOL();
 
     #if ENABLED(ULTIPANEL)
 
@@ -2350,8 +2338,7 @@ void MarlinSettings::reset() {
     #if HAS_BED_PROBE
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPGM("Z-Probe Offset");
-        say_units(true);
+        SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOLNPAIR("  M851 Z", LINEAR_UNIT(zprobe_zoffset));

@@ -32,7 +32,7 @@
  */
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
-#define CONFIGURATION_ADV_H_VERSION 010109
+#define CONFIGURATION_ADV_H_VERSION 010107
 
 // @section temperature
 
@@ -182,12 +182,10 @@
 
 // @section temperature
 
-// Calibration for AD595 / AD8495 sensor to adjust temperature measurements.
-// The final temperature is calculated as (measuredTemp * GAIN) + OFFSET.
-#define TEMP_SENSOR_AD595_OFFSET  0.0
-#define TEMP_SENSOR_AD595_GAIN    1.0
-#define TEMP_SENSOR_AD8495_OFFSET 0.0
-#define TEMP_SENSOR_AD8495_GAIN   1.0
+//These defines help to calibrate the AD595 sensor in case you get wrong temperature measurements.
+//The measured temperature is defined as "actualTemp = (measuredTemp * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET"
+#define TEMP_SENSOR_AD595_OFFSET 0.0
+#define TEMP_SENSOR_AD595_GAIN   1.0
 
 /**
  * Controller Fan
@@ -431,15 +429,6 @@
 // if unwanted behavior is observed on a user's machine when running at very slow speeds.
 #define MINIMUM_PLANNER_SPEED 0.05 // (mm/sec)
 
-//
-// Use Junction Deviation instead of traditional Jerk Limiting
-//
-//#define JUNCTION_DEVIATION
-#if ENABLED(JUNCTION_DEVIATION)
-  #define JUNCTION_DEVIATION_FACTOR 0.02
-  //#define JUNCTION_DEVIATION_INCLUDE_E
-#endif
-
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
 #define MICROSTEP_MODES {16,16,16,16,16} // [1,2,4,8,16]
 
@@ -503,6 +492,9 @@
 
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
+
+// Leave out seldom-used LCD menu items to recover some Program Memory
+//#define SLIM_LCD_MENUS
 
 // Scroll a longer status message into view
 #define STATUS_MESSAGE_SCROLLING
@@ -1226,7 +1218,7 @@
    *   stepperY.interpolate(0); \
    * }
    */
-  #define TMC_ADV() {  }
+  #define  TMC_ADV() {  }
 
 #endif // TMC2130 || TMC2208
 

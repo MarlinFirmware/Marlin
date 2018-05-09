@@ -54,13 +54,15 @@ CardReader::CardReader() {
   workDirDepth = 0;
   ZERO(workDirParents);
 
-  // Disable autostart until card is initialized
-  autostart_index = -1;
+  autostart_stilltocheck = true; //the SD start is delayed, because otherwise the serial cannot answer fast enough to make contact with the host software.
+  autostart_index = 0;
 
   //power to SD reader
   #if SDPOWER > -1
     OUT_WRITE(SDPOWER, HIGH);
-  #endif
+  #endif // SDPOWER
+
+  next_autostart_ms = millis() + 5000;
 }
 
 char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
@@ -564,42 +566,40 @@ void CardReader::write_command(char *buf) {
   }
 }
 
-//
-// Run the next autostart file. Called:
-// - On boot after successful card init
-// - After finishing the previous autostart file
-// - From the LCD command to run the autostart file
-//
+void CardReader::checkautostart(bool force) {
+  if (!force && (!autostart_stilltocheck || PENDING(millis(), next_autostart_ms)))
+    return;
 
-void CardReader::checkautostart() {
+  autostart_stilltocheck = false;
 
-  if (autostart_index < 0 || sdprinting) return;
+  if (!cardOK) {
+    initsd();
+    if (!cardOK) return; // fail
+  }
 
-  if (!cardOK) initsd();
+  char autoname[10];
+  sprintf_P(autoname, PSTR("auto%i.g"), autostart_index);
+  for (int8_t i = 0; i < (int8_t)strlen(autoname); i++) autoname[i] = tolower(autoname[i]);
 
-  if (cardOK) {
-    char autoname[10];
-    sprintf_P(autoname, PSTR("auto%i.g"), autostart_index);
-    dir_t p;
-    root.rewind();
-    while (root.readDir(p, NULL) > 0) {
-      for (int8_t i = (int8_t)strlen((char*)p.name); i--;) p.name[i] = tolower(p.name[i]);
-      if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
-        openAndPrintFile(autoname);
-        autostart_index++;
-        return;
-      }
+  dir_t p;
+
+  root.rewind();
+
+  bool found = false;
+  while (root.readDir(p, NULL) > 0) {
+    for (int8_t i = (int8_t)strlen((char*)p.name); i--;) p.name[i] = tolower(p.name[i]);
+    if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
+      openAndPrintFile(autoname);
+      found = true;
     }
   }
-  autostart_index = -1;
+  if (!found)
+    autostart_index = -1;
+  else
+    autostart_index++;
 }
 
-void CardReader::beginautostart() {
-  autostart_index = 0;
-  setroot();
-}
-
-void CardReader::closefile(const bool store_location) {
+void CardReader::closefile(bool store_location) {
   file.sync();
   file.close();
   saving = logging = false;
