@@ -90,43 +90,6 @@
  * respecfully request that you retain the unmodified Marlin boot screen.
  */
 
-//#define MeshFast
-//#define MeshStd
-#define MeshFine
-//#define MeshExtreme
-
-//#define BoardRev2
-
-
-#if(!ENABLED(MachineCR10Orig))
-#define CUSTOM_STATUS_SCREEN_IMAGE
-#endif
-
-#if(ENABLED(MachineMini))
-#define CUSTOM_MACHINE_NAME "Mini SuPeR"
-#elif(ENABLED(MachineCR10Orig))
-#define CUSTOM_MACHINE_NAME "SuPeR CR-10"
-#elif(ENABLED(MachineCR10S))
-#define CUSTOM_MACHINE_NAME "300 SuPeR"
-#elif(ENABLED(MachineS4))
-#define CUSTOM_MACHINE_NAME "400 SuPeR"
-#elif(ENABLED(MachineS5))
-#define CUSTOM_MACHINE_NAME "500 SuPeR"
-#endif
-
-#if(ENABLED(MachineMini))
-#define VerChar1 "M"
-#elif(ENABLED(MachineCR10Orig))
-#define VerChar1 "O"
-#elif(ENABLED(MachineCR10S))
-#define VerChar1 "S"
-#elif(ENABLED(MachineS4))
-#define VerChar1 "4"
-#elif(ENABLED(MachineS5))
-#define VerChar1 "5"
-#endif
-
-
 // Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
 //#define SHOW_CUSTOM_BOOTSCREEN
 
