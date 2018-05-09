@@ -61,23 +61,23 @@
  * States for ADC reading in the ISR
  */
 enum ADCSensorState : char {
-  #if HAS_TEMP_0
+  #if HAS_TEMP_ADC_0
     PrepareTemp_0,
     MeasureTemp_0,
   #endif
-  #if HAS_TEMP_1
+  #if HAS_TEMP_ADC_1
     PrepareTemp_1,
     MeasureTemp_1,
   #endif
-  #if HAS_TEMP_2
+  #if HAS_TEMP_ADC_2
     PrepareTemp_2,
     MeasureTemp_2,
   #endif
-  #if HAS_TEMP_3
+  #if HAS_TEMP_ADC_3
     PrepareTemp_3,
     MeasureTemp_3,
   #endif
-  #if HAS_TEMP_4
+  #if HAS_TEMP_ADC_4
     PrepareTemp_4,
     MeasureTemp_4,
   #endif
@@ -196,7 +196,7 @@ class Temperature {
     FORCE_INLINE static bool hotEnoughToExtrude(const uint8_t e) { return !tooColdToExtrude(e); }
     FORCE_INLINE static bool targetHotEnoughToExtrude(const uint8_t e) { return !targetTooColdToExtrude(e); }
 
-  private: 
+  private:
 
     static volatile bool temp_meas_ready;
     static uint16_t raw_temp_value[MAX_EXTRUDERS];
