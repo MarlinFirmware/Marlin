@@ -38,14 +38,38 @@ void GcodeSuite::M911() {
   #if ENABLED(X_IS_TMC2130) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX)) || ENABLED(IS_TRAMS)
     tmc_report_otpw(stepperX, TMC_X);
   #endif
+  #if ENABLED(X2_IS_TMC2130) || (ENABLED(X2_IS_TMC2208) && PIN_EXISTS(X2_SERIAL_RX))
+    tmc_report_otpw(stepperX2, TMC_X2);
+  #endif
+
   #if ENABLED(Y_IS_TMC2130) || (ENABLED(Y_IS_TMC2208) && PIN_EXISTS(Y_SERIAL_RX)) || ENABLED(IS_TRAMS)
     tmc_report_otpw(stepperY, TMC_Y);
   #endif
+  #if ENABLED(Y2_IS_TMC2130) || (ENABLED(Y2_IS_TMC2208) && PIN_EXISTS(Y2_SERIAL_RX))
+    tmc_report_otpw(stepperY2, TMC_Y2);
+  #endif
+
   #if ENABLED(Z_IS_TMC2130) || (ENABLED(Z_IS_TMC2208) && PIN_EXISTS(Z_SERIAL_RX)) || ENABLED(IS_TRAMS)
     tmc_report_otpw(stepperZ, TMC_Z);
   #endif
+  #if ENABLED(Z2_IS_TMC2130) || (ENABLED(Z2_IS_TMC2208) && PIN_EXISTS(Z2_SERIAL_RX))
+    tmc_report_otpw(stepperZ2, TMC_Z2);
+  #endif
+
   #if ENABLED(E0_IS_TMC2130) || (ENABLED(E0_IS_TMC2208) && PIN_EXISTS(E0_SERIAL_RX)) || ENABLED(IS_TRAMS)
     tmc_report_otpw(stepperE0, TMC_E0);
+  #endif
+  #if ENABLED(E1_IS_TMC2130) || (ENABLED(E1_IS_TMC2208) && PIN_EXISTS(E1_SERIAL_RX))
+    tmc_report_otpw(stepperE1, TMC_E1);
+  #endif
+  #if ENABLED(E2_IS_TMC2130) || (ENABLED(E2_IS_TMC2208) && PIN_EXISTS(E2_SERIAL_RX))
+    tmc_report_otpw(stepperE2, TMC_E2);
+  #endif
+  #if ENABLED(E3_IS_TMC2130) || (ENABLED(E3_IS_TMC2208) && PIN_EXISTS(E3_SERIAL_RX))
+    tmc_report_otpw(stepperE3, TMC_E3);
+  #endif
+  #if ENABLED(E4_IS_TMC2130) || (ENABLED(E4_IS_TMC2208) && PIN_EXISTS(E4_SERIAL_RX))
+    tmc_report_otpw(stepperE4, TMC_E4);
   #endif
 }
 
@@ -55,23 +79,41 @@ void GcodeSuite::M911() {
 void GcodeSuite::M912() {
   const bool clearX = parser.seen(axis_codes[X_AXIS]), clearY = parser.seen(axis_codes[Y_AXIS]), clearZ = parser.seen(axis_codes[Z_AXIS]), clearE = parser.seen(axis_codes[E_AXIS]),
            clearAll = (!clearX && !clearY && !clearZ && !clearE) || (clearX && clearY && clearZ && clearE);
-  #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX))
+  #if ENABLED(X_IS_TMC2130) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX)) || ENABLED(IS_TRAMS)
     if (clearX || clearAll) tmc_clear_otpw(stepperX, TMC_X);
   #endif
-  #if ENABLED(X2_IS_TMC2130) || (ENABLED(X2_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX))
-    if (clearX || clearAll) tmc_clear_otpw(stepperX, TMC_X);
+  #if ENABLED(X2_IS_TMC2130) || (ENABLED(X2_IS_TMC2208) && PIN_EXISTS(X2_SERIAL_RX))
+    if (clearX || clearAll) tmc_clear_otpw(stepperX2, TMC_X2);
   #endif
 
-  #if ENABLED(Y_IS_TMC2130) || (ENABLED(Y_IS_TMC2208) && PIN_EXISTS(Y_SERIAL_RX))
+  #if ENABLED(Y_IS_TMC2130) || (ENABLED(Y_IS_TMC2208) && PIN_EXISTS(Y_SERIAL_RX)) || ENABLED(IS_TRAMS)
     if (clearY || clearAll) tmc_clear_otpw(stepperY, TMC_Y);
   #endif
-
-  #if ENABLED(Z_IS_TMC2130) || (ENABLED(Z_IS_TMC2208) && PIN_EXISTS(Z_SERIAL_RX))
-    if (clearZ || clearAll) tmc_clear_otpw(stepperZ, TMC_Z);
+  #if ENABLED(Y2_IS_TMC2130) || (ENABLED(Y2_IS_TMC2208) && PIN_EXISTS(Y2_SERIAL_RX))
+    if (clearY || clearAll) tmc_clear_otpw(stepperY2, TMC_Y2);
   #endif
 
-  #if ENABLED(E0_IS_TMC2130) || (ENABLED(E0_IS_TMC2208) && PIN_EXISTS(E0_SERIAL_RX))
+  #if ENABLED(Z_IS_TMC2130) || (ENABLED(Z_IS_TMC2208) && PIN_EXISTS(Z_SERIAL_RX)) || ENABLED(IS_TRAMS)
+    if (clearZ || clearAll) tmc_clear_otpw(stepperZ, TMC_Z);
+  #endif
+  #if ENABLED(Z2_IS_TMC2130) || (ENABLED(Z2_IS_TMC2208) && PIN_EXISTS(Z2_SERIAL_RX))
+    if (clearZ || clearAll) tmc_clear_otpw(stepperZ2, TMC_Z2);
+  #endif
+
+  #if ENABLED(E0_IS_TMC2130) || (ENABLED(E0_IS_TMC2208) && PIN_EXISTS(E0_SERIAL_RX)) || ENABLED(IS_TRAMS)
     if (clearE || clearAll) tmc_clear_otpw(stepperE0, TMC_E0);
+  #endif
+  #if ENABLED(E1_IS_TMC2130) || (ENABLED(E1_IS_TMC2208) && PIN_EXISTS(E1_SERIAL_RX))
+    if (clearE || clearAll) tmc_clear_otpw(stepperE1, TMC_E1);
+  #endif
+  #if ENABLED(E2_IS_TMC2130) || (ENABLED(E2_IS_TMC2208) && PIN_EXISTS(E2_SERIAL_RX))
+    if (clearE || clearAll) tmc_clear_otpw(stepperE2, TMC_E2);
+  #endif
+  #if ENABLED(E3_IS_TMC2130) || (ENABLED(E3_IS_TMC2208) && PIN_EXISTS(E3_SERIAL_RX))
+    if (clearE || clearAll) tmc_clear_otpw(stepperE3, TMC_E3);
+  #endif
+  #if ENABLED(E4_IS_TMC2130) || (ENABLED(E4_IS_TMC2208) && PIN_EXISTS(E4_SERIAL_RX))
+    if (clearE || clearAll) tmc_clear_otpw(stepperE4, TMC_E4);
   #endif
 }
 
