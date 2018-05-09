@@ -44,7 +44,7 @@ class PrintCounter: public Stopwatch {
   private:
     typedef Stopwatch super;
 
-    #if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM) || defined(CPU_32_BIT)
+    #if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM)
       typedef uint32_t promdress;
     #else
       typedef uint16_t promdress;
