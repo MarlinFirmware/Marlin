@@ -797,21 +797,24 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
 //    POW((before->speed_x-after->speed_x), 2)+POW((before->speed_y-after->speed_y), 2));
 //}
 
-
 // The kernel called by recalculate() when scanning the plan from last to first entry.
-void Planner::reverse_pass_kernel(block_t* const current, const block_t * const next) {
-  if (!current || !next) return;
-  // If entry speed is already at the maximum entry speed, no need to recheck. Block is cruising.
-  // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
-  // check for maximum allowable speed reductions to ensure maximum possible planned speed.
-  float max_entry_speed = current->max_entry_speed;
-  if (current->entry_speed != max_entry_speed) {
-    // If nominal length true, max junction speed is guaranteed to be reached. Only compute
-    // for max allowable speed if block is decelerating and nominal length is false.
-    current->entry_speed = (TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
-      ? max_entry_speed
-      : min(max_entry_speed, max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
-    SBI(current->flag, BLOCK_BIT_RECALCULATE);
+void Planner::reverse_pass_kernel(block_t* const current, const block_t* const next) {
+  if (current && next) {
+    // If entry speed is already at the maximum entry speed, no need to recheck. Block is cruising.
+    // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
+    // check for maximum allowable speed reductions to ensure maximum possible planned speed.
+    const float max_entry_speed = current->max_entry_speed;
+    if (current->entry_speed != max_entry_speed || TEST(next->flag, BLOCK_BIT_RECALCULATE)) {
+      // If nominal length true, max junction speed is guaranteed to be reached. Only compute
+      // for max allowable speed if block is decelerating and nominal length is false.
+      const float new_entry_speed = (TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
+        ? max_entry_speed
+        : min(max_entry_speed, max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
+      if (new_entry_speed != current->entry_speed) {
+        current->entry_speed = new_entry_speed;
+        SBI(current->flag, BLOCK_BIT_RECALCULATE);
+      }
+    }
   }
 }
 
@@ -821,7 +824,7 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t * const 
  */
 void Planner::reverse_pass() {
   if (movesplanned() > 2) {
-    const uint8_t endnr = BLOCK_MOD(block_buffer_tail + 1); // tail is running. tail+1 shouldn't be altered because it's connected to the running block.
+    const uint8_t endnr = next_block_index(block_buffer_tail); // tail is running. tail+1 shouldn't be altered because it's connected to the running block.
     uint8_t blocknr = prev_block_index(block_buffer_head);
     block_t* current = &block_buffer[blocknr];
 
@@ -830,10 +833,13 @@ void Planner::reverse_pass() {
     if (current->entry_speed != max_entry_speed) {
       // If nominal length true, max junction speed is guaranteed to be reached. Only compute
       // for max allowable speed if block is decelerating and nominal length is false.
-      current->entry_speed = TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH)
+      const float new_entry_speed = TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH)
         ? max_entry_speed
         : min(max_entry_speed, max_allowable_speed(-current->acceleration, MINIMUM_PLANNER_SPEED, current->millimeters));
-      SBI(current->flag, BLOCK_BIT_RECALCULATE);
+      if (current->entry_speed != new_entry_speed) {
+        current->entry_speed = new_entry_speed;
+        SBI(current->flag, BLOCK_BIT_RECALCULATE);
+      }
     }
 
     do {
@@ -846,21 +852,20 @@ void Planner::reverse_pass() {
 }
 
 // The kernel called by recalculate() when scanning the plan from first to last entry.
-void Planner::forward_pass_kernel(const block_t * const previous, block_t* const current) {
-  if (!previous) return;
-
-  // If the previous block is an acceleration block, but it is not long enough to complete the
-  // full speed change within the block, we need to adjust the entry speed accordingly. Entry
-  // speeds have already been reset, maximized, and reverse planned by reverse planner.
-  // If nominal length is true, max junction speed is guaranteed to be reached. No need to recheck.
-  if (!TEST(previous->flag, BLOCK_BIT_NOMINAL_LENGTH)) {
-    if (previous->entry_speed < current->entry_speed) {
-      float entry_speed = min(current->entry_speed,
-                               max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters));
-      // Check for junction speed change
-      if (current->entry_speed != entry_speed) {
-        current->entry_speed = entry_speed;
-        SBI(current->flag, BLOCK_BIT_RECALCULATE);
+void Planner::forward_pass_kernel(const block_t* const previous, block_t* const current) {
+  if (previous) {
+    // If the previous block is an acceleration block, too short to complete the full speed
+    // change, adjust the entry speed accordingly. Entry speeds have already been reset,
+    // maximized, and reverse-planned. If nominal length is set, max junction speed is
+    // guaranteed to be reached. No need to recheck.
+    if (!TEST(previous->flag, BLOCK_BIT_NOMINAL_LENGTH)) {
+      if (previous->entry_speed < current->entry_speed) {
+        const float new_entry_speed = min(current->entry_speed, max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters));
+        // Check for junction speed change
+        if (current->entry_speed != new_entry_speed) {
+          current->entry_speed = new_entry_speed;
+          SBI(current->flag, BLOCK_BIT_RECALCULATE);
+        }
       }
     }
   }
@@ -1834,7 +1839,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
-      block->advance_speed = (HAL_STEPPER_TIMER_RATE) / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS]);
+      block->advance_speed = (HAL_STEPPER_TIMER_RATE) / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N]);
       #if ENABLED(LA_DEBUG)
         if (extruder_advance_K * block->e_D_ratio * block->acceleration * 2 < block->nominal_speed * block->e_D_ratio)
           SERIAL_ECHOLNPGM("More than 2 steps per eISR loop executed.");
