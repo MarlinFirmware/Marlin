@@ -83,7 +83,7 @@ float current_position[XYZE] = { 0.0 };
  * Cartesian Destination
  *   The destination for a move, filled in by G-code movement commands,
  *   and expected by functions like 'prepare_move_to_destination'.
- *   Set with 'gcode_get_destination' or 'set_destination_from_current'.
+ *   Set with 'get_destination_from_command' or 'set_destination_from_current'.
  */
 float destination[XYZE] = { 0.0 };
 
