@@ -10831,7 +10831,7 @@ inline void gcode_M502() {
    */
   inline void gcode_M906() {
     #define TMC_SAY_CURRENT(Q) tmc_get_current(stepper##Q, TMC_##Q)
-    #define TMC_SET_CURRENT(Q) tmc_set_current(stepper##Q, TMC_##Q, value)
+    #define TMC_SET_CURRENT(Q) tmc_set_current(stepper##Q, value)
 
     bool report = true;
     const uint8_t index = parser.byteval('I');
@@ -10930,42 +10930,48 @@ inline void gcode_M502() {
     }
   }
 
+  #define M91x_USE(A) (ENABLED(A##_IS_TMC2130) || (ENABLED(A##_IS_TMC2208) && PIN_EXISTS(A##_SERIAL_RX)))
+  #define M91x_USE_X  (ENABLED(IS_TRAMS) || M91x_USE(X))
+  #define M91x_USE_Y  (ENABLED(IS_TRAMS) || M91x_USE(Y))
+  #define M91x_USE_Z  (ENABLED(IS_TRAMS) || M91x_USE(Z))
+  #define M91x_USE_E0 (ENABLED(IS_TRAMS) || M91x_USE(E0))
+
   /**
    * M911: Report TMC stepper driver overtemperature pre-warn flag
    *       This flag is held by the library, persisting until cleared by M912
    */
   inline void gcode_M911() {
-    #if ENABLED(X_IS_TMC2130) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX)) || ENABLED(IS_TRAMS)
+    #if M91x_USE_X
       tmc_report_otpw(stepperX, TMC_X);
     #endif
-    #if ENABLED(Y_IS_TMC2130) || (ENABLED(Y_IS_TMC2208) && PIN_EXISTS(Y_SERIAL_RX)) || ENABLED(IS_TRAMS)
-      tmc_report_otpw(stepperY, TMC_Y);
-    #endif
-    #if ENABLED(Z_IS_TMC2130) || (ENABLED(Z_IS_TMC2208) && PIN_EXISTS(Z_SERIAL_RX)) || ENABLED(IS_TRAMS)
-      tmc_report_otpw(stepperZ, TMC_Z);
-    #endif
-    #if ENABLED(X2_IS_TMC2130) || (ENABLED(X2_IS_TMC2208) && PIN_EXISTS(X2_SERIAL_RX))
+    #if M91x_USE(X2)
       tmc_report_otpw(stepperX2, TMC_X2);
     #endif
-    #if ENABLED(Y2_IS_TMC2130) || (ENABLED(Y2_IS_TMC2208) && PIN_EXISTS(Y2_SERIAL_RX))
+    #if M91x_USE_Y
+      tmc_report_otpw(stepperY, TMC_Y);
+    #endif
+    #if M91x_USE(Y2)
       tmc_report_otpw(stepperY2, TMC_Y2);
     #endif
-    #if ENABLED(Z2_IS_TMC2130) || (ENABLED(Z2_IS_TMC2208) && PIN_EXISTS(Z2_SERIAL_RX))
+    #if M91x_USE_Z
+      tmc_report_otpw(stepperZ, TMC_Z);
+    #endif
+    #if M91x_USE(Z2)
       tmc_report_otpw(stepperZ2, TMC_Z2);
     #endif
-    #if ENABLED(E0_IS_TMC2130) || (ENABLED(E0_IS_TMC2208) && PIN_EXISTS(E0_SERIAL_RX)) || ENABLED(IS_TRAMS)
+    #if M91x_USE_E0
       tmc_report_otpw(stepperE0, TMC_E0);
     #endif
-    #if ENABLED(E1_IS_TMC2130) || (ENABLED(E1_IS_TMC2208) && PIN_EXISTS(E1_SERIAL_RX))
+    #if M91x_USE(E1)
       tmc_report_otpw(stepperE1, TMC_E1);
     #endif
-    #if ENABLED(E2_IS_TMC2130) || (ENABLED(E2_IS_TMC2208) && PIN_EXISTS(E2_SERIAL_RX))
+    #if M91x_USE(E2)
       tmc_report_otpw(stepperE2, TMC_E2);
     #endif
-    #if ENABLED(E3_IS_TMC2130) || (ENABLED(E3_IS_TMC2208) && PIN_EXISTS(E3_SERIAL_RX))
+    #if M91x_USE(E3)
       tmc_report_otpw(stepperE3, TMC_E3);
     #endif
-    #if ENABLED(E4_IS_TMC2130) || (ENABLED(E4_IS_TMC2208) && PIN_EXISTS(E4_SERIAL_RX))
+    #if M91x_USE(E4)
       tmc_report_otpw(stepperE4, TMC_E4);
     #endif
   }
@@ -10983,43 +10989,59 @@ inline void gcode_M502() {
    *       M912 E1  ; clear E1 only
    */
   inline void gcode_M912() {
-    const bool hasX = parser.seen(axis_codes[X_AXIS]), hasY = parser.seen(axis_codes[Y_AXIS]),
-               hasZ = parser.seen(axis_codes[Z_AXIS]), hasE = parser.seen(axis_codes[E_AXIS]),
+    const bool hasX = parser.seen(axis_codes[X_AXIS]),
+               hasY = parser.seen(axis_codes[Y_AXIS]),
+               hasZ = parser.seen(axis_codes[Z_AXIS]),
+               hasE = parser.seen(axis_codes[E_AXIS]),
                hasNone = !hasX && !hasY && !hasZ && !hasE;
-    const uint8_t xval = parser.byteval(axis_codes[X_AXIS], 10), yval = parser.byteval(axis_codes[Y_AXIS], 10),
-                  zval = parser.byteval(axis_codes[Z_AXIS], 10), eval = parser.byteval(axis_codes[E_AXIS], 10);
 
-    #if (ENABLED(X_IS_TMC2130) || (ENABLED(X_IS_TMC2208) && PIN_EXISTS(X_SERIAL_RX)) || ENABLED(IS_TRAMS))
-      if (hasNone || xval == 1 || (hasX && xval == 10)) tmc_clear_otpw(stepperX, TMC_X);
+    #if M91x_USE_X || M91x_USE(X2)
+      const uint8_t xval = parser.byteval(axis_codes[X_AXIS], 10);
+      #if M91x_USE_X
+        if (hasNone || xval == 1 || (hasX && xval == 10)) tmc_clear_otpw(stepperX, TMC_X);
+      #endif
+      #if M91x_USE(X2)
+        if (hasNone || xval == 2 || (hasX && xval == 10)) tmc_clear_otpw(stepperX2, TMC_X2);
+      #endif
     #endif
-    #if (ENABLED(X2_IS_TMC2130) || (ENABLED(X2_IS_TMC2208) && PIN_EXISTS(X2_SERIAL_RX)))
-      if (hasNone || xval == 2 || (hasX && xval == 10)) tmc_clear_otpw(stepperX2, TMC_X2);
+
+    #define M91x_USE_Y (M91x_USE(Y) || ENABLED(IS_TRAMS))
+    #if M91x_USE_Y || M91x_USE(Y2)
+      const uint8_t yval = parser.byteval(axis_codes[Y_AXIS], 10);
+      #if M91x_USE_Y
+        if (hasNone || yval == 1 || (hasY && yval == 10)) tmc_clear_otpw(stepperY, TMC_Y);
+      #endif
+      #if M91x_USE(Y2)
+        if (hasNone || yval == 2 || (hasY && yval == 10)) tmc_clear_otpw(stepperY2, TMC_Y2);
+      #endif
     #endif
-    #if (ENABLED(Y_IS_TMC2130) || (ENABLED(Y_IS_TMC2208) && PIN_EXISTS(Y_SERIAL_RX)) || ENABLED(IS_TRAMS))
-      if (hasNone || yval == 1 || (hasY && yval == 10)) tmc_clear_otpw(stepperY, TMC_Y);
+
+    #define M91x_USE_Z (M91x_USE(Z) || ENABLED(IS_TRAMS))
+    #if M91x_USE_Z || M91x_USE(Z2)
+      const uint8_t zval = parser.byteval(axis_codes[Z_AXIS], 10);
+      #if M91x_USE_Z
+        if (hasNone || zval == 1 || (hasZ && zval == 10)) tmc_clear_otpw(stepperZ, TMC_Z);
+      #endif
+      #if M91x_USE(Z2)
+        if (hasNone || zval == 2 || (hasZ && zval == 10)) tmc_clear_otpw(stepperZ2, TMC_Z2);
+      #endif
     #endif
-    #if (ENABLED(Y2_IS_TMC2130) || (ENABLED(Y2_IS_TMC2208) && PIN_EXISTS(Y2_SERIAL_RX)))
-      if (hasNone || yval == 2 || (hasY && yval == 10)) tmc_clear_otpw(stepperY2, TMC_Y2);
-    #endif
-    #if (ENABLED(Z_IS_TMC2130) || (ENABLED(Z_IS_TMC2208) && PIN_EXISTS(Z_SERIAL_RX)) || ENABLED(IS_TRAMS))
-      if (hasNone || zval == 1 || (hasZ && zval == 10)) tmc_clear_otpw(stepperZ, TMC_Z);
-    #endif
-    #if (ENABLED(Z2_IS_TMC2130) || (ENABLED(Z2_IS_TMC2208) && PIN_EXISTS(Z2_SERIAL_RX)))
-      if (hasNone || zval == 2 || (hasZ && zval == 10)) tmc_clear_otpw(stepperZ2, TMC_Z2);
-    #endif
-    #if (ENABLED(E0_IS_TMC2130) || (ENABLED(E0_IS_TMC2208) && PIN_EXISTS(E0_SERIAL_RX)) || ENABLED(IS_TRAMS))
+
+    const uint8_t eval = parser.byteval(axis_codes[E_AXIS], 10);
+
+    #if M91x_USE_E0
       if (hasNone || eval == 0 || (hasE && eval == 10)) tmc_clear_otpw(stepperE0, TMC_E0);
     #endif
-    #if E_STEPPERS > 1 && (ENABLED(E1_IS_TMC2130) || (ENABLED(E1_IS_TMC2208) && PIN_EXISTS(E1_SERIAL_RX)))
+    #if E_STEPPERS > 1 && M91x_USE(E1)
       if (hasNone || eval == 1 || (hasE && eval == 10)) tmc_clear_otpw(stepperE1, TMC_E1);
     #endif
-    #if E_STEPPERS > 2 && (ENABLED(E2_IS_TMC2130) || (ENABLED(E2_IS_TMC2208) && PIN_EXISTS(E2_SERIAL_RX)))
+    #if E_STEPPERS > 2 && M91x_USE(E2)
       if (hasNone || eval == 2 || (hasE && eval == 10)) tmc_clear_otpw(stepperE2, TMC_E2);
     #endif
-    #if E_STEPPERS > 3 && (ENABLED(E3_IS_TMC2130) || (ENABLED(E3_IS_TMC2208) && PIN_EXISTS(E3_SERIAL_RX)))
+    #if E_STEPPERS > 3 && M91x_USE(E3)
       if (hasNone || eval == 3 || (hasE && eval == 10)) tmc_clear_otpw(stepperE3, TMC_E3);
     #endif
-    #if E_STEPPERS > 4 && (ENABLED(E4_IS_TMC2130) || (ENABLED(E4_IS_TMC2208) && PIN_EXISTS(E4_SERIAL_RX)))
+    #if E_STEPPERS > 4 && M91x_USE(E4)
       if (hasNone || eval == 4 || (hasE && eval == 10)) tmc_clear_otpw(stepperE4, TMC_E4);
     #endif
   }
@@ -11030,9 +11052,9 @@ inline void gcode_M502() {
   #if ENABLED(HYBRID_THRESHOLD)
     inline void gcode_M913() {
       #define TMC_SAY_PWMTHRS(P,Q) tmc_get_pwmthrs(stepper##Q, TMC_##Q, planner.axis_steps_per_mm[P##_AXIS])
-      #define TMC_SET_PWMTHRS(P,Q) tmc_set_pwmthrs(stepper##Q, TMC_##Q, value, planner.axis_steps_per_mm[P##_AXIS])
+      #define TMC_SET_PWMTHRS(P,Q) tmc_set_pwmthrs(stepper##Q, value, planner.axis_steps_per_mm[P##_AXIS])
       #define TMC_SAY_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_get_pwmthrs(stepperE##E, TMC_E##E, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
-      #define TMC_SET_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_set_pwmthrs(stepperE##E, TMC_E##E, value, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
+      #define TMC_SET_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_set_pwmthrs(stepperE##E, value, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
 
       bool report = true;
       const uint8_t index = parser.byteval('I');
@@ -11138,7 +11160,7 @@ inline void gcode_M502() {
   #if ENABLED(SENSORLESS_HOMING)
     inline void gcode_M914() {
       #define TMC_SAY_SGT(Q) tmc_get_sgt(stepper##Q, TMC_##Q)
-      #define TMC_SET_SGT(Q) tmc_set_sgt(stepper##Q, TMC_##Q, value)
+      #define TMC_SET_SGT(Q) tmc_set_sgt(stepper##Q, value)
 
       bool report = true;
       const uint8_t index = parser.byteval('I');
