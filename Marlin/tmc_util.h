@@ -53,7 +53,7 @@ void tmc_get_current(TMC &st, const TMC_AxisEnum axis) {
   _tmc_say_current(axis, st.getCurrent());
 }
 template<typename TMC>
-void tmc_set_current(TMC &st, const TMC_AxisEnum axis, const int mA) {
+void tmc_set_current(TMC &st, const int mA) {
   st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
 }
 template<typename TMC>
@@ -70,7 +70,7 @@ void tmc_get_pwmthrs(TMC &st, const TMC_AxisEnum axis, const uint16_t spmm) {
   _tmc_say_pwmthrs(axis, _tmc_thrs(st.microsteps(), st.TPWMTHRS(), spmm));
 }
 template<typename TMC>
-void tmc_set_pwmthrs(TMC &st, const TMC_AxisEnum axis, const int32_t thrs, const uint32_t spmm) {
+void tmc_set_pwmthrs(TMC &st, const int32_t thrs, const uint32_t spmm) {
   st.TPWMTHRS(_tmc_thrs(st.microsteps(), thrs, spmm));
 }
 template<typename TMC>
@@ -78,7 +78,7 @@ void tmc_get_sgt(TMC &st, const TMC_AxisEnum axis) {
   _tmc_say_sgt(axis, st.sgt());
 }
 template<typename TMC>
-void tmc_set_sgt(TMC &st, const TMC_AxisEnum axis, const int8_t sgt_val) {
+void tmc_set_sgt(TMC &st, const int8_t sgt_val) {
   st.sgt(sgt_val);
 }
 
