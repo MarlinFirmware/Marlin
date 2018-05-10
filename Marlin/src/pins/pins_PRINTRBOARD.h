@@ -74,11 +74,7 @@
 // Limit Switches
 //
 #define X_STOP_PIN         47   // E3
-#if ENABLED(SDSUPPORT)
-  #define Y_STOP_PIN       37   // E5 - Move Ystop to Estop socket
-#else
-  #define Y_STOP_PIN       20   // B0 SS - Ystop in Ystop socket
-#endif
+#define Y_STOP_PIN         20   // B0 SS
 #define Z_STOP_PIN         36   // E4
 
 //
@@ -120,7 +116,7 @@
 //
 // Misc. Functions
 //
-#define SDSS               20   // B0 SS
+#define SDSS               26   // B6 SDCS
 #define FILWIDTH_PIN        2   // Analog Input
 
 //
@@ -146,16 +142,18 @@
     #define BTN_EN2         3   // D3 RX1   JP2-7
     #define BTN_ENC        45   // F7 TDI   JP2-12
 
+    #undef SDSS
     #define SDSS           43   // F5 TMS   JP2-8
 
-    #define STAT_LED_RED_PIN  12   // C2       JP11-14
-    #define STAT_LED_BLUE_PIN 10   // C0       JP11-12
+    #define STAT_LED_RED_PIN  12   // C2    JP11-14
+    #define STAT_LED_BLUE_PIN 10   // C0    JP11-12
 
   #elif ENABLED(LCD_I2C_PANELOLU2)
 
     #define BTN_EN1         3   // D3 RX1   JP2-7
     #define BTN_EN2         2   // D2 TX1   JP2-5
     #define BTN_ENC        41   // F3       JP2-4
+    #undef SDSS
     #define SDSS           38   // F0       B-THERM connector - use SD card on Panelolu2
 
   #else
