@@ -422,12 +422,12 @@ void Planner::init() {
         // for the same result - Using C division, it takes 500cycles to complete .
 
         A("clr %3")                        // idx = 0
-        A("mov %14,%6")      
-        A("mov %15,%7")      
+        A("mov %14,%6")
+        A("mov %15,%7")
         A("mov %16,%8")                    // nr = interval
         A("tst %16")                       // nr & 0xFF0000 == 0 ?
         A("brne 2f")                       // No, skip this
-        A("mov %16,%15")      
+        A("mov %16,%15")
         A("mov %15,%14")                   // nr <<= 8, %14 not needed
         A("subi %3,-8")                    // idx += 8
         A("tst %16")                       // nr & 0xFF0000 == 0 ?
@@ -442,7 +442,7 @@ void Planner::init() {
         A("brcc 3f")                       // No, skip this
         A("swap %15")                      // Swap nibbles
         A("swap %16")                      // Swap nibbles. Low nibble is 0
-        A("mov %14, %15")      
+        A("mov %14, %15")
         A("andi %14,0x0F")                 // Isolate low nibble
         A("andi %15,0xF0")                 // Keep proper nibble in %15
         A("or %16, %14")                   // %16:%15 <<= 4
@@ -451,23 +451,23 @@ void Planner::init() {
         L("3")
         A("cpi %16,0x40")                  // (nr & 0xC00000) == 0 ?
         A("brcc 4f")                       // No, skip this
-        A("add %15,%15")      
-        A("adc %16,%16")      
-        A("add %15,%15")      
+        A("add %15,%15")
+        A("adc %16,%16")
+        A("add %15,%15")
         A("adc %16,%16")                   // %16:%15 <<= 2
         A("subi %3,-2")                    // idx += 2
 
         L("4")
         A("cpi %16,0x80")                  // (nr & 0x800000) == 0 ?
         A("brcc 5f")                       // No, skip this
-        A("add %15,%15")      
+        A("add %15,%15")
         A("adc %16,%16")                   // %16:%15 <<= 1
         A("inc %3")                        // idx += 1
 
         // Now %16:%15 contains its MSBit set to 1, or %16:%15 is == 0. We are now absolutely sure
         // we have at least 9 MSBits available to enter the initial estimation table
         L("5")
-        A("add %15,%15")      
+        A("add %15,%15")
         A("adc %16,%16")                   // %16:%15 = tidx = (nr <<= 1), we lose the top MSBit (always set to 1, %16 is the index into the inverse table)
         A("add r30,%16")                   // Only use top 8 bits
         A("adc r31,%13")                   // r31:r30 = inv_tab + (tidx)
@@ -483,31 +483,31 @@ void Planner::init() {
         // idx > 8, now %3 = idx - 8. We must perform a left shift. idx range:[1-8]
         A("sbrs %3,0")                     // shift by 1bit position?
         A("rjmp 8f")                       // No
-        A("add %14,%14")      
+        A("add %14,%14")
         A("adc %15,%15")                   // %15:16 <<= 1
         L("8")
         A("sbrs %3,1")                     // shift by 2bit position?
         A("rjmp 9f")                       // No
-        A("add %14,%14")      
-        A("adc %15,%15")      
-        A("add %14,%14")      
+        A("add %14,%14")
+        A("adc %15,%15")
+        A("add %14,%14")
         A("adc %15,%15")                   // %15:16 <<= 1
         L("9")
         A("sbrs %3,2")                     // shift by 4bits position?
         A("rjmp 16f")                      // No
         A("swap %15")                      // Swap nibbles. lo nibble of %15 will always be 0
         A("swap %14")                      // Swap nibbles
-        A("mov %12,%14")      
+        A("mov %12,%14")
         A("andi %12,0x0F")                 // isolate low nibble
         A("andi %14,0xF0")                 // and clear it
         A("or %15,%12")                    // %15:%16 <<= 4
         L("16")
         A("sbrs %3,3")                     // shift by 8bits position?
         A("rjmp 6f")                       // No, we are done
-        A("mov %16,%15")      
-        A("mov %15,%14")      
-        A("clr %14")      
-        A("jmp 6f")      
+        A("mov %16,%15")
+        A("mov %15,%14")
+        A("clr %14")
+        A("jmp 6f")
 
         // idx < 8, now %3 = idx - 8. Get the count of bits
         L("7")
@@ -515,14 +515,14 @@ void Planner::init() {
         A("sbrs %3,0")                     // shift by 1 bit position ?
         A("rjmp 10f")                      // No, skip it
         A("asr %15")                       // (bit7 is always 0 here)
-        A("ror %14")      
+        A("ror %14")
         L("10")
         A("sbrs %3,1")                     // shift by 2 bit position ?
         A("rjmp 11f")                      // No, skip it
         A("asr %15")                       // (bit7 is always 0 here)
-        A("ror %14")      
+        A("ror %14")
         A("asr %15")                       // (bit7 is always 0 here)
-        A("ror %14")      
+        A("ror %14")
         L("11")
         A("sbrs %3,2")                     // shift by 4 bit position ?
         A("rjmp 12f")                      // No, skip it
@@ -534,8 +534,8 @@ void Planner::init() {
         L("12")
         A("sbrs %3,3")                     // shift by 8 bit position ?
         A("rjmp 6f")                       // No, skip it
-        A("mov %14,%15")      
-        A("clr %15")      
+        A("mov %14,%15")
+        A("clr %15")
         L("6")                       // %16:%15:%14 = initial estimation of 0x1000000 / d
 
         // Now, we must refine the estimation present on %16:%15:%14 using 1 iteration
@@ -549,33 +549,33 @@ void Planner::init() {
         // %3:%2:%1:%0 = working accumulator
 
         // Compute 1<<25 - x*d. Result should never exceed 25 bits and should always be positive
-        A("clr %0")      
-        A("clr %1")      
-        A("clr %2")      
+        A("clr %0")
+        A("clr %1")
+        A("clr %2")
         A("ldi %3,2")                      // %3:%2:%1:%0 = 0x2000000
         A("mul %6,%14")                    // r1:r0 = LO(d) * LO(x)
-        A("sub %0,r0")      
-        A("sbc %1,r1")      
-        A("sbc %2,%13")      
+        A("sub %0,r0")
+        A("sbc %1,r1")
+        A("sbc %2,%13")
         A("sbc %3,%13")                    // %3:%2:%1:%0 -= LO(d) * LO(x)
         A("mul %7,%14")                    // r1:r0 = MI(d) * LO(x)
-        A("sub %1,r0")      
-        A("sbc %2,r1" )      
+        A("sub %1,r0")
+        A("sbc %2,r1" )
         A("sbc %3,%13")                    // %3:%2:%1:%0 -= MI(d) * LO(x) << 8
         A("mul %8,%14")                    // r1:r0 = HI(d) * LO(x)
-        A("sub %2,r0")      
+        A("sub %2,r0")
         A("sbc %3,r1")                     // %3:%2:%1:%0 -= MIL(d) * LO(x) << 16
         A("mul %6,%15")                    // r1:r0 = LO(d) * MI(x)
-        A("sub %1,r0")      
-        A("sbc %2,r1")      
+        A("sub %1,r0")
+        A("sbc %2,r1")
         A("sbc %3,%13")                    // %3:%2:%1:%0 -= LO(d) * MI(x) << 8
         A("mul %7,%15")                    // r1:r0 = MI(d) * MI(x)
-        A("sub %2,r0")      
+        A("sub %2,r0")
         A("sbc %3,r1")                     // %3:%2:%1:%0 -= MI(d) * MI(x) << 16
         A("mul %8,%15")                    // r1:r0 = HI(d) * MI(x)
         A("sub %3,r0")                     // %3:%2:%1:%0 -= MIL(d) * MI(x) << 24
         A("mul %6,%16")                    // r1:r0 = LO(d) * HI(x)
-        A("sub %2,r0")      
+        A("sub %2,r0")
         A("sbc %3,r1")                     // %3:%2:%1:%0 -= LO(d) * HI(x) << 16
         A("mul %7,%16")                    // r1:r0 = MI(d) * HI(x)
         A("sub %3,r0")                     // %3:%2:%1:%0 -= MI(d) * HI(x) << 24
@@ -589,58 +589,58 @@ void Planner::init() {
 
         // result = %11:%10:%9:%5:%4
         A("mul %14,%0")                    // r1:r0 = LO(x) * LO(acc)
-        A("mov %4,r1")      
-        A("clr %5")      
-        A("clr %9")      
-        A("clr %10")      
+        A("mov %4,r1")
+        A("clr %5")
+        A("clr %9")
+        A("clr %10")
         A("clr %11")                       // %11:%10:%9:%5:%4 = LO(x) * LO(acc) >> 8
         A("mul %15,%0")                    // r1:r0 = MI(x) * LO(acc)
-        A("add %4,r0")      
-        A("adc %5,r1")      
-        A("adc %9,%13")      
-        A("adc %10,%13")      
+        A("add %4,r0")
+        A("adc %5,r1")
+        A("adc %9,%13")
+        A("adc %10,%13")
         A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * LO(acc)
         A("mul %16,%0")                    // r1:r0 = HI(x) * LO(acc)
-        A("add %5,r0")      
-        A("adc %9,r1")      
-        A("adc %10,%13")      
+        A("add %5,r0")
+        A("adc %9,r1")
+        A("adc %10,%13")
         A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * LO(acc) << 8
 
         A("mul %14,%1")                    // r1:r0 = LO(x) * MIL(acc)
-        A("add %4,r0")      
-        A("adc %5,r1")      
-        A("adc %9,%13")      
-        A("adc %10,%13")      
+        A("add %4,r0")
+        A("adc %5,r1")
+        A("adc %9,%13")
+        A("adc %10,%13")
         A("adc %11,%13")                   // %11:%10:%9:%5:%4 = LO(x) * MIL(acc)
         A("mul %15,%1")                    // r1:r0 = MI(x) * MIL(acc)
-        A("add %5,r0")      
-        A("adc %9,r1")      
-        A("adc %10,%13")      
+        A("add %5,r0")
+        A("adc %9,r1")
+        A("adc %10,%13")
         A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 8
         A("mul %16,%1")                    // r1:r0 = HI(x) * MIL(acc)
-        A("add %9,r0")      
-        A("adc %10,r1")      
+        A("add %9,r0")
+        A("adc %10,r1")
         A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 16
 
         A("mul %14,%2")                    // r1:r0 = LO(x) * MIH(acc)
-        A("add %5,r0")      
-        A("adc %9,r1")      
-        A("adc %10,%13")      
+        A("add %5,r0")
+        A("adc %9,r1")
+        A("adc %10,%13")
         A("adc %11,%13")                   // %11:%10:%9:%5:%4 = LO(x) * MIH(acc) << 8
         A("mul %15,%2")                    // r1:r0 = MI(x) * MIH(acc)
-        A("add %9,r0")      
-        A("adc %10,r1")      
+        A("add %9,r0")
+        A("adc %10,r1")
         A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 16
         A("mul %16,%2")                    // r1:r0 = HI(x) * MIH(acc)
-        A("add %10,r0")      
+        A("add %10,r0")
         A("adc %11,r1")                    // %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 24
 
         A("mul %14,%3")                    // r1:r0 = LO(x) * HI(acc)
-        A("add %9,r0")      
-        A("adc %10,r1")      
+        A("add %9,r0")
+        A("adc %10,r1")
         A("adc %11,%13")                   // %11:%10:%9:%5:%4 = LO(x) * HI(acc) << 16
         A("mul %15,%3")                    // r1:r0 = MI(x) * HI(acc)
-        A("add %10,r0")      
+        A("add %10,r0")
         A("adc %11,r1")                    // %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 24
         A("mul %16,%3")                    // r1:r0 = HI(x) * HI(acc)
         A("add %11,r0")                    // %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 32
@@ -651,33 +651,33 @@ void Planner::init() {
         // (1<<24) - x*d
         // %11:%10:%9 = x
         // %8:%7:%6 = d = interval" "\n\t"
-        A("ldi %3,1")      
-        A("clr %2")      
-        A("clr %1")      
+        A("ldi %3,1")
+        A("clr %2")
+        A("clr %1")
         A("clr %0")                        // %3:%2:%1:%0 = 0x1000000
         A("mul %6,%9")                     // r1:r0 = LO(d) * LO(x)
-        A("sub %0,r0")      
-        A("sbc %1,r1")      
-        A("sbc %2,%13")      
+        A("sub %0,r0")
+        A("sbc %1,r1")
+        A("sbc %2,%13")
         A("sbc %3,%13")                    // %3:%2:%1:%0 -= LO(d) * LO(x)
         A("mul %7,%9")                     // r1:r0 = MI(d) * LO(x)
-        A("sub %1,r0")      
-        A("sbc %2,r1")      
+        A("sub %1,r0")
+        A("sbc %2,r1")
         A("sbc %3,%13")                    // %3:%2:%1:%0 -= MI(d) * LO(x) << 8
         A("mul %8,%9")                     // r1:r0 = HI(d) * LO(x)
-        A("sub %2,r0")      
+        A("sub %2,r0")
         A("sbc %3,r1")                     // %3:%2:%1:%0 -= MIL(d) * LO(x) << 16
         A("mul %6,%10")                    // r1:r0 = LO(d) * MI(x)
-        A("sub %1,r0")      
-        A("sbc %2,r1")      
+        A("sub %1,r0")
+        A("sbc %2,r1")
         A("sbc %3,%13")                    // %3:%2:%1:%0 -= LO(d) * MI(x) << 8
         A("mul %7,%10")                    // r1:r0 = MI(d) * MI(x)
-        A("sub %2,r0")      
+        A("sub %2,r0")
         A("sbc %3,r1")                     // %3:%2:%1:%0 -= MI(d) * MI(x) << 16
         A("mul %8,%10")                    // r1:r0 = HI(d) * MI(x)
         A("sub %3,r0")                     // %3:%2:%1:%0 -= MIL(d) * MI(x) << 24
         A("mul %6,%11")                    // r1:r0 = LO(d) * HI(x)
-        A("sub %2,r0")      
+        A("sub %2,r0")
         A("sbc %3,r1")                     // %3:%2:%1:%0 -= LO(d) * HI(x) << 16
         A("mul %7,%11")                    // r1:r0 = MI(d) * HI(x)
         A("sub %3,r0")                     // %3:%2:%1:%0 -= MI(d) * HI(x) << 24
@@ -685,15 +685,15 @@ void Planner::init() {
         // %8:%7:%6 = d = interval
 
         // Perform the final correction
-        A("sub %0,%6")      
-        A("sbc %1,%7")      
+        A("sub %0,%6")
+        A("sbc %1,%7")
         A("sbc %2,%8")                     // r -= d
         A("brcs 14f")                      // if ( r >= d)
 
         // %11:%10:%9 = x
-        A("ldi %3,1")      
-        A("add %9,%3")      
-        A("adc %10,%13")      
+        A("ldi %3,1")
+        A("add %9,%3")
+        A("adc %10,%13")
         A("adc %11,%13")                   // x++
         L("14")
 
@@ -821,21 +821,24 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
 //    POW((before->speed_x-after->speed_x), 2)+POW((before->speed_y-after->speed_y), 2));
 //}
 
-
 // The kernel called by recalculate() when scanning the plan from last to first entry.
-void Planner::reverse_pass_kernel(block_t* const current, const block_t * const next) {
-  if (!current || !next) return;
-  // If entry speed is already at the maximum entry speed, no need to recheck. Block is cruising.
-  // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
-  // check for maximum allowable speed reductions to ensure maximum possible planned speed.
-  float max_entry_speed = current->max_entry_speed;
-  if (current->entry_speed != max_entry_speed) {
-    // If nominal length true, max junction speed is guaranteed to be reached. Only compute
-    // for max allowable speed if block is decelerating and nominal length is false.
-    current->entry_speed = (TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
-      ? max_entry_speed
-      : min(max_entry_speed, max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
-    SBI(current->flag, BLOCK_BIT_RECALCULATE);
+void Planner::reverse_pass_kernel(block_t* const current, const block_t* const next) {
+  if (current && next) {
+    // If entry speed is already at the maximum entry speed, no need to recheck. Block is cruising.
+    // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
+    // check for maximum allowable speed reductions to ensure maximum possible planned speed.
+    const float max_entry_speed = current->max_entry_speed;
+    if (current->entry_speed != max_entry_speed || TEST(next->flag, BLOCK_BIT_RECALCULATE)) {
+      // If nominal length true, max junction speed is guaranteed to be reached. Only compute
+      // for max allowable speed if block is decelerating and nominal length is false.
+      const float new_entry_speed = (TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
+        ? max_entry_speed
+        : min(max_entry_speed, max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
+      if (new_entry_speed != current->entry_speed) {
+        current->entry_speed = new_entry_speed;
+        SBI(current->flag, BLOCK_BIT_RECALCULATE);
+      }
+    }
   }
 }
 
@@ -845,7 +848,7 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t * const 
  */
 void Planner::reverse_pass() {
   if (movesplanned() > 2) {
-    const uint8_t endnr = BLOCK_MOD(block_buffer_tail + 1); // tail is running. tail+1 shouldn't be altered because it's connected to the running block.
+    const uint8_t endnr = next_block_index(block_buffer_tail); // tail is running. tail+1 shouldn't be altered because it's connected to the running block.
     uint8_t blocknr = prev_block_index(block_buffer_head);
     block_t* current = &block_buffer[blocknr];
 
@@ -854,10 +857,13 @@ void Planner::reverse_pass() {
     if (current->entry_speed != max_entry_speed) {
       // If nominal length true, max junction speed is guaranteed to be reached. Only compute
       // for max allowable speed if block is decelerating and nominal length is false.
-      current->entry_speed = TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH)
+      const float new_entry_speed = TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH)
         ? max_entry_speed
         : min(max_entry_speed, max_allowable_speed(-current->acceleration, MINIMUM_PLANNER_SPEED, current->millimeters));
-      SBI(current->flag, BLOCK_BIT_RECALCULATE);
+      if (current->entry_speed != new_entry_speed) {
+        current->entry_speed = new_entry_speed;
+        SBI(current->flag, BLOCK_BIT_RECALCULATE);
+      }
     }
 
     do {
@@ -870,21 +876,20 @@ void Planner::reverse_pass() {
 }
 
 // The kernel called by recalculate() when scanning the plan from first to last entry.
-void Planner::forward_pass_kernel(const block_t * const previous, block_t* const current) {
-  if (!previous) return;
-
-  // If the previous block is an acceleration block, but it is not long enough to complete the
-  // full speed change within the block, we need to adjust the entry speed accordingly. Entry
-  // speeds have already been reset, maximized, and reverse planned by reverse planner.
-  // If nominal length is true, max junction speed is guaranteed to be reached. No need to recheck.
-  if (!TEST(previous->flag, BLOCK_BIT_NOMINAL_LENGTH)) {
-    if (previous->entry_speed < current->entry_speed) {
-      float entry_speed = min(current->entry_speed,
-                               max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters));
-      // Check for junction speed change
-      if (current->entry_speed != entry_speed) {
-        current->entry_speed = entry_speed;
-        SBI(current->flag, BLOCK_BIT_RECALCULATE);
+void Planner::forward_pass_kernel(const block_t* const previous, block_t* const current) {
+  if (previous) {
+    // If the previous block is an acceleration block, too short to complete the full speed
+    // change, adjust the entry speed accordingly. Entry speeds have already been reset,
+    // maximized, and reverse-planned. If nominal length is set, max junction speed is
+    // guaranteed to be reached. No need to recheck.
+    if (!TEST(previous->flag, BLOCK_BIT_NOMINAL_LENGTH)) {
+      if (previous->entry_speed < current->entry_speed) {
+        const float new_entry_speed = min(current->entry_speed, max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters));
+        // Check for junction speed change
+        if (current->entry_speed != new_entry_speed) {
+          current->entry_speed = new_entry_speed;
+          SBI(current->flag, BLOCK_BIT_RECALCULATE);
+        }
       }
     }
   }
@@ -1874,25 +1879,25 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
 
     /**
      * Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
-     * Let a circle be tangent to both previous and current path line segments, where the junction 
-     * deviation is defined as the distance from the junction to the closest edge of the circle, 
-     * colinear with the circle center. The circular segment joining the two paths represents the 
+     * Let a circle be tangent to both previous and current path line segments, where the junction
+     * deviation is defined as the distance from the junction to the closest edge of the circle,
+     * colinear with the circle center. The circular segment joining the two paths represents the
      * path of centripetal acceleration. Solve for max velocity based on max acceleration about the
-     * radius of the circle, defined indirectly by junction deviation. This may be also viewed as 
-     * path width or max_jerk in the previous Grbl version. This approach does not actually deviate 
+     * radius of the circle, defined indirectly by junction deviation. This may be also viewed as
+     * path width or max_jerk in the previous Grbl version. This approach does not actually deviate
      * from path, but used as a robust way to compute cornering speeds, as it takes into account the
      * nonlinearities of both the junction angle and junction velocity.
      *
-     * NOTE: If the junction deviation value is finite, Grbl executes the motions in an exact path 
+     * NOTE: If the junction deviation value is finite, Grbl executes the motions in an exact path
      * mode (G61). If the junction deviation value is zero, Grbl will execute the motion in an exact
      * stop mode (G61.1) manner. In the future, if continuous mode (G64) is desired, the math here
      * is exactly the same. Instead of motioning all the way to junction point, the machine will
      * just follow the arc circle defined here. The Arduino doesn't have the CPU cycles to perform
-     * a continuous mode path, but ARM-based microcontrollers most certainly do. 
-     * 
+     * a continuous mode path, but ARM-based microcontrollers most certainly do.
+     *
      * NOTE: The max junction speed is a fixed value, since machine acceleration limits cannot be
      * changed dynamically during operation nor can the line move geometry. This must be kept in
-     * memory in the event of a feedrate override changing the nominal speeds of blocks, which can 
+     * memory in the event of a feedrate override changing the nominal speeds of blocks, which can
      * change the overall maximum entry speed conditions of all blocks.
      */
 
@@ -2020,7 +2025,7 @@ void Planner::_buffer_steps(const int32_t (&target)[XYZE]
     }
     else
       vmax_junction = safe_speed;
-  
+
     previous_safe_speed = safe_speed;
   #endif // Classic Jerk Limiting
 
@@ -2084,7 +2089,7 @@ void Planner::buffer_sync_block() {
   block->nominal_speed   =
   block->entry_speed     =
   block->max_entry_speed =
-  block->millimeters     =  
+  block->millimeters     =
   block->acceleration    = 0;
 
   block->step_event_count          =
