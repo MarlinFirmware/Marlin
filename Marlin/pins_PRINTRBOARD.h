@@ -74,11 +74,7 @@
 // Limit Switches
 //
 #define X_STOP_PIN         47   // E3
-#if ENABLED(SDSUPPORT)
-  #define Y_STOP_PIN       37   // E5 - Move Ystop to Estop socket
-#else
-  #define Y_STOP_PIN       20   // B0 SS - Ystop in Ystop socket
-#endif
+#define Y_STOP_PIN         20   // B0 SS
 #define Z_STOP_PIN         36   // E4
 
 //
@@ -120,7 +116,7 @@
 //
 // Misc. Functions
 //
-#define SDSS               20   // B0 SS
+#define SDSS               26   // B6
 #define FILWIDTH_PIN        2   // Analog Input
 
 //
