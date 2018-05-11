@@ -954,7 +954,6 @@ void MarlinSettings::postprocess() {
         SERIAL_ECHOPAIR_P(port, "(EEPROM=", stored_ver);
         SERIAL_ECHOLNPGM_P(port, " Marlin=" EEPROM_VERSION ")");
       #endif
-      if (!validating) reset();
       eeprom_error = true;
     }
     else {
@@ -1511,15 +1510,13 @@ void MarlinSettings::postprocess() {
         #endif
       }
 
-      if (!validating) {
-        if (eeprom_error) reset(); else postprocess();
-      }
+      if (!validating && !eeprom_error) postprocess();
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.report_state();
-
         if (!validating) {
-          if (!ubl.sanity_check()) {
+            ubl.report_state();
+
+            if (!ubl.sanity_check()) {
             SERIAL_EOL_P(port);
             #if ENABLED(EEPROM_CHITCHAT)
               ubl.echo_name();
