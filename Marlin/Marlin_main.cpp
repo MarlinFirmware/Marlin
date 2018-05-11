@@ -13693,9 +13693,6 @@ void prepare_move_to_destination() {
       planner.buffer_line_kinematic(cart, fr_mm_s, active_extruder);
     #endif
 
-    // As far as the parser is concerned, the position is now == target. In reality the
-    // motion control system might still be processing the action and the real tool position
-    // in any intermediate location.
     COPY(current_position, cart);
   } // plan_arc
 
@@ -13705,10 +13702,6 @@ void prepare_move_to_destination() {
 
   void plan_cubic_move(const float (&cart)[XYZE], const float (&offset)[4]) {
     cubic_b_spline(current_position, cart, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
-
-    // As far as the parser is concerned, the position is now == destination. In reality the
-    // motion control system might still be processing the action and the real tool position
-    // in any intermediate location.
     COPY(current_position, cart);
   }
 
