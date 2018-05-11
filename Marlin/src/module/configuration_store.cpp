@@ -1516,9 +1516,9 @@ void MarlinSettings::postprocess() {
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.report_state();
-
         if (!validating) {
+          ubl.report_state();
+
           if (!ubl.sanity_check()) {
             SERIAL_EOL_P(port);
             #if ENABLED(EEPROM_CHITCHAT)
@@ -1569,9 +1569,7 @@ void MarlinSettings::postprocess() {
   }
 
   bool MarlinSettings::load(PORTARG_SOLO) {
-    if (validate(PORTVAR_SOLO)) return _load(PORTVAR_SOLO);
-    reset();
-    return true;
+    return !validate(PORTVAR_SOLO) ||_load(PORTVAR_SOLO);
   }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
