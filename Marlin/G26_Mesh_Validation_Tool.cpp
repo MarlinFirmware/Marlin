@@ -773,7 +773,7 @@
 
         #if ENABLED(ARC_SUPPORT)
 
-          #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * 3.141592654 * (quarters) / 2)
+          #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * M_PI * (quarters) / 2)
           float sx = circle_x + INTERSECTION_CIRCLE_RADIUS,   // default to full circle
                 ex = circle_x + INTERSECTION_CIRCLE_RADIUS,
                 sy = circle_y, ey = circle_y,
