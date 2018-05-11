@@ -58,6 +58,7 @@
 #include <U8glib.h>
 #include <Arduino.h>
 #include "../../core/macros.h"
+#include "../Delay.h"
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
    PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
@@ -71,28 +72,6 @@ void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
   else port->PIO_CODR = mask;
 }
 
-void __delay_4cycles(uint32_t cy) __attribute__ ((weak));
-
-FORCE_INLINE void __delay_4cycles(uint32_t cy) { // +1 cycle
-  #if ARCH_PIPELINE_RELOAD_CYCLES<2
-    #define EXTRA_NOP_CYCLES "nop"
-  #else
-    #define EXTRA_NOP_CYCLES ""
-  #endif
-
-  __asm__ __volatile__(
-    ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
-
-    L("loop%=")
-    A("subs %[cnt],#1")
-    A(EXTRA_NOP_CYCLES)
-    A("bne loop%=")
-    : [cnt]"+r"(cy) // output: +r means input+output
-    : // input:
-    : "cc" // clobbers:
-  );
-}
-
 Pio *SCK_pPio, *MOSI_pPio;
 uint32_t SCK_dwMask, MOSI_dwMask;
 
@@ -102,9 +81,9 @@ static void spiSend_sw_DUE(uint8_t val) { // 800KHz
       MOSI_pPio->PIO_SODR = MOSI_dwMask;
     else
       MOSI_pPio->PIO_CODR = MOSI_dwMask;
-    __delay_4cycles(1);
+    DELAY_NS(48);
     SCK_pPio->PIO_SODR = SCK_dwMask;
-    __delay_4cycles(19); // 16 dead, 17 garbage, 18/0 900kHz, 19/1 825k, 20/1 800k, 21/2 725KHz
+    DELAY_NS(905); // 762 dead, 810 garbage, 858/0 900kHz, 905/1 825k, 953/1 800k, 1000/2 725KHz
     val <<= 1;
     SCK_pPio->PIO_CODR = SCK_dwMask;
   }
@@ -125,8 +104,7 @@ static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
        /* data */
       spiSend_sw_DUE(0x0FA);
 
-    for (i = 0; i < 4; i++)   // give the controller some time to process the data
-      u8g_10MicroDelay();     // 2 is bad, 3 is OK, 4 is safe
+    DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
 
   spiSend_sw_DUE(val & 0x0F0);
