@@ -56,6 +56,10 @@
 #define G26_OK false
 #define G26_ERR true
 
+#if ENABLED(ARC_SUPPORT)
+  void plan_arc(const float (&cart)[XYZE], const float (&offset)[2], const uint8_t clockwise);
+#endif
+
 /**
  *   G26 Mesh Validation Tool
  *
@@ -219,9 +223,9 @@ mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
 
 void G26_line_to_destination(const float &feed_rate) {
   const float save_feedrate = feedrate_mm_s;
-  feedrate_mm_s = feed_rate;      // use specified feed rate
+  feedrate_mm_s = feed_rate;
   prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_SEGMENTED
-  feedrate_mm_s = save_feedrate;  // restore global feed rate
+  feedrate_mm_s = save_feedrate;
 }
 
 void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
@@ -729,21 +733,25 @@ void GcodeSuite::G26() {
 
   //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
 
-  /**
-   * Pre-generate radius offset values at 30 degree intervals to reduce CPU load.
-   */
-  #define A_INT 30
-  #define _ANGS (360 / A_INT)
-  #define A_CNT (_ANGS / 2)
-  #define _IND(A) ((A + _ANGS * 8) % _ANGS)
-  #define _COS(A) (trig_table[_IND(A) % A_CNT] * (_IND(A) >= A_CNT ? -1 : 1))
-  #define _SIN(A) (-_COS((A + A_CNT / 2) % _ANGS))
-  #if A_CNT & 1
-    #error "A_CNT must be a positive value. Please change A_INT."
-  #endif
-  float trig_table[A_CNT];
-  for (uint8_t i = 0; i < A_CNT; i++)
-    trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * A_INT));
+  #if DISABLED(ARC_SUPPORT)
+
+    /**
+     * Pre-generate radius offset values at 30 degree intervals to reduce CPU load.
+     */
+    #define A_INT 30
+    #define _ANGS (360 / A_INT)
+    #define A_CNT (_ANGS / 2)
+    #define _IND(A) ((A + _ANGS * 8) % _ANGS)
+    #define _COS(A) (trig_table[_IND(A) % A_CNT] * (_IND(A) >= A_CNT ? -1 : 1))
+    #define _SIN(A) (-_COS((A + A_CNT / 2) % _ANGS))
+    #if A_CNT & 1
+      #error "A_CNT must be a positive value. Please change A_INT."
+    #endif
+    float trig_table[A_CNT];
+    for (uint8_t i = 0; i < A_CNT; i++)
+      trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * A_INT));
+
+  #endif // !ARC_SUPPORT
 
   mesh_index_pair location;
   do {
@@ -761,54 +769,128 @@ void GcodeSuite::G26() {
       // Determine where to start and end the circle,
       // which is always drawn counter-clockwise.
       const uint8_t xi = location.x_index, yi = location.y_index;
-        const bool f = yi == 0, r = xi >= GRID_MAX_POINTS_X - 1, b = yi >= GRID_MAX_POINTS_Y - 1;
-        int8_t start_ind = -2, end_ind = 9;  // Assume a full circle (from 5:00 to 5:00)
-      if (xi == 0) {                     // Left edge? Just right half.
-        start_ind = f ? 0 : -3;          //  03:00 to 12:00 for front-left
-        end_ind   = b ? 0 :  2;          //  06:00 to 03:00 for back-left
-      }
-      else if (r) {                      // Right edge? Just left half.
-        start_ind = b ? 6 : 3;           //  12:00 to 09:00 for front-right
-        end_ind   = f ? 5 : 8;           //  09:00 to 06:00 for back-right
-      }
-      else if (f) {                      // Front edge? Just back half.
-        start_ind = 0;                   //  03:00
-        end_ind   = 5;                   //  09:00
-      }
-      else if (b) {                      // Back edge? Just front half.
-        start_ind =  6;                  //  09:00
-        end_ind   = 11;                  //  03:00
-      }
+      const bool f = yi == 0, r = xi >= GRID_MAX_POINTS_X - 1, b = yi >= GRID_MAX_POINTS_Y - 1;
 
-      for (int8_t ind = start_ind; ind <= end_ind; ind++) {
+      #if ENABLED(ARC_SUPPORT)
 
+        #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * PI * (quarters) / 2)
+        float sx = circle_x + INTERSECTION_CIRCLE_RADIUS,   // default to full circle
+              ex = circle_x + INTERSECTION_CIRCLE_RADIUS,
+              sy = circle_y, ey = circle_y,
+              arc_length = ARC_LENGTH(4);
+
+        // Figure out where to start and end the arc - we always print counterclockwise
+        if (xi == 0) {                             // left edge
+          sx = f ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
+          ex = b ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
+          sy = f ? circle_y : circle_y - INTERSECTION_CIRCLE_RADIUS;
+          ey = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
+          arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
+        }
+        else if (r) {                             // right edge
+          sx = b ? circle_x - INTERSECTION_CIRCLE_RADIUS : circle_x;
+          ex = f ? circle_x - INTERSECTION_CIRCLE_RADIUS : circle_x;
+          sy = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
+          ey = f ? circle_y : circle_y - INTERSECTION_CIRCLE_RADIUS;
+          arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
+        }
+        else if (f) {
+          sx = circle_x + INTERSECTION_CIRCLE_RADIUS;
+          ex = circle_x - INTERSECTION_CIRCLE_RADIUS;
+          sy = ey = circle_y;
+          arc_length = ARC_LENGTH(2);
+        }
+        else if (b) {
+          sx = circle_x - INTERSECTION_CIRCLE_RADIUS;
+          ex = circle_x + INTERSECTION_CIRCLE_RADIUS;
+          sy = ey = circle_y;
+          arc_length = ARC_LENGTH(2);
+        }
+        const float arc_offset[2] = {
+          circle_x - sx,
+          circle_y - sy
+        };
+
+        const float dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual circle
+                    dy_s = current_position[Y_AXIS] - sy,
+                    dist_start = HYPOT2(dx_s, dy_s);
+        const float endpoint[XYZE] = {
+          ex, ey,
+          g26_layer_height,
+          current_position[E_AXIS] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
+        };
+
+        if (dist_start > 2.0) {
+          retract_filament(destination);
+          //todo:  parameterize the bump height with a define
+          move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 0.500, 0.0);  // Z bump to minimize scraping
+          move_to(sx, sy, g26_layer_height + 0.500, 0.0); // Get to the starting point with no extrusion while bumped
+        }
+
+        move_to(sx, sy, g26_layer_height, 0.0); // Get to the starting point with no extrusion / un-Z bump
+
+        recover_filament(destination);
+        const float save_feedrate = feedrate_mm_s;
+        feedrate_mm_s = PLANNER_XY_FEEDRATE() / 10.0;
+        plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
+        feedrate_mm_s = save_feedrate;
+        set_destination_from_current();
         #if ENABLED(NEWPANEL)
-          if (user_canceled()) goto LEAVE;          // Check if the user wants to stop the Mesh Validation
+          if (user_canceled()) goto LEAVE; // Check if the user wants to stop the Mesh Validation
         #endif
 
-        float rx = circle_x + _COS(ind),            // For speed, these are now a lookup table entry
-              ry = circle_y + _SIN(ind),
-              xe = circle_x + _COS(ind + 1),
-              ye = circle_y + _SIN(ind + 1);
+      #else // !ARC_SUPPORT
 
-        #if IS_KINEMATIC
-          // Check to make sure this segment is entirely on the bed, skip if not.
-          if (!position_is_reachable(rx, ry) || !position_is_reachable(xe, ye)) continue;
-        #else                                               // not, we need to skip
-          rx = constrain(rx, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
-          ry = constrain(ry, Y_MIN_POS + 1, Y_MAX_POS - 1);
-          xe = constrain(xe, X_MIN_POS + 1, X_MAX_POS - 1);
-          ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
-        #endif
+        int8_t start_ind = -2, end_ind = 9; // Assume a full circle (from 5:00 to 5:00)
+        if (xi == 0) {                      // Left edge? Just right half.
+          start_ind = f ? 0 : -3;           //  03:00 to 12:00 for front-left
+          end_ind = b ? 0 : 2;              //  06:00 to 03:00 for back-left
+        }
+        else if (r) {                       // Right edge? Just left half.
+          start_ind = b ? 6 : 3;            //  12:00 to 09:00 for front-right
+          end_ind = f ? 5 : 8;              //  09:00 to 06:00 for back-right
+        }
+        else if (f) {                       // Front edge? Just back half.
+          start_ind = 0;                    //  03:00
+          end_ind = 5;                      //  09:00
+        }
+        else if (b) {                       // Back edge? Just front half.
+          start_ind = 6;                    //  09:00
+          end_ind = 11;                     //  03:00
+        }
 
+        for (int8_t ind = start_ind; ind <= end_ind; ind++) {
 
-        print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);
-        SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
-      }
-      if (look_for_lines_to_connect())
-        goto LEAVE;
+          #if ENABLED(NEWPANEL)
+            if (user_canceled()) goto LEAVE;          // Check if the user wants to stop the Mesh Validation
+          #endif
+
+          float rx = circle_x + _COS(ind),            // For speed, these are now a lookup table entry
+                ry = circle_y + _SIN(ind),
+                xe = circle_x + _COS(ind + 1),
+                ye = circle_y + _SIN(ind + 1);
+
+          #if IS_KINEMATIC
+            // Check to make sure this segment is entirely on the bed, skip if not.
+            if (!position_is_reachable(rx, ry) || !position_is_reachable(xe, ye)) continue;
+          #else                                               // not, we need to skip
+            rx = constrain(rx, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
+            ry = constrain(ry, Y_MIN_POS + 1, Y_MAX_POS - 1);
+            xe = constrain(xe, X_MIN_POS + 1, X_MAX_POS - 1);
+            ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
+          #endif
+
+          print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);
+          SERIAL_FLUSH();  // Prevent host M105 buffer overrun.
+        }
+
+      #endif // !ARC_SUPPORT
+
+      if (look_for_lines_to_connect()) goto LEAVE;
     }
+
     SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
+
   } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
   LEAVE:
