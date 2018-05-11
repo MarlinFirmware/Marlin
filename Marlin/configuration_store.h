@@ -37,11 +37,10 @@ class MarlinSettings {
     FORCE_INLINE static bool init_eeprom() {
       reset();
       #if ENABLED(EEPROM_SETTINGS)
-        bool success = save();
+        const bool success = save();
         #if ENABLED(EEPROM_CHITCHAT)
           if (success) report();
         #endif
-
         return success;
       #else
         return true;
