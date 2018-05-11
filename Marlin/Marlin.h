@@ -477,6 +477,10 @@ void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0.0);
 void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0.0);
 
+#if ENABLED(ARC_SUPPORT)
+  void plan_arc(const float(&cart)[XYZE], const float(&offset)[2], const bool clockwise);
+#endif
+
 #define HAS_AXIS_UNHOMED_ERR (                                                     \
          ENABLED(Z_PROBE_ALLEN_KEY)                                                \
       || ENABLED(Z_PROBE_SLED)                                                     \
