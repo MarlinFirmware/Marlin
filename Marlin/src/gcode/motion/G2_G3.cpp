@@ -223,10 +223,7 @@ void plan_arc(
     planner.buffer_line_kinematic(cart, fr_mm_s, active_extruder);
   #endif
 
-  // As far as the parser is concerned, the position is now == target. In reality the
-  // motion control system might still be processing the action and the real tool position
-  // in any intermediate location.
-  set_current_from_destination();
+  COPY(current_position, cart);
 } // plan_arc
 
 /**
