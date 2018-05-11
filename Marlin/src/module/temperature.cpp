@@ -53,12 +53,14 @@
   #include "../feature/emergency_parser.h"
 #endif
 
-#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-  static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
-  static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
-#else
-  static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE);
-  static uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN, HEATER_4_TEMPTABLE_LEN);
+#if HOTEND_USES_THERMISTOR
+  #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+    static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
+    static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
+  #else
+    static void* heater_ttbl_map[HOTENDS] = ARRAY_BY_HOTENDS((void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE, (void*)HEATER_2_TEMPTABLE, (void*)HEATER_3_TEMPTABLE, (void*)HEATER_4_TEMPTABLE);
+    static uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN, HEATER_4_TEMPTABLE_LEN);
+  #endif
 #endif
 
 Temperature thermalManager;
@@ -930,7 +932,21 @@ void Temperature::manage_heater() {
   #endif // HAS_HEATED_BED
 }
 
-#define PGM_RD_W(x)   (short)pgm_read_word(&x)
+#define TEMP_AD595(RAW)  ((RAW) * 5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
+#define TEMP_AD8495(RAW) ((RAW) * 6.6 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET)
+
+#define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                          \
+  for (uint8_t i = 1; i < LEN; i++) {                               \
+    const short entry10 = (short)pgm_read_word(&TBL[i][0]);         \
+    if (entry10 > raw) {                                            \
+      const short entry00 = (short)pgm_read_word(&TBL[i-1][0]),     \
+                  entry01 = (short)pgm_read_word(&TBL[i-1][1]),     \
+                  entry11 = (short)pgm_read_word(&TBL[i][1]);       \
+      return entry01 + (raw - entry00) * float(entry11 - entry01) / float(entry10 - entry00); \
+    }                                                               \
+  }                                                                 \
+  return (short)pgm_read_word(&TBL[LEN-1][1]);                      \
+}while(0)
 
 // Derived from RepRap FiveD extruder::getTemperature()
 // For hot end temperature measurement.
@@ -948,35 +964,47 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
       return 0.0;
     }
 
-  #if ENABLED(HEATER_0_USES_MAX6675)
-    if (e == 0) return 0.25 * raw;
-  #endif
-
-  // Thermistor with conversion table?
-  if (heater_ttbl_map[e] != NULL) {
-    short(*tt)[][2] = (short(*)[][2])(heater_ttbl_map[e]);
-    for (uint8_t i = 1; i < heater_ttbllen_map[e]; i++) {
-      const short entry10 = PGM_RD_W((*tt)[i][0]);
-      if (entry10 > raw) {
-        const short entry00 = PGM_RD_W((*tt)[i - 1][0]),
-                    entry01 = PGM_RD_W((*tt)[i - 1][1]),
-                    entry11 = PGM_RD_W((*tt)[i][1]);
-        return entry01 + (raw - entry00) * float(entry11 - entry01) / float(entry10 - entry00);
-      }
-    }
-    return PGM_RD_W((*tt)[heater_ttbllen_map[e] - 1][1]); // Overflow: Return last value in the table
+  switch (e) {
+    case 0:
+      #if ENABLED(HEATER_0_USES_MAX6675)
+        return raw * 0.25;
+      #elif ENABLED(HEATER_0_USES_AD595)
+        return TEMP_AD595(raw);
+      #elif ENABLED(HEATER_0_USES_AD8495)
+        return TEMP_AD8495(raw);
+      #endif
+    case 1:
+      #if ENABLED(HEATER_1_USES_AD595)
+        return TEMP_AD595(raw);
+      #elif ENABLED(HEATER_1_USES_AD8495)
+        return TEMP_AD8495(raw);
+      #endif
+    case 2:
+      #if ENABLED(HEATER_2_USES_AD595)
+        return TEMP_AD595(raw);
+      #elif ENABLED(HEATER_2_USES_AD8495)
+        return TEMP_AD8495(raw);
+      #endif
+    case 3:
+      #if ENABLED(HEATER_3_USES_AD595)
+        return TEMP_AD595(raw);
+      #elif ENABLED(HEATER_3_USES_AD8495)
+        return TEMP_AD8495(raw);
+      #endif
+    case 4:
+      #if ENABLED(HEATER_4_USES_AD595)
+        return TEMP_AD595(raw);
+      #elif ENABLED(HEATER_4_USES_AD8495)
+        return TEMP_AD8495(raw);
+      #endif
+    default: break;
   }
 
-  // Thermocouple with amplifier ADC interface
-  return (raw *
-    #if HEATER_USES_AD8495
-      660.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET
-    #elif HEATER_USES_AD595
-      5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET
-    #else
-      0
-    #endif
-  );
+  #if HEATER_USES_THERMISTOR
+    // Thermistor with conversion table?
+    const short(*tt)[][2] = (short(*)[][2])(heater_ttbl_map[e]);
+    SCAN_THERMISTOR_TABLE((*tt), heater_ttbllen_map[e]);
+  #endif
 }
 
 #if HAS_HEATED_BED
@@ -984,32 +1012,13 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
   // For bed temperature measurement.
   float Temperature::analog2tempBed(const int raw) {
     #if ENABLED(BED_USES_THERMISTOR)
-
-      // Thermistor with conversion table
-      for (uint8_t i = 1; i < BEDTEMPTABLE_LEN; i++) {
-        const short entry10 = PGM_RD_W(BEDTEMPTABLE[i][0]);
-        if (entry10 > raw) {
-          const short entry00 = PGM_RD_W(BEDTEMPTABLE[i - 1][0]),
-                      entry01 = PGM_RD_W(BEDTEMPTABLE[i - 1][1]),
-                      entry11 = PGM_RD_W(BEDTEMPTABLE[i][1]);
-          return entry01 + (raw - entry00) * float(entry11 - entry01) / float(entry10 - entry00);
-        }
-      }
-      return PGM_RD_W(BEDTEMPTABLE[BEDTEMPTABLE_LEN - 1][1]); // Overflow: Return last value in the table
-
+      SCAN_THERMISTOR_TABLE(BEDTEMPTABLE, BEDTEMPTABLE_LEN);
+    #elif ENABLED(BED_USES_AD595)
+      return TEMP_AD595(raw);
+    #elif ENABLED(BED_USES_AD8495)
+      return TEMP_AD8495(raw);
     #else
-
-      // Thermocouple with amplifier ADC interface
-      return (raw *
-        #if ENABLED(BED_USES_AD595)
-          5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET
-        #elif ENABLED(BED_USES_AD8495)
-          660.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET
-        #else
-          0
-        #endif
-      );
-
+      return 0;
     #endif
   }
 #endif // HAS_HEATED_BED
@@ -1019,32 +1028,13 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
   // For chamber temperature measurement.
   float Temperature::analog2tempChamber(const int raw) {
     #if ENABLED(CHAMBER_USES_THERMISTOR)
-
-      // Thermistor with conversion table
-      for (uint8_t i = 1; i < CHAMBERTEMPTABLE_LEN; i++) {
-        const short entry10 = PGM_RD_W(CHAMBERTEMPTABLE[i][0]);
-        if (entry10 > raw) {
-          const short entry00 = PGM_RD_W(CHAMBERTEMPTABLE[i - 1][0]),
-                      entry01 = PGM_RD_W(CHAMBERTEMPTABLE[i - 1][1]),
-                      entry11 = PGM_RD_W(CHAMBERTEMPTABLE[i][1]);
-          return entry01 + (raw - entry00) * float(entry11 - entry01) / float(entry10 - entry00);
-        }
-      }
-      return PGM_RD_W(CHAMBERTEMPTABLE[CHAMBERTEMPTABLE_LEN - 1][1]); // Overflow: Return last value in the table
-
+      SCAN_THERMISTOR_TABLE(CHAMBERTEMPTABLE, CHAMBERTEMPTABLE_LEN);
+    #elif ENABLED(CHAMBER_USES_AD595)
+      return TEMP_AD595(raw);
+    #elif ENABLED(CHAMBER_USES_AD8495)
+      return TEMP_AD8495(raw);
     #else
-
-      // Thermocouple with amplifier ADC interface
-      return (raw *
-        #if ENABLED(CHAMBER_USES_AD595)
-          5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET
-        #elif ENABLED(CHAMBER_USES_AD8495)
-          660.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET
-        #else
-          0
-        #endif
-      );
-
+      return 0;
     #endif
   }
 #endif // HAS_TEMP_CHAMBER
@@ -1059,8 +1049,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if ENABLED(HEATER_0_USES_MAX6675)
     current_temperature_raw[0] = read_max6675();
   #endif
-  HOTEND_LOOP()
-    current_temperature[e] = Temperature::analog2temp(current_temperature_raw[e], e);
+  HOTEND_LOOP() current_temperature[e] = Temperature::analog2temp(current_temperature_raw[e], e);
   #if HAS_HEATED_BED
     current_temperature_bed = Temperature::analog2tempBed(current_temperature_bed_raw);
   #endif
