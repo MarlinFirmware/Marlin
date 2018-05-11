@@ -992,11 +992,11 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For bed temperature measurement.
   float Temperature::analog2tempBed(const int raw) {
-    #if ENABLED(BED_USES_THERMISTOR)
+    #if ENABLED(HEATER_BED_USES_THERMISTOR)
       SCAN_THERMISTOR_TABLE(BEDTEMPTABLE, BEDTEMPTABLE_LEN);
-    #elif ENABLED(BED_USES_AD595)
+    #elif ENABLED(HEATER_BED_USES_AD595)
       return TEMP_AD595(raw);
-    #elif ENABLED(BED_USES_AD8495)
+    #elif ENABLED(HEATER_BED_USES_AD8495)
       return TEMP_AD8495(raw);
     #else
       return 0;
@@ -1008,11 +1008,11 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
   // Derived from RepRap FiveD extruder::getTemperature()
   // For chamber temperature measurement.
   float Temperature::analog2tempChamber(const int raw) {
-    #if ENABLED(CHAMBER_USES_THERMISTOR)
+    #if ENABLED(HEATER_CHAMBER_USES_THERMISTOR)
       SCAN_THERMISTOR_TABLE(CHAMBERTEMPTABLE, CHAMBERTEMPTABLE_LEN);
-    #elif ENABLED(CHAMBER_USES_AD595)
+    #elif ENABLED(HEATER_CHAMBER_USES_AD595)
       return TEMP_AD595(raw);
-    #elif ENABLED(CHAMBER_USES_AD8495)
+    #elif ENABLED(HEATER_CHAMBER_USES_AD8495)
       return TEMP_AD8495(raw);
     #else
       return 0;
