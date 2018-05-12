@@ -79,7 +79,7 @@ inline void ocr_val_mode() {
 
 void GcodeSuite::M3_M4(bool is_M3) {
 
-  stepper.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
+  planner.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
   #if SPINDLE_DIR_CHANGE
     const bool rotation_dir = (is_M3 != SPINDLE_INVERT_DIR);
     if (SPINDLE_STOP_ON_DIR_CHANGE \
@@ -129,7 +129,7 @@ void GcodeSuite::M3_M4(bool is_M3) {
  * M5 turn off spindle
  */
 void GcodeSuite::M5() {
-  stepper.synchronize();
+  planner.synchronize();
   WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
   #if ENABLED(SPINDLE_LASER_PWM)
     analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);

@@ -32,7 +32,7 @@
 #include "motion.h"
 
 // For homing:
-#include "stepper.h"
+#include "planner.h"
 #include "endstops.h"
 #include "../lcd/ultralcd.h"
 #include "../Marlin.h"
@@ -258,7 +258,7 @@ bool home_delta() {
   current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
   feedrate_mm_s = homing_feedrate(X_AXIS);
   line_to_current_position();
-  stepper.synchronize();
+  planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)

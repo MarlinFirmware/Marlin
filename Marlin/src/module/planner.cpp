@@ -1300,6 +1300,11 @@ void Planner::check_axes_activity() {
 #endif // PLANNER_LEVELING
 
 /**
+ * Block until all buffered steps are executed / cleaned
+ */
+void Planner::synchronize() { while (has_blocks_queued() || stepper.cleaning_buffer_counter) idle(); }
+
+/**
  * Planner::_buffer_steps
  *
  * Add a new linear movement to the buffer (in terms of steps).

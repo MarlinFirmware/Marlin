@@ -551,6 +551,11 @@ class Planner {
      */
     FORCE_INLINE static bool has_blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
+    //
+    // Block until all buffered steps are executed
+    //
+    static void synchronize();
+
     /**
      * "Discard" the block and "release" the memory.
      * Called when the current block is no longer needed.
