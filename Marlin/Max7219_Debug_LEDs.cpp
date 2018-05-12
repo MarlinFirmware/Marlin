@@ -60,11 +60,12 @@
 #include "planner.h"
 #include "stepper.h"
 #include "Marlin.h"
+#include "delay.h"
 
 static uint8_t LEDs[8] = { 0 };
 
 // Delay for 0.1875µs (16MHz AVR) or 0.15µs (20MHz AVR)
-#define SIG_DELAY() DELAY_3_NOP
+#define SIG_DELAY() DELAY_NS(188)
 
 void Max7219_PutByte(uint8_t data) {
   CRITICAL_SECTION_START

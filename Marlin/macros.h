@@ -57,58 +57,8 @@
 #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20
 #define INT0_PRESCALER 8
 
-// Processor-level delays for hardware interfaces
-#ifndef _NOP
-  #define _NOP() do { __asm__ volatile ("nop"); } while (0)
-#endif
-#define DELAY_NOPS(X) \
-  switch (X) { \
-    case 20: _NOP(); case 19: _NOP(); case 18: _NOP(); case 17: _NOP(); \
-    case 16: _NOP(); case 15: _NOP(); case 14: _NOP(); case 13: _NOP(); \
-    case 12: _NOP(); case 11: _NOP(); case 10: _NOP(); case  9: _NOP(); \
-    case  8: _NOP(); case  7: _NOP(); case  6: _NOP(); case  5: _NOP(); \
-    case  4: _NOP(); case  3: _NOP(); case  2: _NOP(); case  1: _NOP(); \
-  }
-#define DELAY_0_NOP   NOOP
-#define DELAY_1_NOP   DELAY_NOPS( 1)
-#define DELAY_2_NOP   DELAY_NOPS( 2)
-#define DELAY_3_NOP   DELAY_NOPS( 3)
-#define DELAY_4_NOP   DELAY_NOPS( 4)
-#define DELAY_5_NOP   DELAY_NOPS( 5)
-#define DELAY_10_NOP  DELAY_NOPS(10)
-#define DELAY_20_NOP  DELAY_NOPS(20)
-
-#if CYCLES_PER_MICROSECOND <= 200
-  #define DELAY_100NS DELAY_NOPS((CYCLES_PER_MICROSECOND + 9) / 10)
-#else
-  #define DELAY_100NS DELAY_20_NOP
-#endif
-
-// Microsecond delays for hardware interfaces
-#if CYCLES_PER_MICROSECOND <= 20
-  #define DELAY_1US DELAY_NOPS(CYCLES_PER_MICROSECOND)
-  #define DELAY_US(X) \
-    switch (X) { \
-      case 20: DELAY_1US; case 19: DELAY_1US; case 18: DELAY_1US; case 17: DELAY_1US; \
-      case 16: DELAY_1US; case 15: DELAY_1US; case 14: DELAY_1US; case 13: DELAY_1US; \
-      case 12: DELAY_1US; case 11: DELAY_1US; case 10: DELAY_1US; case  9: DELAY_1US; \
-      case  8: DELAY_1US; case  7: DELAY_1US; case  6: DELAY_1US; case  5: DELAY_1US; \
-      case  4: DELAY_1US; case  3: DELAY_1US; case  2: DELAY_1US; case  1: DELAY_1US; \
-    }
-#else
-  #define DELAY_US(X) delayMicroseconds(X) // May not be usable in CRITICAL_SECTION
-  #define DELAY_1US DELAY_US(1)
-#endif
-#define DELAY_2US  DELAY_US( 2)
-#define DELAY_3US  DELAY_US( 3)
-#define DELAY_4US  DELAY_US( 4)
-#define DELAY_5US  DELAY_US( 5)
-#define DELAY_6US  DELAY_US( 6)
-#define DELAY_7US  DELAY_US( 7)
-#define DELAY_8US  DELAY_US( 8)
-#define DELAY_9US  DELAY_US( 9)
-#define DELAY_10US DELAY_US(10)
-#define DELAY_20US DELAY_US(20)
+// Nanoseconds per cycle
+#define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
 #define UNUSED(x) (void) (x)
@@ -122,7 +72,7 @@
 
 // Macros for bit masks
 #undef _BV
-#define _BV(b) (1<<(b))
+#define _BV(b) (1 << (b))
 #define TEST(n,b) !!((n)&_BV(b))
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))
@@ -152,6 +102,7 @@
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
 #define NOMORE(v,n) do{ if (v > n) v = n; }while(0)
+#define LIMIT(v,n1,n2) do{ if (v < n1) v = n1; else if (v > n2) v = n2; }while(0)
 
 // Macros to support option testing
 #define _CAT(a, ...) a ## __VA_ARGS__
@@ -159,9 +110,11 @@
 #define SWITCH_ENABLED_true  1
 #define SWITCH_ENABLED_0     0
 #define SWITCH_ENABLED_1     1
+#define SWITCH_ENABLED_0x0   0
+#define SWITCH_ENABLED_0x1   1
 #define SWITCH_ENABLED_      1
 #define ENABLED(b) _CAT(SWITCH_ENABLED_, b)
-#define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
+#define DISABLED(b) !ENABLED(b)
 
 #define WITHIN(V,L,H) ((V) >= (L) && (V) <= (H))
 #define NUMERIC(a) WITHIN(a, '0', '9')
