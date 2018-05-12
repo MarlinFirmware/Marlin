@@ -99,15 +99,15 @@ void I2CPositionEncoder::update() {
 
         //the encoder likely lost its place when the error occured, so we'll reset and use the printer's
         //idea of where it the axis is to re-initialise
-        float position = stepper.get_axis_position_mm(encoderAxis);
-        int32_t positionInTicks = position * get_ticks_unit();
+        const float pos = planner.get_axis_position_mm(encoderAxis);
+        int32_t positionInTicks = pos * get_ticks_unit();
 
         //shift position from previous to current position
         zeroOffset -= (positionInTicks - get_position());
 
         #ifdef I2CPE_DEBUG
           SERIAL_ECHOPGM("Current position is ");
-          SERIAL_ECHOLN(position);
+          SERIAL_ECHOLN(pos);
 
           SERIAL_ECHOPGM("Position in encoder ticks is ");
           SERIAL_ECHOLN(positionInTicks);
@@ -254,7 +254,7 @@ bool I2CPositionEncoder::passes_test(const bool report) {
 float I2CPositionEncoder::get_axis_error_mm(const bool report) {
   float target, actual, error;
 
-  target = stepper.get_axis_position_mm(encoderAxis);
+  target = planner.get_axis_position_mm(encoderAxis);
   actual = mm_from_count(position);
   error = actual - target;
 
@@ -349,8 +349,8 @@ bool I2CPositionEncoder::test_axis() {
   ec = false;
 
   LOOP_NA(i) {
-    startCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
-    endCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
+    startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
+    endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
   }
 
   startCoord[encoderAxis] = startPosition;
@@ -359,7 +359,7 @@ bool I2CPositionEncoder::test_axis() {
   planner.synchronize();
 
   planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                      stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
+                      planner.get_axis_position_mm(E_AXIS), feedrate, 0);
   planner.synchronize();
 
   // if the module isn't currently trusted, wait until it is (or until it should be if things are working)
@@ -371,7 +371,7 @@ bool I2CPositionEncoder::test_axis() {
 
   if (trusted) { // if trusted, commence test
     planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                        stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
+                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
     planner.synchronize();
   }
 
@@ -408,8 +408,8 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
   travelDistance = endDistance - startDistance;
 
   LOOP_NA(i) {
-    startCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
-    endCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
+    startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
+    endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
   }
 
   startCoord[encoderAxis] = startDistance;
@@ -419,7 +419,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
   LOOP_L_N(i, iter) {
     planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                        stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
+                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
     planner.synchronize();
 
     delay(250);
@@ -428,7 +428,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     //do_blocking_move_to(endCoord[X_AXIS],endCoord[Y_AXIS],endCoord[Z_AXIS]);
 
     planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                        stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
+                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
     planner.synchronize();
 
     //Read encoder distance

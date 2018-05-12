@@ -2037,32 +2037,6 @@ int32_t Stepper::position(const AxisEnum axis) {
   return count_pos;
 }
 
-/**
- * Get an axis position according to stepper position(s)
- * For CORE machines apply translation from ABC to XYZ.
- */
-float Stepper::get_axis_position_mm(const AxisEnum axis) {
-  float axis_steps;
-  #if IS_CORE
-    // Requesting one of the "core" axes?
-    if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
-      CRITICAL_SECTION_START;
-      // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
-      // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_steps = 0.5f * (
-        axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
-                            : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
-      );
-      CRITICAL_SECTION_END;
-    }
-    else
-      axis_steps = position(axis);
-  #else
-    axis_steps = position(axis);
-  #endif
-  return axis_steps * planner.steps_to_mm[axis];
-}
-
 void Stepper::finish_and_disable() {
   planner.synchronize();
   disable_all_steppers();

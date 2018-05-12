@@ -338,9 +338,9 @@ void safe_delay(millis_t ms) {
         #endif
         #if ABL_PLANAR
           const float diff[XYZ] = {
-            stepper.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
-            stepper.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
-            stepper.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]
+            planner.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
+            planner.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
+            planner.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]
           };
           SERIAL_ECHOPGM("ABL Adjustment X");
           if (diff[X_AXIS] > 0) SERIAL_CHAR('+');

@@ -229,18 +229,6 @@ class Stepper {
     static void report_positions();
 
     //
-    // Get the position (mm) of an axis based on stepper position(s)
-    //
-    static float get_axis_position_mm(const AxisEnum axis);
-
-    //
-    // SCARA AB axes are in degrees, not mm
-    //
-    #if IS_SCARA
-      FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
-    #endif
-
-    //
     // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
     // to notify the subsystem that it is time to go to work.
     //

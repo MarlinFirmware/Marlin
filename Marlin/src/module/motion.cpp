@@ -193,21 +193,21 @@ void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]
 void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
     forward_kinematics_DELTA(
-      stepper.get_axis_position_mm(A_AXIS),
-      stepper.get_axis_position_mm(B_AXIS),
-      stepper.get_axis_position_mm(C_AXIS)
+      planner.get_axis_position_mm(A_AXIS),
+      planner.get_axis_position_mm(B_AXIS),
+      planner.get_axis_position_mm(C_AXIS)
     );
   #else
     #if IS_SCARA
       forward_kinematics_SCARA(
-        stepper.get_axis_position_degrees(A_AXIS),
-        stepper.get_axis_position_degrees(B_AXIS)
+        planner.get_axis_position_degrees(A_AXIS),
+        planner.get_axis_position_degrees(B_AXIS)
       );
     #else
-      cartes[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
-      cartes[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
+      cartes[X_AXIS] = planner.get_axis_position_mm(X_AXIS);
+      cartes[Y_AXIS] = planner.get_axis_position_mm(Y_AXIS);
     #endif
-    cartes[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+    cartes[Z_AXIS] = planner.get_axis_position_mm(Z_AXIS);
   #endif
 }
 
@@ -870,12 +870,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
               }
             #endif
             // move duplicate extruder into correct duplication position.
-            planner.set_position_mm(
-              inactive_extruder_x_pos,
-              current_position[Y_AXIS],
-              current_position[Z_AXIS],
-              current_position[E_AXIS]
-            );
+            planner.set_position_mm(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
             planner.buffer_line(
               current_position[X_AXIS] + duplicate_extruder_x_offset,
               current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],

@@ -547,6 +547,17 @@ class Planner {
     static void sync_from_steppers();
 
     /**
+     * Get an axis position according to stepper position(s)
+     * For CORE machines apply translation from ABC to XYZ.
+     */
+    static float get_axis_position_mm(const AxisEnum axis);
+
+    // SCARA AB axes are in degrees, not mm
+    #if IS_SCARA
+      FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
+    #endif
+
+    /**
      * Does the buffer have any blocks queued?
      */
     FORCE_INLINE static bool has_blocks_queued() { return (block_buffer_head != block_buffer_tail); }

@@ -38,10 +38,6 @@
   #include "../feature/power.h"
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  #include "stepper.h"
-#endif
-
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
