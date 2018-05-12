@@ -21,12 +21,13 @@
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
+#include "../Delay.h"
 
 HalSerial usb_serial;
 
 // U8glib required functions
 extern "C" void u8g_xMicroDelay(uint16_t val) {
-  delayMicroseconds(val);
+  DELAY_US(val);
 }
 extern "C" void u8g_MicroDelay(void) {
   u8g_xMicroDelay(1);

@@ -63,7 +63,6 @@
 
   #include <U8glib.h>
 
-void delayMicroseconds(uint32_t us);
 //void pinMode(int16_t pin, uint8_t mode);
 //void digitalWrite(int16_t pin, uint8_t pin_status);
 
@@ -122,13 +121,13 @@ uint8_t u8g_i2c_start_sw(uint8_t sla) {  // assert start condition and then send
 
   LPC_GPIO(SDA_port_HAL_LPC1768_sw_I2C)->FIOCLR = LPC_PIN(SDA_pin_HAL_LPC1768_sw_I2C);
   LPC_GPIO(SCL_port_HAL_LPC1768_sw_I2C)->FIOCLR = LPC_PIN(SCL_pin_HAL_LPC1768_sw_I2C);
-  delayMicroseconds(2);
+  DELAY_US(2);
   LPC_GPIO(SCL_port_HAL_LPC1768_sw_I2C)->FIOSET = LPC_PIN(SCL_pin_HAL_LPC1768_sw_I2C);
-  delayMicroseconds(2);
+  DELAY_US(2);
   LPC_GPIO(SDA_port_HAL_LPC1768_sw_I2C)->FIOSET = LPC_PIN(SDA_pin_HAL_LPC1768_sw_I2C);
-  delayMicroseconds(2);
+  DELAY_US(2);
   LPC_GPIO(SDA_port_HAL_LPC1768_sw_I2C)->FIOCLR = LPC_PIN(SDA_pin_HAL_LPC1768_sw_I2C);
-  delayMicroseconds(2);
+  DELAY_US(2);
   LPC_GPIO(SCL_port_HAL_LPC1768_sw_I2C)->FIOCLR = LPC_PIN(SCL_pin_HAL_LPC1768_sw_I2C);
 
   u8g_i2c_send_byte_sw(I2C_SLA);  // send slave address with write bit
