@@ -129,7 +129,6 @@ static UnwResult UnwTabStateInit(const UnwindCallbacks *cb, UnwTabState *ucb, ui
  */
 static UnwResult UnwTabExecuteInstructions(const UnwindCallbacks *cb, UnwTabState *ucb) {
 
-  UnwResult err;
   int instruction;
   uint32_t mask;
   uint32_t reg;
