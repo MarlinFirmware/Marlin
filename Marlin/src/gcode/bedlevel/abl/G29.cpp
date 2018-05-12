@@ -391,7 +391,7 @@ void GcodeSuite::G29() {
       SERIAL_EOL();
     }
 
-    stepper.synchronize();
+    planner.synchronize();
 
     // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.
@@ -949,7 +949,7 @@ void GcodeSuite::G29() {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
       #endif
-      stepper.synchronize();
+      planner.synchronize();
       enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
     #endif
 

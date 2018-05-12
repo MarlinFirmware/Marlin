@@ -204,10 +204,6 @@ millis_t max_inactive_time, // = 0
   bool chdkActive; // = false;
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  int lpq_len = 20;
-#endif
-
 #if ENABLED(I2C_POSITION_ENCODERS)
   I2CPositionEncodersMgr I2CPEM;
 #endif
@@ -274,7 +270,7 @@ bool pin_is_protected(const pin_t pin) {
 
 void quickstop_stepper() {
   stepper.quick_stop();
-  stepper.synchronize();
+  planner.synchronize();
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();
 }
@@ -461,7 +457,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       planner.buffer_line_kinematic(current_position, MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder);
       current_position[E_AXIS] = olde;
       planner.set_e_position_mm(olde);
-      stepper.synchronize();
+      planner.synchronize();
       #if ENABLED(SWITCHING_EXTRUDER)
         E0_ENABLE_WRITE(oldstatus);
       #else

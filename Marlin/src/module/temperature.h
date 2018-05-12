@@ -38,10 +38,6 @@
   #include "../feature/power.h"
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  #include "stepper.h"
-#endif
-
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
@@ -297,6 +293,10 @@ class Temperature {
     #if ENABLED(ADC_KEYPAD)
       static uint32_t current_ADCKey_raw;
       static uint8_t ADCKey_count;
+    #endif
+
+    #if ENABLED(PID_EXTRUSION_SCALING)
+      static int16_t lpq_len;
     #endif
 
     /**

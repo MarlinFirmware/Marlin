@@ -41,15 +41,18 @@
  * along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* The timer calculations of this module informed by the 'RepRap cartesian firmware' by Zack Smith
-   and Philipp Tiefenbacher. */
+/**
+ * Timer calculations informed by the 'RepRap cartesian firmware' by Zack Smith
+ * and Philipp Tiefenbacher.
+ */
 
-/* Jerk controlled movements planner added by Eduardo José Tagle in April
-   2018, Equations based on Synthethos TinyG2 sources, but the fixed-point
-   implementation is a complete new one, as we are running the ISR with a
-   variable period.
-   Also implemented the Bézier velocity curve evaluation in ARM assembler,
-   to avoid impacting ISR speed. */
+/**
+ * Jerk controlled movements planner added Apr 2018 by Eduardo José Tagle.
+ * Equations based on Synthethos TinyG2 sources, but the fixed-point
+ * implementation is new, as we are running the ISR with a variable period.
+ * Also implemented the Bézier velocity curve evaluation in ARM assembler,
+ * to avoid impacting ISR speed.
+ */
 
 #include "stepper.h"
 
@@ -67,6 +70,7 @@
 #include "../gcode/queue.h"
 #include "../sd/cardreader.h"
 #include "../Marlin.h"
+#include "../HAL/Delay.h"
 
 #if MB(ALLIGATOR)
   #include "../feature/dac/dac_dac084s085.h"
@@ -1471,7 +1475,7 @@ void Stepper::isr() {
       while (EXTRA_CYCLES_XYZE > (uint32_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
       pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM);
     #elif EXTRA_CYCLES_XYZE > 0
-      DELAY_NOPS(EXTRA_CYCLES_XYZE);
+      DELAY_NS(EXTRA_CYCLES_XYZE * NANOSECONDS_PER_CYCLE);
     #endif
 
     #if HAS_X_STEP
@@ -1506,7 +1510,7 @@ void Stepper::isr() {
     #if EXTRA_CYCLES_XYZE > 20
       if (i) while (EXTRA_CYCLES_XYZE > (uint32_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
     #elif EXTRA_CYCLES_XYZE > 0
-      if (i) DELAY_NOPS(EXTRA_CYCLES_XYZE);
+      if (i) DELAY_NS(EXTRA_CYCLES_XYZE * NANOSECONDS_PER_CYCLE);
     #endif
 
   } // steps_loop
@@ -1659,6 +1663,17 @@ void Stepper::isr() {
     #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
       #define START_E_PULSE(INDEX) do{ if (e_steps) E_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
       #define STOP_E_PULSE(INDEX) do{ if (e_steps) { E_STEP_WRITE(INVERT_E_STEP_PIN); e_steps < 0 ? ++e_steps : --e_steps; } }while(0)
+    #elif ENABLED(SWITCHING_EXTRUDER)
+      #define START_E_PULSE(INDEX) do{ if (e_steps) { switch (INDEX) { \
+          case 0: case 1: E0_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+          case 2: case 3: E1_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+                  case 4: E2_DIR_WRITE(!INVERT_E_STEP_PIN); \
+      } } }while(0)
+      #define STOP_E_PULSE(INDEX) do{ if (e_steps) { switch (INDEX) { \
+          case 0: case 1: E0_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+          case 2: case 3: E1_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+                  case 4: E2_DIR_WRITE(!INVERT_E_STEP_PIN); \
+      } } }while(0)
     #else
       #define START_E_PULSE(INDEX) do{ if (e_steps) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
       #define STOP_E_PULSE(INDEX) do { if (e_steps) { e_steps < 0 ? ++e_steps : --e_steps; E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); } }while(0)
@@ -1728,7 +1743,7 @@ void Stepper::isr() {
         while (EXTRA_CYCLES_E > (hal_timer_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
         pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM);
       #elif EXTRA_CYCLES_E > 0
-        DELAY_NOPS(EXTRA_CYCLES_E);
+        DELAY_NS(EXTRA_CYCLES_E * NANOSECONDS_PER_CYCLE);
       #endif
 
       switch (LA_active_extruder) {
@@ -1751,7 +1766,7 @@ void Stepper::isr() {
       #if EXTRA_CYCLES_E > 20
         if (e_steps) while (EXTRA_CYCLES_E > (hal_timer_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
       #elif EXTRA_CYCLES_E > 0
-        if (e_steps) DELAY_NOPS(EXTRA_CYCLES_E);
+        if (e_steps) DELAY_NS(EXTRA_CYCLES_E * NANOSECONDS_PER_CYCLE);
       #endif
 
     } // e_steps
@@ -1977,12 +1992,6 @@ void Stepper::init() {
   set_directions(); // Init directions to last_direction_bits = 0
 }
 
-
-/**
- * Block until all buffered steps are executed / cleaned
- */
-void Stepper::synchronize() { while (planner.has_blocks_queued() || cleaning_buffer_counter) idle(); }
-
 /**
  * Set the stepper positions directly in steps
  *
@@ -2028,34 +2037,8 @@ int32_t Stepper::position(const AxisEnum axis) {
   return count_pos;
 }
 
-/**
- * Get an axis position according to stepper position(s)
- * For CORE machines apply translation from ABC to XYZ.
- */
-float Stepper::get_axis_position_mm(const AxisEnum axis) {
-  float axis_steps;
-  #if IS_CORE
-    // Requesting one of the "core" axes?
-    if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
-      CRITICAL_SECTION_START;
-      // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
-      // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_steps = 0.5f * (
-        axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
-                            : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
-      );
-      CRITICAL_SECTION_END;
-    }
-    else
-      axis_steps = position(axis);
-  #else
-    axis_steps = position(axis);
-  #endif
-  return axis_steps * planner.steps_to_mm[axis];
-}
-
 void Stepper::finish_and_disable() {
-  synchronize();
+  planner.synchronize();
   disable_all_steppers();
 }
 
@@ -2141,13 +2124,13 @@ void Stepper::report_positions() {
   #else
     #define _SAVE_START NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
-      #define _PULSE_WAIT DELAY_NOPS(EXTRA_CYCLES_BABYSTEP)
+      #define _PULSE_WAIT DELAY_NS(EXTRA_CYCLES_BABYSTEP * NANOSECONDS_PER_CYCLE)
     #elif STEP_PULSE_CYCLES > 0
       #define _PULSE_WAIT NOOP
     #elif ENABLED(DELTA)
-      #define _PULSE_WAIT delayMicroseconds(2);
+      #define _PULSE_WAIT DELAY_US(2);
     #else
-      #define _PULSE_WAIT delayMicroseconds(4);
+      #define _PULSE_WAIT DELAY_US(4);
     #endif
   #endif
 

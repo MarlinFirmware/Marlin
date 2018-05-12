@@ -88,6 +88,10 @@
   #include "../feature/pause.h"
 #endif
 
+#if ENABLED(PID_EXTRUSION_SCALING)
+  #define LPQ_LEN thermalManager.lpq_len
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 typedef struct PID { float Kp, Ki, Kd; } PID;
@@ -198,7 +202,7 @@ typedef struct SettingsDataStruct {
   //
   PIDC hotendPID[MAX_EXTRUDERS];                        // M301 En PIDC / M303 En U
 
-  int lpq_len;                                          // M301 L
+  int16_t lpq_len;                                      // M301 L
 
   //
   // PIDTEMPBED
@@ -594,9 +598,9 @@ void MarlinSettings::postprocess() {
     _FIELD_TEST(lpq_len);
 
     #if DISABLED(PID_EXTRUSION_SCALING)
-      int lpq_len = 20;
+      const int16_t LPQ_LEN = 20;
     #endif
-    EEPROM_WRITE(lpq_len);
+    EEPROM_WRITE(LPQ_LEN);
 
     #if DISABLED(PIDTEMPBED)
       dummy = DUMMY_PID_VALUE;
@@ -954,7 +958,6 @@ void MarlinSettings::postprocess() {
         SERIAL_ECHOPAIR_P(port, "(EEPROM=", stored_ver);
         SERIAL_ECHOLNPGM_P(port, " Marlin=" EEPROM_VERSION ")");
       #endif
-      if (!validating) reset();
       eeprom_error = true;
     }
     else {
@@ -1200,9 +1203,9 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(lpq_len);
 
       #if DISABLED(PID_EXTRUSION_SCALING)
-        int lpq_len;
+        int16_t LPQ_LEN;
       #endif
-      EEPROM_READ(lpq_len);
+      EEPROM_READ(LPQ_LEN);
 
       //
       // Heated Bed PID
@@ -1511,15 +1514,13 @@ void MarlinSettings::postprocess() {
         #endif
       }
 
-      if (!validating) {
-        if (eeprom_error) reset(); else postprocess();
-      }
+      if (!validating && !eeprom_error) postprocess();
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.report_state();
-
         if (!validating) {
-          if (!ubl.sanity_check()) {
+            ubl.report_state();
+
+            if (!ubl.sanity_check()) {
             SERIAL_EOL_P(port);
             #if ENABLED(EEPROM_CHITCHAT)
               ubl.echo_name();
@@ -1815,7 +1816,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif
     }
     #if ENABLED(PID_EXTRUSION_SCALING)
-      lpq_len = 20; // default last-position-queue size
+      thermalManager.lpq_len = 20; // default last-position-queue size
     #endif
   #endif // PIDTEMP
 
@@ -2291,7 +2292,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
               SERIAL_ECHOPAIR_P(port, " D", unscalePID_d(PID_PARAM(Kd, e)));
               #if ENABLED(PID_EXTRUSION_SCALING)
                 SERIAL_ECHOPAIR_P(port, " C", PID_PARAM(Kc, e));
-                if (e == 0) SERIAL_ECHOPAIR_P(port, " L", lpq_len);
+                if (e == 0) SERIAL_ECHOPAIR_P(port, " L", thermalManager.lpq_len);
               #endif
               SERIAL_EOL_P(port);
             }
@@ -2306,7 +2307,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_ECHOPAIR_P(port, " D", unscalePID_d(PID_PARAM(Kd, 0)));
           #if ENABLED(PID_EXTRUSION_SCALING)
             SERIAL_ECHOPAIR_P(port, " C", PID_PARAM(Kc, 0));
-            SERIAL_ECHOPAIR_P(port, " L", lpq_len);
+            SERIAL_ECHOPAIR_P(port, " L", thermalManager.lpq_len);
           #endif
           SERIAL_EOL_P(port);
         }

@@ -193,21 +193,21 @@ void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]
 void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
     forward_kinematics_DELTA(
-      stepper.get_axis_position_mm(A_AXIS),
-      stepper.get_axis_position_mm(B_AXIS),
-      stepper.get_axis_position_mm(C_AXIS)
+      planner.get_axis_position_mm(A_AXIS),
+      planner.get_axis_position_mm(B_AXIS),
+      planner.get_axis_position_mm(C_AXIS)
     );
   #else
     #if IS_SCARA
       forward_kinematics_SCARA(
-        stepper.get_axis_position_degrees(A_AXIS),
-        stepper.get_axis_position_degrees(B_AXIS)
+        planner.get_axis_position_degrees(A_AXIS),
+        planner.get_axis_position_degrees(B_AXIS)
       );
     #else
-      cartes[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
-      cartes[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
+      cartes[X_AXIS] = planner.get_axis_position_mm(X_AXIS);
+      cartes[Y_AXIS] = planner.get_axis_position_mm(Y_AXIS);
     #endif
-    cartes[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+    cartes[Z_AXIS] = planner.get_axis_position_mm(Z_AXIS);
   #endif
 }
 
@@ -402,7 +402,7 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
 }
 void do_blocking_move_to_x(const float &rx, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(rx, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
@@ -870,18 +870,13 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
               }
             #endif
             // move duplicate extruder into correct duplication position.
-            planner.set_position_mm(
-              inactive_extruder_x_pos,
-              current_position[Y_AXIS],
-              current_position[Z_AXIS],
-              current_position[E_AXIS]
-            );
+            planner.set_position_mm(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
             planner.buffer_line(
               current_position[X_AXIS] + duplicate_extruder_x_offset,
               current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],
               planner.max_feedrate_mm_s[X_AXIS], 1
             );
-            stepper.synchronize();
+            planner.synchronize();
             SYNC_PLAN_POSITION_KINEMATIC();
             extruder_duplication_enabled = true;
             active_extruder_parked = false;
@@ -1110,7 +1105,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], fr_mm_s ? fr_mm_s : homing_feedrate(axis), active_extruder);
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
 
   if (is_home_dir) {
 

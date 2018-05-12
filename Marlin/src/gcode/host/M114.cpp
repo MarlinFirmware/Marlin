@@ -77,7 +77,7 @@
       report_xyz(delta);
     #endif
 
-    stepper.synchronize();
+    planner.synchronize();
 
     SERIAL_PROTOCOLPGM("Stepper:");
     LOOP_XYZE(i) {
@@ -90,8 +90,8 @@
 
     #if IS_SCARA
       const float deg[XYZ] = {
-        stepper.get_axis_position_degrees(A_AXIS),
-        stepper.get_axis_position_degrees(B_AXIS)
+        planner.get_axis_position_degrees(A_AXIS),
+        planner.get_axis_position_degrees(B_AXIS)
       };
       SERIAL_PROTOCOLPGM("Degrees:");
       report_xyze(deg, 2);
@@ -99,7 +99,7 @@
 
     SERIAL_PROTOCOLPGM("FromStp:");
     get_cartesian_from_steppers();  // writes cartes[XYZ] (with forward kinematics)
-    const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], stepper.get_axis_position_mm(E_AXIS) };
+    const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], planner.get_axis_position_mm(E_AXIS) };
     report_xyze(from_steppers);
 
     const float diff[XYZE] = {
@@ -126,6 +126,6 @@ void GcodeSuite::M114() {
     }
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
   report_current_position();
 }

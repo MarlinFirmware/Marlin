@@ -37,7 +37,7 @@ void GcodeSuite::M226() {
 
       int target = LOW;
 
-      stepper.synchronize();
+      planner.synchronize();
 
       pinMode(pin, INPUT);
       switch (pin_state) {

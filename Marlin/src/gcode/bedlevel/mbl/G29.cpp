@@ -132,7 +132,7 @@ void GcodeSuite::G29() {
         // One last "return to the bed" (as originally coded) at completion
         current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
         line_to_current_position();
-        stepper.synchronize();
+        planner.synchronize();
 
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
@@ -147,7 +147,7 @@ void GcodeSuite::G29() {
           current_position[Z_AXIS] = 0;
           set_destination_from_current();
           buffer_line_to_destination(homing_feedrate(Z_AXIS));
-          stepper.synchronize();
+          planner.synchronize();
         #endif
 
         #if ENABLED(LCD_BED_LEVELING)

@@ -500,7 +500,7 @@ inline bool prime_nozzle() {
         #endif
         G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
         set_destination_from_current();
-        stepper.synchronize();    // Without this synchronize, the purge is more consistent,
+        planner.synchronize();    // Without this synchronize, the purge is more consistent,
                                   // but because the planner has a buffer, we won't be able
                                   // to stop as quickly. So we put up with the less smooth
                                   // action to give the user a more responsive 'Stop'.
@@ -773,7 +773,7 @@ void GcodeSuite::G26() {
 
       #if ENABLED(ARC_SUPPORT)
 
-        #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * PI * (quarters) / 2)
+        #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * M_PI * (quarters) / 2)
         float sx = circle_x + INTERSECTION_CIRCLE_RADIUS,   // default to full circle
               ex = circle_x + INTERSECTION_CIRCLE_RADIUS,
               sy = circle_y, ey = circle_y,

@@ -33,6 +33,10 @@
 
 #include "MarlinSerialUSB_Due.h"
 
+#if ENABLED(EMERGENCY_PARSER)
+  #include "../../feature/emergency_parser.h"
+#endif
+
 // Imports from Atmel USB Stack/CDC implementation
 extern "C" {
   bool usb_task_cdc_isenabled(void);
@@ -45,6 +49,10 @@ extern "C" {
 
 // Pending character
 static int pending_char = -1;
+
+#if ENABLED(EMERGENCY_PARSER)
+  static EmergencyParser::State emergency_state; // = EP_RESET
+#endif
 
 // Public Methods
 void MarlinSerialUSB::begin(const long baud_setting) {
@@ -66,6 +74,11 @@ int MarlinSerialUSB::peek(void) {
     return -1;
 
   pending_char = udi_cdc_getc();
+
+  #if ENABLED(EMERGENCY_PARSER)
+    emergency_parser.update(emergency_state, (char)pending_char);
+  #endif
+
   return pending_char;
 }
 
@@ -84,7 +97,13 @@ int MarlinSerialUSB::read(void) {
   if (!udi_cdc_is_rx_ready())
     return -1;
 
-  return udi_cdc_getc();
+  int c = udi_cdc_getc();
+
+  #if ENABLED(EMERGENCY_PARSER)
+    emergency_parser.update(emergency_state, (char)c);
+  #endif
+
+  return c;
 }
 
 bool MarlinSerialUSB::available(void) {

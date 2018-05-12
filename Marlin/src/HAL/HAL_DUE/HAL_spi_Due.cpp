@@ -42,6 +42,7 @@
 // --------------------------------------------------------------------------
 
 #include "../../inc/MarlinConfig.h"
+#include "../Delay.h"
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -58,66 +59,16 @@
   // software SPI
   // --------------------------------------------------------------------------
 
-  // set optimization so ARDUINO optimizes this file
+  // Make sure GCC optimizes this file.
+  // Note that this line triggers a bug in GCC which is fixed by casting.
+  // See the note below.
   #pragma GCC optimize (3)
 
-  /* ---------------- Delay Cycles routine -------------- */
-
-  /* https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles */
-
-  #define nop() __asm__ __volatile__("nop;\n\t":::)
-
-  FORCE_INLINE static void __delay_4cycles(uint32_t cy) { // +1 cycle
-    #if ARCH_PIPELINE_RELOAD_CYCLES<2
-      #define EXTRA_NOP_CYCLES "nop"
-    #else
-      #define EXTRA_NOP_CYCLES ""
-    #endif
-
-    __asm__ __volatile__(
-      ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
-
-      L("loop%=")
-      A("subs %[cnt],#1")
-      A(EXTRA_NOP_CYCLES)
-      A("bne loop%=")
-      : [cnt]"+r"(cy) // output: +r means input+output
-      : // input:
-      : "cc" // clobbers:
-    );
-  }
-
-  FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
-
-    if (__builtin_constant_p(x)) {
-
-      #define MAXNOPS 4
-
-      if (x <= (MAXNOPS)) {
-        switch (x) { case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
-      }
-      else { // because of +1 cycle inside delay_4cycles
-        const uint32_t rem = (x - 1) % (MAXNOPS);
-        switch (rem) { case 3: nop(); case 2: nop(); case 1: nop(); }
-        if ((x = (x - 1) / (MAXNOPS)))
-          __delay_4cycles(x); // if need more then 4 nop loop is more optimal
-      }
-    }
-    else
-      __delay_4cycles(x / 4);
-  }
-
-  /* ---------------- Delay in nanoseconds and in microseconds */
-
-  #define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU/1000000) / 1000)
-
-  typedef uint8_t (*pfnSpiTransfer) (uint8_t b);
+  typedef uint8_t (*pfnSpiTransfer)(uint8_t b);
   typedef void    (*pfnSpiRxBlock)(uint8_t* buf, uint32_t nbyte);
   typedef void    (*pfnSpiTxBlock)(const uint8_t* buf, uint32_t nbyte);
 
-
   /* ---------------- Macros to be able to access definitions from asm */
-
   #define _PORT(IO) DIO ##  IO ## _WPORT
   #define _PIN_MASK(IO) MASK(DIO ## IO ## _PIN)
   #define _PIN_SHIFT(IO) DIO ## IO ## _PIN
@@ -202,10 +153,10 @@
     return 0;
   }
 
- // Calculates the bit band alias address and returns a pointer address to word.
- // addr: The byte address of bitbanding bit.
- // bit:  The bit position of bitbanding bit.
-#define BITBAND_ADDRESS(addr, bit) \
+   // Calculates the bit band alias address and returns a pointer address to word.
+   // addr: The byte address of bitbanding bit.
+   // bit:  The bit position of bitbanding bit.
+  #define BITBAND_ADDRESS(addr, bit) \
     (((uint32_t)(addr) & 0xF0000000) + 0x02000000 + ((uint32_t)(addr)&0xFFFFF)*32 + (bit)*4)
 
   // run at ~8 .. ~10Mhz - Rx version (Tx line not altered)
@@ -319,8 +270,14 @@
   }
 
   // Pointers to generic functions for byte transfers
-  static pfnSpiTransfer spiTransferTx = spiTransferX;
-  static pfnSpiTransfer spiTransferRx = spiTransferX;
+
+  /**
+   * Note: The cast is unnecessary, but without it, this file triggers a GCC 4.8.3-2014 bug.
+   * Later GCC versions do not have this problem, but at this time (May 2018) Arduino still
+   * uses that buggy and obsolete GCC version!!
+   */
+  static pfnSpiTransfer spiTransferRx = (pfnSpiTransfer)spiTransferX;
+  static pfnSpiTransfer spiTransferTx = (pfnSpiTransfer)spiTransferX;
 
   // Block transfers run at ~8 .. ~10Mhz - Tx version (Rx data discarded)
   static void spiTxBlock0(const uint8_t* ptr, uint32_t todo) {
@@ -384,7 +341,7 @@
       A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
 
       /* Bit 0 */
-      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]")  /* Access the proper SODR or CODR registers based on that bit */
+      A("str %[mosi_mask],[%[mosi_port], %[work],LSL #2]") /* Access the proper SODR or CODR registers based on that bit */
       A("str %[sck_mask],[%[sck_port]]")                   /* SODR */
       A("subs %[todo],#1")                                 /* Decrement count of pending words to send, update status */
       A("str %[sck_mask],[%[sck_port],#0x4]")              /* CODR */
@@ -491,8 +448,8 @@
   }
 
   // Pointers to generic functions for block tranfers
-  static pfnSpiTxBlock spiTxBlock = spiTxBlockX;
-  static pfnSpiRxBlock spiRxBlock = spiRxBlockX;
+  static pfnSpiTxBlock spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
+  static pfnSpiRxBlock spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
 
   #if MB(ALLIGATOR)  // control SDSS pin
     void spiBegin() {
@@ -580,23 +537,23 @@
   void spiInit(uint8_t spiRate) {
     switch (spiRate) {
       case 0:
-        spiTransferTx = spiTransferTx0;
-        spiTransferRx = spiTransferRx0;
-        spiTxBlock = spiTxBlock0;
-        spiRxBlock = spiRxBlock0;
+        spiTransferTx = (pfnSpiTransfer)spiTransferTx0;
+        spiTransferRx = (pfnSpiTransfer)spiTransferRx0;
+        spiTxBlock = (pfnSpiTxBlock)spiTxBlock0;
+        spiRxBlock = (pfnSpiRxBlock)spiRxBlock0;
         break;
       case 1:
-        spiTransferTx = spiTransfer1;
-        spiTransferRx = spiTransfer1;
-        spiTxBlock = spiTxBlockX;
-        spiRxBlock = spiRxBlockX;
+        spiTransferTx = (pfnSpiTransfer)spiTransfer1;
+        spiTransferRx = (pfnSpiTransfer)spiTransfer1;
+        spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
+        spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
         break;
       default:
         spiDelayCyclesX4 = (F_CPU/1000000) >> (6 - spiRate);
-        spiTransferTx = spiTransferX;
-        spiTransferRx = spiTransferX;
-        spiTxBlock = spiTxBlockX;
-        spiRxBlock = spiRxBlockX;
+        spiTransferTx = (pfnSpiTransfer)spiTransferX;
+        spiTransferRx = (pfnSpiTransfer)spiTransferX;
+        spiTxBlock = (pfnSpiTxBlock)spiTxBlockX;
+        spiRxBlock = (pfnSpiRxBlock)spiRxBlockX;
         break;
     }
 
@@ -614,7 +571,7 @@
 
   #pragma GCC reset_options
 
-#else
+#else // !SOFTWARE_SPI
 
   #if MB(ALLIGATOR)
 
@@ -714,7 +671,7 @@
       while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
       // clear status
       SPI0->SPI_RDR;
-      //delayMicroseconds(1U);
+      //DELAY_US(1U);
     }
 
     void spiSend(const uint8_t* buf, size_t n) {
@@ -724,7 +681,7 @@
         while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
         while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
         SPI0->SPI_RDR;
-        //delayMicroseconds(1U);
+        //DELAY_US(1U);
       }
       spiSend(buf[n - 1]);
     }
@@ -767,7 +724,7 @@
       // wait for receive register
       while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
       // get byte from receive register
-      //delayMicroseconds(1U);
+      //DELAY_US(1U);
       return SPI0->SPI_RDR;
     }
 
@@ -797,7 +754,7 @@
         SPI0->SPI_TDR = 0x000000FF | SPI_PCS(SPI_CHAN);
         while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
         buf[i] = SPI0->SPI_RDR;
-        //delayMicroseconds(1U);
+        //DELAY_US(1U);
       }
       buf[nbyte] = spiRec();
     }
@@ -813,7 +770,7 @@
         while ((SPI0->SPI_SR & SPI_SR_TDRE) == 0);
         while ((SPI0->SPI_SR & SPI_SR_RDRF) == 0);
         SPI0->SPI_RDR;
-        //delayMicroseconds(1U);
+        //DELAY_US(1U);
       }
       spiSend(buf[511]);
     }
@@ -902,7 +859,7 @@
         spiTransfer(buf[i]);
     }
 
-  #endif  //MB(ALLIGATOR)
-#endif // ENABLED(SOFTWARE_SPI)
+  #endif // !ALLIGATOR
+#endif // !SOFTWARE_SPI
 
 #endif // ARDUINO_ARCH_SAM
