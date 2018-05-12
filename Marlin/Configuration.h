@@ -14,7 +14,7 @@
  */
 
 //#define MachineMini
-#define MachineCR10S
+#define MachineCR10Std
 //#define MachineS4
 //#define MachineS5
 
