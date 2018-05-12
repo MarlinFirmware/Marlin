@@ -31,10 +31,11 @@
 #include "../../queue.h"
 
 #define M91x_USE(A) (ENABLED(A##_IS_TMC2130) || (ENABLED(A##_IS_TMC2208) && PIN_EXISTS(A##_SERIAL_RX)))
+#define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 #define M91x_USE_X  (ENABLED(IS_TRAMS) || M91x_USE(X))
 #define M91x_USE_Y  (ENABLED(IS_TRAMS) || M91x_USE(Y))
 #define M91x_USE_Z  (ENABLED(IS_TRAMS) || M91x_USE(Z))
-#define M91x_USE_E0 (ENABLED(IS_TRAMS) || M91x_USE(E0))
+#define M91x_USE_E0 (ENABLED(IS_TRAMS) || M91x_USE_E(0))
 
 /**
  * M911: Report TMC stepper driver overtemperature pre-warn flag
@@ -62,16 +63,16 @@ void GcodeSuite::M911() {
   #if M91x_USE_E0
     tmc_report_otpw(stepperE0, TMC_E0);
   #endif
-  #if M91x_USE(E1)
+  #if M91x_USE_E(1)
     tmc_report_otpw(stepperE1, TMC_E1);
   #endif
-  #if M91x_USE(E2)
+  #if M91x_USE_E(2)
     tmc_report_otpw(stepperE2, TMC_E2);
   #endif
-  #if M91x_USE(E3)
+  #if M91x_USE_E(3)
     tmc_report_otpw(stepperE3, TMC_E3);
   #endif
-  #if M91x_USE(E4)
+  #if M91x_USE_E(4)
     tmc_report_otpw(stepperE4, TMC_E4);
   #endif
 }
@@ -105,7 +106,6 @@ void GcodeSuite::M912() {
       #endif
     #endif
 
-    #define M91x_USE_Y (M91x_USE(Y) || ENABLED(IS_TRAMS))
     #if M91x_USE_Y || M91x_USE(Y2)
       const uint8_t yval = parser.byteval(axis_codes[Y_AXIS], 10);
       #if M91x_USE_Y
@@ -116,7 +116,6 @@ void GcodeSuite::M912() {
       #endif
     #endif
 
-    #define M91x_USE_Z (M91x_USE(Z) || ENABLED(IS_TRAMS))
     #if M91x_USE_Z || M91x_USE(Z2)
       const uint8_t zval = parser.byteval(axis_codes[Z_AXIS], 10);
       #if M91x_USE_Z
@@ -127,22 +126,23 @@ void GcodeSuite::M912() {
       #endif
     #endif
 
-    const uint8_t eval = parser.byteval(axis_codes[E_AXIS], 10);
-
-    #if M91x_USE_E0
-      if (hasNone || eval == 0 || (hasE && eval == 10)) tmc_clear_otpw(stepperE0, TMC_E0);
-    #endif
-    #if E_STEPPERS > 1 && M91x_USE(E1)
-      if (hasNone || eval == 1 || (hasE && eval == 10)) tmc_clear_otpw(stepperE1, TMC_E1);
-    #endif
-    #if E_STEPPERS > 2 && M91x_USE(E2)
-      if (hasNone || eval == 2 || (hasE && eval == 10)) tmc_clear_otpw(stepperE2, TMC_E2);
-    #endif
-    #if E_STEPPERS > 3 && M91x_USE(E3)
-      if (hasNone || eval == 3 || (hasE && eval == 10)) tmc_clear_otpw(stepperE3, TMC_E3);
-    #endif
-    #if E_STEPPERS > 4 && M91x_USE(E4)
-      if (hasNone || eval == 4 || (hasE && eval == 10)) tmc_clear_otpw(stepperE4, TMC_E4);
+    #if M91x_USE_E0 || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4)
+      const uint8_t eval = parser.byteval(axis_codes[E_AXIS], 10);
+      #if M91x_USE_E0
+        if (hasNone || eval == 0 || (hasE && eval == 10)) tmc_clear_otpw(stepperE0, TMC_E0);
+      #endif
+      #if M91x_USE_E(1)
+        if (hasNone || eval == 1 || (hasE && eval == 10)) tmc_clear_otpw(stepperE1, TMC_E1);
+      #endif
+      #if M91x_USE_E(2)
+        if (hasNone || eval == 2 || (hasE && eval == 10)) tmc_clear_otpw(stepperE2, TMC_E2);
+      #endif
+      #if M91x_USE_E(3)
+        if (hasNone || eval == 3 || (hasE && eval == 10)) tmc_clear_otpw(stepperE3, TMC_E3);
+      #endif
+      #if M91x_USE_E(4)
+        if (hasNone || eval == 4 || (hasE && eval == 10)) tmc_clear_otpw(stepperE4, TMC_E4);
+      #endif
     #endif
 }
 
