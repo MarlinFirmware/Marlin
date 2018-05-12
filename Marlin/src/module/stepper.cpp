@@ -1659,6 +1659,17 @@ void Stepper::isr() {
     #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
       #define START_E_PULSE(INDEX) do{ if (e_steps) E_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
       #define STOP_E_PULSE(INDEX) do{ if (e_steps) { E_STEP_WRITE(INVERT_E_STEP_PIN); e_steps < 0 ? ++e_steps : --e_steps; } }while(0)
+    #elif ENABLED(SWITCHING_EXTRUDER)
+      #define START_E_PULSE(INDEX) do{ if (e_steps) { switch (INDEX) { \
+          case 0: case 1: E0_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+          case 2: case 3: E1_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+                  case 4: E2_DIR_WRITE(!INVERT_E_STEP_PIN); \
+      } } }while(0)
+      #define STOP_E_PULSE(INDEX) do{ if (e_steps) { switch (INDEX) { \
+          case 0: case 1: E0_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+          case 2: case 3: E1_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+                  case 4: E2_DIR_WRITE(!INVERT_E_STEP_PIN); \
+      } } }while(0)
     #else
       #define START_E_PULSE(INDEX) do{ if (e_steps) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
       #define STOP_E_PULSE(INDEX) do { if (e_steps) { e_steps < 0 ? ++e_steps : --e_steps; E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); } }while(0)
