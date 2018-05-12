@@ -31,6 +31,7 @@
 #include "planner.h"
 #include "language.h"
 #include "printcounter.h"
+#include "delay.h"
 
 #if ENABLED(HEATER_0_USES_MAX6675)
   #include "MarlinSPI.h"
@@ -1611,7 +1612,7 @@ void Temperature::disable_all_heaters() {
 
     WRITE(MAX6675_SS, 0); // enable TT_MAX6675
 
-    DELAY_100NS;          // Ensure 100ns delay
+    DELAY_NS(100);       // Ensure 100ns delay
 
     // Read a big-endian temperature value
     max6675_temp = 0;

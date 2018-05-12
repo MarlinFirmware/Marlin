@@ -61,6 +61,7 @@
 #include "language.h"
 #include "cardreader.h"
 #include "speed_lookuptable.h"
+#include "delay.h"
 
 #if HAS_DIGIPOTSS
   #include <SPI.h>
@@ -1455,7 +1456,7 @@ void Stepper::isr() {
       while (EXTRA_CYCLES_XYZE > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
       pulse_start = TCNT0;
     #elif EXTRA_CYCLES_XYZE > 0
-      DELAY_NOPS(EXTRA_CYCLES_XYZE);
+      DELAY_NS(EXTRA_CYCLES_XYZE * NANOSECONDS_PER_CYCLE);
     #endif
 
     #if HAS_X_STEP
@@ -1490,7 +1491,7 @@ void Stepper::isr() {
     #if EXTRA_CYCLES_XYZE > 20
       if (i) while (EXTRA_CYCLES_XYZE > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
     #elif EXTRA_CYCLES_XYZE > 0
-      if (i) DELAY_NOPS(EXTRA_CYCLES_XYZE);
+      if (i) DELAY_NS(EXTRA_CYCLES_XYZE * NANOSECONDS_PER_CYCLE);
     #endif
 
   } // steps_loop
@@ -1714,7 +1715,7 @@ void Stepper::isr() {
         while (EXTRA_CYCLES_E > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
         pulse_start = TCNT0;
       #elif EXTRA_CYCLES_E > 0
-        DELAY_NOPS(EXTRA_CYCLES_E);
+        DELAY_NS(EXTRA_CYCLES_E * NANOSECONDS_PER_CYCLE);
       #endif
 
       switch (LA_active_extruder) {
@@ -1737,7 +1738,7 @@ void Stepper::isr() {
       #if EXTRA_CYCLES_E > 20
         if (e_steps) while (EXTRA_CYCLES_E > (uint32_t)(TCNT0 - pulse_start) * (INT0_PRESCALER)) { /* nada */ }
       #elif EXTRA_CYCLES_E > 0
-        if (e_steps) DELAY_NOPS(EXTRA_CYCLES_E);
+        if (e_steps) DELAY_NS(EXTRA_CYCLES_E * NANOSECONDS_PER_CYCLE);
       #endif
 
     } // e_steps
@@ -2113,13 +2114,13 @@ void Stepper::report_positions() {
   #else
     #define _SAVE_START NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
-      #define _PULSE_WAIT DELAY_NOPS(EXTRA_CYCLES_BABYSTEP)
+      #define _PULSE_WAIT DELAY_NS(EXTRA_CYCLES_BABYSTEP * NANOSECONDS_PER_CYCLE)
     #elif STEP_PULSE_CYCLES > 0
       #define _PULSE_WAIT NOOP
     #elif ENABLED(DELTA)
-      #define _PULSE_WAIT delayMicroseconds(2);
+      #define _PULSE_WAIT DELAY_US(2);
     #else
-      #define _PULSE_WAIT delayMicroseconds(4);
+      #define _PULSE_WAIT DELAY_US(4);
     #endif
   #endif
 
