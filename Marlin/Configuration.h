@@ -1,3 +1,85 @@
+
+/*
+ * Base machine
+ * Choose one option below to define machine size, board, and parameters
+ * 
+ * 
+ * Choose this for CR10 Original Melzi Board
+ * You still need to select a machine size below!
+ */
+//#define MachineCR10Orig
+
+/*
+ * Select machine size
+ */
+
+//#define MachineMini
+#define MachineCR10S
+//#define MachineS4
+//#define MachineS5
+
+/*
+ * Hotend Type
+ * Choose one option below. 
+ * E3D assumes the following mount : 
+ * https://www.thingiverse.com/thing:2494642
+ * 
+ * Configured with 5015 left wing, right wing ABL sensor (BLTouch or M18) only
+ */
+#define HotendStock
+//#define HotendE3D
+
+/*
+ * Enable this if you have an all metal hotend capable of 300c
+ * 
+ */
+//#define HotendAllMetal
+
+/*
+ * Choose bed type below. If you have an extenrally controlled
+ * ac bed, leave both disabled
+ */
+//#define BedAC
+#define BedDC
+
+/*
+ * If you have upgraded to an S board but kept the original display
+ * then enable this line
+ */
+//#define OrigLCD
+
+/*
+ * Choose ABL sensor type below
+ * Leave all disabled if no sensor is available
+ */
+//#define ABL_EZABL // TH3D EZABL or Any NO Sensor
+//#define ABL_NCSW //Any NC Sensor
+//#define ABL_BLTOUCH
+
+/*
+ * Choose bed leveling type here
+ * Requires a sensor from above
+ * Melzi board users may only select ABL_BI for bilinear leveling
+ */
+//#define ABL_BI
+#define ABL_UBL
+
+/*
+ * 
+ * Choose a probe grid density below. Faster probes less points, but is less accurate.
+ * Extreme is for extremely uneven or tilted bed surfaces.
+ * UBL and Extreme are recommended with solid bed mounts as it becomes a one time commissioning.
+ * Standard is recommended in most other scenarios.
+ */
+//#define MeshFast
+#define MeshStd
+//#define MeshFine
+//#define MeshExtreme
+
+
+
+
+
 /**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -97,79 +179,6 @@
 // @section machine
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-
-/*
- * Base machine
- * Choose one option below to define machine size, board, and parameters
- * 
- * 
- Choose this for CR10 Original Melzi Board
- */
-//#define MachineCR10Orig
-
-
-//#define MachineMini
-#define MachineCR10S
-//#define MachineS4
-//#define MachineS5
-
-/*
- * Hotend Type
- * Choose one option below. 
- * E3D assumes the following mount : 
- * https://www.thingiverse.com/thing:2494642
- * 
- * Configured with 5015 left wing, right wing BLTouch only
- */
-#define HotendStock
-//#define HotendE3D
-
-/*
- * Enable this if you have an all metal hotend capable of 300c
- * 
- */
-#define HotendAllMetal
-
-/*
- * Choose bed type below. If you have an extenrally controlled
- * ac bed, leave both disabled
- */
-//#define BedAC
-#define BedDC
-
-/*
- * If you have upgraded to an S board but kept the original display
- * then enable this line
- */
-//#define OrigLCD
-
-/*
- * Choose ABL sensor type below
- * Leave all disabled if no sensor is available
- */
-//#define ABL_EZABL // TH3D EZABL or Any NO Sensor
-//#define ABL_NCSW //Any NC Sensor
-#define ABL_BLTOUCH
-
-/*
- * Choose bed leveling type here
- * Requires a sensor from above
- * Melzi board users may only select ABL_BI for bilinear leveling
- */
-//#define ABL_BI
-#define ABL_UBL
-
-/*
- * 
- * Choose a probe grid density below. Faster probes less points, but is less accurate.
- * Extreme is for extremely uneven or tilted bed surfaces.
- * UBL and Extreme are recommended with solid bed mounts as it becomes a one time commissioning.
- * Standard is recommended in most other scenarios.
- */
-//#define MeshFast
-//#define MeshStd
-#define MeshFine
-//#define MeshExtreme
 
 //#define BoardRev2
 
@@ -763,7 +772,7 @@
 #define DEFAULT_EJERK                  5.0
 #endif
 
-#if (ENABLED(MachineCR10S) || ENABLED(MachineCR10Orig))
+#if (ENABLED(MachineCR10S))
 #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 25 }
 #define DEFAULT_MAX_ACCELERATION      { 1500, 1500, 100, 25 }
 #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
