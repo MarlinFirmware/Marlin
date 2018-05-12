@@ -10,6 +10,10 @@
 //#define MachineCR10Orig
 
 /*
+ * Enabled this for linear advance instead of mesh leveling on a melzi board
+ */
+//#define OrigLA
+/*
  * Select machine size
  */
 
@@ -62,7 +66,7 @@
  * Melzi board users may only select ABL_BI for bilinear leveling
  */
 //#define ABL_BI
-#define ABL_UBL
+//#define ABL_UBL
 
 /*
  * 
@@ -1209,14 +1213,14 @@
 //#define AUTO_BED_LEVELING_LINEAR
 
 #if (ENABLED(ABL_EZABL)|| ENABLED(ABL_BLTOUCH))
-#if ((ENABLED(ABL_UBL)))
-#define AUTO_BED_LEVELING_UBL
-#endif
-#if ((ENABLED(ABL_BI)))
-#define AUTO_BED_LEVELING_BILINEAR
-#endif
-#else
-#define MESH_BED_LEVELING
+  #if ((ENABLED(ABL_UBL)))
+   #define AUTO_BED_LEVELING_UBL
+  #endif
+  #if ((ENABLED(ABL_BI)))
+   #define AUTO_BED_LEVELING_BILINEAR
+  #endif
+#elif (!ENABLED(OrigLA))
+  #define MESH_BED_LEVELING
 #endif
 
 
@@ -1406,7 +1410,7 @@
    Use the LCD controller for bed leveling
    Requires MESH_BED_LEVELING or PROBE_MANUALLY
 */
-#if (!ENABLED(ABL_EZABL)&& !ENABLED(ABL_BLTOUCH))
+#if (!ENABLED(ABL_EZABL)&& !ENABLED(ABL_BLTOUCH) &&!ENABLED(OrigLA))
 #define LCD_BED_LEVELING
 #endif
 

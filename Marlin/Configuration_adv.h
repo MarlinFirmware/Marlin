@@ -756,7 +756,7 @@
  * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
  * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
-  #if(!ENABLED(MachineCR10Orig))
+  #if(!ENABLED(MachineCR10Orig) || ENABLED(OrigLA))
 #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
