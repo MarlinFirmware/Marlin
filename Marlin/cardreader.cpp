@@ -921,7 +921,7 @@ uint16_t CardReader::get_num_Files() {
 }
 
 void CardReader::printingHasFinished() {
-  stepper.synchronize();
+  planner.synchronize();
   file.close();
   if (file_subcall_ctr > 0) { // Heading up to a parent file that called current as a procedure.
     file_subcall_ctr--;

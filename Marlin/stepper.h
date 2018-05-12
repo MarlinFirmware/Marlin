@@ -208,11 +208,6 @@ class Stepper {
     #endif
 
     //
-    // Block until all buffered steps are executed
-    //
-    static void synchronize();
-
-    //
     // Set the current position in steps
     //
     static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
@@ -220,14 +215,14 @@ class Stepper {
     FORCE_INLINE static void _set_position(const AxisEnum a, const int32_t &v) { count_position[a] = v; }
 
     FORCE_INLINE static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
-      synchronize();
+      planner.synchronize();
       CRITICAL_SECTION_START;
       _set_position(a, b, c, e);
       CRITICAL_SECTION_END;
     }
 
     static void set_position(const AxisEnum a, const int32_t &v) {
-      synchronize();
+      planner.synchronize();
       CRITICAL_SECTION_START;
       count_position[a] = v;
       CRITICAL_SECTION_END;
@@ -236,7 +231,7 @@ class Stepper {
     FORCE_INLINE static void _set_e_position(const int32_t &e) { count_position[E_AXIS] = e; }
 
     static void set_e_position(const int32_t &e) {
-      synchronize();
+      planner.synchronize();
       CRITICAL_SECTION_START;
       count_position[E_AXIS] = e;
       CRITICAL_SECTION_END;
@@ -256,18 +251,6 @@ class Stepper {
     // Report the positions of the steppers, in steps
     //
     static void report_positions();
-
-    //
-    // Get the position (mm) of an axis based on stepper position(s)
-    //
-    static float get_axis_position_mm(const AxisEnum axis);
-
-    //
-    // SCARA AB axes are in degrees, not mm
-    //
-    #if IS_SCARA
-      FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
-    #endif
 
     //
     // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
