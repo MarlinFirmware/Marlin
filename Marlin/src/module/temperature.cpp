@@ -30,6 +30,7 @@
 #include "../lcd/ultralcd.h"
 #include "planner.h"
 #include "../core/language.h"
+#include "../HAL/Delay.h"
 
 #if ENABLED(HEATER_0_USES_MAX6675)
   #include "../libs/private_spi.h"
@@ -681,14 +682,14 @@ float Temperature::get_pid_output(const int8_t e) {
         #if ENABLED(PID_EXTRUSION_SCALING)
           cTerm[HOTEND_INDEX] = 0;
           if (_HOTEND_TEST) {
-            long e_position = stepper.position(E_AXIS);
+            const long e_position = stepper.position(E_AXIS);
             if (e_position > last_e_position) {
               lpq[lpq_ptr] = e_position - last_e_position;
               last_e_position = e_position;
             }
-            else {
+            else
               lpq[lpq_ptr] = 0;
-            }
+
             if (++lpq_ptr >= lpq_len) lpq_ptr = 0;
             cTerm[HOTEND_INDEX] = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
             pid_output += cTerm[HOTEND_INDEX];
@@ -1629,7 +1630,7 @@ void Temperature::disable_all_heaters() {
 
     WRITE(MAX6675_SS, 0); // enable TT_MAX6675
 
-    DELAY_100NS;          // Ensure 100ns delay
+    DELAY_NS(100);       // Ensure 100ns delay
 
     // Read a big-endian temperature value
     max6675_temp = 0;
