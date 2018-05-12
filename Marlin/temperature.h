@@ -304,6 +304,10 @@ class Temperature {
       static uint8_t ADCKey_count;
     #endif
 
+    #if ENABLED(PID_EXTRUSION_SCALING)
+      static int16_t lpq_len;
+    #endif
+
     /**
      * Instance Methods
      */

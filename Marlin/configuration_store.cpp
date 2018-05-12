@@ -73,6 +73,10 @@
   #include "fwretract.h"
 #endif
 
+#if ENABLED(PID_EXTRUSION_SCALING)
+  #define LPQ_LEN thermalManager.lpq_len
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 typedef struct PID { float Kp, Ki, Kd; } PID;
@@ -183,7 +187,7 @@ typedef struct SettingsDataStruct {
   //
   PIDC hotendPID[MAX_EXTRUDERS];                        // M301 En PIDC / M303 En U
 
-  int lpq_len;                                          // M301 L
+  int16_t lpq_len;                                      // M301 L
 
   //
   // PIDTEMPBED
@@ -609,9 +613,9 @@ void MarlinSettings::postprocess() {
     _FIELD_TEST(lpq_len);
 
     #if DISABLED(PID_EXTRUSION_SCALING)
-      int lpq_len = 20;
+      const int16_t LPQ_LEN = 20;
     #endif
-    EEPROM_WRITE(lpq_len);
+    EEPROM_WRITE(LPQ_LEN);
 
     #if DISABLED(PIDTEMPBED)
       dummy = DUMMY_PID_VALUE;
@@ -1213,9 +1217,9 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(lpq_len);
 
       #if DISABLED(PID_EXTRUSION_SCALING)
-        int lpq_len;
+        int16_t LPQ_LEN;
       #endif
-      EEPROM_READ(lpq_len);
+      EEPROM_READ(LPQ_LEN);
 
       //
       // Heated Bed PID
@@ -1808,7 +1812,7 @@ void MarlinSettings::reset() {
       #endif
     }
     #if ENABLED(PID_EXTRUSION_SCALING)
-      lpq_len = 20; // default last-position-queue size
+      thermalManager.lpq_len = 20; // default last-position-queue size
     #endif
   #endif // PIDTEMP
 
@@ -2271,7 +2275,7 @@ void MarlinSettings::reset() {
               SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, e)));
               #if ENABLED(PID_EXTRUSION_SCALING)
                 SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
-                if (e == 0) SERIAL_ECHOPAIR(" L", lpq_len);
+                if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
               #endif
               SERIAL_EOL();
             }
@@ -2286,7 +2290,7 @@ void MarlinSettings::reset() {
           SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
           #if ENABLED(PID_EXTRUSION_SCALING)
             SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
-            SERIAL_ECHOPAIR(" L", lpq_len);
+            SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
           #endif
           SERIAL_EOL();
         }

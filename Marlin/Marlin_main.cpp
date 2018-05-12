@@ -696,10 +696,6 @@ static bool send_ok[BUFSIZE];
   bool chdkActive = false;
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  int lpq_len = 20;
-#endif
-
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
   MarlinBusyState busy_state = NOT_BUSY;
   static millis_t next_busy_signal_ms = 0;
@@ -9598,7 +9594,7 @@ inline void gcode_M226() {
    * With PID_EXTRUSION_SCALING:
    *
    *   C[float] Kc term
-   *   L[float] LPQ length
+   *   L[int]   LPQ length
    */
   inline void gcode_M301() {
 
@@ -9612,8 +9608,9 @@ inline void gcode_M226() {
       if (parser.seen('D')) PID_PARAM(Kd, e) = scalePID_d(parser.value_float());
       #if ENABLED(PID_EXTRUSION_SCALING)
         if (parser.seen('C')) PID_PARAM(Kc, e) = parser.value_float();
-        if (parser.seen('L')) lpq_len = parser.value_float();
-        NOMORE(lpq_len, LPQ_MAX_LEN);
+        if (parser.seen('L')) thermalManager.lpq_len = parser.value_float();
+        NOMORE(thermalManager.lpq_len, LPQ_MAX_LEN);
+        NOLESS(thermalManager.lpq_len, 0);
       #endif
 
       thermalManager.updatePID();
