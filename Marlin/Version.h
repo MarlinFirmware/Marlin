@@ -35,22 +35,20 @@
   /**
    * Marlin release version identifier
    */
-  #define SHORT_BUILD_VERSION "1.1.8_B8"
+  #define SHORT_BUILD_VERSION "bugfix-1.1.x"
 
   /**
    * Verbose version identifier which should contain a reference to the location
    * from where the binary was downloaded or the source code was compiled.
    */
-
-
-  #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " TM3D "
+  #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " (Github)"
 
   /**
    * The STRING_DISTRIBUTION_DATE represents when the binary file was built,
    * here we define this default string as the date where the latest release
    * version was tagged.
    */
-  #define STRING_DISTRIBUTION_DATE "2018-04-16"
+  #define STRING_DISTRIBUTION_DATE "2018-01-20"
 
   /**
    * Required minimum Configuration.h and Configuration_adv.h file versions.
@@ -72,7 +70,7 @@
   /**
    * Defines a generic printer name to be output to the LCD after booting Marlin.
    */
-  #define MACHINE_NAME "TM3DCR10"
+  #define MACHINE_NAME "3D Printer"
 
   /**
    * The SOURCE_CODE_URL is the location where users will find the Marlin Source
@@ -91,6 +89,6 @@
    * The WEBSITE_URL is the location where users can get more information such as
    * documentation about a specific Marlin release.
    */
-  #define WEBSITE_URL "tinymachines3d.com"
+  #define WEBSITE_URL "http://marlinfw.org"
 
 #endif // USE_AUTOMATIC_VERSIONING
