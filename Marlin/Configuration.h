@@ -191,7 +191,7 @@
 #define CUSTOM_MACHINE_NAME "Mini SuPeR"
 #elif(ENABLED(MachineCR10Orig))
 #define CUSTOM_MACHINE_NAME "SuPeR CR-10"
-#elif(ENABLED(MachineCR10S))
+#elif(ENABLED(MachineCR10Std))
 #define CUSTOM_MACHINE_NAME "300 SuPeR"
 #elif(ENABLED(MachineS4))
 #define CUSTOM_MACHINE_NAME "400 SuPeR"
@@ -203,7 +203,7 @@
 #define VerChar1 "M"
 #elif(ENABLED(MachineCR10Orig))
 #define VerChar1 "O"
-#elif(ENABLED(MachineCR10S))
+#elif(ENABLED(MachineCR10Std))
 #define VerChar1 "S"
 #elif(ENABLED(MachineS4))
 #define VerChar1 "4"
@@ -772,7 +772,7 @@
 #define DEFAULT_EJERK                  5.0
 #endif
 
-#if (ENABLED(MachineCR10S))
+#if (ENABLED(MachineCR10Std))
 #define DEFAULT_MAX_FEEDRATE          { 500, 500, 10, 25 }
 #define DEFAULT_MAX_ACCELERATION      { 1500, 1500, 100, 25 }
 #define DEFAULT_ACCELERATION          300    // X, Y, Z and E acceleration for printing moves
@@ -1095,7 +1095,7 @@
 #define Z_MAX_POS 300
 #endif
 
-#if (ENABLED(MachineCR10S))
+#if (ENABLED(MachineCR10Std))
 #define X_BED_SIZE 315
 #define Y_BED_SIZE 310
 #define Z_MAX_POS 400
@@ -1351,7 +1351,7 @@
 #define MESH_INSET 15
 #endif
 
-#if (ENABLED(MachineCR10S) )
+#if (ENABLED(MachineCR10Std) )
 #define PROBE_PT_1_X 50       // Probing points for 3-Point leveling of the mesh
 #define PROBE_PT_1_Y 270
 #define PROBE_PT_2_X 250
@@ -1453,7 +1453,7 @@
 #define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-#if (ENABLED(MachineCR10S) || ENABLED(MachineCR10Orig))
+#if (ENABLED(MachineCR10Std) || ENABLED(MachineCR10Orig))
 #define Z_SAFE_HOMING_X_POINT 50    // X point for Z homing when homing all axis (G28).
 #define Z_SAFE_HOMING_Y_POINT 50    // Y point for Z homing when homing all axis (G28).
 #endif
