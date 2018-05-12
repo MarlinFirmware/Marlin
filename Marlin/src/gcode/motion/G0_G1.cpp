@@ -84,7 +84,7 @@ void GcodeSuite::G0_G1(
         #define _MOVE_SYNC parser.seenval('Z')  // Only for Z move
       #endif
       if (_MOVE_SYNC) {
-        stepper.synchronize();
+        planner.synchronize();
         SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
       }
     #endif

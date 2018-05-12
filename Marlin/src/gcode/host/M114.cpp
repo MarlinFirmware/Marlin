@@ -77,7 +77,7 @@
       report_xyz(delta);
     #endif
 
-    stepper.synchronize();
+    planner.synchronize();
 
     SERIAL_PROTOCOLPGM("Stepper:");
     LOOP_XYZE(i) {
@@ -126,6 +126,6 @@ void GcodeSuite::M114() {
     }
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
   report_current_position();
 }

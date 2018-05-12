@@ -179,7 +179,7 @@ void GcodeSuite::M30() {
  *
  */
 void GcodeSuite::M32() {
-  if (card.sdprinting) stepper.synchronize();
+  if (card.sdprinting) planner.synchronize();
 
   if (card.cardOK) {
     const bool call_procedure = parser.boolval('P');

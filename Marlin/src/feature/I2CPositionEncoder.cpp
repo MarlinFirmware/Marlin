@@ -356,11 +356,11 @@ bool I2CPositionEncoder::test_axis() {
   startCoord[encoderAxis] = startPosition;
   endCoord[encoderAxis] = endPosition;
 
-  stepper.synchronize();
+  planner.synchronize();
 
   planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
                       stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-  stepper.synchronize();
+  planner.synchronize();
 
   // if the module isn't currently trusted, wait until it is (or until it should be if things are working)
   if (!trusted) {
@@ -372,7 +372,7 @@ bool I2CPositionEncoder::test_axis() {
   if (trusted) { // if trusted, commence test
     planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
                         stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-    stepper.synchronize();
+    planner.synchronize();
   }
 
   return trusted;
@@ -415,12 +415,12 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
   startCoord[encoderAxis] = startDistance;
   endCoord[encoderAxis] = endDistance;
 
-  stepper.synchronize();
+  planner.synchronize();
 
   LOOP_L_N(i, iter) {
     planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
                         stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-    stepper.synchronize();
+    planner.synchronize();
 
     delay(250);
     startCount = get_position();
@@ -429,7 +429,7 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
     planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
                         stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-    stepper.synchronize();
+    planner.synchronize();
 
     //Read encoder distance
     delay(250);

@@ -171,7 +171,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   // Wait for planner moves to finish!
-  stepper.synchronize();
+  planner.synchronize();
 
   // Cancel the active G29 session
   #if ENABLED(PROBE_MANUALLY)

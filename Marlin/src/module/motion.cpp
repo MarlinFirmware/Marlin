@@ -402,7 +402,7 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
 }
 void do_blocking_move_to_x(const float &rx, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(rx, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
@@ -881,7 +881,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
               current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],
               planner.max_feedrate_mm_s[X_AXIS], 1
             );
-            stepper.synchronize();
+            planner.synchronize();
             SYNC_PLAN_POSITION_KINEMATIC();
             extruder_duplication_enabled = true;
             active_extruder_parked = false;
@@ -1110,7 +1110,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], fr_mm_s ? fr_mm_s : homing_feedrate(axis), active_extruder);
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
 
   if (is_home_dir) {
 

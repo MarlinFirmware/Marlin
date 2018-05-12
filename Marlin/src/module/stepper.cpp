@@ -1977,12 +1977,6 @@ void Stepper::init() {
   set_directions(); // Init directions to last_direction_bits = 0
 }
 
-
-/**
- * Block until all buffered steps are executed / cleaned
- */
-void Stepper::synchronize() { while (planner.has_blocks_queued() || cleaning_buffer_counter) idle(); }
-
 /**
  * Set the stepper positions directly in steps
  *
@@ -2055,7 +2049,7 @@ float Stepper::get_axis_position_mm(const AxisEnum axis) {
 }
 
 void Stepper::finish_and_disable() {
-  synchronize();
+  planner.synchronize();
   disable_all_steppers();
 }
 

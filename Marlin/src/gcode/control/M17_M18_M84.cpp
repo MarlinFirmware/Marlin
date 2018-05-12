@@ -50,7 +50,7 @@ void GcodeSuite::M18_M84() {
       stepper.finish_and_disable();
     }
     else {
-      stepper.synchronize();
+      planner.synchronize();
       if (parser.seen('X')) disable_X();
       if (parser.seen('Y')) disable_Y();
       if (parser.seen('Z')) disable_Z();
