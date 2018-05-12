@@ -237,6 +237,10 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
   uint8_t Temperature::ADCKey_count = 0;
 #endif
 
+#if ENABLED(PID_EXTRUSION_SCALING)
+  int16_t Temperature::lpq_len; // Initialized in configuration_store
+#endif
+
 #if HAS_PID_HEATING
 
   /**
@@ -666,14 +670,14 @@ float Temperature::get_pid_output(const int8_t e) {
         #if ENABLED(PID_EXTRUSION_SCALING)
           cTerm[HOTEND_INDEX] = 0;
           if (_HOTEND_TEST) {
-            long e_position = stepper.position(E_AXIS);
+            const long e_position = stepper.position(E_AXIS);
             if (e_position > last_e_position) {
               lpq[lpq_ptr] = e_position - last_e_position;
               last_e_position = e_position;
             }
-            else {
+            else
               lpq[lpq_ptr] = 0;
-            }
+
             if (++lpq_ptr >= lpq_len) lpq_ptr = 0;
             cTerm[HOTEND_INDEX] = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
             pid_output += cTerm[HOTEND_INDEX];

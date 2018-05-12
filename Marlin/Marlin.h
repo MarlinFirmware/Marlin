@@ -448,10 +448,6 @@ void report_current_position();
                filament_change_load_length[EXTRUDERS];
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  extern int lpq_len;
-#endif
-
 #if HAS_POWER_SWITCH
   extern bool powersupply_on;
   #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); powersupply_on = true; }while(0)
