@@ -244,6 +244,10 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
   uint8_t Temperature::ADCKey_count = 0;
 #endif
 
+#if ENABLED(PID_EXTRUSION_SCALING)
+  int16_t Temperature::lpq_len; // Initialized in configuration_store
+#endif
+
 #if HAS_PID_HEATING
 
   /**

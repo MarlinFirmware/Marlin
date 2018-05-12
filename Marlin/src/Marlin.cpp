@@ -204,10 +204,6 @@ millis_t max_inactive_time, // = 0
   bool chdkActive; // = false;
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  int lpq_len = 20;
-#endif
-
 #if ENABLED(I2C_POSITION_ENCODERS)
   I2CPositionEncodersMgr I2CPEM;
 #endif
