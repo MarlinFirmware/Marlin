@@ -36,7 +36,7 @@
   #include "../libs/private_spi.h"
 #endif
 
-#if ENABLED(BABYSTEPPING)
+#if ENABLED(BABYSTEPPING) || ENABLED(PID_EXTRUSION_SCALING)
   #include "stepper.h"
 #endif
 
