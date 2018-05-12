@@ -153,7 +153,7 @@
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   #define LCD_SDSS           28
   #if ENABLED(ADC_KEYPAD)
-    #define SERVO0_PIN       27 // free for BLTouch/3D-Touch
+    #define SERVO0_PIN       27   // free for BLTouch/3D-Touch
     #define LCD_PINS_RS      28
     #define LCD_PINS_ENABLE  29
     #define LCD_PINS_D4      10
@@ -168,7 +168,7 @@
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
     // display using an adapter board  // https://go.aisler.net/benlye/anet-lcd-adapter/pcb
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
-    #define SERVO0_PIN       29 // free for BLTouch/3D-Touch
+    #define SERVO0_PIN       29   // free for BLTouch/3D-Touch
     #define BEEPER_PIN       17
     #define LCD_PINS_RS      27
     #define LCD_PINS_ENABLE  28
@@ -177,13 +177,13 @@
     #define BTN_EN2          10
     #define BTN_ENC          16
     #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1 DELAY_0_NOP
+      #define ST7920_DELAY_1 DELAY_NS(0)
     #endif
     #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2 DELAY_1_NOP
+      #define ST7920_DELAY_2 DELAY_NS(63)
     #endif
     #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3 DELAY_2_NOP
+      #define ST7920_DELAY_3 DELAY_NS(125)
     #endif
     #define STD_ENCODER_PULSES_PER_STEP 4
     #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
@@ -201,7 +201,7 @@
  * published by oderwat on Thingiverse at https://www.thingiverse.com/thing:2103748.
  *
  * Using that adapter requires changing the pin definition as follows:
- *   #define SERVO0_PIN        27 // free for BLTouch/3D-Touch
+ *   #define SERVO0_PIN        27   // free for BLTouch/3D-Touch
  *   #define BEEPER_PIN        28
  *   #define LCD_PINS_RS       30
  *   #define LCD_PINS_ENABLE   29

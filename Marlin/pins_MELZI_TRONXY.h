@@ -51,11 +51,11 @@
 #define BTN_ENC         26
 
 #ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 DELAY_0_NOP
+  #define ST7920_DELAY_1 DELAY_NS(0)
 #endif
 #ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 DELAY_2_NOP
+  #define ST7920_DELAY_2 DELAY_NS(125)
 #endif
 #ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 DELAY_0_NOP
+  #define ST7920_DELAY_3 DELAY_NS(0)
 #endif
