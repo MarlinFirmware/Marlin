@@ -991,6 +991,8 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
     const short(*tt)[][2] = (short(*)[][2])(heater_ttbl_map[e]);
     SCAN_THERMISTOR_TABLE((*tt), heater_ttbllen_map[e]);
   #endif
+
+  return 0;
 }
 
 #if HAS_HEATED_BED
