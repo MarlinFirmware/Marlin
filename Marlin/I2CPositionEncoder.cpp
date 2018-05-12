@@ -99,7 +99,7 @@
 
           //the encoder likely lost its place when the error occured, so we'll reset and use the printer's
           //idea of where it the axis is to re-initialise
-          float position = stepper.get_axis_position_mm(encoderAxis);
+          float position = planner.get_axis_position_mm(encoderAxis);
           int32_t positionInTicks = position * get_ticks_unit();
 
           //shift position from previous to current position
@@ -254,7 +254,7 @@
   float I2CPositionEncoder::get_axis_error_mm(const bool report) {
     float target, actual, error;
 
-    target = stepper.get_axis_position_mm(encoderAxis);
+    target = planner.get_axis_position_mm(encoderAxis);
     actual = mm_from_count(position);
     error = actual - target;
 
@@ -349,18 +349,18 @@
     ec = false;
 
     LOOP_NA(i) {
-      startCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
-      endCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
+      startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
+      endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
     }
 
     startCoord[encoderAxis] = startPosition;
     endCoord[encoderAxis] = endPosition;
 
-    stepper.synchronize();
+    planner.synchronize();
 
     planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                        stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-    stepper.synchronize();
+                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+    planner.synchronize();
 
     // if the module isn't currently trusted, wait until it is (or until it should be if things are working)
     if (!trusted) {
@@ -371,8 +371,8 @@
 
     if (trusted) { // if trusted, commence test
       planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                          stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-      stepper.synchronize();
+                          planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+      planner.synchronize();
     }
 
     return trusted;
@@ -408,19 +408,19 @@
     travelDistance = endDistance - startDistance;
 
     LOOP_NA(i) {
-      startCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
-      endCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
+      startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
+      endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
     }
 
     startCoord[encoderAxis] = startDistance;
     endCoord[encoderAxis] = endDistance;
 
-    stepper.synchronize();
+    planner.synchronize();
 
     LOOP_L_N(i, iter) {
       planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                          stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-      stepper.synchronize();
+                          planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+      planner.synchronize();
 
       delay(250);
       startCount = get_position();
@@ -428,8 +428,8 @@
       //do_blocking_move_to(endCoord[X_AXIS],endCoord[Y_AXIS],endCoord[Z_AXIS]);
 
       planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                          stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-      stepper.synchronize();
+                          planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+      planner.synchronize();
 
       //Read encoder distance
       delay(250);

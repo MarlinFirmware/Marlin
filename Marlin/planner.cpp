@@ -1276,6 +1276,42 @@ void Planner::check_axes_activity() {
 #endif // PLANNER_LEVELING
 
 /**
+ * Get an axis position according to stepper position(s)
+ * For CORE machines apply translation from ABC to XYZ.
+ */
+float Planner::get_axis_position_mm(const AxisEnum axis) {
+  float axis_steps;
+  #if IS_CORE
+    // Requesting one of the "core" axes?
+    if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
+
+      // Protect the access to the position.
+      const bool was_enabled = STEPPER_ISR_ENABLED();
+      DISABLE_STEPPER_DRIVER_INTERRUPT();
+
+      // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
+      // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
+      axis_steps = 0.5f * (
+        axis == CORE_AXIS_2 ? CORESIGN(stepper.position(CORE_AXIS_1) - stepper.position(CORE_AXIS_2))
+                            : stepper.position(CORE_AXIS_1) + stepper.position(CORE_AXIS_2)
+      );
+
+      if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+    }
+    else
+      axis_steps = stepper.position(axis);
+  #else
+    axis_steps = stepper.position(axis);
+  #endif
+  return axis_steps * steps_to_mm[axis];
+}
+
+/**
+ * Block until all buffered steps are executed / cleaned
+ */
+void Planner::synchronize() { while (has_blocks_queued() || stepper.cleaning_buffer_counter) idle(); }
+
+/**
  * Planner::_buffer_steps
  *
  * Add a new linear movement to the buffer (in terms of steps).

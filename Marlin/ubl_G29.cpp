@@ -792,7 +792,7 @@
 
       do_blocking_move_to(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
         //, min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
-      stepper.synchronize();
+      planner.synchronize();
 
       SERIAL_PROTOCOLPGM("Place shim under nozzle");
       LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
@@ -801,7 +801,7 @@
 
       const float z1 = measure_point_with_encoder();
       do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
-      stepper.synchronize();
+      planner.synchronize();
 
       SERIAL_PROTOCOLPGM("Remove shim");
       LCD_MESSAGEPGM(MSG_UBL_BC_REMOVE);

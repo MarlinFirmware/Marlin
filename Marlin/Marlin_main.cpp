@@ -1713,7 +1713,7 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
 
   feedrate_mm_s = old_feedrate_mm_s;
 
@@ -2984,7 +2984,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], fr_mm_s ? fr_mm_s : homing_feedrate(axis), active_extruder);
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
 
   if (is_home_dir) {
 
@@ -3355,7 +3355,7 @@ inline void gcode_G0_G1(
         #define _MOVE_SYNC parser.seenval('Z')  // Only for Z move
       #endif
       if (_MOVE_SYNC) {
-        stepper.synchronize();
+        planner.synchronize();
         SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
       }
     #endif
@@ -3470,7 +3470,7 @@ inline void gcode_G4() {
   if (parser.seenval('P')) dwell_ms = parser.value_millis(); // milliseconds to wait
   if (parser.seenval('S')) dwell_ms = parser.value_millis_from_seconds(); // seconds to wait
 
-  stepper.synchronize();
+  planner.synchronize();
   #if ENABLED(NANODLP_Z_SYNC)
     SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
   #endif
@@ -3797,9 +3797,9 @@ inline void gcode_G4() {
         #endif
         #if ABL_PLANAR
           const float diff[XYZ] = {
-            stepper.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
-            stepper.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
-            stepper.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]
+            planner.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
+            planner.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
+            planner.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]
           };
           SERIAL_ECHOPGM("ABL Adjustment X");
           if (diff[X_AXIS] > 0) SERIAL_CHAR('+');
@@ -3892,7 +3892,7 @@ inline void gcode_G4() {
     current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
     feedrate_mm_s = homing_feedrate(X_AXIS);
     buffer_line_to_current_position();
-    stepper.synchronize();
+    planner.synchronize();
 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
@@ -4036,7 +4036,7 @@ inline void gcode_G28(const bool always_home_all) {
   #endif
 
   // Wait for planner moves to finish!
-  stepper.synchronize();
+  planner.synchronize();
 
   // Cancel the active G29 session
   #if ENABLED(PROBE_MANUALLY)
@@ -4350,7 +4350,7 @@ void home_all_axes() { gcode_G28(true); }
           // One last "return to the bed" (as originally coded) at completion
           current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
           buffer_line_to_current_position();
-          stepper.synchronize();
+          planner.synchronize();
 
           // After recording the last point, activate home and activate
           mbl_probe_index = -1;
@@ -4365,7 +4365,7 @@ void home_all_axes() { gcode_G28(true); }
             current_position[Z_AXIS] = 0;
             set_destination_from_current();
             buffer_line_to_destination(homing_feedrate(Z_AXIS));
-            stepper.synchronize();
+            planner.synchronize();
           #endif
 
           #if ENABLED(LCD_BED_LEVELING)
@@ -4775,7 +4775,7 @@ void home_all_axes() { gcode_G28(true); }
         SERIAL_EOL();
       }
 
-      stepper.synchronize();
+      planner.synchronize();
 
       // Disable auto bed leveling during G29.
       // Be formal so G29 can be done successively without G28.
@@ -5333,7 +5333,7 @@ void home_all_axes() { gcode_G28(true); }
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
         #endif
-        stepper.synchronize();
+        planner.synchronize();
         enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
       #endif
 
@@ -5464,7 +5464,7 @@ void home_all_axes() { gcode_G28(true); }
       tool_change(0, 0, true);
     #endif
 
-    stepper.synchronize();
+    planner.synchronize();
     setup_for_endstop_or_probe_move();
 
     #if HAS_LEVELING
@@ -6131,12 +6131,12 @@ void home_all_axes() { gcode_G28(true); }
     #endif
 
     // Move until destination reached or target hit
-    stepper.synchronize();
+    planner.synchronize();
     endstops.enable(true);
     G38_move = true;
     G38_endstop_hit = false;
     prepare_move_to_destination();
-    stepper.synchronize();
+    planner.synchronize();
     G38_move = false;
 
     endstops.hit_on_purpose();
@@ -6159,11 +6159,11 @@ void home_all_axes() { gcode_G28(true); }
         // Bump the target more slowly
         LOOP_XYZ(i) destination[i] -= retract_mm[i] * 2;
 
-        stepper.synchronize();
+        planner.synchronize();
         endstops.enable(true);
         G38_move = true;
         prepare_move_to_destination();
-        stepper.synchronize();
+        planner.synchronize();
         G38_move = false;
 
         set_current_from_steppers_for_axis(ALL_AXES);
@@ -6341,7 +6341,7 @@ inline void gcode_G92() {
 
     const bool has_message = !hasP && !hasS && args && *args;
 
-    stepper.synchronize();
+    planner.synchronize();
 
     #if ENABLED(ULTIPANEL)
 
@@ -6442,7 +6442,7 @@ inline void gcode_G92() {
 
   inline void gcode_M3_M4(bool is_M3) {
 
-    stepper.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
+    planner.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
     #if SPINDLE_DIR_CHANGE
       const bool rotation_dir = (is_M3 && !SPINDLE_INVERT_DIR || !is_M3 && SPINDLE_INVERT_DIR) ? HIGH : LOW;
       if (SPINDLE_STOP_ON_DIR_CHANGE \
@@ -6492,7 +6492,7 @@ inline void gcode_G92() {
   * M5 turn off spindle
   */
   inline void gcode_M5() {
-    stepper.synchronize();
+    planner.synchronize();
     WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
     #if ENABLED(SPINDLE_LASER_PWM)
       analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);
@@ -6517,7 +6517,7 @@ inline void gcode_M17() {
     destination[E_AXIS] += length / planner.e_factor[active_extruder];
     planner.buffer_line_kinematic(destination, fr, active_extruder);
     set_current_from_destination();
-    stepper.synchronize();
+    planner.synchronize();
   }
 
   static float resume_position[XYZE];
@@ -6809,7 +6809,7 @@ inline void gcode_M17() {
     COPY(resume_position, current_position);
 
     // Wait for synchronize steppers
-    stepper.synchronize();
+    planner.synchronize();
 
     // Initial retract before move to filament change position
     if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
@@ -7141,7 +7141,7 @@ inline void gcode_M31() {
    *
    */
   inline void gcode_M32() {
-    if (card.sdprinting) stepper.synchronize();
+    if (card.sdprinting) planner.synchronize();
 
     if (card.cardOK) {
       const bool call_procedure = parser.boolval('P');
@@ -8533,7 +8533,7 @@ inline void gcode_M18_M84() {
       stepper.finish_and_disable();
     }
     else {
-      stepper.synchronize();
+      planner.synchronize();
       if (parser.seen('X')) disable_X();
       if (parser.seen('Y')) disable_Y();
       if (parser.seen('Z')) disable_Z();
@@ -8612,8 +8612,8 @@ void report_current_position() {
   stepper.report_positions();
 
   #if IS_SCARA
-    SERIAL_PROTOCOLPAIR("SCARA Theta:", stepper.get_axis_position_degrees(A_AXIS));
-    SERIAL_PROTOCOLLNPAIR("   Psi+Theta:", stepper.get_axis_position_degrees(B_AXIS));
+    SERIAL_PROTOCOLPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS));
+    SERIAL_PROTOCOLLNPAIR("   Psi+Theta:", planner.get_axis_position_degrees(B_AXIS));
     SERIAL_EOL();
   #endif
 }
@@ -8669,7 +8669,7 @@ void report_current_position() {
       report_xyz(delta);
     #endif
 
-    stepper.synchronize();
+    planner.synchronize();
 
     SERIAL_PROTOCOLPGM("Stepper:");
     LOOP_XYZE(i) {
@@ -8682,8 +8682,8 @@ void report_current_position() {
 
     #if IS_SCARA
       const float deg[XYZ] = {
-        stepper.get_axis_position_degrees(A_AXIS),
-        stepper.get_axis_position_degrees(B_AXIS)
+        planner.get_axis_position_degrees(A_AXIS),
+        planner.get_axis_position_degrees(B_AXIS)
       };
       SERIAL_PROTOCOLPGM("Degrees:");
       report_xyze(deg, 2);
@@ -8691,7 +8691,7 @@ void report_current_position() {
 
     SERIAL_PROTOCOLPGM("FromStp:");
     get_cartesian_from_steppers();  // writes cartes[XYZ] (with forward kinematics)
-    const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], stepper.get_axis_position_mm(E_AXIS) };
+    const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], planner.get_axis_position_mm(E_AXIS) };
     report_xyze(from_steppers);
 
     const float diff[XYZE] = {
@@ -8717,7 +8717,7 @@ inline void gcode_M114() {
     }
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
   report_current_position();
 }
 
@@ -9429,7 +9429,7 @@ inline void gcode_M226() {
 
       int target = LOW;
 
-      stepper.synchronize();
+      planner.synchronize();
 
       pinMode(pin, INPUT);
       switch (pin_state) {
@@ -9893,7 +9893,7 @@ inline void gcode_M303() {
 /**
  * M400: Finish all moves
  */
-inline void gcode_M400() { stepper.synchronize(); }
+inline void gcode_M400() { planner.synchronize(); }
 
 #if HAS_BED_PROBE
 
@@ -9977,7 +9977,7 @@ inline void gcode_M400() { stepper.synchronize(); }
 
 void quickstop_stepper() {
   stepper.quick_stop();
-  stepper.synchronize();
+  planner.synchronize();
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();
 }
@@ -10588,7 +10588,7 @@ inline void gcode_M502() {
 #if ENABLED(MK2_MULTIPLEXER)
 
   inline void select_multiplexed_stepper(const uint8_t e) {
-    stepper.synchronize();
+    planner.synchronize();
     disable_e_steppers();
     WRITE(E_MUX0_PIN, TEST(e, 0) ? HIGH : LOW);
     WRITE(E_MUX1_PIN, TEST(e, 1) ? HIGH : LOW);
@@ -10613,7 +10613,7 @@ inline void gcode_M502() {
    *    Note: the X axis should be homed after changing dual x-carriage mode.
    */
   inline void gcode_M605() {
-    stepper.synchronize();
+    planner.synchronize();
     if (parser.seen('S')) dual_x_carriage_mode = (DualXMode)parser.value_byte();
     switch (dual_x_carriage_mode) {
       case DXC_FULL_CONTROL_MODE:
@@ -10645,7 +10645,7 @@ inline void gcode_M502() {
 #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
 
   inline void gcode_M605() {
-    stepper.synchronize();
+    planner.synchronize();
     extruder_duplication_enabled = parser.intval('S') == (int)DXC_DUPLICATION_MODE;
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
@@ -10799,7 +10799,7 @@ inline void gcode_M502() {
     if (parser.seenval('K')) {
       const float newK = parser.floatval('K');
       if (WITHIN(newK, 0, 10)) {
-        stepper.synchronize();
+        planner.synchronize();
         planner.extruder_advance_K = newK;
       }
       else
@@ -11531,7 +11531,7 @@ inline void gcode_M999() {
   inline void move_extruder_servo(const uint8_t e) {
     constexpr int16_t angles[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
     static_assert(COUNT(angles) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
-    stepper.synchronize();
+    planner.synchronize();
     #if EXTRUDERS & 1
       if (e < EXTRUDERS - 1)
     #endif
@@ -11545,7 +11545,7 @@ inline void gcode_M999() {
 #if ENABLED(SWITCHING_NOZZLE)
   inline void move_nozzle_servo(const uint8_t e) {
     const int16_t angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
-    stepper.synchronize();
+    planner.synchronize();
     MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, angles[e]);
     safe_delay(500);
   }
@@ -11664,7 +11664,7 @@ inline void invalid_extruder_error(const uint8_t e) {
           planner.max_feedrate_mm_s[i == 1 ? X_AXIS : Z_AXIS],
           active_extruder
         );
-      stepper.synchronize();
+      planner.synchronize();
     }
 
     // Apply Y & Z extruder offset (X offset is used as home pos with Dual X)
@@ -11762,7 +11762,7 @@ inline void invalid_extruder_error(const uint8_t e) {
         if (DEBUGGING(LEVELING)) DEBUG_POS("Moving to Raised Z-Position", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
 
       // STEP 2
       current_position[X_AXIS] = parkingposx[active_extruder] + hotend_offset[X_AXIS][active_extruder];
@@ -11771,7 +11771,7 @@ inline void invalid_extruder_error(const uint8_t e) {
         if (DEBUGGING(LEVELING)) DEBUG_POS("Moving ParkPos", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
 
       // STEP 3
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -11789,7 +11789,7 @@ inline void invalid_extruder_error(const uint8_t e) {
         if (DEBUGGING(LEVELING)) DEBUG_POS("Moving away from parked extruder", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
 
       // STEP 5
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -11810,7 +11810,7 @@ inline void invalid_extruder_error(const uint8_t e) {
         if (DEBUGGING(LEVELING)) DEBUG_POS("Move UnparkPos", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS]/2, active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
 
       // Step 7
       current_position[X_AXIS] = midpos - hotend_offset[X_AXIS][tmp_extruder];
@@ -11819,7 +11819,7 @@ inline void invalid_extruder_error(const uint8_t e) {
         if (DEBUGGING(LEVELING)) DEBUG_POS("Move midway to new extruder", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         SERIAL_ECHOLNPGM("Autopark done.");
       #endif
@@ -11956,7 +11956,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #endif
       } // (tmp_extruder != active_extruder)
 
-      stepper.synchronize();
+      planner.synchronize();
 
       #if ENABLED(EXT_SOLENOID) && !ENABLED(PARKING_EXTRUDER)
         disable_all_solenoids();
@@ -11983,7 +11983,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     #endif // HOTENDS <= 1
 
     #if DO_SWITCH_EXTRUDER
-      stepper.synchronize();
+      planner.synchronize();
       move_extruder_servo(active_extruder);
     #endif
 
@@ -12903,21 +12903,21 @@ void ok_to_send() {
 void get_cartesian_from_steppers() {
   #if ENABLED(DELTA)
     forward_kinematics_DELTA(
-      stepper.get_axis_position_mm(A_AXIS),
-      stepper.get_axis_position_mm(B_AXIS),
-      stepper.get_axis_position_mm(C_AXIS)
+      planner.get_axis_position_mm(A_AXIS),
+      planner.get_axis_position_mm(B_AXIS),
+      planner.get_axis_position_mm(C_AXIS)
     );
   #else
     #if IS_SCARA
       forward_kinematics_SCARA(
-        stepper.get_axis_position_degrees(A_AXIS),
-        stepper.get_axis_position_degrees(B_AXIS)
+        planner.get_axis_position_degrees(A_AXIS),
+        planner.get_axis_position_degrees(B_AXIS)
       );
     #else
-      cartes[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
-      cartes[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
+      cartes[X_AXIS] = planner.get_axis_position_mm(X_AXIS);
+      cartes[Y_AXIS] = planner.get_axis_position_mm(Y_AXIS);
     #endif
-    cartes[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+    cartes[Z_AXIS] = planner.get_axis_position_mm(Z_AXIS);
   #endif
 }
 
@@ -13432,7 +13432,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
               current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],
               planner.max_feedrate_mm_s[X_AXIS], 1
             );
-            stepper.synchronize();
+            planner.synchronize();
             SYNC_PLAN_POSITION_KINEMATIC();
             extruder_duplication_enabled = true;
             active_extruder_parked = false;
@@ -14043,7 +14043,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       current_position[E_AXIS] = olde;
       planner.set_e_position_mm(olde);
 
-      stepper.synchronize();
+      planner.synchronize();
       #if ENABLED(SWITCHING_EXTRUDER)
         E0_ENABLE_WRITE(oldstatus);
       #else
