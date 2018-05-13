@@ -30,7 +30,7 @@
 #define XYZ  3
 
 // For use in macros that take a single axis letter
-#define _AXIS(AXIS) AXIS ##_AXIS
+#define _AXIS(A) (A##_AXIS)
 
 #define _XMIN_ 100
 #define _YMIN_ 200
@@ -123,7 +123,7 @@
 #define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
-#define COPY(a,b) memcpy(a,b,min(sizeof(a),sizeof(b)))
+#define COPY(a,b) memcpy(a,b,MIN(sizeof(a),sizeof(b)))
 
 // Macros for initializing arrays
 #define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
@@ -174,12 +174,48 @@
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
-#define MIN3(a, b, c)       min(min(a, b), c)
-#define MIN4(a, b, c, d)    min(MIN3(a, b, c), d)
-#define MIN5(a, b, c, d, e) min(MIN4(a, b, c, d), e)
-#define MAX3(a, b, c)       max(max(a, b), c)
-#define MAX4(a, b, c, d)    max(MAX3(a, b, c), d)
-#define MAX5(a, b, c, d, e) max(MAX4(a, b, c, d), e)
+// Avoid double evaluation of arguments on MIN/MAX/ABS
+#undef MIN
+#undef MAX
+#undef ABS
+#ifdef __cplusplus
+
+  // C++11 solution that is standards compliant. Return type is deduced automatically
+  template <class L, class R> static inline constexpr auto MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+    return lhs < rhs ? lhs : rhs;
+  }
+  template <class L, class R> static inline constexpr auto MAX(const L lhs, const R rhs) -> decltype(lhs + rhs){
+    return lhs > rhs ? lhs : rhs;
+  }
+  template <class T> static inline constexpr const T ABS(const T v) {
+    return v >= 0 ? v : -v;
+  }
+#else
+
+  // Using GCC extensions, but Travis GCC version does not like it and gives
+  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
+  #define MIN(a, b) \
+    ({__typeof__(a) _a = (a); \
+      __typeof__(b) _b = (b); \
+      _a < _b ? _a : _b;})
+
+  #define MAX(a, b) \
+    ({__typeof__(a) _a = (a); \
+      __typeof__(b) _b = (b); \
+      _a > _b ? _a : _b;})
+
+  #define ABS(a) \
+    ({__typeof__(a) _a = (a); \
+      _a >= 0 ? _a : -_a;})
+
+#endif
+
+#define MIN3(a, b, c)       MIN(MIN(a, b), c)
+#define MIN4(a, b, c, d)    MIN(MIN3(a, b, c), d)
+#define MIN5(a, b, c, d, e) MIN(MIN4(a, b, c, d), e)
+#define MAX3(a, b, c)       MAX(MAX(a, b), c)
+#define MAX4(a, b, c, d)    MAX(MAX3(a, b, c), d)
+#define MAX5(a, b, c, d, e) MAX(MAX4(a, b, c, d), e)
 
 #define UNEAR_ZERO(x) ((x) < 0.000001)
 #define NEAR_ZERO(x) WITHIN(x, -0.000001, 0.000001)
@@ -192,7 +228,6 @@
 // Maths macros that can be overridden by HAL
 //
 #define ATAN2(y, x) atan2(y, x)
-#define FABS(x)     fabs(x)
 #define POW(x, y)   pow(x, y)
 #define SQRT(x)     sqrt(x)
 #define CEIL(x)     ceil(x)

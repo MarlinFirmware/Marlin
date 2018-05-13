@@ -342,8 +342,8 @@ void Max7219_idle_tasks() {
       NOMORE(current_depth, 16);        // if the BLOCK_BUFFER_SIZE is greater than 16, two lines
                                         // of LEDs is enough to see if the buffer is draining
 
-      const uint8_t st = min(current_depth, last_depth),
-                    en = max(current_depth, last_depth);
+      const uint8_t st = MIN(current_depth, last_depth),
+                    en = MAX(current_depth, last_depth);
       if (current_depth < last_depth)
         for (uint8_t i = st; i <= en; i++)   // clear the highest order LEDs
           Max7219_LED_Off(MAX7219_DEBUG_STEPPER_QUEUE + (i & 1), i / 2);

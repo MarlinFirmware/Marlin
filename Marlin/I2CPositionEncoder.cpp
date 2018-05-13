@@ -134,7 +134,7 @@
 
       #ifdef I2CPE_EC_THRESH_PROPORTIONAL
         const millis_t deltaTime = positionTime - lastPositionTime;
-        const uint32_t distance = abs(position - lastPosition),
+        const uint32_t distance = ABS(position - lastPosition),
                        speed = distance / deltaTime;
         const float threshold = constrain((speed / 50), 1, 50) * ecThreshold;
       #else
@@ -150,7 +150,7 @@
 
         LOOP_L_N(i, I2CPE_ERR_ARRAY_SIZE) {
           sum += err[i];
-          if (i) diffSum += abs(err[i-1] - err[i]);
+          if (i) diffSum += ABS(err[i-1] - err[i]);
         }
 
         const int32_t error = int32_t(sum / (I2CPE_ERR_ARRAY_SIZE + 1)); //calculate average for error
@@ -163,7 +163,7 @@
       //SERIAL_ECHOLN(error);
 
       #ifdef I2CPE_ERR_THRESH_ABORT
-        if (labs(error) > I2CPE_ERR_THRESH_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
+        if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
           //kill("Significant Error");
           SERIAL_ECHOPGM("Axis error greater than set threshold, aborting!");
           SERIAL_ECHOLN(error);
@@ -175,8 +175,8 @@
         if (errIdx == 0) {
           // In order to correct for "error" but avoid correcting for noise and non-skips
           // it must be > threshold and have a difference average of < 10 and be < 2000 steps
-          if (labs(error) > threshold * planner.axis_steps_per_mm[encoderAxis] &&
-              diffSum < 10 * (I2CPE_ERR_ARRAY_SIZE - 1) && labs(error) < 2000) { // Check for persistent error (skip)
+          if (ABS(error) > threshold * planner.axis_steps_per_mm[encoderAxis] &&
+              diffSum < 10 * (I2CPE_ERR_ARRAY_SIZE - 1) && ABS(error) < 2000) { // Check for persistent error (skip)
             errPrst[errPrstIdx++] = error; // Error must persist for I2CPE_ERR_PRST_ARRAY_SIZE error cycles. This also serves to improve the average accuracy
             if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
               float sumP = 0;
@@ -193,14 +193,14 @@
             errPrstIdx = 0;
         }
       #else
-        if (labs(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
+        if (ABS(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
           //SERIAL_ECHOLN(error);
           //SERIAL_ECHOLN(position);
           thermalManager.babystepsTodo[encoderAxis] = -LROUND(error / 2);
         }
       #endif
 
-      if (labs(error) > I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) {
+      if (ABS(error) > I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) {
         const millis_t ms = millis();
         if (ELAPSED(ms, nextErrorCountTime)) {
           SERIAL_ECHOPAIR("Large error on ", axis_codes[encoderAxis]);
@@ -258,7 +258,7 @@
     actual = mm_from_count(position);
     error = actual - target;
 
-    if (labs(error) > 10000) error = 0; // ?
+    if (ABS(error) > 10000) error = 0; // ?
 
     if (report) {
       SERIAL_ECHO(axis_codes[encoderAxis]);
@@ -293,7 +293,7 @@
             error = (encoderCountInStepperTicksScaled - target);
 
     //suppress discontinuities (might be caused by bad I2C readings...?)
-    bool suppressOutput = (labs(error - errorPrev) > 100);
+    const bool suppressOutput = (ABS(error - errorPrev) > 100);
 
     if (report) {
       SERIAL_ECHO(axis_codes[encoderAxis]);
@@ -435,7 +435,7 @@
       delay(250);
       stopCount = get_position();
 
-      travelledDistance = mm_from_count(abs(stopCount - startCount));
+      travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
       SERIAL_ECHOPAIR("Attempted to travel: ", travelDistance);
       SERIAL_ECHOLNPGM("mm.");

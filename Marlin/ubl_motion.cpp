@@ -382,11 +382,11 @@
         inverse_kinematics(raw);  // this writes delta[ABC] from raw[XYZE]
                                   // should move the feedrate scaling to scara inverse_kinematics
 
-        const float adiff = FABS(delta[A_AXIS] - scara_oldA),
-                    bdiff = FABS(delta[B_AXIS] - scara_oldB);
+        const float adiff = ABS(delta[A_AXIS] - scara_oldA),
+                    bdiff = ABS(delta[B_AXIS] - scara_oldB);
         scara_oldA = delta[A_AXIS];
         scara_oldB = delta[B_AXIS];
-        float s_feedrate = max(adiff, bdiff) * scara_feed_factor;
+        float s_feedrate = MAX(adiff, bdiff) * scara_feed_factor;
 
         planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], s_feedrate, active_extruder);
 
