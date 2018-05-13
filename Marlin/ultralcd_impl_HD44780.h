@@ -723,7 +723,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 1 or Bed Temperature
     //
-    #if HOTENDS > 1 || TEMP_SENSOR_BED
+    #if HOTENDS > 1 || HAS_HEATED_BED
 
       lcd.setCursor(8, 0);
       #if HOTENDS > 1
@@ -734,7 +734,7 @@ static void lcd_implementation_status_screen() {
         _draw_heater_status(-1, -1, blink);
       #endif
 
-    #endif // HOTENDS > 1 || TEMP_SENSOR_BED
+    #endif // HOTENDS > 1 || HAS_HEATED_BED
 
   #else // LCD_WIDTH >= 20
 
@@ -746,7 +746,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 1 or Bed Temperature
     //
-    #if HOTENDS > 1 || TEMP_SENSOR_BED
+    #if HOTENDS > 1 || HAS_HEATED_BED
       lcd.setCursor(10, 0);
       #if HOTENDS > 1
         _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
@@ -759,7 +759,7 @@ static void lcd_implementation_status_screen() {
         ), blink);
       #endif
 
-    #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
+    #endif // HOTENDS > 1 || HAS_HEATED_BED
 
   #endif // LCD_WIDTH >= 20
 
@@ -788,7 +788,7 @@ static void lcd_implementation_status_screen() {
       // If the first line has two extruder temps,
       // show more temperatures on the next line
 
-      #if HOTENDS > 2 || (HOTENDS > 1 && TEMP_SENSOR_BED)
+      #if HOTENDS > 2 || (HOTENDS > 1 && HAS_HEATED_BED)
 
         #if HOTENDS > 2
           _draw_heater_status(2, LCD_STR_THERMOMETER[0], blink);
@@ -802,7 +802,7 @@ static void lcd_implementation_status_screen() {
           LCD_BEDTEMP_CHAR
         ), blink);
 
-      #else // HOTENDS <= 2 && (HOTENDS <= 1 || !TEMP_SENSOR_BED)
+      #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
         _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink);
 
@@ -810,14 +810,14 @@ static void lcd_implementation_status_screen() {
 
         _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink);
 
-      #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !TEMP_SENSOR_BED)
+      #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
     _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
 
-    #if HAS_LEVELING && !TEMP_SENSOR_BED
+    #if HAS_LEVELING && !HAS_HEATED_BED
       lcd.write(planner.leveling_active || blink ? '_' : ' ');
     #endif
 
