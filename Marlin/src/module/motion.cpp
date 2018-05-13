@@ -1247,7 +1247,7 @@ void homeaxis(const AxisEnum axis) {
     if (axis != Z_AXIS) { BUZZ(100, 880); return; }
   #else
     #define CAN_HOME(A) \
-      (axis == A##_AXIS && ((A##_MIN_PIN > -1 && A##_HOME_DIR < 0) || (A##_MAX_PIN > -1 && A##_HOME_DIR > 0)))
+      (axis == _AXIS(A) && ((A##_MIN_PIN > -1 && A##_HOME_DIR < 0) || (A##_MAX_PIN > -1 && A##_HOME_DIR > 0)))
     if (!CAN_HOME(X) && !CAN_HOME(Y) && !CAN_HOME(Z)) return;
   #endif
 

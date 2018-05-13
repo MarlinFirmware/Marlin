@@ -29,6 +29,8 @@
 #define ABC  3
 #define XYZ  3
 
+#define _AXIS(A) (A##_AXIS)
+
 #define _XMIN_ 100
 #define _YMIN_ 200
 #define _ZMIN_ 300

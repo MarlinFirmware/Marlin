@@ -362,7 +362,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
 
 #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
 
-  #define CELL_INDEX(A,V) ((V - bilinear_start[A##_AXIS]) * ABL_BG_FACTOR(A##_AXIS))
+  #define CELL_INDEX(A,V) ((V - bilinear_start[_AXIS(A)]) * ABL_BG_FACTOR(_AXIS(A)))
 
   /**
    * Prepare a bilinear-leveled linear move on Cartesian,

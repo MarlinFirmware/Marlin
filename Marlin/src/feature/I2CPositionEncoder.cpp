@@ -293,7 +293,7 @@ int32_t I2CPositionEncoder::get_axis_error_steps(const bool report) {
           error = (encoderCountInStepperTicksScaled - target);
 
   //suppress discontinuities (might be caused by bad I2C readings...?)
-  bool suppressOutput = (ABS(error - errorPrev) > 100);
+  const bool suppressOutput = (ABS(error - errorPrev) > 100);
 
   if (report) {
     SERIAL_ECHO(axis_codes[encoderAxis]);
