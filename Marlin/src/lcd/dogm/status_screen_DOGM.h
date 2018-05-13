@@ -71,7 +71,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
         );
   }
 
-  if (PAGE_CONTAINS(21, 28))
+  if (PAGE_CONTAINS(21, 28)) {
     _draw_centered_temp(0.5 + (
         #if HAS_HEATED_BED
           isBed ? thermalManager.degBed() :
@@ -80,21 +80,22 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
       ), x, 28
     );
 
-  if (PAGE_CONTAINS(17, 20)) {
-    const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
-                  y = isBed ? 18 : 17;
-    if (
-      #if HAS_HEATED_BED
-        isBed ? thermalManager.isHeatingBed() :
-      #endif
-      thermalManager.isHeatingHotend(heater)
-    ) {
-      u8g.setColorIndex(0); // white on black
-      u8g.drawBox(x + h, y, 2, 2);
-      u8g.setColorIndex(1); // black on white
+    if (PAGE_CONTAINS(17, 20)) {
+      const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
+                    y = isBed ? 18 : 17;
+      if (
+        #if HAS_HEATED_BED
+          isBed ? thermalManager.isHeatingBed() :
+        #endif
+        thermalManager.isHeatingHotend(heater)
+      ) {
+        u8g.setColorIndex(0); // white on black
+        u8g.drawBox(x + h, y, 2, 2);
+        u8g.setColorIndex(1); // black on white
+      }
+      else
+        u8g.drawBox(x + h, y, 2, 2);
     }
-    else
-      u8g.drawBox(x + h, y, 2, 2);
   }
 }
 
@@ -225,7 +226,7 @@ static void lcd_implementation_status_screen() {
     #endif
 
     #if HAS_FAN0
-      if (PAGE_CONTAINS(20, 27)) {
+      if (PAGE_CONTAINS(STATUS_SCREEN_FAN_TEXT_Y - 7, STATUS_SCREEN_FAN_TEXT_Y)) {
         // Fan
         const int16_t per = ((fanSpeeds[0] + 1) * 100) / 256;
         if (per) {

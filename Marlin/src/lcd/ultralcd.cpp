@@ -864,8 +864,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
     bool abort_sd_printing; // =false
 
     void lcd_sdcard_stop() {
-      abort_sd_printing = true;
       wait_for_heatup = wait_for_user = false;
+      abort_sd_printing = true;
       lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
       lcd_return_to_status();
 
@@ -1684,7 +1684,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void lcd_preheat_m2_bedonly() { _lcd_preheat(0, 0, lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
   #endif
 
-  #if HAS_TEMP_HOTEND && (TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || HAS_HEATED_BED)
+  #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
     void lcd_preheat_m1_menu() {
       START_MENU();
@@ -1696,7 +1696,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #else
           MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
         #endif
-      #else
+      #elif HOTENDS > 1
         #if HAS_HEATED_BED
           MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H1, lcd_preheat_m1_e0);
           MENU_ITEM(function, MSG_PREHEAT_1_END " " MSG_E1, lcd_preheat_m1_e0_only);
@@ -1748,7 +1748,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #else
           MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
         #endif
-      #else
+      #elif HOTENDS > 1
         #if HAS_HEATED_BED
           MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H1, lcd_preheat_m2_e0);
           MENU_ITEM(function, MSG_PREHEAT_2_END " " MSG_E1, lcd_preheat_m2_e0_only);
@@ -1790,7 +1790,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       END_MENU();
     }
 
-  #endif // HAS_TEMP_HOTEND && (TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_4 || TEMP_SENSOR_BED)
+  #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   void lcd_cooldown() {
     #if FAN_COUNT > 0
