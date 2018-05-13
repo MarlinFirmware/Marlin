@@ -340,24 +340,24 @@ class Stepper {
 
       #ifdef CPU_32_BIT
         // In case of high-performance processor, it is able to calculate in real-time
-        const uint32_t MIN_TIME_PER_STEP = (HAL_STEPPER_TIMER_RATE) / ((STEP_DOUBLER_FREQUENCY) * 2);
+        const uint32_t min_time_per_step = (HAL_STEPPER_TIMER_RATE) / ((STEP_DOUBLER_FREQUENCY) * 2);
         timer = uint32_t(HAL_STEPPER_TIMER_RATE) / step_rate;
-        NOLESS(timer, MIN_TIME_PER_STEP); // (STEP_DOUBLER_FREQUENCY * 2 kHz - this should never happen)
+        NOLESS(timer, min_time_per_step); // (STEP_DOUBLER_FREQUENCY * 2 kHz - this should never happen)
       #else
         NOLESS(step_rate, F_CPU / 500000);
         step_rate -= F_CPU / 500000; // Correct for minimal speed
         if (step_rate >= (8 * 256)) { // higher step rate
-          unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
-          unsigned char tmp_step_rate = (step_rate & 0x00FF);
-          unsigned short gain = (unsigned short)pgm_read_word_near(table_address + 2);
-          MultiU16X8toH16(timer, tmp_step_rate, gain);
-          timer = (unsigned short)pgm_read_word_near(table_address) - timer;
+          uint8_t tmp_step_rate = (step_rate & 0x00FF);
+          uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0];
+          uint16_t gain = (uint16_t)pgm_read_word_near(table_address + 2);
+          timer = MultiU16X8toH16(tmp_step_rate, gain);
+          timer = (uint16_t)pgm_read_word_near(table_address) - timer;
         }
         else { // lower step rates
-          unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
+          uint16_t table_address = (uint16_t)&speed_lookuptable_slow[0][0];
           table_address += ((step_rate) >> 1) & 0xFFFC;
-          timer = (unsigned short)pgm_read_word_near(table_address);
-          timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
+          timer = (uint16_t)pgm_read_word_near(table_address);
+          timer -= (((uint16_t)pgm_read_word_near(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
         }
         if (timer < 100) { // (20kHz - this should never happen)
           timer = 100;

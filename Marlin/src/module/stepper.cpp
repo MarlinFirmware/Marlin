@@ -1158,6 +1158,12 @@ HAL_STEP_TIMER_ISR {
   HAL_timer_isr_epilogue(STEP_TIMER_NUM);
 }
 
+#ifdef CPU_32_BIT
+  #define STEP_MULTIPLY(A,B) MultiU32X24toH32(A, B);
+#else
+  #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B);
+#endif
+
 void Stepper::isr() {
 
   #define ENDSTOP_NOMINAL_OCR_VAL 1500 * HAL_TICKS_PER_US // Check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
@@ -1525,14 +1531,7 @@ void Stepper::isr() {
           ? _eval_bezier_curve(acceleration_time)
           : current_block->cruise_rate;
     #else
-      #ifdef CPU_32_BIT
-        MultiU32X24toH32(acc_step_rate, acceleration_time, current_block->acceleration_rate);
-      #else
-        MultiU24X32toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
-      #endif
-      acc_step_rate += current_block->initial_rate;
-
-      // upper limit
+      acc_step_rate = STEP_MULTIPLY(acceleration_time, current_block->acceleration_rate) + current_block->initial_rate;
       NOMORE(acc_step_rate, current_block->nominal_rate);
     #endif
 
@@ -1576,18 +1575,14 @@ void Stepper::isr() {
     #else
 
       // Using the old trapezoidal control
-      #ifdef CPU_32_BIT
-        MultiU32X24toH32(step_rate, deceleration_time, current_block->acceleration_rate);
-      #else
-        MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
-      #endif
-
+      step_rate = STEP_MULTIPLY(deceleration_time, current_block->acceleration_rate);
       if (step_rate < acc_step_rate) { // Still decelerating?
         step_rate = acc_step_rate - step_rate;
         NOLESS(step_rate, current_block->final_rate);
       }
       else
         step_rate = current_block->final_rate;
+
     #endif
 
     // step_rate to timer interval
