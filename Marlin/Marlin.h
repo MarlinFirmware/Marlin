@@ -522,7 +522,7 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
     // Note: This won't work on SCARA since the probe offset rotates with the arm.
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
       return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-             && position_is_reachable(rx, ry, FABS(MIN_PROBE_EDGE));
+             && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
     }
   #endif
 
