@@ -64,19 +64,10 @@ void GcodeSuite::M104() {
        * standby mode, for instance in a dual extruder setup, without affecting
        * the running print timer.
        */
-      if (parser.value_celsius() <= (EXTRUDE_MINTEMP) / 2) {
+      if (temp <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        LCD_MESSAGEPGM(WELCOME_MSG);
+        lcd_reset_status();
       }
-    #endif
-
-    #if ENABLED(ULTRA_LCD)
-      if (parser.value_celsius() > thermalManager.degHotend(e))
-        #if HOTENDS > 1
-          lcd_status_printf_P(0, PSTR("E%i " MSG_HEATING), e + 1);
-        #else
-          LCD_MESSAGEPGM("E " MSG_HEATING);
-        #endif
     #endif
   }
 
@@ -124,7 +115,7 @@ void GcodeSuite::M109() {
        */
       if (parser.value_celsius() <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        LCD_MESSAGEPGM(WELCOME_MSG);
+        lcd_reset_status();
       }
       else
         print_job_timer.start();
