@@ -2188,11 +2188,11 @@ void Planner::buffer_segment(const float &a, const float &b, const float &c, con
   // Always split the first move into two (if not homing or probing)
   if (!has_blocks_queued()) {
 
-    #define _BETWEEN(A) (position[A##_AXIS] + target[A##_AXIS]) >> 1
+    #define _BETWEEN(A) (position[_AXIS(A)] + target[_AXIS(A)]) >> 1
     const int32_t between[ABCE] = { _BETWEEN(A), _BETWEEN(B), _BETWEEN(C), _BETWEEN(E) };
 
     #if HAS_POSITION_FLOAT
-      #define _BETWEEN_F(A) (position_float[A##_AXIS] + target_float[A##_AXIS]) * 0.5
+      #define _BETWEEN_F(A) (position_float[_AXIS(A)] + target_float[_AXIS(A)]) * 0.5
       const float between_float[ABCE] = { _BETWEEN_F(A), _BETWEEN_F(B), _BETWEEN_F(C), _BETWEEN_F(E) };
     #endif
 
