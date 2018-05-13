@@ -629,7 +629,7 @@ uint16_t max_display_update_time = 0;
       screen_changed = false;
     }
     if (screen_items > 0 && encoderLine >= screen_items - limit) {
-      encoderLine = max(0, screen_items - limit);
+      encoderLine = MAX(0, screen_items - limit);
       encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM);
     }
     if (is_menu) {
@@ -1579,7 +1579,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
    *
    */
   void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const int16_t fan) {
-    if (temph > 0) thermalManager.setTargetHotend(min(heater_maxtemp[endnum], temph), endnum);
+    if (temph > 0) thermalManager.setTargetHotend(MIN(heater_maxtemp[endnum], temph), endnum);
     #if HAS_HEATED_BED
       if (tempb >= 0) thermalManager.setTargetBed(tempb);
     #else
@@ -2118,7 +2118,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       char UBL_LCD_GCODE[16];
       const int ind = ubl_height_amount > 0 ? 9 : 10;
       strcpy_P(UBL_LCD_GCODE, PSTR("G29 P6 C -"));
-      sprintf_P(&UBL_LCD_GCODE[ind], PSTR(".%i"), abs(ubl_height_amount));
+      sprintf_P(&UBL_LCD_GCODE[ind], PSTR(".%i"), ABS(ubl_height_amount));
       lcd_enqueue_command(UBL_LCD_GCODE);
     }
 
@@ -2441,7 +2441,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       if (encoderPosition) {
         step_scaler += (int32_t)encoderPosition;
         x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
-        if (abs(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM) step_scaler = 0;
+        if (ABS(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM) step_scaler = 0;
         encoderPosition = 0;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       }
@@ -2853,7 +2853,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       do_blocking_move_to_xy(rx, ry);
 
       lcd_synchronize();
-      move_menu_scale = max(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
+      move_menu_scale = MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
       lcd_goto_screen(lcd_move_z);
     }
 
@@ -3625,8 +3625,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #define MINTEMP_ALL MIN3(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP)
         #define MAXTEMP_ALL MAX3(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP)
       #elif HOTENDS > 1
-        #define MINTEMP_ALL min(HEATER_0_MINTEMP, HEATER_1_MINTEMP)
-        #define MAXTEMP_ALL max(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP)
+        #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP)
+        #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP)
       #else
         #define MINTEMP_ALL HEATER_0_MINTEMP
         #define MAXTEMP_ALL HEATER_0_MAXTEMP
@@ -5229,7 +5229,7 @@ void lcd_update() {
 
       #endif
 
-      const bool encoderPastThreshold = (abs(encoderDiff) >= ENCODER_PULSES_PER_STEP);
+      const bool encoderPastThreshold = (ABS(encoderDiff) >= ENCODER_PULSES_PER_STEP);
       if (encoderPastThreshold || lcd_clicked) {
         if (encoderPastThreshold) {
           int32_t encoderMultiplier = 1;
@@ -5237,7 +5237,7 @@ void lcd_update() {
           #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
             if (encoderRateMultiplierEnabled) {
-              int32_t encoderMovementSteps = abs(encoderDiff) / ENCODER_PULSES_PER_STEP;
+              int32_t encoderMovementSteps = ABS(encoderDiff) / ENCODER_PULSES_PER_STEP;
 
               if (lastEncoderMovementMillis) {
                 // Note that the rate is always calculated between two passes through the

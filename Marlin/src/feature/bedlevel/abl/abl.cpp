@@ -295,7 +295,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
     #endif
 
     gridx = gx;
-    nextx = min(gridx + 1, ABL_BG_POINTS_X - 1);
+    nextx = MIN(gridx + 1, ABL_BG_POINTS_X - 1);
   }
 
   if (last_y != ry || last_gridx != gridx) {
@@ -312,7 +312,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
       #endif
 
       gridy = gy;
-      nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
+      nexty = MIN(gridy + 1, ABL_BG_POINTS_Y - 1);
     }
 
     if (last_gridx != gridx || last_gridy != gridy) {
@@ -336,7 +336,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
 
   /*
   static float last_offset = 0;
-  if (FABS(last_offset - offset) > 0.2) {
+  if (ABS(last_offset - offset) > 0.2) {
     SERIAL_ECHOPGM("Sudden Shift at ");
     SERIAL_ECHOPAIR("x=", rx);
     SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[X_AXIS]);
@@ -362,7 +362,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
 
 #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
 
-  #define CELL_INDEX(A,V) ((V - bilinear_start[A##_AXIS]) * ABL_BG_FACTOR(A##_AXIS))
+  #define CELL_INDEX(A,V) ((V - bilinear_start[_AXIS(A)]) * ABL_BG_FACTOR(_AXIS(A)))
 
   /**
    * Prepare a bilinear-leveled linear move on Cartesian,
@@ -389,7 +389,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
     #define LINE_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
     float normalized_dist, end[XYZE];
-    const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+    const int8_t gcx = MAX(cx1, cx2), gcy = MAX(cy1, cy2);
 
     // Crosses on the X and not already split on this X?
     // The x_splits flags are insurance against rounding errors.

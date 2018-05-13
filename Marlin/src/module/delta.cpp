@@ -150,7 +150,7 @@ float delta_safe_distance_from_top() {
   float centered_extent = delta[A_AXIS];
   cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
   inverse_kinematics(cartesian);
-  return FABS(centered_extent - delta[A_AXIS]);
+  return ABS(centered_extent - delta[A_AXIS]);
 }
 
 /**

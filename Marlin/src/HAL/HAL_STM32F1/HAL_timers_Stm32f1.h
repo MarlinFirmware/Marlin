@@ -130,7 +130,7 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
  */
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
-  //compare = min(compare, HAL_TIMER_TYPE_MAX);
+  //compare = MIN(compare, HAL_TIMER_TYPE_MAX);
   switch (timer_num) {
   case STEP_TIMER_NUM:
     timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, compare);

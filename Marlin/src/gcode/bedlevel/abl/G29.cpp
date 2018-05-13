@@ -471,7 +471,7 @@ void GcodeSuite::G29() {
     if (verbose_level || seenQ) {
       SERIAL_PROTOCOLPGM("Manual G29 ");
       if (g29_in_progress) {
-        SERIAL_PROTOCOLPAIR("point ", min(abl_probe_index + 1, abl_points));
+        SERIAL_PROTOCOLPAIR("point ", MIN(abl_probe_index + 1, abl_points));
         SERIAL_PROTOCOLLNPAIR(" of ", abl_points);
       }
       else

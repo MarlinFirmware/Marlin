@@ -145,7 +145,7 @@ void GcodeSuite::M190() {
 
     #if TEMP_BED_RESIDENCY_TIME > 0
 
-      const float temp_diff = FABS(target_temp - temp);
+      const float temp_diff = ABS(target_temp - temp);
 
       if (!residency_start_ms) {
         // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
