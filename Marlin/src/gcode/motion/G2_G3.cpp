@@ -91,7 +91,7 @@ void plan_arc(
     angular_travel = RADIANS(360);
 
   const float flat_mm = radius * angular_travel,
-              mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : FABS(flat_mm);
+              mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : ABS(flat_mm);
   if (mm_of_travel < 0.001) return;
 
   uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));

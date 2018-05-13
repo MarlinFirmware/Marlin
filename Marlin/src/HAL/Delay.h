@@ -33,6 +33,8 @@
 #ifndef MARLIN_DELAY_H
 #define MARLIN_DELAY_H
 
+#include "../core/macros.h"
+
 #if defined(__arm__) || defined(__thumb__)
 
   /* https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles */

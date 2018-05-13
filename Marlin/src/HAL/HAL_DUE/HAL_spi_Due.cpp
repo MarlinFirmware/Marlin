@@ -89,7 +89,7 @@
 
     /* The software SPI routine */
     __asm__ __volatile__(
-      ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
+      A(".syntax unified") // is to prevent CM0,CM1 non-unified syntax
 
       /* Bit 7 */
       A("ubfx %[idx],%[txval],#7,#1")                      /* Place bit 7 in bit 0 of idx*/
@@ -170,7 +170,7 @@
 
     /* The software SPI routine */
     __asm__ __volatile__(
-      ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
+      A(".syntax unified") // is to prevent CM0,CM1 non-unified syntax
 
       /* bit 7 */
       A("str %[sck_mask],[%[sck_port]]")           /* SODR */
@@ -290,7 +290,7 @@
 
     /* The software SPI routine */
     __asm__ __volatile__(
-      ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
+      A(".syntax unified") // is to prevent CM0,CM1 non-unified syntax
 
       L("loop%=")
       A("ldrb.w %[txval], [%[ptr]], #1")                   /* Load value to send, increment buffer */
@@ -368,7 +368,7 @@
 
     /* The software SPI routine */
     __asm__ __volatile__(
-      ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
+      A(".syntax unified")                  // is to prevent CM0,CM1 non-unified syntax
 
       L("loop%=")
 

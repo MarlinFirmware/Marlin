@@ -57,6 +57,7 @@
 
   #include <U8glib.h>
   #include "SoftwareSPI.h"
+  #include "../Delay.h"
 
   #define SPI_SPEED 3  // About 1 MHz
 
@@ -78,8 +79,7 @@
          /* data */
          swSpiTransfer(0x0FA, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
 
-      for( i = 0; i < 4; i++ )   // give the controller some time to process the data
-        u8g_10MicroDelay();      // 2 is bad, 3 is OK, 4 is safe
+      DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
     }
 
     swSpiTransfer(val & 0x0F0, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);

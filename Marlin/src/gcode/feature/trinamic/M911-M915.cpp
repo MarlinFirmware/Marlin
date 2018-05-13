@@ -151,8 +151,8 @@ void GcodeSuite::M912() {
  */
 #if ENABLED(HYBRID_THRESHOLD)
   void GcodeSuite::M913() {
-    #define TMC_SAY_PWMTHRS(P,Q) tmc_get_pwmthrs(stepper##Q, TMC_##Q, planner.axis_steps_per_mm[P##_AXIS])
-    #define TMC_SET_PWMTHRS(P,Q) tmc_set_pwmthrs(stepper##Q, value, planner.axis_steps_per_mm[P##_AXIS])
+    #define TMC_SAY_PWMTHRS(A,Q) tmc_get_pwmthrs(stepper##Q, TMC_##Q, planner.axis_steps_per_mm[_AXIS(A)])
+    #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, value, planner.axis_steps_per_mm[_AXIS(A)])
     #define TMC_SAY_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_get_pwmthrs(stepperE##E, TMC_E##E, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
     #define TMC_SET_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_set_pwmthrs(stepperE##E, value, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
 

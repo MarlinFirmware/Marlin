@@ -35,6 +35,16 @@
   || MB(SCOOVO_X9H)                     \
 )
 
+#ifdef TEENSYDUINO
+  #undef max
+  #define max(a,b) ((a)>(b)?(a):(b))
+  #undef min
+  #define min(a,b) ((a)<(b)?(a):(b))
+
+  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
+  #define NOT_A_PIN 0 // For PINS_DEBUGGING
+#endif
+
 #define IS_SCARA (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA))
 #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
 #define IS_CARTESIAN !IS_KINEMATIC
@@ -1374,23 +1384,12 @@
   #undef LROUND
   #undef FMOD
   #define ATAN2(y, x) atan2f(y, x)
-  #define FABS(x) fabsf(x)
   #define POW(x, y) powf(x, y)
   #define SQRT(x) sqrtf(x)
   #define CEIL(x) ceilf(x)
   #define FLOOR(x) floorf(x)
   #define LROUND(x) lroundf(x)
   #define FMOD(x, y) fmodf(x, y)
-#endif
-
-#ifdef TEENSYDUINO
-  #undef max
-  #define max(a,b) ((a)>(b)?(a):(b))
-  #undef min
-  #define min(a,b) ((a)<(b)?(a):(b))
-
-  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
-  #define NOT_A_PIN 0 // For PINS_DEBUGGING
 #endif
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters

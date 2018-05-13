@@ -182,20 +182,20 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
   #define LOCKED_X2_MOTOR locked_x2_motor
   #define LOCKED_Y2_MOTOR locked_y2_motor
   #define LOCKED_Z2_MOTOR locked_z2_motor
-  #define DUAL_ENDSTOP_APPLY_STEP(AXIS,v)                                                                                                           \
+  #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                                           \
     if (performing_homing) {                                                                                                                        \
-      if (AXIS##_HOME_DIR < 0) {                                                                                                                    \
-        if (!(TEST(endstops.old_endstop_bits, AXIS##_MIN) && count_direction[AXIS##_AXIS] < 0) && !LOCKED_##AXIS##_MOTOR) AXIS##_STEP_WRITE(v);     \
-        if (!(TEST(endstops.old_endstop_bits, AXIS##2_MIN) && count_direction[AXIS##_AXIS] < 0) && !LOCKED_##AXIS##2_MOTOR) AXIS##2_STEP_WRITE(v);  \
+      if (A##_HOME_DIR < 0) {                                                                                                                    \
+        if (!(TEST(endstops.old_endstop_bits, A##_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
+        if (!(TEST(endstops.old_endstop_bits, A##2_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
       }                                                                                                                                             \
       else {                                                                                                                                        \
-        if (!(TEST(endstops.old_endstop_bits, AXIS##_MAX) && count_direction[AXIS##_AXIS] > 0) && !LOCKED_##AXIS##_MOTOR) AXIS##_STEP_WRITE(v);     \
-        if (!(TEST(endstops.old_endstop_bits, AXIS##2_MAX) && count_direction[AXIS##_AXIS] > 0) && !LOCKED_##AXIS##2_MOTOR) AXIS##2_STEP_WRITE(v);  \
+        if (!(TEST(endstops.old_endstop_bits, A##_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
+        if (!(TEST(endstops.old_endstop_bits, A##2_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
       }                                                                                                                                             \
     }                                                                                                                                               \
     else {                                                                                                                                          \
-      AXIS##_STEP_WRITE(v);                                                                                                                         \
-      AXIS##2_STEP_WRITE(v);                                                                                                                        \
+      A##_STEP_WRITE(V);                                                                                                                         \
+      A##2_STEP_WRITE(V);                                                                                                                        \
     }
 #endif
 
@@ -1158,6 +1158,12 @@ HAL_STEP_TIMER_ISR {
   HAL_timer_isr_epilogue(STEP_TIMER_NUM);
 }
 
+#ifdef CPU_32_BIT
+  #define STEP_MULTIPLY(A,B) MultiU32X24toH32(A, B);
+#else
+  #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B);
+#endif
+
 void Stepper::isr() {
 
   #define ENDSTOP_NOMINAL_OCR_VAL 1500 * HAL_TICKS_PER_US // Check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
@@ -1525,14 +1531,7 @@ void Stepper::isr() {
           ? _eval_bezier_curve(acceleration_time)
           : current_block->cruise_rate;
     #else
-      #ifdef CPU_32_BIT
-        MultiU32X24toH32(acc_step_rate, acceleration_time, current_block->acceleration_rate);
-      #else
-        MultiU24X32toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
-      #endif
-      acc_step_rate += current_block->initial_rate;
-
-      // upper limit
+      acc_step_rate = STEP_MULTIPLY(acceleration_time, current_block->acceleration_rate) + current_block->initial_rate;
       NOMORE(acc_step_rate, current_block->nominal_rate);
     #endif
 
@@ -1576,18 +1575,14 @@ void Stepper::isr() {
     #else
 
       // Using the old trapezoidal control
-      #ifdef CPU_32_BIT
-        MultiU32X24toH32(step_rate, deceleration_time, current_block->acceleration_rate);
-      #else
-        MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
-      #endif
-
+      step_rate = STEP_MULTIPLY(deceleration_time, current_block->acceleration_rate);
       if (step_rate < acc_step_rate) { // Still decelerating?
         step_rate = acc_step_rate - step_rate;
         NOLESS(step_rate, current_block->final_rate);
       }
       else
         step_rate = current_block->final_rate;
+
     #endif
 
     // step_rate to timer interval
