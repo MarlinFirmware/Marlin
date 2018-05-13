@@ -1159,9 +1159,9 @@ HAL_STEP_TIMER_ISR {
 }
 
 #ifdef CPU_32_BIT
-  #define STEP_MULTIPLY(A,B) MultiU32X24toH32(A, B);
+  #define STEP_MULTIPLY(A,B) MultiU32X24toH32(A, B)
 #else
-  #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B);
+  #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B)
 #endif
 
 void Stepper::isr() {
