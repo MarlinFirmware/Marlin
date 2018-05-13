@@ -54,7 +54,7 @@ enum BlockFlagBit : char {
   // from a safe speed (in consideration of jerking from zero speed).
   BLOCK_BIT_NOMINAL_LENGTH,
 
-  // The block is busy
+  // The block is busy, being interpreted by the stepper ISR
   BLOCK_BIT_BUSY,
 
   // The block is segment 2+ of a longer move
@@ -176,7 +176,8 @@ class Planner {
     static block_t block_buffer[BLOCK_BUFFER_SIZE];
     static volatile uint8_t block_buffer_head,      // Index of the next block to be pushed
                             block_buffer_tail;      // Index of the busy block, if any
-    static int16_t cleaning_buffer_counter;         // A counter to disable queuing of blocks
+    static uint16_t cleaning_buffer_counter;        // A counter to disable queuing of blocks
+    static uint8_t delay_before_delivering;         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
@@ -634,25 +635,40 @@ class Planner {
      * WARNING: Called from Stepper ISR context!
      */
     static block_t* get_current_block() {
-      if (has_blocks_queued()) {
+
+      // Get the number of moves in the planner queue so far
+      uint8_t nr_moves = movesplanned();
+
+      // If there are any moves queued ...
+      if (nr_moves) {
+
+        // If there is still delay of delivery of blocks running, decrement it
+        if (delay_before_delivering) {
+          --delay_before_delivering;
+          // If the number of movements queued is less than 3, and there is still time
+          //  to wait, do not deliver anything
+          if (nr_moves < 3 && delay_before_delivering) return NULL;
+          delay_before_delivering = 0;
+        }
+
+        // If we are here, there is no excuse to deliver the block
         block_t * const block = &block_buffer[block_buffer_tail];
 
-        // If the block has no trapezoid calculated, it's unsafe to execute.
-        if (movesplanned() > 1) {
-          const block_t * const next = &block_buffer[next_block_index(block_buffer_tail)];
-          if (TEST(block->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE))
-            return NULL;
-        }
-        else if (TEST(block->flag, BLOCK_BIT_RECALCULATE))
-          return NULL;
+        // No trapezoid calculated? Don't execute yet.
+        if ( TEST(block->flag, BLOCK_BIT_RECALCULATE)
+          || (movesplanned() > 1 && TEST(block_buffer[next_block_index(block_buffer_tail)].flag, BLOCK_BIT_RECALCULATE))
+        ) return NULL;
 
         #if ENABLED(ULTRA_LCD)
           block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
         #endif
+
+        // Mark the block as busy, so the planner does not attempt to replan it
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
       }
       else {
+        // The queue became empty
         #if ENABLED(ULTRA_LCD)
           clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
         #endif

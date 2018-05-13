@@ -92,6 +92,10 @@
   #include "../feature/power.h"
 #endif
 
+// Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
+// fewer movements. The delay is measured in milliseconds, and must be less than 250ms
+#define BLOCK_DELAY_FOR_1ST_MOVE 50
+
 Planner planner;
 
   // public:
@@ -102,7 +106,8 @@ Planner planner;
 block_t Planner::block_buffer[BLOCK_BUFFER_SIZE];
 volatile uint8_t Planner::block_buffer_head,  // Index of the next block to be pushed
                  Planner::block_buffer_tail;  // Index of the busy block, if any
-uint16_t Planner::cleaning_buffer_counter;   // A counter to disable queuing of blocks
+uint16_t Planner::cleaning_buffer_counter;    // A counter to disable queuing of blocks
+uint8_t Planner::delay_before_delivering;     // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
 
 float Planner::max_feedrate_mm_s[XYZE_N],   // Max speeds in mm per second
       Planner::axis_steps_per_mm[XYZE_N],
@@ -222,6 +227,7 @@ void Planner::init() {
     bed_level_matrix.set_to_identity();
   #endif
   clear_block_buffer();
+  delay_before_delivering = 0;
 }
 
 #if ENABLED(BEZIER_JERK_CONTROL)
@@ -802,7 +808,8 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   const bool was_enabled = STEPPER_ISR_ENABLED();
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
 
-  if (!TEST(block->flag, BLOCK_BIT_BUSY)) { // Don't update variables if block is busy.
+  // Don't update variables if block is busy: It is being interpreted by the planner
+  if (!TEST(block->flag, BLOCK_BIT_BUSY)) {
     block->accelerate_until = accelerate_steps;
     block->decelerate_after = accelerate_steps + plateau_steps;
     block->initial_rate = initial_rate;
@@ -1346,6 +1353,10 @@ void Planner::quick_stop() {
   // that is why we set head to tail!
   block_buffer_head = block_buffer_tail;
 
+  // Restart the block delay for the first movement - As the queue was
+  // forced to empty, there's no risk the ISR will touch this.
+  delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+
   #if ENABLED(ULTRA_LCD)
     // Clear the accumulated runtime
     clear_block_buffer_runtime();
@@ -1373,12 +1384,6 @@ void Planner::endstop_triggered(const AxisEnum axis) {
 
   // Discard the active block that led to the trigger
   discard_current_block();
-
-  // Discard the CONTINUED block, if any. Note the planner can only queue 1 continued
-  // block after a previous non continued block, as the condition to queue them
-  // is that there are no queued blocks at the time a new block is queued.
-  const bool discard = has_blocks_queued() && TEST(block_buffer[block_buffer_tail].flag, BLOCK_BIT_CONTINUED);
-  if (discard) discard_current_block();
 
   // Reenable stepper ISR if it was enabled
   if (stepper_isr_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
@@ -1465,6 +1470,16 @@ bool Planner::_buffer_steps(const int32_t (&target)[XYZE]
     // Movement was not queued, probably because it was too short.
     //  Simply accept that as movement queued and done
     return true;
+  }
+
+  // If this is the first added movement, reload the delay, otherwise, cancel it.
+  if (block_buffer_head == block_buffer_tail) {
+    // If it was the first queued block, restart the 1st block delivery delay, to
+    // give the planner an opportunity to queue more movements and plan them
+    // As there are no queued movements, the Stepper ISR will not touch this
+    // variable, so there is no risk setting this here (but it MUST be done
+    // before the following line!!)
+    delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
   }
 
   // Move buffer head
@@ -2292,7 +2307,18 @@ void Planner::buffer_sync_block() {
   block->position[C_AXIS] = position[C_AXIS];
   block->position[E_AXIS] = position[E_AXIS];
 
+  // If this is the first added movement, reload the delay, otherwise, cancel it.
+  if (block_buffer_head == block_buffer_tail) {
+    // If it was the first queued block, restart the 1st block delivery delay, to
+    // give the planner an opportunity to queue more movements and plan them
+    // As there are no queued movements, the Stepper ISR will not touch this
+    // variable, so there is no risk setting this here (but it MUST be done
+    // before the following line!!)
+    delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
+  }
+
   block_buffer_head = next_buffer_head;
+
   stepper.wake_up();
 } // buffer_sync_block()
 
@@ -2370,81 +2396,8 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
     SERIAL_ECHOLNPGM(")");
   //*/
 
-  // Always split the first move into two (if not homing or probing)
-  if (!has_blocks_queued()) {
-
-    #define _BETWEEN(A) (position[_AXIS(A)] + target[_AXIS(A)]) >> 1
-    const int32_t between[ABCE] = { _BETWEEN(A), _BETWEEN(B), _BETWEEN(C), _BETWEEN(E) };
-
-    #if HAS_POSITION_FLOAT
-      #define _BETWEEN_F(A) (position_float[_AXIS(A)] + target_float[_AXIS(A)]) * 0.5
-      const float between_float[ABCE] = { _BETWEEN_F(A), _BETWEEN_F(B), _BETWEEN_F(C), _BETWEEN_F(E) };
-    #endif
-
-    // The new head value is not assigned yet
-    uint8_t buffer_head = 0;
-    bool added = false;
-
-    uint8_t next_buffer_head;
-    block_t *block = get_next_free_block(next_buffer_head, 2);
-
-    // Fill the block with the specified movement
+  // Queue the movement
     if (
-      _populate_block(block, true, between
-        #if HAS_POSITION_FLOAT
-          , between_float
-        #endif
-        , fr_mm_s, extruder, millimeters * 0.5
-      )
-    ) {
-      // Movement accepted - Point to the next reserved block
-      block = &block_buffer[next_buffer_head];
-
-      // Store into the new to be stored head
-      buffer_head = next_buffer_head;
-      added = true;
-
-      // And advance the pointer to the next unused slot
-      next_buffer_head = next_block_index(next_buffer_head);
-    }
-
-    // Fill the second part of the block with the 2nd part of the movement
-    if (
-      _populate_block(block, true, target
-        #if HAS_POSITION_FLOAT
-          , target_float
-        #endif
-        , fr_mm_s, extruder, millimeters * 0.5
-      )
-    ) {
-      // Movement accepted - If this block is a continuation
-      // of the previous one, mark it as such
-      if (added) SBI(block->flag, BLOCK_BIT_CONTINUED);
-
-      // Store into the new to be stored head
-      buffer_head = next_buffer_head;
-      added = true;
-    }
-
-    // If any of the movements was added
-    if (added) {
-
-      // Move buffer head and add all the blocks that were filled
-      // successfully to the movement queue.
-      block_buffer_head = buffer_head;
-
-      // Update the position (only when a move was queued)
-      static_assert(COUNT(target) > 1, "Parameter to _buffer_steps must be (&target)[XYZE]!");
-      COPY(position, target);
-      #if HAS_POSITION_FLOAT
-        COPY(position_float, target_float);
-      #endif
-
-      // Recalculate and optimize trapezoidal speed profiles
-      recalculate();
-    }
-  }
-  else if (
     !_buffer_steps(target
       #if HAS_POSITION_FLOAT
         , target_float
