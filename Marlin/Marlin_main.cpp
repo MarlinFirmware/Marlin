@@ -7868,17 +7868,8 @@ inline void gcode_M104() {
        */
       if (parser.value_celsius() <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        LCD_MESSAGEPGM(WELCOME_MSG);
+        lcd_reset_status();
       }
-    #endif
-
-    #if ENABLED(ULTRA_LCD)
-      if (parser.value_celsius() > thermalManager.degHotend(target_extruder))
-        #if HOTENDS > 1
-          lcd_status_printf_P(0, PSTR("E%i " MSG_HEATING), target_extruder + 1);
-        #else
-          LCD_MESSAGEPGM("E " MSG_HEATING);
-        #endif
     #endif
   }
 
@@ -8030,7 +8021,7 @@ inline void gcode_M109() {
        */
       if (parser.value_celsius() <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        LCD_MESSAGEPGM(WELCOME_MSG);
+        lcd_reset_status();
       }
       else
         print_job_timer.start();
@@ -8474,7 +8465,7 @@ inline void gcode_M111() {
     #endif
 
     #if ENABLED(ULTIPANEL)
-      LCD_MESSAGEPGM(WELCOME_MSG);
+      lcd_reset_status();
     #endif
   }
 
@@ -14388,7 +14379,7 @@ void setup() {
   #endif
 
   lcd_init();
-  LCD_MESSAGEPGM(WELCOME_MSG);
+  lcd_reset_status();
 
   #if ENABLED(SHOW_BOOTSCREEN)
     lcd_bootscreen();
