@@ -61,26 +61,28 @@ extern Stepper stepper;
 // uses:
 // r26 to store 0
 // r27 to store the byte 1 of the 24 bit result
-#define MultiU16X8toH16(intRes, charIn1, intIn2) \
-  asm volatile ( \
-                 A("clr r26") \
-                 A("mul %A1, %B2") \
-                 A("movw %A0, r0") \
-                 A("mul %A1, %A2") \
-                 A("add %A0, r1") \
-                 A("adc %B0, r26") \
-                 A("lsr r0") \
-                 A("adc %A0, r26") \
-                 A("adc %B0, r26") \
-                 A("clr r1") \
-                 : \
-                 "=&r" (intRes) \
-                 : \
-                 "d" (charIn1), \
-                 "d" (intIn2) \
-                 : \
-                 "r26" \
-               )
+static FORCE_INLINE uint16_t MultiU16X8toH16(uint8_t charIn1, uint16_t intIn2) {
+  register uint8_t tmp;
+  register uint16_t intRes;
+  __asm__ __volatile__ (
+    A("clr %[tmp]")
+    A("mul %[charIn1], %B[intIn2]")
+    A("movw %A[intRes], r0")
+    A("mul %[charIn1], %A[intIn2]")
+    A("add %A[intRes], r1")
+    A("adc %B[intRes], %[tmp]")
+    A("lsr r0")
+    A("adc %A[intRes], %[tmp]")
+    A("adc %B[intRes], %[tmp]")
+    A("clr r1")
+      : [intRes] "=&r" (intRes),
+        [tmp] "=&r" (tmp)
+      : [charIn1] "d" (charIn1),
+        [intIn2] "d" (intIn2)
+      : "cc"
+  );
+  return intRes;
+}
 
 class Stepper {
 
@@ -346,17 +348,15 @@ class Stepper {
       NOLESS(step_rate, F_CPU / 500000);
       step_rate -= F_CPU / 500000; // Correct for minimal speed
       if (step_rate >= (8 * 256)) { // higher step rate
-        unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
-        unsigned char tmp_step_rate = (step_rate & 0x00FF);
-        unsigned short gain = (unsigned short)pgm_read_word_near(table_address + 2);
-        MultiU16X8toH16(timer, tmp_step_rate, gain);
-        timer = (unsigned short)pgm_read_word_near(table_address) - timer;
+        uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0],
+                 gain = (uint16_t)pgm_read_word_near(table_address + 2);
+        timer = (uint16_t)pgm_read_word_near(table_address) - MultiU16X8toH16(step_rate & 0x00FF, gain);
       }
       else { // lower step rates
-        unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
+        uint16_t table_address = (uint16_t)&speed_lookuptable_slow[0][0];
         table_address += ((step_rate) >> 1) & 0xFFFC;
-        timer = (unsigned short)pgm_read_word_near(table_address);
-        timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
+        timer = (uint16_t)pgm_read_word_near(table_address)
+              - (((uint16_t)pgm_read_word_near(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
       }
       if (timer < 100) { // (20kHz - this should never happen)
         timer = 100;
