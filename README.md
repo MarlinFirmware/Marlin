@@ -21,7 +21,7 @@ Previous releases of Marlin include [1.0.2-2](https://github.com/MarlinFirmware/
 
 If you have coding or writing skills you're encouraged to contribute to Marlin. You may also contribute suggestions, feature requests, and bug reports through the Marlin Issue Queue.
 
-Before contributing, please read our [Contributing Guidelines](/MarlinFirmware/Marlin/blob/1.1.x/.github/contributing.md) and [Code of Conduct](/MarlinFirmware/Marlin/blob/1.1.x/.github/code_of_conduct.md).
+Before contributing, please read our [Contributing Guidelines](https://github.com/MarlinFirmware/Marlin/blob/1.1.x/.github/contributing.md) and [Code of Conduct](https://github.com/MarlinFirmware/Marlin/blob/1.1.x/.github/code_of_conduct.md).
 
 ## Marlin Resources
 
