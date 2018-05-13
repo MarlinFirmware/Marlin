@@ -287,14 +287,14 @@ void Stepper::wake_up() {
  */
 void Stepper::set_directions() {
 
-  #define SET_STEP_DIR(AXIS) \
-    if (motor_direction(AXIS ##_AXIS)) { \
-      AXIS ##_APPLY_DIR(INVERT_## AXIS ##_DIR, false); \
-      count_direction[AXIS ##_AXIS] = -1; \
+  #define SET_STEP_DIR(A) \
+    if (motor_direction(_AXIS(A))) { \
+      A##_APPLY_DIR(INVERT_## A##_DIR, false); \
+      count_direction[_AXIS(A)] = -1; \
     } \
     else { \
-      AXIS ##_APPLY_DIR(!INVERT_## AXIS ##_DIR, false); \
-      count_direction[AXIS ##_AXIS] = 1; \
+      A##_APPLY_DIR(!INVERT_## A##_DIR, false); \
+      count_direction[_AXIS(A)] = 1; \
     }
 
   #if HAS_X_DIR
