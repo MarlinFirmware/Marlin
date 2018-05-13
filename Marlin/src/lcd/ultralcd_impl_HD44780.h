@@ -352,12 +352,12 @@ void lcd_implementation_clear() { lcd.clear(); }
       lcd_put_u8str(text);
     #else
       char tmp[LCD_WIDTH + 1] = {0};
-      int16_t n = max(utf8_strlen_P(text) - len, 0);
+      int16_t n = MAX(utf8_strlen_P(text) - len, 0);
       for (int16_t i = 0; i <= n; i++) {
-        utf8_strncpy_p(tmp, text + i, min(len, LCD_WIDTH));
+        utf8_strncpy_p(tmp, text + i, MIN(len, LCD_WIDTH));
         lcd_moveto(col, line);
         lcd_put_u8str(tmp);
-        delay(time / max(n, 1));
+        delay(time / MAX(n, 1));
       }
     #endif
   }
@@ -875,7 +875,7 @@ static void lcd_implementation_status_screen() {
               name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
             if (filename_scroll_hash != name_hash) {                            // If the hash changed...
               filename_scroll_hash = name_hash;                                 // Save the new hash
-              filename_scroll_max = max(0, utf8_strlen(longFilename) - n);  // Update the scroll limit
+              filename_scroll_max = MAX(0, utf8_strlen(longFilename) - n);  // Update the scroll limit
               filename_scroll_pos = 0;                                          // Reset scroll to the start
               lcd_status_update_delay = 8;                                      // Don't scroll right away
             }
@@ -1186,7 +1186,7 @@ static void lcd_implementation_status_screen() {
         //dump_custom_char("at entry:", &new_char);
 
         clear_custom_char(&new_char);
-        const uint8_t ypix = min(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, ULTRA_Y_PIXELS_PER_CHAR);
+        const uint8_t ypix = MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, ULTRA_Y_PIXELS_PER_CHAR);
         for (j = upper_left.y_pixel_offset; j < ypix; j++) {
           i = upper_left.x_pixel_mask;
           for (k = 0; k < pixels_per_x_mesh_pnt; k++) {

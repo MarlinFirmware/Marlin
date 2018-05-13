@@ -552,7 +552,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     float cartesian_mm = SQRT(sq(xdiff) + sq(ydiff) + sq(zdiff));
 
     // If the move is very short, check the E move distance
-    if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = FABS(ediff);
+    if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(ediff);
 
     // No E move either? Game over.
     if (UNEAR_ZERO(cartesian_mm)) return true;
@@ -665,6 +665,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       const float diff2 = HYPOT2(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB);
       if (diff2) {
         planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
+
         /*
         SERIAL_ECHOPAIR("final: A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]);
         SERIAL_ECHOPAIR(" adiff=", delta[A_AXIS] - oldA); SERIAL_ECHOPAIR(" bdiff=", delta[B_AXIS] - oldB);
@@ -710,7 +711,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       // If the move is very short, check the E move distance
       // No E move either? Game over.
       float cartesian_mm = SQRT(sq(xdiff) + sq(ydiff) + sq(zdiff));
-      if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = FABS(ediff);
+      if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(ediff);
       if (UNEAR_ZERO(cartesian_mm)) return;
 
       // The length divided by the segment size
@@ -921,7 +922,7 @@ void prepare_move_to_destination() {
           }
         #endif // PREVENT_COLD_EXTRUSION
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          if (FABS(destination[E_AXIS] - current_position[E_AXIS]) * planner.e_factor[active_extruder] > (EXTRUDE_MAXLENGTH)) {
+          if (ABS(destination[E_AXIS] - current_position[E_AXIS]) * planner.e_factor[active_extruder] > (EXTRUDE_MAXLENGTH)) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
@@ -1289,7 +1290,7 @@ void homeaxis(const AxisEnum axis) {
   // When homing Z with probe respect probe clearance
   const float bump = axis_home_dir * (
     #if HOMING_Z_WITH_PROBE
-      (axis == Z_AXIS && (Z_HOME_BUMP_MM)) ? max(Z_CLEARANCE_BETWEEN_PROBES, Z_HOME_BUMP_MM) :
+      (axis == Z_AXIS && (Z_HOME_BUMP_MM)) ? MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_HOME_BUMP_MM) :
     #endif
     home_bump_mm(axis)
   );
@@ -1318,7 +1319,7 @@ void homeaxis(const AxisEnum axis) {
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (axis == X_AXIS) {
         const bool lock_x1 = pos_dir ? (endstops.x_endstop_adj > 0) : (endstops.x_endstop_adj < 0);
-        float adj = FABS(endstops.x_endstop_adj);
+        float adj = ABS(endstops.x_endstop_adj);
         if (pos_dir) adj = -adj;
         if (lock_x1) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
         do_homing_move(axis, adj);
@@ -1329,7 +1330,7 @@ void homeaxis(const AxisEnum axis) {
     #if ENABLED(Y_DUAL_ENDSTOPS)
       if (axis == Y_AXIS) {
         const bool lock_y1 = pos_dir ? (endstops.y_endstop_adj > 0) : (endstops.y_endstop_adj < 0);
-        float adj = FABS(endstops.y_endstop_adj);
+        float adj = ABS(endstops.y_endstop_adj);
         if (pos_dir) adj = -adj;
         if (lock_y1) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
         do_homing_move(axis, adj);
@@ -1340,7 +1341,7 @@ void homeaxis(const AxisEnum axis) {
     #if ENABLED(Z_DUAL_ENDSTOPS)
       if (axis == Z_AXIS) {
         const bool lock_z1 = pos_dir ? (endstops.z_endstop_adj > 0) : (endstops.z_endstop_adj < 0);
-        float adj = FABS(endstops.z_endstop_adj);
+        float adj = ABS(endstops.z_endstop_adj);
         if (pos_dir) adj = -adj;
         if (lock_z1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
         do_homing_move(axis, adj);
@@ -1424,7 +1425,7 @@ void homeaxis(const AxisEnum axis) {
       if (axis == X_AXIS) {
 
         // In Dual X mode hotend_offset[X] is T1's home position
-        float dual_max_x = max(hotend_offset[X_AXIS][1], X2_MAX_POS);
+        float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
 
         if (active_extruder != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
@@ -1435,7 +1436,7 @@ void homeaxis(const AxisEnum axis) {
           // In Duplication Mode, T0 can move as far left as X_MIN_POS
           // but not so far to the right that T1 would move past the end
           soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS);
-          soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset);
+          soft_endstop_max[X_AXIS] = MIN(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset);
         }
         else {
           // In other modes, T0 can move from X_MIN_POS to X_MAX_POS
@@ -1471,7 +1472,7 @@ void homeaxis(const AxisEnum axis) {
           case X_AXIS:
           case Y_AXIS:
             // Get a minimum radius for clamping
-            soft_endstop_radius = MIN3(FABS(max(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
+            soft_endstop_radius = MIN3(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
             soft_endstop_radius_2 = sq(soft_endstop_radius);
             break;
         #endif

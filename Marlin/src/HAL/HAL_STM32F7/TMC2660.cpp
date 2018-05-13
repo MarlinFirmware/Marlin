@@ -237,7 +237,7 @@ unsigned int TMC26XStepper::getSpeed(void) { return this->speed; }
  */
 char TMC26XStepper::step(int steps_to_move) {
   if (this->steps_left == 0) {
-    this->steps_left = abs(steps_to_move);  // how many steps to take
+    this->steps_left = ABS(steps_to_move);  // how many steps to take
 
     // determine direction based on whether steps_to_move is + or -:
     if (steps_to_move > 0)
@@ -257,7 +257,7 @@ char TMC26XStepper::move(void) {
 
     // rem if (time >= this->next_step_time) {
 
-    if (abs(time - this->last_step_time) > this->step_delay) {
+    if (ABS(time - this->last_step_time) > this->step_delay) {
       // increment or decrement the step number,
       // depending on direction:
       if (this->direction == 1)

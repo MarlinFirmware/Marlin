@@ -76,7 +76,7 @@
       #define MBL_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
       float normalized_dist, end[XYZE];
-      const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+      const int8_t gcx = MAX(cx1, cx2), gcy = MAX(cy1, cy2);
 
       // Crosses on the X and not already split on this X?
       // The x_splits flags are insurance against rounding errors.
