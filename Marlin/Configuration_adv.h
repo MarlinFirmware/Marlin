@@ -2115,6 +2115,22 @@
 #endif
 
 /**
+ * Coolant control
+ *
+ * Add the M7, M8, and M9 commands to turn mist or flood coolant on and off
+ *
+ * You'll need to select pins for mist and flood ON/OFF
+ */
+//#define COOLANT_ENABLE
+#if ENABLED(COOLANT_ENABLE)
+  #define COOLANT_MIST           true   // set to "true" if mist coolant is present
+  #define COOLANT_FLOOD          true   // set to "true" if flood coolant is present
+  #define COOLANT_MIST_INVERT    false  // set to "true" if the on/off function is reversed
+  #define COOLANT_FLOOD_INVERT   false  // set to "true" if the on/off function is reversed
+
+#endif
+
+/**
  * Filament Width Sensor
  *
  * Measures the filament width in real-time and adjusts
