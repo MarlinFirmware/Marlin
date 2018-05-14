@@ -69,9 +69,9 @@ int lcd_put_u8str_max_rom(const char * utf8_str_P, pixel_len_t max_length) {
   return ret;
 }
 
-#else // !ULTRA_LCD
+#else // !DOGLCD
 
   #define _lcd_write(a) TRACE("Write LCD: %c (%d)", (a), (int)(a));
   #define _lcd_setcursor(col, row) TRACE("Set cursor LCD: (%d,%d)", (col), (row));
 
-#endif // !ULTRA_LCD
+#endif // !DOGLCD
