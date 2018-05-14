@@ -82,7 +82,7 @@
     #endif
 
     #if ENABLED(ULTIPANEL)
-      LCD_MESSAGEPGM(WELCOME_MSG);
+      lcd_reset_status();
     #endif
   }
 
