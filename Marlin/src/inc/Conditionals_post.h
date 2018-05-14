@@ -35,6 +35,16 @@
   || MB(SCOOVO_X9H)                     \
 )
 
+#ifdef TEENSYDUINO
+  #undef max
+  #define max(a,b) ((a)>(b)?(a):(b))
+  #undef min
+  #define min(a,b) ((a)<(b)?(a):(b))
+
+  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
+  #define NOT_A_PIN 0 // For PINS_DEBUGGING
+#endif
+
 #define IS_SCARA (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA))
 #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
 #define IS_CARTESIAN !IS_KINEMATIC
@@ -305,7 +315,9 @@
 /**
  * Temp Sensor defines
  */
-#if TEMP_SENSOR_0 == -3
+#if TEMP_SENSOR_0 == -4
+  #define HEATER_0_USES_AD8495
+#elif TEMP_SENSOR_0 == -3
   #define HEATER_0_USES_MAX6675
   #define MAX6675_IS_MAX31855
   #define MAX6675_TMIN -270
@@ -324,8 +336,12 @@
   #define HEATER_0_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_1 <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_1"
+#if TEMP_SENSOR_1 == -4
+  #define HEATER_1_USES_AD8495
+#elif TEMP_SENSOR_1 == -3
+  #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_1."
+#elif TEMP_SENSOR_1 == -2
+  #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_1."
 #elif TEMP_SENSOR_1 == -1
   #define HEATER_1_USES_AD595
 #elif TEMP_SENSOR_1 == 0
@@ -336,8 +352,12 @@
   #define HEATER_1_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_2 <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_2"
+#if TEMP_SENSOR_2 == -4
+  #define HEATER_2_USES_AD8495
+#elif TEMP_SENSOR_2 == -3
+  #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_2."
+#elif TEMP_SENSOR_2 == -2
+  #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_2."
 #elif TEMP_SENSOR_2 == -1
   #define HEATER_2_USES_AD595
 #elif TEMP_SENSOR_2 == 0
@@ -348,8 +368,12 @@
   #define HEATER_2_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_3 <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_3"
+#if TEMP_SENSOR_3 == -4
+  #define HEATER_3_USES_AD8495
+#elif TEMP_SENSOR_3 == -3
+  #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_3."
+#elif TEMP_SENSOR_3 == -2
+  #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_3."
 #elif TEMP_SENSOR_3 == -1
   #define HEATER_3_USES_AD595
 #elif TEMP_SENSOR_3 == 0
@@ -360,8 +384,12 @@
   #define HEATER_3_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_4 <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_4"
+#if TEMP_SENSOR_4 == -4
+  #define HEATER_4_USES_AD8495
+#elif TEMP_SENSOR_4 == -3
+  #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_4."
+#elif TEMP_SENSOR_4 == -2
+  #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_4."
 #elif TEMP_SENSOR_4 == -1
   #define HEATER_4_USES_AD595
 #elif TEMP_SENSOR_4 == 0
@@ -372,30 +400,36 @@
   #define HEATER_4_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_BED <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_BED"
+#if TEMP_SENSOR_BED == -4
+  #define HEATER_BED_USES_AD8495
+#elif TEMP_SENSOR_BED == -3
+  #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_BED."
+#elif TEMP_SENSOR_BED == -2
+  #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_BED."
 #elif TEMP_SENSOR_BED == -1
-  #define BED_USES_AD595
+  #define HEATER_BED_USES_AD595
 #elif TEMP_SENSOR_BED == 0
   #undef BED_MINTEMP
   #undef BED_MAXTEMP
 #elif TEMP_SENSOR_BED > 0
   #define THERMISTORBED TEMP_SENSOR_BED
-  #define BED_USES_THERMISTOR
+  #define HEATER_BED_USES_THERMISTOR
 #endif
 
-#if TEMP_SENSOR_CHAMBER <= -2
-  #error "MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_CHAMBER"
+#if TEMP_SENSOR_CHAMBER == -4
+  #define HEATER_CHAMBER_USES_AD8495
+#elif TEMP_SENSOR_CHAMBER == -3
+  #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_CHAMBER."
+#elif TEMP_SENSOR_CHAMBER == -2
+  #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_CHAMBER."
 #elif TEMP_SENSOR_CHAMBER == -1
-  #define CHAMBER_USES_AD595
+  #define HEATER_CHAMBER_USES_AD595
 #elif TEMP_SENSOR_CHAMBER > 0
   #define THERMISTORCHAMBER TEMP_SENSOR_CHAMBER
-  #define CHAMBER_USES_THERMISTOR
+  #define HEATER_CHAMBER_USES_THERMISTOR
 #endif
 
-#ifdef __SAM3X8E__
-  #define HEATER_USES_AD595 (ENABLED(HEATER_0_USES_AD595) || ENABLED(HEATER_1_USES_AD595) || ENABLED(HEATER_2_USES_AD595) || ENABLED(HEATER_3_USES_AD595))
-#endif
+#define HOTEND_USES_THERMISTOR (ENABLED(HEATER_0_USES_THERMISTOR) || ENABLED(HEATER_1_USES_THERMISTOR) || ENABLED(HEATER_2_USES_THERMISTOR) || ENABLED(HEATER_3_USES_THERMISTOR) || ENABLED(HEATER_4_USES_THERMISTOR))
 
 /**
  * Default hotend offsets, if not defined
@@ -730,12 +764,13 @@
 #endif
 
 // Endstops and bed probe
-#define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_X2_ENDSTOP(X,MIN) && !IS_Y2_ENDSTOP(X,MIN) && !IS_Z2_OR_PROBE(X,MIN))
-#define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_X2_ENDSTOP(X,MAX) && !IS_Y2_ENDSTOP(X,MAX) && !IS_Z2_OR_PROBE(X,MAX))
-#define HAS_Y_MIN (PIN_EXISTS(Y_MIN) && !IS_X2_ENDSTOP(Y,MIN) && !IS_Y2_ENDSTOP(Y,MIN) && !IS_Z2_OR_PROBE(Y,MIN))
-#define HAS_Y_MAX (PIN_EXISTS(Y_MAX) && !IS_X2_ENDSTOP(Y,MAX) && !IS_Y2_ENDSTOP(Y,MAX) && !IS_Z2_OR_PROBE(Y,MAX))
-#define HAS_Z_MIN (PIN_EXISTS(Z_MIN) && !IS_X2_ENDSTOP(Z,MIN) && !IS_Y2_ENDSTOP(Z,MIN) && !IS_Z2_OR_PROBE(Z,MIN))
-#define HAS_Z_MAX (PIN_EXISTS(Z_MAX) && !IS_X2_ENDSTOP(Z,MAX) && !IS_Y2_ENDSTOP(Z,MAX) && !IS_Z2_OR_PROBE(Z,MAX))
+#define HAS_STOP_TEST(A,M) (PIN_EXISTS(A##_##M) && !IS_X2_ENDSTOP(A,M) && !IS_Y2_ENDSTOP(A,M) && !IS_Z2_OR_PROBE(A,M))
+#define HAS_X_MIN HAS_STOP_TEST(X,MIN)
+#define HAS_X_MAX HAS_STOP_TEST(X,MAX)
+#define HAS_Y_MIN HAS_STOP_TEST(Y,MIN)
+#define HAS_Y_MAX HAS_STOP_TEST(Y,MAX)
+#define HAS_Z_MIN HAS_STOP_TEST(Z,MIN)
+#define HAS_Z_MAX HAS_STOP_TEST(Z,MAX)
 #define HAS_X2_MIN (PIN_EXISTS(X2_MIN))
 #define HAS_X2_MAX (PIN_EXISTS(X2_MAX))
 #define HAS_Y2_MIN (PIN_EXISTS(Y2_MIN))
@@ -744,15 +779,19 @@
 #define HAS_Z2_MAX (PIN_EXISTS(Z2_MAX))
 #define HAS_Z_MIN_PROBE_PIN (PIN_EXISTS(Z_MIN_PROBE))
 
-// Thermistors
-#define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 > -2)
-#define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0 && TEMP_SENSOR_1 > -2)
-#define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0 && TEMP_SENSOR_2 > -2)
-#define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0 && TEMP_SENSOR_3 > -2)
-#define HAS_TEMP_4 (PIN_EXISTS(TEMP_4) && TEMP_SENSOR_4 != 0 && TEMP_SENSOR_4 > -2)
-#define HAS_TEMP_HOTEND (HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675))
-#define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0 && TEMP_SENSOR_BED > -2)
-#define HAS_TEMP_CHAMBER (PIN_EXISTS(TEMP_CHAMBER) && TEMP_SENSOR_CHAMBER != 0 && TEMP_SENSOR_CHAMBER > -2)
+// ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
+#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && DISABLED(HEATER_##P##_USES_MAX6675))
+#define HAS_TEMP_ADC_0 HAS_ADC_TEST(0)
+#define HAS_TEMP_ADC_1 HAS_ADC_TEST(1)
+#define HAS_TEMP_ADC_2 HAS_ADC_TEST(2)
+#define HAS_TEMP_ADC_3 HAS_ADC_TEST(3)
+#define HAS_TEMP_ADC_4 HAS_ADC_TEST(4)
+#define HAS_TEMP_ADC_BED HAS_ADC_TEST(BED)
+#define HAS_TEMP_ADC_CHAMBER HAS_ADC_TEST(CHAMBER)
+
+#define HAS_TEMP_HOTEND (HAS_TEMP_ADC_0 || ENABLED(HEATER_0_USES_MAX6675))
+#define HAS_TEMP_BED HAS_TEMP_ADC_BED
+#define HAS_TEMP_CHAMBER HAS_TEMP_ADC_CHAMBER
 
 // Heaters
 #define HAS_HEATER_0 (PIN_EXISTS(HEATER_0))
@@ -1025,6 +1064,7 @@
 #define HAS_MESH       (ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(MESH_BED_LEVELING))
 #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_SEGMENTED || ENABLED(SKEW_CORRECTION))
 #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
+#define HAS_UBL_AND_CURVES (ENABLED(AUTO_BED_LEVELING_UBL) && !PLANNER_LEVELING && (ENABLED(ARC_SUPPORT) || ENABLED(BEZIER_CURVE_SUPPORT)))
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #undef LCD_BED_LEVELING
@@ -1344,23 +1384,12 @@
   #undef LROUND
   #undef FMOD
   #define ATAN2(y, x) atan2f(y, x)
-  #define FABS(x) fabsf(x)
   #define POW(x, y) powf(x, y)
   #define SQRT(x) sqrtf(x)
   #define CEIL(x) ceilf(x)
   #define FLOOR(x) floorf(x)
   #define LROUND(x) lroundf(x)
   #define FMOD(x, y) fmodf(x, y)
-#endif
-
-#ifdef TEENSYDUINO
-  #undef max
-  #define max(a,b) ((a)>(b)?(a):(b))
-  #undef min
-  #define min(a,b) ((a)<(b)?(a):(b))
-
-  #undef NOT_A_PIN    // Override Teensyduino legacy CapSense define work-around
-  #define NOT_A_PIN 0 // For PINS_DEBUGGING
 #endif
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters

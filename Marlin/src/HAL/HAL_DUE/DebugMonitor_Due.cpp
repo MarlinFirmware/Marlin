@@ -36,7 +36,7 @@
 // state we are when running them
 
 // A SW memory barrier, to ensure GCC does not overoptimize loops
-#define sw_barrier() asm volatile("": : :"memory");
+#define sw_barrier() __asm__ volatile("": : :"memory");
 
 // (re)initialize UART0 as a monitor output to 250000,n,8,1
 static void TXBegin(void) {
@@ -230,106 +230,106 @@ void HardFault_HandlerC(unsigned long *sp, unsigned long lr, unsigned long cause
 
 __attribute__((naked)) void NMI_Handler(void) {
   __asm__ __volatile__ (
-    ".syntax unified        \n"
-    " tst lr, #4            \n"
-    " ite eq                \n"
-    " mrseq r0, msp         \n"
-    " mrsne r0, psp         \n"
-    " mov r1,lr             \n"
-    " mov r2,#0             \n"
-    " b HardFault_HandlerC  \n"
+    ".syntax unified" "\n\t"
+    A("tst lr, #4")
+    A("ite eq")
+    A("mrseq r0, msp")
+    A("mrsne r0, psp")
+    A("mov r1,lr")
+    A("mov r2,#0")
+    A("b HardFault_HandlerC")
   );
 }
 
 __attribute__((naked)) void HardFault_Handler(void) {
   __asm__ __volatile__ (
-    ".syntax unified        \n"
-    " tst lr, #4            \n"
-    " ite eq                \n"
-    " mrseq r0, msp         \n"
-    " mrsne r0, psp         \n"
-    " mov r1,lr             \n"
-    " mov r2,#1             \n"
-    " b HardFault_HandlerC  \n"
+    ".syntax unified" "\n\t"
+    A("tst lr, #4")
+    A("ite eq")
+    A("mrseq r0, msp")
+    A("mrsne r0, psp")
+    A("mov r1,lr")
+    A("mov r2,#1")
+    A("b HardFault_HandlerC")
   );
 }
 
 __attribute__((naked)) void MemManage_Handler(void) {
   __asm__ __volatile__ (
-    ".syntax unified        \n"
-    " tst lr, #4            \n"
-    " ite eq                \n"
-    " mrseq r0, msp         \n"
-    " mrsne r0, psp         \n"
-    " mov r1,lr             \n"
-    " mov r2,#2             \n"
-    " b HardFault_HandlerC  \n"
+    ".syntax unified" "\n\t"
+    A("tst lr, #4")
+    A("ite eq")
+    A("mrseq r0, msp")
+    A("mrsne r0, psp")
+    A("mov r1,lr")
+    A("mov r2,#2")
+    A("b HardFault_HandlerC")
   );
 }
 
 __attribute__((naked)) void BusFault_Handler(void) {
   __asm__ __volatile__ (
-    ".syntax unified        \n"
-    " tst lr, #4            \n"
-    " ite eq                \n"
-    " mrseq r0, msp         \n"
-    " mrsne r0, psp         \n"
-    " mov r1,lr             \n"
-    " mov r2,#3             \n"
-    " b HardFault_HandlerC  \n"
+    ".syntax unified" "\n\t"
+    A("tst lr, #4")
+    A("ite eq")
+    A("mrseq r0, msp")
+    A("mrsne r0, psp")
+    A("mov r1,lr")
+    A("mov r2,#3")
+    A("b HardFault_HandlerC")
   );
 }
 
 __attribute__((naked)) void UsageFault_Handler(void) {
   __asm__ __volatile__ (
-    ".syntax unified        \n"
-    " tst lr, #4            \n"
-    " ite eq                \n"
-    " mrseq r0, msp         \n"
-    " mrsne r0, psp         \n"
-    " mov r1,lr             \n"
-    " mov r2,#4             \n"
-    " b HardFault_HandlerC  \n"
+    ".syntax unified" "\n\t"
+    A("tst lr, #4")
+    A("ite eq")
+    A("mrseq r0, msp")
+    A("mrsne r0, psp")
+    A("mov r1,lr")
+    A("mov r2,#4")
+    A("b HardFault_HandlerC")
   );
 }
 
 __attribute__((naked)) void DebugMon_Handler(void) {
   __asm__ __volatile__ (
-    ".syntax unified        \n"
-    " tst lr, #4            \n"
-    " ite eq                \n"
-    " mrseq r0, msp         \n"
-    " mrsne r0, psp         \n"
-    " mov r1,lr             \n"
-    " mov r2,#5             \n"
-    " b HardFault_HandlerC  \n"
+    ".syntax unified" "\n\t"
+    A("tst lr, #4")
+    A("ite eq")
+    A("mrseq r0, msp")
+    A("mrsne r0, psp")
+    A("mov r1,lr")
+    A("mov r2,#5")
+    A("b HardFault_HandlerC")
   );
 }
 
 /* This is NOT an exception, it is an interrupt handler - Nevertheless, the framing is the same */
 __attribute__((naked)) void WDT_Handler(void) {
   __asm__ __volatile__ (
-    ".syntax unified        \n"
-    " tst lr, #4            \n"
-    " ite eq                \n"
-    " mrseq r0, msp         \n"
-    " mrsne r0, psp         \n"
-    " mov r1,lr             \n"
-    " mov r2,#6             \n"
-    " b HardFault_HandlerC  \n"
+    ".syntax unified" "\n\t"
+    A("tst lr, #4")
+    A("ite eq")
+    A("mrseq r0, msp")
+    A("mrsne r0, psp")
+    A("mov r1,lr")
+    A("mov r2,#6")
+    A("b HardFault_HandlerC")
   );
 }
 
 __attribute__((naked)) void RSTC_Handler(void) {
   __asm__ __volatile__ (
-    ".syntax unified        \n"
-    " tst lr, #4            \n"
-    " ite eq                \n"
-    " mrseq r0, msp         \n"
-    " mrsne r0, psp         \n"
-    " mov r1,lr             \n"
-    " mov r2,#7             \n"
-    " b HardFault_HandlerC  \n"
+    ".syntax unified" "\n\t"
+    A("tst lr, #4")
+    A("ite eq")
+    A("mrseq r0, msp")
+    A("mrsne r0, psp")
+    A("mov r1,lr")
+    A("mov r2,#7")
+    A("b HardFault_HandlerC")
   );
 }
 

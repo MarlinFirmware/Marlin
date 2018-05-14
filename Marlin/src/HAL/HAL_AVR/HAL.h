@@ -117,27 +117,26 @@ extern "C" {
 //void eeprom_write_byte(unsigned char *pos, unsigned char value);
 //unsigned char eeprom_read_byte(unsigned char *pos);
 
-
 // timers
 #define HAL_TIMER_RATE          ((F_CPU) / 8)    // i.e., 2MHz or 2.5MHz
+
+#define STEP_TIMER_NUM          1
+#define TEMP_TIMER_NUM          0
+#define PULSE_TIMER_NUM         TEMP_TIMER_NUM
+
+#define HAL_STEPPER_TIMER_RATE  HAL_TIMER_RATE
 #define HAL_TICKS_PER_US        ((HAL_STEPPER_TIMER_RATE) / 1000000) // Cannot be of type double
+#define STEPPER_TIMER_PRESCALE  8
+#define STEP_TIMER_MIN_INTERVAL 8 // minimum time in µs between stepper interrupts
 
 #define TEMP_TIMER_FREQUENCY    ((F_CPU) / 64.0 / 256.0)
 
-#define HAL_STEPPER_TIMER_RATE  HAL_TIMER_RATE
-#define STEPPER_TIMER_PRESCALE  8
-
-#define STEP_TIMER_MIN_INTERVAL 8 // minimum time in µs between stepper interrupts
-
-#define STEP_TIMER_NUM          1
 #define TIMER_OCR_1             OCR1A
 #define TIMER_COUNTER_1         TCNT1
 
-#define TEMP_TIMER_NUM          0
 #define TIMER_OCR_0             OCR0A
 #define TIMER_COUNTER_0         TCNT0
 
-#define PULSE_TIMER_NUM         TEMP_TIMER_NUM
 #define PULSE_TIMER_PRESCALE    8
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)

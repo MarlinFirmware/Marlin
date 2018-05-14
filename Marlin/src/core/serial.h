@@ -25,10 +25,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_ABL && ENABLED(DEBUG_LEVELING_FEATURE)
-  #include "../libs/vector_3.h"
-#endif
-
 /**
  * Define debug bit-masks
  */
@@ -243,9 +239,6 @@ void serialprintPGM(const char* str);
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z);
   void print_xyz(const char* prefix, const char* suffix, const float xyz[]);
-  #if HAS_ABL
-    void print_xyz(const char* prefix, const char* suffix, const vector_3 &xyz);
-  #endif
   #define DEBUG_POS(SUFFIX,VAR) do { print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
 #endif
 

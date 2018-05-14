@@ -39,16 +39,14 @@ public:
 
   void initsd();
   void write_command(char *buf);
-  // Files auto[0-9].g on the sd card are performed in sequence.
-  // This is to delay autostart and hence the initialisation of
-  // the sd card to some seconds after the normal init, so the
-  // device is available soon after a reset.
 
-  void checkautostart(bool x);
+  void beginautostart();
+  void checkautostart();
+
   void openFile(char* name, const bool read, const bool subcall=false);
   void openLogFile(char* name);
   void removeFile(const char * const name);
-  void closefile(bool store_location=false);
+  void closefile(const bool store_location=false);
   void release();
   void openAndPrintFile(const char *name);
   void startFileprint();
@@ -211,9 +209,6 @@ private:
   uint32_t filespos[SD_PROCEDURE_DEPTH];
   char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
   uint32_t filesize, sdpos;
-
-  millis_t next_autostart_ms;
-  bool autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
 
   LsAction lsAction; //stored for recursion.
   uint16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.

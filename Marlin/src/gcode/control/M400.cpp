@@ -28,6 +28,6 @@
  */
 void GcodeSuite::M400() {
 
-  stepper.synchronize();
+  planner.synchronize();
 
 }

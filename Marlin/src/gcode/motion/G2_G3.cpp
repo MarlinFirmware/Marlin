@@ -91,7 +91,7 @@ void plan_arc(
     angular_travel = RADIANS(360);
 
   const float flat_mm = radius * angular_travel,
-              mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : FABS(flat_mm);
+              mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : ABS(flat_mm);
   if (mm_of_travel < 0.001) return;
 
   uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
@@ -199,6 +199,10 @@ void plan_arc(
       ADJUST_DELTA(raw);
       planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
       oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
+    #elif HAS_UBL_AND_CURVES
+      float pos[XYZ] = { raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS] };
+      planner.apply_leveling(pos);
+      planner.buffer_segment(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], raw[E_AXIS], fr_mm_s, active_extruder);
     #else
       planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder);
     #endif
@@ -211,14 +215,15 @@ void plan_arc(
     const float diff2 = HYPOT2(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB);
     if (diff2)
       planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], cart[Z_AXIS], cart[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
+  #elif HAS_UBL_AND_CURVES
+    float pos[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
+    planner.apply_leveling(pos);
+    planner.buffer_segment(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], cart[E_AXIS], fr_mm_s, active_extruder);
   #else
     planner.buffer_line_kinematic(cart, fr_mm_s, active_extruder);
   #endif
 
-  // As far as the parser is concerned, the position is now == target. In reality the
-  // motion control system might still be processing the action and the real tool position
-  // in any intermediate location.
-  set_current_from_destination();
+  COPY(current_position, cart);
 } // plan_arc
 
 /**

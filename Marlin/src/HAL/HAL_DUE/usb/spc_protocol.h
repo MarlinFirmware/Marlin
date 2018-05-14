@@ -96,13 +96,13 @@ struct scsi_inquiry_data {
 #define  SCSI_INQ_DT_CD_DVD      0x05   //!< CD/DVD device
 #define  SCSI_INQ_DT_OPTICAL     0x07   //!< Optical Memory
 #define  SCSI_INQ_DT_MC          0x08   //!< Medium Changer
-#define  SCSI_INQ_DT_ARRAY       0x0c   //!< Storage Array Controller
-#define  SCSI_INQ_DT_ENCLOSURE   0x0d   //!< Enclosure Services
-#define  SCSI_INQ_DT_RBC         0x0e   //!< Simplified Direct Access
-#define  SCSI_INQ_DT_OCRW        0x0f   //!< Optical card reader/writer
+#define  SCSI_INQ_DT_ARRAY       0x0C   //!< Storage Array Controller
+#define  SCSI_INQ_DT_ENCLOSURE   0x0D   //!< Enclosure Services
+#define  SCSI_INQ_DT_RBC         0x0E   //!< Simplified Direct Access
+#define  SCSI_INQ_DT_OCRW        0x0F   //!< Optical card reader/writer
 #define  SCSI_INQ_DT_BCC         0x10   //!< Bridge Controller Commands
 #define  SCSI_INQ_DT_OSD         0x11   //!< Object-based Storage
-#define  SCSI_INQ_DT_NONE        0x1f   //!< No Peripheral
+#define  SCSI_INQ_DT_NONE        0x1F   //!< No Peripheral
 	uint8_t flags1; //!< Flags (byte 1)
 #define  SCSI_INQ_RMB            0x80   //!< Removable Medium
 	uint8_t version; //!< Version
@@ -213,17 +213,17 @@ enum scsi_sense_key {
 	SCSI_SK_DATA_PROTECT = 0x7,
 	SCSI_SK_BLANK_CHECK = 0x8,
 	SCSI_SK_VENDOR_SPECIFIC = 0x9,
-	SCSI_SK_COPY_ABORTED = 0xa,
-	SCSI_SK_ABORTED_COMMAND = 0xb,
-	SCSI_SK_VOLUME_OVERFLOW = 0xd,
-	SCSI_SK_MISCOMPARE = 0xe,
+	SCSI_SK_COPY_ABORTED = 0xA,
+	SCSI_SK_ABORTED_COMMAND = 0xB,
+	SCSI_SK_VOLUME_OVERFLOW = 0xD,
+	SCSI_SK_MISCOMPARE = 0xE,
 };
 
 /* Additional Sense Code / Additional Sense Code Qualifier pairs */
 enum scsi_asc_ascq {
 	SCSI_ASC_NO_ADDITIONAL_SENSE_INFO = 0x0000,
 	SCSI_ASC_LU_NOT_READY_REBUILD_IN_PROGRESS = 0x0405,
-	SCSI_ASC_WRITE_ERROR = 0x0c00,
+	SCSI_ASC_WRITE_ERROR = 0x0C00,
 	SCSI_ASC_UNRECOVERED_READ_ERROR = 0x1100,
 	SCSI_ASC_INVALID_COMMAND_OPERATION_CODE = 0x2000,
 	SCSI_ASC_INVALID_FIELD_IN_CDB = 0x2400,
@@ -242,7 +242,7 @@ enum scsi_asc_ascq {
 enum scsi_spc_mode {
 	SCSI_MS_MODE_VENDOR_SPEC = 0x00,
 	SCSI_MS_MODE_INFEXP = 0x1C,    // Informational exceptions control page
-	SCSI_MS_MODE_ALL = 0x3f,
+	SCSI_MS_MODE_ALL = 0x3F,
 };
 
 /**
@@ -289,7 +289,7 @@ static inline bool scsi_mode_sense_dbd_is_set(const uint8_t * cdb)
 
 static inline uint8_t scsi_mode_sense_get_page_code(const uint8_t * cdb)
 {
-	return cdb[2] & 0x3f;
+	return cdb[2] & 0x3F;
 }
 
 static inline uint8_t scsi_mode_sense_get_pc(const uint8_t * cdb)

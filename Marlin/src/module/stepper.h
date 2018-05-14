@@ -94,7 +94,7 @@ class Stepper {
     #endif
 
     // Counter variables for the Bresenham line tracer
-    static long counter_X, counter_Y, counter_Z, counter_E;
+    static int32_t counter_X, counter_Y, counter_Z, counter_E;
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(BEZIER_JERK_CONTROL)
@@ -137,8 +137,8 @@ class Stepper {
       static hal_timer_t acc_step_rate; // needed for deceleration start point
     #endif
 
-    static volatile long endstops_trigsteps[XYZ];
-    static volatile long endstops_stepsTotal, endstops_stepsDone;
+    static volatile int32_t endstops_trigsteps[XYZ];
+    static volatile int32_t endstops_stepsTotal, endstops_stepsDone;
 
     //
     // Positions of stepper motors, in step units
@@ -154,7 +154,7 @@ class Stepper {
     // Mixing extruder mix counters
     //
     #if ENABLED(MIXING_EXTRUDER)
-      static long counter_m[MIXING_STEPPERS];
+      static int32_t counter_m[MIXING_STEPPERS];
       #define MIXING_STEPPERS_LOOP(VAR) \
         for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++) \
           if (current_block->mix_event_count[VAR])
@@ -184,16 +184,34 @@ class Stepper {
     #endif
 
     //
-    // Block until all buffered steps are executed
-    //
-    static void synchronize();
-
-    //
     // Set the current position in steps
     //
-    static void set_position(const long &a, const long &b, const long &c, const long &e);
-    static void set_position(const AxisEnum &a, const long &v);
-    static void set_e_position(const long &e);
+    static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
+
+    FORCE_INLINE static void _set_position(const AxisEnum a, const int32_t &v) { count_position[a] = v; }
+
+    FORCE_INLINE static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+      planner.synchronize();
+      CRITICAL_SECTION_START;
+      _set_position(a, b, c, e);
+      CRITICAL_SECTION_END;
+    }
+
+    static void set_position(const AxisEnum a, const int32_t &v) {
+      planner.synchronize();
+      CRITICAL_SECTION_START;
+      count_position[a] = v;
+      CRITICAL_SECTION_END;
+    }
+
+    FORCE_INLINE static void _set_e_position(const int32_t &e) { count_position[E_AXIS] = e; }
+
+    static void set_e_position(const int32_t &e) {
+      planner.synchronize();
+      CRITICAL_SECTION_START;
+      count_position[E_AXIS] = e;
+      CRITICAL_SECTION_END;
+    }
 
     //
     // Set direction bits for all steppers
@@ -203,24 +221,12 @@ class Stepper {
     //
     // Get the position of a stepper, in steps
     //
-    static long position(const AxisEnum axis);
+    static int32_t position(const AxisEnum axis);
 
     //
     // Report the positions of the steppers, in steps
     //
     static void report_positions();
-
-    //
-    // Get the position (mm) of an axis based on stepper position(s)
-    //
-    static float get_axis_position_mm(const AxisEnum axis);
-
-    //
-    // SCARA AB axes are in degrees, not mm
-    //
-    #if IS_SCARA
-      FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
-    #endif
 
     //
     // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
@@ -334,24 +340,24 @@ class Stepper {
 
       #ifdef CPU_32_BIT
         // In case of high-performance processor, it is able to calculate in real-time
-        const uint32_t MIN_TIME_PER_STEP = (HAL_STEPPER_TIMER_RATE) / ((STEP_DOUBLER_FREQUENCY) * 2);
+        const uint32_t min_time_per_step = (HAL_STEPPER_TIMER_RATE) / ((STEP_DOUBLER_FREQUENCY) * 2);
         timer = uint32_t(HAL_STEPPER_TIMER_RATE) / step_rate;
-        NOLESS(timer, MIN_TIME_PER_STEP); // (STEP_DOUBLER_FREQUENCY * 2 kHz - this should never happen)
+        NOLESS(timer, min_time_per_step); // (STEP_DOUBLER_FREQUENCY * 2 kHz - this should never happen)
       #else
         NOLESS(step_rate, F_CPU / 500000);
         step_rate -= F_CPU / 500000; // Correct for minimal speed
         if (step_rate >= (8 * 256)) { // higher step rate
-          unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
-          unsigned char tmp_step_rate = (step_rate & 0x00ff);
-          unsigned short gain = (unsigned short)pgm_read_word_near(table_address + 2);
-          MultiU16X8toH16(timer, tmp_step_rate, gain);
-          timer = (unsigned short)pgm_read_word_near(table_address) - timer;
+          uint8_t tmp_step_rate = (step_rate & 0x00FF);
+          uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0];
+          uint16_t gain = (uint16_t)pgm_read_word_near(table_address + 2);
+          timer = MultiU16X8toH16(tmp_step_rate, gain);
+          timer = (uint16_t)pgm_read_word_near(table_address) - timer;
         }
         else { // lower step rates
-          unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
-          table_address += ((step_rate) >> 1) & 0xfffc;
-          timer = (unsigned short)pgm_read_word_near(table_address);
-          timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
+          uint16_t table_address = (uint16_t)&speed_lookuptable_slow[0][0];
+          table_address += ((step_rate) >> 1) & 0xFFFC;
+          timer = (uint16_t)pgm_read_word_near(table_address);
+          timer -= (((uint16_t)pgm_read_word_near(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
         }
         if (timer < 100) { // (20kHz - this should never happen)
           timer = 100;

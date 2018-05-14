@@ -120,13 +120,13 @@
 
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
   #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_2_NOP
+    #define ST7920_DELAY_1 DELAY_NS(125)
   #endif
   #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_2_NOP
+    #define ST7920_DELAY_2 DELAY_NS(125)
   #endif
   #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_2_NOP
+    #define ST7920_DELAY_3 DELAY_NS(125)
   #endif
 
 #elif ENABLED(MKS_12864OLED)
@@ -299,6 +299,10 @@
   #endif
 #endif
 
+#if ENABLED(NO_LCD_MENUS)
+  #undef ULTIPANEL
+#endif
+
 #if ENABLED(ULTIPANEL)
   #define NEWPANEL  // Disable this if you actually have no click-encoder panel
   #define ULTRA_LCD
@@ -384,7 +388,7 @@
   #define BOOTSCREEN_TIMEOUT 2500
 #endif
 
-#define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
+#define HAS_DEBUG_MENU (ENABLED(ULTIPANEL) && ENABLED(LCD_PROGRESS_BAR_TEST))
 
 // MK2 Multiplexer forces SINGLENOZZLE and kills DISABLE_INACTIVE_EXTRUDER
 #if ENABLED(MK2_MULTIPLEXER)

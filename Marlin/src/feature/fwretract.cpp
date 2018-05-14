@@ -108,7 +108,7 @@ void FWRetract::retract(const bool retracting
     // G11 priority to recover the long retract if activated
     if (!retracting) swapping = retracted_swap[active_extruder];
   #else
-    const bool swapping = false;
+    constexpr bool swapping = false;
   #endif
 
   /* // debugging
@@ -118,62 +118,57 @@ void FWRetract::retract(const bool retracting
     for (uint8_t i = 0; i < EXTRUDERS; ++i) {
       SERIAL_ECHOPAIR("retracted[", i);
       SERIAL_ECHOLNPAIR("] ", retracted[i]);
-      SERIAL_ECHOPAIR("retracted_swap[", i);
-      SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+      #if EXTRUDERS > 1
+        SERIAL_ECHOPAIR("retracted_swap[", i);
+        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+      #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
     SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
     SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
   //*/
 
-  const float old_feedrate_mm_s = feedrate_mm_s;
+  const float old_feedrate_mm_s = feedrate_mm_s,
+              renormalize = RECIPROCAL(planner.e_factor[active_extruder]),
+              base_retract = swapping ? swap_retract_length : retract_length,
+              old_z = current_position[Z_AXIS],
+              old_e = current_position[E_AXIS];
 
   // The current position will be the destination for E and Z moves
   set_destination_from_current();
-  stepper.synchronize();  // Wait for buffered moves to complete
-
-  const float renormalize = 1.0 / planner.e_factor[active_extruder];
 
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
     feedrate_mm_s = retract_feedrate_mm_s;
-    current_position[E_AXIS] += (swapping ? swap_retract_length : retract_length) * renormalize;
-    sync_plan_position_e();
-    prepare_move_to_destination();  // set_current_to_destination
+    destination[E_AXIS] -= base_retract * renormalize;
+    prepare_move_to_destination();                        // set_current_to_destination
 
     // Is a Z hop set, and has the hop not yet been done?
-    // No double zlifting
-    // Feedrate to the max
     if (retract_zlift > 0.01 && !hop_amount) {            // Apply hop only once
-      const float old_z = current_position[Z_AXIS];
       hop_amount += retract_zlift;                        // Add to the hop total (again, only once)
       destination[Z_AXIS] += retract_zlift;               // Raise Z by the zlift (M207 Z) amount
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Maximum Z feedrate
       prepare_move_to_destination();                      // Raise up, set_current_to_destination
-      current_position[Z_AXIS] = old_z;                   // Spoof the Z position in the planner
-      SYNC_PLAN_POSITION_KINEMATIC();
     }
   }
   else {
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (hop_amount) {
-      current_position[Z_AXIS] += hop_amount;             // Set actual Z (due to the prior hop)
-      SYNC_PLAN_POSITION_KINEMATIC();                     // Spoof the Z position in the planner
+      destination[Z_AXIS] -= hop_amount;                  // Move back down by the total hop amount
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
       prepare_move_to_destination();                      // Lower Z, set_current_to_destination
       hop_amount = 0.0;                                   // Clear the hop amount
     }
 
-    // A retract multiplier has been added here to get faster swap recovery
+    destination[E_AXIS] += (base_retract + (swapping ? swap_retract_recover_length : retract_recover_length)) * renormalize;
     feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
-
-    current_position[E_AXIS] -= (swapping ? swap_retract_length + swap_retract_recover_length
-                                          : retract_length + retract_recover_length) * renormalize;
-    sync_plan_position_e();
     prepare_move_to_destination();                        // Recover E, set_current_to_destination
   }
 
   feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
+  current_position[Z_AXIS] = old_z;                       // Restore Z and E positions
+  current_position[E_AXIS] = old_e;
+  SYNC_PLAN_POSITION_KINEMATIC();                         // As if the move never took place
 
   retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
 
@@ -189,8 +184,10 @@ void FWRetract::retract(const bool retracting
     for (uint8_t i = 0; i < EXTRUDERS; ++i) {
       SERIAL_ECHOPAIR("retracted[", i);
       SERIAL_ECHOLNPAIR("] ", retracted[i]);
-      SERIAL_ECHOPAIR("retracted_swap[", i);
-      SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+      #if EXTRUDERS > 1
+        SERIAL_ECHOPAIR("retracted_swap[", i);
+        SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
+      #endif
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
     SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);

@@ -68,7 +68,7 @@
 //definitions for the chopper config register
 #define CHOPPER_MODE_STANDARD 0x0ul
 #define CHOPPER_MODE_T_OFF_FAST_DECAY 0x4000ul
-#define T_OFF_PATTERN 0xful
+#define T_OFF_PATTERN 0xFul
 #define RANDOM_TOFF_TIME 0x2000ul
 #define BLANK_TIMING_PATTERN 0x18000ul
 #define BLANK_TIMING_SHIFT 15
@@ -85,7 +85,7 @@
 #define CURRENT_DOWN_STEP_SPEED_PATTERN 0x6000ul
 #define SE_MAX_PATTERN 0xF00ul
 #define SE_CURRENT_STEP_WIDTH_PATTERN 0x60ul
-#define SE_MIN_PATTERN 0xful
+#define SE_MIN_PATTERN 0xFul
 
 //definitions for stall guard2 current register
 #define STALL_GUARD_FILTER_ENABLED 0x10000ul
@@ -237,7 +237,7 @@ unsigned int TMC26XStepper::getSpeed(void) { return this->speed; }
  */
 char TMC26XStepper::step(int steps_to_move) {
   if (this->steps_left == 0) {
-    this->steps_left = abs(steps_to_move);  // how many steps to take
+    this->steps_left = ABS(steps_to_move);  // how many steps to take
 
     // determine direction based on whether steps_to_move is + or -:
     if (steps_to_move > 0)
@@ -257,7 +257,7 @@ char TMC26XStepper::move(void) {
 
     // rem if (time >= this->next_step_time) {
 
-    if (abs(time - this->last_step_time) > this->step_delay) {
+    if (ABS(time - this->last_step_time) > this->step_delay) {
       // increment or decrement the step number,
       // depending on direction:
       if (this->direction == 1)

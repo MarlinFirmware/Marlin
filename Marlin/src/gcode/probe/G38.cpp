@@ -39,19 +39,19 @@ static bool G38_run_probe() {
     // Get direction of move and retract
     float retract_mm[XYZ];
     LOOP_XYZ(i) {
-      float dist = destination[i] - current_position[i];
-      retract_mm[i] = FABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
+      const float dist = destination[i] - current_position[i];
+      retract_mm[i] = ABS(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
     }
   #endif
 
-  stepper.synchronize();  // wait until the machine is idle
+  planner.synchronize();  // wait until the machine is idle
 
   // Move until destination reached or target hit
   endstops.enable(true);
   G38_move = true;
   G38_endstop_hit = false;
   prepare_move_to_destination();
-  stepper.synchronize();
+  planner.synchronize();
   G38_move = false;
 
   endstops.hit_on_purpose();
@@ -68,7 +68,7 @@ static bool G38_run_probe() {
       LOOP_XYZ(i) destination[i] += retract_mm[i];
       endstops.enable(false);
       prepare_move_to_destination();
-      stepper.synchronize();
+      planner.synchronize();
 
       feedrate_mm_s /= 4;
 
@@ -78,7 +78,7 @@ static bool G38_run_probe() {
       endstops.enable(true);
       G38_move = true;
       prepare_move_to_destination();
-      stepper.synchronize();
+      planner.synchronize();
       G38_move = false;
 
       set_current_from_steppers_for_axis(ALL_AXES);
@@ -105,7 +105,7 @@ void GcodeSuite::G38(const bool is_38_2) {
 
   // If any axis has enough movement, do the move
   LOOP_XYZ(i)
-    if (FABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
+    if (ABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
       if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
       // If G38.2 fails throw an error
       if (!G38_run_probe() && is_38_2) {

@@ -82,7 +82,7 @@
     #endif
 
     #if ENABLED(ULTIPANEL)
-      LCD_MESSAGEPGM(WELCOME_MSG);
+      lcd_reset_status();
     #endif
   }
 
@@ -108,7 +108,6 @@ void GcodeSuite::M81() {
   safe_delay(1000); // Wait 1 second before switching off
 
   #if HAS_SUICIDE
-    stepper.synchronize();
     suicide();
   #elif HAS_POWER_SWITCH
     PSU_OFF();

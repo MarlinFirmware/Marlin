@@ -45,15 +45,16 @@ class MarlinSettings {
     static bool save(PORTINIT_SOLO);    // Return 'true' if data was saved
 
     FORCE_INLINE static bool init_eeprom() {
-      bool success = true;
       reset();
       #if ENABLED(EEPROM_SETTINGS)
-        success = save();
+        const bool success = save();
         #if ENABLED(EEPROM_CHITCHAT)
           if (success) report();
         #endif
+        return success;
+      #else
+        return true;
       #endif
-      return success;
     }
 
     #if ENABLED(EEPROM_SETTINGS)

@@ -458,7 +458,6 @@ inline void get_serial_commands() {
                 leds.set_off();
               #endif
             #endif // PRINTER_EVENT_LEDS
-            card.checkautostart(true);
           }
         }
         else if (n == -1) {
