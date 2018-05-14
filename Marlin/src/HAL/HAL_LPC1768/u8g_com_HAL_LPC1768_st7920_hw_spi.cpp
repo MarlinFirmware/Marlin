@@ -55,103 +55,100 @@
 
 #ifdef TARGET_LPC1768
 
-  //#include <inttypes.h>
-  //#include "src/core/macros.h"
-  //#include "Configuration.h"
+#include "../../inc/MarlinConfigPre.h"
 
-  #include <U8glib.h>
-  #include "../Delay.h"
+#if ENABLED(DOGLCD)
 
-  #define SPI_FULL_SPEED 0
-  #define SPI_HALF_SPEED 1
-  #define SPI_QUARTER_SPEED 2
-  #define SPI_EIGHTH_SPEED 3
-  #define SPI_SIXTEENTH_SPEED 4
-  #define SPI_SPEED_5 5
-  #define SPI_SPEED_6 6
+//#include <inttypes.h>
+#include <U8glib.h>
+#include "../Delay.h"
 
+#define SPI_FULL_SPEED 0
+#define SPI_HALF_SPEED 1
+#define SPI_QUARTER_SPEED 2
+#define SPI_EIGHTH_SPEED 3
+#define SPI_SIXTEENTH_SPEED 4
+#define SPI_SPEED_5 5
+#define SPI_SPEED_6 6
 
-  void spiBegin();
-  void spiInit(uint8_t spiRate);
-  void spiSend(uint8_t b);
-  void spiSend(const uint8_t* buf, size_t n);
+void spiBegin();
+void spiInit(uint8_t spiRate);
+void spiSend(uint8_t b);
+void spiSend(const uint8_t* buf, size_t n);
 
+static uint8_t rs_last_state = 255;
 
-  static uint8_t rs_last_state = 255;
+static void u8g_com_LPC1768_st7920_write_byte_hw_spi(uint8_t rs, uint8_t val) {
+  uint8_t i;
 
-  static void u8g_com_LPC1768_st7920_write_byte_hw_spi(uint8_t rs, uint8_t val)
-  {
-    uint8_t i;
+  if ( rs != rs_last_state) {  // time to send a command/data byte
+    rs_last_state = rs;
 
-    if ( rs != rs_last_state) {  // time to send a command/data byte
-      rs_last_state = rs;
+    if ( rs == 0 )
+      /* command */
+      spiSend(0x0F8);
+    else
+       /* data */
+      spiSend(0x0FA);
 
-      if ( rs == 0 )
-        /* command */
-        spiSend(0x0F8);
-      else
-         /* data */
-        spiSend(0x0FA);
-
-      DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
-    }
-
-    spiSend(val & 0x0F0);
-    spiSend(val << 4);
+    DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
 
+  spiSend(val & 0x0F0);
+  spiSend(val << 4);
+}
 
-  uint8_t u8g_com_HAL_LPC1768_ST7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
-  {
-    switch(msg)
-    {
-      case U8G_COM_MSG_INIT:
-        u8g_SetPILevel(u8g, U8G_PI_CS, 0);
-        u8g_SetPIOutput(u8g, U8G_PI_CS);
-        u8g_Delay(5);
-        spiBegin();
-        spiInit(SPI_EIGHTH_SPEED);  // ST7920 max speed is about 1.1 MHz
-        u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
-        break;
+uint8_t u8g_com_HAL_LPC1768_ST7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
+  switch(msg) {
+    case U8G_COM_MSG_INIT:
+      u8g_SetPILevel(u8g, U8G_PI_CS, 0);
+      u8g_SetPIOutput(u8g, U8G_PI_CS);
+      u8g_Delay(5);
+      spiBegin();
+      spiInit(SPI_EIGHTH_SPEED);  // ST7920 max speed is about 1.1 MHz
+      u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
+      break;
 
-      case U8G_COM_MSG_STOP:
-        break;
+    case U8G_COM_MSG_STOP:
+      break;
 
-      case U8G_COM_MSG_RESET:
-        u8g_SetPILevel(u8g, U8G_PI_RESET, arg_val);
-        break;
+    case U8G_COM_MSG_RESET:
+      u8g_SetPILevel(u8g, U8G_PI_RESET, arg_val);
+      break;
 
-      case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
-        u8g->pin_list[U8G_PI_A0_STATE] = arg_val;
-        break;
+    case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
+      u8g->pin_list[U8G_PI_A0_STATE] = arg_val;
+      break;
 
-      case U8G_COM_MSG_CHIP_SELECT:
-        u8g_SetPILevel(u8g, U8G_PI_CS, arg_val);  //note: the st7920 has an active high chip select
-        break;
+    case U8G_COM_MSG_CHIP_SELECT:
+      u8g_SetPILevel(u8g, U8G_PI_CS, arg_val);  //note: the st7920 has an active high chip select
+      break;
 
-      case U8G_COM_MSG_WRITE_BYTE:
-        u8g_com_LPC1768_st7920_write_byte_hw_spi(u8g->pin_list[U8G_PI_A0_STATE], arg_val);
-        break;
+    case U8G_COM_MSG_WRITE_BYTE:
+      u8g_com_LPC1768_st7920_write_byte_hw_spi(u8g->pin_list[U8G_PI_A0_STATE], arg_val);
+      break;
 
-      case U8G_COM_MSG_WRITE_SEQ: {
-          uint8_t *ptr = (uint8_t*) arg_ptr;
-          while (arg_val > 0) {
-            u8g_com_LPC1768_st7920_write_byte_hw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
-            arg_val--;
-          }
+    case U8G_COM_MSG_WRITE_SEQ: {
+        uint8_t *ptr = (uint8_t*) arg_ptr;
+        while (arg_val > 0) {
+          u8g_com_LPC1768_st7920_write_byte_hw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
+          arg_val--;
         }
-        break;
+      }
+      break;
 
-        case U8G_COM_MSG_WRITE_SEQ_P: {
-          uint8_t *ptr = (uint8_t*) arg_ptr;
-          while (arg_val > 0) {
-            u8g_com_LPC1768_st7920_write_byte_hw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
-            arg_val--;
-          }
+      case U8G_COM_MSG_WRITE_SEQ_P: {
+        uint8_t *ptr = (uint8_t*) arg_ptr;
+        while (arg_val > 0) {
+          u8g_com_LPC1768_st7920_write_byte_hw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
+          arg_val--;
         }
-        break;
-    }
-    return 1;
+      }
+      break;
   }
+  return 1;
+}
 
-#endif  // TARGET_LPC1768
+#endif // DOGLCD
+
+#endif // TARGET_LPC1768

@@ -65,7 +65,7 @@
  * beginning.
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DOGLCD)
 

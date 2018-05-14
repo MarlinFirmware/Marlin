@@ -61,16 +61,20 @@
 
 #ifdef TARGET_LPC1768
 
-  #include <U8glib.h>
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(DOGLCD)
+
+#include <U8glib.h>
 
 //void pinMode(int16_t pin, uint8_t mode);
 //void digitalWrite(int16_t pin, uint8_t pin_status);
 
 
-  #define I2C_SLA         (0x3C*2)
-  //#define I2C_CMD_MODE  0x080
-  #define I2C_CMD_MODE    0x000
-  #define I2C_DATA_MODE   0x040
+#define I2C_SLA         (0x3C*2)
+//#define I2C_CMD_MODE  0x080
+#define I2C_CMD_MODE    0x000
+#define I2C_DATA_MODE   0x040
 
 //static uint8_t I2C_speed; // 3 - 400KHz, 13 - 100KHz
 //#define SPEED_400KHz 3
@@ -245,4 +249,6 @@ uint8_t u8g_com_HAL_LPC1768_ssd_sw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
   return 1;
 }
 
-#endif  // TARGET_LPC1768
+#endif // DOGLCD
+
+#endif // TARGET_LPC1768
