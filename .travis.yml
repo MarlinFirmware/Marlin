@@ -64,7 +64,7 @@ script:
   - opt_set TEMP_SENSOR_BED 1
   - opt_set POWER_SUPPLY 1
   - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS PINS_DEBUGGING
   - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_LED AUTO_POWER_CONTROL NOZZLE_PARK_FEATURE FILAMENT_RUNOUT_SENSOR
   - opt_enable AUTO_BED_LEVELING_LINEAR Z_MIN_PROBE_REPEATABILITY_TEST DEBUG_LEVELING_FEATURE SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
   - opt_enable_adv ARC_P_CIRCLES ADVANCED_PAUSE_FEATURE CNC_WORKSPACE_PLANES CNC_COORDINATE_SYSTEMS POWER_LOSS_RECOVERY
@@ -83,13 +83,15 @@ script:
   - opt_set TEMP_SENSOR_3 20
   - opt_set TEMP_SENSOR_4 999
   - opt_set TEMP_SENSOR_BED 1
-  - opt_enable AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 DEBUG_LEVELING_FEATURE G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT EEPROM_SETTINGS EEPROM_CHITCHAT G3D_PANEL SKEW_CORRECTION
+  - opt_enable AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 DEBUG_LEVELING_FEATURE G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT SKEW_CORRECTION
+  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
   - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING BABYSTEP_XY LIN_ADVANCE NANODLP_Z_SYNC QUICK_HOME JUNCTION_DEVIATION
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Add a Sled Z Probe, use UBL Cartesian moves, use Japanese language
   #
   - opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
+  - opt_set LCD_LANGUAGE jp-kana
   - opt_disable SEGMENT_LEVELED_MOVES
   - opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
@@ -131,13 +133,13 @@ script:
   - opt_set_adv I2C_SLAVE_ADDRESS 63
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # Mixing Extruder with 5 steppers
+  # Mixing Extruder with 5 steppers, Cyrillic
   #
   - restore_configs
   - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
   - opt_enable MIXING_EXTRUDER CR10_STOCKDISPLAY
   - opt_set MIXING_STEPPERS 5
-  - opt_set LCD_LANGUAGE jp-kana
+  - opt_set LCD_LANGUAGE ru
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Test DUAL_X_CARRIAGE
@@ -152,11 +154,11 @@ script:
   #
   # Test SPEAKER with BOARD_BQ_ZUM_MEGA_3D and BQ_LCD_SMART_CONTROLLER
   #
-  - restore_configs
-  - opt_set MOTHERBOARD BOARD_BQ_ZUM_MEGA_3D
-  - opt_set LCD_FEEDBACK_FREQUENCY_DURATION_MS 10
-  - opt_set LCD_FEEDBACK_FREQUENCY_HZ 100
-  - opt_enable BQ_LCD_SMART_CONTROLLER SPEAKER
+  #- restore_configs
+  #- opt_set MOTHERBOARD BOARD_BQ_ZUM_MEGA_3D
+  #- opt_set LCD_FEEDBACK_FREQUENCY_DURATION_MS 10
+  #- opt_set LCD_FEEDBACK_FREQUENCY_HZ 100
+  #- opt_enable BQ_LCD_SMART_CONTROLLER SPEAKER
   #
   # Test SWITCHING_EXTRUDER
   #
@@ -171,9 +173,9 @@ script:
   #
   # Enable COREXY
   #
-  - restore_configs
-  - opt_enable COREXY
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #- restore_configs
+  #- opt_enable COREXY
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Test many less common options
   #
@@ -187,7 +189,7 @@ script:
   - opt_enable_adv VOLUMETRIC_DEFAULT_ON NO_WORKSPACE_OFFSETS ACTION_ON_KILL
   - opt_enable_adv EXTRA_FAN_SPEED FWERETRACT Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
   - opt_enable_adv MENU_ADDAUTOSTART SDCARD_SORT_ALPHA
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
   - opt_enable FILAMENT_LCD_DISPLAY FILAMENT_WIDTH_SENSOR
   - opt_enable ENDSTOP_INTERRUPTS_FEATURE FAN_SOFT_PWM SDSUPPORT
   - opt_enable USE_XMAX_PLUG
@@ -197,15 +199,15 @@ script:
   #
   # ULTRA_LCD
   #
-  - restore_configs
-  - opt_enable ULTRA_LCD
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #- restore_configs
+  #- opt_enable ULTRA_LCD
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # DOGLCD
   #
-  - restore_configs
-  - opt_enable DOGLCD
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #- restore_configs
+  #- opt_enable DOGLCD
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # MAKRPANEL
   # Needs to use Melzi and Sanguino hardware
@@ -216,27 +218,31 @@ script:
   #
   # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, BABYSTEPPING, RIGIDBOARD_V2, and DAC_MOTOR_CURRENT_DEFAULT
   #
-  - restore_configs
-  - opt_set MOTHERBOARD BOARD_RIGIDBOARD_V2
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
-  #
+  #- restore_configs
+  #- opt_set MOTHERBOARD BOARD_RIGIDBOARD_V2
+  #- opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  # #
   # G3D_PANEL with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
   #
-  - restore_configs
-  - opt_enable G3D_PANEL SDSUPPORT
-  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
-  - opt_set_adv SDSORT_GCODE true
-  - opt_set_adv SDSORT_USES_RAM true
-  - opt_set_adv SDSORT_USES_STACK true
-  - opt_set_adv SDSORT_CACHE_NAMES true
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #- restore_configs
+  #- opt_enable G3D_PANEL SDSUPPORT
+  #- opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
+  #- opt_set_adv SDSORT_GCODE true
+  #- opt_set_adv SDSORT_USES_RAM true
+  #- opt_set_adv SDSORT_USES_STACK true
+  #- opt_set_adv SDSORT_CACHE_NAMES true
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
-  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
+  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER with LIGHTWEIGHT_UI
   #
   - restore_configs
   - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
   - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES LIGHTWEIGHT_UI
+  - opt_set_adv SDSORT_GCODE true
+  - opt_set_adv SDSORT_USES_RAM true
+  - opt_set_adv SDSORT_USES_STACK true
+  - opt_set_adv SDSORT_CACHE_NAMES true
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # REPRAPWORLD_KEYPAD
@@ -248,9 +254,9 @@ script:
   #
   # RA_CONTROL_PANEL
   #
-  - restore_configs
-  - opt_enable RA_CONTROL_PANEL PINS_DEBUGGING
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #- restore_configs
+  #- opt_enable RA_CONTROL_PANEL PINS_DEBUGGING
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   ######## I2C LCD/PANELS ##############
   #
@@ -278,19 +284,19 @@ script:
   #
   # LCM1602
   #
-  - restore_configs
-  - opt_enable LCM1602
-  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  #- restore_configs
+  #- opt_enable LCM1602
+  #- build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Language files test with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
   #
-  - restore_configs
-  - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-  - for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
+  #- restore_configs
+  #- opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
+  #- for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
   #
-  - restore_configs
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-  - for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
+  #- restore_configs
+  #- opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
+  #- for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}; done
   #
   #
   ######## Example Configurations ##############
@@ -308,8 +314,8 @@ script:
   # Delta Config (generic) + UBL + ALLEN_KEY + OLED_PANEL_TINYBOY2 + EEPROM_SETTINGS
   #
   - use_example_configs delta/generic
-  - opt_disable DISABLE_MIN_ENDSTOPS
-  - opt_enable AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT OLED_PANEL_TINYBOY2 MESH_EDIT_GFX_OVERLAY
+  - opt_enable AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT
+  - opt_enable OLED_PANEL_TINYBOY2 MESH_EDIT_GFX_OVERLAY
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Delta Config (FLSUN AC because it's complex)
@@ -325,7 +331,7 @@ script:
   # SCARA with TMC2130
   #
   - use_example_configs SCARA
-  - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER SCARA_FEEDRATE_SCALING
+  - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
   - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
   - opt_enable_adv MONITOR_DRIVER_STATUS STEALTHCHOP HYBRID_THRESHOLD SENSORLESS_HOMING
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
