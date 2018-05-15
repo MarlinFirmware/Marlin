@@ -363,17 +363,11 @@ class unified_bed_leveling {
       static void line_to_destination_cartesian(const float &fr, const uint8_t e);
     #endif
 
-    #define _CMPZ(a,b) (z_values[a][b] == z_values[a][b+1])
-    #define CMPZ(a) (_CMPZ(a, 0) && _CMPZ(a, 1))
-    #define ZZER(a) (z_values[a][0] == 0)
-
-    FORCE_INLINE bool mesh_is_valid() {
-      return !(
-        (    CMPZ(0) && CMPZ(1) && CMPZ(2) // adjacent z values all equal?
-          && ZZER(0) && ZZER(1) && ZZER(2) // all zero at the edge?
-        )
-        || isnan(z_values[0][0])
-      );
+    inline static bool mesh_is_valid() {
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+          if (isnan(z_values[x][y])) return false;
+      return true;
     }
 
 }; // class unified_bed_leveling
