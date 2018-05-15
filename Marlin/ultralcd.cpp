@@ -4857,7 +4857,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       callbackFunc = callback; \
       liveEdit = live; \
     } \
-    typedef void _name
+    typedef void _name##_void
 
   DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1);
   DEFINE_MENU_EDIT_TYPE(uint8_t, int8, i8tostr3, 1);
