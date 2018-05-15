@@ -55,97 +55,102 @@
 
 #ifdef TARGET_LPC1768
 
-  #include <U8glib.h>
-  #include "SoftwareSPI.h"
-  #include "../Delay.h"
+#include "../../inc/MarlinConfigPre.h"
 
-  #define SPI_SPEED 3  // About 1 MHz
+#if ENABLED(DOGLCD)
 
-  static pin_t SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL;
-  static uint8_t SPI_speed = 0;
-  static uint8_t rs_last_state = 255;
+#include <U8glib.h>
+#include "SoftwareSPI.h"
+#include "../Delay.h"
 
-  static void u8g_com_LPC1768_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val)
-  {
-    uint8_t i;
+#define SPI_SPEED 3  // About 1 MHz
 
-    if ( rs != rs_last_state) {  // time to send a command/data byte
-      rs_last_state = rs;
+static pin_t SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL;
+static uint8_t SPI_speed = 0;
+static uint8_t rs_last_state = 255;
 
-      if ( rs == 0 )
-        /* command */
-        swSpiTransfer(0x0F8, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
-      else
-         /* data */
-         swSpiTransfer(0x0FA, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
+static void u8g_com_LPC1768_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
+  uint8_t i;
 
-      DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
-    }
+  if (rs != rs_last_state) {  // time to send a command/data byte
+    rs_last_state = rs;
 
-    swSpiTransfer(val & 0x0F0, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
-    swSpiTransfer(val << 4, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
+    if (rs == 0)
+      /* command */
+      swSpiTransfer(0x0F8, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
+    else
+       /* data */
+       swSpiTransfer(0x0FA, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
+
+    DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
 
-  uint8_t u8g_com_HAL_LPC1768_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
+  swSpiTransfer(val & 0x0F0, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
+  swSpiTransfer(val << 4, SPI_speed, SCK_pin_ST7920_HAL, -1, MOSI_pin_ST7920_HAL_HAL);
+}
+
+uint8_t u8g_com_HAL_LPC1768_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
+{
+  switch(msg)
   {
-    switch(msg)
-    {
-      case U8G_COM_MSG_INIT:
-        SCK_pin_ST7920_HAL = u8g->pin_list[U8G_PI_SCK];
-        MOSI_pin_ST7920_HAL_HAL = u8g->pin_list[U8G_PI_MOSI];
+    case U8G_COM_MSG_INIT:
+      SCK_pin_ST7920_HAL = u8g->pin_list[U8G_PI_SCK];
+      MOSI_pin_ST7920_HAL_HAL = u8g->pin_list[U8G_PI_MOSI];
 
-        u8g_SetPIOutput(u8g, U8G_PI_CS);
-        u8g_SetPIOutput(u8g, U8G_PI_SCK);
-        u8g_SetPIOutput(u8g, U8G_PI_MOSI);
-        u8g_Delay(5);
+      u8g_SetPIOutput(u8g, U8G_PI_CS);
+      u8g_SetPIOutput(u8g, U8G_PI_SCK);
+      u8g_SetPIOutput(u8g, U8G_PI_MOSI);
+      u8g_Delay(5);
 
-        SPI_speed = swSpiInit(SPI_SPEED, SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL);
+      SPI_speed = swSpiInit(SPI_SPEED, SCK_pin_ST7920_HAL, MOSI_pin_ST7920_HAL_HAL);
 
-        u8g_SetPILevel(u8g, U8G_PI_CS, 0);
-        u8g_SetPILevel(u8g, U8G_PI_SCK, 0);
-        u8g_SetPILevel(u8g, U8G_PI_MOSI, 0);
+      u8g_SetPILevel(u8g, U8G_PI_CS, 0);
+      u8g_SetPILevel(u8g, U8G_PI_SCK, 0);
+      u8g_SetPILevel(u8g, U8G_PI_MOSI, 0);
 
-        u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
-        break;
+      u8g->pin_list[U8G_PI_A0_STATE] = 0;       /* inital RS state: command mode */
+      break;
 
-      case U8G_COM_MSG_STOP:
-        break;
+    case U8G_COM_MSG_STOP:
+      break;
 
-      case U8G_COM_MSG_RESET:
-         if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_RESET]) u8g_SetPILevel(u8g, U8G_PI_RESET, arg_val);
-        break;
+    case U8G_COM_MSG_RESET:
+       if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_RESET]) u8g_SetPILevel(u8g, U8G_PI_RESET, arg_val);
+      break;
 
-      case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
-        u8g->pin_list[U8G_PI_A0_STATE] = arg_val;
-        break;
+    case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
+      u8g->pin_list[U8G_PI_A0_STATE] = arg_val;
+      break;
 
-      case U8G_COM_MSG_CHIP_SELECT:
-        if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_CS]) u8g_SetPILevel(u8g, U8G_PI_CS, arg_val);  //note: the st7920 has an active high chip select
-        break;
+    case U8G_COM_MSG_CHIP_SELECT:
+      if (U8G_PIN_NONE != u8g->pin_list[U8G_PI_CS]) u8g_SetPILevel(u8g, U8G_PI_CS, arg_val);  //note: the st7920 has an active high chip select
+      break;
 
-      case U8G_COM_MSG_WRITE_BYTE:
-        u8g_com_LPC1768_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], arg_val);
-        break;
+    case U8G_COM_MSG_WRITE_BYTE:
+      u8g_com_LPC1768_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], arg_val);
+      break;
 
-      case U8G_COM_MSG_WRITE_SEQ: {
-          uint8_t *ptr = (uint8_t*) arg_ptr;
-          while (arg_val > 0) {
-            u8g_com_LPC1768_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
-            arg_val--;
-          }
+    case U8G_COM_MSG_WRITE_SEQ: {
+        uint8_t *ptr = (uint8_t*) arg_ptr;
+        while (arg_val > 0) {
+          u8g_com_LPC1768_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
+          arg_val--;
         }
-        break;
+      }
+      break;
 
-        case U8G_COM_MSG_WRITE_SEQ_P: {
-          uint8_t *ptr = (uint8_t*) arg_ptr;
-          while (arg_val > 0) {
-            u8g_com_LPC1768_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
-            arg_val--;
-          }
+      case U8G_COM_MSG_WRITE_SEQ_P: {
+        uint8_t *ptr = (uint8_t*) arg_ptr;
+        while (arg_val > 0) {
+          u8g_com_LPC1768_st7920_write_byte_sw_spi(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
+          arg_val--;
         }
-        break;
-    }
-    return 1;
+      }
+      break;
   }
+  return 1;
+}
 
-#endif  //TARGET_LPC1768
+#endif // DOGLCD
+
+#endif // TARGET_LPC1768

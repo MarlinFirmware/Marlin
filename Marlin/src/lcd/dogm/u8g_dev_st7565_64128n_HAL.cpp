@@ -67,43 +67,43 @@
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
 static const uint8_t u8g_dev_st7565_64128n_HAL_init_seq[] PROGMEM = {
-   U8G_ESC_CS(0),       // disable chip
-    U8G_ESC_ADR(0),     // instruction mode
-    U8G_ESC_CS(1),      // enable chip
-    U8G_ESC_RST(15),    // do reset low pulse with (15*16)+2 milliseconds (=maximum delay)*/
+  U8G_ESC_CS(0),       // disable chip
+  U8G_ESC_ADR(0),     // instruction mode
+  U8G_ESC_CS(1),      // enable chip
+  U8G_ESC_RST(15),    // do reset low pulse with (15*16)+2 milliseconds (=maximum delay)*/
 
-    0x0A2,              // 0x0A2: LCD bias 1/9 (according to Displaytech 64128N datasheet)
-    0x0A0,              // Normal ADC Select (according to Displaytech 64128N datasheet)
+  0x0A2,              // 0x0A2: LCD bias 1/9 (according to Displaytech 64128N datasheet)
+  0x0A0,              // Normal ADC Select (according to Displaytech 64128N datasheet)
 
-    0x0C8,              // common output mode: set scan direction normal operation/SHL Select, 0x0C0 --> SHL = 0, normal, 0x0C8 --> SHL = 1
-    0x040,              // Display start line for Displaytech 64128N
+  0x0C8,              // common output mode: set scan direction normal operation/SHL Select, 0x0C0 --> SHL = 0, normal, 0x0C8 --> SHL = 1
+  0x040,              // Display start line for Displaytech 64128N
 
-    0x028 | 0x04,       // power control: turn on voltage converter
-    U8G_ESC_DLY(50),    // delay 50 ms
+  0x028 | 0x04,       // power control: turn on voltage converter
+  U8G_ESC_DLY(50),    // delay 50 ms
 
-    0x028 | 0x06,       // power control: turn on voltage regulator
-    U8G_ESC_DLY(50),    // delay 50 ms
+  0x028 | 0x06,       // power control: turn on voltage regulator
+  U8G_ESC_DLY(50),    // delay 50 ms
 
-    0x028 | 0x07,       // power control: turn on voltage follower
-    U8G_ESC_DLY(50),    // delay 50 ms
+  0x028 | 0x07,       // power control: turn on voltage follower
+  U8G_ESC_DLY(50),    // delay 50 ms
 
-    0x010,              // Set V0 voltage resistor ratio. Setting for controlling brightness of Displaytech 64128N
+  0x010,              // Set V0 voltage resistor ratio. Setting for controlling brightness of Displaytech 64128N
 
-    0x0A6,              // display normal, bit val 0: LCD pixel off.
+  0x0A6,              // display normal, bit val 0: LCD pixel off.
 
-    0x081,              // set contrast
-    0x01E,              // Contrast value. Setting for controlling brightness of Displaytech 64128N
+  0x081,              // set contrast
+  0x01E,              // Contrast value. Setting for controlling brightness of Displaytech 64128N
 
 
-    0x0AF,              // display on
+  0x0AF,              // display on
 
-    U8G_ESC_DLY(100),   // delay 100 ms
-    0x0A5,              // display all points, ST7565
-    U8G_ESC_DLY(100),   // delay 100 ms
-    U8G_ESC_DLY(100),   // delay 100 ms
-    0x0A4,              // normal display
-    U8G_ESC_CS(0),      // disable chip
-    U8G_ESC_END         // end of sequence
+  U8G_ESC_DLY(100),   // delay 100 ms
+  0x0A5,              // display all points, ST7565
+  U8G_ESC_DLY(100),   // delay 100 ms
+  U8G_ESC_DLY(100),   // delay 100 ms
+  0x0A4,              // normal display
+  U8G_ESC_CS(0),      // disable chip
+  U8G_ESC_END         // end of sequence
 };
 
 static const uint8_t u8g_dev_st7565_64128n_HAL_data_start[] PROGMEM = {
@@ -210,7 +210,6 @@ uint8_t u8g_dev_st7565_64128n_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
   }
   return u8g_dev_pb16v1_base_fn(u8g, dev, msg, arg);
 }
-
 
 U8G_PB_DEV(u8g_dev_st7565_64128n_HAL_sw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7565_64128n_HAL_fn, U8G_COM_HAL_SW_SPI_FN);
 

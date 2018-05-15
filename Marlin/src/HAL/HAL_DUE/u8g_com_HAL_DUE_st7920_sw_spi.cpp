@@ -55,9 +55,12 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(DOGLCD)
+
 #include <U8glib.h>
 #include <Arduino.h>
-#include "../../core/macros.h"
 #include "../Delay.h"
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
@@ -177,4 +180,6 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   return 1;
 }
 
-#endif  //ARDUINO_ARCH_SAM
+#endif // DOGLCD
+
+#endif // ARDUINO_ARCH_SAM
