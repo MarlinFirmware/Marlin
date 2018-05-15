@@ -78,11 +78,13 @@
 
 #define NUM_ISR_PWMS 20
 
+#define HAL_PWM_TIMER      LPC_TIM3
+#define HAL_PWM_TIMER_ISR  extern "C" void TIMER3_IRQHandler(void)
+#define HAL_PWM_TIMER_IRQn TIMER3_IRQn
 
 #define LPC_PORT_OFFSET         (0x0020)
 #define LPC_PIN(pin)            (1UL << pin)
 #define LPC_GPIO(port)          ((volatile LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + LPC_PORT_OFFSET * port))
-
 
 typedef struct {            // holds all data needed to control/init one of the PWM channels
   bool                active_flag;    // THIS TABLE ENTRY IS ACTIVELY TOGGLING A PIN

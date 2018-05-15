@@ -118,8 +118,6 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
-//void HAL_timer_isr_prologue(const uint8_t timer_num);
-
 FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   const tTimerConfig * const pConfig = &TimerConfig[timer_num];
   // Reading the status register clears the interrupt flag

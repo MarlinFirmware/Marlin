@@ -126,18 +126,23 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  const tTimerConfig * const pConfig = &TimerConfig[timer_num];
-  pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_IER = TC_IER_CPCS;
+  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  NVIC_EnableIRQ(irq);
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
-  const tTimerConfig * const pConfig = &TimerConfig[timer_num];
-  pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_IDR = TC_IDR_CPCS;
+  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  NVIC_DisableIRQ(irq);
+}
+
+// missing from CMSIS: Check if interrupt is enabled or not
+static bool NVIC_GetEnabledIRQ(IRQn_Type IRQn) {
+  return (NVIC->ISER[(uint32_t)(IRQn) >> 5] & (1 << ((uint32_t)(IRQn) & 0x1F))) != 0;
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
-  const tTimerConfig * const pConfig = &TimerConfig[timer_num];
-  return (pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_IMR & TC_IMR_CPCS) != 0;
+  IRQn_Type irq = TimerConfig[timer_num].IRQ_Id;
+  return NVIC_GetEnabledIRQ(irq);
 }
 
 #endif // ARDUINO_ARCH_SAM
