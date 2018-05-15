@@ -1108,8 +1108,8 @@ void Planner::check_axes_activity() {
 
     #endif // FAN_KICKSTART_TIME > 0
 
-    #ifdef FAN_MIN_PWM
-      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? ( FAN_MIN_PWM + (tail_fan_speed[f] * (255 - FAN_MIN_PWM)) / 255 ) : 0)
+    #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
+      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? map(tail_fan_speed[f], 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : 0)
     #else
       #define CALC_FAN_SPEED(f) tail_fan_speed[f]
     #endif
