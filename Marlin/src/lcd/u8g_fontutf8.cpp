@@ -1,5 +1,5 @@
 /**
- * @file    fontutf8.c
+ * @file    u8g_fontutf8.cpp
  * @brief   font api for u8g lib
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
@@ -7,9 +7,9 @@
  * @copyright GPL/BSD
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(ULTRA_LCD)
+#if ENABLED(DOGLCD)
 
 #include <string.h>
 #include "fontutils.h"
@@ -373,4 +373,4 @@ int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, const char *utf8_msg) {
   return data.adv;
 }
 
-#endif // ENABLED(ULTRA_LCD)
+#endif // DOGLCD
