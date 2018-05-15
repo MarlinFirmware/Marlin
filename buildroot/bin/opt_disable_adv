@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
-for opt in "$@" ; do
-  eval "sed -i 's/\([[:blank:]]*\)\(#define \b${opt}\b\)/\1\/\/\2/g' Marlin/Configuration_adv.h"
-done
+unamestr=`uname`
+
+if [[ "$unamestr" == 'Linux' ]]; then
+	for opt in "$@" ; do
+	  eval "sed -i 's/\([[:blank:]]*\)\(#define \b${opt}\b\)/\1\/\/\2/g' Marlin/Configuration_adv.h"
+	done
+elif [[ "$unamestr" == 'Darwin' ]]; then
+	for opt in "$@" ; do
+	  eval "gsed -i 's/\([[:blank:]]*\)\(#define \b${opt}\b\)/\1\/\/\2/g' Marlin/Configuration_adv.h"
+	done
+fi
