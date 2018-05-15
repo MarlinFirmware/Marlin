@@ -323,6 +323,10 @@
   #error "Set SERIAL_PORT to the port on your board. Usually this is 0."
 #endif
 
+#if SERIAL_PORT_2 && NUM_SERIAL < 2
+  #error "SERIAL_PORT_2 is not supported for your MOTHERBOARD. Disable it to continue."
+#endif
+
 /**
  * Dual Stepper Drivers
  */
