@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-unamestr=`uname`
+SED=$(which gsed || which sed)
 
-if [[ "$unamestr" == 'Linux' ]]; then
-	eval "sed -i 's/\(#define \b${1}\b\).*$/\1 ${2}/g' Marlin/Configuration_adv.h"
-elif [[ "$unamestr" == 'Darwin' ]]; then
-	eval "gsed -i 's/\(#define \b${1}\b\).*$/\1 ${2}/g' Marlin/Configuration_adv.h"
-fi
+eval "${SED} -i 's/\(#define \b${1}\b\).*$/\1 ${2}/g' Marlin/Configuration_adv.h"
