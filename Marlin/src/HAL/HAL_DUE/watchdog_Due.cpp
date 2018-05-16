@@ -68,6 +68,11 @@ void watchdogSetup(void) {
       // Disable WDT interrupt (just in case, to avoid triggering it!)
       NVIC_DisableIRQ(WDT_IRQn);
 
+      // We NEED memory barriers to ensure Interrupts are actually disabled!
+      // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+      __DSB();
+      __ISB();
+
       // Initialize WDT with the given parameters
       WDT_Enable(WDT, value);
 

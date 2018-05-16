@@ -143,6 +143,11 @@ FORCE_INLINE static void HAL_timer_disable_interrupt(const uint8_t timer_num) {
     case 0: NVIC_DisableIRQ(TIMER0_IRQn); // Disable interrupt handler
     case 1: NVIC_DisableIRQ(TIMER1_IRQn); // Disable interrupt handler
   }
+
+  // We NEED memory barriers to ensure Interrupts are actually disabled!
+  // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+  __DSB();
+  __ISB();
 }
 
 // This function is missing from CMSIS

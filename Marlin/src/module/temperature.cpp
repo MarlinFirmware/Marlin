@@ -1085,9 +1085,7 @@ void Temperature::updateTemperaturesFromRawValues() {
     watchdog_reset();
   #endif
 
-  CRITICAL_SECTION_START;
   temp_meas_ready = false;
-  CRITICAL_SECTION_END;
 }
 
 
