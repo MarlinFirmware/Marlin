@@ -881,6 +881,23 @@
   #define HAS_FANMUX PIN_EXISTS(FANMUX0)
 
   /**
+   * MIN/MAX fan PWM scaling
+   */
+  #ifndef FAN_MIN_PWM
+    #define FAN_MIN_PWM 0
+  #endif
+  #ifndef FAN_MAX_PWM
+    #define FAN_MAX_PWM 255
+  #endif
+  #if FAN_MIN_PWM < 0 || FAN_MIN_PWM > 255
+    #error "FAN_MIN_PWM must be a value from 0 to 255."
+  #elif FAN_MAX_PWM < 0 || FAN_MAX_PWM > 255
+    #error "FAN_MAX_PWM must be a value from 0 to 255."
+  #elif FAN_MIN_PWM > FAN_MAX_PWM
+    #error "FAN_MIN_PWM must be less than or equal to FAN_MAX_PWM."
+  #endif
+
+  /**
    * Bed Probe dependencies
    */
   #if HAS_BED_PROBE
