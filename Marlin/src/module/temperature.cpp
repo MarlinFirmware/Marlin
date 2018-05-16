@@ -41,10 +41,6 @@
   #include "stepper.h"
 #endif
 
-#if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(PINS_DEBUGGING)
-  #include "endstops.h"
-#endif
-
 #include "printcounter.h"
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -2247,20 +2243,8 @@ void Temperature::isr() {
     }
   #endif // BABYSTEPPING
 
-  #if ENABLED(PINS_DEBUGGING)
-    endstops.run_monitor();  // report changes in endstop status
-  #endif
-
-  // Update endstops state, if enabled
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    extern volatile uint8_t e_hit;
-    if (e_hit && ENDSTOPS_ENABLED) {
-      endstops.update();
-      e_hit--;
-    }
-  #else
-    if (ENDSTOPS_ENABLED) endstops.update();
-  #endif
+  // Poll endstops state, if required
+  endstops.poll();
 
   // Periodically call the planner timer
   planner.tick();

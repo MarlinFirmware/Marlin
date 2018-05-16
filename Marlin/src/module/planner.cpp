@@ -758,8 +758,8 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
            final_rate = CEIL(block->nominal_rate * exit_factor); // (steps per second)
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
-  NOLESS(initial_rate, MINIMAL_STEP_RATE);
-  NOLESS(final_rate, MINIMAL_STEP_RATE);
+  NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
+  NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
 
   #if ENABLED(BEZIER_JERK_CONTROL)
     uint32_t cruise_rate = initial_rate;
@@ -1467,23 +1467,8 @@ void Planner::quick_stop() {
 }
 
 void Planner::endstop_triggered(const AxisEnum axis) {
-
-  /*NB: This will be called via endstops.update()
-    and endstops.update() can be called from the temperature
-    ISR. So Stepper interrupts are enabled */
-
-  // Disable stepper ISR
-  bool stepper_isr_enabled = STEPPER_ISR_ENABLED();
-  DISABLE_STEPPER_DRIVER_INTERRUPT();
-
-  // Record stepper position
+  // Record stepper position and discard the current block
   stepper.endstop_triggered(axis);
-
-  // Discard the active block that led to the trigger
-  discard_current_block();
-
-  // Reenable stepper ISR if it was enabled
-  if (stepper_isr_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
 float Planner::triggered_position_mm(const AxisEnum axis) {
@@ -1682,7 +1667,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   if (de < 0) SBI(dm, E_AXIS);
 
   const float esteps_float = de * e_factor[extruder];
-  const int32_t esteps = ABS(esteps_float) + 0.5;
+  const uint32_t esteps = ABS(esteps_float) + 0.5;
 
   // Clear all flags, including the "busy" bit
   block->flag = 0x00;
