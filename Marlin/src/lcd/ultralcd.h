@@ -223,7 +223,7 @@
                                               EN_REPRAPWORLD_KEYPAD_LEFT) \
                                             )
 
-  #elif ENABLED(NEWPANEL)
+  #elif defined(EN_C)
 
     #define LCD_CLICKED (buttons & EN_C)
 

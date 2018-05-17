@@ -56,6 +56,7 @@ typedef uint16_t hal_timer_t;
 #define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
 #define TEMP_TIMER_NUM 2  // index of timer to use for temperature
 #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
+#define PULSE_TIMER_NUM STEP_TIMER_NUM
 
 timer_dev* get_timer_dev(int number);
 
@@ -68,10 +69,9 @@ timer_dev* get_timer_dev(int number);
 
 #define HAL_TIMER_RATE         (F_CPU)  // frequency of timers peripherals
 #define STEPPER_TIMER_PRESCALE 18             // prescaler for setting stepper timer, 4Mhz
-#define HAL_STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
+#define HAL_STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer
 #define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
 #define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 
 #define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz
@@ -130,7 +130,7 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
  */
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
-  //compare = min(compare, HAL_TIMER_TYPE_MAX);
+  //compare = MIN(compare, HAL_TIMER_TYPE_MAX);
   switch (timer_num) {
   case STEP_TIMER_NUM:
     timer_set_compare(STEP_TIMER_DEV, STEP_TIMER_CHAN, compare);

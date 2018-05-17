@@ -28,7 +28,7 @@
 static int32_t signExtend11(uint16_t value) {
 
   if(value & 0x400) {
-    value |= 0xfffff800;
+    value |= 0xFFFFF800;
   }
 
   return value;
@@ -66,7 +66,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
     /*
      * Detect 32bit thumb instructions
      */
-    if ((instr & 0xe000) == 0xe000 && (instr & 0x1800) != 0) {
+    if ((instr & 0xE000) == 0xE000 && (instr & 0x1800) != 0) {
       uint16_t instr2;
 
       /* Check next address */
@@ -83,7 +83,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
        * Load/Store multiple: Only interpret
        *  PUSH and POP
        */
-      if ((instr & 0xfe6f) == 0xe82d) {
+      if ((instr & 0xFE6F) == 0xE82D) {
         bool     L     = (instr &  0x10) ? true : false;
         uint16_t rList = instr2;
 
@@ -171,7 +171,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       /*
        * PUSH register
        */
-      else if (instr == 0xf84d && (instr2 & 0x0fff) == 0x0d04) {
+      else if (instr == 0xF84D && (instr2 & 0x0FFF) == 0x0D04) {
         uint8_t r = instr2 >> 12;
 
         /* Store to memory: PUSH */
@@ -187,7 +187,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       /*
        * POP register
        */
-      else if (instr == 0xf85d && (instr2 & 0x0fff) == 0x0b04) {
+      else if (instr == 0xF85D && (instr2 & 0x0FFF) == 0x0B04) {
         uint8_t r = instr2 >> 12;
 
         /* Load from memory: POP */
@@ -246,7 +246,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       /*
        * TBB / TBH
        */
-      else if ((instr & 0xfff0) == 0xe8d0 && (instr2 & 0xffe0) == 0xf000) {
+      else if ((instr & 0xFFF0) == 0xE8D0 && (instr2 & 0xFFE0) == 0xF000) {
         /* We are only interested in
          * the forms
          *  TBB [PC, ...]
@@ -254,8 +254,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
          * as those are used by the C compiler to implement
          * the switch clauses
          */
-        uint8_t rn = instr & 0xf;
-        uint8_t rm = instr2 & 0xf;
+        uint8_t rn = instr & 0xF;
+        uint8_t rm = instr2 & 0xF;
         bool H = (instr2 & 0x10) ? true : false;
 
         UnwPrintd5("TB%c [r%d,r%d%s]\n", H ? 'H' : 'B', rn, rm, H ? ",LSL #1" : "");
@@ -280,19 +280,19 @@ UnwResult UnwStartThumb(UnwState * const state) {
       /*
        * Unconditional branch
        */
-      else if ((instr & 0xf800) == 0xf000 && (instr2 & 0xd000) == 0x9000) {
+      else if ((instr & 0xF800) == 0xF000 && (instr2 & 0xD000) == 0x9000) {
         uint32_t v;
 
         uint8_t      S = (instr & 0x400) >> 10;
-        uint16_t imm10 = (instr & 0x3ff);
+        uint16_t imm10 = (instr & 0x3FF);
         uint8_t     J1 = (instr2 & 0x2000) >> 13;
         uint8_t     J2 = (instr2 & 0x0800) >> 11;
-        uint16_t imm11 = (instr2 & 0x7ff);
+        uint16_t imm11 = (instr2 & 0x7FF);
 
         uint8_t I1 = J1 ^ S ^ 1;
         uint8_t I2 = J2 ^ S ^ 1;
         uint32_t imm32 = (S << 24) | (I1 << 23) | (I2 << 22) |(imm10 << 12) | (imm11 << 1);
-        if (S) imm32 |= 0xfe000000;
+        if (S) imm32 |= 0xFE000000;
 
         UnwPrintd2("B %d \n", imm32);
 
@@ -321,18 +321,18 @@ UnwResult UnwStartThumb(UnwState * const state) {
       /*
        * Branch with link
        */
-      else if ((instr & 0xf800) == 0xf000 && (instr2 & 0xd000) == 0xd000) {
+      else if ((instr & 0xF800) == 0xF000 && (instr2 & 0xD000) == 0xD000) {
 
         uint8_t      S = (instr & 0x400) >> 10;
-        uint16_t imm10 = (instr & 0x3ff);
+        uint16_t imm10 = (instr & 0x3FF);
         uint8_t     J1 = (instr2 & 0x2000) >> 13;
         uint8_t     J2 = (instr2 & 0x0800) >> 11;
-        uint16_t imm11 = (instr2 & 0x7ff);
+        uint16_t imm11 = (instr2 & 0x7FF);
 
         uint8_t I1 = J1 ^ S ^ 1;
         uint8_t I2 = J2 ^ S ^ 1;
         uint32_t imm32 = (S << 24) | (I1 << 23) | (I2 << 22) |(imm10 << 12) | (imm11 << 1);
-        if (S) imm32 |= 0xfe000000;
+        if (S) imm32 |= 0xFE000000;
 
         UnwPrintd2("BL %d \n", imm32);
 
@@ -377,18 +377,18 @@ UnwResult UnwStartThumb(UnwState * const state) {
       /*
        * Conditional branches. Usually not taken, unless infinite loop is detected
        */
-      else if ((instr & 0xf800) == 0xf000 && (instr2 & 0xd000) == 0x8000) {
+      else if ((instr & 0xF800) == 0xF000 && (instr2 & 0xD000) == 0x8000) {
 
         uint8_t      S = (instr & 0x400) >> 10;
-        uint16_t  imm6 = (instr &  0x3f);
+        uint16_t  imm6 = (instr &  0x3F);
         uint8_t     J1 = (instr2 & 0x2000) >> 13;
         uint8_t     J2 = (instr2 & 0x0800) >> 11;
-        uint16_t imm11 = (instr2 & 0x7ff);
+        uint16_t imm11 = (instr2 & 0x7FF);
 
         uint8_t I1 = J1 ^ S ^ 1;
         uint8_t I2 = J2 ^ S ^ 1;
         uint32_t imm32 = (S << 20) | (I1 << 19) | (I2 << 18) |(imm6 << 12) | (imm11 << 1);
-        if (S) imm32 |= 0xffe00000;
+        if (S) imm32 |= 0xFFE00000;
 
         UnwPrintd2("Bcond %d\n", imm32);
 
@@ -412,9 +412,9 @@ UnwResult UnwStartThumb(UnwState * const state) {
        * PC-relative load
        *  LDR Rd,[PC, #+/-imm]
        */
-      else if((instr & 0xff7f) == 0xf85f) {
-        uint8_t  rt    = (instr2 & 0xf000) >> 12;
-        uint8_t  imm12 = (instr2 & 0x0fff);
+      else if((instr & 0xFF7F) == 0xF85F) {
+        uint8_t  rt    = (instr2 & 0xF000) >> 12;
+        uint8_t  imm12 = (instr2 & 0x0FFF);
         bool     A     = (instr  & 0x80) ? true : false;
         uint32_t address;
 
@@ -434,10 +434,10 @@ UnwResult UnwStartThumb(UnwState * const state) {
        *  We are only interested when destination is PC.
        *  LDR Rt,[Rn , #n]
        */
-      else if ((instr & 0xfff0) == 0xf8d0) {
-        uint8_t     rn = (instr  & 0xf);
-        uint8_t     rt = (instr2 & 0xf000) >> 12;
-        uint16_t imm12 = (instr2 & 0xfff);
+      else if ((instr & 0xFFF0) == 0xF8D0) {
+        uint8_t     rn = (instr  & 0xF);
+        uint8_t     rt = (instr2 & 0xF000) >> 12;
+        uint16_t imm12 = (instr2 & 0xFFF);
 
         /* If destination is PC and we don't know the source value, then fail */
         if (!M_IsOriginValid(state->regData[rn].o)) {
@@ -456,10 +456,10 @@ UnwResult UnwStartThumb(UnwState * const state) {
        *  LDR Rt,[Rn], #+/-n]
        *  LDR Rt,[Rn, #+/-n]!
        */
-      else if ((instr & 0xfff0) == 0xf850 && (instr2 & 0x0800) == 0x0800) {
-        uint8_t     rn = (instr  & 0xf);
-        uint8_t     rt = (instr2 & 0xf000) >> 12;
-        uint16_t  imm8 = (instr2 & 0xff);
+      else if ((instr & 0xFFF0) == 0xF850 && (instr2 & 0x0800) == 0x0800) {
+        uint8_t     rn = (instr  & 0xF);
+        uint8_t     rt = (instr2 & 0xF000) >> 12;
+        uint16_t  imm8 = (instr2 & 0xFF);
         bool         P = (instr2 & 0x400) ? true : false;
         bool         U = (instr2 & 0x200) ? true : false;
         bool         W = (instr2 & 0x100) ? true : false;
@@ -493,10 +493,10 @@ UnwResult UnwStartThumb(UnwState * const state) {
        *   ldr  Rt, [Rn, Rm, lsl #x]
        *  Where Rt is PC, Rn value is known, Rm is not known or unknown
        */
-      else if ((instr & 0xfff0) == 0xf850 && (instr2 & 0x0fc0) == 0x0000) {
-        uint8_t   rn = (instr  & 0xf);
-        uint8_t   rt = (instr2 & 0xf000) >> 12;
-        uint8_t   rm = (instr2 & 0xf);
+      else if ((instr & 0xFFF0) == 0xF850 && (instr2 & 0x0FC0) == 0x0000) {
+        uint8_t   rn = (instr  & 0xF);
+        uint8_t   rt = (instr2 & 0xF000) >> 12;
+        uint8_t   rm = (instr2 & 0xF);
         uint8_t imm2 = (instr2 & 0x30) >> 4;
 
         if (!M_IsOriginValid(state->regData[rn].o) ||
@@ -534,10 +534,10 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  LSR Rd, Rs, #Offset5
      *  ASR Rd, Rs, #Offset5
      */
-    else if((instr & 0xe000) == 0x0000 && (instr & 0x1800) != 0x1800) {
+    else if((instr & 0xE000) == 0x0000 && (instr & 0x1800) != 0x1800) {
       bool signExtend;
       uint8_t op      = (instr & 0x1800) >> 11;
-      uint8_t offset5 = (instr & 0x07c0) >>  6;
+      uint8_t offset5 = (instr & 0x07C0) >>  6;
       uint8_t rs      = (instr & 0x0038) >>  3;
       uint8_t rd      = (instr & 0x0007);
 
@@ -562,7 +562,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
           signExtend = (state->regData[rs].v & 0x8000) ? true : false;
           state->regData[rd].v = state->regData[rs].v >> offset5;
           if(signExtend) {
-            state->regData[rd].v |= 0xffffffff << (32 - offset5);
+            state->regData[rd].v |= 0xFFFFFFFF << (32 - offset5);
           }
           state->regData[rd].o = state->regData[rs].o;
           state->regData[rd].o |= REG_VAL_ARITHMETIC;
@@ -575,10 +575,10 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  SUB Rd, Rs, Rn
      *  SUB Rd, Rs, #Offset3
      */
-    else if((instr & 0xf800) == 0x1800) {
+    else if((instr & 0xF800) == 0x1800) {
       bool    I  = (instr & 0x0400) ? true : false;
       bool    op = (instr & 0x0200) ? true : false;
-      uint8_t rn = (instr & 0x01c0) >> 6;
+      uint8_t rn = (instr & 0x01C0) >> 6;
       uint8_t rs = (instr & 0x0038) >> 3;
       uint8_t rd = (instr & 0x0007);
 
@@ -627,11 +627,11 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  ADD Rd, #Offset8
      *  SUB Rd, #Offset8
      */
-    else if((instr & 0xe000) == 0x2000) {
+    else if((instr & 0xE000) == 0x2000) {
 
       uint8_t op      = (instr & 0x1800) >> 11;
       uint8_t rd      = (instr & 0x0700) >>  8;
-      uint8_t offset8 = (instr & 0x00ff);
+      uint8_t offset8 = (instr & 0x00FF);
 
       switch(op) {
         case 0: /* MOV */
@@ -676,8 +676,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  BIC Rd, Rs
      *  MVN Rd, Rs
      */
-    else if((instr & 0xfc00) == 0x4000) {
-      uint8_t op = (instr & 0x03c0) >> 6;
+    else if((instr & 0xFC00) == 0x4000) {
+      uint8_t op = (instr & 0x03C0) >> 6;
       uint8_t rs = (instr & 0x0038) >> 3;
       uint8_t rd = (instr & 0x0007);
 
@@ -741,7 +741,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
         case 4: /* ASR */
           if(state->regData[rd].v & 0x80000000) {
             state->regData[rd].v >>= state->regData[rs].v;
-            state->regData[rd].v |= 0xffffffff << (32 - state->regData[rs].v);
+            state->regData[rd].v |= 0xFFFFFFFF << (32 - state->regData[rs].v);
           }
           else {
             state->regData[rd].v >>= state->regData[rs].v;
@@ -826,7 +826,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  CMP Hd, Rs
      *  MOV Hd, Hs
      */
-    else if((instr & 0xfc00) == 0x4400) {
+    else if((instr & 0xFC00) == 0x4400) {
       uint8_t op  = (instr & 0x0300) >> 8;
       bool    h1  = (instr & 0x0080) ? true: false;
       bool    h2  = (instr & 0x0040) ? true: false;
@@ -894,9 +894,9 @@ UnwResult UnwStartThumb(UnwState * const state) {
     /* Format 9: PC-relative load
      *  LDR Rd,[PC, #imm]
      */
-    else if((instr & 0xf800) == 0x4800) {
+    else if((instr & 0xF800) == 0x4800) {
       uint8_t  rd    = (instr & 0x0700) >> 8;
-      uint8_t  word8 = (instr & 0x00ff);
+      uint8_t  word8 = (instr & 0x00FF);
       uint32_t address;
 
       /* Compute load address, adding a word to account for prefetch */
@@ -912,8 +912,8 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  ADD sp,#+imm
      *  ADD sp,#-imm
      */
-    else if((instr & 0xff00) == 0xB000) {
-      uint8_t value = (instr & 0x7f) * 4;
+    else if((instr & 0xFF00) == 0xB000) {
+      uint8_t value = (instr & 0x7F) * 4;
 
       /* Check the negative bit */
       if((instr & 0x80) != 0) {
@@ -931,10 +931,10 @@ UnwResult UnwStartThumb(UnwState * const state) {
      *  POP {Rlist}
      *  POP {Rlist, PC}
      */
-    else if((instr & 0xf600) == 0xb400) {
+    else if((instr & 0xF600) == 0xB400) {
       bool    L     = (instr & 0x0800) ? true : false;
       bool    R     = (instr & 0x0100) ? true : false;
-      uint8_t rList = (instr & 0x00ff);
+      uint8_t rList = (instr & 0x00FF);
 
       if(L) {
         uint8_t r;
@@ -1038,9 +1038,9 @@ UnwResult UnwStartThumb(UnwState * const state) {
      * Conditional branches
      * Bcond
      */
-    else if((instr & 0xf000) == 0xd000) {
-      int32_t branchValue = (instr & 0xff);
-      if (branchValue & 0x80) branchValue |= 0xffffff00;
+    else if((instr & 0xF000) == 0xD000) {
+      int32_t branchValue = (instr & 0xFF);
+      if (branchValue & 0x80) branchValue |= 0xFFFFFF00;
 
       /* Branch distance is twice that specified in the instruction. */
       branchValue *= 2;
@@ -1067,9 +1067,9 @@ UnwResult UnwStartThumb(UnwState * const state) {
     /* Format 18: unconditional branch
      *  B label
      */
-    else if((instr & 0xf800) == 0xe000) {
+    else if((instr & 0xF800) == 0xE000) {
       uint32_t v;
-      int32_t branchValue = signExtend11(instr & 0x07ff);
+      int32_t branchValue = signExtend11(instr & 0x07FF);
 
       /* Branch distance is twice that specified in the instruction. */
       branchValue *= 2;

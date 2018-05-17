@@ -53,7 +53,7 @@ bool leveling_is_valid() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
       !!bilinear_grid_spacing[X_AXIS]
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      true
+      ubl.mesh_is_valid()
     #else // 3POINT, LINEAR
       true
     #endif

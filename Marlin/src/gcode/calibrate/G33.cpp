@@ -85,7 +85,7 @@ void ac_setup(const bool reset_bed) {
     tool_change(0, 0, true);
   #endif
 
-  stepper.synchronize();
+  planner.synchronize();
   setup_for_endstop_or_probe_move();
 
   #if HAS_LEVELING

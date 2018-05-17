@@ -242,7 +242,7 @@ class unified_bed_leveling {
       const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0 / (MESH_X_DIST)),
                   z1 = z_values[x1_i][yi];
 
-      return z1 + xratio * (z_values[min(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
+      return z1 + xratio * (z_values[MIN(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
                                                                                       // If it is, it is clamped to the last element of the
                                                                                       // z_values[][] array and no correction is applied.
     }
@@ -276,7 +276,7 @@ class unified_bed_leveling {
       const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0 / (MESH_Y_DIST)),
                   z1 = z_values[xi][y1_i];
 
-      return z1 + yratio * (z_values[xi][min(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array
+      return z1 + yratio * (z_values[xi][MIN(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array
                                                                                       // If it is, it is clamped to the last element of the
                                                                                       // z_values[][] array and no correction is applied.
     }
@@ -302,11 +302,11 @@ class unified_bed_leveling {
 
       const float z1 = calc_z0(rx0,
                                mesh_index_to_xpos(cx), z_values[cx][cy],
-                               mesh_index_to_xpos(cx + 1), z_values[min(cx, GRID_MAX_POINTS_X - 2) + 1][cy]);
+                               mesh_index_to_xpos(cx + 1), z_values[MIN(cx, GRID_MAX_POINTS_X - 2) + 1][cy]);
 
       const float z2 = calc_z0(rx0,
-                               mesh_index_to_xpos(cx), z_values[cx][min(cy, GRID_MAX_POINTS_Y - 2) + 1],
-                               mesh_index_to_xpos(cx + 1), z_values[min(cx, GRID_MAX_POINTS_X - 2) + 1][min(cy, GRID_MAX_POINTS_Y - 2) + 1]);
+                               mesh_index_to_xpos(cx), z_values[cx][MIN(cy, GRID_MAX_POINTS_Y - 2) + 1],
+                               mesh_index_to_xpos(cx + 1), z_values[MIN(cx, GRID_MAX_POINTS_X - 2) + 1][MIN(cy, GRID_MAX_POINTS_Y - 2) + 1]);
 
       float z0 = calc_z0(ry0,
                          mesh_index_to_ypos(cy), z1,
@@ -363,17 +363,11 @@ class unified_bed_leveling {
       static void line_to_destination_cartesian(const float &fr, const uint8_t e);
     #endif
 
-    #define _CMPZ(a,b) (z_values[a][b] == z_values[a][b+1])
-    #define CMPZ(a) (_CMPZ(a, 0) && _CMPZ(a, 1))
-    #define ZZER(a) (z_values[a][0] == 0)
-
-    FORCE_INLINE bool mesh_is_valid() {
-      return !(
-        (    CMPZ(0) && CMPZ(1) && CMPZ(2) // adjacent z values all equal?
-          && ZZER(0) && ZZER(1) && ZZER(2) // all zero at the edge?
-        )
-        || isnan(z_values[0][0])
-      );
+    inline static bool mesh_is_valid() {
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+          if (isnan(z_values[x][y])) return false;
+      return true;
     }
 
 }; // class unified_bed_leveling

@@ -392,7 +392,7 @@ bool set_probe_deployed(const bool deploy) {
   #endif
 
   if (deploy_stow_condition && unknown_condition)
-    do_probe_raise(max(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+    do_probe_raise(MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
     #if ENABLED(Z_PROBE_SLED)
@@ -672,7 +672,7 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   const float nz =
     #if ENABLED(DELTA)
       // Move below clip height or xy move will be aborted by do_blocking_move_to
-      min(current_position[Z_AXIS], delta_clip_start_height)
+      MIN(current_position[Z_AXIS], delta_clip_start_height)
     #else
       current_position[Z_AXIS]
     #endif

@@ -30,7 +30,7 @@
 
 #include "scara.h"
 #include "motion.h"
-#include "stepper.h"
+#include "planner.h"
 
 float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
 
@@ -147,8 +147,8 @@ void inverse_kinematics(const float raw[XYZ]) {
 }
 
 void scara_report_positions() {
-  SERIAL_PROTOCOLPAIR("SCARA Theta:", stepper.get_axis_position_degrees(A_AXIS));
-  SERIAL_PROTOCOLLNPAIR("   Psi+Theta:", stepper.get_axis_position_degrees(B_AXIS));
+  SERIAL_PROTOCOLPAIR("SCARA Theta:", planner.get_axis_position_degrees(A_AXIS));
+  SERIAL_PROTOCOLLNPAIR("   Psi+Theta:", planner.get_axis_position_degrees(B_AXIS));
   SERIAL_EOL();
 }
 

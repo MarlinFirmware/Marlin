@@ -451,7 +451,7 @@
 
             if (parser.seen('B')) {
               g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness((float) Z_CLEARANCE_BETWEEN_PROBES);
-              if (FABS(g29_card_thickness) > 1.5) {
+              if (ABS(g29_card_thickness) > 1.5) {
                 SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.");
                 return;
               }
@@ -796,8 +796,8 @@
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
-        //, min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
-      stepper.synchronize();
+        //, MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
+      planner.synchronize();
 
       SERIAL_PROTOCOLPGM("Place shim under nozzle");
       LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
@@ -806,7 +806,7 @@
 
       const float z1 = measure_point_with_encoder();
       do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
-      stepper.synchronize();
+      planner.synchronize();
 
       SERIAL_PROTOCOLPGM("Remove shim");
       LCD_MESSAGEPGM(MSG_UBL_BC_REMOVE);
@@ -816,7 +816,7 @@
 
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES);
 
-      const float thickness = abs(z1 - z2);
+      const float thickness = ABS(z1 - z2);
 
       if (g29_verbose_level > 1) {
         SERIAL_PROTOCOLPGM("Business Card is ");
@@ -1499,10 +1499,10 @@
     #include "../../../libs/vector_3.h"
 
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
-      constexpr int16_t x_min = max(MIN_PROBE_X, MESH_MIN_X),
-                        x_max = min(MAX_PROBE_X, MESH_MAX_X),
-                        y_min = max(MIN_PROBE_Y, MESH_MIN_Y),
-                        y_max = min(MAX_PROBE_Y, MESH_MAX_Y);
+      constexpr int16_t x_min = MAX(MIN_PROBE_X, MESH_MIN_X),
+                        x_max = MIN(MAX_PROBE_X, MESH_MAX_X),
+                        y_min = MAX(MIN_PROBE_Y, MESH_MIN_Y),
+                        y_max = MIN(MAX_PROBE_Y, MESH_MAX_Y);
 
       bool abort_flag = false;
 
@@ -1770,7 +1770,7 @@
 
       SERIAL_ECHOPGM("Extrapolating mesh...");
 
-      const float weight_scaled = weight_factor * max(MESH_X_DIST, MESH_Y_DIST);
+      const float weight_scaled = weight_factor * MAX(MESH_X_DIST, MESH_Y_DIST);
 
       for (uint8_t jx = 0; jx < GRID_MAX_POINTS_X; jx++)
         for (uint8_t jy = 0; jy < GRID_MAX_POINTS_Y; jy++)

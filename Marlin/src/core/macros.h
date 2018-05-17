@@ -29,6 +29,8 @@
 #define ABC  3
 #define XYZ  3
 
+#define _AXIS(A) (A##_AXIS)
+
 #define _XMIN_ 100
 #define _YMIN_ 200
 #define _ZMIN_ 300
@@ -50,58 +52,8 @@
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
 #endif
 
-// Processor-level delays for hardware interfaces
-#ifndef _NOP
-  #define _NOP() do { __asm__ volatile ("nop"); } while (0)
-#endif
-#define DELAY_NOPS(X) \
-  switch (X) { \
-    case 20: _NOP(); case 19: _NOP(); case 18: _NOP(); case 17: _NOP(); \
-    case 16: _NOP(); case 15: _NOP(); case 14: _NOP(); case 13: _NOP(); \
-    case 12: _NOP(); case 11: _NOP(); case 10: _NOP(); case  9: _NOP(); \
-    case  8: _NOP(); case  7: _NOP(); case  6: _NOP(); case  5: _NOP(); \
-    case  4: _NOP(); case  3: _NOP(); case  2: _NOP(); case  1: _NOP(); \
-  }
-#define DELAY_0_NOP   NOOP
-#define DELAY_1_NOP   DELAY_NOPS( 1)
-#define DELAY_2_NOP   DELAY_NOPS( 2)
-#define DELAY_3_NOP   DELAY_NOPS( 3)
-#define DELAY_4_NOP   DELAY_NOPS( 4)
-#define DELAY_5_NOP   DELAY_NOPS( 5)
-#define DELAY_10_NOP  DELAY_NOPS(10)
-#define DELAY_20_NOP  DELAY_NOPS(20)
-
-#if CYCLES_PER_MICROSECOND <= 200
-  #define DELAY_100NS DELAY_NOPS((CYCLES_PER_MICROSECOND + 9) / 10)
-#else
-  #define DELAY_100NS DELAY_20_NOP
-#endif
-
-// Microsecond delays for hardware interfaces
-#if CYCLES_PER_MICROSECOND <= 20
-  #define DELAY_1US DELAY_NOPS(CYCLES_PER_MICROSECOND)
-  #define DELAY_US(X) \
-    switch (X) { \
-      case 20: DELAY_1US; case 19: DELAY_1US; case 18: DELAY_1US; case 17: DELAY_1US; \
-      case 16: DELAY_1US; case 15: DELAY_1US; case 14: DELAY_1US; case 13: DELAY_1US; \
-      case 12: DELAY_1US; case 11: DELAY_1US; case 10: DELAY_1US; case  9: DELAY_1US; \
-      case  8: DELAY_1US; case  7: DELAY_1US; case  6: DELAY_1US; case  5: DELAY_1US; \
-      case  4: DELAY_1US; case  3: DELAY_1US; case  2: DELAY_1US; case  1: DELAY_1US; \
-    }
-#else
-  #define DELAY_US(X) delayMicroseconds(X) // May not be usable in CRITICAL_SECTION
-  #define DELAY_1US DELAY_US(1)
-#endif
-#define DELAY_2US  DELAY_US( 2)
-#define DELAY_3US  DELAY_US( 3)
-#define DELAY_4US  DELAY_US( 4)
-#define DELAY_5US  DELAY_US( 5)
-#define DELAY_6US  DELAY_US( 6)
-#define DELAY_7US  DELAY_US( 7)
-#define DELAY_8US  DELAY_US( 8)
-#define DELAY_9US  DELAY_US( 9)
-#define DELAY_10US DELAY_US(10)
-#define DELAY_20US DELAY_US(20)
+// Nanoseconds per cycle
+#define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
 #define UNUSED(x) (void) (x)
@@ -109,6 +61,9 @@
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
+
+#define A(CODE) " " CODE "\n\t"
+#define L(CODE) CODE ":\n\t"
 
 // Macros for bit masks
 #undef _BV
@@ -160,7 +115,7 @@
 #define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
-#define COPY(a,b) memcpy(a,b,min(sizeof(a),sizeof(b)))
+#define COPY(a,b) memcpy(a,b,MIN(sizeof(a),sizeof(b)))
 
 // Macros for initializing arrays
 #define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
@@ -211,12 +166,48 @@
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
-#define MIN3(a, b, c)       min(min(a, b), c)
-#define MIN4(a, b, c, d)    min(MIN3(a, b, c), d)
-#define MIN5(a, b, c, d, e) min(MIN4(a, b, c, d), e)
-#define MAX3(a, b, c)       max(max(a, b), c)
-#define MAX4(a, b, c, d)    max(MAX3(a, b, c), d)
-#define MAX5(a, b, c, d, e) max(MAX4(a, b, c, d), e)
+// Avoid double evaluation of arguments on MIN/MAX/ABS
+#undef MIN
+#undef MAX
+#undef ABS
+#ifdef __cplusplus
+
+  // C++11 solution that is standards compliant. Return type is deduced automatically
+  template <class L, class R> static inline constexpr auto MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+    return lhs < rhs ? lhs : rhs;
+  }
+  template <class L, class R> static inline constexpr auto MAX(const L lhs, const R rhs) -> decltype(lhs + rhs){
+    return lhs > rhs ? lhs : rhs;
+  }
+  template <class T> static inline constexpr const T ABS(const T v) {
+    return v >= 0 ? v : -v;
+  }
+#else
+
+  // Using GCC extensions, but Travis GCC version does not like it and gives
+  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
+  #define MIN(a, b) \
+    ({__typeof__(a) _a = (a); \
+      __typeof__(b) _b = (b); \
+      _a < _b ? _a : _b;})
+
+  #define MAX(a, b) \
+    ({__typeof__(a) _a = (a); \
+      __typeof__(b) _b = (b); \
+      _a > _b ? _a : _b;})
+
+  #define ABS(a) \
+    ({__typeof__(a) _a = (a); \
+      _a >= 0 ? _a : -_a;})
+
+#endif
+
+#define MIN3(a, b, c)       MIN(MIN(a, b), c)
+#define MIN4(a, b, c, d)    MIN(MIN3(a, b, c), d)
+#define MIN5(a, b, c, d, e) MIN(MIN4(a, b, c, d), e)
+#define MAX3(a, b, c)       MAX(MAX(a, b), c)
+#define MAX4(a, b, c, d)    MAX(MAX3(a, b, c), d)
+#define MAX5(a, b, c, d, e) MAX(MAX4(a, b, c, d), e)
 
 #define UNEAR_ZERO(x) ((x) < 0.000001)
 #define NEAR_ZERO(x) WITHIN(x, -0.000001, 0.000001)
@@ -229,7 +220,6 @@
 // Maths macros that can be overridden by HAL
 //
 #define ATAN2(y, x) atan2(y, x)
-#define FABS(x)     fabs(x)
 #define POW(x, y)   pow(x, y)
 #define SQRT(x)     sqrt(x)
 #define CEIL(x)     ceil(x)
