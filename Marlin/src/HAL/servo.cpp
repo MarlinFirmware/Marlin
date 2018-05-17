@@ -54,7 +54,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_SERVOS && !(IS_32BIT_TEENSY || defined(TARGET_LPC1768))
+#if HAS_SERVOS && !(IS_32BIT_TEENSY || defined(TARGET_LPC1768) || defined(STM32F4))
 
 //#include <Arduino.h>
 #include "servo.h"
@@ -99,7 +99,7 @@ int8_t Servo::attach(const int pin, const int min, const int max) {
   if (pin > 0) servo_info[this->servoIndex].Pin.nbr = pin;
   pinMode(servo_info[this->servoIndex].Pin.nbr, OUTPUT); // set servo pin to output
 
-  // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
+  // todo min/max check: ABS(min - MIN_PULSE_WIDTH) /4 < 128
   this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
   this->max = (MAX_PULSE_WIDTH - max) / 4;
 

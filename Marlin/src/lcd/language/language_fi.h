@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_FI_H
 #define LANGUAGE_FI_H
 
-#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
@@ -140,7 +139,6 @@
 #define MSG_NO_CARD                         _UxGT("Ei korttia")
 #define MSG_DWELL                           _UxGT("Nukkumassa...")
 #define MSG_USERWAIT                        _UxGT("Odotet. valintaa")
-#define MSG_RESUMING                        _UxGT("Jatke. tulostusta")
 #define MSG_PRINT_ABORTED                   _UxGT("Print aborted")
 #define MSG_NO_MOVE                         _UxGT("Ei liiketta.")
 #define MSG_KILLED                          _UxGT("KILLED. ")

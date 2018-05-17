@@ -84,7 +84,7 @@ void swSpiBegin(const pin_t sck_pin, const pin_t miso_pin, const pin_t mosi_pin)
 uint8_t swSpiInit(const uint8_t spiRate, const pin_t sck_pin, const pin_t mosi_pin) {
   WRITE(mosi_pin, HIGH);
   WRITE(sck_pin, LOW);
-  return (SystemCoreClock == 120000000 ? 44 : 38) / POW(2, 6 - min(spiRate, 6));
+  return (SystemCoreClock == 120000000 ? 44 : 38) / POW(2, 6 - MIN(spiRate, 6));
 }
 
 #endif // TARGET_LPC1768

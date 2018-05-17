@@ -48,12 +48,16 @@ typedef uint32_t hal_timer_t;
 #define TONE_TIMER_NUM 6  // index of timer to use for beeper tones
 
 #define HAL_TIMER_RATE         ((F_CPU) / 2)    // frequency of timers peripherals
-#define STEPPER_TIMER_PRESCALE (CYCLES_PER_MICROSECOND / HAL_TICKS_PER_US)
+
 #define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
 #define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
+#define STEPPER_TIMER_PRESCALE (CYCLES_PER_MICROSECOND / HAL_TICKS_PER_US)
+#define STEP_TIMER_MIN_INTERVAL   8 // minimum time in µs between stepper interrupts
 
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
-#define STEP_TIMER_MIN_INTERVAL   8 // minimum time in µs between stepper interrupts
+
+#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(STEP_TIMER_NUM)
@@ -62,14 +66,9 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_ENABLE_ISRs() do { if (thermalManager.in_temp_isr) DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
-
 #define HAL_STEP_TIMER_ISR  void TC3_Handler()
 #define HAL_TEMP_TIMER_ISR  void TC4_Handler()
 #define HAL_TONE_TIMER_ISR  void TC6_Handler()
-
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
-#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 
 // --------------------------------------------------------------------------
 // Types
@@ -126,5 +125,7 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   // Reading the status register clears the interrupt flag
   pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_SR;
 }
+
+#define HAL_timer_isr_epilogue(TIMER_NUM)
 
 #endif // _HAL_TIMERS_DUE_H

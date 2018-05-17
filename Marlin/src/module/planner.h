@@ -40,7 +40,7 @@
   #include "delta.h"
 #endif
 
-#if HAS_ABL
+#if ABL_PLANAR
   #include "../libs/vector_3.h"
 #endif
 
@@ -57,14 +57,18 @@ enum BlockFlagBit : char {
   BLOCK_BIT_BUSY,
 
   // The block is segment 2+ of a longer move
-  BLOCK_BIT_CONTINUED
+  BLOCK_BIT_CONTINUED,
+
+  // Sync the stepper counts from the block
+  BLOCK_BIT_SYNC_POSITION
 };
 
 enum BlockFlag : char {
   BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
   BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
   BLOCK_FLAG_BUSY                 = _BV(BLOCK_BIT_BUSY),
-  BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED)
+  BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED),
+  BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
 };
 
 /**
@@ -90,9 +94,19 @@ typedef struct {
     uint32_t mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
   #endif
 
+  // Settings for the trapezoid generator
   int32_t accelerate_until,                 // The index of the step event on which to stop acceleration
-          decelerate_after,                 // The index of the step event on which to start decelerating
-          acceleration_rate;                // The acceleration rate used for acceleration calculation
+          decelerate_after;                 // The index of the step event on which to start decelerating
+
+  #if ENABLED(BEZIER_JERK_CONTROL)
+    uint32_t cruise_rate;                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
+    uint32_t acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
+             deceleration_time;
+    uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
+             deceleration_time_inverse;
+  #else
+    int32_t acceleration_rate;              // The acceleration rate used for acceleration calculation
+  #endif
 
   uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
@@ -112,7 +126,6 @@ typedef struct {
         millimeters,                        // The total travel of this block in mm
         acceleration;                       // acceleration mm/sec^2
 
-  // Settings for the trapezoid generator
   uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
            initial_rate,                    // The jerk-adjusted step rate at start of block
            final_rate,                      // The minimal rate at exit
@@ -300,6 +313,8 @@ class Planner {
      */
     FORCE_INLINE static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
+    FORCE_INLINE static void clear_block_buffer() { block_buffer_head = block_buffer_tail = 0; }
+
     FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
 
     // Update multipliers based on new diameter measurements
@@ -389,27 +404,38 @@ class Planner {
 
     #endif // SKEW_CORRECTION
 
-    #if PLANNER_LEVELING
-
-      #define ARG_X float rx
-      #define ARG_Y float ry
-      #define ARG_Z float rz
-
+    #if PLANNER_LEVELING || HAS_UBL_AND_CURVES
       /**
        * Apply leveling to transform a cartesian position
        * as it will be given to the planner and steppers.
        */
       static void apply_leveling(float &rx, float &ry, float &rz);
-      static void apply_leveling(float (&raw)[XYZ]) { apply_leveling(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
+      FORCE_INLINE static void apply_leveling(float (&raw)[XYZ]) { apply_leveling(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
+    #endif
+
+    #if PLANNER_LEVELING
+      #define ARG_X float rx
+      #define ARG_Y float ry
+      #define ARG_Z float rz
       static void unapply_leveling(float raw[XYZ]);
-
     #else
-
       #define ARG_X const float &rx
       #define ARG_Y const float &ry
       #define ARG_Z const float &rz
-
     #endif
+
+    /**
+     * Planner::get_next_free_block
+     *
+     * - Get the next head index (passed by reference)
+     * - Wait for a space to open up in the planner
+     * - Return the head block
+     */
+    FORCE_INLINE static block_t* get_next_free_block(uint8_t &next_buffer_head) {
+      next_buffer_head = next_block_index(block_buffer_head);
+      while (block_buffer_tail == next_buffer_head) idle(); // while (is_full)
+      return &block_buffer[block_buffer_head];
+    }
 
     /**
      * Planner::_buffer_steps
@@ -427,6 +453,12 @@ class Planner {
       #endif
       , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
+
+    /**
+     * Planner::buffer_sync_block
+     * Add a block to the buffer that just updates the position
+     */
+    static void buffer_sync_block();
 
     /**
      * Planner::buffer_segment
@@ -507,7 +539,7 @@ class Planner {
     static void set_position_mm_kinematic(const float (&cart)[XYZE]);
     static void set_position_mm(const AxisEnum axis, const float &v);
     FORCE_INLINE static void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
-    FORCE_INLINE static void set_e_position_mm(const float &e) { set_position_mm(AxisEnum(E_AXIS), e); }
+    FORCE_INLINE static void set_e_position_mm(const float &e) { set_position_mm(E_AXIS, e); }
 
     /**
      * Sync from the stepper positions. (e.g., after an interrupted move)
@@ -515,9 +547,25 @@ class Planner {
     static void sync_from_steppers();
 
     /**
+     * Get an axis position according to stepper position(s)
+     * For CORE machines apply translation from ABC to XYZ.
+     */
+    static float get_axis_position_mm(const AxisEnum axis);
+
+    // SCARA AB axes are in degrees, not mm
+    #if IS_SCARA
+      FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
+    #endif
+
+    /**
      * Does the buffer have any blocks queued?
      */
-    static bool has_blocks_queued() { return (block_buffer_head != block_buffer_tail); }
+    FORCE_INLINE static bool has_blocks_queued() { return (block_buffer_head != block_buffer_tail); }
+
+    //
+    // Block until all buffered steps are executed
+    //
+    static void synchronize();
 
     /**
      * "Discard" the block and "release" the memory.
@@ -585,7 +633,7 @@ class Planner {
         return bbru;
       }
 
-      static void clear_block_buffer_runtime(){
+      static void clear_block_buffer_runtime() {
         CRITICAL_SECTION_START
           block_buffer_runtime_us = 0;
         CRITICAL_SECTION_END
@@ -639,6 +687,15 @@ class Planner {
       return SQRT(sq(target_velocity) - 2 * accel * distance);
     }
 
+    #if ENABLED(BEZIER_JERK_CONTROL)
+      /**
+       * Calculate the speed reached given initial speed, acceleration and distance
+       */
+      static float final_speed(const float &initial_velocity, const float &accel, const float &distance) {
+        return SQRT(sq(initial_velocity) + 2 * accel * distance);
+      }
+    #endif
+
     static void calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor);
 
     static void reverse_pass_kernel(block_t* const current, const block_t * const next);
@@ -653,7 +710,7 @@ class Planner {
 
 };
 
-#define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
+#define PLANNER_XY_FEEDRATE() (MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
 
 extern Planner planner;
 

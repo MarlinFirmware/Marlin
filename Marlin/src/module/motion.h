@@ -189,7 +189,7 @@ void clean_up_after_endstop_or_probe_move();
 void set_axis_is_at_home(const AxisEnum axis);
 
 void homeaxis(const AxisEnum axis);
-#define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
+#define HOMEAXIS(A) homeaxis(_AXIS(A))
 
 #if ENABLED(SENSORLESS_HOMING)
   void sensorless_homing_per_axis(const AxisEnum axis, const bool enable=true);
@@ -260,7 +260,7 @@ void homeaxis(const AxisEnum axis);
     // Note: This won't work on SCARA since the probe offset rotates with the arm.
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
       return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-             && position_is_reachable(rx, ry, FABS(MIN_PROBE_EDGE));
+             && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
     }
   #endif
 

@@ -40,7 +40,7 @@
    *    B = delta calibration radius
    *    X = Alpha (Tower 1) angle trim
    *    Y = Beta (Tower 2) angle trim
-   *    Z = Rotate A and B by this angle
+   *    Z = Gamma (Tower 3) angle trim
    */
   void GcodeSuite::M665() {
     if (parser.seen('H')) delta_height                   = parser.value_linear_units();

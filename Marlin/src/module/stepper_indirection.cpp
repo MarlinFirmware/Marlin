@@ -47,7 +47,7 @@
     #include <TMC26XStepper.h>
   #endif
 
-  #define _TMC26X_DEFINE(ST) TMC26XStepper stepper##ST(200, ST##_ENABLE_PIN, ST##_STEP_PIN, ST##_DIR_PIN, ST##_MAX_CURRENT, ST##_SENSE_RESISTOR)
+  #define _TMC26X_DEFINE(ST) TMC26XStepper stepper##ST(200, ST##_CS_PIN, ST##_STEP_PIN, ST##_DIR_PIN, ST##_MAX_CURRENT, ST##_SENSE_RESISTOR)
 
   #if ENABLED(X_IS_TMC26X)
     _TMC26X_DEFINE(X);
@@ -184,6 +184,10 @@
   // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
   // https://www.trinamic.com/products/integrated-circuits/details/tmc2130/
   void tmc2130_init(TMC2130Stepper &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
+    #if DISABLED(STEALTHCHOP) || DISABLED(HYBRID_THRESHOLD)
+      UNUSED(thrs);
+      UNUSED(spmm);
+    #endif
     st.begin();
     st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
     st.microsteps(microsteps);
@@ -193,7 +197,6 @@
     st.power_down_delay(128); // ~2s until driver lowers to hold current
     st.hysteresis_start(3);
     st.hysteresis_end(2);
-    st.diag1_active_high(1); // For sensorless homing
     #if ENABLED(STEALTHCHOP)
       st.stealth_freq(1); // f_pwm = 2/683 f_clk
       st.stealth_autoscale(1);
@@ -202,9 +205,6 @@
       st.stealthChop(1);
       #if ENABLED(HYBRID_THRESHOLD)
         st.stealth_max_speed(12650000UL*microsteps/(256*thrs*spmm));
-      #else
-        UNUSED(thrs);
-        UNUSED(spmm);
       #endif
     #elif ENABLED(SENSORLESS_HOMING)
       st.coolstep_min_speed(1024UL * 1024UL - 1UL);

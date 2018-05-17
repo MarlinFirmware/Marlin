@@ -41,7 +41,7 @@
   #include "../../../feature/bedlevel/bedlevel.h"
   #include "../../../libs/least_squares_fit.h"
 
-#include "../../../feature/Max7219_Debug_LEDs.h"
+  #include "../../../feature/Max7219_Debug_LEDs.h"
 
   #include <math.h>
 
@@ -53,9 +53,6 @@
     void lcd_return_to_status();
     void _lcd_ubl_output_map_lcd();
   #endif
-
-  extern float meshedit_done;
-  extern long babysteps_done;
 
   #define SIZE_OF_LITTLE_RAISE 1
   #define BIG_RAISE_NOT_NEEDED 0
@@ -210,8 +207,8 @@
    *                    adhesion.
    *
    *                    P4 moves to the closest Mesh Point (and/or the given X Y), raises the nozzle above the mesh height
-   *                    by the given 'H' offset (or default Z_CLEARANCE_BETWEEN_PROBES), and waits while the controller is
-   *                    used to adjust the nozzle height. On click the displayed height is saved in the mesh.
+   *                    by the given 'H' offset (or default 0), and waits while the controller is used to adjust the nozzle
+   *                    height. On click the displayed height is saved in the mesh.
    *
    *                    Start Phase 4 at a specific location with X and Y. Adjust a specific number of Mesh Points with
    *                    the 'R' (Repeat) parameter. (If 'R' is left out, the whole matrix is assumed.) This command can be
@@ -252,9 +249,7 @@
    *                    for subsequent Load and Store operations. Valid storage slot numbers begin at 0 and
    *                    extend to a limit related to the available EEPROM storage.
    *
-   *   S -1  Store      Store the current Mesh as a print out that is suitable to be feed back into the system
-   *                    at a later date. The GCode output can be saved and later replayed by the host software
-   *                    to reconstruct the current mesh on another machine.
+   *   S -1  Store      Print the current Mesh as G-code that can be used to restore the mesh anytime.
    *
    *   T     Topology   Display the Mesh Map Topology.
    *                    'T' can be used alone (e.g., G29 T) or in combination with most of the other commands.
@@ -456,7 +451,7 @@
 
             if (parser.seen('B')) {
               g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness((float) Z_CLEARANCE_BETWEEN_PROBES);
-              if (FABS(g29_card_thickness) > 1.5) {
+              if (ABS(g29_card_thickness) > 1.5) {
                 SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.");
                 return;
               }
@@ -546,7 +541,7 @@
           #endif
           break;
 
-        case 5: find_mean_mesh_height(); break;
+        case 5: adjust_mesh_to_mean(g29_c_flag, g29_constant); break;
 
         case 6: shift_mesh_height(); break;
       }
@@ -628,15 +623,15 @@
 
     #if ENABLED(NEWPANEL)
       lcd_reset_alert_level();
-      LCD_MESSAGEPGM("");
       lcd_quick_feedback(true);
+      lcd_reset_status();
       lcd_external_control = false;
     #endif
 
     return;
   }
 
-  void unified_bed_leveling::find_mean_mesh_height() {
+  void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float value) {
     float sum = 0.0;
     int n = 0;
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
@@ -667,11 +662,11 @@
     SERIAL_ECHO_F(sigma, 6);
     SERIAL_EOL();
 
-    if (g29_c_flag)
+    if (cflag)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
         for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
           if (!isnan(z_values[x][y]))
-            z_values[x][y] -= mean + g29_constant;
+            z_values[x][y] -= mean + value;
   }
 
   void unified_bed_leveling::shift_mesh_height() {
@@ -758,7 +753,7 @@
 
       STOW_PROBE();
 
-      #if Z_AFTER_PROBING
+      #ifdef Z_AFTER_PROBING
         move_z_after_probing();
       #endif
 
@@ -801,8 +796,8 @@
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
-        //, min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
-      stepper.synchronize();
+        //, MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
+      planner.synchronize();
 
       SERIAL_PROTOCOLPGM("Place shim under nozzle");
       LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
@@ -811,7 +806,7 @@
 
       const float z1 = measure_point_with_encoder();
       do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
-      stepper.synchronize();
+      planner.synchronize();
 
       SERIAL_PROTOCOLPGM("Remove shim");
       LCD_MESSAGEPGM(MSG_UBL_BC_REMOVE);
@@ -821,7 +816,7 @@
 
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES);
 
-      const float thickness = abs(z1 - z2);
+      const float thickness = ABS(z1 - z2);
 
       if (g29_verbose_level > 1) {
         SERIAL_PROTOCOLPGM("Business Card is ");
@@ -1083,7 +1078,7 @@
       SERIAL_EOL();
     #endif
 
-    find_mean_mesh_height();
+    adjust_mesh_to_mean(g29_c_flag, g29_constant);
 
     #if HAS_BED_PROBE
       SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
@@ -1351,9 +1346,8 @@
         g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
 
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
-        const bool is_offset = parser.seen('H');
-        const float h_offset = is_offset ? parser.value_linear_units() : Z_CLEARANCE_BETWEEN_PROBES;
-        if (is_offset && !WITHIN(h_offset, 0, 10)) {
+        const float h_offset = parser.seenval('H') ? parser.value_linear_units() : 0;
+        if (!WITHIN(h_offset, 0, 10)) {
           SERIAL_PROTOCOLLNPGM("Offset out of bounds. (0 to 10mm)\n");
           return;
         }
@@ -1369,63 +1363,63 @@
       save_ubl_active_state_and_disable();
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
+      lcd_external_control = true;                                  // Take over control of the LCD encoder
 
-      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
+      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);      // Move to the given XY with probe clearance
+
+      #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+        do_blocking_move_to_z(h_offset);                            // Move Z to the given 'H' offset
+      #endif
 
       uint16_t not_done[16];
       memset(not_done, 0xFF, sizeof(not_done));
       do {
         location = find_closest_mesh_point_of_type(SET_IN_BITMAP, rx, ry, USE_NOZZLE_AS_REFERENCE, not_done);
 
-        if (location.x_index < 0) break; // stop when we can't find any more reachable points.
+        if (location.x_index < 0) break;                            // Stop when there are no more reachable points
 
-        bitmap_clear(not_done, location.x_index, location.y_index); // Mark this location as 'adjusted' so we will find a
-                                                                    // different location the next time through the loop
+        bitmap_clear(not_done, location.x_index, location.y_index); // Mark this location as 'adjusted' so a new
+                                                                    // location is used on the next loop
 
         const float rawx = mesh_index_to_xpos(location.x_index),
                     rawy = mesh_index_to_ypos(location.y_index);
 
-        if (!position_is_reachable(rawx, rawy)) // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
-          break;
+        if (!position_is_reachable(rawx, rawy)) break;              // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
 
-        do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point
+        do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point with probe clearance
+
+        #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+          do_blocking_move_to_z(h_offset);                          // Move Z to the given 'H' offset before editing
+        #endif
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        lcd_external_control = true;
 
-        if (do_ubl_mesh_map) display_map(g29_map_type);  // show the user which point is being adjusted
+        if (do_ubl_mesh_map) display_map(g29_map_type);             // Display the current point
 
         lcd_refresh();
 
         float new_z = z_values[location.x_index][location.y_index];
-        if (isnan(new_z)) new_z = 0.0;          // Set invalid mesh points to 0.0 so they can be edited
-        new_z = FLOOR(new_z * 1000.0) * 0.001;  // Chop off digits after the 1000ths place
+        if (isnan(new_z)) new_z = 0.0;                              // Invalid points begin at 0
+        new_z = FLOOR(new_z * 1000.0) * 0.001;                      // Chop off digits after the 1000ths place
 
         lcd_mesh_edit_setup(new_z);
 
         do {
           new_z = lcd_mesh_edit();
           #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
-            do_blocking_move_to_z(h_offset + new_z); // Move the nozzle as the point is edited
+            do_blocking_move_to_z(h_offset + new_z);                // Move the nozzle as the point is edited
           #endif
           idle();
-          SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
+          SERIAL_FLUSH();                                           // Prevent host M105 buffer overrun.
         } while (!is_lcd_clicked());
 
-        if (!lcd_map_control) lcd_return_to_status();
+        if (!lcd_map_control) lcd_return_to_status();               // Just editing a single point? Return to status
 
-        // The technique used here generates a race condition for the encoder click.
-        // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune) or here.
-        // Let's work on specifying a proper API for the LCD ASAP, OK?
-        lcd_external_control = true;
+        if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
 
-        if (click_and_hold(abort_fine_tune))
-          goto FINE_TUNE_EXIT;
+        z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
 
-        safe_delay(20);                       // We don't want any switch noise.
-
-        z_values[location.x_index][location.y_index] = new_z;
-
+        safe_delay(20);                                             // No switch noise
         lcd_refresh();
 
       } while (location.x_index >= 0 && --g29_repetition_cnt > 0);
@@ -1502,11 +1496,13 @@
 
   #if HAS_BED_PROBE
 
+    #include "../../../libs/vector_3.h"
+
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
-      constexpr int16_t x_min = max(MIN_PROBE_X, MESH_MIN_X),
-                        x_max = min(MAX_PROBE_X, MESH_MAX_X),
-                        y_min = max(MIN_PROBE_Y, MESH_MIN_Y),
-                        y_max = min(MAX_PROBE_Y, MESH_MAX_Y);
+      constexpr int16_t x_min = MAX(MIN_PROBE_X, MESH_MIN_X),
+                        x_max = MIN(MAX_PROBE_X, MESH_MAX_X),
+                        y_min = MAX(MIN_PROBE_Y, MESH_MIN_Y),
+                        y_max = MIN(MAX_PROBE_Y, MESH_MAX_Y);
 
       bool abort_flag = false;
 
@@ -1610,14 +1606,17 @@
                   SERIAL_EOL();
                 }
               #endif
-
+              if (g29_verbose_level > 3) {
+                serial_spaces(16);
+                SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
+              }
               incremental_LSF(&lsf_results, rx, ry, measured_z);
             }
           }
 
           zig_zag ^= true;
         }
-
+        STOW_PROBE();
       }
 
       if (abort_flag || finish_incremental_LSF(&lsf_results)) {
@@ -1771,7 +1770,7 @@
 
       SERIAL_ECHOPGM("Extrapolating mesh...");
 
-      const float weight_scaled = weight_factor * max(MESH_X_DIST, MESH_Y_DIST);
+      const float weight_scaled = weight_factor * MAX(MESH_X_DIST, MESH_Y_DIST);
 
       for (uint8_t jx = 0; jx < GRID_MAX_POINTS_X; jx++)
         for (uint8_t jy = 0; jy < GRID_MAX_POINTS_Y; jy++)

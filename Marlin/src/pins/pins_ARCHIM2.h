@@ -43,15 +43,44 @@
 // Items marked * have been altered from Archim v1.0
 //
 
+// TMC2130 Diag Pins (currently just for reference)
+#define X_DIAG_PIN         59   // PA4 X_DIAG
+#define Y_DIAG_PIN         48   // PC15 Y_DIAG
+#define Z_DIAG_PIN         36   // PC4 Z_DIAG
+#define E0_DIAG_PIN        78   // PB23 E1_DIAG
+#define E1_DIAG_PIN        25   // PD0 E2_DIAG
+
 //
 // Limit Switches
 //
-#define X_MIN_PIN          14   // PD4 MIN ES1
-#define X_MAX_PIN          32   // PD10 MAX ES1
-#define Y_MIN_PIN          29   // PD6 MIN ES2
-#define Y_MAX_PIN          15   // PD5 MAX ES2
-#define Z_MIN_PIN          31   // PA7 MIN ES3
-#define Z_MAX_PIN          30   // PD9 MAX ES3
+// Only use Diag Pins when SENSORLESS_HOMING is enabled for the TMC2130 drivers.
+// Otherwise use a physical endstop based configuration.
+
+#if DISABLED(SENSORLESS_HOMING)
+ #define X_MIN_PIN          14   // PD4 MIN ES1
+ #define X_MAX_PIN          32   // PD10 MAX ES1
+ #define Y_MIN_PIN          29   // PD6 MIN ES2
+ #define Y_MAX_PIN          15   // PD5 MAX ES2
+#else
+  #if X_HOME_DIR == -1
+    #define X_MIN_PIN      X_DIAG_PIN
+    #define X_MAX_PIN      32
+  #else
+    #define X_MIN_PIN      14
+    #define X_MAX_PIN      X_DIAG_PIN
+  #endif
+
+  #if Y_HOME_DIR == -1
+    #define Y_MIN_PIN      Y_DIAG_PIN
+    #define Y_MAX_PIN      15
+  #else
+    #define Y_MIN_PIN      29
+    #define Y_MAX_PIN      Y_DIAG_PIN
+  #endif
+#endif
+
+ #define Z_MIN_PIN          31   // PA7 MIN ES3
+ #define Z_MAX_PIN          30   // PD9 MAX ES3
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -69,7 +98,6 @@
 #ifndef X_CS_PIN
   #define X_CS_PIN         39   // PC7 X_nCS
 #endif
-#define X_DIAG_PIN         59   // PA4 X_DIAG
 
 #define Y_STEP_PIN         51   // PC12 Y-STEP *
 #define Y_DIR_PIN          92   // PC11 Y-DIR -AddOns *
@@ -77,7 +105,6 @@
 #ifndef Y_CS_PIN
   #define Y_CS_PIN         50   // PC13 Y_nCS
 #endif
-#define Y_DIAG_PIN         48   // PC15 Y_DIAG
 
 #define Z_STEP_PIN         46   // PC17 Z-STEP *
 #define Z_DIR_PIN          47   // PC16 Z-DIR *
@@ -85,7 +112,6 @@
 #ifndef Z_CS_PIN
   #define Z_CS_PIN         45   // PC18 Z_nCS
 #endif
-#define Z_DIAG_PIN         36   // PC4 Z_DIAG
 
 #define E0_STEP_PIN       107   // PB10 E1-STEP -AddOns *
 #define E0_DIR_PIN         96   // PC10 E1-DIR -AddOns *
@@ -93,7 +119,6 @@
 #ifndef E0_CS_PIN
   #define E0_CS_PIN       104   // PC20 E1_nCS -AddOns *
 #endif
-#define E0_DIAG_PIN        78   // PB23 E1_DIAG
 
 #define E1_STEP_PIN        22   // PB26 E2_STEP *
 #define E1_DIR_PIN         97   // PB24 E2_DIR -AddOns *
@@ -101,7 +126,6 @@
 #ifndef E1_CS_PIN
   #define E1_CS_PIN        19   // PA10 E2_nCS
 #endif
-#define E1_DIAG_PIN        25   // PD0 E2_DIAG
 
 //
 // Software SPI pins for TMC2130 stepper drivers.
@@ -132,12 +156,10 @@
 #define HEATER_2_PIN        8   // D8 PC22 FET_PWM5
 #define HEATER_BED_PIN      9   // D9 PC21 BED_PWM
 
-
 //
 // Misc. Functions
 //
 #define SDSS               87   // D87 PA29 CS
-
 
 //////////////////////////
 // LCDs and Controllers //

@@ -40,7 +40,7 @@ void idle(
   #endif
 );
 
-void manage_inactivity(bool ignore_stepper_queue = false);
+void manage_inactivity(const bool ignore_stepper_queue=false);
 
 #if HAS_X2_ENABLE
   #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
@@ -156,8 +156,6 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
  */
-#define _AXIS(AXIS) AXIS ##_AXIS
-
 void enable_all_steppers();
 void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
@@ -205,10 +203,6 @@ extern millis_t max_inactive_time, stepper_inactive_time;
 
 #if ENABLED(USE_CONTROLLER_FAN)
   extern uint8_t controllerFanSpeed;
-#endif
-
-#if ENABLED(PID_EXTRUSION_SCALING)
-  extern int lpq_len;
 #endif
 
 #if HAS_POWER_SWITCH

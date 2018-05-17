@@ -114,9 +114,8 @@ public:
     ;
   }
 
-  // Support functions, which may be embedded in the class later
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
-    void line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
+    static void line_to_destination(const float fr_mm_s, uint8_t x_splits=0xFF, uint8_t y_splits=0xFF);
   #endif
 };
 

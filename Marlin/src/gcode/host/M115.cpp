@@ -146,5 +146,12 @@ void GcodeSuite::M115() {
       #endif
     );
 
+    // THERMAL_PROTECTION
+    cap_line(PSTR("THERMAL_PROTECTION")
+      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(THERMAL_PROTECTION_BED)
+        , true
+      #endif
+    );
+
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

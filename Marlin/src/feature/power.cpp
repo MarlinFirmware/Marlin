@@ -50,8 +50,10 @@ bool Power::is_power_needed() {
     if (controllerFanSpeed > 0) return true;
   #endif
 
-  if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON ||
-      thermalManager.soft_pwm_amount_bed > 0
+  if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON
+    #if HAS_HEATED_BED
+      || thermalManager.soft_pwm_amount_bed > 0
+    #endif
       || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
       #if E_STEPPERS > 1
         || E1_ENABLE_READ == E_ENABLE_ON
@@ -87,16 +89,18 @@ void Power::check() {
 
 void Power::power_on() {
   lastPowerOn = millis();
-  PSU_PIN_ON();
+  if (!powersupply_on) {
+    PSU_PIN_ON();
 
-  #if HAS_TRINAMIC
-    delay(100); // Wait for power to settle
-    restore_stepper_drivers();
-  #endif
+    #if HAS_TRINAMIC
+      delay(100); // Wait for power to settle
+      restore_stepper_drivers();
+    #endif
+  }
 }
 
 void Power::power_off() {
-  PSU_PIN_OFF();
+  if (powersupply_on) PSU_PIN_OFF();
 }
 
 #endif // AUTO_POWER_CONTROL
