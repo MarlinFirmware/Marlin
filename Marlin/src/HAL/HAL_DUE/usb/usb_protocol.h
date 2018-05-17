@@ -271,7 +271,7 @@ enum usb_langid {
 /**
  * \brief Mask selecting the index part of an endpoint address
  */
-#define  USB_EP_ADDR_MASK     0x0f
+#define  USB_EP_ADDR_MASK     0x0F
 
 //! \brief USB address identifier
 typedef uint8_t usb_add_t;

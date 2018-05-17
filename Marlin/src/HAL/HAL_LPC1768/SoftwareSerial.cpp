@@ -37,6 +37,7 @@
 //
 //#include <WInterrupts.h>
 #include "../../inc/MarlinConfig.h"
+#include "../Delay.h"
 #include <stdint.h>
 #include <stdarg.h>
 #include <Arduino.h>
@@ -66,7 +67,7 @@ typedef struct _DELAY_TABLE {
 static const DELAY_TABLE table[] = {
   //baud    |rxcenter|rxintra |rxstop  |tx { 250000,   2,      4,       4,       4,   }, //Done but not good due to instruction cycle error { 115200,   4,      8,       8,       8,   }, //Done but not good due to instruction cycle error
   //{ 74880,   69,       139,       62,      162,  }, // estimation
-//  { 57600,   100,       185,      1,       208,  }, // Done but not good due to instruction cycle error
+  //{ 57600,   100,       185,      1,       208,  }, // Done but not good due to instruction cycle error
   //{ 38400,   13,      26,      26,      26,  }, // Done
   //{ 19200,   26,      52,      52,      52,  }, // Done { 9600,    52,      104,     104,     104, }, // Done
   //{ 4800,    104,     208,     208,     208, },
@@ -78,28 +79,9 @@ static const DELAY_TABLE table[] = {
 // Private methods
 //
 
-#if 0
-/* static */
 inline void SoftwareSerial::tunedDelay(const uint32_t count) {
-
-  asm volatile(
-
-    "mov r3, %[loopsPerMicrosecond] \n\t" //load the initial loop counter
-    "1: \n\t"
-    "sub r3, r3, #1 \n\t"
-    "bne 1b \n\t"
-
-    ://empty output list
-    :[loopsPerMicrosecond] "r" (count)
-    :"r3", "cc" //clobber list
-  );
-
+  DELAY_US(count);
 }
-#else
-inline void SoftwareSerial::tunedDelay(const uint32_t count) {
-  delayMicroseconds(count);
-}
-#endif
 
 // This function sets the current object as the "listening"
 // one and returns true if it replaces another

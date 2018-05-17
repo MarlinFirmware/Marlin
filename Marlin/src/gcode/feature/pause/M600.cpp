@@ -74,18 +74,18 @@ void GcodeSuite::M600() {
   #endif
 
   // Initial retract before move to filament change position
-  const float retract = -FABS(parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
+  const float retract = -ABS(parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
     #ifdef PAUSE_PARK_RETRACT_LENGTH
       + (PAUSE_PARK_RETRACT_LENGTH)
     #endif
   );
 
+  // Lift Z axis
+  if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
+
   // Move XY axes to filament change position or given position
   if (parser.seenval('X')) park_point.x = parser.linearval('X');
   if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
-
-  // Lift Z axis
-  if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
   #if HOTENDS > 1 && DISABLED(DUAL_X_CARRIAGE) && DISABLED(DELTA)
     park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
@@ -93,12 +93,15 @@ void GcodeSuite::M600() {
   #endif
 
   // Unload filament
-  const float unload_length = -FABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
+  const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
                                                      : filament_change_unload_length[active_extruder]);
 
-  // Load filament
-  const float load_length = FABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
-                                                  : filament_change_load_length[active_extruder]);
+  // Slow load filament
+  constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
+
+  // Fast load filament
+  const float fast_load_length = ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS)
+                                                       : filament_change_load_length[active_extruder]);
 
   const int beep_count = parser.intval('B',
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS
@@ -112,7 +115,7 @@ void GcodeSuite::M600() {
 
   if (pause_print(retract, park_point, unload_length, true)) {
     wait_for_filament_reload(beep_count);
-    resume_print(load_length, ADVANCED_PAUSE_EXTRUDE_LENGTH, beep_count);
+    resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count);
   }
 
   #if EXTRUDERS > 1

@@ -32,7 +32,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include "../HAL.h"
+#include "HAL.h"
 
 #include "HAL_timers_Due.h"
 
@@ -61,13 +61,13 @@
 // --------------------------------------------------------------------------
 
 const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
-  { TC0, 0, TC0_IRQn,  0}, // 0 - [servo timer5]
+  { TC0, 0, TC0_IRQn,  3}, // 0 - [servo timer5]
   { TC0, 1, TC1_IRQn,  0}, // 1
   { TC0, 2, TC2_IRQn,  0}, // 2
   { TC1, 0, TC3_IRQn,  2}, // 3 - stepper
   { TC1, 1, TC4_IRQn, 15}, // 4 - temperature
-  { TC1, 2, TC5_IRQn,  0}, // 5 - [servo timer3]
-  { TC2, 0, TC6_IRQn, 15}, // 6 - tone
+  { TC1, 2, TC5_IRQn,  3}, // 5 - [servo timer3]
+  { TC2, 0, TC6_IRQn, 14}, // 6 - tone
   { TC2, 1, TC7_IRQn,  0}, // 7
   { TC2, 2, TC8_IRQn,  0}, // 8
 };
@@ -137,19 +137,7 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   const tTimerConfig * const pConfig = &TimerConfig[timer_num];
-  return pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_IER == TC_IER_CPCS;
+  return (pConfig->pTimerRegs->TC_CHANNEL[pConfig->channel].TC_IMR & TC_IMR_CPCS) != 0;
 }
-
-#if 0
-  void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare) {
-    const tTimerConfig * const pConfig = &TimerConfig[timer_num];
-    TC_SetRC(pConfig->pTimerRegs, pConfig->channel, compare);
-  }
-
-  void HAL_timer_isr_prologue(const uint8_t timer_num) {
-    const tTimerConfig * const pConfig = &TimerConfig[timer_num];
-    TC_GetStatus(pConfig->pTimerRegs, pConfig->channel);
-  }
-#endif
 
 #endif // ARDUINO_ARCH_SAM

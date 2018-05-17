@@ -75,7 +75,7 @@ int inbound_count;
 // Everything written needs the high bit set.
 void write_to_lcd_P(const char * const message) {
   char encoded_message[MAX_CURLY_COMMAND];
-  uint8_t message_length = min(strlen_P(message), sizeof(encoded_message));
+  uint8_t message_length = MIN(strlen_P(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
     encoded_message[i] = pgm_read_byte(&message[i]) | 0x80;
@@ -85,7 +85,7 @@ void write_to_lcd_P(const char * const message) {
 
 void write_to_lcd(const char * const message) {
   char encoded_message[MAX_CURLY_COMMAND];
-  const uint8_t message_length = min(strlen(message), sizeof(encoded_message));
+  const uint8_t message_length = MIN(strlen(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
     encoded_message[i] = message[i] | 0x80;
@@ -109,14 +109,14 @@ void process_lcd_c_command(const char* command) {
       // M104 S<temperature>
       char cmd[20];
       sprintf_P(cmd, PSTR("M104 S%s"), command + 1);
-      enqueue_and_echo_command_now(cmd, false);
+      enqueue_and_echo_command_now(cmd);
     } break;
 
     case 'P': {
       // M140 S<temperature>
       char cmd[20];
       sprintf_P(cmd, PSTR("M140 S%s"), command + 1);
-      enqueue_and_echo_command_now(cmd, false);
+      enqueue_and_echo_command_now(cmd);
     } break;
 
     default:
@@ -178,8 +178,8 @@ void process_lcd_j_command(const char* command) {
     case 'E':
       // enable or disable steppers
       // switch to relative
-      enqueue_and_echo_command_now("G91");
-      enqueue_and_echo_command_now(steppers_enabled ? "M18" : "M17");
+      enqueue_and_echo_commands_now_P(PSTR("G91"));
+      enqueue_and_echo_commands_now_P(steppers_enabled ? PSTR("M18") : PSTR("M17"));
       steppers_enabled = !steppers_enabled;
       break;
     case 'A':
@@ -245,7 +245,7 @@ void process_lcd_p_command(const char* command) {
       break;
     case 'H':
       // Home all axis
-      enqueue_and_echo_command_now("G28");
+      enqueue_and_echo_commands_now_P(PSTR("G28"));
       break;
     default: {
       // Print file 000 - a three digit number indicating which
@@ -302,7 +302,7 @@ void process_lcd_s_command(const char* command) {
 
     case 'H':
       // Home all axis
-      enqueue_and_echo_command("G28", false);
+      enqueue_and_echo_commands_P(PSTR("G28"));
       break;
 
     case 'L': {

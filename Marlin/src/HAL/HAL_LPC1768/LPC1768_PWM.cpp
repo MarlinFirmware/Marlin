@@ -213,7 +213,7 @@ void LPC1768_PWM_sort(void) {
   }
 }
 
-bool LPC1768_PWM_attach_pin(pin_t pin, uint32_t min /* = 1 */, uint32_t max /* = (LPC_PWM1_MR0 - 1) */, uint8_t servo_index /* = 0xff */) {
+bool LPC1768_PWM_attach_pin(pin_t pin, uint32_t min /* = 1 */, uint32_t max /* = (LPC_PWM1_MR0 - 1) */, uint8_t servo_index /* = 0xFF */) {
 
   pin = GET_PIN_MAP_PIN(GET_PIN_MAP_INDEX(pin & 0xFF));  // Sometimes the upper byte is garbled
 

@@ -25,7 +25,7 @@
 
 // Arduino Due core now has watchdog support
 
-#include "../HAL.h"
+#include "HAL.h"
 
 // Initialize watchdog with a 4 second interrupt time
 void watchdog_init();

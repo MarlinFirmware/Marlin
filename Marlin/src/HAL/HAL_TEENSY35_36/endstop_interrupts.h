@@ -34,8 +34,19 @@
  * (Located in Marlin/buildroot/share/pin_interrupt_test/pin_interrupt_test.ino)
  */
 
- #ifndef _ENDSTOP_INTERRUPTS_H_
- #define _ENDSTOP_INTERRUPTS_H_
+#ifndef _ENDSTOP_INTERRUPTS_H_
+#define _ENDSTOP_INTERRUPTS_H_
+
+volatile uint8_t e_hit = 0; // Different from 0 when the endstops should be tested in detail.
+                            // Must be reset to 0 by the test function when finished.
+
+// This is what is really done inside the interrupts.
+FORCE_INLINE void endstop_ISR_worker( void ) {
+  e_hit = 2; // Because the detection of a e-stop hit has a 1 step debouncer it has to be called at least twice.
+}
+
+// One ISR for all EXT-Interrupts
+void endstop_ISR(void) { endstop_ISR_worker(); }
 
 /**
  *  Endstop interrupts for Due based targets.

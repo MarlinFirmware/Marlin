@@ -27,13 +27,9 @@
 #include "../../module/motion.h"
 #include "../../module/planner_bezier.h"
 
-void plan_cubic_move(const float (&offset)[4]) {
-  cubic_b_spline(current_position, destination, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
-
-  // As far as the parser is concerned, the position is now == destination. In reality the
-  // motion control system might still be processing the action and the real tool position
-  // in any intermediate location.
-  set_current_from_destination();
+void plan_cubic_move(const float (&cart)[XYZE], const float (&offset)[4]) {
+  cubic_b_spline(current_position, cart, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
+  COPY(current_position, cart);
 }
 
 /**
@@ -69,7 +65,7 @@ void GcodeSuite::G5() {
       parser.linearval('Q')
     };
 
-    plan_cubic_move(offset);
+    plan_cubic_move(destination, offset);
   }
 }
 

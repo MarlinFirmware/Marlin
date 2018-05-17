@@ -28,6 +28,8 @@
 #ifndef _HAL_LPC1768_H_
 #define _HAL_LPC1768_H_
 
+#define CPU_32_BIT
+
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
@@ -58,15 +60,17 @@ extern "C" volatile uint32_t _millis;
 #include <Arduino.h>
 #include <pinmapping.h>
 
+#include "../math_32bit.h"
+#include "../HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
 #include "serial.h"
 #include "HAL_timers.h"
 #include "HardwareSerial.h"
 
-#define ST7920_DELAY_1 DELAY_20_NOP;DELAY_20_NOP;DELAY_20_NOP
-#define ST7920_DELAY_2 DELAY_20_NOP;DELAY_20_NOP;DELAY_20_NOP;DELAY_10_NOP;DELAY_5_NOP
-#define ST7920_DELAY_3 DELAY_20_NOP;DELAY_20_NOP;DELAY_20_NOP;DELAY_10_NOP;DELAY_5_NOP
+#define ST7920_DELAY_1 DELAY_NS(600)
+#define ST7920_DELAY_2 DELAY_NS(750)
+#define ST7920_DELAY_3 DELAY_NS(750)
 
 extern HalSerial usb_serial;
 

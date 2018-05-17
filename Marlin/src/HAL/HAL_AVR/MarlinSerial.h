@@ -94,10 +94,6 @@
     extern ring_buffer_pos_t rx_max_enqueued;
   #endif
 
-  #if ENABLED(EMERGENCY_PARSER)
-    extern bool killed_by_M112;
-  #endif
-
   class MarlinSerial { //: public Stream
 
     public:

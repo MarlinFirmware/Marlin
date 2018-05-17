@@ -639,7 +639,7 @@ class DigitalPin {
 
 //------------------------------------------------------------------------------
 /** Nop for timing. */
-#define nop asm volatile ("nop\n\t")
+#define nop __asm__ volatile ("nop")
 //------------------------------------------------------------------------------
 /** Pin Mode for MISO is input.*/
 const bool MISO_MODE  = false;

@@ -29,6 +29,8 @@
 
 #if !(defined(U8G_HAL_LINKS) || defined(__SAM3X8E__))
 
+#include "../../HAL/Delay.h"
+
 #define ST7920_CLK_PIN  LCD_PINS_D4
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE
 #define ST7920_CS_PIN   LCD_PINS_RS
@@ -46,30 +48,30 @@
 #pragma GCC optimize (3)
 
 // If you want you can define your own set of delays in Configuration.h
-//#define ST7920_DELAY_1 DELAY_0_NOP
-//#define ST7920_DELAY_2 DELAY_0_NOP
-//#define ST7920_DELAY_3 DELAY_0_NOP
+//#define ST7920_DELAY_1 DELAY_NS(0)
+//#define ST7920_DELAY_2 DELAY_NS(0)
+//#define ST7920_DELAY_3 DELAY_NS(0)
 
 #if F_CPU >= 20000000
-  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7920_DELAY_2 DELAY_0_NOP
-  #define CPU_ST7920_DELAY_3 DELAY_1_NOP
+  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(50)
 #elif MB(3DRAG) || MB(K8200) || MB(K8400) || MB(SILVER_GATE)
-  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7920_DELAY_2 DELAY_3_NOP
-  #define CPU_ST7920_DELAY_3 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(188)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
 #elif MB(MINIRAMBO)
-  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7920_DELAY_2 DELAY_4_NOP
-  #define CPU_ST7920_DELAY_3 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(250)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
 #elif MB(RAMBO)
-  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7920_DELAY_2 DELAY_0_NOP
-  #define CPU_ST7920_DELAY_3 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
 #elif F_CPU == 16000000
-  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7920_DELAY_2 DELAY_0_NOP
-  #define CPU_ST7920_DELAY_3 DELAY_1_NOP
+  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(63)
 #else
   #error "No valid condition for delays in 'ultralcd_st7920_u8glib_rrd.h'"
 #endif
@@ -101,10 +103,10 @@ static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
   ST7920_SND_BIT; // 8
 }
 
-#if defined(DOGM_SPI_DELAY_US) && DOGM_SPI_DELAY_US > 0
-  #define U8G_DELAY() delayMicroseconds(DOGM_SPI_DELAY_US)
+#if DOGM_SPI_DELAY_US > 0
+  #define U8G_DELAY() DELAY_US(DOGM_SPI_DELAY_US)
 #else
-  #define U8G_DELAY() u8g_10MicroDelay()
+  #define U8G_DELAY() DELAY_US(10)
 #endif
 
 #define ST7920_CS()              { WRITE(ST7920_CS_PIN,1); U8G_DELAY(); }
