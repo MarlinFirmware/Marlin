@@ -255,10 +255,9 @@ UnwResult UnwStartThumb(UnwState * const state) {
          * the switch clauses
          */
         uint8_t rn = instr & 0xF;
-        uint8_t rm = instr2 & 0xF;
         bool H = (instr2 & 0x10) ? true : false;
 
-        UnwPrintd5("TB%c [r%d,r%d%s]\n", H ? 'H' : 'B', rn, rm, H ? ",LSL #1" : "");
+        UnwPrintd5("TB%c [r%d,r%d%s]\n", H ? 'H' : 'B', rn, (instr2 & 0xF), H ? ",LSL #1" : "");
 
         // We are only interested if the RN is the PC. Let's choose the 1st destination
         if (rn == 15) {

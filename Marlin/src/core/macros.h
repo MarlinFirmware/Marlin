@@ -91,10 +91,50 @@
 #define SIGN(a) ((a>0)-(a<0))
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
-// Macros to contrain values
-#define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
-#define NOMORE(v,n) do{ if (v > n) v = n; }while(0)
-#define LIMIT(v,n1,n2) do{ if (v < n1) v = n1; else if (v > n2) v = n2; }while(0)
+// Macros to constrain values
+// Avoid double evaluation of arguments to NOMORE/NOLESS/LIMIT
+#undef NOMORE
+#undef NOLESS
+#undef LIMIT
+#ifdef __cplusplus
+
+  // C++11 solution that is standards compliant.
+  template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
+    if (v < n) v = n;
+  }
+  template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
+    if (v > n) v = n;
+  }
+  template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
+    if (v < n1) v = n1;
+    else if (v > n2) v = n2;
+  }
+
+#else
+
+  // Using GCC extensions, but Travis GCC version does not like it and gives
+  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
+  #define NOLESS(v, n) \
+    do { \
+      __typeof__(n) _n = (n); \
+      if (v < _n) v = _n; \
+    } while(0)
+
+  #define NOMORE(v, n) \
+    do { \
+      __typeof__(n) _n = (n); \
+      if (v > _n) v = _n; \
+    } while(0)
+
+  #define LIMIT(v, n1, n2) \
+    do { \
+      __typeof__(n1) _n1 = (n1); \
+      __typeof__(n2) _n2 = (n2); \
+      if (v < _n1) v = _n1; \
+      else if (v > _n2) v = _n2; \
+    } while(0)
+
+#endif
 
 // Macros to support option testing
 #define _CAT(a, ...) a ## __VA_ARGS__
