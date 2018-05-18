@@ -177,7 +177,9 @@ class Planner {
     static volatile uint8_t block_buffer_head,      // Index of the next block to be pushed
                             block_buffer_tail;      // Index of the busy block, if any
     static uint16_t cleaning_buffer_counter;        // A counter to disable queuing of blocks
-    static uint8_t delay_before_delivering;         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
+    static uint8_t delay_before_delivering,         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
+                   block_buffer_planned;            // Index of the optimally planned block
+                   
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
@@ -655,9 +657,7 @@ class Planner {
         block_t * const block = &block_buffer[block_buffer_tail];
 
         // No trapezoid calculated? Don't execute yet.
-        if ( TEST(block->flag, BLOCK_BIT_RECALCULATE)
-          || (movesplanned() > 1 && TEST(block_buffer[next_block_index(block_buffer_tail)].flag, BLOCK_BIT_RECALCULATE))
-        ) return NULL;
+        if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return NULL;
 
         #if ENABLED(ULTRA_LCD)
           block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
@@ -667,13 +667,13 @@ class Planner {
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
       }
-      else {
-        // The queue became empty
-        #if ENABLED(ULTRA_LCD)
-          clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
-        #endif
-        return NULL;
-      }
+
+      // The queue became empty
+      #if ENABLED(ULTRA_LCD)
+        clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
+      #endif
+
+      return NULL;
     }
 
     /**
@@ -682,7 +682,14 @@ class Planner {
      * NB: There MUST be a current block to call this function!!
      */
     FORCE_INLINE static void discard_current_block() {
-      block_buffer_tail = BLOCK_MOD(block_buffer_tail + 1);
+      if (has_blocks_queued()) { // Discard non-empty buffer.
+        uint8_t block_index = next_block_index( block_buffer_tail );
+
+        // Push block_buffer_planned pointer, if encountered.
+        if (!has_blocks_queued()) block_buffer_planned = block_index;
+
+        block_buffer_tail = block_index;
+      }
     }
 
     #if ENABLED(ULTRA_LCD)
@@ -741,8 +748,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static constexpr int8_t next_block_index(const int8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    static constexpr int8_t prev_block_index(const int8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static constexpr uint8_t next_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index + 1); }
+    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
      * Calculate the distance (not time) it takes to accelerate
@@ -787,7 +794,7 @@ class Planner {
     static void calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor);
 
     static void reverse_pass_kernel(block_t* const current, const block_t * const next);
-    static void forward_pass_kernel(const block_t * const previous, block_t* const current);
+    static void forward_pass_kernel(const block_t * const previous, block_t* const current, uint8_t block_index);
 
     static void reverse_pass();
     static void forward_pass();
