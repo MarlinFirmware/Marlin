@@ -76,7 +76,7 @@ volatile uint8_t e_hit = 0; // Different from 0 when the endstops should be test
                             // Must be reset to 0 by the test function when finished.
 
 // Install Pin change interrupt for a pin. Can be called multiple times.
-void pciSetup(byte pin) {
+void pciSetup(const int8_t pin) {
   SBI(*digitalPinToPCMSK(pin), digitalPinToPCMSKbit(pin));  // enable pin
   SBI(PCIFR, digitalPinToPCICRbit(pin)); // clear any outstanding interrupt
   SBI(PCICR, digitalPinToPCICRbit(pin)); // enable interrupt for the group
