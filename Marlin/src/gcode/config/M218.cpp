@@ -37,7 +37,7 @@
  *   T<tool>
  *   X<xoffset>
  *   Y<yoffset>
- *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_NOZZLE
+ *   Z<zoffset> - Available with DUAL_X_CARRIAGE, SWITCHING_NOZZLE and PARKING_EXTRUDER
  */
 void GcodeSuite::M218() {
   if (get_target_extruder_from_command() || target_extruder == 0) return;

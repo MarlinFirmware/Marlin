@@ -3270,7 +3270,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     else
       MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 
-    #if ENABLED(SWITCHING_EXTRUDER)
+    #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE)
 
       #if EXTRUDERS == 4
         switch (active_extruder) {
