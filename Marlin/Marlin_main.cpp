@@ -7940,7 +7940,7 @@ inline void gcode_M105() {
         }
       #endif // EXTRA_FAN_SPEED
       const uint16_t s = parser.ushortval('S', 255);
-      fanSpeeds[p] = MIN(s, 255);
+      fanSpeeds[p] = MIN(s, 255U);
     }
   }
 
