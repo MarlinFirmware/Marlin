@@ -958,30 +958,40 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_0_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     case 1:
       #if ENABLED(HEATER_1_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_1_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     case 2:
       #if ENABLED(HEATER_2_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_2_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     case 3:
       #if ENABLED(HEATER_3_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_3_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     case 4:
       #if ENABLED(HEATER_4_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_4_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     default: break;
   }
