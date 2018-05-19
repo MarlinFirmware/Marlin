@@ -1623,29 +1623,51 @@ void Stepper::isr() {
     #elif ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
       #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) { if (e_steps < 0) REV_E_DIR(); else NORM_E_DIR(); } }while(0)
     #elif ENABLED(SWITCHING_EXTRUDER)
-      #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) { switch (INDEX) { \
-          case 0: case 1: E0_DIR_WRITE(!INVERT_E0_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
-          case 2: case 3: E1_DIR_WRITE(!INVERT_E1_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
-                  case 4: E2_DIR_WRITE(!INVERT_E2_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); \
-      } } }while(0)
+      #if EXTRUDERS > 4
+        #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) { switch (INDEX) { \
+            case 0: case 1: E0_DIR_WRITE(!INVERT_E0_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
+            case 2: case 3: E1_DIR_WRITE(!INVERT_E1_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
+                    case 4: E2_DIR_WRITE(!INVERT_E2_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); \
+        } } }while(0)
+      #elif EXTRUDERS > 2
+        #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) { switch (INDEX) { \
+            case 0: case 1: E0_DIR_WRITE(!INVERT_E0_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
+            case 2: case 3: E1_DIR_WRITE(!INVERT_E1_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
+        } } }while(0)
+      #else
+        #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) E0_DIR_WRITE(!INVERT_E0_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); }while(0)
+      #endif
     #else
-      #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) E## INDEX ##_DIR_WRITE(e_steps < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR); }while(0)
+      #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) E## INDEX ##_DIR_WRITE(!INVERT_E## INDEX ##_DIR ^ (e_steps < 0)); }while(0)
     #endif
 
     #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
       #define START_E_PULSE(INDEX) do{ if (e_steps) E_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
-      #define STOP_E_PULSE(INDEX) do{ if (e_steps) { E_STEP_WRITE(INVERT_E_STEP_PIN); e_steps < 0 ? ++e_steps : --e_steps; } }while(0)
+      #define STOP_E_PULSE(INDEX) do{ if (e_steps) { e_steps < 0 ? ++e_steps : --e_steps; E_STEP_WRITE(INVERT_E_STEP_PIN); } }while(0)
     #elif ENABLED(SWITCHING_EXTRUDER)
-      #define START_E_PULSE(INDEX) do{ if (e_steps) { switch (INDEX) { \
-          case 0: case 1: E0_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
-          case 2: case 3: E1_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
-                  case 4: E2_DIR_WRITE(!INVERT_E_STEP_PIN); \
-      } } }while(0)
-      #define STOP_E_PULSE(INDEX) do{ if (e_steps) { switch (INDEX) { \
-          case 0: case 1: E0_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
-          case 2: case 3: E1_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
-                  case 4: E2_DIR_WRITE(!INVERT_E_STEP_PIN); \
-      } } }while(0)
+      #if EXTRUDERS > 4
+        #define START_E_PULSE(INDEX) do{ if (e_steps) { switch (INDEX) { \
+            case 0: case 1: E0_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+            case 2: case 3: E1_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
+                    case 4: E2_DIR_WRITE(!INVERT_E_STEP_PIN); } \
+        } }while(0)
+        #define STOP_E_PULSE(INDEX) do{ if (e_steps) { \
+          e_steps < 0 ? ++e_steps : --e_steps; \
+          switch (INDEX) { \
+            case 0: case 1: E0_DIR_WRITE(INVERT_E_STEP_PIN); break; \
+            case 2: case 3: E1_DIR_WRITE(INVERT_E_STEP_PIN); break; \
+                    case 4: E2_DIR_WRITE(INVERT_E_STEP_PIN); } \
+        } }while(0)
+      #elif EXTRUDERS > 2
+        #define START_E_PULSE(INDEX) do{ if (e_steps) { if (INDEX < 2) E0_DIR_WRITE(!INVERT_E_STEP_PIN); else E1_DIR_WRITE(!INVERT_E_STEP_PIN); } }while(0)
+        #define STOP_E_PULSE(INDEX) do{ if (e_steps) { \
+          e_steps < 0 ? ++e_steps : --e_steps; \
+          if (INDEX < 2) E0_DIR_WRITE(INVERT_E_STEP_PIN); else E1_DIR_WRITE(INVERT_E_STEP_PIN); \
+        } }while(0)
+      #else
+        #define START_E_PULSE(INDEX) do{ if (e_steps) E0_DIR_WRITE(!INVERT_E_STEP_PIN); }while(0)
+        #define STOP_E_PULSE(INDEX) do{ if (e_steps) { e_steps < 0 ? ++e_steps : --e_steps; E0_DIR_WRITE(INVERT_E_STEP_PIN); }while(0)
+      #endif
     #else
       #define START_E_PULSE(INDEX) do{ if (e_steps) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
       #define STOP_E_PULSE(INDEX) do { if (e_steps) { e_steps < 0 ? ++e_steps : --e_steps; E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); } }while(0)
