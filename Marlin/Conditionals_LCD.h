@@ -403,9 +403,6 @@
     #undef HOTEND_OFFSET_Y
   #else                                                         // Two hotends
     #define HOTENDS       EXTRUDERS
-    #if ENABLED(SWITCHING_NOZZLE) && !defined(HOTEND_OFFSET_Z)
-      #define HOTEND_OFFSET_Z { 0 }
-    #endif
   #endif
 
   #if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
