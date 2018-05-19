@@ -1718,7 +1718,7 @@ void MarlinSettings::reset() {
     constexpr float tmp4[XYZ][HOTENDS] = {
       HOTEND_OFFSET_X,
       HOTEND_OFFSET_Y
-      #ifdef HOTEND_OFFSET_Z
+      #if HAS_HOTEND_OFFSET_Z
         , HOTEND_OFFSET_Z
       #else
         , { 0 }
@@ -2109,7 +2109,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPAIR("  M218 T", (int)e);
         SERIAL_ECHOPAIR(" X", LINEAR_UNIT(hotend_offset[X_AXIS][e]));
         SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e]));
-        #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) ||ENABLED(PARKING_EXTRUDER)
+        #if HAS_HOTEND_OFFSET_Z
           SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]));
         #endif
         SERIAL_EOL();
