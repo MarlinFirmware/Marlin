@@ -86,7 +86,7 @@ void endstop_ISR(void) { endstop_ISR_worker(); }
 
 
 // Install Pin change interrupt for a pin. Can be called multiple times.
-void pciSetup(byte pin) {
+void pciSetup(const int8_t pin) {
   SBI(*digitalPinToPCMSK(pin), digitalPinToPCMSKbit(pin));  // enable pin
   SBI(PCIFR, digitalPinToPCICRbit(pin)); // clear any outstanding interrupt
   SBI(PCICR, digitalPinToPCICRbit(pin)); // enable interrupt for the group
