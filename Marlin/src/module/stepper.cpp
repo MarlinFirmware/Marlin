@@ -2136,8 +2136,7 @@ void Stepper::report_positions() {
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
   #if EXTRA_CYCLES_BABYSTEP > 20
-    hal_timer_t pulse_start;
-    #define _SAVE_START pulse_start = HAL_timer_get_count(STEP_TIMER_NUM)
+    #define _SAVE_START const hal_timer_t pulse_start = HAL_timer_get_count(STEP_TIMER_NUM)
     #define _PULSE_WAIT while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(STEP_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
   #else
     #define _SAVE_START NOOP
@@ -2155,11 +2154,10 @@ void Stepper::report_positions() {
   #define BABYSTEP_AXIS(AXIS, INVERT, DIR) {            \
       const uint8_t old_dir = _READ_DIR(AXIS);          \
       _ENABLE(AXIS);                                    \
-      _SAVE_START;                                      \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INVERT);   \
-      _PULSE_WAIT;                                      \
-      _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
+      DELAY_NS(400); /* DRV8825 */                      \
       _SAVE_START;                                      \
+      _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
       _PULSE_WAIT;                                      \
       _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true);  \
       _APPLY_DIR(AXIS, old_dir);                        \
@@ -2228,6 +2226,8 @@ void Stepper::report_positions() {
           X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
           Z_DIR_WRITE(INVERT_Z_DIR ^ z_direction);
+
+          DELAY_NS(400); // DRV8825
 
           _SAVE_START;
 
