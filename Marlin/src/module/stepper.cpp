@@ -2114,7 +2114,8 @@ void Stepper::report_positions() {
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
   #if EXTRA_CYCLES_BABYSTEP > 20
-    #define _SAVE_START const hal_timer_t pulse_start = HAL_timer_get_count(STEP_TIMER_NUM)
+    hal_timer_t pulse_start;
+    #define _SAVE_START pulse_start = HAL_timer_get_count(STEP_TIMER_NUM)
     #define _PULSE_WAIT while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(STEP_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
   #else
     #define _SAVE_START NOOP
@@ -2136,6 +2137,7 @@ void Stepper::report_positions() {
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INVERT);   \
       _PULSE_WAIT;                                      \
       _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
+      _SAVE_START;                                      \
       _PULSE_WAIT;                                      \
       _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true);  \
       _APPLY_DIR(AXIS, old_dir);                        \
