@@ -434,6 +434,7 @@
 /**
  * Default hotend offsets, if not defined
  */
+#define HAS_HOTEND_OFFSET_Z (HOTENDS > 1 && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)))
 #if HOTENDS > 1
   #ifndef HOTEND_OFFSET_X
     #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
@@ -441,7 +442,7 @@
   #ifndef HOTEND_OFFSET_Y
     #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
   #endif
-  #if !defined(HOTEND_OFFSET_Z) && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE))
+  #if HAS_HOTEND_OFFSET_Z && !defined(HOTEND_OFFSET_Z)
     #define HOTEND_OFFSET_Z { 0 }
   #endif
 #endif

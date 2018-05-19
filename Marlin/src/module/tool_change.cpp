@@ -57,7 +57,7 @@
   #include "../feature/fanmux.h"
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER
 
   #if EXTRUDERS > 3
     #define REQ_ANGLES 4
@@ -346,8 +346,6 @@ inline void invalid_extruder_error(const uint8_t e) {
   }
 
 #endif // DUAL_X_CARRIAGE
-
-#define DO_SWITCH_EXTRUDER (SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
 
 /**
  * Perform a tool-change, which may result in moving the
