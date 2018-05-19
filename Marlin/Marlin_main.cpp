@@ -537,10 +537,6 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   #define BUZZ(d,f) NOOP
 #endif
 
-#if ENABLED(SWITCHING_NOZZLE)
-  #define DO_SWITCH_EXTRUDER (SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
-#endif
-
 uint8_t target_extruder;
 
 #if HAS_BED_PROBE
@@ -11512,7 +11508,7 @@ inline void gcode_M999() {
   flush_and_request_resend();
 }
 
-#if ENABLED(SWITCHING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER
   #if EXTRUDERS > 3
     #define REQ_ANGLES 4
     #define _SERVO_NR (e < 2 ? SWITCHING_EXTRUDER_SERVO_NR : SWITCHING_EXTRUDER_E23_SERVO_NR)
@@ -11532,7 +11528,7 @@ inline void gcode_M999() {
       safe_delay(500);
     }
   }
-#endif // SWITCHING_EXTRUDER
+#endif // DO_SWITCH_EXTRUDER
 
 #if ENABLED(SWITCHING_NOZZLE)
   inline void move_nozzle_servo(const uint8_t e) {
