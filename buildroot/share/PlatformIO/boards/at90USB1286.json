@@ -1,0 +1,20 @@
+{
+  "build": {
+    "core": "teensy",
+    "extra_flags": "-DTEENSY2PP",
+    "f_cpu": "16000000L",
+    "mcu": "at90usb1286"
+  },
+  "frameworks": [
+    "arduino"
+  ],
+  "name": "at90USB1286.json",
+  "upload": {
+    "maximum_ram_size": 8192,
+    "maximum_size": 130048,
+    "require_upload_port": true,
+    "protocol": ""
+  },
+  "url": "https://github.com/MarlinFirmware/Marlin",
+  "vendor": "various"
+}
