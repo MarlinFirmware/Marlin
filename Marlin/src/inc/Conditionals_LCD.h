@@ -205,14 +205,10 @@
  * I2C PANELS
  */
 
-#if ENABLED(LCD_SAINSMART_I2C_1602) || ENABLED(LCD_SAINSMART_I2C_2004) || ENABLED(LCM1602)
+#if ENABLED(LCD_SAINSMART_I2C_1602) || ENABLED(LCD_SAINSMART_I2C_2004)
 
-  #define ULTRA_LCD
   #define LCD_I2C_TYPE_PCF8575
-
-  #ifndef LCD_I2C_ADDRESS
-    #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
-  #endif
+  #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
 
   #if ENABLED(LCD_SAINSMART_I2C_2004)
     #define LCD_WIDTH 20
