@@ -50,6 +50,8 @@
  * Jerk controlled movements planner added Apr 2018 by Eduardo José Tagle.
  * Equations based on Synthethos TinyG2 sources, but the fixed-point
  * implementation is new, as we are running the ISR with a variable period.
+ * Also implemented the Bézier velocity curve evaluation in ARM assembler,
+ * to avoid impacting ISR speed.
  */
 
 #include "Marlin.h"
@@ -426,7 +428,7 @@ void Stepper::set_directions() {
    *
    *   Floating point arithmetic execution time cost is prohibitive, so we will transform the math to
    * use fixed point values to be able to evaluate it in realtime. Assuming a maximum of 250000 steps
-   * per second (driver pulses should at least be 2uS hi/2uS lo), and allocating 2 bits to avoid
+   * per second (driver pulses should at least be 2µS hi/2µS lo), and allocating 2 bits to avoid
    * overflows on the evaluation of the Bézier curve, means we can use
    *
    *   t: unsigned Q0.32 (0 <= t < 1) |range 0 to 0xFFFFFFFF unsigned
@@ -632,65 +634,65 @@ void Stepper::set_directions() {
       /* Store initial velocity*/
       A("sts bezier_F, %0")
       A("sts bezier_F+1, %1")
-      A("sts bezier_F+2, %10")         /* bezier_F = %10:%1:%0 = v0 */
+      A("sts bezier_F+2, %10")    /* bezier_F = %10:%1:%0 = v0 */
 
       /* Get delta speed */
-      A("ldi %2,-1")                   /* %2 = 0xFF, means A_negative = true */
-      A("clr %8")                      /* %8 = 0 */
+      A("ldi %2,-1")              /* %2 = 0xFF, means A_negative = true */
+      A("clr %8")                 /* %8 = 0 */
       A("sub %0,%3")
       A("sbc %1,%4")
-      A("sbc %10,%5")                  /*  v0 -= v1, C=1 if result is negative */
-      A("brcc 1f")                     /* branch if result is positive (C=0), that means v0 >= v1 */
+      A("sbc %10,%5")             /*  v0 -= v1, C=1 if result is negative */
+      A("brcc 1f")                /* branch if result is positive (C=0), that means v0 >= v1 */
 
       /*  Result was negative, get the absolute value*/
       A("com %10")
       A("com %1")
       A("neg %0")
       A("sbc %1,%2")
-      A("sbc %10,%2")                  /* %10:%1:%0 +1  -> %10:%1:%0 = -(v0 - v1) = (v1 - v0) */
-      A("clr %2")                      /* %2 = 0, means A_negative = false */
+      A("sbc %10,%2")             /* %10:%1:%0 +1  -> %10:%1:%0 = -(v0 - v1) = (v1 - v0) */
+      A("clr %2")                 /* %2 = 0, means A_negative = false */
 
       /*  Store negative flag*/
       L("1")
-      A("sts A_negative, %2")          /* Store negative flag */
+      A("sts A_negative, %2")     /* Store negative flag */
 
       /*  Compute coefficients A,B and C   [20 cycles worst case]*/
-      A("ldi %9,6")                    /* %9 = 6 */
-      A("mul %0,%9")                   /* r1:r0 = 6*LO(v0-v1) */
+      A("ldi %9,6")               /* %9 = 6 */
+      A("mul %0,%9")              /* r1:r0 = 6*LO(v0-v1) */
       A("sts bezier_A, r0")
       A("mov %6,r1")
-      A("clr %7")                      /* %7:%6:r0 = 6*LO(v0-v1) */
-      A("mul %1,%9")                   /* r1:r0 = 6*MI(v0-v1) */
+      A("clr %7")                 /* %7:%6:r0 = 6*LO(v0-v1) */
+      A("mul %1,%9")              /* r1:r0 = 6*MI(v0-v1) */
       A("add %6,r0")
-      A("adc %7,r1")                   /* %7:%6:?? += 6*MI(v0-v1) << 8 */
-      A("mul %10,%9")                  /* r1:r0 = 6*HI(v0-v1) */
-      A("add %7,r0")                   /* %7:%6:?? += 6*HI(v0-v1) << 16 */
+      A("adc %7,r1")              /* %7:%6:?? += 6*MI(v0-v1) << 8 */
+      A("mul %10,%9")             /* r1:r0 = 6*HI(v0-v1) */
+      A("add %7,r0")              /* %7:%6:?? += 6*HI(v0-v1) << 16 */
       A("sts bezier_A+1, %6")
-      A("sts bezier_A+2, %7")          /* bezier_A = %7:%6:?? = 6*(v0-v1) [35 cycles worst] */
+      A("sts bezier_A+2, %7")     /* bezier_A = %7:%6:?? = 6*(v0-v1) [35 cycles worst] */
 
-      A("ldi %9,15")                   /* %9 = 15 */
-      A("mul %0,%9")                   /* r1:r0 = 5*LO(v0-v1) */
+      A("ldi %9,15")              /* %9 = 15 */
+      A("mul %0,%9")              /* r1:r0 = 5*LO(v0-v1) */
       A("sts bezier_B, r0")
       A("mov %6,r1")
-      A("clr %7")                      /* %7:%6:?? = 5*LO(v0-v1) */
-      A("mul %1,%9")                   /* r1:r0 = 5*MI(v0-v1) */
+      A("clr %7")                 /* %7:%6:?? = 5*LO(v0-v1) */
+      A("mul %1,%9")              /* r1:r0 = 5*MI(v0-v1) */
       A("add %6,r0")
-      A("adc %7,r1")                   /* %7:%6:?? += 5*MI(v0-v1) << 8 */
-      A("mul %10,%9")                  /* r1:r0 = 5*HI(v0-v1) */
-      A("add %7,r0")                   /* %7:%6:?? += 5*HI(v0-v1) << 16 */
+      A("adc %7,r1")              /* %7:%6:?? += 5*MI(v0-v1) << 8 */
+      A("mul %10,%9")             /* r1:r0 = 5*HI(v0-v1) */
+      A("add %7,r0")              /* %7:%6:?? += 5*HI(v0-v1) << 16 */
       A("sts bezier_B+1, %6")
-      A("sts bezier_B+2, %7")          /* bezier_B = %7:%6:?? = 5*(v0-v1) [50 cycles worst] */
+      A("sts bezier_B+2, %7")     /* bezier_B = %7:%6:?? = 5*(v0-v1) [50 cycles worst] */
 
-      A("ldi %9,10")                   /* %9 = 10 */
-      A("mul %0,%9")                   /* r1:r0 = 10*LO(v0-v1) */
+      A("ldi %9,10")              /* %9 = 10 */
+      A("mul %0,%9")              /* r1:r0 = 10*LO(v0-v1) */
       A("sts bezier_C, r0")
       A("mov %6,r1")
-      A("clr %7")                      /* %7:%6:?? = 10*LO(v0-v1) */
-      A("mul %1,%9")                   /* r1:r0 = 10*MI(v0-v1) */
+      A("clr %7")                 /* %7:%6:?? = 10*LO(v0-v1) */
+      A("mul %1,%9")              /* r1:r0 = 10*MI(v0-v1) */
       A("add %6,r0")
-      A("adc %7,r1")                   /* %7:%6:?? += 10*MI(v0-v1) << 8 */
-      A("mul %10,%9")                  /* r1:r0 = 10*HI(v0-v1) */
-      A("add %7,r0")                   /* %7:%6:?? += 10*HI(v0-v1) << 16 */
+      A("adc %7,r1")              /* %7:%6:?? += 10*MI(v0-v1) << 8 */
+      A("mul %10,%9")             /* r1:r0 = 10*HI(v0-v1) */
+      A("add %7,r0")              /* %7:%6:?? += 10*HI(v0-v1) << 16 */
       A("sts bezier_C+1, %6")
       " sts bezier_C+2, %7"            /* bezier_C = %7:%6:?? = 10*(v0-v1) [65 cycles worst] */
       : "+r" (r2),
@@ -723,357 +725,357 @@ void Stepper::set_directions() {
 
     __asm__ __volatile(
       /* umul24x24to16hi(t, bezier_AV, curr_step);  t: Range 0 - 1^16 = 16 bits*/
-      A("lds %9,bezier_AV")            /* %9 = LO(AV)*/
-      A("mul %9,%2")                   /* r1:r0 = LO(bezier_AV)*LO(curr_step)*/
-      A("mov %7,r1")                   /* %7 = LO(bezier_AV)*LO(curr_step) >> 8*/
-      A("clr %8")                      /* %8:%7  = LO(bezier_AV)*LO(curr_step) >> 8*/
-      A("lds %10,bezier_AV+1")         /* %10 = MI(AV)*/
-      A("mul %10,%2")                  /* r1:r0  = MI(bezier_AV)*LO(curr_step)*/
+      A("lds %9,bezier_AV")       /* %9 = LO(AV)*/
+      A("mul %9,%2")              /* r1:r0 = LO(bezier_AV)*LO(curr_step)*/
+      A("mov %7,r1")              /* %7 = LO(bezier_AV)*LO(curr_step) >> 8*/
+      A("clr %8")                 /* %8:%7  = LO(bezier_AV)*LO(curr_step) >> 8*/
+      A("lds %10,bezier_AV+1")    /* %10 = MI(AV)*/
+      A("mul %10,%2")             /* r1:r0  = MI(bezier_AV)*LO(curr_step)*/
       A("add %7,r0")
-      A("adc %8,r1")                   /* %8:%7 += MI(bezier_AV)*LO(curr_step)*/
-      A("lds r1,bezier_AV+2")          /* r11 = HI(AV)*/
-      A("mul r1,%2")                   /* r1:r0  = HI(bezier_AV)*LO(curr_step)*/
-      A("add %8,r0")                   /* %8:%7 += HI(bezier_AV)*LO(curr_step) << 8*/
-      A("mul %9,%3")                   /* r1:r0 =  LO(bezier_AV)*MI(curr_step)*/
+      A("adc %8,r1")              /* %8:%7 += MI(bezier_AV)*LO(curr_step)*/
+      A("lds r1,bezier_AV+2")     /* r11 = HI(AV)*/
+      A("mul r1,%2")              /* r1:r0  = HI(bezier_AV)*LO(curr_step)*/
+      A("add %8,r0")              /* %8:%7 += HI(bezier_AV)*LO(curr_step) << 8*/
+      A("mul %9,%3")              /* r1:r0 =  LO(bezier_AV)*MI(curr_step)*/
       A("add %7,r0")
-      A("adc %8,r1")                   /* %8:%7 += LO(bezier_AV)*MI(curr_step)*/
-      A("mul %10,%3")                  /* r1:r0 =  MI(bezier_AV)*MI(curr_step)*/
-      A("add %8,r0")                   /* %8:%7 += LO(bezier_AV)*MI(curr_step) << 8*/
-      A("mul %9,%4")                   /* r1:r0 =  LO(bezier_AV)*HI(curr_step)*/
-      A("add %8,r0")                   /* %8:%7 += LO(bezier_AV)*HI(curr_step) << 8*/
+      A("adc %8,r1")              /* %8:%7 += LO(bezier_AV)*MI(curr_step)*/
+      A("mul %10,%3")             /* r1:r0 =  MI(bezier_AV)*MI(curr_step)*/
+      A("add %8,r0")              /* %8:%7 += LO(bezier_AV)*MI(curr_step) << 8*/
+      A("mul %9,%4")              /* r1:r0 =  LO(bezier_AV)*HI(curr_step)*/
+      A("add %8,r0")              /* %8:%7 += LO(bezier_AV)*HI(curr_step) << 8*/
       /* %8:%7 = t*/
 
       /* uint16_t f = t;*/
-      A("mov %5,%7")                   /* %6:%5 = f*/
+      A("mov %5,%7")              /* %6:%5 = f*/
       A("mov %6,%8")
       /* %6:%5 = f*/
 
       /* umul16x16to16hi(f, f, t); / Range 16 bits (unsigned) [17] */
-      A("mul %5,%7")                   /* r1:r0 = LO(f) * LO(t)*/
-      A("mov %9,r1")                   /* store MIL(LO(f) * LO(t)) in %9, we need it for rounding*/
-      A("clr %10")                     /* %10 = 0*/
-      A("clr %11")                     /* %11 = 0*/
-      A("mul %5,%8")                   /* r1:r0 = LO(f) * HI(t)*/
-      A("add %9,r0")                   /* %9 += LO(LO(f) * HI(t))*/
-      A("adc %10,r1")                  /* %10 = HI(LO(f) * HI(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%7")                   /* r1:r0 = HI(f) * LO(t)*/
-      A("add %9,r0")                   /* %9 += LO(HI(f) * LO(t))*/
-      A("adc %10,r1")                  /* %10 += HI(HI(f) * LO(t)) */
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%8")                   /* r1:r0 = HI(f) * HI(t)*/
-      A("add %10,r0")                  /* %10 += LO(HI(f) * HI(t))*/
-      A("adc %11,r1")                  /* %11 += HI(HI(f) * HI(t))*/
-      A("mov %5,%10")                  /* %6:%5 = */
-      A("mov %6,%11")                  /* f = %10:%11*/
+      A("mul %5,%7")              /* r1:r0 = LO(f) * LO(t)*/
+      A("mov %9,r1")              /* store MIL(LO(f) * LO(t)) in %9, we need it for rounding*/
+      A("clr %10")                /* %10 = 0*/
+      A("clr %11")                /* %11 = 0*/
+      A("mul %5,%8")              /* r1:r0 = LO(f) * HI(t)*/
+      A("add %9,r0")              /* %9 += LO(LO(f) * HI(t))*/
+      A("adc %10,r1")             /* %10 = HI(LO(f) * HI(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%7")              /* r1:r0 = HI(f) * LO(t)*/
+      A("add %9,r0")              /* %9 += LO(HI(f) * LO(t))*/
+      A("adc %10,r1")             /* %10 += HI(HI(f) * LO(t)) */
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%8")              /* r1:r0 = HI(f) * HI(t)*/
+      A("add %10,r0")             /* %10 += LO(HI(f) * HI(t))*/
+      A("adc %11,r1")             /* %11 += HI(HI(f) * HI(t))*/
+      A("mov %5,%10")             /* %6:%5 = */
+      A("mov %6,%11")             /* f = %10:%11*/
 
       /* umul16x16to16hi(f, f, t); / Range 16 bits : f = t^3  (unsigned) [17]*/
-      A("mul %5,%7")                   /* r1:r0 = LO(f) * LO(t)*/
-      A("mov %1,r1")                   /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
-      A("clr %10")                     /* %10 = 0*/
-      A("clr %11")                     /* %11 = 0*/
-      A("mul %5,%8")                   /* r1:r0 = LO(f) * HI(t)*/
-      A("add %1,r0")                   /* %1 += LO(LO(f) * HI(t))*/
-      A("adc %10,r1")                  /* %10 = HI(LO(f) * HI(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%7")                   /* r1:r0 = HI(f) * LO(t)*/
-      A("add %1,r0")                   /* %1 += LO(HI(f) * LO(t))*/
-      A("adc %10,r1")                  /* %10 += HI(HI(f) * LO(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%8")                   /* r1:r0 = HI(f) * HI(t)*/
-      A("add %10,r0")                  /* %10 += LO(HI(f) * HI(t))*/
-      A("adc %11,r1")                  /* %11 += HI(HI(f) * HI(t))*/
-      A("mov %5,%10")                  /* %6:%5 =*/
-      A("mov %6,%11")                  /* f = %10:%11*/
+      A("mul %5,%7")              /* r1:r0 = LO(f) * LO(t)*/
+      A("mov %1,r1")              /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
+      A("clr %10")                /* %10 = 0*/
+      A("clr %11")                /* %11 = 0*/
+      A("mul %5,%8")              /* r1:r0 = LO(f) * HI(t)*/
+      A("add %1,r0")              /* %1 += LO(LO(f) * HI(t))*/
+      A("adc %10,r1")             /* %10 = HI(LO(f) * HI(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%7")              /* r1:r0 = HI(f) * LO(t)*/
+      A("add %1,r0")              /* %1 += LO(HI(f) * LO(t))*/
+      A("adc %10,r1")             /* %10 += HI(HI(f) * LO(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%8")              /* r1:r0 = HI(f) * HI(t)*/
+      A("add %10,r0")             /* %10 += LO(HI(f) * HI(t))*/
+      A("adc %11,r1")             /* %11 += HI(HI(f) * HI(t))*/
+      A("mov %5,%10")             /* %6:%5 =*/
+      A("mov %6,%11")             /* f = %10:%11*/
       /* [15 +17*2] = [49]*/
 
       /* %4:%3:%2 will be acc from now on*/
 
       /* uint24_t acc = bezier_F; / Range 20 bits (unsigned)*/
-      A("clr %9")                      /* "decimal place we get for free"*/
+      A("clr %9")                 /* "decimal place we get for free"*/
       A("lds %2,bezier_F")
       A("lds %3,bezier_F+1")
-      A("lds %4,bezier_F+2")           /* %4:%3:%2 = acc*/
+      A("lds %4,bezier_F+2")      /* %4:%3:%2 = acc*/
 
       /* if (A_negative) {*/
       A("lds r0,A_negative")
-      A("or r0,%0")                    /* Is flag signalling negative? */
-      A("brne 3f")                     /* If yes, Skip next instruction if A was negative*/
-      A("rjmp 1f")                     /* Otherwise, jump */
+      A("or r0,%0")               /* Is flag signalling negative? */
+      A("brne 3f")                /* If yes, Skip next instruction if A was negative*/
+      A("rjmp 1f")                /* Otherwise, jump */
 
       /* uint24_t v; */
       /* umul16x24to24hi(v, f, bezier_C); / Range 21bits [29] */
       /* acc -= v; */
       L("3")
-      A("lds %10, bezier_C")           /* %10 = LO(bezier_C)*/
-      A("mul %10,%5")                  /* r1:r0 = LO(bezier_C) * LO(f)*/
+      A("lds %10, bezier_C")      /* %10 = LO(bezier_C)*/
+      A("mul %10,%5")             /* r1:r0 = LO(bezier_C) * LO(f)*/
       A("sub %9,r1")
       A("sbc %2,%0")
       A("sbc %3,%0")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= HI(LO(bezier_C) * LO(f))*/
-      A("lds %11, bezier_C+1")         /* %11 = MI(bezier_C)*/
-      A("mul %11,%5")                  /* r1:r0 = MI(bezier_C) * LO(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= HI(LO(bezier_C) * LO(f))*/
+      A("lds %11, bezier_C+1")    /* %11 = MI(bezier_C)*/
+      A("mul %11,%5")             /* r1:r0 = MI(bezier_C) * LO(f)*/
       A("sub %9,r0")
       A("sbc %2,r1")
       A("sbc %3,%0")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= MI(bezier_C) * LO(f)*/
-      A("lds %1, bezier_C+2")          /* %1 = HI(bezier_C)*/
-      A("mul %1,%5")                   /* r1:r0 = MI(bezier_C) * LO(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= MI(bezier_C) * LO(f)*/
+      A("lds %1, bezier_C+2")     /* %1 = HI(bezier_C)*/
+      A("mul %1,%5")              /* r1:r0 = MI(bezier_C) * LO(f)*/
       A("sub %2,r0")
       A("sbc %3,r1")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= HI(bezier_C) * LO(f) << 8*/
-      A("mul %10,%6")                  /* r1:r0 = LO(bezier_C) * MI(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= HI(bezier_C) * LO(f) << 8*/
+      A("mul %10,%6")             /* r1:r0 = LO(bezier_C) * MI(f)*/
       A("sub %9,r0")
       A("sbc %2,r1")
       A("sbc %3,%0")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= LO(bezier_C) * MI(f)*/
-      A("mul %11,%6")                  /* r1:r0 = MI(bezier_C) * MI(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= LO(bezier_C) * MI(f)*/
+      A("mul %11,%6")             /* r1:r0 = MI(bezier_C) * MI(f)*/
       A("sub %2,r0")
       A("sbc %3,r1")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= MI(bezier_C) * MI(f) << 8*/
-      A("mul %1,%6")                   /* r1:r0 = HI(bezier_C) * LO(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= MI(bezier_C) * MI(f) << 8*/
+      A("mul %1,%6")              /* r1:r0 = HI(bezier_C) * LO(f)*/
       A("sub %3,r0")
-      A("sbc %4,r1")                   /* %4:%3:%2:%9 -= HI(bezier_C) * LO(f) << 16*/
+      A("sbc %4,r1")              /* %4:%3:%2:%9 -= HI(bezier_C) * LO(f) << 16*/
 
       /* umul16x16to16hi(f, f, t); / Range 16 bits : f = t^3  (unsigned) [17]*/
-      A("mul %5,%7")                   /* r1:r0 = LO(f) * LO(t)*/
-      A("mov %1,r1")                   /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
-      A("clr %10")                     /* %10 = 0*/
-      A("clr %11")                     /* %11 = 0*/
-      A("mul %5,%8")                   /* r1:r0 = LO(f) * HI(t)*/
-      A("add %1,r0")                   /* %1 += LO(LO(f) * HI(t))*/
-      A("adc %10,r1")                  /* %10 = HI(LO(f) * HI(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%7")                   /* r1:r0 = HI(f) * LO(t)*/
-      A("add %1,r0")                   /* %1 += LO(HI(f) * LO(t))*/
-      A("adc %10,r1")                  /* %10 += HI(HI(f) * LO(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%8")                   /* r1:r0 = HI(f) * HI(t)*/
-      A("add %10,r0")                  /* %10 += LO(HI(f) * HI(t))*/
-      A("adc %11,r1")                  /* %11 += HI(HI(f) * HI(t))*/
-      A("mov %5,%10")                  /* %6:%5 =*/
-      A("mov %6,%11")                  /* f = %10:%11*/
+      A("mul %5,%7")              /* r1:r0 = LO(f) * LO(t)*/
+      A("mov %1,r1")              /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
+      A("clr %10")                /* %10 = 0*/
+      A("clr %11")                /* %11 = 0*/
+      A("mul %5,%8")              /* r1:r0 = LO(f) * HI(t)*/
+      A("add %1,r0")              /* %1 += LO(LO(f) * HI(t))*/
+      A("adc %10,r1")             /* %10 = HI(LO(f) * HI(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%7")              /* r1:r0 = HI(f) * LO(t)*/
+      A("add %1,r0")              /* %1 += LO(HI(f) * LO(t))*/
+      A("adc %10,r1")             /* %10 += HI(HI(f) * LO(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%8")              /* r1:r0 = HI(f) * HI(t)*/
+      A("add %10,r0")             /* %10 += LO(HI(f) * HI(t))*/
+      A("adc %11,r1")             /* %11 += HI(HI(f) * HI(t))*/
+      A("mov %5,%10")             /* %6:%5 =*/
+      A("mov %6,%11")             /* f = %10:%11*/
 
       /* umul16x24to24hi(v, f, bezier_B); / Range 22bits [29]*/
       /* acc += v; */
-      A("lds %10, bezier_B")           /* %10 = LO(bezier_B)*/
-      A("mul %10,%5")                  /* r1:r0 = LO(bezier_B) * LO(f)*/
+      A("lds %10, bezier_B")      /* %10 = LO(bezier_B)*/
+      A("mul %10,%5")             /* r1:r0 = LO(bezier_B) * LO(f)*/
       A("add %9,r1")
       A("adc %2,%0")
       A("adc %3,%0")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += HI(LO(bezier_B) * LO(f))*/
-      A("lds %11, bezier_B+1")         /* %11 = MI(bezier_B)*/
-      A("mul %11,%5")                  /* r1:r0 = MI(bezier_B) * LO(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += HI(LO(bezier_B) * LO(f))*/
+      A("lds %11, bezier_B+1")    /* %11 = MI(bezier_B)*/
+      A("mul %11,%5")             /* r1:r0 = MI(bezier_B) * LO(f)*/
       A("add %9,r0")
       A("adc %2,r1")
       A("adc %3,%0")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += MI(bezier_B) * LO(f)*/
-      A("lds %1, bezier_B+2")          /* %1 = HI(bezier_B)*/
-      A("mul %1,%5")                   /* r1:r0 = MI(bezier_B) * LO(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += MI(bezier_B) * LO(f)*/
+      A("lds %1, bezier_B+2")     /* %1 = HI(bezier_B)*/
+      A("mul %1,%5")              /* r1:r0 = MI(bezier_B) * LO(f)*/
       A("add %2,r0")
       A("adc %3,r1")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += HI(bezier_B) * LO(f) << 8*/
-      A("mul %10,%6")                  /* r1:r0 = LO(bezier_B) * MI(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += HI(bezier_B) * LO(f) << 8*/
+      A("mul %10,%6")             /* r1:r0 = LO(bezier_B) * MI(f)*/
       A("add %9,r0")
       A("adc %2,r1")
       A("adc %3,%0")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += LO(bezier_B) * MI(f)*/
-      A("mul %11,%6")                  /* r1:r0 = MI(bezier_B) * MI(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += LO(bezier_B) * MI(f)*/
+      A("mul %11,%6")             /* r1:r0 = MI(bezier_B) * MI(f)*/
       A("add %2,r0")
       A("adc %3,r1")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += MI(bezier_B) * MI(f) << 8*/
-      A("mul %1,%6")                   /* r1:r0 = HI(bezier_B) * LO(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += MI(bezier_B) * MI(f) << 8*/
+      A("mul %1,%6")              /* r1:r0 = HI(bezier_B) * LO(f)*/
       A("add %3,r0")
-      A("adc %4,r1")                   /* %4:%3:%2:%9 += HI(bezier_B) * LO(f) << 16*/
+      A("adc %4,r1")              /* %4:%3:%2:%9 += HI(bezier_B) * LO(f) << 16*/
 
       /* umul16x16to16hi(f, f, t); / Range 16 bits : f = t^5  (unsigned) [17]*/
-      A("mul %5,%7")                   /* r1:r0 = LO(f) * LO(t)*/
-      A("mov %1,r1")                   /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
-      A("clr %10")                     /* %10 = 0*/
-      A("clr %11")                     /* %11 = 0*/
-      A("mul %5,%8")                   /* r1:r0 = LO(f) * HI(t)*/
-      A("add %1,r0")                   /* %1 += LO(LO(f) * HI(t))*/
-      A("adc %10,r1")                  /* %10 = HI(LO(f) * HI(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%7")                   /* r1:r0 = HI(f) * LO(t)*/
-      A("add %1,r0")                   /* %1 += LO(HI(f) * LO(t))*/
-      A("adc %10,r1")                  /* %10 += HI(HI(f) * LO(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%8")                   /* r1:r0 = HI(f) * HI(t)*/
-      A("add %10,r0")                  /* %10 += LO(HI(f) * HI(t))*/
-      A("adc %11,r1")                  /* %11 += HI(HI(f) * HI(t))*/
-      A("mov %5,%10")                  /* %6:%5 =*/
-      A("mov %6,%11")                  /* f = %10:%11*/
+      A("mul %5,%7")              /* r1:r0 = LO(f) * LO(t)*/
+      A("mov %1,r1")              /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
+      A("clr %10")                /* %10 = 0*/
+      A("clr %11")                /* %11 = 0*/
+      A("mul %5,%8")              /* r1:r0 = LO(f) * HI(t)*/
+      A("add %1,r0")              /* %1 += LO(LO(f) * HI(t))*/
+      A("adc %10,r1")             /* %10 = HI(LO(f) * HI(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%7")              /* r1:r0 = HI(f) * LO(t)*/
+      A("add %1,r0")              /* %1 += LO(HI(f) * LO(t))*/
+      A("adc %10,r1")             /* %10 += HI(HI(f) * LO(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%8")              /* r1:r0 = HI(f) * HI(t)*/
+      A("add %10,r0")             /* %10 += LO(HI(f) * HI(t))*/
+      A("adc %11,r1")             /* %11 += HI(HI(f) * HI(t))*/
+      A("mov %5,%10")             /* %6:%5 =*/
+      A("mov %6,%11")             /* f = %10:%11*/
 
       /* umul16x24to24hi(v, f, bezier_A); / Range 21bits [29]*/
       /* acc -= v; */
-      A("lds %10, bezier_A")           /* %10 = LO(bezier_A)*/
-      A("mul %10,%5")                  /* r1:r0 = LO(bezier_A) * LO(f)*/
+      A("lds %10, bezier_A")      /* %10 = LO(bezier_A)*/
+      A("mul %10,%5")             /* r1:r0 = LO(bezier_A) * LO(f)*/
       A("sub %9,r1")
       A("sbc %2,%0")
       A("sbc %3,%0")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= HI(LO(bezier_A) * LO(f))*/
-      A("lds %11, bezier_A+1")         /* %11 = MI(bezier_A)*/
-      A("mul %11,%5")                  /* r1:r0 = MI(bezier_A) * LO(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= HI(LO(bezier_A) * LO(f))*/
+      A("lds %11, bezier_A+1")    /* %11 = MI(bezier_A)*/
+      A("mul %11,%5")             /* r1:r0 = MI(bezier_A) * LO(f)*/
       A("sub %9,r0")
       A("sbc %2,r1")
       A("sbc %3,%0")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= MI(bezier_A) * LO(f)*/
-      A("lds %1, bezier_A+2")          /* %1 = HI(bezier_A)*/
-      A("mul %1,%5")                   /* r1:r0 = MI(bezier_A) * LO(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= MI(bezier_A) * LO(f)*/
+      A("lds %1, bezier_A+2")     /* %1 = HI(bezier_A)*/
+      A("mul %1,%5")              /* r1:r0 = MI(bezier_A) * LO(f)*/
       A("sub %2,r0")
       A("sbc %3,r1")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= HI(bezier_A) * LO(f) << 8*/
-      A("mul %10,%6")                  /* r1:r0 = LO(bezier_A) * MI(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= HI(bezier_A) * LO(f) << 8*/
+      A("mul %10,%6")             /* r1:r0 = LO(bezier_A) * MI(f)*/
       A("sub %9,r0")
       A("sbc %2,r1")
       A("sbc %3,%0")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= LO(bezier_A) * MI(f)*/
-      A("mul %11,%6")                  /* r1:r0 = MI(bezier_A) * MI(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= LO(bezier_A) * MI(f)*/
+      A("mul %11,%6")             /* r1:r0 = MI(bezier_A) * MI(f)*/
       A("sub %2,r0")
       A("sbc %3,r1")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= MI(bezier_A) * MI(f) << 8*/
-      A("mul %1,%6")                   /* r1:r0 = HI(bezier_A) * LO(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= MI(bezier_A) * MI(f) << 8*/
+      A("mul %1,%6")              /* r1:r0 = HI(bezier_A) * LO(f)*/
       A("sub %3,r0")
-      A("sbc %4,r1")                   /* %4:%3:%2:%9 -= HI(bezier_A) * LO(f) << 16*/
-      A("jmp 2f")                      /* Done!*/
+      A("sbc %4,r1")              /* %4:%3:%2:%9 -= HI(bezier_A) * LO(f) << 16*/
+      A("jmp 2f")                 /* Done!*/
 
       L("1")
 
       /* uint24_t v; */
       /* umul16x24to24hi(v, f, bezier_C); / Range 21bits [29]*/
       /* acc += v; */
-      A("lds %10, bezier_C")           /* %10 = LO(bezier_C)*/
-      A("mul %10,%5")                  /* r1:r0 = LO(bezier_C) * LO(f)*/
+      A("lds %10, bezier_C")      /* %10 = LO(bezier_C)*/
+      A("mul %10,%5")             /* r1:r0 = LO(bezier_C) * LO(f)*/
       A("add %9,r1")
       A("adc %2,%0")
       A("adc %3,%0")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += HI(LO(bezier_C) * LO(f))*/
-      A("lds %11, bezier_C+1")         /* %11 = MI(bezier_C)*/
-      A("mul %11,%5")                  /* r1:r0 = MI(bezier_C) * LO(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += HI(LO(bezier_C) * LO(f))*/
+      A("lds %11, bezier_C+1")    /* %11 = MI(bezier_C)*/
+      A("mul %11,%5")             /* r1:r0 = MI(bezier_C) * LO(f)*/
       A("add %9,r0")
       A("adc %2,r1")
       A("adc %3,%0")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += MI(bezier_C) * LO(f)*/
-      A("lds %1, bezier_C+2")          /* %1 = HI(bezier_C)*/
-      A("mul %1,%5")                   /* r1:r0 = MI(bezier_C) * LO(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += MI(bezier_C) * LO(f)*/
+      A("lds %1, bezier_C+2")     /* %1 = HI(bezier_C)*/
+      A("mul %1,%5")              /* r1:r0 = MI(bezier_C) * LO(f)*/
       A("add %2,r0")
       A("adc %3,r1")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += HI(bezier_C) * LO(f) << 8*/
-      A("mul %10,%6")                  /* r1:r0 = LO(bezier_C) * MI(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += HI(bezier_C) * LO(f) << 8*/
+      A("mul %10,%6")             /* r1:r0 = LO(bezier_C) * MI(f)*/
       A("add %9,r0")
       A("adc %2,r1")
       A("adc %3,%0")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += LO(bezier_C) * MI(f)*/
-      A("mul %11,%6")                  /* r1:r0 = MI(bezier_C) * MI(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += LO(bezier_C) * MI(f)*/
+      A("mul %11,%6")             /* r1:r0 = MI(bezier_C) * MI(f)*/
       A("add %2,r0")
       A("adc %3,r1")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += MI(bezier_C) * MI(f) << 8*/
-      A("mul %1,%6")                   /* r1:r0 = HI(bezier_C) * LO(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += MI(bezier_C) * MI(f) << 8*/
+      A("mul %1,%6")              /* r1:r0 = HI(bezier_C) * LO(f)*/
       A("add %3,r0")
-      A("adc %4,r1")                   /* %4:%3:%2:%9 += HI(bezier_C) * LO(f) << 16*/
+      A("adc %4,r1")              /* %4:%3:%2:%9 += HI(bezier_C) * LO(f) << 16*/
 
       /* umul16x16to16hi(f, f, t); / Range 16 bits : f = t^3  (unsigned) [17]*/
-      A("mul %5,%7")                   /* r1:r0 = LO(f) * LO(t)*/
-      A("mov %1,r1")                   /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
-      A("clr %10")                     /* %10 = 0*/
-      A("clr %11")                     /* %11 = 0*/
-      A("mul %5,%8")                   /* r1:r0 = LO(f) * HI(t)*/
-      A("add %1,r0")                   /* %1 += LO(LO(f) * HI(t))*/
-      A("adc %10,r1")                  /* %10 = HI(LO(f) * HI(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%7")                   /* r1:r0 = HI(f) * LO(t)*/
-      A("add %1,r0")                   /* %1 += LO(HI(f) * LO(t))*/
-      A("adc %10,r1")                  /* %10 += HI(HI(f) * LO(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%8")                   /* r1:r0 = HI(f) * HI(t)*/
-      A("add %10,r0")                  /* %10 += LO(HI(f) * HI(t))*/
-      A("adc %11,r1")                  /* %11 += HI(HI(f) * HI(t))*/
-      A("mov %5,%10")                  /* %6:%5 =*/
-      A("mov %6,%11")                  /* f = %10:%11*/
+      A("mul %5,%7")              /* r1:r0 = LO(f) * LO(t)*/
+      A("mov %1,r1")              /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
+      A("clr %10")                /* %10 = 0*/
+      A("clr %11")                /* %11 = 0*/
+      A("mul %5,%8")              /* r1:r0 = LO(f) * HI(t)*/
+      A("add %1,r0")              /* %1 += LO(LO(f) * HI(t))*/
+      A("adc %10,r1")             /* %10 = HI(LO(f) * HI(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%7")              /* r1:r0 = HI(f) * LO(t)*/
+      A("add %1,r0")              /* %1 += LO(HI(f) * LO(t))*/
+      A("adc %10,r1")             /* %10 += HI(HI(f) * LO(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%8")              /* r1:r0 = HI(f) * HI(t)*/
+      A("add %10,r0")             /* %10 += LO(HI(f) * HI(t))*/
+      A("adc %11,r1")             /* %11 += HI(HI(f) * HI(t))*/
+      A("mov %5,%10")             /* %6:%5 =*/
+      A("mov %6,%11")             /* f = %10:%11*/
 
       /* umul16x24to24hi(v, f, bezier_B); / Range 22bits [29]*/
       /* acc -= v;*/
-      A("lds %10, bezier_B")           /* %10 = LO(bezier_B)*/
-      A("mul %10,%5")                  /* r1:r0 = LO(bezier_B) * LO(f)*/
+      A("lds %10, bezier_B")      /* %10 = LO(bezier_B)*/
+      A("mul %10,%5")             /* r1:r0 = LO(bezier_B) * LO(f)*/
       A("sub %9,r1")
       A("sbc %2,%0")
       A("sbc %3,%0")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= HI(LO(bezier_B) * LO(f))*/
-      A("lds %11, bezier_B+1")         /* %11 = MI(bezier_B)*/
-      A("mul %11,%5")                  /* r1:r0 = MI(bezier_B) * LO(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= HI(LO(bezier_B) * LO(f))*/
+      A("lds %11, bezier_B+1")    /* %11 = MI(bezier_B)*/
+      A("mul %11,%5")             /* r1:r0 = MI(bezier_B) * LO(f)*/
       A("sub %9,r0")
       A("sbc %2,r1")
       A("sbc %3,%0")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= MI(bezier_B) * LO(f)*/
-      A("lds %1, bezier_B+2")          /* %1 = HI(bezier_B)*/
-      A("mul %1,%5")                   /* r1:r0 = MI(bezier_B) * LO(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= MI(bezier_B) * LO(f)*/
+      A("lds %1, bezier_B+2")     /* %1 = HI(bezier_B)*/
+      A("mul %1,%5")              /* r1:r0 = MI(bezier_B) * LO(f)*/
       A("sub %2,r0")
       A("sbc %3,r1")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= HI(bezier_B) * LO(f) << 8*/
-      A("mul %10,%6")                  /* r1:r0 = LO(bezier_B) * MI(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= HI(bezier_B) * LO(f) << 8*/
+      A("mul %10,%6")             /* r1:r0 = LO(bezier_B) * MI(f)*/
       A("sub %9,r0")
       A("sbc %2,r1")
       A("sbc %3,%0")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= LO(bezier_B) * MI(f)*/
-      A("mul %11,%6")                  /* r1:r0 = MI(bezier_B) * MI(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= LO(bezier_B) * MI(f)*/
+      A("mul %11,%6")             /* r1:r0 = MI(bezier_B) * MI(f)*/
       A("sub %2,r0")
       A("sbc %3,r1")
-      A("sbc %4,%0")                   /* %4:%3:%2:%9 -= MI(bezier_B) * MI(f) << 8*/
-      A("mul %1,%6")                   /* r1:r0 = HI(bezier_B) * LO(f)*/
+      A("sbc %4,%0")              /* %4:%3:%2:%9 -= MI(bezier_B) * MI(f) << 8*/
+      A("mul %1,%6")              /* r1:r0 = HI(bezier_B) * LO(f)*/
       A("sub %3,r0")
-      A("sbc %4,r1")                   /* %4:%3:%2:%9 -= HI(bezier_B) * LO(f) << 16*/
+      A("sbc %4,r1")              /* %4:%3:%2:%9 -= HI(bezier_B) * LO(f) << 16*/
 
       /* umul16x16to16hi(f, f, t); / Range 16 bits : f = t^5  (unsigned) [17]*/
-      A("mul %5,%7")                   /* r1:r0 = LO(f) * LO(t)*/
-      A("mov %1,r1")                   /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
-      A("clr %10")                     /* %10 = 0*/
-      A("clr %11")                     /* %11 = 0*/
-      A("mul %5,%8")                   /* r1:r0 = LO(f) * HI(t)*/
-      A("add %1,r0")                   /* %1 += LO(LO(f) * HI(t))*/
-      A("adc %10,r1")                  /* %10 = HI(LO(f) * HI(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%7")                   /* r1:r0 = HI(f) * LO(t)*/
-      A("add %1,r0")                   /* %1 += LO(HI(f) * LO(t))*/
-      A("adc %10,r1")                  /* %10 += HI(HI(f) * LO(t))*/
-      A("adc %11,%0")                  /* %11 += carry*/
-      A("mul %6,%8")                   /* r1:r0 = HI(f) * HI(t)*/
-      A("add %10,r0")                  /* %10 += LO(HI(f) * HI(t))*/
-      A("adc %11,r1")                  /* %11 += HI(HI(f) * HI(t))*/
-      A("mov %5,%10")                  /* %6:%5 =*/
-      A("mov %6,%11")                  /* f = %10:%11*/
+      A("mul %5,%7")              /* r1:r0 = LO(f) * LO(t)*/
+      A("mov %1,r1")              /* store MIL(LO(f) * LO(t)) in %1, we need it for rounding*/
+      A("clr %10")                /* %10 = 0*/
+      A("clr %11")                /* %11 = 0*/
+      A("mul %5,%8")              /* r1:r0 = LO(f) * HI(t)*/
+      A("add %1,r0")              /* %1 += LO(LO(f) * HI(t))*/
+      A("adc %10,r1")             /* %10 = HI(LO(f) * HI(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%7")              /* r1:r0 = HI(f) * LO(t)*/
+      A("add %1,r0")              /* %1 += LO(HI(f) * LO(t))*/
+      A("adc %10,r1")             /* %10 += HI(HI(f) * LO(t))*/
+      A("adc %11,%0")             /* %11 += carry*/
+      A("mul %6,%8")              /* r1:r0 = HI(f) * HI(t)*/
+      A("add %10,r0")             /* %10 += LO(HI(f) * HI(t))*/
+      A("adc %11,r1")             /* %11 += HI(HI(f) * HI(t))*/
+      A("mov %5,%10")             /* %6:%5 =*/
+      A("mov %6,%11")             /* f = %10:%11*/
 
       /* umul16x24to24hi(v, f, bezier_A); / Range 21bits [29]*/
       /* acc += v; */
-      A("lds %10, bezier_A")           /* %10 = LO(bezier_A)*/
-      A("mul %10,%5")                  /* r1:r0 = LO(bezier_A) * LO(f)*/
+      A("lds %10, bezier_A")      /* %10 = LO(bezier_A)*/
+      A("mul %10,%5")             /* r1:r0 = LO(bezier_A) * LO(f)*/
       A("add %9,r1")
       A("adc %2,%0")
       A("adc %3,%0")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += HI(LO(bezier_A) * LO(f))*/
-      A("lds %11, bezier_A+1")         /* %11 = MI(bezier_A)*/
-      A("mul %11,%5")                  /* r1:r0 = MI(bezier_A) * LO(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += HI(LO(bezier_A) * LO(f))*/
+      A("lds %11, bezier_A+1")    /* %11 = MI(bezier_A)*/
+      A("mul %11,%5")             /* r1:r0 = MI(bezier_A) * LO(f)*/
       A("add %9,r0")
       A("adc %2,r1")
       A("adc %3,%0")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += MI(bezier_A) * LO(f)*/
-      A("lds %1, bezier_A+2")          /* %1 = HI(bezier_A)*/
-      A("mul %1,%5")                   /* r1:r0 = MI(bezier_A) * LO(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += MI(bezier_A) * LO(f)*/
+      A("lds %1, bezier_A+2")     /* %1 = HI(bezier_A)*/
+      A("mul %1,%5")              /* r1:r0 = MI(bezier_A) * LO(f)*/
       A("add %2,r0")
       A("adc %3,r1")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += HI(bezier_A) * LO(f) << 8*/
-      A("mul %10,%6")                  /* r1:r0 = LO(bezier_A) * MI(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += HI(bezier_A) * LO(f) << 8*/
+      A("mul %10,%6")             /* r1:r0 = LO(bezier_A) * MI(f)*/
       A("add %9,r0")
       A("adc %2,r1")
       A("adc %3,%0")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += LO(bezier_A) * MI(f)*/
-      A("mul %11,%6")                  /* r1:r0 = MI(bezier_A) * MI(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += LO(bezier_A) * MI(f)*/
+      A("mul %11,%6")             /* r1:r0 = MI(bezier_A) * MI(f)*/
       A("add %2,r0")
       A("adc %3,r1")
-      A("adc %4,%0")                   /* %4:%3:%2:%9 += MI(bezier_A) * MI(f) << 8*/
-      A("mul %1,%6")                   /* r1:r0 = HI(bezier_A) * LO(f)*/
+      A("adc %4,%0")              /* %4:%3:%2:%9 += MI(bezier_A) * MI(f) << 8*/
+      A("mul %1,%6")              /* r1:r0 = HI(bezier_A) * LO(f)*/
       A("add %3,r0")
-      A("adc %4,r1")                   /* %4:%3:%2:%9 += HI(bezier_A) * LO(f) << 16*/
+      A("adc %4,r1")              /* %4:%3:%2:%9 += HI(bezier_A) * LO(f) << 16*/
       L("2")
       " clr __zero_reg__"              /* C runtime expects r1 = __zero_reg__ = 0 */
       : "+r"(r0),
