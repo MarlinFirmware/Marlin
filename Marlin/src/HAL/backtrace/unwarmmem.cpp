@@ -19,7 +19,6 @@
 #include "unwarmmem.h"
 #include "unwarm.h"
 
-
 #define M_IsIdxUsed(a, v) (((a)[v >> 3] & (1 << (v & 0x7))) ? true : false)
 #define M_SetIdxUsed(a, v) ((a)[v >> 3] |= (1 << (v & 0x7)))
 #define M_ClrIdxUsed(a, v) ((a)[v >> 3] &= ~(1 << (v & 0x7)))
@@ -115,4 +114,5 @@ void UnwMemHashGC(UnwState * const state) {
     }
   }
 }
-#endif
+
+#endif // __arm__ || __thumb__

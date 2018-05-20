@@ -1124,5 +1124,4 @@ UnwResult UnwStartThumb(UnwState * const state) {
   return UNWIND_SUCCESS;
 }
 
-#endif
-
+#endif // __arm__ || __thumb__
