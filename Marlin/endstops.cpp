@@ -181,7 +181,7 @@ void Endstops::report_state() {
     #endif
 
     #define _ENDSTOP_HIT_ECHO(A,C) do{ \
-      SERIAL_ECHOPAIR(" " STRINGIFY(A) ":", stepper.triggered_position_mm(_AXIS(A))); \
+      SERIAL_ECHOPAIR(" " STRINGIFY(A) ":", planner.triggered_position_mm(_AXIS(A))); \
       _SET_STOP_CHAR(A,C); }while(0)
 
     #define _ENDSTOP_HIT_TEST(A,C) \
@@ -211,7 +211,7 @@ void Endstops::report_state() {
     hit_on_purpose();
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
-      if (stepper.abort_on_endstop_hit) {
+      if (planner.abort_on_endstop_hit) {
         card.sdprinting = false;
         card.closefile();
         quickstop_stepper();
@@ -322,7 +322,7 @@ void Endstops::update() {
       UPDATE_ENDSTOP_BIT(AXIS, MINMAX); \
       if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))) { \
         _ENDSTOP_HIT(AXIS, MINMAX); \
-        stepper.endstop_triggered(_AXIS(AXIS)); \
+        planner.endstop_triggered(_AXIS(AXIS)); \
       } \
     }while(0)
 
@@ -331,9 +331,9 @@ void Endstops::update() {
     if (G38_move) {
       UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
       if (TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE))) {
-        if      (stepper.current_block->steps[_AXIS(X)] > 0) { _ENDSTOP_HIT(X, MIN); stepper.endstop_triggered(_AXIS(X)); }
-        else if (stepper.current_block->steps[_AXIS(Y)] > 0) { _ENDSTOP_HIT(Y, MIN); stepper.endstop_triggered(_AXIS(Y)); }
-        else if (stepper.current_block->steps[_AXIS(Z)] > 0) { _ENDSTOP_HIT(Z, MIN); stepper.endstop_triggered(_AXIS(Z)); }
+        if      (stepper.current_block->steps[_AXIS(X)] > 0) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(_AXIS(X)); }
+        else if (stepper.current_block->steps[_AXIS(Y)] > 0) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(_AXIS(Y)); }
+        else if (stepper.current_block->steps[_AXIS(Z)] > 0) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(_AXIS(Z)); }
         G38_endstop_hit = true;
       }
     }
