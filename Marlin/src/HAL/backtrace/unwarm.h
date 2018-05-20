@@ -140,8 +140,4 @@ bool UnwMemWriteRegister(UnwState * const state, const uint32_t addr, const RegD
 bool UnwMemReadRegister(UnwState * const state, const uint32_t addr, RegData * const reg);
 void UnwMemHashGC(UnwState * const state);
 
-#endif /* UNWARM_H */
-
-/* END OF FILE */
-
-
+#endif // UNWARM_H
