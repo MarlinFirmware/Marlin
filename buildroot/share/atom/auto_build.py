@@ -89,6 +89,13 @@ else:
   print "This script only runs under python 2"
   exit()
 
+import platform
+current_OS = platform.system()
+
+#globals
+target_env = ''
+board_name = ''
+
 #########
 #  Python 2 error messages:
 #    Can't find a usable init.tcl in the following directories ...
@@ -100,10 +107,6 @@ else:
 #    set the environmental variables TCLLIBPATH and TCL_LIBRARY to the directory where you found the init.tcl file
 #    reboot
 #########
-
-#globals
-target_env = ''
-board_name = ''
 
 
 
@@ -191,28 +194,226 @@ def get_answer(board_name, cpu_label_txt, cpu_a_txt, cpu_b_txt):
 # end - get answer
 
 
+#
+# move custom board definitions from project folder to PlatformIO
+#
+def resolve_path(path):
+        import os
 
-def env_name_check(argument):
-      name_check = {
-        'teensy35'                   :  True,
-        'teensy20'                   :  True,
-        'STM32F4'                    :  True,
-        'STM32F1'                    :  True,
-        'sanguino_atmega644p'        :  True,
-        'sanguino_atmega1284p'       :  True,
-        'rambo'                      :  True,
-        'melzi_optiboot'             :  True,
-        'melzi'                      :  True,
-        'megaatmega2560'             :  True,
-        'megaatmega1280'             :  True,
-        'malyanm200'                 :  True,
-        'LPC1768'                    :  True,
-        'DUE_debug'                  :  True,
-        'DUE_USB'                    :  True,
-        'DUE'                        :  True
-      }
+    # turn the selection into a partial path
+       #get line and column numbers
+        line_num = 1
+        column_num = 1
+        line_start = path.find(':')
+        column_start = path.find(':', line_start + 1)
+        if column_start == -1:
+          column_start = len(path)
+        column_end = path.find(':', column_start + 1)
+        if column_end == -1:
+          column_end = len(path)
+        if 0 <= line_start:
+          line_num = path[ line_start + 1 : column_start]
+          if line_num == '':
+            line_num = 1
+        if not(column_start == column_end):
+          column_num = path[ column_start + 1 : column_end]
+          if column_num == '':
+            column_num = 1
 
-      return name_check.get(argument, False)
+
+        path = path[ : path.find(':')]  # delete the line number and anything after
+        path = path.replace('\\','/')
+
+      # resolve as many '../' as we can
+        while 0 <= path.find('../'):
+          end =  path.find('../') - 1
+          start = path.find('/')
+          while 0 <= path.find('/',start) and end > path.find('/',start):
+            start = path.find('/',start) + 1
+          path = path[0:start] + path[end + 4: ]
+
+        # this is an alternative to the above - it just deletes the '../' section
+        # start_temp = path.find('../')
+        # while 0 <= path.find('../',start_temp):
+        #   start = path.find('../',start_temp)
+        #   start_temp = start  + 1
+        # if 0 <= start:
+        #   path = path[start + 2 : ]
+
+
+        start = path.find('/')
+        if not(0 == start):            # make sure path starts with '/'
+          while 0 == path.find(' '):    # eat any spaces at the beginning
+            path = path[ 1 : ]
+          path = '/' + path
+
+        if current_OS == 'Windows':
+          search_path = path.replace('/', '\\')  # os.walk uses '\' in Windows
+        else:
+          search_path = path
+
+        start_path = os.path.abspath('')
+
+    # search project directory for the selection
+        found = False
+        full_path = ''
+        for root, directories, filenames in os.walk(start_path):
+          for filename in filenames:
+                  if  0 <= root.find('.git'):              # don't bother looking in this directory
+                    break
+                  full_path = os.path.join(root,filename)
+                  if 0 <= full_path.find(search_path):
+                    found = True
+                    break
+          if found:
+            break
+
+        return full_path, line_num, column_num
+
+# end - resolve_path
+
+
+#
+# Opens the file in the preferred editor at the line & column number
+#   If the preferred editor isn't already running then it tries the next.
+#   If none are open then the system default is used.
+#
+# Editor order:
+#   1. Notepad++  (Windows only)
+#   2. Sublime Text
+#   3. Atom
+#   4. System default (opens at line 1, column 1 only)
+#
+def open_file(path):
+        import subprocess
+        file_path, line_num, column_num = resolve_path(path)
+
+        if file_path == '' :
+          return
+
+        if current_OS == 'Windows':
+
+            editor_note = subprocess.check_output('wmic process where "name=' + "'notepad++.exe'" + '" get ExecutablePath')
+            editor_sublime = subprocess.check_output('wmic process where "name=' + "'sublime_text.exe'" + '" get ExecutablePath')
+            editor_atom = subprocess.check_output('wmic process where "name=' + "'atom.exe'" + '" get ExecutablePath')
+
+            if 0 <= editor_note.find('notepad++.exe'):
+                start = editor_note.find('\n') + 1
+                end = editor_note.find('\n',start + 5) -4
+                editor_note = editor_note[ start : end]
+                command = file_path ,  ' -n' + str(line_num) ,   ' -c' + str(column_num)
+                subprocess.Popen([editor_note, command])
+
+            elif 0 <= editor_sublime.find('sublime_text.exe'):
+                start = editor_sublime.find('\n') + 1
+                end = editor_sublime.find('\n',start + 5) -4
+                editor_sublime = editor_sublime[ start : end]
+                command = file_path + ':' + line_num + ':' + column_num
+                subprocess.Popen([editor_sublime, command])
+
+            elif 0 <= editor_atom.find('atom.exe'):
+                start = editor_atom.find('\n') + 1
+                end = editor_atom.find('\n',start + 5) -4
+                editor_atom = editor_atom[ start : end]
+                command = file_path  + ':' + str(line_num) + ':' + str(column_num)
+                subprocess.Popen([editor_atom, command])
+
+            else:
+              os.startfile(resolve_path(path))  # open file with default app
+
+        elif current_OS == 'Linux':
+
+              command = file_path  + ':' + str(line_num) + ':' + str(column_num)
+              running_apps = subprocess.Popen('ps ax -o cmd', stdout=subprocess.PIPE, shell=True)
+              (output, err) = running_apps.communicate()
+              temp = output.split('\n')
+
+              def find_editor_linux(name, search_obj):
+                  for line in search_obj:
+                      if 0 <= line.find(name):
+                          path = line
+                          return True, path
+                  return False , ''
+
+              (success_sublime, editor_path_sublime) = find_editor_linux('sublime_text',temp)
+              (success_atom, editor_path_atom) = find_editor+linux('atom',temp)
+
+              if success_sublime:
+                  subprocess.Popen([editor_path_sublime, command])
+
+              elif success_atom:
+                  subprocess.Popen([editor_path_atom, command])
+
+              else:
+                  os.system('xdg-open ' + file_path )
+
+        elif current_OS == 'Darwin':  # MAC
+
+              command = file_path  + ':' + str(line_num) + ':' + str(column_num)
+              running_apps = subprocess.Popen('ps axwww -o command', stdout=subprocess.PIPE, shell=True)
+              (output, err) = running_apps.communicate()
+              temp = output.split('\n')
+
+              def find_editor_mac(name, search_obj):
+                  for line in search_obj:
+                      if 0 <= line.find(name):
+                          path = line
+                          if 0 <= path.find('-psn'):
+                              path = path[ : path.find('-psn') - 1 ]
+                          return True, path
+                  return False , ''
+
+              (success_sublime, editor_path_sublime) = find_editor_mac('Sublime',temp)
+              (success_atom, editor_path_atom) = find_editor_mac('Atom',temp)
+
+              if success_sublime:
+                  subprocess.Popen([editor_path_sublime, command])
+
+              elif success_atom:
+                  subprocess.Popen([editor_path_atom, command])
+
+              else:
+                  os.system('open ' + file_path )
+# end - open_file
+
+
+#
+# move custom board definitions from project folder to PlatformIO
+#
+def copy_boards_dir():
+
+        temp = os.environ
+        for key in temp:
+          if 0 <=  os.environ[key].find('.platformio'):
+            part = os.environ[key].split(';')
+            for part2 in part:
+              if 0 <=  part2.find('.platformio'):
+                path = part2
+                break
+
+        PIO_path = path[ : path.find('.platformio') + 11]
+
+#         import sys
+#         import subprocess
+#         pio_subprocess = subprocess.Popen(['platformio', 'run', '-t', 'envdump'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+#
+#         # stream output from subprocess and split it into lines
+#         for line in iter(pio_subprocess.stdout.readline, ''):
+#             if 0 <= line.find('PIOHOME_DIR'):
+#               start = line.find(':') + 3
+#               end =  line.find(',') - 1
+#               PIO_path = line[start:end]
+
+
+        PIO_path =  PIO_path.replace("\\", "/")
+        PIO_path =  PIO_path.replace("//", "/") + '/boards'
+
+        board_path = 'buildroot/share/PlatformIO/boards'
+
+        from distutils.dir_util import copy_tree
+        copy_tree(board_path, PIO_path)
+
+# end copy_boards_dir
 
 
 # gets the last build environment
@@ -223,14 +424,13 @@ def get_build_last():
         date_last = 0.0
         DIR__pioenvs = os.listdir('.pioenvs')
         for name in DIR__pioenvs:
-          if env_name_check(name):
-            DIR_temp = os.listdir('.pioenvs/' + name)
-            for names_temp in DIR_temp:
-              if 0 == names_temp.find('firmware.'):
-                date_temp = os.path.getmtime('.pioenvs/' + name + '/' + names_temp)
-                if date_temp > date_last:
-                  date_last = date_temp
-                  env_last = name
+          DIR_temp = os.listdir('.pioenvs/' + name)
+          for names_temp in DIR_temp:
+            if 0 == names_temp.find('firmware.'):
+              date_temp = os.path.getmtime('.pioenvs/' + name + '/' + names_temp)
+              if date_temp > date_last:
+                date_last = date_temp
+                env_last = name
       return env_last
 
 
@@ -296,6 +496,10 @@ def get_starting_env(board_name_full, version):
       with open(path, 'r') as myfile:
         pins_h = myfile.read()
 
+      env_A = ''
+      env_B = ''
+      env_C = ''
+
       board_name = board_name_full[ 6 : ]  # only use the part after "BOARD_" since we're searching the pins.h file
       pins_h = pins_h.split('\n')
       environment = ''
@@ -350,10 +554,10 @@ def get_env(board_name, ver_Marlin):
             raise SystemExit(0)                          # quit if unable to find board
 
 
-      CPU_question = ( ('1280', '2560', "1280 or 2560 CPU?"), ('644', '1284', "644 or 1284 CPU?") )
+      CPU_question = ( ('1280', '2560', " 1280 or 2560 CPU? "), ('644', '1284', " 644 or 1284 CPU? ") )
 
       if 0 < board_name.find('MELZI') :
-          get_answer(board_name, "Which flavor of Melzi?", "Melzi (Optiboot bootloader)", "Melzi                                      ")
+          get_answer(' ' + board_name + ' ', " Which flavor of Melzi? ", "Melzi (Optiboot bootloader)", "Melzi                                      ")
           if 1 == get_answer_val:
             target_env = 'melzi_optiboot'
           else:
@@ -371,7 +575,7 @@ def get_env(board_name, ver_Marlin):
 
           for item in CPU_question:
             if CPU_A == item[0]:
-              get_answer(board_name, item[2], item[0], item[1])
+              get_answer(' ' + board_name + ' ', item[2], item[0], item[1])
               if 2 == get_answer_val:
                 target_env = env_B
               else:
@@ -388,7 +592,7 @@ def get_env(board_name, ver_Marlin):
               if build_type == 'traceback' or (build_type == 'clean' and get_build_last() == 'DUE_debug'):
                   target_env = 'DUE_debug'
               elif env_B == 'DUE_USB':
-                get_answer(board_name, "DUE: need download port", "USB (native USB) port", "Programming port       ")
+                get_answer(' ' + board_name + ' ', " DUE: need download port ", "USB (native USB) port", "Programming port       ")
                 if 1 == get_answer_val:
                   target_env = 'DUE_USB'
                 else:
@@ -408,6 +612,7 @@ def get_env(board_name, ver_Marlin):
 # puts screen text into queue so that the parent thread can fetch the data from this thread
 import Queue
 IO_queue = Queue.Queue()
+PIO_queue = Queue.Queue()
 def write_to_screen_queue(text, format_tag = 'normal'):
       double_in = [text, format_tag]
       IO_queue.put(double_in, block = False)
@@ -431,6 +636,7 @@ standard = True
 prev_line_COM = False
 next_line_warning = False
 warning_continue = False
+line_counter = 0
 
 def line_print(line_input):
 
@@ -441,6 +647,7 @@ def line_print(line_input):
       global prev_line_COM
       global next_line_warning
       global warning_continue
+      global line_counter
 
 
 
@@ -490,12 +697,19 @@ def line_print(line_input):
               write_to_screen_queue(text[found_right :                ] + '\n')
             break
         if did_something == False:
-          write_to_screen_queue(text + '\n')
+          r_loc = text.find('\r') + 1
+          if r_loc > 0 and r_loc < len(text):  # need to split this line
+            text = text.split('\r')
+            for line in text:
+              write_to_screen_queue(line + '\n')
+          else:
+            write_to_screen_queue(text + '\n')
       # end - write_to_screen_with_replace
 
 
 
     # scan the line
+      line_counter = line_counter + 1
       max_search = len(line_input)
       if max_search > 3 :
         max_search = 3
@@ -510,7 +724,14 @@ def line_print(line_input):
         prev_line_COM = False
         prev_line_COM = False
         warning_continue = True
-      if beginning == 'War' or \
+      if 0 < line_input.find('Thank you') or 0 < line_input.find('SUMMARY') :
+        warning = False               #standard line found
+        warning_FROM = False
+        error = False
+        standard = True
+        prev_line_COM = False
+        warning_continue = False
+      elif beginning == 'War' or \
         beginning == '#er' or \
         beginning == 'In ' or \
         (beginning != 'Com' and prev_line_COM == True and not(beginning == 'Arc' or beginning == 'Lin'  or beginning == 'Ind') or \
@@ -539,11 +760,6 @@ def line_print(line_input):
         error = True
         standard = False
         prev_line_COM = False
-
-      elif beginning == 'fro' and warning == True :  # start of warning /error block
-        warning_FROM = True
-        prev_line_COM = False
-        warning_continue = True
       elif 0 < line_input.find(': error:') or \
         0 < line_input.find(': fatal error:'):       # start of warning /error block
         warning = False                                 # error found
@@ -552,9 +768,14 @@ def line_print(line_input):
         standard = False
         prev_line_COM = False
         warning_continue = True
+      elif beginning == 'fro' and warning == True or \
+        beginning == '.pi' :                             # start of warning /error block
+        warning_FROM = True
+        prev_line_COM = False
+        warning_continue = True
       elif warning_continue == True:
         warning = True
-        warning_FROM = False          # keep the warning status going until find a standard line
+        warning_FROM = False          # keep the warning status going until find a standard line or an error
         error = False
         standard = False
         prev_line_COM = False
@@ -608,6 +829,7 @@ def run_PIO(dummy):
 
     import subprocess
     import sys
+
     print 'starting platformio'
 
     if   build_type == 'build':
@@ -664,7 +886,7 @@ def run_PIO(dummy):
 
   # stream output from subprocess and split it into lines
     for line in iter(pio_subprocess.stdout.readline, ''):
-        line_print(line.replace('\n', ''))
+          line_print(line.replace('\n', ''))
 
 
   # append info used to run PlatformIO
@@ -696,9 +918,15 @@ import tkFileDialog
 
 
 class output_window(Text):
-
+ # based on Super Text
     global continue_updates
     continue_updates = True
+
+    global search_position
+    search_position = ''       # start with invalid search position
+
+    global error_found
+    error_found = False        # are there any errors?
 
 
     def  __init__(self):
@@ -714,6 +942,7 @@ class output_window(Text):
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
         self.config(height  = 24, width = 120)
+        self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
 
         self.tag_config('normal', foreground = 'white')
@@ -721,8 +950,12 @@ class output_window(Text):
         self.tag_config('error', foreground = 'red')
         self.tag_config('highlight_green', foreground = 'green')
         self.tag_config('highlight_blue', foreground = 'cyan')
+        self.tag_config('error_highlight_inactive', background = 'dim gray')
+        self.tag_config('error_highlight_active', background = 'light grey')
 
-#        self.bind('<Control-Key-a>', self.select_all)  # the event happens but the action doesn't
+        self.bind_class("Text","<Control-a>", self.select_all)  # required in windows, works in others
+        self.bind_all("<Control-Shift-E>", self.scroll_errors)
+        self.bind_class("<Control-Shift-R>", self.rebuild)
 
         # scrollbar
 
@@ -733,15 +966,28 @@ class output_window(Text):
 
         # pop-up menu
         self.popup = tk.Menu(self, tearoff=0)
-        self.popup.add_command(label='Cut', command=self._cut)
+
         self.popup.add_command(label='Copy', command=self._copy)
         self.popup.add_command(label='Paste', command=self._paste)
+        self.popup.add_separator()
+        self.popup.add_command(label='Cut', command=self._cut)
         self.popup.add_separator()
         self.popup.add_command(label='Select All', command=self._select_all)
         self.popup.add_command(label='Clear All', command=self._clear_all)
         self.popup.add_separator()
         self.popup.add_command(label='Save As', command=self._file_save_as)
-        self.bind('<Button-3>', self._show_popup)
+        self.popup.add_separator()
+ #       self.popup.add_command(label='Repeat Build(CTL-shift-r)', command=self._rebuild)
+        self.popup.add_command(label='Repeat Build', command=self._rebuild)
+        self.popup.add_separator()
+        self.popup.add_command(label='Scroll Errors (CTL-shift-e)', command=self._scroll_errors)
+        self.popup.add_separator()
+        self.popup.add_command(label='Open File at Cursor', command=self._open_selected_file)
+
+        if current_OS == 'Darwin':  # MAC
+          self.bind('<Button-2>', self._show_popup)  # macOS only
+        else:
+          self.bind('<Button-3>', self._show_popup)  # Windows & Linux
 
 
   # threading & subprocess section
@@ -761,18 +1007,17 @@ class output_window(Text):
     def check_thread(self):  # wait for user to kill the window
         global continue_updates
         if continue_updates == True:
-          self.root.after(20, self.check_thread)
+          self.root.after(10, self.check_thread)
 
 
     def update(self):
         global continue_updates
         if continue_updates == True:
-           self.root.after(20, self.update)#method is called every 50ms
+           self.root.after(10, self.update)#method is called every 50ms
         temp_text = ['0','0']
         if IO_queue.empty():
           if not(self.secondary_thread.is_alive()):
             continue_updates = False  # queue is exhausted and thread is dead so no need for further updates
-            self.tag_add('sel', '1.0', 'end')
         else:
           try:
               temp_text = IO_queue.get(block = False)
@@ -784,6 +1029,74 @@ class output_window(Text):
 
 
   # text editing section
+
+
+    def _scroll_errors(self):
+        global search_position
+        global error_found
+        if search_position == '':  # first time so highlight all errors
+            countVar = tk.IntVar()
+            search_position = '1.0'
+            search_count = 0
+            while not(search_position == '') and search_count < 100:
+                search_position = self.search("error", search_position, stopindex="end", count=countVar, nocase=1)
+                search_count = search_count + 1
+                if not(search_position == ''):
+                    error_found = True
+                    end_pos = '{}+{}c'.format(search_position, 5)
+                    self.tag_add("error_highlight_inactive", search_position, end_pos)
+                    search_position = '{}+{}c'.format(search_position, 1)  # point to the next character for new search
+                else:
+                    break
+
+        if error_found:
+            if search_position == '':
+                search_position = self.search("error", '1.0', stopindex="end",  nocase=1)  # new search
+            else:                           # remove active highlight
+                end_pos = '{}+{}c'.format(search_position, 5)
+                start_pos = '{}+{}c'.format(search_position, -1)
+                self.tag_remove("error_highlight_active", start_pos, end_pos)
+            search_position = self.search("error", search_position, stopindex="end",  nocase=1)  # finds first occurrence AGAIN on the first time through
+            if search_position == "":  # wrap around
+                search_position = self.search("error", '1.0', stopindex="end", nocase=1)
+            end_pos = '{}+{}c'.format(search_position, 5)
+            self.tag_add("error_highlight_active", search_position, end_pos)      # add active highlight
+            self.see(search_position)
+            search_position = '{}+{}c'.format(search_position, 1)  # point to the next character for new search
+
+    def scroll_errors(self, event):
+        self._scroll_errors()
+
+
+    def _rebuild(self):
+        #global board_name
+        #global Marlin_ver
+        #global target_env
+        #board_name, Marlin_ver = get_board_name()
+        #target_env = get_env(board_name, Marlin_ver)
+        self.start_thread()
+
+    def rebuild(self, event):
+        print "event happened"
+        self._rebuild()
+
+
+    def _open_selected_file(self):
+        current_line = self.index('insert')
+        line_start = current_line[ : current_line.find('.')] + '.0'
+        line_end = current_line[ : current_line.find('.')] + '.200'
+        self.mark_set("path_start", line_start)
+        self.mark_set("path_end", line_end)
+        path = self.get("path_start", "path_end")
+        from_loc = path.find('from ')
+        colon_loc = path.find(': ')
+        if 0 <= from_loc and ((colon_loc == -1) or (from_loc < colon_loc)) :
+          path = path [ from_loc + 5 : ]
+        if 0 <= colon_loc:
+          path = path [ :  colon_loc ]
+        if 0 <= path.find('\\') or  0 <= path.find('/'):  # make sure it really contains a path
+          open_file(path)
+
 
     def _file_save_as(self):
         self.filename = tkFileDialog.asksaveasfilename(defaultextension = '.txt')
@@ -833,7 +1146,7 @@ class output_window(Text):
             pass
 
     def cut(self, event):
-        _cut(self)
+        self._cut()
 
     def _copy(self):
 
@@ -845,7 +1158,7 @@ class output_window(Text):
             pass
 
     def copy(self, event):
-        _copy(self)
+        self._copy()
 
     def _paste(self):
 
@@ -867,40 +1180,7 @@ class output_window(Text):
         if isok:
             self.delete('1.0', 'end')
 
-    def _place_cursor(self): # theme: terminal
-        '''check the position of the cursor against the last known position
-        every 15ms and update the cursorblock tag as needed'''
 
-        current_index = self.index('insert')
-
-        if self.cursor != current_index:
-            self.cursor = current_index
-            self.tag_delete('cursorblock')
-
-            start = self.index('insert')
-            end = self.index('insert+1c')
-
-            if start[0] != end[0]:
-                self.insert(start, ' ')
-                end = self.index('insert')
-
-            self.tag_add('cursorblock', start, end)
-            self.mark_set('insert', self.cursor)
-
-        self.after(15, self._place_cursor)
-
-    def _blink_cursor(self): # theme: terminal
-        '''alternate the background color of the cursorblock tagged text
-        every 600 milliseconds'''
-
-        if self.switch == self.fg:
-            self.switch = self.bg
-        else:
-            self.switch = self.fg
-
-        self.tag_config('cursorblock', background=self.switch)
-
-        self.after(600, self._blink_cursor)
 # end - output_window
 
 
@@ -923,6 +1203,9 @@ def main():
         target_env = get_env(board_name, Marlin_ver)
 
         auto_build = output_window()
+        if 0 <= target_env.find('USB1286'):
+            copy_boards_dir()          # copy custom boards over to PlatformIO if using custom board
+                                       #    causes 3-5 second delay in main window appearing
         auto_build.start_thread()  # executes the "run_PIO" function
 
         auto_build.root.mainloop()
