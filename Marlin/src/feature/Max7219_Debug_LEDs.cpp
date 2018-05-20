@@ -73,7 +73,6 @@ static uint8_t LEDs[8] = { 0 };
 #endif
 
 void Max7219_PutByte(uint8_t data) {
-  CRITICAL_SECTION_START;
   for (uint8_t i = 8; i--;) {
     SIG_DELAY();
     WRITE(MAX7219_CLK_PIN, LOW);       // tick
@@ -84,12 +83,10 @@ void Max7219_PutByte(uint8_t data) {
     SIG_DELAY();
     data <<= 1;
   }
-  CRITICAL_SECTION_END;
 }
 
 void Max7219(const uint8_t reg, const uint8_t data) {
   SIG_DELAY();
-  CRITICAL_SECTION_START;
   WRITE(MAX7219_LOAD_PIN, LOW);  // begin
   SIG_DELAY();
   Max7219_PutByte(reg);          // specify register
@@ -99,7 +96,6 @@ void Max7219(const uint8_t reg, const uint8_t data) {
   WRITE(MAX7219_LOAD_PIN, LOW);  // and tell the chip to load the data
   SIG_DELAY();
   WRITE(MAX7219_LOAD_PIN, HIGH);
-  CRITICAL_SECTION_END;
   SIG_DELAY();
 }
 

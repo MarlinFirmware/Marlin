@@ -95,10 +95,6 @@
   #include "feature/I2CPositionEncoder.h"
 #endif
 
-#if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-  #include HAL_PATH(HAL, endstop_interrupts.h)
-#endif
-
 #if HAS_TRINAMIC
   #include "feature/tmc_util.h"
 #endif
@@ -269,7 +265,7 @@ bool pin_is_protected(const pin_t pin) {
 }
 
 void quickstop_stepper() {
-  stepper.quick_stop();
+  planner.quick_stop();
   planner.synchronize();
   set_current_from_steppers_for_axis(ALL_AXES);
   SYNC_PLAN_POSITION_KINEMATIC();
@@ -748,7 +744,9 @@ void setup() {
 
   print_job_timer.init();   // Initial setup of print job timer
 
-  stepper.init();    // Initialize stepper, this enables interrupts!
+  endstops.init();          // Init endstops and pullups
+
+  stepper.init();           // Init stepper. This enables interrupts!
 
   #if HAS_SERVOS
     servo_init();
@@ -858,10 +856,6 @@ void setup() {
   #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
     i2c.onReceive(i2c_on_receive);
     i2c.onRequest(i2c_on_request);
-  #endif
-
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    setup_endstop_interrupts();
   #endif
 
   #if DO_SWITCH_EXTRUDER

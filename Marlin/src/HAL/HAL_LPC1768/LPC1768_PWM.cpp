@@ -78,11 +78,13 @@
 
 #define NUM_ISR_PWMS 20
 
+#define HAL_PWM_TIMER      LPC_TIM3
+#define HAL_PWM_TIMER_ISR  extern "C" void TIMER3_IRQHandler(void)
+#define HAL_PWM_TIMER_IRQn TIMER3_IRQn
 
 #define LPC_PORT_OFFSET         (0x0020)
 #define LPC_PIN(pin)            (1UL << pin)
 #define LPC_GPIO(port)          ((volatile LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + LPC_PORT_OFFSET * port))
-
 
 typedef struct {            // holds all data needed to control/init one of the PWM channels
   bool                active_flag;    // THIS TABLE ENTRY IS ACTIVELY TOGGLING A PIN
@@ -256,6 +258,11 @@ bool LPC1768_PWM_attach_pin(pin_t pin, uint32_t min /* = 1 */, uint32_t max /* =
                                  // OK to update the active table because the
                                  // ISR doesn't use any of the changed items
 
+  // We NEED memory barriers to ensure Interrupts are actually disabled!
+  // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+  __DSB();
+  __ISB();
+
   if (ISR_table_update) //use work table if that's the newest
     temp_table = work_table;
   else
@@ -339,6 +346,11 @@ bool LPC1768_PWM_detach_pin(pin_t pin) {
 
 ////  interrupt controlled PWM code
   NVIC_DisableIRQ(HAL_PWM_TIMER_IRQn);
+
+  // We NEED memory barriers to ensure Interrupts are actually disabled!
+  // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+  __DSB();
+  __ISB();
 
   if (ISR_table_update) {
     ISR_table_update = false;    // don't update yet - have another update to do
@@ -426,6 +438,12 @@ bool LPC1768_PWM_write(pin_t pin, uint32_t value) {
 
 ////  interrupt controlled PWM code
   NVIC_DisableIRQ(HAL_PWM_TIMER_IRQn);
+
+  // We NEED memory barriers to ensure Interrupts are actually disabled!
+  // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+  __DSB();
+  __ISB();
+
   if (!ISR_table_update)   // use the most up to date table
     COPY_ACTIVE_TABLE;  // copy active table into work table
 
@@ -453,6 +471,11 @@ bool useable_hardware_PWM(pin_t pin) {
   pin = GET_PIN_MAP_PIN(GET_PIN_MAP_INDEX(pin & 0xFF));
 
   NVIC_DisableIRQ(HAL_PWM_TIMER_IRQn);
+
+  // We NEED memory barriers to ensure Interrupts are actually disabled!
+  // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+  __DSB();
+  __ISB();
 
   bool return_flag = false;
   for (uint8_t i = 0; i < NUM_ISR_PWMS; i++)         // see if it's already setup

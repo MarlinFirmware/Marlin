@@ -35,6 +35,7 @@
 #include "../Marlin.h"
 
 #include "motion.h"
+#include "../gcode/queue.h"
 
 #if ENABLED(DELTA)
   #include "delta.h"
@@ -53,7 +54,7 @@ enum BlockFlagBit : char {
   // from a safe speed (in consideration of jerking from zero speed).
   BLOCK_BIT_NOMINAL_LENGTH,
 
-  // The block is busy
+  // The block is busy, being interpreted by the stepper ISR
   BLOCK_BIT_BUSY,
 
   // The block is segment 2+ of a longer move
@@ -84,19 +85,35 @@ typedef struct {
 
   uint8_t flag;                             // Block flags (See BlockFlag enum above)
 
-  unsigned char active_extruder;            // The extruder to move (if E move)
+  // Fields used by the motion planner to manage acceleration
+  float nominal_speed_sqr,                  // The nominal speed for this block in (mm/sec)^2
+        entry_speed_sqr,                    // Entry speed at previous-current junction in (mm/sec)^2
+        max_entry_speed_sqr,                // Maximum allowable junction entry speed in (mm/sec)^2
+        millimeters,                        // The total travel of this block in mm
+        acceleration;                       // acceleration mm/sec^2
 
-  // Fields used by the Bresenham algorithm for tracing the line
-  int32_t steps[NUM_AXIS];                  // Step count along each axis
+  union {
+    // Data used by all move blocks
+    struct {
+      // Fields used by the Bresenham algorithm for tracing the line
+      uint32_t steps[NUM_AXIS];             // Step count along each axis
+    };
+    // Data used by all sync blocks
+    struct {
+      int32_t position[NUM_AXIS];           // New position to force when this sync block is executed
+    };
+  };
   uint32_t step_event_count;                // The number of step events required to complete this block
+
+  uint8_t active_extruder;                  // The extruder to move (if E move)
 
   #if ENABLED(MIXING_EXTRUDER)
     uint32_t mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
   #endif
 
   // Settings for the trapezoid generator
-  int32_t accelerate_until,                 // The index of the step event on which to stop acceleration
-          decelerate_after;                 // The index of the step event on which to start decelerating
+  uint32_t accelerate_until,                // The index of the step event on which to stop acceleration
+           decelerate_after;                // The index of the step event on which to start decelerating
 
   #if ENABLED(BEZIER_JERK_CONTROL)
     uint32_t cruise_rate;                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
@@ -105,7 +122,7 @@ typedef struct {
     uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
   #else
-    int32_t acceleration_rate;              // The acceleration rate used for acceleration calculation
+    uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
   #endif
 
   uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
@@ -118,13 +135,6 @@ typedef struct {
              final_adv_steps;               // advance steps due to exit speed
     float e_D_ratio;
   #endif
-
-  // Fields used by the motion planner to manage acceleration
-  float nominal_speed,                      // The nominal speed for this block in mm/sec
-        entry_speed,                        // Entry speed at previous-current junction in mm/sec
-        max_entry_speed,                    // Maximum allowable junction entry speed in mm/sec
-        millimeters,                        // The total travel of this block in mm
-        acceleration;                       // acceleration mm/sec^2
 
   uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
            initial_rate,                    // The jerk-adjusted step rate at start of block
@@ -166,6 +176,10 @@ class Planner {
     static block_t block_buffer[BLOCK_BUFFER_SIZE];
     static volatile uint8_t block_buffer_head,      // Index of the next block to be pushed
                             block_buffer_tail;      // Index of the busy block, if any
+    static uint16_t cleaning_buffer_counter;        // A counter to disable queuing of blocks
+    static uint8_t delay_before_delivering,         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
+                   block_buffer_planned;            // Index of the optimally planned block
+                   
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
@@ -233,6 +247,10 @@ class Planner {
       #endif
     #endif
 
+    #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+      static bool abort_on_endstop_hit;
+    #endif
+
   private:
 
     /**
@@ -247,9 +265,9 @@ class Planner {
     static float previous_speed[NUM_AXIS];
 
     /**
-     * Nominal speed of previous path line segment
+     * Nominal speed of previous path line segment (mm/s)^2
      */
-    static float previous_nominal_speed;
+    static float previous_nominal_speed_sqr;
 
     /**
      * Limit where 64bit math is necessary for acceleration calculation
@@ -307,15 +325,6 @@ class Planner {
 
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
-
-    /**
-     * Number of moves currently in the planner
-     */
-    FORCE_INLINE static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
-
-    FORCE_INLINE static void clear_block_buffer() { block_buffer_head = block_buffer_tail = 0; }
-
-    FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
 
     // Update multipliers based on new diameter measurements
     static void calculate_volumetric_multipliers();
@@ -424,16 +433,32 @@ class Planner {
       #define ARG_Z const float &rz
     #endif
 
+    // Number of moves currently in the planner
+    FORCE_INLINE static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail); }
+
+    // Remove all blocks from the buffer
+    FORCE_INLINE static void clear_block_buffer() { block_buffer_head = block_buffer_tail = 0; }
+
+    // Check if movement queue is full
+    FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
+
+    // Get count of movement slots free
+    FORCE_INLINE static uint8_t moves_free() { return BLOCK_BUFFER_SIZE - 1 - movesplanned(); }
+
     /**
      * Planner::get_next_free_block
      *
-     * - Get the next head index (passed by reference)
-     * - Wait for a space to open up in the planner
-     * - Return the head block
+     * - Get the next head indices (passed by reference)
+     * - Wait for the number of spaces to open up in the planner
+     * - Return the first head block
      */
-    FORCE_INLINE static block_t* get_next_free_block(uint8_t &next_buffer_head) {
+    FORCE_INLINE static block_t* get_next_free_block(uint8_t &next_buffer_head, uint8_t count = 1) {
+
+      // Wait until there are enough slots free
+      while (moves_free() < count) { idle(); }
+
+      // Return the first available block
       next_buffer_head = next_block_index(block_buffer_head);
-      while (block_buffer_tail == next_buffer_head) idle(); // while (is_full)
       return &block_buffer[block_buffer_head];
     }
 
@@ -446,8 +471,30 @@ class Planner {
      *  fr_mm_s     - (target) speed of the move
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
+     *
+     * Returns true if movement was buffered, false otherwise
      */
-    static void _buffer_steps(const int32_t (&target)[XYZE]
+    static bool _buffer_steps(const int32_t (&target)[XYZE]
+      #if HAS_POSITION_FLOAT
+        , const float (&target_float)[XYZE]
+      #endif
+      , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+    );
+
+    /**
+     * Planner::_populate_block
+     *
+     * Fills a new linear movement in the block (in terms of steps).
+     *
+     *  target      - target position in steps units
+     *  fr_mm_s     - (target) speed of the move
+     *  extruder    - target extruder
+     *  millimeters - the length of the movement, if known
+     *
+     * Returns true is movement is acceptable, false otherwise
+     */
+    static bool _populate_block(block_t * const block, bool split_move,
+        const int32_t (&target)[XYZE]
       #if HAS_POSITION_FLOAT
         , const float (&target_float)[XYZE]
       #endif
@@ -472,7 +519,7 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-    static void buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0);
+    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
@@ -489,11 +536,11 @@ class Planner {
      *  extruder     - target extruder
      *  millimeters  - the length of the movement, if known
      */
-    FORCE_INLINE static void buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
+    FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
-      buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters);
+      return buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters);
     }
 
     /**
@@ -506,7 +553,7 @@ class Planner {
      *  extruder     - target extruder
      *  millimeters  - the length of the movement, if known
      */
-    FORCE_INLINE static void buffer_line_kinematic(const float (&cart)[XYZE], const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
+    FORCE_INLINE static bool buffer_line_kinematic(const float (&cart)[XYZE], const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
       #if PLANNER_LEVELING
         float raw[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
         apply_leveling(raw);
@@ -515,9 +562,9 @@ class Planner {
       #endif
       #if IS_KINEMATIC
         inverse_kinematics(raw);
-        buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
+        return buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
       #else
-        buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
+        return buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
       #endif
     }
 
@@ -542,11 +589,6 @@ class Planner {
     FORCE_INLINE static void set_e_position_mm(const float &e) { set_position_mm(E_AXIS, e); }
 
     /**
-     * Sync from the stepper positions. (e.g., after an interrupted move)
-     */
-    static void sync_from_steppers();
-
-    /**
      * Get an axis position according to stepper position(s)
      * For CORE machines apply translation from ABC to XYZ.
      */
@@ -557,34 +599,37 @@ class Planner {
       FORCE_INLINE static float get_axis_position_degrees(const AxisEnum axis) { return get_axis_position_mm(axis); }
     #endif
 
+    // Called to force a quick stop of the machine (for example, when an emergency
+    // stop is required, or when endstops are hit)
+    static void quick_stop();
+
+    // Called when an endstop is triggered. Causes the machine to stop inmediately
+    static void endstop_triggered(const AxisEnum axis);
+
+    // Triggered position of an axis in mm (not core-savvy)
+    static float triggered_position_mm(const AxisEnum axis);
+
+    // Block until all buffered steps are executed / cleaned
+    static void synchronize();
+
+    // Wait for moves to finish and disable all steppers
+    static void finish_and_disable();
+
+    // Periodic tick to handle cleaning timeouts
+    // Called from the Temperature ISR at ~1kHz
+    static void tick() {
+      if (cleaning_buffer_counter) {
+        --cleaning_buffer_counter;
+        #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
+          if (!cleaning_buffer_counter) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+        #endif
+      }
+    }
+
     /**
      * Does the buffer have any blocks queued?
      */
     FORCE_INLINE static bool has_blocks_queued() { return (block_buffer_head != block_buffer_tail); }
-
-    //
-    // Block until all buffered steps are executed
-    //
-    static void synchronize();
-
-    /**
-     * "Discard" the block and "release" the memory.
-     * Called when the current block is no longer needed.
-     */
-    FORCE_INLINE static void discard_current_block() {
-      if (has_blocks_queued())
-        block_buffer_tail = BLOCK_MOD(block_buffer_tail + 1);
-    }
-
-    /**
-     * "Discard" the next block if it's continued.
-     * Called after an interrupted move to throw away the rest of the move.
-     */
-    FORCE_INLINE static bool discard_continued_block() {
-      const bool discard = has_blocks_queued() && TEST(block_buffer[block_buffer_tail].flag, BLOCK_BIT_CONTINUED);
-      if (discard) discard_current_block();
-      return discard;
-    }
 
     /**
      * The current block. NULL if the buffer is empty.
@@ -592,38 +637,78 @@ class Planner {
      * WARNING: Called from Stepper ISR context!
      */
     static block_t* get_current_block() {
-      if (has_blocks_queued()) {
+
+      // Get the number of moves in the planner queue so far
+      uint8_t nr_moves = movesplanned();
+
+      // If there are any moves queued ...
+      if (nr_moves) {
+
+        // If there is still delay of delivery of blocks running, decrement it
+        if (delay_before_delivering) {
+          --delay_before_delivering;
+          // If the number of movements queued is less than 3, and there is still time
+          //  to wait, do not deliver anything
+          if (nr_moves < 3 && delay_before_delivering) return NULL;
+          delay_before_delivering = 0;
+        }
+
+        // If we are here, there is no excuse to deliver the block
         block_t * const block = &block_buffer[block_buffer_tail];
 
-        // If the block has no trapezoid calculated, it's unsafe to execute.
-        if (movesplanned() > 1) {
-          const block_t * const next = &block_buffer[next_block_index(block_buffer_tail)];
-          if (TEST(block->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE))
-            return NULL;
-        }
-        else if (TEST(block->flag, BLOCK_BIT_RECALCULATE))
-          return NULL;
+        // No trapezoid calculated? Don't execute yet.
+        if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return NULL;
 
         #if ENABLED(ULTRA_LCD)
           block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
         #endif
+
+        // Mark the block as busy, so the planner does not attempt to replan it
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
       }
-      else {
-        #if ENABLED(ULTRA_LCD)
-          clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
-        #endif
-        return NULL;
+
+      // The queue became empty
+      #if ENABLED(ULTRA_LCD)
+        clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
+      #endif
+
+      return NULL;
+    }
+
+    /**
+     * "Discard" the block and "release" the memory.
+     * Called when the current block is no longer needed.
+     * NB: There MUST be a current block to call this function!!
+     */
+    FORCE_INLINE static void discard_current_block() {
+      if (has_blocks_queued()) { // Discard non-empty buffer.
+        uint8_t block_index = next_block_index( block_buffer_tail );
+
+        // Push block_buffer_planned pointer, if encountered.
+        if (!has_blocks_queued()) block_buffer_planned = block_index;
+
+        block_buffer_tail = block_index;
       }
     }
 
     #if ENABLED(ULTRA_LCD)
 
       static uint16_t block_buffer_runtime() {
-        CRITICAL_SECTION_START
-          millis_t bbru = block_buffer_runtime_us;
-        CRITICAL_SECTION_END
+        #ifdef __AVR__
+          // Protect the access to the variable. Only required for AVR, as
+          //  any 32bit CPU offers atomic access to 32bit variables
+          bool was_enabled = STEPPER_ISR_ENABLED();
+          if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+        #endif
+
+        millis_t bbru = block_buffer_runtime_us;
+
+        #ifdef __AVR__
+          // Reenable Stepper ISR
+          if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+        #endif
+
         // To translate µs to ms a division by 1000 would be required.
         // We introduce 2.4% error here by dividing by 1024.
         // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
@@ -634,9 +719,19 @@ class Planner {
       }
 
       static void clear_block_buffer_runtime() {
-        CRITICAL_SECTION_START
-          block_buffer_runtime_us = 0;
-        CRITICAL_SECTION_END
+        #ifdef __AVR__
+          // Protect the access to the variable. Only required for AVR, as
+          //  any 32bit CPU offers atomic access to 32bit variables
+          bool was_enabled = STEPPER_ISR_ENABLED();
+          if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+        #endif
+
+        block_buffer_runtime_us = 0;
+
+        #ifdef __AVR__
+          // Reenable Stepper ISR
+          if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+        #endif
       }
 
     #endif
@@ -653,8 +748,8 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static constexpr int8_t next_block_index(const int8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    static constexpr int8_t prev_block_index(const int8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static constexpr uint8_t next_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index + 1); }
+    static constexpr uint8_t prev_block_index(const uint8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
      * Calculate the distance (not time) it takes to accelerate
@@ -679,12 +774,12 @@ class Planner {
     }
 
     /**
-     * Calculate the maximum allowable speed at this point, in order
-     * to reach 'target_velocity' using 'acceleration' within a given
+     * Calculate the maximum allowable speed squared at this point, in order
+     * to reach 'target_velocity_sqr' using 'acceleration' within a given
      * 'distance'.
      */
-    static float max_allowable_speed(const float &accel, const float &target_velocity, const float &distance) {
-      return SQRT(sq(target_velocity) - 2 * accel * distance);
+    static float max_allowable_speed_sqr(const float &accel, const float &target_velocity_sqr, const float &distance) {
+      return target_velocity_sqr - 2 * accel * distance;
     }
 
     #if ENABLED(BEZIER_JERK_CONTROL)
@@ -699,7 +794,7 @@ class Planner {
     static void calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor);
 
     static void reverse_pass_kernel(block_t* const current, const block_t * const next);
-    static void forward_pass_kernel(const block_t * const previous, block_t* const current);
+    static void forward_pass_kernel(const block_t * const previous, block_t* const current, uint8_t block_index);
 
     static void reverse_pass();
     static void forward_pass();

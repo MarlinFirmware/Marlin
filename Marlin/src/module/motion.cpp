@@ -644,7 +644,8 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
         // i.e., Complete the angular vector in the given time.
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
+        if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder))
+          break;
         /*
         SERIAL_ECHO(segments);
         SERIAL_ECHOPAIR(": X=", raw[X_AXIS]); SERIAL_ECHOPAIR(" Y=", raw[Y_AXIS]);
@@ -654,7 +655,8 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
         //*/
         oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
       #else
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder, cartesian_segment_mm);
+        if (!planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder, cartesian_segment_mm))
+          break;
       #endif
     }
 
@@ -746,7 +748,8 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           idle();
         }
         LOOP_XYZE(i) raw[i] += segment_distance[i];
-        planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder, cartesian_segment_mm);
+        if (!planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder, cartesian_segment_mm))
+          break;
       }
 
       // Since segment_distance is only approximate,
@@ -848,14 +851,14 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           }
           // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
           for (uint8_t i = 0; i < 3; i++)
-            planner.buffer_line(
+            if (!planner.buffer_line(
               i == 0 ? raised_parked_position[X_AXIS] : current_position[X_AXIS],
               i == 0 ? raised_parked_position[Y_AXIS] : current_position[Y_AXIS],
               i == 2 ? current_position[Z_AXIS] : raised_parked_position[Z_AXIS],
               current_position[E_AXIS],
               i == 1 ? PLANNER_XY_FEEDRATE() : planner.max_feedrate_mm_s[Z_AXIS],
-              active_extruder
-            );
+              active_extruder)
+            ) break;
           delayed_move_time = 0;
           active_extruder_parked = false;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -872,11 +875,11 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             #endif
             // move duplicate extruder into correct duplication position.
             planner.set_position_mm(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-            planner.buffer_line(
+            if (!planner.buffer_line(
               current_position[X_AXIS] + duplicate_extruder_x_offset,
               current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],
-              planner.max_feedrate_mm_s[X_AXIS], 1
-            );
+              planner.max_feedrate_mm_s[X_AXIS], 1)
+            ) break;
             planner.synchronize();
             SYNC_PLAN_POSITION_KINEMATIC();
             extruder_duplication_enabled = true;

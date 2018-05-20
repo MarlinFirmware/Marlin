@@ -51,7 +51,7 @@ class Endstops {
   public:
 
     static bool enabled, enabled_globally;
-    static volatile char endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
+    static volatile uint8_t endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
     #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
       typedef uint16_t esbits_t;
@@ -68,22 +68,25 @@ class Endstops {
       typedef byte esbits_t;
     #endif
 
-    static esbits_t current_endstop_bits, old_endstop_bits;
+    static esbits_t current_endstop_bits;
 
-    Endstops() {
-      enable_globally(
-        #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
-          true
-        #else
-          false
-        #endif
-      );
-    };
+    Endstops() {};
 
     /**
      * Initialize the endstop pins
      */
     static void init();
+
+    /**
+     * A change was detected or presumed to be in endstops pins. Find out what
+     * changed, if anything. Called from ISR contexts
+     */
+    static void check_possible_change();
+
+    /**
+     * Periodic call to poll endstops if required. Called from temperature ISR
+     */
+    static void poll();
 
     /**
      * Update the endstops bits from the pins
@@ -101,34 +104,28 @@ class Endstops {
     static void M119();
 
     // Enable / disable endstop checking globally
-    static void enable_globally(bool onoff=true) { enabled_globally = enabled = onoff; }
+    static void enable_globally(const bool onoff=true);
 
     // Enable / disable endstop checking
-    static void enable(bool onoff=true) { enabled = onoff; }
+    static void enable(const bool onoff=true);
 
     // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
-    static void not_homing() { enabled = enabled_globally; }
+    static void not_homing();
 
     // Clear endstops (i.e., they were hit intentionally) to suppress the report
-    static void hit_on_purpose() { endstop_hit_bits = 0; }
+    static void hit_on_purpose();
 
     // Enable / disable endstop z-probe checking
     #if HAS_BED_PROBE
       static volatile bool z_probe_enabled;
-      static void enable_z_probe(bool onoff=true) { z_probe_enabled = onoff; }
+      static void enable_z_probe(bool onoff=true);
     #endif
 
     // Debugging of endstops
     #if ENABLED(PINS_DEBUGGING)
       static bool monitor_flag;
       static void monitor();
-      FORCE_INLINE static void run_monitor() {
-        if (!monitor_flag) return;
-        static uint8_t monitor_count = 16;  // offset this check from the others
-        monitor_count += _BV(1);            //  15 Hz
-        monitor_count &= 0x7F;
-        if (!monitor_count) monitor();      // report changes in endstop status
-      }
+      static void run_monitor();
     #endif
 
   private:
@@ -145,11 +142,5 @@ class Endstops {
 };
 
 extern Endstops endstops;
-
-#if HAS_BED_PROBE
-  #define ENDSTOPS_ENABLED  (endstops.enabled || endstops.z_probe_enabled)
-#else
-  #define ENDSTOPS_ENABLED  endstops.enabled
-#endif
 
 #endif // __ENDSTOPS_H__
