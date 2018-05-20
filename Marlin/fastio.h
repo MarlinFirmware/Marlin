@@ -28,7 +28,6 @@
 
 #include <stdint.h>
 
-typedef int8_t pin_t;
 #ifndef _FASTIO_ARDUINO_H_
 #define _FASTIO_ARDUINO_H_
 
