@@ -204,7 +204,7 @@ def resolve_path(path):
        #get line and column numbers
         line_num = 1
         column_num = 1
-        line_start = path.find(':')
+        line_start = path.find(':', 2)                  # use 2 here so don't eat Windows full path
         column_start = path.find(':', line_start + 1)
         if column_start == -1:
           column_start = len(path)
@@ -218,57 +218,69 @@ def resolve_path(path):
         if not(column_start == column_end):
           column_num = path[ column_start + 1 : column_end]
           if column_num == '':
-            column_num = 1
+            column_num = 0
 
+        index_end = path.find(',')
+        if 0 <= index_end:
+            path = path[ : index_end]  # delete comma and anything after
+        index_end = path.find(':', 2)
+        if 0 <= index_end:
+            path = path[ : path.find(':', 2)]  # delete the line number and anything after
 
-        path = path[ : path.find(':')]  # delete the line number and anything after
         path = path.replace('\\','/')
 
-      # resolve as many '../' as we can
-        while 0 <= path.find('../'):
-          end =  path.find('../') - 1
-          start = path.find('/')
-          while 0 <= path.find('/',start) and end > path.find('/',start):
-            start = path.find('/',start) + 1
-          path = path[0:start] + path[end + 4: ]
+        if 1 == path.find(':') and current_OS == 'Windows':
+          return path, line_num, column_num                    # found a full path - no need for further processing
+        elif 0 == path.find('/') and (current_OS == 'Linux' or current_OS == 'Darwin'):
+          return path, line_num, column_num                    # found a full path - no need for further processing
 
-        # this is an alternative to the above - it just deletes the '../' section
-        # start_temp = path.find('../')
-        # while 0 <= path.find('../',start_temp):
-        #   start = path.find('../',start_temp)
-        #   start_temp = start  + 1
-        # if 0 <= start:
-        #   path = path[start + 2 : ]
-
-
-        start = path.find('/')
-        if not(0 == start):            # make sure path starts with '/'
-          while 0 == path.find(' '):    # eat any spaces at the beginning
-            path = path[ 1 : ]
-          path = '/' + path
-
-        if current_OS == 'Windows':
-          search_path = path.replace('/', '\\')  # os.walk uses '\' in Windows
         else:
-          search_path = path
 
-        start_path = os.path.abspath('')
+          # resolve as many '../' as we can
+            while 0 <= path.find('../'):
+              end =  path.find('../') - 1
+              start = path.find('/')
+              while 0 <= path.find('/',start) and end > path.find('/',start):
+                start = path.find('/',start) + 1
+              path = path[0:start] + path[end + 4: ]
 
-    # search project directory for the selection
-        found = False
-        full_path = ''
-        for root, directories, filenames in os.walk(start_path):
-          for filename in filenames:
-                  if  0 <= root.find('.git'):              # don't bother looking in this directory
-                    break
-                  full_path = os.path.join(root,filename)
-                  if 0 <= full_path.find(search_path):
-                    found = True
-                    break
-          if found:
-            break
+            # this is an alternative to the above - it just deletes the '../' section
+            # start_temp = path.find('../')
+            # while 0 <= path.find('../',start_temp):
+            #   start = path.find('../',start_temp)
+            #   start_temp = start  + 1
+            # if 0 <= start:
+            #   path = path[start + 2 : ]
 
-        return full_path, line_num, column_num
+
+            start = path.find('/')
+            if not(0 == start):            # make sure path starts with '/'
+              while 0 == path.find(' '):    # eat any spaces at the beginning
+                path = path[ 1 : ]
+              path = '/' + path
+
+            if current_OS == 'Windows':
+              search_path = path.replace('/', '\\')  # os.walk uses '\' in Windows
+            else:
+              search_path = path
+
+            start_path = os.path.abspath('')
+
+        # search project directory for the selection
+            found = False
+            full_path = ''
+            for root, directories, filenames in os.walk(start_path):
+              for filename in filenames:
+                      if  0 <= root.find('.git'):              # don't bother looking in this directory
+                        break
+                      full_path = os.path.join(root,filename)
+                      if 0 <= full_path.find(search_path):
+                        found = True
+                        break
+              if found:
+                break
+
+            return full_path, line_num, column_num
 
 # end - resolve_path
 
@@ -324,6 +336,9 @@ def open_file(path):
         elif current_OS == 'Linux':
 
               command = file_path  + ':' + str(line_num) + ':' + str(column_num)
+              index_end = command.find(',')
+              if 0 <= index_end:
+                  command = command[ : index_end]  # sometimes a comma magically appears, don't want it
               running_apps = subprocess.Popen('ps ax -o cmd', stdout=subprocess.PIPE, shell=True)
               (output, err) = running_apps.communicate()
               temp = output.split('\n')
@@ -336,7 +351,7 @@ def open_file(path):
                   return False , ''
 
               (success_sublime, editor_path_sublime) = find_editor_linux('sublime_text',temp)
-              (success_atom, editor_path_atom) = find_editor+linux('atom',temp)
+              (success_atom, editor_path_atom) = find_editor_linux('atom',temp)
 
               if success_sublime:
                   subprocess.Popen([editor_path_sublime, command])
@@ -350,6 +365,9 @@ def open_file(path):
         elif current_OS == 'Darwin':  # MAC
 
               command = file_path  + ':' + str(line_num) + ':' + str(column_num)
+              index_end = command.find(',')
+              if 0 <= index_end:
+                  command = command[ : index_end]  # sometimes a comma magically appears, don't want it
               running_apps = subprocess.Popen('ps axwww -o command', stdout=subprocess.PIPE, shell=True)
               (output, err) = running_apps.communicate()
               temp = output.split('\n')
@@ -424,8 +442,11 @@ def get_build_last():
         date_last = 0.0
         DIR__pioenvs = os.listdir('.pioenvs')
         for name in DIR__pioenvs:
+          if 0 <= name.find('.') or 0 <= name.find('-'):   # skip files in listing
+            continue
           DIR_temp = os.listdir('.pioenvs/' + name)
           for names_temp in DIR_temp:
+
             if 0 == names_temp.find('firmware.'):
               date_temp = os.path.getmtime('.pioenvs/' + name + '/' + names_temp)
               if date_temp > date_last:
@@ -941,7 +962,7 @@ class output_window(Text):
         Text.__init__(self, self.frame, borderwidth=3, relief="sunken")
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
-        self.config(height  = 24, width = 120)
+        self.config(height  = 24, width = 100)
         self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
 
