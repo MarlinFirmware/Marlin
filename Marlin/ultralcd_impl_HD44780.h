@@ -122,8 +122,9 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
+
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
-  // note: these are register mapped pins on the PCF8575 controller not Arduino pins
+  // NOTE: These are register-mapped pins on the PCF8575 controller, not Arduino pins.
   #define LCD_I2C_PIN_BL  3
   #define LCD_I2C_PIN_EN  2
   #define LCD_I2C_PIN_RW  1
@@ -134,13 +135,18 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #define LCD_I2C_PIN_D7  7
 
   #include <Wire.h>
-  #include <LCD.h>
+  //#include <LCD.h>
   #include <LiquidCrystal_I2C.h>
   #define LCD_CLASS LiquidCrystal_I2C
-  LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_I2C_PIN_EN, LCD_I2C_PIN_RW, LCD_I2C_PIN_RS, LCD_I2C_PIN_D4, LCD_I2C_PIN_D5, LCD_I2C_PIN_D6, LCD_I2C_PIN_D7);
+
+  LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_I2C_PIN_EN, LCD_I2C_PIN_RW, LCD_I2C_PIN_RS, LCD_I2C_PIN_D4, LCD_I2C_PIN_D5, LCD_I2C_PIN_D6, LCD_I2C_PIN_D7
+    #if ENABLED(LCM1602)
+      , LCD_I2C_PIN_BL, POSITIVE
+    #endif
+  );
 
 #elif ENABLED(LCD_I2C_TYPE_MCP23017)
-  //for the LED indicators (which maybe mapped to different things in lcd_implementation_update_indicators())
+  // For the LED indicators (which may be mapped to different events in lcd_implementation_update_indicators())
   #define LED_A 0x04 //100
   #define LED_B 0x02 //010
   #define LED_C 0x01 //001
@@ -175,7 +181,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 #elif ENABLED(SR_LCD_2W_NL)
   extern "C" void __cxa_pure_virtual() { while (1); }
-  #include <LCD.h>
+  //#include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
   #if PIN_EXISTS(SR_STROBE)
@@ -183,12 +189,6 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #else
     LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
   #endif
-#elif ENABLED(LCM1602)
-  #include <Wire.h>
-  #include <LCD.h>
-  #include <LiquidCrystal_I2C.h>
-  #define LCD_CLASS LiquidCrystal_I2C
-  LCD_CLASS lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 #else
   // Standard directly connected LCD implementations
   #include <LiquidCrystal.h>
@@ -433,7 +433,7 @@ static void lcd_implementation_init(
   #endif
 ) {
 
-  #if ENABLED(LCD_I2C_TYPE_PCF8575)
+  #if ENABLED(LCD_I2C_TYPE_PCF8575) && DISABLED(LCM1602)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     #ifdef LCD_I2C_PIN_BL
       lcd.setBacklightPin(LCD_I2C_PIN_BL, POSITIVE);
