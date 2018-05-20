@@ -98,7 +98,10 @@ class Stepper {
 
   private:
 
-    static uint8_t last_direction_bits;        // The next stepping-bits to be output
+    static uint8_t last_direction_bits,           // The next stepping-bits to be output
+                   last_movement_extruder;        // Last movement extruder, as computed when the last movement was fetched from planner
+    static bool abort_current_block,              // Signals to the stepper that current block should be aborted
+                last_movement_non_null[NUM_AXIS]; // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       static bool locked_x_motor, locked_x2_motor;
@@ -210,13 +213,16 @@ class Stepper {
     static void wake_up();
 
     // Quickly stop all steppers
-    static void quick_stop();
+    FORCE_INLINE static void quick_stop() { abort_current_block = true; }
 
     // The direction of a single motor
     FORCE_INLINE static bool motor_direction(const AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
-    // Kill current block
-    static void kill_current_block();
+    // The last movement direction was not null on the specified axis. Note that motor direction is not necessarily the same.
+    FORCE_INLINE static bool movement_non_null(const AxisEnum axis) { return last_movement_non_null[axis]; }
+
+    // The extruder associated to the last movement
+    FORCE_INLINE static uint8_t movement_extruder() { return last_movement_extruder; }
 
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);

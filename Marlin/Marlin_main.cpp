@@ -336,10 +336,6 @@
   #include "I2CPositionEncoder.h"
 #endif
 
-#if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-  #include "endstop_interrupts.h"
-#endif
-
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
   void gcode_M100();
   void M100_dump_routine(const char * const title, const char *start, const char *end);
@@ -14292,7 +14288,9 @@ void setup() {
 
   print_job_timer.init();   // Initial setup of print job timer
 
-  stepper.init();           // Initialize stepper, this enables interrupts!
+  endstops.init();          // Init endstops and pullups
+
+  stepper.init();           // Init stepper. This enables interrupts!
 
   servo_init();             // Initialize all servos, stow servo probe
 
@@ -14415,10 +14413,6 @@ void setup() {
   #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
     i2c.onReceive(i2c_on_receive);
     i2c.onRequest(i2c_on_request);
-  #endif
-
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    setup_endstop_interrupts();
   #endif
 
   #if DO_SWITCH_EXTRUDER
