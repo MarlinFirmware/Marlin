@@ -1385,7 +1385,7 @@ void Temperature::init() {
 #if ENABLED(FAST_PWM_FAN)
 
   void Temperature::setPwmFrequency(const pin_t pin, int val) {
-    #ifdef ARDUINO
+    #if defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM)
       val &= 0x07;
       switch (digitalPinToTimer(pin)) {
         #ifdef TCCR0A
