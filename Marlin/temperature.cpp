@@ -1780,6 +1780,7 @@ void Temperature::set_current_temp_raw() {
  *  - Step the babysteps value for each axis towards 0
  *  - For PINS_DEBUGGING, monitor and report endstop pins
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
+ *  - Call planner.tick to count down its "ignore" time
  */
 HAL_TEMP_TIMER_ISR {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
@@ -2301,25 +2302,22 @@ void Temperature::isr() {
   #endif // BABYSTEPPING
 
   #if ENABLED(PINS_DEBUGGING)
-    extern bool endstop_monitor_flag;
-    // run the endstop monitor at 15Hz
-    static uint8_t endstop_monitor_count = 16;  // offset this check from the others
-    if (endstop_monitor_flag) {
-      endstop_monitor_count += _BV(1);  //  15 Hz
-      endstop_monitor_count &= 0x7F;
-      if (!endstop_monitor_count) endstop_monitor();  // report changes in endstop status
-    }
+    endstops.run_monitor();  // report changes in endstop status
   #endif
 
+  // Update endstops state, if enabled
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-
     extern volatile uint8_t e_hit;
-
     if (e_hit && ENDSTOPS_ENABLED) {
-      endstops.update();  // call endstop update routine
+      endstops.update();
       e_hit--;
     }
+  #else
+    if (ENDSTOPS_ENABLED) endstops.update();
   #endif
+
+  // Periodically call the planner timer
+  planner.tick();
 }
 
 #if HAS_TEMP_SENSOR
