@@ -264,12 +264,6 @@
 #elif MB(5DPRINT)
   #include "pins_5DPRINT.h"           // AT90USB1286                                ?env:at90USB1286_DFU
 
-
-
-
-
-
-
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
