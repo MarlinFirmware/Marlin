@@ -506,6 +506,11 @@ uint16_t max_display_update_time = 0;
   void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
     if (currentScreen != screen) {
 
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        // Shadow for editing the fade height
+        new_z_fade_height = planner.z_fade_height;
+      #endif
+
       #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING) && ENABLED(BABYSTEPPING)
         static millis_t doubleclick_expire_ms = 0;
         // Going to lcd_main_menu from status screen? Remember first click time.
@@ -1078,13 +1083,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
    *
    */
 
-  #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    void _lcd_goto_tune_menu() {
-      lcd_goto_screen(lcd_tune_menu);
-      new_z_fade_height = planner.z_fade_height;
-    }
-  #endif
-
   void lcd_main_menu() {
     START_MENU();
     MENU_BACK(MSG_WATCH);
@@ -1111,18 +1109,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     #endif
 
-    if (planner.movesplanned() || IS_SD_PRINTING) {
-      MENU_ITEM(submenu, MSG_TUNE,
-        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          _lcd_goto_tune_menu
-        #else
-          lcd_tune_menu
-        #endif
-      );
-    }
-    else {
+    if (planner.movesplanned() || IS_SD_PRINTING)
+      MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
+    else
       MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-    }
+
     MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 
     #if ENABLED(SDSUPPORT)
@@ -2059,13 +2050,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     void _lcd_ubl_level_bed();
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      void _lcd_goto_ubl_level_bed() {
-        lcd_goto_screen(_lcd_ubl_level_bed);
-        new_z_fade_height = planner.z_fade_height;
-      }
-    #endif
-
     static int16_t ubl_storage_slot = 0,
                custom_hotend_temp = 190,
                side_points = 3,
@@ -2663,13 +2647,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
       END_MENU();
     }
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      void _lcd_goto_bed_leveling() {
-        lcd_goto_screen(lcd_bed_leveling);
-        new_z_fade_height = planner.z_fade_height;
-      }
-    #endif
-
   #endif // LCD_BED_LEVELING
 
   /**
@@ -2709,29 +2686,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-      MENU_ITEM(submenu, MSG_UBL_LEVEL_BED, (
-          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-            _lcd_goto_ubl_level_bed
-          #else
-            _lcd_ubl_level_bed
-          #endif
-        )
-      );
+      MENU_ITEM(submenu, MSG_UBL_LEVEL_BED, _lcd_ubl_level_bed);
 
     #elif ENABLED(LCD_BED_LEVELING)
 
       #if ENABLED(PROBE_MANUALLY)
         if (!g29_in_progress)
       #endif
-
-          MENU_ITEM(submenu, MSG_BED_LEVELING, (
-              #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-                _lcd_goto_bed_leveling
-              #else
-                lcd_bed_leveling
-              #endif
-            )
-          );
+          MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling);
 
     #elif PLANNER_LEVELING && DISABLED(SLIM_LCD_MENUS)
 
