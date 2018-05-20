@@ -52,11 +52,6 @@
 class Stepper;
 extern Stepper stepper;
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
-#define STEPPER_ISR_ENABLED()             TEST(TIMSK1, OCIE1A)
-#define HAL_STEPPER_TIMER_RATE            ((F_CPU) * 0.125)
-
 // intRes = intIn1 * intIn2 >> 16
 // uses:
 // r26 to store 0

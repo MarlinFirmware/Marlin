@@ -27,7 +27,6 @@
 #ifndef __ENDSTOPS_H__
 #define __ENDSTOPS_H__
 
-#include "enum.h"
 #include "MarlinConfig.h"
 
 class Endstops {
