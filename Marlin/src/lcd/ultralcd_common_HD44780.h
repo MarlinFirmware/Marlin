@@ -172,12 +172,6 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
 
-#elif ENABLED(LCM1602)
-  #include <Wire.h>
-  #include <LCD.h>
-  #include <LiquidCrystal_I2C.h>
-  #define LCD_CLASS LiquidCrystal_I2C
-
 #else
   // Standard directly connected LCD implementations
   #include <LiquidCrystal.h>
