@@ -244,6 +244,21 @@ class Stepper {
       static void refresh_motor_power();
     #endif
 
+    // Set the current position in steps
+    inline static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+      planner.synchronize();
+      CRITICAL_SECTION_START;
+      _set_position(a, b, c, e);
+      CRITICAL_SECTION_END;
+    }
+
+    inline static void set_position(const AxisEnum a, const int32_t &v) {
+      planner.synchronize();
+      CRITICAL_SECTION_START;
+      count_position[a] = v;
+      CRITICAL_SECTION_END;
+    }
+
   private:
 
     // Set the current position in steps
