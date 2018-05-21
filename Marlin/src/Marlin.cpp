@@ -29,6 +29,9 @@
  */
 
 #include "Marlin.h"
+#include <Arduino_FreeRTOS.h>
+#include <task.h>
+#include <queue.h>
 
 #include "lcd/ultralcd.h"
 #include "module/motion.h"
@@ -649,6 +652,9 @@ void stop() {
   }
 }
 
+TaskFunction_t Marlin_main_loop();
+TaskFunction_t Marlin_idle();
+
 /**
  * Marlin entry-point: Set up before the program loop
  *  - Set up the kill pin, filament runout, power hold
@@ -668,6 +674,8 @@ void stop() {
  *    • status LEDs
  */
 void setup() {
+  unsigned short ss;
+  char *ptr;
 
   #ifdef HAL_INIT
     HAL_init();
@@ -676,6 +684,24 @@ void setup() {
   #if ENABLED(MAX7219_DEBUG)
     max7219.init();
   #endif
+
+  ptr = (char *) malloc(75);  // reserve some memory for the RTOS to use later.  It will be given
+                              // back after the Marlin-loop task is started.
+                     
+  xTaskCreate((TaskFunction_t) Marlin_idle, "Marlin_idle", 450 /* Stack size */, NULL,  4  /* priority */,  NULL );
+
+  // Keep trying to start the Marlin_main_loop task until it succeeds.   The Marlin_main_loop
+  // task needs to be the very last task started because we try to give it as much memory as possible.
+  // (it may make sense to reduce the 150 bytes of RTOS memory reservered up above!!!  But for now,
+  // that gives developers some flexibility and debug capabilities.)
+  
+  for (ss = 10000; ss > 300; ss -= 100)
+    if (pdPASS == xTaskCreate((TaskFunction_t) Marlin_main_loop, "Marlin_loop", ss /* Stack size */, NULL, 5 /* priority */, NULL))
+      break;
+
+  if (ss < 350) for (;;); // Die if Marlin_main_loop didn't get enough memory.
+
+  free(ptr);         // give back the memory we reserved for generic RTOS usage
 
   #if ENABLED(DISABLE_JTAG)
     // Disable JTAG on AT90USB chips to free up pins for IO
@@ -756,7 +782,14 @@ void setup() {
 
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
-  (void)settings.load();
+  
+//(void)settings.load();  // For some unknow reason, the EEPROM settings can not be loaded in the setup()
+                          // function.  It acts like some flavor of a data corruption problem.   The
+                          // setup() routine finishes doing all its work, but the other tasks never start
+                          // running.   We need to figure out why this is!!!!
+                          //
+                          // In the mean time...  settings.load() is run at the start of the Marlin_main_loop()
+                          // task.  This approach seems to work around what ever the problem is.
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
@@ -919,7 +952,18 @@ void setup() {
  *  - Call endstop manager
  *  - Call inactivity manager
  */
-void loop() {
+TaskFunction_t Marlin_main_loop() {
+
+  // Load data from EEPROM if available (or use defaults)
+  // This also updates variables in the planner, elsewhere
+  
+  (void)settings.load();  // For some unknow reason, the EEPROM settings can not be loaded in the setup()
+                          // function.  It acts like some flavor of a data corruption problem.   The
+                          // setup() routine finishes doing all its work, but the other tasks never start
+                          // running.   We need to figure out why this is!!!!
+                          //
+                          // In the mean time...  settings.load() is run at the start of the Marlin_main_loop()
+                          // task.  This approach seems to work around what ever the problem is.
 
   for (;;) {
 
@@ -953,5 +997,6 @@ void loop() {
     advance_command_queue();
     endstops.event_handler();
     idle();
+    vTaskDelay(1);
   }
 }

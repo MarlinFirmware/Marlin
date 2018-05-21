@@ -430,7 +430,7 @@ class Planner {
       FORCE_INLINE static void apply_leveling(float (&raw)[XYZ]) { apply_leveling(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
     #endif
 
-    #if PLANNER_LEVELING
+    #if PLANNER_LEVELING || HAS_UBL_AND_CURVES
       #define ARG_X float rx
       #define ARG_Y float ry
       #define ARG_Z float rz

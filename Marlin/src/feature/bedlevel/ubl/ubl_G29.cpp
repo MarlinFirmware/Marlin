@@ -46,6 +46,8 @@
     #include "../../../module/tool_change.h"
   #endif
 
+  #include <Arduino_FreeRTOS.h>
+
   #include <math.h>
 
   #define UBL_G29_P31
