@@ -32,6 +32,7 @@
 #include "language.h"
 #include "printcounter.h"
 #include "delay.h"
+#include "endstops.h"
 
 #if ENABLED(HEATER_0_USES_MAX6675)
   #include "MarlinSPI.h"
@@ -39,10 +40,6 @@
 
 #if ENABLED(BABYSTEPPING)
   #include "stepper.h"
-#endif
-
-#if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-  #include "endstops.h"
 #endif
 
 #if ENABLED(USE_WATCHDOG)
@@ -1066,9 +1063,7 @@ void Temperature::updateTemperaturesFromRawValues() {
     watchdog_reset();
   #endif
 
-  CRITICAL_SECTION_START;
   temp_meas_ready = false;
-  CRITICAL_SECTION_END;
 }
 
 
@@ -1179,42 +1174,37 @@ void Temperature::init() {
 
   #endif // HEATER_0_USES_MAX6675
 
-  #ifdef DIDR2
-    #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin & 0x07); }while(0)
-  #else
-    #define ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
-  #endif
+  HAL_adc_init();
 
-  // Set analog inputs
-  ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
-  DIDR0 = 0;
-  #ifdef DIDR2
-    DIDR2 = 0;
-  #endif
   #if HAS_TEMP_ADC_0
-    ANALOG_SELECT(TEMP_0_PIN);
+    HAL_ANALOG_SELECT(TEMP_0_PIN);
   #endif
   #if HAS_TEMP_ADC_1
-    ANALOG_SELECT(TEMP_1_PIN);
+    HAL_ANALOG_SELECT(TEMP_1_PIN);
   #endif
   #if HAS_TEMP_ADC_2
-    ANALOG_SELECT(TEMP_2_PIN);
+    HAL_ANALOG_SELECT(TEMP_2_PIN);
   #endif
   #if HAS_TEMP_ADC_3
-    ANALOG_SELECT(TEMP_3_PIN);
+    HAL_ANALOG_SELECT(TEMP_3_PIN);
   #endif
   #if HAS_TEMP_ADC_4
-    ANALOG_SELECT(TEMP_4_PIN);
+    HAL_ANALOG_SELECT(TEMP_4_PIN);
   #endif
   #if HAS_HEATED_BED
-    ANALOG_SELECT(TEMP_BED_PIN);
+    HAL_ANALOG_SELECT(TEMP_BED_PIN);
   #endif
   #if HAS_TEMP_CHAMBER
-    ANALOG_SELECT(TEMP_CHAMBER_PIN);
+    HAL_ANALOG_SELECT(TEMP_CHAMBER_PIN);
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    ANALOG_SELECT(FILWIDTH_PIN);
+    HAL_ANALOG_SELECT(FILWIDTH_PIN);
   #endif
+
+  // Use timer0 for temperature measurement
+  // Interleave temperature interrupt with millies interrupt
+  OCR0B = 128;
+  ENABLE_TEMPERATURE_INTERRUPT();
 
   #if HAS_AUTO_FAN_0
     #if E0_AUTO_FAN_PIN == FAN1_PIN
@@ -1276,11 +1266,6 @@ void Temperature::init() {
       SET_OUTPUT(CHAMBER_AUTO_FAN_PIN);
     #endif
   #endif
-
-  // Use timer0 for temperature measurement
-  // Interleave temperature interrupt with millies interrupt
-  OCR0B = 128;
-  ENABLE_TEMPERATURE_INTERRUPT();
 
   // Wait for temperature measurement to settle
   delay(250);
@@ -1792,24 +1777,14 @@ void Temperature::set_current_temp_raw() {
  *  - Step the babysteps value for each axis towards 0
  *  - For PINS_DEBUGGING, monitor and report endstop pins
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
+ *  - Call planner.tick to count down its "ignore" time
  */
-ISR(TIMER0_COMPB_vect) {
-  /**
-   * AVR has no hardware interrupt preemption, so emulate priorization
-   * and preemption of this ISR by all others by disabling the timer
-   * interrupt generation capability and reenabling global interrupts.
-   * Any interrupt can then interrupt this handler and preempt it.
-   * This ISR becomes the lowest priority one so the UART, Endstops
-   * and Stepper ISRs can all preempt it.
-   */
-  DISABLE_TEMPERATURE_INTERRUPT();
-  sei();
+HAL_TEMP_TIMER_ISR {
+  HAL_timer_isr_prologue(TEMP_TIMER_NUM);
 
   Temperature::isr();
 
-  // Disable global interrupts and reenable this ISR
-  cli();
-  ENABLE_TEMPERATURE_INTERRUPT();
+  HAL_timer_isr_epilogue(TEMP_TIMER_NUM);
 }
 
 void Temperature::isr() {
@@ -2107,13 +2082,6 @@ void Temperature::isr() {
    * This gives each ADC 0.9765ms to charge up.
    */
 
-  #define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
-  #ifdef MUX5
-    #define START_ADC(pin) if (pin > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
-  #else
-    #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
-  #endif
-
   switch (adc_sensor_state) {
 
     case SensorsReady: {
@@ -2133,25 +2101,25 @@ void Temperature::isr() {
 
     #if HAS_TEMP_ADC_0
       case PrepareTemp_0:
-        START_ADC(TEMP_0_PIN);
+        HAL_START_ADC(TEMP_0_PIN);
         break;
       case MeasureTemp_0:
-        raw_temp_value[0] += ADC;
+        raw_temp_value[0] += HAL_READ_ADC;
         break;
     #endif
 
     #if HAS_HEATED_BED
       case PrepareTemp_BED:
-        START_ADC(TEMP_BED_PIN);
+        HAL_START_ADC(TEMP_BED_PIN);
         break;
       case MeasureTemp_BED:
-        raw_temp_bed_value += ADC;
+        raw_temp_bed_value += HAL_READ_ADC;
         break;
     #endif
 
     #if HAS_TEMP_CHAMBER
       case PrepareTemp_CHAMBER:
-        START_ADC(TEMP_CHAMBER_PIN);
+        HAL_START_ADC(TEMP_CHAMBER_PIN);
         break;
       case MeasureTemp_CHAMBER:
         raw_temp_chamber_value += ADC;
@@ -2160,55 +2128,55 @@ void Temperature::isr() {
 
     #if HAS_TEMP_ADC_1
       case PrepareTemp_1:
-        START_ADC(TEMP_1_PIN);
+        HAL_START_ADC(TEMP_1_PIN);
         break;
       case MeasureTemp_1:
-        raw_temp_value[1] += ADC;
+        raw_temp_value[1] += HAL_READ_ADC;
         break;
     #endif
 
     #if HAS_TEMP_ADC_2
       case PrepareTemp_2:
-        START_ADC(TEMP_2_PIN);
+        HAL_START_ADC(TEMP_2_PIN);
         break;
       case MeasureTemp_2:
-        raw_temp_value[2] += ADC;
+        raw_temp_value[2] += HAL_READ_ADC;
         break;
     #endif
 
     #if HAS_TEMP_ADC_3
       case PrepareTemp_3:
-        START_ADC(TEMP_3_PIN);
+        HAL_START_ADC(TEMP_3_PIN);
         break;
       case MeasureTemp_3:
-        raw_temp_value[3] += ADC;
+        raw_temp_value[3] += HAL_READ_ADC;
         break;
     #endif
 
     #if HAS_TEMP_ADC_4
       case PrepareTemp_4:
-        START_ADC(TEMP_4_PIN);
+        HAL_START_ADC(TEMP_4_PIN);
         break;
       case MeasureTemp_4:
-        raw_temp_value[4] += ADC;
+        raw_temp_value[4] += HAL_READ_ADC;
         break;
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case Prepare_FILWIDTH:
-        START_ADC(FILWIDTH_PIN);
+        HAL_START_ADC(FILWIDTH_PIN);
       break;
       case Measure_FILWIDTH:
-        if (ADC > 102) { // Make sure ADC is reading > 0.5 volts, otherwise don't read.
+        if (HAL_READ_ADC > 102) { // Make sure ADC is reading > 0.5 volts, otherwise don't read.
           raw_filwidth_value -= (raw_filwidth_value >> 7); // Subtract 1/128th of the raw_filwidth_value
-          raw_filwidth_value += ((unsigned long)ADC << 7); // Add new ADC reading, scaled by 128
+          raw_filwidth_value += ((unsigned long)HAL_READ_ADC << 7); // Add new ADC reading, scaled by 128
         }
       break;
     #endif
 
     #if ENABLED(ADC_KEYPAD)
       case Prepare_ADC_KEY:
-        START_ADC(ADC_KEYPAD_PIN);
+        HAL_START_ADC(ADC_KEYPAD_PIN);
         break;
       case Measure_ADC_KEY:
         if (ADCKey_count < 16) {
@@ -2330,26 +2298,11 @@ void Temperature::isr() {
     }
   #endif // BABYSTEPPING
 
-  #if ENABLED(PINS_DEBUGGING)
-    extern bool endstop_monitor_flag;
-    // run the endstop monitor at 15Hz
-    static uint8_t endstop_monitor_count = 16;  // offset this check from the others
-    if (endstop_monitor_flag) {
-      endstop_monitor_count += _BV(1);  //  15 Hz
-      endstop_monitor_count &= 0x7F;
-      if (!endstop_monitor_count) endstop_monitor();  // report changes in endstop status
-    }
-  #endif
+  // Poll endstops state, if required
+  endstops.poll();
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-
-    extern volatile uint8_t e_hit;
-
-    if (e_hit && ENDSTOPS_ENABLED) {
-      endstops.update();  // call endstop update routine
-      e_hit--;
-    }
-  #endif
+  // Periodically call the planner timer
+  planner.tick();
 }
 
 #if HAS_TEMP_SENSOR

@@ -88,22 +88,6 @@ enum DebugFlags : unsigned char {
   DEBUG_ALL           = 0xFF
 };
 
-enum EndstopEnum : char {
-  X_MIN,
-  Y_MIN,
-  Z_MIN,
-  Z_MIN_PROBE,
-  X_MAX,
-  Y_MAX,
-  Z_MAX,
-  X2_MIN,
-  X2_MAX,
-  Y2_MIN,
-  Y2_MAX,
-  Z2_MIN,
-  Z2_MAX
-};
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   enum AdvancedPauseMenuResponse : char {
     ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
