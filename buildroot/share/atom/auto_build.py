@@ -69,6 +69,13 @@
 import sys
 import os
 
+pwd = os.getcwd()    # make sure we're executing from the correct directory level
+pwd = pwd.replace('\\', '/')
+if 0 <= pwd.find('buildroot/share/atom'):
+  pwd = pwd[ : pwd.find('buildroot/share/atom')]
+  os.chdir(pwd)
+print 'pwd: ', pwd
+
 num_args = len(sys.argv)
 if num_args > 1:
   build_type = str(sys.argv[1])
