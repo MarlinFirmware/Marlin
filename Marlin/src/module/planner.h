@@ -452,7 +452,7 @@ class Planner {
      * - Wait for the number of spaces to open up in the planner
      * - Return the first head block
      */
-    FORCE_INLINE static block_t* get_next_free_block(uint8_t &next_buffer_head, uint8_t count = 1) {
+    FORCE_INLINE static block_t* get_next_free_block(uint8_t &next_buffer_head, const uint8_t count=1) {
 
       // Wait until there are enough slots free
       while (moves_free() < count) { idle(); }

@@ -98,8 +98,8 @@ class Stepper {
       static int32_t bezier_A,     // A coefficient in Bézier speed curve
                      bezier_B,     // B coefficient in Bézier speed curve
                      bezier_C;     // C coefficient in Bézier speed curve
-      static uint32_t bezier_F;    // F coefficient in Bézier speed curve
-      static uint32_t bezier_AV;   // AV coefficient in Bézier speed curve
+      static uint32_t bezier_F,    // F coefficient in Bézier speed curve
+                      bezier_AV;   // AV coefficient in Bézier speed curve
       #ifdef __AVR__
         static bool A_negative;    // If A coefficient was negative
       #endif
@@ -297,9 +297,9 @@ class Stepper {
         NOLESS(step_rate, uint32_t(F_CPU / 500000U));
         step_rate -= F_CPU / 500000; // Correct for minimal speed
         if (step_rate >= (8 * 256)) { // higher step rate
-          uint8_t tmp_step_rate = (step_rate & 0x00FF);
-          uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0],
-                   gain = (uint16_t)pgm_read_word_near(table_address + 2);
+          const uint8_t tmp_step_rate = (step_rate & 0x00FF);
+          const uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0],
+                         gain = (uint16_t)pgm_read_word_near(table_address + 2);
           timer = MultiU16X8toH16(tmp_step_rate, gain);
           timer = (uint16_t)pgm_read_word_near(table_address) - timer;
         }

@@ -181,20 +181,20 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
   #define LOCKED_X2_MOTOR locked_x2_motor
   #define LOCKED_Y2_MOTOR locked_y2_motor
   #define LOCKED_Z2_MOTOR locked_z2_motor
-  #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                                           \
-    if (performing_homing) {                                                                                                                        \
-      if (A##_HOME_DIR < 0) {                                                                                                                    \
+  #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                                      \
+    if (performing_homing) {                                                                                                                \
+      if (A##_HOME_DIR < 0) {                                                                                                               \
         if (!(TEST(endstops.current_endstop_bits, A##_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
         if (!(TEST(endstops.current_endstop_bits, A##2_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
-      }                                                                                                                                             \
-      else {                                                                                                                                        \
+      }                                                                                                                                     \
+      else {                                                                                                                                \
         if (!(TEST(endstops.current_endstop_bits, A##_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
         if (!(TEST(endstops.current_endstop_bits, A##2_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
-      }                                                                                                                                             \
-    }                                                                                                                                               \
-    else {                                                                                                                                          \
-      A##_STEP_WRITE(V);                                                                                                                         \
-      A##2_STEP_WRITE(V);                                                                                                                        \
+      }                                                                                                                                     \
+    }                                                                                                                                       \
+    else {                                                                                                                                  \
+      A##_STEP_WRITE(V);                                                                                                                    \
+      A##2_STEP_WRITE(V);                                                                                                                   \
     }
 #endif
 
@@ -2035,7 +2035,7 @@ int32_t Stepper::position(const AxisEnum axis) {
     if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
   #endif
 
-  int32_t v = count_position[axis];
+  const int32_t v = count_position[axis];
 
   #ifdef __AVR__
     // Reenable Stepper ISR

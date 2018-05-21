@@ -962,7 +962,7 @@ void Planner::reverse_pass() {
 }
 
 // The kernel called by recalculate() when scanning the plan from first to last entry.
-void Planner::forward_pass_kernel(const block_t * const previous, block_t* const current, uint8_t block_index) {
+void Planner::forward_pass_kernel(const block_t* const previous, block_t* const current, const uint8_t block_index) {
   if (previous) {
     // If the previous block is an acceleration block, too short to complete the full speed
     // change, adjust the entry speed accordingly. Entry speeds have already been reset,
@@ -1586,7 +1586,7 @@ bool Planner::_buffer_steps(const int32_t (&target)[XYZE]
  * Returns true is movement is acceptable, false otherwise
  */
 bool Planner::_populate_block(block_t * const block, bool split_move,
-    const int32_t (&target)[XYZE]
+  const int32_t (&target)[XYZE]
   #if HAS_POSITION_FLOAT
     , const float (&target_float)[XYZE]
   #endif
@@ -2234,7 +2234,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         if (block->millimeters < 1.0) {
 
           // Fast acos approximation, minus the error bar to be safe
-          float junction_theta = (RADIANS(-40) * sq(junction_cos_theta) - RADIANS(50)) * junction_cos_theta + RADIANS(90) - 0.18;
+          const float junction_theta = (RADIANS(-40) * sq(junction_cos_theta) - RADIANS(50)) * junction_cos_theta + RADIANS(90) - 0.18;
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
           if (junction_theta > RADIANS(135)) {
