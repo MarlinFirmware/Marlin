@@ -2224,7 +2224,7 @@ void clean_up_after_endstop_or_probe_move() {
     do_blocking_move_to_z(z, fr_mm_s);
 
     // Check to see if the probe was triggered
-    const bool probe_triggered = TEST(Endstops::endstop_hit_bits,
+    const bool probe_triggered = TEST(endstops.trigger_state(),
       #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
         Z_MIN
       #else
@@ -3893,7 +3893,7 @@ inline void gcode_G4() {
 
     // If an endstop was not hit, then damage can occur if homing is continued.
     // This can occur if the delta height not set correctly.
-    if (!(Endstops::endstop_hit_bits & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
+    if (!(endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
       LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_HOMING_FAILED);
