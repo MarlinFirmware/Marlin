@@ -34,6 +34,7 @@ if current_OS == 'Windows':
     #
 
     import os
+    upload_disk = 'Disk not found'
     target_file_found = False
     target_drive_found = False
     for drive in drives:
@@ -66,7 +67,9 @@ if current_OS == 'Windows':
       env.Replace(
           UPLOAD_PORT = upload_disk
       )
-
+      print 'upload disk: ' , upload_disk
+    else:
+       print '\nUnable to find destination disk.  File must be copied manually. \n'
 
 
 if current_OS == 'Linux':
@@ -76,6 +79,7 @@ if current_OS == 'Linux':
     #
 
     import os
+    upload_disk = 'Disk not found'
     target_file_found = False
     target_drive_found = False
     medias = os.listdir('/media')  #
@@ -85,11 +89,15 @@ if current_OS == 'Linux':
         target_drive_found = True
         upload_disk = '/media/' + media + '/' + target_drive + '/'
       for drive in drives:
-        files = os.listdir('/media/' + media + '/' + drive )  #
-        if target_filename in files:
-          if target_file_found == False:
-            upload_disk = '/media/' + media + '/' + drive + '/'
-            target_file_found = True
+        try:
+          files = os.listdir('/media/' + media + '/' + drive )
+        except:
+          continue
+        else:
+          if target_filename in files:
+            if target_file_found == False:
+              upload_disk = '/media/' + media + '/' + drive + '/'
+              target_file_found = True
 
     #
     # set upload_port to drive if found
@@ -101,6 +109,9 @@ if current_OS == 'Linux':
         UPLOAD_FLAGS = "-P$UPLOAD_PORT",
         UPLOAD_PORT = upload_disk
       )
+      print 'upload disk: ' , upload_disk
+    else:
+       print '\nUnable to find destination disk.  File must be copied manually. \n'
 
 
 if current_OS == 'Darwin':  # MAC
@@ -110,19 +121,23 @@ if current_OS == 'Darwin':  # MAC
     #
 
     import os
+    upload_disk = 'Disk not found'
     drives = os.listdir('/Volumes')  #  human readable names
     target_file_found = False
     target_drive_found = False
     if target_drive in drives and target_file_found == False:  # set upload if not found target file yet
       target_drive_found = True
-      upload_disk = '/Volumes/' + drive + '/'
+      upload_disk = '/Volumes/' + target_drive + '/'
     for drive in drives:
-      target_file_found = True
-      filenames = os.listdir('/Volumes/' + drive + '/')
-      if target_filename in filenames:
-        if target_file_found == False:
-          upload_disk = '/Volumes/' + drive + '/'
-        target_file_found = True
+      try:
+        filenames = os.listdir('/Volumes/' + drive + '/')   # will get an error if the drive is protected
+      except:
+        continue
+      else:
+        if target_filename in filenames:
+          if target_file_found == False:
+            upload_disk = '/Volumes/' + drive + '/'
+          target_file_found = True
     #
     # set upload_port to drive if found
     #
@@ -132,3 +147,6 @@ if current_OS == 'Darwin':  # MAC
       env.Replace(
           UPLOAD_PORT = upload_disk
       )
+      print '\nupload disk: ' , upload_disk, '\n'
+    else:
+       print '\nUnable to find destination disk.  File must be copied manually. \n'
