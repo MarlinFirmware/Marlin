@@ -26,9 +26,8 @@ Sublime with autobuild
        \Users\your_user_name\AppData\Roaming\Sublime Text 3\Packages
       Linux
         /home/your_user_name/.config/sublime-text-3/Packages/User
-
-      macOS (hidden files)
-        /Users/your_user_name//Library/Application Support/Sublime Text 3/Packages/User
+      macOS (Click on the Finder's 'Go' menu and hold down Option to open...)
+        ~/Library/Application Support/Sublime Text 3/Packages/User
 
 The menu should now be visible
 
