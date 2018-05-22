@@ -35,9 +35,6 @@
   #include "endstop_interrupts.h"
 #endif
 
-// TEST_ENDSTOP: test the current status of an endstop
-#define TEST_ENDSTOP(ENDSTOP) (TEST(live_state, ENDSTOP))
-
 #if HAS_BED_PROBE
   #define ENDSTOPS_ENABLED  (endstops.enabled || endstops.z_probe_enabled)
 #else
