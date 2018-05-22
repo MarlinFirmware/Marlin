@@ -434,6 +434,7 @@
 /**
  * Default hotend offsets, if not defined
  */
+#define HAS_HOTEND_OFFSET_Z (HOTENDS > 1 && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)))
 #if HOTENDS > 1
   #ifndef HOTEND_OFFSET_X
     #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
@@ -441,7 +442,7 @@
   #ifndef HOTEND_OFFSET_Y
     #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
   #endif
-  #if !defined(HOTEND_OFFSET_Z) && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE))
+  #if HAS_HOTEND_OFFSET_Z && !defined(HOTEND_OFFSET_Z)
     #define HOTEND_OFFSET_Z { 0 }
   #endif
 #endif
@@ -978,6 +979,23 @@
  * Part Cooling fan multipliexer
  */
 #define HAS_FANMUX PIN_EXISTS(FANMUX0)
+
+/**
+ * MIN/MAX fan PWM scaling
+ */
+#ifndef FAN_MIN_PWM
+  #define FAN_MIN_PWM 0
+#endif
+#ifndef FAN_MAX_PWM
+  #define FAN_MAX_PWM 255
+#endif
+#if FAN_MIN_PWM < 0 || FAN_MIN_PWM > 255
+  #error "FAN_MIN_PWM must be a value from 0 to 255."
+#elif FAN_MAX_PWM < 0 || FAN_MAX_PWM > 255
+  #error "FAN_MAX_PWM must be a value from 0 to 255."
+#elif FAN_MIN_PWM > FAN_MAX_PWM
+  #error "FAN_MIN_PWM must be less than or equal to FAN_MAX_PWM."
+#endif
 
 /**
  * Bed Probe dependencies

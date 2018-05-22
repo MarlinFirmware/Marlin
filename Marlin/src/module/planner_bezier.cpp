@@ -194,9 +194,11 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
     #if HAS_UBL_AND_CURVES
       float pos[XYZ] = { bez_target[X_AXIS], bez_target[Y_AXIS], bez_target[Z_AXIS] };
       planner.apply_leveling(pos);
-      planner.buffer_segment(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], bez_target[E_AXIS], fr_mm_s, active_extruder);
+      if (!planner.buffer_segment(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], bez_target[E_AXIS], fr_mm_s, active_extruder))
+        break;
     #else
-      planner.buffer_line_kinematic(bez_target, fr_mm_s, extruder);
+      if (!planner.buffer_line_kinematic(bez_target, fr_mm_s, extruder))
+        break;
     #endif
   }
 }

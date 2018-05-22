@@ -323,6 +323,10 @@
   #error "Set SERIAL_PORT to the port on your board. Usually this is 0."
 #endif
 
+#if SERIAL_PORT_2 && NUM_SERIAL < 2
+  #error "SERIAL_PORT_2 is not supported for your MOTHERBOARD. Disable it to continue."
+#endif
+
 /**
  * Dual Stepper Drivers
  */
@@ -1724,6 +1728,10 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
 
 #if ENABLED(POWER_LOSS_RECOVERY) && !ENABLED(ULTIPANEL)
   #error "POWER_LOSS_RECOVERY currently requires an LCD Controller."
+#endif
+
+#if ENABLED(FAST_PWM_FAN) && !(defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM))
+  #error "FAST_PWM_FAN only supported by 8 bit CPUs."
 #endif
 
 #endif // _SANITYCHECK_H_

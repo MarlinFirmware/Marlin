@@ -34,18 +34,42 @@
 
 #include <stdint.h>
 
+#include "../../core/macros.h"
+
+#define SBIT_TIMER0 1
+#define SBIT_TIMER1 2
+
+#define SBIT_CNTEN 0
+
+#define SBIT_MR0I  0 // Timer 0 Interrupt when TC matches MR0
+#define SBIT_MR0R  1 // Timer 0 Reset TC on Match
+#define SBIT_MR0S  2 // Timer 0 Stop TC and PC on Match
+#define SBIT_MR1I  3
+#define SBIT_MR1R  4
+#define SBIT_MR1S  5
+#define SBIT_MR2I  6
+#define SBIT_MR2R  7
+#define SBIT_MR2S  8
+#define SBIT_MR3I  9
+#define SBIT_MR3R 10
+#define SBIT_MR3S 11
+
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
 
-#define FORCE_INLINE __attribute__((always_inline)) inline
+#define _HAL_TIMER(T) _CAT(LPC_TIM, T)
+#define _HAL_TIMER_IRQ(T) TIMER##T##_IRQn
+#define __HAL_TIMER_ISR(T) extern "C" void TIMER##T##_IRQHandler(void)
+#define _HAL_TIMER_ISR(T)  __HAL_TIMER_ISR(T)
 
 typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
-#define STEP_TIMER_NUM 0  // index of timer to use for stepper
-#define TEMP_TIMER_NUM 1  // index of timer to use for temperature
+#define STEP_TIMER_NUM 0  // Timer Index for Stepper
+#define TEMP_TIMER_NUM 1  // Timer Index for Temperature
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
+#define PWM_TIMER_NUM 3   // Timer Index for PWM
 
 #define HAL_TIMER_RATE         ((SystemCoreClock) / 4)  // frequency of timers peripherals
 #define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
@@ -66,21 +90,12 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_STEP_TIMER_ISR  extern "C" void TIMER0_IRQHandler(void)
-#define HAL_TEMP_TIMER_ISR  extern "C" void TIMER1_IRQHandler(void)
+#define HAL_STEP_TIMER_ISR _HAL_TIMER_ISR(STEP_TIMER_NUM)
+#define HAL_TEMP_TIMER_ISR _HAL_TIMER_ISR(TEMP_TIMER_NUM)
 
-// PWM timer
-#define HAL_PWM_TIMER      LPC_TIM3
-#define HAL_PWM_TIMER_ISR  extern "C" void TIMER3_IRQHandler(void)
-#define HAL_PWM_TIMER_IRQn TIMER3_IRQn
-
-// --------------------------------------------------------------------------
-// Types
-// --------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------
-// Public Variables
-// --------------------------------------------------------------------------
+// Timer references by index
+#define STEP_TIMER _HAL_TIMER(STEP_TIMER_NUM)
+#define TEMP_TIMER _HAL_TIMER(TEMP_TIMER_NUM)
 
 // --------------------------------------------------------------------------
 // Public functions
@@ -90,31 +105,23 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case 0:
-      LPC_TIM0->MR0 = compare;
-      if (LPC_TIM0->TC > compare)
-        LPC_TIM0->TC = compare - 5; // generate an immediate stepper ISR
-      break;
-    case 1:
-      LPC_TIM1->MR0 = compare;
-      if (LPC_TIM1->TC > compare)
-        LPC_TIM1->TC = compare - 5; // make sure we don't have one extra long period
-      break;
+    case 0: STEP_TIMER->MR0 = compare; break; // Stepper Timer Match Register 0
+    case 1: TEMP_TIMER->MR0 = compare; break; //    Temp Timer Match Register 0
   }
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return LPC_TIM0->MR0;
-    case 1: return LPC_TIM1->MR0;
+    case 0: return STEP_TIMER->MR0; // Stepper Timer Match Register 0
+    case 1: return TEMP_TIMER->MR0; //    Temp Timer Match Register 0
   }
   return 0;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return LPC_TIM0->TC;
-    case 1: return LPC_TIM1->TC;
+    case 0: return STEP_TIMER->TC; // Stepper Timer Count
+    case 1: return TEMP_TIMER->TC; //    Temp Timer Count
   }
   return 0;
 }
@@ -124,10 +131,45 @@ FORCE_INLINE static void HAL_timer_restrain(const uint8_t timer_num, const uint1
   if (HAL_timer_get_compare(timer_num) < mincmp) HAL_timer_set_compare(timer_num, mincmp);
 }
 
-void HAL_timer_enable_interrupt(const uint8_t timer_num);
-void HAL_timer_disable_interrupt(const uint8_t timer_num);
-bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
-void HAL_timer_isr_prologue(const uint8_t timer_num);
+FORCE_INLINE static void HAL_timer_enable_interrupt(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0: NVIC_EnableIRQ(TIMER0_IRQn); // Enable interrupt handler
+    case 1: NVIC_EnableIRQ(TIMER1_IRQn); // Enable interrupt handler
+  }
+}
+
+FORCE_INLINE static void HAL_timer_disable_interrupt(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0: NVIC_DisableIRQ(TIMER0_IRQn); // Disable interrupt handler
+    case 1: NVIC_DisableIRQ(TIMER1_IRQn); // Disable interrupt handler
+  }
+
+  // We NEED memory barriers to ensure Interrupts are actually disabled!
+  // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+  __DSB();
+  __ISB();
+}
+
+// This function is missing from CMSIS
+FORCE_INLINE static bool NVIC_GetEnableIRQ(IRQn_Type IRQn) {
+  return (NVIC->ISER[((uint32_t)IRQn) >> 5] & (1 << ((uint32_t)IRQn) & 0x1F)) != 0;
+}
+
+FORCE_INLINE static bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0: return NVIC_GetEnableIRQ(TIMER0_IRQn); // Check if interrupt is enabled or not
+    case 1: return NVIC_GetEnableIRQ(TIMER1_IRQn); // Check if interrupt is enabled or not
+  }
+  return false;
+}
+
+FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0: SBI(STEP_TIMER->IR, SBIT_CNTEN); break;
+    case 1: SBI(TEMP_TIMER->IR, SBIT_CNTEN); break;
+  }
+}
+
 #define HAL_timer_isr_epilogue(TIMER_NUM)
 
-#endif // _HAL_TIMERS_DUE_H
+#endif // _HAL_TIMERS_H

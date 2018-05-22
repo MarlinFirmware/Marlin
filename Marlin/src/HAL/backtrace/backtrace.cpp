@@ -26,7 +26,9 @@
 
 #include "unwinder.h"
 #include "unwmemaccess.h"
-#include "../Marlin.h"
+
+#include "../../core/serial.h"
+#include <stdarg.h>
 
 // Dump a backtrace entry
 static bool UnwReportOut(void* ctx, const UnwReport* bte) {
