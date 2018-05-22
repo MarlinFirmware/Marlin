@@ -414,9 +414,7 @@ void Endstops::update() {
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     // If G38 command is active check Z_MIN_PROBE for ALL movement
-    if (G38_move) {
-      UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
-    }
+    if (G38_move) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
   #endif
 
   /**
