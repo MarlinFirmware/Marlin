@@ -62,7 +62,7 @@ namespace Extensible_UI_API {
     #endif
   }
 
-  inline float getFan_percent(const uint8_t fan) { return ((float(fanSpeeds[fan]) + 1) * 100) / 256; }
+  float getFan_percent(const uint8_t fan) { return ((float(fanSpeeds[fan]) + 1) * 100) / 256; }
 
   float getAxisPosition_mm(const axis_t axis) {
     switch(axis) {
@@ -144,7 +144,7 @@ namespace Extensible_UI_API {
       case E1: planner.max_feedrate_mm_s[E_AXIS+1] = max_feedrate_mm_s;
       case E2: planner.max_feedrate_mm_s[E_AXIS+2] = max_feedrate_mm_s;
       case E3: planner.max_feedrate_mm_s[E_AXIS+3] = max_feedrate_mm_s;
-      default: return 0;
+      default: return;
     }
   }
 
@@ -170,7 +170,7 @@ namespace Extensible_UI_API {
       case E1: planner.max_acceleration_mm_per_s2[E_AXIS+1] = max_acceleration_mm_per_s2;
       case E2: planner.max_acceleration_mm_per_s2[E_AXIS+2] = max_acceleration_mm_per_s2;
       case E3: planner.max_acceleration_mm_per_s2[E_AXIS+3] = max_acceleration_mm_per_s2;
-      default: return 0;
+      default: return;
     }
   }
 
@@ -199,7 +199,7 @@ namespace Extensible_UI_API {
       case E3:
         planner.max_jerk[E_AXIS]   = max_jerk;
         break;
-      default: return 0;
+      default: return;
     }
   }
 
