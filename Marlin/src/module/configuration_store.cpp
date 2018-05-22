@@ -2126,7 +2126,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOPAIR_P(port, "  M218 T", (int)e);
         SERIAL_ECHOPAIR_P(port, " X", LINEAR_UNIT(hotend_offset[X_AXIS][e]));
         SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e]));
-        #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) ||ENABLED(PARKING_EXTRUDER)
+        #if HAS_HOTEND_OFFSET_Z
           SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]));
         #endif
         SERIAL_EOL_P(port);

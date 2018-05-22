@@ -25,6 +25,7 @@
  */
 
 #include "temperature.h"
+#include "endstops.h"
 
 #include "../Marlin.h"
 #include "../lcd/ultralcd.h"
@@ -38,10 +39,6 @@
 
 #if ENABLED(BABYSTEPPING) || ENABLED(PID_EXTRUSION_SCALING)
   #include "stepper.h"
-#endif
-
-#if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(PINS_DEBUGGING)
-  #include "endstops.h"
 #endif
 
 #include "printcounter.h"
@@ -977,30 +974,40 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_0_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     case 1:
       #if ENABLED(HEATER_1_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_1_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     case 2:
       #if ENABLED(HEATER_2_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_2_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     case 3:
       #if ENABLED(HEATER_3_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_3_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     case 4:
       #if ENABLED(HEATER_4_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_4_USES_AD8495)
         return TEMP_AD8495(raw);
+      #else
+        break;
       #endif
     default: break;
   }
@@ -1075,9 +1082,7 @@ void Temperature::updateTemperaturesFromRawValues() {
     watchdog_reset();
   #endif
 
-  CRITICAL_SECTION_START;
   temp_meas_ready = false;
-  CRITICAL_SECTION_END;
 }
 
 
@@ -1380,7 +1385,7 @@ void Temperature::init() {
 #if ENABLED(FAST_PWM_FAN)
 
   void Temperature::setPwmFrequency(const pin_t pin, int val) {
-    #ifdef ARDUINO
+    #if defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM)
       val &= 0x07;
       switch (digitalPinToTimer(pin)) {
         #ifdef TCCR0A
@@ -1717,6 +1722,7 @@ void Temperature::set_current_temp_raw() {
  *  - Step the babysteps value for each axis towards 0
  *  - For PINS_DEBUGGING, monitor and report endstop pins
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
+ *  - Call planner.tick to count down its "ignore" time
  */
 HAL_TEMP_TIMER_ISR {
   HAL_timer_isr_prologue(TEMP_TIMER_NUM);
@@ -2237,19 +2243,11 @@ void Temperature::isr() {
     }
   #endif // BABYSTEPPING
 
-  #if ENABLED(PINS_DEBUGGING)
-    endstops.run_monitor();  // report changes in endstop status
-  #endif
+  // Poll endstops state, if required
+  endstops.poll();
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-
-    extern volatile uint8_t e_hit;
-
-    if (e_hit && ENDSTOPS_ENABLED) {
-      endstops.update();  // call endstop update routine
-      e_hit--;
-    }
-  #endif
+  // Periodically call the planner timer
+  planner.tick();
 }
 
 #if HAS_TEMP_SENSOR

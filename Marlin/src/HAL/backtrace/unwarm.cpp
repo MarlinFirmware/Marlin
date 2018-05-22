@@ -171,5 +171,5 @@ bool UnwMemReadRegister(UnwState * const state, const uint32_t addr, RegData * c
   }
   else return false;                            // Not in the hash, and failed to read from memory
 }
-#endif
 
+#endif // __arm__ || __thumb__
