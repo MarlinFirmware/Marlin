@@ -593,4 +593,5 @@ UnwResult UnwStartArm(UnwState * const state) {
 
   return UNWIND_UNSUPPORTED;
 }
-#endif
+
+#endif // __arm__ || __thumb__

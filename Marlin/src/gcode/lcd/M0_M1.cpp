@@ -58,7 +58,7 @@ void GcodeSuite::M0_M1() {
 
   const bool has_message = !hasP && !hasS && args && *args;
 
-  stepper.synchronize();
+  planner.synchronize();
 
   #if ENABLED(ULTIPANEL)
 

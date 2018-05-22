@@ -104,7 +104,7 @@ typedef struct {
  *  Macros
  **************************************************************************/
 
-#define M_IsOriginValid(v) (((v) & 0x7f) ? true : false)
+#define M_IsOriginValid(v) (((v) & 0x7F) ? true : false)
 #define M_Origin2Str(v)    ((v) ? "VALID" : "INVALID")
 
 #if defined(UNW_DEBUG)
@@ -140,8 +140,4 @@ bool UnwMemWriteRegister(UnwState * const state, const uint32_t addr, const RegD
 bool UnwMemReadRegister(UnwState * const state, const uint32_t addr, RegData * const reg);
 void UnwMemHashGC(UnwState * const state);
 
-#endif /* UNWARM_H */
-
-/* END OF FILE */
-
-
+#endif // UNWARM_H

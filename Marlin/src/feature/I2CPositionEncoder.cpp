@@ -99,15 +99,15 @@ void I2CPositionEncoder::update() {
 
         //the encoder likely lost its place when the error occured, so we'll reset and use the printer's
         //idea of where it the axis is to re-initialise
-        float position = stepper.get_axis_position_mm(encoderAxis);
-        int32_t positionInTicks = position * get_ticks_unit();
+        const float pos = planner.get_axis_position_mm(encoderAxis);
+        int32_t positionInTicks = pos * get_ticks_unit();
 
         //shift position from previous to current position
         zeroOffset -= (positionInTicks - get_position());
 
         #ifdef I2CPE_DEBUG
           SERIAL_ECHOPGM("Current position is ");
-          SERIAL_ECHOLN(position);
+          SERIAL_ECHOLN(pos);
 
           SERIAL_ECHOPGM("Position in encoder ticks is ");
           SERIAL_ECHOLN(positionInTicks);
@@ -134,7 +134,7 @@ void I2CPositionEncoder::update() {
 
     #ifdef I2CPE_EC_THRESH_PROPORTIONAL
       const millis_t deltaTime = positionTime - lastPositionTime;
-      const uint32_t distance = abs(position - lastPosition),
+      const uint32_t distance = ABS(position - lastPosition),
                      speed = distance / deltaTime;
       const float threshold = constrain((speed / 50), 1, 50) * ecThreshold;
     #else
@@ -150,7 +150,7 @@ void I2CPositionEncoder::update() {
 
       LOOP_L_N(i, I2CPE_ERR_ARRAY_SIZE) {
         sum += err[i];
-        if (i) diffSum += abs(err[i-1] - err[i]);
+        if (i) diffSum += ABS(err[i-1] - err[i]);
       }
 
       const int32_t error = int32_t(sum / (I2CPE_ERR_ARRAY_SIZE + 1)); //calculate average for error
@@ -163,7 +163,7 @@ void I2CPositionEncoder::update() {
     //SERIAL_ECHOLN(error);
 
     #ifdef I2CPE_ERR_THRESH_ABORT
-      if (labs(error) > I2CPE_ERR_THRESH_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
+      if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
         //kill("Significant Error");
         SERIAL_ECHOPGM("Axis error greater than set threshold, aborting!");
         SERIAL_ECHOLN(error);
@@ -175,8 +175,8 @@ void I2CPositionEncoder::update() {
       if (errIdx == 0) {
         // In order to correct for "error" but avoid correcting for noise and non-skips
         // it must be > threshold and have a difference average of < 10 and be < 2000 steps
-        if (labs(error) > threshold * planner.axis_steps_per_mm[encoderAxis] &&
-            diffSum < 10 * (I2CPE_ERR_ARRAY_SIZE - 1) && labs(error) < 2000) { // Check for persistent error (skip)
+        if (ABS(error) > threshold * planner.axis_steps_per_mm[encoderAxis] &&
+            diffSum < 10 * (I2CPE_ERR_ARRAY_SIZE - 1) && ABS(error) < 2000) { // Check for persistent error (skip)
           errPrst[errPrstIdx++] = error; // Error must persist for I2CPE_ERR_PRST_ARRAY_SIZE error cycles. This also serves to improve the average accuracy
           if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
             float sumP = 0;
@@ -193,14 +193,14 @@ void I2CPositionEncoder::update() {
           errPrstIdx = 0;
       }
     #else
-      if (labs(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
+      if (ABS(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
         //SERIAL_ECHOLN(error);
         //SERIAL_ECHOLN(position);
         thermalManager.babystepsTodo[encoderAxis] = -LROUND(error / 2);
       }
     #endif
 
-    if (labs(error) > I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) {
+    if (ABS(error) > I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) {
       const millis_t ms = millis();
       if (ELAPSED(ms, nextErrorCountTime)) {
         SERIAL_ECHOPAIR("Large error on ", axis_codes[encoderAxis]);
@@ -254,11 +254,11 @@ bool I2CPositionEncoder::passes_test(const bool report) {
 float I2CPositionEncoder::get_axis_error_mm(const bool report) {
   float target, actual, error;
 
-  target = stepper.get_axis_position_mm(encoderAxis);
+  target = planner.get_axis_position_mm(encoderAxis);
   actual = mm_from_count(position);
   error = actual - target;
 
-  if (labs(error) > 10000) error = 0; // ?
+  if (ABS(error) > 10000) error = 0; // ?
 
   if (report) {
     SERIAL_ECHO(axis_codes[encoderAxis]);
@@ -293,7 +293,7 @@ int32_t I2CPositionEncoder::get_axis_error_steps(const bool report) {
           error = (encoderCountInStepperTicksScaled - target);
 
   //suppress discontinuities (might be caused by bad I2C readings...?)
-  bool suppressOutput = (labs(error - errorPrev) > 100);
+  const bool suppressOutput = (ABS(error - errorPrev) > 100);
 
   if (report) {
     SERIAL_ECHO(axis_codes[encoderAxis]);
@@ -349,18 +349,18 @@ bool I2CPositionEncoder::test_axis() {
   ec = false;
 
   LOOP_NA(i) {
-    startCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
-    endCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
+    startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
+    endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
   }
 
   startCoord[encoderAxis] = startPosition;
   endCoord[encoderAxis] = endPosition;
 
-  stepper.synchronize();
+  planner.synchronize();
 
   planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                      stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-  stepper.synchronize();
+                      planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+  planner.synchronize();
 
   // if the module isn't currently trusted, wait until it is (or until it should be if things are working)
   if (!trusted) {
@@ -371,8 +371,8 @@ bool I2CPositionEncoder::test_axis() {
 
   if (trusted) { // if trusted, commence test
     planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                        stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-    stepper.synchronize();
+                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+    planner.synchronize();
   }
 
   return trusted;
@@ -408,19 +408,19 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
   travelDistance = endDistance - startDistance;
 
   LOOP_NA(i) {
-    startCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
-    endCoord[i] = stepper.get_axis_position_mm((AxisEnum)i);
+    startCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
+    endCoord[i] = planner.get_axis_position_mm((AxisEnum)i);
   }
 
   startCoord[encoderAxis] = startDistance;
   endCoord[encoderAxis] = endDistance;
 
-  stepper.synchronize();
+  planner.synchronize();
 
   LOOP_L_N(i, iter) {
     planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
-                        stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-    stepper.synchronize();
+                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+    planner.synchronize();
 
     delay(250);
     startCount = get_position();
@@ -428,14 +428,14 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     //do_blocking_move_to(endCoord[X_AXIS],endCoord[Y_AXIS],endCoord[Z_AXIS]);
 
     planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
-                        stepper.get_axis_position_mm(E_AXIS), feedrate, 0);
-    stepper.synchronize();
+                        planner.get_axis_position_mm(E_AXIS), feedrate, 0);
+    planner.synchronize();
 
     //Read encoder distance
     delay(250);
     stopCount = get_position();
 
-    travelledDistance = mm_from_count(abs(stopCount - startCount));
+    travelledDistance = mm_from_count(ABS(stopCount - startCount));
 
     SERIAL_ECHOPAIR("Attempted to travel: ", travelDistance);
     SERIAL_ECHOLNPGM("mm.");

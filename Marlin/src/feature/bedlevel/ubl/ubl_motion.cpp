@@ -262,7 +262,8 @@
             z_position = end[Z_AXIS];
           }
 
-          planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder);
+          if (!planner.buffer_segment(rx, ry, z_position + z0, e_position, feed_rate, extruder))
+            break;
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
@@ -319,7 +320,8 @@
           e_position = end[E_AXIS];
           z_position = end[Z_AXIS];
         }
-        planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder);
+        if (!planner.buffer_segment(rx, next_mesh_line_y, z_position + z0, e_position, feed_rate, extruder))
+          break;
         current_yi += dyi;
         yi_cnt--;
       }
@@ -342,7 +344,8 @@
           z_position = end[Z_AXIS];
         }
 
-        planner.buffer_segment(next_mesh_line_x, ry, z_position + z0, e_position, feed_rate, extruder);
+        if (!planner.buffer_segment(next_mesh_line_x, ry, z_position + z0, e_position, feed_rate, extruder))
+          break;
         current_xi += dxi;
         xi_cnt--;
       }
@@ -387,11 +390,11 @@
       inverse_kinematics(raw);  // this writes delta[ABC] from raw[XYZE]
                                 // should move the feedrate scaling to scara inverse_kinematics
 
-      const float adiff = FABS(delta[A_AXIS] - scara_oldA),
-                  bdiff = FABS(delta[B_AXIS] - scara_oldB);
+      const float adiff = ABS(delta[A_AXIS] - scara_oldA),
+                  bdiff = ABS(delta[B_AXIS] - scara_oldB);
       scara_oldA = delta[A_AXIS];
       scara_oldB = delta[B_AXIS];
-      float s_feedrate = max(adiff, bdiff) * scara_feed_factor;
+      float s_feedrate = MAX(adiff, bdiff) * scara_feed_factor;
 
       planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], s_feedrate, active_extruder);
 
@@ -443,13 +446,13 @@
       uint16_t segments = lroundf(cartesian_xy_mm * (1.0 / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
     #endif
 
-    NOLESS(segments, 1);                        // must have at least one segment
+    NOLESS(segments, 1U);                        // must have at least one segment
     const float inv_segments = 1.0 / segments;  // divide once, multiply thereafter
 
     #if IS_SCARA // scale the feed rate from mm/s to degrees/s
       scara_feed_factor = cartesian_xy_mm * inv_segments * feedrate;
-      scara_oldA = stepper.get_axis_position_degrees(A_AXIS);
-      scara_oldB = stepper.get_axis_position_degrees(B_AXIS);
+      scara_oldA = planner.get_axis_position_degrees(A_AXIS);
+      scara_oldB = planner.get_axis_position_degrees(B_AXIS);
     #endif
 
     const float diff[XYZE] = {

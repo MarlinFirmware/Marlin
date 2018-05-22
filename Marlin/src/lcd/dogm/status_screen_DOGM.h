@@ -71,7 +71,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
         );
   }
 
-  if (PAGE_CONTAINS(21, 28))
+  if (PAGE_CONTAINS(21, 28)) {
     _draw_centered_temp(0.5 + (
         #if HAS_HEATED_BED
           isBed ? thermalManager.degBed() :
@@ -80,37 +80,43 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
       ), x, 28
     );
 
-  if (PAGE_CONTAINS(17, 20)) {
-    const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
-                  y = isBed ? 18 : 17;
-    if (
-      #if HAS_HEATED_BED
-        isBed ? thermalManager.isHeatingBed() :
-      #endif
-      thermalManager.isHeatingHotend(heater)
-    ) {
-      u8g.setColorIndex(0); // white on black
-      u8g.drawBox(x + h, y, 2, 2);
-      u8g.setColorIndex(1); // black on white
+    if (PAGE_CONTAINS(17, 20)) {
+      const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
+                    y = isBed ? 18 : 17;
+      if (
+        #if HAS_HEATED_BED
+          isBed ? thermalManager.isHeatingBed() :
+        #endif
+        thermalManager.isHeatingHotend(heater)
+      ) {
+        u8g.setColorIndex(0); // white on black
+        u8g.drawBox(x + h, y, 2, 2);
+        u8g.setColorIndex(1); // black on white
+      }
+      else
+        u8g.drawBox(x + h, y, 2, 2);
     }
-    else
-      u8g.drawBox(x + h, y, 2, 2);
   }
 }
 
-FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
+//
+// Before homing, blink '123' <-> '???'.
+// Homed but unknown... '123' <-> '   '.
+// Homed and known, display constantly.
+//
+FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
   if (blink)
-    lcd_put_u8str_rom(pstr);
+    lcd_put_u8str(value);
   else {
     if (!axis_homed[axis])
-      lcd_put_wchar('?');
+      while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
     else {
       #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
-          lcd_put_wchar(' ');
+          lcd_put_u8str_rom(axis == Z_AXIS ? PSTR("      ") : PSTR("    "));
         else
       #endif
-          lcd_put_u8str_rom(pstr);
+          lcd_put_u8str(value);
     }
   }
 }
@@ -220,7 +226,7 @@ static void lcd_implementation_status_screen() {
     #endif
 
     #if HAS_FAN0
-      if (PAGE_CONTAINS(20, 27)) {
+      if (PAGE_CONTAINS(STATUS_SCREEN_FAN_TEXT_Y - 7, STATUS_SCREEN_FAN_TEXT_Y)) {
         // Fan
         const int16_t per = ((fanSpeeds[0] + 1) * 100) / 256;
         if (per) {
@@ -330,10 +336,6 @@ static void lcd_implementation_status_screen() {
     #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 1
   #endif
 
-  // Before homing the axis letters are blinking 'X' <-> '?'.
-  // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
-  // When everything is ok you see a constant 'X'.
-
   static char xstring[5], ystring[5], zstring[7];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
@@ -370,19 +372,19 @@ static void lcd_implementation_status_screen() {
       #endif
 
       lcd_moveto(0 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
+      lcd_put_wchar('X');
       lcd_moveto(0 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_put_u8str(xstring);
+      _draw_axis_value(X_AXIS, xstring, blink);
 
       lcd_moveto(1 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
+      lcd_put_wchar('Y');
       lcd_moveto(1 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_put_u8str(ystring);
+      _draw_axis_value(Y_AXIS, ystring, blink);
 
       lcd_moveto(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
+      lcd_put_wchar('Z');
       lcd_moveto(2 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_put_u8str(zstring);
+      _draw_axis_value(Z_AXIS, zstring, blink);
 
       #if DISABLED(XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white

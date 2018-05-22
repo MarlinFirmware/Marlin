@@ -245,6 +245,11 @@
     // Disable UART interrupt in NVIC
     NVIC_DisableIRQ( HWUART_IRQ );
 
+    // We NEED memory barriers to ensure Interrupts are actually disabled!
+    // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+    __DSB();
+    __ISB();
+
     // Disable clock
     pmc_disable_periph_clk( HWUART_IRQ_ID );
 
@@ -289,6 +294,11 @@
   void MarlinSerial::end() {
     // Disable UART interrupt in NVIC
     NVIC_DisableIRQ( HWUART_IRQ );
+
+    // We NEED memory barriers to ensure Interrupts are actually disabled!
+    // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+    __DSB();
+    __ISB();
 
     pmc_disable_periph_clk( HWUART_IRQ_ID );
   }

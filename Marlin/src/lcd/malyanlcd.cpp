@@ -75,7 +75,7 @@ int inbound_count;
 // Everything written needs the high bit set.
 void write_to_lcd_P(const char * const message) {
   char encoded_message[MAX_CURLY_COMMAND];
-  uint8_t message_length = min(strlen_P(message), sizeof(encoded_message));
+  uint8_t message_length = MIN(strlen_P(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
     encoded_message[i] = pgm_read_byte(&message[i]) | 0x80;
@@ -85,7 +85,7 @@ void write_to_lcd_P(const char * const message) {
 
 void write_to_lcd(const char * const message) {
   char encoded_message[MAX_CURLY_COMMAND];
-  const uint8_t message_length = min(strlen(message), sizeof(encoded_message));
+  const uint8_t message_length = MIN(strlen(message), sizeof(encoded_message));
 
   for (uint8_t i = 0; i < message_length; i++)
     encoded_message[i] = message[i] | 0x80;

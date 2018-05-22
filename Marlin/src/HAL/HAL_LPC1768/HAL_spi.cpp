@@ -83,14 +83,14 @@
   }
 
   uint8_t spiRec() {
-    uint8_t b = spiTransfer(0xff);
+    uint8_t b = spiTransfer(0xFF);
     return b;
   }
 
   void spiRead(uint8_t*buf, uint16_t nbyte) {
     if (nbyte == 0) return;
     for (int i = 0; i < nbyte; i++) {
-      buf[i] = spiTransfer(0xff);
+      buf[i] = spiTransfer(0xFF);
     }
   }
 

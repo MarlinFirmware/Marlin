@@ -55,6 +55,10 @@
 
 #ifdef TARGET_LPC1768
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(DOGLCD)
+
 #include <U8glib.h>
 #include "SoftwareSPI.h"
 
@@ -119,5 +123,7 @@ uint8_t u8g_com_HAL_LPC1768_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   }
   return 1;
 }
+
+#endif // DOGLCD
 
 #endif // TARGET_LPC1768

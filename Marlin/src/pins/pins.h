@@ -252,21 +252,21 @@
 //
 
 #elif MB(TEENSYLU)
-  #include "pins_TEENSYLU.h"          // AT90USB1286, AT90USB1286P                  env:teensy20
+  #include "pins_TEENSYLU.h"          // AT90USB1286, AT90USB1286P                  env:at90USB1286_CDC
 #elif MB(PRINTRBOARD)
-  #include "pins_PRINTRBOARD.h"       // AT90USB1286                                env:teensy20
+  #include "pins_PRINTRBOARD.h"       // AT90USB1286                                env:at90USB1286_DFU
 #elif MB(PRINTRBOARD_REVF)
-  #include "pins_PRINTRBOARD_REVF.h"  // AT90USB1286                                env:teensy20
+  #include "pins_PRINTRBOARD_REVF.h"  // AT90USB1286                                env:at90USB1286_DFU
 #elif MB(BRAINWAVE)
-  #include "pins_BRAINWAVE.h"         // AT90USB646                                 env:teensy20
+  #include "pins_BRAINWAVE.h"         // AT90USB646                                 env:at90USB1286_CDC
 #elif MB(BRAINWAVE_PRO)
-  #include "pins_BRAINWAVE_PRO.h"     // AT90USB1286                                env:teensy20
+  #include "pins_BRAINWAVE_PRO.h"     // AT90USB1286                                env:at90USB1286_CDC
 #elif MB(SAV_MKI)
-  #include "pins_SAV_MKI.h"           // AT90USB1286                                env:teensy20
+  #include "pins_SAV_MKI.h"           // AT90USB1286                                env:at90USB1286_CDC
 #elif MB(TEENSY2)
   #include "pins_TEENSY2.h"           // AT90USB1286                                env:teensy20
 #elif MB(5DPRINT)
-  #include "pins_5DPRINT.h"           // AT90USB1286                                env:teensy20
+  #include "pins_5DPRINT.h"           // AT90USB1286                                ?env:at90USB1286_DFU
 
 //
 // Re-ARM - LPC1768
@@ -342,7 +342,7 @@
 #elif MB(STM3R_MINI)
   #include "pins_STM3R_MINI.h"        // STM32F1                                    env:STM32F1
 #elif MB(MALYAN_M200)
-  #include "pins_MALYAN_M200.h"       // STM32F1                                    env:STM32F1
+  #include "pins_MALYAN_M200.h"       // STM32F1                                    env:malyanm200
 #elif MB(BEAST)
   #include "pins_BEAST.h"             // STM32F4                                    env:STM32F1
 #elif MB(CHITU3D)

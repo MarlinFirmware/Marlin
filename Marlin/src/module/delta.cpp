@@ -32,7 +32,7 @@
 #include "motion.h"
 
 // For homing:
-#include "stepper.h"
+#include "planner.h"
 #include "endstops.h"
 #include "../lcd/ultralcd.h"
 #include "../Marlin.h"
@@ -150,7 +150,7 @@ float delta_safe_distance_from_top() {
   float centered_extent = delta[A_AXIS];
   cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
   inverse_kinematics(cartesian);
-  return FABS(centered_extent - delta[A_AXIS]);
+  return ABS(centered_extent - delta[A_AXIS]);
 }
 
 /**
@@ -258,7 +258,7 @@ bool home_delta() {
   current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
   feedrate_mm_s = homing_feedrate(X_AXIS);
   line_to_current_position();
-  stepper.synchronize();
+  planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
@@ -267,7 +267,7 @@ bool home_delta() {
 
   // If an endstop was not hit, then damage can occur if homing is continued.
   // This can occur if the delta height not set correctly.
-  if (!(Endstops::endstop_hit_bits & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
+  if (!(endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
     LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_HOMING_FAILED);

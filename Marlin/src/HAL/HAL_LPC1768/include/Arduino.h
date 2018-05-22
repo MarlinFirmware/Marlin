@@ -50,20 +50,17 @@ typedef uint8_t byte;
 #define PSTR(v) (v)
 #define PGM_P const char *
 
+// Used for libraries, preprocessor, and constants
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
+
 #ifndef isnan
   #define isnan std::isnan
 #endif
 #ifndef isinf
   #define isinf std::isinf
 #endif
-
-//not constexpr until c++14
-//#define max(v1, v2) std::max((int)v1,(int)v2)
-//#define min(v1, v2) std::min((int)v1,(int)v2)
-//#define abs(v) std::abs(v)
 
 #define sq(v) ((v) * (v))
 #define square(v) sq(v)
@@ -96,6 +93,7 @@ extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 #define strcpy_P strcpy
 #define snprintf_P snprintf
 #define strlen_P strlen
+#define strchr_P strchr
 
 // Time functions
 extern "C" {

@@ -89,7 +89,7 @@
  */
 
 #ifndef __AVR_ATmega1284P__
-  #error "Oops!  Make sure you have 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' selected from the 'Tools -> Boards' menu."
+  #error "Oops!  Make sure you have 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' selected in the 'Tools -> Boards' menu and ATmega1284P selected in 'Tools -> Processor' menu."
 #endif
 
 #ifndef BOARD_NAME
@@ -177,13 +177,13 @@
     #define BTN_EN2          10
     #define BTN_ENC          16
     #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1 DELAY_0_NOP
+      #define ST7920_DELAY_1 DELAY_NS(0)
     #endif
     #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2 DELAY_1_NOP
+      #define ST7920_DELAY_2 DELAY_NS(63)
     #endif
     #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3 DELAY_2_NOP
+      #define ST7920_DELAY_3 DELAY_NS(125)
     #endif
     #define STD_ENCODER_PULSES_PER_STEP 4
     #define STD_ENCODER_STEPS_PER_MENU_ITEM 1

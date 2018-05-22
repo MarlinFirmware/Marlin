@@ -26,7 +26,9 @@
 
 #include "unwinder.h"
 #include "unwmemaccess.h"
-#include "../Marlin.h"
+
+#include "../../core/serial.h"
+#include <stdarg.h>
 
 // Dump a backtrace entry
 static bool UnwReportOut(void* ctx, const UnwReport* bte) {
@@ -66,7 +68,7 @@ static const UnwindCallbacks UnwCallbacks = {
 void backtrace(void) {
 
   UnwindFrame btf;
-  uint32_t sp,lr,pc;
+  uint32_t sp = 0, lr = 0, pc = 0;
 
   // Capture the values of the registers to perform the traceback
   __asm__ __volatile__ (

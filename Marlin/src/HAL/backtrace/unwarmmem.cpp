@@ -19,7 +19,6 @@
 #include "unwarmmem.h"
 #include "unwarm.h"
 
-
 #define M_IsIdxUsed(a, v) (((a)[v >> 3] & (1 << (v & 0x7))) ? true : false)
 #define M_SetIdxUsed(a, v) ((a)[v >> 3] |= (1 << (v & 0x7)))
 #define M_ClrIdxUsed(a, v) ((a)[v >> 3] &= ~(1 << (v & 0x7)))
@@ -91,9 +90,9 @@ bool UnwMemHashWrite(MemData * const memData, uint32_t addr, uint32_t val, bool 
       M_SetIdxUsed(memData->tracked, i);
     }
     else {
-#if defined(UNW_DEBUG)
-      memData->v[i] = 0xdeadbeef;
-#endif
+      #if defined(UNW_DEBUG)
+        memData->v[i] = 0xDEADBEEF;
+      #endif
       M_ClrIdxUsed(memData->tracked, i);
     }
 
@@ -115,4 +114,5 @@ void UnwMemHashGC(UnwState * const state) {
     }
   }
 }
-#endif
+
+#endif // __arm__ || __thumb__

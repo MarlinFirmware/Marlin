@@ -111,7 +111,7 @@
     || defined(E2_HARDWARE_SERIAL) \
     || defined(E3_HARDWARE_SERIAL) \
     || defined(E4_HARDWARE_SERIAL) )
-  #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+  #error "Select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
 #endif
 
 #endif // _SANITYCHECK_AVR_8_BIT_H_
