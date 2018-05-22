@@ -51,7 +51,6 @@ class Endstops {
   public:
 
     static bool enabled, enabled_globally;
-    static volatile uint8_t endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
     #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
       typedef uint16_t esbits_t;
@@ -65,11 +64,19 @@ class Endstops {
         static float z_endstop_adj;
       #endif
     #else
-      typedef byte esbits_t;
+      typedef uint8_t esbits_t;
     #endif
 
-    static esbits_t current_endstop_bits;
+  private:
+    static esbits_t live_state;
+    static volatile uint8_t hit_state;      // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
+    #if ENABLED(ENDSTOP_NOISE_FILTER)
+      static esbits_t old_live_state,       // Old endstop value for debouncing and denoising
+                      validated_live_state; // The validated (accepted as true) endstop bits
+      static uint8_t endstop_poll_count;    // Countdown from threshold for polling
+    #endif
 
+  public:
     Endstops() {};
 
     /**
@@ -92,6 +99,16 @@ class Endstops {
      * Update the endstops bits from the pins
      */
     static void update();
+
+    /**
+     * Get Endstop hit state.
+     */
+    FORCE_INLINE static uint8_t trigger_state() { return hit_state; }
+
+    /**
+     * Get current endstops state
+     */
+    FORCE_INLINE static esbits_t state() { return live_state; }
 
     /**
      * Print an error message reporting the position when the endstops were last hit.
@@ -126,18 +143,6 @@ class Endstops {
       static bool monitor_flag;
       static void monitor();
       static void run_monitor();
-    #endif
-
-  private:
-
-    #if ENABLED(X_DUAL_ENDSTOPS)
-      static void test_dual_x_endstops(const EndstopEnum es1, const EndstopEnum es2);
-    #endif
-    #if ENABLED(Y_DUAL_ENDSTOPS)
-      static void test_dual_y_endstops(const EndstopEnum es1, const EndstopEnum es2);
-    #endif
-    #if ENABLED(Z_DUAL_ENDSTOPS)
-      static void test_dual_z_endstops(const EndstopEnum es1, const EndstopEnum es2);
     #endif
 };
 

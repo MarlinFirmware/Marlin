@@ -184,12 +184,12 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
   #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                                      \
     if (performing_homing) {                                                                                                                \
       if (A##_HOME_DIR < 0) {                                                                                                               \
-        if (!(TEST(endstops.current_endstop_bits, A##_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
-        if (!(TEST(endstops.current_endstop_bits, A##2_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
+        if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
+        if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
       }                                                                                                                                     \
       else {                                                                                                                                \
-        if (!(TEST(endstops.current_endstop_bits, A##_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
-        if (!(TEST(endstops.current_endstop_bits, A##2_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
+        if (!(TEST(endstops.state(), A##_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
+        if (!(TEST(endstops.state(), A##2_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
       }                                                                                                                                     \
     }                                                                                                                                       \
     else {                                                                                                                                  \
