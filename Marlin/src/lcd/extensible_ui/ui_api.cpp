@@ -34,16 +34,16 @@
 
 #include "ui_api.h"
 
-inline float clamp(float value, float minimum, float maximum) {
-  return max(min(value,maximum),minimum);
-};
+inline float clamp(const float value, const float minimum, const float maximum) {
+  return MAX(MIN(value, maximum), minimum);
+}
 
 namespace Extensible_UI_API {
 
   float getActualTemp_celsius(const uint8_t extruder) {
-    if (extruder) {
+    if (extruder)
       return thermalManager.degHotend(extruder-1);
-    } else
+    else
     #if HAS_HEATED_BED
         return thermalManager.degBed();
     #else
@@ -52,9 +52,9 @@ namespace Extensible_UI_API {
   }
 
   float getTargetTemp_celsius(const uint8_t extruder) {
-    if (extruder) {
+    if (extruder)
       return thermalManager.degTargetHotend(extruder-1);
-    } else
+    else
     #if HAS_HEATED_BED
         return thermalManager.degTargetBed();
     #else
@@ -62,19 +62,17 @@ namespace Extensible_UI_API {
     #endif
   }
 
-  float getFan_percent(const uint8_t fan) {
-   return ((float(fanSpeeds[fan]) + 1) * 100) / 256;
-  }
+  inline float getFan_percent(const uint8_t fan) { return ((float(fanSpeeds[fan]) + 1) * 100) / 256; }
 
   float getAxisPosition_mm(const axis_t axis) {
     switch(axis) {
-      case X:  return current_position[X_AXIS];   break;
-      case Y:  return current_position[Y_AXIS];   break;
-      case Z:  return current_position[Z_AXIS];   break;
-      case E0: return current_position[E_AXIS];   break;
-      case E1: return current_position[E_AXIS+1]; break;
-      case E2: return current_position[E_AXIS+2]; break;
-      case E3: return current_position[E_AXIS+3]; break;
+      case X:  return current_position[X_AXIS];
+      case Y:  return current_position[Y_AXIS];
+      case Z:  return current_position[Z_AXIS];
+      case E0: return current_position[E_AXIS];
+      case E1: return current_position[E_AXIS+1];
+      case E2: return current_position[E_AXIS+2];
+      case E3: return current_position[E_AXIS+3];
       default: return 0;
     }
   }
@@ -97,9 +95,7 @@ namespace Extensible_UI_API {
     feedrate_mm_s = old_feedrate;
   }
 
-  bool isMoving() {
-    return planner.has_blocks_queued();
-  }
+  bool isMoving() { return planner.has_blocks_queued(); }
 
   float getAxisSteps_per_mm(const axis_t axis) {
     switch(axis) {
@@ -207,58 +203,26 @@ namespace Extensible_UI_API {
     }
   }
 
-  float getMinFeedrate_mm_s() {
-    return planner.min_feedrate_mm_s;
-  }
-
-  void setMinFeedrate_mm_s(float max_feedrate_mm_s) {
-    planner.min_feedrate_mm_s = max_feedrate_mm_s;
-  }
-
-  float getMinTravelFeedrate_mm_s() {
-    return planner.min_travel_feedrate_mm_s;
-  }
-
-  void setMinTravelFeedrate_mm_s(float min_travel_feedrate_mm_s) {
-    planner.min_travel_feedrate_mm_s = min_travel_feedrate_mm_s;
-  }
-
-  float getPrintingAcceleration_mm_s2() {
-    return planner.acceleration;
-  }
-
-  float getRetractAcceleration_mm_s2() {
-    return planner.retract_acceleration;
-  }
-
-  float getTravelAcceleration_mm_s2() {
-    return planner.travel_acceleration;
-  }
-
-  void setPrintingAcceleration_mm_per_s2(float acceleration) {
-    return planner.acceleration;
-  }
-
-  void setRetractAcceleration_mm_s2(float retract_acceleration) {
-    return planner.retract_acceleration;
-  }
-
-  void setTravelAcceleration_mm_s2(float travel_acceleration) {
-    return planner.travel_acceleration;
-  }
+  float getMinFeedrate_mm_s()                       { return planner.min_feedrate_mm_s; }
+  float getMinTravelFeedrate_mm_s()                 { return planner.min_travel_feedrate_mm_s; }
+  float getPrintingAcceleration_mm_s2()             { return planner.acceleration; }
+  float getRetractAcceleration_mm_s2()              { return planner.retract_acceleration; }
+  float getTravelAcceleration_mm_s2()               { return planner.travel_acceleration; }
+  void setMinFeedrate_mm_s(float fr)                { planner.min_feedrate_mm_s = fr; }
+  void setMinTravelFeedrate_mm_s(float fr)          { planner.min_travel_feedrate_mm_s = fr; }
+  void setPrintingAcceleration_mm_per_s2(float acc) { planner.acceleration = acc; }
+  void setRetractAcceleration_mm_s2(float acc)      { planner.retract_acceleration = acc; }
+  void setTravelAcceleration_mm_s2(float acc)       { planner.travel_acceleration = acc; }
 
   #if HAS_BED_PROBE
-    float getZOffset_mm() {
-      return zprobe_zoffset;
-    }
+    float getZOffset_mm()                           { return zprobe_zoffset; }
 
     void incrementZOffset_mm(float babystep_increment) {
       const float new_zoffset = zprobe_zoffset + babystep_increment;
       if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-          if (planner.leveling_active) {
+          if (planner.leveling_active)
             thermalManager.babystep_axis(Z_AXIS, babystep_increment);
-          }
         #endif
         zprobe_zoffset = new_zoffset;
       }
@@ -288,9 +252,9 @@ namespace Extensible_UI_API {
 
   bool isAxisPositionKnown(const axis_t axis) {
     switch(axis) {
-      case X:  return axis_known_position[X_AXIS];  break;
-      case Y:  return axis_known_position[Y_AXIS];  break;
-      case Z:  return axis_known_position[Z_AXIS];  break;
+      case X:  return axis_known_position[X_AXIS];
+      case Y:  return axis_known_position[Y_AXIS];
+      case Z:  return axis_known_position[Z_AXIS];
       default: return true;
     }
   }
@@ -300,20 +264,17 @@ namespace Extensible_UI_API {
   }
 
   void setTargetTemp_celsius(const uint8_t extruder, float temp) {
-    if (extruder) {
+    if (extruder)
       thermalManager.setTargetHotend(clamp(temp,0,500), extruder-1);
-    }
     #if HAS_HEATED_BED
-      else {
+      else
         thermalManager.setTargetBed(clamp(temp,0,200));
-      }
     #endif
   }
 
   void setFan_percent(const uint8_t fan, float percent) {
-    if (fan < FAN_COUNT) {
+    if (fan < FAN_COUNT)
       fanSpeeds[fan] = clamp(round(percent * 255 / 100), 0, 255);
-    }
   }
 
   void setFeedrate_percent(const float percent) {
@@ -421,7 +382,7 @@ namespace Extensible_UI_API {
   Media_Iterator::Media_Iterator(uint16_t start_index /* = 0*/) {
     #if ENABLED(SDSUPPORT)
       num_files = card.get_num_Files();
-      index     = min(start_index, num_files-1);
+      index     = MIN(start_index, num_files-1);
       seek(index);
     #endif
   }
@@ -500,8 +461,6 @@ void lcd_init() {
   Extensible_UI_API::onStartup();
 }
 
-void lcd_refresh() {}
-
 void lcd_update()                                                                {
   #if ENABLED(SDSUPPORT)
     static bool last_sd_status;
@@ -524,6 +483,7 @@ void lcd_update()                                                               
 bool lcd_hasstatus()                                                             { return true; }
 bool lcd_detected()                                                              { return true; }
 void lcd_reset_alert_level()                                                     {}
+void lcd_refresh()                                                               {}
 void lcd_setstatus(const char * const message, const bool persist /* = false */) { Extensible_UI_API::onStatusChanged(message); }
 void lcd_setstatusPGM(const char * const message, int8_t level /* = 0 */)        { Extensible_UI_API::onStatusChanged((progmem_str)message); }
 void lcd_reset_status()                                                          {}
@@ -538,4 +498,4 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   Extensible_UI_API::onStatusChanged(buff);
 }
 
-#endif // Extensible_UI_API
+#endif // EXTENSIBLE_UI

@@ -19,7 +19,7 @@
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EXTENSIBLE_UI)
 
@@ -31,7 +31,6 @@
 
 namespace Extensible_UI_API {
   void onStartup() {}
-  void onIdle() {}
   void onUpdate() {}
   void onPrinterKilled(const char* lcd_msg) {}
   void onMediaInserted() {}
