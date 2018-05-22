@@ -1776,6 +1776,15 @@
 //
 //#define SILVER_GATE_GLCD_CONTROLLER
 
+//
+// Extensible UI
+//
+// Enable third-party or vendor customized user interfaces that aren't
+// packaged with Marlin. Source code for the user interface will need to
+// be placed in "src/extensible-ui/lib"
+//
+//#define EXTENSIBLE_UI
+
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
