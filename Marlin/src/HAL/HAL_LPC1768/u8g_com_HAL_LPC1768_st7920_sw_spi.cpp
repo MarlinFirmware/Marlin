@@ -59,7 +59,10 @@
 
 #if ENABLED(DOGLCD)
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
 #include <U8glib.h>
+#pragma GCC diagnostic pop
 #include "SoftwareSPI.h"
 #include "../Delay.h"
 

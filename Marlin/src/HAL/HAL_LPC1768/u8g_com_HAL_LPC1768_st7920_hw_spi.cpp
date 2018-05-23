@@ -60,7 +60,10 @@
 #if ENABLED(DOGLCD)
 
 //#include <inttypes.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
 #include <U8glib.h>
+#pragma GCC diagnostic pop
 #include "../Delay.h"
 
 #define SPI_FULL_SPEED 0
