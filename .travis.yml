@@ -22,6 +22,7 @@ env:
   - TEST_PLATFORM="LPC1769"
   - TEST_PLATFORM="STM32F1"
   - TEST_PLATFORM="teensy35"
+  - TEST_PLATFORM="linux_x86_64"
 
 before_install:
   #
