@@ -5497,11 +5497,9 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         #if BUTTON_EXISTS(EN1)
           if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
         #endif
-
         #if BUTTON_EXISTS(EN2)
           if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
         #endif
-
         #if BUTTON_EXISTS(ENC)
           if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
         #endif
