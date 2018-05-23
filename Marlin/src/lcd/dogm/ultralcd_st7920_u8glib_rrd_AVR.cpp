@@ -42,7 +42,10 @@
 #define LCD_PIXEL_WIDTH 128
 #define LCD_PIXEL_HEIGHT 64
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
 #include <U8glib.h>
+#pragma GCC diagnostic pop
 
 //set optimization so ARDUINO optimizes this file
 #pragma GCC optimize (3)
