@@ -33,30 +33,25 @@
  * License: http://opensource.org/licenses/BSD-3-Clause
  */
 
+/**
+ * Implementation of the LCD display routines for a DOGM128 graphic display.
+ * These are common LCD 128x64 pixel graphic displays.
+ */
+
 #ifndef ULTRALCD_IMPL_DOGM_H
 #define ULTRALCD_IMPL_DOGM_H
 
 #include "MarlinConfig.h"
 
-/**
- * Implementation of the LCD display routines for a DOGM128 graphic display.
- * These are common LCD 128x64 pixel graphic displays.
- */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#include <U8glib.h>
+#pragma GCC diagnostic pop
+
 #include "ultralcd.h"
-
-#if ENABLED(U8GLIB_ST7920)
-  #include "ultralcd_st7920_u8glib_rrd.h"
-#endif
-
-#if ENABLED(U8GLIB_ST7565_64128N)
-  #include "ultralcd_st7565_u8glib_VIKI.h"
-#endif
-
 #include "dogm_bitmaps.h"
 #include "utility.h"
 #include "duration_t.h"
-
-#include <U8glib.h>
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl.h"
@@ -66,6 +61,14 @@
 #if DISABLED(DISPLAY_CHARSET_ISO10646_1)
   #undef USE_BIG_EDIT_FONT
   #undef USE_SMALL_INFOFONT
+#endif
+
+#if ENABLED(U8GLIB_ST7920)
+  #include "ultralcd_st7920_u8glib_rrd.h"
+#endif
+
+#if ENABLED(U8GLIB_ST7565_64128N)
+  #include "ultralcd_st7565_u8glib_VIKI.h"
 #endif
 
 #if ENABLED(USE_SMALL_INFOFONT)
