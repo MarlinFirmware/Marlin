@@ -94,7 +94,10 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
 
 #if ENABLED(DOGLCD)
   #include "ultralcd_impl_DOGM.h"
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wuninitialized"
   #include <U8glib.h>
+  #pragma GCC diagnostic pop
   bool drawing_screen, // = false
        first_page;
 #else
