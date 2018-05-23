@@ -127,13 +127,15 @@ void do_print_job_recovery() {
           #endif
         ));
 
+        char str_1[16], str_2[16];
+
         #if HAS_LEVELING
           // Restore leveling state before G92 sets Z
           // This ensures the steppers correspond to the native Z
-          sprintf_P(job_recovery_commands[ind++], PSTR("M420 S%i Z%s"), int(job_recovery_info.leveling), job_recovery_info.fade);
+          dtostrf(job_recovery_info.fade, 1, 1, str_1);
+          sprintf_P(job_recovery_commands[ind++], PSTR("M420 S%i Z%s"), int(job_recovery_info.leveling), str_1);
         #endif
 
-        char str_1[16], str_2[16];
         dtostrf(job_recovery_info.current_position[Z_AXIS] + 2, 1, 3, str_1);
         dtostrf(job_recovery_info.current_position[E_AXIS]
           #if ENABLED(SAVE_EACH_CMD_MODE)
