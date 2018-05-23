@@ -11,7 +11,10 @@
 
 #if ENABLED(DOGLCD)
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
 #include <U8glib.h>
+#pragma GCC diagnostic pop
 extern U8GLIB *pu8g;
 #define _lcd_write(a) pu8g->print(a)
 #define _lcd_setcursor(col, row) pu8g->setPrintPos((col), (row));

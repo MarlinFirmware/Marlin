@@ -37,9 +37,9 @@
 #endif
 
 #if HAS_BED_PROBE
-  #define ENDSTOPS_ENABLED  (endstops.enabled || endstops.z_probe_enabled)
+  #define ENDSTOPS_ENABLED  (enabled || z_probe_enabled)
 #else
-  #define ENDSTOPS_ENABLED  endstops.enabled
+  #define ENDSTOPS_ENABLED  enabled
 #endif
 
 Endstops endstops;
@@ -223,17 +223,17 @@ void Endstops::init() {
 } // Endstops::init
 
 // Called from ISR. A change was detected. Find out what happened!
-void Endstops::check_possible_change() { if (ENDSTOPS_ENABLED) endstops.update(); }
+void Endstops::check_possible_change() { if (ENDSTOPS_ENABLED) update(); }
 
 // Called from ISR: Poll endstop state if required
 void Endstops::poll() {
 
   #if ENABLED(PINS_DEBUGGING)
-    endstops.run_monitor();  // report changes in endstop status
+    run_monitor();  // report changes in endstop status
   #endif
 
   #if DISABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(ENDSTOP_NOISE_FILTER)
-    if (ENDSTOPS_ENABLED) endstops.update();
+    if (ENDSTOPS_ENABLED) update();
   #endif
 }
 
@@ -241,7 +241,7 @@ void Endstops::enable_globally(const bool onoff) {
   enabled_globally = enabled = onoff;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (onoff) endstops.update(); // If enabling, update state now
+    if (onoff) update(); // If enabling, update state now
   #endif
 }
 
@@ -250,17 +250,16 @@ void Endstops::enable(const bool onoff) {
   enabled = onoff;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (onoff) endstops.update(); // If enabling, update state now
+    if (onoff) update(); // If enabling, update state now
   #endif
 }
-
 
 // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
 void Endstops::not_homing() {
   enabled = enabled_globally;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (enabled) endstops.update(); // If enabling, update state now
+    if (enabled) update(); // If enabling, update state now
   #endif
 }
 
@@ -269,7 +268,7 @@ void Endstops::hit_on_purpose() {
   hit_state = 0;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (enabled) endstops.update(); // If enabling, update state now
+    if (enabled) update(); // If enabling, update state now
   #endif
 }
 
@@ -279,7 +278,7 @@ void Endstops::hit_on_purpose() {
     z_probe_enabled = onoff;
 
     #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-      if (enabled) endstops.update(); // If enabling, update state now
+      if (enabled) update(); // If enabling, update state now
     #endif
   }
 #endif
@@ -417,75 +416,6 @@ void Endstops::update() {
     if (G38_move) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
   #endif
 
-  /**
-   * Define conditions for checking endstops
-   */
-
-  #if IS_CORE
-    #define S_(N) stepper.movement_non_null(CORE_AXIS_##N)
-    #define D_(N) stepper.motor_direction(CORE_AXIS_##N)
-  #endif
-
-  #if CORE_IS_XY || CORE_IS_XZ
-    /**
-     * Head direction in -X axis for CoreXY and CoreXZ bots.
-     *
-     * If steps differ, both axes are moving.
-     * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
-     * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
-     */
-    #if ENABLED(COREXY) || ENABLED(COREXZ)
-      #define X_CMP ==
-    #else
-      #define X_CMP !=
-    #endif
-    #define X_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) X_CMP D_(2)) )
-    #define X_AXIS_HEAD X_HEAD
-  #else
-    #define X_MOVE_TEST stepper.movement_non_null(X_AXIS)
-    #define X_AXIS_HEAD X_AXIS
-  #endif
-
-  #if CORE_IS_XY || CORE_IS_YZ
-    /**
-     * Head direction in -Y axis for CoreXY / CoreYZ bots.
-     *
-     * If steps differ, both axes are moving
-     * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
-     * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
-     */
-    #if ENABLED(COREYX) || ENABLED(COREYZ)
-      #define Y_CMP ==
-    #else
-      #define Y_CMP !=
-    #endif
-    #define Y_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Y_CMP D_(2)) )
-    #define Y_AXIS_HEAD Y_HEAD
-  #else
-    #define Y_MOVE_TEST stepper.movement_non_null(Y_AXIS)
-    #define Y_AXIS_HEAD Y_AXIS
-  #endif
-
-  #if CORE_IS_XZ || CORE_IS_YZ
-    /**
-     * Head direction in -Z axis for CoreXZ or CoreYZ bots.
-     *
-     * If steps differ, both axes are moving
-     * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
-     * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
-     */
-    #if ENABLED(COREZX) || ENABLED(COREZY)
-      #define Z_CMP ==
-    #else
-      #define Z_CMP !=
-    #endif
-    #define Z_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Z_CMP D_(2)) )
-    #define Z_AXIS_HEAD Z_HEAD
-  #else
-    #define Z_MOVE_TEST stepper.movement_non_null(Z_AXIS)
-    #define Z_AXIS_HEAD Z_AXIS
-  #endif
-
   // With Dual X, endstops are only checked in the homing direction for the active extruder
   #if ENABLED(DUAL_X_CARRIAGE)
     #define E0_ACTIVE stepper.movement_extruder() == 0
@@ -496,10 +426,27 @@ void Endstops::update() {
     #define X_MAX_TEST true
   #endif
 
+  // Use HEAD for core axes, AXIS for others
+  #if CORE_IS_XY || CORE_IS_XZ
+    #define X_AXIS_HEAD X_HEAD
+  #else
+    #define X_AXIS_HEAD X_AXIS
+  #endif
+  #if CORE_IS_XY || CORE_IS_YZ
+    #define Y_AXIS_HEAD Y_HEAD
+  #else
+    #define Y_AXIS_HEAD Y_AXIS
+  #endif
+  #if CORE_IS_XZ || CORE_IS_YZ
+    #define Z_AXIS_HEAD Z_HEAD
+  #else
+    #define Z_AXIS_HEAD Z_AXIS
+  #endif
+
   /**
    * Check and update endstops according to conditions
    */
-  if (X_MOVE_TEST) {
+  if (stepper.axis_is_moving(X_AXIS)) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN
         #if ENABLED(X_DUAL_ENDSTOPS)
@@ -530,7 +477,7 @@ void Endstops::update() {
     }
   }
 
-  if (Y_MOVE_TEST) {
+  if (stepper.axis_is_moving(Y_AXIS)) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
       #if HAS_Y_MIN
         #if ENABLED(Y_DUAL_ENDSTOPS)
@@ -561,7 +508,7 @@ void Endstops::update() {
     }
   }
 
-  if (Z_MOVE_TEST) {
+  if (stepper.axis_is_moving(Z_AXIS)) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
       #if HAS_Z_MIN
         #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -582,9 +529,7 @@ void Endstops::update() {
 
       // When closing the gap check the enabled probe
       #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        if (z_probe_enabled) {
-          UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
-        }
+        if (z_probe_enabled) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
       #endif
     }
     else { // Z +direction. Gantry up, bed down.
@@ -660,16 +605,16 @@ void Endstops::update() {
     // If G38 command is active check Z_MIN_PROBE for ALL movement
     if (G38_move) {
       if (TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE))) {
-        if      (stepper.movement_non_null(_AXIS(X))) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(_AXIS(X)); }
-        else if (stepper.movement_non_null(_AXIS(Y))) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(_AXIS(Y)); }
-        else if (stepper.movement_non_null(_AXIS(Z))) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(_AXIS(Z)); }
+        if      (stepper.axis_is_moving(_AXIS(X))) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(_AXIS(X)); }
+        else if (stepper.axis_is_moving(_AXIS(Y))) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(_AXIS(Y)); }
+        else if (stepper.axis_is_moving(_AXIS(Z))) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(_AXIS(Z)); }
         G38_endstop_hit = true;
       }
     }
   #endif
 
   // Now, we must signal, after validation, if an endstop limit is pressed or not
-  if (X_MOVE_TEST) {
+  if (stepper.axis_is_moving(X_AXIS)) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN
         #if ENABLED(X_DUAL_ENDSTOPS)
@@ -690,7 +635,7 @@ void Endstops::update() {
     }
   }
 
-  if (Y_MOVE_TEST) {
+  if (stepper.axis_is_moving(Y_AXIS)) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
       #if HAS_Y_MIN
         #if ENABLED(Y_DUAL_ENDSTOPS)
@@ -711,7 +656,7 @@ void Endstops::update() {
     }
   }
 
-  if (Z_MOVE_TEST) {
+  if (stepper.axis_is_moving(Z_AXIS)) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
       #if HAS_Z_MIN
         #if ENABLED(Z_DUAL_ENDSTOPS)
