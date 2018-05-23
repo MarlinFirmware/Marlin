@@ -17,6 +17,8 @@
   #define HAL_PLATFORM HAL_STM32F4
 #elif defined(STM32F7)
   #define HAL_PLATFORM HAL_STM32F7
+#elif defined(__PLAT_X86_64__)
+  #define HAL_PLATFORM HAL_X86_64
 #else
   #error "Unsupported Platform!"
 #endif

@@ -380,6 +380,12 @@
 
 #elif MB(THE_BORG)
   #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7
+  
+//
+//  X86 Native Debug board
+//
+#elif MB(LINUX_X86_64)
+  #include "pins_RAMPS_X86.h"         // x86 Debug Build
 
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
