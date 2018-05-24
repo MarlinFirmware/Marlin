@@ -1534,7 +1534,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #if IS_CORE
         // Define conditions for checking endstops
         #define S_(N) current_block->steps[CORE_AXIS_##N]
-        #define D_(N) motor_direction(CORE_AXIS_##N)
+        #define D_(N) TEST(current_block->direction_bits, CORE_AXIS_##N)
       #endif
 
       #if CORE_IS_XY || CORE_IS_XZ
