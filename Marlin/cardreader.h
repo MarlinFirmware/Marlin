@@ -32,8 +32,6 @@
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
 #include "SdFile.h"
-#include "types.h"
-#include "enum.h"
 
 class CardReader {
 public:
@@ -45,8 +43,8 @@ public:
   void beginautostart();
   void checkautostart();
 
-  void openFile(char* name, const bool read, const bool subcall=false);
-  void openLogFile(char* name);
+  void openFile(char * const path, const bool read, const bool subcall=false);
+  void openLogFile(char * const path);
   void removeFile(const char * const name);
   void closefile(const bool store_location=false);
   void release();
@@ -74,6 +72,8 @@ public:
   void chdir(const char *relpath);
   int8_t updir();
   void setroot();
+
+  const char* diveToFile(SdFile*& curDir, const char * const path, const bool echo);
 
   uint16_t get_num_Files();
 
@@ -114,12 +114,12 @@ public:
     }
   #endif
 
+public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   int autostart_index;
-
 private:
-  SdFile root, *curDir, workDir, workDirParents[MAX_DIR_DEPTH];
+  SdFile root, workDir, workDirParents[MAX_DIR_DEPTH];
   uint8_t workDirDepth;
 
   // Sort files and folders alphabetically.
@@ -172,7 +172,7 @@ private:
 
   #endif // SDCARD_SORT_ALPHA
 
-  Sd2Card card;
+  Sd2Card sd2card;
   SdVolume volume;
   SdFile file;
 
