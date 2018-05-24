@@ -190,24 +190,6 @@ class SdVolume {
   }
   bool readBlock(uint32_t block, uint8_t* dst) { return sdCard_->readBlock(block, dst); }
   bool writeBlock(uint32_t block, const uint8_t* dst) { return sdCard_->writeBlock(block, dst); }
-
-  // Deprecated functions
-  #if ALLOW_DEPRECATED_FUNCTIONS
-    public:
-      /**
-       * \deprecated Use: bool SdVolume::init(Sd2Card* dev);
-       * \param[in] dev The SD card where the volume is located.
-       * \return true for success or false for failure.
-       */
-      bool init(Sd2Card& dev) { return init(&dev); }
-      /**
-       * \deprecated Use: bool SdVolume::init(Sd2Card* dev, uint8_t vol);
-       * \param[in] dev The SD card where the volume is located.
-       * \param[in] part The partition to be used.
-       * \return true for success or false for failure.
-       */
-      bool init(Sd2Card& dev, uint8_t part) { return init(&dev, part); }
-  #endif  // ALLOW_DEPRECATED_FUNCTIONS
 };
 
 #endif // _SDVOLUME_H_
