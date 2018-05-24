@@ -58,10 +58,7 @@
   #include "../libs/duration_t.h"
 #endif
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized"
 #include <U8glib.h>
-#pragma GCC diagnostic pop
 
 #include "fontutils.h"
 #include "u8g_fontutf8.h"

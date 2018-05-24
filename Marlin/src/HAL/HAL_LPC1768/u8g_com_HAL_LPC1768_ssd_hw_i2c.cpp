@@ -81,10 +81,7 @@
 
 #if ENABLED(DOGLCD)
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized"
 #include <U8glib.h>
-#pragma GCC diagnostic pop
 
 #define I2C_SLA         (0x3C*2)
 //#define I2C_CMD_MODE  0x080

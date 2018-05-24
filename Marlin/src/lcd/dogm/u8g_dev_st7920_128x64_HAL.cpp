@@ -57,10 +57,7 @@
 
 #if ENABLED(DOGLCD)
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized"
 #include <U8glib.h>
-#pragma GCC diagnostic pop
 
 #include "HAL_LCD_com_defines.h"
 
