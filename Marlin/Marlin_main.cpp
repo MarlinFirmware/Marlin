@@ -14500,15 +14500,14 @@ void loop() {
           card.closefile();
           SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
 
-          #if !(defined(__AVR__) && defined(USBCON))
+          #if USE_MARLINSERIAL
             #if ENABLED(SERIAL_STATS_DROPPED_RX)
               SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
             #endif
-
             #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
               SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
             #endif
-          #endif // !(__AVR__ && USBCON)
+          #endif
 
           ok_to_send();
         }
