@@ -307,7 +307,7 @@
 /**
  * Serial
  */
-#if !(defined(__AVR__) && defined(USBCON))
+#if USE_MARLINSERIAL
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
     #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
   #elif RX_BUFFER_SIZE && (RX_BUFFER_SIZE < 2 || !IS_POWER_OF_2(RX_BUFFER_SIZE))
@@ -1274,7 +1274,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * emergency-command parser
  */
-#if ENABLED(EMERGENCY_PARSER) && defined(__AVR__) && defined(USBCON)
+#if ENABLED(EMERGENCY_PARSER) && !USE_MARLINSERIAL
   #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
 #endif
 
