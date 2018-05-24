@@ -53,9 +53,6 @@ void HAL_adc_init(void) {
 
 }
 
-// externals need to make the call to KILL compile
-#include "../../core/language.h"
-
 
 void HAL_adc_enable_channel(int ch) {
 
@@ -74,7 +71,6 @@ uint16_t HAL_adc_get_result(void) {
   pin_t pin = analogInputToDigitalPin(active_ch);
   if(!VALID_PIN(pin)) return 0;
   uint16_t data = ((Gpio::get(pin) >> 2) & 0x3FF);
- // SERIAL_PRINTF("adc: %d\n", data);
   return data;    // return 10bit value as Marlin expects
 }
 

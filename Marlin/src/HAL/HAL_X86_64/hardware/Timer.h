@@ -54,7 +54,7 @@ private:
   callback_fn* cbfn;
   std::chrono::nanoseconds period;
   std::chrono::nanoseconds avg_error;
-  std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::nanoseconds > start_time;
+  std::chrono::high_resolution_clock::time_point start_time;
 };
 
 #endif /* _HARDWARE_TIMER_H_ */

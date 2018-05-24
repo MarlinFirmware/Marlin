@@ -34,14 +34,6 @@
  *
  */
 
-uint64_t native_ticks(uint32_t frequency) {
-  auto now = std::chrono::high_resolution_clock::now();
-  auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
-  auto value = now_ns.time_since_epoch();
-  static auto startup_value = value;
-  return (value.count() - startup_value.count()) / (1000000000ULL / frequency);
-}
-
 HAL_STEP_TIMER_ISR;
 HAL_TEMP_TIMER_ISR;
 

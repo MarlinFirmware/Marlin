@@ -31,7 +31,7 @@ void Heater::update() {
   }
 }
 
-void Heater::interrupt(GpioEvent ev, pin_type pin) {
+void Heater::interrupt(GpioEvent ev) {
   // ununsed
 }
 

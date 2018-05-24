@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include "../../inc/MarlinConfig.h"
+#include "hardware/Clock.h"
 #include "../Delay.h"
 
 // Interrupts
@@ -35,16 +36,8 @@ void _delay_ms(const int delay_ms) {
   delay(delay_ms);
 }
 
-uint64_t native_millis() {
-  auto now = std::chrono::high_resolution_clock::now();
-  auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-  auto value = now_ms.time_since_epoch();
-  return value.count();
-}
-
 uint32_t millis() {
-  static uint32_t startup_millis = native_millis();
-  return (native_millis() - startup_millis);
+  return (uint32_t)Clock::millis();
 }
 
 // This is required for some Arduino libraries we are using

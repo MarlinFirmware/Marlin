@@ -55,8 +55,8 @@ uint8_t _getc();
 //arduino: binary.h (weird defines)
 #define B01 1
 #define B10 2
-#include <chrono>
-#include <thread>
+
+#include "hardware/Clock.h"
 
 #include <Arduino.h>
 
@@ -102,7 +102,7 @@ uint16_t HAL_adc_get_result(void);
 
 /* ---------------- Delay in cycles */
 FORCE_INLINE static void DELAY_CYCLES(uint64_t x) {
-  std::this_thread::sleep_for(std::chrono::nanoseconds( (1000000000L / F_CPU) * x) ); //cycles are relative to fake F_CPU, convet to nanos
+  Clock::delayCycles(x);
 }
 
 #endif // _HAL_X86_H_

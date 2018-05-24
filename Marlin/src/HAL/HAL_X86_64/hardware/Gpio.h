@@ -1,24 +1,42 @@
 #ifndef _HARDWARE_GPIO_H_
 #define _HARDWARE_GPIO_H_
 
+#include "Clock.h"
 #include "../../../inc/MarlinConfigPre.h"
 #include <stdint.h>
 
 typedef int16_t pin_type;
 
-enum class GpioEvent{
-  NOP,
-  FALL,
-  RISE,
-  SET_VALUE,
-  SETM,
-  SETD
+struct GpioEvent {
+  enum Type {
+    NOP,
+    FALL,
+    RISE,
+    SET_VALUE,
+    SETM,
+    SETD
+  };
+  uint64_t timestamp;
+  pin_type pin_id;
+  GpioEvent::Type event;
+
+  GpioEvent(uint64_t timestamp, pin_type pin_id, GpioEvent::Type event){
+    this->timestamp = timestamp;
+    this->pin_id = pin_id;
+    this->event = event;
+  }
+};
+
+class IOLogger {
+public:
+  virtual ~IOLogger(){};
+  virtual void log(GpioEvent ev) = 0;
 };
 
 class Peripheral {
 public:
   virtual ~Peripheral(){};
-  virtual void interrupt(GpioEvent ev, pin_type pin) = 0;
+  virtual void interrupt(GpioEvent ev) = 0;
   virtual void update() = 0;
 };
 
@@ -45,11 +63,13 @@ public:
 
   static void set(pin_type pin, uint16_t value) {
     if(!valid_pin(pin)) return;
-    GpioEvent evt = value > 1 ? GpioEvent::SET_VALUE : value > pin_map[pin].value ? GpioEvent::RISE : value < pin_map[pin].value ? GpioEvent::FALL : GpioEvent::NOP;
+    GpioEvent::Type evt_type = value > 1 ? GpioEvent::SET_VALUE : value > pin_map[pin].value ? GpioEvent::RISE : value < pin_map[pin].value ? GpioEvent::FALL : GpioEvent::NOP;
     pin_map[pin].value = value;
+    GpioEvent evt(Clock::nanos(), pin, evt_type);
     if(pin_map[pin].cb != nullptr) {
-      pin_map[pin].cb->interrupt(evt, pin);
+      pin_map[pin].cb->interrupt(evt);
     }
+    if(Gpio::logger != nullptr) Gpio::logger->log(evt);
   }
 
   static uint16_t get(pin_type pin) {
@@ -64,7 +84,9 @@ public:
   static void setMode(pin_type pin, uint8_t value) {
     if(!valid_pin(pin)) return;
     pin_map[pin].mode = value;
-    if(pin_map[pin].cb != nullptr) pin_map[pin].cb->interrupt(GpioEvent::SETM, pin);
+    GpioEvent evt(Clock::nanos(), pin, GpioEvent::Type::SETM);
+    if(pin_map[pin].cb != nullptr) pin_map[pin].cb->interrupt(evt);
+    if(Gpio::logger != nullptr) Gpio::logger->log(evt);
   }
 
   static uint8_t getMode(pin_type pin) {
@@ -75,7 +97,9 @@ public:
   static void setDir(pin_type pin, uint8_t value) {
     if(!valid_pin(pin)) return;
     pin_map[pin].dir = value;
-    if(pin_map[pin].cb != nullptr) pin_map[pin].cb->interrupt(GpioEvent::SETD, pin);
+    GpioEvent evt(Clock::nanos(), pin, GpioEvent::Type::SETD);
+    if(pin_map[pin].cb != nullptr) pin_map[pin].cb->interrupt(evt);
+    if(Gpio::logger != nullptr) Gpio::logger->log(evt);
   }
 
   static uint8_t getDir(pin_type pin) {
@@ -88,6 +112,12 @@ public:
     pin_map[pin].cb = per;
   }
 
+  static void attachLogger(IOLogger* logger) {
+    Gpio::logger = logger;
+  }
+
+private:
+  static IOLogger* logger;
 };
 
 #endif /* _HARDWARE_GPIO_H_ */
