@@ -1589,7 +1589,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #endif
         #define X_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) X_CMP D_(2)) )
       #else
-        #define X_MOVE_TEST !!current_block->steps[X_AXIS]
+        #define X_MOVE_TEST !!current_block->steps[A_AXIS]
       #endif
 
       #if CORE_IS_XY || CORE_IS_YZ
@@ -1607,7 +1607,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #endif
         #define Y_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Y_CMP D_(2)) )
       #else
-        #define Y_MOVE_TEST !!current_block->steps[Y_AXIS]
+        #define Y_MOVE_TEST !!current_block->steps[B_AXIS]
       #endif
 
       #if CORE_IS_XZ || CORE_IS_YZ
@@ -1625,16 +1625,16 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #endif
         #define Z_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Z_CMP D_(2)) )
       #else
-        #define Z_MOVE_TEST !!current_block->steps[Z_AXIS]
+        #define Z_MOVE_TEST !!current_block->steps[C_AXIS]
       #endif
 
-      SET_BIT(axis_did_move, X_AXIS, X_MOVE_TEST);
-      SET_BIT(axis_did_move, Y_AXIS, Y_MOVE_TEST);
-      SET_BIT(axis_did_move, Z_AXIS, Z_MOVE_TEST);
-      SET_BIT(axis_did_move, E_AXIS, !!current_block->steps[E_AXIS]);
-      SET_BIT(axis_did_move, X_HEAD, !!current_block->steps[X_HEAD]);
-      SET_BIT(axis_did_move, Y_HEAD, !!current_block->steps[Y_HEAD]);
-      SET_BIT(axis_did_move, Z_HEAD, !!current_block->steps[Z_HEAD]);
+      SET_BIT_TO(axis_did_move, X_AXIS, X_MOVE_TEST);
+      SET_BIT_TO(axis_did_move, Y_AXIS, Y_MOVE_TEST);
+      SET_BIT_TO(axis_did_move, Z_AXIS, Z_MOVE_TEST);
+      //SET_BIT_TO(axis_did_move, E_AXIS, !!current_block->steps[E_AXIS]);
+      //SET_BIT_TO(axis_did_move, X_HEAD, !!current_block->steps[A_AXIS]);
+      //SET_BIT_TO(axis_did_move, Y_HEAD, !!current_block->steps[B_AXIS]);
+      //SET_BIT_TO(axis_did_move, Z_HEAD, !!current_block->steps[C_AXIS]);
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
