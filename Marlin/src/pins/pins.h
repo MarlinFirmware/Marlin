@@ -363,7 +363,8 @@
   #include "pins_MALYAN_M200.h"       // STM32F1                                    env:malyanm200
 #elif MB(CHITU3D)
   #include "pins_CHITU3D.h"           // STM32F1                                    env:STM32F1
-  
+#elif MB(GTM32_VB)
+  #include "pins_GTM32_VB.h"           // STM32F1                                    env:STM32F1  
 //
 // STM32 ARM Cortex-M4F
 //  

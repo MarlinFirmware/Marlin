@@ -97,9 +97,9 @@
 // Fans
 //
 #define FAN_PIN            -1    // (Sprinter config)
-#define FAN0_PIN            PB7  // ToDo: Add functionality
-#define FAN1_PIN            PB8  // ToDo: Add functionality
-#define FAN2_PIN            PB9  // ToDo: Add functionality
+#define FAN0_PIN           PB7  // ToDo: Add functionality
+#define FAN1_PIN           PB8  // ToDo: Add functionality
+#define FAN2_PIN           PB9  // ToDo: Add functionality
 
 //
 // Temperature Sensors
@@ -166,22 +166,36 @@
 //
 // Debug
 //
+#define SDA 				-1
+#define SCL 				-1
 
 //
 // Wifi
 //
+#define ES 					-1
+#define WIFI_LED 			-1
+#define USART2_RX 			-1
+#define USART2_TX 			-1
+#define RST_W 				-1
 
 //
 // Boot
 //
+#define RTS 				-1
+#define BOOT0 				-1
 
 //
 // Beep
 //
+#define BEEP 				-1
 
 //
 // SPI Flash
 //
+#define SPI1_NSS 			-1
+#define SPI1_MISO			-1
+#define SPI1_SCK			-1
+#define SPI1_MOSI			-1
 
 //
 // Onboard mSD Card Socket
