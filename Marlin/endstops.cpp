@@ -379,9 +379,9 @@ void Endstops::M119() {
 void Endstops::update() {
 
   // UPDATE_ENDSTOP_BIT: set the current endstop bits for an endstop to its status
-  #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT(live_state, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
+  #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
   // COPY_BIT: copy the value of SRC_BIT to DST_BIT in DST
-  #define COPY_BIT(DST, SRC_BIT, DST_BIT) SET_BIT(DST, DST_BIT, TEST(DST, SRC_BIT))
+  #define COPY_BIT(DST, SRC_BIT, DST_BIT) SET_BIT_TO(DST, DST_BIT, TEST(DST, SRC_BIT))
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     // If G38 command is active check Z_MIN_PROBE for ALL movement
@@ -577,9 +577,9 @@ void Endstops::update() {
     // If G38 command is active check Z_MIN_PROBE for ALL movement
     if (G38_move) {
       if (TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE))) {
-        if      (stepper.axis_is_moving(_AXIS(X))) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(_AXIS(X)); }
-        else if (stepper.axis_is_moving(_AXIS(Y))) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(_AXIS(Y)); }
-        else if (stepper.axis_is_moving(_AXIS(Z))) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(_AXIS(Z)); }
+        if      (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(X_AXIS); }
+        else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
+        else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
         G38_endstop_hit = true;
       }
     }
