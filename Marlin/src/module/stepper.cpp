@@ -1232,6 +1232,7 @@ void Stepper::stepper_pulse_phase_isr() {
   if (abort_current_block) {
     abort_current_block = false;
     if (current_block) {
+      axis_did_move = 0;
       current_block = NULL;
       planner.discard_current_block();
     }
@@ -1541,6 +1542,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
     // If current block is finished, reset pointer
     if (all_steps_done) {
+      axis_did_move = 0;
       current_block = NULL;
       planner.discard_current_block();
     }

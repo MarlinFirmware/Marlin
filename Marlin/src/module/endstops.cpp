@@ -263,15 +263,6 @@ void Endstops::not_homing() {
   #endif
 }
 
-// Clear endstops (i.e., they were hit intentionally) to suppress the report
-void Endstops::hit_on_purpose() {
-  hit_state = 0;
-
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (enabled) update(); // If enabling, update state now
-  #endif
-}
-
 // Enable / disable endstop z-probe checking
 #if HAS_BED_PROBE
   void Endstops::enable_z_probe(bool onoff) {
