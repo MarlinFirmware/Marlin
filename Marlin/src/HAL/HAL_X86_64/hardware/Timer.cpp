@@ -10,6 +10,9 @@ Timer::Timer() {
   overruns = 0;
   timerid = 0;
   cbfn = nullptr;
+  period = 0;
+  start_time = 0;
+  avg_error = 0;
 }
 
 Timer::~Timer() {
@@ -66,16 +69,14 @@ void Timer::disable() {
 void Timer::setCompare(uint32_t compare) {
   uint32_t nsec_offset = 0;
   if(active) {
-    auto now = std::chrono::high_resolution_clock::now();
-    auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
-    nsec_offset = (now_ns - this->start_time).count(); // calculate how long the timer would have been running for
+    nsec_offset = Clock::nanos() - this->start_time; // calculate how long the timer would have been running for
     nsec_offset = nsec_offset < 1000 ? nsec_offset : 0; // constrain, this shouldn't be needed but apparently Marlin enables interrupts on the stepper timer before initialising it, todo: investigate ?bug?
   }
   this->compare = compare;
-  uint64_t ns = (compare * (Timer::resolution / this->frequency)) - nsec_offset;
+  uint64_t ns = Clock::ticksToNanos(compare, frequency) - nsec_offset;
   struct itimerspec its;
-  its.it_value.tv_sec = ns / Timer::resolution;
-  its.it_value.tv_nsec = ns % Timer::resolution;
+  its.it_value.tv_sec = ns / 1000000000;
+  its.it_value.tv_nsec = ns % 1000000000;
   its.it_interval.tv_sec = its.it_value.tv_sec;
   its.it_interval.tv_nsec = its.it_value.tv_nsec;
 
@@ -84,15 +85,12 @@ void Timer::setCompare(uint32_t compare) {
     return; // todo: handle error
   }
   //printf("timer(%ld) started, compare: %d(%d)\n", getID(), compare, its.it_value.tv_nsec);
-  this->period = std::chrono::nanoseconds(its.it_value.tv_nsec);
-  this->start_time = std::chrono::high_resolution_clock::now();
+  this->period = its.it_value.tv_nsec;
+  this->start_time = Clock::nanos();
 }
 
 uint32_t Timer::getCount() {
-  auto now = std::chrono::high_resolution_clock::now();
-  auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
-  auto rt_count = now_ns - this->start_time;
-  return rt_count.count() / (1000000000UL / frequency);
+  return Clock::nanosToTicks(Clock::nanos() - this->start_time, frequency);
 }
 
 #endif // __PLAT_X86_64__

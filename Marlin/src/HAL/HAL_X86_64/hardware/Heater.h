@@ -8,7 +8,6 @@
 #ifndef _HARDWARE_HEATER_H_
 #define _HARDWARE_HEATER_H_
 
-#include <chrono>
 #include "Gpio.h"
 
 struct LowpassFilter {
@@ -31,7 +30,7 @@ public:
   uint16_t heater_state;
   LowpassFilter pwmcap;
   double heat;
-  std::chrono::high_resolution_clock::time_point last;
+  uint64_t last;
 };
 
 #endif // _HARDWARE_HEATER_H_

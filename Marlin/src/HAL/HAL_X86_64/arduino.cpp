@@ -42,11 +42,11 @@ uint32_t millis() {
 
 // This is required for some Arduino libraries we are using
 void delayMicroseconds(uint32_t us) {
-  DELAY_US(us);
+  Clock::delayMicros(us);
 }
 
 extern "C" void delay(const int msec) {
-  std::this_thread::sleep_for(std::chrono::milliseconds( msec ));
+  Clock::delayMillis(msec);
 }
 
 // IO functions

@@ -98,6 +98,9 @@ int main(void) {
     SERIAL_FLUSHTX();
   #endif
 
+  Clock::setFrequency(F_CPU);
+  Clock::setTimeMultiplier(1.0); // some testing at 10x
+
   HAL_timer_init();
 
   std::thread simulation (simulation_loop);
