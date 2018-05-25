@@ -365,7 +365,7 @@ inline void get_serial_commands() {
           // Process critical commands early
           if (strcmp(command, "M108") == 0) {
             wait_for_heatup = false;
-            #if ENABLED(ULTIPANEL)
+            #if HAS_RESUME_CONTINUE
               wait_for_user = false;
             #endif
           }
@@ -447,7 +447,7 @@ inline void get_serial_commands() {
               #if HAS_RESUME_CONTINUE
                 gcode.lights_off_after_print = true;
                 enqueue_and_echo_commands_P(PSTR("M0 S"
-                  #if ENABLED(NEWPANEL)
+                  #if HAS_BUTTONS
                     "1800"
                   #else
                     "60"

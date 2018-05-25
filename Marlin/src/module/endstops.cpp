@@ -286,7 +286,7 @@ void Endstops::not_homing() {
 
 void Endstops::report_state() {
   if (hit_state) {
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SMART_LCD
       char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
       #define _SET_STOP_CHAR(A,C) (chr## A = C)
     #else
@@ -317,7 +317,7 @@ void Endstops::report_state() {
     #endif
     SERIAL_EOL();
 
-    #if ENABLED(ULTRA_LCD)
+    #if HAS_SMART_LCD
       lcd_status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 

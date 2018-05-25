@@ -22,7 +22,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SMART_LCD
 
 #include <stdarg.h>
 
@@ -101,7 +101,7 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
   uint8_t progress_bar_percent;
 #endif
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHIC_LCD
   #include "ultralcd_impl_DOGM.h"
   bool drawing_screen, first_page; // = false
 #else
@@ -117,7 +117,7 @@ millis_t next_lcd_update_ms;
 uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
 uint16_t max_display_update_time = 0;
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   #define DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(_type, _name, _strFunc) \
     inline void lcd_implementation_drawmenu_setting_edit_ ## _name (const bool sel, const uint8_t row, const char* pstr, const char* pstr2, _type * const data, ...) { \
@@ -538,7 +538,7 @@ uint16_t max_display_update_time = 0;
       }
       lcd_implementation_clear();
       // Re-initialize custom characters that may be re-used
-      #if DISABLED(DOGLCD) && ENABLED(AUTO_BED_LEVELING_UBL)
+      #if HAS_CHARACTER_LCD && ENABLED(AUTO_BED_LEVELING_UBL)
         if (!ubl.lcd_map_control) {
           lcd_set_custom_characters(
             #if ENABLED(LCD_PROGRESS_BAR)
@@ -551,7 +551,7 @@ uint16_t max_display_update_time = 0;
       #endif
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       screen_changed = true;
-      #if ENABLED(DOGLCD)
+      #if HAS_GRAPHIC_LCD
         drawing_screen = false;
       #endif
     }
@@ -646,7 +646,7 @@ uint16_t max_display_update_time = 0;
       encoderTopLine = encoderLine;
   }
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
 /**
  *
@@ -662,7 +662,7 @@ void lcd_status_screen() {
     ENCODER_RATE_MULTIPLY(false);
   #endif
 
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || HAS_GRAPHIC_LCD)
     // Progress bar % comes from SD when actively printing
     if (IS_SD_PRINTING)
       progress_bar_percent = card.percentDone();
@@ -3962,7 +3962,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       void lcd_reselect_last_file() {
         if (last_sdfile_encoderPosition == 0xFFFF) return;
-        #if ENABLED(DOGLCD)
+        #if HAS_GRAPHIC_LCD
           // Some of this is a hack to force the screen update to work.
           // TODO: Fix the real issue that causes this!
           lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
@@ -3977,7 +3977,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         defer_return_to_status = true;
         last_sdfile_encoderPosition = 0xFFFF;
 
-        #if ENABLED(DOGLCD)
+        #if HAS_GRAPHIC_LCD
           lcd_update();
         #endif
       }
@@ -4958,7 +4958,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       encoderTopLine = 0;
       encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
       screen_changed = true;
-      #if ENABLED(DOGLCD)
+      #if HAS_GRAPHIC_LCD
         drawing_screen = false;
       #endif
       lcd_refresh();
@@ -4978,6 +4978,12 @@ void lcd_init() {
 
   lcd_implementation_init();
 
+  #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(ADC_KEYPAD)
+    SET_OUTPUT(SHIFT_CLK);
+    OUT_WRITE(SHIFT_LD, HIGH);
+    SET_INPUT_PULLUP(SHIFT_OUT);
+  #endif
+
   #if ENABLED(NEWPANEL)
     #if BUTTON_EXISTS(EN1)
       SET_INPUT_PULLUP(BTN_EN1);
@@ -4987,12 +4993,6 @@ void lcd_init() {
     #endif
     #if BUTTON_EXISTS(ENC)
       SET_INPUT_PULLUP(BTN_ENC);
-    #endif
-
-    #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(ADC_KEYPAD)
-      SET_OUTPUT(SHIFT_CLK);
-      OUT_WRITE(SHIFT_LD, HIGH);
-      SET_INPUT_PULLUP(SHIFT_OUT);
     #endif
 
     #if BUTTON_EXISTS(UP)
@@ -5161,7 +5161,7 @@ void lcd_update() {
 
   const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
-    #if ENABLED(DOGLCD)
+    #if HAS_GRAPHIC_LCD
       || drawing_screen
     #endif
   ) {
@@ -5238,7 +5238,7 @@ void lcd_update() {
       !lcd_status_update_delay--
     ) {
       lcd_status_update_delay = 9
-        #if ENABLED(DOGLCD)
+        #if HAS_GRAPHIC_LCD
           + 3
         #endif
       ;
@@ -5260,7 +5260,7 @@ void lcd_update() {
     // then we want to use 1/2 of the time only.
     uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
-    #if ENABLED(DOGLCD)
+    #if HAS_GRAPHIC_LCD
       #define IS_DRAWING drawing_screen
     #else
       #define IS_DRAWING false
@@ -5291,7 +5291,7 @@ void lcd_update() {
         #define CURRENTSCREEN() lcd_status_screen()
       #endif
 
-      #if ENABLED(DOGLCD)
+      #if HAS_GRAPHIC_LCD
         #if ENABLED(LIGHTWEIGHT_UI)
           #if ENABLED(ULTIPANEL)
             const bool in_status = currentScreen == lcd_status_screen;
@@ -5453,7 +5453,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_BUTTONS
 
   /**
    * Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
@@ -5490,6 +5490,10 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     if (ELAPSED(now, next_button_update_ms)) {
 
       #if ENABLED(NEWPANEL)
+
+        //
+        // NEWPANEL indicates a click-wheel with EN1,EN2,ENC
+        //
         uint8_t newbutton = 0;
 
         #if BUTTON_EXISTS(EN1)
@@ -5576,6 +5580,9 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
       #else // !NEWPANEL
 
+        //
+        // Older (non-NEWPANEL) encoders use a shift register
+        //
         GET_SHIFT_BUTTON_STATES(buttons);
 
       #endif
@@ -5638,7 +5645,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     }
   #endif
 
-#endif // ULTIPANEL
+#endif // HAS_BUTTONS
 
 #if ENABLED(ADC_KEYPAD)
 
@@ -5678,4 +5685,4 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   }
 #endif
 
-#endif // ULTRA_LCD
+#endif // HAS_SMART_LCD

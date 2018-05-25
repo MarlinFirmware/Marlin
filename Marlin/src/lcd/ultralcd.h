@@ -25,7 +25,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+#if HAS_LCD_DISPLAY
   void lcd_init();
   bool lcd_detected();
   void lcd_update();
@@ -37,7 +37,7 @@
   inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
 #endif
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SMART_LCD
 
   #include "../Marlin.h"
 
@@ -76,7 +76,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if ENABLED(DOGLCD)
+  #if HAS_GRAPHIC_LCD
     extern int16_t lcd_contrast;
     void set_lcd_contrast(const int16_t value);
   #endif
@@ -89,7 +89,7 @@
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if ENABLED(ULTIPANEL) // LCD with a click-wheel input
+  #if HAS_LCD_MENU
 
     extern bool defer_return_to_status;
 
@@ -141,7 +141,23 @@
 
   bool lcd_blink();
 
-  #if ENABLED(REPRAPWORLD_KEYPAD) // is also ULTIPANEL and NEWPANEL
+#else // !HAS_SMART_LCD
+
+  constexpr bool lcd_wait_for_move = false;
+
+  inline void lcd_refresh() {}
+  inline bool lcd_hasstatus() { return false; }
+  inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
+  inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
+  inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
+  inline void lcd_reset_alert_level() {}
+  inline void lcd_reset_status() {}
+
+#endif // !HAS_SMART_LCD
+
+#if HAS_BUTTONS
+
+  #if ENABLED(REPRAPWORLD_KEYPAD)    // A digital keypad that may use ADC or a shift-register
 
     #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
 
@@ -198,21 +214,9 @@
     void wait_for_release();
   #endif
 
-#else // MALYAN_LCD or no LCD
+#endif // HAS_BUTTONS
 
-  constexpr bool lcd_wait_for_move = false;
-
-  inline void lcd_refresh() {}
-  inline bool lcd_hasstatus() { return false; }
-  inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
-  inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
-  inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
-  inline void lcd_reset_alert_level() {}
-  inline void lcd_reset_status() {}
-
-#endif // ULTRA_LCD
-
-#if ENABLED(ULTIPANEL)
+#if HAS_BUTTONS
 
   #if ENABLED(NEWPANEL) // Uses digital switches, not a shift register
 

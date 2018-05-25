@@ -55,7 +55,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHIC_LCD
 
 #include <U8glib.h>
 

@@ -45,7 +45,7 @@
   #include "../feature/runout.h"
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
   #include "../lcd/ultralcd.h"
 #endif
 
@@ -103,7 +103,7 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
     }
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT, mode);
   #else
     UNUSED(mode);
@@ -141,12 +141,12 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
                    const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/,
                    const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
 ) {
-  #if DISABLED(ULTIPANEL)
+  #if !HAS_LCD_MENU
     UNUSED(show_lcd);
   #endif
 
   if (!ensure_safe_temperature(mode)) {
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
       if (show_lcd) // Show status screen
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
     #endif
@@ -155,7 +155,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   }
 
   if (pause_for_user) {
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
       if (show_lcd) // Show "insert filament"
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT, mode);
     #endif
@@ -179,7 +179,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     if (show_lcd) // Show "wait for load" message
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, mode);
   #endif
@@ -203,7 +203,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
       if (show_lcd)
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE);
     #endif
@@ -218,7 +218,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     do {
       if (purge_length > 0) {
         // "Wait for filament purge"
-        #if ENABLED(ULTIPANEL)
+        #if HAS_LCD_MENU
           if (show_lcd)
             lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_PURGE, mode);
         #endif
@@ -228,7 +228,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       }
 
       // Show "Purge More" / "Resume" menu and wait for reply
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         if (show_lcd) {
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           wait_for_user = false;
@@ -240,7 +240,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 
       // Keep looping if "Purge More" was selected
     } while (
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         show_lcd && advanced_pause_menu_response == ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE
       #else
         0
@@ -266,7 +266,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
                      const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
 ) {
   if (!ensure_safe_temperature(mode)) {
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
       if (show_lcd) // Show status screen
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
     #endif
@@ -274,11 +274,11 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
     return false;
   }
 
-  #if DISABLED(ULTIPANEL)
-    UNUSED(show_lcd);
-  #else
+  #if HAS_LCD_MENU
     if (show_lcd)
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_UNLOAD, mode);
+  #else
+    UNUSED(show_lcd);
   #endif
 
   // Retract filament
@@ -335,7 +335,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     if (show_lcd) // Show initial message
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
   #endif
@@ -344,7 +344,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_HOTEND_TOO_COLD);
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
       if (show_lcd) { // Show status screen
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
         LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
@@ -399,7 +399,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
 void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
   bool nozzle_timed_out = false;
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
   #endif
   SERIAL_ECHO_START();
@@ -430,11 +430,11 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
         nozzle_timed_out |= thermalManager.is_heater_idle(e);
 
     if (nozzle_timed_out) {
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
       #endif
       SERIAL_ECHO_START();
-      #if ENABLED(ULTIPANEL) && ENABLED(EMERGENCY_PARSER)
+      #if HAS_LCD_MENU && ENABLED(EMERGENCY_PARSER)
         SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_HEAT);
       #elif ENABLED(EMERGENCY_PARSER)
         SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_HEAT_M108);
@@ -451,11 +451,11 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
       // Wait for the heaters to reach the target temperatures
       ensure_safe_temperature();
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
       #endif
       SERIAL_ECHO_START();
-      #if ENABLED(ULTIPANEL) && ENABLED(EMERGENCY_PARSER)
+      #if HAS_LCD_MENU && ENABLED(EMERGENCY_PARSER)
         SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_INSERT);
       #elif ENABLED(EMERGENCY_PARSER)
         SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_INSERT_M108);
@@ -515,7 +515,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out);
   }
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     // "Wait for print to resume"
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME);
   #endif
@@ -544,7 +544,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     runout.reset();
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     // Show status screen
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_STATUS);
   #endif

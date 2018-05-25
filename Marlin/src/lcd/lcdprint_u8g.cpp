@@ -9,7 +9,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHIC_LCD
 
 #include <U8glib.h>
 extern U8GLIB *pu8g;
@@ -69,9 +69,9 @@ int lcd_put_u8str_max_rom(const char * utf8_str_P, pixel_len_t max_length) {
   return ret;
 }
 
-#else // !DOGLCD
+#else // !HAS_GRAPHIC_LCD
 
   #define _lcd_write(a) TRACE("Write LCD: %c (%d)", (a), (int)(a));
   #define _lcd_setcursor(col, row) TRACE("Set cursor LCD: (%d,%d)", (col), (row));
 
-#endif // !DOGLCD
+#endif // !HAS_GRAPHIC_LCD
