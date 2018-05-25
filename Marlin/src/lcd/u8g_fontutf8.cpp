@@ -34,15 +34,11 @@ typedef int (* fontgroup_cb_draw_t)(void *userdata, const font_t *fnt_current, c
 ////////////////////////////////////////////////////////////
 /* return v1 - v2 */
 static int fontinfo_compare(uxg_fontinfo_t * v1, uxg_fontinfo_t * v2) {
-  if (v1->page < v2->page)
-    return -1;
-  else if (v1->page > v2->page)
-    return 1;
+  if (v1->page < v2->page)      return -1;
+  else if (v1->page > v2->page) return 1;
 
-  if (v1->end < v2->begin)
-    return -1;
-  else if (v1->begin > v2->end)
-    return 1;
+  if (v1->end < v2->begin)      return -1;
+  else if (v1->begin > v2->end) return 1;
 
   return 0;
 }
@@ -63,7 +59,6 @@ typedef struct _font_group_t {
 static int fontgroup_init(font_group_t * root, const uxg_fontinfo_t * fntinfo, int number) {
   root->m_fntifo = fntinfo;
   root->m_fntinfo_num = number;
-
   return 0;
 }
 
@@ -71,8 +66,7 @@ static const font_t* fontgroup_find(font_group_t * root, wchar_t val) {
   uxg_fontinfo_t vcmp = {(uint16_t)(val / 128), (uint8_t)(val % 128 + 128), (uint8_t)(val % 128 + 128), 0, 0};
   size_t idx = 0;
 
-  if (val < 256)
-    return NULL;
+  if (val < 256) return NULL;
 
   if (pf_bsearch_r((void*)root->m_fntifo, root->m_fntinfo_num, pf_bsearch_cb_comp_fntifo_pgm, (void*)&vcmp, &idx) < 0)
     return NULL;
@@ -113,12 +107,10 @@ static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, 
  */
 static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default, const char *utf8_msg, read_byte_cb_t cb_read_byte, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
   uint8_t *p = (uint8_t*)utf8_msg;
-  while (true) {
+  for (;;) {
     wchar_t val = 0;
     p = get_utf8_value_cb(p, cb_read_byte, &val);
-    if (!val) {
-      break;
-    }
+    if (!val) break;
     fontgroup_drawwchar(group, fnt_default, val, userdata, cb_draw_ram);
   }
 }
@@ -146,7 +138,7 @@ struct _uxg_drawu8_data_t {
   const void * fnt_prev;
 };
 
-static int fontgroup_cb_draw_u8g (void *userdata, const font_t *fnt_current, const char *msg) {
+static int fontgroup_cb_draw_u8g(void *userdata, const font_t *fnt_current, const char *msg) {
   struct _uxg_drawu8_data_t * pdata = (_uxg_drawu8_data_t*)userdata;
 
   if (pdata->fnt_prev != fnt_current) {
@@ -154,9 +146,8 @@ static int fontgroup_cb_draw_u8g (void *userdata, const font_t *fnt_current, con
     //u8g_SetFontPosBottom(pdata->pu8g);
     pdata->fnt_prev = fnt_current;
   }
-  if ((pdata->max_width != PIXEL_LEN_NOLIMIT) && (pdata->adv + u8g_GetStrPixelWidth(pdata->pu8g, (char*)msg) > pdata->max_width)) {
+  if ((pdata->max_width != PIXEL_LEN_NOLIMIT) && (pdata->adv + u8g_GetStrPixelWidth(pdata->pu8g, (char*)msg) > pdata->max_width))
     return 1;
-  }
   pdata->adv += u8g_DrawStr(pdata->pu8g, pdata->x + pdata->adv, pdata->y, (char*) msg);
   return 0;
 }
@@ -290,9 +281,7 @@ int uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, const char *utf8_msg) {
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);
 
-  if (!uxg_Utf8FontIsInited()) {
-    return -1;
-  }
+  if (!uxg_Utf8FontIsInited()) return -1;
 
   memset(&data, 0, sizeof(data));
   data.pu8g = pu8g;
@@ -318,9 +307,8 @@ int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, const char *utf8_msg) {
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);
 
-  if (!uxg_Utf8FontIsInited()) {
-    return -1;
-  }
+  if (!uxg_Utf8FontIsInited()) return -1;
+
   memset(&data, 0, sizeof(data));
   data.pu8g = pu8g;
   data.adv = 0;

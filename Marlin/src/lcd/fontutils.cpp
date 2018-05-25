@@ -75,8 +75,7 @@ int pf_bsearch_r(void *userdata, size_t num_data, pf_bsearch_cb_comp_t cb_comp, 
 
 /* This function gets the character at the pstart position, interpreting UTF8 multybyte sequences
    and returns the pointer to the next character */
-uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval)
-{
+uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval) {
   uint32_t val = 0;
   uint8_t *p = pstart;
 
@@ -151,12 +150,10 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
     val |= (valcur & 0x3F);
     p++;
   }
-  else if (0x80 == (0xC0 & valcur)) {
+  else if (0x80 == (0xC0 & valcur))
     for (; 0x80 == (0xC0 & valcur); ) { p++; valcur = cb_read_byte(p); }
-  }
-  else {
+  else
     for (; ((0xFE & valcur) > 0xFC); ) { p++; valcur = cb_read_byte(p); }
-  }
 
   if (pval) *pval = val;
 
@@ -167,11 +164,10 @@ static inline uint8_t utf8_strlen_cb(const char *pstart, read_byte_cb_t cb_read_
 
   uint8_t cnt = 0;
   uint8_t *pnext = (uint8_t *)pstart;
-  while (true) {
+  for (;;) {
     wchar_t ch;
     pnext = get_utf8_value_cb(pnext, cb_read_byte, &ch);
-    if (!ch)
-      break;
+    if (!ch) break;
     cnt++;
   }
   return cnt;

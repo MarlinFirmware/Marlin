@@ -5403,8 +5403,7 @@ void lcd_setstatus(const char * const message, const bool persist) {
   // our buffer size, start cutting whole UTF8 chars
   while ((pend - message) > MAX_MESSAGE_LENGTH) {
     --pend;
-    while (!START_OF_UTF8_CHAR(*pend))
-      --pend;
+    while (!START_OF_UTF8_CHAR(*pend)) --pend;
   };
 
   // At this point, we have the proper cut point. Use it
@@ -5431,8 +5430,7 @@ void lcd_setstatusPGM(const char * const message, int8_t level) {
   // our buffer size, start cutting whole UTF8 chars
   while ((pend - message) > MAX_MESSAGE_LENGTH) {
     --pend;
-    while (!START_OF_UTF8_CHAR(pgm_read_byte(pend)))
-      --pend;
+    while (!START_OF_UTF8_CHAR(pgm_read_byte(pend))) --pend;
   };
 
   // At this point, we have the proper cut point. Use it

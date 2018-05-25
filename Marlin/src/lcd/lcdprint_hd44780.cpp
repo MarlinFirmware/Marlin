@@ -871,11 +871,10 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
 
 /* return v1 - v2 */
 static int hd44780_charmap_compare(hd44780_charmap_t * v1, hd44780_charmap_t * v2) {
-  if (v1->uchar < v2->uchar) {
+  if (v1->uchar < v2->uchar)
     return -1;
-  } else if (v1->uchar > v2->uchar) {
+  else if (v1->uchar > v2->uchar)
     return 1;
-  }
   return 0;
 }
 
@@ -888,9 +887,7 @@ static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data
 
 #if DEBUG
 
-int
-test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents)
-{
+int test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents) {
   int ret;
   size_t idx = 0;
   hd44780_charmap_t preval = {0, 0, 0};
@@ -942,9 +939,7 @@ test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_
   return 0;
 }
 
-int
-test_hd44780_charmap_all(void)
-{
+int test_hd44780_charmap_all(void) {
   int flg_error = 0;
   if (test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
     flg_error = 1;
@@ -980,8 +975,7 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   pinval.uchar = c;
   pinval.idx = -1;
 
-  if (max_length < 1)
-    return 0;
+  if (max_length < 1) return 0;
 
   // TODO: fix the '\\' that doesnt exist in the HD44870
   if (c < 128) {
@@ -992,11 +986,10 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   ret = pf_bsearch_r((void *)g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
   if (ret >= 0) {
     copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_device + idx);
-  } else {
+  }
+  else {
     ret = pf_bsearch_r((void *)g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
-    if (ret >= 0) {
-      copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_common + idx);
-    }
+    if (ret >= 0) copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_common + idx);
   }
 
   if (ret >= 0) {
@@ -1033,9 +1026,7 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(u
   while (ret < max_length) {
     wchar_t ch = 0;
     p = get_utf8_value_cb(p, cb_read_byte, &ch);
-    if (!p) {
-      break;
-    }
+    if (!p) break;
     ret += lcd_put_wchar_max(ch, max_length - ret);
   }
   return (int)ret;

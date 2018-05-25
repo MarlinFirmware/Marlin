@@ -746,13 +746,13 @@ static void lcd_implementation_status_screen() {
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
 
-    // Get the length of the string in characters, NOT bytes (UTF chars usually take 1 byte, but there are ones that take more)
+    // Get the UTF8 character count of the string
     uint8_t slen = utf8_strlen(lcd_status_message);
 
     // If the string fits into the LCD, just print it and do not scroll it
     if (slen <= LCD_WIDTH) {
 
-      // The string isn't scrolling and maybe does not fill the screen
+      // The string isn't scrolling and may not fill the screen
       lcd_put_u8str(lcd_status_message);
 
       // Fill the rest with spaces
@@ -772,11 +772,10 @@ static void lcd_implementation_status_screen() {
 
       // If we have enough characters to display
       if (rlen >= LCD_WIDTH) {
-
         // The remaining string fills the screen - Print it
         lcd_put_u8str_max(stat, LCD_WIDTH);
-
-      } else {
+      }
+      else {
 
         // The remaining string does not completely fill the screen
         lcd_put_u8str_max(stat, LCD_WIDTH);               // The string leaves space
@@ -797,14 +796,15 @@ static void lcd_implementation_status_screen() {
           status_scroll_offset++;
           while (!START_OF_UTF8_CHAR(lcd_status_message[status_scroll_offset]))
             status_scroll_offset++;
-        } else
+        }
+        else
           status_scroll_offset = 0;
       }
     }
   #else
     UNUSED(blink);
 
-    // Get the length of the string in characters, NOT bytes (UTF chars usually take 1 byte, but there are ones that take more)
+    // Get the UTF8 character count of the string
     uint8_t slen = utf8_strlen(lcd_status_message);
 
     // Just print the string to the LCD

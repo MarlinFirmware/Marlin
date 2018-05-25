@@ -623,7 +623,7 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
     // If the string fits into the LCD, just print it and do not scroll it
     if (slen <= lcd_len) {
 
-      // The string isn't scrolling and maybe does not fill the screen
+      // The string isn't scrolling and may not fill the screen
       write_str(str);
 
       // Fill the rest with spaces
@@ -643,12 +643,10 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
 
       // If we have enough characters to display
       if (rlen >= lcd_len) {
-
         // The remaining string fills the screen - Print it
         write_str(stat, lcd_len);
-
-      } else {
-
+      }
+      else {
         // The remaining string does not completely fill the screen
         write_str(stat);                        // The string leaves space
         uint8_t chars = lcd_len - rlen;         // Amount of space left in characters
@@ -656,9 +654,8 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
         write_byte('.');                        // Always at 1+ spaces left, draw a dot
         if (--chars) {                          // Draw a second dot if there's space
           write_byte('.');
-          if (--chars) {
+          if (--chars)
             write_str(str, chars);              // Print a second copy of the message
-          }
         }
       }
 
@@ -667,11 +664,12 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
         status_scroll_offset++;
         while (!START_OF_UTF8_CHAR(str[status_scroll_offset]))
           status_scroll_offset++;
-      } else
+      }
+      else
         status_scroll_offset = 0;
     }
   #else
-    // Get the length of the string in characters, NOT bytes (UTF chars usually take 1 byte, but there are ones that take more)
+    // Get the UTF8 character count of the string
     uint8_t slen = utf8_strlen(str);
 
     // Just print the string to the LCD
