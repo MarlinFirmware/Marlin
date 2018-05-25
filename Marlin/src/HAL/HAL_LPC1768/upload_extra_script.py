@@ -8,6 +8,21 @@ target_filename = "FIRMWARE.CUR"
 target_drive = "REARM"
 upload_disk = ""
 
+import os
+import subprocess
+
+#env_vars = subprocess.check_output('platformio run -t envdump')
+#env_vars = env_vars.split('\n')
+#for env in env_vars:
+#  print env
+#exit(0)
+
+build_type = os.environ.get("BUILD_TYPE", 'Not Set')
+if not(build_type == 'upload' or build_type == 'traceback' or build_type == 'Not Set') :
+  exit(0)
+
+print '\nSearching for upload disk'
+
 import platform
 current_OS = platform.system()
 
@@ -37,6 +52,14 @@ if current_OS == 'Windows':
     upload_disk = 'Disk not found'
     target_file_found = False
     target_drive_found = False
+
+    volume_info = subprocess.check_output('powershell -Command volume ')
+    volume_info = volume_info.split('\n')
+    for entry in volume_info:
+      if target_drive in entry and target_drive_found == False:  # set upload if not found target file yet
+        target_drive_found = True
+        upload_disk = entry[ : entry.find(' ')] + ':'
+
     for drive in drives:
       final_drive_name = drive.strip().rstrip('\\')   # typical result (string): 'C:'
       # modified version of walklevel()
@@ -49,10 +72,6 @@ if current_OS == 'Windows':
         num_sep_this = root.count(os.path.sep)
         if num_sep + level <= num_sep_this:
           del dirs[:]
-        volume_info = subprocess.check_output('fsutil fsinfo volumeinfo ' + final_drive_name)
-        if target_drive in volume_info and target_file_found == False:  # set upload if not found target file yet
-          target_drive_found = True
-          upload_disk = root
         if target_filename in files:
           if target_file_found == False:
             upload_disk = root
