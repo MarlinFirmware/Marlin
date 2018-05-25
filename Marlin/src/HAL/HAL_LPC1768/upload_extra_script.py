@@ -54,7 +54,7 @@ if current_OS == 'Windows':
     target_drive_found = False
 
     volume_info = subprocess.check_output('powershell -Command volume ')
-    volume_info= volume_info.split('\n')
+    volume_info = volume_info.split('\n')
     for entry in volume_info:
       if target_drive in entry and target_drive_found == False:  # set upload if not found target file yet
         target_drive_found = True
