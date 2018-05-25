@@ -23,6 +23,8 @@
 
 #######################################
 #
+# Revision: 2.0.1
+#
 # Description: script to automate PlatformIO builds
 # CLI:  python auto_build.py build_option
 #    build_option (required)
@@ -102,6 +104,7 @@ current_OS = platform.system()
 #globals
 target_env = ''
 board_name = ''
+
 
 #########
 #  Python 2 error messages:
@@ -208,6 +211,13 @@ def resolve_path(path):
         import os
 
     # turn the selection into a partial path
+
+        if 0 <= path.find('"'):
+          path = path[ path.find('"') : ]
+          if 0 <= path.find(', line '):
+            path = path.replace(', line ', ':')
+          path = path.replace('"', '')
+
        #get line and column numbers
         line_num = 1
         column_num = 1
@@ -969,6 +979,7 @@ class output_window(Text):
         Text.__init__(self, self.frame, borderwidth=3, relief="sunken")
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
+#        self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
         self.config(height  = 24, width = 100)
         self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
@@ -990,6 +1001,25 @@ class output_window(Text):
         scrb = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
         self.config(yscrollcommand=scrb.set)
         scrb.pack(side='right', fill='y')
+
+#        self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
+#        self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
+#        self.scrb_Y.pack(side='right', fill='y')
+#
+#        self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
+#        self.scrb_X.config(xscrollcommand=self.scrb_X.set)
+#        self.scrb_X.pack(side='bottom', fill='x')
+
+#        scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
+#        self.config(xscrollcommand=scrb_X.set)
+#        scrb_X.pack(side='bottom', fill='x')
+#
+#        scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
+#        self.config(yscrollcommand=scrb.set)
+#        scrb.pack(side='right', fill='y')
+
+#        self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
+#        self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
 
 
         # pop-up menu
@@ -1229,6 +1259,10 @@ def main():
         board_name, Marlin_ver = get_board_name()
 
         target_env = get_env(board_name, Marlin_ver)
+
+        os.environ["BUILD_TYPE"] = build_type   # let sub processes know what is happening
+        os.environ["TARGET_ENV"] = target_env
+        os.environ["BOARD_NAME"] = board_name
 
         auto_build = output_window()
         if 0 <= target_env.find('USB1286'):
