@@ -519,15 +519,12 @@ void GcodeSuite::G33() {
   }
 
   // Report settings
-
-  const char *checkingac = PSTR("Checking... AC");
+  const char* checkingac = PSTR("Checking... AC");
   serialprintPGM(checkingac);
   if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
   if (set_up) SERIAL_PROTOCOLPGM("  (SET-UP)");
   SERIAL_EOL();
-  char mess[11];
-  strcpy_P(mess, checkingac);
-  lcd_setstatus(mess);
+  lcd_setstatusPGM(checkingac);
 
   print_calibration_settings(_endstop_results, _angle_results);
 
