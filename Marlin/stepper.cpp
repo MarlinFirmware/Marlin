@@ -1591,13 +1591,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #define Z_MOVE_TEST !!current_block->steps[C_AXIS]
       #endif
 
-      SET_BIT_TO(axis_did_move, A_AXIS, X_MOVE_TEST);
-      SET_BIT_TO(axis_did_move, B_AXIS, Y_MOVE_TEST);
-      SET_BIT_TO(axis_did_move, C_AXIS, Z_MOVE_TEST);
-      //SET_BIT_TO(axis_did_move, E_AXIS, !!current_block->steps[E_AXIS]);
-      //SET_BIT_TO(axis_did_move, X_HEAD, !!current_block->steps[A_AXIS]);
-      //SET_BIT_TO(axis_did_move, Y_HEAD, !!current_block->steps[B_AXIS]);
-      //SET_BIT_TO(axis_did_move, Z_HEAD, !!current_block->steps[C_AXIS]);
+      uint8_t axis_bits = 0;
+      if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
+      if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
+      if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
+      //if (!!current_block->steps[E_AXIS]) SBI(axis_bits, E_AXIS);
+      //if (!!current_block->steps[A_AXIS]) SBI(axis_bits, X_HEAD);
+      //if (!!current_block->steps[B_AXIS]) SBI(axis_bits, Y_HEAD);
+      //if (!!current_block->steps[C_AXIS]) SBI(axis_bits, Z_HEAD);
+      axis_did_move = axis_bits;
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
