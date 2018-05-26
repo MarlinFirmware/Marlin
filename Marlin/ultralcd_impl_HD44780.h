@@ -493,11 +493,13 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   void lcd_scroll(const int16_t col, const int16_t line, const char* const text, const int16_t len, const int16_t time) {
     char tmp[LCD_WIDTH + 1] = {0};
     const int16_t n = MAX(lcd_strlen_P(text) - len, 0);
+    uint8_t slen = MIN(len, LCD_WIDTH);
     for (int16_t i = 0; i <= n; i++) {
-      strncpy_P(tmp, text + i, MIN(len, LCD_WIDTH));
+      strncpy_P(tmp, text + i, slen);
+      tmp[slen] = 0;
       lcd.setCursor(col, line);
       lcd_print(tmp);
-      delay(time / MAX(n, 1));
+      safe_delay(time / MAX(n, 1));
     }
   }
 
@@ -895,37 +897,81 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
-    const uint8_t slen = lcd_strlen(lcd_status_message);
-    const char *stat = lcd_status_message + status_scroll_pos;
-    if (slen <= LCD_WIDTH)
-      lcd_print_utf(stat);                                      // The string isn't scrolling
+
+    // Get the UTF8 character count of the string
+    uint8_t slen = lcd_strlen(lcd_status_message);
+
+    // If the string fits into the LCD, just print it and do not scroll it
+    if (slen <= LCD_WIDTH) {
+
+      // The string isn't scrolling and may not fill the screen
+      lcd_print_utf(lcd_status_message);
+
+      // Fill the rest with spaces
+      while (slen < LCD_WIDTH) {
+        lcd.write(' ');
+        ++slen;
+      }
+    }
     else {
-      if (status_scroll_pos <= slen - LCD_WIDTH)
-        lcd_print_utf(stat);                                    // The string fills the screen
+      // String is larger than the available space in screen.
+
+      // Get a pointer to the next valid UTF8 character
+      const char *stat = lcd_status_message + status_scroll_offset;
+
+      // Get the string remaining length
+      const uint8_t rlen = lcd_strlen(stat);
+
+      // If we have enough characters to display
+      if (rlen >= LCD_WIDTH) {
+        // The remaining string fills the screen - Print it
+        lcd_print_utf(stat, LCD_WIDTH);
+      }
       else {
-        uint8_t chars = LCD_WIDTH;
-        if (status_scroll_pos < slen) {                         // First string still visible
-          lcd_print_utf(stat);                                  // The string leaves space
-          chars -= slen - status_scroll_pos;                    // Amount of space left
-        }
-        lcd.write('.');                                         // Always at 1+ spaces left, draw a dot
-        if (--chars) {
-          if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
-            --chars, lcd.write('.');
-          if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
+
+        // The remaining string does not completely fill the screen
+        lcd_print_utf(stat, LCD_WIDTH);               // The string leaves space
+        uint8_t chars = LCD_WIDTH - rlen;             // Amount of space left in characters
+
+        lcd.write('.');                               // Always at 1+ spaces left, draw a dot
+        if (--chars) {                                // Draw a second dot if there's space
+          lcd.write('.');
+          if (--chars)
+            lcd_print_utf(lcd_status_message, chars); // Print a second copy of the message
         }
       }
       if (last_blink != blink) {
         last_blink = blink;
-        // Skip any non-printing bytes
-        if (status_scroll_pos < slen) while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
-        if (++status_scroll_pos >= slen + 2) status_scroll_pos = 0;
+
+        // Adjust by complete UTF8 characters
+        if (status_scroll_offset < slen) {
+          status_scroll_offset++;
+          while (!START_OF_UTF8_CHAR(lcd_status_message[status_scroll_offset]))
+            status_scroll_offset++;
+        }
+        else
+          status_scroll_offset = 0;
       }
     }
   #else
-    lcd_print_utf(lcd_status_message);
+    UNUSED(blink);
+
+    // Get the UTF8 character count of the string
+    uint8_t slen = lcd_strlen(lcd_status_message);
+
+    // Just print the string to the LCD
+    lcd_print_utf(lcd_status_message, LCD_WIDTH);
+
+    // Fill the rest with spaces if there are missing spaces
+    while (slen < LCD_WIDTH) {
+      lcd.write(' ');
+      ++slen;
+    }
   #endif
+
 }
+
+
 
 #if ENABLED(ULTIPANEL)
 
