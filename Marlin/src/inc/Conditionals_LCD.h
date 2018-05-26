@@ -426,10 +426,8 @@
 #if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
-    #define E_MANUAL      3
   #elif EXTRUDERS > 2
     #define E_STEPPERS    2
-    #define E_MANUAL      2
   #else
     #define E_STEPPERS    1
   #endif
