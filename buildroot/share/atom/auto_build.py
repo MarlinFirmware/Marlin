@@ -23,6 +23,8 @@
 
 #######################################
 #
+# Revision: 2.0.1
+#
 # Description: script to automate PlatformIO builds
 # CLI:  python auto_build.py build_option
 #    build_option (required)
@@ -103,6 +105,7 @@ current_OS = platform.system()
 target_env = ''
 board_name = ''
 
+
 #########
 #  Python 2 error messages:
 #    Can't find a usable init.tcl in the following directories ...
@@ -115,7 +118,17 @@ board_name = ''
 #    reboot
 #########
 
-
+#
+# data/definitions used by memory check routine to determine if need to
+# insert % memory used
+#
+mem_check_environments = ('at90USB1286_CDC',  'at90USB1286_DFU')
+mem_check_builds = ('upload', 'program')
+FLASH_MAX = 128 * 1024 - 4 * 1024   # DFU & CDC bootloaders start at word address F800
+RAM_MAX = 8 * 1024
+FLASH_PERCENT_WARN = 0.90
+RAM_SYSTEM = 1024   # assume that 1K bytes is enough for stack, heap. ...
+RAM_WARN = RAM_SYSTEM * 1.5
 
 ##########################################################################################
 #
@@ -208,6 +221,13 @@ def resolve_path(path):
         import os
 
     # turn the selection into a partial path
+
+        if 0 <= path.find('"'):
+          path = path[ path.find('"') : ]
+          if 0 <= path.find(', line '):
+            path = path.replace(', line ', ':')
+          path = path.replace('"', '')
+
        #get line and column numbers
         line_num = 1
         column_num = 1
@@ -400,45 +420,6 @@ def open_file(path):
               else:
                   os.system('open ' + file_path )
 # end - open_file
-
-
-#
-# move custom board definitions from project folder to PlatformIO
-#
-def copy_boards_dir():
-
-        temp = os.environ
-        for key in temp:
-          if 0 <=  os.environ[key].find('.platformio'):
-            part = os.environ[key].split(';')
-            for part2 in part:
-              if 0 <=  part2.find('.platformio'):
-                path = part2
-                break
-
-        PIO_path = path[ : path.find('.platformio') + 11]
-
-#         import sys
-#         import subprocess
-#         pio_subprocess = subprocess.Popen(['platformio', 'run', '-t', 'envdump'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-#
-#         # stream output from subprocess and split it into lines
-#         for line in iter(pio_subprocess.stdout.readline, ''):
-#             if 0 <= line.find('PIOHOME_DIR'):
-#               start = line.find(':') + 3
-#               end =  line.find(',') - 1
-#               PIO_path = line[start:end]
-
-
-        PIO_path =  PIO_path.replace("\\", "/")
-        PIO_path =  PIO_path.replace("//", "/") + '/boards'
-
-        board_path = 'buildroot/share/PlatformIO/boards'
-
-        from distutils.dir_util import copy_tree
-        copy_tree(board_path, PIO_path)
-
-# end copy_boards_dir
 
 
 # gets the last build environment
@@ -956,6 +937,9 @@ class output_window(Text):
     global error_found
     error_found = False        # are there any errors?
 
+    global memory_check_first_time
+    memory_check_first_time = True  #  wants to run memory_check twice
+
 
     def  __init__(self):
 
@@ -969,6 +953,7 @@ class output_window(Text):
         Text.__init__(self, self.frame, borderwidth=3, relief="sunken")
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
+#        self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
         self.config(height  = 24, width = 100)
         self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
@@ -990,6 +975,25 @@ class output_window(Text):
         scrb = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
         self.config(yscrollcommand=scrb.set)
         scrb.pack(side='right', fill='y')
+
+#        self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
+#        self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
+#        self.scrb_Y.pack(side='right', fill='y')
+#
+#        self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
+#        self.scrb_X.config(xscrollcommand=self.scrb_X.set)
+#        self.scrb_X.pack(side='bottom', fill='x')
+
+#        scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
+#        self.config(xscrollcommand=scrb_X.set)
+#        scrb_X.pack(side='bottom', fill='x')
+#
+#        scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
+#        self.config(yscrollcommand=scrb.set)
+#        scrb.pack(side='right', fill='y')
+
+#        self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
+#        self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
 
 
         # pop-up menu
@@ -1046,6 +1050,8 @@ class output_window(Text):
         if IO_queue.empty():
           if not(self.secondary_thread.is_alive()):
             continue_updates = False  # queue is exhausted and thread is dead so no need for further updates
+            self.memory_check()   # scan buffer and add percent used if needed
+            print 'starting memory check'
         else:
           try:
               temp_text = IO_queue.get(block = False)
@@ -1208,6 +1214,202 @@ class output_window(Text):
         if isok:
             self.delete('1.0', 'end')
 
+  # add memory % if needed
+    def memory_check(self):
+        global memory_check_first_time
+        if not(memory_check_first_time):
+          return
+        memory_check_first_time = False
+        search_position = self.search("Environment used:", "1.0", stopindex="end")
+        env_line = self.get(search_position, '{}+{}c'.format(search_position, 200))
+        print 'env_line 1  ', env_line
+        if 0 <= env_line.find('\n'):
+          env_line = env_line[  : env_line.find('\n')]
+        env_end = env_line.find(' ', 18)
+        if env_end == -1:
+          env_end = len(env_line)
+        env_line = env_line[ 18 : env_end  ]
+        print 'env_line 2  ', env_line
+        env_found  = False
+        for env in mem_check_environments:
+          if env_line == env:
+            env_found  = True
+            print 'env  ', env
+
+        search_position = self.search("Build type:", "1.0", stopindex="end")
+        if search_position == "":
+          print "didn't find it"
+          return
+        build_line = self.get(search_position, '{}+{}c'.format(search_position, 200))
+        print 'build_line 1  ', build_line
+        if 0 <= build_line.find('\n'):
+          build_line = build_line[  : build_line.find('\n')]
+        build_end = build_line.find(' ', 14)
+        if build_end == -1:
+          build_end = len(build_line)
+        build_line = build_line[ 12 : build_end ]
+        print 'build_line 2  ', build_line
+        build_found  = False
+        for build in mem_check_builds:
+          if build_line == build:
+            build_found  = True
+            print 'build  ', build
+
+        if env_found and build_found:    # find the memory values
+          search_position = self.search("Checking program size", "1.0", stopindex="end")
+          if search_position != '':
+            print 'search_position: ' + search_position
+            line_int = int(search_position[ : search_position.find(".")]) + 1
+            line_str = str(line_int)
+            line = self.get(line_str + '.0', line_str + '.200')
+            print 'line: ', line
+            while 'text' != line[ : 4 ] :
+              line_int = line_int + 1
+              line_str = str(line_int)
+              line = self.get(line_str + '.0', line_str + '.200')
+              print 'line: ', line
+            line_int = line_int + 1
+            line_str = str(line_int)
+            print 'line + 3: ' + line_str + '.0'
+            size_line = self.get(line_str + '.0', line_str + '.200')
+            print 'size_line  ', size_line
+
+            data_start = 0
+            while ' ' == size_line[ data_start : data_start + 1] :
+                data_start = data_start + 1  # eat leading blanks
+                print 'data_start: ', data_start, size_line.find(' ', data_start)
+            data_end = size_line.find(' ', data_start) - 1
+            text_str = size_line[ data_start : data_end]
+            print 'text_str = ', data_start, data_end, text_str + '/////'
+            text_val = int(text_str)
+            print 'text_val  ', text_val
+
+            data_start = size_line.find(' ', data_end)
+            while ' ' == size_line[ data_start : data_start + 1] :
+                data_start = data_start + 1  # eat leading blanks
+                print 'data_start: ', data_start, size_line.find(' ', data_start)
+            data_end = size_line.find(' ', data_start) -1
+            data_val = int(size_line[ data_start : data_end])
+            print 'data_val  ', data_val
+
+            data_start = size_line.find(' ', data_end)
+            while ' ' == size_line[ data_start : data_start + 1] :
+                data_start = data_start + 1  # eat leading blanks
+                print 'data_start: ', data_start, size_line.find(' ', data_start)
+            data_end = size_line.find(' ', data_start) - 1
+            if data_end == -1:
+              data_end = len(size_line)
+            bss_val = int(size_line[ data_start : data_end])
+            print 'bss_val  ', bss_val
+
+            FLASH_total = text_val + data_val
+            RAM_total = bss_val + data_val
+
+            tag = 'normal'
+            if FLASH_total >= FLASH_MAX * FLASH_PERCENT_WARN:
+              tag = 'warning'
+            if FLASH_total >= FLASH_MAX:
+              tag = 'error'
+            line_int = line_int + 1
+            line_str = str(line_int)
+            self.insert('end', '\nProgram:  ' + str(FLASH_total) + ' bytes (' + str( 100*FLASH_total/FLASH_MAX) + '% of application area)\n', tag)
+            self.insert(line_str + '.0', '\nProgram:  ' + str(FLASH_total) + ' bytes (' + str( 100*FLASH_total/FLASH_MAX) + '% of application area)\n', tag)
+
+
+            tag = 'normal'
+            if RAM_total >= RAM_MAX - RAM_WARN:
+              tag = 'warning'
+            if RAM_total >= RAM_MAX - RAM_SYSTEM:
+              tag = 'error'
+            line_int = line_int + 2
+            line_str = str(line_int)
+            self.insert('end', 'Data:      ' + str(RAM_total) + ' bytes (' + str( 100*RAM_total/(RAM_MAX-RAM_SYSTEM)) + '% of non-system RAM)\n', tag)
+            self.insert(line_str + '.0', 'Data:      ' + str(RAM_total) + ' bytes (' + str( 100*RAM_total/(RAM_MAX-RAM_SYSTEM)) + '% of non-system RAM)\n\n', tag)
+            self.see("end")  # make the new lines visible (scroll text off the top)
+    # end - memory_check
+
+
+    #
+    # error reporting proceedure for copy_boards_dir()
+    #
+    def report_failure(self, PIO_path, board_path):
+           # didn't find the file - user needs to copy it & re-run the script
+            self.insert('end', 'Unable to move board definition file to destination.  User must manually copy the file.\n\n', 'error')
+            self.insert('end', 'Please copy the following file and re-run the script:\n', 'normal')
+            self.insert('end', '   FROM:\n')
+            self.insert('end', '       ' + pwd + '/' + board_path + '/at90USB1286.json\n')
+            self.insert('end', '   TO:\n')
+            self.insert('end', '       ' + PIO_path + '/at90USB1286.json\n')
+
+
+
+    #
+    # move custom board definitions from project folder to PlatformIO
+    #   returns True if the file ends up in the correct location
+    #
+    def copy_boards_dir(self):
+
+            temp = os.environ
+            for key in temp:
+              if 0 <=  os.environ[key].find('.platformio'):
+                part = os.environ[key].split(';')
+                for part2 in part:
+                  if 0 <=  part2.find('.platformio'):
+                    path = part2
+                    break
+
+            path =  path.replace("\\", "/")
+            path =  path.replace("//", "/")
+
+            path_remaining = path
+            still_looking = True
+            PIO_path = ''
+            while still_looking:
+              colon_pos = path_remaining.find(':')
+              if -1 == colon_pos:
+                  still_looking = False
+                  path_maybe =  path_remaining
+              else:
+                  path_maybe =  path_remaining[ : colon_pos]
+                  path_remaining = path_remaining[ colon_pos + 1 : ]
+              if 0 <= path_maybe.find('/.platformio'):
+                    still_looking = False
+                    PIO_path = path_maybe
+
+            start_loc = PIO_path.find('/.platformio')
+            next_loc = PIO_path.find('/', start_loc + 5)
+            if 0 <= next_loc:
+              PIO_path = PIO_path[ : next_loc]
+            PIO_path =  PIO_path + '/boards'
+
+            board_path = 'buildroot/share/PlatformIO/boards'
+
+            from distutils.dir_util import copy_tree
+            try:
+                copy_tree(board_path, PIO_path)
+            except:
+                pass
+          # check to see if it's there
+          #    macOS will throw an exception if it can't get to the directory
+          #    Ubuntu doesn't complain if it can't get to the directory
+          #    Windows always succeeds (have not been able to lock it out in testing)
+            short_path = PIO_path[ :  PIO_path.find('/boards')]
+            try:
+                PIO_dir = os.listdir(short_path)
+            except:
+                self.report_failure(PIO_path, board_path)
+                return False
+            if 'boards' in PIO_dir:
+               try:
+                   boards_dir = os.listdir(PIO_path)
+               except:
+                   self.report_failure(PIO_path, board_path)
+                   return False
+               if 'at90USB1286.json' in boards_dir:
+                  return True                                 # it's there so all is well
+               self.report_failure(PIO_path, board_path)
+               return False
+# end copy_boards_dir
 
 # end - output_window
 
@@ -1230,11 +1432,18 @@ def main():
 
         target_env = get_env(board_name, Marlin_ver)
 
+        os.environ["BUILD_TYPE"] = build_type   # let sub processes know what is happening
+        os.environ["TARGET_ENV"] = target_env
+        os.environ["BOARD_NAME"] = board_name
+
         auto_build = output_window()
+
+        continue_script = True
         if 0 <= target_env.find('USB1286'):
-            copy_boards_dir()          # copy custom boards over to PlatformIO if using custom board
-                                       #    causes 3-5 second delay in main window appearing
-        auto_build.start_thread()  # executes the "run_PIO" function
+           continue_script = auto_build.copy_boards_dir()          # copy custom boards over to PlatformIO if using custom board
+
+        if continue_script:
+          auto_build.start_thread()  # executes the "run_PIO" function
 
         auto_build.root.mainloop()
 
