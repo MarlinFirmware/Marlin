@@ -501,7 +501,8 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
         ++slen;
       }
       safe_delay(time);
-    } else {
+    }
+    else {
       const char* p = text;
       int dly = time / MAX(slen, 1);
       for (uint8_t i = 0; i <= slen; i++) {
