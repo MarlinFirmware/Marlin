@@ -358,7 +358,8 @@ void lcd_implementation_clear() { lcd.clear(); }
         ++slen;
       }
       safe_delay(time);
-    } else {
+    }
+    else {
       const char* p = text;
       int dly = time / MAX(slen, 1);
       for (uint8_t i = 0; i <= slen; i++) {
