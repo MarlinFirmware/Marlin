@@ -118,7 +118,7 @@ int32_t Stepper::counter_X = 0,
 
 uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
 
-#if ENABLED(BEZIER_JERK_CONTROL)
+#if ENABLED(S_CURVE_ACCELERATION)
   int32_t __attribute__((used)) Stepper::bezier_A __asm__("bezier_A");    // A coefficient in Bézier speed curve with alias for assembler
   int32_t __attribute__((used)) Stepper::bezier_B __asm__("bezier_B");    // B coefficient in Bézier speed curve with alias for assembler
   int32_t __attribute__((used)) Stepper::bezier_C __asm__("bezier_C");    // C coefficient in Bézier speed curve with alias for assembler
@@ -168,7 +168,7 @@ volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 uint32_t Stepper::ticks_nominal;
 uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
 
-#if DISABLED(BEZIER_JERK_CONTROL)
+#if DISABLED(S_CURVE_ACCELERATION)
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
 
@@ -318,7 +318,7 @@ void Stepper::set_directions() {
   #endif // !LIN_ADVANCE
 }
 
-#if ENABLED(BEZIER_JERK_CONTROL)
+#if ENABLED(S_CURVE_ACCELERATION)
   /**
    *   We are using a quintic (fifth-degree) Bézier polynomial for the velocity curve.
    *  This gives us a "linear pop" velocity curve; with pop being the sixth derivative of position:
@@ -1122,7 +1122,7 @@ void Stepper::set_directions() {
       #endif
     }
   #endif
-#endif // BEZIER_JERK_CONTROL
+#endif // S_CURVE_ACCELERATION
 
 /**
  * Stepper Driver Interrupt
@@ -1497,7 +1497,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     // Calculate new timer value
     if (step_events_completed <= current_block->accelerate_until) {
 
-      #if ENABLED(BEZIER_JERK_CONTROL)
+      #if ENABLED(S_CURVE_ACCELERATION)
         // Get the next speed to use (Jerk limited!)
         uint32_t acc_step_rate =
           acceleration_time < current_block->acceleration_time
@@ -1528,7 +1528,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     else if (step_events_completed > current_block->decelerate_after) {
       uint32_t step_rate;
 
-      #if ENABLED(BEZIER_JERK_CONTROL)
+      #if ENABLED(S_CURVE_ACCELERATION)
         // If this is the 1st time we process the 2nd half of the trapezoid...
         if (!bezier_2nd_half) {
           // Initialize the Bézier speed curve
@@ -1726,12 +1726,12 @@ uint32_t Stepper::stepper_block_phase_isr() {
       // make a note of the number of step loops required at nominal speed
       step_loops_nominal = step_loops;
 
-      #if DISABLED(BEZIER_JERK_CONTROL)
+      #if DISABLED(S_CURVE_ACCELERATION)
         // Set as deceleration point the initial rate of the block
         acc_step_rate = current_block->initial_rate;
       #endif
 
-      #if ENABLED(BEZIER_JERK_CONTROL)
+      #if ENABLED(S_CURVE_ACCELERATION)
         // Initialize the Bézier speed curve
         _calc_bezier_curve_coeffs(current_block->initial_rate, current_block->cruise_rate, current_block->acceleration_time_inverse);
 
