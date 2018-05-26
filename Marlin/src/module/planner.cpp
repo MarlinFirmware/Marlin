@@ -232,7 +232,7 @@ void Planner::init() {
   delay_before_delivering = 0;
 }
 
-#if ENABLED(BEZIER_JERK_CONTROL)
+#if ENABLED(S_CURVE_ACCELERATION)
 
   #ifdef __AVR__
     // This routine, for AVR, returns 0x1000000 / d, but trying to get the inverse as
@@ -761,7 +761,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
   NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
 
-  #if ENABLED(BEZIER_JERK_CONTROL)
+  #if ENABLED(S_CURVE_ACCELERATION)
     uint32_t cruise_rate = initial_rate;
   #endif
 
@@ -782,12 +782,12 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     accelerate_steps = MIN(uint32_t(MAX(accelerate_steps_float, 0)), block->step_event_count);
     plateau_steps = 0;
 
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       // We won't reach the cruising rate. Let's calculate the speed we will reach
       cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
     #endif
   }
-  #if ENABLED(BEZIER_JERK_CONTROL)
+  #if ENABLED(S_CURVE_ACCELERATION)
     else // We have some plateau time, so the cruise rate will be the nominal rate
       cruise_rate = block->nominal_rate;
   #endif
@@ -795,7 +795,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   // block->accelerate_until = accelerate_steps;
   // block->decelerate_after = accelerate_steps+plateau_steps;
 
-  #if ENABLED(BEZIER_JERK_CONTROL)
+  #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps
     uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * (HAL_STEPPER_TIMER_RATE),
              deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (HAL_STEPPER_TIMER_RATE);
@@ -815,7 +815,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     block->accelerate_until = accelerate_steps;
     block->decelerate_after = accelerate_steps + plateau_steps;
     block->initial_rate = initial_rate;
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       block->acceleration_time = acceleration_time;
       block->deceleration_time = deceleration_time;
       block->acceleration_time_inverse = acceleration_time_inverse;
@@ -2136,7 +2136,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   }
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
-  #if DISABLED(BEZIER_JERK_CONTROL)
+  #if DISABLED(S_CURVE_ACCELERATION)
     block->acceleration_rate = (uint32_t)(accel * (4096.0 * 4096.0 / (HAL_STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)

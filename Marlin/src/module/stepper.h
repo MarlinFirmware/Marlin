@@ -94,7 +94,7 @@ class Stepper {
     static int32_t counter_X, counter_Y, counter_Z, counter_E;
     static uint32_t step_events_completed; // The number of step events executed in the current block
 
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       static int32_t bezier_A,     // A coefficient in Bézier speed curve
                      bezier_B,     // B coefficient in Bézier speed curve
                      bezier_C;     // C coefficient in Bézier speed curve
@@ -128,7 +128,7 @@ class Stepper {
     static uint8_t step_loops, step_loops_nominal;
 
     static uint32_t ticks_nominal;
-    #if DISABLED(BEZIER_JERK_CONTROL)
+    #if DISABLED(S_CURVE_ACCELERATION)
       static uint32_t acc_step_rate; // needed for deceleration start point
     #endif
 
@@ -333,7 +333,7 @@ class Stepper {
       return timer;
     }
 
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       static void _calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av);
       static int32_t _eval_bezier_curve(const uint32_t curr_step);
     #endif
