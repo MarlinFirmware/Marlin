@@ -683,8 +683,6 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
   #endif
 }
 
-
-
 void ST7920_Lite_Status_Screen::draw_position(const float x, const float y, const float z, bool position_known) {
   char str[7];
   set_ddram_address(DDRAM_LINE_4);
