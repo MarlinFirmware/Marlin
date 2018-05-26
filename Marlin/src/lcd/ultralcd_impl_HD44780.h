@@ -362,14 +362,26 @@ void lcd_implementation_clear() { lcd.clear(); }
       const char* p = text;
       int dly = time / MAX(slen, 1);
       for (uint8_t i = 0; i <= slen; i++) {
+
+        // Go to the correct place
         lcd_moveto(col, line);
+
+        // Print the text
         lcd_put_u8str_max_P(p, len);
+
+        // Fill with spaces
         uint8_t ix = slen - i;
         while (ix < len) {
           lcd_put_wchar(' ');
           ++ix;
         }
+
+        // Delay
         safe_delay(dly);
+
+        // Advance to the next UTF8 valid position
+        p++;
+        while (!START_OF_UTF8_CHAR(pgm_read_byte(p))) p++;
       }
     }
   }
