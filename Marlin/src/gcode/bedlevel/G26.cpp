@@ -135,10 +135,6 @@
 
 // External references
 
-#if ENABLED(ULTRA_LCD)
-  extern char lcd_status_message[];
-#endif
-
 // Private functions
 
 static uint16_t circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16];
@@ -507,8 +503,6 @@ inline bool prime_nozzle() {
       }
 
       wait_for_release();
-
-      strcpy_P(lcd_status_message, PSTR("Done Priming")); // Hack to get the message up. May be obsolete.
 
       lcd_setstatusPGM(PSTR("Done Priming"), 99);
       lcd_quick_feedback(true);
