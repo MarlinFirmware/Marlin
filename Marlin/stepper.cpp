@@ -689,7 +689,7 @@ void Stepper::set_directions() {
       A("mul %10,%9")             /* r1:r0 = 10*HI(v0-v1) */
       A("add %7,r0")              /* %7:%6:?? += 10*HI(v0-v1) << 16 */
       A("sts bezier_C+1, %6")
-      " sts bezier_C+2, %7"            /* bezier_C = %7:%6:?? = 10*(v0-v1) [65 cycles worst] */
+      " sts bezier_C+2, %7"       /* bezier_C = %7:%6:?? = 10*(v0-v1) [65 cycles worst] */
       : "+r" (r2),
         "+d" (r3),
         "=r" (r4),
@@ -1072,7 +1072,7 @@ void Stepper::set_directions() {
       A("add %3,r0")
       A("adc %4,r1")              /* %4:%3:%2:%9 += HI(bezier_A) * LO(f) << 16*/
       L("2")
-      " clr __zero_reg__"              /* C runtime expects r1 = __zero_reg__ = 0 */
+      " clr __zero_reg__"         /* C runtime expects r1 = __zero_reg__ = 0 */
       : "+r"(r0),
         "+r"(r1),
         "+r"(r2),
@@ -1119,16 +1119,8 @@ HAL_STEP_TIMER_ISR {
   // Call the ISR scheduler
   hal_timer_t ticks = Stepper::isr_scheduler();
 
-  // Now 'ticks' contains the period to the next Stepper ISR.
-  // Potential problem: Since the timer continues to run, the requested
-  // compare value may already have passed.
-  //
-  // Assuming at least 6µs between calls to this ISR...
-  // On AVR the ISR epilogue is estimated at 40 instructions - close to 2.5µS.
-  // On ARM the ISR epilogue is estimated at 10 instructions - close to 200nS.
-  // In either case leave at least 4µS for other tasks to execute.
-  const hal_timer_t minticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * 4); // ISR never takes more than 1ms, so this shouldn't cause trouble
-  NOLESS(ticks, MAX(minticks, hal_timer_t((STEP_TIMER_MIN_INTERVAL) * (HAL_TICKS_PER_US))));
+  // Now 'ticks' contains the period to the next Stepper ISR - And we are
+  // sure that the time has not arrived yet - Warrantied by the scheduler
 
   // Set the next ISR to fire at the proper time
   HAL_timer_set_compare(STEP_TIMER_NUM, ticks);
@@ -1141,54 +1133,105 @@ HAL_STEP_TIMER_ISR {
 hal_timer_t Stepper::isr_scheduler() {
   uint32_t interval;
 
-  // Run main stepping pulse phase ISR if we have to
-  if (!nextMainISR) Stepper::stepper_pulse_phase_isr();
+  // Count of ticks for the next ISR
+  hal_timer_t next_isr_ticks = 0;
 
-  #if ENABLED(LIN_ADVANCE)
-    // Run linear advance stepper ISR if we have to
-    if (!nextAdvanceISR) nextAdvanceISR = Stepper::advance_isr();
-  #endif
+  // Limit the amount of iterations
+  uint8_t max_loops = 10;
+  
+  // We need this variable here to be able to use it in the following loop
+  hal_timer_t min_ticks;
+  do {
+    // Run main stepping pulse phase ISR if we have to
+    if (!nextMainISR) Stepper::stepper_pulse_phase_isr();
 
-  // ^== Time critical. NOTHING besides pulse generation should be above here!!!
+    #if ENABLED(LIN_ADVANCE)
+      // Run linear advance stepper ISR if we have to
+      if (!nextAdvanceISR) nextAdvanceISR = Stepper::advance_isr();
+    #endif
 
-  // Run main stepping block processing ISR if we have to
-  if (!nextMainISR) nextMainISR = Stepper::stepper_block_phase_isr();
+    // ^== Time critical. NOTHING besides pulse generation should be above here!!!
 
-  #if ENABLED(LIN_ADVANCE)
-    // Select the closest interval in time
-    interval = (nextAdvanceISR <= nextMainISR)
-      ? nextAdvanceISR
-      : nextMainISR;
+    // Run main stepping block processing ISR if we have to
+    if (!nextMainISR) nextMainISR = Stepper::stepper_block_phase_isr();
 
-  #else // !ENABLED(LIN_ADVANCE)
+    #if ENABLED(LIN_ADVANCE)
+      // Select the closest interval in time
+      interval = (nextAdvanceISR <= nextMainISR) ? nextAdvanceISR : nextMainISR;
+    #else
+      // The interval is just the remaining time to the stepper ISR
+      interval = nextMainISR;
+    #endif
 
-    // The interval is just the remaining time to the stepper ISR
-    interval = nextMainISR;
-  #endif
+    // Limit the value to the maximum possible value of the timer
+    NOMORE(interval, HAL_TIMER_TYPE_MAX);
 
-  // Limit the value to the maximum possible value of the timer
-  if (interval > HAL_TIMER_TYPE_MAX)
-    interval = HAL_TIMER_TYPE_MAX;
+    // Compute the time remaining for the main isr
+    nextMainISR -= interval;
 
-  // Compute the time remaining for the main isr
-  nextMainISR -= interval;
+    #if ENABLED(LIN_ADVANCE)
+      // Compute the time remaining for the advance isr
+      if (nextAdvanceISR != ADV_NEVER) nextAdvanceISR -= interval;
+    #endif
 
-  #if ENABLED(LIN_ADVANCE)
-    // Compute the time remaining for the advance isr
-    if (nextAdvanceISR != ADV_NEVER)
-      nextAdvanceISR -= interval;
-  #endif
+    /**
+     * This needs to avoid a race-condition caused by interleaving
+     * of interrupts required by both the LA and Stepper algorithms.
+     *
+     * Assume the following tick times for stepper pulses:
+     *   Stepper ISR (S):  1 1000 2000 3000 4000
+     *   Linear Adv. (E): 10 1010 2010 3010 4010
+     *
+     * The current algorithm tries to interleave them, giving:
+     *  1:S 10:E 1000:S 1010:E 2000:S 2010:E 3000:S 3010:E 4000:S 4010:E
+     *
+     * Ideal timing would yield these delta periods:
+     *  1:S  9:E  990:S   10:E  990:S   10:E  990:S   10:E  990:S   10:E
+     *
+     * But, since each event must fire an ISR with a minimum duration, the
+     * minimum delta might be 900, so deltas under 900 get rounded up:
+     *  900:S d900:E d990:S d900:E d990:S d900:E d990:S d900:E d990:S d900:E
+     *
+     * It works, but divides the speed of all motors by half, leading to a sudden
+     * reduction to 1/2 speed! Such jumps in speed lead to lost steps (not even
+     * accounting for double/quad stepping, which makes it even worse).
+     */
 
-  return (hal_timer_t)interval;
+    // Compute the tick count for the next ISR
+    next_isr_ticks += interval;
+
+    /**
+     * Get the current tick value + margin
+     * Assuming at least 6µs between calls to this ISR...
+     * On AVR the ISR epilogue is estimated at 40 instructions - close to 2.5µS.
+     * On ARM the ISR epilogue is estimated at 10 instructions - close to 200nS.
+     * In either case leave at least 8µS for other tasks to execute - That allows
+     * up to 100khz stepping rates
+     */
+    min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * 8); // ISR never takes more than 1ms, so this shouldn't cause trouble
+
+    /**
+     * NB: If for some reason the stepper monopolizes the MPU, eventually the
+     * timer will wrap around (and so will 'next_isr_ticks'). So, limit the
+     * loop to 10 iterations. Beyond that, there's no way to ensure correct pulse
+     * timing, since the MCU isn't fast enough.
+     */
+    if (!--max_loops) next_isr_ticks = min_ticks;
+
+    // Advance pulses if not enough time to wait for the next ISR
+  } while (next_isr_ticks < min_ticks);
+
+  // Return the count of ticks for the next ISR
+  return (hal_timer_t)next_isr_ticks;
 }
 
-// This part of the ISR should ONLY create the pulses for the steppers
-// -- Nothing more, nothing less -- We want to avoid jitter from where
-// the pulses should be generated (when the interrupt triggers) to the
-// time pulses are actually created. So, PLEASE DO NOT PLACE ANY CODE
-// above this line that can conditionally change that time (we are trying
-// to keep the delay between the interrupt triggering and pulse generation
-// as constant as possible!!!!
+/**
+ * This phase of the ISR should ONLY create the pulses for the steppers.
+ * This prevents jitter caused by the interval between the start of the
+ * interrupt and the start of the pulses. DON'T add any logic ahead of the
+ * call to this method that might cause variation in the timing. The aim
+ * is to keep pulse timing as regular as possible.
+ */
 void Stepper::stepper_pulse_phase_isr() {
 
   // If we must abort the current block, do so!
