@@ -1026,7 +1026,7 @@ static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(u
   while (ret < max_length) {
     wchar_t ch = 0;
     p = get_utf8_value_cb(p, cb_read_byte, &ch);
-    if (!p) break;
+    if (!ch) break;
     ret += lcd_put_wchar_max(ch, max_length - ret);
   }
   return (int)ret;
