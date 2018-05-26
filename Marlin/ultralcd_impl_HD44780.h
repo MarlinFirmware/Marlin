@@ -491,15 +491,41 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
   void lcd_scroll(const int16_t col, const int16_t line, const char* const text, const int16_t len, const int16_t time) {
-    char tmp[LCD_WIDTH + 1] = {0};
-    const int16_t n = MAX(lcd_strlen_P(text) - len, 0);
-    uint8_t slen = MIN(len, LCD_WIDTH);
-    for (int16_t i = 0; i <= n; i++) {
-      strncpy_P(tmp, text + i, slen);
-      tmp[slen] = 0;
+    uint8_t slen = lcd_strlen_P(text);
+    if (slen < len) {
+      // Fits into,
       lcd.setCursor(col, line);
-      lcd_print(tmp);
-      safe_delay(time / MAX(n, 1));
+      lcd_printPGM_utf(text, len);
+      while (slen < len) {
+        lcd.write(' ');
+        ++slen;
+      }
+      safe_delay(time);
+    } else {
+      const char* p = text;
+      int dly = time / MAX(slen, 1);
+      for (uint8_t i = 0; i <= slen; i++) {
+
+        // Go to the correct place
+        lcd.setCursor(col, line);
+
+        // Print the text
+        lcd_printPGM_utf(p, len);
+
+        // Fill with spaces
+        uint8_t ix = slen - i;
+        while (ix < len) {
+          lcd.write(' ');
+          ++ix;
+        }
+
+        // Delay
+        safe_delay(dly);
+
+        // Advance to the next UTF8 valid position
+        p++;
+        while (!START_OF_UTF8_CHAR(pgm_read_byte(p))) p++;
+      }
     }
   }
 
