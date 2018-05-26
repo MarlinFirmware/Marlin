@@ -71,7 +71,7 @@
   #else
     #define MAX_MESSAGE_LENGTH CHARSIZE * 2 * (LCD_WIDTH)
   #endif
-  uint8_t status_scroll_pos = 0;
+  uint8_t status_scroll_offset = 0;
 #else
   #define MAX_MESSAGE_LENGTH CHARSIZE * (LCD_WIDTH)
 #endif
@@ -5030,7 +5030,7 @@ void lcd_init() {
 int16_t lcd_strlen(const char* s) {
   int16_t i = 0, j = 0;
   while (s[i]) {
-    if (PRINTABLE(s[i])) j++;
+    if (START_OF_UTF8_CHAR(s[i])) j++;
     i++;
   }
   return j;
@@ -5039,7 +5039,7 @@ int16_t lcd_strlen(const char* s) {
 int16_t lcd_strlen_P(const char* s) {
   int16_t j = 0;
   while (pgm_read_byte(s)) {
-    if (PRINTABLE(pgm_read_byte(s))) j++;
+    if (START_OF_UTF8_CHAR(pgm_read_byte(s))) j++;
     s++;
   }
   return j;
@@ -5367,29 +5367,7 @@ void lcd_update() {
   } // ELAPSED(ms, next_lcd_update_ms)
 }
 
-inline void pad_message_string() {
-  uint8_t i = 0, j = 0;
-  char c;
-  lcd_status_message[MAX_MESSAGE_LENGTH] = '\0';
-  while ((c = lcd_status_message[i]) && j < LCD_WIDTH) {
-    if (PRINTABLE(c)) j++;
-    i++;
-  }
-  if (true
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      && j < LCD_WIDTH
-    #endif
-  ) {
-    // pad with spaces to fill up the line
-    while (j++ < LCD_WIDTH) lcd_status_message[i++] = ' ';
-    // chop off at the edge
-    lcd_status_message[i] = '\0';
-  }
-}
-
 void lcd_finishstatus(const bool persist=false) {
-
-  pad_message_string();
 
   #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
     UNUSED(persist);
@@ -5408,7 +5386,7 @@ void lcd_finishstatus(const bool persist=false) {
   #endif
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
-    status_scroll_pos = 0;
+    status_scroll_offset = 0;
   #endif
 }
 
@@ -5420,7 +5398,26 @@ bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 
 void lcd_setstatus(const char * const message, const bool persist) {
   if (lcd_status_message_level > 0) return;
-  strncpy(lcd_status_message, message, MAX_MESSAGE_LENGTH);
+
+  // Here we have a problem. The message is encoded in UTF8, so
+  // arbitrarily cutting it will be a problem. We MUST be sure
+  // that there is no cutting in the middle of a multibyte character!
+
+  // Get a pointer to the null terminator
+  const char* pend = message + strlen(message);
+
+  //  If length of supplied UTF8 string is greater than
+  // our buffer size, start cutting whole UTF8 chars
+  while ((pend - message) > MAX_MESSAGE_LENGTH) {
+    --pend;
+    while (!START_OF_UTF8_CHAR(*pend)) --pend;
+  };
+
+  // At this point, we have the proper cut point. Use it
+  uint8_t maxLen = pend - message;
+  strncpy(lcd_status_message, message, maxLen);
+  lcd_status_message[maxLen] = '\0';
+
   lcd_finishstatus(persist);
 }
 
@@ -5428,7 +5425,26 @@ void lcd_setstatusPGM(const char * const message, int8_t level) {
   if (level < 0) level = lcd_status_message_level = 0;
   if (level < lcd_status_message_level) return;
   lcd_status_message_level = level;
-  strncpy_P(lcd_status_message, message, MAX_MESSAGE_LENGTH);
+
+  // Here we have a problem. The message is encoded in UTF8, so
+  // arbitrarily cutting it will be a problem. We MUST be sure
+  // that there is no cutting in the middle of a multibyte character!
+
+  // Get a pointer to the null terminator
+  const char* pend = message + strlen_P(message);
+
+  //  If length of supplied UTF8 string is greater than
+  // our buffer size, start cutting whole UTF8 chars
+  while ((pend - message) > MAX_MESSAGE_LENGTH) {
+    --pend;
+    while (!START_OF_UTF8_CHAR(pgm_read_byte(pend))) --pend;
+  };
+
+  // At this point, we have the proper cut point. Use it
+  uint8_t maxLen = pend - message;
+  strncpy_P(lcd_status_message, message, maxLen);
+  lcd_status_message[maxLen] = '\0';
+
   lcd_finishstatus(level > 0);
 }
 
