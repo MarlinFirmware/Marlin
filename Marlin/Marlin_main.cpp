@@ -5894,7 +5894,6 @@ void home_all_axes() { gcode_G28(true); }
     }
 
     // Report settings
-
     const char *checkingac = PSTR("Checking... AC");
     serialprintPGM(checkingac);
     if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
