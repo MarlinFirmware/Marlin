@@ -221,7 +221,7 @@ void Planner::init() {
   delay_before_delivering = 0;
 }
 
-#if ENABLED(BEZIER_JERK_CONTROL)
+#if ENABLED(S_CURVE_ACCELERATION)
 
   // This routine, for AVR, returns 0x1000000 / d, but trying to get the inverse as
   //  fast as possible. A fast converging iterative Newton-Raphson method is able to
@@ -726,7 +726,7 @@ void Planner::init() {
     // Return the result
     return r11 | (uint16_t(r12) << 8) | (uint32_t(r13) << 16);
   }
-#endif // BEZIER_JERK_CONTROL
+#endif // S_CURVE_ACCELERATION
 
 #define MINIMAL_STEP_RATE 120
 
@@ -743,7 +743,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
   NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
 
-  #if ENABLED(BEZIER_JERK_CONTROL)
+  #if ENABLED(S_CURVE_ACCELERATION)
     uint32_t cruise_rate = initial_rate;
   #endif
 
@@ -764,12 +764,12 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     accelerate_steps = MIN(uint32_t(MAX(accelerate_steps_float, 0)), block->step_event_count);
     plateau_steps = 0;
 
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       // We won't reach the cruising rate. Let's calculate the speed we will reach
       cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
     #endif
   }
-  #if ENABLED(BEZIER_JERK_CONTROL)
+  #if ENABLED(S_CURVE_ACCELERATION)
     else // We have some plateau time, so the cruise rate will be the nominal rate
       cruise_rate = block->nominal_rate;
   #endif
@@ -777,7 +777,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   // block->accelerate_until = accelerate_steps;
   // block->decelerate_after = accelerate_steps+plateau_steps;
 
-  #if ENABLED(BEZIER_JERK_CONTROL)
+  #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps
     uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * (HAL_STEPPER_TIMER_RATE),
              deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (HAL_STEPPER_TIMER_RATE);
@@ -797,7 +797,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     block->accelerate_until = accelerate_steps;
     block->decelerate_after = accelerate_steps + plateau_steps;
     block->initial_rate = initial_rate;
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       block->acceleration_time = acceleration_time;
       block->deceleration_time = deceleration_time;
       block->acceleration_time_inverse = acceleration_time_inverse;
@@ -2118,7 +2118,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   }
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
-  #if DISABLED(BEZIER_JERK_CONTROL)
+  #if DISABLED(S_CURVE_ACCELERATION)
     block->acceleration_rate = (uint32_t)(accel * (4096.0 * 4096.0 / (HAL_STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
@@ -2212,7 +2212,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         // TODO: Technically, the acceleration used in calculation needs to be limited by the minimum of the
         // two junctions. However, this shouldn't be a significant problem except in extreme circumstances.
-        vmax_junction_sqr = (JUNCTION_ACCELERATION_FACTOR * JUNCTION_DEVIATION_FACTOR * sin_theta_d2) / (1.0 - sin_theta_d2);
+        vmax_junction_sqr = (JUNCTION_ACCELERATION * JUNCTION_DEVIATION_MM * sin_theta_d2) / (1.0 - sin_theta_d2);
         if (block->millimeters < 1.0) {
 
           // Fast acos approximation, minus the error bar to be safe
@@ -2220,7 +2220,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
           if (junction_theta > RADIANS(135)) {
-            const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * JUNCTION_ACCELERATION_FACTOR;
+            const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * JUNCTION_ACCELERATION;
             NOMORE(vmax_junction_sqr, limit_sqr);
           }
         }

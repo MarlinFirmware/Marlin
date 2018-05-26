@@ -273,6 +273,12 @@
   #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH. Please update your configuration."
 #elif ENABLED(LEVEL_BED_CORNERS) && !defined(LEVEL_CORNERS_INSET)
   #error "LEVEL_BED_CORNERS requires a LEVEL_CORNERS_INSET value. Please update your Configuration.h."
+#elif defined(BEZIER_JERK_CONTROL)
+  #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION. Please update your configuration."
+#elif defined(JUNCTION_DEVIATION_FACTOR)
+  #error "JUNCTION_DEVIATION_FACTOR is now JUNCTION_DEVIATION_MM. Please update your configuration."
+#elif defined(JUNCTION_ACCELERATION_FACTOR)
+  #error "JUNCTION_ACCELERATION_FACTOR is now JUNCTION_ACCELERATION. Please update your configuration."
 #endif
 
 #define BOARD_MKS_13     -47

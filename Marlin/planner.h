@@ -110,11 +110,11 @@ typedef struct {
   uint32_t accelerate_until,                // The index of the step event on which to stop acceleration
            decelerate_after;                // The index of the step event on which to start decelerating
 
-  #if ENABLED(BEZIER_JERK_CONTROL)
-    uint32_t cruise_rate;                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
-    uint32_t acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
-             deceleration_time;
-    uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
+  #if ENABLED(S_CURVE_ACCELERATION)
+    uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
+             acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
+             deceleration_time,
+             acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
   #else
     uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
@@ -769,7 +769,7 @@ class Planner {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       /**
        * Calculate the speed reached given initial speed, acceleration and distance
        */
