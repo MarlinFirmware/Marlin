@@ -23,6 +23,8 @@
 
 #######################################
 #
+# Revision: 2.0.1
+#
 # Description: script to automate PlatformIO builds
 # CLI:  python auto_build.py build_option
 #    build_option (required)
@@ -69,6 +71,13 @@
 import sys
 import os
 
+pwd = os.getcwd()    # make sure we're executing from the correct directory level
+pwd = pwd.replace('\\', '/')
+if 0 <= pwd.find('buildroot/share/atom'):
+  pwd = pwd[ : pwd.find('buildroot/share/atom')]
+  os.chdir(pwd)
+print 'pwd: ', pwd
+
 num_args = len(sys.argv)
 if num_args > 1:
   build_type = str(sys.argv[1])
@@ -96,6 +105,7 @@ current_OS = platform.system()
 target_env = ''
 board_name = ''
 
+
 #########
 #  Python 2 error messages:
 #    Can't find a usable init.tcl in the following directories ...
@@ -108,7 +118,17 @@ board_name = ''
 #    reboot
 #########
 
-
+#
+# data/definitions used by memory check routine to determine if need to
+# insert % memory used
+#
+mem_check_environments = ('at90USB1286_CDC',  'at90USB1286_DFU')
+mem_check_builds = ('upload', 'program')
+FLASH_MAX = 128 * 1024 - 4 * 1024   # DFU & CDC bootloaders start at word address F800
+RAM_MAX = 8 * 1024
+FLASH_PERCENT_WARN = 0.90
+RAM_SYSTEM = 1024   # assume that 1K bytes is enough for stack, heap. ...
+RAM_WARN = RAM_SYSTEM * 1.5
 
 ##########################################################################################
 #
@@ -201,10 +221,17 @@ def resolve_path(path):
         import os
 
     # turn the selection into a partial path
+
+        if 0 <= path.find('"'):
+          path = path[ path.find('"') : ]
+          if 0 <= path.find(', line '):
+            path = path.replace(', line ', ':')
+          path = path.replace('"', '')
+
        #get line and column numbers
         line_num = 1
         column_num = 1
-        line_start = path.find(':')
+        line_start = path.find(':', 2)                  # use 2 here so don't eat Windows full path
         column_start = path.find(':', line_start + 1)
         if column_start == -1:
           column_start = len(path)
@@ -218,57 +245,69 @@ def resolve_path(path):
         if not(column_start == column_end):
           column_num = path[ column_start + 1 : column_end]
           if column_num == '':
-            column_num = 1
+            column_num = 0
 
+        index_end = path.find(',')
+        if 0 <= index_end:
+            path = path[ : index_end]  # delete comma and anything after
+        index_end = path.find(':', 2)
+        if 0 <= index_end:
+            path = path[ : path.find(':', 2)]  # delete the line number and anything after
 
-        path = path[ : path.find(':')]  # delete the line number and anything after
         path = path.replace('\\','/')
 
-      # resolve as many '../' as we can
-        while 0 <= path.find('../'):
-          end =  path.find('../') - 1
-          start = path.find('/')
-          while 0 <= path.find('/',start) and end > path.find('/',start):
-            start = path.find('/',start) + 1
-          path = path[0:start] + path[end + 4: ]
+        if 1 == path.find(':') and current_OS == 'Windows':
+          return path, line_num, column_num                    # found a full path - no need for further processing
+        elif 0 == path.find('/') and (current_OS == 'Linux' or current_OS == 'Darwin'):
+          return path, line_num, column_num                    # found a full path - no need for further processing
 
-        # this is an alternative to the above - it just deletes the '../' section
-        # start_temp = path.find('../')
-        # while 0 <= path.find('../',start_temp):
-        #   start = path.find('../',start_temp)
-        #   start_temp = start  + 1
-        # if 0 <= start:
-        #   path = path[start + 2 : ]
-
-
-        start = path.find('/')
-        if not(0 == start):            # make sure path starts with '/'
-          while 0 == path.find(' '):    # eat any spaces at the beginning
-            path = path[ 1 : ]
-          path = '/' + path
-
-        if current_OS == 'Windows':
-          search_path = path.replace('/', '\\')  # os.walk uses '\' in Windows
         else:
-          search_path = path
 
-        start_path = os.path.abspath('')
+          # resolve as many '../' as we can
+            while 0 <= path.find('../'):
+              end =  path.find('../') - 1
+              start = path.find('/')
+              while 0 <= path.find('/',start) and end > path.find('/',start):
+                start = path.find('/',start) + 1
+              path = path[0:start] + path[end + 4: ]
 
-    # search project directory for the selection
-        found = False
-        full_path = ''
-        for root, directories, filenames in os.walk(start_path):
-          for filename in filenames:
-                  if  0 <= root.find('.git'):              # don't bother looking in this directory
-                    break
-                  full_path = os.path.join(root,filename)
-                  if 0 <= full_path.find(search_path):
-                    found = True
-                    break
-          if found:
-            break
+            # this is an alternative to the above - it just deletes the '../' section
+            # start_temp = path.find('../')
+            # while 0 <= path.find('../',start_temp):
+            #   start = path.find('../',start_temp)
+            #   start_temp = start  + 1
+            # if 0 <= start:
+            #   path = path[start + 2 : ]
 
-        return full_path, line_num, column_num
+
+            start = path.find('/')
+            if not(0 == start):            # make sure path starts with '/'
+              while 0 == path.find(' '):    # eat any spaces at the beginning
+                path = path[ 1 : ]
+              path = '/' + path
+
+            if current_OS == 'Windows':
+              search_path = path.replace('/', '\\')  # os.walk uses '\' in Windows
+            else:
+              search_path = path
+
+            start_path = os.path.abspath('')
+
+        # search project directory for the selection
+            found = False
+            full_path = ''
+            for root, directories, filenames in os.walk(start_path):
+              for filename in filenames:
+                      if  0 <= root.find('.git'):              # don't bother looking in this directory
+                        break
+                      full_path = os.path.join(root,filename)
+                      if 0 <= full_path.find(search_path):
+                        found = True
+                        break
+              if found:
+                break
+
+            return full_path, line_num, column_num
 
 # end - resolve_path
 
@@ -324,6 +363,9 @@ def open_file(path):
         elif current_OS == 'Linux':
 
               command = file_path  + ':' + str(line_num) + ':' + str(column_num)
+              index_end = command.find(',')
+              if 0 <= index_end:
+                  command = command[ : index_end]  # sometimes a comma magically appears, don't want it
               running_apps = subprocess.Popen('ps ax -o cmd', stdout=subprocess.PIPE, shell=True)
               (output, err) = running_apps.communicate()
               temp = output.split('\n')
@@ -336,7 +378,7 @@ def open_file(path):
                   return False , ''
 
               (success_sublime, editor_path_sublime) = find_editor_linux('sublime_text',temp)
-              (success_atom, editor_path_atom) = find_editor+linux('atom',temp)
+              (success_atom, editor_path_atom) = find_editor_linux('atom',temp)
 
               if success_sublime:
                   subprocess.Popen([editor_path_sublime, command])
@@ -350,6 +392,9 @@ def open_file(path):
         elif current_OS == 'Darwin':  # MAC
 
               command = file_path  + ':' + str(line_num) + ':' + str(column_num)
+              index_end = command.find(',')
+              if 0 <= index_end:
+                  command = command[ : index_end]  # sometimes a comma magically appears, don't want it
               running_apps = subprocess.Popen('ps axwww -o command', stdout=subprocess.PIPE, shell=True)
               (output, err) = running_apps.communicate()
               temp = output.split('\n')
@@ -377,45 +422,6 @@ def open_file(path):
 # end - open_file
 
 
-#
-# move custom board definitions from project folder to PlatformIO
-#
-def copy_boards_dir():
-
-        temp = os.environ
-        for key in temp:
-          if 0 <=  os.environ[key].find('.platformio'):
-            part = os.environ[key].split(';')
-            for part2 in part:
-              if 0 <=  part2.find('.platformio'):
-                path = part2
-                break
-
-        PIO_path = path[ : path.find('.platformio') + 11]
-
-#         import sys
-#         import subprocess
-#         pio_subprocess = subprocess.Popen(['platformio', 'run', '-t', 'envdump'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-#
-#         # stream output from subprocess and split it into lines
-#         for line in iter(pio_subprocess.stdout.readline, ''):
-#             if 0 <= line.find('PIOHOME_DIR'):
-#               start = line.find(':') + 3
-#               end =  line.find(',') - 1
-#               PIO_path = line[start:end]
-
-
-        PIO_path =  PIO_path.replace("\\", "/")
-        PIO_path =  PIO_path.replace("//", "/") + '/boards'
-
-        board_path = 'buildroot/share/PlatformIO/boards'
-
-        from distutils.dir_util import copy_tree
-        copy_tree(board_path, PIO_path)
-
-# end copy_boards_dir
-
-
 # gets the last build environment
 def get_build_last():
       env_last = ''
@@ -424,8 +430,11 @@ def get_build_last():
         date_last = 0.0
         DIR__pioenvs = os.listdir('.pioenvs')
         for name in DIR__pioenvs:
+          if 0 <= name.find('.') or 0 <= name.find('-'):   # skip files in listing
+            continue
           DIR_temp = os.listdir('.pioenvs/' + name)
           for names_temp in DIR_temp:
+
             if 0 == names_temp.find('firmware.'):
               date_temp = os.path.getmtime('.pioenvs/' + name + '/' + names_temp)
               if date_temp > date_last:
@@ -928,6 +937,9 @@ class output_window(Text):
     global error_found
     error_found = False        # are there any errors?
 
+    global memory_check_first_time
+    memory_check_first_time = True  #  wants to run memory_check twice
+
 
     def  __init__(self):
 
@@ -941,6 +953,7 @@ class output_window(Text):
         Text.__init__(self, self.frame, borderwidth=3, relief="sunken")
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
+#        self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
         self.config(height  = 24, width = 100)
         self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
@@ -962,6 +975,25 @@ class output_window(Text):
         scrb = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
         self.config(yscrollcommand=scrb.set)
         scrb.pack(side='right', fill='y')
+
+#        self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
+#        self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
+#        self.scrb_Y.pack(side='right', fill='y')
+#
+#        self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
+#        self.scrb_X.config(xscrollcommand=self.scrb_X.set)
+#        self.scrb_X.pack(side='bottom', fill='x')
+
+#        scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
+#        self.config(xscrollcommand=scrb_X.set)
+#        scrb_X.pack(side='bottom', fill='x')
+#
+#        scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
+#        self.config(yscrollcommand=scrb.set)
+#        scrb.pack(side='right', fill='y')
+
+#        self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
+#        self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
 
 
         # pop-up menu
@@ -1018,6 +1050,8 @@ class output_window(Text):
         if IO_queue.empty():
           if not(self.secondary_thread.is_alive()):
             continue_updates = False  # queue is exhausted and thread is dead so no need for further updates
+            self.memory_check()   # scan buffer and add percent used if needed
+            print 'starting memory check'
         else:
           try:
               temp_text = IO_queue.get(block = False)
@@ -1180,6 +1214,202 @@ class output_window(Text):
         if isok:
             self.delete('1.0', 'end')
 
+  # add memory % if needed
+    def memory_check(self):
+        global memory_check_first_time
+        if not(memory_check_first_time):
+          return
+        memory_check_first_time = False
+        search_position = self.search("Environment used:", "1.0", stopindex="end")
+        env_line = self.get(search_position, '{}+{}c'.format(search_position, 200))
+        print 'env_line 1  ', env_line
+        if 0 <= env_line.find('\n'):
+          env_line = env_line[  : env_line.find('\n')]
+        env_end = env_line.find(' ', 18)
+        if env_end == -1:
+          env_end = len(env_line)
+        env_line = env_line[ 18 : env_end  ]
+        print 'env_line 2  ', env_line
+        env_found  = False
+        for env in mem_check_environments:
+          if env_line == env:
+            env_found  = True
+            print 'env  ', env
+
+        search_position = self.search("Build type:", "1.0", stopindex="end")
+        if search_position == "":
+          print "didn't find it"
+          return
+        build_line = self.get(search_position, '{}+{}c'.format(search_position, 200))
+        print 'build_line 1  ', build_line
+        if 0 <= build_line.find('\n'):
+          build_line = build_line[  : build_line.find('\n')]
+        build_end = build_line.find(' ', 14)
+        if build_end == -1:
+          build_end = len(build_line)
+        build_line = build_line[ 12 : build_end ]
+        print 'build_line 2  ', build_line
+        build_found  = False
+        for build in mem_check_builds:
+          if build_line == build:
+            build_found  = True
+            print 'build  ', build
+
+        if env_found and build_found:    # find the memory values
+          search_position = self.search("Checking program size", "1.0", stopindex="end")
+          if search_position != '':
+            print 'search_position: ' + search_position
+            line_int = int(search_position[ : search_position.find(".")]) + 1
+            line_str = str(line_int)
+            line = self.get(line_str + '.0', line_str + '.200')
+            print 'line: ', line
+            while 'text' != line[ : 4 ] :
+              line_int = line_int + 1
+              line_str = str(line_int)
+              line = self.get(line_str + '.0', line_str + '.200')
+              print 'line: ', line
+            line_int = line_int + 1
+            line_str = str(line_int)
+            print 'line + 3: ' + line_str + '.0'
+            size_line = self.get(line_str + '.0', line_str + '.200')
+            print 'size_line  ', size_line
+
+            data_start = 0
+            while ' ' == size_line[ data_start : data_start + 1] :
+                data_start = data_start + 1  # eat leading blanks
+                print 'data_start: ', data_start, size_line.find(' ', data_start)
+            data_end = size_line.find(' ', data_start) - 1
+            text_str = size_line[ data_start : data_end]
+            print 'text_str = ', data_start, data_end, text_str + '/////'
+            text_val = int(text_str)
+            print 'text_val  ', text_val
+
+            data_start = size_line.find(' ', data_end)
+            while ' ' == size_line[ data_start : data_start + 1] :
+                data_start = data_start + 1  # eat leading blanks
+                print 'data_start: ', data_start, size_line.find(' ', data_start)
+            data_end = size_line.find(' ', data_start) -1
+            data_val = int(size_line[ data_start : data_end])
+            print 'data_val  ', data_val
+
+            data_start = size_line.find(' ', data_end)
+            while ' ' == size_line[ data_start : data_start + 1] :
+                data_start = data_start + 1  # eat leading blanks
+                print 'data_start: ', data_start, size_line.find(' ', data_start)
+            data_end = size_line.find(' ', data_start) - 1
+            if data_end == -1:
+              data_end = len(size_line)
+            bss_val = int(size_line[ data_start : data_end])
+            print 'bss_val  ', bss_val
+
+            FLASH_total = text_val + data_val
+            RAM_total = bss_val + data_val
+
+            tag = 'normal'
+            if FLASH_total >= FLASH_MAX * FLASH_PERCENT_WARN:
+              tag = 'warning'
+            if FLASH_total >= FLASH_MAX:
+              tag = 'error'
+            line_int = line_int + 1
+            line_str = str(line_int)
+            self.insert('end', '\nProgram:  ' + str(FLASH_total) + ' bytes (' + str( 100*FLASH_total/FLASH_MAX) + '% of application area)\n', tag)
+            self.insert(line_str + '.0', '\nProgram:  ' + str(FLASH_total) + ' bytes (' + str( 100*FLASH_total/FLASH_MAX) + '% of application area)\n', tag)
+
+
+            tag = 'normal'
+            if RAM_total >= RAM_MAX - RAM_WARN:
+              tag = 'warning'
+            if RAM_total >= RAM_MAX - RAM_SYSTEM:
+              tag = 'error'
+            line_int = line_int + 2
+            line_str = str(line_int)
+            self.insert('end', 'Data:      ' + str(RAM_total) + ' bytes (' + str( 100*RAM_total/(RAM_MAX-RAM_SYSTEM)) + '% of non-system RAM)\n', tag)
+            self.insert(line_str + '.0', 'Data:      ' + str(RAM_total) + ' bytes (' + str( 100*RAM_total/(RAM_MAX-RAM_SYSTEM)) + '% of non-system RAM)\n\n', tag)
+            self.see("end")  # make the new lines visible (scroll text off the top)
+    # end - memory_check
+
+
+    #
+    # error reporting proceedure for copy_boards_dir()
+    #
+    def report_failure(self, PIO_path, board_path):
+           # didn't find the file - user needs to copy it & re-run the script
+            self.insert('end', 'Unable to move board definition file to destination.  User must manually copy the file.\n\n', 'error')
+            self.insert('end', 'Please copy the following file and re-run the script:\n', 'normal')
+            self.insert('end', '   FROM:\n')
+            self.insert('end', '       ' + pwd + '/' + board_path + '/at90USB1286.json\n')
+            self.insert('end', '   TO:\n')
+            self.insert('end', '       ' + PIO_path + '/at90USB1286.json\n')
+
+
+
+    #
+    # move custom board definitions from project folder to PlatformIO
+    #   returns True if the file ends up in the correct location
+    #
+    def copy_boards_dir(self):
+
+            temp = os.environ
+            for key in temp:
+              if 0 <=  os.environ[key].find('.platformio'):
+                part = os.environ[key].split(';')
+                for part2 in part:
+                  if 0 <=  part2.find('.platformio'):
+                    path = part2
+                    break
+
+            path =  path.replace("\\", "/")
+            path =  path.replace("//", "/")
+
+            path_remaining = path
+            still_looking = True
+            PIO_path = ''
+            while still_looking:
+              colon_pos = path_remaining.find(':')
+              if -1 == colon_pos:
+                  still_looking = False
+                  path_maybe =  path_remaining
+              else:
+                  path_maybe =  path_remaining[ : colon_pos]
+                  path_remaining = path_remaining[ colon_pos + 1 : ]
+              if 0 <= path_maybe.find('/.platformio'):
+                    still_looking = False
+                    PIO_path = path_maybe
+
+            start_loc = PIO_path.find('/.platformio')
+            next_loc = PIO_path.find('/', start_loc + 5)
+            if 0 <= next_loc:
+              PIO_path = PIO_path[ : next_loc]
+            PIO_path =  PIO_path + '/boards'
+
+            board_path = 'buildroot/share/PlatformIO/boards'
+
+            from distutils.dir_util import copy_tree
+            try:
+                copy_tree(board_path, PIO_path)
+            except:
+                pass
+          # check to see if it's there
+          #    macOS will throw an exception if it can't get to the directory
+          #    Ubuntu doesn't complain if it can't get to the directory
+          #    Windows always succeeds (have not been able to lock it out in testing)
+            short_path = PIO_path[ :  PIO_path.find('/boards')]
+            try:
+                PIO_dir = os.listdir(short_path)
+            except:
+                self.report_failure(PIO_path, board_path)
+                return False
+            if 'boards' in PIO_dir:
+               try:
+                   boards_dir = os.listdir(PIO_path)
+               except:
+                   self.report_failure(PIO_path, board_path)
+                   return False
+               if 'at90USB1286.json' in boards_dir:
+                  return True                                 # it's there so all is well
+               self.report_failure(PIO_path, board_path)
+               return False
+# end copy_boards_dir
 
 # end - output_window
 
@@ -1202,11 +1432,18 @@ def main():
 
         target_env = get_env(board_name, Marlin_ver)
 
+        os.environ["BUILD_TYPE"] = build_type   # let sub processes know what is happening
+        os.environ["TARGET_ENV"] = target_env
+        os.environ["BOARD_NAME"] = board_name
+
         auto_build = output_window()
+
+        continue_script = True
         if 0 <= target_env.find('USB1286'):
-            copy_boards_dir()          # copy custom boards over to PlatformIO if using custom board
-                                       #    causes 3-5 second delay in main window appearing
-        auto_build.start_thread()  # executes the "run_PIO" function
+           continue_script = auto_build.copy_boards_dir()          # copy custom boards over to PlatformIO if using custom board
+
+        if continue_script:
+          auto_build.start_thread()  # executes the "run_PIO" function
 
         auto_build.root.mainloop()
 
