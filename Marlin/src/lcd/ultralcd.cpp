@@ -80,7 +80,7 @@
   #else
     #define MAX_MESSAGE_LENGTH CHARSIZE * 2 * (LCD_WIDTH)
   #endif
-  uint8_t status_scroll_pos = 0;
+  uint8_t status_scroll_offset = 0;
 #else
   #define MAX_MESSAGE_LENGTH CHARSIZE * (LCD_WIDTH)
 #endif
@@ -3260,20 +3260,36 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     #endif
 
-    MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_get_e_amount);
-    #if E_MANUAL > 1
-      MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E1, lcd_move_get_e0_amount);
-      MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E2, lcd_move_get_e1_amount);
-      #if E_MANUAL > 2
+    #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE)
+
+      // Only the current...
+      MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_get_e_amount);
+      // ...and the non-switching
+      #if E_MANUAL == 5
+        MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E5, lcd_move_get_e4_amount);
+      #elif E_MANUAL == 3
         MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E3, lcd_move_get_e2_amount);
-        #if E_MANUAL > 3
-          MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E4, lcd_move_get_e3_amount);
-          #if E_MANUAL > 4
-            MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E5, lcd_move_get_e4_amount);
-          #endif // E_MANUAL > 4
-        #endif // E_MANUAL > 3
-      #endif // E_MANUAL > 2
-    #endif // E_MANUAL > 1
+      #endif
+
+    #else
+
+      // Independent extruders with one E-stepper per hotend
+      MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_get_e_amount);
+      #if E_MANUAL > 1
+        MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E1, lcd_move_get_e0_amount);
+        MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E2, lcd_move_get_e1_amount);
+        #if E_MANUAL > 2
+          MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E3, lcd_move_get_e2_amount);
+          #if E_MANUAL > 3
+            MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E4, lcd_move_get_e3_amount);
+            #if E_MANUAL > 4
+              MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E5, lcd_move_get_e4_amount);
+            #endif // E_MANUAL > 4
+          #endif // E_MANUAL > 3
+        #endif // E_MANUAL > 2
+      #endif // E_MANUAL > 1
+
+    #endif
 
     END_MENU();
   }
@@ -5360,29 +5376,7 @@ void lcd_update() {
   } // ELAPSED(ms, next_lcd_update_ms)
 }
 
-inline void pad_message_string() {
-  uint8_t i = 0, j = 0;
-  char c;
-  lcd_status_message[MAX_MESSAGE_LENGTH] = '\0';
-  while ((c = lcd_status_message[i]) && j < LCD_WIDTH) {
-    if (PRINTABLE(c)) j++;
-    i++;
-  }
-  if (true
-    #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      && j < LCD_WIDTH
-    #endif
-  ) {
-    // pad with spaces to fill up the line
-    while (j++ < LCD_WIDTH) lcd_status_message[i++] = ' ';
-    // chop off at the edge
-    lcd_status_message[i] = '\0';
-  }
-}
-
 void lcd_finishstatus(const bool persist=false) {
-
-  pad_message_string();
 
   #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
     UNUSED(persist);
@@ -5401,7 +5395,7 @@ void lcd_finishstatus(const bool persist=false) {
   #endif
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
-    status_scroll_pos = 0;
+    status_scroll_offset = 0;
   #endif
 }
 
@@ -5413,7 +5407,26 @@ bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 
 void lcd_setstatus(const char * const message, const bool persist) {
   if (lcd_status_message_level > 0) return;
-  strncpy(lcd_status_message, message, MAX_MESSAGE_LENGTH);
+
+  // Here we have a problem. The message is encoded in UTF8, so
+  // arbitrarily cutting it will be a problem. We MUST be sure
+  // that there is no cutting in the middle of a multibyte character!
+
+  // Get a pointer to the null terminator
+  const char* pend = message + strlen(message);
+
+  //  If length of supplied UTF8 string is greater than
+  // our buffer size, start cutting whole UTF8 chars
+  while ((pend - message) > MAX_MESSAGE_LENGTH) {
+    --pend;
+    while (!START_OF_UTF8_CHAR(*pend)) --pend;
+  };
+
+  // At this point, we have the proper cut point. Use it
+  uint8_t maxLen = pend - message;
+  strncpy(lcd_status_message, message, maxLen);
+  lcd_status_message[maxLen] = '\0';
+
   lcd_finishstatus(persist);
 }
 
@@ -5421,7 +5434,26 @@ void lcd_setstatusPGM(const char * const message, int8_t level) {
   if (level < 0) level = lcd_status_message_level = 0;
   if (level < lcd_status_message_level) return;
   lcd_status_message_level = level;
-  strncpy_P(lcd_status_message, message, MAX_MESSAGE_LENGTH);
+
+  // Here we have a problem. The message is encoded in UTF8, so
+  // arbitrarily cutting it will be a problem. We MUST be sure
+  // that there is no cutting in the middle of a multibyte character!
+
+  // Get a pointer to the null terminator
+  const char* pend = message + strlen_P(message);
+
+  //  If length of supplied UTF8 string is greater than
+  // our buffer size, start cutting whole UTF8 chars
+  while ((pend - message) > MAX_MESSAGE_LENGTH) {
+    --pend;
+    while (!START_OF_UTF8_CHAR(pgm_read_byte(pend))) --pend;
+  };
+
+  // At this point, we have the proper cut point. Use it
+  uint8_t maxLen = pend - message;
+  strncpy_P(lcd_status_message, message, maxLen);
+  lcd_status_message[maxLen] = '\0';
+
   lcd_finishstatus(level > 0);
 }
 

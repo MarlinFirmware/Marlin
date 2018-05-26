@@ -36,7 +36,7 @@
  *
  *   X   Probe X position (default current X)
  *   Y   Probe Y position (default current Y)
- *   E   Engage the probe for each probe
+ *   E   Engage the probe for each probe (default 1)
  */
 void GcodeSuite::G30() {
   const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
@@ -51,7 +51,7 @@ void GcodeSuite::G30() {
 
   setup_for_endstop_or_probe_move();
 
-  const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_NONE;
+  const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
   const float measured_z = probe_pt(xpos, ypos, raise_after, 1);
 
   if (!isnan(measured_z)) {
