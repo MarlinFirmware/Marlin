@@ -6,10 +6,10 @@
 
 target_filename = "FIRMWARE.CUR"
 target_drive = "REARM"
-upload_disk = ""
 
 import os
-import subprocess
+import platform
+current_OS = platform.system()
 
 #env_vars = subprocess.check_output('platformio run -t envdump')
 #env_vars = env_vars.split('\n')
@@ -21,10 +21,6 @@ build_type = os.environ.get("BUILD_TYPE", 'Not Set')
 if not(build_type == 'upload' or build_type == 'traceback' or build_type == 'Not Set') :
   exit(0)
 
-print '\nSearching for upload disk'
-
-import platform
-current_OS = platform.system()
 
 if current_OS == 'Windows':
 
@@ -43,38 +39,22 @@ if current_OS == 'Windows':
     driveStr = driveStr.strip().lstrip('Drives: ')  # typical result (string): 'C:\ D:\ E:\ F:\ G:\ H:\ I:\ J:\ K:\ L:\ M:\ Y:\ Z:\'
     drives = driveStr.split()  # typical result (array of stings): ['C:\\', 'D:\\', 'E:\\', 'F:\\', 'G:\\', 'H:\\', 'I:\\', 'J:\\', 'K:\\', 'L:\\', 'M:\\', 'Y:\\', 'Z:\\']
 
-    #
-    # scan top directory of each drive for FIRMWARE.CUR
-    #   return first drive found
-    #
-
-    import os
     upload_disk = 'Disk not found'
     target_file_found = False
     target_drive_found = False
-
-    volume_info = subprocess.check_output('powershell -Command volume ')
-    volume_info = volume_info.split('\n')
-    for entry in volume_info:
-      if target_drive in entry and target_drive_found == False:  # set upload if not found target file yet
-        target_drive_found = True
-        upload_disk = entry[ : entry.find(' ')] + ':'
-
     for drive in drives:
       final_drive_name = drive.strip().rstrip('\\')   # typical result (string): 'C:'
-      # modified version of walklevel()
-      level=0
-      some_dir = "/"
-      some_dir = some_dir.rstrip(os.path.sep)
-      assert os.path.isdir(some_dir)
-      num_sep = some_dir.count(os.path.sep)
-      for root, dirs, files in os.walk(final_drive_name):
-        num_sep_this = root.count(os.path.sep)
-        if num_sep + level <= num_sep_this:
-          del dirs[:]
-        if target_filename in files:
+      try:
+        volume_info = subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT)
+      except Exception as e:
+        continue
+      else:
+        if target_drive in volume_info and target_file_found == False:  # set upload if not found target file yet
+          target_drive_found = True
+          upload_disk = final_drive_name
+        if target_filename in volume_info:
           if target_file_found == False:
-            upload_disk = root
+            upload_disk = final_drive_name
           target_file_found = True
 
     #
@@ -88,7 +68,7 @@ if current_OS == 'Windows':
       )
       print 'upload disk: ' , upload_disk
     else:
-       print '\nUnable to find destination disk.  File must be copied manually. \n'
+      print '\nUnable to find destination disk.  File must be copied manually. \n'
 
 
 if current_OS == 'Linux':
@@ -97,7 +77,6 @@ if current_OS == 'Linux':
     # platformio.ini will accept this for a Linux upload port designation: 'upload_port = /media/media_name/drive'
     #
 
-    import os
     upload_disk = 'Disk not found'
     target_file_found = False
     target_drive_found = False
