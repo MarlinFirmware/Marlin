@@ -347,8 +347,31 @@ void lcd_implementation_clear() { lcd.clear(); }
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
-  void lcd_scroll(const int16_t col, const int16_t line, const char* const text, const int16_t len, const int16_t time) {
-    lcd_put_u8str(text);
+  void lcd_scroll(const uint8_t col, const uint8_t line, const char* const text, const uint8_t len, const int16_t time) {
+    uint8_t slen = utf8_strlen_P(text);
+    if (slen < len) {
+      // Fits into,
+      lcd_moveto(col, line);
+      lcd_put_u8str_max_P(text, len);
+      while (slen < len) {
+        lcd_put_wchar(' ');
+        ++slen;
+      }
+      safe_delay(time);
+    } else {
+      const char* p = text;
+      int dly = time / MAX(slen, 1);
+      for (uint8_t i = 0; i <= slen; i++) {
+        lcd_moveto(col, line);
+        lcd_put_u8str_max_P(p, len);
+        uint8_t ix = slen - i;
+        while (ix < len) {
+          lcd_put_wchar(' ');
+          ++ix;
+        }
+        safe_delay(dly);
+      }
+    }
   }
 
   static void logo_lines(const char* const extra) {
