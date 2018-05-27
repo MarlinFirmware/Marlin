@@ -427,8 +427,16 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       && !planner.has_blocks_queued()
     ) {
       #if ENABLED(SWITCHING_EXTRUDER)
-        const bool oldstatus = E0_ENABLE_READ;
-        enable_E0();
+        bool oldstatus;
+        switch (active_extruder) {
+          default: oldstatus = E0_ENABLE_READ; enable_E0(); break;
+          #if E_STEPPERS > 1
+            case 2: case 3: oldstatus = E1_ENABLE_READ; enable_E1(); break;
+            #if E_STEPPERS > 2
+              case 4: oldstatus = E2_ENABLE_READ; enable_E2(); break;
+            #endif // E_STEPPERS > 2
+          #endif // E_STEPPERS > 1
+        }
       #else // !SWITCHING_EXTRUDER
         bool oldstatus;
         switch (active_extruder) {
@@ -454,9 +462,18 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       current_position[E_AXIS] = olde;
       planner.set_e_position_mm(olde);
       planner.synchronize();
+
       #if ENABLED(SWITCHING_EXTRUDER)
-        E0_ENABLE_WRITE(oldstatus);
-      #else
+        switch (active_extruder) {
+          default: oldstatus = E0_ENABLE_WRITE(oldstatus); break;
+          #if E_STEPPERS > 1
+            case 2: case 3: oldstatus = E1_ENABLE_WRITE(oldstatus); break;
+            #if E_STEPPERS > 2
+              case 4: oldstatus = E2_ENABLE_WRITE(oldstatus); break;
+            #endif // E_STEPPERS > 2
+          #endif // E_STEPPERS > 1
+        }
+      #else // !SWITCHING_EXTRUDER
         switch (active_extruder) {
           case 0: E0_ENABLE_WRITE(oldstatus); break;
           #if E_STEPPERS > 1
