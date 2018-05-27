@@ -24,20 +24,13 @@
 #include "fontutils.h"
 #include "lcdprint.h"
 
-#if defined(ARDUINO)
-  #include "ultralcd_common_HD44780.h"
-  #ifndef LCD_CLASS
-    #include <LiquidCrystal.h>
-    #define LCD_CLASS LiquidCrystal
-  #endif
-  extern LCD_CLASS lcd;
-  LCD_CLASS *plcd = &lcd;
-  #define _lcd_write(a) plcd->write(a)
-  #define _lcd_setcursor(col, row) plcd->setCursor((col), (row));
-#else
-  #define _lcd_write(a) TRACE("Write LCD: %c (%d)", (a), (int)(a));
-  #define _lcd_setcursor(col, row) TRACE("Set cursor LCD: (%d,%d)", (col), (row));
+#include "ultralcd_common_HD44780.h"
+#ifndef LCD_CLASS
+  #include <LiquidCrystal.h>
+  #define LCD_CLASS LiquidCrystal
 #endif
+extern LCD_CLASS lcd;
+LCD_CLASS *plcd = &lcd;
 
 int lcd_glyph_height(void) { return 1; }
 
@@ -878,25 +871,10 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
 
 /* return v1 - v2 */
 static int hd44780_charmap_compare(hd44780_charmap_t * v1, hd44780_charmap_t * v2) {
-  FU_ASSERT(NULL != v1);
-  FU_ASSERT(NULL != v2);
-  TRACE("compare char1 %" PRIu32 "(0x%" PRIX32 ")", v1->uchar, v1->uchar);
-  TRACE("compare char2 %" PRIu32 "(0x%" PRIX32 ")", v2->uchar, v2->uchar);
-  if (v1->uchar < v2->uchar) {
-    TRACE("compare return -1");
+  if (v1->uchar < v2->uchar)
     return -1;
-  } else if (v1->uchar > v2->uchar) {
-    TRACE("compare return 1");
+  else if (v1->uchar > v2->uchar)
     return 1;
-  }
-  #if 0
-    if (v1->idx < v2->idx) {
-      return -1;
-    } else if (v1->idx > v2->idx) {
-      return 1;
-    }
-  #endif
-  TRACE("compare return 0");
   return 0;
 }
 
@@ -909,9 +887,7 @@ static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data
 
 #if DEBUG
 
-int
-test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents)
-{
+int test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents) {
   int ret;
   size_t idx = 0;
   hd44780_charmap_t preval = {0, 0, 0};
@@ -963,9 +939,7 @@ test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_
   return 0;
 }
 
-int
-test_hd44780_charmap_all(void)
-{
+int test_hd44780_charmap_all(void) {
   int flg_error = 0;
   if (test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
     flg_error = 1;
@@ -986,18 +960,17 @@ test_hd44780_charmap_all(void)
 #endif // DEBUG
 
 void lcd_moveto(int col, int row) {
-  TRACE("Move to: (%d,%d)", col, row);
-  _lcd_setcursor(col, row);
+  plcd->setCursor(col, row);
 }
 
 // return < 0 on error
 // return the advanced cols
 int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
+
   // find the HD44780 internal ROM first
   int ret;
   size_t idx = 0;
   hd44780_charmap_t pinval;
-  hd44780_charmap_t localval;
   hd44780_charmap_t *copy_address = NULL;
   pinval.uchar = c;
   pinval.idx = -1;
@@ -1006,37 +979,33 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
 
   // TODO: fix the '\\' that doesnt exist in the HD44870
   if (c < 128) {
-    //TRACE("draw char: regular %d", (int)c);
-    _lcd_write((uint8_t)c);
+    plcd->write((uint8_t)c);
     return 1;
   }
   copy_address = NULL;
   ret = pf_bsearch_r((void *)g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
   if (ret >= 0) {
     copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_device + idx);
-  } else {
+  }
+  else {
     ret = pf_bsearch_r((void *)g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
-    if (ret >= 0) {
-      copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_common + idx);
-    }
+    if (ret >= 0) copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_common + idx);
   }
 
   if (ret >= 0) {
+    hd44780_charmap_t localval;
     // found
-    FU_ASSERT(NULL != copy_address);
     memcpy_P(&localval, copy_address, sizeof(localval));
-    FU_ASSERT((localval.uchar == c) && (localval.uchar == pinval.uchar));
-    TRACE("draw char: %" PRIu32 "(0x%" PRIX32 ") at ROM %d(+%d)", c, c, (int)localval.idx, (int)localval.idx2);
-    _lcd_write(localval.idx);
+    plcd->write(localval.idx);
     if (max_length >= 2 && localval.idx2 > 0) {
-      _lcd_write(localval.idx2);
+      plcd->write(localval.idx2);
       return 2;
     }
     return 1;
   }
-  // print '?' instead
-  TRACE("draw char: Not found " PRIu32 "(0x%" PRIX32 ")", c, c);
-  _lcd_write((uint8_t)'?');
+
+  // Not found, print '?' instead
+  plcd->write((uint8_t)'?');
   return 1;
 }
 
@@ -1044,7 +1013,6 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
 * @brief Draw a UTF-8 string
 *
 * @param utf8_str : the UTF-8 string
-* @param len : the byte length of the string (returned by strlen(utf8_str) or strlen_P(utf8_str) )
 * @param cb_read_byte : the callback function to read one byte from the utf8_str (from RAM or ROM)
 * @param max_length : the pixel length of the string allowed (or number of slots in HD44780)
 *
@@ -1052,39 +1020,24 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
 *
 * Draw a UTF-8 string
 */
-static int lcd_put_u8str_max_cb(const char * utf8_str, uint16_t len, uint8_t (*cb_read_byte)(uint8_t * str), pixel_len_t max_length) {
-  wchar_t ch;
-  uint8_t *p, *pend;
+static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(uint8_t * str), pixel_len_t max_length) {
   pixel_len_t ret = 0;
-
-  TRACE("BEGIN lcd_put_u8str_max_cb(len=%d, maxlen=%d)", len, max_length);
-  pend = (uint8_t *)utf8_str + len;
-  for (p = (uint8_t *)utf8_str; (p < pend) && (ret < max_length); ) {
-    ch = 0;
+  uint8_t *p = (uint8_t *)utf8_str;
+  while (ret < max_length) {
+    wchar_t ch = 0;
     p = get_utf8_value_cb(p, cb_read_byte, &ch);
-    if (NULL == p) {
-      TRACE("No more char, break ...");
-      break;
-    }
-    FU_ASSERT(ret < max_length);
+    if (!ch) break;
     ret += lcd_put_wchar_max(ch, max_length - ret);
   }
   return (int)ret;
 }
 
 int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
-  //TRACE("BEGIN lcd_put_u8str_max(str='%s', len=%d, maxlen=%d)", utf8_str, strlen(utf8_str), max_length);
-  TRACE("BEGIN lcd_put_u8str_max(str='%s')", utf8_str);
-  TRACE("BEGIN lcd_put_u8str_max('len=%d)", strlen(utf8_str));
-  TRACE("BEGIN lcd_put_u8str_max(maxlen=%d)", max_length);
-  return lcd_put_u8str_max_cb(utf8_str, strlen(utf8_str), read_byte_ram, max_length);
+  return lcd_put_u8str_max_cb(utf8_str, read_byte_ram, max_length);
 }
 
-int lcd_put_u8str_max_rom(const char * utf8_str_P, pixel_len_t max_length) {
-  //TRACE("BEGIN lcd_put_u8str_max_rom('%s', len=%d, maxlen=%d)", utf8_str_P, strlen_P(utf8_str_P), max_length);
-  TRACE("BEGIN lcd_put_u8str_max_rom(len=%d)", strlen_P(utf8_str_P));
-  TRACE("BEGIN lcd_put_u8str_max_rom(maxlen=%d)", max_length);
-  return lcd_put_u8str_max_cb(utf8_str_P, strlen_P(utf8_str_P), read_byte_rom, max_length);
+int lcd_put_u8str_max_P(const char * utf8_str_P, pixel_len_t max_length) {
+  return lcd_put_u8str_max_cb(utf8_str_P, read_byte_rom, max_length);
 }
 
 #endif // DOGLCD

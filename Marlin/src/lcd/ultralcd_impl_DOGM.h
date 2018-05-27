@@ -341,9 +341,9 @@ void lcd_kill_screen() {
     lcd_moveto(0, h4 * 1);
     lcd_put_u8str(lcd_status_message);
     lcd_moveto(0, h4 * 2);
-    lcd_put_u8str_rom(PSTR(MSG_HALTED));
+    lcd_put_u8str_P(PSTR(MSG_HALTED));
     lcd_moveto(0, h4 * 3);
-    lcd_put_u8str_rom(PSTR(MSG_PLEASE_RESET));
+    lcd_put_u8str_P(PSTR(MSG_PLEASE_RESET));
   } while (u8g.nextPage());
 }
 
@@ -415,7 +415,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
         int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
         while (--pad >= 0) { lcd_put_wchar(' '); n--; }
       }
-      n -= lcd_put_u8str_max_rom(pstr, n);
+      n -= lcd_put_u8str_max_P(pstr, n);
       if (NULL != valstr) {
         n -= lcd_put_u8str_max(valstr, n);
       }
@@ -431,7 +431,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     if (lcd_implementation_mark_as_selected(row, isSelected)) {
       uint8_t n = LCD_WIDTH - (START_COL) - 2;
       n *= DOG_CHAR_WIDTH;
-      n -= lcd_put_u8str_max_rom(pstr, n);
+      n -= lcd_put_u8str_max_P(pstr, n);
       while (n - DOG_CHAR_WIDTH > 0) { n -= lcd_put_wchar(' '); }
       lcd_moveto(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), row_y2);
       lcd_put_wchar(post_char);
@@ -451,11 +451,11 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
       uint8_t n = LCD_WIDTH - (START_COL) - 2 - vallen;
       n *= DOG_CHAR_WIDTH;
-      n -= lcd_put_u8str_max_rom(pstr, n);
+      n -= lcd_put_u8str_max_P(pstr, n);
       lcd_put_wchar(':');
       while (n - DOG_CHAR_WIDTH > 0) { n -= lcd_put_wchar(' '); }
       lcd_moveto(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * vallen, row_y2);
-      if (pgm) lcd_put_u8str_rom(data); else lcd_put_u8str((char*)data);
+      if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str((char*)data);
     }
   }
 
@@ -499,7 +499,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     bool onpage = PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline);
     if (onpage) {
       lcd_moveto(0, baseline);
-      lcd_put_u8str_rom(pstr);
+      lcd_put_u8str_P(pstr);
     }
 
     if (value != NULL) {
@@ -641,7 +641,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
         if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
-          lcd_put_u8str_rom(PSTR(" -----"));
+          lcd_put_u8str_P(PSTR(" -----"));
       }
 
     }
