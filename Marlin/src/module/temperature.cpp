@@ -937,17 +937,25 @@ void Temperature::manage_heater() {
 #define TEMP_AD595(RAW)  ((RAW) * 5.0 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET)
 #define TEMP_AD8495(RAW) ((RAW) * 6.6 * 100.0 / 1024.0 / (OVERSAMPLENR) * (TEMP_SENSOR_AD8495_GAIN) + TEMP_SENSOR_AD8495_OFFSET)
 
-#define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                          \
-  for (uint8_t i = 1; i < LEN; i++) {                               \
-    const short entry10 = (short)pgm_read_word(&TBL[i][0]);         \
-    if (entry10 > raw) {                                            \
-      const short entry00 = (short)pgm_read_word(&TBL[i-1][0]),     \
-                  entry01 = (short)pgm_read_word(&TBL[i-1][1]),     \
-                  entry11 = (short)pgm_read_word(&TBL[i][1]);       \
-      return entry01 + (raw - entry00) * float(entry11 - entry01) / float(entry10 - entry00); \
-    }                                                               \
-  }                                                                 \
-  return (short)pgm_read_word(&TBL[LEN-1][1]);                      \
+/**
+ * Bisect search for the range of the 'raw' value, then interpolate
+ * proportionally between the under and over values.
+ */
+#define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                             \
+  uint8_t l = 0, r = LEN, m;                                           \
+  for (;;) {                                                           \
+    m = (l + r) >> 1;                                                  \
+    if (m == l || m == r) return (short)pgm_read_word(&TBL[LEN-1][1]); \
+    short v00 = pgm_read_word(&TBL[m-1][0]),                           \
+          v10 = pgm_read_word(&TBL[m-0][0]);                           \
+         if (raw < v00) r = m;                                         \
+    else if (raw > v10) l = m;                                         \
+    else {                                                             \
+      const short v01 = (short)pgm_read_word(&TBL[m-1][1]),            \
+                  v11 = (short)pgm_read_word(&TBL[m-0][1]);            \
+      return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00);  \
+    }                                                                  \
+  }                                                                    \
 }while(0)
 
 // Derived from RepRap FiveD extruder::getTemperature()
