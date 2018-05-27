@@ -111,6 +111,13 @@ bool Stepper::abort_current_block;
   bool Stepper::locked_z_motor = false, Stepper::locked_z2_motor = false;
 #endif
 
+/**
+ * Marlin uses the Bresenham algorithm. For a detailed explanation of theory and
+ * method see https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
+ *
+ * The implementation used here additionally rounds up the starting seed.
+ */
+
 int32_t Stepper::counter_X = 0,
         Stepper::counter_Y = 0,
         Stepper::counter_Z = 0,
@@ -1174,7 +1181,7 @@ hal_timer_t Stepper::isr_scheduler() {
 
   // Limit the amount of iterations
   uint8_t max_loops = 10;
-  
+
   // We need this variable here to be able to use it in the following loop
   hal_timer_t min_ticks;
   do {
@@ -1294,12 +1301,12 @@ void Stepper::stepper_pulse_phase_isr() {
     // Advance the Bresenham counter; start a pulse if the axis needs a step
     #define PULSE_START(AXIS) do{ \
       _COUNTER(AXIS) += current_block->steps[_AXIS(AXIS)]; \
-      if (_COUNTER(AXIS) > 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); } \
+      if (_COUNTER(AXIS) >= 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); } \
     }while(0)
 
     // Advance the Bresenham counter; start a pulse if the axis needs a step
     #define STEP_TICK(AXIS) do { \
-      if (_COUNTER(AXIS) > 0) { \
+      if (_COUNTER(AXIS) >= 0) { \
         _COUNTER(AXIS) -= current_block->step_event_count; \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
       } \
@@ -1387,7 +1394,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if ENABLED(LIN_ADVANCE)
       counter_E += current_block->steps[E_AXIS];
-      if (counter_E > 0) {
+      if (counter_E >= 0) {
         #if DISABLED(MIXING_EXTRUDER)
           // Don't step E here for mixing extruder
           motor_direction(E_AXIS) ? --e_steps : ++e_steps;
@@ -1399,7 +1406,7 @@ void Stepper::stepper_pulse_phase_isr() {
         const bool dir = motor_direction(E_AXIS);
         MIXING_STEPPERS_LOOP(j) {
           counter_m[j] += current_block->steps[E_AXIS];
-          if (counter_m[j] > 0) {
+          if (counter_m[j] >= 0) {
             counter_m[j] -= current_block->mix_event_count[j];
             dir ? --e_steps[j] : ++e_steps[j];
           }
@@ -1416,7 +1423,7 @@ void Stepper::stepper_pulse_phase_isr() {
           // Step mixing steppers (proportionally)
           counter_m[j] += current_block->steps[E_AXIS];
           // Step when the counter goes over zero
-          if (counter_m[j] > 0) En_STEP_WRITE(j, !INVERT_E_STEP_PIN);
+          if (counter_m[j] >= 0) En_STEP_WRITE(j, !INVERT_E_STEP_PIN);
         }
       #else // !MIXING_EXTRUDER
         PULSE_START(E);
@@ -1456,7 +1463,7 @@ void Stepper::stepper_pulse_phase_isr() {
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(j) {
-          if (counter_m[j] > 0) {
+          if (counter_m[j] >= 0) {
             counter_m[j] -= current_block->mix_event_count[j];
             En_STEP_WRITE(j, INVERT_E_STEP_PIN);
           }
@@ -1738,11 +1745,11 @@ uint32_t Stepper::stepper_block_phase_isr() {
         bezier_2nd_half = false;
       #endif
 
-      // Initialize Bresenham counters to 1/2 the ceiling
-      counter_X = counter_Y = counter_Z = counter_E = -((int32_t)(current_block->step_event_count >> 1));
+      // Initialize Bresenham counters to 1/2 the ceiling, with proper roundup (as explained in the article linked above)
+      counter_X = counter_Y = counter_Z = counter_E = -int32_t((current_block->step_event_count + 1) >> 1);
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(i)
-          counter_m[i] = -(current_block->mix_event_count[i] >> 1);
+          counter_m[i] = -int32_t((current_block->mix_event_count[i] + 1) >> 1);
       #endif
 
       #if ENABLED(Z_LATE_ENABLE)
