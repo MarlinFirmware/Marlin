@@ -100,6 +100,234 @@ bool Stepper::abort_current_block;
   bool Stepper::locked_z_motor = false, Stepper::locked_z2_motor = false;
 #endif
 
+/* On the Bresenham algorithm as implemented by Marlin:
+   (Taken from (https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html)
+
+   The basic Bresenham algorithm:
+
+   Consider drawing a line on a raster grid where we restrict the allowable
+  slopes of the line to the range 0 <= m <= 1
+
+   If we further restrict the line-drawing routine so that it always increments
+  x as it plots, it becomes clear that, having plotted a point at (x,y), the
+  routine has a severely limited range of options as to where it may put the
+  next point on the line:
+
+    -It may plot the point (x+1,y), or:
+    -It may plot the point (x+1,y+1).
+
+   So, working in the first positive octant of the plane, line drawing becomes
+  a matter of deciding between two possibilities at each step.
+   We can draw a diagram of the situation which the plotting program finds itself
+  in having plotted (x,y).
+
+
+  y+1 +--------------*
+      |             /
+      |            /
+      |           /
+      |          /
+      |    y+e+m*--------+-
+      |        /| ^    |
+      |       / | |m   |
+      |      /  | |    |
+      |     /   | v    |
+      | y+e*----|-----   |m+ε
+      |   /|    | ^    |
+      |  / |    | |ε   |
+      | /  |    | |    |
+      |/   |    | v    v
+    y *----+----+----------+--
+           x   x+1
+
+
+   In plotting (x,y) the line drawing routine will, in general, be making a
+  compromise between what it would like to draw and what the resolution of
+  the stepper motors actually allows it to draw. Usually the plotted point
+  (x,y) will be in error, the actual, mathematical point on the line will
+  not be addressable on the pixel grid. So we associate an error, ε ,
+  with each y ordinate, the real value of y should be y+ε . This error will
+  range from -0.5 to just under +0.5.
+
+   In moving from x to x+1 we increase the value of the true (mathematical)
+  y-ordinate by an amount equal to the slope of the line, m. We will choose
+  to plot (x+1,y) if the difference between this new value and y is less than
+  0.5
+
+    y + ε + m < y + 0.5
+
+   Otherwise we will plot (x+1,y+1). It should be clear that by so doing we
+  minimise the total error between the mathematical line segment and what
+  actually gets drawn on the display.
+
+   The error resulting from this new point can now be written back into ε,
+  this will allow us to repeat the whole process for the next point along
+  the line, at x+2.
+
+   The new value of error can adopt one of two possible values, depending
+  on what new point is plotted. If (x+1,y) is chosen, the new value of error
+  is given by:
+
+    ε[new] = (y + ε + m) - y
+
+   Otherwise, it is:
+
+    ε[new] = (y + ε + m) - (y + 1)
+
+   This gives an algorithm for a DDA which avoids rounding operations,
+  instead using the error variable ε to control plotting:
+
+    ε = 0, y = y[1]
+    for x = x1 to x2 do
+      Plot point at (x,y)
+      if (ε + m < 0.5)
+        ε = ε + m
+      else
+        y = y + 1, ε = ε + m - 1
+      endif
+    endfor
+
+   This still employs floating point values. Consider, however, what happens
+  if we multiply across both sides of the plotting test by Δx and then by 2:
+
+            ε + m < 0.5
+        ε + Δy/Δx < 0.5
+    2.ε.Δx + 2.Δy < Δx
+
+   All quantities in this inequality are now integral.
+
+   Substitute ε' for ε.Δx . The test becomes:
+
+    2.(ε' + Δy) < Δx
+
+   This gives an integer-only test for deciding which point to plot.
+
+   The update rules for the error on each step may also be cast into ε' form:
+  Consider the floating-point versions of the update rules:
+
+    ε = ε + m
+    ε = ε + m - 1
+
+   Multiplying through by Δx yields:
+
+    ε.Δx = ε.Δx + Δy
+    ε.Δx = ε.Δx + Δy - Δx
+
+   Which is in ε' form:
+
+    ε' = ε' + Δy
+    ε' = ε' + Δy - Δx
+
+   Using this new ``error'' value, ε'  with the new test and update equations
+  gives Bresenham's integer-only line drawing algorithm:
+
+    ε' = 0, y = y[1]
+    for x = x1 to x2 do
+      Plot point at (x,y)
+      if (2.(ε' + Δy) < Δx)
+        ε' = ε' + Δy
+      else
+        y = y + 1, ε' = ε' + Δy - Δx
+      endif
+    endfor
+
+   It is a Integer only algorithm - hence efficient (fast). And the Multiplication
+  by 2 can be implemented by left-shift.  0 <= m <= 1
+
+   A possible implementation in C:
+
+    void bresenham(Screen &s,
+              unsigned x1, unsigned y1,
+              unsigned x2, unsigned y2,
+              unsigned char colour )
+    {
+      int dx  = x2 - x1,
+          dy  = y2 - y1,
+          y   = y1,
+          eps = 0;
+
+      for ( int x = x1; x <= x2; x++ )  {
+        s.Plot(x,y,colour);
+        eps += dy;
+        if ( (eps << 1) >= dx )  {
+          y++;  eps -= dx;
+        }
+      }
+    }
+
+   We can optimize it a bit, by noting that
+    (eps << 1) >= dx
+
+   Is equivalent to:
+
+     eps >= (dx / 2)
+
+   Even if it would seem that right shifting dx would lose the least significant
+  bit, we can handle it by proper rounding: eps is an integer variable, so only has
+  integer values. dx is also an integer value, so after dividing by 2, either the
+  value was an integer, or we missed by 0.5 less than true value.
+
+   1] If, after the division, the value was exactly an integer, then the following holds true:
+
+    (eps << 1) >= dx is equal to eps >= (dx>>1)       [ for dx even ]
+
+   2] If, after the division, the result was truncation of the last bit of dx, then
+
+    (eps << 1) >= dx is equal to eps >= (dx>>1)+0.5   [ for dx odd ]
+
+   But, as eps is an integer, we can rewrite the expression as:
+
+   (eps << 1) >= dx is equal to eps >   (dx>>1)       [ for dx odd ]
+   (eps << 1) >= dx is equal to eps >=  (dx>>1)+1     [ for dx odd ]
+
+   Now, the algorithm can be rewritten as:
+
+    void bresenham2(Screen &s,
+              unsigned x1, unsigned y1,
+              unsigned x2, unsigned y2,
+              unsigned char colour )
+    {
+      int dx  = x2 - x1,
+          dy  = y2 - y1,
+          y   = y1,
+          eps = 0,
+          limit = (dx>>1) + (dx&1);
+
+      for ( int x = x1; x <= x2; x++ )  {
+        s.Plot(x,y,colour);
+        eps += dy;
+        if ( eps >= limit )  {
+          y++;  eps -= dx;
+        }
+      }
+    }
+
+
+   The last thing we can do to improve the algorithm, is instead of initializing
+  eps to 0, we can initialize it to -((dx>>1) + (dx&1)) , so the algorithm becomes:
+
+    void bresenham3(Screen &s,
+              unsigned x1, unsigned y1,
+              unsigned x2, unsigned y2,
+              unsigned char colour )
+    {
+      int dx  = x2 - x1,
+          dy  = y2 - y1,
+          y   = y1,
+          eps = -((dx>>1) + (dx&1));
+
+      for ( int x = x1; x <= x2; x++ )  {
+        s.Plot(x,y,colour);
+        eps += dy;
+        if ( eps >= 0 )  {
+          y++;  eps -= dx;
+        }
+      }
+    }
+
+   And this is exactly the algorithm implemented by Marlin
+  */
+
 int32_t Stepper::counter_X = 0,
         Stepper::counter_Y = 0,
         Stepper::counter_Z = 0,
@@ -1138,7 +1366,7 @@ hal_timer_t Stepper::isr_scheduler() {
 
   // Limit the amount of iterations
   uint8_t max_loops = 10;
-  
+
   // We need this variable here to be able to use it in the following loop
   hal_timer_t min_ticks;
   do {
@@ -1258,12 +1486,12 @@ void Stepper::stepper_pulse_phase_isr() {
     // Advance the Bresenham counter; start a pulse if the axis needs a step
     #define PULSE_START(AXIS) do{ \
       _COUNTER(AXIS) += current_block->steps[_AXIS(AXIS)]; \
-      if (_COUNTER(AXIS) > 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); } \
+      if (_COUNTER(AXIS) >= 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); } \
     }while(0)
 
     // Advance the Bresenham counter; start a pulse if the axis needs a step
     #define STEP_TICK(AXIS) do { \
-      if (_COUNTER(AXIS) > 0) { \
+      if (_COUNTER(AXIS) >= 0) { \
         _COUNTER(AXIS) -= current_block->step_event_count; \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
       } \
@@ -1351,7 +1579,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if ENABLED(LIN_ADVANCE)
       counter_E += current_block->steps[E_AXIS];
-      if (counter_E > 0) {
+      if (counter_E >= 0) {
         #if DISABLED(MIXING_EXTRUDER)
           // Don't step E here for mixing extruder
           motor_direction(E_AXIS) ? --e_steps : ++e_steps;
@@ -1363,7 +1591,7 @@ void Stepper::stepper_pulse_phase_isr() {
         const bool dir = motor_direction(E_AXIS);
         MIXING_STEPPERS_LOOP(j) {
           counter_m[j] += current_block->steps[E_AXIS];
-          if (counter_m[j] > 0) {
+          if (counter_m[j] >= 0) {
             counter_m[j] -= current_block->mix_event_count[j];
             dir ? --e_steps[j] : ++e_steps[j];
           }
@@ -1380,7 +1608,7 @@ void Stepper::stepper_pulse_phase_isr() {
           // Step mixing steppers (proportionally)
           counter_m[j] += current_block->steps[E_AXIS];
           // Step when the counter goes over zero
-          if (counter_m[j] > 0) En_STEP_WRITE(j, !INVERT_E_STEP_PIN);
+          if (counter_m[j] >= 0) En_STEP_WRITE(j, !INVERT_E_STEP_PIN);
         }
       #else // !MIXING_EXTRUDER
         PULSE_START(E);
@@ -1420,7 +1648,7 @@ void Stepper::stepper_pulse_phase_isr() {
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(j) {
-          if (counter_m[j] > 0) {
+          if (counter_m[j] >= 0) {
             counter_m[j] -= current_block->mix_event_count[j];
             En_STEP_WRITE(j, INVERT_E_STEP_PIN);
           }
@@ -1702,11 +1930,11 @@ uint32_t Stepper::stepper_block_phase_isr() {
         bezier_2nd_half = false;
       #endif
 
-      // Initialize Bresenham counters to 1/2 the ceiling
-      counter_X = counter_Y = counter_Z = counter_E = -((int32_t)(current_block->step_event_count >> 1));
+      // Initialize Bresenham counters to 1/2 the ceiling, with proper roundup (as explained in the comments on Bresenham algorithm above)
+      counter_X = counter_Y = counter_Z = counter_E = -((int32_t)((current_block->step_event_count >> 1)+(current_block->step_event_count & 1)));
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(i)
-          counter_m[i] = -(current_block->mix_event_count[i] >> 1);
+          counter_m[i] = -(int32_t)((current_block->mix_event_count[i] >> 1)+( current_block->mix_event_count[i] & 1));
       #endif
 
       #if ENABLED(Z_LATE_ENABLE)
