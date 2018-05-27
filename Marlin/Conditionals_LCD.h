@@ -396,15 +396,6 @@
  *  E_MANUAL     - Number of E steppers for LCD move options
  *
  */
-#if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
-  #define HOTENDS       1
-  #undef TEMP_SENSOR_1_AS_REDUNDANT
-  #undef HOTEND_OFFSET_X
-  #undef HOTEND_OFFSET_Y
-#else                                                         // Two hotends
-  #define HOTENDS       EXTRUDERS
-#endif
-
 #if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
@@ -413,6 +404,7 @@
   #else
     #define E_STEPPERS    1
   #endif
+  #define HOTENDS         E_STEPPERS
   #define E_MANUAL        EXTRUDERS
 #elif ENABLED(MIXING_EXTRUDER)
   #define E_STEPPERS      MIXING_STEPPERS
@@ -420,6 +412,18 @@
 #else
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
+#endif
+
+#if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
+  #undef HOTENDS
+  #define HOTENDS       1
+  #undef TEMP_SENSOR_1_AS_REDUNDANT
+  #undef HOTEND_OFFSET_X
+  #undef HOTEND_OFFSET_Y
+#endif
+
+#ifndef HOTENDS
+  #define HOTENDS EXTRUDERS
 #endif
 
 #define DO_SWITCH_EXTRUDER (ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR))
