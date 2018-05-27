@@ -1804,10 +1804,8 @@ uint32_t Stepper::stepper_block_phase_isr() {
         current_adv_steps++;
         interval = eISR_Rate;
       }
-      else {
-        interval = ADV_NEVER;
-        eISR_Rate = ADV_NEVER;
-      }
+      else
+        interval = eISR_Rate = ADV_NEVER;
     }
     else
       interval = ADV_NEVER;
