@@ -29,15 +29,12 @@
 #define CPU_32_BIT
 #undef DEBUG_NONE
 
-#ifndef vsnprintf_P
-  #define vsnprintf_P vsnprintf
-#endif
-
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
 
 #include <stdint.h>
+#include <stdio.h>
 
 #include "Arduino.h"
 
@@ -45,6 +42,7 @@
 #include "../HAL_SPI.h"
 #include "fastio_STM32F4.h"
 #include "watchdog_STM32F4.h"
+#include <avr/dtostrf.h>
 
 #include "HAL_timers_STM32F4.h"
 
@@ -126,6 +124,14 @@
 
 #ifndef strncpy_P
   #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
+#endif
+
+#ifndef vsnprintf_P
+  #define vsnprintf_P vsnprintf
+#endif
+
+#ifndef snprintf_P
+  #define snprintf_P snprintf
 #endif
 
 // Fix bug in pgm_read_ptr
