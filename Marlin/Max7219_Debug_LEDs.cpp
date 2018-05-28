@@ -60,44 +60,42 @@
 #include "planner.h"
 #include "stepper.h"
 #include "Marlin.h"
+#include "delay.h"
 
 static uint8_t LEDs[8] = { 0 };
 
-#ifdef CPU_32_BIT
-  #define MS_DELAY() delayMicroseconds(7)  // 32-bit processors need a delay to stabilize the signal
-#else
-  #define MS_DELAY() DELAY_3_NOP
-#endif
+// Delay for 0.1875µs (16MHz AVR) or 0.15µs (20MHz AVR)
+#define SIG_DELAY() DELAY_NS(188)
 
 void Max7219_PutByte(uint8_t data) {
   CRITICAL_SECTION_START
   for (uint8_t i = 8; i--;) {
-    MS_DELAY();
+    SIG_DELAY();
     WRITE(MAX7219_CLK_PIN, LOW);       // tick
-    MS_DELAY();
+    SIG_DELAY();
     WRITE(MAX7219_DIN_PIN, (data & 0x80) ? HIGH : LOW);  // send 1 or 0 based on data bit
-    MS_DELAY();
+    SIG_DELAY();
     WRITE(MAX7219_CLK_PIN, HIGH);      // tock
-    MS_DELAY();
+    SIG_DELAY();
     data <<= 1;
   }
   CRITICAL_SECTION_END
 }
 
 void Max7219(const uint8_t reg, const uint8_t data) {
-  MS_DELAY();
+  SIG_DELAY();
   CRITICAL_SECTION_START
   WRITE(MAX7219_LOAD_PIN, LOW);  // begin
-  MS_DELAY();
+  SIG_DELAY();
   Max7219_PutByte(reg);          // specify register
-  MS_DELAY();
+  SIG_DELAY();
   Max7219_PutByte(data);         // put data
-  MS_DELAY();
+  SIG_DELAY();
   WRITE(MAX7219_LOAD_PIN, LOW);  // and tell the chip to load the data
-  MS_DELAY();
+  SIG_DELAY();
   WRITE(MAX7219_LOAD_PIN, HIGH);
   CRITICAL_SECTION_END
-  MS_DELAY();
+  SIG_DELAY();
 }
 
 void Max7219_LED_Set(const uint8_t col, const uint8_t row, const bool on) {
@@ -107,9 +105,9 @@ void Max7219_LED_Set(const uint8_t col, const uint8_t row, const bool on) {
     SERIAL_ECHOLNPGM(")");
     return;
   }
-  if (TEST(LEDs[row], col) == on) return; // if LED is already on/off, leave alone
-  if (on) SBI(LEDs[row], col); else CBI(LEDs[row], col);
-  Max7219(8 - row, LEDs[row]);
+  if (TEST(LEDs[col], row) == on) return; // if LED is already on/off, leave alone
+  if (on) SBI(LEDs[col], row); else CBI(LEDs[col], row);
+  Max7219(8 - col, LEDs[col]);
 }
 
 void Max7219_LED_On(const uint8_t col, const uint8_t row) {
@@ -344,8 +342,8 @@ void Max7219_idle_tasks() {
       NOMORE(current_depth, 16);        // if the BLOCK_BUFFER_SIZE is greater than 16, two lines
                                         // of LEDs is enough to see if the buffer is draining
 
-      const uint8_t st = min(current_depth, last_depth),
-                    en = max(current_depth, last_depth);
+      const uint8_t st = MIN(current_depth, last_depth),
+                    en = MAX(current_depth, last_depth);
       if (current_depth < last_depth)
         for (uint8_t i = st; i <= en; i++)   // clear the highest order LEDs
           Max7219_LED_Off(MAX7219_DEBUG_STEPPER_QUEUE + (i & 1), i / 2);

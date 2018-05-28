@@ -67,19 +67,19 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
     // button and encoder bit positions within 'buttons'
-    #define B_LE (BUTTON_LEFT<<B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
-    #define B_UP (BUTTON_UP<<B_I2C_BTN_OFFSET)
-    #define B_MI (BUTTON_SELECT<<B_I2C_BTN_OFFSET)
-    #define B_DW (BUTTON_DOWN<<B_I2C_BTN_OFFSET)
-    #define B_RI (BUTTON_RIGHT<<B_I2C_BTN_OFFSET)
+    #define B_LE (BUTTON_LEFT   << B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
+    #define B_UP (BUTTON_UP     << B_I2C_BTN_OFFSET)
+    #define B_MI (BUTTON_SELECT << B_I2C_BTN_OFFSET)
+    #define B_DW (BUTTON_DOWN   << B_I2C_BTN_OFFSET)
+    #define B_RI (BUTTON_RIGHT  << B_I2C_BTN_OFFSET)
 
     #undef LCD_CLICKED
     #if BUTTON_EXISTS(ENC)
       // the pause/stop/restart button is connected to BTN_ENC when used
       #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
-      #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
+      #define LCD_CLICKED (buttons & (B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
     #else
-      #define LCD_CLICKED (buttons&(B_MI|B_RI))
+      #define LCD_CLICKED (buttons & (B_MI|B_RI))
     #endif
 
     // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
@@ -91,7 +91,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
       #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
-      #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
+      #define B_MI (PANELOLU2_ENCODER_C << B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
       #undef LCD_CLICKED
       #define LCD_CLICKED (buttons & B_MI)
@@ -467,9 +467,7 @@ static void lcd_implementation_init(
 }
 
 void lcd_implementation_clear() { lcd.clear(); }
-
 void lcd_print(const char c) { charset_mapper(c); }
-
 void lcd_print(const char *str) { while (*str) lcd.print(*str++); }
 void lcd_printPGM(const char *str) { while (const char c = pgm_read_byte(str)) lcd.print(c), ++str; }
 
@@ -493,13 +491,42 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
   void lcd_scroll(const int16_t col, const int16_t line, const char* const text, const int16_t len, const int16_t time) {
-    char tmp[LCD_WIDTH + 1] = {0};
-    int16_t n = max(lcd_strlen_P(text) - len, 0);
-    for (int16_t i = 0; i <= n; i++) {
-      strncpy_P(tmp, text + i, min(len, LCD_WIDTH));
+    uint8_t slen = lcd_strlen_P(text);
+    if (slen < len) {
+      // Fits into,
       lcd.setCursor(col, line);
-      lcd_print(tmp);
-      delay(time / max(n, 1));
+      lcd_printPGM_utf(text, len);
+      while (slen < len) {
+        lcd.write(' ');
+        ++slen;
+      }
+      safe_delay(time);
+    }
+    else {
+      const char* p = text;
+      int dly = time / MAX(slen, 1);
+      for (uint8_t i = 0; i <= slen; i++) {
+
+        // Go to the correct place
+        lcd.setCursor(col, line);
+
+        // Print the text
+        lcd_printPGM_utf(p, len);
+
+        // Fill with spaces
+        uint8_t ix = slen - i;
+        while (ix < len) {
+          lcd.write(' ');
+          ++ix;
+        }
+
+        // Delay
+        safe_delay(dly);
+
+        // Advance to the next UTF8 valid position
+        p++;
+        while (!START_OF_UTF8_CHAR(pgm_read_byte(p))) p++;
+      }
     }
   }
 
@@ -599,19 +626,25 @@ void lcd_kill_screen() {
   lcd_printPGM_utf(PSTR(MSG_PLEASE_RESET));
 }
 
-FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
+//
+// Before homing, blink '123' <-> '???'.
+// Homed but unknown... '123' <-> '   '.
+// Homed and known, display constantly.
+//
+FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
+  lcd_print('X' + uint8_t(axis));
   if (blink)
-    lcd_printPGM(pstr);
+    lcd.print(value);
   else {
     if (!axis_homed[axis])
-      lcd.write('?');
+      while (const char c = *value++) lcd_print(c <= '.' ? c : '?');
     else {
       #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
-          lcd.write(' ');
+          lcd_printPGM(axis == Z_AXIS ? PSTR("      ") : PSTR("    "));
         else
       #endif
-          lcd_printPGM(pstr);
+          lcd.print(value);
     }
   }
 }
@@ -719,7 +752,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 1 or Bed Temperature
     //
-    #if HOTENDS > 1 || TEMP_SENSOR_BED
+    #if HOTENDS > 1 || HAS_HEATED_BED
 
       lcd.setCursor(8, 0);
       #if HOTENDS > 1
@@ -730,7 +763,7 @@ static void lcd_implementation_status_screen() {
         _draw_heater_status(-1, -1, blink);
       #endif
 
-    #endif // HOTENDS > 1 || TEMP_SENSOR_BED
+    #endif // HOTENDS > 1 || HAS_HEATED_BED
 
   #else // LCD_WIDTH >= 20
 
@@ -742,7 +775,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 1 or Bed Temperature
     //
-    #if HOTENDS > 1 || TEMP_SENSOR_BED
+    #if HOTENDS > 1 || HAS_HEATED_BED
       lcd.setCursor(10, 0);
       #if HOTENDS > 1
         _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
@@ -755,7 +788,7 @@ static void lcd_implementation_status_screen() {
         ), blink);
       #endif
 
-    #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
+    #endif // HOTENDS > 1 || HAS_HEATED_BED
 
   #endif // LCD_WIDTH >= 20
 
@@ -784,7 +817,7 @@ static void lcd_implementation_status_screen() {
       // If the first line has two extruder temps,
       // show more temperatures on the next line
 
-      #if HOTENDS > 2 || (HOTENDS > 1 && TEMP_SENSOR_BED)
+      #if HOTENDS > 2 || (HOTENDS > 1 && HAS_HEATED_BED)
 
         #if HOTENDS > 2
           _draw_heater_status(2, LCD_STR_THERMOMETER[0], blink);
@@ -798,28 +831,22 @@ static void lcd_implementation_status_screen() {
           LCD_BEDTEMP_CHAR
         ), blink);
 
-      #else // HOTENDS <= 2 && (HOTENDS <= 1 || !TEMP_SENSOR_BED)
-        // Before homing the axis letters are blinking 'X' <-> '?'.
-        // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
-        // When everything is ok you see a constant 'X'.
+      #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
-        _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-        lcd.print(ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
+        _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink);
 
         lcd.write(' ');
 
-        _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-        lcd.print(ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
+        _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink);
 
-      #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !TEMP_SENSOR_BED)
+      #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
-    lcd.print(ftostr52sp(FIXFLOAT(LOGICAL_Z_POSITION(current_position[Z_AXIS]))));
+    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
 
-    #if HAS_LEVELING && !TEMP_SENSOR_BED
+    #if HAS_LEVELING && !HAS_HEATED_BED
       lcd.write(planner.leveling_active || blink ? '_' : ' ');
     #endif
 
@@ -897,37 +924,81 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
-    const uint8_t slen = lcd_strlen(lcd_status_message);
-    const char *stat = lcd_status_message + status_scroll_pos;
-    if (slen <= LCD_WIDTH)
-      lcd_print_utf(stat);                                      // The string isn't scrolling
+
+    // Get the UTF8 character count of the string
+    uint8_t slen = lcd_strlen(lcd_status_message);
+
+    // If the string fits into the LCD, just print it and do not scroll it
+    if (slen <= LCD_WIDTH) {
+
+      // The string isn't scrolling and may not fill the screen
+      lcd_print_utf(lcd_status_message);
+
+      // Fill the rest with spaces
+      while (slen < LCD_WIDTH) {
+        lcd.write(' ');
+        ++slen;
+      }
+    }
     else {
-      if (status_scroll_pos <= slen - LCD_WIDTH)
-        lcd_print_utf(stat);                                    // The string fills the screen
+      // String is larger than the available space in screen.
+
+      // Get a pointer to the next valid UTF8 character
+      const char *stat = lcd_status_message + status_scroll_offset;
+
+      // Get the string remaining length
+      const uint8_t rlen = lcd_strlen(stat);
+
+      // If we have enough characters to display
+      if (rlen >= LCD_WIDTH) {
+        // The remaining string fills the screen - Print it
+        lcd_print_utf(stat, LCD_WIDTH);
+      }
       else {
-        uint8_t chars = LCD_WIDTH;
-        if (status_scroll_pos < slen) {                         // First string still visible
-          lcd_print_utf(stat);                                  // The string leaves space
-          chars -= slen - status_scroll_pos;                    // Amount of space left
-        }
-        lcd.write('.');                                         // Always at 1+ spaces left, draw a dot
-        if (--chars) {
-          if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
-            --chars, lcd.write('.');
-          if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
+
+        // The remaining string does not completely fill the screen
+        lcd_print_utf(stat, LCD_WIDTH);               // The string leaves space
+        uint8_t chars = LCD_WIDTH - rlen;             // Amount of space left in characters
+
+        lcd.write('.');                               // Always at 1+ spaces left, draw a dot
+        if (--chars) {                                // Draw a second dot if there's space
+          lcd.write('.');
+          if (--chars)
+            lcd_print_utf(lcd_status_message, chars); // Print a second copy of the message
         }
       }
       if (last_blink != blink) {
         last_blink = blink;
-        // Skip any non-printing bytes
-        if (status_scroll_pos < slen) while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
-        if (++status_scroll_pos >= slen + 2) status_scroll_pos = 0;
+
+        // Adjust by complete UTF8 characters
+        if (status_scroll_offset < slen) {
+          status_scroll_offset++;
+          while (!START_OF_UTF8_CHAR(lcd_status_message[status_scroll_offset]))
+            status_scroll_offset++;
+        }
+        else
+          status_scroll_offset = 0;
       }
     }
   #else
-    lcd_print_utf(lcd_status_message);
+    UNUSED(blink);
+
+    // Get the UTF8 character count of the string
+    uint8_t slen = lcd_strlen(lcd_status_message);
+
+    // Just print the string to the LCD
+    lcd_print_utf(lcd_status_message, LCD_WIDTH);
+
+    // Fill the rest with spaces if there are missing spaces
+    while (slen < LCD_WIDTH) {
+      lcd.write(' ');
+      ++slen;
+    }
   #endif
+
 }
+
+
 
 #if ENABLED(ULTIPANEL)
 
@@ -1034,7 +1105,7 @@ static void lcd_implementation_status_screen() {
               name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
             if (filename_scroll_hash != name_hash) {                            // If the hash changed...
               filename_scroll_hash = name_hash;                                 // Save the new hash
-              filename_scroll_max = max(0, lcd_strlen(longFilename) - n);  // Update the scroll limit
+              filename_scroll_max = MAX(0, lcd_strlen(longFilename) - n);  // Update the scroll limit
               filename_scroll_pos = 0;                                          // Reset scroll to the start
               lcd_status_update_delay = 8;                                      // Don't scroll right away
             }
@@ -1226,10 +1297,10 @@ static void lcd_implementation_status_screen() {
          * Show X and Y positions
          */
         _XLABEL(_PLOT_X, 0);
-        lcd.print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
+        lcd.print(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
 
         _YLABEL(_LCD_W_POS, 0);
-        lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+        lcd.print(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
 
         lcd.setCursor(_PLOT_X, 0);
 
@@ -1347,7 +1418,7 @@ static void lcd_implementation_status_screen() {
         //dump_custom_char("at entry:", &new_char);
 
         clear_custom_char(&new_char);
-        const uint8_t ypix = min(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, ULTRA_Y_PIXELS_PER_CHAR);
+        const uint8_t ypix = MIN(upper_left.y_pixel_offset + pixels_per_y_mesh_pnt, ULTRA_Y_PIXELS_PER_CHAR);
         for (j = upper_left.y_pixel_offset; j < ypix; j++) {
           i = upper_left.x_pixel_mask;
           for (k = 0; k < pixels_per_x_mesh_pnt; k++) {
@@ -1462,9 +1533,9 @@ static void lcd_implementation_status_screen() {
          * Show all values at right of screen
          */
         _XLABEL(_LCD_W_POS, 1);
-        lcd.print(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
+        lcd.print(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
         _YLABEL(_LCD_W_POS, 2);
-        lcd.print(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+        lcd.print(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
 
         /**
          * Show the location value

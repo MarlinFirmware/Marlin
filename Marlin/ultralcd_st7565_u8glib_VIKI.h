@@ -24,6 +24,7 @@
 #define ULCDST7565_H
 
 #include <U8glib.h>
+#include "delay.h"
 
 #define ST7565_CLK_PIN  DOGLCD_SCK
 #define ST7565_DAT_PIN  DOGLCD_MOSI
@@ -38,9 +39,9 @@
 #pragma GCC optimize (3)
 
 // If you want you can define your own set of delays in Configuration.h
-//#define ST7565_DELAY_1 DELAY_0_NOP
-//#define ST7565_DELAY_2 DELAY_0_NOP
-//#define ST7565_DELAY_3 DELAY_0_NOP
+//#define ST7565_DELAY_1 DELAY_NS(0)
+//#define ST7565_DELAY_2 DELAY_NS(0)
+//#define ST7565_DELAY_3 DELAY_NS(0)
 
 /*
 #define ST7565_DELAY_1 u8g_10MicroDelay()
@@ -49,25 +50,25 @@
 */
 
 #if F_CPU >= 20000000
-  #define CPU_ST7565_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7565_DELAY_2 DELAY_0_NOP
-  #define CPU_ST7565_DELAY_3 DELAY_1_NOP
+  #define CPU_ST7565_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7565_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7565_DELAY_3 DELAY_NS(63)
 #elif MB(3DRAG) || MB(K8200) || MB(K8400)
-  #define CPU_ST7565_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7565_DELAY_2 DELAY_3_NOP
-  #define CPU_ST7565_DELAY_3 DELAY_0_NOP
+  #define CPU_ST7565_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7565_DELAY_2 DELAY_NS(188)
+  #define CPU_ST7565_DELAY_3 DELAY_NS(0)
 #elif MB(MINIRAMBO)
-  #define CPU_ST7565_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7565_DELAY_2 DELAY_4_NOP
-  #define CPU_ST7565_DELAY_3 DELAY_0_NOP
+  #define CPU_ST7565_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7565_DELAY_2 DELAY_NS(250)
+  #define CPU_ST7565_DELAY_3 DELAY_NS(0)
 #elif MB(RAMBO)
-  #define CPU_ST7565_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7565_DELAY_2 DELAY_0_NOP
-  #define CPU_ST7565_DELAY_3 DELAY_0_NOP
+  #define CPU_ST7565_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7565_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7565_DELAY_3 DELAY_NS(0)
 #elif F_CPU == 16000000
-  #define CPU_ST7565_DELAY_1 DELAY_0_NOP
-  #define CPU_ST7565_DELAY_2 DELAY_0_NOP
-  #define CPU_ST7565_DELAY_3 DELAY_1_NOP
+  #define CPU_ST7565_DELAY_1 DELAY_NS(0)
+  #define CPU_ST7565_DELAY_2 DELAY_NS(0)
+  #define CPU_ST7565_DELAY_3 DELAY_NS(63)
 #else
   #error "No valid condition for delays in 'ultralcd_st7565_u8glib_VIKI.h'"
 #endif
@@ -115,8 +116,8 @@
 
 #endif // !HARDWARE_SPI
 
-#if defined(DOGM_SPI_DELAY_US) && DOGM_SPI_DELAY_US > 0
-  #define U8G_DELAY() delayMicroseconds(DOGM_SPI_DELAY_US)
+#if DOGM_SPI_DELAY_US > 0
+  #define U8G_DELAY() DELAY_US(DOGM_SPI_DELAY_US)
 #else
   #define U8G_DELAY() u8g_10MicroDelay()
 #endif

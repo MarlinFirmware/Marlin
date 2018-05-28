@@ -388,7 +388,7 @@ void report_current_position();
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
-  #if Z_AFTER_PROBING
+  #ifdef Z_AFTER_PROBING
     void move_z_after_probing();
   #endif
   enum ProbePtRaise : unsigned char {
@@ -448,10 +448,6 @@ void report_current_position();
                filament_change_load_length[EXTRUDERS];
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  extern int lpq_len;
-#endif
-
 #if HAS_POWER_SWITCH
   extern bool powersupply_on;
   #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); powersupply_on = true; }while(0)
@@ -476,6 +472,10 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0.0);
 void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0.0);
+
+#if ENABLED(ARC_SUPPORT)
+  void plan_arc(const float(&cart)[XYZE], const float(&offset)[2], const bool clockwise);
+#endif
 
 #define HAS_AXIS_UNHOMED_ERR (                                                     \
          ENABLED(Z_PROBE_ALLEN_KEY)                                                \
@@ -522,7 +522,7 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
     // Note: This won't work on SCARA since the probe offset rotates with the arm.
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
       return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-             && position_is_reachable(rx, ry, FABS(MIN_PROBE_EDGE));
+             && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
     }
   #endif
 

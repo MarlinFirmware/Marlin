@@ -134,9 +134,6 @@
   // External references
 
   extern Planner planner;
-  #if ENABLED(ULTRA_LCD)
-    extern char lcd_status_message[];
-  #endif
 
   // Private functions
 
@@ -158,7 +155,7 @@
 
   static int8_t g26_prime_flag;
 
-  #if ENABLED(NEWPANEL)
+  #if ENABLED(ULTIPANEL)
 
     /**
      * If the LCD is clicked, cancel, wait for release, return true
@@ -183,9 +180,9 @@
 
   void G26_line_to_destination(const float &feed_rate) {
     const float save_feedrate = feedrate_mm_s;
-    feedrate_mm_s = feed_rate;      // use specified feed rate
+    feedrate_mm_s = feed_rate;
     prepare_move_to_destination();  // will ultimately call ubl.line_to_destination_cartesian or ubl.prepare_linear_move_to for UBL_SEGMENTED
-    feedrate_mm_s = save_feedrate;  // restore global feed rate
+    feedrate_mm_s = save_feedrate;
   }
 
   void move_to(const float &rx, const float &ry, const float &z, const float &e_delta) {
@@ -204,8 +201,6 @@
       destination[E_AXIS] = current_position[E_AXIS];
 
       G26_line_to_destination(feed_value);
-
-      stepper.synchronize();
       set_destination_from_current();
     }
 
@@ -220,8 +215,6 @@
     destination[E_AXIS] += e_delta;
 
     G26_line_to_destination(feed_value);
-
-    stepper.synchronize();
     set_destination_from_current();
   }
 
@@ -246,7 +239,7 @@
    */
   inline bool prime_nozzle() {
 
-    #if ENABLED(NEWPANEL)
+    #if ENABLED(ULTIPANEL)
       float Total_Prime = 0.0;
 
       if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
@@ -267,19 +260,16 @@
             if (Total_Prime >= EXTRUDE_MAXLENGTH) return G26_ERR;
           #endif
           G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
-
-          stepper.synchronize();    // Without this synchronize, the purge is more consistent,
+          set_destination_from_current();
+          planner.synchronize();    // Without this synchronize, the purge is more consistent,
                                     // but because the planner has a buffer, we won't be able
                                     // to stop as quickly. So we put up with the less smooth
                                     // action to give the user a more responsive 'Stop'.
-          set_destination_from_current();
-          idle();
+
           SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
         }
 
         wait_for_release();
-
-        strcpy_P(lcd_status_message, PSTR("Done Priming")); // Hack to get the message up. May be obsolete.
 
         lcd_setstatusPGM(PSTR("Done Priming"), 99);
         lcd_quick_feedback(true);
@@ -295,7 +285,6 @@
       set_destination_from_current();
       destination[E_AXIS] += g26_prime_length;
       G26_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0);
-      stepper.synchronize();
       set_destination_from_current();
       retract_filament(destination);
     }
@@ -369,7 +358,7 @@
 
     // If the end point of the line is closer to the nozzle, flip the direction,
     // moving from the end to the start. On very small lines the optimization isn't worth it.
-    if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < FABS(line_length))
+    if (dist_end < dist_start && (INTERSECTION_CIRCLE_RADIUS) < ABS(line_length))
       return print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
 
     // Decide whether to retract & bump
@@ -395,7 +384,7 @@
     for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (uint8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
 
-        #if ENABLED(NEWPANEL)
+        #if ENABLED(ULTIPANEL)
           if (user_canceled()) return true;     // Check if the user wants to stop the Mesh Validation
         #endif
 
@@ -486,12 +475,14 @@
         if (g26_bed_temp > 25) {
           lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
           lcd_quick_feedback(true);
-          lcd_external_control = true;
+          #if ENABLED(ULTIPANEL)
+            lcd_external_control = true;
+          #endif
       #endif
           thermalManager.setTargetBed(g26_bed_temp);
-          while (abs(thermalManager.degBed() - g26_bed_temp) > 3) {
+          while (ABS(thermalManager.degBed() - g26_bed_temp) > 3) {
 
-            #if ENABLED(NEWPANEL)
+            #if ENABLED(ULTIPANEL)
               if (is_lcd_clicked()) return exit_from_g26();
             #endif
 
@@ -512,9 +503,9 @@
 
     // Start heating the nozzle and wait for it to reach temperature.
     thermalManager.setTargetHotend(g26_hotend_temp, 0);
-    while (abs(thermalManager.degHotend(0) - g26_hotend_temp) > 3) {
+    while (ABS(thermalManager.degHotend(0) - g26_hotend_temp) > 3) {
 
-      #if ENABLED(NEWPANEL)
+      #if ENABLED(ULTIPANEL)
         if (is_lcd_clicked()) return exit_from_g26();
       #endif
 
@@ -627,7 +618,7 @@
 
     if (parser.seen('P')) {
       if (!parser.has_value()) {
-        #if ENABLED(NEWPANEL)
+        #if ENABLED(ULTIPANEL)
           g26_prime_flag = -1;
         #else
           SERIAL_PROTOCOLLNPGM("?Prime length must be specified when not using an LCD.");
@@ -672,7 +663,7 @@
     }
 
     int16_t g26_repeats;
-    #if ENABLED(NEWPANEL)
+    #if ENABLED(ULTIPANEL)
       g26_repeats = parser.intval('R', GRID_MAX_POINTS + 1);
     #else
       if (!parser.seen('R')) {
@@ -701,7 +692,6 @@
 
     if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-      stepper.synchronize();
       set_current_from_destination();
     }
 
@@ -732,27 +722,31 @@
     move_to(destination, 0.0);
     move_to(destination, g26_ooze_amount);
 
-    #if ENABLED(ULTRA_LCD)
+    #if ENABLED(ULTIPANEL)
       lcd_external_control = true;
     #endif
 
-//  debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
+    //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
 
-    /**
-     * Pre-generate radius offset values at 30 degree intervals to reduce CPU load.
-     */
-    #define A_INT 30
-    #define _ANGS (360 / A_INT)
-    #define A_CNT (_ANGS / 2)
-    #define _IND(A) ((A + _ANGS * 8) % _ANGS)
-    #define _COS(A) (trig_table[_IND(A) % A_CNT] * (_IND(A) >= A_CNT ? -1 : 1))
-    #define _SIN(A) (-_COS((A + A_CNT / 2) % _ANGS))
-    #if A_CNT & 1
-      #error "A_CNT must be a positive value. Please change A_INT."
-    #endif
-    float trig_table[A_CNT];
-    for (uint8_t i = 0; i < A_CNT; i++)
-      trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * A_INT));
+    #if DISABLED(ARC_SUPPORT)
+
+      /**
+       * Pre-generate radius offset values at 30 degree intervals to reduce CPU load.
+       */
+      #define A_INT 30
+      #define _ANGS (360 / A_INT)
+      #define A_CNT (_ANGS / 2)
+      #define _IND(A) ((A + _ANGS * 8) % _ANGS)
+      #define _COS(A) (trig_table[_IND(A) % A_CNT] * (_IND(A) >= A_CNT ? -1 : 1))
+      #define _SIN(A) (-_COS((A + A_CNT / 2) % _ANGS))
+      #if A_CNT & 1
+        #error "A_CNT must be a positive value. Please change A_INT."
+      #endif
+      float trig_table[A_CNT];
+      for (uint8_t i = 0; i < A_CNT; i++)
+        trig_table[i] = INTERSECTION_CIRCLE_RADIUS * cos(RADIANS(i * A_INT));
+
+    #endif // !ARC_SUPPORT
 
     mesh_index_pair location;
     do {
@@ -771,52 +765,127 @@
         // which is always drawn counter-clockwise.
         const uint8_t xi = location.x_index, yi = location.y_index;
         const bool f = yi == 0, r = xi >= GRID_MAX_POINTS_X - 1, b = yi >= GRID_MAX_POINTS_Y - 1;
-        int8_t start_ind = -2, end_ind = 9;  // Assume a full circle (from 5:00 to 5:00)
-        if (xi == 0) {                       // Left edge? Just right half.
-          start_ind = f ? 0 : -3;            //  03:00 to 12:00 for front-left
-          end_ind   = b ? 0 :  2;            //  06:00 to 03:00 for back-left
-        }
-        else if (r) {                        // Right edge? Just left half.
-          start_ind = b ? 6 : 3;             //  12:00 to 09:00 for front-right
-          end_ind   = f ? 5 : 8;             //  09:00 to 06:00 for back-right
-        }
-        else if (f) {                        // Front edge? Just back half.
-          start_ind = 0;                     //  03:00
-          end_ind   = 5;                     //  09:00
-        }
-        else if (b) {                        // Back edge? Just front half.
-          start_ind =  6;                    //  09:00
-          end_ind   = 11;                    //  03:00
-        }
 
-        for (int8_t ind = start_ind; ind <= end_ind; ind++) {
+        #if ENABLED(ARC_SUPPORT)
 
-          #if ENABLED(NEWPANEL)
-            if (user_canceled()) goto LEAVE;          // Check if the user wants to stop the Mesh Validation
+          #define ARC_LENGTH(quarters)  (INTERSECTION_CIRCLE_RADIUS * M_PI * (quarters) / 2)
+          float sx = circle_x + INTERSECTION_CIRCLE_RADIUS,   // default to full circle
+                ex = circle_x + INTERSECTION_CIRCLE_RADIUS,
+                sy = circle_y, ey = circle_y,
+                arc_length = ARC_LENGTH(4);
+
+          // Figure out where to start and end the arc - we always print counterclockwise
+          if (xi == 0) {                             // left edge
+            sx = f ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
+            ex = b ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
+            sy = f ? circle_y : circle_y - INTERSECTION_CIRCLE_RADIUS;
+            ey = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
+            arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
+          }
+          else if (r) {                             // right edge
+            sx = b ? circle_x - INTERSECTION_CIRCLE_RADIUS : circle_x;
+            ex = f ? circle_x - INTERSECTION_CIRCLE_RADIUS : circle_x;
+            sy = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
+            ey = f ? circle_y : circle_y - INTERSECTION_CIRCLE_RADIUS;
+            arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
+          }
+          else if (f) {
+            sx = circle_x + INTERSECTION_CIRCLE_RADIUS;
+            ex = circle_x - INTERSECTION_CIRCLE_RADIUS;
+            sy = ey = circle_y;
+            arc_length = ARC_LENGTH(2);
+          }
+          else if (b) {
+            sx = circle_x - INTERSECTION_CIRCLE_RADIUS;
+            ex = circle_x + INTERSECTION_CIRCLE_RADIUS;
+            sy = ey = circle_y;
+            arc_length = ARC_LENGTH(2);
+          }
+          const float arc_offset[2] = {
+            circle_x - sx,
+            circle_y - sy
+          };
+
+          const float dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual circle
+                      dy_s = current_position[Y_AXIS] - sy,
+                      dist_start = HYPOT2(dx_s, dy_s);
+          const float endpoint[XYZE] = {
+            ex, ey,
+            g26_layer_height,
+            current_position[E_AXIS] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
+          };
+
+          if (dist_start > 2.0) {
+            retract_filament(destination);
+            //todo:  parameterize the bump height with a define
+            move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 0.500, 0.0);  // Z bump to minimize scraping
+            move_to(sx, sy, g26_layer_height + 0.500, 0.0); // Get to the starting point with no extrusion while bumped
+          }
+
+          move_to(sx, sy, g26_layer_height, 0.0); // Get to the starting point with no extrusion / un-Z bump
+
+          recover_filament(destination);
+          const float save_feedrate = feedrate_mm_s;
+          feedrate_mm_s = PLANNER_XY_FEEDRATE() / 10.0;
+          plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
+          feedrate_mm_s = save_feedrate;
+          set_destination_from_current();
+          #if ENABLED(ULTIPANEL)
+            if (user_canceled()) goto LEAVE; // Check if the user wants to stop the Mesh Validation
           #endif
 
-          float rx = circle_x + _COS(ind),            // For speed, these are now a lookup table entry
-                ry = circle_y + _SIN(ind),
-                xe = circle_x + _COS(ind + 1),
-                ye = circle_y + _SIN(ind + 1);
+        #else // !ARC_SUPPORT
 
-          #if IS_KINEMATIC
-            // Check to make sure this segment is entirely on the bed, skip if not.
-            if (!position_is_reachable(rx, ry) || !position_is_reachable(xe, ye)) continue;
-          #else                                               // not, we need to skip
-            rx = constrain(rx, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
-            ry = constrain(ry, Y_MIN_POS + 1, Y_MAX_POS - 1);
-            xe = constrain(xe, X_MIN_POS + 1, X_MAX_POS - 1);
-            ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
-          #endif
+          int8_t start_ind = -2, end_ind = 9; // Assume a full circle (from 5:00 to 5:00)
+          if (xi == 0) {                      // Left edge? Just right half.
+            start_ind = f ? 0 : -3;           //  03:00 to 12:00 for front-left
+            end_ind = b ? 0 : 2;              //  06:00 to 03:00 for back-left
+          }
+          else if (r) {                       // Right edge? Just left half.
+            start_ind = b ? 6 : 3;            //  12:00 to 09:00 for front-right
+            end_ind = f ? 5 : 8;              //  09:00 to 06:00 for back-right
+          }
+          else if (f) {                       // Front edge? Just back half.
+            start_ind = 0;                    //  03:00
+            end_ind = 5;                      //  09:00
+          }
+          else if (b) {                       // Back edge? Just front half.
+            start_ind = 6;                    //  09:00
+            end_ind = 11;                     //  03:00
+          }
 
-          print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);
-          SERIAL_FLUSH();  // Prevent host M105 buffer overrun.
-        }
-        if (look_for_lines_to_connect())
-          goto LEAVE;
+          for (int8_t ind = start_ind; ind <= end_ind; ind++) {
+
+            #if ENABLED(ULTIPANEL)
+              if (user_canceled()) goto LEAVE;          // Check if the user wants to stop the Mesh Validation
+            #endif
+
+            float rx = circle_x + _COS(ind),            // For speed, these are now a lookup table entry
+                  ry = circle_y + _SIN(ind),
+                  xe = circle_x + _COS(ind + 1),
+                  ye = circle_y + _SIN(ind + 1);
+
+            #if IS_KINEMATIC
+              // Check to make sure this segment is entirely on the bed, skip if not.
+              if (!position_is_reachable(rx, ry) || !position_is_reachable(xe, ye)) continue;
+            #else                                               // not, we need to skip
+              rx = constrain(rx, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
+              ry = constrain(ry, Y_MIN_POS + 1, Y_MAX_POS - 1);
+              xe = constrain(xe, X_MIN_POS + 1, X_MAX_POS - 1);
+              ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
+            #endif
+
+            print_line_from_here_to_there(rx, ry, g26_layer_height, xe, ye, g26_layer_height);
+            SERIAL_FLUSH();  // Prevent host M105 buffer overrun.
+          }
+
+        #endif // !ARC_SUPPORT
+
+        if (look_for_lines_to_connect()) goto LEAVE;
       }
+
       SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
+
     } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
     LEAVE:
@@ -836,7 +905,7 @@
     move_to(destination, 0); // Move back to the starting position
     //debug_current_and_destination(PSTR("done doing X/Y move."));
 
-    #if ENABLED(ULTRA_LCD)
+    #if ENABLED(ULTIPANEL)
       lcd_external_control = false;     // Give back control of the LCD Panel!
     #endif
 

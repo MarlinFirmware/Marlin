@@ -742,7 +742,7 @@
   #define MSG_CNG_SDCARD                      _UxGT("Change SD card")
 #endif
 #ifndef MSG_ZPROBE_OUT
-  #define MSG_ZPROBE_OUT                      _UxGT("Z probe out. bed")
+  #define MSG_ZPROBE_OUT                      _UxGT("Z Probe past bed")
 #endif
 #ifndef MSG_SKEW_FACTOR
   #define MSG_SKEW_FACTOR                     _UxGT("Skew Factor")
@@ -769,7 +769,7 @@
   #define MSG_FIRST                           _UxGT("first")
 #endif
 #ifndef MSG_ZPROBE_ZOFFSET
-  #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Offset")
+  #define MSG_ZPROBE_ZOFFSET                  _UxGT("Probe Z Offset")
 #endif
 #ifndef MSG_BABYSTEP_X
   #define MSG_BABYSTEP_X                      _UxGT("Babystep X")

@@ -28,7 +28,6 @@
 
 #include <stdint.h>
 
-typedef int8_t pin_t;
 #ifndef _FASTIO_ARDUINO_H_
 #define _FASTIO_ARDUINO_H_
 
@@ -38,7 +37,7 @@ typedef int8_t pin_t;
 #define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
 #define AVR_ATmega2560_FAMILY (defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
 #define AVR_ATmega2561_FAMILY (defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
-#define AVR_ATmega328_FAMILY (defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328p__))
+#define AVR_ATmega328_FAMILY (defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__))
 
 /**
  * Include Ports and Functions
@@ -54,7 +53,7 @@ typedef int8_t pin_t;
 #elif AVR_ATmega2561_FAMILY
   #include "fastio_1281.h"
 #else
-  #error "Pins for this chip not defined in Arduino.h! If you have a working pins definition, please contribute!"
+  #error "No FastIO definition for the selected AVR Board."
 #endif
 
 #include "macros.h"

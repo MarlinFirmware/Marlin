@@ -239,13 +239,13 @@
     #define BTN_EN2             30
 
     #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1 DELAY_0_NOP
+      #define ST7920_DELAY_1 DELAY_NS(0)
     #endif
     #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2 DELAY_3_NOP
+      #define ST7920_DELAY_2 DELAY_NS(188)
     #endif
     #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3 DELAY_0_NOP
+      #define ST7920_DELAY_3 DELAY_NS(0)
     #endif
 
   #elif ENABLED(ZONESTAR_LCD) // For the Tronxy Melzi boards

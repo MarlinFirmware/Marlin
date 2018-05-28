@@ -62,7 +62,7 @@
 #if HAS_TRINAMIC
   #include "stepper_indirection.h"
   #include "tmc_util.h"
-  #define TMC_GET_PWMTHRS(P,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.axis_steps_per_mm[P##_AXIS])
+  #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.axis_steps_per_mm[_AXIS(A)])
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -71,6 +71,10 @@
 
 #if ENABLED(FWRETRACT)
   #include "fwretract.h"
+#endif
+
+#if ENABLED(PID_EXTRUSION_SCALING)
+  #define LPQ_LEN thermalManager.lpq_len
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -183,7 +187,7 @@ typedef struct SettingsDataStruct {
   //
   PIDC hotendPID[MAX_EXTRUDERS];                        // M301 En PIDC / M303 En U
 
-  int lpq_len;                                          // M301 L
+  int16_t lpq_len;                                      // M301 L
 
   //
   // PIDTEMPBED
@@ -609,9 +613,9 @@ void MarlinSettings::postprocess() {
     _FIELD_TEST(lpq_len);
 
     #if DISABLED(PID_EXTRUSION_SCALING)
-      int lpq_len = 20;
+      const int16_t LPQ_LEN = 20;
     #endif
-    EEPROM_WRITE(lpq_len);
+    EEPROM_WRITE(LPQ_LEN);
 
     #if DISABLED(PIDTEMPBED)
       dummy = DUMMY_PID_VALUE;
@@ -968,7 +972,6 @@ void MarlinSettings::postprocess() {
         SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
         SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
       #endif
-      if (!validating) reset();
       eeprom_error = true;
     }
     else {
@@ -1214,9 +1217,9 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(lpq_len);
 
       #if DISABLED(PID_EXTRUSION_SCALING)
-        int lpq_len;
+        int16_t LPQ_LEN;
       #endif
-      EEPROM_READ(lpq_len);
+      EEPROM_READ(LPQ_LEN);
 
       //
       // Heated Bed PID
@@ -1340,7 +1343,7 @@ void MarlinSettings::postprocess() {
       #endif
 
       #if ENABLED(HYBRID_THRESHOLD)
-        #define TMC_SET_PWMTHRS(P,Q) tmc_set_pwmthrs(stepper##Q, TMC_##Q, tmc_hybrid_threshold[TMC_##Q], planner.axis_steps_per_mm[P##_AXIS])
+        #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold[TMC_##Q], planner.axis_steps_per_mm[_AXIS(A)])
         uint32_t tmc_hybrid_threshold[TMC_AXES];
         EEPROM_READ(tmc_hybrid_threshold);
         if (!validating) {
@@ -1523,14 +1526,12 @@ void MarlinSettings::postprocess() {
         #endif
       }
 
-      if (!validating) {
-        if (eeprom_error) reset(); else postprocess();
-      }
+      if (!validating && !eeprom_error) postprocess();
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.report_state();
-
         if (!validating) {
+          ubl.report_state();
+
           if (!ubl.sanity_check()) {
             SERIAL_EOL();
             #if ENABLED(EEPROM_CHITCHAT)
@@ -1717,7 +1718,7 @@ void MarlinSettings::reset() {
     constexpr float tmp4[XYZ][HOTENDS] = {
       HOTEND_OFFSET_X,
       HOTEND_OFFSET_Y
-      #ifdef HOTEND_OFFSET_Z
+      #if HAS_HOTEND_OFFSET_Z
         , HOTEND_OFFSET_Z
       #else
         , { 0 }
@@ -1811,7 +1812,7 @@ void MarlinSettings::reset() {
       #endif
     }
     #if ENABLED(PID_EXTRUSION_SCALING)
-      lpq_len = 20; // default last-position-queue size
+      thermalManager.lpq_len = 20; // default last-position-queue size
     #endif
   #endif // PIDTEMP
 
@@ -1904,6 +1905,16 @@ void MarlinSettings::reset() {
     void say_M603() { SERIAL_ECHOPGM("  M603 "); }
   #endif
 
+  inline void say_units(const bool colon=false) {
+    serialprintPGM(
+      #if ENABLED(INCH_MODE_SUPPORT)
+        parser.linear_unit_factor != 1.0 ? PSTR(" (in)") :
+      #endif
+      PSTR(" (mm)")
+    );
+    if (colon) SERIAL_ECHOLNPGM(":");
+  }
+
   /**
    * M503 - Report current settings in RAM
    *
@@ -1920,13 +1931,15 @@ void MarlinSettings::reset() {
       #define VOLUMETRIC_UNIT(N) (float(N) / (parser.volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
       SERIAL_ECHOPGM("  G2");
       SERIAL_CHAR(parser.linear_unit_factor == 1.0 ? '1' : '0');
-      SERIAL_ECHOPGM(" ; Units in ");
-      serialprintPGM(parser.linear_unit_factor == 1.0 ? PSTR("mm\n") : PSTR("inches\n"));
+      SERIAL_ECHOPGM(" ;");
+      say_units();
     #else
       #define LINEAR_UNIT(N) (N)
       #define VOLUMETRIC_UNIT(N) (N)
-      SERIAL_ECHOLNPGM("  G21    ; Units in mm");
+      SERIAL_ECHOPGM("  G21    ;");
+      say_units();
     #endif
+    SERIAL_EOL();
 
     #if ENABLED(ULTIPANEL)
 
@@ -2096,7 +2109,7 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPAIR("  M218 T", (int)e);
         SERIAL_ECHOPAIR(" X", LINEAR_UNIT(hotend_offset[X_AXIS][e]));
         SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e]));
-        #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) ||ENABLED(PARKING_EXTRUDER)
+        #if HAS_HOTEND_OFFSET_Z
           SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]));
         #endif
         SERIAL_EOL();
@@ -2262,7 +2275,7 @@ void MarlinSettings::reset() {
               SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, e)));
               #if ENABLED(PID_EXTRUSION_SCALING)
                 SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
-                if (e == 0) SERIAL_ECHOPAIR(" L", lpq_len);
+                if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
               #endif
               SERIAL_EOL();
             }
@@ -2277,7 +2290,7 @@ void MarlinSettings::reset() {
           SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
           #if ENABLED(PID_EXTRUSION_SCALING)
             SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
-            SERIAL_ECHOPAIR(" L", lpq_len);
+            SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
           #endif
           SERIAL_EOL();
         }
@@ -2338,7 +2351,8 @@ void MarlinSettings::reset() {
     #if HAS_BED_PROBE
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
+        SERIAL_ECHOPGM("Z-Probe Offset");
+        say_units(true);
       }
       CONFIG_ECHO_START;
       SERIAL_ECHOLNPAIR("  M851 Z", LINEAR_UNIT(zprobe_zoffset));
