@@ -42,8 +42,8 @@
  *
  * write()               - Set the servo angle in degrees. (Invalid angles —over MIN_PULSE_WIDTH— are treated as µs.)
  * writeMicroseconds()   - Set the servo pulse width in microseconds.
- * move(pin, angle)      - Sequence of attach(pin), write(angle), delay(SERVO_DELAY).
- *                         With DEACTIVATE_SERVOS_AFTER_MOVE it detaches after SERVO_DELAY.
+ * move(pin, angle)      - Sequence of attach(pin), write(angle), safe_delay(servo_delay[servoIndex]).
+ *                         With DEACTIVATE_SERVOS_AFTER_MOVE it detaches after servo_delay[servoIndex].
  * read()                - Get the last-written servo pulse width as an angle between 0 and 180.
  * readMicroseconds()    - Get the last-written servo pulse width in microseconds.
  * attached()            - Return true if a servo is attached.
@@ -148,7 +148,7 @@
     static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
     if (this->attach(0) >= 0) {    // notice the pin number is zero here
       this->write(value);
-      delay(servo_delay[this->servoIndex]);
+      safe_delay(servo_delay[this->servoIndex]);
       #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
         this->detach();
         LPC1768_PWM_detach_pin(servo_info[this->servoIndex].Pin.nbr);  // shut down the PWM signal

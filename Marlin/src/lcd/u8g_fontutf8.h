@@ -18,11 +18,11 @@
 #define _UxGT(a) a
 
 typedef struct _uxg_fontinfo_t {
-    uint16_t page;
-    uint8_t begin;
-    uint8_t end;
-    uint16_t size;
-    const u8g_fntpgm_uint8_t *fntdata;
+  uint16_t page;
+  uint8_t begin;
+  uint8_t end;
+  uint16_t size;
+  const u8g_fntpgm_uint8_t *fntdata;
 } uxg_fontinfo_t;
 
 int uxg_SetUtf8Fonts (const uxg_fontinfo_t * fntinfo, int number); // fntinfo is type of PROGMEM
