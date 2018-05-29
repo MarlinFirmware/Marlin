@@ -416,7 +416,9 @@
   #else
     #define E_STEPPERS    1
   #endif
-  #define HOTENDS         E_STEPPERS
+  #if DISABLED(SWITCHING_NOZZLE)
+    #define HOTENDS       E_STEPPERS
+  #endif
   #define E_MANUAL        EXTRUDERS
 #elif ENABLED(MIXING_EXTRUDER)
   #define E_STEPPERS      MIXING_STEPPERS
