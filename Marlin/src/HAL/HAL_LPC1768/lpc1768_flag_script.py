@@ -9,10 +9,10 @@ if __name__ == "__main__":
                     "-mcpu=cortex-m3",
                     "-mthumb",
 
-                    "-ffreestanding",
                     "-fsigned-char",
                     "-fno-move-loop-invariants",
                     "-fno-strict-aliasing",
+                    "-fsingle-precision-constant",
 
                     "--specs=nano.specs",
                     "--specs=nosys.specs",
