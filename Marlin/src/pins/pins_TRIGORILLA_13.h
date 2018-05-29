@@ -29,8 +29,9 @@
 #endif
 
 #define IS_RAMPS_EFB
-#define RAMPS_D9_PIN       44
-#define ORIG_E0_AUTO_FAN_PIN RAMPS_D9_PIN
+#define RAMPS_D9_PIN         44
+#define FAN2_PIN              9
+#define ORIG_E0_AUTO_FAN_PIN  9
 
 #include "pins_RAMPS_13.h"
 
