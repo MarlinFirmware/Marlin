@@ -6,13 +6,17 @@
 
 #include "HAL_Servo_Teensy.h"
 
+uint8_t servoPin[MAX_SERVOS] = { 0 };
+
 int8_t libServo::attach(const int pin) {
   if (this->servoIndex >= MAX_SERVOS) return -1;
-  return Servo::attach(pin);
+  if (pin > 0) servoPin[this->servoIndex] = pin;
+  return Servo::attach(servoPin[this->servoIndex]);
 }
 
 int8_t libServo::attach(const int pin, const int min, const int max) {
-  return Servo::attach(pin, min, max);
+  if (pin > 0) servoPin[this->servoIndex] = pin;
+  return Servo::attach(servoPin[this->servoIndex], min, max);
 }
 
 void libServo::move(const int value) {
