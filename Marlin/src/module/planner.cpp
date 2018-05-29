@@ -162,11 +162,15 @@ float Planner::min_feedrate_mm_s,
 #if ENABLED(SKEW_CORRECTION)
   #if ENABLED(SKEW_CORRECTION_GCODE)
     float Planner::xy_skew_factor;
+  #elif ENABLED(RUNTIME_SKEW_CALCULATION)
+    const float Planner::xy_skew_factor = XY_SKEW_FACTOR;
   #else
     constexpr float Planner::xy_skew_factor;
   #endif
   #if ENABLED(SKEW_CORRECTION_FOR_Z) && ENABLED(SKEW_CORRECTION_GCODE)
     float Planner::xz_skew_factor, Planner::yz_skew_factor;
+  #elif ENABLED(RUNTIME_SKEW_CALCULATION)
+    const float Planner::xz_skew_factor = XZ_SKEW_FACTOR, Planner::yz_skew_factor = YZ_SKEW_FACTOR;
   #else
     constexpr float Planner::xz_skew_factor, Planner::yz_skew_factor;
   #endif
