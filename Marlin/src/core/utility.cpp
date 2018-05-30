@@ -304,9 +304,17 @@ void safe_delay(millis_t ms) {
         SERIAL_ECHOPGM(" (Aligned With");
       #endif
       #if Y_PROBE_OFFSET_FROM_EXTRUDER > 0
-        SERIAL_ECHOPGM("-Back");
+        #if IS_SCARA
+          SERIAL_ECHOPGM("-Distal");
+        #else
+          SERIAL_ECHOPGM("-Back");
+        #endif
       #elif Y_PROBE_OFFSET_FROM_EXTRUDER < 0
-        SERIAL_ECHOPGM("-Front");
+        #if IS_SCARA
+          SERIAL_ECHOPGM("-Proximal");
+        #else
+          SERIAL_ECHOPGM("-Front");
+        #endif
       #elif X_PROBE_OFFSET_FROM_EXTRUDER != 0
         SERIAL_ECHOPGM("-Center");
       #endif
