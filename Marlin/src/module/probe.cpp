@@ -554,7 +554,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
  *
  * @return The raw Z position where the probe was triggered
  */
-  static float run_z_probe() {
+static float run_z_probe() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS(">>> run_z_probe", current_position);
@@ -568,7 +568,15 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
   #if MULTIPLE_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) return NAN;
+    if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST))) {
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOLNPGM("FAST Probe fail!");
+          DEBUG_POS("<<< run_z_probe", current_position);
+        }
+      #endif
+      return NAN;
+    }
 
     float first_probe_z = current_position[Z_AXIS];
 
@@ -598,8 +606,16 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     for (uint8_t p = MULTIPLE_PROBING + 1; --p;) {
   #endif
 
-      // Move down slowly to find bed, not too far
-      if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) return NAN;
+      // move down slowly to find bed
+      if (do_probe_move(z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW))) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOLNPGM("SLOW Probe fail!");
+            DEBUG_POS("<<< run_z_probe", current_position);
+          }
+        #endif
+        return NAN;
+      }
 
   #if MULTIPLE_PROBING > 2
       probes_total += current_position[Z_AXIS];
@@ -610,7 +626,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
   #if MULTIPLE_PROBING > 2
 
     // Return the average value of all probes
-    return probes_total * (1.0 / (MULTIPLE_PROBING));
+    const float measured_z = probes_total * (1.0 / (MULTIPLE_PROBING));
 
   #elif MULTIPLE_PROBING == 2
 
@@ -624,18 +640,20 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     #endif
 
     // Return a weighted average of the fast and slow probes
-    return (z2 * 3.0 + first_probe_z * 2.0) * 0.2;
+    const float measured_z = (z2 * 3.0 + first_probe_z * 2.0) * 0.2;
 
   #else
 
     // Return the single probe result
-    return current_position[Z_AXIS];
+    const float measured_z = current_position[Z_AXIS];
 
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
   #endif
+
+  return measured_z;
 }
 
 /**
@@ -705,10 +723,6 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
     SERIAL_EOL();
   }
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< probe_pt");
-  #endif
-
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
@@ -716,6 +730,10 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
   }
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< probe_pt");
+  #endif
 
   return measured_z;
 }
