@@ -80,8 +80,12 @@
 //#define MeshFine
 //#define MeshExtreme
 
-
-
+/*
+ * Disables SD Sort, Autotemp, Arc support, Linear Advance (Unless overridden with OrigLA above), Big edit fonts, and a few other little things
+ * Intended to resolve issues with certain newer boards experiencing motion errors under load.
+ * Enables Slim Menus
+ */
+//#define LowMemoryBoard
 
 
 /**

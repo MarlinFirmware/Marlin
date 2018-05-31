@@ -128,7 +128,7 @@
  * Also, if the temperature is set to a value below mintemp, it will not be changed by autotemp.
  * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
  */
-  #if(!ENABLED(MachineCR10Orig))
+  #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
 #define AUTOTEMP
 #endif
 #if ENABLED(AUTOTEMP)
@@ -136,7 +136,7 @@
 #endif
 
 // Show extra position information in M114
-  #if(!ENABLED(MachineCR10Orig))
+  #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
 #define M114_DETAIL
 #endif
 // Show Temperature ADC value
@@ -499,12 +499,12 @@
 #define LCD_INFO_MENU
 #endif
 // Leave out seldom-used LCD menu items to recover some Program Memory
- #if(ENABLED(MachineCR10Orig))
+ #if(ENABLED(MachineCR10Orig) || ENABLED(LowMemoryBoard))
 #define SLIM_LCD_MENUS
 #endif
 
 // Scroll a longer status message into view
- #if(!ENABLED(MachineCR10Orig))
+ #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
 #define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
@@ -559,7 +559,7 @@
 
   // Reverse SD sort to show "more recent" files first, according to the card's FAT.
   // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
-   #if(!ENABLED(MachineCR10Orig))
+   #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
   #define SDCARD_RATHERRECENTFIRST
 #endif
   // Add an option in the menu to run all auto#.g files
@@ -598,7 +598,7 @@
    *  - SDSORT_CACHE_NAMES will retain the sorted file listing in RAM. (Expensive!)
    *  - SDSORT_DYNAMIC_RAM only uses RAM when the SD menu is visible. (Use with caution!)
    */
-    #if(!ENABLED(MachineCR10Orig))
+    #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
   #define SDCARD_SORT_ALPHA
 #endif
   // SD Card Sorting options
@@ -665,7 +665,7 @@
 
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
-   #if(!ENABLED(MachineCR10Orig))
+   #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
   #define USE_BIG_EDIT_FONT
 #endif
   // A smaller font may be used on the Info Screen. Costs 2300 bytes of PROGMEM.
@@ -756,7 +756,7 @@
  * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
  * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
-  #if(!ENABLED(MachineCR10Orig) || ENABLED(OrigLA))
+  #if((!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard)) || ENABLED(OrigLA))
 #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
@@ -811,7 +811,7 @@
 //
 // G2/G3 Arc Support
 //
- #if(!ENABLED(MachineCR10Orig))
+ #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
 #define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
 #endif
 #if ENABLED(ARC_SUPPORT)
@@ -903,7 +903,7 @@
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.
 // This "wait" is only sent when the buffer is empty. 1 second is a good value here.
-//#define NO_TIMEOUTS 1000 // Milliseconds
+#define NO_TIMEOUTS 1000 // Milliseconds
 
 // Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
  #if(!ENABLED(MachineCR10Orig))
