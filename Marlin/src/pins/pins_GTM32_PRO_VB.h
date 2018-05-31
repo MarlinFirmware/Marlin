@@ -31,23 +31,33 @@
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"
 #define BOARD_NAME "GTM32 Pro VB"
 
-// Ignore temp readings during develpment.
+// Ignore temp readings during development.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+
+//
+// Limit Switches
+//
+#define X_MIN_PIN          PE5
+#define X_MAX_PIN          PE4
+#define Y_MIN_PIN          PE3
+#define Y_MAX_PIN          PE2
+#define Z_MIN_PIN          PE1
+#define Z_MAX_PIN          PE0
 
 //
 // Steppers
 //
-#define X_STEP_PIN         PC6		
-#define X_DIR_PIN          PD13		
-#define X_ENABLE_PIN       PA8		
+#define X_STEP_PIN         PC6
+#define X_DIR_PIN          PD13
+#define X_ENABLE_PIN       PA8
 
 #define Y_STEP_PIN         PA12
 #define Y_DIR_PIN          PA11
-#define Y_ENABLE_PIN       PA15		// core conflict?
+#define Y_ENABLE_PIN       PA15   // core conflict?
 
-#define Z_STEP_PIN         PD6		
-#define Z_DIR_PIN          PD3		
-#define Z_ENABLE_PIN       PB3		// core conflict?
+#define Z_STEP_PIN         PD6
+#define Z_DIR_PIN          PD3
+#define Z_ENABLE_PIN       PB3    // core conflict?
 
 #define E0_STEP_PIN        PC14
 #define E0_DIR_PIN         PC13
@@ -62,145 +72,27 @@
 #define E2_ENABLE_PIN      PC4
 
 //
-// Endstops
+// Temperature Sensors
 //
-#define X_MIN_PIN          PE5
-#define X_MAX_PIN          PE4
+#define TEMP_BED_PIN       PC0
+#define TEMP_0_PIN         PC1
+#define TEMP_1_PIN         PC2
+#define TEMP_2_PIN         PC3
 
-#define Y_MIN_PIN          PE3
-#define Y_MAX_PIN          PE2
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       PB4   // EXTRUDER 1
+#define HEATER_1_PIN       PB5   // EXTRUDER 2
+#define HEATER_2_PIN       PB0   // EXTRUDER 3
 
-#define Z_MIN_PIN          PE1
-#define Z_MAX_PIN          PE0
+#define HEATER_BED_PIN     PB1   // BED
+
+#define FAN_PIN            PB7   // (Sprinter config)
+#define FAN1_PIN           PB8
+#define FAN2_PIN           PB9
 
 //
 // Misc. Functions
 //
-#define SDPOWER            -1
-#define SDSS               -1
 #define LED_PIN            PD12
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
-
-//
-// Heaters 
-//
-#define HEATER_0_PIN       PB4   // EXTRUDER 1
-#define HEATER_1_PIN       PB5	 // EXTRUDER 2
-#define HEATER_2_PIN       PB0	 // EXTRUDER 3
-
-#define HEATER_BED_PIN     PB1		 // BED
-#define HEATER_BED2_PIN    -1    // BED2
-#define HEATER_BED3_PIN    -1    // BED3
-
-//
-// Fans
-//
-#define FAN_PIN            -1    // (Sprinter config)
-#define FAN0_PIN           PB7  // ToDo: Add functionality
-#define FAN1_PIN           PB8  // ToDo: Add functionality
-#define FAN2_PIN           PB9  // ToDo: Add functionality
-
-//
-// Temperature Sensors
-//
-#define TEMP_BED_PIN       PC0   // PORT NUMBERING
-#define TEMP_0_PIN         PC1   // PORT NUMBERING
-#define TEMP_1_PIN         PC2   // PORT NUMBERING
-#define TEMP_2_PIN         PC3   // PORT NUMBERING
-
-//
-// LCD Pins			
-//
-#define LCD_D15 			-1
-#define LCD_D14 			-1
-#define LCD_D13 			-1
-#define LCD_D12 			-1
-#define LCD_D11 			-1
-#define LCD_D10 			-1
-#define LCD_D9 				-1
-#define LCD_D8 				-1
-#define LCD_D7 				-1
-#define LCD_D6 				-1
-#define LCD_D5 				-1
-#define LCD_WR 				-1
-#define LCD_RD 				-1
-#define LCD_RS 				-1
-#define LCD_CS 				-1
-#define RESET 				-1
-#define LCD_D0 				-1
-#define LCD_D1 				-1
-#define LCD_D2 				-1
-#define LCD_D3 				-1
-#define LCD_D4 				-1
-#define T_PEN 				-1
-#define SPI2_MOSI 			-1
-#define SPI2_MISO 			-1
-#define SPI2_SCK 			-1
-#define SPI2_NSS 			-1
-#define SD_DATA2 			-1
-#define SD_DATA3 			-1
-#define SD_CMD 				-1
-#define SD_CLK 				-1
-#define SD_DATA0 			-1
-#define SD_DATA1 			-1
-#define SD_CD 				-1
-
-//
-// UART LCD Pins
-//
-#define LCD_D13 			-1  			//	TXD3
-#define LCD_D14 			-1				//	RXD3
-
-//
-// SD Card
-//
-#define SD_DATA2 			-1
-#define SD_DATA3 			-1
-#define SD_CMD 				-1
-#define SD_CLK 				-1
-#define SD_DATA0 			-1 
-#define SD_DATA1 			-1
-#define SD_CD 				-1
-
-//
-// Debug
-//
-#define SDA 				-1
-#define SCL 				-1
-
-//
-// Wifi
-//
-#define ES 					-1
-#define WIFI_LED 			-1
-#define USART2_RX 			-1
-#define USART2_TX 			-1
-#define RST_W 				-1
-
-//
-// Boot
-//
-#define RTS 				-1
-#define BOOT0 				-1
-
-//
-// Beep
-//
-#define BEEP 				-1
-
-//
-// SPI Flash
-//
-#define SPI1_NSS 			-1
-#define SPI1_MISO			-1
-#define SPI1_SCK			-1
-#define SPI1_MOSI			-1
-
-//
-// Onboard mSD Card Socket
-//
-#define SPI1_MISO 			-1
-#define SPI1_NSS 			-1
-#define SPI1_SCK 			-1
-#define SPI1_MOSI 			-1
