@@ -788,6 +788,30 @@ class Planner {
     static void recalculate_trapezoids();
 
     static void recalculate();
+
+    #if ENABLED(JUNCTION_DEVIATION)
+
+      #if ENABLED(JUNCTION_DEVIATION_INCLUDE_E)
+        #define JD_AXES XYZE
+      #else
+        #define JD_AXES XYZ
+      #endif
+
+      FORCE_INLINE static void normalize_junction_vector(float (&vector)[JD_AXES]) {
+        float magnitude_sq = 0.0;
+        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (vector[idx]) magnitude_sq += sq(vector[idx]);
+        const float inv_magnitude = 1.0 / SQRT(magnitude_sq);
+        for (uint8_t idx = 0; idx < JD_AXES; idx++) vector[idx] *= inv_magnitude;
+      }
+
+      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[JD_AXES]) {
+        float limit_value = max_value;
+        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (unit_vec[idx]) // Avoid divide by zero
+          NOMORE(limit_value, ABS(max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
+        return limit_value;
+      }
+
+    #endif // JUNCTION_DEVIATION
 };
 
 #define PLANNER_XY_FEEDRATE() (MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
