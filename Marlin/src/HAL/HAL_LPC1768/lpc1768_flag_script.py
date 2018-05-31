@@ -50,7 +50,6 @@ else:
       LINKFLAGS=[
           "-Os",
           "-mcpu=cortex-m3",
-          "-ffreestanding",
           "-mthumb",
           "--specs=nano.specs",
           "--specs=nosys.specs",
