@@ -617,7 +617,7 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
   begin_data();
   const uint8_t lcd_len = 16;
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
- 
+
     uint8_t slen = lcd_strlen(str);
 
     // If the string fits into the LCD, just print it and do not scroll it
