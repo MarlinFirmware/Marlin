@@ -2467,9 +2467,13 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
     position_float[C_AXIS] = c;
     position_float[E_AXIS] = e;
   #endif
-  previous_nominal_speed_sqr = 0.0; // Resets planner junction speeds. Assumes start from rest.
-  ZERO(previous_speed);
-  buffer_sync_block();
+  if (has_blocks_queued()) {
+    //previous_nominal_speed_sqr = 0.0; // Reset planner junction speeds. Assume start from rest.
+    //ZERO(previous_speed);
+    buffer_sync_block();
+  }
+  else
+    stepper.set_position(position[A_AXIS], position[B_AXIS], position[C_AXIS], position[E_AXIS]);
 }
 
 void Planner::set_position_mm_kinematic(const float (&cart)[XYZE]) {
@@ -2501,8 +2505,12 @@ void Planner::set_position_mm(const AxisEnum axis, const float &v) {
   #if HAS_POSITION_FLOAT
     position_float[axis] = v;
   #endif
-  previous_speed[axis] = 0.0;
-  buffer_sync_block();
+  if (has_blocks_queued()) {
+    //previous_speed[axis] = 0.0;
+    buffer_sync_block();
+  }
+  else
+    stepper.set_position(axis, position[axis]);
 }
 
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
