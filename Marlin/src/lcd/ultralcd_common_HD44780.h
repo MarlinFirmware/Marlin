@@ -72,19 +72,19 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
     // button and encoder bit positions within 'buttons'
-    #define B_LE (BUTTON_LEFT<<B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
-    #define B_UP (BUTTON_UP<<B_I2C_BTN_OFFSET)
-    #define B_MI (BUTTON_SELECT<<B_I2C_BTN_OFFSET)
-    #define B_DW (BUTTON_DOWN<<B_I2C_BTN_OFFSET)
-    #define B_RI (BUTTON_RIGHT<<B_I2C_BTN_OFFSET)
+    #define B_LE (BUTTON_LEFT   << B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
+    #define B_UP (BUTTON_UP     << B_I2C_BTN_OFFSET)
+    #define B_MI (BUTTON_SELECT << B_I2C_BTN_OFFSET)
+    #define B_DW (BUTTON_DOWN   << B_I2C_BTN_OFFSET)
+    #define B_RI (BUTTON_RIGHT  << B_I2C_BTN_OFFSET)
 
     #undef LCD_CLICKED
     #if BUTTON_EXISTS(ENC)
       // the pause/stop/restart button is connected to BTN_ENC when used
       #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
-      #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
+      #define LCD_CLICKED (buttons & (B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
     #else
-      #define LCD_CLICKED (buttons&(B_MI|B_RI))
+      #define LCD_CLICKED (buttons & (B_MI|B_RI))
     #endif
 
     // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
@@ -96,7 +96,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
       #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
-      #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
+      #define B_MI (PANELOLU2_ENCODER_C << B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
       #undef LCD_CLICKED
       #define LCD_CLICKED (buttons & B_MI)
@@ -128,7 +128,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
-  // note: these are register mapped pins on the PCF8575 controller not Arduino pins
+  // NOTE: These are register-mapped pins on the PCF8575 controller, not Arduino pins.
   #define LCD_I2C_PIN_BL  3
   #define LCD_I2C_PIN_EN  2
   #define LCD_I2C_PIN_RW  1
@@ -144,7 +144,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #define LCD_CLASS LiquidCrystal_I2C
 
 #elif ENABLED(LCD_I2C_TYPE_MCP23017)
-  //for the LED indicators (which maybe mapped to different things in lcd_implementation_update_indicators())
+  // For the LED indicators (which may be mapped to different events in lcd_implementation_update_indicators())
   #define LED_A 0x04 //100
   #define LED_B 0x02 //010
   #define LED_C 0x01 //001

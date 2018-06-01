@@ -57,7 +57,7 @@
   #include "../feature/fanmux.h"
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER
 
   #if EXTRUDERS > 3
     #define REQ_ANGLES 4
@@ -347,8 +347,6 @@ inline void invalid_extruder_error(const uint8_t e) {
 
 #endif // DUAL_X_CARRIAGE
 
-#define DO_SWITCH_EXTRUDER (SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
-
 /**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
@@ -456,6 +454,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
           // Move back to the original (or tweaked) position
           do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
+          #if ENABLED(DUAL_X_CARRIAGE)
+            active_extruder_parked = false;
+          #endif
         }
         #if ENABLED(SWITCHING_NOZZLE)
           else {

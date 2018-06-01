@@ -615,36 +615,71 @@ void ST7920_Lite_Status_Screen::draw_feedrate_percentage(const uint8_t percentag
 void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
   set_ddram_address(DDRAM_LINE_4);
   begin_data();
+  const uint8_t lcd_len = 16;
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
-    const uint8_t lcd_len = 16;
-    const uint8_t padding = 2;
-    uint8_t str_len = strlen(str);
 
-    // Trim whitespace at the end of the str, as for some reason
-    // messages like "Card Inserted" are padded with many spaces
-    while (str_len && str[str_len - 1] == ' ') str_len--;
+    uint8_t slen = utf8_strlen(str);
 
-    if (str_len <= lcd_len) {
-      // It all fits on the LCD without scrolling
+    // If the string fits into the LCD, just print it and do not scroll it
+    if (slen <= lcd_len) {
+
+      // The string isn't scrolling and may not fill the screen
       write_str(str);
+
+      // Fill the rest with spaces
+      while (slen < lcd_len) {
+        write_byte(' ');
+        ++slen;
+      }
     }
     else {
-      // Print the message repeatedly until covering the LCD
-      uint8_t c = status_scroll_pos;
-      for (uint8_t n = 0; n < lcd_len; n++) {
-        write_byte(c < str_len ? str[c] : ' ');
-        c++;
-        c %= str_len + padding; // Wrap around
+      // String is larger than the available space in screen.
+
+      // Get a pointer to the next valid UTF8 character
+      const char *stat = str + status_scroll_offset;
+
+      // Get the string remaining length
+      const uint8_t rlen = utf8_strlen(stat);
+
+      // If we have enough characters to display
+      if (rlen >= lcd_len) {
+        // The remaining string fills the screen - Print it
+        write_str(stat, lcd_len);
+      }
+      else {
+        // The remaining string does not completely fill the screen
+        write_str(stat);                        // The string leaves space
+        uint8_t chars = lcd_len - rlen;         // Amount of space left in characters
+
+        write_byte('.');                        // Always at 1+ spaces left, draw a dot
+        if (--chars) {                          // Draw a second dot if there's space
+          write_byte('.');
+          if (--chars)
+            write_str(str, chars);              // Print a second copy of the message
+        }
       }
 
-      // Scroll the message
-      if (status_scroll_pos == str_len + padding)
-        status_scroll_pos = 0;
+      // Adjust by complete UTF8 characters
+      if (status_scroll_offset < slen) {
+        status_scroll_offset++;
+        while (!START_OF_UTF8_CHAR(str[status_scroll_offset]))
+          status_scroll_offset++;
+      }
       else
-        status_scroll_pos++;
+        status_scroll_offset = 0;
     }
   #else
-    write_str(str, 16);
+    // Get the UTF8 character count of the string
+    uint8_t slen = utf8_strlen(str);
+
+    // Just print the string to the LCD
+    write_str(str, lcd_len);
+
+    // Fill the rest with spaces if there are missing spaces
+    while (slen < lcd_len) {
+      write_byte(' ');
+      ++slen;
+    }
   #endif
 }
 
@@ -792,7 +827,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
    */
   if (forceUpdate || status_changed()) {
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
-      status_scroll_pos = 0;
+      status_scroll_offset = 0;
     #endif
     #if STATUS_EXPIRE_SECONDS
       countdown = lcd_status_message[0] ? STATUS_EXPIRE_SECONDS : 0;

@@ -36,7 +36,7 @@
  * Endstop Interrupts
  *
  * Without endstop interrupts the endstop pins must be polled continually in
- * the stepper-ISR via endstops.update(), most of the time finding no change.
+ * the temperature-ISR via endstops.update(), most of the time finding no change.
  * With this feature endstops.update() is called only when we know that at
  * least one endstop has changed state, saving valuable CPU cycles.
  *
@@ -49,16 +49,10 @@
 #ifndef _ENDSTOP_INTERRUPTS_H_
 #define _ENDSTOP_INTERRUPTS_H_
 
-volatile uint8_t e_hit = 0; // Different from 0 when the endstops should be tested in detail.
-                            // Must be reset to 0 by the test function when finished.
-
-// This is what is really done inside the interrupts.
-FORCE_INLINE void endstop_ISR_worker( void ) {
-  e_hit = 2; // Because the detection of a e-stop hit has a 1 step debouncer it has to be called at least twice.
-}
+#include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstop_ISR_worker(); }
+void endstop_ISR(void) { endstops.check_possible_change(); }
 
 void setup_endstop_interrupts(void) {
   #if HAS_X_MAX

@@ -138,6 +138,7 @@
 
 #else // !CUSTOM_STATUS_SCREEN_IMAGE
 
+  // Can also be overridden in Configuration.h
   // If you can afford it, try the 3-frame fan animation!
   #ifndef FAN_ANIM_FRAMES
     #define FAN_ANIM_FRAMES 2
@@ -1149,7 +1150,9 @@
   #define CUSTOM_BOOTSCREEN_BMPHEIGHT (sizeof(custom_start_bmp) / (CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH))
 #endif
 
-#if FAN_ANIM_FRAMES > 3
+#ifndef FAN_ANIM_FRAMES
+  #define FAN_ANIM_FRAMES 2
+#elif FAN_ANIM_FRAMES > 3
   #error "Only 3 fan animation frames currently supported."
 #endif
 #ifndef STATUS_SCREEN_X

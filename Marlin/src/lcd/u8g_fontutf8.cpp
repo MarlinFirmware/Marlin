@@ -18,28 +18,6 @@
 ////////////////////////////////////////////////////////////
 typedef void font_t;
 
-#ifndef PSTR
-#define PSTR(a) a
-
-void* memcpy_from_rom(void *dest, const void * rom_src, size_t sz) {
-  uint8_t * p;
-  uint8_t * s;
-
-  FU_ASSERT(NULL != dest);
-  p = (uint8_t*)dest;
-  s = (uint8_t*)rom_src;
-  uint8_t c;
-  while ((p - (uint8_t *)dest) < sz) {
-    *p = pgm_read_byte(s);
-    p ++;
-    s ++;
-  }
-  return p;
-}
-#else
-#define memcpy_from_rom memcpy_P
-#endif
-
 /**
  * @brief the callback function to draw something
  *
@@ -53,25 +31,14 @@ void* memcpy_from_rom(void *dest, const void * rom_src, size_t sz) {
  */
 typedef int (* fontgroup_cb_draw_t)(void *userdata, const font_t *fnt_current, const char *msg);
 
-//extern int fontgroup_init(font_group_t * root, const uxg_fontinfo_t * fntinfo, int number);
-//extern int fontgroup_drawstring(font_group_t *group, const font_t *fnt_default, const char *utf8_msg, void *userdata, fontgroup_cb_draw_t cb_draw);
-//extern uxg_fontinfo_t* fontgroup_first(font_group_t * root);
-
-
 ////////////////////////////////////////////////////////////
 /* return v1 - v2 */
 static int fontinfo_compare(uxg_fontinfo_t * v1, uxg_fontinfo_t * v2) {
-  FU_ASSERT(NULL != v1);
-  FU_ASSERT(NULL != v2);
-  if (v1->page < v2->page)
-    return -1;
-  else if (v1->page > v2->page)
-    return 1;
+  if (v1->page < v2->page)      return -1;
+  else if (v1->page > v2->page) return 1;
 
-  if (v1->end < v2->begin)
-    return -1;
-  else if (v1->begin > v2->end)
-    return 1;
+  if (v1->end < v2->begin)      return -1;
+  else if (v1->begin > v2->end) return 1;
 
   return 0;
 }
@@ -80,7 +47,7 @@ static int fontinfo_compare(uxg_fontinfo_t * v1, uxg_fontinfo_t * v2) {
 static int pf_bsearch_cb_comp_fntifo_pgm (void *userdata, size_t idx, void *data_pin) {
   uxg_fontinfo_t *fntinfo = (uxg_fontinfo_t*)userdata;
   uxg_fontinfo_t localval;
-  memcpy_from_rom(&localval, fntinfo + idx, sizeof(localval));
+  memcpy_P(&localval, fntinfo + idx, sizeof(localval));
   return fontinfo_compare(&localval, (uxg_fontinfo_t*)data_pin);
 }
 
@@ -92,7 +59,6 @@ typedef struct _font_group_t {
 static int fontgroup_init(font_group_t * root, const uxg_fontinfo_t * fntinfo, int number) {
   root->m_fntifo = fntinfo;
   root->m_fntinfo_num = number;
-
   return 0;
 }
 
@@ -105,26 +71,23 @@ static const font_t* fontgroup_find(font_group_t * root, wchar_t val) {
   if (pf_bsearch_r((void*)root->m_fntifo, root->m_fntinfo_num, pf_bsearch_cb_comp_fntifo_pgm, (void*)&vcmp, &idx) < 0)
     return NULL;
 
-  memcpy_from_rom(&vcmp, root->m_fntifo + idx, sizeof(vcmp));
+  memcpy_P(&vcmp, root->m_fntifo + idx, sizeof(vcmp));
   return vcmp.fntdata;
 }
 
 static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, wchar_t val, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
   uint8_t buf[2] = {0, 0};
-  const font_t * fntpqm = NULL;
-
-  TRACE("fontgroup_drawwchar char=%d(0x%X)", (int)val, (int)val);
-  fntpqm = (font_t*)fontgroup_find(group, val);
-  if (NULL == fntpqm) {
+  const font_t * fntpqm = (font_t*)fontgroup_find(group, val);
+  if (!fntpqm) {
+    // Unknown char, use default font
     buf[0] = (uint8_t)(val & 0xFF);
     fntpqm = fnt_default;
-    TRACE("Unknown char %d(0x%X), use default font", (int)val, (int)val);
   }
   if (fnt_default != fntpqm) {
     buf[0] = (uint8_t)(val & 0x7F);
     buf[0] |= 0x80; // use upper page to avoid 0x00 error in C. you may want to generate the font data
   }
-  //TRACE("set font: %p; (default=%p)", fntpqm, UXG_DEFAULT_FONT);
+
   cb_draw_ram (userdata, fntpqm, (char*) buf);
 }
 
@@ -142,31 +105,27 @@ static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, 
  *
  * Get the screen pixel width of a ROM UTF-8 string
  */
-static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default, const char *utf8_msg, int len_msg, read_byte_cb_t cb_read_byte, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
-  uint8_t *pend = (uint8_t*)utf8_msg + len_msg;
-  for (uint8_t *p = (uint8_t*)utf8_msg; p < pend; ) {
+static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default, const char *utf8_msg, read_byte_cb_t cb_read_byte, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
+  uint8_t *p = (uint8_t*)utf8_msg;
+  for (;;) {
     wchar_t val = 0;
     p = get_utf8_value_cb(p, cb_read_byte, &val);
-    if (NULL == p) {
-      TRACE("No more char, break ...");
-      break;
-    }
+    if (!val) break;
     fontgroup_drawwchar(group, fnt_default, val, userdata, cb_draw_ram);
   }
 }
 
 ////////////////////////////////////////////////////////////
-static char flag_fontgroup_inited1 = 0;
-#define flag_fontgroup_inited flag_fontgroup_inited1
+static bool flag_fontgroup_was_inited = false;
 static font_group_t g_fontgroup_root = {NULL, 0};
 
 /**
  * @brief check if font is loaded
  */
-char uxg_Utf8FontIsInited(void) { return flag_fontgroup_inited; }
+static inline bool uxg_Utf8FontIsInited(void) { return flag_fontgroup_was_inited; }
 
 int uxg_SetUtf8Fonts (const uxg_fontinfo_t * fntinfo, int number) {
-  flag_fontgroup_inited = 1;
+  flag_fontgroup_was_inited = 1;
   return fontgroup_init(&g_fontgroup_root, fntinfo, number);
 }
 
@@ -179,22 +138,17 @@ struct _uxg_drawu8_data_t {
   const void * fnt_prev;
 };
 
-static int fontgroup_cb_draw_u8g (void *userdata, const font_t *fnt_current, const char *msg) {
+static int fontgroup_cb_draw_u8g(void *userdata, const font_t *fnt_current, const char *msg) {
   struct _uxg_drawu8_data_t * pdata = (_uxg_drawu8_data_t*)userdata;
 
-  FU_ASSERT(NULL != userdata);
   if (pdata->fnt_prev != fnt_current) {
     u8g_SetFont(pdata->pu8g, (const u8g_fntpgm_uint8_t*)fnt_current);
     //u8g_SetFontPosBottom(pdata->pu8g);
     pdata->fnt_prev = fnt_current;
   }
-  if ((pdata->max_width != PIXEL_LEN_NOLIMIT) && (pdata->adv + u8g_GetStrPixelWidth(pdata->pu8g, (char*)msg) > pdata->max_width)) {
-    TRACE("return end, adv=%d, width=%d, maxlen=%d", pdata->adv, u8g_GetStrPixelWidth(pdata->pu8g, (char*)msg), pdata->max_width);
+  if ((pdata->max_width != PIXEL_LEN_NOLIMIT) && (pdata->adv + u8g_GetStrPixelWidth(pdata->pu8g, (char*)msg) > pdata->max_width))
     return 1;
-  }
-  TRACE("Draw string 0x%X", (int)msg[0]);
   pdata->adv += u8g_DrawStr(pdata->pu8g, pdata->x + pdata->adv, pdata->y, (char*) msg);
-  //TRACE("adv pos= %d", pdata->adv);
   return 0;
 }
 
@@ -260,7 +214,7 @@ unsigned int uxg_DrawUtf8Str(u8g_t *pu8g, unsigned int x, unsigned int y, const 
   data.adv = 0;
   data.max_width = max_width;
   data.fnt_prev = NULL;
-  fontgroup_drawstring(group, fnt_default, utf8_msg, strlen(utf8_msg), read_byte_ram, (void*)&data, fontgroup_cb_draw_u8g);
+  fontgroup_drawstring(group, fnt_default, utf8_msg, read_byte_ram, (void*)&data, fontgroup_cb_draw_u8g);
   u8g_SetFont(pu8g, (const u8g_fntpgm_uint8_t*)fnt_default);
 
   return data.adv;
@@ -285,7 +239,6 @@ unsigned int uxg_DrawUtf8StrP(u8g_t *pu8g, unsigned int x, unsigned int y, const
   const font_t *fnt_default = uxg_GetFont(pu8g);
 
   if (!uxg_Utf8FontIsInited()) {
-    TRACE("Error, utf8string not inited!");
     u8g_DrawStrP(pu8g, x, y, (const u8g_pgm_uint8_t *)PSTR("Err: utf8 font not initialized."));
     return 0;
   }
@@ -295,19 +248,15 @@ unsigned int uxg_DrawUtf8StrP(u8g_t *pu8g, unsigned int x, unsigned int y, const
   data.adv = 0;
   data.max_width = max_width;
   data.fnt_prev = NULL;
-  TRACE("call fontgroup_drawstring");
-  fontgroup_drawstring(group, fnt_default, utf8_msg, my_strlen_P(utf8_msg), read_byte_rom, (void*)&data, fontgroup_cb_draw_u8g);
-  TRACE("restore font");
+  fontgroup_drawstring(group, fnt_default, utf8_msg, read_byte_rom, (void*)&data, fontgroup_cb_draw_u8g);
   u8g_SetFont(pu8g, (const u8g_fntpgm_uint8_t*)fnt_default);
 
-  TRACE("return %d", data.adv);
   return data.adv;
 }
 
 static int fontgroup_cb_draw_u8gstrlen(void *userdata, const font_t *fnt_current, const char *msg) {
   struct _uxg_drawu8_data_t * pdata = (_uxg_drawu8_data_t*)userdata;
 
-  FU_ASSERT(NULL != userdata);
   if (pdata->fnt_prev != fnt_current) {
     u8g_SetFont(pdata->pu8g, (const u8g_fntpgm_uint8_t*)fnt_current);
     u8g_SetFontPosBottom(pdata->pu8g);
@@ -332,15 +281,12 @@ int uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, const char *utf8_msg) {
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);
 
-  if (!uxg_Utf8FontIsInited()) {
-    TRACE("Err: utf8 font not initialized.");
-    return -1;
-  }
+  if (!uxg_Utf8FontIsInited()) return -1;
 
   memset(&data, 0, sizeof(data));
   data.pu8g = pu8g;
   data.adv = 0;
-  fontgroup_drawstring(group, fnt_default, utf8_msg, strlen(utf8_msg), read_byte_ram, (void*)&data, fontgroup_cb_draw_u8gstrlen);
+  fontgroup_drawstring(group, fnt_default, utf8_msg, read_byte_ram, (void*)&data, fontgroup_cb_draw_u8gstrlen);
   u8g_SetFont(pu8g, (const u8g_fntpgm_uint8_t*)fnt_default);
 
   return data.adv;
@@ -361,14 +307,12 @@ int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, const char *utf8_msg) {
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);
 
-  if (!uxg_Utf8FontIsInited()) {
-    TRACE("Err: utf8 font not initialized.");
-    return -1;
-  }
+  if (!uxg_Utf8FontIsInited()) return -1;
+
   memset(&data, 0, sizeof(data));
   data.pu8g = pu8g;
   data.adv = 0;
-  fontgroup_drawstring(group, fnt_default, utf8_msg, my_strlen_P(utf8_msg), read_byte_rom, (void*)&data, fontgroup_cb_draw_u8gstrlen);
+  fontgroup_drawstring(group, fnt_default, utf8_msg, read_byte_rom, (void*)&data, fontgroup_cb_draw_u8gstrlen);
   u8g_SetFont(pu8g, (const u8g_fntpgm_uint8_t*)fnt_default);
   return data.adv;
 }

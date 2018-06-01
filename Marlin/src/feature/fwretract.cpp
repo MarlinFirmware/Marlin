@@ -154,7 +154,8 @@ void FWRetract::retract(const bool retracting
   else {
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (hop_amount) {
-      destination[Z_AXIS] -= hop_amount;                  // Move back down by the total hop amount
+      current_position[Z_AXIS] += hop_amount;             // Restore the actual Z position
+      SYNC_PLAN_POSITION_KINEMATIC();                     // Unspoof the position planner
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
       prepare_move_to_destination();                      // Lower Z, set_current_to_destination
       hop_amount = 0.0;                                   // Clear the hop amount

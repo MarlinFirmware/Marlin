@@ -438,5 +438,4 @@ UnwResult UnwindByTableStart(UnwindFrame* frame, const UnwindCallbacks *cb, void
   return err;
 }
 
-#endif
-
+#endif // __arm__ || __thumb__
