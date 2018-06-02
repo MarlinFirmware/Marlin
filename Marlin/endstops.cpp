@@ -562,7 +562,7 @@ void Endstops::update() {
     if (dual_hit) { \
       _ENDSTOP_HIT(AXIS1, MINMAX); \
       /* if not performing home or if both endstops were trigged during homing... */ \
-      if (!stepper.performing_homing || dual_hit == 0x3) \
+      if (!stepper.homing_dual_axis || dual_hit == 0x3) \
         planner.endstop_triggered(_AXIS(AXIS1)); \
     } \
   }while(0)
