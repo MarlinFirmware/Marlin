@@ -158,10 +158,10 @@
   #include "../core/enum.h"
 
   #if ENABLED(TMC_USE_SW_SPI)
-    #define _TMC2130_DEFINE(ST, L) TMCMarlin<TMC2130Stepper, L> stepper##ST(ST##_CS_PIN, R_SENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define _TMC2130_DEFINE(ST, L) TMCMarlin<TMC2130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
     #define TMC2130_DEFINE(ST) _TMC2130_DEFINE(ST, TMC_##ST##_LABEL)
   #else
-    #define _TMC2130_DEFINE(ST, L) TMCMarlin<TMC2130Stepper, L> stepper##ST(ST##_CS_PIN, R_SENSE)
+    #define _TMC2130_DEFINE(ST, L) TMCMarlin<TMC2130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
     #define TMC2130_DEFINE(ST) _TMC2130_DEFINE(ST, TMC_##ST##_LABEL)
   #endif
   // Stepper objects of TMC2130 steppers used
@@ -244,16 +244,120 @@
 #endif // TMC2130
 
 //
+// TMC2160 Driver objects and inits
+//
+#if HAS_DRIVER(TMC2160)
+
+  #include <SPI.h>
+  #include "planner.h"
+  #include "../core/enum.h"
+
+  #if ENABLED(TMC_USE_SW_SPI)
+    #define _TMC2160_DEFINE(ST, L) TMCMarlin<TMC2160Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define TMC2160_DEFINE(ST) _TMC2160_DEFINE(ST, TMC_##ST##_LABEL)
+  #else
+    #define _TMC2160_DEFINE(ST, L) TMCMarlin<TMC2160Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+    #define TMC2160_DEFINE(ST) _TMC2160_DEFINE(ST, TMC_##ST##_LABEL)
+  #endif
+  // Stepper objects of TMC2160 steppers used
+  #if AXIS_DRIVER_TYPE(X, TMC2160)
+    TMC2160_DEFINE(X);
+  #endif
+  #if AXIS_DRIVER_TYPE(X2, TMC2160)
+    TMC2160_DEFINE(X2);
+  #endif
+  #if AXIS_DRIVER_TYPE(Y, TMC2160)
+    TMC2160_DEFINE(Y);
+  #endif
+  #if AXIS_DRIVER_TYPE(Y2, TMC2160)
+    TMC2160_DEFINE(Y2);
+  #endif
+  #if AXIS_DRIVER_TYPE(Z, TMC2160)
+    TMC2160_DEFINE(Z);
+  #endif
+  #if AXIS_DRIVER_TYPE(Z2, TMC2160)
+    TMC2160_DEFINE(Z2);
+  #endif
+  #if AXIS_DRIVER_TYPE(Z3, TMC2160)
+    TMC2160_DEFINE(Z3);
+  #endif
+  #if AXIS_DRIVER_TYPE(E0, TMC2160)
+    TMC2160_DEFINE(E0);
+  #endif
+  #if AXIS_DRIVER_TYPE(E1, TMC2160)
+    TMC2160_DEFINE(E1);
+  #endif
+  #if AXIS_DRIVER_TYPE(E2, TMC2160)
+    TMC2160_DEFINE(E2);
+  #endif
+  #if AXIS_DRIVER_TYPE(E3, TMC2160)
+    TMC2160_DEFINE(E3);
+  #endif
+  #if AXIS_DRIVER_TYPE(E4, TMC2160)
+    TMC2160_DEFINE(E4);
+  #endif
+  #if AXIS_DRIVER_TYPE(E5, TMC2160)
+    TMC2160_DEFINE(E5);
+  #endif
+
+  template<char AXIS_LETTER, char DRIVER_ID>
+  void tmc_init(TMCMarlin<TMC2160Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
+    st.begin();
+
+    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
+
+    CHOPCONF_t chopconf{0};
+    chopconf.tbl = 1;
+    chopconf.toff = timings[0];
+    chopconf.intpol = INTERPOLATE;
+    chopconf.hend = timings[1] + 3;
+    chopconf.hstrt = timings[2] - 1;
+    st.CHOPCONF(chopconf.sr);
+
+    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.microsteps(microsteps);
+    st.iholddelay(10);
+    st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
+    st.TCOOLTHRS(0xFFFFF);
+
+    #if ENABLED(ADAPTIVE_CURRENT)
+      COOLCONF_t coolconf{0};
+      coolconf.semin = INCREASE_CURRENT_THRS;
+      coolconf.semax = REDUCE_CURRENT_THRS;
+      st.COOLCONF(coolconf.sr);
+    #endif
+
+    st.en_pwm_mode(stealth);
+
+    PWMCONF_t pwmconf{0};
+    pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
+    pwmconf.pwm_autoscale = true;
+    pwmconf.pwm_grad = 5;
+    pwmconf.pwm_ampl = 180;
+    st.PWMCONF(pwmconf.sr);
+
+    #if ENABLED(HYBRID_THRESHOLD)
+      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+    #else
+      UNUSED(thrs);
+      UNUSED(spmm);
+    #endif
+
+    st.GSTAT(); // Clear GSTAT
+  }
+#endif // TMC2160
+
+//
 // TMC2208 Driver objects and inits
 //
 #if HAS_DRIVER(TMC2208)
   #include <HardwareSerial.h>
   #include "planner.h"
 
-  #define _TMC2208_DEFINE_HARDWARE(ST, L) TMCMarlin<TMC2208Stepper, L> stepper##ST(&ST##_HARDWARE_SERIAL, R_SENSE)
+  #define _TMC2208_DEFINE_HARDWARE(ST, L) TMCMarlin<TMC2208Stepper, L> stepper##ST(&ST##_HARDWARE_SERIAL, ST##_RSENSE)
   #define TMC2208_DEFINE_HARDWARE(ST) _TMC2208_DEFINE_HARDWARE(ST, TMC_##ST##_LABEL)
 
-  #define _TMC2208_DEFINE_SOFTWARE(ST, L) TMCMarlin<TMC2208Stepper, L> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, R_SENSE, ST##_SERIAL_RX_PIN > -1)
+  #define _TMC2208_DEFINE_SOFTWARE(ST, L) TMCMarlin<TMC2208Stepper, L> stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_RSENSE, ST##_SERIAL_RX_PIN > -1)
   #define TMC2208_DEFINE_SOFTWARE(ST) _TMC2208_DEFINE_SOFTWARE(ST, TMC_##ST##_LABEL)
 
   // Stepper objects of TMC2208 steppers used
@@ -498,10 +602,10 @@
   #include "../core/enum.h"
 
   #if ENABLED(TMC_USE_SW_SPI)
-    #define _TMC2660_DEFINE(ST, L) TMCMarlin<TMC2660Stepper, L> stepper##ST(ST##_CS_PIN, R_SENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define _TMC2660_DEFINE(ST, L) TMCMarlin<TMC2660Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
     #define TMC2660_DEFINE(ST) _TMC2660_DEFINE(ST, TMC_##ST##_LABEL)
   #else
-    #define _TMC2660_DEFINE(ST, L) TMCMarlin<TMC2660Stepper, L> stepper##ST(ST##_CS_PIN, R_SENSE)
+    #define _TMC2660_DEFINE(ST, L) TMCMarlin<TMC2660Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
     #define TMC2660_DEFINE(ST) _TMC2660_DEFINE(ST, TMC_##ST##_LABEL)
   #endif
 
@@ -560,6 +664,203 @@
     st.diss2g(true); // Disable short to ground protection. Too many false readings?
   }
 #endif // TMC2660
+
+//
+// TMC5130 Driver objects and inits
+//
+#if HAS_DRIVER(TMC5130)
+
+  #include <SPI.h>
+  #include "planner.h"
+  #include "../core/enum.h"
+
+  #if ENABLED(TMC_USE_SW_SPI)
+    #define _TMC5130_DEFINE(ST, L) TMCMarlin<TMC5130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define TMC5130_DEFINE(ST) _TMC5130_DEFINE(ST, TMC_##ST##_LABEL)
+  #else
+    #define _TMC5130_DEFINE(ST, L) TMCMarlin<TMC5130Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+    #define TMC5130_DEFINE(ST) _TMC5130_DEFINE(ST, TMC_##ST##_LABEL)
+  #endif
+  // Stepper objects of TMC5130 steppers used
+  #if AXIS_DRIVER_TYPE_X(TMC5130)
+    TMC5130_DEFINE(X);
+  #endif
+  #if AXIS_DRIVER_TYPE_X2(TMC5130)
+    TMC5130_DEFINE(X2);
+  #endif
+  #if AXIS_DRIVER_TYPE_Y(TMC5130)
+    TMC5130_DEFINE(Y);
+  #endif
+  #if AXIS_DRIVER_TYPE_Y2(TMC5130)
+    TMC5130_DEFINE(Y2);
+  #endif
+  #if AXIS_DRIVER_TYPE_Z(TMC5130)
+    TMC5130_DEFINE(Z);
+  #endif
+  #if AXIS_DRIVER_TYPE_Z2(TMC5130)
+    TMC5130_DEFINE(Z2);
+  #endif
+  #if AXIS_DRIVER_TYPE_Z3(TMC5130)
+    TMC5130_DEFINE(Z3);
+  #endif
+  #if AXIS_DRIVER_TYPE_E0(TMC5130)
+    TMC5130_DEFINE(E0);
+  #endif
+  #if AXIS_DRIVER_TYPE_E1(TMC5130)
+    TMC5130_DEFINE(E1);
+  #endif
+  #if AXIS_DRIVER_TYPE_E2(TMC5130)
+    TMC5130_DEFINE(E2);
+  #endif
+  #if AXIS_DRIVER_TYPE_E3(TMC5130)
+    TMC5130_DEFINE(E3);
+  #endif
+  #if AXIS_DRIVER_TYPE_E4(TMC5130)
+    TMC5130_DEFINE(E4);
+  #endif
+  #if AXIS_DRIVER_TYPE_E5(TMC5130)
+    TMC5130_DEFINE(E5);
+  #endif
+
+  template<char AXIS_LETTER, char DRIVER_ID>
+  void tmc_init(TMCMarlin<TMC5130Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
+    st.begin();
+
+    CHOPCONF_t chopconf{0};
+    chopconf.tbl = 1;
+    chopconf.toff = chopper_timing.toff;
+    chopconf.intpol = INTERPOLATE;
+    chopconf.hend = chopper_timing.hend + 3;
+    chopconf.hstrt = chopper_timing.hstrt - 1;
+    st.CHOPCONF(chopconf.sr);
+
+    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.microsteps(microsteps);
+    st.iholddelay(10);
+    st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
+
+    st.en_pwm_mode(stealth);
+    st.stored.stealthChop_enabled = stealth;
+
+    PWMCONF_t pwmconf{0};
+    pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
+    pwmconf.pwm_autoscale = true;
+    pwmconf.pwm_grad = 5;
+    pwmconf.pwm_ampl = 180;
+    st.PWMCONF(pwmconf.sr);
+
+    #if ENABLED(HYBRID_THRESHOLD)
+      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+    #else
+      UNUSED(thrs);
+      UNUSED(spmm);
+    #endif
+
+    st.GSTAT(); // Clear GSTAT
+  }
+#endif // TMC5130
+
+//
+// TMC5160 Driver objects and inits
+//
+#if HAS_DRIVER(TMC5160)
+
+  #include <SPI.h>
+  #include "planner.h"
+  #include "../core/enum.h"
+
+  #if ENABLED(TMC_USE_SW_SPI)
+    #define _TMC5160_DEFINE(ST, L) TMCMarlin<TMC5160Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define TMC5160_DEFINE(ST) _TMC5160_DEFINE(ST, TMC_##ST##_LABEL)
+  #else
+    #define _TMC5160_DEFINE(ST, L) TMCMarlin<TMC5160Stepper, L> stepper##ST(ST##_CS_PIN, ST##_RSENSE)
+    #define TMC5160_DEFINE(ST) _TMC5160_DEFINE(ST, TMC_##ST##_LABEL)
+  #endif
+  // Stepper objects of TMC5160 steppers used
+  #if AXIS_DRIVER_TYPE(X, TMC5160)
+    TMC5160_DEFINE(X);
+  #endif
+  #if AXIS_DRIVER_TYPE(X2, TMC5160)
+    TMC5160_DEFINE(X2);
+  #endif
+  #if AXIS_DRIVER_TYPE(Y, TMC5160)
+    TMC5160_DEFINE(Y);
+  #endif
+  #if AXIS_DRIVER_TYPE(Y2, TMC5160)
+    TMC5160_DEFINE(Y2);
+  #endif
+  #if AXIS_DRIVER_TYPE(Z, TMC5160)
+    TMC5160_DEFINE(Z);
+  #endif
+  #if AXIS_DRIVER_TYPE(Z2, TMC5160)
+    TMC5160_DEFINE(Z2);
+  #endif
+  #if AXIS_DRIVER_TYPE(Z3, TMC5160)
+    TMC5160_DEFINE(Z3);
+  #endif
+  #if AXIS_DRIVER_TYPE(E0, TMC5160)
+    TMC5160_DEFINE(E0);
+  #endif
+  #if AXIS_DRIVER_TYPE(E1, TMC5160)
+    TMC5160_DEFINE(E1);
+  #endif
+  #if AXIS_DRIVER_TYPE(E2, TMC5160)
+    TMC5160_DEFINE(E2);
+  #endif
+  #if AXIS_DRIVER_TYPE(E3, TMC5160)
+    TMC5160_DEFINE(E3);
+  #endif
+  #if AXIS_DRIVER_TYPE(E4, TMC5160)
+    TMC5160_DEFINE(E4);
+  #endif
+  #if AXIS_DRIVER_TYPE(E5, TMC5160)
+    TMC5160_DEFINE(E5);
+  #endif
+
+  template<char AXIS_LETTER, char DRIVER_ID>
+  void tmc_init(TMCMarlin<TMC5160Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
+    st.begin();
+
+    int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
+
+    CHOPCONF_t chopconf{0};
+    chopconf.tbl = 1;
+    chopconf.toff = timings[0];
+    chopconf.intpol = INTERPOLATE;
+    chopconf.hend = timings[1] + 3;
+    chopconf.hstrt = timings[2] - 1;
+    st.CHOPCONF(chopconf.sr);
+
+    st.rms_current(mA, HOLD_MULTIPLIER);
+    st.microsteps(microsteps);
+    st.iholddelay(10);
+    st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
+
+    #if ENABLED(ADAPTIVE_CURRENT)
+      COOLCONF_t coolconf{0};
+      coolconf.semin = INCREASE_CURRENT_THRS;
+      coolconf.semax = REDUCE_CURRENT_THRS;
+      st.COOLCONF(coolconf.sr);
+    #endif
+
+    st.en_pwm_mode(stealth);
+
+    PWMCONF_t pwmconf{0};
+    pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
+    pwmconf.pwm_autoscale = true;
+    pwmconf.pwm_grad = 5;
+    pwmconf.pwm_ampl = 180;
+    st.PWMCONF(pwmconf.sr);
+
+    #if ENABLED(HYBRID_THRESHOLD)
+      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+    #else
+      UNUSED(thrs);
+      UNUSED(spmm);
+    #endif
+    st.GSTAT(); // Clear GSTAT
+  }
+#endif // TMC5160
 
 void restore_stepper_drivers() {
   #if AXIS_IS_TMC(X)
