@@ -69,9 +69,9 @@
 // Steppers
 //
 
-#define X_STEP_PIN         _STM32_PIN(D, 3)
-#define X_DIR_PIN          _STM32_PIN(D, 2)
-#define X_ENABLE_PIN       _STM32_PIN(D, 0)
+#define E1_STEP_PIN         _STM32_PIN(D, 3)
+#define E1_DIR_PIN          _STM32_PIN(D, 2)
+#define E1_ENABLE_PIN       _STM32_PIN(D, 0)
 // #ifndef X_CS_PIN
 //   #define X_CS_PIN         _STM32_PIN(D, 1)
 // #endif
@@ -97,9 +97,9 @@
 //   #define E0_CS_PIN         _STM32_PIN(B, 4)
 // #endif
 
-#define E1_STEP_PIN        _STM32_PIN(E, 4)
-#define E1_DIR_PIN         _STM32_PIN(E, 2)
-#define E1_ENABLE_PIN      _STM32_PIN(E, 3)
+#define X_STEP_PIN        _STM32_PIN(E, 4)
+#define X_DIR_PIN         _STM32_PIN(E, 2)
+#define X_ENABLE_PIN      _STM32_PIN(E, 3)
 // #ifndef E1_CS_PIN
 //   #define E1_CS_PIN         _STM32_PIN(E, 5)
 // #endif
