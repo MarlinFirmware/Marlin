@@ -76,7 +76,7 @@ Stepper stepper; // Singleton
 block_t* Stepper::current_block = NULL;  // A pointer to the block currently being traced
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-  bool Stepper::performing_homing = false;
+  bool Stepper::homing_dual_axis = false;
 #endif
 
 #if HAS_MOTOR_CURRENT_PWM
@@ -153,7 +153,7 @@ bool Stepper::all_steps_done = false;
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 
 volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
-volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
+int8_t Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
 #if ENABLED(MIXING_EXTRUDER)
   int32_t Stepper::counter_m[MIXING_STEPPERS];
@@ -170,7 +170,7 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
   #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
-    if (performing_homing) {                                                                                                  \
+    if (homing_dual_axis) {                                                                                                   \
       if (A##_HOME_DIR < 0) {                                                                                                 \
         if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
         if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \

@@ -1372,7 +1372,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
     #endif
 
     #if ENABLED(DELTA)
-      switch(axis) {
+      switch (axis) {
         #if HAS_SOFTWARE_ENDSTOPS
           case X_AXIS:
           case Y_AXIS:
@@ -2937,9 +2937,14 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> do_homing_move(", axis_codes[axis]);
       SERIAL_ECHOPAIR(", ", distance);
-      SERIAL_ECHOPAIR(", ", fr_mm_s);
-      SERIAL_ECHOPAIR(" [", fr_mm_s ? fr_mm_s : homing_feedrate(axis));
-      SERIAL_ECHOLNPGM("])");
+      SERIAL_ECHOPGM(", ");
+      if (fr_mm_s)
+        SERIAL_ECHO(fr_mm_s);
+      else {
+        SERIAL_ECHOPAIR("[", homing_feedrate(axis));
+        SERIAL_CHAR(']');
+      }
+      SERIAL_ECHOLNPGM(")");
     }
   #endif
 
@@ -3058,11 +3063,12 @@ static void homeaxis(const AxisEnum axis) {
     }
   #endif
 
-  const int axis_home_dir =
+  const int axis_home_dir = (
     #if ENABLED(DUAL_X_CARRIAGE)
-      (axis == X_AXIS) ? x_home_dir(active_extruder) :
+      axis == X_AXIS ? x_home_dir(active_extruder) :
     #endif
-    home_dir(axis);
+    home_dir(axis)
+  );
 
   // Homing Z towards the bed? Deploy the Z probe or endstop.
   #if HOMING_Z_WITH_PROBE
@@ -3070,14 +3076,20 @@ static void homeaxis(const AxisEnum axis) {
   #endif
 
   // Set flags for X, Y, Z motor locking
-  #if ENABLED(X_DUAL_ENDSTOPS)
-    if (axis == X_AXIS) stepper.set_homing_flag_x(true);
-  #endif
-  #if ENABLED(Y_DUAL_ENDSTOPS)
-    if (axis == Y_AXIS) stepper.set_homing_flag_y(true);
-  #endif
-  #if ENABLED(Z_DUAL_ENDSTOPS)
-    if (axis == Z_AXIS) stepper.set_homing_flag_z(true);
+  #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+    switch (axis) {
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        case X_AXIS:
+      #endif
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        case Y_AXIS:
+      #endif
+      #if ENABLED(Z_DUAL_ENDSTOPS)
+        case Z_AXIS:
+      #endif
+      stepper.set_homing_dual_axis(true);
+      default: break;
+    }
   #endif
 
   // Fast move towards endstop until triggered
@@ -3120,34 +3132,32 @@ static void homeaxis(const AxisEnum axis) {
     const bool pos_dir = axis_home_dir > 0;
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (axis == X_AXIS) {
-        const bool lock_x1 = pos_dir ? (endstops.x_endstop_adj > 0) : (endstops.x_endstop_adj < 0);
         const float adj = ABS(endstops.x_endstop_adj);
-        if (lock_x1) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
+        if (pos_dir ? (endstops.x_endstop_adj > 0) : (endstops.x_endstop_adj < 0)) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
         do_homing_move(axis, pos_dir ? -adj : adj);
-        if (lock_x1) stepper.set_x_lock(false); else stepper.set_x2_lock(false);
-        stepper.set_homing_flag_x(false);
+        stepper.set_x_lock(false);
+        stepper.set_x2_lock(false);
       }
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
       if (axis == Y_AXIS) {
-        const bool lock_y1 = pos_dir ? (endstops.y_endstop_adj > 0) : (endstops.y_endstop_adj < 0);
         const float adj = ABS(endstops.y_endstop_adj);
-        if (lock_y1) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
+        if (pos_dir ? (endstops.y_endstop_adj > 0) : (endstops.y_endstop_adj < 0)) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
         do_homing_move(axis, pos_dir ? -adj : adj);
-        if (lock_y1) stepper.set_y_lock(false); else stepper.set_y2_lock(false);
-        stepper.set_homing_flag_y(false);
+        stepper.set_y_lock(false);
+        stepper.set_y2_lock(false);
       }
     #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
       if (axis == Z_AXIS) {
-        const bool lock_z1 = pos_dir ? (endstops.z_endstop_adj > 0) : (endstops.z_endstop_adj < 0);
         const float adj = ABS(endstops.z_endstop_adj);
-        if (lock_z1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
+        if (pos_dir ? (endstops.z_endstop_adj > 0) : (endstops.z_endstop_adj < 0)) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
         do_homing_move(axis, pos_dir ? -adj : adj);
-        if (lock_z1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
-        stepper.set_homing_flag_z(false);
+        stepper.set_z_lock(false);
+        stepper.set_z2_lock(false);
       }
     #endif
+    stepper.set_homing_dual_axis(false);
   #endif
 
   #if IS_SCARA
@@ -3191,8 +3201,7 @@ static void homeaxis(const AxisEnum axis) {
 
   // Clear retracted status if homing the Z axis
   #if ENABLED(FWRETRACT)
-    if (axis == Z_AXIS)
-      fwretract.hop_amount = 0.0;
+    if (axis == Z_AXIS) fwretract.hop_amount = 0.0;
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -4442,7 +4451,7 @@ void home_all_axes() { gcode_G28(true); }
         reset_bed_level();
         break;
 
-    } // switch(state)
+    } // switch (state)
 
     if (state == MeshNext) {
       SERIAL_PROTOCOLPAIR("MBL G29 point ", MIN(mbl_probe_index, GRID_MAX_POINTS));
