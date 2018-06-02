@@ -84,13 +84,10 @@ public:
   static int read(void);
   static void flush(void);
   static ring_buffer_pos_t available(void);
-  static void checkRx(void);
   static void write(const uint8_t c);
   #if TX_BUFFER_SIZE > 0
-    static uint8_t availableForWrite(void);
     static void flushTX(void);
   #endif
-  static void writeNoHandshake(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE static uint32_t dropped() { return rx_dropped_bytes; }

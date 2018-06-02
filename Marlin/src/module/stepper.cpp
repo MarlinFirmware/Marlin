@@ -102,13 +102,13 @@ uint8_t Stepper::last_direction_bits = 0,
 bool Stepper::abort_current_block;
 
 #if ENABLED(X_DUAL_ENDSTOPS)
-  bool Stepper::locked_x_motor = false, Stepper::locked_x2_motor = false;
+  bool Stepper::locked_X_motor = false, Stepper::locked_X2_motor = false;
 #endif
 #if ENABLED(Y_DUAL_ENDSTOPS)
-  bool Stepper::locked_y_motor = false, Stepper::locked_y2_motor = false;
+  bool Stepper::locked_Y_motor = false, Stepper::locked_Y2_motor = false;
 #endif
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  bool Stepper::locked_z_motor = false, Stepper::locked_z2_motor = false;
+  bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false;
 #endif
 
 /**
@@ -182,26 +182,20 @@ uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
 volatile int32_t Stepper::endstops_trigsteps[XYZ];
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-  #define LOCKED_X_MOTOR  locked_x_motor
-  #define LOCKED_Y_MOTOR  locked_y_motor
-  #define LOCKED_Z_MOTOR  locked_z_motor
-  #define LOCKED_X2_MOTOR locked_x2_motor
-  #define LOCKED_Y2_MOTOR locked_y2_motor
-  #define LOCKED_Z2_MOTOR locked_z2_motor
-  #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                                      \
-    if (performing_homing) {                                                                                                                \
-      if (A##_HOME_DIR < 0) {                                                                                                               \
-        if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
-        if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
-      }                                                                                                                                     \
-      else {                                                                                                                                \
-        if (!(TEST(endstops.state(), A##_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##_MOTOR) A##_STEP_WRITE(V);     \
-        if (!(TEST(endstops.state(), A##2_MAX) && count_direction[_AXIS(A)] > 0) && !LOCKED_##A##2_MOTOR) A##2_STEP_WRITE(V);  \
-      }                                                                                                                                     \
-    }                                                                                                                                       \
-    else {                                                                                                                                  \
-      A##_STEP_WRITE(V);                                                                                                                    \
-      A##2_STEP_WRITE(V);                                                                                                                   \
+  #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
+    if (performing_homing) {                                                                                                  \
+      if (A##_HOME_DIR < 0) {                                                                                                 \
+        if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
+        if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
+      }                                                                                                                       \
+      else {                                                                                                                  \
+        if (!(TEST(endstops.state(), A##_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
+        if (!(TEST(endstops.state(), A##2_MAX) && count_direction[_AXIS(A)] > 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
+      }                                                                                                                       \
+    }                                                                                                                         \
+    else {                                                                                                                    \
+      A##_STEP_WRITE(V);                                                                                                      \
+      A##2_STEP_WRITE(V);                                                                                                     \
     }
 #endif
 
@@ -1150,19 +1144,8 @@ void Stepper::set_directions() {
 HAL_STEP_TIMER_ISR {
   HAL_timer_isr_prologue(STEP_TIMER_NUM);
 
-  // Program timer compare for the maximum period, so it does NOT
-  // flag an interrupt while this ISR is running - So changes from small
-  // periods to big periods are respected and the timer does not reset to 0
-  HAL_timer_set_compare(STEP_TIMER_NUM, HAL_TIMER_TYPE_MAX);
-
-  // Call the ISR scheduler
-  hal_timer_t ticks = Stepper::isr_scheduler();
-
-  // Now 'ticks' contains the period to the next Stepper ISR - And we are
-  // sure that the time has not arrived yet - Warrantied by the scheduler
-
-  // Set the next ISR to fire at the proper time
-  HAL_timer_set_compare(STEP_TIMER_NUM, ticks);
+  // Call the ISR
+  Stepper::isr();
 
   HAL_timer_isr_epilogue(STEP_TIMER_NUM);
 }
@@ -1173,8 +1156,15 @@ HAL_STEP_TIMER_ISR {
   #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B)
 #endif
 
-hal_timer_t Stepper::isr_scheduler() {
-  uint32_t interval;
+void Stepper::isr() {
+
+  // Disable interrupts, to avoid ISR preemption while we reprogram the period
+  DISABLE_ISRS();
+
+  // Program timer compare for the maximum period, so it does NOT
+  // flag an interrupt while this ISR is running - So changes from small
+  // periods to big periods are respected and the timer does not reset to 0
+  HAL_timer_set_compare(STEP_TIMER_NUM, HAL_TIMER_TYPE_MAX);
 
   // Count of ticks for the next ISR
   hal_timer_t next_isr_ticks = 0;
@@ -1185,6 +1175,9 @@ hal_timer_t Stepper::isr_scheduler() {
   // We need this variable here to be able to use it in the following loop
   hal_timer_t min_ticks;
   do {
+    // Enable ISRs so the USART processing latency is reduced
+    ENABLE_ISRS();
+
     // Run main stepping pulse phase ISR if we have to
     if (!nextMainISR) Stepper::stepper_pulse_phase_isr();
 
@@ -1198,13 +1191,15 @@ hal_timer_t Stepper::isr_scheduler() {
     // Run main stepping block processing ISR if we have to
     if (!nextMainISR) nextMainISR = Stepper::stepper_block_phase_isr();
 
-    #if ENABLED(LIN_ADVANCE)
-      // Select the closest interval in time
-      interval = (nextAdvanceISR <= nextMainISR) ? nextAdvanceISR : nextMainISR;
-    #else
-      // The interval is just the remaining time to the stepper ISR
-      interval = nextMainISR;
-    #endif
+    uint32_t interval =
+      #if ENABLED(LIN_ADVANCE)
+        // Select the closest interval in time
+        MIN(nextAdvanceISR, nextMainISR)
+      #else
+        // The interval is just the remaining time to the stepper ISR
+        nextMainISR
+      #endif
+    ;
 
     // Limit the value to the maximum possible value of the timer
     NOMORE(interval, HAL_TIMER_TYPE_MAX);
@@ -1244,6 +1239,16 @@ hal_timer_t Stepper::isr_scheduler() {
     next_isr_ticks += interval;
 
     /**
+     *  The following section must be done with global interrupts disabled.
+     * We want nothing to interrupt it, as that could mess the calculations
+     * we do for the next value to program in the period register of the
+     * stepper timer and lead to skipped ISRs (if the value we happen to program
+     * is less than the current count due to something preempting between the
+     * read and the write of the new period value).
+     */
+    DISABLE_ISRS();
+
+    /**
      * Get the current tick value + margin
      * Assuming at least 6µs between calls to this ISR...
      * On AVR the ISR epilogue is estimated at 40 instructions - close to 2.5µS.
@@ -1264,8 +1269,14 @@ hal_timer_t Stepper::isr_scheduler() {
     // Advance pulses if not enough time to wait for the next ISR
   } while (next_isr_ticks < min_ticks);
 
-  // Return the count of ticks for the next ISR
-  return (hal_timer_t)next_isr_ticks;
+  // Now 'next_isr_ticks' contains the period to the next Stepper ISR - And we are
+  // sure that the time has not arrived yet - Warrantied by the scheduler
+
+  // Set the next ISR to fire at the proper time
+  HAL_timer_set_compare(STEP_TIMER_NUM, hal_timer_t(next_isr_ticks));
+
+  // Don't forget to finally reenable interrupts
+  ENABLE_ISRS();
 }
 
 /**
