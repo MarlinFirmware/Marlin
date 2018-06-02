@@ -108,7 +108,15 @@ class Endstops {
     /**
      * Get current endstops state
      */
-    FORCE_INLINE static esbits_t state() { return live_state; }
+    FORCE_INLINE static esbits_t state() {
+      return
+        #if ENABLED(ENDSTOP_NOISE_FILTER)
+          validated_live_state
+        #else
+          live_state
+        #endif
+      ;
+    }
 
     /**
      * Report endstop hits to serial. Called from loop().

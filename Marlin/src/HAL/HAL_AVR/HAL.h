@@ -64,7 +64,9 @@
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
   #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif
-
+#define ISRS_ENABLED() TEST(SREG, SREG_I)
+#define ENABLE_ISRS()  sei()
+#define DISABLE_ISRS() cli()
 
 // On AVR this is in math.h?
 //#define square(x) ((x)*(x))
@@ -181,7 +183,6 @@ void TIMER1_COMPA_vect (void) { \
     A("lds r16, %[timsk1]")            /* 2 Load into R0 the stepper timer Interrupt mask register [TIMSK1] */ \
     A("andi r16,~%[msk1]")             /* 1 Disable the stepper ISR */ \
     A("sts %[timsk1], r16")            /* 2 And set the new value */ \
-    A("sei")                           /* 1 Enable global interrupts - stepper and temperature ISRs are disabled, so no risk of reentry or being preempted by the temperature ISR */    \
     A("push r16")                      /* 2 Save TIMSK1 into stack */ \
     A("in r16, 0x3B")                  /* 1 Get RAMPZ register */ \
     A("push r16")                      /* 2 Save RAMPZ into stack */ \
@@ -291,7 +292,7 @@ void TIMER0_COMPB_vect (void) { \
     A("out 0x3B, r16")                  /* 1 Restore RAMPZ register to its original value */ \
     A("pop r16")                        /* 2 Get the original TIMSK0 value but with temperature ISR disabled */ \
     A("ori r16,%[msk0]")                /* 1 Enable temperature ISR */ \
-    A("cli")                            /* 1 Disable global interrupts - We must do this, as we will reenable the temperature ISR, and we don´t want to reenter this handler until the current one is done */ \
+    A("cli")                            /* 1 Disable global interrupts - We must do this, as we will reenable the temperature ISR, and we don't want to reenter this handler until the current one is done */ \
     A("sts %[timsk0], r16")             /* 2 And restore the old value */ \
     A("pop r16")                        /* 2 Get the old SREG */ \
     A("out __SREG__, r16")              /* 1 And restore the SREG value */ \

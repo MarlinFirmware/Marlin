@@ -2166,11 +2166,22 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       }
       else {
         NOLESS(junction_cos_theta, -0.999999); // Check for numerical round-off to avoid divide by zero.
-        const float sin_theta_d2 = SQRT(0.5 * (1.0 - junction_cos_theta)); // Trig half angle identity. Always positive.
 
-        // TODO: Technically, the acceleration used in calculation needs to be limited by the minimum of the
-        // two junctions. However, this shouldn't be a significant problem except in extreme circumstances.
-        vmax_junction_sqr = (JUNCTION_ACCELERATION * JUNCTION_DEVIATION_MM * sin_theta_d2) / (1.0 - sin_theta_d2);
+        float junction_unit_vec[JD_AXES] = {
+          unit_vec[X_AXIS] - previous_unit_vec[X_AXIS],
+          unit_vec[Y_AXIS] - previous_unit_vec[Y_AXIS],
+          unit_vec[Z_AXIS] - previous_unit_vec[Z_AXIS]
+          #if ENABLED(JUNCTION_DEVIATION_INCLUDE_E)
+            , unit_vec[E_AXIS] - previous_unit_vec[E_AXIS]
+          #endif
+        };
+        // Convert delta vector to unit vector
+        normalize_junction_vector(junction_unit_vec);
+
+        const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec),
+                    sin_theta_d2 = SQRT(0.5 * (1.0 - junction_cos_theta)); // Trig half angle identity. Always positive.
+
+        vmax_junction_sqr = (junction_acceleration * JUNCTION_DEVIATION_MM * sin_theta_d2) / (1.0 - sin_theta_d2);
         if (block->millimeters < 1.0) {
 
           // Fast acos approximation, minus the error bar to be safe
@@ -2178,7 +2189,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
           if (junction_theta > RADIANS(135)) {
-            const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * JUNCTION_ACCELERATION;
+            const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * junction_acceleration;
             NOMORE(vmax_junction_sqr, limit_sqr);
           }
         }
@@ -2456,9 +2467,13 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
     position_float[C_AXIS] = c;
     position_float[E_AXIS] = e;
   #endif
-  previous_nominal_speed_sqr = 0.0; // Resets planner junction speeds. Assumes start from rest.
-  ZERO(previous_speed);
-  buffer_sync_block();
+  if (has_blocks_queued()) {
+    //previous_nominal_speed_sqr = 0.0; // Reset planner junction speeds. Assume start from rest.
+    //ZERO(previous_speed);
+    buffer_sync_block();
+  }
+  else
+    stepper.set_position(position[A_AXIS], position[B_AXIS], position[C_AXIS], position[E_AXIS]);
 }
 
 void Planner::set_position_mm_kinematic(const float (&cart)[XYZE]) {
@@ -2490,8 +2505,12 @@ void Planner::set_position_mm(const AxisEnum axis, const float &v) {
   #if HAS_POSITION_FLOAT
     position_float[axis] = v;
   #endif
-  previous_speed[axis] = 0.0;
-  buffer_sync_block();
+  if (has_blocks_queued()) {
+    //previous_speed[axis] = 0.0;
+    buffer_sync_block();
+  }
+  else
+    stepper.set_position(axis, position[axis]);
 }
 
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2

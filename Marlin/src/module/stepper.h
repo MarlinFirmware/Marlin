@@ -81,13 +81,13 @@ class Stepper {
     static bool abort_current_block;        // Signals to the stepper that current block should be aborted
 
     #if ENABLED(X_DUAL_ENDSTOPS)
-      static bool locked_x_motor, locked_x2_motor;
+      static bool locked_X_motor, locked_X2_motor;
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
-      static bool locked_y_motor, locked_y2_motor;
+      static bool locked_Y_motor, locked_Y2_motor;
     #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      static bool locked_z_motor, locked_z2_motor;
+      static bool locked_Z_motor, locked_Z2_motor;
     #endif
 
     // Counter variables for the Bresenham line tracer
@@ -168,7 +168,7 @@ class Stepper {
     // Interrupt Service Routines
 
     // The ISR scheduler
-    static hal_timer_t isr_scheduler();
+    static void isr();
 
     // The stepper pulse phase ISR
     static void stepper_pulse_phase_isr();
@@ -222,18 +222,18 @@ class Stepper {
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       FORCE_INLINE static void set_homing_flag_x(const bool state) { performing_homing = state; }
-      FORCE_INLINE static void set_x_lock(const bool state) { locked_x_motor = state; }
-      FORCE_INLINE static void set_x2_lock(const bool state) { locked_x2_motor = state; }
+      FORCE_INLINE static void set_x_lock(const bool state) { locked_X_motor = state; }
+      FORCE_INLINE static void set_x2_lock(const bool state) { locked_X2_motor = state; }
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
       FORCE_INLINE static void set_homing_flag_y(const bool state) { performing_homing = state; }
-      FORCE_INLINE static void set_y_lock(const bool state) { locked_y_motor = state; }
-      FORCE_INLINE static void set_y2_lock(const bool state) { locked_y2_motor = state; }
+      FORCE_INLINE static void set_y_lock(const bool state) { locked_Y_motor = state; }
+      FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
       FORCE_INLINE static void set_homing_flag_z(const bool state) { performing_homing = state; }
-      FORCE_INLINE static void set_z_lock(const bool state) { locked_z_motor = state; }
-      FORCE_INLINE static void set_z2_lock(const bool state) { locked_z2_motor = state; }
+      FORCE_INLINE static void set_z_lock(const bool state) { locked_Z_motor = state; }
+      FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -247,16 +247,34 @@ class Stepper {
     // Set the current position in steps
     inline static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
       planner.synchronize();
-      CRITICAL_SECTION_START;
+
+      // Disable stepper interrupts, to ensure atomic setting of all the position variables
+      const bool was_enabled = STEPPER_ISR_ENABLED();
+      if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+
+      // Set position
       _set_position(a, b, c, e);
-      CRITICAL_SECTION_END;
+
+      // Reenable Stepper ISR
+      if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
     }
 
     inline static void set_position(const AxisEnum a, const int32_t &v) {
       planner.synchronize();
-      CRITICAL_SECTION_START;
+
+    #ifdef __AVR__
+      // Protect the access to the position. Only required for AVR, as
+      //  any 32bit CPU offers atomic access to 32bit variables
+      const bool was_enabled = STEPPER_ISR_ENABLED();
+      if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+    #endif
+
       count_position[a] = v;
-      CRITICAL_SECTION_END;
+
+    #ifdef __AVR__
+      // Reenable Stepper ISR
+      if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+    #endif
     }
 
   private:

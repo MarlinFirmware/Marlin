@@ -164,7 +164,7 @@ inline void lcd_implementation_status_message(const bool blink) {
           lcd_put_wchar('.');
           if (--chars) {
             // Print a second copy of the message
-            lcd_put_u8str_max(lcd_status_message, LCD_PIXEL_WIDTH - ((rlen+2) * DOG_CHAR_WIDTH)); 
+            lcd_put_u8str_max(lcd_status_message, LCD_PIXEL_WIDTH - ((rlen+2) * DOG_CHAR_WIDTH));
           }
         }
       }
