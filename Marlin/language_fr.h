@@ -144,8 +144,7 @@
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("UBL Pas a pas")
 
 #define MSG_LED_CONTROL                     _UxGT("Controle LED")
-#define MSG_LEDS_ON                         _UxGT("Lumiere ON")
-#define MSG_LEDS_OFF                        _UxGT("Lumiere OFF")
+#define MSG_LEDS                            _UxGT("Lumiere")
 #define MSG_LED_PRESETS                     _UxGT("Preregl. LED.")
 #define MSG_SET_LEDS_RED                    _UxGT("Rouge")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("Orange")
