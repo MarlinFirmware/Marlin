@@ -1234,14 +1234,7 @@ void Temperature::init() {
     HAL_ANALOG_SELECT(FILWIDTH_PIN);
   #endif
 
-  // todo: HAL: fix abstraction
-  #ifdef __AVR__
-    // Use timer0 for temperature measurement
-    // Interleave temperature interrupt with millies interrupt
-    OCR0B = 128;
-  #else
-    HAL_timer_start(TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
-  #endif
+  HAL_timer_start(TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
   ENABLE_TEMPERATURE_INTERRUPT();
 
   #if HAS_AUTO_FAN_0
