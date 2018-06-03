@@ -4255,10 +4255,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void lcd_led_menu() {
       START_MENU();
       MENU_BACK(MSG_MAIN);
-      if (leds.lights_on)
-        MENU_ITEM(function, MSG_LEDS_OFF, leds.toggle);
-      else
-        MENU_ITEM(function, MSG_LEDS_ON, leds.toggle);
+      bool led_on = leds.lights_on;
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_LEDS, &led_on, leds.toggle);
       MENU_ITEM(function, MSG_SET_LEDS_DEFAULT, leds.set_default);
       #if ENABLED(LED_COLOR_PRESETS)
         MENU_ITEM(submenu, MSG_LED_PRESETS, lcd_led_presets_menu);
