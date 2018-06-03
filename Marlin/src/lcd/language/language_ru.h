@@ -144,8 +144,7 @@
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Пошаговое UBL")
 
 #define MSG_LED_CONTROL                     _UxGT("Настройки LED")
-#define MSG_LEDS_ON                         _UxGT("Включить подсветку")
-#define MSG_LEDS_OFF                        _UxGT("Выключить подсветку")
+#define MSG_LEDS                            _UxGT("Подсветку")
 #define MSG_LED_PRESETS                     _UxGT("Предустановки света")
 #define MSG_SET_LEDS_RED                    _UxGT("Красный свет")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("Оранжевый свет")
