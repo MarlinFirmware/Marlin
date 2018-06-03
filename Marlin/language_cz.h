@@ -146,8 +146,7 @@
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("UBL Postupne")
 
 #define MSG_LED_CONTROL                     _UxGT("LED Nastaveni")
-#define MSG_LEDS_ON                         _UxGT("Svetla Zap")
-#define MSG_LEDS_OFF                        _UxGT("Svetla Vyp")
+#define MSG_LEDS                            _UxGT("Svetla")
 #define MSG_LED_PRESETS                     _UxGT("Svetla Predvolby")
 #define MSG_SET_LEDS_RED                    _UxGT("Cervena")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("Oranzova")

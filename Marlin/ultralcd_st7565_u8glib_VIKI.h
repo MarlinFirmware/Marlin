@@ -122,10 +122,26 @@
   #define U8G_DELAY() u8g_10MicroDelay()
 #endif
 
-#define ST7565_CS()   { WRITE(ST7565_CS_PIN,1); U8G_DELAY(); }
-#define ST7565_NCS()  { WRITE(ST7565_CS_PIN,0); }
-#define ST7565_A0()   { WRITE(ST7565_A0_PIN,1); U8G_DELAY(); }
-#define ST7565_NA0()  { WRITE(ST7565_A0_PIN,0); }
+#define ST7565_CS()   do{ WRITE(ST7565_CS_PIN, HIGH); U8G_DELAY(); }while(0)
+#define ST7565_NCS()      WRITE(ST7565_CS_PIN, LOW)
+#define ST7565_A0()   do{ WRITE(ST7565_A0_PIN, HIGH); U8G_DELAY(); }while(0)
+#define ST7565_NA0()      WRITE(ST7565_A0_PIN, LOW)
+
+#define ST7565_ADC_REVERSE(N)    ST7565_WRITE_BYTE(0xA0 | ((N) & 0x1))
+#define ST7565_BIAS_MODE(N)      ST7565_WRITE_BYTE(0xA2 | ((N) & 0x1))
+#define ST7565_ALL_PIX(N)        ST7565_WRITE_BYTE(0xA4 | ((N) & 0x1))
+#define ST7565_INVERTED(N)       ST7565_WRITE_BYTE(0xA6 | ((N) & 0x1))
+#define ST7565_ON(N)             ST7565_WRITE_BYTE(0xAE | ((N) & 0x1))
+#define ST7565_OUT_MODE(N)       ST7565_WRITE_BYTE(0xC0 | ((N) & 0x1) << 3)
+#define ST7565_POWER_CONTROL(N)  ST7565_WRITE_BYTE(0x28 | (N))
+#define ST7565_V0_RATIO(N)       ST7565_WRITE_BYTE(0x20 | ((N) & 0x7))
+#define ST7565_CONTRAST(N)   do{ ST7565_WRITE_BYTE(0x81); ST7565_WRITE_BYTE(N); }while(0)
+
+#define ST7565_COLUMN_ADR(N) do{ ST7565_WRITE_BYTE(0x10 | ((N) >> 4) & 0xF); ST7565_WRITE_BYTE(0x00 | ((N) & 0xF)); }while(0)
+#define ST7565_PAGE_ADR(N)       ST7565_WRITE_BYTE(0xB0 | (N))
+#define ST7565_START_LINE(N)     ST7565_WRITE_BYTE(0x40 | (N))
+#define ST7565_SLEEP_MODE()      ST7565_WRITE_BYTE(0xAC)
+#define ST7565_NOOP()            ST7565_WRITE_BYTE(0xE3)
 
 uint8_t u8g_dev_st7565_64128n_2x_VIKI_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   switch (msg) {
@@ -137,109 +153,103 @@ uint8_t u8g_dev_st7565_64128n_2x_VIKI_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg
       OUT_WRITE(ST7565_CLK_PIN, LOW);
 
       #if HARDWARE_SPI
-        OUT_WRITE(SDSS, 1);  // must be set to an output first or else will never go into master mode
-        SPCR = 0x50;  // enable SPI in master mode at fast speed
-        SPSR = 1;  // kick it up to 2x speed mode
+        OUT_WRITE(SDSS, 1);   // must be set to an output first or else will never go into master mode
+        SPCR = 0x50;          // enable SPI in master mode at fast speed
+        SPSR = 1;             // kick it up to 2x speed mode
       #endif
 
       OUT_WRITE(ST7565_A0_PIN, LOW);
 
-      ST7565_CS();                      /* disable chip */
-      ST7565_NA0();                     /* instruction mode */
-      ST7565_NCS();                     /* enable chip */
+      ST7565_CS();                      // chip select off
+      ST7565_NA0();                     // instruction mode
+      ST7565_NCS();                     // chip select
 
-      ST7565_WRITE_BYTE(0x0A2);         /* 0x0A2: LCD bias 1/9 (according to Displaytech 64128N datasheet) */
-      ST7565_WRITE_BYTE(0x0A0);         /* Normal ADC Select (according to Displaytech 64128N datasheet) */
+      ST7565_BIAS_MODE(0);              // 0xA2: LCD bias 1/9 (according to Displaytech 64128N datasheet)
+      ST7565_ADC_REVERSE(0);            // Normal (not flipped) ADC Select (according to Displaytech 64128N datasheet)
 
-      ST7565_WRITE_BYTE(0x0C8);         /* common output mode: set scan direction normal operation/SHL Select; 0x0C0 --> SHL = 0; normal; 0x0C8 --> SHL = 1 */
-      ST7565_WRITE_BYTE(0x040);         /* Display start line for Displaytech 64128N */
+      ST7565_OUT_MODE(1);               // common output mode: set scan direction normal operation/SHL Select; 0x0C0 --> SHL = 0; normal; 0x0C8 --> SHL = 1
+      ST7565_START_LINE(0);             // Display start line for Displaytech 64128N
 
-      ST7565_WRITE_BYTE(0x028 | 0x04);  /* power control: turn on voltage converter */
-      //U8G_ESC_DLY(50);                /* delay 50 ms - hangs after a reset if used */
+      //ST7565_POWER_CONTROL(0x4);      // power control: turn on Booster
+      //U8G_ESC_DLY(50);                // delay 50 ms - hangs after a reset if used
 
-      ST7565_WRITE_BYTE(0x028 | 0x06);  /* power control: turn on voltage regulator */
-      //U8G_ESC_DLY(50);                /* delay 50 ms - hangs after a reset if used */
+      //ST7565_POWER_CONTROL(0x6);      // power control: turn on Booster, Voltage Regulator
+      //U8G_ESC_DLY(50);                // delay 50 ms - hangs after a reset if used
 
-      ST7565_WRITE_BYTE(0x028 | 0x07);  /* power control: turn on voltage follower */
-      //U8G_ESC_DLY(50);                /* delay 50 ms - hangs after a reset if used */
+      ST7565_POWER_CONTROL(0x7);        // power control: turn on Booster, Voltage Regulator, Voltage Follower
+      //U8G_ESC_DLY(50);                // delay 50 ms - hangs after a reset if used
 
-      ST7565_WRITE_BYTE(0x010);         /* Set V0 voltage resistor ratio. Setting for controlling brightness of Displaytech 64128N */
+      ST7565_V0_RATIO(0);               // Set V0 Voltage Resistor ratio. Setting for controlling brightness of Displaytech 64128N
 
-      ST7565_WRITE_BYTE(0x0A6);         /* display normal, bit val 0: LCD pixel off. */
+      ST7565_INVERTED(0);               // display normal, bit val 0: LCD pixel off.
 
-      ST7565_WRITE_BYTE(0x081);         /* set contrast */
-      ST7565_WRITE_BYTE(0x01E);         /* Contrast value. Setting for controlling brightness of Displaytech 64128N */
+      ST7565_CONTRAST(0x1E);            // Contrast value. Setting for controlling contrast of Displaytech 64128N
 
-      ST7565_WRITE_BYTE(0x0AF);         /* display on */
+      ST7565_ON(1);                     // display on
 
-      U8G_ESC_DLY(100);                 /* delay 100 ms */
-      ST7565_WRITE_BYTE(0x0A5);         /* display all points; ST7565 */
-      U8G_ESC_DLY(100);                 /* delay 100 ms */
-      U8G_ESC_DLY(100);                 /* delay 100 ms */
-      ST7565_WRITE_BYTE(0x0A4);         /* normal display */
-      ST7565_CS();                      /* disable chip */
-    }                                   /* end of sequence */
+      U8G_ESC_DLY(100);                 // delay 100 ms
+      ST7565_ALL_PIX(1);                // display all points; ST7565
+      U8G_ESC_DLY(100);                 // delay 100 ms
+      U8G_ESC_DLY(100);                 // delay 100 ms
+      ST7565_ALL_PIX(0);                // normal display
+      ST7565_CS();                      // chip select off
+    }                                   // end of sequence
     break;
 
     case U8G_DEV_MSG_STOP: break;
 
     case U8G_DEV_MSG_PAGE_NEXT: {
-      u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
-      ST7565_CS();                      /* disable chip */
-      ST7565_NA0();                     /* instruction mode */
-      ST7565_NCS();                     /* enable chip */
-      ST7565_WRITE_BYTE(0x010);         /* set upper 4 bit of the col adr to 0x10 */
-      ST7565_WRITE_BYTE(0x000);         /* set lower 4 bit of the col adr to 0x00. Changed for DisplayTech 64128N */
-                                        /* end of sequence */
-      ST7565_WRITE_BYTE(0x0B0 | (2*pb->p.page));; /* select current page (ST7565R) */
-      ST7565_A0();                      /* data mode */
-      ST7560_WriteSequence( (uint8_t) pb->width, (uint8_t *)pb->buf);
-      ST7565_CS();                      /* disable chip */
-      ST7565_NA0();                     /* instruction mode */
-      ST7565_NCS();                     /* enable chip */
-      ST7565_WRITE_BYTE(0x010);         /* set upper 4 bit of the col adr to 0x10 */
-      ST7565_WRITE_BYTE(0x000);         /* set lower 4 bit of the col adr to 0x00. Changed for DisplayTech 64128N */
-                                        /* end of sequence */
-      ST7565_WRITE_BYTE(0x0B0 | (2*pb->p.page+1)); /* select current page (ST7565R) */
-      ST7565_A0();                      /* data mode */
-      ST7560_WriteSequence( (uint8_t) pb->width, (uint8_t *)(pb->buf)+pb->width);
-      ST7565_CS();                      /* disable chip */
+      u8g_pb_t *pb = (u8g_pb_t*)(dev->dev_mem);
+      ST7565_CS();                      // chip select off
+      ST7565_NA0();                     // instruction mode
+      ST7565_NCS();                     // chip select
+      ST7565_COLUMN_ADR(0x00);          // high 4 bits to 0, low 4 bits to 0. Changed for DisplayTech 64128N
+                                        // end of sequence
+      ST7565_PAGE_ADR(2 * pb->p.page);  // select current page (ST7565R)
+      ST7565_A0();                      // data mode
+      ST7560_WriteSequence((uint8_t)pb->width, (uint8_t*)pb->buf);
+      ST7565_CS();                      // chip select off
+      ST7565_NA0();                     // instruction mode
+      ST7565_NCS();                     // chip select
+      ST7565_COLUMN_ADR(0x00);          // high 4 bits to 0, low 4 bits to 0
+                                        // end of sequence
+      ST7565_PAGE_ADR(2 * pb->p.page + 1); // select current page (ST7565R)
+      ST7565_A0();                      // data mode
+      ST7560_WriteSequence((uint8_t)pb->width, (uint8_t*)(pb->buf) + pb->width);
+      ST7565_CS();                      // chip select off
     }
     break;
 
     case U8G_DEV_MSG_CONTRAST:
       ST7565_NCS();
-      ST7565_NA0();                     /* instruction mode */
-      ST7565_WRITE_BYTE(0x081);
-      ST7565_WRITE_BYTE((*(uint8_t *)arg) >> 2);
-      ST7565_CS();                      /* disable chip */
+      ST7565_NA0();                     // instruction mode
+      ST7565_CONTRAST((*(uint8_t*)arg) >> 2);
+      ST7565_CS();                      // chip select off
       return 1;
 
     case U8G_DEV_MSG_SLEEP_ON:
-      ST7565_NA0();                     /* instruction mode */
-      ST7565_NCS();                     /* enable chip */
-      ST7565_WRITE_BYTE(0x0AC);         /* static indicator off */
-      ST7565_WRITE_BYTE(0x000);         /* indicator register set (not sure if this is required) */
-      ST7565_WRITE_BYTE(0x0AE);         /* display off */
-      ST7565_WRITE_BYTE(0x0A5);         /* all points on */
-      ST7565_CS();                      /* disable chip , bugfix 12 nov 2014 */
-                                        /* end of sequence */
+      ST7565_NA0();                     // instruction mode
+      ST7565_NCS();                     // chip select
+      ST7565_SLEEP_MODE();              // static indicator off
+      //ST7565_WRITE_BYTE(0x00);        // indicator register set (not sure if this is required)
+      ST7565_ON(0);                     // display off
+      ST7565_ALL_PIX(1);                // all points on
+      ST7565_CS();                      // chip select off
       return 1;
 
     case U8G_DEV_MSG_SLEEP_OFF:
-      ST7565_NA0();                     /* instruction mode */
-      ST7565_NCS();                     /* enable chip */
-      ST7565_WRITE_BYTE(0x0A4);         /* all points off */
-      ST7565_WRITE_BYTE(0x0AF);         /* display on */
-      U8G_ESC_DLY(50);                  /* delay 50 ms */
-      ST7565_CS();                      /* disable chip ,  bugfix 12 nov 2014 */
-                                        /* end of sequence */
+      ST7565_NA0();                     // instruction mode
+      ST7565_NCS();                     // chip select
+      ST7565_ALL_PIX(0);                // all points off
+      ST7565_ON(1);                     // display on
+      U8G_ESC_DLY(50);                  // delay 50 ms
+      ST7565_CS();                      // chip select off
       return 1;
   }
   return u8g_dev_pb16v1_base_fn(u8g, dev, msg, arg);
 }
 
-uint8_t u8g_dev_st7565_64128n_2x_VIKI_buf[LCD_PIXEL_WIDTH*2] U8G_NOCOMMON;
+uint8_t u8g_dev_st7565_64128n_2x_VIKI_buf[LCD_PIXEL_WIDTH * 2] U8G_NOCOMMON;
 u8g_pb_t u8g_dev_st7565_64128n_2x_VIKI_pb = {{16, LCD_PIXEL_HEIGHT, 0, 0, 0}, LCD_PIXEL_WIDTH, u8g_dev_st7565_64128n_2x_VIKI_buf};
 u8g_dev_t u8g_dev_st7565_64128n_2x_VIKI_sw_spi = {u8g_dev_st7565_64128n_2x_VIKI_fn, &u8g_dev_st7565_64128n_2x_VIKI_pb, &u8g_com_null_fn};
 
