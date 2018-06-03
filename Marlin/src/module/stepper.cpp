@@ -87,7 +87,7 @@ Stepper stepper; // Singleton
 block_t* Stepper::current_block = NULL;  // A pointer to the block currently being traced
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-  bool Stepper::performing_homing = false;
+  bool Stepper::homing_dual_axis = false;
 #endif
 
 #if HAS_MOTOR_CURRENT_PWM
@@ -166,7 +166,7 @@ bool Stepper::all_steps_done = false;
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 
 volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
-volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
+int8_t Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
 #if ENABLED(MIXING_EXTRUDER)
   int32_t Stepper::counter_m[MIXING_STEPPERS];
@@ -183,7 +183,7 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
   #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
-    if (performing_homing) {                                                                                                  \
+    if (homing_dual_axis) {                                                                                                   \
       if (A##_HOME_DIR < 0) {                                                                                                 \
         if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
         if (!(TEST(endstops.state(), A##2_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##2_motor) A##2_STEP_WRITE(V); \
@@ -1144,7 +1144,6 @@ void Stepper::set_directions() {
 HAL_STEP_TIMER_ISR {
   HAL_timer_isr_prologue(STEP_TIMER_NUM);
 
-  // Call the ISR
   Stepper::isr();
 
   HAL_timer_isr_epilogue(STEP_TIMER_NUM);
@@ -1175,7 +1174,7 @@ void Stepper::isr() {
   // We need this variable here to be able to use it in the following loop
   hal_timer_t min_ticks;
   do {
-    // Enable ISRs so the USART processing latency is reduced
+    // Enable ISRs to reduce USART processing latency
     ENABLE_ISRS();
 
     // Run main stepping pulse phase ISR if we have to
@@ -1193,11 +1192,9 @@ void Stepper::isr() {
 
     uint32_t interval =
       #if ENABLED(LIN_ADVANCE)
-        // Select the closest interval in time
-        MIN(nextAdvanceISR, nextMainISR)
+        MIN(nextAdvanceISR, nextMainISR)  // Nearest time interval
       #else
-        // The interval is just the remaining time to the stepper ISR
-        nextMainISR
+        nextMainISR                       // Remaining stepper ISR time
       #endif
     ;
 
@@ -1239,7 +1236,7 @@ void Stepper::isr() {
     next_isr_ticks += interval;
 
     /**
-     *  The following section must be done with global interrupts disabled.
+     * The following section must be done with global interrupts disabled.
      * We want nothing to interrupt it, as that could mess the calculations
      * we do for the next value to program in the period register of the
      * stepper timer and lead to skipped ISRs (if the value we happen to program

@@ -63,7 +63,7 @@ class Stepper {
     static block_t* current_block;  // A pointer to the block currently being traced
 
     #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-      static bool performing_homing;
+      static bool homing_dual_axis;
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM
@@ -143,7 +143,7 @@ class Stepper {
     //
     // Current direction of stepper motors (+1 or -1)
     //
-    static volatile signed char count_direction[NUM_AXIS];
+    static int8_t count_direction[NUM_AXIS];
 
     //
     // Mixing extruder mix counters
@@ -220,18 +220,18 @@ class Stepper {
       static void microstep_readings();
     #endif
 
+    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+      FORCE_INLINE static void set_homing_dual_axis(const bool state) { homing_dual_axis = state; }
+    #endif
     #if ENABLED(X_DUAL_ENDSTOPS)
-      FORCE_INLINE static void set_homing_flag_x(const bool state) { performing_homing = state; }
       FORCE_INLINE static void set_x_lock(const bool state) { locked_X_motor = state; }
       FORCE_INLINE static void set_x2_lock(const bool state) { locked_X2_motor = state; }
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
-      FORCE_INLINE static void set_homing_flag_y(const bool state) { performing_homing = state; }
       FORCE_INLINE static void set_y_lock(const bool state) { locked_Y_motor = state; }
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      FORCE_INLINE static void set_homing_flag_z(const bool state) { performing_homing = state; }
       FORCE_INLINE static void set_z_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
     #endif
@@ -247,15 +247,9 @@ class Stepper {
     // Set the current position in steps
     inline static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
       planner.synchronize();
-
-      // Disable stepper interrupts, to ensure atomic setting of all the position variables
       const bool was_enabled = STEPPER_ISR_ENABLED();
       if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-
-      // Set position
       _set_position(a, b, c, e);
-
-      // Reenable Stepper ISR
       if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
     }
 
