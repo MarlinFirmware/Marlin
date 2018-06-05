@@ -270,7 +270,9 @@
       const bool isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
       CBI(M_UCSRxB, M_RXCIEx);
     #endif
-      const int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
+
+    const int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
+
     #if RX_BUFFER_SIZE > 256
       // Reenable RX interrupts if they were enabled
       if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
@@ -343,7 +345,7 @@
       CBI(M_UCSRxB, M_RXCIEx);
     #endif
 
-      const ring_buffer_pos_t h = rx_buffer.head, t = rx_buffer.tail;
+    const ring_buffer_pos_t h = rx_buffer.head, t = rx_buffer.tail;
 
     #if RX_BUFFER_SIZE > 256
       if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
@@ -358,7 +360,7 @@
       CBI(M_UCSRxB, M_RXCIEx);
     #endif
 
-      rx_buffer.tail = rx_buffer.head;
+    rx_buffer.tail = rx_buffer.head;
 
     #if RX_BUFFER_SIZE > 256
       if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
