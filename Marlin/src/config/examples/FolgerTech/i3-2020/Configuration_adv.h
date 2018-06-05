@@ -1649,13 +1649,13 @@
 #define MAX7219_DIN_PIN   57  // on RAMPS
 #define MAX7219_LOAD_PIN  44  // on RAMPS
 
-//#define MAX7219_CLK_PIN   77 // on Re-ARM       // Configuration of the 3 pins to control the display
-//#define MAX7219_DIN_PIN   78 // on Re-ARM
-//#define MAX7219_LOAD_PIN  79 // on Re-ARM
+//#define MAX7219_CLK_PIN   P1_04 // on Re-ARM   ENET_TX_EN  J12-10
+//#define MAX7219_DIN_PIN   P1_00 // on Re-ARM   ENET_TXD0   J12-11
+//#define MAX7219_LOAD_PIN  P1_01 // on Re-ARM   ENET_TXD1   J12-12
 
-//#define MAX7219_CLK_PIN   30 // for RAMPS E1     // Configuration of the 3 pins to control the display
-//#define MAX7219_DIN_PIN   34 // for RAMPS E1
-//#define MAX7219_LOAD_PIN  36 // for RAMPS E1
+//#define MAX7219_CLK_PIN  P4_29 // for RAMPS E1 on Re-ARM  E1_ENABLE_PIN  P4_29
+//#define MAX7219_DIN_PIN  P2_13 // for RAMPS E1 on Re-ARM  E1_DIR_PIN     P2_13
+//#define MAX7219_LOAD_PIN P2_08 // for RAMPS E1 on Re-ARM  E1_STEP_PIN    P2_08
 
   /**
    * Sample debug features
