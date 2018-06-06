@@ -622,9 +622,8 @@ const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, con
   while (dirname_start) {
     char * const dirname_end = strchr(dirname_start, '/');
     if (dirname_end <= dirname_start) break;
-
-    char dosSubdirname[FILENAME_LENGTH];
     const uint8_t len = dirname_end - dirname_start;
+    char dosSubdirname[len + 1];
     strncpy(dosSubdirname, dirname_start, len);
     dosSubdirname[len] = 0;
 
