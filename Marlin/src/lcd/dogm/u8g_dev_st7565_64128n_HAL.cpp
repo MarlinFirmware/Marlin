@@ -75,7 +75,7 @@
 #define ST7565_V0_RATIO(N)       (0x20 | ((N) & 0x7))
 #define ST7565_CONTRAST(N)       (0x81), (N)
 
-#define ST7565_COLUMN_ADR(N)     (0x10 | ((N) >> 4) & 0xF), (0x00 | ((N) & 0xF))
+#define ST7565_COLUMN_ADR(N)     (0x10 | (((N) >> 4) & 0xF)), ((N) & 0xF)
 #define ST7565_PAGE_ADR(N)       (0xB0 | (N))
 #define ST7565_START_LINE(N)     (0x40 | (N))
 #define ST7565_SLEEP_MODE()      (0xAC)
