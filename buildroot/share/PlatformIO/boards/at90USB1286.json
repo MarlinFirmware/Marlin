@@ -11,7 +11,7 @@
   "name": "at90USB1286.json",
   "upload": {
     "maximum_ram_size": 8192,
-    "maximum_size": 130048,
+    "maximum_size": 122880,
     "require_upload_port": true,
     "protocol": ""
   },
