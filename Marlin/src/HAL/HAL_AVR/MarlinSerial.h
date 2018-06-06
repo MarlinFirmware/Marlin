@@ -75,6 +75,7 @@
 #define HEX 16
 #define OCT 8
 #define BIN 2
+#define BYTE 0
 
 #ifndef USBCON
   // We're using a ring buffer (I think), in which rx_buffer_head is the index of the
@@ -105,9 +106,7 @@
       static void flush(void);
       static ring_buffer_pos_t available(void);
       static void write(const uint8_t c);
-      #if TX_BUFFER_SIZE > 0
-        static void flushTX(void);
-      #endif
+      static void flushTX(void);
 
       #if ENABLED(SERIAL_STATS_DROPPED_RX)
         FORCE_INLINE static uint32_t dropped() { return rx_dropped_bytes; }
@@ -122,8 +121,8 @@
       FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
       FORCE_INLINE static void print(const char* str) { write(str); }
 
-      static void print(char, int = 0);
-      static void print(unsigned char, int = 0);
+      static void print(char, int = BYTE);
+      static void print(unsigned char, int = BYTE);
       static void print(int, int = DEC);
       static void print(unsigned int, int = DEC);
       static void print(long, int = DEC);
@@ -132,8 +131,8 @@
 
       static void println(const String& s);
       static void println(const char[]);
-      static void println(char, int = 0);
-      static void println(unsigned char, int = 0);
+      static void println(char, int = BYTE);
+      static void println(unsigned char, int = BYTE);
       static void println(int, int = DEC);
       static void println(unsigned int, int = DEC);
       static void println(long, int = DEC);

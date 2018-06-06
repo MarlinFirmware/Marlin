@@ -85,9 +85,7 @@ public:
   static void flush(void);
   static ring_buffer_pos_t available(void);
   static void write(const uint8_t c);
-  #if TX_BUFFER_SIZE > 0
-    static void flushTX(void);
-  #endif
+  static void flushTX(void);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE static uint32_t dropped() { return rx_dropped_bytes; }
