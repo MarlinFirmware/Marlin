@@ -85,8 +85,9 @@
 #undef HEATER_BED_PIN
 #define HEATER_BED_PIN     10
 
-#undef FAN_PIN
-#define FAN_PIN             8   // Same as RAMPS_13_EEF
+#ifndef FAN_PIN
+  #define FAN_PIN           8   // Same as RAMPS_13_EEF
+#endif
 
 //
 // Misc. Functions
