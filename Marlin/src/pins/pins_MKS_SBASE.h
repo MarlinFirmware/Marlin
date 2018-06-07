@@ -36,10 +36,9 @@
 
 // unused
 /*
-#define PIN_P0_27         P0_27
-#define PIN_P0_28         P0_28
+#define PIN_P0_27          P0_27
+#define PIN_P0_28          P0_28
 */
-
 
 //
 // Servo pin
@@ -86,25 +85,20 @@
 // Temperature Sensors
 // 3.3V max when defined as an analog input
 //
-
 #define TEMP_BED_PIN        0   // A0 (TH1)
 #define TEMP_0_PIN          1   // A1 (TH2)
 #define TEMP_1_PIN          2   // A2 (TH3)
 #define TEMP_2_PIN          3   // A3 (TH4)
 
-
 //
 // Heaters / Fans
 //
-
 #define HEATER_BED_PIN     P2_05
 #define HEATER_0_PIN       P2_07
 #define HEATER_1_PIN       P2_06
-#define FAN_PIN            P2_04
-
-
-#define PS_ON_PIN          P0_25
-
+#ifndef FAN_PIN
+  #define FAN_PIN          P2_04
+#endif
 
 //
 // Connector J7
@@ -132,13 +126,18 @@
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
 //
-
 #if ENABLED(MK2_MULTIPLEXER)
   #define E_MUX0_PIN         P1_23   // J8-3
   #define E_MUX1_PIN         P2_12   // J8-4
   #define E_MUX2_PIN         P2_11   // J8-5
 #endif
 
+//
+// Misc. Functions
+//
+#define PS_ON_PIN          P0_25
+#define LPC_SOFTWARE_SPI  // MKS_SBASE needs a software SPI because the
+                          // selected pins are not on a hardware SPI controller
 
 /**
  * Smart LCD adapter
@@ -179,12 +178,6 @@
 #define ENET_TX_EN         P1_04   // J12-10
 #define ENET_TXD0          P1_00   // J12-11
 #define ENET_TXD1          P1_01   // J12-12
-
-//
-// Misc. Functions
-//
-#define LPC_SOFTWARE_SPI  // MKS_SBASE needs a software SPI because the
-                          // selected pins are not on a hardware SPI controller
 
 // A custom cable is needed. See the README file in the
 // Marlin\src\config\examples\Mks\Sbase directory

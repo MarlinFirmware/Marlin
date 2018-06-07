@@ -87,7 +87,9 @@
 #define HEATER_1_PIN        8
 #define HEATER_BED_PIN     10
 
-#define FAN_PIN             7   // IO pin. Buffer needed
+#ifndef FAN_PIN
+  #define FAN_PIN           7   // IO pin. Buffer needed
+#endif
 
 //
 // Misc. Functions
