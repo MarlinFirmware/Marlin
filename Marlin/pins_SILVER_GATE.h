@@ -56,7 +56,9 @@
   #define FIL_RUNOUT_PIN   34   // X_MAX unless overridden
 #endif
 
-#define FAN_PIN             5
+#ifndef FAN_PIN
+  #define FAN_PIN           5
+#endif
 
 #define HEATER_0_PIN        7
 
