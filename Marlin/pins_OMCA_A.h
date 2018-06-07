@@ -107,12 +107,12 @@
 #define E0_DIR_PIN         27
 #define E0_ENABLE_PIN      24
 
-#define E1_STEP_PIN        -1 // 19
-#define E1_DIR_PIN         -1 // 18
+#define E1_STEP_PIN        -1   // 19
+#define E1_DIR_PIN         -1   // 18
 #define E1_ENABLE_PIN      24
 
-#define E2_STEP_PIN        -1 // 17
-#define E2_DIR_PIN         -1 // 16
+#define E2_STEP_PIN        -1   // 17
+#define E2_DIR_PIN         -1   // 16
 #define E2_ENABLE_PIN      24
 
 //
@@ -125,7 +125,9 @@
 //
 #define HEATER_0_PIN        4
 
-#define FAN_PIN             3
+#ifndef FAN_PIN
+  #define FAN_PIN           3
+#endif
 
 //
 // Misc. Functions
