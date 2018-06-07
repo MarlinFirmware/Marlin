@@ -2185,8 +2185,8 @@ void MarlinSettings::reset() {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
               CONFIG_ECHO_START;
-              SERIAL_ECHOPAIR("  G29 W I", (int)px + 1);
-              SERIAL_ECHOPAIR(" J", (int)py + 1);
+              SERIAL_ECHOPAIR("  G29 W I", (int)px);
+              SERIAL_ECHOPAIR(" J", (int)py);
               SERIAL_ECHOPGM(" Z");
               SERIAL_PROTOCOL_F(LINEAR_UNIT(z_values[px][py]), 5);
               SERIAL_EOL();
