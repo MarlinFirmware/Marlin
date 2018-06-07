@@ -2202,8 +2202,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
               CONFIG_ECHO_START;
-              SERIAL_ECHOPAIR_P(port, "  G29 W I", (int)px + 1);
-              SERIAL_ECHOPAIR_P(port, " J", (int)py + 1);
+              SERIAL_ECHOPAIR_P(port, "  G29 W I", (int)px);
+              SERIAL_ECHOPAIR_P(port, " J", (int)py);
               SERIAL_ECHOPGM_P(port, " Z");
               SERIAL_ECHO_F_P(port, LINEAR_UNIT(z_values[px][py]), 5);
               SERIAL_EOL_P(port);
