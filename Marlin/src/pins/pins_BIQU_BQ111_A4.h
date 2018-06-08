@@ -82,7 +82,9 @@
 //
 #define HEATER_0_PIN       P2_7
 #define HEATER_BED_PIN     P2_5
-#define FAN_PIN            P2_4
+#ifndef FAN_PIN
+  #define FAN_PIN          P2_4
+#endif
 
 //
 // Unused

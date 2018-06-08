@@ -102,7 +102,9 @@
 #define HEATER_BED2_PIN    -1       // BED2
 #define HEATER_BED3_PIN    -1       // BED3
 
-#define FAN_PIN            PG14     // MAIN BOARD FAN
+#ifndef FAN_PIN
+  #define FAN_PIN          PG14     // MAIN BOARD FAN
+#endif
 
 #define FAN_SOFT_PWM
 
