@@ -134,7 +134,7 @@
 #define ST7565_ON(N)             ST7565_WRITE_BYTE(0xAE | ((N) & 0x1))
 #define ST7565_OUT_MODE(N)       ST7565_WRITE_BYTE(0xC0 | ((N) & 0x1) << 3)
 #define ST7565_POWER_CONTROL(N)  ST7565_WRITE_BYTE(0x28 | (N))
-#define ST7565_V0_RATIO(N)       ST7565_WRITE_BYTE(0x20 | ((N) & 0x7))
+#define ST7565_V0_RATIO(N)       ST7565_WRITE_BYTE(0x10 | ((N) & 0x7)) // Specific to Displaytech 64128N? (ST7565 is 0x20 | N)
 #define ST7565_CONTRAST(N)   do{ ST7565_WRITE_BYTE(0x81); ST7565_WRITE_BYTE(N); }while(0)
 
 #define ST7565_COLUMN_ADR(N) do{ ST7565_WRITE_BYTE(0x10 | (((N) >> 4) & 0xF)); ST7565_WRITE_BYTE((N) & 0xF); }while(0)
@@ -170,14 +170,14 @@ uint8_t u8g_dev_st7565_64128n_2x_VIKI_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg
       ST7565_OUT_MODE(1);               // common output mode: set scan direction normal operation/SHL Select; 0x0C0 --> SHL = 0; normal; 0x0C8 --> SHL = 1
       ST7565_START_LINE(0);             // Display start line for Displaytech 64128N
 
-      //ST7565_POWER_CONTROL(0x4);      // power control: turn on Booster
-      //U8G_ESC_DLY(50);                // delay 50 ms - hangs after a reset if used
+      ST7565_POWER_CONTROL(0x4);        // power control: turn on Booster
+      U8G_ESC_DLY(50);                  // delay 50 ms - hangs after a reset if used
 
-      //ST7565_POWER_CONTROL(0x6);      // power control: turn on Booster, Voltage Regulator
-      //U8G_ESC_DLY(50);                // delay 50 ms - hangs after a reset if used
+      ST7565_POWER_CONTROL(0x6);        // power control: turn on Booster, Voltage Regulator
+      U8G_ESC_DLY(50);                  // delay 50 ms - hangs after a reset if used
 
       ST7565_POWER_CONTROL(0x7);        // power control: turn on Booster, Voltage Regulator, Voltage Follower
-      //U8G_ESC_DLY(50);                // delay 50 ms - hangs after a reset if used
+      U8G_ESC_DLY(50);                  // delay 50 ms - hangs after a reset if used
 
       ST7565_V0_RATIO(0);               // Set V0 Voltage Resistor ratio. Setting for controlling brightness of Displaytech 64128N
 
