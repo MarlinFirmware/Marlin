@@ -631,7 +631,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_ACCELERATION        { MAX_XYAXIS_ACCEL, MAX_XYAXIS_ACCEL, 100, 200 }
+#define DEFAULT_MAX_ACCELERATION        { MAX_XYAXIS_ACCEL, MAX_XYAXIS_ACCEL, 10, 200 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -857,9 +857,6 @@
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
-
-// Enable this option for Toshiba stepper drivers
-//#define CONFIG_STEPPERS_TOSHIBA
 
 // @section extruder
 

@@ -47,6 +47,29 @@
  */
 
 /**
+ *         __________________________
+ *        /|                        |\     _________________         ^
+ *       / |                        | \   /|               |\        |
+ *      /  |                        |  \ / |               | \       s
+ *     /   |                        |   |  |               |  \      p
+ *    /    |                        |   |  |               |   \     e
+ *   +-----+------------------------+---+--+---------------+----+    e
+ *   |               BLOCK 1            |      BLOCK 2          |    d
+ *
+ *                           time ----->
+ *
+ *  The trapezoid is the shape the speed curve over time. It starts at block->initial_rate, accelerates
+ *  first block->accelerate_until step_events_completed, then keeps going at constant speed until
+ *  step_events_completed reaches block->decelerate_after after which it decelerates until the trapezoid generator is reset.
+ *  The slope of acceleration is calculated using v = u + at where t is the accumulated timer values of the steps so far.
+ */
+
+/**
+ * Marlin uses the Bresenham algorithm. For a detailed explanation of theory and
+ * method see https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
+ */
+
+/**
  * Jerk controlled movements planner added Apr 2018 by Eduardo José Tagle.
  * Equations based on Synthethos TinyG2 sources, but the fixed-point
  * implementation is new, as we are running the ISR with a variable period.
@@ -97,9 +120,13 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
 // private:
 
 uint8_t Stepper::last_direction_bits = 0,
-        Stepper::last_movement_extruder = 0xFF,
         Stepper::axis_did_move;
+
 bool Stepper::abort_current_block;
+
+#if DISABLED(MIXING_EXTRUDER)
+  uint8_t Stepper::last_moved_extruder = 0xFF;
+#endif
 
 #if ENABLED(X_DUAL_ENDSTOPS)
   bool Stepper::locked_X_motor = false, Stepper::locked_X2_motor = false;
@@ -111,19 +138,30 @@ bool Stepper::abort_current_block;
   bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false;
 #endif
 
-/**
- * Marlin uses the Bresenham algorithm. For a detailed explanation of theory and
- * method see https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
- *
- * The implementation used here additionally rounds up the starting seed.
- */
+uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
+uint8_t Stepper::steps_per_isr;
 
-int32_t Stepper::counter_X = 0,
-        Stepper::counter_Y = 0,
-        Stepper::counter_Z = 0,
-        Stepper::counter_E = 0;
+#if DISABLED(ADAPTIVE_STEP_SMOOTHING)
+  constexpr
+#endif
+    uint8_t Stepper::oversampling_factor;
 
-uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
+int32_t Stepper::delta_error[XYZE] = { 0 };
+
+uint32_t Stepper::advance_dividend[XYZE] = { 0 },
+         Stepper::advance_divisor = 0,
+         Stepper::step_events_completed = 0, // The number of step events executed in the current block
+         Stepper::accelerate_until,          // The point from where we need to stop acceleration
+         Stepper::decelerate_after,          // The point from where we need to start decelerating
+         Stepper::step_event_count;          // The total event count for the current block
+
+#if ENABLED(MIXING_EXTRUDER)
+  int32_t Stepper::delta_error_m[MIXING_STEPPERS];
+  uint32_t Stepper::advance_dividend_m[MIXING_STEPPERS],
+           Stepper::advance_divisor_m;
+#else
+  int8_t Stepper::active_extruder;           // Active extruder
+#endif
 
 #if ENABLED(S_CURVE_ACCELERATION)
   int32_t __attribute__((used)) Stepper::bezier_A __asm__("bezier_A");    // A coefficient in Bézier speed curve with alias for assembler
@@ -132,54 +170,37 @@ uint32_t Stepper::step_events_completed = 0; // The number of step events execut
   uint32_t __attribute__((used)) Stepper::bezier_F __asm__("bezier_F");   // F coefficient in Bézier speed curve with alias for assembler
   uint32_t __attribute__((used)) Stepper::bezier_AV __asm__("bezier_AV"); // AV coefficient in Bézier speed curve with alias for assembler
   #ifdef __AVR__
-    bool __attribute__((used)) Stepper::A_negative __asm__("A_negative");   // If A coefficient was negative
+    bool __attribute__((used)) Stepper::A_negative __asm__("A_negative"); // If A coefficient was negative
   #endif
   bool Stepper::bezier_2nd_half;    // =false If Bézier curve has been initialized or not
 #endif
 
 uint32_t Stepper::nextMainISR = 0;
-bool Stepper::all_steps_done = false;
 
 #if ENABLED(LIN_ADVANCE)
 
-  uint32_t Stepper::LA_decelerate_after;
+  constexpr uint32_t LA_ADV_NEVER = 0xFFFFFFFF;
+  uint32_t Stepper::nextAdvanceISR = LA_ADV_NEVER,
+           Stepper::LA_isr_rate = LA_ADV_NEVER;
+  uint16_t Stepper::LA_current_adv_steps = 0,
+           Stepper::LA_final_adv_steps,
+           Stepper::LA_max_adv_steps;
 
-  constexpr uint32_t ADV_NEVER = 0xFFFFFFFF;
-  uint32_t Stepper::nextAdvanceISR = ADV_NEVER,
-           Stepper::eISR_Rate = ADV_NEVER;
-  uint16_t Stepper::current_adv_steps = 0,
-           Stepper::final_adv_steps,
-           Stepper::max_adv_steps;
+  int8_t   Stepper::LA_steps = 0;
 
-  int8_t Stepper::e_steps = 0;
-
-  #if E_STEPPERS > 1
-    int8_t Stepper::LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
-  #else
-    constexpr int8_t Stepper::LA_active_extruder;
-  #endif
-
-  bool Stepper::use_advance_lead;
+  bool Stepper::LA_use_advance_lead;
 
 #endif // LIN_ADVANCE
 
-uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
-
-volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
-int8_t Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
-
-#if ENABLED(MIXING_EXTRUDER)
-  int32_t Stepper::counter_m[MIXING_STEPPERS];
-#endif
-
-uint32_t Stepper::ticks_nominal;
-uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
-
+int32_t Stepper::ticks_nominal = -1;
 #if DISABLED(S_CURVE_ACCELERATION)
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
 
 volatile int32_t Stepper::endstops_trigsteps[XYZ];
+
+volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
+int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
   #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
@@ -213,7 +234,7 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
       X2_DIR_WRITE(v); \
     } \
     else { \
-      if (current_block->active_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
+      if (movement_extruder()) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
     }
   #define X_APPLY_STEP(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
@@ -221,7 +242,7 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
       X2_STEP_WRITE(v); \
     } \
     else { \
-      if (current_block->active_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
+      if (movement_extruder()) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
     }
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
@@ -253,26 +274,9 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
 #endif
 
 #if DISABLED(MIXING_EXTRUDER)
-  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(current_block->active_extruder, v)
+  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(active_extruder, v)
 #endif
 
-/**
- *         __________________________
- *        /|                        |\     _________________         ^
- *       / |                        | \   /|               |\        |
- *      /  |                        |  \ / |               | \       s
- *     /   |                        |   |  |               |  \      p
- *    /    |                        |   |  |               |   \     e
- *   +-----+------------------------+---+--+---------------+----+    e
- *   |               BLOCK 1            |      BLOCK 2          |    d
- *
- *                           time ----->
- *
- *  The trapezoid is the shape the speed curve over time. It starts at block->initial_rate, accelerates
- *  first block->accelerate_until step_events_completed, then keeps going at constant speed until
- *  step_events_completed reaches block->decelerate_after after which it decelerates until the trapezoid generator is reset.
- *  The slope of acceleration is calculated using v = u + at where t is the accumulated timer values of the steps so far.
- */
 void Stepper::wake_up() {
   // TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
@@ -308,14 +312,25 @@ void Stepper::set_directions() {
   #endif
 
   #if DISABLED(LIN_ADVANCE)
-    if (motor_direction(E_AXIS)) {
-      REV_E_DIR(current_block->active_extruder);
-      count_direction[E_AXIS] = -1;
-    }
-    else {
-      NORM_E_DIR(current_block->active_extruder);
-      count_direction[E_AXIS] = 1;
-    }
+    #if ENABLED(MIXING_EXTRUDER)
+      if (motor_direction(E_AXIS)) {
+        MIXING_STEPPERS_LOOP(j) REV_E_DIR(j);
+        count_direction[E_AXIS] = -1;
+      }
+      else {
+        MIXING_STEPPERS_LOOP(j) NORM_E_DIR(j);
+        count_direction[E_AXIS] = 1;
+      }
+    #else
+      if (motor_direction(E_AXIS)) {
+        REV_E_DIR(active_extruder);
+        count_direction[E_AXIS] = -1;
+      }
+      else {
+        NORM_E_DIR(active_extruder);
+        count_direction[E_AXIS] = 1;
+      }
+    #endif
   #endif // !LIN_ADVANCE
 }
 
@@ -1128,17 +1143,6 @@ void Stepper::set_directions() {
  * Stepper Driver Interrupt
  *
  * Directly pulses the stepper motors at high frequency.
- *
- * AVR :
- * Timer 1 runs at a base frequency of 2MHz, with this ISR using OCR1A compare mode.
- *
- * OCR1A   Frequency
- *     1     2 MHz
- *    50    40 KHz
- *   100    20 KHz - capped max rate
- *   200    10 KHz - nominal max rate
- *  2000     1 KHz - sleep rate
- *  4000   500  Hz - init rate
  */
 
 HAL_STEP_TIMER_ISR {
@@ -1156,9 +1160,11 @@ HAL_STEP_TIMER_ISR {
 #endif
 
 void Stepper::isr() {
-
-  // Disable interrupts, to avoid ISR preemption while we reprogram the period
-  DISABLE_ISRS();
+  #ifndef __AVR__
+    // Disable interrupts, to avoid ISR preemption while we reprogram the period
+    // (AVR enters the ISR with global interrupts disabled, so no need to do it here)
+    DISABLE_ISRS();
+  #endif
 
   // Program timer compare for the maximum period, so it does NOT
   // flag an interrupt while this ISR is running - So changes from small
@@ -1206,7 +1212,7 @@ void Stepper::isr() {
 
     #if ENABLED(LIN_ADVANCE)
       // Compute the time remaining for the advance isr
-      if (nextAdvanceISR != ADV_NEVER) nextAdvanceISR -= interval;
+      if (nextAdvanceISR != LA_ADV_NEVER) nextAdvanceISR -= interval;
     #endif
 
     /**
@@ -1248,12 +1254,17 @@ void Stepper::isr() {
     /**
      * Get the current tick value + margin
      * Assuming at least 6µs between calls to this ISR...
-     * On AVR the ISR epilogue is estimated at 40 instructions - close to 2.5µS.
-     * On ARM the ISR epilogue is estimated at 10 instructions - close to 200nS.
-     * In either case leave at least 8µS for other tasks to execute - That allows
-     * up to 100khz stepping rates
+     * On AVR the ISR epilogue+prologue is estimated at 100 instructions - Give 8µs as margin
+     * On ARM the ISR epilogue+prologue is estimated at 20 instructions - Give 1µs as margin
      */
-    min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * 8); // ISR never takes more than 1ms, so this shouldn't cause trouble
+    min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t(
+      #ifdef __AVR__
+        8
+      #else
+        1
+      #endif
+      * (HAL_TICKS_PER_US)
+    );
 
     /**
      * NB: If for some reason the stepper monopolizes the MPU, eventually the
@@ -1298,98 +1309,42 @@ void Stepper::stepper_pulse_phase_isr() {
   // If there is no current block, do nothing
   if (!current_block) return;
 
-  // Take multiple steps per interrupt (For high speed moves)
-  all_steps_done = false;
-  for (uint8_t i = step_loops; i--;) {
+  // Count of pending loops and events for this iteration
+  const uint32_t pending_events = step_event_count - step_events_completed;
+  uint8_t events_to_do = MIN(pending_events, steps_per_isr);
 
-    #define _COUNTER(AXIS) counter_## AXIS
+  // Just update the value we will get at the end of the loop
+  step_events_completed += events_to_do;
+
+  #if MINIMUM_STEPPER_PULSE
+    // Get the timer count and estimate the end of the pulse
+    hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
+  #endif
+
+  // Take multiple steps per interrupt (For high speed moves)
+  do {
+
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
     #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
-    // Advance the Bresenham counter; start a pulse if the axis needs a step
+    // Start an active pulse, if Bresenham says so, and update position
     #define PULSE_START(AXIS) do{ \
-      _COUNTER(AXIS) += current_block->steps[_AXIS(AXIS)]; \
-      if (_COUNTER(AXIS) >= 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); } \
-    }while(0)
-
-    // Advance the Bresenham counter; start a pulse if the axis needs a step
-    #define STEP_TICK(AXIS) do { \
-      if (_COUNTER(AXIS) >= 0) { \
-        _COUNTER(AXIS) -= current_block->step_event_count; \
+      delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
+      if (delta_error[_AXIS(AXIS)] >= 0) { \
+        _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
       } \
     }while(0)
 
-    // Stop an active pulse, if any
-    #define PULSE_STOP(AXIS) _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0)
+    // Stop an active pulse, if any, and adjust error term
+    #define PULSE_STOP(AXIS) do { \
+      if (delta_error[_AXIS(AXIS)] >= 0) { \
+        delta_error[_AXIS(AXIS)] -= advance_divisor; \
+        _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
+      } \
+    }while(0)
 
-    /**
-     * Estimate the number of cycles that the stepper logic already takes
-     * up between the start and stop of the X stepper pulse.
-     *
-     * Currently this uses very modest estimates of around 5 cycles.
-     * True values may be derived by careful testing.
-     *
-     * Once any delay is added, the cost of the delay code itself
-     * may be subtracted from this value to get a more accurate delay.
-     * Delays under 20 cycles (1.25µs) will be very accurate, using NOPs.
-     * Longer delays use a loop. The resolution is 8 cycles.
-     */
-    #if HAS_X_STEP
-      #define _CYCLE_APPROX_1 5
-    #else
-      #define _CYCLE_APPROX_1 0
-    #endif
-    #if ENABLED(X_DUAL_STEPPER_DRIVERS)
-      #define _CYCLE_APPROX_2 _CYCLE_APPROX_1 + 4
-    #else
-      #define _CYCLE_APPROX_2 _CYCLE_APPROX_1
-    #endif
-    #if HAS_Y_STEP
-      #define _CYCLE_APPROX_3 _CYCLE_APPROX_2 + 5
-    #else
-      #define _CYCLE_APPROX_3 _CYCLE_APPROX_2
-    #endif
-    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-      #define _CYCLE_APPROX_4 _CYCLE_APPROX_3 + 4
-    #else
-      #define _CYCLE_APPROX_4 _CYCLE_APPROX_3
-    #endif
-    #if HAS_Z_STEP
-      #define _CYCLE_APPROX_5 _CYCLE_APPROX_4 + 5
-    #else
-      #define _CYCLE_APPROX_5 _CYCLE_APPROX_4
-    #endif
-    #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-      #define _CYCLE_APPROX_6 _CYCLE_APPROX_5 + 4
-    #else
-      #define _CYCLE_APPROX_6 _CYCLE_APPROX_5
-    #endif
-    #if DISABLED(LIN_ADVANCE)
-      #if ENABLED(MIXING_EXTRUDER)
-        #define _CYCLE_APPROX_7 _CYCLE_APPROX_6 + (MIXING_STEPPERS) * 6
-      #else
-        #define _CYCLE_APPROX_7 _CYCLE_APPROX_6 + 5
-      #endif
-    #else
-      #define _CYCLE_APPROX_7 _CYCLE_APPROX_6
-    #endif
-
-    #define CYCLES_EATEN_XYZE _CYCLE_APPROX_7
-    #define EXTRA_CYCLES_XYZE (STEP_PULSE_CYCLES - (CYCLES_EATEN_XYZE))
-
-    /**
-     * If a minimum pulse time was specified get the timer 0 value.
-     *
-     * On AVR the TCNT0 timer has an 8x prescaler, so it increments every 8 cycles.
-     * That's every 0.5µs on 16MHz and every 0.4µs on 20MHz.
-     * 20 counts of TCNT0 -by itself- is a good pulse delay.
-     * 10µs = 160 or 200 cycles.
-     */
-    #if EXTRA_CYCLES_XYZE > 20
-      hal_timer_t pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM);
-    #endif
-
+    // Pulse start
     #if HAS_X_STEP
       PULSE_START(X);
     #endif
@@ -1400,64 +1355,48 @@ void Stepper::stepper_pulse_phase_isr() {
       PULSE_START(Z);
     #endif
 
+    // Pulse E/Mixing extruders
     #if ENABLED(LIN_ADVANCE)
-      counter_E += current_block->steps[E_AXIS];
-      if (counter_E >= 0) {
-        #if DISABLED(MIXING_EXTRUDER)
-          // Don't step E here for mixing extruder
-          motor_direction(E_AXIS) ? --e_steps : ++e_steps;
-        #endif
+      // Tick the E axis, correct error term and update position
+      delta_error[E_AXIS] += advance_dividend[E_AXIS];
+      if (delta_error[E_AXIS] >= 0) {
+        count_position[E_AXIS] += count_direction[E_AXIS];
+        delta_error[E_AXIS] -= advance_divisor;
+
+        // Don't step E here - But remember the number of steps to perform
+        motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
       }
-
-      #if ENABLED(MIXING_EXTRUDER)
-        // Step mixing steppers proportionally
-        const bool dir = motor_direction(E_AXIS);
-        MIXING_STEPPERS_LOOP(j) {
-          counter_m[j] += current_block->steps[E_AXIS];
-          if (counter_m[j] >= 0) {
-            counter_m[j] -= current_block->mix_event_count[j];
-            dir ? --e_steps[j] : ++e_steps[j];
-          }
-        }
-      #endif
-
     #else // !LIN_ADVANCE - use linear interpolation for E also
-
       #if ENABLED(MIXING_EXTRUDER)
-        // Keep updating the single E axis
-        counter_E += current_block->steps[E_AXIS];
-        // Tick the counters used for this mix
+
+        // Tick the E axis
+        delta_error[E_AXIS] += advance_dividend[E_AXIS];
+        if (delta_error[E_AXIS] >= 0) {
+          count_position[E_AXIS] += count_direction[E_AXIS];
+          delta_error[E_AXIS] -= advance_divisor;
+        }
+
+        // Tick the counters used for this mix in proper proportion
         MIXING_STEPPERS_LOOP(j) {
           // Step mixing steppers (proportionally)
-          counter_m[j] += current_block->steps[E_AXIS];
+          delta_error_m[j] += advance_dividend_m[j];
           // Step when the counter goes over zero
-          if (counter_m[j] >= 0) E_STEP_WRITE(j, !INVERT_E_STEP_PIN);
+          if (delta_error_m[j] >= 0) E_STEP_WRITE(j, !INVERT_E_STEP_PIN);
         }
+
       #else // !MIXING_EXTRUDER
         PULSE_START(E);
       #endif
     #endif // !LIN_ADVANCE
 
-    #if HAS_X_STEP
-      STEP_TICK(X);
-    #endif
-    #if HAS_Y_STEP
-      STEP_TICK(Y);
-    #endif
-    #if HAS_Z_STEP
-      STEP_TICK(Z);
+    #if MINIMUM_STEPPER_PULSE
+      // Just wait for the requested pulse duration
+      while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+      // Add to the value, the value needed for the pulse end and ensuring the maximum driver rate is enforced
+      pulse_end += hal_timer_t(MIN_STEPPER_PULSE_CYCLES) - hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
     #endif
 
-    STEP_TICK(E); // Always tick the single E axis
-
-    // For minimum pulse time wait before stopping pulses
-    #if EXTRA_CYCLES_XYZE > 20
-      while (EXTRA_CYCLES_XYZE > (uint32_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
-      pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM);
-    #elif EXTRA_CYCLES_XYZE > 0
-      DELAY_NS(EXTRA_CYCLES_XYZE * NANOSECONDS_PER_CYCLE);
-    #endif
-
+    // Pulse stop
     #if HAS_X_STEP
       PULSE_STOP(X);
     #endif
@@ -1471,8 +1410,8 @@ void Stepper::stepper_pulse_phase_isr() {
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(j) {
-          if (counter_m[j] >= 0) {
-            counter_m[j] -= current_block->mix_event_count[j];
+          if (delta_error_m[j] >= 0) {
+            delta_error_m[j] -= advance_divisor_m;
             E_STEP_WRITE(j, INVERT_E_STEP_PIN);
           }
         }
@@ -1481,19 +1420,20 @@ void Stepper::stepper_pulse_phase_isr() {
       #endif
     #endif // !LIN_ADVANCE
 
-    if (++step_events_completed >= current_block->step_event_count) {
-      all_steps_done = true;
-      break;
-    }
+    // Decrement the count of pending pulses to do
+    --events_to_do;
 
-    // For minimum pulse time wait after stopping pulses also
-    #if EXTRA_CYCLES_XYZE > 20
-      if (i) while (EXTRA_CYCLES_XYZE > (uint32_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
-    #elif EXTRA_CYCLES_XYZE > 0
-      if (i) DELAY_NS(EXTRA_CYCLES_XYZE * NANOSECONDS_PER_CYCLE);
+    #if MINIMUM_STEPPER_PULSE
+      // For minimum pulse time wait after stopping pulses also
+      if (events_to_do) {
+        // Just wait for the requested pulse duration
+        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+        // Add to the value, the time that the pulse must be active (to be used on the next loop)
+        pulse_end += hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
+      }
     #endif
 
-  } // steps_loop
+  } while (events_to_do);
 }
 
 // This is the last half of the stepper interrupt: This one processes and
@@ -1508,100 +1448,118 @@ uint32_t Stepper::stepper_block_phase_isr() {
   // If there is a current block
   if (current_block) {
 
-    // Calculate new timer value
-    if (step_events_completed <= current_block->accelerate_until) {
-
-      #if ENABLED(S_CURVE_ACCELERATION)
-        // Get the next speed to use (Jerk limited!)
-        uint32_t acc_step_rate =
-          acceleration_time < current_block->acceleration_time
-            ? _eval_bezier_curve(acceleration_time)
-            : current_block->cruise_rate;
-      #else
-        acc_step_rate = STEP_MULTIPLY(acceleration_time, current_block->acceleration_rate) + current_block->initial_rate;
-        NOMORE(acc_step_rate, current_block->nominal_rate);
-      #endif
-
-      // step_rate to timer interval
-      interval = calc_timer_interval(acc_step_rate);
-      acceleration_time += interval;
-
-      #if ENABLED(LIN_ADVANCE)
-        if (current_block->use_advance_lead) {
-          if (step_events_completed == step_loops || (e_steps && eISR_Rate != current_block->advance_speed)) {
-            nextAdvanceISR = 0; // Wake up eISR on first acceleration loop and fire ISR if final adv_rate is reached
-            eISR_Rate = current_block->advance_speed;
-          }
-        }
-        else {
-          eISR_Rate = ADV_NEVER;
-          if (e_steps) nextAdvanceISR = 0;
-        }
-      #endif // LIN_ADVANCE
-    }
-    else if (step_events_completed > current_block->decelerate_after) {
-      uint32_t step_rate;
-
-      #if ENABLED(S_CURVE_ACCELERATION)
-        // If this is the 1st time we process the 2nd half of the trapezoid...
-        if (!bezier_2nd_half) {
-          // Initialize the Bézier speed curve
-          _calc_bezier_curve_coeffs(current_block->cruise_rate, current_block->final_rate, current_block->deceleration_time_inverse);
-          bezier_2nd_half = true;
-        }
-
-        // Calculate the next speed to use
-        step_rate = deceleration_time < current_block->deceleration_time
-          ? _eval_bezier_curve(deceleration_time)
-          : current_block->final_rate;
-      #else
-
-        // Using the old trapezoidal control
-        step_rate = STEP_MULTIPLY(deceleration_time, current_block->acceleration_rate);
-        if (step_rate < acc_step_rate) { // Still decelerating?
-          step_rate = acc_step_rate - step_rate;
-          NOLESS(step_rate, current_block->final_rate);
-        }
-        else
-          step_rate = current_block->final_rate;
-      #endif
-
-      // step_rate to timer interval
-      interval = calc_timer_interval(step_rate);
-      deceleration_time += interval;
-
-      #if ENABLED(LIN_ADVANCE)
-        if (current_block->use_advance_lead) {
-          if (step_events_completed <= current_block->decelerate_after + step_loops || (e_steps && eISR_Rate != current_block->advance_speed)) {
-            nextAdvanceISR = 0; // Wake up eISR on first deceleration loop
-            eISR_Rate = current_block->advance_speed;
-          }
-        }
-        else {
-          eISR_Rate = ADV_NEVER;
-          if (e_steps) nextAdvanceISR = 0;
-        }
-      #endif // LIN_ADVANCE
-    }
-    else {
-
-      #if ENABLED(LIN_ADVANCE)
-        // If there are any esteps, fire the next advance_isr "now"
-        if (e_steps && eISR_Rate != current_block->advance_speed) nextAdvanceISR = 0;
-      #endif
-
-      // The timer interval is just the nominal value for the nominal speed
-      interval = ticks_nominal;
-
-      // Ensure this runs at the correct step rate, even if it just came off an acceleration
-      step_loops = step_loops_nominal;
-    }
-
     // If current block is finished, reset pointer
-    if (all_steps_done) {
+    if (step_events_completed >= step_event_count) {
       axis_did_move = 0;
       current_block = NULL;
       planner.discard_current_block();
+    }
+    else {
+      // Step events not completed yet...
+
+      // Are we in acceleration phase ?
+      if (step_events_completed <= accelerate_until) { // Calculate new timer value
+
+        #if ENABLED(S_CURVE_ACCELERATION)
+          // Get the next speed to use (Jerk limited!)
+          uint32_t acc_step_rate =
+            acceleration_time < current_block->acceleration_time
+              ? _eval_bezier_curve(acceleration_time)
+              : current_block->cruise_rate;
+        #else
+          acc_step_rate = STEP_MULTIPLY(acceleration_time, current_block->acceleration_rate) + current_block->initial_rate;
+          NOMORE(acc_step_rate, current_block->nominal_rate);
+        #endif
+
+        // acc_step_rate is in steps/second
+
+        // step_rate to timer interval and steps per stepper isr
+        interval = calc_timer_interval(acc_step_rate, oversampling_factor, &steps_per_isr);
+        acceleration_time += interval;
+
+        #if ENABLED(LIN_ADVANCE)
+          if (LA_use_advance_lead) {
+            // Wake up eISR on first acceleration loop and fire ISR if final adv_rate is reached
+            if (step_events_completed == steps_per_isr || (LA_steps && LA_isr_rate != current_block->advance_speed)) {
+              nextAdvanceISR = 0;
+              LA_isr_rate = current_block->advance_speed;
+            }
+          }
+          else {
+            LA_isr_rate = LA_ADV_NEVER;
+            if (LA_steps) nextAdvanceISR = 0;
+          }
+        #endif // LIN_ADVANCE
+      }
+      // Are we in Deceleration phase ?
+      else if (step_events_completed > decelerate_after) {
+        uint32_t step_rate;
+
+        #if ENABLED(S_CURVE_ACCELERATION)
+          // If this is the 1st time we process the 2nd half of the trapezoid...
+          if (!bezier_2nd_half) {
+            // Initialize the Bézier speed curve
+            _calc_bezier_curve_coeffs(current_block->cruise_rate, current_block->final_rate, current_block->deceleration_time_inverse);
+            bezier_2nd_half = true;
+            // The first point starts at cruise rate. Just save evaluation of the Bézier curve
+            step_rate = current_block->cruise_rate;
+          }
+          else {
+            // Calculate the next speed to use
+            step_rate = deceleration_time < current_block->deceleration_time
+              ? _eval_bezier_curve(deceleration_time)
+              : current_block->final_rate;
+          }
+        #else
+
+          // Using the old trapezoidal control
+          step_rate = STEP_MULTIPLY(deceleration_time, current_block->acceleration_rate);
+          if (step_rate < acc_step_rate) { // Still decelerating?
+            step_rate = acc_step_rate - step_rate;
+            NOLESS(step_rate, current_block->final_rate);
+          }
+          else
+            step_rate = current_block->final_rate;
+        #endif
+
+        // step_rate is in steps/second
+
+        // step_rate to timer interval and steps per stepper isr
+        interval = calc_timer_interval(step_rate, oversampling_factor, &steps_per_isr);
+        deceleration_time += interval;
+
+        #if ENABLED(LIN_ADVANCE)
+          if (LA_use_advance_lead) {
+            if (step_events_completed <= decelerate_after + steps_per_isr ||
+               (LA_steps && LA_isr_rate != current_block->advance_speed)
+            ) {
+              nextAdvanceISR = 0; // Wake up eISR on first deceleration loop
+              LA_isr_rate = current_block->advance_speed;
+            }
+          }
+          else {
+            LA_isr_rate = LA_ADV_NEVER;
+            if (LA_steps) nextAdvanceISR = 0;
+          }
+        #endif // LIN_ADVANCE
+      }
+      // We must be in cruise phase otherwise
+      else {
+
+        #if ENABLED(LIN_ADVANCE)
+          // If there are any esteps, fire the next advance_isr "now"
+          if (LA_steps && LA_isr_rate != current_block->advance_speed) nextAdvanceISR = 0;
+        #endif
+
+        // Calculate the ticks_nominal for this nominal speed, if not done yet
+        if (ticks_nominal < 0) {
+          // step_rate to timer interval and loops for the nominal speed
+          ticks_nominal = calc_timer_interval(current_block->nominal_rate, oversampling_factor, &steps_per_isr);
+        }
+
+        // The timer interval is just the nominal value for the nominal speed
+        interval = ticks_nominal;
+      }
     }
   }
 
@@ -1697,25 +1655,82 @@ uint32_t Stepper::stepper_block_phase_isr() {
       //if (!!current_block->steps[C_AXIS]) SBI(axis_bits, Z_HEAD);
       axis_did_move = axis_bits;
 
+      // No acceleration / deceleration time elapsed so far
+      acceleration_time = deceleration_time = 0;
+
+      uint8_t oversampling = 0;                         // Assume we won't use it
+      #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+        // At this point, we must decide if we can use Stepper movement axis smoothing.
+        uint32_t max_rate = current_block->nominal_rate;  // Get the maximum rate (maximum event speed)
+        while (max_rate < MIN_STEP_ISR_FREQUENCY) {
+          max_rate <<= 1;
+          if (max_rate >= MAX_1X_STEP_ISR_FREQUENCY) break;
+          ++oversampling;
+        }
+        oversampling_factor = oversampling;
+      #endif
+
+      // Based on the oversampling factor, do the calculations
+      step_event_count = current_block->step_event_count << oversampling;
+
+      // Initialize Bresenham delta errors to 1/2
+      delta_error[X_AXIS] = delta_error[Y_AXIS] = delta_error[Z_AXIS] = delta_error[E_AXIS] = -int32_t(step_event_count);
+
+      // Calculate Bresenham dividends
+      advance_dividend[X_AXIS] = current_block->steps[X_AXIS] << 1;
+      advance_dividend[Y_AXIS] = current_block->steps[Y_AXIS] << 1;
+      advance_dividend[Z_AXIS] = current_block->steps[Z_AXIS] << 1;
+      advance_dividend[E_AXIS] = current_block->steps[E_AXIS] << 1;
+
+      // Calculate Bresenham divisor
+      advance_divisor = step_event_count << 1;
+
+      // No step events completed so far
+      step_events_completed = 0;
+
+      // Compute the acceleration and deceleration points
+      accelerate_until = current_block->accelerate_until << oversampling;
+      decelerate_after = current_block->decelerate_after << oversampling;
+
+      #if ENABLED(MIXING_EXTRUDER)
+        const uint32_t e_steps = (
+          #if ENABLED(LIN_ADVANCE)
+            current_block->steps[E_AXIS]
+          #else
+            step_event_count
+          #endif
+        );
+        MIXING_STEPPERS_LOOP(i) {
+          delta_error_m[i] = -int32_t(e_steps);
+          advance_dividend_m[i] = current_block->mix_steps[i] << 1;
+        }
+        advance_divisor_m = e_steps << 1;
+      #else
+        active_extruder = current_block->active_extruder;
+      #endif
+
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
-        #if E_STEPPERS > 1
-          if (current_block->active_extruder != last_movement_extruder) {
-            current_adv_steps = 0; // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
-            LA_active_extruder = current_block->active_extruder;
-          }
+        #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
+          // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
+          if (active_extruder != last_moved_extruder) LA_current_adv_steps = 0;
         #endif
 
-        if ((use_advance_lead = current_block->use_advance_lead)) {
-          LA_decelerate_after = current_block->decelerate_after;
-          final_adv_steps = current_block->final_adv_steps;
-          max_adv_steps = current_block->max_adv_steps;
+        if ((LA_use_advance_lead = current_block->use_advance_lead)) {
+          LA_final_adv_steps = current_block->final_adv_steps;
+          LA_max_adv_steps = current_block->max_adv_steps;
         }
       #endif
 
-      if (current_block->direction_bits != last_direction_bits || current_block->active_extruder != last_movement_extruder) {
+      if (current_block->direction_bits != last_direction_bits
+        #if DISABLED(MIXING_EXTRUDER)
+          || active_extruder != last_moved_extruder
+        #endif
+      ) {
         last_direction_bits = current_block->direction_bits;
-        last_movement_extruder = current_block->active_extruder;
+        #if DISABLED(MIXING_EXTRUDER)
+          last_moved_extruder = active_extruder;
+        #endif
         set_directions();
       }
 
@@ -1728,17 +1743,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
       // on the next call to this ISR, will be discarded.
       endstops.check_possible_change();
 
-      // No acceleration / deceleration time elapsed so far
-      acceleration_time = deceleration_time = 0;
+      #if ENABLED(Z_LATE_ENABLE)
+        // If delayed Z enable, enable it now. This option will severely interfere with
+        // timing between pulses when chaining motion between blocks, and it could lead
+        // to lost steps in both X and Y axis, so avoid using it unless strictly necessary!!
+        if (current_block->steps[Z_AXIS]) enable_Z();
+      #endif
 
-      // No step events completed so far
-      step_events_completed = 0;
-
-      // step_rate to timer interval for the nominal speed
-      ticks_nominal = calc_timer_interval(current_block->nominal_rate);
-
-      // make a note of the number of step loops required at nominal speed
-      step_loops_nominal = step_loops;
+      // Mark the time_nominal as not calculated yet
+      ticks_nominal = -1;
 
       #if DISABLED(S_CURVE_ACCELERATION)
         // Set as deceleration point the initial rate of the block
@@ -1748,24 +1761,12 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #if ENABLED(S_CURVE_ACCELERATION)
         // Initialize the Bézier speed curve
         _calc_bezier_curve_coeffs(current_block->initial_rate, current_block->cruise_rate, current_block->acceleration_time_inverse);
-
-        // We have not started the 2nd half of the trapezoid
+        // We haven't started the 2nd half of the trapezoid
         bezier_2nd_half = false;
       #endif
 
-      // Initialize Bresenham counters to 1/2 the ceiling, with proper roundup (as explained in the article linked above)
-      counter_X = counter_Y = counter_Z = counter_E = -int32_t((current_block->step_event_count + 1) >> 1);
-      #if ENABLED(MIXING_EXTRUDER)
-        MIXING_STEPPERS_LOOP(i)
-          counter_m[i] = -int32_t((current_block->mix_event_count[i] + 1) >> 1);
-      #endif
-
-      #if ENABLED(Z_LATE_ENABLE)
-        // If delayed Z enable, enable it now. This option will severely interfere with
-        //  timing between pulses when chaining motion between blocks, and it could lead
-        //  to lost steps in both X and Y axis, so avoid using it unless strictly necessary!!
-        if (current_block->steps[Z_AXIS]) enable_Z();
-      #endif
+      // Calculate the initial timer interval
+      interval = calc_timer_interval(current_block->initial_rate, oversampling_factor, &steps_per_isr);
     }
   }
 
@@ -1775,65 +1776,85 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
 #if ENABLED(LIN_ADVANCE)
 
-  #define CYCLES_EATEN_E (E_STEPPERS * 5)
-  #define EXTRA_CYCLES_E (STEP_PULSE_CYCLES - (CYCLES_EATEN_E))
-
-  // Timer interrupt for E. e_steps is set in the main routine;
+  // Timer interrupt for E. LA_steps is set in the main routine
   uint32_t Stepper::advance_isr() {
     uint32_t interval;
 
-    if (use_advance_lead) {
-      if (step_events_completed > LA_decelerate_after && current_adv_steps > final_adv_steps) {
-        e_steps--;
-        current_adv_steps--;
-        interval = eISR_Rate;
+    if (LA_use_advance_lead) {
+      if (step_events_completed > decelerate_after && LA_current_adv_steps > LA_final_adv_steps) {
+        LA_steps--;
+        LA_current_adv_steps--;
+        interval = LA_isr_rate;
       }
-      else if (step_events_completed < LA_decelerate_after && current_adv_steps < max_adv_steps) {
-             //step_events_completed <= (uint32_t)current_block->accelerate_until) {
-        e_steps++;
-        current_adv_steps++;
-        interval = eISR_Rate;
+      else if (step_events_completed < decelerate_after && LA_current_adv_steps < LA_max_adv_steps) {
+             //step_events_completed <= (uint32_t)accelerate_until) {
+        LA_steps++;
+        LA_current_adv_steps++;
+        interval = LA_isr_rate;
       }
       else
-        interval = eISR_Rate = ADV_NEVER;
+        interval = LA_isr_rate = LA_ADV_NEVER;
     }
     else
-      interval = ADV_NEVER;
+      interval = LA_ADV_NEVER;
 
-    if (e_steps >= 0)
-      NORM_E_DIR(LA_active_extruder);
-    else
-      REV_E_DIR(LA_active_extruder);
+      #if ENABLED(MIXING_EXTRUDER)
+        if (LA_steps >= 0)
+          MIXING_STEPPERS_LOOP(j) NORM_E_DIR(j);
+        else
+          MIXING_STEPPERS_LOOP(j) REV_E_DIR(j);
+      #else
+        if (LA_steps >= 0)
+          NORM_E_DIR(active_extruder);
+        else
+          REV_E_DIR(active_extruder);
+      #endif
 
     // Step E stepper if we have steps
-    while (e_steps) {
+    while (LA_steps) {
 
-      #if EXTRA_CYCLES_E > 20
-        hal_timer_t pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM);
+      #if MINIMUM_STEPPER_PULSE
+        hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
       #endif
 
-      E_STEP_WRITE(LA_active_extruder, !INVERT_E_STEP_PIN);
-
-      // For minimum pulse time wait before stopping pulses
-      #if EXTRA_CYCLES_E > 20
-        while (EXTRA_CYCLES_E > (hal_timer_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
-        pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM);
-      #elif EXTRA_CYCLES_E > 0
-        DELAY_NS(EXTRA_CYCLES_E * NANOSECONDS_PER_CYCLE);
+      #if ENABLED(MIXING_EXTRUDER)
+        MIXING_STEPPERS_LOOP(j) {
+          // Step mixing steppers (proportionally)
+          delta_error_m[j] += advance_dividend_m[j];
+          // Step when the counter goes over zero
+          if (delta_error_m[j] >= 0) E_STEP_WRITE(j, !INVERT_E_STEP_PIN);
+        }
+      #else
+        E_STEP_WRITE(active_extruder, !INVERT_E_STEP_PIN);
       #endif
 
-      e_steps < 0 ? ++e_steps : --e_steps;
-
-      E_STEP_WRITE(LA_active_extruder, INVERT_E_STEP_PIN);
-
-      // For minimum pulse time wait before looping
-      #if EXTRA_CYCLES_E > 20
-        if (e_steps) while (EXTRA_CYCLES_E > (hal_timer_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
-      #elif EXTRA_CYCLES_E > 0
-        if (e_steps) DELAY_NS(EXTRA_CYCLES_E * NANOSECONDS_PER_CYCLE);
+      #if MINIMUM_STEPPER_PULSE
+        // Just wait for the requested pulse duration
+        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+        // Add to the value, the value needed for the pulse end and ensuring the maximum driver rate is enforced
+        pulse_end += hal_timer_t(MIN_STEPPER_PULSE_CYCLES) - hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
       #endif
 
-    } // e_steps
+      LA_steps < 0 ? ++LA_steps : --LA_steps;
+
+      #if ENABLED(MIXING_EXTRUDER)
+        MIXING_STEPPERS_LOOP(j) {
+          if (delta_error_m[j] >= 0) {
+            delta_error_m[j] -= advance_divisor_m;
+            E_STEP_WRITE(j, INVERT_E_STEP_PIN);
+          }
+        }
+      #else
+        E_STEP_WRITE(active_extruder, INVERT_E_STEP_PIN);
+      #endif
+
+      #if MINIMUM_STEPPER_PULSE
+        // For minimum pulse time wait before looping
+        // Just wait for the requested pulse duration
+        if (LA_steps) while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+      #endif
+
+    } // LA_steps
 
     return interval;
   }
@@ -2145,6 +2166,12 @@ void Stepper::report_positions() {
 
 #if ENABLED(BABYSTEPPING)
 
+  #if MINIMUM_STEPPER_PULSE
+    #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
+  #else
+    #define STEP_PULSE_CYCLES 0
+  #endif
+
   #if ENABLED(DELTA)
     #define CYCLES_EATEN_BABYSTEP (2 * 15)
   #else
@@ -2158,8 +2185,8 @@ void Stepper::report_positions() {
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
   #if EXTRA_CYCLES_BABYSTEP > 20
-    #define _SAVE_START const hal_timer_t pulse_start = HAL_timer_get_count(STEP_TIMER_NUM)
-    #define _PULSE_WAIT while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(STEP_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
+    #define _SAVE_START const hal_timer_t pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM)
+    #define _PULSE_WAIT while (EXTRA_CYCLES_BABYSTEP > (uint32_t)(HAL_timer_get_count(PULSE_TIMER_NUM) - pulse_start) * (PULSE_TIMER_PRESCALE)) { /* nada */ }
   #else
     #define _SAVE_START NOOP
     #if EXTRA_CYCLES_BABYSTEP > 0
