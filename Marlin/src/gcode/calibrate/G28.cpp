@@ -221,7 +221,10 @@ void GcodeSuite::G28(const bool always_home_all) {
                home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
 
     #if ENABLED(BLTOUCH)
-      if (!HOMING_Z_WITH_PROBE || home_all || homeX || homeY) set_bltouch_deployed(false);
+      #if HOMING_Z_WITH_PROBE
+        if (home_all || homeX || homeY)
+      #endif
+          set_bltouch_deployed(false);
     #endif
 
     set_destination_from_current();
