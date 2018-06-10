@@ -9123,28 +9123,35 @@ inline void gcode_M204() {
 /**
  * M205: Set Advanced Settings
  *
+ *    B = Min Segment Time (µs)
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (µs)
  *    X = Max X Jerk (units/sec^2)
  *    Y = Max Y Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
  *    E = Max E Jerk (units/sec^2)
+ *    J = Junction Deviation (mm) (Requires JUNCTION_DEVIATION)
  */
 inline void gcode_M205() {
+  if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
   if (parser.seen('S')) planner.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.min_travel_feedrate_mm_s = parser.value_linear_units();
-  if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
-  if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
-  if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
-  if (parser.seen('Z')) {
-    planner.max_jerk[Z_AXIS] = parser.value_linear_units();
-    #if HAS_MESH
-      if (planner.max_jerk[Z_AXIS] <= 0.1)
-        SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
-    #endif
-  }
-  if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+  #if ENABLED(JUNCTION_DEVIATION)
+    if (parser.seen('J')) planner.junction_deviation_mm = parser.value_linear_units();
+  #else
+    if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
+    if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
+    if (parser.seen('Z')) {
+      planner.max_jerk[Z_AXIS] = parser.value_linear_units();
+      #if HAS_MESH
+        if (planner.max_jerk[Z_AXIS] <= 0.1)
+          SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
+      #endif
+    }
+  #endif
+  #if DISABLED(JUNCTION_DEVIATION) || ENABLED(LIN_ADVANCE)
+    if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+  #endif
 }
 
 #if HAS_M206_COMMAND
