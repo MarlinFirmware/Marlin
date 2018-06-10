@@ -190,6 +190,10 @@ void GcodeSuite::G28(const bool always_home_all) {
     workspace_plane = PLANE_XY;
   #endif
 
+  #if ENABLED(BLTOUCH)
+    set_bltouch_deployed(false);
+  #endif
+
   // Always home with tool 0 active
   #if HOTENDS > 1
     #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
@@ -219,13 +223,6 @@ void GcodeSuite::G28(const bool always_home_all) {
                homeY = always_home_all || parser.seen('Y'),
                homeZ = always_home_all || parser.seen('Z'),
                home_all = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
-
-    #if ENABLED(BLTOUCH)
-      #if HOMING_Z_WITH_PROBE
-        if (home_all || homeX || homeY)
-      #endif
-          set_bltouch_deployed(false);
-    #endif
 
     set_destination_from_current();
 
