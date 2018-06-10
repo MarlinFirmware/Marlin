@@ -190,19 +190,22 @@ class Planner {
                                                       // May be auto-adjusted by a filament width sensor
     #endif
 
+    static uint32_t max_acceleration_steps_per_s2[XYZE_N],
+                    max_acceleration_mm_per_s2[XYZE_N], // Use M201 to override
+                    min_segment_time_us; // Use 'M205 B<µs>' to override
     static float max_feedrate_mm_s[XYZE_N],         // Max speeds in mm per second
                  axis_steps_per_mm[XYZE_N],
-                 steps_to_mm[XYZE_N];
-    static uint32_t max_acceleration_steps_per_s2[XYZE_N],
-                    max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override
-
-    static uint32_t min_segment_time_us; // Use 'M205 B<µs>' to override
-    static float min_feedrate_mm_s,
+                 steps_to_mm[XYZE_N],
+                 min_feedrate_mm_s,
                  acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
                  retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
                  travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
                  max_jerk[XYZE],       // The largest speed change requiring no acceleration
                  min_travel_feedrate_mm_s;
+
+    #if ENABLED(JUNCTION_DEVIATION)
+      static float junction_deviation_mm; // Initialized by EEPROM
+    #endif
 
     #if HAS_LEVELING
       static bool leveling_active;          // Flag that bed leveling is enabled
