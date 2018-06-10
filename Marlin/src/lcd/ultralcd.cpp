@@ -3754,7 +3754,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_MOTION);
 
       #if ENABLED(JUNCTION_DEVIATION)
-        MENU_ITEM_EDIT(float3, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0, 5);
+        MENU_ITEM_EDIT(float3, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01, 0.3);
       #else
         MENU_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
         MENU_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);

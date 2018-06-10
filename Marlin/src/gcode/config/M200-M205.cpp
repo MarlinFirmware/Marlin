@@ -132,7 +132,15 @@ void GcodeSuite::M205() {
   if (parser.seen('S')) planner.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.min_travel_feedrate_mm_s = parser.value_linear_units();
   #if ENABLED(JUNCTION_DEVIATION)
-    if (parser.seen('J')) planner.junction_deviation_mm = parser.value_linear_units();
+    if (parser.seen('J')) {
+      const float junc_dev = parser.value_linear_units();
+      if (WITHIN(junc_dev, 0.01, 0.3))
+        planner.junction_deviation_mm = junc_dev;
+      else {
+        SERIAL_ERROR_START();
+        SERIAL_ERRORLNPGM("?J out of range (0.01 to 0.3)");
+      }
+    }
   #else
     if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
     if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
