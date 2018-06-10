@@ -828,9 +828,6 @@
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR false
 
-// Enable this option for Toshiba stepper drivers
-//#define CONFIG_STEPPERS_TOSHIBA
-
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
