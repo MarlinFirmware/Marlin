@@ -82,7 +82,9 @@
 // EFB
 #define HEATER_0_PIN       P2_04
 #define HEATER_BED_PIN     P2_05
-#define FAN_PIN            P2_07
+#ifndef FAN_PIN
+  #define FAN_PIN          P2_07
+#endif
 #define FAN1_PIN           P0_26
 
 #if ENABLED(AZSMZ_12864)

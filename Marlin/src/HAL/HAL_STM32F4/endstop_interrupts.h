@@ -31,7 +31,7 @@ void endstop_ISR(void) { endstops.check_possible_change(); }
 
 void setup_endstop_interrupts(void) {
   #if HAS_X_MAX
-    attachInterrupt(X_MAX_PIN, endstop_ISR, CHANGE); // assign it
+    attachInterrupt(X_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_X_MIN
     attachInterrupt(X_MIN_PIN, endstop_ISR, CHANGE);

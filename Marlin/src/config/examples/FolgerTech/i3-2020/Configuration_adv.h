@@ -824,10 +824,14 @@
 // Moves (or segments) with fewer steps than this will be joined with the next move
 #define MIN_STEPS_PER_SEGMENT 6
 
-// The minimum pulse width (in µs) for stepping a stepper.
-// Set this if you find stepping unreliable, or if using a very fast CPU.
-// 0 is OK for AVR, 0 is OK for A4989 drivers, 2 is needed for DRV8825 drivers
-#define MINIMUM_STEPPER_PULSE 2 // (µs)   DRV8825 on 32bit CPUs
+/**
+ * Minimum stepper driver pulse width (in µs)
+ *   0 : Smallest possible width the MCU can produce, compatible with TMC2xxx drivers
+ *   2 : Minimum for DRV8825 stepper drivers
+ *   3 : Minimum for TB6600 stepper drivers
+ *  30 : Minimum for TB6560 stepper drivers
+ */
+#define MINIMUM_STEPPER_PULSE 2
 
 // @section temperature
 
@@ -1649,13 +1653,13 @@
 #define MAX7219_DIN_PIN   57  // on RAMPS
 #define MAX7219_LOAD_PIN  44  // on RAMPS
 
-//#define MAX7219_CLK_PIN   77 // on Re-ARM       // Configuration of the 3 pins to control the display
-//#define MAX7219_DIN_PIN   78 // on Re-ARM
-//#define MAX7219_LOAD_PIN  79 // on Re-ARM
+//#define MAX7219_CLK_PIN   P1_04 // on Re-ARM   ENET_TX_EN  J12-10
+//#define MAX7219_DIN_PIN   P1_00 // on Re-ARM   ENET_TXD0   J12-11
+//#define MAX7219_LOAD_PIN  P1_01 // on Re-ARM   ENET_TXD1   J12-12
 
-//#define MAX7219_CLK_PIN   30 // for RAMPS E1     // Configuration of the 3 pins to control the display
-//#define MAX7219_DIN_PIN   34 // for RAMPS E1
-//#define MAX7219_LOAD_PIN  36 // for RAMPS E1
+//#define MAX7219_CLK_PIN  P4_29 // for RAMPS E1 on Re-ARM  E1_ENABLE_PIN  P4_29
+//#define MAX7219_DIN_PIN  P2_13 // for RAMPS E1 on Re-ARM  E1_DIR_PIN     P2_13
+//#define MAX7219_LOAD_PIN P2_08 // for RAMPS E1 on Re-ARM  E1_STEP_PIN    P2_08
 
   /**
    * Sample debug features

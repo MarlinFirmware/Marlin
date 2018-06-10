@@ -85,10 +85,11 @@
 #define HEATER_0_PIN       PB4   // EXTRUDER 1
 #define HEATER_1_PIN       PB5   // EXTRUDER 2
 #define HEATER_2_PIN       PB0   // EXTRUDER 3
-
 #define HEATER_BED_PIN     PB1   // BED
 
-#define FAN_PIN            PB7   // (Sprinter config)
+#ifndef FAN_PIN
+  #define FAN_PIN          PB7   // (Sprinter config)
+#endif
 #define FAN1_PIN           PB8
 #define FAN2_PIN           PB9
 

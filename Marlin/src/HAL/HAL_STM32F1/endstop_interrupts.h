@@ -56,40 +56,40 @@ void endstop_ISR(void) { endstops.check_possible_change(); }
 
 void setup_endstop_interrupts(void) {
   #if HAS_X_MAX
-    SET_INPUT(X_MAX_PIN);
     attachInterrupt(X_MAX_PIN, endstop_ISR, CHANGE); // assign it
+    SET_INPUT(X_MAX_PIN);
   #endif
   #if HAS_X_MIN
-    SET_INPUT(X_MIN_PIN);
     attachInterrupt(X_MIN_PIN, endstop_ISR, CHANGE);
+    SET_INPUT(X_MIN_PIN);
   #endif
   #if HAS_Y_MAX
-    SET_INPUT(Y_MAX_PIN);
     attachInterrupt(Y_MAX_PIN, endstop_ISR, CHANGE);
+    SET_INPUT(Y_MAX_PIN);
   #endif
   #if HAS_Y_MIN
-    SET_INPUT(Y_MIN_PIN);
     attachInterrupt(Y_MIN_PIN, endstop_ISR, CHANGE);
+    SET_INPUT(Y_MIN_PIN);
   #endif
   #if HAS_Z_MAX
-    SET_INPUT(Z_MAX_PIN);
     attachInterrupt(Z_MAX_PIN, endstop_ISR, CHANGE);
+    SET_INPUT(Z_MAX_PIN);
   #endif
   #if HAS_Z_MIN
-    SET_INPUT(Z_MIN_PIN);
     attachInterrupt(Z_MIN_PIN, endstop_ISR, CHANGE);
+    SET_INPUT(Z_MIN_PIN);
   #endif
   #if HAS_Z2_MAX
-    SET_INPUT(Z2_MAX_PIN);
     attachInterrupt(Z2_MAX_PIN, endstop_ISR, CHANGE);
+    SET_INPUT(Z2_MAX_PIN);
   #endif
   #if HAS_Z2_MIN
-    SET_INPUT(Z2_MIN_PIN);
     attachInterrupt(Z2_MIN_PIN, endstop_ISR, CHANGE);
+    SET_INPUT(Z2_MIN_PIN);
   #endif
   #if HAS_Z_MIN_PROBE_PIN
-    SET_INPUT(Z_MIN_PROBE_PIN);
     attachInterrupt(Z_MIN_PROBE_PIN, endstop_ISR, CHANGE);
+    SET_INPUT(Z_MIN_PROBE_PIN);
   #endif
 }
 
