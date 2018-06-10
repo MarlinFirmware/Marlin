@@ -71,6 +71,14 @@
     uint8_t rx_dropped_bytes = 0;
   #endif
 
+  #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+    uint8_t rx_buffer_overruns = 0;
+  #endif
+
+  #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+    uint8_t rx_framing_errors = 0;
+  #endif
+
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
     ring_buffer_pos_t rx_max_enqueued = 0;
   #endif
@@ -93,6 +101,19 @@
 
     // Get the next element
     ring_buffer_pos_t i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+    // This must read the M_UCSRxA register before reading the received byte to detect error causes
+    #if ENABLED(SERIAL_STATS_DROPPED_RX)
+      if (TEST(M_UCSRxA, M_DORx) && !++rx_dropped_bytes) --rx_dropped_bytes;
+    #endif
+
+    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+      if (TEST(M_UCSRxA, M_DORx) && !++rx_buffer_overruns) --rx_buffer_overruns;
+    #endif
+
+    #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+      if (TEST(M_UCSRxA, M_FEx) && !++rx_framing_errors) --rx_framing_errors;
+    #endif
 
     // Read the character from the USART
     uint8_t c = M_UDRx;
