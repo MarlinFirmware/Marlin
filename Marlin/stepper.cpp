@@ -1266,7 +1266,7 @@ void Stepper::stepper_pulse_phase_isr() {
   // Just update the value we will get at the end of the loop
   step_events_completed += events_to_do;
 
-  #if MINIMUM_STEPPER_PULSE > 0
+  #if MINIMUM_STEPPER_PULSE
     // Get the timer count and estimate the end of the pulse
     hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
   #endif
@@ -1339,7 +1339,7 @@ void Stepper::stepper_pulse_phase_isr() {
       #endif
     #endif // !LIN_ADVANCE
 
-    #if MINIMUM_STEPPER_PULSE > 0
+    #if MINIMUM_STEPPER_PULSE
       // Just wait for the requested pulse duration
       while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
       // Add to the value, the value needed for the pulse end and ensuring the maximum driver rate is enforced
@@ -1373,7 +1373,7 @@ void Stepper::stepper_pulse_phase_isr() {
     // Decrement the count of pending pulses to do
     --events_to_do;
 
-    #if MINIMUM_STEPPER_PULSE > 0
+    #if MINIMUM_STEPPER_PULSE
       // For minimum pulse time wait after stopping pulses also
       if (events_to_do) {
         // Just wait for the requested pulse duration
@@ -1763,7 +1763,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     // Step E stepper if we have steps
     while (LA_steps) {
 
-      #if MINIMUM_STEPPER_PULSE > 0
+      #if MINIMUM_STEPPER_PULSE
         hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
       #endif
 
@@ -1778,7 +1778,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         E_STEP_WRITE(active_extruder, !INVERT_E_STEP_PIN);
       #endif
 
-      #if MINIMUM_STEPPER_PULSE > 0
+      #if MINIMUM_STEPPER_PULSE
         // Just wait for the requested pulse duration
         while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
         // Add to the value, the value needed for the pulse end and ensuring the maximum driver rate is enforced
@@ -1798,7 +1798,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         E_STEP_WRITE(active_extruder, INVERT_E_STEP_PIN);
       #endif
 
-      #if MINIMUM_STEPPER_PULSE > 0
+      #if MINIMUM_STEPPER_PULSE
         // For minimum pulse time wait before looping
         // Just wait for the requested pulse duration
         if (LA_steps) while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
@@ -2098,6 +2098,12 @@ void Stepper::report_positions() {
 }
 
 #if ENABLED(BABYSTEPPING)
+
+  #if MINIMUM_STEPPER_PULSE
+    #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
+  #else
+    #define STEP_PULSE_CYCLES 0
+  #endif
 
   #if ENABLED(DELTA)
     #define CYCLES_EATEN_BABYSTEP (2 * 15)
