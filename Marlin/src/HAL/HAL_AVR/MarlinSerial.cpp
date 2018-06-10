@@ -56,21 +56,28 @@
     ring_buffer_r rx_buffer = { { 0 }, 0, 0 };
     #if TX_BUFFER_SIZE > 0
       ring_buffer_t tx_buffer = { { 0 }, 0, 0 };
-      static bool _written;
     #endif
+    static bool _written;
   #endif
 
   #if ENABLED(SERIAL_XON_XOFF)
-    constexpr uint8_t XON_XOFF_CHAR_SENT = 0x80;  // XON / XOFF Character was sent
-    constexpr uint8_t XON_XOFF_CHAR_MASK = 0x1F;  // XON / XOFF character to send
+    constexpr uint8_t XON_XOFF_CHAR_SENT = 0x80,  // XON / XOFF Character was sent
+                      XON_XOFF_CHAR_MASK = 0x1F;  // XON / XOFF character to send
     // XON / XOFF character definitions
-    constexpr uint8_t XON_CHAR  = 17;
-    constexpr uint8_t XOFF_CHAR = 19;
+    constexpr uint8_t XON_CHAR  = 17, XOFF_CHAR = 19;
     uint8_t xon_xoff_state = XON_XOFF_CHAR_SENT | XON_CHAR;
   #endif
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     uint8_t rx_dropped_bytes = 0;
+  #endif
+
+  #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+    uint8_t rx_buffer_overruns = 0;
+  #endif
+
+  #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+    uint8_t rx_framing_errors = 0;
   #endif
 
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
@@ -91,125 +98,209 @@
       static EmergencyParser::State emergency_state; // = EP_RESET
     #endif
 
-    const ring_buffer_pos_t h = rx_buffer.head,
-                            i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+    // Get the tail - Nothing can alter its value while we are at this ISR
+    const ring_buffer_pos_t t = rx_buffer.tail;
 
-    // Read the character
-    const uint8_t c = M_UDRx;
+    // Get the head pointer
+    ring_buffer_pos_t h = rx_buffer.head;
+
+    // Get the next element
+    ring_buffer_pos_t i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+    // This must read the M_UCSRxA register before reading the received byte to detect error causes
+    #if ENABLED(SERIAL_STATS_DROPPED_RX)
+      if (TEST(M_UCSRxA, M_DORx) && !++rx_dropped_bytes) --rx_dropped_bytes;
+    #endif
+
+    #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+      if (TEST(M_UCSRxA, M_DORx) && !++rx_buffer_overruns) --rx_buffer_overruns;
+    #endif
+
+    #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+      if (TEST(M_UCSRxA, M_FEx) && !++rx_framing_errors) --rx_framing_errors;
+    #endif
+
+    // Read the character from the USART
+    uint8_t c = M_UDRx;
+
+    #if ENABLED(EMERGENCY_PARSER)
+      emergency_parser.update(emergency_state, c);
+    #endif
 
     // If the character is to be stored at the index just before the tail
-    // (such that the head would advance to the current tail), the buffer is
-    // critical, so don't write the character or advance the head.
-    if (i != rx_buffer.tail) {
+    // (such that the head would advance to the current tail), the RX FIFO is
+    // full, so don't write the character or advance the head.
+    if (i != t) {
       rx_buffer.buffer[h] = c;
-      rx_buffer.head = i;
+      h = i;
     }
-    else {
-      #if ENABLED(SERIAL_STATS_DROPPED_RX)
-        if (!++rx_dropped_bytes) ++rx_dropped_bytes;
-      #endif
-    }
+    #if ENABLED(SERIAL_STATS_DROPPED_RX)
+      else if (!++rx_dropped_bytes) --rx_dropped_bytes;
+    #endif
 
     #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-      // calculate count of bytes stored into the RX buffer
-      ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+      // Calculate count of bytes stored into the RX buffer
+      const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
       // Keep track of the maximum count of enqueued bytes
       NOLESS(rx_max_enqueued, rx_count);
     #endif
 
     #if ENABLED(SERIAL_XON_XOFF)
-
-      // for high speed transfers, we can use XON/XOFF protocol to do
-      // software handshake and avoid overruns.
+      // If the last char that was sent was an XON
       if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XON_CHAR) {
 
-        // calculate count of bytes stored into the RX buffer
-        ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+        // Bytes stored into the RX buffer
+        const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
 
-        // if we are above 12.5% of RX buffer capacity, send XOFF before
-        // we run out of RX buffer space .. We need 325 bytes @ 250kbits/s to
-        // let the host react and stop sending bytes. This translates to 13mS
-        // propagation time.
+        // If over 12.5% of RX buffer capacity, send XOFF before running out of
+        // RX buffer space .. 325 bytes @ 250kbits/s needed to let the host react
+        // and stop sending bytes. This translates to 13mS propagation time.
         if (rx_count >= (RX_BUFFER_SIZE) / 8) {
 
-          // If TX interrupts are disabled and data register is empty,
-          // just write the byte to the data register and be done. This
-          // shortcut helps significantly improve the effective datarate
-          // at high (>500kbit/s) bitrates, where interrupt overhead
-          // becomes a slowdown.
-          if (!TEST(M_UCSRxB, M_UDRIEx) && TEST(M_UCSRxA, M_UDREx)) {
+          // At this point, definitely no TX interrupt was executing, since the TX isr can't be preempted.
+          // Don't enable the TX interrupt here as a means to trigger the XOFF char, because if it happens
+          // to be in the middle of trying to disable the RX interrupt in the main program, eventually the
+          // enabling of the TX interrupt could be undone. The ONLY reliable thing this can do to ensure
+          // the sending of the XOFF char is to send it HERE AND NOW.
 
-            // Send an XOFF character
-            M_UDRx = XOFF_CHAR;
+          // About to send the XOFF char
+          xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
 
-            // clear the TXC bit -- "can be cleared by writing a one to its bit
-            // location". This makes sure flush() won't return until the bytes
-            // actually got written
-            SBI(M_UCSRxA, M_TXCx);
+          // Wait until the TX register becomes empty and send it - Here there could be a problem
+          // - While waiting for the TX register to empty, the RX register could receive a new
+          //   character. This must also handle that situation!
+          while (!TEST(M_UCSRxA, M_UDREx)) {
 
-            // And remember it was sent
-            xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
+            if (TEST(M_UCSRxA,M_RXCx)) {
+              // A char arrived while waiting for the TX buffer to be empty - Receive and process it!
+
+              i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+              // Read the character from the USART
+              c = M_UDRx;
+
+              #if ENABLED(EMERGENCY_PARSER)
+                emergency_parser.update(emergency_state, c);
+              #endif
+
+              // If the character is to be stored at the index just before the tail
+              // (such that the head would advance to the current tail), the FIFO is
+              // full, so don't write the character or advance the head.
+              if (i != t) {
+                rx_buffer.buffer[h] = c;
+                h = i;
+              }
+              #if ENABLED(SERIAL_STATS_DROPPED_RX)
+                else if (!++rx_dropped_bytes) --rx_dropped_bytes;
+              #endif
+            }
+            sw_barrier();
           }
-          else {
-            // TX interrupts disabled, but buffer still not empty ... or
-            // TX interrupts enabled. Reenable TX ints and schedule XOFF
-            // character to be sent
-            #if TX_BUFFER_SIZE > 0
-              SBI(M_UCSRxB, M_UDRIEx);
-              xon_xoff_state = XOFF_CHAR;
-            #else
-              // We are not using TX interrupts, we will have to send this manually
-              while (!TEST(M_UCSRxA, M_UDREx)) sw_barrier();
-              M_UDRx = XOFF_CHAR;
 
-              // clear the TXC bit -- "can be cleared by writing a one to its bit
-              // location". This makes sure flush() won't return until the bytes
-              // actually got written
-              SBI(M_UCSRxA, M_TXCx);
+          M_UDRx = XOFF_CHAR;
 
-              // And remember we already sent it
-              xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
-            #endif
+          // Clear the TXC bit -- "can be cleared by writing a one to its bit
+          // location". This makes sure flush() won't return until the bytes
+          // actually got written
+          SBI(M_UCSRxA, M_TXCx);
+
+          // At this point there could be a race condition between the write() function
+          // and this sending of the XOFF char. This interrupt could happen between the
+          // wait to be empty TX buffer loop and the actual write of the character. Since
+          // the TX buffer is full because it's sending the XOFF char, the only way to be
+          // sure the write() function will succeed is to wait for the XOFF char to be
+          // completely sent. Since an extra character could be received during the wait
+          // it must also be handled!
+          while (!TEST(M_UCSRxA, M_UDREx)) {
+
+            if (TEST(M_UCSRxA,M_RXCx)) {
+              // A char arrived while waiting for the TX buffer to be empty - Receive and process it!
+
+              i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+              // Read the character from the USART
+              c = M_UDRx;
+
+              #if ENABLED(EMERGENCY_PARSER)
+                emergency_parser.update(emergency_state, c);
+              #endif
+
+              // If the character is to be stored at the index just before the tail
+              // (such that the head would advance to the current tail), the FIFO is
+              // full, so don't write the character or advance the head.
+              if (i != t) {
+                rx_buffer.buffer[h] = c;
+                h = i;
+              }
+              #if ENABLED(SERIAL_STATS_DROPPED_RX)
+                else if (!++rx_dropped_bytes) --rx_dropped_bytes;
+              #endif
+            }
+            sw_barrier();
           }
+
+          // At this point everything is ready. The write() function won't
+          // have any issues writing to the UART TX register if it needs to!
         }
       }
     #endif // SERIAL_XON_XOFF
 
-    #if ENABLED(EMERGENCY_PARSER)
-      emergency_parser.update(emergency_state, c);
-    #endif
+    // Store the new head value
+    rx_buffer.head = h;
   }
 
   #if TX_BUFFER_SIZE > 0
 
     // (called with TX irqs disabled)
     FORCE_INLINE void _tx_udr_empty_irq(void) {
-      // If interrupts are enabled, there must be more data in the output
-      // buffer.
+
+      // Read positions
+      uint8_t t = tx_buffer.tail;
+      const uint8_t h = tx_buffer.head;
 
       #if ENABLED(SERIAL_XON_XOFF)
-        // Do a priority insertion of an XON/XOFF char, if needed.
-        const uint8_t state = xon_xoff_state;
-        if (!(state & XON_XOFF_CHAR_SENT)) {
-          M_UDRx = state & XON_XOFF_CHAR_MASK;
-          xon_xoff_state = state | XON_XOFF_CHAR_SENT;
+        // If an XON char is pending to be sent, do it now
+        if (xon_xoff_state == XON_CHAR) {
+
+          // Send the character
+          M_UDRx = XON_CHAR;
+
+          // clear the TXC bit -- "can be cleared by writing a one to its bit
+          // location". This makes sure flush() won't return until the bytes
+          // actually got written
+          SBI(M_UCSRxA, M_TXCx);
+
+          // Remember we sent it.
+          xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
+
+          // If nothing else to transmit, just disable TX interrupts.
+          if (h == t) CBI(M_UCSRxB, M_UDRIEx); // (Non-atomic, could be reenabled by the main program, but eventually this will succeed)
+
+          return;
         }
-        else
       #endif
-      { // Send the next byte
-        const uint8_t t = tx_buffer.tail, c = tx_buffer.buffer[t];
-        tx_buffer.tail = (t + 1) & (TX_BUFFER_SIZE - 1);
-        M_UDRx = c;
+
+      // If nothing to transmit, just disable TX interrupts. This could
+      // happen as the result of the non atomicity of the disabling of RX
+      // interrupts that could end reenabling TX interrupts as a side effect.
+      if (h == t) {
+        CBI(M_UCSRxB, M_UDRIEx); // (Non-atomic, could be reenabled by the main program, but eventually this will succeed)
+        return;
       }
 
-      // clear the TXC bit -- "can be cleared by writing a one to its bit
-      // location". This makes sure flush() won't return until the bytes
-      // actually got written
+      // There is something to TX, Send the next byte
+      const uint8_t c = tx_buffer.buffer[t];
+      t = (t + 1) & (TX_BUFFER_SIZE - 1);
+      M_UDRx = c;
+      tx_buffer.tail = t;
+
+      // Clear the TXC bit (by writing a one to its bit location).
+      // Ensures flush() won't return until the bytes are actually written/
       SBI(M_UCSRxA, M_TXCx);
 
-      // Disable interrupts if the buffer is empty
-      if (tx_buffer.head == tx_buffer.tail)
-        CBI(M_UCSRxB, M_UDRIEx);
+      // Disable interrupts if there is nothing to transmit following this byte
+      if (h == t) CBI(M_UCSRxB, M_UDRIEx); // (Non-atomic, could be reenabled by the main program, but eventually this will succeed)
     }
 
     #ifdef M_USARTx_UDRE_vect
@@ -253,8 +344,8 @@
     SBI(M_UCSRxB, M_RXCIEx);
     #if TX_BUFFER_SIZE > 0
       CBI(M_UCSRxB, M_UDRIEx);
-      _written = false;
     #endif
+    _written = false;
   }
 
   void MarlinSerial::end() {
@@ -281,11 +372,11 @@
   }
 
   int MarlinSerial::read(void) {
-    int v;
 
     #if RX_BUFFER_SIZE > 256
-      // Disable RX interrupts to ensure atomic reads
-      const bool isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
+      // Disable RX interrupts to ensure atomic reads - This could reenable TX interrupts,
+      //  but this situation is explicitly handled at the TX isr, so no problems there
+      bool isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
       CBI(M_UCSRxB, M_RXCIEx);
     #endif
 
@@ -298,43 +389,50 @@
 
     ring_buffer_pos_t t = rx_buffer.tail;
 
-    if (h == t)
-      v = -1;
-    else {
-      v = rx_buffer.buffer[t];
-      t = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1);
+    // If nothing to read, return now
+    if (h == t) return -1;
 
-      #if RX_BUFFER_SIZE > 256
-        // Disable RX interrupts to ensure atomic write to tail, so
-        // the RX isr can't read partially updated values
-        const bool isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
-        CBI(M_UCSRxB, M_RXCIEx);
-      #endif
+    // Get the next char
+    const int v = rx_buffer.buffer[t];
+    t = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1);
 
-      // Advance tail
-      rx_buffer.tail = t;
+    #if RX_BUFFER_SIZE > 256
+      // Disable RX interrupts to ensure atomic write to tail, so
+      // the RX isr can't read partially updated values - This could
+      // reenable TX interrupts, but this situation is explicitly
+      // handled at the TX isr, so no problems there
+      isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
+      CBI(M_UCSRxB, M_RXCIEx);
+    #endif
 
-      #if RX_BUFFER_SIZE > 256
-        // End critical section
-        if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
-      #endif
+    // Advance tail
+    rx_buffer.tail = t;
 
-      #if ENABLED(SERIAL_XON_XOFF)
-        if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
+    #if RX_BUFFER_SIZE > 256
+      // End critical section
+      if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
+    #endif
 
-          // Get count of bytes in the RX buffer
-          ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
-
-          // When below 10% of RX buffer capacity, send XON before
-          // running out of RX buffer bytes
-          if (rx_count < (RX_BUFFER_SIZE) / 10) {
+    #if ENABLED(SERIAL_XON_XOFF)
+      // If the XOFF char was sent, or about to be sent...
+      if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
+        // Get count of bytes in the RX buffer
+        const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+        if (rx_count < (RX_BUFFER_SIZE) / 10) {
+          #if TX_BUFFER_SIZE > 0
+            // Signal we want an XON character to be sent.
+            xon_xoff_state = XON_CHAR;
+            // Enable TX isr. Non atomic, but it will eventually enable them
+            SBI(M_UCSRxB, M_UDRIEx);
+          #else
+            // If not using TX interrupts, we must send the XON char now
             xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
-            write(XON_CHAR);
-            return v;
-          }
+            while (!TEST(M_UCSRxA, M_UDREx)) sw_barrier();
+            M_UDRx = XON_CHAR;
+          #endif
         }
-      #endif
-    }
+      }
+    #endif
 
     return v;
   }
@@ -367,9 +465,19 @@
     #endif
 
     #if ENABLED(SERIAL_XON_XOFF)
+      // If the XOFF char was sent, or about to be sent...
       if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
-        xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
-        write(XON_CHAR);
+        #if TX_BUFFER_SIZE > 0
+          // Signal we want an XON character to be sent.
+          xon_xoff_state = XON_CHAR;
+          // Enable TX isr. Non atomic, but it will eventually enable it.
+          SBI(M_UCSRxB, M_UDRIEx);
+        #else
+          // If not using TX interrupts, we must send the XON char now
+          xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
+          while (!TEST(M_UCSRxA, M_UDREx)) sw_barrier();
+          M_UDRx = XON_CHAR;
+        #endif
       }
     #endif
   }
@@ -383,6 +491,8 @@
       // be done. This shortcut helps significantly improve the
       // effective datarate at high (>500kbit/s) bitrates, where
       // interrupt overhead becomes a slowdown.
+      // Yes, there is a race condition between the sending of the
+      // XOFF char at the RX isr, but it is properly handled there
       if (!TEST(M_UCSRxB, M_UDRIEx) && TEST(M_UCSRxA, M_UDREx)) {
         M_UDRx = c;
 
@@ -395,61 +505,79 @@
 
       const uint8_t i = (tx_buffer.head + 1) & (TX_BUFFER_SIZE - 1);
 
-      // If the output buffer is full, there's nothing for it other than to
-      // wait for the interrupt handler to empty it a bit
-      while (i == tx_buffer.tail) {
-        if (!ISRS_ENABLED()) {
-          // Interrupts are disabled, so we'll have to poll the data
-          // register empty flag ourselves. If it is set, pretend an
-          // interrupt has happened and call the handler to free up
-          // space for us.
-          if (TEST(M_UCSRxA, M_UDREx))
-            _tx_udr_empty_irq();
-        }
-        // (else , the interrupt handler will free up space for us)
+      // If global interrupts are disabled (as the result of being called from an ISR)...
+      if (!ISRS_ENABLED()) {
 
-        // Make sure compiler rereads tx_buffer.tail
-        sw_barrier();
+        // Make room by polling if it is possible to transmit, and do so!
+        while (i == tx_buffer.tail) {
+
+          // If we can transmit another byte, do it.
+          if (TEST(M_UCSRxA, M_UDREx)) _tx_udr_empty_irq();
+
+          // Make sure compiler rereads tx_buffer.tail
+          sw_barrier();
+        }
+      }
+      else {
+        // Interrupts are enabled, just wait until there is space
+        while (i == tx_buffer.tail) { sw_barrier(); }
       }
 
       // Store new char. head is always safe to move
       tx_buffer.buffer[tx_buffer.head] = c;
       tx_buffer.head = i;
 
-      // Enable TX isr
+      // Enable TX isr - Non atomic, but it will eventually enable TX isr
       SBI(M_UCSRxB, M_UDRIEx);
-      return;
     }
 
     void MarlinSerial::flushTX(void) {
-      // TX
-      // If we have never written a byte, no need to flush. This special
-      // case is needed since there is no way to force the TXC (transmit
-      // complete) bit to 1 during initialization
-      if (!_written)
-        return;
+      // No bytes written, no need to flush. This special case is needed since there's
+      // no way to force the TXC (transmit complete) bit to 1 during initialization.
+      if (!_written) return;
 
-      while (TEST(M_UCSRxB, M_UDRIEx) || !TEST(M_UCSRxA, M_TXCx)) {
-        if (!ISRS_ENABLED()) {
-          // Interrupts are globally disabled, but the DR empty
-          // interrupt should be enabled, so poll the DR empty flag to
-          // prevent deadlock
+      // If global interrupts are disabled (as the result of being called from an ISR)...
+      if (!ISRS_ENABLED()) {
+
+        // Wait until everything was transmitted - We must do polling, as interrupts are disabled
+        while (tx_buffer.head != tx_buffer.tail || !TEST(M_UCSRxA, M_TXCx)) {
+
+          // If there is more space, send an extra character
           if (TEST(M_UCSRxA, M_UDREx))
             _tx_udr_empty_irq();
+
+          sw_barrier();
         }
-        sw_barrier();
+
       }
-      // If we get here, nothing is queued anymore (DRIE is disabled) and
+      else {
+        // Wait until everything was transmitted
+        while (tx_buffer.head != tx_buffer.tail || !TEST(M_UCSRxA, M_TXCx)) sw_barrier();
+      }
+
+      // At this point nothing is queued anymore (DRIE is disabled) and
       // the hardware finished transmission (TXC is set).
     }
 
   #else // TX_BUFFER_SIZE == 0
 
     void MarlinSerial::write(const uint8_t c) {
+      _written = true;
       while (!TEST(M_UCSRxA, M_UDREx)) sw_barrier();
       M_UDRx = c;
     }
 
+    void MarlinSerial::flushTX(void) {
+      // No bytes written, no need to flush. This special case is needed since there's
+      // no way to force the TXC (transmit complete) bit to 1 during initialization.
+      if (!_written) return;
+
+      // Wait until everything was transmitted
+      while (!TEST(M_UCSRxA, M_TXCx)) sw_barrier();
+
+      // At this point nothing is queued anymore (DRIE is disabled) and
+      // the hardware finished transmission (TXC is set).
+    }
   #endif // TX_BUFFER_SIZE == 0
 
   /**
@@ -473,13 +601,9 @@
   }
 
   void MarlinSerial::print(long n, int base) {
-    if (base == 0)
-      write(n);
+    if (base == 0) write(n);
     else if (base == 10) {
-      if (n < 0) {
-        print('-');
-        n = -n;
-      }
+      if (n < 0) { print('-'); n = -n; }
       printNumber(n, 10);
     }
     else

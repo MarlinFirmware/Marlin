@@ -1993,27 +1993,8 @@ void Stepper::init() {
     E_AXIS_INIT(4);
   #endif
 
-  #ifdef __AVR__
-    // waveform generation = 0100 = CTC
-    SET_WGM(1, CTC_OCRnA);
-
-    // output mode = 00 (disconnected)
-    SET_COMA(1, NORMAL);
-
-    // Set the timer pre-scaler
-    // Generally we use a divider of 8, resulting in a 2MHz timer
-    // frequency on a 16MHz MCU. If you are going to change this, be
-    // sure to regenerate speed_lookuptable.h with
-    // create_speed_lookuptable.py
-    SET_CS(1, PRESCALER_8);  //  CS 2 = 1/8 prescaler
-
-    // Init Stepper ISR to 122 Hz for quick starting
-    OCR1A = 0x4000;
-    TCNT1 = 0;
-  #else
-    // Init Stepper ISR to 122 Hz for quick starting
-    HAL_timer_start(STEP_TIMER_NUM, 122);
-  #endif
+  // Init Stepper ISR to 122 Hz for quick starting
+  HAL_timer_start(STEP_TIMER_NUM, 122);
 
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 

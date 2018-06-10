@@ -124,7 +124,7 @@ extern "C" {
 
 #define STEP_TIMER_NUM          1
 #define TEMP_TIMER_NUM          0
-#define PULSE_TIMER_NUM         TEMP_TIMER_NUM
+#define PULSE_TIMER_NUM         STEP_TIMER_NUM
 
 #define HAL_STEPPER_TIMER_RATE  HAL_TIMER_RATE
 #define HAL_TICKS_PER_US        ((HAL_STEPPER_TIMER_RATE) / 1000000) // Cannot be of type double
@@ -139,7 +139,7 @@ extern "C" {
 #define TIMER_OCR_0             OCR0A
 #define TIMER_COUNTER_0         TCNT0
 
-#define PULSE_TIMER_PRESCALE    8
+#define PULSE_TIMER_PRESCALE    STEPPER_TIMER_PRESCALE
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
@@ -149,7 +149,36 @@ extern "C" {
 #define DISABLE_TEMPERATURE_INTERRUPT()    CBI(TIMSK0, OCIE0B)
 #define TEMPERATURE_ISR_ENABLED()         TEST(TIMSK0, OCIE0B)
 
-#define HAL_timer_start(timer_num, frequency)
+FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
+  UNUSED(frequency);
+  switch (timer_num) {
+    case STEP_TIMER_NUM:
+      // waveform generation = 0100 = CTC
+      SET_WGM(1, CTC_OCRnA);
+
+      // output mode = 00 (disconnected)
+      SET_COMA(1, NORMAL);
+
+      // Set the timer pre-scaler
+      // Generally we use a divider of 8, resulting in a 2MHz timer
+      // frequency on a 16MHz MCU. If you are going to change this, be
+      // sure to regenerate speed_lookuptable.h with
+      // create_speed_lookuptable.py
+      SET_CS(1, PRESCALER_8);  //  CS 2 = 1/8 prescaler
+
+      // Init Stepper ISR to 122 Hz for quick starting
+      // (F_CPU) / (STEPPER_TIMER_PRESCALE) / frequency
+      OCR1A = 0x4000;
+      TCNT1 = 0;
+      break;
+
+    case TEMP_TIMER_NUM:
+      // Use timer0 for temperature measurement
+      // Interleave temperature interrupt with millies interrupt
+      OCR0B = 128;
+      break;
+  }
+}
 
 #define _CAT(a, ...) a ## __VA_ARGS__
 #define HAL_timer_set_compare(timer, compare) (_CAT(TIMER_OCR_, timer) = compare)

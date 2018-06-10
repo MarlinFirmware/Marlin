@@ -94,7 +94,7 @@
 
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
-#define BLOCK_DELAY_FOR_1ST_MOVE 50
+#define BLOCK_DELAY_FOR_1ST_MOVE 100
 
 Planner planner;
 
