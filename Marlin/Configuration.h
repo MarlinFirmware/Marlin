@@ -1097,6 +1097,9 @@
 
 // @section machine
 
+
+#if (!ENABLED(ABL_EZABL)&& !ENABLED(ABL_BLTOUCH))
+
 #if ENABLED(MachineMini)
 #define X_BED_SIZE 300
 #define Y_BED_SIZE 220
@@ -1104,8 +1107,8 @@
 #endif
 
 #if (ENABLED(MachineCR10Std))
-#define X_BED_SIZE 315
-#define Y_BED_SIZE 310
+#define X_BED_SIZE 300
+#define Y_BED_SIZE 300
 #define Z_MAX_POS 400
 #endif
 
@@ -1121,6 +1124,32 @@
 #endif
 // The size of the print bed
 
+#else
+
+#if ENABLED(MachineMini)
+#define X_BED_SIZE 300
+#define Y_BED_SIZE 220
+#define Z_MAX_POS 300
+#endif
+
+#if (ENABLED(MachineCR10Std))
+#define X_BED_SIZE 315
+#define Y_BED_SIZE 310
+#define Z_MAX_POS 400
+#endif
+
+#if ENABLED( MachineS4)
+#define X_BED_SIZE 410
+#define Y_BED_SIZE 400
+#define Z_MAX_POS 400
+#endif
+#if ENABLED(MachineS5)
+#define X_BED_SIZE 510
+#define Y_BED_SIZE 500
+#define Z_MAX_POS 500
+#endif
+
+#endif
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
