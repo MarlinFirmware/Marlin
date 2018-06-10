@@ -70,6 +70,14 @@
   extern uint8_t rx_dropped_bytes;
 #endif
 
+#if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+  extern uint8_t rx_buffer_overruns;
+#endif
+
+#if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+  extern uint8_t rx_framing_errors;
+#endif
+
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
   extern ring_buffer_pos_t rx_max_enqueued;
 #endif
@@ -85,12 +93,18 @@ public:
   static void flush(void);
   static ring_buffer_pos_t available(void);
   static void write(const uint8_t c);
-  #if TX_BUFFER_SIZE > 0
-    static void flushTX(void);
-  #endif
+  static void flushTX(void);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
     FORCE_INLINE static uint32_t dropped() { return rx_dropped_bytes; }
+  #endif
+
+  #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+    FORCE_INLINE static uint32_t buffer_overruns() { return rx_buffer_overruns; }
+  #endif
+
+  #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+    FORCE_INLINE static uint32_t framing_errors() { return rx_framing_errors; }
   #endif
 
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)

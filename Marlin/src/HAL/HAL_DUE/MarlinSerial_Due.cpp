@@ -74,15 +74,14 @@
   ring_buffer_r rx_buffer = { { 0 }, 0, 0 };
   #if TX_BUFFER_SIZE > 0
     ring_buffer_t tx_buffer = { { 0 }, 0, 0 };
-    static bool _written;
   #endif
+  static bool _written;
 
   #if ENABLED(SERIAL_XON_XOFF)
-    constexpr uint8_t XON_XOFF_CHAR_SENT = 0x80;  // XON / XOFF Character was sent
-    constexpr uint8_t XON_XOFF_CHAR_MASK = 0x1F;  // XON / XOFF character to send
+    constexpr uint8_t XON_XOFF_CHAR_SENT = 0x80,  // XON / XOFF Character was sent
+                      XON_XOFF_CHAR_MASK = 0x1F;  // XON / XOFF character to send
     // XON / XOFF character definitions
-    constexpr uint8_t XON_CHAR  = 17;
-    constexpr uint8_t XOFF_CHAR = 19;
+    constexpr uint8_t XON_CHAR  = 17, XOFF_CHAR = 19;
     uint8_t xon_xoff_state = XON_XOFF_CHAR_SENT | XON_CHAR;
 
     // Validate that RX buffer size is at least 4096 bytes- According to several experiments, on
@@ -99,6 +98,14 @@
     uint8_t rx_dropped_bytes = 0;
   #endif
 
+  #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+    uint8_t rx_buffer_overruns = 0;
+  #endif
+
+  #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+    uint8_t rx_framing_errors = 0;
+  #endif
+
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
     ring_buffer_pos_t rx_max_enqueued = 0;
   #endif
@@ -110,132 +117,218 @@
     #include "../../feature/emergency_parser.h"
   #endif
 
+  // (called with RX interrupts disabled)
   FORCE_INLINE void store_rxd_char() {
 
     #if ENABLED(EMERGENCY_PARSER)
       static EmergencyParser::State emergency_state; // = EP_RESET
     #endif
 
-    const ring_buffer_pos_t h = rx_buffer.head,
-                            i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+    // Get the tail - Nothing can alter its value while we are at this ISR
+    const ring_buffer_pos_t t = rx_buffer.tail;
 
-      // Read the character
-    const uint8_t c = HWUART->UART_RHR;
+    // Get the head pointer
+    ring_buffer_pos_t h = rx_buffer.head;
+
+    // Get the next element
+    ring_buffer_pos_t i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+    // Read the character from the USART
+    uint8_t c = HWUART->UART_RHR;
+
+    #if ENABLED(EMERGENCY_PARSER)
+      emergency_parser.update(emergency_state, c);
+    #endif
 
     // If the character is to be stored at the index just before the tail
-    // (such that the head would advance to the current tail), the buffer is
-    // critical, so don't write the character or advance the head.
-    if (i != rx_buffer.tail) {
+    // (such that the head would advance to the current tail), the RX FIFO is
+    // full, so don't write the character or advance the head.
+    if (i != t) {
       rx_buffer.buffer[h] = c;
-      rx_buffer.head = i;
+      h = i;
     }
     #if ENABLED(SERIAL_STATS_DROPPED_RX)
-      else if (!++rx_dropped_bytes) ++rx_dropped_bytes;
+      else if (!++rx_dropped_bytes) --rx_dropped_bytes;
     #endif
 
     #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-      // calculate count of bytes stored into the RX buffer
-      ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+      const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+      // Calculate count of bytes stored into the RX buffer
+
       // Keep track of the maximum count of enqueued bytes
       NOLESS(rx_max_enqueued, rx_count);
     #endif
 
     #if ENABLED(SERIAL_XON_XOFF)
-
-      // for high speed transfers, we can use XON/XOFF protocol to do
-      // software handshake and avoid overruns.
+      // If the last char that was sent was an XON
       if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XON_CHAR) {
 
-        // calculate count of bytes stored into the RX buffer
-        ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(rx_buffer.head - rx_buffer.tail) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+        // Bytes stored into the RX buffer
+        const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
 
-        // if we are above 12.5% of RX buffer capacity, send XOFF before
-        // we run out of RX buffer space .. We need 325 bytes @ 250kbits/s to
-        // let the host react and stop sending bytes. This translates to 13mS
-        // propagation time.
+        // If over 12.5% of RX buffer capacity, send XOFF before running out of
+        // RX buffer space .. 325 bytes @ 250kbits/s needed to let the host react
+        // and stop sending bytes. This translates to 13mS propagation time.
         if (rx_count >= (RX_BUFFER_SIZE) / 8) {
-          
-          // If TX interrupts are disabled and data register is empty,
-          // just write the byte to the data register and be done. This
-          // shortcut helps significantly improve the effective datarate
-          // at high (>500kbit/s) bitrates, where interrupt overhead
-          // becomes a slowdown.
-          if (!(HWUART->UART_IMR & UART_IMR_TXRDY) && (HWUART->UART_SR & UART_SR_TXRDY)) {
-            
-            // Send an XOFF character
-            HWUART->UART_THR = XOFF_CHAR;
 
-            // And remember it was sent
-            xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
+          // At this point, definitely no TX interrupt was executing, since the TX isr can't be preempted.
+          // Don't enable the TX interrupt here as a means to trigger the XOFF char, because if it happens
+          // to be in the middle of trying to disable the RX interrupt in the main program, eventually the
+          // enabling of the TX interrupt could be undone. The ONLY reliable thing this can do to ensure
+          // the sending of the XOFF char is to send it HERE AND NOW.
+
+          // About to send the XOFF char
+          xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
+
+          // Wait until the TX register becomes empty and send it - Here there could be a problem
+          // - While waiting for the TX register to empty, the RX register could receive a new
+          //   character. This must also handle that situation!
+          uint32_t status;
+          while (!((status = HWUART->UART_SR) & UART_SR_TXRDY)) {
+
+            if (status & UART_SR_RXRDY) {
+              // We received a char while waiting for the TX buffer to be empty - Receive and process it!
+
+              i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+              // Read the character from the USART
+              c = HWUART->UART_RHR;
+
+              #if ENABLED(EMERGENCY_PARSER)
+                emergency_parser.update(emergency_state, c);
+              #endif
+
+              // If the character is to be stored at the index just before the tail
+              // (such that the head would advance to the current tail), the FIFO is
+              // full, so don't write the character or advance the head.
+              if (i != t) {
+                rx_buffer.buffer[h] = c;
+                h = i;
+              }
+              #if ENABLED(SERIAL_STATS_DROPPED_RX)
+                else if (!++rx_dropped_bytes) --rx_dropped_bytes;
+              #endif
+            }
+            sw_barrier();
           }
-          else {
-            // TX interrupts disabled, but buffer still not empty ... or
-            // TX interrupts enabled. Reenable TX ints and schedule XOFF
-            // character to be sent
-            #if TX_BUFFER_SIZE > 0
-              HWUART->UART_IER = UART_IER_TXRDY;
-              xon_xoff_state = XOFF_CHAR;
-            #else
-              // We are not using TX interrupts, we will have to send this manually
-              while (!(HWUART->UART_SR & UART_SR_TXRDY)) sw_barrier();
-              HWUART->UART_THR = XOFF_CHAR;
-              
-              // And remember we already sent it
-              xon_xoff_state = XOFF_CHAR | XON_XOFF_CHAR_SENT;
-            #endif
+
+          HWUART->UART_THR = XOFF_CHAR;
+
+          // At this point there could be a race condition between the write() function
+          // and this sending of the XOFF char. This interrupt could happen between the
+          // wait to be empty TX buffer loop and the actual write of the character. Since
+          // the TX buffer is full because it's sending the XOFF char, the only way to be
+          // sure the write() function will succeed is to wait for the XOFF char to be
+          // completely sent. Since an extra character could be received during the wait
+          // it must also be handled!
+          while (!((status = HWUART->UART_SR) & UART_SR_TXRDY)) {
+
+            if (status & UART_SR_RXRDY) {
+              // A char arrived while waiting for the TX buffer to be empty - Receive and process it!
+
+              i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+
+              // Read the character from the USART
+              c = HWUART->UART_RHR;
+
+              #if ENABLED(EMERGENCY_PARSER)
+                emergency_parser.update(emergency_state, c);
+              #endif
+
+              // If the character is to be stored at the index just before the tail
+              // (such that the head would advance to the current tail), the FIFO is
+              // full, so don't write the character or advance the head.
+              if (i != t) {
+                rx_buffer.buffer[h] = c;
+                h = i;
+              }
+              #if ENABLED(SERIAL_STATS_DROPPED_RX)
+                else if (!++rx_dropped_bytes) --rx_dropped_bytes;
+              #endif
+            }
+            sw_barrier();
           }
+
+          // At this point everything is ready. The write() function won't
+          // have any issues writing to the UART TX register if it needs to!
         }
       }
     #endif // SERIAL_XON_XOFF
 
-    #if ENABLED(EMERGENCY_PARSER)
-      emergency_parser.update(emergency_state, c);
-    #endif
+    // Store the new head value
+    rx_buffer.head = h;
   }
 
   #if TX_BUFFER_SIZE > 0
 
     FORCE_INLINE void _tx_thr_empty_irq(void) {
-      // If interrupts are enabled, there must be more data in the output
-      // buffer.
+      // Read positions
+      uint8_t t = tx_buffer.tail;
+      const uint8_t h = tx_buffer.head;
 
       #if ENABLED(SERIAL_XON_XOFF)
-        // Do a priority insertion of an XON/XOFF char, if needed.
-        const uint8_t state = xon_xoff_state;
-        if (!(state & XON_XOFF_CHAR_SENT)) {
-          HWUART->UART_THR = state & XON_XOFF_CHAR_MASK;
-          xon_xoff_state = state | XON_XOFF_CHAR_SENT;
-        }
-        else
-      #endif
-        { // Send the next byte
-          const uint8_t t = tx_buffer.tail, c = tx_buffer.buffer[t];
-          tx_buffer.tail = (t + 1) & (TX_BUFFER_SIZE - 1);
-          HWUART->UART_THR = c;
-        }
+        // If an XON char is pending to be sent, do it now
+        if (xon_xoff_state == XON_CHAR) {
 
-      // Disable interrupts if the buffer is empty
-      if (tx_buffer.head == tx_buffer.tail)
+          // Send the character
+          HWUART->UART_THR = XON_CHAR;
+
+          // Remember we sent it.
+          xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
+
+          // If nothing else to transmit, just disable TX interrupts.
+          if (h == t) HWUART->UART_IDR = UART_IDR_TXRDY;
+
+          return;
+        }
+      #endif
+
+      // If nothing to transmit, just disable TX interrupts. This could
+      // happen as the result of the non atomicity of the disabling of RX
+      // interrupts that could end reenabling TX interrupts as a side effect.
+      if (h == t) {
         HWUART->UART_IDR = UART_IDR_TXRDY;
+        return;
+      }
+
+      // There is something to TX, Send the next byte
+      const uint8_t c = tx_buffer.buffer[t];
+      t = (t + 1) & (TX_BUFFER_SIZE - 1);
+      HWUART->UART_THR = c;
+      tx_buffer.tail = t;
+
+      // Disable interrupts if there is nothing to transmit following this byte
+      if (h == t) HWUART->UART_IDR = UART_IDR_TXRDY;
     }
 
   #endif // TX_BUFFER_SIZE > 0
 
   static void UART_ISR(void) {
-    uint32_t status = HWUART->UART_SR;
+    const uint32_t status = HWUART->UART_SR;
 
-    // Did we receive data?
-    if (status & UART_SR_RXRDY)
-      store_rxd_char();
+    // Data received?
+    if (status & UART_SR_RXRDY) store_rxd_char();
 
     #if TX_BUFFER_SIZE > 0
-      // Do we have something to send, and TX interrupts are enabled (meaning something to send) ?
-      if ((status & UART_SR_TXRDY) && (HWUART->UART_IMR & UART_IMR_TXRDY))
-        _tx_thr_empty_irq();
+      // Something to send, and TX interrupts are enabled (meaning something to send)?
+      if ((status & UART_SR_TXRDY) && (HWUART->UART_IMR & UART_IMR_TXRDY)) _tx_thr_empty_irq();
     #endif
 
     // Acknowledge errors
     if ((status & UART_SR_OVRE) || (status & UART_SR_FRAME)) {
+
+      #if ENABLED(SERIAL_STATS_DROPPED_RX)
+        if (status & UART_SR_OVRE && !++rx_dropped_bytes) --rx_dropped_bytes;
+      #endif
+
+      #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+        if (status & UART_SR_OVRE && !++rx_buffer_overruns) --rx_buffer_overruns;
+      #endif
+
+      #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+        if (status & UART_SR_FRAME && !++rx_framing_errors) --rx_framing_errors;
+      #endif
+
       // TODO: error reporting outside ISR
       HWUART->UART_CR = UART_CR_RSTSTA;
     }
@@ -312,36 +405,40 @@
   }
 
   int MarlinSerial::read(void) {
-    int v;
-    
+
     const ring_buffer_pos_t h = rx_buffer.head;
     ring_buffer_pos_t t = rx_buffer.tail;
-    
-    if (h == t)
-      v = -1;
-    else {
-      v = rx_buffer.buffer[t];
-      t = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1);
-      
-      // Advance tail
-      rx_buffer.tail = t;
 
-      #if ENABLED(SERIAL_XON_XOFF)
-        if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
-          
-          // Get count of bytes in the RX buffer
-          ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
-          
-          // When below 10% of RX buffer capacity, send XON before
-          // running out of RX buffer bytes
-          if (rx_count < (RX_BUFFER_SIZE) / 10) {
+    if (h == t) return -1;
+
+    int v = rx_buffer.buffer[t];
+    t = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1);
+
+    // Advance tail
+    rx_buffer.tail = t;
+
+    #if ENABLED(SERIAL_XON_XOFF)
+      // If the XOFF char was sent, or about to be sent...
+      if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
+        // Get count of bytes in the RX buffer
+        const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
+        // When below 10% of RX buffer capacity, send XON before running out of RX buffer bytes
+        if (rx_count < (RX_BUFFER_SIZE) / 10) {
+          #if TX_BUFFER_SIZE > 0
+            // Signal we want an XON character to be sent.
+            xon_xoff_state = XON_CHAR;
+            // Enable TX isr.
+            HWUART->UART_IER = UART_IER_TXRDY;
+          #else
+            // If not using TX interrupts, we must send the XON char now
             xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
-            write(XON_CHAR);
-            return v;
-          }
+            while (!(HWUART->UART_SR & UART_SR_TXRDY)) sw_barrier();
+            HWUART->UART_THR = XON_CHAR;
+          #endif
         }
-      #endif
-    }
+      }
+    #endif
+
     return v;
   }
 
@@ -355,8 +452,17 @@
 
     #if ENABLED(SERIAL_XON_XOFF)
       if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
-        xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
-        write(XON_CHAR);
+        #if TX_BUFFER_SIZE > 0
+          // Signal we want an XON character to be sent.
+          xon_xoff_state = XON_CHAR;
+          // Enable TX isr.
+          HWUART->UART_IER = UART_IER_TXRDY;
+        #else
+          // If not using TX interrupts, we must send the XON char now
+          xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
+          while (!(HWUART->UART_SR & UART_SR_TXRDY)) sw_barrier();
+          HWUART->UART_THR = XON_CHAR;
+        #endif
       }
     #endif
   }
@@ -364,72 +470,99 @@
   #if TX_BUFFER_SIZE > 0
     void MarlinSerial::write(const uint8_t c) {
       _written = true;
-      
-      // If the TX interrupts are disabled and the data register 
-      // is empty, just write the byte to the data register and 
-      // be done. This shortcut helps significantly improve the 
-      // effective datarate at high (>500kbit/s) bitrates, where 
+
+      // If the TX interrupts are disabled and the data register
+      // is empty, just write the byte to the data register and
+      // be done. This shortcut helps significantly improve the
+      // effective datarate at high (>500kbit/s) bitrates, where
       // interrupt overhead becomes a slowdown.
+      // Yes, there is a race condition between the sending of the
+      // XOFF char at the RX isr, but it is properly handled there
       if (!(HWUART->UART_IMR & UART_IMR_TXRDY) && (HWUART->UART_SR & UART_SR_TXRDY)) {
         HWUART->UART_THR = c;
         return;
       }
-      
+
       const uint8_t i = (tx_buffer.head + 1) & (TX_BUFFER_SIZE - 1);
 
-      // If the output buffer is full, there's nothing for it other than to
-      // wait for the interrupt handler to empty it a bit
-      while (i == tx_buffer.tail) {
-        if (!ISRS_ENABLED()) {
-          // Interrupts are disabled, so we'll have to poll the data
-          // register empty flag ourselves. If it is set, pretend an
-          // interrupt has happened and call the handler to free up
-          // space for us.
-          if (HWUART->UART_SR & UART_SR_TXRDY)
-            _tx_thr_empty_irq();
+      // If global interrupts are disabled (as the result of being called from an ISR)...
+      if (!ISRS_ENABLED()) {
+
+        // Make room by polling if it is possible to transmit, and do so!
+        while (i == tx_buffer.tail) {
+          // If we can transmit another byte, do it.
+          if (HWUART->UART_SR & UART_SR_TXRDY) _tx_thr_empty_irq();
+          // Make sure compiler rereads tx_buffer.tail
+          sw_barrier();
         }
-        // (else , the interrupt handler will free up space for us)
-        
-        // Make sure compiler rereads tx_buffer.tail
-        sw_barrier();
+      }
+      else {
+        // Interrupts are enabled, just wait until there is space
+        while (i == tx_buffer.tail) sw_barrier();
       }
 
+      // Store new char. head is always safe to move
       tx_buffer.buffer[tx_buffer.head] = c;
       tx_buffer.head = i;
-      
-      // Enable TX isr
+
+      // Enable TX isr - Non atomic, but it will eventually enable TX isr
       HWUART->UART_IER = UART_IER_TXRDY;
-      return;
     }
 
     void MarlinSerial::flushTX(void) {
       // TX
-      // If we have never written a byte, no need to flush.
+
+      // If we have never written a byte, no need to flush. This special
+      // case is needed since there is no way to force the TXC (transmit
+      // complete) bit to 1 during initialization
       if (!_written) return;
 
-      while ((HWUART->UART_IMR & UART_IMR_TXRDY) || !(HWUART->UART_SR & UART_SR_TXEMPTY)) {
-        if (!ISRS_ENABLED()) {
-          if (HWUART->UART_SR & UART_SR_TXRDY)
-            _tx_thr_empty_irq();
+      // If global interrupts are disabled (as the result of being called from an ISR)...
+      if (!ISRS_ENABLED()) {
+
+        // Wait until everything was transmitted - We must do polling, as interrupts are disabled
+        while (tx_buffer.head != tx_buffer.tail || !(HWUART->UART_SR & UART_SR_TXEMPTY)) {
+          // If there is more space, send an extra character
+          if (HWUART->UART_SR & UART_SR_TXRDY) _tx_thr_empty_irq();
+          sw_barrier();
         }
-        sw_barrier();
+
       }
-      // If we get here, nothing is queued anymore (TX interrupts are disabled) and
-      // the hardware finished tranmission (TXEMPTY is set).
+      else {
+        // Wait until everything was transmitted
+        while (tx_buffer.head != tx_buffer.tail || !(HWUART->UART_SR & UART_SR_TXEMPTY)) sw_barrier();
+      }
+
+      // At this point nothing is queued anymore (DRIE is disabled) and
+      // the hardware finished transmission (TXC is set).
     }
 
   #else // TX_BUFFER_SIZE == 0
 
     void MarlinSerial::write(const uint8_t c) {
+      _written = true;
       while (!(HWUART->UART_SR & UART_SR_TXRDY)) sw_barrier();
       HWUART->UART_THR = c;
     }
 
+    void MarlinSerial::flushTX(void) {
+      // TX
+
+      // No bytes written, no need to flush. This special case is needed since there's
+      // no way to force the TXC (transmit complete) bit to 1 during initialization.
+      if (!_written) return;
+
+      // Wait until everything was transmitted
+      while (!(HWUART->UART_SR & UART_SR_TXEMPTY)) sw_barrier();
+
+      // At this point nothing is queued anymore (DRIE is disabled) and
+      // the hardware finished transmission (TXC is set).
+    }
   #endif // TX_BUFFER_SIZE == 0
 
   /**
-  * Imports from print.h
-  */
+   * Imports from print.h
+   */
 
   void MarlinSerial::print(char c, int base) {
     print((long)c, base);
@@ -448,13 +581,9 @@
   }
 
   void MarlinSerial::print(long n, int base) {
-    if (base == 0)
-      write(n);
+    if (base == 0) write(n);
     else if (base == 10) {
-      if (n < 0) {
-        print('-');
-        n = -n;
-      }
+      if (n < 0) { print('-'); n = -n; }
       printNumber(n, 10);
     }
     else
@@ -546,9 +675,7 @@
 
     // Round correctly so that print(1.999, 2) prints as "2.00"
     double rounding = 0.5;
-    for (uint8_t i = 0; i < digits; ++i)
-      rounding *= 0.1;
-
+    for (uint8_t i = 0; i < digits; ++i) rounding *= 0.1;
     number += rounding;
 
     // Extract the integer part of the number and print it
