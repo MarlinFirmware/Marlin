@@ -1316,6 +1316,11 @@
   #define MAXIMUM_STEPPER_RATE (1000000UL / (2UL * (MINIMUM_STEPPER_PULSE)))
 #endif
 
+// Calculate a default maximum stepper rate, if not supplied
+#ifndef MAXIMUM_STEPPER_RATE
+  #define MAXIMUM_STEPPER_RATE (1000000UL / (2UL * (MINIMUM_STEPPER_PULSE)))
+#endif
+
 //
 // Estimate the amount of time the ISR will take to execute
 //
@@ -1376,6 +1381,9 @@
 
 // And the total minimum loop time is, without including the base
 #define MIN_ISR_LOOP_CYCLES (ISR_X_STEPPER_CYCLES + ISR_Y_STEPPER_CYCLES + ISR_Z_STEPPER_CYCLES + ISR_E_STEPPER_CYCLES + ISR_MIXING_STEPPER_CYCLES)
+
+// Calculate the minimum MPU cycles needed per pulse to enforce not surpassing the maximum stepper rate
+#define MIN_STEPPER_PULSE_CYCLES MAX((F_CPU) / (MAXIMUM_STEPPER_RATE), ((F_CPU) / 500000UL) * MINIMUM_STEPPER_PULSE)
 
 // But the user could be enforcing a minimum time, so the loop time is
 #define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))

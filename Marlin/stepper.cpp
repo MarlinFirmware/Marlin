@@ -1259,8 +1259,20 @@ void Stepper::stepper_pulse_phase_isr() {
   // If there is no current block, do nothing
   if (!current_block) return;
 
+  // Count of pending loops and events for this iteration
+  const uint32_t pending_events = step_event_count - step_events_completed;
+  uint8_t events_to_do = MIN(pending_events, steps_per_isr);
+
+  // Just update the value we will get at the end of the loop
+  step_events_completed += events_to_do;
+
+  #if MINIMUM_STEPPER_PULSE > 0
+    // Get the timer count and estimate the end of the pulse
+    hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
+  #endif
+
   // Take multiple steps per interrupt (For high speed moves)
-  for (uint8_t i = steps_per_isr; i--;) {
+  do {
 
     #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
     #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
@@ -1281,11 +1293,6 @@ void Stepper::stepper_pulse_phase_isr() {
         _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), 0); \
       } \
     }while(0)
-
-    #if MINIMUM_STEPPER_PULSE > 0
-      // Get the timer count and estimate the end of the pulse
-      hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
-    #endif
 
     // Pulse start
     #if HAS_X_STEP
@@ -1335,8 +1342,8 @@ void Stepper::stepper_pulse_phase_isr() {
     #if MINIMUM_STEPPER_PULSE > 0
       // Just wait for the requested pulse duration
       while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-      // Get the timer count and estimate the end of the pulse for the OFF phase
-      pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
+      // Add to the value, the value needed for the pulse end and ensuring the maximum driver rate is enforced
+      pulse_end += hal_timer_t(MIN_STEPPER_PULSE_CYCLES) - hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
     #endif
 
     // Pulse stop
@@ -1363,15 +1370,20 @@ void Stepper::stepper_pulse_phase_isr() {
       #endif
     #endif // !LIN_ADVANCE
 
-    // If all events done, break loop now
-    if (++step_events_completed >= step_event_count) break;
+    // Decrement the count of pending pulses to do
+    --events_to_do;
 
     #if MINIMUM_STEPPER_PULSE > 0
       // For minimum pulse time wait after stopping pulses also
-      // Just wait for the requested pulse duration
-      if (i) while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+      if (events_to_do) {
+        // Just wait for the requested pulse duration
+        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+        // Add to the value, the time that the pulse must be active (to be used on the next loop)
+        pulse_end += hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
+      }
     #endif
-  } // steps_loop
+
+  } while (events_to_do);
 }
 
 // This is the last half of the stepper interrupt: This one processes and
@@ -1769,8 +1781,8 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #if MINIMUM_STEPPER_PULSE > 0
         // Just wait for the requested pulse duration
         while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-        // Get the timer count and estimate the end of the pulse for the OFF phase
-        pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
+        // Add to the value, the value needed for the pulse end and ensuring the maximum driver rate is enforced
+        pulse_end += hal_timer_t(MIN_STEPPER_PULSE_CYCLES) - hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
       #endif
 
       LA_steps < 0 ? ++LA_steps : --LA_steps;
