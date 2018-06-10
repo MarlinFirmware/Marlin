@@ -7242,6 +7242,11 @@ static bool pin_is_protected(const pin_t pin) {
   return false;
 }
 
+inline void protected_pin_err() {
+  SERIAL_ERROR_START();
+  SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
+}
+
 /**
  * M42: Change pin status via GCode
  *
@@ -7255,11 +7260,7 @@ inline void gcode_M42() {
   const pin_t pin_number = parser.byteval('P', LED_PIN);
   if (pin_number < 0) return;
 
-  if (pin_is_protected(pin_number)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
-    return;
-  }
+  if (pin_is_protected(pin_number)) return protected_pin_err();
 
   pinMode(pin_number, OUTPUT);
   digitalWrite(pin_number, pin_status);
@@ -7285,21 +7286,21 @@ inline void gcode_M42() {
   #include "pinsDebug.h"
 
   inline void toggle_pins() {
-    const bool I_flag = parser.boolval('I');
+    const bool ignore_protection = parser.boolval('I');
     const int repeat = parser.intval('R', 1),
               start = parser.intval('S'),
               end = parser.intval('L', NUM_DIGITAL_PINS - 1),
               wait = parser.intval('W', 500);
 
     for (uint8_t pin = start; pin <= end; pin++) {
-      //report_pin_state_extended(pin, I_flag, false);
+      //report_pin_state_extended(pin, ignore_protection, false);
 
-      if (!I_flag && pin_is_protected(pin)) {
-        report_pin_state_extended(pin, I_flag, true, "Untouched ");
+      if (!ignore_protection && pin_is_protected(pin)) {
+        report_pin_state_extended(pin, ignore_protection, true, "Untouched ");
         SERIAL_EOL();
       }
       else {
-        report_pin_state_extended(pin, I_flag, true, "Pulsing   ");
+        report_pin_state_extended(pin, ignore_protection, true, "Pulsing   ");
         #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
           if (pin == TEENSY_E2) {
             SET_OUTPUT(TEENSY_E2);
@@ -7518,7 +7519,7 @@ inline void gcode_M42() {
       SERIAL_PROTOCOLLNPGM("Watching pins");
       byte pin_state[last_pin - first_pin + 1];
       for (pin_t pin = first_pin; pin <= last_pin; pin++) {
-        if (pin_is_protected(pin) && !ignore_protection) continue;
+        if (!ignore_protection && pin_is_protected(pin)) continue;
         pinMode(pin, INPUT_PULLUP);
         delay(1);
         /*
@@ -7536,7 +7537,7 @@ inline void gcode_M42() {
 
       for (;;) {
         for (pin_t pin = first_pin; pin <= last_pin; pin++) {
-          if (pin_is_protected(pin) && !ignore_protection) continue;
+          if (!ignore_protection && pin_is_protected(pin)) continue;
           const byte val =
             /*
               IS_ANALOG(pin)
@@ -9462,30 +9463,21 @@ inline void gcode_M221() {
  */
 inline void gcode_M226() {
   if (parser.seen('P')) {
-    const int pin = parser.value_int(),
-              pin_state = parser.intval('S', -1); // required pin state - default is inverted
-
-    if (WITHIN(pin_state, -1, 1) && pin > -1 && !pin_is_protected(pin)) {
-
-      int target = LOW;
-
-      planner.synchronize();
-
-      pinMode(pin, INPUT);
-      switch (pin_state) {
-        case 1:
-          target = HIGH;
-          break;
-        case 0:
-          target = LOW;
-          break;
-        case -1:
-          target = !digitalRead(pin);
-          break;
+    const int pin = parser.value_int(), pin_state = parser.intval('S', -1);
+    if (WITHIN(pin_state, -1, 1) && pin > -1) {
+      if (pin_is_protected(pin))
+        protected_pin_err();
+      else {
+        int target = LOW;
+        planner.synchronize();
+        pinMode(pin, INPUT);
+        switch (pin_state) {
+          case 1: target = HIGH; break;
+          case 0: target = LOW; break;
+          case -1: target = !digitalRead(pin); break;
+        }
+        while (digitalRead(pin) != target) idle();
       }
-
-      while (digitalRead(pin) != target) idle();
-
     } // pin_state -1 0 1 && pin > -1
   } // parser.seen('P')
 }
