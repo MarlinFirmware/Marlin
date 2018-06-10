@@ -1628,10 +1628,16 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
-  // For a mixing extruder, get a magnified step_event_count for each
+  // For a mixing extruder, get a magnified esteps for each
   #if ENABLED(MIXING_EXTRUDER)
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      block->mix_event_count[i] = mixing_factor[i] * block->step_event_count;
+      block->mix_steps[i] = mixing_factor[i] * (
+        #if ENABLED(LIN_ADVANCE)
+          esteps
+        #else
+          block->step_event_count
+        #endif
+      );
   #endif
 
   #if FAN_COUNT > 0

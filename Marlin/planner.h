@@ -103,7 +103,7 @@ typedef struct {
   uint8_t active_extruder;                  // The extruder to move (if E move)
 
   #if ENABLED(MIXING_EXTRUDER)
-    uint32_t mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
+    uint32_t mix_steps[MIXING_STEPPERS];    // Scaled steps[E_AXIS] for the mixing steppers
   #endif
 
   // Settings for the trapezoid generator
@@ -125,7 +125,7 @@ typedef struct {
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead;
-    uint16_t advance_speed,                 // Timer value for extruder speed offset
+    uint16_t advance_speed,                 // STEP timer value for extruder speed offset ISR
              max_adv_steps,                 // max. advance steps to get cruising speed pressure (not always nominal_speed!)
              final_adv_steps;               // advance steps due to exit speed
     float e_D_ratio;
