@@ -58,6 +58,23 @@ void GcodeSuite::M111() {
   }
   else {
     SERIAL_ECHOPGM(MSG_DEBUG_OFF);
+    #if !defined(__AVR__) || !defined(USBCON)
+      #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+        SERIAL_ECHOLNPAIR("Buffer Overruns: ", customizedSerial.buffer_overruns());
+      #endif
+
+      #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+        SERIAL_ECHOLNPAIR("Framing Errors: ", customizedSerial.framing_errors());
+      #endif
+
+      #if ENABLED(SERIAL_STATS_DROPPED_RX)
+        SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
+      #endif
+
+      #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+        SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
+      #endif
+    #endif //  !defined(__AVR__) || !defined(USBCON)
   }
   SERIAL_EOL();
 }

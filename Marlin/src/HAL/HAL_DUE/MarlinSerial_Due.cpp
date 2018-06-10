@@ -98,6 +98,14 @@
     uint8_t rx_dropped_bytes = 0;
   #endif
 
+  #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+    uint8_t rx_buffer_overruns = 0;
+  #endif
+
+  #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+    uint8_t rx_framing_errors = 0;
+  #endif
+
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
     ring_buffer_pos_t rx_max_enqueued = 0;
   #endif
@@ -308,6 +316,19 @@
 
     // Acknowledge errors
     if ((status & UART_SR_OVRE) || (status & UART_SR_FRAME)) {
+
+      #if ENABLED(SERIAL_STATS_DROPPED_RX)
+        if (status & UART_SR_OVRE && !++rx_dropped_bytes) --rx_dropped_bytes;
+      #endif
+
+      #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+        if (status & UART_SR_OVRE && !++rx_buffer_overruns) --rx_buffer_overruns;
+      #endif
+
+      #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+        if (status & UART_SR_FRAME && !++rx_framing_errors) --rx_framing_errors;
+      #endif
+
       // TODO: error reporting outside ISR
       HWUART->UART_CR = UART_CR_RSTSTA;
     }
