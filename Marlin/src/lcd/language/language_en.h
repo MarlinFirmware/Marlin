@@ -371,7 +371,7 @@
 #ifndef MSG_LED_CONTROL
   #define MSG_LED_CONTROL                     _UxGT("LED Control")
 #endif
-#ifndef MSG_LEDS   
+#ifndef MSG_LEDS
   #define MSG_LEDS                            _UxGT("Lights")
 #endif
 #ifndef MSG_LED_PRESETS
@@ -536,6 +536,9 @@
 #endif
 #ifndef MSG_VE_JERK
   #define MSG_VE_JERK                         _UxGT("Ve-jerk")
+#endif
+#ifndef MSG_JUNCTION_DEVIATION
+  #define MSG_JUNCTION_DEVIATION              _UxGT("Junction Dev")
 #endif
 #ifndef MSG_VELOCITY
   #define MSG_VELOCITY                        _UxGT("Velocity")
@@ -739,7 +742,7 @@
   #define MSG_CNG_SDCARD                      _UxGT("Change SD card")
 #endif
 #ifndef MSG_ZPROBE_OUT
-  #define MSG_ZPROBE_OUT                      _UxGT("Z probe out. bed")
+  #define MSG_ZPROBE_OUT                      _UxGT("Z Probe past bed")
 #endif
 #ifndef MSG_SKEW_FACTOR
   #define MSG_SKEW_FACTOR                     _UxGT("Skew Factor")
