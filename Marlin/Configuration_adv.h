@@ -884,6 +884,10 @@
   // of dropped bytes after a file transfer to SD.
   //#define SERIAL_STATS_DROPPED_RX
 #endif
+#define SERIAL_STATS_RX_BUFFER_OVERRUNS 1
+#define SERIAL_STATS_RX_FRAMING_ERRORS 1
+#define SERIAL_STATS_MAX_RX_QUEUED
+#define SERIAL_STATS_DROPPED_RX
 
 // Enable an emergency-command parser to intercept certain commands as they
 // enter the serial receive buffer, so they cannot be blocked.
