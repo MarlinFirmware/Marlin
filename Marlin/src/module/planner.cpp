@@ -121,11 +121,15 @@ float Planner::max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
       Planner::acceleration,                  // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
       Planner::retract_acceleration,          // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
       Planner::travel_acceleration,           // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
-      Planner::max_jerk[XYZE],                // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
       Planner::min_travel_feedrate_mm_s;      // (mm/s) M205 T - Minimum travel feedrate
 
 #if ENABLED(JUNCTION_DEVIATION)
   float Planner::junction_deviation_mm;       // (mm) M205 J
+  #if ENABLED(LIN_ADVANCE)
+    float Planner::max_e_jerk_factor;         // Calculated from junction_deviation_mm
+  #endif
+#else
+  float Planner::max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
 #endif
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
@@ -134,6 +138,9 @@ float Planner::max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
 
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
+  #define _EINDEX (E_AXIS + active_extruder)
+#else
+  #define _EINDEX E_AXIS
 #endif
 
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
@@ -2021,6 +2028,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     accel = CEIL((esteps ? acceleration : travel_acceleration) * steps_per_mm);
 
     #if ENABLED(LIN_ADVANCE)
+
+      #if ENABLED(JUNCTION_DEVIATION)
+        #define MAX_E_JERK (max_e_jerk_factor * max_acceleration_mm_per_s2[_EINDEX])
+      #else
+        #define MAX_E_JERK max_jerk[E_AXIS]
+      #endif
+
       /**
        *
        * Use LIN_ADVANCE for blocks if all these are true:
@@ -2051,10 +2065,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         if (block->e_D_ratio > 3.0)
           block->use_advance_lead = false;
         else {
-          const uint32_t max_accel_steps_per_s2 = max_jerk[E_AXIS] / (extruder_advance_K * block->e_D_ratio) * steps_per_mm;
+          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK / (extruder_advance_K * block->e_D_ratio) * steps_per_mm;
           #if ENABLED(LA_DEBUG)
-            if (accel > max_accel_steps_per_s2)
-              SERIAL_ECHOLNPGM("Acceleration limited.");
+            if (accel > max_accel_steps_per_s2) SERIAL_ECHOLNPGM("Acceleration limited.");
           #endif
           NOMORE(accel, max_accel_steps_per_s2);
         }
@@ -2459,10 +2472,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
 
 void Planner::_set_position_mm(const float &a, const float &b, const float &c, const float &e) {
   #if ENABLED(DISTINCT_E_FACTORS)
-    #define _EINDEX (E_AXIS + active_extruder)
     last_extruder = active_extruder;
-  #else
-    #define _EINDEX E_AXIS
   #endif
   position[A_AXIS] = LROUND(a * axis_steps_per_mm[A_AXIS]),
   position[B_AXIS] = LROUND(b * axis_steps_per_mm[B_AXIS]),
