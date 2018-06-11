@@ -42,7 +42,7 @@ void GcodeSuite::M42() {
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_index);
 
-  if (pin_is_protected(pin_number)) return protected_pin_err();
+  if (pin_is_protected(pin)) return protected_pin_err();
 
   pinMode(pin, OUTPUT);
   digitalWrite(pin, pin_status);
