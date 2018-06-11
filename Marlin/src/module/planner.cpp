@@ -110,9 +110,23 @@ uint16_t Planner::cleaning_buffer_counter;    // A counter to disable queuing of
 uint8_t Planner::delay_before_delivering,     // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
         Planner::block_buffer_planned;        // Index of the optimally planned block
 
-float Planner::max_feedrate_mm_s[XYZE_N],   // Max speeds in mm per second
-      Planner::axis_steps_per_mm[XYZE_N],
-      Planner::steps_to_mm[XYZE_N];
+uint32_t Planner::max_acceleration_mm_per_s2[XYZE_N],    // (mm/s^2) M201 XYZE
+         Planner::max_acceleration_steps_per_s2[XYZE_N], // (steps/s^2) Derived from mm_per_s2
+         Planner::min_segment_time_us;                   // (µs) M205 B
+
+float Planner::max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
+      Planner::axis_steps_per_mm[XYZE_N],     // (steps) M92 XYZE - Steps per millimeter
+      Planner::steps_to_mm[XYZE_N],           // (mm) Millimeters per step
+      Planner::min_feedrate_mm_s,             // (mm/s) M205 S - Minimum linear feedrate
+      Planner::acceleration,                  // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
+      Planner::retract_acceleration,          // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
+      Planner::travel_acceleration,           // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
+      Planner::max_jerk[XYZE],                // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
+      Planner::min_travel_feedrate_mm_s;      // (mm/s) M205 T - Minimum travel feedrate
+
+#if ENABLED(JUNCTION_DEVIATION)
+  float Planner::junction_deviation_mm;       // (mm) M205 J
+#endif
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   bool Planner::abort_on_endstop_hit = false;
@@ -131,19 +145,6 @@ float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0); // The flow perce
         Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
         Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
 #endif
-
-uint32_t Planner::max_acceleration_steps_per_s2[XYZE_N],
-         Planner::max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
-
-uint32_t Planner::min_segment_time_us;
-
-// Initialized by settings.load()
-float Planner::min_feedrate_mm_s,
-      Planner::acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-      Planner::retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
-      Planner::travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-      Planner::max_jerk[XYZE],       // The largest speed change requiring no acceleration
-      Planner::min_travel_feedrate_mm_s;
 
 #if HAS_LEVELING
   bool Planner::leveling_active = false; // Flag that auto bed leveling is enabled
@@ -679,9 +680,9 @@ void Planner::init() {
       return r11 | (uint16_t(r12) << 8) | (uint32_t(r13) << 16);
     }
   #else
-    // All the other 32 CPUs can easily perform the inverse using hardware division,
+    // All other 32-bit MPUs can easily do inverse using hardware division,
     // so we don't need to reduce precision or to use assembly language at all.
-    // This routine, for all the other archs, returns 0x100000000 / d ~= 0xFFFFFFFF / d
+    // This routine, for all other archs, returns 0x100000000 / d ~= 0xFFFFFFFF / d
     static FORCE_INLINE uint32_t get_period_inverse(const uint32_t d) { return 0xFFFFFFFF / d; }
   #endif
 #endif
@@ -1646,10 +1647,16 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
-  // For a mixing extruder, get a magnified step_event_count for each
+  // For a mixing extruder, get a magnified esteps for each
   #if ENABLED(MIXING_EXTRUDER)
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      block->mix_event_count[i] = mixing_factor[i] * block->step_event_count;
+      block->mix_steps[i] = mixing_factor[i] * (
+        #if ENABLED(LIN_ADVANCE)
+          esteps
+        #else
+          block->step_event_count
+        #endif
+      );
   #endif
 
   #if FAN_COUNT > 0
@@ -2181,7 +2188,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec),
                     sin_theta_d2 = SQRT(0.5 * (1.0 - junction_cos_theta)); // Trig half angle identity. Always positive.
 
-        vmax_junction_sqr = (junction_acceleration * JUNCTION_DEVIATION_MM * sin_theta_d2) / (1.0 - sin_theta_d2);
+        vmax_junction_sqr = (junction_acceleration * junction_deviation_mm * sin_theta_d2) / (1.0 - sin_theta_d2);
         if (block->millimeters < 1.0) {
 
           // Fast acos approximation, minus the error bar to be safe

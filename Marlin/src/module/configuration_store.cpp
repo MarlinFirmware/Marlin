@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V54"
+#define EEPROM_VERSION "V55"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -112,16 +112,17 @@ typedef struct SettingsDataStruct {
   //
   uint8_t   esteppers;                                  // XYZE_N - XYZ
 
+  uint32_t  planner_max_acceleration_mm_per_s2[XYZE_N], // M201 XYZE  planner.max_acceleration_mm_per_s2[XYZE_N]
+            planner_min_segment_time_us;                // M205 B     planner.min_segment_time_us
   float     planner_axis_steps_per_mm[XYZE_N],          // M92 XYZE   planner.axis_steps_per_mm[XYZE_N]
-            planner_max_feedrate_mm_s[XYZE_N];          // M203 XYZE  planner.max_feedrate_mm_s[XYZE_N]
-  uint32_t  planner_max_acceleration_mm_per_s2[XYZE_N]; // M201 XYZE  planner.max_acceleration_mm_per_s2[XYZE_N]
-  float     planner_acceleration,                       // M204 P     planner.acceleration
+            planner_max_feedrate_mm_s[XYZE_N],          // M203 XYZE  planner.max_feedrate_mm_s[XYZE_N]
+            planner_acceleration,                       // M204 P     planner.acceleration
             planner_retract_acceleration,               // M204 R     planner.retract_acceleration
             planner_travel_acceleration,                // M204 T     planner.travel_acceleration
             planner_min_feedrate_mm_s,                  // M205 S     planner.min_feedrate_mm_s
-            planner_min_travel_feedrate_mm_s;           // M205 T     planner.min_travel_feedrate_mm_s
-  uint32_t  planner_min_segment_time_us;                // M205 B     planner.min_segment_time_us
-  float     planner_max_jerk[XYZE];                     // M205 XYZE  planner.max_jerk[XYZE]
+            planner_min_travel_feedrate_mm_s,           // M205 T     planner.min_travel_feedrate_mm_s
+            planner_max_jerk[XYZE],                     // M205 XYZE  planner.max_jerk[XYZE]
+            planner_junction_deviation_mm;              // M205 J     planner.junction_deviation_mm
 
   float home_offset[XYZ];                               // M206 XYZ
 
@@ -401,17 +402,23 @@ void MarlinSettings::postprocess() {
     const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
 
+    EEPROM_WRITE(planner.max_acceleration_mm_per_s2);
+    EEPROM_WRITE(planner.min_segment_time_us);
     EEPROM_WRITE(planner.axis_steps_per_mm);
     EEPROM_WRITE(planner.max_feedrate_mm_s);
-    EEPROM_WRITE(planner.max_acceleration_mm_per_s2);
-
     EEPROM_WRITE(planner.acceleration);
     EEPROM_WRITE(planner.retract_acceleration);
     EEPROM_WRITE(planner.travel_acceleration);
     EEPROM_WRITE(planner.min_feedrate_mm_s);
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
-    EEPROM_WRITE(planner.min_segment_time_us);
     EEPROM_WRITE(planner.max_jerk);
+
+    #if ENABLED(JUNCTION_DEVIATION)
+      EEPROM_WRITE(planner.junction_deviation_mm);
+    #else
+      dummy = 0.02;
+      EEPROM_WRITE(dummy);
+    #endif
 
     _FIELD_TEST(home_offset);
 
@@ -980,17 +987,20 @@ void MarlinSettings::postprocess() {
 
       // Get only the number of E stepper parameters previously stored
       // Any steppers added later are set to their defaults
-      const float def1[] = DEFAULT_AXIS_STEPS_PER_UNIT, def2[] = DEFAULT_MAX_FEEDRATE;
-      const uint32_t def3[] = DEFAULT_MAX_ACCELERATION;
-      float tmp1[XYZ + esteppers], tmp2[XYZ + esteppers];
-      uint32_t tmp3[XYZ + esteppers];
-      EEPROM_READ(tmp1);
-      EEPROM_READ(tmp2);
-      EEPROM_READ(tmp3);
+      const uint32_t def1[] = DEFAULT_MAX_ACCELERATION;
+      const float def2[] = DEFAULT_AXIS_STEPS_PER_UNIT, def3[] = DEFAULT_MAX_FEEDRATE;
+
+      uint32_t tmp1[XYZ + esteppers];
+      EEPROM_READ(tmp1);                         // max_acceleration_mm_per_s2
+      EEPROM_READ(planner.min_segment_time_us);
+
+      float tmp2[XYZ + esteppers], tmp3[XYZ + esteppers];
+      EEPROM_READ(tmp2);                         // axis_steps_per_mm
+      EEPROM_READ(tmp3);                         // max_feedrate_mm_s
       if (!validating) LOOP_XYZE_N(i) {
-        planner.axis_steps_per_mm[i]          = i < XYZ + esteppers ? tmp1[i] : def1[i < COUNT(def1) ? i : COUNT(def1) - 1];
-        planner.max_feedrate_mm_s[i]          = i < XYZ + esteppers ? tmp2[i] : def2[i < COUNT(def2) ? i : COUNT(def2) - 1];
-        planner.max_acceleration_mm_per_s2[i] = i < XYZ + esteppers ? tmp3[i] : def3[i < COUNT(def3) ? i : COUNT(def3) - 1];
+        planner.max_acceleration_mm_per_s2[i] = i < XYZ + esteppers ? tmp1[i] : def1[i < COUNT(def1) ? i : COUNT(def1) - 1];
+        planner.axis_steps_per_mm[i]          = i < XYZ + esteppers ? tmp2[i] : def2[i < COUNT(def2) ? i : COUNT(def2) - 1];
+        planner.max_feedrate_mm_s[i]          = i < XYZ + esteppers ? tmp3[i] : def3[i < COUNT(def3) ? i : COUNT(def3) - 1];
       }
 
       EEPROM_READ(planner.acceleration);
@@ -998,8 +1008,13 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(planner.travel_acceleration);
       EEPROM_READ(planner.min_feedrate_mm_s);
       EEPROM_READ(planner.min_travel_feedrate_mm_s);
-      EEPROM_READ(planner.min_segment_time_us);
       EEPROM_READ(planner.max_jerk);
+
+      #if ENABLED(JUNCTION_DEVIATION)
+        EEPROM_READ(planner.junction_deviation_mm);
+      #else
+        EEPROM_READ(dummy);
+      #endif
 
       //
       // Home Offset (M206)
@@ -1518,9 +1533,9 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         if (!validating) {
-            ubl.report_state();
+          ubl.report_state();
 
-            if (!ubl.sanity_check()) {
+          if (!ubl.sanity_check()) {
             SERIAL_EOL_P(port);
             #if ENABLED(EEPROM_CHITCHAT)
               ubl.echo_name();
@@ -1703,16 +1718,20 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     planner.max_acceleration_mm_per_s2[i] = pgm_read_dword_near(&tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1]);
   }
 
+  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.acceleration = DEFAULT_ACCELERATION;
   planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
-  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
   planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
   planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
   planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
+
+  #if ENABLED(JUNCTION_DEVIATION)
+    planner.junction_deviation_mm = JUNCTION_DEVIATION_MM;
+  #endif
 
   #if HAS_HOME_OFFSET
     ZERO(home_offset);
@@ -2094,16 +2113,34 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM_P(port, "Advanced: S<min_feedrate> T<min_travel_feedrate> B<min_segment_time_us> X<max_xy_jerk> Z<max_z_jerk> E<max_e_jerk>");
+      SERIAL_ECHOPGM_P(port, "Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>");
+      #if ENABLED(JUNCTION_DEVIATION)
+        SERIAL_ECHOPGM_P(port, " J<junc_dev>");
+      #else
+        SERIAL_ECHOPGM_P(port, " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>");
+      #endif
+      #if DISABLED(JUNCTION_DEVIATION) || ENABLED(LIN_ADVANCE)
+        SERIAL_ECHOPGM_P(port, " E<max_e_jerk>");
+      #endif
+      SERIAL_EOL_P(port);
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M205 S", LINEAR_UNIT(planner.min_feedrate_mm_s));
+    SERIAL_ECHOPAIR_P(port, "  M205 B", LINEAR_UNIT(planner.min_segment_time_us));
+    SERIAL_ECHOPAIR_P(port, " S", LINEAR_UNIT(planner.min_feedrate_mm_s));
     SERIAL_ECHOPAIR_P(port, " T", LINEAR_UNIT(planner.min_travel_feedrate_mm_s));
-    SERIAL_ECHOPAIR_P(port, " B", planner.min_segment_time_us);
-    SERIAL_ECHOPAIR_P(port, " X", LINEAR_UNIT(planner.max_jerk[X_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS]));
-    SERIAL_ECHOLNPAIR_P(port, " E", LINEAR_UNIT(planner.max_jerk[E_AXIS]));
+
+    #if ENABLED(JUNCTION_DEVIATION)
+      SERIAL_ECHOPAIR_P(port, " J", LINEAR_UNIT(planner.junction_deviation_mm));
+    #else
+      SERIAL_ECHOPAIR_P(port, " X", LINEAR_UNIT(planner.max_jerk[X_AXIS]));
+      SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS]));
+      SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS]));
+    #endif
+    #if DISABLED(JUNCTION_DEVIATION) || ENABLED(LIN_ADVANCE)
+      SERIAL_ECHOPAIR_P(port, " E", LINEAR_UNIT(planner.max_jerk[E_AXIS]));
+    #endif
+
+    SERIAL_EOL_P(port);
 
     #if HAS_M206_COMMAND
       if (!forReplay) {

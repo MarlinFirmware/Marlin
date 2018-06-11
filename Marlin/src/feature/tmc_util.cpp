@@ -536,7 +536,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
     TMC_REPORT("Run current",        TMC_IRUN);
     TMC_REPORT("Hold current",       TMC_IHOLD);
     TMC_REPORT("CS actual\t",        TMC_CS_ACTUAL);
-    TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
+    TMC_REPORT("PWM scale\t",        TMC_PWM_SCALE);
     TMC_REPORT("vsense\t",           TMC_VSENSE);
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);
