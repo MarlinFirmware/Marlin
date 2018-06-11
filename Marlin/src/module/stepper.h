@@ -76,9 +76,13 @@ class Stepper {
   private:
 
     static uint8_t last_direction_bits,     // The next stepping-bits to be output
-                   last_movement_extruder,  // Last movement extruder, as computed when the last movement was fetched from planner
                    axis_did_move;           // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
+
     static bool abort_current_block;        // Signals to the stepper that current block should be aborted
+
+    #if DISABLED(MIXING_EXTRUDER)
+      static uint8_t last_moved_extruder;   // Last-moved extruder, as set when the last movement was fetched from planner
+    #endif
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       static bool locked_X_motor, locked_X2_motor;
@@ -90,9 +94,34 @@ class Stepper {
       static bool locked_Z_motor, locked_Z2_motor;
     #endif
 
-    // Counter variables for the Bresenham line tracer
-    static int32_t counter_X, counter_Y, counter_Z, counter_E;
-    static uint32_t step_events_completed; // The number of step events executed in the current block
+    static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
+    static uint8_t steps_per_isr;         // Count of steps to perform per Stepper ISR call
+
+    #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+      static uint8_t oversampling_factor; // Oversampling factor (log2(multiplier)) to increase temporal resolution of axis
+    #else
+      static constexpr uint8_t oversampling_factor = 0;
+    #endif
+
+    // Delta error variables for the Bresenham line tracer
+    static int32_t delta_error[XYZE];
+    static uint32_t advance_dividend[XYZE],
+                    advance_divisor,
+                    step_events_completed,  // The number of step events executed in the current block
+                    accelerate_until,       // The point from where we need to stop acceleration
+                    decelerate_after,       // The point from where we need to start decelerating
+                    step_event_count;       // The total event count for the current block
+
+    // Mixing extruder mix delta_errors for bresenham tracing
+    #if ENABLED(MIXING_EXTRUDER)
+      static int32_t delta_error_m[MIXING_STEPPERS];
+      static uint32_t advance_dividend_m[MIXING_STEPPERS],
+                      advance_divisor_m;
+      #define MIXING_STEPPERS_LOOP(VAR) \
+        for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
+    #else
+      static int8_t active_extruder;      // Active extruder
+    #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
       static int32_t bezier_A,     // A coefficient in Bézier speed curve
@@ -107,33 +136,19 @@ class Stepper {
     #endif
 
     static uint32_t nextMainISR;   // time remaining for the next Step ISR
-    static bool all_steps_done;    // all steps done
-
     #if ENABLED(LIN_ADVANCE)
-
-      static uint32_t LA_decelerate_after; // Copy from current executed block. Needed because current_block is set to NULL "too early".
-      static uint32_t nextAdvanceISR, eISR_Rate;
-      static uint16_t current_adv_steps, final_adv_steps, max_adv_steps; // Copy from current executed block. Needed because current_block is set to NULL "too early".
-      static int8_t e_steps;
-      static bool use_advance_lead;
-      #if E_STEPPERS > 1
-        static int8_t LA_active_extruder; // Copy from current executed block. Needed because current_block is set to NULL "too early".
-      #else
-        static constexpr int8_t LA_active_extruder = 0;
-      #endif
-
+      static uint32_t nextAdvanceISR, LA_isr_rate;
+      static uint16_t LA_current_adv_steps, LA_final_adv_steps, LA_max_adv_steps; // Copy from current executed block. Needed because current_block is set to NULL "too early".
+      static int8_t LA_steps;
+      static bool LA_use_advance_lead;
     #endif // LIN_ADVANCE
 
-    static uint32_t acceleration_time, deceleration_time;
-    static uint8_t step_loops, step_loops_nominal;
-
-    static uint32_t ticks_nominal;
+    static int32_t ticks_nominal;
     #if DISABLED(S_CURVE_ACCELERATION)
       static uint32_t acc_step_rate; // needed for deceleration start point
     #endif
 
     static volatile int32_t endstops_trigsteps[XYZ];
-    static volatile int32_t endstops_stepsTotal, endstops_stepsDone;
 
     //
     // Positions of stepper motors, in step units
@@ -144,16 +159,6 @@ class Stepper {
     // Current direction of stepper motors (+1 or -1)
     //
     static int8_t count_direction[NUM_AXIS];
-
-    //
-    // Mixing extruder mix counters
-    //
-    #if ENABLED(MIXING_EXTRUDER)
-      static int32_t counter_m[MIXING_STEPPERS];
-      #define MIXING_STEPPERS_LOOP(VAR) \
-        for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++) \
-          if (current_block->mix_event_count[VAR])
-    #endif
 
   public:
 
@@ -201,7 +206,15 @@ class Stepper {
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) { return TEST(axis_did_move, axis); }
 
     // The extruder associated to the last movement
-    FORCE_INLINE static uint8_t movement_extruder() { return last_movement_extruder; }
+    FORCE_INLINE static uint8_t movement_extruder() {
+      return
+        #if ENABLED(MIXING_EXTRUDER)
+          0
+        #else
+          last_moved_extruder
+        #endif
+      ;
+    }
 
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);
@@ -279,34 +292,42 @@ class Stepper {
     // Set direction bits for all steppers
     static void set_directions();
 
-    // Limit the speed to 10KHz for AVR
-    #ifndef STEP_DOUBLER_FREQUENCY
-      #define STEP_DOUBLER_FREQUENCY 10000
-    #endif
-
-    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate) {
+    FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t scale, uint8_t* loops) {
       uint32_t timer;
 
-      NOMORE(step_rate, uint32_t(MAX_STEP_FREQUENCY));
+      // Scale the frequency, as requested by the caller
+      step_rate <<= scale;
 
+      uint8_t multistep = 1;
       #if DISABLED(DISABLE_MULTI_STEPPING)
-        if (step_rate > STEP_DOUBLER_FREQUENCY * 2) { // If steprate > (STEP_DOUBLER_FREQUENCY * 2) kHz >> step 4 times
-          step_rate >>= 2;
-          step_loops = 4;
-        }
-        else if (step_rate > STEP_DOUBLER_FREQUENCY) { // If steprate > STEP_DOUBLER_FREQUENCY kHz >> step 2 times
+
+        // The stepping frequency limits for each multistepping rate
+        static const uint32_t limit[] PROGMEM = {
+          (  MAX_1X_STEP_ISR_FREQUENCY     ),
+          (  MAX_2X_STEP_ISR_FREQUENCY >> 1),
+          (  MAX_4X_STEP_ISR_FREQUENCY >> 2),
+          (  MAX_8X_STEP_ISR_FREQUENCY >> 3),
+          ( MAX_16X_STEP_ISR_FREQUENCY >> 4),
+          ( MAX_32X_STEP_ISR_FREQUENCY >> 5),
+          ( MAX_64X_STEP_ISR_FREQUENCY >> 6),
+          (MAX_128X_STEP_ISR_FREQUENCY >> 7)
+        };
+
+        // Select the proper multistepping
+        uint8_t idx = 0;
+        while (idx < 7 && step_rate > (uint32_t)pgm_read_dword(&limit[idx])) {
           step_rate >>= 1;
-          step_loops = 2;
-        }
-        else
+          multistep <<= 1;
+          ++idx;
+        };
+      #else
+        NOMORE(step_rate, uint32_t(MAX_1X_STEP_ISR_FREQUENCY));
       #endif
-          step_loops = 1;
+      *loops = multistep;
 
       #ifdef CPU_32_BIT
         // In case of high-performance processor, it is able to calculate in real-time
-        const uint32_t min_time_per_step = (HAL_STEPPER_TIMER_RATE) / ((STEP_DOUBLER_FREQUENCY) * 2);
         timer = uint32_t(HAL_STEPPER_TIMER_RATE) / step_rate;
-        NOLESS(timer, min_time_per_step); // (STEP_DOUBLER_FREQUENCY * 2 kHz - this should never happen)
       #else
         constexpr uint32_t min_step_rate = F_CPU / 500000U;
         NOLESS(step_rate, min_step_rate);
@@ -324,10 +345,8 @@ class Stepper {
           timer = (uint16_t)pgm_read_word_near(table_address)
                 - (((uint16_t)pgm_read_word_near(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
         }
-        if (timer < 100) { // (20kHz - this should never happen)
-          timer = 100;
-          SERIAL_ECHOLNPAIR(MSG_STEPPER_TOO_HIGH, step_rate);
-        }
+        // (there is no need to limit the timer value here. All limits have been
+        // applied above, and AVR is able to keep up at 30khz Stepping ISR rate)
       #endif
 
       return timer;

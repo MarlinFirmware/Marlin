@@ -215,44 +215,11 @@
   #define DEFAULT_KEEPALIVE_INTERVAL 2
 #endif
 
-#ifdef CPU_32_BIT
-  /**
-   * Hidden options for developer
-   */
-  // Double stepping starts at STEP_DOUBLER_FREQUENCY + 1, quad stepping starts at STEP_DOUBLER_FREQUENCY * 2 + 1
-  #ifndef STEP_DOUBLER_FREQUENCY
-    #if ENABLED(LIN_ADVANCE)
-      #define STEP_DOUBLER_FREQUENCY 60000 // Hz
-    #else
-      #define STEP_DOUBLER_FREQUENCY 80000 // Hz
-    #endif
-  #endif
-  // Disable double / quad stepping
-  //#define DISABLE_MULTI_STEPPING
-#endif
-
 /**
  * Provide a MAX_AUTORETRACT for older configs
  */
 #if ENABLED(FWRETRACT) && !defined(MAX_AUTORETRACT)
   #define MAX_AUTORETRACT 99
-#endif
-
-/**
- * MAX_STEP_FREQUENCY differs for TOSHIBA
- */
-#if ENABLED(CONFIG_STEPPERS_TOSHIBA)
-  #ifdef CPU_32_BIT
-    #define MAX_STEP_FREQUENCY STEP_DOUBLER_FREQUENCY // Max step frequency for Toshiba Stepper Controllers, 96kHz is close to maximum for an Arduino Due
-  #else
-    #define MAX_STEP_FREQUENCY 10000 // Max step frequency for Toshiba Stepper Controllers
-  #endif
-#else
-  #ifdef CPU_32_BIT
-    #define MAX_STEP_FREQUENCY (STEP_DOUBLER_FREQUENCY * 4) // Max step frequency for the Due is approx. 330kHz
-  #else
-    #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
-  #endif
 #endif
 
 // MS1 MS2 Stepper Driver Microstepping mode table
@@ -1346,15 +1313,6 @@
   #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
 #endif
 
-// Stepper pulse duration, in cycles
-#define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
-#ifdef CPU_32_BIT
-  // Add additional delay for between direction signal and pulse signal of stepper
-  #ifndef STEPPER_DIRECTION_DELAY
-    #define STEPPER_DIRECTION_DELAY 0 // time in microseconds
-  #endif
-#endif
-
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
   #undef UI_VOLTAGE_LEVEL
   #undef RADDS_DISPLAY
@@ -1485,5 +1443,150 @@
 #if ENABLED(G29_RETRY_AND_RECOVER)
   #define USE_EXECUTE_COMMANDS_IMMEDIATE
 #endif
+
+// Calculate a default maximum stepper rate, if not supplied
+#ifndef MAXIMUM_STEPPER_RATE
+  #if MINIMUM_STEPPER_PULSE
+    #define MAXIMUM_STEPPER_RATE (1000000UL / (2UL * (MINIMUM_STEPPER_PULSE)))
+  #else
+    #define MAXIMUM_STEPPER_RATE 500000UL
+  #endif
+#endif
+
+//
+// Estimate the amount of time the ISR will take to execute
+//
+#ifdef CPU_32_BIT
+
+  // The base ISR takes 792 cycles
+  #define ISR_BASE_CYCLES  792UL
+
+  // Linear advance base time is 64 cycles
+  #if ENABLED(LIN_ADVANCE)
+    #define ISR_LA_BASE_CYCLES 64UL
+  #else
+    #define ISR_LA_BASE_CYCLES 0UL
+  #endif
+
+  // S curve interpolation adds 40 cycles
+  #if ENABLED(S_CURVE_ACCELERATION)
+    #define ISR_S_CURVE_CYCLES 40UL
+  #else
+    #define ISR_S_CURVE_CYCLES 0UL
+  #endif
+
+  // Stepper Loop base cycles
+  #define ISR_LOOP_BASE_CYCLES 4UL
+
+  // And each stepper takes 16 cycles
+  #define ISR_STEPPER_CYCLES 16UL
+
+#else
+
+  // The base ISR takes 752 cycles
+  #define ISR_BASE_CYCLES  752UL
+
+  // Linear advance base time is 32 cycles
+  #if ENABLED(LIN_ADVANCE)
+    #define ISR_LA_BASE_CYCLES 32UL
+  #else
+    #define ISR_LA_BASE_CYCLES 0UL
+  #endif
+
+  // S curve interpolation adds 160 cycles
+  #if ENABLED(S_CURVE_ACCELERATION)
+    #define ISR_S_CURVE_CYCLES 160UL
+  #else
+    #define ISR_S_CURVE_CYCLES 0UL
+  #endif
+
+  // Stepper Loop base cycles
+  #define ISR_LOOP_BASE_CYCLES 32UL
+
+  // And each stepper takes 88 cycles
+  #define ISR_STEPPER_CYCLES 88UL
+
+#endif
+
+// For each stepper, we add its time
+#ifdef HAS_X_STEP
+  #define ISR_X_STEPPER_CYCLES ISR_STEPPER_CYCLES
+#else
+  #define ISR_X_STEPPER_CYCLES 0UL
+#endif
+
+// For each stepper, we add its time
+#ifdef HAS_Y_STEP
+  #define ISR_Y_STEPPER_CYCLES ISR_STEPPER_CYCLES
+#else
+  #define ISR_Y_STEPPER_CYCLES 0UL
+#endif
+
+// For each stepper, we add its time
+#ifdef HAS_Z_STEP
+  #define ISR_Z_STEPPER_CYCLES ISR_STEPPER_CYCLES
+#else
+  #define ISR_Z_STEPPER_CYCLES 0UL
+#endif
+
+// E is always interpolated, even for mixing extruders
+#define ISR_E_STEPPER_CYCLES ISR_STEPPER_CYCLES
+
+// If linear advance is disabled, then the loop also handles them
+#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
+  #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * ISR_STEPPER_CYCLES)
+#else
+  #define ISR_MIXING_STEPPER_CYCLES  0UL
+#endif
+
+// And the total minimum loop time is, without including the base
+#define MIN_ISR_LOOP_CYCLES (ISR_X_STEPPER_CYCLES + ISR_Y_STEPPER_CYCLES + ISR_Z_STEPPER_CYCLES + ISR_E_STEPPER_CYCLES + ISR_MIXING_STEPPER_CYCLES)
+
+// Calculate the minimum MPU cycles needed per pulse to enforce not surpassing the maximum stepper rate
+#define _MIN_STEPPER_PULSE_CYCLES(N) MAX((F_CPU) / (MAXIMUM_STEPPER_RATE), ((F_CPU) / 500000UL) * (N))
+#if MINIMUM_STEPPER_PULSE
+  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(MINIMUM_STEPPER_PULSE)
+#else
+  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1)
+#endif
+
+// But the user could be enforcing a minimum time, so the loop time is
+#define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
+
+// If linear advance is enabled, then it is handled separately
+#if ENABLED(LIN_ADVANCE)
+
+  // Estimate the minimum LA loop time
+  #if ENABLED(MIXING_EXTRUDER)
+    #define MIN_ISR_LA_LOOP_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
+  #else
+    #define MIN_ISR_LA_LOOP_CYCLES ISR_STEPPER_CYCLES
+  #endif
+
+  // And the real loop time
+  #define ISR_LA_LOOP_CYCLES MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LA_LOOP_CYCLES)
+
+#else
+  #define ISR_LA_LOOP_CYCLES 0UL
+#endif
+
+// Now estimate the total ISR execution time in cycles given a step per ISR multiplier
+#define ISR_EXECUTION_CYCLES(rate) (((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + (ISR_LOOP_CYCLES * rate) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES)) / rate)
+
+// The maximum allowable stepping frequency when doing x128-x1 stepping (in Hz)
+#define MAX_128X_STEP_ISR_FREQUENCY (F_CPU / ISR_EXECUTION_CYCLES(128))
+#define MAX_64X_STEP_ISR_FREQUENCY  (F_CPU / ISR_EXECUTION_CYCLES(64))
+#define MAX_32X_STEP_ISR_FREQUENCY  (F_CPU / ISR_EXECUTION_CYCLES(32))
+#define MAX_16X_STEP_ISR_FREQUENCY  (F_CPU / ISR_EXECUTION_CYCLES(16))
+#define MAX_8X_STEP_ISR_FREQUENCY   (F_CPU / ISR_EXECUTION_CYCLES(8))
+#define MAX_4X_STEP_ISR_FREQUENCY   (F_CPU / ISR_EXECUTION_CYCLES(4))
+#define MAX_2X_STEP_ISR_FREQUENCY   (F_CPU / ISR_EXECUTION_CYCLES(2))
+#define MAX_1X_STEP_ISR_FREQUENCY   (F_CPU / ISR_EXECUTION_CYCLES(1))
+
+// The minimum allowable frequency for step smoothing will be 1/10 of the maximum nominal frequency (in Hz)
+#define MIN_STEP_ISR_FREQUENCY    MAX_1X_STEP_ISR_FREQUENCY
+
+// Disable multiple steps per ISR
+//#define DISABLE_MULTI_STEPPING
 
 #endif // CONDITIONALS_POST_H

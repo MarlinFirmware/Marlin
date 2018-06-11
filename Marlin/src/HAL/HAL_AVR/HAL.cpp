@@ -34,6 +34,7 @@
 // --------------------------------------------------------------------------
 
 #include "../../inc/MarlinConfig.h"
+#include "HAL.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -74,9 +75,11 @@
 // --------------------------------------------------------------------------
 
 #if ENABLED(SDSUPPORT)
+
   #include "../../sd/SdFatUtil.h"
   int freeMemory() { return SdFatUtil::FreeRam(); }
-#else
+
+#else // !SDSUPPORT
 
 extern "C" {
   extern char __bss_end;
@@ -93,7 +96,6 @@ extern "C" {
   }
 }
 
-#endif //!SDSUPPORT
+#endif // !SDSUPPORT
 
-#endif
-
+#endif // __AVR__

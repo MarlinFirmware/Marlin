@@ -268,6 +268,7 @@
  *
  * Temperature sensors available:
  *
+ *    -4 : thermocouple with AD8495
  *    -3 : thermocouple with MAX31855 (only for sensor 0)
  *    -2 : thermocouple with MAX6675 (only for sensor 0)
  *    -1 : thermocouple with AD595
@@ -967,9 +968,6 @@
 #define INVERT_X_DIR true // DELTA does not invert
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR true
-
-// Enable this option for Toshiba stepper drivers
-//#define CONFIG_STEPPERS_TOSHIBA
 
 // @section extruder
 

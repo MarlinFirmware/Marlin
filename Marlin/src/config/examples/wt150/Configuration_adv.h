@@ -450,6 +450,14 @@
   //#define JUNCTION_DEVIATION_INCLUDE_E
 #endif
 
+/**
+ * Adaptive Step Smoothing increases the resolution of multi-axis moves, particularly at step frequencies
+ * below 1kHz (for AVR) or 10kHz (for ARM), where aliasing between axes in multi-axis moves causes audible
+ * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
+ * lowest stepping frequencies.
+ */
+//#define ADAPTIVE_STEP_SMOOTHING
+
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
 #define MICROSTEP_MODES { 16, 16, 16, 16, 16 } // [1,2,4,8,16]
 
@@ -825,10 +833,27 @@
 // Moves (or segments) with fewer steps than this will be joined with the next move
 #define MIN_STEPS_PER_SEGMENT 6
 
-// The minimum pulse width (in µs) for stepping a stepper.
-// Set this if you find stepping unreliable, or if using a very fast CPU.
-// 0 is OK for AVR, 0 is OK for A4989 drivers, 2 is needed for DRV8825 drivers
-#define MINIMUM_STEPPER_PULSE 2 // (µs)   DRV8825 on 32bit CPUs
+/**
+ * Minimum stepper driver pulse width (in µs)
+ *   0 : Smallest possible width the MCU can produce, compatible with TMC2xxx drivers
+ *   1 : Minimum for LV8729 stepper drivers
+ *   2 : Minimum for DRV8825 stepper drivers
+ *   3 : Minimum for TB6600 stepper drivers
+ *  30 : Minimum for TB6560 stepper drivers
+ */
+#define MINIMUM_STEPPER_PULSE 2
+
+/**
+ * Maximum stepping rate (in Hz) the stepper driver allows
+ *  If undefined, defaults to 1MHz / (2 * MINIMUM_STEPPER_PULSE)
+ *  500000 : Maximum for A4988 stepper driver
+ *  400000 : Maximum for TMC2xxx stepper drivers
+ *  250000 : Maximum for DRV8825 stepper driver
+ *  150000 : Maximum for TB6600 stepper driver
+ *  130000 : Maximum for LV8729 stepper driver
+ *   15000 : Maximum for TB6560 stepper driver
+ */
+#define MAXIMUM_STEPPER_RATE 250000
 
 // @section temperature
 

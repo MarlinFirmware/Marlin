@@ -72,7 +72,7 @@
 #define ST7565_ON(N)             (0xAE | ((N) & 0x1))
 #define ST7565_OUT_MODE(N)       (0xC0 | ((N) & 0x1) << 3)
 #define ST7565_POWER_CONTROL(N)  (0x28 | (N))
-#define ST7565_V0_RATIO(N)       (0x20 | ((N) & 0x7))
+#define ST7565_V0_RATIO(N)       (0x10 | ((N) & 0x7)) // Specific to Displaytech 64128N? (ST7565 is 0x20 | N)
 #define ST7565_CONTRAST(N)       (0x81), (N)
 
 #define ST7565_COLUMN_ADR(N)     (0x10 | (((N) >> 4) & 0xF)), ((N) & 0xF)
@@ -91,14 +91,14 @@ static const uint8_t u8g_dev_st7565_64128n_HAL_init_seq[] PROGMEM = {
   ST7565_BIAS_MODE(0),        // 0xA2: LCD bias 1/9 (according to Displaytech 64128N datasheet)
   ST7565_ADC_REVERSE(0),      // Normal ADC Select (according to Displaytech 64128N datasheet)
 
-  ST7565_OUT_MODE(1),         // common output mode: set scan direction normal operation/SHL Select, 0x0C0 --> SHL = 0, normal, 0x0C8 --> SHL = 1
+  ST7565_OUT_MODE(1),         // common output mode: set scan direction normal operation/SHL Select, 0xC0 --> SHL = 0, normal, 0xC8 --> SHL = 1
   ST7565_START_LINE(0),       // Display start line for Displaytech 64128N
 
-  //0x028 | 0x04,             // power control: turn on voltage converter
-  //U8G_ESC_DLY(50),          // delay 50 ms
+  ST7565_POWER_CONTROL(0x4),  // power control: turn on voltage converter
+  U8G_ESC_DLY(50),            // delay 50 ms
 
-  //0x028 | 0x06,             // power control: turn on voltage regulator
-  //U8G_ESC_DLY(50),          // delay 50 ms
+  ST7565_POWER_CONTROL(0x6),  // power control: turn on voltage regulator
+  U8G_ESC_DLY(50),            // delay 50 ms
 
   ST7565_POWER_CONTROL(0x7),  // power control: turn on voltage follower
   U8G_ESC_DLY(50),            // delay 50 ms
@@ -131,7 +131,7 @@ static const uint8_t u8g_dev_st7565_64128n_HAL_sleep_on[] PROGMEM = {
   U8G_ESC_ADR(0),             // instruction mode
   U8G_ESC_CS(1),              // enable chip
   ST7565_SLEEP_MODE(),        // static indicator off
-  //0x000,                    // indicator register set (not sure if this is required)
+  //0x00,                     // indicator register set (not sure if this is required)
   ST7565_ON(0),               // display off
   ST7565_ALL_PIX(1),          // all points on
   U8G_ESC_CS(0),              // disable chip, bugfix 12 nov 2014
@@ -168,7 +168,7 @@ uint8_t u8g_dev_st7565_64128n_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, const uint8_t m
     case U8G_DEV_MSG_CONTRAST:
       u8g_SetChipSelect(u8g, dev, 1);
       u8g_SetAddress(u8g, dev, 0);          /* instruction mode */
-      u8g_WriteByte(u8g, dev, 0x081);
+      u8g_WriteByte(u8g, dev, 0x81);
       u8g_WriteByte(u8g, dev, (*(uint8_t *)arg) >> 2);
       u8g_SetChipSelect(u8g, dev, 0);
       return 1;
@@ -209,7 +209,7 @@ uint8_t u8g_dev_st7565_64128n_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, const uint8_
     case U8G_DEV_MSG_CONTRAST:
       u8g_SetChipSelect(u8g, dev, 1);
       u8g_SetAddress(u8g, dev, 0);          /* instruction mode */
-      u8g_WriteByte(u8g, dev, 0x081);
+      u8g_WriteByte(u8g, dev, 0x81);
       u8g_WriteByte(u8g, dev, (*(uint8_t *)arg) >> 2);
       u8g_SetChipSelect(u8g, dev, 0);
       return 1;

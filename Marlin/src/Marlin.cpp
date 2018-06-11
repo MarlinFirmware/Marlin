@@ -264,6 +264,11 @@ bool pin_is_protected(const pin_t pin) {
   return false;
 }
 
+void protected_pin_err() {
+  SERIAL_ERROR_START();
+  SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
+}
+
 void quickstop_stepper() {
   planner.quick_stop();
   planner.synchronize();

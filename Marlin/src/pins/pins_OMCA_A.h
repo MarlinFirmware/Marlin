@@ -125,7 +125,9 @@
 //
 #define HEATER_0_PIN        4
 
-#define FAN_PIN             3
+#ifndef FAN_PIN
+  #define FAN_PIN           3
+#endif
 
 //
 // Misc. Functions
