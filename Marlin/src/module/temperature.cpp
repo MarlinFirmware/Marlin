@@ -2068,7 +2068,7 @@ void Temperature::isr() {
         HAL_START_ADC(TEMP_CHAMBER_PIN);
         break;
       case MeasureTemp_CHAMBER:
-        raw_temp_chamber_value += ADC;
+        raw_temp_chamber_value += HAL_READ_ADC;
         break;
     #endif
 
@@ -2126,7 +2126,7 @@ void Temperature::isr() {
         break;
       case Measure_ADC_KEY:
         if (ADCKey_count < 16) {
-          raw_ADCKey_value = ADC;
+          raw_ADCKey_value = HAL_READ_ADC;
           if (raw_ADCKey_value > 900) {
             //ADC Key release
             ADCKey_count = 0;

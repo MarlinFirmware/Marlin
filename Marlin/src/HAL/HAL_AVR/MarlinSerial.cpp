@@ -28,7 +28,9 @@
  * Modified 28 September 2010 by Mark Sproul
  * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
  * Modified 01 October 2017 by Eduardo José Tagle (added XON/XOFF)
+ * Modified 10 June 2018 by Eduardo José Tagle (See #10991)
  */
+
 #ifdef __AVR__
 
 // Disable HardwareSerial.cpp to support chips without a UART (Attiny, etc.)
@@ -91,6 +93,70 @@
     #include "../../feature/emergency_parser.h"
   #endif
 
+  // "Atomically" read the RX head index value without disabling interrupts:
+  // This MUST be called with RX interrupts enabled, and CAN'T be called
+  // from the RX ISR itself!
+  FORCE_INLINE ring_buffer_pos_t atomic_read_rx_head() {
+    #if RX_BUFFER_SIZE > 256
+      // Keep reading until 2 consecutive reads return the same value,
+      // meaning there was no update in-between caused by an interrupt.
+      // This works because serial RX interrupts happen at a slower rate
+      // than successive reads of a variable, so 2 consecutive reads with
+      // the same value means no interrupt updated it.
+      ring_buffer_pos_t vold, vnew = rx_buffer.head;
+      sw_barrier();
+      do {
+        vold = vnew;
+        vnew = rx_buffer.head;
+        sw_barrier();
+      } while (vold != vnew);
+      return vnew;
+    #else
+      // With an 8bit index, reads are always atomic. No need for special handling
+      return rx_buffer.head;
+    #endif
+  }
+
+  #if RX_BUFFER_SIZE > 256
+    static volatile bool rx_tail_value_not_stable = false;
+    static volatile uint16_t rx_tail_value_backup = 0;
+  #endif
+
+  // Set RX tail index, taking into account the RX ISR could interrupt
+  //  the write to this variable in the middle - So a backup strategy
+  //  is used to ensure reads of the correct values.
+  //    -Must NOT be called from the RX ISR -
+  FORCE_INLINE void atomic_set_rx_tail(ring_buffer_pos_t value) {
+    #if RX_BUFFER_SIZE > 256
+      // Store the new value in the backup
+      rx_tail_value_backup = value;
+      sw_barrier();
+      // Flag we are about to change the true value
+      rx_tail_value_not_stable = true;
+      sw_barrier();
+      // Store the new value
+      rx_buffer.tail = value;
+      sw_barrier();
+      // Signal the new value is completely stored into the value
+      rx_tail_value_not_stable = false;
+      sw_barrier();
+    #else
+      rx_buffer.tail = value;
+    #endif
+  }
+
+  // Get the RX tail index, taking into account the read could be
+  //  interrupting in the middle of the update of that index value
+  //    -Called from the RX ISR -
+  FORCE_INLINE ring_buffer_pos_t atomic_read_rx_tail() {
+    #if RX_BUFFER_SIZE > 256
+      // If the true index is being modified, return the backup value
+      if (rx_tail_value_not_stable) return rx_tail_value_backup;
+    #endif
+    // The true index is stable, return it
+    return rx_buffer.tail;
+  }
+
   // (called with RX interrupts disabled)
   FORCE_INLINE void store_rxd_char() {
 
@@ -98,10 +164,12 @@
       static EmergencyParser::State emergency_state; // = EP_RESET
     #endif
 
-    // Get the tail - Nothing can alter its value while we are at this ISR
-    const ring_buffer_pos_t t = rx_buffer.tail;
+    // Get the tail - Nothing can alter its value while this ISR is executing, but there's
+    // a chance that this ISR interrupted the main process while it was updating the index.
+    // The backup mechanism ensures the correct value is always returned.
+    const ring_buffer_pos_t t = atomic_read_rx_tail();
 
-    // Get the head pointer
+    // Get the head pointer - This ISR is the only one that modifies its value, so it's safe to read here
     ring_buffer_pos_t h = rx_buffer.head;
 
     // Get the next element
@@ -158,7 +226,7 @@
         // and stop sending bytes. This translates to 13mS propagation time.
         if (rx_count >= (RX_BUFFER_SIZE) / 8) {
 
-          // At this point, definitely no TX interrupt was executing, since the TX isr can't be preempted.
+          // At this point, definitely no TX interrupt was executing, since the TX ISR can't be preempted.
           // Don't enable the TX interrupt here as a means to trigger the XOFF char, because if it happens
           // to be in the middle of trying to disable the RX interrupt in the main program, eventually the
           // enabling of the TX interrupt could be undone. The ONLY reliable thing this can do to ensure
@@ -246,7 +314,7 @@
       }
     #endif // SERIAL_XON_XOFF
 
-    // Store the new head value
+    // Store the new head value - The main loop will retry until the value is stable
     rx_buffer.head = h;
   }
 
@@ -356,37 +424,14 @@
   }
 
   int MarlinSerial::peek(void) {
-    #if RX_BUFFER_SIZE > 256
-      // Disable RX interrupts, but only if non atomic reads
-      const bool isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
-      CBI(M_UCSRxB, M_RXCIEx);
-    #endif
-
-    const int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
-
-    #if RX_BUFFER_SIZE > 256
-      // Reenable RX interrupts if they were enabled
-      if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
-    #endif
-    return v;
+    const ring_buffer_pos_t h = atomic_read_rx_head(), t = rx_buffer.tail;
+    return h == t ? -1 : rx_buffer.buffer[t];
   }
 
   int MarlinSerial::read(void) {
+    const ring_buffer_pos_t h = atomic_read_rx_head();
 
-    #if RX_BUFFER_SIZE > 256
-      // Disable RX interrupts to ensure atomic reads - This could reenable TX interrupts,
-      //  but this situation is explicitly handled at the TX isr, so no problems there
-      bool isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
-      CBI(M_UCSRxB, M_RXCIEx);
-    #endif
-
-    const ring_buffer_pos_t h = rx_buffer.head;
-
-    #if RX_BUFFER_SIZE > 256
-      // End critical section
-      if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
-    #endif
-
+    // Read the tail. Main thread owns it, so it is safe to directly read it
     ring_buffer_pos_t t = rx_buffer.tail;
 
     // If nothing to read, return now
@@ -396,22 +441,9 @@
     const int v = rx_buffer.buffer[t];
     t = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1);
 
-    #if RX_BUFFER_SIZE > 256
-      // Disable RX interrupts to ensure atomic write to tail, so
-      // the RX isr can't read partially updated values - This could
-      // reenable TX interrupts, but this situation is explicitly
-      // handled at the TX isr, so no problems there
-      isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
-      CBI(M_UCSRxB, M_RXCIEx);
-    #endif
-
-    // Advance tail
-    rx_buffer.tail = t;
-
-    #if RX_BUFFER_SIZE > 256
-      // End critical section
-      if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
-    #endif
+    // Advance tail - Making sure the RX ISR will always get an stable value, even
+    // if it interrupts the writing of the value of that variable in the middle.
+    atomic_set_rx_tail(t);
 
     #if ENABLED(SERIAL_XON_XOFF)
       // If the XOFF char was sent, or about to be sent...
@@ -422,7 +454,7 @@
           #if TX_BUFFER_SIZE > 0
             // Signal we want an XON character to be sent.
             xon_xoff_state = XON_CHAR;
-            // Enable TX isr. Non atomic, but it will eventually enable them
+            // Enable TX ISR. Non atomic, but it will eventually enable them
             SBI(M_UCSRxB, M_UDRIEx);
           #else
             // If not using TX interrupts, we must send the XON char now
@@ -438,31 +470,17 @@
   }
 
   ring_buffer_pos_t MarlinSerial::available(void) {
-    #if RX_BUFFER_SIZE > 256
-      const bool isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
-      CBI(M_UCSRxB, M_RXCIEx);
-    #endif
-
-    const ring_buffer_pos_t h = rx_buffer.head, t = rx_buffer.tail;
-
-    #if RX_BUFFER_SIZE > 256
-      if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
-    #endif
-
+    const ring_buffer_pos_t h = atomic_read_rx_head(), t = rx_buffer.tail;
     return (ring_buffer_pos_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
   }
 
   void MarlinSerial::flush(void) {
-    #if RX_BUFFER_SIZE > 256
-      const bool isr_enabled = TEST(M_UCSRxB, M_RXCIEx);
-      CBI(M_UCSRxB, M_RXCIEx);
-    #endif
 
-    rx_buffer.tail = rx_buffer.head;
-
-    #if RX_BUFFER_SIZE > 256
-      if (isr_enabled) SBI(M_UCSRxB, M_RXCIEx);
-    #endif
+    // Set the tail to the head:
+    //  - Read the RX head index in a safe way. (See atomic_read_rx_head.)
+    //  - Set the tail, making sure the RX ISR will always get a stable value, even
+    //    if it interrupts the writing of the value of that variable in the middle.
+    atomic_set_rx_tail(atomic_read_rx_head());
 
     #if ENABLED(SERIAL_XON_XOFF)
       // If the XOFF char was sent, or about to be sent...
@@ -470,7 +488,7 @@
         #if TX_BUFFER_SIZE > 0
           // Signal we want an XON character to be sent.
           xon_xoff_state = XON_CHAR;
-          // Enable TX isr. Non atomic, but it will eventually enable it.
+          // Enable TX ISR. Non atomic, but it will eventually enable it.
           SBI(M_UCSRxB, M_UDRIEx);
         #else
           // If not using TX interrupts, we must send the XON char now
@@ -492,7 +510,7 @@
       // effective datarate at high (>500kbit/s) bitrates, where
       // interrupt overhead becomes a slowdown.
       // Yes, there is a race condition between the sending of the
-      // XOFF char at the RX isr, but it is properly handled there
+      // XOFF char at the RX ISR, but it is properly handled there
       if (!TEST(M_UCSRxB, M_UDRIEx) && TEST(M_UCSRxA, M_UDREx)) {
         M_UDRx = c;
 
@@ -527,7 +545,7 @@
       tx_buffer.buffer[tx_buffer.head] = c;
       tx_buffer.head = i;
 
-      // Enable TX isr - Non atomic, but it will eventually enable TX isr
+      // Enable TX ISR - Non atomic, but it will eventually enable TX ISR
       SBI(M_UCSRxB, M_UDRIEx);
     }
 

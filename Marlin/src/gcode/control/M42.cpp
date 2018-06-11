@@ -41,11 +41,8 @@ void GcodeSuite::M42() {
   if (pin_index < 0) return;
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_index);
-  if (pin_is_protected(pin)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
-    return;
-  }
+
+  if (pin_is_protected(pin)) return protected_pin_err();
 
   pinMode(pin, OUTPUT);
   digitalWrite(pin, pin_status);
