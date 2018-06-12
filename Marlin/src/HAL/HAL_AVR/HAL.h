@@ -19,13 +19,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ****************************************************************************/
 
-/**
- * Description: HAL for AVR
- *
- * For __AVR__
- */
-
-
 #ifndef _HAL_AVR_H_
 #define _HAL_AVR_H_
 
