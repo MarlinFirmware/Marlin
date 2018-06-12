@@ -319,6 +319,10 @@ void MarlinSettings::postprocess() {
     fwretract.refresh_autoretract();
   #endif
 
+  #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+    planner.recalculate_max_e_jerk_factor();
+  #endif
+
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
   planner.refresh_positioning();
@@ -426,11 +430,13 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.travel_acceleration);
     EEPROM_WRITE(planner.min_feedrate_mm_s);
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
-    EEPROM_WRITE(planner.max_jerk);
 
     #if ENABLED(JUNCTION_DEVIATION)
+      const float planner_max_jerk[] = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
+      EEPROM_WRITE(planner_max_jerk);
       EEPROM_WRITE(planner.junction_deviation_mm);
     #else
+      EEPROM_WRITE(planner.max_jerk);
       dummy = 0.02;
       EEPROM_WRITE(dummy);
     #endif
@@ -1022,11 +1028,12 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(planner.travel_acceleration);
       EEPROM_READ(planner.min_feedrate_mm_s);
       EEPROM_READ(planner.min_travel_feedrate_mm_s);
-      EEPROM_READ(planner.max_jerk);
 
       #if ENABLED(JUNCTION_DEVIATION)
+        for (uint8_t q = 4; q--;) EEPROM_READ(dummy);
         EEPROM_READ(planner.junction_deviation_mm);
       #else
+        EEPROM_READ(planner.max_jerk);
         EEPROM_READ(dummy);
       #endif
 
@@ -1720,13 +1727,14 @@ void MarlinSettings::reset() {
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
-  planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
-  planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
-  planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
-  planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
 
   #if ENABLED(JUNCTION_DEVIATION)
     planner.junction_deviation_mm = JUNCTION_DEVIATION_MM;
+  #else
+    planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
+    planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
+    planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
+    planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
   #endif
 
   #if HAS_HOME_OFFSET
@@ -2118,8 +2126,6 @@ void MarlinSettings::reset() {
       SERIAL_ECHOPAIR(" X", LINEAR_UNIT(planner.max_jerk[X_AXIS]));
       SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS]));
       SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS]));
-    #endif
-    #if DISABLED(JUNCTION_DEVIATION) || ENABLED(LIN_ADVANCE)
       SERIAL_ECHOPAIR(" E", LINEAR_UNIT(planner.max_jerk[E_AXIS]));
     #endif
 
@@ -2198,7 +2204,7 @@ void MarlinSettings::reset() {
               SERIAL_ECHOPAIR("  G29 S3 X", (int)px + 1);
               SERIAL_ECHOPAIR(" Y", (int)py + 1);
               SERIAL_ECHOPGM(" Z");
-              SERIAL_PROTOCOL_F(LINEAR_UNIT(mbl.z_values[px][py]), 5);
+              SERIAL_ECHO_F(LINEAR_UNIT(mbl.z_values[px][py]), 5);
               SERIAL_EOL();
             }
           }
@@ -2225,7 +2231,7 @@ void MarlinSettings::reset() {
               SERIAL_ECHOPAIR("  G29 W I", (int)px);
               SERIAL_ECHOPAIR(" J", (int)py);
               SERIAL_ECHOPGM(" Z");
-              SERIAL_PROTOCOL_F(LINEAR_UNIT(z_values[px][py]), 5);
+              SERIAL_ECHO_F(LINEAR_UNIT(z_values[px][py]), 5);
               SERIAL_EOL();
             }
           }

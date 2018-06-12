@@ -3743,7 +3743,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_MOTION);
 
       #if ENABLED(JUNCTION_DEVIATION)
-        MENU_ITEM_EDIT(float3, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01, 0.3);
+        MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01, 0.3, planner.recalculate_max_e_jerk_factor);
       #else
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);
@@ -3752,8 +3752,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #else
           MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1, 990);
         #endif
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
       #endif
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
 
       END_MENU();
     }
