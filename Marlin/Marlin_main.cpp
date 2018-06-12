@@ -397,7 +397,7 @@ float destination[XYZE] = { 0.0 };
  *   Flags that the position is known in each linear axis. Set when homed.
  *   Cleared whenever a stepper powers off, potentially losing its position.
  */
-bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
+uint8_t axis_homed, axis_known_position; // = 0
 
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
@@ -451,7 +451,7 @@ static float saved_feedrate_mm_s;
 int16_t feedrate_percentage = 100, saved_feedrate_percentage;
 
 // Initialized by settings.load()
-bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
+bool axis_relative_modes[XYZE] = AXIS_RELATIVE_MODES;
 
 #if HAS_WORKSPACE_OFFSET
   #if HAS_POSITION_SHIFT
@@ -1428,7 +1428,8 @@ static void set_axis_is_at_home(const AxisEnum axis) {
     }
   #endif
 
-  axis_known_position[axis] = axis_homed[axis] = true;
+  SBI(axis_known_position, axis);
+  SBI(axis_homed, axis);
 
   #if HAS_POSITION_SHIFT
     position_shift[axis] = 0;
@@ -1753,13 +1754,13 @@ void clean_up_after_endstop_or_probe_move() {
 
   bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
     #if ENABLED(HOME_AFTER_DEACTIVATE)
-      const bool xx = x && !axis_known_position[X_AXIS],
-                 yy = y && !axis_known_position[Y_AXIS],
-                 zz = z && !axis_known_position[Z_AXIS];
+      const bool xx = x && !TEST(axis_known_position, X_AXIS),
+                 yy = y && !TEST(axis_known_position, Y_AXIS),
+                 zz = z && !TEST(axis_known_position, Z_AXIS);
     #else
-      const bool xx = x && !axis_homed[X_AXIS],
-                 yy = y && !axis_homed[Y_AXIS],
-                 zz = z && !axis_homed[Z_AXIS];
+      const bool xx = x && !TEST(axis_homed, X_AXIS),
+                 yy = y && !TEST(axis_homed, Y_AXIS),
+                 zz = z && !TEST(axis_homed, Z_AXIS);
     #endif
     if (xx || yy || zz) {
       SERIAL_ECHO_START();
@@ -2110,7 +2111,7 @@ void clean_up_after_endstop_or_probe_move() {
 
     // For beds that fall when Z is powered off only raise for trusted Z
     #if ENABLED(UNKNOWN_Z_NO_RAISE)
-      const bool unknown_condition = axis_known_position[Z_AXIS];
+      const bool unknown_condition = TEST(axis_known_position, Z_AXIS);
     #else
       constexpr float unknown_condition = true;
     #endif
@@ -2271,7 +2272,7 @@ void clean_up_after_endstop_or_probe_move() {
 
     // Stop the probe before it goes too low to prevent damage.
     // If Z isn't known then probe to -10mm.
-    const float z_probe_low_point = axis_known_position[Z_AXIS] ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
+    const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
 
     // Double-probing does a fast probe followed by a slow probe
     #if MULTIPLE_PROBING == 2
@@ -3978,7 +3979,7 @@ inline void gcode_G4() {
   inline void home_z_safely() {
 
     // Disallow Z homing if X or Y are unknown
-    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
+    if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
       LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM(MSG_ERR_Z_HOMING);
@@ -4130,7 +4131,7 @@ inline void gcode_G28(const bool always_home_all) {
 
     const float z_homing_height = (
       #if ENABLED(UNKNOWN_Z_NO_RAISE)
-        !axis_known_position[Z_AXIS] ? 0 :
+        !TEST(axis_known_position, Z_AXIS) ? 0 :
       #endif
           (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
     );
@@ -8623,7 +8624,9 @@ inline void gcode_M92() {
         const float value = parser.value_per_axis_unit((AxisEnum)(E_AXIS + TARGET_EXTRUDER));
         if (value < 20.0) {
           float factor = planner.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] / value; // increase e constants if M92 E14 is given for netfab.
-          planner.max_jerk[E_AXIS] *= factor;
+          #if DISABLED(JUNCTION_DEVIATION)
+            planner.max_jerk[E_AXIS] *= factor;
+          #endif
           planner.max_feedrate_mm_s[E_AXIS + TARGET_EXTRUDER] *= factor;
           planner.max_acceleration_steps_per_s2[E_AXIS + TARGET_EXTRUDER] *= factor;
         }
@@ -9140,8 +9143,10 @@ inline void gcode_M205() {
   #if ENABLED(JUNCTION_DEVIATION)
     if (parser.seen('J')) {
       const float junc_dev = parser.value_linear_units();
-      if (WITHIN(junc_dev, 0.01, 0.3))
+      if (WITHIN(junc_dev, 0.01, 0.3)) {
         planner.junction_deviation_mm = junc_dev;
+        planner.recalculate_max_e_jerk_factor();
+      }
       else {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM("?J out of range (0.01 to 0.3)");
@@ -9157,8 +9162,6 @@ inline void gcode_M205() {
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-  #endif
-  #if DISABLED(JUNCTION_DEVIATION) || ENABLED(LIN_ADVANCE)
     if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
   #endif
 }
@@ -11277,7 +11280,7 @@ inline void gcode_M502() {
       const uint16_t _rms = parser.seenval('S') ? parser.value_int() : CALIBRATION_CURRENT,
                      _z = parser.seenval('Z') ? parser.value_linear_units() : CALIBRATION_EXTRA_HEIGHT;
 
-      if (!axis_known_position[Z_AXIS]) {
+      if (!TEST(axis_known_position, Z_AXIS)) {
         SERIAL_ECHOLNPGM("\nPlease home Z axis first");
         return;
       }
@@ -12772,7 +12775,7 @@ void ok_to_send() {
     delta_diagonal_rod_2_tower[B_AXIS] = sq(delta_diagonal_rod + drt[B_AXIS]);
     delta_diagonal_rod_2_tower[C_AXIS] = sq(delta_diagonal_rod + drt[C_AXIS]);
     update_software_endstops(Z_AXIS);
-    axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
+    axis_homed = 0;
   }
 
   #if ENABLED(DELTA_FAST_SQRT)

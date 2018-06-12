@@ -2016,7 +2016,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void _lcd_level_bed_homing() {
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
       lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+      if (all_axes_homed())
         lcd_goto_screen(_lcd_level_bed_homing_done);
     }
 
@@ -2029,7 +2029,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
      */
     void _lcd_level_bed_continue() {
       defer_return_to_status = true;
-      axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
+      axis_homed = 0;
       lcd_goto_screen(_lcd_level_bed_homing);
       enqueue_and_echo_commands_P(PSTR("G28"));
     }
@@ -2359,7 +2359,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       defer_return_to_status = true;
       if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT < 3 ? 0 : (LCD_HEIGHT > 4 ? 2 : 1), PSTR(MSG_LEVEL_BED_HOMING));
       lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+      if (all_axes_homed()) {
         ubl.lcd_map_control = true; // Return to the map screen
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
       }
@@ -2403,7 +2403,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void _lcd_ubl_output_map_lcd() {
       static int16_t step_scaler = 0;
 
-      if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]))
+      if (!all_axes_known())
         return lcd_goto_screen(_lcd_ubl_map_homing);
 
       if (use_click()) return _lcd_ubl_map_lcd_edit_cmd();
@@ -2452,8 +2452,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
      * UBL Homing before LCD map
      */
     void _lcd_ubl_output_map_lcd_cmd() {
-      if (!(axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS])) {
-        axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
+      if (!all_axes_known()) {
+        axis_homed = 0;
         enqueue_and_echo_commands_P(PSTR("G28"));
       }
       lcd_goto_screen(_lcd_ubl_map_homing);
@@ -2581,7 +2581,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       START_MENU();
       MENU_BACK(MSG_PREPARE);
 
-      const bool is_homed = axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS];
+      const bool is_homed = all_axes_known();
 
       // Auto Home if not using manual probing
       #if DISABLED(PROBE_MANUALLY) && DISABLED(MESH_BED_LEVELING)
@@ -2623,7 +2623,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       #if ENABLED(LEVEL_BED_CORNERS)
         // Move to the next corner for leveling
-        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+        if (all_axes_homed())
           MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
       #endif
 
@@ -2654,7 +2654,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     // Move Axis
     //
     #if ENABLED(DELTA)
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+      if (all_axes_homed())
     #endif
         MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
 
@@ -2698,7 +2698,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
 
     #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+      if (all_axes_homed())
         MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
     #endif
 
@@ -2828,7 +2828,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void _lcd_calibrate_homing() {
       if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_LEVEL_BED_HOMING));
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+      if (all_axes_homed())
         lcd_goto_previous_menu();
     }
 
@@ -2883,7 +2883,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(submenu, MSG_DELTA_SETTINGS, lcd_delta_settings);
       #if ENABLED(DELTA_CALIBRATION_MENU)
         MENU_ITEM(submenu, MSG_AUTO_HOME, _lcd_delta_calibrate_home);
-        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+        if (all_axes_homed()) {
           MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_X, _goto_tower_x);
           MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_Y, _goto_tower_y);
           MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_Z, _goto_tower_z);
@@ -3179,7 +3179,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
    */
 
   #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-    #define _MOVE_XYZ_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+    #define _MOVE_XYZ_ALLOWED (all_axes_homed())
   #else
     #define _MOVE_XYZ_ALLOWED true
   #endif
@@ -3743,7 +3743,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_MOTION);
 
       #if ENABLED(JUNCTION_DEVIATION)
-        MENU_ITEM_EDIT(float3, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01, 0.3);
+        MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01, 0.3, planner.recalculate_max_e_jerk_factor);
       #else
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);
@@ -3752,8 +3752,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #else
           MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1, 990);
         #endif
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
       #endif
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
 
       END_MENU();
     }
@@ -4919,7 +4919,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
           if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)     reprapworld_keypad_move_z_up();
         #endif
 
-        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+        if (all_axes_homed()) {
           #if ENABLED(DELTA) || Z_HOME_DIR != -1
             if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)   reprapworld_keypad_move_z_up();
           #endif
