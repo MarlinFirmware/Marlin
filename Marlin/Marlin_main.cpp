@@ -4049,6 +4049,8 @@ inline void gcode_G4() {
  *  None  Home to all axes with no parameters.
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
+ *  O   Home only if position is unknown
+ *
  *  Rn  Raise by n mm/inches before homing
  *
  * Cartesian parameters
@@ -4066,6 +4068,16 @@ inline void gcode_G28(const bool always_home_all) {
       log_machine_info();
     }
   #endif
+
+  if (all_axes_known() && parser.boolval('O')) { // home only if needed
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOLNPGM("> homing not needed, skip");
+        SERIAL_ECHOLNPGM("<<< G28");
+      }
+    #endif
+    return;
+  }
 
   // Wait for planner moves to finish!
   planner.synchronize();
@@ -4488,6 +4500,8 @@ void home_all_axes() { gcode_G28(true); }
    *
    * Enhanced G29 Auto Bed Leveling Probe Routine
    *
+   *  O  Auto-level only if needed
+   *
    *  D  Dry-Run mode. Just evaluate the bed Topology - Don't apply
    *     or alter the bed level data. Useful to check the topology
    *     after a first run of G29.
@@ -4593,6 +4607,16 @@ void home_all_axes() { gcode_G28(true); }
 
     // Don't allow auto-leveling without homing first
     if (axis_unhomed_error()) return;
+
+    if (!no_action && planner.leveling_active && parser.boolval('O')) { // Auto-level only if needed
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOLNPGM("> Auto-level not needed, skip");
+          SERIAL_ECHOLNPGM("<<< G29");
+        }
+      #endif
+      return;
+    }
 
     // Define local vars 'static' for manual probing, 'auto' otherwise
     #if ENABLED(PROBE_MANUALLY)
