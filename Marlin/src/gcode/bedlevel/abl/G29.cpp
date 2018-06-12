@@ -185,6 +185,7 @@ void GcodeSuite::G29() {
     #endif
     return;
   }
+
   // Define local vars 'static' for manual probing, 'auto' otherwise
   #if ENABLED(PROBE_MANUALLY)
     #define ABL_VAR static
