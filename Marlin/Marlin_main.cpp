@@ -8624,7 +8624,9 @@ inline void gcode_M92() {
         const float value = parser.value_per_axis_unit((AxisEnum)(E_AXIS + TARGET_EXTRUDER));
         if (value < 20.0) {
           float factor = planner.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] / value; // increase e constants if M92 E14 is given for netfab.
-          planner.max_jerk[E_AXIS] *= factor;
+          #if DISABLED(JUNCTION_DEVIATION)
+            planner.max_jerk[E_AXIS] *= factor;
+          #endif
           planner.max_feedrate_mm_s[E_AXIS + TARGET_EXTRUDER] *= factor;
           planner.max_acceleration_steps_per_s2[E_AXIS + TARGET_EXTRUDER] *= factor;
         }
@@ -9141,8 +9143,10 @@ inline void gcode_M205() {
   #if ENABLED(JUNCTION_DEVIATION)
     if (parser.seen('J')) {
       const float junc_dev = parser.value_linear_units();
-      if (WITHIN(junc_dev, 0.01, 0.3))
+      if (WITHIN(junc_dev, 0.01, 0.3)) {
         planner.junction_deviation_mm = junc_dev;
+        planner.recalculate_max_e_jerk_factor();
+      }
       else {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM("?J out of range (0.01 to 0.3)");
@@ -9158,8 +9162,6 @@ inline void gcode_M205() {
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-  #endif
-  #if DISABLED(JUNCTION_DEVIATION) || ENABLED(LIN_ADVANCE)
     if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
   #endif
 }
