@@ -181,7 +181,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     #endif
     return;
   }
-  
+
   // Wait for planner moves to finish!
   planner.synchronize();
 

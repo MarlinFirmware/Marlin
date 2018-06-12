@@ -47,7 +47,7 @@
 /** @addtogroup EEPROM_Emulation
   * @{
   */
-#ifdef STM32F4
+#if defined(STM32F4) || defined(STM32F4xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "eeprom_emul.h"
@@ -562,7 +562,7 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data) {
   return FlashStatus;
 }
 
-#endif // STM32F4
+#endif // STM32F4 || STM32F4xx
 
 /**
  * @}
