@@ -1214,7 +1214,7 @@ void Stepper::isr() {
      * On AVR the ISR epilogue+prologue is estimated at 100 instructions - Give 8µs as margin
      * On ARM the ISR epilogue+prologue is estimated at 20 instructions - Give 1µs as margin
      */
-    min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * 8);
+    min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t((STEPPER_TIMER_TICKS_PER_US) * 8);
 
     /**
      * NB: If for some reason the stepper monopolizes the MPU, eventually the
@@ -1266,10 +1266,10 @@ void Stepper::stepper_pulse_phase_isr() {
   // Just update the value we will get at the end of the loop
   step_events_completed += events_to_do;
 
-  #if MINIMUM_STEPPER_PULSE
-    // Get the timer count and estimate the end of the pulse
-    hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
-  #endif
+  // Get the timer count and estimate the end of the pulse
+  hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
+
+  const hal_timer_t added_step_ticks = ADDED_STEP_TICKS;
 
   // Take multiple steps per interrupt (For high speed moves)
   do {
@@ -1342,9 +1342,10 @@ void Stepper::stepper_pulse_phase_isr() {
     #if MINIMUM_STEPPER_PULSE
       // Just wait for the requested pulse duration
       while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-      // Add to the value, the value needed for the pulse end and ensuring the maximum driver rate is enforced
-      pulse_end += hal_timer_t(MIN_STEPPER_PULSE_CYCLES) - hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
     #endif
+
+    // Add the delay needed to ensure the maximum driver rate is enforced
+    if (signed(added_step_ticks) > 0) pulse_end += hal_timer_t(added_step_ticks);
 
     // Pulse stop
     #if HAS_X_STEP
@@ -1373,15 +1374,15 @@ void Stepper::stepper_pulse_phase_isr() {
     // Decrement the count of pending pulses to do
     --events_to_do;
 
-    #if MINIMUM_STEPPER_PULSE
-      // For minimum pulse time wait after stopping pulses also
-      if (events_to_do) {
-        // Just wait for the requested pulse duration
-        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+    // For minimum pulse time wait after stopping pulses also
+    if (events_to_do) {
+      // Just wait for the requested pulse duration
+      while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+      #if MINIMUM_STEPPER_PULSE
         // Add to the value, the time that the pulse must be active (to be used on the next loop)
-        pulse_end += hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
-      }
-    #endif
+        pulse_end += hal_timer_t(MIN_PULSE_TICKS);
+      #endif
+    }
 
   } while (events_to_do);
 }
@@ -1760,13 +1761,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
           REV_E_DIR(active_extruder);
       #endif
 
+    // Get the timer count and estimate the end of the pulse
+    hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
+
+    const hal_timer_t added_step_ticks = ADDED_STEP_TICKS;
+
     // Step E stepper if we have steps
     while (LA_steps) {
 
-      #if MINIMUM_STEPPER_PULSE
-        hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
-      #endif
-
+      // Set the STEP pulse ON
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(j) {
           // Step mixing steppers (proportionally)
@@ -1778,15 +1781,18 @@ uint32_t Stepper::stepper_block_phase_isr() {
         E_STEP_WRITE(active_extruder, !INVERT_E_STEP_PIN);
       #endif
 
+      // Enforce a minimum duration for STEP pulse ON
       #if MINIMUM_STEPPER_PULSE
         // Just wait for the requested pulse duration
         while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-        // Add to the value, the value needed for the pulse end and ensuring the maximum driver rate is enforced
-        pulse_end += hal_timer_t(MIN_STEPPER_PULSE_CYCLES) - hal_timer_t((HAL_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE));
       #endif
+
+      // Add the delay needed to ensure the maximum driver rate is enforced
+      if (signed(added_step_ticks) > 0) pulse_end += hal_timer_t(added_step_ticks);
 
       LA_steps < 0 ? ++LA_steps : --LA_steps;
 
+      // Set the STEP pulse OFF
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(j) {
           if (delta_error_m[j] >= 0) {
@@ -1798,12 +1804,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
         E_STEP_WRITE(active_extruder, INVERT_E_STEP_PIN);
       #endif
 
-      #if MINIMUM_STEPPER_PULSE
-        // For minimum pulse time wait before looping
-        // Just wait for the requested pulse duration
-        if (LA_steps) while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
-      #endif
-
+      // For minimum pulse time wait before looping
+      // Just wait for the requested pulse duration
+      if (LA_steps) {
+        while (HAL_timer_get_count(PULSE_TIMER_NUM) < pulse_end) { /* nada */ }
+        #if MINIMUM_STEPPER_PULSE
+          // Add to the value, the time that the pulse must be active (to be used on the next loop)
+          pulse_end += hal_timer_t(MIN_PULSE_TICKS);
+        #endif
+      }
     } // LA_steps
 
     return interval;
