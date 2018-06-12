@@ -1214,7 +1214,7 @@ void Stepper::isr() {
      * On AVR the ISR epilogue+prologue is estimated at 100 instructions - Give 8µs as margin
      * On ARM the ISR epilogue+prologue is estimated at 20 instructions - Give 1µs as margin
      */
-    min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * 8); // ISR never takes more than 1ms, so this shouldn't cause trouble
+    min_ticks = HAL_timer_get_count(STEP_TIMER_NUM) + hal_timer_t((HAL_TICKS_PER_US) * 8);
 
     /**
      * NB: If for some reason the stepper monopolizes the MPU, eventually the
@@ -2005,14 +2005,9 @@ void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c
  * Get a stepper's position in steps.
  */
 int32_t Stepper::position(const AxisEnum axis) {
-  // Protect the access to the position. Only required for AVR, as
-  //  any 32bit CPU offers atomic access to 32bit variables
   const bool was_enabled = STEPPER_ISR_ENABLED();
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-
   const int32_t v = count_position[axis];
-
-  // Reenable Stepper ISR
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
   return v;
 }
@@ -2048,16 +2043,10 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
 }
 
 int32_t Stepper::triggered_position(const AxisEnum axis) {
-  // Protect the access to the position. Only required for AVR, as
-  //  any 32bit CPU offers atomic access to 32bit variables
   const bool was_enabled = STEPPER_ISR_ENABLED();
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-
   const int32_t v = endstops_trigsteps[axis];
-
-  // Reenable Stepper ISR
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
-
   return v;
 }
 
