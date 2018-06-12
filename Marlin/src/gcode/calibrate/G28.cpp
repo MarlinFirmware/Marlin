@@ -152,7 +152,7 @@
  *  None  Home to all axes with no parameters.
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
- *  O   Home only if postion is unknown
+ *  O   Home only if position is unknown
  *
  *  Rn  Raise by n mm/inches before homing
  *
