@@ -54,6 +54,7 @@ static SPISettings spiConfig;
 // --------------------------------------------------------------------------
 
 #if ENABLED(SOFTWARE_SPI)
+
   // --------------------------------------------------------------------------
   // Software SPI
   // --------------------------------------------------------------------------
@@ -81,8 +82,7 @@ void spiBegin(void) {
     #error SS_PIN not defined!
   #endif
 
-  SET_OUTPUT(SS_PIN);
-  WRITE(SS_PIN, HIGH);
+  OUT_WRITE(SS_PIN, HIGH);
 }
 
 /** Configure SPI for specified SPI speed */
@@ -90,14 +90,13 @@ void spiInit(uint8_t spiRate) {
   // Use datarates Marlin uses
   uint32_t clock;
   switch (spiRate) {
-  case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
-  case SPI_HALF_SPEED:    clock =  5000000; break;
-  case SPI_QUARTER_SPEED: clock =  2500000; break;
-  case SPI_EIGHTH_SPEED:  clock =  1250000; break;
-  case SPI_SPEED_5:       clock =   625000; break;
-  case SPI_SPEED_6:       clock =   300000; break;
-  default:
-    clock = 4000000; // Default from the SPI libarary
+    case SPI_FULL_SPEED:    clock = 20000000; break; // 13.9mhz=20000000  6.75mhz=10000000  3.38mhz=5000000  .833mhz=1000000
+    case SPI_HALF_SPEED:    clock =  5000000; break;
+    case SPI_QUARTER_SPEED: clock =  2500000; break;
+    case SPI_EIGHTH_SPEED:  clock =  1250000; break;
+    case SPI_SPEED_5:       clock =   625000; break;
+    case SPI_SPEED_6:       clock =   300000; break;
+    default:                clock =  4000000; // Default from the SPI libarary
   }
   spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
   SPI.begin();
@@ -129,11 +128,11 @@ uint8_t spiRec(void) {
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
 
-#if defined(STM32GENERIC)
-  SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
-#else
-  SPI.transfer((uint8_t*)buf, nbyte);
-#endif
+  #ifdef STM32GENERIC
+    SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
+  #else
+    SPI.transfer((uint8_t*)buf, nbyte);
+  #endif
 
   SPI.endTransaction();
 }
@@ -163,11 +162,11 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
 
-#if defined(STM32GENERIC)
-  SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
-#else
-  SPI.transfer((uint8_t*)buf, (uint8_t*)0, 512);
-#endif
+  #ifdef STM32GENERIC
+    SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
+  #else
+    SPI.transfer((uint8_t*)buf, (uint8_t*)0, 512);
+  #endif
 
   SPI.endTransaction();
 }

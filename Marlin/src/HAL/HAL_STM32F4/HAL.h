@@ -21,8 +21,6 @@
  *
  */
 
-
-
 #ifndef _HAL_STM32F4_H
 #define _HAL_STM32F4_H
 
@@ -41,8 +39,8 @@
 
 #include "Arduino.h"
 
-#if defined(USBCON)
-#include <USBSerial.h>
+#ifdef USBCON
+  #include <USBSerial.h>
 #endif
 
 #include "../math_32bit.h"
@@ -189,6 +187,7 @@ extern "C" {
 */
 
 extern "C" char* _sbrk(int incr);
+
 /*
 static int freeMemory() {
   volatile int top;
@@ -196,6 +195,7 @@ static int freeMemory() {
   return top;
 }
 */
+
 static int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
