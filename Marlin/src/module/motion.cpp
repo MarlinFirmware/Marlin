@@ -957,13 +957,13 @@ void prepare_move_to_destination() {
 
   bool axis_unhomed_error(const bool x/*=true*/, const bool y/*=true*/, const bool z/*=true*/) {
     #if ENABLED(HOME_AFTER_DEACTIVATE)
-      const bool xx = x && !axis_known_position[X_AXIS],
-                 yy = y && !axis_known_position[Y_AXIS],
-                 zz = z && !axis_known_position[Z_AXIS];
+      const bool xx = x && !TEST(axis_known_position, X_AXIS),
+                 yy = y && !TEST(axis_known_position, Y_AXIS),
+                 zz = z && !TEST(axis_known_position, Z_AXIS);
     #else
-      const bool xx = x && !axis_homed[X_AXIS],
-                 yy = y && !axis_homed[Y_AXIS],
-                 zz = z && !axis_homed[Z_AXIS];
+      const bool xx = x && !TEST(axis_homed, X_AXIS),
+                 yy = y && !TEST(axis_homed, Y_AXIS),
+                 zz = z && !TEST(axis_homed, Z_AXIS);
     #endif
     if (xx || yy || zz) {
       SERIAL_ECHO_START();
@@ -1173,7 +1173,8 @@ void set_axis_is_at_home(const AxisEnum axis) {
     }
   #endif
 
-  axis_known_position[axis] = axis_homed[axis] = true;
+  SBI(axis_known_position, axis);
+  SBI(axis_homed, axis);
 
   #if HAS_POSITION_SHIFT
     position_shift[axis] = 0;
