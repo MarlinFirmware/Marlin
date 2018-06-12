@@ -63,27 +63,39 @@
 
 // TODO change this
 
-
+#if defined(STM32GENERIC)
 extern void TC5_Handler();
 extern void TC7_Handler();
 #define HAL_STEP_TIMER_ISR  void TC5_Handler()
 #define HAL_TEMP_TIMER_ISR  void TC7_Handler()
+#else
+extern void TC5_Handler(stimer_t *htim);
+extern void TC7_Handler(stimer_t *htim);
+#define HAL_STEP_TIMER_ISR  void TC5_Handler(stimer_t *htim)
+#define HAL_TEMP_TIMER_ISR  void TC7_Handler(stimer_t *htim)
+#endif
+
 
 // --------------------------------------------------------------------------
 // Types
 // --------------------------------------------------------------------------
-
+#if defined(STM32GENERIC)
 typedef struct {
-  TIM_HandleTypeDef timerdef;
-  IRQn_Type   IRQ_Id;
+  TIM_HandleTypeDef handle;
   uint32_t callback;
 } tTimerConfig;
+#endif
 
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
 
-//extern const tTimerConfig timerConfig[];
+#if defined(STM32GENERIC)
+extern tTimerConfig TimerHandle[];
+#else
+extern stimer_t TimerHandle[];
+#endif
+
 
 // --------------------------------------------------------------------------
 // Public functions
@@ -94,12 +106,39 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
-void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare);
-hal_timer_t HAL_timer_get_compare(const uint8_t timer_num);
-uint32_t HAL_timer_get_count(const uint8_t timer_num);
-void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks);
+FORCE_INLINE static uint32_t HAL_timer_get_count(const uint8_t timer_num) {
+  return __HAL_TIM_GET_COUNTER(&TimerHandle[timer_num].handle);
+}
 
-void HAL_timer_isr_prologue(const uint8_t timer_num);
+FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare) {
+  __HAL_TIM_SET_AUTORELOAD(&TimerHandle[timer_num].handle, compare);
+
+  if(HAL_timer_get_count(timer_num) >= compare) {
+    TimerHandle[timer_num].handle.Instance->EGR |= TIM_EGR_UG; // Generate an immediate update interrupt
+  }
+}
+
+FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
+  return __HAL_TIM_GET_AUTORELOAD(&TimerHandle[timer_num].handle);
+}
+
+FORCE_INLINE static void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks) {
+  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_ticks;
+  if (HAL_timer_get_compare(timer_num) < mincmp) {
+    HAL_timer_set_compare(timer_num, mincmp);
+  } 
+}
+
+#if defined(STM32GENERIC)
+FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
+  if (__HAL_TIM_GET_FLAG(&TimerHandle[timer_num].handle, TIM_FLAG_UPDATE) == SET) {
+    __HAL_TIM_CLEAR_FLAG(&TimerHandle[timer_num].handle, TIM_FLAG_UPDATE);    
+  }
+}
+#else
+#define HAL_timer_isr_prologue(TIMER_NUM)
+#endif
+
 #define HAL_timer_isr_epilogue(TIMER_NUM)
 
 #endif // _HAL_TIMERS_STM32F4_H

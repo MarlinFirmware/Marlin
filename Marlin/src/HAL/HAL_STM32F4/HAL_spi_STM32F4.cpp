@@ -30,7 +30,7 @@
  * Adapted to the STM32F4 HAL
  */
 
-#ifdef STM32F4
+#if defined(STM32F4) || defined(STM32F4xx)
 
 // --------------------------------------------------------------------------
 // Includes
@@ -128,7 +128,13 @@ uint8_t spiRec(void) {
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
+
+#if defined(STM32GENERIC)
   SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
+#else
+  SPI.transfer((uint8_t*)buf, nbyte);
+#endif
+
   SPI.endTransaction();
 }
 
@@ -156,10 +162,16 @@ void spiSend(uint8_t b) {
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
+
+#if defined(STM32GENERIC)
   SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
+#else
+  SPI.transfer((uint8_t*)buf, (uint8_t*)0, 512);
+#endif
+
   SPI.endTransaction();
 }
 
 #endif // SOFTWARE_SPI
 
-#endif // STM32F4
+#endif // STM32F4 || STM32F4xx

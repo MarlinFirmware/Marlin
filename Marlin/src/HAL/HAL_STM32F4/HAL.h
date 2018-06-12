@@ -41,13 +41,16 @@
 
 #include "Arduino.h"
 
+#if defined(USBCON)
+#include <USBSerial.h>
+#endif
+
 #include "../math_32bit.h"
 #include "../HAL_SPI.h"
 #include "fastio_STM32F4.h"
 #include "watchdog_STM32F4.h"
 
 #include "HAL_timers_STM32F4.h"
-
 
 // --------------------------------------------------------------------------
 // Defines

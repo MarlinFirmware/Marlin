@@ -53,7 +53,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_SERVOS && !(IS_32BIT_TEENSY || defined(TARGET_LPC1768) || defined(STM32F4))
+#if HAS_SERVOS && !(IS_32BIT_TEENSY || defined(TARGET_LPC1768) || defined(STM32F4) || defined(STM32F4xx))
 
 //#include <Arduino.h>
 #include "servo.h"
