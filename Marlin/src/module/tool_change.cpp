@@ -80,7 +80,7 @@
     }
   }
 
-#endif // SWITCHING_EXTRUDER
+#endif // DO_SWITCH_EXTRUDER
 
 #if ENABLED(SWITCHING_NOZZLE)
 

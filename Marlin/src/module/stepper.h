@@ -269,19 +269,19 @@ class Stepper {
     inline static void set_position(const AxisEnum a, const int32_t &v) {
       planner.synchronize();
 
-    #ifdef __AVR__
-      // Protect the access to the position. Only required for AVR, as
-      //  any 32bit CPU offers atomic access to 32bit variables
-      const bool was_enabled = STEPPER_ISR_ENABLED();
-      if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-    #endif
+      #ifdef __AVR__
+        // Protect the access to the position. Only required for AVR, as
+        //  any 32bit CPU offers atomic access to 32bit variables
+        const bool was_enabled = STEPPER_ISR_ENABLED();
+        if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+      #endif
 
       count_position[a] = v;
 
-    #ifdef __AVR__
-      // Reenable Stepper ISR
-      if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
-    #endif
+      #ifdef __AVR__
+        // Reenable Stepper ISR
+        if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+      #endif
     }
 
   private:
