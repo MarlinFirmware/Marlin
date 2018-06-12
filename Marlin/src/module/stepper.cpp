@@ -1664,7 +1664,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         uint32_t max_rate = current_block->nominal_rate;  // Get the maximum rate (maximum event speed)
         while (max_rate < MIN_STEP_ISR_FREQUENCY) {
           max_rate <<= 1;
-          if (max_rate >= MAX_1X_STEP_ISR_FREQUENCY) break;
+          if (max_rate >= MAX_STEP_ISR_FREQUENCY_1X) break;
           ++oversampling;
         }
         oversampling_factor = oversampling;
