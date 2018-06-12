@@ -88,7 +88,7 @@
   inline void home_z_safely() {
 
     // Disallow Z homing if X or Y are unknown
-    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
+    if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
       LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM(MSG_ERR_Z_HOMING);
@@ -172,7 +172,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
   #endif
 
-  if ((axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) && parser.boolval('O')) { // home only if needed
+  if (all_axes_known() && parser.boolval('O')) { // home only if needed
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOLNPGM("> homing not needed, skip");
@@ -246,7 +246,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     const float z_homing_height = (
       #if ENABLED(UNKNOWN_Z_NO_RAISE)
-        !axis_known_position[Z_AXIS] ? 0 :
+        !TEST(axis_known_position, Z_AXIS) ? 0 :
       #endif
           (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
     );

@@ -332,7 +332,7 @@ void GcodeSuite::M912() {
     const uint16_t _rms = parser.seenval('S') ? parser.value_int() : CALIBRATION_CURRENT,
                    _z = parser.seenval('Z') ? parser.value_linear_units() : CALIBRATION_EXTRA_HEIGHT;
 
-    if (!axis_known_position[Z_AXIS]) {
+    if (!TEST(axis_known_position, Z_AXIS)) {
       SERIAL_ECHOLNPGM("\nPlease home Z axis first");
       return;
     }
