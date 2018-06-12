@@ -69,8 +69,8 @@ timer_dev* get_timer_dev(int number);
 
 #define HAL_TIMER_RATE         (F_CPU)  // frequency of timers peripherals
 #define STEPPER_TIMER_PRESCALE 18             // prescaler for setting stepper timer, 4Mhz
-#define HAL_STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer
-#define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
+#define STEPPER_TIMER_RATE     (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer
+#define HAL_TICKS_PER_US       ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
 #define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 

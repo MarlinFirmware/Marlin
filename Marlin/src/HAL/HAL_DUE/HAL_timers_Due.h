@@ -49,8 +49,8 @@ typedef uint32_t hal_timer_t;
 
 #define HAL_TIMER_RATE         ((F_CPU) / 2)    // frequency of timers peripherals
 
-#define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
-#define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
+#define STEPPER_TIMER_RATE     HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
+#define HAL_TICKS_PER_US       ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 #define STEPPER_TIMER_PRESCALE (CYCLES_PER_MICROSECOND / HAL_TICKS_PER_US)
 #define STEP_TIMER_MIN_INTERVAL   8 // minimum time in µs between stepper interrupts
 
