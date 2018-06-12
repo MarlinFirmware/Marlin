@@ -93,7 +93,7 @@ inline uint8_t HAL_get_reset_source(void) { return MCUSR; }
 
 #define STEP_TIMER_NUM          1
 #define TEMP_TIMER_NUM          0
-#define PULSE_TIMER_NUM         TEMP_TIMER_NUM
+#define PULSE_TIMER_NUM         STEP_TIMER_NUM
 
 #define HAL_STEPPER_TIMER_RATE  HAL_TIMER_RATE
 #define HAL_TICKS_PER_US        ((HAL_STEPPER_TIMER_RATE) / 1000000) // Cannot be of type double
@@ -109,7 +109,7 @@ inline uint8_t HAL_get_reset_source(void) { return MCUSR; }
 #define TIMER_OCR_0             OCR0A
 #define TIMER_COUNTER_0         TCNT0
 
-#define PULSE_TIMER_PRESCALE    8
+#define PULSE_TIMER_PRESCALE    STEPPER_TIMER_PRESCALE
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
