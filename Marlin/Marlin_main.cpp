@@ -4101,6 +4101,7 @@ inline void gcode_G28(const bool always_home_all) {
 
   #if ENABLED(BLTOUCH)
     bltouch_command(BLTOUCH_RESET);
+    set_bltouch_deployed(false);
   #endif
 
   // Always home with tool 0 active
