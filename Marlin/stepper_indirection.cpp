@@ -201,8 +201,6 @@
       #if ENABLED(HYBRID_THRESHOLD)
         st.stealth_max_speed(12650000UL*microsteps/(256*thrs*spmm));
       #endif
-    #elif ENABLED(SENSORLESS_HOMING)
-      st.coolstep_min_speed(1024UL * 1024UL - 1UL);
     #endif
     st.GSTAT(); // Clear GSTAT
   }
