@@ -143,7 +143,7 @@ class Endstops {
     // Enable / disable endstop z-probe checking
     #if HAS_BED_PROBE
       static volatile bool z_probe_enabled;
-      static void enable_z_probe(bool onoff=true);
+      static void enable_z_probe(const bool onoff=true);
     #endif
 
     // Debugging of endstops
