@@ -20,7 +20,7 @@
  *
  */
 
-#ifdef STM32F4
+#if defined(STM32F4) || defined(STM32F4xx)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -54,4 +54,4 @@
 
 #endif // USE_WATCHDOG
 
-#endif // STM32F4
+#endif // STM32F4 || STM32F4xx

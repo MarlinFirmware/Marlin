@@ -241,7 +241,7 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN -1
+#define E0_AUTO_FAN_PIN FAN1_PIN
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
@@ -384,7 +384,7 @@
 #define X_HOME_BUMP_MM 5
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
-#define HOMING_BUMP_DIVISOR { 2, 2, 4 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
+#define HOMING_BUMP_DIVISOR { 4, 4, 4 }  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 #define QUICK_HOME                     // If homing includes X and Y, do a diagonal move initially
 
 // When G28 is called, this option will make Y home before X

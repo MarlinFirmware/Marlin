@@ -745,8 +745,8 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
 
   #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps
-    uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * (HAL_STEPPER_TIMER_RATE),
-             deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (HAL_STEPPER_TIMER_RATE);
+    uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * (STEPPER_TIMER_RATE),
+             deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (STEPPER_TIMER_RATE);
 
     // And to offload calculations from the ISR, we also calculate the inverse of those times here
     uint32_t acceleration_time_inverse = get_period_inverse(acceleration_time);
@@ -2097,11 +2097,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
   #if DISABLED(S_CURVE_ACCELERATION)
-    block->acceleration_rate = (uint32_t)(accel * (4096.0 * 4096.0 / (HAL_STEPPER_TIMER_RATE)));
+    block->acceleration_rate = (uint32_t)(accel * (4096.0 * 4096.0 / (STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
-      block->advance_speed = (HAL_STEPPER_TIMER_RATE) / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N]);
+      block->advance_speed = (STEPPER_TIMER_RATE) / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N]);
       #if ENABLED(LA_DEBUG)
         if (extruder_advance_K * block->e_D_ratio * block->acceleration * 2 < SQRT(block->nominal_speed_sqr) * block->e_D_ratio)
           SERIAL_ECHOLNPGM("More than 2 steps per eISR loop executed.");

@@ -131,11 +131,11 @@
 #define HEATER_1_PIN       _STM32_PIN(A, 2)
 #define HEATER_BED_PIN     _STM32_PIN(A, 0)
 
-#define FAN_PIN            _STM32_PIN(C, 6)
-#define FAN1_PIN           _STM32_PIN(C, 7)
-#define FAN2_PIN           _STM32_PIN(C, 8)
+#define FAN_PIN            _STM32_PIN(C, 6) // Part cooling fan
+#define FAN1_PIN           _STM32_PIN(C, 7) // Extruder fan
+#define FAN2_PIN           _STM32_PIN(C, 8) // Controller fan
 
-#define ORIG_E0_AUTO_FAN_PIN  FAN1_PIN // Use this by NOT overriding E0_AUTO_FAN_PIN
+//#define ORIG_E0_AUTO_FAN_PIN  FAN1_PIN // Use this by NOT overriding E0_AUTO_FAN_PIN
 
 //
 // Misc. Functions

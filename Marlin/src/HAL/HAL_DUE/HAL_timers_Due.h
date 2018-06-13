@@ -43,21 +43,22 @@
 typedef uint32_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
 
-#define STEP_TIMER_NUM 3  // index of timer to use for stepper
-#define TEMP_TIMER_NUM 4  // index of timer to use for temperature
-#define TONE_TIMER_NUM 6  // index of timer to use for beeper tones
-
 #define HAL_TIMER_RATE         ((F_CPU) / 2)    // frequency of timers peripherals
 
-#define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
-#define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
-#define STEPPER_TIMER_PRESCALE (CYCLES_PER_MICROSECOND / HAL_TICKS_PER_US)
-#define STEP_TIMER_MIN_INTERVAL   8 // minimum time in µs between stepper interrupts
+#define STEP_TIMER_NUM 3  // index of timer to use for stepper
+#define TEMP_TIMER_NUM 4  // index of timer to use for temperature
+#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#define TONE_TIMER_NUM 6  // index of timer to use for beeper tones
 
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
 
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
-#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
+#define STEPPER_TIMER_RATE     HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
+#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
+#define STEPPER_TIMER_PRESCALE (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
+
+#define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer
+#define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(STEP_TIMER_NUM)
