@@ -121,6 +121,8 @@
   }
   #undef nop
 
+#elif defined(__PLAT_X86_64__)
+  // specified inside platform
 #else
   #error "Unsupported MCU architecture"
 #endif

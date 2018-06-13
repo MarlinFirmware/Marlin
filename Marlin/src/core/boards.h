@@ -224,6 +224,7 @@
 //
 
 #define BOARD_THE_BORG         1860   // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_LINUX_X86_64     2000
 
 
 #define MB(board) (defined(BOARD_##board) && MOTHERBOARD==BOARD_##board)
