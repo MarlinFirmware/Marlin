@@ -381,6 +381,13 @@
 #elif MB(THE_BORG)
   #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7
 
+//
+// Espressif ESP32
+//
+
+#elif MB(ESP32)
+  #include "pins_ESP32.h"
+
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
