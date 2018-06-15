@@ -1607,7 +1607,7 @@ void MarlinSettings::postprocess() {
       }
     #endif
 
-    int16_t MarlinSettings::meshes_start_index() {
+    uint16_t MarlinSettings::meshes_start_index() {
       return (datasize() + EEPROM_OFFSET + 32) & 0xFFF8;  // Pad the end of configuration data so it can float up
                                                           // or down a little bit without disrupting the mesh data
     }
