@@ -512,18 +512,19 @@
   #define HANGPRINTER_PRINTABLE_RADIUS 1500.0
   // Anchor position coordinates
   // ANCHOR_A_X = 0 by definition. Left out of all calculations
-  #define ANCHOR_A_Y -2163
-  #define ANCHOR_A_Z   -75
-  #define ANCHOR_B_X -1841
-  #define ANCHOR_B_Y   741
-  #define ANCHOR_B_Z   -75
-  #define ANCHOR_C_X  1639
-  #define ANCHOR_C_Y  1404
-  #define ANCHOR_C_Z   -75
-  #define ANCHOR_D_Z  3250
+  #define ANCHOR_A_Y -1234
+  #define ANCHOR_A_Z   -12
+  #define ANCHOR_B_X  1234
+  #define ANCHOR_B_Y   123
+  #define ANCHOR_B_Z   -12
+  #define ANCHOR_C_X -1234
+  #define ANCHOR_C_Y  1234
+  #define ANCHOR_C_Z   -12
+  #define ANCHOR_D_Z  1234
 
   // Comment this out if you plan to place your anchors at unconventional places
   // See SanityCheck.h for exact definition of the tested convention
+  // Warning: For this to work, you may not have decimal points in your ANCHOR_ABCD_XYZ definitions.
   #define CONVENTIONAL_GEOMETRY
 
   /*
