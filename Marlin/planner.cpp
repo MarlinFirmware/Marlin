@@ -102,7 +102,7 @@ uint8_t Planner::delay_before_delivering;       // This counter delays delivery 
 
 uint32_t Planner::max_acceleration_mm_per_s2[NUM_AXIS_N],    // (mm/s^2) M201 XYZE
          Planner::max_acceleration_steps_per_s2[NUM_AXIS_N], // (steps/s^2) Derived from mm_per_s2
-         Planner::min_segment_time_us;                       // (µs) M205 B
+         Planner::min_segment_time_us;                       // (µs) M205 Q
 
 float Planner::max_feedrate_mm_s[NUM_AXIS_N], // (mm/s) M203 XYZE - Max speeds
       Planner::axis_steps_per_mm[NUM_AXIS_N], // (steps) M92 XYZE - Steps per millimeter

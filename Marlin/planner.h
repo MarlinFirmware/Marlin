@@ -194,7 +194,7 @@ class Planner {
 
     static uint32_t max_acceleration_mm_per_s2[NUM_AXIS_N],    // (mm/s^2) M201 XYZE
                     max_acceleration_steps_per_s2[NUM_AXIS_N], // (steps/s^2) Derived from mm_per_s2
-                    min_segment_time_us;                       // (µs) M205 B
+                    min_segment_time_us;                       // (µs) M205 Q
     static float max_feedrate_mm_s[NUM_AXIS_N], // (mm/s) M203 XYZE - Max speeds
                  axis_steps_per_mm[NUM_AXIS_N], // (steps) M92 XYZE - Steps per millimeter
                  steps_to_mm[NUM_AXIS_N],       // (mm) Millimeters per step

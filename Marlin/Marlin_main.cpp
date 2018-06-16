@@ -163,7 +163,7 @@
  * M204 - Set default acceleration in units/sec^2: P<printing> R<extruder_only> T<travel>
  * M205 - Set advanced settings. Current units apply:
             S<print> T<travel> minimum speeds
-            B<minimum segment time>
+            Q<minimum segment time>
             X<max X jerk>, Y<max Y jerk>, Z<max Z jerk>, E<max E jerk>
  * M206 - Set additional homing offset. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M207 - Set Retract Length: S<length>, Feedrate: F<units/min>, and Z lift: Z<distance>. (Requires FWRETRACT)
@@ -9516,7 +9516,7 @@ inline void gcode_M204() {
 /**
  * M205: Set Advanced Settings
  *
- *    B = Min Segment Time (µs)
+ *    Q = Min Segment Time (µs)
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
  *    X = Max X Jerk (units/sec^2)
@@ -9526,7 +9526,7 @@ inline void gcode_M204() {
  *    J = Junction Deviation (mm) (Requires JUNCTION_DEVIATION)
  */
 inline void gcode_M205() {
-  if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
+  if (parser.seen('Q')) planner.min_segment_time_us = parser.value_ulong();
   if (parser.seen('S')) planner.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.min_travel_feedrate_mm_s = parser.value_linear_units();
   #if ENABLED(JUNCTION_DEVIATION)
