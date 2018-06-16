@@ -66,6 +66,15 @@ extern "C" {
     #if PIN_EXISTS(LED)
       SET_DIR_OUTPUT(LED_PIN);
       WRITE_PIN_CLR(LED_PIN);
+
+      //MKS-SBASE has 3 other LEDS the bootloader uses during flashing, clear them
+      SET_DIR_OUTPUT(P1_19);
+      WRITE_PIN_CLR(P1_19);
+      SET_DIR_OUTPUT(P1_20);
+      WRITE_PIN_CLR(P1_20);
+      SET_DIR_OUTPUT(P1_21);
+      WRITE_PIN_CLR(P1_21);
+
       for (int i = 0; i < 6; ++i) {
         TOGGLE(LED_PIN);
         delay(100);
