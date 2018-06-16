@@ -49,7 +49,7 @@ else:
           "-fno-threadsafe-statics"
       ],
       LINKFLAGS=[
-          "-Wl,-Tframeworks/CMSIS/LPC1768/Re-ARM/LPC1768.ld,--gc-sections",
+          "-Wl,-Tframeworks/CMSIS/LPC1768/system/LPC1768.ld,--gc-sections",
           "-Os",
           "-mcpu=cortex-m3",
           "-mthumb",
