@@ -39,7 +39,9 @@ void GcodeSuite::M92() {
         const float value = parser.value_per_axis_unit((AxisEnum)(E_AXIS + TARGET_EXTRUDER));
         if (value < 20.0) {
           float factor = planner.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] / value; // increase e constants if M92 E14 is given for netfab.
-          planner.max_jerk[E_AXIS] *= factor;
+          #if DISABLED(JUNCTION_DEVIATION)
+            planner.max_jerk[E_AXIS] *= factor;
+          #endif
           planner.max_feedrate_mm_s[E_AXIS + TARGET_EXTRUDER] *= factor;
           planner.max_acceleration_steps_per_s2[E_AXIS + TARGET_EXTRUDER] *= factor;
         }

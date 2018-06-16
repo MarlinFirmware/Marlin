@@ -1,30 +1,21 @@
-/* **************************************************************************
-
- Marlin 3D Printer Firmware
- Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-
- Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-****************************************************************************/
-
 /**
- * Description: HAL for AVR
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
  *
- * For __AVR__
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #ifndef _HAL_AVR_H_
 #define _HAL_AVR_H_
@@ -115,10 +106,6 @@ extern "C" {
   int freeMemory(void);
 }
 
-// eeprom
-//void eeprom_write_byte(unsigned char *pos, unsigned char value);
-//unsigned char eeprom_read_byte(unsigned char *pos);
-
 // timers
 #define HAL_TIMER_RATE          ((F_CPU) / 8)    // i.e., 2MHz or 2.5MHz
 
@@ -126,20 +113,15 @@ extern "C" {
 #define TEMP_TIMER_NUM          0
 #define PULSE_TIMER_NUM         STEP_TIMER_NUM
 
-#define HAL_STEPPER_TIMER_RATE  HAL_TIMER_RATE
-#define HAL_TICKS_PER_US        ((HAL_STEPPER_TIMER_RATE) / 1000000) // Cannot be of type double
-#define STEPPER_TIMER_PRESCALE  8
-#define STEP_TIMER_MIN_INTERVAL 8 // minimum time in µs between stepper interrupts
-
 #define TEMP_TIMER_FREQUENCY    ((F_CPU) / 64.0 / 256.0)
 
-#define TIMER_OCR_1             OCR1A
-#define TIMER_COUNTER_1         TCNT1
+#define STEPPER_TIMER_RATE      HAL_TIMER_RATE
+#define STEPPER_TIMER_PRESCALE  8
+#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // Cannot be of type double
 
-#define TIMER_OCR_0             OCR0A
-#define TIMER_COUNTER_0         TCNT0
-
-#define PULSE_TIMER_PRESCALE    STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer
+#define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
@@ -179,6 +161,12 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t freque
       break;
   }
 }
+
+#define TIMER_OCR_1             OCR1A
+#define TIMER_COUNTER_1         TCNT1
+
+#define TIMER_OCR_0             OCR0A
+#define TIMER_COUNTER_0         TCNT0
 
 #define _CAT(a, ...) a ## __VA_ARGS__
 #define HAL_timer_set_compare(timer, compare) (_CAT(TIMER_OCR_, timer) = compare)

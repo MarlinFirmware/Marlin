@@ -134,8 +134,10 @@ void GcodeSuite::M205() {
   #if ENABLED(JUNCTION_DEVIATION)
     if (parser.seen('J')) {
       const float junc_dev = parser.value_linear_units();
-      if (WITHIN(junc_dev, 0.01, 0.3))
+      if (WITHIN(junc_dev, 0.01, 0.3)) {
         planner.junction_deviation_mm = junc_dev;
+        planner.recalculate_max_e_jerk_factor();
+      }
       else {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM("?J out of range (0.01 to 0.3)");
@@ -151,8 +153,6 @@ void GcodeSuite::M205() {
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-  #endif
-  #if DISABLED(JUNCTION_DEVIATION) || ENABLED(LIN_ADVANCE)
     if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
   #endif
 }

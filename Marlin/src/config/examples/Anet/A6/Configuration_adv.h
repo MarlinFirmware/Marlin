@@ -1700,4 +1700,13 @@
                               // Default behaviour is limited to Z axis only.
 #endif
 
+/**
+ * WiFi Support (Espressif ESP32 WiFi)
+ */
+//#define WIFISUPPORT
+#if ENABLED(WIFISUPPORT)
+  #define WIFI_SSID "Wifi SSID"
+  #define WIFI_PWD  "Wifi Password"
+#endif
+
 #endif // CONFIGURATION_ADV_H

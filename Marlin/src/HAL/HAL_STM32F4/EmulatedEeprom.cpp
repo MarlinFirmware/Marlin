@@ -17,7 +17,7 @@
  *
  */
 
-#ifdef STM32F4
+#if defined(STM32F4) || defined(STM32F4xx)
 
 /**
  * Description: functions for I2C connected external EEPROM.
@@ -139,5 +139,5 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n) {
 }
 
 #endif // ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
-#endif // STM32F4
+#endif // STM32F4 || STM32F4xx
 
