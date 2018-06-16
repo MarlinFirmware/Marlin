@@ -115,12 +115,11 @@ public:
   }
 
   size_t write(const uint8_t c) {
-    if (!host_connected) return 0;    // Do not fill buffer when host disconnected
-    while (!transmit_buffer.free()) { // Block until there is free room in buffer
-      if (!host_connected)
-        return 0;                     // Break infinite loop on host disconect
+    if (!host_connected) return 0;          // Do not fill buffer when host disconnected
+    while (transmit_buffer.write(c) == 0) { // Block until there is free room in buffer
+      if (!host_connected) return 0;        // Break infinite loop on host disconect
     }
-    return transmit_buffer.write(c);
+    return 1;
   }
 
   size_t available() {
