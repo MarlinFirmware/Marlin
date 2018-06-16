@@ -68,7 +68,7 @@ static uint8_t LEDs[8] = { 0 };
 #define SIG_DELAY() DELAY_NS(188)
 
 void Max7219_PutByte(uint8_t data) {
-  CRITICAL_SECTION_START
+  CRITICAL_SECTION_START;
   for (uint8_t i = 8; i--;) {
     SIG_DELAY();
     WRITE(MAX7219_CLK_PIN, LOW);       // tick
@@ -79,12 +79,12 @@ void Max7219_PutByte(uint8_t data) {
     SIG_DELAY();
     data <<= 1;
   }
-  CRITICAL_SECTION_END
+  CRITICAL_SECTION_END;
 }
 
 void Max7219(const uint8_t reg, const uint8_t data) {
   SIG_DELAY();
-  CRITICAL_SECTION_START
+  CRITICAL_SECTION_START;
   WRITE(MAX7219_LOAD_PIN, LOW);  // begin
   SIG_DELAY();
   Max7219_PutByte(reg);          // specify register
@@ -94,7 +94,7 @@ void Max7219(const uint8_t reg, const uint8_t data) {
   WRITE(MAX7219_LOAD_PIN, LOW);  // and tell the chip to load the data
   SIG_DELAY();
   WRITE(MAX7219_LOAD_PIN, HIGH);
-  CRITICAL_SECTION_END
+  CRITICAL_SECTION_END;
   SIG_DELAY();
 }
 
@@ -276,14 +276,14 @@ void Max7219_init() {
  */
 void Max7219_idle_tasks() {
   #if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
-    CRITICAL_SECTION_START
+    CRITICAL_SECTION_START;
     #if MAX7219_DEBUG_STEPPER_HEAD || MAX7219_DEBUG_STEPPER_QUEUE
       const uint8_t head = planner.block_buffer_head;
     #endif
     #if MAX7219_DEBUG_STEPPER_TAIL || MAX7219_DEBUG_STEPPER_QUEUE
       const uint8_t tail = planner.block_buffer_tail;
     #endif
-    CRITICAL_SECTION_END
+    CRITICAL_SECTION_END;
   #endif
 
   static uint16_t refresh_cnt = 0;  // The Max7219 circuit boards available for several dollars on eBay
