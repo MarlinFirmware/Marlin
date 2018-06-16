@@ -2465,7 +2465,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   previous_nominal_speed_sqr = block->nominal_speed_sqr;
 
   // Update the position (only when a move was queued)
-  static_assert(COUNT(target) > 1, "Parameter to _buffer_steps must be (&target)["
+  static_assert(COUNT(target) > 1, "Parameter to _populate_block must be (&target)["
     #if ENABLED(HANGPRINTER)
       "ABCD"
     #else
