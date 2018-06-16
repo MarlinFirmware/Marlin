@@ -60,9 +60,11 @@
  * unless DEACTIVATE_SERVOS_AFTER_MOVE is enabled and a MOVE command was issued.
  */
 
+#ifdef TARGET_LPC1768
+
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SERVOS && defined(TARGET_LPC1768)
+#if HAS_SERVOS
 
   #include "LPC1768_PWM.h"
   #include "LPC1768_Servo.h"
@@ -157,4 +159,5 @@
     }
   }
 
-#endif // HAS_SERVOS && TARGET_LPC1768
+#endif // HAS_SERVOS
+#endif // TARGET_LPC1768
