@@ -48,8 +48,8 @@
 
 // Bracket code that shouldn't be interrupted
 #ifndef CRITICAL_SECTION_START
-  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
-  #define CRITICAL_SECTION_END    SREG = _sreg;
+  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli()
+  #define CRITICAL_SECTION_END    SREG = _sreg
 #endif
 
 #define ISRS_ENABLED() TEST(SREG, SREG_I)
