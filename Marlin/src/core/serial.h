@@ -49,13 +49,13 @@ extern uint8_t marlin_debug_flags;
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,serial_port_index,p)
   #define _PORT_RESTORE(n)      RESTORE(n)
   #define SERIAL_OUT(WHAT, ...) do{ \
-    if (!serial_port_index || serial_port_index == SERIAL_BOTH) MYSERIAL0.WHAT(__VA_ARGS__); \
-    if ( serial_port_index) MYSERIAL1.WHAT(__VA_ARGS__); \
+    if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(__VA_ARGS__); \
+    if ( serial_port_index) (void)MYSERIAL1.WHAT(__VA_ARGS__); \
   }while(0)
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
   #define _PORT_RESTORE(n)      NOOP
-  #define SERIAL_OUT(WHAT, ...) MYSERIAL0.WHAT(__VA_ARGS__)
+  #define SERIAL_OUT(WHAT, ...) (void)MYSERIAL0.WHAT(__VA_ARGS__)
 #endif
 
 #define PORT_REDIRECT(p)        _PORT_REDIRECT(1,p)

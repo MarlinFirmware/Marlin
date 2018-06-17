@@ -46,6 +46,11 @@
 #include "i2s.h"
 
 #include "HAL_timers_ESP32.h"
+#include "WebSocketSerial.h"
+
+#include "ESPAsyncWebServer.h"
+
+#include "wifi.h"
 
 // --------------------------------------------------------------------------
 // Defines
@@ -53,8 +58,9 @@
 
 extern portMUX_TYPE spinlock;
 
-#define NUM_SERIAL 1
+#define NUM_SERIAL 2
 #define MYSERIAL0 Serial
+#define MYSERIAL1 webSocketSerial
 
 #define CRITICAL_SECTION_START portENTER_CRITICAL(&spinlock)
 #define CRITICAL_SECTION_END   portEXIT_CRITICAL(&spinlock)
