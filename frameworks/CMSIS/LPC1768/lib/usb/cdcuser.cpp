@@ -211,7 +211,7 @@ void CDC_BulkIn(void) {
   if (numBytesAvail > 0) {
     numBytesAvail = numBytesAvail > (USB_CDC_BUFSIZE - 1) ? (USB_CDC_BUFSIZE - 1) : numBytesAvail;
     for(uint32_t i = 0; i < numBytesAvail; ++i) {
-      BulkBufIn[i] = usb_serial.transmit_buffer.read(); //todo: optimise
+      usb_serial.transmit_buffer.read(&BulkBufIn[i]);
     }
     USB_WriteEP(CDC_DEP_IN, &BulkBufIn[0], numBytesAvail);
   } else {
