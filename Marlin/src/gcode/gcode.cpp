@@ -599,6 +599,10 @@ void GcodeSuite::process_parsed_command(
         case 702: M702(); break;                                  // M702: Unload Filament
       #endif
 
+      #if ENABLED(MAX7219_GCODE)
+        case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
+      #endif
+
       #if ENABLED(LIN_ADVANCE)
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
