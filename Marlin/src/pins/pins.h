@@ -842,6 +842,7 @@
 #define _X2_PINS
 #define _Y2_PINS
 #define _Z2_PINS
+#define _Z3_PINS
 
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
@@ -897,7 +898,7 @@
 #endif
 
 // The Z2 axis, if any, should be the next open extruder port
-#if ENABLED(Z_DUAL_STEPPER_DRIVERS)
+#if Z_MULTI_STEPPER_DRIVERS
   #ifndef Z2_STEP_PIN
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
     #define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
@@ -916,6 +917,30 @@
   #else
     #define _Z2_PINS __Z2_PINS
   #endif
+  #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
+#else
+  #define Z3_E_INDEX Z2_E_INDEX
+#endif
+
+#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+  #ifndef Z3_STEP_PIN
+    #define Z3_STEP_PIN   _EPIN(Z3_E_INDEX, STEP)
+    #define Z3_DIR_PIN    _EPIN(Z3_E_INDEX, DIR)
+    #define Z3_ENABLE_PIN _EPIN(Z3_E_INDEX, ENABLE)
+    #ifndef Z3_CS_PIN
+      #define Z3_CS_PIN   _EPIN(Z3_E_INDEX, CS)
+    #endif
+    #if Z3_E_INDEX > 4 || !PIN_EXISTS(Z3_ENABLE)
+      #error "No E stepper plug left for Z3!"
+    #endif
+  #endif
+  #undef _Z3_PINS
+  #define __Z3_PINS Z3_STEP_PIN, Z3_DIR_PIN, Z3_ENABLE_PIN,
+  #ifdef Z3_CS_PIN
+    #define _Z3_PINS __Z3_PINS Z3_CS_PIN,
+  #else
+    #define _Z3_PINS __Z3_PINS
+  #endif
 #endif
 
 #ifndef HAL_SENSITIVE_PINS
@@ -929,7 +954,7 @@
     PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLER_FAN_PIN, \
     _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS BED_PINS \
     _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS \
-    _X2_PINS _Y2_PINS _Z2_PINS \
+    _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS \
     HAL_SENSITIVE_PINS \
   }
 

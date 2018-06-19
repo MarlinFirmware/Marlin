@@ -611,7 +611,7 @@
 /**
  * Z_DUAL_ENDSTOPS endstop reassignment
  */
-#if ENABLED(Z_DUAL_ENDSTOPS)
+#if Z_MULTI_ENDSTOPS
   #if Z_HOME_DIR > 0
     #if Z2_USE_ENDSTOP == _XMIN_
       #define Z2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
@@ -661,9 +661,64 @@
   #endif
 #endif
 
+#if ENABLED(Z_TRIPLE_ENDSTOPS)
+  #if Z_HOME_DIR > 0
+    #if Z3_USE_ENDSTOP == _XMIN_
+      #define Z3_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
+      #define Z3_MAX_PIN X_MIN_PIN
+    #elif Z3_USE_ENDSTOP == _XMAX_
+      #define Z3_MAX_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
+      #define Z3_MAX_PIN X_MAX_PIN
+    #elif Z3_USE_ENDSTOP == _YMIN_
+      #define Z3_MAX_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
+      #define Z3_MAX_PIN Y_MIN_PIN
+    #elif Z3_USE_ENDSTOP == _YMAX_
+      #define Z3_MAX_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
+      #define Z3_MAX_PIN Y_MAX_PIN
+    #elif Z3_USE_ENDSTOP == _ZMIN_
+      #define Z3_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
+      #define Z3_MAX_PIN Z_MIN_PIN
+    #elif Z3_USE_ENDSTOP == _ZMAX_
+      #define Z3_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
+      #define Z3_MAX_PIN Z_MAX_PIN
+    #else
+      #define Z3_MAX_ENDSTOP_INVERTING false
+    #endif
+    #define Z3_MIN_ENDSTOP_INVERTING false
+  #else
+    #if Z3_USE_ENDSTOP == _XMIN_
+      #define Z3_MIN_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
+      #define Z3_MIN_PIN X_MIN_PIN
+    #elif Z3_USE_ENDSTOP == _XMAX_
+      #define Z3_MIN_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
+      #define Z3_MIN_PIN X_MAX_PIN
+    #elif Z3_USE_ENDSTOP == _YMIN_
+      #define Z3_MIN_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
+      #define Z3_MIN_PIN Y_MIN_PIN
+    #elif Z3_USE_ENDSTOP == _YMAX_
+      #define Z3_MIN_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
+      #define Z3_MIN_PIN Y_MAX_PIN
+    #elif Z3_USE_ENDSTOP == _ZMIN_
+      #define Z3_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
+      #define Z3_MIN_PIN Z_MIN_PIN
+    #elif Z3_USE_ENDSTOP == _ZMAX_
+      #define Z3_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
+      #define Z3_MIN_PIN Z_MAX_PIN
+    #else
+      #define Z3_MIN_ENDSTOP_INVERTING false
+    #endif
+    #define Z3_MAX_ENDSTOP_INVERTING false
+  #endif
+#endif
+
 // Is an endstop plug used for the Z2 endstop or the bed probe?
 #define IS_Z2_OR_PROBE(A,M) ( \
-     (ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP == _##A##M##_) \
+     (Z_MULTI_ENDSTOPS && Z2_USE_ENDSTOP == _##A##M##_) \
+  || (ENABLED(Z_MIN_PROBE_ENDSTOP) && Z_MIN_PROBE_PIN == A##_##M##_PIN ) )
+
+// Is an endstop plug used for the Z3 endstop or the bed probe?
+#define IS_Z3_OR_PROBE(A,M) ( \
+     (ENABLED(Z_TRIPLE_ENDSTOPS) && Z3_USE_ENDSTOP == _##A##M##_) \
   || (ENABLED(Z_MIN_PROBE_ENDSTOP) && Z_MIN_PROBE_PIN == A##_##M##_PIN ) )
 
 /**
@@ -749,6 +804,10 @@
 #define HAS_Z2_STEP       (PIN_EXISTS(Z2_STEP))
 #define HAS_Z2_MICROSTEPS (PIN_EXISTS(Z2_MS1))
 
+#define HAS_Z3_ENABLE     (PIN_EXISTS(Z3_ENABLE))
+#define HAS_Z3_DIR        (PIN_EXISTS(Z3_DIR))
+#define HAS_Z3_STEP       (PIN_EXISTS(Z3_STEP))
+
 // Extruder steppers and solenoids
 #define HAS_E0_ENABLE     (PIN_EXISTS(E0_ENABLE))
 #define HAS_E0_DIR        (PIN_EXISTS(E0_DIR))
@@ -810,6 +869,8 @@
 #define HAS_Y2_MAX (PIN_EXISTS(Y2_MAX))
 #define HAS_Z2_MIN (PIN_EXISTS(Z2_MIN))
 #define HAS_Z2_MAX (PIN_EXISTS(Z2_MAX))
+#define HAS_Z3_MIN (PIN_EXISTS(Z3_MIN))
+#define HAS_Z3_MAX (PIN_EXISTS(Z3_MAX))
 #define HAS_Z_MIN_PROBE_PIN (PIN_EXISTS(Z_MIN_PROBE))
 
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
