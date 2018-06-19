@@ -10916,12 +10916,12 @@ inline void gcode_M502() {
       Max7219_Clear();
 
     if (parser.seen('F'))
-      for(uint8_t x = 0; x < MAX7219_X_LEDS; x++)
+      for (uint8_t x = 0; x < MAX7219_X_LEDS; x++)
         Max7219_Set_Column(x, 0xffffffff);
 
     if (parser.seenval('R')) {
       const uint32_t r = parser.value_int();
-      Max7219_Set_Row(r, parser.ulongval('V'));
+      Max7219_Set_Row(r, parser.byteval('V'));
       return;
     }
     else if (parser.seenval('C')) {
@@ -10939,7 +10939,7 @@ inline void gcode_M502() {
     }
 
     if (parser.seen('P')) {
-      for(uint8_t x = 0; x < (8*MAX7219_NUMBER_UNITS); x++) {
+      for (uint8_t x = 0; x < (8 * MAX7219_NUMBER_UNITS); x++) {
         SERIAL_ECHOPAIR("LEDs[", x);
         SERIAL_ECHOPAIR("]=", LEDs[x]);
         SERIAL_ECHO("\n");
