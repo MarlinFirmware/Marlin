@@ -39,7 +39,7 @@
  */
 void GcodeSuite::M7219() {
   if (parser.seen('I'))
-    for (uint8_t r = 0; r < 8; r++) Max7219_Set_Row(r, 0);
+    Max7219_init();
   else if (parser.seenval('R')) {
     const uint8_t r = parser.value_int();
     Max7219_Set_Row(r, parser.byteval('V'));
