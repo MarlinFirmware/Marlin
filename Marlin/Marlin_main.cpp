@@ -10734,9 +10734,9 @@ inline void gcode_M502() {
   /**
    * M701: Load filament
    *
-   *  T[extruder] - Optional extruder number. Current extruder if omitted.
-   *  Z[distance] - Move the Z axis by this distance
-   *  L[distance] - Extrude distance for insertion (positive value) (manual reload)
+   *  T<extruder> - Optional extruder number. Current extruder if omitted.
+   *  Z<distance> - Move the Z axis by this distance
+   *  L<distance> - Extrude distance for insertion (positive value) (manual reload)
    *
    *  Default values are used for omitted arguments.
    */
@@ -10793,10 +10793,10 @@ inline void gcode_M502() {
   /**
    * M702: Unload filament
    *
-   *  T[extruder] - Optional extruder number. If omitted, current extruder
+   *  T<extruder> - Optional extruder number. If omitted, current extruder
    *                (or ALL extruders with FILAMENT_UNLOAD_ALL_EXTRUDERS).
-   *  Z[distance] - Move the Z axis by this distance
-   *  U[distance] - Retract distance for removal (manual reload)
+   *  Z<distance> - Move the Z axis by this distance
+   *  U<distance> - Retract distance for removal (manual reload)
    *
    *  Default values are used for omitted arguments.
    */
@@ -10864,6 +10864,38 @@ inline void gcode_M502() {
   }
 
 #endif // FILAMENT_LOAD_UNLOAD_GCODES
+
+#if ENABLED(MAX7219_GCODE)
+  /**
+   * M7219: Control the Max7219 LED matrix
+   * 
+   *  I         - Initialize (clear) the matrix
+   *  C<column> - Set a column to the 8-bit value V
+   *  R<row>    - Set a row to the 8-bit value V
+   *  X<pos>    - X position of an LED to set or toggle
+   *  Y<pos>    - Y position of an LED to set or toggle
+   *  V<value>  - The 8-bit value or on/off state to set
+   */
+  inline void gcode_M7219() {
+    if (parser.seen('I'))
+      for (uint8_t r = 0; r < 8; r++) Max7219_Set_Row(r, 0);
+    else if (parser.seenval('R')) {
+      const uint8_t r = parser.value_int();
+      Max7219_Set_Row(r, parser.byteval('V'));
+    }
+    else if (parser.seenval('C')) {
+      const uint8_t c = parser.value_int();
+      Max7219_Set_Column(c, parser.byteval('V'));
+    }
+    else if (parser.seenval('X') || parser.seenval('Y')) {
+      const uint8_t x = parser.byteval('X'), y = parser.byteval('Y');
+      if (parser.seenval('V'))
+        Max7219_LED_Set(x, y, parser.boolval('V'));
+      else
+        Max7219_LED_Toggle(x, y);
+    }
+  }
+#endif // MAX7219_GCODE
 
 #if ENABLED(LIN_ADVANCE)
   /**
@@ -12506,6 +12538,10 @@ void process_parsed_command() {
       #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         case 701: gcode_M701(); break;                            // M701: Load Filament
         case 702: gcode_M702(); break;                            // M702: Unload Filament
+      #endif
+
+      #if ENABLED(MAX7219_GCODE)
+        case 7219: gcode_M7219(); break;                          // M7219: Set LEDs, columns, and rows
       #endif
 
       #if ENABLED(DEBUG_GCODE_PARSER)
@@ -14195,7 +14231,7 @@ void idle(
 ) {
   #if ENABLED(MAX7219_DEBUG)
     Max7219_idle_tasks();
-  #endif  // MAX7219_DEBUG
+  #endif
 
   lcd_update();
 
