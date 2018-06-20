@@ -133,7 +133,10 @@
 //
 #define HEATER_0_PIN       13   // (extruder)
 #define HEATER_BED_PIN     12   // (bed)
-#define FAN_PIN             4
+
+#ifndef FAN_PIN
+  #define FAN_PIN           4
+#endif
 
 //
 // Misc. Functions

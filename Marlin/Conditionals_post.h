@@ -205,15 +205,6 @@
   #define MAX_AUTORETRACT 99
 #endif
 
-/**
- * MAX_STEP_FREQUENCY differs for TOSHIBA
- */
-#if ENABLED(CONFIG_STEPPERS_TOSHIBA)
-  #define MAX_STEP_FREQUENCY 10000 // Max step frequency for Toshiba Stepper Controllers
-#else
-  #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
-#endif
-
 // MS1 MS2 Stepper Driver Microstepping mode table
 #define MICROSTEP1 LOW,LOW
 #if ENABLED(HEROIC_STEPPER_DRIVERS)
@@ -1246,9 +1237,6 @@
 #else
   #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
 #endif
-
-// Stepper pulse duration, in cycles
-#define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
 
 // Updated G92 behavior shifts the workspace
 #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)

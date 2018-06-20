@@ -107,7 +107,15 @@ class Endstops {
     /**
      * Get current endstops state
      */
-    FORCE_INLINE static esbits_t state() { return live_state; }
+    FORCE_INLINE static esbits_t state() {
+      return
+        #if ENABLED(ENDSTOP_NOISE_FILTER)
+          validated_live_state
+        #else
+          live_state
+        #endif
+      ;
+    }
 
     /**
      * Report endstop hits to serial. Called from loop().
@@ -134,7 +142,7 @@ class Endstops {
     // Enable / disable endstop z-probe checking
     #if HAS_BED_PROBE
       static volatile bool z_probe_enabled;
-      static void enable_z_probe(bool onoff=true);
+      static void enable_z_probe(const bool onoff=true);
     #endif
 
     // Debugging of endstops

@@ -108,11 +108,11 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   if (blink)
     lcd_print(value);
   else {
-    if (!axis_homed[axis])
+    if (!TEST(axis_homed, axis))
       while (const char c = *value++) lcd_print(c <= '.' ? c : '?');
     else {
       #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[axis])
+        if (!TEST(axis_known_position, axis))
           lcd_printPGM(axis == Z_AXIS ? PSTR("      ") : PSTR("    "));
         else
       #endif
@@ -124,7 +124,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 inline void lcd_implementation_status_message(const bool blink) {
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
-    
+
     // Get the UTF8 character count of the string
     uint8_t slen = lcd_strlen(lcd_status_message);
 
@@ -162,10 +162,8 @@ inline void lcd_implementation_status_message(const bool blink) {
         u8g.print('.');                         // Always at 1+ spaces left, draw a dot
         if (--chars) {                          // Draw a second dot if there's space
           u8g.print('.');
-          if (--chars) {
-            // Print a second copy of the message
-            lcd_print_utf(lcd_status_message, LCD_WIDTH - (rlen+2)); 
-          }
+          if (--chars)                          // Print a second copy of the message
+            lcd_print_utf(lcd_status_message, LCD_WIDTH - (rlen + 2));
         }
       }
        if (last_blink != blink) {

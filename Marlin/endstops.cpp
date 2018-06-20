@@ -238,7 +238,7 @@ void Endstops::not_homing() {
 
 // Enable / disable endstop z-probe checking
 #if HAS_BED_PROBE
-  void Endstops::enable_z_probe(bool onoff) {
+  void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
 
     #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
@@ -412,7 +412,7 @@ void Endstops::update() {
   if (stepper.axis_is_moving(X_AXIS)) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN
-        #if ENABLED(X_DUAL_ENDSTOPS)
+        #if ENABLED(X_DUAL_ENDSTOPS) && X_HOME_DIR < 0
           UPDATE_ENDSTOP_BIT(X, MIN);
           #if HAS_X2_MIN
             UPDATE_ENDSTOP_BIT(X2, MIN);
@@ -426,7 +426,7 @@ void Endstops::update() {
     }
     else { // +direction
       #if HAS_X_MAX
-        #if ENABLED(X_DUAL_ENDSTOPS)
+        #if ENABLED(X_DUAL_ENDSTOPS) && X_HOME_DIR > 0
           UPDATE_ENDSTOP_BIT(X, MAX);
           #if HAS_X2_MAX
             UPDATE_ENDSTOP_BIT(X2, MAX);
@@ -442,7 +442,7 @@ void Endstops::update() {
 
   if (stepper.axis_is_moving(Y_AXIS)) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
-      #if HAS_Y_MIN
+      #if HAS_Y_MIN && Y_HOME_DIR < 0
         #if ENABLED(Y_DUAL_ENDSTOPS)
           UPDATE_ENDSTOP_BIT(Y, MIN);
           #if HAS_Y2_MIN
@@ -456,7 +456,7 @@ void Endstops::update() {
       #endif
     }
     else { // +direction
-      #if HAS_Y_MAX
+      #if HAS_Y_MAX && Y_HOME_DIR > 0
         #if ENABLED(Y_DUAL_ENDSTOPS)
           UPDATE_ENDSTOP_BIT(Y, MAX);
           #if HAS_Y2_MAX
@@ -474,19 +474,17 @@ void Endstops::update() {
   if (stepper.axis_is_moving(Z_AXIS)) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
       #if HAS_Z_MIN
-        #if ENABLED(Z_DUAL_ENDSTOPS)
+        #if ENABLED(Z_DUAL_ENDSTOPS) && Z_HOME_DIR < 0
           UPDATE_ENDSTOP_BIT(Z, MIN);
           #if HAS_Z2_MIN
             UPDATE_ENDSTOP_BIT(Z2, MIN);
           #else
             COPY_BIT(live_state, Z_MIN, Z2_MIN);
           #endif
-        #else
-          #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-            if (z_probe_enabled) UPDATE_ENDSTOP_BIT(Z, MIN);
-          #else
-            UPDATE_ENDSTOP_BIT(Z, MIN);
-          #endif
+        #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+          if (z_probe_enabled) UPDATE_ENDSTOP_BIT(Z, MIN);
+        #elif Z_HOME_DIR < 0
+          UPDATE_ENDSTOP_BIT(Z, MIN);
         #endif
       #endif
 
@@ -496,7 +494,7 @@ void Endstops::update() {
       #endif
     }
     else { // Z +direction. Gantry up, bed down.
-      #if HAS_Z_MAX
+      #if HAS_Z_MAX && Z_HOME_DIR > 0
         // Check both Z dual endstops
         #if ENABLED(Z_DUAL_ENDSTOPS)
           UPDATE_ENDSTOP_BIT(Z, MAX);
@@ -505,9 +503,8 @@ void Endstops::update() {
           #else
             COPY_BIT(live_state, Z_MAX, Z2_MAX);
           #endif
-        // If this pin is not hijacked for the bed probe
-        // then it belongs to the Z endstop
         #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
+          // If this pin isn't the bed probe it's the Z endstop
           UPDATE_ENDSTOP_BIT(Z, MAX);
         #endif
       #endif
@@ -550,19 +547,22 @@ void Endstops::update() {
 
   // Call the endstop triggered routine for single endstops
   #define PROCESS_ENDSTOP(AXIS,MINMAX) do { \
-      if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))) { \
-        _ENDSTOP_HIT(AXIS, MINMAX); \
-        planner.endstop_triggered(_AXIS(AXIS)); \
-      } \
-    }while(0)
+    if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))) { \
+      _ENDSTOP_HIT(AXIS, MINMAX); \
+      planner.endstop_triggered(_AXIS(AXIS)); \
+    } \
+  }while(0)
 
-  // Call the endstop triggered routine for single endstops
+  // Call the endstop triggered routine for dual endstops
   #define PROCESS_DUAL_ENDSTOP(AXIS1, AXIS2, MINMAX) do { \
-      if (TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) || TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX))) { \
-        _ENDSTOP_HIT(AXIS1, MINMAX); \
+    const byte dual_hit = TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX)) << 1); \
+    if (dual_hit) { \
+      _ENDSTOP_HIT(AXIS1, MINMAX); \
+      /* if not performing home or if both endstops were trigged during homing... */ \
+      if (!stepper.homing_dual_axis || dual_hit == 0x3) \
         planner.endstop_triggered(_AXIS(AXIS1)); \
-      } \
-    }while(0)
+    } \
+  }while(0)
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     // If G38 command is active check Z_MIN_PROBE for ALL movement

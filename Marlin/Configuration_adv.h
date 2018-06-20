@@ -98,14 +98,25 @@
  * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
+#if(ENABLED(BedDC))
+
+  #define THERMAL_PROTECTION_BED_PERIOD 50    // Seconds
+  #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+  
+  #define WATCH_BED_TEMP_PERIOD 180                // Seconds
+  #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
+#else
+
   #define THERMAL_PROTECTION_BED_PERIOD 30    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+  
+  #define WATCH_BED_TEMP_PERIOD 120                // Seconds
+  #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
+#endif
 
   /**
    * As described above, except for the bed (M140/M190/M303).
    */
-  #define WATCH_BED_TEMP_PERIOD 120                // Seconds
-  #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -252,13 +263,15 @@
 /**
  * M355 Case Light on-off / brightness
  */
-//#define CASE_LIGHT_ENABLE
+#if(ENABLED(EnclosureLight))
+  #define CASE_LIGHT_ENABLE
+#endif
 #if ENABLED(CASE_LIGHT_ENABLE)
-  //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
+  #define CASE_LIGHT_PIN 12                  // Override the default pin if needed
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
-  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
-  //#define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
+  #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
+  #define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
   //#define CASE_LIGHT_USE_NEOPIXEL           // Use Neopixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
     #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
@@ -517,7 +530,9 @@
 #define LCD_SET_PROGRESS_MANUALLY
 
 #if ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  //#define LCD_PROGRESS_BAR              // Show a progress bar on HD44780 LCDs for SD printing
+  #if((ENABLED(MachineEnder4) && !ENABLED(GraphicLCD)) || ENABLED(MachineEnder2))
+  #define LCD_PROGRESS_BAR
+  #endif// Show a progress bar on HD44780 LCDs for SD printing
   #if ENABLED(LCD_PROGRESS_BAR)
     #define PROGRESS_BAR_BAR_TIME 2000    // (ms) Amount of time to show the bar
     #define PROGRESS_BAR_MSG_TIME 3000    // (ms) Amount of time to show the status message
@@ -726,12 +741,12 @@
 #if ENABLED(BABYSTEPPING)
   //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR 5   // Babysteps are very small. Increase for faster motion.
+  #define BABYSTEP_MULTIPLICATOR 10   // Babysteps are very small. Increase for faster motion.
   #if(ENABLED(ABL_EZABL) || ENABLED(ABL_BLTOUCH))
     #define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
-     //#if(!ENABLED(MachineCR10Orig))
+     #if(!ENABLED(MachineEnder4))
     #define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
-   // #endif
+    #endif
   #endif
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
@@ -1542,10 +1557,10 @@
   #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 S55 \n M104 S225 \n G28 \n G29 P1 \n G29 S1 \n M117 Run Step 2 \n"
  
   #define USER_DESC_2 "UBL Commission Step 2"
-  #define USER_GCODE_2 "G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n M109 S225 \n G1 X150 Y 150 \n G1 Z0 \n M117 Set Z Offset \n"
+  #define USER_GCODE_2 "G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n M109 S225 \n G1 X100 Y 100 \n G1 Z0 \n M117 Set Z Offset \n"
 
   #define USER_DESC_3 "Prep for Z Adjust"
-  #define USER_GCODE_3 "M190 55 \n M104 235 \n G28 \n G29 L1 \n G1 X150 Y 150 \n G1 Z0"
+  #define USER_GCODE_3 "M190 55 \n M104 235 \n G28 \n G29 L1 \n G1 X100 Y 100 \n G1 Z0"
 #endif
   
 #if ENABLED(BedAC)
@@ -1553,10 +1568,10 @@
   #define USER_GCODE_1 "M502 \n M500 \n M501 \n M190 S75 \n M104 S225 \n G28 \n G29 P1 \n G29 S1 \n M117 Run Step 2 \n"
  
   #define USER_DESC_2 "UBL Commission Step 2"
-  #define USER_GCODE_2 "G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n M109 S225 \n G1 X150 Y 150 \n G1 Z0 \n M117 Set Z Offset \n"
+  #define USER_GCODE_2 "G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n M109 S225 \n G1 X100 Y 100 \n G1 Z0 \n M117 Set Z Offset \n"
 
   #define USER_DESC_3 "Prep for Z Adjust"
-  #define USER_GCODE_3 "M190 75 \n M104 235 \n G28 \n G29 L1 \n G1 X150 Y 150 \n G1 Z0 \n"
+  #define USER_GCODE_3 "M190 75 \n M104 235 \n G28 \n G29 L1 \n G1 X100 Y 100 \n G1 Z0 \n"
 #endif
 
    #define USER_DESC_4 "Fill Mesh Points"

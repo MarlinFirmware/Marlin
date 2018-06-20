@@ -617,7 +617,7 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
   begin_data();
   const uint8_t lcd_len = 16;
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
- 
+
     uint8_t slen = lcd_strlen(str);
 
     // If the string fits into the LCD, just print it and do not scroll it
@@ -868,9 +868,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
         #if ENABLED(DISABLE_REDUCED_ACCURACY_WARNING)
           true
         #else
-          axis_known_position[X_AXIS] &&
-          axis_known_position[Y_AXIS] &&
-          axis_known_position[Z_AXIS]
+          all_axes_known()
         #endif
       );
     }

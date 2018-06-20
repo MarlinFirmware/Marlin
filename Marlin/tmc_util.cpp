@@ -534,7 +534,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
     TMC_REPORT("Run current",        TMC_IRUN);
     TMC_REPORT("Hold current",       TMC_IHOLD);
     TMC_REPORT("CS actual\t",        TMC_CS_ACTUAL);
-    TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
+    TMC_REPORT("PWM scale\t",        TMC_PWM_SCALE);
     TMC_REPORT("vsense\t",           TMC_VSENSE);
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);
@@ -580,8 +580,8 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
 #if ENABLED(SENSORLESS_HOMING)
 
   void tmc_sensorless_homing(TMC2130Stepper &st, const bool enable/*=true*/) {
+    st.coolstep_min_speed(enable ? 1024UL * 1024UL - 1UL : 0);
     #if ENABLED(STEALTHCHOP)
-      st.coolstep_min_speed(enable ? 1024UL * 1024UL - 1UL : 0);
       st.stealthChop(!enable);
     #endif
     st.diag1_stall(enable ? 1 : 0);

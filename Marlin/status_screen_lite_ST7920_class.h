@@ -18,7 +18,7 @@
 #define STATUS_SCREEN_LITE_ST7920_CLASS_H
 
 #include "macros.h"
-#include "duration.h"
+#include "duration_t.h"
 
 typedef const __FlashStringHelper *progmem_str;
 

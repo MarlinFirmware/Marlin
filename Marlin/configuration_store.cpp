@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V54"
+#define EEPROM_VERSION "V55"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -97,16 +97,17 @@ typedef struct SettingsDataStruct {
   //
   uint8_t   esteppers;                                  // XYZE_N - XYZ
 
+  uint32_t  planner_max_acceleration_mm_per_s2[XYZE_N], // M201 XYZE  planner.max_acceleration_mm_per_s2[XYZE_N]
+            planner_min_segment_time_us;                // M205 B     planner.min_segment_time_us
   float     planner_axis_steps_per_mm[XYZE_N],          // M92 XYZE   planner.axis_steps_per_mm[XYZE_N]
-            planner_max_feedrate_mm_s[XYZE_N];          // M203 XYZE  planner.max_feedrate_mm_s[XYZE_N]
-  uint32_t  planner_max_acceleration_mm_per_s2[XYZE_N]; // M201 XYZE  planner.max_acceleration_mm_per_s2[XYZE_N]
-  float     planner_acceleration,                       // M204 P     planner.acceleration
+            planner_max_feedrate_mm_s[XYZE_N],          // M203 XYZE  planner.max_feedrate_mm_s[XYZE_N]
+            planner_acceleration,                       // M204 P     planner.acceleration
             planner_retract_acceleration,               // M204 R     planner.retract_acceleration
             planner_travel_acceleration,                // M204 T     planner.travel_acceleration
             planner_min_feedrate_mm_s,                  // M205 S     planner.min_feedrate_mm_s
-            planner_min_travel_feedrate_mm_s;           // M205 T     planner.min_travel_feedrate_mm_s
-  uint32_t  planner_min_segment_time_us;                // M205 B     planner.min_segment_time_us
-  float     planner_max_jerk[XYZE];                     // M205 XYZE  planner.max_jerk[XYZE]
+            planner_min_travel_feedrate_mm_s,           // M205 T     planner.min_travel_feedrate_mm_s
+            planner_max_jerk[XYZE],                     // M205 XYZE  planner.max_jerk[XYZE]
+            planner_junction_deviation_mm;              // M205 J     planner.junction_deviation_mm
 
   float home_offset[XYZ];                               // M206 XYZ
 
@@ -318,6 +319,10 @@ void MarlinSettings::postprocess() {
     fwretract.refresh_autoretract();
   #endif
 
+  #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+    planner.recalculate_max_e_jerk_factor();
+  #endif
+
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
   planner.refresh_positioning();
@@ -416,17 +421,25 @@ void MarlinSettings::postprocess() {
     const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
 
+    EEPROM_WRITE(planner.max_acceleration_mm_per_s2);
+    EEPROM_WRITE(planner.min_segment_time_us);
     EEPROM_WRITE(planner.axis_steps_per_mm);
     EEPROM_WRITE(planner.max_feedrate_mm_s);
-    EEPROM_WRITE(planner.max_acceleration_mm_per_s2);
-
     EEPROM_WRITE(planner.acceleration);
     EEPROM_WRITE(planner.retract_acceleration);
     EEPROM_WRITE(planner.travel_acceleration);
     EEPROM_WRITE(planner.min_feedrate_mm_s);
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
-    EEPROM_WRITE(planner.min_segment_time_us);
-    EEPROM_WRITE(planner.max_jerk);
+
+    #if ENABLED(JUNCTION_DEVIATION)
+      const float planner_max_jerk[] = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
+      EEPROM_WRITE(planner_max_jerk);
+      EEPROM_WRITE(planner.junction_deviation_mm);
+    #else
+      EEPROM_WRITE(planner.max_jerk);
+      dummy = 0.02;
+      EEPROM_WRITE(dummy);
+    #endif
 
     _FIELD_TEST(home_offset);
 
@@ -994,17 +1007,20 @@ void MarlinSettings::postprocess() {
 
       // Get only the number of E stepper parameters previously stored
       // Any steppers added later are set to their defaults
-      const float def1[] = DEFAULT_AXIS_STEPS_PER_UNIT, def2[] = DEFAULT_MAX_FEEDRATE;
-      const uint32_t def3[] = DEFAULT_MAX_ACCELERATION;
-      float tmp1[XYZ + esteppers], tmp2[XYZ + esteppers];
-      uint32_t tmp3[XYZ + esteppers];
-      EEPROM_READ(tmp1);
-      EEPROM_READ(tmp2);
-      EEPROM_READ(tmp3);
+      const uint32_t def1[] = DEFAULT_MAX_ACCELERATION;
+      const float def2[] = DEFAULT_AXIS_STEPS_PER_UNIT, def3[] = DEFAULT_MAX_FEEDRATE;
+
+      uint32_t tmp1[XYZ + esteppers];
+      EEPROM_READ(tmp1);                         // max_acceleration_mm_per_s2
+      EEPROM_READ(planner.min_segment_time_us);
+
+      float tmp2[XYZ + esteppers], tmp3[XYZ + esteppers];
+      EEPROM_READ(tmp2);                         // axis_steps_per_mm
+      EEPROM_READ(tmp3);                         // max_feedrate_mm_s
       if (!validating) LOOP_XYZE_N(i) {
-        planner.axis_steps_per_mm[i]          = i < XYZ + esteppers ? tmp1[i] : def1[i < COUNT(def1) ? i : COUNT(def1) - 1];
-        planner.max_feedrate_mm_s[i]          = i < XYZ + esteppers ? tmp2[i] : def2[i < COUNT(def2) ? i : COUNT(def2) - 1];
-        planner.max_acceleration_mm_per_s2[i] = i < XYZ + esteppers ? tmp3[i] : def3[i < COUNT(def3) ? i : COUNT(def3) - 1];
+        planner.max_acceleration_mm_per_s2[i] = i < XYZ + esteppers ? tmp1[i] : def1[i < COUNT(def1) ? i : COUNT(def1) - 1];
+        planner.axis_steps_per_mm[i]          = i < XYZ + esteppers ? tmp2[i] : def2[i < COUNT(def2) ? i : COUNT(def2) - 1];
+        planner.max_feedrate_mm_s[i]          = i < XYZ + esteppers ? tmp3[i] : def3[i < COUNT(def3) ? i : COUNT(def3) - 1];
       }
 
       EEPROM_READ(planner.acceleration);
@@ -1012,8 +1028,14 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(planner.travel_acceleration);
       EEPROM_READ(planner.min_feedrate_mm_s);
       EEPROM_READ(planner.min_travel_feedrate_mm_s);
-      EEPROM_READ(planner.min_segment_time_us);
-      EEPROM_READ(planner.max_jerk);
+
+      #if ENABLED(JUNCTION_DEVIATION)
+        for (uint8_t q = 4; q--;) EEPROM_READ(dummy);
+        EEPROM_READ(planner.junction_deviation_mm);
+      #else
+        EEPROM_READ(planner.max_jerk);
+        EEPROM_READ(dummy);
+      #endif
 
       //
       // Home Offset (M206)
@@ -1596,7 +1618,7 @@ void MarlinSettings::postprocess() {
       }
     #endif
 
-    int16_t MarlinSettings::meshes_start_index() {
+    uint16_t MarlinSettings::meshes_start_index() {
       return (datasize() + EEPROM_OFFSET + 32) & 0xFFF8;  // Pad the end of configuration data so it can float up
                                                           // or down a little bit without disrupting the mesh data
     }
@@ -1699,16 +1721,21 @@ void MarlinSettings::reset() {
     planner.max_acceleration_mm_per_s2[i] = pgm_read_dword_near(&tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1]);
   }
 
+  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
   planner.acceleration = DEFAULT_ACCELERATION;
   planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
-  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
-  planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
-  planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
-  planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
-  planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
+
+  #if ENABLED(JUNCTION_DEVIATION)
+    planner.junction_deviation_mm = JUNCTION_DEVIATION_MM;
+  #else
+    planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
+    planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
+    planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
+    planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
+  #endif
 
   #if HAS_HOME_OFFSET
     ZERO(home_offset);
@@ -1892,12 +1919,12 @@ void MarlinSettings::reset() {
   #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START(); }while(0)
 
   #if HAS_TRINAMIC
-    void say_M906() { SERIAL_ECHOPGM("  M906 "); }
+    void say_M906() { SERIAL_ECHOPGM("  M906"); }
     #if ENABLED(HYBRID_THRESHOLD)
-      void say_M913() { SERIAL_ECHOPGM("  M913 "); }
+      void say_M913() { SERIAL_ECHOPGM("  M913"); }
     #endif
     #if ENABLED(SENSORLESS_HOMING)
-      void say_M914() { SERIAL_ECHOPGM("  M914 "); }
+      void say_M914() { SERIAL_ECHOPGM("  M914"); }
     #endif
   #endif
 
@@ -2077,16 +2104,32 @@ void MarlinSettings::reset() {
 
     if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("Advanced: S<min_feedrate> T<min_travel_feedrate> B<min_segment_time_us> X<max_xy_jerk> Z<max_z_jerk> E<max_e_jerk>");
+      SERIAL_ECHOPGM("Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>");
+      #if ENABLED(JUNCTION_DEVIATION)
+        SERIAL_ECHOPGM(" J<junc_dev>");
+      #else
+        SERIAL_ECHOPGM(" X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>");
+      #endif
+      #if DISABLED(JUNCTION_DEVIATION) || ENABLED(LIN_ADVANCE)
+        SERIAL_ECHOPGM(" E<max_e_jerk>");
+      #endif
+      SERIAL_EOL();
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M205 S", LINEAR_UNIT(planner.min_feedrate_mm_s));
+    SERIAL_ECHOPAIR("  M205 B", LINEAR_UNIT(planner.min_segment_time_us));
+    SERIAL_ECHOPAIR(" S", LINEAR_UNIT(planner.min_feedrate_mm_s));
     SERIAL_ECHOPAIR(" T", LINEAR_UNIT(planner.min_travel_feedrate_mm_s));
-    SERIAL_ECHOPAIR(" B", planner.min_segment_time_us);
-    SERIAL_ECHOPAIR(" X", LINEAR_UNIT(planner.max_jerk[X_AXIS]));
-    SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS]));
-    SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS]));
-    SERIAL_ECHOLNPAIR(" E", LINEAR_UNIT(planner.max_jerk[E_AXIS]));
+
+    #if ENABLED(JUNCTION_DEVIATION)
+      SERIAL_ECHOPAIR(" J", LINEAR_UNIT(planner.junction_deviation_mm));
+    #else
+      SERIAL_ECHOPAIR(" X", LINEAR_UNIT(planner.max_jerk[X_AXIS]));
+      SERIAL_ECHOPAIR(" Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS]));
+      SERIAL_ECHOPAIR(" Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS]));
+      SERIAL_ECHOPAIR(" E", LINEAR_UNIT(planner.max_jerk[E_AXIS]));
+    #endif
+
+    SERIAL_EOL();
 
     #if HAS_M206_COMMAND
       if (!forReplay) {
@@ -2161,7 +2204,7 @@ void MarlinSettings::reset() {
               SERIAL_ECHOPAIR("  G29 S3 X", (int)px + 1);
               SERIAL_ECHOPAIR(" Y", (int)py + 1);
               SERIAL_ECHOPGM(" Z");
-              SERIAL_PROTOCOL_F(LINEAR_UNIT(mbl.z_values[px][py]), 5);
+              SERIAL_ECHO_F(LINEAR_UNIT(mbl.z_values[px][py]), 5);
               SERIAL_EOL();
             }
           }
@@ -2185,10 +2228,10 @@ void MarlinSettings::reset() {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
               CONFIG_ECHO_START;
-              SERIAL_ECHOPAIR("  G29 W I", (int)px + 1);
-              SERIAL_ECHOPAIR(" J", (int)py + 1);
+              SERIAL_ECHOPAIR("  G29 W I", (int)px);
+              SERIAL_ECHOPAIR(" J", (int)py);
               SERIAL_ECHOPGM(" Z");
-              SERIAL_PROTOCOL_F(LINEAR_UNIT(z_values[px][py]), 5);
+              SERIAL_ECHO_F(LINEAR_UNIT(z_values[px][py]), 5);
               SERIAL_EOL();
             }
           }
@@ -2392,49 +2435,56 @@ void MarlinSettings::reset() {
         SERIAL_ECHOLNPGM("Stepper driver current:");
       }
       CONFIG_ECHO_START;
-      #if X_IS_TRINAMIC
+      #if X_IS_TRINAMIC || Y_IS_TRINAMIC || Z_IS_TRINAMIC
         say_M906();
-        SERIAL_ECHOLNPAIR("X", stepperX.getCurrent());
       #endif
-      #if X2_IS_TRINAMIC
-        say_M906();
-        SERIAL_ECHOLNPAIR("I1 X", stepperX2.getCurrent());
+      #if X_IS_TRINAMIC
+        SERIAL_ECHOPAIR(" X", stepperX.getCurrent());
       #endif
       #if Y_IS_TRINAMIC
-        say_M906();
-        SERIAL_ECHOLNPAIR("Y", stepperY.getCurrent());
-      #endif
-      #if Y2_IS_TRINAMIC
-        say_M906();
-        SERIAL_ECHOLNPAIR("I1 Y", stepperY2.getCurrent());
+        SERIAL_ECHOPAIR(" Y", stepperY.getCurrent());
       #endif
       #if Z_IS_TRINAMIC
+        SERIAL_ECHOPAIR(" Z", stepperZ.getCurrent());
+      #endif
+      #if X_IS_TRINAMIC || Y_IS_TRINAMIC || Z_IS_TRINAMIC
+        SERIAL_EOL();
+      #endif
+      #if X2_IS_TRINAMIC || Y2_IS_TRINAMIC || Z2_IS_TRINAMIC
         say_M906();
-        SERIAL_ECHOLNPAIR("Z", stepperZ.getCurrent());
+        SERIAL_ECHOPGM(" I1");
+      #endif
+      #if X2_IS_TRINAMIC
+        SERIAL_ECHOPAIR(" X", stepperX2.getCurrent());
+      #endif
+      #if Y2_IS_TRINAMIC
+        SERIAL_ECHOPAIR(" Y", stepperY2.getCurrent());
       #endif
       #if Z2_IS_TRINAMIC
-        say_M906();
-        SERIAL_ECHOLNPAIR("I1 Z", stepperZ2.getCurrent());
+        SERIAL_ECHOPAIR(" Z", stepperZ2.getCurrent());
+      #endif
+      #if X2_IS_TRINAMIC || Y2_IS_TRINAMIC || Z2_IS_TRINAMIC
+        SERIAL_EOL();
       #endif
       #if E0_IS_TRINAMIC
         say_M906();
-        SERIAL_ECHOLNPAIR("T0 E", stepperE0.getCurrent());
+        SERIAL_ECHOLNPAIR(" T0 E", stepperE0.getCurrent());
       #endif
       #if E_STEPPERS > 1 && E1_IS_TRINAMIC
         say_M906();
-        SERIAL_ECHOLNPAIR("T1 E", stepperE1.getCurrent());
+        SERIAL_ECHOLNPAIR(" T1 E", stepperE1.getCurrent());
       #endif
       #if E_STEPPERS > 2 && E2_IS_TRINAMIC
         say_M906();
-        SERIAL_ECHOLNPAIR("T2 E", stepperE2.getCurrent());
+        SERIAL_ECHOLNPAIR(" T2 E", stepperE2.getCurrent());
       #endif
       #if E_STEPPERS > 3 && E3_IS_TRINAMIC
         say_M906();
-        SERIAL_ECHOLNPAIR("T3 E", stepperE3.getCurrent());
+        SERIAL_ECHOLNPAIR(" T3 E", stepperE3.getCurrent());
       #endif
       #if E_STEPPERS > 4 && E4_IS_TRINAMIC
         say_M906();
-        SERIAL_ECHOLNPAIR("T4 E", stepperE4.getCurrent());
+        SERIAL_ECHOLNPAIR(" T4 E", stepperE4.getCurrent());
       #endif
       SERIAL_EOL();
 
@@ -2447,49 +2497,56 @@ void MarlinSettings::reset() {
           SERIAL_ECHOLNPGM("Hybrid Threshold:");
         }
         CONFIG_ECHO_START;
-        #if X_IS_TRINAMIC
+        #if X_IS_TRINAMIC || Y_IS_TRINAMIC || Z_IS_TRINAMIC
           say_M913();
-          SERIAL_ECHOLNPAIR("X", TMC_GET_PWMTHRS(X, X));
         #endif
-        #if X2_IS_TRINAMIC
-          say_M913();
-          SERIAL_ECHOLNPAIR("I1 X", TMC_GET_PWMTHRS(X, X2));
+        #if X_IS_TRINAMIC
+          SERIAL_ECHOPAIR(" X", TMC_GET_PWMTHRS(X, X));
         #endif
         #if Y_IS_TRINAMIC
-          say_M913();
-          SERIAL_ECHOLNPAIR("Y", TMC_GET_PWMTHRS(Y, Y));
-        #endif
-        #if Y2_IS_TRINAMIC
-          say_M913();
-          SERIAL_ECHOLNPAIR("I1 Y", TMC_GET_PWMTHRS(Y, Y2));
+          SERIAL_ECHOPAIR(" Y", TMC_GET_PWMTHRS(Y, Y));
         #endif
         #if Z_IS_TRINAMIC
+          SERIAL_ECHOPAIR(" Z", TMC_GET_PWMTHRS(Z, Z));
+        #endif
+        #if X_IS_TRINAMIC || Y_IS_TRINAMIC || Z_IS_TRINAMIC
+          SERIAL_EOL();
+        #endif
+        #if X2_IS_TRINAMIC || Y2_IS_TRINAMIC || Z2_IS_TRINAMIC
           say_M913();
-          SERIAL_ECHOLNPAIR("Z", TMC_GET_PWMTHRS(Z, Z));
+          SERIAL_ECHOPGM(" I1");
+        #endif
+        #if X2_IS_TRINAMIC
+          SERIAL_ECHOPAIR(" X", TMC_GET_PWMTHRS(X, X2));
+        #endif
+        #if Y2_IS_TRINAMIC
+          SERIAL_ECHOPAIR(" Y", TMC_GET_PWMTHRS(Y, Y2));
         #endif
         #if Z2_IS_TRINAMIC
-          say_M913();
-          SERIAL_ECHOLNPAIR("I1 Z", TMC_GET_PWMTHRS(Z, Z2));
+          SERIAL_ECHOPAIR(" Z", TMC_GET_PWMTHRS(Z, Z2));
+        #endif
+        #if X2_IS_TRINAMIC || Y2_IS_TRINAMIC || Z2_IS_TRINAMIC
+          SERIAL_EOL();
         #endif
         #if E0_IS_TRINAMIC
           say_M913();
-          SERIAL_ECHOLNPAIR("T0 E", TMC_GET_PWMTHRS(E, E0));
+          SERIAL_ECHOLNPAIR(" T0 E", TMC_GET_PWMTHRS(E, E0));
         #endif
         #if E_STEPPERS > 1 && E1_IS_TRINAMIC
           say_M913();
-          SERIAL_ECHOLNPAIR("T1 E", TMC_GET_PWMTHRS(E, E1));
+          SERIAL_ECHOLNPAIR(" T1 E", TMC_GET_PWMTHRS(E, E1));
         #endif
         #if E_STEPPERS > 2 && E2_IS_TRINAMIC
           say_M913();
-          SERIAL_ECHOLNPAIR("T2 E", TMC_GET_PWMTHRS(E, E2));
+          SERIAL_ECHOLNPAIR(" T2 E", TMC_GET_PWMTHRS(E, E2));
         #endif
         #if E_STEPPERS > 3 && E3_IS_TRINAMIC
           say_M913();
-          SERIAL_ECHOLNPAIR("T3 E", TMC_GET_PWMTHRS(E, E3));
+          SERIAL_ECHOLNPAIR(" T3 E", TMC_GET_PWMTHRS(E, E3));
         #endif
         #if E_STEPPERS > 4 && E4_IS_TRINAMIC
           say_M913();
-          SERIAL_ECHOLNPAIR("T4 E", TMC_GET_PWMTHRS(E, E4));
+          SERIAL_ECHOLNPAIR(" T4 E", TMC_GET_PWMTHRS(E, E4));
         #endif
         SERIAL_EOL();
       #endif // HYBRID_THRESHOLD
@@ -2503,38 +2560,42 @@ void MarlinSettings::reset() {
           SERIAL_ECHOLNPGM("Sensorless homing threshold:");
         }
         CONFIG_ECHO_START;
-        #ifdef X_HOMING_SENSITIVITY
-          #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-            say_M914();
-            SERIAL_ECHOLNPAIR("X", stepperX.sgt());
+        #define HAS_X_SENSORLESS (defined(X_HOMING_SENSITIVITY) && (ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)))
+        #define HAS_Y_SENSORLESS (defined(Y_HOMING_SENSITIVITY) && (ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)))
+        #define HAS_Z_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && (ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)))
+        #if HAS_X_SENSORLESS || HAS_Y_SENSORLESS || HAS_Z_SENSORLESS
+          say_M914();
+          #if HAS_X_SENSORLESS
+            SERIAL_ECHOPAIR(" X", stepperX.sgt());
           #endif
-          #if ENABLED(X2_IS_TMC2130)
-            say_M914();
-            SERIAL_ECHOLNPAIR("I1 X", stepperX2.sgt());
+          #if HAS_Y_SENSORLESS
+            SERIAL_ECHOPAIR(" Y", stepperY.sgt());
           #endif
+          #if HAS_Z_SENSORLESS
+            SERIAL_ECHOPAIR(" Z", stepperZ.sgt());
+          #endif
+          SERIAL_EOL();
         #endif
-        #ifdef Y_HOMING_SENSITIVITY
-          #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-            say_M914();
-            SERIAL_ECHOLNPAIR("Y", stepperY.sgt());
+
+        #define HAS_X2_SENSORLESS (defined(X_HOMING_SENSITIVITY) && ENABLED(X2_IS_TMC2130))
+        #define HAS_Y2_SENSORLESS (defined(Y_HOMING_SENSITIVITY) && ENABLED(Y2_IS_TMC2130))
+        #define HAS_Z2_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && ENABLED(Z2_IS_TMC2130))
+        #if HAS_X2_SENSORLESS || HAS_Y2_SENSORLESS || HAS_Z2_SENSORLESS
+          say_M914();
+          SERIAL_ECHOPGM(" I1");
+          #if HAS_X2_SENSORLESS
+            SERIAL_ECHOPAIR(" X", stepperX2.sgt());
           #endif
-          #if ENABLED(Y2_IS_TMC2130)
-            say_M914();
-            SERIAL_ECHOLNPAIR("I1 Y", stepperY2.sgt());
+          #if HAS_Y2_SENSORLESS
+            SERIAL_ECHOPAIR(" Y", stepperY2.sgt());
           #endif
+          #if HAS_Z2_SENSORLESS
+            SERIAL_ECHOPAIR(" Z", stepperZ2.sgt());
+          #endif
+          SERIAL_EOL();
         #endif
-        #ifdef Z_HOMING_SENSITIVITY
-          #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
-            say_M914();
-            SERIAL_ECHOLNPAIR("Z", stepperZ.sgt());
-          #endif
-          #if ENABLED(Z2_IS_TMC2130)
-            say_M914();
-            SERIAL_ECHOLNPAIR("I1 Z", stepperZ2.sgt());
-          #endif
-        #endif
-        SERIAL_EOL();
-      #endif
+
+      #endif // SENSORLESS_HOMING
 
     #endif // HAS_TRINAMIC
 

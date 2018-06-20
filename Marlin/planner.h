@@ -103,18 +103,18 @@ typedef struct {
   uint8_t active_extruder;                  // The extruder to move (if E move)
 
   #if ENABLED(MIXING_EXTRUDER)
-    uint32_t mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
+    uint32_t mix_steps[MIXING_STEPPERS];    // Scaled steps[E_AXIS] for the mixing steppers
   #endif
 
   // Settings for the trapezoid generator
   uint32_t accelerate_until,                // The index of the step event on which to stop acceleration
            decelerate_after;                // The index of the step event on which to start decelerating
 
-  #if ENABLED(BEZIER_JERK_CONTROL)
-    uint32_t cruise_rate;                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
-    uint32_t acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
-             deceleration_time;
-    uint32_t acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
+  #if ENABLED(S_CURVE_ACCELERATION)
+    uint32_t cruise_rate,                   // The actual cruise rate to use, between end of the acceleration phase and start of deceleration phase
+             acceleration_time,             // Acceleration time and deceleration time in STEP timer counts
+             deceleration_time,
+             acceleration_time_inverse,     // Inverse of acceleration and deceleration periods, expressed as integer. Scale depends on CPU being used
              deceleration_time_inverse;
   #else
     uint32_t acceleration_rate;             // The acceleration rate used for acceleration calculation
@@ -125,7 +125,7 @@ typedef struct {
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead;
-    uint16_t advance_speed,                 // Timer value for extruder speed offset
+    uint16_t advance_speed,                 // STEP timer value for extruder speed offset ISR
              max_adv_steps,                 // max. advance steps to get cruising speed pressure (not always nominal_speed!)
              final_adv_steps;               // advance steps due to exit speed
     float e_D_ratio;
@@ -174,7 +174,6 @@ class Planner {
     static uint16_t cleaning_buffer_counter;        // A counter to disable queuing of blocks
     static uint8_t delay_before_delivering,         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
                    block_buffer_planned;            // Index of the optimally planned block
-                   
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
@@ -191,19 +190,26 @@ class Planner {
                                                       // May be auto-adjusted by a filament width sensor
     #endif
 
-    static float max_feedrate_mm_s[XYZE_N],         // Max speeds in mm per second
-                 axis_steps_per_mm[XYZE_N],
-                 steps_to_mm[XYZE_N];
-    static uint32_t max_acceleration_steps_per_s2[XYZE_N],
-                    max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override
+    static uint32_t max_acceleration_mm_per_s2[XYZE_N],    // (mm/s^2) M201 XYZE
+                    max_acceleration_steps_per_s2[XYZE_N], // (steps/s^2) Derived from mm_per_s2
+                    min_segment_time_us;                   // (µs) M205 B
+    static float max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
+                 axis_steps_per_mm[XYZE_N],     // (steps) M92 XYZE - Steps per millimeter
+                 steps_to_mm[XYZE_N],           // (mm) Millimeters per step
+                 min_feedrate_mm_s,             // (mm/s) M205 S - Minimum linear feedrate
+                 acceleration,                  // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
+                 retract_acceleration,          // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
+                 travel_acceleration,           // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
+                 min_travel_feedrate_mm_s;      // (mm/s) M205 T - Minimum travel feedrate
 
-    static uint32_t min_segment_time_us; // Use 'M205 B<µs>' to override
-    static float min_feedrate_mm_s,
-                 acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-                 retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
-                 travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-                 max_jerk[XYZE],       // The largest speed change requiring no acceleration
-                 min_travel_feedrate_mm_s;
+    #if ENABLED(JUNCTION_DEVIATION)
+      static float junction_deviation_mm;       // (mm) M205 J
+      #if ENABLED(LIN_ADVANCE)
+        static float max_e_jerk_factor;         // Calculated from junction_deviation_mm
+      #endif
+    #else
+      static float max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
+    #endif
 
     #if HAS_LEVELING
       static bool leveling_active;          // Flag that bed leveling is enabled
@@ -730,6 +736,14 @@ class Planner {
       static void autotemp_M104_M109();
     #endif
 
+    #if ENABLED(JUNCTION_DEVIATION)
+      FORCE_INLINE static void recalculate_max_e_jerk_factor() {
+        #if ENABLED(LIN_ADVANCE)
+          max_e_jerk_factor = SQRT(SQRT(0.5) * junction_deviation_mm) * RECIPROCAL(1.0 - SQRT(0.5));
+        #endif
+      }
+    #endif
+
   private:
 
     /**
@@ -769,7 +783,7 @@ class Planner {
       return target_velocity_sqr - 2 * accel * distance;
     }
 
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       /**
        * Calculate the speed reached given initial speed, acceleration and distance
        */
@@ -790,6 +804,29 @@ class Planner {
 
     static void recalculate();
 
+    #if ENABLED(JUNCTION_DEVIATION)
+
+      #if ENABLED(JUNCTION_DEVIATION_INCLUDE_E)
+        #define JD_AXES XYZE
+      #else
+        #define JD_AXES XYZ
+      #endif
+
+      FORCE_INLINE static void normalize_junction_vector(float (&vector)[JD_AXES]) {
+        float magnitude_sq = 0.0;
+        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (vector[idx]) magnitude_sq += sq(vector[idx]);
+        const float inv_magnitude = 1.0 / SQRT(magnitude_sq);
+        for (uint8_t idx = 0; idx < JD_AXES; idx++) vector[idx] *= inv_magnitude;
+      }
+
+      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[JD_AXES]) {
+        float limit_value = max_value;
+        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (unit_vec[idx]) // Avoid divide by zero
+          NOMORE(limit_value, ABS(max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
+        return limit_value;
+      }
+
+    #endif // JUNCTION_DEVIATION
 };
 
 #define PLANNER_XY_FEEDRATE() (MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
