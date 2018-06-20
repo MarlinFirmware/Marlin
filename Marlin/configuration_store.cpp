@@ -98,7 +98,7 @@ typedef struct SettingsDataStruct {
   uint8_t   esteppers;                                      // NUM_AXIS_N - MOV_AXIS
 
   uint32_t  planner_max_acceleration_mm_per_s2[NUM_AXIS_N], // M201 XYZE  planner.max_acceleration_mm_per_s2[NUM_AXIS_N]
-            planner_min_segment_time_us;                    // M205 B     planner.min_segment_time_us
+            planner_min_segment_time_us;                    // M205 Q     planner.min_segment_time_us
   float     planner_axis_steps_per_mm[NUM_AXIS_N],          // M92 XYZE   planner.axis_steps_per_mm[NUM_AXIS_N]
             planner_max_feedrate_mm_s[NUM_AXIS_N],          // M203 XYZE  planner.max_feedrate_mm_s[NUM_AXIS_N]
             planner_acceleration,                           // M204 P     planner.acceleration
@@ -2202,7 +2202,7 @@ void MarlinSettings::reset() {
       SERIAL_EOL();
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M205 B", LINEAR_UNIT(planner.min_segment_time_us));
+    SERIAL_ECHOPAIR("  M205 Q", LINEAR_UNIT(planner.min_segment_time_us));
     SERIAL_ECHOPAIR(" S", LINEAR_UNIT(planner.min_feedrate_mm_s));
     SERIAL_ECHOPAIR(" T", LINEAR_UNIT(planner.min_travel_feedrate_mm_s));
 
