@@ -97,17 +97,17 @@ typedef struct SettingsDataStruct {
   //
   uint8_t   esteppers;                                      // NUM_AXIS_N - MOV_AXIS
 
-  uint32_t  planner_max_acceleration_mm_per_s2[NUM_AXIS_N], // M201 XYZE  planner.max_acceleration_mm_per_s2[NUM_AXIS_N]
-            planner_min_segment_time_us;                    // M205 Q     planner.min_segment_time_us
-  float     planner_axis_steps_per_mm[NUM_AXIS_N],          // M92 XYZE   planner.axis_steps_per_mm[NUM_AXIS_N]
-            planner_max_feedrate_mm_s[NUM_AXIS_N],          // M203 XYZE  planner.max_feedrate_mm_s[NUM_AXIS_N]
-            planner_acceleration,                           // M204 P     planner.acceleration
-            planner_retract_acceleration,                   // M204 R     planner.retract_acceleration
-            planner_travel_acceleration,                    // M204 T     planner.travel_acceleration
-            planner_min_feedrate_mm_s,                      // M205 S     planner.min_feedrate_mm_s
-            planner_min_travel_feedrate_mm_s,               // M205 T     planner.min_travel_feedrate_mm_s
-            planner_max_jerk[NUM_AXIS],                     // M205 XYZE  planner.max_jerk[NUM_AXIS]
-            planner_junction_deviation_mm;                  // M205 J     planner.junction_deviation_mm
+  uint32_t  planner_max_acceleration_mm_per_s2[NUM_AXIS_N], // M201 XYZE/ABCDE  planner.max_acceleration_mm_per_s2[NUM_AXIS_N]
+            planner_min_segment_time_us;                    // M205 Q           planner.min_segment_time_us
+  float     planner_axis_steps_per_mm[NUM_AXIS_N],          // M92 XYZE/ABCDE   planner.axis_steps_per_mm[NUM_AXIS_N]
+            planner_max_feedrate_mm_s[NUM_AXIS_N],          // M203 XYZE/ABCDE  planner.max_feedrate_mm_s[NUM_AXIS_N]
+            planner_acceleration,                           // M204 P           planner.acceleration
+            planner_retract_acceleration,                   // M204 R           planner.retract_acceleration
+            planner_travel_acceleration,                    // M204 T           planner.travel_acceleration
+            planner_min_feedrate_mm_s,                      // M205 S           planner.min_feedrate_mm_s
+            planner_min_travel_feedrate_mm_s,               // M205 T           planner.min_travel_feedrate_mm_s
+            planner_max_jerk[NUM_AXIS],                     // M205 XYZE/ABCDE  planner.max_jerk[NUM_AXIS]
+            planner_junction_deviation_mm;                  // M205 J           planner.junction_deviation_mm
 
   float home_offset[XYZ];                               // M206 XYZ
 
@@ -446,7 +446,13 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
 
     #if ENABLED(JUNCTION_DEVIATION)
-      const float planner_max_jerk[] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
+      const float planner_max_jerk[] = {
+        #if ENABLED(HANGPRINTER)
+          float(DEFAULT_AJERK), float(DEFAULT_BJERK), float(DEFAULT_CJERK), float(DEFAULT_DJERK), float(DEFAULT_EJERK)
+        #else
+          float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK)
+        #endif
+      };
       EEPROM_WRITE(planner_max_jerk);
       EEPROM_WRITE(planner.junction_deviation_mm);
     #else
