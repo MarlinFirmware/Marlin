@@ -289,13 +289,17 @@
 
   void unified_bed_leveling::G29() {
 
-    if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
+    if (g29_parameter_parsing()) return; // Abort on parameter error
+
+    const int8_t p_val = parser.intval('P', -1);
+    const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J');
 
     // Check for commands that require the printer to be homed
-    if (axis_unhomed_error()) {
-      const int8_t p_val = parser.intval('P', -1);
-      if (p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J'))
-        home_all_axes();
+    if (may_move) {
+      if (axis_unhomed_error()) home_all_axes();
+      #if ENABLED(DUAL_X_CARRIAGE)
+        if (active_extruder != 0) tool_change(0);
+      #endif
     }
 
     // Invalidate Mesh Points. This command is a little bit asymmetrical because
