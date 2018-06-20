@@ -4701,6 +4701,10 @@ void home_all_axes() { gcode_G28(true); }
      */
     if (!g29_in_progress) {
 
+      #if ENABLED(DUAL_X_CARRIAGE)
+        if (active_extruder != 0) tool_change(0);
+      #endif
+
       #if ENABLED(PROBE_MANUALLY) || ENABLED(AUTO_BED_LEVELING_LINEAR)
         abl_probe_index = -1;
       #endif
