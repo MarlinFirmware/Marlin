@@ -695,8 +695,6 @@ void GcodeSuite::process_next_command() {
     #endif
   }
 
-  reset_stepper_timeout(); // Keep steppers powered
-
   // Parse the next command in the queue
   parser.parse(current_command);
   process_parsed_command();
