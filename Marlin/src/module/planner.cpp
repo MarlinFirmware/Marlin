@@ -759,6 +759,11 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
 
   // Don't update variables if block is busy: It is being interpreted by the planner
+  // If this happens, we have a problem... The block speed is inconsistent - We already
+  // have updated some values, but the Stepper ISR is already using the block. Fortunately,
+  // we didn´t touch the values being used by the Stepper ISR, so we just stop here...
+  // TODO: Maybe there is a way to update a running block, it all depends on the stepper
+  // ISR position...
   if (!TEST(block->flag, BLOCK_BIT_BUSY)) {
     block->accelerate_until = accelerate_steps;
     block->decelerate_after = accelerate_steps + plateau_steps;
@@ -862,10 +867,13 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t * const 
         ? max_entry_speed_sqr
         : MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next ? next->entry_speed_sqr : sq(MINIMUM_PLANNER_SPEED), current->millimeters));
       if (current->entry_speed_sqr != new_entry_speed_sqr) {
-        current->entry_speed_sqr = new_entry_speed_sqr;
 
-        // Need to recalculate the block speed
+        // Need to recalculate the block speed - Mark it now, so the stepper
+        // ISR does not consume the block before being recalculated
         SBI(current->flag, BLOCK_BIT_RECALCULATE);
+
+        // Set the new entry speed
+        current->entry_speed_sqr = new_entry_speed_sqr;
       }
     }
   }
@@ -925,14 +933,15 @@ void Planner::forward_pass_kernel(const block_t* const previous, block_t* const 
       // If true, current block is full-acceleration and we can move the planned pointer forward.
       if (new_entry_speed_sqr < current->entry_speed_sqr) {
 
+        // Mark we need to recompute the trapezoidal shape, and do it now,
+        // so the stepper ISR does not consume the block before being recalculated
+        SBI(current->flag, BLOCK_BIT_RECALCULATE);
+
         // Always <= max_entry_speed_sqr. Backward pass sets this.
         current->entry_speed_sqr = new_entry_speed_sqr; // Always <= max_entry_speed_sqr. Backward pass sets this.
 
         // Set optimal plan pointer.
         block_buffer_planned = block_index;
-
-        // And mark we need to recompute the trapezoidal shape
-        SBI(current->flag, BLOCK_BIT_RECALCULATE);
       }
     }
 
@@ -1019,6 +1028,13 @@ void Planner::recalculate_trapezoids() {
       if (current) {
         // Recalculate if current block entry or exit junction speed has changed.
         if (TEST(current->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE)) {
+
+          // Mark the current block as RECALCULATE, to protect it from the Stepper ISR starting
+          // to execute it. Note that due to the above condition, there is a chance the current
+          // block is not marked as RECALCULATE yet, but the next one. That´s the reason for the
+          // following line.
+          SBI(current->flag, BLOCK_BIT_RECALCULATE);
+
           // NOTE: Entry and exit factors always > 0 by all previous logic operations.
           const float current_nominal_speed = SQRT(current->nominal_speed_sqr),
                       nomr = 1.0 / current_nominal_speed;
@@ -1030,7 +1046,10 @@ void Planner::recalculate_trapezoids() {
               current->final_adv_steps = next_entry_speed * comp;
             }
           #endif
-          CBI(current->flag, BLOCK_BIT_RECALCULATE); // Reset current only to ensure next trapezoid is computed
+
+          // Reset current only to ensure next trapezoid is computed - The
+          // stepper is free to use the block from now on.
+          CBI(current->flag, BLOCK_BIT_RECALCULATE);
         }
       }
 
@@ -1043,6 +1062,12 @@ void Planner::recalculate_trapezoids() {
 
   // Last/newest block in buffer. Exit speed is set with MINIMUM_PLANNER_SPEED. Always recalculated.
   if (next) {
+
+    // Mark the next(last) block as RECALCULATE, to protect it from the Stepper ISR starting
+    // to execute it. As the last block is always recalculated here, there is a chance the
+    // block is not marked as RECALCULATE yet. That´s the reason for the following line.
+    SBI(next->flag, BLOCK_BIT_RECALCULATE);
+
     const float next_nominal_speed = SQRT(next->nominal_speed_sqr),
                 nomr = 1.0 / next_nominal_speed;
     calculate_trapezoid_for_block(next, next_entry_speed * nomr, (MINIMUM_PLANNER_SPEED) * nomr);
@@ -1053,6 +1078,9 @@ void Planner::recalculate_trapezoids() {
         next->final_adv_steps = (MINIMUM_PLANNER_SPEED) * comp;
       }
     #endif
+
+    // Reset current only to ensure next trapezoid is computed - The
+    // stepper is free to use the block from now on.
     CBI(next->flag, BLOCK_BIT_RECALCULATE);
   }
 }
