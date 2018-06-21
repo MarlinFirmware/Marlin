@@ -70,9 +70,10 @@ class Endstops {
   private:
     static esbits_t live_state;
     static volatile uint8_t hit_state;      // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
+
     #if ENABLED(ENDSTOP_NOISE_FILTER)
-      static esbits_t old_live_state,       // Old endstop value for debouncing and denoising
-                      validated_live_state; // The validated (accepted as true) endstop bits
+      static esbits_t validated_live_state;
+      uint8_t Endstops::endstop_poll_count;
       static uint8_t endstop_poll_count;    // Countdown from threshold for polling
     #endif
 
@@ -85,10 +86,15 @@ class Endstops {
     static void init();
 
     /**
-     * A change was detected or presumed to be in endstops pins. Find out what
-     * changed, if anything. Called from ISR contexts
+     * Are endstops or the probe set to abort the move?
      */
-    static void check_possible_change();
+    FORCE_INLINE static bool abort_enabled() {
+      return (enabled
+        #if HAS_BED_PROBE
+          || z_probe_enabled
+        #endif
+      );
+    }
 
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
@@ -96,7 +102,9 @@ class Endstops {
     static void poll();
 
     /**
-     * Update the endstops bits from the pins
+     * Update endstops bits from the pins. Apply filtering to get a verified state.
+     * If abort_enabled() and moving towards a triggered switch, abort the current move.
+     * Called from ISR contexts.
      */
     static void update();
 
