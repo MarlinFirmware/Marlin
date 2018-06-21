@@ -246,7 +246,7 @@ uint16_t max_display_update_time = 0;
     void menu_edit_callback_ ## _name(); \
     void _menu_action_setting_edit_ ## _name(const char * const pstr, _type* const ptr, const _type minValue, const _type maxValue); \
     void menu_action_setting_edit_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue); \
-    void menu_action_setting_edit_callback_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback, const bool live=false); \
+    void menu_action_setting_edit_callback_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback=NULL, const bool live=false); \
     typedef void _name##_void
 
   DECLARE_MENU_EDIT_TYPE(int16_t, int3);
@@ -4807,13 +4807,12 @@ void lcd_quick_feedback(const bool clear_buttons) {
       if (lcd_clicked || (liveEdit && lcdDrawUpdate)) { \
         _type value = ((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale); \
         if (editValue != NULL) *((_type*)editValue) = value; \
-        if (liveEdit) (*callbackFunc)(); \
+        if (callbackFunc && (liveEdit || lcd_clicked)) (*callbackFunc)(); \
         if (lcd_clicked) lcd_goto_previous_menu(); \
       } \
       return use_click(); \
     } \
     void menu_edit_ ## _name() { _menu_edit_ ## _name(); } \
-    void menu_edit_callback_ ## _name() { if (_menu_edit_ ## _name()) (*callbackFunc)(); } \
     void _menu_action_setting_edit_ ## _name(const char * const pstr, _type* const ptr, const _type minValue, const _type maxValue) { \
       lcd_save_previous_screen(); \
       lcd_refresh(); \
@@ -4824,15 +4823,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
       maxEditValue = maxValue * _scale - minEditValue; \
       encoderPosition = (*ptr) * _scale - minEditValue; \
     } \
-    void menu_action_setting_edit_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue) { \
-      _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
-      currentScreen = menu_edit_ ## _name; \
-    } \
     void menu_action_setting_edit_callback_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback, const bool live) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
-      currentScreen = menu_edit_callback_ ## _name; \
+      currentScreen = menu_edit_ ## _name; \
       callbackFunc = callback; \
       liveEdit = live; \
+    } \
+    FORCE_INLINE void menu_action_setting_edit_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue) { \
+      menu_action_setting_edit_callback_ ## _name(pstr, ptr, minValue, maxValue); \
     } \
     typedef void _name##_void
 
