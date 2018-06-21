@@ -1407,7 +1407,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     // Leveling Fade Height
     //
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(SLIM_LCD_MENUS)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
     #endif
 
     //
@@ -2559,7 +2559,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(submenu, MSG_UBL_TOOLS, _lcd_ubl_tools_menu);
       MENU_ITEM(gcode, MSG_UBL_INFO_UBL, PSTR("G29 W"));
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
       #endif
       END_MENU();
     }
@@ -2615,7 +2615,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       // Z Fade Height
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
       #endif
 
       //
@@ -2701,7 +2701,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &new_level_state, _lcd_toggle_bed_leveling);
       }
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
       #endif
 
     #endif
