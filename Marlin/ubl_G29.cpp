@@ -289,13 +289,17 @@
 
   void unified_bed_leveling::G29() {
 
-    if (g29_parameter_parsing()) return; // abort if parsing the simple parameters causes a problem,
+    if (g29_parameter_parsing()) return; // Abort on parameter error
+
+    const int8_t p_val = parser.intval('P', -1);
+    const bool may_move = p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J');
 
     // Check for commands that require the printer to be homed
-    if (axis_unhomed_error()) {
-      const int8_t p_val = parser.intval('P', -1);
-      if (p_val == 1 || p_val == 2 || p_val == 4 || parser.seen('J'))
-        home_all_axes();
+    if (may_move) {
+      if (axis_unhomed_error()) home_all_axes();
+      #if ENABLED(DUAL_X_CARRIAGE)
+        if (active_extruder != 0) tool_change(0);
+      #endif
     }
 
     // Invalidate Mesh Points. This command is a little bit asymmetrical because
@@ -1555,7 +1559,10 @@
             incremental_LSF(&lsf_results, PROBE_PT_3_X, PROBE_PT_3_Y, measured_z);
           }
         }
-
+        STOW_PROBE();
+        #ifdef Z_AFTER_PROBING
+          move_z_after_probing();
+        #endif
         if (abort_flag) {
           SERIAL_ECHOPGM("?Error probing point.  Aborting operation.\n");
           return;
@@ -1611,9 +1618,12 @@
 
           zig_zag ^= true;
         }
-        STOW_PROBE();
       }
-
+      STOW_PROBE();
+      #ifdef Z_AFTER_PROBING
+        move_z_after_probing();
+      #endif
+      
       if (abort_flag || finish_incremental_LSF(&lsf_results)) {
         SERIAL_ECHOPGM("Could not complete LSF!");
         return;

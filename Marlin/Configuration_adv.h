@@ -530,7 +530,7 @@
 #define LCD_SET_PROGRESS_MANUALLY
 
 #if ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  #if((ENABLED(MachineEnder4) && !ENABLED(GraphicLCD)) || ENABLED(MachineEnder2))
+  #if((ENABLED(MachineEnder4) && !ENABLED(GraphicLCD)))
   #define LCD_PROGRESS_BAR
   #endif// Show a progress bar on HD44780 LCDs for SD printing
   #if ENABLED(LCD_PROGRESS_BAR)
