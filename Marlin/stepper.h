@@ -53,7 +53,7 @@
 //
 
 #ifndef MINIMUM_STEPPER_PULSE
-  #define MINIMUM_STEPPER_PULSE 0
+  #define MINIMUM_STEPPER_PULSE 0UL
 #endif
 
 #ifndef MAXIMUM_STEPPER_RATE
@@ -64,101 +64,93 @@
   #endif
 #endif
 
-#ifdef CPU_32_BIT
+// The base ISR takes 752 cycles
+#define ISR_BASE_CYCLES  752UL
 
-  // The base ISR takes 792 cycles
-  #define ISR_BASE_CYCLES  792UL
-
-  // Linear advance base time is 64 cycles
-  #if ENABLED(LIN_ADVANCE)
-    #define ISR_LA_BASE_CYCLES 64UL
-  #else
-    #define ISR_LA_BASE_CYCLES 0UL
-  #endif
-
-  // S curve interpolation adds 40 cycles
-  #if ENABLED(S_CURVE_ACCELERATION)
-    #define ISR_S_CURVE_CYCLES 40UL
-  #else
-    #define ISR_S_CURVE_CYCLES 0UL
-  #endif
-
-  // Stepper Loop base cycles
-  #define ISR_LOOP_BASE_CYCLES 4UL
-
-  // And each stepper takes 16 cycles
-  #define ISR_STEPPER_CYCLES 16UL
-
+// Linear advance base time is 32 cycles
+#if ENABLED(LIN_ADVANCE)
+  #define ISR_LA_BASE_CYCLES 32UL
 #else
-
-  // The base ISR takes 752 cycles
-  #define ISR_BASE_CYCLES  752UL
-
-  // Linear advance base time is 32 cycles
-  #if ENABLED(LIN_ADVANCE)
-    #define ISR_LA_BASE_CYCLES 32UL
-  #else
-    #define ISR_LA_BASE_CYCLES 0UL
-  #endif
-
-  // S curve interpolation adds 160 cycles
-  #if ENABLED(S_CURVE_ACCELERATION)
-    #define ISR_S_CURVE_CYCLES 160UL
-  #else
-    #define ISR_S_CURVE_CYCLES 0UL
-  #endif
-
-  // Stepper Loop base cycles
-  #define ISR_LOOP_BASE_CYCLES 32UL
-
-  // And each stepper takes 88 cycles
-  #define ISR_STEPPER_CYCLES 88UL
-
+  #define ISR_LA_BASE_CYCLES 0UL
 #endif
+
+// S curve interpolation adds 160 cycles
+#if ENABLED(S_CURVE_ACCELERATION)
+  #define ISR_S_CURVE_CYCLES 160UL
+#else
+  #define ISR_S_CURVE_CYCLES 0UL
+#endif
+
+// Stepper Loop base cycles
+#define ISR_LOOP_BASE_CYCLES 32UL
+
+// To start the step pulse, in the worst case takes
+#define ISR_START_STEPPER_CYCLES 57UL
+
+// And each stepper (start + stop pulse) takes in worst case
+#define ISR_STEPPER_CYCLES 88UL
 
 // Add time for each stepper
 #ifdef HAS_X_STEP
-  #define ISR_X_STEPPER_CYCLES ISR_STEPPER_CYCLES
+  #define ISR_START_X_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
+  #define ISR_X_STEPPER_CYCLES       ISR_STEPPER_CYCLES
 #else
-  #define ISR_X_STEPPER_CYCLES 0UL
+  #define ISR_START_X_STEPPER_CYCLES 0UL
+  #define ISR_X_STEPPER_CYCLES       0UL
 #endif
 #ifdef HAS_Y_STEP
-  #define ISR_Y_STEPPER_CYCLES ISR_STEPPER_CYCLES
+  #define ISR_START_Y_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
+  #define ISR_Y_STEPPER_CYCLES       ISR_STEPPER_CYCLES
 #else
-  #define ISR_Y_STEPPER_CYCLES 0UL
+  #define ISR_START_Y_STEPPER_CYCLES 0UL
+  #define ISR_Y_STEPPER_CYCLES       0UL
 #endif
 #ifdef HAS_Z_STEP
-  #define ISR_Z_STEPPER_CYCLES ISR_STEPPER_CYCLES
+  #define ISR_START_Z_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
+  #define ISR_Z_STEPPER_CYCLES       ISR_STEPPER_CYCLES
 #else
-  #define ISR_Z_STEPPER_CYCLES 0UL
+  #define ISR_START_Z_STEPPER_CYCLES 0UL
+  #define ISR_Z_STEPPER_CYCLES       0UL
 #endif
 
 // E is always interpolated, even for mixing extruders
-#define ISR_E_STEPPER_CYCLES ISR_STEPPER_CYCLES
+#define ISR_START_E_STEPPER_CYCLES   ISR_START_STEPPER_CYCLES
+#define ISR_E_STEPPER_CYCLES         ISR_STEPPER_CYCLES
 
 // If linear advance is disabled, then the loop also handles them
 #if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
+  #define ISR_START_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_START_STEPPER_CYCLES))
   #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
 #else
+  #define ISR_START_MIXING_STEPPER_CYCLES 0UL
   #define ISR_MIXING_STEPPER_CYCLES  0UL
 #endif
+
+// Calculate the minimum time to start all stepper pulses in the ISR loop
+#define MIN_ISR_START_LOOP_CYCLES (ISR_START_X_STEPPER_CYCLES + ISR_START_Y_STEPPER_CYCLES + ISR_START_Z_STEPPER_CYCLES + ISR_START_E_STEPPER_CYCLES + ISR_START_MIXING_STEPPER_CYCLES)
 
 // And the total minimum loop time, not including the base
 #define MIN_ISR_LOOP_CYCLES (ISR_X_STEPPER_CYCLES + ISR_Y_STEPPER_CYCLES + ISR_Z_STEPPER_CYCLES + ISR_E_STEPPER_CYCLES + ISR_MIXING_STEPPER_CYCLES)
 
 // Calculate the minimum MPU cycles needed per pulse to enforce, limited to the max stepper rate
-#define _MIN_STEPPER_PULSE_CYCLES(N) max((F_CPU) / (MAXIMUM_STEPPER_RATE), ((F_CPU) / 500000UL) * (N))
+#define _MIN_STEPPER_PULSE_CYCLES(N) MAX((F_CPU) / (MAXIMUM_STEPPER_RATE), ((F_CPU) / 500000UL) * (N))
 #if MINIMUM_STEPPER_PULSE
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(MINIMUM_STEPPER_PULSE)
+  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES((MINIMUM_STEPPER_PULSE))
 #else
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1)
+  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
 #endif
 
-#define MIN_PULSE_TICKS  ((PULSE_TIMER_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE))
-#define ADDED_STEP_TICKS ((MIN_STEPPER_PULSE_CYCLES) / (PULSE_TIMER_PRESCALE) - MIN_PULSE_TICKS)
+// Calculate the minimum ticks of the PULSE timer that must elapse with the step pulse enabled
+// adding the "start stepper pulse" code section execution cycles to account for that not all
+// pulses start at the beginning of the loop, so an extra time must be added to compensate so
+// the last generated pulse (usually the extruder stepper) has the right length
+#define MIN_PULSE_TICKS (((PULSE_TIMER_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE)) + ((MIN_ISR_START_LOOP_CYCLES) / (PULSE_TIMER_PRESCALE)))
+
+// Calculate the extra ticks of the PULSE timer between step pulses
+#define ADDED_STEP_TICKS (((MIN_STEPPER_PULSE_CYCLES) / (PULSE_TIMER_PRESCALE)) - (MIN_PULSE_TICKS))
 
 // But the user could be enforcing a minimum time, so the loop time is
-#define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + max(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
+#define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
 
 // If linear advance is enabled, then it is handled separately
 #if ENABLED(LIN_ADVANCE)
@@ -171,7 +163,7 @@
   #endif
 
   // And the real loop time
-  #define ISR_LA_LOOP_CYCLES max(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LA_LOOP_CYCLES)
+  #define ISR_LA_LOOP_CYCLES MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LA_LOOP_CYCLES)
 
 #else
   #define ISR_LA_LOOP_CYCLES 0UL
