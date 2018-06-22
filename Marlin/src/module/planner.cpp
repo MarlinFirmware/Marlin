@@ -758,12 +758,11 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   const bool was_enabled = STEPPER_ISR_ENABLED();
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
 
-  // Don't update variables if block is busy: It is being interpreted by the planner
-  // If this happens, we have a problem... The block speed is inconsistent - We already
-  // have updated some values, but the Stepper ISR is already using the block. Fortunately,
-  // we didn´t touch the values being used by the Stepper ISR, so we just stop here...
-  // TODO: Maybe there is a way to update a running block, it all depends on the stepper
-  // ISR position...
+  // Don't update variables if block is busy; it is being interpreted by the planner.
+  // If this happens, there's a problem... The block speed is inconsistent. Some values
+  // have already been updated, but the Stepper ISR is already using the block. Fortunately,
+  // the values being used by the Stepper ISR weren't touched, so just stop here...
+  // TODO: There may be a way to update a running block, depending on the stepper ISR position.
   if (!TEST(block->flag, BLOCK_BIT_BUSY)) {
     block->accelerate_until = accelerate_steps;
     block->decelerate_after = accelerate_steps + plateau_steps;
@@ -1029,10 +1028,9 @@ void Planner::recalculate_trapezoids() {
         // Recalculate if current block entry or exit junction speed has changed.
         if (TEST(current->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE)) {
 
-          // Mark the current block as RECALCULATE, to protect it from the Stepper ISR starting
-          // to execute it. Note that due to the above condition, there is a chance the current
-          // block is not marked as RECALCULATE yet, but the next one. That´s the reason for the
-          // following line.
+          // Mark the current block as RECALCULATE, to protect it from the Stepper ISR running it.
+          // Note that due to the above condition, there's a chance the current block isn't marked as
+          // RECALCULATE yet, but the next one is. That's the reason for the following line.
           SBI(current->flag, BLOCK_BIT_RECALCULATE);
 
           // NOTE: Entry and exit factors always > 0 by all previous logic operations.
@@ -1063,9 +1061,9 @@ void Planner::recalculate_trapezoids() {
   // Last/newest block in buffer. Exit speed is set with MINIMUM_PLANNER_SPEED. Always recalculated.
   if (next) {
 
-    // Mark the next(last) block as RECALCULATE, to protect it from the Stepper ISR starting
-    // to execute it. As the last block is always recalculated here, there is a chance the
-    // block is not marked as RECALCULATE yet. That´s the reason for the following line.
+    // Mark the next(last) block as RECALCULATE, to prevent the Stepper ISR running it.
+    // As the last block is always recalculated here, there is a chance the block isn't
+    // marked as RECALCULATE yet. That's the reason for the following line.
     SBI(next->flag, BLOCK_BIT_RECALCULATE);
 
     const float next_nominal_speed = SQRT(next->nominal_speed_sqr),
@@ -1079,8 +1077,8 @@ void Planner::recalculate_trapezoids() {
       }
     #endif
 
-    // Reset current only to ensure next trapezoid is computed - The
-    // stepper is free to use the block from now on.
+    // Reset next only to ensure its trapezoid is computed - The stepper is free to use
+    // the block from now on.
     CBI(next->flag, BLOCK_BIT_RECALCULATE);
   }
 }
