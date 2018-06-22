@@ -41,7 +41,7 @@
 #include "macros.h"
 
 // One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstops.check_possible_change(); }
+void endstop_ISR(void) { endstops.update(); }
 
 /**
  * Patch for pins_arduino.h (...\Arduino\hardware\arduino\avr\variants\mega\pins_arduino.h)
