@@ -36,12 +36,6 @@
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
 
-#if HAS_BED_PROBE
-  #define ENDSTOPS_ENABLED  (enabled || z_probe_enabled)
-#else
-  #define ENDSTOPS_ENABLED  enabled
-#endif
-
 Endstops endstops;
 
 // public:
@@ -50,9 +44,9 @@ bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.l
 volatile uint8_t Endstops::hit_state;
 
 Endstops::esbits_t Endstops::live_state = 0;
+
 #if ENABLED(ENDSTOP_NOISE_FILTER)
-  Endstops::esbits_t Endstops::old_live_state,
-                     Endstops::validated_live_state;
+  Endstops::esbits_t Endstops::validated_live_state;
   uint8_t Endstops::endstop_poll_count;
 #endif
 
@@ -222,9 +216,6 @@ void Endstops::init() {
 
 } // Endstops::init
 
-// Called from ISR. A change was detected. Find out what happened!
-void Endstops::check_possible_change() { if (ENDSTOPS_ENABLED) update(); }
-
 // Called from ISR: Poll endstop state if required
 void Endstops::poll() {
 
@@ -232,8 +223,10 @@ void Endstops::poll() {
     run_monitor();  // report changes in endstop status
   #endif
 
-  #if DISABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(ENDSTOP_NOISE_FILTER)
-    if (ENDSTOPS_ENABLED) update();
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && ENABLED(ENDSTOP_NOISE_FILTER)
+    if (endstop_poll_count) update();
+  #elif DISABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(ENDSTOP_NOISE_FILTER)
+    update();
   #endif
 }
 
@@ -241,7 +234,7 @@ void Endstops::enable_globally(const bool onoff) {
   enabled_globally = enabled = onoff;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (onoff) update(); // If enabling, update state now
+    update();
   #endif
 }
 
@@ -250,7 +243,7 @@ void Endstops::enable(const bool onoff) {
   enabled = onoff;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (onoff) update(); // If enabling, update state now
+    update();
   #endif
 }
 
@@ -259,7 +252,7 @@ void Endstops::not_homing() {
   enabled = enabled_globally;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (enabled) update(); // If enabling, update state now
+    update();
   #endif
 }
 
@@ -269,7 +262,7 @@ void Endstops::not_homing() {
     z_probe_enabled = onoff;
 
     #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-      if (enabled) update(); // If enabling, update state now
+      update();
     #endif
   }
 #endif
@@ -396,10 +389,12 @@ void Endstops::M119() {
 // Check endstops - Could be called from ISR!
 void Endstops::update() {
 
-  // UPDATE_ENDSTOP_BIT: set the current endstop bits for an endstop to its status
+  #if DISABLED(ENDSTOP_NOISE_FILTER)
+    if (!abort_enabled()) return;
+  #endif
+
   #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
-  // COPY_BIT: copy the value of SRC_BIT to DST_BIT in DST
-  #define COPY_BIT(DST, SRC_BIT, DST_BIT) SET_BIT_TO(DST, DST_BIT, TEST(DST, SRC_BIT))
+  #define COPY_LIVE_STATE(SRC_BIT, DST_BIT) SET_BIT_TO(live_state, DST_BIT, TEST(live_state, SRC_BIT))
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     // If G38 command is active check Z_MIN_PROBE for ALL movement
@@ -444,7 +439,7 @@ void Endstops::update() {
           #if HAS_X2_MIN
             UPDATE_ENDSTOP_BIT(X2, MIN);
           #else
-            COPY_BIT(live_state, X_MIN, X2_MIN);
+            COPY_LIVE_STATE(X_MIN, X2_MIN);
           #endif
         #else
           if (X_MIN_TEST) UPDATE_ENDSTOP_BIT(X, MIN);
@@ -458,7 +453,7 @@ void Endstops::update() {
           #if HAS_X2_MAX
             UPDATE_ENDSTOP_BIT(X2, MAX);
           #else
-            COPY_BIT(live_state, X_MAX, X2_MAX);
+            COPY_LIVE_STATE(X_MAX, X2_MAX);
           #endif
         #else
           if (X_MAX_TEST) UPDATE_ENDSTOP_BIT(X, MAX);
@@ -475,7 +470,7 @@ void Endstops::update() {
           #if HAS_Y2_MIN
             UPDATE_ENDSTOP_BIT(Y2, MIN);
           #else
-            COPY_BIT(live_state, Y_MIN, Y2_MIN);
+            COPY_LIVE_STATE(Y_MIN, Y2_MIN);
           #endif
         #else
           UPDATE_ENDSTOP_BIT(Y, MIN);
@@ -489,7 +484,7 @@ void Endstops::update() {
           #if HAS_Y2_MAX
             UPDATE_ENDSTOP_BIT(Y2, MAX);
           #else
-            COPY_BIT(live_state, Y_MAX, Y2_MAX);
+            COPY_LIVE_STATE(Y_MAX, Y2_MAX);
           #endif
         #else
           UPDATE_ENDSTOP_BIT(Y, MAX);
@@ -506,7 +501,7 @@ void Endstops::update() {
           #if HAS_Z2_MIN
             UPDATE_ENDSTOP_BIT(Z2, MIN);
           #else
-            COPY_BIT(live_state, Z_MIN, Z2_MIN);
+            COPY_LIVE_STATE(Z_MIN, Z2_MIN);
           #endif
         #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
           if (z_probe_enabled) UPDATE_ENDSTOP_BIT(Z, MIN);
@@ -528,7 +523,7 @@ void Endstops::update() {
           #if HAS_Z2_MAX
             UPDATE_ENDSTOP_BIT(Z2, MAX);
           #else
-            COPY_BIT(live_state, Z_MAX, Z2_MAX);
+            COPY_LIVE_STATE(Z_MAX, Z2_MAX);
           #endif
         #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
           // If this pin isn't the bed probe it's the Z endstop
@@ -538,36 +533,31 @@ void Endstops::update() {
     }
   }
 
-  // All endstops were updated.
   #if ENABLED(ENDSTOP_NOISE_FILTER)
-    if (old_live_state != live_state) { // We detected a change. Reinit the timeout
-      /**
-       * Filtering out noise on endstops requires a delayed decision. Let's assume, due to noise,
-       * that 50% of endstop signal samples are good and 50% are bad (assuming normal distribution
-       * of random noise). Then the first sample has a 50% chance to be good or bad. The 2nd sample
-       * also has a 50% chance to be good or bad. The chances of 2 samples both being bad becomes
-       * 50% of 50%, or 25%. That was the previous implementation of Marlin endstop handling. It
-       * reduces chances of bad readings in half, at the cost of 1 extra sample period, but chances
-       * still exist. The only way to reduce them further is to increase the number of samples.
-       * To reduce the chance to 1% (1/128th) requires 7 samples (adding 7ms of delay).
-       */
+    /**
+     * Filtering out noise on endstops requires a delayed decision. Let's assume, due to noise,
+     * that 50% of endstop signal samples are good and 50% are bad (assuming normal distribution
+     * of random noise). Then the first sample has a 50% chance to be good or bad. The 2nd sample
+     * also has a 50% chance to be good or bad. The chances of 2 samples both being bad becomes
+     * 50% of 50%, or 25%. That was the previous implementation of Marlin endstop handling. It
+     * reduces chances of bad readings in half, at the cost of 1 extra sample period, but chances
+     * still exist. The only way to reduce them further is to increase the number of samples.
+     * To reduce the chance to 1% (1/128th) requires 7 samples (adding 7ms of delay).
+     */
+    static esbits_t old_live_state;
+    if (old_live_state != live_state) {
       endstop_poll_count = 7;
       old_live_state = live_state;
     }
     else if (endstop_poll_count && !--endstop_poll_count)
       validated_live_state = live_state;
 
-  #else
-
-    // Lets accept the new endstop values as valid - We assume hardware filtering of lines
-    esbits_t validated_live_state = live_state;
+    if (!abort_enabled()) return;
 
   #endif
 
-  // Endstop readings are validated in validated_live_state
-
   // Test the current status of an endstop
-  #define TEST_ENDSTOP(ENDSTOP) (TEST(validated_live_state, ENDSTOP))
+  #define TEST_ENDSTOP(ENDSTOP) (TEST(state(), ENDSTOP))
 
   // Record endstop was hit
   #define _ENDSTOP_HIT(AXIS, MINMAX) SBI(hit_state, _ENDSTOP(AXIS, MINMAX))
