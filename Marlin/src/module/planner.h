@@ -752,7 +752,7 @@ class Planner {
     #if ENABLED(JUNCTION_DEVIATION)
       FORCE_INLINE static void recalculate_max_e_jerk_factor() {
         #if ENABLED(LIN_ADVANCE)
-          max_e_jerk_factor = SQRT(SQRT(0.5) * junction_deviation_mm) * RECIPROCAL(1.0 - SQRT(0.5));
+          max_e_jerk_factor = SQRT(SQRT(0.5) * junction_deviation_mm * RECIPROCAL(1.0 - SQRT(0.5)));
         #endif
       }
     #endif

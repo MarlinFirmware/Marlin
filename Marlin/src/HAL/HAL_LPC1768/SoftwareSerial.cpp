@@ -253,7 +253,7 @@ void SoftwareSerial::end() {
 
 
 // Read data from buffer
-int SoftwareSerial::read() {
+int16_t SoftwareSerial::read() {
   if (!isListening()) return -1;
 
   // Empty buffer?
@@ -265,7 +265,7 @@ int SoftwareSerial::read() {
   return d;
 }
 
-int SoftwareSerial::available() {
+size_t SoftwareSerial::available() {
   if (!isListening()) return 0;
 
   return (_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head) % _SS_MAX_RX_BUFF;
@@ -314,7 +314,7 @@ void SoftwareSerial::flush() {
   sei();
 }
 
-int SoftwareSerial::peek() {
+int16_t SoftwareSerial::peek() {
   if (!isListening())
     return -1;
 

@@ -536,7 +536,7 @@ void idle(
 ) {
   #if ENABLED(MAX7219_DEBUG)
     Max7219_idle_tasks();
-  #endif  // MAX7219_DEBUG
+  #endif
 
   lcd_update();
 
