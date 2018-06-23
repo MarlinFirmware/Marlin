@@ -332,6 +332,11 @@ void Stepper::set_directions() {
       }
     #endif
   #endif // !LIN_ADVANCE
+
+  // A small delay may be needed after changing direction
+  #if MINIMUM_STEPPER_DIR_DELAY > 0
+    DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+  #endif
 }
 
 #if ENABLED(S_CURVE_ACCELERATION)
