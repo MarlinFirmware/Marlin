@@ -39,7 +39,7 @@
   #include "../../feature/tmc_util.h"
 #endif
 
-#if HOMING_Z_WITH_PROBE
+#if HOMING_Z_WITH_PROBE || ENABLED(BLTOUCH)
   #include "../../module/probe.h"
 #endif
 
@@ -88,7 +88,7 @@
   inline void home_z_safely() {
 
     // Disallow Z homing if X or Y are unknown
-    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
+    if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
       LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM(MSG_ERR_Z_HOMING);
@@ -152,6 +152,8 @@
  *  None  Home to all axes with no parameters.
  *        With QUICK_HOME enabled XY will home together, then Z.
  *
+ *  O   Home only if position is unknown
+ *
  *  Rn  Raise by n mm/inches before homing
  *
  * Cartesian/SCARA parameters
@@ -169,6 +171,16 @@ void GcodeSuite::G28(const bool always_home_all) {
       log_machine_info();
     }
   #endif
+
+  if (all_axes_known() && parser.boolval('O')) { // home only if needed
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOLNPGM("> homing not needed, skip");
+        SERIAL_ECHOLNPGM("<<< G28");
+      }
+    #endif
+    return;
+  }
 
   // Wait for planner moves to finish!
   planner.synchronize();
@@ -188,6 +200,11 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
     workspace_plane = PLANE_XY;
+  #endif
+
+  #if ENABLED(BLTOUCH)
+    bltouch_command(BLTOUCH_RESET);
+    set_bltouch_deployed(false);
   #endif
 
   // Always home with tool 0 active
@@ -230,7 +247,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     const float z_homing_height = (
       #if ENABLED(UNKNOWN_Z_NO_RAISE)
-        !axis_known_position[Z_AXIS] ? 0 :
+        !TEST(axis_known_position, Z_AXIS) ? 0 :
       #endif
           (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
     );

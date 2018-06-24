@@ -38,33 +38,29 @@
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
 //
+// Limit Switches
+//
+#define U_MIN_PIN          -1
+#define V_MIN_PIN          -1
+#define W_MIN_PIN          -1
+#define X_STOP_PIN         PD0
+#define Y_STOP_PIN         PD1
+#define Z_STOP_PIN         PD4
+
+//
 // Steppers
 //
 #define X_STEP_PIN         PE1
 #define X_DIR_PIN          PE0
 #define X_ENABLE_PIN       PC0
-#define X_MIN_PIN          PD0
-#define X_MAX_PIN          -1
 
 #define Y_STEP_PIN         PE3
 #define Y_DIR_PIN          PE2
 #define Y_ENABLE_PIN       PC1
-#define Y_MIN_PIN          PD1
-#define Y_MAX_PIN
 
 #define Z_STEP_PIN         PE5
 #define Z_DIR_PIN          PE4
 #define Z_ENABLE_PIN       PC2
-#define Z_MIN_PIN          PD4
-#define Z_MAX_PIN          -1
-
-#define Y2_STEP_PIN        -1
-#define Y2_DIR_PIN         -1
-#define Y2_ENABLE_PIN      -1
-
-#define Z2_STEP_PIN        -1
-#define Z2_DIR_PIN         -1
-#define Z2_ENABLE_PIN      -1
 
 #define E0_STEP_PIN        PE7
 #define E0_DIR_PIN         PE6
@@ -81,25 +77,22 @@
 //
 // Misc. Functions
 //
-//#define SDPOWER            -1
 #define SDSS               PA15
 #define LED_PIN            PB2
-
-//#define PS_ON_PIN          -1
-//#define KILL_PIN           -1
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN       PD12   // EXTRUDER 1
 //#define HEATER_1_PIN       PD13
-//#define HEATER_2_PIN       -1
 
 #define HEATER_BED_PIN     PB9   // BED
 //#define HEATER_BED2_PIN    -1   // BED2
 //#define HEATER_BED3_PIN    -1   // BED3
 
-#define FAN_PIN            PD14
+#ifndef FAN_PIN
+  #define FAN_PIN          PD14
+#endif
 #define FAN1_PIN           PD13
 
 #define FAN_SOFT_PWM
@@ -114,8 +107,8 @@
 
 // Laser control
 #if ENABLED(SPINDLE_LASER_ENABLE)
-#define SPINDLE_LASER_PWM_PIN       PB8
-#define SPINDLE_LASER_ENABLE_PIN    PD5
+  #define SPINDLE_LASER_PWM_PIN     PB8
+  #define SPINDLE_LASER_ENABLE_PIN  PD5
 #endif
 
 //
@@ -285,7 +278,3 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
-
-#define U_MIN_PIN          -1
-#define V_MIN_PIN          -1
-#define W_MIN_PIN          -1

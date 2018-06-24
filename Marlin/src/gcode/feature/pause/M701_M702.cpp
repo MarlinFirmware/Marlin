@@ -41,9 +41,9 @@
 /**
  * M701: Load filament
  *
- *  T[extruder] - Optional extruder number. Current extruder if omitted.
- *  Z[distance] - Move the Z axis by this distance
- *  L[distance] - Extrude distance for insertion (positive value) (manual reload)
+ *  T<extruder> - Optional extruder number. Current extruder if omitted.
+ *  Z<distance> - Move the Z axis by this distance
+ *  L<distance> - Extrude distance for insertion (positive value) (manual reload)
  *
  *  Default values are used for omitted arguments.
  */
@@ -102,10 +102,10 @@ void GcodeSuite::M701() {
 /**
  * M702: Unload filament
  *
- *  T[extruder] - Optional extruder number. If omitted, current extruder
+ *  T<extruder> - Optional extruder number. If omitted, current extruder
  *                (or ALL extruders with FILAMENT_UNLOAD_ALL_EXTRUDERS).
- *  Z[distance] - Move the Z axis by this distance
- *  U[distance] - Retract distance for removal (manual reload)
+ *  Z<distance> - Move the Z axis by this distance
+ *  U<distance> - Retract distance for removal (manual reload)
  *
  *  Default values are used for omitted arguments.
  */

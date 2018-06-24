@@ -217,7 +217,7 @@ extern "C" {
 #define udd_raise_msof()                          (UOTGHS->UOTGHS_DEVIFR = UOTGHS_DEVIFR_MSOFS)
 #define Is_udd_msof()                             (Tst_bits(UOTGHS->UOTGHS_DEVISR, UOTGHS_DEVISR_MSOF))
 #define udd_micro_frame_number()                  \
-	(Rd_bitfield(UOTGHS->UOTGHS_DEVFNUM, (UOTGHS_DEVFNUM_FNUM_Msk|UOTGHS_DEVFNUM_MFNUM_Msk)))
+  (Rd_bitfield(UOTGHS->UOTGHS_DEVFNUM, (UOTGHS_DEVFNUM_FNUM_Msk|UOTGHS_DEVFNUM_MFNUM_Msk)))
 //! @}
 
 //! Manage suspend event
@@ -266,10 +266,10 @@ extern "C" {
 #define Is_udd_endpoint_enabled(ep)               (Tst_bits(UOTGHS->UOTGHS_DEVEPT, UOTGHS_DEVEPT_EPEN0 << (ep)))
   //! resets the selected endpoint
 #define udd_reset_endpoint(ep)                                         \
-	do {                                                               \
-		Set_bits(UOTGHS->UOTGHS_DEVEPT, UOTGHS_DEVEPT_EPRST0 << (ep)); \
-		Clr_bits(UOTGHS->UOTGHS_DEVEPT, UOTGHS_DEVEPT_EPRST0 << (ep)); \
-	} while (0)
+  do {                                                               \
+    Set_bits(UOTGHS->UOTGHS_DEVEPT, UOTGHS_DEVEPT_EPRST0 << (ep)); \
+    Clr_bits(UOTGHS->UOTGHS_DEVEPT, UOTGHS_DEVEPT_EPRST0 << (ep)); \
+  } while (0)
   //! Tests if the selected endpoint is being reset
 #define Is_udd_resetting_endpoint(ep)             (Tst_bits(UOTGHS->UOTGHS_DEVEPT, UOTGHS_DEVEPT_EPRST0 << (ep)))
 
@@ -290,6 +290,7 @@ extern "C" {
   //! Bounds given integer size to allowed range and rounds it up to the nearest
   //! available greater size, then applies register format of UOTGHS controller
   //! for endpoint size bit-field.
+#undef udd_format_endpoint_size
 #define udd_format_endpoint_size(size)            (32 - clz(((uint32_t)MIN(MAX(size, 8), 1024) << 1) - 1) - 1 - 3)
   //! Configures the selected endpoint size
 #define udd_configure_endpoint_size(ep, size)     (Wr_bitfield(UOTGHS_ARRAY(UOTGHS_DEVEPTCFG[0], ep), UOTGHS_DEVEPTCFG_EPSIZE_Msk, udd_format_endpoint_size(size)))
@@ -307,14 +308,14 @@ extern "C" {
 
   //! Configures selected endpoint in one step
 #define udd_configure_endpoint(ep, type, dir, size, bank) (\
-	Wr_bits(UOTGHS_ARRAY(UOTGHS_DEVEPTCFG[0], ep), UOTGHS_DEVEPTCFG_EPTYPE_Msk |\
-			UOTGHS_DEVEPTCFG_EPDIR  |\
-			UOTGHS_DEVEPTCFG_EPSIZE_Msk |\
-			UOTGHS_DEVEPTCFG_EPBK_Msk ,   \
-			(((uint32_t)(type) << UOTGHS_DEVEPTCFG_EPTYPE_Pos) & UOTGHS_DEVEPTCFG_EPTYPE_Msk) |\
-			(((uint32_t)(dir ) << UOTGHS_DEVEPTCFG_EPDIR_Pos ) & UOTGHS_DEVEPTCFG_EPDIR) |\
-			( (uint32_t)udd_format_endpoint_size(size) << UOTGHS_DEVEPTCFG_EPSIZE_Pos) |\
-			(((uint32_t)(bank) << UOTGHS_DEVEPTCFG_EPBK_Pos) & UOTGHS_DEVEPTCFG_EPBK_Msk))\
+  Wr_bits(UOTGHS_ARRAY(UOTGHS_DEVEPTCFG[0], ep), UOTGHS_DEVEPTCFG_EPTYPE_Msk |\
+      UOTGHS_DEVEPTCFG_EPDIR  |\
+      UOTGHS_DEVEPTCFG_EPSIZE_Msk |\
+      UOTGHS_DEVEPTCFG_EPBK_Msk ,   \
+      (((uint32_t)(type) << UOTGHS_DEVEPTCFG_EPTYPE_Pos) & UOTGHS_DEVEPTCFG_EPTYPE_Msk) |\
+      (((uint32_t)(dir ) << UOTGHS_DEVEPTCFG_EPDIR_Pos ) & UOTGHS_DEVEPTCFG_EPDIR) |\
+      ( (uint32_t)udd_format_endpoint_size(size) << UOTGHS_DEVEPTCFG_EPSIZE_Pos) |\
+      (((uint32_t)(bank) << UOTGHS_DEVEPTCFG_EPBK_Pos) & UOTGHS_DEVEPTCFG_EPBK_Msk))\
 )
   //! Tests if current endpoint is configured
 #define Is_udd_endpoint_configured(ep)            (Tst_bits(UOTGHS_ARRAY(UOTGHS_DEVEPTISR[0], ep), UOTGHS_DEVEPTISR_CFGOK))
@@ -540,7 +541,7 @@ extern "C" {
   //! @warning It is up to the user of this macro to make sure that used HSB
   //! addresses are identical to the DPRAM internal pointer modulo 32 bits.
 #define udd_get_endpoint_fifo_access(ep, scale) \
-		(((volatile TPASTE2(U, scale) (*)[0x8000 / ((scale) / 8)])UOTGHS_RAM_ADDR)[(ep)])
+    (((volatile TPASTE2(U, scale) (*)[0x8000 / ((scale) / 8)])UOTGHS_RAM_ADDR)[(ep)])
 
 //! @name UOTGHS endpoint DMA drivers
 //! These macros manage the common features of the endpoint DMA channels.
@@ -572,60 +573,60 @@ extern "C" {
   //! @{
       //! Structure for DMA next descriptor register
 typedef struct {
-	uint32_t *NXT_DSC_ADD;
+  uint32_t *NXT_DSC_ADD;
 } uotghs_dma_nextdesc_t;
       //! Structure for DMA control register
 typedef struct {
-	uint32_t CHANN_ENB:1,
-		LDNXT_DSC:1,
-		END_TR_EN:1,
-		END_B_EN:1,
-		END_TR_IT:1,
-		END_BUFFIT:1,
-		DESC_LD_IT:1,
-		BUST_LCK:1,
-		reserved:8,
-		BUFF_LENGTH:16;
+  uint32_t CHANN_ENB:1,
+    LDNXT_DSC:1,
+    END_TR_EN:1,
+    END_B_EN:1,
+    END_TR_IT:1,
+    END_BUFFIT:1,
+    DESC_LD_IT:1,
+    BUST_LCK:1,
+    reserved:8,
+    BUFF_LENGTH:16;
 } uotghs_dma_control_t;
       //! Structure for DMA status register
 typedef struct {
-	uint32_t CHANN_ENB:1,
-		CHANN_ACT:1,
-		reserved0:2,
-		END_TR_ST:1,
-		END_BF_ST:1,
-		DESC_LDST:1,
-		reserved1:9,
-		BUFF_COUNT:16;
+  uint32_t CHANN_ENB:1,
+    CHANN_ACT:1,
+    reserved0:2,
+    END_TR_ST:1,
+    END_BF_ST:1,
+    DESC_LDST:1,
+    reserved1:9,
+    BUFF_COUNT:16;
 } uotghs_dma_status_t;
       //! Structure for DMA descriptor
 typedef struct {
-	union {
-		uint32_t nextdesc;
-		uotghs_dma_nextdesc_t NEXTDESC;
-	};
-	uint32_t addr;
-	union {
-		uint32_t control;
-		uotghs_dma_control_t CONTROL;
-	};
-	uint32_t reserved;
+  union {
+    uint32_t nextdesc;
+    uotghs_dma_nextdesc_t NEXTDESC;
+  };
+  uint32_t addr;
+  union {
+    uint32_t control;
+    uotghs_dma_control_t CONTROL;
+  };
+  uint32_t reserved;
 } sam_uotghs_dmadesc_t, uotghs_dmadesc_t;
       //! Structure for DMA registers in a channel
 typedef struct {
-	union {
-		uint32_t nextdesc;
-		uotghs_dma_nextdesc_t NEXTDESC;
-	};
-	uint32_t addr;
-	union {
-		uint32_t control;
-		uotghs_dma_control_t CONTROL;
-	};
-	union {
-		unsigned long status;
-		uotghs_dma_status_t STATUS;
-	};
+  union {
+    uint32_t nextdesc;
+    uotghs_dma_nextdesc_t NEXTDESC;
+  };
+  uint32_t addr;
+  union {
+    uint32_t control;
+    uotghs_dma_control_t CONTROL;
+  };
+  union {
+    unsigned long status;
+    uotghs_dma_status_t STATUS;
+  };
 } sam_uotghs_dmach_t, uotghs_dmach_t;
       //! DMA channel control command
 #define UDD_ENDPOINT_DMA_STOP_NOW                 (0)

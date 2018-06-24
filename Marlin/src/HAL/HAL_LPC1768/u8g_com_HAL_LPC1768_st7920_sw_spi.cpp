@@ -70,7 +70,6 @@ static uint8_t SPI_speed = 0;
 static uint8_t rs_last_state = 255;
 
 static void u8g_com_LPC1768_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
-  uint8_t i;
 
   if (rs != rs_last_state) {  // time to send a command/data byte
     rs_last_state = rs;

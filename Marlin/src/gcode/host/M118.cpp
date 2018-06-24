@@ -25,7 +25,7 @@
 /**
  * M118: Display a message in the host console.
  *
- *  A1  Append '// ' for an action command, as in OctoPrint
+ *  A1  Prepend '// ' for an action command, as in OctoPrint
  *  E1  Have the host 'echo:' the text
  */
 void GcodeSuite::M118() {

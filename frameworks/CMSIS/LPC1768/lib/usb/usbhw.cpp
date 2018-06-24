@@ -563,8 +563,7 @@ uint32_t USB_DMA_Status (uint32_t EPNum) {
   uint32_t ptr, val;
 
   ptr = UDCA[EPAdr(EPNum)];                 /* Current Descriptor */
-  if (ptr == 0)
-	return (USB_DMA_INVALID);
+  if (ptr == 0) return (USB_DMA_INVALID);
 
   val = *((uint32_t *)(ptr + 3*4));            /* Status Information */
   switch ((val >> 1) & 0x0F) {
@@ -596,13 +595,8 @@ uint32_t USB_DMA_Status (uint32_t EPNum) {
 
 uint32_t USB_DMA_BufAdr (uint32_t EPNum) {
   uint32_t ptr, val;
-
   ptr = UDCA[EPAdr(EPNum)];                 /* Current Descriptor */
-  if (ptr == 0)
-  {
-	return ((uint32_t)(-1));                /* DMA Invalid */
-  }
-
+  if (ptr == 0) return ((uint32_t)(-1));    /* DMA Invalid */
   val = *((uint32_t *)(ptr + 2*4));         /* Buffer Address */
   return (val);                             /* Current Address */
 }
@@ -619,12 +613,8 @@ uint32_t USB_DMA_BufAdr (uint32_t EPNum) {
 
 uint32_t USB_DMA_BufCnt (uint32_t EPNum) {
   uint32_t ptr, val;
-
   ptr = UDCA[EPAdr(EPNum)];                 /* Current Descriptor */
-  if (ptr == 0)
-  {
-	return ((uint32_t)(-1));                /* DMA Invalid */
-  }
+  if (ptr == 0) return ((uint32_t)(-1));    /* DMA Invalid */
   val = *((uint32_t *)(ptr + 3*4));         /* Status Information */
   return (val >> 16);                       /* Current Count */
 }
@@ -695,7 +685,7 @@ void USB_IRQHandler (void) {
 #if USB_SOF_EVENT
   /* Start of Frame Interrupt */
   if (disr & FRAME_INT) {
-	LPC_USB->USBDevIntClr = FRAME_INT;
+    LPC_USB->USBDevIntClr = FRAME_INT;
     USB_SOF_Event();
   }
 #endif
@@ -703,7 +693,7 @@ void USB_IRQHandler (void) {
 #if USB_ERROR_EVENT
   /* Error Interrupt */
   if (disr & ERR_INT) {
-	LPC_USB->USBDevIntClr = ERR_INT;
+    LPC_USB->USBDevIntClr = ERR_INT;
     WrCmd(CMD_RD_ERR_STAT);
     val = RdCmdDat(DAT_RD_ERR_STAT);
     USB_Error_Event(val);

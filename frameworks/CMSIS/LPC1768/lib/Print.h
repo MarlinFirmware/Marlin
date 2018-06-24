@@ -40,7 +40,8 @@ class Print {
     void setWriteError(const int err = 1) { write_error = err; }
   public:
     Print() : write_error(0) {}
-
+    virtual ~Print() {}
+    
     int getWriteError() { return write_error; }
     void clearWriteError() { setWriteError(0); }
 
@@ -74,7 +75,7 @@ class Print {
     size_t println(double, int = 2);
     size_t println(const Printable&);
     size_t println(void);
-    size_t printf(const char *argList, ...);
+    virtual size_t printf(const char *argList, ...);
 };
 
 #endif // _CMSIS_PRINT_H_

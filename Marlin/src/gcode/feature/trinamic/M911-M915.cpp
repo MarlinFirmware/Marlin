@@ -265,7 +265,7 @@ void GcodeSuite::M912() {
     bool report = true;
     const uint8_t index = parser.byteval('I');
     LOOP_XYZ(i) if (parser.seen(axis_codes[i])) {
-      const int8_t value = (int8_t)constrain(parser.value_int(), -63, 64);
+      const int8_t value = (int8_t)constrain(parser.value_int(), -64, 63);
       report = false;
       switch (i) {
         case X_AXIS:
@@ -332,7 +332,7 @@ void GcodeSuite::M912() {
     const uint16_t _rms = parser.seenval('S') ? parser.value_int() : CALIBRATION_CURRENT,
                    _z = parser.seenval('Z') ? parser.value_linear_units() : CALIBRATION_EXTRA_HEIGHT;
 
-    if (!axis_known_position[Z_AXIS]) {
+    if (!TEST(axis_known_position, Z_AXIS)) {
       SERIAL_ECHOLNPGM("\nPlease home Z axis first");
       return;
     }

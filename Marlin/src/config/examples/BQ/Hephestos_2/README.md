@@ -1,22 +1,29 @@
 # Example Configuration for BQ [Hephestos 2](http://www.bq.com/uk/hephestos-2)
-This configuration file is based on the original configuration file shipped with the heavily modified Marlin fork by BQ. The original firmware and configuration file can be found at [BQ Github repository](https://github.com/bq/Marlin).
+Based on the original configuration file shipped with the heavily modified Marlin fork by BQ.
+The forked firmware and configuration files can be found at the [BQ Github repository](https://github.com/bq/Marlin).
 
-NOTE: The look and feel of the Hephestos 2 while navigating the LCD menu will change by using the original Marlin firmware.
+NOTE: The look and feel of the LCD menu will change dramatically when using the original Marlin firmware.
 
 ## Changelog
- * 2016/03/01 - Initial release
+ * 2018/05/30 - Configuration updated to the latest Marlin version (43a55a9af).
+                ABL Bilinear 5x5 is active by default.
 
- * 2016/03/21 - Activated 4-point auto leveling by default
-                Updated miscellaneous z-probe values
+ * 2017/07/06 - Configuration updated to the latest Marlin version and added support for the
+                official BQ heated bed upgrade kit.
 
- * 2016/06/21 - Disabled hot bed related options
-                Activated software endstops
-                SD printing now disables the heater when finished
+ * 2016/12/13 - Configuration updated to the latest Marlin version.
 
- * 2016/07/13 - Update the `DEFAULT_AXIS_STEPS_PER_UNIT` for the Z axis
-                Increased the `DEFAULT_XYJERK`
+ * 2016/07/13 - Configuration updated to the latest Marlin version.
 
- * 2016/12/13 - Configuration updated.
+ * 2016/06/21 - Disabled heated bed related options, activated software endstops and SD printing now
+               disables the heater when finishes printing.
 
- * 2017/07/06 - Configuration updated to the latest Marlin version.
-                Added support for the official BQ heated bed kit.
+ * 2016/03/21 - Activated 4-point auto leveling by default and updated miscellaneous z-probe values.
+
+ * 2016/03/01 - The first release of Marlin's configuration file for the
+                BQ Hephestos 2 3D printer.
+
+
+## Support
+This configuration should work easily with the stock Hephestos 2, nevertheless if you encounter any
+issues you may contact me on [Github](https://github.com/jbrazio), [Twitter](https://twitter.com/jbrazio) or by mail.

@@ -30,177 +30,131 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <Print.h>
 
 /**
  * Generic RingBuffer
  * T type of the buffer array
  * S size of the buffer (must be power of 2)
- *
- * todo: optimise
  */
+
 template <typename T, uint32_t S> class RingBuffer {
 public:
-  RingBuffer() { index_read = index_write = 0; }
-  uint32_t available() volatile { return buffer_mask & (index_write - index_read); }
-  uint32_t free() volatile      { return buffer_size - available(); }
-  bool empty() volatile         { return (buffer_mask & index_read) == (buffer_mask & index_write); }
-  bool full() volatile          { return index_read == buffer_mask & (index_write + 1); }
-  void clear() volatile         { index_read = index_write = 0; }
-  bool peek(T *value) volatile {
-    if (value == 0 || available() == 0)
-      return false;
-    *value = buffer[buffer_mask & index_read];
+  RingBuffer() {index_read = index_write = 0;}
+
+  uint32_t available() {return mask(index_write - index_read);}
+  uint32_t free() {return buffer_size - available();}
+  bool empty() {return index_read == index_write;}
+  bool full() {return next(index_write) == index_read;}
+  void clear() {index_read = index_write = 0;}
+
+  bool peek(T *const value) {
+    if (value == nullptr || empty()) return false;
+    *value = buffer[index_read];
     return true;
   }
-  int read() volatile {
-    if ((buffer_mask & index_read) == (buffer_mask & index_write)) return -1;
-    T val = buffer[buffer_mask & index_read];
-    ++index_read;
-    return val;
+
+  uint32_t read(T *const value) {
+    if (value == nullptr || empty()) return 0;
+    *value = buffer[index_read];
+    index_read = next(index_read);
+    return 1;
   }
-  bool write(T value) volatile {
-    uint32_t next_head = buffer_mask & (index_write + 1);
-    if (next_head != index_read) {
-      buffer[buffer_mask & index_write] = value;
-      index_write = next_head;
-      return true;
-    }
-    return false;
+
+  uint32_t write(T value) {
+    uint32_t next_head = next(index_write);
+    if (next_head == index_read) return 0;     // buffer full
+    buffer[index_write] = value;
+    index_write = next_head;
+    return 1;
   }
 
 private:
+  inline uint32_t mask(uint32_t val) {
+    return val & buffer_mask;
+  }
+
+  inline uint32_t next(uint32_t val) {
+    return mask(val + 1);
+  }
+
   static const uint32_t buffer_size = S;
   static const uint32_t buffer_mask = buffer_size - 1;
-  volatile T buffer[buffer_size];
+  T buffer[buffer_size];
   volatile uint32_t index_write;
   volatile uint32_t index_read;
 };
 
-class HalSerial {
+/**
+ *  Serial Interface Class
+ *  Data is injected directly into, and consumed from, the fifo buffers
+ */
+
+class HalSerial: public Print {
 public:
 
   #if ENABLED(EMERGENCY_PARSER)
     EmergencyParser::State emergency_state;
   #endif
 
-  HalSerial() { host_connected = false; }
+  HalSerial() : host_connected(false) { }
+  virtual ~HalSerial() { }
 
-  void begin(int32_t baud) {
-  }
+  operator bool() { return host_connected; }
 
-  int peek() {
+  void begin(int32_t baud) { }
+
+  int16_t peek() {
     uint8_t value;
     return receive_buffer.peek(&value) ? value : -1;
   }
 
-  int read() { return receive_buffer.read(); }
-
-  size_t write(char c) { return host_connected ? transmit_buffer.write((uint8_t)c) : 0; }
-
-  operator bool() { return host_connected; }
-
-  uint16_t available() {
-    return (uint16_t)receive_buffer.available();
+  int16_t read() {
+    uint8_t value;
+    return receive_buffer.read(&value) ? value : -1;
   }
 
-  void flush() { receive_buffer.clear(); }
+  size_t write(const uint8_t c) {
+    if (!host_connected) return 0;          // Do not fill buffer when host disconnected
+    while (transmit_buffer.write(c) == 0) { // Block until there is free room in buffer
+      if (!host_connected) return 0;        // Break infinite loop on host disconect
+    }
+    return 1;
+  }
 
-  uint8_t availableForWrite(void){
+  size_t available() {
+    return (size_t)receive_buffer.available();
+  }
+
+  void flush() {
+    receive_buffer.clear();
+  }
+
+  uint8_t availableForWrite(void) {
     return transmit_buffer.free() > 255 ? 255 : (uint8_t)transmit_buffer.free();
   }
 
-  void flushTX(void){
-    if (host_connected)
-      while (transmit_buffer.available()) { /* nada */ }
+  void flushTX(void) {
+    while (transmit_buffer.available() && host_connected) { /* nada */}
   }
 
-  void printf(const char *format, ...) {
+  size_t printf(const char *format, ...) {
     static char buffer[256];
     va_list vArgs;
     va_start(vArgs, format);
     int length = vsnprintf((char *) buffer, 256, (char const *) format, vArgs);
     va_end(vArgs);
+    size_t i = 0;
     if (length > 0 && length < 256) {
-      if (host_connected) {
-        for (int i = 0; i < length;) {
-          if (transmit_buffer.write(buffer[i])) {
-            ++i;
-          }
-        }
+      while (i < (size_t)length && host_connected) {
+        i += transmit_buffer.write(buffer[i]);
       }
     }
+    return i;
   }
 
-  #define DEC 10
-  #define HEX 16
-  #define OCT 8
-  #define BIN 2
-
-  void print_bin(uint32_t value, uint8_t num_digits) {
-    uint32_t mask = 1 << (num_digits -1);
-    for (uint8_t i = 0; i < num_digits; i++) {
-      if (!(i % 4) && i)    write(' ');
-      if (!(i % 16)  && i)  write(' ');
-      if (value & mask)     write('1');
-      else                  write('0');
-      value <<= 1;
-    }
-  }
-
-  void print(const char value[]) { printf("%s" , value); }
-  void print(char value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 8);
-    else if (nbase == OCT) printf("%3o", value);
-    else if (nbase == HEX) printf("%2X", value);
-    else if (nbase == DEC ) printf("%d", value);
-    else printf("%c" , value);
-  }
-  void print(unsigned char value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 8);
-    else if (nbase == OCT) printf("%3o", value);
-    else if (nbase == HEX) printf("%2X", value);
-    else printf("%u" , value);
-  }
-  void print(int value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 16);
-    else if (nbase == OCT) printf("%6o", value);
-    else if (nbase == HEX) printf("%4X", value);
-    else printf("%d", value);
-  }
-  void print(unsigned int value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 16);
-    else if (nbase == OCT) printf("%6o", value);
-    else if (nbase == HEX) printf("%4X", value);
-    else printf("%u" , value);
-  }
-  void print(long value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 32);
-    else if (nbase == OCT) printf("%11o", value);
-    else if (nbase == HEX) printf("%8X", value);
-    else printf("%ld" , value);
-  }
-  void print(unsigned long value, int nbase = 0) {
-    if (nbase == BIN) print_bin(value, 32);
-    else if (nbase == OCT) printf("%11o", value);
-    else if (nbase == HEX) printf("%8X", value);
-    else printf("%lu" , value);
-  }
-  void print(float value, int round = 6)  { printf("%f" , value); }
-  void print(double value, int round = 6) { printf("%f" , value); }
-
-  void println(const char value[]) { printf("%s\n" , value); }
-  void println(char value, int nbase = 0) { print(value, nbase); println(); }
-  void println(unsigned char value, int nbase = 0) { print(value, nbase); println(); }
-  void println(int value, int nbase = 0) { print(value, nbase); println(); }
-  void println(unsigned int value, int nbase = 0) { print(value, nbase); println(); }
-  void println(long value, int nbase = 0) { print(value, nbase); println(); }
-  void println(unsigned long value, int nbase = 0) { print(value, nbase); println(); }
-  void println(float value, int round = 6) { printf("%f\n" , value); }
-  void println(double value, int round = 6) { printf("%f\n" , value); }
-  void println(void) { print('\n'); }
-
-  volatile RingBuffer<uint8_t, 128> receive_buffer;
-  volatile RingBuffer<uint8_t, 128> transmit_buffer;
+  RingBuffer<uint8_t, 128> receive_buffer;
+  RingBuffer<uint8_t, 128> transmit_buffer;
   volatile bool host_connected;
 };
 

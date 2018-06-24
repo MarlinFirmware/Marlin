@@ -142,20 +142,26 @@ uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
       //u8g->pin_list[U8G_PI_SET_A0] = 1;
       //if (u8g_com_arduino_ssd_start_sequence(u8g) == 0)
       //  return u8g_i2c_stop(), 0;
-      if (u8g_i2c_send_byte(arg_val) == 0)
-        return u8g_i2c_stop(), 0;
+      if (u8g_i2c_send_byte(arg_val) == 0) {
+        u8g_i2c_stop();
+        return 0;
+      }
       // u8g_i2c_stop();
       break;
 
     case U8G_COM_MSG_WRITE_SEQ: {
-      //u8g->pin_list[U8G_PI_SET_A0] = 1;
-      if (u8g_com_ssd_I2C_start_sequence(u8g) == 0)
-        return u8g_i2c_stop(), 0;
+        //u8g->pin_list[U8G_PI_SET_A0] = 1;
+        if (u8g_com_ssd_I2C_start_sequence(u8g) == 0) {
+         u8g_i2c_stop();
+         return 0;
+        }
 
         register uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
-          if (u8g_i2c_send_byte(*ptr++) == 0)
-            return u8g_i2c_stop(), 0;
+          if (u8g_i2c_send_byte(*ptr++) == 0) {
+            u8g_i2c_stop();
+            return 0;
+          }
           arg_val--;
         }
       }
@@ -164,8 +170,10 @@ uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
 
     case U8G_COM_MSG_WRITE_SEQ_P: {
         //u8g->pin_list[U8G_PI_SET_A0] = 1;
-        if (u8g_com_ssd_I2C_start_sequence(u8g) == 0)
-          return u8g_i2c_stop(), 0;
+        if (u8g_com_ssd_I2C_start_sequence(u8g) == 0) {
+          u8g_i2c_stop();
+          return 0;
+        }
 
         register uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {

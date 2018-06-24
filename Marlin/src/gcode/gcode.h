@@ -727,6 +727,10 @@ private:
     static void M702();
   #endif
 
+  #if ENABLED(MAX7219_GCODE)
+    static void M7219();
+  #endif
+
   #if HAS_BED_PROBE
     static void M851();
   #endif

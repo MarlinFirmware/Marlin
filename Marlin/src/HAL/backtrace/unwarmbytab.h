@@ -31,6 +31,4 @@ typedef struct {
 
 UnwResult UnwindByTableStart(UnwindFrame* frame, const UnwindCallbacks *cb, void *data);
 
-#endif
-
-/* END OF FILE */
+#endif // UNWARMBYTAB_H
