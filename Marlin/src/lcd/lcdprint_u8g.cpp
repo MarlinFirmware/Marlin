@@ -25,25 +25,22 @@ extern U8GLIB *pu8g;
 
 int lcd_glyph_height(void) {
   return u8g_GetFontBBXHeight(pu8g->getU8g());
-  //return u8g_GetFontBBXOffY(pu8g->getU8g());
 }
 
 void lcd_moveto(int col, int row) {
-  TRACE("Move to: (%d,%d)", col, row);
   _lcd_setcursor(col, row);
 }
 
+// return < 0 on error
+// return the advanced pixels
 int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   if (c < 256) {
-    TRACE("draw char: regular %d", (int)c);
     _lcd_write((char)c);
     return u8g_GetFontBBXWidth(pu8g->getU8g());
   }
   unsigned int x = pu8g->getPrintCol(),
                y = pu8g->getPrintRow(),
                ret = uxg_DrawWchar(pu8g->getU8g(), x, y, c, max_length);
-  TRACE("uxg_DrawWchar(x=%d,y=%d,maxlen=%d", x, y, max_length);
-  TRACE("u8g->setPrintPos(x=%d + ret=%d,y=%d", x, ret, y);
   pu8g->setPrintPos(x + ret, y);
 
   return ret;
@@ -53,25 +50,16 @@ int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
   unsigned int x = pu8g->getPrintCol(),
                y = pu8g->getPrintRow(),
                ret = uxg_DrawUtf8Str(pu8g->getU8g(), x, y, utf8_str, max_length);
-  TRACE("uxg_DrawUtf8Str(x=%d,y=%d,maxlen=%d", x, y, max_length);
-  TRACE("u8g->setPrintPos(x=%d + ret=%d,y=%d", x, ret, y);
   pu8g->setPrintPos(x + ret, y);
   return ret;
 }
 
-int lcd_put_u8str_max_rom(const char * utf8_str_P, pixel_len_t max_length) {
+int lcd_put_u8str_max_P(const char * utf8_str_P, pixel_len_t max_length) {
   unsigned int x = pu8g->getPrintCol(),
                y = pu8g->getPrintRow(),
                ret = uxg_DrawUtf8StrP(pu8g->getU8g(), x, y, utf8_str_P, max_length);
-  TRACE("uxg_DrawUtf8StrP(x=%d,y=%d,maxlen=%d", x, y, max_length);
-  TRACE("u8g->setPrintPos(x=%d + ret=%d,y=%d", x, ret, y);
   pu8g->setPrintPos(x + ret, y);
   return ret;
 }
 
-#else // !DOGLCD
-
-  #define _lcd_write(a) TRACE("Write LCD: %c (%d)", (a), (int)(a));
-  #define _lcd_setcursor(col, row) TRACE("Set cursor LCD: (%d,%d)", (col), (row));
-
-#endif // !DOGLCD
+#endif // DOGLCD

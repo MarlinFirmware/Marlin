@@ -209,8 +209,6 @@
   #include "pins_MELZI_CREALITY.h"    // ATmega644P, ATmega1284P                    env:sanguino_atmega644p env:sanguino_atmega1284p
 #elif MB(MELZI_MALYAN)
   #include "pins_MELZI_MALYAN.h"      // ATmega644P, ATmega1284P                    env:sanguino_atmega644p env:sanguino_atmega1284p
-#elif MB(CREALITY_ENDER)
-  #include "pins_CREALITY_ENDER.h"    // ATmega1284P                                env:sanguino_atmega1284p
 #elif MB(MELZI_TRONXY)
   #include "pins_MELZI_TRONXY.h"      // ATmega644P, ATmega1284P                    env:sanguino_atmega644p env:sanguino_atmega1284p
 #elif MB(STB_11)
@@ -252,24 +250,24 @@
 //
 
 #elif MB(TEENSYLU)
-  #include "pins_TEENSYLU.h"          // AT90USB1286, AT90USB1286P                  env:teensy20
+  #include "pins_TEENSYLU.h"          // AT90USB1286, AT90USB1286P                  env:at90USB1286_CDC
 #elif MB(PRINTRBOARD)
-  #include "pins_PRINTRBOARD.h"       // AT90USB1286                                env:teensy20
+  #include "pins_PRINTRBOARD.h"       // AT90USB1286                                env:at90USB1286_DFU
 #elif MB(PRINTRBOARD_REVF)
-  #include "pins_PRINTRBOARD_REVF.h"  // AT90USB1286                                env:teensy20
+  #include "pins_PRINTRBOARD_REVF.h"  // AT90USB1286                                env:at90USB1286_DFU
 #elif MB(BRAINWAVE)
-  #include "pins_BRAINWAVE.h"         // AT90USB646                                 env:teensy20
+  #include "pins_BRAINWAVE.h"         // AT90USB646                                 env:at90USB1286_CDC
 #elif MB(BRAINWAVE_PRO)
-  #include "pins_BRAINWAVE_PRO.h"     // AT90USB1286                                env:teensy20
+  #include "pins_BRAINWAVE_PRO.h"     // AT90USB1286                                env:at90USB1286_CDC
 #elif MB(SAV_MKI)
-  #include "pins_SAV_MKI.h"           // AT90USB1286                                env:teensy20
+  #include "pins_SAV_MKI.h"           // AT90USB1286                                env:at90USB1286_CDC
 #elif MB(TEENSY2)
   #include "pins_TEENSY2.h"           // AT90USB1286                                env:teensy20
 #elif MB(5DPRINT)
-  #include "pins_5DPRINT.h"           // AT90USB1286                                env:teensy20
+  #include "pins_5DPRINT.h"           // AT90USB1286                                ?env:at90USB1286_DFU
 
 //
-// Re-ARM - LPC1768
+// LPC1768 ARM Cortex M3
 //
 
 #elif MB(RAMPS_14_RE_ARM_EFB)
@@ -282,13 +280,25 @@
   #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
 #elif MB(RAMPS_14_RE_ARM_SF)
   #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(MKS_SBASE)
+  #include "pins_MKS_SBASE.h"         // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(AZSMZ_MINI)
+  #include "pins_AZSMZ_MINI.h"        // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(AZTEEG_X5_GT)
+  #include "pins_AZTEEG_X5_GT.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(BIQU_BQ111_A4)
+  #include "pins_BIQU_BQ111_A4.h"     // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(SELENA_COMPACT)
+  #include "pins_SELENA_COMPACT.h"    // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(COHESION3D_REMIX)
+  #include "pins_COHESION3D_REMIX.h"  // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(COHESION3D_MINI)
+  #include "pins_COHESION3D_MINI.h"   // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
 
 //
 // Other 32-bit Boards
 //
 
-#elif MB(TEENSY35_36)
-  #include "pins_TEENSY35_36.h"       // TEENSY35_36                                env:teensy35
 #elif MB(DUE3DOM)
   #include "pins_DUE3DOM.h"           // SAM3X8E                                    env:DUE env:DUE_USB env:DUE_debug
 #elif MB(DUE3DOM_MINI)
@@ -337,34 +347,47 @@
   #include "pins_ARCHIM2.h"           // SAM3X8E                                    env:DUE env:DUE_debug
 #elif MB(ALLIGATOR)
   #include "pins_ALLIGATOR_R2.h"      // SAM3X8E                                    env:DUE env:DUE_debug
+
+//
+// STM32 ARM Cortex-M3
+//
+
 #elif MB(STM32F1R)
   #include "pins_STM32F1R.h"          // STM32F1                                    env:STM32F1
 #elif MB(STM3R_MINI)
   #include "pins_STM3R_MINI.h"        // STM32F1                                    env:STM32F1
 #elif MB(MALYAN_M200)
-  #include "pins_MALYAN_M200.h"       // STM32F1                                    env:STM32F1
-#elif MB(BEAST)
-  #include "pins_BEAST.h"             // STM32F4                                    env:STM32F1
+  #include "pins_MALYAN_M200.h"       // STM32F1                                    env:malyanm200
 #elif MB(CHITU3D)
   #include "pins_CHITU3D.h"           // STM32F1                                    env:STM32F1
-#elif MB(MKS_SBASE)
-  #include "pins_MKS_SBASE.h"         // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
-#elif MB(AZSMZ_MINI)
-  #include "pins_AZSMZ_MINI.h"        // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
-#elif MB(AZTEEG_X5_GT)
-  #include "pins_AZTEEG_X5_GT.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
-#elif MB(BIQU_BQ111_A4)
-  #include "pins_BIQU_BQ111_A4.h"     // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
-#elif MB(THE_BORG)
-  #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F1
-#elif MB(SELENA_COMPACT)
-  #include "pins_SELENA_COMPACT.h"    // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
-#elif MB(COHESION3D_REMIX)
-  #include "pins_COHESION3D_REMIX.h"  // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
-#elif MB(COHESION3D_MINI)
-  #include "pins_COHESION3D_MINI.h"   // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(GTM32_PRO_VB)
+  #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1
+
+//
+// STM32 ARM Cortex-M4F
+//
+
+#elif MB(TEENSY35_36)
+  #include "pins_TEENSY35_36.h"       // TEENSY35_36                                env:teensy35
+#elif MB(BEAST)
+  #include "pins_BEAST.h"             // STM32F4                                    env:STM32F4
 #elif MB(STM32F4)
-  #include "pins_STM32F4.h"           // STM32F4                                    env:STM32F1
+  #include "pins_STM32F4.h"           // STM32F4                                    env:STM32F4
+
+//
+// ARM Cortex M7
+//
+
+#elif MB(THE_BORG)
+  #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7
+
+//
+// Espressif ESP32
+//
+
+#elif MB(ESP32)
+  #include "pins_ESP32.h"
+
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

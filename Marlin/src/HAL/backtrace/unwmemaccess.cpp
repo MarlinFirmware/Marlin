@@ -62,7 +62,7 @@
 #define END_FLASH_ADDR    0x00080000
 #endif
 
-#ifdef STM32F4
+#if defined(STM32F4) || defined(STM32F4xx)
 // For STM32F407VET
 //  SRAM  (0x20000000 - 0x20030000) (192kb)
 //  FLASH (0x08000000 - 0x08080000) (512kb)

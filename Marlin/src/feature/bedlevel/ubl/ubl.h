@@ -56,7 +56,6 @@ extern uint8_t ubl_cnt;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if ENABLED(ULTRA_LCD)
-  extern char lcd_status_message[];
   void lcd_quick_feedback(const bool clear_buttons);
 #endif
 

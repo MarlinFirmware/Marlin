@@ -65,7 +65,9 @@
 #define HEATER_3_PIN       46
 #define HEATER_BED_PIN      2
 
-//#define FAN_PIN           7   // common PWM pin for all tools
+#ifndef FAN_PIN
+  //#define FAN_PIN         7   // common PWM pin for all tools
+#endif
 
 #define ORIG_E0_AUTO_FAN_PIN 7
 #define ORIG_E1_AUTO_FAN_PIN 7

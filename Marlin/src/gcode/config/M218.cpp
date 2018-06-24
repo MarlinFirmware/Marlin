@@ -37,7 +37,7 @@
  *   T<tool>
  *   X<xoffset>
  *   Y<yoffset>
- *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_NOZZLE
+ *   Z<zoffset> - Available with DUAL_X_CARRIAGE, SWITCHING_NOZZLE and PARKING_EXTRUDER
  */
 void GcodeSuite::M218() {
   if (get_target_extruder_from_command() || target_extruder == 0) return;
@@ -52,7 +52,7 @@ void GcodeSuite::M218() {
     report = false;
   }
 
-  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+  #if HAS_HOTEND_OFFSET_Z
     if (parser.seenval('Z')) {
       hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
       report = false;
@@ -67,7 +67,7 @@ void GcodeSuite::M218() {
       SERIAL_ECHO(hotend_offset[X_AXIS][e]);
       SERIAL_CHAR(',');
       SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
+      #if HAS_HOTEND_OFFSET_Z
         SERIAL_CHAR(',');
         SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
       #endif

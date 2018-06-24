@@ -89,7 +89,7 @@
  */
 
 #ifndef __AVR_ATmega1284P__
-  #error "Oops!  Make sure you have 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' selected from the 'Tools -> Boards' menu."
+  #error "Oops!  Make sure you have 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' selected in the 'Tools -> Boards' menu and ATmega1284P selected in 'Tools -> Processor' menu."
 #endif
 
 #ifndef BOARD_NAME
@@ -133,7 +133,10 @@
 //
 #define HEATER_0_PIN       13   // (extruder)
 #define HEATER_BED_PIN     12   // (bed)
-#define FAN_PIN             4
+
+#ifndef FAN_PIN
+  #define FAN_PIN           4
+#endif
 
 //
 // Misc. Functions

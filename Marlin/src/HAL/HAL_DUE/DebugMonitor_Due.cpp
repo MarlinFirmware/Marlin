@@ -22,10 +22,12 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
-#include "../../inc/MarlinConfig.h"
-#include "../../Marlin.h"
-#include "../../backtrace/unwinder.h"
-#include "../../backtrace/unwmemaccess.h"
+#include "../../core/macros.h"
+#include "../../core/serial.h"
+#include <stdarg.h>
+
+#include "../backtrace/unwinder.h"
+#include "../backtrace/unwmemaccess.h"
 
 // Debug monitor that dumps to the Programming port all status when
 // an exception or WDT timeout happens - And then resets the board
@@ -43,6 +45,11 @@ static void TXBegin(void) {
 
   // Disable UART interrupt in NVIC
   NVIC_DisableIRQ( UART_IRQn );
+
+  // We NEED memory barriers to ensure Interrupts are actually disabled!
+  // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+  __DSB();
+  __ISB();
 
   // Disable clock
   pmc_disable_periph_clk( ID_UART );
@@ -65,7 +72,6 @@ static void TXBegin(void) {
   // Enable receiver and transmitter
   UART->UART_CR = UART_CR_RXEN | UART_CR_TXEN;
 }
-
 
 // Send character through UART with no interrupts
 static void TX(char c) {
@@ -333,4 +339,4 @@ __attribute__((naked)) void RSTC_Handler(void) {
   );
 }
 
-#endif
+#endif // ARDUINO_ARCH_SAM

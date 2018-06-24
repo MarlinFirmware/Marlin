@@ -29,9 +29,9 @@
  * For TARGET_LPC1768
  */
 
-#include "../../inc/MarlinConfig.h"
-
 #ifdef TARGET_LPC1768
+
+#include "../../inc/MarlinConfig.h"
 
 // --------------------------------------------------------------------------
 // Software SPI

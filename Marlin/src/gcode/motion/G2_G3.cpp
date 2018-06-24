@@ -197,14 +197,17 @@ void plan_arc(
       // i.e., Complete the angular vector in the given time.
       inverse_kinematics(raw);
       ADJUST_DELTA(raw);
-      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder);
+      if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder))
+        break;
       oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
     #elif HAS_UBL_AND_CURVES
       float pos[XYZ] = { raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS] };
       planner.apply_leveling(pos);
-      planner.buffer_segment(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], raw[E_AXIS], fr_mm_s, active_extruder);
+      if (!planner.buffer_segment(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], raw[E_AXIS], fr_mm_s, active_extruder))
+        break;
     #else
-      planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder);
+      if (!planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder))
+        break;
     #endif
   }
 
