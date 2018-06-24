@@ -148,7 +148,9 @@
 //
 // Heaters / Fans
 //
-#define FAN_PIN             4   // D4 PC26 FET_PWM1
+#ifndef FAN_PIN
+  #define FAN_PIN           4   // D4 PC26 FET_PWM1
+#endif
 #define FAN1_PIN            5   // D5 PC25 FET_PWM2
 
 #define HEATER_0_PIN        6   // D6 PC24 FET_PWM3

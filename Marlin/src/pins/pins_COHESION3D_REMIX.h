@@ -115,17 +115,19 @@
 #define HEATER_BED_PIN      P2_05
 #define HEATER_0_PIN        P2_07   // FET 1
 #define HEATER_1_PIN        P1_23   // FET 2
-#if HOTENDS == 3
-  #define HEATER_2_PIN      P1_22   // FET 3
-  #define AUTO_FAN_PIN      P1_18   // FET 6
-#else
-  #define AUTO_FAN_PIN      P1_22   // FET 3
+#define HEATER_2_PIN        P1_22   // FET 3
+#ifndef FAN_PIN
+  #define FAN_PIN           P2_06   // ReMix FET 4, Mini FET 3
 #endif
-#define FAN_PIN             P2_06   // ReMix FET 4, Mini FET 3
 
 //
 // Auto fans
 //
+#if HOTENDS == 3
+  #define AUTO_FAN_PIN      P1_18   // FET 6
+#else
+  #define AUTO_FAN_PIN      P1_22   // FET 3
+#endif
 #define ORIG_E0_AUTO_FAN_PIN  AUTO_FAN_PIN
 #define ORIG_E1_AUTO_FAN_PIN  AUTO_FAN_PIN
 #define ORIG_E2_AUTO_FAN_PIN  AUTO_FAN_PIN

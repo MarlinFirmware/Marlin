@@ -9,10 +9,10 @@ if __name__ == "__main__":
                     "-mcpu=cortex-m3",
                     "-mthumb",
 
-                    "-ffreestanding",
                     "-fsigned-char",
                     "-fno-move-loop-invariants",
                     "-fno-strict-aliasing",
+                    "-fsingle-precision-constant",
 
                     "--specs=nano.specs",
                     "--specs=nosys.specs",
@@ -22,6 +22,7 @@ if __name__ == "__main__":
 
                     # For MarlinFirmware/U8glib-HAL
                     "-IMarlin/src/HAL/HAL_LPC1768/u8g",
+                    "-DU8G_HAL_LINKS",
 
                     "-MMD",
                     "-MP",
@@ -48,12 +49,12 @@ else:
           "-fno-threadsafe-statics"
       ],
       LINKFLAGS=[
+          "-Wl,-Tframeworks/CMSIS/LPC1768/system/LPC1768.ld,--gc-sections",
           "-Os",
           "-mcpu=cortex-m3",
-          "-ffreestanding",
           "-mthumb",
           "--specs=nano.specs",
           "--specs=nosys.specs",
-          "-u_printf_float",
+          "-u_printf_float"
       ],
   )

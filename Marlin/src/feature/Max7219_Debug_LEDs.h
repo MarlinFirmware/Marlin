@@ -22,11 +22,9 @@
 
 /**
  * This module is off by default, but can be enabled to facilitate the display of
- * extra debug information during code development. It assumes the existence of a
- * Max7219 LED Matrix. A suitable device can be obtained on eBay similar to this:
- * http://www.ebay.com/itm/191781645249 for under $2.00 including shipping.
+ * extra debug information during code development.
  *
- * Just connect up +5v and GND to give it power, then connect up the pins assigned
+ * Just connect up 5V and GND to give it power, then connect up the pins assigned
  * in Configuration_adv.h. For example, on the Re-ARM you could use:
  *
  *   #define MAX7219_CLK_PIN   77
@@ -35,28 +33,13 @@
  *
  * Max7219_init() is called automatically at startup, and then there are a number of
  * support functions available to control the LEDs in the 8x8 grid.
- *
- * void Max7219_init();
- * void Max7219_PutByte(uint8_t data);
- * void Max7219(uint8_t reg, uint8_t data);
- * void Max7219_LED_Set(uint8_t row, uint8_t col, bool on);
- * void Max7219_LED_On(uint8_t col, uint8_t row);
- * void Max7219_LED_Off(uint8_t col, uint8_t row);
- * void Max7219_LED_Toggle(uint8_t row, uint8_t col);
- * void Max7219_Clear_Row(uint8_t row);
- * void Max7219_Clear_Column(uint8_t col);
- * void Max7219_Set_Row(uint8_t row, uint8_t val);
- * void Max7219_Set_2_Rows(uint8_t row, uint16_t val);
- * void Max7219_Set_4_Rows(uint8_t row, uint32_t val);
- * void Max7219_Set_Column(uint8_t col, uint8_t val);
- * void Max7219_idle_tasks();
  */
 
 #ifndef __MAX7219_DEBUG_LEDS_H__
 #define __MAX7219_DEBUG_LEDS_H__
 
 //
-// define max7219 registers
+// MAX7219 registers
 //
 #define max7219_reg_noop        0x00
 #define max7219_reg_digit0      0x01
@@ -68,23 +51,33 @@
 #define max7219_reg_digit6      0x07
 #define max7219_reg_digit7      0x08
 
-#define max7219_reg_intensity   0x0A
-#define max7219_reg_displayTest 0x0F
 #define max7219_reg_decodeMode  0x09
+#define max7219_reg_intensity   0x0A
 #define max7219_reg_scanLimit   0x0B
 #define max7219_reg_shutdown    0x0C
+#define max7219_reg_displayTest 0x0F
 
 void Max7219_init();
 void Max7219_PutByte(uint8_t data);
+
+// Set a single register (e.g., a whole native row)
 void Max7219(const uint8_t reg, const uint8_t data);
-void Max7219_LED_Set(const uint8_t row, const uint8_t col, const bool on);
-void Max7219_LED_On(const uint8_t row, const uint8_t col);
-void Max7219_LED_Off(const uint8_t row, const uint8_t col);
-void Max7219_LED_Toggle(const uint8_t row, const uint8_t col);
-void Max7219_Clear_Row(const uint8_t row);
-void Max7219_Clear_Column(const uint8_t col);
-void Max7219_Set_Row(const uint8_t row, const uint8_t val);
+
+// Set a single LED by XY coordinate
+void Max7219_LED_Set(const uint8_t x, const uint8_t y, const bool on);
+void Max7219_LED_On(const uint8_t x, const uint8_t y);
+void Max7219_LED_Off(const uint8_t x, const uint8_t y);
+void Max7219_LED_Toggle(const uint8_t x, const uint8_t y);
+
+// Set all 8 LEDs in a single column
 void Max7219_Set_Column(const uint8_t col, const uint8_t val);
+void Max7219_Clear_Column(const uint8_t col);
+
+// Set all 8 LEDs in a single row
+void Max7219_Set_Row(const uint8_t row, const uint8_t val);
+void Max7219_Clear_Row(const uint8_t row);
+
+// Apply custom code to update the matrix
 void Max7219_idle_tasks();
 
 #endif // __MAX7219_DEBUG_LEDS_H__

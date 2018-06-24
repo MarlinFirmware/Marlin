@@ -23,6 +23,8 @@
 
 #######################################
 #
+# Revision: 2.0.1
+#
 # Description: script to automate PlatformIO builds
 # CLI:  python auto_build.py build_option
 #    build_option (required)
@@ -69,6 +71,13 @@
 import sys
 import os
 
+pwd = os.getcwd()    # make sure we're executing from the correct directory level
+pwd = pwd.replace('\\', '/')
+if 0 <= pwd.find('buildroot/share/atom'):
+  pwd = pwd[ : pwd.find('buildroot/share/atom')]
+  os.chdir(pwd)
+print 'pwd: ', pwd
+
 num_args = len(sys.argv)
 if num_args > 1:
   build_type = str(sys.argv[1])
@@ -95,6 +104,7 @@ current_OS = platform.system()
 #globals
 target_env = ''
 board_name = ''
+
 
 #########
 #  Python 2 error messages:
@@ -201,6 +211,13 @@ def resolve_path(path):
         import os
 
     # turn the selection into a partial path
+
+        if 0 <= path.find('"'):
+          path = path[ path.find('"') : ]
+          if 0 <= path.find(', line '):
+            path = path.replace(', line ', ':')
+          path = path.replace('"', '')
+
        #get line and column numbers
         line_num = 1
         column_num = 1
@@ -393,45 +410,6 @@ def open_file(path):
               else:
                   os.system('open ' + file_path )
 # end - open_file
-
-
-#
-# move custom board definitions from project folder to PlatformIO
-#
-def copy_boards_dir():
-
-        temp = os.environ
-        for key in temp:
-          if 0 <=  os.environ[key].find('.platformio'):
-            part = os.environ[key].split(';')
-            for part2 in part:
-              if 0 <=  part2.find('.platformio'):
-                path = part2
-                break
-
-        PIO_path = path[ : path.find('.platformio') + 11]
-
-#         import sys
-#         import subprocess
-#         pio_subprocess = subprocess.Popen(['platformio', 'run', '-t', 'envdump'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-#
-#         # stream output from subprocess and split it into lines
-#         for line in iter(pio_subprocess.stdout.readline, ''):
-#             if 0 <= line.find('PIOHOME_DIR'):
-#               start = line.find(':') + 3
-#               end =  line.find(',') - 1
-#               PIO_path = line[start:end]
-
-
-        PIO_path =  PIO_path.replace("\\", "/")
-        PIO_path =  PIO_path.replace("//", "/") + '/boards'
-
-        board_path = 'buildroot/share/PlatformIO/boards'
-
-        from distutils.dir_util import copy_tree
-        copy_tree(board_path, PIO_path)
-
-# end copy_boards_dir
 
 
 # gets the last build environment
@@ -962,6 +940,7 @@ class output_window(Text):
         Text.__init__(self, self.frame, borderwidth=3, relief="sunken")
         self.config(tabs=(400,))  # configure Text widget tab stops
         self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'word', undo = 'True')
+#        self.config(background = 'black', foreground = 'white', font= ("consolas", 12), wrap = 'none', undo = 'True')
         self.config(height  = 24, width = 100)
         self.config(insertbackground = 'pale green')  # keyboard insertion point
         self.pack(side='left', fill='both', expand=True)
@@ -983,6 +962,25 @@ class output_window(Text):
         scrb = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
         self.config(yscrollcommand=scrb.set)
         scrb.pack(side='right', fill='y')
+
+#        self.scrb_Y = tk.Scrollbar(self.frame, orient='vertical', command=self.yview)
+#        self.scrb_Y.config(yscrollcommand=self.scrb_Y.set)
+#        self.scrb_Y.pack(side='right', fill='y')
+#
+#        self.scrb_X = tk.Scrollbar(self.frame, orient='horizontal', command=self.xview)
+#        self.scrb_X.config(xscrollcommand=self.scrb_X.set)
+#        self.scrb_X.pack(side='bottom', fill='x')
+
+#        scrb_X = tk.Scrollbar(self, orient=tk.HORIZONTAL, command=self.xview)  # tk.HORIZONTAL now have a horizsontal scroll bar BUT... shrinks it to a postage stamp and hides far right behind the vertical scroll bar
+#        self.config(xscrollcommand=scrb_X.set)
+#        scrb_X.pack(side='bottom', fill='x')
+#
+#        scrb= tk.Scrollbar(self, orient='vertical', command=self.yview)
+#        self.config(yscrollcommand=scrb.set)
+#        scrb.pack(side='right', fill='y')
+
+#        self.config(height  = 240, width = 1000)            # didn't get the size baCK TO NORMAL
+#        self.pack(side='left', fill='both', expand=True)    # didn't get the size baCK TO NORMAL
 
 
         # pop-up menu
@@ -1223,10 +1221,11 @@ def main():
 
         target_env = get_env(board_name, Marlin_ver)
 
+        os.environ["BUILD_TYPE"] = build_type   # let sub processes know what is happening
+        os.environ["TARGET_ENV"] = target_env
+        os.environ["BOARD_NAME"] = board_name
+
         auto_build = output_window()
-        if 0 <= target_env.find('USB1286'):
-            copy_boards_dir()          # copy custom boards over to PlatformIO if using custom board
-                                       #    causes 3-5 second delay in main window appearing
         auto_build.start_thread()  # executes the "run_PIO" function
 
         auto_build.root.mainloop()

@@ -167,7 +167,6 @@ script:
   - opt_set EXTRUDERS 2
   - opt_enable NUM_SERVOS
   - opt_set NUM_SERVOS 1
-  - opt_set TEMP_SENSOR_1 1
   - opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
@@ -357,8 +356,7 @@ script:
   - export TEST_PLATFORM="-e teensy35"
   - restore_configs
   - opt_set MOTHERBOARD BOARD_TEENSY35_36
-  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
-  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+  - update_defaults
   - cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
   #
   # Test Teensy3.5 with default config
@@ -393,6 +391,7 @@ script:
   #
   - restore_configs
   - opt_enable NUM_SERVOS Z_PROBE_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
+  - opt_set NUM_SERVOS 1
   - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
@@ -421,7 +420,6 @@ script:
   - opt_set EXTRUDERS 2
   - opt_enable NUM_SERVOS
   - opt_set NUM_SERVOS 1
-  - opt_set TEMP_SENSOR_1 1
   - opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
@@ -453,9 +451,8 @@ script:
   - export TEST_PLATFORM="-e DUE"
   - restore_configs
   - opt_set MOTHERBOARD BOARD_RAMPS4DUE_EFB
-  - opt_set BEZIER_JERK_CONTROL
-  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
-  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+  - opt_set S_CURVE_ACCELERATION
+  - update_defaults
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
 
   #############################
@@ -465,15 +462,23 @@ script:
   - export TEST_PLATFORM="-e LPC1768"
   - restore_configs
   - opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
-  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
-  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+  - update_defaults
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
   #
   # Enable VIKI2, SDSUPPORT
   #
   - restore_configs
   - opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
-  - cp Marlin/Configuration.h Marlin/src/config/default/Configuration.h
-  - cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+  - update_defaults
   - opt_enable VIKI2 SDSUPPORT
+  - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+
+  #############################
+  # STM32F1 default config test
+  #############################
+
+  - export TEST_PLATFORM="-e STM32F1"
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_STM32F1R
+  - update_defaults
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

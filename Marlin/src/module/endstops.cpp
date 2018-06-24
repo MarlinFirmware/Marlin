@@ -36,12 +36,6 @@
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
 
-#if HAS_BED_PROBE
-  #define ENDSTOPS_ENABLED  (endstops.enabled || endstops.z_probe_enabled)
-#else
-  #define ENDSTOPS_ENABLED  endstops.enabled
-#endif
-
 Endstops endstops;
 
 // public:
@@ -50,9 +44,9 @@ bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.l
 volatile uint8_t Endstops::hit_state;
 
 Endstops::esbits_t Endstops::live_state = 0;
+
 #if ENABLED(ENDSTOP_NOISE_FILTER)
-  Endstops::esbits_t Endstops::old_live_state,
-                     Endstops::validated_live_state;
+  Endstops::esbits_t Endstops::validated_live_state;
   uint8_t Endstops::endstop_poll_count;
 #endif
 
@@ -222,18 +216,17 @@ void Endstops::init() {
 
 } // Endstops::init
 
-// Called from ISR. A change was detected. Find out what happened!
-void Endstops::check_possible_change() { if (ENDSTOPS_ENABLED) endstops.update(); }
-
 // Called from ISR: Poll endstop state if required
 void Endstops::poll() {
 
   #if ENABLED(PINS_DEBUGGING)
-    endstops.run_monitor();  // report changes in endstop status
+    run_monitor();  // report changes in endstop status
   #endif
 
-  #if DISABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(ENDSTOP_NOISE_FILTER)
-    if (ENDSTOPS_ENABLED) endstops.update();
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && ENABLED(ENDSTOP_NOISE_FILTER)
+    if (endstop_poll_count) update();
+  #elif DISABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(ENDSTOP_NOISE_FILTER)
+    update();
   #endif
 }
 
@@ -241,7 +234,7 @@ void Endstops::enable_globally(const bool onoff) {
   enabled_globally = enabled = onoff;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (onoff) endstops.update(); // If enabling, update state now
+    update();
   #endif
 }
 
@@ -250,36 +243,26 @@ void Endstops::enable(const bool onoff) {
   enabled = onoff;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (onoff) endstops.update(); // If enabling, update state now
+    update();
   #endif
 }
-
 
 // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
 void Endstops::not_homing() {
   enabled = enabled_globally;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (enabled) endstops.update(); // If enabling, update state now
-  #endif
-}
-
-// Clear endstops (i.e., they were hit intentionally) to suppress the report
-void Endstops::hit_on_purpose() {
-  hit_state = 0;
-
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (enabled) endstops.update(); // If enabling, update state now
+    update();
   #endif
 }
 
 // Enable / disable endstop z-probe checking
 #if HAS_BED_PROBE
-  void Endstops::enable_z_probe(bool onoff) {
+  void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
 
     #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-      if (enabled) endstops.update(); // If enabling, update state now
+      update();
     #endif
   }
 #endif
@@ -406,86 +389,16 @@ void Endstops::M119() {
 // Check endstops - Could be called from ISR!
 void Endstops::update() {
 
-  #define SET_BIT(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
-  // UPDATE_ENDSTOP_BIT: set the current endstop bits for an endstop to its status
-  #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT(live_state, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
-  // COPY_BIT: copy the value of SRC_BIT to DST_BIT in DST
-  #define COPY_BIT(DST, SRC_BIT, DST_BIT) SET_BIT(DST, DST_BIT, TEST(DST, SRC_BIT))
+  #if DISABLED(ENDSTOP_NOISE_FILTER)
+    if (!abort_enabled()) return;
+  #endif
+
+  #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
+  #define COPY_LIVE_STATE(SRC_BIT, DST_BIT) SET_BIT_TO(live_state, DST_BIT, TEST(live_state, SRC_BIT))
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     // If G38 command is active check Z_MIN_PROBE for ALL movement
-    if (G38_move) {
-      UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
-    }
-  #endif
-
-  /**
-   * Define conditions for checking endstops
-   */
-
-  #if IS_CORE
-    #define S_(N) stepper.movement_non_null(CORE_AXIS_##N)
-    #define D_(N) stepper.motor_direction(CORE_AXIS_##N)
-  #endif
-
-  #if CORE_IS_XY || CORE_IS_XZ
-    /**
-     * Head direction in -X axis for CoreXY and CoreXZ bots.
-     *
-     * If steps differ, both axes are moving.
-     * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
-     * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
-     */
-    #if ENABLED(COREXY) || ENABLED(COREXZ)
-      #define X_CMP ==
-    #else
-      #define X_CMP !=
-    #endif
-    #define X_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) X_CMP D_(2)) )
-    #define X_AXIS_HEAD X_HEAD
-  #else
-    #define X_MOVE_TEST stepper.movement_non_null(X_AXIS)
-    #define X_AXIS_HEAD X_AXIS
-  #endif
-
-  #if CORE_IS_XY || CORE_IS_YZ
-    /**
-     * Head direction in -Y axis for CoreXY / CoreYZ bots.
-     *
-     * If steps differ, both axes are moving
-     * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
-     * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
-     */
-    #if ENABLED(COREYX) || ENABLED(COREYZ)
-      #define Y_CMP ==
-    #else
-      #define Y_CMP !=
-    #endif
-    #define Y_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Y_CMP D_(2)) )
-    #define Y_AXIS_HEAD Y_HEAD
-  #else
-    #define Y_MOVE_TEST stepper.movement_non_null(Y_AXIS)
-    #define Y_AXIS_HEAD Y_AXIS
-  #endif
-
-  #if CORE_IS_XZ || CORE_IS_YZ
-    /**
-     * Head direction in -Z axis for CoreXZ or CoreYZ bots.
-     *
-     * If steps differ, both axes are moving
-     * If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
-     * If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
-     */
-    #if ENABLED(COREZX) || ENABLED(COREZY)
-      #define Z_CMP ==
-    #else
-      #define Z_CMP !=
-    #endif
-    #define Z_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Z_CMP D_(2)) )
-    #define Z_AXIS_HEAD Z_HEAD
-  #else
-    #define Z_MOVE_TEST stepper.movement_non_null(Z_AXIS)
-    #define Z_AXIS_HEAD Z_AXIS
+    if (G38_move) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
   #endif
 
   // With Dual X, endstops are only checked in the homing direction for the active extruder
@@ -498,18 +411,35 @@ void Endstops::update() {
     #define X_MAX_TEST true
   #endif
 
+  // Use HEAD for core axes, AXIS for others
+  #if CORE_IS_XY || CORE_IS_XZ
+    #define X_AXIS_HEAD X_HEAD
+  #else
+    #define X_AXIS_HEAD X_AXIS
+  #endif
+  #if CORE_IS_XY || CORE_IS_YZ
+    #define Y_AXIS_HEAD Y_HEAD
+  #else
+    #define Y_AXIS_HEAD Y_AXIS
+  #endif
+  #if CORE_IS_XZ || CORE_IS_YZ
+    #define Z_AXIS_HEAD Z_HEAD
+  #else
+    #define Z_AXIS_HEAD Z_AXIS
+  #endif
+
   /**
    * Check and update endstops according to conditions
    */
-  if (X_MOVE_TEST) {
+  if (stepper.axis_is_moving(X_AXIS)) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN
-        #if ENABLED(X_DUAL_ENDSTOPS)
+        #if ENABLED(X_DUAL_ENDSTOPS) && X_HOME_DIR < 0
           UPDATE_ENDSTOP_BIT(X, MIN);
           #if HAS_X2_MIN
             UPDATE_ENDSTOP_BIT(X2, MIN);
           #else
-            COPY_BIT(live_state, X_MIN, X2_MIN);
+            COPY_LIVE_STATE(X_MIN, X2_MIN);
           #endif
         #else
           if (X_MIN_TEST) UPDATE_ENDSTOP_BIT(X, MIN);
@@ -518,12 +448,12 @@ void Endstops::update() {
     }
     else { // +direction
       #if HAS_X_MAX
-        #if ENABLED(X_DUAL_ENDSTOPS)
+        #if ENABLED(X_DUAL_ENDSTOPS) && X_HOME_DIR > 0
           UPDATE_ENDSTOP_BIT(X, MAX);
           #if HAS_X2_MAX
             UPDATE_ENDSTOP_BIT(X2, MAX);
           #else
-            COPY_BIT(live_state, X_MAX, X2_MAX);
+            COPY_LIVE_STATE(X_MAX, X2_MAX);
           #endif
         #else
           if (X_MAX_TEST) UPDATE_ENDSTOP_BIT(X, MAX);
@@ -532,15 +462,15 @@ void Endstops::update() {
     }
   }
 
-  if (Y_MOVE_TEST) {
+  if (stepper.axis_is_moving(Y_AXIS)) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
-      #if HAS_Y_MIN
+      #if HAS_Y_MIN && Y_HOME_DIR < 0
         #if ENABLED(Y_DUAL_ENDSTOPS)
           UPDATE_ENDSTOP_BIT(Y, MIN);
           #if HAS_Y2_MIN
             UPDATE_ENDSTOP_BIT(Y2, MIN);
           #else
-            COPY_BIT(live_state, Y_MIN, Y2_MIN);
+            COPY_LIVE_STATE(Y_MIN, Y2_MIN);
           #endif
         #else
           UPDATE_ENDSTOP_BIT(Y, MIN);
@@ -548,13 +478,13 @@ void Endstops::update() {
       #endif
     }
     else { // +direction
-      #if HAS_Y_MAX
+      #if HAS_Y_MAX && Y_HOME_DIR > 0
         #if ENABLED(Y_DUAL_ENDSTOPS)
           UPDATE_ENDSTOP_BIT(Y, MAX);
           #if HAS_Y2_MAX
             UPDATE_ENDSTOP_BIT(Y2, MAX);
           #else
-            COPY_BIT(live_state, Y_MAX, Y2_MAX);
+            COPY_LIVE_STATE(Y_MAX, Y2_MAX);
           #endif
         #else
           UPDATE_ENDSTOP_BIT(Y, MAX);
@@ -563,115 +493,108 @@ void Endstops::update() {
     }
   }
 
-  if (Z_MOVE_TEST) {
+  if (stepper.axis_is_moving(Z_AXIS)) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
       #if HAS_Z_MIN
-        #if ENABLED(Z_DUAL_ENDSTOPS)
+        #if ENABLED(Z_DUAL_ENDSTOPS) && Z_HOME_DIR < 0
           UPDATE_ENDSTOP_BIT(Z, MIN);
           #if HAS_Z2_MIN
             UPDATE_ENDSTOP_BIT(Z2, MIN);
           #else
-            COPY_BIT(live_state, Z_MIN, Z2_MIN);
+            COPY_LIVE_STATE(Z_MIN, Z2_MIN);
           #endif
-        #else
-          #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-            if (z_probe_enabled) UPDATE_ENDSTOP_BIT(Z, MIN);
-          #else
-            UPDATE_ENDSTOP_BIT(Z, MIN);
-          #endif
+        #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+          if (z_probe_enabled) UPDATE_ENDSTOP_BIT(Z, MIN);
+        #elif Z_HOME_DIR < 0
+          UPDATE_ENDSTOP_BIT(Z, MIN);
         #endif
       #endif
 
       // When closing the gap check the enabled probe
       #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        if (z_probe_enabled) {
-          UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
-        }
+        if (z_probe_enabled) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
       #endif
     }
     else { // Z +direction. Gantry up, bed down.
-      #if HAS_Z_MAX
+      #if HAS_Z_MAX && Z_HOME_DIR > 0
         // Check both Z dual endstops
         #if ENABLED(Z_DUAL_ENDSTOPS)
           UPDATE_ENDSTOP_BIT(Z, MAX);
           #if HAS_Z2_MAX
             UPDATE_ENDSTOP_BIT(Z2, MAX);
           #else
-            COPY_BIT(live_state, Z_MAX, Z2_MAX);
+            COPY_LIVE_STATE(Z_MAX, Z2_MAX);
           #endif
-        // If this pin is not hijacked for the bed probe
-        // then it belongs to the Z endstop
         #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
+          // If this pin isn't the bed probe it's the Z endstop
           UPDATE_ENDSTOP_BIT(Z, MAX);
         #endif
       #endif
     }
   }
 
-  // All endstops were updated.
   #if ENABLED(ENDSTOP_NOISE_FILTER)
-    if (old_live_state != live_state) { // We detected a change. Reinit the timeout
-      /**
-       * Filtering out noise on endstops requires a delayed decision. Let's assume, due to noise,
-       * that 50% of endstop signal samples are good and 50% are bad (assuming normal distribution
-       * of random noise). Then the first sample has a 50% chance to be good or bad. The 2nd sample
-       * also has a 50% chance to be good or bad. The chances of 2 samples both being bad becomes
-       * 50% of 50%, or 25%. That was the previous implementation of Marlin endstop handling. It
-       * reduces chances of bad readings in half, at the cost of 1 extra sample period, but chances
-       * still exist. The only way to reduce them further is to increase the number of samples.
-       * To reduce the chance to 1% (1/128th) requires 7 samples (adding 7ms of delay).
-       */
+    /**
+     * Filtering out noise on endstops requires a delayed decision. Let's assume, due to noise,
+     * that 50% of endstop signal samples are good and 50% are bad (assuming normal distribution
+     * of random noise). Then the first sample has a 50% chance to be good or bad. The 2nd sample
+     * also has a 50% chance to be good or bad. The chances of 2 samples both being bad becomes
+     * 50% of 50%, or 25%. That was the previous implementation of Marlin endstop handling. It
+     * reduces chances of bad readings in half, at the cost of 1 extra sample period, but chances
+     * still exist. The only way to reduce them further is to increase the number of samples.
+     * To reduce the chance to 1% (1/128th) requires 7 samples (adding 7ms of delay).
+     */
+    static esbits_t old_live_state;
+    if (old_live_state != live_state) {
       endstop_poll_count = 7;
       old_live_state = live_state;
     }
     else if (endstop_poll_count && !--endstop_poll_count)
       validated_live_state = live_state;
 
-  #else
-
-    // Lets accept the new endstop values as valid - We assume hardware filtering of lines
-    esbits_t validated_live_state = live_state;
+    if (!abort_enabled()) return;
 
   #endif
 
-  // Endstop readings are validated in validated_live_state
-
   // Test the current status of an endstop
-  #define TEST_ENDSTOP(ENDSTOP) (TEST(validated_live_state, ENDSTOP))
+  #define TEST_ENDSTOP(ENDSTOP) (TEST(state(), ENDSTOP))
 
   // Record endstop was hit
   #define _ENDSTOP_HIT(AXIS, MINMAX) SBI(hit_state, _ENDSTOP(AXIS, MINMAX))
 
   // Call the endstop triggered routine for single endstops
   #define PROCESS_ENDSTOP(AXIS,MINMAX) do { \
-      if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))) { \
-        _ENDSTOP_HIT(AXIS, MINMAX); \
-        planner.endstop_triggered(_AXIS(AXIS)); \
-      } \
-    }while(0)
+    if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))) { \
+      _ENDSTOP_HIT(AXIS, MINMAX); \
+      planner.endstop_triggered(_AXIS(AXIS)); \
+    } \
+  }while(0)
 
-  // Call the endstop triggered routine for single endstops
+  // Call the endstop triggered routine for dual endstops
   #define PROCESS_DUAL_ENDSTOP(AXIS1, AXIS2, MINMAX) do { \
-      if (TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) || TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX))) { \
-        _ENDSTOP_HIT(AXIS1, MINMAX); \
+    const byte dual_hit = TEST_ENDSTOP(_ENDSTOP(AXIS1, MINMAX)) | (TEST_ENDSTOP(_ENDSTOP(AXIS2, MINMAX)) << 1); \
+    if (dual_hit) { \
+      _ENDSTOP_HIT(AXIS1, MINMAX); \
+      /* if not performing home or if both endstops were trigged during homing... */ \
+      if (!stepper.homing_dual_axis || dual_hit == 0x3) \
         planner.endstop_triggered(_AXIS(AXIS1)); \
-      } \
-    }while(0)
+    } \
+  }while(0)
 
   #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
     // If G38 command is active check Z_MIN_PROBE for ALL movement
     if (G38_move) {
       if (TEST_ENDSTOP(_ENDSTOP(Z, MIN_PROBE))) {
-        if      (stepper.movement_non_null(_AXIS(X))) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(_AXIS(X)); }
-        else if (stepper.movement_non_null(_AXIS(Y))) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(_AXIS(Y)); }
-        else if (stepper.movement_non_null(_AXIS(Z))) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(_AXIS(Z)); }
+        if      (stepper.axis_is_moving(X_AXIS)) { _ENDSTOP_HIT(X, MIN); planner.endstop_triggered(X_AXIS); }
+        else if (stepper.axis_is_moving(Y_AXIS)) { _ENDSTOP_HIT(Y, MIN); planner.endstop_triggered(Y_AXIS); }
+        else if (stepper.axis_is_moving(Z_AXIS)) { _ENDSTOP_HIT(Z, MIN); planner.endstop_triggered(Z_AXIS); }
         G38_endstop_hit = true;
       }
     }
   #endif
 
   // Now, we must signal, after validation, if an endstop limit is pressed or not
-  if (X_MOVE_TEST) {
+  if (stepper.axis_is_moving(X_AXIS)) {
     if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
       #if HAS_X_MIN
         #if ENABLED(X_DUAL_ENDSTOPS)
@@ -692,7 +615,7 @@ void Endstops::update() {
     }
   }
 
-  if (Y_MOVE_TEST) {
+  if (stepper.axis_is_moving(Y_AXIS)) {
     if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
       #if HAS_Y_MIN
         #if ENABLED(Y_DUAL_ENDSTOPS)
@@ -713,7 +636,7 @@ void Endstops::update() {
     }
   }
 
-  if (Z_MOVE_TEST) {
+  if (stepper.axis_is_moving(Z_AXIS)) {
     if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
       #if HAS_Z_MIN
         #if ENABLED(Z_DUAL_ENDSTOPS)

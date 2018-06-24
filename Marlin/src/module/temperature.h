@@ -31,7 +31,7 @@
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(BABYSTEPPING)
-  extern bool axis_known_position[XYZ];
+  extern uint8_t axis_known_position;
 #endif
 
 #if ENABLED(AUTO_POWER_CONTROL)
@@ -40,6 +40,12 @@
 
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
+#endif
+
+#if HOTENDS == 1
+  #define HOTEND_INDEX  0
+#else
+  #define HOTEND_INDEX  e
 #endif
 
 /**
@@ -498,7 +504,7 @@ class Temperature {
     #if ENABLED(BABYSTEPPING)
 
       static void babystep_axis(const AxisEnum axis, const int16_t distance) {
-        if (axis_known_position[axis]) {
+        if (TEST(axis_known_position, axis)) {
           #if IS_CORE
             #if ENABLED(BABYSTEP_XY)
               switch (axis) {

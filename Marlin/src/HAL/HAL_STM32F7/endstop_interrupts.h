@@ -29,43 +29,34 @@
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstops.check_possible_change(); }
+void endstop_ISR(void) { endstops.update(); }
 
 void setup_endstop_interrupts(void) {
   #if HAS_X_MAX
-    pinMode(X_MAX_PIN, INPUT);
-    attachInterrupt(X_MAX_PIN, endstop_ISR, CHANGE); // assign it
+    attachInterrupt(X_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_X_MIN
-    pinMode(X_MIN_PIN, INPUT);
     attachInterrupt(X_MIN_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Y_MAX
-    pinMode(Y_MAX_PIN, INPUT);
     attachInterrupt(Y_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Y_MIN
-    pinMode(Y_MIN_PIN, INPUT);
     attachInterrupt(Y_MIN_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MAX
-    pinMode(Z_MAX_PIN, INPUT);
     attachInterrupt(Z_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MIN
-    pinMode(Z_MIN_PIN, INPUT);
     attachInterrupt(Z_MIN_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z2_MAX
-    pinMode(Z2_MAX_PIN, INPUT);
     attachInterrupt(Z2_MAX_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z2_MIN
-    pinMode(Z2_MIN_PIN, INPUT);
     attachInterrupt(Z2_MIN_PIN, endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MIN_PROBE_PIN
-    pinMode(Z_MIN_PROBE_PIN, INPUT);
     attachInterrupt(Z_MIN_PROBE_PIN, endstop_ISR, CHANGE);
   #endif
 }

@@ -11,8 +11,7 @@
       "src_filter": "+<LPC1768/*>",
       "flags": [
         "-ILPC1768/include",
-        "-ILPC1768/lib",
-        "-Wl,-Tframeworks/CMSIS/LPC1768/Re-ARM/LPC1768.ld,--gc-sections"
+        "-ILPC1768/lib"
     ]
   }
 }
