@@ -10882,7 +10882,7 @@ inline void gcode_M502() {
    */
   inline void gcode_M7219() {
     if (parser.seen('I'))
-      Max7219_init();
+      Max7219_Clear();
     else if (parser.seenval('R')) {
       const uint8_t r = parser.value_int();
       Max7219_Set_Row(r, parser.byteval('V'));
