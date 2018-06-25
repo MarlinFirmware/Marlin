@@ -210,7 +210,7 @@ class Planner {
     #if ENABLED(JUNCTION_DEVIATION)
       static float junction_deviation_mm;       // (mm) M205 J
       #if ENABLED(LIN_ADVANCE)
-        static float max_e_jerk_factor;         // Calculated from junction_deviation_mm
+        static float max_e_jerk;                // Calculated from junction_deviation_mm
       #endif
     #else
       static float max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
@@ -750,9 +750,15 @@ class Planner {
     #endif
 
     #if ENABLED(JUNCTION_DEVIATION)
-      FORCE_INLINE static void recalculate_max_e_jerk_factor() {
+      FORCE_INLINE static void recalculate_max_e_jerk() {
         #if ENABLED(LIN_ADVANCE)
-          max_e_jerk_factor = SQRT(SQRT(0.5) * junction_deviation_mm * RECIPROCAL(1.0 - SQRT(0.5)));
+          max_e_jerk = SQRT(SQRT(0.5) * junction_deviation_mm * 
+          #if ENABLED(DISTINCT_E_FACTORS)
+			      max_acceleration_mm_per_s2[E_AXIS + active_extruder]
+          #else
+			      max_acceleration_mm_per_s2[E_AXIS]
+          #endif
+			      * RECIPROCAL(1.0 - SQRT(0.5)));
         #endif
       }
     #endif
