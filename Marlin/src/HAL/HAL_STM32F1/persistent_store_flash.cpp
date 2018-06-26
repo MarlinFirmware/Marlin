@@ -43,10 +43,10 @@ namespace HAL {
 namespace PersistentStore {
 
 namespace {
-// Store settings in the last two pages
-// Flash pages must be erased before writing, so keep track.
-bool firstWrite = false;
-uint32_t pageBase = EEPROM_START_ADDRESS;
+  // Store settings in the last two pages
+  // Flash pages must be erased before writing, so keep track.
+  bool firstWrite = false;
+  uint32_t pageBase = EEPROM_START_ADDRESS;
 }
 
 bool access_start() {
