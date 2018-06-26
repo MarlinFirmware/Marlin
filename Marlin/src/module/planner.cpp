@@ -126,7 +126,11 @@ float Planner::max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
 #if ENABLED(JUNCTION_DEVIATION)
   float Planner::junction_deviation_mm;       // (mm) M205 J
   #if ENABLED(LIN_ADVANCE)
-    float Planner::max_e_jerk_factor;         // Calculated from junction_deviation_mm
+    #if ENABLED(DISTINCT_E_FACTORS)
+      float Planner::max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
+    #else
+      float Planner::max_e_jerk;
+    #endif
   #endif
 #else
   float Planner::max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
@@ -2056,7 +2060,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #if ENABLED(LIN_ADVANCE)
 
       #if ENABLED(JUNCTION_DEVIATION)
-        #define MAX_E_JERK (max_e_jerk_factor * max_acceleration_mm_per_s2[_EINDEX])
+        #if ENABLED(DISTINCT_E_FACTORS)
+          #define MAX_E_JERK max_e_jerk[extruder]
+        #else
+          #define MAX_E_JERK max_e_jerk
+        #endif
       #else
         #define MAX_E_JERK max_jerk[E_AXIS]
       #endif
@@ -2569,6 +2577,9 @@ void Planner::reset_acceleration_rates() {
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
   cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
+  #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+    recalculate_max_e_jerk();
+  #endif
 }
 
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!

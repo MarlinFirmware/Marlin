@@ -331,7 +331,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
-    planner.recalculate_max_e_jerk_factor();
+    planner.recalculate_max_e_jerk();
   #endif
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
