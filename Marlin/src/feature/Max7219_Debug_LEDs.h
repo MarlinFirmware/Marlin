@@ -77,6 +77,9 @@ void Max7219_Clear_Column(const uint8_t col);
 void Max7219_Set_Row(const uint8_t row, const uint8_t val);
 void Max7219_Clear_Row(const uint8_t row);
 
+// Quickly clear the whole matrix
+void Max7219_Clear();
+
 // Apply custom code to update the matrix
 void Max7219_idle_tasks();
 
