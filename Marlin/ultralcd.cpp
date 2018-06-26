@@ -863,11 +863,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       lcd_return_to_status();
 
       #if ENABLED(POWER_LOSS_RECOVERY)
-        card.openJobRecoveryFile(false);
-        job_recovery_info.valid_head = job_recovery_info.valid_foot = 0;
-        (void)card.saveJobRecoveryInfo();
-        card.closeJobRecoveryFile();
-        job_recovery_commands_count = 0;
+        card.removeJobRecoveryFile();
       #endif
     }
 
