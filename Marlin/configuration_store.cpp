@@ -1900,7 +1900,7 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    for (uint8_t e = 0; e < E_STEPPERS; e++) {
+    for (uint8_t e = 0; e < EXTRUDERS; e++) {
       filament_change_unload_length[e] = FILAMENT_CHANGE_UNLOAD_LENGTH;
       filament_change_load_length[e] = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
     }
