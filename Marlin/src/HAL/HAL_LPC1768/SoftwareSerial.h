@@ -93,11 +93,11 @@ public:
   bool isListening() { return this == active_object; }
   bool stopListening();
   bool overflow() { bool ret = _buffer_overflow; if (ret) _buffer_overflow = false; return ret; }
-  int peek();
+  int16_t peek();
 
   virtual size_t write(uint8_t byte);
-  virtual int read();
-  virtual int available();
+  virtual int16_t read();
+  virtual size_t available();
   virtual void flush();
   operator bool() { return true; }
 

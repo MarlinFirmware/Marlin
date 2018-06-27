@@ -109,10 +109,23 @@ void HardwareSerial::begin(uint32_t baudrate) {
   UART_IntConfig(UARTx, UART_INTCFG_RBR, ENABLE);
   UART_IntConfig(UARTx, UART_INTCFG_RLS, ENABLE);
 
-  if (UARTx == LPC_UART0) NVIC_EnableIRQ(UART0_IRQn);
-  else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) NVIC_EnableIRQ(UART1_IRQn);
-  else if (UARTx == LPC_UART2) NVIC_EnableIRQ(UART2_IRQn);
-  else if (UARTx == LPC_UART3) NVIC_EnableIRQ(UART3_IRQn);
+  // Set proper priority and enable interrupts
+  if (UARTx == LPC_UART0) {
+    NVIC_SetPriority(UART0_IRQn, NVIC_EncodePriority(0, 3, 0));
+    NVIC_EnableIRQ(UART0_IRQn);
+  }
+  else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) {
+    NVIC_SetPriority(UART1_IRQn, NVIC_EncodePriority(0, 3, 0));
+   NVIC_EnableIRQ(UART1_IRQn);
+  }
+  else if (UARTx == LPC_UART2) {
+    NVIC_SetPriority(UART2_IRQn, NVIC_EncodePriority(0, 3, 0));
+    NVIC_EnableIRQ(UART2_IRQn);
+  }
+  else if (UARTx == LPC_UART3) {
+    NVIC_SetPriority(UART3_IRQn, NVIC_EncodePriority(0, 3, 0));
+    NVIC_EnableIRQ(UART3_IRQn);
+  }
 
   RxQueueWritePos = RxQueueReadPos = 0;
   #if TX_BUFFER_SIZE > 0
@@ -123,8 +136,8 @@ void HardwareSerial::begin(uint32_t baudrate) {
   Baudrate = baudrate;
 }
 
-int HardwareSerial::peek() {
-  int byte = -1;
+int16_t HardwareSerial::peek() {
+  int16_t byte = -1;
 
   // Temporarily lock out UART receive interrupts during this read so the UART receive
   // interrupt won't cause problems with the index values
@@ -139,8 +152,8 @@ int HardwareSerial::peek() {
   return byte;
 }
 
-int HardwareSerial::read() {
-  int byte = -1;
+int16_t HardwareSerial::read() {
+  int16_t byte = -1;
 
   // Temporarily lock out UART receive interrupts during this read so the UART receive
   // interrupt won't cause problems with the index values
@@ -201,7 +214,7 @@ size_t HardwareSerial::write(uint8_t send) {
   }
 #endif
 
-int HardwareSerial::available() {
+size_t HardwareSerial::available() {
   return (RxQueueWritePos + RX_BUFFER_SIZE - RxQueueReadPos) % RX_BUFFER_SIZE;
 }
 
@@ -210,16 +223,17 @@ void HardwareSerial::flush() {
   RxQueueReadPos = 0;
 }
 
-void HardwareSerial::printf(const char *format, ...) {
+size_t HardwareSerial::printf(const char *format, ...) {
   char RxBuffer[256];
   va_list vArgs;
   va_start(vArgs, format);
   int length = vsnprintf(RxBuffer, 256, format, vArgs);
   va_end(vArgs);
   if (length > 0 && length < 256) {
-    for (int i = 0; i < length; ++i)
+    for (size_t i = 0; i < (size_t)length; ++i)
       write(RxBuffer[i]);
   }
+  return length;
 }
 
 void HardwareSerial::IRQHandler() {

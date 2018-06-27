@@ -331,7 +331,7 @@ void MarlinSettings::postprocess() {
   #endif
 
   #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
-    planner.recalculate_max_e_jerk_factor();
+    planner.recalculate_max_e_jerk();
   #endif
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
@@ -1607,7 +1607,7 @@ void MarlinSettings::postprocess() {
       }
     #endif
 
-    int16_t MarlinSettings::meshes_start_index() {
+    uint16_t MarlinSettings::meshes_start_index() {
       return (datasize() + EEPROM_OFFSET + 32) & 0xFFF8;  // Pad the end of configuration data so it can float up
                                                           // or down a little bit without disrupting the mesh data
     }
@@ -1904,7 +1904,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    for (uint8_t e = 0; e < E_STEPPERS; e++) {
+    for (uint8_t e = 0; e < EXTRUDERS; e++) {
       filament_change_unload_length[e] = FILAMENT_CHANGE_UNLOAD_LENGTH;
       filament_change_load_length[e] = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
     }

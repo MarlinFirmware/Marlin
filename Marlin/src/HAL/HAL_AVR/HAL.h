@@ -1,23 +1,21 @@
-/* **************************************************************************
-
- Marlin 3D Printer Firmware
- Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-
- Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-****************************************************************************/
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef _HAL_AVR_H_
 #define _HAL_AVR_H_
@@ -54,8 +52,8 @@
 //#define analogInputToDigitalPin(IO) IO
 
 #ifndef CRITICAL_SECTION_START
-  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
-  #define CRITICAL_SECTION_END    SREG = _sreg;
+  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli()
+  #define CRITICAL_SECTION_END    SREG = _sreg
 #endif
 #define ISRS_ENABLED() TEST(SREG, SREG_I)
 #define ENABLE_ISRS()  sei()
