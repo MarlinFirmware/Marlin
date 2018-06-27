@@ -429,109 +429,94 @@ void Endstops::update() {
   #endif
 
   /**
-   * Check and update endstops according to conditions
+   * Check and update endstops
    */
-  if (stepper.axis_is_moving(X_AXIS)) {
-    if (stepper.motor_direction(X_AXIS_HEAD)) { // -direction
-      #if HAS_X_MIN
-        #if ENABLED(X_DUAL_ENDSTOPS) && X_HOME_DIR < 0
-          UPDATE_ENDSTOP_BIT(X, MIN);
-          #if HAS_X2_MIN
-            UPDATE_ENDSTOP_BIT(X2, MIN);
-          #else
-            COPY_LIVE_STATE(X_MIN, X2_MIN);
-          #endif
-        #else
-          if (X_MIN_TEST) UPDATE_ENDSTOP_BIT(X, MIN);
-        #endif
+  #if HAS_X_MIN
+    #if ENABLED(X_DUAL_ENDSTOPS) && X_HOME_DIR < 0
+      UPDATE_ENDSTOP_BIT(X, MIN);
+      #if HAS_X2_MIN
+        UPDATE_ENDSTOP_BIT(X2, MIN);
+      #else
+        COPY_LIVE_STATE(X_MIN, X2_MIN);
       #endif
-    }
-    else { // +direction
-      #if HAS_X_MAX
-        #if ENABLED(X_DUAL_ENDSTOPS) && X_HOME_DIR > 0
-          UPDATE_ENDSTOP_BIT(X, MAX);
-          #if HAS_X2_MAX
-            UPDATE_ENDSTOP_BIT(X2, MAX);
-          #else
-            COPY_LIVE_STATE(X_MAX, X2_MAX);
-          #endif
-        #else
-          if (X_MAX_TEST) UPDATE_ENDSTOP_BIT(X, MAX);
-        #endif
-      #endif
-    }
-  }
+    #else
+      UPDATE_ENDSTOP_BIT(X, MIN);
+    #endif
+  #endif
 
-  if (stepper.axis_is_moving(Y_AXIS)) {
-    if (stepper.motor_direction(Y_AXIS_HEAD)) { // -direction
-      #if HAS_Y_MIN && Y_HOME_DIR < 0
-        #if ENABLED(Y_DUAL_ENDSTOPS)
-          UPDATE_ENDSTOP_BIT(Y, MIN);
-          #if HAS_Y2_MIN
-            UPDATE_ENDSTOP_BIT(Y2, MIN);
-          #else
-            COPY_LIVE_STATE(Y_MIN, Y2_MIN);
-          #endif
-        #else
-          UPDATE_ENDSTOP_BIT(Y, MIN);
-        #endif
+  #if HAS_X_MAX
+    #if ENABLED(X_DUAL_ENDSTOPS) && X_HOME_DIR > 0
+      UPDATE_ENDSTOP_BIT(X, MAX);
+      #if HAS_X2_MAX
+        UPDATE_ENDSTOP_BIT(X2, MAX);
+      #else
+        COPY_LIVE_STATE(X_MAX, X2_MAX);
       #endif
-    }
-    else { // +direction
-      #if HAS_Y_MAX && Y_HOME_DIR > 0
-        #if ENABLED(Y_DUAL_ENDSTOPS)
-          UPDATE_ENDSTOP_BIT(Y, MAX);
-          #if HAS_Y2_MAX
-            UPDATE_ENDSTOP_BIT(Y2, MAX);
-          #else
-            COPY_LIVE_STATE(Y_MAX, Y2_MAX);
-          #endif
-        #else
-          UPDATE_ENDSTOP_BIT(Y, MAX);
-        #endif
-      #endif
-    }
-  }
+    #else
+      UPDATE_ENDSTOP_BIT(X, MAX);
+    #endif
+  #endif
 
-  if (stepper.axis_is_moving(Z_AXIS)) {
-    if (stepper.motor_direction(Z_AXIS_HEAD)) { // Z -direction. Gantry down, bed up.
-      #if HAS_Z_MIN
-        #if ENABLED(Z_DUAL_ENDSTOPS) && Z_HOME_DIR < 0
-          UPDATE_ENDSTOP_BIT(Z, MIN);
-          #if HAS_Z2_MIN
-            UPDATE_ENDSTOP_BIT(Z2, MIN);
-          #else
-            COPY_LIVE_STATE(Z_MIN, Z2_MIN);
-          #endif
-        #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-          if (z_probe_enabled) UPDATE_ENDSTOP_BIT(Z, MIN);
-        #elif Z_HOME_DIR < 0
-          UPDATE_ENDSTOP_BIT(Z, MIN);
-        #endif
+  #if HAS_Y_MIN && Y_HOME_DIR < 0
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      UPDATE_ENDSTOP_BIT(Y, MIN);
+      #if HAS_Y2_MIN
+        UPDATE_ENDSTOP_BIT(Y2, MIN);
+      #else
+        COPY_LIVE_STATE(Y_MIN, Y2_MIN);
       #endif
+    #else
+      UPDATE_ENDSTOP_BIT(Y, MIN);
+    #endif
+  #endif
 
-      // When closing the gap check the enabled probe
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        if (z_probe_enabled) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
+  #if HAS_Y_MAX && Y_HOME_DIR > 0
+    #if ENABLED(Y_DUAL_ENDSTOPS)
+      UPDATE_ENDSTOP_BIT(Y, MAX);
+      #if HAS_Y2_MAX
+        UPDATE_ENDSTOP_BIT(Y2, MAX);
+      #else
+        COPY_LIVE_STATE(Y_MAX, Y2_MAX);
       #endif
-    }
-    else { // Z +direction. Gantry up, bed down.
-      #if HAS_Z_MAX && Z_HOME_DIR > 0
-        // Check both Z dual endstops
-        #if ENABLED(Z_DUAL_ENDSTOPS)
-          UPDATE_ENDSTOP_BIT(Z, MAX);
-          #if HAS_Z2_MAX
-            UPDATE_ENDSTOP_BIT(Z2, MAX);
-          #else
-            COPY_LIVE_STATE(Z_MAX, Z2_MAX);
-          #endif
-        #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
-          // If this pin isn't the bed probe it's the Z endstop
-          UPDATE_ENDSTOP_BIT(Z, MAX);
-        #endif
+    #else
+      UPDATE_ENDSTOP_BIT(Y, MAX);
+    #endif
+  #endif
+
+  #if HAS_Z_MIN
+    #if ENABLED(Z_DUAL_ENDSTOPS) && Z_HOME_DIR < 0
+      UPDATE_ENDSTOP_BIT(Z, MIN);
+      #if HAS_Z2_MIN
+        UPDATE_ENDSTOP_BIT(Z2, MIN);
+      #else
+        COPY_LIVE_STATE(Z_MIN, Z2_MIN);
       #endif
-    }
-  }
+    #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      UPDATE_ENDSTOP_BIT(Z, MIN);
+    #elif Z_HOME_DIR < 0
+      UPDATE_ENDSTOP_BIT(Z, MIN);
+    #endif
+  #endif
+
+  // When closing the gap check the enabled probe
+  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+    UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
+  #endif
+
+  #if HAS_Z_MAX && Z_HOME_DIR > 0
+    // Check both Z dual endstops
+    #if ENABLED(Z_DUAL_ENDSTOPS)
+      UPDATE_ENDSTOP_BIT(Z, MAX);
+      #if HAS_Z2_MAX
+        UPDATE_ENDSTOP_BIT(Z2, MAX);
+      #else
+        COPY_LIVE_STATE(Z_MAX, Z2_MAX);
+      #endif
+    #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
+      // If this pin isn't the bed probe it's the Z endstop
+      UPDATE_ENDSTOP_BIT(Z, MAX);
+    #endif
+  #endif
 
   #if ENABLED(ENDSTOP_NOISE_FILTER)
     /**
