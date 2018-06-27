@@ -9174,7 +9174,7 @@ inline void gcode_M205() {
       const float junc_dev = parser.value_linear_units();
       if (WITHIN(junc_dev, 0.01, 0.3)) {
         planner.junction_deviation_mm = junc_dev;
-        planner.recalculate_max_e_jerk_factor();
+        planner.recalculate_max_e_jerk();
       }
       else {
         SERIAL_ERROR_START();
