@@ -226,8 +226,6 @@ class Stepper {
 
   public:
 
-    static block_t* current_block;  // A pointer to the block currently being traced
-
     #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
       static bool homing_dual_axis;
     #endif
@@ -240,6 +238,8 @@ class Stepper {
     #endif
 
   private:
+
+    static block_t* current_block;          // A pointer to the block currently being traced
 
     static uint8_t last_direction_bits,     // The next stepping-bits to be output
                    axis_did_move;           // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
@@ -350,6 +350,9 @@ class Stepper {
       static uint32_t advance_isr();
     #endif
 
+    // Check if the given block is busy or not - Must not be called from ISR contexts
+    static bool is_block_busy(const block_t* const block);
+
     // Get the position of a stepper, in steps
     static int32_t position(const AxisEnum axis);
 
@@ -432,9 +435,12 @@ class Stepper {
 
     inline static void set_position(const AxisEnum a, const int32_t &v) {
       planner.synchronize();
+
       const bool was_enabled = STEPPER_ISR_ENABLED();
       if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+
       count_position[a] = v;
+
       if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
     }
 
