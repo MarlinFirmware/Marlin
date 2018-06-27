@@ -265,10 +265,21 @@
 #elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
 #elif defined(HAVE_TMCDRIVER)
-  #error "HAVE_TMCDRIVER is now HAVE_TMC26X. Please update your Configuration_adv.h."
+  #error "HAVE_TMCDRIVER is now [AXIS]_DRIVER_TYPE TMC26X + SPI_STEPPER. Please update your Configuration.h."
+#elif defined(HAVE_TMC26X)
+  #error "HAVE_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X + SPI_STEPPER. Please update your Configuration.h."
 #elif defined(X_IS_TMC) || defined(X2_IS_TMC) || defined(Y_IS_TMC) || defined(Y2_IS_TMC) || defined(Z_IS_TMC) || defined(Z2_IS_TMC) \
    || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC)
-  #error "[AXIS]_IS_TMC is now [AXIS]_IS_TMC26X. Please update your Configuration_adv.h."
+  #error "[AXIS]_IS_TMC is now [AXIS]_DRIVER_TYPE TMC26X + SPI_STEPPER. Please update your Configuration.h."
+#elif defined(X_IS_TMC26X) || defined(X2_IS_TMC26X) || defined(Y_IS_TMC26X) || defined(Y2_IS_TMC26X) || defined(Z_IS_TMC26X) || defined(Z2_IS_TMC26X) \
+   || defined(E0_IS_TMC26X) || defined(E1_IS_TMC26X) || defined(E2_IS_TMC26X) || defined(E3_IS_TMC26X) || defined(E4_IS_TMC26X)
+  #error "[AXIS]_IS_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X + SPI_STEPPER. Please update your Configuration.h."
+#elif defined(X_IS_TMC2130) || defined(X2_IS_TMC2130) || defined(Y_IS_TMC2130) || defined(Y2_IS_TMC2130) || defined(Z_IS_TMC2130) || defined(Z2_IS_TMC2130) \
+   || defined(E0_IS_TMC2130) || defined(E1_IS_TMC2130) || defined(E2_IS_TMC2130) || defined(E3_IS_TMC2130) || defined(E4_IS_TMC2130)
+  #error "[AXIS]_IS_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130 + SPI_STEPPER. Please update your Configuration.h."
+#elif defined(X_IS_TMC2208) || defined(X2_IS_TMC2208) || defined(Y_IS_TMC2208) || defined(Y2_IS_TMC2208) || defined(Z_IS_TMC2208) || defined(Z2_IS_TMC2208) \
+   || defined(E0_IS_TMC2208) || defined(E1_IS_TMC2208) || defined(E2_IS_TMC2208) || defined(E3_IS_TMC2208) || defined(E4_IS_TMC2208)
+#error "[AXIS]_IS_TMC2208 is now [AXIS]_DRIVER_TYPE TMC2208 + SPI_STEPPER. Please update your Configuration.h."
 #elif defined(AUTOMATIC_CURRENT_CONTROL)
   #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
 #elif defined(FILAMENT_CHANGE_LOAD_LENGTH)
@@ -1455,66 +1466,35 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
- * Make sure HAVE_TMC26X is warranted
+ * Make sure TMC2130 is warranted
  */
-#if ENABLED(HAVE_TMC26X) && !( \
-         ENABLED(  X_IS_TMC26X ) \
-      || ENABLED( X2_IS_TMC26X ) \
-      || ENABLED(  Y_IS_TMC26X ) \
-      || ENABLED( Y2_IS_TMC26X ) \
-      || ENABLED(  Z_IS_TMC26X ) \
-      || ENABLED( Z2_IS_TMC26X ) \
-      || ENABLED( E0_IS_TMC26X ) \
-      || ENABLED( E1_IS_TMC26X ) \
-      || ENABLED( E2_IS_TMC26X ) \
-      || ENABLED( E3_IS_TMC26X ) \
-      || ENABLED( E4_IS_TMC26X ) \
-  )
-  #error "HAVE_TMC26X requires at least one TMC26X stepper to be set."
-#endif
-
-/**
- * Make sure HAVE_TMC2130 is warranted
- */
-#if ENABLED(HAVE_TMC2130)
-  #if !( ENABLED(  X_IS_TMC2130 ) \
-      || ENABLED( X2_IS_TMC2130 ) \
-      || ENABLED(  Y_IS_TMC2130 ) \
-      || ENABLED( Y2_IS_TMC2130 ) \
-      || ENABLED(  Z_IS_TMC2130 ) \
-      || ENABLED( Z2_IS_TMC2130 ) \
-      || ENABLED( E0_IS_TMC2130 ) \
-      || ENABLED( E1_IS_TMC2130 ) \
-      || ENABLED( E2_IS_TMC2130 ) \
-      || ENABLED( E3_IS_TMC2130 ) \
-      || ENABLED( E4_IS_TMC2130 ) )
-    #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
-  #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
+#if HAVE_SPIDRIVER(TMC2130)
+  #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
     #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
   #endif
 
-  #if ENABLED(X_IS_TMC2130) && !PIN_EXISTS(X_CS)
-    #error "X_CS_PIN is required for X_IS_TMC2130. Define X_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(X2_IS_TMC2130) && !PIN_EXISTS(X2_CS)
-    #error "X2_CS_PIN is required for X2_IS_TMC2130. Define X2_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(Y_IS_TMC2130) && !PIN_EXISTS(Y_CS)
-    #error "Y_CS_PIN is required for Y_IS_TMC2130. Define Y_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(Y2_IS_TMC2130) && !PIN_EXISTS(Y2_CS)
-    #error "Y2_CS_PIN is required for Y2_IS_TMC2130. Define Y2_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(Z_IS_TMC2130) && !PIN_EXISTS(Z_CS)
-    #error "Z_CS_PIN is required for Z_IS_TMC2130. Define Z_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(Z2_IS_TMC2130) && !PIN_EXISTS(Z2_CS)
-    #error "Z2_CS_PIN is required for Z2_IS_TMC2130. Define Z2_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E0_IS_TMC2130) && !PIN_EXISTS(E0_CS)
-    #error "E0_CS_PIN is required for E0_IS_TMC2130. Define E0_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E1_IS_TMC2130) && !PIN_EXISTS(E1_CS)
-    #error "E1_CS_PIN is required for E1_IS_TMC2130. Define E1_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E2_IS_TMC2130) && !PIN_EXISTS(E2_CS)
-    #error "E2_CS_PIN is required for E2_IS_TMC2130. Define E2_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E3_IS_TMC2130) && !PIN_EXISTS(E3_CS)
-    #error "E3_CS_PIN is required for E3_IS_TMC2130. Define E3_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E4_IS_TMC2130) && !PIN_EXISTS(E4_CS)
-    #error "E4_CS_PIN is required for E4_IS_TMC2130. Define E4_CS_PIN in Configuration_adv.h."
+  #if IS_SPIDRIVER_USED(X, TMC2130) && !PIN_EXISTS(X_CS)
+    #error "X_CS_PIN is required for TMC2130. Define X_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(X2, TMC2130) && !PIN_EXISTS(X2_CS)
+    #error "X2_CS_PIN is required for X2. Define X2_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(Y, TMC2130) && !PIN_EXISTS(Y_CS)
+    #error "Y_CS_PIN is required for TMC2130. Define Y_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(Y2, TMC2130) && !PIN_EXISTS(Y2_CS)
+    #error "Y2_CS_PIN is required for TMC2130. Define Y2_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(Z, TMC2130) && !PIN_EXISTS(Z_CS)
+    #error "Z_CS_PIN is required for TMC2130. Define Z_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(Z2, TMC2130) && !PIN_EXISTS(Z2_CS)
+    #error "Z2_CS_PIN is required for TMC2130. Define Z2_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(E0, TMC2130) && !PIN_EXISTS(E0_CS)
+    #error "E0_CS_PIN is required for TMC2130. Define E0_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(E1, TMC2130) && !PIN_EXISTS(E1_CS)
+    #error "E1_CS_PIN is required for TMC2130. Define E1_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(E2, TMC2130) && !PIN_EXISTS(E2_CS)
+    #error "E2_CS_PIN is required for TMC2130. Define E2_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(E3, TMC2130) && !PIN_EXISTS(E3_CS)
+    #error "E3_CS_PIN is required for TMC2130. Define E3_CS_PIN in Configuration_adv.h."
+  #elif IS_SPIDRIVER_USED(E4, TMC2130) && !PIN_EXISTS(E4_CS)
+    #error "E4_CS_PIN is required for TMC2130. Define E4_CS_PIN in Configuration_adv.h."
   #endif
 
   #if ENABLED(SENSORLESS_HOMING)
@@ -1553,26 +1533,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
- * Make sure HAVE_TMC2208 is warranted
- */
-#if ENABLED(HAVE_TMC2208) && !( \
-       ENABLED(  X_IS_TMC2208 ) \
-    || ENABLED( X2_IS_TMC2208 ) \
-    || ENABLED(  Y_IS_TMC2208 ) \
-    || ENABLED( Y2_IS_TMC2208 ) \
-    || ENABLED(  Z_IS_TMC2208 ) \
-    || ENABLED( Z2_IS_TMC2208 ) \
-    || ENABLED( E0_IS_TMC2208 ) \
-    || ENABLED( E1_IS_TMC2208 ) \
-    || ENABLED( E2_IS_TMC2208 ) \
-    || ENABLED( E3_IS_TMC2208 ) )
-  #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
-#endif
-
-/**
  * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
  */
-#if ENABLED(HAVE_TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
+#if HAVE_SPIDRIVER(TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
        defined(X_HARDWARE_SERIAL ) \
     || defined(X2_HARDWARE_SERIAL) \
     || defined(Y_HARDWARE_SERIAL ) \
@@ -1593,106 +1556,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 
 #if ENABLED(TMC_Z_CALIBRATION) && !Z_IS_TRINAMIC && !Z2_IS_TRINAMIC
   #error "TMC_Z_CALIBRATION requires at least one TMC driver on Z axis"
-#endif
-
-/**
- * Make sure HAVE_L6470DRIVER is warranted
- */
-#if ENABLED(HAVE_L6470DRIVER) && !( \
-         ENABLED(  X_IS_L6470 ) \
-      || ENABLED( X2_IS_L6470 ) \
-      || ENABLED(  Y_IS_L6470 ) \
-      || ENABLED( Y2_IS_L6470 ) \
-      || ENABLED(  Z_IS_L6470 ) \
-      || ENABLED( Z2_IS_L6470 ) \
-      || ENABLED( E0_IS_L6470 ) \
-      || ENABLED( E1_IS_L6470 ) \
-      || ENABLED( E2_IS_L6470 ) \
-      || ENABLED( E3_IS_L6470 ) \
-      || ENABLED( E4_IS_L6470 ) \
-  )
-  #error "HAVE_L6470DRIVER requires at least one L6470 stepper to be set."
-#endif
-
-/**
- * Check that each axis has only one driver selected
- */
-#if 1 < 0 \
-  + ENABLED(X_IS_TMC26X) \
-  + ENABLED(X_IS_TMC2130) \
-  + ENABLED(X_IS_TMC2208) \
-  + ENABLED(X_IS_L6470)
-  #error "Please enable only one stepper driver for the X axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(X2_IS_TMC26X) \
-  + ENABLED(X2_IS_TMC2130) \
-  + ENABLED(X2_IS_TMC2208) \
-  + ENABLED(X2_IS_L6470)
-  #error "Please enable only one stepper driver for the X2 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(Y_IS_TMC26X) \
-  + ENABLED(Y_IS_TMC2130) \
-  + ENABLED(Y_IS_TMC2208) \
-  + ENABLED(Y_IS_L6470)
-  #error "Please enable only one stepper driver for the Y axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(Y2_IS_TMC26X) \
-  + ENABLED(Y2_IS_TMC2130) \
-  + ENABLED(Y2_IS_TMC2208) \
-  + ENABLED(Y2_IS_L6470)
-  #error "Please enable only one stepper driver for the Y2 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(Z_IS_TMC26X) \
-  + ENABLED(Z_IS_TMC2130) \
-  + ENABLED(Z_IS_TMC2208) \
-  + ENABLED(Z_IS_L6470)
-  #error "Please enable only one stepper driver for the Z axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(Z2_IS_TMC26X) \
-  + ENABLED(Z2_IS_TMC2130) \
-  + ENABLED(Z2_IS_TMC2208) \
-  + ENABLED(Z2_IS_L6470)
-  #error "Please enable only one stepper driver for the Z2 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E0_IS_TMC26X) \
-  + ENABLED(E0_IS_TMC2130) \
-  + ENABLED(E0_IS_TMC2208) \
-  + ENABLED(E0_IS_L6470)
-  #error "Please enable only one stepper driver for the E0 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E1_IS_TMC26X) \
-  + ENABLED(E1_IS_TMC2130) \
-  + ENABLED(E1_IS_TMC2208) \
-  + ENABLED(E1_IS_L6470)
-  #error "Please enable only one stepper driver for the E1 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E2_IS_TMC26X) \
-  + ENABLED(E2_IS_TMC2130) \
-  + ENABLED(E2_IS_TMC2208) \
-  + ENABLED(E2_IS_L6470)
-  #error "Please enable only one stepper driver for the E2 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E3_IS_TMC26X) \
-  + ENABLED(E3_IS_TMC2130) \
-  + ENABLED(E3_IS_TMC2208) \
-  + ENABLED(E3_IS_L6470)
-  #error "Please enable only one stepper driver for the E3 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E4_IS_TMC26X) \
-  + ENABLED(E4_IS_TMC2130) \
-  + ENABLED(E4_IS_TMC2208) \
-  + ENABLED(E4_IS_L6470)
-  #error "Please enable only one stepper driver for the E4 axis."
 #endif
 
 /**
@@ -1754,6 +1617,10 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
 
 #if ENABLED(FAST_PWM_FAN) && !(defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM))
   #error "FAST_PWM_FAN only supported by 8 bit CPUs."
+#endif
+
+#if HAVE_SPIDRIVER(A4988) || HAVE_SPIDRIVER(DRV8825) || HAVE_SPIDRIVER(DRV8825) || HAVE_SPIDRIVER(LV8729) || HAVE_SPIDRIVER(TB6560) || HAVE_SPIDRIVER(TB6600) || HAVE_SPIDRIVER(TMC2100)
+  #error "A4988, DRV8825, LV8729, TB6560, TB6600 and TMC2100 don't support SPI control"
 #endif
 
 #endif // _SANITYCHECK_H_

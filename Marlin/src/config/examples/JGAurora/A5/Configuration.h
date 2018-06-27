@@ -562,6 +562,27 @@
 #define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 
+/**
+ * Stepper Drivers for all axes
+ *
+ * Options: A4988, DRV8825, LV8729, TB6560, TB6600, TMC2100, TMC2130, TMC2208, TMC26X, TMC2660, TMC5130
+ * Append |SPI_STEPPER for drivers with SPI (e.g., TMC2130|SPI_STEPPER)
+ * For unspecified drivers, DRV8825 is assumed.
+ *
+ * :['A4988', 'DRV8825', 'LV8729', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130|SPI_STEPPER', 'TMC2208', 'TMC2208|SPI_STEPPER', 'TMC26X', 'TMC26X|SPI_STEPPER', 'TMC2660', 'TMC2660|SPI_STEPPER', 'TMC5130', 'TMC5130|SPI_STEPPER']
+ */
+//#define X_DRIVER_TYPE  DRV8825
+//#define X2_DRIVER_TYPE DRV8825
+//#define Y_DRIVER_TYPE  DRV8825
+//#define Y2_DRIVER_TYPE DRV8825
+//#define Z_DRIVER_TYPE  DRV8825
+//#define Z2_DRIVER_TYPE DRV8825
+//#define E0_DRIVER_TYPE DRV8825
+//#define E1_DRIVER_TYPE DRV8825
+//#define E2_DRIVER_TYPE DRV8825
+//#define E3_DRIVER_TYPE DRV8825
+//#define E4_DRIVER_TYPE DRV8825
+
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
 //#define ENDSTOP_INTERRUPTS_FEATURE

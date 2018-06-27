@@ -23,6 +23,8 @@
 #ifndef MACROS_H
 #define MACROS_H
 
+#include "drivers.h"
+
 #define NUM_AXIS 4
 #define ABCE 4
 #define XYZE 4
@@ -269,4 +271,4 @@
 #define FMOD(x, y)  fmod(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
-#endif //__MACROS_H
+#endif // MACROS_H

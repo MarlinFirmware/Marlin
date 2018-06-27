@@ -30,7 +30,7 @@
 #include "../../../module/planner.h"
 #include "../../queue.h"
 
-#define M91x_USE(A) (ENABLED(A##_IS_TMC2130) || (ENABLED(A##_IS_TMC2208) && PIN_EXISTS(A##_SERIAL_RX)))
+#define M91x_USE(A) (IS_SPIDRIVER_USED(A, TMC2130) || (IS_SPIDRIVER_USED(A, TMC2208) && PIN_EXISTS(A##_SERIAL_RX)))
 #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 #define M91x_USE_X  (ENABLED(IS_TRAMS) || M91x_USE(X))
 #define M91x_USE_Y  (ENABLED(IS_TRAMS) || M91x_USE(Y))
@@ -269,26 +269,26 @@ void GcodeSuite::M912() {
       report = false;
       switch (i) {
         case X_AXIS:
-          #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+          #if IS_SPIDRIVER_USED(X, TMC2130) || ENABLED(IS_TRAMS)
             if (index == 0) TMC_SET_SGT(X);
           #endif
-          #if ENABLED(X2_IS_TMC2130)
+          #if IS_SPIDRIVER_USED(X2, TMC2130)
             if (index == 1) TMC_SET_SGT(X2);
           #endif
           break;
         case Y_AXIS:
-          #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+          #if IS_SPIDRIVER_USED(Y, TMC2130) || ENABLED(IS_TRAMS)
             if (index == 0) TMC_SET_SGT(Y);
           #endif
-          #if ENABLED(Y2_IS_TMC2130)
+          #if IS_SPIDRIVER_USED(Y2, TMC2130)
             if (index == 1) TMC_SET_SGT(Y2);
           #endif
           break;
         case Z_AXIS:
-          #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+          #if IS_SPIDRIVER_USED(Z, TMC2130) || ENABLED(IS_TRAMS)
             if (index == 0) TMC_SET_SGT(Z);
           #endif
-          #if ENABLED(Z2_IS_TMC2130)
+          #if IS_SPIDRIVER_USED(Z2, TMC2130)
             if (index == 1) TMC_SET_SGT(Z2);
           #endif
           break;
@@ -297,26 +297,26 @@ void GcodeSuite::M912() {
 
     if (report) LOOP_XYZ(i) switch (i) {
       case X_AXIS:
-        #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+        #if IS_SPIDRIVER_USED(X, TMC2130) || ENABLED(IS_TRAMS)
           TMC_SAY_SGT(X);
         #endif
-        #if ENABLED(X2_IS_TMC2130)
+        #if IS_SPIDRIVER_USED(X2, TMC2130)
           TMC_SAY_SGT(X2);
         #endif
         break;
       case Y_AXIS:
-        #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+        #if IS_SPIDRIVER_USED(Y, TMC2130) || ENABLED(IS_TRAMS)
           TMC_SAY_SGT(Y);
         #endif
-        #if ENABLED(Y2_IS_TMC2130)
+        #if IS_SPIDRIVER_USED(Y2, TMC2130)
           TMC_SAY_SGT(Y2);
         #endif
         break;
       case Z_AXIS:
-        #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+        #if IS_SPIDRIVER_USED(Z, TMC2130) || ENABLED(IS_TRAMS)
           TMC_SAY_SGT(Z);
         #endif
-        #if ENABLED(Z2_IS_TMC2130)
+        #if IS_SPIDRIVER_USED(Z2, TMC2130)
           TMC_SAY_SGT(Z2);
         #endif
         break;
