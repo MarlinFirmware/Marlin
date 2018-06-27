@@ -688,7 +688,7 @@ class Planner {
      */
     FORCE_INLINE static void discard_current_block() {
       if (has_blocks_queued()) { // Discard non-empty buffer.
-        uint8_t block_index = next_block_index( block_buffer_tail );
+        uint8_t block_index = next_block_index(block_buffer_tail);
 
         // Push block_buffer_planned pointer, if encountered.
         if (!has_blocks_queued()) block_buffer_planned = block_index;
