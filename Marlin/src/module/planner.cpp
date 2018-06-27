@@ -386,89 +386,89 @@ void Planner::init() {
         // use Newton-Raphson for the calculation, and will strive to get way less cycles
         // for the same result - Using C division, it takes 500cycles to complete .
 
-        A("clr %3")                        // idx = 0
+        A("clr %3")                       // idx = 0
         A("mov %14,%6")
         A("mov %15,%7")
-        A("mov %16,%8")                    // nr = interval
-        A("tst %16")                       // nr & 0xFF0000 == 0 ?
-        A("brne 2f")                       // No, skip this
+        A("mov %16,%8")                   // nr = interval
+        A("tst %16")                      // nr & 0xFF0000 == 0 ?
+        A("brne 2f")                      // No, skip this
         A("mov %16,%15")
-        A("mov %15,%14")                   // nr <<= 8, %14 not needed
-        A("subi %3,-8")                    // idx += 8
-        A("tst %16")                       // nr & 0xFF0000 == 0 ?
-        A("brne 2f")                       // No, skip this
-        A("mov %16,%15")                   // nr <<= 8, %14 not needed
-        A("clr %15")                       // We clear %14
-        A("subi %3,-8")                    // idx += 8
+        A("mov %15,%14")                  // nr <<= 8, %14 not needed
+        A("subi %3,-8")                   // idx += 8
+        A("tst %16")                      // nr & 0xFF0000 == 0 ?
+        A("brne 2f")                      // No, skip this
+        A("mov %16,%15")                  // nr <<= 8, %14 not needed
+        A("clr %15")                      // We clear %14
+        A("subi %3,-8")                   // idx += 8
 
         // here %16 != 0 and %16:%15 contains at least 9 MSBits, or both %16:%15 are 0
         L("2")
-        A("cpi %16,0x10")                  // (nr & 0xF00000) == 0 ?
-        A("brcc 3f")                       // No, skip this
-        A("swap %15")                      // Swap nibbles
-        A("swap %16")                      // Swap nibbles. Low nibble is 0
+        A("cpi %16,0x10")                 // (nr & 0xF00000) == 0 ?
+        A("brcc 3f")                      // No, skip this
+        A("swap %15")                     // Swap nibbles
+        A("swap %16")                     // Swap nibbles. Low nibble is 0
         A("mov %14, %15")
-        A("andi %14,0x0F")                 // Isolate low nibble
-        A("andi %15,0xF0")                 // Keep proper nibble in %15
-        A("or %16, %14")                   // %16:%15 <<= 4
-        A("subi %3,-4")                    // idx += 4
+        A("andi %14,0x0F")                // Isolate low nibble
+        A("andi %15,0xF0")                // Keep proper nibble in %15
+        A("or %16, %14")                  // %16:%15 <<= 4
+        A("subi %3,-4")                   // idx += 4
 
         L("3")
-        A("cpi %16,0x40")                  // (nr & 0xC00000) == 0 ?
-        A("brcc 4f")                       // No, skip this
+        A("cpi %16,0x40")                 // (nr & 0xC00000) == 0 ?
+        A("brcc 4f")                      // No, skip this
         A("add %15,%15")
         A("adc %16,%16")
         A("add %15,%15")
-        A("adc %16,%16")                   // %16:%15 <<= 2
-        A("subi %3,-2")                    // idx += 2
+        A("adc %16,%16")                  // %16:%15 <<= 2
+        A("subi %3,-2")                   // idx += 2
 
         L("4")
-        A("cpi %16,0x80")                  // (nr & 0x800000) == 0 ?
-        A("brcc 5f")                       // No, skip this
+        A("cpi %16,0x80")                 // (nr & 0x800000) == 0 ?
+        A("brcc 5f")                      // No, skip this
         A("add %15,%15")
-        A("adc %16,%16")                   // %16:%15 <<= 1
-        A("inc %3")                        // idx += 1
+        A("adc %16,%16")                  // %16:%15 <<= 1
+        A("inc %3")                       // idx += 1
 
         // Now %16:%15 contains its MSBit set to 1, or %16:%15 is == 0. We are now absolutely sure
         // we have at least 9 MSBits available to enter the initial estimation table
         L("5")
         A("add %15,%15")
-        A("adc %16,%16")                   // %16:%15 = tidx = (nr <<= 1), we lose the top MSBit (always set to 1, %16 is the index into the inverse table)
-        A("add r30,%16")                   // Only use top 8 bits
-        A("adc r31,%13")                   // r31:r30 = inv_tab + (tidx)
-        A("lpm %14, Z")                    // %14 = inv_tab[tidx]
-        A("ldi %15, 1")                    // %15 = 1  %15:%14 = inv_tab[tidx] + 256
+        A("adc %16,%16")                  // %16:%15 = tidx = (nr <<= 1), we lose the top MSBit (always set to 1, %16 is the index into the inverse table)
+        A("add r30,%16")                  // Only use top 8 bits
+        A("adc r31,%13")                  // r31:r30 = inv_tab + (tidx)
+        A("lpm %14, Z")                   // %14 = inv_tab[tidx]
+        A("ldi %15, 1")                   // %15 = 1  %15:%14 = inv_tab[tidx] + 256
 
         // We must scale the approximation to the proper place
-        A("clr %16")                       // %16 will always be 0 here
-        A("subi %3,8")                     // idx == 8 ?
-        A("breq 6f")                       // yes, no need to scale
-        A("brcs 7f")                       // If C=1, means idx < 8, result was negative!
+        A("clr %16")                      // %16 will always be 0 here
+        A("subi %3,8")                    // idx == 8 ?
+        A("breq 6f")                      // yes, no need to scale
+        A("brcs 7f")                      // If C=1, means idx < 8, result was negative!
 
         // idx > 8, now %3 = idx - 8. We must perform a left shift. idx range:[1-8]
-        A("sbrs %3,0")                     // shift by 1bit position?
-        A("rjmp 8f")                       // No
+        A("sbrs %3,0")                    // shift by 1bit position?
+        A("rjmp 8f")                      // No
         A("add %14,%14")
-        A("adc %15,%15")                   // %15:16 <<= 1
+        A("adc %15,%15")                  // %15:16 <<= 1
         L("8")
-        A("sbrs %3,1")                     // shift by 2bit position?
-        A("rjmp 9f")                       // No
+        A("sbrs %3,1")                    // shift by 2bit position?
+        A("rjmp 9f")                      // No
         A("add %14,%14")
         A("adc %15,%15")
         A("add %14,%14")
-        A("adc %15,%15")                   // %15:16 <<= 1
+        A("adc %15,%15")                  // %15:16 <<= 1
         L("9")
-        A("sbrs %3,2")                     // shift by 4bits position?
-        A("rjmp 16f")                      // No
-        A("swap %15")                      // Swap nibbles. lo nibble of %15 will always be 0
-        A("swap %14")                      // Swap nibbles
+        A("sbrs %3,2")                    // shift by 4bits position?
+        A("rjmp 16f")                     // No
+        A("swap %15")                     // Swap nibbles. lo nibble of %15 will always be 0
+        A("swap %14")                     // Swap nibbles
         A("mov %12,%14")
-        A("andi %12,0x0F")                 // isolate low nibble
-        A("andi %14,0xF0")                 // and clear it
-        A("or %15,%12")                    // %15:%16 <<= 4
+        A("andi %12,0x0F")                // isolate low nibble
+        A("andi %14,0xF0")                // and clear it
+        A("or %15,%12")                   // %15:%16 <<= 4
         L("16")
-        A("sbrs %3,3")                     // shift by 8bits position?
-        A("rjmp 6f")                       // No, we are done
+        A("sbrs %3,3")                    // shift by 8bits position?
+        A("rjmp 6f")                      // No, we are done
         A("mov %16,%15")
         A("mov %15,%14")
         A("clr %14")
@@ -476,32 +476,32 @@ void Planner::init() {
 
         // idx < 8, now %3 = idx - 8. Get the count of bits
         L("7")
-        A("neg %3")                        // %3 = -idx = count of bits to move right. idx range:[1...8]
-        A("sbrs %3,0")                     // shift by 1 bit position ?
-        A("rjmp 10f")                      // No, skip it
-        A("asr %15")                       // (bit7 is always 0 here)
+        A("neg %3")                       // %3 = -idx = count of bits to move right. idx range:[1...8]
+        A("sbrs %3,0")                    // shift by 1 bit position ?
+        A("rjmp 10f")                     // No, skip it
+        A("asr %15")                      // (bit7 is always 0 here)
         A("ror %14")
         L("10")
-        A("sbrs %3,1")                     // shift by 2 bit position ?
-        A("rjmp 11f")                      // No, skip it
-        A("asr %15")                       // (bit7 is always 0 here)
+        A("sbrs %3,1")                    // shift by 2 bit position ?
+        A("rjmp 11f")                     // No, skip it
+        A("asr %15")                      // (bit7 is always 0 here)
         A("ror %14")
-        A("asr %15")                       // (bit7 is always 0 here)
+        A("asr %15")                      // (bit7 is always 0 here)
         A("ror %14")
         L("11")
-        A("sbrs %3,2")                     // shift by 4 bit position ?
-        A("rjmp 12f")                      // No, skip it
-        A("swap %15")                      // Swap nibbles
-        A("andi %14, 0xF0")                // Lose the lowest nibble
-        A("swap %14")                      // Swap nibbles. Upper nibble is 0
-        A("or %14,%15")                    // Pass nibble from upper byte
-        A("andi %15, 0x0F")                // And get rid of that nibble
+        A("sbrs %3,2")                    // shift by 4 bit position ?
+        A("rjmp 12f")                     // No, skip it
+        A("swap %15")                     // Swap nibbles
+        A("andi %14, 0xF0")               // Lose the lowest nibble
+        A("swap %14")                     // Swap nibbles. Upper nibble is 0
+        A("or %14,%15")                   // Pass nibble from upper byte
+        A("andi %15, 0x0F")               // And get rid of that nibble
         L("12")
-        A("sbrs %3,3")                     // shift by 8 bit position ?
-        A("rjmp 6f")                       // No, skip it
+        A("sbrs %3,3")                    // shift by 8 bit position ?
+        A("rjmp 6f")                      // No, skip it
         A("mov %14,%15")
         A("clr %15")
-        L("6")                       // %16:%15:%14 = initial estimation of 0x1000000 / d
+        L("6")                            // %16:%15:%14 = initial estimation of 0x1000000 / d
 
         // Now, we must refine the estimation present on %16:%15:%14 using 1 iteration
         // of Newton-Raphson. As it has a quadratic convergence, 1 iteration is enough
@@ -517,33 +517,33 @@ void Planner::init() {
         A("clr %0")
         A("clr %1")
         A("clr %2")
-        A("ldi %3,2")                      // %3:%2:%1:%0 = 0x2000000
-        A("mul %6,%14")                    // r1:r0 = LO(d) * LO(x)
+        A("ldi %3,2")                     // %3:%2:%1:%0 = 0x2000000
+        A("mul %6,%14")                   // r1:r0 = LO(d) * LO(x)
         A("sub %0,r0")
         A("sbc %1,r1")
         A("sbc %2,%13")
-        A("sbc %3,%13")                    // %3:%2:%1:%0 -= LO(d) * LO(x)
-        A("mul %7,%14")                    // r1:r0 = MI(d) * LO(x)
+        A("sbc %3,%13")                   // %3:%2:%1:%0 -= LO(d) * LO(x)
+        A("mul %7,%14")                   // r1:r0 = MI(d) * LO(x)
         A("sub %1,r0")
         A("sbc %2,r1" )
-        A("sbc %3,%13")                    // %3:%2:%1:%0 -= MI(d) * LO(x) << 8
-        A("mul %8,%14")                    // r1:r0 = HI(d) * LO(x)
+        A("sbc %3,%13")                   // %3:%2:%1:%0 -= MI(d) * LO(x) << 8
+        A("mul %8,%14")                   // r1:r0 = HI(d) * LO(x)
         A("sub %2,r0")
-        A("sbc %3,r1")                     // %3:%2:%1:%0 -= MIL(d) * LO(x) << 16
-        A("mul %6,%15")                    // r1:r0 = LO(d) * MI(x)
+        A("sbc %3,r1")                    // %3:%2:%1:%0 -= MIL(d) * LO(x) << 16
+        A("mul %6,%15")                   // r1:r0 = LO(d) * MI(x)
         A("sub %1,r0")
         A("sbc %2,r1")
-        A("sbc %3,%13")                    // %3:%2:%1:%0 -= LO(d) * MI(x) << 8
-        A("mul %7,%15")                    // r1:r0 = MI(d) * MI(x)
+        A("sbc %3,%13")                   // %3:%2:%1:%0 -= LO(d) * MI(x) << 8
+        A("mul %7,%15")                   // r1:r0 = MI(d) * MI(x)
         A("sub %2,r0")
-        A("sbc %3,r1")                     // %3:%2:%1:%0 -= MI(d) * MI(x) << 16
-        A("mul %8,%15")                    // r1:r0 = HI(d) * MI(x)
-        A("sub %3,r0")                     // %3:%2:%1:%0 -= MIL(d) * MI(x) << 24
-        A("mul %6,%16")                    // r1:r0 = LO(d) * HI(x)
+        A("sbc %3,r1")                    // %3:%2:%1:%0 -= MI(d) * MI(x) << 16
+        A("mul %8,%15")                   // r1:r0 = HI(d) * MI(x)
+        A("sub %3,r0")                    // %3:%2:%1:%0 -= MIL(d) * MI(x) << 24
+        A("mul %6,%16")                   // r1:r0 = LO(d) * HI(x)
         A("sub %2,r0")
-        A("sbc %3,r1")                     // %3:%2:%1:%0 -= LO(d) * HI(x) << 16
-        A("mul %7,%16")                    // r1:r0 = MI(d) * HI(x)
-        A("sub %3,r0")                     // %3:%2:%1:%0 -= MI(d) * HI(x) << 24
+        A("sbc %3,r1")                    // %3:%2:%1:%0 -= LO(d) * HI(x) << 16
+        A("mul %7,%16")                   // r1:r0 = MI(d) * HI(x)
+        A("sub %3,r0")                    // %3:%2:%1:%0 -= MI(d) * HI(x) << 24
         // %3:%2:%1:%0 = (1<<25) - x*d     [169]
 
         // We need to multiply that result by x, and we are only interested in the top 24bits of that multiply
@@ -553,62 +553,62 @@ void Planner::init() {
         // %13 = 0
 
         // result = %11:%10:%9:%5:%4
-        A("mul %14,%0")                    // r1:r0 = LO(x) * LO(acc)
+        A("mul %14,%0")                   // r1:r0 = LO(x) * LO(acc)
         A("mov %4,r1")
         A("clr %5")
         A("clr %9")
         A("clr %10")
-        A("clr %11")                       // %11:%10:%9:%5:%4 = LO(x) * LO(acc) >> 8
-        A("mul %15,%0")                    // r1:r0 = MI(x) * LO(acc)
+        A("clr %11")                      // %11:%10:%9:%5:%4 = LO(x) * LO(acc) >> 8
+        A("mul %15,%0")                   // r1:r0 = MI(x) * LO(acc)
         A("add %4,r0")
         A("adc %5,r1")
         A("adc %9,%13")
         A("adc %10,%13")
-        A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * LO(acc)
-        A("mul %16,%0")                    // r1:r0 = HI(x) * LO(acc)
+        A("adc %11,%13")                  // %11:%10:%9:%5:%4 += MI(x) * LO(acc)
+        A("mul %16,%0")                   // r1:r0 = HI(x) * LO(acc)
         A("add %5,r0")
         A("adc %9,r1")
         A("adc %10,%13")
-        A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * LO(acc) << 8
+        A("adc %11,%13")                  // %11:%10:%9:%5:%4 += MI(x) * LO(acc) << 8
 
-        A("mul %14,%1")                    // r1:r0 = LO(x) * MIL(acc)
+        A("mul %14,%1")                   // r1:r0 = LO(x) * MIL(acc)
         A("add %4,r0")
         A("adc %5,r1")
         A("adc %9,%13")
         A("adc %10,%13")
-        A("adc %11,%13")                   // %11:%10:%9:%5:%4 = LO(x) * MIL(acc)
-        A("mul %15,%1")                    // r1:r0 = MI(x) * MIL(acc)
+        A("adc %11,%13")                  // %11:%10:%9:%5:%4 = LO(x) * MIL(acc)
+        A("mul %15,%1")                   // r1:r0 = MI(x) * MIL(acc)
         A("add %5,r0")
         A("adc %9,r1")
         A("adc %10,%13")
-        A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 8
-        A("mul %16,%1")                    // r1:r0 = HI(x) * MIL(acc)
+        A("adc %11,%13")                  // %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 8
+        A("mul %16,%1")                   // r1:r0 = HI(x) * MIL(acc)
         A("add %9,r0")
         A("adc %10,r1")
-        A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 16
+        A("adc %11,%13")                  // %11:%10:%9:%5:%4 += MI(x) * MIL(acc) << 16
 
-        A("mul %14,%2")                    // r1:r0 = LO(x) * MIH(acc)
+        A("mul %14,%2")                   // r1:r0 = LO(x) * MIH(acc)
         A("add %5,r0")
         A("adc %9,r1")
         A("adc %10,%13")
-        A("adc %11,%13")                   // %11:%10:%9:%5:%4 = LO(x) * MIH(acc) << 8
-        A("mul %15,%2")                    // r1:r0 = MI(x) * MIH(acc)
+        A("adc %11,%13")                  // %11:%10:%9:%5:%4 = LO(x) * MIH(acc) << 8
+        A("mul %15,%2")                   // r1:r0 = MI(x) * MIH(acc)
         A("add %9,r0")
         A("adc %10,r1")
-        A("adc %11,%13")                   // %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 16
-        A("mul %16,%2")                    // r1:r0 = HI(x) * MIH(acc)
+        A("adc %11,%13")                  // %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 16
+        A("mul %16,%2")                   // r1:r0 = HI(x) * MIH(acc)
         A("add %10,r0")
-        A("adc %11,r1")                    // %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 24
+        A("adc %11,r1")                   // %11:%10:%9:%5:%4 += MI(x) * MIH(acc) << 24
 
-        A("mul %14,%3")                    // r1:r0 = LO(x) * HI(acc)
+        A("mul %14,%3")                   // r1:r0 = LO(x) * HI(acc)
         A("add %9,r0")
         A("adc %10,r1")
-        A("adc %11,%13")                   // %11:%10:%9:%5:%4 = LO(x) * HI(acc) << 16
-        A("mul %15,%3")                    // r1:r0 = MI(x) * HI(acc)
+        A("adc %11,%13")                  // %11:%10:%9:%5:%4 = LO(x) * HI(acc) << 16
+        A("mul %15,%3")                   // r1:r0 = MI(x) * HI(acc)
         A("add %10,r0")
-        A("adc %11,r1")                    // %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 24
-        A("mul %16,%3")                    // r1:r0 = HI(x) * HI(acc)
-        A("add %11,r0")                    // %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 32
+        A("adc %11,r1")                   // %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 24
+        A("mul %16,%3")                   // r1:r0 = HI(x) * HI(acc)
+        A("add %11,r0")                   // %11:%10:%9:%5:%4 += MI(x) * HI(acc) << 32
 
         // At this point, %11:%10:%9 contains the new estimation of x.
 
@@ -619,47 +619,47 @@ void Planner::init() {
         A("ldi %3,1")
         A("clr %2")
         A("clr %1")
-        A("clr %0")                        // %3:%2:%1:%0 = 0x1000000
-        A("mul %6,%9")                     // r1:r0 = LO(d) * LO(x)
+        A("clr %0")                       // %3:%2:%1:%0 = 0x1000000
+        A("mul %6,%9")                    // r1:r0 = LO(d) * LO(x)
         A("sub %0,r0")
         A("sbc %1,r1")
         A("sbc %2,%13")
-        A("sbc %3,%13")                    // %3:%2:%1:%0 -= LO(d) * LO(x)
-        A("mul %7,%9")                     // r1:r0 = MI(d) * LO(x)
+        A("sbc %3,%13")                   // %3:%2:%1:%0 -= LO(d) * LO(x)
+        A("mul %7,%9")                    // r1:r0 = MI(d) * LO(x)
         A("sub %1,r0")
         A("sbc %2,r1")
-        A("sbc %3,%13")                    // %3:%2:%1:%0 -= MI(d) * LO(x) << 8
-        A("mul %8,%9")                     // r1:r0 = HI(d) * LO(x)
+        A("sbc %3,%13")                   // %3:%2:%1:%0 -= MI(d) * LO(x) << 8
+        A("mul %8,%9")                    // r1:r0 = HI(d) * LO(x)
         A("sub %2,r0")
-        A("sbc %3,r1")                     // %3:%2:%1:%0 -= MIL(d) * LO(x) << 16
-        A("mul %6,%10")                    // r1:r0 = LO(d) * MI(x)
+        A("sbc %3,r1")                    // %3:%2:%1:%0 -= MIL(d) * LO(x) << 16
+        A("mul %6,%10")                   // r1:r0 = LO(d) * MI(x)
         A("sub %1,r0")
         A("sbc %2,r1")
-        A("sbc %3,%13")                    // %3:%2:%1:%0 -= LO(d) * MI(x) << 8
-        A("mul %7,%10")                    // r1:r0 = MI(d) * MI(x)
+        A("sbc %3,%13")                   // %3:%2:%1:%0 -= LO(d) * MI(x) << 8
+        A("mul %7,%10")                   // r1:r0 = MI(d) * MI(x)
         A("sub %2,r0")
-        A("sbc %3,r1")                     // %3:%2:%1:%0 -= MI(d) * MI(x) << 16
-        A("mul %8,%10")                    // r1:r0 = HI(d) * MI(x)
-        A("sub %3,r0")                     // %3:%2:%1:%0 -= MIL(d) * MI(x) << 24
-        A("mul %6,%11")                    // r1:r0 = LO(d) * HI(x)
+        A("sbc %3,r1")                    // %3:%2:%1:%0 -= MI(d) * MI(x) << 16
+        A("mul %8,%10")                   // r1:r0 = HI(d) * MI(x)
+        A("sub %3,r0")                    // %3:%2:%1:%0 -= MIL(d) * MI(x) << 24
+        A("mul %6,%11")                   // r1:r0 = LO(d) * HI(x)
         A("sub %2,r0")
-        A("sbc %3,r1")                     // %3:%2:%1:%0 -= LO(d) * HI(x) << 16
-        A("mul %7,%11")                    // r1:r0 = MI(d) * HI(x)
-        A("sub %3,r0")                     // %3:%2:%1:%0 -= MI(d) * HI(x) << 24
+        A("sbc %3,r1")                    // %3:%2:%1:%0 -= LO(d) * HI(x) << 16
+        A("mul %7,%11")                   // r1:r0 = MI(d) * HI(x)
+        A("sub %3,r0")                    // %3:%2:%1:%0 -= MI(d) * HI(x) << 24
         // %3:%2:%1:%0 = r = (1<<24) - x*d
         // %8:%7:%6 = d = interval
 
         // Perform the final correction
         A("sub %0,%6")
         A("sbc %1,%7")
-        A("sbc %2,%8")                     // r -= d
-        A("brcs 14f")                      // if ( r >= d)
+        A("sbc %2,%8")                    // r -= d
+        A("brcs 14f")                     // if ( r >= d)
 
         // %11:%10:%9 = x
         A("ldi %3,1")
         A("add %9,%3")
         A("adc %10,%13")
-        A("adc %11,%13")                   // x++
+        A("adc %11,%13")                  // x++
         L("14")
 
         // Estimation is done. %11:%10:%9 = x
