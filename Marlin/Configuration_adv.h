@@ -458,6 +458,23 @@
  */
 //#define ADAPTIVE_STEP_SMOOTHING
 
+/**
+ * Custom Microstepping PIN settings
+ * Allows additional flexibility to defined the proper PIN settings for different 
+ * stepper drivers. Defaults are normally applied in Conditional_post.h
+ * Uncomment MICROSTEP_CUSTOM to enable manual definition and ensure all microstep modes selected below
+ * are defined. At max, 3 MS PINS are supported, if less are defined, the last settings are ignoreds
+ */
+//#define MICROSTEP_CUSTOM
+#ifdef MICROSTEP_CUSTOM
+  #define MICROSTEP1 LOW,LOW,LOW
+  #define MICROSTEP2 HIGH,LOW,LOW
+  #define MICROSTEP4 LOW,HIGH,LOW
+  #define MICROSTEP8 HIGH,HIGH,LOW
+  #define MICROSTEP16 LOW,LOW,HIGH
+  #define MICROSTEP32 HIGH,LOW,HIGH
+#endif
+
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
 #define MICROSTEP_MODES { 16, 16, 16, 16, 16 } // [1,2,4,8,16]
 
