@@ -13510,14 +13510,15 @@ void ok_to_send() {
       #define HYP3D(x,y,z) SQRT(sq(x)+sq(y)+sq(z))
       line_on_spool_origin_tmp[A_AXIS] = actn_pts_tmp[A_AXIS]*mnt_l_tmp[A_AXIS]
                                          - actn_pts_tmp[A_AXIS]*HYPOT(anchor_A_y, anchor_D_z - anchor_A_z)
-                                         - nr_lines_dir_tmp[A_AXIS]*HYPOT(anchor_A_y, anchor_A_z);
+                                         - nr_lines_dir_tmp[A_AXIS]*line_lengths_origin[A_AXIS];
       line_on_spool_origin_tmp[B_AXIS] = actn_pts_tmp[B_AXIS]*mnt_l_tmp[B_AXIS]
                                          - actn_pts_tmp[B_AXIS]*HYP3D(anchor_B_x, anchor_B_y, anchor_D_z - anchor_B_z)
-                                         - nr_lines_dir_tmp[B_AXIS]*HYP3D(anchor_B_x, anchor_B_y, anchor_B_z);
+                                         - nr_lines_dir_tmp[B_AXIS]*line_lengths_origin[B_AXIS];
       line_on_spool_origin_tmp[C_AXIS] = actn_pts_tmp[C_AXIS]*mnt_l_tmp[C_AXIS]
                                          - actn_pts_tmp[C_AXIS]*HYP3D(anchor_C_x, anchor_C_y, anchor_D_z - anchor_C_z)
-                                         - nr_lines_dir_tmp[C_AXIS]*HYP3D(anchor_C_x, anchor_C_y, anchor_C_z);
-      line_on_spool_origin_tmp[D_AXIS] = actn_pts_tmp[D_AXIS]*mnt_l_tmp[D_AXIS] - nr_lines_dir_tmp[D_AXIS]*anchor_D_z;
+                                         - nr_lines_dir_tmp[C_AXIS]*line_lengths_origin[C_AXIS];
+      line_on_spool_origin_tmp[D_AXIS] = actn_pts_tmp[D_AXIS]*mnt_l_tmp[D_AXIS]
+                                         - nr_lines_dir_tmp[D_AXIS]*line_lengths_origin[D_AXIS];
 
       LOOP_MOV_AXIS(i){
         planner.axis_steps_per_mm[i] =
