@@ -13517,7 +13517,7 @@ void ok_to_send() {
       line_on_spool_origin_tmp[C_AXIS] = actn_pts_tmp[C_AXIS]*mnt_l_tmp[C_AXIS]
                                          - actn_pts_tmp[C_AXIS]*HYP3D(anchor_C_x, anchor_C_y, anchor_D_z - anchor_C_z)
                                          - nr_lines_dir_tmp[C_AXIS]*HYP3D(anchor_C_x, anchor_C_y, anchor_C_z);
-      line_on_spool_origin_tmp[D_AXIS] = actn_pts_tmp[D_AXIS]*(mnt_l_tmp[D_AXIS] - anchor_D_z);
+      line_on_spool_origin_tmp[D_AXIS] = actn_pts_tmp[D_AXIS]*mnt_l_tmp[D_AXIS] - nr_lines_dir_tmp[D_AXIS]*anchor_D_z;
 
       LOOP_MOV_AXIS(i){
         planner.axis_steps_per_mm[i] =
