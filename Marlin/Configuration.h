@@ -46,6 +46,13 @@
 //#define HotendAllMetal
 
 /*
+ * Select these if you have changed to a high performance extruder
+ */
+
+ //#define Bondtech
+ //#define E3DTitan
+ 
+/*
    Choose bed type below. If you have an extenrally controlled
    ac bed, leave both disabled
 */
@@ -803,8 +810,11 @@
    Override with M92
                                         X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
 */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
-
+#if(ENABLED(Bondtech) || ENABLED(E3DTitan))
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 415 }
+#else
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+#endif
 /**
    Default Max Feed Rate (mm/s)
    Override with M203
@@ -1106,17 +1116,35 @@
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
+#if(ENABLED(E3DTitan))
+#define INVERT_E0_DIR false
+#define INVERT_E1_DIR false
+#else
 #define INVERT_E0_DIR true
+#define INVERT_E1_DIR true
+#endif
 #elif(ENABLED(MachineEnder4))
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR true
+#if(ENABLED(E3DTitan))
+#define INVERT_E0_DIR false
+#define INVERT_E1_DIR false
+#else
 #define INVERT_E0_DIR true
+#define INVERT_E1_DIR true
+#endif
 #else
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
+#if(ENABLED(E3DTitan))
+#define INVERT_E0_DIR true
+#define INVERT_E1_DIR true
+#else
 #define INVERT_E0_DIR false
+#define INVERT_E1_DIR false
+#endif
 #endif
 // Enable this option for Toshiba stepper drivers
 //#define CONFIG_STEPPERS_TOSHIBA
