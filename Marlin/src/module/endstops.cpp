@@ -629,6 +629,8 @@ void Endstops::update() {
         #else
           #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
             if (z_probe_enabled) PROCESS_ENDSTOP(Z, MIN);
+          #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
+            if (!z_probe_enabled) PROCESS_ENDSTOP(Z, MIN);
           #else
             PROCESS_ENDSTOP(Z, MIN);
           #endif
