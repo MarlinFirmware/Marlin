@@ -58,7 +58,7 @@
 
 #ifndef MAXIMUM_STEPPER_RATE
   #if MINIMUM_STEPPER_PULSE
-    #define MAXIMUM_STEPPER_RATE (1000000UL / (2UL * (MINIMUM_STEPPER_PULSE)))
+    #define MAXIMUM_STEPPER_RATE (1000000UL / (2UL * (unsigned long)(MINIMUM_STEPPER_PULSE)))
   #else
     #define MAXIMUM_STEPPER_RATE 500000UL
   #endif
@@ -165,9 +165,9 @@
 #define MIN_ISR_LOOP_CYCLES (ISR_X_STEPPER_CYCLES + ISR_Y_STEPPER_CYCLES + ISR_Z_STEPPER_CYCLES + ISR_E_STEPPER_CYCLES + ISR_MIXING_STEPPER_CYCLES)
 
 // Calculate the minimum MPU cycles needed per pulse to enforce, limited to the max stepper rate
-#define _MIN_STEPPER_PULSE_CYCLES(N) MAX((F_CPU) / (MAXIMUM_STEPPER_RATE), ((F_CPU) / 500000UL) * (N))
+#define _MIN_STEPPER_PULSE_CYCLES(N) MAX((unsigned long)((F_CPU) / (MAXIMUM_STEPPER_RATE)), ((F_CPU) / 500000UL) * (N))
 #if MINIMUM_STEPPER_PULSE
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES((MINIMUM_STEPPER_PULSE))
+  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES((unsigned long)(MINIMUM_STEPPER_PULSE))
 #else
   #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
 #endif
@@ -176,7 +176,7 @@
 // adding the "start stepper pulse" code section execution cycles to account for that not all
 // pulses start at the beginning of the loop, so an extra time must be added to compensate so
 // the last generated pulse (usually the extruder stepper) has the right length
-#define MIN_PULSE_TICKS (((PULSE_TIMER_TICKS_PER_US) * (MINIMUM_STEPPER_PULSE)) + ((MIN_ISR_START_LOOP_CYCLES) / (PULSE_TIMER_PRESCALE)))
+#define MIN_PULSE_TICKS (((PULSE_TIMER_TICKS_PER_US) * (unsigned long)(MINIMUM_STEPPER_PULSE)) + ((MIN_ISR_START_LOOP_CYCLES) / (unsigned long)(PULSE_TIMER_PRESCALE)))
 
 // Calculate the extra ticks of the PULSE timer between step pulses
 #define ADDED_STEP_TICKS (((MIN_STEPPER_PULSE_CYCLES) / (PULSE_TIMER_PRESCALE)) - (MIN_PULSE_TICKS))

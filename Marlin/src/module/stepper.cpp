@@ -1324,7 +1324,7 @@ void Stepper::stepper_pulse_phase_isr() {
   // Get the timer count and estimate the end of the pulse
   hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
 
-  const hal_timer_t added_step_ticks = ADDED_STEP_TICKS;
+  const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
 
   // Take multiple steps per interrupt (For high speed moves)
   do {
@@ -1820,7 +1820,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     // Get the timer count and estimate the end of the pulse
     hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
 
-    const hal_timer_t added_step_ticks = ADDED_STEP_TICKS;
+    const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
 
     // Step E stepper if we have steps
     while (LA_steps) {
