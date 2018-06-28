@@ -223,7 +223,7 @@
 #endif
 
 // MS1 MS2 MS3 Stepper Driver Microstepping mode table
-#ifndef MICROSTEP_CUSTOM
+#if DISABLED(MICROSTEP_CUSTOM)
   #define MICROSTEP1 LOW,LOW,LOW
   #if ENABLED(HEROIC_STEPPER_DRIVERS)
     #define MICROSTEP128 LOW,HIGH,LOW

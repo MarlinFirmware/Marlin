@@ -466,7 +466,7 @@
  * are defined. At max, 3 MS PINS are supported, if less are defined, the last settings are ignoreds
  */
 //#define MICROSTEP_CUSTOM
-#ifdef MICROSTEP_CUSTOM
+#if ENABLED(MICROSTEP_CUSTOM)
   #define MICROSTEP1 LOW,LOW,LOW
   #define MICROSTEP2 HIGH,LOW,LOW
   #define MICROSTEP4 LOW,HIGH,LOW
