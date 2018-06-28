@@ -2463,57 +2463,79 @@ void Stepper::report_positions() {
     #if HAS_X_MICROSTEPS
       SET_OUTPUT(X_MS1_PIN);
       SET_OUTPUT(X_MS2_PIN);
-      SET_OUTPUT(X_MS3_PIN);
+      #if PIN_EXISTS(X_MS3)
+        SET_OUTPUT(X_MS3_PIN);
+      #endif
     #endif
     #if HAS_X2_MICROSTEPS
       SET_OUTPUT(X2_MS1_PIN);
       SET_OUTPUT(X2_MS2_PIN);
-      SET_OUTPUT(X2_MS3_PIN);
+      #if PIN_EXISTS(X2_MS3)
+        SET_OUTPUT(X2_MS3_PIN);
+      #endif
     #endif
     #if HAS_Y_MICROSTEPS
       SET_OUTPUT(Y_MS1_PIN);
       SET_OUTPUT(Y_MS2_PIN);
-      SET_OUTPUT(Y_MS3_PIN);
+      #if PIN_EXISTS(Y_MS3)
+        SET_OUTPUT(Y_MS3_PIN);
+      #endif
     #endif
     #if HAS_Y2_MICROSTEPS
       SET_OUTPUT(Y2_MS1_PIN);
       SET_OUTPUT(Y2_MS2_PIN);
-      SET_OUTPUT(Y2_MS3_PIN);
+      #if PIN_EXISTS(Y2_MS3)
+        SET_OUTPUT(Y2_MS3_PIN);
+      #endif
     #endif
     #if HAS_Z_MICROSTEPS
       SET_OUTPUT(Z_MS1_PIN);
       SET_OUTPUT(Z_MS2_PIN);
-      SET_OUTPUT(Z_MS3_PIN);
+      #if PIN_EXISTS(Z_MS3)
+        SET_OUTPUT(Z_MS3_PIN);
+      #endif
     #endif
     #if HAS_Z2_MICROSTEPS
       SET_OUTPUT(Z2_MS1_PIN);
       SET_OUTPUT(Z2_MS2_PIN);
-      SET_OUTPUT(Z2_MS3_PIN);
+      #if PIN_EXISTS(Z2_MS3)
+        SET_OUTPUT(Z2_MS3_PIN);
+      #endif
     #endif
     #if HAS_E0_MICROSTEPS
       SET_OUTPUT(E0_MS1_PIN);
       SET_OUTPUT(E0_MS2_PIN);
-      SET_OUTPUT(E0_MS3_PIN);
+      #if PIN_EXISTS(E0_MS3)
+        SET_OUTPUT(E0_MS3_PIN);
+      #endif
     #endif
     #if HAS_E1_MICROSTEPS
       SET_OUTPUT(E1_MS1_PIN);
       SET_OUTPUT(E1_MS2_PIN);
-      SET_OUTPUT(E1_MS3_PIN);
+      #if PIN_EXISTS(E1_MS3)
+        SET_OUTPUT(E1_MS3_PIN);
+      #endif
     #endif
     #if HAS_E2_MICROSTEPS
       SET_OUTPUT(E2_MS1_PIN);
       SET_OUTPUT(E2_MS2_PIN);
-      SET_OUTPUT(E2_MS3_PIN);
+      #if PIN_EXISTS(E2_MS3)
+        SET_OUTPUT(E2_MS3_PIN);
+      #endif
     #endif
     #if HAS_E3_MICROSTEPS
       SET_OUTPUT(E3_MS1_PIN);
       SET_OUTPUT(E3_MS2_PIN);
-      SET_OUTPUT(E3_MS3_PIN);
+      #if PIN_EXISTS(E3_MS3)
+        SET_OUTPUT(E3_MS3_PIN);
+      #endif
     #endif
     #if HAS_E4_MICROSTEPS
       SET_OUTPUT(E4_MS1_PIN);
       SET_OUTPUT(E4_MS2_PIN);
-      SET_OUTPUT(E4_MS3_PIN);
+      #if PIN_EXISTS(E4_MS3)
+        SET_OUTPUT(E4_MS3_PIN);
+      #endif
     #endif
     static const uint8_t microstep_modes[] = MICROSTEP_MODES;
     for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
