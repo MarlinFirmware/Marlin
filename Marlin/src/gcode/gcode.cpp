@@ -138,9 +138,9 @@ void GcodeSuite::dwell(millis_t time) {
 
   void GcodeSuite::G29_with_retry() {
     set_bed_leveling_enabled(false);
-    for (uint8_t i = G29_MAX_RETRIES; i--;) {
+    for (uint8_t retries_left = G29_MAX_RETRIES;;) {
       G29();
-      if (planner.leveling_active) break;
+      if (planner.leveling_active || !retries_left--) break;
       #ifdef G29_ACTION_ON_RECOVER
         SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_RECOVER);
       #endif
