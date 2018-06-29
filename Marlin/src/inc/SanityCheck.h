@@ -1528,6 +1528,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_INVERTING when homing to Y_MIN."
     #elif Y_HOME_DIR ==  1 && DISABLED(Y_MAX_ENDSTOP_INVERTING)
       #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_INVERTING when homing to Y_MAX."
+    #elif ENABLED(ENDSTOP_NOISE_FILTER)
+      #error "SENSORLESS_HOMING is incompatible with ENDSTOP_NOISE_FILTER."
     #endif
   #endif
 

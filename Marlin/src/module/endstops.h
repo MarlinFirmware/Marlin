@@ -73,7 +73,6 @@ class Endstops {
 
     #if ENABLED(ENDSTOP_NOISE_FILTER)
       static esbits_t validated_live_state;
-      uint8_t Endstops::endstop_poll_count;
       static uint8_t endstop_poll_count;    // Countdown from threshold for polling
     #endif
 
