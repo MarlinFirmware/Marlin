@@ -109,10 +109,23 @@ void HardwareSerial::begin(uint32_t baudrate) {
   UART_IntConfig(UARTx, UART_INTCFG_RBR, ENABLE);
   UART_IntConfig(UARTx, UART_INTCFG_RLS, ENABLE);
 
-  if (UARTx == LPC_UART0) NVIC_EnableIRQ(UART0_IRQn);
-  else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) NVIC_EnableIRQ(UART1_IRQn);
-  else if (UARTx == LPC_UART2) NVIC_EnableIRQ(UART2_IRQn);
-  else if (UARTx == LPC_UART3) NVIC_EnableIRQ(UART3_IRQn);
+  // Set proper priority and enable interrupts
+  if (UARTx == LPC_UART0) {
+    NVIC_SetPriority(UART0_IRQn, NVIC_EncodePriority(0, 3, 0));
+    NVIC_EnableIRQ(UART0_IRQn);
+  }
+  else if ((LPC_UART1_TypeDef *) UARTx == LPC_UART1) {
+    NVIC_SetPriority(UART1_IRQn, NVIC_EncodePriority(0, 3, 0));
+   NVIC_EnableIRQ(UART1_IRQn);
+  }
+  else if (UARTx == LPC_UART2) {
+    NVIC_SetPriority(UART2_IRQn, NVIC_EncodePriority(0, 3, 0));
+    NVIC_EnableIRQ(UART2_IRQn);
+  }
+  else if (UARTx == LPC_UART3) {
+    NVIC_SetPriority(UART3_IRQn, NVIC_EncodePriority(0, 3, 0));
+    NVIC_EnableIRQ(UART3_IRQn);
+  }
 
   RxQueueWritePos = RxQueueReadPos = 0;
   #if TX_BUFFER_SIZE > 0

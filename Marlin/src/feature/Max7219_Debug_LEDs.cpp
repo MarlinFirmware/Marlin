@@ -255,6 +255,10 @@ void Max7219_Clear_Column(const uint8_t _COL_) {
   #endif
 }
 
+void Max7219_Clear() {
+  for (uint8_t r = 0; r < 8; r++) _Max7219_Set_Reg(r, 0);
+}
+
 void Max7219_Set_2_Rows(const uint8_t y, uint16_t val) {
   if (y > 6) return Max7219_Error(PSTR("Max7219_Set_2_Rows"), y, val);
   Max7219_Set_Row(y + 0, val & 0xFF); val >>= 8;

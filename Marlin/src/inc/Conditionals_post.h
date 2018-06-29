@@ -657,24 +657,27 @@
 #define HAS_X2_ENABLE     (PIN_EXISTS(X2_ENABLE))
 #define HAS_X2_DIR        (PIN_EXISTS(X2_DIR))
 #define HAS_X2_STEP       (PIN_EXISTS(X2_STEP))
-#define HAS_Y_MICROSTEPS  (PIN_EXISTS(Y_MS1))
+#define HAS_X2_MICROSTEPS (PIN_EXISTS(X2_MS1))
 
 #define HAS_Y_ENABLE      (PIN_EXISTS(Y_ENABLE))
 #define HAS_Y_DIR         (PIN_EXISTS(Y_DIR))
 #define HAS_Y_STEP        (PIN_EXISTS(Y_STEP))
-#define HAS_Z_MICROSTEPS  (PIN_EXISTS(Z_MS1))
+#define HAS_Y_MICROSTEPS  (PIN_EXISTS(Y_MS1))
 
 #define HAS_Y2_ENABLE     (PIN_EXISTS(Y2_ENABLE))
 #define HAS_Y2_DIR        (PIN_EXISTS(Y2_DIR))
 #define HAS_Y2_STEP       (PIN_EXISTS(Y2_STEP))
+#define HAS_Y2_MICROSTEPS (PIN_EXISTS(Y2_MS1))
 
 #define HAS_Z_ENABLE      (PIN_EXISTS(Z_ENABLE))
 #define HAS_Z_DIR         (PIN_EXISTS(Z_DIR))
 #define HAS_Z_STEP        (PIN_EXISTS(Z_STEP))
+#define HAS_Z_MICROSTEPS  (PIN_EXISTS(Z_MS1))
 
 #define HAS_Z2_ENABLE     (PIN_EXISTS(Z2_ENABLE))
 #define HAS_Z2_DIR        (PIN_EXISTS(Z2_DIR))
 #define HAS_Z2_STEP       (PIN_EXISTS(Z2_STEP))
+#define HAS_Z2_MICROSTEPS (PIN_EXISTS(Z2_MS1))
 
 // Extruder steppers and solenoids
 #define HAS_E0_ENABLE     (PIN_EXISTS(E0_ENABLE))
