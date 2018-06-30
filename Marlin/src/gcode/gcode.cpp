@@ -130,13 +130,14 @@ void GcodeSuite::dwell(millis_t time) {
  * a loop with recovery and retry handling.
  */
 #if HAS_LEVELING && ENABLED(G29_RETRY_AND_RECOVER)
+
   #ifndef G29_MAX_RETRIES
     #define G29_MAX_RETRIES 0
   #endif
    
   void GcodeSuite::G29_with_retry() {
     uint8_t retries = G29_MAX_RETRIES;
-    while (!G29()) { //G29 should return false for failed probes ONLY
+    while (G29()) { // G29 should return true for failed probes ONLY
       if (retries--) {
         #ifdef G29_ACTION_ON_RECOVER
           SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_RECOVER);
@@ -144,7 +145,8 @@ void GcodeSuite::dwell(millis_t time) {
         #ifdef G29_RECOVER_COMMANDS
           process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
         #endif   
-      } else {
+      }
+      else {
         #ifdef G29_FAILURE_COMMANDS
           process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
         #endif
