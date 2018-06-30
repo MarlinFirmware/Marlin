@@ -1779,7 +1779,7 @@
 // LCD for Malyan M200 printers.
 // This requires SDSUPPORT to be enabled
 //
-//#define MALYAN_LCD
+#define MALYAN_LCD
 
 //
 // CONTROLLER TYPE: Keypad / Add-on
