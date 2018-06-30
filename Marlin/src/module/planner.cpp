@@ -1567,9 +1567,9 @@ bool Planner::_buffer_steps(const int32_t (&target)[XYZE]
 
   // Fill the block with the specified movement
   if (!_populate_block(block, false, target
-  #if HAS_POSITION_FLOAT
-    , target_float
-  #endif
+    #if HAS_POSITION_FLOAT
+      , target_float
+    #endif
     , fr_mm_s, extruder, millimeters
   )) {
     // Movement was not queued, probably because it was too short.
