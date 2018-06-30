@@ -937,11 +937,7 @@ void CardReader::printingHasFinished() {
     sdprinting = false;
 
     #if ENABLED(POWER_LOSS_RECOVERY)
-      openJobRecoveryFile(false);
-      job_recovery_info.valid_head = job_recovery_info.valid_foot = 0;
-      (void)saveJobRecoveryInfo();
-      closeJobRecoveryFile();
-      job_recovery_commands_count = 0;
+      removeJobRecoveryFile();
     #endif
 
     #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
@@ -1016,10 +1012,14 @@ void CardReader::printingHasFinished() {
   }
 
   void CardReader::removeJobRecoveryFile() {
-    if (jobRecoveryFile.remove(&root, job_recovery_file_name))
-      SERIAL_PROTOCOLLNPGM("Power-loss file deleted.");
-    else
-      SERIAL_PROTOCOLLNPGM("Power-loss file delete failed.");
+    job_recovery_info.valid_head = job_recovery_info.valid_foot = job_recovery_commands_count = 0;
+    const bool success = jobRecoveryFile.remove(&root, job_recovery_file_name);
+    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+      SERIAL_PROTOCOLPGM("Power-loss file delete");
+      serialprintPGM(success ? PSTR("d.") : PSTR(" failed."))
+    #else
+      UNUSED(success);
+    #endif
   }
 
 #endif // POWER_LOSS_RECOVERY
