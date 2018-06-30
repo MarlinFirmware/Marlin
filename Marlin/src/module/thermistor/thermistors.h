@@ -184,20 +184,25 @@
 #ifdef THERMISTORBED
   #define BEDTEMPTABLE TT_NAME(THERMISTORBED)
   #define BEDTEMPTABLE_LEN COUNT(BEDTEMPTABLE)
+#elif defined(HEATER_BED_USES_THERMISTOR)
+  #error "No bed thermistor table specified"
 #else
-  #ifdef HEATER_BED_USES_THERMISTOR
-    #error "No bed thermistor table specified"
-  #endif
+  #define BEDTEMPTABLE_LEN 0
 #endif
 
 #ifdef THERMISTORCHAMBER
   #define CHAMBERTEMPTABLE TT_NAME(THERMISTORCHAMBER)
   #define CHAMBERTEMPTABLE_LEN COUNT(CHAMBERTEMPTABLE)
+#elif defined(HEATER_CHAMBER_USES_THERMISTOR)
+  #error "No chamber thermistor table specified"
 #else
-  #ifdef HEATER_CHAMBER_USES_THERMISTOR
-    #error "No chamber thermistor table specified"
-  #endif
+  #define CHAMBERTEMPTABLE_LEN 0
 #endif
+
+// The SCAN_THERMISTOR_TABLE macro needs alteration?
+static_assert(HEATER_0_TEMPTABLE_LEN < 128 && HEATER_1_TEMPTABLE_LEN < 128 && HEATER_2_TEMPTABLE_LEN < 128 && HEATER_3_TEMPTABLE_LEN < 128 && HEATER_4_TEMPTABLE_LEN < 128 && BEDTEMPTABLE_LEN < 128 && CHAMBERTEMPTABLE_LEN < 128,
+  "Temperature conversion tables over 127 entries need special consideration."
+);
 
 // Set the high and low raw values for the heaters
 // For thermistors the highest temperature results in the lowest ADC value

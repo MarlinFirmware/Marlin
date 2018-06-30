@@ -296,8 +296,7 @@
   #include "pins_COHESION3D_REMIX.h"  // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
 #elif MB(COHESION3D_MINI)
   #include "pins_COHESION3D_MINI.h"   // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
-  
-  
+
 //
 // Other 32-bit Boards
 //
@@ -353,8 +352,8 @@
 
 //
 // STM32 ARM Cortex-M3
-//  
-  
+//
+
 #elif MB(STM32F1R)
   #include "pins_STM32F1R.h"          // STM32F1                                    env:STM32F1
 #elif MB(STM3R_MINI)
@@ -364,13 +363,18 @@
 #elif MB(CHITU3D)
   #include "pins_CHITU3D.h"           // STM32F1                                    env:STM32F1
 #elif MB(GTM32_PRO_VB)
+<<<<<<< HEAD
   #include "pins_GTM32_PRO_VB.h"           // STM32F1                                    env:STM32F1  
+=======
+  #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1
+
+>>>>>>> 15e4f82f8a24b779d0d323b3223be3469ac0993b
 //
 // STM32 ARM Cortex-M4F
-//  
+//
 
 #elif MB(TEENSY35_36)
-  #include "pins_TEENSY35_36.h"       // TEENSY35_36                                env:teensy35  
+  #include "pins_TEENSY35_36.h"       // TEENSY35_36                                env:teensy35
 #elif MB(BEAST)
   #include "pins_BEAST.h"             // STM32F4                                    env:STM32F4
 #elif MB(STM32F4)
@@ -378,11 +382,11 @@
 
 //
 // ARM Cortex M7
-//  
-  
+//
+
 #elif MB(THE_BORG)
-  #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7  
-  
+  #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7
+
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

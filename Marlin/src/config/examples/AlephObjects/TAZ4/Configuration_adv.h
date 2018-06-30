@@ -446,13 +446,13 @@
 //
 //#define JUNCTION_DEVIATION
 #if ENABLED(JUNCTION_DEVIATION)
-  #define JUNCTION_DEVIATION_FACTOR 0.05
-  #define JUNCTION_ACCELERATION_FACTOR 1000
+  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
+  #define JUNCTION_ACCELERATION 1000  // (mm/s²) Maximum centripetal acceleration
   //#define JUNCTION_DEVIATION_INCLUDE_E
 #endif
 
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
-#define MICROSTEP_MODES {16,16,4,16,16} // [1,2,4,8,16]
+#define MICROSTEP_MODES { 16, 16, 4, 16, 16 } // [1,2,4,8,16]
 
 /**
  *  @section  stepper motor current

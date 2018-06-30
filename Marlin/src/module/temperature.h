@@ -42,6 +42,12 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
+#if HOTENDS == 1
+  #define HOTEND_INDEX  0
+#else
+  #define HOTEND_INDEX  e
+#endif
+
 /**
  * States for ADC reading in the ISR
  */

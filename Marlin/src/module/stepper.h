@@ -94,7 +94,7 @@ class Stepper {
     static int32_t counter_X, counter_Y, counter_Z, counter_E;
     static uint32_t step_events_completed; // The number of step events executed in the current block
 
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       static int32_t bezier_A,     // A coefficient in Bézier speed curve
                      bezier_B,     // B coefficient in Bézier speed curve
                      bezier_C;     // C coefficient in Bézier speed curve
@@ -128,7 +128,7 @@ class Stepper {
     static uint8_t step_loops, step_loops_nominal;
 
     static uint32_t ticks_nominal;
-    #if DISABLED(BEZIER_JERK_CONTROL)
+    #if DISABLED(S_CURVE_ACCELERATION)
       static uint32_t acc_step_rate; // needed for deceleration start point
     #endif
 
@@ -267,41 +267,28 @@ class Stepper {
     // Set direction bits for all steppers
     static void set_directions();
 
+    // Limit the speed to 10KHz for AVR
+    #ifndef STEP_DOUBLER_FREQUENCY
+      #define STEP_DOUBLER_FREQUENCY 10000
+    #endif
+
     FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate) {
       uint32_t timer;
 
       NOMORE(step_rate, uint32_t(MAX_STEP_FREQUENCY));
 
-      // TODO: HAL: tidy this up, use Conditionals_post.h
-      #ifdef CPU_32_BIT
-        #if ENABLED(DISABLE_MULTI_STEPPING)
-          step_loops = 1;
-        #else
-          if (step_rate > STEP_DOUBLER_FREQUENCY * 2) { // If steprate > (STEP_DOUBLER_FREQUENCY * 2) kHz >> step 4 times
-            step_rate >>= 2;
-            step_loops = 4;
-          }
-          else if (step_rate > STEP_DOUBLER_FREQUENCY) { // If steprate > STEP_DOUBLER_FREQUENCY kHz >> step 2 times
-            step_rate >>= 1;
-            step_loops = 2;
-          }
-          else {
-            step_loops = 1;
-          }
-        #endif
-      #else
-        if (step_rate > 20000) { // If steprate > 20kHz >> step 4 times
+      #if DISABLED(DISABLE_MULTI_STEPPING)
+        if (step_rate > STEP_DOUBLER_FREQUENCY * 2) { // If steprate > (STEP_DOUBLER_FREQUENCY * 2) kHz >> step 4 times
           step_rate >>= 2;
           step_loops = 4;
         }
-        else if (step_rate > 10000) { // If steprate > 10kHz >> step 2 times
+        else if (step_rate > STEP_DOUBLER_FREQUENCY) { // If steprate > STEP_DOUBLER_FREQUENCY kHz >> step 2 times
           step_rate >>= 1;
           step_loops = 2;
         }
-        else {
-          step_loops = 1;
-        }
+        else
       #endif
+          step_loops = 1;
 
       #ifdef CPU_32_BIT
         // In case of high-performance processor, it is able to calculate in real-time
@@ -309,8 +296,9 @@ class Stepper {
         timer = uint32_t(HAL_STEPPER_TIMER_RATE) / step_rate;
         NOLESS(timer, min_time_per_step); // (STEP_DOUBLER_FREQUENCY * 2 kHz - this should never happen)
       #else
-        NOLESS(step_rate, uint32_t(F_CPU / 500000U));
-        step_rate -= F_CPU / 500000; // Correct for minimal speed
+        constexpr uint32_t min_step_rate = F_CPU / 500000U;
+        NOLESS(step_rate, min_step_rate);
+        step_rate -= min_step_rate; // Correct for minimal speed
         if (step_rate >= (8 * 256)) { // higher step rate
           const uint8_t tmp_step_rate = (step_rate & 0x00FF);
           const uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0],
@@ -333,7 +321,7 @@ class Stepper {
       return timer;
     }
 
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       static void _calc_bezier_curve_coeffs(const int32_t v0, const int32_t v1, const uint32_t av);
       static int32_t _eval_bezier_curve(const uint32_t curr_step);
     #endif

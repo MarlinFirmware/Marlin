@@ -31,6 +31,7 @@
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"
 #define BOARD_NAME "GTM32 Pro VB"
 
+<<<<<<< HEAD
 // Ignore temp readings during develpment.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
@@ -48,6 +49,35 @@
 #define Z_STEP_PIN         PD6		
 #define Z_DIR_PIN          PD3		
 #define Z_ENABLE_PIN       PB3		// core conflict?
+=======
+// Ignore temp readings during development.
+#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+
+//
+// Limit Switches
+//
+#define X_MIN_PIN          PE5
+#define X_MAX_PIN          PE4
+#define Y_MIN_PIN          PE3
+#define Y_MAX_PIN          PE2
+#define Z_MIN_PIN          PE1
+#define Z_MAX_PIN          PE0
+
+//
+// Steppers
+//
+#define X_STEP_PIN         PC6
+#define X_DIR_PIN          PD13
+#define X_ENABLE_PIN       PA8
+
+#define Y_STEP_PIN         PA12
+#define Y_DIR_PIN          PA11
+#define Y_ENABLE_PIN       PA15   // core conflict?
+
+#define Z_STEP_PIN         PD6
+#define Z_DIR_PIN          PD3
+#define Z_ENABLE_PIN       PB3    // core conflict?
+>>>>>>> 15e4f82f8a24b779d0d323b3223be3469ac0993b
 
 #define E0_STEP_PIN        PC14
 #define E0_DIR_PIN         PC13
@@ -62,6 +92,7 @@
 #define E2_ENABLE_PIN      PC4
 
 //
+<<<<<<< HEAD
 // Endstops
 //
 #define X_MIN_PIN          PE5
@@ -204,3 +235,29 @@
 #define SPI1_NSS 			-1
 #define SPI1_SCK 			-1
 #define SPI1_MOSI 			-1
+=======
+// Temperature Sensors
+//
+#define TEMP_BED_PIN       PC0
+#define TEMP_0_PIN         PC1
+#define TEMP_1_PIN         PC2
+#define TEMP_2_PIN         PC3
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       PB4   // EXTRUDER 1
+#define HEATER_1_PIN       PB5   // EXTRUDER 2
+#define HEATER_2_PIN       PB0   // EXTRUDER 3
+
+#define HEATER_BED_PIN     PB1   // BED
+
+#define FAN_PIN            PB7   // (Sprinter config)
+#define FAN1_PIN           PB8
+#define FAN2_PIN           PB9
+
+//
+// Misc. Functions
+//
+#define LED_PIN            PD12
+>>>>>>> 15e4f82f8a24b779d0d323b3223be3469ac0993b

@@ -29,7 +29,7 @@ uint8_t read_byte_rom(uint8_t * str);
 
 #ifndef NUM_ARRAY
   #define NUM_ARRAY(a) (sizeof(a)/sizeof((a)[0]))
-#endif // NUM_ARRAY
+#endif
 
 typedef uint16_t pixel_len_t;
 #define PIXEL_LEN_NOLIMIT ((pixel_len_t)(-1))

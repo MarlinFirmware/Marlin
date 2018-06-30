@@ -232,148 +232,89 @@ void Planner::init() {
   delay_before_delivering = 0;
 }
 
-#if ENABLED(BEZIER_JERK_CONTROL)
+#if ENABLED(S_CURVE_ACCELERATION)
 
   #ifdef __AVR__
-    // This routine, for AVR, returns 0x1000000 / d, but trying to get the inverse as
-    //  fast as possible. A fast converging iterative Newton-Raphson method is able to
-    //  reach full precision in just 1 iteration, and takes 211 cycles (worst case, mean
-    //  case is less, up to 30 cycles for small divisors), instead of the 500 cycles a
-    //  normal division would take.
-    //
-    // Inspired by the following page,
-    //  https://stackoverflow.com/questions/27801397/newton-raphson-division-with-big-integers
-    //
-    // Suppose we want to calculate
-    //  floor(2 ^ k / B)    where B is a positive integer
-    // Then
-    //  B must be <= 2^k, otherwise, the quotient is 0.
-    //
-    // The Newton - Raphson iteration for x = B / 2 ^ k yields:
-    //  q[n + 1] = q[n] * (2 - q[n] * B / 2 ^ k)
-    //
-    // We can rearrange it as:
-    //  q[n + 1] = q[n] * (2 ^ (k + 1) - q[n] * B) >> k
-    //
-    //  Each iteration of this kind requires only integer multiplications
-    // and bit shifts.
-    //  Does it converge to floor(2 ^ k / B) ?:  Not necessarily, but, in
-    // the worst case, it eventually alternates between floor(2 ^ k / B)
-    // and ceiling(2 ^ k / B)).
-    //  So we can use some not-so-clever test to see if we are in this
-    // case, and extract floor(2 ^ k / B).
-    //  Lastly, a simple but important optimization for this approach is to
-    // truncate multiplications (i.e.calculate only the higher bits of the
-    // product) in the early iterations of the Newton - Raphson method.The
-    // reason to do so, is that the results of the early iterations are far
-    // from the quotient, and it doesn't matter to perform them inaccurately.
-    //  Finally, we should pick a good starting value for x. Knowing how many
-    // digits the divisor has, we can estimate it:
-    //
-    // 2^k / x = 2 ^ log2(2^k / x)
-    // 2^k / x = 2 ^(log2(2^k)-log2(x))
-    // 2^k / x = 2 ^(k*log2(2)-log2(x))
-    // 2^k / x = 2 ^ (k-log2(x))
-    // 2^k / x >= 2 ^ (k-floor(log2(x)))
-    // floor(log2(x)) simply is the index of the most significant bit set.
-    //
-    //  If we could improve this estimation even further, then the number of
-    // iterations can be dropped quite a bit, thus saving valuable execution time.
-    //  The paper "Software Integer Division" by Thomas L.Rodeheffer, Microsoft
-    // Research, Silicon Valley,August 26, 2008, that is available at
-    // https://www.microsoft.com/en-us/research/wp-content/uploads/2008/08/tr-2008-141.pdf
-    // suggests , for its integer division algorithm, that using a table to supply the
-    // first 8 bits of precision, and due to the quadratic convergence nature of the
-    // Newton-Raphon iteration, then just 2 iterations should be enough to get
-    // maximum precision of the division.
-    //  If we precompute values of inverses for small denominator values, then
-    // just one Newton-Raphson iteration is enough to reach full precision
-    //  We will use the top 9 bits of the denominator as index.
-    //
-    //  The AVR assembly function is implementing the following C code, included
-    // here as reference:
-    //
-    // uint32_t get_period_inverse(uint32_t d) {
-    //  static const uint8_t inv_tab[256] = {
-    //    255,253,252,250,248,246,244,242,240,238,236,234,233,231,229,227,
-    //    225,224,222,220,218,217,215,213,212,210,208,207,205,203,202,200,
-    //    199,197,195,194,192,191,189,188,186,185,183,182,180,179,178,176,
-    //    175,173,172,170,169,168,166,165,164,162,161,160,158,157,156,154,
-    //    153,152,151,149,148,147,146,144,143,142,141,139,138,137,136,135,
-    //    134,132,131,130,129,128,127,126,125,123,122,121,120,119,118,117,
-    //    116,115,114,113,112,111,110,109,108,107,106,105,104,103,102,101,
-    //    100,99,98,97,96,95,94,93,92,91,90,89,88,88,87,86,
-    //    85,84,83,82,81,80,80,79,78,77,76,75,74,74,73,72,
-    //    71,70,70,69,68,67,66,66,65,64,63,62,62,61,60,59,
-    //    59,58,57,56,56,55,54,53,53,52,51,50,50,49,48,48,
-    //    47,46,46,45,44,43,43,42,41,41,40,39,39,38,37,37,
-    //    36,35,35,34,33,33,32,32,31,30,30,29,28,28,27,27,
-    //    26,25,25,24,24,23,22,22,21,21,20,19,19,18,18,17,
-    //    17,16,15,15,14,14,13,13,12,12,11,10,10,9,9,8,
-    //    8,7,7,6,6,5,5,4,4,3,3,2,2,1,0,0
-    //  };
-    //
-    //  // For small denominators, it is cheaper to directly store the result,
-    //  //  because those denominators would require 2 Newton-Raphson iterations
-    //  //  to converge to the required result precision. For bigger ones, just
-    //  //  ONE Newton-Raphson iteration is enough to get maximum precision!
-    //  static const uint32_t small_inv_tab[111] PROGMEM = {
-    //    16777216,16777216,8388608,5592405,4194304,3355443,2796202,2396745,2097152,1864135,1677721,1525201,1398101,1290555,1198372,1118481,
-    //    1048576,986895,932067,883011,838860,798915,762600,729444,699050,671088,645277,621378,599186,578524,559240,541200,
-    //    524288,508400,493447,479349,466033,453438,441505,430185,419430,409200,399457,390167,381300,372827,364722,356962,
-    //    349525,342392,335544,328965,322638,316551,310689,305040,299593,294337,289262,284359,279620,275036,270600,266305,
-    //    262144,258111,254200,250406,246723,243148,239674,236298,233016,229824,226719,223696,220752,217885,215092,212369,
-    //    209715,207126,204600,202135,199728,197379,195083,192841,190650,188508,186413,184365,182361,180400,178481,176602,
-    //    174762,172960,171196,169466,167772,166111,164482,162885,161319,159783,158275,156796,155344,153919,152520
-    //  };
-    //
-    //  // For small divisors, it is best to directly retrieve the results
-    //  if (d <= 110)
-    //    return pgm_read_dword(&small_inv_tab[d]);
-    //
-    //  // Compute initial estimation of 0x1000000/x -
-    //  // Get most significant bit set on divider
-    //  uint8_t idx = 0;
-    //  uint32_t nr = d;
-    //  if (!(nr & 0xFF0000)) {
-    //    nr <<= 8;
-    //    idx += 8;
-    //    if (!(nr & 0xFF0000)) {
-    //      nr <<= 8;
-    //      idx += 8;
-    //    }
-    //  }
-    //  if (!(nr & 0xF00000)) {
-    //    nr <<= 4;
-    //    idx += 4;
-    //  }
-    //  if (!(nr & 0xC00000)) {
-    //    nr <<= 2;
-    //    idx += 2;
-    //  }
-    //  if (!(nr & 0x800000)) {
-    //    nr <<= 1;
-    //    idx += 1;
-    //  }
-    //
-    //  // Isolate top 9 bits of the denominator, to be used as index into the initial estimation table
-    //  uint32_t tidx = nr >> 15;         // top 9 bits. bit8 is always set
-    //  uint32_t ie = inv_tab[tidx & 0xFF] + 256; // Get the table value. bit9 is always set
-    //  uint32_t x = idx <= 8 ? (ie >> (8 - idx)) : (ie << (idx - 8)); // Position the estimation at the proper place
-    //
-    //  // Now, refine estimation by newton-raphson. 1 iteration is enough
-    //  x = uint32_t((x * uint64_t((1 << 25) - x * d)) >> 24);
-    //
-    //  // Estimate remainder
-    //  uint32_t r = (1 << 24) - x * d;
-    //
-    //  // Check if we must adjust result
-    //  if (r >= d) x++;
-    //
-    //  // x holds the proper estimation
-    //  return uint32_t(x);
-    // }
-    //
+    /**
+     * This routine returns 0x1000000 / d, getting the inverse as fast as possible.
+     * A fast-converging iterative Newton-Raphson method can reach full precision in
+     * just 1 iteration, and takes 211 cycles (worst case; the mean case is less, up
+     * to 30 cycles for small divisors), instead of the 500 cycles a normal division
+     * would take.
+     *
+     * Inspired by the following page:
+     *  https://stackoverflow.com/questions/27801397/newton-raphson-division-with-big-integers
+     *
+     * Suppose we want to calculate  floor(2 ^ k / B)  where B is a positive integer
+     * Then, B must be <= 2^k, otherwise, the quotient is 0.
+     *
+     * The Newton - Raphson iteration for x = B / 2 ^ k yields:
+     *  q[n + 1] = q[n] * (2 - q[n] * B / 2 ^ k)
+     *
+     * This can be rearranged to:
+     *  q[n + 1] = q[n] * (2 ^ (k + 1) - q[n] * B) >> k
+     *
+     * Each iteration requires only integer multiplications and bit shifts.
+     * It doesn't necessarily converge to floor(2 ^ k / B) but in the worst case
+     * it eventually alternates between floor(2 ^ k / B) and ceil(2 ^ k / B).
+     * So it checks for this case and extracts floor(2 ^ k / B).
+     *
+     * A simple but important optimization for this approach is to truncate
+     * multiplications (i.e., calculate only the higher bits of the product) in the
+     * early iterations of the Newton - Raphson method. This is done so the results
+     * of the early iterations are far from the quotient. Then it doesn't matter if
+     * they are done inaccurately.
+     * It's important to pick a good starting value for x. Knowing how many
+     * digits the divisor has, it can be estimated:
+     *
+     *   2^k / x = 2 ^ log2(2^k / x)
+     *   2^k / x = 2 ^(log2(2^k)-log2(x))
+     *   2^k / x = 2 ^(k*log2(2)-log2(x))
+     *   2^k / x = 2 ^ (k-log2(x))
+     *   2^k / x >= 2 ^ (k-floor(log2(x)))
+     *   floor(log2(x)) is simply the index of the most significant bit set.
+     *
+     * If this estimation can be improved even further the number of iterations can be
+     * reduced a lot, saving valuable execution time.
+     * The paper "Software Integer Division" by Thomas L.Rodeheffer, Microsoft
+     * Research, Silicon Valley,August 26, 2008, available at
+     * https://www.microsoft.com/en-us/research/wp-content/uploads/2008/08/tr-2008-141.pdf
+     * suggests, for its integer division algorithm, using a table to supply the first
+     * 8 bits of precision, then, due to the quadratic convergence nature of the
+     * Newton-Raphon iteration, just 2 iterations should be enough to get maximum
+     * precision of the division.
+     * By precomputing values of inverses for small denominator values, just one
+     * Newton-Raphson iteration is enough to reach full precision.
+     * This code uses the top 9 bits of the denominator as index.
+     *
+     * The AVR assembly function implements this C code using the data below:
+     *
+     *  // For small divisors, it is best to directly retrieve the results
+     *  if (d <= 110) return pgm_read_dword(&small_inv_tab[d]);
+     *
+     *  // Compute initial estimation of 0x1000000/x -
+     *  // Get most significant bit set on divider
+     *  uint8_t idx = 0;
+     *  uint32_t nr = d;
+     *  if (!(nr & 0xFF0000)) {
+     *    nr <<= 8; idx += 8;
+     *    if (!(nr & 0xFF0000)) { nr <<= 8; idx += 8; }
+     *  }
+     *  if (!(nr & 0xF00000)) { nr <<= 4; idx += 4; }
+     *  if (!(nr & 0xC00000)) { nr <<= 2; idx += 2; }
+     *  if (!(nr & 0x800000)) { nr <<= 1; idx += 1; }
+     *
+     *  // Isolate top 9 bits of the denominator, to be used as index into the initial estimation table
+     *  uint32_t tidx = nr >> 15,                                       // top 9 bits. bit8 is always set
+     *           ie = inv_tab[tidx & 0xFF] + 256,                       // Get the table value. bit9 is always set
+     *           x = idx <= 8 ? (ie >> (8 - idx)) : (ie << (idx - 8));  // Position the estimation at the proper place
+     *
+     *  x = uint32_t((x * uint64_t(_BV(25) - x * d)) >> 24);            // Refine estimation by newton-raphson. 1 iteration is enough
+     *  const uint32_t r = _BV(24) - x * d;                             // Estimate remainder
+     *  if (r >= d) x++;                                                // Check whether to adjust result
+     *  return uint32_t(x);                                             // x holds the proper estimation
+     *
+     */
     static uint32_t get_period_inverse(uint32_t d) {
 
       static const uint8_t inv_tab[256] PROGMEM = {
@@ -409,13 +350,12 @@ void Planner::init() {
       };
 
       // For small divisors, it is best to directly retrieve the results
-      if (d <= 110)
-        return pgm_read_dword(&small_inv_tab[d]);
+      if (d <= 110) return pgm_read_dword(&small_inv_tab[d]);
 
-      register uint8_t r8 = d & 0xFF;
-      register uint8_t r9 = (d >> 8) & 0xFF;
-      register uint8_t r10 = (d >> 16) & 0xFF;
-      register uint8_t r2,r3,r4,r5,r6,r7,r11,r12,r13,r14,r15,r16,r17,r18;
+      register uint8_t r8 = d & 0xFF,
+                       r9 = (d >> 8) & 0xFF,
+                       r10 = (d >> 16) & 0xFF,
+                       r2,r3,r4,r5,r6,r7,r11,r12,r13,r14,r15,r16,r17,r18;
       register const uint8_t* ptab = inv_tab;
 
       __asm__ __volatile__(
@@ -761,7 +701,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   NOLESS(initial_rate, uint32_t(MINIMAL_STEP_RATE));
   NOLESS(final_rate, uint32_t(MINIMAL_STEP_RATE));
 
-  #if ENABLED(BEZIER_JERK_CONTROL)
+  #if ENABLED(S_CURVE_ACCELERATION)
     uint32_t cruise_rate = initial_rate;
   #endif
 
@@ -782,12 +722,12 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     accelerate_steps = MIN(uint32_t(MAX(accelerate_steps_float, 0)), block->step_event_count);
     plateau_steps = 0;
 
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       // We won't reach the cruising rate. Let's calculate the speed we will reach
       cruise_rate = final_speed(initial_rate, accel, accelerate_steps);
     #endif
   }
-  #if ENABLED(BEZIER_JERK_CONTROL)
+  #if ENABLED(S_CURVE_ACCELERATION)
     else // We have some plateau time, so the cruise rate will be the nominal rate
       cruise_rate = block->nominal_rate;
   #endif
@@ -795,7 +735,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   // block->accelerate_until = accelerate_steps;
   // block->decelerate_after = accelerate_steps+plateau_steps;
 
-  #if ENABLED(BEZIER_JERK_CONTROL)
+  #if ENABLED(S_CURVE_ACCELERATION)
     // Jerk controlled speed requires to express speed versus time, NOT steps
     uint32_t acceleration_time = ((float)(cruise_rate - initial_rate) / accel) * (HAL_STEPPER_TIMER_RATE),
              deceleration_time = ((float)(cruise_rate - final_rate) / accel) * (HAL_STEPPER_TIMER_RATE);
@@ -815,7 +755,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     block->accelerate_until = accelerate_steps;
     block->decelerate_after = accelerate_steps + plateau_steps;
     block->initial_rate = initial_rate;
-    #if ENABLED(BEZIER_JERK_CONTROL)
+    #if ENABLED(S_CURVE_ACCELERATION)
       block->acceleration_time = acceleration_time;
       block->deceleration_time = deceleration_time;
       block->acceleration_time_inverse = acceleration_time_inverse;
@@ -2136,7 +2076,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   }
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
-  #if DISABLED(BEZIER_JERK_CONTROL)
+  #if DISABLED(S_CURVE_ACCELERATION)
     block->acceleration_rate = (uint32_t)(accel * (4096.0 * 4096.0 / (HAL_STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
@@ -2230,7 +2170,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         // TODO: Technically, the acceleration used in calculation needs to be limited by the minimum of the
         // two junctions. However, this shouldn't be a significant problem except in extreme circumstances.
-        vmax_junction_sqr = (JUNCTION_ACCELERATION_FACTOR * JUNCTION_DEVIATION_FACTOR * sin_theta_d2) / (1.0 - sin_theta_d2);
+        vmax_junction_sqr = (JUNCTION_ACCELERATION * JUNCTION_DEVIATION_MM * sin_theta_d2) / (1.0 - sin_theta_d2);
         if (block->millimeters < 1.0) {
 
           // Fast acos approximation, minus the error bar to be safe
@@ -2238,7 +2178,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
           if (junction_theta > RADIANS(135)) {
-            const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * JUNCTION_ACCELERATION_FACTOR;
+            const float limit_sqr = block->millimeters / (RADIANS(180) - junction_theta) * JUNCTION_ACCELERATION;
             NOMORE(vmax_junction_sqr, limit_sqr);
           }
         }

@@ -265,7 +265,7 @@ void GcodeSuite::M912() {
     bool report = true;
     const uint8_t index = parser.byteval('I');
     LOOP_XYZ(i) if (parser.seen(axis_codes[i])) {
-      const int8_t value = (int8_t)constrain(parser.value_int(), -63, 64);
+      const int8_t value = (int8_t)constrain(parser.value_int(), -64, 63);
       report = false;
       switch (i) {
         case X_AXIS:

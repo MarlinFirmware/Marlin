@@ -111,6 +111,13 @@ bool Stepper::abort_current_block;
   bool Stepper::locked_z_motor = false, Stepper::locked_z2_motor = false;
 #endif
 
+/**
+ * Marlin uses the Bresenham algorithm. For a detailed explanation of theory and
+ * method see https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
+ *
+ * The implementation used here additionally rounds up the starting seed.
+ */
+
 int32_t Stepper::counter_X = 0,
         Stepper::counter_Y = 0,
         Stepper::counter_Z = 0,
@@ -118,7 +125,7 @@ int32_t Stepper::counter_X = 0,
 
 uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
 
-#if ENABLED(BEZIER_JERK_CONTROL)
+#if ENABLED(S_CURVE_ACCELERATION)
   int32_t __attribute__((used)) Stepper::bezier_A __asm__("bezier_A");    // A coefficient in Bézier speed curve with alias for assembler
   int32_t __attribute__((used)) Stepper::bezier_B __asm__("bezier_B");    // B coefficient in Bézier speed curve with alias for assembler
   int32_t __attribute__((used)) Stepper::bezier_C __asm__("bezier_C");    // C coefficient in Bézier speed curve with alias for assembler
@@ -168,7 +175,7 @@ volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 uint32_t Stepper::ticks_nominal;
 uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
 
-#if DISABLED(BEZIER_JERK_CONTROL)
+#if DISABLED(S_CURVE_ACCELERATION)
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
 
@@ -252,7 +259,7 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
 #endif
 
 #if DISABLED(MIXING_EXTRUDER)
-  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(v)
+  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(current_block->active_extruder, v)
 #endif
 
 /**
@@ -308,27 +315,27 @@ void Stepper::set_directions() {
 
   #if DISABLED(LIN_ADVANCE)
     if (motor_direction(E_AXIS)) {
-      REV_E_DIR();
+      REV_E_DIR(current_block->active_extruder);
       count_direction[E_AXIS] = -1;
     }
     else {
-      NORM_E_DIR();
+      NORM_E_DIR(current_block->active_extruder);
       count_direction[E_AXIS] = 1;
     }
   #endif // !LIN_ADVANCE
 }
 
-#if ENABLED(BEZIER_JERK_CONTROL)
+#if ENABLED(S_CURVE_ACCELERATION)
   /**
-   *   We are using a quintic (fifth-degree) Bézier polynomial for the velocity curve.
-   *  This gives us a "linear pop" velocity curve; with pop being the sixth derivative of position:
+   *  This uses a quintic (fifth-degree) Bézier polynomial for the velocity curve, giving
+   *  a "linear pop" velocity curve; with pop being the sixth derivative of position:
    *  velocity - 1st, acceleration - 2nd, jerk - 3rd, snap - 4th, crackle - 5th, pop - 6th
    *
    *  The Bézier curve takes the form:
    *
    *  V(t) = P_0 * B_0(t) + P_1 * B_1(t) + P_2 * B_2(t) + P_3 * B_3(t) + P_4 * B_4(t) + P_5 * B_5(t)
    *
-   *   Where 0 <= t <= 1, and V(t) is the velocity. P_0 through P_5 are the control points, and B_0(t)
+   *  Where 0 <= t <= 1, and V(t) is the velocity. P_0 through P_5 are the control points, and B_0(t)
    *  through B_5(t) are the Bernstein basis as follows:
    *
    *        B_0(t) =   (1-t)^5        =   -t^5 +  5t^4 - 10t^3 + 10t^2 -  5t   +   1
@@ -341,12 +348,12 @@ void Stepper::set_directions() {
    *                                      |       |       |       |       |       |
    *                                      A       B       C       D       E       F
    *
-   *   Unfortunately, we cannot use forward-differencing to calculate each position through
+   *  Unfortunately, we cannot use forward-differencing to calculate each position through
    *  the curve, as Marlin uses variable timer periods. So, we require a formula of the form:
    *
    *        V_f(t) = A*t^5 + B*t^4 + C*t^3 + D*t^2 + E*t + F
    *
-   *   Looking at the above B_0(t) through B_5(t) expanded forms, if we take the coefficients of t^5
+   *  Looking at the above B_0(t) through B_5(t) expanded forms, if we take the coefficients of t^5
    *  through t of the Bézier form of V(t), we can determine that:
    *
    *        A =    -P_0 +  5*P_1 - 10*P_2 + 10*P_3 -  5*P_4 +  P_5
@@ -356,7 +363,7 @@ void Stepper::set_directions() {
    *        E = - 5*P_0 +  5*P_1
    *        F =     P_0
    *
-   *   Now, since we will (currently) *always* want the initial acceleration and jerk values to be 0,
+   *  Now, since we will (currently) *always* want the initial acceleration and jerk values to be 0,
    *  We set P_i = P_0 = P_1 = P_2 (initial velocity), and P_t = P_3 = P_4 = P_5 (target velocity),
    *  which, after simplification, resolves to:
    *
@@ -367,12 +374,12 @@ void Stepper::set_directions() {
    *        E = 0
    *        F = P_i
    *
-   *   As the t is evaluated in non uniform steps here, there is no other way rather than evaluating
+   *  As the t is evaluated in non uniform steps here, there is no other way rather than evaluating
    *  the Bézier curve at each point:
    *
    *        V_f(t) = A*t^5 + B*t^4 + C*t^3 + F          [0 <= t <= 1]
    *
-   *   Floating point arithmetic execution time cost is prohibitive, so we will transform the math to
+   * Floating point arithmetic execution time cost is prohibitive, so we will transform the math to
    * use fixed point values to be able to evaluate it in realtime. Assuming a maximum of 250000 steps
    * per second (driver pulses should at least be 2µS hi/2µS lo), and allocating 2 bits to avoid
    * overflows on the evaluation of the Bézier curve, means we can use
@@ -383,7 +390,7 @@ void Stepper::set_directions() {
    *   C:   signed Q24.7 ,            |range = +/- 250000 *10 * 128 = +/- 320000000 = 0x1312D000 | 29 bits + sign
    *   F:   signed Q24.7 ,            |range = +/- 250000     * 128 =      32000000 = 0x01E84800 | 25 bits + sign
    *
-   *  The trapezoid generator state contains the following information, that we will use to create and evaluate
+   * The trapezoid generator state contains the following information, that we will use to create and evaluate
    * the Bézier curve:
    *
    *  blk->step_event_count [TS] = The total count of steps for this movement. (=distance)
@@ -395,7 +402,7 @@ void Stepper::set_directions() {
    *
    *  For Any 32bit CPU:
    *
-   *    At the start of each trapezoid, we calculate the coefficients A,B,C,F and Advance [AV], as follows:
+   *    At the start of each trapezoid, calculate the coefficients A,B,C,F and Advance [AV], as follows:
    *
    *      A =  6*128*(VF - VI) =  768*(VF - VI)
    *      B = 15*128*(VI - VF) = 1920*(VI - VF)
@@ -403,7 +410,7 @@ void Stepper::set_directions() {
    *      F =    128*VI        =  128*VI
    *     AV = (1<<32)/TS      ~= 0xFFFFFFFF / TS (To use ARM UDIV, that is 32 bits) (this is computed at the planner, to offload expensive calculations from the ISR)
    *
-   *   And for each point, we will evaluate the curve with the following sequence:
+   *    And for each point, evaluate the curve with the following sequence:
    *
    *      void lsrs(uint32_t& d, uint32_t s, int cnt) {
    *        d = s >> cnt;
@@ -456,10 +463,10 @@ void Stepper::set_directions() {
    *        return alo;
    *      }
    *
-   *    This will be rewritten in ARM assembly to get peak performance and will take 43 cycles to execute
+   *  This is rewritten in ARM assembly for optimal performance (43 cycles to execute).
    *
-   *  For AVR, we scale precision of coefficients to make it possible to evaluate the Bézier curve in
-   *    realtime: Let's reduce precision as much as possible. After some experimentation we found that:
+   *  For AVR, the precision of coefficients is scaled so the Bézier curve can be evaluated in real-time:
+   *  Let's reduce precision as much as possible. After some experimentation we found that:
    *
    *    Assume t and AV with 24 bits is enough
    *       A =  6*(VF - VI)
@@ -468,9 +475,9 @@ void Stepper::set_directions() {
    *       F =     VI
    *      AV = (1<<24)/TS   (this is computed at the planner, to offload expensive calculations from the ISR)
    *
-   *     Instead of storing sign for each coefficient, we will store its absolute value,
+   *    Instead of storing sign for each coefficient, we will store its absolute value,
    *    and flag the sign of the A coefficient, so we can save to store the sign bit.
-   *     It always holds that sign(A) = - sign(B) = sign(C)
+   *    It always holds that sign(A) = - sign(B) = sign(C)
    *
    *     So, the resulting range of the coefficients are:
    *
@@ -480,7 +487,7 @@ void Stepper::set_directions() {
    *       C:   signed Q24 , range = 250000 *10 = 2500000 = 0x1312D0 | 21 bits
    *       F:   signed Q24 , range = 250000     =  250000 = 0x0ED090 | 20 bits
    *
-   *    And for each curve, we estimate its coefficients with:
+   *    And for each curve, estimate its coefficients with:
    *
    *      void _calc_bezier_curve_coeffs(int32_t v0, int32_t v1, uint32_t av) {
    *       // Calculate the Bézier coefficients
@@ -499,7 +506,7 @@ void Stepper::set_directions() {
    *       bezier_F = v0;
    *      }
    *
-   *    And for each point, we will evaluate the curve with the following sequence:
+   *    And for each point, evaluate the curve with the following sequence:
    *
    *      // unsigned multiplication of 24 bits x 24bits, return upper 16 bits
    *      void umul24x24to16hi(uint16_t& r, uint24_t op1, uint24_t op2) {
@@ -549,9 +556,8 @@ void Stepper::set_directions() {
    *        }
    *        return acc;
    *      }
-   *    Those functions will be translated into assembler to get peak performance. coefficient calculations takes 70 cycles,
-   *    Bezier point evaluation takes 150 cycles
-   *
+   *    These functions are translated to assembler for optimal performance.
+   *    Coefficient calculation takes 70 cycles. Bezier point evaluation takes 150 cycles.
    */
 
   #ifdef __AVR__
@@ -1122,7 +1128,7 @@ void Stepper::set_directions() {
       #endif
     }
   #endif
-#endif // BEZIER_JERK_CONTROL
+#endif // S_CURVE_ACCELERATION
 
 /**
  * Stepper Driver Interrupt
@@ -1175,7 +1181,7 @@ hal_timer_t Stepper::isr_scheduler() {
 
   // Limit the amount of iterations
   uint8_t max_loops = 10;
-  
+
   // We need this variable here to be able to use it in the following loop
   hal_timer_t min_ticks;
   do {
@@ -1295,12 +1301,12 @@ void Stepper::stepper_pulse_phase_isr() {
     // Advance the Bresenham counter; start a pulse if the axis needs a step
     #define PULSE_START(AXIS) do{ \
       _COUNTER(AXIS) += current_block->steps[_AXIS(AXIS)]; \
-      if (_COUNTER(AXIS) > 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); } \
+      if (_COUNTER(AXIS) >= 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); } \
     }while(0)
 
     // Advance the Bresenham counter; start a pulse if the axis needs a step
     #define STEP_TICK(AXIS) do { \
-      if (_COUNTER(AXIS) > 0) { \
+      if (_COUNTER(AXIS) >= 0) { \
         _COUNTER(AXIS) -= current_block->step_event_count; \
         count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
       } \
@@ -1388,7 +1394,7 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if ENABLED(LIN_ADVANCE)
       counter_E += current_block->steps[E_AXIS];
-      if (counter_E > 0) {
+      if (counter_E >= 0) {
         #if DISABLED(MIXING_EXTRUDER)
           // Don't step E here for mixing extruder
           motor_direction(E_AXIS) ? --e_steps : ++e_steps;
@@ -1400,7 +1406,7 @@ void Stepper::stepper_pulse_phase_isr() {
         const bool dir = motor_direction(E_AXIS);
         MIXING_STEPPERS_LOOP(j) {
           counter_m[j] += current_block->steps[E_AXIS];
-          if (counter_m[j] > 0) {
+          if (counter_m[j] >= 0) {
             counter_m[j] -= current_block->mix_event_count[j];
             dir ? --e_steps[j] : ++e_steps[j];
           }
@@ -1417,7 +1423,7 @@ void Stepper::stepper_pulse_phase_isr() {
           // Step mixing steppers (proportionally)
           counter_m[j] += current_block->steps[E_AXIS];
           // Step when the counter goes over zero
-          if (counter_m[j] > 0) En_STEP_WRITE(j, !INVERT_E_STEP_PIN);
+          if (counter_m[j] >= 0) E_STEP_WRITE(j, !INVERT_E_STEP_PIN);
         }
       #else // !MIXING_EXTRUDER
         PULSE_START(E);
@@ -1457,9 +1463,9 @@ void Stepper::stepper_pulse_phase_isr() {
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(j) {
-          if (counter_m[j] > 0) {
+          if (counter_m[j] >= 0) {
             counter_m[j] -= current_block->mix_event_count[j];
-            En_STEP_WRITE(j, INVERT_E_STEP_PIN);
+            E_STEP_WRITE(j, INVERT_E_STEP_PIN);
           }
         }
       #else // !MIXING_EXTRUDER
@@ -1497,7 +1503,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     // Calculate new timer value
     if (step_events_completed <= current_block->accelerate_until) {
 
-      #if ENABLED(BEZIER_JERK_CONTROL)
+      #if ENABLED(S_CURVE_ACCELERATION)
         // Get the next speed to use (Jerk limited!)
         uint32_t acc_step_rate =
           acceleration_time < current_block->acceleration_time
@@ -1528,7 +1534,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     else if (step_events_completed > current_block->decelerate_after) {
       uint32_t step_rate;
 
-      #if ENABLED(BEZIER_JERK_CONTROL)
+      #if ENABLED(S_CURVE_ACCELERATION)
         // If this is the 1st time we process the 2nd half of the trapezoid...
         if (!bezier_2nd_half) {
           // Initialize the Bézier speed curve
@@ -1726,12 +1732,12 @@ uint32_t Stepper::stepper_block_phase_isr() {
       // make a note of the number of step loops required at nominal speed
       step_loops_nominal = step_loops;
 
-      #if DISABLED(BEZIER_JERK_CONTROL)
+      #if DISABLED(S_CURVE_ACCELERATION)
         // Set as deceleration point the initial rate of the block
         acc_step_rate = current_block->initial_rate;
       #endif
 
-      #if ENABLED(BEZIER_JERK_CONTROL)
+      #if ENABLED(S_CURVE_ACCELERATION)
         // Initialize the Bézier speed curve
         _calc_bezier_curve_coeffs(current_block->initial_rate, current_block->cruise_rate, current_block->acceleration_time_inverse);
 
@@ -1739,11 +1745,11 @@ uint32_t Stepper::stepper_block_phase_isr() {
         bezier_2nd_half = false;
       #endif
 
-      // Initialize Bresenham counters to 1/2 the ceiling
-      counter_X = counter_Y = counter_Z = counter_E = -((int32_t)(current_block->step_event_count >> 1));
+      // Initialize Bresenham counters to 1/2 the ceiling, with proper roundup (as explained in the article linked above)
+      counter_X = counter_Y = counter_Z = counter_E = -int32_t((current_block->step_event_count + 1) >> 1);
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(i)
-          counter_m[i] = -(current_block->mix_event_count[i] >> 1);
+          counter_m[i] = -int32_t((current_block->mix_event_count[i] + 1) >> 1);
       #endif
 
       #if ENABLED(Z_LATE_ENABLE)
@@ -1768,61 +1774,6 @@ uint32_t Stepper::stepper_block_phase_isr() {
   uint32_t Stepper::advance_isr() {
     uint32_t interval;
 
-    #if ENABLED(MK2_MULTIPLEXER) // For SNMM even-numbered steppers are reversed
-      #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) E0_DIR_WRITE(e_steps < 0 ? !INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0) : INVERT_E## INDEX ##_DIR ^ TEST(INDEX, 0)); }while(0)
-    #elif ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-      #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) { if (e_steps < 0) REV_E_DIR(); else NORM_E_DIR(); } }while(0)
-    #elif ENABLED(SWITCHING_EXTRUDER)
-      #if EXTRUDERS > 4
-        #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) { switch (INDEX) { \
-            case 0: case 1: E0_DIR_WRITE(!INVERT_E0_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
-            case 2: case 3: E1_DIR_WRITE(!INVERT_E1_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
-                    case 4: E2_DIR_WRITE(!INVERT_E2_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); \
-        } } }while(0)
-      #elif EXTRUDERS > 2
-        #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) { switch (INDEX) { \
-            case 0: case 1: E0_DIR_WRITE(!INVERT_E0_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
-            case 2: case 3: E1_DIR_WRITE(!INVERT_E1_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); break; \
-        } } }while(0)
-      #else
-        #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) E0_DIR_WRITE(!INVERT_E0_DIR ^ TEST(INDEX, 0) ^ (e_steps < 0)); }while(0)
-      #endif
-    #else
-      #define SET_E_STEP_DIR(INDEX) do{ if (e_steps) E## INDEX ##_DIR_WRITE(!INVERT_E## INDEX ##_DIR ^ (e_steps < 0)); }while(0)
-    #endif
-
-    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-      #define START_E_PULSE(INDEX) do{ if (e_steps) E_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
-      #define STOP_E_PULSE(INDEX) do{ if (e_steps) { e_steps < 0 ? ++e_steps : --e_steps; E_STEP_WRITE(INVERT_E_STEP_PIN); } }while(0)
-    #elif ENABLED(SWITCHING_EXTRUDER)
-      #if EXTRUDERS > 4
-        #define START_E_PULSE(INDEX) do{ if (e_steps) { switch (INDEX) { \
-            case 0: case 1: E0_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
-            case 2: case 3: E1_DIR_WRITE(!INVERT_E_STEP_PIN); break; \
-                    case 4: E2_DIR_WRITE(!INVERT_E_STEP_PIN); } \
-        } }while(0)
-        #define STOP_E_PULSE(INDEX) do{ if (e_steps) { \
-          e_steps < 0 ? ++e_steps : --e_steps; \
-          switch (INDEX) { \
-            case 0: case 1: E0_DIR_WRITE(INVERT_E_STEP_PIN); break; \
-            case 2: case 3: E1_DIR_WRITE(INVERT_E_STEP_PIN); break; \
-                    case 4: E2_DIR_WRITE(INVERT_E_STEP_PIN); } \
-        } }while(0)
-      #elif EXTRUDERS > 2
-        #define START_E_PULSE(INDEX) do{ if (e_steps) { if (INDEX < 2) E0_DIR_WRITE(!INVERT_E_STEP_PIN); else E1_DIR_WRITE(!INVERT_E_STEP_PIN); } }while(0)
-        #define STOP_E_PULSE(INDEX) do{ if (e_steps) { \
-          e_steps < 0 ? ++e_steps : --e_steps; \
-          if (INDEX < 2) E0_DIR_WRITE(INVERT_E_STEP_PIN); else E1_DIR_WRITE(INVERT_E_STEP_PIN); \
-        } }while(0)
-      #else
-        #define START_E_PULSE(INDEX) do{ if (e_steps) E0_DIR_WRITE(!INVERT_E_STEP_PIN); }while(0)
-        #define STOP_E_PULSE(INDEX) do{ if (e_steps) { e_steps < 0 ? ++e_steps : --e_steps; E0_DIR_WRITE(INVERT_E_STEP_PIN); }while(0)
-      #endif
-    #else
-      #define START_E_PULSE(INDEX) do{ if (e_steps) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); }while(0)
-      #define STOP_E_PULSE(INDEX) do { if (e_steps) { e_steps < 0 ? ++e_steps : --e_steps; E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); } }while(0)
-    #endif
-
     if (use_advance_lead) {
       if (step_events_completed > LA_decelerate_after && current_adv_steps > final_adv_steps) {
         e_steps--;
@@ -1835,29 +1786,16 @@ uint32_t Stepper::stepper_block_phase_isr() {
         current_adv_steps++;
         interval = eISR_Rate;
       }
-      else {
-        interval = ADV_NEVER;
-        eISR_Rate = ADV_NEVER;
-      }
+      else
+        interval = eISR_Rate = ADV_NEVER;
     }
     else
       interval = ADV_NEVER;
 
-    switch (LA_active_extruder) {
-      case 0: SET_E_STEP_DIR(0); break;
-      #if EXTRUDERS > 1
-        case 1: SET_E_STEP_DIR(1); break;
-        #if EXTRUDERS > 2
-          case 2: SET_E_STEP_DIR(2); break;
-          #if EXTRUDERS > 3
-            case 3: SET_E_STEP_DIR(3); break;
-            #if EXTRUDERS > 4
-              case 4: SET_E_STEP_DIR(4); break;
-            #endif // EXTRUDERS > 4
-          #endif // EXTRUDERS > 3
-        #endif // EXTRUDERS > 2
-      #endif // EXTRUDERS > 1
-    }
+    if (e_steps >= 0)
+      NORM_E_DIR(LA_active_extruder);
+    else
+      REV_E_DIR(LA_active_extruder);
 
     // Step E stepper if we have steps
     while (e_steps) {
@@ -1866,21 +1804,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         hal_timer_t pulse_start = HAL_timer_get_count(PULSE_TIMER_NUM);
       #endif
 
-      switch (LA_active_extruder) {
-        case 0: START_E_PULSE(0); break;
-        #if EXTRUDERS > 1
-          case 1: START_E_PULSE(1); break;
-          #if EXTRUDERS > 2
-            case 2: START_E_PULSE(2); break;
-            #if EXTRUDERS > 3
-              case 3: START_E_PULSE(3); break;
-              #if EXTRUDERS > 4
-                case 4: START_E_PULSE(4); break;
-              #endif // EXTRUDERS > 4
-            #endif // EXTRUDERS > 3
-          #endif // EXTRUDERS > 2
-        #endif // EXTRUDERS > 1
-      }
+      E_STEP_WRITE(LA_active_extruder, !INVERT_E_STEP_PIN);
 
       // For minimum pulse time wait before stopping pulses
       #if EXTRA_CYCLES_E > 20
@@ -1890,21 +1814,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
         DELAY_NS(EXTRA_CYCLES_E * NANOSECONDS_PER_CYCLE);
       #endif
 
-      switch (LA_active_extruder) {
-        case 0: STOP_E_PULSE(0); break;
-        #if EXTRUDERS > 1
-          case 1: STOP_E_PULSE(1); break;
-          #if EXTRUDERS > 2
-            case 2: STOP_E_PULSE(2); break;
-            #if EXTRUDERS > 3
-              case 3: STOP_E_PULSE(3); break;
-              #if EXTRUDERS > 4
-                case 4: STOP_E_PULSE(4); break;
-              #endif // EXTRUDERS > 4
-            #endif // EXTRUDERS > 3
-          #endif // EXTRUDERS > 2
-        #endif // EXTRUDERS > 1
-      }
+      e_steps < 0 ? ++e_steps : --e_steps;
+
+      E_STEP_WRITE(LA_active_extruder, INVERT_E_STEP_PIN);
 
       // For minimum pulse time wait before looping
       #if EXTRA_CYCLES_E > 20
@@ -2057,19 +1969,19 @@ void Stepper::init() {
     AXIS_INIT(Z, Z);
   #endif
 
-  #if HAS_E0_STEP
+  #if E_STEPPERS > 0 && HAS_E0_STEP
     E_AXIS_INIT(0);
   #endif
-  #if HAS_E1_STEP
+  #if E_STEPPERS > 1 && HAS_E1_STEP
     E_AXIS_INIT(1);
   #endif
-  #if HAS_E2_STEP
+  #if E_STEPPERS > 2 && HAS_E2_STEP
     E_AXIS_INIT(2);
   #endif
-  #if HAS_E3_STEP
+  #if E_STEPPERS > 3 && HAS_E3_STEP
     E_AXIS_INIT(3);
   #endif
-  #if HAS_E4_STEP
+  #if E_STEPPERS > 4 && HAS_E4_STEP
     E_AXIS_INIT(4);
   #endif
 

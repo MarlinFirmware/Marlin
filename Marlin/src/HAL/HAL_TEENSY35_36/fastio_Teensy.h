@@ -62,13 +62,14 @@
   CORE_PIN ## P ## _CONFIG = PORT_PCR_MUX(1)|PORT_PCR_SRE|PORT_PCR_DSE; \
   GPIO_BITBAND(CORE_PIN ## P ## _DDRREG , CORE_PIN ## P ## _BIT) = 1; \
 }while(0)
-
-//#define _PULLUP(IO,V)  { pinMode(IO, (v!=LOW ? INPUT_PULLUP : INPUT)); }
+	
+#define _SET_INPUT_PULLUP(P) do{ \
+  CORE_PIN ## P ## _CONFIG = PORT_PCR_MUX(1) | PORT_PCR_PE | PORT_PCR_PS; \
+  GPIO_BITBAND(CORE_PIN ## P ## _DDRREG , CORE_PIN ## P ## _BIT) = 0; \
+}while(0)
 
 #define _GET_INPUT(P)   ((CORE_PIN ## P ## _DDRREG & CORE_PIN ## P ## _BITMASK) == 0)
 #define _GET_OUTPUT(P)  ((CORE_PIN ## P ## _DDRREG & CORE_PIN ## P ## _BITMASK) == 0)
-
-//#define _GET_TIMER(IO)
 
 #define READ(IO)              _READ(IO)
 
@@ -77,7 +78,7 @@
 #define TOGGLE(IO)            _TOGGLE(IO)
 
 #define SET_INPUT(IO)         _SET_INPUT(IO)
-#define SET_INPUT_PULLUP(IO)  do{ _SET_INPUT(IO); _WRITE(IO,HIGH); }while(0)
+#define SET_INPUT_PULLUP(IO)  _SET_INPUT_PULLUP(IO)
 #define SET_OUTPUT(IO)        _SET_OUTPUT(IO)
 
 #define GET_INPUT(IO)         _GET_INPUT(IO)
