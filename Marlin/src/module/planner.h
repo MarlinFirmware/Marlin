@@ -830,22 +830,16 @@ class Planner {
 
     #if ENABLED(JUNCTION_DEVIATION)
 
-      #if ENABLED(JUNCTION_DEVIATION_INCLUDE_E)
-        #define JD_AXES XYZE
-      #else
-        #define JD_AXES XYZ
-      #endif
-
-      FORCE_INLINE static void normalize_junction_vector(float (&vector)[JD_AXES]) {
+      FORCE_INLINE static void normalize_junction_vector(float (&vector)[XYZE]) {
         float magnitude_sq = 0.0;
-        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (vector[idx]) magnitude_sq += sq(vector[idx]);
+        LOOP_XYZE(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
         const float inv_magnitude = 1.0 / SQRT(magnitude_sq);
-        for (uint8_t idx = 0; idx < JD_AXES; idx++) vector[idx] *= inv_magnitude;
+        LOOP_XYZE(idx) vector[idx] *= inv_magnitude;
       }
 
-      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[JD_AXES]) {
+      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[XYZE]) {
         float limit_value = max_value;
-        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (unit_vec[idx]) // Avoid divide by zero
+        LOOP_XYZE(idx) if (unit_vec[idx]) // Avoid divide by zero
           NOMORE(limit_value, ABS(max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
         return limit_value;
       }
