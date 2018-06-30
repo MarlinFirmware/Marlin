@@ -46,31 +46,37 @@ char job_recovery_commands[BUFSIZE + APPEND_CMD_COUNT][MAX_CMD_SIZE];
 // Extern
 extern uint8_t commands_in_queue, cmd_queue_index_r;
 
-// Private
-static char sd_filename[MAXPATHNAMELENGTH];
-
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
   void debug_print_job_recovery(const bool recovery) {
     SERIAL_PROTOCOLPAIR("valid_head:", (int)job_recovery_info.valid_head);
     SERIAL_PROTOCOLLNPAIR(" valid_foot:", (int)job_recovery_info.valid_foot);
     if (job_recovery_info.valid_head) {
       if (job_recovery_info.valid_head == job_recovery_info.valid_foot) {
-        SERIAL_PROTOCOLPGM("current_position");
-        LOOP_XYZE(i) SERIAL_PROTOCOLPAIR(": ", job_recovery_info.current_position[i]);
+        SERIAL_PROTOCOLPGM("current_position: ");
+        LOOP_XYZE(i) {
+          SERIAL_PROTOCOL(job_recovery_info.current_position[i]);
+          if (i < E_AXIS) SERIAL_CHAR(',');
+        }
         SERIAL_EOL();
         SERIAL_PROTOCOLLNPAIR("feedrate: ", job_recovery_info.feedrate);
-        SERIAL_PROTOCOLPGM("target_temperature");
-        HOTEND_LOOP() SERIAL_PROTOCOLPAIR(": ", job_recovery_info.target_temperature[e]);
+        SERIAL_PROTOCOLPGM("target_temperature: ");
+        HOTEND_LOOP() {
+          SERIAL_PROTOCOL(job_recovery_info.target_temperature[e]);
+          if (e < HOTENDS - 1) SERIAL_CHAR(',');
+        }
         SERIAL_EOL();
-        SERIAL_PROTOCOLPGM("fanSpeeds");
-        for(uint8_t i = 0; i < FAN_COUNT; i++) SERIAL_PROTOCOLPAIR(": ", job_recovery_info.fanSpeeds[i]);
+        SERIAL_PROTOCOLPGM("fanSpeeds: ");
+        for (uint8_t i = 0; i < FAN_COUNT; i++) {
+          SERIAL_PROTOCOL(job_recovery_info.fanSpeeds[i]);
+          if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
+        }
         SERIAL_EOL();
+        #if HAS_HEATED_BED
+          SERIAL_PROTOCOLLNPAIR("target_temperature_bed: ", job_recovery_info.target_temperature_bed);
+        #endif
         #if HAS_LEVELING
           SERIAL_PROTOCOLPAIR("leveling: ", int(job_recovery_info.leveling));
           SERIAL_PROTOCOLLNPAIR(" fade: ", int(job_recovery_info.fade));
-        #endif
-        #if HAS_HEATED_BED
-          SERIAL_PROTOCOLLNPAIR("target_temperature_bed: ", job_recovery_info.target_temperature_bed);
         #endif
         SERIAL_PROTOCOLLNPAIR("cmd_queue_index_r: ", job_recovery_info.cmd_queue_index_r);
         SERIAL_PROTOCOLLNPAIR("commands_in_queue: ", job_recovery_info.commands_in_queue);
@@ -78,7 +84,7 @@ static char sd_filename[MAXPATHNAMELENGTH];
           for (uint8_t i = 0; i < job_recovery_commands_count; i++) SERIAL_PROTOCOLLNPAIR("> ", job_recovery_commands[i]);
         else
           for (uint8_t i = 0; i < job_recovery_info.commands_in_queue; i++) SERIAL_PROTOCOLLNPAIR("> ", job_recovery_info.command_queue[i]);
-        SERIAL_PROTOCOLLNPAIR("sd_filename: ", sd_filename);
+        SERIAL_PROTOCOLLNPAIR("sd_filename: ", job_recovery_info.sd_filename);
         SERIAL_PROTOCOLLNPAIR("sdpos: ", job_recovery_info.sdpos);
         SERIAL_PROTOCOLLNPAIR("print_job_elapsed: ", job_recovery_info.print_job_elapsed);
       }
@@ -160,7 +166,7 @@ void do_print_job_recovery() {
           debug_print_job_recovery(true);
         #endif
 
-        card.openFile(sd_filename, true);
+        card.openFile(job_recovery_info.sd_filename, true);
         card.setIndex(job_recovery_info.sdpos);
       }
       else {
@@ -227,7 +233,7 @@ void save_job_recovery_info() {
     job_recovery_info.print_job_elapsed = print_job_timer.duration() * 1000UL;
 
     // SD file position
-    card.getAbsFilename(sd_filename);
+    card.getAbsFilename(job_recovery_info.sd_filename);
     job_recovery_info.sdpos = card.getIndex();
 
     #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)

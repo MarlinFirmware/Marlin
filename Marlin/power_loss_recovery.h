@@ -56,7 +56,8 @@ typedef struct {
   uint8_t cmd_queue_index_r, commands_in_queue;
   char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
-  // SD File position
+  // SD Filename and position
+  char sd_filename[MAXPATHNAMELENGTH];
   uint32_t sdpos;
 
   // Job elapsed time
