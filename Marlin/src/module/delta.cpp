@@ -278,9 +278,9 @@ bool home_delta() {
 
   // At least one carriage has reached the top.
   // Now re-home each carriage separately.
-  HOMEAXIS(A);
-  HOMEAXIS(B);
-  HOMEAXIS(C);
+  homeaxis(A_AXIS);
+  homeaxis(B_AXIS);
+  homeaxis(C_AXIS);
 
   // Set all carriages to their home positions
   // Do this here all at once for Delta, because
