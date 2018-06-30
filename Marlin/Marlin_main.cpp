@@ -5691,7 +5691,7 @@ void home_all_axes() { gcode_G28(true); }
       }
 
       if (_7p_calibration) { // probe extra center points
-        const float start  = _7p_9_center ? _CA + _7P_STEP / 3.0 : _7p_6_center ? _CA : __C,
+        const float start  = _7p_9_center ? float(_CA) + _7P_STEP / 3.0 : _7p_6_center ? float(_CA) : float(__C),
                     steps  = _7p_9_center ? _4P_STEP / 3.0 : _7p_6_center ? _7P_STEP : _4P_STEP;
         I_LOOP_CAL_PT(rad, start, steps) {
           const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
