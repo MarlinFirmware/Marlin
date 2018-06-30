@@ -936,6 +936,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
 #endif
 
+#if ENABLED(G29_RETRY_AND_RECOVER) && HAS_LEVELING && !OLDSCHOOL_ABL
+  #error "G29_RETRY_AND_RECOVER currently only supports ABL"
+#endif
+
 /**
  * LCD_BED_LEVELING requirements
  */
