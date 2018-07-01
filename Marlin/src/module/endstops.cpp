@@ -256,6 +256,12 @@ void Endstops::not_homing() {
   #endif
 }
 
+// If the last move failed to trigger an endstop, call kill
+void Endstops::validate_homing_move() {
+  if (!trigger_state()) kill(PSTR(MSG_ERR_HOMING_FAILED));
+  hit_on_purpose();
+}
+
 // Enable / disable endstop z-probe checking
 #if HAS_BED_PROBE
   void Endstops::enable_z_probe(const bool onoff) {

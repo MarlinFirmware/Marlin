@@ -72,12 +72,10 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 
 float lcd_probe_pt(const float &rx, const float &ry);
 
-bool ac_home() {
+void ac_home() {
   endstops.enable(true);
-  if (!home_delta())
-    return false;
+  home_delta();
   endstops.not_homing();
-  return true;
 }
 
 void ac_setup(const bool reset_bed) {
@@ -530,8 +528,7 @@ void GcodeSuite::G33() {
 
   ac_setup(!_0p_calibration && !_1p_calibration);
 
-  if (!_0p_calibration)
-    if (!ac_home()) return;
+  if (!_0p_calibration) ac_home();
 
   do { // start iterations
 
@@ -724,7 +721,7 @@ void GcodeSuite::G33() {
         sprintf_P(&mess[15], PSTR("%03i.x"), (int)round(zero_std_dev));
       lcd_setstatus(mess);
     }
-    if (!ac_home()) return;
+    ac_home();
   }
   while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 
