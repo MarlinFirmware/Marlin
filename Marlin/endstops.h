@@ -72,7 +72,6 @@ class Endstops {
 
     #if ENABLED(ENDSTOP_NOISE_FILTER)
       static esbits_t validated_live_state;
-      uint8_t Endstops::endstop_poll_count;
       static uint8_t endstop_poll_count;    // Countdown from threshold for polling
     #endif
 
@@ -143,6 +142,9 @@ class Endstops {
 
     // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
     static void not_homing();
+
+    // If the last move failed to trigger an endstop, call kill
+    static void validate_homing_move();
 
     // Clear endstops (i.e., they were hit intentionally) to suppress the report
     FORCE_INLINE static void hit_on_purpose() { hit_state = 0; }

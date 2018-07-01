@@ -96,8 +96,6 @@ Stepper stepper; // Singleton
 
 // public:
 
-block_t* Stepper::current_block = NULL;  // A pointer to the block currently being traced
-
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
   bool Stepper::homing_dual_axis = false;
 #endif
@@ -107,6 +105,8 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
 #endif
 
 // private:
+
+block_t* Stepper::current_block = NULL; // A pointer to the block currently being traced
 
 uint8_t Stepper::last_direction_bits = 0,
         Stepper::axis_did_move;
@@ -379,6 +379,11 @@ void Stepper::set_directions() {
       }
     #endif
   #endif // !LIN_ADVANCE
+
+  // A small delay may be needed after changing direction
+  #if MINIMUM_STEPPER_DIR_DELAY > 0
+    DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+  #endif
 }
 
 #if ENABLED(S_CURVE_ACCELERATION)
@@ -1123,6 +1128,8 @@ HAL_STEP_TIMER_ISR {
 #define STEP_MULTIPLY(A,B) MultiU24X32toH16(A, B)
 
 void Stepper::isr() {
+  DISABLE_ISRS();
+
   // Program timer compare for the maximum period, so it does NOT
   // flag an interrupt while this ISR is running - So changes from small
   // periods to big periods are respected and the timer does not reset to 0
@@ -1269,7 +1276,7 @@ void Stepper::stepper_pulse_phase_isr() {
   // Get the timer count and estimate the end of the pulse
   hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
 
-  const hal_timer_t added_step_ticks = ADDED_STEP_TICKS;
+  const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
 
   // Take multiple steps per interrupt (For high speed moves)
   do {
@@ -1610,6 +1617,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       acceleration_time = deceleration_time = 0;
 
       uint8_t oversampling = 0;                         // Assume we won't use it
+
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
         // At this point, we must decide if we can use Stepper movement axis smoothing.
         uint32_t max_rate = current_block->nominal_rate;  // Get the maximum rate (maximum event speed)
@@ -1764,7 +1772,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     // Get the timer count and estimate the end of the pulse
     hal_timer_t pulse_end = HAL_timer_get_count(PULSE_TIMER_NUM) + hal_timer_t(MIN_PULSE_TICKS);
 
-    const hal_timer_t added_step_ticks = ADDED_STEP_TICKS;
+    const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
 
     // Step E stepper if we have steps
     while (LA_steps) {
@@ -1818,6 +1826,29 @@ uint32_t Stepper::stepper_block_phase_isr() {
     return interval;
   }
 #endif // LIN_ADVANCE
+
+// Check if the given block is busy or not - Must not be called from ISR contexts
+// The current_block could change in the middle of the read by an Stepper ISR, so
+// we must explicitly prevent that!
+bool Stepper::is_block_busy(const block_t* const block) {
+  #define sw_barrier() asm volatile("": : :"memory");
+
+  // Keep reading until 2 consecutive reads return the same value,
+  // meaning there was no update in-between caused by an interrupt.
+  // This works because stepper ISRs happen at a slower rate than
+  // successive reads of a variable, so 2 consecutive reads with
+  // the same value means no interrupt updated it.
+  block_t* vold, *vnew = current_block;
+  sw_barrier();
+  do {
+    vold = vnew;
+    vnew = current_block;
+    sw_barrier();
+  } while (vold != vnew);
+
+  // Return if the block is busy or not
+  return block == vnew;
+}
 
 void Stepper::init() {
 
@@ -2016,7 +2047,9 @@ void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c
 int32_t Stepper::position(const AxisEnum axis) {
   const bool was_enabled = STEPPER_ISR_ENABLED();
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+
   const int32_t v = count_position[axis];
+
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
   return v;
 }
@@ -2054,8 +2087,11 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
 int32_t Stepper::triggered_position(const AxisEnum axis) {
   const bool was_enabled = STEPPER_ISR_ENABLED();
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
+
   const int32_t v = endstops_trigsteps[axis];
+
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
+
   return v;
 }
 
