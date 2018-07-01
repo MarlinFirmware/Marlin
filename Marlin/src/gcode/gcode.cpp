@@ -353,6 +353,7 @@ void GcodeSuite::process_parsed_command(
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100: M100(); break;                                  // M100: Free Memory Report
       #endif
+      case 101: M101(); break;                                    // M101: RTOS Task Free Memory Report
 
       case 104: M104(); break;                                    // M104: Set hot end temperature
       case 109: M109(); break;                                    // M109: Wait for hotend temperature to reach target
