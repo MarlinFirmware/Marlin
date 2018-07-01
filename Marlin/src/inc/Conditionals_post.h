@@ -244,6 +244,15 @@
   #endif
 #endif
 
+#define HAS_MICROSTEP1 defined(MICROSTEP1)
+#define HAS_MICROSTEP2 defined(MICROSTEP2)
+#define HAS_MICROSTEP4 defined(MICROSTEP4)
+#define HAS_MICROSTEP8 defined(MICROSTEP8)
+#define HAS_MICROSTEP16 defined(MICROSTEP16)
+#define HAS_MICROSTEP32 defined(MICROSTEP32)
+#define HAS_MICROSTEP64 defined(MICROSTEP64)
+#define HAS_MICROSTEP128 defined(MICROSTEP128)
+
 /**
  * Override here because this is set in Configuration_adv.h
  */
