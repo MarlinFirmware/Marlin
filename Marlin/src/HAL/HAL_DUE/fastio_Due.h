@@ -67,7 +67,7 @@
 // Write to a pin
 #define _WRITE_VAR(IO,V) do { \
   volatile Pio* port = digitalPinToPort(IO); \
-  uint32_t mask = g_APinDescription[IO].ulPin; \
+  uint32_t mask = digitalPinToBitMask(IO); \
   if (V) port->PIO_SODR = mask; \
   else port->PIO_CODR = mask; \
 } while(0)
@@ -86,13 +86,13 @@
 // Set pin as input
 #define _SET_INPUT(IO) do{ \
   pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
-  PIO_Configure(g_APinDescription[IO].pPort, PIO_INPUT, digitalPinToBitMask(IO), 0); \
+  PIO_Configure(digitalPinToPort(IO), PIO_INPUT, digitalPinToBitMask(IO), 0); \
 }while(0)
 
 // Set pin as output
 #define _SET_OUTPUT(IO) do{ \
   pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
-  PIO_Configure(g_APinDescription[IO].pPort, _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, digitalPinToBitMask(IO), g_APinDescription[IO].ulPinConfiguration); \
+  PIO_Configure(digitalPinToPort(IO), _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, digitalPinToBitMask(IO), g_APinDescription[IO].ulPinConfiguration); \
   g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT;\
 }while(0)
 
@@ -120,11 +120,8 @@
 #define GET_INPUT(IO) !(digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO))
 // Check if pin is an output
 #define GET_OUTPUT(IO) !!(digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO))
-// Check if pin is a timer
-#define GET_TIMER(IO) ( \
-     (g_APinDescription[IO].ulPinAttribute & PIN_ATTR_TIMER) == PIN_ATTR_TIMER \
-  || (g_APinDescription[IO].ulPinAttribute & PIN_ATTR_PWM) == PIN_ATTR_PWM \
-)
+// Check if pin is a timer - Must be a constexpr
+#define GET_TIMER(IO) ((IO) >= 2 && (IO) <= 13)
 
 // Shorthand
 #define OUT_WRITE(IO,V) { SET_OUTPUT(IO); WRITE(IO,V); }
