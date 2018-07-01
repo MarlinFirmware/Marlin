@@ -1444,4 +1444,8 @@
   #define USE_EXECUTE_COMMANDS_IMMEDIATE
 #endif
 
+#ifdef BOARD_INIT
+  #define HAS_BOARD_INIT
+#endif
+
 #endif // CONDITIONALS_POST_H
