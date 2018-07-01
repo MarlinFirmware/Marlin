@@ -103,7 +103,7 @@
 // For Extension Board V2
 // http://doku.radds.org/dokumentation/extension-board
 //#define HAS_RADDS_EXTENSION
-#if ENABLED(HAS_RADD_EXTENSION)
+#if ENABLED(HAS_RADDS_EXTENSION)
   #define E3_STEP_PIN        35
   #define E3_DIR_PIN         33
   #define E3_ENABLE_PIN      37
