@@ -34,9 +34,12 @@
 // Ignore temp readings during development.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
+<<<<<<< HEAD
 // Ignore temp readings during development.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
+=======
+>>>>>>> 8a8eae8d9759af7e3934d371dffa246229a0cfc1
 //
 // Limit Switches
 //
@@ -56,11 +59,19 @@
 
 #define Y_STEP_PIN         PA12
 #define Y_DIR_PIN          PA11
+<<<<<<< HEAD
 #define Y_ENABLE_PIN       PA15   
 
 #define Z_STEP_PIN         PD6
 #define Z_DIR_PIN          PD3
 #define Z_ENABLE_PIN       PB3    
+=======
+#define Y_ENABLE_PIN       PA15   // core conflict?
+
+#define Z_STEP_PIN         PD6
+#define Z_DIR_PIN          PD3
+#define Z_ENABLE_PIN       PB3    // core conflict?
+>>>>>>> 8a8eae8d9759af7e3934d371dffa246229a0cfc1
 
 #define E0_STEP_PIN        PC14
 #define E0_DIR_PIN         PC13
@@ -75,6 +86,7 @@
 #define E2_ENABLE_PIN      PC4
 
 //
+<<<<<<< HEAD
 // Endstops
 //
 #define X_MIN_PIN          PE5
@@ -199,3 +211,30 @@
 
 
 
+=======
+// Temperature Sensors
+//
+#define TEMP_BED_PIN       PC0
+#define TEMP_0_PIN         PC1
+#define TEMP_1_PIN         PC2
+#define TEMP_2_PIN         PC3
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       PB4   // EXTRUDER 1
+#define HEATER_1_PIN       PB5   // EXTRUDER 2
+#define HEATER_2_PIN       PB0   // EXTRUDER 3
+#define HEATER_BED_PIN     PB1   // BED
+
+#ifndef FAN_PIN
+  #define FAN_PIN          PB7   // (Sprinter config)
+#endif
+#define FAN1_PIN           PB8
+#define FAN2_PIN           PB9
+
+//
+// Misc. Functions
+//
+#define LED_PIN            PD12
+>>>>>>> 8a8eae8d9759af7e3934d371dffa246229a0cfc1

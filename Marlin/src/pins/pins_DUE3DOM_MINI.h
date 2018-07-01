@@ -88,7 +88,9 @@
 #define HEATER_0_PIN       13   // HOTEND0 MOSFET
 #define HEATER_BED_PIN      7   // BED MOSFET
 
-#define FAN_PIN            11   // FAN1 header on board - PRINT FAN
+#ifndef FAN_PIN
+  #define FAN_PIN          11   // FAN1 header on board - PRINT FAN
+#endif
 #define FAN1_PIN           12   // FAN2 header on board - CONTROLLER FAN
 #define FAN2_PIN            9   // FAN3 header on board - EXTRUDER0 FAN
 //#define FAN3_PIN          8   // FAN0 4-pin header on board

@@ -209,8 +209,6 @@
   #include "pins_MELZI_CREALITY.h"    // ATmega644P, ATmega1284P                    env:sanguino_atmega644p env:sanguino_atmega1284p
 #elif MB(MELZI_MALYAN)
   #include "pins_MELZI_MALYAN.h"      // ATmega644P, ATmega1284P                    env:sanguino_atmega644p env:sanguino_atmega1284p
-#elif MB(CREALITY_ENDER)
-  #include "pins_CREALITY_ENDER.h"    // ATmega1284P                                env:sanguino_atmega1284p
 #elif MB(MELZI_TRONXY)
   #include "pins_MELZI_TRONXY.h"      // ATmega644P, ATmega1284P                    env:sanguino_atmega644p env:sanguino_atmega1284p
 #elif MB(STB_11)
@@ -363,7 +361,11 @@
 #elif MB(CHITU3D)
   #include "pins_CHITU3D.h"           // STM32F1                                    env:STM32F1
 #elif MB(GTM32_PRO_VB)
+<<<<<<< HEAD
   #include "pins_GTM32_PRO_VB.h"           // STM32F1                                    env:STM32F1  
+=======
+  #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1
+>>>>>>> 8a8eae8d9759af7e3934d371dffa246229a0cfc1
 
 //
 // STM32 ARM Cortex-M4F
@@ -382,6 +384,13 @@
 
 #elif MB(THE_BORG)
   #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7
+
+//
+// Espressif ESP32
+//
+
+#elif MB(ESP32)
+  #include "pins_ESP32.h"
 
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"

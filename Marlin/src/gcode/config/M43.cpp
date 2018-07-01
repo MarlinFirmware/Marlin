@@ -35,7 +35,7 @@
 #endif
 
 inline void toggle_pins() {
-  const bool I_flag = parser.boolval('I');
+  const bool ignore_protection = parser.boolval('I');
   const int repeat = parser.intval('R', 1),
             start = PARSED_PIN_INDEX('S', 0),
             end = PARSED_PIN_INDEX('E', NUM_DIGITAL_PINS - 1),
@@ -43,14 +43,14 @@ inline void toggle_pins() {
 
   for (uint8_t i = start; i <= end; i++) {
     pin_t pin = GET_PIN_MAP_PIN(i);
-    //report_pin_state_extended(pin, I_flag, false);
+    //report_pin_state_extended(pin, ignore_protection, false);
     if (!VALID_PIN(pin)) continue;
-    if (!I_flag && pin_is_protected(pin)) {
-      report_pin_state_extended(pin, I_flag, true, "Untouched ");
+    if (!ignore_protection && pin_is_protected(pin)) {
+      report_pin_state_extended(pin, ignore_protection, true, "Untouched ");
       SERIAL_EOL();
     }
     else {
-      report_pin_state_extended(pin, I_flag, true, "Pulsing   ");
+      report_pin_state_extended(pin, ignore_protection, true, "Pulsing   ");
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == TEENSY_E2) {
           SET_OUTPUT(TEENSY_E2);
@@ -275,7 +275,7 @@ void GcodeSuite::M43() {
     for (uint8_t i = first_pin; i <= last_pin; i++) {
       pin_t pin = GET_PIN_MAP_PIN(i);
       if (!VALID_PIN(pin)) continue;
-      if (pin_is_protected(pin) && !ignore_protection) continue;
+      if (!ignore_protection && pin_is_protected(pin)) continue;
       pinMode(pin, INPUT_PULLUP);
       delay(1);
       /*
@@ -295,7 +295,7 @@ void GcodeSuite::M43() {
       for (uint8_t i = first_pin; i <= last_pin; i++) {
         pin_t pin = GET_PIN_MAP_PIN(i);
         if (!VALID_PIN(pin)) continue;
-        if (pin_is_protected(pin) && !ignore_protection) continue;
+        if (!ignore_protection && pin_is_protected(pin)) continue;
         const byte val =
           /*
             IS_ANALOG(pin)

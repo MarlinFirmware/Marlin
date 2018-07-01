@@ -499,7 +499,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 }
 
 // detect 17x[4-8] (100MHz) or 17x9 (120MHz)
-static int can_120MHz() {
+int isLPC1769() {
   #define IAP_LOCATION 0x1FFF1FF1
   uint32_t command[1];
   uint32_t result[5];
@@ -558,7 +558,7 @@ void SystemInit (void)
 
   LPC_SC->CCLKCFG   = 0x00000002;       /* Setup CPU Clock Divider            */
 
-  if(can_120MHz()) {
+  if(isLPC1769()) {
     LPC_SC->PLL0CFG   = 0x0000000E;     /* configure PLL0                     */
     LPC_SC->PLL0FEED  = 0xAA;
     LPC_SC->PLL0FEED  = 0x55;

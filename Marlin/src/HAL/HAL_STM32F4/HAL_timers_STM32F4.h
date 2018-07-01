@@ -38,21 +38,22 @@
 #define hal_timer_t uint32_t  // TODO: One is 16-bit, one 32-bit - does this need to be checked?
 #define HAL_TIMER_TYPE_MAX 0xFFFF
 
+#define HAL_TIMER_RATE         (HAL_RCC_GetSysClockFreq() / 2)  // frequency of timer peripherals
+
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
 #define TEMP_TIMER_NUM 1  // index of timer to use for temperature
-
-#define HAL_TIMER_RATE         (HAL_RCC_GetSysClockFreq() / 2)  // frequency of timer peripherals
-#define STEPPER_TIMER_PRESCALE 54            // was 40,prescaler for setting stepper timer, 2Mhz
-#define HAL_STEPPER_TIMER_RATE (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer
-#define HAL_TICKS_PER_US       ((HAL_STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
-
 #define PULSE_TIMER_NUM STEP_TIMER_NUM
-#define PULSE_TIMER_PRESCALE STEPPER_TIMER_PRESCALE
 
 #define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz
 #define TEMP_TIMER_FREQUENCY    1000 // temperature interrupt frequency
 
-#define STEP_TIMER_MIN_INTERVAL    8 // minimum time in µs between stepper interrupts
+#define STEPPER_TIMER_PRESCALE 54 // was 40,prescaler for setting stepper timer, 2Mhz
+#define STEPPER_TIMER_RATE     (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)   // frequency of stepper timer
+#define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
+
+#define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer
+#define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
+#define PULSE_TIMER_TICKS_PER_US STEPPER_TIMER_TICKS_PER_US
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_enable_interrupt(STEP_TIMER_NUM)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() HAL_timer_disable_interrupt(STEP_TIMER_NUM)
@@ -63,27 +64,38 @@
 
 // TODO change this
 
+#ifdef STM32GENERIC
+  extern void TC5_Handler();
+  extern void TC7_Handler();
+  #define HAL_STEP_TIMER_ISR void TC5_Handler()
+  #define HAL_TEMP_TIMER_ISR void TC7_Handler()
+#else
+  extern void TC5_Handler(stimer_t *htim);
+  extern void TC7_Handler(stimer_t *htim);
+  #define HAL_STEP_TIMER_ISR void TC5_Handler(stimer_t *htim)
+  #define HAL_TEMP_TIMER_ISR void TC7_Handler(stimer_t *htim)
+#endif
 
-extern void TC5_Handler();
-extern void TC7_Handler();
-#define HAL_STEP_TIMER_ISR  void TC5_Handler()
-#define HAL_TEMP_TIMER_ISR  void TC7_Handler()
 
 // --------------------------------------------------------------------------
 // Types
 // --------------------------------------------------------------------------
 
-typedef struct {
-  TIM_HandleTypeDef timerdef;
-  IRQn_Type   IRQ_Id;
-  uint32_t callback;
-} tTimerConfig;
+#ifdef STM32GENERIC
+  typedef struct {
+    TIM_HandleTypeDef handle;
+    uint32_t callback;
+  } tTimerConfig;
+  typedef tTimerConfig stm32f4_timer_t;
+#else
+  typedef stimer_t stm32f4_timer_t;
+#endif
 
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
 
-//extern const tTimerConfig timerConfig[];
+extern stm32f4_timer_t TimerHandle[];
 
 // --------------------------------------------------------------------------
 // Public functions
@@ -94,12 +106,35 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
-void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare);
-hal_timer_t HAL_timer_get_compare(const uint8_t timer_num);
-uint32_t HAL_timer_get_count(const uint8_t timer_num);
-void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks);
+FORCE_INLINE static uint32_t HAL_timer_get_count(const uint8_t timer_num) {
+  return __HAL_TIM_GET_COUNTER(&TimerHandle[timer_num].handle);
+}
 
-void HAL_timer_isr_prologue(const uint8_t timer_num);
+FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare) {
+  __HAL_TIM_SET_AUTORELOAD(&TimerHandle[timer_num].handle, compare);
+  if (HAL_timer_get_count(timer_num) >= compare)
+    TimerHandle[timer_num].handle.Instance->EGR |= TIM_EGR_UG; // Generate an immediate update interrupt
+}
+
+FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
+  return __HAL_TIM_GET_AUTORELOAD(&TimerHandle[timer_num].handle);
+}
+
+FORCE_INLINE static void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks) {
+  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_ticks;
+  if (HAL_timer_get_compare(timer_num) < mincmp)
+    HAL_timer_set_compare(timer_num, mincmp);
+}
+
+#ifdef STM32GENERIC
+  FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
+    if (__HAL_TIM_GET_FLAG(&TimerHandle[timer_num].handle, TIM_FLAG_UPDATE) == SET)
+      __HAL_TIM_CLEAR_FLAG(&TimerHandle[timer_num].handle, TIM_FLAG_UPDATE);
+  }
+#else
+  #define HAL_timer_isr_prologue(TIMER_NUM)
+#endif
+
 #define HAL_timer_isr_epilogue(TIMER_NUM)
 
 #endif // _HAL_TIMERS_STM32F4_H

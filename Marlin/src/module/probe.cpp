@@ -386,7 +386,7 @@ bool set_probe_deployed(const bool deploy) {
 
   // For beds that fall when Z is powered off only raise for trusted Z
   #if ENABLED(UNKNOWN_Z_NO_RAISE)
-    const bool unknown_condition = axis_known_position[Z_AXIS];
+    const bool unknown_condition = TEST(axis_known_position, Z_AXIS);
   #else
     constexpr float unknown_condition = true;
   #endif
@@ -532,7 +532,6 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (probe_triggered && set_bltouch_deployed(false)) return true;
   #endif
 
-  // Clear endstop flags
   endstops.hit_on_purpose();
 
   // Get Z where the steppers were interrupted
@@ -562,7 +561,7 @@ static float run_z_probe() {
 
   // Stop the probe before it goes too low to prevent damage.
   // If Z isn't known then probe to -10mm.
-  const float z_probe_low_point = axis_known_position[Z_AXIS] ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
+  const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -zprobe_zoffset + Z_PROBE_LOW_POINT : -10.0;
 
   // Double-probing does a fast probe followed by a slow probe
   #if MULTIPLE_PROBING == 2

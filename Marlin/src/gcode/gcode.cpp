@@ -61,11 +61,6 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
   float GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
 #endif
 
-#if HAS_LEVELING && ENABLED(G29_RETRY_AND_RECOVER)
-  #include "../feature/bedlevel/bedlevel.h"
-  #include "../module/planner.h"
-#endif
-
 /**
  * Set target_extruder from the T parameter or the active_extruder
  *
@@ -136,34 +131,37 @@ void GcodeSuite::dwell(millis_t time) {
  */
 #if HAS_LEVELING && ENABLED(G29_RETRY_AND_RECOVER)
 
+  #ifndef G29_MAX_RETRIES
+    #define G29_MAX_RETRIES 0
+  #endif
+   
   void GcodeSuite::G29_with_retry() {
-    set_bed_leveling_enabled(false);
-    for (uint8_t i = G29_MAX_RETRIES; i--;) {
-      G29();
-      if (planner.leveling_active) break;
-      #ifdef G29_ACTION_ON_RECOVER
-        SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_RECOVER);
-      #endif
-      #ifdef G29_RECOVER_COMMANDS
-        process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
-      #endif
+    uint8_t retries = G29_MAX_RETRIES;
+    while (G29()) { // G29 should return true for failed probes ONLY
+      if (retries--) {
+        #ifdef G29_ACTION_ON_RECOVER
+          SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_RECOVER);
+        #endif
+        #ifdef G29_RECOVER_COMMANDS
+          process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+        #endif   
+      }
+      else {
+        #ifdef G29_FAILURE_COMMANDS
+          process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+        #endif
+        #ifdef G29_ACTION_ON_FAILURE
+          SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_FAILURE);
+        #endif
+        #if ENABLED(G29_HALT_ON_FAILURE)
+          kill(PSTR(MSG_ERR_PROBING_FAILED));
+        #endif
+        return;
+      }
     }
-    if (planner.leveling_active) {
-      #ifdef G29_SUCCESS_COMMANDS
-        process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
-      #endif
-    }
-    else {
-      #ifdef G29_FAILURE_COMMANDS
-        process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
-      #endif
-      #ifdef G29_ACTION_ON_FAILURE
-        SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_FAILURE);
-      #endif
-      #if ENABLED(G29_HALT_ON_FAILURE)
-        kill(PSTR(MSG_ERR_PROBING_FAILED));
-      #endif
-    }
+    #ifdef G29_SUCCESS_COMMANDS
+      process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
+    #endif
   }
 
 #endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
@@ -599,6 +597,10 @@ void GcodeSuite::process_parsed_command(
         case 702: M702(); break;                                  // M702: Unload Filament
       #endif
 
+      #if ENABLED(MAX7219_GCODE)
+        case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
+      #endif
+
       #if ENABLED(LIN_ADVANCE)
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
@@ -690,8 +692,6 @@ void GcodeSuite::process_next_command() {
       M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
     #endif
   }
-
-  reset_stepper_timeout(); // Keep steppers powered
 
   // Parse the next command in the queue
   parser.parse(current_command);

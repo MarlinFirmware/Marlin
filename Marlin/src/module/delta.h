@@ -128,6 +128,6 @@ FORCE_INLINE void forward_kinematics_DELTA(float point[ABC]) {
   forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
 }
 
-bool home_delta();
+void home_delta();
 
 #endif // __DELTA_H__

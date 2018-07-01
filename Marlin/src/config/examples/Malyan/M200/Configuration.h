@@ -268,6 +268,7 @@
  *
  * Temperature sensors available:
  *
+ *    -4 : thermocouple with AD8495
  *    -3 : thermocouple with MAX31855 (only for sensor 0)
  *    -2 : thermocouple with MAX6675 (only for sensor 0)
  *    -1 : thermocouple with AD595
@@ -835,9 +836,6 @@
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR false
-
-// Enable this option for Toshiba stepper drivers
-//#define CONFIG_STEPPERS_TOSHIBA
 
 // @section extruder
 
@@ -1781,7 +1779,7 @@
 // LCD for Malyan M200 printers.
 // This requires SDSUPPORT to be enabled
 //
-//#define MALYAN_LCD
+#define MALYAN_LCD
 
 //
 // CONTROLLER TYPE: Keypad / Add-on
