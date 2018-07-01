@@ -31,25 +31,9 @@
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"
 #define BOARD_NAME "GTM32 Pro VB"
 
-<<<<<<< HEAD
-// Ignore temp readings during develpment.
+// Ignore temp readings during development.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
-//
-// Steppers
-//
-#define X_STEP_PIN         PC6		
-#define X_DIR_PIN          PD13		
-#define X_ENABLE_PIN       PA8		
-
-#define Y_STEP_PIN         PA12
-#define Y_DIR_PIN          PA11
-#define Y_ENABLE_PIN       PA15		// core conflict?
-
-#define Z_STEP_PIN         PD6		
-#define Z_DIR_PIN          PD3		
-#define Z_ENABLE_PIN       PB3		// core conflict?
-=======
 // Ignore temp readings during development.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
@@ -72,12 +56,11 @@
 
 #define Y_STEP_PIN         PA12
 #define Y_DIR_PIN          PA11
-#define Y_ENABLE_PIN       PA15   // core conflict?
+#define Y_ENABLE_PIN       PA15   
 
 #define Z_STEP_PIN         PD6
 #define Z_DIR_PIN          PD3
-#define Z_ENABLE_PIN       PB3    // core conflict?
->>>>>>> 15e4f82f8a24b779d0d323b3223be3469ac0993b
+#define Z_ENABLE_PIN       PB3    
 
 #define E0_STEP_PIN        PC14
 #define E0_DIR_PIN         PC13
@@ -92,7 +75,6 @@
 #define E2_ENABLE_PIN      PC4
 
 //
-<<<<<<< HEAD
 // Endstops
 //
 #define X_MIN_PIN          PE5
@@ -105,29 +87,18 @@
 #define Z_MAX_PIN          PE0
 
 //
-// Misc. Functions
-//
-#define SDPOWER            -1
-#define SDSS               -1
-#define LED_PIN            PD12
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
-
-//
 // Heaters 
 //
 #define HEATER_0_PIN       PB4   // EXTRUDER 1
 #define HEATER_1_PIN       PB5	 // EXTRUDER 2
 #define HEATER_2_PIN       PB0	 // EXTRUDER 3
 
-#define HEATER_BED_PIN     PB1		 // BED
-#define HEATER_BED2_PIN    -1    // BED2
-#define HEATER_BED3_PIN    -1    // BED3
+#define HEATER_BED_PIN     PB1	 // BED
+
 
 //
 // Fans
 //
-#define FAN_PIN            -1    // (Sprinter config)
 #define FAN0_PIN           PB7  // ToDo: Add functionality
 #define FAN1_PIN           PB8  // ToDo: Add functionality
 #define FAN2_PIN           PB9  // ToDo: Add functionality
@@ -141,123 +112,90 @@
 #define TEMP_2_PIN         PC3   // PORT NUMBERING
 
 //
+// Beep
+//
+#define BEEP 				PB10
+
+//
 // LCD Pins			
 //
-#define LCD_D15 			-1
-#define LCD_D14 			-1
-#define LCD_D13 			-1
-#define LCD_D12 			-1
-#define LCD_D11 			-1
-#define LCD_D10 			-1
-#define LCD_D9 				-1
-#define LCD_D8 				-1
-#define LCD_D7 				-1
-#define LCD_D6 				-1
-#define LCD_D5 				-1
-#define LCD_WR 				-1
-#define LCD_RD 				-1
-#define LCD_RS 				-1
-#define LCD_CS 				-1
-#define RESET 				-1
-#define LCD_D0 				-1
-#define LCD_D1 				-1
-#define LCD_D2 				-1
-#define LCD_D3 				-1
-#define LCD_D4 				-1
-#define T_PEN 				-1
-#define SPI2_MOSI 			-1
-#define SPI2_MISO 			-1
-#define SPI2_SCK 			-1
-#define SPI2_NSS 			-1
-#define SD_DATA2 			-1
-#define SD_DATA3 			-1
-#define SD_CMD 				-1
-#define SD_CLK 				-1
-#define SD_DATA0 			-1
-#define SD_DATA1 			-1
-#define SD_CD 				-1
+#define LCD_D15 			PD10
+#define LCD_D14 			PD9
+#define LCD_D13 			PD8
+#define LCD_D12 			PE15
+#define LCD_D11 			PE14
+#define LCD_D10 			PE13
+#define LCD_D9 				PE12
+#define LCD_D8 				PE11
+#define LCD_D7 				PE10
+#define LCD_D6 				PE9
+#define LCD_D5 				PE8
+#define LCD_D4 				PE7
+#define LCD_D3 				PD1
+#define LCD_D2 				PD0
+#define LCD_D1 				PD15
+#define LCD_D0 				PD14
+
+#define LCD_WR 				PD5
+#define LCD_RD 				PD4
+#define LCD_RS 				PD11
+#define LCD_CS 				PD7
+//#define RESET 				NRST
+
+#define T_PEN 				PE6
+
+#define SPI2_MOSI 			PB15
+#define SPI2_MISO 			PB14
+#define SPI2_SCK 			PB13
+#define SPI2_NSS 			PB12
 
 //
-// UART LCD Pins
+// SD Card on LCD
 //
-#define LCD_D13 			-1  			//	TXD3
-#define LCD_D14 			-1				//	RXD3
+#define SD_CD 				PC7
+#define SD_DATA0 			PC8
+#define SD_DATA1 			PC9
+#define SD_DATA2 			PC10
+#define SD_DATA3 			PC11
+#define SD_CMD 				PD2
+#define SD_CLK 				PC12
 
 //
-// SD Card
+// UART LCD Pins, if used
 //
-#define SD_DATA2 			-1
-#define SD_DATA3 			-1
-#define SD_CMD 				-1
-#define SD_CLK 				-1
-#define SD_DATA0 			-1 
-#define SD_DATA1 			-1
-#define SD_CD 				-1
+//#define LCD_D14 			PD9			//	RXD3
+//#define LCD_D13 			PD8			//	TXD3
 
+//
+// SPI Flash (on board Card Socket)
+//
+#define SPI1_NSS 			PA4
+#define SPI1_SCK			PA5
+#define SPI1_MISO			PA6
+#define SPI1_MOSI			PA7
+			
 //
 // Debug
 //
-#define SDA 				-1
-#define SCL 				-1
+//#define SDA 				PA13
+//#define SCL 				PA14
 
 //
 // Wifi
 //
-#define ES 					-1
-#define WIFI_LED 			-1
-#define USART2_RX 			-1
-#define USART2_TX 			-1
-#define RST_W 				-1
+#define USART2_RX 			PA3			//default alternate function 
+#define USART2_TX 			PA2			//default alternate function 
+
+//
+// MISC
+//
+#define LED_PWM				PD12		//external LED, pin 2 on LED labeled connector
+
 
 //
 // Boot
 //
-#define RTS 				-1
-#define BOOT0 				-1
+//#define BOOT0 			BOOT0
 
-//
-// Beep
-//
-#define BEEP 				-1
 
-//
-// SPI Flash
-//
-#define SPI1_NSS 			-1
-#define SPI1_MISO			-1
-#define SPI1_SCK			-1
-#define SPI1_MOSI			-1
 
-//
-// Onboard mSD Card Socket
-//
-#define SPI1_MISO 			-1
-#define SPI1_NSS 			-1
-#define SPI1_SCK 			-1
-#define SPI1_MOSI 			-1
-=======
-// Temperature Sensors
-//
-#define TEMP_BED_PIN       PC0
-#define TEMP_0_PIN         PC1
-#define TEMP_1_PIN         PC2
-#define TEMP_2_PIN         PC3
-
-//
-// Heaters / Fans
-//
-#define HEATER_0_PIN       PB4   // EXTRUDER 1
-#define HEATER_1_PIN       PB5   // EXTRUDER 2
-#define HEATER_2_PIN       PB0   // EXTRUDER 3
-
-#define HEATER_BED_PIN     PB1   // BED
-
-#define FAN_PIN            PB7   // (Sprinter config)
-#define FAN1_PIN           PB8
-#define FAN2_PIN           PB9
-
-//
-// Misc. Functions
-//
-#define LED_PIN            PD12
->>>>>>> 15e4f82f8a24b779d0d323b3223be3469ac0993b

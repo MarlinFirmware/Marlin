@@ -209,11 +209,7 @@
 #define BOARD_STM32F1R         1800   // STM32R Libmaple based STM32F1 controller
 #define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
 #define BOARD_STM3R_MINI       1803   // STM32 Libmaple based stm32f1 controller
-<<<<<<< HEAD
-#define BOARD_GTM32_PRO_VB	       1805   // STM32f103VET6 controller
-=======
-#define BOARD_GTM32_PRO_VB     1805   // STM32f103VET6 controller
->>>>>>> 15e4f82f8a24b779d0d323b3223be3469ac0993b
+#define BOARD_GTM32_PRO_VB	   1805   // STM32f103VET6 controller
 
 //
 // STM32 ARM Cortex-M4F

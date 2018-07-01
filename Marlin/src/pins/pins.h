@@ -363,12 +363,8 @@
 #elif MB(CHITU3D)
   #include "pins_CHITU3D.h"           // STM32F1                                    env:STM32F1
 #elif MB(GTM32_PRO_VB)
-<<<<<<< HEAD
   #include "pins_GTM32_PRO_VB.h"           // STM32F1                                    env:STM32F1  
-=======
-  #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1
 
->>>>>>> 15e4f82f8a24b779d0d323b3223be3469ac0993b
 //
 // STM32 ARM Cortex-M4F
 //
