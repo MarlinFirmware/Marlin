@@ -531,6 +531,14 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   }
 }
 
+#if ENABLED(MAX7219_DEBUG)
+  QueueHandle_t Max7219_Queue = NULL;
+  unsigned long int zz = 0,         // Temporary - will go away soon - used by loop()   
+                    zzz = 0,        // Temporary - will go away soon - used by Marlin_idle()   
+                    zzzz = 0,       // Temporary - will go away soon - used by Marlin_main_loop()
+                    zzzzz = 0;      // Temporary - will go away soon - used by idle()
+#endif
+
 /**
  * Standard idle routine keeps the machine alive
  */
@@ -540,7 +548,8 @@ void idle(
   #endif
 ) {
   #if ENABLED(MAX7219_DEBUG)
-    max7219.idle_tasks();
+    zzzzz++;
+    Max7219_Do_Cmd(LED_SET_ROW, 0, 5, uint8_t(zzzzz >> 5));
   #endif
 
   lcd_update();
@@ -683,6 +692,18 @@ void setup() {
 
   #if ENABLED(MAX7219_DEBUG)
     max7219.init();
+
+    Max7219_Queue = xQueueCreate(3 /* # of queue items */, sizeof(LED_Msg));
+    if (Max7219_Queue == NULL) {
+      Max7219_Set_Row(0, 0xe5);
+      for (;;);
+    }
+
+    // Create the Max7219 debug task.  It is very low priority in an attempt to not affect the
+    // normal timing of Marlin.  But if too many messages are sent too quickly to the task,
+    // the command queue will fill up and the sender will block until a message has been drained
+    // to make room for the next message.  
+    xTaskCreate((TaskFunction_t)Max7219_Cmd_Processor, "Max7219_LEDs", 200 /* Stack size */, NULL, 2  /* priority */, NULL);
   #endif
 
   ptr = (char *) malloc(75);  // reserve some memory for the RTOS to use later.  It will be given
@@ -965,7 +986,16 @@ TaskFunction_t Marlin_main_loop() {
                           // In the mean time...  settings.load() is run at the start of the Marlin_main_loop()
                           // task.  This approach seems to work around what ever the problem is.
 
+  Max7219_Do_Cmd(LED_CLEAR_MATRIX, 0, 0, 0);
+
   for (;;) {
+
+    #if ENABLED(MAX7219_DEBUG)
+      zzzz++;
+      Max7219_Do_Cmd(LED_SET_ROW, 0, 7, uint8_t(zzzz >> 4));
+      if ((zzzz & 0x20) == 0x20)
+        Max7219_Do_Cmd(LED_TOGGLE, 5, 1, 0);
+    #endif
 
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
@@ -999,4 +1029,27 @@ TaskFunction_t Marlin_main_loop() {
     idle();
     vTaskDelay(1);
   }
+}
+
+TaskFunction_t Marlin_idle() {
+  for (;;) {
+    Max7219_Do_Cmd(LED_SET_ROW, 0, 6, (uint8_t) (zzz++>>3));
+    vTaskDelay(3);
+  }
+}
+
+/**
+ * Very low priority, non-blocking logic can be called from loop()   This represents
+ * a small shift from the past.   FreeRTOS expects a setup() routine and loop() routine
+ * within an Arduino environment.   loop() is called from the RTOS idle task and is of a
+ * very low priority.  The FreeRTOS idle routine can not be any priority except zero.
+ * 
+ * A loop() function must be available for FreeRTOS to call.  But the main Marlin loop
+ * logic needs to be at a very high priority.  That is the reason for the name shifts.
+ */
+
+void loop() {
+  #if ENABLED(MAX7219_DEBUG)
+    Max7219_LED_Toggle(7, 0); // Max7219_Do_Cmd(LED_TOGGLE, 7, 0, 0); can not be used because loop() is not allowed to block!
+  #endif
 }

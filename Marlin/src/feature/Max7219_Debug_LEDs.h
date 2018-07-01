@@ -155,3 +155,31 @@ private:
 };
 
 extern Max7219 max7219;
+
+// RTOS hooks
+void Max7219_Do_Cmd(uint8_t msg, uint8_t row, uint8_t col, uint32_t val);
+TaskFunction_t Max7219_Cmd_Processor(void*);
+
+#define LED_NOP          0x00
+#define LED_LOAD_REGS    0x01
+#define LED_INIT         0x02
+#define LED_ON           0x03
+#define LED_OFF          0x04
+#define LED_TOGGLE       0x05
+#define LED_CLEAR_MATRIX 0x06
+#define LED_CLEAR_ROW    0x07
+#define LED_CLEAR_COLUMN 0x08
+#define LED_SET_ROW      0x09
+#define LED_SET_2_ROWS   0x0a
+#define LED_SET_4_ROWS   0x0b
+#define LED_SET_COLUMN   0x0c
+#define LED_IDLE_TASK    0x0d
+
+struct LED_Msg {
+  uint8_t operation;
+  uint8_t row;
+  uint8_t col;
+  uint32_t val;
+};
+
+#endif // __MAX7219_DEBUG_LEDS_H__

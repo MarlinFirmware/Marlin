@@ -355,6 +355,10 @@ void GcodeSuite::process_parsed_command(
       #endif
       case 101: M101(); break;                                    // M101: RTOS Task Free Memory Report
 
+      #if ENABLED(MAX7219_DEBUG) 
+        case 102: M102(); break;                                  // M102: Max7219 register re-initialization (for debugging)
+      #endif
+
       case 104: M104(); break;                                    // M104: Set hot end temperature
       case 109: M109(); break;                                    // M109: Wait for hotend temperature to reach target
       case 110: M110(); break;                                    // M110: Set Current Line Number

@@ -115,6 +115,7 @@
  * M92  - Set planner.axis_steps_per_mm for one or more axes.
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  * M101 - RTOS Task Free Memory report (for debugging)
+ * M102 - Max7219 re-initialization of setup registers  (for debugging)
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
  * M106 - Set print fan speed.
@@ -515,6 +516,10 @@ private:
   #endif
 
   static void M101();
+  #if ENABLED(MAX7219_DEBUG)
+    static void M102();
+  #endif
+
   static void M104();
   static void M105();
   static void M106();
