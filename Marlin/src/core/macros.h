@@ -79,15 +79,15 @@
 #define CBI32(n,b) (n &= ~_BV32(b))
 
 // Macros for maths shortcuts
-#ifndef M_PI
-  #define M_PI 3.14159265358979323846
-#endif
-#define RADIANS(d) ((d)*M_PI/180.0)
-#define DEGREES(r) ((r)*180.0/M_PI)
+#undef M_PI
+#define M_PI 3.14159265358979323846f
+
+#define RADIANS(d) ((d)*float(M_PI)/180.0f)
+#define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
 
-#define CIRCLE_AREA(R) (M_PI * sq(R))
-#define CIRCLE_CIRC(R) (2.0 * M_PI * (R))
+#define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
+#define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
 #define SIGN(a) ((a>0)-(a<0))
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
@@ -200,8 +200,8 @@
 #define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
-#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
-#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
+#define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
+#define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)
 
 #define NOOP do{} while(0)
 
@@ -250,23 +250,24 @@
 #define MAX4(a, b, c, d)    MAX(MAX3(a, b, c), d)
 #define MAX5(a, b, c, d, e) MAX(MAX4(a, b, c, d), e)
 
-#define UNEAR_ZERO(x) ((x) < 0.000001)
-#define NEAR_ZERO(x) WITHIN(x, -0.000001, 0.000001)
+#define UNEAR_ZERO(x) ((x) < 0.000001f)
+#define NEAR_ZERO(x) WITHIN(x, -0.000001f, 0.000001f)
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
-#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
-#define FIXFLOAT(f) (f + (f < 0.0 ? -0.00005 : 0.00005))
+#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0 : (1 / float(x)))
+#define FIXFLOAT(f) (f + (f < 0 ? -0.00005f : 0.00005f))
 
 //
 // Maths macros that can be overridden by HAL
 //
-#define ATAN2(y, x) atan2(y, x)
-#define POW(x, y)   pow(x, y)
-#define SQRT(x)     sqrt(x)
-#define CEIL(x)     ceil(x)
-#define FLOOR(x)    floor(x)
-#define LROUND(x)   lround(x)
-#define FMOD(x, y)  fmod(x, y)
+#define ATAN2(y, x) atan2f(y, x)
+#define POW(x, y)   powf(x, y)
+#define SQRT(x)     sqrtf(x)
+#define RSQRT(x)    (1 / sqrtf(x))
+#define CEIL(x)     ceilf(x)
+#define FLOOR(x)    floorf(x)
+#define LROUND(x)   lroundf(x)
+#define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
 #endif //__MACROS_H

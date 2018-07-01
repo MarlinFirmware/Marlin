@@ -77,7 +77,7 @@ bool relative_mode; // = false;
  *   Used by 'buffer_line_to_current_position' to do a move after changing it.
  *   Used by 'SYNC_PLAN_POSITION_KINEMATIC' to update 'planner.position'.
  */
-float current_position[XYZE] = { 0.0 };
+float current_position[XYZE] = { 0 };
 
 /**
  * Cartesian Destination
@@ -85,7 +85,7 @@ float current_position[XYZE] = { 0.0 };
  *   and expected by functions like 'prepare_move_to_destination'.
  *   Set with 'get_destination_from_command' or 'set_destination_from_current'.
  */
-float destination[XYZE] = { 0.0 };
+float destination[XYZE] = { 0 };
 
 
 // The active extruder (tool). Set with T<extruder> command.
@@ -100,7 +100,7 @@ uint8_t active_extruder; // = 0;
 // no other feedrate is specified. Overridden for special moves.
 // Set by the last G0 through G5 command's "F" parameter.
 // Functions that override this for custom moves *must always* restore it!
-float feedrate_mm_s = MMM_TO_MMS(1500.0);
+float feedrate_mm_s = MMM_TO_MMS(1500.0f);
 
 int16_t feedrate_percentage = 100;
 
@@ -509,7 +509,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
      * but may produce jagged lines. Try 0.5mm, 1.0mm, and 2.0mm
      * and compare the difference.
      */
-    #define SCARA_MIN_SEGMENT_LENGTH 0.5
+    #define SCARA_MIN_SEGMENT_LENGTH 0.5f
   #endif
 
   /**
@@ -566,14 +566,14 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
     // For SCARA enforce a minimum segment size
     #if IS_SCARA
-      NOMORE(segments, cartesian_mm * (1.0 / SCARA_MIN_SEGMENT_LENGTH));
+      NOMORE(segments, cartesian_mm * (1.0f / float(SCARA_MIN_SEGMENT_LENGTH)));
     #endif
 
     // At least one segment is required
     NOLESS(segments, 1U);
 
     // The approximate length of each segment
-    const float inv_segments = 1.0 / float(segments),
+    const float inv_segments = 1.0f / float(segments),
                 segment_distance[XYZE] = {
                   xdiff * inv_segments,
                   ydiff * inv_segments,
@@ -599,7 +599,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       // SCARA needs to scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
       const float segment_length = cartesian_mm * inv_segments,
-                  inv_segment_length = 1.0 / segment_length, // 1/mm/segs
+                  inv_segment_length = 1.0f / segment_length, // 1/mm/segs
                   inverse_secs = inv_segment_length * _feedrate_mm_s;
 
       float oldA = planner.position_float[A_AXIS],
@@ -756,7 +756,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       NOLESS(segments, 1U);
 
       // The approximate length of each segment
-      const float inv_segments = 1.0 / float(segments),
+      const float inv_segments = 1.0f / float(segments),
                   cartesian_segment_mm = cartesian_mm * inv_segments,
                   segment_distance[XYZE] = {
                     xdiff * inv_segments,
@@ -1335,7 +1335,7 @@ void homeaxis(const AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 1 Fast:");
   #endif
-  do_homing_move(axis, 1.5 * max_length(axis) * axis_home_dir);
+  do_homing_move(axis, 1.5f * max_length(axis) * axis_home_dir);
 
   // When homing Z with probe respect probe clearance
   const float bump = axis_home_dir * (

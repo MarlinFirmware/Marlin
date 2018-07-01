@@ -92,7 +92,7 @@ void plan_arc(
 
   const float flat_mm = radius * angular_travel,
               mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : ABS(flat_mm);
-  if (mm_of_travel < 0.001) return;
+  if (mm_of_travel < 0.001f) return;
 
   uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
   if (segments == 0) segments = 1;
@@ -129,7 +129,7 @@ void plan_arc(
               linear_per_segment = linear_travel / segments,
               extruder_per_segment = extruder_travel / segments,
               sin_T = theta_per_segment,
-              cos_T = 1 - 0.5 * sq(theta_per_segment); // Small angle approximation
+              cos_T = 1 - 0.5f * sq(theta_per_segment); // Small angle approximation
 
   // Initialize the linear axis
   raw[l_axis] = current_position[l_axis];
@@ -143,7 +143,7 @@ void plan_arc(
 
   #if HAS_FEEDRATE_SCALING
     // SCARA needs to scale the feed rate from mm/s to degrees/s
-    const float inv_segment_length = 1.0 / (MM_PER_ARC_SEGMENT),
+    const float inv_segment_length = 1.0f / float(MM_PER_ARC_SEGMENT),
                 inverse_secs = inv_segment_length * fr_mm_s;
     float oldA = planner.position_float[A_AXIS],
           oldB = planner.position_float[B_AXIS]
@@ -289,19 +289,20 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       relative_mode = relative_mode_backup;
     #endif
 
-    float arc_offset[2] = { 0.0, 0.0 };
+    float arc_offset[2] = { 0, 0 };
     if (parser.seenval('R')) {
       const float r = parser.value_linear_units(),
                   p1 = current_position[X_AXIS], q1 = current_position[Y_AXIS],
                   p2 = destination[X_AXIS], q2 = destination[Y_AXIS];
       if (r && (p2 != p1 || q2 != q1)) {
-        const float e = clockwise ^ (r < 0) ? -1 : 1,           // clockwise -1/1, counterclockwise 1/-1
-                    dx = p2 - p1, dy = q2 - q1,                 // X and Y differences
-                    d = HYPOT(dx, dy),                          // Linear distance between the points
-                    h = SQRT(sq(r) - sq(d * 0.5)),              // Distance to the arc pivot-point
-                    mx = (p1 + p2) * 0.5, my = (q1 + q2) * 0.5, // Point between the two points
-                    sx = -dy / d, sy = dx / d,                  // Slope of the perpendicular bisector
-                    cx = mx + e * h * sx, cy = my + e * h * sy; // Pivot-point of the arc
+        const float e = clockwise ^ (r < 0) ? -1 : 1,            // clockwise -1/1, counterclockwise 1/-1
+                    dx = p2 - p1, dy = q2 - q1,                  // X and Y differences
+                    d = HYPOT(dx, dy),                           // Linear distance between the points
+                    dinv = 1/d,                                  // Inverse of d
+                    h = SQRT(sq(r) - sq(d * 0.5f)),              // Distance to the arc pivot-point
+                    mx = (p1 + p2) * 0.5f, my = (q1 + q2) * 0.5f,// Point between the two points
+                    sx = -dy * dinv, sy = dx * dinv,             // Slope of the perpendicular bisector
+                    cx = mx + e * h * sx, cy = my + e * h * sy;  // Pivot-point of the arc
         arc_offset[0] = cx - p1;
         arc_offset[1] = cy - q1;
       }

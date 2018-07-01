@@ -359,7 +359,7 @@ static float auto_tune_h() {
   float h_fac = 0.0;
 
   h_fac = r_quot / (2.0 / 3.0);
-  h_fac = 1.0 / h_fac; // (2/3)/CR
+  h_fac = 1.0f / h_fac; // (2/3)/CR
   return h_fac;
 }
 
