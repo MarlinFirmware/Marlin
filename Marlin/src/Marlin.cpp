@@ -898,7 +898,12 @@ void setup() {
 
   #if ENABLED(USE_WATCHDOG) // Reinit watchdog after HAL_get_reset_source call
     watchdog_init();
+  #endif  
+    
+  #if MB(BOARD_GTM32_PRO_VB)
+    afio_cfg_debug_ports(AFIO_DEBUG_NONE);
   #endif
+  
 }
 
 /**
