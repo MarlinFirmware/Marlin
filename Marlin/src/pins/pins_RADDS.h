@@ -100,15 +100,17 @@
   #define E2_CS_PIN        35
 #endif
 
-// For Extension Board V2
+//
+// Extension Board V2
 // http://doku.radds.org/dokumentation/extension-board
-//#define HAS_RADDS_EXTENSION
-#if ENABLED(HAS_RADDS_EXTENSION)
+//
+//#define RADDS_EXTENSION
+#if ENABLED(RADDS_EXTENSION)
   #define E3_STEP_PIN        35
   #define E3_DIR_PIN         33
   #define E3_ENABLE_PIN      37
   #ifndef E3_CS_PIN
-   #define E3_CS_PIN         6
+    #define E3_CS_PIN         6
   #endif
 
   #define E3_MS1_PIN         67
@@ -119,7 +121,7 @@
   #define Z2_DIR_PIN         27
   #define Z2_ENABLE_PIN      31
   #ifndef Z2_CS_PIN
-   #define Z2_CS_PIN        39
+    #define Z2_CS_PIN        39
   #endif
 
   #define Z2_MS1_PIN         67   // shared with E3_MS1_PIN
