@@ -719,6 +719,10 @@ void setup() {
     tmc2208_serial_begin();
   #endif
 
+  #ifdef BOARD_INIT
+    BOARD_INIT();
+  #endif
+
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = HAL_get_reset_source();
   if (mcu &  1) SERIAL_ECHOLNPGM(MSG_POWERUP);
