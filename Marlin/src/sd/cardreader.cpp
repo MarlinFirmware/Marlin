@@ -1016,7 +1016,7 @@ void CardReader::printingHasFinished() {
     const bool success = jobRecoveryFile.remove(&root, job_recovery_file_name);
     #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
       SERIAL_PROTOCOLPGM("Power-loss file delete");
-      serialprintPGM(success ? PSTR("d.") : PSTR(" failed."))
+      serialprintPGM(success ? PSTR("d.\n") : PSTR(" failed.\n"));
     #else
       UNUSED(success);
     #endif

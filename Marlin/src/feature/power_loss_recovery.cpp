@@ -66,15 +66,20 @@ static char sd_filename[MAXPATHNAMELENGTH];
           if (e < HOTENDS - 1) SERIAL_CHAR(',');
         }
         SERIAL_EOL();
-        SERIAL_PROTOCOLPGM("fanSpeeds: ");
-        for (uint8_t i = 0; i < FAN_COUNT; i++) {
-          SERIAL_PROTOCOL(job_recovery_info.fanSpeeds[i]);
-          if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
-        }
-        SERIAL_EOL();
+
         #if HAS_HEATED_BED
           SERIAL_PROTOCOLLNPAIR("target_temperature_bed: ", job_recovery_info.target_temperature_bed);
         #endif
+
+        #if FAN_COUNT
+          SERIAL_PROTOCOLPGM("fanSpeeds: ");
+          for (int8_t i = 0; i < FAN_COUNT; i++) {
+            SERIAL_PROTOCOL(job_recovery_info.fanSpeeds[i]);
+            if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
+          }
+          SERIAL_EOL();
+        #endif
+
         #if HAS_LEVELING
           SERIAL_PROTOCOLPAIR("leveling: ", int(job_recovery_info.leveling));
           SERIAL_PROTOCOLLNPAIR(" fade: ", int(job_recovery_info.fade));
@@ -180,7 +185,7 @@ void do_print_job_recovery() {
 }
 
 /**
- * Save the current machine state to the "bin" file
+ * Save the current machine state to the power-loss recovery file
  */
 void save_job_recovery_info() {
   #if SAVE_INFO_INTERVAL_MS > 0
@@ -209,10 +214,14 @@ void save_job_recovery_info() {
     COPY(job_recovery_info.current_position, current_position);
     job_recovery_info.feedrate = feedrate_mm_s;
     COPY(job_recovery_info.target_temperature, thermalManager.target_temperature);
+
     #if HAS_HEATED_BED
       job_recovery_info.target_temperature_bed = thermalManager.target_temperature_bed;
     #endif
-    COPY(job_recovery_info.fanSpeeds, fanSpeeds);
+
+    #if FAN_COUNT
+      COPY(job_recovery_info.fanSpeeds, fanSpeeds);
+    #endif
 
     #if HAS_LEVELING
       job_recovery_info.leveling = planner.leveling_active;
