@@ -873,17 +873,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
       abort_sd_printing = true;
       lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
       lcd_return_to_status();
-
-      #if ENABLED(POWER_LOSS_RECOVERY)
-        card.removeJobRecoveryFile();
-      #endif
     }
 
   #endif // SDSUPPORT
 
   #if ENABLED(POWER_LOSS_RECOVERY)
 
-    static void lcd_sdcard_recover_job() {
+    static void lcd_power_loss_recovery_resume() {
       char cmd[20];
 
       // Return to status now
@@ -891,45 +887,65 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       // Turn leveling off and home
       enqueue_and_echo_commands_P(PSTR("M420 S0\nG28"
-        #if !IS_KINEMATIC
+        #if ENABLED(MARLIN_DEV_MODE)
+          " S"
+        #elif !IS_KINEMATIC
           " X Y"
         #endif
       ));
 
       #if HAS_HEATED_BED
-        // Restore the bed temperature
-        sprintf_P(cmd, PSTR("M190 S%i"), job_recovery_info.target_temperature_bed);
-        enqueue_and_echo_command(cmd);
+        const int16_t bt = job_recovery_info.target_temperature_bed;
+        if (bt) {
+          // Restore the bed temperature
+          sprintf_P(cmd, PSTR("M190 S%i"), bt);
+          enqueue_and_echo_command(cmd);
+        }
       #endif
 
       // Restore all hotend temperatures
       HOTEND_LOOP() {
-        sprintf_P(cmd, PSTR("M109 S%i"), job_recovery_info.target_temperature[e]);
-        enqueue_and_echo_command(cmd);
+        const int16_t et = job_recovery_info.target_temperature[e];
+        if (et) {
+          #if HOTENDS > 1
+            sprintf_P(cmd, PSTR("T%i"), e);
+            enqueue_and_echo_command(cmd);
+          #endif
+          sprintf_P(cmd, PSTR("M109 S%i"), et);
+          enqueue_and_echo_command(cmd);
+        }
       }
+
+      #if HOTENDS > 1
+        sprintf_P(cmd, PSTR("T%i"), job_recovery_info.active_hotend);
+        enqueue_and_echo_command(cmd);
+      #endif
 
       // Restore print cooling fan speeds
       for (uint8_t i = 0; i < FAN_COUNT; i++) {
-        sprintf_P(cmd, PSTR("M106 P%i S%i"), i, job_recovery_info.fanSpeeds[i]);
-        enqueue_and_echo_command(cmd);
+        int16_t f = job_recovery_info.fanSpeeds[i];
+        if (f) {
+          sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
+          enqueue_and_echo_command(cmd);
+        }
       }
 
       // Start draining the job recovery command queue
       job_recovery_phase = JOB_RECOVERY_YES;
+    }
 
-      // Resume the print job timer
-      if (job_recovery_info.print_job_elapsed)
-        print_job_timer.resume(job_recovery_info.print_job_elapsed);
-
-      // Start getting commands from SD
-      card.startFileprint();
+    static void lcd_power_loss_recovery_cancel() {
+      card.removeJobRecoveryFile();
+      card.autostart_index = 0;
+      lcd_return_to_status();
     }
 
     static void lcd_job_recovery_menu() {
       defer_return_to_status = true;
       START_MENU();
-      MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_recover_job);
-      MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+      STATIC_ITEM(MSG_POWER_LOSS_RECOVERY);
+      MENU_ITEM(function, MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);
+      MENU_ITEM(function, MSG_STOP_PRINT, lcd_power_loss_recovery_cancel);
       END_MENU();
     }
 
