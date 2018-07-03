@@ -109,93 +109,93 @@
 #define TEMP_BED_PIN       PC0   // PORT NUMBERING
 #define TEMP_0_PIN         PC1   // PORT NUMBERING
 #define TEMP_1_PIN         PC2   // PORT NUMBERING
-#define TEMP_2_PIN         PC3   // PORT NUMBERING
+#define TEMP_2_PIN		   PC3   // PORT NUMBERING
 
 //
 // Beep
 //
-#define BEEP 				PB10
+#define BEEP               PB10
 
 //
 // LCD Pins			
 //
-#define LCD_D15 			PD10
-#define LCD_D14 			PD9
-#define LCD_D13 			PD8
-#define LCD_D12 			PE15
-#define LCD_D11 			PE14
-#define LCD_D10 			PE13
-#define LCD_D9 				PE12
-#define LCD_D8 				PE11
-#define LCD_D7 				PE10
-#define LCD_D6 				PE9
-#define LCD_D5 				PE8
-#define LCD_D4 				PE7
-#define LCD_D3 				PD1
-#define LCD_D2 				PD0
-#define LCD_D1 				PD15
-#define LCD_D0 				PD14
+#define LCD_D15            PD10
+#define LCD_D14            PD9
+#define LCD_D13            PD8
+#define LCD_D12            PE15
+#define LCD_D11            PE14
+#define LCD_D10            PE13
+#define LCD_D9             PE12
+#define LCD_D8             PE11
+#define LCD_D7             PE10
+#define LCD_D6             PE9
+#define LCD_D5             PE8
+#define LCD_D4             PE7
+#define LCD_D3             PD1
+#define LCD_D2             PD0
+#define LCD_D1             PD15
+#define LCD_D0             PD14
 
-#define LCD_WR 				PD5
-#define LCD_RD 				PD4
-#define LCD_RS 				PD11
-#define LCD_CS 				PD7
-//#define RESET 				NRST
+#define LCD_WR             PD5
+#define LCD_RD             PD4
+#define LCD_RS             PD11
+#define LCD_CS             PD7
+//#define RESET            NRST
 
-#define T_PEN 				PE6
+#define T_PEN              PE6
 
-#define SPI2_MOSI 			PB15
-#define SPI2_MISO 			PB14
-#define SPI2_SCK 			PB13
-#define SPI2_NSS 			PB12
+#define SPI2_MOSI          PB15
+#define SPI2_MISO          PB14
+#define SPI2_SCK           PB13
+#define SPI2_NSS           PB12
 
 //
 // SD Card on LCD
 //
-#define SD_CD 				PC7
-#define SD_DATA0 			PC8
-#define SD_DATA1 			PC9
-#define SD_DATA2 			PC10
-#define SD_DATA3 			PC11
-#define SD_CMD 				PD2
-#define SD_CLK 				PC12
+#define SD_CD              PC7
+#define SD_DATA0           PC8
+#define SD_DATA1           PC9
+#define SD_DATA2           PC10
+#define SD_DATA3           PC11
+#define SD_CMD             PD2
+#define SD_CLK             PC12
 
 //
 // UART LCD Pins, if used
 //
-//#define LCD_D14 			PD9			//	RXD3
-//#define LCD_D13 			PD8			//	TXD3
+//#define LCD_D14          PD9           //	RXD3
+//#define LCD_D13          PD8           //	TXD3
 
 //
 // SPI Flash (on board Card Socket)
 //
-#define SPI1_NSS 			PA4
-#define SPI1_SCK			PA5
-#define SPI1_MISO			PA6
-#define SPI1_MOSI			PA7
+#define SPI1_NSS           PA4
+#define SPI1_SCK           PA5
+#define SPI1_MISO          PA6
+#define SPI1_MOSI          PA7
 			
 //
 // Debug
 //
-//#define SDA 				PA13
-//#define SCL 				PA14
+//#define SDA              PA13
+//#define SCL              PA14
 
 //
 // Wifi
 //
-#define USART2_RX 			PA3			//default alternate function 
-#define USART2_TX 			PA2			//default alternate function 
+#define USART2_RX          PA3			//default alternate function 
+#define USART2_TX          PA2			//default alternate function 
 
 //
 // MISC
 //
-#define LED_PWM				PD12		//external LED, pin 2 on LED labeled connector
+#define LED_PWM            PD12		//external LED, pin 2 on LED labeled connector
 
 
 //
 // Boot
 //
-//#define BOOT0 			BOOT0
+//#define BOOT0            BOOT0
 
 
 
