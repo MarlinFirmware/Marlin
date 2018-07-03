@@ -142,7 +142,7 @@ public:
 public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
-  int autostart_index;
+  int8_t autostart_index;
 private:
   SdFile root, workDir, workDirParents[MAX_DIR_DEPTH];
   uint8_t workDirDepth;
