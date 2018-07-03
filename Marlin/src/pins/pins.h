@@ -361,7 +361,7 @@
 #elif MB(CHITU3D)
   #include "pins_CHITU3D.h"           // STM32F1                                    env:STM32F1
 #elif MB(GTM32_PRO_VB)
-  #include "pins_GTM32_PRO_VB.h"           // STM32F1                                    env:STM32F1  
+  #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1  
 
 
 //
