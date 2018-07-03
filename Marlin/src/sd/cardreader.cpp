@@ -1027,8 +1027,6 @@ void CardReader::printingHasFinished() {
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
         SERIAL_PROTOCOLPGM("Power-loss file delete");
         serialprintPGM(jobRecoverFileExists() ? PSTR(" failed.\n") : PSTR("d.\n"));
-      #else
-        UNUSED(success);
       #endif
     }
   }
