@@ -189,7 +189,6 @@ void clean_up_after_endstop_or_probe_move();
 void set_axis_is_at_home(const AxisEnum axis);
 
 void homeaxis(const AxisEnum axis);
-#define HOMEAXIS(A) homeaxis(_AXIS(A))
 
 #if ENABLED(SENSORLESS_HOMING)
   void sensorless_homing_per_axis(const AxisEnum axis, const bool enable=true);

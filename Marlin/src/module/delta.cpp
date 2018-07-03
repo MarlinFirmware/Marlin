@@ -241,7 +241,7 @@ void forward_kinematics_DELTA(float z1, float z2, float z3) {
  * A delta can only safely home all axes at the same time
  * This is like quick_home_xy() but for 3 towers.
  */
-bool home_delta() {
+void home_delta() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS(">>> home_delta", current_position);
   #endif
@@ -265,22 +265,13 @@ bool home_delta() {
     delta_sensorless_homing(false);
   #endif
 
-  // If an endstop was not hit, then damage can occur if homing is continued.
-  // This can occur if the delta height not set correctly.
-  if (!(endstops.trigger_state() & (_BV(X_MAX) | _BV(Y_MAX) | _BV(Z_MAX)))) {
-    LCD_MESSAGEPGM(MSG_ERR_HOMING_FAILED);
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_HOMING_FAILED);
-    return false;
-  }
-
-  endstops.hit_on_purpose(); // clear endstop hit flags
+  endstops.validate_homing_move();
 
   // At least one carriage has reached the top.
   // Now re-home each carriage separately.
-  HOMEAXIS(A);
-  HOMEAXIS(B);
-  HOMEAXIS(C);
+  homeaxis(A_AXIS);
+  homeaxis(B_AXIS);
+  homeaxis(C_AXIS);
 
   // Set all carriages to their home positions
   // Do this here all at once for Delta, because
@@ -293,8 +284,6 @@ bool home_delta() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
   #endif
-
-  return true;
 }
 
 #endif // DELTA

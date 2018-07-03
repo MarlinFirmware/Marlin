@@ -581,7 +581,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
                   ediff * inv_segments
                 };
 
-    #if DISABLED(SCARA_FEEDRATE_SCALING)
+    #if !HAS_FEEDRATE_SCALING
       const float cartesian_segment_mm = cartesian_mm * inv_segments;
     #endif
 
@@ -589,14 +589,13 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     SERIAL_ECHOPAIR("mm=", cartesian_mm);
     SERIAL_ECHOPAIR(" seconds=", seconds);
     SERIAL_ECHOPAIR(" segments=", segments);
-    #if DISABLED(SCARA_FEEDRATE_SCALING)
-      SERIAL_ECHOLNPAIR(" segment_mm=", cartesian_segment_mm);
-    #else
-      SERIAL_EOL();
+    #if !HAS_FEEDRATE_SCALING
+      SERIAL_ECHOPAIR(" segment_mm=", cartesian_segment_mm);
     #endif
+    SERIAL_EOL();
     //*/
 
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
+    #if HAS_FEEDRATE_SCALING
       // SCARA needs to scale the feed rate from mm/s to degrees/s
       // i.e., Complete the angular vector in the given time.
       const float segment_length = cartesian_mm * inv_segments,
@@ -604,7 +603,11 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
                   inverse_secs = inv_segment_length * _feedrate_mm_s;
 
       float oldA = planner.position_float[A_AXIS],
-            oldB = planner.position_float[B_AXIS];
+            oldB = planner.position_float[B_AXIS]
+            #if ENABLED(DELTA_FEEDRATE_SCALING)
+              , oldC = planner.position_float[C_AXIS]
+            #endif
+            ;
 
       /*
       SERIAL_ECHOPGM("Scaled kinematic move: ");
@@ -613,7 +616,11 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       SERIAL_ECHOPAIR(") _feedrate_mm_s=", _feedrate_mm_s);
       SERIAL_ECHOPAIR(" inverse_secs=", inverse_secs);
       SERIAL_ECHOPAIR(" oldA=", oldA);
-      SERIAL_ECHOLNPAIR(" oldB=", oldB);
+      SERIAL_ECHOPAIR(" oldB=", oldB);
+      #if ENABLED(DELTA_FEEDRATE_SCALING)
+        SERIAL_ECHOPAIR(" oldC=", oldC);
+      #endif
+      SERIAL_EOL();
       safe_delay(5);
       //*/
     #endif
@@ -654,6 +661,19 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
         safe_delay(5);
         //*/
         oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
+      #elif ENABLED(DELTA_FEEDRATE_SCALING)
+        // For DELTA scale the feed rate from Effector mm/s to Carriage mm/s
+        // i.e., Complete the linear vector in the given time.
+        if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], SQRT(sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC)) * inverse_secs, active_extruder))
+          break;
+        /*
+        SERIAL_ECHO(segments);
+        SERIAL_ECHOPAIR(": X=", raw[X_AXIS]); SERIAL_ECHOPAIR(" Y=", raw[Y_AXIS]);
+        SERIAL_ECHOPAIR(" A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]); SERIAL_ECHOPAIR(" C=", delta[C_AXIS]);
+        SERIAL_ECHOLNPAIR(" F", SQRT(sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC)) * inverse_secs * 60);
+        safe_delay(5);
+        //*/
+        oldA = delta[A_AXIS]; oldB = delta[B_AXIS]; oldC = delta[C_AXIS];
       #else
         if (!planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder, cartesian_segment_mm))
           break;
@@ -661,17 +681,31 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     }
 
     // Ensure last segment arrives at target location.
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
+    #if HAS_FEEDRATE_SCALING
       inverse_kinematics(rtarget);
       ADJUST_DELTA(rtarget);
+    #endif
+
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
       const float diff2 = HYPOT2(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB);
       if (diff2) {
         planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
-
         /*
         SERIAL_ECHOPAIR("final: A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]);
         SERIAL_ECHOPAIR(" adiff=", delta[A_AXIS] - oldA); SERIAL_ECHOPAIR(" bdiff=", delta[B_AXIS] - oldB);
-        SERIAL_ECHOLNPAIR(" F", (SQRT(diff2) * inverse_secs) * 60);
+        SERIAL_ECHOLNPAIR(" F", SQRT(diff2) * inverse_secs * 60);
+        SERIAL_EOL();
+        safe_delay(5);
+        //*/
+      }
+    #elif ENABLED(DELTA_FEEDRATE_SCALING)
+      const float diff2 = sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC);
+      if (diff2) {
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
+        /*
+        SERIAL_ECHOPAIR("final: A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]); SERIAL_ECHOPAIR(" C=", delta[C_AXIS]);
+        SERIAL_ECHOPAIR(" adiff=", delta[A_AXIS] - oldA); SERIAL_ECHOPAIR(" bdiff=", delta[B_AXIS] - oldB); SERIAL_ECHOPAIR(" cdiff=", delta[C_AXIS] - oldC);
+        SERIAL_ECHOLNPAIR(" F", SQRT(diff2) * inverse_secs * 60);
         SERIAL_EOL();
         safe_delay(5);
         //*/
@@ -1129,7 +1163,7 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
       #endif
     }
 
-    endstops.hit_on_purpose();
+    endstops.validate_homing_move();
 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)

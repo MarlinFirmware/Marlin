@@ -719,6 +719,10 @@ void setup() {
     tmc2208_serial_begin();
   #endif
 
+  #ifdef BOARD_INIT
+    BOARD_INIT();
+  #endif
+
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = HAL_get_reset_source();
   if (mcu &  1) SERIAL_ECHOLNPGM(MSG_POWERUP);
@@ -893,7 +897,7 @@ void setup() {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    do_print_job_recovery();
+    check_print_job_recovery();
   #endif
 
   #if ENABLED(USE_WATCHDOG) // Reinit watchdog after HAL_get_reset_source call
@@ -933,6 +937,9 @@ void loop() {
           for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
         #endif
         wait_for_heatup = false;
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          card.removeJobRecoveryFile();
+        #endif
       }
     #endif // SDSUPPORT && ULTIPANEL
 
