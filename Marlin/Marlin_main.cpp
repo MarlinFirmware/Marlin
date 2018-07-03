@@ -1220,7 +1220,7 @@ inline void get_serial_commands() {
       if (job_recovery_commands_count) {
         if (_enqueuecommand(job_recovery_commands[job_recovery_commands_index])) {
           ++job_recovery_commands_index;
-          if (!--job_recovery_commands_count) job_recovery_phase = JOB_RECOVERY_IDLE;
+          if (!--job_recovery_commands_count) job_recovery_phase = JOB_RECOVERY_DONE;
         }
         return true;
       }
@@ -7090,6 +7090,9 @@ inline void gcode_M17() {
    * M23: Open a file
    */
   inline void gcode_M23() {
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      card.removeJobRecoveryFile();
+    #endif
     // Simplify3D includes the size, so zero out all spaces (#7227)
     for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
     card.openFile(parser.string_arg, true);
@@ -7099,16 +7102,22 @@ inline void gcode_M17() {
    * M24: Start or Resume SD Print
    */
   inline void gcode_M24() {
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      card.removeJobRecoveryFile();
-    #endif
-
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       resume_print();
     #endif
 
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (parser.seenval('S')) card.setIndex(parser.value_long());
+    #endif
+
     card.startFileprint();
-    print_job_timer.start();
+
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (parser.seenval('T'))
+        print_job_timer.resume(parser.value_long());
+      else
+    #endif
+        print_job_timer.start();
   }
 
   /**
@@ -14637,7 +14646,7 @@ void setup() {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    do_print_job_recovery();
+    check_print_job_recovery();
   #endif
 
   #if ENABLED(USE_WATCHDOG)
@@ -14678,6 +14687,9 @@ void loop() {
           for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
         #endif
         wait_for_heatup = false;
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          card.removeJobRecoveryFile();
+        #endif
       }
     #endif
 
