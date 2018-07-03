@@ -141,9 +141,11 @@
 #define LCD_RS             PD11
 #define LCD_CS             PD7
 //#define RESET            NRST
-
 #define T_PEN              PE6
 
+//
+// SPI2 on LCD conn
+//
 #define SPI2_MOSI          PB15
 #define SPI2_MISO          PB14
 #define SPI2_SCK           PB13
