@@ -64,19 +64,8 @@ void recalc_delta_settings();
  *   (see above)
  */
 
-#if ENABLED(DELTA_FAST_SQRT) && defined(__AVR__)
-  /**
-   * Fast inverse sqrt from Quake III Arena
-   * See: https://en.wikipedia.org/wiki/Fast_inverse_square_root
-   */
-  float Q_rsqrt(float number);
-  #define _SQRT(n) (1.0f / Q_rsqrt(n))
-#else
-  #define _SQRT(n) SQRT(n)
-#endif
-
 // Macro to obtain the Z position of an individual tower
-#define DELTA_Z(V,T) V[Z_AXIS] + _SQRT(   \
+#define DELTA_Z(V,T) V[Z_AXIS] + SQRT(   \
   delta_diagonal_rod_2_tower[T] - HYPOT2( \
       delta_tower[T][X_AXIS] - V[X_AXIS], \
       delta_tower[T][Y_AXIS] - V[Y_AXIS]  \

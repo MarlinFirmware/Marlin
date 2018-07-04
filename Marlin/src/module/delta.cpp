@@ -90,30 +90,7 @@ void recalc_delta_settings() {
  *
  * - Disable the home_offset (M206) and/or position_shift (G92)
  *   features to remove up to 12 float additions.
- *
- * - Use a fast-inverse-sqrt function and add the reciprocal.
- *   (see above)
  */
-
-#if ENABLED(DELTA_FAST_SQRT) && defined(__AVR__)
-  /**
-   * Fast inverse sqrt from Quake III Arena
-   * See: https://en.wikipedia.org/wiki/Fast_inverse_square_root
-   */
-  float Q_rsqrt(float number) {
-    long i;
-    float x2, y;
-    const float threehalfs = 1.5f;
-    x2 = number * 0.5f;
-    y  = number;
-    i  = * ( long * ) &y;                       // evil floating point bit level hacking
-    i  = 0x5F3759DF - ( i >> 1 );               // what the f***?
-    y  = * ( float * ) &i;
-    y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
-    // y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
-    return y;
-  }
-#endif
 
 #define DELTA_DEBUG(VAR) do { \
     SERIAL_ECHOPAIR("cartesian X:", VAR[X_AXIS]); \

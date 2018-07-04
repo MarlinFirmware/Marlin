@@ -1353,25 +1353,6 @@
   #endif
 #endif
 
-// Use float instead of double. Needs profiling.
-#if defined(ARDUINO_ARCH_SAM) && ENABLED(DELTA_FAST_SQRT)
-  #undef ATAN2
-  #undef FABS
-  #undef POW
-  #undef SQRT
-  #undef CEIL
-  #undef FLOOR
-  #undef LROUND
-  #undef FMOD
-  #define ATAN2(y, x) atan2f(y, x)
-  #define POW(x, y) powf(x, y)
-  #define SQRT(x) sqrtf(x)
-  #define CEIL(x) ceilf(x)
-  #define FLOOR(x) floorf(x)
-  #define LROUND(x) lroundf(x)
-  #define FMOD(x, y) fmodf(x, y)
-#endif
-
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
 #if ENABLED(SCROLL_LONG_FILENAMES)
   #define MAX_VFAT_ENTRIES (5)
