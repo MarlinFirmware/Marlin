@@ -75,8 +75,8 @@
  * THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-  #define THERMAL_PROTECTION_PERIOD 50        // Seconds
-  #define THERMAL_PROTECTION_HYSTERESIS 3     // Degrees Celsius
+  #define THERMAL_PROTECTION_PERIOD 40        // Seconds
+  #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
   /**
    * Whenever an M104, M109, or M303 increases the target temperature, the
@@ -90,16 +90,16 @@
    * and/or decrease WATCH_TEMP_INCREASE. WATCH_TEMP_INCREASE should not be set
    * below 2.
    */
-  #define WATCH_TEMP_PERIOD 50                // Seconds
-  #define WATCH_TEMP_INCREASE 2               // Degrees Celsius
+  #define WATCH_TEMP_PERIOD 40                // Seconds
+  #define WATCH_TEMP_INCREASE 10               // Degrees Celsius
 #endif
 
 /**
  * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
-  #define THERMAL_PROTECTION_BED_PERIOD 50    // Seconds
-  #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+  #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
+  #define THERMAL_PROTECTION_BED_HYSTERESIS 10 // Degrees Celsius
 
   /**
    * As described above, except for the bed (M140/M190/M303).
@@ -405,7 +405,7 @@
 // Default stepper release if idle. Set to 0 to deactivate.
 // Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIVE_? is true.
 // Time can be set by M18 and M84.
-#define DEFAULT_STEPPER_DEACTIVE_TIME 0    // usually set to 120 seconds
+#define DEFAULT_STEPPER_DEACTIVE_TIME 120
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
 #define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
@@ -646,7 +646,7 @@
    * On print completion the LCD Menu will open with the file selected.
    * You can just click to start the print, or navigate elsewhere.
    */
-  #define SD_REPRINT_LAST_SELECTED_FILE
+  //#define SD_REPRINT_LAST_SELECTED_FILE
 
   /**
    * Auto-report SdCard status with M27 S<seconds>
@@ -735,13 +735,13 @@
  *
  * Warning: Does not respect endstops!
  */
-#define BABYSTEPPING
+//#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
   //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR   3 // Babysteps are very small. Increase for faster motion.
+  #define BABYSTEP_MULTIPLICATOR 1   // Babysteps are very small. Increase for faster motion.
   //#define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
-  #define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
+  //#define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
                                         // Note: Extra time may be added to mitigate controller latency.
   //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
@@ -841,7 +841,7 @@
  * 1500 : Minimum for TB6600 drivers (guess, no info in datasheet)
  *15000 : Minimum for TB6560 drivers (guess, no info in datasheet)
  */
-//#define MINIMUM_STEPPER_DIR_DELAY 650
+#define MINIMUM_STEPPER_DIR_DELAY 0
 
 /**
  * Minimum stepper driver pulse width (in µs)
@@ -852,7 +852,7 @@
  *   3 : Minimum for TB6600 stepper drivers
  *  30 : Minimum for TB6560 stepper drivers
  */
-//#define MINIMUM_STEPPER_PULSE 2
+#define MINIMUM_STEPPER_PULSE 2
 
 /**
  * Maximum stepping rate (in Hz) the stepper driver allows
@@ -864,7 +864,7 @@
  *  130000 : Maximum for LV8729 stepper driver
  *   15000 : Maximum for TB6560 stepper driver
  */
-//#define MAXIMUM_STEPPER_RATE 250000
+#define MAXIMUM_STEPPER_RATE 250000
 
 // @section temperature
 
@@ -898,7 +898,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 32
+#define TX_BUFFER_SIZE 0
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -987,7 +987,7 @@
  * Requires NOZZLE_PARK_FEATURE.
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
-#define ADVANCED_PAUSE_FEATURE
+//#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
@@ -1022,7 +1022,7 @@
   #define FILAMENT_CHANGE_ALERT_BEEPS         10  // Number of alert beeps to play when a response is needed.
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT           // Enable for XYZ steppers to stay powered on during filament change.
 
-  #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
+  //#define PARK_HEAD_ON_PAUSE                    // Park the nozzle during pause and filament change.
   //#define HOME_BEFORE_FILAMENT_CHANGE           // Ensure homing has been completed prior to parking for filament change
 
   //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
@@ -1036,8 +1036,19 @@
  * You will need to import the TMC26XStepper library into the Arduino IDE for this
  * (https://github.com/trinamic/TMC26XStepper.git)
  */
-
-#if HAVE_SPIDRIVER(TMC26X)
+//#define HAVE_TMC26X
+#if ENABLED(HAVE_TMC26X)  // Choose your axes here. This is mandatory!
+  //#define X_IS_TMC26X
+  //#define X2_IS_TMC26X
+  //#define Y_IS_TMC26X
+  //#define Y2_IS_TMC26X
+  //#define Z_IS_TMC26X
+  //#define Z2_IS_TMC26X
+  //#define E0_IS_TMC26X
+  //#define E1_IS_TMC26X
+  //#define E2_IS_TMC26X
+  //#define E3_IS_TMC26X
+  //#define E4_IS_TMC26X
 
   #define X_MAX_CURRENT     1000 // in mA
   #define X_SENSE_RESISTOR    91 // in mOhms
@@ -1083,21 +1094,39 @@
   #define E4_SENSE_RESISTOR   91
   #define E4_MICROSTEPS       16
 
-#endif // TMC26X
+#endif
 
 // @section tmc_smart
 
-/*
- * To use TMC2130 stepper drivers in SPI mode connect your SPI pins to
- * the hardware SPI interface on your board and define the required CS pins
- * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
- * You may also use software SPI if you wish to use general purpose IO pins.
+/**
+ * Enable this for SilentStepStick Trinamic TMC2130 SPI-configurable stepper drivers.
  *
  * You'll also need the TMC2130Stepper Arduino library
  * (https://github.com/teemuatlut/TMC2130Stepper).
  *
- * To use TMC2208 stepper UART-configurable stepper drivers
- * connect #_SERIAL_TX_PIN to the driver side PDN_UART pin with a 1K resistor.
+ * To use TMC2130 stepper drivers in SPI mode connect your SPI pins to
+ * the hardware SPI interface on your board and define the required CS pins
+ * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
+ * You may also use software SPI if you wish to use general purpose IO pins.
+ */
+//#define HAVE_TMC2130
+#if ENABLED(HAVE_TMC2130)  // Choose your axes here. This is mandatory!
+  //#define X_IS_TMC2130
+  //#define X2_IS_TMC2130
+  //#define Y_IS_TMC2130
+  //#define Y2_IS_TMC2130
+  //#define Z_IS_TMC2130
+  //#define Z2_IS_TMC2130
+  //#define E0_IS_TMC2130
+  //#define E1_IS_TMC2130
+  //#define E2_IS_TMC2130
+  //#define E3_IS_TMC2130
+  //#define E4_IS_TMC2130
+#endif
+
+/**
+ * Enable this for SilentStepStick Trinamic TMC2208 UART-configurable stepper drivers.
+ * Connect #_SERIAL_TX_PIN to the driver side PDN_UART pin with a 1K resistor.
  * To use the reading capabilities, also connect #_SERIAL_RX_PIN
  * to PDN_UART without a resistor.
  * The drivers can also be used with hardware serial.
@@ -1105,8 +1134,22 @@
  * You'll also need the TMC2208Stepper Arduino library
  * (https://github.com/teemuatlut/TMC2208Stepper).
  */
+//#define HAVE_TMC2208
+#if ENABLED(HAVE_TMC2208)  // Choose your axes here. This is mandatory!
+  //#define X_IS_TMC2208
+  //#define X2_IS_TMC2208
+  //#define Y_IS_TMC2208
+  //#define Y2_IS_TMC2208
+  //#define Z_IS_TMC2208
+  //#define Z2_IS_TMC2208
+  //#define E0_IS_TMC2208
+  //#define E1_IS_TMC2208
+  //#define E2_IS_TMC2208
+  //#define E3_IS_TMC2208
+  //#define E4_IS_TMC2208
+#endif
 
-#if HAVE_SPIDRIVER(TMC2130) || HAVE_SPIDRIVER(TMC2208)
+#if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
 
   #define R_SENSE           0.11  // R_sense resistor for SilentStepStick2130
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
@@ -1266,7 +1309,20 @@
  * (https://github.com/ameyer/Arduino-L6470)
  */
 
-#if HAVE_SPIDRIVER(L6470)
+//#define HAVE_L6470DRIVER
+#if ENABLED(HAVE_L6470DRIVER)
+
+  //#define X_IS_L6470
+  //#define X2_IS_L6470
+  //#define Y_IS_L6470
+  //#define Y2_IS_L6470
+  //#define Z_IS_L6470
+  //#define Z2_IS_L6470
+  //#define E0_IS_L6470
+  //#define E1_IS_L6470
+  //#define E2_IS_L6470
+  //#define E3_IS_L6470
+  //#define E4_IS_L6470
 
   #define X_MICROSTEPS      16 // number of microsteps
   #define X_OVERCURRENT   2000 // maxc current in mA. If the current goes over this value, the driver will switch off
@@ -1312,7 +1368,7 @@
   #define E4_OVERCURRENT  2000
   #define E4_STALLCURRENT 1500
 
-#endif // L6470
+#endif
 
 /**
  * TWI/I2C BUS
@@ -1475,7 +1531,7 @@
  *  - M206 and M428 are disabled.
  *  - G92 will revert to its behavior from Marlin 1.0.
  */
-#define NO_WORKSPACE_OFFSETS
+//#define NO_WORKSPACE_OFFSETS
 
 /**
  * Set the number of proportional font spaces required to fill up a typical character space.
@@ -1484,7 +1540,7 @@
  * For clients that use a fixed-width font (like OctoPrint), leave this set to 1.0.
  * Otherwise, adjust according to your client and font.
  */
-#define PROPORTIONAL_FONT_RATIO 1.5
+#define PROPORTIONAL_FONT_RATIO 1.0
 
 /**
  * Spend 28 bytes of SRAM to optimize the GCode parser
@@ -1512,8 +1568,8 @@
   #define USER_DESC_4 "Heat Bed/Home/Level"
   #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
 
-  //#define USER_DESC_5 "Home & Info"
-  //#define USER_GCODE_5 "G28\nM503"
+  #define USER_DESC_5 "Home & Info"
+  #define USER_GCODE_5 "G28\nM503"
 #endif
 
 /**
@@ -1621,7 +1677,7 @@
  * Add support for a low-cost 8x8 LED Matrix based on the Max7219 chip as a realtime status display.
  * Requires 3 signal wires. Some useful debug options are included to demonstrate its usage.
  */
-#define MAX7219_DEBUG
+//#define MAX7219_DEBUG
 #if ENABLED(MAX7219_DEBUG)
   #define MAX7219_CLK_PIN   64
   #define MAX7219_DIN_PIN   57

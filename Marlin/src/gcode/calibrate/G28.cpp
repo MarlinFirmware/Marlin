@@ -174,6 +174,19 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
   #endif
 
+  #if ENABLED(MARLIN_DEV_MODE)
+    if (parser.seen('S')) {
+      LOOP_XYZ(a) set_axis_is_at_home((AxisEnum)a);
+      SYNC_PLAN_POSITION_KINEMATIC();
+      SERIAL_ECHOLNPGM("Simulated Homing");
+      report_current_position();
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G28");
+      #endif
+      return;
+    }
+  #endif
+
   if (all_axes_known() && parser.boolval('O')) { // home only if needed
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {

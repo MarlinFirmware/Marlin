@@ -541,9 +541,13 @@ void CardReader::checkautostart() {
 
   if (!cardOK) initsd();
 
-  if (cardOK) {
+  if (cardOK
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      && !jobRecoverFileExists() // Don't run auto#.g when a resume file exists
+    #endif
+  ) {
     char autoname[10];
-    sprintf_P(autoname, PSTR("auto%i.g"), autostart_index);
+    sprintf_P(autoname, PSTR("auto%i.g"), int(autostart_index));
     dir_t p;
     root.rewind();
     while (root.readDir(&p, NULL) > 0) {
@@ -990,20 +994,24 @@ void CardReader::printingHasFinished() {
       SERIAL_PROTOCOLCHAR('.');
       SERIAL_EOL();
     }
-    else
+    else if (!read)
       SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, job_recovery_file_name);
   }
 
   void CardReader::closeJobRecoveryFile() { jobRecoveryFile.close(); }
 
   bool CardReader::jobRecoverFileExists() {
-    return jobRecoveryFile.open(&root, job_recovery_file_name, O_READ);
+    const bool exists = jobRecoveryFile.open(&root, job_recovery_file_name, O_READ);
+    if (exists) jobRecoveryFile.close();
+    return exists;
   }
 
   int16_t CardReader::saveJobRecoveryInfo() {
     jobRecoveryFile.seekSet(0);
     const int16_t ret = jobRecoveryFile.write(&job_recovery_info, sizeof(job_recovery_info));
-    if (ret == -1) SERIAL_PROTOCOLLNPGM("Power-loss file write failed.");
+    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+      if (ret == -1) SERIAL_PROTOCOLLNPGM("Power-loss file write failed.");
+    #endif
     return ret;
   }
 
@@ -1013,13 +1021,14 @@ void CardReader::printingHasFinished() {
 
   void CardReader::removeJobRecoveryFile() {
     job_recovery_info.valid_head = job_recovery_info.valid_foot = job_recovery_commands_count = 0;
-    const bool success = jobRecoveryFile.remove(&root, job_recovery_file_name);
-    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      SERIAL_PROTOCOLPGM("Power-loss file delete");
-      serialprintPGM(success ? PSTR("d.") : PSTR(" failed."))
-    #else
-      UNUSED(success);
-    #endif
+    if (jobRecoverFileExists()) {
+      closefile();
+      removeFile(job_recovery_file_name);
+      #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+        SERIAL_PROTOCOLPGM("Power-loss file delete");
+        serialprintPGM(jobRecoverFileExists() ? PSTR(" failed.\n") : PSTR("d.\n"));
+      #endif
+    }
   }
 
 #endif // POWER_LOSS_RECOVERY

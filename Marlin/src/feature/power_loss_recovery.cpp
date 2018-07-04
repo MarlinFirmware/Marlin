@@ -43,14 +43,14 @@ job_recovery_info_t job_recovery_info;
 JobRecoveryPhase job_recovery_phase = JOB_RECOVERY_IDLE;
 uint8_t job_recovery_commands_count; //=0
 char job_recovery_commands[BUFSIZE + APPEND_CMD_COUNT][MAX_CMD_SIZE];
-
-// Private
-static char sd_filename[MAXPATHNAMELENGTH];
+// Extern
+extern uint8_t active_extruder, commands_in_queue, cmd_queue_index_r;
 
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
   void debug_print_job_recovery(const bool recovery) {
-    SERIAL_PROTOCOLPAIR("valid_head:", (int)job_recovery_info.valid_head);
-    SERIAL_PROTOCOLLNPAIR(" valid_foot:", (int)job_recovery_info.valid_foot);
+    SERIAL_PROTOCOLLNPGM("---- Job Recovery Info ----");
+    SERIAL_PROTOCOLPAIR("valid_head:", int(job_recovery_info.valid_head));
+    SERIAL_PROTOCOLLNPAIR(" valid_foot:", int(job_recovery_info.valid_foot));
     if (job_recovery_info.valid_head) {
       if (job_recovery_info.valid_head == job_recovery_info.valid_foot) {
         SERIAL_PROTOCOLPGM("current_position: ");
@@ -60,27 +60,37 @@ static char sd_filename[MAXPATHNAMELENGTH];
         }
         SERIAL_EOL();
         SERIAL_PROTOCOLLNPAIR("feedrate: ", job_recovery_info.feedrate);
+
+        #if HOTENDS > 1
+          SERIAL_PROTOCOLLNPAIR("active_hotend: ", int(job_recovery_info.active_hotend));
+        #endif
+
         SERIAL_PROTOCOLPGM("target_temperature: ");
         HOTEND_LOOP() {
           SERIAL_PROTOCOL(job_recovery_info.target_temperature[e]);
           if (e < HOTENDS - 1) SERIAL_CHAR(',');
         }
         SERIAL_EOL();
-        SERIAL_PROTOCOLPGM("fanSpeeds: ");
-        for (uint8_t i = 0; i < FAN_COUNT; i++) {
-          SERIAL_PROTOCOL(job_recovery_info.fanSpeeds[i]);
-          if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
-        }
-        SERIAL_EOL();
+
         #if HAS_HEATED_BED
           SERIAL_PROTOCOLLNPAIR("target_temperature_bed: ", job_recovery_info.target_temperature_bed);
         #endif
+
+        #if FAN_COUNT
+          SERIAL_PROTOCOLPGM("fanSpeeds: ");
+          for (int8_t i = 0; i < FAN_COUNT; i++) {
+            SERIAL_PROTOCOL(job_recovery_info.fanSpeeds[i]);
+            if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
+          }
+          SERIAL_EOL();
+        #endif
+
         #if HAS_LEVELING
           SERIAL_PROTOCOLPAIR("leveling: ", int(job_recovery_info.leveling));
           SERIAL_PROTOCOLLNPAIR(" fade: ", int(job_recovery_info.fade));
         #endif
-        SERIAL_PROTOCOLLNPAIR("cmd_queue_index_r: ", job_recovery_info.cmd_queue_index_r);
-        SERIAL_PROTOCOLLNPAIR("commands_in_queue: ", job_recovery_info.commands_in_queue);
+        SERIAL_PROTOCOLLNPAIR("cmd_queue_index_r: ", int(job_recovery_info.cmd_queue_index_r));
+        SERIAL_PROTOCOLLNPAIR("commands_in_queue: ", int(job_recovery_info.commands_in_queue));
         if (recovery)
           for (uint8_t i = 0; i < job_recovery_commands_count; i++) SERIAL_PROTOCOLLNPAIR("> ", job_recovery_commands[i]);
         else
@@ -92,15 +102,17 @@ static char sd_filename[MAXPATHNAMELENGTH];
       else
         SERIAL_PROTOCOLLNPGM("INVALID DATA");
     }
+    SERIAL_PROTOCOLLNPGM("---------------------------");
   }
 #endif // DEBUG_POWER_LOSS_RECOVERY
 
 /**
- * Check for Print Job Recovery
- * If the file has a saved state, populate the job_recovery_commands queue
+ * Check for Print Job Recovery during setup()
+ *
+ * If a saved state exists, populate job_recovery_commands with
+ * commands to restore the machine state and continue the file.
  */
-void do_print_job_recovery() {
-  //if (job_recovery_commands_count > 0) return;
+void check_print_job_recovery() {
   memset(&job_recovery_info, 0, sizeof(job_recovery_info));
   ZERO(job_recovery_commands);
 
@@ -109,7 +121,7 @@ void do_print_job_recovery() {
   if (card.cardOK) {
 
     #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      SERIAL_PROTOCOLLNPAIR("Init job recovery info. Size: ", (int)sizeof(job_recovery_info));
+      SERIAL_PROTOCOLLNPAIR("Init job recovery info. Size: ", int(sizeof(job_recovery_info)));
     #endif
 
     if (card.jobRecoverFileExists()) {
@@ -129,7 +141,9 @@ void do_print_job_recovery() {
         strcpy_P(job_recovery_commands[ind++], PSTR("G92.0 Z0"));                   // Ensure Z is equal to 0
         strcpy_P(job_recovery_commands[ind++], PSTR("G1 Z2"));                      // Raise Z by 2mm (we hope!)
         strcpy_P(job_recovery_commands[ind++], PSTR("G28 R0"
-          #if !IS_KINEMATIC
+          #if ENABLED(MARLIN_DEV_MODE)
+            " S"
+          #elif !IS_KINEMATIC
             " X Y"                                                                  // Home X and Y for Cartesian
           #endif
         ));
@@ -137,10 +151,12 @@ void do_print_job_recovery() {
         char str_1[16], str_2[16];
 
         #if HAS_LEVELING
-          // Restore leveling state before G92 sets Z
-          // This ensures the steppers correspond to the native Z
-          dtostrf(job_recovery_info.fade, 1, 1, str_1);
-          sprintf_P(job_recovery_commands[ind++], PSTR("M420 S%i Z%s"), int(job_recovery_info.leveling), str_1);
+          if (job_recovery_info.fade || job_recovery_info.leveling) {
+            // Restore leveling state before G92 sets Z
+            // This ensures the steppers correspond to the native Z
+            dtostrf(job_recovery_info.fade, 1, 1, str_1);
+            sprintf_P(job_recovery_commands[ind++], PSTR("M420 S%i Z%s"), int(job_recovery_info.leveling), str_1);
+          }
         #endif
 
         dtostrf(job_recovery_info.current_position[Z_AXIS] + 2, 1, 3, str_1);
@@ -152,23 +168,21 @@ void do_print_job_recovery() {
         );
         sprintf_P(job_recovery_commands[ind++], PSTR("G92.0 Z%s E%s"), str_1, str_2); // Current Z + 2 and E
 
-        strcpy_P(job_recovery_commands[ind++], PSTR("M117 Continuing..."));
-
-        uint8_t r = job_recovery_info.cmd_queue_index_r;
-        while (job_recovery_info.commands_in_queue) {
+        uint8_t r = job_recovery_info.cmd_queue_index_r, c = job_recovery_info.commands_in_queue;
+        while (c--) {
           strcpy(job_recovery_commands[ind++], job_recovery_info.command_queue[r]);
-          job_recovery_info.commands_in_queue--;
           r = (r + 1) % BUFSIZE;
         }
+
+        if (job_recovery_info.sd_filename[0] == '/') job_recovery_info.sd_filename[0] = ' ';
+        sprintf_P(job_recovery_commands[ind++], PSTR("M23 %s"), job_recovery_info.sd_filename);
+        sprintf_P(job_recovery_commands[ind++], PSTR("M24 S%ld T%ld"), job_recovery_info.sdpos, job_recovery_info.print_job_elapsed);
 
         job_recovery_commands_count = ind;
 
         #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
           debug_print_job_recovery(true);
         #endif
-
-        card.openFile(job_recovery_info.sd_filename, true);
-        card.setIndex(job_recovery_info.sdpos);
       }
       else {
         if (job_recovery_info.valid_head != job_recovery_info.valid_foot)
@@ -180,7 +194,7 @@ void do_print_job_recovery() {
 }
 
 /**
- * Save the current machine state to the "bin" file
+ * Save the current machine state to the power-loss recovery file
  */
 void save_job_recovery_info() {
   #if SAVE_INFO_INTERVAL_MS > 0
@@ -208,11 +222,20 @@ void save_job_recovery_info() {
     // Machine state
     COPY(job_recovery_info.current_position, current_position);
     job_recovery_info.feedrate = feedrate_mm_s;
+
+    #if HOTENDS > 1
+      job_recovery_info.active_hotend = active_extruder;
+    #endif
+
     COPY(job_recovery_info.target_temperature, thermalManager.target_temperature);
+
     #if HAS_HEATED_BED
       job_recovery_info.target_temperature_bed = thermalManager.target_temperature_bed;
     #endif
-    COPY(job_recovery_info.fanSpeeds, fanSpeeds);
+
+    #if FAN_COUNT
+      COPY(job_recovery_info.fanSpeeds, fanSpeeds);
+    #endif
 
     #if HAS_LEVELING
       job_recovery_info.leveling = planner.leveling_active;
@@ -231,14 +254,14 @@ void save_job_recovery_info() {
     COPY(job_recovery_info.command_queue, command_queue);
 
     // Elapsed print job time
-    job_recovery_info.print_job_elapsed = print_job_timer.duration() * 1000UL;
+    job_recovery_info.print_job_elapsed = print_job_timer.duration();
 
     // SD file position
     card.getAbsFilename(job_recovery_info.sd_filename);
     job_recovery_info.sdpos = card.getIndex();
 
     #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      SERIAL_PROTOCOLLNPGM("Saving job_recovery_info");
+      SERIAL_PROTOCOLLNPGM("Saving...");
       debug_print_job_recovery(false);
     #endif
 

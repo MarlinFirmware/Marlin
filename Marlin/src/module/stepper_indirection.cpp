@@ -249,7 +249,7 @@
 
     #if ENABLED(SENSORLESS_HOMING)
       #define TMC_INIT_SGT(P,Q) stepper##Q.sgt(P##_HOMING_SENSITIVITY);
-      #ifdef X_HOMING_SENSITIVITY
+      #if X_SENSORLESS
         #if IS_SPIDRIVER_USED(X, TMC2130) || ENABLED(IS_TRAMS)
           stepperX.sgt(X_HOMING_SENSITIVITY);
         #endif
@@ -257,7 +257,7 @@
           stepperX2.sgt(X_HOMING_SENSITIVITY);
         #endif
       #endif
-      #ifdef Y_HOMING_SENSITIVITY
+      #if Y_SENSORLESS
         #if IS_SPIDRIVER_USED(Y, TMC2130) || ENABLED(IS_TRAMS)
           stepperY.sgt(Y_HOMING_SENSITIVITY);
         #endif
@@ -265,7 +265,7 @@
           stepperY2.sgt(Y_HOMING_SENSITIVITY);
         #endif
       #endif
-      #ifdef Z_HOMING_SENSITIVITY
+      #if Z_SENSORLESS
         #if IS_SPIDRIVER_USED(Z, TMC2130) || ENABLED(IS_TRAMS)
           stepperZ.sgt(Z_HOMING_SENSITIVITY);
         #endif
