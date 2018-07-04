@@ -1083,16 +1083,9 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   if (is_home_dir) {
 
-    if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE
-        #if ENABLED(BLTOUCH)
-          set_bltouch_deployed(true);
-        #endif
-        #if QUIET_PROBING
-          probing_pause(true);
-        #endif
-      #endif
-    }
+    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+      if (axis == Z_AXIS) probing_pause(true);
+    #endif
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
@@ -1118,16 +1111,9 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   if (is_home_dir) {
 
-    if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE
-        #if QUIET_PROBING
-          probing_pause(false);
-        #endif
-        #if ENABLED(BLTOUCH)
-          set_bltouch_deployed(false);
-        #endif
-      #endif
-    }
+    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+      if (axis == Z_AXIS) probing_pause(false);
+    #endif
 
     endstops.hit_on_purpose();
 
@@ -1302,6 +1288,10 @@ void homeaxis(const AxisEnum axis) {
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 1 Fast:");
   #endif
   do_homing_move(axis, 1.5 * max_length(axis) * axis_home_dir);
+  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+    // BLTOUCH needs to be stowed after trigger to let rearm itself
+    if (axis == Z_AXIS) set_bltouch_deployed(false);
+  #endif
 
   // When homing Z with probe respect probe clearance
   const float bump = axis_home_dir * (
@@ -1326,6 +1316,11 @@ void homeaxis(const AxisEnum axis) {
     // Slow move towards endstop until triggered
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 2 Slow:");
+    #endif
+
+    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+      // BLTOUCH needs to deploy everytime
+      if (axis == Z_AXIS && set_bltouch_deployed(true)) return;
     #endif
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
   }
