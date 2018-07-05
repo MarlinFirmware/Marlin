@@ -139,6 +139,50 @@
   }
 #endif // TMC26X
 
+#if HAS_TRINAMIC
+  #if AXIS_IS_TMC(X)
+    static const char TMC_X_LABEL[] PROGMEM = MSG_A;
+  #endif
+  #if AXIS_IS_TMC(X2)
+    static const char TMC_X2_LABEL[] PROGMEM = MSG_X2;
+  #endif
+  #if AXIS_IS_TMC(Y)
+    static const char TMC_Y_LABEL[] PROGMEM = MSG_B;
+  #endif
+  #if AXIS_IS_TMC(Y2)
+    static const char TMC_Y2_LABEL[] PROGMEM = MSG_Y2;
+  #endif
+  #if AXIS_IS_TMC(Z)
+    static const char TMC_Z_LABEL[] PROGMEM = MSG_C;
+  #endif
+  #if AXIS_IS_TMC(Z2)
+    static const char TMC_Z2_LABEL[] PROGMEM = MSG_Z2;
+  #endif
+  #if AXIS_IS_TMC(Z3)
+    static const char TMC_Z3_LABEL[] PROGMEM = MSG_Z3;
+  #endif
+  #if AXIS_IS_TMC(E0)
+    static const char TMC_E0_LABEL[] PROGMEM = MSG_E;
+  #endif
+  #if AXIS_IS_TMC(E1)
+    static const char TMC_E1_LABEL[] PROGMEM = MSG_E1;
+  #endif
+  #if AXIS_IS_TMC(E2)
+    static const char TMC_E2_LABEL[] PROGMEM = MSG_E2;
+  #endif
+  #if AXIS_IS_TMC(E3)
+    static const char TMC_E3_LABEL[] PROGMEM = MSG_E3;
+  #endif
+  #if AXIS_IS_TMC(E4)
+    static const char TMC_E4_LABEL[] PROGMEM = MSG_E4;
+  #endif
+  #if AXIS_IS_TMC(E5)
+    static const char TMC_E5_LABEL[] PROGMEM = MSG_E5;
+  #endif
+
+  #define _TMC_INIT(ST, SPMM) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, SPMM)
+#endif
+
 //
 // TMC2130 Driver objects and inits
 //
@@ -149,11 +193,10 @@
   #include "../core/enum.h"
 
   #if ENABLED(TMC_USE_SW_SPI)
-    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_CS_PIN, R_SENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
+    #define _TMC2130_DEFINE(ST) TMCMarlin<TMC2130Stepper> stepper##ST(TMC_##ST##_LABEL, ST##_CS_PIN, R_SENSE, TMC_SW_MOSI, TMC_SW_MISO, TMC_SW_SCK)
   #else
-    #define _TMC2130_DEFINE(ST) TMC2130Stepper stepper##ST(ST##_CS_PIN, R_SENSE)
+    #define _TMC2130_DEFINE(ST) TMCMarlin<TMC2130Stepper> stepper##ST(TMC_##ST##_LABEL, ST##_CS_PIN, R_SENSE)
   #endif
-
   // Stepper objects of TMC2130 steppers used
   #if AXIS_DRIVER_TYPE(X, TMC2130)
     _TMC2130_DEFINE(X);
@@ -195,7 +238,7 @@
     _TMC2130_DEFINE(E5);
   #endif
 
-  void tmc_init(TMC2130Stepper &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
+  void tmc_init(TMCMarlin<TMC2130Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
     #if DISABLED(STEALTHCHOP) || DISABLED(HYBRID_THRESHOLD)
       UNUSED(thrs);
       UNUSED(spmm);
@@ -240,8 +283,8 @@
   #include <HardwareSerial.h>
   #include "planner.h"
 
-  #define _TMC2208_DEFINE_HARDWARE(ST) TMC2208Stepper stepper##ST(&ST##_HARDWARE_SERIAL, R_SENSE)
-  #define _TMC2208_DEFINE_SOFTWARE(ST) TMC2208Stepper stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, R_SENSE, ST##_SERIAL_RX_PIN > -1)
+  #define _TMC2208_DEFINE_HARDWARE(ST) TMCMarlin<TMC2208Stepper> stepper##ST(TMC_##ST##_LABEL, &ST##_HARDWARE_SERIAL, R_SENSE)
+  #define _TMC2208_DEFINE_SOFTWARE(ST) TMCMarlin<TMC2208Stepper> stepper##ST(TMC_##ST##_LABEL, ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, R_SENSE, ST##_SERIAL_RX_PIN > -1)
 
   // Stepper objects of TMC2208 steppers used
   #if AXIS_DRIVER_TYPE(X, TMC2208)
@@ -430,7 +473,7 @@
     #endif
   }
 
-  void tmc_init(TMC2208Stepper &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
+  void tmc_init(TMCMarlin<TMC2208Stepper> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
     #if DISABLED(STEALTHCHOP) || DISABLED(HYBRID_THRESHOLD)
       UNUSED(thrs);
       UNUSED(spmm);

@@ -284,6 +284,9 @@
   #define MSG_B "Y"
   #define MSG_C "Z"
 #endif
+#define MSG_X2 "X2"
+#define MSG_Y2 "Y2"
+#define MSG_Z2 "Z2"
 #define MSG_H1 "1"
 #define MSG_H2 "2"
 #define MSG_H3 "3"
