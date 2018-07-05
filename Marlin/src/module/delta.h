@@ -65,14 +65,14 @@ void recalc_delta_settings();
  */
 
 // Macro to obtain the Z position of an individual tower
-#define DELTA_Z(V,T) V[Z_AXIS] + SQRT(   \
+#define DELTA_Z(V,T) V[Z_AXIS] + SQRT(    \
   delta_diagonal_rod_2_tower[T] - HYPOT2( \
       delta_tower[T][X_AXIS] - V[X_AXIS], \
       delta_tower[T][Y_AXIS] - V[Y_AXIS]  \
     )                                     \
   )
 
-#define DELTA_IK(V) do {        \
+#define DELTA_IK(V) do {              \
   delta[A_AXIS] = DELTA_Z(V, A_AXIS); \
   delta[B_AXIS] = DELTA_Z(V, B_AXIS); \
   delta[C_AXIS] = DELTA_Z(V, C_AXIS); \
@@ -111,9 +111,9 @@ float delta_safe_distance_from_top();
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics_DELTA(float z1, float z2, float z3);
+void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3);
 
-FORCE_INLINE void forward_kinematics_DELTA(float point[ABC]) {
+FORCE_INLINE void forward_kinematics_DELTA(const float (&point)[ABC]) {
   forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
 }
 
