@@ -103,7 +103,7 @@ void GcodeSuite::get_destination_from_command() {
       destination[i] = current_position[i];
   }
 
-  if (parser.linearval('F') > 0.0)
+  if (parser.linearval('F') > 0)
     feedrate_mm_s = MMM_TO_MMS(parser.value_feedrate());
 
   #if ENABLED(PRINTCOUNTER)

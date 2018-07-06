@@ -100,14 +100,14 @@ enum ADCSensorState : char {
 #define ACTUAL_ADC_SAMPLES MAX(int(MIN_ADC_ISR_LOOPS), int(SensorsReady))
 
 #if HAS_PID_HEATING
-  #define PID_K2 (1.0-PID_K1)
+  #define PID_K2 (1-float(PID_K1))
   #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / TEMP_TIMER_FREQUENCY)
 
   // Apply the scale factors to the PID values
-  #define scalePID_i(i)   ( (i) * PID_dT )
-  #define unscalePID_i(i) ( (i) / PID_dT )
-  #define scalePID_d(d)   ( (d) / PID_dT )
-  #define unscalePID_d(d) ( (d) * PID_dT )
+  #define scalePID_i(i)   ( float(i) * PID_dT )
+  #define unscalePID_i(i) ( float(i) / PID_dT )
+  #define scalePID_d(d)   ( float(d) / PID_dT )
+  #define unscalePID_d(d) ( float(d) * PID_dT )
 #endif
 
 class Temperature {

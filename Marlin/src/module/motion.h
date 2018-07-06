@@ -71,7 +71,7 @@ extern float feedrate_mm_s;
  * Feedrate scaling and conversion
  */
 extern int16_t feedrate_percentage;
-#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
+#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01f)
 
 extern uint8_t active_extruder;
 
@@ -141,7 +141,7 @@ void line_to_current_position();
 void buffer_line_to_destination(const float fr_mm_s);
 
 #if IS_KINEMATIC
-  void prepare_uninterpolated_move_to_destination(const float fr_mm_s=0.0);
+  void prepare_uninterpolated_move_to_destination(const float fr_mm_s=0);
 #endif
 
 void prepare_move_to_destination();
@@ -149,10 +149,10 @@ void prepare_move_to_destination();
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0.0);
-void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0.0);
-void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0.0);
-void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0.0);
+void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0);
+void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
+void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
+void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
 
 void setup_for_endstop_or_probe_move();
 void clean_up_after_endstop_or_probe_move();
@@ -268,8 +268,8 @@ void homeaxis(const AxisEnum axis);
    // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
     // Add 0.001 margin to deal with float imprecision
-    return WITHIN(rx, X_MIN_POS - 0.001, X_MAX_POS + 0.001)
-        && WITHIN(ry, Y_MIN_POS - 0.001, Y_MAX_POS + 0.001);
+    return WITHIN(rx, X_MIN_POS - 0.001f, X_MAX_POS + 0.001f)
+        && WITHIN(ry, Y_MIN_POS - 0.001f, Y_MAX_POS + 0.001f);
   }
 
   #if HAS_BED_PROBE
@@ -282,8 +282,8 @@ void homeaxis(const AxisEnum axis);
      */
     inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
       return position_is_reachable(rx - (X_PROBE_OFFSET_FROM_EXTRUDER), ry - (Y_PROBE_OFFSET_FROM_EXTRUDER))
-          && WITHIN(rx, MIN_PROBE_X - 0.001, MAX_PROBE_X + 0.001)
-          && WITHIN(ry, MIN_PROBE_Y - 0.001, MAX_PROBE_Y + 0.001);
+          && WITHIN(rx, MIN_PROBE_X - 0.001f, MAX_PROBE_X + 0.001f)
+          && WITHIN(ry, MIN_PROBE_Y - 0.001f, MAX_PROBE_Y + 0.001f);
     }
   #endif
 

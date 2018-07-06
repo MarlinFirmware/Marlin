@@ -185,7 +185,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
         S2 += sq(z_pt[rad]);
         N++;
       }
-      return round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
+      return LROUND(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
     }
   }
   return 0.00001;
@@ -277,8 +277,8 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
           const float z_temp = calibration_probe(cos(a) * r, sin(a) * r, stow_after_each, set_up);
           if (isnan(z_temp)) return false;
           // split probe point to neighbouring calibration points
-          z_pt[uint8_t(round(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
-          z_pt[uint8_t(round(rad - interpol))           % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
+          z_pt[uint8_t(LROUND(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
+          z_pt[uint8_t(LROUND(rad - interpol))           % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
         }
         zig_zag = !zig_zag;
       }
@@ -359,7 +359,7 @@ static float auto_tune_h() {
   float h_fac = 0.0;
 
   h_fac = r_quot / (2.0 / 3.0);
-  h_fac = 1.0 / h_fac; // (2/3)/CR
+  h_fac = 1.0f / h_fac; // (2/3)/CR
   return h_fac;
 }
 
@@ -680,9 +680,9 @@ void GcodeSuite::G33() {
         char mess[21];
         strcpy_P(mess, PSTR("Calibration sd:"));
         if (zero_std_dev_min < 1)
-          sprintf_P(&mess[15], PSTR("0.%03i"), (int)round(zero_std_dev_min * 1000.0));
+          sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0));
         else
-          sprintf_P(&mess[15], PSTR("%03i.x"), (int)round(zero_std_dev_min));
+          sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev_min));
         lcd_setstatus(mess);
         print_calibration_settings(_endstop_results, _angle_results);
         serialprintPGM(save_message);
@@ -716,9 +716,9 @@ void GcodeSuite::G33() {
       strcpy_P(mess, enddryrun);
       strcpy_P(&mess[11], PSTR(" sd:"));
       if (zero_std_dev < 1)
-        sprintf_P(&mess[15], PSTR("0.%03i"), (int)round(zero_std_dev * 1000.0));
+        sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev * 1000.0));
       else
-        sprintf_P(&mess[15], PSTR("%03i.x"), (int)round(zero_std_dev));
+        sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev));
       lcd_setstatus(mess);
     }
     ac_home();

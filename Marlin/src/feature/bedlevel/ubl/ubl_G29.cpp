@@ -874,8 +874,8 @@
 
         serialprintPGM(parser.seen('B') ? PSTR(MSG_UBL_BC_INSERT) : PSTR(MSG_UBL_BC_INSERT2));
 
-        const float z_step = 0.01;                                        // existing behavior: 0.01mm per click, occasionally step
-        //const float z_step = 1.0 / planner.axis_steps_per_mm[Z_AXIS];   // approx one step each click
+        const float z_step = 0.01;                          // existing behavior: 0.01mm per click, occasionally step
+        //const float z_step = planner.steps_to_mm[Z_AXIS]; // approx one step each click
 
         move_z_with_encoder(z_step);
 
@@ -1252,7 +1252,7 @@
                 // last half of the mesh (when every unprobed mesh point is one index
                 // from a probed location).
 
-                d1 = HYPOT(i - k, j - l) + (1.0 / ((millis() % 47) + 13));
+                d1 = HYPOT(i - k, j - l) + (1.0f / ((millis() % 47) + 13));
 
                 if (d1 < d2) {    // found a closer distance from invalid mesh point at (i,j) to defined mesh point at (k,l)
                   d2 = d1;        // found a closer location with

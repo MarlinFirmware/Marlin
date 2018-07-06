@@ -417,12 +417,12 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
 
     #if ENABLED(JUNCTION_DEVIATION)
-      const float planner_max_jerk[] = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
+      const float planner_max_jerk[] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
       EEPROM_WRITE(planner_max_jerk);
       EEPROM_WRITE(planner.junction_deviation_mm);
     #else
       EEPROM_WRITE(planner.max_jerk);
-      dummy = 0.02;
+      dummy = 0.02f;
       EEPROM_WRITE(dummy);
     #endif
 
@@ -488,7 +488,7 @@ void MarlinSettings::postprocess() {
     #if ABL_PLANAR
       EEPROM_WRITE(planner.bed_level_matrix);
     #else
-      dummy = 0.0;
+      dummy = 0.0f;
       for (uint8_t q = 9; q--;) EEPROM_WRITE(dummy);
     #endif
 
@@ -974,7 +974,7 @@ void MarlinSettings::postprocess() {
       eeprom_error = true;
     }
     else {
-      float dummy = 0;
+      float dummy = 0.0f;
       #if DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(FWRETRACT) || ENABLED(NO_VOLUMETRICS)
         bool dummyb;
       #endif
@@ -1733,7 +1733,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
 
   #if ENABLED(JUNCTION_DEVIATION)
-    planner.junction_deviation_mm = JUNCTION_DEVIATION_MM;
+    planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
   #else
     planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
     planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
@@ -1835,7 +1835,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       HOTEND_LOOP()
     #endif
     {
-      PID_PARAM(Kp, e) = DEFAULT_Kp;
+      PID_PARAM(Kp, e) = float(DEFAULT_Kp);
       PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
       #if ENABLED(PID_EXTRUSION_SCALING)

@@ -186,15 +186,15 @@ public:
         if (c == '\0' || c == ' ') break;
         if (c == 'E' || c == 'e') {
           *e = '\0';
-          const float ret = strtod(value_ptr, NULL);
+          const float ret = strtof(value_ptr, NULL);
           *e = c;
           return ret;
         }
         ++e;
       }
-      return strtod(value_ptr, NULL);
+      return strtof(value_ptr, NULL);
     }
-    return 0.0;
+    return 0;
   }
 
   // Code value as a long or ulong
@@ -203,7 +203,7 @@ public:
 
   // Code value for use as time
   FORCE_INLINE static millis_t value_millis() { return value_ulong(); }
-  FORCE_INLINE static millis_t value_millis_from_seconds() { return value_float() * 1000UL; }
+  FORCE_INLINE static millis_t value_millis_from_seconds() { return (millis_t)(value_float() * 1000); }
 
   // Reduce to fewer bits
   FORCE_INLINE static int16_t value_int() { return (int16_t)value_long(); }
@@ -220,14 +220,14 @@ public:
     inline static void set_input_linear_units(const LinearUnit units) {
       switch (units) {
         case LINEARUNIT_INCH:
-          linear_unit_factor = 25.4;
+          linear_unit_factor = 25.4f;
           break;
         case LINEARUNIT_MM:
         default:
-          linear_unit_factor = 1.0;
+          linear_unit_factor = 1;
           break;
       }
-      volumetric_unit_factor = POW(linear_unit_factor, 3.0);
+      volumetric_unit_factor = POW(linear_unit_factor, 3);
     }
 
     inline static float axis_unit_factor(const AxisEnum axis) {
@@ -261,9 +261,9 @@ public:
       inline static float to_temp_units(const float &f) {
         switch (input_temp_units) {
           case TEMPUNIT_F:
-            return f * 0.5555555556 + 32.0;
+            return f * 0.5555555556f + 32;
           case TEMPUNIT_K:
-            return f + 273.15;
+            return f + 273.15f;
           case TEMPUNIT_C:
           default:
             return f;
@@ -276,9 +276,9 @@ public:
       const float f = value_float();
       switch (input_temp_units) {
         case TEMPUNIT_F:
-          return (f - 32.0) * 0.5555555556;
+          return (f - 32) * 0.5555555556f;
         case TEMPUNIT_K:
-          return f - 273.15;
+          return f - 273.15f;
         case TEMPUNIT_C:
         default:
           return f;
@@ -288,7 +288,7 @@ public:
     inline static float value_celsius_diff() {
       switch (input_temp_units) {
         case TEMPUNIT_F:
-          return value_float() * 0.5555555556;
+          return value_float() * 0.5555555556f;
         case TEMPUNIT_C:
         case TEMPUNIT_K:
         default:
@@ -315,8 +315,8 @@ public:
   FORCE_INLINE static uint16_t ushortval(const char c, const uint16_t dval=0) { return seenval(c) ? value_ushort()       : dval; }
   FORCE_INLINE static int32_t  longval(const char c, const int32_t dval=0)    { return seenval(c) ? value_long()         : dval; }
   FORCE_INLINE static uint32_t ulongval(const char c, const uint32_t dval=0)  { return seenval(c) ? value_ulong()        : dval; }
-  FORCE_INLINE static float    linearval(const char c, const float dval=0.0)  { return seenval(c) ? value_linear_units() : dval; }
-  FORCE_INLINE static float    celsiusval(const char c, const float dval=0.0) { return seenval(c) ? value_celsius()      : dval; }
+  FORCE_INLINE static float    linearval(const char c, const float dval=0) { return seenval(c) ? value_linear_units() : dval; }
+  FORCE_INLINE static float    celsiusval(const char c, const float dval=0){ return seenval(c) ? value_celsius()      : dval; }
 
 };
 

@@ -107,12 +107,12 @@ void GcodeSuite::M3_M4(bool is_M3) {
         delay_for_power_down();
       }
       else {
-        int16_t ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));  // convert RPM to PWM duty cycle
+        int16_t ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));  // convert RPM to PWM duty cycle
         NOMORE(ocr_val, 255);                                                                             // limit to max the Atmel PWM will support
         if (spindle_laser_power <= SPEED_POWER_MIN)
-          ocr_val = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));            // minimum setting
+          ocr_val = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));            // minimum setting
         if (spindle_laser_power >= SPEED_POWER_MAX)
-          ocr_val = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));            // limit to max RPM
+          ocr_val = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));            // limit to max RPM
         if (SPINDLE_LASER_PWM_INVERT) ocr_val = 255 - ocr_val;
         WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT);                                     // turn spindle on (active low)
         analogWrite(SPINDLE_LASER_PWM_PIN, ocr_val & 0xFF);                                               // only write low byte

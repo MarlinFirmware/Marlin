@@ -64,26 +64,15 @@ void recalc_delta_settings();
  *   (see above)
  */
 
-#if ENABLED(DELTA_FAST_SQRT) && defined(__AVR__)
-  /**
-   * Fast inverse sqrt from Quake III Arena
-   * See: https://en.wikipedia.org/wiki/Fast_inverse_square_root
-   */
-  float Q_rsqrt(float number);
-  #define _SQRT(n) (1.0f / Q_rsqrt(n))
-#else
-  #define _SQRT(n) SQRT(n)
-#endif
-
 // Macro to obtain the Z position of an individual tower
-#define DELTA_Z(V,T) V[Z_AXIS] + _SQRT(   \
+#define DELTA_Z(V,T) V[Z_AXIS] + SQRT(    \
   delta_diagonal_rod_2_tower[T] - HYPOT2( \
       delta_tower[T][X_AXIS] - V[X_AXIS], \
       delta_tower[T][Y_AXIS] - V[Y_AXIS]  \
     )                                     \
   )
 
-#define DELTA_IK(V) do {        \
+#define DELTA_IK(V) do {              \
   delta[A_AXIS] = DELTA_Z(V, A_AXIS); \
   delta[B_AXIS] = DELTA_Z(V, B_AXIS); \
   delta[C_AXIS] = DELTA_Z(V, C_AXIS); \
@@ -122,9 +111,9 @@ float delta_safe_distance_from_top();
  *
  * The result is stored in the cartes[] array.
  */
-void forward_kinematics_DELTA(float z1, float z2, float z3);
+void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3);
 
-FORCE_INLINE void forward_kinematics_DELTA(float point[ABC]) {
+FORCE_INLINE void forward_kinematics_DELTA(const float (&point)[ABC]) {
   forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
 }
 
