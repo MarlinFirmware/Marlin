@@ -139,11 +139,11 @@ float Planner::max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
 
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
 
-float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0); // The flow percentage and volumetric multiplier combine to scale E movement
+float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0f); // The flow percentage and volumetric multiplier combine to scale E movement
 
 #if DISABLED(NO_VOLUMETRICS)
   float Planner::filament_size[EXTRUDERS],          // diameter of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder
-        Planner::volumetric_area_nominal = CIRCLE_AREA((DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5), // Nominal cross-sectional area
+        Planner::volumetric_area_nominal = CIRCLE_AREA(float(DEFAULT_NOMINAL_FILAMENT_DIA) * 0.5f), // Nominal cross-sectional area
         Planner::volumetric_multiplier[EXTRUDERS];  // Reciprocal of cross-sectional area of filament (in mm^2). Pre-calculated to reduce computation in the planner
 #endif
 
@@ -177,7 +177,7 @@ float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0); // The flow perce
 #if ENABLED(AUTOTEMP)
   float Planner::autotemp_max = 250,
         Planner::autotemp_min = 210,
-        Planner::autotemp_factor = 0.1;
+        Planner::autotemp_factor = 0.1f;
   bool Planner::autotemp_enabled = false;
 #endif
 
@@ -225,7 +225,7 @@ void Planner::init() {
     ZERO(position_float);
   #endif
   ZERO(previous_speed);
-  previous_nominal_speed_sqr = 0.0;
+  previous_nominal_speed_sqr = 0;
   #if ABL_PLANAR
     bed_level_matrix.set_to_identity();
   #endif
@@ -842,7 +842,7 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t * const 
 
       const float new_entry_speed_sqr = TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH)
         ? max_entry_speed_sqr
-        : MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next ? next->entry_speed_sqr : sq(MINIMUM_PLANNER_SPEED), current->millimeters));
+        : MIN(max_entry_speed_sqr, max_allowable_speed_sqr(-current->acceleration, next ? next->entry_speed_sqr : sq(float(MINIMUM_PLANNER_SPEED)), current->millimeters));
       if (current->entry_speed_sqr != new_entry_speed_sqr) {
 
         // Need to recalculate the block speed - Mark it now, so the stepper
@@ -1059,7 +1059,7 @@ void Planner::recalculate_trapezoids() {
 
             // NOTE: Entry and exit factors always > 0 by all previous logic operations.
             const float current_nominal_speed = SQRT(current->nominal_speed_sqr),
-                        nomr = 1.0 / current_nominal_speed;
+                        nomr = 1.0f / current_nominal_speed;
             calculate_trapezoid_for_block(current, current_entry_speed * nomr, next_entry_speed * nomr);
             #if ENABLED(LIN_ADVANCE)
               if (current->use_advance_lead) {
@@ -1098,8 +1098,8 @@ void Planner::recalculate_trapezoids() {
       // Block is not BUSY, we won the race against the Stepper ISR:
 
       const float next_nominal_speed = SQRT(next->nominal_speed_sqr),
-                  nomr = 1.0 / next_nominal_speed;
-      calculate_trapezoid_for_block(next, next_entry_speed * nomr, (MINIMUM_PLANNER_SPEED) * nomr);
+                  nomr = 1.0f / next_nominal_speed;
+      calculate_trapezoid_for_block(next, next_entry_speed * nomr, float(MINIMUM_PLANNER_SPEED) * nomr);
       #if ENABLED(LIN_ADVANCE)
         if (next->use_advance_lead) {
           const float comp = next->e_D_ratio * extruder_advance_K * axis_steps_per_mm[E_AXIS];
@@ -1145,7 +1145,7 @@ void Planner::recalculate() {
 
     float t = autotemp_min + high * autotemp_factor;
     t = constrain(t, autotemp_min, autotemp_max);
-    if (t < oldt) t = t * (1 - (AUTOTEMP_OLDWEIGHT)) + oldt * (AUTOTEMP_OLDWEIGHT);
+    if (t < oldt) t = t * (1 - float(AUTOTEMP_OLDWEIGHT)) + oldt * float(AUTOTEMP_OLDWEIGHT);
     oldt = t;
     thermalManager.setTargetHotend(t, 0);
   }
@@ -1300,7 +1300,7 @@ void Planner::check_axes_activity() {
    * Return 1.0 with volumetric off or a diameter of 0.0.
    */
   inline float calculate_volumetric_multiplier(const float &diameter) {
-    return (parser.volumetric_enabled && diameter) ? 1.0 / CIRCLE_AREA(diameter * 0.5) : 1.0;
+    return (parser.volumetric_enabled && diameter) ? 1.0f / CIRCLE_AREA(diameter * 0.5) : 1.0;
   }
 
   /**
@@ -1324,12 +1324,12 @@ void Planner::check_axes_activity() {
    */
   void Planner::calculate_volumetric_for_width_sensor(const int8_t encoded_ratio) {
     // Reconstitute the nominal/measured ratio
-    const float nom_meas_ratio = 1.0 + 0.01 * encoded_ratio,
+    const float nom_meas_ratio = 1 + 0.01f * encoded_ratio,
                 ratio_2 = sq(nom_meas_ratio);
 
     volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = parser.volumetric_enabled
-      ? ratio_2 / CIRCLE_AREA(filament_width_nominal * 0.5) // Volumetric uses a true volumetric multiplier
-      : ratio_2;                                            // Linear squares the ratio, which scales the volume
+      ? ratio_2 / CIRCLE_AREA(filament_width_nominal * 0.5f) // Volumetric uses a true volumetric multiplier
+      : ratio_2;                                             // Linear squares the ratio, which scales the volume
 
     refresh_e_factor(FILAMENT_SENSOR_EXTRUDER_NUM);
   }
@@ -1673,7 +1673,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   if (de < 0) SBI(dm, E_AXIS);
 
   const float esteps_float = de * e_factor[extruder];
-  const uint32_t esteps = ABS(esteps_float) + 0.5;
+  const uint32_t esteps = ABS(esteps_float) + 0.5f;
 
   // Clear all flags, including the "busy" bit
   block->flag = 0x00;
@@ -1928,7 +1928,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   else
     block->millimeters = millimeters;
 
-  const float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
+  const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   // Calculate inverse time for this move. No divide by zero due to previous checks.
   // Example: At 120mm/s a 60mm move takes 0.5s. So this will give 2.0.
@@ -1940,7 +1940,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if ENABLED(SLOWDOWN) || ENABLED(ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
-    uint32_t segment_time_us = LROUND(1000000.0 / inverse_secs);
+    uint32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
 
   #if ENABLED(SLOWDOWN)
@@ -1948,7 +1948,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       if (segment_time_us < min_segment_time_us) {
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
         const uint32_t nst = segment_time_us + LROUND(2 * (min_segment_time_us - segment_time_us) / moves_queued);
-        inverse_secs = 1000000.0 / nst;
+        inverse_secs = 1000000.0f / nst;
         #if defined(XY_FREQUENCY_LIMIT) || ENABLED(ULTRA_LCD)
           segment_time_us = nst;
         #endif
@@ -1988,7 +1988,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         while (filwidth_delay_dist >= MMD_MM) filwidth_delay_dist -= MMD_MM;
 
         // Convert into an index into the measurement array
-        filwidth_delay_index[0] = int8_t(filwidth_delay_dist * 0.1);
+        filwidth_delay_index[0] = int8_t(filwidth_delay_dist * 0.1f);
 
         // If the index has changed (must have gone forward)...
         if (filwidth_delay_index[0] != filwidth_delay_index[1]) {
@@ -2004,7 +2004,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   // Calculate and limit speed in mm/sec for each axis
-  float current_speed[NUM_AXIS], speed_factor = 1.0; // factor <1 decreases speed
+  float current_speed[NUM_AXIS], speed_factor = 1.0f; // factor <1 decreases speed
   LOOP_XYZE(i) {
     const float cs = ABS((current_speed[i] = delta_mm[i] * inverse_secs));
     #if ENABLED(DISTINCT_E_FACTORS)
@@ -2052,7 +2052,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif // XY_FREQUENCY_LIMIT
 
   // Correct the speed
-  if (speed_factor < 1.0) {
+  if (speed_factor < 1.0f) {
     LOOP_XYZE(i) current_speed[i] *= speed_factor;
     block->nominal_rate *= speed_factor;
     block->nominal_speed_sqr = block->nominal_speed_sqr * sq(speed_factor);
@@ -2125,7 +2125,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         // Check for unusual high e_D ratio to detect if a retract move was combined with the last print move due to min. steps per segment. Never execute this with advance!
         // This assumes no one will use a retract length of 0mm < retr_length < ~0.2mm and no one will print 100mm wide lines using 3mm filament or 35mm wide lines using 1.75mm filament.
-        if (block->e_D_ratio > 3.0)
+        if (block->e_D_ratio > 3.0f)
           block->use_advance_lead = false;
         else {
           const uint32_t max_accel_steps_per_s2 = MAX_E_JERK / (extruder_advance_K * block->e_D_ratio) * steps_per_mm;
@@ -2160,7 +2160,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
   #if DISABLED(S_CURVE_ACCELERATION)
-    block->acceleration_rate = (uint32_t)(accel * (4096.0 * 4096.0 / (STEPPER_TIMER_RATE)));
+    block->acceleration_rate = (uint32_t)(accel * (4096.0f * 4096.0f / (STEPPER_TIMER_RATE)));
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
@@ -2233,12 +2233,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                                 ;
 
       // NOTE: Computed without any expensive trig, sin() or acos(), by trig half angle identity of cos(theta).
-      if (junction_cos_theta > 0.999999) {
+      if (junction_cos_theta > 0.999999f) {
         // For a 0 degree acute junction, just set minimum junction speed.
-        vmax_junction_sqr = sq(MINIMUM_PLANNER_SPEED);
+        vmax_junction_sqr = sq(float(MINIMUM_PLANNER_SPEED));
       }
       else {
-        NOLESS(junction_cos_theta, -0.999999); // Check for numerical round-off to avoid divide by zero.
+        NOLESS(junction_cos_theta, -0.999999f); // Check for numerical round-off to avoid divide by zero.
 
         // Convert delta vector to unit vector
         float junction_unit_vec[XYZE] = {
@@ -2250,13 +2250,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         normalize_junction_vector(junction_unit_vec);
 
         const float junction_acceleration = limit_value_by_axis_maximum(block->acceleration, junction_unit_vec),
-                    sin_theta_d2 = SQRT(0.5 * (1.0 - junction_cos_theta)); // Trig half angle identity. Always positive.
+                    sin_theta_d2 = SQRT(0.5f * (1.0f - junction_cos_theta)); // Trig half angle identity. Always positive.
 
-        vmax_junction_sqr = (junction_acceleration * junction_deviation_mm * sin_theta_d2) / (1.0 - sin_theta_d2);
-        if (block->millimeters < 1.0) {
+        vmax_junction_sqr = (junction_acceleration * junction_deviation_mm * sin_theta_d2) / (1.0f - sin_theta_d2);
+        if (block->millimeters < 1) {
 
           // Fast acos approximation, minus the error bar to be safe
-          const float junction_theta = (RADIANS(-40) * sq(junction_cos_theta) - RADIANS(50)) * junction_cos_theta + RADIANS(90) - 0.18;
+          const float junction_theta = (RADIANS(-40) * sq(junction_cos_theta) - RADIANS(50)) * junction_cos_theta + RADIANS(90) - 0.18f;
 
           // If angle is greater than 135 degrees (octagon), find speed for approximate arc
           if (junction_theta > RADIANS(135)) {
@@ -2270,7 +2270,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       vmax_junction_sqr = MIN3(vmax_junction_sqr, block->nominal_speed_sqr, previous_nominal_speed_sqr);
     }
     else // Init entry speed to zero. Assume it starts from rest. Planner will correct this later.
-      vmax_junction_sqr = 0.0;
+      vmax_junction_sqr = 0;
 
     COPY(previous_unit_vec, unit_vec);
 
@@ -2361,11 +2361,11 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   block->max_entry_speed_sqr = vmax_junction_sqr;
 
   // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
-  const float v_allowable_sqr = max_allowable_speed_sqr(-block->acceleration, sq(MINIMUM_PLANNER_SPEED), block->millimeters);
+  const float v_allowable_sqr = max_allowable_speed_sqr(-block->acceleration, sq(float(MINIMUM_PLANNER_SPEED)), block->millimeters);
 
   // If we are trying to add a split block, start with the
   // max. allowed speed to avoid an interrupted first move.
-  block->entry_speed_sqr = !split_move ? sq(MINIMUM_PLANNER_SPEED) : MIN(vmax_junction_sqr, v_allowable_sqr);
+  block->entry_speed_sqr = !split_move ? sq(float(MINIMUM_PLANNER_SPEED)) : MIN(vmax_junction_sqr, v_allowable_sqr);
 
   // Initialize planner efficiency flags
   // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.
@@ -2601,7 +2601,7 @@ void Planner::reset_acceleration_rates() {
 
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!
 void Planner::refresh_positioning() {
-  LOOP_XYZE_N(i) steps_to_mm[i] = 1.0 / axis_steps_per_mm[i];
+  LOOP_XYZE_N(i) steps_to_mm[i] = 1.0f / axis_steps_per_mm[i];
   set_position_mm_kinematic(current_position);
   reset_acceleration_rates();
 }

@@ -39,6 +39,8 @@
   #include "serial.h"
 #endif
 
+#define strtof strtod
+
 /**
  * GCode parser
  *
@@ -194,15 +196,15 @@ public:
         if (c == '\0' || c == ' ') break;
         if (c == 'E' || c == 'e') {
           *e = '\0';
-          const float ret = strtod(value_ptr, NULL);
+          const float ret = strtof(value_ptr, NULL);
           *e = c;
           return ret;
         }
         ++e;
       }
-      return strtod(value_ptr, NULL);
+      return strtof(value_ptr, NULL);
     }
-    return 0.0;
+    return 0;
   }
 
   // Code value as a long or ulong
