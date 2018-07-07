@@ -402,7 +402,7 @@ void MarlinSettings::postprocess() {
    * M500 - Store Configuration
    */
   bool MarlinSettings::save() {
-    float dummy = 0.0f;
+    float dummy = 0;
     char ver[4] = "ERR";
 
     uint16_t working_crc = 0;
@@ -432,12 +432,12 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
 
     #if ENABLED(JUNCTION_DEVIATION)
-      const float planner_max_jerk[] = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
+      const float planner_max_jerk[] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
       EEPROM_WRITE(planner_max_jerk);
       EEPROM_WRITE(planner.junction_deviation_mm);
     #else
       EEPROM_WRITE(planner.max_jerk);
-      dummy = 0.02;
+      dummy = 0.02f;
       EEPROM_WRITE(dummy);
     #endif
 
@@ -481,7 +481,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(mesh_num_y);
       EEPROM_WRITE(mbl.z_values);
     #else // For disabled MBL write a default mesh
-      dummy = 0.0f;
+      dummy = 0;
       const uint8_t mesh_num_x = 3, mesh_num_y = 3;
       EEPROM_WRITE(dummy); // z_offset
       EEPROM_WRITE(mesh_num_x);
@@ -503,7 +503,7 @@ void MarlinSettings::postprocess() {
     #if ABL_PLANAR
       EEPROM_WRITE(planner.bed_level_matrix);
     #else
-      dummy = 0.0;
+      dummy = 0;
       for (uint8_t q = 9; q--;) EEPROM_WRITE(dummy);
     #endif
 
@@ -527,7 +527,7 @@ void MarlinSettings::postprocess() {
       // For disabled Bilinear Grid write an empty 3x3 grid
       const uint8_t grid_max_x = 3, grid_max_y = 3;
       const int bilinear_start[2] = { 0 }, bilinear_grid_spacing[2] = { 0 };
-      dummy = 0.0f;
+      dummy = 0;
       EEPROM_WRITE(grid_max_x);
       EEPROM_WRITE(grid_max_y);
       EEPROM_WRITE(bilinear_grid_spacing);
@@ -565,7 +565,7 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(x_endstop_adj);
 
       // Write dual endstops in X, Y, Z order. Unused = 0.0
-      dummy = 0.0f;
+      dummy = 0;
       #if ENABLED(X_DUAL_ENDSTOPS)
         EEPROM_WRITE(endstops.x_endstop_adj);   // 1 float
       #else
@@ -617,7 +617,7 @@ void MarlinSettings::postprocess() {
         {
           dummy = DUMMY_PID_VALUE; // When read, will not change the existing value
           EEPROM_WRITE(dummy); // Kp
-          dummy = 0.0f;
+          dummy = 0;
           for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy); // Ki, Kd, Kc
         }
 
@@ -863,7 +863,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(LIN_ADVANCE)
       EEPROM_WRITE(planner.extruder_advance_K);
     #else
-      dummy = 0.0f;
+      dummy = 0;
       EEPROM_WRITE(dummy);
     #endif
 
@@ -885,7 +885,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
       EEPROM_WRITE(coordinate_system); // 27 floats
     #else
-      dummy = 0.0f;
+      dummy = 0;
       for (uint8_t q = MAX_COORDINATE_SYSTEMS * XYZ; q--;) EEPROM_WRITE(dummy);
     #endif
 
@@ -900,7 +900,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(planner.xz_skew_factor);
       EEPROM_WRITE(planner.yz_skew_factor);
     #else
-      dummy = 0.0f;
+      dummy = 0;
       for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #endif
 
@@ -920,7 +920,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(dummy);
       }
     #else
-      dummy = 0.0f;
+      dummy = 0;
       for (uint8_t q = MAX_EXTRUDERS * 2; q--;) EEPROM_WRITE(dummy);
     #endif
 
@@ -1729,7 +1729,7 @@ void MarlinSettings::reset() {
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
 
   #if ENABLED(JUNCTION_DEVIATION)
-    planner.junction_deviation_mm = JUNCTION_DEVIATION_MM;
+    planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
   #else
     planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
     planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
@@ -1831,7 +1831,7 @@ void MarlinSettings::reset() {
       HOTEND_LOOP()
     #endif
     {
-      PID_PARAM(Kp, e) = DEFAULT_Kp;
+      PID_PARAM(Kp, e) = float(DEFAULT_Kp);
       PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
       #if ENABLED(PID_EXTRUSION_SCALING)
