@@ -60,7 +60,7 @@ millis_t PrintCounter::deltaDuration() {
   return lastDuration - tmp;
 }
 
-void PrintCounter::incFilamentUsed(double const &amount) {
+void PrintCounter::incFilamentUsed(float const &amount) {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     debug(PSTR("incFilamentUsed"));
   #endif

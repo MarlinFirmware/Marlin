@@ -181,7 +181,7 @@
             if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
               float sumP = 0;
               LOOP_L_N(i, I2CPE_ERR_PRST_ARRAY_SIZE) sumP += errPrst[i];
-              const int32_t errorP = int32_t(sumP * (1.0 / (I2CPE_ERR_PRST_ARRAY_SIZE)));
+              const int32_t errorP = int32_t(sumP * (1.0f / (I2CPE_ERR_PRST_ARRAY_SIZE)));
               SERIAL_ECHO(axis_codes[encoderAxis]);
               SERIAL_ECHOPAIR(" - err detected: ", errorP * planner.steps_to_mm[encoderAxis]);
               SERIAL_ECHOLNPGM("mm; correcting!");
