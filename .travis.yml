@@ -472,11 +472,12 @@ script:
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
 
   #############################
-  # STM32F1 default config test
+  # STM32F1 config test
   #############################
 
   - export TEST_PLATFORM="-e STM32F1"
   - restore_configs
   - opt_set MOTHERBOARD BOARD_STM32F1R
   - update_defaults
+  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
   - build_marlin_pio ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
