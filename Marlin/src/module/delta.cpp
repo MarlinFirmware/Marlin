@@ -157,22 +157,22 @@ float delta_safe_distance_from_top() {
  */
 void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3) {
   // Create a vector in old coordinates along x axis of new coordinate
-  const float p12[3] = { delta_tower[B_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[B_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z2 - z1 };
+  const float p12[3] = { delta_tower[B_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[B_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z2 - z1 },
 
   // Get the reciprocal of Magnitude of vector.
-  const float d2 = sq(p12[0]) + sq(p12[1]) + sq(p12[2]), inv_d = RSQRT(d2);
+  d2 = sq(p12[0]) + sq(p12[1]) + sq(p12[2]), inv_d = RSQRT(d2),
 
   // Create unit vector by multiplying by the inverse of the magnitude.
-  const float ex[3] = { p12[0] * inv_d, p12[1] * inv_d, p12[2] * inv_d };
+  ex[3] = { p12[0] * inv_d, p12[1] * inv_d, p12[2] * inv_d },
 
   // Get the vector from the origin of the new system to the third point.
-  const float p13[3] = { delta_tower[C_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[C_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z3 - z1 };
+  p13[3] = { delta_tower[C_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[C_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z3 - z1 },
 
   // Use the dot product to find the component of this vector on the X axis.
-  const float i = ex[0] * p13[0] + ex[1] * p13[1] + ex[2] * p13[2];
+  i = ex[0] * p13[0] + ex[1] * p13[1] + ex[2] * p13[2],
 
   // Create a vector along the x axis that represents the x component of p13.
-  const float iex[3] = { ex[0] * i, ex[1] * i, ex[2] * i };
+  iex[3] = { ex[0] * i, ex[1] * i, ex[2] * i };
 
   // Subtract the X component from the original vector leaving only Y. We use the
   // variable that will be the unit vector after we scale it.
@@ -190,13 +190,13 @@ void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3)
     ex[1] * ey[2] - ex[2] * ey[1],
     ex[2] * ey[0] - ex[0] * ey[2],
     ex[0] * ey[1] - ex[1] * ey[0]
-  };
+  },
 
   // We now have the d, i and j values defined in Wikipedia.
   // Plug them into the equations defined in Wikipedia for Xnew, Ynew and Znew
-  const float Xnew = (delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[B_AXIS] + d2) * inv_d * 0.5,
-              Ynew = ((delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[C_AXIS] + sq(i) + j2) * 0.5 - i * Xnew) * inv_j,
-              Znew = SQRT(delta_diagonal_rod_2_tower[A_AXIS] - HYPOT2(Xnew, Ynew));
+  Xnew = (delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[B_AXIS] + d2) * inv_d * 0.5,
+  Ynew = ((delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[C_AXIS] + sq(i) + j2) * 0.5 - i * Xnew) * inv_j,
+  Znew = SQRT(delta_diagonal_rod_2_tower[A_AXIS] - HYPOT2(Xnew, Ynew));
 
   // Start from the origin of the old coordinates and add vectors in the
   // old coords that represent the Xnew, Ynew and Znew to find the point

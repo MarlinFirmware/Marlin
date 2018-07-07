@@ -1317,7 +1317,7 @@ void Planner::check_axes_activity() {
    * Return 1.0 with volumetric off or a diameter of 0.0.
    */
   inline float calculate_volumetric_multiplier(const float &diameter) {
-    return (parser.volumetric_enabled && diameter) ? RECIPROCAL(CIRCLE_AREA(diameter * 0.5f)) : 1;
+    return (parser.volumetric_enabled && diameter) ? 1.0f / CIRCLE_AREA(diameter * 0.5f) : 1;
   }
 
   /**
