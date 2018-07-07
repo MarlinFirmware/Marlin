@@ -19,13 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef ARDUINO_ARCH_ESP32
 
 #include "../../inc/MarlinConfig.h"
+
+#if ENABLED(WIFISUPPORT)
+
 #include "WebSocketSerial.h"
-#include "AsyncTCP.h"
-#include "ESPAsyncWebServer.h"
+#include "wifi.h"
+
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 
 struct ring_buffer_r {
   unsigned char buffer[RX_BUFFER_SIZE];
@@ -48,18 +52,15 @@ static bool _written;
 
 AsyncWebSocket ws("/ws"); // access at ws://[esp ip]/ws
 
-static void addToBuffer(AwsFrameInfo *info, uint8_t *data, size_t len){
-  for(size_t i=0; i < len; i++){
-    const ring_buffer_pos_t t = rx_buffer.tail;
+FORCE_INLINE int next_rx_index(const int i) { return (ring_buffer_pos_t)(i + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1); }
+FORCE_INLINE int next_tx_index(const int i) { return (ring_buffer_pos_t)(i + 1) & (ring_buffer_pos_t)(TX_BUFFER_SIZE - 1); }
+
+static void addToBuffer(uint8_t * const data, const size_t len) {
+  for (size_t i = 0; i < len; i++) {
     ring_buffer_pos_t h = rx_buffer.head;
+    const ring_buffer_pos_t t = rx_buffer.tail, n = next_rx_index(h);
 
-    // Get the next element
-    ring_buffer_pos_t n = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_BUFFER_SIZE - 1);
-
-    if(n != t){
-      rx_buffer.buffer[h] = data[i];
-      h = n;
-    }
+    if (n != t) { rx_buffer.buffer[h] = data[i]; h = n; }
 
     // TODO: buffer is full, handle?
 
@@ -67,35 +68,28 @@ static void addToBuffer(AwsFrameInfo *info, uint8_t *data, size_t len){
   }
 }
 
-static void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
-  //Handle WebSocket event
-  if(type == WS_EVT_CONNECT){
-    //client connected
-    client->ping();
-  } else if(type == WS_EVT_DISCONNECT){
-    //client disconnected
-  } else if(type == WS_EVT_ERROR){
-    //error was received from the other end
-  } else if(type == WS_EVT_PONG){
-    //pong message was received (in response to a ping request maybe)
-  } else if(type == WS_EVT_DATA){
-    //data packet
-    AwsFrameInfo * info = (AwsFrameInfo*)arg;
-    if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT) {
-      addToBuffer(info, data, len);
+// Handle WebSocket event
+static void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
+  switch (type) {
+    case WS_EVT_CONNECT: client->ping(); break; // client connected
+    case WS_EVT_DISCONNECT:                     // client disconnected
+    case WS_EVT_ERROR:                          // error was received from the other end
+    case WS_EVT_PONG: break;                    // pong message was received (in response to a ping request maybe)
+    case WS_EVT_DATA: {                         // data packet
+      AwsFrameInfo * info = (AwsFrameInfo*)arg;
+      if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT)
+        addToBuffer(data, len);
     }
   }
 }
 
 // Public Methods
 void WebSocketSerial::begin(const long baud_setting) {
-  // attach AsyncWebSocket
   ws.onEvent(onEvent);
-  server.addHandler(&ws);
+  server.addHandler(&ws); // attach AsyncWebSocket
 }
 
-void WebSocketSerial::end() {
-}
+void WebSocketSerial::end() { }
 
 int WebSocketSerial::peek(void) {
   const int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
@@ -103,18 +97,12 @@ int WebSocketSerial::peek(void) {
 }
 
 int WebSocketSerial::read(void) {
-  const ring_buffer_pos_t h = rx_buffer.head;
-  ring_buffer_pos_t t = rx_buffer.tail;
+  const ring_buffer_pos_t h = rx_buffer.head, t = rx_buffer.tail;
+  if (h == t) return -1;  // Nothing to read? Return now
 
-  // If nothing to read, return now
-  if (h == t) return -1;
+  const int v = rx_buffer.buffer[t];
 
-  int v = rx_buffer.buffer[t];
-
-  t = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1);
-
-  // Advance tail
-  rx_buffer.tail = t;
+  rx_buffer.tail = (ring_buffer_pos_t)(t + 1) & (RX_BUFFER_SIZE - 1); // Advance tail
 
   return v;
 }
@@ -129,7 +117,8 @@ void WebSocketSerial::flush(void) {
   rx_buffer.tail = rx_buffer.head;
 }
 
-// #if TX_BUFFER_SIZE > 0
+#if TX_BUFFER_SIZE
+
   void WebSocketSerial::write(const uint8_t c) {
     _written = true;
 
@@ -147,48 +136,29 @@ void WebSocketSerial::flush(void) {
 
   void WebSocketSerial::flushTx(void) {
     ws.textAll("flushTx");
-    if (!_written) {
-      return;
-    }
+    if (!_written) return;
   }
-// #else
-//   void WebSocketSerial::write(const uint8_t c) {
-//     _written = true;
-//   }
 
-//   void WebSocketSerial::flushTx(void) {
-//     if (!_written) return;
-//   }
-// #endif
+#else
+
+ //void WebSocketSerial::write(const uint8_t c) { _written = true; }
+ //void WebSocketSerial::flushTx(void) { if (!_written) return; }
+
+#endif
 
 /**
-* Imports from print.h
-*/
+ * Imports from print.h
+ */
 
-void WebSocketSerial::print(char c, int base) {
-  print((long)c, base);
-}
-
-void WebSocketSerial::print(unsigned char b, int base) {
-  print((unsigned long)b, base);
-}
-
-void WebSocketSerial::print(int n, int base) {
-  print((long)n, base);
-}
-
-void WebSocketSerial::print(unsigned int n, int base) {
-  print((unsigned long)n, base);
-}
-
+void WebSocketSerial::print(char c, int base) { print((long)c, base); }
+void WebSocketSerial::print(unsigned char b, int base) { print((unsigned long)b, base); }
+void WebSocketSerial::print(int n, int base) { print((long)n, base); }
+void WebSocketSerial::print(unsigned int n, int base) { print((unsigned long)n, base); }
 void WebSocketSerial::print(long n, int base) {
   if (base == 0)
     write(n);
   else if (base == 10) {
-    if (n < 0) {
-      print('-');
-      n = -n;
-    }
+    if (n < 0) { print('-'); n = -n; }
     printNumber(n, 10);
   }
   else
@@ -196,63 +166,21 @@ void WebSocketSerial::print(long n, int base) {
 }
 
 void WebSocketSerial::print(unsigned long n, int base) {
-  if (base == 0) write(n);
-  else printNumber(n, base);
+  if (base == 0) write(n); else printNumber(n, base);
 }
 
-void WebSocketSerial::print(double n, int digits) {
-  printFloat(n, digits);
-}
+void WebSocketSerial::print(double n, int digits)         { printFloat(n, digits); }
 
-void WebSocketSerial::println(void) {
-  print('\r');
-  print('\n');
-}
-
-void WebSocketSerial::println(const String& s) {
-  print(s);
-  println();
-}
-
-void WebSocketSerial::println(const char c[]) {
-  print(c);
-  println();
-}
-
-void WebSocketSerial::println(char c, int base) {
-  print(c, base);
-  println();
-}
-
-void WebSocketSerial::println(unsigned char b, int base) {
-  print(b, base);
-  println();
-}
-
-void WebSocketSerial::println(int n, int base) {
-  print(n, base);
-  println();
-}
-
-void WebSocketSerial::println(unsigned int n, int base) {
-  print(n, base);
-  println();
-}
-
-void WebSocketSerial::println(long n, int base) {
-  print(n, base);
-  println();
-}
-
-void WebSocketSerial::println(unsigned long n, int base) {
-  print(n, base);
-  println();
-}
-
-void WebSocketSerial::println(double n, int digits) {
-  print(n, digits);
-  println();
-}
+void WebSocketSerial::println(void)                       { print('\r'); print('\n'); }
+void WebSocketSerial::println(const String& s)            { print(s); println(); }
+void WebSocketSerial::println(const char c[])             { print(c); println(); }
+void WebSocketSerial::println(char c, int base)           { print(c, base); println(); }
+void WebSocketSerial::println(unsigned char b, int base)  { print(b, base); println(); }
+void WebSocketSerial::println(int n, int base)            { print(n, base); println(); }
+void WebSocketSerial::println(unsigned int n, int base)   { print(n, base); println(); }
+void WebSocketSerial::println(long n, int base)           { print(n, base); println(); }
+void WebSocketSerial::println(unsigned long n, int base)  { print(n, base); println(); }
+void WebSocketSerial::println(double n, int digits)       { print(n, digits); println(); }
 
 // Private Methods
 
@@ -273,34 +201,32 @@ void WebSocketSerial::printNumber(unsigned long n, uint8_t base) {
 
 void WebSocketSerial::printFloat(double number, uint8_t digits) {
   // Handle negative numbers
-  if (number < 0.0) {
-    print('-');
-    number = -number;
-  }
+  if (number < 0.0) { print('-'); number = -number; }
 
   // Round correctly so that print(1.999, 2) prints as "2.00"
-  double rounding = 0.5;
-  for (uint8_t i = 0; i < digits; ++i)
-    rounding *= 0.1;
+  // Use a lookup table for performance
+  constexpr double rounds[] = { 0.5, 0.05, 0.005, 0.0005, 0.00005, 0.000005, 0.0000005, 0.00000005 };
+  number += rounds[digits];
 
-  number += rounding;
+  //number += pow(10, -(digits + 1)); // slower single-line equivalent
 
   // Extract the integer part of the number and print it
   unsigned long int_part = (unsigned long)number;
-  double remainder = number - (double)int_part;
   print(int_part);
 
   // Print the decimal point, but only if there are digits beyond
+  double remainder = number - (double)int_part;
   if (digits) {
     print('.');
     // Extract digits from the remainder one at a time
     while (digits--) {
       remainder *= 10.0;
-      int toPrint = int(remainder);
+      const int toPrint = int(remainder);
       print(toPrint);
       remainder -= toPrint;
     }
   }
 }
 
+#endif // WIFISUPPORT
 #endif // ARDUINO_ARCH_ESP32

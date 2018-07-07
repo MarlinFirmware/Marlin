@@ -19,13 +19,14 @@
 
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "FS.h"
-#include "SPIFFS.h"
-
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(WEBSUPPORT)
 
+#include "../../core/serial.h"
+
+#include "FS.h"
+#include "SPIFFS.h"
 #include "wifi.h"
 
 AsyncEventSource events("/events"); // event source (Server-Sent events)
@@ -35,19 +36,14 @@ void onNotFound(AsyncWebServerRequest *request){
 }
 
 void web_init() {
-  // attach AsyncEventSource
-  server.addHandler(&events);
-
-  Serial.begin(BAUDRATE);
-  if(!SPIFFS.begin()){
-    Serial.println("SPIFFS Mount Failed");
-    return;
+  server.addHandler(&events);       // attach AsyncEventSource
+  if (SPIFFS.begin()) {
+    server.serveStatic("/", SPIFFS, "/www").setDefaultFile("index.html");
+    server.onNotFound(onNotFound);
   }
-
-  server.serveStatic("/", SPIFFS, "/www").setDefaultFile("index.html");
-  server.onNotFound(onNotFound);
+  else
+    SERIAL_ECHO_MSG("SPIFFS Mount Failed");
 }
 
 #endif // WEBSUPPORT
-
 #endif // ARDUINO_ARCH_ESP32

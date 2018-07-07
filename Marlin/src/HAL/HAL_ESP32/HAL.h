@@ -46,11 +46,8 @@
 #include "i2s.h"
 
 #include "HAL_timers_ESP32.h"
+
 #include "WebSocketSerial.h"
-
-#include "ESPAsyncWebServer.h"
-
-#include "wifi.h"
 
 // --------------------------------------------------------------------------
 // Defines

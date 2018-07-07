@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef WEBSOCKET_SERIAL_H
-#define WEBSOCKET_SERIAL_H
+#pragma once
 
 #include "../../inc/MarlinConfig.h"
 
@@ -38,6 +36,9 @@
 #ifndef TX_BUFFER_SIZE
   #define TX_BUFFER_SIZE 32
 #endif
+#if TX_BUFFER_SIZE <= 0
+  #error "TX_BUFFER_SIZE is required for the WebSocket."
+#endif
 
 #if RX_BUFFER_SIZE > 256
   typedef uint16_t ring_buffer_pos_t;
@@ -45,9 +46,7 @@
   typedef uint8_t ring_buffer_pos_t;
 #endif
 
-
 class WebSocketSerial {
-
 public:
   WebSocketSerial() {};
   static void begin(const long);
@@ -60,11 +59,11 @@ public:
   static void write(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
-  FORCE_INLINE static uint32_t dropped() { return 0; }
+    FORCE_INLINE static uint32_t dropped() { return 0; }
   #endif
 
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-  FORCE_INLINE static int rxMaxEnqueued() { return 0; }
+    FORCE_INLINE static int rxMaxEnqueued() { return 0; }
   #endif
 
   FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
@@ -98,5 +97,3 @@ private:
 };
 
 extern WebSocketSerial webSocketSerial;
-
-#endif // WEBSOCKET_SERIAL_H

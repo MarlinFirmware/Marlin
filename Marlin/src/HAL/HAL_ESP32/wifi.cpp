@@ -25,10 +25,14 @@
 
 #include <WiFi.h>
 #include <ESPmDNS.h>
-#include "ESPAsyncWebServer.h"
+#include <ESPAsyncWebServer.h>
 #include "wifi.h"
 
 AsyncWebServer server(80);
+
+#ifndef WIFI_HOSTNAME
+  #define WIFI_HOSTNAME DEFAULT_WIFI_HOSTNAME
+#endif
 
 void wifi_init() {
   WiFi.mode(WIFI_STA);
@@ -40,14 +44,12 @@ void wifi_init() {
   }
 
   delay(10);
-  if (!MDNS.begin(HOSTNAME)){
-    while(1){
-      delay(5000);
-    }
-  }
+
+  // Loop forever (watchdog kill) on failure
+  if (!MDNS.begin(WIFI_HOSTNAME)) for(;;) delay(5000);
+
   MDNS.addService("http", "tcp", 80);
 }
 
 #endif // WIFISUPPORT
-
 #endif // ARDUINO_ARCH_ESP32

@@ -30,11 +30,11 @@
 #include <rom/rtc.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
-#include "ESPAsyncWebServer.h"
 
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(WIFISUPPORT)
+  #include <ESPAsyncWebServer.h>
   #include "wifi.h"
   #if ENABLED(OTASUPPORT)
     #include "ota.h"
