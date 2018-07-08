@@ -154,7 +154,6 @@ void get_coordinates()
     if(code_seen(axis_codes[i])) 
     {
       calc_destination[i] = (double)code_value() + (axis_relative_modes[i])*current_position[i];
-      seen[i]=true;
     }
     else calc_destination[i] = current_position[i]; //Are these else lines really needed?
   }
