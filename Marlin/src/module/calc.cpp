@@ -355,7 +355,7 @@ void idle2() {
 
 		double tt1, tt2, tt3;
                 if (block->step_event_count > 0) {
-                  double vi, vf, v, d, a, t1, t2, t;
+                  double vi, vf, v, d, a, t1, t2;
                   vi = block->initial_rate;
                   a = block->acceleration_steps_per_s2;
                   d = block->accelerate_until;
