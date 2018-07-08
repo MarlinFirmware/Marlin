@@ -403,7 +403,8 @@ int main(int argc, char *argv[]) {
         while (block_t* new_block = Planner::get_current_block()) {
           Planner::discard_current_block();
         }
-	printf("Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
-	printf("Total time: %f\n", total_time);
+	fprintf(stderr, "Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
+	fprintf(stderr, "Total time: %f\n", total_time);
+	printf("%f\n", total_time);
 	return 0;
 }
