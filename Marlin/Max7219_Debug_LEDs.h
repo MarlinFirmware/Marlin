@@ -35,7 +35,7 @@
  * support functions available to control the LEDs in the 8x8 grid.
  *
  * If you are using the Max7219 matrix for firmware debug purposes in time sensitive
- * areas of the code, please beware that the orientation (rotation) of the display can 
+ * areas of the code, please be aware that the orientation (rotation) of the display can 
  * affect the speed.   The Max7219 can update a single column fairly fast.  It is much
  * faster to do a Max7219_Set_Column() with a rotation of 90 or 270 degrees than to do
  * a Max7219_Set_Row().    The opposite is true for rotations of 0 or 180 degrees.
