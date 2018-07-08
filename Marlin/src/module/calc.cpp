@@ -50,8 +50,6 @@ static double calc_destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static double feedrate = 1500.0, next_feedrate;//, saved_feedrate;
 long gcode_N, gcode_LastN;//, Stopped_gcode_LastN = 0;
 
-bool relative_mode = false;  //Determines Absolute or Relative Coordinates
-
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 //static bool fromsd[BUFSIZE];
 static int bufindr = 0;
@@ -156,7 +154,7 @@ void get_coordinates()
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) 
     {
-      calc_destination[i] = (double)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+      calc_destination[i] = (double)code_value() + (axis_relative_modes[i])*current_position[i];
       seen[i]=true;
     }
     else calc_destination[i] = current_position[i]; //Are these else lines really needed?
@@ -250,10 +248,14 @@ void process_commands() {
 	  total_time += 5; // 5 seconds to home
 		break;
     case 90: // G90
-      relative_mode = false;
+      for (int i = 0; i < 4; i++) {
+        axis_relative_modes[i] = false;
+      }
       break;
     case 91: // G91
-      relative_mode = true;
+      for (int i = 0; i < 4; i++) {
+        axis_relative_modes[i] = true;
+      }
       break;
     case 92: // G92
       for(int8_t i=0; i < NUM_AXIS; i++) {
@@ -271,8 +273,14 @@ void process_commands() {
       break;
 	}
   } else if(code_seen('M')) {
-	total_m++;
-	switch((int)code_value()) {
+    total_m++;
+    switch((int)code_value()) {
+    case 82: // M82: Set extruder to absolute mode
+      axis_relative_modes[3] = false;
+      break;
+    case 83: // M83: Set extruder to relative mode
+      axis_relative_modes[3] = true;
+      break;
     case 201: // M201
       for(int8_t i=0; i < NUM_AXIS; i++) 
       {
