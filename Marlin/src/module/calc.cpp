@@ -346,38 +346,36 @@ void idle2() {
 		// calculate block len
 
 		double tt1, tt2, tt3;
+                if (block->step_event_count > 0) {
+                  double vi, vf, v, d, a, t1, t2, t;
+                  vi = block->initial_rate;
+                  a = block->acceleration_steps_per_s2;
+                  d = block->accelerate_until;
+                  t1 = -1 * (sqrt(2*a*d+vi*vi) + vi) / a;
+                  t2 =      (sqrt(2*a*d+vi*vi) - vi) / a;
+                  //printf("D: %f A: %f T: %f / %f \n", d, a, t1, t2);
+                  tt1 = max(t1, t2);
+                  vf = vi + a * tt1;
 
-		double vi, vf, v, d, a, t1, t2, t;
-		vi = block->initial_rate;
-		a = block->acceleration_steps_per_s2;
-		d = block->accelerate_until;
-		t1 = -1 * (sqrt(2*a*d+vi*vi) + vi) / a;
-		t2 =      (sqrt(2*a*d+vi*vi) - vi) / a;
-//		printf("D: %f A: %f T: %f / %f \n", d, a, t1, t2);
-		tt1 = max(t1, t2);
-		vf = vi + a * tt1;
+                  if (block->decelerate_after > block->accelerate_until) {
+                    tt2 = (block->decelerate_after - block->accelerate_until) / vf;
+                  } else {
+                    tt2 = 0;
+                  }
 
-                if (block->decelerate_after > block->accelerate_until) {
-                  tt2 = (block->decelerate_after - block->accelerate_until) / vf;
-                } else {
-                  tt2 = 0;
+                  vi = vf;
+                  if (block->step_event_count > block->decelerate_after) {
+                    d = block->step_event_count - block->decelerate_after;
+                  } else {
+                    d = 0;
+                  }
+                  a = -a;
+                  vf = block->final_rate;
+                  v = (vi+vf)/2;
+                  tt3 = d / v;
+
+                  total_time += tt1+tt2+tt3;
                 }
-
-		vi = vf;
-                if (block->step_event_count > block->decelerate_after) {
-                  d = block->step_event_count - block->decelerate_after;
-                } else {
-                  d = 0;
-                }
-		a = -a;
-		vf = block->final_rate;
-		v = (vi+vf)/2;
-		tt3 = d / v;
-
-		
-
-		total_time += tt1+tt2+tt3;
-
                 Planner::discard_current_block();
 	}		
 }
