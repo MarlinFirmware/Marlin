@@ -3,7 +3,7 @@
 CXX = g++
 
 # define any compile-time flags
-CXX_FLAGS = -Wall -static -g #-O2
+CXX_FLAGS = -Wall -static -g -std=gnu++11 #-O2
 
 # define the executable file 
 BIN = calc
