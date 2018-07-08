@@ -150,7 +150,6 @@ void prepare_move()
 
 void get_coordinates()
 {
-  bool seen[4]={false,false,false,false};
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) 
     {
