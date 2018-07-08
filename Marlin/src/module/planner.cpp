@@ -63,14 +63,16 @@
  */
 
 #include "planner.h"
-#include "stepper.h"
+#include "Configuration.h"
+//#include "stepper.h"
 #include "motion.h"
-#include "../module/temperature.h"
-#include "../lcd/ultralcd.h"
+//#include "../module/temperature.h"
+//#include "../lcd/ultralcd.h"
 #include "../core/language.h"
 #include "../gcode/parser.h"
 
-#include "../Marlin.h"
+//#include "../Marlin.h"
+#include "calc.h"
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"

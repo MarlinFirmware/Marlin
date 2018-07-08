@@ -32,7 +32,8 @@
 #ifndef PLANNER_H
 #define PLANNER_H
 
-#include "../Marlin.h"
+#include "hax.h"
+//#include "../Marlin.h"
 
 #include "motion.h"
 #include "../gcode/queue.h"
