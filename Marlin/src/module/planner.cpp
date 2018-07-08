@@ -99,6 +99,7 @@
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
 
 Planner planner;
+Stepper stepper;
 
   // public:
 
@@ -1313,6 +1314,7 @@ void Planner::check_axes_activity() {
 
 #if DISABLED(NO_VOLUMETRICS)
 
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
   /**
    * Get a volumetric multiplier from a filament diameter.
    * This is the reciprocal of the circular cross-section area.
@@ -1332,7 +1334,7 @@ void Planner::check_axes_activity() {
       refresh_e_factor(i);
     }
   }
-
+#endif // ENABLED(FILAMENT_WIDTH_SENSOR)
 #endif // !NO_VOLUMETRICS
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)

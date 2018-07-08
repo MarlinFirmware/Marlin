@@ -10,6 +10,7 @@ void manage_inactivity2();
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include "../core/enum.h"
 
 //From "../HAL/HAL_LPC1768/include/Arduino.h"
 // Program Memory
@@ -41,13 +42,26 @@ void manage_inactivity2();
 #define CRITICAL_SECTION_START
 #define CRITICAL_SECTION_END
 
-//enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3};
+/*enum AxisEnum : unsigned char {
+  X_AXIS    = 0,
+  A_AXIS    = 0,
+  Y_AXIS    = 1,
+  B_AXIS    = 1,
+  Z_AXIS    = 2,
+  C_AXIS    = 2,
+  E_AXIS    = 3,
+  X_HEAD    = 4,
+  Y_HEAD    = 5,
+  Z_HEAD    = 6,
+  ALL_AXES  = 0xFE,
+  NO_AXIS   = 0xFF
+  };*/
 
-#define enable_x()
-#define enable_y()
-#define enable_z()
+#define enable_X() while(0) {}
+#define enable_Y() while(0) {}
+#define enable_Z() while(0) {}
 #define enable_e()
-#define enable_e0()
+#define enable_E0() while(0) {}
 #define enable_e1()
 #define enable_e2()
 
@@ -58,6 +72,7 @@ void manage_inactivity2();
 #define disable_e0()
 #define disable_e1()
 #define disable_e2()
+#define disable_all_steppers()
 
 #define MINIMUM_PLANNER_SPEED 0.05
 // (mm/sec)
@@ -72,8 +87,30 @@ extern int extrudemultiply;
 
 #define byte uint8_t
 
-#define st_wake_up()
-#define st_set_position(x,y,z,e)
-#define st_set_e_position(e)
+// Fixes for missing stepper.h and stepper.cpp
 
+#define STEPPER_ISR_ENABLED() false  // TODO: Check if this affects anything.
+#define DISABLE_STEPPER_DRIVER_INTERRUPT()
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()
+#define STEPPER_TIMER_RATE 1 // TODO: Check if this affects anything.
+struct Stepper {
+  static bool is_block_busy(const void* const block) {
+    return false;
+  }
+  static void quick_stop() {}
+  static void endstop_triggered(const AxisEnum axis) {}
+  static int32_t triggered_position(const AxisEnum axis) {
+    return 0; // TODO: Check if this affects anything.
+  }
+  static int32_t position(const AxisEnum axis) {
+    return 0; // TODO: Check if this affects anything.
+  }
+  void wake_up() {}
+  inline static void set_position(const AxisEnum a, const int32_t &v) {}
+  inline static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+  }
+};
+
+#define DRYRUN 1 // TODO: Check if this affects anything.
+#define DEBUGGING(F) true  // TODO: Check if this affects anything.
 #endif

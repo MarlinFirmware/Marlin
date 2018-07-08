@@ -9,7 +9,7 @@
 CPP = g++
 
 # define any compile-time flags
-CFLAGS = -Wall -O2 -static
+CFLAGS = -Wall -O2 -static -g
 
 # define any directories containing header files other than /usr/include
 #
@@ -26,7 +26,7 @@ LFLAGS = -L../lib -static
 LIBS = -lm
 
 # define the C source files
-SRCS = src/module/planner.cpp calc.cpp
+SRCS = src/module/planner.cpp src/module/calc.cpp
 
 # define the C object files 
 #
@@ -49,7 +49,7 @@ MAIN = calc
 
 .PHONY: depend clean
 
-all: clean    $(MAIN)
+all: $(MAIN)
 	@echo  Done
 
 $(MAIN): $(OBJS) 
@@ -63,7 +63,7 @@ $(MAIN): $(OBJS)
 	$(CPP) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
-	$(RM) *.o *~ $(MAIN)
+	$(RM) $(OBJS) $(MAIN)
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^

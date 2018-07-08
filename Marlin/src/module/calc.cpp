@@ -3,13 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-#include "Configuration.h"
+#include "../core/macros.h"
+#include "../../Configuration.h"
 #include "planner.h"
 
 //===========================================================================
 //=============================public variables=============================
 //===========================================================================
-float homing_feedrate[] = HOMING_FEEDRATE;
+//float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
@@ -42,14 +43,14 @@ uint8_t active_extruder = 0;
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
-const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
-static double destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+//const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
+static double calc_destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 //static double offset[3] = {0.0, 0.0, 0.0};
 //static bool home_all_axis = true;
 static double feedrate = 1500.0, next_feedrate;//, saved_feedrate;
-static long gcode_N, gcode_LastN;//, Stopped_gcode_LastN = 0;
+long gcode_N, gcode_LastN;//, Stopped_gcode_LastN = 0;
 
-static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
+bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 //static bool fromsd[BUFSIZE];
@@ -85,7 +86,6 @@ bool CooldownNoWait = true;
 bool target_direction;
 
 
-
 int fanSpeed = 0;
 
 //void plan_buffer_line(const double &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
@@ -97,23 +97,23 @@ void Config_ResetDefault()
     long tmp3[]=DEFAULT_MAX_ACCELERATION;
     for (short i=0;i<4;i++) 
     {
-        axis_steps_per_unit[i]=tmp1[i];  
-        max_feedrate[i]=tmp2[i];  
-        max_acceleration_units_per_sq_second[i]=tmp3[i];
+      Planner::axis_steps_per_mm[i]=tmp1[i];  
+      Planner::max_feedrate_mm_s[i]=tmp2[i];  
+      Planner::max_acceleration_mm_per_s2[i]=tmp3[i];
     }
     
     // steps per sq second need to be updated to agree with the units per sq second
-    reset_acceleration_rates();
+    Planner::reset_acceleration_rates();
     
-    acceleration=DEFAULT_ACCELERATION;
-    retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
-    minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
-    minsegmenttime=DEFAULT_MINSEGMENTTIME;       
-    mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
-    max_xy_jerk=DEFAULT_XYJERK;
-    max_z_jerk=DEFAULT_ZJERK;
-    max_e_jerk=DEFAULT_EJERK;
-
+    Planner::acceleration=DEFAULT_ACCELERATION;
+    Planner::retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
+    Planner::min_feedrate_mm_s=DEFAULT_MINIMUMFEEDRATE;
+    Planner::min_segment_time_us=DEFAULT_MINSEGMENTTIME;       
+    Planner::min_travel_feedrate_mm_s=DEFAULT_MINTRAVELFEEDRATE;
+    Planner::max_jerk[X_AXIS] = DEFAULT_XJERK;
+    Planner::max_jerk[Y_AXIS] = DEFAULT_YJERK;
+    Planner::max_jerk[Z_AXIS] = DEFAULT_ZJERK;
+    Planner::max_jerk[E_AXIS] = DEFAULT_EJERK;
 }
 
 double code_value() 
@@ -137,14 +137,14 @@ void prepare_move()
   //clamp_to_software_endstops(destination);
 
   // Do not use feedmultiply for E or Z only moves
-  if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
-      plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+  if( (current_position[X_AXIS] == calc_destination [X_AXIS]) && (current_position[Y_AXIS] == calc_destination [Y_AXIS])) {
+    Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate/60, active_extruder);
   }
   else {
-    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+    Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   }
   for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
+    current_position[i] = calc_destination[i];
   }
 }
 
@@ -154,10 +154,10 @@ void get_coordinates()
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) 
     {
-      destination[i] = (double)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+      calc_destination[i] = (double)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
       seen[i]=true;
     }
-    else destination[i] = current_position[i]; //Are these else lines really needed?
+    else calc_destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
     next_feedrate = code_value();
@@ -258,11 +258,11 @@ void process_commands() {
         if(code_seen(axis_codes[i])) { 
            if(i == E_AXIS) {
              current_position[i] = code_value();  
-             plan_set_e_position(current_position[E_AXIS]);
+             Planner::set_e_position_mm(current_position[E_AXIS]);
            }
            else {
              current_position[i] = code_value()+add_homing[i];  
-             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+             Planner::set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
         }
       }
@@ -276,37 +276,38 @@ void process_commands() {
       {
         if(code_seen(axis_codes[i]))
         {
-          max_acceleration_units_per_sq_second[i] = code_value();
-          axis_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
+          Planner::max_acceleration_mm_per_s2[i] = code_value();
+          //Planner::axis_steps_per_sqr_second[i] = code_value() * axis_steps_per_mm[i];
         }
       }
       break;
     #if 0 // Not used for Sprinter/grbl gen6
     case 202: // M202
       for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
+        if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_mm[i];
       }
       break;
     #endif
     case 203: // M203 max feedrate mm/sec
       for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) max_feedrate[i] = code_value();
+        if(code_seen(axis_codes[i])) Planner::max_feedrate_mm_s[i] = code_value();
       }
       break;
     case 204: // M204 acclereration S normal moves T filmanent only moves
       {
-        if(code_seen('S')) acceleration = code_value() ;
-        if(code_seen('T')) retract_acceleration = code_value() ;
+        if(code_seen('S')) Planner::acceleration = code_value() ;
+        if(code_seen('T')) Planner::retract_acceleration = code_value() ;
       }
       break;
     case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
     {
-      if(code_seen('S')) minimumfeedrate = code_value();
-      if(code_seen('T')) mintravelfeedrate = code_value();
-      if(code_seen('B')) minsegmenttime = code_value() ;
-      if(code_seen('X')) max_xy_jerk = code_value() ;
-      if(code_seen('Z')) max_z_jerk = code_value() ;
-      if(code_seen('E')) max_e_jerk = code_value() ;
+      if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
+      if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
+      if(code_seen('B')) Planner::min_segment_time_us = code_value() ;
+      if(code_seen('X')) Planner::max_jerk[X_AXIS] = code_value() ;
+      if(code_seen('Y')) Planner::max_jerk[Y_AXIS] = code_value() ;
+      if(code_seen('Z')) Planner::max_jerk[Z_AXIS] = code_value() ;
+      if(code_seen('E')) Planner::max_jerk[E_AXIS] = code_value() ;
     }
     break;
     case 220: // M220 S<factor in percent>- set speed factor override percentage
@@ -333,8 +334,8 @@ void process_commands() {
 
 int blocks = 0;
 
-void manage_inactivity2() {
-	block_t *block = plan_get_current_block();
+/*void manage_inactivity2() {
+  block_t *block = Planner::get_current_block();
 	if (block != NULL) {
 		blocks++;
 		if(blocks % 100000 == 0) { fprintf(stderr, "."); }
@@ -369,15 +370,15 @@ void manage_inactivity2() {
 
 		plan_discard_current_block();
 	}		
-}
+        }*/
 
 
 int main(int argc, char *argv[]) {
 	double x=0, y=0, z=0, e=0, feed_rate=0;
     uint8_t extruder = 0;
 	Config_ResetDefault();
-	plan_init();
-	plan_buffer_line(x,y,z,e,feed_rate,extruder);
+        planner.init();
+        Planner::buffer_line(x,y,z,e,feed_rate,extruder);
 	fp = fopen(argv[1], "r");
 	while(!feof(fp)) {
 		get_command();
@@ -389,9 +390,9 @@ int main(int argc, char *argv[]) {
 
 	}
 	fclose(fp);
-	for(int i=0; i<100; i++) {
-		manage_inactivity2();
-	}
+        while (block_t* new_block = Planner::get_current_block()) {
+          Planner::discard_current_block();
+        }
 	printf("Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
 	int min = total_time / 60;
 	int sec = total_time - min*60;
