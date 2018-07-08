@@ -56,6 +56,9 @@
 #if ANY_THERMISTOR_IS(5) // 100k ParCan thermistor (104GT-2)
   #include "thermistortable_5.h"
 #endif
+#if ANY_THERMISTOR_IS(501) // 100k Zonestar thermistor
+  #include "thermistortable_501.h"
+#endif
 #if ANY_THERMISTOR_IS(6) // 100k Epcos thermistor
   #include "thermistortable_6.h"
 #endif

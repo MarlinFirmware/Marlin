@@ -51,7 +51,17 @@
 
  //#define Bondtech
  //#define E3DTitan
- 
+
+ /*
+  * 
+  * If any dual extruder is used, define type here
+  */
+
+  //#define Dual_BowdenSplitterY
+  //#define Dual_CyclopsSingleNozzle
+  //#define Dual_ChimeraDualNozzle
+
+  
 /*
    Choose bed type below. If you have an extenrally controlled
    ac bed, leave both disabled
@@ -79,8 +89,9 @@
    Melzi board users may only select ABL_BI for bilinear leveling
 */
 //#define ABL_BI
-//#define ABL_UBL //Currently Mesh Map Output screen hangs. Need to trace issue upstream.
+//#define ABL_UBL 
 
+//#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
 /*
 
    Choose a probe grid density below. Faster probes less points, but is less accurate.
@@ -339,14 +350,18 @@
 
 // This defines the number of extruders
 // :[1, 2, 3, 4, 5]
-#define EXTRUDERS 1
-
+#if(ENABLED(Dual_BowdenSplitterY) || ENABLED(Dual_CyclopsSingleNozzle) || ENABLED(Dual_ChimeraDualNozzle))
+  #define EXTRUDERS 2
+#else
+  #define EXTRUDERS 1
+#endif
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
-//#define SINGLENOZZLE
-
+#if(ENABLED(Dual_BowdenSplitterY) || ENABLED(Dual_CyclopsSingleNozzle))
+  #define SINGLENOZZLE
+#endif
 /**
    Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.
 
@@ -417,9 +432,11 @@
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-//#define HOTEND_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
-//#define HOTEND_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
+#if(ENABLED(Dual_ChimeraDualNozzle))
+  #define HOTEND_OFFSET_X {0.0, 18.00} // (in mm) for each extruder, offset of the hotend on the X axis
+  #define HOTEND_OFFSET_Y {0.0, 0.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
+#endif
 // @section machine
 
 /**
@@ -504,11 +521,19 @@
 
 #if ENABLED(HotendStock)
 #define TEMP_SENSOR_0 1
+  #if(ENABLED(Dual_ChimeraDualNozzle))
+    #define TEMP_SENSOR_1 1
+  #endif
 #endif
 #if ENABLED(HotendE3D)
 #define TEMP_SENSOR_0 5
+  #if(ENABLED(Dual_ChimeraDualNozzle))
+    #define TEMP_SENSOR_1 5
+  #endif
 #endif
-#define TEMP_SENSOR_1 0
+#if(!ENABLED(Dual_ChimeraDualNozzle))
+  #define TEMP_SENSOR_1 0
+#endif
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -523,8 +548,8 @@
 #endif
 
 #if(ENABLED(EnclosureTempSensor))
-#define TEMP_SENSOR_CHAMBER 147
-#define TEMP_CHAMBER_PIN   12
+  #define TEMP_SENSOR_CHAMBER 147
+  #define TEMP_CHAMBER_PIN   12
 #endif
 
 
@@ -1188,8 +1213,8 @@
 #define Z_MAX_POS 200
 #endif
 #if(ENABLED(MachineEnder3))
-#define X_BED_SIZE 220
-#define Y_BED_SIZE 220
+#define X_BED_SIZE 230
+#define Y_BED_SIZE 230
 #define Z_MAX_POS 250
 #endif
 #if(ENABLED(MachineEnder4))
@@ -1235,8 +1260,8 @@
 #define Z_MAX_POS 200
 #endif
 #if(ENABLED(MachineEnder3))
-#define X_BED_SIZE 220
-#define Y_BED_SIZE 220
+#define X_BED_SIZE 230
+#define Y_BED_SIZE 230
 #define Z_MAX_POS 250
 #endif
 #if(ENABLED(MachineEnder4))
