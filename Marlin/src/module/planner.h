@@ -490,7 +490,8 @@ class Planner {
       #if HAS_POSITION_FLOAT
         , const float (&target_float)[XYZE]
       #endif
-      , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      , float fr_mm_s, const uint8_t extruder, const float &millimeters
+      , const ExtraData& extra_data
     );
 
     /**
@@ -531,7 +532,7 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0);
+  static bool buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters, const ExtraData& extra_data);
 
     static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
@@ -548,11 +549,11 @@ class Planner {
      *  extruder     - target extruder
      *  millimeters  - the length of the movement, if known
      */
-    FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
+  FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters, const ExtraData& extra_data) {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
-      return buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters);
+        return buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters, extra_data);
     }
 
     /**
@@ -566,6 +567,7 @@ class Planner {
      *  millimeters  - the length of the movement, if known
      */
     FORCE_INLINE static bool buffer_line_kinematic(const float (&cart)[XYZE], const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
+      ExtraData extra_data; // ignored
       #if PLANNER_LEVELING
         float raw[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
         apply_leveling(raw);
@@ -574,9 +576,9 @@ class Planner {
       #endif
       #if IS_KINEMATIC
         inverse_kinematics(raw);
-        return buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
+        return buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters, extra_data);
       #else
-        return buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
+        return buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters, extra_data);
       #endif
     }
 

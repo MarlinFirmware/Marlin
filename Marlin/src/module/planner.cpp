@@ -1560,6 +1560,7 @@ bool Planner::_buffer_steps(const int32_t (&target)[XYZE]
     , const float (&target_float)[XYZE]
   #endif
   , float fr_mm_s, const uint8_t extruder, const float &millimeters
+  , const ExtraData& extra_data
 ) {
 
   // If we are cleaning, do not accept queuing of movements
@@ -1568,6 +1569,7 @@ bool Planner::_buffer_steps(const int32_t (&target)[XYZE]
   // Wait for the next available block
   uint8_t next_buffer_head;
   block_t * const block = get_next_free_block(next_buffer_head);
+  block->extra_data = extra_data;
 
   // Fill the block with the specified movement
   if (!_populate_block(block, false, target
@@ -2459,7 +2461,7 @@ void Planner::buffer_sync_block() {
  *  extruder    - target extruder
  *  millimeters - the length of the movement, if known
  */
-bool Planner::buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/) {
+bool Planner::buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters/*=0.0*/, const ExtraData& extra_data) {
 
   // If we are cleaning, do not accept queuing of movements
   if (cleaning_buffer_counter) return false;
@@ -2528,6 +2530,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
         , target_float
       #endif
       , fr_mm_s, extruder, millimeters
+      , extra_data
     )
   ) return false;
 

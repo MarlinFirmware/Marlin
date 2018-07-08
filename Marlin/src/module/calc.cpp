@@ -132,16 +132,16 @@ bool code_seen(char code)
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
 
-void prepare_move()
+void prepare_move(const ExtraData& extra_data)
 {
   //clamp_to_software_endstops(destination);
 
   // Do not use feedmultiply for E or Z only moves
   if( (current_position[X_AXIS] == calc_destination [X_AXIS]) && (current_position[Y_AXIS] == calc_destination [Y_AXIS])) {
-    Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate/60, active_extruder);
+    Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate/60, active_extruder, 0.0, extra_data);
   }
   else {
-    Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+    Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder, 0.0, extra_data);
   }
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = calc_destination[i];
@@ -218,7 +218,7 @@ double total_time = 0;
 int total_g=0, total_m=0;
 
 		
-void process_commands() {
+void process_commands(const ExtraData& extra_data) {
   unsigned long codenum; //throw away variable
 
   if(code_seen('G'))
@@ -230,7 +230,7 @@ void process_commands() {
     case 1: // G1
       if(Stopped == false) {
         get_coordinates(); // For X Y Z E F
-        prepare_move();
+        prepare_move(extra_data);
         //ClearToSend();
         return;
       } else printf("STOPPED!!");
@@ -311,11 +311,11 @@ void process_commands() {
     {
       if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
       if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
-      if(code_seen('B')) Planner::min_segment_time_us = code_value() ;
-      if(code_seen('X')) Planner::max_jerk[X_AXIS] = code_value() ;
-      if(code_seen('Y')) Planner::max_jerk[Y_AXIS] = code_value() ;
-      if(code_seen('Z')) Planner::max_jerk[Z_AXIS] = code_value() ;
-      if(code_seen('E')) Planner::max_jerk[E_AXIS] = code_value() ;
+      if(code_seen('B')) Planner::min_segment_time_us = code_value();
+      if(code_seen('X')) Planner::max_jerk[X_AXIS] = code_value();
+      if(code_seen('Y')) Planner::max_jerk[Y_AXIS] = code_value();
+      if(code_seen('Z')) Planner::max_jerk[Z_AXIS] = code_value();
+      if(code_seen('E')) Planner::max_jerk[E_AXIS] = code_value();
     }
     break;
     case 220: // M220 S<factor in percent>- set speed factor override percentage
@@ -392,12 +392,21 @@ int main(int argc, char *argv[]) {
     uint8_t extruder = 0;
 	Config_ResetDefault();
         planner.init();
-        Planner::buffer_line(x,y,z,e,feed_rate,extruder);
+        {
+          ExtraData extra_data;
+          extra_data.filepos = 0;
+          Planner::buffer_line(x,y,z,e,feed_rate,extruder,0.0, extra_data);
+        }
 	fp = fopen(argv[1], "r");
+        fseek(fp, 0, SEEK_END);
+        long total_file_size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
 	while(!feof(fp)) {
 		get_command();
-		while(buflen) { 
-			process_commands();
+		while(buflen) {
+                  ExtraData extra_data;
+                  extra_data.filepos = (((double) ftell(fp))/total_file_size);
+                  process_commands(extra_data);
 		    buflen = (buflen-1);
 			bufindr = (bufindr + 1)%BUFSIZE;
 		}

@@ -113,6 +113,10 @@ struct Stepper {
   }
 };
 
-#define DRYRUN 1 // TODO: Check if this affects anything.
-#define DEBUGGING(F) false  // TODO: Check if this affects anything.
+typedef struct ExtraData {
+  double filepos; // file position in percentage.
+} ExtraData;
+
+#define DRYRUN 1
+#define DEBUGGING(F) false
 #endif
