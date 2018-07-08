@@ -114,5 +114,5 @@ struct Stepper {
 };
 
 #define DRYRUN 1 // TODO: Check if this affects anything.
-#define DEBUGGING(F) true  // TODO: Check if this affects anything.
+#define DEBUGGING(F) false  // TODO: Check if this affects anything.
 #endif
