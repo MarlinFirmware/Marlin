@@ -467,7 +467,7 @@ class Planner {
     FORCE_INLINE static block_t* get_next_free_block(uint8_t &next_buffer_head, const uint8_t count=1) {
 
       // Wait until there are enough slots free
-      while (moves_free() < count) { idle(); }
+      while (moves_free() < count) { idle2(); }
 
       // Return the first available block
       next_buffer_head = next_block_index(block_buffer_head);

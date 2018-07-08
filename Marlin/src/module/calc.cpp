@@ -334,7 +334,7 @@ void process_commands() {
 
 int blocks = 0;
 
-/*void manage_inactivity2() {
+void idle2() {
   block_t *block = Planner::get_current_block();
 	if (block != NULL) {
 		blocks++;
@@ -370,7 +370,7 @@ int blocks = 0;
 
 		plan_discard_current_block();
 	}		
-        }*/
+}
 
 
 int main(int argc, char *argv[]) {
