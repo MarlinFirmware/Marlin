@@ -115,6 +115,7 @@ struct Stepper {
 
 typedef struct ExtraData {
   double filepos; // file position in percentage.
+  double extruder_position; // Extruded so far.
 } ExtraData;
 
 #define DRYRUN 1

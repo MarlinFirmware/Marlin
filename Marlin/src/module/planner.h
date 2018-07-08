@@ -147,7 +147,7 @@ typedef struct {
   #endif
 
   uint32_t segment_time_us;
-
+  ExtraData extra_data;
 } block_t;
 
 #define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || HAS_FEEDRATE_SCALING)

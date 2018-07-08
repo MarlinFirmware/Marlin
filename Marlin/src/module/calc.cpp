@@ -166,15 +166,14 @@ void get_coordinates()
 FILE *fp;
 
 void get_command() {
-while(!feof(fp) && buflen < BUFSIZE) {
-	char serial_char;
-	fread(&serial_char, 1, 1, fp);
+  while(!feof(fp) && buflen < 1) {
+    char serial_char;
+    fread(&serial_char, 1, 1, fp);
 
-    if(serial_char == '\n' || 
-       serial_char == '\r' || 
-       (serial_char == ':' && comment_mode == false) || 
-       serial_count >= (MAX_CMD_SIZE - 1) ) 
-    {
+    if(serial_char == '\n' ||
+       serial_char == '\r' ||
+       (serial_char == ':' && comment_mode == false) ||
+       serial_count >= (MAX_CMD_SIZE - 1) ) {
       if(!serial_count) { //if empty line
         comment_mode = false; //for new command
         return;
@@ -182,13 +181,11 @@ while(!feof(fp) && buflen < BUFSIZE) {
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
       if(!comment_mode){
         comment_mode = false; //for new command
-        if(strchr(cmdbuffer[bufindw], 'N') != NULL)
-        {
+        if(strchr(cmdbuffer[bufindw], 'N') != NULL) {
           strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
           gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
 
-          if(strchr(cmdbuffer[bufindw], '*') != NULL)
-          {
+          if(strchr(cmdbuffer[bufindw], '*') != NULL) {
             byte checksum = 0;
             byte count = 0;
             while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
@@ -381,6 +378,9 @@ void idle2() {
                   tt3 = d / v;
 
                   total_time += tt1+tt2+tt3;
+                  printf("%.17f, %.17f, %.17f\n", block->extra_data.filepos,
+                         block->extra_data.extruder_position,
+                         total_time);
                 }
                 Planner::discard_current_block();
 	}
@@ -402,19 +402,18 @@ int main(int argc, char *argv[]) {
         long total_file_size = ftell(fp);
         fseek(fp, 0, SEEK_SET);
 	while(!feof(fp)) {
-		get_command();
-		while(buflen) {
-                  ExtraData extra_data;
-                  extra_data.filepos = (((double) ftell(fp))/total_file_size);
-                  process_commands(extra_data);
-		    buflen = (buflen-1);
-			bufindr = (bufindr + 1)%BUFSIZE;
-		}
-
+          ExtraData extra_data;
+          extra_data.filepos = (((double) ftell(fp))/total_file_size);
+          extra_data.extruder_position = current_position[E_AXIS];
+          get_command();
+          while(buflen) {
+            process_commands(extra_data);
+            buflen = (buflen-1);
+            bufindr = (bufindr + 1)%BUFSIZE;
+          }
 	}
 	fclose(fp);
 	fprintf(stderr, "Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
 	fprintf(stderr, "Total time: %f\n", total_time);
-	printf("%f\n", total_time);
 	return 0;
 }

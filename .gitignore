@@ -135,11 +135,6 @@ Marlin/*/.travis.yml
 Marlin/*/*/.travis.yml
 Marlin/*/*/*/.travis.yml
 Marlin/*/*/*/*/.travis.yml
-Marlin/.gitignore
-Marlin/*/.gitignore
-Marlin/*/*/.gitignore
-Marlin/*/*/*/.gitignore
-Marlin/*/*/*/*/.gitignore
 Marlin/readme.txt
 Marlin/*/readme.txt
 Marlin/*/*/readme.txt
