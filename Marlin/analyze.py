@@ -34,6 +34,7 @@ def main():
           [progress_entry[0],
            total_time-progress_entry[1]])
   print(json.dumps(result))
+  exit(0)
 
 if __name__ == "__main__":
   main()
