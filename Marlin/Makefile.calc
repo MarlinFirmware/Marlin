@@ -26,7 +26,7 @@ LFLAGS = -L../lib -static
 LIBS = -lm
 
 # define the C source files
-SRCS = planner.cpp calc.cpp
+SRCS = src/module/planner.cpp calc.cpp
 
 # define the C object files 
 #

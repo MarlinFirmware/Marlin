@@ -1,9 +1,9 @@
 #ifndef __CALC_H
 #define __CALC_H
 
-#include "Configuration.h"
+#include "../../Configuration.h"
 
-extern float homing_feedrate[];
+//extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern int feedmultiply;
 extern int extrudemultiply; // Sets extrude multiply factor (in percent) for all extruders

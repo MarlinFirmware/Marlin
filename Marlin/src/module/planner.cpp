@@ -63,7 +63,7 @@
  */
 
 #include "planner.h"
-#include "Configuration.h"
+//#include "Configuration.h"
 //#include "stepper.h"
 #include "motion.h"
 //#include "../module/temperature.h"
