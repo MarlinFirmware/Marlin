@@ -98,6 +98,7 @@ void Config_ResetDefault()
     for (short i=0;i<4;i++) 
     {
       Planner::axis_steps_per_mm[i]=tmp1[i];  
+      Planner::steps_to_mm[i]=1/tmp1[i];  
       Planner::max_feedrate_mm_s[i]=tmp2[i];  
       Planner::max_acceleration_mm_per_s2[i]=tmp3[i];
     }
@@ -106,6 +107,7 @@ void Config_ResetDefault()
     Planner::reset_acceleration_rates();
     
     Planner::acceleration=DEFAULT_ACCELERATION;
+    Planner::travel_acceleration=DEFAULT_TRAVEL_ACCELERATION;
     Planner::retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
     Planner::min_feedrate_mm_s=DEFAULT_MINIMUMFEEDRATE;
     Planner::min_segment_time_us=DEFAULT_MINSEGMENTTIME;       
@@ -347,7 +349,7 @@ void idle2() {
 
 		double vi, vf, v, d, a, t1, t2, t;
 		vi = block->initial_rate;
-		a = block->acceleration_st;
+		a = block->acceleration_steps_per_s2;
 		d = block->accelerate_until;
 		t1 = -1 * (sqrt(2*a*d+vi*vi) + vi) / a;
 		t2 =      (sqrt(2*a*d+vi*vi) - vi) / a;
@@ -368,7 +370,7 @@ void idle2() {
 
 		total_time += tt1+tt2+tt3;
 
-		plan_discard_current_block();
+                Planner::discard_current_block();
 	}		
 }
 
@@ -394,10 +396,6 @@ int main(int argc, char *argv[]) {
           Planner::discard_current_block();
         }
 	printf("Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
-	int min = total_time / 60;
-	int sec = total_time - min*60;
-	int hr = min / 60;
-	min -= hr*60;
-	printf("Total time: %02d:%02d:%02d s\n", hr,min,sec);
+	printf("Total time: %f\n", total_time);
 	return 0;
 }

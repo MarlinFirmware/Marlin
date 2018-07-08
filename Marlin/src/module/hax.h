@@ -26,6 +26,7 @@ void manage_inactivity2();
 #define sq(v) ((v) * (v))
 #define square(x) ((x)*(x))
 #define constrain(value, arg_min, arg_max) ((value) < (arg_min) ? (arg_min) :((value) > (arg_max) ? (arg_max) : (value)))
+#define STEPPER_TIMER_RATE 1 // TODO: Check if this affects anything.
 
 
 
@@ -93,7 +94,6 @@ extern int extrudemultiply;
 #define STEPPER_ISR_ENABLED() false  // TODO: Check if this affects anything.
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()
-#define STEPPER_TIMER_RATE 1 // TODO: Check if this affects anything.
 struct Stepper {
   static bool is_block_busy(const void* const block) {
     return false;
