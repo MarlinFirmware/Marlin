@@ -596,7 +596,6 @@ int Temperature::getHeaterPower(const int heater) {
 // Temperature Error Handlers
 //
 void Temperature::_temp_error(const int8_t e, const char * const serial_msg, const char * const lcd_msg) {
-  static bool killed = false;
   if (IsRunning()) {
     SERIAL_ERROR_START();
     serialprintPGM(serial_msg);
@@ -604,6 +603,7 @@ void Temperature::_temp_error(const int8_t e, const char * const serial_msg, con
     if (e >= 0) SERIAL_ERRORLN((int)e); else SERIAL_ERRORLNPGM(MSG_HEATER_BED);
   }
   #if DISABLED(BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE)
+    static bool killed = false;
     if (!killed) {
       Running = false;
       killed = true;
