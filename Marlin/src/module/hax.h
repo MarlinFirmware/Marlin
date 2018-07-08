@@ -26,8 +26,9 @@ void manage_inactivity2();
 #define sq(v) ((v) * (v))
 #define square(x) ((x)*(x))
 #define constrain(value, arg_min, arg_max) ((value) < (arg_min) ? (arg_min) :((value) > (arg_max) ? (arg_max) : (value)))
-#define STEPPER_TIMER_RATE 1 // TODO: Check if this affects anything.
-
+#define STEPPER_TIMER_RATE     HAL_TIMER_RATE   // frequency of stepper timer (HAL_TIMER_RATE / STEPPER_TIMER_PRESCALE)
+#define HAL_TIMER_RATE         ((SystemCoreClock) / 4)  // frequency of timers peripherals
+#define SystemCoreClock 110000000
 
 
 //From "../Marlin.cpp"

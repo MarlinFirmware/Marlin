@@ -356,11 +356,19 @@ void idle2() {
 //		printf("D: %f A: %f T: %f / %f \n", d, a, t1, t2);
 		tt1 = max(t1, t2);
 		vf = vi + a * tt1;
-		
-		tt2 = (block->decelerate_after - block->accelerate_until) / vf;
+
+                if (block->decelerate_after > block->accelerate_until) {
+                  tt2 = (block->decelerate_after - block->accelerate_until) / vf;
+                } else {
+                  tt2 = 0;
+                }
 
 		vi = vf;
-		d = block->step_event_count - block->decelerate_after;
+                if (block->step_event_count > block->decelerate_after) {
+                  d = block->step_event_count - block->decelerate_after;
+                } else {
+                  d = 0;
+                }
 		a = -a;
 		vf = block->final_rate;
 		v = (vi+vf)/2;
@@ -369,6 +377,7 @@ void idle2() {
 		
 
 		total_time += tt1+tt2+tt3;
+                printf("total_time is now: %f\n", total_time);
 
                 Planner::discard_current_block();
 	}		
