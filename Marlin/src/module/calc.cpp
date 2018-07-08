@@ -377,7 +377,6 @@ void idle2() {
 		
 
 		total_time += tt1+tt2+tt3;
-                printf("total_time is now: %f\n", total_time);
 
                 Planner::discard_current_block();
 	}		
