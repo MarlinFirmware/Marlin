@@ -2425,9 +2425,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void _lcd_ubl_output_map_lcd() {
       static int16_t step_scaler = 0;
 
-      if (!all_axes_known())
-        return lcd_goto_screen(_lcd_ubl_map_homing);
-
       if (use_click()) return _lcd_ubl_map_lcd_edit_cmd();
       ENCODER_DIRECTION_NORMAL();
 
