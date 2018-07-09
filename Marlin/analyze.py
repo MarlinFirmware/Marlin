@@ -4,9 +4,13 @@ from __future__ import print_function
 import subprocess
 import sys
 import json
+import os
 
 def main():
-  output = subprocess.check_output(["./calc", sys.argv[1]])
+  output = subprocess.check_output([
+      os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),
+                   "calc"),
+      sys.argv[1]])
   progress = []
   result = {}
   first_filament = None
