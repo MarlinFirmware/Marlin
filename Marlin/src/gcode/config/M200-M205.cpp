@@ -40,7 +40,7 @@
       // setting any extruder filament size disables volumetric on the assumption that
       // slicers either generate in extruder values as cubic mm or as as filament feeds
       // for all extruders
-      if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) )
+      if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0)) )
         planner.set_filament_size(target_extruder, parser.value_linear_units());
     }
     planner.calculate_volumetric_multipliers();
@@ -134,7 +134,7 @@ void GcodeSuite::M205() {
   #if ENABLED(JUNCTION_DEVIATION)
     if (parser.seen('J')) {
       const float junc_dev = parser.value_linear_units();
-      if (WITHIN(junc_dev, 0.01, 0.3)) {
+      if (WITHIN(junc_dev, 0.01f, 0.3f)) {
         planner.junction_deviation_mm = junc_dev;
         planner.recalculate_max_e_jerk();
       }
@@ -149,7 +149,7 @@ void GcodeSuite::M205() {
     if (parser.seen('Z')) {
       planner.max_jerk[Z_AXIS] = parser.value_linear_units();
       #if HAS_MESH
-        if (planner.max_jerk[Z_AXIS] <= 0.1)
+        if (planner.max_jerk[Z_AXIS] <= 0.1f)
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }

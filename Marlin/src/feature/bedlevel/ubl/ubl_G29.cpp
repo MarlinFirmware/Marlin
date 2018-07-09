@@ -65,8 +65,8 @@
          unified_bed_leveling::g29_y_flag;
   float  unified_bed_leveling::g29_x_pos,
          unified_bed_leveling::g29_y_pos,
-         unified_bed_leveling::g29_card_thickness = 0.0,
-         unified_bed_leveling::g29_constant = 0.0;
+         unified_bed_leveling::g29_card_thickness = 0,
+         unified_bed_leveling::g29_constant = 0;
 
   #if HAS_BED_PROBE
     int  unified_bed_leveling::g29_grid_size;
@@ -346,23 +346,23 @@
         case 0:
           for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {   // Create a bowl shape - similar to
             for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) { // a poorly calibrated Delta.
-              const float p1 = 0.5 * (GRID_MAX_POINTS_X) - x,
-                          p2 = 0.5 * (GRID_MAX_POINTS_Y) - y;
-              z_values[x][y] += 2.0 * HYPOT(p1, p2);
+              const float p1 = 0.5f * (GRID_MAX_POINTS_X) - x,
+                          p2 = 0.5f * (GRID_MAX_POINTS_Y) - y;
+              z_values[x][y] += 2.0f * HYPOT(p1, p2);
             }
           }
           break;
         case 1:
           for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {  // Create a diagonal line several Mesh cells thick that is raised
-            z_values[x][x] += 9.999;
-            z_values[x][x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1] += 9.999; // We want the altered line several mesh points thick
+            z_values[x][x] += 9.999f;
+            z_values[x][x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1] += 9.999f; // We want the altered line several mesh points thick
           }
           break;
         case 2:
           // Allow the user to specify the height because 10mm is a little extreme in some cases.
           for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)   // Create a rectangular raised area in
             for (uint8_t y = (GRID_MAX_POINTS_Y) / 3; y < 2 * (GRID_MAX_POINTS_Y) / 3; y++) // the center of the bed
-              z_values[x][y] += parser.seen('C') ? g29_constant : 9.99;
+              z_values[x][y] += parser.seen('C') ? g29_constant : 9.99f;
           break;
       }
     }
@@ -381,7 +381,7 @@
           tilt_mesh_based_on_probed_grid(true /* true says to do 3-Point leveling */ );
           restore_ubl_active_state_and_leave();
         }
-        do_blocking_move_to_xy(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)));
+        do_blocking_move_to_xy(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)));
         report_current_position();
       }
 
@@ -453,7 +453,7 @@
 
             if (parser.seen('B')) {
               g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness((float) Z_CLEARANCE_BETWEEN_PROBES);
-              if (ABS(g29_card_thickness) > 1.5) {
+              if (ABS(g29_card_thickness) > 1.5f) {
                 SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.");
                 return;
               }
@@ -509,7 +509,7 @@
           }
           else {
             const float cvf = parser.value_float();
-            switch ((int)truncf(cvf * 10.0) - 30) {   // 3.1 -> 1
+            switch ((int)truncf(cvf * 10.0f) - 30) {   // 3.1 -> 1
               #if ENABLED(UBL_G29_P31)
                 case 1: {
 
@@ -519,8 +519,8 @@
                   // P3.12 100X distance weighting
                   // P3.13 1000X distance weighting, approaches simple average of nearest points
 
-                  const float weight_power  = (cvf - 3.10) * 100.0,  // 3.12345 -> 2.345
-                              weight_factor = weight_power ? POW(10.0, weight_power) : 0;
+                  const float weight_power  = (cvf - 3.10f) * 100.0f,  // 3.12345 -> 2.345
+                              weight_factor = weight_power ? POW(10.0f, weight_power) : 0;
                   smart_fill_wlsf(weight_factor);
                 }
                 break;
@@ -634,7 +634,7 @@
   }
 
   void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float value) {
-    float sum = 0.0;
+    float sum = 0;
     int n = 0;
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
@@ -648,7 +648,7 @@
     //
     // Sum the squares of difference from mean
     //
-    float sum_of_diff_squared = 0.0;
+    float sum_of_diff_squared = 0;
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(z_values[x][y]))
@@ -786,7 +786,7 @@
 
     float unified_bed_leveling::measure_point_with_encoder() {
       KEEPALIVE_STATE(PAUSED_FOR_USER);
-      move_z_with_encoder(0.01);
+      move_z_with_encoder(0.01f);
       KEEPALIVE_STATE(IN_HANDLER);
       return current_position[Z_AXIS];
     }
@@ -797,8 +797,8 @@
       lcd_external_control = true;
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
-      do_blocking_move_to(0.5 * (MESH_MAX_X - (MESH_MIN_X)), 0.5 * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
-        //, MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) / 2.0);
+      do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
+        //, MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]) * 0.5f);
       planner.synchronize();
 
       SERIAL_PROTOCOLPGM("Place shim under nozzle");
@@ -874,8 +874,8 @@
 
         serialprintPGM(parser.seen('B') ? PSTR(MSG_UBL_BC_INSERT) : PSTR(MSG_UBL_BC_INSERT2));
 
-        const float z_step = 0.01;                                        // existing behavior: 0.01mm per click, occasionally step
-        //const float z_step = 1.0 / planner.axis_steps_per_mm[Z_AXIS];   // approx one step each click
+        const float z_step = 0.01f;                         // existing behavior: 0.01mm per click, occasionally step
+        //const float z_step = planner.steps_to_mm[Z_AXIS]; // approx one step each click
 
         move_z_with_encoder(z_step);
 
@@ -913,7 +913,7 @@
       lcd_quick_feedback(true);
     #endif
 
-    g29_constant = 0.0;
+    g29_constant = 0;
     g29_repetition_cnt = 0;
 
     g29_x_flag = parser.seenval('X');
@@ -1004,7 +1004,7 @@
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       if (parser.seenval('F')) {
         const float fh = parser.value_float();
-        if (!WITHIN(fh, 0.0, 100.0)) {
+        if (!WITHIN(fh, 0, 100)) {
           SERIAL_PROTOCOLLNPGM("?(F)ade height for Bed Level Correction not plausible.\n");
           return UBL_ERR;
         }
@@ -1226,7 +1226,7 @@
 
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
-    out_mesh.distance = -99999.99;
+    out_mesh.distance = -99999.99f;
 
     for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (int8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
@@ -1242,7 +1242,7 @@
           found_a_NAN = true;
 
           int8_t closest_x = -1, closest_y = -1;
-          float d1, d2 = 99999.9;
+          float d1, d2 = 99999.9f;
           for (int8_t k = 0; k < GRID_MAX_POINTS_X; k++) {
             for (int8_t l = 0; l < GRID_MAX_POINTS_Y; l++) {
               if (!isnan(z_values[k][l])) {
@@ -1252,7 +1252,7 @@
                 // last half of the mesh (when every unprobed mesh point is one index
                 // from a probed location).
 
-                d1 = HYPOT(i - k, j - l) + (1.0 / ((millis() % 47) + 13));
+                d1 = HYPOT(i - k, j - l) + (1.0f / ((millis() % 47) + 13));
 
                 if (d1 < d2) {    // found a closer distance from invalid mesh point at (i,j) to defined mesh point at (k,l)
                   d2 = d1;        // found a closer location with
@@ -1279,7 +1279,7 @@
     if (!found_a_real && found_a_NAN) {        // if the mesh is totally unpopulated, start the probing
       out_mesh.x_index = GRID_MAX_POINTS_X / 2;
       out_mesh.y_index = GRID_MAX_POINTS_Y / 2;
-      out_mesh.distance = 1.0;
+      out_mesh.distance = 1;
     }
     return out_mesh;
   }
@@ -1287,13 +1287,13 @@
   mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const float &rx, const float &ry, const bool probe_as_reference, uint16_t bits[16]) {
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
-    out_mesh.distance = -99999.9;
+    out_mesh.distance = -99999.9f;
 
     // Get our reference position. Either the nozzle or probe location.
     const float px = rx - (probe_as_reference == USE_PROBE_AS_REFERENCE ? X_PROBE_OFFSET_FROM_EXTRUDER : 0),
                 py = ry - (probe_as_reference == USE_PROBE_AS_REFERENCE ? Y_PROBE_OFFSET_FROM_EXTRUDER : 0);
 
-    float best_so_far = 99999.99;
+    float best_so_far = 99999.99f;
 
     for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
       for (int8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
@@ -1320,7 +1320,7 @@
 
           // factor in the distance from the current location for the normal case
           // so the nozzle isn't running all over the bed.
-          distance += HYPOT(current_position[X_AXIS] - mx, current_position[Y_AXIS] - my) * 0.1;
+          distance += HYPOT(current_position[X_AXIS] - mx, current_position[Y_AXIS] - my) * 0.1f;
           if (distance < best_so_far) {
             best_so_far = distance;   // We found a closer location with
             out_mesh.x_index = i;     // the specified type of mesh value.
@@ -1401,8 +1401,8 @@
         lcd_refresh();
 
         float new_z = z_values[location.x_index][location.y_index];
-        if (isnan(new_z)) new_z = 0.0;                              // Invalid points begin at 0
-        new_z = FLOOR(new_z * 1000.0) * 0.001;                      // Chop off digits after the 1000ths place
+        if (isnan(new_z)) new_z = 0;                                // Invalid points begin at 0
+        new_z = FLOOR(new_z * 1000) * 0.001f;                       // Chop off digits after the 1000ths place
 
         lcd_mesh_edit_setup(new_z);
 
@@ -1461,7 +1461,7 @@
       if (z_values[x1][y1] < z_values[x2][y2])                  // Angled downward?
         z_values[x][y] = z_values[x1][y1];                      // Use nearest (maybe a little too high.)
       else
-        z_values[x][y] = 2.0 * z_values[x1][y1] - z_values[x2][y2];   // Angled upward...
+        z_values[x][y] = 2.0f * z_values[x1][y1] - z_values[x2][y2];   // Angled upward...
       return true;
     }
     return false;
@@ -1510,8 +1510,8 @@
 
       float measured_z;
 
-      const float dx = float(x_max - x_min) / (g29_grid_size - 1.0),
-                  dy = float(y_max - y_min) / (g29_grid_size - 1.0);
+      const float dx = float(x_max - x_min) / (g29_grid_size - 1),
+                  dy = float(y_max - y_min) / (g29_grid_size - 1);
 
       struct linear_fit_data lsf_results;
 
@@ -1634,7 +1634,7 @@
         return;
       }
 
-      vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1.0000).get_normal();
+      vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1).get_normal();
 
       if (g29_verbose_level > 2) {
         SERIAL_ECHOPGM("bed plane normal = [");
@@ -1713,7 +1713,7 @@
            * The only difference is just 3 points are used in the calculations.   That fact guarantees
            * each probed point should have an exact match when a get_z_correction() for that location
            * is calculated.  The Z error between the probed point locations and the get_z_correction()
-           * numbers for those locations should be 0.000
+           * numbers for those locations should be 0.
            */
           #if 0
           float t, t1, d;
@@ -1743,13 +1743,13 @@
           SERIAL_EOL();
 
           t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
-          d = t + normal.z * 0.000;
+          d = t + normal.z * 0;
           SERIAL_ECHOPGM("D from home location with Z=0 : ");
           SERIAL_ECHO_F(d, 6);
           SERIAL_EOL();
 
           t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
-          d = t + get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT); // normal.z * 0.000;
+          d = t + get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT); // normal.z * 0;
           SERIAL_ECHOPGM("D from home location using mesh value for Z: ");
           SERIAL_ECHO_F(d, 6);
 
@@ -1800,7 +1800,7 @@
                 if (TEST(bitmap[jx], jy)) {
                   const float ry = mesh_index_to_ypos(jy),
                               rz = z_values[jx][jy],
-                              w  = 1.0 + weight_scaled / HYPOT((rx - px), (ry - py));
+                              w  = 1 + weight_scaled / HYPOT((rx - px), (ry - py));
                   incremental_WLSF(&lsf_results, rx, ry, rz, w);
                 }
               }

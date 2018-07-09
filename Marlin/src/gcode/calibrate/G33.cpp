@@ -72,12 +72,10 @@ enum CalEnum : char {                        // the 7 main calibration points - 
 
 float lcd_probe_pt(const float &rx, const float &ry);
 
-bool ac_home() {
+void ac_home() {
   endstops.enable(true);
-  if (!home_delta())
-    return false;
+  home_delta();
   endstops.not_homing();
-  return true;
 }
 
 void ac_setup(const bool reset_bed) {
@@ -187,7 +185,7 @@ static float std_dev_points(float z_pt[NPP + 1], const bool _0p_cal, const bool 
         S2 += sq(z_pt[rad]);
         N++;
       }
-      return round(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
+      return LROUND(SQRT(S2 / N) * 1000.0) / 1000.0 + 0.00001;
     }
   }
   return 0.00001;
@@ -247,7 +245,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
     }
 
     if (_7p_calibration) { // probe extra center points
-      const float start  = _7p_9_center ? _CA + _7P_STEP / 3.0 : _7p_6_center ? _CA : __C,
+      const float start  = _7p_9_center ? float(_CA) + _7P_STEP / 3.0 : _7p_6_center ? float(_CA) : float(__C),
                   steps  = _7p_9_center ? _4P_STEP / 3.0 : _7p_6_center ? _7P_STEP : _4P_STEP;
       I_LOOP_CAL_PT(rad, start, steps) {
         const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
@@ -279,8 +277,8 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
           const float z_temp = calibration_probe(cos(a) * r, sin(a) * r, stow_after_each, set_up);
           if (isnan(z_temp)) return false;
           // split probe point to neighbouring calibration points
-          z_pt[uint8_t(round(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
-          z_pt[uint8_t(round(rad - interpol))           % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
+          z_pt[uint8_t(LROUND(rad - interpol + NPP - 1)) % NPP + 1] += z_temp * sq(cos(RADIANS(interpol * 90)));
+          z_pt[uint8_t(LROUND(rad - interpol))           % NPP + 1] += z_temp * sq(sin(RADIANS(interpol * 90)));
         }
         zig_zag = !zig_zag;
       }
@@ -361,7 +359,7 @@ static float auto_tune_h() {
   float h_fac = 0.0;
 
   h_fac = r_quot / (2.0 / 3.0);
-  h_fac = 1.0 / h_fac; // (2/3)/CR
+  h_fac = 1.0f / h_fac; // (2/3)/CR
   return h_fac;
 }
 
@@ -530,8 +528,7 @@ void GcodeSuite::G33() {
 
   ac_setup(!_0p_calibration && !_1p_calibration);
 
-  if (!_0p_calibration)
-    if (!ac_home()) return;
+  if (!_0p_calibration) ac_home();
 
   do { // start iterations
 
@@ -683,9 +680,9 @@ void GcodeSuite::G33() {
         char mess[21];
         strcpy_P(mess, PSTR("Calibration sd:"));
         if (zero_std_dev_min < 1)
-          sprintf_P(&mess[15], PSTR("0.%03i"), (int)round(zero_std_dev_min * 1000.0));
+          sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0));
         else
-          sprintf_P(&mess[15], PSTR("%03i.x"), (int)round(zero_std_dev_min));
+          sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev_min));
         lcd_setstatus(mess);
         print_calibration_settings(_endstop_results, _angle_results);
         serialprintPGM(save_message);
@@ -719,12 +716,12 @@ void GcodeSuite::G33() {
       strcpy_P(mess, enddryrun);
       strcpy_P(&mess[11], PSTR(" sd:"));
       if (zero_std_dev < 1)
-        sprintf_P(&mess[15], PSTR("0.%03i"), (int)round(zero_std_dev * 1000.0));
+        sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev * 1000.0));
       else
-        sprintf_P(&mess[15], PSTR("%03i.x"), (int)round(zero_std_dev));
+        sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev));
       lcd_setstatus(mess);
     }
-    if (!ac_home()) return;
+    ac_home();
   }
   while (((zero_std_dev < test_precision && iterations < 31) || iterations <= force_iterations) && zero_std_dev > calibration_precision);
 

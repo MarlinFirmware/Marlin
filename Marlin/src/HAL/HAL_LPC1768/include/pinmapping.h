@@ -267,7 +267,7 @@ constexpr pin_t adc_pin_table[] = {
 
 // Get the digital pin for an analog index
 pin_t analogInputToDigitalPin(const int8_t p);
-
+#define digitalPinToInterrupt(pin) (pin)
 // Return the index of a pin number
 // The pin number given here is in the form ppp:nnnnn
 int16_t GET_PIN_MAP_INDEX(const pin_t pin);
@@ -283,6 +283,7 @@ bool PWM_PIN(const pin_t p);
 
 // Test whether the pin is interruptable
 bool INTERRUPT_PIN(const pin_t p);
+#define LPC1768_PIN_INTERRUPT_M(pin) (((pin >> 8) & 0b1) != 0)
 
 // Get the pin number at the given index
 pin_t GET_PIN_MAP_PIN(const int16_t ind);

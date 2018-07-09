@@ -657,24 +657,27 @@
 #define HAS_X2_ENABLE     (PIN_EXISTS(X2_ENABLE))
 #define HAS_X2_DIR        (PIN_EXISTS(X2_DIR))
 #define HAS_X2_STEP       (PIN_EXISTS(X2_STEP))
-#define HAS_Y_MICROSTEPS  (PIN_EXISTS(Y_MS1))
+#define HAS_X2_MICROSTEPS (PIN_EXISTS(X2_MS1))
 
 #define HAS_Y_ENABLE      (PIN_EXISTS(Y_ENABLE))
 #define HAS_Y_DIR         (PIN_EXISTS(Y_DIR))
 #define HAS_Y_STEP        (PIN_EXISTS(Y_STEP))
-#define HAS_Z_MICROSTEPS  (PIN_EXISTS(Z_MS1))
+#define HAS_Y_MICROSTEPS  (PIN_EXISTS(Y_MS1))
 
 #define HAS_Y2_ENABLE     (PIN_EXISTS(Y2_ENABLE))
 #define HAS_Y2_DIR        (PIN_EXISTS(Y2_DIR))
 #define HAS_Y2_STEP       (PIN_EXISTS(Y2_STEP))
+#define HAS_Y2_MICROSTEPS (PIN_EXISTS(Y2_MS1))
 
 #define HAS_Z_ENABLE      (PIN_EXISTS(Z_ENABLE))
 #define HAS_Z_DIR         (PIN_EXISTS(Z_DIR))
 #define HAS_Z_STEP        (PIN_EXISTS(Z_STEP))
+#define HAS_Z_MICROSTEPS  (PIN_EXISTS(Z_MS1))
 
 #define HAS_Z2_ENABLE     (PIN_EXISTS(Z2_ENABLE))
 #define HAS_Z2_DIR        (PIN_EXISTS(Z2_DIR))
 #define HAS_Z2_STEP       (PIN_EXISTS(Z2_STEP))
+#define HAS_Z2_MICROSTEPS (PIN_EXISTS(Z2_MS1))
 
 // Extruder steppers and solenoids
 #define HAS_E0_ENABLE     (PIN_EXISTS(E0_ENABLE))
@@ -1050,6 +1053,7 @@
 #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_SEGMENTED || ENABLED(SKEW_CORRECTION))
 #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
 #define HAS_UBL_AND_CURVES (ENABLED(AUTO_BED_LEVELING_UBL) && !PLANNER_LEVELING && (ENABLED(ARC_SUPPORT) || ENABLED(BEZIER_CURVE_SUPPORT)))
+#define HAS_FEEDRATE_SCALING (ENABLED(SCARA_FEEDRATE_SCALING) || ENABLED(DELTA_FEEDRATE_SCALING))
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #undef LCD_BED_LEVELING
@@ -1347,25 +1351,6 @@
   #ifndef PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
     #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE HIGH
   #endif
-#endif
-
-// Use float instead of double. Needs profiling.
-#if defined(ARDUINO_ARCH_SAM) && ENABLED(DELTA_FAST_SQRT)
-  #undef ATAN2
-  #undef FABS
-  #undef POW
-  #undef SQRT
-  #undef CEIL
-  #undef FLOOR
-  #undef LROUND
-  #undef FMOD
-  #define ATAN2(y, x) atan2f(y, x)
-  #define POW(x, y) powf(x, y)
-  #define SQRT(x) sqrtf(x)
-  #define CEIL(x) ceilf(x)
-  #define FLOOR(x) floorf(x)
-  #define LROUND(x) lroundf(x)
-  #define FMOD(x, y) fmodf(x, y)
 #endif
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters

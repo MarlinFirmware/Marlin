@@ -532,7 +532,6 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (probe_triggered && set_bltouch_deployed(false)) return true;
   #endif
 
-  // Clear endstop flags
   endstops.hit_on_purpose();
 
   // Get Z where the steppers were interrupted
@@ -626,7 +625,7 @@ static float run_z_probe() {
   #if MULTIPLE_PROBING > 2
 
     // Return the average value of all probes
-    const float measured_z = probes_total * (1.0 / (MULTIPLE_PROBING));
+    const float measured_z = probes_total * (1.0f / (MULTIPLE_PROBING));
 
   #elif MULTIPLE_PROBING == 2
 
