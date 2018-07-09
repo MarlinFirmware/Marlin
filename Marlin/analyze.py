@@ -28,7 +28,7 @@ def main():
   result["lastFilament"] = last_filament
   total_time = progress[-1][1]
   most_recent_progress = float("-inf")
-  result["progress"] = [[0,0]]
+  result["progress"] = [[0,total_time]]
   for progress_entry in progress:
     if (most_recent_progress+60 < progress_entry[1] or
         progress_entry[0] == first_filament or
@@ -37,6 +37,7 @@ def main():
       result["progress"].append(
           [progress_entry[0],
            total_time-progress_entry[1]])
+  result["estimatedPrintTime"] = total_time
   print(json.dumps(result))
   exit(0)
 
