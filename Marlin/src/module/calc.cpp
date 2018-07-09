@@ -128,6 +128,8 @@ bool code_seen(char code)
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
 
+double extruder_position = 0;
+
 void prepare_move(const ExtraData& extra_data)
 {
   //clamp_to_software_endstops(destination);
@@ -139,6 +141,7 @@ void prepare_move(const ExtraData& extra_data)
   else {
     Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder, 0.0, extra_data);
   }
+  extruder_position += calc_destination[E_AXIS] - current_position[E_AXIS];
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = calc_destination[i];
   }
@@ -390,7 +393,7 @@ int main(int argc, char *argv[]) {
 	while(new_command.size() > 0) {
           ExtraData extra_data;
           extra_data.filepos = (((double) in.tellg())/total_file_size);
-          extra_data.extruder_position = current_position[E_AXIS];
+          extra_data.extruder_position = extruder_position;
           process_commands(new_command, extra_data);
           new_command = get_command(in);
 	}

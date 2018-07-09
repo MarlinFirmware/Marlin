@@ -15,14 +15,16 @@ def main():
   result = {}
   first_filament = None
   last_filament = None
+  max_filament = None
   for line in output.split("\n"):
     if not line:
       continue
     (filepos, filament, time) = map(float, line.split(","))
     if filament > 0 and not first_filament:
       first_filament = filepos
-    if not last_filament or filament > last_filament:
+    if not max_filament or filament > max_filament:
       last_filament = filepos
+      max_filament = filament
     progress.append([filepos, time])
   result["firstFilament"] = first_filament
   result["lastFilament"] = last_filament
