@@ -32,7 +32,7 @@ void manage_inactivity2();
 
 
 //From "../Marlin.cpp"
-extern void idle2();
+extern bool idle2();
 #define idle()
 
 #define BLOCK_BUFFER_SIZE 16

@@ -1,7 +1,10 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
 #include <inttypes.h>
 #include "../core/macros.h"
 #include "../../Configuration.h"
@@ -50,15 +53,10 @@ static double calc_destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static double feedrate = 1500.0, next_feedrate;//, saved_feedrate;
 long gcode_N, gcode_LastN;//, Stopped_gcode_LastN = 0;
 
-static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
+static char cmdbuffer[MAX_CMD_SIZE];
 //static bool fromsd[BUFSIZE];
-static int bufindr = 0;
-static int bufindw = 0;
-static int buflen = 0;
 //static int i = 0;
 //static char serial_char;
-static int serial_count = 0;
-static bool comment_mode = false;
 static char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
 
 //static double tt = 0;
@@ -116,19 +114,18 @@ void Config_ResetDefault()
     Planner::max_jerk[E_AXIS] = DEFAULT_EJERK;
 }
 
-double code_value() 
-{ 
-  return (strtod(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL)); 
+double code_value() {
+  return (strtod(&cmdbuffer[strchr_pointer - cmdbuffer + 1], NULL)); 
 }
 
 long code_value_long() 
 { 
-  return (strtol(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL, 10)); 
+  return (strtol(&cmdbuffer[strchr_pointer - cmdbuffer + 1], NULL, 10)); 
 }
 
 bool code_seen(char code)
 {
-  strchr_pointer = strchr(cmdbuffer[bufindr], code);
+  strchr_pointer = strchr(cmdbuffer, code);
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
 
@@ -163,64 +160,51 @@ void get_coordinates()
   }
 }
 
-FILE *fp;
-
-void get_command() {
-  while(!feof(fp) && buflen < 1) {
-    char serial_char;
-    fread(&serial_char, 1, 1, fp);
-
-    if(serial_char == '\n' ||
-       serial_char == '\r' ||
-       (serial_char == ':' && comment_mode == false) ||
-       serial_count >= (MAX_CMD_SIZE - 1) ) {
-      if(!serial_count) { //if empty line
-        comment_mode = false; //for new command
-        return;
-      }
-      cmdbuffer[bufindw][serial_count] = 0; //terminate string
-      if(!comment_mode){
-        comment_mode = false; //for new command
-        if(strchr(cmdbuffer[bufindw], 'N') != NULL) {
-          strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
-          gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
-
-          if(strchr(cmdbuffer[bufindw], '*') != NULL) {
-            byte checksum = 0;
-            byte count = 0;
-            while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
-            strchr_pointer = strchr(cmdbuffer[bufindw], '*');
-          }
-
-          gcode_LastN = gcode_N;
-          //if no errors, continue parsing
-        }
-        if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
-          strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
-        }
-        bufindw = (bufindw + 1)%BUFSIZE;
-        buflen += 1;
-      }
-      serial_count = 0; //clear buffer
-    }
-    else
-    {
-      if(serial_char == ';') comment_mode = true;
-      if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+std::string get_command(std::ifstream& in) {
+  // Return a string with the new command in it.
+  // Filters out all comments and line numbers and checksums.
+  // Returns an empty string when there are no more lines.
+  // Assume that we start at the beginning of a line always.
+  std::string line;
+  if (!std::getline(in, line)) {
+    return line;
+  }
+  auto comment_start = line.find(';');
+  if (comment_start != std::string::npos) {
+    line.erase(comment_start);
+  }
+  auto first_char =
+      std::find_if(line.begin(), line.end(), std::iswspace);
+  if (first_char != line.end()) {
+    // Found the first non-whitespace
+    if (*first_char == 'N' || *first_char == 'n') {
+      // Found a line number.
+      std::string::iterator end_line_number =
+          std::find_if_not(first_char+1, line.end(), static_cast<int(*)(int)>(std::isdigit));
+      line.erase(line.begin(), end_line_number);
     }
   }
+  // Remove the checksum, don't even check it.
+  auto checksum_start = line.find('*');
+  if (checksum_start != std::string::npos) {
+    line.erase(checksum_start);
+  }
+  if (line.size() == 0) {
+    return std::string(" "); // TODO: find a better way to return end of file
+  }
+  return line;
 }
 
 double total_time = 0;
 int total_g=0, total_m=0;
 
 		
-void process_commands(const ExtraData& extra_data) {
+void process_commands(const std::string& command, const ExtraData& extra_data) {
+  cmdbuffer[command.copy(cmdbuffer, MAX_CMD_SIZE-1)] = 0; // TODO: get rid of this ugliness
   unsigned long codenum; //throw away variable
 
-  if(code_seen('G'))
-  {
-	total_g++;
+  if(code_seen('G')) {
+    total_g++;
     switch((int)code_value())
     {
     case 0: // G0 -> G1
@@ -339,51 +323,54 @@ void process_commands(const ExtraData& extra_data) {
 
 int blocks = 0;
 
-void idle2() {
+// Returns true if we found a block.
+bool idle2() {
   block_t *block = Planner::get_current_block();
-	if (block != NULL) {
-		blocks++;
-		if(blocks % 100000 == 0) { fprintf(stderr, "."); }
-//		if(blocks > 10) exit(0);
-//		printf("S: %lu in: %lu nom: %lu out: %lu ac: %lu\n", block->step_event_count, block->initial_rate, block->nominal_rate, block->final_rate, block->acceleration_st);
-		// calculate block len
+  if (block == NULL) {
+    return false;
+  }
+  blocks++;
+  if(blocks % 100000 == 0) { fprintf(stderr, "."); }
+  //		if(blocks > 10) exit(0);
+  //		printf("S: %lu in: %lu nom: %lu out: %lu ac: %lu\n", block->step_event_count, block->initial_rate, block->nominal_rate, block->final_rate, block->acceleration_st);
+  // calculate block len
 
-		double tt1, tt2, tt3;
-                if (block->step_event_count > 0) {
-                  double vi, vf, v, d, a, t1, t2;
-                  vi = block->initial_rate;
-                  a = block->acceleration_steps_per_s2;
-                  d = block->accelerate_until;
-                  t1 = -1 * (sqrt(2*a*d+vi*vi) + vi) / a;
-                  t2 =      (sqrt(2*a*d+vi*vi) - vi) / a;
-                  //printf("D: %f A: %f T: %f / %f \n", d, a, t1, t2);
-                  tt1 = max(t1, t2);
-                  vf = vi + a * tt1;
+  double tt1, tt2, tt3;
+  if (block->step_event_count > 0) {
+    double vi, vf, v, d, a, t1, t2;
+    vi = block->initial_rate;
+    a = block->acceleration_steps_per_s2;
+    d = block->accelerate_until;
+    t1 = -1 * (sqrt(2*a*d+vi*vi) + vi) / a;
+    t2 =      (sqrt(2*a*d+vi*vi) - vi) / a;
+    //printf("D: %f A: %f T: %f / %f \n", d, a, t1, t2);
+    tt1 = max(t1, t2);
+    vf = vi + a * tt1;
 
-                  if (block->decelerate_after > block->accelerate_until) {
-                    tt2 = (block->decelerate_after - block->accelerate_until) / vf;
-                  } else {
-                    tt2 = 0;
-                  }
+    if (block->decelerate_after > block->accelerate_until) {
+      tt2 = (block->decelerate_after - block->accelerate_until) / vf;
+    } else {
+      tt2 = 0;
+    }
 
-                  vi = vf;
-                  if (block->step_event_count > block->decelerate_after) {
-                    d = block->step_event_count - block->decelerate_after;
-                  } else {
-                    d = 0;
-                  }
-                  a = -a;
-                  vf = block->final_rate;
-                  v = (vi+vf)/2;
-                  tt3 = d / v;
+    vi = vf;
+    if (block->step_event_count > block->decelerate_after) {
+      d = block->step_event_count - block->decelerate_after;
+    } else {
+      d = 0;
+    }
+    a = -a;
+    vf = block->final_rate;
+    v = (vi+vf)/2;
+    tt3 = d / v;
 
-                  total_time += tt1+tt2+tt3;
-                  printf("%.17f, %.17f, %.17f\n", block->extra_data.filepos,
-                         block->extra_data.extruder_position,
-                         total_time);
-                }
-                Planner::discard_current_block();
-	}
+    total_time += tt1+tt2+tt3;
+    printf("%.17f, %.17f, %.17f\n", block->extra_data.filepos,
+           block->extra_data.extruder_position,
+           total_time);
+  }
+  Planner::discard_current_block();
+  return true;
 }
 
 
@@ -397,22 +384,20 @@ int main(int argc, char *argv[]) {
           extra_data.filepos = 0;
           Planner::buffer_line(x,y,z,e,feed_rate,extruder,0.0, extra_data);
         }
-	fp = fopen(argv[1], "r");
-        fseek(fp, 0, SEEK_END);
-        long total_file_size = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-	while(!feof(fp)) {
+	std::ifstream in(argv[1], std::ifstream::ate | std::ifstream::binary);
+        long total_file_size = in.tellg();
+        in.seekg(0, in.beg);  // back to the start
+        std::string new_command = get_command(in);
+	while(new_command.size() > 0) {
           ExtraData extra_data;
-          extra_data.filepos = (((double) ftell(fp))/total_file_size);
+          extra_data.filepos = (((double) in.tellg())/total_file_size);
           extra_data.extruder_position = current_position[E_AXIS];
-          get_command();
-          while(buflen) {
-            process_commands(extra_data);
-            buflen = (buflen-1);
-            bufindr = (bufindr + 1)%BUFSIZE;
-          }
+          process_commands(new_command, extra_data);
+          new_command = get_command(in);
 	}
-	fclose(fp);
+        while(idle2())
+          ; // Keep going.
+	in.close();
 	fprintf(stderr, "Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
 	fprintf(stderr, "Total time: %f\n", total_time);
 	return 0;
