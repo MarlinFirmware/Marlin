@@ -250,21 +250,21 @@
 //
 
 #elif MB(TEENSYLU)
-  #include "pins_TEENSYLU.h"          // AT90USB1286, AT90USB1286P                  env:at90USB1286_CDC
+  #include "pins_TEENSYLU.h"          // AT90USB1286, AT90USB1286P                  env:at90usb1286_cdc
 #elif MB(PRINTRBOARD)
-  #include "pins_PRINTRBOARD.h"       // AT90USB1286                                env:at90USB1286_DFU
+  #include "pins_PRINTRBOARD.h"       // AT90USB1286                                env:at90usb1286_dfu
 #elif MB(PRINTRBOARD_REVF)
-  #include "pins_PRINTRBOARD_REVF.h"  // AT90USB1286                                env:at90USB1286_DFU
+  #include "pins_PRINTRBOARD_REVF.h"  // AT90USB1286                                env:at90usb1286_dfu
 #elif MB(BRAINWAVE)
-  #include "pins_BRAINWAVE.h"         // AT90USB646                                 env:at90USB1286_CDC
+  #include "pins_BRAINWAVE.h"         // AT90USB646                                 env:at90usb1286_cdc
 #elif MB(BRAINWAVE_PRO)
-  #include "pins_BRAINWAVE_PRO.h"     // AT90USB1286                                env:at90USB1286_CDC
+  #include "pins_BRAINWAVE_PRO.h"     // AT90USB1286                                env:at90usb1286_cdc
 #elif MB(SAV_MKI)
-  #include "pins_SAV_MKI.h"           // AT90USB1286                                env:at90USB1286_CDC
+  #include "pins_SAV_MKI.h"           // AT90USB1286                                env:at90usb1286_cdc
 #elif MB(TEENSY2)
   #include "pins_TEENSY2.h"           // AT90USB1286                                env:teensy20
 #elif MB(5DPRINT)
-  #include "pins_5DPRINT.h"           // AT90USB1286                                ?env:at90USB1286_DFU
+  #include "pins_5DPRINT.h"           // AT90USB1286                                env:at90usb1286_dfu
 
 //
 // LPC1768 ARM Cortex M3
