@@ -35,7 +35,6 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
   #endif
 };
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
-float add_homing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
 #endif
@@ -238,13 +237,13 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       break;
     case 92: // G92
       for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) { 
+        if(code_seen(axis_codes[i])) {
            if(i == E_AXIS) {
-             current_position[i] = code_value();  
+             current_position[i] = code_value();
              Planner::set_e_position_mm(current_position[E_AXIS]);
            }
            else {
-             current_position[i] = code_value()+add_homing[i];  
+             current_position[i] = code_value();
              Planner::set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
         }
