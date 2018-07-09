@@ -37,6 +37,7 @@ def main():
       result["progress"].append(
           [progress_entry[0],
            total_time-progress_entry[1]])
+  result["progress"].append([1,0])
   result["estimatedPrintTime"] = total_time
   print(json.dumps(result))
   exit(0)
