@@ -127,7 +127,7 @@ class Endstops {
     /**
      * Report endstop hits to serial. Called from loop().
      */
-    static void report_state();
+    static void event_handler();
 
     /**
      * Report endstop positions in response to M119

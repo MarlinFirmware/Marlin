@@ -14757,6 +14757,6 @@ void loop() {
       if (++cmd_queue_index_r >= BUFSIZE) cmd_queue_index_r = 0;
     }
   }
-  endstops.report_state();
+  endstops.event_handler();
   idle();
 }
