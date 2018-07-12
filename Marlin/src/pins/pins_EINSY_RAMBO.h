@@ -33,10 +33,8 @@
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo
 //
-#if DISABLED(HAVE_TMC2130)
-  #error "You must enable TMC2130 support in Configuration_adv.h for EinsyRambo."
-#elif DISABLED(X_IS_TMC2130) || DISABLED(Y_IS_TMC2130) || DISABLED(Z_IS_TMC2130) || DISABLED(E0_IS_TMC2130)
-  #error "You must enable ([XYZ]|E0)_IS_TMC2130 in Configuration_adv.h for EinsyRambo."
+#if !IS_SPIDRIVER_USED(X,TMC2130) || !IS_SPIDRIVER_USED(Y,TMC2130) || !IS_SPIDRIVER_USED(Z,TMC2130) || !IS_SPIDRIVER_USED(E0,TMC2130)
+  #error "You must define ([XYZ]|E0)_DRIVER_TYPE TMC2130 + SPI_STEPPER in Configuration.h for EinsyRambo."
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)

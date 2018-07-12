@@ -818,17 +818,17 @@ void MarlinSettings::postprocess() {
     //
     int16_t tmc_sgt[XYZ] = {
       #if ENABLED(SENSORLESS_HOMING)
-        #if defined(X_HOMING_SENSITIVITY) && (ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS))
+        #if defined(X_HOMING_SENSITIVITY) && (IS_SPIDRIVER_USED(X, TMC2130) || ENABLED(IS_TRAMS))
           stepperX.sgt(),
         #else
           0,
         #endif
-        #if defined(Y_HOMING_SENSITIVITY) && (ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS))
+        #if defined(Y_HOMING_SENSITIVITY) && (IS_SPIDRIVER_USED(Y, TMC2130) || ENABLED(IS_TRAMS))
           stepperY.sgt(),
         #else
           0,
         #endif
-        #if defined(Z_HOMING_SENSITIVITY) && (ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS))
+        #if defined(Z_HOMING_SENSITIVITY) && (IS_SPIDRIVER_USED(Z, TMC2130) || ENABLED(IS_TRAMS))
           stepperZ.sgt()
         #else
           0
@@ -1405,26 +1405,26 @@ void MarlinSettings::postprocess() {
       #if ENABLED(SENSORLESS_HOMING)
         if (!validating) {
           #ifdef X_HOMING_SENSITIVITY
-            #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+            #if IS_SPIDRIVER_USED(X, TMC2130) || ENABLED(IS_TRAMS)
               stepperX.sgt(tmc_sgt[0]);
             #endif
-            #if ENABLED(X2_IS_TMC2130)
+            #if IS_SPIDRIVER_USED(X2, TMC2130)
               stepperX2.sgt(tmc_sgt[0]);
             #endif
           #endif
           #ifdef Y_HOMING_SENSITIVITY
-            #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+            #if IS_SPIDRIVER_USED(Y, TMC2130) || ENABLED(IS_TRAMS)
               stepperY.sgt(tmc_sgt[1]);
             #endif
-            #if ENABLED(Y2_IS_TMC2130)
+            #if IS_SPIDRIVER_USED(Y2, TMC2130)
               stepperY2.sgt(tmc_sgt[1]);
             #endif
           #endif
           #ifdef Z_HOMING_SENSITIVITY
-            #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+            #if IS_SPIDRIVER_USED(Z, TMC2130) || ENABLED(IS_TRAMS)
               stepperZ.sgt(tmc_sgt[2]);
             #endif
-            #if ENABLED(Z2_IS_TMC2130)
+            #if IS_SPIDRIVER_USED(Z2, TMC2130)
               stepperZ2.sgt(tmc_sgt[2]);
             #endif
           #endif
@@ -2577,9 +2577,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_ECHOLNPGM_P(port, "Sensorless homing threshold:");
         }
         CONFIG_ECHO_START;
-        #define HAS_X_SENSORLESS (defined(X_HOMING_SENSITIVITY) && (ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)))
-        #define HAS_Y_SENSORLESS (defined(Y_HOMING_SENSITIVITY) && (ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)))
-        #define HAS_Z_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && (ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)))
+        #define HAS_X_SENSORLESS (defined(X_HOMING_SENSITIVITY) && (IS_SPIDRIVER_USED(X, TMC2130) || ENABLED(IS_TRAMS)))
+        #define HAS_Y_SENSORLESS (defined(Y_HOMING_SENSITIVITY) && (IS_SPIDRIVER_USED(Y, TMC2130) || ENABLED(IS_TRAMS)))
+        #define HAS_Z_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && (IS_SPIDRIVER_USED(Z, TMC2130) || ENABLED(IS_TRAMS)))
         #if HAS_X_SENSORLESS || HAS_Y_SENSORLESS || HAS_Z_SENSORLESS
           say_M914(PORTVAR_SOLO);
           #if HAS_X_SENSORLESS
@@ -2594,9 +2594,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_EOL_P(port);
         #endif
 
-        #define HAS_X2_SENSORLESS (defined(X_HOMING_SENSITIVITY) && ENABLED(X2_IS_TMC2130))
-        #define HAS_Y2_SENSORLESS (defined(Y_HOMING_SENSITIVITY) && ENABLED(Y2_IS_TMC2130))
-        #define HAS_Z2_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && ENABLED(Z2_IS_TMC2130))
+        #define HAS_X2_SENSORLESS (defined(X_HOMING_SENSITIVITY) && IS_SPIDRIVER_USED(X2, TMC2130))
+        #define HAS_Y2_SENSORLESS (defined(Y_HOMING_SENSITIVITY) && IS_SPIDRIVER_USED(Y2, TMC2130))
+        #define HAS_Z2_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && IS_SPIDRIVER_USED(Z2, TMC2130))
         #if HAS_X2_SENSORLESS || HAS_Y2_SENSORLESS || HAS_Z2_SENSORLESS
           say_M914(PORTVAR_SOLO);
           SERIAL_ECHOPGM_P(port, " I1");
