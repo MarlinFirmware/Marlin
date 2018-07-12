@@ -9,6 +9,7 @@
 #ifndef _FONT_UTILS_H
 #define _FONT_UTILS_H
 
+#include <stdlib.h>
 #include <Arduino.h>
 #include "../core/macros.h"
 #include <stddef.h> // wchar_t
