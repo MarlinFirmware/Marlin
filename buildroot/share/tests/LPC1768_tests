@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# exit on first failure
+set -e
+
+restore_configs
+opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+exec_test $1 $2 "Build Re-ARM Default Configuration"
+
+restore_configs
+opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
+opt_enable VIKI2 SDSUPPORT
+exec_test $1 $2 "VIKI2 and SDSUPPORT"
+
+restore_configs
+opt_set MOTHERBOARD BOARD_MKS_SBASE
+opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
+exec_test $1 $2 "MKS SBASE RRDFG SDSUPPORT"
+
+#clean up
+restore_configs

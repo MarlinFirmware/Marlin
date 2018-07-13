@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+if [ ! -z "$1" ]; then
+    cd $1
+fi
+
+if [ -d ".test" ]; then
+  printf "\033[0;31mEnvironment backup already exists!\033[0m\n"
+else
+  mkdir .test
+  cp Marlin/Configuration.h .test/Configuration.h
+  cp Marlin/Configuration_adv.h .test/Configuration_adv.h
+
+  if [ -f Marlin/_Bootscreen.h ]; then
+    cp Marlin/_Bootscreen.h .test/_Bootscreen.h
+  fi
+
+  if [ -f Marlin/_Statusscreen.h ]; then
+    cp Marlin/_Statusscreen.h .test/_Statusscreen.h
+  fi
+
+  cp -r Marlin/src/pins .test/pins
+  printf "\033[0;32mEnvironment Backup created\033[0m\n"
+fi
