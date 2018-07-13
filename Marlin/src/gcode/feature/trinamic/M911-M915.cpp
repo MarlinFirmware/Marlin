@@ -163,26 +163,26 @@ void GcodeSuite::M912() {
       switch (i) {
         case X_AXIS:
           #if X_IS_TRINAMIC
-            if (index == 0) TMC_SET_PWMTHRS(X,X);
+            if (index < 2) TMC_SET_PWMTHRS(X,X);
           #endif
           #if X2_IS_TRINAMIC
-            if (index == 1) TMC_SET_PWMTHRS(X,X2);
+            if (!(index & 1)) TMC_SET_PWMTHRS(X,X2);
           #endif
           break;
         case Y_AXIS:
           #if Y_IS_TRINAMIC
-            if (index == 0) TMC_SET_PWMTHRS(Y,Y);
+            if (index < 2) TMC_SET_PWMTHRS(Y,Y);
           #endif
           #if Y2_IS_TRINAMIC
-            if (index == 1) TMC_SET_PWMTHRS(Y,Y2);
+            if (!(index & 1)) TMC_SET_PWMTHRS(Y,Y2);
           #endif
           break;
         case Z_AXIS:
           #if Z_IS_TRINAMIC
-            if (index == 0) TMC_SET_PWMTHRS(Z,Z);
+            if (index < 2) TMC_SET_PWMTHRS(Z,Z);
           #endif
           #if Z2_IS_TRINAMIC
-            if (index == 1) TMC_SET_PWMTHRS(Z,Z2);
+            if (!(index & 1)) TMC_SET_PWMTHRS(Z,Z2);
           #endif
           break;
         case E_AXIS: {
