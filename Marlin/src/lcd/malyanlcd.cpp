@@ -79,7 +79,6 @@ int inbound_count;
 
 // For sending print completion messages
 bool last_printing_status = false;
-uint8_t last_percent_done = 100;
 
 // Everything written needs the high bit set.
 void write_to_lcd_P(const char * const message) {
@@ -442,25 +441,18 @@ void lcd_update() {
     // The way last printing status works is simple:
     // The UI needs to see at least one TQ which is not 100%
     // and then when the print is complete, one which is.
-    if (card.sdprinting) {
-      if (card.percentDone() != last_percent_done) {
-        char message_buffer[10];
-        last_percent_done = card.percentDone();
-        sprintf_P(message_buffer, PSTR("{TQ:%03i}"), last_percent_done);
-        write_to_lcd(message_buffer);
+    static uint8_t last_percent_done = 100;
 
-        if (!last_printing_status) last_printing_status = true;
-      }
-    }
-    else {
-      // If there was a print in progress, we need to emit the final
-      // print status as {TQ:100}. Reset last percent done so a new print will
-      // issue a percent of 0.
-      if (last_printing_status) {
-        last_printing_status = false;
-        last_percent_done = 100;
-        write_to_lcd_P(PSTR("{TQ:100}"));
-      }
+    // If there was a print in progress, we need to emit the final
+    // print status as {TQ:100}. Reset last percent done so a new print will
+    // issue a percent of 0.
+    const uint8_t percent_done = card.sdprinting ? card.percentDone() : last_printing_status ? 100 : 0;
+    if (percent_done != last_percent_done) {
+      char message_buffer[10];
+      sprintf_P(message_buffer, PSTR("{TQ:%03i}"), percent_done);
+      write_to_lcd(message_buffer);
+      last_percent_done = percent_done;
+      last_printing_status = card.sdprinting;
     }
   #endif
 }
