@@ -872,10 +872,12 @@
 #if 1 // 0 for less clearance
   #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
   #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
+#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
   //#define Z_AFTER_PROBING           5 // Z position after probing is done
 #else
   #define Z_CLEARANCE_DEPLOY_PROBE    5 // Z Clearance for Deploy/Stow
   #define Z_CLEARANCE_BETWEEN_PROBES  3 // Z Clearance between probe points
+#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
   //#define Z_AFTER_PROBING           3 // Z position after probing is done
 #endif
 
