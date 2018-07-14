@@ -376,11 +376,9 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
     do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
-  #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    if (!axis_unhomed_error())
-  #endif
-      // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-      Nozzle::park(2, park_point);
+  // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+  if (!axis_unhomed_error())
+    Nozzle::park(2, park_point);
 
   // Unload the filament
   if (unload_length)
