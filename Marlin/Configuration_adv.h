@@ -1298,17 +1298,14 @@
  * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
  * You may also use software SPI if you wish to use general purpose IO pins.
  *
- * The TMC2130Stepper library is required for this stepper driver.
- * https://github.com/teemuatlut/TMC2130Stepper
- *
  * To use TMC2208 stepper UART-configurable stepper drivers
  * connect #_SERIAL_TX_PIN to the driver side PDN_UART pin with a 1K resistor.
  * To use the reading capabilities, also connect #_SERIAL_RX_PIN
  * to PDN_UART without a resistor.
  * The drivers can also be used with hardware serial.
  *
- * The TMC2208Stepper library is required for this stepper driver.
- * https://github.com/teemuatlut/TMC2208Stepper
+ * TMCStepper library is required for connected TMC stepper drivers.
+ * https://github.com/teemuatlut/TMCStepper
  */
 #if HAS_TRINAMIC
 
@@ -1390,6 +1387,12 @@
   #define STEALTHCHOP_XY
   #define STEALTHCHOP_Z
   #define STEALTHCHOP_E
+
+  /**
+   * Adjust spreadCycle chopper parameters with the help of an example included in the library.
+   * The parameters are off time, hysteresis end and hysteresis start.
+   */
+  #define CHOPPER_TIMING { 4, -2, 1 }
 
   /**
    * Monitor Trinamic TMC2130 and TMC2208 drivers for error conditions,

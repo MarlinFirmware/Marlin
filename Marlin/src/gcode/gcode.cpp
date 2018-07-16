@@ -650,9 +650,7 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       #if HAS_TRINAMIC
-        #if ENABLED(TMC_DEBUG)
-          case 122: M122(); break;
-        #endif
+        case 122: M122(); break;
         case 906: M906(); break;                                  // M906: Set motor current in milliamps using axis codes X, Y, Z, E
         #if ENABLED(MONITOR_DRIVER_STATUS)
           case 911: M911(); break;                                // M911: Report TMC2130 prewarn triggered flags

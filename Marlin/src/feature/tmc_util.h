@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
+#include "../lcd/ultralcd.h"
 #if HAS_TRINAMIC
   #include <TMCStepper.h>
 #endif
@@ -155,12 +156,14 @@ void tmc_set_sgt(TMC &st, const int8_t sgt_val) {
 }
 
 void monitor_tmc_driver();
+void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z, const bool test_e);
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
     void tmc_set_report_status(const bool status);
   #endif
-  void tmc_report_all();
+  void tmc_report_all(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
+  void tmc_get_registers(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
 #endif
 
 /**
