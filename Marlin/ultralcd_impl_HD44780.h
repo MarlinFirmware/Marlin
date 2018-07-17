@@ -531,7 +531,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
   }
 
   static void logo_lines(const char* const extra) {
-    int16_t indent = (LCD_WIDTH - 8 - lcd_strlen_P(extra)) / 2;
+    int16_t indent = (LCD_WIDTH - 8 - utf8_strlen_P(extra)) / 2;
     lcd.setCursor(indent, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x01');
     lcd.setCursor(indent, 1);                    lcd_printPGM(PSTR("|Marlin|"));  lcd_printPGM(extra);
     lcd.setCursor(indent, 2); lcd.write('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x03');
@@ -546,7 +546,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
     #define CENTER_OR_SCROLL(STRING,DELAY) \
       lcd_erase_line(3); \
       if (strlen(STRING) <= LCD_WIDTH) { \
-        lcd.setCursor((LCD_WIDTH - lcd_strlen_P(PSTR(STRING))) / 2, 3); \
+        lcd.setCursor((LCD_WIDTH - utf8_strlen_P(PSTR(STRING))) / 2, 3); \
         lcd_printPGM_utf(PSTR(STRING)); \
         safe_delay(DELAY); \
       } \
@@ -1019,8 +1019,8 @@ static void lcd_implementation_status_screen() {
     int8_t n = LCD_WIDTH;
     lcd.setCursor(0, row);
     if (center && !valstr) {
-      while (--pad >= 0) { lcd.write(' '); n--; }
       int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
+      while (--pad >= 0) { lcd.write(' '); n--; }
     }
     while (n > 0 && (c = pgm_read_byte(pstr))) {
       n -= charset_mapper(c);
@@ -1048,9 +1048,9 @@ static void lcd_implementation_status_screen() {
 
   static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     char c;
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
     lcd.setCursor(0, row);
     lcd.print(sel ? pre_char : ' ');
-    uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
     while ((c = pgm_read_byte(pstr)) && n > 0) {
       n -= charset_mapper(c);
       pstr++;
@@ -1061,9 +1061,9 @@ static void lcd_implementation_status_screen() {
   }
   static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     char c;
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
     lcd.setCursor(0, row);
     lcd.print(sel ? pre_char : ' ');
-    uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
     while ((c = pgm_read_byte(pstr)) && n > 0) {
       n -= charset_mapper(c);
       pstr++;
@@ -1081,10 +1081,10 @@ static void lcd_implementation_status_screen() {
     lcd_printPGM_utf(pstr);
     if (value != NULL) {
       lcd.write(':');
-      lcd.setCursor((LCD_WIDTH - 1) - (lcd_strlen(value) + 1), valrow);                                   // Right-justified, padded by spaces
+      const uint8_t valrow = (utf8_strlen_P(pstr) + 1 + utf8_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1; // Value on the next row if it won't fit
+      lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), valrow);                                  // Right-justified, padded by spaces
       lcd.write(' ');                                                                                     // overwrite char if value gets shorter
       lcd_print(value);
-      const uint8_t valrow = (utf8_strlen_P(pstr) + 1 + utf8_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1; // Value on the next row if it won't fit
     }
   }
 
@@ -1105,7 +1105,7 @@ static void lcd_implementation_status_screen() {
               name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
             if (filename_scroll_hash != name_hash) {                            // If the hash changed...
               filename_scroll_hash = name_hash;                                 // Save the new hash
-              filename_scroll_max = MAX(0, lcd_strlen(longFilename) - n);  // Update the scroll limit
+              filename_scroll_max = MAX(0, utf8_strlen(longFilename) - n);      // Update the scroll limit
               filename_scroll_pos = 0;                                          // Reset scroll to the start
               lcd_status_update_delay = 8;                                      // Don't scroll right away
             }
