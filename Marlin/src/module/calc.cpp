@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+#include <istream>
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 #include <inttypes.h>
 #include "../core/macros.h"
@@ -162,7 +164,7 @@ void get_coordinates()
   }
 }
 
-std::string get_command(std::ifstream& in) {
+std::string get_command(std::istream& in) {
   // Return a string with the new command in it.
   // Filters out all comments and line numbers and checksums.
   // Returns an empty string when there are no more lines.
@@ -386,6 +388,20 @@ int main(int argc, char *argv[]) {
           extra_data.filepos = 0;
           Planner::buffer_line(x,y,z,e,feed_rate,extruder,0.0, extra_data);
         }
+        if (argc > 2) {
+          // There are mcodes in the input.  Process them but they don't count
+          // as bytes in the file.
+          std::istringstream mcodes(argv[2]);
+          std::string new_command = get_command(mcodes);
+          while (new_command.size() > 0) {
+            ExtraData extra_data; // Ignored.
+            extra_data.filepos = 0;
+            extra_data.extruder_position = 0;
+            process_commands(new_command, extra_data);
+            new_command = get_command(mcodes);
+          }
+        }
+
 	std::ifstream in(argv[1], std::ifstream::ate | std::ifstream::binary);
         long total_file_size = in.tellg();
         in.seekg(0, in.beg);  // back to the start
