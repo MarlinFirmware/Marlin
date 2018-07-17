@@ -5050,7 +5050,7 @@ void lcd_init() {
   #endif
 }
 
-int16_t lcd_strlen(const char* s) {
+int16_t utf8_strlen(const char* s) {
   int16_t i = 0, j = 0;
   while (s[i]) {
     if (START_OF_UTF8_CHAR(s[i])) j++;
@@ -5059,7 +5059,7 @@ int16_t lcd_strlen(const char* s) {
   return j;
 }
 
-int16_t lcd_strlen_P(const char* s) {
+int16_t utf8_strlen_P(const char* s) {
   int16_t j = 0;
   while (pgm_read_byte(s)) {
     if (START_OF_UTF8_CHAR(pgm_read_byte(s))) j++;

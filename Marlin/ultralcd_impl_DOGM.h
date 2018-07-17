@@ -468,7 +468,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     int8_t n = LCD_WIDTH - (START_COL);
 
     if (center && !valstr) {
-      int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
+      int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
       while (--pad >= 0) { u8g.print(' '); n--; }
     }
     while (n > 0 && (c = pgm_read_byte(pstr))) {
@@ -514,7 +514,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
     if (!PAGE_CONTAINS(row_y1, row_y2)) return;
 
-    const uint8_t vallen = (pgm ? lcd_strlen_P(data) : (lcd_strlen((char*)data)));
+    const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
     uint8_t n = LCD_WIDTH - (START_COL) - 2 - vallen;
 
     while (char c = pgm_read_byte(pstr)) {
@@ -535,8 +535,8 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   void lcd_implementation_drawedit(const char* const pstr, const char* const value=NULL) {
-    const uint8_t labellen = lcd_strlen_P(pstr),
-                  vallen = lcd_strlen(value);
+    const uint8_t labellen = utf8_strlen_P(pstr),
+                  vallen = utf8_strlen(value);
 
     uint8_t rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
 

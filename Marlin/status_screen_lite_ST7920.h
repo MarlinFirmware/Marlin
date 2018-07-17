@@ -618,7 +618,7 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
   const uint8_t lcd_len = 16;
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
 
-    uint8_t slen = lcd_strlen(str);
+    uint8_t slen = utf8_strlen(str);
 
     // If the string fits into the LCD, just print it and do not scroll it
     if (slen <= lcd_len) {
@@ -639,7 +639,7 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
       const char *stat = str + status_scroll_offset;
 
       // Get the string remaining length
-      const uint8_t rlen = lcd_strlen(stat);
+      const uint8_t rlen = utf8_strlen(stat);
 
       // If we have enough characters to display
       if (rlen >= lcd_len) {
@@ -670,7 +670,7 @@ void ST7920_Lite_Status_Screen::draw_status_message(const char *str) {
     }
   #else
     // Get the UTF8 character count of the string
-    uint8_t slen = lcd_strlen(str);
+    uint8_t slen = utf8_strlen(str);
 
     // Just print the string to the LCD
     write_str(str, lcd_len);
