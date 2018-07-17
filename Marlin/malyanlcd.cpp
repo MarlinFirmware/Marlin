@@ -286,7 +286,7 @@ void process_lcd_p_command(const char* command) {
         }
         else {
           char message_buffer[MAX_CURLY_COMMAND];
-          sprintf_P(message_buffer, PSTR("{PRINTFILE:%s}"), card.filename);
+          sprintf_P(message_buffer, PSTR("{PRINTFILE:%s}"), card.longest_filename());
           write_to_lcd(message_buffer);
           write_to_lcd_P(PSTR("{SYS:BUILD}"));
           card.openAndPrintFile(card.filename);
@@ -344,7 +344,7 @@ void process_lcd_s_command(const char* command) {
         uint16_t file_count = card.get_num_Files();
         for (uint16_t i = 0; i < file_count; i++) {
           card.getfilename(i);
-          sprintf_P(message_buffer, card.filenameIsDir ? PSTR("{DIR:%s}") : PSTR("{FILE:%s}"), card.filename);
+          sprintf_P(message_buffer, card.filenameIsDir ? PSTR("{DIR:%s}") : PSTR("{FILE:%s}"), card.longest_filename());
           write_to_lcd(message_buffer);
         }
 
