@@ -1176,8 +1176,7 @@ void Planner::recalculate() {
  * Maintain fans, paste extruder pressure,
  */
 void Planner::check_axes_activity() {
-  unsigned char axis_active[NUM_AXIS] = { 0 },
-                tail_fan_speed[FAN_COUNT];
+  unsigned char axis_active[NUM_AXIS] = { 0 };
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
@@ -2477,10 +2476,10 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   const int32_t target[ABCE] = {
-    LROUND(a * axis_steps_per_mm[A_AXIS]),
-    LROUND(b * axis_steps_per_mm[B_AXIS]),
-    LROUND(c * axis_steps_per_mm[C_AXIS]),
-    LROUND(e * axis_steps_per_mm[E_AXIS_N])
+    (int32_t) LROUND(a * axis_steps_per_mm[A_AXIS]),
+    (int32_t) LROUND(b * axis_steps_per_mm[B_AXIS]),
+    (int32_t) LROUND(c * axis_steps_per_mm[C_AXIS]),
+    (int32_t) LROUND(e * axis_steps_per_mm[E_AXIS_N])
   };
 
   #if HAS_POSITION_FLOAT
