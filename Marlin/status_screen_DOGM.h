@@ -126,7 +126,7 @@ inline void lcd_implementation_status_message(const bool blink) {
     static bool last_blink = false;
 
     // Get the UTF8 character count of the string
-    uint8_t slen = lcd_strlen(lcd_status_message);
+    uint8_t slen = utf8_strlen(lcd_status_message);
 
     // If the string fits into the LCD, just print it and do not scroll it
     if (slen <= LCD_WIDTH) {
@@ -147,7 +147,7 @@ inline void lcd_implementation_status_message(const bool blink) {
       const char *stat = lcd_status_message + status_scroll_offset;
 
       // Get the string remaining length
-      const uint8_t rlen = lcd_strlen(stat);
+      const uint8_t rlen = utf8_strlen(stat);
 
       // If we have enough characters to display
       if (rlen >= LCD_WIDTH) {
@@ -183,7 +183,7 @@ inline void lcd_implementation_status_message(const bool blink) {
     UNUSED(blink);
 
     // Get the UTF8 character count of the string
-    uint8_t slen = lcd_strlen(lcd_status_message);
+    uint8_t slen = utf8_strlen(lcd_status_message);
 
     // Just print the string to the LCD
     lcd_print_utf(lcd_status_message, LCD_WIDTH);

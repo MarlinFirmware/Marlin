@@ -491,7 +491,7 @@ void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
   void lcd_scroll(const int16_t col, const int16_t line, const char* const text, const int16_t len, const int16_t time) {
-    uint8_t slen = lcd_strlen_P(text);
+    uint8_t slen = utf8_strlen_P(text);
     if (slen < len) {
       // Fits into,
       lcd.setCursor(col, line);
@@ -926,7 +926,7 @@ static void lcd_implementation_status_screen() {
     static bool last_blink = false;
 
     // Get the UTF8 character count of the string
-    uint8_t slen = lcd_strlen(lcd_status_message);
+    uint8_t slen = utf8_strlen(lcd_status_message);
 
     // If the string fits into the LCD, just print it and do not scroll it
     if (slen <= LCD_WIDTH) {
@@ -947,7 +947,7 @@ static void lcd_implementation_status_screen() {
       const char *stat = lcd_status_message + status_scroll_offset;
 
       // Get the string remaining length
-      const uint8_t rlen = lcd_strlen(stat);
+      const uint8_t rlen = utf8_strlen(stat);
 
       // If we have enough characters to display
       if (rlen >= LCD_WIDTH) {
@@ -984,7 +984,7 @@ static void lcd_implementation_status_screen() {
     UNUSED(blink);
 
     // Get the UTF8 character count of the string
-    uint8_t slen = lcd_strlen(lcd_status_message);
+    uint8_t slen = utf8_strlen(lcd_status_message);
 
     // Just print the string to the LCD
     lcd_print_utf(lcd_status_message, LCD_WIDTH);
@@ -1019,8 +1019,8 @@ static void lcd_implementation_status_screen() {
     int8_t n = LCD_WIDTH;
     lcd.setCursor(0, row);
     if (center && !valstr) {
-      int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd.write(' '); n--; }
+      int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
     }
     while (n > 0 && (c = pgm_read_byte(pstr))) {
       n -= charset_mapper(c);
@@ -1048,9 +1048,9 @@ static void lcd_implementation_status_screen() {
 
   static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     char c;
-    uint8_t n = LCD_WIDTH - 2 - lcd_strlen(data);
     lcd.setCursor(0, row);
     lcd.print(sel ? pre_char : ' ');
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
     while ((c = pgm_read_byte(pstr)) && n > 0) {
       n -= charset_mapper(c);
       pstr++;
@@ -1061,9 +1061,9 @@ static void lcd_implementation_status_screen() {
   }
   static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     char c;
-    uint8_t n = LCD_WIDTH - 2 - lcd_strlen_P(data);
     lcd.setCursor(0, row);
     lcd.print(sel ? pre_char : ' ');
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
     while ((c = pgm_read_byte(pstr)) && n > 0) {
       n -= charset_mapper(c);
       pstr++;
@@ -1081,10 +1081,10 @@ static void lcd_implementation_status_screen() {
     lcd_printPGM_utf(pstr);
     if (value != NULL) {
       lcd.write(':');
-      const uint8_t valrow = (lcd_strlen_P(pstr) + 1 + lcd_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1;  // Value on the next row if it won't fit
       lcd.setCursor((LCD_WIDTH - 1) - (lcd_strlen(value) + 1), valrow);                                   // Right-justified, padded by spaces
       lcd.write(' ');                                                                                     // overwrite char if value gets shorter
       lcd_print(value);
+      const uint8_t valrow = (utf8_strlen_P(pstr) + 1 + utf8_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1; // Value on the next row if it won't fit
     }
   }
 
