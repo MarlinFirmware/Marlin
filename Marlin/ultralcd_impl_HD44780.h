@@ -995,10 +995,7 @@ static void lcd_implementation_status_screen() {
       ++slen;
     }
   #endif
-
 }
-
-
 
 #if ENABLED(ULTIPANEL)
 
@@ -1090,29 +1087,29 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(SDSUPPORT)
 
-    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
+    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, CardReader& theCard, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
       lcd.setCursor(0, row);
       lcd.print(sel ? '>' : ' ');
 
       uint8_t n = LCD_WIDTH - concat;
-      const char *outstr = longFilename[0] ? longFilename : filename;
-      if (longFilename[0]) {
+      const char *outstr = theCard.longest_filename();
+      if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
           if (sel) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
-              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
+              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor
             if (filename_scroll_hash != name_hash) {                            // If the hash changed...
               filename_scroll_hash = name_hash;                                 // Save the new hash
-              filename_scroll_max = MAX(0, utf8_strlen(longFilename) - n);      // Update the scroll limit
+              filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - n);  // Update the scroll limit
               filename_scroll_pos = 0;                                          // Reset scroll to the start
               lcd_status_update_delay = 8;                                      // Don't scroll right away
             }
             outstr += filename_scroll_pos;
           }
         #else
-          longFilename[n] = '\0'; // cutoff at screen edge
+          theCard.longFilename[n] = '\0'; // cutoff at screen edge
         #endif
       }
 
@@ -1126,12 +1123,12 @@ static void lcd_implementation_status_screen() {
       lcd.print(post_char);
     }
 
-    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
-      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, ' ');
+    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, const char* pstr, CardReader& theCard) {
+      lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, ' ');
     }
 
-    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
-      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, LCD_STR_FOLDER[0]);
+    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, CardReader& theCard) {
+      lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, LCD_STR_FOLDER[0]);
     }
 
   #endif // SDSUPPORT
