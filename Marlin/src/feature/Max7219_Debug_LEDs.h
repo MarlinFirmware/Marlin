@@ -95,7 +95,6 @@ void Max7219_Set_Columns_32bits(const uint8_t x, uint32_t val);
 // Quickly clear the whole matrix
 void Max7219_Clear();
 
-
 // Apply custom code to update the matrix
 void Max7219_idle_tasks();
 
@@ -105,39 +104,39 @@ void Max7219_idle_tasks();
 #define _ROT ((MAX7219_ROTATE + 360) % 360)
 #if _ROT == 0
   #define MAX7219_UPDATE_AXIS     y   // Fast line update axis for this orientation of the matrix display
-  #define MAX7219_X_LEDS          (8 * MAX7219_NUMBER_UNITS)
   #define MAX7219_Y_LEDS          8
-  #define XOR_7219(x, y)          LEDs[y + (x >> 3) * 8] ^= _BV(7 - (x & 0x07))
-  #define SET_PIXEL_7219(x, y)    LEDs[y + (x >> 3) * 8] |= _BV(7 - (x & 0x07)) 
-  #define CLEAR_PIXEL_7219(x, y)  LEDs[y + (x >> 3) * 8] &= (_BV(7 - (x & 0x07)) ^ 0xff)
-  #define BIT_7219(x, y)          TEST(LEDs[y + (x >> 3) * 8], 7 - (x & 0x07))
+  #define MAX7219_X_LEDS          (MAX7219_Y_LEDS * (MAX7219_NUMBER_UNITS))
+  #define XOR_7219(x, y)          LEDs[(x & 0xF8) + y] ^= _BV(7 - (x & 0x07))
+  #define SET_PIXEL_7219(x, y)    LEDs[(x & 0xF8) + y] |= _BV(7 - (x & 0x07)) 
+  #define CLEAR_PIXEL_7219(x, y)  LEDs[(x & 0xF8) + y] &= (_BV(7 - (x & 0x07)) ^ 0xFF)
+  #define BIT_7219(x, y)          TEST(LEDs[(x & 0xF8) + y], 7 - (x & 0x07))
   #define SEND_7219(R) do {for(int8_t jj = 0; jj < MAX7219_NUMBER_UNITS; jj++) Max7219(max7219_reg_digit0 + (R & 0x7), LEDs[(R & 0x7) + jj * 8]); Max7219_pulse_load(); } while (0);
 #elif _ROT == 90
   #define MAX7219_UPDATE_AXIS     x   // Fast line update axis for this orientation of the matrix display
   #define MAX7219_X_LEDS          8
-  #define MAX7219_Y_LEDS          (8 * MAX7219_NUMBER_UNITS)
-  #define XOR_7219(x, y)          LEDs[x + (((MAX7219_Y_LEDS - 1 - y) >> 3) * 8)] ^= _BV((y & 0x7))
-  #define SET_PIXEL_7219(x, y)    LEDs[x + (((MAX7219_Y_LEDS - 1 - y) >> 3) * 8)] |= _BV((y & 0x7))
-  #define CLEAR_PIXEL_7219(x, y)  LEDs[x + (((MAX7219_Y_LEDS - 1 - y) >> 3) * 8)] &= (_BV((y & 0x7)) ^ 0xff)
-  #define BIT_7219(x, y)          TEST(LEDs[x + (((MAX7219_Y_LEDS - 1 - y) >> 3) * 8)], (y & 0x7))
+  #define MAX7219_Y_LEDS          (MAX7219_X_LEDS * (MAX7219_NUMBER_UNITS))
+  #define XOR_7219(x, y)          LEDs[x + ((MAX7219_Y_LEDS - 1 - y) & 0xF8)] ^= _BV((y & 0x7))
+  #define SET_PIXEL_7219(x, y)    LEDs[x + ((MAX7219_Y_LEDS - 1 - y) & 0xF8)] |= _BV((y & 0x7))
+  #define CLEAR_PIXEL_7219(x, y)  LEDs[x + ((MAX7219_Y_LEDS - 1 - y) & 0xF8)] &= (_BV((y & 0x7)) ^ 0xFF)
+  #define BIT_7219(x, y)          TEST(LEDs[x + ((MAX7219_Y_LEDS - 1 - y) & 0xF8)], (y & 0x7))
   #define SEND_7219(R) do {for(int8_t jj = 0; jj < MAX7219_NUMBER_UNITS; jj++) Max7219(max7219_reg_digit0 + (R & 0x7), LEDs[(R & 0x7) + jj * 8]); Max7219_pulse_load(); } while (0);
 #elif _ROT == 180
   #define MAX7219_UPDATE_AXIS     y   // Fast line update axis for this orientation of the matrix display
-  #define MAX7219_X_LEDS          (8 * MAX7219_NUMBER_UNITS)
   #define MAX7219_Y_LEDS          8
-  #define XOR_7219(x, y)          LEDs[y + ((MAX7219_X_LEDS - 1 - (x)) >> 3) * 8] ^= _BV((x & 0x07))
-  #define SET_PIXEL_7219(x, y)    LEDs[y + ((MAX7219_X_LEDS - 1 - (x)) >> 3) * 8] |= _BV((x & 0x07)) 
-  #define CLEAR_PIXEL_7219(x, y)  LEDs[y + ((MAX7219_X_LEDS - 1 - (x)) >> 3) * 8] &= (_BV((x & 0x07)) ^ 0xff)
-  #define BIT_7219(x, y)          TEST(LEDs[y + ((MAX7219_X_LEDS - 1 - (x)) >> 3) * 8], ((x & 0x07)))
+  #define MAX7219_X_LEDS          (MAX7219_Y_LEDS * (MAX7219_NUMBER_UNITS))
+  #define XOR_7219(x, y)          LEDs[y + (MAX7219_X_LEDS - 1 - (x)) & 0xF8] ^= _BV((x & 0x07))
+  #define SET_PIXEL_7219(x, y)    LEDs[y + (MAX7219_X_LEDS - 1 - (x)) & 0xF8] |= _BV((x & 0x07)) 
+  #define CLEAR_PIXEL_7219(x, y)  LEDs[y + (MAX7219_X_LEDS - 1 - (x)) & 0xF8] &= (_BV((x & 0x07)) ^ 0xFF)
+  #define BIT_7219(x, y)          TEST(LEDs[y + (MAX7219_X_LEDS - 1 - (x)) & 0xF8], ((x & 0x07)))
   #define SEND_7219(R) do {for(int8_t jj = 0; jj < MAX7219_NUMBER_UNITS; jj++) Max7219(max7219_reg_digit7 - (R & 0x7), LEDs[(R & 0x7) + jj * 8]); Max7219_pulse_load(); } while (0);
 #elif _ROT == 270
   #define MAX7219_UPDATE_AXIS     x   // Fast line update axis for this orientation of the matrix display
   #define MAX7219_X_LEDS          8
-  #define MAX7219_Y_LEDS          (8 * MAX7219_NUMBER_UNITS)
-  #define XOR_7219(x, y)          LEDs[x + (y >> 3) * 8] ^= _BV(7 - (y & 0x7))
-  #define SET_PIXEL_7219(x, y)    LEDs[x + (y >> 3) * 8] |= _BV(7 - (y & 0x7))
-  #define CLEAR_PIXEL_7219(x, y)  LEDs[x + (y >> 3) * 8] &= (_BV(7 - (y & 0x7)) ^ 0xff)
-  #define BIT_7219(x, y)          TEST(LEDs[x + ( y >> 3) * 8], 7 - (y & 0x7))
+  #define MAX7219_Y_LEDS          (MAX7219_X_LEDS * (MAX7219_NUMBER_UNITS))
+  #define XOR_7219(x, y)          LEDs[x + (y & 0xF8] ^= _BV(7 - (y & 0x7))
+  #define SET_PIXEL_7219(x, y)    LEDs[x + (y & 0xF8] |= _BV(7 - (y & 0x7))
+  #define CLEAR_PIXEL_7219(x, y)  LEDs[x + (y & 0xF8] &= (_BV(7 - (y & 0x7)) ^ 0xFF)
+  #define BIT_7219(x, y)          TEST(LEDs[x + (y & 0xF8)], 7 - (y & 0x7))
   #define SEND_7219(R) do {for(int8_t jj = 0; jj < MAX7219_NUMBER_UNITS; jj++) Max7219(max7219_reg_digit7 - (R & 0x7), LEDs[(R & 0x7) + jj * 8]); Max7219_pulse_load(); } while (0);
 #else
   #error "MAX7219_ROTATE must be a multiple of +/- 90°."

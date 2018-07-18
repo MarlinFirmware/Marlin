@@ -48,7 +48,7 @@
 #include "../Marlin.h"
 #include "../HAL/Delay.h"
 
-uint8_t LEDs[8*MAX7219_NUMBER_UNITS] = { 0 };
+uint8_t LEDs[8 * (MAX7219_NUMBER_UNITS)] = { 0 };
 
 #ifndef MAX7219_ROTATE
   #define MAX7219_ROTATE 0
@@ -196,7 +196,7 @@ inline void _Max7219_Set_Digit_Segments(const uint8_t digit, const uint8_t val) 
   SEND_7219(digit);
 }
 
-/*
+/**
  * void Max7219_Set_Row( const uint8_t col, const uint32_t val) plots the low order bits of
  * val to the specified row of the Max7219 matrix.  With 4 Max7219 units in the chain, it
  * is possible to display an entire 32-bit number with one call to the function (if appropriately
@@ -205,16 +205,16 @@ inline void _Max7219_Set_Digit_Segments(const uint8_t digit, const uint8_t val) 
 void Max7219_Set_Row(const uint8_t row, const uint32_t val) {
   if (row >= MAX7219_Y_LEDS) return Max7219_Error(PSTR("Max7219_Set_Row"), row);
   uint32_t mask = 0x0000001;
-  for(uint8_t x = 0; x < MAX7219_X_LEDS; x++) {
+  for (uint8_t x = 0; x < MAX7219_X_LEDS; x++) {
     if (val & mask)
       SET_PIXEL_7219((MAX7219_X_LEDS-1-x), row);
     else
       CLEAR_PIXEL_7219((MAX7219_X_LEDS-1-x), row);
     mask = mask << 1;
-}
+  }
 
   #if _ROT == 90 || _ROT == 270
-    for(uint8_t x = 0; x < 8; x++)
+    for (uint8_t x = 0; x < 8; x++)
       SEND_7219(x); // force all columns out to the Max7219 chips and strobe them
   #else
     SEND_7219(row); // force the single column out to the Max7219 chips and strobe them
@@ -230,7 +230,7 @@ void Max7219_Clear_Row(const uint8_t row) {
   #endif
 }
 
-/*
+/**
  * void Max7219_Set_Column( const uint8_t col, const uint32_t val) plots the low order bits of
  * val to the specified column of the Max7219 matrix.  With 4 Max7219 units in the chain, it
  * is possible to display an entire 32-bit number with one call to the function (if appropriately
@@ -239,7 +239,7 @@ void Max7219_Clear_Row(const uint8_t row) {
 void Max7219_Set_Column(const uint8_t col, const uint32_t val) {
   if (col >= MAX7219_X_LEDS) return Max7219_Error(PSTR("Max7219_Set_Column"), col);
   uint32_t mask = 0x0000001;
-  for(uint8_t y = 0; y < MAX7219_Y_LEDS; y++) {
+  for (uint8_t y = 0; y < MAX7219_Y_LEDS; y++) {
     if (val & mask)
       SET_PIXEL_7219(col, MAX7219_Y_LEDS-1-y);
     else
@@ -249,25 +249,23 @@ void Max7219_Set_Column(const uint8_t col, const uint32_t val) {
   #if _ROT == 90 || _ROT == 270
     SEND_7219(col); // force the column out to the Max7219 chips and strobe them
   #else
-    for(uint8_t yy = 0; yy < 8; yy++)
+    for (uint8_t yy = 0; yy < 8; yy++)
       SEND_7219(yy); // force all columns out to the Max7219 chips and strobe them
   #endif
-  return;
 }
 
 void Max7219_Clear_Column(const uint8_t col) {
   if (col >= MAX7219_X_LEDS) return Max7219_Error(PSTR("Max7219_Clear_Column"), col);
 
-  for(uint8_t yy = 0; yy < MAX7219_Y_LEDS; yy++)
+  for (uint8_t yy = 0; yy < MAX7219_Y_LEDS; yy++)
     CLEAR_PIXEL_7219(col, yy);
 
   #if _ROT == 90 || _ROT == 270
     SEND_7219(col); // force the column out to the Max7219 chips and strobe them
   #else
-    for(uint8_t y = 0; y < 8; y++)
+    for (uint8_t y = 0; y < 8; y++)
       SEND_7219(y); // force all columns out to the Max7219 chips and strobe them
   #endif
-  return;
 }
 
 void Max7219_Clear() {
@@ -275,7 +273,7 @@ void Max7219_Clear() {
     for (uint8_t j = 0; j < MAX7219_NUMBER_UNITS; j++)
       LEDs[i + j * 8] = 0x00;
     SEND_7219(i);
-}
+  }
 
 }
 
@@ -337,25 +335,26 @@ void Max7219_Set_Columns_32bits(const uint8_t x, uint32_t val) {
 
 void Max7219_register_setup() {
   // Initialize the Max7219
-  for(int i=0; i < MAX7219_NUMBER_UNITS; i++)
-  Max7219(max7219_reg_scanLimit, 0x07);
+  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+    Max7219(max7219_reg_scanLimit, 0x07);
   Max7219_pulse_load();                        // tell the chips to load the clocked out data
 
-  for(int i=0; i < MAX7219_NUMBER_UNITS; i++)
-  Max7219(max7219_reg_decodeMode, 0x00);       // using an led matrix (not digits)
+  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+    Max7219(max7219_reg_decodeMode, 0x00);     // using an led matrix (not digits)
   Max7219_pulse_load();                        // tell the chips to load the clocked out data
 
-  for(int i=0; i < MAX7219_NUMBER_UNITS; i++)
-  Max7219(max7219_reg_shutdown, 0x01);         // not in shutdown mode
-  Max7219_pulse_load();                        // tell the chips to load the clocked out data
-  for(int i=0; i < MAX7219_NUMBER_UNITS; i++)
-  Max7219(max7219_reg_displayTest, 0x00);      // no display test
+  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+    Max7219(max7219_reg_shutdown, 0x01);       // not in shutdown mode
   Max7219_pulse_load();                        // tell the chips to load the clocked out data
 
-  for(int i=0; i < MAX7219_NUMBER_UNITS; i++)
-  Max7219(max7219_reg_intensity, 0x01 & 0x0F); // the first 0x0F is the value you can set
+  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+    Max7219(max7219_reg_displayTest, 0x00);    // no display test
+  Max7219_pulse_load();                        // tell the chips to load the clocked out data
+
+  for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
+    Max7219(max7219_reg_intensity, 0x01 & 0x0F); // the first 0x0F is the value you can set
                                                // range: 0x00 to 0x0F
-  Max7219_pulse_load();                          // tell the chips to load the clocked out data
+  Max7219_pulse_load();                        // tell the chips to load the clocked out data
 }
 
 #ifdef MAX7219_INIT_TEST
@@ -429,8 +428,8 @@ inline void Max7219_Mark16(const uint8_t y, const uint8_t v1, const uint8_t v2) 
     Max7219_LED_Off(v1 & 0x7, y + (v1 >= 8));
      Max7219_LED_On(v2 & 0x7, y + (v2 >= 8));
   #else   // LED matrix has at least 16 LED's on the X-Axis.  Use single line of LED's
-    Max7219_LED_Off(v1 & 0xf, y);
-     Max7219_LED_On(v2 & 0xf, y);
+    Max7219_LED_Off(v1 & 0xF, y);
+     Max7219_LED_On(v2 & 0xF, y);
   #endif
 }
 
@@ -443,9 +442,9 @@ inline void Max7219_Range16(const uint8_t y, const uint8_t ot, const uint8_t nt,
        Max7219_LED_On(n & 0x7, y + (n >= 8));
   #else   // LED matrix has at least 16 LED's on the X-Axis.  Use single line of LED's
     if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
-      Max7219_LED_Off(n & 0xf, y);
+      Max7219_LED_Off(n & 0xF, y);
     if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
-       Max7219_LED_On(n & 0xf, y);
+       Max7219_LED_On(n & 0xF, y);
  #endif
 }
 
