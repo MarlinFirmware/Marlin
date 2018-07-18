@@ -1691,10 +1691,11 @@
 //#define MAX7219_DIN_PIN  P2_13 // for RAMPS E1 on Re-ARM  E1_DIR_PIN     P2_13
 //#define MAX7219_LOAD_PIN P2_08 // for RAMPS E1 on Re-ARM  E1_STEP_PIN    P2_08
 
-  //#define MAX7219_GCODE       // Add the M7219 G-code to control the LED matrix
-  #define MAX7219_INIT_TEST     // Do a test pattern at initialization (Set to 2 for spiral)
-  #define MAX7219_ROTATE     0  // Rotate the display clockwise (in multiples of +/- 90°)
-
+  #define MAX7219_GCODE            // Add the M7219 G-code to control the LED matrix
+  #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
+  #define MAX7219_NUMBER_UNITS 1   // Number of Max7219 units in chain.
+  #define MAX7219_ROTATE     -90   // Rotate the display clockwise (in multiples of +/- 90°)
+                                   // connector at:  right=0   bottom=-90  top=90  left=180
   /**
    * Sample debug features
    * If you add more debug displays, be careful to avoid conflicts!
