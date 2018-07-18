@@ -90,7 +90,7 @@ public:
   #endif
 
   #if ENABLED(DEBUG_GCODE_PARSER)
-    void debug();
+    static void debug();
   #endif
 
   GCodeParser() {
