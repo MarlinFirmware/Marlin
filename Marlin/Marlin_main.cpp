@@ -742,7 +742,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
   void plan_cubic_move(const float (&cart)[XYZE], const float (&offset)[4]);
 #endif
 
-void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
 void report_current_position();
 void report_current_position_detail();
 
