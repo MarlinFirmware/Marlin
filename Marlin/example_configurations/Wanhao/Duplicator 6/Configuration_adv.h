@@ -591,6 +591,10 @@
    * point in the file.
    */
   //#define POWER_LOSS_RECOVERY
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    //#define POWER_LOSS_PIN   44     // Pin to detect power loss
+    //#define POWER_LOSS_STATE HIGH   // State of pin indicating power loss
+  #endif
 
   /**
    * Sort SD file listings in alphabetical order.
