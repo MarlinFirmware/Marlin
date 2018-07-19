@@ -45,6 +45,7 @@ double min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 double max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 uint8_t active_extruder = 0;
 bool junction_deviation = false; // This replaces the JUNCTION_DEVIATION constant.
+bool s_curve_acceleration = true; // This replaces the S_CURVE_ACCELERATION constant.
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
@@ -383,14 +384,21 @@ bool idle2() {
     double a = block->acceleration_steps_per_s2; // acceleration rate
     double d = block->accelerate_until; // Accelerate until this distance is past.
     double final_velocity = sqrt(2*a*d+vi*vi); // final velocity formula
-    double tt1 = ( final_velocity - vi) / a; // How long to get from initial velocity to target speed.
+    if (s_curve_acceleration) {
+      final_velocity = block->cruise_rate;
+    }
+    double tt1 = d*2/(final_velocity + vi); // How long to get from initial velocity to target speed.
     //printf("D: %f A: %f T: %f / %f \n", d, a, t1, t2);
     double vf = vi + a * tt1; // Velocity after accelerating.
+    if (s_curve_acceleration) {
+      vf = block->cruise_rate;
+    }
 
     double tt2;
-    if (block->decelerate_after > block->accelerate_until) {
+    double stop_cruising = min(block->decelerate_after, block->step_event_count);
+    if (stop_cruising > block->accelerate_until) {
       // How long to travel at target speed.
-      tt2 = (block->decelerate_after - block->accelerate_until) / vf;
+      tt2 = (stop_cruising - block->accelerate_until) / vf;
     } else {
       tt2 = 0;
     }

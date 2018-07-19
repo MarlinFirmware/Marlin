@@ -12,6 +12,7 @@ extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional 
 extern float current_position[NUM_AXIS] ;
 extern float add_homing[3];
 extern bool junction_deviation;
+extern bool s_curve_acceleration;
 #ifdef DELTA
 extern float endstop_adj[3];
 extern float delta_radius;
