@@ -1,3 +1,13 @@
+# Marlin timing simulator
+
+To build:
+
+`cd Marlin/Marlin && make -f Makefile.calc`
+
+Original `README.md` below.
+
+---
+
 # Marlin 3D Printer Firmware
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
