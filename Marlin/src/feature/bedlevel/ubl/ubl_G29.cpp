@@ -41,6 +41,10 @@
   #include "../../../feature/bedlevel/bedlevel.h"
   #include "../../../libs/least_squares_fit.h"
 
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #include "../../../module/tool_change.h"
+  #endif
+
   #include <math.h>
 
   #define UBL_G29_P31

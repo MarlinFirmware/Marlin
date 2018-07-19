@@ -88,48 +88,40 @@ void GcodeSuite::M906() {
     }
   }
 
-  if (report) LOOP_XYZE(i) switch (i) {
-    case X_AXIS:
-      #if X_IS_TRINAMIC
-        TMC_SAY_CURRENT(X);
-      #endif
-      #if X2_IS_TRINAMIC
-        TMC_SAY_CURRENT(X2);
-      #endif
-      break;
-    case Y_AXIS:
-      #if Y_IS_TRINAMIC
-        TMC_SAY_CURRENT(Y);
-      #endif
-      #if Y2_IS_TRINAMIC
-        TMC_SAY_CURRENT(Y2);
-      #endif
-      break;
-    case Z_AXIS:
-      #if Z_IS_TRINAMIC
-        TMC_SAY_CURRENT(Z);
-      #endif
-      #if Z2_IS_TRINAMIC
-        TMC_SAY_CURRENT(Z2);
-      #endif
-      break;
-    case E_AXIS:
-      #if E0_IS_TRINAMIC
-        TMC_SAY_CURRENT(E0);
-      #endif
-      #if E1_IS_TRINAMIC
-        TMC_SAY_CURRENT(E1);
-      #endif
-      #if E2_IS_TRINAMIC
-        TMC_SAY_CURRENT(E2);
-      #endif
-      #if E3_IS_TRINAMIC
-        TMC_SAY_CURRENT(E3);
-      #endif
-      #if E4_IS_TRINAMIC
-        TMC_SAY_CURRENT(E4);
-      #endif
-      break;
+  if (report) {
+    #if X_IS_TRINAMIC
+      TMC_SAY_CURRENT(X);
+    #endif
+    #if X2_IS_TRINAMIC
+      TMC_SAY_CURRENT(X2);
+    #endif
+    #if Y_IS_TRINAMIC
+      TMC_SAY_CURRENT(Y);
+    #endif
+    #if Y2_IS_TRINAMIC
+      TMC_SAY_CURRENT(Y2);
+    #endif
+    #if Z_IS_TRINAMIC
+      TMC_SAY_CURRENT(Z);
+    #endif
+    #if Z2_IS_TRINAMIC
+      TMC_SAY_CURRENT(Z2);
+    #endif
+    #if E0_IS_TRINAMIC
+      TMC_SAY_CURRENT(E0);
+    #endif
+    #if E1_IS_TRINAMIC
+      TMC_SAY_CURRENT(E1);
+    #endif
+    #if E2_IS_TRINAMIC
+      TMC_SAY_CURRENT(E2);
+    #endif
+    #if E3_IS_TRINAMIC
+      TMC_SAY_CURRENT(E3);
+    #endif
+    #if E4_IS_TRINAMIC
+      TMC_SAY_CURRENT(E4);
+    #endif
   }
 }
 

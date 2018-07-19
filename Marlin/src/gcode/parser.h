@@ -85,7 +85,7 @@ public:
   #endif
 
   #if ENABLED(DEBUG_GCODE_PARSER)
-    void debug();
+    static void debug();
   #endif
 
   // Reset is done before parsing
@@ -216,6 +216,9 @@ public:
   // Units modes: Inches, Fahrenheit, Kelvin
 
   #if ENABLED(INCH_MODE_SUPPORT)
+
+    // Init linear units by constructor
+    GCodeParser() { set_input_linear_units(LINEARUNIT_MM); }
 
     inline static void set_input_linear_units(const LinearUnit units) {
       switch (units) {

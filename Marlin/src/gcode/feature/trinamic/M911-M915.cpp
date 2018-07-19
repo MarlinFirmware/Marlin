@@ -208,48 +208,40 @@ void GcodeSuite::M912() {
       }
     }
 
-    if (report) LOOP_XYZE(i) switch (i) {
-      case X_AXIS:
-        #if X_IS_TRINAMIC
-          TMC_SAY_PWMTHRS(X,X);
-        #endif
-        #if X2_IS_TRINAMIC
-          TMC_SAY_PWMTHRS(X,X2);
-        #endif
-        break;
-      case Y_AXIS:
-        #if Y_IS_TRINAMIC
-          TMC_SAY_PWMTHRS(Y,Y);
-        #endif
-        #if Y2_IS_TRINAMIC
-          TMC_SAY_PWMTHRS(Y,Y2);
-        #endif
-        break;
-      case Z_AXIS:
-        #if Z_IS_TRINAMIC
-          TMC_SAY_PWMTHRS(Z,Z);
-        #endif
-        #if Z2_IS_TRINAMIC
-          TMC_SAY_PWMTHRS(Z,Z2);
-        #endif
-        break;
-      case E_AXIS:
-        #if E0_IS_TRINAMIC
-          TMC_SAY_PWMTHRS_E(0);
-        #endif
-        #if E_STEPPERS > 1 && E1_IS_TRINAMIC
-          TMC_SAY_PWMTHRS_E(1);
-        #endif
-        #if E_STEPPERS > 2 && E2_IS_TRINAMIC
-          TMC_SAY_PWMTHRS_E(2);
-        #endif
-        #if E_STEPPERS > 3 && E3_IS_TRINAMIC
-          TMC_SAY_PWMTHRS_E(3);
-        #endif
-        #if E_STEPPERS > 4 && E4_IS_TRINAMIC
-          TMC_SAY_PWMTHRS_E(4);
-        #endif
-        break;
+    if (report) {
+      #if X_IS_TRINAMIC
+        TMC_SAY_PWMTHRS(X,X);
+      #endif
+      #if X2_IS_TRINAMIC
+        TMC_SAY_PWMTHRS(X,X2);
+      #endif
+      #if Y_IS_TRINAMIC
+        TMC_SAY_PWMTHRS(Y,Y);
+      #endif
+      #if Y2_IS_TRINAMIC
+        TMC_SAY_PWMTHRS(Y,Y2);
+      #endif
+      #if Z_IS_TRINAMIC
+        TMC_SAY_PWMTHRS(Z,Z);
+      #endif
+      #if Z2_IS_TRINAMIC
+        TMC_SAY_PWMTHRS(Z,Z2);
+      #endif
+      #if E0_IS_TRINAMIC
+        TMC_SAY_PWMTHRS_E(0);
+      #endif
+      #if E_STEPPERS > 1 && E1_IS_TRINAMIC
+        TMC_SAY_PWMTHRS_E(1);
+      #endif
+      #if E_STEPPERS > 2 && E2_IS_TRINAMIC
+        TMC_SAY_PWMTHRS_E(2);
+      #endif
+      #if E_STEPPERS > 3 && E3_IS_TRINAMIC
+        TMC_SAY_PWMTHRS_E(3);
+      #endif
+      #if E_STEPPERS > 4 && E4_IS_TRINAMIC
+        TMC_SAY_PWMTHRS_E(4);
+      #endif
     }
   }
 #endif // HYBRID_THRESHOLD
@@ -271,66 +263,60 @@ void GcodeSuite::M912() {
         #if X_SENSORLESS
           case X_AXIS:
             #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-              if (index == 0) TMC_SET_SGT(X);
+              if (index < 2) TMC_SET_SGT(X);
             #endif
             #if ENABLED(X2_IS_TMC2130)
-              if (index == 1) TMC_SET_SGT(X2);
+              if (!(index & 1)) TMC_SET_SGT(X2);
             #endif
             break;
         #endif
         #if Y_SENSORLESS
           case Y_AXIS:
             #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-              if (index == 0) TMC_SET_SGT(Y);
+              if (index < 2) TMC_SET_SGT(Y);
             #endif
             #if ENABLED(Y2_IS_TMC2130)
-              if (index == 1) TMC_SET_SGT(Y2);
+              if (!(index & 1)) TMC_SET_SGT(Y2);
             #endif
             break;
         #endif
         #if Z_SENSORLESS
           case Z_AXIS:
             #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
-              if (index == 0) TMC_SET_SGT(Z);
+              if (index < 2) TMC_SET_SGT(Z);
             #endif
             #if ENABLED(Z2_IS_TMC2130)
-              if (index == 1) TMC_SET_SGT(Z2);
+              if (!(index & 1)) TMC_SET_SGT(Z2);
             #endif
             break;
         #endif
       }
     }
 
-    if (report) LOOP_XYZ(i) switch (i) {
+    if (report) {
       #if X_SENSORLESS
-        case X_AXIS:
-          #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-            TMC_SAY_SGT(X);
-          #endif
-          #if ENABLED(X2_IS_TMC2130)
-            TMC_SAY_SGT(X2);
-          #endif
-          break;
+        #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+          TMC_SAY_SGT(X);
+        #endif
+        #if ENABLED(X2_IS_TMC2130)
+          TMC_SAY_SGT(X2);
+        #endif
       #endif
       #if Y_SENSORLESS
-        case Y_AXIS:
-          #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-            TMC_SAY_SGT(Y);
-          #endif
-          #if ENABLED(Y2_IS_TMC2130)
-            TMC_SAY_SGT(Y2);
-          #endif
-          break;
+        #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+          TMC_SAY_SGT(Y);
+        #endif
+        #if ENABLED(Y2_IS_TMC2130)
+          TMC_SAY_SGT(Y2);
+        #endif
       #endif
       #if Z_SENSORLESS
-        case Z_AXIS:
-          #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
-            TMC_SAY_SGT(Z);
-          #endif
-          #if ENABLED(Z2_IS_TMC2130)
-            TMC_SAY_SGT(Z2);
-          #endif
-          break;
+        #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+          TMC_SAY_SGT(Z);
+        #endif
+        #if ENABLED(Z2_IS_TMC2130)
+          TMC_SAY_SGT(Z2);
+        #endif
       #endif
     }
   }

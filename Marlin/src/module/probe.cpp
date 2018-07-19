@@ -584,7 +584,7 @@ static float run_z_probe() {
     #endif
 
     // move up to make clearance for the probe
-    do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+    do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
   #else
 
@@ -618,7 +618,7 @@ static float run_z_probe() {
 
   #if MULTIPLE_PROBING > 2
       probes_total += current_position[Z_AXIS];
-      if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
   #endif
 
