@@ -375,38 +375,36 @@ bool idle2() {
   }
   blocks++;
   if(blocks % 100000 == 0) { fprintf(stderr, "."); }
-  //		if(blocks > 10) exit(0);
-  //		printf("S: %lu in: %lu nom: %lu out: %lu ac: %lu\n", block->step_event_count, block->initial_rate, block->nominal_rate, block->final_rate, block->acceleration_st);
-  // calculate block len
 
-  double tt1, tt2, tt3;
   if (block->step_event_count > 0) {
-    double vi, vf, v, d, a, t1, t2;
-    vi = block->initial_rate;
-    a = block->acceleration_steps_per_s2;
-    d = block->accelerate_until;
-    t1 = -1 * (sqrt(2*a*d+vi*vi) + vi) / a;
-    t2 =      (sqrt(2*a*d+vi*vi) - vi) / a;
+    // Useful equations: https://quizlet.com/45763821/sat-physics-equations-2-flash-cards/
+    double v;
+    double vi = block->initial_rate;  // initial velocity
+    double a = block->acceleration_steps_per_s2; // acceleration rate
+    double d = block->accelerate_until; // Accelerate until this distance is past.
+    double final_velocity = sqrt(2*a*d+vi*vi); // final velocity formula
+    double tt1 = ( final_velocity - vi) / a; // How long to get from initial velocity to target speed.
     //printf("D: %f A: %f T: %f / %f \n", d, a, t1, t2);
-    tt1 = max(t1, t2);
-    vf = vi + a * tt1;
+    double vf = vi + a * tt1; // Velocity after accelerating.
 
+    double tt2;
     if (block->decelerate_after > block->accelerate_until) {
+      // How long to travel at target speed.
       tt2 = (block->decelerate_after - block->accelerate_until) / vf;
     } else {
       tt2 = 0;
     }
 
-    vi = vf;
+    vi = vf;  // New initial velocity.
     if (block->step_event_count > block->decelerate_after) {
+      // Distance over which we will decelerate, in steps.
       d = block->step_event_count - block->decelerate_after;
     } else {
       d = 0;
     }
-    a = -a;
     vf = block->final_rate;
-    v = (vi+vf)/2;
-    tt3 = d / v;
+    v = (vi+vf)/2; // Average velocity.
+    double tt3 = d / v; // Distance / average velocity is time decelerating.
 
     total_time += tt1+tt2+tt3;
     printf("%.17f, %.17f, %.17f\n", block->extra_data.filepos,
