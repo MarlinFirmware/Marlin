@@ -2,8 +2,20 @@
 # define the C compiler to use
 CXX = g++
 
+ifeq ($(DEBUG), 1)
+	OPT_FLAGS = -g
+else
+	OPT_FLAGS = -O2
+endif
+
+ifeq ($(I686), 1)
+	M32_FLAGS = -m32
+else
+	M32_FLAGS =
+endif
+
 # define any compile-time flags
-CXX_FLAGS = -Wall -static -g -std=gnu++11 #-O2
+CXX_FLAGS = -Wall -static -std=gnu++11 $(OPT_FLAGS) $(M32_FLAGS)
 
 # define the executable file 
 BIN = calc
