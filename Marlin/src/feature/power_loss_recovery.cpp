@@ -202,12 +202,19 @@ void save_job_recovery_info() {
     millis_t ms = millis();
   #endif
   if (
-    #if SAVE_INFO_INTERVAL_MS > 0
-      ELAPSED(ms, next_save_ms) ||
-    #endif
+    // Save on every command
     #if ENABLED(SAVE_EACH_CMD_MODE)
       true
     #else
+      // Save if power loss pin is triggered
+      #if PIN_EXISTS(POWER_LOSS)
+        READ(POWER_LOSS_PIN) == POWER_LOSS_STATE ||
+      #endif
+      // Save if interval is elapsed
+      #if SAVE_INFO_INTERVAL_MS > 0
+        ELAPSED(ms, next_save_ms) ||
+      #endif
+      // Save on every new Z height
       (current_position[Z_AXIS] > 0 && current_position[Z_AXIS] > job_recovery_info.current_position[Z_AXIS])
     #endif
   ) {
@@ -267,6 +274,11 @@ void save_job_recovery_info() {
 
     card.openJobRecoveryFile(false);
     (void)card.saveJobRecoveryInfo();
+
+    // If power-loss pin was triggered, write just once then kill
+    #if PIN_EXISTS(POWER_LOSS)
+      if (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) kill(MSG_POWER_LOSS_RECOVERY);
+    #endif
   }
 }
 
