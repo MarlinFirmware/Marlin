@@ -35,7 +35,6 @@ void manage_inactivity2();
 extern bool idle2();
 #define idle()
 
-#define BLOCK_BUFFER_SIZE 16
 //#define FORCE_INLINE inline __attribute__((always_inline)) 
 #define NUM_AXIS 4
 
