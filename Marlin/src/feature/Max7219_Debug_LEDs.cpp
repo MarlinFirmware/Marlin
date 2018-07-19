@@ -163,7 +163,7 @@ inline uint32_t flipped(const uint32_t bits, const uint8_t n_bytes) {
     outbits = (outbits << 1);
     if (bits & mask)
       outbits |= 1;
-    mask = mask << 1;
+    mask <<= 1;
   }
   return outbits;
 }
@@ -210,7 +210,7 @@ void Max7219_Set_Row(const uint8_t row, const uint32_t val) {
       SET_PIXEL_7219((MAX7219_X_LEDS-1-x), row);
     else
       CLEAR_PIXEL_7219((MAX7219_X_LEDS-1-x), row);
-    mask = mask << 1;
+    mask <<= 1;
   }
 
   #if _ROT == 90 || _ROT == 270
@@ -244,7 +244,7 @@ void Max7219_Set_Column(const uint8_t col, const uint32_t val) {
       SET_PIXEL_7219(col, MAX7219_Y_LEDS-1-y);
     else
       CLEAR_PIXEL_7219(col, MAX7219_Y_LEDS-1-y);
-    mask = mask << 1;
+    mask <<= 1;
   }
   #if _ROT == 90 || _ROT == 270
     SEND_7219(col); // force the column out to the Max7219 chips and strobe them
