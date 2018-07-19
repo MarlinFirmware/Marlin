@@ -45,6 +45,7 @@ double min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 double max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 uint8_t active_extruder = 0;
 bool junction_deviation = false; // This replaces the JUNCTION_DEVIATION constant.
+bool s_curve_acceleration = true; // This replaces the S_CURVE_ACCELERATION constant.
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
@@ -375,38 +376,20 @@ bool idle2() {
   }
   blocks++;
   if(blocks % 100000 == 0) { fprintf(stderr, "."); }
-  //		if(blocks > 10) exit(0);
-  //		printf("S: %lu in: %lu nom: %lu out: %lu ac: %lu\n", block->step_event_count, block->initial_rate, block->nominal_rate, block->final_rate, block->acceleration_st);
-  // calculate block len
 
-  double tt1, tt2, tt3;
   if (block->step_event_count > 0) {
-    double vi, vf, v, d, a, t1, t2;
-    vi = block->initial_rate;
-    a = block->acceleration_steps_per_s2;
-    d = block->accelerate_until;
-    t1 = -1 * (sqrt(2*a*d+vi*vi) + vi) / a;
-    t2 =      (sqrt(2*a*d+vi*vi) - vi) / a;
-    //printf("D: %f A: %f T: %f / %f \n", d, a, t1, t2);
-    tt1 = max(t1, t2);
-    vf = vi + a * tt1;
+    // Useful equations: https://quizlet.com/45763821/sat-physics-equations-2-flash-cards/
+    double d = min(block->accelerate_until, 0); // Accelerate until this distance is past.
+    d = max(d, 0);
+    double tt1 = d * 2 / (block->cruise_rate + block->initial_rate);
 
-    if (block->decelerate_after > block->accelerate_until) {
-      tt2 = (block->decelerate_after - block->accelerate_until) / vf;
-    } else {
-      tt2 = 0;
-    }
+    d = min(block->decelerate_after, block->step_event_count) - d;
+    d = max(d, 0);
+    double tt2 = d / block->cruise_rate;
 
-    vi = vf;
-    if (block->step_event_count > block->decelerate_after) {
-      d = block->step_event_count - block->decelerate_after;
-    } else {
-      d = 0;
-    }
-    a = -a;
-    vf = block->final_rate;
-    v = (vi+vf)/2;
-    tt3 = d / v;
+    d = block->step_event_count - d;
+    d = max(d, 0);
+    double tt3 = d*2/(block->final_rate + block->cruise_rate);
 
     total_time += tt1+tt2+tt3;
     printf("%.17f, %.17f, %.17f\n", block->extra_data.filepos,
