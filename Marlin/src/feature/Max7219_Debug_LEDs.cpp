@@ -425,26 +425,38 @@ void Max7219_init() {
 // Apply changes to update a marker
 inline void Max7219_Mark16(const uint8_t y, const uint8_t v1, const uint8_t v2) {
   #if MAX7219_X_LEDS == 8
-    Max7219_LED_Off(v1 & 0x7, y + (v1 >= 8));
-     Max7219_LED_On(v2 & 0x7, y + (v2 >= 8));
+    #if MAX7219_Y_LEDS == 8
+      Max7219_LED_Off(v1 & 0x7, y + (v1 >= 8));
+       Max7219_LED_On(v2 & 0x7, y + (v2 >= 8));
+    #else
+      Max7219_LED_Off(y, v1 & 0xF);  // The Max7219 Y-Axis has at least 16 LED's.  So use a single column
+       Max7219_LED_On(y, v2 & 0xF);
+    #endif
   #else   // LED matrix has at least 16 LED's on the X-Axis.  Use single line of LED's
-    Max7219_LED_Off(v1 & 0xF, y);
-     Max7219_LED_On(v2 & 0xF, y);
+    Max7219_LED_Off(v1 & 0xf, y);
+     Max7219_LED_On(v2 & 0xf, y);
   #endif
 }
 
 // Apply changes to update a tail-to-head range
 inline void Max7219_Range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh, const uint8_t nh) {
   #if MAX7219_X_LEDS == 8
-    if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
-      Max7219_LED_Off(n & 0x7, y + (n >= 8));
-    if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
-       Max7219_LED_On(n & 0x7, y + (n >= 8));
+    #if MAX7219_Y_LEDS == 8
+      if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
+        Max7219_LED_Off(n & 0x7, y + (n >= 8));
+      if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
+         Max7219_LED_On(n & 0x7, y + (n >= 8));
+    #else // The Max7219 Y-Axis has at least 16 LED's.  So use a single column
+      if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
+        Max7219_LED_Off(y, n & 0xF);
+      if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
+         Max7219_LED_On(y, n & 0xF);
+    #endif
   #else   // LED matrix has at least 16 LED's on the X-Axis.  Use single line of LED's
     if (ot != nt) for (uint8_t n = ot & 0xF; n != (nt & 0xF) && n != (nh & 0xF); n = (n + 1) & 0xF)
-      Max7219_LED_Off(n & 0xF, y);
+      Max7219_LED_Off(n & 0xf, y);
     if (oh != nh) for (uint8_t n = (oh + 1) & 0xF; n != ((nh + 1) & 0xF); n = (n + 1) & 0xF)
-       Max7219_LED_On(n & 0xF, y);
+       Max7219_LED_On(n & 0xf, y);
  #endif
 }
 
@@ -452,7 +464,11 @@ inline void Max7219_Range16(const uint8_t y, const uint8_t ot, const uint8_t nt,
 inline void Max7219_Quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv) {
   for (uint8_t i = MIN(nv, ov); i < MAX(nv, ov); i++)
     #if MAX7219_X_LEDS == 8
-      Max7219_LED_Set(i >> 1, y + (i & 1), nv >= ov); // single 8x8 LED matrix.  Use two lines to get 16 LED's
+      #if MAX7219_Y_LEDS == 8
+        Max7219_LED_Set(i >> 1, y + (i & 1), nv >= ov); // single 8x8 LED matrix.  Use two lines to get 16 LED's
+      #else
+        Max7219_LED_Set(y, i, nv >= ov);                // The Max7219 Y-Axis has at least 16 LED's.  So use a single column
+      #endif
     #else
       Max7219_LED_Set(i, y, nv >= ov);                // LED matrix has at least 16 LED's on the X-Axis.  Use single line of LED's
     #endif
