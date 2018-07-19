@@ -153,5 +153,12 @@ void GcodeSuite::M115() {
       #endif
     );
 
+    // S_CURVE_ACCELERATION
+    cap_line(PSTR("S_CURVE_ACCELERATION")
+      #if ENABLED(S_CURVE_ACCELERATION)
+        , true
+      #endif
+    );
+
   #endif // EXTENDED_CAPABILITIES_REPORT
 }
