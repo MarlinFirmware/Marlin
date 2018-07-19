@@ -379,40 +379,17 @@ bool idle2() {
 
   if (block->step_event_count > 0) {
     // Useful equations: https://quizlet.com/45763821/sat-physics-equations-2-flash-cards/
-    double v;
-    double vi = block->initial_rate;  // initial velocity
-    double a = block->acceleration_steps_per_s2; // acceleration rate
-    double d = block->accelerate_until; // Accelerate until this distance is past.
-    double final_velocity = sqrt(2*a*d+vi*vi); // final velocity formula
-    if (s_curve_acceleration) {
-      final_velocity = block->cruise_rate;
-    }
-    double tt1 = d*2/(final_velocity + vi); // How long to get from initial velocity to target speed.
-    //printf("D: %f A: %f T: %f / %f \n", d, a, t1, t2);
-    double vf = vi + a * tt1; // Velocity after accelerating.
-    if (s_curve_acceleration) {
-      vf = block->cruise_rate;
-    }
+    double d = min(block->accelerate_until, 0); // Accelerate until this distance is past.
+    d = max(d, 0);
+    double tt1 = d * 2 / (block->cruise_rate + block->initial_rate);
 
-    double tt2;
-    double stop_cruising = min(block->decelerate_after, block->step_event_count);
-    if (stop_cruising > block->accelerate_until) {
-      // How long to travel at target speed.
-      tt2 = (stop_cruising - block->accelerate_until) / vf;
-    } else {
-      tt2 = 0;
-    }
+    d = min(block->decelerate_after, block->step_event_count) - d;
+    d = max(d, 0);
+    double tt2 = d / block->cruise_rate;
 
-    vi = vf;  // New initial velocity.
-    if (block->step_event_count > block->decelerate_after) {
-      // Distance over which we will decelerate, in steps.
-      d = block->step_event_count - block->decelerate_after;
-    } else {
-      d = 0;
-    }
-    vf = block->final_rate;
-    v = (vi+vf)/2; // Average velocity.
-    double tt3 = d / v; // Distance / average velocity is time decelerating.
+    d = block->step_event_count - d;
+    d = max(d, 0);
+    double tt3 = d*2/(block->final_rate + block->cruise_rate);
 
     total_time += tt1+tt2+tt3;
     printf("%.17f, %.17f, %.17f\n", block->extra_data.filepos,
