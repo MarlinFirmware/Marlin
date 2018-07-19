@@ -114,6 +114,7 @@ void Config_ResetDefault()
     Planner::max_jerk[Y_AXIS] = DEFAULT_YJERK;
     Planner::max_jerk[Z_AXIS] = DEFAULT_ZJERK;
     Planner::max_jerk[E_AXIS] = DEFAULT_EJERK;
+    Planner::junction_deviation_mm = JUNCTION_DEVIATION_MM;
 }
 
 double code_value() {
