@@ -127,18 +127,16 @@ float Planner::max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
       Planner::travel_acceleration,           // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
       Planner::min_travel_feedrate_mm_s;      // (mm/s) M205 T - Minimum travel feedrate
 
-#if ENABLED(JUNCTION_DEVIATION)
-  float Planner::junction_deviation_mm;       // (mm) M205 J
-  #if ENABLED(LIN_ADVANCE)
-    #if ENABLED(DISTINCT_E_FACTORS)
-      float Planner::max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
-    #else
-      float Planner::max_e_jerk;
-    #endif
+float Planner::junction_deviation_mm;       // (mm) M205 J
+#if ENABLED(LIN_ADVANCE)
+  #if ENABLED(DISTINCT_E_FACTORS)
+    float Planner::max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
+  #else
+    float Planner::max_e_jerk;
   #endif
-#else
-  float Planner::max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
 #endif
+
+float Planner::max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   bool Planner::abort_on_endstop_hit = false;
@@ -2110,15 +2108,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     #if ENABLED(LIN_ADVANCE)
 
-      #if ENABLED(JUNCTION_DEVIATION)
+      if (junction_deviation) {
         #if ENABLED(DISTINCT_E_FACTORS)
           #define MAX_E_JERK max_e_jerk[extruder]
         #else
           #define MAX_E_JERK max_e_jerk
         #endif
-      #else
+      } else {
         #define MAX_E_JERK max_jerk[E_AXIS]
-      #endif
+      }
 
       /**
        *
@@ -2198,7 +2196,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 
-  #if ENABLED(JUNCTION_DEVIATION)
+  if (junction_deviation) {
 
     /**
      * Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
@@ -2296,7 +2294,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
     COPY(previous_unit_vec, unit_vec);
 
-  #else // Classic Jerk Limiting
+  } else { // Classic Jerk Limiting
 
     /**
      * Adapted from Průša MKS firmware
@@ -2377,7 +2375,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     previous_safe_speed = safe_speed;
     vmax_junction_sqr = sq(vmax_junction);
 
-  #endif // Classic Jerk Limiting
+  } // Classic Jerk Limiting
 
   // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed_sqr = vmax_junction_sqr;
@@ -2617,9 +2615,11 @@ void Planner::reset_acceleration_rates() {
     if (AXIS_CONDITION) NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
   cutoff_long = 4294967295UL / highest_rate; // 0xFFFFFFFFUL
-  #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
-    recalculate_max_e_jerk();
-  #endif
+  if (junction_deviation) {
+    #if ENABLED(LIN_ADVANCE)
+      recalculate_max_e_jerk();
+    #endif
+  }
 }
 
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!

@@ -44,6 +44,7 @@ float endstop_adj[3]={0,0,0};
 double min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 double max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 uint8_t active_extruder = 0;
+bool junction_deviation = false; // This replaces the JUNCTION_DEVIATION constant.
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
@@ -202,7 +203,17 @@ std::string get_command(std::istream& in) {
 double total_time = 0;
 int total_g=0, total_m=0;
 
-		
+
+void set_junction_deviation(bool new_value) {
+  if (new_value == junction_deviation) {
+    return;
+  }
+  junction_deviation = new_value;
+  fprintf(stderr, "Junction deviation %s\n",
+          junction_deviation ? "enabled" : "disabled");
+}
+
+
 void process_commands(const std::string& command, const ExtraData& extra_data) {
   cmdbuffer[command.copy(cmdbuffer, MAX_CMD_SIZE-1)] = 0; // TODO: get rid of this ugliness
   unsigned long codenum; //throw away variable
@@ -297,10 +308,38 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
       if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
       if(code_seen('B')) Planner::min_segment_time_us = code_value();
-      if(code_seen('X')) Planner::max_jerk[X_AXIS] = code_value();
-      if(code_seen('Y')) Planner::max_jerk[Y_AXIS] = code_value();
-      if(code_seen('Z')) Planner::max_jerk[Z_AXIS] = code_value();
-      if(code_seen('E')) Planner::max_jerk[E_AXIS] = code_value();
+
+      // jdev handling below taken from:
+      // Marlin/Marlin/src/gcode/config/M200-M205.cpp
+      if(code_seen('X')) {
+        // Seeing any of XYZE implies that we have jdev disabled.
+        set_junction_deviation(false);
+        Planner::max_jerk[X_AXIS] = code_value();
+      }
+      if(code_seen('Y')) {
+        // Seeing any of XYZE implies that we have jdev disabled.
+        set_junction_deviation(false);
+        Planner::max_jerk[Y_AXIS] = code_value();
+      }
+      if(code_seen('Z')) {
+        // Seeing any of XYZE implies that we have jdev disabled.
+        set_junction_deviation(false);
+        Planner::max_jerk[Z_AXIS] = code_value();
+      }
+      if(code_seen('E')) {
+        // Seeing any of XYZE implies that we have jdev disabled.
+        set_junction_deviation(false);
+        Planner::max_jerk[E_AXIS] = code_value();
+      }
+      if(code_seen('J')) {
+        // Seeing junction deviation implies that we have jdev compiled.
+        set_junction_deviation(true);
+        const float junc_dev = code_value();
+        if (WITHIN(junc_dev, 0.01f, 0.3f)) {
+          Planner::junction_deviation_mm = junc_dev;
+          planner.recalculate_max_e_jerk();
+        }
+      }
     }
     break;
     case 220: // M220 S<factor in percent>- set speed factor override percentage
