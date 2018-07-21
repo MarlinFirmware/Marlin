@@ -19,7 +19,6 @@
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
-int extrudemultiply=100; //100->1 200->2
 int extruder_multiply[EXTRUDERS] = {100
   #if EXTRUDERS > 1
     , 100
@@ -89,42 +88,47 @@ int fanSpeed = 0;
 
 //void plan_buffer_line(const double &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
 
+// Run this after any change in the printer's parameters, like max acceleration, jerk, etc.
+void recalculate_rates() {
+  Planner::refresh_positioning();
+  // steps per sq second need to be updated to agree with the units per sq second
+  Planner::reset_acceleration_rates();
+}
+
 void Config_ResetDefault()
 {
     double tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
     double tmp2[]=DEFAULT_MAX_FEEDRATE;
     long tmp3[]=DEFAULT_MAX_ACCELERATION;
-    for (short i=0;i<4;i++) 
+    for (short i=0;i<4;i++)
     {
-      Planner::axis_steps_per_mm[i]=tmp1[i];  
-      Planner::steps_to_mm[i]=1/tmp1[i];  
-      Planner::max_feedrate_mm_s[i]=tmp2[i];  
+      Planner::axis_steps_per_mm[i]=tmp1[i];
+      Planner::steps_to_mm[i]=1/tmp1[i];
+      Planner::max_feedrate_mm_s[i]=tmp2[i];
       Planner::max_acceleration_mm_per_s2[i]=tmp3[i];
     }
-    
-    // steps per sq second need to be updated to agree with the units per sq second
-    Planner::reset_acceleration_rates();
-    
+
     Planner::acceleration=DEFAULT_ACCELERATION;
     Planner::travel_acceleration=DEFAULT_TRAVEL_ACCELERATION;
     Planner::retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
     Planner::min_feedrate_mm_s=DEFAULT_MINIMUMFEEDRATE;
-    Planner::min_segment_time_us=DEFAULT_MINSEGMENTTIME;       
+    Planner::min_segment_time_us=DEFAULT_MINSEGMENTTIME;
     Planner::min_travel_feedrate_mm_s=DEFAULT_MINTRAVELFEEDRATE;
     Planner::max_jerk[X_AXIS] = DEFAULT_XJERK;
     Planner::max_jerk[Y_AXIS] = DEFAULT_YJERK;
     Planner::max_jerk[Z_AXIS] = DEFAULT_ZJERK;
     Planner::max_jerk[E_AXIS] = DEFAULT_EJERK;
     Planner::junction_deviation_mm = JUNCTION_DEVIATION_MM;
+    recalculate_rates();
 }
 
 double code_value() {
-  return (strtod(&cmdbuffer[strchr_pointer - cmdbuffer + 1], NULL)); 
+  return (strtod(&cmdbuffer[strchr_pointer - cmdbuffer + 1], NULL));
 }
 
-long code_value_long() 
-{ 
-  return (strtol(&cmdbuffer[strchr_pointer - cmdbuffer + 1], NULL, 10)); 
+long code_value_long()
+{
+  return (strtol(&cmdbuffer[strchr_pointer - cmdbuffer + 1], NULL, 10));
 }
 
 bool code_seen(char code)
@@ -155,7 +159,7 @@ void prepare_move(const ExtraData& extra_data)
 void get_coordinates()
 {
   for(int8_t i=0; i < NUM_AXIS; i++) {
-    if(code_seen(axis_codes[i])) 
+    if(code_seen(axis_codes[i]))
     {
       calc_destination[i] = (double)code_value() + (axis_relative_modes[i])*current_position[i];
     }
@@ -214,7 +218,6 @@ void set_junction_deviation(bool new_value) {
   fprintf(stderr, "Junction deviation %s\n",
           junction_deviation ? "enabled" : "disabled");
 }
-
 
 void process_commands(const std::string& command, const ExtraData& extra_data) {
   cmdbuffer[command.copy(cmdbuffer, MAX_CMD_SIZE-1)] = 0; // TODO: get rid of this ugliness
@@ -278,7 +281,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       axis_relative_modes[3] = true;
       break;
     case 201: // M201
-      for(int8_t i=0; i < NUM_AXIS; i++) 
+      for(int8_t i=0; i < NUM_AXIS; i++)
       {
         if(code_seen(axis_codes[i]))
         {
@@ -346,7 +349,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
     break;
     case 220: // M220 S<factor in percent>- set speed factor override percentage
     {
-      if(code_seen('S')) 
+      if(code_seen('S'))
       {
         feedmultiply = code_value() ;
       }
@@ -354,9 +357,13 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
     break;
     case 221: // M221 S<factor in percent>- set extrude factor override percentage
     {
-      if(code_seen('S')) 
-      {
-        extrudemultiply = code_value() ;
+      int target_extruder = active_extruder;
+      if (code_seen('T')) {
+        target_extruder = code_value();
+      }
+      if(code_seen('S')) {
+        Planner::flow_percentage[target_extruder] = code_value();
+        planner.refresh_e_factor(target_extruder);
       }
     }
     break;
@@ -402,44 +409,47 @@ bool idle2() {
 
 
 int main(int argc, char *argv[]) {
-	double x=0, y=0, z=0, e=0, feed_rate=0;
-    uint8_t extruder = 0;
-	Config_ResetDefault();
-        planner.init();
-        {
-          ExtraData extra_data;
-          extra_data.filepos = 0;
-          Planner::buffer_line(x,y,z,e,feed_rate,extruder,0.0, extra_data);
-        }
-        if (argc > 2) {
-          // There are mcodes in the input.  Process them but they don't count
-          // as bytes in the file.
-          std::istringstream mcodes(argv[2]);
-          std::string new_command = get_command(mcodes);
-          while (new_command.size() > 0) {
-            ExtraData extra_data; // Ignored.
-            extra_data.filepos = 0;
-            extra_data.extruder_position = 0;
-            process_commands(new_command, extra_data);
-            new_command = get_command(mcodes);
-          }
-        }
+  double x=0, y=0, z=0, e=0, feed_rate=0;
+  uint8_t extruder = 0;
+  Config_ResetDefault();
+  planner.init();
+  {
+    // Add an initial line.
+    ExtraData extra_data;
+    extra_data.filepos = 0;
+    Planner::buffer_line(x,y,z,e,feed_rate,extruder,0.0, extra_data);
+  }
+  if (argc > 2) {
+    // There are mcodes in the input.  Process them but they don't count
+    // as bytes in the file.
+    std::istringstream mcodes(argv[2]);
+    std::string new_command = get_command(mcodes);
+    while (new_command.size() > 0) {
+      ExtraData extra_data; // Ignored.
+      extra_data.filepos = 0;
+      extra_data.extruder_position = 0;
+      process_commands(new_command, extra_data);
+      new_command = get_command(mcodes);
+    }
+  }
+  // steps per sq second need to be updated to agree with the units per sq second
+  Planner::reset_acceleration_rates();
 
-	std::ifstream in(argv[1], std::ifstream::ate | std::ifstream::binary);
-        long total_file_size = in.tellg();
-        in.seekg(0, in.beg);  // back to the start
-        std::string new_command = get_command(in);
-	while(new_command.size() > 0) {
-          ExtraData extra_data;
-          extra_data.filepos = (((double) in.tellg())/total_file_size);
-          extra_data.extruder_position = extruder_position;
-          process_commands(new_command, extra_data);
-          new_command = get_command(in);
-	}
-        while(idle2())
-          ; // Keep going.
-	in.close();
-	fprintf(stderr, "Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
-	fprintf(stderr, "Total time: %f\n", total_time);
-	return 0;
+  std::ifstream in(argv[1], std::ifstream::ate | std::ifstream::binary);
+  long total_file_size = in.tellg();
+  in.seekg(0, in.beg);  // back to the start
+  std::string new_command = get_command(in);
+  while(new_command.size() > 0) {
+    ExtraData extra_data;
+    extra_data.filepos = (((double) in.tellg())/total_file_size);
+    extra_data.extruder_position = extruder_position;
+    process_commands(new_command, extra_data);
+    new_command = get_command(in);
+  }
+  while(idle2())
+    ; // Keep going.
+  in.close();
+  fprintf(stderr, "Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
+  fprintf(stderr, "Total time: %f\n", total_time);
+  return 0;
 }
