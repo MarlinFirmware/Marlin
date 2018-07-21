@@ -1,2 +1,5 @@
 *.d
 calc
+.sconsign.dblite
+armv6l
+armv7l

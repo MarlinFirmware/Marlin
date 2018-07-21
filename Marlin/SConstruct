@@ -1,0 +1,34 @@
+debug = ARGUMENTS.get('debug', 0)
+if int(debug):
+  debug_flags = '-g'
+else:
+  debug_flags = '-O2'
+
+env = Environment(
+    CXX='g++',
+    CPPFLAGS= '-Wall -static -std=gnu++11 -MMD ' + debug_flags,
+    LINKFLAGS='-Wall -static -std=gnu++11 ' + debug_flags)
+env.VariantDir('x86_64', 'src/module', duplicate=0)
+env.Program('x86_64/calc', ['x86_64/planner.cpp', 'x86_64/calc.cpp'])
+
+env = Environment(
+    CXX='g++',
+    CPPFLAGS= '-Wall -static -std=gnu++11 -m32 -I/usr/include/x86_64-linux-gnu -MMD ' + debug_flags,
+    LINKFLAGS='-Wall -static -std=gnu++11 -m32 -I/usr/include/x86_64-linux-gnu ' + debug_flags)
+env.VariantDir('i686', 'src/module', duplicate=0)
+env.Program('i686/calc', ['i686/planner.cpp', 'i686/calc.cpp'])
+
+env = Environment(
+    CXX='arm-linux-gnueabi-g++',
+    CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv7 -mlittle-endian -MMD ' + debug_flags,
+    LINKFLAGS='-Wall -static -std=gnu++11 -march=armv7 -mlittle-endian ' + debug_flags)
+env.VariantDir('armv7l', 'src/module', duplicate=0)
+env.Program('armv7l/marlin-calc.armv7l', ['armv7l/planner.cpp', 'armv7l/calc.cpp'])
+
+env = Environment(
+    CXX='arm-linux-gnueabi-g++',
+    CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian -MMD ' + debug_flags,
+    LINKFLAGS='-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian ' + debug_flags)
+env.VariantDir('armv6l', 'src/module', duplicate=0)
+env.Program('armv6l/marlin-calc.armv6l', ['armv6l/planner.cpp', 'armv6l/calc.cpp'])
+
