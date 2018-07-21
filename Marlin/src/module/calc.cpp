@@ -280,6 +280,23 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       case 83: // M83: Set extruder to relative mode
         axis_relative_modes[3] = true;
         break;
+      case 92:
+        {
+          int target_extruder = active_extruder;
+          if (code_seen('T')) {
+            target_extruder = code_value();
+          }
+          for (int i = 0; i < NUM_AXIS; i++) {
+            if (code_seen(axis_codes[i])) {
+              int axis = i;
+              if (axis == E_AXIS) {
+                axis += target_extruder;
+              }
+              Planner::axis_steps_per_mm[axis] = code_value();
+            }
+          }
+        }
+        break;
       case 201: // M201
         for(int8_t i=0; i < NUM_AXIS; i++)
         {
