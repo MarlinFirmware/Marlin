@@ -219,6 +219,18 @@ void set_junction_deviation(bool new_value) {
           junction_deviation ? "enabled" : "disabled");
 }
 
+// Return the axis from the axis code accounting for T codes that might
+// temporarily change the target tool.
+int get_axis(int i) {
+  if (i != E_AXIS) {
+    return i;
+  }
+  if (code_seen('T')) {
+    return E_AXIS + code_value();
+  }
+  return active_extruder;
+}
+
 void process_commands(const std::string& command, const ExtraData& extra_data) {
   cmdbuffer[command.copy(cmdbuffer, MAX_CMD_SIZE-1)] = 0; // TODO: get rid of this ugliness
   unsigned long codenum; //throw away variable
@@ -282,51 +294,27 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         break;
       case 92:
         {
-          int target_extruder = active_extruder;
-          if (code_seen('T')) {
-            target_extruder = code_value();
-          }
           for (int i = 0; i < NUM_AXIS; i++) {
             if (code_seen(axis_codes[i])) {
-              int axis = i;
-              if (axis == E_AXIS) {
-                axis += target_extruder;
-              }
-              Planner::axis_steps_per_mm[axis] = code_value();
+              Planner::axis_steps_per_mm[get_axis(i)] = code_value();
             }
           }
         }
         break;
       case 201: // M201
-        for(int8_t i=0; i < NUM_AXIS; i++)
         {
-          if(code_seen(axis_codes[i]))
-          {
-            Planner::max_acceleration_mm_per_s2[i] = code_value();
-          //Planner::axis_steps_per_sqr_second[i] = code_value() * axis_steps_per_mm[i];
+          for(int i = 0; i < NUM_AXIS; i++) {
+            if(code_seen(axis_codes[i])) {
+              Planner::max_acceleration_mm_per_s2[get_axis(i)] = code_value();
+            }
           }
         }
         break;
-#if 0 // Not used for Sprinter/grbl gen6
-      case 202: // M202
-        for(int8_t i=0; i < NUM_AXIS; i++) {
-          if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_mm[i];
-        }
-        break;
-#endif
       case 203: // M203 max feedrate mm/sec
         {
-          int target_extruder = active_extruder;
-          if (code_seen('T')) {
-            target_extruder += code_value();
-          }
           for(int i=0; i < NUM_AXIS; i++) {
             if(code_seen(axis_codes[i])) {
-              int axis = i;
-              if (axis == E_AXIS) {
-                axis += target_extruder;
-              }
-              Planner::max_feedrate_mm_s[axis] = code_value();
+              Planner::max_feedrate_mm_s[get_axis(i)] = code_value();
             }
           }
         }
