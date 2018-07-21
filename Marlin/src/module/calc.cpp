@@ -387,6 +387,8 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
 
 int blocks = 0;
 
+uint8_t last_direction_bits = 0;
+
 // Returns true if we found a block.
 bool idle2() {
   block_t *block = Planner::get_current_block();
@@ -410,7 +412,13 @@ bool idle2() {
     d = max(d, 0);
     double tt3 = d*2/(block->final_rate + block->cruise_rate);
 
-    total_time += tt1+tt2+tt3;
+    double tt4 = 0;
+    if (block->direction_bits != last_direction_bits) {
+      last_direction_bits = block->direction_bits;
+      // MINIMUM_STEPPER_DIR_DELAY is in ns, described in Configuration_adv.h
+      tt4 += double(MINIMUM_STEPPER_DIR_DELAY)/1000/1000/1000;
+    }
+    total_time += tt1+tt2+tt3+tt4;
     printf("%.17f, %.17f, %.17f\n", block->extra_data.filepos,
            block->extra_data.extruder_position,
            total_time);
