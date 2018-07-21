@@ -274,103 +274,102 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
   } else if(code_seen('M')) {
     total_m++;
     switch((int)code_value()) {
-    case 82: // M82: Set extruder to absolute mode
-      axis_relative_modes[3] = false;
-      break;
-    case 83: // M83: Set extruder to relative mode
-      axis_relative_modes[3] = true;
-      break;
-    case 201: // M201
-      for(int8_t i=0; i < NUM_AXIS; i++)
-      {
-        if(code_seen(axis_codes[i]))
+      case 82: // M82: Set extruder to absolute mode
+        axis_relative_modes[3] = false;
+        break;
+      case 83: // M83: Set extruder to relative mode
+        axis_relative_modes[3] = true;
+        break;
+      case 201: // M201
+        for(int8_t i=0; i < NUM_AXIS; i++)
         {
-          Planner::max_acceleration_mm_per_s2[i] = code_value();
+          if(code_seen(axis_codes[i]))
+          {
+            Planner::max_acceleration_mm_per_s2[i] = code_value();
           //Planner::axis_steps_per_sqr_second[i] = code_value() * axis_steps_per_mm[i];
+          }
         }
-      }
-      break;
-    #if 0 // Not used for Sprinter/grbl gen6
-    case 202: // M202
-      for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_mm[i];
-      }
-      break;
-    #endif
-    case 203: // M203 max feedrate mm/sec
-      for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) Planner::max_feedrate_mm_s[i] = code_value();
-      }
-      break;
-    case 204: // M204 acclereration S normal moves T filmanent only moves
-      {
-        if(code_seen('S')) Planner::acceleration = code_value() ;
-        if(code_seen('T')) Planner::retract_acceleration = code_value() ;
-      }
-      break;
-    case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
-    {
-      if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
-      if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
-      if(code_seen('B')) Planner::min_segment_time_us = code_value();
-
-      // jdev handling below taken from:
-      // Marlin/Marlin/src/gcode/config/M200-M205.cpp
-      if(code_seen('X')) {
-        // Seeing any of XYZE implies that we have jdev disabled.
-        set_junction_deviation(false);
-        Planner::max_jerk[X_AXIS] = code_value();
-      }
-      if(code_seen('Y')) {
-        // Seeing any of XYZE implies that we have jdev disabled.
-        set_junction_deviation(false);
-        Planner::max_jerk[Y_AXIS] = code_value();
-      }
-      if(code_seen('Z')) {
-        // Seeing any of XYZE implies that we have jdev disabled.
-        set_junction_deviation(false);
-        Planner::max_jerk[Z_AXIS] = code_value();
-      }
-      if(code_seen('E')) {
-        // Seeing any of XYZE implies that we have jdev disabled.
-        set_junction_deviation(false);
-        Planner::max_jerk[E_AXIS] = code_value();
-      }
-      if(code_seen('J')) {
-        // Seeing junction deviation implies that we have jdev compiled.
-        set_junction_deviation(true);
-        const float junc_dev = code_value();
-        if (WITHIN(junc_dev, 0.01f, 0.3f)) {
-          Planner::junction_deviation_mm = junc_dev;
-          planner.recalculate_max_e_jerk();
+        break;
+#if 0 // Not used for Sprinter/grbl gen6
+      case 202: // M202
+        for(int8_t i=0; i < NUM_AXIS; i++) {
+          if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_mm[i];
         }
-      }
-    }
-    break;
-    case 220: // M220 S<factor in percent>- set speed factor override percentage
-    {
-      if(code_seen('S'))
-      {
-        feedmultiply = code_value() ;
-      }
-    }
-    break;
-    case 221: // M221 S<factor in percent>- set extrude factor override percentage
-    {
-      int target_extruder = active_extruder;
-      if (code_seen('T')) {
-        target_extruder = code_value();
-      }
-      if(code_seen('S')) {
-        Planner::flow_percentage[target_extruder] = code_value();
-        planner.refresh_e_factor(target_extruder);
-      }
-    }
-    break;
+        break;
+#endif
+      case 203: // M203 max feedrate mm/sec
+        for(int8_t i=0; i < NUM_AXIS; i++) {
+          if(code_seen(axis_codes[i])) Planner::max_feedrate_mm_s[i] = code_value();
+        }
+        break;
+      case 204: // M204 acclereration S normal moves T filmanent only moves
+        {
+          if(code_seen('S')) Planner::acceleration = code_value() ;
+          if(code_seen('T')) Planner::retract_acceleration = code_value() ;
+        }
+        break;
+      case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+        {
+          if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
+          if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
+          if(code_seen('B')) Planner::min_segment_time_us = code_value();
 
-   }
+          // jdev handling below taken from:
+          // Marlin/Marlin/src/gcode/config/M200-M205.cpp
+          if(code_seen('X')) {
+            // Seeing any of XYZE implies that we have jdev disabled.
+            set_junction_deviation(false);
+            Planner::max_jerk[X_AXIS] = code_value();
+          }
+          if(code_seen('Y')) {
+            // Seeing any of XYZE implies that we have jdev disabled.
+            set_junction_deviation(false);
+            Planner::max_jerk[Y_AXIS] = code_value();
+          }
+          if(code_seen('Z')) {
+            // Seeing any of XYZE implies that we have jdev disabled.
+            set_junction_deviation(false);
+            Planner::max_jerk[Z_AXIS] = code_value();
+          }
+          if(code_seen('E')) {
+            // Seeing any of XYZE implies that we have jdev disabled.
+            set_junction_deviation(false);
+            Planner::max_jerk[E_AXIS] = code_value();
+          }
+          if(code_seen('J')) {
+            // Seeing junction deviation implies that we have jdev compiled.
+            set_junction_deviation(true);
+            const float junc_dev = code_value();
+            if (WITHIN(junc_dev, 0.01f, 0.3f)) {
+              Planner::junction_deviation_mm = junc_dev;
+              planner.recalculate_max_e_jerk();
+            }
+          }
+        }
+        break;
+      case 220: // M220 S<factor in percent>- set speed factor override percentage
+        {
+          if(code_seen('S'))
+          {
+            feedmultiply = code_value() ;
+          }
+        }
+        break;
+      case 221: // M221 S<factor in percent>- set extrude factor override percentage
+        {
+          int target_extruder = active_extruder;
+          if (code_seen('T')) {
+            target_extruder = code_value();
+          }
+          if(code_seen('S')) {
+            Planner::flow_percentage[target_extruder] = code_value();
+            planner.refresh_e_factor(target_extruder);
+          }
+        }
+        break;
+    }
+    recalculate_rates(); // M commands have the potential to affect planner calculations.
   }
-
 }
 
 int blocks = 0;
