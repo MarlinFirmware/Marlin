@@ -309,41 +309,26 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         }
         break;
       case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
-        {
-          if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
-          if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
-          if(code_seen('B')) Planner::min_segment_time_us = code_value();
+        if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
+        if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
+        if(code_seen('B')) Planner::min_segment_time_us = code_value();
 
-          // jdev handling below taken from:
-          // Marlin/Marlin/src/gcode/config/M200-M205.cpp
-          if(code_seen('X')) {
+        // jdev handling below taken from:
+        // Marlin/Marlin/src/gcode/config/M200-M205.cpp
+        for (unsigned int i=0; i < NUM_AXIS; i++) {
+          if (code_seen(axis_codes[i])) {
             // Seeing any of XYZE implies that we have jdev disabled.
             set_junction_deviation(false);
-            Planner::max_jerk[X_AXIS] = code_value();
+            Planner::max_jerk[i] = code_value();
           }
-          if(code_seen('Y')) {
-            // Seeing any of XYZE implies that we have jdev disabled.
-            set_junction_deviation(false);
-            Planner::max_jerk[Y_AXIS] = code_value();
-          }
-          if(code_seen('Z')) {
-            // Seeing any of XYZE implies that we have jdev disabled.
-            set_junction_deviation(false);
-            Planner::max_jerk[Z_AXIS] = code_value();
-          }
-          if(code_seen('E')) {
-            // Seeing any of XYZE implies that we have jdev disabled.
-            set_junction_deviation(false);
-            Planner::max_jerk[E_AXIS] = code_value();
-          }
-          if(code_seen('J')) {
-            // Seeing junction deviation implies that we have jdev compiled.
-            set_junction_deviation(true);
-            const float junc_dev = code_value();
-            if (WITHIN(junc_dev, 0.01f, 0.3f)) {
-              Planner::junction_deviation_mm = junc_dev;
-              planner.recalculate_max_e_jerk();
-            }
+        }
+        if(code_seen('J')) {
+          // Seeing junction deviation implies that we have jdev compiled.
+          set_junction_deviation(true);
+          const float junc_dev = code_value();
+          if (WITHIN(junc_dev, 0.01f, 0.3f)) {
+            Planner::junction_deviation_mm = junc_dev;
+            planner.recalculate_max_e_jerk();
           }
         }
         break;
