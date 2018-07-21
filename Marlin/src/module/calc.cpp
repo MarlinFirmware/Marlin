@@ -315,8 +315,20 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         break;
 #endif
       case 203: // M203 max feedrate mm/sec
-        for(int8_t i=0; i < NUM_AXIS; i++) {
-          if(code_seen(axis_codes[i])) Planner::max_feedrate_mm_s[i] = code_value();
+        {
+          int target_extruder = active_extruder;
+          if (code_seen('T')) {
+            target_extruder += code_value();
+          }
+          for(int i=0; i < NUM_AXIS; i++) {
+            if(code_seen(axis_codes[i])) {
+              int axis = i;
+              if (axis == E_AXIS) {
+                axis += target_extruder;
+              }
+              Planner::max_feedrate_mm_s[axis] = code_value();
+            }
+          }
         }
         break;
       case 204: // M204 acclereration S normal moves T filmanent only moves
@@ -337,9 +349,9 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         }
         break;
       case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+        if(code_seen('B')) Planner::min_segment_time_us = code_value();
         if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
         if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
-        if(code_seen('B')) Planner::min_segment_time_us = code_value();
 
         // jdev handling below taken from:
         // Marlin/Marlin/src/gcode/config/M200-M205.cpp
