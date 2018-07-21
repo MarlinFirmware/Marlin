@@ -321,8 +321,19 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         break;
       case 204: // M204 acclereration S normal moves T filmanent only moves
         {
-          if(code_seen('S')) Planner::acceleration = code_value() ;
-          if(code_seen('T')) Planner::retract_acceleration = code_value() ;
+          if(code_seen('S')) {
+            Planner::acceleration = code_value();
+            Planner::travel_acceleration = code_value();
+          }
+          if(code_seen('P')) {
+            Planner::acceleration = code_value();
+          }
+          if(code_seen('R')) {
+            Planner::retract_acceleration = code_value();
+          }
+          if(code_seen('T')) {
+            Planner::travel_acceleration = code_value();
+          }
         }
         break;
       case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
