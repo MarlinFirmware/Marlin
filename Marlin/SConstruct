@@ -9,14 +9,14 @@ env = Environment(
     CPPFLAGS= '-Wall -static -std=gnu++11 -MMD ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 ' + debug_flags)
 env.VariantDir('x86_64', 'src/module', duplicate=0)
-env.Program('x86_64/calc', ['x86_64/planner.cpp', 'x86_64/calc.cpp'])
+env.Program('x86_64/marlin-calc.x86_64', ['x86_64/planner.cpp', 'x86_64/calc.cpp'])
 
 env = Environment(
     CXX='g++',
     CPPFLAGS= '-Wall -static -std=gnu++11 -m32 -I/usr/include/x86_64-linux-gnu -MMD ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 -m32 -I/usr/include/x86_64-linux-gnu ' + debug_flags)
 env.VariantDir('i686', 'src/module', duplicate=0)
-env.Program('i686/calc', ['i686/planner.cpp', 'i686/calc.cpp'])
+env.Program('i686/marlin-calc.i686', ['i686/planner.cpp', 'i686/calc.cpp'])
 
 env = Environment(
     CXX='arm-linux-gnueabi-g++',
