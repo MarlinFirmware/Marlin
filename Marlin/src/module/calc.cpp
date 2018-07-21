@@ -364,7 +364,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         {
           if(code_seen('S'))
           {
-            feedmultiply = code_value() ;
+            feedmultiply = code_value();
           }
         }
         break;
