@@ -133,13 +133,13 @@ void Max7219_idle_tasks();
   #define MAX7219_UPDATE_AXIS     x   // Fast line update axis for this orientation of the matrix display
   #define MAX7219_X_LEDS          8
   #define MAX7219_Y_LEDS          (MAX7219_X_LEDS * (MAX7219_NUMBER_UNITS))
-  #define XOR_7219(x, y)          LEDs[x + (y & 0xF8] ^= _BV(7 - (y & 0x7))
-  #define SET_PIXEL_7219(x, y)    LEDs[x + (y & 0xF8] |= _BV(7 - (y & 0x7))
-  #define CLEAR_PIXEL_7219(x, y)  LEDs[x + (y & 0xF8] &= (_BV(7 - (y & 0x7)) ^ 0xFF)
+  #define XOR_7219(x, y)          LEDs[x + (y & 0xF8)] ^= _BV(7 - (y & 0x7))
+  #define SET_PIXEL_7219(x, y)    LEDs[x + (y & 0xF8)] |= _BV(7 - (y & 0x7))
+  #define CLEAR_PIXEL_7219(x, y)  LEDs[x + (y & 0xF8)] &= (_BV(7 - (y & 0x7)) ^ 0xFF)
   #define BIT_7219(x, y)          TEST(LEDs[x + (y & 0xF8)], 7 - (y & 0x7))
   #define SEND_7219(R) do {for(int8_t jj = 0; jj < MAX7219_NUMBER_UNITS; jj++) Max7219(max7219_reg_digit7 - (R & 0x7), LEDs[(R & 0x7) + jj * 8]); Max7219_pulse_load(); } while (0);
 #else
-  #error "MAX7219_ROTATE must be a multiple of +/- 90°."
+  #error "MAX7219_ROTATE must be a multiple of +/- 90Â°."
 #endif
 
 extern uint8_t LEDs[8*MAX7219_NUMBER_UNITS];
