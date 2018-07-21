@@ -171,7 +171,6 @@
 #define MSG_DWELL                           _UxGT("Warten...")
 #define MSG_USERWAIT                        _UxGT("Warte auf Nutzer")
 #define MSG_PRINT_PAUSED                    _UxGT("Druck pausiert")
-#define MSG_RESUMING                        _UxGT("Druckfortsetzung")
 #define MSG_PRINT_ABORTED                   _UxGT("Druck abgebrochen")
 #define MSG_NO_MOVE                         _UxGT("Motoren eingeschaltet")
 #define MSG_KILLED                          _UxGT("ABGEBROCHEN")
@@ -220,9 +219,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("h") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Extr. heizt...")
-#define MSG_HEATING_COMPLETE                _UxGT("Extr. aufgeheizt")
 #define MSG_BED_HEATING                     _UxGT("Bett heizt...")
-#define MSG_BED_DONE                        _UxGT("Bett aufgeheizt")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Delta kalibrieren")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibriere X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibriere Y")
@@ -314,8 +311,7 @@
 #define MSG_UBL_STEP_BY_STEP_MENU         _UxGT("Schrittweises UBL")
 
 #define MSG_LED_CONTROL                     _UxGT("LED Kontrolle")
-#define MSG_LEDS_ON                         _UxGT("Licht an")
-#define MSG_LEDS_OFF                        _UxGT("Licht aus")
+#define MSG_LEDS                            _UxGT("Licht")
 #define MSG_LED_PRESETS                     _UxGT("Licht Einstellungen")
 #define MSG_SET_LEDS_RED                    _UxGT("Rot")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("Orange")

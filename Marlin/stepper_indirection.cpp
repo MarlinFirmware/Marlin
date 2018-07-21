@@ -42,7 +42,7 @@
   #include <SPI.h>
   #include <TMC26XStepper.h>
 
-  #define _TMC26X_DEFINE(ST) TMC26XStepper stepper##ST(200, ST##_ENABLE_PIN, ST##_STEP_PIN, ST##_DIR_PIN, ST##_MAX_CURRENT, ST##_SENSE_RESISTOR)
+  #define _TMC26X_DEFINE(ST) TMC26XStepper stepper##ST(200, ST##_CS_PIN, ST##_STEP_PIN, ST##_DIR_PIN, ST##_MAX_CURRENT, ST##_SENSE_RESISTOR)
 
   #if ENABLED(X_IS_TMC26X)
     _TMC26X_DEFINE(X);
@@ -179,6 +179,10 @@
   // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
   // https://www.trinamic.com/products/integrated-circuits/details/tmc2130/
   void tmc2130_init(TMC2130Stepper &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
+    #if DISABLED(STEALTHCHOP) || DISABLED(HYBRID_THRESHOLD)
+      UNUSED(thrs);
+      UNUSED(spmm);
+    #endif
     st.begin();
     st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
     st.microsteps(microsteps);
@@ -196,12 +200,7 @@
       st.stealthChop(1);
       #if ENABLED(HYBRID_THRESHOLD)
         st.stealth_max_speed(12650000UL*microsteps/(256*thrs*spmm));
-      #else
-        UNUSED(thrs);
-        UNUSED(spmm);
       #endif
-    #elif ENABLED(SENSORLESS_HOMING)
-      st.coolstep_min_speed(1024UL * 1024UL - 1UL);
     #endif
     st.GSTAT(); // Clear GSTAT
   }
@@ -245,7 +244,7 @@
 
     #if ENABLED(SENSORLESS_HOMING)
       #define TMC_INIT_SGT(P,Q) stepper##Q.sgt(P##_HOMING_SENSITIVITY);
-      #ifdef X_HOMING_SENSITIVITY
+      #if X_SENSORLESS
         #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
           stepperX.sgt(X_HOMING_SENSITIVITY);
         #endif
@@ -253,7 +252,7 @@
           stepperX2.sgt(X_HOMING_SENSITIVITY);
         #endif
       #endif
-      #ifdef Y_HOMING_SENSITIVITY
+      #if Y_SENSORLESS
         #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
           stepperY.sgt(Y_HOMING_SENSITIVITY);
         #endif
@@ -261,7 +260,7 @@
           stepperY2.sgt(Y_HOMING_SENSITIVITY);
         #endif
       #endif
-      #ifdef Z_HOMING_SENSITIVITY
+      #if Z_SENSORLESS
         #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
           stepperZ.sgt(Z_HOMING_SENSITIVITY);
         #endif

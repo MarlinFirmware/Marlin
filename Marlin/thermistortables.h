@@ -56,6 +56,9 @@
 #if ANY_THERMISTOR_IS(5) // 100k ParCan thermistor (104GT-2)
   #include "thermistortable_5.h"
 #endif
+#if ANY_THERMISTOR_IS(501) // 100k Zonestar thermistor
+  #include "thermistortable_501.h"
+#endif
 #if ANY_THERMISTOR_IS(6) // 100k Epcos thermistor
   #include "thermistortable_6.h"
 #endif
@@ -132,7 +135,7 @@
 #define _TT_NAME(_N) temptable_ ## _N
 #define TT_NAME(_N) _TT_NAME(_N)
 
-#ifdef THERMISTORHEATER_0
+#if THERMISTORHEATER_0
   #define HEATER_0_TEMPTABLE TT_NAME(THERMISTORHEATER_0)
   #define HEATER_0_TEMPTABLE_LEN COUNT(HEATER_0_TEMPTABLE)
 #elif defined(HEATER_0_USES_THERMISTOR)
@@ -142,7 +145,7 @@
   #define HEATER_0_TEMPTABLE_LEN 0
 #endif
 
-#ifdef THERMISTORHEATER_1
+#if THERMISTORHEATER_1
   #define HEATER_1_TEMPTABLE TT_NAME(THERMISTORHEATER_1)
   #define HEATER_1_TEMPTABLE_LEN COUNT(HEATER_1_TEMPTABLE)
 #elif defined(HEATER_1_USES_THERMISTOR)
@@ -152,7 +155,7 @@
   #define HEATER_1_TEMPTABLE_LEN 0
 #endif
 
-#ifdef THERMISTORHEATER_2
+#if THERMISTORHEATER_2
   #define HEATER_2_TEMPTABLE TT_NAME(THERMISTORHEATER_2)
   #define HEATER_2_TEMPTABLE_LEN COUNT(HEATER_2_TEMPTABLE)
 #elif defined(HEATER_2_USES_THERMISTOR)
@@ -162,7 +165,7 @@
   #define HEATER_2_TEMPTABLE_LEN 0
 #endif
 
-#ifdef THERMISTORHEATER_3
+#if THERMISTORHEATER_3
   #define HEATER_3_TEMPTABLE TT_NAME(THERMISTORHEATER_3)
   #define HEATER_3_TEMPTABLE_LEN COUNT(HEATER_3_TEMPTABLE)
 #elif defined(HEATER_3_USES_THERMISTOR)
@@ -172,7 +175,7 @@
   #define HEATER_3_TEMPTABLE_LEN 0
 #endif
 
-#ifdef THERMISTORHEATER_4
+#if THERMISTORHEATER_4
   #define HEATER_4_TEMPTABLE TT_NAME(THERMISTORHEATER_4)
   #define HEATER_4_TEMPTABLE_LEN COUNT(HEATER_4_TEMPTABLE)
 #elif defined(HEATER_4_USES_THERMISTOR)
@@ -185,20 +188,25 @@
 #ifdef THERMISTORBED
   #define BEDTEMPTABLE TT_NAME(THERMISTORBED)
   #define BEDTEMPTABLE_LEN COUNT(BEDTEMPTABLE)
+#elif defined(HEATER_BED_USES_THERMISTOR)
+  #error "No bed thermistor table specified"
 #else
-  #ifdef BED_USES_THERMISTOR
-    #error "No bed thermistor table specified"
-  #endif
+  #define BEDTEMPTABLE_LEN 0
 #endif
 
 #ifdef THERMISTORCHAMBER
   #define CHAMBERTEMPTABLE TT_NAME(THERMISTORCHAMBER)
   #define CHAMBERTEMPTABLE_LEN COUNT(CHAMBERTEMPTABLE)
+#elif defined(HEATER_CHAMBER_USES_THERMISTOR)
+  #error "No chamber thermistor table specified"
 #else
-  #ifdef CHAMBER_USES_THERMISTOR
-    #error "No chamber thermistor table specified"
-  #endif
+  #define CHAMBERTEMPTABLE_LEN 0
 #endif
+
+// The SCAN_THERMISTOR_TABLE macro needs alteration?
+static_assert(HEATER_0_TEMPTABLE_LEN < 256 && HEATER_1_TEMPTABLE_LEN < 256 && HEATER_2_TEMPTABLE_LEN < 256 && HEATER_3_TEMPTABLE_LEN < 256 && HEATER_4_TEMPTABLE_LEN < 256 && BEDTEMPTABLE_LEN < 256 && CHAMBERTEMPTABLE_LEN < 256,
+  "Temperature conversion tables over 255 entries need special consideration."
+);
 
 // Set the high and low raw values for the heaters
 // For thermistors the highest temperature results in the lowest ADC value
@@ -249,7 +257,7 @@
   #endif
 #endif
 #ifndef HEATER_BED_RAW_HI_TEMP
-  #ifdef BED_USES_THERMISTOR
+  #ifdef HEATER_BED_USES_THERMISTOR
     #define HEATER_BED_RAW_HI_TEMP 0
     #define HEATER_BED_RAW_LO_TEMP 16383
   #else
@@ -258,7 +266,7 @@
   #endif
 #endif
 #ifndef HEATER_CHAMBER_RAW_HI_TEMP
-  #ifdef CHAMBER_USES_THERMISTOR
+  #ifdef HEATER_CHAMBER_USES_THERMISTOR
     #define HEATER_CHAMBER_RAW_HI_TEMP 0
     #define HEATER_CHAMBER_RAW_LO_TEMP 16383
   #else

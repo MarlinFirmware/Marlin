@@ -144,8 +144,7 @@
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("UBL Pas a pas")
 
 #define MSG_LED_CONTROL                     _UxGT("Controle LED")
-#define MSG_LEDS_ON                         _UxGT("Lumiere ON")
-#define MSG_LEDS_OFF                        _UxGT("Lumiere OFF")
+#define MSG_LEDS                            _UxGT("Lumiere")
 #define MSG_LED_PRESETS                     _UxGT("Preregl. LED.")
 #define MSG_SET_LEDS_RED                    _UxGT("Rouge")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("Orange")
@@ -253,7 +252,6 @@
 #define MSG_DWELL                           _UxGT("Repos...")
 #define MSG_USERWAIT                        _UxGT("Atten. de l'util.")
 #define MSG_PRINT_PAUSED                    _UxGT("Impr. en pause")
-#define MSG_RESUMING                        _UxGT("Repri. de l'impr.")
 #define MSG_PRINT_ABORTED                   _UxGT("Impr. Annulee")
 #define MSG_NO_MOVE                         _UxGT("Moteurs bloques.")
 #define MSG_KILLED                          _UxGT("MORT.")
@@ -302,9 +300,7 @@
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 
 #define MSG_HEATING                         _UxGT("En chauffe...")
-#define MSG_HEATING_COMPLETE                _UxGT("Chauffe terminee")
-#define MSG_BED_HEATING                     _UxGT("Lit en chauffe..")
-#define MSG_BED_DONE                        _UxGT("Chauffe lit terminee")
+#define MSG_BED_HEATING                     _UxGT("Lit en chauffe...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibration Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibrer X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibrer Y")

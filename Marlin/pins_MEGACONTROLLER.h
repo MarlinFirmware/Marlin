@@ -62,17 +62,17 @@
 //
 // Steppers
 //
-#define X_STEP_PIN         62 // A8
-#define X_DIR_PIN          63 // A9
-#define X_ENABLE_PIN       61 // A7
+#define X_STEP_PIN         62   // A8
+#define X_DIR_PIN          63   // A9
+#define X_ENABLE_PIN       61   // A7
 
-#define Y_STEP_PIN         65 // A11
-#define Y_DIR_PIN          66 // A12
-#define Y_ENABLE_PIN       64 // A10
+#define Y_STEP_PIN         65   // A11
+#define Y_DIR_PIN          66   // A12
+#define Y_ENABLE_PIN       64   // A10
 
-#define Z_STEP_PIN         68 // A14
-#define Z_DIR_PIN          69 // A15
-#define Z_ENABLE_PIN       67 // A13
+#define Z_STEP_PIN         68   // A14
+#define Z_DIR_PIN          69   // A15
+#define Z_ENABLE_PIN       67   // A13
 
 #define E0_STEP_PIN        23
 #define E0_DIR_PIN         24
@@ -112,7 +112,9 @@
 #define HEATER_1_PIN       34
 #define HEATER_BED_PIN     28
 
-#define FAN_PIN            39
+#ifndef FAN_PIN
+  #define FAN_PIN          39
+#endif
 #define FAN1_PIN           35
 #define FAN2_PIN           36
 

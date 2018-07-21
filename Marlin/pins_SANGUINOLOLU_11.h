@@ -100,7 +100,7 @@
   #define Z_ENABLE_PIN     26
   #define E0_ENABLE_PIN    14
 
-  #if ENABLED(LCD_I2C_PANELOLU2)
+  #if !defined(FAN_PIN) && ENABLED(LCD_I2C_PANELOLU2)
     #define FAN_PIN         4   // Uses Transistor1 (PWM) on Panelolu2's Sanguino Adapter Board to drive the fan
   #endif
 
@@ -114,8 +114,8 @@
 
 #endif
 
-#if MB(AZTEEG_X1) || MB(STB_11) || MB(CREALITY_ENDER) || ENABLED(IS_MELZI)
-  #define FAN_PIN           4 // Works for Panelolu2 too
+#if !defined(FAN_PIN) && (MB(AZTEEG_X1) || MB(STB_11) || ENABLED(IS_MELZI))
+  #define FAN_PIN           4   // Works for Panelolu2 too
 #endif
 
 //
@@ -187,7 +187,7 @@
         #define DOGLCD_CS       17
         #define LCD_BACKLIGHT_PIN 28   // PA3
 
-      #elif MB(CREALITY_ENDER)
+      #elif ENABLED(IS_MELZI)
 
         #define BEEPER_PIN      27
         #define DOGLCD_CS       28
@@ -239,13 +239,13 @@
     #define BTN_EN2             30
 
     #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1 DELAY_0_NOP
+      #define ST7920_DELAY_1 DELAY_NS(0)
     #endif
     #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2 DELAY_3_NOP
+      #define ST7920_DELAY_2 DELAY_NS(188)
     #endif
     #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3 DELAY_0_NOP
+      #define ST7920_DELAY_3 DELAY_NS(0)
     #endif
 
   #elif ENABLED(ZONESTAR_LCD) // For the Tronxy Melzi boards

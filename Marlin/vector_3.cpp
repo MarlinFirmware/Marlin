@@ -41,7 +41,7 @@
 
 #include "MarlinConfig.h"
 
-#if HAS_ABL
+#if ABL_PLANAR || (HAS_BED_PROBE && ENABLED(AUTO_BED_LEVELING_UBL))
 
 #include "vector_3.h"
 #include "serial.h"
@@ -69,7 +69,7 @@ vector_3 vector_3::get_normal() {
 float vector_3::get_length() { return SQRT(sq(x) + sq(y) + sq(z)); }
 
 void vector_3::normalize() {
-  const float inv_length = 1.0 / get_length();
+  const float inv_length = RSQRT(sq(x) + sq(y) + sq(z));
   x *= inv_length;
   y *= inv_length;
   z *= inv_length;

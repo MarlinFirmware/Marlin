@@ -45,7 +45,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
     UNUSED(blink);
   #endif
 
-  #if HAS_TEMP_BED
+  #if HAS_HEATED_BED
     const bool isBed = heater < 0;
   #else
     constexpr bool isBed = false;
@@ -53,48 +53,70 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, cons
 
   if (PAGE_UNDER(7)) {
     #if HEATER_IDLE_HANDLER
-      const bool is_idle = (!isBed ? thermalManager.is_heater_idle(heater) :
-        #if HAS_TEMP_BED
-          thermalManager.is_bed_idle()
-        #else
-          false
+      const bool is_idle = (
+        #if HAS_HEATED_BED
+          isBed ? thermalManager.is_bed_idle() :
         #endif
+        thermalManager.is_heater_idle(heater)
       );
 
       if (blink || !is_idle)
     #endif
-    _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7); }
+        _draw_centered_temp(0.5f + (
+            #if HAS_HEATED_BED
+              isBed ? thermalManager.degTargetBed() :
+            #endif
+            thermalManager.degTargetHotend(heater)
+          ), x, 7
+        );
+  }
 
-  if (PAGE_CONTAINS(21, 28))
-    _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
+  if (PAGE_CONTAINS(21, 28)) {
+    _draw_centered_temp(0.5f + (
+        #if HAS_HEATED_BED
+          isBed ? thermalManager.degBed() :
+        #endif
+        thermalManager.degHotend(heater)
+      ), x, 28
+    );
 
-  if (PAGE_CONTAINS(17, 20)) {
-    const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
-                  y = isBed ? 18 : 17;
-    if (isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater)) {
-      u8g.setColorIndex(0); // white on black
-      u8g.drawBox(x + h, y, 2, 2);
-      u8g.setColorIndex(1); // black on white
-    }
-    else {
-      u8g.drawBox(x + h, y, 2, 2);
+    if (PAGE_CONTAINS(17, 20)) {
+      const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
+                    y = isBed ? 18 : 17;
+      if (
+        #if HAS_HEATED_BED
+          isBed ? thermalManager.isHeatingBed() :
+        #endif
+        thermalManager.isHeatingHotend(heater)
+      ) {
+        u8g.setColorIndex(0); // white on black
+        u8g.drawBox(x + h, y, 2, 2);
+        u8g.setColorIndex(1); // black on white
+      }
+      else
+        u8g.drawBox(x + h, y, 2, 2);
     }
   }
 }
 
-FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
+//
+// Before homing, blink '123' <-> '???'.
+// Homed but unknown... '123' <-> '   '.
+// Homed and known, display constantly.
+//
+FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
   if (blink)
-    lcd_printPGM(pstr);
+    lcd_print(value);
   else {
-    if (!axis_homed[axis])
-      u8g.print('?');
+    if (!TEST(axis_homed, axis))
+      while (const char c = *value++) lcd_print(c <= '.' ? c : '?');
     else {
       #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[axis])
-          u8g.print(' ');
+        if (!TEST(axis_known_position, axis))
+          lcd_printPGM(axis == Z_AXIS ? PSTR("      ") : PSTR("    "));
         else
       #endif
-          lcd_printPGM(pstr);
+          lcd_print(value);
     }
   }
 }
@@ -102,36 +124,75 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 inline void lcd_implementation_status_message(const bool blink) {
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
-    const uint8_t slen = lcd_strlen(lcd_status_message);
-    const char *stat = lcd_status_message + status_scroll_pos;
-    if (slen <= LCD_WIDTH)
-      lcd_print_utf(stat);                                      // The string isn't scrolling
+
+    // Get the UTF8 character count of the string
+    uint8_t slen = utf8_strlen(lcd_status_message);
+
+    // If the string fits into the LCD, just print it and do not scroll it
+    if (slen <= LCD_WIDTH) {
+
+      // The string isn't scrolling and may not fill the screen
+      lcd_print_utf(lcd_status_message);
+
+      // Fill the rest with spaces
+      while (slen < LCD_WIDTH) {
+        u8g.print(' ');
+        ++slen;
+      }
+    }
     else {
-      if (status_scroll_pos <= slen - LCD_WIDTH)
-        lcd_print_utf(stat);                                    // The string fills the screen
+      // String is larger than the available space in screen.
+
+      // Get a pointer to the next valid UTF8 character
+      const char *stat = lcd_status_message + status_scroll_offset;
+
+      // Get the string remaining length
+      const uint8_t rlen = utf8_strlen(stat);
+
+      // If we have enough characters to display
+      if (rlen >= LCD_WIDTH) {
+        // The remaining string fills the screen - Print it
+        lcd_print_utf(stat, LCD_WIDTH);
+      }
       else {
-        uint8_t chars = LCD_WIDTH;
-        if (status_scroll_pos < slen) {                         // First string still visible
-          lcd_print_utf(stat);                                  // The string leaves space
-          chars -= slen - status_scroll_pos;                    // Amount of space left
-        }
-        u8g.print('.');                                         // Always at 1+ spaces left, draw a dot
-        if (--chars) {
-          if (status_scroll_pos < slen + 1)                     // Draw a second dot if there's space
-            --chars, u8g.print('.');
-          if (chars) lcd_print_utf(lcd_status_message, chars);  // Print a second copy of the message
+        // The remaining string does not completely fill the screen
+        lcd_print_utf(stat, LCD_WIDTH);         // The string leaves space
+        uint8_t chars = LCD_WIDTH - rlen;       // Amount of space left in characters
+
+        u8g.print('.');                         // Always at 1+ spaces left, draw a dot
+        if (--chars) {                          // Draw a second dot if there's space
+          u8g.print('.');
+          if (--chars)                          // Print a second copy of the message
+            lcd_print_utf(lcd_status_message, LCD_WIDTH - (rlen + 2));
         }
       }
-      if (last_blink != blink) {
-        last_blink = blink;
-        // Skip any non-printing bytes
-        if (status_scroll_pos < slen) while (!PRINTABLE(lcd_status_message[status_scroll_pos])) status_scroll_pos++;
-        if (++status_scroll_pos >= slen + 2) status_scroll_pos = 0;
+       if (last_blink != blink) {
+         last_blink = blink;
+
+        // Adjust by complete UTF8 characters
+        if (status_scroll_offset < slen) {
+          status_scroll_offset++;
+          while (!START_OF_UTF8_CHAR(lcd_status_message[status_scroll_offset]))
+            status_scroll_offset++;
+        }
+        else
+          status_scroll_offset = 0;
       }
     }
   #else
     UNUSED(blink);
-    lcd_print_utf(lcd_status_message);
+
+    // Get the UTF8 character count of the string
+    uint8_t slen = utf8_strlen(lcd_status_message);
+
+    // Just print the string to the LCD
+    lcd_print_utf(lcd_status_message, LCD_WIDTH);
+
+    // Fill the rest with spaces if there are missing spaces
+    while (slen < LCD_WIDTH) {
+      u8g.print(' ');
+      ++slen;
+    }
   #endif
 }
 
@@ -199,12 +260,12 @@ static void lcd_implementation_status_screen() {
     HOTEND_LOOP() _draw_heater_status(STATUS_SCREEN_HOTEND_TEXT_X(e), e, blink);
 
     // Heated bed
-    #if HOTENDS < 4 && HAS_TEMP_BED
+    #if HOTENDS < 4 && HAS_HEATED_BED
       _draw_heater_status(STATUS_SCREEN_BED_TEXT_X, -1, blink);
     #endif
 
     #if HAS_FAN0
-      if (PAGE_CONTAINS(20, 27)) {
+      if (PAGE_CONTAINS(STATUS_SCREEN_FAN_TEXT_Y - 7, STATUS_SCREEN_FAN_TEXT_Y)) {
         // Fan
         const int16_t per = ((fanSpeeds[0] + 1) * 100) / 256;
         if (per) {
@@ -314,10 +375,6 @@ static void lcd_implementation_status_screen() {
     #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 1
   #endif
 
-  // Before homing the axis letters are blinking 'X' <-> '?'.
-  // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
-  // When everything is ok you see a constant 'X'.
-
   static char xstring[5], ystring[5], zstring[7];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
@@ -327,7 +384,7 @@ static void lcd_implementation_status_screen() {
   if (page.page == 0) {
     strcpy(xstring, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
     strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
-    strcpy(zstring, ftostr52sp(FIXFLOAT(LOGICAL_Z_POSITION(current_position[Z_AXIS]))));
+    strcpy(zstring, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])));
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       strcpy(wstring, ftostr12ns(filament_width_meas));
       strcpy(mstring, itostr3(100.0 * (
@@ -354,19 +411,19 @@ static void lcd_implementation_status_screen() {
       #endif
 
       u8g.setPrintPos(0 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
+      lcd_printPGM(PSTR(MSG_X));
       u8g.setPrintPos(0 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_print(xstring);
+      _draw_axis_value(X_AXIS, xstring, blink);
 
       u8g.setPrintPos(1 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
+      lcd_printPGM(PSTR(MSG_Y));
       u8g.setPrintPos(1 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_print(ystring);
+      _draw_axis_value(Y_AXIS, ystring, blink);
 
       u8g.setPrintPos(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
+      lcd_printPGM(PSTR(MSG_Z));
       u8g.setPrintPos(2 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      lcd_print(zstring);
+      _draw_axis_value(Z_AXIS, zstring, blink);
 
       #if DISABLED(XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(1); // black on white
