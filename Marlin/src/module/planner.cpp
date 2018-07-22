@@ -694,7 +694,12 @@ void Planner::init() {
     // All other 32-bit MPUs can easily do inverse using hardware division,
     // so we don't need to reduce precision or to use assembly language at all.
     // This routine, for all other archs, returns 0x100000000 / d ~= 0xFFFFFFFF / d
-    static FORCE_INLINE uint32_t get_period_inverse(const uint32_t d) { return 0xFFFFFFFF / d; }
+    static FORCE_INLINE uint32_t get_period_inverse(const uint32_t d) {
+      if (d == 0) {
+        return 0xFFFFFFFF; // This is consistent with the AVR version.
+      }
+      return 0xFFFFFFFF / d;
+    }
   #endif
 #endif
 
