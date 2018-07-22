@@ -49,7 +49,7 @@
 #define MSG_PROGRESS_BAR_TEST               _UxGT("Testar Barra de Prog")//resso
 #define MSG_AUTO_HOME_X                     _UxGT("Ir na origem X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Ir na origem Y")
-#define MSG_AUTO_HOME_Z                     _UxGT("Ir na origem Z
+#define MSG_AUTO_HOME_Z                     _UxGT("Ir na origem Z")
 #define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_AUTO_HOME                       _UxGT("Ir na origem XYZ")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Indo para origem")
