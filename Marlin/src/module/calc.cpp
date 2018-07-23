@@ -488,5 +488,8 @@ int main(int argc, char *argv[]) {
   fprintf(stderr, "Total time: %f\n", total_time);
   fprintf(stderr, "Min: %f, %f, %f\n", min_pos_seen[0], min_pos_seen[1], min_pos_seen[2]);
   fprintf(stderr, "Max: %f, %f, %f\n", max_pos_seen[0], max_pos_seen[1], max_pos_seen[2]);
+  fprintf(stderr, "Filament diameter: %f\n", filament_diameter);
+  fprintf(stderr, "Filament length: %f\n", extruder_position);
+  fprintf(stderr, "Volume in cm^3: %f\n", extruder_position * M_PI * filament_diameter/2 * filament_diameter/2 / 1000);
   return 0;
 }

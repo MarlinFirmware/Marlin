@@ -13,6 +13,7 @@ extern float current_position[NUM_AXIS] ;
 extern float add_homing[3];
 extern bool junction_deviation;
 extern bool s_curve_acceleration;
+extern bool volumetric_enabled;
 #ifdef DELTA
 extern float endstop_adj[3];
 extern float delta_radius;
