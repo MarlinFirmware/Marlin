@@ -69,7 +69,7 @@ void digipot_i2c_set_current(const uint8_t channel, const float current) {
 
   // Set actual wiper value
   byte addresses[4] = { 0x00, 0x10, 0x60, 0x70 };
-  i2c_send(addr, addresses[channel & 0x3], current_to_wiper(MIN((float) MAX(current, 0.0f), DIGIPOT_I2C_MAX_CURRENT)));
+  i2c_send(addr, addresses[channel & 0x3], current_to_wiper(MIN((float) MAX(current, 0), DIGIPOT_I2C_MAX_CURRENT)));
 }
 
 void digipot_i2c_init() {

@@ -13,10 +13,12 @@
   #define HAL_PLATFORM HAL_LPC1768
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #define HAL_PLATFORM HAL_STM32F1
-#elif defined(STM32F4)
+#elif defined(STM32F4) || defined(STM32F4xx)
   #define HAL_PLATFORM HAL_STM32F4
 #elif defined(STM32F7)
   #define HAL_PLATFORM HAL_STM32F7
+#elif defined(ARDUINO_ARCH_ESP32)
+  #define HAL_PLATFORM HAL_ESP32
 #else
   #error "Unsupported Platform!"
 #endif

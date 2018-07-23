@@ -657,24 +657,27 @@
 #define HAS_X2_ENABLE     (PIN_EXISTS(X2_ENABLE))
 #define HAS_X2_DIR        (PIN_EXISTS(X2_DIR))
 #define HAS_X2_STEP       (PIN_EXISTS(X2_STEP))
-#define HAS_Y_MICROSTEPS  (PIN_EXISTS(Y_MS1))
+#define HAS_X2_MICROSTEPS (PIN_EXISTS(X2_MS1))
 
 #define HAS_Y_ENABLE      (PIN_EXISTS(Y_ENABLE))
 #define HAS_Y_DIR         (PIN_EXISTS(Y_DIR))
 #define HAS_Y_STEP        (PIN_EXISTS(Y_STEP))
-#define HAS_Z_MICROSTEPS  (PIN_EXISTS(Z_MS1))
+#define HAS_Y_MICROSTEPS  (PIN_EXISTS(Y_MS1))
 
 #define HAS_Y2_ENABLE     (PIN_EXISTS(Y2_ENABLE))
 #define HAS_Y2_DIR        (PIN_EXISTS(Y2_DIR))
 #define HAS_Y2_STEP       (PIN_EXISTS(Y2_STEP))
+#define HAS_Y2_MICROSTEPS (PIN_EXISTS(Y2_MS1))
 
 #define HAS_Z_ENABLE      (PIN_EXISTS(Z_ENABLE))
 #define HAS_Z_DIR         (PIN_EXISTS(Z_DIR))
 #define HAS_Z_STEP        (PIN_EXISTS(Z_STEP))
+#define HAS_Z_MICROSTEPS  (PIN_EXISTS(Z_MS1))
 
 #define HAS_Z2_ENABLE     (PIN_EXISTS(Z2_ENABLE))
 #define HAS_Z2_DIR        (PIN_EXISTS(Z2_DIR))
 #define HAS_Z2_STEP       (PIN_EXISTS(Z2_STEP))
+#define HAS_Z2_MICROSTEPS (PIN_EXISTS(Z2_MS1))
 
 // Extruder steppers and solenoids
 #define HAS_E0_ENABLE     (PIN_EXISTS(E0_ENABLE))
@@ -1050,6 +1053,7 @@
 #define PLANNER_LEVELING      (OLDSCHOOL_ABL || ENABLED(MESH_BED_LEVELING) || UBL_SEGMENTED || ENABLED(SKEW_CORRECTION))
 #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
 #define HAS_UBL_AND_CURVES (ENABLED(AUTO_BED_LEVELING_UBL) && !PLANNER_LEVELING && (ENABLED(ARC_SUPPORT) || ENABLED(BEZIER_CURVE_SUPPORT)))
+#define HAS_FEEDRATE_SCALING (ENABLED(SCARA_FEEDRATE_SCALING) || ENABLED(DELTA_FEEDRATE_SCALING))
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #undef LCD_BED_LEVELING
@@ -1132,10 +1136,10 @@
 #else
 
   // Boundaries for Cartesian probing based on bed limits
-  #define _MIN_PROBE_X (max(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define _MIN_PROBE_Y (max(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-  #define _MAX_PROBE_X (min(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define _MAX_PROBE_Y (min(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MIN_PROBE_X (MAX(X_MIN_BED + MIN_PROBE_EDGE, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MIN_PROBE_Y (MAX(Y_MIN_BED + MIN_PROBE_EDGE, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MAX_PROBE_X (MIN(X_MAX_BED - (MIN_PROBE_EDGE), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+  #define _MAX_PROBE_Y (MIN(Y_MAX_BED - (MIN_PROBE_EDGE), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
 
 #endif
 
@@ -1172,15 +1176,15 @@
   #else
     // Boundaries for Cartesian probing based on set limits
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      #define _MESH_MIN_X (max(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
-      #define _MESH_MIN_Y (max(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need *_PROBE_OFFSET_FROM_EXTRUDER in the mesh dimensions
-      #define _MESH_MAX_X (min(X_MAX_BED - (MESH_INSET), X_MAX_POS))
-      #define _MESH_MAX_Y (min(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
+      #define _MESH_MIN_X (MAX(X_MIN_BED + MESH_INSET, X_MIN_POS))  // UBL is careful not to probe off the bed.  It does not
+      #define _MESH_MIN_Y (MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS))  // need *_PROBE_OFFSET_FROM_EXTRUDER in the mesh dimensions
+      #define _MESH_MAX_X (MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS))
+      #define _MESH_MAX_Y (MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS))
     #else
-      #define _MESH_MIN_X (max(X_MIN_BED + MESH_INSET, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-      #define _MESH_MIN_Y (max(Y_MIN_BED + MESH_INSET, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-      #define _MESH_MAX_X (min(X_MAX_BED - (MESH_INSET), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-      #define _MESH_MAX_Y (min(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+      #define _MESH_MIN_X (MAX(X_MIN_BED + MESH_INSET, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+      #define _MESH_MIN_Y (MAX(Y_MIN_BED + MESH_INSET, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+      #define _MESH_MAX_X (MIN(X_MAX_BED - (MESH_INSET), X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+      #define _MESH_MAX_Y (MIN(Y_MAX_BED - (MESH_INSET), Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
     #endif
   #endif
 
@@ -1304,13 +1308,19 @@
     #define Z_HOMING_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
   #endif
 #endif
-#ifndef Z_CLEARANCE_BETWEEN_PROBES
-  #define Z_CLEARANCE_BETWEEN_PROBES Z_HOMING_HEIGHT
-#endif
-#if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
-  #define MANUAL_PROBE_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
-#else
-  #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
+
+#if PROBE_SELECTED
+  #ifndef Z_CLEARANCE_BETWEEN_PROBES
+    #define Z_CLEARANCE_BETWEEN_PROBES Z_HOMING_HEIGHT
+  #endif
+  #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
+    #define MANUAL_PROBE_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
+  #else
+    #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
+  #endif
+  #ifndef Z_CLEARANCE_MULTI_PROBE
+    #define Z_CLEARANCE_MULTI_PROBE Z_CLEARANCE_BETWEEN_PROBES
+  #endif
 #endif
 
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
@@ -1347,25 +1357,6 @@
   #ifndef PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE
     #define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE HIGH
   #endif
-#endif
-
-// Use float instead of double. Needs profiling.
-#if defined(ARDUINO_ARCH_SAM) && ENABLED(DELTA_FAST_SQRT)
-  #undef ATAN2
-  #undef FABS
-  #undef POW
-  #undef SQRT
-  #undef CEIL
-  #undef FLOOR
-  #undef LROUND
-  #undef FMOD
-  #define ATAN2(y, x) atan2f(y, x)
-  #define POW(x, y) powf(x, y)
-  #define SQRT(x) sqrtf(x)
-  #define CEIL(x) ceilf(x)
-  #define FLOOR(x) floorf(x)
-  #define LROUND(x) lroundf(x)
-  #define FMOD(x, y) fmodf(x, y)
 #endif
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
@@ -1443,150 +1434,5 @@
 #if ENABLED(G29_RETRY_AND_RECOVER)
   #define USE_EXECUTE_COMMANDS_IMMEDIATE
 #endif
-
-// Calculate a default maximum stepper rate, if not supplied
-#ifndef MAXIMUM_STEPPER_RATE
-  #if MINIMUM_STEPPER_PULSE
-    #define MAXIMUM_STEPPER_RATE (1000000UL / (2UL * (MINIMUM_STEPPER_PULSE)))
-  #else
-    #define MAXIMUM_STEPPER_RATE 500000UL
-  #endif
-#endif
-
-//
-// Estimate the amount of time the ISR will take to execute
-//
-#ifdef CPU_32_BIT
-
-  // The base ISR takes 792 cycles
-  #define ISR_BASE_CYCLES  792UL
-
-  // Linear advance base time is 64 cycles
-  #if ENABLED(LIN_ADVANCE)
-    #define ISR_LA_BASE_CYCLES 64UL
-  #else
-    #define ISR_LA_BASE_CYCLES 0UL
-  #endif
-
-  // S curve interpolation adds 40 cycles
-  #if ENABLED(S_CURVE_ACCELERATION)
-    #define ISR_S_CURVE_CYCLES 40UL
-  #else
-    #define ISR_S_CURVE_CYCLES 0UL
-  #endif
-
-  // Stepper Loop base cycles
-  #define ISR_LOOP_BASE_CYCLES 4UL
-
-  // And each stepper takes 16 cycles
-  #define ISR_STEPPER_CYCLES 16UL
-
-#else
-
-  // The base ISR takes 752 cycles
-  #define ISR_BASE_CYCLES  752UL
-
-  // Linear advance base time is 32 cycles
-  #if ENABLED(LIN_ADVANCE)
-    #define ISR_LA_BASE_CYCLES 32UL
-  #else
-    #define ISR_LA_BASE_CYCLES 0UL
-  #endif
-
-  // S curve interpolation adds 160 cycles
-  #if ENABLED(S_CURVE_ACCELERATION)
-    #define ISR_S_CURVE_CYCLES 160UL
-  #else
-    #define ISR_S_CURVE_CYCLES 0UL
-  #endif
-
-  // Stepper Loop base cycles
-  #define ISR_LOOP_BASE_CYCLES 32UL
-
-  // And each stepper takes 88 cycles
-  #define ISR_STEPPER_CYCLES 88UL
-
-#endif
-
-// For each stepper, we add its time
-#ifdef HAS_X_STEP
-  #define ISR_X_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#else
-  #define ISR_X_STEPPER_CYCLES 0UL
-#endif
-
-// For each stepper, we add its time
-#ifdef HAS_Y_STEP
-  #define ISR_Y_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#else
-  #define ISR_Y_STEPPER_CYCLES 0UL
-#endif
-
-// For each stepper, we add its time
-#ifdef HAS_Z_STEP
-  #define ISR_Z_STEPPER_CYCLES ISR_STEPPER_CYCLES
-#else
-  #define ISR_Z_STEPPER_CYCLES 0UL
-#endif
-
-// E is always interpolated, even for mixing extruders
-#define ISR_E_STEPPER_CYCLES ISR_STEPPER_CYCLES
-
-// If linear advance is disabled, then the loop also handles them
-#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
-  #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * ISR_STEPPER_CYCLES)
-#else
-  #define ISR_MIXING_STEPPER_CYCLES  0UL
-#endif
-
-// And the total minimum loop time is, without including the base
-#define MIN_ISR_LOOP_CYCLES (ISR_X_STEPPER_CYCLES + ISR_Y_STEPPER_CYCLES + ISR_Z_STEPPER_CYCLES + ISR_E_STEPPER_CYCLES + ISR_MIXING_STEPPER_CYCLES)
-
-// Calculate the minimum MPU cycles needed per pulse to enforce not surpassing the maximum stepper rate
-#define _MIN_STEPPER_PULSE_CYCLES(N) MAX((F_CPU) / (MAXIMUM_STEPPER_RATE), ((F_CPU) / 500000UL) * (N))
-#if MINIMUM_STEPPER_PULSE
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(MINIMUM_STEPPER_PULSE)
-#else
-  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1)
-#endif
-
-// But the user could be enforcing a minimum time, so the loop time is
-#define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
-
-// If linear advance is enabled, then it is handled separately
-#if ENABLED(LIN_ADVANCE)
-
-  // Estimate the minimum LA loop time
-  #if ENABLED(MIXING_EXTRUDER)
-    #define MIN_ISR_LA_LOOP_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
-  #else
-    #define MIN_ISR_LA_LOOP_CYCLES ISR_STEPPER_CYCLES
-  #endif
-
-  // And the real loop time
-  #define ISR_LA_LOOP_CYCLES MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LA_LOOP_CYCLES)
-
-#else
-  #define ISR_LA_LOOP_CYCLES 0UL
-#endif
-
-// Now estimate the total ISR execution time in cycles given a step per ISR multiplier
-#define ISR_EXECUTION_CYCLES(rate) (((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + (ISR_LOOP_CYCLES * rate) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES)) / rate)
-
-// The maximum allowable stepping frequency when doing x128-x1 stepping (in Hz)
-#define MAX_128X_STEP_ISR_FREQUENCY (F_CPU / ISR_EXECUTION_CYCLES(128))
-#define MAX_64X_STEP_ISR_FREQUENCY  (F_CPU / ISR_EXECUTION_CYCLES(64))
-#define MAX_32X_STEP_ISR_FREQUENCY  (F_CPU / ISR_EXECUTION_CYCLES(32))
-#define MAX_16X_STEP_ISR_FREQUENCY  (F_CPU / ISR_EXECUTION_CYCLES(16))
-#define MAX_8X_STEP_ISR_FREQUENCY   (F_CPU / ISR_EXECUTION_CYCLES(8))
-#define MAX_4X_STEP_ISR_FREQUENCY   (F_CPU / ISR_EXECUTION_CYCLES(4))
-#define MAX_2X_STEP_ISR_FREQUENCY   (F_CPU / ISR_EXECUTION_CYCLES(2))
-#define MAX_1X_STEP_ISR_FREQUENCY   (F_CPU / ISR_EXECUTION_CYCLES(1))
-
-// The minimum allowable frequency for step smoothing will be 1/10 of the maximum nominal frequency (in Hz)
-#define MIN_STEP_ISR_FREQUENCY    MAX_1X_STEP_ISR_FREQUENCY
-
-// Disable multiple steps per ISR
-//#define DISABLE_MULTI_STEPPING
 
 #endif // CONDITIONALS_POST_H

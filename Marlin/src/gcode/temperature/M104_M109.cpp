@@ -225,7 +225,7 @@ void GcodeSuite::M109() {
       // break after MIN_COOLING_SLOPE_TIME seconds
       // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG
       if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
-        if (old_temp - temp < MIN_COOLING_SLOPE_DEG) break;
+        if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG)) break;
         next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME;
         old_temp = temp;
       }

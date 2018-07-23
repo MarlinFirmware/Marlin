@@ -283,6 +283,12 @@
   #error "JUNCTION_ACCELERATION_FACTOR is obsolete. Delete it from Configuration_adv.h."
 #elif defined(JUNCTION_ACCELERATION)
   #error "JUNCTION_ACCELERATION is obsolete. Delete it from Configuration_adv.h."
+#elif defined(MAX7219_DEBUG_STEPPER_HEAD)
+  #error "MAX7219_DEBUG_STEPPER_HEAD is now MAX7219_DEBUG_PLANNER_HEAD. Please update your configuration."
+#elif defined(MAX7219_DEBUG_STEPPER_TAIL)
+  #error "MAX7219_DEBUG_STEPPER_TAIL is now MAX7219_DEBUG_PLANNER_TAIL. Please update your configuration."
+#elif defined(MAX7219_DEBUG_STEPPER_QUEUE)
+  #error "MAX7219_DEBUG_STEPPER_QUEUE is now MAX7219_DEBUG_PLANNER_QUEUE. Please update your configuration."
 #endif
 
 #define BOARD_MKS_13     -47
@@ -817,6 +823,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
   #endif
 
+  static_assert(int(X_PROBE_OFFSET_FROM_EXTRUDER) == (X_PROBE_OFFSET_FROM_EXTRUDER), "X_PROBE_OFFSET_FROM_EXTRUDER must be an integer value.");
+  static_assert(int(Y_PROBE_OFFSET_FROM_EXTRUDER) == (Y_PROBE_OFFSET_FROM_EXTRUDER), "Y_PROBE_OFFSET_FROM_EXTRUDER must be an integer value.");
+
 #else
 
   /**
@@ -928,6 +937,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 
 #if ENABLED(MESH_EDIT_GFX_OVERLAY) && (DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(DOGLCD))
   #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
+#endif
+
+#if ENABLED(G29_RETRY_AND_RECOVER) && HAS_LEVELING && !OLDSCHOOL_ABL
+  #error "G29_RETRY_AND_RECOVER currently only supports ABL"
 #endif
 
 /**
@@ -1514,14 +1527,20 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     // clearing the stallGuard activated status is found.
     #if ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
       #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
-    #elif X_HOME_DIR == -1 && DISABLED(X_MIN_ENDSTOP_INVERTING)
-      #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_INVERTING when homing to X_MIN."
-    #elif X_HOME_DIR ==  1 && DISABLED(X_MAX_ENDSTOP_INVERTING)
-      #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_INVERTING when homing to X_MAX."
-    #elif Y_HOME_DIR == -1 && DISABLED(Y_MIN_ENDSTOP_INVERTING)
-      #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_INVERTING when homing to Y_MIN."
-    #elif Y_HOME_DIR ==  1 && DISABLED(Y_MAX_ENDSTOP_INVERTING)
-      #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_INVERTING when homing to Y_MAX."
+    #elif X_SENSORLESS && X_HOME_DIR == -1 && (DISABLED(X_MIN_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_XMIN))
+      #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_INVERTING and ENDSTOPPULLUP_XMIN when homing to X_MIN."
+    #elif X_SENSORLESS && X_HOME_DIR ==  1 && (DISABLED(X_MAX_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_XMAX))
+      #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_INVERTING and ENDSTOPPULLUP_XMAX when homing to X_MAX."
+    #elif Y_SENSORLESS && Y_HOME_DIR == -1 && (DISABLED(Y_MIN_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_YMIN))
+      #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_INVERTING and ENDSTOPPULLUP_YMIN when homing to Y_MIN."
+    #elif Y_SENSORLESS && Y_HOME_DIR ==  1 && (DISABLED(Y_MAX_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_YMAX))
+      #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_INVERTING and ENDSTOPPULLUP_YMAX when homing to Y_MAX."
+    #elif Z_SENSORLESS && Z_HOME_DIR == -1 && (DISABLED(Z_MIN_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_ZMIN))
+      #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_INVERTING and ENDSTOPPULLUP_ZMIN when homing to Z_MIN."
+    #elif Z_SENSORLESS && Z_HOME_DIR ==  1 && (DISABLED(Z_MAX_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_ZMAX))
+      #error "SENSORLESS_HOMING requires Z_MAX_ENDSTOP_INVERTING and ENDSTOPPULLUP_ZMAX when homing to Z_MAX."
+    #elif ENABLED(ENDSTOP_NOISE_FILTER)
+      #error "SENSORLESS_HOMING is incompatible with ENDSTOP_NOISE_FILTER."
     #endif
   #endif
 

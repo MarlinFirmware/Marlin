@@ -43,24 +43,196 @@
 #ifndef STEPPER_H
 #define STEPPER_H
 
+#include "../inc/MarlinConfig.h"
+
+// Disable multiple steps per ISR
+//#define DISABLE_MULTI_STEPPING
+
+//
+// Estimate the amount of time the Stepper ISR will take to execute
+//
+
+#ifndef MINIMUM_STEPPER_PULSE
+  #define MINIMUM_STEPPER_PULSE 0UL
+#endif
+
+#ifndef MAXIMUM_STEPPER_RATE
+  #if MINIMUM_STEPPER_PULSE
+    #define MAXIMUM_STEPPER_RATE (1000000UL / (2UL * (unsigned long)(MINIMUM_STEPPER_PULSE)))
+  #else
+    #define MAXIMUM_STEPPER_RATE 500000UL
+  #endif
+#endif
+
+#ifdef CPU_32_BIT
+
+  // The base ISR takes 792 cycles
+  #define ISR_BASE_CYCLES  792UL
+
+  // Linear advance base time is 64 cycles
+  #if ENABLED(LIN_ADVANCE)
+    #define ISR_LA_BASE_CYCLES 64UL
+  #else
+    #define ISR_LA_BASE_CYCLES 0UL
+  #endif
+
+  // S curve interpolation adds 40 cycles
+  #if ENABLED(S_CURVE_ACCELERATION)
+    #define ISR_S_CURVE_CYCLES 40UL
+  #else
+    #define ISR_S_CURVE_CYCLES 0UL
+  #endif
+
+  // Stepper Loop base cycles
+  #define ISR_LOOP_BASE_CYCLES 4UL
+
+  // To start the step pulse, in the worst case takes
+  #define ISR_START_STEPPER_CYCLES 13UL
+
+  // And each stepper (start + stop pulse) takes in worst case
+  #define ISR_STEPPER_CYCLES 16UL
+
+#else
+
+  // The base ISR takes 752 cycles
+  #define ISR_BASE_CYCLES  752UL
+
+  // Linear advance base time is 32 cycles
+  #if ENABLED(LIN_ADVANCE)
+    #define ISR_LA_BASE_CYCLES 32UL
+  #else
+    #define ISR_LA_BASE_CYCLES 0UL
+  #endif
+
+  // S curve interpolation adds 160 cycles
+  #if ENABLED(S_CURVE_ACCELERATION)
+    #define ISR_S_CURVE_CYCLES 160UL
+  #else
+    #define ISR_S_CURVE_CYCLES 0UL
+  #endif
+
+  // Stepper Loop base cycles
+  #define ISR_LOOP_BASE_CYCLES 32UL
+
+  // To start the step pulse, in the worst case takes
+  #define ISR_START_STEPPER_CYCLES 57UL
+
+  // And each stepper (start + stop pulse) takes in worst case
+  #define ISR_STEPPER_CYCLES 88UL
+
+#endif
+
+// Add time for each stepper
+#ifdef HAS_X_STEP
+  #define ISR_START_X_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
+  #define ISR_X_STEPPER_CYCLES       ISR_STEPPER_CYCLES
+#else
+  #define ISR_START_X_STEPPER_CYCLES 0UL
+  #define ISR_X_STEPPER_CYCLES       0UL
+#endif
+#ifdef HAS_Y_STEP
+  #define ISR_START_Y_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
+  #define ISR_Y_STEPPER_CYCLES       ISR_STEPPER_CYCLES
+#else
+  #define ISR_START_Y_STEPPER_CYCLES 0UL
+  #define ISR_Y_STEPPER_CYCLES       0UL
+#endif
+#ifdef HAS_Z_STEP
+  #define ISR_START_Z_STEPPER_CYCLES ISR_START_STEPPER_CYCLES
+  #define ISR_Z_STEPPER_CYCLES       ISR_STEPPER_CYCLES
+#else
+  #define ISR_START_Z_STEPPER_CYCLES 0UL
+  #define ISR_Z_STEPPER_CYCLES       0UL
+#endif
+
+// E is always interpolated, even for mixing extruders
+#define ISR_START_E_STEPPER_CYCLES   ISR_START_STEPPER_CYCLES
+#define ISR_E_STEPPER_CYCLES         ISR_STEPPER_CYCLES
+
+// If linear advance is disabled, then the loop also handles them
+#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
+  #define ISR_START_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_START_STEPPER_CYCLES))
+  #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
+#else
+  #define ISR_START_MIXING_STEPPER_CYCLES 0UL
+  #define ISR_MIXING_STEPPER_CYCLES  0UL
+#endif
+
+// Calculate the minimum time to start all stepper pulses in the ISR loop
+#define MIN_ISR_START_LOOP_CYCLES (ISR_START_X_STEPPER_CYCLES + ISR_START_Y_STEPPER_CYCLES + ISR_START_Z_STEPPER_CYCLES + ISR_START_E_STEPPER_CYCLES + ISR_START_MIXING_STEPPER_CYCLES)
+
+// And the total minimum loop time, not including the base
+#define MIN_ISR_LOOP_CYCLES (ISR_X_STEPPER_CYCLES + ISR_Y_STEPPER_CYCLES + ISR_Z_STEPPER_CYCLES + ISR_E_STEPPER_CYCLES + ISR_MIXING_STEPPER_CYCLES)
+
+// Calculate the minimum MPU cycles needed per pulse to enforce, limited to the max stepper rate
+#define _MIN_STEPPER_PULSE_CYCLES(N) MAX((unsigned long)((F_CPU) / (MAXIMUM_STEPPER_RATE)), ((F_CPU) / 500000UL) * (N))
+#if MINIMUM_STEPPER_PULSE
+  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES((unsigned long)(MINIMUM_STEPPER_PULSE))
+#else
+  #define MIN_STEPPER_PULSE_CYCLES _MIN_STEPPER_PULSE_CYCLES(1UL)
+#endif
+
+// Calculate the minimum ticks of the PULSE timer that must elapse with the step pulse enabled
+// adding the "start stepper pulse" code section execution cycles to account for that not all
+// pulses start at the beginning of the loop, so an extra time must be added to compensate so
+// the last generated pulse (usually the extruder stepper) has the right length
+#define MIN_PULSE_TICKS (((PULSE_TIMER_TICKS_PER_US) * (unsigned long)(MINIMUM_STEPPER_PULSE)) + ((MIN_ISR_START_LOOP_CYCLES) / (unsigned long)(PULSE_TIMER_PRESCALE)))
+
+// Calculate the extra ticks of the PULSE timer between step pulses
+#define ADDED_STEP_TICKS (((MIN_STEPPER_PULSE_CYCLES) / (PULSE_TIMER_PRESCALE)) - (MIN_PULSE_TICKS))
+
+// But the user could be enforcing a minimum time, so the loop time is
+#define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
+
+// If linear advance is enabled, then it is handled separately
+#if ENABLED(LIN_ADVANCE)
+
+  // Estimate the minimum LA loop time
+  #if ENABLED(MIXING_EXTRUDER)
+    #define MIN_ISR_LA_LOOP_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
+  #else
+    #define MIN_ISR_LA_LOOP_CYCLES ISR_STEPPER_CYCLES
+  #endif
+
+  // And the real loop time
+  #define ISR_LA_LOOP_CYCLES MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LA_LOOP_CYCLES)
+
+#else
+  #define ISR_LA_LOOP_CYCLES 0UL
+#endif
+
+// Now estimate the total ISR execution time in cycles given a step per ISR multiplier
+#define ISR_EXECUTION_CYCLES(R) (((ISR_BASE_CYCLES + ISR_S_CURVE_CYCLES + (ISR_LOOP_CYCLES) * (R) + ISR_LA_BASE_CYCLES + ISR_LA_LOOP_CYCLES)) / (R))
+
+// The maximum allowable stepping frequency when doing x128-x1 stepping (in Hz)
+#define MAX_STEP_ISR_FREQUENCY_128X ((F_CPU) / ISR_EXECUTION_CYCLES(128))
+#define MAX_STEP_ISR_FREQUENCY_64X  ((F_CPU) / ISR_EXECUTION_CYCLES(64))
+#define MAX_STEP_ISR_FREQUENCY_32X  ((F_CPU) / ISR_EXECUTION_CYCLES(32))
+#define MAX_STEP_ISR_FREQUENCY_16X  ((F_CPU) / ISR_EXECUTION_CYCLES(16))
+#define MAX_STEP_ISR_FREQUENCY_8X   ((F_CPU) / ISR_EXECUTION_CYCLES(8))
+#define MAX_STEP_ISR_FREQUENCY_4X   ((F_CPU) / ISR_EXECUTION_CYCLES(4))
+#define MAX_STEP_ISR_FREQUENCY_2X   ((F_CPU) / ISR_EXECUTION_CYCLES(2))
+#define MAX_STEP_ISR_FREQUENCY_1X   ((F_CPU) / ISR_EXECUTION_CYCLES(1))
+
+// The minimum allowable frequency for step smoothing will be 1/10 of the maximum nominal frequency (in Hz)
+#define MIN_STEP_ISR_FREQUENCY MAX_STEP_ISR_FREQUENCY_1X
+
+//
+// Stepper class definition
+//
+
 #include "stepper_indirection.h"
 
 #ifdef __AVR__
   #include "speed_lookuptable.h"
 #endif
 
-#include "../inc/MarlinConfig.h"
 #include "../module/planner.h"
 #include "../core/language.h"
-
-class Stepper;
-extern Stepper stepper;
 
 class Stepper {
 
   public:
-
-    static block_t* current_block;  // A pointer to the block currently being traced
 
     #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
       static bool homing_dual_axis;
@@ -74,6 +246,8 @@ class Stepper {
     #endif
 
   private:
+
+    static block_t* current_block;          // A pointer to the block currently being traced
 
     static uint8_t last_direction_bits,     // The next stepping-bits to be output
                    axis_did_move;           // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
@@ -185,6 +359,9 @@ class Stepper {
       // The Linear advance stepper ISR
       static uint32_t advance_isr();
     #endif
+
+    // Check if the given block is busy or not - Must not be called from ISR contexts
+    static bool is_block_busy(const block_t* const block);
 
     // Get the position of a stepper, in steps
     static int32_t position(const AxisEnum axis);
@@ -303,14 +480,14 @@ class Stepper {
 
         // The stepping frequency limits for each multistepping rate
         static const uint32_t limit[] PROGMEM = {
-          (  MAX_1X_STEP_ISR_FREQUENCY     ),
-          (  MAX_2X_STEP_ISR_FREQUENCY >> 1),
-          (  MAX_4X_STEP_ISR_FREQUENCY >> 2),
-          (  MAX_8X_STEP_ISR_FREQUENCY >> 3),
-          ( MAX_16X_STEP_ISR_FREQUENCY >> 4),
-          ( MAX_32X_STEP_ISR_FREQUENCY >> 5),
-          ( MAX_64X_STEP_ISR_FREQUENCY >> 6),
-          (MAX_128X_STEP_ISR_FREQUENCY >> 7)
+          (  MAX_STEP_ISR_FREQUENCY_1X     ),
+          (  MAX_STEP_ISR_FREQUENCY_2X >> 1),
+          (  MAX_STEP_ISR_FREQUENCY_4X >> 2),
+          (  MAX_STEP_ISR_FREQUENCY_8X >> 3),
+          ( MAX_STEP_ISR_FREQUENCY_16X >> 4),
+          ( MAX_STEP_ISR_FREQUENCY_32X >> 5),
+          ( MAX_STEP_ISR_FREQUENCY_64X >> 6),
+          (MAX_STEP_ISR_FREQUENCY_128X >> 7)
         };
 
         // Select the proper multistepping
@@ -321,13 +498,13 @@ class Stepper {
           ++idx;
         };
       #else
-        NOMORE(step_rate, uint32_t(MAX_1X_STEP_ISR_FREQUENCY));
+        NOMORE(step_rate, uint32_t(MAX_STEP_ISR_FREQUENCY_1X));
       #endif
       *loops = multistep;
 
       #ifdef CPU_32_BIT
         // In case of high-performance processor, it is able to calculate in real-time
-        timer = uint32_t(HAL_STEPPER_TIMER_RATE) / step_rate;
+        timer = uint32_t(STEPPER_TIMER_RATE) / step_rate;
       #else
         constexpr uint32_t min_step_rate = F_CPU / 500000U;
         NOLESS(step_rate, min_step_rate);
@@ -366,5 +543,7 @@ class Stepper {
     #endif
 
 };
+
+extern Stepper stepper;
 
 #endif // STEPPER_H

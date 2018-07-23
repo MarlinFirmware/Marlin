@@ -54,9 +54,6 @@ enum BlockFlagBit : char {
   // from a safe speed (in consideration of jerking from zero speed).
   BLOCK_BIT_NOMINAL_LENGTH,
 
-  // The block is busy, being interpreted by the stepper ISR
-  BLOCK_BIT_BUSY,
-
   // The block is segment 2+ of a longer move
   BLOCK_BIT_CONTINUED,
 
@@ -67,7 +64,6 @@ enum BlockFlagBit : char {
 enum BlockFlag : char {
   BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
   BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
-  BLOCK_FLAG_BUSY                 = _BV(BLOCK_BIT_BUSY),
   BLOCK_FLAG_CONTINUED            = _BV(BLOCK_BIT_CONTINUED),
   BLOCK_FLAG_SYNC_POSITION        = _BV(BLOCK_BIT_SYNC_POSITION)
 };
@@ -83,7 +79,7 @@ enum BlockFlag : char {
  */
 typedef struct {
 
-  uint8_t flag;                             // Block flags (See BlockFlag enum above)
+  volatile uint8_t flag;                    // Block flags (See BlockFlag enum above) - Modified by ISR and main thread!
 
   // Fields used by the motion planner to manage acceleration
   float nominal_speed_sqr,                  // The nominal speed for this block in (mm/sec)^2
@@ -153,7 +149,7 @@ typedef struct {
 
 } block_t;
 
-#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || ENABLED(SCARA_FEEDRATE_SCALING))
+#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || HAS_FEEDRATE_SCALING)
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
@@ -175,10 +171,12 @@ class Planner {
      */
     static block_t block_buffer[BLOCK_BUFFER_SIZE];
     static volatile uint8_t block_buffer_head,      // Index of the next block to be pushed
+                            block_buffer_nonbusy,   // Index of the first non busy block
+                            block_buffer_planned,   // Index of the optimally planned block
                             block_buffer_tail;      // Index of the busy block, if any
     static uint16_t cleaning_buffer_counter;        // A counter to disable queuing of blocks
-    static uint8_t delay_before_delivering,         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
-                   block_buffer_planned;            // Index of the optimally planned block
+    static uint8_t delay_before_delivering;         // This counter delays delivery of blocks when queue becomes empty to allow the opportunity of merging blocks
+
 
     #if ENABLED(DISTINCT_E_FACTORS)
       static uint8_t last_extruder;                 // Respond to extruder change
@@ -210,7 +208,11 @@ class Planner {
     #if ENABLED(JUNCTION_DEVIATION)
       static float junction_deviation_mm;       // (mm) M205 J
       #if ENABLED(LIN_ADVANCE)
-        static float max_e_jerk_factor;         // Calculated from junction_deviation_mm
+        #if ENABLED(DISTINCT_E_FACTORS)
+          static float max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
+        #else
+          static float max_e_jerk;
+        #endif
       #endif
     #else
       static float max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
@@ -322,7 +324,7 @@ class Planner {
     static void refresh_positioning();
 
     FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-      e_factor[e] = (flow_percentage[e] * 0.01
+      e_factor[e] = (flow_percentage[e] * 0.01f
         #if DISABLED(NO_VOLUMETRICS)
           * volumetric_multiplier[e]
         #endif
@@ -360,19 +362,19 @@ class Planner {
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
       inline static float fade_scaling_factor_for_z(const float &rz) {
-        static float z_fade_factor = 1.0;
+        static float z_fade_factor = 1;
         if (z_fade_height) {
-          if (rz >= z_fade_height) return 0.0;
+          if (rz >= z_fade_height) return 0;
           if (last_fade_z != rz) {
             last_fade_z = rz;
-            z_fade_factor = 1.0 - rz * inverse_z_fade_height;
+            z_fade_factor = 1 - rz * inverse_z_fade_height;
           }
           return z_fade_factor;
         }
-        return 1.0;
+        return 1;
       }
 
-      FORCE_INLINE static void force_fade_recalc() { last_fade_z = -999.999; }
+      FORCE_INLINE static void force_fade_recalc() { last_fade_z = -999.999f; }
 
       FORCE_INLINE static void set_z_fade_height(const float &zfh) {
         z_fade_height = zfh > 0 ? zfh : 0;
@@ -388,7 +390,7 @@ class Planner {
 
       FORCE_INLINE static float fade_scaling_factor_for_z(const float &rz) {
         UNUSED(rz);
-        return 1.0;
+        return 1;
       }
 
       FORCE_INLINE static bool leveling_active_at_z(const float &rz) { UNUSED(rz); return true; }
@@ -439,11 +441,14 @@ class Planner {
       #define ARG_Z const float &rz
     #endif
 
-    // Number of moves currently in the planner
+    // Number of moves currently in the planner including the busy block, if any
     FORCE_INLINE static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail); }
 
+    // Number of nonbusy moves currently in the planner
+    FORCE_INLINE static uint8_t nonbusy_movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_nonbusy); }
+
     // Remove all blocks from the buffer
-    FORCE_INLINE static void clear_block_buffer() { block_buffer_head = block_buffer_tail = 0; }
+    FORCE_INLINE static void clear_block_buffer() { block_buffer_nonbusy = block_buffer_planned = block_buffer_head = block_buffer_tail = 0; }
 
     // Check if movement queue is full
     FORCE_INLINE static bool is_full() { return block_buffer_tail == next_block_index(block_buffer_head); }
@@ -645,7 +650,7 @@ class Planner {
     static block_t* get_current_block() {
 
       // Get the number of moves in the planner queue so far
-      uint8_t nr_moves = movesplanned();
+      const uint8_t nr_moves = movesplanned();
 
       // If there are any moves queued ...
       if (nr_moves) {
@@ -669,8 +674,14 @@ class Planner {
           block_buffer_runtime_us -= block->segment_time_us; // We can't be sure how long an active block will take, so don't count it.
         #endif
 
-        // Mark the block as busy, so the planner does not attempt to replan it
-        SBI(block->flag, BLOCK_BIT_BUSY);
+        // As this block is busy, advance the nonbusy block pointer
+        block_buffer_nonbusy = next_block_index(block_buffer_tail);
+
+        // Push block_buffer_planned pointer, if encountered.
+        if (block_buffer_tail == block_buffer_planned)
+          block_buffer_planned = block_buffer_nonbusy;
+
+        // Return the block
         return block;
       }
 
@@ -688,14 +699,8 @@ class Planner {
      * NB: There MUST be a current block to call this function!!
      */
     FORCE_INLINE static void discard_current_block() {
-      if (has_blocks_queued()) { // Discard non-empty buffer.
-        uint8_t block_index = next_block_index( block_buffer_tail );
-
-        // Push block_buffer_planned pointer, if encountered.
-        if (!has_blocks_queued()) block_buffer_planned = block_index;
-
-        block_buffer_tail = block_index;
-      }
+      if (has_blocks_queued())
+        block_buffer_tail = next_block_index(block_buffer_tail);
     }
 
     #if ENABLED(ULTRA_LCD)
@@ -750,9 +755,15 @@ class Planner {
     #endif
 
     #if ENABLED(JUNCTION_DEVIATION)
-      FORCE_INLINE static void recalculate_max_e_jerk_factor() {
+      FORCE_INLINE static void recalculate_max_e_jerk() {
+        #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(LIN_ADVANCE)
-          max_e_jerk_factor = SQRT(SQRT(0.5) * junction_deviation_mm) * RECIPROCAL(1.0 - SQRT(0.5));
+          #if ENABLED(DISTINCT_E_FACTORS)
+            for (uint8_t i = 0; i < EXTRUDERS; i++)
+              max_e_jerk[i] = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS + i]);
+          #else
+            max_e_jerk = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS]);
+          #endif
         #endif
       }
     #endif
@@ -819,22 +830,16 @@ class Planner {
 
     #if ENABLED(JUNCTION_DEVIATION)
 
-      #if ENABLED(JUNCTION_DEVIATION_INCLUDE_E)
-        #define JD_AXES XYZE
-      #else
-        #define JD_AXES XYZ
-      #endif
-
-      FORCE_INLINE static void normalize_junction_vector(float (&vector)[JD_AXES]) {
-        float magnitude_sq = 0.0;
-        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (vector[idx]) magnitude_sq += sq(vector[idx]);
-        const float inv_magnitude = 1.0 / SQRT(magnitude_sq);
-        for (uint8_t idx = 0; idx < JD_AXES; idx++) vector[idx] *= inv_magnitude;
+      FORCE_INLINE static void normalize_junction_vector(float (&vector)[XYZE]) {
+        float magnitude_sq = 0;
+        LOOP_XYZE(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
+        const float inv_magnitude = RSQRT(magnitude_sq);
+        LOOP_XYZE(idx) vector[idx] *= inv_magnitude;
       }
 
-      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[JD_AXES]) {
+      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[XYZE]) {
         float limit_value = max_value;
-        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (unit_vec[idx]) // Avoid divide by zero
+        LOOP_XYZE(idx) if (unit_vec[idx]) // Avoid divide by zero
           NOMORE(limit_value, ABS(max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
         return limit_value;
       }

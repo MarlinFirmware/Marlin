@@ -21,8 +21,6 @@
  *
  */
 
-
-
 #ifndef _HAL_STM32F7_H
 #define _HAL_STM32F7_H
 

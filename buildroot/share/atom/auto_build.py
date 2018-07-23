@@ -412,45 +412,6 @@ def open_file(path):
 # end - open_file
 
 
-#
-# move custom board definitions from project folder to PlatformIO
-#
-def copy_boards_dir():
-
-        temp = os.environ
-        for key in temp:
-          if 0 <=  os.environ[key].find('.platformio'):
-            part = os.environ[key].split(';')
-            for part2 in part:
-              if 0 <=  part2.find('.platformio'):
-                path = part2
-                break
-
-        PIO_path = path[ : path.find('.platformio') + 11]
-
-#         import sys
-#         import subprocess
-#         pio_subprocess = subprocess.Popen(['platformio', 'run', '-t', 'envdump'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-#
-#         # stream output from subprocess and split it into lines
-#         for line in iter(pio_subprocess.stdout.readline, ''):
-#             if 0 <= line.find('PIOHOME_DIR'):
-#               start = line.find(':') + 3
-#               end =  line.find(',') - 1
-#               PIO_path = line[start:end]
-
-
-        PIO_path =  PIO_path.replace("\\", "/")
-        PIO_path =  PIO_path.replace("//", "/") + '/boards'
-
-        board_path = 'buildroot/share/PlatformIO/boards'
-
-        from distutils.dir_util import copy_tree
-        copy_tree(board_path, PIO_path)
-
-# end copy_boards_dir
-
-
 # gets the last build environment
 def get_build_last():
       env_last = ''
@@ -1265,9 +1226,6 @@ def main():
         os.environ["BOARD_NAME"] = board_name
 
         auto_build = output_window()
-        if 0 <= target_env.find('USB1286'):
-            copy_boards_dir()          # copy custom boards over to PlatformIO if using custom board
-                                       #    causes 3-5 second delay in main window appearing
         auto_build.start_thread()  # executes the "run_PIO" function
 
         auto_build.root.mainloop()

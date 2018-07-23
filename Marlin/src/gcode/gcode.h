@@ -387,10 +387,13 @@ private:
   static void G28(const bool always_home_all);
 
   #if HAS_LEVELING
-    static void G29();
     #if ENABLED(G29_RETRY_AND_RECOVER)
       static void G29_with_retry();
+      #define G29_TYPE bool
+    #else
+      #define G29_TYPE void
     #endif
+    static G29_TYPE G29();
   #endif
 
   #if HAS_BED_PROBE
@@ -725,6 +728,10 @@ private:
   #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
     static void M701();
     static void M702();
+  #endif
+
+  #if ENABLED(MAX7219_GCODE)
+    static void M7219();
   #endif
 
   #if HAS_BED_PROBE
