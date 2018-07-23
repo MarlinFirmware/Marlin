@@ -23,8 +23,8 @@ float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0};
 float endstop_adj[3]={0,0,0};
 #endif
 
-double min_pos_seen[3] = { std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
-double max_pos_seen[3] = { -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity()};
+double min_pos_extruded[3] = { std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
+double max_pos_extruded[3] = { -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity()};
 uint8_t active_extruder = 0;
 bool junction_deviation = false; // This replaces the JUNCTION_DEVIATION constant.
 bool s_curve_acceleration = true; // This replaces the S_CURVE_ACCELERATION constant.
@@ -143,8 +143,8 @@ void prepare_move(const ExtraData& extra_data)
   extruder_position += extruded;
   if (extruded != 0 && moved) {
     for (int i = 0; i < NUM_AXIS - 1; i++) {
-      min_pos_seen[i] = min(min_pos_seen[i], calc_destination[i]);
-      max_pos_seen[i] = max(max_pos_seen[i], calc_destination[i]);
+      min_pos_extruded[i] = min(min_pos_extruded[i], calc_destination[i]);
+      max_pos_extruded[i] = max(max_pos_extruded[i], calc_destination[i]);
     }
     int target_extruder = active_extruder;
     if (code_seen('T')) {
@@ -155,19 +155,6 @@ void prepare_move(const ExtraData& extra_data)
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = calc_destination[i];
   }
-}
-
-// Return the axis from the axis code accounting for T codes that might
-// temporarily change the target tool.  get_axis calls code_seen so be careful
-// if you call it between code_seen and code_value.
-int get_axis(int i) {
-  if (i != E_AXIS) {
-    return i;
-  }
-  if (code_seen('T')) {
-    return E_AXIS + code_value();
-  }
-  return E_AXIS + active_extruder;
 }
 
 void get_coordinates()
@@ -231,6 +218,19 @@ void set_junction_deviation(bool new_value) {
   junction_deviation = new_value;
   fprintf(stderr, "Junction deviation %s\n",
           junction_deviation ? "enabled" : "disabled");
+}
+
+// Return the axis from the axis code accounting for T codes that might
+// temporarily change the target tool.  get_axis calls code_seen so be careful
+// if you call it between code_seen and code_value.
+int get_axis(int i) {
+  if (i != E_AXIS) {
+    return i;
+  }
+  if (code_seen('T')) {
+    return E_AXIS + code_value();
+  }
+  return E_AXIS + active_extruder;
 }
 
 void process_commands(const std::string& command, const ExtraData& extra_data) {
@@ -300,7 +300,6 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         break;
       case 200: // M200 - Set Filament Diameter
         {
-          // TODO: handle multiple extruders?
           // The settings include this and then disable it if we're not in
           // volumetic mode, which is hopefully everyone!
           int target_extruder = active_extruder;
@@ -498,12 +497,14 @@ int main(int argc, char *argv[]) {
   printf("analysis: {");
   printf("\"estimatedPrintTime\": %.17f, ", total_time);
   printf("\"printingArea\": ");
-  printf("{\"maxX\": %.17f, \"maxY\": %.17f, \"maxZ\": %.17f,", max_pos_seen[0], max_pos_seen[1], max_pos_seen[2]);
-  printf(" \"minX\": %.17f, \"minY\": %.17f, \"minZ\": %.17f}", min_pos_seen[0], min_pos_seen[1], min_pos_seen[2]);
+  printf("{\"maxX\": %.17f, \"maxY\": %.17f, \"maxZ\": %.17f,",
+         max_pos_extruded[0], max_pos_extruded[1], max_pos_extruded[2]);
+  printf(" \"minX\": %.17f, \"minY\": %.17f, \"minZ\": %.17f}",
+         min_pos_extruded[0], min_pos_extruded[1], min_pos_extruded[2]);
   printf(", \"dimensions\": {\"width\": %.17f, \"depth\": %.17f, \"height\": %.17f}, ",
-         max_pos_seen[0] - min_pos_seen[0],
-         max_pos_seen[1] - min_pos_seen[1],
-         max_pos_seen[2] - min_pos_seen[2]);
+         max_pos_extruded[0] - min_pos_extruded[0],
+         max_pos_extruded[1] - min_pos_extruded[1],
+         max_pos_extruded[2] - min_pos_extruded[2]);
   printf("\"filament\": {");
   bool printed_tool = false;
   for (int i = 0; i < MAX_EXTRUDERS; i++) {

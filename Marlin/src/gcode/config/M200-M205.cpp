@@ -43,7 +43,7 @@
       if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0)) )
         planner.set_filament_size(target_extruder, parser.value_linear_units());
     }
-    Planner::calculate_volumetric_multipliers();
+    planner.calculate_volumetric_multipliers();
   }
 
 #endif // !NO_VOLUMETRICS
