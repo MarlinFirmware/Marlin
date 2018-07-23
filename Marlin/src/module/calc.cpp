@@ -19,22 +19,6 @@
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
-int extruder_multiply[EXTRUDERS] = {100
-  #if EXTRUDERS > 1
-    , 100
-    #if EXTRUDERS > 2
-      , 100
-    #endif
-  #endif
-};
-float volumetric_multiplier[EXTRUDERS] = {1.0
-  #if EXTRUDERS > 1
-    , 1.0
-    #if EXTRUDERS > 2
-      , 1.0
-    #endif
-  #endif
-};
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
@@ -45,6 +29,8 @@ double max_pos_seen[3] = { -std::numeric_limits<double>::infinity(), -std::numer
 uint8_t active_extruder = 0;
 bool junction_deviation = false; // This replaces the JUNCTION_DEVIATION constant.
 bool s_curve_acceleration = true; // This replaces the S_CURVE_ACCELERATION constant.
+double filament_diameter = DEFAULT_NOMINAL_FILAMENT_DIA;
+bool volumetric_enabled = false;
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
@@ -93,6 +79,7 @@ void recalculate_rates() {
   Planner::refresh_positioning();
   // steps per sq second need to be updated to agree with the units per sq second
   Planner::reset_acceleration_rates();
+  Planner::calculate_volumetric_multipliers();
 }
 
 void Config_ResetDefault()
@@ -308,6 +295,27 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           }
         }
         break;
+      case 200: // M200 - Set Filament Diameter
+        {
+          // TODO: handle multiple extruders?
+          // The settings include this and then disable it if we're not in
+          // volumetic mode, which is hopefully everyone!
+          int target_extruder = active_extruder;
+          if (code_seen('T')) {
+            target_extruder = code_value();
+          }
+          if (code_seen('D')) {
+            if (code_value() != 0) {
+              filament_diameter = code_value();
+              volumetric_enabled = true;
+              planner.set_filament_size(target_extruder, code_value());
+            } else {
+              // "M200 D" or "M200 D0", both turn off volumetic extrusion but
+              // we'll keep the filament_diamter that we learned.
+              volumetric_enabled = false;
+            }
+          }
+        }
       case 201: // M201
         {
           for(int i = 0; i < NUM_AXIS; i++) {
