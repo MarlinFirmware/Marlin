@@ -136,12 +136,15 @@ void prepare_move(const ExtraData& extra_data)
   else {
     Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder, 0.0, extra_data);
   }
+  bool moved = calc_destination[X_AXIS] != current_position[X_AXIS] ||
+               calc_destination[Y_AXIS] != current_position[Y_AXIS] ||
+               calc_destination[Z_AXIS] != current_position[Z_AXIS];
   double extruded = calc_destination[E_AXIS] - current_position[E_AXIS];
   extruder_position += extruded;
-  if (extruded != 0) {
+  if (extruded != 0 && moved) {
     for (int i = 0; i < NUM_AXIS - 1; i++) {
-      min_pos_seen[i] = min(min_pos_seen[i], min(current_position[i], calc_destination[i]));
-      max_pos_seen[i] = max(max_pos_seen[i], max(current_position[i], calc_destination[i]));
+      min_pos_seen[i] = min(min_pos_seen[i], calc_destination[i]);
+      max_pos_seen[i] = max(max_pos_seen[i], calc_destination[i]);
     }
     int target_extruder = active_extruder;
     if (code_seen('T')) {
@@ -255,8 +258,8 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
 	  total_time += codenum / 1000.0;
       break;
     case 28: //G28 Home all Axis one at a time
-	  total_time += 5; // 5 seconds to home
-		break;
+      total_time += 5; // 5 seconds to home
+      break;
     case 90: // G90
       for (int i = 0; i < 4; i++) {
         axis_relative_modes[i] = false;
