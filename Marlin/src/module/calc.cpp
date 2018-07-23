@@ -160,7 +160,7 @@ void get_coordinates()
     else calc_destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
-    double next_feedrate = MMS_SCALED(code_value());
+    double next_feedrate = code_value();
     if(next_feedrate > 0.0) feedrate = next_feedrate;
   }
 }
