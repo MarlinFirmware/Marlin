@@ -40,8 +40,8 @@ float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float endstop_adj[3]={0,0,0};
 #endif
 
-double min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
-double max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+double min_pos_seen[3] = { std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
+double max_pos_seen[3] = { -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity()};
 uint8_t active_extruder = 0;
 bool junction_deviation = false; // This replaces the JUNCTION_DEVIATION constant.
 bool s_curve_acceleration = true; // This replaces the S_CURVE_ACCELERATION constant.
@@ -150,7 +150,14 @@ void prepare_move(const ExtraData& extra_data)
   else {
     Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder, 0.0, extra_data);
   }
-  extruder_position += calc_destination[E_AXIS] - current_position[E_AXIS];
+  double extruded = calc_destination[E_AXIS] - current_position[E_AXIS];
+  extruder_position += extruded;
+  if (extruded) {
+    for (int i = 0; i < NUM_AXIS; i++) {
+      min_pos_seen[i] = min(min_pos_seen[i], min(current_position[i], calc_destination[i]));
+      max_pos_seen[i] = max(max_pos_seen[i], max(current_position[i], calc_destination[i]));
+    }
+  }
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = calc_destination[i];
   }
@@ -471,5 +478,7 @@ int main(int argc, char *argv[]) {
   in.close();
   fprintf(stderr, "Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
   fprintf(stderr, "Total time: %f\n", total_time);
+  fprintf(stderr, "Min: %f, %f, %f\n", min_pos_seen[0], min_pos_seen[1], min_pos_seen[2]);
+  fprintf(stderr, "Max: %f, %f, %f\n", max_pos_seen[0], max_pos_seen[1], max_pos_seen[2]);
   return 0;
 }
