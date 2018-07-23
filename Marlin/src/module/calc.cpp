@@ -17,7 +17,7 @@
 //===========================================================================
 //float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
-int feedmultiply=100; //100->1 200->2 TODO: this is ugly, use the planner, make it work better
+int16_t feedrate_percentage = 100; // In percent: 100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
@@ -37,7 +37,7 @@ static double extrusion_length[MAX_EXTRUDERS] = {0,0,0,0,0};
 static double calc_destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 //static double offset[3] = {0.0, 0.0, 0.0};
 //static bool home_all_axis = true;
-static double feedrate = 1500.0, next_feedrate;//, saved_feedrate;
+static double feedrate = 1500.0;
 long gcode_N, gcode_LastN;//, Stopped_gcode_LastN = 0;
 
 static char cmdbuffer[MAX_CMD_SIZE];
@@ -127,15 +127,8 @@ double extruder_position = 0;
 
 void prepare_move(const ExtraData& extra_data)
 {
-  //clamp_to_software_endstops(destination);
+  Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], MMS_SCALED(feedrate/60), active_extruder, 0.0, extra_data);
 
-  // Do not use feedmultiply for E or Z only moves
-  if( (current_position[X_AXIS] == calc_destination [X_AXIS]) && (current_position[Y_AXIS] == calc_destination [Y_AXIS])) {
-    Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate/60, active_extruder, 0.0, extra_data);
-  }
-  else {
-    Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder, 0.0, extra_data);
-  }
   bool moved = calc_destination[X_AXIS] != current_position[X_AXIS] ||
                calc_destination[Y_AXIS] != current_position[Y_AXIS] ||
                calc_destination[Z_AXIS] != current_position[Z_AXIS];
@@ -167,7 +160,7 @@ void get_coordinates()
     else calc_destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
-    next_feedrate = code_value();
+    double next_feedrate = MMS_SCALED(code_value());
     if(next_feedrate > 0.0) feedrate = next_feedrate;
   }
 }
@@ -384,7 +377,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         {
           if(code_seen('S'))
           {
-            feedmultiply = code_value();
+            feedrate_percentage = code_value();
           }
         }
         break;
