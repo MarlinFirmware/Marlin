@@ -65,6 +65,10 @@ extern bool idle2();
 #define enable_Z() while(0) {}
 #define enable_e()
 #define enable_E0() while(0) {}
+#define enable_E1() while(0) {}
+#define enable_E2() while(0) {}
+#define enable_E3() while(0) {}
+#define enable_E4() while(0) {}
 #define enable_e1()
 #define enable_e2()
 
@@ -76,6 +80,7 @@ extern bool idle2();
 #define disable_e1()
 #define disable_e2()
 #define disable_all_steppers()
+#define disable_E0() do { } while (0)
 #define disable_E1() do { } while (0)
 #define disable_E2() do { } while (0)
 #define disable_E3() do { } while (0)

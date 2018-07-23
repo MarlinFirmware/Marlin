@@ -509,8 +509,9 @@ int main(int argc, char *argv[]) {
         printf(", ");
       }
       printf("\"tool%d\": {\"length\": %.17f, \"volume\": %.17f}", i,
-             extrusion_length[i],
-             extrusion_length[i] * filament_diameter/2 * filament_diameter/2 * M_PI);
+             extrusion_length[i], // in mm
+             extrusion_length[i] * filament_diameter/2 * filament_diameter/2 * M_PI / 1000 // in cm^3
+             );
       printed_tool = true;
     }
   }
