@@ -17,9 +17,8 @@
 //===========================================================================
 //float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
-int feedmultiply=100; //100->1 200->2
-int saved_feedmultiply;
-float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
+int feedmultiply=100; //100->1 200->2 TODO: this is ugly, use the planner, make it work better
+float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
 #endif
@@ -34,7 +33,7 @@ bool volumetric_enabled = false;
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
-//const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
+static double extrusion_length[MAX_EXTRUDERS] = {0,0,0,0,0};
 static double calc_destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 //static double offset[3] = {0.0, 0.0, 0.0};
 //static bool home_all_axis = true;
@@ -139,15 +138,33 @@ void prepare_move(const ExtraData& extra_data)
   }
   double extruded = calc_destination[E_AXIS] - current_position[E_AXIS];
   extruder_position += extruded;
-  if (extruded) {
-    for (int i = 0; i < NUM_AXIS; i++) {
+  if (extruded != 0) {
+    for (int i = 0; i < NUM_AXIS - 1; i++) {
       min_pos_seen[i] = min(min_pos_seen[i], min(current_position[i], calc_destination[i]));
       max_pos_seen[i] = max(max_pos_seen[i], max(current_position[i], calc_destination[i]));
     }
+    int target_extruder = active_extruder;
+    if (code_seen('T')) {
+      target_extruder = code_value();
+    }
+    extrusion_length[target_extruder] += extruded;
   }
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = calc_destination[i];
   }
+}
+
+// Return the axis from the axis code accounting for T codes that might
+// temporarily change the target tool.  get_axis calls code_seen so be careful
+// if you call it between code_seen and code_value.
+int get_axis(int i) {
+  if (i != E_AXIS) {
+    return i;
+  }
+  if (code_seen('T')) {
+    return E_AXIS + code_value();
+  }
+  return E_AXIS + active_extruder;
 }
 
 void get_coordinates()
@@ -213,18 +230,6 @@ void set_junction_deviation(bool new_value) {
           junction_deviation ? "enabled" : "disabled");
 }
 
-// Return the axis from the axis code accounting for T codes that might
-// temporarily change the target tool.
-int get_axis(int i) {
-  if (i != E_AXIS) {
-    return i;
-  }
-  if (code_seen('T')) {
-    return E_AXIS + code_value();
-  }
-  return active_extruder;
-}
-
 void process_commands(const std::string& command, const ExtraData& extra_data) {
   cmdbuffer[command.copy(cmdbuffer, MAX_CMD_SIZE-1)] = 0; // TODO: get rid of this ugliness
   unsigned long codenum; //throw away variable
@@ -240,7 +245,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         prepare_move(extra_data);
         //ClearToSend();
         return;
-      } else printf("STOPPED!!");
+      } else fprintf(stderr, "STOPPED!!");
       //break;
     case 4: // G4 dwell
       codenum = 0;
@@ -265,14 +270,8 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
     case 92: // G92
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) {
-           if(i == E_AXIS) {
-             current_position[i] = code_value();
-             Planner::set_e_position_mm(current_position[E_AXIS]);
-           }
-           else {
-             current_position[i] = code_value();
-             Planner::set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-           }
+          current_position[i] = code_value();
+          Planner::set_position_mm(AxisEnum(i), current_position[i]);
         }
       }
       break;
@@ -289,8 +288,9 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       case 92:
         {
           for (int i = 0; i < NUM_AXIS; i++) {
+            int axis = get_axis(i);
             if (code_seen(axis_codes[i])) {
-              Planner::axis_steps_per_mm[get_axis(i)] = code_value();
+              Planner::axis_steps_per_mm[axis] = code_value();
             }
           }
         }
@@ -307,20 +307,22 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           if (code_seen('D')) {
             if (code_value() != 0) {
               filament_diameter = code_value();
-              volumetric_enabled = true;
+              volumetric_enabled = true;  // Global for all extruders.
               planner.set_filament_size(target_extruder, code_value());
             } else {
               // "M200 D" or "M200 D0", both turn off volumetic extrusion but
               // we'll keep the filament_diamter that we learned.
               volumetric_enabled = false;
+              planner.set_filament_size(target_extruder, code_value());
             }
           }
         }
       case 201: // M201
         {
           for(int i = 0; i < NUM_AXIS; i++) {
+            int axis = get_axis(i);
             if(code_seen(axis_codes[i])) {
-              Planner::max_acceleration_mm_per_s2[get_axis(i)] = code_value();
+              Planner::max_acceleration_mm_per_s2[axis] = code_value();
             }
           }
         }
@@ -328,8 +330,9 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       case 203: // M203 max feedrate mm/sec
         {
           for(int i=0; i < NUM_AXIS; i++) {
+            int axis = get_axis(i);
             if(code_seen(axis_codes[i])) {
-              Planner::max_feedrate_mm_s[get_axis(i)] = code_value();
+              Planner::max_feedrate_mm_s[axis] = code_value();
             }
           }
         }
@@ -397,6 +400,9 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         break;
     }
     recalculate_rates(); // M commands have the potential to affect planner calculations.
+  } else if (code_seen('T')) {
+    // Tool change
+    active_extruder = code_value();
   }
 }
 
@@ -434,7 +440,7 @@ bool idle2() {
       tt4 += double(MINIMUM_STEPPER_DIR_DELAY)/1000/1000/1000;
     }
     total_time += tt1+tt2+tt3+tt4;
-    printf("%.17f, %.17f, %.17f\n", block->extra_data.filepos,
+    printf("Progress: %.17f, %.17f, %.17f\n", block->extra_data.filepos,
            block->extra_data.extruder_position,
            total_time);
   }
@@ -486,10 +492,28 @@ int main(int argc, char *argv[]) {
   in.close();
   fprintf(stderr, "Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
   fprintf(stderr, "Total time: %f\n", total_time);
-  fprintf(stderr, "Min: %f, %f, %f\n", min_pos_seen[0], min_pos_seen[1], min_pos_seen[2]);
-  fprintf(stderr, "Max: %f, %f, %f\n", max_pos_seen[0], max_pos_seen[1], max_pos_seen[2]);
-  fprintf(stderr, "Filament diameter: %f\n", filament_diameter);
-  fprintf(stderr, "Filament length: %f\n", extruder_position);
-  fprintf(stderr, "Volume in cm^3: %f\n", extruder_position * M_PI * filament_diameter/2 * filament_diameter/2 / 1000);
+  printf("analysis: {");
+  printf("\"estimatedPrintTime\": %.17f, ", total_time);
+  printf("\"printingArea\": ");
+  printf("{\"maxX\": %.17f, \"maxY\": %.17f, \"maxZ\": %.17f,", max_pos_seen[0], max_pos_seen[1], max_pos_seen[2]);
+  printf(" \"minX\": %.17f, \"minY\": %.17f, \"minZ\": %.17f}", min_pos_seen[0], min_pos_seen[1], min_pos_seen[2]);
+  printf(", \"dimensions\": {\"width\": %.17f, \"depth\": %.17f, \"height\": %.17f}, ",
+         max_pos_seen[0] - min_pos_seen[0],
+         max_pos_seen[1] - min_pos_seen[1],
+         max_pos_seen[2] - min_pos_seen[2]);
+  printf("\"filament\": {");
+  bool printed_tool = false;
+  for (int i = 0; i < MAX_EXTRUDERS; i++) {
+    if (extrusion_length[i]) {
+      if (printed_tool) {
+        printf(", ");
+      }
+      printf("\"tool%d\": {\"length\": %.17f, \"volume\": %.17f}", i,
+             extrusion_length[i],
+             extrusion_length[i] * filament_diameter/2 * filament_diameter/2 * M_PI);
+      printed_tool = true;
+    }
+  }
+  printf("}}\n");
   return 0;
 }

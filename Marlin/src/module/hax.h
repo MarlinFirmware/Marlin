@@ -37,6 +37,7 @@ extern bool idle2();
 
 //#define FORCE_INLINE inline __attribute__((always_inline)) 
 #define NUM_AXIS 4
+#define MAX_EXTRUDERS 5
 
 #define min fmin
 #define max fmax
@@ -75,6 +76,10 @@ extern bool idle2();
 #define disable_e1()
 #define disable_e2()
 #define disable_all_steppers()
+#define disable_E1() do { } while (0)
+#define disable_E2() do { } while (0)
+#define disable_E3() do { } while (0)
+#define disable_E4() do { } while (0)
 
 #define MINIMUM_PLANNER_SPEED 0.05
 // (mm/sec)
