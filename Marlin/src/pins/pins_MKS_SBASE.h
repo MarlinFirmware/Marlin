@@ -36,8 +36,10 @@
 
 // unused
 /*
-#define PIN_P0_27          P0_27
-#define PIN_P0_28          P0_28
+#define PIN_P0_27          P0_27 - EXP2/Onboard SD
+#define PIN_P0_28          P0_28 - EXP2
+#define PIN_P0_02          P0_02 - AUX1 (Interrupt Capable/ADC/Serial Port 0)
+#define PIN_P0_03          P0_03 - AUX1 (Interrupt Capable/ADC/Serial Port 0)
 */
 
 #define LED_PIN           P1_18 // LED2 P1_19, LED3 P1_20, LED4 P1_21
@@ -51,7 +53,7 @@
 #define SERVO3_PIN         P4_28   // J8-6
 
 //
-// Limit Switches
+// Limit Switches - Not Interrupt Capable
 //
 #define X_MIN_PIN          P1_24   // 10k pullup to 3.3V, 1K series
 #define X_MAX_PIN          P1_25   // 10k pullup to 3.3V, 1K series
@@ -104,6 +106,8 @@
 
 //
 // Connector J7
+// Note: These pins are all shared with the EXP1/EXP2 Connector.
+// Using them with an LCD connected or configured will lead to hangs & crashes.
 //
 
 // 5V
@@ -111,7 +115,7 @@
 // GND
 #define PIN_P0_17          P0_17
 #define PIN_P0_16          P0_16
-#define PIN_P0_14          P0_14
+#define PIN_P0_14          P0_15
 
 
 //
@@ -120,9 +124,9 @@
 
 // GND
 #define PIN_P1_22          P1_22
-#define PIN_P1_23          P1_23
-#define PIN_P2_12          P2_12
-#define PIN_P2_11          P2_11
+#define PIN_P1_23          P1_23 // PWM Capable
+#define PIN_P2_12          P2_12 // Interrupt Capable
+#define PIN_P2_11          P2_11 // Interrupt Capable
 #define PIN_P4_28          P4_28
 
 //
@@ -137,7 +141,7 @@
 //
 // Misc. Functions
 //
-#define PS_ON_PIN          P0_25
+#define PS_ON_PIN          P0_25 //TH3 Connector
 #define LPC_SOFTWARE_SPI  // MKS_SBASE needs a software SPI because the
                           // selected pins are not on a hardware SPI controller
 
@@ -226,9 +230,24 @@
 
  /**
   * Special pins
-  *   P1_30 - not 5V tolerant
-  *   P1_31 - not 5V tolerant
-  *   P0_27 - open collector
-  *   P0_28 - open collector
+  *   P1_30 - not 5V tolerant - EXP1
+  *   P1_31 - not 5V tolerant - EXP1
+  *   P0_27 - open collector  - EXP2
+  *   P0_28 - open collector  - EXP2
+  *
+  */
+
+ /**
+  * Serial Ports
+  *   P0_00 - Port  3
+  *   P0_01
+  *   P0_10 - Port  2
+  *   P0_11
+  *   P0_15 - Port  1
+  *   P0_16
+  *   P0_02 - Port  0
+  *   P0_03 - AUX1
+  *   P0_29 - Port -1
+  *   P0_30 - USB
   *
   */
