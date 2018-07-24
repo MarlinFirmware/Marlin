@@ -28,7 +28,12 @@ double max_pos_extruded[3] = { -std::numeric_limits<double>::infinity(), -std::n
 uint8_t active_extruder = 0;
 bool junction_deviation = false; // This replaces the JUNCTION_DEVIATION constant.
 bool s_curve_acceleration = true; // This replaces the S_CURVE_ACCELERATION constant.
-double filament_diameter = DEFAULT_NOMINAL_FILAMENT_DIA;
+double filament_diameter[MAX_EXTRUDERS] = {
+  DEFAULT_NOMINAL_FILAMENT_DIA,
+  DEFAULT_NOMINAL_FILAMENT_DIA,
+  DEFAULT_NOMINAL_FILAMENT_DIA,
+  DEFAULT_NOMINAL_FILAMENT_DIA,
+  DEFAULT_NOMINAL_FILAMENT_DIA};
 bool volumetric_enabled = false;
 //===========================================================================
 //=============================private variables=============================
@@ -78,7 +83,7 @@ void recalculate_rates() {
   Planner::refresh_positioning();
   // steps per sq second need to be updated to agree with the units per sq second
   Planner::reset_acceleration_rates();
-  Planner::calculate_volumetric_multipliers();
+  Planner::calculate_volumetric_multipliers(); // This also calls refresh_e_factor.
 }
 
 void Config_ResetDefault()
@@ -132,16 +137,16 @@ void prepare_move(const ExtraData& extra_data)
   bool moved = calc_destination[X_AXIS] != current_position[X_AXIS] ||
                calc_destination[Y_AXIS] != current_position[Y_AXIS] ||
                calc_destination[Z_AXIS] != current_position[Z_AXIS];
-  double extruded = calc_destination[E_AXIS] - current_position[E_AXIS];
+  int target_extruder = active_extruder;
+  if (code_seen('T')) {
+    target_extruder = code_value();
+  }
+  double extruded = (calc_destination[E_AXIS] - current_position[E_AXIS]) * Planner::e_factor[target_extruder];
   extruder_position += extruded;
   if (extruded != 0 && moved) {
     for (int i = 0; i < NUM_AXIS - 1; i++) {
       min_pos_extruded[i] = min(min_pos_extruded[i], calc_destination[i]);
       max_pos_extruded[i] = max(max_pos_extruded[i], calc_destination[i]);
-    }
-    int target_extruder = active_extruder;
-    if (code_seen('T')) {
-      target_extruder = code_value();
     }
     extrusion_length[target_extruder] += extruded;
   }
@@ -301,7 +306,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           }
           if (code_seen('D')) {
             if (code_value() != 0) {
-              filament_diameter = code_value();
+              filament_diameter[target_extruder] = code_value();
               volumetric_enabled = true;  // Global for all extruders.
               planner.set_filament_size(target_extruder, code_value());
             } else {
@@ -389,7 +394,6 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           }
           if(code_seen('S')) {
             Planner::flow_percentage[target_extruder] = code_value();
-            planner.refresh_e_factor(target_extruder);
           }
         }
         break;
@@ -507,7 +511,7 @@ int main(int argc, char *argv[]) {
       }
       printf("\"tool%d\": {\"length\": %.17f, \"volume\": %.17f}", i,
              extrusion_length[i], // in mm
-             extrusion_length[i] * filament_diameter/2 * filament_diameter/2 * M_PI / 1000 // in cm^3
+             extrusion_length[i] * filament_diameter[i]/2 * filament_diameter[i]/2 * M_PI / 1000 // in cm^3
              );
       printed_tool = true;
     }

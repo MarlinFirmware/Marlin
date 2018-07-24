@@ -37,7 +37,7 @@ extern bool idle2();
 
 //#define FORCE_INLINE inline __attribute__((always_inline)) 
 #define NUM_AXIS 4
-#define MAX_EXTRUDERS 5
+#define MAX_EXTRUDERS EXTRUDERS
 
 #define min fmin
 #define max fmax
