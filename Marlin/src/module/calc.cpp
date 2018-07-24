@@ -487,7 +487,7 @@ int main(int argc, char *argv[]) {
   in.close();
   fprintf(stderr, "Processed %d Gcodes and %d Mcodes. %d blocks\n", total_g, total_m, blocks);
   fprintf(stderr, "Total time: %f\n", total_time);
-  printf("analysis: {");
+  printf("Analysis: {");
   printf("\"estimatedPrintTime\": %.17f, ", total_time);
   printf("\"printingArea\": ");
   printf("{\"maxX\": %.17f, \"maxY\": %.17f, \"maxZ\": %.17f,",
