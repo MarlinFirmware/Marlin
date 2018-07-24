@@ -106,7 +106,7 @@
 
 //
 // Connector J7
-// Note: These pins are all shared with the EXP1/EXP2 Connector.
+// Note: These pins are all digitally shared with the EXP1/EXP2 Connector.
 // Using them with an LCD connected or configured will lead to hangs & crashes.
 //
 
