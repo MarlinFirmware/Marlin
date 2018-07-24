@@ -115,7 +115,7 @@
 // GND
 #define PIN_P0_17          P0_17
 #define PIN_P0_16          P0_16
-#define PIN_P0_14          P0_15
+#define PIN_P0_15          P0_15
 
 
 //
