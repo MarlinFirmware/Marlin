@@ -29,9 +29,14 @@
 #endif
 
 #define IS_RAMPS_EFB
-#define RAMPS_D9_PIN         44
-#define FAN2_PIN              9
-#define ORIG_E0_AUTO_FAN_PIN  9
+
+// FAN0 / D9  - Typically used for the part fan on Anycubic Delta devices
+#define FAN_PIN 9
+
+// FAN1 / D7  - Typically unused, can be allocated as Case Fan
+
+// FAN2 / D44 - Typical Extruder Fan on Anycubic Delta devices
+#define ORIG_E0_AUTO_FAN_PIN  44
 
 #include "pins_RAMPS_13.h"
 
@@ -39,3 +44,37 @@
 #undef E1_DIR_PIN
 #undef E1_ENABLE_PIN
 #undef E1_CS_PIN
+
+
+// TODO
+// when running a comparison between 1.1.0-RC8 and the Anycubic patched sources
+// The following differences were highlighted
+// However I don't currently have the correct display's to test these changes.
+
+//#if ENABLED(ULTRA_LCD)
+//
+//  // LCD Display output pins
+//  #if ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
+//    #undef LCD_PINS_D6
+//    #define LCD_PINS_D6 57
+//  #endif
+
+//  // LCD Display input pins
+//  #if ENABLED(NEWPANEL)
+//    #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+//      #undef DOGLCD_A0
+//      #define DOGLCD_A0        23
+//    #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+//      #undef BEEPER_PIN
+//	    #define BEEPER_PIN 33
+//      #undef LCD_BACKLIGHT_PIN
+//      #define LCD_BACKLIGHT_PIN 67
+//    #endif
+//  #elif ENABLED(MINIPANEL)
+//    #undef BEEPER_PIN
+//    #define BEEPER_PIN 33
+//    #undef DOGLCD_A0
+//    #define DOGLCD_A0  42
+//  #endif
+
+//#endif // ULTRA_LCD
