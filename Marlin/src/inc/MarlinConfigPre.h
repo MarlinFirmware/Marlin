@@ -29,6 +29,7 @@
 #include "../core/types.h"
 #include "Version.h"
 #include "../../Configuration.h"
+#include "../core/drivers.h"
 #include "Conditionals_LCD.h"
 #include "../../Configuration_adv.h"
 #include "Conditionals_adv.h"
