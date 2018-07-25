@@ -301,6 +301,8 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
 
+void  home_all_axes();
+
 void report_current_position();
 
 #if IS_KINEMATIC
