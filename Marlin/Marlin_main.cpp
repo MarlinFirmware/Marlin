@@ -136,7 +136,7 @@
  * M119 - Report endstops status.
  * M120 - Enable endstops detection.
  * M121 - Disable endstops detection.
- * M122 - Debug stepper (Requires HAVE_TMC2130 or HAVE_TMC2208)
+ * M122 - Debug stepper (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
  * M125 - Save current position and move to filament change position. (Requires PARK_HEAD_ON_PAUSE)
  * M126 - Solenoid Air Valve Open. (Requires BARICUDA)
  * M127 - Solenoid Air Valve Closed. (Requires BARICUDA)
@@ -223,13 +223,13 @@
  * M868 - Report or set position encoder module error correction threshold.
  * M869 - Report position encoder module error.
  * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
- * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires HAVE_TMC2130 or HAVE_TMC2208)
+ * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires DAC_STEPPER_CURRENT or DIGIPOTSS_PIN)
  * M909 - Print digipot/DAC current value. (Requires DAC_STEPPER_CURRENT)
  * M910 - Commit digipot/DAC value to external EEPROM via I2C. (Requires DAC_STEPPER_CURRENT)
- * M911 - Report stepper driver overtemperature pre-warn condition. (Requires HAVE_TMC2130 or HAVE_TMC2208)
- * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires HAVE_TMC2130 or HAVE_TMC2208)
+ * M911 - Report stepper driver overtemperature pre-warn condition. (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
+ * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set SENSORLESS_HOMING sensitivity. (Requires SENSORLESS_HOMING)
  *
@@ -10988,45 +10988,45 @@ inline void gcode_M502() {
       report = false;
       switch (i) {
         case X_AXIS:
-          #if X_IS_TRINAMIC
+          #if AXIS_IS_TMC(X)
             if (index < 2) TMC_SET_CURRENT(X);
           #endif
-          #if X2_IS_TRINAMIC
+          #if AXIS_IS_TMC(X2)
             if (!(index & 1)) TMC_SET_CURRENT(X2);
           #endif
           break;
         case Y_AXIS:
-          #if Y_IS_TRINAMIC
+          #if AXIS_IS_TMC(Y)
             if (index < 2) TMC_SET_CURRENT(Y);
           #endif
-          #if Y2_IS_TRINAMIC
+          #if AXIS_IS_TMC(Y2)
             if (!(index & 1)) TMC_SET_CURRENT(Y2);
           #endif
           break;
         case Z_AXIS:
-          #if Z_IS_TRINAMIC
+          #if AXIS_IS_TMC(Z)
             if (index < 2) TMC_SET_CURRENT(Z);
           #endif
-          #if Z2_IS_TRINAMIC
+          #if AXIS_IS_TMC(Z2)
             if (!(index & 1)) TMC_SET_CURRENT(Z2);
           #endif
           break;
         case E_AXIS: {
           if (get_target_extruder_from_command(906)) return;
           switch (target_extruder) {
-            #if E0_IS_TRINAMIC
+            #if AXIS_IS_TMC(E0)
               case 0: TMC_SET_CURRENT(E0); break;
             #endif
-            #if E1_IS_TRINAMIC
+            #if AXIS_IS_TMC(E1)
               case 1: TMC_SET_CURRENT(E1); break;
             #endif
-            #if E2_IS_TRINAMIC
+            #if AXIS_IS_TMC(E2)
               case 2: TMC_SET_CURRENT(E2); break;
             #endif
-            #if E3_IS_TRINAMIC
+            #if AXIS_IS_TMC(E3)
               case 3: TMC_SET_CURRENT(E3); break;
             #endif
-            #if E4_IS_TRINAMIC
+            #if AXIS_IS_TMC(E4)
               case 4: TMC_SET_CURRENT(E4); break;
             #endif
           }
@@ -11035,73 +11035,69 @@ inline void gcode_M502() {
     }
 
     if (report) {
-      #if X_IS_TRINAMIC
+      #if AXIS_IS_TMC(X)
         TMC_SAY_CURRENT(X);
       #endif
-      #if X2_IS_TRINAMIC
+      #if AXIS_IS_TMC(X2)
         TMC_SAY_CURRENT(X2);
       #endif
-      #if Y_IS_TRINAMIC
+      #if AXIS_IS_TMC(Y)
         TMC_SAY_CURRENT(Y);
       #endif
-      #if Y2_IS_TRINAMIC
+      #if AXIS_IS_TMC(Y2)
         TMC_SAY_CURRENT(Y2);
       #endif
-      #if Z_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z)
         TMC_SAY_CURRENT(Z);
       #endif
-      #if Z2_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z2)
         TMC_SAY_CURRENT(Z2);
       #endif
-      #if E0_IS_TRINAMIC
+      #if AXIS_IS_TMC(E0)
         TMC_SAY_CURRENT(E0);
       #endif
-      #if E1_IS_TRINAMIC
+      #if AXIS_IS_TMC(E1)
         TMC_SAY_CURRENT(E1);
       #endif
-      #if E2_IS_TRINAMIC
+      #if AXIS_IS_TMC(E2)
         TMC_SAY_CURRENT(E2);
       #endif
-      #if E3_IS_TRINAMIC
+      #if AXIS_IS_TMC(E3)
         TMC_SAY_CURRENT(E3);
       #endif
-      #if E4_IS_TRINAMIC
+      #if AXIS_IS_TMC(E4)
         TMC_SAY_CURRENT(E4);
       #endif
     }
   }
 
-  #define M91x_USE(A) (ENABLED(A##_IS_TMC2130) || (ENABLED(A##_IS_TMC2208) && PIN_EXISTS(A##_SERIAL_RX)))
+  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || (AXIS_DRIVER_TYPE(ST, TMC2208) && PIN_EXISTS(ST##_SERIAL_RX)))
   #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
-  #define M91x_USE_X  (ENABLED(IS_TRAMS) || M91x_USE(X))
-  #define M91x_USE_Y  (ENABLED(IS_TRAMS) || M91x_USE(Y))
-  #define M91x_USE_Z  (ENABLED(IS_TRAMS) || M91x_USE(Z))
-  #define M91x_USE_E0 (ENABLED(IS_TRAMS) || M91x_USE_E(0))
 
   /**
    * M911: Report TMC stepper driver overtemperature pre-warn flag
    *       This flag is held by the library, persisting until cleared by M912
    */
   inline void gcode_M911() {
-    #if M91x_USE_X
+    #if M91x_USE(X)
       tmc_report_otpw(stepperX, TMC_X);
     #endif
     #if M91x_USE(X2)
       tmc_report_otpw(stepperX2, TMC_X2);
     #endif
-    #if M91x_USE_Y
+    #if M91x_USE(Y)
       tmc_report_otpw(stepperY, TMC_Y);
     #endif
     #if M91x_USE(Y2)
       tmc_report_otpw(stepperY2, TMC_Y2);
     #endif
-    #if M91x_USE_Z
+    #if M91x_USE(Z)
       tmc_report_otpw(stepperZ, TMC_Z);
     #endif
     #if M91x_USE(Z2)
       tmc_report_otpw(stepperZ2, TMC_Z2);
     #endif
-    #if M91x_USE_E0
+    #if M91x_USE_E(0)
       tmc_report_otpw(stepperE0, TMC_E0);
     #endif
     #if M91x_USE_E(1)
@@ -11137,9 +11133,9 @@ inline void gcode_M502() {
                hasE = parser.seen(axis_codes[E_AXIS]),
                hasNone = !hasX && !hasY && !hasZ && !hasE;
 
-    #if M91x_USE_X || M91x_USE(X2)
+    #if M91x_USE(X) || M91x_USE(X2)
       const uint8_t xval = parser.byteval(axis_codes[X_AXIS], 10);
-      #if M91x_USE_X
+      #if M91x_USE(X)
         if (hasNone || xval == 1 || (hasX && xval == 10)) tmc_clear_otpw(stepperX, TMC_X);
       #endif
       #if M91x_USE(X2)
@@ -11147,9 +11143,9 @@ inline void gcode_M502() {
       #endif
     #endif
 
-    #if M91x_USE_Y || M91x_USE(Y2)
+    #if M91x_USE(Y) || M91x_USE(Y2)
       const uint8_t yval = parser.byteval(axis_codes[Y_AXIS], 10);
-      #if M91x_USE_Y
+      #if M91x_USE(Y)
         if (hasNone || yval == 1 || (hasY && yval == 10)) tmc_clear_otpw(stepperY, TMC_Y);
       #endif
       #if M91x_USE(Y2)
@@ -11157,9 +11153,9 @@ inline void gcode_M502() {
       #endif
     #endif
 
-    #if M91x_USE_Z || M91x_USE(Z2)
+    #if M91x_USE(Z) || M91x_USE(Z2)
       const uint8_t zval = parser.byteval(axis_codes[Z_AXIS], 10);
-      #if M91x_USE_Z
+      #if M91x_USE(Z)
         if (hasNone || zval == 1 || (hasZ && zval == 10)) tmc_clear_otpw(stepperZ, TMC_Z);
       #endif
       #if M91x_USE(Z2)
@@ -11167,9 +11163,9 @@ inline void gcode_M502() {
       #endif
     #endif
 
-    #if M91x_USE_E0 || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4)
+    #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4)
       const uint8_t eval = parser.byteval(axis_codes[E_AXIS], 10);
-      #if M91x_USE_E0
+      #if M91x_USE_E(0)
         if (hasNone || eval == 0 || (hasE && eval == 10)) tmc_clear_otpw(stepperE0, TMC_E0);
       #endif
       #if M91x_USE_E(1)
@@ -11203,45 +11199,45 @@ inline void gcode_M502() {
         report = false;
         switch (i) {
           case X_AXIS:
-            #if X_IS_TRINAMIC
+            #if AXIS_HAS_STEALTHCHOP(X)
               if (index < 2) TMC_SET_PWMTHRS(X,X);
             #endif
-            #if X2_IS_TRINAMIC
+            #if AXIS_HAS_STEALTHCHOP(X2)
               if (!(index & 1)) TMC_SET_PWMTHRS(X,X2);
             #endif
             break;
           case Y_AXIS:
-            #if Y_IS_TRINAMIC
+            #if AXIS_HAS_STEALTHCHOP(Y)
               if (index < 2) TMC_SET_PWMTHRS(Y,Y);
             #endif
-            #if Y2_IS_TRINAMIC
+            #if AXIS_HAS_STEALTHCHOP(Y2)
               if (!(index & 1)) TMC_SET_PWMTHRS(Y,Y2);
             #endif
             break;
           case Z_AXIS:
-            #if Z_IS_TRINAMIC
+            #if AXIS_HAS_STEALTHCHOP(Z)
               if (index < 2) TMC_SET_PWMTHRS(Z,Z);
             #endif
-            #if Z2_IS_TRINAMIC
+            #if AXIS_HAS_STEALTHCHOP(Z2)
               if (!(index & 1)) TMC_SET_PWMTHRS(Z,Z2);
             #endif
             break;
           case E_AXIS: {
             if (get_target_extruder_from_command(913)) return;
             switch (target_extruder) {
-              #if E0_IS_TRINAMIC
+              #if AXIS_HAS_STEALTHCHOP(E0)
                 case 0: TMC_SET_PWMTHRS_E(0); break;
               #endif
-              #if E_STEPPERS > 1 && E1_IS_TRINAMIC
+              #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
                 case 1: TMC_SET_PWMTHRS_E(1); break;
               #endif
-              #if E_STEPPERS > 2 && E2_IS_TRINAMIC
+              #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
                 case 2: TMC_SET_PWMTHRS_E(2); break;
               #endif
-              #if E_STEPPERS > 3 && E3_IS_TRINAMIC
+              #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
                 case 3: TMC_SET_PWMTHRS_E(3); break;
               #endif
-              #if E_STEPPERS > 4 && E4_IS_TRINAMIC
+              #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
                 case 4: TMC_SET_PWMTHRS_E(4); break;
               #endif
             }
@@ -11250,37 +11246,37 @@ inline void gcode_M502() {
       }
 
       if (report) {
-        #if X_IS_TRINAMIC
+        #if AXIS_HAS_STEALTHCHOP(X)
           TMC_SAY_PWMTHRS(X,X);
         #endif
-        #if X2_IS_TRINAMIC
+        #if AXIS_HAS_STEALTHCHOP(X2)
           TMC_SAY_PWMTHRS(X,X2);
         #endif
-        #if Y_IS_TRINAMIC
+        #if AXIS_HAS_STEALTHCHOP(Y)
           TMC_SAY_PWMTHRS(Y,Y);
         #endif
-        #if Y2_IS_TRINAMIC
+        #if AXIS_HAS_STEALTHCHOP(Y2)
           TMC_SAY_PWMTHRS(Y,Y2);
         #endif
-        #if Z_IS_TRINAMIC
+        #if AXIS_HAS_STEALTHCHOP(Z)
           TMC_SAY_PWMTHRS(Z,Z);
         #endif
-        #if Z2_IS_TRINAMIC
+        #if AXIS_HAS_STEALTHCHOP(Z2)
           TMC_SAY_PWMTHRS(Z,Z2);
         #endif
-        #if E0_IS_TRINAMIC
+        #if AXIS_HAS_STEALTHCHOP(E0)
           TMC_SAY_PWMTHRS_E(0);
         #endif
-        #if E_STEPPERS > 1 && E1_IS_TRINAMIC
+        #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
           TMC_SAY_PWMTHRS_E(1);
         #endif
-        #if E_STEPPERS > 2 && E2_IS_TRINAMIC
+        #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
           TMC_SAY_PWMTHRS_E(2);
         #endif
-        #if E_STEPPERS > 3 && E3_IS_TRINAMIC
+        #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
           TMC_SAY_PWMTHRS_E(3);
         #endif
-        #if E_STEPPERS > 4 && E4_IS_TRINAMIC
+        #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
           TMC_SAY_PWMTHRS_E(4);
         #endif
       }
@@ -11303,30 +11299,30 @@ inline void gcode_M502() {
         switch (i) {
           #if X_SENSORLESS
             case X_AXIS:
-              #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+              #if AXIS_HAS_STALLGUARD(X)
                 if (index < 2) TMC_SET_SGT(X);
               #endif
-              #if ENABLED(X2_IS_TMC2130)
+              #if AXIS_HAS_STALLGUARD(X2)
                 if (!(index & 1)) TMC_SET_SGT(X2);
               #endif
               break;
           #endif
           #if Y_SENSORLESS
             case Y_AXIS:
-              #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+              #if AXIS_HAS_STALLGUARD(Y)
                 if (index < 2) TMC_SET_SGT(Y);
               #endif
-              #if ENABLED(Y2_IS_TMC2130)
+              #if AXIS_HAS_STALLGUARD(Y2)
                 if (!(index & 1)) TMC_SET_SGT(Y2);
               #endif
               break;
           #endif
           #if Z_SENSORLESS
             case Z_AXIS:
-              #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+              #if AXIS_HAS_STALLGUARD(Z)
                 if (index < 2) TMC_SET_SGT(Z);
               #endif
-              #if ENABLED(Z2_IS_TMC2130)
+              #if AXIS_HAS_STALLGUARD(Z2)
                 if (!(index & 1)) TMC_SET_SGT(Z2);
               #endif
               break;
@@ -11336,26 +11332,26 @@ inline void gcode_M502() {
 
       if (report) {
         #if X_SENSORLESS
-          #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+          #if AXIS_HAS_STALLGUARD(X)
             TMC_SAY_SGT(X);
           #endif
-          #if ENABLED(X2_IS_TMC2130)
+          #if AXIS_HAS_STALLGUARD(X2)
             TMC_SAY_SGT(X2);
           #endif
         #endif
         #if Y_SENSORLESS
-          #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+          #if AXIS_HAS_STALLGUARD(Y)
             TMC_SAY_SGT(Y);
           #endif
-          #if ENABLED(Y2_IS_TMC2130)
+          #if AXIS_HAS_STALLGUARD(Y2)
             TMC_SAY_SGT(Y2);
           #endif
         #endif
         #if Z_SENSORLESS
-          #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+          #if AXIS_HAS_STALLGUARD(Z)
             TMC_SAY_SGT(Z);
           #endif
-          #if ENABLED(Z2_IS_TMC2130)
+          #if AXIS_HAS_STALLGUARD(Z2)
             TMC_SAY_SGT(Z2);
           #endif
         #endif
@@ -11376,11 +11372,11 @@ inline void gcode_M502() {
         return;
       }
 
-      #if Z_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z)
         const uint16_t Z_current_1 = stepperZ.getCurrent();
         stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
       #endif
-      #if Z2_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z2)
         const uint16_t Z2_current_1 = stepperZ2.getCurrent();
         stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
       #endif
@@ -11391,10 +11387,10 @@ inline void gcode_M502() {
 
       do_blocking_move_to_z(Z_MAX_POS+_z);
 
-      #if Z_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z)
         stepperZ.setCurrent(Z_current_1, R_SENSE, HOLD_MULTIPLIER);
       #endif
-      #if Z2_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z2)
         stepperZ2.setCurrent(Z2_current_1, R_SENSE, HOLD_MULTIPLIER);
       #endif
 
@@ -12619,7 +12615,7 @@ void process_parsed_command() {
         #endif
       #endif
 
-      #if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
+      #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208)
         #if ENABLED(TMC_DEBUG)
           case 122: gcode_M122(); break;                          // M122: Debug TMC steppers
         #endif
@@ -14445,10 +14441,10 @@ void setup() {
   SERIAL_ECHO_START();
 
   // Prepare communication for TMC drivers
-  #if ENABLED(HAVE_TMC2130)
+  #if HAS_DRIVER(TMC2130)
     tmc_init_cs_pins();
   #endif
-  #if ENABLED(HAVE_TMC2208)
+  #if HAS_DRIVER(TMC2208)
     tmc2208_serial_begin();
   #endif
 
