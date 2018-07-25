@@ -93,6 +93,23 @@
       return data;
     }
   #endif
+  #if HAS_DRIVER(TMC2660)
+    static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
+    static uint8_t get_status_response(TMC2660Stepper, uint32_t) { return 0; }
+    static TMC_driver_data get_driver_data(TMC2660Stepper &st) {
+      constexpr uint32_t OTPW_bm = 0x4UL;
+      constexpr uint8_t OTPW_bp = 2;
+      constexpr uint32_t OT_bm = 0x2UL;
+      constexpr uint8_t OT_bp = 1;
+      constexpr uint8_t DRIVER_ERROR_bm = 0x1EUL;
+      TMC_driver_data data;
+      data.drv_status = st.DRVSTATUS();
+      data.is_otpw = (data.drv_status & OTPW_bm) >> OTPW_bp;
+      data.is_ot = (data.drv_status & OT_bm) >> OT_bp;
+      data.is_error = data.drv_status & DRIVER_ERROR_bm;
+      return data;
+    }
+  #endif
 
   template<typename TMC>
   void monitor_tmc_driver(TMC &st) {
@@ -161,7 +178,7 @@
     #endif
   }
 
-  #define HAS_HW_COMMS(ST) AXIS_DRIVER_TYPE(ST, TMC2130) || (AXIS_DRIVER_TYPE(ST, TMC2208) && defined(ST##_HARDWARE_SERIAL))
+  #define HAS_HW_COMMS(ST) AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2660) || (AXIS_DRIVER_TYPE(ST, TMC2208) && defined(ST##_HARDWARE_SERIAL))
 
   void monitor_tmc_driver() {
     static millis_t next_cOT = 0;
@@ -291,6 +308,7 @@
         case TMC_STALLGUARD: if (st.stallguard()) SERIAL_CHAR('X'); break;
         case TMC_SG_RESULT:  SERIAL_PRINT(st.sg_result(), DEC);   break;
         case TMC_FSACTIVE:   if (st.fsactive())   SERIAL_CHAR('X'); break;
+        case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
     }
@@ -312,9 +330,14 @@
         case TMC_T150: if (st.t150()) SERIAL_CHAR('X'); break;
         case TMC_T143: if (st.t143()) SERIAL_CHAR('X'); break;
         case TMC_T120: if (st.t120()) SERIAL_CHAR('X'); break;
+        case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC); break;
         default: break;
       }
     }
+  #endif
+
+  #if HAS_DRIVER(TMC2660)
+    static void _tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
   #endif
 
   template <typename TMC>
@@ -364,6 +387,34 @@
     }
   }
 
+  #if HAS_DRIVER(TMC2660)
+    template<char AXIS_LETTER, char DRIVER_ID>
+    void tmc_status(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const TMC_debug_enum i, const float) {
+      SERIAL_ECHO('\t');
+      switch (i) {
+        case TMC_CODES: st.printLabel(); break;
+        case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
+        case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
+        case TMC_RMS_CURRENT: SERIAL_PROTOCOL(st.rms_current()); break;
+        case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
+        case TMC_IRUN:
+          SERIAL_PRINT(st.cs(), DEC);
+          SERIAL_ECHOPGM("/31");
+          break;
+        case TMC_VSENSE: serialprintPGM(st.vsense() ? PSTR("1=.165") : PSTR("0=.310")); break;
+        case TMC_MICROSTEPS: SERIAL_ECHO(st.microsteps()); break;
+        //case TMC_OTPW: serialprintPGM(st.otpw() ? PSTR("true") : PSTR("false")); break;
+        //case TMC_OTPW_TRIGGERED: serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false")); break;
+        case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
+        case TMC_TOFF: SERIAL_PRINT(st.toff(), DEC); break;
+        case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
+        case TMC_HEND: SERIAL_PRINT(st.hysteresis_end(), DEC); break;
+        case TMC_HSTRT: SERIAL_PRINT(st.hysteresis_start(), DEC); break;
+        default: break;
+      }
+    }
+  #endif
+
   template <typename TMC>
   static void tmc_parse_drv_status(TMC &st, const TMC_drv_status_enum i) {
     SERIAL_CHAR('\t');
@@ -376,7 +427,6 @@
       case TMC_S2GA:          if (st.s2ga())         SERIAL_CHAR('X'); break;
       case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('X'); break;
       case TMC_OT:            if (st.ot())           SERIAL_CHAR('X'); break;
-      case TMC_DRV_CS_ACTUAL: SERIAL_PRINT(st.cs_actual(), DEC);       break;
       case TMC_DRV_STATUS_HEX:
         st.printLabel();
         SERIAL_ECHOPGM("\t0x");
@@ -571,11 +621,14 @@
     #endif
     st.diag1_stall(enable ? 1 : 0);
   }
+  void tmc_sensorless_homing(TMC2660Stepper &st, const bool enable) {
+    // TODO
+  }
 
 #endif // USE_SENSORLESS
 
-#if HAS_DRIVER(TMC2130)
-  #define IS_TMC_SPI(ST) AXIS_DRIVER_TYPE(ST, TMC2130)
+#if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2660)
+  #define IS_TMC_SPI(ST) AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2660)
   #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
   void tmc_init_cs_pins() {
     #if IS_TMC_SPI(X)
@@ -618,6 +671,6 @@
       SET_CS_PIN(E5);
     #endif
   }
-#endif // TMC2130
+#endif // TMC2130 TMC2660
 
 #endif // HAS_TRINAMIC

@@ -37,7 +37,7 @@
 #define TMC2208_STANDALONE  0x00A
 #define TMC26X              0x10B
 #define TMC26X_STANDALONE   0x00B
-#define TMC2660             0x10C
+#define TMC2660             2660
 #define TMC2660_STANDALONE  0x00C
 
 #define _AXIS_DRIVER_TYPE(A,T) ( defined(A##_DRIVER_TYPE) && (A##_DRIVER_TYPE == T) )
@@ -67,7 +67,8 @@
 
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations
-#define HAS_TRINAMIC (HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208))
+#define HAS_TRINAMIC (HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2660))
 
 #define AXIS_IS_TMC(A) ( AXIS_DRIVER_TYPE_##A(TMC2130) || \
-                         AXIS_DRIVER_TYPE_##A(TMC2208) )
+                         AXIS_DRIVER_TYPE_##A(TMC2208) || \
+                         AXIS_DRIVER_TYPE_##A(TMC2660) )
