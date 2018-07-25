@@ -66,7 +66,7 @@
   #define G29_RETURN(b) return b;
 #else
   #define G29_RETURN(b) return;
-#endif 
+#endif
 
 /**
  * G29: Detailed Z probe, probes the bed at 3 or more points.
@@ -996,7 +996,7 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   report_current_position();
-  
+
   G29_RETURN(isnan(measured_z));
 }
 

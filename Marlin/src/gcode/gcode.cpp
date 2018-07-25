@@ -134,7 +134,7 @@ void GcodeSuite::dwell(millis_t time) {
   #ifndef G29_MAX_RETRIES
     #define G29_MAX_RETRIES 0
   #endif
-   
+
   void GcodeSuite::G29_with_retry() {
     uint8_t retries = G29_MAX_RETRIES;
     while (G29()) { // G29 should return true for failed probes ONLY
@@ -144,7 +144,7 @@ void GcodeSuite::dwell(millis_t time) {
         #endif
         #ifdef G29_RECOVER_COMMANDS
           process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
-        #endif   
+        #endif
       }
       else {
         #ifdef G29_FAILURE_COMMANDS

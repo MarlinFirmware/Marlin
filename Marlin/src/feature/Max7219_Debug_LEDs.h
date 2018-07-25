@@ -35,7 +35,7 @@
  * support functions available to control the LEDs in the 8x8 grid.
  *
  * If you are using the Max7219 matrix for firmware debug purposes in time sensitive
- * areas of the code, please be aware that the orientation (rotation) of the display can 
+ * areas of the code, please be aware that the orientation (rotation) of the display can
  * affect the speed.   The Max7219 can update a single column fairly fast.  It is much
  * faster to do a Max7219_Set_Column() with a rotation of 90 or 270 degrees than to do
  * a Max7219_Set_Row().    The opposite is true for rotations of 0 or 180 degrees.
@@ -107,7 +107,7 @@ void Max7219_idle_tasks();
   #define MAX7219_Y_LEDS          8
   #define MAX7219_X_LEDS          (MAX7219_Y_LEDS * (MAX7219_NUMBER_UNITS))
   #define XOR_7219(x, y)          LEDs[(x & 0xF8) + y] ^= _BV(7 - (x & 0x07))
-  #define SET_PIXEL_7219(x, y)    LEDs[(x & 0xF8) + y] |= _BV(7 - (x & 0x07)) 
+  #define SET_PIXEL_7219(x, y)    LEDs[(x & 0xF8) + y] |= _BV(7 - (x & 0x07))
   #define CLEAR_PIXEL_7219(x, y)  LEDs[(x & 0xF8) + y] &= (_BV(7 - (x & 0x07)) ^ 0xFF)
   #define BIT_7219(x, y)          TEST(LEDs[(x & 0xF8) + y], 7 - (x & 0x07))
   #define SEND_7219(R) do {for(int8_t jj = 0; jj < MAX7219_NUMBER_UNITS; jj++) Max7219(max7219_reg_digit0 + (R & 0x7), LEDs[(R & 0x7) + jj * 8]); Max7219_pulse_load(); } while (0);
@@ -125,7 +125,7 @@ void Max7219_idle_tasks();
   #define MAX7219_Y_LEDS          8
   #define MAX7219_X_LEDS          (MAX7219_Y_LEDS * (MAX7219_NUMBER_UNITS))
   #define XOR_7219(x, y)          LEDs[y + (MAX7219_X_LEDS - 1 - (x)) & 0xF8] ^= _BV((x & 0x07))
-  #define SET_PIXEL_7219(x, y)    LEDs[y + (MAX7219_X_LEDS - 1 - (x)) & 0xF8] |= _BV((x & 0x07)) 
+  #define SET_PIXEL_7219(x, y)    LEDs[y + (MAX7219_X_LEDS - 1 - (x)) & 0xF8] |= _BV((x & 0x07))
   #define CLEAR_PIXEL_7219(x, y)  LEDs[y + (MAX7219_X_LEDS - 1 - (x)) & 0xF8] &= (_BV((x & 0x07)) ^ 0xFF)
   #define BIT_7219(x, y)          TEST(LEDs[y + (MAX7219_X_LEDS - 1 - (x)) & 0xF8], ((x & 0x07)))
   #define SEND_7219(R) do {for(int8_t jj = 0; jj < MAX7219_NUMBER_UNITS; jj++) Max7219(max7219_reg_digit7 - (R & 0x7), LEDs[(R & 0x7) + jj * 8]); Max7219_pulse_load(); } while (0);
