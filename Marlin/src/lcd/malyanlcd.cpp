@@ -326,7 +326,7 @@ void process_lcd_s_command(const char* command) {
 
     case 'H':
       // Home all axis
-      enqueue_and_echo_command("G28", false);
+      enqueue_and_echo_command("G28");
       break;
 
     case 'L': {
