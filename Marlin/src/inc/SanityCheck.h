@@ -311,10 +311,13 @@
 
 #define BOARD_MKS_13     -47
 #define BOARD_TRIGORILLA -343
+#define BOARD_RURAMPS4D  -1550
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
 #elif MB(BOARD_TRIGORILLA)
   #error "BOARD_TRIGORILLA has been renamed BOARD_TRIGORILLA_13. Please update your configuration."
+#elif MB(BOARD_RURAMPS4D)
+  #error "BOARD_RURAMPS4D has been renamed BOARD_RURAMPS4D_11. Please update your configuration."
 #endif
 
 /**

@@ -37,8 +37,14 @@
 #endif
 
 #ifndef BOARD_NAME
-  #define BOARD_NAME       "RuRAMPS4Due"
+  #define BOARD_NAME       "RuRAMPS4Due v1.3"
 #endif
+
+//
+// Servos
+//
+#define SERVO0_PIN          5
+#define SERVO1_PIN          3
 
 //
 // Limit Switches
@@ -54,7 +60,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  43
+  #define Z_MIN_PROBE_PIN  49
 #endif
 
 //
@@ -62,47 +68,45 @@
 //
 #define X_STEP_PIN         37   // Support Extension Board
 #define X_DIR_PIN          36
-#define X_ENABLE_PIN       38
+#define X_ENABLE_PIN       31
+#ifndef X_CS_PIN
+  #define X_CS_PIN         38
+#endif
 
 #define Y_STEP_PIN         32   // Support Extension Board
 #define Y_DIR_PIN          35
-#define Y_ENABLE_PIN       34
+#define Y_ENABLE_PIN       31
+#ifndef Y_CS_PIN
+  #define Y_CS_PIN         34
+#endif
 
 #define Z_STEP_PIN         30   // Support Extension Board
 #define Z_DIR_PIN           2
-#define Z_ENABLE_PIN       33
+#define Z_ENABLE_PIN       31
+#ifndef Z_CS_PIN
+  #define Z_CS_PIN         10
+#endif
 
 #define E0_STEP_PIN        29
 #define E0_DIR_PIN         28
-#define E0_ENABLE_PIN      31
+#define E0_ENABLE_PIN      33
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN        14
+#endif
 
 #define E1_STEP_PIN        22
 #define E1_DIR_PIN         24
 #define E1_ENABLE_PIN      26
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN        15
+#endif
 
 #define E2_STEP_PIN        25
 #define E2_DIR_PIN         23
 #define E2_ENABLE_PIN      27
-
-#define E3_STEP_PIN        15   // Only For Extension Board
-#define E3_DIR_PIN         14
-#define E3_ENABLE_PIN      61
-
-//#define X_CS_PIN           -1
-//#define Y_CS_PIN           -1
-//#define Z_CS_PIN           -1
-//#define E0_CS_PIN          -1
-//#define E1_CS_PIN          -1
-//#define E2_CS_PIN          -1
-//#define E3_CS_PIN          -1
-
-// For Future: Microstepping pins - Mapping not from fastio.h (?)
-//#define E3_MS1_PIN         ?
-//#define E3_MS2_PIN         ?
-//#define E3_MS3_PIN         ?
-//#define Z2_MS1_PIN         ?   // shared with E3_MS1_PIN
-//#define Z2_MS2_PIN         ?   // shared with E3_MS2_PIN
-//#define Z2_MS3_PIN         ?   // shared with E3_MS3_PIN
+#ifndef E2_CS_PIN
+  #define E2_CS_PIN        61
+#endif
 
 #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define Z_MIN_PROBE_PIN  49
@@ -122,9 +126,7 @@
 #define HEATER_2_PIN       11
 #define HEATER_BED_PIN      7   // BED H1
 
-#ifndef FAN_PIN
-  #define FAN_PIN           9
-#endif
+#define FAN_PIN             9
 #define FAN1_PIN            8
 #define CONTROLLER_FAN_PIN -1
 
@@ -136,8 +138,9 @@
 #define TEMP_2_PIN          2   // ANALOG A2
 #define TEMP_3_PIN          3   // ANALOG A2
 #define TEMP_BED_PIN        4   // ANALOG A3
-//Thermocouple Use Analog Pins
-#if ENABLED(VER_WITH_THERMOCOUPLE) // If Nead, define is in Configuration.h
+
+// The thermocouple uses Analog pins
+#if ENABLED(VER_WITH_THERMOCOUPLE) // Defined in Configuration.h
   #define TEMP_4_PIN        5   // A5
   #define TEMP_5_PIN        6   // A6 (Marlin 2.0 not support)
 #endif
@@ -148,14 +151,6 @@
 //#else
 //  #define MAX6675_SS        49
 //#endif
-
-//
-// Servos
-//
-#define SERVO0_PIN          5
-#define SERVO1_PIN          3
-#define SERVO2_PIN         -1
-#define SERVO3_PIN         -1
 
 //
 // Misc. Functions
@@ -177,7 +172,7 @@
 //
 // EEPROM
 //
-#define E2END 0x7FFF  // 32Kb (24lc256)
+#define E2END 0x8000  // 32Kb (24lc256)
 #define I2C_EEPROM    // EEPROM on I2C-0
 //#define EEPROM_SD   // EEPROM on SDCARD
 //#define SPI_EEPROM  // EEPROM on SPI-0
@@ -195,6 +190,8 @@
 
   #if ENABLED(RADDS_DISPLAY) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
+    #define BEEPER_PIN      62
+
     #define LCD_PINS_RS     63
     #define LCD_PINS_ENABLE 64
     #define LCD_PINS_D4     48
@@ -202,15 +199,11 @@
     #define LCD_PINS_D6     52
     #define LCD_PINS_D7     53
 
-    #define BEEPER_PIN      62
-
-    #define BTN_EN1         44
-    #define BTN_EN2         42
-    #define BTN_ENC         40
-
     #define SD_DETECT_PIN   51
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+
+    #define BEEPER_PIN      62
 
     #define LCD_PINS_RS     52
     #define LCD_PINS_ENABLE 53
@@ -219,35 +212,29 @@
     #define LCD_PINS_D6     52
     #define LCD_PINS_D7     53
 
-    #define BEEPER_PIN      62
-
-    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
-     #define BTN_EN1        44
-     #define BTN_EN2        42
-     #define BTN_ENC        40
-     #define SD_DETECT_PIN  51
-    #endif
+    #define SD_DETECT_PIN   51
 
   #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
 
-    #define BTN_EN1         44
-    #define BTN_EN2         42
-    #define BTN_ENC         40
     #define BEEPER_PIN      62
     #define LCD_SDSS        10
     #define SD_DETECT_PIN   51
 
-  #elif ENABLED(SPARK_FULL_GRAPHICS)
+  #elif ENABLED(MKS_MINI_12864)
 
-    //http://doku.radds.org/dokumentation/other-electronics/sparklcd/
-    #error "Oops! SPARK_FULL_GRAPHICS not supported with RURAMPS4D."
-    //#define LCD_PINS_D4     29//?
-    //#define LCD_PINS_ENABLE 27//?
-    //#define LCD_PINS_RS     25//?
-    //#define BTN_EN1         35//?
-    //#define BTN_EN2         33//?
-    //#define BTN_ENC         37//?
+    #define ORIG_BEEPER_PIN 62
 
-  #endif // SPARK_FULL_GRAPHICS
+    #define DOGLCD_A0       52
+    #define DOGLCD_CS       50
+
+    #define SD_DETECT_PIN   51
+
+  #endif
+
+  #if ENABLED(NEWPANEL)
+    #define BTN_EN1         44
+    #define BTN_EN2         42
+    #define BTN_ENC         40
+  #endif
 
 #endif // ULTRA_LCD
