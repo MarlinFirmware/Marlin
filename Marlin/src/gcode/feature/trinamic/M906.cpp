@@ -42,45 +42,45 @@ void GcodeSuite::M906() {
     report = false;
     switch (i) {
       case X_AXIS:
-        #if X_IS_TRINAMIC
+        #if AXIS_IS_TMC(X)
           if (index == 0) TMC_SET_CURRENT(X);
         #endif
-        #if X2_IS_TRINAMIC
+        #if AXIS_IS_TMC(X2)
           if (index == 1) TMC_SET_CURRENT(X2);
         #endif
         break;
       case Y_AXIS:
-        #if Y_IS_TRINAMIC
+        #if AXIS_IS_TMC(Y)
           if (index == 0) TMC_SET_CURRENT(Y);
         #endif
-        #if Y2_IS_TRINAMIC
+        #if AXIS_IS_TMC(Y2)
           if (index == 1) TMC_SET_CURRENT(Y2);
         #endif
         break;
       case Z_AXIS:
-        #if Z_IS_TRINAMIC
+        #if AXIS_IS_TMC(Z)
           if (index == 0) TMC_SET_CURRENT(Z);
         #endif
-        #if Z2_IS_TRINAMIC
+        #if AXIS_IS_TMC(Z2)
           if (index == 1) TMC_SET_CURRENT(Z2);
         #endif
         break;
       case E_AXIS: {
         if (get_target_extruder_from_command()) return;
         switch (target_extruder) {
-          #if E0_IS_TRINAMIC
+          #if AXIS_IS_TMC(E0)
             case 0: TMC_SET_CURRENT(E0); break;
           #endif
-          #if E1_IS_TRINAMIC
+          #if AXIS_IS_TMC(E1)
             case 1: TMC_SET_CURRENT(E1); break;
           #endif
-          #if E2_IS_TRINAMIC
+          #if AXIS_IS_TMC(E2)
             case 2: TMC_SET_CURRENT(E2); break;
           #endif
-          #if E3_IS_TRINAMIC
+          #if AXIS_IS_TMC(E3)
             case 3: TMC_SET_CURRENT(E3); break;
           #endif
-          #if E4_IS_TRINAMIC
+          #if AXIS_IS_TMC(E4)
             case 4: TMC_SET_CURRENT(E4); break;
           #endif
         }
@@ -89,37 +89,37 @@ void GcodeSuite::M906() {
   }
 
   if (report) {
-    #if X_IS_TRINAMIC
+    #if AXIS_IS_TMC(X)
       TMC_SAY_CURRENT(X);
     #endif
-    #if X2_IS_TRINAMIC
+    #if AXIS_IS_TMC(X2)
       TMC_SAY_CURRENT(X2);
     #endif
-    #if Y_IS_TRINAMIC
+    #if AXIS_IS_TMC(Y)
       TMC_SAY_CURRENT(Y);
     #endif
-    #if Y2_IS_TRINAMIC
+    #if AXIS_IS_TMC(Y2)
       TMC_SAY_CURRENT(Y2);
     #endif
-    #if Z_IS_TRINAMIC
+    #if AXIS_IS_TMC(Z)
       TMC_SAY_CURRENT(Z);
     #endif
-    #if Z2_IS_TRINAMIC
+    #if AXIS_IS_TMC(Z2)
       TMC_SAY_CURRENT(Z2);
     #endif
-    #if E0_IS_TRINAMIC
+    #if AXIS_IS_TMC(E0)
       TMC_SAY_CURRENT(E0);
     #endif
-    #if E1_IS_TRINAMIC
+    #if AXIS_IS_TMC(E1)
       TMC_SAY_CURRENT(E1);
     #endif
-    #if E2_IS_TRINAMIC
+    #if AXIS_IS_TMC(E2)
       TMC_SAY_CURRENT(E2);
     #endif
-    #if E3_IS_TRINAMIC
+    #if AXIS_IS_TMC(E3)
       TMC_SAY_CURRENT(E3);
     #endif
-    #if E4_IS_TRINAMIC
+    #if AXIS_IS_TMC(E4)
       TMC_SAY_CURRENT(E4);
     #endif
   }
