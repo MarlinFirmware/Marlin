@@ -871,8 +871,8 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
 /**
  * Enqueue with Serial Echo
  */
-bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
-  if (_enqueuecommand(cmd, say_ok)) {
+bool enqueue_and_echo_command(const char* cmd) {
+  if (_enqueuecommand(cmd)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
     SERIAL_CHAR('"');

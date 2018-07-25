@@ -193,8 +193,8 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); // Add a single command to the end of the buffer. Return false on failure.
-void enqueue_and_echo_commands_P(const char * const cmd);          // Set one or more commands to be prioritized over the next Serial/SD command.
+bool enqueue_and_echo_command(const char* cmd);           // Add a single command to the end of the buffer. Return false on failure.
+void enqueue_and_echo_commands_P(const char * const cmd); // Set one or more commands to be prioritized over the next Serial/SD command.
 void clear_command_queue();
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER) || ENABLED(POWER_LOSS_RECOVERY)
