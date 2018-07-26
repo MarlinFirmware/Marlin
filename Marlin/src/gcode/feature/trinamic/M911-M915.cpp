@@ -30,37 +30,33 @@
 #include "../../../module/planner.h"
 #include "../../queue.h"
 
-#define M91x_USE(A) (ENABLED(A##_IS_TMC2130) || (ENABLED(A##_IS_TMC2208) && PIN_EXISTS(A##_SERIAL_RX)))
+#define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || (AXIS_DRIVER_TYPE(ST, TMC2208) && PIN_EXISTS(ST##_SERIAL_RX)))
 #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
-#define M91x_USE_X  (ENABLED(IS_TRAMS) || M91x_USE(X))
-#define M91x_USE_Y  (ENABLED(IS_TRAMS) || M91x_USE(Y))
-#define M91x_USE_Z  (ENABLED(IS_TRAMS) || M91x_USE(Z))
-#define M91x_USE_E0 (ENABLED(IS_TRAMS) || M91x_USE_E(0))
 
 /**
  * M911: Report TMC stepper driver overtemperature pre-warn flag
  *       This flag is held by the library, persisting until cleared by M912
  */
 void GcodeSuite::M911() {
-  #if M91x_USE_X
+  #if M91x_USE(X)
     tmc_report_otpw(stepperX, TMC_X);
   #endif
   #if M91x_USE(X2)
     tmc_report_otpw(stepperX2, TMC_X2);
   #endif
-  #if M91x_USE_Y
+  #if M91x_USE(Y)
     tmc_report_otpw(stepperY, TMC_Y);
   #endif
   #if M91x_USE(Y2)
     tmc_report_otpw(stepperY2, TMC_Y2);
   #endif
-  #if M91x_USE_Z
+  #if M91x_USE(Z)
     tmc_report_otpw(stepperZ, TMC_Z);
   #endif
   #if M91x_USE(Z2)
     tmc_report_otpw(stepperZ2, TMC_Z2);
   #endif
-  #if M91x_USE_E0
+  #if M91x_USE_E(0)
     tmc_report_otpw(stepperE0, TMC_E0);
   #endif
   #if M91x_USE_E(1)
@@ -96,9 +92,9 @@ void GcodeSuite::M912() {
                hasE = parser.seen(axis_codes[E_AXIS]),
                hasNone = !hasX && !hasY && !hasZ && !hasE;
 
-    #if M91x_USE_X || M91x_USE(X2)
+    #if M91x_USE(X) || M91x_USE(X2)
       const uint8_t xval = parser.byteval(axis_codes[X_AXIS], 10);
-      #if M91x_USE_X
+      #if M91x_USE(X)
         if (hasNone || xval == 1 || (hasX && xval == 10)) tmc_clear_otpw(stepperX, TMC_X);
       #endif
       #if M91x_USE(X2)
@@ -106,9 +102,9 @@ void GcodeSuite::M912() {
       #endif
     #endif
 
-    #if M91x_USE_Y || M91x_USE(Y2)
+    #if M91x_USE(Y) || M91x_USE(Y2)
       const uint8_t yval = parser.byteval(axis_codes[Y_AXIS], 10);
-      #if M91x_USE_Y
+      #if M91x_USE(Y)
         if (hasNone || yval == 1 || (hasY && yval == 10)) tmc_clear_otpw(stepperY, TMC_Y);
       #endif
       #if M91x_USE(Y2)
@@ -116,9 +112,9 @@ void GcodeSuite::M912() {
       #endif
     #endif
 
-    #if M91x_USE_Z || M91x_USE(Z2)
+    #if M91x_USE(Z) || M91x_USE(Z2)
       const uint8_t zval = parser.byteval(axis_codes[Z_AXIS], 10);
-      #if M91x_USE_Z
+      #if M91x_USE(Z)
         if (hasNone || zval == 1 || (hasZ && zval == 10)) tmc_clear_otpw(stepperZ, TMC_Z);
       #endif
       #if M91x_USE(Z2)
@@ -126,9 +122,9 @@ void GcodeSuite::M912() {
       #endif
     #endif
 
-    #if M91x_USE_E0 || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4)
+    #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4)
       const uint8_t eval = parser.byteval(axis_codes[E_AXIS], 10);
-      #if M91x_USE_E0
+      #if M91x_USE_E(0)
         if (hasNone || eval == 0 || (hasE && eval == 10)) tmc_clear_otpw(stepperE0, TMC_E0);
       #endif
       #if M91x_USE_E(1)
@@ -162,45 +158,45 @@ void GcodeSuite::M912() {
       report = false;
       switch (i) {
         case X_AXIS:
-          #if X_IS_TRINAMIC
-            if (index == 0) TMC_SET_PWMTHRS(X,X);
+          #if AXIS_HAS_STEALTHCHOP(X)
+            if (index < 2) TMC_SET_PWMTHRS(X,X);
           #endif
-          #if X2_IS_TRINAMIC
-            if (index == 1) TMC_SET_PWMTHRS(X,X2);
+          #if AXIS_HAS_STEALTHCHOP(X2)
+            if (!(index & 1)) TMC_SET_PWMTHRS(X,X2);
           #endif
           break;
         case Y_AXIS:
-          #if Y_IS_TRINAMIC
-            if (index == 0) TMC_SET_PWMTHRS(Y,Y);
+          #if AXIS_HAS_STEALTHCHOP(Y)
+            if (index < 2) TMC_SET_PWMTHRS(Y,Y);
           #endif
-          #if Y2_IS_TRINAMIC
-            if (index == 1) TMC_SET_PWMTHRS(Y,Y2);
+          #if AXIS_HAS_STEALTHCHOP(Y2)
+            if (!(index & 1)) TMC_SET_PWMTHRS(Y,Y2);
           #endif
           break;
         case Z_AXIS:
-          #if Z_IS_TRINAMIC
-            if (index == 0) TMC_SET_PWMTHRS(Z,Z);
+          #if AXIS_HAS_STEALTHCHOP(Z)
+            if (index < 2) TMC_SET_PWMTHRS(Z,Z);
           #endif
-          #if Z2_IS_TRINAMIC
-            if (index == 1) TMC_SET_PWMTHRS(Z,Z2);
+          #if AXIS_HAS_STEALTHCHOP(Z2)
+            if (!(index & 1)) TMC_SET_PWMTHRS(Z,Z2);
           #endif
           break;
         case E_AXIS: {
           if (get_target_extruder_from_command()) return;
           switch (target_extruder) {
-            #if E0_IS_TRINAMIC
+            #if AXIS_HAS_STEALTHCHOP(E0)
               case 0: TMC_SET_PWMTHRS_E(0); break;
             #endif
-            #if E_STEPPERS > 1 && E1_IS_TRINAMIC
+            #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
               case 1: TMC_SET_PWMTHRS_E(1); break;
             #endif
-            #if E_STEPPERS > 2 && E2_IS_TRINAMIC
+            #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
               case 2: TMC_SET_PWMTHRS_E(2); break;
             #endif
-            #if E_STEPPERS > 3 && E3_IS_TRINAMIC
+            #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
               case 3: TMC_SET_PWMTHRS_E(3); break;
             #endif
-            #if E_STEPPERS > 4 && E4_IS_TRINAMIC
+            #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
               case 4: TMC_SET_PWMTHRS_E(4); break;
             #endif
           }
@@ -209,37 +205,37 @@ void GcodeSuite::M912() {
     }
 
     if (report) {
-      #if X_IS_TRINAMIC
+      #if AXIS_HAS_STEALTHCHOP(X)
         TMC_SAY_PWMTHRS(X,X);
       #endif
-      #if X2_IS_TRINAMIC
+      #if AXIS_HAS_STEALTHCHOP(X2)
         TMC_SAY_PWMTHRS(X,X2);
       #endif
-      #if Y_IS_TRINAMIC
+      #if AXIS_HAS_STEALTHCHOP(Y)
         TMC_SAY_PWMTHRS(Y,Y);
       #endif
-      #if Y2_IS_TRINAMIC
+      #if AXIS_HAS_STEALTHCHOP(Y2)
         TMC_SAY_PWMTHRS(Y,Y2);
       #endif
-      #if Z_IS_TRINAMIC
+      #if AXIS_HAS_STEALTHCHOP(Z)
         TMC_SAY_PWMTHRS(Z,Z);
       #endif
-      #if Z2_IS_TRINAMIC
+      #if AXIS_HAS_STEALTHCHOP(Z2)
         TMC_SAY_PWMTHRS(Z,Z2);
       #endif
-      #if E0_IS_TRINAMIC
+      #if AXIS_HAS_STEALTHCHOP(E0)
         TMC_SAY_PWMTHRS_E(0);
       #endif
-      #if E_STEPPERS > 1 && E1_IS_TRINAMIC
+      #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
         TMC_SAY_PWMTHRS_E(1);
       #endif
-      #if E_STEPPERS > 2 && E2_IS_TRINAMIC
+      #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
         TMC_SAY_PWMTHRS_E(2);
       #endif
-      #if E_STEPPERS > 3 && E3_IS_TRINAMIC
+      #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
         TMC_SAY_PWMTHRS_E(3);
       #endif
-      #if E_STEPPERS > 4 && E4_IS_TRINAMIC
+      #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
         TMC_SAY_PWMTHRS_E(4);
       #endif
     }
@@ -262,30 +258,30 @@ void GcodeSuite::M912() {
       switch (i) {
         #if X_SENSORLESS
           case X_AXIS:
-            #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+            #if AXIS_HAS_STALLGUARD(X)
               if (index < 2) TMC_SET_SGT(X);
             #endif
-            #if ENABLED(X2_IS_TMC2130)
+            #if AXIS_HAS_STALLGUARD(X2)
               if (!(index & 1)) TMC_SET_SGT(X2);
             #endif
             break;
         #endif
         #if Y_SENSORLESS
           case Y_AXIS:
-            #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+            #if AXIS_HAS_STALLGUARD(Y)
               if (index < 2) TMC_SET_SGT(Y);
             #endif
-            #if ENABLED(Y2_IS_TMC2130)
+            #if AXIS_HAS_STALLGUARD(Y2)
               if (!(index & 1)) TMC_SET_SGT(Y2);
             #endif
             break;
         #endif
         #if Z_SENSORLESS
           case Z_AXIS:
-            #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+            #if AXIS_HAS_STALLGUARD(Z)
               if (index < 2) TMC_SET_SGT(Z);
             #endif
-            #if ENABLED(Z2_IS_TMC2130)
+            #if AXIS_HAS_STALLGUARD(Z2)
               if (!(index & 1)) TMC_SET_SGT(Z2);
             #endif
             break;
@@ -295,26 +291,26 @@ void GcodeSuite::M912() {
 
     if (report) {
       #if X_SENSORLESS
-        #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
+        #if AXIS_HAS_STALLGUARD(X)
           TMC_SAY_SGT(X);
         #endif
-        #if ENABLED(X2_IS_TMC2130)
+        #if AXIS_HAS_STALLGUARD(X2)
           TMC_SAY_SGT(X2);
         #endif
       #endif
       #if Y_SENSORLESS
-        #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
+        #if AXIS_HAS_STALLGUARD(Y)
           TMC_SAY_SGT(Y);
         #endif
-        #if ENABLED(Y2_IS_TMC2130)
+        #if AXIS_HAS_STALLGUARD(Y2)
           TMC_SAY_SGT(Y2);
         #endif
       #endif
       #if Z_SENSORLESS
-        #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
+        #if AXIS_HAS_STALLGUARD(Z)
           TMC_SAY_SGT(Z);
         #endif
-        #if ENABLED(Z2_IS_TMC2130)
+        #if AXIS_HAS_STALLGUARD(Z2)
           TMC_SAY_SGT(Z2);
         #endif
       #endif
@@ -335,11 +331,11 @@ void GcodeSuite::M912() {
       return;
     }
 
-    #if Z_IS_TRINAMIC
+    #if AXIS_IS_TMC(Z)
       const uint16_t Z_current_1 = stepperZ.getCurrent();
       stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if Z2_IS_TRINAMIC
+    #if AXIS_IS_TMC(Z2)
       const uint16_t Z2_current_1 = stepperZ2.getCurrent();
       stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
     #endif
@@ -350,10 +346,10 @@ void GcodeSuite::M912() {
 
     do_blocking_move_to_z(Z_MAX_POS+_z);
 
-    #if Z_IS_TRINAMIC
+    #if AXIS_IS_TMC(Z)
       stepperZ.setCurrent(Z_current_1, R_SENSE, HOLD_MULTIPLIER);
     #endif
-    #if Z2_IS_TRINAMIC
+    #if AXIS_IS_TMC(Z2)
       stepperZ2.setCurrent(Z2_current_1, R_SENSE, HOLD_MULTIPLIER);
     #endif
 

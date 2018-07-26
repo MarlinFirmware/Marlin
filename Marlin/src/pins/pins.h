@@ -183,6 +183,8 @@
   #include "pins_GT2560_REV_A.h"      // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 #elif MB(GT2560_REV_A_PLUS)
   #include "pins_GT2560_REV_A_PLUS.h" // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
+#elif MB(EINSTART_S)
+  #include "pins_EINSTART-S.h"        // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 
 //
 // ATmega1281, ATmega2561
@@ -250,21 +252,21 @@
 //
 
 #elif MB(TEENSYLU)
-  #include "pins_TEENSYLU.h"          // AT90USB1286, AT90USB1286P                  env:at90USB1286_CDC
+  #include "pins_TEENSYLU.h"          // AT90USB1286, AT90USB1286P                  env:at90usb1286_cdc
 #elif MB(PRINTRBOARD)
-  #include "pins_PRINTRBOARD.h"       // AT90USB1286                                env:at90USB1286_DFU
+  #include "pins_PRINTRBOARD.h"       // AT90USB1286                                env:at90usb1286_dfu
 #elif MB(PRINTRBOARD_REVF)
-  #include "pins_PRINTRBOARD_REVF.h"  // AT90USB1286                                env:at90USB1286_DFU
+  #include "pins_PRINTRBOARD_REVF.h"  // AT90USB1286                                env:at90usb1286_dfu
 #elif MB(BRAINWAVE)
-  #include "pins_BRAINWAVE.h"         // AT90USB646                                 env:at90USB1286_CDC
+  #include "pins_BRAINWAVE.h"         // AT90USB646                                 env:at90usb1286_cdc
 #elif MB(BRAINWAVE_PRO)
-  #include "pins_BRAINWAVE_PRO.h"     // AT90USB1286                                env:at90USB1286_CDC
+  #include "pins_BRAINWAVE_PRO.h"     // AT90USB1286                                env:at90usb1286_cdc
 #elif MB(SAV_MKI)
-  #include "pins_SAV_MKI.h"           // AT90USB1286                                env:at90USB1286_CDC
+  #include "pins_SAV_MKI.h"           // AT90USB1286                                env:at90usb1286_cdc
 #elif MB(TEENSY2)
   #include "pins_TEENSY2.h"           // AT90USB1286                                env:teensy20
 #elif MB(5DPRINT)
-  #include "pins_5DPRINT.h"           // AT90USB1286                                ?env:at90USB1286_DFU
+  #include "pins_5DPRINT.h"           // AT90USB1286                                env:at90usb1286_dfu
 
 //
 // LPC1768 ARM Cortex M3
@@ -305,8 +307,10 @@
   #include "pins_DUE3DOM_MINI.h"      // SAM3X8E                                    env:DUE env:DUE_USB env:DUE_debug
 #elif MB(RADDS)
   #include "pins_RADDS.h"             // SAM3X8E                                    env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RURAMPS4D)
-  #include "pins_RURAMPS4D.h"         // SAM3X8E                                    env:DUE env:DUE_USB env:DUE_debug
+#elif MB(RURAMPS4D_11)
+  #include "pins_RURAMPS4D_11.h"      // SAM3X8E                                    env:DUE env:DUE_USB env:DUE_debug
+#elif MB(RURAMPS4D_13)
+  #include "pins_RURAMPS4D_13.h"      // SAM3X8E                                    env:DUE env:DUE_USB env:DUE_debug
 #elif MB(RAMPS_FD_V1)
   #include "pins_RAMPS_FD_V1.h"       // SAM3X8E                                    env:DUE env:DUE_USB env:DUE_debug
 #elif MB(RAMPS_FD_V2)

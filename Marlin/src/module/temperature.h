@@ -52,6 +52,7 @@
  * States for ADC reading in the ISR
  */
 enum ADCSensorState : char {
+  StartSampling,
   #if HAS_TEMP_ADC_0
     PrepareTemp_0,
     MeasureTemp_0,
@@ -328,6 +329,7 @@ class Temperature {
     /**
      * Called from the Temperature ISR
      */
+    static void readings_ready();
     static void isr();
 
     /**

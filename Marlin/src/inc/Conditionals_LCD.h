@@ -202,6 +202,18 @@
 #endif
 
 /**
+ * SPI PANELS
+ */
+
+ // Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
+ #if ENABLED(U8GLIB_SH1106_EINSTART)
+   #define ULTRA_LCD
+   #define DOGLCD
+   #define ULTIPANEL
+   #define NEWPANEL
+ #endif
+
+/**
  * I2C PANELS
  */
 

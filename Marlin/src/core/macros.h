@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef MACROS_H
-#define MACROS_H
+#ifndef _CORE_MACROS_H_
+#define _CORE_MACROS_H_
 
 #define NUM_AXIS 4
 #define ABCE 4
@@ -270,4 +270,4 @@
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
-#endif //__MACROS_H
+#endif // _CORE_MACROS_H_

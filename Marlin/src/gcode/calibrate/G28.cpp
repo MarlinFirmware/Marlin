@@ -218,8 +218,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(BLTOUCH)
-    bltouch_command(BLTOUCH_RESET);
-    set_bltouch_deployed(false);
+    bltouch_init();
   #endif
 
   // Always home with tool 0 active

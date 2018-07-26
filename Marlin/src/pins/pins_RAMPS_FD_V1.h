@@ -178,7 +178,7 @@
 
 #endif // ULTRA_LCD
 
-#if ENABLED(HAVE_TMC2208)
+#if HAS_DRIVER(TMC2208)
   /**
    * TMC2208 stepper drivers
    *

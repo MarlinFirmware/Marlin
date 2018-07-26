@@ -303,10 +303,10 @@
 
     // Check for commands that require the printer to be homed
     if (may_move) {
-      if (axis_unhomed_error()) gcode.home_all_axes();
       #if ENABLED(DUAL_X_CARRIAGE)
         if (active_extruder != 0) tool_change(0);
       #endif
+      if (axis_unhomed_error()) gcode.home_all_axes();
     }
 
     // Invalidate Mesh Points. This command is a little bit asymmetrical because
@@ -1566,12 +1566,12 @@
             incremental_LSF(&lsf_results, PROBE_PT_3_X, PROBE_PT_3_Y, measured_z);
           }
         }
-        
+
         STOW_PROBE();
         #ifdef Z_AFTER_PROBING
           move_z_after_probing();
         #endif
-        
+
         if (abort_flag) {
           SERIAL_ECHOPGM("?Error probing point.  Aborting operation.\n");
           return;
@@ -1632,7 +1632,7 @@
       #ifdef Z_AFTER_PROBING
         move_z_after_probing();
       #endif
-      
+
       if (abort_flag || finish_incremental_LSF(&lsf_results)) {
         SERIAL_ECHOPGM("Could not complete LSF!");
         return;
