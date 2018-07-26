@@ -267,19 +267,29 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
           workKp = 0, workKi = 0, workKd = 0,
           max = 0, min = 10000;
 
-    #define HAS_TP_BED (ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED))
-    #if HAS_TP_BED && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
-      #define TV(B,H) (hotend < 0 ? (B) : (H))
-    #elif HAS_TP_BED
-      #define TV(B,H) (B)
+    #if HAS_PID_FOR_BOTH
+      #define GHV(B,H) (hotend < 0 ? (B) : (H))
+      #define SHV(S,B,H) if (hotend < 0) S##_bed = B; else S [hotend] = H;
+    #elif ENABLED(PIDTEMPBED)
+      #define GHV(B,H) B
+      #define SHV(S,B,H) (S##_bed = B)
     #else
-      #define TV(B,H) (H)
+      #define GHV(B,H) H
+      #define SHV(S,B,H) (S [hotend] = H)
     #endif
 
     #if WATCH_THE_BED || WATCH_HOTENDS
-      const uint16_t watch_temp_period = TV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
-      const uint8_t watch_temp_increase = TV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
-      const float watch_temp_target = target - float(watch_temp_increase + TV(TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
+      #define HAS_TP_BED (ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED))
+      #if HAS_TP_BED && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
+        #define GTV(B,H) (hotend < 0 ? (B) : (H))
+      #elif HAS_TP_BED
+        #define GTV(B,H) (B)
+      #else
+        #define GTV(B,H) (H)
+      #endif
+      const uint16_t watch_temp_period = GTV(WATCH_BED_TEMP_PERIOD, WATCH_TEMP_PERIOD);
+      const uint8_t watch_temp_increase = GTV(WATCH_BED_TEMP_INCREASE, WATCH_TEMP_INCREASE);
+      const float watch_temp_target = target - float(watch_temp_increase + GTV(TEMP_BED_HYSTERESIS, TEMP_HYSTERESIS) + 1);
       millis_t temp_change_ms = next_temp_ms + watch_temp_period * 1000UL;
       float next_watch_temp = 0.0;
       bool heated = false;
@@ -309,16 +319,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
 
     disable_all_heaters(); // switch off all heaters.
 
-    #if HAS_PID_FOR_BOTH
-      if (hotend < 0)
-        soft_pwm_amount_bed = bias = d = (MAX_BED_POWER) >> 1;
-      else
-        soft_pwm_amount[hotend] = bias = d = (PID_MAX) >> 1;
-    #elif ENABLED(PIDTEMP)
-      soft_pwm_amount[hotend] = bias = d = (PID_MAX) >> 1;
-    #else
-      soft_pwm_amount_bed = bias = d = (MAX_BED_POWER) >> 1;
-    #endif
+    SHV(soft_pwm_amount, bias = d = (MAX_BED_POWER) >> 1, bias = d = (PID_MAX) >> 1);
 
     wait_for_heatup = true; // Can be interrupted with M108
 
@@ -331,15 +332,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
         updateTemperaturesFromRawValues();
 
         // Get the current temperature and constrain it
-        current =
-          #if HAS_PID_FOR_BOTH
-            hotend < 0 ? current_temperature_bed : current_temperature[hotend]
-          #elif ENABLED(PIDTEMP)
-            current_temperature[hotend]
-          #else
-            current_temperature_bed
-          #endif
-        ;
+        current = GHV(current_temperature_bed, current_temperature[hotend]);
         NOLESS(max, current);
         NOMORE(min, current);
 
@@ -353,16 +346,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
         if (heating && current > target) {
           if (ELAPSED(ms, t2 + 5000UL)) {
             heating = false;
-            #if HAS_PID_FOR_BOTH
-              if (hotend < 0)
-                soft_pwm_amount_bed = (bias - d) >> 1;
-              else
-                soft_pwm_amount[hotend] = (bias - d) >> 1;
-            #elif ENABLED(PIDTEMP)
-              soft_pwm_amount[hotend] = (bias - d) >> 1;
-            #elif ENABLED(PIDTEMPBED)
-              soft_pwm_amount_bed = (bias - d) >> 1;
-            #endif
+            SHV(soft_pwm_amount, (bias - d) >> 1, (bias - d) >> 1);
             t1 = ms;
             t_high = t1 - t2;
             max = target;
@@ -375,15 +359,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
             t2 = ms;
             t_low = t2 - t1;
             if (cycles > 0) {
-              long max_pow =
-                #if HAS_PID_FOR_BOTH
-                  hotend < 0 ? MAX_BED_POWER : PID_MAX
-                #elif ENABLED(PIDTEMP)
-                  PID_MAX
-                #else
-                  MAX_BED_POWER
-                #endif
-              ;
+              const long max_pow = GHV(MAX_BED_POWER, PID_MAX);
               bias += (d * (t_high - t_low)) / (t_low + t_high);
               bias = constrain(bias, 20, max_pow - 20);
               d = (bias > max_pow >> 1) ? max_pow - 1 - bias : bias;
@@ -422,16 +398,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
                 */
               }
             }
-            #if HAS_PID_FOR_BOTH
-              if (hotend < 0)
-                soft_pwm_amount_bed = (bias + d) >> 1;
-              else
-                soft_pwm_amount[hotend] = (bias + d) >> 1;
-            #elif ENABLED(PIDTEMP)
-              soft_pwm_amount[hotend] = (bias + d) >> 1;
-            #else
-              soft_pwm_amount_bed = (bias + d) >> 1;
-            #endif
+            SHV(soft_pwm_amount, (bias + d) >> 1, (bias + d) >> 1);
             cycles++;
             min = target;
           }
@@ -460,10 +427,10 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
           if (
             #if WATCH_THE_BED && WATCH_HOTENDS
               true
-            #elif WATCH_THE_BED
-              hotend < 0
-            #else
+            #elif WATCH_HOTENDS
               hotend >= 0
+            #else
+              hotend < 0
             #endif
           ) {
             if (!heated) {                                          // If not yet reached target...
@@ -494,7 +461,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
         SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
 
         #if HAS_PID_FOR_BOTH
-          const char* estring = hotend < 0 ? "bed" : "";
+          const char* estring = GHV("bed", "");
           SERIAL_PROTOCOLPAIR("#define DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp); SERIAL_EOL();
           SERIAL_PROTOCOLPAIR("#define DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi); SERIAL_EOL();
           SERIAL_PROTOCOLPAIR("#define DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd); SERIAL_EOL();
@@ -582,11 +549,13 @@ int Temperature::getHeaterPower(const int heater) {
 
     uint8_t fanDone = 0;
     for (uint8_t f = 0; f < COUNT(fanPin); f++) {
-      #ifdef ARDUINO
-        pin_t pin = pgm_read_byte(&fanPin[f]);
-      #else
-        pin_t pin = fanPin[f];
-      #endif
+      const pin_t pin =
+        #ifdef ARDUINO
+          pgm_read_byte(&fanPin[f])
+        #else
+          fanPin[f]
+        #endif
+      ;
       const uint8_t bit = pgm_read_byte(&fanBit[f]);
       if (pin >= 0 && !TEST(fanDone, bit)) {
         uint8_t newFanSpeed = TEST(fanState, bit) ? EXTRUDER_AUTO_FAN_SPEED : 0;
