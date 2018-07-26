@@ -36,13 +36,13 @@
 
 // unused
 /*
-#define PIN_P0_27          P0_27 - EXP2/Onboard SD
-#define PIN_P0_28          P0_28 - EXP2
-#define PIN_P0_02          P0_02 - AUX1 (Interrupt Capable/ADC/Serial Port 0)
-#define PIN_P0_03          P0_03 - AUX1 (Interrupt Capable/ADC/Serial Port 0)
+#define PIN_P0_27          P0_27   // EXP2/Onboard SD
+#define PIN_P0_28          P0_28   // EXP2
+#define PIN_P0_02          P0_02   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+#define PIN_P0_03          P0_03   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
 */
 
-#define LED_PIN           P1_18 // LED2 P1_19, LED3 P1_20, LED4 P1_21
+#define LED_PIN            P1_18   // LED2 P1_19, LED3 P1_20, LED4 P1_21
 
 //
 // Servo pin
@@ -124,18 +124,18 @@
 
 // GND
 #define PIN_P1_22          P1_22
-#define PIN_P1_23          P1_23 // PWM Capable
-#define PIN_P2_12          P2_12 // Interrupt Capable
-#define PIN_P2_11          P2_11 // Interrupt Capable
+#define PIN_P1_23          P1_23   // PWM Capable
+#define PIN_P2_12          P2_12   // Interrupt Capable
+#define PIN_P2_11          P2_11   // Interrupt Capable
 #define PIN_P4_28          P4_28
 
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
 //
 #if ENABLED(MK2_MULTIPLEXER)
-  #define E_MUX0_PIN         P1_23   // J8-3
-  #define E_MUX1_PIN         P2_12   // J8-4
-  #define E_MUX2_PIN         P2_11   // J8-5
+  #define E_MUX0_PIN       P1_23   // J8-3
+  #define E_MUX1_PIN       P2_12   // J8-4
+  #define E_MUX2_PIN       P2_11   // J8-5
 #endif
 
 //
@@ -167,7 +167,7 @@
   #define LCD_SDSS         P0_28   // EXP2.4
   #define LCD_PINS_ENABLE  P0_18   // EXP1.3
   #define LCD_PINS_D4      P0_15   // EXP1.5
-#endif // ULTRA_LCD
+#endif
 
 //
 // Ethernet pins
@@ -177,6 +177,7 @@
   #define ENET_RX_ER       P1_14   // J12-6
   #define ENET_RXD1        P1_10   // J12-8
 #endif
+
 #define ENET_MOC           P1_16   // J12-3
 #define REF_CLK            P1_15   // J12-5
 #define ENET_RXD0          P1_09   // J12-7
@@ -205,7 +206,6 @@
  * SD_DETECT_PIN entirely and remove that wire from the the custom cable.
  */
 #define SD_DETECT_PIN      P2_11   // J8-5 (moved from EXP2 P0.27)
-
 
 /**
  *  PWMs
