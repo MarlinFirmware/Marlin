@@ -1297,7 +1297,12 @@ void homeaxis(const AxisEnum axis) {
 
   // Homing Z towards the bed? Deploy the Z probe or endstop.
   #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS && DEPLOY_PROBE()) return;
+    if (axis == Z_AXIS) {
+      if (DEPLOY_PROBE()) return;
+      #if ENABLED(BLTOUCH)
+        if (set_bltouch_deployed(true)) return;
+      #endif
+    }
   #endif
 
   // Set flags for X, Y, Z motor locking
@@ -1361,7 +1366,12 @@ void homeaxis(const AxisEnum axis) {
 
   // Put away the Z probe
   #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS && STOW_PROBE()) return;
+    if (axis == Z_AXIS) {
+      if (STOW_PROBE()) return;
+      #if ENABLED(BLTOUCH)
+        if (set_bltouch_deployed(false)) return;
+      #endif
+    }
   #endif
 
   #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
