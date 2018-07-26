@@ -100,7 +100,7 @@
 #if ANY_THERMISTOR_IS(60) // beta25 = 3950 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Maker's Tool Works Kapton Bed"
   #include "thermistor_60.h"
 #endif
-#if ANY_THERMISTOR_IS(66) // beta25 = 4500 K, R25 = 2.5 MOhm, Pull-up = 4.7 kOhm, "DyzeDesign 500 °C Thermistor"
+#if ANY_THERMISTOR_IS(66) // beta25 = 4500 K, R25 = 2.5 MOhm, Pull-up = 4.7 kOhm, "DyzeDesign 500 Â°C Thermistor"
   #include "thermistor_66.h"
 #endif
 #if ANY_THERMISTOR_IS(12) // beta25 = 4700 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Personal calibration for Makibox hot bed"
@@ -117,6 +117,9 @@
 #endif
 #if ANY_THERMISTOR_IS(147) // Pt100 with 4k7 pullup
   #include "thermistor_147.h"
+#endif
+#if ANY_THERMISTOR_IS(666) // beta25 = UNK, R25 = 200K, Pull-up = 10 kOhm, "Unidentified 200K NTC thermistor (Einstart S)"
+  #include "thermistor_666.h"
 #endif
 #if ANY_THERMISTOR_IS(1010) // Pt1000 with 1k0 pullup
   #include "thermistor_1010.h"
