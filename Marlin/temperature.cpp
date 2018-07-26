@@ -1743,6 +1743,87 @@ void Temperature::set_current_temp_raw() {
   }
 #endif // PINS_DEBUGGING
 
+void Temperature::readings_ready() {
+  // Update the raw values if they've been read. Else we could be updating them during reading.
+  if (!temp_meas_ready) set_current_temp_raw();
+
+  // Filament Sensor - can be read any time since IIR filtering is used
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
+  #endif
+
+  ZERO(raw_temp_value);
+
+  #if HAS_HEATED_BED
+    raw_temp_bed_value = 0;
+  #endif
+
+  #if HAS_TEMP_CHAMBER
+    raw_temp_chamber_value = 0;
+  #endif
+
+  #define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) > (HEATER_##N##_RAW_HI_TEMP) ? -1 : 1)
+
+  int constexpr temp_dir[] = {
+    #if ENABLED(HEATER_0_USES_MAX6675)
+       0
+    #else
+      TEMPDIR(0)
+    #endif
+    #if HOTENDS > 1
+      , TEMPDIR(1)
+      #if HOTENDS > 2
+        , TEMPDIR(2)
+        #if HOTENDS > 3
+          , TEMPDIR(3)
+          #if HOTENDS > 4
+            , TEMPDIR(4)
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
+  };
+
+  for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
+    const int16_t tdir = temp_dir[e], rawtemp = current_temperature_raw[e] * tdir;
+    const bool heater_on = 0 <
+      #if ENABLED(PIDTEMP)
+        soft_pwm_amount[e]
+      #else
+        target_temperature[e]
+      #endif
+    ;
+    if (rawtemp > maxttemp_raw[e] * tdir && heater_on) max_temp_error(e);
+    if (rawtemp < minttemp_raw[e] * tdir && !is_preheating(e) && heater_on) {
+      #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+        if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+      #endif
+          min_temp_error(e);
+    }
+    #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+      else
+        consecutive_low_temperature_error[e] = 0;
+    #endif
+  }
+
+  #if HAS_HEATED_BED
+    #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
+      #define GEBED <=
+    #else
+      #define GEBED >=
+    #endif
+    const bool bed_on = 0 <
+      #if ENABLED(PIDTEMPBED)
+        soft_pwm_amount_bed
+      #else
+        target_temperature_bed
+      #endif
+    ;
+    if (current_temperature_bed_raw GEBED bed_maxttemp_raw && bed_on) max_temp_error(-1);
+    if (bed_minttemp_raw GEBED current_temperature_bed_raw && bed_on) min_temp_error(-1);
+  #endif
+}
+
 /**
  * Timer 0 is shared with millies so don't change the prescaler.
  *
@@ -2060,6 +2141,12 @@ void Temperature::isr() {
    *
    * This gives each ADC 0.9765ms to charge up.
    */
+  #define ACCUMULATE_ADC(var) do{ \
+    if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; \
+    else var += HAL_READ_ADC(); \
+  }while(0)
+
+  ADCSensorState next_sensor_state = adc_sensor_state < SensorsReady ? (ADCSensorState)(int(adc_sensor_state) + 1) : StartSampling;
 
   switch (adc_sensor_state) {
 
@@ -2069,21 +2156,30 @@ void Temperature::isr() {
       constexpr int8_t extra_loops = MIN_ADC_ISR_LOOPS - (int8_t)SensorsReady;
       static uint8_t delay_count = 0;
       if (extra_loops > 0) {
-        if (delay_count == 0) delay_count = extra_loops;   // Init this delay
-        if (--delay_count)                                 // While delaying...
-          adc_sensor_state = (ADCSensorState)(int(SensorsReady) - 1); // retain this state (else, next state will be 0)
+        if (delay_count == 0) delay_count = extra_loops;  // Init this delay
+        if (--delay_count)                                // While delaying...
+          next_sensor_state = SensorsReady;               // retain this state (else, next state will be 0)
         break;
       }
-      else
-        adc_sensor_state = (ADCSensorState)0; // Fall-through to start first sensor now
+      else {
+        adc_sensor_state = StartSampling;                 // Fall-through to start sampling
+        next_sensor_state = (ADCSensorState)(int(StartSampling) + 1);
+      }
     }
+
+    case StartSampling:                                   // Start of sampling loops. Do updates/checks.
+      if (++temp_count >= OVERSAMPLENR) {                 // 10 * 16 * 1/(16000000/64/256)  = 164ms.
+        temp_count = 0;
+        readings_ready();
+      }
+      break;
 
     #if HAS_TEMP_ADC_0
       case PrepareTemp_0:
         HAL_START_ADC(TEMP_0_PIN);
         break;
       case MeasureTemp_0:
-        raw_temp_value[0] += HAL_READ_ADC;
+        ACCUMULATE_ADC(raw_temp_value[0]);
         break;
     #endif
 
@@ -2092,7 +2188,7 @@ void Temperature::isr() {
         HAL_START_ADC(TEMP_BED_PIN);
         break;
       case MeasureTemp_BED:
-        raw_temp_bed_value += HAL_READ_ADC;
+        ACCUMULATE_ADC(raw_temp_bed_value);
         break;
     #endif
 
@@ -2101,7 +2197,7 @@ void Temperature::isr() {
         HAL_START_ADC(TEMP_CHAMBER_PIN);
         break;
       case MeasureTemp_CHAMBER:
-        raw_temp_chamber_value += HAL_READ_ADC;
+        ACCUMULATE_ADC(raw_temp_chamber_value);
         break;
     #endif
 
@@ -2110,7 +2206,7 @@ void Temperature::isr() {
         HAL_START_ADC(TEMP_1_PIN);
         break;
       case MeasureTemp_1:
-        raw_temp_value[1] += HAL_READ_ADC;
+        ACCUMULATE_ADC(raw_temp_value[1]);
         break;
     #endif
 
@@ -2119,7 +2215,7 @@ void Temperature::isr() {
         HAL_START_ADC(TEMP_2_PIN);
         break;
       case MeasureTemp_2:
-        raw_temp_value[2] += HAL_READ_ADC;
+        ACCUMULATE_ADC(raw_temp_value[2]);
         break;
     #endif
 
@@ -2128,7 +2224,7 @@ void Temperature::isr() {
         HAL_START_ADC(TEMP_3_PIN);
         break;
       case MeasureTemp_3:
-        raw_temp_value[3] += HAL_READ_ADC;
+        ACCUMULATE_ADC(raw_temp_value[3]);
         break;
     #endif
 
@@ -2137,7 +2233,7 @@ void Temperature::isr() {
         HAL_START_ADC(TEMP_4_PIN);
         break;
       case MeasureTemp_4:
-        raw_temp_value[4] += HAL_READ_ADC;
+        ACCUMULATE_ADC(raw_temp_value[4]);
         break;
     #endif
 
@@ -2146,9 +2242,11 @@ void Temperature::isr() {
         HAL_START_ADC(FILWIDTH_PIN);
       break;
       case Measure_FILWIDTH:
-        if (HAL_READ_ADC > 102) { // Make sure ADC is reading > 0.5 volts, otherwise don't read.
+        if (!HAL_ADC_READY())
+          next_sensor_state = adc_sensor_state; // redo this state
+        else if (HAL_READ_ADC() > 102) { // Make sure ADC is reading > 0.5 volts, otherwise don't read.
           raw_filwidth_value -= (raw_filwidth_value >> 7); // Subtract 1/128th of the raw_filwidth_value
-          raw_filwidth_value += ((unsigned long)HAL_READ_ADC << 7); // Add new ADC reading, scaled by 128
+          raw_filwidth_value += ((unsigned long)HAL_READ_ADC() << 7); // Add new ADC reading, scaled by 128
         }
       break;
     #endif
@@ -2158,8 +2256,10 @@ void Temperature::isr() {
         HAL_START_ADC(ADC_KEYPAD_PIN);
         break;
       case Measure_ADC_KEY:
-        if (ADCKey_count < 16) {
-          raw_ADCKey_value = HAL_READ_ADC;
+        if (!HAL_ADC_READY())
+          next_sensor_state = adc_sensor_state; // redo this state
+        else if (ADCKey_count < 16) {
+          raw_ADCKey_value = HAL_READ_ADC();
           if (raw_ADCKey_value > 900) {
             //ADC Key release
             ADCKey_count = 0;
@@ -2177,94 +2277,12 @@ void Temperature::isr() {
 
   } // switch(adc_sensor_state)
 
-  if (!adc_sensor_state && ++temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
+  // Go to the next state
+  adc_sensor_state = next_sensor_state;
 
-    temp_count = 0;
-
-    // Update the raw values if they've been read. Else we could be updating them during reading.
-    if (!temp_meas_ready) set_current_temp_raw();
-
-    // Filament Sensor - can be read any time since IIR filtering is used
-    #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
-    #endif
-
-    ZERO(raw_temp_value);
-
-    #if HAS_HEATED_BED
-      raw_temp_bed_value = 0;
-    #endif
-
-    #if HAS_TEMP_CHAMBER
-      raw_temp_chamber_value = 0;
-    #endif
-
-    #define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) > (HEATER_##N##_RAW_HI_TEMP) ? -1 : 1)
-
-    int constexpr temp_dir[] = {
-      #if ENABLED(HEATER_0_USES_MAX6675)
-         0
-      #else
-        TEMPDIR(0)
-      #endif
-      #if HOTENDS > 1
-        , TEMPDIR(1)
-        #if HOTENDS > 2
-          , TEMPDIR(2)
-          #if HOTENDS > 3
-            , TEMPDIR(3)
-            #if HOTENDS > 4
-              , TEMPDIR(4)
-            #endif // HOTENDS > 4
-          #endif // HOTENDS > 3
-        #endif // HOTENDS > 2
-      #endif // HOTENDS > 1
-    };
-
-    for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
-      const int16_t tdir = temp_dir[e], rawtemp = current_temperature_raw[e] * tdir;
-      const bool heater_on = 0 <
-        #if ENABLED(PIDTEMP)
-          soft_pwm_amount[e]
-        #else
-          target_temperature[e]
-        #endif
-      ;
-      if (rawtemp > maxttemp_raw[e] * tdir && heater_on) max_temp_error(e);
-      if (rawtemp < minttemp_raw[e] * tdir && !is_preheating(e) && heater_on) {
-        #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
-        #endif
-            min_temp_error(e);
-      }
-      #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-        else
-          consecutive_low_temperature_error[e] = 0;
-      #endif
-    }
-
-    #if HAS_HEATED_BED
-      #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
-        #define GEBED <=
-      #else
-        #define GEBED >=
-      #endif
-      const bool bed_on = 0 <
-        #if ENABLED(PIDTEMPBED)
-          soft_pwm_amount_bed
-        #else
-          target_temperature_bed
-        #endif
-      ;
-      if (current_temperature_bed_raw GEBED bed_maxttemp_raw && bed_on) max_temp_error(-1);
-      if (bed_minttemp_raw GEBED current_temperature_bed_raw && bed_on) min_temp_error(-1);
-    #endif
-
-  } // temp_count >= OVERSAMPLENR
-
-  // Go to the next state, up to SensorsReady
-  adc_sensor_state = (ADCSensorState)(int(adc_sensor_state) + 1);
-  if (adc_sensor_state > SensorsReady) adc_sensor_state = (ADCSensorState)0;
+  //
+  // Additional ~1KHz Tasks
+  //
 
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {
