@@ -44,6 +44,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Αρχικό σημείο X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Αρχικό σημείο Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Αρχικό σημείο Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Βαθμονόμηση Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Επαναφορά Επ. Εκτύπωσης") //SHORTEN
 #define MSG_LEVEL_BED_WAITING               _UxGT("Επιπεδοποίηση επ. Εκτύπωσης περιμενει") //SHORTEN
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Επόμενο σημείο")
