@@ -1117,11 +1117,9 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   if (is_home_dir) {
 
-    if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE && QUIET_PROBING
-        probing_pause(true);
-      #endif
-    }
+    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+      if (axis == Z_AXIS) probing_pause(true);
+    #endif
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
@@ -1147,11 +1145,9 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   if (is_home_dir) {
 
-    if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE && QUIET_PROBING
-        probing_pause(false);
-      #endif
-    }
+    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+      if (axis == Z_AXIS) probing_pause(false);
+    #endif
 
     endstops.validate_homing_move();
 
