@@ -47,6 +47,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home asse X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home asse Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home asse Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibra Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Home assi XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Premi per iniziare")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Punto successivo")

@@ -50,6 +50,7 @@
 #define MSG_AUTO_HOME_Y                     _UxGT("Ir na origem Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Ir na origem Z")
 #define MSG_AUTO_HOME                       _UxGT("Ir na origem XYZ")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Indo para origem")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Clique para Iniciar")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Próximo Ponto")
