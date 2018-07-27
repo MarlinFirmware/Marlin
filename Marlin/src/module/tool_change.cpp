@@ -377,8 +377,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
         }
 
-        // Save current position to destination, for use later
-        set_destination_from_current();
+        
 
         #if HAS_LEVELING
           // Set current position to the physical position
@@ -387,11 +386,17 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #endif
 
         #if ENABLED(DUAL_X_CARRIAGE)
-
+          if(current_position[X_AXIS] != x_home_pos(active_extruder)){
+            set_destination_from_current();
+          } else
+          {
+            no_move = true;
+          }
           dualx_tool_change(tmp_extruder, no_move); // Can modify no_move
 
         #else // !DUAL_X_CARRIAGE
-
+          // Save current position to destination, for use later
+          set_destination_from_current();
           #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
             parking_extruder_tool_change(tmp_extruder, no_move);
           #endif
