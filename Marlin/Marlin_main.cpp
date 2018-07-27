@@ -3118,8 +3118,11 @@ static void homeaxis(const AxisEnum axis) {
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
   }
 
+  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+    // BLTOUCH needs to be stowed after trigger to let rearm itself
+    if (axis == Z_AXIS) set_bltouch_deployed(false);
+  #elif HOMING_Z_WITH_PROBE
   // Put away the Z probe
-  #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS && STOW_PROBE()) return;
   #endif
 
