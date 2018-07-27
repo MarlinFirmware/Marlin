@@ -125,6 +125,10 @@
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #define PIN_EXP1 65 // A11
+  #define PIN_EXP2 66 // A12
+  #define PIN_EXP3 11 // SERVO0_PIN
+  #define PIN_EXP4 12 // PS_ON_PIN
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -1847,7 +1851,7 @@
  * For Neopixel LED an overall brightness parameter is also available.
  *
  * *** CAUTION ***
- *  LED Strips require a MOFSET Chip between PWM lines and LEDs,
+ *  LED Strips require a MOSFET Chip between PWM lines and LEDs,
  *  as the Arduino cannot handle the current the LEDs will require.
  *  Failure to follow this precaution can destroy your Arduino!
  *  NOTE: A separate 5V power supply is required! The Neopixel LED needs
