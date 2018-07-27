@@ -89,7 +89,7 @@
 #if HARDWARE_SPI  // using the hardware SPI
 
   #define ST7565_WRITE_BYTE(a)                 { SPDR = a; while (!TEST(SPSR, SPIF)); U8G_DELAY(); }
-  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i <  count; i++) {SPDR = *ptr++; while (!TEST(SPSR, SPIF));} DELAY_10US; }
+  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i <  count; i++) {SPDR = *ptr++; while (!TEST(SPSR, SPIF));} U8G_DELAY(); }
 
 #else // !HARDWARE_SPI
 
@@ -112,7 +112,7 @@
   }
 
   #define ST7565_WRITE_BYTE(a)                 { ST7565_SWSPI_SND_8BIT((uint8_t)a); U8G_DELAY(); }
-  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i < count; i++) { ST7565_SWSPI_SND_8BIT(*ptr++); } DELAY_10US; }
+  #define ST7560_WriteSequence(count, pointer) { uint8_t *ptr = pointer; for (uint8_t i = 0; i < count; i++) { ST7565_SWSPI_SND_8BIT(*ptr++); } U8G_DELAY(); }
 
 #endif // !HARDWARE_SPI
 
