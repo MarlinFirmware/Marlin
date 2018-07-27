@@ -68,9 +68,15 @@ extern "C" volatile uint32_t _millis;
 #include "HAL_timers.h"
 #include "HardwareSerial.h"
 
-#define ST7920_DELAY_1 DELAY_NS(600)
-#define ST7920_DELAY_2 DELAY_NS(750)
-#define ST7920_DELAY_3 DELAY_NS(750)
+#ifndef ST7920_DELAY_1
+  #define ST7920_DELAY_1 DELAY_NS(600)
+#endif
+#ifndef ST7920_DELAY_2
+  #define ST7920_DELAY_2 DELAY_NS(750)
+#endif
+#ifndef ST7920_DELAY_3
+  #define ST7920_DELAY_3 DELAY_NS(750)
+#endif
 
 extern HalSerial usb_serial;
 
