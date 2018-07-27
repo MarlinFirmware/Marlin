@@ -3080,6 +3080,10 @@ static void homeaxis(const AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 1 Fast:");
   #endif
+  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+    // BLTOUCH needs to deploy everytime
+    if (axis == Z_AXIS && set_bltouch_deployed(true)) return;
+  #endif
   do_homing_move(axis, 1.5f * max_length(axis) * axis_home_dir);
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     // BLTOUCH needs to be stowed after trigger to let rearm itself
@@ -12005,8 +12009,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         }
 
         // Save current position to destination, for use later
-        set_destination_from_current();
-
+        if(current_position[X_AXIS] != x_home_pos(active_extruder)){
+          set_destination_from_current();
+        } else
+        {
+          no_move = true;
+        }
         #if HAS_LEVELING
           // Set current position to the physical position
           const bool leveling_was_active = planner.leveling_active;
