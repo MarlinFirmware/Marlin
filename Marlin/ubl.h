@@ -54,7 +54,6 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
 // External references
 
 char *ftostr43sign(const float&, char);
-void home_all_axes();
 
 extern uint8_t ubl_cnt;
 
