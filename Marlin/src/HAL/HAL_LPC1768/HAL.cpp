@@ -21,12 +21,13 @@
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
+#include "../Delay.h"
 
 HalSerial usb_serial;
 
 // U8glib required functions
 extern "C" void u8g_xMicroDelay(uint16_t val) {
-  delayMicroseconds(val);
+  DELAY_US(val);
 }
 extern "C" void u8g_MicroDelay(void) {
   u8g_xMicroDelay(1);
@@ -247,7 +248,7 @@ uint16_t HAL_adc_get_result(void) {
     data = lowpass_filter[adc_channel].update(data);
   #endif
 
-  return ((data >> 2) & 0x3ff);    // return 10bit value as Marlin expects
+  return ((data >> 2) & 0x3FF);    // return 10bit value as Marlin expects
 }
 
 #define SBIT_CNTEN     0

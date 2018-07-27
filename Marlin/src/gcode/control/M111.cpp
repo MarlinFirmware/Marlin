@@ -28,7 +28,7 @@
 void GcodeSuite::M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
-  const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
+  static const char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
                     str_debug_2[] PROGMEM = MSG_DEBUG_INFO,
                     str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS,
                     str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN,
@@ -38,7 +38,7 @@ void GcodeSuite::M111() {
                     #endif
                     ;
 
-  const static char* const debug_strings[] PROGMEM = {
+  static const char* const debug_strings[] PROGMEM = {
     str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       , str_debug_32
@@ -58,6 +58,23 @@ void GcodeSuite::M111() {
   }
   else {
     SERIAL_ECHOPGM(MSG_DEBUG_OFF);
+    #if !defined(__AVR__) || !defined(USBCON)
+      #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
+        SERIAL_ECHOPAIR("\nBuffer Overruns: ", customizedSerial.buffer_overruns());
+      #endif
+
+      #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
+        SERIAL_ECHOPAIR("\nFraming Errors: ", customizedSerial.framing_errors());
+      #endif
+
+      #if ENABLED(SERIAL_STATS_DROPPED_RX)
+        SERIAL_ECHOPAIR("\nDropped bytes: ", customizedSerial.dropped());
+      #endif
+
+      #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+        SERIAL_ECHOPAIR("\nMax RX Queue Size: ", customizedSerial.rxMaxEnqueued());
+      #endif
+    #endif //  !defined(__AVR__) || !defined(USBCON)
   }
   SERIAL_EOL();
 }

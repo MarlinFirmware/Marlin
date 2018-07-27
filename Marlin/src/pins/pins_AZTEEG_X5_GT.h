@@ -85,7 +85,9 @@
 #define HEATER_BED_PIN     P2_07
 #define HEATER_0_PIN       P2_04
 #define HEATER_1_PIN       P2_05
-#define FAN_PIN            P0_26
+#ifndef FAN_PIN
+  #define FAN_PIN          P0_26
+#endif
 #define FAN1_PIN           P1_22
 
 //
@@ -93,23 +95,22 @@
 //
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-    #define BEEPER_PIN        P1_30
-    #define DOGLCD_A0         P2_06
-    #define DOGLCD_CS         P0_16
+  #define BEEPER_PIN       P1_31
+  #define DOGLCD_A0        P2_06
+  #define DOGLCD_CS        P0_16
 
-    #define BTN_EN1           P3_25
-    #define BTN_EN2           P3_26
-    #define BTN_ENC           P2_11
+  #define BTN_EN1          P3_25
+  #define BTN_EN2          P3_26
+  #define BTN_ENC          P2_11
 
-    #define SD_DETECT_PIN     -1   // Pin 49 for display sd interface, 72 for easy adapter board
+  #define SD_DETECT_PIN    P1_18
+  #define SDSS             P1_21
 
-    #define KILL_PIN          -1
-
-    #define STAT_LED_RED_PIN  P0_26
-    #define STAT_LED_BLUE_PIN P1_21
+  #define STAT_LED_RED_PIN P1_19
+  #define STAT_LED_BLUE_PIN P1_20
 #endif
 
 //
 // Servo
 //
-#define SERVO0_PIN        P1_23
+#define SERVO0_PIN         P1_23

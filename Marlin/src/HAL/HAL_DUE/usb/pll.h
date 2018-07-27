@@ -74,7 +74,7 @@ extern "C" {
 
 #define PLL_UPLL_HZ     480000000
 
-#define PLL_COUNT           0x3fU
+#define PLL_COUNT           0x3FU
 
 enum pll_source {
 	PLL_SRC_MAINCK_4M_RC        = OSC_MAINCK_4M_RC,     //!< Internal 4MHz RC oscillator.

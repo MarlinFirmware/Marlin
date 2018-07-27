@@ -24,7 +24,7 @@
  * Endstop Interrupts
  *
  * Without endstop interrupts the endstop pins must be polled continually in
- * the stepper-ISR via endstops.update(), most of the time finding no change.
+ * the temperature-ISR via endstops.update(), most of the time finding no change.
  * With this feature endstops.update() is called only when we know that at
  * least one endstop has changed state, saving valuable CPU cycles.
  *
@@ -40,6 +40,10 @@
 
 #include "../../core/macros.h"
 #include <stdint.h>
+#include "../../module/endstops.h"
+
+// One ISR for all EXT-Interrupts
+void endstop_ISR(void) { endstops.update(); }
 
 /**
  * Patch for pins_arduino.h (...\Arduino\hardware\arduino\avr\variants\mega\pins_arduino.h)
@@ -75,7 +79,7 @@
 
 
 // Install Pin change interrupt for a pin. Can be called multiple times.
-void pciSetup(byte pin) {
+void pciSetup(const int8_t pin) {
   SBI(*digitalPinToPCMSK(pin), digitalPinToPCMSKbit(pin));  // enable pin
   SBI(PCIFR, digitalPinToPCICRbit(pin)); // clear any outstanding interrupt
   SBI(PCICR, digitalPinToPCICRbit(pin)); // enable interrupt for the group
@@ -84,19 +88,19 @@ void pciSetup(byte pin) {
 
 // Handlers for pin change interrupts
 #ifdef PCINT0_vect
-  ISR(PCINT0_vect) { endstop_ISR_worker(); }
+  ISR(PCINT0_vect) { endstop_ISR(); }
 #endif
 
 #ifdef PCINT1_vect
-  ISR(PCINT1_vect) { endstop_ISR_worker(); }
+  ISR(PCINT1_vect) { endstop_ISR(); }
 #endif
 
 #ifdef PCINT2_vect
-  ISR(PCINT2_vect) { endstop_ISR_worker(); }
+  ISR(PCINT2_vect) { endstop_ISR(); }
 #endif
 
 #ifdef PCINT3_vect
-  ISR(PCINT3_vect) { endstop_ISR_worker(); }
+  ISR(PCINT3_vect) { endstop_ISR(); }
 #endif
 
 void setup_endstop_interrupts( void ) {

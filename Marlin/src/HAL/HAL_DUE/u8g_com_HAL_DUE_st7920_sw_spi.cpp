@@ -55,9 +55,13 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(DOGLCD)
+
 #include <U8glib.h>
 #include <Arduino.h>
-#include "../../core/macros.h"
+#include "../Delay.h"
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
    PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
@@ -71,30 +75,6 @@ void u8g_SetPILevel_DUE(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
   else port->PIO_CODR = mask;
 }
 
-#define nop() __asm__ __volatile__("nop;\n\t":::)
-
-void __delay_4cycles(uint32_t cy) __attribute__ ((weak));
-
-FORCE_INLINE void __delay_4cycles(uint32_t cy) { // +1 cycle
-  #if ARCH_PIPELINE_RELOAD_CYCLES<2
-    #define EXTRA_NOP_CYCLES "nop"
-  #else
-    #define EXTRA_NOP_CYCLES ""
-  #endif
-
-  __asm__ __volatile__(
-    ".syntax unified" "\n\t" // is to prevent CM0,CM1 non-unified syntax
-
-    "loop%=:" "\n\t"
-    " subs %[cnt],#1" "\n\t"
-    EXTRA_NOP_CYCLES "\n\t"
-    " bne loop%=" "\n\t"
-    : [cnt]"+r"(cy) // output: +r means input+output
-    : // input:
-    : "cc" // clobbers:
-  );
-}
-
 Pio *SCK_pPio, *MOSI_pPio;
 uint32_t SCK_dwMask, MOSI_dwMask;
 
@@ -104,9 +84,9 @@ static void spiSend_sw_DUE(uint8_t val) { // 800KHz
       MOSI_pPio->PIO_SODR = MOSI_dwMask;
     else
       MOSI_pPio->PIO_CODR = MOSI_dwMask;
-    __delay_4cycles(1);
+    DELAY_NS(48);
     SCK_pPio->PIO_SODR = SCK_dwMask;
-    __delay_4cycles(19); // 16 dead, 17 garbage, 18/0 900kHz, 19/1 825k, 20/1 800k, 21/2 725KHz
+    DELAY_NS(905); // 762 dead, 810 garbage, 858/0 900kHz, 905/1 825k, 953/1 800k, 1000/2 725KHz
     val <<= 1;
     SCK_pPio->PIO_CODR = SCK_dwMask;
   }
@@ -122,16 +102,15 @@ static void u8g_com_DUE_st7920_write_byte_sw_spi(uint8_t rs, uint8_t val) {
 
     if ( rs == 0 )
       /* command */
-      spiSend_sw_DUE(0x0f8);
+      spiSend_sw_DUE(0x0F8);
     else
        /* data */
-      spiSend_sw_DUE(0x0fa);
+      spiSend_sw_DUE(0x0FA);
 
-    for (i = 0; i < 4; i++)   // give the controller some time to process the data
-      u8g_10MicroDelay();     // 2 is bad, 3 is OK, 4 is safe
+    DELAY_US(40); // give the controller some time to process the data: 20 is bad, 30 is OK, 40 is safe
   }
 
-  spiSend_sw_DUE(val & 0x0f0);
+  spiSend_sw_DUE(val & 0x0F0);
   spiSend_sw_DUE(val << 4);
 }
 
@@ -201,4 +180,6 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   return 1;
 }
 
-#endif  //ARDUINO_ARCH_SAM
+#endif // DOGLCD
+
+#endif // ARDUINO_ARCH_SAM

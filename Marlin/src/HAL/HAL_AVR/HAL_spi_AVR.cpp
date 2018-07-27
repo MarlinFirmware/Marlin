@@ -162,22 +162,15 @@ void spiBegin (void) {
     // away. When clock is not known, use a loop instead, which generates
     // shorter code.
     if (__builtin_constant_p(spiClock)) {
-      if (spiClock >= F_CPU / 2) {
-        clockDiv = 0;
-      } else if (spiClock >= F_CPU / 4) {
-        clockDiv = 1;
-      } else if (spiClock >= F_CPU / 8) {
-        clockDiv = 2;
-      } else if (spiClock >= F_CPU / 16) {
-        clockDiv = 3;
-      } else if (spiClock >= F_CPU / 32) {
-        clockDiv = 4;
-      } else if (spiClock >= F_CPU / 64) {
-        clockDiv = 5;
-      } else {
-        clockDiv = 6;
-      }
-    } else {
+      if (spiClock >= F_CPU / 2)       clockDiv = 0;
+      else if (spiClock >= F_CPU / 4)  clockDiv = 1;
+      else if (spiClock >= F_CPU / 8)  clockDiv = 2;
+      else if (spiClock >= F_CPU / 16) clockDiv = 3;
+      else if (spiClock >= F_CPU / 32) clockDiv = 4;
+      else if (spiClock >= F_CPU / 64) clockDiv = 5;
+      else                             clockDiv = 6;
+    }
+    else {
       uint32_t clockSetting = F_CPU / 2;
       clockDiv = 0;
       while (clockDiv < 6 && spiClock < clockSetting) {
@@ -187,8 +180,7 @@ void spiBegin (void) {
     }
 
     // Compensate for the duplicate fosc/64
-    if (clockDiv == 6)
-      clockDiv = 7;
+    if (clockDiv == 6) clockDiv = 7;
 
     // Invert the SPI2X bit
     clockDiv ^= 0x1;

@@ -47,6 +47,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibreer Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klik voor begin")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Volgende Plaats")
@@ -156,7 +157,6 @@
 #define MSG_NO_CARD                         _UxGT("Geen SD kaart")
 #define MSG_DWELL                           _UxGT("Slapen...")
 #define MSG_USERWAIT                        _UxGT("Wachten...")
-#define MSG_RESUMING                        _UxGT("Print hervatten")
 #define MSG_PRINT_ABORTED                   _UxGT("Print afgebroken")
 #define MSG_NO_MOVE                         _UxGT("Geen beweging.")
 #define MSG_KILLED                          _UxGT("Afgebroken. ")
@@ -196,9 +196,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("h") //  One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") //  One character only
 #define MSG_HEATING                         _UxGT("Voorwarmen...")
-#define MSG_HEATING_COMPLETE                _UxGT("Voorverw. kompl.")
-#define MSG_BED_HEATING                     _UxGT("Bed voorverw.")
-#define MSG_BED_DONE                        _UxGT("Bed is voorverw.")
+#define MSG_BED_HEATING                     _UxGT("Bed voorverw...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Delta Calibratie")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibreer X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibreer Y")

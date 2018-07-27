@@ -146,7 +146,7 @@
   #endif
 #endif
 
-#if ENABLED(HAVE_TMC2208)
+#if HAS_DRIVER(TMC2208)
   /**
    * TMC2208 stepper drivers
    *
@@ -231,46 +231,48 @@
 // Heaters / Fans
 //
 #ifndef MOSFET_D_PIN
-  #define MOSFET_D_PIN  -1
+  #define MOSFET_D_PIN     -1
 #endif
 #ifndef RAMPS_D8_PIN
-  #define RAMPS_D8_PIN   8
+  #define RAMPS_D8_PIN      8
 #endif
 #ifndef RAMPS_D9_PIN
-  #define RAMPS_D9_PIN   9
+  #define RAMPS_D9_PIN      9
 #endif
 #ifndef RAMPS_D10_PIN
-  #define RAMPS_D10_PIN 10
+  #define RAMPS_D10_PIN    10
 #endif
 
-#define HEATER_0_PIN     RAMPS_D10_PIN
+#define HEATER_0_PIN       RAMPS_D10_PIN
 
 #if ENABLED(IS_RAMPS_EFB)                      // Hotend, Fan, Bed
-  #define FAN_PIN        RAMPS_D9_PIN
-  #define HEATER_BED_PIN RAMPS_D8_PIN
+  #define HEATER_BED_PIN   RAMPS_D8_PIN
 #elif ENABLED(IS_RAMPS_EEF)                    // Hotend, Hotend, Fan
-  #define HEATER_1_PIN   RAMPS_D9_PIN
-  #define FAN_PIN        RAMPS_D8_PIN
+  #define HEATER_1_PIN     RAMPS_D9_PIN
 #elif ENABLED(IS_RAMPS_EEB)                    // Hotend, Hotend, Bed
-  #define HEATER_1_PIN   RAMPS_D9_PIN
-  #define HEATER_BED_PIN RAMPS_D8_PIN
+  #define HEATER_1_PIN     RAMPS_D9_PIN
+  #define HEATER_BED_PIN   RAMPS_D8_PIN
 #elif ENABLED(IS_RAMPS_EFF)                    // Hotend, Fan, Fan
-  #define FAN_PIN        RAMPS_D9_PIN
-  #define FAN1_PIN       RAMPS_D8_PIN
-#elif ENABLED(IS_RAMPS_SF)                     // Spindle, Fan
-  #define FAN_PIN        RAMPS_D8_PIN
-#else                                          // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
-  #define FAN_PIN        RAMPS_D9_PIN
-  #define HEATER_BED_PIN RAMPS_D8_PIN
+  #define FAN1_PIN         RAMPS_D8_PIN
+#elif DISABLED(IS_RAMPS_SF)                    // Not Spindle, Fan (i.e., "EFBF" or "EFBE")
+  #define HEATER_BED_PIN   RAMPS_D8_PIN
   #if HOTENDS == 1
-    #define FAN1_PIN     MOSFET_D_PIN
+    #define FAN1_PIN       MOSFET_D_PIN
   #else
-    #define HEATER_1_PIN MOSFET_D_PIN
+    #define HEATER_1_PIN   MOSFET_D_PIN
   #endif
 #endif
 
 #ifndef FAN_PIN
-  #define FAN_PIN           4   // IO pin. Buffer needed
+  #if ENABLED(IS_RAMPS_EFB) || ENABLED(IS_RAMPS_EFF)  // Hotend, Fan, Bed or Hotend, Fan, Fan
+    #define FAN_PIN        RAMPS_D9_PIN
+  #elif ENABLED(IS_RAMPS_EEF) || ENABLED(IS_RAMPS_SF) // Hotend, Hotend, Fan or Spindle, Fan
+    #define FAN_PIN        RAMPS_D8_PIN
+  #elif ENABLED(IS_RAMPS_EEB)                         // Hotend, Hotend, Bed
+    #define FAN_PIN         4   // IO pin. Buffer needed
+  #else                                               // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
+    #define FAN_PIN        RAMPS_D9_PIN
+  #endif
 #endif
 
 //
@@ -449,7 +451,7 @@
       #define BTN_EN1           47
       #define BTN_EN2           43
       #define BTN_ENC           32
-      #define LCD_SDSS          53
+      #define LCD_SDSS          SDSS
       #define KILL_PIN          41
 
     #elif ENABLED(LCD_I2C_VIKI)
@@ -458,7 +460,7 @@
       #define BTN_EN2            7   // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
       #define BTN_ENC           -1
 
-      #define LCD_SDSS          53
+      #define LCD_SDSS          SDSS
       #define SD_DETECT_PIN     49
 
     #elif ENABLED(VIKI2) || ENABLED(miniVIKI)
@@ -475,7 +477,6 @@
       #define BTN_EN2            7
       #define BTN_ENC           39
 
-      #define SDSS              53
       #define SD_DETECT_PIN     -1   // Pin 49 for display sd interface, 72 for easy adapter board
       #define KILL_PIN          31
 
@@ -491,7 +492,7 @@
       #define BTN_EN2           37
       #define BTN_ENC           31
 
-      #define LCD_SDSS          53
+      #define LCD_SDSS          SDSS
       #define SD_DETECT_PIN     49
       #define KILL_PIN          41
 
@@ -515,7 +516,6 @@
       #define BTN_EN2           33
       #define BTN_ENC           35
 
-      #define SDSS              53
       #define SD_DETECT_PIN     49
       #define KILL_PIN          64
 
@@ -539,7 +539,6 @@
       #define BTN_EN2           63
       #define BTN_ENC           59
 
-      #define SDSS              53
       #define SD_DETECT_PIN     49
       #define KILL_PIN          64
 

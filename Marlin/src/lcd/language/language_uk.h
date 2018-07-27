@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_UK_H
 #define LANGUAGE_UK_H
 
-#define MAPPER_D0D1                // For Cyrillic
 #define DISPLAY_CHARSET_ISO10646_5
 #define CHARSIZE 2
 
@@ -45,6 +44,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Паркування X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Паркування Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Паркування Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Калібрування Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Паркування XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Почати")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Слідуюча Точка")
@@ -149,7 +149,6 @@
 #define MSG_NO_CARD                         _UxGT("Відсутня SD карт.")
 #define MSG_DWELL                           _UxGT("Сплячка...")
 #define MSG_USERWAIT                        _UxGT("Очікування дій...")
-#define MSG_RESUMING                        _UxGT("Відновлення друку")
 #define MSG_PRINT_ABORTED                   _UxGT("Друк скасовано")
 #define MSG_NO_MOVE                         _UxGT("Немає руху.")
 #define MSG_KILLED                          _UxGT("ПЕРЕРВАНО. ")
@@ -176,9 +175,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("г") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("х") // One character only
 #define MSG_HEATING                         _UxGT("Нагрівання...")
-#define MSG_HEATING_COMPLETE                _UxGT("Нагріто.")
-#define MSG_BED_HEATING                     _UxGT("Нагрівання столу.")
-#define MSG_BED_DONE                        _UxGT("Стіл нагрітий.")
+#define MSG_BED_HEATING                     _UxGT("Нагрівання столу...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Калібр. Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Калібрування X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Калібрування Y")

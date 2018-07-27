@@ -120,13 +120,13 @@
 
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
   #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_2_NOP
+    #define ST7920_DELAY_1 DELAY_NS(125)
   #endif
   #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_2_NOP
+    #define ST7920_DELAY_2 DELAY_NS(125)
   #endif
   #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_2_NOP
+    #define ST7920_DELAY_3 DELAY_NS(125)
   #endif
 
 #elif ENABLED(MKS_12864OLED)
@@ -200,6 +200,18 @@
     #define REPRAPWORLD_KEYPAD_MOVE_STEP 1.0
   #endif
 #endif
+
+/**
+ * SPI PANELS
+ */
+
+ // Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
+ #if ENABLED(U8GLIB_SH1106_EINSTART)
+   #define ULTRA_LCD
+   #define DOGLCD
+   #define ULTIPANEL
+   #define NEWPANEL
+ #endif
 
 /**
  * I2C PANELS
@@ -299,6 +311,10 @@
   #endif
 #endif
 
+#if ENABLED(NO_LCD_MENUS)
+  #undef ULTIPANEL
+#endif
+
 #if ENABLED(ULTIPANEL)
   #define NEWPANEL  // Disable this if you actually have no click-encoder panel
   #define ULTRA_LCD
@@ -318,7 +334,7 @@
 #endif
 
 #if ENABLED(DOGLCD)
-  /* Custom characters defined in font dogm_font_data_Marlin_symbols.h / Marlin_symbols.fon */
+  /* Custom characters defined in font Marlin_symbols.fon which was merged to ISO10646-0-3.bdf */
   // \x00 intentionally skipped to avoid problems in strings
   #define LCD_STR_REFRESH     "\x01"
   #define LCD_STR_FOLDER      "\x02"
@@ -384,13 +400,7 @@
   #define BOOTSCREEN_TIMEOUT 2500
 #endif
 
-#define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
-
-// MK2 Multiplexer forces SINGLENOZZLE and kills DISABLE_INACTIVE_EXTRUDER
-#if ENABLED(MK2_MULTIPLEXER)
-  #define SINGLENOZZLE
-  #undef DISABLE_INACTIVE_EXTRUDER
-#endif
+#define HAS_DEBUG_MENU (ENABLED(ULTIPANEL) && ENABLED(LCD_PROGRESS_BAR_TEST))
 
 /**
  * Extruders have some combination of stepper motors and hotends
@@ -402,35 +412,16 @@
  *  E_MANUAL     - Number of E steppers for LCD move options
  *
  */
-#if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
-  #define HOTENDS       1
-  #undef TEMP_SENSOR_1_AS_REDUNDANT
-  #undef HOTEND_OFFSET_X
-  #undef HOTEND_OFFSET_Y
-#else                                                         // Two hotends
-  #define HOTENDS       EXTRUDERS
-  #if ENABLED(SWITCHING_NOZZLE) && !defined(HOTEND_OFFSET_Z)
-    #define HOTEND_OFFSET_Z { 0 }
-  #endif
-#endif
-
-#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
-
-#if HOTENDS == 1
-  #define HOTEND_INDEX  0
-#else
-  #define HOTEND_INDEX  e
-#endif
-
 #if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
-    #define E_MANUAL      3
   #elif EXTRUDERS > 2
     #define E_STEPPERS    2
-    #define E_MANUAL      2
   #else
     #define E_STEPPERS    1
+  #endif
+  #if DISABLED(SWITCHING_NOZZLE)
+    #define HOTENDS       E_STEPPERS
   #endif
   #define E_MANUAL        EXTRUDERS
 #elif ENABLED(MIXING_EXTRUDER)
@@ -440,6 +431,32 @@
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
 #endif
+
+// No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE
+#if ENABLED(MK2_MULTIPLEXER) || ENABLED(SWITCHING_NOZZLE)
+  #undef DISABLE_INACTIVE_EXTRUDER
+#endif
+
+// MK2 Multiplexer forces SINGLENOZZLE
+#if ENABLED(MK2_MULTIPLEXER)
+  #define SINGLENOZZLE
+#endif
+
+#if ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER)         // One hotend, one thermistor, no XY offset
+  #undef HOTENDS
+  #define HOTENDS       1
+  #undef TEMP_SENSOR_1_AS_REDUNDANT
+  #undef HOTEND_OFFSET_X
+  #undef HOTEND_OFFSET_Y
+#endif
+
+#ifndef HOTENDS
+  #define HOTENDS EXTRUDERS
+#endif
+
+#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+
+#define DO_SWITCH_EXTRUDER (ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR))
 
 /**
  * DISTINCT_E_FACTORS affects how some E factors are accessed
@@ -500,17 +517,21 @@
 #define HAS_Z_SERVO_PROBE (defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0)
 
 /**
- * Set a flag for any enabled probe
+ * Set flags for enabled probes
  */
-#define PROBE_SELECTED (ENABLED(PROBE_MANUALLY) || ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_PROBE || ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE))
+#define HAS_BED_PROBE (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_PROBE || ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE))
+#define PROBE_SELECTED (HAS_BED_PROBE || ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING))
 
-/**
- * Clear probe pin settings when no probe is selected
- */
-#if !PROBE_SELECTED || ENABLED(PROBE_MANUALLY)
+#if !HAS_BED_PROBE
+  // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef Z_MIN_PROBE_ENDSTOP
+#elif ENABLED(Z_PROBE_ALLEN_KEY)
+  // Extra test for Allen Key Probe
+  #define PROBE_IS_TRIGGERED_WHEN_STOWED_TEST
 #endif
+
+#define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
 
 #define HAS_SOFTWARE_ENDSTOPS (ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS))
 #define HAS_RESUME_CONTINUE (ENABLED(NEWPANEL) || ENABLED(EMERGENCY_PARSER))

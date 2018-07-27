@@ -12,6 +12,7 @@
 
 #include "../../Marlin.h"
 #include "../../module/stepper.h"
+#include "../../HAL/Delay.h"
 
 dac084s085::dac084s085() { }
 
@@ -27,11 +28,11 @@ void dac084s085::begin() {
   spiBegin();
 
   //init onboard DAC
-  delayMicroseconds(2U);
+  DELAY_US(2);
   WRITE(DAC0_SYNC, LOW);
-  delayMicroseconds(2U);
+  DELAY_US(2);
   WRITE(DAC0_SYNC, HIGH);
-  delayMicroseconds(2U);
+  DELAY_US(2);
   WRITE(DAC0_SYNC, LOW);
 
   spiSend(SPI_CHAN_DAC, externalDac_buf, COUNT(externalDac_buf));
@@ -39,11 +40,11 @@ void dac084s085::begin() {
 
   #if EXTRUDERS > 1
     //init Piggy DAC
-    delayMicroseconds(2U);
+    DELAY_US(2);
     WRITE(DAC1_SYNC, LOW);
-    delayMicroseconds(2U);
+    DELAY_US(2);
     WRITE(DAC1_SYNC, HIGH);
-    delayMicroseconds(2U);
+    DELAY_US(2);
     WRITE(DAC1_SYNC, LOW);
 
     spiSend(SPI_CHAN_DAC, externalDac_buf, COUNT(externalDac_buf));
@@ -66,20 +67,20 @@ void dac084s085::setValue(const uint8_t channel, const uint8_t value) {
 
   if (channel > 3) {        // DAC Piggy E1,E2,E3
     WRITE(DAC1_SYNC, LOW);
-    delayMicroseconds(2U);
+    DELAY_US(2);
     WRITE(DAC1_SYNC, HIGH);
-    delayMicroseconds(2U);
+    DELAY_US(2);
     WRITE(DAC1_SYNC, LOW);
   }
   else {                    // DAC onboard X,Y,Z,E0
     WRITE(DAC0_SYNC, LOW);
-    delayMicroseconds(2U);
+    DELAY_US(2);
     WRITE(DAC0_SYNC, HIGH);
-    delayMicroseconds(2U);
+    DELAY_US(2);
     WRITE(DAC0_SYNC, LOW);
   }
 
-  delayMicroseconds(2U);
+  DELAY_US(2);
   spiSend(SPI_CHAN_DAC, externalDac_buf, COUNT(externalDac_buf));
 }
 

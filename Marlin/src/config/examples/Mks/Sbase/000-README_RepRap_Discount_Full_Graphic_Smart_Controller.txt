@@ -25,3 +25,14 @@ An octopus cable something like the Adafruit 1199 will simply the construction o
 
 Adafruit 10-pin IDC Socket Rainbow Breakout Cable [1199]
   https://www.adafruit.com/product/1199
+
+
+/////////////////////////////////////////////////////////////////////
+
+27 APR 2018
+
+If you also want a functional SD_DETECT_PIN then you'll need to also move the following pin:
+
+    used to go to P0.27 to J8-5
+
+if you decide to use a different pin then the pins_MKS_SBASE.h file will need to be modified.

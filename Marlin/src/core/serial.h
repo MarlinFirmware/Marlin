@@ -23,11 +23,8 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#include "../inc/MarlinConfig.h"
-
-#if HAS_ABL && ENABLED(DEBUG_LEVELING_FEATURE)
-  #include "../libs/vector_3.h"
-#endif
+#include "../inc/MarlinConfigPre.h"
+#include HAL_PATH(../HAL, HAL.h)
 
 /**
  * Define debug bit-masks
@@ -43,23 +40,6 @@ enum DebugFlags : unsigned char {
   DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
   DEBUG_ALL           = 0xFF
 };
-
-#if ENABLED(EMERGENCY_PARSER)
-  enum e_parser_state : char {
-    state_RESET,
-    state_N,
-    state_M,
-    state_M1,
-    state_M10,
-    state_M108,
-    state_M11,
-    state_M112,
-    state_M4,
-    state_M41,
-    state_M410,
-    state_IGNORE // to '\n'
-  };
-#endif
 
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
@@ -260,9 +240,6 @@ void serialprintPGM(const char* str);
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z);
   void print_xyz(const char* prefix, const char* suffix, const float xyz[]);
-  #if HAS_ABL
-    void print_xyz(const char* prefix, const char* suffix, const vector_3 &xyz);
-  #endif
   #define DEBUG_POS(SUFFIX,VAR) do { print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
 #endif
 

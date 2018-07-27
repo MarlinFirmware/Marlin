@@ -35,7 +35,10 @@ void controllerfan_update() {
   const millis_t ms = millis();
   if (ELAPSED(ms, nextMotorCheck)) {
     nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
-    if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_amount_bed > 0
+    if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON
+      #if HAS_HEATED_BED
+        || thermalManager.soft_pwm_amount_bed > 0
+      #endif
         || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
         #if E_STEPPERS > 1
           || E1_ENABLE_READ == E_ENABLE_ON

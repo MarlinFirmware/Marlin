@@ -24,7 +24,6 @@
 
 #include "motion.h"
 #include "planner.h"
-#include "stepper.h"
 
 #include "../Marlin.h"
 
@@ -58,7 +57,7 @@
   #include "../feature/fanmux.h"
 #endif
 
-#if ENABLED(SWITCHING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER
 
   #if EXTRUDERS > 3
     #define REQ_ANGLES 4
@@ -71,7 +70,7 @@
   void move_extruder_servo(const uint8_t e) {
     constexpr int16_t angles[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
     static_assert(COUNT(angles) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
-    stepper.synchronize();
+    planner.synchronize();
     #if EXTRUDERS & 1
       if (e < EXTRUDERS - 1)
     #endif
@@ -81,13 +80,13 @@
     }
   }
 
-#endif // SWITCHING_EXTRUDER
+#endif // DO_SWITCH_EXTRUDER
 
 #if ENABLED(SWITCHING_NOZZLE)
 
   void move_nozzle_servo(const uint8_t e) {
     const int16_t angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
-    stepper.synchronize();
+    planner.synchronize();
     MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, angles[e]);
     safe_delay(500);
   }
@@ -144,7 +143,7 @@
         if (DEBUGGING(LEVELING)) DEBUG_POS("Moving to Raised Z-Position", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
 
       // STEP 2
       current_position[X_AXIS] = parkingposx[active_extruder] + hotend_offset[X_AXIS][active_extruder];
@@ -153,7 +152,7 @@
         if (DEBUGGING(LEVELING)) DEBUG_POS("Moving ParkPos", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
 
       // STEP 3
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -171,7 +170,7 @@
         if (DEBUGGING(LEVELING)) DEBUG_POS("Moving away from parked extruder", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
 
       // STEP 5
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -192,7 +191,7 @@
         if (DEBUGGING(LEVELING)) DEBUG_POS("Move UnparkPos", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS]/2, active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
 
       // Step 7
       current_position[X_AXIS] = midpos - hotend_offset[X_AXIS][tmp_extruder];
@@ -201,7 +200,7 @@
         if (DEBUGGING(LEVELING)) DEBUG_POS("Move midway to new extruder", current_position);
       #endif
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
-      stepper.synchronize();
+      planner.synchronize();
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         SERIAL_ECHOLNPGM("Autopark done.");
       #endif
@@ -283,7 +282,7 @@ inline void invalid_extruder_error(const uint8_t e) {
           planner.max_feedrate_mm_s[i == 1 ? X_AXIS : Z_AXIS],
           active_extruder
         );
-      stepper.synchronize();
+      planner.synchronize();
     }
 
     // Apply Y & Z extruder offset (X offset is used as home pos with Dual X)
@@ -348,13 +347,13 @@ inline void invalid_extruder_error(const uint8_t e) {
 
 #endif // DUAL_X_CARRIAGE
 
-#define DO_SWITCH_EXTRUDER (SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
-
 /**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+  planner.synchronize();
+
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     mixing_tool_change(tmp_extruder);
@@ -457,6 +456,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
           // Move back to the original (or tweaked) position
           do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
+          #if ENABLED(DUAL_X_CARRIAGE)
+            active_extruder_parked = false;
+          #endif
         }
         #if ENABLED(SWITCHING_NOZZLE)
           else {
@@ -466,7 +468,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #endif
       } // (tmp_extruder != active_extruder)
 
-      stepper.synchronize();
+      planner.synchronize();
 
       #if ENABLED(EXT_SOLENOID) && !ENABLED(PARKING_EXTRUDER)
         disable_all_solenoids();
@@ -493,7 +495,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     #endif // HOTENDS <= 1
 
     #if DO_SWITCH_EXTRUDER
-      stepper.synchronize();
+      planner.synchronize();
       move_extruder_servo(active_extruder);
     #endif
 

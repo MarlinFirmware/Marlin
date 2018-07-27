@@ -155,7 +155,7 @@ void GCodeParser::parse(char *p) {
   #endif
 
   // Only use string_arg for these M codes
-  if (letter == 'M') switch (codenum) { case 23: case 28: case 30: case 117: case 928: string_arg = p; return; default: break; }
+  if (letter == 'M') switch (codenum) { case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return; default: break; }
 
   #if ENABLED(DEBUG_GCODE_PARSER)
     const bool debug = codenum == 800;

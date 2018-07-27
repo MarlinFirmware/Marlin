@@ -29,13 +29,16 @@
 #include "../../module/printcounter.h"
 #include "../../module/stepper.h"
 
-#if ENABLED(PARK_HEAD_ON_PAUSE)
-  #include "../../feature/pause.h"
-  #include "../queue.h"
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/power_loss_recovery.h"
 #endif
 
-#if NUM_SERIAL > 1
-  #include "../../gcode/queue.h"
+#if ENABLED(PARK_HEAD_ON_PAUSE)
+  #include "../../feature/pause.h"
+#endif
+
+#if ENABLED(PARK_HEAD_ON_PAUSE) || NUM_SERIAL > 1
+  #include "../queue.h"
 #endif
 
 /**
@@ -69,6 +72,9 @@ void GcodeSuite::M22() { card.release(); }
  * M23: Open a file
  */
 void GcodeSuite::M23() {
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    card.removeJobRecoveryFile();
+  #endif
   // Simplify3D includes the size, so zero out all spaces (#7227)
   for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
   card.openFile(parser.string_arg, true);
@@ -82,8 +88,18 @@ void GcodeSuite::M24() {
     resume_print();
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (parser.seenval('S')) card.setIndex(parser.value_long());
+  #endif
+
   card.startFileprint();
-  print_job_timer.start();
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (parser.seenval('T'))
+      print_job_timer.resume(parser.value_long());
+    else
+  #endif
+      print_job_timer.start();
 }
 
 /**
@@ -172,7 +188,7 @@ void GcodeSuite::M30() {
  *
  */
 void GcodeSuite::M32() {
-  if (card.sdprinting) stepper.synchronize();
+  if (card.sdprinting) planner.synchronize();
 
   if (card.cardOK) {
     const bool call_procedure = parser.boolval('P');
