@@ -1118,13 +1118,8 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
   if (is_home_dir) {
 
     if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE
-        #if ENABLED(BLTOUCH)
-          set_bltouch_deployed(true);
-        #endif
-        #if QUIET_PROBING
-          probing_pause(true);
-        #endif
+      #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+        probing_pause(true);
       #endif
     }
 
@@ -1153,13 +1148,8 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
   if (is_home_dir) {
 
     if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE
-        #if QUIET_PROBING
-          probing_pause(false);
-        #endif
-        #if ENABLED(BLTOUCH)
-          set_bltouch_deployed(false);
-        #endif
+      #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+        probing_pause(false);
       #endif
     }
 
