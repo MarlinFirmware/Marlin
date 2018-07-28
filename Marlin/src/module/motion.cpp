@@ -1321,7 +1321,6 @@ void homeaxis(const AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 1 Fast:");
   #endif
-
   do_homing_move(axis, 1.5f * max_length(axis) * axis_home_dir);
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     // BLTOUCH needs to be stowed after trigger to let rearm itself
@@ -1359,6 +1358,7 @@ void homeaxis(const AxisEnum axis) {
     #endif
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
   }
+  
   // Put away the Z probe
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS && STOW_PROBE()) return;
