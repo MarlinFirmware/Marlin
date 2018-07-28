@@ -12013,12 +12013,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
         #if ENABLED(DUAL_X_CARRIAGE)
           // Save current position to destination, for use later
-          if(current_position[X_AXIS] != x_home_pos(active_extruder)){
+          if(current_position[X_AXIS] != x_home_pos(active_extruder))
             set_destination_from_current();
-          } else
-          {
+          else
             no_move = true;
-          }
           dualx_tool_change(tmp_extruder, no_move); // Can modify no_move
 
         #else // !DUAL_X_CARRIAGE
