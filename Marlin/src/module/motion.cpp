@@ -1358,7 +1358,7 @@ void homeaxis(const AxisEnum axis) {
     #endif
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
   }
-  
+
   // Put away the Z probe
   #if HOMING_Z_WITH_PROBE
     if (axis == Z_AXIS && STOW_PROBE()) return;
