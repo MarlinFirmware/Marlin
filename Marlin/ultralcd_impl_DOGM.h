@@ -468,7 +468,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     int8_t n = LCD_WIDTH - (START_COL);
 
     if (center && !valstr) {
-      int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
+      int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
       while (--pad >= 0) { u8g.print(' '); n--; }
     }
     while (n > 0 && (c = pgm_read_byte(pstr))) {
@@ -514,7 +514,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
     if (!PAGE_CONTAINS(row_y1, row_y2)) return;
 
-    const uint8_t vallen = (pgm ? lcd_strlen_P(data) : (lcd_strlen((char*)data)));
+    const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
     uint8_t n = LCD_WIDTH - (START_COL) - 2 - vallen;
 
     while (char c = pgm_read_byte(pstr)) {
@@ -535,8 +535,8 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   void lcd_implementation_drawedit(const char* const pstr, const char* const value=NULL) {
-    const uint8_t labellen = lcd_strlen_P(pstr),
-                  vallen = lcd_strlen(value);
+    const uint8_t labellen = utf8_strlen_P(pstr),
+                  vallen = utf8_strlen(value);
 
     uint8_t rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
 
@@ -586,7 +586,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   #if ENABLED(SDSUPPORT)
 
-    static void _drawmenu_sd(const bool isSelected, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const bool isDir) {
+    static void _drawmenu_sd(const bool isSelected, const uint8_t row, const char* const pstr, CardReader& theCard, const bool isDir) {
       UNUSED(pstr);
 
       lcd_implementation_mark_as_selected(row, isSelected);
@@ -594,23 +594,23 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       if (!PAGE_CONTAINS(row_y1, row_y2)) return;
 
       constexpr uint8_t maxlen = LCD_WIDTH - (START_COL) - 1;
-      const char *outstr = longFilename[0] ? longFilename : filename;
-      if (longFilename[0]) {
+      const char *outstr = theCard.longest_filename();
+      if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
           if (isSelected) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
-              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
+              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor
             if (filename_scroll_hash != name_hash) {                            // If the hash changed...
               filename_scroll_hash = name_hash;                                 // Save the new hash
-              filename_scroll_max = MAX(0, lcd_strlen(longFilename) - maxlen);  // Update the scroll limit
+              filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
               filename_scroll_pos = 0;                                          // Reset scroll to the start
               lcd_status_update_delay = 8;                                      // Don't scroll right away
             }
             outstr += filename_scroll_pos;
           }
         #else
-          longFilename[maxlen] = '\0'; // cutoff at screen edge
+          theCard.longFilename[maxlen] = '\0'; // cutoff at screen edge
         #endif
       }
 
@@ -625,8 +625,8 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       while (n) { --n; u8g.print(' '); }
     }
 
-    #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)
-    #define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, true)
+    #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, theCard) _drawmenu_sd(sel, row, pstr, theCard, false)
+    #define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, theCard) _drawmenu_sd(sel, row, pstr, theCard, true)
 
   #endif // SDSUPPORT
 

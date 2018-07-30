@@ -90,8 +90,14 @@ public:
   #endif
 
   #if ENABLED(DEBUG_GCODE_PARSER)
-    void debug();
+    static void debug();
   #endif
+
+  GCodeParser() {
+    #if ENABLED(INCH_MODE_SUPPORT)
+      set_input_linear_units(LINEARUNIT_MM);
+    #endif
+  }
 
   // Reset is done before parsing
   static void reset();

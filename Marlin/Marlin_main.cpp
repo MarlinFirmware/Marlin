@@ -136,7 +136,7 @@
  * M119 - Report endstops status.
  * M120 - Enable endstops detection.
  * M121 - Disable endstops detection.
- * M122 - Debug stepper (Requires HAVE_TMC2130 or HAVE_TMC2208)
+ * M122 - Debug stepper (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
  * M125 - Save current position and move to filament change position. (Requires PARK_HEAD_ON_PAUSE)
  * M126 - Solenoid Air Valve Open. (Requires BARICUDA)
  * M127 - Solenoid Air Valve Closed. (Requires BARICUDA)
@@ -223,13 +223,13 @@
  * M868 - Report or set position encoder module error correction threshold.
  * M869 - Report position encoder module error.
  * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
- * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires HAVE_TMC2130 or HAVE_TMC2208)
+ * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires DAC_STEPPER_CURRENT or DIGIPOTSS_PIN)
  * M909 - Print digipot/DAC current value. (Requires DAC_STEPPER_CURRENT)
  * M910 - Commit digipot/DAC value to external EEPROM via I2C. (Requires DAC_STEPPER_CURRENT)
- * M911 - Report stepper driver overtemperature pre-warn condition. (Requires HAVE_TMC2130 or HAVE_TMC2208)
- * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires HAVE_TMC2130 or HAVE_TMC2208)
+ * M911 - Report stepper driver overtemperature pre-warn condition. (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
+ * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
  * M914 - Set SENSORLESS_HOMING sensitivity. (Requires SENSORLESS_HOMING)
  *
@@ -742,7 +742,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
   void plan_cubic_move(const float (&cart)[XYZE], const float (&offset)[4]);
 #endif
 
-void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
 void report_current_position();
 void report_current_position_detail();
 
@@ -872,8 +871,8 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
 /**
  * Enqueue with Serial Echo
  */
-bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
-  if (_enqueuecommand(cmd, say_ok)) {
+bool enqueue_and_echo_command(const char* cmd) {
+  if (_enqueuecommand(cmd)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
     SERIAL_CHAR('"');
@@ -2294,7 +2293,7 @@ void clean_up_after_endstop_or_probe_move() {
       #endif
 
       // move up to make clearance for the probe
-      do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
     #else
 
@@ -2328,7 +2327,7 @@ void clean_up_after_endstop_or_probe_move() {
 
     #if MULTIPLE_PROBING > 2
         probes_total += current_position[Z_AXIS];
-        if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+        if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
       }
     #endif
 
@@ -2968,16 +2967,9 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   if (is_home_dir) {
 
-    if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE
-        #if ENABLED(BLTOUCH)
-          set_bltouch_deployed(true);
-        #endif
-        #if QUIET_PROBING
-          probing_pause(true);
-        #endif
-      #endif
-    }
+    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+      if (axis == Z_AXIS) probing_pause(true);
+    #endif
 
     // Disable stealthChop if used. Enable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)
@@ -3004,16 +2996,9 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
 
   if (is_home_dir) {
 
-    if (axis == Z_AXIS) {
-      #if HOMING_Z_WITH_PROBE
-        #if QUIET_PROBING
-          probing_pause(false);
-        #endif
-        #if ENABLED(BLTOUCH)
-          set_bltouch_deployed(false);
-        #endif
-      #endif
-    }
+    #if HOMING_Z_WITH_PROBE && QUIET_PROBING
+      if (axis == Z_AXIS) probing_pause(false);
+    #endif
 
     endstops.validate_homing_move();
 
@@ -3095,7 +3080,18 @@ static void homeaxis(const AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 1 Fast:");
   #endif
+
+  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+    // BLTOUCH needs to be deployed every time
+    if (axis == Z_AXIS && set_bltouch_deployed(true)) return;
+  #endif
+
   do_homing_move(axis, 1.5f * max_length(axis) * axis_home_dir);
+
+  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+    // BLTOUCH needs to be stowed after trigger to rearm itself
+    if (axis == Z_AXIS) set_bltouch_deployed(false);
+  #endif
 
   // When homing Z with probe respect probe clearance
   const float bump = axis_home_dir * (
@@ -3121,7 +3117,18 @@ static void homeaxis(const AxisEnum axis) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Home 2 Slow:");
     #endif
+
+    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+      // BLTOUCH needs to be deployed every time
+      if (axis == Z_AXIS && set_bltouch_deployed(true)) return;
+    #endif
+
     do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
+
+    #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+      // BLTOUCH needs to be stowed after trigger to rearm itself
+      if (axis == Z_AXIS) set_bltouch_deployed(false);
+    #endif
   }
 
   /**
@@ -3132,28 +3139,34 @@ static void homeaxis(const AxisEnum axis) {
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (axis == X_AXIS) {
         const float adj = ABS(endstops.x_endstop_adj);
-        if (pos_dir ? (endstops.x_endstop_adj > 0) : (endstops.x_endstop_adj < 0)) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
-        do_homing_move(axis, pos_dir ? -adj : adj);
-        stepper.set_x_lock(false);
-        stepper.set_x2_lock(false);
+        if (adj) {
+          if (pos_dir ? (endstops.x_endstop_adj > 0) : (endstops.x_endstop_adj < 0)) stepper.set_x_lock(true); else stepper.set_x2_lock(true);
+          do_homing_move(axis, pos_dir ? -adj : adj);
+          stepper.set_x_lock(false);
+          stepper.set_x2_lock(false);
+        }
       }
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
       if (axis == Y_AXIS) {
         const float adj = ABS(endstops.y_endstop_adj);
-        if (pos_dir ? (endstops.y_endstop_adj > 0) : (endstops.y_endstop_adj < 0)) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
-        do_homing_move(axis, pos_dir ? -adj : adj);
-        stepper.set_y_lock(false);
-        stepper.set_y2_lock(false);
+        if (adj) {
+          if (pos_dir ? (endstops.y_endstop_adj > 0) : (endstops.y_endstop_adj < 0)) stepper.set_y_lock(true); else stepper.set_y2_lock(true);
+          do_homing_move(axis, pos_dir ? -adj : adj);
+          stepper.set_y_lock(false);
+          stepper.set_y2_lock(false);
+        }
       }
     #endif
     #if ENABLED(Z_DUAL_ENDSTOPS)
       if (axis == Z_AXIS) {
         const float adj = ABS(endstops.z_endstop_adj);
-        if (pos_dir ? (endstops.z_endstop_adj > 0) : (endstops.z_endstop_adj < 0)) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
-        do_homing_move(axis, pos_dir ? -adj : adj);
-        stepper.set_z_lock(false);
-        stepper.set_z2_lock(false);
+        if (adj) {
+          if (pos_dir ? (endstops.z_endstop_adj > 0) : (endstops.z_endstop_adj < 0)) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
+          do_homing_move(axis, pos_dir ? -adj : adj);
+          stepper.set_z_lock(false);
+          stepper.set_z2_lock(false);
+        }
       }
     #endif
     stepper.set_homing_dual_axis(false);
@@ -4102,6 +4115,7 @@ inline void gcode_G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(BLTOUCH)
+    // Make sure any BLTouch error condition is cleared
     bltouch_command(BLTOUCH_RESET);
     set_bltouch_deployed(false);
   #endif
@@ -4287,7 +4301,14 @@ void home_all_axes() { gcode_G28(true); }
 
   inline void _manual_goto_xy(const float &rx, const float &ry) {
 
-    #if MANUAL_PROBE_HEIGHT > 0
+    #ifdef MANUAL_PROBE_START_Z
+      #if MANUAL_PROBE_HEIGHT > 0
+        do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
+        do_blocking_move_to_z(MAX(0,MANUAL_PROBE_START_Z));
+      #else
+        do_blocking_move_to(rx, ry, MAX(0,MANUAL_PROBE_START_Z));
+      #endif
+    #elif MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];
       do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
       do_blocking_move_to_z(prev_z);
@@ -6876,11 +6897,9 @@ inline void gcode_M17() {
     if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
       do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
-    #if ENABLED(NO_MOTION_BEFORE_HOMING)
-      if (!axis_unhomed_error())
-    #endif
-        // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-        Nozzle::park(2, park_point);
+    // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+    if (!axis_unhomed_error())
+      Nozzle::park(2, park_point);
 
     // Unload the filament
     if (unload_length)
@@ -10882,30 +10901,52 @@ inline void gcode_M502() {
    * M7219: Control the Max7219 LED matrix
    * 
    *  I         - Initialize (clear) the matrix
+   *  F         - Fill the matrix (set all bits)
+   *  P         - Dump the LEDs[] array values
    *  C<column> - Set a column to the 8-bit value V
    *  R<row>    - Set a row to the 8-bit value V
    *  X<pos>    - X position of an LED to set or toggle
    *  Y<pos>    - Y position of an LED to set or toggle
-   *  V<value>  - The 8-bit value or on/off state to set
+   *  V<value>  - The potentially 32-bit value or on/off state to set
+   *              (for example: a chain of 4 Max7219 devices can have 32 bit 
+   *               rows or columns depending upon rotation)
    */
   inline void gcode_M7219() {
     if (parser.seen('I'))
       Max7219_Clear();
-    else if (parser.seenval('R')) {
-      const uint8_t r = parser.value_int();
-      Max7219_Set_Row(r, parser.byteval('V'));
+
+    if (parser.seen('F'))
+      for(uint8_t x = 0; x < MAX7219_X_LEDS; x++)
+        Max7219_Set_Column(x, 0xffffffff);
+
+    if (parser.seenval('R')) {
+      const uint32_t r = parser.value_int();
+      Max7219_Set_Row(r, parser.ulongval('V'));
+      return;
     }
     else if (parser.seenval('C')) {
-      const uint8_t c = parser.value_int();
-      Max7219_Set_Column(c, parser.byteval('V'));
+      const uint32_t c = parser.value_int();
+      Max7219_Set_Column(c, parser.ulongval('V'));
+      return;
     }
-    else if (parser.seenval('X') || parser.seenval('Y')) {
+
+    if (parser.seenval('X') || parser.seenval('Y')) {
       const uint8_t x = parser.byteval('X'), y = parser.byteval('Y');
       if (parser.seenval('V'))
         Max7219_LED_Set(x, y, parser.boolval('V'));
       else
         Max7219_LED_Toggle(x, y);
     }
+
+    if (parser.seen('P')) {
+      for(uint8_t x = 0; x < (8*MAX7219_NUMBER_UNITS); x++) {
+        SERIAL_ECHOPAIR("LEDs[", x);
+        SERIAL_ECHOPAIR("]=", LEDs[x]);
+        SERIAL_ECHO("\n");
+      }
+      return;
+    }
+
   }
 #endif // MAX7219_GCODE
 
@@ -10956,45 +10997,45 @@ inline void gcode_M502() {
       report = false;
       switch (i) {
         case X_AXIS:
-          #if X_IS_TRINAMIC
-            if (index == 0) TMC_SET_CURRENT(X);
+          #if AXIS_IS_TMC(X)
+            if (index < 2) TMC_SET_CURRENT(X);
           #endif
-          #if X2_IS_TRINAMIC
-            if (index == 1) TMC_SET_CURRENT(X2);
+          #if AXIS_IS_TMC(X2)
+            if (!(index & 1)) TMC_SET_CURRENT(X2);
           #endif
           break;
         case Y_AXIS:
-          #if Y_IS_TRINAMIC
-            if (index == 0) TMC_SET_CURRENT(Y);
+          #if AXIS_IS_TMC(Y)
+            if (index < 2) TMC_SET_CURRENT(Y);
           #endif
-          #if Y2_IS_TRINAMIC
-            if (index == 1) TMC_SET_CURRENT(Y2);
+          #if AXIS_IS_TMC(Y2)
+            if (!(index & 1)) TMC_SET_CURRENT(Y2);
           #endif
           break;
         case Z_AXIS:
-          #if Z_IS_TRINAMIC
-            if (index == 0) TMC_SET_CURRENT(Z);
+          #if AXIS_IS_TMC(Z)
+            if (index < 2) TMC_SET_CURRENT(Z);
           #endif
-          #if Z2_IS_TRINAMIC
-            if (index == 1) TMC_SET_CURRENT(Z2);
+          #if AXIS_IS_TMC(Z2)
+            if (!(index & 1)) TMC_SET_CURRENT(Z2);
           #endif
           break;
         case E_AXIS: {
           if (get_target_extruder_from_command(906)) return;
           switch (target_extruder) {
-            #if E0_IS_TRINAMIC
+            #if AXIS_IS_TMC(E0)
               case 0: TMC_SET_CURRENT(E0); break;
             #endif
-            #if E1_IS_TRINAMIC
+            #if AXIS_IS_TMC(E1)
               case 1: TMC_SET_CURRENT(E1); break;
             #endif
-            #if E2_IS_TRINAMIC
+            #if AXIS_IS_TMC(E2)
               case 2: TMC_SET_CURRENT(E2); break;
             #endif
-            #if E3_IS_TRINAMIC
+            #if AXIS_IS_TMC(E3)
               case 3: TMC_SET_CURRENT(E3); break;
             #endif
-            #if E4_IS_TRINAMIC
+            #if AXIS_IS_TMC(E4)
               case 4: TMC_SET_CURRENT(E4); break;
             #endif
           }
@@ -11002,82 +11043,70 @@ inline void gcode_M502() {
       }
     }
 
-    if (report) LOOP_XYZE(i) switch (i) {
-      case X_AXIS:
-        #if X_IS_TRINAMIC
-          TMC_SAY_CURRENT(X);
-        #endif
-        #if X2_IS_TRINAMIC
-          TMC_SAY_CURRENT(X2);
-        #endif
-        break;
-      case Y_AXIS:
-        #if Y_IS_TRINAMIC
-          TMC_SAY_CURRENT(Y);
-        #endif
-        #if Y2_IS_TRINAMIC
-          TMC_SAY_CURRENT(Y2);
-        #endif
-        break;
-      case Z_AXIS:
-        #if Z_IS_TRINAMIC
-          TMC_SAY_CURRENT(Z);
-        #endif
-        #if Z2_IS_TRINAMIC
-          TMC_SAY_CURRENT(Z2);
-        #endif
-        break;
-      case E_AXIS:
-        #if E0_IS_TRINAMIC
-          TMC_SAY_CURRENT(E0);
-        #endif
-        #if E1_IS_TRINAMIC
-          TMC_SAY_CURRENT(E1);
-        #endif
-        #if E2_IS_TRINAMIC
-          TMC_SAY_CURRENT(E2);
-        #endif
-        #if E3_IS_TRINAMIC
-          TMC_SAY_CURRENT(E3);
-        #endif
-        #if E4_IS_TRINAMIC
-          TMC_SAY_CURRENT(E4);
-        #endif
-        break;
+    if (report) {
+      #if AXIS_IS_TMC(X)
+        TMC_SAY_CURRENT(X);
+      #endif
+      #if AXIS_IS_TMC(X2)
+        TMC_SAY_CURRENT(X2);
+      #endif
+      #if AXIS_IS_TMC(Y)
+        TMC_SAY_CURRENT(Y);
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        TMC_SAY_CURRENT(Y2);
+      #endif
+      #if AXIS_IS_TMC(Z)
+        TMC_SAY_CURRENT(Z);
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        TMC_SAY_CURRENT(Z2);
+      #endif
+      #if AXIS_IS_TMC(E0)
+        TMC_SAY_CURRENT(E0);
+      #endif
+      #if AXIS_IS_TMC(E1)
+        TMC_SAY_CURRENT(E1);
+      #endif
+      #if AXIS_IS_TMC(E2)
+        TMC_SAY_CURRENT(E2);
+      #endif
+      #if AXIS_IS_TMC(E3)
+        TMC_SAY_CURRENT(E3);
+      #endif
+      #if AXIS_IS_TMC(E4)
+        TMC_SAY_CURRENT(E4);
+      #endif
     }
   }
 
-  #define M91x_USE(A) (ENABLED(A##_IS_TMC2130) || (ENABLED(A##_IS_TMC2208) && PIN_EXISTS(A##_SERIAL_RX)))
+  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || (AXIS_DRIVER_TYPE(ST, TMC2208) && PIN_EXISTS(ST##_SERIAL_RX)))
   #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
-  #define M91x_USE_X  (ENABLED(IS_TRAMS) || M91x_USE(X))
-  #define M91x_USE_Y  (ENABLED(IS_TRAMS) || M91x_USE(Y))
-  #define M91x_USE_Z  (ENABLED(IS_TRAMS) || M91x_USE(Z))
-  #define M91x_USE_E0 (ENABLED(IS_TRAMS) || M91x_USE_E(0))
 
   /**
    * M911: Report TMC stepper driver overtemperature pre-warn flag
    *       This flag is held by the library, persisting until cleared by M912
    */
   inline void gcode_M911() {
-    #if M91x_USE_X
+    #if M91x_USE(X)
       tmc_report_otpw(stepperX, TMC_X);
     #endif
     #if M91x_USE(X2)
       tmc_report_otpw(stepperX2, TMC_X2);
     #endif
-    #if M91x_USE_Y
+    #if M91x_USE(Y)
       tmc_report_otpw(stepperY, TMC_Y);
     #endif
     #if M91x_USE(Y2)
       tmc_report_otpw(stepperY2, TMC_Y2);
     #endif
-    #if M91x_USE_Z
+    #if M91x_USE(Z)
       tmc_report_otpw(stepperZ, TMC_Z);
     #endif
     #if M91x_USE(Z2)
       tmc_report_otpw(stepperZ2, TMC_Z2);
     #endif
-    #if M91x_USE_E0
+    #if M91x_USE_E(0)
       tmc_report_otpw(stepperE0, TMC_E0);
     #endif
     #if M91x_USE_E(1)
@@ -11113,9 +11142,9 @@ inline void gcode_M502() {
                hasE = parser.seen(axis_codes[E_AXIS]),
                hasNone = !hasX && !hasY && !hasZ && !hasE;
 
-    #if M91x_USE_X || M91x_USE(X2)
+    #if M91x_USE(X) || M91x_USE(X2)
       const uint8_t xval = parser.byteval(axis_codes[X_AXIS], 10);
-      #if M91x_USE_X
+      #if M91x_USE(X)
         if (hasNone || xval == 1 || (hasX && xval == 10)) tmc_clear_otpw(stepperX, TMC_X);
       #endif
       #if M91x_USE(X2)
@@ -11123,9 +11152,9 @@ inline void gcode_M502() {
       #endif
     #endif
 
-    #if M91x_USE_Y || M91x_USE(Y2)
+    #if M91x_USE(Y) || M91x_USE(Y2)
       const uint8_t yval = parser.byteval(axis_codes[Y_AXIS], 10);
-      #if M91x_USE_Y
+      #if M91x_USE(Y)
         if (hasNone || yval == 1 || (hasY && yval == 10)) tmc_clear_otpw(stepperY, TMC_Y);
       #endif
       #if M91x_USE(Y2)
@@ -11133,9 +11162,9 @@ inline void gcode_M502() {
       #endif
     #endif
 
-    #if M91x_USE_Z || M91x_USE(Z2)
+    #if M91x_USE(Z) || M91x_USE(Z2)
       const uint8_t zval = parser.byteval(axis_codes[Z_AXIS], 10);
-      #if M91x_USE_Z
+      #if M91x_USE(Z)
         if (hasNone || zval == 1 || (hasZ && zval == 10)) tmc_clear_otpw(stepperZ, TMC_Z);
       #endif
       #if M91x_USE(Z2)
@@ -11143,9 +11172,9 @@ inline void gcode_M502() {
       #endif
     #endif
 
-    #if M91x_USE_E0 || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4)
+    #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4)
       const uint8_t eval = parser.byteval(axis_codes[E_AXIS], 10);
-      #if M91x_USE_E0
+      #if M91x_USE_E(0)
         if (hasNone || eval == 0 || (hasE && eval == 10)) tmc_clear_otpw(stepperE0, TMC_E0);
       #endif
       #if M91x_USE_E(1)
@@ -11179,45 +11208,45 @@ inline void gcode_M502() {
         report = false;
         switch (i) {
           case X_AXIS:
-            #if X_IS_TRINAMIC
-              if (index == 0) TMC_SET_PWMTHRS(X,X);
+            #if AXIS_HAS_STEALTHCHOP(X)
+              if (index < 2) TMC_SET_PWMTHRS(X,X);
             #endif
-            #if X2_IS_TRINAMIC
-              if (index == 1) TMC_SET_PWMTHRS(X,X2);
+            #if AXIS_HAS_STEALTHCHOP(X2)
+              if (!(index & 1)) TMC_SET_PWMTHRS(X,X2);
             #endif
             break;
           case Y_AXIS:
-            #if Y_IS_TRINAMIC
-              if (index == 0) TMC_SET_PWMTHRS(Y,Y);
+            #if AXIS_HAS_STEALTHCHOP(Y)
+              if (index < 2) TMC_SET_PWMTHRS(Y,Y);
             #endif
-            #if Y2_IS_TRINAMIC
-              if (index == 1) TMC_SET_PWMTHRS(Y,Y2);
+            #if AXIS_HAS_STEALTHCHOP(Y2)
+              if (!(index & 1)) TMC_SET_PWMTHRS(Y,Y2);
             #endif
             break;
           case Z_AXIS:
-            #if Z_IS_TRINAMIC
-              if (index == 0) TMC_SET_PWMTHRS(Z,Z);
+            #if AXIS_HAS_STEALTHCHOP(Z)
+              if (index < 2) TMC_SET_PWMTHRS(Z,Z);
             #endif
-            #if Z2_IS_TRINAMIC
-              if (index == 1) TMC_SET_PWMTHRS(Z,Z2);
+            #if AXIS_HAS_STEALTHCHOP(Z2)
+              if (!(index & 1)) TMC_SET_PWMTHRS(Z,Z2);
             #endif
             break;
           case E_AXIS: {
             if (get_target_extruder_from_command(913)) return;
             switch (target_extruder) {
-              #if E0_IS_TRINAMIC
+              #if AXIS_HAS_STEALTHCHOP(E0)
                 case 0: TMC_SET_PWMTHRS_E(0); break;
               #endif
-              #if E_STEPPERS > 1 && E1_IS_TRINAMIC
+              #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
                 case 1: TMC_SET_PWMTHRS_E(1); break;
               #endif
-              #if E_STEPPERS > 2 && E2_IS_TRINAMIC
+              #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
                 case 2: TMC_SET_PWMTHRS_E(2); break;
               #endif
-              #if E_STEPPERS > 3 && E3_IS_TRINAMIC
+              #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
                 case 3: TMC_SET_PWMTHRS_E(3); break;
               #endif
-              #if E_STEPPERS > 4 && E4_IS_TRINAMIC
+              #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
                 case 4: TMC_SET_PWMTHRS_E(4); break;
               #endif
             }
@@ -11225,48 +11254,40 @@ inline void gcode_M502() {
         }
       }
 
-      if (report) LOOP_XYZE(i) switch (i) {
-        case X_AXIS:
-          #if X_IS_TRINAMIC
-            TMC_SAY_PWMTHRS(X,X);
-          #endif
-          #if X2_IS_TRINAMIC
-            TMC_SAY_PWMTHRS(X,X2);
-          #endif
-          break;
-        case Y_AXIS:
-          #if Y_IS_TRINAMIC
-            TMC_SAY_PWMTHRS(Y,Y);
-          #endif
-          #if Y2_IS_TRINAMIC
-            TMC_SAY_PWMTHRS(Y,Y2);
-          #endif
-          break;
-        case Z_AXIS:
-          #if Z_IS_TRINAMIC
-            TMC_SAY_PWMTHRS(Z,Z);
-          #endif
-          #if Z2_IS_TRINAMIC
-            TMC_SAY_PWMTHRS(Z,Z2);
-          #endif
-          break;
-        case E_AXIS:
-          #if E0_IS_TRINAMIC
-            TMC_SAY_PWMTHRS_E(0);
-          #endif
-          #if E_STEPPERS > 1 && E1_IS_TRINAMIC
-            TMC_SAY_PWMTHRS_E(1);
-          #endif
-          #if E_STEPPERS > 2 && E2_IS_TRINAMIC
-            TMC_SAY_PWMTHRS_E(2);
-          #endif
-          #if E_STEPPERS > 3 && E3_IS_TRINAMIC
-            TMC_SAY_PWMTHRS_E(3);
-          #endif
-          #if E_STEPPERS > 4 && E4_IS_TRINAMIC
-            TMC_SAY_PWMTHRS_E(4);
-          #endif
-          break;
+      if (report) {
+        #if AXIS_HAS_STEALTHCHOP(X)
+          TMC_SAY_PWMTHRS(X,X);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(X2)
+          TMC_SAY_PWMTHRS(X,X2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y)
+          TMC_SAY_PWMTHRS(Y,Y);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y2)
+          TMC_SAY_PWMTHRS(Y,Y2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z)
+          TMC_SAY_PWMTHRS(Z,Z);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z2)
+          TMC_SAY_PWMTHRS(Z,Z2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E0)
+          TMC_SAY_PWMTHRS_E(0);
+        #endif
+        #if E_STEPPERS > 1 && AXIS_HAS_STEALTHCHOP(E1)
+          TMC_SAY_PWMTHRS_E(1);
+        #endif
+        #if E_STEPPERS > 2 && AXIS_HAS_STEALTHCHOP(E2)
+          TMC_SAY_PWMTHRS_E(2);
+        #endif
+        #if E_STEPPERS > 3 && AXIS_HAS_STEALTHCHOP(E3)
+          TMC_SAY_PWMTHRS_E(3);
+        #endif
+        #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
+          TMC_SAY_PWMTHRS_E(4);
+        #endif
       }
     }
   #endif // HYBRID_THRESHOLD
@@ -11287,67 +11308,61 @@ inline void gcode_M502() {
         switch (i) {
           #if X_SENSORLESS
             case X_AXIS:
-              #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-                if (index == 0) TMC_SET_SGT(X);
+              #if AXIS_HAS_STALLGUARD(X)
+                if (index < 2) TMC_SET_SGT(X);
               #endif
-              #if ENABLED(X2_IS_TMC2130)
-                if (index == 1) TMC_SET_SGT(X2);
+              #if AXIS_HAS_STALLGUARD(X2)
+                if (!(index & 1)) TMC_SET_SGT(X2);
               #endif
               break;
           #endif
           #if Y_SENSORLESS
             case Y_AXIS:
-              #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-                if (index == 0) TMC_SET_SGT(Y);
+              #if AXIS_HAS_STALLGUARD(Y)
+                if (index < 2) TMC_SET_SGT(Y);
               #endif
-              #if ENABLED(Y2_IS_TMC2130)
-                if (index == 1) TMC_SET_SGT(Y2);
+              #if AXIS_HAS_STALLGUARD(Y2)
+                if (!(index & 1)) TMC_SET_SGT(Y2);
               #endif
               break;
           #endif
           #if Z_SENSORLESS
             case Z_AXIS:
-              #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
-                if (index == 0) TMC_SET_SGT(Z);
+              #if AXIS_HAS_STALLGUARD(Z)
+                if (index < 2) TMC_SET_SGT(Z);
               #endif
-              #if ENABLED(Z2_IS_TMC2130)
-                if (index == 1) TMC_SET_SGT(Z2);
+              #if AXIS_HAS_STALLGUARD(Z2)
+                if (!(index & 1)) TMC_SET_SGT(Z2);
               #endif
               break;
           #endif
         }
       }
 
-      if (report) LOOP_XYZ(i) switch (i) {
+      if (report) {
         #if X_SENSORLESS
-          case X_AXIS:
-            #if ENABLED(X_IS_TMC2130) || ENABLED(IS_TRAMS)
-              TMC_SAY_SGT(X);
-            #endif
-            #if ENABLED(X2_IS_TMC2130)
-              TMC_SAY_SGT(X2);
-            #endif
-            break;
+          #if AXIS_HAS_STALLGUARD(X)
+            TMC_SAY_SGT(X);
+          #endif
+          #if AXIS_HAS_STALLGUARD(X2)
+            TMC_SAY_SGT(X2);
+          #endif
         #endif
         #if Y_SENSORLESS
-          case Y_AXIS:
-            #if ENABLED(Y_IS_TMC2130) || ENABLED(IS_TRAMS)
-              TMC_SAY_SGT(Y);
-            #endif
-            #if ENABLED(Y2_IS_TMC2130)
-              TMC_SAY_SGT(Y2);
-            #endif
-            break;
+          #if AXIS_HAS_STALLGUARD(Y)
+            TMC_SAY_SGT(Y);
+          #endif
+          #if AXIS_HAS_STALLGUARD(Y2)
+            TMC_SAY_SGT(Y2);
+          #endif
         #endif
         #if Z_SENSORLESS
-          case Z_AXIS:
-            #if ENABLED(Z_IS_TMC2130) || ENABLED(IS_TRAMS)
-              TMC_SAY_SGT(Z);
-            #endif
-            #if ENABLED(Z2_IS_TMC2130)
-              TMC_SAY_SGT(Z2);
-            #endif
-            break;
+          #if AXIS_HAS_STALLGUARD(Z)
+            TMC_SAY_SGT(Z);
+          #endif
+          #if AXIS_HAS_STALLGUARD(Z2)
+            TMC_SAY_SGT(Z2);
+          #endif
         #endif
       }
     }
@@ -11366,11 +11381,11 @@ inline void gcode_M502() {
         return;
       }
 
-      #if Z_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z)
         const uint16_t Z_current_1 = stepperZ.getCurrent();
         stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
       #endif
-      #if Z2_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z2)
         const uint16_t Z2_current_1 = stepperZ2.getCurrent();
         stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
       #endif
@@ -11381,10 +11396,10 @@ inline void gcode_M502() {
 
       do_blocking_move_to_z(Z_MAX_POS+_z);
 
-      #if Z_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z)
         stepperZ.setCurrent(Z_current_1, R_SENSE, HOLD_MULTIPLIER);
       #endif
-      #if Z2_IS_TRINAMIC
+      #if AXIS_IS_TMC(Z2)
         stepperZ2.setCurrent(Z2_current_1, R_SENSE, HOLD_MULTIPLIER);
       #endif
 
@@ -11977,6 +11992,8 @@ inline void invalid_extruder_error(const uint8_t e) {
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+  planner.synchronize();
+
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     mixing_tool_change(tmp_extruder);
@@ -12000,9 +12017,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
         }
 
-        // Save current position to destination, for use later
-        set_destination_from_current();
-
+        
         #if HAS_LEVELING
           // Set current position to the physical position
           const bool leveling_was_active = planner.leveling_active;
@@ -12010,11 +12025,15 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #endif
 
         #if ENABLED(DUAL_X_CARRIAGE)
-
+          // Save current position to destination, for use later
+          if(current_position[X_AXIS] != x_home_pos(active_extruder))
+            set_destination_from_current();
+          else
+            no_move = true;
           dualx_tool_change(tmp_extruder, no_move); // Can modify no_move
 
         #else // !DUAL_X_CARRIAGE
-
+          set_destination_from_current();
           #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
             parking_extruder_tool_change(tmp_extruder, no_move);
           #endif
@@ -12607,7 +12626,7 @@ void process_parsed_command() {
         #endif
       #endif
 
-      #if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
+      #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208)
         #if ENABLED(TMC_DEBUG)
           case 122: gcode_M122(); break;                          // M122: Debug TMC steppers
         #endif
@@ -14433,10 +14452,10 @@ void setup() {
   SERIAL_ECHO_START();
 
   // Prepare communication for TMC drivers
-  #if ENABLED(HAVE_TMC2130)
+  #if HAS_DRIVER(TMC2130)
     tmc_init_cs_pins();
   #endif
-  #if ENABLED(HAVE_TMC2208)
+  #if HAS_DRIVER(TMC2208)
     tmc2208_serial_begin();
   #endif
 
@@ -14602,7 +14621,6 @@ void setup() {
   #if ENABLED(BLTOUCH)
     // Make sure any BLTouch error condition is cleared
     bltouch_command(BLTOUCH_RESET);
-    set_bltouch_deployed(true);
     set_bltouch_deployed(false);
   #endif
 
@@ -14735,6 +14753,6 @@ void loop() {
       if (++cmd_queue_index_r >= BUFSIZE) cmd_queue_index_r = 0;
     }
   }
-  endstops.report_state();
+  endstops.event_handler();
   idle();
 }

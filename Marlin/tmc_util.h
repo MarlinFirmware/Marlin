@@ -25,11 +25,11 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(HAVE_TMC2130)
+#if HAS_DRIVER(TMC2130)
   #include <TMC2130Stepper.h>
 #endif
 
-#if ENABLED(HAVE_TMC2208)
+#if HAS_DRIVER(TMC2208)
   #include <TMC2208Stepper.h>
 #endif
 
@@ -100,7 +100,7 @@ void monitor_tmc_driver();
   void tmc_sensorless_homing(TMC2130Stepper &st, const bool enable=true);
 #endif
 
-#if ENABLED(HAVE_TMC2130)
+#if HAS_DRIVER(TMC2130)
   void tmc_init_cs_pins();
 #endif
 

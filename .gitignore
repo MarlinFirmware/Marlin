@@ -146,3 +146,5 @@ CMakeListsPrivate.txt
 
 #CLion
 cmake-build-*
+*.zip
+TRex_CurrentFixes_20180725.zip.tmp

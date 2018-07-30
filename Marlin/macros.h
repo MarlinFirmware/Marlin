@@ -231,4 +231,4 @@
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
-#endif //__MACROS_H
+#endif // MACROS_H
