@@ -221,8 +221,8 @@
   #ifndef TMC_SW_SCK
     #define TMC_SW_SCK     P0_26   // TH4
   #endif
+ #endif
 #endif
-
 #if HAS_DRIVER(TMC2208)
   // The shortage of pins becomes apparent.
   // Worst case you may have to give up the LCD
@@ -282,11 +282,11 @@
  /**
   * Serial Ports
   *   P0_00 - Port  3
-  *   P0_01
+  *   P0_01 - SD Card (Onboard)
   *   P0_10 - Port  2
-  *   P0_11
+  *   P0_11 - Y_EN/Y_DIR
   *   P0_15 - Port  1
-  *   P0_16
+  *   P0_16 - EXP1
   *   P0_02 - Port  0
   *   P0_03 - AUX1
   *   P0_29 - Port -1
