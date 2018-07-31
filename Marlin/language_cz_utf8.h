@@ -53,6 +53,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Domů osa X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Domů osa Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Domů osa Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibrovat Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Měření podložky")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknutím spusťte")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Další bod")

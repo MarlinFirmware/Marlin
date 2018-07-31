@@ -45,6 +45,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Ir orixe X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Ir orixe Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Ir orixe Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Ir orixes XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Prema pulsador")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Seguinte punto")
@@ -252,4 +253,3 @@
 #endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_GL_H
-

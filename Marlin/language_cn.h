@@ -40,6 +40,7 @@
 #define MSG_AUTOSTART                       "\xb1\xb2\xb3\xb4"
 #define MSG_DISABLE_STEPPERS                "\xb5\xb6\xb7\xb8\xb9\xba"
 #define MSG_AUTO_HOME                       "\xbb\xbc\xbd"
+#define MSG_TMC_Z_CALIBRATION               "Calibrate Z"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               "Click to Begin"
 #define MSG_LEVEL_BED_DONE                  "Leveling Done!"
