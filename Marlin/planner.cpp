@@ -2279,27 +2279,27 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     /**
      * Adapted from Průša MKS firmware
      * https://github.com/prusa3d/Prusa-Firmware
-     *
-     * Start with a safe speed (from which the machine may halt to stop immediately).
      */
+    const float nominal_speed = SQRT(block->nominal_speed_sqr);
 
     // Exit speed limited by a jerk to full halt of a previous last segment
     static float previous_safe_speed;
 
-    const float nominal_speed = SQRT(block->nominal_speed_sqr);
+    // Start with a safe speed (from which the machine may halt to stop immediately).
     float safe_speed = nominal_speed;
 
     uint8_t limited = 0;
     LOOP_XYZE(i) {
-      const float jerk = ABS(current_speed[i]), maxj = max_jerk[i];
-      if (jerk > maxj) {
-        if (limited) {
-          const float mjerk = maxj * nominal_speed;
-          if (jerk * safe_speed > mjerk) safe_speed = mjerk / jerk;
+      const float jerk = ABS(current_speed[i]),   // cs : Starting from zero, change in speed for this axis
+                  maxj = max_jerk[i];             // mj : The max jerk setting for this axis
+      if (jerk > maxj) {                          // cs > mj : New current speed too fast?
+        if (limited) {                            // limited already?
+          const float mjerk = nominal_speed * maxj; // ns*mj
+          if (jerk * safe_speed > mjerk) safe_speed = mjerk / jerk; // ns*mj/cs
         }
         else {
-          ++limited;
-          safe_speed = maxj;
+          safe_speed *= maxj / jerk;              // Initial limit: ns*mj/cs
+          ++limited;                              // Initially limited
         }
       }
     }
