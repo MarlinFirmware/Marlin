@@ -117,7 +117,6 @@
 #define PIN_P0_16          P0_16
 #define PIN_P0_15          P0_15
 
-
 //
 // Connector J8
 //
@@ -196,6 +195,49 @@
 #define SDSS               P0_06
 
 /**
+ * Example for trinamic drivers using the J8 connector on MKs Sbase.
+ * 2130s need 1 pin for each driver. 2208s need 2 pins for serial control.
+ * This board does not have enough pins to use hardware serial.
+ */
+
+#if HAS_DRIVER(TMC2130)
+  // J8
+  #define X_CS_PIN         P1_22
+  #define Y_CS_PIN         P1_23
+  #define Z_CS_PIN         P2_12
+  #define E0_CS_PIN        P2_11
+  #define E1_CS_PIN        P4_28
+
+// Hardware SPI is on EXP2. See if you can make it work:
+// https://github.com/makerbase-mks/MKS-SBASE/issues/25
+#define TMC_USE_SW_SPI
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI    P0_03   // AUX1
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO    P0_02   // AUX1
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK     P0_26   // TH4
+  #endif
+ #endif
+#endif
+#if HAS_DRIVER(TMC2208)
+  // The shortage of pins becomes apparent.
+  // Worst case you may have to give up the LCD
+  // RX pins need to be interrupt capable
+  #define X_SERIAL_TX_PIN  P1_22   // J8-2
+  #define X_SERIAL_RX_PIN  P2_12   // J8-4 Interrupt Capable
+  #define Y_SERIAL_TX_PIN  P1_23   // J8-3
+  #define Y_SERIAL_RX_PIN  P2_11   // J8-5 Interrupt Capable
+  #define Z_SERIAL_TX_PIN  P2_12   // J8-4
+  #define Z_SERIAL_RX_PIN  P0_25   // TH3
+  #define E0_SERIAL_TX_PIN P4_28   // J8-6
+  #define E0_SERIAL_RX_PIN P0_26   // TH4
+#endif
+
+/**
  * P0.27 is on EXP2 and the on-board SD card's socket. That means it can't be
  * used as the SD_DETECT for the LCD's SD card.
  *
@@ -240,11 +282,11 @@
  /**
   * Serial Ports
   *   P0_00 - Port  3
-  *   P0_01
+  *   P0_01 - SD Card (Onboard)
   *   P0_10 - Port  2
-  *   P0_11
+  *   P0_11 - Y_EN/Y_DIR
   *   P0_15 - Port  1
-  *   P0_16
+  *   P0_16 - EXP1
   *   P0_02 - Port  0
   *   P0_03 - AUX1
   *   P0_29 - Port -1
