@@ -28,7 +28,7 @@ fi
 echo -n "Building list of missing strings..."
 
 for i in $(awk '/#ifndef/{print $2}' language_en.h); do
-  [[ $i == "LANGUAGE_EN_H" ]] && continue
+  [[ $i == "LANGUAGE_EN_H" || $i == "CHARSIZE" ]] && continue
   LANG_LIST=""
   for j in $TEST_LANGS; do
     [[ $(grep -c " ${i} " language_${j}.h) -eq 0 ]] && LANG_LIST="$LANG_LIST $j"
@@ -40,5 +40,8 @@ done
 echo
 
 for K in $( printf "%s\n" "${!STRING_MAP[@]}" | sort ); do
-  printf "%-35s :%s\n" "$K" "${STRING_MAP[$K]}"
+  case "$#" in
+    1 ) echo $K ;;
+    * ) printf "%-35s :%s\n" "$K" "${STRING_MAP[$K]}" ;;
+  esac
 done

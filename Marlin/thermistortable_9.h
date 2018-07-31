@@ -20,7 +20,7 @@
  *
  */
 
-// 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
+// R25 = 100 kOhm, beta25 = 3960 K, 4.7 kOhm pull-up, GE Sensing AL03006-58.2K-97-G1
 const short temptable_9[][2] PROGMEM = {
   { OV(   1), 936 },
   { OV(  36), 300 },

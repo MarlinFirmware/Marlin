@@ -106,7 +106,9 @@
 #endif
 #define HEATER_BED_PIN      4
 
-#define FAN_PIN             8
+#ifndef FAN_PIN
+  #define FAN_PIN           8
+#endif
 #define FAN1_PIN            6
 
 //
@@ -122,8 +124,8 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 // use P1 connector for spindle pins
-#define SPINDLE_LASER_PWM_PIN     9  // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 18  // Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN     9   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN 18   // Pin should have a pullup!
 #define SPINDLE_DIR_PIN          19
 
 //

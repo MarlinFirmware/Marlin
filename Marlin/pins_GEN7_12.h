@@ -60,7 +60,7 @@
 #endif
 
 #ifndef GEN7_VERSION
-  #define GEN7_VERSION 12 // v1.x
+  #define GEN7_VERSION 12   // v1.x
 #endif
 
 //
@@ -112,8 +112,8 @@
 #define HEATER_0_PIN        4
 #define HEATER_BED_PIN      3
 
-#if GEN7_VERSION < 13   // Gen7 v1.3 removed the fan pin
-  #define FAN_PIN          31
+#if !defined(FAN_PIN) && GEN7_VERSION < 13   // Gen7 v1.3 removed the fan pin
+  #define FAN_PIN        31
 #endif
 
 //
@@ -122,9 +122,9 @@
 #define PS_ON_PIN          15
 
 #if GEN7_VERSION < 13
-  #define CASE_LIGHT_PIN   16     // MUST BE HARDWARE PWM
+  #define CASE_LIGHT_PIN   16   // MUST BE HARDWARE PWM
 #else     // Gen7 v1.3 removed the I2C connector & signals so need to get PWM off the PC power supply header
-  #define CASE_LIGHT_PIN   15     // MUST BE HARDWARE PWM
+  #define CASE_LIGHT_PIN   15   // MUST BE HARDWARE PWM
 #endif
 
 // All these generations of Gen7 supply thermistor power
@@ -140,10 +140,10 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENABLE_PIN 10  // Pin should have a pullup/pulldown!
+#define SPINDLE_LASER_ENABLE_PIN 10   // Pin should have a pullup/pulldown!
 #define SPINDLE_DIR_PIN          11
 #if GEN7_VERSION < 13
-  #define SPINDLE_LASER_PWM_PIN  16  // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_PWM_PIN  16   // MUST BE HARDWARE PWM
 #else  // Gen7 v1.3 removed the I2C connector & signals so need to get PWM off the PC power supply header
-  #define SPINDLE_LASER_PWM_PIN  15  // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_PWM_PIN  15   // MUST BE HARDWARE PWM
 #endif

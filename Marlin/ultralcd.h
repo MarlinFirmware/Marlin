@@ -25,35 +25,33 @@
 
 #include "MarlinConfig.h"
 
+#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+  void lcd_init();
+  bool lcd_detected();
+  void lcd_update();
+  void lcd_setalertstatusPGM(const char* message);
+#else
+  inline void lcd_init() {}
+  inline bool lcd_detected() { return true; }
+  inline void lcd_update() {}
+  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
+#endif
+
 #if ENABLED(ULTRA_LCD)
 
   #include "Marlin.h"
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
-    extern bool lcd_external_control;
-    #if ENABLED(G26_MESH_VALIDATION)
-      void lcd_chirp();
-    #endif
-  #endif
-
-  #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
-  #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
-
-  extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
-
-  int16_t lcd_strlen(const char* s);
-  int16_t lcd_strlen_P(const char* s);
-  void lcd_update();
-  void lcd_init();
+  int16_t utf8_strlen(const char* s);
+  int16_t utf8_strlen_P(const char* s);
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatusPGM(const char* message, const int8_t level=0);
   void lcd_setalertstatusPGM(const char* message);
-  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_reset_alert_level();
+  void lcd_reset_status();
+  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
-  bool lcd_detected(void);
 
   extern uint8_t lcdDrawUpdate;
   inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
@@ -62,8 +60,14 @@
     void lcd_buzz(const long duration, const uint16_t freq);
   #endif
 
+  void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
+
   #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
     void dontExpireStatus();
+  #endif
+
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    extern uint8_t progress_bar_percent;
   #endif
 
   #if ENABLED(ADC_KEYPAD)
@@ -71,8 +75,8 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    extern uint16_t lcd_contrast;
-    void set_lcd_contrast(const uint16_t value);
+    extern int16_t lcd_contrast;
+    void set_lcd_contrast(const int16_t value);
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
@@ -80,31 +84,52 @@
   #endif
 
   #define LCD_UPDATE_INTERVAL 100
+  #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
+  #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if ENABLED(ULTIPANEL)
+  #if ENABLED(ULTIPANEL) // LCD with a click-wheel input
 
-    #define BLEN_A 0
-    #define BLEN_B 1
-    // Encoder click is directly connected
-    #if BUTTON_EXISTS(ENC)
-      #define BLEN_C 2
+    extern bool defer_return_to_status;
+
+    // Function pointer to menu functions.
+    typedef void (*screenFunc_t)();
+    typedef void (*menuAction_t)();
+
+    extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+      extern bool lcd_external_control;
+    #else
+      constexpr bool lcd_external_control = false;
     #endif
-    #define EN_A (_BV(BLEN_A))
-    #define EN_B (_BV(BLEN_B))
-    #define EN_C (_BV(BLEN_C))
 
-    extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
-    void lcd_buttons_update();
-    void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
+    #if ENABLED(LCD_BED_LEVELING)
+      extern bool lcd_wait_for_move;
+    #else
+      constexpr bool lcd_wait_for_move = false;
+    #endif
+
+    void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
+
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message);
-    #endif // ADVANCED_PAUSE_FEATURE
+      extern uint8_t active_extruder;
+      void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
+                                           const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT,
+                                           const uint8_t extruder=active_extruder);
+    #endif
 
-  #else
+    #if ENABLED(G26_MESH_VALIDATION)
+      void lcd_chirp();
+    #endif
 
-    inline void lcd_buttons_update() {}
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      void lcd_mesh_edit_setup(const float &initial);
+      float lcd_mesh_edit();
+      void lcd_z_offset_edit_setup(const float &initial);
+      float lcd_z_offset_edit();
+    #endif
 
   #endif
 
@@ -153,12 +178,6 @@
     #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & KEYPAD_HOME)
     #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & KEYPAD_EN_C)
 
-    #if BUTTON_EXISTS(ENC)
-      #define LCD_CLICKED ((buttons & EN_C) || REPRAPWORLD_KEYPAD_MOVE_MENU)
-    #else
-      #define LCD_CLICKED REPRAPWORLD_KEYPAD_MOVE_MENU
-    #endif
-
     #define REPRAPWORLD_KEYPAD_PRESSED      (buttons_reprapworld_keypad & ( \
                                               EN_REPRAPWORLD_KEYPAD_F3 | \
                                               EN_REPRAPWORLD_KEYPAD_F2 | \
@@ -170,10 +189,6 @@
                                               EN_REPRAPWORLD_KEYPAD_LEFT) \
                                             )
 
-  #elif ENABLED(NEWPANEL)
-    #define LCD_CLICKED (buttons & EN_C)
-  #else
-    #define LCD_CLICKED false
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
@@ -181,44 +196,76 @@
     void wait_for_release();
   #endif
 
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
-    extern uint8_t progress_bar_percent;
-  #endif
+#else // MALYAN_LCD or no LCD
 
-#else // no LCD
+  constexpr bool lcd_wait_for_move = false;
 
-  inline void lcd_update() {}
-  inline void lcd_init() {}
+  inline void lcd_refresh() {}
   inline bool lcd_hasstatus() { return false; }
   inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
   inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
-  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
   inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
-  inline void lcd_buttons_update() {}
   inline void lcd_reset_alert_level() {}
-  inline bool lcd_detected() { return true; }
-  inline void lcd_refresh() {}
+  inline void lcd_reset_status() {}
 
 #endif // ULTRA_LCD
+
+#if ENABLED(ULTIPANEL)
+
+  #if ENABLED(NEWPANEL) // Uses digital switches, not a shift register
+
+    // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
+    #define BLEN_A 0
+    #define BLEN_B 1
+
+    #define EN_A _BV(BLEN_A)
+    #define EN_B _BV(BLEN_B)
+
+    #if BUTTON_EXISTS(ENC)
+      #define BLEN_C 2
+      #define EN_C _BV(BLEN_C)
+    #endif
+
+    #if BUTTON_EXISTS(BACK)
+      #define BLEN_D 3
+      #define EN_D _BV(BLEN_D)
+      #define LCD_BACK_CLICKED (buttons & EN_D)
+    #endif
+
+  #endif // NEWPANEL
+
+  extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
+  void lcd_buttons_update();
+
+#else
+
+  inline void lcd_buttons_update() {}
+
+#endif
+
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  #ifdef EN_C
+    #define LCD_CLICKED ((buttons & EN_C) || REPRAPWORLD_KEYPAD_MOVE_MENU)
+  #else
+    #define LCD_CLICKED REPRAPWORLD_KEYPAD_MOVE_MENU
+  #endif
+#elif defined(EN_C)
+  #define LCD_CLICKED (buttons & EN_C)
+#else
+  #define LCD_CLICKED false
+#endif
 
 #define LCD_MESSAGEPGM(x)      lcd_setstatusPGM(PSTR(x))
 #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatusPGM(PSTR(x))
 
-void lcd_reset_status();
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  void lcd_mesh_edit_setup(const float initial);
-  float lcd_mesh_edit();
-  void lcd_z_offset_edit_setup(float);
-  float lcd_z_offset_edit();
-#endif
-
-#if ENABLED(DELTA_AUTO_CALIBRATION) && !HAS_BED_PROBE
-  float lcd_probe_pt(const float &rx, const float &ry);
-#endif
-
 #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
   void lcd_reselect_last_file();
+#endif
+
+#if ENABLED(ULTIPANEL) && ENABLED(SDSUPPORT)
+  extern bool abort_sd_printing;
+#else
+  constexpr bool abort_sd_printing = false;
 #endif
 
 #endif // ULTRALCD_H

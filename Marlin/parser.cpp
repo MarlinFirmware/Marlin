@@ -21,10 +21,10 @@
  */
 
 /**
- * gcode.cpp - Parser for a GCode line, providing a parameter interface.
+ * parser.cpp - Parser for a GCode line, providing a parameter interface.
  */
 
-#include "gcode.h"
+#include "parser.h"
 
 #include "Marlin.h"
 #include "language.h"
@@ -53,7 +53,7 @@ int GCodeParser::codenum;
 
 #if ENABLED(FASTER_GCODE_PARSER)
   // Optimized Parameters
-  byte GCodeParser::codebits[4];   // found bits
+  uint32_t GCodeParser::codebits;  // found bits
   uint8_t GCodeParser::param[26];  // parameter offsets from command_ptr
 #else
   char *GCodeParser::command_args; // start of parameters
@@ -76,7 +76,7 @@ void GCodeParser::reset() {
     subcode = 0;                        // No command sub-code
   #endif
   #if ENABLED(FASTER_GCODE_PARSER)
-    ZERO(codebits);                     // No codes yet
+    codebits = 0;                       // No codes yet
     //ZERO(param);                      // No parameters (should be safe to comment out this line)
   #endif
 }
@@ -152,7 +152,7 @@ void GCodeParser::parse(char *p) {
   #endif
 
   // Only use string_arg for these M codes
-  if (letter == 'M') switch (codenum) { case 23: case 28: case 30: case 117: case 928: string_arg = p; return; default: break; }
+  if (letter == 'M') switch (codenum) { case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return; default: break; }
 
   #if ENABLED(DEBUG_GCODE_PARSER)
     const bool debug = codenum == 800;
@@ -189,14 +189,7 @@ void GCodeParser::parse(char *p) {
 
       while (*p == ' ') p++;                    // Skip spaces between parameters & values
 
-      const bool has_num = NUMERIC(p[0])                            // [0-9]
-                        || (p[0] == '.' && NUMERIC(p[1]))           // .[0-9]
-                        || (
-                              (p[0] == '-' || p[0] == '+') && (     // [-+]
-                                NUMERIC(p[1])                       //     [0-9]
-                                || (p[1] == '.' && NUMERIC(p[2]))   //     .[0-9]
-                              )
-                            );
+      const bool has_num = valid_float(p);
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         if (debug) {
@@ -218,13 +211,7 @@ void GCodeParser::parse(char *p) {
       #endif
 
       #if ENABLED(FASTER_GCODE_PARSER)
-      {
-        set(code, has_num ? p : NULL            // Set parameter exists and pointer (NULL for no number)
-          #if ENABLED(DEBUG_GCODE_PARSER)
-            , debug
-          #endif
-        );
-      }
+        set(code, has_num ? p : NULL);          // Set parameter exists and pointer (NULL for no number)
       #endif
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
@@ -276,13 +263,13 @@ void GCodeParser::unknown_command_error() {
     SERIAL_ECHO(codenum);
     SERIAL_ECHOLNPGM(")");
     #if ENABLED(FASTER_GCODE_PARSER)
-      SERIAL_ECHO(" args: \"");
+      SERIAL_ECHOPGM(" args: \"");
       for (char c = 'A'; c <= 'Z'; ++c)
         if (seen(c)) { SERIAL_CHAR(c); SERIAL_CHAR(' '); }
     #else
       SERIAL_ECHOPAIR(" args: \"", command_args);
     #endif
-    SERIAL_ECHOPGM("\"");
+    SERIAL_CHAR('"');
     if (string_arg) {
       SERIAL_ECHOPGM(" string: \"");
       SERIAL_ECHO(string_arg);

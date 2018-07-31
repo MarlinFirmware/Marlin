@@ -47,6 +47,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibreer Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klik voor begin")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Volgende Plaats")
@@ -103,9 +104,15 @@
 #define MSG_SELECT                          _UxGT("Selecteer")
 #define MSG_ACC                             _UxGT("Versn")
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vx-jerk")
-#define MSG_VY_JERK                         _UxGT("Vy-jerk")
-#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT("Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
@@ -114,9 +121,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-retract")
 #define MSG_A_TRAVEL                        _UxGT("A-travel")
 #define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")
-#define MSG_XSTEPS                          _UxGT("Xsteps/mm")
-#define MSG_YSTEPS                          _UxGT("Ysteps/mm")
-#define MSG_ZSTEPS                          _UxGT("Zsteps/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("Asteps/mm")
+  #define MSG_BSTEPS                        _UxGT("Bsteps/mm")
+  #define MSG_CSTEPS                        _UxGT("Csteps/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("Xsteps/mm")
+  #define MSG_BSTEPS                        _UxGT("Ysteps/mm")
+  #define MSG_CSTEPS                        _UxGT("Zsteps/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("Esteps/mm")
 #define MSG_E1STEPS                         _UxGT("E1steps/mm")
 #define MSG_E2STEPS                         _UxGT("E2steps/mm")
@@ -144,7 +157,6 @@
 #define MSG_NO_CARD                         _UxGT("Geen SD kaart")
 #define MSG_DWELL                           _UxGT("Slapen...")
 #define MSG_USERWAIT                        _UxGT("Wachten...")
-#define MSG_RESUMING                        _UxGT("Print hervatten")
 #define MSG_PRINT_ABORTED                   _UxGT("Print afgebroken")
 #define MSG_NO_MOVE                         _UxGT("Geen beweging.")
 #define MSG_KILLED                          _UxGT("Afgebroken. ")
@@ -177,16 +189,14 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err: Min. temp")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: Max.tmp bed")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: Min.tmp bed")
-#define MSG_ERR_Z_HOMING                    _UxGT("Fout Z homing")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("PRINTER GESTOPT")
 #define MSG_PLEASE_RESET                    _UxGT("Reset A.U.B.")
 #define MSG_SHORT_DAY                       _UxGT("d") //  One character only. Keep English standard
 #define MSG_SHORT_HOUR                      _UxGT("h") //  One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") //  One character only
 #define MSG_HEATING                         _UxGT("Voorwarmen...")
-#define MSG_HEATING_COMPLETE                _UxGT("Voorverw. kompl.")
-#define MSG_BED_HEATING                     _UxGT("Bed voorverw.")
-#define MSG_BED_DONE                        _UxGT("Bed is voorverw.")
+#define MSG_BED_HEATING                     _UxGT("Bed voorverw...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Delta Calibratie")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibreer X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibreer Y")
@@ -226,11 +236,7 @@
 #define MSG_DRIVE_STRENGTH                  _UxGT("Motorstroom")
 #define MSG_DAC_PERCENT                     _UxGT("Driver %")  //accepted English term in Dutch
 #define MSG_DAC_EEPROM_WRITE                _UxGT("DAC Opslaan")
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("PRINT PAUSED")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("RESUME OPTIONS:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extrudeer meer")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Hervat print")
-#define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Minimum Temp is ")
 #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT(" Nozzle: ") //accepeted English term
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -254,9 +260,6 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filament te")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("laden")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Wacht voor")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("filament te")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("extruderen")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor print")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("om verder")
   #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("te gaan")
@@ -273,8 +276,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("en druk knop")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("inladen...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Wacht voor")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("extrudering")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("printing...")
 #endif // LCD_HEIGHT < 4

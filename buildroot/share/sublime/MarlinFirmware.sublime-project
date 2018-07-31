@@ -1,0 +1,25 @@
+{
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"Marlin/platformio.ini",
+				"Marlin/.travis.yml",
+				"Marlin/.gitignore",
+				"Marlin/*/platformio.ini",
+				"Marlin/*/.travis.yml",
+				"Marlin/*/.gitignore"
+			],
+			"folder_exclude_patterns":
+			[
+				".pio*",
+				"Marlin/lib",
+				"datatmp",
+				"Marlin/*/src",
+				".vscode"
+			],
+			"path": "../../.."
+		}
+	]
+}

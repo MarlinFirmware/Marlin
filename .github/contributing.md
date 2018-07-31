@@ -98,15 +98,15 @@ Before creating a suggestion, please check [this list](#before-submitting-a-sugg
 
 #### How Do I Submit A (Good) Feature Request?
 
-Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com/features/issues/). Please follow these guidelines in your request:
+Feature Requests are tracked as [GitHub issues](https://guides.github.com/features/issues/). Please follow these guidelines in your request:
 
 * **Use a clear and descriptive title** for the issue to identify the suggestion.
-* **Provide a step-by-step description of the suggested feature** in as many details as possible.
+* **Provide a step-by-step description of the requested feature** in as much detail as possible.
 * **Provide specific examples to demonstrate the steps**.
 * **Describe the current behavior** and **explain which behavior you expected to see instead** and why.
-* **Include screenshots and links to videos** which demonstrate the steps or point out the part of Marlin which the suggestion is related to.
+* **Include screenshots and links to videos** which demonstrate the feature or point out the part of Marlin to which the request is related.
 * **Explain why this feature would be useful** to most Marlin users.
-* **Name other firmwares that have this feature.**
+* **Name other firmwares that have this feature, if any.**
 
 ### Your First Code Contribution
 
@@ -117,11 +117,11 @@ Unsure where to begin contributing to Marlin? You can start by looking through t
 
 ### Pull Requests
 
-Pull Requests should always be targeted to working branches (e.g., `bugfix-1.1.x` and/or `bugfix-2.0.x`) and never to release branches (e.g., `1.1.x`).
+Pull Requests should always be targeted to working branches (e.g., `bugfix-1.1.x` and/or `bugfix-2.0.x`) and never to release branches (e.g., `1.1.x`). If this is your first Pull Request, please read our [Guide to Pull Requests](http://marlinfw.org/docs/development/getting_started_pull_requests.html) and Github's [Pull Request](https://help.github.com/articles/creating-a-pull-request/) documentation.
 
 * Fill in [the required template](pull_request_template.md).
-* Do not include issue numbers in the PR title.
-* Include screenshots and links to videos in your Pull Request whenever possible.
+* Don't include issue numbers in the PR title.
+* Include pictures, diagrams, and links to videos in your Pull Request to demonstrate your changes, if needed.
 * Follow the [Coding Standards](http://marlinfw.org/docs/development/coding_standards.html) posted on our website.
 * Document new code with clear and concise comments.
 * End all files with a newline.
@@ -130,10 +130,10 @@ Pull Requests should always be targeted to working branches (e.g., `bugfix-1.1.x
 
 ### Git Commit Messages
 
-* Use the present tense ("Add feature" not "Added feature")
-* Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
-* Limit the first line to 72 characters or less
-* Reference issues and Pull Requests liberally after the first line
+* Use the present tense ("Add feature" not "Added feature").
+* Use the imperative mood ("Move cursor to..." not "Moves cursor to...").
+* Limit the first line to 72 characters or less.
+* Reference issues and Pull Requests liberally after the first line.
 
 ### C++ Coding Standards
 
