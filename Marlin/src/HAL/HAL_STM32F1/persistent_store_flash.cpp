@@ -54,7 +54,7 @@ bool access_start() {
   return true;
 }
 
-bool access_finish(){
+bool access_finish() {
   FLASH_Lock();
   firstWrite = false;
   return true;
