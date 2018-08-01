@@ -128,7 +128,7 @@ class Endstops {
     /**
      * Report endstop hits to serial. Called from loop().
      */
-    static void report_state();
+    static void event_handler();
 
     /**
      * Report endstop positions in response to M119
@@ -143,6 +143,9 @@ class Endstops {
 
     // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
     static void not_homing();
+
+    // If the last move failed to trigger an endstop, call kill
+    static void validate_homing_move();
 
     // Clear endstops (i.e., they were hit intentionally) to suppress the report
     FORCE_INLINE static void hit_on_purpose() { hit_state = 0; }

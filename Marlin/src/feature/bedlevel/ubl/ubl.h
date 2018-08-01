@@ -168,14 +168,14 @@ class unified_bed_leveling {
     FORCE_INLINE static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
     static int8_t get_cell_index_x(const float &x) {
-      const int8_t cx = (x - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
+      const int8_t cx = (x - (MESH_MIN_X)) * (1.0f / (MESH_X_DIST));
       return constrain(cx, 0, (GRID_MAX_POINTS_X) - 1);   // -1 is appropriate if we want all movement to the X_MAX
     }                                                     // position. But with this defined this way, it is possible
                                                           // to extrapolate off of this point even further out. Probably
                                                           // that is OK because something else should be keeping that from
                                                           // happening and should not be worried about at this level.
     static int8_t get_cell_index_y(const float &y) {
-      const int8_t cy = (y - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
+      const int8_t cy = (y - (MESH_MIN_Y)) * (1.0f / (MESH_Y_DIST));
       return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
     }                                                     // position. But with this defined this way, it is possible
                                                           // to extrapolate off of this point even further out. Probably
@@ -183,12 +183,12 @@ class unified_bed_leveling {
                                                           // happening and should not be worried about at this level.
 
     static int8_t find_closest_x_index(const float &x) {
-      const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
+      const int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0f / (MESH_X_DIST));
       return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
     }
 
     static int8_t find_closest_y_index(const float &y) {
-      const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
+      const int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0f / (MESH_Y_DIST));
       return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
     }
 
@@ -238,7 +238,7 @@ class unified_bed_leveling {
         );
       }
 
-      const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0 / (MESH_X_DIST)),
+      const float xratio = (rx0 - mesh_index_to_xpos(x1_i)) * (1.0f / (MESH_X_DIST)),
                   z1 = z_values[x1_i][yi];
 
       return z1 + xratio * (z_values[MIN(x1_i, GRID_MAX_POINTS_X - 2) + 1][yi] - z1); // Don't allow x1_i+1 to be past the end of the array
@@ -272,7 +272,7 @@ class unified_bed_leveling {
         );
       }
 
-      const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0 / (MESH_Y_DIST)),
+      const float yratio = (ry0 - mesh_index_to_ypos(y1_i)) * (1.0f / (MESH_Y_DIST)),
                   z1 = z_values[xi][y1_i];
 
       return z1 + yratio * (z_values[xi][MIN(y1_i, GRID_MAX_POINTS_Y - 2) + 1] - z1); // Don't allow y1_i+1 to be past the end of the array

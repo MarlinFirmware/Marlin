@@ -23,7 +23,8 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
+#include HAL_PATH(../HAL, HAL.h)
 
 /**
  * Define debug bit-masks

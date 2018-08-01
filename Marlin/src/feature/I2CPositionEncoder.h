@@ -133,15 +133,11 @@ class I2CPositionEncoder {
               nextErrorCountTime  = 0,
               lastErrorTime;
 
-    //double        positionMm; //calculate
-
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
       uint8_t errIdx = 0, errPrstIdx = 0;
       int err[I2CPE_ERR_ARRAY_SIZE] = { 0 },
           errPrst[I2CPE_ERR_PRST_ARRAY_SIZE] = { 0 };
     #endif
-
-    //float        positionMm; //calculate
 
   public:
     void init(const uint8_t address, const AxisEnum axis);

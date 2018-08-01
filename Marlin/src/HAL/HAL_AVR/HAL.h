@@ -345,12 +345,16 @@ inline void HAL_adc_init(void) {
   #define HAL_START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
 #endif
 
-#define HAL_READ_ADC ADC
+#define HAL_READ_ADC()  ADC
+#define HAL_ADC_READY() !TEST(ADCSRA, ADSC)
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 #define HAL_SENSITIVE_PINS 0, 1
+
+// AVR compatibility
+#define strtof strtod
 
 #endif // _HAL_AVR_H_

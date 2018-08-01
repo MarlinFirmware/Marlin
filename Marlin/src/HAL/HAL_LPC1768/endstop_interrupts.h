@@ -37,9 +37,6 @@
 #ifndef _ENDSTOP_INTERRUPTS_H_
 #define _ENDSTOP_INTERRUPTS_H_
 
-//Currently this is untested and broken
-#error "Please disable Endstop Interrupts LPC176x is currently an unsupported platform"
-
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
@@ -47,30 +44,57 @@ void endstop_ISR(void) { endstops.update(); }
 
 void setup_endstop_interrupts(void) {
   #if HAS_X_MAX
-    attachInterrupt(digitalPinToInterrupt(X_MAX_PIN), endstop_ISR, CHANGE); // assign it
+    #if !LPC1768_PIN_INTERRUPT_M(X_MAX_PIN)
+      #error "X_MAX_PIN is not an INTERRUPT capable pin."
+    #endif
+    attachInterrupt(digitalPinToInterrupt(X_MAX_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_X_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(X_MIN_PIN)
+      #error "X_MIN_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(X_MIN_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Y_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(Y_MAX_PIN)
+      #error "Y_MAX_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Y_MAX_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Y_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(Y_MIN_PIN)
+      #error "Y_MIN_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Y_MIN_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(Z_MAX_PIN)
+      #error "Z_MAX_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Z_MAX_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(Z_MIN_PIN)
+      #error "Z_MIN_PIN is not an INTERRUPT capable pin."
+    #endif
      attachInterrupt(digitalPinToInterrupt(Z_MIN_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z2_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(Z2_MAX_PIN)
+      #error "Z2_MAX_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Z2_MAX_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z2_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(Z2_MIN_PIN)
+      #error "Z2_MIN_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Z2_MIN_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MIN_PROBE_PIN
+    #if !LPC1768_PIN_INTERRUPT_M(Z_MIN_PROBE_PIN)
+      #error "Z_MIN_PROBE_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Z_MIN_PROBE_PIN), endstop_ISR, CHANGE);
   #endif
 }

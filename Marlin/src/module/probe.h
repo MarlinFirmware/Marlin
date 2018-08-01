@@ -71,7 +71,6 @@
   FORCE_INLINE void bltouch_init() {
     // Make sure any BLTouch error condition is cleared
     bltouch_command(BLTOUCH_RESET);
-    set_bltouch_deployed(true);
     set_bltouch_deployed(false);
   }
 #endif

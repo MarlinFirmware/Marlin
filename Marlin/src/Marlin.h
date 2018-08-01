@@ -185,11 +185,6 @@ extern volatile bool wait_for_heatup;
   extern bool suspend_auto_report;
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  typedef struct { double A, B, D; } linear_fit;
-  linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
-#endif
-
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 

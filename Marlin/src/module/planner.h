@@ -149,7 +149,7 @@ typedef struct {
 
 } block_t;
 
-#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || ENABLED(SCARA_FEEDRATE_SCALING))
+#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || HAS_FEEDRATE_SCALING)
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
@@ -324,7 +324,7 @@ class Planner {
     static void refresh_positioning();
 
     FORCE_INLINE static void refresh_e_factor(const uint8_t e) {
-      e_factor[e] = (flow_percentage[e] * 0.01
+      e_factor[e] = (flow_percentage[e] * 0.01f
         #if DISABLED(NO_VOLUMETRICS)
           * volumetric_multiplier[e]
         #endif
@@ -362,19 +362,19 @@ class Planner {
        *  Returns 0.0 if Z is past the specified 'Fade Height'.
        */
       inline static float fade_scaling_factor_for_z(const float &rz) {
-        static float z_fade_factor = 1.0;
+        static float z_fade_factor = 1;
         if (z_fade_height) {
-          if (rz >= z_fade_height) return 0.0;
+          if (rz >= z_fade_height) return 0;
           if (last_fade_z != rz) {
             last_fade_z = rz;
-            z_fade_factor = 1.0 - rz * inverse_z_fade_height;
+            z_fade_factor = 1 - rz * inverse_z_fade_height;
           }
           return z_fade_factor;
         }
-        return 1.0;
+        return 1;
       }
 
-      FORCE_INLINE static void force_fade_recalc() { last_fade_z = -999.999; }
+      FORCE_INLINE static void force_fade_recalc() { last_fade_z = -999.999f; }
 
       FORCE_INLINE static void set_z_fade_height(const float &zfh) {
         z_fade_height = zfh > 0 ? zfh : 0;
@@ -390,7 +390,7 @@ class Planner {
 
       FORCE_INLINE static float fade_scaling_factor_for_z(const float &rz) {
         UNUSED(rz);
-        return 1.0;
+        return 1;
       }
 
       FORCE_INLINE static bool leveling_active_at_z(const float &rz) { UNUSED(rz); return true; }
@@ -830,22 +830,16 @@ class Planner {
 
     #if ENABLED(JUNCTION_DEVIATION)
 
-      #if ENABLED(JUNCTION_DEVIATION_INCLUDE_E)
-        #define JD_AXES XYZE
-      #else
-        #define JD_AXES XYZ
-      #endif
-
-      FORCE_INLINE static void normalize_junction_vector(float (&vector)[JD_AXES]) {
-        float magnitude_sq = 0.0;
-        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (vector[idx]) magnitude_sq += sq(vector[idx]);
-        const float inv_magnitude = 1.0 / SQRT(magnitude_sq);
-        for (uint8_t idx = 0; idx < JD_AXES; idx++) vector[idx] *= inv_magnitude;
+      FORCE_INLINE static void normalize_junction_vector(float (&vector)[XYZE]) {
+        float magnitude_sq = 0;
+        LOOP_XYZE(idx) if (vector[idx]) magnitude_sq += sq(vector[idx]);
+        const float inv_magnitude = RSQRT(magnitude_sq);
+        LOOP_XYZE(idx) vector[idx] *= inv_magnitude;
       }
 
-      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[JD_AXES]) {
+      FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[XYZE]) {
         float limit_value = max_value;
-        for (uint8_t idx = 0; idx < JD_AXES; idx++) if (unit_vec[idx]) // Avoid divide by zero
+        LOOP_XYZE(idx) if (unit_vec[idx]) // Avoid divide by zero
           NOMORE(limit_value, ABS(max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
         return limit_value;
       }
