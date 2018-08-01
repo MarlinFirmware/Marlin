@@ -68,9 +68,15 @@ extern "C" volatile uint32_t _millis;
 #include "HAL_timers.h"
 #include "HardwareSerial.h"
 
-#define ST7920_DELAY_1 DELAY_NS(600)
-#define ST7920_DELAY_2 DELAY_NS(750)
-#define ST7920_DELAY_3 DELAY_NS(750)
+#ifndef ST7920_DELAY_1
+  #define ST7920_DELAY_1 DELAY_NS(600)
+#endif
+#ifndef ST7920_DELAY_2
+  #define ST7920_DELAY_2 DELAY_NS(750)
+#endif
+#ifndef ST7920_DELAY_3
+  #define ST7920_DELAY_3 DELAY_NS(750)
+#endif
 
 extern HalSerial usb_serial;
 
@@ -140,11 +146,13 @@ uint8_t spiRec(uint32_t chan);
 // ADC
 #define HAL_ANALOG_SELECT(pin) HAL_adc_enable_channel(pin)
 #define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
-#define HAL_READ_ADC           HAL_adc_get_result()
+#define HAL_READ_ADC()         HAL_adc_get_result()
+#define HAL_ADC_READY()        HAL_adc_finished()
 
 void HAL_adc_init(void);
 void HAL_adc_enable_channel(int pin);
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result(void);
+bool HAL_adc_finished(void);
 
 #endif // _HAL_LPC1768_H_

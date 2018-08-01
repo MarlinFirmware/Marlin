@@ -712,11 +712,15 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
-  #if ENABLED(HAVE_TMC2130)
+  #if HAS_DRIVER(TMC2130)
     tmc_init_cs_pins();
   #endif
-  #if ENABLED(HAVE_TMC2208)
+  #if HAS_DRIVER(TMC2208)
     tmc2208_serial_begin();
+  #endif
+
+  #ifdef BOARD_INIT
+    BOARD_INIT();
   #endif
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
@@ -893,7 +897,7 @@ void setup() {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    do_print_job_recovery();
+    check_print_job_recovery();
   #endif
 
   #if ENABLED(USE_WATCHDOG) // Reinit watchdog after HAL_get_reset_source call
@@ -933,12 +937,15 @@ void loop() {
           for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
         #endif
         wait_for_heatup = false;
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          card.removeJobRecoveryFile();
+        #endif
       }
     #endif // SDSUPPORT && ULTIPANEL
 
     if (commands_in_queue < BUFSIZE) get_available_commands();
     advance_command_queue();
-    endstops.report_state();
+    endstops.event_handler();
     idle();
   }
 }

@@ -150,7 +150,7 @@
   }
 
   void spiInit(uint8_t spiRate) {
-
+    SSP_Cmd(LPC_SSP0, DISABLE); // Disable SSP0 before changing rate
     // table to convert Marlin spiRates (0-5 plus default) into bit rates
     uint32_t Marlin_speed[7]; // CPSR is always 2
     Marlin_speed[0] = 8333333; //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
@@ -241,6 +241,21 @@
 #endif // ENABLED(LPC_SOFTWARE_SPI)
 
 void SPIClass::begin() { spiBegin(); }
+
+void SPIClass::beginTransaction(SPISettings cfg) {
+  uint8_t spiRate;
+  switch(cfg.spiRate()) {
+    case 8000000: spiRate=0 ;break;
+    case 4000000: spiRate=1 ;break;
+    case 2000000: spiRate=2 ;break;
+    case 1000000: spiRate=3 ;break;
+    case  500000: spiRate=4 ;break;
+    case  250000: spiRate=5 ;break;
+    case  125000: spiRate=6 ;break;
+    default: spiRate=2; break;
+  }
+  spiInit(spiRate);
+}
 
 uint8_t SPIClass::transfer(uint8_t B) {
   return spiTransfer(B);

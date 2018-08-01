@@ -23,9 +23,9 @@
 #ifndef HARDWARE_SERIAL_H_
 #define HARDWARE_SERIAL_H_
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 #if ENABLED(EMERGENCY_PARSER)
-  #include "../../feature/emergency_parser.h"
+  #include "../../../feature/emergency_parser.h"
 #endif
 
 #include <stdarg.h>
