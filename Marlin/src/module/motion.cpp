@@ -1483,7 +1483,7 @@ void homeaxis(const AxisEnum axis) {
       if (axis == X_AXIS) {
 
         // In Dual X mode hotend_offset[X] is T1's home position
-        float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
+        const float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
 
         if (active_extruder != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
