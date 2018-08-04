@@ -1329,7 +1329,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
       if (axis == X_AXIS) {
 
         // In Dual X mode hotend_offset[X] is T1's home position
-        float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
+        const float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
 
         if (active_extruder != 0) {
           // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
@@ -12017,9 +12017,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
         }
 
-        // Save current position to destination, for use later
-        set_destination_from_current();
-
         #if HAS_LEVELING
           // Set current position to the physical position
           const bool leveling_was_active = planner.leveling_active;
@@ -12028,10 +12025,23 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
         #if ENABLED(DUAL_X_CARRIAGE)
 
+          #if HAS_SOFTWARE_ENDSTOPS
+            // Update the X software endstops early
+            active_extruder = tmp_extruder;
+            update_software_endstops(X_AXIS);
+            active_extruder = !tmp_extruder;
+          #endif
+
+          // Don't move the new extruder out of bounds
+          if (!WITHIN(current_position[X_AXIS], soft_endstop_min[X_AXIS], soft_endstop_max[X_AXIS]))
+            no_move = true;
+
+          if (!no_move) set_destination_from_current();
           dualx_tool_change(tmp_extruder, no_move); // Can modify no_move
 
         #else // !DUAL_X_CARRIAGE
 
+          set_destination_from_current();
           #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
             parking_extruder_tool_change(tmp_extruder, no_move);
           #endif
@@ -12116,6 +12126,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #endif
 
       feedrate_mm_s = old_feedrate_mm_s;
+
+      #if HAS_SOFTWARE_ENDSTOPS && ENABLED(DUAL_X_CARRIAGE)
+        update_software_endstops(X_AXIS);
+      #endif
 
     #else // HOTENDS <= 1
 
