@@ -69,6 +69,18 @@
 #define Y_MAX_BED (Y_CENTER + (Y_BED_SIZE) / 2)
 
 /**
+ * Dual X Carriage
+ */
+#if ENABLED(DUAL_X_CARRIAGE)
+  #ifndef X1_MIN_POS
+    #define X1_MIN_POS X_MIN_POS
+  #endif
+  #ifndef X1_MAX_POS
+    #define X1_MAX_POS X_BED_SIZE
+  #endif
+#endif
+
+/**
  * CoreXY, CoreXZ, and CoreYZ - and their reverse
  */
 #define CORE_IS_XY (ENABLED(COREXY) || ENABLED(COREYX))
