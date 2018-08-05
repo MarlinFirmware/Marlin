@@ -101,7 +101,7 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
 
 #define E0_STEP_PIN        11
 #define E0_DIR_PIN         12
-#define E0_ENABLE_PIN      13
+#define E0_ENABLE_PIN      2
 
 // #define E1_STEP_PIN        33
 // #define E1_DIR_PIN         34
@@ -117,14 +117,14 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
 #define TEMP_0_PIN         14   // Extruder / Analog pin numbering: 2 => A2
 // #define TEMP_1_PIN          0
 #define TEMP_BED_PIN       15   // Bed / Analog pin numbering
-/*
-#define SDSS               39   // 8
+
+#define SDSS               16   // 8
 #define LED_PIN            13
-#define PS_ON_PIN           1
+#define PS_ON_PIN          -1
 #define ALARM_PIN          -1
 
-#define FILWIDTH_PIN        6
-#define SOL1_PIN           28
+// #define FILWIDTH_PIN        6
+// #define SOL1_PIN           28
 
 #if 0
 // Pretty sure this is obsolete!
@@ -136,7 +136,7 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
   #define MOSI_PIN         11
 #endif
 #endif
-
+/*
 #ifdef ULTRA_LCD
   #define LCD_PINS_RS      40
   #define LCD_PINS_ENABLE  41
