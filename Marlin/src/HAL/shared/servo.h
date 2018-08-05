@@ -70,8 +70,11 @@
 #define SERVO_H
 
 #if IS_32BIT_TEENSY
-  #include "../HAL_TEENSY35_36/HAL_Servo_Teensy.h" // Teensy HAL uses an inherited library
-
+  #if IS_TEENSY32
+    #include "../HAL_TEENSY31_32/HAL_Servo_Teensy.h"
+  #elif IS_TEENSY35 || IS_TEENSY36
+    #include "../HAL_TEENSY35_36/HAL_Servo_Teensy.h"
+  #endif
 #elif defined(TARGET_LPC1768)
   #include "../HAL_LPC1768/LPC1768_Servo.h"
 #elif defined(STM32F1) || defined(STM32F1xx)
