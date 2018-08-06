@@ -148,8 +148,8 @@ void prepare_move(const ExtraData& extra_data)
       min_pos_extruded[i] = min(min_pos_extruded[i], calc_destination[i]);
       max_pos_extruded[i] = max(max_pos_extruded[i], calc_destination[i]);
     }
-    extrusion_length[target_extruder] += extruded;
   }
+  extrusion_length[target_extruder] += extruded;
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = calc_destination[i];
   }
@@ -276,7 +276,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         }
       }
       break;
-	}
+    }
   } else if(code_seen('M')) {
     total_m++;
     switch((int)code_value()) {
