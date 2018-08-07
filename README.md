@@ -11,9 +11,18 @@ For complete Marlin documentation click over to the [Marlin Homepage <marlinfw.o
 
 This Release branch contains the latest tagged version of Marlin (currently 1.1.8 – December 2017).
 
-Previous releases of Marlin include [1.0.2-2](https://github.com/MarlinFirmware/Marlin/tree/1.0.2-2) (December 2016) and [1.0.1](https://github.com/MarlinFirmware/Marlin/tree/1.0.1) (December 2014). Any version of Marlin prior to 1.0.1 (when we started tagging versions) can be collectively referred to as Marlin 1.0.0.
+Download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases). (The latest tagged release of Marlin is version 1.1.7.)
 
-## Contributing to Marlin
+## Recent Changes
+- Internally always use native machine space
+- Initial UBL LCD Menu
+- New optimized G-code parser singleton
+- Initial `M3`/`M4`/`M5` Spindle and Laser support
+- Added `M421 Q` to offset a mesh point
+- Refinements to `G26` and `G33`
+- Added `M80 S` to query the power state
+- "Cancel Print" now shuts off heaters
+- Added `EXTRAPOLATE_BEYOND_GRID` option for mesh-based leveling
 
 Click on the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues) and [Pull Requests](https://github.com/MarlinFirmware/Marlin/pulls) links above at any time to see what we're currently working on.
 
@@ -34,7 +43,9 @@ Arduino IDE now has support for folder hierarchies, so Marlin 1.2 will have a [h
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
 
-## Marlin Resources
+- This branch is for fixing bugs and integrating any new features for the duration of the Marlin 1.1.x life-cycle. We've opted for a simplified branch structure while we work on the maintainability and encapsulation of code modules. Version 2.0 and beyond should improve on separation of bug fixes and cutting-edge development.
+- Follow the proper coding style to gain points with the maintainers. See our [Coding Standards](http://marlinfw.org/docs/development/coding_standards.html) page for more information.
+- Please submit your questions and concerns to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues). The "naive" question is often the one we forget to ask.
 
 - [Marlin Home Page](http://marlinfw.org/) - The Marlin Documentation Project. Join us!
 - [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin) - An overview of Marlin and its role in RepRap.
@@ -43,47 +54,44 @@ Arduino IDE now has support for folder hierarchies, so Marlin 1.2 will have a [h
 
 ## Credits
 
-Marlin's administrators are:
- - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)]
+The current Marlin dev team consists of:
  - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)]
+ - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)]
  - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)]
- - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)]
 
 Notable contributors include:
- - Alexey Shvetsov [[@alexxy](https://github.com/alexxy)]
+ - Alberto Cotronei [[@MagoKimbra](https://github.com/MagoKimbra)]
  - Andreas Hardtung [[@AnHardt](https://github.com/AnHardt)]
- - Ben Lye [[@benlye](https://github.com/benlye)]
  - Bernhard Kubicek [[@bkubicek](https://github.com/bkubicek)]
  - Bob Cousins [[@bobc](https://github.com/bobc)]
- - Petr Zahradnik [[@clexpert](https://github.com/clexpert)]
- - Jochen Groppe [[@CONSULitAS](https://github.com/CONSULitAS)]
+ - Chris Palmer [[@nophead](https://github.com/nophead)]
  - David Braam [[@daid](https://github.com/daid)]
- - Eduardo José Tagle [[@ejtagle](https://github.com/ejtagle)]
- - Ernesto Martinez [[@emartinez167](https://github.com/emartinez167)]
  - Edward Patel [[@epatel](https://github.com/epatel)]
+ - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)]
+ - Ernesto Martinez [[@emartinez167](https://github.com/emartinez167)]
  - F. Malpartida [[@fmalpartida](https://github.com/fmalpartida)]
+ - Jochen Groppe [[@CONSULitAS](https://github.com/CONSULitAS)]
  - João Brazio [[@jbrazio](https://github.com/jbrazio)]
  - Kai [[@Kaibob2](https://github.com/Kaibob2)]
- - Luc Van Daele [[@LVD-AC](https://github.com/LVD-AC)]
- - Alberto Cotronei [[@MagoKimbra](https://github.com/MagoKimbra)]
- - Marcio Teixeira [[@marcio-ao](https://github.com/marcio-ao)]
- - Chris Palmer [[@nophead](https://github.com/nophead)]
- - Chris Pepper [[@p3p](https://github.com/p3p)]
- - Steeve Spaggi [[@studiodyne](https://github.com/studiodyne)]
- - Thomas Moore [[@tcm0116](https://github.com/tcm0116)]
- - Teemu Mäntykallio [[@teemuatlut](https://github.com/teemuatlut)]
+ - Luc Van Daele[[@LVD-AC](https://github.com/LVD-AC)]
  - Nico Tonnhofer [[@Wurstnase](https://github.com/Wurstnase)]
+ - Petr Zahradnik [[@clexpert](https://github.com/clexpert)]
+ - Thomas Moore [[@tcm0116](https://github.com/tcm0116)]
+ - [[@alexxy](https://github.com/alexxy)]
  - [[@android444](https://github.com/android444)]
+ - [[@benlye](https://github.com/benlye)]
  - [[@bgort](https://github.com/bgort)]
  - [[@ejtagle](https://github.com/ejtagle)]
  - [[@Grogyan](https://github.com/Grogyan)]
+ - [[@marcio-ao](https://github.com/marcio-ao)]
  - [[@maverikou](https://github.com/maverikou)]
  - [[@oysteinkrog](https://github.com/oysteinkrog)]
+ - [[@p3p](https://github.com/p3p)]
  - [[@paclema](https://github.com/paclema)]
  - [[@paulusjacobus](https://github.com/paulusjacobus)]
  - [[@psavva](https://github.com/psavva)]
  - [[@Tannoo](https://github.com/Tannoo)]
- - [[@TheSFReader](https://github.com/TheSFReader)]
+ - [[@teemuatlut](https://github.com/teemuatlut)]
  - ...and many others
 
 ## License
