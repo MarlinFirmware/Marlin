@@ -97,7 +97,9 @@ void Max7219(const uint8_t reg, const uint8_t data) {
   Max7219_PutByte(reg);          // specify register
   SIG_DELAY();
   Max7219_PutByte(data);         // put data
+  #ifndef CPU_32_BIT
     CRITICAL_SECTION_END;
+  #endif
 }
 
 #if ENABLED(MAX7219_NUMERIC)
