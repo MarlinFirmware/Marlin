@@ -10899,7 +10899,7 @@ inline void gcode_M502() {
 #if ENABLED(MAX7219_GCODE)
   /**
    * M7219: Control the Max7219 LED matrix
-   * 
+   *
    *  I         - Initialize (clear) the matrix
    *  F         - Fill the matrix (set all bits)
    *  P         - Dump the LEDs[] array values
@@ -10908,7 +10908,7 @@ inline void gcode_M502() {
    *  X<pos>    - X position of an LED to set or toggle
    *  Y<pos>    - Y position of an LED to set or toggle
    *  V<value>  - The potentially 32-bit value or on/off state to set
-   *              (for example: a chain of 4 Max7219 devices can have 32 bit 
+   *              (for example: a chain of 4 Max7219 devices can have 32 bit
    *               rows or columns depending upon rotation)
    */
   inline void gcode_M7219() {

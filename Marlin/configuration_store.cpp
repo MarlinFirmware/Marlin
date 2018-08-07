@@ -2219,8 +2219,8 @@ void MarlinSettings::reset() {
           SERIAL_ECHOPAIR("EEPROM can hold ", calc_num_meshes());
           SERIAL_ECHOLNPGM(" meshes.\n");
         }
-    
-//      ubl.report_current_mesh(PORTVAR_SOLO);   // This is too verbose for large mesh's.   A better (more terse)
+
+      //ubl.report_current_mesh(PORTVAR_SOLO);   // This is too verbose for large mesh's.   A better (more terse)
                                                  // solution needs to be found.
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 

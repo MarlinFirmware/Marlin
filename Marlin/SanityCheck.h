@@ -1523,7 +1523,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 #if ENABLED(STEALTHCHOP) && !HAS_STEALTHCHOP
   #error "STEALTHCHOP requires TMC2130 or TMC2208 stepper drivers."
- #endif
+#endif
 
 /**
  * Digipot requirement
