@@ -39,7 +39,7 @@
 // Heaters / Fans
 //
 // Power outputs EFBF or EFBE
-#define MOSFET_D_PIN 7
+#define MOSFET_D_PIN        7
 
 //
 // PSU / SERVO
@@ -47,8 +47,8 @@
 // If POWER_SUPPLY is specified, always hijack Servo 3
 //
 #if POWER_SUPPLY > 0
-  #define SERVO3_PIN      -1
-  #define PS_ON_PIN        4
+  #define SERVO3_PIN       -1
+  #define PS_ON_PIN         4
 #endif
 
 #include "pins_RAMPS.h"
@@ -100,45 +100,45 @@
   // VIKI2 12-wire lead
   //
 
-  // orange/white         SDCD
-  #define SD_DETECT_PIN   49
+  // orange/white          SDCD
+  #define SD_DETECT_PIN    49
 
-  // white                ENCA
-  #define BTN_EN1         35
+  // white                 ENCA
+  #define BTN_EN1          35
 
-  // green                ENCB
-  #define BTN_EN2         37
+  // green                 ENCB
+  #define BTN_EN2          37
 
-  // purple               ENCBTN
-  #define BTN_ENC         31
+  // purple                ENCBTN
+  #define BTN_ENC          31
 
-  // brown                A0
-  #define DOGLCD_A0       27
+  // brown                 A0
+  #define DOGLCD_A0        27
 
-  // green/white          LCS
-  #define DOGLCD_CS       29
+  // green/white           LCS
+  #define DOGLCD_CS        29
 
-                       // 50    gray   MISO
-                       // 51    yellow MOSI
-                       // 52    orange SCK
+                        // 50    gray   MISO
+                        // 51    yellow MOSI
+                        // 52    orange SCK
 
-  // blue                 SDCS
-  //#define SDSS            53
+  // blue                  SDCS
+  //#define SDSS           53
 
   //
   // VIKI2 4-wire lead
   //
 
-  // blue                 BTN
-  #define KILL_PIN        23
+  // blue                  BTN
+  #define KILL_PIN         23
 
-  // green                BUZZER
-  #define BEEPER_PIN      25
+  // green                 BUZZER
+  #define BEEPER_PIN       25
 
-  // yellow               RED-LED
+  // yellow                RED-LED
   #define STAT_LED_RED_PIN 16
 
-  // white                BLUE-LED
+  // white                 BLUE-LED
   #define STAT_LED_BLUE_PIN 17
 
 #endif

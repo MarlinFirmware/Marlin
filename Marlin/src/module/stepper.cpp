@@ -2247,7 +2247,7 @@ void Stepper::report_positions() {
       const uint8_t old_dir = _READ_DIR(AXIS);          \
       _ENABLE(AXIS);                                    \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^DIR^INVERT);   \
-      DELAY_NS(400); /* DRV8825 */                      \
+      DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);              \
       _SAVE_START;                                      \
       _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
       _PULSE_WAIT;                                      \
@@ -2319,7 +2319,9 @@ void Stepper::report_positions() {
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
           Z_DIR_WRITE(INVERT_Z_DIR ^ z_direction);
 
-          DELAY_NS(400); // DRV8825
+          #if MINIMUM_STEPPER_DIR_DELAY > 0
+            DELAY_NS(MINIMUM_STEPPER_DIR_DELAY);
+          #endif
 
           _SAVE_START;
 

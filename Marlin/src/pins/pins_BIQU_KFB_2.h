@@ -20,18 +20,20 @@
  *
  */
 
-#ifndef _MARLIN_CONFIGPRE_H_
-#define _MARLIN_CONFIGPRE_H_
+/**
+ * KFB 2.0 – Arduino Mega2560 with RAMPS v1.4 pin assignments
+ */
 
-#include "../HAL/platforms.h"
-#include "../core/boards.h"
-#include "../core/macros.h"
-#include "../core/types.h"
-#include "Version.h"
-#include "../../Configuration.h"
-#include "Conditionals_LCD.h"
-#include "../core/drivers.h"
-#include "../../Configuration_adv.h"
-#include "Conditionals_adv.h"
+#if HOTENDS > 2 || E_STEPPERS > 2
+  #error "KFB 2.0 supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#endif
 
-#endif // _MARLIN_CONFIGPRE_H_
+#define BOARD_NAME "KFB 2.0"
+
+//
+// Heaters / Fans
+//
+// Power outputs BEEF or BEFF
+#define MOSFET_D_PIN        7
+
+#include "pins_RAMPS.h"
