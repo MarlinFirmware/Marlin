@@ -1,6 +1,6 @@
 <!--
 
-Have you read Marlin's Code of Conduct? By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md
+Have you read Marlin's Code of Conduct? By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/1.1.x/.github/code_of_conduct.md
 
 Do you want to ask a question? Are you looking for support? Please don't post here. Instead please use the Marlin Firmware forum at http://forums.reprap.org/list.php?415 or the Marlin Facebook Group https://www.facebook.com/groups/1049718498464482/.
 
@@ -28,4 +28,4 @@ Before filing an issue be sure to test the 1.1 and/or 2.0 "bugfix" branches to s
 
 * Include a ZIP file containing your `Configuration.h` and `Configuration_adv.h` files.
 * Provide pictures or links to videos that clearly demonstrate the issue.
-* See [How Can I Contribute](#how-can-i-contribute) for additional guidelines.
+* See [How Can I Contribute](https://github.com/MarlinFirmware/Marlin/blob/1.1.x/.github/contributing.md#how-can-i-contribute) for additional guidelines.
