@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V55"
+#define EEPROM_VERSION "V56"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -69,6 +69,10 @@
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
 #endif
+
+#if HAS_SERVOS
+  #include "servo.h"
+#endif 
 
 #if HAS_BED_PROBE
   #include "../module/probe.h"
@@ -173,6 +177,13 @@ typedef struct SettingsDataStruct {
   //
   bool planner_leveling_active;                         // M420 S  planner.leveling_active
   int8_t ubl_storage_slot;                              // ubl.storage_slot
+
+  //
+  // SERVO_ANGLES
+  //
+  #if HAS_SERVOS
+    uint8_t servo_angles[NUM_SERVOS][2];
+  #endif
 
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -531,6 +542,10 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ubl_active);
       EEPROM_WRITE(storage_slot);
     #endif // AUTO_BED_LEVELING_UBL
+
+    #if HAS_SERVOS
+      EEPROM_WRITE(servo_angles);
+    #endif
 
     // 11 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
@@ -1134,6 +1149,14 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummyb);
         EEPROM_READ(dummyui8);
       #endif // AUTO_BED_LEVELING_UBL
+
+      //
+      // SERVO_ANGLES
+      //
+      #if HAS_SERVOS
+        EEPROM_READ(servo_angles);
+      #endif
+
 
       //
       // DELTA Geometry or Dual Endstops offsets
@@ -1774,6 +1797,37 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
   #endif
 
+  //
+  // Servo Angles
+  //
+
+  #if HAS_SERVOS
+    #if ENABLED(SWITCHING_EXTRUDER)
+      #if EXTRUDERS > 3
+        #define REQ_ANGLES 4
+      #else
+        #define REQ_ANGLES 2
+      #endif
+      const uint8_t extruder_angles[2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+      static_assert(COUNT(extruder_angles) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
+      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][0] = extruder_angles[0];
+      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][1] = extruder_angles[1];
+    #endif
+
+    #if ENABLED(SWITCHING_NOZZLE)
+      const uint8_t nozzel_angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+      servo_angles[SWITCHING_NOZZLE_SERVO_NR][0] = nozzel_angles[0];
+      servo_angles[SWITCHING_NOZZLE_SERVO_NR][1] = nozzel_angles[1];
+    #endif
+
+    #if defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
+      const uint8_t z_probe_angles[2] = Z_SERVO_ANGLES;
+      servo_angles[Z_PROBE_SERVO_NR][0] = z_probe_angles[0];
+      servo_angles[Z_PROBE_SERVO_NR][1] = z_probe_angles[1];
+    #endif
+
+  #endif
+
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
                 dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
@@ -2251,6 +2305,20 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif
 
     #endif // HAS_LEVELING
+
+    #if HAS_SERVOS
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM_P(port, "Servo Angles:");
+      }
+      for (uint8_t i = 0; i < NUM_SERVOS; i++) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOPAIR_P(port, "  M281 P", i);
+        SERIAL_ECHOPAIR_P(port, " L",servo_angles[i][0]);
+        SERIAL_ECHOPAIR_P(port, " U",servo_angles[i][1]);
+        SERIAL_EOL_P(port);
+      }
+    #endif
 
     #if ENABLED(DELTA)
 

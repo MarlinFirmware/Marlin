@@ -487,6 +487,7 @@ void GcodeSuite::process_parsed_command(
 
       #if HAS_SERVOS
         case 280: M280(); break;                                  // M280: Set servo position absolute
+        case 281: M281(); break;
       #endif
 
       #if ENABLED(BABYSTEPPING)

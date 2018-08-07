@@ -60,22 +60,18 @@
 #if DO_SWITCH_EXTRUDER
 
   #if EXTRUDERS > 3
-    #define REQ_ANGLES 4
     #define _SERVO_NR (e < 2 ? SWITCHING_EXTRUDER_SERVO_NR : SWITCHING_EXTRUDER_E23_SERVO_NR)
   #else
-    #define REQ_ANGLES 2
     #define _SERVO_NR SWITCHING_EXTRUDER_SERVO_NR
   #endif
 
   void move_extruder_servo(const uint8_t e) {
-    constexpr int16_t angles[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
-    static_assert(COUNT(angles) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
     planner.synchronize();
     #if EXTRUDERS & 1
       if (e < EXTRUDERS - 1)
     #endif
     {
-      MOVE_SERVO(_SERVO_NR, angles[e]);
+      MOVE_SERVO(_SERVO_NR, servo_angles[_SERVO_NR][e]);
       safe_delay(500);
     }
   }
@@ -85,9 +81,8 @@
 #if ENABLED(SWITCHING_NOZZLE)
 
   void move_nozzle_servo(const uint8_t e) {
-    const int16_t angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
     planner.synchronize();
-    MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, angles[e]);
+    MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_EXTRUDER_SERVO_NR][e]);
     safe_delay(500);
   }
 
