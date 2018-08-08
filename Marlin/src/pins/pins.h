@@ -298,6 +298,8 @@
   #include "pins_COHESION3D_REMIX.h"  // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
 #elif MB(COHESION3D_MINI)
   #include "pins_COHESION3D_MINI.h"   // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(SMOOTHIEBOARD)
+  #include "pins_SMOOTHIEBOARD.h"     // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
 
 //
 // Other 32-bit Boards

@@ -174,6 +174,7 @@
 #define BOARD_SELENA_COMPACT      1754  // Selena Compact (Power outputs: Hotend0, Hotend1, Bed0, Bed1, Fan0, Fan1)
 #define BOARD_COHESION3D_REMIX    1755  // Cohesion3D ReMix
 #define BOARD_COHESION3D_MINI     1756  // Cohesion3D Mini
+#define BOARD_SMOOTHIEBOARD       1757  // Smoothieboard
 
 //
 // SAM3X8E ARM Cortex M3
