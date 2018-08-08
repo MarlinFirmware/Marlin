@@ -297,8 +297,8 @@ char TMC26XStepper::stop(void) {
 void TMC26XStepper::setCurrent(unsigned int current) {
   unsigned char current_scaling = 0;
   //calculate the current scaling from the max current setting (in mA)
-  double mASetting = (double)current,
-         resistor_value = (double)this->resistor;
+  float mASetting = (float)current,
+         resistor_value = (float)this->resistor;
   // remove vsense flag
   this->driver_configuration_register_value &= ~(VSENSE);
   // Derived from I = (cs + 1) / 32 * (Vsense / Rsense)
@@ -340,8 +340,8 @@ void TMC26XStepper::setCurrent(unsigned int current) {
 unsigned int TMC26XStepper::getCurrent(void) {
   // Calculate the current according to the datasheet to be on the safe side.
   // This is not the fastest but the most accurate and illustrative way.
-  double result = (double)(stall_guard2_current_register_value & CURRENT_SCALING_PATTERN),
-         resistor_value = (double)this->resistor,
+  float result = (float)(stall_guard2_current_register_value & CURRENT_SCALING_PATTERN),
+         resistor_value = (float)this->resistor,
          voltage = (driver_configuration_register_value & VSENSE) ? 0.165 : 0.31;
   result = (result + 1.0) / 32.0 * voltage / resistor_value * sq(1000.0);
   return (unsigned int)result;
@@ -739,8 +739,8 @@ unsigned char TMC26XStepper::getCurrentCSReading(void) {
 }
 
 unsigned int TMC26XStepper::getCurrentCurrent(void) {
-    double result = (double)getCurrentCSReading(),
-           resistor_value = (double)this->resistor,
+    float result = (float)getCurrentCSReading(),
+           resistor_value = (float)this->resistor,
            voltage = (driver_configuration_register_value & VSENSE)? 0.165 : 0.31;
     result = (result + 1.0) / 32.0 * voltage / resistor_value * sq(1000.0);
     return (unsigned int)result;

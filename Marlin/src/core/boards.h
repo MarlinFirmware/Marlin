@@ -63,6 +63,7 @@
 #define BOARD_MKS_BASE_HEROIC   41    // MKS BASE 1.0 with Heroic HR4982 stepper drivers
 #define BOARD_MKS_GEN_13        47    // MKS GEN v1.3 or 1.4
 #define BOARD_MKS_GEN_L         53    // MKS GEN L
+#define BOARD_KFB_2             136   // Bigtreetech or BIQU KFB2.0
 #define BOARD_ZRIB_V20          504   // zrib V2.0 control board (Chinese knock off RAMPS replica)
 #define BOARD_FELIX2            37    // Felix 2.0+ Electronics Board (RAMPS like)
 #define BOARD_RIGIDBOARD        42    // Invent-A-Part RigidBoard
@@ -104,6 +105,7 @@
 #define BOARD_SCOOVO_X9H        321   // abee Scoovo X9H
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
+#define BOARD_EINSTART_S        666   // Einstart retrofit
 
 //
 // ATmega1281, ATmega2561
@@ -197,7 +199,8 @@
 #define BOARD_RAMPS4DUE_EFF    1545   // RAMPS4DUE (Power outputs: Hotend, Fan0, Fan1)
 #define BOARD_RAMPS4DUE_EEF    1546   // RAMPS4DUE (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS4DUE_SF     1548   // RAMPS4DUE (Power outputs: Spindle, Controller Fan)
-#define BOARD_RURAMPS4D        1550   // RuRAMPS4Duo v1 (Power outputs: Hotend0, Hotend2, Hotend2, Fan0, Fan1, Bed)
+#define BOARD_RURAMPS4D_11     1550   // RuRAMPS4Duo v1.1 (Power outputs: Hotend0, Hotend1, Hotend2, Fan0, Fan1, Bed)
+#define BOARD_RURAMPS4D_13     1551   // RuRAMPS4Duo v1.3 (Power outputs: Hotend0, Hotend1, Hotend2, Fan0, Fan1, Bed)
 #define BOARD_ULTRATRONICS_PRO 1560   // ReprapWorld Ultratronics Pro V1.0
 #define BOARD_ARCHIM2          1590   // UltiMachine Archim2 (with TMC2130 drivers)
 #define BOARD_ALLIGATOR        1602   // Alligator Board R2
@@ -225,6 +228,10 @@
 
 #define BOARD_THE_BORG         1860   // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
 
+//
+// Espressif ESP32 WiFi
+//
+#define BOARD_ESP32            1900
 
 #define MB(board) (defined(BOARD_##board) && MOTHERBOARD==BOARD_##board)
 

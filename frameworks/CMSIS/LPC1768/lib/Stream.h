@@ -47,9 +47,9 @@ class Stream : public Print
     int peekNextDigit(); // returns the next numeric digit in the stream or -1 if timeout
 
   public:
-    virtual int available() = 0;
-    virtual int read() = 0;
-    virtual int peek() = 0;
+    virtual size_t available() = 0;
+    virtual int16_t read() = 0; // signed int required for error (empty buffer) value
+    virtual int16_t peek() = 0;
     virtual void flush() = 0;
 
     Stream() {_timeout=1000;}

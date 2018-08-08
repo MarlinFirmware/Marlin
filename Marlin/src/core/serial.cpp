@@ -61,6 +61,8 @@ void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (c
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
 
+  #include "enum.h"
+
   void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z) {
     serialprintPGM(prefix);
     SERIAL_CHAR('(');

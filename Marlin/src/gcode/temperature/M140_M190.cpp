@@ -82,7 +82,7 @@ void GcodeSuite::M190() {
     #define TEMP_BED_CONDITIONS (wants_to_cool ? thermalManager.isCoolingBed() : thermalManager.isHeatingBed())
   #endif
 
-  float target_temp = -1.0, old_temp = 9999.0;
+  float target_temp = -1, old_temp = 9999;
   bool wants_to_cool = false;
   wait_for_heatup = true;
   millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
@@ -163,7 +163,7 @@ void GcodeSuite::M190() {
       // Break after MIN_COOLING_SLOPE_TIME_BED seconds
       // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_BED
       if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
-        if (old_temp - temp < MIN_COOLING_SLOPE_DEG_BED) break;
+        if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG_BED)) break;
         next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME_BED;
         old_temp = temp;
       }

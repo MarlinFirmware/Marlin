@@ -21,14 +21,12 @@
  */
 
 /**
-
-  Busy wait delay Cycles routines:
-
-  DELAY_CYCLES(count): Delay execution in cycles
-  DELAY_NS(count): Delay execution in nanoseconds
-  DELAY_US(count): Delay execution in microseconds
-
-  */
+ * Busy wait delay cycles routines:
+ *
+ *  DELAY_CYCLES(count): Delay execution in cycles
+ *  DELAY_NS(count): Delay execution in nanoseconds
+ *  DELAY_US(count): Delay execution in microseconds
+ */
 
 #ifndef MARLIN_DELAY_H
 #define MARLIN_DELAY_H
@@ -37,7 +35,7 @@
 
 #if defined(__arm__) || defined(__thumb__)
 
-  /* https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles */
+  // https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles
 
   #define nop() __asm__ __volatile__("nop;\n\t":::)
 
@@ -60,7 +58,7 @@
     );
   }
 
-  /* ---------------- Delay in cycles */
+  // Delay in cycles
   FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
 
     if (__builtin_constant_p(x)) {
@@ -98,7 +96,7 @@
     );
   }
 
-  /* ---------------- Delay in cycles */
+  // Delay in cycles
   FORCE_INLINE static void DELAY_CYCLES(uint16_t x) {
 
     if (__builtin_constant_p(x)) {
@@ -121,15 +119,30 @@
   }
   #undef nop
 
+#elif defined(ESP32)
+
+  FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
+    unsigned long ccount, stop;
+
+    __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+
+    stop = ccount + x; // This can overflow
+
+    while (ccount < stop) { // This doesn't deal with overflows
+      __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
+    }
+  }
+
 #else
+
   #error "Unsupported MCU architecture"
+
 #endif
 
-/* ---------------- Delay in nanoseconds */
+// Delay in nanoseconds
 #define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU/1000000L) / 1000L )
 
-/* ---------------- Delay in microseconds */
+// Delay in microseconds
 #define DELAY_US(x) DELAY_CYCLES( (x) * (F_CPU/1000000L) )
 
 #endif // MARLIN_DELAY_H
-

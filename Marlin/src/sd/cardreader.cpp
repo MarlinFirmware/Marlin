@@ -43,8 +43,6 @@
 
 #include <ctype.h>
 
-#define LONGEST_FILENAME (longFilename[0] ? longFilename : filename)
-
 CardReader::CardReader() {
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
@@ -541,9 +539,13 @@ void CardReader::checkautostart() {
 
   if (!cardOK) initsd();
 
-  if (cardOK) {
+  if (cardOK
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      && !jobRecoverFileExists() // Don't run auto#.g when a resume file exists
+    #endif
+  ) {
     char autoname[10];
-    sprintf_P(autoname, PSTR("auto%i.g"), autostart_index);
+    sprintf_P(autoname, PSTR("auto%i.g"), int(autostart_index));
     dir_t p;
     root.rewind();
     while (root.readDir(&p, NULL) > 0) {
@@ -767,7 +769,7 @@ void CardReader::setroot() {
             getfilename(i);
             #if ENABLED(SDSORT_DYNAMIC_RAM)
               // Use dynamic method to copy long filename
-              sortnames[i] = strdup(LONGEST_FILENAME);
+              sortnames[i] = strdup(longest_filename());
               #if ENABLED(SDSORT_CACHE_NAMES)
                 // When caching also store the short name, since
                 // we're replacing the getfilename() behavior.
@@ -776,10 +778,10 @@ void CardReader::setroot() {
             #else
               // Copy filenames into the static array
               #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
-                strncpy(sortnames[i], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+                strncpy(sortnames[i], longest_filename(), SORTED_LONGNAME_MAXLEN);
                 sortnames[i][SORTED_LONGNAME_MAXLEN - 1] = '\0';
               #else
-                strncpy(sortnames[i], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+                strncpy(sortnames[i], longest_filename(), SORTED_LONGNAME_MAXLEN);
               #endif
               #if ENABLED(SDSORT_CACHE_NAMES)
                 strcpy(sortshort[i], filename);
@@ -827,12 +829,12 @@ void CardReader::setroot() {
             // throughout the loop. Slow if there are many.
             #if DISABLED(SDSORT_USES_RAM)
               getfilename(o1);
-              strcpy(name1, LONGEST_FILENAME); // save (or getfilename below will trounce it)
+              strcpy(name1, longest_filename()); // save (or getfilename below will trounce it)
               #if HAS_FOLDER_SORTING
                 bool dir1 = filenameIsDir;
               #endif
               getfilename(o2);
-              char *name2 = LONGEST_FILENAME; // use the string in-place
+              char *name2 = longest_filename(); // use the string in-place
             #endif // !SDSORT_USES_RAM
 
             // Sort the current pair according to settings.
@@ -870,7 +872,7 @@ void CardReader::setroot() {
           getfilename(0);
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
-            sortnames[0] = strdup(LONGEST_FILENAME); // malloc
+            sortnames[0] = strdup(longest_filename()); // malloc
             #if ENABLED(SDSORT_CACHE_NAMES)
               sortshort = new char*[1];
               sortshort[0] = strdup(filename);       // malloc
@@ -878,10 +880,10 @@ void CardReader::setroot() {
             isDir = new uint8_t[1];
           #else
             #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
-              strncpy(sortnames[0], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+              strncpy(sortnames[0], longest_filename(), SORTED_LONGNAME_MAXLEN);
               sortnames[0][SORTED_LONGNAME_MAXLEN - 1] = '\0';
             #else
-              strncpy(sortnames[0], LONGEST_FILENAME, SORTED_LONGNAME_MAXLEN);
+              strncpy(sortnames[0], longest_filename(), SORTED_LONGNAME_MAXLEN);
             #endif
             #if ENABLED(SDSORT_CACHE_NAMES)
               strcpy(sortshort[0], filename);
@@ -937,11 +939,7 @@ void CardReader::printingHasFinished() {
     sdprinting = false;
 
     #if ENABLED(POWER_LOSS_RECOVERY)
-      openJobRecoveryFile(false);
-      job_recovery_info.valid_head = job_recovery_info.valid_foot = 0;
-      (void)saveJobRecoveryInfo();
-      closeJobRecoveryFile();
-      job_recovery_commands_count = 0;
+      removeJobRecoveryFile();
     #endif
 
     #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
@@ -994,20 +992,24 @@ void CardReader::printingHasFinished() {
       SERIAL_PROTOCOLCHAR('.');
       SERIAL_EOL();
     }
-    else
+    else if (!read)
       SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, job_recovery_file_name);
   }
 
   void CardReader::closeJobRecoveryFile() { jobRecoveryFile.close(); }
 
   bool CardReader::jobRecoverFileExists() {
-    return jobRecoveryFile.open(&root, job_recovery_file_name, O_READ);
+    const bool exists = jobRecoveryFile.open(&root, job_recovery_file_name, O_READ);
+    if (exists) jobRecoveryFile.close();
+    return exists;
   }
 
   int16_t CardReader::saveJobRecoveryInfo() {
     jobRecoveryFile.seekSet(0);
     const int16_t ret = jobRecoveryFile.write(&job_recovery_info, sizeof(job_recovery_info));
-    if (ret == -1) SERIAL_PROTOCOLLNPGM("Power-loss file write failed.");
+    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+      if (ret == -1) SERIAL_PROTOCOLLNPGM("Power-loss file write failed.");
+    #endif
     return ret;
   }
 
@@ -1016,10 +1018,15 @@ void CardReader::printingHasFinished() {
   }
 
   void CardReader::removeJobRecoveryFile() {
-    if (jobRecoveryFile.remove(&root, job_recovery_file_name))
-      SERIAL_PROTOCOLLNPGM("Power-loss file deleted.");
-    else
-      SERIAL_PROTOCOLLNPGM("Power-loss file delete failed.");
+    job_recovery_info.valid_head = job_recovery_info.valid_foot = job_recovery_commands_count = 0;
+    if (jobRecoverFileExists()) {
+      closefile();
+      removeFile(job_recovery_file_name);
+      #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+        SERIAL_PROTOCOLPGM("Power-loss file delete");
+        serialprintPGM(jobRecoverFileExists() ? PSTR(" failed.\n") : PSTR("d.\n"));
+      #endif
+    }
   }
 
 #endif // POWER_LOSS_RECOVERY
