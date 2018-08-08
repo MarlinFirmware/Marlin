@@ -9,7 +9,9 @@
 # If no language codes are specified then all languages will be checked
 #
 
-[ -d "Marlin" ] && cd "Marlin"
+LANGHOME="Marlin/src/lcd/language"
+
+[ -d $LANGHOME ] && cd $LANGHOME
 
 FILES=$(ls language_*.h | grep -v -E "(_en|_test)\.h" | sed -E 's/language_([^\.]+)\.h/\1/')
 declare -A STRING_MAP
