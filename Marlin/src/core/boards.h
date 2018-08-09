@@ -175,6 +175,10 @@
 #define BOARD_COHESION3D_REMIX    1755  // Cohesion3D ReMix
 #define BOARD_COHESION3D_MINI     1756  // Cohesion3D Mini
 #define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
+#ifdef F_CPU
+  #undef F_CPU
+#endif
+#define F_CPU 120000000
 
 //
 // SAM3X8E ARM Cortex M3
