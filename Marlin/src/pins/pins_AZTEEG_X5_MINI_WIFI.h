@@ -34,6 +34,11 @@
   #define DEFAULT_WEBSITE_URL "http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm"
 #endif
 
+#ifdef F_CPU
+  #undef F_CPU
+#endif
+#define F_CPU 120000000
+
 //
 // Limit Switches
 //
