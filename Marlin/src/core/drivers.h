@@ -24,20 +24,21 @@
 #include "../inc/MarlinConfigPre.h"
 
 #define A4988               0x001
-#define DRV8825             0x002
-#define LV8729              0x003
-#define L6470               0x104
-#define TB6560              0x005
-#define TB6600              0x006
-#define TMC2100             0x007
-#define TMC2130             0x108
-#define TMC2130_STANDALONE  0x008
-#define TMC2208             0x109
-#define TMC2208_STANDALONE  0x009
-#define TMC26X              0x10A
-#define TMC26X_STANDALONE   0x00A
-#define TMC2660             0x10B
-#define TMC2660_STANDALONE  0x00B
+#define A5984               0x002
+#define DRV8825             0x003
+#define LV8729              0x004
+#define L6470               0x105
+#define TB6560              0x006
+#define TB6600              0x007
+#define TMC2100             0x008
+#define TMC2130             0x109
+#define TMC2130_STANDALONE  0x009
+#define TMC2208             0x10A
+#define TMC2208_STANDALONE  0x00A
+#define TMC26X              0x10B
+#define TMC26X_STANDALONE   0x00B
+#define TMC2660             0x10C
+#define TMC2660_STANDALONE  0x00C
 
 #define AXIS_DRIVER_TYPE(A,T) ( defined(A##_DRIVER_TYPE) && (A##_DRIVER_TYPE == T) )
 
@@ -62,7 +63,7 @@
 
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations
-#define HAS_TRINAMIC ( HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2660) )
+#define HAS_TRINAMIC (HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208))
 
 #define AXIS_IS_TMC(A) ( AXIS_DRIVER_TYPE_##A(TMC2130) || \
                          AXIS_DRIVER_TYPE_##A(TMC2208) || \
