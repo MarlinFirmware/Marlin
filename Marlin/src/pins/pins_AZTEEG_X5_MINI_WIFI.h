@@ -34,11 +34,6 @@
   #define DEFAULT_WEBSITE_URL "http://www.panucatt.com/azteeg_X5_mini_reprap_3d_printer_controller_p/ax5mini.htm"
 #endif
 
-#ifdef F_CPU
-  #undef F_CPU
-#endif
-#define F_CPU 120000000
-
 //
 // Limit Switches
 //
@@ -70,8 +65,8 @@
 //
 // DIGIPOT slave addresses
 //
-#define DIGIPOT_I2C_ADDRESS_A 0x58   // unshifted slave address for first DIGIPOT 0x2C (0x58 <- 0x2C << 1)
-#define DIGIPOT_I2C_ADDRESS_B 0x5C   // unshifted slave address for second DIGIPOT 0x2E (0x5C <- 0x2E << 1)
+#define DIGIPOT_I2C_ADDRESS_A 0x58   // shifted slave address for first DIGIPOT (0x58 <- 0x2C << 1)
+#define DIGIPOT_I2C_ADDRESS_B 0x5C   // shifted slave address for second DIGIPOT (0x5C <- 0x2E << 1)
 
 //
 // Temperature Sensors
@@ -79,8 +74,6 @@
 //
 #define TEMP_BED_PIN        0   // A0 (TH1)
 #define TEMP_0_PIN          1   // A1 (TH2)
-#define TEMP_1_PIN          2   // A2 (TH3)
-
 
 //
 // Heaters / Fans
