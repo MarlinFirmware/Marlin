@@ -23,13 +23,14 @@
 //#define X_2208
 //#define Y_2208
 
-#define BedAC
+//#define BedAC
 
 //#define tallVersion
 
 /*
  * Enables a filament sensor plugged into the laser pin. Disables the laser
  */
+//#define FilamentSensor
 //#define FilamentSensor
 /**
  * Configuration.h
