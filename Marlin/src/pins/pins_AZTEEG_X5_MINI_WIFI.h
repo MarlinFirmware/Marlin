@@ -35,6 +35,12 @@
 #endif
 
 //
+//  Set CPU
+//
+#undef F_CPU
+#define F_CPU 120000000
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN          P1_24
