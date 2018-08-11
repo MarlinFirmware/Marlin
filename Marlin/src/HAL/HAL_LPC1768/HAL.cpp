@@ -21,7 +21,7 @@
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 HalSerial usb_serial;
 

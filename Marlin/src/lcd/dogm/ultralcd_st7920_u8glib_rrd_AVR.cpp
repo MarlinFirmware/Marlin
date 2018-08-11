@@ -29,7 +29,7 @@
 
 #if !(defined(U8G_HAL_LINKS) || defined(__SAM3X8E__))
 
-#include "../../HAL/Delay.h"
+#include "../../HAL/shared/Delay.h"
 
 #define ST7920_CLK_PIN  LCD_PINS_D4
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE

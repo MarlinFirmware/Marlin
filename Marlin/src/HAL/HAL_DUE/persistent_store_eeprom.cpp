@@ -22,11 +22,11 @@
  */
 #ifdef ARDUINO_ARCH_SAM
 
-#include "../persistent_store_api.h"
-
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EEPROM_SETTINGS)
+
+#include "../shared/persistent_store_api.h"
 
 extern void eeprom_flush(void);
 

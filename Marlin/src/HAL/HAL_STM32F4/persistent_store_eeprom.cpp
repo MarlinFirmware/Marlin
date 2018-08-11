@@ -23,7 +23,7 @@
 
 #if defined(STM32F4) || defined(STM32F4xx)
 
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
 
 #include "../../inc/MarlinConfig.h"
 

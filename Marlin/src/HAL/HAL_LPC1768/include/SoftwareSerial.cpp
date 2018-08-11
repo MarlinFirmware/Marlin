@@ -37,7 +37,7 @@
 //
 //#include <WInterrupts.h>
 #include "../../../inc/MarlinConfig.h"
-#include "../../Delay.h"
+#include "../../shared/Delay.h"
 #include <stdint.h>
 #include <stdarg.h>
 #include <Arduino.h>

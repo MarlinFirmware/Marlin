@@ -61,7 +61,7 @@
 
 //#include <inttypes.h>
 #include <U8glib.h>
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 #define SPI_FULL_SPEED 0
 #define SPI_HALF_SPEED 1
