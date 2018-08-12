@@ -31,6 +31,7 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 
 #include "printcounter.h"
 #include "../Marlin.h"
+#include "../HAL/persistent_store_api.h"
 
 PrintCounter print_job_timer;   // Global Print Job Timer instance
 
@@ -73,7 +74,12 @@ void PrintCounter::initStats() {
   data = { 0, 0, 0, 0, 0.0 };
 
   saveStats();
-  eeprom_write_byte((uint8_t*)address, 0x16);
+  
+  uint16_t crc = 0;
+  int a = address;
+  persistentStore.access_start();
+  persistentStore.write_data(a, (uint8_t*)0x16, sizeof(uint8_t), &crc);
+  persistentStore.access_finish();
 }
 
 void PrintCounter::loadStats() {
@@ -81,11 +87,18 @@ void PrintCounter::loadStats() {
     debug(PSTR("loadStats"));
   #endif
 
-  // Checks if the EEPROM block is initialized
-  if (eeprom_read_byte((uint8_t*)address) != 0x16) initStats();
-  else eeprom_read_block(&data,
-    (void*)(address + sizeof(uint8_t)), sizeof(printStatistics));
-
+  // Check if the EEPROM block is initialized
+  uint16_t crc = 0;
+  int a = address;
+  uint8_t value;
+  persistentStore.access_start();
+  persistentStore.read_data(a, &value, sizeof(uint8_t), &crc);
+  if (value != 0x16) initStats();
+  else {
+    a = address + sizeof(uint8_t);
+    persistentStore.read_data(a, (uint8_t*)&data, sizeof(printStatistics), &crc);
+  }
+  persistentStore.access_finish();
   loaded = true;
 }
 
@@ -98,8 +111,11 @@ void PrintCounter::saveStats() {
   if (!isLoaded()) return;
 
   // Saves the struct to EEPROM
-  eeprom_update_block(&data,
-    (void*)(address + sizeof(uint8_t)), sizeof(printStatistics));
+  uint16_t crc = 0;
+  int a = (address + sizeof(uint8_t));
+  persistentStore.access_start();
+  persistentStore.write_data(a, (uint8_t*)&data, sizeof(printStatistics), &crc);
+  persistentStore.access_finish();
 }
 
 void PrintCounter::showStats() {
