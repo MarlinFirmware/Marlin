@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_BG_H
 #define LANGUAGE_BG_H
 
-#define MAPPER_D0D1                // For Cyrillic
 #define DISPLAY_CHARSET_ISO10646_5
 #define CHARSIZE 2
 
@@ -41,6 +40,7 @@
 #define MSG_AUTOSTART                       _UxGT("Автостарт")
 #define MSG_DISABLE_STEPPERS                _UxGT("Изкл. двигатели")
 #define MSG_AUTO_HOME                       _UxGT("Паркиране")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Калибровка Z")
 #define MSG_SET_HOME_OFFSETS                _UxGT("Задай Начало")
 #define MSG_SET_ORIGIN                      _UxGT("Изходна точка")
 #define MSG_PREHEAT_1                       _UxGT("Подгряване PLA")
@@ -119,7 +119,6 @@
 #define MSG_NO_CARD                         _UxGT("Няма карта")
 #define MSG_DWELL                           _UxGT("Почивка...")
 #define MSG_USERWAIT                        _UxGT("Изчакване")
-#define MSG_RESUMING                        _UxGT("Продълж. печата")
 #define MSG_PRINT_ABORTED                   _UxGT("Печатът е прекъснат")
 #define MSG_NO_MOVE                         _UxGT("Няма движение")
 #define MSG_KILLED                          _UxGT("УБИТО.")

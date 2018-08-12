@@ -121,8 +121,8 @@ static void do_pause_e_move(const float &length, const float &fr) {
   set_destination_from_current();
   destination[E_AXIS] += length / planner.e_factor[active_extruder];
   planner.buffer_line_kinematic(destination, fr, active_extruder);
-  stepper.synchronize();
   set_current_from_destination();
+  planner.synchronize();
 }
 
 /**
@@ -366,21 +366,19 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   #endif
   print_job_timer.pause();
 
-  // Wait for synchronize steppers
-  stepper.synchronize();
-
   // Save current position
   COPY(resume_position, current_position);
+
+  // Wait for buffered blocks to complete
+  planner.synchronize();
 
   // Initial retract before move to filament change position
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
     do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
-  #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    if (!axis_unhomed_error())
-  #endif
-      // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-      Nozzle::park(2, park_point);
+  // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+  if (!axis_unhomed_error())
+    Nozzle::park(2, park_point);
 
   // Unload the filament
   if (unload_length)
@@ -533,7 +531,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   // Move XY to starting position, then Z
   do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
 
-  // Set Z_AXIS to saved position
+  // Move Z_AXIS to saved position
   do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
 
   // Now all extrusion positions are resumed and ready to be confirmed

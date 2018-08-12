@@ -25,7 +25,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(SWITCHING_EXTRUDER)
+#if DO_SWITCH_EXTRUDER
   void move_extruder_servo(const uint8_t e);
 #endif
 

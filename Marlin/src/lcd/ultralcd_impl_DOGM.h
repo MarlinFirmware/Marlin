@@ -59,6 +59,7 @@
 #endif
 
 #include <U8glib.h>
+
 #include "fontutils.h"
 #include "u8g_fontutf8.h"
 
@@ -87,7 +88,6 @@
 #define FONT_SPECIAL_NAME ISO10646_1_5x7
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
-#define TALL_FONT_CORRECTION 1
 
 #include "dogm/dogm_font_data_ISO10646_1.h"
 #define FONT_MENU_NAME ISO10646_1_5x7
@@ -120,7 +120,7 @@
 
 // LCD selection
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-  #ifdef DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
+  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
     U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_RS); // 2 stripes, HW SPI (shared with SD card)
   #else
     U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // Original u8glib device. 2 stripes, SW SPI
@@ -181,6 +181,9 @@
   // The MINIPanel display
     //U8GLIB_MINI12864 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
     U8GLIB_MINI12864_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes
+#elif ENABLED(U8GLIB_SH1106_EINSTART)
+  // Connected via motherboard header
+  U8GLIB_SH1106_128X64 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS);    
 #else
   // for regular DOGM128 display with HW-SPI
     //U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0  // 8 stripes
@@ -298,9 +301,9 @@ static void lcd_implementation_init() {
 
   #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
     SET_OUTPUT(LCD_PINS_DC);
-    OUT_WRITE(LCD_PINS_RS, LOW);
-    _delay_ms(500);
-    WRITE(LCD_PINS_RS, HIGH);
+    #if !defined(LCD_RESET_PIN)
+      #define LCD_RESET_PIN LCD_PINS_RS
+    #endif
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
@@ -310,7 +313,7 @@ static void lcd_implementation_init() {
     _delay_ms(5); // delay to allow the display to initalize
   #endif
 
-  #if PIN_EXISTS(LCD_RESET) || ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
+  #if PIN_EXISTS(LCD_RESET)
     u8g.begin();
   #endif
 
@@ -341,9 +344,9 @@ void lcd_kill_screen() {
     lcd_moveto(0, h4 * 1);
     lcd_put_u8str(lcd_status_message);
     lcd_moveto(0, h4 * 2);
-    lcd_put_u8str_rom(PSTR(MSG_HALTED));
+    lcd_put_u8str_P(PSTR(MSG_HALTED));
     lcd_moveto(0, h4 * 3);
-    lcd_put_u8str_rom(PSTR(MSG_PLEASE_RESET));
+    lcd_put_u8str_P(PSTR(MSG_PLEASE_RESET));
   } while (u8g.nextPage());
 }
 
@@ -415,7 +418,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
         int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
         while (--pad >= 0) { lcd_put_wchar(' '); n--; }
       }
-      n -= lcd_put_u8str_max_rom(pstr, n);
+      n -= lcd_put_u8str_max_P(pstr, n);
       if (NULL != valstr) {
         n -= lcd_put_u8str_max(valstr, n);
       }
@@ -431,7 +434,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     if (lcd_implementation_mark_as_selected(row, isSelected)) {
       uint8_t n = LCD_WIDTH - (START_COL) - 2;
       n *= DOG_CHAR_WIDTH;
-      n -= lcd_put_u8str_max_rom(pstr, n);
+      n -= lcd_put_u8str_max_P(pstr, n);
       while (n - DOG_CHAR_WIDTH > 0) { n -= lcd_put_wchar(' '); }
       lcd_moveto(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), row_y2);
       lcd_put_wchar(post_char);
@@ -451,11 +454,11 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
       uint8_t n = LCD_WIDTH - (START_COL) - 2 - vallen;
       n *= DOG_CHAR_WIDTH;
-      n -= lcd_put_u8str_max_rom(pstr, n);
+      n -= lcd_put_u8str_max_P(pstr, n);
       lcd_put_wchar(':');
       while (n - DOG_CHAR_WIDTH > 0) { n -= lcd_put_wchar(' '); }
       lcd_moveto(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * vallen, row_y2);
-      if (pgm) lcd_put_u8str_rom(data); else lcd_put_u8str((char*)data);
+      if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str((char*)data);
     }
   }
 
@@ -499,7 +502,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     bool onpage = PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline);
     if (onpage) {
       lcd_moveto(0, baseline);
-      lcd_put_u8str_rom(pstr);
+      lcd_put_u8str_P(pstr);
     }
 
     if (value != NULL) {
@@ -518,7 +521,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   #if ENABLED(SDSUPPORT)
 
-    static void _drawmenu_sd(const bool isSelected, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const bool isDir) {
+    static void _drawmenu_sd(const bool isSelected, const uint8_t row, const char* const pstr, CardReader &theCard, const bool isDir) {
       UNUSED(pstr);
 
       lcd_implementation_mark_as_selected(row, isSelected);
@@ -526,23 +529,23 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       if (!PAGE_CONTAINS(row_y1, row_y2)) return;
 
       constexpr uint8_t maxlen = LCD_WIDTH - (START_COL) - 1;
-      const char *outstr = longFilename[0] ? longFilename : filename;
-      if (longFilename[0]) {
+      const char *outstr = theCard.longest_filename();
+      if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
           if (isSelected) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
-              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
+              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor
             if (filename_scroll_hash != name_hash) {                            // If the hash changed...
               filename_scroll_hash = name_hash;                                 // Save the new hash
-              filename_scroll_max = max(0, utf8_strlen(longFilename) - maxlen); // Update the scroll limit
+              filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
               filename_scroll_pos = 0;                                          // Reset scroll to the start
               lcd_status_update_delay = 8;                                      // Don't scroll right away
             }
             outstr += filename_scroll_pos;
           }
         #else
-          longFilename[maxlen] = '\0'; // cutoff at screen edge
+          theCard.longFilename[maxlen] = '\0'; // cutoff at screen edge
         #endif
       }
 
@@ -554,8 +557,8 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       while (n - DOG_CHAR_WIDTH > 0) { n -= lcd_put_wchar(' '); }
     }
 
-    #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)
-    #define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, true)
+    #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, theCard) _drawmenu_sd(sel, row, pstr, theCard, false)
+    #define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, theCard) _drawmenu_sd(sel, row, pstr, theCard, true)
 
   #endif // SDSUPPORT
 
@@ -620,10 +623,10 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       if (PAGE_UNDER(7)) {
         lcd_moveto(5, 7);
         lcd_put_u8str("X:");
-        lcd_put_u8str(ftostr32(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
+        lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]))));
         lcd_moveto(74, 7);
         lcd_put_u8str("Y:");
-        lcd_put_u8str(ftostr32(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
+        lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]))));
       }
 
       // Print plot position
@@ -641,7 +644,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
         if (!isnan(ubl.z_values[x_plot][y_plot]))
           lcd_put_u8str(ftostr43sign(ubl.z_values[x_plot][y_plot]));
         else
-          lcd_put_u8str_rom(PSTR(" -----"));
+          lcd_put_u8str_P(PSTR(" -----"));
       }
 
     }

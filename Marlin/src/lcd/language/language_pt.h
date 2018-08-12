@@ -31,7 +31,6 @@
 #ifndef LANGUAGE_PT_UTF_H
 #define LANGUAGE_PT_UTF_H
 
-#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
@@ -45,6 +44,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Ir para origem X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Ir para origem Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Ir para origem Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Indo para origem")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Click para iniciar")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Próximo ponto")
@@ -146,7 +146,6 @@
 #define MSG_NO_CARD                         _UxGT("Sem cartão SD")
 #define MSG_DWELL                           _UxGT("Em espera...")
 #define MSG_USERWAIT                        _UxGT("Á espera de ordem")
-#define MSG_RESUMING                        _UxGT("Retomando impressão")
 #define MSG_PRINT_ABORTED                   _UxGT("Impressão cancelada")
 #define MSG_NO_MOVE                         _UxGT("Sem movimento")
 #define MSG_KILLED                          _UxGT("EMERGÊNCIA. ")
@@ -178,9 +177,7 @@
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: T Base Máxima")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: T Base Mínima")
 #define MSG_HEATING                         _UxGT("Aquecendo...")
-#define MSG_HEATING_COMPLETE                _UxGT("Aquecida.")
-#define MSG_BED_HEATING                     _UxGT("Aquecendo base..")
-#define MSG_BED_DONE                        _UxGT("Base aquecida.")
+#define MSG_BED_HEATING                     _UxGT("Aquecendo base...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibração Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibrar X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibrar Y")

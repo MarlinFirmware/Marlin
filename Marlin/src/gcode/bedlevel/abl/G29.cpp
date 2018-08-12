@@ -44,6 +44,10 @@
   #include "../../../libs/least_squares_fit.h"
 #endif
 
+#if ABL_PLANAR
+  #include "../../../libs/vector_3.h"
+#endif
+
 #if ABL_GRID
   #if ENABLED(PROBE_Y_FIRST)
     #define PR_OUTER_VAR xCount
@@ -58,11 +62,19 @@
   #endif
 #endif
 
+#if ENABLED(G29_RETRY_AND_RECOVER)
+  #define G29_RETURN(b) return b;
+#else
+  #define G29_RETURN(b) return;
+#endif
+
 /**
  * G29: Detailed Z probe, probes the bed at 3 or more points.
  *      Will fail if the printer has not been homed with G28.
  *
  * Enhanced G29 Auto Bed Leveling Probe Routine
+ *
+ *  O  Auto-level only if needed
  *
  *  D  Dry-Run mode. Just evaluate the bed Topology - Don't apply
  *     or alter the bed level data. Useful to check the topology
@@ -130,7 +142,7 @@
  *     There's no extra effect if you have a fixed Z probe.
  *
  */
-void GcodeSuite::G29() {
+G29_TYPE GcodeSuite::G29() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(PROBE_MANUALLY)
     const bool seenQ = parser.seen('Q');
@@ -148,7 +160,7 @@ void GcodeSuite::G29() {
     }
     marlin_debug_flags = old_debug_flags;
     #if DISABLED(PROBE_MANUALLY)
-      if (seenQ) return;
+      if (seenQ) G29_RETURN(false);
     #endif
   #endif
 
@@ -168,7 +180,17 @@ void GcodeSuite::G29() {
               ;
 
   // Don't allow auto-leveling without homing first
-  if (axis_unhomed_error()) return;
+  if (axis_unhomed_error()) G29_RETURN(false);
+
+  if (!no_action && planner.leveling_active && parser.boolval('O')) { // Auto-level only if needed
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOLNPGM("> Auto-level not needed, skip");
+        SERIAL_ECHOLNPGM("<<< G29");
+      }
+    #endif
+    G29_RETURN(false);
+  }
 
   // Define local vars 'static' for manual probing, 'auto' otherwise
   #if ENABLED(PROBE_MANUALLY)
@@ -252,6 +274,10 @@ void GcodeSuite::G29() {
    */
   if (!g29_in_progress) {
 
+    #if ENABLED(DUAL_X_CARRIAGE)
+      if (active_extruder != 0) tool_change(0);
+    #endif
+
     #if ENABLED(PROBE_MANUALLY) || ENABLED(AUTO_BED_LEVELING_LINEAR)
       abl_probe_index = -1;
     #endif
@@ -265,14 +291,14 @@ void GcodeSuite::G29() {
         if (!leveling_is_valid()) {
           SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM("No bilinear grid");
-          return;
+          G29_RETURN(false);
         }
 
         const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : current_position[Z_AXIS];
         if (!WITHIN(rz, -10, 10)) {
           SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM("Bad Z value");
-          return;
+          G29_RETURN(false);
         }
 
         const float rx = RAW_X_POSITION(parser.linearval('X', NAN)),
@@ -296,7 +322,7 @@ void GcodeSuite::G29() {
           set_bed_leveling_enabled(abl_should_enable);
           if (abl_should_enable) report_current_position();
         }
-        return;
+        G29_RETURN(false);
       } // parser.seen('W')
 
     #else
@@ -308,13 +334,13 @@ void GcodeSuite::G29() {
     // Jettison bed leveling data
     if (!seen_w && parser.seen('J')) {
       reset_bed_level();
-      return;
+      G29_RETURN(false);
     }
 
     verbose_level = parser.intval('V');
     if (!WITHIN(verbose_level, 0, 4)) {
       SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).");
-      return;
+      G29_RETURN(false);
     }
 
     dryrun = parser.boolval('D')
@@ -335,11 +361,11 @@ void GcodeSuite::G29() {
 
       if (!WITHIN(abl_grid_points_x, 2, GRID_MAX_POINTS_X)) {
         SERIAL_PROTOCOLLNPGM("?Probe points (X) is implausible (2-" STRINGIFY(GRID_MAX_POINTS_X) ").");
-        return;
+        G29_RETURN(false);
       }
       if (!WITHIN(abl_grid_points_y, 2, GRID_MAX_POINTS_Y)) {
         SERIAL_PROTOCOLLNPGM("?Probe points (Y) is implausible (2-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
-        return;
+        G29_RETURN(false);
       }
 
       abl_points = abl_grid_points_x * abl_grid_points_y;
@@ -360,10 +386,19 @@ void GcodeSuite::G29() {
       front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
       back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
 
-      if ( !position_is_reachable_by_probe(left_probe_bed_position, front_probe_bed_position)
-        || !position_is_reachable_by_probe(right_probe_bed_position, back_probe_bed_position)) {
+      if (
+        #if IS_SCARA || ENABLED(DELTA)
+             !position_is_reachable_by_probe(left_probe_bed_position, 0)
+          || !position_is_reachable_by_probe(right_probe_bed_position, 0)
+          || !position_is_reachable_by_probe(0, front_probe_bed_position)
+          || !position_is_reachable_by_probe(0, back_probe_bed_position)
+        #else
+             !position_is_reachable_by_probe(left_probe_bed_position, front_probe_bed_position)
+          || !position_is_reachable_by_probe(right_probe_bed_position, back_probe_bed_position)
+        #endif
+      ) {
         SERIAL_PROTOCOLLNPGM("? (L,R,F,B) out of bounds.");
-        return;
+        G29_RETURN(false);
       }
 
       // probe at the points of a lattice grid
@@ -378,7 +413,7 @@ void GcodeSuite::G29() {
       SERIAL_EOL();
     }
 
-    stepper.synchronize();
+    planner.synchronize();
 
     // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.
@@ -388,7 +423,7 @@ void GcodeSuite::G29() {
       // Deploy the probe. Probe will raise if needed.
       if (DEPLOY_PROBE()) {
         set_bed_leveling_enabled(abl_should_enable);
-        return;
+        G29_RETURN(false);
       }
     #endif
 
@@ -458,14 +493,14 @@ void GcodeSuite::G29() {
     if (verbose_level || seenQ) {
       SERIAL_PROTOCOLPGM("Manual G29 ");
       if (g29_in_progress) {
-        SERIAL_PROTOCOLPAIR("point ", min(abl_probe_index + 1, abl_points));
+        SERIAL_PROTOCOLPAIR("point ", MIN(abl_probe_index + 1, abl_points));
         SERIAL_PROTOCOLLNPAIR(" of ", abl_points);
       }
       else
         SERIAL_PROTOCOLLNPGM("idle");
     }
 
-    if (no_action) return;
+    if (no_action) G29_RETURN(false);
 
     if (abl_probe_index == 0) {
       // For the initial G29 S2 save software endstop state
@@ -473,7 +508,7 @@ void GcodeSuite::G29() {
         enable_soft_endstops = soft_endstops_enabled;
       #endif
       // Move close to the bed before the first point
-      do_blocking_move_to_z(Z_MIN_POS);
+      do_blocking_move_to_z(0);
     }
     else {
 
@@ -555,7 +590,7 @@ void GcodeSuite::G29() {
           // If G29 is not completed, they will not be re-enabled
           soft_endstops_enabled = false;
         #endif
-        return;
+        G29_RETURN(false);
       }
       else {
 
@@ -581,7 +616,7 @@ void GcodeSuite::G29() {
           // If G29 is not completed, they will not be re-enabled
           soft_endstops_enabled = false;
         #endif
-        return;
+        G29_RETURN(false);
       }
       else {
 
@@ -936,8 +971,8 @@ void GcodeSuite::G29() {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
       #endif
+      planner.synchronize();
       enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
-      stepper.synchronize();
     #endif
 
     // Auto Bed Leveling is complete! Enable if possible.
@@ -956,11 +991,13 @@ void GcodeSuite::G29() {
   if (planner.leveling_active)
     SYNC_PLAN_POSITION_KINEMATIC();
 
-  #if HAS_BED_PROBE && Z_AFTER_PROBING
+  #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
     move_z_after_probing();
   #endif
 
   report_current_position();
+
+  G29_RETURN(isnan(measured_z));
 }
 
 #endif // OLDSCHOOL_ABL

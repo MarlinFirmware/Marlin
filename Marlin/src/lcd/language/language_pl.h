@@ -27,7 +27,6 @@
 #ifndef LANGUAGE_PL_DOGM_H
 #define LANGUAGE_PL_DOGM_H
 
-#define MAPPER_C3C4C5_PL
 #define DISPLAY_CHARSET_ISO10646_PL
 
 #define CHARSIZE 2
@@ -43,6 +42,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Zeruj X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Zeruj Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Zeruj Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibruj Z")
 #define MSG_LEVEL_BED                       _UxGT("Poziom. stołu")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Pozycja zerowa")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknij by rozp.")
@@ -149,7 +149,6 @@
 #define MSG_NO_CARD                         _UxGT("Brak karty")
 #define MSG_DWELL                           _UxGT("Uśpij...")
 #define MSG_USERWAIT                        _UxGT("Oczekiwanie...")
-#define MSG_RESUMING                        _UxGT("Wznawianie druku")
 #define MSG_PRINT_ABORTED                   _UxGT("Druk przerwany")
 #define MSG_NO_MOVE                         _UxGT("Brak ruchu")
 #define MSG_KILLED                          _UxGT("Ubity. ")
@@ -189,9 +188,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("g") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Rozgrzewanie...")
-#define MSG_HEATING_COMPLETE                _UxGT("Rozgrzano")
 #define MSG_BED_HEATING                     _UxGT("Rozgrzewanie stołu...")
-#define MSG_BED_DONE                        _UxGT("Rozgrzano stół")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Kalibrowanie Delty")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibruj X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibruj Y")

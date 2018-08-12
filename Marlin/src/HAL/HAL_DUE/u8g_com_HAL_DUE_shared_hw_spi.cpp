@@ -56,108 +56,106 @@
 
 */
 
-
 #ifdef __SAM3X8E__
 
-//  #include <inttypes.h>
+#include "../../inc/MarlinConfigPre.h"
 
-//  #include "src/core/macros.h"
-//  #include "Configuration.h"
+#if ENABLED(DOGLCD)
+
+#include <U8glib.h>
+
 #include "../../Marlin.h"
-#include "../../inc/MarlinConfig.h"
 
-  #include <U8glib.h>
+#define SPI_FULL_SPEED 0
+#define SPI_HALF_SPEED 1
+#define SPI_QUARTER_SPEED 2
+#define SPI_EIGHTH_SPEED 3
+#define SPI_SIXTEENTH_SPEED 4
+#define SPI_SPEED_5 5
+#define SPI_SPEED_6 6
 
-  #define SPI_FULL_SPEED 0
-  #define SPI_HALF_SPEED 1
-  #define SPI_QUARTER_SPEED 2
-  #define SPI_EIGHTH_SPEED 3
-  #define SPI_SIXTEENTH_SPEED 4
-  #define SPI_SPEED_5 5
-  #define SPI_SPEED_6 6
+void spiBegin();
+void spiInit(uint8_t spiRate);
+void spiSend(uint8_t b);
+void spiSend(const uint8_t* buf, size_t n);
 
-  void spiBegin();
-  void spiInit(uint8_t spiRate);
-  void spiSend(uint8_t b);
-  void spiSend(const uint8_t* buf, size_t n);
+#include <Arduino.h>
+#include "fastio_Due.h"
 
-  #include <Arduino.h>
-  #include "../../core/macros.h"
-  #include "fastio_Due.h"
+void u8g_SetPIOutput_DUE_hw_spi(u8g_t *u8g, uint8_t pin_index) {
+   PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
+     g_APinDescription[u8g->pin_list[pin_index]].ulPin, g_APinDescription[u8g->pin_list[pin_index]].ulPinConfiguration);  // OUTPUT
+}
 
+void u8g_SetPILevel_DUE_hw_spi(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
+  volatile Pio* port = g_APinDescription[u8g->pin_list[pin_index]].pPort;
+  uint32_t mask = g_APinDescription[u8g->pin_list[pin_index]].ulPin;
+  if (level) port->PIO_SODR = mask;
+  else port->PIO_CODR = mask;
+}
 
-  void u8g_SetPIOutput_DUE_hw_spi(u8g_t *u8g, uint8_t pin_index) {
-     PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
-       g_APinDescription[u8g->pin_list[pin_index]].ulPin, g_APinDescription[u8g->pin_list[pin_index]].ulPinConfiguration);  // OUTPUT
-  }
-
-  void u8g_SetPILevel_DUE_hw_spi(u8g_t *u8g, uint8_t pin_index, uint8_t level) {
-    volatile Pio* port = g_APinDescription[u8g->pin_list[pin_index]].pPort;
-    uint32_t mask = g_APinDescription[u8g->pin_list[pin_index]].ulPin;
-    if (level) port->PIO_SODR = mask;
-    else port->PIO_CODR = mask;
-  }
-
-  uint8_t u8g_com_HAL_DUE_shared_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
+uint8_t u8g_com_HAL_DUE_shared_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
+{
+  switch(msg)
   {
-    switch(msg)
-    {
-      case U8G_COM_MSG_STOP:
-        break;
+    case U8G_COM_MSG_STOP:
+      break;
 
-      case U8G_COM_MSG_INIT:
-        u8g_SetPILevel_DUE_hw_spi(u8g, U8G_PI_CS, 1);
-        u8g_SetPILevel_DUE_hw_spi(u8g, U8G_PI_A0, 1);
+    case U8G_COM_MSG_INIT:
+      u8g_SetPILevel_DUE_hw_spi(u8g, U8G_PI_CS, 1);
+      u8g_SetPILevel_DUE_hw_spi(u8g, U8G_PI_A0, 1);
 
-        u8g_SetPIOutput_DUE_hw_spi(u8g, U8G_PI_CS);
-        u8g_SetPIOutput_DUE_hw_spi(u8g, U8G_PI_A0);
+      u8g_SetPIOutput_DUE_hw_spi(u8g, U8G_PI_CS);
+      u8g_SetPIOutput_DUE_hw_spi(u8g, U8G_PI_A0);
 
-        u8g_Delay(5);
+      u8g_Delay(5);
 
-        spiBegin();
+      spiBegin();
 
-        #ifndef SPI_SPEED
-          #define SPI_SPEED SPI_FULL_SPEED  // use same SPI speed as SD card
-        #endif
-        spiInit(2);
+      #ifndef SPI_SPEED
+        #define SPI_SPEED SPI_FULL_SPEED  // use same SPI speed as SD card
+      #endif
+      spiInit(2);
 
-        break;
+      break;
 
-      case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
-        u8g_SetPILevel_DUE_hw_spi(u8g, U8G_PI_A0, arg_val);
-        break;
+    case U8G_COM_MSG_ADDRESS:                     /* define cmd (arg_val = 0) or data mode (arg_val = 1) */
+      u8g_SetPILevel_DUE_hw_spi(u8g, U8G_PI_A0, arg_val);
+      break;
 
-      case U8G_COM_MSG_CHIP_SELECT:
-        u8g_SetPILevel_DUE_hw_spi(u8g, U8G_PI_CS, (arg_val ? 0 : 1));
-        break;
+    case U8G_COM_MSG_CHIP_SELECT:
+      u8g_SetPILevel_DUE_hw_spi(u8g, U8G_PI_CS, (arg_val ? 0 : 1));
+      break;
 
-      case U8G_COM_MSG_RESET:
-        break;
+    case U8G_COM_MSG_RESET:
+      break;
 
-      case U8G_COM_MSG_WRITE_BYTE:
+    case U8G_COM_MSG_WRITE_BYTE:
 
-        spiSend((uint8_t)arg_val);
-        break;
+      spiSend((uint8_t)arg_val);
+      break;
 
-      case U8G_COM_MSG_WRITE_SEQ: {
-          uint8_t *ptr = (uint8_t*) arg_ptr;
-          while (arg_val > 0) {
-            spiSend(*ptr++);
-            arg_val--;
-          }
+    case U8G_COM_MSG_WRITE_SEQ: {
+        uint8_t *ptr = (uint8_t*) arg_ptr;
+        while (arg_val > 0) {
+          spiSend(*ptr++);
+          arg_val--;
         }
-        break;
+      }
+      break;
 
-      case U8G_COM_MSG_WRITE_SEQ_P: {
-          uint8_t *ptr = (uint8_t*) arg_ptr;
-          while (arg_val > 0) {
-            spiSend(*ptr++);
-            arg_val--;
-          }
+    case U8G_COM_MSG_WRITE_SEQ_P: {
+        uint8_t *ptr = (uint8_t*) arg_ptr;
+        while (arg_val > 0) {
+          spiSend(*ptr++);
+          arg_val--;
         }
-        break;
-    }
-    return 1;
+      }
+      break;
   }
+  return 1;
+}
+
+#endif  // DOGLCD
 
 #endif  //__SAM3X8E__

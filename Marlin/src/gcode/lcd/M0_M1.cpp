@@ -58,6 +58,8 @@ void GcodeSuite::M0_M1() {
 
   const bool has_message = !hasP && !hasS && args && *args;
 
+  planner.synchronize();
+
   #if ENABLED(ULTIPANEL)
 
     if (has_message)
@@ -81,18 +83,12 @@ void GcodeSuite::M0_M1() {
   KEEPALIVE_STATE(PAUSED_FOR_USER);
   wait_for_user = true;
 
-  stepper.synchronize();
-
   if (ms > 0) {
     ms += millis();  // wait until this time for a click
     while (PENDING(millis(), ms) && wait_for_user) idle();
   }
-  else {
-    #if ENABLED(ULTIPANEL)
-      if (lcd_detected())
-    #endif
-        while (wait_for_user) idle();
-  }
+  else
+    while (wait_for_user) idle();
 
   #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
     if (lights_off_after_print) {
@@ -102,9 +98,7 @@ void GcodeSuite::M0_M1() {
   #endif
 
   #if ENABLED(ULTIPANEL)
-    if (lcd_detected()) {
-      IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
-    }
+    lcd_reset_status();
   #endif
 
   wait_for_user = false;

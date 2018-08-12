@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_CA_H
 #define LANGUAGE_CA_H
 
-#define MAPPER_C2C3  // because of "ó"
-#define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" preparada.")
@@ -47,6 +45,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("X a origen")
 #define MSG_AUTO_HOME_Y                     _UxGT("Y a origen")
 #define MSG_AUTO_HOME_Z                     _UxGT("Z a origen")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibra Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Origen XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Premeu per iniciar")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Següent punt")
@@ -153,7 +152,6 @@
 #define MSG_NO_CARD                         _UxGT("No hi ha targeta")
 #define MSG_DWELL                           _UxGT("En repos...")
 #define MSG_USERWAIT                        _UxGT("Esperant usuari..")
-#define MSG_RESUMING                        _UxGT("Reprenent imp.")
 #define MSG_PRINT_ABORTED                   _UxGT("Imp. cancelada")
 #define MSG_NO_MOVE                         _UxGT("Sense moviment.")
 #define MSG_KILLED                          _UxGT("MATAT.")
@@ -192,9 +190,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("h") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Escalfant...")
-#define MSG_HEATING_COMPLETE                _UxGT("Escalfament fet.")
-#define MSG_BED_HEATING                     _UxGT("Escalfant llit")
-#define MSG_BED_DONE                        _UxGT("Llit fet.")
+#define MSG_BED_HEATING                     _UxGT("Escalfant llit...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibratge Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibra X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibra Y")

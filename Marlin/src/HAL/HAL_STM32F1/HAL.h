@@ -40,7 +40,7 @@
 // --------------------------------------------------------------------------
 
 #include <stdint.h>
-
+#include <libmaple/atomic.h>
 #include <Arduino.h>
 
 // --------------------------------------------------------------------------
@@ -108,6 +108,10 @@ extern USBSerial SerialUSB;
   #define NUM_SERIAL 1
 #endif
 
+// Use HAL_init() to set interrupt grouping.
+#define HAL_INIT
+void HAL_init();
+
 /**
  * TODO: review this to return 1 for pins that are not analog input
  */
@@ -115,8 +119,11 @@ extern USBSerial SerialUSB;
   #define analogInputToDigitalPin(p) (p)
 #endif
 
-#define CRITICAL_SECTION_START  noInterrupts();
-#define CRITICAL_SECTION_END    interrupts();
+#define CRITICAL_SECTION_START  uint32_t primask = __get_primask(); (void)__iCliRetVal()
+#define CRITICAL_SECTION_END    if (!primask) (void)__iSeiRetVal()
+#define ISRS_ENABLED() (!__get_primask())
+#define ENABLE_ISRS()  ((void)__iSeiRetVal())
+#define DISABLE_ISRS() ((void)__iCliRetVal())
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -217,7 +224,8 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 void HAL_adc_init(void);
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
-#define HAL_READ_ADC        HAL_adc_result
+#define HAL_READ_ADC()      HAL_adc_result
+#define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 

@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_EL_H
 #define LANGUAGE_EL_H
 
-#define MAPPER_CECF
 #define DISPLAY_CHARSET_ISO10646_GREEK
 #define CHARSIZE 2
 
@@ -45,6 +44,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Αρχικό σημείο X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Αρχικό σημείο Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Αρχικό σημείο Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Βαθμονόμηση Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Επαναφορά Επ. Εκτύπωσης") //SHORTEN
 #define MSG_LEVEL_BED_WAITING               _UxGT("Επιπεδοποίηση επ. Εκτύπωσης περιμενει") //SHORTEN
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Επόμενο σημείο")
@@ -149,7 +149,6 @@
 #define MSG_NO_CARD                         _UxGT("Δεν βρέθηκε SD")
 #define MSG_DWELL                           _UxGT("Αναστολή λειτουργίας")
 #define MSG_USERWAIT                        _UxGT("Αναμονή για χρήστη")
-#define MSG_RESUMING                        _UxGT("Συνεχίζεται η εκτύπωση") //SHORTEN
 #define MSG_PRINT_ABORTED                   _UxGT("Διακόπτεται η εκτύπωση") //SHORTEN
 #define MSG_NO_MOVE                         _UxGT("Καμία κίνηση.")
 #define MSG_KILLED                          _UxGT("ΤΕΡΜΑΤΙΣΜΟΣ. ")
@@ -182,9 +181,7 @@
 #define MSG_ERR_MINTEMP_BED                 _UxGT("ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ") //SHORTEN
 #define MSG_HALTED                          _UxGT("H εκτύπωση διακόπηκε")
 #define MSG_HEATING                         _UxGT("Θερμαίνεται…")
-#define MSG_HEATING_COMPLETE                _UxGT("Η θέρμανση ολοκληρώθηκε.") //SHORTEN
 #define MSG_BED_HEATING                     _UxGT("Θέρμανση ΕΠ. Εκτύπωσης") //SHORTEN
-#define MSG_BED_DONE                        _UxGT("Η Επ. Εκτύπωσης ολοκληρώθηκε") //SHORTEN
 #define MSG_DELTA_CALIBRATE                 _UxGT("Βαθμονόμηση Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Βαθμονόμηση X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Βαθμονόμηση Y")

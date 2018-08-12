@@ -55,11 +55,11 @@
 
 #ifdef TARGET_LPC1768
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(DOGLCD)
+
 //#include <inttypes.h>
-
-//#include "src/core/macros.h"
-//#include "Configuration.h"
-
 #include <U8glib.h>
 
 #define SPI_FULL_SPEED 0
@@ -132,4 +132,6 @@ uint8_t u8g_com_HAL_LPC1768_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   return 1;
 }
 
-#endif  //TARGET_LPC1768
+#endif // DOGLCD
+
+#endif // TARGET_LPC1768

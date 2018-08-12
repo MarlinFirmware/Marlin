@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_FI_H
 #define LANGUAGE_FI_H
 
-#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
@@ -41,6 +40,7 @@
 #define MSG_AUTOSTART                       _UxGT("Automaatti")
 #define MSG_DISABLE_STEPPERS                _UxGT("Vapauta moottorit")
 #define MSG_AUTO_HOME                       _UxGT("Aja referenssiin")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibroi Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Click to Begin")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Leveling Done!")
@@ -140,7 +140,6 @@
 #define MSG_NO_CARD                         _UxGT("Ei korttia")
 #define MSG_DWELL                           _UxGT("Nukkumassa...")
 #define MSG_USERWAIT                        _UxGT("Odotet. valintaa")
-#define MSG_RESUMING                        _UxGT("Jatke. tulostusta")
 #define MSG_PRINT_ABORTED                   _UxGT("Print aborted")
 #define MSG_NO_MOVE                         _UxGT("Ei liiketta.")
 #define MSG_KILLED                          _UxGT("KILLED. ")

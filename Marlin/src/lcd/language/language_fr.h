@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_FR_UTF_H
 #define LANGUAGE_FR_UTF_H
 
-#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
 
@@ -48,6 +47,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Origine X Auto.")
 #define MSG_AUTO_HOME_Y                     _UxGT("Origine Y Auto.")
 #define MSG_AUTO_HOME_Z                     _UxGT("Origine Z Auto.")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrer Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Origine XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Clic pour commencer")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Point suivant")
@@ -145,8 +145,7 @@
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("UBL Pas à pas")
 
 #define MSG_LED_CONTROL                     _UxGT("Contrôle LED")
-#define MSG_LEDS_ON                         _UxGT("Lumière ON")
-#define MSG_LEDS_OFF                        _UxGT("Lumière OFF")
+#define MSG_LEDS                            _UxGT("Lumière")
 #define MSG_LED_PRESETS                     _UxGT("Préregl. LED")
 #define MSG_SET_LEDS_RED                    _UxGT("Rouge")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("Orange")
@@ -254,7 +253,6 @@
 #define MSG_DWELL                           _UxGT("Repos...")
 #define MSG_USERWAIT                        _UxGT("Atten. de l'util.")
 #define MSG_PRINT_PAUSED                    _UxGT("Impr. en pause")
-#define MSG_RESUMING                        _UxGT("Repri. de l'impr.")
 #define MSG_PRINT_ABORTED                   _UxGT("Impr. Annulée")
 #define MSG_NO_MOVE                         _UxGT("Moteurs bloqués.")
 #define MSG_KILLED                          _UxGT("MORT.")
@@ -304,9 +302,7 @@
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 
 #define MSG_HEATING                         _UxGT("En chauffe...")
-#define MSG_HEATING_COMPLETE                _UxGT("Chauffe terminée")
 #define MSG_BED_HEATING                     _UxGT("Lit en chauffe...")
-#define MSG_BED_DONE                        _UxGT("Chauffe lit terminée")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibration Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibrer X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibrer Y")

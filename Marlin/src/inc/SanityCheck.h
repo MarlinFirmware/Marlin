@@ -42,18 +42,21 @@
  * the bleeding-edge source code, but sometimes this is not enough. This check
  * forces a minimum config file revision. Otherwise Marlin will not build.
  */
-#if !defined(CONFIGURATION_H_VERSION) || CONFIGURATION_H_VERSION < REQUIRED_CONFIGURATION_H_VERSION
+#define HEXIFY(H) _CAT(0x,H)
+#if !defined(CONFIGURATION_H_VERSION) || HEXIFY(CONFIGURATION_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_H_VERSION)
   #error "You are using an old Configuration.h file, update it before building Marlin."
 #endif
 
-#if !defined(CONFIGURATION_ADV_H_VERSION) || CONFIGURATION_ADV_H_VERSION < REQUIRED_CONFIGURATION_ADV_H_VERSION
+#if !defined(CONFIGURATION_ADV_H_VERSION) || HEXIFY(CONFIGURATION_ADV_H_VERSION) < HEXIFY(REQUIRED_CONFIGURATION_ADV_H_VERSION)
   #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
 
 /**
  * Warnings for old configurations
  */
-#if !defined(X_BED_SIZE) || !defined(Y_BED_SIZE)
+#ifndef MOTHERBOARD
+  #error "MOTHERBOARD is required. Please update your configuration."
+#elif !defined(X_BED_SIZE) || !defined(Y_BED_SIZE)
   #error "X_BED_SIZE and Y_BED_SIZE are now required! Please update your configuration."
 #elif WATCH_TEMP_PERIOD > 500
   #error "WATCH_TEMP_PERIOD now uses seconds instead of milliseconds."
@@ -130,7 +133,7 @@
 #elif defined(FILAMENT_CHANGE_RETRACT_LENGTH)
   #error "FILAMENT_CHANGE_RETRACT_LENGTH is now PAUSE_PARK_RETRACT_LENGTH. Please update your configuration."
 #elif defined(FILAMENT_CHANGE_EXTRUDE_FEEDRATE)
-  #error "FILAMENT_CHANGE_EXTRUDE_FEEDRATE is now ADVANCED_PAUSE_EXTRUDE_FEEDRATE. Please update your configuration."
+  #error "FILAMENT_CHANGE_EXTRUDE_FEEDRATE is now ADVANCED_PAUSE_PURGE_FEEDRATE. Please update your configuration."
 #elif defined(ADVANCED_PAUSE_EXTRUDE_FEEDRATE)
   #error "ADVANCED_PAUSE_EXTRUDE_FEEDRATE is now ADVANCED_PAUSE_PURGE_FEEDRATE. Please update your configuration."
 #elif defined(FILAMENT_CHANGE_EXTRUDE_LENGTH)
@@ -262,14 +265,59 @@
 #elif defined(MEASURED_LOWER_LIMIT) || defined(MEASURED_UPPER_LIMIT)
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
 #elif defined(HAVE_TMCDRIVER)
-  #error "HAVE_TMCDRIVER is now HAVE_TMC26X. Please update your Configuration_adv.h."
+  #error "HAVE_TMCDRIVER is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
+#elif defined(HAVE_TMC26X)
+  #error "HAVE_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
+#elif defined(HAVE_TMC2130)
+  #error "HAVE_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130. Please update your Configuration.h."
+#elif defined(HAVE_L6470DRIVER)
+  #error "HAVE_L6470DRIVER is now [AXIS]_DRIVER_TYPE L6470. Please update your Configuration.h."
 #elif defined(X_IS_TMC) || defined(X2_IS_TMC) || defined(Y_IS_TMC) || defined(Y2_IS_TMC) || defined(Z_IS_TMC) || defined(Z2_IS_TMC) \
    || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC)
-  #error "[AXIS]_IS_TMC is now [AXIS]_IS_TMC26X. Please update your Configuration_adv.h."
+  #error "[AXIS]_IS_TMC is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
+#elif defined(X_IS_TMC26X) || defined(X2_IS_TMC26X) || defined(Y_IS_TMC26X) || defined(Y2_IS_TMC26X) || defined(Z_IS_TMC26X) || defined(Z2_IS_TMC26X) \
+   || defined(E0_IS_TMC26X) || defined(E1_IS_TMC26X) || defined(E2_IS_TMC26X) || defined(E3_IS_TMC26X) || defined(E4_IS_TMC26X)
+  #error "[AXIS]_IS_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
+#elif defined(X_IS_TMC2130) || defined(X2_IS_TMC2130) || defined(Y_IS_TMC2130) || defined(Y2_IS_TMC2130) || defined(Z_IS_TMC2130) || defined(Z2_IS_TMC2130) \
+   || defined(E0_IS_TMC2130) || defined(E1_IS_TMC2130) || defined(E2_IS_TMC2130) || defined(E3_IS_TMC2130) || defined(E4_IS_TMC2130)
+  #error "[AXIS]_IS_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130. Please update your Configuration.h."
+#elif defined(X_IS_TMC2208) || defined(X2_IS_TMC2208) || defined(Y_IS_TMC2208) || defined(Y2_IS_TMC2208) || defined(Z_IS_TMC2208) || defined(Z2_IS_TMC2208) \
+   || defined(E0_IS_TMC2208) || defined(E1_IS_TMC2208) || defined(E2_IS_TMC2208) || defined(E3_IS_TMC2208) || defined(E4_IS_TMC2208)
+  #error "[AXIS]_IS_TMC2208 is now [AXIS]_DRIVER_TYPE TMC2208. Please update your Configuration.h."
+#elif defined(X_IS_L6470) || defined(X2_IS_L6470) || defined(Y_IS_L6470) || defined(Y2_IS_L6470) || defined(Z_IS_L6470) || defined(Z2_IS_L6470) \
+   || defined(E0_IS_L6470) || defined(E1_IS_L6470) || defined(E2_IS_L6470) || defined(E3_IS_L6470) || defined(E4_IS_L6470)
+  #error "[AXIS]_IS_L6470 is now [AXIS]_DRIVER_TYPE L6470. Please update your Configuration.h."
 #elif defined(AUTOMATIC_CURRENT_CONTROL)
   #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
 #elif defined(FILAMENT_CHANGE_LOAD_LENGTH)
   #error "FILAMENT_CHANGE_LOAD_LENGTH is now FILAMENT_CHANGE_FAST_LOAD_LENGTH. Please update your configuration."
+#elif ENABLED(LEVEL_BED_CORNERS) && !defined(LEVEL_CORNERS_INSET)
+  #error "LEVEL_BED_CORNERS requires a LEVEL_CORNERS_INSET value. Please update your Configuration.h."
+#elif defined(BEZIER_JERK_CONTROL)
+  #error "BEZIER_JERK_CONTROL is now S_CURVE_ACCELERATION. Please update your configuration."
+#elif defined(JUNCTION_DEVIATION_FACTOR)
+  #error "JUNCTION_DEVIATION_FACTOR is now JUNCTION_DEVIATION_MM. Please update your configuration."
+#elif defined(JUNCTION_ACCELERATION_FACTOR)
+  #error "JUNCTION_ACCELERATION_FACTOR is obsolete. Delete it from Configuration_adv.h."
+#elif defined(JUNCTION_ACCELERATION)
+  #error "JUNCTION_ACCELERATION is obsolete. Delete it from Configuration_adv.h."
+#elif defined(MAX7219_DEBUG_STEPPER_HEAD)
+  #error "MAX7219_DEBUG_STEPPER_HEAD is now MAX7219_DEBUG_PLANNER_HEAD. Please update your configuration."
+#elif defined(MAX7219_DEBUG_STEPPER_TAIL)
+  #error "MAX7219_DEBUG_STEPPER_TAIL is now MAX7219_DEBUG_PLANNER_TAIL. Please update your configuration."
+#elif defined(MAX7219_DEBUG_STEPPER_QUEUE)
+  #error "MAX7219_DEBUG_STEPPER_QUEUE is now MAX7219_DEBUG_PLANNER_QUEUE. Please update your configuration."
+#endif
+
+#define BOARD_MKS_13     -47
+#define BOARD_TRIGORILLA -343
+#define BOARD_RURAMPS4D  -1550
+#if MB(MKS_13)
+  #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
+#elif MB(BOARD_TRIGORILLA)
+  #error "BOARD_TRIGORILLA has been renamed BOARD_TRIGORILLA_13. Please update your configuration."
+#elif MB(BOARD_RURAMPS4D)
+  #error "BOARD_RURAMPS4D has been renamed BOARD_RURAMPS4D_11. Please update your configuration."
 #endif
 
 /**
@@ -310,6 +358,10 @@
 
 #if SERIAL_PORT > 7
   #error "Set SERIAL_PORT to the port on your board. Usually this is 0."
+#endif
+
+#if SERIAL_PORT_2 && NUM_SERIAL < 2
+  #error "SERIAL_PORT_2 is not supported for your MOTHERBOARD. Disable it to continue."
 #endif
 
 /**
@@ -454,7 +506,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
     #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
   #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && !ENABLED(DOGLCD)
-    #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a DOGLCD."
+    #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a Graphical LCD."
   #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && !ENABLED(BABYSTEP_ZPROBE_OFFSET)
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a BABYSTEP_ZPROBE_OFFSET."
   #endif
@@ -792,6 +844,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
   #endif
 
+  static_assert(int(X_PROBE_OFFSET_FROM_EXTRUDER) == (X_PROBE_OFFSET_FROM_EXTRUDER), "X_PROBE_OFFSET_FROM_EXTRUDER must be an integer value.");
+  static_assert(int(Y_PROBE_OFFSET_FROM_EXTRUDER) == (Y_PROBE_OFFSET_FROM_EXTRUDER), "Y_PROBE_OFFSET_FROM_EXTRUDER must be an integer value.");
+
 #else
 
   /**
@@ -905,14 +960,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
 #endif
 
+#if ENABLED(G29_RETRY_AND_RECOVER) && HAS_LEVELING && !OLDSCHOOL_ABL
+  #error "G29_RETRY_AND_RECOVER currently only supports ABL"
+#endif
+
 /**
  * LCD_BED_LEVELING requirements
  */
 #if ENABLED(LCD_BED_LEVELING)
   #if DISABLED(ULTIPANEL)
     #error "LCD_BED_LEVELING requires an LCD controller."
-  #elif !(ENABLED(MESH_BED_LEVELING) || (OLDSCHOOL_ABL && ENABLED(PROBE_MANUALLY)))
-    #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or ABL with PROBE_MANUALLY."
+  #elif !(ENABLED(MESH_BED_LEVELING) || OLDSCHOOL_ABL)
+    #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
   #endif
 #endif
 
@@ -936,15 +995,11 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #if ENABLED(Z_SAFE_HOMING)
   #if HAS_BED_PROBE
-    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, MIN_PROBE_X, MAX_PROBE_X),
-      "Z_SAFE_HOMING_X_POINT is outside the probe region.");
-    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, MIN_PROBE_Y, MAX_PROBE_Y),
-      "Z_SAFE_HOMING_Y_POINT is outside the probe region.");
+    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, MIN_PROBE_X, MAX_PROBE_X), "Z_SAFE_HOMING_X_POINT is outside the probe region.");
+    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, MIN_PROBE_Y, MAX_PROBE_Y), "Z_SAFE_HOMING_Y_POINT is outside the probe region.");
   #else
-    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS),
-      "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
-    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS),
-      "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
+    static_assert(WITHIN(Z_SAFE_HOMING_X_POINT, X_MIN_POS, X_MAX_POS), "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle.");
+    static_assert(WITHIN(Z_SAFE_HOMING_Y_POINT, Y_MIN_POS, Y_MAX_POS), "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle.");
   #endif
 #endif // Z_SAFE_HOMING
 
@@ -982,8 +1037,12 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * SAV_3DGLCD display options
  */
-#if ENABLED(U8GLIB_SSD1306) && ENABLED(U8GLIB_SH1106)
-  #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+#if ENABLED(SAV_3DGLCD)
+  #if DISABLED(U8GLIB_SSD1306) && DISABLED(U8GLIB_SH1106)
+    #error "Enable a SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+  #elif ENABLED(U8GLIB_SSD1306) && ENABLED(U8GLIB_SH1106)
+    #error "Only enable one SAV_3DGLCD display type: U8GLIB_SSD1306 or U8GLIB_SH1106."
+  #endif
 #endif
 
 /**
@@ -1137,6 +1196,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * LED Control Menu
+ */
+#if ENABLED(LED_CONTROL_MENU) && !HAS_COLOR_LEDS
+  #error "LED_CONTROL_MENU requires BLINKM, RGB_LED, RGBW_LED, PCA9632, or NEOPIXEL_LED."
+#endif
+
+/**
  * Basic 2-nozzle duplication mode
  */
 #if ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
@@ -1215,18 +1281,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #if ENABLED(X_DUAL_ENDSTOPS)
   #if !X2_USE_ENDSTOP
     #error "You must set X2_USE_ENDSTOP with X_DUAL_ENDSTOPS."
-  #elif X2_USE_ENDSTOP == _X_MIN_ && DISABLED(USE_XMIN_PLUG)
-    #error "USE_XMIN_PLUG is required when X2_USE_ENDSTOP is _X_MIN_."
-  #elif X2_USE_ENDSTOP == _X_MAX_ && DISABLED(USE_XMAX_PLUG)
-    #error "USE_XMAX_PLUG is required when X2_USE_ENDSTOP is _X_MAX_."
-  #elif X2_USE_ENDSTOP == _Y_MIN_ && DISABLED(USE_YMIN_PLUG)
-    #error "USE_YMIN_PLUG is required when X2_USE_ENDSTOP is _Y_MIN_."
-  #elif X2_USE_ENDSTOP == _Y_MAX_ && DISABLED(USE_YMAX_PLUG)
-    #error "USE_YMAX_PLUG is required when X2_USE_ENDSTOP is _Y_MAX_."
-  #elif X2_USE_ENDSTOP == _Z_MIN_ && DISABLED(USE_ZMIN_PLUG)
-    #error "USE_ZMIN_PLUG is required when X2_USE_ENDSTOP is _Z_MIN_."
-  #elif X2_USE_ENDSTOP == _Z_MAX_ && DISABLED(USE_ZMAX_PLUG)
-    #error "USE_ZMAX_PLUG is required when X2_USE_ENDSTOP is _Z_MAX_."
+  #elif X2_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
+    #error "USE_XMIN_PLUG is required when X2_USE_ENDSTOP is _XMIN_."
+  #elif X2_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
+    #error "USE_XMAX_PLUG is required when X2_USE_ENDSTOP is _XMAX_."
+  #elif X2_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
+    #error "USE_YMIN_PLUG is required when X2_USE_ENDSTOP is _YMIN_."
+  #elif X2_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
+    #error "USE_YMAX_PLUG is required when X2_USE_ENDSTOP is _YMAX_."
+  #elif X2_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
+    #error "USE_ZMIN_PLUG is required when X2_USE_ENDSTOP is _ZMIN_."
+  #elif X2_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
+    #error "USE_ZMAX_PLUG is required when X2_USE_ENDSTOP is _ZMAX_."
   #elif !HAS_X2_MIN && !HAS_X2_MAX
     #error "X2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
   #elif ENABLED(DELTA)
@@ -1236,18 +1302,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #if ENABLED(Y_DUAL_ENDSTOPS)
   #if !Y2_USE_ENDSTOP
     #error "You must set Y2_USE_ENDSTOP with Y_DUAL_ENDSTOPS."
-  #elif Y2_USE_ENDSTOP == _X_MIN_ && DISABLED(USE_XMIN_PLUG)
-    #error "USE_XMIN_PLUG is required when Y2_USE_ENDSTOP is _X_MIN_."
-  #elif Y2_USE_ENDSTOP == _X_MAX_ && DISABLED(USE_XMAX_PLUG)
-    #error "USE_XMAX_PLUG is required when Y2_USE_ENDSTOP is _X_MAX_."
-  #elif Y2_USE_ENDSTOP == _Y_MIN_ && DISABLED(USE_YMIN_PLUG)
-    #error "USE_YMIN_PLUG is required when Y2_USE_ENDSTOP is _Y_MIN_."
-  #elif Y2_USE_ENDSTOP == _Y_MAX_ && DISABLED(USE_YMAX_PLUG)
-    #error "USE_YMAX_PLUG is required when Y2_USE_ENDSTOP is _Y_MAX_."
-  #elif Y2_USE_ENDSTOP == _Z_MIN_ && DISABLED(USE_ZMIN_PLUG)
-    #error "USE_ZMIN_PLUG is required when Y2_USE_ENDSTOP is _Z_MIN_."
-  #elif Y2_USE_ENDSTOP == _Z_MAX_ && DISABLED(USE_ZMAX_PLUG)
-    #error "USE_ZMAX_PLUG is required when Y2_USE_ENDSTOP is _Z_MAX_."
+  #elif Y2_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
+    #error "USE_XMIN_PLUG is required when Y2_USE_ENDSTOP is _XMIN_."
+  #elif Y2_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
+    #error "USE_XMAX_PLUG is required when Y2_USE_ENDSTOP is _XMAX_."
+  #elif Y2_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
+    #error "USE_YMIN_PLUG is required when Y2_USE_ENDSTOP is _YMIN_."
+  #elif Y2_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
+    #error "USE_YMAX_PLUG is required when Y2_USE_ENDSTOP is _YMAX_."
+  #elif Y2_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
+    #error "USE_ZMIN_PLUG is required when Y2_USE_ENDSTOP is _ZMIN_."
+  #elif Y2_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
+    #error "USE_ZMAX_PLUG is required when Y2_USE_ENDSTOP is _ZMAX_."
   #elif !HAS_Y2_MIN && !HAS_Y2_MAX
     #error "Y2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
   #elif ENABLED(DELTA)
@@ -1257,18 +1323,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #if ENABLED(Z_DUAL_ENDSTOPS)
   #if !Z2_USE_ENDSTOP
     #error "You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS."
-  #elif Z2_USE_ENDSTOP == _X_MIN_ && DISABLED(USE_XMIN_PLUG)
-    #error "USE_XMIN_PLUG is required when Z2_USE_ENDSTOP is _X_MIN_."
-  #elif Z2_USE_ENDSTOP == _X_MAX_ && DISABLED(USE_XMAX_PLUG)
-    #error "USE_XMAX_PLUG is required when Z2_USE_ENDSTOP is _X_MAX_."
-  #elif Z2_USE_ENDSTOP == _Y_MIN_ && DISABLED(USE_YMIN_PLUG)
-    #error "USE_YMIN_PLUG is required when Z2_USE_ENDSTOP is _Y_MIN_."
-  #elif Z2_USE_ENDSTOP == _Y_MAX_ && DISABLED(USE_YMAX_PLUG)
-    #error "USE_YMAX_PLUG is required when Z2_USE_ENDSTOP is _Y_MAX_."
-  #elif Z2_USE_ENDSTOP == _Z_MIN_ && DISABLED(USE_ZMIN_PLUG)
-    #error "USE_ZMIN_PLUG is required when Z2_USE_ENDSTOP is _Z_MIN_."
-  #elif Z2_USE_ENDSTOP == _Z_MAX_ && DISABLED(USE_ZMAX_PLUG)
-    #error "USE_ZMAX_PLUG is required when Z2_USE_ENDSTOP is _Z_MAX_."
+  #elif Z2_USE_ENDSTOP == _XMIN_ && DISABLED(USE_XMIN_PLUG)
+    #error "USE_XMIN_PLUG is required when Z2_USE_ENDSTOP is _XMIN_."
+  #elif Z2_USE_ENDSTOP == _XMAX_ && DISABLED(USE_XMAX_PLUG)
+    #error "USE_XMAX_PLUG is required when Z2_USE_ENDSTOP is _XMAX_."
+  #elif Z2_USE_ENDSTOP == _YMIN_ && DISABLED(USE_YMIN_PLUG)
+    #error "USE_YMIN_PLUG is required when Z2_USE_ENDSTOP is _YMIN_."
+  #elif Z2_USE_ENDSTOP == _YMAX_ && DISABLED(USE_YMAX_PLUG)
+    #error "USE_YMAX_PLUG is required when Z2_USE_ENDSTOP is _YMAX_."
+  #elif Z2_USE_ENDSTOP == _ZMIN_ && DISABLED(USE_ZMIN_PLUG)
+    #error "USE_ZMIN_PLUG is required when Z2_USE_ENDSTOP is _ZMIN_."
+  #elif Z2_USE_ENDSTOP == _ZMAX_ && DISABLED(USE_ZMAX_PLUG)
+    #error "USE_ZMAX_PLUG is required when Z2_USE_ENDSTOP is _ZMAX_."
   #elif !HAS_Z2_MIN && !HAS_Z2_MAX
     #error "Z2_USE_ENDSTOP has been assigned to a nonexistent endstop!"
   #elif ENABLED(DELTA)
@@ -1409,122 +1475,36 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
- * Make sure HAVE_TMC26X is warranted
+ * Check existing CS pins against enabled TMC SPI drivers.
  */
-#if ENABLED(HAVE_TMC26X) && !( \
-         ENABLED(  X_IS_TMC26X ) \
-      || ENABLED( X2_IS_TMC26X ) \
-      || ENABLED(  Y_IS_TMC26X ) \
-      || ENABLED( Y2_IS_TMC26X ) \
-      || ENABLED(  Z_IS_TMC26X ) \
-      || ENABLED( Z2_IS_TMC26X ) \
-      || ENABLED( E0_IS_TMC26X ) \
-      || ENABLED( E1_IS_TMC26X ) \
-      || ENABLED( E2_IS_TMC26X ) \
-      || ENABLED( E3_IS_TMC26X ) \
-      || ENABLED( E4_IS_TMC26X ) \
-  )
-  #error "HAVE_TMC26X requires at least one TMC26X stepper to be set."
-#endif
-
-/**
- * Make sure HAVE_TMC2130 is warranted
- */
-#if ENABLED(HAVE_TMC2130)
-  #if !( ENABLED(  X_IS_TMC2130 ) \
-      || ENABLED( X2_IS_TMC2130 ) \
-      || ENABLED(  Y_IS_TMC2130 ) \
-      || ENABLED( Y2_IS_TMC2130 ) \
-      || ENABLED(  Z_IS_TMC2130 ) \
-      || ENABLED( Z2_IS_TMC2130 ) \
-      || ENABLED( E0_IS_TMC2130 ) \
-      || ENABLED( E1_IS_TMC2130 ) \
-      || ENABLED( E2_IS_TMC2130 ) \
-      || ENABLED( E3_IS_TMC2130 ) \
-      || ENABLED( E4_IS_TMC2130 ) )
-    #error "HAVE_TMC2130 requires at least one TMC2130 stepper to be set."
-  #elif ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
-    #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
-  #endif
-
-  #if ENABLED(X_IS_TMC2130) && !PIN_EXISTS(X_CS)
-    #error "X_CS_PIN is required for X_IS_TMC2130. Define X_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(X2_IS_TMC2130) && !PIN_EXISTS(X2_CS)
-    #error "X2_CS_PIN is required for X2_IS_TMC2130. Define X2_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(Y_IS_TMC2130) && !PIN_EXISTS(Y_CS)
-    #error "Y_CS_PIN is required for Y_IS_TMC2130. Define Y_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(Y2_IS_TMC2130) && !PIN_EXISTS(Y2_CS)
-    #error "Y2_CS_PIN is required for Y2_IS_TMC2130. Define Y2_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(Z_IS_TMC2130) && !PIN_EXISTS(Z_CS)
-    #error "Z_CS_PIN is required for Z_IS_TMC2130. Define Z_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(Z2_IS_TMC2130) && !PIN_EXISTS(Z2_CS)
-    #error "Z2_CS_PIN is required for Z2_IS_TMC2130. Define Z2_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E0_IS_TMC2130) && !PIN_EXISTS(E0_CS)
-    #error "E0_CS_PIN is required for E0_IS_TMC2130. Define E0_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E1_IS_TMC2130) && !PIN_EXISTS(E1_CS)
-    #error "E1_CS_PIN is required for E1_IS_TMC2130. Define E1_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E2_IS_TMC2130) && !PIN_EXISTS(E2_CS)
-    #error "E2_CS_PIN is required for E2_IS_TMC2130. Define E2_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E3_IS_TMC2130) && !PIN_EXISTS(E3_CS)
-    #error "E3_CS_PIN is required for E3_IS_TMC2130. Define E3_CS_PIN in Configuration_adv.h."
-  #elif ENABLED(E4_IS_TMC2130) && !PIN_EXISTS(E4_CS)
-    #error "E4_CS_PIN is required for E4_IS_TMC2130. Define E4_CS_PIN in Configuration_adv.h."
-  #endif
-
-  #if ENABLED(SENSORLESS_HOMING)
-    // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
-    // is necessary in order to reset the stallGuard indication between the initial movement of all three
-    // towers to +Z and the individual homing of each tower. This restriction can be removed once a means of
-    // clearing the stallGuard activated status is found.
-    #if ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
-      #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
-    #elif X_HOME_DIR == -1 && DISABLED(X_MIN_ENDSTOP_INVERTING)
-      #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_INVERTING when homing to X_MIN."
-    #elif X_HOME_DIR ==  1 && DISABLED(X_MAX_ENDSTOP_INVERTING)
-      #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_INVERTING when homing to X_MAX."
-    #elif Y_HOME_DIR == -1 && DISABLED(Y_MIN_ENDSTOP_INVERTING)
-      #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_INVERTING when homing to Y_MIN."
-    #elif Y_HOME_DIR ==  1 && DISABLED(Y_MAX_ENDSTOP_INVERTING)
-      #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_INVERTING when homing to Y_MAX."
-    #endif
-  #endif
-
-  // Sensorless homing is required for both combined steppers in an H-bot
-  #if CORE_IS_XY && X_SENSORLESS != Y_SENSORLESS
-    #error "CoreXY requires both X and Y to use sensorless homing if either does."
-  #elif CORE_IS_XZ && X_SENSORLESS != Z_SENSORLESS
-    #error "CoreXZ requires both X and Z to use sensorless homing if either does."
-  #elif CORE_IS_YZ && Y_SENSORLESS != Z_SENSORLESS
-    #error "CoreYZ requires both Y and Z to use sensorless homing if either does."
-  #endif
-
-#elif ENABLED(SENSORLESS_HOMING)
-
-  #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
-
-#endif
-
-/**
- * Make sure HAVE_TMC2208 is warranted
- */
-#if ENABLED(HAVE_TMC2208) && !( \
-       ENABLED(  X_IS_TMC2208 ) \
-    || ENABLED( X2_IS_TMC2208 ) \
-    || ENABLED(  Y_IS_TMC2208 ) \
-    || ENABLED( Y2_IS_TMC2208 ) \
-    || ENABLED(  Z_IS_TMC2208 ) \
-    || ENABLED( Z2_IS_TMC2208 ) \
-    || ENABLED( E0_IS_TMC2208 ) \
-    || ENABLED( E1_IS_TMC2208 ) \
-    || ENABLED( E2_IS_TMC2208 ) \
-    || ENABLED( E3_IS_TMC2208 ) )
-  #error "HAVE_TMC2208 requires at least one TMC2208 stepper to be set."
+#if AXIS_DRIVER_TYPE(X, TMC2130) && !PIN_EXISTS(X_CS)
+  #error "X_CS_PIN is required for TMC2130. Define X_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(X2, TMC2130) && !PIN_EXISTS(X2_CS)
+  #error "X2_CS_PIN is required for X2. Define X2_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(Y, TMC2130) && !PIN_EXISTS(Y_CS)
+  #error "Y_CS_PIN is required for TMC2130. Define Y_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(Y2, TMC2130) && !PIN_EXISTS(Y2_CS)
+  #error "Y2_CS_PIN is required for TMC2130. Define Y2_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(Z, TMC2130) && !PIN_EXISTS(Z_CS)
+  #error "Z_CS_PIN is required for TMC2130. Define Z_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(Z2, TMC2130) && !PIN_EXISTS(Z2_CS)
+  #error "Z2_CS_PIN is required for TMC2130. Define Z2_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(E0, TMC2130) && !PIN_EXISTS(E0_CS)
+  #error "E0_CS_PIN is required for TMC2130. Define E0_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(E1, TMC2130) && !PIN_EXISTS(E1_CS)
+  #error "E1_CS_PIN is required for TMC2130. Define E1_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(E2, TMC2130) && !PIN_EXISTS(E2_CS)
+  #error "E2_CS_PIN is required for TMC2130. Define E2_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(E3, TMC2130) && !PIN_EXISTS(E3_CS)
+  #error "E3_CS_PIN is required for TMC2130. Define E3_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(E4, TMC2130) && !PIN_EXISTS(E4_CS)
+  #error "E4_CS_PIN is required for TMC2130. Define E4_CS_PIN in Configuration_adv.h."
 #endif
 
 /**
  * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
  */
-#if ENABLED(HAVE_TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
+#if HAS_DRIVER(TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
        defined(X_HARDWARE_SERIAL ) \
     || defined(X2_HARDWARE_SERIAL) \
     || defined(Y_HARDWARE_SERIAL ) \
@@ -1539,113 +1519,52 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
 #endif
 
+#if ENABLED(SENSORLESS_HOMING)
+  // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
+  // is necessary in order to reset the stallGuard indication between the initial movement of all three
+  // towers to +Z and the individual homing of each tower. This restriction can be removed once a means of
+  // clearing the stallGuard activated status is found.
+  #if ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
+    #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
+  #elif X_SENSORLESS && X_HOME_DIR == -1 && (DISABLED(X_MIN_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_XMIN))
+    #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_INVERTING and ENDSTOPPULLUP_XMIN when homing to X_MIN."
+  #elif X_SENSORLESS && X_HOME_DIR ==  1 && (DISABLED(X_MAX_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_XMAX))
+    #error "SENSORLESS_HOMING requires X_MAX_ENDSTOP_INVERTING and ENDSTOPPULLUP_XMAX when homing to X_MAX."
+  #elif Y_SENSORLESS && Y_HOME_DIR == -1 && (DISABLED(Y_MIN_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_YMIN))
+    #error "SENSORLESS_HOMING requires Y_MIN_ENDSTOP_INVERTING and ENDSTOPPULLUP_YMIN when homing to Y_MIN."
+  #elif Y_SENSORLESS && Y_HOME_DIR ==  1 && (DISABLED(Y_MAX_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_YMAX))
+    #error "SENSORLESS_HOMING requires Y_MAX_ENDSTOP_INVERTING and ENDSTOPPULLUP_YMAX when homing to Y_MAX."
+  #elif Z_SENSORLESS && Z_HOME_DIR == -1 && (DISABLED(Z_MIN_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_ZMIN))
+    #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_INVERTING and ENDSTOPPULLUP_ZMIN when homing to Z_MIN."
+  #elif Z_SENSORLESS && Z_HOME_DIR ==  1 && (DISABLED(Z_MAX_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_ZMAX))
+    #error "SENSORLESS_HOMING requires Z_MAX_ENDSTOP_INVERTING and ENDSTOPPULLUP_ZMAX when homing to Z_MAX."
+  #elif ENABLED(ENDSTOP_NOISE_FILTER)
+    #error "SENSORLESS_HOMING is incompatible with ENDSTOP_NOISE_FILTER."
+  #endif
+#endif
+
+// Sensorless homing is required for both combined steppers in an H-bot
+#if CORE_IS_XY && X_SENSORLESS != Y_SENSORLESS
+  #error "CoreXY requires both X and Y to use sensorless homing if either does."
+#elif CORE_IS_XZ && X_SENSORLESS != Z_SENSORLESS
+  #error "CoreXZ requires both X and Z to use sensorless homing if either does."
+#elif CORE_IS_YZ && Y_SENSORLESS != Z_SENSORLESS
+  #error "CoreYZ requires both Y and Z to use sensorless homing if either does."
+#endif
+
 #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
   #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
 #endif
-
-#if ENABLED(TMC_Z_CALIBRATION) && !Z_IS_TRINAMIC && !Z2_IS_TRINAMIC
+#if ENABLED(TMC_Z_CALIBRATION) && !AXIS_IS_TMC(Z) && !AXIS_IS_TMC(Z2)
   #error "TMC_Z_CALIBRATION requires at least one TMC driver on Z axis"
 #endif
 
-/**
- * Make sure HAVE_L6470DRIVER is warranted
- */
-#if ENABLED(HAVE_L6470DRIVER) && !( \
-         ENABLED(  X_IS_L6470 ) \
-      || ENABLED( X2_IS_L6470 ) \
-      || ENABLED(  Y_IS_L6470 ) \
-      || ENABLED( Y2_IS_L6470 ) \
-      || ENABLED(  Z_IS_L6470 ) \
-      || ENABLED( Z2_IS_L6470 ) \
-      || ENABLED( E0_IS_L6470 ) \
-      || ENABLED( E1_IS_L6470 ) \
-      || ENABLED( E2_IS_L6470 ) \
-      || ENABLED( E3_IS_L6470 ) \
-      || ENABLED( E4_IS_L6470 ) \
-  )
-  #error "HAVE_L6470DRIVER requires at least one L6470 stepper to be set."
+#if ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
+  #error "SENSORLESS_HOMING requires TMC2130 or TMC2660 stepper drivers."
 #endif
-
-/**
- * Check that each axis has only one driver selected
- */
-#if 1 < 0 \
-  + ENABLED(X_IS_TMC26X) \
-  + ENABLED(X_IS_TMC2130) \
-  + ENABLED(X_IS_TMC2208) \
-  + ENABLED(X_IS_L6470)
-  #error "Please enable only one stepper driver for the X axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(X2_IS_TMC26X) \
-  + ENABLED(X2_IS_TMC2130) \
-  + ENABLED(X2_IS_TMC2208) \
-  + ENABLED(X2_IS_L6470)
-  #error "Please enable only one stepper driver for the X2 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(Y_IS_TMC26X) \
-  + ENABLED(Y_IS_TMC2130) \
-  + ENABLED(Y_IS_TMC2208) \
-  + ENABLED(Y_IS_L6470)
-  #error "Please enable only one stepper driver for the Y axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(Y2_IS_TMC26X) \
-  + ENABLED(Y2_IS_TMC2130) \
-  + ENABLED(Y2_IS_TMC2208) \
-  + ENABLED(Y2_IS_L6470)
-  #error "Please enable only one stepper driver for the Y2 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(Z_IS_TMC26X) \
-  + ENABLED(Z_IS_TMC2130) \
-  + ENABLED(Z_IS_TMC2208) \
-  + ENABLED(Z_IS_L6470)
-  #error "Please enable only one stepper driver for the Z axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(Z2_IS_TMC26X) \
-  + ENABLED(Z2_IS_TMC2130) \
-  + ENABLED(Z2_IS_TMC2208) \
-  + ENABLED(Z2_IS_L6470)
-  #error "Please enable only one stepper driver for the Z2 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E0_IS_TMC26X) \
-  + ENABLED(E0_IS_TMC2130) \
-  + ENABLED(E0_IS_TMC2208) \
-  + ENABLED(E0_IS_L6470)
-  #error "Please enable only one stepper driver for the E0 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E1_IS_TMC26X) \
-  + ENABLED(E1_IS_TMC2130) \
-  + ENABLED(E1_IS_TMC2208) \
-  + ENABLED(E1_IS_L6470)
-  #error "Please enable only one stepper driver for the E1 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E2_IS_TMC26X) \
-  + ENABLED(E2_IS_TMC2130) \
-  + ENABLED(E2_IS_TMC2208) \
-  + ENABLED(E2_IS_L6470)
-  #error "Please enable only one stepper driver for the E2 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E3_IS_TMC26X) \
-  + ENABLED(E3_IS_TMC2130) \
-  + ENABLED(E3_IS_TMC2208) \
-  + ENABLED(E3_IS_L6470)
-  #error "Please enable only one stepper driver for the E3 axis."
-#endif
-#if 1 < 0 \
-  + ENABLED(E4_IS_TMC26X) \
-  + ENABLED(E4_IS_TMC2130) \
-  + ENABLED(E4_IS_TMC2208) \
-  + ENABLED(E4_IS_L6470)
-  #error "Please enable only one stepper driver for the E4 axis."
-#endif
+#if ENABLED(STEALTHCHOP) && !HAS_STEALTHCHOP
+  #error "STEALTHCHOP requires TMC2130 or TMC2208 stepper drivers."
+ #endif
 
 /**
  * Digipot requirement
@@ -1698,6 +1617,14 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
       #error "SKEW_CORRECTION requires YZ_SKEW_FACTOR or YZ_DIAG_AC, YZ_DIAG_BD, YZ_SIDE_AD."
     #endif
   #endif
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY) && !ENABLED(ULTIPANEL)
+  #error "POWER_LOSS_RECOVERY currently requires an LCD Controller."
+#endif
+
+#if ENABLED(FAST_PWM_FAN) && !(defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM))
+  #error "FAST_PWM_FAN only supported by 8 bit CPUs."
 #endif
 
 #endif // _SANITYCHECK_H_

@@ -69,7 +69,7 @@ void GcodeSuite::G29() {
     static bool enable_soft_endstops;
   #endif
 
-  const MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
+  MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
   if (!WITHIN(state, 0, 5)) {
     SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
     return;
@@ -90,8 +90,11 @@ void GcodeSuite::G29() {
     case MeshStart:
       mbl.reset();
       mbl_probe_index = 0;
-      enqueue_and_echo_commands_P(lcd_wait_for_move ? PSTR("G29 S2") : PSTR("G28\nG29 S2"));
-      break;
+      if (!lcd_wait_for_move) {
+        enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
+        return;
+      }
+      state = MeshNext;
 
     case MeshNext:
       if (mbl_probe_index < 0) {
@@ -105,10 +108,10 @@ void GcodeSuite::G29() {
           enable_soft_endstops = soft_endstops_enabled;
         #endif
         // Move close to the bed before the first point
-        do_blocking_move_to_z(Z_MIN_POS);
+        do_blocking_move_to_z(0);
       }
       else {
-        // For G29 S2 after adjusting Z.
+        // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
         #if HAS_SOFTWARE_ENDSTOPS
           soft_endstops_enabled = enable_soft_endstops;
@@ -127,9 +130,9 @@ void GcodeSuite::G29() {
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
-        current_position[Z_AXIS] = Z_MIN_POS + MANUAL_PROBE_HEIGHT;
+        current_position[Z_AXIS] = MANUAL_PROBE_HEIGHT;
         line_to_current_position();
-        stepper.synchronize();
+        planner.synchronize();
 
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
@@ -141,10 +144,10 @@ void GcodeSuite::G29() {
         set_bed_leveling_enabled(true);
 
         #if ENABLED(MESH_G28_REST_ORIGIN)
-          current_position[Z_AXIS] = Z_MIN_POS;
+          current_position[Z_AXIS] = 0;
           set_destination_from_current();
           buffer_line_to_destination(homing_feedrate(Z_AXIS));
-          stepper.synchronize();
+          planner.synchronize();
         #endif
 
         #if ENABLED(LCD_BED_LEVELING)
@@ -201,8 +204,8 @@ void GcodeSuite::G29() {
 
   } // switch(state)
 
-  if (state == MeshStart || state == MeshNext) {
-    SERIAL_PROTOCOLPAIR("MBL G29 point ", min(mbl_probe_index, GRID_MAX_POINTS));
+  if (state == MeshNext) {
+    SERIAL_PROTOCOLPAIR("MBL G29 point ", MIN(mbl_probe_index, GRID_MAX_POINTS));
     SERIAL_PROTOCOLLNPAIR(" of ", int(GRID_MAX_POINTS));
   }
 

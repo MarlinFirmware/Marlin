@@ -20,14 +20,13 @@
 #ifndef SPI_PINS_H_
 #define SPI_PINS_H_
 
-
 /**
  * Define SPI Pins: SCK, MISO, MOSI, SS
  *
  */
-#define SCK_PIN   _STM32_PIN(PORTA, 5)
-#define MISO_PIN  _STM32_PIN(PORTA, 6)
-#define MOSI_PIN  _STM32_PIN(PORTA, 7)
-#define SS_PIN    _STM32_PIN(PORTA, 8)
+#define SCK_PIN   PA5
+#define MISO_PIN  PA6
+#define MOSI_PIN  PA7
+#define SS_PIN    PA8
 
 #endif // SPI_PINS_H_

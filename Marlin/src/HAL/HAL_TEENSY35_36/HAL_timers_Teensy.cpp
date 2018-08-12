@@ -29,6 +29,22 @@
 #include "HAL.h"
 #include "HAL_timers_Teensy.h"
 
+/** \brief Instruction Synchronization Barrier
+  Instruction Synchronization Barrier flushes the pipeline in the processor,
+  so that all instructions following the ISB are fetched from cache or
+  memory, after the instruction has been completed.
+*/
+FORCE_INLINE static void __ISB(void) {
+  __asm__ __volatile__("isb 0xF":::"memory");
+}
+
+/** \brief Data Synchronization Barrier
+  This function acts as a special kind of Data Memory Barrier.
+  It completes when all explicit memory accesses before this instruction complete.
+*/
+FORCE_INLINE static void __DSB(void) {
+  __asm__ __volatile__("dsb 0xF":::"memory");
+}
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
@@ -65,6 +81,11 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
     case 0: NVIC_DISABLE_IRQ(IRQ_FTM0); break;
     case 1: NVIC_DISABLE_IRQ(IRQ_FTM1); break;
   }
+
+  // We NEED memory barriers to ensure Interrupts are actually disabled!
+  // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+  __DSB();
+  __ISB();
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {

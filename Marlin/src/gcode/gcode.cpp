@@ -103,7 +103,7 @@ void GcodeSuite::get_destination_from_command() {
       destination[i] = current_position[i];
   }
 
-  if (parser.linearval('F') > 0.0)
+  if (parser.linearval('F') > 0)
     feedrate_mm_s = MMM_TO_MMS(parser.value_feedrate());
 
   #if ENABLED(PRINTCOUNTER)
@@ -125,6 +125,47 @@ void GcodeSuite::dwell(millis_t time) {
   while (PENDING(millis(), time)) idle();
 }
 
+/**
+ * When G29_RETRY_AND_RECOVER is enabled, call G29() in
+ * a loop with recovery and retry handling.
+ */
+#if HAS_LEVELING && ENABLED(G29_RETRY_AND_RECOVER)
+
+  #ifndef G29_MAX_RETRIES
+    #define G29_MAX_RETRIES 0
+  #endif
+
+  void GcodeSuite::G29_with_retry() {
+    uint8_t retries = G29_MAX_RETRIES;
+    while (G29()) { // G29 should return true for failed probes ONLY
+      if (retries--) {
+        #ifdef G29_ACTION_ON_RECOVER
+          SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_RECOVER);
+        #endif
+        #ifdef G29_RECOVER_COMMANDS
+          process_subcommands_now_P(PSTR(G29_RECOVER_COMMANDS));
+        #endif
+      }
+      else {
+        #ifdef G29_FAILURE_COMMANDS
+          process_subcommands_now_P(PSTR(G29_FAILURE_COMMANDS));
+        #endif
+        #ifdef G29_ACTION_ON_FAILURE
+          SERIAL_ECHOLNPGM("//action:" G29_ACTION_ON_FAILURE);
+        #endif
+        #if ENABLED(G29_HALT_ON_FAILURE)
+          kill(PSTR(MSG_ERR_PROBING_FAILED));
+        #endif
+        return;
+      }
+    }
+    #ifdef G29_SUCCESS_COMMANDS
+      process_subcommands_now_P(PSTR(G29_SUCCESS_COMMANDS));
+    #endif
+  }
+
+#endif // HAS_LEVELING && G29_RETRY_AND_RECOVER
+
 //
 // Placeholders for non-migrated codes
 //
@@ -135,7 +176,11 @@ void GcodeSuite::dwell(millis_t time) {
 /**
  * Process the parsed command and dispatch it to its handler
  */
-void GcodeSuite::process_parsed_command() {
+void GcodeSuite::process_parsed_command(
+  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+    const bool no_ok
+  #endif
+) {
   KEEPALIVE_STATE(IN_HANDLER);
 
   // Handle a known G, M, or T
@@ -190,8 +235,14 @@ void GcodeSuite::process_parsed_command() {
       case 28: G28(false); break;                                 // G28: Home all axes, one at a time
 
       #if HAS_LEVELING
-        case 29: G29(); break;                                    // G29: Bed leveling calibration
-      #endif
+        case 29:                                                  // G29: Bed leveling calibration
+          #if ENABLED(G29_RETRY_AND_RECOVER)
+            G29_with_retry();
+          #else
+            G29();
+          #endif
+          break;
+      #endif // HAS_LEVELING
 
       #if HAS_BED_PROBE
         case 30: G30(); break;                                    // G30: Single Z probe
@@ -224,6 +275,8 @@ void GcodeSuite::process_parsed_command() {
       #if ENABLED(DEBUG_GCODE_PARSER)
         case 800: parser.debug(); break;                          // G800: GCode Parser Test for G
       #endif
+
+      default: parser.unknown_command_error(); break;
     }
     break;
 
@@ -312,7 +365,7 @@ void GcodeSuite::process_parsed_command() {
         case 113: M113(); break;                                  // M113: Set Host Keepalive interval
       #endif
 
-      #if HAS_HEATER_BED && HAS_TEMP_BED
+      #if HAS_HEATED_BED
         case 140: M140(); break;                                  // M140: Set bed temperature
         case 190: M190(); break;                                  // M190: Wait for bed temperature to reach target
       #endif
@@ -544,6 +597,10 @@ void GcodeSuite::process_parsed_command() {
         case 702: M702(); break;                                  // M702: Unload Filament
       #endif
 
+      #if ENABLED(MAX7219_GCODE)
+        case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
+      #endif
+
       #if ENABLED(LIN_ADVANCE)
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
@@ -602,6 +659,8 @@ void GcodeSuite::process_parsed_command() {
       #endif
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped
+
+      default: parser.unknown_command_error(); break;
     }
     break;
 
@@ -612,7 +671,10 @@ void GcodeSuite::process_parsed_command() {
 
   KEEPALIVE_STATE(NOT_BUSY);
 
-  ok_to_send();
+  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+    if (!no_ok)
+  #endif
+      ok_to_send();
 }
 
 /**
@@ -631,12 +693,40 @@ void GcodeSuite::process_next_command() {
     #endif
   }
 
-  reset_stepper_timeout(); // Keep steppers powered
-
   // Parse the next command in the queue
   parser.parse(current_command);
   process_parsed_command();
 }
+
+#if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  /**
+   * Run a series of commands, bypassing the command queue to allow
+   * G-code "macros" to be called from within other G-code handlers.
+   */
+  void GcodeSuite::process_subcommands_now_P(const char *pgcode) {
+    // Save the parser state
+    char * const saved_cmd = parser.command_ptr;
+
+    // Process individual commands in string
+    while (pgm_read_byte_near(pgcode)) {
+      // Break up string at '\n' delimiters
+      const char *delim = strchr_P(pgcode, '\n');
+      size_t len = delim ? delim - pgcode : strlen_P(pgcode);
+      char cmd[len + 1];
+      strncpy_P(cmd, pgcode, len);
+      cmd[len] = '\0';
+      pgcode += len;
+      if (delim) pgcode++;
+
+      // Parse the next command in the string
+      parser.parse(cmd);
+      process_parsed_command(true);
+    }
+
+    // Restore the parser state
+    parser.parse(saved_cmd);
+  }
+#endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 

@@ -53,7 +53,7 @@ bool leveling_is_valid() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
       !!bilinear_grid_spacing[X_AXIS]
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      true
+      ubl.mesh_is_valid()
     #else // 3POINT, LINEAR
       true
     #endif
@@ -99,7 +99,21 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
           planner.unapply_leveling(current_position);
         }
       #else
-        planner.leveling_active = enable;                    // just flip the bit, current_position will be wrong until next move.
+        // UBL equivalents for apply/unapply_leveling
+        #if ENABLED(SKEW_CORRECTION)
+          float pos[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+          planner.skew(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS]);
+        #else
+          const float (&pos)[XYZE] = current_position;
+        #endif
+        if (planner.leveling_active) {
+          current_position[Z_AXIS] += ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS]);
+          planner.leveling_active = false;
+        }
+        else {
+          planner.leveling_active = true;
+          current_position[Z_AXIS] -= ubl.get_z_correction(pos[X_AXIS], pos[Y_AXIS]);
+        }
       #endif
 
     #else // OLDSCHOOL_ABL
@@ -252,7 +266,14 @@ void reset_bed_level() {
 
   void _manual_goto_xy(const float &rx, const float &ry) {
 
-    #if MANUAL_PROBE_HEIGHT > 0
+    #ifdef MANUAL_PROBE_START_Z
+      #if MANUAL_PROBE_HEIGHT > 0
+        do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
+        do_blocking_move_to_z(MAX(0,MANUAL_PROBE_START_Z));
+      #else
+        do_blocking_move_to(rx, ry, MAX(0,MANUAL_PROBE_START_Z));
+      #endif
+    #elif MANUAL_PROBE_HEIGHT > 0
       const float prev_z = current_position[Z_AXIS];
       do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
       do_blocking_move_to_z(prev_z);

@@ -32,7 +32,6 @@
 #ifndef LANGUAGE_KANA_UTF_H
 #define LANGUAGE_KANA_UTF_H
 
-#define MAPPER_E382E383
 #define DISPLAY_CHARSET_ISO10646_KANA
 #define CHARSIZE 3
 
@@ -53,6 +52,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Xジク ゲンテンフッキ")             // "Home X"
 #define MSG_AUTO_HOME_Y                     _UxGT("Yジク ゲンテンフッキ")             // "Home Y"
 #define MSG_AUTO_HOME_Z                     _UxGT("Zジク ゲンテンフッキ")             // "Home Z"
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Zジク コウセイ")
 #define MSG_LEVEL_BED_HOMING                _UxGT("ゲンテンフッキチュウ")              // "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               _UxGT("レベリングカイシ")                // "Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("ツギノソクテイテンヘ")             // "Next Point"
@@ -144,7 +144,6 @@
 #define MSG_NO_CARD                         _UxGT("SDカードガアリマセン")            // "No SD card"
 #define MSG_DWELL                           _UxGT("キュウシ")                     // "Sleep..."
 #define MSG_USERWAIT                        _UxGT("シバラクオマチクダサイ")           // "Wait for user..."
-#define MSG_RESUMING                        _UxGT("プリントサイカイ")                // "Resuming print"
 #define MSG_PRINT_ABORTED                   _UxGT("プリントガチュウシサレマシタ")       // "Print aborted"
 #define MSG_NO_MOVE                         _UxGT("ウゴキマセン")                  // "No move."
 #define MSG_KILLED                          _UxGT("ヒジョウテイシ")                  // "KILLED. "
@@ -184,9 +183,7 @@
 #define MSG_SHORT_HOUR                      _UxGT("h")                          // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m")                          // One character only
 #define MSG_HEATING                         _UxGT("カネツチュウ")                   // "Heating..."
-#define MSG_HEATING_COMPLETE                _UxGT("カネツカンリョウ")                 // "Heating done."
-#define MSG_BED_HEATING                     _UxGT("ベッド カネツチュウ")              // "Bed Heating."
-#define MSG_BED_DONE                        _UxGT("ベッド カネツカンリョウ")            // "Bed done."
+#define MSG_BED_HEATING                     _UxGT("ベッド カネツチュウ")              // "Bed Heating..."
 #define MSG_DELTA_CALIBRATE                 _UxGT("デルタ コウセイ")                // "Delta Calibration"
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Xジク コウセイ")                 // "Calibrate X"
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Yジク コウセイ")                 // "Calibrate Y"

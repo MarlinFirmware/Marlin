@@ -37,13 +37,13 @@
   #define STATS_EEPROM_ADDRESS 0x32
 #endif
 
-struct printStatistics {    // 16 bytes (20 with real doubles)
+struct printStatistics {    // 16 bytes
   //const uint8_t magic;    // Magic header, it will always be 0x16
   uint16_t totalPrints;     // Number of prints
   uint16_t finishedPrints;  // Number of complete prints
   uint32_t printTime;       // Accumulated printing time
   uint32_t longestPrint;    // Longest successful print job
-  double   filamentUsed;    // Accumulated filament consumed in mm
+  float    filamentUsed;    // Accumulated filament consumed in mm
 };
 
 class PrintCounter: public Stopwatch {
@@ -128,7 +128,7 @@ class PrintCounter: public Stopwatch {
      *
      * @param amount The amount of filament used in mm
      */
-    static void incFilamentUsed(double const &amount);
+    static void incFilamentUsed(float const &amount);
 
     /**
      * @brief Reset the Print Statistics

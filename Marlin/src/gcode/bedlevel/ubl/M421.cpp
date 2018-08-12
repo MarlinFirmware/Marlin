@@ -37,6 +37,7 @@
  * Usage:
  *   M421 I<xindex> J<yindex> Z<linear>
  *   M421 I<xindex> J<yindex> Q<offset>
+ *   M421 I<xindex> J<yindex> N
  *   M421 C Z<linear>
  *   M421 C Q<offset>
  */
@@ -45,6 +46,7 @@ void GcodeSuite::M421() {
   const bool hasI = ix >= 0,
              hasJ = iy >= 0,
              hasC = parser.seen('C'),
+             hasN = parser.seen('N'),
              hasZ = parser.seen('Z'),
              hasQ = !hasZ && parser.seen('Q');
 
@@ -54,7 +56,7 @@ void GcodeSuite::M421() {
     iy = location.y_index;
   }
 
-  if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ)) {
+  if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ || hasN)) {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
   }
@@ -63,7 +65,7 @@ void GcodeSuite::M421() {
     SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
   }
   else
-    ubl.z_values[ix][iy] = parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
+    ubl.z_values[ix][iy] = hasN ? NAN : parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
 }
 
 #endif // AUTO_BED_LEVELING_UBL

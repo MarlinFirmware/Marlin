@@ -79,7 +79,7 @@ inline void ocr_val_mode() {
 
 void GcodeSuite::M3_M4(bool is_M3) {
 
-  stepper.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
+  planner.synchronize();   // wait until previous movement commands (G0/G0/G2/G3) have completed before playing with the spindle
   #if SPINDLE_DIR_CHANGE
     const bool rotation_dir = (is_M3 != SPINDLE_INVERT_DIR);
     if (SPINDLE_STOP_ON_DIR_CHANGE \
@@ -107,12 +107,12 @@ void GcodeSuite::M3_M4(bool is_M3) {
         delay_for_power_down();
       }
       else {
-        int16_t ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));  // convert RPM to PWM duty cycle
+        int16_t ocr_val = (spindle_laser_power - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));  // convert RPM to PWM duty cycle
         NOMORE(ocr_val, 255);                                                                             // limit to max the Atmel PWM will support
         if (spindle_laser_power <= SPEED_POWER_MIN)
-          ocr_val = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));            // minimum setting
+          ocr_val = (SPEED_POWER_MIN - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));            // minimum setting
         if (spindle_laser_power >= SPEED_POWER_MAX)
-          ocr_val = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * (1.0 / (SPEED_POWER_SLOPE));            // limit to max RPM
+          ocr_val = (SPEED_POWER_MAX - (SPEED_POWER_INTERCEPT)) * (1.0f / (SPEED_POWER_SLOPE));            // limit to max RPM
         if (SPINDLE_LASER_PWM_INVERT) ocr_val = 255 - ocr_val;
         WRITE(SPINDLE_LASER_ENABLE_PIN, SPINDLE_LASER_ENABLE_INVERT);                                     // turn spindle on (active low)
         analogWrite(SPINDLE_LASER_PWM_PIN, ocr_val & 0xFF);                                               // only write low byte
@@ -129,7 +129,7 @@ void GcodeSuite::M3_M4(bool is_M3) {
  * M5 turn off spindle
  */
 void GcodeSuite::M5() {
-  stepper.synchronize();
+  planner.synchronize();
   WRITE(SPINDLE_LASER_ENABLE_PIN, !SPINDLE_LASER_ENABLE_INVERT);
   #if ENABLED(SPINDLE_LASER_PWM)
     analogWrite(SPINDLE_LASER_PWM_PIN, SPINDLE_LASER_PWM_INVERT ? 255 : 0);

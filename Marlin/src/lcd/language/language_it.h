@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_IT_H
 #define LANGUAGE_IT_H
 
-#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
@@ -47,6 +46,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home asse X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home asse Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home asse Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibra Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Home assi XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Premi per iniziare")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Punto successivo")
@@ -56,13 +56,13 @@
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offset applicato")
 #define MSG_SET_ORIGIN                      _UxGT("Imposta Origine")
 #define MSG_PREHEAT_1                       _UxGT("Preriscalda PLA")
-#define MSG_PREHEAT_1_N                     _UxGT("Prerisc.PLA ")
+#define MSG_PREHEAT_1_N                     _UxGT("Preris.PLA ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1_N _UxGT("Tutto")
 #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1_N _UxGT("Ugello")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1_N _UxGT("Piatto")
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1_N _UxGT("conf")
 #define MSG_PREHEAT_2                       _UxGT("Preriscalda ABS")
-#define MSG_PREHEAT_2_N                     _UxGT("Prerisc.ABS ")
+#define MSG_PREHEAT_2_N                     _UxGT("Preris.ABS ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2_N _UxGT("Tutto")
 #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2_N _UxGT("Ugello")
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2_N _UxGT("Piatto")
@@ -144,8 +144,7 @@
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("UBL passo passo")
 
 #define MSG_LED_CONTROL                     _UxGT("Controllo LED")
-#define MSG_LEDS_ON                         _UxGT("Luci On")
-#define MSG_LEDS_OFF                        _UxGT("Luci Off")
+#define MSG_LEDS                            _UxGT("Luci")
 #define MSG_LED_PRESETS                     _UxGT("Preset luci")
 #define MSG_SET_LEDS_RED                    _UxGT("Rosso")
 #define MSG_SET_LEDS_ORANGE                 _UxGT("Arancione")
@@ -252,7 +251,6 @@
 #define MSG_DWELL                           _UxGT("Sospensione...")
 #define MSG_USERWAIT                        _UxGT("Premi tasto..")
 #define MSG_PRINT_PAUSED                    _UxGT("Stampa sospesa")
-#define MSG_RESUMING                        _UxGT("Riprendi Stampa")
 #define MSG_PRINT_ABORTED                   _UxGT("Stampa annullata")
 #define MSG_NO_MOVE                         _UxGT("Nessun Movimento")
 #define MSG_KILLED                          _UxGT("UCCISO. ")
@@ -301,12 +299,10 @@
 #define MSG_SHORT_HOUR                      _UxGT("h") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Riscaldamento...")
-#define MSG_HEATING_COMPLETE                _UxGT("Risc. completato")
 #define MSG_COOLING                         _UxGT("Raffreddamento..")
 #define MSG_COOLING_COMPLETE                _UxGT("Raff.completato.")
 #define MSG_BED_HEATING                     _UxGT("Risc. piatto...")
 #define MSG_BED_COOLING                     _UxGT("Raffr. piatto...")
-#define MSG_BED_DONE                        _UxGT("Piatto pronto")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibraz. Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibra X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibra Y")
