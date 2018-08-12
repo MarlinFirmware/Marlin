@@ -2527,12 +2527,12 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
   #endif
   position[A_AXIS] = LROUND(a * axis_steps_per_mm[A_AXIS]);
   position[B_AXIS] = LROUND(b * axis_steps_per_mm[B_AXIS]);
-  #if !IS_KINEMATIC && ENABLED(AUTO_BED_LEVELING_UBL)
-    if (leveling_active)
-      position[C_AXIS] = LROUND((c + ubl.get_z_correction(a, b)) * axis_steps_per_mm[Z_AXIS]);
-    else
-  #endif
-  position[C_AXIS] = LROUND(c * axis_steps_per_mm[C_AXIS]);
+  position[C_AXIS] = LROUND(axis_steps_per_mm[C_AXIS] * (c +
+    #if !IS_KINEMATIC && ENABLED(AUTO_BED_LEVELING_UBL)
+      leveling_active ? ubl.get_z_correction(a, b) :
+    #endif
+    0
+  ));
   position[E_AXIS] = LROUND(e * axis_steps_per_mm[_EINDEX]);
   #if HAS_POSITION_FLOAT
     position_float[A_AXIS] = a;
@@ -2574,19 +2574,17 @@ void Planner::set_position_mm(const AxisEnum axis, const float &v) {
   #else
     const uint8_t axis_index = axis;
   #endif
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    if (axis == Z_AXIS && leveling_active)
-      position[axis] = LROUND((v + ubl.get_z_correction(current_position[X_AXIS], current_position[Y_AXIS])) * axis_steps_per_mm[axis_index]);
-    else
-  #endif
-  position[axis] = LROUND(v * axis_steps_per_mm[axis_index]);
+  position[axis] = LROUND(axis_steps_per_mm[axis_index] * (v +
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      axis == Z_AXIS && leveling_active ? ubl.get_z_correction(current_position[X_AXIS], current_position[Y_AXIS]) :
+    #endif
+    0
+  ));
   #if HAS_POSITION_FLOAT
     position_float[axis] = v;
   #endif
-  if (has_blocks_queued()) {
-    //previous_speed[axis] = 0.0;
+  if (has_blocks_queued())
     buffer_sync_block();
-  }
   else
     stepper.set_position(axis, position[axis]);
 }
