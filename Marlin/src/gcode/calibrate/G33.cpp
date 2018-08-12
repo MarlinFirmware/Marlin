@@ -204,7 +204,7 @@ static float calibration_probe(const float &nx, const float &ny, const bool stow
   #endif
 }
 
-#if HAS_BED_PROBE
+#if HAS_BED_PROBE && ENABLED(ULTIPANEL)
   static float probe_z_shift(const float center) {
     STOW_PROBE();
     endstops.enable_z_probe(false);
@@ -588,7 +588,7 @@ void GcodeSuite::G33() {
 
       switch (probe_points) {
         case -1:
-          #if HAS_BED_PROBE
+          #if HAS_BED_PROBE && ENABLED(ULTIPANEL)
             zprobe_zoffset += probe_z_shift(z_at_pt[CEN]);
           #endif
 
