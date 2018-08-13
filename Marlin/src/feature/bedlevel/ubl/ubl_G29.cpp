@@ -1172,7 +1172,7 @@
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPGM("EEPROM Dump:");
-    for (uint16_t i = 0; i <= E2END; i += 16) {
+    for (uint16_t i = 0; i < persistentStore.capacity(); i += 16) {
       if (!(i & 0x3)) idle();
       print_hex_word(i);
       SERIAL_ECHOPGM(": ");

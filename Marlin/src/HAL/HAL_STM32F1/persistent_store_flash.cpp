@@ -39,28 +39,23 @@
 #include <flash_stm32.h>
 #include <EEPROM.h>
 
-namespace HAL {
-namespace PersistentStore {
+// Store settings in the last two pages
+// Flash pages must be erased before writing, so keep track.
+bool firstWrite = false;
+uint32_t pageBase = EEPROM_START_ADDRESS;
 
-namespace {
-  // Store settings in the last two pages
-  // Flash pages must be erased before writing, so keep track.
-  bool firstWrite = false;
-  uint32_t pageBase = EEPROM_START_ADDRESS;
-}
-
-bool access_start() {
+bool PersistentStore::access_start() {
   firstWrite = true;
   return true;
 }
 
-bool access_finish() {
+bool PersistentStore::access_finish() {
   FLASH_Lock();
   firstWrite = false;
   return true;
 }
 
-bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   FLASH_Status status;
 
   if (firstWrite) {
@@ -95,7 +90,7 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   return false;
 }
 
-bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (uint16_t i = 0; i < size; i++) {
     byte* accessPoint = (byte*)(pageBase + pos + i);
     uint8_t c = *accessPoint;
@@ -106,8 +101,22 @@ bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const boo
   return false;
 }
 
-} // PersistentStore
-} // HAL
+bool PersistentStore::write_data(const int pos, uint8_t* value, size_t size) {
+  int data_pos = pos;
+  uint16_t crc = 0;
+  return write_data(data_pos, value, size, &crc);
+}
+
+bool PersistentStore::read_data(const int pos, uint8_t* value, size_t size) {
+  int data_pos = pos;
+  uint16_t crc = 0;
+  return read_data(data_pos, value, size, &crc);
+}
+
+const size_t PersistentStore::capacity() {
+  return E2END + 1;
+}
+
 
 #endif // EEPROM_SETTINGS && EEPROM FLASH
 #endif // __STM32F1__

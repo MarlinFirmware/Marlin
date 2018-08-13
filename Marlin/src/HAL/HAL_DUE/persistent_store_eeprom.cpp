@@ -8,19 +8,16 @@
 
 extern void eeprom_flush(void);
 
-namespace HAL {
-namespace PersistentStore {
+bool PersistentStore::access_start() { return true; }
 
-bool access_start() { return true; }
-
-bool access_finish() {
+bool PersistentStore::access_finish() {
   #if DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
     eeprom_flush();
   #endif
   return true;
 }
 
-bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
     uint8_t * const p = (uint8_t * const)pos;
     uint8_t v = *value;
@@ -41,7 +38,7 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   return false;
 }
 
-bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = eeprom_read_byte((unsigned char*)pos);
     if (writing) *value = c;
@@ -52,8 +49,21 @@ bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const boo
   return false;
 }
 
+bool PersistentStore::write_data(const int pos, uint8_t* value, size_t size) {
+  int data_pos = pos;
+  uint16_t crc = 0;
+  return write_data(data_pos, value, size, &crc);
 }
+
+bool PersistentStore::read_data(const int pos, uint8_t* value, size_t size) {
+  int data_pos = pos;
+  uint16_t crc = 0;
+  return read_data(data_pos, value, size, &crc);
+}
+
+const size_t PersistentStore::capacity() {
+  return E2END + 1;
 }
 
 #endif // EEPROM_SETTINGS
-#endif // __AVR__
+#endif // ARDUINO_ARCH_SAM
