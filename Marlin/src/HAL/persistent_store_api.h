@@ -4,15 +4,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
-namespace HAL {
-namespace PersistentStore {
+class PersistentStore {
+public:
+  static bool access_start();
+  static bool access_finish();
+  static bool write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc);
+  static bool read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing=true);
+  static bool write_data(const int pos, uint8_t* value, size_t size);
+  static bool read_data(const int pos, uint8_t* value, size_t size);
+  static const size_t capacity();
+};
 
-bool access_start();
-bool access_finish();
-bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc);
-bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing=true);
-
-} // PersistentStore
-} // HAL
+extern PersistentStore persistentStore;
 
 #endif // _PERSISTENT_STORE_H_
