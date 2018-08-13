@@ -44,7 +44,7 @@
 void GcodeSuite::M7219() {
   if (parser.seen('I')) {
     Max7219_Clear();
-    Max7219_init();
+    Max7219_register_setup();
   }
 
   if (parser.seen('F'))
