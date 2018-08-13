@@ -7309,6 +7309,7 @@ inline void protected_pin_err() {
  *
  *  P<pin>  Pin number (LED if omitted)
  *  S<byte> Pin status from 0 - 255
+ *  I       Flag to ignore Marlin's pin protection
  */
 inline void gcode_M42() {
   if (!parser.seenval('S')) return;
@@ -7317,7 +7318,7 @@ inline void gcode_M42() {
   const pin_t pin_number = parser.byteval('P', LED_PIN);
   if (pin_number < 0) return;
 
-  if (pin_is_protected(pin_number)) return protected_pin_err();
+  if (!parser.boolval('I') && pin_is_protected(pin_number)) return protected_pin_err();
 
   pinMode(pin_number, OUTPUT);
   digitalWrite(pin_number, pin_status);
