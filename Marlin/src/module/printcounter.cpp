@@ -76,7 +76,7 @@ void PrintCounter::initStats() {
   saveStats();
 
   persistentStore.access_start();
-  persistentStore.write_data(address, 0x16, sizeof(uint8_t));
+  persistentStore.write_data(address, (uint8_t)0x16);
   persistentStore.access_finish();
 }
 
@@ -89,11 +89,10 @@ void PrintCounter::loadStats() {
   uint8_t value = 0;
   persistentStore.access_start();
   persistentStore.read_data(address, &value, sizeof(uint8_t));
-  if (value != 0x16) initStats();
-  else {
-    persistentStore.read_data(address + sizeof(uint8_t),
-      (uint8_t*)&data, sizeof(printStatistics));
-  }
+  if (value != 0x16)
+    initStats();
+  else
+    persistentStore.read_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
   loaded = true;
 }
@@ -108,8 +107,7 @@ void PrintCounter::saveStats() {
 
   // Saves the struct to EEPROM
   persistentStore.access_start();
-  persistentStore.write_data(address + sizeof(uint8_t),
-    (uint8_t*)&data, sizeof(printStatistics));
+  persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
 }
 

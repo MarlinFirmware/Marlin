@@ -1178,7 +1178,7 @@
       print_hex_word(i);
       SERIAL_ECHOPGM(": ");
       for (uint16_t j = 0; j < 16; j++) {
-        persistentStore.read_data(i+j, &cccc, sizeof(uint8_t));
+        persistentStore.read_data(i + j, &cccc, sizeof(uint8_t));
         print_hex_byte(cccc);
         SERIAL_ECHO(' ');
       }
