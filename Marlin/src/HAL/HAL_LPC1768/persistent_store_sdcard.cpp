@@ -22,11 +22,13 @@
  */
 #ifdef TARGET_LPC1768
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EEPROM_SETTINGS)
 
-#include "../persistent_store_api.h"
+#include "persistent_store_api.h"
+
+#if DISABLED(FLASH_EEPROM)
 
 #include <chanfs/diskio.h>
 #include <chanfs/ff.h>
@@ -73,8 +75,31 @@ bool PersistentStore::access_finish() {
   return true;
 }
 
-// File function return codes for type FRESULT   This goes away soon.   But it is helpful right now to see
-// the different errors the read_data() and write_data() functions are seeing.
+// This extra chit-chat goes away soon, but is helpful for now
+// to see errors that are happening in read_data / write_data
+static void debug_rw(const bool write, int &pos, const uint8_t *value, const size_t size, const FRESULT s, const size_t total=0) {
+  const char * const rw_str = write ? PSTR("write") : PSTR("read");
+  SERIAL_PROTOCOLCHAR(' ');
+  serialprint_PGM(rw_str);
+  SERIAL_PROTOCOLPAIR("_data(", pos);
+  SERIAL_PROTOCOLPAIR(",", (int)value);
+  SERIAL_PROTOCOLPAIR(",", (int)size);
+  SERIAL_PROTOCOLLNPGM(", ...)");
+  if (total) {
+    SERIAL_PROTOCOLPGM(" f_");
+    serialprint_PGM(rw_str);
+    SERIAL_PROTOCOLPAIR("()=", (int)s);
+    SERIAL_PROTOCOLPAIR("\n size=", size);
+    SERIAL_PROTOCOLPGM("\n bytes_");
+    serialprint_PGM(write ? PSTR("written=") : PSTR("read="));
+    SERIAL_PROTOCOLLN(total);
+  }
+  else
+    SERIAL_PROTOCOLLNPAIR(" f_lseek()=", (int)s);
+}
+
+// File function return codes for type FRESULT. This goes away soon, but
+// is helpful right now to see any errors in read_data and write_data.
 //
 //  typedef enum {
 //    FR_OK = 0,               /* (0) Succeeded */
@@ -106,28 +131,18 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t si
 
   s = f_lseek(&eeprom_file, pos);
   if (s) {
-   SERIAL_PROTOCOLPAIR(" write_data(", pos);         // This extra chit-chat goes away soon.  But it is helpful
-   SERIAL_PROTOCOLPAIR(",", (int)value);            // right now to see errors that are happening in the
-   SERIAL_PROTOCOLPAIR(",", (int)size);             // read_data() and write_data() functions
-   SERIAL_PROTOCOLLNPGM("...)");
-   SERIAL_PROTOCOLLNPAIR(" f_lseek()=", (int)s);
-   return s;
+    debug_rw(true, pos, value, size, s);
+    return s;
   }
 
   s = f_write(&eeprom_file, (void*)value, size, &bytes_written);
   if (s) {
-   SERIAL_PROTOCOLPAIR(" write_data(", pos);         // This extra chit-chat goes away soon.  But it is helpful
-   SERIAL_PROTOCOLPAIR(",", (int)value);            // right now to see errors that are happening in the
-   SERIAL_PROTOCOLPAIR(",", size);             // read_data() and write_data() functions
-   SERIAL_PROTOCOLLNPGM("...)");
-   SERIAL_PROTOCOLLNPAIR(" f_write()=", (int)s);
-   SERIAL_PROTOCOLPAIR(" size=", size);
-   SERIAL_PROTOCOLLNPAIR("\n bytes_written=", bytes_written);
-   return s;
+    debug_rw(true, pos, value, size, s, bytes_written);
+    return s;
   }
   crc16(crc, value, size);
-  pos = pos + size;
-  return (bytes_written != size);  // return true for any error
+  pos += size;
+  return bytes_written != size;  // return true for any error
 }
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
@@ -137,14 +152,8 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   s = f_lseek(&eeprom_file, pos);
 
   if (s) {
-   SERIAL_PROTOCOLPAIR(" read_data(", pos);         // This extra chit-chat goes away soon.  But it is helpful
-   SERIAL_PROTOCOLCHAR(',');
-   SERIAL_PROTOCOL((int)value);                     // right now to see errors that are happening in the
-   SERIAL_PROTOCOLCHAR(',');
-   SERIAL_PROTOCOL(size);                           // read_data() and write_data() functions
-   SERIAL_PROTOCOLLNPGM("...)");
-   SERIAL_PROTOCOLLNPAIR(" f_lseek()=", (int)s);
-   return true;
+    debug_rw(false, pos, value, size, s);
+    return true;
   }
 
   if (writing) {
@@ -158,23 +167,16 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   }
 
   if (s) {
-   SERIAL_PROTOCOLPAIR(" read_data(", pos);         // This extra chit-chat goes away soon.  But it is helpful
-   SERIAL_PROTOCOLCHAR(',');
-   SERIAL_PROTOCOL((int)value);                     // right now to see errors that are happening in the
-   SERIAL_PROTOCOLCHAR(',');
-   SERIAL_PROTOCOL(size);                           // read_data() and write_data() functions
-   SERIAL_PROTOCOLLNPGM("...)");
-   SERIAL_PROTOCOLLNPAIR(" f_write()=", (int)s);
-   SERIAL_PROTOCOLPAIR(" size=", size);
-   SERIAL_PROTOCOLLNPAIR("\n bytes_read=",  bytes_read);
-   return true;
+    debug_rw(false, pos, value, size, s, bytes_read);
+    return true;
   }
 
-  pos = pos + size;
+  pos += size;
   return bytes_read != size;  // return true for any error
 }
 
 const size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
+#endif // !FLASH_EEPROM
 #endif // EEPROM_SETTINGS
 #endif // TARGET_LPC1768
