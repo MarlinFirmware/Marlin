@@ -20,11 +20,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EEPROM_SETTINGS)
 
-  #include "shared/persistent_store_api.h"
+  #include "persistent_store_api.h"
   PersistentStore persistentStore;
 
 #endif
