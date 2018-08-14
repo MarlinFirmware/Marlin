@@ -74,7 +74,7 @@ void PrintCounter::initStats() {
   data = { 0, 0, 0, 0, 0.0 };
 
   saveStats();
-  
+
   uint16_t crc = 0;
   int a = address;
   persistentStore.access_start();

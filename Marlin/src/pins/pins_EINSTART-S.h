@@ -45,7 +45,7 @@
 // Limit Switches
 //
 #define X_STOP_PIN         44   // 2560 PIN 40
-#define Y_STOP_PIN         43   // 2560 PIN 41 
+#define Y_STOP_PIN         43   // 2560 PIN 41
 #define Z_STOP_PIN         42   // 2560 PIN 42
 
 //
