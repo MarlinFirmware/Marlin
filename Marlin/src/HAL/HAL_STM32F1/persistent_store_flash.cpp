@@ -55,7 +55,7 @@ bool PersistentStore::access_finish() {
   return true;
 }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
   FLASH_Status status;
 
   if (firstWrite) {
@@ -90,7 +90,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (uint16_t i = 0; i < size; i++) {
     byte* accessPoint = (byte*)(pageBase + pos + i);
     uint8_t c = *accessPoint;
@@ -101,22 +101,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-bool PersistentStore::write_data(const int pos, uint8_t* value, size_t size) {
-  int data_pos = pos;
-  uint16_t crc = 0;
-  return write_data(data_pos, value, size, &crc);
-}
-
-bool PersistentStore::read_data(const int pos, uint8_t* value, size_t size) {
-  int data_pos = pos;
-  uint16_t crc = 0;
-  return read_data(data_pos, value, size, &crc);
-}
-
-const size_t PersistentStore::capacity() {
-  return E2END + 1;
-}
-
+const size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS && EEPROM FLASH
 #endif // __STM32F1__
