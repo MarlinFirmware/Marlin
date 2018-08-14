@@ -34,7 +34,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#include "../HAL_SPI.h"
+#include "../shared/HAL_SPI.h"
 #include "fastio_AVR.h"
 #include "watchdog_AVR.h"
 #include "math_AVR.h"

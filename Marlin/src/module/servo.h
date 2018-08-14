@@ -27,7 +27,7 @@
 #ifndef _SERVO_H_
 #define _SERVO_H_
 
-#include "../HAL/servo.h"
+#include "../HAL/shared/servo.h"
 
 extern HAL_SERVO_LIB servo[NUM_SERVOS];
 extern void servo_init();

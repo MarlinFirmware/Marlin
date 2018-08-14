@@ -34,7 +34,7 @@
 // This is for EEPROM emulation in flash
 #if ENABLED(EEPROM_SETTINGS) && ENABLED(FLASH_EEPROM_EMULATION)
 
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
 
 #include <flash_stm32.h>
 #include <EEPROM.h>

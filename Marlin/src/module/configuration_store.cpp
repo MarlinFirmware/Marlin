@@ -344,7 +344,7 @@ void MarlinSettings::postprocess() {
 }
 
 #if ENABLED(EEPROM_SETTINGS)
-  #include "../HAL/persistent_store_api.h"
+  #include "../HAL/shared/persistent_store_api.h"
 
   #define DUMMY_PID_VALUE 3000.0f
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()

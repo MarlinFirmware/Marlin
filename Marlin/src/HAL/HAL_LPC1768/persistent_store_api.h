@@ -19,6 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
 
 //#define FLASH_EEPROM

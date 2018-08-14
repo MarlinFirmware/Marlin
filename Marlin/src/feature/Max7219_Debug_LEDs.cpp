@@ -46,7 +46,7 @@
 #include "../module/planner.h"
 #include "../module/stepper.h"
 #include "../Marlin.h"
-#include "../HAL/Delay.h"
+#include "../HAL/shared/Delay.h"
 
 uint8_t LEDs[8 * (MAX7219_NUMBER_UNITS)] = { 0 };
 

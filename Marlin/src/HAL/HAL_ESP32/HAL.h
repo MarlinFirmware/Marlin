@@ -40,8 +40,8 @@
 #undef DISABLED
 #define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 
 #include "fastio_ESP32.h"
 #include "watchdog_ESP32.h"

@@ -25,7 +25,7 @@
  * Not platform dependent.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(SPI_EEPROM)
 

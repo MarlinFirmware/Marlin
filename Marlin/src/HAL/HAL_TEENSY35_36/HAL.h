@@ -42,8 +42,8 @@
 #undef sq
 #define sq(x) ((x)*(x))
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 
 #include "fastio_Teensy.h"
 #include "watchdog_Teensy.h"

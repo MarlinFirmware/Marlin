@@ -46,9 +46,9 @@
 
 // Architecture specific include
 #ifdef __AVR__
-  #include "HAL_AVR/ServoTimers.h"
+  #include "../HAL_AVR/ServoTimers.h"
 #elif defined(ARDUINO_ARCH_SAM)
-  #include "HAL_DUE/ServoTimers.h"
+  #include "../HAL_DUE/ServoTimers.h"
 #else
   #error "This library only supports boards with an AVR or SAM3X processor."
 #endif

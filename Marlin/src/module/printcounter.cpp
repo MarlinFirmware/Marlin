@@ -31,7 +31,7 @@ Stopwatch print_job_timer;      // Global Print Job Timer instance
 
 #include "printcounter.h"
 #include "../Marlin.h"
-#include "../HAL/persistent_store_api.h"
+#include "../HAL/shared/persistent_store_api.h"
 
 PrintCounter print_job_timer;   // Global Print Job Timer instance
 

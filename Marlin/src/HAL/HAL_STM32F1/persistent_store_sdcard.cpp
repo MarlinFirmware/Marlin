@@ -31,7 +31,8 @@
 
 #if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
 
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
+
 #include "../../sd/cardreader.h"
 
 #define HAL_STM32F1_EEPROM_SIZE 4096

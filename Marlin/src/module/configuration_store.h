@@ -24,8 +24,9 @@
 #define CONFIGURATION_STORE_H
 
 #include "../inc/MarlinConfig.h"
+
 #if ENABLED(EEPROM_SETTINGS)
-  #include "../HAL/persistent_store_api.h"
+  #include "../HAL/shared/persistent_store_api.h"
 #endif
 
 #define ADD_PORT_ARG ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1

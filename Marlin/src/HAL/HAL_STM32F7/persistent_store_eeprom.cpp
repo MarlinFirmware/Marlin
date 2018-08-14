@@ -23,11 +23,11 @@
 
 #ifdef STM32F7
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EEPROM_SETTINGS)
 
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
 
 bool PersistentStore::access_start() { return true; }
 bool PersistentStore::access_finish() { return true; }
