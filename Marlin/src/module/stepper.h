@@ -435,7 +435,7 @@ class Stepper {
     #endif
 
     // Set the current position in steps
-    inline static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+    static inline void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
       planner.synchronize();
       const bool was_enabled = STEPPER_ISR_ENABLED();
       if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
@@ -443,7 +443,7 @@ class Stepper {
       if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
     }
 
-    inline static void set_position(const AxisEnum a, const int32_t &v) {
+    static inline void set_position(const AxisEnum a, const int32_t &v) {
       planner.synchronize();
 
       #ifdef __AVR__
