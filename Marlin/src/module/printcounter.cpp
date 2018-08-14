@@ -76,7 +76,7 @@ void PrintCounter::initStats() {
   saveStats();
 
   persistentStore.access_start();
-  persistentStore.write_data(address, (uint8_t*)0x16, sizeof(uint8_t));
+  persistentStore.write_data(address, 0x16, sizeof(uint8_t));
   persistentStore.access_finish();
 }
 
