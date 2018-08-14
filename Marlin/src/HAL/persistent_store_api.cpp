@@ -19,20 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#include "../inc/MarlinConfigPre.h"
 
-#include <stddef.h>
-#include <stdint.h>
+#if ENABLED(EEPROM_SETTINGS)
 
-class PersistentStore {
-public:
-  static bool access_start();
-  static bool access_finish();
-  static bool write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc);
-  static bool read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing=true);
-  static bool write_data(const int pos, uint8_t* value, size_t size);
-  static bool read_data(const int pos, uint8_t* value, size_t size);
-  static const size_t capacity();
-};
+  #include "persistent_store_api.h"
+  PersistentStore persistentStore;
 
-extern PersistentStore persistentStore;
+#endif
