@@ -1852,7 +1852,6 @@ Black rubber belt(MXL), 18 - tooth aluminium pulley : 87.489 step per mm (Huxley
 
 //
 // LCD for Malyan M200 printers.
-// This requires SDSUPPORT to be enabled
 //
 //#define MALYAN_LCD
 
