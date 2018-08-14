@@ -75,10 +75,8 @@ void PrintCounter::initStats() {
 
   saveStats();
 
-  uint16_t crc = 0;
-  int a = address;
   persistentStore.access_start();
-  persistentStore.write_data(a, (uint8_t*)0x16, sizeof(uint8_t), &crc);
+  persistentStore.write_data(address, (uint8_t)0x16);
   persistentStore.access_finish();
 }
 
@@ -88,16 +86,13 @@ void PrintCounter::loadStats() {
   #endif
 
   // Check if the EEPROM block is initialized
-  uint16_t crc = 0;
-  int a = address;
-  uint8_t value;
+  uint8_t value = 0;
   persistentStore.access_start();
-  persistentStore.read_data(a, &value, sizeof(uint8_t), &crc);
-  if (value != 0x16) initStats();
-  else {
-    a = address + sizeof(uint8_t);
-    persistentStore.read_data(a, (uint8_t*)&data, sizeof(printStatistics), &crc);
-  }
+  persistentStore.read_data(address, &value, sizeof(uint8_t));
+  if (value != 0x16)
+    initStats();
+  else
+    persistentStore.read_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
   loaded = true;
 }
@@ -111,10 +106,8 @@ void PrintCounter::saveStats() {
   if (!isLoaded()) return;
 
   // Saves the struct to EEPROM
-  uint16_t crc = 0;
-  int a = (address + sizeof(uint8_t));
   persistentStore.access_start();
-  persistentStore.write_data(a, (uint8_t*)&data, sizeof(printStatistics), &crc);
+  persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
 }
 
