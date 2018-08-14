@@ -292,8 +292,7 @@
   #endif
 
   #define _TMC2208_DEFINE_HARDWARE(ST) TMC2208Stepper stepper##ST(&ST##_HARDWARE_SERIAL)
-  #define _TMC2208_DEFINE_SOFTWARE(ST) SoftwareSerial ST##_HARDWARE_SERIAL = SoftwareSerial(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN); \
-                                       TMC2208Stepper stepper##ST(&ST##_HARDWARE_SERIAL, ST##_SERIAL_RX_PIN > -1)
+  #define _TMC2208_DEFINE_SOFTWARE(ST) TMC2208Stepper stepper##ST(ST##_SERIAL_RX_PIN, ST##_SERIAL_TX_PIN, ST##_SERIAL_RX_PIN > -1)
 
   // Stepper objects of TMC2208 steppers used
   #if AXIS_DRIVER_TYPE(X, TMC2208)
@@ -376,37 +375,81 @@
 
   void tmc2208_serial_begin() {
     #if AXIS_DRIVER_TYPE(X, TMC2208)
-      X_HARDWARE_SERIAL.begin(115200);
+      #ifdef X_HARDWARE_SERIAL
+        X_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperX.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(X2, TMC2208)
-      X2_HARDWARE_SERIAL.begin(115200);
+      #ifdef X2_HARDWARE_SERIAL
+        X2_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperX2.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(Y, TMC2208)
-      Y_HARDWARE_SERIAL.begin(115200);
+      #ifdef Y_HARDWARE_SERIAL
+        Y_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperY.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(Y2, TMC2208)
-      Y2_HARDWARE_SERIAL.begin(115200);
+      #ifdef Y2_HARDWARE_SERIAL
+        Y2_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperY2.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(Z, TMC2208)
-      Z_HARDWARE_SERIAL.begin(115200);
+      #ifdef Z_HARDWARE_SERIAL
+        Z_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperZ.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(Z2, TMC2208)
-      Z2_HARDWARE_SERIAL.begin(115200);
+      #ifdef Z2_HARDWARE_SERIAL
+        Z2_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperZ2.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(E0, TMC2208)
-      E0_HARDWARE_SERIAL.begin(115200);
+      #ifdef E0_HARDWARE_SERIAL
+        E0_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperE0.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(E1, TMC2208)
-      E1_HARDWARE_SERIAL.begin(115200);
+      #ifdef E1_HARDWARE_SERIAL
+        E1_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperE1.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(E2, TMC2208)
-      E2_HARDWARE_SERIAL.begin(115200);
+      #ifdef E2_HARDWARE_SERIAL
+        E2_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperE2.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(E3, TMC2208)
-      E3_HARDWARE_SERIAL.begin(115200);
+      #ifdef E3_HARDWARE_SERIAL
+        E3_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperE3.beginSerial(115200);
+      #endif
     #endif
     #if AXIS_DRIVER_TYPE(E4, TMC2208)
-      E4_HARDWARE_SERIAL.begin(115200);
+      #ifdef E4_HARDWARE_SERIAL
+        E4_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperE4.beginSerial(115200);
+      #endif
     #endif
   }
 
