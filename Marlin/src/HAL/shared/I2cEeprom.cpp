@@ -33,7 +33,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include HAL_PATH(., HAL.h)
+#include HAL_PATH(.., HAL.h)
 #include <Wire.h>
 
 // --------------------------------------------------------------------------
@@ -157,4 +157,3 @@ void eeprom_read_block(void* pos, const void* eeprom_address, size_t n) {
 
 
 #endif // ENABLED(I2C_EEPROM)
-

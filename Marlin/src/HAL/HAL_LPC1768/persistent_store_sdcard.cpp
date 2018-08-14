@@ -26,6 +26,7 @@
 
 #if ENABLED(EEPROM_SETTINGS)
 
+#include "../../inc/MarlinConfig.h"
 #include "persistent_store_api.h"
 
 #if DISABLED(FLASH_EEPROM)
@@ -80,18 +81,18 @@ bool PersistentStore::access_finish() {
 static void debug_rw(const bool write, int &pos, const uint8_t *value, const size_t size, const FRESULT s, const size_t total=0) {
   const char * const rw_str = write ? PSTR("write") : PSTR("read");
   SERIAL_PROTOCOLCHAR(' ');
-  serialprint_PGM(rw_str);
+  serialprintPGM(rw_str);
   SERIAL_PROTOCOLPAIR("_data(", pos);
   SERIAL_PROTOCOLPAIR(",", (int)value);
   SERIAL_PROTOCOLPAIR(",", (int)size);
   SERIAL_PROTOCOLLNPGM(", ...)");
   if (total) {
     SERIAL_PROTOCOLPGM(" f_");
-    serialprint_PGM(rw_str);
+    serialprintPGM(rw_str);
     SERIAL_PROTOCOLPAIR("()=", (int)s);
     SERIAL_PROTOCOLPAIR("\n size=", size);
     SERIAL_PROTOCOLPGM("\n bytes_");
-    serialprint_PGM(write ? PSTR("written=") : PSTR("read="));
+    serialprintPGM(write ? PSTR("written=") : PSTR("read="));
     SERIAL_PROTOCOLLN(total);
   }
   else

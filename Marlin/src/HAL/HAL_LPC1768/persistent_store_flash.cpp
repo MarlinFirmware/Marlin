@@ -41,6 +41,7 @@
 #if ENABLED(EEPROM_SETTINGS)
 
 #include "persistent_store_api.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(FLASH_EEPROM)
 
@@ -50,15 +51,11 @@ extern "C" {
 
 #define SECTOR_START(sector)	((sector < 16) ? (sector * 0x1000) : ((sector - 14) * 0x8000))
 #define EEPROM_SECTOR 29
-#define EEPROM_SIZE (E2END+1)
+#define EEPROM_SIZE (4096)
 #define SECTOR_SIZE (32768)
 #define EEPROM_SLOTS (SECTOR_SIZE/EEPROM_SIZE)
 #define EEPROM_ERASE (0xff)
 #define SLOT_ADDRESS(sector, slot) (((uint8_t *)SECTOR_START(sector)) + slot * EEPROM_SIZE)
-
-#if EEPROM_SIZE != 4096
-  #error "EEPROM_SIZE must match flash write size"
-#endif
 
 static uint8_t ram_eeprom[EEPROM_SIZE];
 static bool eeprom_dirty = false;
@@ -118,7 +115,7 @@ bool PersistentStore::access_finish() {
   return true;
 }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   for (int i = 0; i < size; i++) ram_eeprom[pos + i] = value[i];
   eeprom_dirty = true;
   crc16(crc, value, size);
@@ -126,13 +123,15 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, uint16_t size, 
   return false;  // return true for any error
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   const uint8_t * const buff = writing ? &value[0] : &ram_eeprom[pos];
   if (writing) for (int i = 0; i < size; i++) value[i] = ram_eeprom[pos + i];
   crc16(crc, buff, size);
   pos += size;
   return false;  // return true for any error
 }
+
+size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
 #endif // FLASH_EEPROM
 #endif // EEPROM_SETTINGS
