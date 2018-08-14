@@ -175,7 +175,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   return bytes_read != size;  // return true for any error
 }
 
-const size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
+size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
 #endif // !FLASH_EEPROM
 #endif // EEPROM_SETTINGS

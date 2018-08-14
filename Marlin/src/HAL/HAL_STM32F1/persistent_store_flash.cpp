@@ -101,7 +101,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   return false;
 }
 
-const size_t PersistentStore::capacity() { return E2END + 1; }
+size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS && EEPROM FLASH
 #endif // __STM32F1__

@@ -65,7 +65,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-const size_t PersistentStore::capacity() { return E2END + 1; }
+size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS
 #endif // __MK64FX512__ || __MK66FX1M0__

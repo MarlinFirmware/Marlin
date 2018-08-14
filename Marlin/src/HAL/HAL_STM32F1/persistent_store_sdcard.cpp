@@ -79,7 +79,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   return false;
 }
 
-const size_t PersistentStore::capacity() { return HAL_STM32F1_EEPROM_SIZE; }
+size_t PersistentStore::capacity() { return HAL_STM32F1_EEPROM_SIZE; }
 
 #endif // EEPROM_SETTINGS
 
