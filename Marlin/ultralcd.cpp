@@ -4250,9 +4250,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM_EDIT_CALLBACK(int8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
       MENU_ITEM_EDIT_CALLBACK(int8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
       MENU_ITEM_EDIT_CALLBACK(int8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
-      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)
+      //APA102_LED EDITED
+      #if ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
         MENU_ITEM_EDIT_CALLBACK(int8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
-        #if ENABLED(NEOPIXEL_LED)
+        #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
           MENU_ITEM_EDIT_CALLBACK(int8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
         #endif
       #endif
