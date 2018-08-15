@@ -27,7 +27,7 @@
 #include "unwinder.h"
 #include "unwmemaccess.h"
 
-#include "../../core/serial.h"
+#include "../../../core/serial.h"
 #include <stdarg.h>
 
 // Dump a backtrace entry
