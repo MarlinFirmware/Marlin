@@ -64,6 +64,7 @@
 #define max7219_reg_displayTest 0x0F
 
 void Max7219_init();
+void Max7219_register_setup();
 void Max7219_PutByte(uint8_t data);
 void Max7219_pulse_load();
 
