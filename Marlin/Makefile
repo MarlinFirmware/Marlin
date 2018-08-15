@@ -574,9 +574,8 @@ CSTANDARD = -std=gnu99
 CXXSTANDARD = -std=gnu++11
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall -Wstrict-prototypes
-CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct \
-	-fshort-enums -w -ffunction-sections -fdata-sections \
-	-flto \
+CTUNING = -w -fsigned-char -funsigned-bitfields -fpack-struct \
+	-fshort-enums -ffunction-sections -fdata-sections -flto \
 	-DARDUINO=$(ARDUINO_VERSION)
 ifneq ($(HARDWARE_MOTHERBOARD),)
 CTUNING += -DMOTHERBOARD=${HARDWARE_MOTHERBOARD}
