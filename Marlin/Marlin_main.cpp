@@ -10913,8 +10913,10 @@ inline void gcode_M502() {
    *               rows or columns depending upon rotation)
    */
   inline void gcode_M7219() {
-    if (parser.seen('I'))
+    if (parser.seen('I')) {
       Max7219_Clear();
+      Max7219_register_setup();
+    }
 
     if (parser.seen('F'))
       for (uint8_t x = 0; x < MAX7219_X_LEDS; x++)
