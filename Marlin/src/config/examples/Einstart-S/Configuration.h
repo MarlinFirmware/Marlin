@@ -561,7 +561,7 @@
 
 #define X_STOP_INVERTING true
 #define Y_STOP_INVERTING true
-#define Z_STOP_INVERTING true 
+#define Z_STOP_INVERTING true
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -1795,7 +1795,6 @@
 
 //
 // LCD for Malyan M200 printers.
-// This requires SDSUPPORT to be enabled
 //
 //#define MALYAN_LCD
 

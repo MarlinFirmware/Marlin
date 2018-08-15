@@ -25,7 +25,7 @@
  * Not platform dependent.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(I2C_EEPROM)
 
@@ -33,7 +33,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include HAL_PATH(., HAL.h)
+#include HAL_PATH(.., HAL.h)
 #include <Wire.h>
 
 // --------------------------------------------------------------------------
@@ -157,4 +157,3 @@ void eeprom_read_block(void* pos, const void* eeprom_address, size_t n) {
 
 
 #endif // ENABLED(I2C_EEPROM)
-

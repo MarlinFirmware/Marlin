@@ -31,7 +31,7 @@
 #ifndef MARLIN_DELAY_H
 #define MARLIN_DELAY_H
 
-#include "../core/macros.h"
+#include "../../core/macros.h"
 
 #if defined(__arm__) || defined(__thumb__)
 

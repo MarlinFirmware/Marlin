@@ -93,7 +93,7 @@
 #include "../gcode/queue.h"
 #include "../sd/cardreader.h"
 #include "../Marlin.h"
-#include "../HAL/Delay.h"
+#include "../HAL/shared/Delay.h"
 
 #if MB(ALLIGATOR)
   #include "../feature/dac/dac_dac084s085.h"

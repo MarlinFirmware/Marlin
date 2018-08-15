@@ -25,11 +25,11 @@
  * Not platform dependent.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(SPI_EEPROM)
 
-#include HAL_PATH(., HAL.h)
+#include HAL_PATH(.., HAL.h)
 
 #define CMD_WREN  6   // WREN
 #define CMD_READ  2   // WRITE

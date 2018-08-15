@@ -23,7 +23,7 @@
 #ifndef MATH_32BIT_H
 #define MATH_32BIT_H
 
-#include "../core/macros.h"
+#include "../../core/macros.h"
 
 /**
  * Math helper functions for 32 bit CPUs

@@ -26,7 +26,7 @@
 #include <lpc17xx_pinsel.h>
 
 #include "../../inc/MarlinConfig.h"
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 // Interrupts
 void cli(void) { __disable_irq(); } // Disable

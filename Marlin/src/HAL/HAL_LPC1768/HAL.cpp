@@ -21,7 +21,7 @@
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 HalSerial usb_serial;
 
@@ -125,13 +125,13 @@ bool HAL_adc_finished(void) {
 
 // possible config options if something similar is extended to more platforms.
 #define ADC_USE_MEDIAN_FILTER          // Filter out erroneous readings
-#define ADC_MEDIAN_FILTER_SIZE    (23) // Higher values increase step delay (phase shift),
+#define ADC_MEDIAN_FILTER_SIZE     23  // Higher values increase step delay (phase shift),
                                        // (ADC_MEDIAN_FILTER_SIZE + 1) / 2 sample step delay (12 samples @ 500Hz: 24ms phase shift)
                                        // Memory usage per ADC channel (bytes): (6 * ADC_MEDIAN_FILTER_SIZE) + 16
                                        // 8 * ((6 * 23) + 16 ) = 1232 Bytes for 8 channels
 
 #define ADC_USE_LOWPASS_FILTER         // Filter out high frequency noise
-#define ADC_LOWPASS_K_VALUE       (6)  // Higher values increase rise time
+#define ADC_LOWPASS_K_VALUE         6  // Higher values increase rise time
                                        // Rise time sample delays for 100% signal convergence on full range step
                                        // (1 : 13, 2 : 32, 3 : 67, 4 : 139, 5 : 281, 6 : 565, 7 : 1135, 8 : 2273)
                                        // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
@@ -162,7 +162,7 @@ struct MedianFilter {
       datum = STOPPER + 1;                  // No stoppers allowed.
     }
 
-    if ( (++datpoint - buffer) >= ADC_MEDIAN_FILTER_SIZE) {
+    if ( (++datpoint - buffer) >= (ADC_MEDIAN_FILTER_SIZE)) {
       datpoint = buffer;                    // Increment and wrap data in pointer.
     }
 
@@ -224,9 +224,9 @@ struct MedianFilter {
 
 struct LowpassFilter {
   uint32_t data_delay = 0;
-  uint16_t update(uint16_t value) {
-    data_delay = data_delay - (data_delay >> ADC_LOWPASS_K_VALUE) + value;
-    return (uint16_t)(data_delay >> ADC_LOWPASS_K_VALUE);
+  uint16_t update(const uint16_t value) {
+    data_delay -= (data_delay >> (ADC_LOWPASS_K_VALUE)) - value;
+    return (uint16_t)(data_delay >> (ADC_LOWPASS_K_VALUE));
   }
 };
 
