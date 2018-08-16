@@ -1,3 +1,6 @@
+
+#ifndef __APA102_H__
+#define __APA102_H__
 #include "MarlinConfig.h"
 
 #define APA102_RGB  DOTSTAR_RGB
@@ -25,3 +28,4 @@ void set_apa102_color(const uint32_t color);
 void setup_apa102();
 
 extern Adafruit_DotStar strip;
+#endif //__APA102_H__
