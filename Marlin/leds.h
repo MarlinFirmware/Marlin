@@ -66,8 +66,7 @@ typedef struct LEDColor {
       , uint8_t w=0
       #if ENABLED(NEOPIXEL_LED)
         , uint8_t i=NEOPIXEL_BRIGHTNESS
-      #endif
-      #if ENABLED(APA102_LED)
+      #elif ENABLED(APA102_LED)
         , uint8_t i=APA102_BRIGHTNESS
       #endif
     #endif
