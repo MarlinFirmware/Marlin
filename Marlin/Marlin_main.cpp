@@ -8349,9 +8349,18 @@ inline void gcode_M109() {
           if (red != old_red) {
             old_red = red;
             leds.set_color(
-              MakeLEDColor(red, 0, 255, 0, pixels.getBrightness())
-              #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-                , true
+              MakeLEDColor(red, 0, 255, 0, 
+              #if ENABLED(NEOPIXEL_LED)
+                pixels.getBrightness())
+                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+                  , true
+                #endif
+              #endif
+              #if ENABLED(APA102_LED)
+                strips.getBrightness())
+                #if ENABLED(APA102_IS_SEQUENTIAL)
+                  , true
+                #endif
               #endif
             );
           }
