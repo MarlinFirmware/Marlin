@@ -46,10 +46,7 @@ typedef struct LEDColor {
   uint8_t r, g, b
     #if HAS_WHITE_LED
       , w
-      #if ENABLED(NEOPIXEL_LED)
-        , i
-      #endif
-      #if ENABLED(APA102_LED)
+      #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
         , i
       #endif
     #endif
@@ -57,11 +54,8 @@ typedef struct LEDColor {
   LEDColor() : r(255), g(255), b(255)
     #if HAS_WHITE_LED
       , w(255)
-      #if ENABLED(NEOPIXEL_LED)
+      #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
         , i(NEOPIXEL_BRIGHTNESS)
-      #endif
-      #if ENABLED(APA102_LED)
-        , i(APA102_BRIGHTNESS)
       #endif
     #endif
   {}
@@ -88,8 +82,7 @@ typedef struct LEDColor {
       , w(rgbw[3])
       #if ENABLED(NEOPIXEL_LED)
         , i(NEOPIXEL_BRIGHTNESS)
-      #endif
-      #if ENABLED(APA102_LED)
+      #elif ENABLED(APA102_LED)
         , i(APA102_BRIGHTNESS)
       #endif
     #endif
