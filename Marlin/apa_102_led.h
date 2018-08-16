@@ -17,7 +17,7 @@
   #define APA102_WHITE 0, 0, 0, 255
 #endif
 
-#include <Adafruit_DotStar.h>
+#include "Adafruit_DotStar.h"
 //#include <SPI.h>
 
 void set_indv_apa_color(uint16_t i, const uint32_t color);
