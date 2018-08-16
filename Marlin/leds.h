@@ -54,8 +54,10 @@ typedef struct LEDColor {
   LEDColor() : r(255), g(255), b(255)
     #if HAS_WHITE_LED
       , w(255)
-      #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
+      #if ENABLED(NEOPIXEL_LED)
         , i(NEOPIXEL_BRIGHTNESS)
+      #elif ENABLED(APA102_LED)
+        , i(APA102_BRIGHTNESS)
       #endif
     #endif
   {}
