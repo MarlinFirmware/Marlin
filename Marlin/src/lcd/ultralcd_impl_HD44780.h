@@ -28,7 +28,101 @@
  * These are the most common LCD character displays.
  */
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
 #include "ultralcd_common_HD44780.h"
+=======
+#include "utility.h"
+#include "duration_t.h"
+
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "ubl.h"
+
+  #if ENABLED(ULTIPANEL)
+    #define ULTRA_X_PIXELS_PER_CHAR    5
+    #define ULTRA_Y_PIXELS_PER_CHAR    8
+    #define ULTRA_COLUMNS_FOR_MESH_MAP 7
+    #define ULTRA_ROWS_FOR_MESH_MAP    4
+
+    #define N_USER_CHARS    8
+
+    #define TOP_LEFT      _BV(0)
+    #define TOP_RIGHT     _BV(1)
+    #define LOWER_LEFT    _BV(2)
+    #define LOWER_RIGHT   _BV(3)
+  #endif
+#endif
+
+extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
+
+////////////////////////////////////
+// Setup button and encode mappings for each panel (into 'buttons' variable
+//
+// This is just to map common functions (across different panels) onto the same
+// macro name. The mapping is independent of whether the button is directly connected or
+// via a shift/i2c register.
+
+#if ENABLED(ULTIPANEL)
+
+  //
+  // Setup other button mappings of each panel
+  //
+  #if ENABLED(LCD_I2C_VIKI)
+    #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
+
+    // button and encoder bit positions within 'buttons'
+    #define B_LE (BUTTON_LEFT   << B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
+    #define B_UP (BUTTON_UP     << B_I2C_BTN_OFFSET)
+    #define B_MI (BUTTON_SELECT << B_I2C_BTN_OFFSET)
+    #define B_DW (BUTTON_DOWN   << B_I2C_BTN_OFFSET)
+    #define B_RI (BUTTON_RIGHT  << B_I2C_BTN_OFFSET)
+
+    #undef LCD_CLICKED
+    #if BUTTON_EXISTS(ENC)
+      // the pause/stop/restart button is connected to BTN_ENC when used
+      #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
+      #define LCD_CLICKED (buttons & (B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
+    #else
+      #define LCD_CLICKED (buttons & (B_MI|B_RI))
+    #endif
+
+    // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
+    #define LCD_HAS_SLOW_BUTTONS
+
+  #elif ENABLED(LCD_I2C_PANELOLU2)
+
+    #if !BUTTON_EXISTS(ENC) // Use I2C if not directly connected to a pin
+
+      #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
+
+      #define B_MI (PANELOLU2_ENCODER_C << B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
+
+      #undef LCD_CLICKED
+      #define LCD_CLICKED (buttons & B_MI)
+
+      // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
+      #define LCD_HAS_SLOW_BUTTONS
+
+    #endif
+
+  #elif DISABLED(NEWPANEL) // old style ULTIPANEL
+    // Shift register bits correspond to buttons:
+    #define BL_LE 7   // Left
+    #define BL_UP 6   // Up
+    #define BL_MI 5   // Middle
+    #define BL_DW 4   // Down
+    #define BL_RI 3   // Right
+    #define BL_ST 2   // Red Button
+    #define B_LE (_BV(BL_LE))
+    #define B_UP (_BV(BL_UP))
+    #define B_MI (_BV(BL_MI))
+    #define B_DW (_BV(BL_DW))
+    #define B_RI (_BV(BL_RI))
+    #define B_ST (_BV(BL_ST))
+    #define LCD_CLICKED (buttons & (B_MI|B_ST))
+  #endif
+
+#endif // ULTIPANEL
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
@@ -89,6 +183,10 @@ static void createChar_P(const char c, const byte * const ptr) {
     temp[i] = pgm_read_byte(&ptr[i]);
   lcd.createChar(c, temp);
 }
+
+#define CHARSET_MENU 0
+#define CHARSET_INFO 1
+#define CHARSET_BOOT 2
 
 static void lcd_set_custom_characters(
   #if ENABLED(LCD_PROGRESS_BAR) || ENABLED(SHOW_BOOTSCREEN)
@@ -294,7 +392,10 @@ static void lcd_set_custom_characters(
           #endif
         }
     }
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
 
+=======
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
 }
 
 static void lcd_implementation_init(
@@ -337,6 +438,22 @@ static void lcd_implementation_init(
 }
 
 void lcd_implementation_clear() { lcd.clear(); }
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
+=======
+void lcd_print(const char c) { charset_mapper(c); }
+void lcd_print(const char *str) { while (*str) lcd.print(*str++); }
+void lcd_printPGM(const char *str) { while (const char c = pgm_read_byte(str)) lcd.print(c), ++str; }
+
+void lcd_print_utf(const char *str, uint8_t n=LCD_WIDTH) {
+  char c;
+  while (n && (c = *str)) n -= charset_mapper(c), ++str;
+}
+
+void lcd_printPGM_utf(const char *str, uint8_t n=LCD_WIDTH) {
+  char c;
+  while (n && (c = pgm_read_byte(str))) n -= charset_mapper(c), ++str;
+}
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
@@ -347,6 +464,7 @@ void lcd_implementation_clear() { lcd.clear(); }
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
   void lcd_scroll(const uint8_t col, const uint8_t line, const char* const text, const uint8_t len, const int16_t time) {
     uint8_t slen = utf8_strlen_P(text);
     if (slen < len) {
@@ -355,6 +473,16 @@ void lcd_implementation_clear() { lcd.clear(); }
       lcd_put_u8str_max_P(text, len);
       while (slen < len) {
         lcd_put_wchar(' ');
+=======
+  void lcd_scroll(const int16_t col, const int16_t line, const char* const text, const int16_t len, const int16_t time) {
+    uint8_t slen = utf8_strlen_P(text);
+    if (slen < len) {
+      // Fits into,
+      lcd.setCursor(col, line);
+      lcd_printPGM_utf(text, len);
+      while (slen < len) {
+        lcd.write(' ');
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
         ++slen;
       }
       safe_delay(time);
@@ -365,15 +493,26 @@ void lcd_implementation_clear() { lcd.clear(); }
       for (uint8_t i = 0; i <= slen; i++) {
 
         // Go to the correct place
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
         lcd_moveto(col, line);
 
         // Print the text
         lcd_put_u8str_max_P(p, len);
+=======
+        lcd.setCursor(col, line);
+
+        // Print the text
+        lcd_printPGM_utf(p, len);
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
 
         // Fill with spaces
         uint8_t ix = slen - i;
         while (ix < len) {
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
           lcd_put_wchar(' ');
+=======
+          lcd.write(' ');
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
           ++ix;
         }
 
@@ -389,9 +528,15 @@ void lcd_implementation_clear() { lcd.clear(); }
 
   static void logo_lines(const char* const extra) {
     int16_t indent = (LCD_WIDTH - 8 - utf8_strlen_P(extra)) / 2;
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
     lcd_moveto(indent, 0); lcd_put_wchar('\x00'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x01');
     lcd_moveto(indent, 1);                        lcd_put_u8str_P(PSTR("|Marlin|"));  lcd_put_u8str_P(extra);
     lcd_moveto(indent, 2); lcd_put_wchar('\x02'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x03');
+=======
+    lcd.setCursor(indent, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x01');
+    lcd.setCursor(indent, 1);                    lcd_printPGM(PSTR("|Marlin|"));  lcd_printPGM(extra);
+    lcd.setCursor(indent, 2); lcd.write('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.write('\x03');
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
   }
 
   void lcd_bootscreen() {
@@ -402,9 +547,15 @@ void lcd_implementation_clear() { lcd.clear(); }
 
     #define CENTER_OR_SCROLL(STRING,DELAY) \
       lcd_erase_line(3); \
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
       if (utf8_strlen(STRING) <= LCD_WIDTH) { \
         lcd_moveto((LCD_WIDTH - utf8_strlen_P(PSTR(STRING))) / 2, 3); \
         lcd_put_u8str_P(PSTR(STRING)); \
+=======
+      if (strlen(STRING) <= LCD_WIDTH) { \
+        lcd.setCursor((LCD_WIDTH - utf8_strlen_P(PSTR(STRING))) / 2, 3); \
+        lcd_printPGM_utf(PSTR(STRING)); \
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
         safe_delay(DELAY); \
       } \
       else { \
@@ -476,11 +627,19 @@ void lcd_kill_screen() {
   #if LCD_HEIGHT < 4
     lcd_moveto(0, 2);
   #else
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
     lcd_moveto(0, 2);
     lcd_put_u8str_P(PSTR(MSG_HALTED));
     lcd_moveto(0, 3);
   #endif
   lcd_put_u8str_P(PSTR(MSG_PLEASE_RESET));
+=======
+    lcd.setCursor(0, 2);
+    lcd_printPGM_utf(PSTR(MSG_HALTED));
+    lcd.setCursor(0, 3);
+  #endif
+  lcd_printPGM_utf(PSTR(MSG_PLEASE_RESET));
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
 }
 
 //
@@ -489,6 +648,7 @@ void lcd_kill_screen() {
 // Homed and known, display constantly.
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
   lcd_put_wchar('X' + uint8_t(axis));
   if (blink)
     lcd_put_u8str(value);
@@ -502,6 +662,21 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
         else
       #endif
           lcd_put_u8str(value);
+=======
+  lcd_print('X' + uint8_t(axis));
+  if (blink)
+    lcd.print(value);
+  else {
+    if (!TEST(axis_homed, axis))
+      while (const char c = *value++) lcd_print(c <= '.' ? c : '?');
+    else {
+      #if DISABLED(HOME_AFTER_DEACTIVATE) && DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+        if (!TEST(axis_known_position, axis))
+          lcd_printPGM(axis == Z_AXIS ? PSTR("      ") : PSTR("    "));
+        else
+      #endif
+          lcd.print(value);
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
     }
   }
 }
@@ -613,10 +788,17 @@ static void lcd_implementation_status_screen() {
 
       lcd_moveto(8, 0);
       #if HOTENDS > 1
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
         lcd_put_wchar((char)LCD_STR_THERMOMETER[0]);
         _draw_heater_status(1, -1, blink);
       #else
         lcd_put_wchar((char)LCD_BEDTEMP_CHAR);
+=======
+        lcd.print((char)LCD_STR_THERMOMETER[0]);
+        _draw_heater_status(1, -1, blink);
+      #else
+        lcd.print((char)LCD_BEDTEMP_CHAR);
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
         _draw_heater_status(-1, -1, blink);
       #endif
 
@@ -633,7 +815,11 @@ static void lcd_implementation_status_screen() {
     // Hotend 1 or Bed Temperature
     //
     #if HOTENDS > 1 || HAS_HEATED_BED
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
       lcd_moveto(10, 0);
+=======
+      lcd.setCursor(10, 0);
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
       #if HOTENDS > 1
         _draw_heater_status(1, LCD_STR_THERMOMETER[0], blink);
       #else
@@ -678,7 +864,11 @@ static void lcd_implementation_status_screen() {
 
         #if HOTENDS > 2
           _draw_heater_status(2, LCD_STR_THERMOMETER[0], blink);
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
           lcd_moveto(10, 1);
+=======
+          lcd.setCursor(10, 1);
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
         #endif
 
         _draw_heater_status(-1, (
@@ -687,9 +877,15 @@ static void lcd_implementation_status_screen() {
           #endif
           LCD_BEDTEMP_CHAR
         ), blink);
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
 
       #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
+=======
+
+      #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
+
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
         _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink);
 
         lcd_put_wchar(' ');
@@ -700,11 +896,19 @@ static void lcd_implementation_status_screen() {
 
     #endif // LCD_WIDTH >= 20
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
     lcd_moveto(LCD_WIDTH - 8, 1);
     _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
 
     #if HAS_LEVELING && !HAS_HEATED_BED
       lcd_put_wchar(planner.leveling_active || blink ? '_' : ' ');
+=======
+    lcd.setCursor(LCD_WIDTH - 8, 1);
+    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
+
+    #if HAS_LEVELING && !HAS_HEATED_BED
+      lcd.write(planner.leveling_active || blink ? '_' : ' ');
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
     #endif
 
   #endif // LCD_HEIGHT > 2
@@ -764,16 +968,27 @@ static void lcd_implementation_status_screen() {
     // Show Filament Diameter and Volumetric Multiplier %
     // After allowing lcd_status_message to show for 5 seconds
     if (ELAPSED(millis(), previous_lcd_status_ms + 5000UL)) {
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
       lcd_put_u8str_P(PSTR("Dia "));
       lcd_put_u8str(ftostr12ns(filament_width_meas));
       lcd_put_u8str_P(PSTR(" V"));
       lcd_put_u8str(itostr3(100.0 * (
+=======
+      lcd_printPGM(PSTR("Dia "));
+      lcd.print(ftostr12ns(filament_width_meas));
+      lcd_printPGM(PSTR(" V"));
+      lcd.print(itostr3(100.0 * (
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
           parser.volumetric_enabled
             ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
             : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
         )
       ));
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
       lcd_put_wchar('%');
+=======
+      lcd.write('%');
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
       return;
     }
 
@@ -789,11 +1004,19 @@ static void lcd_implementation_status_screen() {
     if (slen <= LCD_WIDTH) {
 
       // The string isn't scrolling and may not fill the screen
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
       lcd_put_u8str(lcd_status_message);
 
       // Fill the rest with spaces
       while (slen < LCD_WIDTH) {
         lcd_put_wchar(' ');
+=======
+      lcd_print_utf(lcd_status_message);
+
+      // Fill the rest with spaces
+      while (slen < LCD_WIDTH) {
+        lcd.write(' ');
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
         ++slen;
       }
     }
@@ -809,11 +1032,16 @@ static void lcd_implementation_status_screen() {
       // If we have enough characters to display
       if (rlen >= LCD_WIDTH) {
         // The remaining string fills the screen - Print it
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
         lcd_put_u8str_max(stat, LCD_WIDTH);
+=======
+        lcd_print_utf(stat, LCD_WIDTH);
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
       }
       else {
 
         // The remaining string does not completely fill the screen
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
         lcd_put_u8str_max(stat, LCD_WIDTH);               // The string leaves space
         uint8_t chars = LCD_WIDTH - rlen;                 // Amount of space left in characters
 
@@ -822,6 +1050,16 @@ static void lcd_implementation_status_screen() {
           lcd_put_wchar('.');
           if (--chars)
             lcd_put_u8str_max(lcd_status_message, chars); // Print a second copy of the message
+=======
+        lcd_print_utf(stat, LCD_WIDTH);               // The string leaves space
+        uint8_t chars = LCD_WIDTH - rlen;             // Amount of space left in characters
+
+        lcd.write('.');                               // Always at 1+ spaces left, draw a dot
+        if (--chars) {                                // Draw a second dot if there's space
+          lcd.write('.');
+          if (--chars)
+            lcd_print_utf(lcd_status_message, chars); // Print a second copy of the message
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
         }
       }
       if (last_blink != blink) {
@@ -844,11 +1082,19 @@ static void lcd_implementation_status_screen() {
     uint8_t slen = utf8_strlen(lcd_status_message);
 
     // Just print the string to the LCD
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
     lcd_put_u8str_max(lcd_status_message, LCD_WIDTH);
 
     // Fill the rest with spaces if there are missing spaces
     while (slen < LCD_WIDTH) {
       lcd_put_wchar(' ');
+=======
+    lcd_print_utf(lcd_status_message, LCD_WIDTH);
+
+    // Fill the rest with spaces if there are missing spaces
+    while (slen < LCD_WIDTH) {
+      lcd.write(' ');
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
       ++slen;
     }
   #endif
@@ -860,7 +1106,11 @@ static void lcd_implementation_status_screen() {
 
     static void lcd_implementation_hotend_status(const uint8_t row, const uint8_t extruder=active_extruder) {
       if (row < LCD_HEIGHT) {
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
         lcd_moveto(LCD_WIDTH - 9, row);
+=======
+        lcd.setCursor(LCD_WIDTH - 9, row);
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
         _draw_heater_status(extruder, LCD_STR_THERMOMETER[0], lcd_blink());
       }
     }
@@ -873,7 +1123,11 @@ static void lcd_implementation_status_screen() {
     lcd_moveto(0, row);
     if (center && !valstr) {
       int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
       while (--pad >= 0) { lcd_put_wchar(' '); n--; }
+=======
+      while (--pad >= 0) { lcd.write(' '); n--; }
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
     }
     n -= lcd_put_u8str_max_P(pstr, n);
     if (valstr) n -= lcd_put_u8str_max(valstr, n);
@@ -890,6 +1144,7 @@ static void lcd_implementation_status_screen() {
   }
 
   static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
     uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -906,12 +1161,39 @@ static void lcd_implementation_status_screen() {
     lcd_put_wchar(':');
     while (n--) lcd_put_wchar(' ');
     lcd_put_u8str_P(data);
+=======
+    char c;
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
+    lcd.setCursor(0, row);
+    lcd.print(sel ? pre_char : ' ');
+    while ((c = pgm_read_byte(pstr)) && n > 0) {
+      n -= charset_mapper(c);
+      pstr++;
+    }
+    lcd.write(':');
+    while (n--) lcd.write(' ');
+    lcd_print(data);
+  }
+  static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
+    char c;
+    uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
+    lcd.setCursor(0, row);
+    lcd.print(sel ? pre_char : ' ');
+    while ((c = pgm_read_byte(pstr)) && n > 0) {
+      n -= charset_mapper(c);
+      pstr++;
+    }
+    lcd.write(':');
+    while (n--) lcd.write(' ');
+    lcd_printPGM(data);
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
   }
 
   #define DRAWMENU_SETTING_EDIT_GENERIC(_src) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', _src)
   #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   void lcd_implementation_drawedit(const char* pstr, const char* const value=NULL) {
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
     lcd_moveto(1, 1);
     lcd_put_u8str_P(pstr);
     if (value != NULL) {
@@ -921,15 +1203,32 @@ static void lcd_implementation_status_screen() {
       lcd_moveto((LCD_WIDTH - 1) - (len + 1), valrow);                                       // Right-justified, padded by spaces
       lcd_put_wchar(' ');                                                                  // overwrite char if value gets shorter
       lcd_put_u8str(value);
+=======
+    lcd.setCursor(1, 1);
+    lcd_printPGM_utf(pstr);
+    if (value != NULL) {
+      lcd.write(':');
+      const uint8_t valrow = (utf8_strlen_P(pstr) + 1 + utf8_strlen(value) + 1) > (LCD_WIDTH - 2) ? 2 : 1; // Value on the next row if it won't fit
+      lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), valrow);                                  // Right-justified, padded by spaces
+      lcd.write(' ');                                                                                     // overwrite char if value gets shorter
+      lcd_print(value);
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
     }
   }
 
   #if ENABLED(SDSUPPORT)
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
     static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, CardReader &theCard, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
       lcd_moveto(0, row);
       lcd_put_wchar(sel ? '>' : ' ');
+=======
+    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, CardReader& theCard, const uint8_t concat, const char post_char) {
+      UNUSED(pstr);
+      lcd.setCursor(0, row);
+      lcd.print(sel ? '>' : ' ');
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
 
       uint8_t n = LCD_WIDTH - concat;
       const char *outstr = theCard.longest_filename();
@@ -950,6 +1249,7 @@ static void lcd_implementation_status_screen() {
         #else
           theCard.longFilename[n] = '\0'; // cutoff at screen edge
         #endif
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
       }
 
       lcd_moveto(0, row);
@@ -965,6 +1265,25 @@ static void lcd_implementation_status_screen() {
     }
 
     static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, CardReader &theCard) {
+=======
+      }
+
+      char c;
+      while (n && (c = *outstr)) {
+        n -= charset_mapper(c);
+        ++outstr;
+      }
+      while (n) { --n; lcd.write(' '); }
+
+      lcd.print(post_char);
+    }
+
+    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, const char* pstr, CardReader& theCard) {
+      lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, ' ');
+    }
+
+    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, CardReader& theCard) {
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
       lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, LCD_STR_FOLDER[0]);
     }
 
@@ -1131,10 +1450,17 @@ static void lcd_implementation_status_screen() {
          * Show X and Y positions
          */
         _XLABEL(_PLOT_X, 0);
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
         lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
 
         _YLABEL(_LCD_W_POS, 0);
         lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+=======
+        lcd.print(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
+
+        _YLABEL(_LCD_W_POS, 0);
+        lcd.print(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
 
         lcd_moveto(_PLOT_X, 0);
 
@@ -1367,9 +1693,15 @@ static void lcd_implementation_status_screen() {
          * Show all values at right of screen
          */
         _XLABEL(_LCD_W_POS, 1);
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd_impl_HD44780.h
         lcd_put_u8str(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
         _YLABEL(_LCD_W_POS, 2);
         lcd_put_u8str(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+=======
+        lcd.print(ftostr52(LOGICAL_X_POSITION(pgm_read_float(&ubl._mesh_index_to_xpos[x]))));
+        _YLABEL(_LCD_W_POS, 2);
+        lcd.print(ftostr52(LOGICAL_Y_POSITION(pgm_read_float(&ubl._mesh_index_to_ypos[inverted_y]))));
+>>>>>>> 1.1.x:Marlin/ultralcd_impl_HD44780.h
 
         /**
          * Show the location value

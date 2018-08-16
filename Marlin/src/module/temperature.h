@@ -35,13 +35,30 @@
 #endif
 
 #if ENABLED(AUTO_POWER_CONTROL)
+<<<<<<< HEAD:Marlin/src/module/temperature.h
   #include "../feature/power.h"
+=======
+  #include "power.h"
+#endif
+
+#if ENABLED(PID_EXTRUSION_SCALING)
+  #include "stepper.h"
+>>>>>>> 1.1.x:Marlin/temperature.h
 #endif
 
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
 
+<<<<<<< HEAD:Marlin/src/module/temperature.h
+=======
+#define ENABLE_TEMPERATURE_INTERRUPT()  SBI(TIMSK0, OCIE0B)
+#define DISABLE_TEMPERATURE_INTERRUPT() CBI(TIMSK0, OCIE0B)
+#define TEMPERATURE_ISR_ENABLED()      TEST(TIMSK0, OCIE0B)
+
+#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+
+>>>>>>> 1.1.x:Marlin/temperature.h
 #if HOTENDS == 1
   #define HOTEND_INDEX  0
 #else
@@ -99,6 +116,7 @@ enum ADCSensorState : char {
 #define MIN_ADC_ISR_LOOPS 10
 
 #define ACTUAL_ADC_SAMPLES MAX(int(MIN_ADC_ISR_LOOPS), int(SensorsReady))
+<<<<<<< HEAD:Marlin/src/module/temperature.h
 
 #if HAS_PID_HEATING
   #define PID_K2 (1-float(PID_K1))
@@ -109,14 +127,29 @@ enum ADCSensorState : char {
   #define unscalePID_i(i) ( float(i) / PID_dT )
   #define scalePID_d(d)   ( float(d) / PID_dT )
   #define unscalePID_d(d) ( float(d) * PID_dT )
+=======
+
+#if HAS_PID_HEATING
+  #define PID_K2 (1.0f-PID_K1)
+  #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (F_CPU / 64.0f / 256.0f))
+
+  // Apply the scale factors to the PID values
+  #define scalePID_i(i)   ( (i) * float(PID_dT) )
+  #define unscalePID_i(i) ( (i) / float(PID_dT) )
+  #define scalePID_d(d)   ( (d) / float(PID_dT) )
+  #define unscalePID_d(d) ( (d) * float(PID_dT) )
+>>>>>>> 1.1.x:Marlin/temperature.h
 #endif
 
 class Temperature {
 
   public:
 
+<<<<<<< HEAD:Marlin/src/module/temperature.h
     static volatile bool in_temp_isr;
 
+=======
+>>>>>>> 1.1.x:Marlin/temperature.h
     static float current_temperature[HOTENDS];
     static int16_t current_temperature_raw[HOTENDS],
                    target_temperature[HOTENDS];
@@ -192,10 +225,13 @@ class Temperature {
 
   private:
 
+<<<<<<< HEAD:Marlin/src/module/temperature.h
     #if EARLY_WATCHDOG
       static bool inited;   // If temperature controller is running
     #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/temperature.h
     static volatile bool temp_meas_ready;
     static uint16_t raw_temp_value[MAX_EXTRUDERS];
 
@@ -590,11 +626,15 @@ class Temperature {
     #endif // HEATER_IDLE_HANDLER
 
     #if HAS_TEMP_SENSOR
+<<<<<<< HEAD:Marlin/src/module/temperature.h
       static void print_heaterstates(
         #if NUM_SERIAL > 1
           const int8_t port = -1
         #endif
       );
+=======
+      static void print_heaterstates();
+>>>>>>> 1.1.x:Marlin/temperature.h
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
         static uint8_t auto_report_temp_interval;
         static millis_t next_temp_report_ms;

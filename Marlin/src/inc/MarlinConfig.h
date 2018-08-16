@@ -20,6 +20,7 @@
  *
  */
 
+<<<<<<< HEAD:Marlin/src/inc/MarlinConfig.h
 #ifndef _MARLIN_CONFIG_H_
 #define _MARLIN_CONFIG_H_
 
@@ -33,8 +34,32 @@
   #define HardwareSerial_h // trick to disable the standard HWserial
 #endif
 
+=======
+#ifndef MARLIN_CONFIG_H
+#define MARLIN_CONFIG_H
+
+#include "boards.h"
+#include "macros.h"
+#include "Version.h"
+#include "Configuration.h"
+#include "Conditionals_LCD.h"
+#include "drivers.h"
+#include "Configuration_adv.h"
+
+#if USE_MARLINSERIAL
+  #define HardwareSerial_h // trick to disable the standard HWserial
+#endif
+
+#include "types.h"
+#include "HAL.h"
+#include "pins.h"
+>>>>>>> 1.1.x:Marlin/MarlinConfig.h
 #include "Conditionals_post.h"
 #include "SanityCheck.h"
+#include "enum.h"
+#include "language.h"
+#include "utility.h"
+#include "serial.h"
 
 #include HAL_PATH(../HAL, SanityCheck.h)
 

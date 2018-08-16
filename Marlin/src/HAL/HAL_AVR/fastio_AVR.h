@@ -26,11 +26,19 @@
  * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
 
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/fastio_AVR.h
+=======
+#include <stdint.h>
+
+>>>>>>> 1.1.x:Marlin/fastio.h
 #ifndef _FASTIO_ARDUINO_H_
 #define _FASTIO_ARDUINO_H_
 
 #include <avr/io.h>
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/fastio_AVR.h
 #include "../../core/macros.h"
+=======
+>>>>>>> 1.1.x:Marlin/fastio.h
 
 #define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__)  || defined(__AVR_AT90USB647__))
 #define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
@@ -54,6 +62,11 @@
 #else
   #error "No FastIO definition for the selected AVR Board."
 #endif
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/fastio_AVR.h
+=======
+
+#include "macros.h"
+>>>>>>> 1.1.x:Marlin/fastio.h
 
 /**
  * Magic I/O routines

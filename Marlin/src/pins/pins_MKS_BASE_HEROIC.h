@@ -21,7 +21,15 @@
  */
 
 /**
+<<<<<<< HEAD:Marlin/src/pins/pins_MKS_BASE_HEROIC.h
  * MKS BASE with Heroic HR4982 stepper drivers
+=======
+ * Polish
+ *
+ * LCD Menu Messages
+ * See also http://marlinfw.org/docs/development/lcd_language.html
+ *
+>>>>>>> 1.1.x:Marlin/language_pl.h
  */
 
 #include "pins_MKS_BASE_15.h"

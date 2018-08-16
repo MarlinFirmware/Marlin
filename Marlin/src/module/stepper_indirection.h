@@ -49,11 +49,15 @@
 // TMC26X drivers have STEP/DIR on normal pins, but ENABLE via SPI
 #if HAS_DRIVER(TMC26X)
   #include <SPI.h>
+<<<<<<< HEAD:Marlin/src/module/stepper_indirection.h
   #ifdef STM32F7
     #include "../HAL/HAL_STM32F7/TMC2660.h"
   #else
     #include <TMC26XStepper.h>
   #endif
+=======
+  #include <TMC26XStepper.h>
+>>>>>>> 1.1.x:Marlin/stepper_indirection.h
   void tmc26x_init_to_defaults();
 #endif
 

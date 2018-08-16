@@ -104,7 +104,18 @@ class Buzzer {
      * @param duration Duration of the tone in milliseconds
      * @param frequency Frequency of the tone in hertz
      */
+<<<<<<< HEAD:Marlin/src/libs/buzzer.h
     static void tone(const uint16_t duration, const uint16_t frequency=0);
+=======
+    void tone(const uint16_t &duration, const uint16_t &frequency=0) {
+      while (buffer.isFull()) {
+        this->tick();
+        thermalManager.manage_heater();
+      }
+      tone_t tone = { duration, frequency };
+      this->buffer.enqueue(tone);
+    }
+>>>>>>> 1.1.x:Marlin/buzzer.h
 
     /**
      * @brief Tick function

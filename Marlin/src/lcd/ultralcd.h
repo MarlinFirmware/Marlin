@@ -23,6 +23,7 @@
 #ifndef ULTRALCD_H
 #define ULTRALCD_H
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.h
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
@@ -36,15 +37,37 @@
   inline void lcd_update() {}
   inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
 #endif
+=======
+#include "MarlinConfig.h"
+>>>>>>> 1.1.x:Marlin/ultralcd.h
 
-#if ENABLED(ULTRA_LCD)
+#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+  void lcd_init();
+  bool lcd_detected();
+  void lcd_update();
+  void lcd_setalertstatusPGM(const char* message);
+#else
+  inline void lcd_init() {}
+  inline bool lcd_detected() { return true; }
+  inline void lcd_update() {}
+  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
+#endif
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.h
   #include "../Marlin.h"
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #include "../feature/pause.h"
   #endif
 
+=======
+#if ENABLED(ULTRA_LCD)
+
+  #include "Marlin.h"
+
+  int16_t utf8_strlen(const char* s);
+  int16_t utf8_strlen_P(const char* s);
+>>>>>>> 1.1.x:Marlin/ultralcd.h
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatusPGM(const char* message, const int8_t level=0);
@@ -260,11 +283,14 @@
 #define LCD_MESSAGEPGM(x)      lcd_setstatusPGM(PSTR(x))
 #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatusPGM(PSTR(x))
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.h
 // For i2c define BUZZ to use lcd_buzz
 #if ENABLED(LCD_USE_I2C_BUZZER)
   #define BUZZ(d,f) lcd_buzz(d, f)
 #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/ultralcd.h
 #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
   void lcd_reselect_last_file();
 #endif

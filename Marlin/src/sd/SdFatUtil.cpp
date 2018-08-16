@@ -26,10 +26,15 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
+<<<<<<< HEAD:Marlin/src/sd/SdFatUtil.cpp
 
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(SDSUPPORT)
+=======
+#ifndef _SDFATUTIL_H_
+#define _SDFATUTIL_H_
+>>>>>>> 1.1.x:Marlin/SdFatUtil.h
 
 #include "SdFatUtil.h"
 
@@ -47,6 +52,7 @@
 
 #else
 
+<<<<<<< HEAD:Marlin/src/sd/SdFatUtil.cpp
   extern char* __brkval;
   extern char __bss_end;
   int SdFatUtil::FreeRam() {
@@ -57,3 +63,6 @@
 #endif
 
 #endif // SDSUPPORT
+=======
+#endif // _SDFATUTIL_H_
+>>>>>>> 1.1.x:Marlin/SdFatUtil.h

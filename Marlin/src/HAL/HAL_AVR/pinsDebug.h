@@ -20,16 +20,99 @@
  *
  */
 
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/pinsDebug.h
+=======
+bool endstop_monitor_flag = false;
+
+#define NAME_FORMAT "%-35s"   // one place to specify the format of all the sources of names
+                               // "-" left justify, "28" minimum width of name, pad with blanks
+
+#if AVR_ATmega1284_FAMILY
+  #define DIGITAL_PIN_TO_ANALOG_PIN(P) int(analogInputToDigitalPin(0) - (P))
+  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(7) && (P) <= analogInputToDigitalPin(0))
+#else
+  #define DIGITAL_PIN_TO_ANALOG_PIN(P) int((P) - analogInputToDigitalPin(0))
+  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
+#endif
+
+>>>>>>> 1.1.x:Marlin/pinsDebug.h
 /**
  * PWM print routines for Atmel 8 bit AVR CPUs
  */
 
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/pinsDebug.h
 #ifndef _PINSDEBUG_AVR_8_BIT_
 #define _PINSDEBUG_AVR_8_BIT_
 
 #include "../../inc/MarlinConfig.h"
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
+=======
+// first pass - put the name strings into FLASH
+
+#define _ADD_PIN_2(PIN_NAME, ENTRY_NAME) static const char ENTRY_NAME[] PROGMEM = { PIN_NAME };
+#define _ADD_PIN(PIN_NAME, COUNTER) _ADD_PIN_2(PIN_NAME, entry_NAME_##COUNTER)
+#define REPORT_NAME_DIGITAL(COUNTER, NAME) _ADD_PIN(#NAME, COUNTER)
+#define REPORT_NAME_ANALOG(COUNTER, NAME) _ADD_PIN(#NAME, COUNTER)
+
+#include "pinsDebug_list.h"
+#line 51
+
+// manually add pins that have names that are macros which don't play well with these macros
+#if SERIAL_PORT == 0 && (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY)
+  static const char RXD_NAME[] PROGMEM = { "RXD" };
+  static const char TXD_NAME[] PROGMEM = { "TXD" };
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+
+// second pass - create the array
+
+#undef _ADD_PIN_2
+#undef _ADD_PIN
+#undef REPORT_NAME_DIGITAL
+#undef REPORT_NAME_ANALOG
+
+#define _ADD_PIN_2(ENTRY_NAME, NAME, IS_DIGITAL) { ENTRY_NAME, NAME, IS_DIGITAL },
+#define _ADD_PIN(NAME, COUNTER, IS_DIGITAL) _ADD_PIN_2(entry_NAME_##COUNTER, NAME, IS_DIGITAL)
+#define REPORT_NAME_DIGITAL(COUNTER, NAME) _ADD_PIN(NAME, COUNTER, true)
+#define REPORT_NAME_ANALOG(COUNTER, NAME) _ADD_PIN(analogInputToDigitalPin(NAME), COUNTER, false)
+
+typedef struct {
+  const char * const name;
+  pin_t pin;
+  bool is_digital;
+} PinInfo;
+
+const PinInfo pin_array[] PROGMEM = {
+
+  /**
+   *  [pin name]  [pin number]  [is digital or analog]  1 = digital, 0 = analog
+   *  Each entry takes up 6 bytes in FLASH:
+   *     2 byte pointer to location of the name string
+   *     2 bytes containing the pin number
+   *         analog pin numbers were convereted to digital when the array was created
+   *     2 bytes containing the digital/analog bool flag
+   */
+
+  // manually add pins ...
+  #if SERIAL_PORT == 0
+    #if AVR_ATmega2560_FAMILY
+      { RXD_NAME, 0, true },
+      { TXD_NAME, 1, true },
+    #elif AVR_ATmega1284_FAMILY
+      { RXD_NAME, 8, true },
+      { TXD_NAME, 9, true },
+    #endif
+  #endif
+
+  #include "pinsDebug_list.h"
+  #line 102
+
+};
+
+#define AVR_ATmega2560_FAMILY_PLUS_70 (MB(BQ_ZUM_MEGA_3D) || MB(MIGHTYBOARD_REVE) || MB(MINIRAMBO) || MB(SCOOVO_X9H))
+>>>>>>> 1.1.x:Marlin/pinsDebug.h
 
 #if AVR_AT90USB1286_FAMILY
   // Working with Teensyduino extension so need to re-define some things
@@ -382,6 +465,7 @@ static void pwm_details(uint8_t pin) {
       #endif
       SERIAL_CHAR(x);
 
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/pinsDebug.h
       #if AVR_AT90USB1286_FAMILY
         if (pin == 46)
           x = '2';
@@ -390,6 +474,111 @@ static void pwm_details(uint8_t pin) {
         else {
           uint8_t temp = digitalPinToBitMask_DEBUG(pin);
           for (x = '0'; x < '9' && temp != 1; x++) temp >>= 1;
+=======
+// pretty report with PWM info
+inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = false, const char *start_string = "") {
+  uint8_t temp_char;
+  char *name_mem_pointer, buffer[30];   // for the sprintf statements
+  bool found = false, multi_name_pin = false;
+  for (uint8_t x = 0; x < COUNT(pin_array); x++)  {    // scan entire array and report all instances of this pin
+    if (pgm_read_byte(&pin_array[x].pin) == pin) {
+      if (found) multi_name_pin = true;
+      found = true;
+      if (!multi_name_pin) {    // report digitial and analog pin number only on the first time through
+        sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);     // digital pin number
+        SERIAL_ECHO(buffer);
+        print_port(pin);
+        if (IS_ANALOG(pin)) {
+          sprintf_P(buffer, PSTR(" (A%2d)  "), int(pin - analogInputToDigitalPin(0)));    // analog pin number
+          SERIAL_ECHO(buffer);
+        }
+        else SERIAL_ECHO_SP(8);   // add padding if not an analog pin
+      }
+      else {
+        SERIAL_CHAR('.');
+        SERIAL_ECHO_SP(26 + strlen(start_string));  // add padding if not the first instance found
+      }
+      name_mem_pointer = (char*)pgm_read_word(&pin_array[x].name);
+      for (uint8_t y = 0; y < 28; y++) {                   // always print pin name
+        temp_char = pgm_read_byte(name_mem_pointer + y);
+        if (temp_char != 0)
+          SERIAL_CHAR(temp_char);
+        else {
+          for (uint8_t i = 0; i < 28 - y; i++) SERIAL_CHAR(' ');
+          break;
+        }
+      }
+      if (extended) {
+        if (pin_is_protected(pin) && !ignore)
+          SERIAL_ECHOPGM("protected ");
+        else {
+          #if AVR_AT90USB1286_FAMILY //Teensy IDEs don't know about these pins so must use FASTIO
+            if (pin == 46 || pin == 47) {
+              if (pin == 46) {
+                print_input_or_output(GET_OUTPUT(46));
+                SERIAL_PROTOCOL(READ(46));
+              }
+              else if (pin == 47) {
+                print_input_or_output(GET_OUTPUT(47));
+                SERIAL_PROTOCOL(READ(47));
+              }
+            }
+            else
+          #endif
+          {
+            if (!(pgm_read_byte(&pin_array[x].is_digital))) {
+              sprintf_P(buffer, PSTR("Analog in = %5d"), analogRead(pin - analogInputToDigitalPin(0)));
+              SERIAL_ECHO(buffer);
+            }
+            else {
+
+              if (!get_pinMode(pin)) {
+                //pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating - stopped doing this
+                                               // because this could interfere with inductive/capacitive
+                                               // sensors (high impedance voltage divider) and with PT100 amplifier
+                print_input_or_output(false);
+                SERIAL_PROTOCOL(digitalRead_mod(pin));
+              }
+              else if (pwm_status(pin)) {
+                // do nothing
+              }
+              else {
+                print_input_or_output(true);
+                SERIAL_PROTOCOL(digitalRead_mod(pin));
+              }
+            }
+            if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
+          }
+        }
+      }
+      SERIAL_EOL();
+    }  // end of IF
+  } // end of for loop
+
+  if (!found) {
+    sprintf_P(buffer, PSTR("%sPIN: %3d "), start_string, pin);
+    SERIAL_ECHO(buffer);
+    print_port(pin);
+    if (IS_ANALOG(pin)) {
+      sprintf_P(buffer, PSTR(" (A%2d)  "), int(pin - analogInputToDigitalPin(0)));    // analog pin number
+      SERIAL_ECHO(buffer);
+    }
+    else
+      SERIAL_ECHO_SP(8);   // add padding if not an analog pin
+    SERIAL_ECHOPGM("<unused/unknown>");
+    if (extended) {
+      #if AVR_AT90USB1286_FAMILY  //Teensy IDEs don't know about these pins so must use FASTIO
+        if (pin == 46 || pin == 47) {
+          SERIAL_PROTOCOL_SP(12);
+          if (pin == 46) {
+            print_input_or_output(GET_OUTPUT(46));
+            SERIAL_PROTOCOL(READ(46));
+          }
+          else {
+            print_input_or_output(GET_OUTPUT(47));
+            SERIAL_PROTOCOL(READ(47));
+          }
+>>>>>>> 1.1.x:Marlin/pinsDebug.h
         }
       #else
         uint8_t temp = digitalPinToBitMask_DEBUG(pin);

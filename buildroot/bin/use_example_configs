@@ -2,6 +2,7 @@
 
 restore_configs
 
+<<<<<<< HEAD
 cp Marlin/src/config/examples/"$@"/Configuration* Marlin/
 
 if [ -f "Marlin/src/config/examples/$@/_Bootscreen.h" ]; then
@@ -10,4 +11,10 @@ fi
 
 if [ -f "Marlin/src/config/examples/$@/_Statusscreen.h" ]; then
   cp "Marlin/src/config/examples/$@/_Statusscreen.h" Marlin/
+=======
+cp Marlin/example_configurations/"$@"/Configuration* Marlin/
+
+if [ -f "Marlin/example_configurations/$@/_Bootscreen.h" ]; then
+  cp "Marlin/example_configurations/$@/_Bootscreen.h" Marlin/
+>>>>>>> 1.1.x
 fi

@@ -132,7 +132,11 @@ Pull Requests should always be targeted to working branches (e.g., `bugfix-1.1.x
 
 * Use the present tense ("Add feature" not "Added feature").
 * Use the imperative mood ("Move cursor to..." not "Moves cursor to...").
+<<<<<<< HEAD
 * Limit the first line to 72 characters or fewer.
+=======
+* Limit the first line to 72 characters or less.
+>>>>>>> 1.1.x
 * Reference issues and Pull Requests liberally after the first line.
 
 ### C++ Coding Standards

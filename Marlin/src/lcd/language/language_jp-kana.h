@@ -52,7 +52,11 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Xジク ゲンテンフッキ")             // "Home X"
 #define MSG_AUTO_HOME_Y                     _UxGT("Yジク ゲンテンフッキ")             // "Home Y"
 #define MSG_AUTO_HOME_Z                     _UxGT("Zジク ゲンテンフッキ")             // "Home Z"
+<<<<<<< HEAD:Marlin/src/lcd/language/language_jp-kana.h
 #define MSG_TMC_Z_CALIBRATION               _UxGT("Zジク コウセイ")
+=======
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Zジク コウセイ")                 // "Calibrate Z"
+>>>>>>> 1.1.x:Marlin/language_kana_utf8.h
 #define MSG_LEVEL_BED_HOMING                _UxGT("ゲンテンフッキチュウ")              // "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               _UxGT("レベリングカイシ")                // "Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("ツギノソクテイテンヘ")             // "Next Point"
@@ -78,7 +82,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("ジクイドウ")                    // "Move axis"
 #define MSG_BED_LEVELING                    _UxGT("ベッドレベリング")                // "Bed leveling"
 #define MSG_LEVEL_BED                       _UxGT("ベッドレベリング")                // "Level bed"
-#define MSG_MOVING                          _UxGT("イドウチュウ")                   // "Moving..."
+#define MSG_MOVING                          _UxGT("イドウチュウ...")                // "Moving..."
 #define MSG_FREE_XY                         _UxGT("XYジク カイホウ")                // "Free XY"
 #define MSG_MOVE_X                          _UxGT("Xジク イドウ")                  // "Move X"
 #define MSG_MOVE_Y                          _UxGT("Yジク イドウ")                  // "Move Y"
@@ -142,8 +146,13 @@
 #define MSG_STOP_PRINT                      _UxGT("プリントテイシ")                 // "Stop print"
 #define MSG_CARD_MENU                       _UxGT("SDカードカラプリント")            // "Print from SD"
 #define MSG_NO_CARD                         _UxGT("SDカードガアリマセン")            // "No SD card"
+<<<<<<< HEAD:Marlin/src/lcd/language/language_jp-kana.h
 #define MSG_DWELL                           _UxGT("キュウシ")                     // "Sleep..."
 #define MSG_USERWAIT                        _UxGT("シバラクオマチクダサイ")           // "Wait for user..."
+=======
+#define MSG_DWELL                           _UxGT("キュウシ...")                  // "Sleep..."
+#define MSG_USERWAIT                        _UxGT("シバラクオマチクダサイ...")        // "Wait for user..."
+>>>>>>> 1.1.x:Marlin/language_kana_utf8.h
 #define MSG_PRINT_ABORTED                   _UxGT("プリントガチュウシサレマシタ")       // "Print aborted"
 #define MSG_NO_MOVE                         _UxGT("ウゴキマセン")                  // "No move."
 #define MSG_KILLED                          _UxGT("ヒジョウテイシ")                  // "KILLED. "
@@ -182,8 +191,13 @@
 #define MSG_SHORT_DAY                       _UxGT("d")                          // One character only
 #define MSG_SHORT_HOUR                      _UxGT("h")                          // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m")                          // One character only
+<<<<<<< HEAD:Marlin/src/lcd/language/language_jp-kana.h
 #define MSG_HEATING                         _UxGT("カネツチュウ")                   // "Heating..."
 #define MSG_BED_HEATING                     _UxGT("ベッド カネツチュウ")              // "Bed Heating..."
+=======
+#define MSG_HEATING                         _UxGT("カネツチュウ...")                // "Heating..."
+#define MSG_BED_HEATING                     _UxGT("ベッド カネツチュウ...")           // "Bed Heating..."
+>>>>>>> 1.1.x:Marlin/language_kana_utf8.h
 #define MSG_DELTA_CALIBRATE                 _UxGT("デルタ コウセイ")                // "Delta Calibration"
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Xジク コウセイ")                 // "Calibrate X"
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Yジク コウセイ")                 // "Calibrate Y"

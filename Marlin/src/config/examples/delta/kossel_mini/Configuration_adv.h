@@ -32,7 +32,11 @@
  */
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
 #define CONFIGURATION_ADV_H_VERSION 020000
+=======
+#define CONFIGURATION_ADV_H_VERSION 010109
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
 
 // @section temperature
 
@@ -504,7 +508,11 @@
 #endif
 
 //#define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
 #define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8     MKS SBASE: 5
+=======
+#define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
 // Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
 // These correspond to the physical drivers, so be mindful if the order is changed.
 #define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }  //  AZTEEG_X3_PRO
@@ -787,6 +795,7 @@
   //#define MESH_MIN_Y MESH_INSET
   //#define MESH_MAX_X X_BED_SIZE - (MESH_INSET)
   //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
 #endif
 
 /**
@@ -811,6 +820,8 @@
    */
   #define G29_ACTION_ON_RECOVER "probe_rewipe"
   #define G29_ACTION_ON_FAILURE "probe_failed"
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
 #endif
 
 // @section extras
@@ -844,25 +855,39 @@
  *     0 : No delay (Expect at least 10µS since one Stepper ISR must transpire)
  *    20 : Minimum for TMC2xxx drivers
  *   200 : Minimum for A4988 drivers
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
  *   400 : Minimum for A5984 drivers
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
  *   500 : Minimum for LV8729 drivers (guess, no info in datasheet)
  *   650 : Minimum for DRV8825 drivers
  *  1500 : Minimum for TB6600 drivers (guess, no info in datasheet)
  * 15000 : Minimum for TB6560 drivers (guess, no info in datasheet)
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
  *
  * Override the default value based on the driver type set in Configuration.h.
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
  */
 //#define MINIMUM_STEPPER_DIR_DELAY 650
 
 /**
  * Minimum stepper driver pulse width (in µs)
  *   0 : Smallest possible width the MCU can produce, compatible with TMC2xxx drivers
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
  *   1 : Minimum for A4988, A5984, and LV8729 stepper drivers
  *   2 : Minimum for DRV8825 stepper drivers
  *   3 : Minimum for TB6600 stepper drivers
  *  30 : Minimum for TB6560 stepper drivers
  *
  * Override the default value based on the driver type set in Configuration.h.
+=======
+ *   1 : Minimum for A4988 stepper drivers
+ *   1 : Minimum for LV8729 stepper drivers
+ *   2 : Minimum for DRV8825 stepper drivers
+ *   3 : Minimum for TB6600 stepper drivers
+ *  30 : Minimum for TB6560 stepper drivers
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
  */
 //#define MINIMUM_STEPPER_PULSE 2
 
@@ -875,8 +900,11 @@
  *  150000 : Maximum for TB6600 stepper driver
  *  130000 : Maximum for LV8729 stepper driver
  *   15000 : Maximum for TB6560 stepper driver
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
  *
  * Override the default value based on the driver type set in Configuration.h.
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
  */
 //#define MAXIMUM_STEPPER_RATE 250000
 
@@ -1107,8 +1135,13 @@
  * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
  * You may also use software SPI if you wish to use general purpose IO pins.
  *
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
  * The TMC2130Stepper library is required for this stepper driver.
  * https://github.com/teemuatlut/TMC2130Stepper
+=======
+ * You'll also need the TMC2130Stepper Arduino library
+ * (https://github.com/teemuatlut/TMC2130Stepper).
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
  *
  * To use TMC2208 stepper UART-configurable stepper drivers
  * connect #_SERIAL_TX_PIN to the driver side PDN_UART pin with a 1K resistor.
@@ -1116,8 +1149,13 @@
  * to PDN_UART without a resistor.
  * The drivers can also be used with hardware serial.
  *
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
  * The TMC2208Stepper library is required for this stepper driver.
  * https://github.com/teemuatlut/TMC2208Stepper
+=======
+ * You'll also need the TMC2208Stepper Arduino library
+ * (https://github.com/teemuatlut/TMC2208Stepper).
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
  */
 #if HAS_TRINAMIC
 
@@ -1136,6 +1174,7 @@
 
   #define X2_CURRENT         800
   #define X2_MICROSTEPS       16
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
 
   #define Y2_CURRENT         800
   #define Y2_MICROSTEPS       16
@@ -1155,6 +1194,27 @@
   #define E3_CURRENT         800
   #define E3_MICROSTEPS       16
 
+=======
+
+  #define Y2_CURRENT         800
+  #define Y2_MICROSTEPS       16
+
+  #define Z2_CURRENT         800
+  #define Z2_MICROSTEPS       16
+
+  #define E0_CURRENT         800
+  #define E0_MICROSTEPS       16
+
+  #define E1_CURRENT         800
+  #define E1_MICROSTEPS       16
+
+  #define E2_CURRENT         800
+  #define E2_MICROSTEPS       16
+
+  #define E3_CURRENT         800
+  #define E3_MICROSTEPS       16
+
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
   #define E4_CURRENT         800
   #define E4_MICROSTEPS       16
 
@@ -1645,7 +1705,10 @@
   #define MAX7219_NUMBER_UNITS 1   // Number of Max7219 units in chain.
   #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
                                    // connector at:  right=0   bottom=-90  top=90  left=180
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
 
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
   /**
    * Sample debug features
    * If you add more debug displays, be careful to avoid conflicts!
@@ -1672,6 +1735,7 @@
                               // Default behaviour is limited to Z axis only.
 #endif
 
+<<<<<<< HEAD:Marlin/src/config/examples/delta/kossel_mini/Configuration_adv.h
 /**
  * WiFi Support (Espressif ESP32 WiFi)
  */
@@ -1681,6 +1745,8 @@
   #define WIFI_PWD  "Wifi Password"
 #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/delta/generic/Configuration_adv.h
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
 

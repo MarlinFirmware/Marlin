@@ -20,13 +20,18 @@
  *
  */
 
+<<<<<<< HEAD:Marlin/src/feature/twibus.cpp
 #include "../inc/MarlinConfig.h"
+=======
+#include "MarlinConfig.h"
+>>>>>>> 1.1.x:Marlin/twibus.cpp
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
 
 #include "twibus.h"
 
 #include <Wire.h>
+#include "Marlin.h"
 
 TWIBus::TWIBus() {
   #if I2C_SLAVE_ADDRESS == 0

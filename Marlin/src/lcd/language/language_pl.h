@@ -26,9 +26,12 @@
 
 #ifndef LANGUAGE_PL_DOGM_H
 #define LANGUAGE_PL_DOGM_H
+<<<<<<< HEAD:Marlin/src/lcd/language/language_pl.h
 
 #define DISPLAY_CHARSET_ISO10646_PL
 
+=======
+>>>>>>> 1.1.x:Marlin/language_pl-DOGM.h
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")

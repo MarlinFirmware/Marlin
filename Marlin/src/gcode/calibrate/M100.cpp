@@ -55,11 +55,28 @@
  *
  * Initial version by Roxy-3D
  */
+<<<<<<< HEAD:Marlin/src/gcode/calibrate/M100.cpp
 #define M100_FREE_MEMORY_DUMPER     // Enable for the `M100 D` Dump sub-command
 #define M100_FREE_MEMORY_CORRUPTOR  // Enable for the `M100 C` Corrupt sub-command
 
 #define TEST_BYTE ((char) 0xE5)
 
+=======
+
+#include "MarlinConfig.h"
+
+#if ENABLED(M100_FREE_MEMORY_WATCHER)
+
+#define M100_FREE_MEMORY_DUMPER     // Enable for the `M100 D` Dump sub-command
+#define M100_FREE_MEMORY_CORRUPTOR  // Enable for the `M100 C` Corrupt sub-command
+
+#include "Marlin.h"
+#include "parser.h"
+#include "hex_print_routines.h"
+
+#define TEST_BYTE ((char) 0xE5)
+
+>>>>>>> 1.1.x:Marlin/M100_Free_Mem_Chk.cpp
 extern char* __brkval;
 extern size_t  __heap_start, __heap_end, __flp;
 extern char __bss_end;

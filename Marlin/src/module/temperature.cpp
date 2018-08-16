@@ -30,17 +30,28 @@
 #include "../Marlin.h"
 #include "../lcd/ultralcd.h"
 #include "planner.h"
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
 #include "../core/language.h"
 #include "../HAL/Delay.h"
 
 #if ENABLED(HEATER_0_USES_MAX6675)
   #include "../libs/private_spi.h"
+=======
+#include "language.h"
+#include "printcounter.h"
+#include "delay.h"
+#include "endstops.h"
+
+#if ENABLED(HEATER_0_USES_MAX6675)
+  #include "MarlinSPI.h"
+>>>>>>> 1.1.x:Marlin/temperature.cpp
 #endif
 
 #if ENABLED(BABYSTEPPING) || ENABLED(PID_EXTRUSION_SCALING)
   #include "stepper.h"
 #endif
 
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
 #include "printcounter.h"
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -49,6 +60,14 @@
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/emergency_parser.h"
+=======
+#if ENABLED(USE_WATCHDOG)
+  #include "watchdog.h"
+#endif
+
+#if ENABLED(EMERGENCY_PARSER)
+  #include "emergency_parser.h"
+>>>>>>> 1.1.x:Marlin/temperature.cpp
 #endif
 
 #if HOTEND_USES_THERMISTOR
@@ -89,6 +108,7 @@ Temperature thermalManager;
 float Temperature::current_temperature[HOTENDS] = { 0.0 };
 int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
         Temperature::target_temperature[HOTENDS] = { 0 };
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
 
 #if ENABLED(AUTO_POWER_E_FANS)
   int16_t Temperature::autofan_speed[HOTENDS] = { 0 };
@@ -127,6 +147,46 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
   #endif
 #endif // HAS_HEATED_BED
 
+=======
+
+#if ENABLED(AUTO_POWER_E_FANS)
+  int16_t Temperature::autofan_speed[HOTENDS] = { 0 };
+#endif
+
+#if HAS_HEATED_BED
+  float Temperature::current_temperature_bed = 0.0;
+  int16_t Temperature::current_temperature_bed_raw = 0,
+          Temperature::target_temperature_bed = 0;
+  uint8_t Temperature::soft_pwm_amount_bed;
+  #ifdef BED_MINTEMP
+    int16_t Temperature::bed_minttemp_raw = HEATER_BED_RAW_LO_TEMP;
+  #endif
+  #ifdef BED_MAXTEMP
+    int16_t Temperature::bed_maxttemp_raw = HEATER_BED_RAW_HI_TEMP;
+  #endif
+  #if WATCH_THE_BED
+    uint16_t Temperature::watch_target_bed_temp = 0;
+    millis_t Temperature::watch_bed_next_ms = 0;
+  #endif
+  #if ENABLED(PIDTEMPBED)
+    float Temperature::bedKp, Temperature::bedKi, Temperature::bedKd, // Initialized by settings.load()
+          Temperature::temp_iState_bed = { 0 },
+          Temperature::temp_dState_bed = { 0 },
+          Temperature::pTerm_bed,
+          Temperature::iTerm_bed,
+          Temperature::dTerm_bed,
+          Temperature::pid_error_bed;
+  #else
+    millis_t Temperature::next_bed_check_ms;
+  #endif
+  uint16_t Temperature::raw_temp_bed_value = 0;
+  #if HEATER_IDLE_HANDLER
+    millis_t Temperature::bed_idle_timeout_ms = 0;
+    bool Temperature::bed_idle_timeout_exceeded = false;
+  #endif
+#endif // HAS_HEATED_BED
+
+>>>>>>> 1.1.x:Marlin/temperature.cpp
 #if HAS_TEMP_CHAMBER
   float Temperature::current_temperature_chamber = 0.0;
   int16_t Temperature::current_temperature_chamber_raw = 0;
@@ -162,12 +222,15 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
   int16_t Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
 // private:
 
 #if EARLY_WATCHDOG
   bool Temperature::inited = false;
 #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/temperature.cpp
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   uint16_t Temperature::redundant_temperature_raw = 0;
   float Temperature::redundant_temperature = 0.0;
@@ -369,7 +432,11 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
               SERIAL_PROTOCOLPAIR(MSG_T_MIN, min);
               SERIAL_PROTOCOLPAIR(MSG_T_MAX, max);
               if (cycles > 2) {
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
                 Ku = (4.0f * d) / (float(M_PI) * (max - min) * 0.5f);
+=======
+                Ku = (4.0f * d) / (M_PI * (max - min) * 0.5f);
+>>>>>>> 1.1.x:Marlin/temperature.cpp
                 Tu = ((float)(t_low + t_high) * 0.001f);
                 SERIAL_PROTOCOLPAIR(MSG_KU, Ku);
                 SERIAL_PROTOCOLPAIR(MSG_TU, Tu);
@@ -576,7 +643,6 @@ int Temperature::getHeaterPower(const int heater) {
 // Temperature Error Handlers
 //
 void Temperature::_temp_error(const int8_t e, const char * const serial_msg, const char * const lcd_msg) {
-  static bool killed = false;
   if (IsRunning()) {
     SERIAL_ERROR_START();
     serialprintPGM(serial_msg);
@@ -584,6 +650,7 @@ void Temperature::_temp_error(const int8_t e, const char * const serial_msg, con
     if (e >= 0) SERIAL_ERRORLN((int)e); else SERIAL_ERRORLNPGM(MSG_HEATER_BED);
   }
   #if DISABLED(BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE)
+    static bool killed = false;
     if (!killed) {
       Running = false;
       killed = true;
@@ -756,6 +823,7 @@ float Temperature::get_pid_output(const int8_t e) {
  */
 void Temperature::manage_heater() {
 
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
   #if EARLY_WATCHDOG
     // If thermal manager is still not running, make sure to at least reset the watchdog!
     if (!inited) {
@@ -764,6 +832,8 @@ void Temperature::manage_heater() {
     }
   #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/temperature.cpp
   #if ENABLED(PROBING_HEATERS_OFF) && ENABLED(BED_LIMIT_SWITCHING)
     static bool last_pause_state;
   #endif
@@ -1067,7 +1137,11 @@ void Temperature::updateTemperaturesFromRawValues() {
 
   // Convert raw Filament Width to millimeters
   float Temperature::analog2widthFil() {
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
     return current_raw_filwidth * 5.0f * (1.0f / 16383.0f);
+=======
+    return current_raw_filwidth * 5.0f * (1.0f / 16383.0);
+>>>>>>> 1.1.x:Marlin/temperature.cpp
   }
 
   /**
@@ -1102,12 +1176,15 @@ void Temperature::updateTemperaturesFromRawValues() {
  */
 void Temperature::init() {
 
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
   #if EARLY_WATCHDOG
     // Flag that the thermalManager should be running
     if (inited) return;
     inited = true;
   #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/temperature.cpp
   #if MB(RUMBA) && ( \
        ENABLED(HEATER_0_USES_AD595)  || ENABLED(HEATER_1_USES_AD595)  || ENABLED(HEATER_2_USES_AD595)  || ENABLED(HEATER_3_USES_AD595)  || ENABLED(HEATER_4_USES_AD595)  || ENABLED(HEATER_BED_USES_AD595)  || ENABLED(HEATER_CHAMBER_USES_AD595) \
     || ENABLED(HEATER_0_USES_AD8495) || ENABLED(HEATER_1_USES_AD8495) || ENABLED(HEATER_2_USES_AD8495) || ENABLED(HEATER_3_USES_AD8495) || ENABLED(HEATER_4_USES_AD8495) || ENABLED(HEATER_BED_USES_AD8495) || ENABLED(HEATER_CHAMBER_USES_AD8495))
@@ -1139,7 +1216,11 @@ void Temperature::init() {
     OUT_WRITE(HEATER_3_PIN, HEATER_4_INVERTING);
   #endif
   #if HAS_HEATED_BED
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
     OUT_WRITE(HEATER_BED_PIN, HEATER_BED_INVERTING);
+=======
+    SET_OUTPUT(HEATER_BED_PIN);
+>>>>>>> 1.1.x:Marlin/temperature.cpp
   #endif
 
   #if HAS_FAN0
@@ -1355,6 +1436,7 @@ void Temperature::init() {
 #if ENABLED(FAST_PWM_FAN)
 
   void Temperature::setPwmFrequency(const pin_t pin, int val) {
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
     #if defined(ARDUINO) && !defined(ARDUINO_ARCH_SAM)
       val &= 0x07;
       switch (digitalPinToTimer(pin)) {
@@ -1389,6 +1471,40 @@ void Temperature::init() {
         #endif
       }
     #endif
+=======
+    val &= 0x07;
+    switch (digitalPinToTimer(pin)) {
+      #ifdef TCCR0A
+        #if !AVR_AT90USB1286_FAMILY
+          case TIMER0A:
+        #endif
+        case TIMER0B:                           //_SET_CS(0, val);
+                                                  break;
+      #endif
+      #ifdef TCCR1A
+        case TIMER1A: case TIMER1B:             //_SET_CS(1, val);
+                                                  break;
+      #endif
+      #if defined(TCCR2) || defined(TCCR2A)
+        #ifdef TCCR2
+          case TIMER2:
+        #endif
+        #ifdef TCCR2A
+          case TIMER2A: case TIMER2B:
+        #endif
+                                                  _SET_CS(2, val); break;
+      #endif
+      #ifdef TCCR3A
+        case TIMER3A: case TIMER3B: case TIMER3C: _SET_CS(3, val); break;
+      #endif
+      #ifdef TCCR4A
+        case TIMER4A: case TIMER4B: case TIMER4C: _SET_CS(4, val); break;
+      #endif
+      #ifdef TCCR5A
+        case TIMER5A: case TIMER5B: case TIMER5C: _SET_CS(5, val); break;
+      #endif
+    }
+>>>>>>> 1.1.x:Marlin/temperature.cpp
   }
 
 #endif // FAST_PWM_FAN
@@ -1677,6 +1793,167 @@ void Temperature::set_current_temp_raw() {
     current_temperature_chamber_raw = raw_temp_chamber_value;
   #endif
   temp_meas_ready = true;
+}
+
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
+void Temperature::readings_ready() {
+  // Update the raw values if they've been read. Else we could be updating them during reading.
+  if (!temp_meas_ready) set_current_temp_raw();
+
+  // Filament Sensor - can be read any time since IIR filtering is used
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
+  #endif
+
+  ZERO(raw_temp_value);
+
+  #if HAS_HEATED_BED
+    raw_temp_bed_value = 0;
+  #endif
+
+  #if HAS_TEMP_CHAMBER
+    raw_temp_chamber_value = 0;
+  #endif
+
+  #define TEMPDIR(N) ((HEATER_##N##_RAW_LO_TEMP) > (HEATER_##N##_RAW_HI_TEMP) ? -1 : 1)
+
+  int constexpr temp_dir[] = {
+    #if ENABLED(HEATER_0_USES_MAX6675)
+       0
+    #else
+      TEMPDIR(0)
+    #endif
+    #if HOTENDS > 1
+      , TEMPDIR(1)
+      #if HOTENDS > 2
+        , TEMPDIR(2)
+        #if HOTENDS > 3
+          , TEMPDIR(3)
+          #if HOTENDS > 4
+            , TEMPDIR(4)
+          #endif // HOTENDS > 4
+        #endif // HOTENDS > 3
+      #endif // HOTENDS > 2
+    #endif // HOTENDS > 1
+  };
+
+  for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
+    const int16_t tdir = temp_dir[e], rawtemp = current_temperature_raw[e] * tdir;
+    const bool heater_on = 0 <
+      #if ENABLED(PIDTEMP)
+        soft_pwm_amount[e]
+      #else
+        target_temperature[e]
+      #endif
+    ;
+    if (rawtemp > maxttemp_raw[e] * tdir && heater_on) max_temp_error(e);
+    if (rawtemp < minttemp_raw[e] * tdir && !is_preheating(e) && heater_on) {
+      #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+        if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+      #endif
+          min_temp_error(e);
+=======
+#if ENABLED(PINS_DEBUGGING)
+  /**
+   * monitors endstops & Z probe for changes
+   *
+   * If a change is detected then the LED is toggled and
+   * a message is sent out the serial port
+   *
+   * Yes, we could miss a rapid back & forth change but
+   * that won't matter because this is all manual.
+   *
+   */
+  void endstop_monitor() {
+    static uint16_t old_live_state_local = 0;
+    static uint8_t local_LED_status = 0;
+    uint16_t live_state_local = 0;
+    #if HAS_X_MIN
+      if (READ(X_MIN_PIN)) SBI(live_state_local, X_MIN);
+    #endif
+    #if HAS_X_MAX
+      if (READ(X_MAX_PIN)) SBI(live_state_local, X_MAX);
+    #endif
+    #if HAS_Y_MIN
+      if (READ(Y_MIN_PIN)) SBI(live_state_local, Y_MIN);
+    #endif
+    #if HAS_Y_MAX
+      if (READ(Y_MAX_PIN)) SBI(live_state_local, Y_MAX);
+    #endif
+    #if HAS_Z_MIN
+      if (READ(Z_MIN_PIN)) SBI(live_state_local, Z_MIN);
+    #endif
+    #if HAS_Z_MAX
+      if (READ(Z_MAX_PIN)) SBI(live_state_local, Z_MAX);
+    #endif
+    #if HAS_Z_MIN_PROBE_PIN
+      if (READ(Z_MIN_PROBE_PIN)) SBI(live_state_local, Z_MIN_PROBE);
+    #endif
+    #if HAS_Z2_MIN
+      if (READ(Z2_MIN_PIN)) SBI(live_state_local, Z2_MIN);
+    #endif
+    #if HAS_Z2_MAX
+      if (READ(Z2_MAX_PIN)) SBI(live_state_local, Z2_MAX);
+    #endif
+
+    uint16_t endstop_change = live_state_local ^ old_live_state_local;
+
+    if (endstop_change) {
+      #if HAS_X_MIN
+        if (TEST(endstop_change, X_MIN)) SERIAL_PROTOCOLPAIR("  X_MIN:", !!TEST(live_state_local, X_MIN));
+      #endif
+      #if HAS_X_MAX
+        if (TEST(endstop_change, X_MAX)) SERIAL_PROTOCOLPAIR("  X_MAX:", !!TEST(live_state_local, X_MAX));
+      #endif
+      #if HAS_Y_MIN
+        if (TEST(endstop_change, Y_MIN)) SERIAL_PROTOCOLPAIR("  Y_MIN:", !!TEST(live_state_local, Y_MIN));
+      #endif
+      #if HAS_Y_MAX
+        if (TEST(endstop_change, Y_MAX)) SERIAL_PROTOCOLPAIR("  Y_MAX:", !!TEST(live_state_local, Y_MAX));
+      #endif
+      #if HAS_Z_MIN
+        if (TEST(endstop_change, Z_MIN)) SERIAL_PROTOCOLPAIR("  Z_MIN:", !!TEST(live_state_local, Z_MIN));
+      #endif
+      #if HAS_Z_MAX
+        if (TEST(endstop_change, Z_MAX)) SERIAL_PROTOCOLPAIR("  Z_MAX:", !!TEST(live_state_local, Z_MAX));
+      #endif
+      #if HAS_Z_MIN_PROBE_PIN
+        if (TEST(endstop_change, Z_MIN_PROBE)) SERIAL_PROTOCOLPAIR("  PROBE:", !!TEST(live_state_local, Z_MIN_PROBE));
+      #endif
+      #if HAS_Z2_MIN
+        if (TEST(endstop_change, Z2_MIN)) SERIAL_PROTOCOLPAIR("  Z2_MIN:", !!TEST(live_state_local, Z2_MIN));
+      #endif
+      #if HAS_Z2_MAX
+        if (TEST(endstop_change, Z2_MAX)) SERIAL_PROTOCOLPAIR("  Z2_MAX:", !!TEST(live_state_local, Z2_MAX));
+      #endif
+      SERIAL_PROTOCOLPGM("\n\n");
+      analogWrite(LED_PIN, local_LED_status);
+      local_LED_status ^= 255;
+      old_live_state_local = live_state_local;
+>>>>>>> 1.1.x:Marlin/temperature.cpp
+    }
+    #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+      else
+        consecutive_low_temperature_error[e] = 0;
+    #endif
+  }
+
+  #if HAS_HEATED_BED
+    #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
+      #define GEBED <=
+    #else
+      #define GEBED >=
+    #endif
+    const bool bed_on = 0 <
+      #if ENABLED(PIDTEMPBED)
+        soft_pwm_amount_bed
+      #else
+        target_temperature_bed
+      #endif
+    ;
+    if (current_temperature_bed_raw GEBED bed_maxttemp_raw && bed_on) max_temp_error(-1);
+    if (bed_minttemp_raw GEBED current_temperature_bed_raw && bed_on) min_temp_error(-1);
+  #endif
 }
 
 void Temperature::readings_ready() {
@@ -2240,6 +2517,7 @@ void Temperature::isr() {
 
 #if HAS_TEMP_SENSOR
 
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
   #include "../gcode/gcode.h"
 
   static void print_heater_state(const float &c, const float &t
@@ -2250,13 +2528,25 @@ void Temperature::isr() {
       , const int8_t port=-1
     #endif
     , const int8_t e=-3
+=======
+  void print_heater_state(const float &c, const float &t,
+    #if ENABLED(SHOW_TEMP_ADC_VALUES)
+      const float r,
+    #endif
+    const int8_t e=-3
+>>>>>>> 1.1.x:Marlin/temperature.cpp
   ) {
     #if !(HAS_HEATED_BED && HAS_TEMP_HOTEND && HAS_TEMP_CHAMBER) && HOTENDS <= 1
       UNUSED(e);
     #endif
 
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
     SERIAL_PROTOCOLCHAR_P(port, ' ');
     SERIAL_PROTOCOLCHAR_P(port,
+=======
+    SERIAL_PROTOCOLCHAR(' ');
+    SERIAL_PROTOCOLCHAR(
+>>>>>>> 1.1.x:Marlin/temperature.cpp
       #if HAS_TEMP_CHAMBER && HAS_HEATED_BED && HAS_TEMP_HOTEND
         e == -2 ? 'C' : e == -1 ? 'B' : 'T'
       #elif HAS_HEATED_BED && HAS_TEMP_HOTEND
@@ -2268,6 +2558,7 @@ void Temperature::isr() {
       #endif
     );
     #if HOTENDS > 1
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
       if (e >= 0) SERIAL_PROTOCOLCHAR_P(port, '0' + e);
     #endif
     SERIAL_PROTOCOLCHAR_P(port, ':');
@@ -2292,6 +2583,27 @@ void Temperature::isr() {
         #endif
         #if NUM_SERIAL > 1
           , port
+=======
+      if (e >= 0) SERIAL_PROTOCOLCHAR('0' + e);
+    #endif
+    SERIAL_PROTOCOLCHAR(':');
+    SERIAL_PROTOCOL(c);
+    SERIAL_PROTOCOLPAIR(" /" , t);
+    #if ENABLED(SHOW_TEMP_ADC_VALUES)
+      SERIAL_PROTOCOLPAIR(" (", r / OVERSAMPLENR);
+      SERIAL_PROTOCOLCHAR(')');
+    #endif
+    delay(2);
+  }
+
+  extern uint8_t target_extruder;
+
+  void Temperature::print_heaterstates() {
+    #if HAS_TEMP_HOTEND
+      print_heater_state(degHotend(target_extruder), degTargetHotend(target_extruder)
+        #if ENABLED(SHOW_TEMP_ADC_VALUES)
+          , rawHotendTemp(target_extruder)
+>>>>>>> 1.1.x:Marlin/temperature.cpp
         #endif
       );
     #endif
@@ -2300,9 +2612,12 @@ void Temperature::isr() {
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawBedTemp()
         #endif
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
         #if NUM_SERIAL > 1
           , port
         #endif
+=======
+>>>>>>> 1.1.x:Marlin/temperature.cpp
         , -1 // BED
       );
     #endif
@@ -2310,6 +2625,7 @@ void Temperature::isr() {
       print_heater_state(degChamber(), 0
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           , rawChamberTemp()
+<<<<<<< HEAD:Marlin/src/module/temperature.cpp
         #endif
         , -2 // CHAMBER
       );
@@ -2336,6 +2652,31 @@ void Temperature::isr() {
         SERIAL_PROTOCOLPAIR_P(port, " @", e);
         SERIAL_PROTOCOLCHAR_P(port, ':');
         SERIAL_PROTOCOL_P(port, getHeaterPower(e));
+=======
+        #endif
+        , -2 // CHAMBER
+      );
+    #endif
+    #if HOTENDS > 1
+      HOTEND_LOOP() print_heater_state(degHotend(e), degTargetHotend(e)
+        #if ENABLED(SHOW_TEMP_ADC_VALUES)
+          , rawHotendTemp(e)
+        #endif
+        , e
+      );
+    #endif
+    SERIAL_PROTOCOLPGM(" @:");
+    SERIAL_PROTOCOL(getHeaterPower(target_extruder));
+    #if HAS_HEATED_BED
+      SERIAL_PROTOCOLPGM(" B@:");
+      SERIAL_PROTOCOL(getHeaterPower(-1));
+    #endif
+    #if HOTENDS > 1
+      HOTEND_LOOP() {
+        SERIAL_PROTOCOLPAIR(" @", e);
+        SERIAL_PROTOCOLCHAR(':');
+        SERIAL_PROTOCOL(getHeaterPower(e));
+>>>>>>> 1.1.x:Marlin/temperature.cpp
       }
     #endif
   }

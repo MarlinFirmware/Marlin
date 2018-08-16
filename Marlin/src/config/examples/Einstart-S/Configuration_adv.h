@@ -32,7 +32,11 @@
  */
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
 #define CONFIGURATION_ADV_H_VERSION 020000
+=======
+#define CONFIGURATION_ADV_H_VERSION 010109
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 
 // @section temperature
 
@@ -502,7 +506,11 @@
 #endif
 
 //#define DIGIPOT_MCP4018          // Requires library from https://github.com/stawel/SlowSoftI2CMaster
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
 #define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8     MKS SBASE: 5
+=======
+#define DIGIPOT_I2C_NUM_CHANNELS 8 // 5DPRINT: 4     AZTEEG_X3_PRO: 8
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 // Actual motor currents in Amps. The number of entries must match DIGIPOT_I2C_NUM_CHANNELS.
 // These correspond to the physical drivers, so be mindful if the order is changed.
 #define DIGIPOT_I2C_MOTOR_CURRENTS { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 }  //  AZTEEG_X3_PRO
@@ -591,6 +599,13 @@
    * point in the file.
    */
   //#define POWER_LOSS_RECOVERY
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
+=======
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    //#define POWER_LOSS_PIN   44     // Pin to detect power loss
+    //#define POWER_LOSS_STATE HIGH   // State of pin indicating power loss
+  #endif
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 
   /**
    * Sort SD file listings in alphabetical order.
@@ -781,6 +796,7 @@
   //#define MESH_MIN_Y MESH_INSET
   //#define MESH_MAX_X X_BED_SIZE - (MESH_INSET)
   //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
 #endif
 
 /**
@@ -805,6 +821,8 @@
    */
   #define G29_ACTION_ON_RECOVER "probe_rewipe"
   #define G29_ACTION_ON_FAILURE "probe_failed"
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 #endif
 
 // @section extras
@@ -835,6 +853,7 @@
 
 /**
  * Minimum delay after setting the stepper DIR (in ns)
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
  *    0 : No delay (Expect at least 10µS since one Stepper ISR must transpire)
  *   20 : Minimum for TMC2xxx drivers
  *  200 : Minimum for A4988 drivers
@@ -844,16 +863,36 @@
  *15000 : Minimum for TB6560 drivers (guess, no info in datasheet)
  */
 #define MINIMUM_STEPPER_DIR_DELAY 0
+=======
+ *     0 : No delay (Expect at least 10µS since one Stepper ISR must transpire)
+ *    20 : Minimum for TMC2xxx drivers
+ *   200 : Minimum for A4988 drivers
+ *   500 : Minimum for LV8729 drivers (guess, no info in datasheet)
+ *   650 : Minimum for DRV8825 drivers
+ *  1500 : Minimum for TB6600 drivers (guess, no info in datasheet)
+ * 15000 : Minimum for TB6560 drivers (guess, no info in datasheet)
+ */
+//#define MINIMUM_STEPPER_DIR_DELAY 650
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 
 /**
  * Minimum stepper driver pulse width (in µs)
  *   0 : Smallest possible width the MCU can produce, compatible with TMC2xxx drivers
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
  *   1 : Minimum for A4988, A5984, and LV8729 stepper drivers
+=======
+ *   1 : Minimum for A4988 stepper drivers
+ *   1 : Minimum for LV8729 stepper drivers
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
  *   2 : Minimum for DRV8825 stepper drivers
  *   3 : Minimum for TB6600 stepper drivers
  *  30 : Minimum for TB6560 stepper drivers
  */
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
 #define MINIMUM_STEPPER_PULSE 2
+=======
+//#define MINIMUM_STEPPER_PULSE 2
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 
 /**
  * Maximum stepping rate (in Hz) the stepper driver allows
@@ -865,7 +904,11 @@
  *  130000 : Maximum for LV8729 stepper driver
  *   15000 : Maximum for TB6560 stepper driver
  */
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
 #define MAXIMUM_STEPPER_RATE 250000
+=======
+//#define MAXIMUM_STEPPER_RATE 250000
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 
 // @section temperature
 
@@ -900,6 +943,28 @@
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
 #define TX_BUFFER_SIZE 0
+
+// Host Receive Buffer Size
+// Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
+// To use flow control, set this buffer size to at least 1024 bytes.
+// :[0, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+//#define RX_BUFFER_SIZE 1024
+
+#if RX_BUFFER_SIZE >= 1024
+  // Enable to have the controller send XON/XOFF control characters to
+  // the host to signal the RX buffer is becoming full.
+  //#define SERIAL_XON_XOFF
+#endif
+
+#if ENABLED(SDSUPPORT)
+  // Enable this option to collect and display the maximum
+  // RX queue usage after transferring a file to SD.
+  //#define SERIAL_STATS_MAX_RX_QUEUED
+
+  // Enable this option to collect and display the number
+  // of dropped bytes after a file transfer to SD.
+  //#define SERIAL_STATS_DROPPED_RX
+#endif
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
@@ -1033,10 +1098,12 @@
 // @section tmc
 
 /**
- * Enable this section if you have TMC26X motor drivers.
- * You will need to import the TMC26XStepper library into the Arduino IDE for this
- * (https://github.com/trinamic/TMC26XStepper.git)
+ * TMC26X Stepper Driver options
+ *
+ * The TMC26XStepper library is required for this stepper driver.
+ * https://github.com/trinamic/TMC26XStepper
  */
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
 //#define HAVE_TMC26X
 #if ENABLED(HAVE_TMC26X)  // Choose your axes here. This is mandatory!
   //#define X_IS_TMC26X
@@ -1050,6 +1117,9 @@
   //#define E2_IS_TMC26X
   //#define E3_IS_TMC26X
   //#define E4_IS_TMC26X
+=======
+#if HAS_DRIVER(TMC26X)
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 
   #define X_MAX_CURRENT     1000 // in mA
   #define X_SENSE_RESISTOR    91 // in mOhms
@@ -1100,11 +1170,15 @@
 // @section tmc_smart
 
 /**
- * Enable this for SilentStepStick Trinamic TMC2130 SPI-configurable stepper drivers.
+ * To use TMC2130 stepper drivers in SPI mode connect your SPI pins to
+ * the hardware SPI interface on your board and define the required CS pins
+ * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
+ * You may also use software SPI if you wish to use general purpose IO pins.
  *
  * You'll also need the TMC2130Stepper Arduino library
  * (https://github.com/teemuatlut/TMC2130Stepper).
  *
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
  * To use TMC2130 stepper drivers in SPI mode connect your SPI pins to
  * the hardware SPI interface on your board and define the required CS pins
  * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
@@ -1151,6 +1225,18 @@
 #endif
 
 #if ENABLED(HAVE_TMC2130) || ENABLED(HAVE_TMC2208)
+=======
+ * To use TMC2208 stepper UART-configurable stepper drivers
+ * connect #_SERIAL_TX_PIN to the driver side PDN_UART pin with a 1K resistor.
+ * To use the reading capabilities, also connect #_SERIAL_RX_PIN
+ * to PDN_UART without a resistor.
+ * The drivers can also be used with hardware serial.
+ *
+ * You'll also need the TMC2208Stepper Arduino library
+ * (https://github.com/teemuatlut/TMC2208Stepper).
+ */
+#if HAS_TRINAMIC
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 
   #define R_SENSE           0.11  // R_sense resistor for SilentStepStick2130
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
@@ -1167,6 +1253,7 @@
 
   #define X2_CURRENT         800
   #define X2_MICROSTEPS       16
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
 
   #define Y2_CURRENT         800
   #define Y2_MICROSTEPS       16
@@ -1186,6 +1273,27 @@
   #define E3_CURRENT         800
   #define E3_MICROSTEPS       16
 
+=======
+
+  #define Y2_CURRENT         800
+  #define Y2_MICROSTEPS       16
+
+  #define Z2_CURRENT         800
+  #define Z2_MICROSTEPS       16
+
+  #define E0_CURRENT         800
+  #define E0_MICROSTEPS       16
+
+  #define E1_CURRENT         800
+  #define E1_MICROSTEPS       16
+
+  #define E2_CURRENT         800
+  #define E2_MICROSTEPS       16
+
+  #define E3_CURRENT         800
+  #define E3_MICROSTEPS       16
+
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
   #define E4_CURRENT         800
   #define E4_MICROSTEPS       16
 
@@ -1305,25 +1413,12 @@
 // @section L6470
 
 /**
- * Enable this section if you have L6470 motor drivers.
- * You need to import the L6470 library into the Arduino IDE for this.
- * (https://github.com/ameyer/Arduino-L6470)
+ * L6470 Stepper Driver options
+ *
+ * The Arduino-L6470 library is required for this stepper driver.
+ * https://github.com/ameyer/Arduino-L6470
  */
-
-//#define HAVE_L6470DRIVER
-#if ENABLED(HAVE_L6470DRIVER)
-
-  //#define X_IS_L6470
-  //#define X2_IS_L6470
-  //#define Y_IS_L6470
-  //#define Y2_IS_L6470
-  //#define Z_IS_L6470
-  //#define Z2_IS_L6470
-  //#define E0_IS_L6470
-  //#define E1_IS_L6470
-  //#define E2_IS_L6470
-  //#define E3_IS_L6470
-  //#define E4_IS_L6470
+#if HAS_DRIVER(L6470)
 
   #define X_MICROSTEPS      16 // number of microsteps
   #define X_OVERCURRENT   2000 // maxc current in mA. If the current goes over this value, the driver will switch off
@@ -1684,10 +1779,18 @@
   #define MAX7219_DIN_PIN   57
   #define MAX7219_LOAD_PIN  44
 
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
   //#define MAX7219_GCODE       // Add the M7219 G-code to control the LED matrix
   #define MAX7219_INIT_TEST     // Do a test pattern at initialization (Set to 2 for spiral)
   #define MAX7219_ROTATE     0  // Rotate the display clockwise (in multiples of +/- 90°)
 
+=======
+  //#define MAX7219_GCODE          // Add the M7219 G-code to control the LED matrix
+  #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
+  #define MAX7219_NUMBER_UNITS 1   // Number of Max7219 units in chain.
+  #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
+                                   // connector at:  right=0   bottom=-90  top=90  left=180
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
   /**
    * Sample debug features
    * If you add more debug displays, be careful to avoid conflicts!
@@ -1714,6 +1817,7 @@
                               // Default behaviour is limited to Z axis only.
 #endif
 
+<<<<<<< HEAD:Marlin/src/config/examples/Einstart-S/Configuration_adv.h
 /**
  * WiFi Support (Espressif ESP32 WiFi)
  */
@@ -1723,6 +1827,8 @@
   #define WIFI_PWD  "Wifi Password"
 #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/TinyBoy2/Configuration_adv.h
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
 

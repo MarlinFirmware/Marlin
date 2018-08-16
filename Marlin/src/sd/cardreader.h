@@ -55,6 +55,7 @@ public:
       const bool re_sort=false
     #endif
   );
+<<<<<<< HEAD:Marlin/src/sd/cardreader.h
   void getStatus(
     #if NUM_SERIAL > 1
       const int8_t port = -1
@@ -66,6 +67,11 @@ public:
       const int8_t port = -1
     #endif
   );
+=======
+  void getStatus();
+  void printingHasFinished();
+  void printFilename();
+>>>>>>> 1.1.x:Marlin/cardreader.h
 
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
     void printLongPath(char *path
@@ -121,6 +127,7 @@ public:
   FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
 
+<<<<<<< HEAD:Marlin/src/sd/cardreader.h
   #if defined(__STM32F1__) && ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
     FORCE_INLINE int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
     FORCE_INLINE int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
@@ -138,6 +145,11 @@ public:
       #if NUM_SERIAL > 1
         serialport = port;
       #endif
+=======
+  #if ENABLED(AUTO_REPORT_SD_STATUS)
+    void auto_report_sd_status(void);
+    FORCE_INLINE void set_auto_report_interval(uint8_t v) {
+>>>>>>> 1.1.x:Marlin/cardreader.h
       NOMORE(v, 60);
       auto_report_sd_interval = v;
       next_sd_report_ms = millis() + 1000UL * v;
@@ -235,9 +247,12 @@ private:
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static uint8_t auto_report_sd_interval;
     static millis_t next_sd_report_ms;
+<<<<<<< HEAD:Marlin/src/sd/cardreader.h
     #if NUM_SERIAL > 1
       static int8_t serialport;
     #endif
+=======
+>>>>>>> 1.1.x:Marlin/cardreader.h
   #endif
 };
 

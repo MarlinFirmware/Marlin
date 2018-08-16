@@ -300,7 +300,10 @@
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Riscaldamento...")
 #define MSG_COOLING                         _UxGT("Raffreddamento..")
+<<<<<<< HEAD:Marlin/src/lcd/language/language_it.h
 #define MSG_COOLING_COMPLETE                _UxGT("Raff.completato.")
+=======
+>>>>>>> 1.1.x:Marlin/language_it.h
 #define MSG_BED_HEATING                     _UxGT("Risc. piatto...")
 #define MSG_BED_COOLING                     _UxGT("Raffr. piatto...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibraz. Delta")

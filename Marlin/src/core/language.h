@@ -53,9 +53,11 @@
 // el-gr      Greek (Greece)
 // en         English
 // es         Spanish
+// es_utf8    Spanish (UTF8)
 // eu         Basque-Euskera
 // fi         Finnish
 // fr         French
+// fr_utf8    French (UTF8)
 // gl         Galician
 // hr         Croatian
 // it         Italian

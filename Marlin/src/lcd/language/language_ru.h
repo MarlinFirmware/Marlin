@@ -252,6 +252,10 @@
 #define MSG_DWELL                           _UxGT("Сон...")
 #define MSG_USERWAIT                        _UxGT("Продолжить...")
 #define MSG_PRINT_PAUSED                    _UxGT("Печать на паузе")
+<<<<<<< HEAD:Marlin/src/lcd/language/language_ru.h
+=======
+#define MSG_PRINTING                        _UxGT("Печать...")
+>>>>>>> 1.1.x:Marlin/language_ru.h
 #define MSG_PRINT_ABORTED                   _UxGT("Печать отменена")
 #define MSG_NO_MOVE                         _UxGT("Нет движения.")
 #define MSG_KILLED                          _UxGT("УБИТО. ")
@@ -302,7 +306,10 @@
 #define MSG_SHORT_MINUTE                    _UxGT("м") // One character only
 #define MSG_HEATING                         _UxGT("Нагрев...")
 #define MSG_COOLING                         _UxGT("Охлаждение...")
+<<<<<<< HEAD:Marlin/src/lcd/language/language_ru.h
 #define MSG_COOLING_COMPLETE                _UxGT("Охлаждение выполнено")
+=======
+>>>>>>> 1.1.x:Marlin/language_ru.h
 #define MSG_BED_HEATING                     _UxGT("Нагрев стола...")
 #define MSG_BED_COOLING                     _UxGT("Охлаждение стола...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Калибровка Delta")

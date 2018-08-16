@@ -20,26 +20,52 @@
  *
  */
 
+<<<<<<< HEAD:Marlin/src/module/printcounter.cpp
 #include "../inc/MarlinConfig.h"
 
 #if DISABLED(PRINTCOUNTER)
 
 #include "../libs/stopwatch.h"
+=======
+#include "MarlinConfig.h"
+
+#if DISABLED(PRINTCOUNTER)
+
+#include "stopwatch.h"
+>>>>>>> 1.1.x:Marlin/printcounter.cpp
 Stopwatch print_job_timer;      // Global Print Job Timer instance
 
 #else // PRINTCOUNTER
 
 #include "printcounter.h"
+<<<<<<< HEAD:Marlin/src/module/printcounter.cpp
 #include "../Marlin.h"
 
 PrintCounter print_job_timer;   // Global Print Job Timer instance
 
 printStatistics PrintCounter::data;
+=======
+#include "duration_t.h"
+#include "Marlin.h"
+
+PrintCounter print_job_timer;   // Global Print Job Timer instance
+
+#if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM)
+  // round up address to next page boundary (assuming 32 byte pages)
+  #define STATS_EEPROM_ADDRESS 0x40
+#else
+  #define STATS_EEPROM_ADDRESS 0x32
+#endif
+>>>>>>> 1.1.x:Marlin/printcounter.cpp
 
 const PrintCounter::promdress PrintCounter::address = STATS_EEPROM_ADDRESS;
 
 const uint16_t PrintCounter::updateInterval = 10;
 const uint16_t PrintCounter::saveInterval = 3600;
+<<<<<<< HEAD:Marlin/src/module/printcounter.cpp
+=======
+printStatistics PrintCounter::data;
+>>>>>>> 1.1.x:Marlin/printcounter.cpp
 millis_t PrintCounter::lastDuration;
 bool PrintCounter::loaded = false;
 

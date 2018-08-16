@@ -30,6 +30,11 @@
 #ifndef LANGUAGE_CA_H
 #define LANGUAGE_CA_H
 
+<<<<<<< HEAD:Marlin/src/lcd/language/language_ca.h
+=======
+#define MAPPER_C2C3  // because of "ó"
+#define DISPLAY_CHARSET_ISO10646_1
+>>>>>>> 1.1.x:Marlin/language_ca.h
 #define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" preparada.")

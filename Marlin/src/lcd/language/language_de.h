@@ -30,6 +30,11 @@
 #ifndef LANGUAGE_DE_H
 #define LANGUAGE_DE_H
 
+<<<<<<< HEAD:Marlin/src/lcd/language/language_de.h
+=======
+#define MAPPER_C2C3
+#define DISPLAY_CHARSET_ISO10646_1
+>>>>>>> 1.1.x:Marlin/language_de.h
 #define CHARSIZE 2
 
 #define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("ÄäÖöÜüß²³")

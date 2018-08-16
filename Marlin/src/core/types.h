@@ -24,8 +24,18 @@
 #define __TYPES_H__
 
 #include <stdint.h>
+<<<<<<< HEAD:Marlin/src/core/types.h
 #include <string.h>
 
 typedef uint32_t millis_t;
+=======
+
+typedef unsigned long millis_t;
+>>>>>>> 1.1.x:Marlin/types.h
+
+typedef struct {
+  int8_t x_index, y_index;
+  float distance; // When populated, the distance from the search location
+} mesh_index_pair;
 
 #endif

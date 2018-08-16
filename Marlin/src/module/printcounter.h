@@ -23,6 +23,7 @@
 #ifndef PRINTCOUNTER_H
 #define PRINTCOUNTER_H
 
+<<<<<<< HEAD:Marlin/src/module/printcounter.h
 #include "../libs/stopwatch.h"
 #include "../libs/duration_t.h"
 #include "../inc/MarlinConfig.h"
@@ -36,6 +37,15 @@
 #else
   #define STATS_EEPROM_ADDRESS 0x32
 #endif
+=======
+// Print debug messages with M111 S2
+//#define DEBUG_PRINTCOUNTER
+
+#include "macros.h"
+#include "language.h"
+#include "stopwatch.h"
+#include <avr/eeprom.h>
+>>>>>>> 1.1.x:Marlin/printcounter.h
 
 struct printStatistics {    // 16 bytes
   //const uint8_t magic;    // Magic header, it will always be 0x16
@@ -50,7 +60,11 @@ class PrintCounter: public Stopwatch {
   private:
     typedef Stopwatch super;
 
+<<<<<<< HEAD:Marlin/src/module/printcounter.h
     #if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM) || defined(CPU_32_BIT)
+=======
+    #if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM)
+>>>>>>> 1.1.x:Marlin/printcounter.h
       typedef uint32_t promdress;
     #else
       typedef uint16_t promdress;

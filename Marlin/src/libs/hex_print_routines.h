@@ -41,10 +41,13 @@ void print_hex_byte(const uint8_t b);
 void print_hex_word(const uint16_t w);
 void print_hex_address(const void * const w);
 
+<<<<<<< HEAD:Marlin/src/libs/hex_print_routines.h
 #ifdef CPU_32_BIT
   typedef uint32_t ptr_int_t;
 #else
   typedef uint16_t ptr_int_t;
 #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/hex_print_routines.h
 #endif // HEX_PRINT_ROUTINES_H

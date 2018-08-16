@@ -27,6 +27,7 @@
   //#define UBL_DEVEL_DEBUGGING
 
   #include "ubl.h"
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
 
   #include "../../../Marlin.h"
   #include "../../../libs/hex_print_routines.h"
@@ -44,6 +45,17 @@
   #if ENABLED(DUAL_X_CARRIAGE)
     #include "../../../module/tool_change.h"
   #endif
+=======
+  #include "Marlin.h"
+  #include "hex_print_routines.h"
+  #include "configuration_store.h"
+  #include "ultralcd.h"
+  #include "stepper.h"
+  #include "planner.h"
+  #include "parser.h"
+  #include "serial.h"
+  #include "bitmap_flags.h"
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
 
   #include <math.h>
 
@@ -306,7 +318,11 @@
       #if ENABLED(DUAL_X_CARRIAGE)
         if (active_extruder != 0) tool_change(0);
       #endif
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
       if (axis_unhomed_error()) gcode.home_all_axes();
+=======
+      if (axis_unhomed_error()) home_all_axes();
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
     }
 
     // Invalidate Mesh Points. This command is a little bit asymmetrical because
@@ -780,7 +796,11 @@
       wait_for_release();
       while (!is_lcd_clicked()) {
         idle();
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
         gcode.reset_stepper_timeout(); // Keep steppers powered
+=======
+        reset_stepper_timeout(); // Keep steppers powered
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
         if (encoder_diff) {
           do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * multiplier);
           encoder_diff = 0;
@@ -880,9 +900,15 @@
 
         const float z_step = 0.01f;                         // existing behavior: 0.01mm per click, occasionally step
         //const float z_step = planner.steps_to_mm[Z_AXIS]; // approx one step each click
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
 
         move_z_with_encoder(z_step);
 
+=======
+
+        move_z_with_encoder(z_step);
+
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
         if (click_and_hold()) {
           SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
@@ -1228,6 +1254,7 @@
 
     bool found_a_NAN  = false, found_a_real = false;
 
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
     out_mesh.distance = -99999.99f;
@@ -1291,6 +1318,71 @@
   mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const float &rx, const float &ry, const bool probe_as_reference, uint16_t bits[16]) {
     mesh_index_pair out_mesh;
     out_mesh.x_index = out_mesh.y_index = -1;
+=======
+    mesh_index_pair out_mesh;
+    out_mesh.x_index = out_mesh.y_index = -1;
+    out_mesh.distance = -99999.99f;
+
+    for (int8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+      for (int8_t j = 0; j < GRID_MAX_POINTS_Y; j++) {
+
+        if (isnan(z_values[i][j])) { // Check to see if this location holds an invalid mesh point
+
+          const float mx = mesh_index_to_xpos(i),
+                      my = mesh_index_to_ypos(j);
+
+          if (!position_is_reachable_by_probe(mx, my))  // make sure the probe can get to the mesh point
+            continue;
+
+          found_a_NAN = true;
+
+          int8_t closest_x = -1, closest_y = -1;
+          float d1, d2 = 99999.9f;
+          for (int8_t k = 0; k < GRID_MAX_POINTS_X; k++) {
+            for (int8_t l = 0; l < GRID_MAX_POINTS_Y; l++) {
+              if (!isnan(z_values[k][l])) {
+                found_a_real = true;
+
+                // Add in a random weighting factor that scrambles the probing of the
+                // last half of the mesh (when every unprobed mesh point is one index
+                // from a probed location).
+
+                d1 = HYPOT(i - k, j - l) + (1.0f / ((millis() % 47) + 13));
+
+                if (d1 < d2) {    // found a closer distance from invalid mesh point at (i,j) to defined mesh point at (k,l)
+                  d2 = d1;        // found a closer location with
+                  closest_x = i;  // an assigned mesh point value
+                  closest_y = j;
+                }
+              }
+            }
+          }
+
+          //
+          // At this point d2 should have the closest defined mesh point to invalid mesh point (i,j)
+          //
+
+          if (found_a_real && (closest_x >= 0) && (d2 > out_mesh.distance)) {
+            out_mesh.distance = d2;         // found an invalid location with a greater distance
+            out_mesh.x_index = closest_x;   // to a defined mesh point
+            out_mesh.y_index = closest_y;
+          }
+        }
+      } // for j
+    } // for i
+
+    if (!found_a_real && found_a_NAN) {        // if the mesh is totally unpopulated, start the probing
+      out_mesh.x_index = GRID_MAX_POINTS_X / 2;
+      out_mesh.y_index = GRID_MAX_POINTS_Y / 2;
+      out_mesh.distance = 1;
+    }
+    return out_mesh;
+  }
+
+  mesh_index_pair unified_bed_leveling::find_closest_mesh_point_of_type(const MeshPointType type, const float &rx, const float &ry, const bool probe_as_reference, uint16_t bits[16]) {
+    mesh_index_pair out_mesh;
+    out_mesh.x_index = out_mesh.y_index = -1;
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
     out_mesh.distance = -99999.9f;
 
     // Get our reference position. Either the nozzle or probe location.
@@ -1391,9 +1483,15 @@
                     rawy = mesh_index_to_ypos(location.y_index);
 
         if (!position_is_reachable(rawx, rawy)) break;              // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
 
         do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point with probe clearance
 
+=======
+
+        do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point with probe clearance
+
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
         #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
           do_blocking_move_to_z(h_offset);                          // Move Z to the given 'H' offset before editing
         #endif
@@ -1418,9 +1516,15 @@
           idle();
           SERIAL_FLUSH();                                           // Prevent host M105 buffer overrun.
         } while (!is_lcd_clicked());
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
 
         if (!lcd_map_control) lcd_return_to_status();               // Just editing a single point? Return to status
 
+=======
+
+        if (!lcd_map_control) lcd_return_to_status();               // Just editing a single point? Return to status
+
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
         if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
 
         z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
@@ -1502,7 +1606,11 @@
 
   #if HAS_BED_PROBE
 
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
     #include "../../../libs/vector_3.h"
+=======
+    #include "vector_3.h"
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
 
     void unified_bed_leveling::tilt_mesh_based_on_probed_grid(const bool do_3_pt_leveling) {
       constexpr int16_t x_min = MAX(MIN_PROBE_X, MESH_MIN_X),
@@ -1566,12 +1674,70 @@
             incremental_LSF(&lsf_results, PROBE_PT_3_X, PROBE_PT_3_Y, measured_z);
           }
         }
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
 
+=======
+        
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
         STOW_PROBE();
         #ifdef Z_AFTER_PROBING
           move_z_after_probing();
         #endif
+        
+        if (abort_flag) {
+          SERIAL_ECHOPGM("?Error probing point.  Aborting operation.\n");
+          return;
+        }
+      }
+      else { // !do_3_pt_leveling
 
+        bool zig_zag = false;
+        for (uint8_t ix = 0; ix < g29_grid_size; ix++) {
+          const float rx = float(x_min) + ix * dx;
+          for (int8_t iy = 0; iy < g29_grid_size; iy++) {
+            const float ry = float(y_min) + dy * (zig_zag ? g29_grid_size - 1 - iy : iy);
+
+            if (!abort_flag) {
+              measured_z = probe_pt(rx, ry, parser.seen('E') ? PROBE_PT_STOW : PROBE_PT_RAISE, g29_verbose_level); // TODO: Needs error handling
+
+              abort_flag = isnan(measured_z);
+
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                if (DEBUGGING(LEVELING)) {
+                  SERIAL_CHAR('(');
+                  SERIAL_PROTOCOL_F(rx, 7);
+                  SERIAL_CHAR(',');
+                  SERIAL_PROTOCOL_F(ry, 7);
+                  SERIAL_ECHOPGM(")   logical: ");
+                  SERIAL_CHAR('(');
+                  SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 7);
+                  SERIAL_CHAR(',');
+                  SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ry), 7);
+                  SERIAL_ECHOPGM(")   measured: ");
+                  SERIAL_PROTOCOL_F(measured_z, 7);
+                  SERIAL_ECHOPGM("   correction: ");
+                  SERIAL_PROTOCOL_F(get_z_correction(rx, ry), 7);
+                }
+              #endif
+
+              measured_z -= get_z_correction(rx, ry) /* + zprobe_zoffset */ ;
+
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                if (DEBUGGING(LEVELING)) {
+                  SERIAL_ECHOPGM("   final >>>---> ");
+                  SERIAL_PROTOCOL_F(measured_z, 7);
+                  SERIAL_EOL();
+                }
+              #endif
+              if (g29_verbose_level > 3) {
+                serial_spaces(16);
+                SERIAL_ECHOLNPAIR("Corrected_Z=", measured_z);
+              }
+              incremental_LSF(&lsf_results, rx, ry, measured_z);
+            }
+          }
+
+<<<<<<< HEAD:Marlin/src/feature/bedlevel/ubl/ubl_G29.cpp
         if (abort_flag) {
           SERIAL_ECHOPGM("?Error probing point.  Aborting operation.\n");
           return;
@@ -1640,6 +1806,23 @@
 
       vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1).get_normal();
 
+=======
+          zig_zag ^= true;
+        }
+      }
+      STOW_PROBE();
+      #ifdef Z_AFTER_PROBING
+        move_z_after_probing();
+      #endif
+      
+      if (abort_flag || finish_incremental_LSF(&lsf_results)) {
+        SERIAL_ECHOPGM("Could not complete LSF!");
+        return;
+      }
+
+      vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1).get_normal();
+
+>>>>>>> 1.1.x:Marlin/ubl_G29.cpp
       if (g29_verbose_level > 2) {
         SERIAL_ECHOPGM("bed plane normal = [");
         SERIAL_PROTOCOL_F(normal.x, 7);

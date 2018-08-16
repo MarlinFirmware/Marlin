@@ -28,11 +28,17 @@
  * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
  * Modified 01 October 2017 by Eduardo José Tagle (added XON/XOFF)
  */
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/MarlinSerial.h
 
 #ifndef _MARLINSERIAL_H_
 #define _MARLINSERIAL_H_
 
 #include "../../inc/MarlinConfigPre.h"
+=======
+
+#ifndef _MARLINSERIAL_H_
+#define _MARLINSERIAL_H_
+>>>>>>> 1.1.x:Marlin/MarlinSerial.h
 
 #include <WString.h>
 
@@ -80,10 +86,26 @@
 #define BIN 2
 #define BYTE 0
 
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/MarlinSerial.h
 #ifndef USBCON
   // We're using a ring buffer (I think), in which rx_buffer_head is the index of the
   // location to which to write the next incoming character and rx_buffer_tail is the
   // index of the location from which to read.
+=======
+// Define constants and variables for buffering serial data.
+// Use only 0 or powers of 2 greater than 1
+// : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
+#ifndef RX_BUFFER_SIZE
+  #define RX_BUFFER_SIZE 128
+#endif
+// 256 is the max TX buffer limit due to uint8_t head and tail.
+#ifndef TX_BUFFER_SIZE
+  #define TX_BUFFER_SIZE 32
+#endif
+
+#if USE_MARLINSERIAL
+
+>>>>>>> 1.1.x:Marlin/MarlinSerial.h
   #if RX_BUFFER_SIZE > 256
     typedef uint16_t ring_buffer_pos_t;
   #else
@@ -167,10 +189,10 @@
 
   extern MarlinSerial customizedSerial;
 
-#endif // !USBCON
+#endif // USE_MARLINSERIAL
 
 // Use the UART for Bluetooth in AT90USB configurations
-#if defined(USBCON) && ENABLED(BLUETOOTH)
+#if !USE_MARLINSERIAL && ENABLED(BLUETOOTH)
   extern HardwareSerial bluetoothSerial;
 #endif
 

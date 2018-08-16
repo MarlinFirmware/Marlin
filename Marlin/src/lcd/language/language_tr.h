@@ -32,6 +32,13 @@
 
 #define DISPLAY_CHARSET_ISO10646_TR
 #define CHARSIZE 2
+<<<<<<< HEAD:Marlin/src/lcd/language/language_tr.h
+=======
+
+#if DISABLED(DOGLCD)
+  #error "Turkish needs a graphical display."
+#endif
+>>>>>>> 1.1.x:Marlin/language_tr.h
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" hazır.")                               // hazır.
 #define MSG_SD_INSERTED                     _UxGT("SD Yerleşti.")                                       // SD Yerleşti.
@@ -47,7 +54,11 @@
 #define MSG_AUTO_HOME_X                     _UxGT("X Sıfırla")                                          // X Sıfırla
 #define MSG_AUTO_HOME_Y                     _UxGT("Y Sıfırla")                                          // Y Sıfırla
 #define MSG_AUTO_HOME_Z                     _UxGT("Z Sıfırla")                                          // Z Sıfırla
+<<<<<<< HEAD:Marlin/src/lcd/language/language_tr.h
 #define MSG_TMC_Z_CALIBRATION               _UxGT("Ayarla Z")
+=======
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Ayarla Z")                                           // Ayarla Z
+>>>>>>> 1.1.x:Marlin/language_tr.h
 #define MSG_LEVEL_BED_HOMING                _UxGT("XYZ Sıfırlanıyor")                                   // XYZ Sıfırlanıyor
 #define MSG_LEVEL_BED_WAITING               _UxGT("Başlatmak için tıkla")                               // Başlatmak için tıkla
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Sıradaki Nokta")                                     // Sıradaki Nokta

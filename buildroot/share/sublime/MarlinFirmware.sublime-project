@@ -14,9 +14,13 @@
 			"folder_exclude_patterns":
 			[
 				".pio*",
+<<<<<<< HEAD
 				"MarlinFirmware/lib",
 				"Marlin/lib",
 				"src/lib",
+=======
+				"Marlin/lib",
+>>>>>>> 1.1.x
 				"datatmp",
 				"Marlin/*/src",
 				".vscode"

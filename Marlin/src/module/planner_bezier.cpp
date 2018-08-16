@@ -27,13 +27,18 @@
  *
  */
 
+<<<<<<< HEAD:Marlin/src/module/planner_bezier.cpp
 #include "../inc/MarlinConfig.h"
+=======
+#include "MarlinConfig.h"
+>>>>>>> 1.1.x:Marlin/planner_bezier.cpp
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
 
 #include "planner.h"
 #include "motion.h"
 #include "temperature.h"
+#include "Marlin.h"
 
 #include "../Marlin.h"
 #include "../core/language.h"
@@ -45,7 +50,11 @@
 #define SIGMA 0.1f
 
 // Compute the linear interpolation between two real numbers.
+<<<<<<< HEAD:Marlin/src/module/planner_bezier.cpp
 inline static float interp(float a, float b, float t) { return (1 - t) * a + t * b; }
+=======
+inline static float interp(float a, float b, float t) { return (1.0f - t) * a + t * b; }
+>>>>>>> 1.1.x:Marlin/planner_bezier.cpp
 
 /**
  * Compute a Bézier curve using the De Casteljau's algorithm (see

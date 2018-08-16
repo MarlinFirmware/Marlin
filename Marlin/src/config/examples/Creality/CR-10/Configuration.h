@@ -37,7 +37,11 @@
  */
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
 #define CONFIGURATION_H_VERSION 020000
+=======
+#define CONFIGURATION_H_VERSION 010109
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -566,11 +570,19 @@
  * The options are used to determine driver pulse timings as well as more advanced functionality.
  * Stepper timing options can be overridden in Configuration_adv.h
  *
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
  * Options: A4988, A5984, DRV8825, LV8729, L6470, TB6560, TB6600, TMC2100,
  *          TMC2130, TMC2130_STANDALONE, TMC2208, TMC2208_STANDALONE,
  *          TMC26X,  TMC26X_STANDALONE,  TMC2660, TMC2660_STANDALONE,
  *          TMC5130, TMC5130_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE']
+=======
+ * Options: A4988, DRV8825, LV8729, L6470, TB6560, TB6600, TMC2100,
+ *          TMC2130, TMC2130_STANDALONE, TMC2208, TMC2208_STANDALONE,
+ *          TMC26X,  TMC26X_STANDALONE,  TMC2660, TMC2660_STANDALONE,
+ *          TMC5130, TMC5130_STANDALONE
+ * :['A4988', 'DRV8825', 'LV8729', 'L6470', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE']
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
  */
 #define X_DRIVER_TYPE  A4988
 #define Y_DRIVER_TYPE  A4988
@@ -954,7 +966,10 @@
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
 
@@ -1410,10 +1425,18 @@
  *
  * Select the language to display on the LCD. These languages are available:
  *
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
  *    en, an, bg, ca, cz, de, el, el-gr, es, eu, fi, fr, gl, hr, it,
  *    jp-kana, nl, pl, pt, pt-br, ru, sk, tr, uk, zh_CN, zh_TW, test
  *
  * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'jp-kana':'Japanese', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
+=======
+ *    en, an, bg, ca, cn, cz, cz_utf8, de, el, el-gr, es, es_utf8,
+ *    eu, fi, fr, fr_utf8, gl, hr, it, kana, kana_utf8, nl, pl, pt,
+ *    pt_utf8, pt-br, pt-br_utf8, ru, sk_utf8, tr, uk, zh_CN, zh_TW, test
+ *
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cn':'Chinese', 'cz':'Czech', 'cz_utf8':'Czech (UTF8)', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'es_utf8':'Spanish (UTF8)', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'fr_utf8':'French (UTF8)', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'kana':'Japanese', 'kana_utf8':'Japanese (UTF8)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'pt-br_utf8':'Portuguese (Brazilian UTF8)', 'pt_utf8':'Portuguese (UTF8)', 'ru':'Russian', 'sk_utf8':'Slovak (UTF8)', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Taiwan)', 'test':'TEST' }
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
  */
 #define LCD_LANGUAGE en
 
@@ -1548,6 +1571,7 @@
 //
 // RepRapDiscount Smart Controller.
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
 //
 // Note: Usually sold with a white PCB.
 //
@@ -1558,6 +1582,12 @@
 // http://doku.radds.org/dokumentation/lcd-display/
 //
 //#define RADDS_DISPLAY
+=======
+//
+// Note: Usually sold with a white PCB.
+//
+//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
 
 //
 // ULTIMAKER Controller.
@@ -1578,6 +1608,7 @@
 //
 // GADGETS3D G3D LCD/SD Controller
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
 //
 // Note: Usually sold with a blue PCB.
 //
@@ -1623,6 +1654,8 @@
 //
 // Elefu RA Board Control Panel
 // http://www.elefu.com/index.php?route=product/product&product_id=53
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
 //
 //#define RA_CONTROL_PANEL
 
@@ -1659,6 +1692,175 @@
 //#define LCD_I2C_VIKI
 
 //
+// CONTROLLER TYPE: Shift register panels
+//
+
+//
+// 2 wire Non-latching LCD SR from https://goo.gl/aJJ4sH
+// LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
+//
+//#define SAV_3DLCD
+
+//=============================================================================
+//=======================   LCD / Controller Selection  =======================
+//=========================      (Graphical LCDs)      ========================
+//=============================================================================
+
+//
+// CONTROLLER TYPE: Graphical 128x64 (DOGM)
+//
+// IMPORTANT: The U8glib library is required for Graphical Display!
+//            https://github.com/olikraus/U8glib_Arduino
+//
+
+//
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
+// RepRapDiscount FULL GRAPHIC Smart Controller
+// http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
+//
+//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+
+//
+// ReprapWorld Graphical LCD
+// https://reprapworld.com/?products_details&products_id/1218
+//
+//#define REPRAPWORLD_GRAPHICAL_LCD
+
+//
+// Activate one of these if you have a Panucatt Devices
+// Viki 2.0 or mini Viki with Graphic LCD
+// http://panucatt.com
+//
+//#define VIKI2
+//#define miniVIKI
+
+//
+// MakerLab Mini Panel with graphic
+// controller and SD support - http://reprap.org/wiki/Mini_panel
+//
+//#define MINIPANEL
+
+//
+// MaKr3d Makr-Panel with graphic controller and SD support.
+// http://reprap.org/wiki/MaKr3d_MaKrPanel
+//
+//#define MAKRPANEL
+
+//
+// Adafruit ST7565 Full Graphic Controller.
+// https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
+=======
+// RigidBot Panel V1.0
+// http://www.inventapart.com/
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
+//
+//#define ELB_FULL_GRAPHIC_CONTROLLER
+
+//
+// Makeboard 3D Printer Parts 3D Printer Mini Display 1602 Mini Controller
+// https://www.aliexpress.com/item/Micromake-Makeboard-3D-Printer-Parts-3D-Printer-Mini-Display-1602-Mini-Controller-Compatible-with-Ramps-1/32765887917.html
+//
+//#define MAKEBOARD_MINI_2_LINE_DISPLAY_1602
+
+//
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
+// LCD for Melzi Card with Graphical LCD
+=======
+// ANET and Tronxy 20x4 Controller
+//
+//#define ZONESTAR_LCD            // Requires ADC_KEYPAD_PIN to be assigned to an analog pin.
+                                  // This LCD is known to be susceptible to electrical interference
+                                  // which scrambles the display.  Pressing any button clears it up.
+                                  // This is a LCD2004 display with 5 analog buttons.
+
+//
+// Generic 16x2, 16x4, 20x2, or 20x4 character-based LCD.
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
+//
+//#define ULTRA_LCD
+
+//=============================================================================
+//======================== LCD / Controller Selection =========================
+//=====================   (I2C and Shift-Register LCDs)   =====================
+//=============================================================================
+
+//
+// SSD1306 OLED full graphics generic display
+//
+//#define U8GLIB_SSD1306
+
+//
+// SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
+//
+//#define SAV_3DGLCD
+#if ENABLED(SAV_3DGLCD)
+  //#define U8GLIB_SSD1306
+  #define U8GLIB_SH1106
+#endif
+
+//
+// Original Ulticontroller from Ultimaker 2 printer with SSD1309 I2C display and encoder
+// https://github.com/Ultimaker/Ultimaker2/tree/master/1249_Ulticontroller_Board_(x1)
+//
+//#define ULTI_CONTROLLER
+
+//
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
+// TinyBoy2 128x64 OLED / Encoder Panel
+//
+//#define OLED_PANEL_TINYBOY2
+
+//
+// MKS MINI12864 with graphic controller and SD support
+// http://reprap.org/wiki/MKS_MINI_12864
+//
+//#define MKS_MINI_12864
+=======
+// Sainsmart (YwRobot) LCD Displays
+//
+// These require F.Malpartida's LiquidCrystal_I2C library
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home
+//
+//#define LCD_SAINSMART_I2C_1602
+//#define LCD_SAINSMART_I2C_2004
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
+
+//
+// Factory display for Creality CR-10
+// https://www.aliexpress.com/item/Universal-LCD-12864-3D-Printer-Display-Screen-With-Encoder-For-CR-10-CR-7-Model/32833148327.html
+//
+// This is RAMPS-compatible using a single 10-pin connector.
+// (For CR-10 owners who want to replace the Melzi Creality board but retain the display)
+//
+#define CR10_STOCKDISPLAY
+
+//
+// ANET and Tronxy Graphical Controller
+//
+//#define ANET_FULL_GRAPHICS_LCD  // Anet 128x64 full graphics lcd with rotary encoder as used on Anet A6
+                                  // A clone of the RepRapDiscount full graphics display but with
+                                  // different pins/wiring (see pins_ANET_10.h).
+
+//
+// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER
+// http://reprap.org/wiki/MKS_12864OLED
+//
+// Tiny, but very sharp OLED display
+//
+//#define MKS_12864OLED          // Uses the SH1106 controller (default)
+//#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
+
+//
+// AZSMZ 12864 LCD with SD
+// https://www.aliexpress.com/store/product/3D-printer-smart-controller-SMART-RAMPS-OR-RAMPS-1-4-LCD-12864-LCD-control-panel-green/2179173_32213636460.html
+//
+//#define AZSMZ_12864
+
+//
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
+// Silvergate GLCD controller
+// http://github.com/android444/Silvergate
+=======
 // CONTROLLER TYPE: Shift register panels
 //
 
@@ -1737,28 +1939,44 @@
 
 //
 // SSD1306 OLED full graphics generic display
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
 //
-//#define U8GLIB_SSD1306
+//#define SILVER_GATE_GLCD_CONTROLLER
+
+//=============================================================================
+//============================  Other Controllers  ============================
+//=============================================================================
 
 //
-// SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
+// CONTROLLER TYPE: Standalone / Serial
 //
-//#define SAV_3DGLCD
-#if ENABLED(SAV_3DGLCD)
-  //#define U8GLIB_SSD1306
-  #define U8GLIB_SH1106
-#endif
 
 //
+<<<<<<< HEAD:Marlin/src/config/examples/Creality/CR-10/Configuration.h
+// LCD for Malyan M200 printers.
+// This requires SDSUPPORT to be enabled
+//
+//#define MALYAN_LCD
+
+//
+// CONTROLLER TYPE: Keypad / Add-on
+//
+=======
 // Original Ulticontroller from Ultimaker 2 printer with SSD1309 I2C display and encoder
 // https://github.com/Ultimaker/Ultimaker2/tree/master/1249_Ulticontroller_Board_(x1)
 //
 //#define ULTI_CONTROLLER
+>>>>>>> 1.1.x:Marlin/example_configurations/Creality/CR-10/Configuration.h
 
 //
-// TinyBoy2 128x64 OLED / Encoder Panel
+// RepRapWorld REPRAPWORLD_KEYPAD v1.1
+// http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
 //
-//#define OLED_PANEL_TINYBOY2
+// REPRAPWORLD_KEYPAD_MOVE_STEP sets how much should the robot move when a key
+// is pressed, a value of 10.0 means 10mm per click.
+//
+//#define REPRAPWORLD_KEYPAD
+//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
 
 //
 // MKS MINI12864 with graphic controller and SD support
@@ -1790,12 +2008,6 @@
 //
 //#define MKS_12864OLED          // Uses the SH1106 controller (default)
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
-
-//
-// AZSMZ 12864 LCD with SD
-// https://www.aliexpress.com/store/product/3D-printer-smart-controller-SMART-RAMPS-OR-RAMPS-1-4-LCD-12864-LCD-control-panel-green/2179173_32213636460.html
-//
-//#define AZSMZ_12864
 
 //
 // Silvergate GLCD controller

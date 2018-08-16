@@ -30,8 +30,11 @@
 #ifndef LANGUAGE_ZH_CN_H
 #define LANGUAGE_ZH_CN_H
 
+<<<<<<< HEAD:Marlin/src/lcd/language/language_zh_CN.h
 //#define TALL_FONT_CORRECTION (1)
 
+=======
+>>>>>>> 1.1.x:Marlin/language_zh_CN.h
 #define CHARSIZE 3
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT("已就绪.")  //" ready."
@@ -48,7 +51,11 @@
 #define MSG_AUTO_HOME_X                     _UxGT("回X原位")  //"Home X"
 #define MSG_AUTO_HOME_Y                     _UxGT("回Y原位")  //"Home Y"
 #define MSG_AUTO_HOME_Z                     _UxGT("回Z原位")  //"Home Z"
+<<<<<<< HEAD:Marlin/src/lcd/language/language_zh_CN.h
 #define MSG_TMC_Z_CALIBRATION               _UxGT("⊿校准Z")
+=======
+#define MSG_TMC_Z_CALIBRATION               _UxGT("⊿校准Z")  //"Calibrate Z"
+>>>>>>> 1.1.x:Marlin/language_zh_CN.h
 #define MSG_LEVEL_BED_HOMING                _UxGT("平台调平XYZ归原位")  //"Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               _UxGT("单击开始热床调平")  //"Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("下个热床调平点")  //"Next Point"
@@ -298,7 +305,11 @@
 #define MSG_SHORT_HOUR                      _UxGT("时")  //"h" // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("分")  //"m" // One character only
 #define MSG_HEATING                         _UxGT("加热中 ...")  //"Heating..."
+<<<<<<< HEAD:Marlin/src/lcd/language/language_zh_CN.h
 #define MSG_BED_HEATING                     _UxGT("加热热床中 ...")  //"Bed Heating..."
+=======
+#define MSG_BED_HEATING                     _UxGT("加热热床中...")  //"Bed Heating..."
+>>>>>>> 1.1.x:Marlin/language_zh_CN.h
 #define MSG_DELTA_CALIBRATE                 _UxGT("⊿校准")  //"Delta Calibration"
 #define MSG_DELTA_CALIBRATE_X               _UxGT("⊿校准X")  //"Calibrate X"
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("⊿校准Y")  //"Calibrate Y"

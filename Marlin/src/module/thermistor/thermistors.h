@@ -26,7 +26,11 @@
 #include "../../inc/MarlinConfig.h"
 
 #define OVERSAMPLENR 16
+<<<<<<< HEAD:Marlin/src/module/thermistor/thermistors.h
 #define OV(N) int16_t((N) * (OVERSAMPLENR))
+=======
+#define OV(N) int16_t((N)*(OVERSAMPLENR))
+>>>>>>> 1.1.x:Marlin/thermistortables.h
 
 #define ANY_THERMISTOR_IS(n) (THERMISTORHEATER_0 == n || THERMISTORHEATER_1 == n || THERMISTORHEATER_2 == n || THERMISTORHEATER_3 == n || THERMISTORHEATER_4 == n || THERMISTORBED == n || THERMISTORCHAMBER == n)
 
@@ -55,8 +59,16 @@
 #if ANY_THERMISTOR_IS(5) // beta25 = 4267 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "ParCan, ATC 104GT-2"
   #include "thermistor_5.h"
 #endif
+<<<<<<< HEAD:Marlin/src/module/thermistor/thermistors.h
 #if ANY_THERMISTOR_IS(501) // 100K Zonestar thermistor
   #include "thermistor_501.h"
+=======
+#if ANY_THERMISTOR_IS(501) // 100k Zonestar thermistor
+  #include "thermistortable_501.h"
+#endif
+#if ANY_THERMISTOR_IS(6) // 100k Epcos thermistor
+  #include "thermistortable_6.h"
+>>>>>>> 1.1.x:Marlin/thermistortables.h
 #endif
 #if ANY_THERMISTOR_IS(6) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 8.2 kOhm, "EPCOS ?"
   #include "thermistor_6.h"
@@ -84,6 +96,9 @@
 #endif
 #if ANY_THERMISTOR_IS(15) // JGAurora A5 thermistor calibration
   #include "thermistor_15.h"
+#endif
+#if ANY_THERMISTOR_IS(15) // JGAurora A5 thermistor calibration
+  #include "thermistortable_15.h"
 #endif
 #if ANY_THERMISTOR_IS(20) // PT100 with INA826 amp on Ultimaker v2.0 electronics
   #include "thermistor_20.h"
@@ -194,6 +209,7 @@
   #error "No bed thermistor table specified"
 #else
   #define BEDTEMPTABLE_LEN 0
+<<<<<<< HEAD:Marlin/src/module/thermistor/thermistors.h
 #endif
 
 #ifdef THERMISTORCHAMBER
@@ -205,6 +221,19 @@
   #define CHAMBERTEMPTABLE_LEN 0
 #endif
 
+=======
+#endif
+
+#ifdef THERMISTORCHAMBER
+  #define CHAMBERTEMPTABLE TT_NAME(THERMISTORCHAMBER)
+  #define CHAMBERTEMPTABLE_LEN COUNT(CHAMBERTEMPTABLE)
+#elif defined(HEATER_CHAMBER_USES_THERMISTOR)
+  #error "No chamber thermistor table specified"
+#else
+  #define CHAMBERTEMPTABLE_LEN 0
+#endif
+
+>>>>>>> 1.1.x:Marlin/thermistortables.h
 // The SCAN_THERMISTOR_TABLE macro needs alteration?
 static_assert(HEATER_0_TEMPTABLE_LEN < 256 && HEATER_1_TEMPTABLE_LEN < 256 && HEATER_2_TEMPTABLE_LEN < 256 && HEATER_3_TEMPTABLE_LEN < 256 && HEATER_4_TEMPTABLE_LEN < 256 && BEDTEMPTABLE_LEN < 256 && CHAMBERTEMPTABLE_LEN < 256,
   "Temperature conversion tables over 255 entries need special consideration."

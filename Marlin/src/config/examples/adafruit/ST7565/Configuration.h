@@ -37,7 +37,11 @@
  */
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
+<<<<<<< HEAD:Marlin/src/config/examples/adafruit/ST7565/Configuration.h
 #define CONFIGURATION_H_VERSION 020000
+=======
+#define CONFIGURATION_H_VERSION 010109
+>>>>>>> 1.1.x:Marlin/example_configurations/adafruit/ST7565/Configuration.h
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -556,11 +560,19 @@
  * The options are used to determine driver pulse timings as well as more advanced functionality.
  * Stepper timing options can be overridden in Configuration_adv.h
  *
+<<<<<<< HEAD:Marlin/src/config/examples/adafruit/ST7565/Configuration.h
  * Options: A4988, A5984, DRV8825, LV8729, L6470, TB6560, TB6600, TMC2100,
  *          TMC2130, TMC2130_STANDALONE, TMC2208, TMC2208_STANDALONE,
  *          TMC26X,  TMC26X_STANDALONE,  TMC2660, TMC2660_STANDALONE,
  *          TMC5130, TMC5130_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE']
+=======
+ * Options: A4988, DRV8825, LV8729, L6470, TB6560, TB6600, TMC2100,
+ *          TMC2130, TMC2130_STANDALONE, TMC2208, TMC2208_STANDALONE,
+ *          TMC26X,  TMC26X_STANDALONE,  TMC2660, TMC2660_STANDALONE,
+ *          TMC5130, TMC5130_STANDALONE
+ * :['A4988', 'DRV8825', 'LV8729', 'L6470', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE']
+>>>>>>> 1.1.x:Marlin/example_configurations/adafruit/ST7565/Configuration.h
  */
 #define X_DRIVER_TYPE  A4988
 #define Y_DRIVER_TYPE  A4988
@@ -944,7 +956,10 @@
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
+<<<<<<< HEAD:Marlin/src/config/examples/adafruit/ST7565/Configuration.h
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/adafruit/ST7565/Configuration.h
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
 
@@ -1400,10 +1415,18 @@
  *
  * Select the language to display on the LCD. These languages are available:
  *
+<<<<<<< HEAD:Marlin/src/config/examples/adafruit/ST7565/Configuration.h
  *    en, an, bg, ca, cz, de, el, el-gr, es, eu, fi, fr, gl, hr, it,
  *    jp-kana, nl, pl, pt, pt-br, ru, sk, tr, uk, zh_CN, zh_TW, test
  *
  * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'jp-kana':'Japanese', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
+=======
+ *    en, an, bg, ca, cn, cz, cz_utf8, de, el, el-gr, es, es_utf8,
+ *    eu, fi, fr, fr_utf8, gl, hr, it, kana, kana_utf8, nl, pl, pt,
+ *    pt_utf8, pt-br, pt-br_utf8, ru, sk_utf8, tr, uk, zh_CN, zh_TW, test
+ *
+ * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cn':'Chinese', 'cz':'Czech', 'cz_utf8':'Czech (UTF8)', 'de':'German', 'el':'Greek', 'el-gr':'Greek (Greece)', 'es':'Spanish', 'es_utf8':'Spanish (UTF8)', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'fr_utf8':'French (UTF8)', 'gl':'Galician', 'hr':'Croatian', 'it':'Italian', 'kana':'Japanese', 'kana_utf8':'Japanese (UTF8)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt-br':'Portuguese (Brazilian)', 'pt-br_utf8':'Portuguese (Brazilian UTF8)', 'pt_utf8':'Portuguese (UTF8)', 'ru':'Russian', 'sk_utf8':'Slovak (UTF8)', 'tr':'Turkish', 'uk':'Ukrainian', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Taiwan)', 'test':'TEST' }
+>>>>>>> 1.1.x:Marlin/example_configurations/adafruit/ST7565/Configuration.h
  */
 #define LCD_LANGUAGE en
 
@@ -1529,6 +1552,14 @@
 //
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
 //#define LCD_FEEDBACK_FREQUENCY_HZ 5000
+<<<<<<< HEAD:Marlin/src/config/examples/adafruit/ST7565/Configuration.h
+=======
+
+//=============================================================================
+//======================== LCD / Controller Selection =========================
+//========================   (Character-based LCDs)   =========================
+//=============================================================================
+>>>>>>> 1.1.x:Marlin/example_configurations/adafruit/ST7565/Configuration.h
 
 //=============================================================================
 //======================== LCD / Controller Selection =========================
@@ -1539,6 +1570,7 @@
 // RepRapDiscount Smart Controller.
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 //
+<<<<<<< HEAD:Marlin/src/config/examples/adafruit/ST7565/Configuration.h
 // Note: Usually sold with a white PCB.
 //
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
@@ -1548,6 +1580,14 @@
 // http://doku.radds.org/dokumentation/lcd-display/
 //
 //#define RADDS_DISPLAY
+=======
+// RepRapDiscount Smart Controller.
+// http://reprap.org/wiki/RepRapDiscount_Smart_Controller
+//
+// Note: Usually sold with a white PCB.
+//
+//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+>>>>>>> 1.1.x:Marlin/example_configurations/adafruit/ST7565/Configuration.h
 
 //
 // ULTIMAKER Controller.
@@ -1788,12 +1828,15 @@
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
 
 //
+<<<<<<< HEAD:Marlin/src/config/examples/adafruit/ST7565/Configuration.h
 // AZSMZ 12864 LCD with SD
 // https://www.aliexpress.com/store/product/3D-printer-smart-controller-SMART-RAMPS-OR-RAMPS-1-4-LCD-12864-LCD-control-panel-green/2179173_32213636460.html
 //
 //#define AZSMZ_12864
 
 //
+=======
+>>>>>>> 1.1.x:Marlin/example_configurations/adafruit/ST7565/Configuration.h
 // Silvergate GLCD controller
 // http://github.com/android444/Silvergate
 //

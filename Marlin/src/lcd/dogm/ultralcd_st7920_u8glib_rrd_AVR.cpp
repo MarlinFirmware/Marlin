@@ -23,9 +23,14 @@
 // NOTE - the HAL version of the rrd device uses a generic ST7920 device.  See the
 // file u8g_dev_st7920_128x64_HAL.cpp for the HAL version.
 
+<<<<<<< HEAD:Marlin/src/lcd/dogm/ultralcd_st7920_u8glib_rrd_AVR.cpp
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(U8GLIB_ST7920)
+=======
+#include <U8glib.h>
+#include "delay.h"
+>>>>>>> 1.1.x:Marlin/ultralcd_st7920_u8glib_rrd.h
 
 #if !(defined(U8G_HAL_LINKS) || defined(__SAM3X8E__))
 
@@ -41,8 +46,6 @@
 
 #define LCD_PIXEL_WIDTH 128
 #define LCD_PIXEL_HEIGHT 64
-
-#include <U8glib.h>
 
 //set optimization so ARDUINO optimizes this file
 #pragma GCC optimize (3)
@@ -196,8 +199,18 @@ u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = {u8g_dev_rrd_st7920_128x64_fn, &u8g
   #include "status_screen_lite_ST7920_spi.h"
 #endif
 
+#if ENABLED(LIGHTWEIGHT_UI)
+  // We have to include the code for the lightweight UI here
+  // as it relies on macros that are only defined in this file.
+  #include "status_screen_lite_ST7920_spi.h"
+#endif
+
 #pragma GCC reset_options
 
+<<<<<<< HEAD:Marlin/src/lcd/dogm/ultralcd_st7920_u8glib_rrd_AVR.cpp
 #endif // U8G_HAL_LINKS
 
 #endif // U8GLIB_ST7920
+=======
+#endif // ULCDST7920_H
+>>>>>>> 1.1.x:Marlin/ultralcd_st7920_u8glib_rrd.h

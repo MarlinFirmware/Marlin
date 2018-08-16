@@ -29,7 +29,12 @@
 //
 
 
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/pinsDebug_Teensyduino.h
 #define TEENSYDUINO_IDE
+=======
+#undef NUM_DIGITAL_PINS
+#define NUM_DIGITAL_PINS 48   // Teensy says 46 but FASTIO is 48
+>>>>>>> 1.1.x:Marlin/pinsDebug_Teensyduino.h
 
 //digitalPinToTimer(pin) function works like Arduino but Timers are not defined
 #define TIMER0B 1
@@ -50,9 +55,13 @@
 #define PE 5
 #define PF 6
 
+<<<<<<< HEAD:Marlin/src/HAL/HAL_AVR/pinsDebug_Teensyduino.h
 #undef digitalPinToPort
 
 const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
+=======
+const uint8_t PROGMEM digital_pin_to_port_PGM_Teensy[] = {
+>>>>>>> 1.1.x:Marlin/pinsDebug_Teensyduino.h
   PD, // 0  - PD0 - INT0 - PWM
   PD, // 1  - PD1 - INT1 - PWM
   PD, // 2  - PD2 - INT2 - RX

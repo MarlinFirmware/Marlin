@@ -20,6 +20,7 @@
  *
  */
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
 #include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(ULTRA_LCD)
@@ -55,12 +56,38 @@
 
 #if ENABLED(FILAMENT_LCD_DISPLAY)
   #include "../feature/filwidth.h"
+=======
+#include "MarlinConfig.h"
+
+#if ENABLED(ULTRA_LCD)
+
+#include "ultralcd.h"
+#include "Marlin.h"
+#include "language.h"
+#include "cardreader.h"
+#include "temperature.h"
+#include "planner.h"
+#include "stepper.h"
+#include "configuration_store.h"
+#include "utility.h"
+#include "parser.h"
+
+#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
+  #include "buzzer.h"
+#endif
+
+#include "printcounter.h"
+
+#if ENABLED(PRINTCOUNTER)
+  #include "duration_t.h"
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
 #endif
 
 #if ENABLED(BLTOUCH)
   #include "../module/endstops.h"
 #endif
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
 #endif
@@ -72,6 +99,22 @@
 // For i2c define BUZZ to use lcd_buzz
 #if DISABLED(LCD_USE_I2C_BUZZER)
   #include "../libs/buzzer.h"
+=======
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "ubl.h"
+#elif HAS_ABL
+  #include "planner.h"
+#elif ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
+  #include "mesh_bed_leveling.h"
+#endif
+
+#if ENABLED(FWRETRACT)
+  #include "fwretract.h"
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "power_loss_recovery.h"
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
 #endif
 
 #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -103,6 +146,10 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
 
 #if ENABLED(DOGLCD)
   #include "ultralcd_impl_DOGM.h"
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
+=======
+  #include <U8glib.h>
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
   bool drawing_screen, first_page; // = false
 #else
   #include "ultralcd_impl_HD44780.h"
@@ -153,6 +200,7 @@ uint16_t max_display_update_time = 0;
 
   bool no_reentry = false;
   constexpr int8_t menu_bottom = LCD_HEIGHT - (TALL_FONT_CORRECTION);
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
 
   // Initialized by settings.load()
   int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
@@ -172,6 +220,27 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(DAC_STEPPER_CURRENT)
     #include "../feature/dac/stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
+=======
+
+  // Initialized by settings.load()
+  int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
+    bool lcd_external_control; // = false
+  #endif
+
+  #if ENABLED(BABYSTEPPING)
+    long babysteps_done = 0;
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+      static void lcd_babystep_zoffset();
+    #else
+      static void lcd_babystep_z();
+    #endif
+  #endif
+
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
     uint8_t driverPercent[XYZE];
   #endif
 
@@ -206,6 +275,10 @@ uint16_t max_display_update_time = 0;
   #endif // LCD_INFO_MENU
 
   #if ENABLED(LED_CONTROL_MENU)
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
+=======
+    #include "leds.h"
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
     void lcd_led_menu();
   #endif
 
@@ -233,10 +306,13 @@ uint16_t max_display_update_time = 0;
     void lcd_delta_calibrate_menu();
   #endif
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
   #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
     #include "../feature/bedlevel/mbl/mesh_bed_leveling.h"
   #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     static float new_z_fade_height;
     void _lcd_set_z_fade_height() { set_z_fade_height(new_z_fade_height); }
@@ -277,8 +353,13 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(SDSUPPORT)
     void lcd_sdcard_menu();
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
     void menu_action_sdfile(CardReader &theCard);
     void menu_action_sddirectory(CardReader &theCard);
+=======
+    void menu_action_sdfile(CardReader& theCard);
+    void menu_action_sddirectory(CardReader& theCard);
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
   #endif
 
   ////////////////////////////////////////////
@@ -813,10 +894,17 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #else
     UNUSED(clear_buttons);
   #endif
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
 
   // Buzz and wait. The delay is needed for buttons to settle!
   lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
 
+=======
+
+  // Buzz and wait. The delay is needed for buttons to settle!
+  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
   #if ENABLED(ULTIPANEL)
     #if ENABLED(LCD_USE_I2C_BUZZER)
       delay(10);
@@ -886,7 +974,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
       lcd_return_to_status();
 
       // Turn leveling off and home
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
       enqueue_and_echo_commands_P(PSTR("M420 S0\nG28 R0"
+=======
+      enqueue_and_echo_commands_P(PSTR("M420 S0\nG28"
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
         #if ENABLED(MARLIN_DEV_MODE)
           " S"
         #elif !IS_KINEMATIC
@@ -953,7 +1045,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
     #include "../feature/caselight.h"
+=======
+    extern uint8_t case_light_brightness;
+    extern bool case_light_on;
+    extern void update_case_light();
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
 
     void case_light_menu() {
       START_MENU();
@@ -1820,9 +1918,21 @@ void lcd_quick_feedback(const bool clear_buttons) {
       enqueue_and_echo_commands_now_P(cmd);
       no_reentry = false;
     }
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
+=======
 
   #endif
 
+  #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
+
+    void lcd_autostart_sd() { card.beginautostart(); }
+
+  #endif
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
+
+  #endif
+
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
   #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
 
     void lcd_autostart_sd() { card.beginautostart(); }
@@ -1834,6 +1944,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
     static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
   #endif
 
+=======
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
   #if ENABLED(LEVEL_BED_CORNERS)
 
     /**
@@ -2410,7 +2522,16 @@ void lcd_quick_feedback(const bool clear_buttons) {
      * UBL LCD "radar" map
      */
     void set_current_from_steppers_for_axis(const AxisEnum axis);
-    void sync_plan_position();
+
+    void _lcd_do_nothing() {}
+    void _lcd_hard_stop() {
+      const screenFunc_t old_screen = currentScreen;
+      currentScreen = _lcd_do_nothing;
+      planner.quick_stop();
+      currentScreen = old_screen;
+      set_current_from_steppers_for_axis(ALL_AXES);
+      sync_plan_position();
+    }
 
     void _lcd_do_nothing() {}
     void _lcd_hard_stop() {
@@ -2937,7 +3058,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
         #if EXTRUDERS > 1
           const int8_t old_extruder = active_extruder;
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
           active_extruder = manual_move_e_index;
+=======
+          if (manual_move_axis == E_AXIS) active_extruder = manual_move_e_index;
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
         #endif
 
         // Set movement on a single axis
@@ -2963,7 +3088,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       #else
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
         planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_e_index);
+=======
+        planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
         manual_move_axis = (int8_t)NO_AXIS;
 
       #endif
@@ -3766,6 +3895,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void lcd_control_motion_jerk_menu() {
       START_MENU();
       MENU_BACK(MSG_MOTION);
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
 
       #if ENABLED(JUNCTION_DEVIATION)
         MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f, planner.recalculate_max_e_jerk);
@@ -3812,6 +3942,54 @@ void lcd_quick_feedback(const bool clear_buttons) {
       END_MENU();
     }
 
+=======
+
+      #if ENABLED(JUNCTION_DEVIATION)
+        MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f, planner.recalculate_max_e_jerk);
+      #else
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);
+        #if ENABLED(DELTA)
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 1, 990);
+        #else
+          MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f, 990);
+        #endif
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+      #endif
+
+      END_MENU();
+    }
+
+    // M92 Steps-per-mm
+    void lcd_control_motion_steps_per_mm_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MOTION);
+
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ASTEPS, &planner.axis_steps_per_mm[A_AXIS], 5, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_BSTEPS, &planner.axis_steps_per_mm[B_AXIS], 5, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_CSTEPS, &planner.axis_steps_per_mm[C_AXIS], 5, 9999, _planner_refresh_positioning);
+
+      #if ENABLED(DISTINCT_E_FACTORS)
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E1STEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_e0_positioning);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E2STEPS, &planner.axis_steps_per_mm[E_AXIS + 1], 5, 9999, _planner_refresh_e1_positioning);
+        #if E_STEPPERS > 2
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E3STEPS, &planner.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
+          #if E_STEPPERS > 3
+            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
+            #if E_STEPPERS > 4
+              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E5STEPS, &planner.axis_steps_per_mm[E_AXIS + 4], 5, 9999, _planner_refresh_e4_positioning);
+            #endif // E_STEPPERS > 4
+          #endif // E_STEPPERS > 3
+        #endif // E_STEPPERS > 2
+      #else
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
+      #endif
+
+      END_MENU();
+    }
+
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
   #endif // !SLIM_LCD_MENUS
 
   /**
@@ -3831,6 +4009,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
 
     #if DISABLED(SLIM_LCD_MENUS)
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
 
       // M203 / M205 - Feedrate items
       MENU_ITEM(submenu, MSG_VELOCITY, lcd_control_motion_velocity_menu);
@@ -3844,6 +4023,21 @@ void lcd_quick_feedback(const bool clear_buttons) {
       // M92 - Steps Per mm
       MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_control_motion_steps_per_mm_menu);
 
+=======
+
+      // M203 / M205 - Feedrate items
+      MENU_ITEM(submenu, MSG_VELOCITY, lcd_control_motion_velocity_menu);
+
+      // M201 - Acceleration items
+      MENU_ITEM(submenu, MSG_ACCELERATION, lcd_control_motion_acceleration_menu);
+
+      // M205 - Max Jerk
+      MENU_ITEM(submenu, MSG_JERK, lcd_control_motion_jerk_menu);
+
+      // M92 - Steps Per mm
+      MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_control_motion_steps_per_mm_menu);
+
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
     #endif // !SLIM_LCD_MENUS
 
     // M540 S - Abort on endstop hit when SD printing
@@ -3951,6 +4145,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_CONTROL);
       MENU_ITEM_EDIT_CALLBACK(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
       MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT, &fwretract.retract_length, 0, 100);
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
       #if EXTRUDERS > 1
         MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_SWAP, &fwretract.swap_retract_length, 0, 100);
       #endif
@@ -3962,6 +4157,19 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #endif
       MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &fwretract.retract_recover_feedrate_mm_s, 1, 999);
       #if EXTRUDERS > 1
+=======
+      #if EXTRUDERS > 1
+        MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_SWAP, &fwretract.swap_retract_length, 0, 100);
+      #endif
+      MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &fwretract.retract_feedrate_mm_s, 1, 999);
+      MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_ZLIFT, &fwretract.retract_zlift, 0, 999);
+      MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER, &fwretract.retract_recover_length, -100, 100);
+      #if EXTRUDERS > 1
+        MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER_SWAP, &fwretract.swap_retract_recover_length, -100, 100);
+      #endif
+      MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &fwretract.retract_recover_feedrate_mm_s, 1, 999);
+      #if EXTRUDERS > 1
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
         MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVER_SWAPF, &fwretract.swap_retract_recover_feedrate_mm_s, 1, 999);
       #endif
       END_MENU();
@@ -4972,7 +5180,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #if ENABLED(SDSUPPORT)
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
     void menu_action_sdfile(CardReader &theCard) {
+=======
+    void menu_action_sdfile(CardReader& theCard) {
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         last_sdfile_encoderPosition = encoderPosition;  // Save which file was selected for later use
       #endif
@@ -4981,7 +5193,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
       lcd_reset_status();
     }
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
     void menu_action_sddirectory(CardReader &theCard) {
+=======
+    void menu_action_sddirectory(CardReader& theCard) {
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
       card.chdir(theCard.filename);
       encoderTopLine = 0;
       encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
@@ -5066,6 +5282,27 @@ void lcd_init() {
   #endif
 }
 
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
+=======
+int16_t utf8_strlen(const char* s) {
+  int16_t i = 0, j = 0;
+  while (s[i]) {
+    if (START_OF_UTF8_CHAR(s[i])) j++;
+    i++;
+  }
+  return j;
+}
+
+int16_t utf8_strlen_P(const char* s) {
+  int16_t j = 0;
+  while (pgm_read_byte(s)) {
+    if (START_OF_UTF8_CHAR(pgm_read_byte(s))) j++;
+    s++;
+  }
+  return j;
+}
+
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
 bool lcd_blink() {
   static uint8_t blink = 0;
   static millis_t next_blink_ms = 0;
@@ -5670,7 +5907,15 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
   #if ENABLED(G26_MESH_VALIDATION)
     void lcd_chirp() {
+<<<<<<< HEAD:Marlin/src/lcd/ultralcd.cpp
       lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+=======
+      #if ENABLED(LCD_USE_I2C_BUZZER)
+        lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+      #elif PIN_EXISTS(BEEPER)
+        buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+      #endif
+>>>>>>> 1.1.x:Marlin/ultralcd.cpp
     }
   #endif
 

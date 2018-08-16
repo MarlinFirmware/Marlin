@@ -34,12 +34,16 @@
 #ifndef LANGUAGE_SK_UTF_H
 #define LANGUAGE_SK_UTF_H
 
+<<<<<<< HEAD:Marlin/src/lcd/language/language_sk.h
 // Put characters here that should be displayed with M117
 //_UxGT("aäAÄaáAÁeéEÉiíIÍlĺLĹ")
 //_UxGT("oóOÓoôOÔrŕRŔuúUÚyýYÝ")
 //_UxGT("cčCČdďDĎlľLĽnňNŇsšSŠ")
 //_UxGT("tťTŤzžZŽ")
 
+=======
+#define MAPPER_C3C4C5_SK
+>>>>>>> 1.1.x:Marlin/language_sk_utf8.h
 #define DISPLAY_CHARSET_ISO10646_SK
 #define CHARSIZE 2
 

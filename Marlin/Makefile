@@ -395,7 +395,11 @@ MCU              ?= at90usb1286
 else ifeq ($(HARDWARE_MOTHERBOARD),84)
 HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb1286
+<<<<<<< HEAD
 # Teensy++2.0 (AT90USB1286)
+=======
+# Teensy++2.0 (AT90USB1286) - CLI compile: HARDWARE_MOTHERBOARD=84  make
+>>>>>>> 1.1.x
 else ifeq ($(HARDWARE_MOTHERBOARD),85)
 HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb1286
@@ -489,9 +493,14 @@ ifeq ($(HARDWARE_VARIANT), Teensy)
 LIB_SRC = wiring.c
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/teensy/cores/teensy
 endif
+<<<<<<< HEAD
 
 LIB_CXXSRC = WMath.cpp WString.cpp Print.cpp SPI.cpp Tone.cpp
 
+=======
+CXXSRC = WMath.cpp WString.cpp Print.cpp SPI.cpp Tone.cpp
+CXXSRC += $(wildcard *.cpp)
+>>>>>>> 1.1.x
 ifeq ($(NEOPIXEL), 1)
 LIB_CXXSRC += Adafruit_NeoPixel.cpp
 endif
@@ -519,7 +528,7 @@ endif
 
 ifeq ($(RELOC_WORKAROUND), 1)
 LD_PREFIX=-nodefaultlibs
-LD_SUFFIX=-lm -lgcc -lc -lgcc
+LD_SUFFIX=-lm -lgcc -lc -lgcc -L$(ARDUINO_INSTALL_DIR)/hardware/tools/avr/avr/lib/avr6 -l$(MCU)
 endif
 
 #Check for Arduino 1.0.0 or higher and use the correct source files for that version
