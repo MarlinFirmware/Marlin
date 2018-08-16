@@ -8357,7 +8357,7 @@ inline void gcode_M109() {
                 #endif
               #endif
               #if ENABLED(APA102_LED)
-                strips.getBrightness())
+                strip.getBrightness())
                 #if ENABLED(APA102_IS_SEQUENTIAL)
                   , true
                 #endif
