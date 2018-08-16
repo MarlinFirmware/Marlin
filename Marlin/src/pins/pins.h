@@ -290,6 +290,8 @@
   #include "pins_AZSMZ_MINI.h"        // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
 #elif MB(AZTEEG_X5_GT)
   #include "pins_AZTEEG_X5_GT.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(AZTEEG_X5_MINI_WIFI)
+  #include "pins_AZTEEG_X5_MINI_WIFI.h" // LPC176x                                  env:LPC1768 env:LPC1768_debug_and_upload
 #elif MB(BIQU_BQ111_A4)
   #include "pins_BIQU_BQ111_A4.h"     // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
 #elif MB(SELENA_COMPACT)
