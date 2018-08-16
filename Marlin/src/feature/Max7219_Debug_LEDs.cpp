@@ -243,9 +243,9 @@ void Max7219_Set_Column(const uint8_t col, const uint32_t val) {
   uint32_t mask = 0x0000001;
   for (uint8_t y = 0; y < MAX7219_Y_LEDS; y++) {
     if (val & mask)
-      SET_PIXEL_7219(col, MAX7219_Y_LEDS-1-y);
+      SET_PIXEL_7219(col, MAX7219_Y_LEDS - y - 1);
     else
-      CLEAR_PIXEL_7219(col, MAX7219_Y_LEDS-1-y);
+      CLEAR_PIXEL_7219(col, MAX7219_Y_LEDS - y - 1);
     mask <<= 1;
   }
   #if _ROT == 90 || _ROT == 270

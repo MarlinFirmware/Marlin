@@ -71,12 +71,18 @@ void GcodeSuite::M7219() {
   }
 
   if (parser.seen('P')) {
-    for (uint8_t x = 0; x < COUNT(LEDs); x++) {
+    for (int8_t x = 0; x < 8 * MAX7219_NUMBER_UNITS; x++) {
       SERIAL_ECHOPAIR("LEDs[", x);
-      SERIAL_ECHOPAIR("]=", LEDs[x]);
-      SERIAL_EOL();
+    SERIAL_ECHO("]=");
+    for (int8_t j = 7; j >= 0; j--) {
+      if ( LEDs[x] & (0x01<<j) )
+        SERIAL_ECHO("1");
+      else
+        SERIAL_ECHO("0");
     }
+    SERIAL_EOL();
     return;
+    }
   }
 }
 
