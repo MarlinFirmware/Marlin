@@ -31,7 +31,7 @@
  *   #define MAX7219_DIN_PIN   78
  *   #define MAX7219_LOAD_PIN  79
  *
- * Max7219_init() is called automatically at startup, and then there are a number of
+ * max7219.init() is called automatically at startup, and then there are a number of
  * support functions available to control the LEDs in the 8x8 grid.
  *
  * If you are using the Max7219 matrix for firmware debug purposes in time sensitive
@@ -78,46 +78,74 @@
 #define max7219_reg_shutdown    0x0C
 #define max7219_reg_displayTest 0x0F
 
-void Max7219_init();
-void Max7219_register_setup();
-void Max7219_PutByte(uint8_t data);
-void Max7219_pulse_load();
+class Max7219 {
+public:
+  static uint8_t led_line[MAX7219_ROWS];
 
-// Set a single register (e.g., a whole native row)
-void Max7219(const uint8_t reg, const uint8_t data);
+  Max7219() { }
 
-// Update a single native row on all units
-void Max7219_All(const uint8_t line);
+  static void init();
+  static void register_setup();
+  static void putbyte(uint8_t data);
+  static void pulse_load();
 
-// Update a single native row on the target unit
-void Max7219_One(const uint8_t line);
+  // Set a single register (e.g., a whole native row)
+  static void send(const uint8_t reg, const uint8_t data);
 
-// Set a single LED by XY coordinate
-void Max7219_LED_Set(const uint8_t x, const uint8_t y, const bool on);
-void Max7219_LED_On(const uint8_t x, const uint8_t y);
-void Max7219_LED_Off(const uint8_t x, const uint8_t y);
-void Max7219_LED_Toggle(const uint8_t x, const uint8_t y);
+  // Refresh all units
+  inline static void refresh() { for (uint8_t i = 0; i < 8; i++) all(i); }
 
-// Set all LEDs in a single column
-void Max7219_Set_Column(const uint8_t col, const uint32_t val);
-void Max7219_Clear_Column(const uint8_t col);
+  // Update a single native row on all units
+  static void all(const uint8_t line);
 
-// Set all LEDs in a single row
-void Max7219_Set_Row(const uint8_t row, const uint32_t val);
-void Max7219_Clear_Row(const uint8_t row);
+  // Update a single native row on the target unit
+  static void one(const uint8_t line);
 
-// 16 and 32 bit versions of Row and Column functions
-// Multiple rows and columns will be used to display the value if
-// the array of matrix LED's is too narrow to accomplish the goal
-void Max7219_Set_Rows_16bits(const uint8_t y, uint32_t val);
-void Max7219_Set_Rows_32bits(const uint8_t y, uint32_t val);
-void Max7219_Set_Columns_16bits(const uint8_t x, uint32_t val);
-void Max7219_Set_Columns_32bits(const uint8_t x, uint32_t val);
+  // Set a single LED by XY coordinate
+  static void led_set(const uint8_t x, const uint8_t y, const bool on);
+  static void led_on(const uint8_t x, const uint8_t y);
+  static void led_off(const uint8_t x, const uint8_t y);
+  static void led_toggle(const uint8_t x, const uint8_t y);
 
-// Quickly clear the whole matrix
-void Max7219_Clear();
+  // Set all LEDs in a single column
+  static void set_column(const uint8_t col, const uint32_t val);
+  static void clear_column(const uint8_t col);
 
-// Apply custom code to update the matrix
-void Max7219_idle_tasks();
+  // Set all LEDs in a single row
+  static void set_row(const uint8_t row, const uint32_t val);
+  static void clear_row(const uint8_t row);
 
-extern uint8_t LEDs[MAX7219_ROWS];
+  // 16 and 32 bit versions of Row and Column functions
+  // Multiple rows and columns will be used to display the value if
+  // the array of matrix LED's is too narrow to accomplish the goal
+  static void set_rows_16bits(const uint8_t y, uint32_t val);
+  static void set_rows_32bits(const uint8_t y, uint32_t val);
+  static void set_columns_16bits(const uint8_t x, uint32_t val);
+  static void set_columns_32bits(const uint8_t x, uint32_t val);
+
+  // Quickly clear the whole matrix
+  static void clear();
+
+  // Apply custom code to update the matrix
+  static void idle_tasks();
+
+private:
+  static void error(const char * const func, const int32_t v1, const int32_t v2=-1);
+  static void noop();
+  static void set(const uint8_t line, const uint8_t bits);
+  static void send_row(const uint8_t row);
+  static void send_column(const uint8_t col);
+  static void mark16(const uint8_t y, const uint8_t v1, const uint8_t v2);
+  static void range16(const uint8_t y, const uint8_t ot, const uint8_t nt, const uint8_t oh, const uint8_t nh);
+  static void quantity16(const uint8_t y, const uint8_t ov, const uint8_t nv);
+
+  #ifdef MAX7219_INIT_TEST
+  #if MAX7219_INIT_TEST == 2
+    static void spiral(const bool on, const uint16_t del);
+  #else
+    static void sweep(const int8_t dir, const uint16_t ms, const bool on);
+  #endif
+  #endif
+};
+
+extern Max7219 max7219;
