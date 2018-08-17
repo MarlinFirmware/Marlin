@@ -87,7 +87,7 @@ void GcodeSuite::M852() {
   // When skew is changed the current position changes
   if (setval) {
     set_current_from_steppers_for_axis(ALL_AXES);
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
     report_current_position();
   }
 

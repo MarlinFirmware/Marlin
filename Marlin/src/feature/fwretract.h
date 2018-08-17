@@ -46,7 +46,8 @@ public:
                swap_retract_length,                // M207 W - G10 Swap Retract length
                swap_retract_recover_length,        // M208 W - G11 Swap Recover length
                swap_retract_recover_feedrate_mm_s, // M208 R - G11 Swap Recover feedrate
-               current_hop;
+               current_retract[EXTRUDERS],         // Retract value used by planner
+               current_hop;                        // Hop value used by planner
 
   FWRetract() { reset(); }
 

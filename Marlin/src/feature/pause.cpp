@@ -120,7 +120,7 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
 static void do_pause_e_move(const float &length, const float &fr) {
   set_destination_from_current();
   destination[E_AXIS] += length / planner.e_factor[active_extruder];
-  planner.buffer_line_kinematic(destination, fr, active_extruder);
+  planner.buffer_line(destination, fr, active_extruder);
   set_current_from_destination();
   planner.synchronize();
 }

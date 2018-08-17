@@ -989,7 +989,7 @@ G29_TYPE GcodeSuite::G29() {
   KEEPALIVE_STATE(IN_HANDLER);
 
   if (planner.leveling_active)
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
   #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
     move_z_after_probing();

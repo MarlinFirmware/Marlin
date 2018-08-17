@@ -841,7 +841,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   }
 
   inline void line_to_current_z() {
-    planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
+    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
   }
 
   inline void line_to_z(const float &z) {
@@ -1892,7 +1892,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
             break;
         #endif
       }
-      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
+      planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
       line_to_z(0.0);
       if (++bed_corner > 3
         #if ENABLED(LEVEL_CENTER_TOO)
@@ -2432,7 +2432,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void ubl_map_move_to_xy() {
       current_position[X_AXIS] = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]);
       current_position[Y_AXIS] = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
-      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
+      planner.buffer_line(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
     }
 
     /**
@@ -2911,7 +2911,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       #else
 
-        planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
+        planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
         manual_move_axis = (int8_t)NO_AXIS;
 
       #endif
@@ -3746,8 +3746,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_ADVANCED_SETTINGS);
 
       #if ENABLED(JUNCTION_DEVIATION)
-        MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f, planner.recalculate_max_e_jerk);
-      #else
+        #if ENABLED(LIN_ADVANCE)
+          MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f, planner.recalculate_max_e_jerk);
+        #else
+          MENU_ITEM_EDIT(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f);
+        #endif
+      #endif
+      #if HAS_CLASSIC_JERK
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);
         #if ENABLED(DELTA)
@@ -3755,7 +3760,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #else
           MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f, 990);
         #endif
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+        #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+        #endif
       #endif
 
       END_MENU();

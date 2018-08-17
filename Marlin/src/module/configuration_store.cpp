@@ -428,12 +428,20 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.min_feedrate_mm_s);
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
 
-    #if ENABLED(JUNCTION_DEVIATION)
+    #if HAS_CLASSIC_JERK
+      EEPROM_WRITE(planner.max_jerk);
+      #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+        dummy = float(DEFAULT_EJERK);
+        EEPROM_WRITE(dummy);
+      #endif
+    #else
       const float planner_max_jerk[] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
       EEPROM_WRITE(planner_max_jerk);
+    #endif
+
+    #if ENABLED(JUNCTION_DEVIATION)
       EEPROM_WRITE(planner.junction_deviation_mm);
     #else
-      EEPROM_WRITE(planner.max_jerk);
       dummy = 0.02f;
       EEPROM_WRITE(dummy);
     #endif
@@ -1062,11 +1070,18 @@ void MarlinSettings::postprocess() {
       EEPROM_READ(planner.min_feedrate_mm_s);
       EEPROM_READ(planner.min_travel_feedrate_mm_s);
 
-      #if ENABLED(JUNCTION_DEVIATION)
+      #if HAS_CLASSIC_JERK
+        EEPROM_READ(planner.max_jerk);
+        #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+          EEPROM_READ(dummy);
+        #endif
+      #else
         for (uint8_t q = 4; q--;) EEPROM_READ(dummy);
+      #endif
+
+      #if ENABLED(JUNCTION_DEVIATION)
         EEPROM_READ(planner.junction_deviation_mm);
       #else
-        EEPROM_READ(planner.max_jerk);
         EEPROM_READ(dummy);
       #endif
 
@@ -1808,11 +1823,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   #if ENABLED(JUNCTION_DEVIATION)
     planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
-  #else
+  #endif
+
+  #if HAS_CLASSIC_JERK
     planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
     planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
     planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
-    planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
+    #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+      planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
+    #endif
   #endif
 
   #if HAS_HOME_OFFSET
@@ -2243,11 +2262,12 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOPGM_P(port, "Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>");
       #if ENABLED(JUNCTION_DEVIATION)
         SERIAL_ECHOPGM_P(port, " J<junc_dev>");
-      #else
-        SERIAL_ECHOPGM_P(port, " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>");
       #endif
-      #if DISABLED(JUNCTION_DEVIATION) || ENABLED(LIN_ADVANCE)
-        SERIAL_ECHOPGM_P(port, " E<max_e_jerk>");
+      #if HAS_CLASSIC_JERK
+        SERIAL_ECHOPGM_P(port, " X<max_x_jerk> Y<max_y_jerk> Z<max_z_jerk>");
+        #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+          SERIAL_ECHOPGM_P(port, " E<max_e_jerk>");
+        #endif
       #endif
       SERIAL_EOL_P(port);
     }
@@ -2258,11 +2278,14 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #if ENABLED(JUNCTION_DEVIATION)
       SERIAL_ECHOPAIR_P(port, " J", LINEAR_UNIT(planner.junction_deviation_mm));
-    #else
+    #endif
+    #if HAS_CLASSIC_JERK
       SERIAL_ECHOPAIR_P(port, " X", LINEAR_UNIT(planner.max_jerk[X_AXIS]));
       SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.max_jerk[Y_AXIS]));
       SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.max_jerk[Z_AXIS]));
-      SERIAL_ECHOPAIR_P(port, " E", LINEAR_UNIT(planner.max_jerk[E_AXIS]));
+      #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+        SERIAL_ECHOPAIR_P(port, " E", LINEAR_UNIT(planner.max_jerk[E_AXIS]));
+      #endif
     #endif
 
     SERIAL_EOL_P(port);

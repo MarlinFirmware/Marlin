@@ -537,7 +537,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
   set_current_from_steppers_for_axis(Z_AXIS);
 
   // Tell the planner where we actually are
-  SYNC_PLAN_POSITION_KINEMATIC();
+  sync_plan_position();
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
