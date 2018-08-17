@@ -52,13 +52,16 @@ void GcodeSuite::M7219() {
       Max7219_Set_Column(x, 0xFFFFFFFF);
 
   if (parser.seenval('R')) {
-    const uint32_t r = parser.value_int();
-    Max7219_Set_Row(r, parser.ulongval('V'));
+    const uint8_t r = parser.value_byte();
+    const uint32_t v = parser.ulongval('V');
+    if (v) Max7219_Set_Row(r, v); else Max7219_Clear_Row(r);
     return;
   }
-  else if (parser.seenval('C')) {
-    const uint32_t c = parser.value_int();
-    Max7219_Set_Column(c, parser.ulongval('V'));
+  
+  if (parser.seenval('C')) {
+    const uint8_t c = parser.value_byte();
+    const uint32_t v = parser.ulongval('V');
+    if (v) Max7219_Set_Column(c, v); else Max7219_Clear_Column(c);
     return;
   }
 
@@ -70,18 +73,22 @@ void GcodeSuite::M7219() {
       Max7219_LED_Toggle(x, y);
   }
 
-  if (parser.seen('P')) {
-    for (int8_t x = 0; x < 8 * MAX7219_NUMBER_UNITS; x++) {
-      SERIAL_ECHOPAIR("LEDs[", x);
-    SERIAL_ECHO("]=");
-    for (int8_t j = 7; j >= 0; j--) {
-      if ( LEDs[x] & (0x01<<j) )
-        SERIAL_ECHO("1");
-      else
-        SERIAL_ECHO("0");
+  if (parser.seen('D')) {
+    const uint8_t r = parser.value_byte();
+    if (r < MAX7219_ROWS) {
+      LEDs[r] = parser.byteval('V');
+      return Max7219_One(r);
     }
-    SERIAL_EOL();
-    return;
+  }
+
+  if (parser.seen('P')) {
+    for (uint8_t r = 0; r < MAX7219_ROWS; r++) {
+      SERIAL_ECHOPGM("LEDs[");
+      if (r < 10) SERIAL_CHAR('_');
+      SERIAL_ECHO(r);
+      SERIAL_ECHO("]=");
+      for (uint8_t b = 8; b--;) SERIAL_CHAR('0' + TEST(LEDs[r], b));
+      SERIAL_EOL();
     }
   }
 }
