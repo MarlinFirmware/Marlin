@@ -75,8 +75,10 @@
       }
       #undef MAXNOPS
     }
-    else
-      __delay_4cycles(x / 4);
+    else {
+      if ((x = (x) / 4))
+        __delay_4cycles(x / 4);
+    }
   }
   #undef nop
 
@@ -115,10 +117,7 @@
       #undef MAXNOPS
     }
     else
-    {
-        if ((x = (x) / 4))
-            __delay_4cycles(x);
-    }
+      __delay_4cycles(x / 4);
   }
   #undef nop
 
