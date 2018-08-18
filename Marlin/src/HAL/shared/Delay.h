@@ -77,7 +77,7 @@
     }
     else {
       if ((x = (x) / 4))
-        __delay_4cycles(x / 4);
+        __delay_4cycles(x);
     }
   }
   #undef nop
