@@ -78,6 +78,8 @@
   #include "../HAL_STM32F1/HAL_Servo_STM32F1.h"
 #elif defined(STM32F4) || defined(STM32F4xx)
   #include "../HAL_STM32F4/HAL_Servo_STM32F4.h"
+#elif defined(STM32F7xx)
+  #include "../HAL_STM32F7xx/HAL_Servo_STM32F7.h"
 #else
   #include <stdint.h>
 
