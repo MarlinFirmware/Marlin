@@ -5,6 +5,20 @@ else:
   debug_flags = '-O2'
 
 env = Environment(
+    CXX='clang',
+    CPPFLAGS= '-Wall -std=gnu++14 -MMD ' + debug_flags,
+    LINKFLAGS='-Wall -std=gnu++14 -lstdc++ ' + debug_flags)
+env.VariantDir('darwin-x86_64', 'src/module', duplicate=0)
+env.Program('darwin-x86_64/marlin-calc.darwin-x86_64', ['darwin-x86_64/planner.cpp', 'darwin-x86_64/calc.cpp'])
+
+env = Environment(
+    CXX='clang',
+    CPPFLAGS= '-Wall -std=gnu++14 -m32 -MMD ' + debug_flags,
+    LINKFLAGS='-Wall -std=gnu++14 -m32 -lstdc++ ' + debug_flags)
+env.VariantDir('darwin-i686', 'src/module', duplicate=0)
+env.Program('darwin-i686/marlin-calc.darwin-i686', ['darwin-i686/planner.cpp', 'darwin-i686/calc.cpp'])
+
+env = Environment(
     CXX='g++',
     CPPFLAGS= '-Wall -static -std=gnu++11 -MMD ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 ' + debug_flags)
