@@ -43,13 +43,11 @@
  */
 void GcodeSuite::M7219() {
   if (parser.seen('I')) {
-    max7219.clear();
     max7219.register_setup();
+    max7219.clear();
   }
 
-  if (parser.seen('F'))
-    for (uint8_t x = 0; x < MAX7219_X_LEDS; x++)
-      max7219.set_column(x, 0xFFFFFFFF);
+  if (parser.seen('F')) max7219.fill();
 
   const uint32_t v = parser.ulongval('V');
 
@@ -69,18 +67,18 @@ void GcodeSuite::M7219() {
       max7219.led_toggle(x, y);
   }
   else if (parser.seen('D')) {
-    const uint8_t r = parser.value_byte();
-    if (r < MAX7219_ROWS) {
-      max7219.led_line[r] = v;
-      return max7219.all(r);
+    const uint8_t line = parser.byteval('D') + (parser.byteval('U') << 3);
+    if (line < MAX7219_LINES) {
+      max7219.led_line[line] = v;
+      return max7219.refresh_line(line);
     }
   }
 
   if (parser.seen('P')) {
-    for (uint8_t r = 0; r < MAX7219_ROWS; r++) {
+    for (uint8_t r = 0; r < MAX7219_LINES; r++) {
       SERIAL_ECHOPGM("led_line[");
-      if (r < 10) SERIAL_CHAR('_');
-      SERIAL_ECHO(r);
+      if (r < 10) SERIAL_CHAR(' ');
+      SERIAL_ECHO(int(r));
       SERIAL_ECHO("]=");
       for (uint8_t b = 8; b--;) SERIAL_CHAR('0' + TEST(max7219.led_line[r], b));
       SERIAL_EOL();

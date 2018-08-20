@@ -31,7 +31,7 @@
  *   #define MAX7219_DIN_PIN   78
  *   #define MAX7219_LOAD_PIN  79
  *
- * Max7219_init() is called automatically at startup, and then there are a number of
+ * max7219.init() is called automatically at startup, and then there are a number of
  * support functions available to control the LEDs in the 8x8 grid.
  *
  * If you are using the Max7219 matrix for firmware debug purposes in time sensitive
@@ -47,14 +47,14 @@
 #endif
 #define _ROT ((MAX7219_ROTATE + 360) % 360)
 
-#define MAX7219_ROWS (8 * (MAX7219_NUMBER_UNITS))
+#define MAX7219_LINES (8 * (MAX7219_NUMBER_UNITS))
 
 #if _ROT == 0 || _ROT == 180
   #define MAX7219_Y_LEDS          8
-  #define MAX7219_X_LEDS          MAX7219_ROWS
+  #define MAX7219_X_LEDS          MAX7219_LINES
 #elif _ROT == 90 || _ROT == 270
   #define MAX7219_X_LEDS          8
-  #define MAX7219_Y_LEDS          MAX7219_ROWS
+  #define MAX7219_Y_LEDS          MAX7219_LINES
 #else
   #error "MAX7219_ROTATE must be a multiple of +/- 90°."
 #endif
@@ -80,7 +80,7 @@
 
 class Max7219 {
 public:
-  static uint8_t led_line[MAX7219_ROWS];
+  static uint8_t led_line[MAX7219_LINES];
 
   Max7219() { }
 
@@ -93,13 +93,13 @@ public:
   static void send(const uint8_t reg, const uint8_t data);
 
   // Refresh all units
-  inline static void refresh() { for (uint8_t i = 0; i < 8; i++) all(i); }
+  inline static void refresh() { for (uint8_t i = 0; i < 8; i++) refresh_line(i); }
 
-  // Update a single native row on all units
-  static void all(const uint8_t line);
+  // Update a single native line on all units
+  static void refresh_line(const uint8_t line);
 
-  // Update a single native row on the target unit
-  static void one(const uint8_t line);
+  // Update a single native line on just one unit
+  static void refresh_unit_line(const uint8_t line);
 
   // Set a single LED by XY coordinate
   static void led_set(const uint8_t x, const uint8_t y, const bool on);
@@ -125,6 +125,9 @@ public:
 
   // Quickly clear the whole matrix
   static void clear();
+
+  // Quickly fill the whole matrix
+  static void fill();
 
   // Apply custom code to update the matrix
   static void idle_tasks();
