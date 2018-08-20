@@ -353,7 +353,10 @@ inline void invalid_extruder_error(const uint8_t e) {
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
   planner.synchronize();
-
+  #if HAS_LEVELING
+      const bool leveling_was_active = planner.leveling_active;
+    set_bed_leveling_enabled(false);
+  #endif
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     mixing_tool_change(tmp_extruder);
@@ -376,12 +379,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("No move on toolchange");
           #endif
         }
-
-        #if HAS_LEVELING
-          // Set current position to the physical position
-          const bool leveling_was_active = planner.leveling_active;
-          set_bed_leveling_enabled(false);
-        #endif
 
         #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -439,10 +436,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           current_position[Z_AXIS] -= zdiff;
         #endif
 
-        #if HAS_LEVELING
-          // Restore leveling to re-establish the logical position
-          set_bed_leveling_enabled(leveling_was_active);
-        #endif
+
 
         // Tell the planner the new "current position"
         SYNC_PLAN_POSITION_KINEMATIC();
@@ -519,6 +513,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
-
+    #if HAS_LEVELING
+      // Restore leveling to re-establish the logical position
+      planner.synchronize();
+      set_bed_leveling_enabled(leveling_was_active);
+    #endif
   #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }
