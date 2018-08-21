@@ -33,7 +33,11 @@
   #include "neopixel.h"
 #endif
 
-#define HAS_WHITE_LED (ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED))
+#if ENABLED(APA102_LED)
+  #include "apa_102_led.h"
+#endif
+
+#define HAS_WHITE_LED (ENABLED(RGBW_LED) || ENABLED(NEOPIXEL_LED)) || ENABLED(APA102_LED)
 
 /**
  * LEDcolor type for use with leds.set_color
@@ -42,7 +46,7 @@ typedef struct LEDColor {
   uint8_t r, g, b
     #if HAS_WHITE_LED
       , w
-      #if ENABLED(NEOPIXEL_LED)
+      #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
         , i
       #endif
     #endif
@@ -52,6 +56,8 @@ typedef struct LEDColor {
       , w(255)
       #if ENABLED(NEOPIXEL_LED)
         , i(NEOPIXEL_BRIGHTNESS)
+      #elif ENABLED(APA102_LED)
+        , i(APA102_BRIGHTNESS)
       #endif
     #endif
   {}
@@ -60,12 +66,14 @@ typedef struct LEDColor {
       , uint8_t w=0
       #if ENABLED(NEOPIXEL_LED)
         , uint8_t i=NEOPIXEL_BRIGHTNESS
+      #elif ENABLED(APA102_LED)
+        , uint8_t i=APA102_BRIGHTNESS
       #endif
     #endif
     ) : r(r), g(g), b(b)
     #if HAS_WHITE_LED
       , w(w)
-      #if ENABLED(NEOPIXEL_LED)
+      #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
         , i(i)
       #endif
     #endif
@@ -75,6 +83,8 @@ typedef struct LEDColor {
       , w(rgbw[3])
       #if ENABLED(NEOPIXEL_LED)
         , i(NEOPIXEL_BRIGHTNESS)
+      #elif ENABLED(APA102_LED)
+        , i(APA102_BRIGHTNESS)
       #endif
     #endif
   {}
@@ -110,6 +120,8 @@ typedef struct LEDColor {
   #define LEDColorWhite() LEDColor(0, 0, 0, 255)
   #if ENABLED(NEOPIXEL_LED)
     #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W, I)
+  #elif ENABLED(APA102_LED)
+    #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W, I)
   #else
     #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W)
   #endif
@@ -133,7 +145,7 @@ public:
   static void setup(); // init()
 
   static void set_color(const LEDColor &color
-    #if ENABLED(NEOPIXEL_LED)
+    #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
       , bool isSequence=false
     #endif
   );
@@ -143,14 +155,16 @@ public:
       , uint8_t w=0
       #if ENABLED(NEOPIXEL_LED)
         , uint8_t i=NEOPIXEL_BRIGHTNESS
+      #elif ENABLED(APA102_LED)
+        , uint8_t i=APA102_BRIGHTNESS
       #endif
     #endif
-    #if ENABLED(NEOPIXEL_LED)
+    #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
       , bool isSequence=false
     #endif
   ) {
     set_color(MakeLEDColor(r, g, b, w, i)
-      #if ENABLED(NEOPIXEL_LED)
+      #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
         , isSequence
       #endif
     );

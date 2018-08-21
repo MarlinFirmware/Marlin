@@ -59,13 +59,16 @@ void LEDLights::setup() {
   #if ENABLED(NEOPIXEL_LED)
     setup_neopixel();
   #endif
+  #if ENABLED(APA102_LED)
+    setup_apa102();
+  #endif
   #if ENABLED(LED_USER_PRESET_STARTUP)
     set_default();
   #endif
 }
 
 void LEDLights::set_color(const LEDColor &incol
-  #if ENABLED(NEOPIXEL_LED)
+  #if ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
     , bool isSequence/*=false*/
   #endif
 ) {
@@ -85,6 +88,23 @@ void LEDLights::set_color(const LEDColor &incol
       return;
     }
 
+  #endif
+
+  #if ENABLED(APA102_LED)
+    const uint32_t apacolor = strip.Color(incol.r, incol.g, incol.b);
+    static uint16_t nextLed = 0;
+    
+    strip.setBrightness(incol.i);
+    if (!isSequence)
+      set_apa102_color(apacolor);
+    else {
+      strip.setPixelColor(nextLed, apacolor);
+      strip.show();
+      nextLed++;
+      nextLed %= strip.numPixels();
+      
+      return;
+    }
   #endif
 
   #if ENABLED(BLINKM)
@@ -131,10 +151,19 @@ void LEDLights::set_white() {
   #if ENABLED(NEOPIXEL_LED)
     set_neopixel_color(pixels.Color(NEO_WHITE));
   #endif
+  #if ENABLED(APA102_LED)
+    set_apa102_color(strip.Color(255, 255, 255));
+  #endif
 }
 
 #if ENABLED(LED_CONTROL_MENU)
-  void LEDLights::toggle() { if (lights_on) set_off(); else update(); }
+  void LEDLights::toggle() { 
+    if (lights_on) {
+      set_off(); 
+    }else {
+      update(); 
+    }
+  }
 #endif
 
 #endif // HAS_COLOR_LEDS

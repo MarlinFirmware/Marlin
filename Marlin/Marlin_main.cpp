@@ -8193,9 +8193,19 @@ inline void gcode_M109() {
         if (blue != old_blue) {
           old_blue = blue;
           leds.set_color(
-            MakeLEDColor(255, 0, blue, 0, pixels.getBrightness())
-            #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-              , true
+            //APA102_LED EDITED
+            MakeLEDColor(255, 0, blue, 0,
+            #if ENABLED(NEOPIXEL_LED)
+              pixels.getBrightness())
+              #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+                , true
+              #endif
+            #endif
+            #if ENABLED(APA102_LED)
+            strip.getBrightness())
+              #if ENABLED(APA102_IS_SEQUENTIAL)
+                , true
+              #endif
             #endif
           );
         }
@@ -8339,9 +8349,18 @@ inline void gcode_M109() {
           if (red != old_red) {
             old_red = red;
             leds.set_color(
-              MakeLEDColor(red, 0, 255, 0, pixels.getBrightness())
-              #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-                , true
+              MakeLEDColor(red, 0, 255, 0, 
+              #if ENABLED(NEOPIXEL_LED)
+                pixels.getBrightness())
+                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+                  , true
+                #endif
+              #endif
+              #if ENABLED(APA102_LED)
+                strip.getBrightness())
+                #if ENABLED(APA102_IS_SEQUENTIAL)
+                  , true
+                #endif
               #endif
             );
           }
@@ -9075,7 +9094,13 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
       parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
       parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
+//APA102_LED EDITED
+#if ENABLED(NEOPIXEL_LED)
       parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : pixels.getBrightness()
+#endif
+#if ENABLED(APA102_LED)
+      parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : strip.getBrightness()
+#endif
     ));
   }
 

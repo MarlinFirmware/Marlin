@@ -1871,13 +1871,23 @@
 
 // Support for Adafruit Neopixel LED driver
 //#define NEOPIXEL_LED
+//APA102_LED EDITED
+#define APA102_LED
+
 #if ENABLED(NEOPIXEL_LED)
-  #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
+  #define NEOPIXEL_TYPE   NEO_GRB  // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   #define NEOPIXEL_PIN    4        // LED driving pin on motherboard 4 => D4 (EXP2-5 on Printrboard) / 30 => PC7 (EXP3-13 on Rumba)
-  #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip
+  #define NEOPIXEL_PIXELS 16       // Number of LEDs in the strip
   #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-  #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
+  #define NEOPIXEL_BRIGHTNESS 107  // Initial brightness (0-255)
   //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
+#elif ENABLED(APA102_LED)
+  #define APA102_LED_TYPE APA102_RBG
+  #define APA102_LED_CPIN 52
+  #define APA102_LED_DPIN 50
+  #define APA102_LED_PIXELS 64
+  #define APA102_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
+  #define APA102_BRIGHTNESS 107  // Initial brightness (0-255)
 #endif
 
 /**
@@ -1891,7 +1901,9 @@
  *  - Change to green once print has finished
  *  - Turn off after the print has finished and the user has pushed a button
  */
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_LED)
+
+ //APA102_LED EDITED
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(PCA9632) || ENABLED(NEOPIXEL_LED) || ENABLED(APA102_LED)
   #define PRINTER_EVENT_LEDS
 #endif
 
