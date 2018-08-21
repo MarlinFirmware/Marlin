@@ -58,6 +58,7 @@
 #include <Arduino.h>
 
 #include "servo.h"
+#include "utility.h"
 
 #define usToTicks(_us)    (( clockCyclesPerMicrosecond()* _us) / 8)     // converts microseconds to tick (assumes prescale of 8)  // 12 Aug 2009
 #define ticksToUs(_ticks) (( (unsigned)_ticks * 8)/ clockCyclesPerMicrosecond() ) // converts from ticks back to microseconds
@@ -236,7 +237,6 @@ static bool isTimerActive(timer16_Sequence_t timer) {
   return false;
 }
 
-
 /****************** end of static functions ******************************/
 
 Servo::Servo() {
@@ -248,18 +248,18 @@ Servo::Servo() {
     this->servoIndex = INVALID_SERVO;  // too many servos
 }
 
-int8_t Servo::attach(int pin) {
+int8_t Servo::attach(const int pin) {
   return this->attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
-int8_t Servo::attach(int pin, int min, int max) {
+int8_t Servo::attach(const int pin, const int min, const int max) {
 
   if (this->servoIndex >= MAX_SERVOS) return -1;
 
   if (pin > 0) servo_info[this->servoIndex].Pin.nbr = pin;
   pinMode(servo_info[this->servoIndex].Pin.nbr, OUTPUT); // set servo pin to output
 
-  // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
+  // todo min/max check: ABS(min - MIN_PULSE_WIDTH) /4 < 128
   this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
   this->max = (MAX_PULSE_WIDTH - max) / 4;
 
@@ -307,16 +307,16 @@ int Servo::readMicroseconds() {
 
 bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 
-void Servo::move(int value) {
+void Servo::move(const int value) {
   constexpr uint16_t servo_delay[] = SERVO_DELAY;
   static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
   if (this->attach(0) >= 0) {
     this->write(value);
-    delay(servo_delay[this->servoIndex]);
+    safe_delay(servo_delay[this->servoIndex]);
     #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
       this->detach();
     #endif
   }
 }
 
-#endif
+#endif // HAS_SERVOS

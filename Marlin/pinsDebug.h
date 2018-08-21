@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -25,7 +25,13 @@ bool endstop_monitor_flag = false;
 #define NAME_FORMAT "%-35s"   // one place to specify the format of all the sources of names
                                // "-" left justify, "28" minimum width of name, pad with blanks
 
-#define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
+#if AVR_ATmega1284_FAMILY
+  #define DIGITAL_PIN_TO_ANALOG_PIN(P) int(analogInputToDigitalPin(0) - (P))
+  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(7) && (P) <= analogInputToDigitalPin(0))
+#else
+  #define DIGITAL_PIN_TO_ANALOG_PIN(P) int((P) - analogInputToDigitalPin(0))
+  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(7)))
+#endif
 
 /**
  *  This routine minimizes RAM usage by creating a FLASH resident array to
@@ -43,8 +49,8 @@ bool endstop_monitor_flag = false;
 
 #define _ADD_PIN_2(PIN_NAME, ENTRY_NAME) static const char ENTRY_NAME[] PROGMEM = { PIN_NAME };
 #define _ADD_PIN(PIN_NAME, COUNTER) _ADD_PIN_2(PIN_NAME, entry_NAME_##COUNTER)
-#define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
-#define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(#NAME, COUNTER)
+#define REPORT_NAME_DIGITAL(COUNTER, NAME) _ADD_PIN(#NAME, COUNTER)
+#define REPORT_NAME_ANALOG(COUNTER, NAME) _ADD_PIN(#NAME, COUNTER)
 
 #include "pinsDebug_list.h"
 #line 51
@@ -66,12 +72,12 @@ bool endstop_monitor_flag = false;
 
 #define _ADD_PIN_2(ENTRY_NAME, NAME, IS_DIGITAL) { ENTRY_NAME, NAME, IS_DIGITAL },
 #define _ADD_PIN(NAME, COUNTER, IS_DIGITAL) _ADD_PIN_2(entry_NAME_##COUNTER, NAME, IS_DIGITAL)
-#define REPORT_NAME_DIGITAL(NAME, COUNTER) _ADD_PIN(NAME, COUNTER, true)
-#define REPORT_NAME_ANALOG(NAME, COUNTER) _ADD_PIN(analogInputToDigitalPin(NAME), COUNTER, false)
+#define REPORT_NAME_DIGITAL(COUNTER, NAME) _ADD_PIN(NAME, COUNTER, true)
+#define REPORT_NAME_ANALOG(COUNTER, NAME) _ADD_PIN(analogInputToDigitalPin(NAME), COUNTER, false)
 
 typedef struct {
   const char * const name;
-  uint8_t pin;
+  pin_t pin;
   bool is_digital;
 } PinInfo;
 
@@ -474,9 +480,9 @@ inline void report_pin_state_extended(int8_t pin, bool ignore, bool extended = f
       for (uint8_t y = 0; y < 28; y++) {                   // always print pin name
         temp_char = pgm_read_byte(name_mem_pointer + y);
         if (temp_char != 0)
-          MYSERIAL.write(temp_char);
+          SERIAL_CHAR(temp_char);
         else {
-          for (uint8_t i = 0; i < 28 - y; i++) MYSERIAL.write(' ');
+          for (uint8_t i = 0; i < 28 - y; i++) SERIAL_CHAR(' ');
           break;
         }
       }

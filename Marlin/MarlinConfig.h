@@ -23,20 +23,26 @@
 #ifndef MARLIN_CONFIG_H
 #define MARLIN_CONFIG_H
 
-#include "fastio.h"
-#include "macros.h"
 #include "boards.h"
+#include "macros.h"
 #include "Version.h"
 #include "Configuration.h"
 #include "Conditionals_LCD.h"
-#include "tmc_macros.h"
+#include "drivers.h"
 #include "Configuration_adv.h"
-#include "pins.h"
-#ifndef USBCON
+
+#if USE_MARLINSERIAL
   #define HardwareSerial_h // trick to disable the standard HWserial
 #endif
-#include "Arduino.h"
+
+#include "types.h"
+#include "HAL.h"
+#include "pins.h"
 #include "Conditionals_post.h"
 #include "SanityCheck.h"
+#include "enum.h"
+#include "language.h"
+#include "utility.h"
+#include "serial.h"
 
 #endif // MARLIN_CONFIG_H

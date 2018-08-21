@@ -31,7 +31,9 @@
 #ifndef LANGUAGE_PT_UTF_H
 #define LANGUAGE_PT_UTF_H
 
+#define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
+#define CHARSIZE 2
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronta.")
 #define MSG_SD_INSERTED                     _UxGT("Cartão inserido")
@@ -43,6 +45,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Ir para origem X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Ir para origem Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Ir para origem Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Indo para origem")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Click para iniciar")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Próximo ponto")
@@ -92,9 +95,15 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_ACC                             _UxGT("Acc")
 #define MSG_JERK                            _UxGT("Jerk")
-#define MSG_VX_JERK                         _UxGT("Vx-jerk")
-#define MSG_VY_JERK                         _UxGT("Vy-jerk")
-#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Va-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vb-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vc-jerk")
+#else
+  #define MSG_VA_JERK                       _UxGT("Vx-jerk")
+  #define MSG_VB_JERK                       _UxGT("Vy-jerk")
+  #define MSG_VC_JERK                       _UxGT("Vz-jerk")
+#endif
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT(" Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
@@ -103,9 +112,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-retracção")
 #define MSG_A_TRAVEL                        _UxGT("A-movimento")
 #define MSG_STEPS_PER_MM                    _UxGT("Passo/mm")
-#define MSG_XSTEPS                          _UxGT("X passo/mm")
-#define MSG_YSTEPS                          _UxGT("Y passo/mm")
-#define MSG_ZSTEPS                          _UxGT("Z passo/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("A passo/mm")
+  #define MSG_BSTEPS                        _UxGT("B passo/mm")
+  #define MSG_CSTEPS                        _UxGT("C passo/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("X passo/mm")
+  #define MSG_BSTEPS                        _UxGT("Y passo/mm")
+  #define MSG_CSTEPS                        _UxGT("Z passo/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("E passo/mm")
 #define MSG_E1STEPS                         _UxGT("E1 passo/mm")
 #define MSG_E2STEPS                         _UxGT("E2 passo/mm")
@@ -132,7 +147,6 @@
 #define MSG_NO_CARD                         _UxGT("Sem cartão SD")
 #define MSG_DWELL                           _UxGT("Em espera...")
 #define MSG_USERWAIT                        _UxGT("Á espera de ordem")
-#define MSG_RESUMING                        _UxGT("Retomando impressão")
 #define MSG_PRINT_ABORTED                   _UxGT("Impressão cancelada")
 #define MSG_NO_MOVE                         _UxGT("Sem movimento")
 #define MSG_KILLED                          _UxGT("EMERGÊNCIA. ")
@@ -164,9 +178,7 @@
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err: T Base Máxima")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err: T Base Mínima")
 #define MSG_HEATING                         _UxGT("Aquecendo...")
-#define MSG_HEATING_COMPLETE                _UxGT("Aquecida.")
-#define MSG_BED_HEATING                     _UxGT("Aquecendo base..")
-#define MSG_BED_DONE                        _UxGT("Base aquecida.")
+#define MSG_BED_HEATING                     _UxGT("Aquecendo base...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Calibração Delta")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Calibrar X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Calibrar Y")

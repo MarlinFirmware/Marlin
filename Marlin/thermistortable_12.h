@@ -20,7 +20,7 @@
  *
  */
 
-// 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
+// R25 = 100 kOhm, beta25 = 4700 K, 4.7 kOhm pull-up, (personal calibration for Makibox hot bed)
 const short temptable_12[][2] PROGMEM = {
   { OV(  35), 180 }, // top rating 180C
   { OV( 211), 140 },

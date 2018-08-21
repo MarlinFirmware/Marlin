@@ -19,11 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "Marlin.h"
-#include "gcode.h"
+
+#include "MarlinConfig.h"
+#include "parser.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER) || ENABLED(DEBUG_GCODE_PARSER)
 
+#include "Marlin.h"
 #include "hex_print_routines.h"
 
 static char _hex[7] = "0x0000";

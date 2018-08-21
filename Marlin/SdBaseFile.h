@@ -37,6 +37,8 @@
 #include "SdFatConfig.h"
 #include "SdVolume.h"
 
+#include <stdint.h>
+
 /**
  * \struct filepos_t
  * \brief internal type for istream
@@ -383,119 +385,6 @@ class SdBaseFile {
   bool open(SdBaseFile* dirFile, const uint8_t dname[11], uint8_t oflag);
   bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);
   dir_t* readDirCache();
-
-// Deprecated functions
-#if ALLOW_DEPRECATED_FUNCTIONS
- public:
-
-  /**
-   * \deprecated Use:
-   * bool contiguousRange(uint32_t* bgnBlock, uint32_t* endBlock);
-   * \param[out] bgnBlock the first block address for the file.
-   * \param[out] endBlock the last  block address for the file.
-   * \return true for success or false for failure.
-   */
-  bool contiguousRange(uint32_t& bgnBlock, uint32_t& endBlock) {
-    return contiguousRange(&bgnBlock, &endBlock);
-  }
-
-  /**
-   * \deprecated Use:
-   * bool createContiguous(SdBaseFile* dirFile, const char* path, uint32_t size)
-   * \param[in] dirFile The directory where the file will be created.
-   * \param[in] path A path with a valid DOS 8.3 file name.
-   * \param[in] size The desired file size.
-   * \return true for success or false for failure.
-   */
-  bool createContiguous(SdBaseFile& dirFile, const char* path, uint32_t size) {
-    return createContiguous(&dirFile, path, size);
-  }
-
-  /**
-   * \deprecated Use:
-   * static void dateTimeCallback(
-   *   void (*dateTime)(uint16_t* date, uint16_t* time));
-   * \param[in] dateTime The user's call back function.
-   */
-  static void dateTimeCallback(
-    void (*dateTime)(uint16_t &date, uint16_t &time)) {
-    oldDateTime_ = dateTime;
-    dateTime_ = dateTime ? oldToNew : 0;
-  }
-
-  /**
-   * \deprecated Use:
-   * bool open(SdBaseFile* dirFile, const char* path, uint8_t oflag);
-   * \param[in] dirFile An open SdFat instance for the directory containing the
-   * file to be opened.
-   * \param[in] path A path with a valid 8.3 DOS name for the file.
-   * \param[in] oflag Values for \a oflag are constructed by a bitwise-inclusive
-   * OR of flags O_READ, O_WRITE, O_TRUNC, and O_SYNC.
-   * \return true for success or false for failure.
-   */
-  bool open(SdBaseFile& dirFile, const char* path, uint8_t oflag) {
-    return open(&dirFile, path, oflag);
-  }
-
-  /**
-   * \deprecated  Do not use in new apps
-   * \param[in] dirFile An open SdFat instance for the directory containing the
-   * file to be opened.
-   * \param[in] path A path with a valid 8.3 DOS name for a file to be opened.
-   * \return true for success or false for failure.
-   */
-  bool open(SdBaseFile& dirFile, const char* path) {
-    return open(dirFile, path, O_RDWR);
-  }
-
-  /**
-   * \deprecated Use:
-   * bool open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag);
-   * \param[in] dirFile An open SdFat instance for the directory.
-   * \param[in] index The \a index of the directory entry for the file to be
-   * opened.  The value for \a index is (directory file position)/32.
-   * \param[in] oflag Values for \a oflag are constructed by a bitwise-inclusive
-   * OR of flags O_READ, O_WRITE, O_TRUNC, and O_SYNC.
-   * \return true for success or false for failure.
-   */
-  bool open(SdBaseFile& dirFile, uint16_t index, uint8_t oflag) {
-    return open(&dirFile, index, oflag);
-  }
-
-  /**
-   * \deprecated Use: bool openRoot(SdVolume* vol);
-   * \param[in] vol The FAT volume containing the root directory to be opened.
-   * \return true for success or false for failure.
-   */
-  bool openRoot(SdVolume& vol) { return openRoot(&vol); }
-
-  /**
-   * \deprecated Use: int8_t readDir(dir_t* dir);
-   * \param[out] dir The dir_t struct that will receive the data.
-   * \return bytes read for success zero for eof or -1 for failure.
-   */
-  int8_t readDir(dir_t& dir, char* longFilename) {
-    return readDir(&dir, longFilename);
-  }
-
-  /**
-   * \deprecated Use:
-   * static uint8_t remove(SdBaseFile* dirFile, const char* path);
-   * \param[in] dirFile The directory that contains the file.
-   * \param[in] path The name of the file to be removed.
-   * \return true for success or false for failure.
-   */
-  static bool remove(SdBaseFile& dirFile, const char* path) { return remove(&dirFile, path); }
-
- private:
-  static void (*oldDateTime_)(uint16_t &date, uint16_t &time);
-  static void oldToNew(uint16_t * const date, uint16_t * const time) {
-    uint16_t d, t;
-    oldDateTime_(d, t);
-    *date = d;
-    *time = t;
-  }
-#endif  // ALLOW_DEPRECATED_FUNCTIONS
 };
 
 #endif // _SDBASEFILE_H_
