@@ -29,224 +29,222 @@
 #include "../../../feature/tmc_util.h"
 #include "../../../module/stepper_indirection.h"
 
-/**
- * M941: TMC set MSLUT. 
- */
-#if ENABLED(TMC_MSLUT_CALIBRATION)
-  #if ENABLED(TMC2130_LINEARITY_CORRECTION)
-    void GcodeSuite::M941() {
-      if (parser.seenval('E')) {
-        #if AXIS_IS_TMC(E0)
-          tmc2130_set_wave(stepperE0, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
-        #endif
-      }
-      if (parser.seenval('X')) {
-        #if AXIS_IS_TMC(X)
-          tmc2130_set_wave(stepperX, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
-        #endif
-        #if AXIS_IS_TMC(X2)
-          tmc2130_set_wave(stepperX2, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
-        #endif
-      }
-      if (parser.seenval('Y')) {
-        #if AXIS_IS_TMC(Y)
-          tmc2130_set_wave(stepperY, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          tmc2130_set_wave(stepperY2, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
-        #endif
-      }
-      if (parser.seenval('Z')) {
-        #if AXIS_IS_TMC(Z)
-          tmc2130_set_wave(stepperZ, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          tmc2130_set_wave(stepperZ2, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
-        #endif
-      }
+#if ENABLED(TMC_MSLUT_CALIBRATION) && ENABLED(TMC2130_LINEARITY_CORRECTION)
+
+  /**
+   * M941: TMC set MSLUT.
+   */
+  void GcodeSuite::M941() {
+    if (parser.seenval('X')) {
+      #if AXIS_IS_TMC(X)
+        tmc2130_set_wave(stepperX, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
+      #endif
+      #if AXIS_IS_TMC(X2)
+        tmc2130_set_wave(stepperX2, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
+      #endif
     }
-
-/**
- * M942: TMC reset MSLUT. 
- */
-    void GcodeSuite::M942() {
-      if (parser.seen('E')) {
-        #if AXIS_IS_TMC(E0)
-          tmc2130_reset_wave(stepperE0);
-        #endif
-      }
-      if (parser.seen('X')) {
-        #if AXIS_IS_TMC(X)
-          tmc2130_reset_wave(stepperX);
-        #endif
-        #if AXIS_IS_TMC(X2)
-          tmc2130_reset_wave(stepperX2);
-        #endif
-      }
-      if (parser.seen('Y')) {
-        #if AXIS_IS_TMC(Y)
-          tmc2130_reset_wave(stepperY);
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          tmc2130_reset_wave(stepperY2);
-        #endif
-      }
-      if (parser.seen('Z')) {
-        #if AXIS_IS_TMC(Z)
-          tmc2130_reset_wave(stepperZ);
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          tmc2130_reset_wave(stepperZ2);
-        #endif
-      }
+    if (parser.seenval('Y')) {
+      #if AXIS_IS_TMC(Y)
+        tmc2130_set_wave(stepperY, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        tmc2130_set_wave(stepperY2, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
+      #endif
     }
-
-/**
- * M943: TMC set preset MSLUT. 
- */
-    void GcodeSuite::M943() {
-      if (parser.seenval('E')) {
-        #if AXIS_IS_TMC(E0)
-          tmc2130_set_fixed_wave(stepperE0, (uint8_t)parser.value_int());
-        #endif
-      }
-      if (parser.seenval('X')) {
-        #if AXIS_IS_TMC(X)
-          tmc2130_set_fixed_wave(stepperX, (uint8_t)parser.value_int());
-        #endif
-        #if AXIS_IS_TMC(X2)
-          tmc2130_set_fixed_wave(stepperX2, (uint8_t)parser.value_int());
-        #endif
-      }
-      if (parser.seenval('Y')) {
-        #if AXIS_IS_TMC(Y)
-          tmc2130_set_fixed_wave(stepperY, (uint8_t)parser.value_int());
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          tmc2130_set_fixed_wave(stepperY2, (uint8_t)parser.value_int());
-        #endif
-      }
-      if (parser.seenval('Z')) {
-        #if AXIS_IS_TMC(Z)
-          tmc2130_set_fixed_wave(stepperZ, (uint8_t)parser.value_int());
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          tmc2130_set_fixed_wave(stepperZ2, (uint8_t)parser.value_int());
-        #endif
-      }
+    if (parser.seenval('Z')) {
+      #if AXIS_IS_TMC(Z)
+        tmc2130_set_wave(stepperZ, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        tmc2130_set_wave(stepperZ2, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
+      #endif
     }
-  #endif // TMC2130_LINEARITY_CORRECTION
-#endif // TMC_MSLUT_CALIBRATION
+    if (parser.seenval('E')) {
+      #if AXIS_IS_TMC(E0)
+        tmc2130_set_wave(stepperE0, TMC2130_LINEARITY_CORRECTION_AMPL, (int16_t)parser.value_int());
+      #endif
+    }
+  }
 
-/**
- * M945: TMC switch StealthChop.
- */
-#if ENABLED(TMC_CHOP_MODE)
-void GcodeSuite::M945() {
- if (parser.seenval('E')) {
-        #if AXIS_IS_TMC(E0)
-          stepperE0.stealthChop(parser.value_bool());
-        #endif
-      }
-      if (parser.seenval('X')) {
-        #if AXIS_IS_TMC(X)
-          stepperX.stealthChop(parser.value_bool());
-        #endif
-        #if AXIS_IS_TMC(X2)
-          stepperX2.stealthChop(parser.value_bool());
-        #endif
-      }
-      if (parser.seenval('Y')) {
-        #if AXIS_IS_TMC(Y)
-          stepperY.stealthChop(parser.value_bool());
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          stepperY2.stealthChop(parser.value_bool());
-        #endif
-      }
-      if (parser.seenval('Z')) {
-        #if AXIS_IS_TMC(Z)
-          stepperZ.stealthChop(parser.value_bool());
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          stepperZ2.stealthChop(parser.value_bool());
-        #endif
-      }
-}
-#endif // TMC_CHOP_MODE
+  /**
+   * M942: TMC reset MSLUT.
+   */
+  void GcodeSuite::M942() {
+    if (parser.seen('X')) {
+      #if AXIS_IS_TMC(X)
+        tmc2130_reset_wave(stepperX);
+      #endif
+      #if AXIS_IS_TMC(X2)
+        tmc2130_reset_wave(stepperX2);
+      #endif
+    }
+    if (parser.seen('Y')) {
+      #if AXIS_IS_TMC(Y)
+        tmc2130_reset_wave(stepperY);
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        tmc2130_reset_wave(stepperY2);
+      #endif
+    }
+    if (parser.seen('Z')) {
+      #if AXIS_IS_TMC(Z)
+        tmc2130_reset_wave(stepperZ);
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        tmc2130_reset_wave(stepperZ2);
+      #endif
+    }
+    if (parser.seen('E')) {
+      #if AXIS_IS_TMC(E0)
+        tmc2130_reset_wave(stepperE0);
+      #endif
+    }
+  }
 
-/**
- * M946: TMC switch ChopperMode.
- */
-#if ENABLED(TMC_CHOP_MODE)
-void GcodeSuite::M946() {
- if (parser.seenval('E')) {
-        #if AXIS_IS_TMC(E0)
-          stepperE0.chopper_mode(parser.value_bool());
-        #endif
-      }
-      if (parser.seenval('X')) {
-        #if AXIS_IS_TMC(X)
-          stepperX.chopper_mode(parser.value_bool());
-        #endif
-        #if AXIS_IS_TMC(X2)
-          stepperX2.chopper_mode(parser.value_bool());
-        #endif
-      }
-      if (parser.seenval('Y')) {
-        #if AXIS_IS_TMC(Y)
-          stepperY.chopper_mode(parser.value_bool());
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          stepperY2.chopper_mode(parser.value_bool());
-        #endif
-      }
-      if (parser.seenval('Z')) {
-        #if AXIS_IS_TMC(Z)
-          stepperZ.chopper_mode(parser.value_bool());
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          stepperZ2.chopper_mode(parser.value_bool());
-        #endif
-      }
-}
-#endif // TMC_CHOP_MODE
+  /**
+   * M943: TMC set preset MSLUT.
+   */
+  void GcodeSuite::M943() {
+    if (parser.seenval('X')) {
+      #if AXIS_IS_TMC(X)
+        tmc2130_set_fixed_wave(stepperX, (uint8_t)parser.value_int());
+      #endif
+      #if AXIS_IS_TMC(X2)
+        tmc2130_set_fixed_wave(stepperX2, (uint8_t)parser.value_int());
+      #endif
+    }
+    if (parser.seenval('Y')) {
+      #if AXIS_IS_TMC(Y)
+        tmc2130_set_fixed_wave(stepperY, (uint8_t)parser.value_int());
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        tmc2130_set_fixed_wave(stepperY2, (uint8_t)parser.value_int());
+      #endif
+    }
+    if (parser.seenval('Z')) {
+      #if AXIS_IS_TMC(Z)
+        tmc2130_set_fixed_wave(stepperZ, (uint8_t)parser.value_int());
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        tmc2130_set_fixed_wave(stepperZ2, (uint8_t)parser.value_int());
+      #endif
+    }
+    if (parser.seenval('E')) {
+      #if AXIS_IS_TMC(E0)
+        tmc2130_set_fixed_wave(stepperE0, (uint8_t)parser.value_int());
+      #endif
+    }
+  }
 
-/**
- * M947: TMC switch interpolation.
- */
+#endif // TMC_MSLUT_CALIBRATION && TMC2130_LINEARITY_CORRECTION
+
 #if ENABLED(TMC_CHOP_MODE)
-void GcodeSuite::M947() {
- if (parser.seenval('E')) {
-        #if AXIS_IS_TMC(E0)
-          stepperE0.interpolate(parser.value_bool());
-        #endif
-      }
-      if (parser.seenval('X')) {
-        #if AXIS_IS_TMC(X)
-          stepperX.interpolate(parser.value_bool());
-        #endif
-        #if AXIS_IS_TMC(X2)
-          stepperX2.interpolate(parser.value_bool());
-        #endif
-      }
-      if (parser.seenval('Y')) {
-        #if AXIS_IS_TMC(Y)
-          stepperY.interpolate(parser.value_bool());
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          stepperY2.interpolate(parser.value_bool());
-        #endif
-      }
-      if (parser.seenval('Z')) {
-        #if AXIS_IS_TMC(Z)
-          stepperZ.interpolate(parser.value_bool());
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          stepperZ2.interpolate(parser.value_bool());
-        #endif
-      }
-}
+
+  /**
+   * M945: TMC switch StealthChop.
+   */
+  void GcodeSuite::M945() {
+    if (parser.seenval('X')) {
+      #if AXIS_IS_TMC(X)
+        stepperX.stealthChop(parser.value_bool());
+      #endif
+      #if AXIS_IS_TMC(X2)
+        stepperX2.stealthChop(parser.value_bool());
+      #endif
+    }
+    if (parser.seenval('Y')) {
+      #if AXIS_IS_TMC(Y)
+        stepperY.stealthChop(parser.value_bool());
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        stepperY2.stealthChop(parser.value_bool());
+      #endif
+    }
+    if (parser.seenval('Z')) {
+      #if AXIS_IS_TMC(Z)
+        stepperZ.stealthChop(parser.value_bool());
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        stepperZ2.stealthChop(parser.value_bool());
+      #endif
+    }
+    if (parser.seenval('E')) {
+      #if AXIS_IS_TMC(E0)
+        stepperE0.stealthChop(parser.value_bool());
+      #endif
+    }
+  }
+
+  /**
+   * M946: TMC switch ChopperMode.
+   */
+  void GcodeSuite::M946() {
+    if (parser.seenval('X')) {
+      #if AXIS_IS_TMC(X)
+        stepperX.chopper_mode(parser.value_bool());
+      #endif
+      #if AXIS_IS_TMC(X2)
+        stepperX2.chopper_mode(parser.value_bool());
+      #endif
+    }
+    if (parser.seenval('Y')) {
+      #if AXIS_IS_TMC(Y)
+        stepperY.chopper_mode(parser.value_bool());
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        stepperY2.chopper_mode(parser.value_bool());
+      #endif
+    }
+    if (parser.seenval('Z')) {
+      #if AXIS_IS_TMC(Z)
+        stepperZ.chopper_mode(parser.value_bool());
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        stepperZ2.chopper_mode(parser.value_bool());
+      #endif
+    }
+    if (parser.seenval('E')) {
+      #if AXIS_IS_TMC(E0)
+        stepperE0.chopper_mode(parser.value_bool());
+      #endif
+    }
+  }
+
+  /**
+   * M947: TMC switch interpolation.
+   */
+  void GcodeSuite::M947() {
+    if (parser.seenval('X')) {
+      #if AXIS_IS_TMC(X)
+        stepperX.interpolate(parser.value_bool());
+      #endif
+      #if AXIS_IS_TMC(X2)
+        stepperX2.interpolate(parser.value_bool());
+      #endif
+    }
+    if (parser.seenval('Y')) {
+      #if AXIS_IS_TMC(Y)
+        stepperY.interpolate(parser.value_bool());
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        stepperY2.interpolate(parser.value_bool());
+      #endif
+    }
+    if (parser.seenval('Z')) {
+      #if AXIS_IS_TMC(Z)
+        stepperZ.interpolate(parser.value_bool());
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        stepperZ2.interpolate(parser.value_bool());
+      #endif
+    }
+    if (parser.seenval('E')) {
+      #if AXIS_IS_TMC(E0)
+        stepperE0.interpolate(parser.value_bool());
+      #endif
+    }
+  }
+
 #endif // TMC_CHOP_MODE
 
 #endif // HAS_TRINAMIC

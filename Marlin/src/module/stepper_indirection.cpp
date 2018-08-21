@@ -183,10 +183,11 @@
   // Use internal reference voltage for current calculations. This is the default.
   // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
   // https://www.trinamic.com/products/integrated-circuits/details/tmc2130/
-  void tmc2130_init(TMC2130Stepper &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool intpol = INTERPOLATE, const float holdmult = HOLD_MULTIPLIER,\
-                    const uint8_t tblank = 24, const uint8_t toff = 5, const uint8_t hstart = 3, const int8_t hend = 2, const uint8_t sync = 0, const int8_t sgt = 0, \
-                    const bool stealth = false, const uint8_t pwmfreq = 1, const bool pwmauto = true, const uint8_t pwmgrad = 5, const uint8_t pwmampl = 255, const bool pwmsym = false, \
-                    const uint8_t wave = 0) {
+  void tmc2130_init(TMC2130Stepper &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool intpol=INTERPOLATE, const float holdmult=HOLD_MULTIPLIER,
+                    const uint8_t tblank=24, const uint8_t toff=5, const uint8_t hstart=3, const int8_t hend=2, const uint8_t sync=0, const int8_t sgt=0,
+                    const bool stealth=false, const uint8_t pwmfreq=1, const bool pwmauto=true, const uint8_t pwmgrad=5, const uint8_t pwmampl=255, const bool pwmsym=false,
+                    const uint8_t wave=0
+  ) {
     #if DISABLED(STEALTHCHOP) || DISABLED(HYBRID_THRESHOLD)
       UNUSED(thrs);
       UNUSED(spmm);
@@ -213,7 +214,7 @@
         st.stealth_max_speed(12650000UL*microsteps/(256*thrs*spmm));
       #endif
     #endif
-    #if ENABLED(TMC2130_LINEARITY_CORRECTION_PRESET) 
+    #if ENABLED(TMC2130_LINEARITY_CORRECTION_PRESET)
       tmc2130_set_fixed_wave(st, wave);
     #endif
     st.GSTAT(); // Clear GSTAT
@@ -291,33 +292,23 @@
 
   #if ENABLED(TMC2130_LINEARITY_CORRECTION) // TMC2130_LINEARITY_CORRECTION
 
-    void tmc2130_wr_MSLUTSTART(TMC2130Stepper &st, uint8_t start_sin, uint8_t start_sin90)
-    {
-      uint32_t val = 0;
-      val |= (uint32_t)start_sin;
-      val |= ((uint32_t)start_sin90) << 16;
+    void tmc2130_wr_MSLUTSTART(TMC2130Stepper &st, uint8_t start_sin, uint8_t start_sin90) {
+      const uint32_t val = uint32_t(start_sin) | (uint32_t(start_sin90) << 16);
       SERIAL_PROTOCOLPGM(" MSLUTSTART: ");
       SERIAL_PRINTLN(val, HEX);
       st.lut_mslutstart(val);
     }
 
-    void tmc2130_wr_MSLUTSEL(TMC2130Stepper &st, uint8_t x1, uint8_t x2, uint8_t x3, int8_t w0, int8_t w1, int8_t w2, int8_t w3)
-    {
-      uint32_t val = 0;
-      val |= ((uint32_t)w0);
-      val |= ((uint32_t)w1) << 2;
-      val |= ((uint32_t)w2) << 4;
-      val |= ((uint32_t)w3) << 6;
-      val |= ((uint32_t)x1) << 8;
-      val |= ((uint32_t)x2) << 16;
-      val |= ((uint32_t)x3) << 24;
+    void tmc2130_wr_MSLUTSEL(TMC2130Stepper &st, uint8_t x1, uint8_t x2, uint8_t x3, int8_t w0, int8_t w1, int8_t w2, int8_t w3) {
+      const uint32_t val =  uint32_t(w0)
+                         | (uint32_t(w1) <<  2) | (uint32_t(w2) <<  4) | (uint32_t(w3) <<  6)
+                         | (uint32_t(x1) <<  8) | (uint32_t(x2) << 16) | (uint32_t(x3) << 24);
       SERIAL_PROTOCOLPGM(" MSLUTSEL: ");
       SERIAL_PRINTLN(val, HEX);
       st.lut_msutsel(val);
     }
 
-    void tmc2130_wr_MSLUT(TMC2130Stepper &st, uint8_t i, uint32_t val)
-    {
+    void tmc2130_wr_MSLUT(TMC2130Stepper &st, uint8_t i, uint32_t val) {
       SERIAL_PROTOCOLPGM(" MSLUT");
       SERIAL_PRINT(i, DEC);
       SERIAL_PROTOCOLPGM(" : ");
@@ -335,8 +326,7 @@
       }
     }
 
-    void tmc2130_reset_wave(TMC2130Stepper &st) // TMC2130_LINEARITY_CORRECTION
-    {
+    void tmc2130_reset_wave(TMC2130Stepper &st) { // TMC2130_LINEARITY_CORRECTION
       SERIAL_PROTOCOLLNPGM(" MSLUT RESET ");
       st.lut_mslutstart(0x00F70000UL);      // 0x00F70000 16187392
       st.lut_mslut0(0xAAAAB554UL);          // 0xAAAAB554 2863314260
@@ -347,211 +337,151 @@
       st.lut_mslut5(0xB5BB777DUL);          // 0xB5BB777D 3048961917
       st.lut_mslut6(0x49295556UL);          // 0x49295556 1227445590
       st.lut_mslut7(0x00404222UL);          // 0x00404222 4211234
-      st.lut_msutsel(0xFFFF8056UL);         // 0xFFFF8056 4294934614  
+      st.lut_msutsel(0xFFFF8056UL);         // 0xFFFF8056 4294934614
     }
 
-    void tmc2130_set_fixed_wave(TMC2130Stepper &st, uint8_t i) // TMC2130_LINEARITY_CORRECTION
-    {
-      if (i == 1)
-      {
-        SERIAL_PROTOCOLLNPGM(" MSLUT Wave: SoundCorrection [X]");
-        st.lut_mslutstart(0x00FC0000UL); 
-        st.lut_mslut0(0xAAAAB554UL); 
-        st.lut_mslut1(0x52AAAAAAUL); 
-        st.lut_mslut2(0x91252529UL); 
-        st.lut_mslut3(0x10208848UL); 
-        st.lut_mslut4(0xBFFC0200UL); 
-        st.lut_mslut5(0xB6DBBBDFUL); 
-        st.lut_mslut6(0x24A55556UL); 
-        st.lut_mslut7(0x00041089UL); 
-        st.lut_msutsel(0xFFFF9156UL); 				
-      }	
-      else if (i == 2)
-      {
-        SERIAL_PROTOCOLLNPGM(" MSLUT Wave: LaserCorrection [X]");
-        st.lut_mslutstart(0x00FC0000UL); 					
-        st.lut_mslut0(0xD52ADB54UL); 					
-        st.lut_mslut1(0x52AAAAAAUL); 					
-        st.lut_mslut2(0x91252529UL); 					
-        st.lut_mslut3(0x10208848UL); 					
-        st.lut_mslut4(0xBFFC0200UL); 					
-        st.lut_mslut5(0xB6DBBBDFUL); 					
-        st.lut_mslut6(0x24A55556UL); 					
-        st.lut_mslut7(0x00040089UL); 					
-        st.lut_msutsel(0xFFFF9156UL); 														 				
-      }	
-      else if (i == 3)
-      {
-        SERIAL_PROTOCOLLNPGM(" MSLUT Wave: SoundCorrection [E]");
-        st.lut_mslutstart(0x00FC0000UL); 
-        st.lut_mslut0(0x6B6DBBDEUL); 
-        st.lut_mslut1(0x4AAAAAADUL); 
-        st.lut_mslut2(0x444924A5UL); 
-        st.lut_mslut3(0x20041044UL); 
-        st.lut_mslut4(0xBEFF8000UL); 
-        st.lut_mslut5(0x5ADB76F7UL); 
-        st.lut_mslut6(0x894A5555UL); 
-        st.lut_mslut7(0x00020844UL); 
-        st.lut_msutsel(0xFFFF8E56UL); 																		 				
-      }	
-      else if (i == 4)
-      {
-        SERIAL_PROTOCOLLNPGM(" MSLUT Wave: LaserCorrection [E]");
-        st.lut_mslutstart(0x00FD0000UL); 					
-        st.lut_mslut0(0xD5BAD554UL); 					
-        st.lut_mslut1(0x92A4AAABUL); 					
-        st.lut_mslut2(0x91356529UL); 					
-        st.lut_mslut3(0x10248848UL); 					
-        st.lut_mslut4(0xBFDC2200UL); 					
-        st.lut_mslut5(0xB6DABBDBUL); 					
-        st.lut_mslut6(0xA4A85552UL); 					
-        st.lut_mslut7(0x00040089UL); 					
-        st.lut_msutsel(0xFFFF9156UL); 																									 				
-      }	
-      else
-      {
-        SERIAL_PROTOCOLLNPGM(" ERROR: Not a preset value. ");
+    void tmc2130_set_fixed_wave(TMC2130Stepper &st, uint8_t i) { // TMC2130_LINEARITY_CORRECTION
+      SERIAL_PROTOCOLPGM(" MSLUT Wave: ");
+      switch (i) {
+        case 1:
+          SERIAL_PROTOCOLLNPGM("SoundCorrection [X]");
+          st.lut_mslutstart(0x00FC0000UL);
+          st.lut_mslut0(0xAAAAB554UL);
+          st.lut_mslut1(0x52AAAAAAUL);
+          st.lut_mslut2(0x91252529UL);
+          st.lut_mslut3(0x10208848UL);
+          st.lut_mslut4(0xBFFC0200UL);
+          st.lut_mslut5(0xB6DBBBDFUL);
+          st.lut_mslut6(0x24A55556UL);
+          st.lut_mslut7(0x00041089UL);
+          st.lut_msutsel(0xFFFF9156UL);
+          break;
+        case 2:
+          SERIAL_PROTOCOLLNPGM("LaserCorrection [X]");
+          st.lut_mslutstart(0x00FC0000UL);
+          st.lut_mslut0(0xD52ADB54UL);
+          st.lut_mslut1(0x52AAAAAAUL);
+          st.lut_mslut2(0x91252529UL);
+          st.lut_mslut3(0x10208848UL);
+          st.lut_mslut4(0xBFFC0200UL);
+          st.lut_mslut5(0xB6DBBBDFUL);
+          st.lut_mslut6(0x24A55556UL);
+          st.lut_mslut7(0x00040089UL);
+          st.lut_msutsel(0xFFFF9156UL);
+          break;
+        case 3:
+          SERIAL_PROTOCOLLNPGM("SoundCorrection [E]");
+          st.lut_mslutstart(0x00FC0000UL);
+          st.lut_mslut0(0x6B6DBBDEUL);
+          st.lut_mslut1(0x4AAAAAADUL);
+          st.lut_mslut2(0x444924A5UL);
+          st.lut_mslut3(0x20041044UL);
+          st.lut_mslut4(0xBEFF8000UL);
+          st.lut_mslut5(0x5ADB76F7UL);
+          st.lut_mslut6(0x894A5555UL);
+          st.lut_mslut7(0x00020844UL);
+          st.lut_msutsel(0xFFFF8E56UL);
+          break;
+        case 4:
+          SERIAL_PROTOCOLLNPGM("LaserCorrection [E]");
+          st.lut_mslutstart(0x00FD0000UL);
+          st.lut_mslut0(0xD5BAD554UL);
+          st.lut_mslut1(0x92A4AAABUL);
+          st.lut_mslut2(0x91356529UL);
+          st.lut_mslut3(0x10248848UL);
+          st.lut_mslut4(0xBFDC2200UL);
+          st.lut_mslut5(0xB6DABBDBUL);
+          st.lut_mslut6(0xA4A85552UL);
+          st.lut_mslut7(0x00040089UL);
+          st.lut_msutsel(0xFFFF9156UL);
+          break;
+        default:
+          SERIAL_PROTOCOLLNPGM(" ERROR: Not a preset value. ");
       }
     }
 
-    void tmc2130_set_wave(TMC2130Stepper &st, uint8_t amp, int16_t fac1000, int8_t xoff, int8_t yoff, uint8_t wavetype, bool config, uint8_t addto) // TMC2130_LINEARITY_CORRECTION
-    {
-    // TMC2130 wave compression algorithm
-    // optimized for minimal memory requirements
-    // wavetype: 0 (default) pow(Sin,1+x); 1 pow(Cycle,2+x)
-      if (fac1000 < TMC2130_WAVE_FAC1000_MIN) fac1000 = TMC2130_WAVE_FAC1000_MIN;
-      if (fac1000 > TMC2130_WAVE_FAC1000_MAX) fac1000 = TMC2130_WAVE_FAC1000_MAX;
-      float fac;
-      if (wavetype == 1) 
-      {
-        SERIAL_PROTOCOLPGM(" tmc2130_set_wave: Cycle-Factor: ");
-        fac = ((float)(2000 + fac1000) / 1000);
-      }
-      else 
-      {
-        SERIAL_PROTOCOLPGM(" tmc2130_set_wave: Sin-Factor: ");
-        fac = ((float)(1000 + fac1000) / 1000);
-      }
+    void tmc2130_set_wave(TMC2130Stepper &st, uint8_t amp, int16_t fac1000, int8_t xoff, int8_t yoff, uint8_t wavetype, bool config, uint8_t addto) { // TMC2130_LINEARITY_CORRECTION
+      // TMC2130 wave compression algorithm
+      // optimized for minimal memory requirements
+      // wavetype: 0 (default) pow(Sin,1+x); 1 pow(Cycle,2+x)
+      NOLESS(fac1000, TMC2130_WAVE_FAC1000_MIN);
+      NOMORE(fac1000, TMC2130_WAVE_FAC1000_MAX);
+      SERIAL_PROTOCOLPGM(" tmc2130_set_wave: ");
+      serialprintPGM(wavetype == 1 ? PSTR("Cycle") : PSTR("Sin"));
+      SERIAL_PROTOCOLPGM("-Factor: ");
+      const float fac = float((wavetype == 1 ? 2000 : 1000) + fac1000) / 1000;
       SERIAL_PROTOCOLLN(fac);
-      uint8_t vA = 0;                //value of currentA
-      uint8_t va = 0;                //previous vA
-      uint8_t w[4] = {1,1,1,1};      //W bits (MSLUTSEL)
-      uint8_t x[3] = {255,255,255};  //X segment bounds (MSLUTSEL)
-      int8_t s = 0;                  //current segment
-      int8_t b;                      //encoded bit value
-      int8_t dA;                     //delta value
-      int i;                         //microstep index
-      uint32_t reg;                  //tmc2130 register
+      uint8_t vA = 0,                // Value of currentA
+              va = 0,                // Previous vA
+              w[4] = {1,1,1,1},      // W bits (MSLUTSEL)
+              x[3] = {255,255,255};  // X segment bounds (MSLUTSEL)
+      int8_t s = 0,                  // Current segment
+             b,                      // Encoded bit value
+             dA;                     // Delta value
+      int i;                         // Microstep index
+      uint32_t reg;                  // TMC2130 register
       tmc2130_wr_MSLUTSTART(st, 0, amp);
-      //set first W-Bit
-      if (wavetype == 1) 
-      { // Cycle
-        w[0] = (uint8_t)((amp-1) *  pow(1 - pow((float)xoff/256-1,2), fac/2) + yoff/10);
-      }
-      else 
-      { // Sin
-        w[0] = (uint8_t)((amp-1) * pow(sin((2*PI*xoff)/1024), fac) + yoff/10);
-      }
-      for (i = 0; i < 256; i++)
-      {
-        if (wavetype == 1) 
-        { // Cycle
-          vA = (uint8_t)((amp-1) *  pow(1 - pow(((float)i+xoff)/256-1,2), fac/2) + yoff/10);
-        }
-        else 
-        { // Sin
-          vA = (uint8_t)((amp-1) * pow(sin((2*PI*(i+xoff))/1024), fac) + yoff/10);
-        }
-        dA = (int8_t)(vA - va);
-        if (dA > w[0]) 
-        {
-          w[0]++; 
-          break;
-        }
-        if (dA < w[0]) 
-        {
-          //w[0]--; 
-          break;
-        }
+      // Set first W-Bit
+      if (wavetype == 1)   // Cycle
+        w[0] = uint8_t((amp - 1) * pow(1 - pow(float(xoff) / 256 - 1, 2), fac / 2) + yoff / 10);
+      else   // Sin
+        w[0] = uint8_t((amp - 1) * pow(sin((2 * PI * xoff) / 1024), fac) + yoff / 10);
+      for (i = 0; i < 256; i++) {
+        if (wavetype == 1)   // Cycle
+          vA = uint8_t((amp - 1) * pow(1 - pow((float(i) + xoff) / 256 - 1, 2), fac / 2) + yoff / 10);
+        else   // Sin
+          vA = uint8_t((amp - 1) * pow(sin((2 * PI * (i + xoff)) / 1024), fac) + yoff / 10);
+        dA = int8_t(vA - va);
+        if (dA > w[0]) { w[0]++; break; }
+        if (dA < w[0]) { /* w[0]--; */ break; }
         va = vA;
       }
-      int8_t d0 = (int8_t)w[0] -1;   
-      int8_t d1 = (int8_t)w[0];
+      int8_t d1 = (int8_t)w[0], d0 = d1 - 1;
       // calc MSLUT
       va = 0;
-      for (i =0; i < 256 ; i++)
-      {
-        if (( i & 31) == 0) 
-        {
-          reg = 0;
-        }  
-        if (wavetype == 1) 
-        { // Cycle
-          vA = (uint8_t)((amp-1) *  pow(1 - pow(((float)i+xoff)/256-1,2), fac/2) + yoff/10);
-        }
-        else 
-        { // Sin
-          vA = (uint8_t)((amp-1) * pow(sin((2*PI*(i+xoff))/1024), fac) + yoff/10); // + 0.5 for Round (compiler will truncate)
-        }
+      for (i = 0; i < 256 ; i++) {
+        if (!(i & 0x1F)) reg = 0;
+        if (wavetype == 1)   // Cycle
+          vA = uint8_t((amp - 1) * pow(1 - pow((float(i) + xoff) / 256 - 1, 2), fac / 2) + yoff / 10);
+        else   // Sin
+          vA = uint8_t((amp - 1) * pow(sin((2 * PI * (i + xoff)) / 1024), fac) + yoff / 10); // + 0.5 for Round (compiler will truncate)
 
         dA = (int8_t)(vA - va); // calculate delta
         va = vA;
         b = -1;
-        if (dA == d0)      //delta == delta0 => bit=0
-        {
-          b = 0; 
-        }
-        else if (dA == d1)  //delta == delta1 => bit=1
-        {
+        if (dA == d0)           // delta == delta0 => bit=0
+          b = 0;
+        else if (dA == d1)      // delta == delta1 => bit=1
           b = 1;
-        }
-        else
-        {
-          if (dA < d0) // delta < delta0 => switch wbit down
-          {
-            b = 0;
-            switch (dA)
-            {
+        else if (dA < d0) {     // delta < delta0 => switch wbit down
+          b = 0;
+          switch (dA) {
             case -1: d0 = -1; d1 = 0; w[s+1] = 0; break;
             case  0: d0 =  0; d1 = 1; w[s+1] = 1; break;
             case  1: d0 =  1; d1 = 2; w[s+1] = 2; break;
             default: b = -1; break;
-            }
-            if (b >= 0) 
-            { 
-              x[s] = i; 
-              s++; 
-            }
           }
-          else if (dA > d1) // delta > delta0 => switch wbit up
-          {
-            b = 1;
-            switch (dA)
-            {
+          if (b >= 0) x[s++] = i;
+        }
+        else if (dA > d1) { // delta > delta0 => switch wbit up
+          b = 1;
+          switch (dA) {
             case  1: d0 =  0; d1 = 1; w[s+1] = 1; break;
             case  2: d0 =  1; d1 = 2; w[s+1] = 2; break;
             case  3: d0 =  2; d1 = 3; w[s+1] = 3; break;
             default: b = -1; break;
-            }
-              if (b >= 0) 
-              {
-                 x[s] = i;
-                 s++; 
-              }
           }
+          if (b >= 0) x[s++] = i;
         }
-        if (config == 1) if (i == addto)  // Additional Configuration
-        {
+        if (config == 1 && i == addto) {  // Additional Configuration
           if (b == 0) b = 1;
           else if (b == 1) b = 0;
         }
         if (b < 0) break; // delta out of range (<-1 or >3)
         if (s > 3) break; // segment out of range (> 3)
-        if (b == 1) 
-        {
-          reg |= 0x80000000;
-        }
-        //SERIAL_PRINT(i, DEC); 
+        if (b == 1) reg |= 0x80000000;
+
+        //SERIAL_PRINT(i, DEC);
         //SERIAL_PROTOCOLPGM(" \t- vA ");
         //SERIAL_PRINT(vA, DEC);
         //SERIAL_PROTOCOLPGM(" \t- dA ");
@@ -562,14 +492,10 @@
         //SERIAL_PRINT(b, DEC);
         //SERIAL_PROTOCOLPGM(" \t- w ");
         //SERIAL_PRINTLN(w[s], DEC);
-        if ((i & 31) == 31)
-        { 
+        if ((i & 0x1F) == 0x1F)
           tmc2130_wr_MSLUT(st, (uint8_t)(i >> 5), reg);
-        }
-        else  
-        {
+        else
           reg >>= 1;
-        }
       }
       tmc2130_wr_MSLUTSEL(st, x[0], x[1], x[2], w[0], w[1], w[2], w[3]);
       SERIAL_PROTOCOLPGM(" X = ");

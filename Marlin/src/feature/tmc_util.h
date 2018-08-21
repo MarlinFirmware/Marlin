@@ -55,8 +55,8 @@ void _tmc_say_hysteresis_start(const TMC_AxisEnum axis, const uint8_t hysteresis
 void _tmc_say_stealth_gradient(const TMC_AxisEnum axis, const uint8_t stealth_gradien);
 void _tmc_say_stealth_amplitude(const TMC_AxisEnum axis, const uint8_t stealth_amplitude);
 void _tmc_say_stealth_freq(const TMC_AxisEnum axis, const uint8_t stealth_freq);
-void _tmc_say_stealth_autoscale(const TMC_AxisEnum axis, const bool stealth_autoscale);				
-void _tmc_say_disable_I_comparator(const TMC_AxisEnum axis, const bool disable_I_comparator);							       
+void _tmc_say_stealth_autoscale(const TMC_AxisEnum axis, const bool stealth_autoscale);
+void _tmc_say_disable_I_comparator(const TMC_AxisEnum axis, const bool disable_I_comparator);
 
 template<typename TMC>
 void tmc_get_current(TMC &st, const TMC_AxisEnum axis) {

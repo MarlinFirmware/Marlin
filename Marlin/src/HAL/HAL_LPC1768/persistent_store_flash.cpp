@@ -49,12 +49,12 @@ extern "C" {
   #include "lpc17xx_iap.h"
 }
 
-#define SECTOR_START(sector)  ((sector < 16) ? (sector * 0x1000) : ((sector - 14) * 0x8000))
+#define SECTOR_START(sector)  ((sector < 0x10) ? (sector << 12) : ((sector - 0x0E) << 15))
 #define EEPROM_SECTOR 29
 #define EEPROM_SIZE (4096)
 #define SECTOR_SIZE (32768)
 #define EEPROM_SLOTS (SECTOR_SIZE/EEPROM_SIZE)
-#define EEPROM_ERASE (0xff)
+#define EEPROM_ERASE (0xFF)
 #define SLOT_ADDRESS(sector, slot) (((uint8_t *)SECTOR_START(sector)) + slot * EEPROM_SIZE)
 
 static uint8_t ram_eeprom[EEPROM_SIZE];

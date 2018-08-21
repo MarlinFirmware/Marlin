@@ -264,10 +264,10 @@ void _tmc_say_blank_time(const TMC_AxisEnum axis, const uint8_t blank_time) {
   SERIAL_ECHOPGM(" blank_time: ");
   SERIAL_PRINTLN(blank_time, DEC);
 }
-void _tmc_say_hysteresis_end	(const TMC_AxisEnum axis, const int8_t hysteresis_end	) {
+void _tmc_say_hysteresis_end(const TMC_AxisEnum axis, const int8_t hysteresis_end) {
   _tmc_say_axis(axis);
-  SERIAL_ECHOPGM(" hysteresis_end	: ");
-  SERIAL_PRINTLN(hysteresis_end	, DEC);
+  SERIAL_ECHOPGM(" hysteresis_end: ");
+  SERIAL_PRINTLN(hysteresis_end, DEC);
 }
 void _tmc_say_hysteresis_start(const TMC_AxisEnum axis, const uint8_t hysteresis_start) {
   _tmc_say_axis(axis);

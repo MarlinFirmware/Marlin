@@ -640,25 +640,25 @@ void GcodeSuite::process_parsed_command(
         #if ENABLED(TMC_CHOP_CALIBRATION)
           case 930: M930(); break;                                // M930: TMC set blank_time.
           case 931: M931(); break;                                // M931: TMC set off_time.
-          case 932: M932(); break;                                // M932: TMC set hysteresis_start.     
-          case 933: M933(); break;                                // M933: TMC set hysteresis_end/sine_offset (chm = 0/1).    
-          case 934: M934(); break;                                // M934: TMC set fast_decay_time (chm = 1).    
-          case 935: M935(); break;                                // M935: TMC set disable_I_comparator (chm = 1). 
-          case 936: M936(); break;                                // M936: TMC set stealth_gradient.  
-          case 937: M937(); break;                                // M937: TMC set stealth_amplitude.  
+          case 932: M932(); break;                                // M932: TMC set hysteresis_start.
+          case 933: M933(); break;                                // M933: TMC set hysteresis_end/sine_offset (chm = 0/1).
+          case 934: M934(); break;                                // M934: TMC set fast_decay_time (chm = 1).
+          case 935: M935(); break;                                // M935: TMC set disable_I_comparator (chm = 1).
+          case 936: M936(); break;                                // M936: TMC set stealth_gradient.
+          case 937: M937(); break;                                // M937: TMC set stealth_amplitude.
           case 938: M938(); break;                                // M938: TMC set stealth_freq.
-          case 939: M939(); break;                                // M939: TMC switch stealth_autoscale.           
+          case 939: M939(); break;                                // M939: TMC switch stealth_autoscale.
         #endif
         #if ENABLED(TMC_MSLUT_CALIBRATION) && ENABLED(TMC2130_LINEARITY_CORRECTION)
-          case 941: M941(); break;                                // M941: TMC set MSLUT      
-          case 942: M942(); break;                                // M942: TMC reset MSLUT    
+          case 941: M941(); break;                                // M941: TMC set MSLUT
+          case 942: M942(); break;                                // M942: TMC reset MSLUT
           case 943: M943(); break;                                // M943: TMC set preset MSLUT
-        #endif	   
+        #endif
         #if ENABLED(TMC_CHOP_MODE)
-          case 945: M945(); break;                                // M945: TMC switch StealthChop.  
-          case 946: M946(); break;                                // M945: TMC switch ChopperMode.  
-          case 947: M947(); break;                                // M945: TMC switch interpolation.  
-        #endif   
+          case 945: M945(); break;                                // M945: TMC switch StealthChop.
+          case 946: M946(); break;                                // M945: TMC switch ChopperMode.
+          case 947: M947(); break;                                // M945: TMC switch interpolation.
+        #endif
       #endif
 
       #if HAS_MICROSTEPS
