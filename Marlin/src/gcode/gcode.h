@@ -779,6 +779,28 @@ private:
     #if ENABLED(TMC_Z_CALIBRATION)
       static void M915();
     #endif
+    #if ENABLED(TMC_CHOP_CALIBRATION)
+      static void M930();
+      static void M931();
+      static void M932();
+      static void M933();
+      static void M934();
+      static void M935();
+      static void M936();
+      static void M937();
+      static void M938();
+      static void M939();
+    #endif
+    #if ENABLED(TMC_MSLUT_CALIBRATION) && ENABLED(TMC2130_LINEARITY_CORRECTION)
+      static void M941();
+      static void M942();
+      static void M943();
+    #endif
+    #if ENABLED(TMC_CHOP_MODE)
+      static void M945();
+      static void M946();
+      static void M947();
+    #endif
   #endif
 
   #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || ENABLED(DIGIPOT_I2C) || ENABLED(DAC_STEPPER_CURRENT)

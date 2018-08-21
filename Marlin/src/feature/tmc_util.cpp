@@ -249,6 +249,56 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
   SERIAL_ECHOPGM(" homing sensitivity: ");
   SERIAL_PRINTLN(sgt, DEC);
 }
+void _tmc_say_off_time(const TMC_AxisEnum axis, const uint8_t off_time) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" off_time: ");
+  SERIAL_PRINTLN(off_time, DEC);
+}
+void _tmc_say_fast_decay_time(const TMC_AxisEnum axis, const uint8_t fast_decay_time) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" fast_decay_time: ");
+  SERIAL_PRINTLN(fast_decay_time, DEC);
+}
+void _tmc_say_blank_time(const TMC_AxisEnum axis, const uint8_t blank_time) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" blank_time: ");
+  SERIAL_PRINTLN(blank_time, DEC);
+}
+void _tmc_say_hysteresis_end	(const TMC_AxisEnum axis, const int8_t hysteresis_end	) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" hysteresis_end	: ");
+  SERIAL_PRINTLN(hysteresis_end	, DEC);
+}
+void _tmc_say_hysteresis_start(const TMC_AxisEnum axis, const uint8_t hysteresis_start) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" hysteresis_start: ");
+  SERIAL_PRINTLN(hysteresis_start, DEC);
+}
+void _tmc_say_stealth_gradient(const TMC_AxisEnum axis, const uint8_t stealth_gradient) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" stealth_gradient: ");
+  SERIAL_PRINTLN(stealth_gradient, DEC);
+}
+void _tmc_say_stealth_amplitude(const TMC_AxisEnum axis, const uint8_t stealth_amplitude) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" stealth_amplitude: ");
+  SERIAL_PRINTLN(stealth_amplitude, DEC);
+}
+void _tmc_say_stealth_freq(const TMC_AxisEnum axis, const uint8_t stealth_freq) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" stealth_freq: ");
+  SERIAL_PRINTLN(stealth_freq, DEC);
+}
+void _tmc_say_stealth_autoscale(const TMC_AxisEnum axis, const bool stealth_autoscale) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" stealth_autoscale: ");
+  SERIAL_PRINTLN(stealth_autoscale, DEC);
+}
+void _tmc_say_disable_I_comparator(const TMC_AxisEnum axis, const bool disable_I_comparator) {
+  _tmc_say_axis(axis);
+  SERIAL_ECHOPGM(" disable_I_comparator: ");
+  SERIAL_PRINTLN(disable_I_comparator, DEC);
+}
 
 #if ENABLED(TMC_DEBUG)
 
@@ -393,7 +443,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
         break;
       case TMC_OTPW: serialprintPGM(st.otpw() ? PSTR("true") : PSTR("false")); break;
       case TMC_OTPW_TRIGGERED: serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false")); break;
-      case TMC_TOFF: SERIAL_PRINT(st.toff(), DEC); break;
+      case TMC_TOFF: SERIAL_PRINT(st.off_time(), DEC); break;
       case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
       case TMC_HEND: SERIAL_PRINT(st.hysteresis_end(), DEC); break;
       case TMC_HSTRT: SERIAL_PRINT(st.hysteresis_start(), DEC); break;

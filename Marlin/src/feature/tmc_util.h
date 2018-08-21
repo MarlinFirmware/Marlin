@@ -47,6 +47,16 @@ void _tmc_say_otpw(const TMC_AxisEnum axis, const bool otpw);
 void _tmc_say_otpw_cleared(const TMC_AxisEnum axis);
 void _tmc_say_pwmthrs(const TMC_AxisEnum axis, const uint32_t thrs);
 void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt);
+void _tmc_say_off_time(const TMC_AxisEnum axis, const uint8_t off_time);
+void _tmc_say_fast_decay_time(const TMC_AxisEnum axis, const uint8_t fast_decay_time);
+void _tmc_say_blank_time(const TMC_AxisEnum axis, const uint8_t blank_time);
+void _tmc_say_hysteresis_end(const TMC_AxisEnum axis, const int8_t hysteresis_end);
+void _tmc_say_hysteresis_start(const TMC_AxisEnum axis, const uint8_t hysteresis_start);
+void _tmc_say_stealth_gradient(const TMC_AxisEnum axis, const uint8_t stealth_gradien);
+void _tmc_say_stealth_amplitude(const TMC_AxisEnum axis, const uint8_t stealth_amplitude);
+void _tmc_say_stealth_freq(const TMC_AxisEnum axis, const uint8_t stealth_freq);
+void _tmc_say_stealth_autoscale(const TMC_AxisEnum axis, const bool stealth_autoscale);				
+void _tmc_say_disable_I_comparator(const TMC_AxisEnum axis, const bool disable_I_comparator);							       
 
 template<typename TMC>
 void tmc_get_current(TMC &st, const TMC_AxisEnum axis) {
@@ -80,6 +90,88 @@ void tmc_get_sgt(TMC &st, const TMC_AxisEnum axis) {
 template<typename TMC>
 void tmc_set_sgt(TMC &st, const int8_t sgt_val) {
   st.sgt(sgt_val);
+}
+template<typename TMC>
+void tmc_get_off_time(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_off_time(axis, st.off_time());
+}
+template<typename TMC>
+void tmc_set_off_time(TMC &st, const uint8_t off_time_val) {
+  st.off_time(off_time_val);
+}
+template<typename TMC>
+void tmc_get_fast_decay_time(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_fast_decay_time(axis, st.fast_decay_time());
+  _tmc_say_fast_decay_time(axis, st.hysteresis_start());
+}
+template<typename TMC>
+void tmc_set_fast_decay_time(TMC &st, const uint8_t fast_decay_time_val) {
+  st.fast_decay_time(fast_decay_time_val);
+  st.hysteresis_start(fast_decay_time_val << 1);
+}
+template<typename TMC>
+void tmc_get_blank_time(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_blank_time(axis, st.blank_time());
+}
+template<typename TMC>
+void tmc_set_blank_time(TMC &st, const uint8_t blank_time_val) {
+  st.blank_time(blank_time_val);
+}
+template<typename TMC>
+void tmc_get_hysteresis_end(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_hysteresis_end(axis, st.hysteresis_end());
+}
+template<typename TMC>
+void tmc_set_hysteresis_end(TMC &st, const int8_t hysteresis_end_val) {
+  st.hysteresis_end(hysteresis_end_val);
+}
+template<typename TMC>
+void tmc_get_hysteresis_start(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_hysteresis_start(axis, st.hysteresis_start());
+}
+template<typename TMC>
+void tmc_set_hysteresis_start(TMC &st, const uint8_t hysteresis_start_val) {
+  st.hysteresis_start(hysteresis_start_val);
+}
+template<typename TMC>
+void tmc_get_stealth_gradient(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_stealth_gradient(axis, st.stealth_gradient());
+}
+template<typename TMC>
+void tmc_set_stealth_gradient(TMC &st, const uint8_t stealth_gradient_val) {
+  st.stealth_gradient(stealth_gradient_val);
+}
+template<typename TMC>
+void tmc_get_stealth_amplitude(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_stealth_amplitude(axis, st.stealth_amplitude());
+}
+template<typename TMC>
+void tmc_set_stealth_amplitude(TMC &st, const uint8_t stealth_amplitude_val) {
+  st.stealth_amplitude(stealth_amplitude_val);
+}
+template<typename TMC>
+void tmc_get_stealth_freq(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_stealth_freq(axis, st.stealth_freq());
+}
+template<typename TMC>
+void tmc_set_stealth_freq(TMC &st, const uint8_t stealth_freq_val) {
+  st.stealth_freq(stealth_freq_val);
+}
+template<typename TMC>
+void tmc_get_stealth_autoscale(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_stealth_autoscale(axis, st.stealth_autoscale());
+}
+template<typename TMC>
+void tmc_set_stealth_autoscale(TMC &st, const bool stealth_autoscale_val) {
+  st.stealth_autoscale(stealth_autoscale_val);
+}
+template<typename TMC>
+void tmc_get_disable_I_comparator(TMC &st, const TMC_AxisEnum axis) {
+  _tmc_say_disable_I_comparator(axis, st.disable_I_comparator());
+}
+template<typename TMC>
+void tmc_set_disable_I_comparator(TMC &st, const bool disable_I_comparator_val) {
+  st.disable_I_comparator(disable_I_comparator_val);
 }
 
 void monitor_tmc_driver();
