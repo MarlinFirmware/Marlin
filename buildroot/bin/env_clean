@@ -1,29 +1,13 @@
 #!/usr/bin/env bash
 
-if [ -d ".pioenvs" ]; then
-  rm -r .pioenvs
-fi
-
-if [ -d ".piolibdeps" ]; then
-  rm -r .piolibdeps
-fi
-
-if [ -d ".piolib" ]; then
-  rm -r .piolib
-fi
+[ -d ".pioenvs" ] && rm -r .pioenvs
+[ -d ".piolibdeps" ] && rm -r .piolibdeps
+[ -d ".piolib" ] && rm -r .piolib
 
 if [ ! -z "$1" ]; then
   if [ $1 = "--deep" ]; then
-    if [ -d "~/.platformio/packages" ]; then
-      rm -r ~/.platformio/packages/*
-    fi
-
-    if [ -d "~/.platformio/platforms" ]; then
-      rm -r ~/.platformio/platforms/*
-    fi
-
-    if [ -d "~/.platformio/.cache" ]; then
-      rm -r ~/.platformio/.cache/*
-    fi
+    [ -d "~/.platformio/packages" ] && rm -r ~/.platformio/packages/*
+    [ -d "~/.platformio/platforms" ] && rm -r ~/.platformio/platforms/*
+    [ -d "~/.platformio/.cache" ] && rm -r ~/.platformio/.cache/*
   fi
 fi
