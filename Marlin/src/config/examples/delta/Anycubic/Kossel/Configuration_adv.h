@@ -1212,6 +1212,7 @@
   #define Y2_HYBRID_THRESHOLD    100
   #define Z_HYBRID_THRESHOLD       3
   #define Z2_HYBRID_THRESHOLD      3
+  #define Z3_HYBRID_THRESHOLD      3
   #define E0_HYBRID_THRESHOLD     30
   #define E1_HYBRID_THRESHOLD     30
   #define E2_HYBRID_THRESHOLD     30
@@ -1309,6 +1310,10 @@
   #define Z2_MICROSTEPS       16
   #define Z2_OVERCURRENT    2000
   #define Z2_STALLCURRENT   1500
+
+  #define Z3_MICROSTEPS       16
+  #define Z3_OVERCURRENT    2000
+  #define Z3_STALLCURRENT   1500
 
   #define E0_MICROSTEPS       16
   #define E0_OVERCURRENT    2000
