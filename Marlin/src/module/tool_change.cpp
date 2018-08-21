@@ -355,11 +355,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
   planner.synchronize();
 
   #if HAS_LEVELING
-      // Set current position to the physical position
-      const bool leveling_was_active = planner.leveling_active;
-      set_bed_leveling_enabled(false);
-   #endif
-  
+    // Set current position to the physical position
+    const bool leveling_was_active = planner.leveling_active;
+    set_bed_leveling_enabled(false);
+  #endif
+
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     mixing_tool_change(tmp_extruder);
@@ -511,13 +511,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     #if HAS_FANMUX
       fanmux_switch(active_extruder);
     #endif
-  
+
     #if HAS_LEVELING
-          planner.synchronize();
-          // Restore leveling to re-establish the logical position
-          set_bed_leveling_enabled(leveling_was_active);
+      // Restore leveling to re-establish the logical position
+      set_bed_leveling_enabled(leveling_was_active);
     #endif
-  
+
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
 
