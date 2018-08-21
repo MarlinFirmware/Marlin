@@ -50,36 +50,32 @@
 
 Max7219 max7219;
 
-uint8_t Max7219::led_line[MAX7219_ROWS]; // = { 0 };
+uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
 
+#define LINE_REG(Q)     (max7219_reg_digit0 + ((Q) & 0x7))
 #if _ROT == 0 || _ROT == 270
-  #define _LED_BIT(Q)   (7 - ((Q) & 0x07))
+  #define _LED_BIT(Q)   (7 - ((Q) & 0x7))
+  #define _LED_UNIT(Q)  ((Q) & ~0x7)
 #else
-  #define _LED_BIT(Q)   ((Q) & 0x07)
+  #define _LED_BIT(Q)   ((Q) & 0x7)
+  #define _LED_UNIT(Q)  ((MAX7219_NUMBER_UNITS - 1 - ((Q) >> 3)) << 3)
 #endif
-#if _ROT >= 180
-  #define _LED_IND(P,Q) (P + ((Q) & ~0x07))
-  #define _ROW_REG(Q)   (max7219_reg_digit7 - ((Q) & 0x7))
+#if _ROT < 180
+  #define _LED_IND(P,Q) (_LED_UNIT(P) + (Q))
 #else
-  #define _LED_IND(P,Q) (P + ((Q) & ~0x07))
-  #define _ROW_REG(Q)   (max7219_reg_digit0 + ((Q) & 0x7))
+  #define _LED_IND(P,Q) (_LED_UNIT(P) + (7 - ((Q) & 0x7)))
 #endif
 #if _ROT == 0 || _ROT == 180
-  #define MAX7219_LINE_AXIS y
-  #define LED_IND(X,Y)  _LED_IND(Y,X)
+  #define LED_IND(X,Y)  _LED_IND(X,Y)
   #define LED_BIT(X,Y)  _LED_BIT(X)
 #elif _ROT == 90 || _ROT == 270
-  #define MAX7219_LINE_AXIS x
-  #define LED_IND(X,Y)  _LED_IND(X,Y)
+  #define LED_IND(X,Y)  _LED_IND(Y,X)
   #define LED_BIT(X,Y)  _LED_BIT(Y)
-#else
-  #error "MAX7219_ROTATE must be a multiple of +/- 90°."
 #endif
-
-#define XOR_7219(X,Y)     led_line[LED_IND(X,Y)] ^= _BV(LED_BIT(X,Y))
-#define SET_LED_7219(X,Y) led_line[LED_IND(X,Y)] |= _BV(LED_BIT(X,Y))
-#define CLR_LED_7219(X,Y) led_line[LED_IND(X,Y)] &= ~_BV(LED_BIT(X,Y))
-#define BIT_7219(X,Y)     TEST(led_line[LED_IND(X,Y)], LED_BIT(X,Y))
+#define XOR_7219(X,Y) do{ led_line[LED_IND(X,Y)] ^=  _BV(LED_BIT(X,Y)); }while(0)
+#define SET_7219(X,Y) do{ led_line[LED_IND(X,Y)] |=  _BV(LED_BIT(X,Y)); }while(0)
+#define CLR_7219(X,Y) do{ led_line[LED_IND(X,Y)] &= ~_BV(LED_BIT(X,Y)); }while(0)
+#define BIT_7219(X,Y) TEST(led_line[LED_IND(X,Y)], LED_BIT(X,Y))
 
 #ifdef CPU_32_BIT
   #define SIG_DELAY() DELAY_US(1)   // Approximate a 1µs delay on 32-bit ARM
@@ -93,7 +89,7 @@ uint8_t Max7219::led_line[MAX7219_ROWS]; // = { 0 };
 
 void Max7219::error(const char * const func, const int32_t v1, const int32_t v2/*=-1*/) {
   #if ENABLED(MAX7219_ERRORS)
-    SERIAL_ECHOPGM("??? Max7219");
+    SERIAL_ECHOPGM("??? Max7219::");
     serialprintPGM(func);
     SERIAL_CHAR('(');
     SERIAL_ECHO(v1);
@@ -129,6 +125,7 @@ void Max7219::noop() {
   for (uint8_t i = 16; i--;) {
     SIG_DELAY();
     WRITE(MAX7219_CLK_PIN, LOW);
+    SIG_DELAY();
     SIG_DELAY();
     WRITE(MAX7219_CLK_PIN, HIGH);
     SIG_DELAY();
@@ -170,26 +167,22 @@ void Max7219::send(const uint8_t reg, const uint8_t data) {
 }
 
 // Send out a single native row of bits to all units
-void Max7219::all(const uint8_t line) {
-  for (uint8_t u = 0; u < MAX7219_ROWS; u += 8)
-    send(_ROW_REG(line), led_line[u + (line & 0x7)]);
+void Max7219::refresh_line(const uint8_t line) {
+  for (uint8_t u = MAX7219_NUMBER_UNITS; u--;)
+    send(LINE_REG(line), led_line[(u << 3) | (line & 0x7)]);
   pulse_load();
 }
 
 // Send out a single native row of bits to just one unit
-void Max7219::one(const uint8_t line) {
-  for (uint8_t u = MAX7219_NUMBER_UNITS; u--;) {
-    if (u == (line >> 3))
-      send(_ROW_REG(line), led_line[line]);
-    else
-      noop();
-  }
+void Max7219::refresh_unit_line(const uint8_t line) {
+  for (uint8_t u = MAX7219_NUMBER_UNITS; u--;)
+    if (u == (line >> 3)) send(LINE_REG(line), led_line[line]); else noop();
   pulse_load();
 }
 
 void Max7219::set(const uint8_t line, const uint8_t bits) {
   led_line[line] = bits;
-  all(line);
+  refresh_line(line);
 }
 
 #if ENABLED(MAX7219_NUMERIC)
@@ -231,7 +224,7 @@ void Max7219::led_set(const uint8_t x, const uint8_t y, const bool on) {
   if (x > MAX7219_X_LEDS - 1 || y > MAX7219_Y_LEDS - 1) return error(PSTR("led_set"), x, y);
   if (BIT_7219(x, y) == on) return;
   XOR_7219(x, y);
-  all(MAX7219_LINE_AXIS);
+  refresh_line(LED_IND(x, y));
 }
 
 void Max7219::led_on(const uint8_t x, const uint8_t y) {
@@ -250,8 +243,8 @@ void Max7219::led_toggle(const uint8_t x, const uint8_t y) {
 }
 
 void Max7219::send_row(const uint8_t row) {
-  #if _ROT == 90 || _ROT == 270
-    all(row);
+  #if _ROT == 0 || _ROT == 180
+    refresh_line(LED_IND(0, row));
   #else
     UNUSED(row);
     refresh();
@@ -260,7 +253,7 @@ void Max7219::send_row(const uint8_t row) {
 
 void Max7219::send_column(const uint8_t col) {
   #if _ROT == 90 || _ROT == 270
-    all(col);                               // Send the "column" out and strobe
+    refresh_line(LED_IND(col, 0));
   #else
     UNUSED(col);
     refresh();
@@ -272,17 +265,20 @@ void Max7219::clear() {
   refresh();
 }
 
+void Max7219::fill() {
+  memset(led_line, 0xFF, sizeof(led_line));
+  refresh();
+}
+
 void Max7219::clear_row(const uint8_t row) {
   if (row >= MAX7219_Y_LEDS) return error(PSTR("clear_row"), row);
-  for (uint8_t x = 0; x < MAX7219_X_LEDS; x++)
-    CLR_LED_7219(MAX7219_X_LEDS - 1 - x, row);
+  for (uint8_t x = 0; x < MAX7219_X_LEDS; x++) CLR_7219(x, row);
   send_row(row);
 }
 
 void Max7219::clear_column(const uint8_t col) {
   if (col >= MAX7219_X_LEDS) return error(PSTR("set_column"), col);
-  for (uint8_t y = 0; y < MAX7219_Y_LEDS; y++)
-    CLR_LED_7219(col, MAX7219_Y_LEDS - y - 1);
+  for (uint8_t y = 0; y < MAX7219_Y_LEDS; y++) CLR_7219(col, y);
   send_column(col);
 }
 
@@ -293,13 +289,10 @@ void Max7219::clear_column(const uint8_t col) {
  */
 void Max7219::set_row(const uint8_t row, const uint32_t val) {
   if (row >= MAX7219_Y_LEDS) return error(PSTR("set_row"), row);
-  uint32_t mask = 0x0000001;
+  uint32_t mask = _BV32(MAX7219_X_LEDS - 1);
   for (uint8_t x = 0; x < MAX7219_X_LEDS; x++) {
-    if (val & mask)
-      SET_LED_7219(MAX7219_X_LEDS - 1 - x, row);
-    else
-      CLR_LED_7219(MAX7219_X_LEDS - 1 - x, row);
-    mask <<= 1;
+    if (val & mask) SET_7219(x, row); else CLR_7219(x, row);
+    mask >>= 1;
   }
   send_row(row);
 }
@@ -311,13 +304,10 @@ void Max7219::set_row(const uint8_t row, const uint32_t val) {
  */
 void Max7219::set_column(const uint8_t col, const uint32_t val) {
   if (col >= MAX7219_X_LEDS) return error(PSTR("set_column"), col);
-  uint32_t mask = 0x0000001;
+  uint32_t mask = _BV32(MAX7219_Y_LEDS - 1);
   for (uint8_t y = 0; y < MAX7219_Y_LEDS; y++) {
-    if (val & mask)
-      SET_LED_7219(col, MAX7219_Y_LEDS - y - 1);
-    else
-      CLR_LED_7219(col, MAX7219_Y_LEDS - y - 1);
-    mask <<= 1;
+    if (val & mask) SET_7219(col, y); else CLR_7219(col, y);
+    mask >>= 1;
   }
   send_column(col);
 }
@@ -378,8 +368,8 @@ void Max7219::set_columns_32bits(const uint8_t x, uint32_t val) {
   #endif
 }
 
+// Initialize the Max7219
 void Max7219::register_setup() {
-  // Initialize the Max7219
   for (uint8_t i = 0; i < MAX7219_NUMBER_UNITS; i++)
     send(max7219_reg_scanLimit, 0x07);
   pulse_load();                        // tell the chips to load the clocked out data
