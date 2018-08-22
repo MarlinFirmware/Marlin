@@ -1754,7 +1754,6 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       HOTEND_OFFSET_X,
       HOTEND_OFFSET_Y,
       HOTEND_OFFSET_Z
-      #endif
     };
     static_assert(
       tmp4[X_AXIS][0] == 0 && tmp4[Y_AXIS][0] == 0 && tmp4[Z_AXIS][0] == 0,
