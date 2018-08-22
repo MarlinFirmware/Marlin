@@ -7,7 +7,7 @@ extern void setup();
 extern void loop();
 
 extern "C" {
-#include <lpc17xx_gpio.h>
+  #include <lpc17xx_gpio.h>
 }
 
 #include <usb/usb.h>
@@ -19,9 +19,9 @@ extern "C" {
 #include <usb/mscuser.h>
 
 extern "C" {
-#include <debug_frmwrk.h>
-#include <chanfs/diskio.h>
-#include <chanfs/ff.h>
+  #include <debug_frmwrk.h>
+  #include <chanfs/diskio.h>
+  #include <chanfs/ff.h>
 }
 
 #include "../../inc/MarlinConfig.h"
@@ -62,12 +62,12 @@ extern "C" {
     _millis = 0;                            // Initialize the millisecond counter value
     SysTick_Config(SystemCoreClock / 1000); // Start millisecond global counter
 
-    // Runs before setup() need to configure LED_PIN and use to indicate succsessful bootloader execution
+    // Runs before setup() to configure LED_PIN and used to indicate successful bootloader execution
     #if PIN_EXISTS(LED)
       SET_DIR_OUTPUT(LED_PIN);
       WRITE_PIN_CLR(LED_PIN);
 
-      //MKS-SBASE has 3 other LEDS the bootloader uses during flashing, clear them
+      // MKS_SBASE has 3 other LEDs the bootloader uses during flashing. Clear them.
       SET_DIR_OUTPUT(P1_19);
       WRITE_PIN_CLR(P1_19);
       SET_DIR_OUTPUT(P1_20);
@@ -75,7 +75,7 @@ extern "C" {
       SET_DIR_OUTPUT(P1_21);
       WRITE_PIN_CLR(P1_21);
 
-      for (int i = 0; i < 6; ++i) {
+      for (uint8_t i = 6; i--;) {
         TOGGLE(LED_PIN);
         delay(100);
       }
