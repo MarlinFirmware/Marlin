@@ -59,7 +59,7 @@
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
-static bool eeprom_initialised = false;
+static bool eeprom_initialized = false;
 // --------------------------------------------------------------------------
 // Function prototypes
 // --------------------------------------------------------------------------
@@ -82,17 +82,17 @@ static bool eeprom_initialised = false;
 
 
 void eeprom_init() {
-  if (!eeprom_initialised) {
+  if (!eeprom_initialized) {
     HAL_FLASH_Unlock();
 
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
 
     /* EEPROM Init */
-    if (EE_Initialise() != EE_OK)
+    if (EE_Initialize() != EE_OK)
       for (;;) HAL_Delay(1); // Spin forever until watchdog reset
 
     HAL_FLASH_Lock();
-    eeprom_initialised = true;
+    eeprom_initialized = true;
   }
 }
 
