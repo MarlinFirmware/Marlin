@@ -277,33 +277,33 @@
 //
 
 #elif MB(RAMPS_14_RE_ARM_EFB)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_EEB)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_EFF)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_EEF)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_SF)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(MKS_SBASE)
-  #include "pins_MKS_SBASE.h"         // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_MKS_SBASE.h"         // LPC1768                                    env:LPC1768
 #elif MB(AZSMZ_MINI)
-  #include "pins_AZSMZ_MINI.h"        // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_AZSMZ_MINI.h"        // LPC1768                                    env:LPC1768
 #elif MB(AZTEEG_X5_GT)
-  #include "pins_AZTEEG_X5_GT.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_AZTEEG_X5_GT.h"      // LPC1769                                    env:LPC1768
 #elif MB(AZTEEG_X5_MINI_WIFI)
-  #include "pins_AZTEEG_X5_MINI_WIFI.h" // LPC176x                                  env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_AZTEEG_X5_MINI_WIFI.h" // LPC1769                                  env:LPC1768
 #elif MB(BIQU_BQ111_A4)
-  #include "pins_BIQU_BQ111_A4.h"     // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_BIQU_BQ111_A4.h"     // LPC1768                                    env:LPC1768
 #elif MB(SELENA_COMPACT)
-  #include "pins_SELENA_COMPACT.h"    // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_SELENA_COMPACT.h"    // LPC1768                                    env:LPC1768
 #elif MB(COHESION3D_REMIX)
-  #include "pins_COHESION3D_REMIX.h"  // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_COHESION3D_REMIX.h"  // LPC1769                                    env:LPC1768
 #elif MB(COHESION3D_MINI)
-  #include "pins_COHESION3D_MINI.h"   // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_COHESION3D_MINI.h"   // LPC1769                                    env:LPC1768
 #elif MB(SMOOTHIEBOARD)
-  #include "pins_SMOOTHIEBOARD.h"     // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_SMOOTHIEBOARD.h"     // LPC1769                                    env:LPC1768
 
 //
 // Other 32-bit Boards

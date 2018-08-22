@@ -20,6 +20,14 @@ export -f exec_test
 
 env_backup
 printf "Running \033[0;32m$2\033[0m Tests\n"
+
+if [ ! -z "$3" ]; then
+  if [ $3 = "--deep-clean" ]; then
+    printf "Deleting all PlatformIO cache, downloads and installed packages...\n"
+    env_clean --deep
+  fi
+fi
+
 if [ $2 = "ALL" ]; then
   dir_list=("$(dirname "${BASH_SOURCE[0]}")"/*)
   declare -a tests=(${dir_list[@]/*start_tests/})
