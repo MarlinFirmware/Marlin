@@ -415,8 +415,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
 
           const float xdiff = hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
-                      ydiff = hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder],
-                      zdiff = hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
+                      ydiff = hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder];
+        
+          #if !ENABLED(SWITCHING_NOZZLE) && !ENABLED(DUAL_X_CARRIAGE) && !ENABLED(PARKING_EXTRUDER)
+            const float zdiff = hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
+          #endif
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
@@ -430,7 +433,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // The newly-selected extruder XY is actually at...
           current_position[X_AXIS] += xdiff;
           current_position[Y_AXIS] += ydiff;
-          current_position[Z_AXIS] += zdiff;
+        
+          #if !ENABLED(SWITCHING_NOZZLE) && !ENABLED(DUAL_X_CARRIAGE) && !ENABLED(PARKING_EXTRUDER)
+            current_position[Z_AXIS] += zdiff;
+          #endif
 
           // Set the new active extruder
           active_extruder = tmp_extruder;
