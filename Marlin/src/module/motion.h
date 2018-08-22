@@ -267,9 +267,21 @@ void homeaxis(const AxisEnum axis);
 
    // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
-    // Add 0.001 margin to deal with float imprecision
-    return WITHIN(rx, X_MIN_POS - 0.001f, X_MAX_POS + 0.001f)
-        && WITHIN(ry, Y_MIN_POS - 0.001f, Y_MAX_POS + 0.001f);
+    #if ENABLED(DUAL_X_CARRIAGE)
+      if (active_extruder == 0) {
+        // Add 0.001 margin to deal with float imprecision
+        return WITHIN(rx, X1_MIN_POS - 0.001f, X1_MAX_POS + 0.001f)
+            && WITHIN(ry,  Y_MIN_POS - 0.001f,  Y_MAX_POS + 0.001f);
+      } else {
+       // Add 0.001 margin to deal with float imprecision
+       return WITHIN(rx, X2_MIN_POS - 0.001f, X2_MAX_POS + 0.001f)
+           && WITHIN(ry,  Y_MIN_POS - 0.001f,  Y_MAX_POS + 0.001f);
+      }
+    #else
+      // Add 0.001 margin to deal with float imprecision
+      return WITHIN(rx, X_MIN_POS - 0.001f, X_MAX_POS + 0.001f)
+          && WITHIN(ry, Y_MIN_POS - 0.001f, Y_MAX_POS + 0.001f);
+    #endif
   }
 
   #if HAS_BED_PROBE
