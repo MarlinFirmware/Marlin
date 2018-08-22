@@ -140,6 +140,7 @@ exec_test $1 $2 "SWITCHING_EXTRUDER"
 # Test many less common options
 #
 restore_configs
+opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
 opt_enable COREYX
 opt_set_adv FAN_MIN_PWM 50
 opt_set_adv FAN_KICKSTART_TIME 100
@@ -153,6 +154,10 @@ opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER BABYSTEPPING DAC_MOTOR_CURRENT_DEFAU
 opt_enable FILAMENT_LCD_DISPLAY FILAMENT_WIDTH_SENSOR
 opt_enable ENDSTOP_INTERRUPTS_FEATURE FAN_SOFT_PWM SDSUPPORT
 opt_enable USE_XMAX_PLUG
+opt_enable SWITCHING_TOOLHEAD NUM_SERVOS DEBUG_LEVELING_FEATURE
+opt_set EXTRUDERS 2
+opt_set TEMP_SENSOR_1 -4
+opt_set SERVO_DELAY "{ 300, 300, 300 }"
 exec_test $1 $2 "Many less common options"
 #
 ######## Other Standard LCD/Panels ##############
