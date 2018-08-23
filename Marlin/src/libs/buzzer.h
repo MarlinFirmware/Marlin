@@ -82,7 +82,7 @@ class Buzzer {
      * @brief Resets the state of the class
      * @details Brings the class state to a known one.
      */
-    inline static void reset() {
+    static inline void reset() {
       off();
       state.endtime = 0;
     }

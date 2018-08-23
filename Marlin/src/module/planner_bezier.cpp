@@ -45,7 +45,7 @@
 #define SIGMA 0.1f
 
 // Compute the linear interpolation between two real numbers.
-inline static float interp(float a, float b, float t) { return (1 - t) * a + t * b; }
+static inline float interp(const float &a, const float &b, const float &t) { return (1 - t) * a + t * b; }
 
 /**
  * Compute a Bézier curve using the De Casteljau's algorithm (see
@@ -53,21 +53,20 @@ inline static float interp(float a, float b, float t) { return (1 - t) * a + t *
  * easy to code and has good numerical stability (very important,
  * since Arudino works with limited precision real numbers).
  */
-inline static float eval_bezier(float a, float b, float c, float d, float t) {
-  float iab = interp(a, b, t);
-  float ibc = interp(b, c, t);
-  float icd = interp(c, d, t);
-  float iabc = interp(iab, ibc, t);
-  float ibcd = interp(ibc, icd, t);
-  float iabcd = interp(iabc, ibcd, t);
-  return iabcd;
+static inline float eval_bezier(const float &a, const float &b, const float &c, const float &d, const float &t) {
+  const float iab = interp(a, b, t),
+              ibc = interp(b, c, t),
+              icd = interp(c, d, t),
+              iabc = interp(iab, ibc, t),
+              ibcd = interp(ibc, icd, t);
+  return interp(iabc, ibcd, t);
 }
 
 /**
  * We approximate Euclidean distance with the sum of the coordinates
  * offset (so-called "norm 1"), which is quicker to compute.
  */
-inline static float dist1(float x1, float y1, float x2, float y2) { return ABS(x1 - x2) + ABS(y1 - y2); }
+static inline float dist1(const float &x1, const float &y1, const float &x2, const float &y2) { return ABS(x1 - x2) + ABS(y1 - y2); }
 
 /**
  * The algorithm for computing the step is loosely based on the one in Kig

@@ -44,7 +44,7 @@ UnwResult UnwindStart(UnwindFrame* frame, const UnwindCallbacks *cb, void *data)
     /* We don't have unwind information tables */
     UnwState state;
 
-    /* Initialise the unwinding state */
+    /* Initialize the unwinding state */
     UnwInitState(&state, cb, data, frame->pc, frame->sp);
 
     /* Check the Thumb bit */

@@ -31,7 +31,7 @@
 #include "../lcd/ultralcd.h"
 #include "planner.h"
 #include "../core/language.h"
-#include "../HAL/Delay.h"
+#include "../HAL/shared/Delay.h"
 
 #if ENABLED(HEATER_0_USES_MAX6675)
   #include "../libs/private_spi.h"

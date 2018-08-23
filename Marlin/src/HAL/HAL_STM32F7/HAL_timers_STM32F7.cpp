@@ -69,11 +69,11 @@ tTimerConfig timerConfig[NUM_HARDWARE_TIMERS];
 // --------------------------------------------------------------------------
 
 
-bool timers_initialised[NUM_HARDWARE_TIMERS] = {false};
+bool timers_initialized[NUM_HARDWARE_TIMERS] = {false};
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
-  if (!timers_initialised[timer_num]) {
+  if (!timers_initialized[timer_num]) {
     switch (timer_num) {
       case STEP_TIMER_NUM:
       //STEPPER TIMER TIM5 //use a 32bit timer
@@ -100,7 +100,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       HAL_NVIC_SetPriority(timerConfig[1].IRQ_Id, 2, 0);
       break;
     }
-    timers_initialised[timer_num] = true;
+    timers_initialized[timer_num] = true;
   }
 
   timerConfig[timer_num].timerdef.Init.Period = (((HAL_TIMER_RATE) / timerConfig[timer_num].timerdef.Init.Prescaler) / frequency) - 1;

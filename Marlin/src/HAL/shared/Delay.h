@@ -31,7 +31,7 @@
 #ifndef MARLIN_DELAY_H
 #define MARLIN_DELAY_H
 
-#include "../core/macros.h"
+#include "../../core/macros.h"
 
 #if defined(__arm__) || defined(__thumb__)
 
@@ -75,8 +75,8 @@
       }
       #undef MAXNOPS
     }
-    else
-      __delay_4cycles(x / 4);
+    else if ((x >>= 2))
+      __delay_4cycles(x);
   }
   #undef nop
 
@@ -114,8 +114,8 @@
 
       #undef MAXNOPS
     }
-    else
-      __delay_4cycles(x / 4);
+    else if ((x >>= 2))
+      __delay_4cycles(x);
   }
   #undef nop
 

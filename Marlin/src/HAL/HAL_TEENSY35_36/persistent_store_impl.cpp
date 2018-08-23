@@ -4,7 +4,7 @@
 
 #if ENABLED(EEPROM_SETTINGS)
 
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
 
 namespace HAL {
 namespace PersistentStore {

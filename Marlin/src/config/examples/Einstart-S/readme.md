@@ -84,7 +84,7 @@ PF      Part Fan    (PWM)
 ZS      Z-Endstop   (Max)
 YS      Y-Endstop   (Min)
 XS      X-Endstop   (Min)
-PS      SPST Switch to enable DC 24v 
+PS      SPST Switch to enable DC 24v
 BT      Bed Thermistor (header not populated)
 ET      Extruder Thermistor
 PT1     PT100 Thermocouple (not populated)

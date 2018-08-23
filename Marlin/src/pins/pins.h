@@ -132,6 +132,8 @@
   #include "pins_AZTEEG_X3_PRO.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(ULTIMAIN_2)
   #include "pins_ULTIMAIN_2.h"        // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT)
+  #include "pins_FORMBOT.h"           // ATmega2560                                 env:megaatmega2560
 #elif MB(RUMBA)
   #include "pins_RUMBA.h"             // ATmega2560                                 env:megaatmega2560
 #elif MB(BQ_ZUM_MEGA_3D)
@@ -290,6 +292,8 @@
   #include "pins_AZSMZ_MINI.h"        // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
 #elif MB(AZTEEG_X5_GT)
   #include "pins_AZTEEG_X5_GT.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+#elif MB(AZTEEG_X5_MINI_WIFI)
+  #include "pins_AZTEEG_X5_MINI_WIFI.h" // LPC176x                                  env:LPC1768 env:LPC1768_debug_and_upload
 #elif MB(BIQU_BQ111_A4)
   #include "pins_BIQU_BQ111_A4.h"     // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
 #elif MB(SELENA_COMPACT)

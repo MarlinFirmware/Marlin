@@ -1,10 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
+ * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
- * Copyright (c) 2016 Victor Perez victor_pv@hotmail.com
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,23 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-
-#ifdef STM32F7
-
-#include "../persistent_store_api.h"
+#ifdef __AVR__
 
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS)
 
-namespace HAL {
-namespace PersistentStore {
+#include "../shared/persistent_store_api.h"
 
-bool access_start() { return true; }
-bool access_finish() { return true; }
+bool PersistentStore::access_start() { return true; }
+bool PersistentStore::access_finish() { return true; }
 
-bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
     uint8_t * const p = (uint8_t * const)pos;
     uint8_t v = *value;
@@ -57,21 +51,18 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   return false;
 }
 
-bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc) {
+bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = eeprom_read_byte((unsigned char*)pos);
-    *value = c;
+    if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;
     value++;
   } while (--size);
-  return false;
+  return false;  // always assume success for AVR's
 }
 
-}
-}
+size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS
-#endif // STM32F7
-
-
+#endif // __AVR__

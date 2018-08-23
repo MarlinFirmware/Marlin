@@ -25,7 +25,7 @@
  * Not platform dependent.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(I2C_EEPROM)
 
@@ -33,7 +33,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include HAL_PATH(., HAL.h)
+#include HAL_PATH(.., HAL.h)
 #include <Wire.h>
 
 // --------------------------------------------------------------------------
@@ -75,10 +75,10 @@
 static uint8_t eeprom_device_address = 0x50;
 
 static void eeprom_init(void) {
-  static bool eeprom_initialised = false;
-  if (!eeprom_initialised) {
+  static bool eeprom_initialized = false;
+  if (!eeprom_initialized) {
     Wire.begin();
-    eeprom_initialised = true;
+    eeprom_initialized = true;
   }
 }
 
@@ -157,4 +157,3 @@ void eeprom_read_block(void* pos, const void* eeprom_address, size_t n) {
 
 
 #endif // ENABLED(I2C_EEPROM)
-
