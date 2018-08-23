@@ -64,7 +64,7 @@
 #define SPI_DATAMODE_3 0x0C
 
 // Standard SPI functions
-/** Initialise SPI bus */
+/** Initialize SPI bus */
 void spiBegin(void);
 /** Configure SPI for specified SPI speed */
 void spiInit(uint8_t spiRate);

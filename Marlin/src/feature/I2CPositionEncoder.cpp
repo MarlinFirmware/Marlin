@@ -45,7 +45,7 @@ void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
   encoderAxis = axis;
   i2cAddress = address;
 
-  initialised++;
+  initialized++;
 
   SERIAL_ECHOPAIR("Setting up encoder on ", axis_codes[encoderAxis]);
   SERIAL_ECHOLNPAIR(" axis, addr = ", address);
@@ -54,7 +54,7 @@ void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
 }
 
 void I2CPositionEncoder::update() {
-  if (!initialised || !homed || !active) return; //check encoder is set up and active
+  if (!initialized || !homed || !active) return; //check encoder is set up and active
 
   position = get_position();
 
@@ -98,7 +98,7 @@ void I2CPositionEncoder::update() {
         SERIAL_ECHOLNPGM(" axis has been fault-free for set duration, reinstating error correction.");
 
         //the encoder likely lost its place when the error occured, so we'll reset and use the printer's
-        //idea of where it the axis is to re-initialise
+        //idea of where it the axis is to re-initialize
         const float pos = planner.get_axis_position_mm(encoderAxis);
         int32_t positionInTicks = pos * get_ticks_unit();
 
@@ -712,7 +712,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   SERIAL_ECHOLNPGM("Address change successful!");
 
   // Now, if this module is configured, find which encoder instance it's supposed to correspond to
-  // and enable it (it will likely have failed initialisation on power-up, before the address change).
+  // and enable it (it will likely have failed initialization on power-up, before the address change).
   const int8_t idx = idx_from_addr(newaddr);
   if (idx >= 0 && !encoders[idx].get_active()) {
     SERIAL_ECHO(axis_codes[encoders[idx].get_axis()]);
