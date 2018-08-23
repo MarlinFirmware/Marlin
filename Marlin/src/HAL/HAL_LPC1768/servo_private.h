@@ -50,35 +50,26 @@
 #ifndef SERVO_PRIVATE_H
 #define SERVO_PRIVATE_H
 
-#include <stdint.h>
+#include <LPC1768_Servo.h>
 
-// Macros
-//values in microseconds
-#define MIN_PULSE_WIDTH       544     // the shortest pulse sent to a servo
-#define MAX_PULSE_WIDTH      2400     // the longest pulse sent to a servo
-#define DEFAULT_PULSE_WIDTH  1500     // default pulse width when servo is attached
-#define REFRESH_INTERVAL    20000     // minimum time to refresh servos in microseconds
+class MarlinServo: public Servo  {
+  void move(const int value) {
+    constexpr uint16_t servo_delay[] = SERVO_DELAY;
+    static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
+    if (this->attach(0) >= 0) {    // notice the pin number is zero here
+      this->write(value);
 
-#define MAX_SERVOS             4
+      safe_delay(servo_delay[this->servoIndex]);
 
-#define INVALID_SERVO         255     // flag indicating an invalid servo index
+      #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
+        this->detach();
+        LPC1768_PWM_detach_pin(servo_info[this->servoIndex].Pin.nbr);  // shut down the PWM signal
+        LPC1768_PWM_attach_pin(servo_info[this->servoIndex].Pin.nbr, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH, this->servoIndex);  // make sure no one else steals the slot
+      #endif
+    }
+  }
+}
 
-
-// Types
-
-typedef struct {
-  uint8_t nbr        : 8 ;            // a pin number from 0 to 254 (255 signals invalid pin)
-  uint8_t isActive   : 1 ;            // true if this channel is enabled, pin not pulsed if false
-} ServoPin_t;
-
-typedef struct {
-  ServoPin_t Pin;
-  unsigned int pulse_width;           // pulse width in microseconds
-} ServoInfo_t;
-
-// Global variables
-
-extern uint8_t ServoCount;
-extern ServoInfo_t servo_info[MAX_SERVOS];
+#define HAL_SERVO_LIB MarlinServo
 
 #endif // SERVO_PRIVATE_H
