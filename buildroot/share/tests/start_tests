@@ -22,7 +22,7 @@ env_backup
 printf "Running \033[0;32m$2\033[0m Tests\n"
 
 if [[ $3 = "--deep-clean" ]]; then
-  printf "Deleting all PlatformIO cache, downloads and installed packages...\n"
+  echo "Deleting all PlatformIO caches, downloads and installed packages..."
   env_clean --deep
 fi
 
