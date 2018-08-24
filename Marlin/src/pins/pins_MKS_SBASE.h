@@ -36,11 +36,13 @@
 
 // unused
 /*
-#define PIN_P0_27          P0_27
-#define PIN_P0_28          P0_28
+#define PIN_P0_27          P0_27   // EXP2/Onboard SD
+#define PIN_P0_28          P0_28   // EXP2
+#define PIN_P0_02          P0_02   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+#define PIN_P0_03          P0_03   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
 */
 
-#define LED_PIN           P1_18 // LED2 P1_19, LED3 P1_20, LED4 P1_21
+#define LED_PIN            P1_18   // LED2 P1_19, LED3 P1_20, LED4 P1_21
 
 //
 // Servo pin
@@ -51,7 +53,7 @@
 #define SERVO3_PIN         P4_28   // J8-6
 
 //
-// Limit Switches
+// Limit Switches - Not Interrupt Capable
 //
 #define X_MIN_PIN          P1_24   // 10k pullup to 3.3V, 1K series
 #define X_MAX_PIN          P1_25   // 10k pullup to 3.3V, 1K series
@@ -104,6 +106,8 @@
 
 //
 // Connector J7
+// Note: These pins are all digitally shared with the EXP1/EXP2 Connector.
+// Using them with an LCD connected or configured will lead to hangs & crashes.
 //
 
 // 5V
@@ -111,8 +115,7 @@
 // GND
 #define PIN_P0_17          P0_17
 #define PIN_P0_16          P0_16
-#define PIN_P0_14          P0_14
-
+#define PIN_P0_15          P0_15
 
 //
 // Connector J8
@@ -120,24 +123,24 @@
 
 // GND
 #define PIN_P1_22          P1_22
-#define PIN_P1_23          P1_23
-#define PIN_P2_12          P2_12
-#define PIN_P2_11          P2_11
+#define PIN_P1_23          P1_23   // PWM Capable
+#define PIN_P2_12          P2_12   // Interrupt Capable
+#define PIN_P2_11          P2_11   // Interrupt Capable
 #define PIN_P4_28          P4_28
 
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
 //
 #if ENABLED(MK2_MULTIPLEXER)
-  #define E_MUX0_PIN         P1_23   // J8-3
-  #define E_MUX1_PIN         P2_12   // J8-4
-  #define E_MUX2_PIN         P2_11   // J8-5
+  #define E_MUX0_PIN       P1_23   // J8-3
+  #define E_MUX1_PIN       P2_12   // J8-4
+  #define E_MUX2_PIN       P2_11   // J8-5
 #endif
 
 //
 // Misc. Functions
 //
-#define PS_ON_PIN          P0_25
+#define PS_ON_PIN          P0_25 //TH3 Connector
 #define LPC_SOFTWARE_SPI  // MKS_SBASE needs a software SPI because the
                           // selected pins are not on a hardware SPI controller
 
@@ -163,7 +166,7 @@
   #define LCD_SDSS         P0_28   // EXP2.4
   #define LCD_PINS_ENABLE  P0_18   // EXP1.3
   #define LCD_PINS_D4      P0_15   // EXP1.5
-#endif // ULTRA_LCD
+#endif
 
 //
 // Ethernet pins
@@ -173,6 +176,7 @@
   #define ENET_RX_ER       P1_14   // J12-6
   #define ENET_RXD1        P1_10   // J12-8
 #endif
+
 #define ENET_MOC           P1_16   // J12-3
 #define REF_CLK            P1_15   // J12-5
 #define ENET_RXD0          P1_09   // J12-7
@@ -191,6 +195,49 @@
 #define SDSS               P0_06
 
 /**
+ * Example for trinamic drivers using the J8 connector on MKs Sbase.
+ * 2130s need 1 pin for each driver. 2208s need 2 pins for serial control.
+ * This board does not have enough pins to use hardware serial.
+ */
+
+#if HAS_DRIVER(TMC2130)
+  // J8
+  #define X_CS_PIN         P1_22
+  #define Y_CS_PIN         P1_23
+  #define Z_CS_PIN         P2_12
+  #define E0_CS_PIN        P2_11
+  #define E1_CS_PIN        P4_28
+
+// Hardware SPI is on EXP2. See if you can make it work:
+// https://github.com/makerbase-mks/MKS-SBASE/issues/25
+#define TMC_USE_SW_SPI
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI    P0_03   // AUX1
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO    P0_02   // AUX1
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK     P0_26   // TH4
+  #endif
+ #endif
+#endif
+#if HAS_DRIVER(TMC2208)
+  // The shortage of pins becomes apparent.
+  // Worst case you may have to give up the LCD
+  // RX pins need to be interrupt capable
+  #define X_SERIAL_TX_PIN  P1_22   // J8-2
+  #define X_SERIAL_RX_PIN  P2_12   // J8-4 Interrupt Capable
+  #define Y_SERIAL_TX_PIN  P1_23   // J8-3
+  #define Y_SERIAL_RX_PIN  P2_11   // J8-5 Interrupt Capable
+  #define Z_SERIAL_TX_PIN  P2_12   // J8-4
+  #define Z_SERIAL_RX_PIN  P0_25   // TH3
+  #define E0_SERIAL_TX_PIN P4_28   // J8-6
+  #define E0_SERIAL_RX_PIN P0_26   // TH4
+#endif
+
+/**
  * P0.27 is on EXP2 and the on-board SD card's socket. That means it can't be
  * used as the SD_DETECT for the LCD's SD card.
  *
@@ -201,7 +248,6 @@
  * SD_DETECT_PIN entirely and remove that wire from the the custom cable.
  */
 #define SD_DETECT_PIN      P2_11   // J8-5 (moved from EXP2 P0.27)
-
 
 /**
  *  PWMs
@@ -226,9 +272,24 @@
 
  /**
   * Special pins
-  *   P1_30 - not 5V tolerant
-  *   P1_31 - not 5V tolerant
-  *   P0_27 - open collector
-  *   P0_28 - open collector
+  *   P1_30 - not 5V tolerant - EXP1
+  *   P1_31 - not 5V tolerant - EXP1
+  *   P0_27 - open collector  - EXP2
+  *   P0_28 - open collector  - EXP2
+  *
+  */
+
+ /**
+  * Serial Ports
+  *   P0_00 - Port  3
+  *   P0_01 - SD Card (Onboard)
+  *   P0_10 - Port  2
+  *   P0_11 - Y_EN/Y_DIR
+  *   P0_15 - Port  1
+  *   P0_16 - EXP1
+  *   P0_02 - Port  0
+  *   P0_03 - AUX1
+  *   P0_29 - Port -1
+  *   P0_30 - USB
   *
   */

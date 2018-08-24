@@ -88,25 +88,15 @@ bool useable_hardware_PWM(pin_t pin);
 /// set pin as input with pulldown mode
 #define _PULLDOWN(IO,V)   pinMode(IO, (V) ? INPUT_PULLDOWN : INPUT)
 
-// hg42: all pins can be input or output (I hope)
-// hg42: undefined pins create compile error (IO, is no pin)
-// hg42: currently not used, but was used by pinsDebug
-
 /// check if pin is an input
-#define _GET_INPUT(IO)    (LPC1768_PIN_PIN(IO) >= 0)
+#define _GET_INPUT(IO)    (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIODIR & LPC_PIN(LPC1768_PIN_PIN(IO)) != 0)
 
 /// check if pin is an output
-#define _GET_OUTPUT(IO)   (LPC1768_PIN_PIN(IO) >= 0)
-
-// hg42: GET_TIMER is used only to check if it's a PWM pin
-// hg42: we cannot use USEABLE_HARDWARE_PWM because it uses a function that cannot be used statically
-// hg42: instead use PWM bit from the #define
+#define _GET_OUTPUT(IO)   (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIODIR & LPC_PIN(LPC1768_PIN_PIN(IO)) == 0)
 
 /// check if pin is a timer
-#define _GET_TIMER(IO)    TRUE  // could be LPC1768_PIN_PWM(IO), but there
-// hg42: could be this:
-// #define _GET_TIMER(IO)        LPC1768_PIN_PWM(IO)
-// but this is an incomplete check (12 pins are PWMable, but only 6 can be used at the same time)
+/// all gpio pins are pwm capable, either interrupt or hardware pwm controlled
+#define _GET_TIMER(IO)    TRUE
 
 /// Read a pin wrapper
 #define READ(IO)          _READ(IO)

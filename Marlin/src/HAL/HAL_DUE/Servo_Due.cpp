@@ -45,8 +45,8 @@
 #if HAS_SERVOS
 
 #include <Arduino.h>
-#include "../servo.h"
-#include "../servo_private.h"
+#include "../shared/servo.h"
+#include "../shared/servo_private.h"
 
 static volatile int8_t Channel[_Nbr_16timers];              // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 
@@ -158,4 +158,3 @@ void finISR(timer16_Sequence_t timer) {
 #endif // HAS_SERVOS
 
 #endif // ARDUINO_ARCH_SAM
-

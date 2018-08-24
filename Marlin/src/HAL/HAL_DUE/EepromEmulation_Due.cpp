@@ -31,7 +31,7 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS) && DISABLED(I2C_EEPROM) && DISABLED(SPI_EEPROM)
