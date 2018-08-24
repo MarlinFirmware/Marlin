@@ -3622,6 +3622,7 @@ inline void gcode_G4() {
    * G6: Direct Stepper Move
    */
   inline void gcode_G6() {
+	bool count_it = false;
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       if (axis_unhomed_error()) return;
     #endif
@@ -3653,15 +3654,17 @@ inline void gcode_G4() {
         tmp_fr_mm_s = MMM_TO_MMS(parser.value_feedrate());
       else
         tmp_fr_mm_s = feedrate_mm_s;
-        planner.buffer_segment(go[A_AXIS], go[B_AXIS], go[C_AXIS]
-                               #if ENABLED(HANGPRINTER)
-                                 , go[D_AXIS]
-                               #endif
-                               , current_position[E_CART], tmp_fr_mm_s, active_extruder, 0.0, false);
       #if ENABLED(HANGPRINTER)
-        if(parser.seenval('S') && (parser.value_byte() == 2))
+        if(parser.seenval('S') && (parser.value_byte() == 2)){
           LOOP_MOV_AXIS(i) line_lengths[i] = go[i];
+          count_it = true;
+        }
       #endif
+      planner.buffer_segment(go[A_AXIS], go[B_AXIS], go[C_AXIS]
+                             #if ENABLED(HANGPRINTER)
+                               , go[D_AXIS]
+                             #endif
+                             , current_position[E_CART], tmp_fr_mm_s, active_extruder, 0.0, count_it);
     }
   }
 #endif
