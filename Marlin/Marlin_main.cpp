@@ -6538,13 +6538,13 @@ inline void gcode_G92() {
 
     // 0x5f == 95
     #define G95_SEND(LETTER) do { \
-      if (fabs(torques[LETTER##_AXIS].fval) < 255.0){ \
-        torques[LETTER##_AXIS].fval = -fabs(torques[LETTER##_AXIS].fval); \
-        if(!INVERT_##LETTER##_DIR) torques[LETTER##_AXIS].fval = -torques[LETTER##_AXIS].fval; \
+      if (fabs(torques[_AXIS(LETTER)].fval) < 255.0){ \
+        torques[_AXIS(LETTER)].fval = -fabs(torques[_AXIS(LETTER)].fval); \
+        if(!INVERT_##LETTER##_DIR) torques[_AXIS(LETTER)].fval = -torques[_AXIS(LETTER)].fval; \
         i2c.address(LETTER##_MOTOR_I2C_ADDR); \
         i2c.reset(); \
         i2c.addbyte(0x5f); \
-        i2c.addbytes(torques[LETTER##_AXIS].bval, sizeof(float)); \
+        i2c.addbytes(torques[_AXIS(LETTER)].bval, sizeof(float)); \
         i2c.send(); \
       }} while(0)
 
