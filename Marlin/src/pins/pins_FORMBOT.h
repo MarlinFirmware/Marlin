@@ -146,7 +146,7 @@
 
 #define FAN_PIN             9
 
-#if !ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if DISABLED(FILAMENT_RUNOUT_SENSOR)
   #define FAN1_PIN          4
 #endif
 

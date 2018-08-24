@@ -505,9 +505,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "MESH_BED_LEVELING and BABYSTEP_ZPROBE_OFFSET is not a valid combination"
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
     #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
-  #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && !ENABLED(DOGLCD)
+  #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && DISABLED(DOGLCD)
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a Graphical LCD."
-  #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && !ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a BABYSTEP_ZPROBE_OFFSET."
   #endif
 #endif
@@ -1524,7 +1524,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   // is necessary in order to reset the stallGuard indication between the initial movement of all three
   // towers to +Z and the individual homing of each tower. This restriction can be removed once a means of
   // clearing the stallGuard activated status is found.
-  #if ENABLED(DELTA) && !ENABLED(STEALTHCHOP)
+  #if ENABLED(DELTA) && DISABLED(STEALTHCHOP)
     #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
   #elif X_SENSORLESS && X_HOME_DIR == -1 && (DISABLED(X_MIN_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_XMIN))
     #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_INVERTING and ENDSTOPPULLUP_XMIN when homing to X_MIN."
@@ -1619,7 +1619,7 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
   #endif
 #endif
 
-#if ENABLED(POWER_LOSS_RECOVERY) && !ENABLED(ULTIPANEL)
+#if ENABLED(POWER_LOSS_RECOVERY) && DISABLED(ULTIPANEL)
   #error "POWER_LOSS_RECOVERY currently requires an LCD Controller."
 #endif
 
