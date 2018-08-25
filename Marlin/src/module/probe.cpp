@@ -434,7 +434,7 @@ bool set_probe_deployed(const bool deploy) {
 
       #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
 
-        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][(deploy ? 0 : 1)]);
+        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
 
       #elif ENABLED(Z_PROBE_ALLEN_KEY)
 

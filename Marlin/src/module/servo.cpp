@@ -31,7 +31,7 @@
 #include "servo.h"
 
 HAL_SERVO_LIB servo[NUM_SERVOS];
-uint8_t servo_angles[NUM_SERVOS][2];
+uint16_t servo_angles[NUM_SERVOS][2];
 
 void servo_init() {
   #if NUM_SERVOS >= 1 && HAS_SERVO_0

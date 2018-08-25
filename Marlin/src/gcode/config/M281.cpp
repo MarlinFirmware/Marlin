@@ -21,13 +21,13 @@
  */
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SERVOS
+#if HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES)
 
 #include "../gcode.h"
 #include "../../module/servo.h"
 
 void GcodeSuite::M281() {
-    if (!parser.seen('P')) return;
+  if (!parser.seenval('P')) return;
   const int servo_index = parser.value_int();
   if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
     bool angle_change = false;
@@ -53,4 +53,4 @@ void GcodeSuite::M281() {
   }
 }
 
-#endif
+#endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES

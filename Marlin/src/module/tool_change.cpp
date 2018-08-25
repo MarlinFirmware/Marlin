@@ -60,9 +60,9 @@
 #if DO_SWITCH_EXTRUDER
 
   #if EXTRUDERS > 3
-    #define _SERVO_NR (e < 2 ? SWITCHING_EXTRUDER_SERVO_NR : SWITCHING_EXTRUDER_E23_SERVO_NR)
+    #define _SERVO_NR(E) ((E) < 2 ? SWITCHING_EXTRUDER_SERVO_NR : SWITCHING_EXTRUDER_E23_SERVO_NR)
   #else
-    #define _SERVO_NR SWITCHING_EXTRUDER_SERVO_NR
+    #define _SERVO_NR(E) SWITCHING_EXTRUDER_SERVO_NR
   #endif
 
   void move_extruder_servo(const uint8_t e) {
@@ -71,7 +71,7 @@
       if (e < EXTRUDERS - 1)
     #endif
     {
-      MOVE_SERVO(_SERVO_NR, servo_angles[_SERVO_NR][e]);
+      MOVE_SERVO(_SERVO_NR(e), servo_angles[_SERVO_NR(e)][e]);
       safe_delay(500);
     }
   }
@@ -82,7 +82,7 @@
 
   void move_nozzle_servo(const uint8_t e) {
     planner.synchronize();
-    MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_EXTRUDER_SERVO_NR][e]);
+    MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][e]);
     safe_delay(500);
   }
 

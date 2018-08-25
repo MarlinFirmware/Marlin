@@ -487,7 +487,9 @@ void GcodeSuite::process_parsed_command(
 
       #if HAS_SERVOS
         case 280: M280(); break;                                  // M280: Set servo position absolute
-        case 281: M281(); break;
+        #if ENABLED(EDITABLE_SERVO_ANGLES)
+          case 281: M281(); break;                                // M281: Set servo angles
+        #endif
       #endif
 
       #if ENABLED(BABYSTEPPING)

@@ -30,7 +30,7 @@
 #include "../HAL/shared/servo.h"
 
 extern HAL_SERVO_LIB servo[NUM_SERVOS];
-extern uint8_t servo_angles[NUM_SERVOS][2];
+extern uint16_t servo_angles[NUM_SERVOS][2];
 extern void servo_init();
 
 #define MOVE_SERVO(I, P) servo[I].move(P)
