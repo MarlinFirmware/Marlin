@@ -2,7 +2,11 @@
 
 To build:
 
-`cd Marlin/Marlin && make -f Makefile.calc`
+`cd Marlin/Marlin && scons`
+
+To build a specific architecture, for example with x86_64:
+
+`cd Marlin/Marlin && scons x86_64/marlin-calc.x86_64`
 
 Original `README.md` below.
 
