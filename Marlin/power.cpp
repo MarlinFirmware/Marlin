@@ -63,6 +63,9 @@ bool Power::is_power_needed() {
             || E2_ENABLE_READ == E_ENABLE_ON
           #if E_STEPPERS > 3
               || E3_ENABLE_READ == E_ENABLE_ON
+            #if E_STEPPERS > 4
+                || E4_ENABLE_READ == E_ENABLE_ON
+            #endif
           #endif
         #endif
       #endif
