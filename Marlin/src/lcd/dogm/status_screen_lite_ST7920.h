@@ -876,24 +876,32 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
 }
 
 void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
-  #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
-    uint8_t progress_bar_percent = 0;
-  #endif
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) || ENABLED(SDSUPPORT)
 
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
-    // Progress bar % comes from SD when actively printing
-    if (IS_SD_PRINTING) progress_bar_percent = card.percentDone();
-  #endif
+    #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+      uint8_t progress_bar_percent; //=0
+    #endif
 
-  // Since the progress bar involves writing
-  // quite a few bytes to GDRAM, only do this
-  // when an update is actually necessary.
+    #if ENABLED(SDSUPPORT)
+      // Progress bar % comes from SD when actively printing
+      if (IS_SD_PRINTING) progress_bar_percent = card.percentDone();
+    #endif
 
-  static uint8_t last_progress = 0;
-  if (!forceUpdate && last_progress == progress_bar_percent) return;
-  last_progress = progress_bar_percent;
+    // Since the progress bar involves writing
+    // quite a few bytes to GDRAM, only do this
+    // when an update is actually necessary.
 
-  draw_progress_bar(progress_bar_percent);
+    static uint8_t last_progress = 0;
+    if (!forceUpdate && last_progress == progress_bar_percent) return;
+    last_progress = progress_bar_percent;
+
+    draw_progress_bar(progress_bar_percent);
+
+  #else
+
+    UNUSED(forceUpdate);
+
+  #endif // LCD_SET_PROGRESS_MANUALLY || SDSUPPORT
 }
 
 void ST7920_Lite_Status_Screen::update(const bool forceUpdate) {
