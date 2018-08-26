@@ -1515,7 +1515,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     // Change filament
     //
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+      #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
         if (thermalManager.targetHotEnoughToExtrude(active_extruder))
           MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
         else
@@ -2744,7 +2744,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       if (!IS_SD_FILE_OPEN) {
-        #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+        #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
           if (thermalManager.targetHotEnoughToExtrude(active_extruder))
             MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
           else

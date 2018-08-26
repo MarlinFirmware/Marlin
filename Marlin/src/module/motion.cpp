@@ -92,7 +92,7 @@ float destination[XYZE] = { 0 };
 uint8_t active_extruder; // = 0;
 
 // Extruder offsets
-#if HOTENDS > 1
+#if HAS_HOTEND_OFFSET
   float hotend_offset[XYZ][HOTENDS]; // Initialized by settings.load()
 #endif
 

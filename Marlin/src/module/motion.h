@@ -78,7 +78,7 @@ extern int16_t feedrate_percentage;
 
 extern uint8_t active_extruder;
 
-#if HOTENDS > 1
+#if HAS_HOTEND_OFFSET
   extern float hotend_offset[XYZ][HOTENDS];
 #endif
 
