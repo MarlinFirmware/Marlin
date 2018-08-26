@@ -94,16 +94,24 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
 // SPI pin definitions - do not edit here - change in SdFatConfig.h
 #if DISABLED(SOFTWARE_SPI)
   // hardware pin defs
-  #define SD_CHIP_SELECT_PIN SS_PIN   // The default chip select pin for the SD card is SS.
+  // The default chip select pin for the SD card is SS.
+  #define SD_CHIP_SELECT_PIN SS_PIN
   // The following three pins must not be redefined for hardware SPI.
-  #define SPI_MOSI_PIN MOSI_PIN       // SPI Master Out Slave In pin
-  #define SPI_MISO_PIN MISO_PIN       // SPI Master In Slave Out pin
-  #define SPI_SCK_PIN SCK_PIN         // SPI Clock pin
+  // SPI Master Out Slave In pin
+  #define SPI_MOSI_PIN MOSI_PIN
+  // SPI Master In Slave Out pin
+  #define SPI_MISO_PIN MISO_PIN
+  // SPI Clock pin
+  #define SPI_SCK_PIN SCK_PIN
 #else  // SOFTWARE_SPI
-  #define SD_CHIP_SELECT_PIN SOFT_SPI_CS_PIN  // SPI chip select pin
-  #define SPI_MOSI_PIN SOFT_SPI_MOSI_PIN      // SPI Master Out Slave In pin
-  #define SPI_MISO_PIN SOFT_SPI_MISO_PIN      // SPI Master In Slave Out pin
-  #define SPI_SCK_PIN SOFT_SPI_SCK_PIN        // SPI Clock pin
+  // SPI chip select pin
+  #define SD_CHIP_SELECT_PIN SOFT_SPI_CS_PIN
+  // SPI Master Out Slave In pin
+  #define SPI_MOSI_PIN SOFT_SPI_MOSI_PIN
+  // SPI Master In Slave Out pin
+  #define SPI_MISO_PIN SOFT_SPI_MISO_PIN
+  // SPI Clock pin
+  #define SPI_SCK_PIN SOFT_SPI_SCK_PIN
 #endif  // SOFTWARE_SPI
 
 /**
