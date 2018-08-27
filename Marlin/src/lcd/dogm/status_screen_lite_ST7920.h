@@ -601,7 +601,7 @@ void ST7920_Lite_Status_Screen::draw_print_time(const duration_t &elapsed) {
   write_str(str, 6);
 }
 
-void ST7920_Lite_Status_Screen::draw_feedrate_percentage(const uint8_t percentage) {
+void ST7920_Lite_Status_Screen::draw_feedrate_percentage(const uint16_t percentage) {
   // We only have enough room for the feedrate when
   // we have one extruder
   #if EXTRUDERS == 1
@@ -709,7 +709,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   // because the actual temps fluctuate so by updating
   // them only during blinks we gain a bit of stability.
   const bool       blink             = lcd_blink();
-  const uint8_t    feedrate_perc     = feedrate_percentage;
+  const uint16_t   feedrate_perc     = feedrate_percentage;
   const uint8_t    fan_speed         = ((fanSpeeds[0] + 1) * 100) / 256;
   const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
   #if EXTRUDERS == 2
@@ -736,7 +736,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
   if (forceUpdate || indicators_changed()) {
     const bool       blink             = lcd_blink();
     const duration_t elapsed           = print_job_timer.duration();
-    const uint8_t    feedrate_perc     = feedrate_percentage;
+    const uint16_t   feedrate_perc     = feedrate_percentage;
     const uint8_t    fan_speed         = ((fanSpeeds[0] + 1) * 100) / 256;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
