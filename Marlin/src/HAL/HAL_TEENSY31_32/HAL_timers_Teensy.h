@@ -24,8 +24,7 @@
  * Teensy3.2 (__MK20DX256__)
  */
 
-#ifndef _HAL_TIMERS_TEENSY_H
-#define _HAL_TIMERS_TEENSY_H
+#pragma once
 
 // --------------------------------------------------------------------------
 // Includes
@@ -112,5 +111,3 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
 #define HAL_timer_isr_epilogue(TIMER_NUM)
-
-#endif // _HAL_TIMERS_TEENSY_H
