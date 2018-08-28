@@ -20,8 +20,7 @@
  *
  */
 
-#ifndef WATCHDOG_TEENSY_H
-#define WATCHDOG_TEENSY_H
+#pragma once
 
 #include "HAL.h"
 
@@ -34,5 +33,3 @@ inline void watchdog_reset() {
   WDOG_REFRESH = 0xA602;
   WDOG_REFRESH = 0xB480;
 }
-
-#endif // WATCHDOG_TEENSY_H
