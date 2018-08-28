@@ -24,8 +24,7 @@
  * Description: HAL for Teensy 3.5 and Teensy 3.6
  */
 
-#ifndef _HAL_TEENSY_H
-#define _HAL_TEENSY_H
+#pragma once
 
 #define CPU_32_BIT
 
@@ -85,9 +84,6 @@ typedef int8_t pin_t;
 #define ISRS_ENABLED() (!__get_PRIMASK())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
-
-#undef sq
-#define sq(x) ((x)*(x))
 
 #ifndef strncpy_P
   #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
@@ -161,5 +157,3 @@ void HAL_enable_AdcFreerun(void);
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
-
-#endif // _HAL_TEENSY_H
