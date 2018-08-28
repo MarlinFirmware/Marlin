@@ -20,7 +20,7 @@
  *
  */
 
-#if defined(__MK20DX256__)
+#ifdef __MK20DX256__
 
 #include "../../inc/MarlinConfig.h"
 
