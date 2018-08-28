@@ -29,10 +29,6 @@
 
 #define CPU_32_BIT
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
-
 // _BV is re-defined in Arduino.h
 #undef _BV
 
@@ -56,12 +52,8 @@
 #define ST7920_DELAY_2 DELAY_NS(750)
 #define ST7920_DELAY_3 DELAY_NS(750)
 
-// --------------------------------------------------------------------------
-// Defines
-// --------------------------------------------------------------------------
-
-#undef MOTHERBOARD
-#define MOTHERBOARD BOARD_TEENSY31_32
+//#undef MOTHERBOARD
+//#define MOTHERBOARD BOARD_TEENSY31_32
 
 #define IS_32BIT_TEENSY defined(__MK20DX256__)
 #define IS_TEENSY32 defined(__MK20DX256__)
@@ -116,10 +108,10 @@ typedef int8_t pin_t;
 #define RST_SOFTWARE   32
 #define RST_BACKUP     64
 
-/** clear reset reason */
+// Clear the reset reason
 void HAL_clear_reset_source(void);
 
-/** reset reason */
+// Get the reason for the reset
 uint8_t HAL_get_reset_source(void);
 
 FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
@@ -129,11 +121,14 @@ extern "C" {
 }
 
 // SPI: Extended functions which take a channel number (hardware SPI only)
-/** Write single byte to specified SPI channel */
+
+// Write single byte to specified SPI channel
 void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
+
+// Write buffer to specified SPI channel
 void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
+
+// Read single byte from specified SPI channel
 uint8_t spiRec(uint32_t chan);
 
 // ADC
@@ -151,24 +146,20 @@ void HAL_adc_start_conversion(const uint8_t adc_pin);
 uint16_t HAL_adc_get_result(void);
 
 /*
-  uint16_t HAL_getAdcReading(uint8_t chan);
+uint16_t HAL_getAdcReading(uint8_t chan);
 
-  void HAL_startAdcConversion(uint8_t chan);
-  uint8_t HAL_pinToAdcChannel(int pin);
+void HAL_startAdcConversion(uint8_t chan);
+uint8_t HAL_pinToAdcChannel(int pin);
 
-  uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
-  //uint16_t HAL_getAdcSuperSample(uint8_t chan);
+uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
+//uint16_t HAL_getAdcSuperSample(uint8_t chan);
 
-  void HAL_enable_AdcFreerun(void);
-  //void HAL_disable_AdcFreerun(uint8_t chan);
+void HAL_enable_AdcFreerun(void);
+//void HAL_disable_AdcFreerun(uint8_t chan);
 */
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
-
-// --------------------------------------------------------------------------
-//
-// --------------------------------------------------------------------------
 
 #endif // _HAL_TEENSY_H
