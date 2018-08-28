@@ -23,7 +23,7 @@
  * Teensy3.2 __MK20DX256__
  */
 
-#if defined(__MK20DX256__)
+#ifdef __MK20DX256__
 
 #include "HAL.h"
 #include "HAL_timers_Teensy.h"
@@ -110,4 +110,4 @@ void HAL_timer_isr_prologue(const uint8_t timer_num) {
   }
 }
 
-#endif // Teensy3.1 or Teensy3.2
+#endif // __MK20DX256__
