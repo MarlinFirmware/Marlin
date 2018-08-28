@@ -26,8 +26,7 @@
  * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
 
-#ifndef _FASTIO_TEENSY_H
-#define _FASTIO_TEENSY_H
+#pragma once
 
 #ifndef MASK
   #define MASK(PIN) (1 << PIN)
@@ -91,5 +90,3 @@
  */
 
 #define DIO0_PIN 8
-
-#endif  /* _FASTIO_TEENSY_H */
