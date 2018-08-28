@@ -23,7 +23,7 @@
  * Description: HAL for Teensy32 (MK20DX256)
  */
 
-#if defined(__MK20DX256__)
+#ifdef __MK20DX256__
 
 #include "HAL.h"
 #include "../Delay.h"
