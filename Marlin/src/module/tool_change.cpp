@@ -403,17 +403,16 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             parking_extruder_tool_change(tmp_extruder, no_move);
           #endif
 
-          #if ENABLED(SWITCHING_NOZZLE)
-            // Always raise by at least 1 to avoid workpiece
-            const float zdiff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-            current_position[Z_AXIS] += (zdiff > 0.0 ? zdiff : 0.0) + 1;
-            planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-            move_nozzle_servo(tmp_extruder);
-          #endif
-
           const float xdiff = hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
                       ydiff = hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder],
                       zdiff = hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
+
+          #if ENABLED(SWITCHING_NOZZLE)
+            // Always raise by at least 1 to avoid workpiece
+            current_position[Z_AXIS] += (zdiff < 0.0 ? -zdiff : 0.0) + 1;
+            planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+            move_nozzle_servo(tmp_extruder);
+          #endif
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {

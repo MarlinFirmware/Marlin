@@ -374,11 +374,15 @@
   #include "pins_CHITU3D.h"           // STM32F1                                    env:STM32F1
 #elif MB(GTM32_PRO_VB)
   #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1
+#elif MB(MORPHEUS)
+  #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
 
 //
 // STM32 ARM Cortex-M4F
 //
 
+#elif MB(TEENSY31_32)
+  #include "pins_TEENSY31_32.h"       // TEENSY31_32                                env:teensy31
 #elif MB(TEENSY35_36)
   #include "pins_TEENSY35_36.h"       // TEENSY35_36                                env:teensy35
 #elif MB(BEAST)
