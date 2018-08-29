@@ -12380,10 +12380,8 @@ void process_parsed_command() {
         case 108: gcode_M108(); break;                            // M108: Cancel Waiting
         case 112: gcode_M112(); break;                            // M112: Emergency Stop
         case 410: gcode_M410(); break;                            // M410: Quickstop. Abort all planned moves
-      #else                                                       // Silently drop as handled by emergency parser
-        case 108: break;
-        case 112: break;
-        case 410: break;
+      #else
+        case 108: case 112: case 410: break;                      // Silently drop as handled by emergency parser
       #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
