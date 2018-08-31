@@ -1635,4 +1635,8 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
   #error "FAST_PWM_FAN only supported by 8 bit CPUs."
 #endif
 
+#if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
+  #error "PRINTCOUNTER requires EEPROM_SETTINGS. Please update your Configuration."
+#endif
+
 #endif // _SANITYCHECK_H_
