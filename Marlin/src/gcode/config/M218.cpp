@@ -65,7 +65,7 @@ void GcodeSuite::M218() {
       SERIAL_CHAR(',');
       SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
       SERIAL_CHAR(',');
-      SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
+      SERIAL_ECHO_F(hotend_offset[Z_AXIS][e], 3);
     }
     SERIAL_EOL();
   }
