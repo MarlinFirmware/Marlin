@@ -248,7 +248,6 @@ inline void invalid_extruder_error(const uint8_t e) {
         switch (dual_x_carriage_mode) {
           case DXC_FULL_CONTROL_MODE: SERIAL_ECHOLNPGM("DXC_FULL_CONTROL_MODE"); break;
           case DXC_AUTO_PARK_MODE: SERIAL_ECHOLNPGM("DXC_AUTO_PARK_MODE"); break;
-          case DXC_DUPLICATION_MODE: SERIAL_ECHOLNPGM("DXC_DUPLICATION_MODE"); break;
         }
       }
     #endif
@@ -270,15 +269,16 @@ inline void invalid_extruder_error(const uint8_t e) {
         }
       #endif
       // Park old head: 1) raise 2) move to park position 3) lower
-      for (uint8_t i = 0; i < 3; i++)
-        planner.buffer_line(
-          i == 0 ? current_position[X_AXIS] : xhome,
-          current_position[Y_AXIS],
-          i == 2 ? current_position[Z_AXIS] : raised_z,
-          current_position[E_AXIS],
-          planner.max_feedrate_mm_s[i == 1 ? X_AXIS : Z_AXIS],
-          active_extruder
-        );
+
+      #define CUR_X current_position[X_AXIS]
+      #define CUR_Y current_position[Y_AXIS]
+      #define CUR_Z current_position[Z_AXIS]
+      #define CUR_E current_position[E_AXIS]
+
+      planner.buffer_line( CUR_X, CUR_Y, raised_z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+      planner.buffer_line( xhome, CUR_Y, raised_z, CUR_E, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+      planner.buffer_line( xhome, CUR_Y, CUR_Z,    CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+
       planner.synchronize();
     }
 
@@ -316,20 +316,6 @@ inline void invalid_extruder_error(const uint8_t e) {
         active_extruder_parked = true;
         delayed_move_time = 0;
         break;
-      case DXC_DUPLICATION_MODE:
-        // If the new extruder is the left one, set it "parked"
-        // This triggers the second extruder to move into the duplication position
-        active_extruder_parked = (active_extruder == 0);
-        current_position[X_AXIS] = active_extruder_parked ? inactive_extruder_x_pos : destination[X_AXIS] + duplicate_extruder_x_offset;
-        inactive_extruder_x_pos = destination[X_AXIS];
-        extruder_duplication_enabled = false;
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOLNPAIR("Set inactive_extruder_x_pos=", inactive_extruder_x_pos);
-            SERIAL_ECHOLNPGM("Clear extruder_duplication_enabled");
-          }
-        #endif
-        break;
     }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -350,6 +336,11 @@ inline void invalid_extruder_error(const uint8_t e) {
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
   planner.synchronize();
+
+  #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE
+    if (tmp_extruder != 0 && dual_x_carriage_mode == DXC_DUPLICATION_MODE)
+       return invalid_extruder_error(tmp_extruder); 
+  #endif
 
   #if HAS_LEVELING
     // Set current position to the physical position
