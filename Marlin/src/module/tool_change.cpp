@@ -433,11 +433,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
         #endif // !DUAL_X_CARRIAGE
 
-        #if ENABLED(SWITCHING_NOZZLE)
-          // The newly-selected extruder Z is actually at...
-          current_position[Z_AXIS] -= zdiff;
-        #endif
-
         // Tell the planner the new "current position"
         SYNC_PLAN_POSITION_KINEMATIC();
 
