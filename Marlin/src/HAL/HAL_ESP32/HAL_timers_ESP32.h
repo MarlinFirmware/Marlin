@@ -98,12 +98,6 @@ void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t count);
 hal_timer_t HAL_timer_get_compare(const uint8_t timer_num);
 hal_timer_t HAL_timer_get_count(const uint8_t timer_num);
 
-// if counter too high then bump up compare
-FORCE_INLINE static void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks) {
-  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_ticks;
-  if (HAL_timer_get_compare(timer_num) < mincmp) HAL_timer_set_compare(timer_num, mincmp);
-}
-
 void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
