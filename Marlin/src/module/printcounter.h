@@ -72,7 +72,7 @@ class PrintCounter: public Stopwatch {
      * @note The max value for this option is 60(s), otherwise integer
      * overflow will happen.
      */
-    static const uint16_t updateInterval;
+    static constexpr uint16_t updateInterval = 10;
 
     /**
      * @brief Interval in seconds between EEPROM saves
@@ -80,7 +80,7 @@ class PrintCounter: public Stopwatch {
      * EEPROM save cycle, the development team recommends to set this value
      * no lower than 3600 secs (1 hour).
      */
-    static const uint16_t saveInterval;
+    static constexpr uint16_t saveInterval = 3600;
 
     /**
      * @brief Timestamp of the last call to deltaDuration()

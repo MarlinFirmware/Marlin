@@ -96,8 +96,6 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare);
 hal_timer_t HAL_timer_get_compare(const uint8_t timer_num);
 uint32_t HAL_timer_get_count(const uint8_t timer_num);
-void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks);
-
 void HAL_timer_isr_prologue(const uint8_t timer_num);
 #define HAL_timer_isr_epilogue(TIMER_NUM)
 
