@@ -229,8 +229,9 @@
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
 
-#define HOTEND_OFFSET_X {0,33.65} // (in mm) for each extruder, offset of the hotend on the X axis
-#define HOTEND_OFFSET_Y {0,-0.6}  // (in mm) for each extruder, offset of the hotend on the Y axis
+#define HOTEND_OFFSET_X {0,33.65} // (mm) relative X-offset for each nozzle
+#define HOTEND_OFFSET_Y {0,-0.6}  // (mm) relative Y-offset for each nozzle
+//#define HOTEND_OFFSET_Z {0.0, 0.00}  // (mm) relative Z-offset for each nozzle
 #if ENABLED(SINGLENOZZLE)
   #undef HOTEND_OFFSET_X 
   #undef HOTEND_OFFSET_Y
