@@ -3,10 +3,12 @@
 # exit on first failure
 set -e
 
-restore_configs
+env_backup
+
 opt_set MOTHERBOARD BOARD_STM32F1R
+update_defaults
+
 opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
 exec_test $1 $2 "STM32F1R EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT"
 
-#cleanup
-restore_configs
+env_restore
