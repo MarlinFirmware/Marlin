@@ -32,6 +32,16 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#if ENABLED(BUCKET_FEATURE)
+  extern int tool_migration_last_target; // Define if tool migration enabled and the last extruder to reach
+  extern float bucket_purge_length , bucket_purge_feedrate , bucket_retract ;
+  #if DISABLED(FWRETRACT)
+    extern float bucket_retract_feedrate
+               , bucket_recover_feedrate;
+  #endif
+  extern int bucket_fan_dwell;
+#endif
+
 enum AdvancedPauseMode : char {
   ADVANCED_PAUSE_MODE_PAUSE_PRINT,
   ADVANCED_PAUSE_MODE_LOAD_FILAMENT,
