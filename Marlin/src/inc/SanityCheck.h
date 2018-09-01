@@ -1560,6 +1560,24 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
 #endif
 
+/**
+ * TMC2208 software UART is only supported on AVR
+ */
+#if HAS_DRIVER(TMC2208) && !defined(__AVR__) && !( \
+       defined(X_HARDWARE_SERIAL ) \
+    || defined(X2_HARDWARE_SERIAL) \
+    || defined(Y_HARDWARE_SERIAL ) \
+    || defined(Y2_HARDWARE_SERIAL) \
+    || defined(Z_HARDWARE_SERIAL ) \
+    || defined(Z2_HARDWARE_SERIAL) \
+    || defined(E0_HARDWARE_SERIAL) \
+    || defined(E1_HARDWARE_SERIAL) \
+    || defined(E2_HARDWARE_SERIAL) \
+    || defined(E3_HARDWARE_SERIAL) \
+    || defined(E4_HARDWARE_SERIAL) )
+  #error "TMC2208 Software Serial is supported only on AVR platforms."
+#endif
+
 #if ENABLED(SENSORLESS_HOMING)
   // Require STEALTHCHOP for SENSORLESS_HOMING on DELTA as the transition from spreadCycle to stealthChop
   // is necessary in order to reset the stallGuard indication between the initial movement of all three
