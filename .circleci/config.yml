@@ -51,7 +51,7 @@ jobs:
             export PATH=`pwd`/buildroot/bin/:${PATH}
 
             # Generate custom version include
-            generate_version_header_for_marlin ./Marlin/src/inc
+            generate_version ./Marlin/src/inc
             cat ./Marlin/src/inc/_Version.h
             #
             # Backup pins_RAMPS.h
