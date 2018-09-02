@@ -51,13 +51,13 @@ jobs:
             export PATH=`pwd`/buildroot/bin/:${PATH}
 
             # Generate custom version include
-            generate_version_header_for_marlin ./Marlin/src/inc
+            generate_version ./Marlin/src/inc
             cat ./Marlin/src/inc/_Version.h
-
             #
-            # Back up the environment
+            # Backup pins_RAMPS.h
             #
-            env_backup
+            cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
+            #
 
             #################################
             # Build all sample configurations
@@ -279,10 +279,6 @@ jobs:
             # Remove temp files from dependencies tree prior to caching
             rm -rf ~/Marlin/.piolibdeps/_tmp_*
 
-            #
-            # Restore the environment
-            #
-            env_restore
 
 
       - save_cache:

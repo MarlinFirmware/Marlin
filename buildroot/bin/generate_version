@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# generate_version_header_for_marlin
+#
+# generate_version
+#
+# Make a _Version.h file
+#
 
 DIR="${1}"
 
@@ -9,13 +13,8 @@ DISTDATE=$(date '+%Y-%m-%d %H:%M')
 BRANCH=$(git -C "${DIR}" symbolic-ref -q --short HEAD)
 VERSION=$(git -C "${DIR}" describe --tags --first-parent 2>/dev/null)
 
-if [ -z "${BRANCH}" ]; then
-  BRANCH=$(echo "${TRAVIS_BRANCH}")
-fi
-
-if [ -z "${VERSION}" ]; then
-  VERSION=$(git -C "${DIR}" describe --tags --first-parent --always 2>/dev/null)
-fi
+[ -z "${BRANCH}" ] && BRANCH=$(echo "${TRAVIS_BRANCH}")
+[ -z "${VERSION}" ] && VERSION=$(git -C "${DIR}" describe --tags --first-parent --always 2>/dev/null)
 
 SHORT_BUILD_VERSION=$(echo "${BRANCH}")
 DETAILED_BUILD_VERSION=$(echo "${BRANCH}-${VERSION}")

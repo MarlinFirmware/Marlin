@@ -3,13 +3,15 @@
 # exit on first failure
 set -e
 
-env_backup
-
+#
+# Backup pins_RAMPS.h
+#
+cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
 #
 # Build with the default configurations
 #
+restore_configs
 exec_test $1 $2 "Default Configuration"
-
 #
 # Test 2 extruders (one MAX6675) and heated bed on basic RAMPS 1.4
 # Test a "Fix Mounted" Probe with Safe Homing, some arc options,
@@ -309,4 +311,5 @@ exec_test $1 $2 "TMC2208 Config"
 #
 #
 
-env_restore
+#clean up
+restore_configs
