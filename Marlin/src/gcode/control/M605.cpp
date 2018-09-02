@@ -22,6 +22,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#define DEBUG_DXC_MODE
+
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
 
 #include "../gcode.h"
@@ -53,75 +55,48 @@
   void GcodeSuite::M605() {
     planner.synchronize();
 
-    if (parser.seen('S')) { 
-      DualXMode  previous_mode, requested_mode = (DualXMode)parser.value_byte();
-      previous_mode = dual_x_carriage_mode;
+    if (parser.seen('S')) {
       dual_x_carriage_mode = (DualXMode)parser.value_byte();
 
-    switch (dual_x_carriage_mode) {
-      case DXC_FULL_CONTROL_MODE:
-      case DXC_AUTO_PARK_MODE:
-        break;
-      case DXC_DUPLICATION_MODE:
-        if (parser.seen('X')) duplicate_extruder_x_offset = MAX(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
-        if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
+      switch (dual_x_carriage_mode) {
+        case DXC_FULL_CONTROL_MODE:
+        case DXC_AUTO_PARK_MODE:
+          break;
+        case DXC_DUPLICATION_MODE:
+          if (parser.seen('X')) duplicate_extruder_x_offset = MAX(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
+          if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
           if (active_extruder != 0) tool_change(0);
-        break;
-      default:
-        dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
-        break;
+          break;
+        default:
+          dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+          break;
+      }
+      active_extruder_parked = false;
+      extruder_duplication_enabled = false;
+      delayed_move_time = 0;
     }
-    active_extruder_parked = false;
-    extruder_duplication_enabled = false;
-    delayed_move_time = 0;
-    } else
-      if (!parser.seen('W'))  // if no S or W parameter, the DXC mode gets reset to the user's default 
-        dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+    else if (!parser.seen('W'))  // if no S or W parameter, the DXC mode gets reset to the user's default
+      dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 
     if (parser.seen('W')) {
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("IDEX mode: ");
       switch (dual_x_carriage_mode) {
-        case DXC_FULL_CONTROL_MODE:
-          SERIAL_ECHOPGM("DXC_FULL_CONTROL_MODE\n");
-          break;
-        case DXC_AUTO_PARK_MODE:
-          SERIAL_ECHOPGM("DXC_AUTO_PARK_MODE\n");
-          break;
-        case DXC_DUPLICATION_MODE:
-          SERIAL_ECHOPGM("DXC_DUPLICATION_MODE\n");
-          break;
+        case DXC_FULL_CONTROL_MODE: SERIAL_ECHOPGM("DXC_FULL_CONTROL_MODE"); break;
+        case DXC_AUTO_PARK_MODE:    SERIAL_ECHOPGM("DXC_AUTO_PARK_MODE");    break;
+        case DXC_DUPLICATION_MODE:  SERIAL_ECHOPGM("DXC_DUPLICATION_MODE");  break;
       }
-      SERIAL_ECHOPGM("Active Ext: ");
-      SERIAL_ECHO((int) active_extruder);
-
-      if (active_extruder_parked == false)
-        SERIAL_ECHOPGM(" NOT ");
-      SERIAL_ECHOPGM(" parked.\n");
-
-      SERIAL_ECHOPGM("active_extruder_x_pos: ");
-      SERIAL_ECHO( current_position[X_AXIS]);
-
-      SERIAL_ECHOPGM("   inactive_extruder_x_pos: ");
-      SERIAL_ECHO( inactive_extruder_x_pos);
-
-      SERIAL_ECHOPGM("\n1st extruder x_home_pos(): ");
-      SERIAL_ECHO(x_home_pos(0));
-      SERIAL_ECHOPGM("\n2nd extruder x_home_pos(): ");
-      SERIAL_ECHO(x_home_pos(1));
-
-      SERIAL_ECHOPGM("\nextruder_duplication_enabled: ");
-      SERIAL_ECHO(extruder_duplication_enabled);
-
-      SERIAL_ECHOPGM("\nduplicate_extruder_x_offset: ");
-      SERIAL_ECHO(duplicate_extruder_x_offset);
-
-      SERIAL_ECHOPGM("\nduplicate_extruder_temp_offset: ");
-      SERIAL_ECHO(duplicate_extruder_temp_offset);
-
-      SERIAL_ECHOPGM("\ndelayed_move_time: ");
-      SERIAL_ECHO(delayed_move_time);
-      SERIAL_ECHOPGM("\n"); 
+      SERIAL_ECHOPAIR("\nActive Ext: ", int(active_extruder));
+      if (!active_extruder_parked) SERIAL_ECHOPGM(" NOT ");
+      SERIAL_ECHOLNPGM(" parked.");
+      SERIAL_ECHOPAIR("active_extruder_x_pos: ", current_position[X_AXIS]);
+      SERIAL_ECHOPAIR("   inactive_extruder_x_pos: ", inactive_extruder_x_pos);
+      SERIAL_ECHOPAIR("\nT0 Home X: ", x_home_pos(0));
+      SERIAL_ECHOPAIR("\nT1 Home X: ", x_home_pos(1));
+      SERIAL_ECHOPAIR("\nextruder_duplication_enabled: ", int(extruder_duplication_enabled));
+      SERIAL_ECHOPAIR("\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset);
+      SERIAL_ECHOPAIR("\nduplicate_extruder_temp_offset: ", duplicate_extruder_temp_offset);
+      SERIAL_ECHOPAIR("\ndelayed_move_time: ", delayed_move_time);
     }
   }
 
