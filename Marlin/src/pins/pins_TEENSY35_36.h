@@ -139,7 +139,7 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
 #endif
 #endif
 
-#ifdef ULTRA_LCD
+#if ENABLED(ULTRA_LCD)
   #define LCD_PINS_RS      40
   #define LCD_PINS_ENABLE  41
   #define LCD_PINS_D4      42
