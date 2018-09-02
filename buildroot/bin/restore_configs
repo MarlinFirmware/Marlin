@@ -2,14 +2,14 @@
 #
 # restore_configs
 #
-# Restore default configs, delete pins backup and dogm bitmaps
+# Restore most recently updated configs, delete pins backup and dogm bitmaps
 #
 
 # Restore the (possibly modified) Configurations
-[ -d ".test" -a -f ".test/Configuration.h" ] && cp .test/Configuration*.h Marlin/
+[ -d ".test" ] && [ -f ".test/Configuration.h" ] && { cp .test/Configuration*.h Marlin/ ; echo "[Marlin] configs restored..."; }
 
 # Restore the original unmodified pins
-[ -d ".test/pins" ] && cp -r .test/pins Marlin/src/pins/
+[ -d ".test/pins" ] && { cp -r .test/pins Marlin/src/pins/ ; echo "[Marlin] pins restored..."; }
 
 # Delete DOGM bitmaps
 rm -f Marlin/_*screen.h
