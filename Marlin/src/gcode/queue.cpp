@@ -138,6 +138,17 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false
  * Enqueue with Serial Echo
  */
 bool enqueue_and_echo_command(const char* cmd) {
+
+//SERIAL_ECHO("enqueue_and_echo_command(\"");
+//SERIAL_ECHO(cmd);
+//SERIAL_ECHO("\") \n");
+//
+  if ( *cmd == 0 || *cmd == '\n' || *cmd == 'r')
+//{
+//SERIAL_ECHO("Null command found...   Did not queue!\n");
+    return true;
+//}
+
   if (_enqueuecommand(cmd)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
@@ -155,7 +166,7 @@ bool enqueue_and_echo_command(const char* cmd) {
 static bool drain_injected_commands_P() {
   if (injected_commands_P != NULL) {
     size_t i = 0;
-    char c, cmd[30];
+    char c, cmd[60];
     strncpy_P(cmd, injected_commands_P, sizeof(cmd) - 1);
     cmd[sizeof(cmd) - 1] = '\0';
     while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
