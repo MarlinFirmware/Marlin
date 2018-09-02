@@ -2,10 +2,25 @@
 
 [ -z "$1" ] || cd $1
 
-cp Marlin/src/config/default/* Marlin/
-[ -f Marlin/_Bootscreen.h ] && rm Marlin/_Bootscreen.h
-[ -f Marlin/_Statusscreen.h ] && rm Marlin/_Statusscreen.h
-[ -d .test/pins ] && { cp .test/pins/* Marlin/src/pins/ ; rm -rf .test/pins ; }
-[ -d .test ] && rm -r .test
+if [ -d ".test" ]; then
+  cp .test/Configuration*.h Marlin/
+  rm .test/Configuration*.h
 
-printf "\033[0;32mEnvironment Restored\033[0m\n"
+  if [ -f .test/_Bootscreen.h ]; then
+    cp .test/_Bootscreen.h Marlin/
+    rm .test/_Bootscreen.h
+  fi
+
+  if [ -f .test/_Statusscreen.h ]; then
+    cp .test/_Statusscreen.h Marlin/
+    rm .test/_Statusscreen.h
+  fi
+
+  cp -r .test/pins Marlin/src
+  rm -r .test/pins
+
+  rmdir .test
+  printf "\033[0;32mEnvironment Restored\033[0m\n"
+else
+  printf "\033[0;31mEnvironment Backup not available!\033[0m\n"
+fi

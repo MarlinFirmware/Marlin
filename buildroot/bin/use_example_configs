@@ -4,5 +4,10 @@ restore_configs
 
 cp Marlin/src/config/examples/"$@"/Configuration* Marlin/
 
-[ -f "Marlin/src/config/examples/$@/_Bootscreen.h" ] && cp "Marlin/src/config/examples/$@/_Bootscreen.h" Marlin/
-[ -f "Marlin/src/config/examples/$@/_Statusscreen.h" ] && cp "Marlin/src/config/examples/$@/_Statusscreen.h" Marlin/
+if [ -f "Marlin/src/config/examples/$@/_Bootscreen.h" ]; then
+  cp "Marlin/src/config/examples/$@/_Bootscreen.h" Marlin/
+fi
+
+if [ -f "Marlin/src/config/examples/$@/_Statusscreen.h" ]; then
+  cp "Marlin/src/config/examples/$@/_Statusscreen.h" Marlin/
+fi

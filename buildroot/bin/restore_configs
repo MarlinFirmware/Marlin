@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-#
-# restore_configs
-#
-# Restore most recently updated configs, delete pins backup and dogm bitmaps
-#
 
-# Restore the (possibly modified) Configurations
-[ -d ".test" ] && [ -f ".test/Configuration.h" ] && { cp .test/Configuration*.h Marlin/ ; echo "[Marlin] configs restored..."; }
+cp Marlin/src/config/default/Configuration.h     Marlin/Configuration.h
+cp Marlin/src/config/default/Configuration_adv.h Marlin/Configuration_adv.h
 
-# Restore the original unmodified pins
-[ -d ".test/pins" ] && { cp -r .test/pins Marlin/src/pins/ ; echo "[Marlin] pins restored..."; }
+if [ -f Marlin/src/pins/pins_RAMPS.h.backup ]; then
+  cp Marlin/src/pins/pins_RAMPS.h.backup Marlin/src/pins/pins_RAMPS.h
+  rm Marlin/src/pins/pins_RAMPS.h.backup
+fi
 
-# Delete DOGM bitmaps
-rm -f Marlin/_*screen.h
+if [ -f Marlin/_Bootscreen.h ]; then
+  rm Marlin/_Bootscreen.h
+fi
+
+if [ -f Marlin/_Statusscreen.h ]; then
+  rm Marlin/_Statusscreen.h
+fi
