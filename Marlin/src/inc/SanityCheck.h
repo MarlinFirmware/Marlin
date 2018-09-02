@@ -607,14 +607,47 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "SWITCHING_NOZZLE requires exactly 2 EXTRUDERS."
   #elif NUM_SERVOS < 1
     #error "SWITCHING_NOZZLE requires NUM_SERVOS >= 1."
+  #elif SWITCHING_NOZZLE_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
+    #error "SERVO0_PIN must be defined for your SWITCHING_NOZZLE."
+  #elif SWITCHING_NOZZLE_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
+    #error "SERVO1_PIN must be defined for your SWITCHING_NOZZLE."
+  #elif SWITCHING_NOZZLE_SERVO_NR == 2 && !PIN_EXISTS(SERVO2)
+    #error "SERVO2_PIN must be defined for your SWITCHING_NOZZLE."
+  #elif SWITCHING_NOZZLE_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
+    #error "SERVO3_PIN must be defined for your SWITCHING_NOZZLE."
   #endif
 #endif
 
 /**
  * Single Stepper Dual Extruder with switching servo
  */
-#if ENABLED(SWITCHING_EXTRUDER) && NUM_SERVOS < 1
-  #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
+#if ENABLED(SWITCHING_EXTRUDER)
+  #if NUM_SERVOS < 1
+    #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
+  #elif SWITCHING_EXTRUDER_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
+    #error "SERVO0_PIN must be defined for your SWITCHING_EXTRUDER."
+  #elif SWITCHING_EXTRUDER_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
+    #error "SERVO1_PIN must be defined for your SWITCHING_EXTRUDER."
+  #elif SWITCHING_EXTRUDER_SERVO_NR == 2 && !PIN_EXISTS(SERVO2)
+    #error "SERVO2_PIN must be defined for your SWITCHING_EXTRUDER."
+  #elif SWITCHING_EXTRUDER_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
+    #error "SERVO3_PIN must be defined for your SWITCHING_EXTRUDER."
+  #endif
+  #if EXTRUDERS > 3
+    #if NUM_SERVOS < 2
+      #error "SWITCHING_EXTRUDER with 4 extruders requires NUM_SERVOS >= 2."
+    #elif SWITCHING_EXTRUDER_E23_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
+      #error "SERVO0_PIN must be defined for your SWITCHING_EXTRUDER."
+    #elif SWITCHING_EXTRUDER_E23_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
+      #error "SERVO1_PIN must be defined for your SWITCHING_EXTRUDER."
+    #elif SWITCHING_EXTRUDER_E23_SERVO_NR == 2 && !PIN_EXISTS(SERVO2)
+      #error "SERVO2_PIN must be defined for your SWITCHING_EXTRUDER."
+    #elif SWITCHING_EXTRUDER_E23_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
+      #error "SERVO3_PIN must be defined for your SWITCHING_EXTRUDER."
+    #elif SWITCHING_EXTRUDER_E23_SERVO_NR == SWITCHING_EXTRUDER_SERVO_NR
+      #error "SWITCHING_EXTRUDER_E23_SERVO_NR should be a different extruder from SWITCHING_EXTRUDER_SERVO_NR."
+    #endif
+  #endif
 #endif
 
 /**
@@ -1525,6 +1558,24 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     || defined(E3_HARDWARE_SERIAL) \
     || defined(E4_HARDWARE_SERIAL) )
   #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+#endif
+
+/**
+ * TMC2208 software UART is only supported on AVR
+ */
+#if HAS_DRIVER(TMC2208) && !defined(__AVR__) && !( \
+       defined(X_HARDWARE_SERIAL ) \
+    || defined(X2_HARDWARE_SERIAL) \
+    || defined(Y_HARDWARE_SERIAL ) \
+    || defined(Y2_HARDWARE_SERIAL) \
+    || defined(Z_HARDWARE_SERIAL ) \
+    || defined(Z2_HARDWARE_SERIAL) \
+    || defined(E0_HARDWARE_SERIAL) \
+    || defined(E1_HARDWARE_SERIAL) \
+    || defined(E2_HARDWARE_SERIAL) \
+    || defined(E3_HARDWARE_SERIAL) \
+    || defined(E4_HARDWARE_SERIAL) )
+  #error "TMC2208 Software Serial is supported only on AVR platforms."
 #endif
 
 #if ENABLED(SENSORLESS_HOMING)
