@@ -625,6 +625,10 @@
   #define MAX_EXTRUDERS 5
 #endif
 
+#ifndef MAX_SERVOS
+  #define MAX_SERVOS 4
+#endif
+
 //
 // Assign auto fan pins if needed
 //

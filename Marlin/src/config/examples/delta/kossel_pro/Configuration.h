@@ -2071,9 +2071,10 @@
 // If the servo can't reach the requested position, increase it.
 #define SERVO_DELAY { 300 }
 
-// Servo deactivation
-//
-// With this option servos are powered only during movement, then turned off to prevent jitter.
+// Only power servos during movement, otherwise leave off to prevent jitter
 //#define DEACTIVATE_SERVOS_AFTER_MOVE
+
+// Allow servo angle to be edited and saved to EEPROM
+//#define EDITABLE_SERVO_ANGLES
 
 #endif // CONFIGURATION_H
