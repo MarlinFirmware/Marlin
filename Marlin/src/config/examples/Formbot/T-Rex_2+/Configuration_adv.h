@@ -1638,10 +1638,15 @@
 #endif
 
 #if ENABLED(MAX7219_DEBUG)
-
+/*
 #define MAX7219_CLK_PIN   50       // Configuration of the 3 pins to control the display
-#define MAX7219_DIN_PIN   51       // on RUMBA, the ICSP port is used
-#define MAX7219_LOAD_PIN  52
+#define MAX7219_DIN_PIN   51       // on RUMBA (or Formbot) using the ICSP port.
+#define MAX7219_LOAD_PIN  52       // This will affect your use of the SD Memory card */
+
+#define MAX7219_CLK_PIN   41       // Configuration of the 3 pins to control the display
+#define MAX7219_DIN_PIN   13       // 41 is LCD_Kill_Button, 13 is Arduino_LED, 37 is LCD_Beeper
+#define MAX7219_LOAD_PIN  37
+
 
   #define MAX7219_GCODE            // Add the M7219 G-code to control the LED matrix
   #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
