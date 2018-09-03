@@ -27,24 +27,37 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 #include "../../module/stepper.h"
+#include "../../module/tool_change.h"
+#include "../../module/planner.h"
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
   /**
    * M605: Set dual x-carriage movement mode
    *
+   *    M605    : Restore user specified DEFAULT_DUAL_X_CARRIAGE_MODE
    *    M605 S0: Full control mode. The slicer has full control over x-carriage movement
    *    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
    *    M605 S2 [Xnnn] [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
    *                         units x-offset and an optional differential hotend temperature of
    *                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
    *                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
+   *    M605 S3 : Enable Symmetric Duplication mode.  The second extruder will duplicate the first extruder's
+   *              movement similar to the M605 S2 mode.   However, the second extruder will be producing
+   *              a mirror image of the first extruder.  The initial x-offset and temperature differential are
+   *              set with M605 S2 [Xnnn] [Rmmm] and then followed with a M605 S3 to start the mirrored movement.
+   *    M605 W  : IDEX What? command.
    *
    *    Note: the X axis should be homed after changing dual x-carriage mode.
    */
   void GcodeSuite::M605() {
     planner.synchronize();
-    if (parser.seen('S')) dual_x_carriage_mode = (DualXMode)parser.value_byte();
+
+    if (parser.seen('S')) { 
+      DualXMode  previous_mode, requested_mode = (DualXMode)parser.value_byte();
+      previous_mode = dual_x_carriage_mode;
+      dual_x_carriage_mode = (DualXMode)parser.value_byte();
+
     switch (dual_x_carriage_mode) {
       case DXC_FULL_CONTROL_MODE:
       case DXC_AUTO_PARK_MODE:
@@ -52,16 +65,7 @@
       case DXC_DUPLICATION_MODE:
         if (parser.seen('X')) duplicate_extruder_x_offset = MAX(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
         if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
-        SERIAL_ECHO_START();
-        SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-        SERIAL_CHAR(' ');
-        SERIAL_ECHO(hotend_offset[X_AXIS][0]);
-        SERIAL_CHAR(',');
-        SERIAL_ECHO(hotend_offset[Y_AXIS][0]);
-        SERIAL_CHAR(' ');
-        SERIAL_ECHO(duplicate_extruder_x_offset);
-        SERIAL_CHAR(',');
-        SERIAL_ECHOLN(hotend_offset[Y_AXIS][1]);
+          if (active_extruder != 0) tool_change(0);
         break;
       default:
         dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
@@ -70,6 +74,55 @@
     active_extruder_parked = false;
     extruder_duplication_enabled = false;
     delayed_move_time = 0;
+    } else
+      if (!parser.seen('W'))  // if no S or W parameter, the DXC mode gets reset to the user's default 
+        dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+
+    if (parser.seen('W')) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("IDEX mode: ");
+      switch (dual_x_carriage_mode) {
+        case DXC_FULL_CONTROL_MODE:
+          SERIAL_ECHOPGM("DXC_FULL_CONTROL_MODE\n");
+          break;
+        case DXC_AUTO_PARK_MODE:
+          SERIAL_ECHOPGM("DXC_AUTO_PARK_MODE\n");
+          break;
+        case DXC_DUPLICATION_MODE:
+          SERIAL_ECHOPGM("DXC_DUPLICATION_MODE\n");
+          break;
+      }
+      SERIAL_ECHOPGM("Active Ext: ");
+      SERIAL_ECHO((int) active_extruder);
+
+      if (active_extruder_parked == false)
+        SERIAL_ECHOPGM(" NOT ");
+      SERIAL_ECHOPGM(" parked.\n");
+
+      SERIAL_ECHOPGM("active_extruder_x_pos: ");
+      SERIAL_ECHO( current_position[X_AXIS]);
+
+      SERIAL_ECHOPGM("   inactive_extruder_x_pos: ");
+      SERIAL_ECHO( inactive_extruder_x_pos);
+
+      SERIAL_ECHOPGM("\n1st extruder x_home_pos(): ");
+      SERIAL_ECHO(x_home_pos(0));
+      SERIAL_ECHOPGM("\n2nd extruder x_home_pos(): ");
+      SERIAL_ECHO(x_home_pos(1));
+
+      SERIAL_ECHOPGM("\nextruder_duplication_enabled: ");
+      SERIAL_ECHO(extruder_duplication_enabled);
+
+      SERIAL_ECHOPGM("\nduplicate_extruder_x_offset: ");
+      SERIAL_ECHO(duplicate_extruder_x_offset);
+
+      SERIAL_ECHOPGM("\nduplicate_extruder_temp_offset: ");
+      SERIAL_ECHO(duplicate_extruder_temp_offset);
+
+      SERIAL_ECHOPGM("\ndelayed_move_time: ");
+      SERIAL_ECHO(delayed_move_time);
+      SERIAL_ECHOPGM("\n"); 
+    }
   }
 
 #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)

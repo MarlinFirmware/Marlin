@@ -53,7 +53,6 @@
 #endif
 
 #if HAS_Z_SERVO_PROBE
-  extern const int z_servo_angle[2];
   void servo_probe_init();
 #endif
 

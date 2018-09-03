@@ -2593,11 +2593,11 @@ void Planner::set_position_mm(const AxisEnum axis, const float &v) {
   #else
     const uint8_t axis_index = axis;
   #endif
-  position[axis] = LROUND(axis_steps_per_mm[axis_index] * (v +
+  position[axis] = LROUND(axis_steps_per_mm[axis_index] * (v + (
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       axis == Z_AXIS && leveling_active ? ubl.get_z_correction(current_position[X_AXIS], current_position[Y_AXIS]) :
     #endif
-    0
+    0)
   ));
   #if HAS_POSITION_FLOAT
     position_float[axis] = v;

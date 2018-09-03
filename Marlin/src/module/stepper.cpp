@@ -231,6 +231,9 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define X_APPLY_DIR(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
       X_DIR_WRITE(v); \
+      if (symmetric_duplication_mode) \
+        X2_DIR_WRITE(!v); \
+      else \
       X2_DIR_WRITE(v); \
     } \
     else { \
