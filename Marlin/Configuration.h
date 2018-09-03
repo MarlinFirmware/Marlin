@@ -155,10 +155,6 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 #define SINGLENOZZLE
-#if ENABLED(SINGLENOZZLE)
-   #undef  CUSTOM_MACHINE_NAME
-   #define CUSTOM_MACHINE_NAME "MT1.5-V14.0"
-#endif	
 
 /**
  * Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.
