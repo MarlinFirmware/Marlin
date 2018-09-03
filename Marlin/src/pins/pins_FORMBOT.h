@@ -154,7 +154,9 @@
 // Misc. Functions
 //
 #define SDSS               53
-#define LED_PIN            13
+#ifndef ROXYs_TRex
+  #define LED_PIN          13
+#endi
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input
@@ -175,10 +177,12 @@
   #define LCD_PINS_D5      25
   #define LCD_PINS_D6      27
   #define LCD_PINS_D7      29
-  #define BEEPER_PIN       37
   #define BTN_EN1          31
   #define BTN_EN2          33
   #define BTN_ENC          35
   #define SD_DETECT_PIN    49
-  #define KILL_PIN         41
+  #ifndef ROXYs_TRex
+    #define KILL_PIN       41
+    #define BEEPER_PIN     37
+  #endif
 #endif
