@@ -1337,9 +1337,9 @@ class output_window(Text):
             self.insert('end', 'Unable to move board definition file to destination.  User must manually copy the file.\n\n', 'error')
             self.insert('end', 'Please copy the following file and re-run the script:\n', 'normal')
             self.insert('end', '   FROM:\n')
-            self.insert('end', '       ' + pwd + '/' + board_path + '/at90USB1286.json\n')
+            self.insert('end', '       ' + pwd + '/' + board_path + '/at90usb1286.json\n')
             self.insert('end', '   TO:\n')
-            self.insert('end', '       ' + PIO_path + '/at90USB1286.json\n')
+            self.insert('end', '       ' + PIO_path + '/at90usb1286.json\n')
 
 
 
@@ -1405,7 +1405,7 @@ class output_window(Text):
                except:
                    self.report_failure(PIO_path, board_path)
                    return False
-               if 'at90USB1286.json' in boards_dir:
+               if 'at90usb1286.json' in boards_dir:
                   return True                                 # it's there so all is well
                self.report_failure(PIO_path, board_path)
                return False
