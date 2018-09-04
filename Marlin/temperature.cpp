@@ -1786,11 +1786,9 @@ void Temperature::readings_ready() {
 
   for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
     const int16_t tdir = temp_dir[e], rawtemp = current_temperature_raw[e] * tdir;
-    const bool heater_on = 0 <
+    const bool heater_on = 0 < target_temperature[e]
       #if ENABLED(PIDTEMP)
-        soft_pwm_amount[e]
-      #else
-        target_temperature[e]
+        || 0 < soft_pwm_amount[e]
       #endif
     ;
     if (rawtemp > maxttemp_raw[e] * tdir && heater_on) max_temp_error(e);
