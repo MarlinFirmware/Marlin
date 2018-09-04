@@ -1161,8 +1161,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif // SDSUPPORT
 //steeve
     if (planner.movesplanned() || IS_SD_PRINTING)
-      MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
-					MENU_ITEM(submenu, MSG_CONFIGURATION, lcd_configuration_menu);
+				{
+				MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
+				MENU_ITEM(submenu, MSG_CONFIGURATION, lcd_configuration_menu);
+				}
     else {
       MENU_ITEM(submenu, MSG_MOTION, lcd_movement_menu);
       MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_temperature_menu);
