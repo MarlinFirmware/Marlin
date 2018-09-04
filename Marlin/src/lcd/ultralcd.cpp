@@ -1040,7 +1040,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100\n"));
       if (!TEST(axis_known_position, Y_AXIS) || !TEST(axis_known_position, Z_AXIS))
         MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, PSTR("T0\nG28\nM605 S2 X200\nG28 X\nG1 X100\n"));  // If Y or Z is not homed, a full G28 is done first.
-      else  
+      else
         MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, PSTR("T0\nM605 S2 X200\nG28 X\nG1 X100\n"));       // If Y and Z is homed, a full G28 is not needed first.
       MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X\n"));
       END_MENU();

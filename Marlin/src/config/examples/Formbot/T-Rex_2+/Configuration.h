@@ -23,7 +23,7 @@
 //#define TREX3              // Turn this on for T-Rex 3 features like dual filament run out sensors
 
 #define ROXYs_TRex           // Turn this on to get customizations only available on Roxy's T-Rex 2+
-                             // Marlin controlled heat bed, Max7219 debug LED's, less bright LED light level 
+                             // Marlin controlled heat bed, Max7219 debug LED's, less bright LED light level
                              // More aggressive PID numbers for hotends (due to double fans)
 /**
  * Configuration.h
@@ -144,7 +144,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#ifdef TREX3  
+#ifdef TREX3
   #define CUSTOM_MACHINE_NAME "T-Rex 3"
 #else
   #define CUSTOM_MACHINE_NAME "T-Rex 2+"
@@ -993,7 +993,7 @@
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
 
-#ifdef TREX3  
+#ifdef TREX3
   #define FILAMENT_RUNOUT_SENSOR
   #define NUM_RUNOUT_SENSORS   2     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 #else

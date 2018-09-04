@@ -835,8 +835,8 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 #endif // !UBL_SEGMENTED
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  bool extruder_duplication_enabled = false;                              // Used in Dual X mode 2 & 3
-  bool symmetric_duplication_mode   = false;                              // Used in Dual X mode 2 & 3
+  bool extruder_duplication_enabled = false,                              // Used in Dual X mode 2 & 3
+       symmetric_duplication_mode   = false;                              // Used in Dual X mode 2 & 3
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
@@ -894,11 +894,11 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             #define RAISED_Y raised_parked_position[Y_AXIS]
             #define RAISED_Z raised_parked_position[Z_AXIS]
 
-SERIAL_ECHOLNPGM("dual_x_carriage_unpark()\n");
+            //SERIAL_ECHOLNPGM("dual_x_carriage_unpark()\n");
 
-            if (planner.buffer_line(RAISED_X, RAISED_Y, RAISED_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder)) 
-              if (planner.buffer_line( CUR_X,    CUR_Y, RAISED_Z, CUR_E, PLANNER_XY_FEEDRATE(),             active_extruder)) 
-                  planner.buffer_line( CUR_X,    CUR_Y,    CUR_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+            if (  planner.buffer_line(RAISED_X, RAISED_Y, RAISED_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder))
+              if (planner.buffer_line(   CUR_X,    CUR_Y, RAISED_Z, CUR_E, PLANNER_XY_FEEDRATE(),             active_extruder))
+                  planner.buffer_line(   CUR_X,    CUR_Y,    CUR_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
           delayed_move_time = 0;
           active_extruder_parked = false;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
