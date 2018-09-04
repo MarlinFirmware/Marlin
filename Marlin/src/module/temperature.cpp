@@ -1727,7 +1727,7 @@ void Temperature::readings_ready() {
         || 0 < soft_pwm_amount[e]
       #endif
     ;
-    if (rawtemp > maxttemp_raw[e] * tdir && heater_on) max_temp_error(e);
+    if (rawtemp > maxttemp_raw[e] * tdir) max_temp_error(e);
     if (rawtemp < minttemp_raw[e] * tdir && !is_preheating(e) && heater_on) {
       #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
         if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
@@ -1746,14 +1746,12 @@ void Temperature::readings_ready() {
     #else
       #define GEBED >=
     #endif
-    const bool bed_on = 0 <
+    const bool bed_on = 0 < target_temperature_bed
       #if ENABLED(PIDTEMPBED)
-        soft_pwm_amount_bed
-      #else
-        target_temperature_bed
+        || 0 > soft_pwm_amount_bed
       #endif
     ;
-    if (current_temperature_bed_raw GEBED bed_maxttemp_raw && bed_on) max_temp_error(-1);
+    if (current_temperature_bed_raw GEBED bed_maxttemp_raw) max_temp_error(-1);
     if (bed_minttemp_raw GEBED current_temperature_bed_raw && bed_on) min_temp_error(-1);
   #endif
 }
