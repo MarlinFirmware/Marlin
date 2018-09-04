@@ -995,15 +995,18 @@
   #define FAN_COUNT 0
 #endif
 
+#ifndef FAN_PIN_INVERTING
+  #define FAN_PIN_INVERTING false
+#endif
 #if HAS_FAN0
-  #define WRITE_FAN(v) WRITE(FAN_PIN, v)
+  #define WRITE_FAN(v) WRITE(FAN_PIN, (v) ^ FAN_PIN_INVERTING)
   #define WRITE_FAN0(v) WRITE_FAN(v)
 #endif
 #if HAS_FAN1
-  #define WRITE_FAN1(v) WRITE(FAN1_PIN, v)
+  #define WRITE_FAN1(v) WRITE(FAN1_PIN, (v) ^ FAN_PIN_INVERTING)
 #endif
 #if HAS_FAN2
-  #define WRITE_FAN2(v) WRITE(FAN2_PIN, v)
+  #define WRITE_FAN2(v) WRITE(FAN2_PIN, (v) ^ FAN_PIN_INVERTING)
 #endif
 #define WRITE_FAN_N(n, v) WRITE_FAN##n(v)
 
