@@ -332,9 +332,10 @@ inline void invalid_extruder_error(const uint8_t e) {
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
   planner.synchronize();
 
-  #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE
+  #if ENABLED(DUAL_X_CARRIAGE)
+    // Only T0 allowed in DXC_DUPLICATION_MODE
     if (tmp_extruder != 0 && dual_x_carriage_mode == DXC_DUPLICATION_MODE)
-       return invalid_extruder_error(tmp_extruder); 
+       return invalid_extruder_error(tmp_extruder);
   #endif
 
   #if HAS_LEVELING
@@ -418,11 +419,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           active_extruder = tmp_extruder;
 
         #endif // !DUAL_X_CARRIAGE
-
-        #if ENABLED(SWITCHING_NOZZLE)
-          // The newly-selected extruder Z is actually at...
-          current_position[Z_AXIS] -= zdiff;
-        #endif
 
         // Tell the planner the new "current position"
         SYNC_PLAN_POSITION_KINEMATIC();

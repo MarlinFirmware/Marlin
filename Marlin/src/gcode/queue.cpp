@@ -139,15 +139,14 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false
  */
 bool enqueue_and_echo_command(const char* cmd) {
 
-//SERIAL_ECHO("enqueue_and_echo_command(\"");
-//SERIAL_ECHO(cmd);
-//SERIAL_ECHO("\") \n");
-//
-  if ( *cmd == 0 || *cmd == '\n' || *cmd == 'r')
-//{
-//SERIAL_ECHO("Null command found...   Did not queue!\n");
+  //SERIAL_ECHO("enqueue_and_echo_command(\"");
+  //SERIAL_ECHO(cmd);
+  //SERIAL_ECHO("\") \n");
+
+  if (*cmd == 0 || *cmd == '\n' || *cmd == 'r') {
+    //SERIAL_ECHO("Null command found...   Did not queue!\n");
     return true;
-//}
+  }
 
   if (_enqueuecommand(cmd)) {
     SERIAL_ECHO_START();

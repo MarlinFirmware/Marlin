@@ -306,8 +306,8 @@ void homeaxis(const AxisEnum axis);
  * Dual X Carriage / Dual Nozzle
  */
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
-  extern bool symmetric_duplication_mode;         // Used in Dual X mode 2
+  extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
+              symmetric_duplication_mode;         // Used in Dual X mode 2
 #endif
 
 /**
@@ -318,7 +318,7 @@ void homeaxis(const AxisEnum axis);
   enum DualXMode : char {
     DXC_FULL_CONTROL_MODE,  // DUAL_X_CARRIAGE only
     DXC_AUTO_PARK_MODE,     // DUAL_X_CARRIAGE only
-    DXC_DUPLICATION_MODE,
+    DXC_DUPLICATION_MODE
   };
 
   extern DualXMode dual_x_carriage_mode;
