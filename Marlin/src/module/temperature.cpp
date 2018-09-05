@@ -1722,9 +1722,9 @@ void Temperature::readings_ready() {
 
   for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
     const int16_t tdir = temp_dir[e], rawtemp = current_temperature_raw[e] * tdir;
-    const bool heater_on = 0 < target_temperature[e]
+    const bool heater_on = (target_temperature[e] > 0)
       #if ENABLED(PIDTEMP)
-        || 0 < soft_pwm_amount[e]
+        || (soft_pwm_amount[e] > 0)
       #endif
     ;
     if (rawtemp > maxttemp_raw[e] * tdir) max_temp_error(e);
@@ -1746,9 +1746,9 @@ void Temperature::readings_ready() {
     #else
       #define GEBED >=
     #endif
-    const bool bed_on = 0 < target_temperature_bed
+    const bool bed_on = (target_temperature_bed > 0)
       #if ENABLED(PIDTEMPBED)
-        || 0 > soft_pwm_amount_bed
+        || (soft_pwm_amount_bed > 0)
       #endif
     ;
     if (current_temperature_bed_raw GEBED bed_maxttemp_raw) max_temp_error(-1);
