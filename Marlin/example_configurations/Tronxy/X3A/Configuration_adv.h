@@ -822,6 +822,8 @@
  *   650 : Minimum for DRV8825 drivers
  *  1500 : Minimum for TB6600 drivers (guess, no info in datasheet)
  * 15000 : Minimum for TB6560 drivers (guess, no info in datasheet)
+ *
+ * Override the default value based on the driver type set in Configuration.h.
  */
 //#define MINIMUM_STEPPER_DIR_DELAY 650
 
@@ -833,6 +835,8 @@
  *   2 : Minimum for DRV8825 stepper drivers
  *   3 : Minimum for TB6600 stepper drivers
  *  30 : Minimum for TB6560 stepper drivers
+ *
+ * Override the default value based on the driver type set in Configuration.h.
  */
 //#define MINIMUM_STEPPER_PULSE 2
 
@@ -845,6 +849,8 @@
  *  150000 : Maximum for TB6600 stepper driver
  *  130000 : Maximum for LV8729 stepper driver
  *   15000 : Maximum for TB6560 stepper driver
+ *
+ * Override the default value based on the driver type set in Configuration.h.
  */
 //#define MAXIMUM_STEPPER_RATE 250000
 
@@ -1065,7 +1071,7 @@
   #define E4_SENSE_RESISTOR   91
   #define E4_MICROSTEPS       16
 
-#endif
+#endif // TMC26X
 
 // @section tmc_smart
 
@@ -1293,7 +1299,7 @@
   #define E4_OVERCURRENT  2000
   #define E4_STALLCURRENT 1500
 
-#endif
+#endif // L6470
 
 /**
  * TWI/I2C BUS
@@ -1608,10 +1614,11 @@
   #define MAX7219_DIN_PIN   57
   #define MAX7219_LOAD_PIN  44
 
-  //#define MAX7219_GCODE       // Add the M7219 G-code to control the LED matrix
-  #define MAX7219_INIT_TEST     // Do a test pattern at initialization (Set to 2 for spiral)
-  #define MAX7219_ROTATE     0  // Rotate the display clockwise (in multiples of +/- 90°)
-
+  //#define MAX7219_GCODE          // Add the M7219 G-code to control the LED matrix
+  #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
+  #define MAX7219_NUMBER_UNITS 1   // Number of Max7219 units in chain.
+  #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
+                                   // connector at:  right=0   bottom=-90  top=90  left=180
   /**
    * Sample debug features
    * If you add more debug displays, be careful to avoid conflicts!
