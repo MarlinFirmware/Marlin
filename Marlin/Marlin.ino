@@ -9,7 +9,7 @@
 
 ================================================================================
 
-Greetings! Thank you for choosing Marlin 2 as your 3D printer firmware.
+Greetings! Thank you for choosing Marlin as your 3D printer firmware.
 
 To configure Marlin you must edit Configuration.h and Configuration_adv.h
 located in the root 'Marlin' folder. Check the example_configurations folder to
