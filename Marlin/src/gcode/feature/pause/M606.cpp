@@ -252,50 +252,70 @@
 
   // Load filament
   #if ENABLED(FWRETRACT)
-				tool_migration_e_move(RETRACT_LENGTH_SWAP, RETRACT_FEEDRATE);
+				tool_migration_e_move(RETRACT_LENGTH_SWAP, RETRACT_RECOVER_FEEDRATE_SWAP);
 		#else
 				tool_migration_e_move(BUCKET_TOOL_MIGRATION_LOAD_LENGTH, BUCKET_TOOL_MIGRATION_LOAD_F);
 		#endif
-  // Start blowing
+				
+  // Procedure of filament swapping now				
+  // Extrusion/purge
+  tool_migration_e_move(bucket_purge_length, bucket_purge_feedrate); 
+		// Retract
+		tool_migration_e_move(-bucket_retract, 
+   #if DISABLED(FWRETRACT)
+     bucket_retract_feedrate
+   #else
+     fwretract.retract_feedrate_mm_s
+   #endif
+			);
+		// Start full blowing
   #if (BUCKET_FAN_SPEED >0 && BUCKET_FAN < FAN_COUNT)
     fansp=fanSpeeds[BUCKET_FAN];
     fanSpeeds[BUCKET_FAN]=BUCKET_FAN_SPEED ;
   #endif
-
-  // Extrusion/purge
-  tool_migration_e_move(bucket_purge_length, bucket_purge_feedrate); 
-
-  // Resume blowing after delay
-  dwell(bucket_fan_dwell *1000);
-  
-
-  #if (BUCKET_FAN_SPEED >0 && BUCKET_FAN < FAN_COUNT)
+		
+		//Pause
+	 dwell(bucket_fan_dwell *1000);  
+		
+		// Resume blowing
+		#if (BUCKET_FAN_SPEED >0 && BUCKET_FAN < FAN_COUNT)
     fanSpeeds[BUCKET_FAN]=fansp;
-  #endif
-
-  // Intelligent resuming						
-  #if ENABLED(FWRETRACT)
-    // If retracted before goto pause 
-    if (fwretract.retracted[active_extruder]) {							
-     tool_migration_e_move( - fwretract.retract_length , fwretract.retract_feedrate_mm_s); 
-    }
-  #endif  
-
-  // Extruder purged and full & FwRetracted positionned ,now the current extruder position =0 
-  planner.set_e_position_mm(0); current_position[E_AXIS] = 0; destination[E_AXIS]=0;	
-
-  // Positionning of the gear if old resume_position negative 
-		#if ENABLED(FWRETRACT)
-				if (resume_position[E_AXIS]<0) tool_migration_e_move(resume_position[E_AXIS], RETRACT_FEEDRATE);
-		#else
-				if (resume_position[E_AXIS]<0) tool_migration_e_move(resume_position[E_AXIS], BUCKET_TOOL_MIGRATION_UNLOAD_F);
-		#endif
+  #endif	  
 		
   // Move XY to starting position, then Z
   do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
 
   //Set Z_AXIS to saved position  
   do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
+		
+		// Intelligent resuming		
+		// Extruder purged and full now the current extruder position =0 
+  planner.set_e_position_mm(0); current_position[E_AXIS] = 0; destination[E_AXIS]=0;
+		
+		// If FWretracted before goto pause 
+  #if ENABLED(FWRETRACT)    
+    if (fwretract.retracted[active_extruder]) {							
+     tool_migration_e_move( - fwretract.retract_length , fwretract.retract_feedrate_mm_s); 
+    }
+  #endif    
+
+  // Positionning of the gear if old position negative 	
+		if (resume_position[E_AXIS]<0) tool_migration_e_move(resume_position[E_AXIS], 
+			#if ENABLED(FWRETRACT)
+					RETRACT_FEEDRATE
+			#else
+					BUCKET_TOOL_MIGRATION_UNLOAD_F);
+			#endif
+		);
+		
+		// Recover
+		tool_migration_e_move(bucket_retract, 
+   #if ENABLED(FWRETRACT)
+     fwretract.retract_feedrate_mm_s
+   #else
+     bucket_retract_feedrate
+   #endif
+			);
 
   //Now all extrusion positions are resumed and ready to be confirmed
   //Set extruder to saved position
