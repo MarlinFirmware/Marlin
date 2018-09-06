@@ -130,7 +130,7 @@ bool report_tmc_status = false;
     #if CURRENT_STEP_DOWN > 0
       // Decrease current if is_otpw is true and driver is enabled and there's been more than 4 warnings
       if (data.is_otpw && st.isEnabled() && otpw_cnt > 4) {
-        st.setCurrent(st.getCurrent() - CURRENT_STEP_DOWN, R_SENSE, HOLD_MULTIPLIER);
+        st.setCurrent(st.getCurrent() - (CURRENT_STEP_DOWN), R_SENSE, HOLD_MULTIPLIER);
         #if ENABLED(REPORT_CURRENT_CHANGE)
           _tmc_say_axis(axis);
           SERIAL_ECHOLNPAIR(" current decreased to ", st.getCurrent());

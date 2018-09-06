@@ -286,7 +286,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
   if (last_x != rx) {
     last_x = rx;
     ratio_x = rx * ABL_BG_FACTOR(X_AXIS);
-    const float gx = constrain(FLOOR(ratio_x), 0, ABL_BG_POINTS_X - FAR_EDGE_OR_BOX);
+    const float gx = constrain(FLOOR(ratio_x), 0, ABL_BG_POINTS_X - (FAR_EDGE_OR_BOX));
     ratio_x -= gx;      // Subtract whole to get the ratio within the grid box
 
     #if DISABLED(EXTRAPOLATE_BEYOND_GRID)
@@ -303,7 +303,7 @@ float bilinear_z_offset(const float raw[XYZ]) {
     if (last_y != ry) {
       last_y = ry;
       ratio_y = ry * ABL_BG_FACTOR(Y_AXIS);
-      const float gy = constrain(FLOOR(ratio_y), 0, ABL_BG_POINTS_Y - FAR_EDGE_OR_BOX);
+      const float gy = constrain(FLOOR(ratio_y), 0, ABL_BG_POINTS_Y - (FAR_EDGE_OR_BOX));
       ratio_y -= gy;
 
       #if DISABLED(EXTRAPOLATE_BEYOND_GRID)

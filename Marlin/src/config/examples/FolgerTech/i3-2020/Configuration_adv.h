@@ -1656,6 +1656,7 @@
   #define MAX7219_NUMBER_UNITS 2   // Number of Max7219 units in chain.
   #define MAX7219_ROTATE     -90   // Rotate the display clockwise (in multiples of +/- 90°)
                                    // connector at:  right=0   bottom=-90  top=90  left=180
+
   /**
    * Sample debug features
    * If you add more debug displays, be careful to avoid conflicts!
