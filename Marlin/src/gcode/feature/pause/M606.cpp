@@ -176,16 +176,21 @@
   // Don't allow filament change without homing first
   if (axis_unhomed_error()) home_all_axes();		
 
-  // Here the process continue if a desired migration :M600 T<...> or automatic :M606
+  
+  //*********************
   // Migration beginning
+  //*********************
+  
+  // Here the process continue if a desired migration :M600 T<...> or automatic :M606
   float resume_position[XYZE];
   int16_t fansp=fanSpeeds[BUCKET_FAN];
   planner.synchronize();
   // Save current position
   COPY(resume_position, current_position);
-
-  if (automatic_migration_enabled){ 
-   // If automatic next tool
+  
+  //Settings transmiting
+  
+  if (automatic_migration_enabled){ // If automatic next tool 
    //Same temperature
    thermalManager.setTargetHotend(thermalManager.degHotend(active_extruder), active_extruder+1);
    // Same flow after tool change
@@ -197,8 +202,7 @@
 				fwretract.retracted_swap[active_extruder+1] = fwretract.retracted_swap[active_extruder];
 			#endif
   }
-  else {
-   // If a desired tool is required
+  else { // If a desired tool is required
    //Same temperature
    thermalManager.setTargetHotend(thermalManager.degHotend(active_extruder), desired_target_tmp);
    // Same flow after tool change
@@ -211,15 +215,14 @@
 			#endif
   }
 
-  // Because no human intervention , all must be perfect, no wasted distances 
-  // If negative position or FwRetracted  then adjustment of the unload length
+  // UNLOADING : If negative position or FwRetracted  then adjustment of the unload length
   #if ENABLED(FWRETRACT)	
     if (fwretract.retracted[active_extruder]) {
 					//Unloading of old extruder
      tool_migration_e_move( -RETRACT_LENGTH_SWAP + fwretract.retract_length, RETRACT_FEEDRATE);					
     }	
     else {
-					//If negative position ' rare or impossible if FWRETRACT used '
+					//If negative position ' rare or impossible when FWRETRACT used '
      if (resume_position[E_AXIS]<0) 
       tool_migration_e_move( -RETRACT_LENGTH_SWAP - resume_position[E_AXIS], RETRACT_FEEDRATE);								
      else tool_migration_e_move(-RETRACT_LENGTH_SWAP, RETRACT_FEEDRATE);
@@ -230,37 +233,37 @@
     else tool_migration_e_move(-BUCKET_TOOL_MIGRATION_UNLOAD_LENGTH, BUCKET_TOOL_MIGRATION_UNLOAD_F);	
   #endif					
 
-  // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
+  // PARKING
   #if ENABLED(BUCKET_TOOL_MIGRATION_NOZZLE_PARK) && ENABLED(NOZZLE_PARK_FEATURE)
     Nozzle::park(2, NOZZLE_PARK_POINT);
   #endif
 			
-  //Old extruder receive swap status because is now unloaded
+  // FWRETRACT STATUSES : Old extruder receive swap status because unloaded
 		#if ENABLED(FWRETRACT)
 				fwretract.retracted_swap[active_extruder] = true;
 				fwretract.retracted[active_extruder] = false;
   #endif
 
-  // Set the new active extruder		
+  // TOOL CHANGE : Set the new active extruder		
   if (automatic_migration_enabled) active_extruder++;
   else active_extruder = desired_target_tmp;
 
-  //Ensure_safe_temperature	
+  //TEMP : Ensure_safe_temperature	
   LCD_MESSAGEPGM(MSG_FILAMENT_CHANGE_HEATING_1);    
   while (thermalManager.wait_for_heating(active_extruder)) idle();
   LCD_MESSAGEPGM(" "); 
 
-  // Load filament
+  // LOADING NEW EXTRUDER
   #if ENABLED(FWRETRACT)
 				tool_migration_e_move(RETRACT_LENGTH_SWAP, RETRACT_RECOVER_FEEDRATE_SWAP);
 		#else
 				tool_migration_e_move(BUCKET_TOOL_MIGRATION_LOAD_LENGTH, BUCKET_TOOL_MIGRATION_LOAD_F);
 		#endif
-				
-  // Procedure of filament swapping now				
-  // Extrusion/purge
+							
+  // EXTRUDING / PURGING
   tool_migration_e_move(bucket_purge_length, bucket_purge_feedrate); 
-		// Retract
+  
+		// RETRACT : 10mm retract min , to ensure no oozing and easy separation after cooling
 		tool_migration_e_move(-bucket_retract, 
    #if DISABLED(FWRETRACT)
      bucket_retract_feedrate
@@ -268,38 +271,38 @@
      fwretract.retract_feedrate_mm_s
    #endif
 			);
-		// Start full blowing
+		// BLOWING FULL POWER : To cold the filament in the bucket 
   #if (BUCKET_FAN_SPEED >0 && BUCKET_FAN < FAN_COUNT)
     fansp=fanSpeeds[BUCKET_FAN];
     fanSpeeds[BUCKET_FAN]=BUCKET_FAN_SPEED ;
   #endif
 		
-		//Pause
+		// PAUSE : Time of filament cooling
 	 dwell(bucket_fan_dwell *1000);  
 		
-		// Resume blowing
+		// STOP BLOWING : Resume blowing old printing speed
 		#if (BUCKET_FAN_SPEED >0 && BUCKET_FAN < FAN_COUNT)
     fanSpeeds[BUCKET_FAN]=fansp;
   #endif	  
 		
-  // Move XY to starting position, then Z
+  // BACK TO PRINT : Move XY to starting position, then Z
   do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
 
-  //Set Z_AXIS to saved position  
+  // BACK TO PRINT : Set Z_AXIS to saved position  
   do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
 		
-		// Intelligent resuming		
-		// Extruder purged and full now the current extruder position =0 
+		// INTELLIGENT RESUMING		
+		// TRUE ZERO OF THE GEAR : Extruder purged and full now the current extruder position =0 
   planner.set_e_position_mm(0); current_position[E_AXIS] = 0; destination[E_AXIS]=0;
 		
-		// If FWretracted before goto pause 
+		// RESUME FWRETRACT STATUSES : If FWretracted before goto pause 
   #if ENABLED(FWRETRACT)    
     if (fwretract.retracted[active_extruder]) {							
      tool_migration_e_move( - fwretract.retract_length , fwretract.retract_feedrate_mm_s); 
     }
   #endif    
 
-  // Positionning of the gear if old position negative 	
+  // RESUME EXACT POSITION OF THE GEAR :Positionning of the gear if old position negative 	
 		if (resume_position[E_AXIS]<0) tool_migration_e_move(resume_position[E_AXIS], 
 			#if ENABLED(FWRETRACT)
 					RETRACT_FEEDRATE
@@ -308,7 +311,7 @@
 			#endif
 		);
 		
-		// Recover
+		// RECOVER : Recover the long retract inside the bucket
 		tool_migration_e_move(bucket_retract, 
    #if ENABLED(FWRETRACT)
      fwretract.retract_feedrate_mm_s
