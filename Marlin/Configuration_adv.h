@@ -1123,10 +1123,12 @@
  */
 #define BUCKET_FEATURE //Experimental - No test/support for exotic systems
 #if ENABLED(BUCKET_FEATURE)
-  #define BUCKET_TOOL_MIGRATION_UNLOAD_LENGTH    RETRACT_LENGTH_SWAP       //mm - Must not be ejected - Print continue and filament need to stay inserted
-  #define BUCKET_TOOL_MIGRATION_UNLOAD_F         RETRACT_FEEDRATE          //mm/s
-  #define BUCKET_TOOL_MIGRATION_LOAD_LENGTH      RETRACT_LENGTH_SWAP       //mm - Usually the same as 'load'
-  #define BUCKET_TOOL_MIGRATION_LOAD_F           RETRACT_RECOVER_FEEDRATE  //mm/s
+		#if DISABLED(FWRETRACT)
+				#define BUCKET_TOOL_MIGRATION_UNLOAD_LENGTH    RETRACT_LENGTH_SWAP       //mm - Must not be ejected - Print continue and filament need to stay inserted
+				#define BUCKET_TOOL_MIGRATION_UNLOAD_F         RETRACT_FEEDRATE          //mm/s
+				#define BUCKET_TOOL_MIGRATION_LOAD_LENGTH      RETRACT_LENGTH_SWAP       //mm - Usually the same as 'load'
+				#define BUCKET_TOOL_MIGRATION_LOAD_F           RETRACT_RECOVER_FEEDRATE  //mm/s
+		#endif		
   #define BUCKET_TOOL_MIGRATION_EXTRUDE_LENGTH   LCD_LOAD_MENU_EXTRUDE_L   //Initialisation/Purge - Just a little because same color/material
   #define BUCKET_TOOL_MIGRATION_EXTRUDE_F        ADVANCED_PAUSE_PURGE_FEEDRATE //mm/s		
   #define BUCKET_TOOL_MIGRATION_NOZZLE_PARK                                //Park Nozzle before migration / Require NOZZLE_PARK_FEATURE
@@ -1138,8 +1140,10 @@
   #define BUCKET_PURGE_FEEDRATE       ADVANCED_PAUSE_PURGE_FEEDRATE
   
   #define BUCKET_RETRACT              10
-  #define BUCKET_RETRACT_FEEDRATE     RETRACT_FEEDRATE
-  #define BUCKET_RECOVER_FEEDRATE     RETRACT_RECOVER_FEEDRATE
+		#if DISABLED(FWRETRACT)
+				#define BUCKET_RETRACT_FEEDRATE     RETRACT_FEEDRATE
+				#define BUCKET_RECOVER_FEEDRATE     RETRACT_RECOVER_FEEDRATE
+		#endif
 #endif
 
 // @section tmc

@@ -191,8 +191,11 @@
    // Same flow after tool change
    planner.flow_percentage[active_extruder+1] = planner.flow_percentage[active_extruder];				
    // Same FwRetract/Swap statuses
-   fwretract.retracted[active_extruder+1] = fwretract.retracted[active_extruder];
-   fwretract.retracted_swap[active_extruder+1] = fwretract.retracted_swap[active_extruder];
+   #if ENABLED(FWRETRACT)
+				//New extruder have retract current status
+				fwretract.retracted[active_extruder+1] = fwretract.retracted[active_extruder];
+				fwretract.retracted_swap[active_extruder+1] = fwretract.retracted_swap[active_extruder];
+			#endif
   }
   else {
    // If a desired tool is required
@@ -201,21 +204,25 @@
    // Same flow after tool change
    planner.flow_percentage[desired_target_tmp] = planner.flow_percentage[active_extruder];
    // Same FwRetract/Swap statuses
-   fwretract.retracted[desired_target_tmp] = fwretract.retracted[active_extruder];
-   fwretract.retracted_swap[desired_target_tmp] = fwretract.retracted_swap[active_extruder];
+   #if ENABLED(FWRETRACT)
+				//New extruder have retract current statuses
+				fwretract.retracted[desired_target_tmp] = fwretract.retracted[active_extruder];
+				fwretract.retracted_swap[desired_target_tmp] = fwretract.retracted_swap[active_extruder];
+			#endif
   }
 
   // Because no human intervention , all must be perfect, no wasted distances 
   // If negative position or FwRetracted  then adjustment of the unload length
-  // Can just be retracted and not swapped , because no dual extrusion printing with tool migration
   #if ENABLED(FWRETRACT)	
-    if (fwretract.retracted[active_extruder]) {																		
-     tool_migration_e_move( -BUCKET_TOOL_MIGRATION_UNLOAD_LENGTH + fwretract.retract_length, BUCKET_TOOL_MIGRATION_UNLOAD_F); 
+    if (fwretract.retracted[active_extruder]) {
+					//Unloading of old extruder
+     tool_migration_e_move( -RETRACT_LENGTH_SWAP + fwretract.retract_length, RETRACT_FEEDRATE);					
     }	
     else {
+					//If negative position ' rare or impossible if FWRETRACT used '
      if (resume_position[E_AXIS]<0) 
-      tool_migration_e_move( -BUCKET_TOOL_MIGRATION_UNLOAD_LENGTH - resume_position[E_AXIS], BUCKET_TOOL_MIGRATION_UNLOAD_F);								
-     else tool_migration_e_move(-BUCKET_TOOL_MIGRATION_UNLOAD_LENGTH, BUCKET_TOOL_MIGRATION_UNLOAD_F);
+      tool_migration_e_move( -RETRACT_LENGTH_SWAP - resume_position[E_AXIS], RETRACT_FEEDRATE);								
+     else tool_migration_e_move(-RETRACT_LENGTH_SWAP, RETRACT_FEEDRATE);
     }
   #else							
     if (resume_position[E_AXIS]<0) 
@@ -227,8 +234,14 @@
   #if ENABLED(BUCKET_TOOL_MIGRATION_NOZZLE_PARK) && ENABLED(NOZZLE_PARK_FEATURE)
     Nozzle::park(2, NOZZLE_PARK_POINT);
   #endif
+			
+  //Old extruder receive swap status because is now unloaded
+		#if ENABLED(FWRETRACT)
+				fwretract.retracted_swap[active_extruder] = true;
+				fwretract.retracted[active_extruder] = false;
+  #endif
 
-  // Set the new active extruder
+  // Set the new active extruder		
   if (automatic_migration_enabled) active_extruder++;
   else active_extruder = desired_target_tmp;
 
@@ -238,8 +251,11 @@
   LCD_MESSAGEPGM(" "); 
 
   // Load filament
-  tool_migration_e_move(BUCKET_TOOL_MIGRATION_LOAD_LENGTH, BUCKET_TOOL_MIGRATION_LOAD_F);
-
+  #if ENABLED(FWRETRACT)
+				tool_migration_e_move(RETRACT_LENGTH_SWAP, RETRACT_FEEDRATE);
+		#else
+				tool_migration_e_move(BUCKET_TOOL_MIGRATION_LOAD_LENGTH, BUCKET_TOOL_MIGRATION_LOAD_F);
+		#endif
   // Start blowing
   #if (BUCKET_FAN_SPEED >0 && BUCKET_FAN < FAN_COUNT)
     fansp=fanSpeeds[BUCKET_FAN];
@@ -269,8 +285,12 @@
   planner.set_e_position_mm(0); current_position[E_AXIS] = 0; destination[E_AXIS]=0;	
 
   // Positionning of the gear if old resume_position negative 
-  if (resume_position[E_AXIS]<0) tool_migration_e_move(resume_position[E_AXIS], BUCKET_TOOL_MIGRATION_UNLOAD_F);
-
+		#if ENABLED(FWRETRACT)
+				if (resume_position[E_AXIS]<0) tool_migration_e_move(resume_position[E_AXIS], RETRACT_FEEDRATE);
+		#else
+				if (resume_position[E_AXIS]<0) tool_migration_e_move(resume_position[E_AXIS], BUCKET_TOOL_MIGRATION_UNLOAD_F);
+		#endif
+		
   // Move XY to starting position, then Z
   do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
 
