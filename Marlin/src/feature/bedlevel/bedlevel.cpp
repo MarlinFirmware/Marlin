@@ -233,7 +233,7 @@ void reset_bed_level() {
         const float offset = fn(x, y);
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_PROTOCOLCHAR('+');
-          SERIAL_PROTOCOL_F(offset, precision);
+          SERIAL_PROTOCOL_F(offset, (int)precision);
         }
         else {
           #ifdef SCAD_MESH_OUTPUT
