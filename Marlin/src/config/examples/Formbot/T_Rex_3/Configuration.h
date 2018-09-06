@@ -21,7 +21,7 @@
  *
  */
  
-#define TREX3                // Turn this on to generate a T-Rex 3  firmware image
+#define TREX3              // Turn this on to generate a T-Rex 3  firmware image
 
 // The next few options are for firmware development and probably should not be used by Formbot.
 #define ICSP_PORT_SWITCHES // If ICSP_PORT_SWITCHES is defined, those pins become filament runout sensors
@@ -143,24 +143,12 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #ifdef TREX2  
-    #define MOTHERBOARD BOARD_FORMBOT_TREX2
-  #endif
-
-  #ifdef TREX3  
-    #define MOTHERBOARD BOARD_FORMBOT_TREX3
-  #endif
+  #define MOTHERBOARD BOARD_FORMBOT_TREX3
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#ifdef TREX2  
-  #define CUSTOM_MACHINE_NAME "T-Rex 2+"
-#endif
-
-#ifdef TREX3  
-  #define CUSTOM_MACHINE_NAME "T-Rex 3"
-#endif
+#define CUSTOM_MACHINE_NAME "T-Rex 3"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
