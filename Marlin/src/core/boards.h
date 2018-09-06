@@ -227,7 +227,7 @@
 #define BOARD_TEENSY35_36       841   // Teensy3.5 and Teensy3.6
 #define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
-#define BOARD_ARMED            1806   // STM32F407 based controller (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1, Fan2)
+#define BOARD_ARMED            1807   // STM32F407 based controller (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1, Fan2)
 
 //
 // ARM Cortex M7
