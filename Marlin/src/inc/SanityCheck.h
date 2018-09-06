@@ -558,6 +558,11 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #endif
 #endif
 
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  constexpr float npp[] = NOZZLE_PARK_POINT;
+  static_assert(COUNT(npp) == XYZ, "NOZZLE_PARK_POINT requires X, Y, and Z values.");
+#endif
+
 /**
  * Individual axis homing is useless for DELTAS
  */

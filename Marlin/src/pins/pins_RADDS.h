@@ -206,8 +206,11 @@
 
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
-    #define LCD_PINS_RS     46
-    #define LCD_PINS_ENABLE 47
+    // The REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER requires
+    // an adapter such as https://www.thingiverse.com/thing:1740725
+
+    #define LCD_PINS_RS     42
+    #define LCD_PINS_ENABLE 43
     #define LCD_PINS_D4     44
 
     #define BEEPER_PIN      41

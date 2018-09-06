@@ -156,7 +156,7 @@
 #define SDSS               53
 #ifndef ROXYs_TRex
   #define LED_PIN          13
-#endi
+#endif
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input

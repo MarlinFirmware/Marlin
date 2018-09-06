@@ -477,6 +477,10 @@ uint16_t max_display_update_time = 0;
     #define manual_move_e_index 0
   #endif
 
+  #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+    float manual_move_e_origin = 0;
+  #endif
+
   #if IS_KINEMATIC
     bool processing_manual_move = false;
     float manual_move_offset = 0;
@@ -3066,6 +3070,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #if IS_KINEMATIC
           + manual_move_offset
         #endif
+        #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+          - manual_move_e_origin
+        #endif
       ));
     }
   }
@@ -3114,7 +3121,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
         case Z_AXIS:
           STATIC_ITEM(MSG_MOVE_Z, true, true); break;
         default:
-          STATIC_ITEM(MSG_MOVE_E, true, true); break;
+          #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+            manual_move_e_origin = current_position[E_AXIS];
+          #endif
+          STATIC_ITEM(MSG_MOVE_E, true, true);
+          break;
       }
     }
     MENU_BACK(MSG_MOVE_AXIS);

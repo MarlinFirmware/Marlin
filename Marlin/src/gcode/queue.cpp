@@ -143,7 +143,7 @@ bool enqueue_and_echo_command(const char* cmd) {
   //SERIAL_ECHO(cmd);
   //SERIAL_ECHO("\") \n");
 
-  if (*cmd == 0 || *cmd == '\n' || *cmd == 'r') {
+  if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') {
     //SERIAL_ECHO("Null command found...   Did not queue!\n");
     return true;
   }
