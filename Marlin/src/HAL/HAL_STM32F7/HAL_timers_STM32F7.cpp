@@ -142,11 +142,6 @@ uint32_t HAL_timer_get_count(const uint8_t timer_num) {
   return __HAL_TIM_GetCounter(&timerConfig[timer_num].timerdef);
 }
 
-void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks) {
-  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_ticks;
-  if (HAL_timer_get_compare(timer_num) < mincmp) HAL_timer_set_compare(timer_num, mincmp);
-}
-
 void HAL_timer_isr_prologue(const uint8_t timer_num) {
   if (__HAL_TIM_GET_FLAG(&timerConfig[timer_num].timerdef, TIM_FLAG_UPDATE) == SET) {
     __HAL_TIM_CLEAR_FLAG(&timerConfig[timer_num].timerdef, TIM_FLAG_UPDATE);
