@@ -233,16 +233,16 @@
     else tool_migration_e_move(-BUCKET_TOOL_MIGRATION_UNLOAD_LENGTH, BUCKET_TOOL_MIGRATION_UNLOAD_F);	
   #endif					
 
-  // PARKING
-  #if ENABLED(BUCKET_TOOL_MIGRATION_NOZZLE_PARK) && ENABLED(NOZZLE_PARK_FEATURE)
-    Nozzle::park(2, NOZZLE_PARK_POINT);
-  #endif
-			
   // FWRETRACT STATUSES : Old extruder receive swap status because unloaded
 		#if ENABLED(FWRETRACT)
 				fwretract.retracted_swap[active_extruder] = true;
 				fwretract.retracted[active_extruder] = false;
   #endif
+  
+  // PARKING
+  #if ENABLED(BUCKET_TOOL_MIGRATION_NOZZLE_PARK) && ENABLED(NOZZLE_PARK_FEATURE)
+    Nozzle::park(2, NOZZLE_PARK_POINT);
+  #endif  
 
   // TOOL CHANGE : Set the new active extruder		
   if (automatic_migration_enabled) active_extruder++;
@@ -271,6 +271,7 @@
      fwretract.retract_feedrate_mm_s
    #endif
 			);
+   
 		// BLOWING FULL POWER : To cold the filament in the bucket 
   #if (BUCKET_FAN_SPEED >0 && BUCKET_FAN < FAN_COUNT)
     fansp=fanSpeeds[BUCKET_FAN];
@@ -280,7 +281,7 @@
 		// PAUSE : Time of filament cooling
 	 dwell(bucket_fan_dwell *1000);  
 		
-		// STOP BLOWING : Resume blowing old printing speed
+		// STOP BLOWING : Resume old fanspeed
 		#if (BUCKET_FAN_SPEED >0 && BUCKET_FAN < FAN_COUNT)
     fanSpeeds[BUCKET_FAN]=fansp;
   #endif	  
