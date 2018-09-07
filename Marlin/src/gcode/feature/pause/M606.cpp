@@ -188,8 +188,7 @@
   // Save current position
   COPY(resume_position, current_position);
   
-  //Settings transmiting
-  
+  //Settings transmiting  
   if (automatic_migration_enabled){ // If automatic next tool 
    //Same temperature
    thermalManager.setTargetHotend(thermalManager.degHotend(active_extruder), active_extruder+1);
@@ -265,10 +264,10 @@
   
 		// RETRACT : 10mm retract min , to ensure no oozing and easy separation after cooling
 		tool_migration_e_move(-bucket_retract, 
-   #if DISABLED(FWRETRACT)
-     bucket_retract_feedrate
-   #else
+   #if ENABLED(FWRETRACT)
      fwretract.retract_feedrate_mm_s
+   #else
+     bucket_retract_feedrate
    #endif
 			);
    
