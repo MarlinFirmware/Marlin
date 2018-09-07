@@ -3630,17 +3630,19 @@ inline void gcode_G4() {
       float go[MOV_AXIS] = { 0.0 },
             tmp_fr_mm_s = 0.0;
 
-      LOOP_MOV_AXIS(i)
-        if (parser.seen(RAW_AXIS_CODES(i)))
+      LOOP_MOV_AXIS(i) {
+        if (parser.seen(RAW_AXIS_CODES(i))) {
           go[i] = parser.value_axis_units((AxisEnum)i);
+		}
+	  }
       if (
          #if ENABLED(HANGPRINTER) // Sending R to another machine is the same as not sending S1 to Hangprinter
            !(parser.seenval('S') && parser.value_byte() == 1)
          #else
            parser.seen('R')
          #endif
-        )
-        LOOP_MOV_AXIS(i)
+        ) {
+        LOOP_MOV_AXIS(i) {
           go[i] +=
             #if ENABLED(HANGPRINTER)
               line_lengths
@@ -3650,6 +3652,22 @@ inline void gcode_G4() {
               current_position
             #endif
             [i];
+		}
+	  } else {
+        LOOP_MOV_AXIS(i) {
+          if (!parser.seen(RAW_AXIS_CODES(i))) {
+            go[i] +=
+              #if ENABLED(HANGPRINTER)
+                line_lengths
+              #elif ENABLED(DELTA)
+                delta
+              #else
+                current_position
+              #endif
+              [i];
+          }
+		}
+	  }
       if (parser.linearval('F') > 0.0)
         tmp_fr_mm_s = MMM_TO_MMS(parser.value_feedrate());
       else
@@ -6499,7 +6517,13 @@ inline void gcode_G92() {
       const float l = parser.value_axis_units((AxisEnum)i),
                   v = i == E_CART ? l : LOGICAL_TO_NATIVE(l, i),
                   d = v - current_position[i];
-      if (!NEAR_ZERO(d)) {
+      if (
+          #if ENABLED(HANGPRINTER)
+            true // Hangprinter needs to update its line lengths regardless if current_position has changed or not
+          #else
+            !NEAR_ZERO(d)
+          #endif
+			  ) {
         #if IS_SCARA || !HAS_POSITION_SHIFT || ENABLED(HANGPRINTER)
           if (i == E_CART) didE = true; else didXYZ = true;
           current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior

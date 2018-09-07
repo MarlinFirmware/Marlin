@@ -2705,6 +2705,8 @@ void Planner::set_position_mm_kinematic(const float (&cart)[XYZE]) {
   #if PLANNER_LEVELING
     float raw[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
     apply_leveling(raw);
+  #elif ENABLED(HANGPRINTER)
+    float raw[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
   #else
     const float (&raw)[XYZE] = cart;
   #endif
