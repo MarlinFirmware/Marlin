@@ -529,11 +529,12 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * Individual axis homing is useless for DELTAS
  */
-#if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU) && ENABLED(DELTA)
-  #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics."
-#endif
-#if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU) && ENABLED(HANGPRINTER)
-  #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with HANGPRINTER kinematics."
+#if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
+  #if ENABLED(DELTA)
+    #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics."
+  #elif ENABLED(HANGPRINTER)
+    #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with HANGPRINTER kinematics."
+  #endif
 #endif
 
 /**
@@ -726,46 +727,37 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * Hangprinter requirements
  */
-#if ENABLED(HANGPRINTER) && EXTRUDERS > 4
-  #error "Marlin supports a maximum of 4 EXTRUDERS when driving a Hangprinter."
-#endif
-#if ENABLED(HANGPRINTER) && ENABLED(CONVENTIONAL_GEOMETRY)
-  #if ANCHOR_A_Y > 0
-    #error "ANCHOR_A_Y should be negative by convention."
+#if ENABLED(HANGPRINTER)
+  #if EXTRUDERS > 4
+    #error "Marlin supports a maximum of 4 EXTRUDERS when driving a Hangprinter."
+  #elif ENABLED(CONVENTIONAL_GEOMETRY)
+    #if ANCHOR_A_Y > 0
+      #error "ANCHOR_A_Y should be negative by convention."
+    #elif (ANCHOR_B_X) * (ANCHOR_C_X) > 0
+      #error "ANCHOR_B_X and ANCHOR_C_X should have opposite signs by convention."
+    #elif ANCHOR_B_Y < 0
+      #error "ANCHOR_B_Y should be positive by convention."
+    #elif ANCHOR_C_Y < 0
+      #error "ANCHOR_C_Y should be positive by convention."
+    #elif ANCHOR_A_Z > 0
+      #error "ANCHOR_A_Z should be negative by convention."
+    #elif ANCHOR_B_Z > 0
+      #error "ANCHOR_B_Z should be negative by convention."
+    #elif ANCHOR_C_Z > 0
+      #error "ANCHOR_C_Z should be negative by convention."
+    #elif ANCHOR_D_Z < 0
+      #error "ANCHOR_D_Z should be positive by convention."
+    #endif
   #endif
-  #if ANCHOR_B_X*ANCHOR_C_X > 0
-    #error "ANCHOR_B_X and ANCHOR_C_X should have opposite signs by convention."
-  #endif
-  #if ANCHOR_B_Y < 0
-    #error "ANCHOR_B_Y should be positive by convention."
-  #endif
-  #if ANCHOR_C_Y < 0
-    #error "ANCHOR_C_Y should be positive by convention."
-  #endif
-  #if ANCHOR_A_Z > 0
-    #error "ANCHOR_A_Z should be negative by convention."
-  #endif
-  #if ANCHOR_B_Z > 0
-    #error "ANCHOR_B_Z should be negative by convention."
-  #endif
-  #if ANCHOR_C_Z > 0
-    #error "ANCHOR_C_Z should be negative by convention."
-  #endif
-  #if ANCHOR_D_Z < 0
-    #error "ANCHOR_D_Z should be positive by convention."
-  #endif
-#endif
-#if ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE) && DISABLED(HANGPRINTER)
-  #error "LINE_BUILDUP_COMPENSATION_FEATURE can only be used together with HANGPRINTER."
+#elif ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE)
+  #error "LINE_BUILDUP_COMPENSATION_FEATURE is only compatible with HANGPRINTER."
 #endif
 
 /**
  * Mechaduino requirements
  */
-#if ENABLED(MECHADUINO_I2C_COMMANDS)
-  #if DISABLED(EXPERIMENTAL_I2CBUS)
-    #error "MECHADUINO_I2C_COMMANDS requires EXPERIMENTAL_I2CBUS to be enabled."
-  #endif
+#if ENABLED(MECHADUINO_I2C_COMMANDS) && DISABLED(EXPERIMENTAL_I2CBUS)
+  #error "MECHADUINO_I2C_COMMANDS requires EXPERIMENTAL_I2CBUS to be enabled."
 #endif
 
 /**
@@ -1262,6 +1254,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #endif
   #endif
 #endif
+
 /**
  * Endstop Tests
  */
@@ -1273,11 +1266,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   // At least 3 endstop plugs must be used
   #if _AXIS_PLUG_UNUSED_TEST(X)
     #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(Y)
+  #elif _AXIS_PLUG_UNUSED_TEST(Y)
     #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
-  #endif
-  #if _AXIS_PLUG_UNUSED_TEST(Z)
+  #elif _AXIS_PLUG_UNUSED_TEST(Z)
     #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
   #endif
 
@@ -1599,18 +1590,19 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * Require 5/4 or more elements in per-axis initializers
  */
+#if ENABLED(HANGPRINTER)
+  #define MIN_ELEMENTS "5"
+#else
+  #define MIN_ELEMENTS "4"
+#endif
+
 constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
                 sanity_arr_2[] = DEFAULT_MAX_FEEDRATE,
                 sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
-#if ENABLED(HANGPRINTER)
-  static_assert(COUNT(sanity_arr_1) >= NUM_AXIS, "DEFAULT_AXIS_STEPS_PER_UNIT requires 5 (or more) elements when HANGPRINTER is enabled.");
-  static_assert(COUNT(sanity_arr_2) >= NUM_AXIS, "DEFAULT_MAX_FEEDRATE requires 5 (or more) elements when HANGPRINTER is enabled.");
-  static_assert(COUNT(sanity_arr_3) >= NUM_AXIS, "DEFAULT_MAX_ACCELERATION requires 5 (or more) elements when HANGPRINTER is enabled.");
-#else
-  static_assert(COUNT(sanity_arr_1) >= NUM_AXIS, "DEFAULT_AXIS_STEPS_PER_UNIT requires 4 (or more) elements.");
-  static_assert(COUNT(sanity_arr_2) >= NUM_AXIS, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
-  static_assert(COUNT(sanity_arr_3) >= NUM_AXIS, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
-#endif
+
+static_assert(COUNT(sanity_arr_1) >= NUM_AXIS, "DEFAULT_AXIS_STEPS_PER_UNIT requires " MIN_ELEMENTS " (or more) elements for HANGPRINTER.");
+static_assert(COUNT(sanity_arr_2) >= NUM_AXIS, "DEFAULT_MAX_FEEDRATE requires " MIN_ELEMENTS " (or more) elements for HANGPRINTER.");
+static_assert(COUNT(sanity_arr_3) >= NUM_AXIS, "DEFAULT_MAX_ACCELERATION requires " MIN_ELEMENTS " (or more) elements for HANGPRINTER.");
 static_assert(COUNT(sanity_arr_1) <= NUM_AXIS_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements.");
 static_assert(COUNT(sanity_arr_2) <= NUM_AXIS_N, "DEFAULT_MAX_FEEDRATE has too many elements.");
 static_assert(COUNT(sanity_arr_3) <= NUM_AXIS_N, "DEFAULT_MAX_ACCELERATION has too many elements.");

@@ -557,21 +557,21 @@ class Planner {
      *  millimeters - the length of the movement, if known
      *  count_it    - remember this move in its counters (UNREGISTERED_MOVE_SUPPORT)
      */
-    static bool buffer_segment(const float &a, const float &b, const float &c
+    static bool buffer_segment(const float &a, const float &b, const float &c,
       #if ENABLED(HANGPRINTER)
-        , const float &d
+        const float &d,
       #endif
-      , const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+      const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
       #if ENABLED(UNREGISTERED_MOVE_SUPPORT)
         , bool count_it=true
       #endif
     );
 
-    static void _set_position_mm(const float &a, const float &b, const float &c
+    static void _set_position_mm(const float &a, const float &b, const float &c,
       #if ENABLED(HANGPRINTER)
-        , const float &d
+        const float &d,
       #endif
-      , const float &e
+      const float &e
     );
 
     /**
@@ -588,20 +588,20 @@ class Planner {
      *  extruder     - target extruder
      *  millimeters  - the length of the movement, if known
      */
-    FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z
+    FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z,
       #if ENABLED(HANGPRINTER)
-        , ARG_E1
+        ARG_E1,
       #endif
-      , const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0
+      const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0
     ) {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
-      return buffer_segment(rx, ry, rz
+      return buffer_segment(rx, ry, rz,
         #if ENABLED(HANGPRINTER)
-          , re1
+          re1,
         #endif
-        , e, fr_mm_s, extruder, millimeters
+        e, fr_mm_s, extruder, millimeters
       );
     }
 
@@ -624,11 +624,14 @@ class Planner {
       #endif
       #if IS_KINEMATIC
         inverse_kinematics(raw);
-        #if ENABLED(HANGPRINTER)
-          return buffer_segment(line_lengths[A_AXIS], line_lengths[B_AXIS], line_lengths[C_AXIS], line_lengths[D_AXIS], cart[E_CART], fr_mm_s, extruder, millimeters);
-        #else
-          return buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_CART], fr_mm_s, extruder, millimeters);
-        #endif
+        return buffer_segment(
+          #if ENABLED(HANGPRINTER)
+            line_lengths[A_AXIS], line_lengths[B_AXIS], line_lengths[C_AXIS], line_lengths[D_AXIS]
+          #else
+            delta[A_AXIS], delta[B_AXIS], delta[C_AXIS]
+          #endif
+          , cart[E_CART], fr_mm_s, extruder, millimeters
+        );
       #else
         return buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_CART], fr_mm_s, extruder, millimeters);
       #endif
@@ -643,20 +646,20 @@ class Planner {
      *
      * Clears previous speed values.
      */
-    FORCE_INLINE static void set_position_mm(ARG_X, ARG_Y, ARG_Z
+    FORCE_INLINE static void set_position_mm(ARG_X, ARG_Y, ARG_Z,
       #if ENABLED(HANGPRINTER)
-        , ARG_E1
+        ARG_E1,
       #endif
-      , const float &e
+      const float &e
     ) {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(rx, ry, rz);
       #endif
-      _set_position_mm(rx, ry, rz
+      _set_position_mm(rx, ry, rz,
         #if ENABLED(HANGPRINTER)
-          , re1
+          re1,
         #endif
-        , e
+        e
       );
     }
     static void set_position_mm_kinematic(const float (&cart)[XYZE]);

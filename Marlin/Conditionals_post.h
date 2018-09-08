@@ -729,22 +729,6 @@
 #define HAS_E4_MICROSTEPS (PIN_EXISTS(E4_MS1))
 #define HAS_SOLENOID_4    (PIN_EXISTS(SOL4))
 
-// Trinamic Stepper Drivers
-#define HAS_STEALTHCHOP (HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208))
-#define HAS_STALLGUARD  HAS_DRIVER(TMC2130)
-#define AXIS_HAS_STEALTHCHOP(ST) ( AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208) )
-#define AXIS_HAS_STALLGUARD(ST) AXIS_DRIVER_TYPE(ST, TMC2130)
-
-#if ENABLED(SENSORLESS_HOMING)
-  // Disable Z axis sensorless homing if a probe is used to home the Z axis
-  #if HOMING_Z_WITH_PROBE
-    #undef Z_HOMING_SENSITIVITY
-  #endif
-  #define X_SENSORLESS (AXIS_HAS_STALLGUARD(X) && defined(X_HOMING_SENSITIVITY))
-  #define Y_SENSORLESS (AXIS_HAS_STALLGUARD(Y) && defined(Y_HOMING_SENSITIVITY))
-  #define Z_SENSORLESS (AXIS_HAS_STALLGUARD(Z) && defined(Z_HOMING_SENSITIVITY))
-#endif
-
 #if ENABLED(HANGPRINTER)
   #define HAS_A_ENABLE      (PIN_EXISTS(A_ENABLE))
   #define HAS_A_DIR         (PIN_EXISTS(A_DIR))
@@ -765,6 +749,22 @@
   #define HAS_D_DIR         (PIN_EXISTS(D_DIR))
   #define HAS_D_STEP        (PIN_EXISTS(D_STEP))
   #define HAS_D_MICROSTEPS  (PIN_EXISTS(D_MS1))
+#endif
+
+// Trinamic Stepper Drivers
+#define HAS_STEALTHCHOP (HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208))
+#define HAS_STALLGUARD  HAS_DRIVER(TMC2130)
+#define AXIS_HAS_STEALTHCHOP(ST) ( AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208) )
+#define AXIS_HAS_STALLGUARD(ST) AXIS_DRIVER_TYPE(ST, TMC2130)
+
+#if ENABLED(SENSORLESS_HOMING)
+  // Disable Z axis sensorless homing if a probe is used to home the Z axis
+  #if HOMING_Z_WITH_PROBE
+    #undef Z_HOMING_SENSITIVITY
+  #endif
+  #define X_SENSORLESS (AXIS_HAS_STALLGUARD(X) && defined(X_HOMING_SENSITIVITY))
+  #define Y_SENSORLESS (AXIS_HAS_STALLGUARD(Y) && defined(Y_HOMING_SENSITIVITY))
+  #define Z_SENSORLESS (AXIS_HAS_STALLGUARD(Z) && defined(Z_HOMING_SENSITIVITY))
 #endif
 
 // Endstops and bed probe
@@ -1407,11 +1407,11 @@
  * NUM_AXIS_N: number of movement axes + number of extruders (defined elsewhere)
  */
 #if ENABLED(HANGPRINTER)
-  #define MOV_AXIS 4
-  #define NUM_AXIS 5
+  #define MOV_AXIS ABCD
+  #define NUM_AXIS ABCDE
 #else
-  #define MOV_AXIS 3
-  #define NUM_AXIS 4
+  #define MOV_AXIS XYZ
+  #define NUM_AXIS XYZE
 #endif
 
 #endif // CONDITIONALS_POST_H

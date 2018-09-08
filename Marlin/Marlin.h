@@ -154,11 +154,7 @@ extern const char axis_codes[XYZE];
 
   #if E_STEPPERS > 1 && HAS_E1_ENABLE
     #define  enable_E1() E1_ENABLE_WRITE( E_ENABLE_ON)
-    #if ENABLED(HANGPRINTER) && EXTRUDERS == 1
-      #define disable_E1() NOOP
-    #else
-      #define disable_E1() E1_ENABLE_WRITE(!E_ENABLE_ON)
-    #endif
+    #define disable_E1() E1_ENABLE_WRITE(!E_ENABLE_ON)
   #else
     #define  enable_E1() NOOP
     #define disable_E1() NOOP
@@ -166,11 +162,7 @@ extern const char axis_codes[XYZE];
 
   #if E_STEPPERS > 2 && HAS_E2_ENABLE
     #define  enable_E2() E2_ENABLE_WRITE( E_ENABLE_ON)
-    #if ENABLED(HANGPRINTER) && EXTRUDERS == 2
-      #define disable_E2() NOOP
-    #else
-      #define disable_E2() E2_ENABLE_WRITE(!E_ENABLE_ON)
-    #endif
+    #define disable_E2() E2_ENABLE_WRITE(!E_ENABLE_ON)
   #else
     #define  enable_E2() NOOP
     #define disable_E2() NOOP
@@ -178,11 +170,7 @@ extern const char axis_codes[XYZE];
 
   #if E_STEPPERS > 3 && HAS_E3_ENABLE
     #define  enable_E3() E3_ENABLE_WRITE( E_ENABLE_ON)
-    #if ENABLED(HANGPRINTER) && EXTRUDERS == 3
-      #define disable_E3() NOOP
-    #else
-      #define disable_E3() E3_ENABLE_WRITE(!E_ENABLE_ON)
-    #endif
+    #define disable_E3() E3_ENABLE_WRITE(!E_ENABLE_ON)
   #else
     #define  enable_E3() NOOP
     #define disable_E3() NOOP
@@ -190,11 +178,7 @@ extern const char axis_codes[XYZE];
 
   #if E_STEPPERS > 4 && HAS_E4_ENABLE
     #define  enable_E4() E4_ENABLE_WRITE( E_ENABLE_ON)
-    #if ENABLED(HANGPRINTER) && EXTRUDERS == 4
-      #define disable_E4() NOOP
-    #else
-      #define disable_E4() E4_ENABLE_WRITE(!E_ENABLE_ON)
-    #endif
+    #define disable_E4() E4_ENABLE_WRITE(!E_ENABLE_ON)
   #else
     #define  enable_E4() NOOP
     #define disable_E4() NOOP
@@ -203,9 +187,11 @@ extern const char axis_codes[XYZE];
 #endif // !MIXING_EXTRUDER
 
 #if ENABLED(HANGPRINTER)
+
   #define enable_A() enable_X()
   #define enable_B() enable_Y()
   #define enable_C() enable_Z()
+
   #if EXTRUDERS == 1
     #define enable_D() E1_ENABLE_WRITE(E_ENABLE_ON)
   #elif EXTRUDERS == 2
@@ -215,7 +201,26 @@ extern const char axis_codes[XYZE];
   #elif EXTRUDERS == 4
     #define enable_D() E4_ENABLE_WRITE(E_ENABLE_ON)
   #endif
-#endif
+
+  // Don't allow D Axis to be disabled
+  #if EXTRUDERS >= 1
+    #undef disable_E1
+    #define disable_E1() NOOP
+    #if EXTRUDERS >= 2
+      #undef disable_E2
+      #define disable_E2() NOOP
+      #if EXTRUDERS >= 3
+        #undef disable_E3
+        #define disable_E3() NOOP
+        #if EXTRUDERS >= 4
+          #undef disable_E4
+          #define disable_E4() NOOP
+        #endif // EXTRUDERS >= 4
+      #endif // EXTRUDERS >= 3
+    #endif // EXTRUDERS >= 2
+  #endif // EXTRUDERS >= 1
+
+#endif // HANGPRINTER
 
 #if ENABLED(G38_PROBE_TARGET)
   extern bool G38_move,        // flag to tell the interrupt handler that a G38 command is being run
@@ -359,7 +364,7 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
 
-void  home_all_axes();
+void home_all_axes();
 
 void report_current_position();
 
@@ -402,7 +407,8 @@ void report_current_position();
   }while(0)
 
 #elif ENABLED(HANGPRINTER)
- // Don't collect anchor positions in array because there are no A_x, D_x or D_y
+
+  // Don't collect anchor positions in array because there are no A_x, D_x or D_y
   extern float anchor_A_y,
                anchor_A_z,
                anchor_B_x,
@@ -418,28 +424,28 @@ void report_current_position();
   void recalc_hangprinter_settings();
 
   #define HANGPRINTER_IK(V) do {                             \
-    line_lengths[A_AXIS] = sqrt(sq(anchor_A_z - V[Z_AXIS])   \
+    line_lengths[A_AXIS] = SQRT(sq(anchor_A_z - V[Z_AXIS])   \
                               + sq(anchor_A_y - V[Y_AXIS])   \
                               + sq(             V[X_AXIS])); \
-    line_lengths[B_AXIS] = sqrt(sq(anchor_B_z - V[Z_AXIS])   \
+    line_lengths[B_AXIS] = SQRT(sq(anchor_B_z - V[Z_AXIS])   \
                               + sq(anchor_B_y - V[Y_AXIS])   \
                               + sq(anchor_B_x - V[X_AXIS])); \
-    line_lengths[C_AXIS] = sqrt(sq(anchor_C_z - V[Z_AXIS])   \
+    line_lengths[C_AXIS] = SQRT(sq(anchor_C_z - V[Z_AXIS])   \
                               + sq(anchor_C_y - V[Y_AXIS])   \
                               + sq(anchor_C_x - V[X_AXIS])); \
-    line_lengths[D_AXIS] = sqrt(sq(             V[X_AXIS])   \
+    line_lengths[D_AXIS] = SQRT(sq(             V[X_AXIS])   \
                               + sq(             V[Y_AXIS])   \
                               + sq(anchor_D_z - V[Z_AXIS])); \
   }while(0)
 
   // Inverse kinematics at origin
   #define HANGPRINTER_IK_ORIGIN(LL) do { \
-    LL[A_AXIS] = sqrt(sq(anchor_A_z)     \
+    LL[A_AXIS] = SQRT(sq(anchor_A_z)     \
                     + sq(anchor_A_y));   \
-    LL[B_AXIS] = sqrt(sq(anchor_B_z)     \
+    LL[B_AXIS] = SQRT(sq(anchor_B_z)     \
                     + sq(anchor_B_y)     \
                     + sq(anchor_B_x));   \
-    LL[C_AXIS] = sqrt(sq(anchor_C_z)     \
+    LL[C_AXIS] = SQRT(sq(anchor_C_z)     \
                     + sq(anchor_C_y)     \
                     + sq(anchor_C_x));   \
     LL[D_AXIS] = anchor_D_z;             \

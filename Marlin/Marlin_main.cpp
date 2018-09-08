@@ -634,9 +634,8 @@ uint8_t target_extruder;
 
   float delta_safe_distance_from_top();
 
-#endif
+#elif ENABLED(HANGPRINTER)
 
-#if ENABLED(HANGPRINTER)
   float anchor_A_y,
         anchor_A_z,
         anchor_B_x,
@@ -649,6 +648,7 @@ uint8_t target_extruder;
         line_lengths[ABCD],
         line_lengths_origin[ABCD],
         delta_segments_per_second;
+
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -3622,7 +3622,7 @@ inline void gcode_G4() {
    * G6: Direct Stepper Move
    */
   inline void gcode_G6() {
-	bool count_it = false;
+    bool count_it = false;
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
       if (axis_unhomed_error()) return;
     #endif
@@ -3630,63 +3630,47 @@ inline void gcode_G4() {
       float go[MOV_AXIS] = { 0.0 },
             tmp_fr_mm_s = 0.0;
 
-      LOOP_MOV_AXIS(i) {
-        if (parser.seen(RAW_AXIS_CODES(i))) {
+      LOOP_MOV_AXIS(i)
+        if (parser.seen(RAW_AXIS_CODES(i)))
           go[i] = parser.value_axis_units((AxisEnum)i);
-		}
-	  }
-      if (
-         #if ENABLED(HANGPRINTER) // Sending R to another machine is the same as not sending S1 to Hangprinter
-           !(parser.seenval('S') && parser.value_byte() == 1)
-         #else
-           parser.seen('R')
-         #endif
-        ) {
-        LOOP_MOV_AXIS(i) {
-          go[i] +=
-            #if ENABLED(HANGPRINTER)
-              line_lengths
-            #elif ENABLED(DELTA)
-              delta
-            #else
-              current_position
-            #endif
-            [i];
-		}
-	  } else {
-        LOOP_MOV_AXIS(i) {
-          if (!parser.seen(RAW_AXIS_CODES(i))) {
-            go[i] +=
-              #if ENABLED(HANGPRINTER)
-                line_lengths
-              #elif ENABLED(DELTA)
-                delta
-              #else
-                current_position
-              #endif
-              [i];
-          }
-		}
-	  }
-      if (parser.linearval('F') > 0.0)
-        tmp_fr_mm_s = MMM_TO_MMS(parser.value_feedrate());
-      else
-        tmp_fr_mm_s = feedrate_mm_s;
+
       #if ENABLED(HANGPRINTER)
-        if(parser.seenval('S') && (parser.value_byte() == 2)){
+        #define GO_SRC line_lengths
+      #elif ENABLED(DELTA)
+        #define GO_SRC delta
+      #else
+        #define GO_SRC current_position
+      #endif
+
+      if (
+        #if ENABLED(HANGPRINTER) // Sending R to another machine is the same as not sending S1 to Hangprinter
+          parser.byteval('S') != 2
+        #else
+          parser.seen('R')
+        #endif
+      )
+        LOOP_MOV_AXIS(i) go[i] += GO_SRC[i];
+      else
+        LOOP_MOV_AXIS(i) if (!parser.seen(RAW_AXIS_CODES(i))) go[i] += GO_SRC[i];
+
+      tmp_fr_mm_s = parser.linearval('F') > 0.0 ? MMM_TO_MMS(parser.value_feedrate()) : feedrate_mm_s;
+
+      #if ENABLED(HANGPRINTER)
+        if (parser.byteval('S') == 2) {
           LOOP_MOV_AXIS(i) line_lengths[i] = go[i];
           count_it = true;
         }
       #endif
+
       planner.buffer_segment(go[A_AXIS], go[B_AXIS], go[C_AXIS]
-                             #if ENABLED(HANGPRINTER)
-                               , go[D_AXIS]
-                             #endif
-                             , current_position[E_CART], tmp_fr_mm_s, active_extruder, 0.0, count_it);
+                              #if ENABLED(HANGPRINTER)
+                                , go[D_AXIS]
+                              #endif
+                              , current_position[E_CART], tmp_fr_mm_s, active_extruder, 0.0, count_it
+                            );
     }
   }
 #endif
-
 
 #if ENABLED(FWRETRACT)
 
@@ -4108,7 +4092,7 @@ inline void gcode_G4() {
     SERIAL_ECHOLNPGM("Warning: G28 is not implemented for Hangprinter.");
   }
 
-#endif// DELTA
+#endif
 
 #ifdef Z_AFTER_PROBING
   void move_z_after_probing() {
@@ -4287,10 +4271,11 @@ inline void gcode_G28(const bool always_home_all) {
     UNUSED(always_home_all);
 
   #elif ENABLED(HANGPRINTER)
+
     home_hangprinter();
     UNUSED(always_home_all);
-  #else
-    // NOT DELTA
+
+  #else // NOT Delta or Hangprinter
 
     const bool homeX = always_home_all || parser.seen('X'),
                homeY = always_home_all || parser.seen('Y'),
@@ -6517,13 +6502,11 @@ inline void gcode_G92() {
       const float l = parser.value_axis_units((AxisEnum)i),
                   v = i == E_CART ? l : LOGICAL_TO_NATIVE(l, i),
                   d = v - current_position[i];
-      if (
-          #if ENABLED(HANGPRINTER)
-            true // Hangprinter needs to update its line lengths regardless if current_position has changed or not
-          #else
-            !NEAR_ZERO(d)
-          #endif
-			  ) {
+      if (!NEAR_ZERO(d)
+        #if ENABLED(HANGPRINTER)
+          || true // Hangprinter needs to update its line lengths whether current_position changed or not
+        #endif
+      ) {
         #if IS_SCARA || !HAS_POSITION_SHIFT || ENABLED(HANGPRINTER)
           if (i == E_CART) didE = true; else didXYZ = true;
           current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
@@ -6655,19 +6638,23 @@ inline void gcode_G92() {
     #endif
   }
 
-  float ang_to_mm(float ang, const AxisEnum axis){
-    #if ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE)
-      float abs_step_in_origin = planner.k0[axis]*(sqrt(planner.k1[axis] + planner.k2[axis]*line_lengths_origin[axis]) - planner.sqrtk1[axis]);
-    #else
-      float abs_step_in_origin = line_lengths_origin[axis]*planner.axis_steps_per_mm[axis];
-    #endif
-    float c = abs_step_in_origin + ang*float(STEPS_PER_MOTOR_REVOLUTION)/360.0; // current step count
-    #if defined(LINE_BUILDUP_COMPENSATION_FEATURE)
-      // Inverse function found in planner.cpp, where target[AXIS_A] is calculated
-      return ((c/planner.k0[axis] + planner.sqrtk1[axis])*(c/planner.k0[axis] + planner.sqrtk1[axis]) - planner.k1[axis])/planner.k2[axis] - line_lengths_origin[axis];
-    #else
-      return c/planner.axis_steps_per_mm[axis] - line_lengths_origin[axis];
-    #endif
+  float ang_to_mm(float ang, const AxisEnum axis) {
+    const float abs_step_in_origin =
+      #if ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE)
+        planner.k0[axis] * (SQRT(planner.k1[axis] + planner.k2[axis] * line_lengths_origin[axis]) - planner.sqrtk1[axis])
+      #else
+        line_lengths_origin[axis] * planner.axis_steps_per_mm[axis]
+      #endif
+    ;
+    const float c = abs_step_in_origin + ang * float(STEPS_PER_MOTOR_REVOLUTION) / 360.0; // current step count
+    return
+      #if ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE)
+        // Inverse function found in planner.cpp, where target[AXIS_A] is calculated
+        ((c / planner.k0[axis] + planner.sqrtk1[axis]) * (c / planner.k0[axis] + planner.sqrtk1[axis]) - planner.k1[axis]) / planner.k2[axis] - line_lengths_origin[axis]
+      #else
+        c / planner.axis_steps_per_mm[axis] - line_lengths_origin[axis]
+      #endif
+    ;
   }
 
   void report_axis_position_from_encoder_data() {
@@ -6687,15 +6674,15 @@ inline void gcode_G92() {
         M114_S1_RECEIVE(A);
       #endif
       #if ENABLED(B_IS_MECHADUINO)
-        SERIAL_PROTOCOL(", ");
+        SERIAL_PROTOCOLPGM(", ");
         M114_S1_RECEIVE(B);
       #endif
       #if ENABLED(C_IS_MECHADUINO)
-        SERIAL_PROTOCOL(", ");
+        SERIAL_PROTOCOLPGM(", ");
         M114_S1_RECEIVE(C);
       #endif
       #if ENABLED(D_IS_MECHADUINO)
-        SERIAL_PROTOCOL(", ");
+        SERIAL_PROTOCOLPGM(", ");
         M114_S1_RECEIVE(D);
       #endif
     #else
@@ -6703,15 +6690,15 @@ inline void gcode_G92() {
         M114_S1_RECEIVE(X);
       #endif
       #if ENABLED(Y_IS_MECHADUINO)
-        SERIAL_PROTOCOL(", ");
+        SERIAL_PROTOCOLPGM(", ");
         M114_S1_RECEIVE(Y);
       #endif
       #if ENABLED(Z_IS_MECHADUINO)
-        SERIAL_PROTOCOL(", ");
+        SERIAL_PROTOCOLPGM(", ");
         M114_S1_RECEIVE(Z);
       #endif
     #endif
-    SERIAL_PROTOCOL("],");
+    SERIAL_CHAR(']');
     SERIAL_EOL();
   }
 
@@ -6722,10 +6709,8 @@ void report_xyz_from_stepper_position() {
   get_cartesian_from_steppers(); // writes to cartes[XYZ]
   SERIAL_CHAR('[');
   SERIAL_PROTOCOL(cartes[X_AXIS]);
-  SERIAL_PROTOCOLPGM(", ");
-  SERIAL_PROTOCOL(cartes[Y_AXIS]);
-  SERIAL_PROTOCOLPGM(", ");
-  SERIAL_PROTOCOL(cartes[Z_AXIS]);
+  SERIAL_PROTOCOLPAIR(", ", cartes[Y_AXIS]);
+  SERIAL_PROTOCOLPAIR(", ", cartes[Z_AXIS]);
   SERIAL_CHAR(']');
   SERIAL_EOL();
 }
@@ -9009,7 +8994,7 @@ inline void gcode_M92() {
       if (i == E_AXIS) {
         const float value = parser.value_per_axis_unit((AxisEnum)(E_AXIS + TARGET_EXTRUDER));
         if (value < 20) {
-          float factor = planner.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] / value; // increase e constants if M92 E14 is given for netfab.
+          const float factor = planner.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] / value; // increase e constants if M92 E14 is given for netfab.
           #if DISABLED(JUNCTION_DEVIATION)
             planner.max_jerk[E_AXIS] *= factor;
           #endif
@@ -9021,7 +9006,7 @@ inline void gcode_M92() {
       else {
         #if ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE)
           SERIAL_ECHOLNPGM("Warning: "
-                           "M92 A, B, C, and D affect only acceleration planning "
+                           "M92 A, B, C, and D only affect acceleration planning "
                            "when BUILDUP_COMPENSATION_FEATURE is enabled.");
         #endif
         planner.axis_steps_per_mm[i] = parser.value_per_axis_unit((AxisEnum)i);
@@ -9035,25 +9020,17 @@ inline void gcode_M92() {
  * Output the current position to serial
  */
 void report_current_position() {
-  SERIAL_PROTOCOLPGM("X:");
-  SERIAL_PROTOCOL(LOGICAL_X_POSITION(current_position[X_AXIS]));
-  SERIAL_PROTOCOLPGM(" Y:");
-  SERIAL_PROTOCOL(LOGICAL_Y_POSITION(current_position[Y_AXIS]));
-  SERIAL_PROTOCOLPGM(" Z:");
-  SERIAL_PROTOCOL(LOGICAL_Z_POSITION(current_position[Z_AXIS]));
-  SERIAL_PROTOCOLPGM(" E:");
-  SERIAL_PROTOCOL(current_position[E_CART]);
+  SERIAL_PROTOCOLPAIR("X:", LOGICAL_X_POSITION(current_position[X_AXIS]));
+  SERIAL_PROTOCOLPAIR(" Y:", LOGICAL_Y_POSITION(current_position[Y_AXIS]));
+  SERIAL_PROTOCOLPAIR(" Z:", LOGICAL_Z_POSITION(current_position[Z_AXIS]));
+  SERIAL_PROTOCOLPAIR(" E:", current_position[E_CART]);
+
   #if ENABLED(HANGPRINTER)
     SERIAL_EOL();
-    SERIAL_PROTOCOLPGM("A:");
-    SERIAL_PROTOCOL(line_lengths[A_AXIS]);
-    SERIAL_PROTOCOLPGM(" B:");
-    SERIAL_PROTOCOL(line_lengths[B_AXIS]);
-    SERIAL_PROTOCOLPGM(" C:");
-    SERIAL_PROTOCOL(line_lengths[C_AXIS]);
-    SERIAL_PROTOCOLPGM(" D:");
-    SERIAL_PROTOCOL(line_lengths[D_AXIS]);
-    SERIAL_EOL();
+    SERIAL_PROTOCOLPAIR("A:", line_lengths[A_AXIS]);
+    SERIAL_PROTOCOLPAIR(" B:", line_lengths[B_AXIS]);
+    SERIAL_PROTOCOLPAIR(" C:", line_lengths[C_AXIS]);
+    SERIAL_PROTOCOLLNPAIR(" D:", line_lengths[D_AXIS]);
   #endif
 
   stepper.report_positions();
@@ -9158,25 +9135,18 @@ void report_current_position() {
 inline void gcode_M114() {
 
   #ifdef M114_DETAIL
-    if (parser.seen('D')) {
-      report_current_position_detail();
-      return;
-    }
+    if (parser.seen('D')) return report_current_position_detail();
   #endif
 
   planner.synchronize();
 
+  const uint16_t sval = parser.ushortval('S');
+
   #if ENABLED(MECHADUINO_I2C_COMMANDS)
-    if (parser.ushortval('S') == 1) {
-      report_axis_position_from_encoder_data();
-      return;
-    }
+    if (sval == 1) return report_axis_position_from_encoder_data();
   #endif
 
-  if (parser.ushortval('S') == 2) {
-    report_xyz_from_stepper_position();
-    return;
-  }
+  if (sval == 2) return report_xyz_from_stepper_position();
 
   report_current_position();
 }
@@ -11450,6 +11420,9 @@ inline void gcode_M502() {
               #if AXIS_IS_TMC(E3) && EXTRUDERS > 3
                 case 3: TMC_SET_CURRENT(E3); break;
               #endif
+              #if AXIS_IS_TMC(E4) && EXTRUDERS > 4
+                case 4: TMC_SET_CURRENT(E4); break;
+              #endif
             #else
               #if AXIS_IS_TMC(E1)
                 case 1: TMC_SET_CURRENT(E1); break;
@@ -13053,7 +13026,7 @@ void process_parsed_command() {
       #endif
 
       #if ENABLED(DELTA) || ENABLED(HANGPRINTER)
-        case 665: gcode_M665(); break;                            // M665: Delta Configuration
+        case 665: gcode_M665(); break;                            // M665: Delta / Hangprinter Configuration
       #endif
       #if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
         case 666: gcode_M666(); break;                            // M666: DELTA/Dual Endstop Adjustment
@@ -13533,28 +13506,27 @@ void ok_to_send() {
       }
 
       // Assumes spools are mounted near D-anchor in ceiling
+      #define HYP3D(x,y,z) SQRT(sq(x) + sq(y) + sq(z))
       float line_on_spool_origin_tmp[MOV_AXIS];
-      #define HYP3D(x,y,z) SQRT(sq(x)+sq(y)+sq(z))
-      line_on_spool_origin_tmp[A_AXIS] = actn_pts_tmp[A_AXIS]*mnt_l_tmp[A_AXIS]
-                                         - actn_pts_tmp[A_AXIS]*HYPOT(anchor_A_y, anchor_D_z - anchor_A_z)
-                                         - nr_lines_dir_tmp[A_AXIS]*line_lengths_origin[A_AXIS];
-      line_on_spool_origin_tmp[B_AXIS] = actn_pts_tmp[B_AXIS]*mnt_l_tmp[B_AXIS]
-                                         - actn_pts_tmp[B_AXIS]*HYP3D(anchor_B_x, anchor_B_y, anchor_D_z - anchor_B_z)
-                                         - nr_lines_dir_tmp[B_AXIS]*line_lengths_origin[B_AXIS];
-      line_on_spool_origin_tmp[C_AXIS] = actn_pts_tmp[C_AXIS]*mnt_l_tmp[C_AXIS]
-                                         - actn_pts_tmp[C_AXIS]*HYP3D(anchor_C_x, anchor_C_y, anchor_D_z - anchor_C_z)
-                                         - nr_lines_dir_tmp[C_AXIS]*line_lengths_origin[C_AXIS];
-      line_on_spool_origin_tmp[D_AXIS] = actn_pts_tmp[D_AXIS]*mnt_l_tmp[D_AXIS]
-                                         - nr_lines_dir_tmp[D_AXIS]*line_lengths_origin[D_AXIS];
+      line_on_spool_origin_tmp[A_AXIS] = actn_pts_tmp[A_AXIS] * mnt_l_tmp[A_AXIS]
+                                         - actn_pts_tmp[A_AXIS] * HYPOT(anchor_A_y, anchor_D_z - anchor_A_z)
+                                         - nr_lines_dir_tmp[A_AXIS] * line_lengths_origin[A_AXIS];
+      line_on_spool_origin_tmp[B_AXIS] = actn_pts_tmp[B_AXIS] * mnt_l_tmp[B_AXIS]
+                                         - actn_pts_tmp[B_AXIS] * HYP3D(anchor_B_x, anchor_B_y, anchor_D_z - anchor_B_z)
+                                         - nr_lines_dir_tmp[B_AXIS] * line_lengths_origin[B_AXIS];
+      line_on_spool_origin_tmp[C_AXIS] = actn_pts_tmp[C_AXIS] * mnt_l_tmp[C_AXIS]
+                                         - actn_pts_tmp[C_AXIS] * HYP3D(anchor_C_x, anchor_C_y, anchor_D_z - anchor_C_z)
+                                         - nr_lines_dir_tmp[C_AXIS] * line_lengths_origin[C_AXIS];
+      line_on_spool_origin_tmp[D_AXIS] = actn_pts_tmp[D_AXIS] * mnt_l_tmp[D_AXIS]
+                                         - nr_lines_dir_tmp[D_AXIS] * line_lengths_origin[D_AXIS];
 
-      LOOP_MOV_AXIS(i){
-        planner.axis_steps_per_mm[i] =
-          steps_per_unit_times_r_tmp[i]/
-            sqrt(SPOOL_BUILDUP_FACTOR*line_on_spool_origin_tmp[i] + s_r2_tmp[i]);
-        planner.k1[i] = SPOOL_BUILDUP_FACTOR *
-          (line_on_spool_origin_tmp[i] + nr_lines_dir_tmp[i]*line_lengths_origin[i]) + s_r2_tmp[i];
+      LOOP_MOV_AXIS(i) {
+        planner.axis_steps_per_mm[i] = steps_per_unit_times_r_tmp[i] /
+            SQRT((SPOOL_BUILDUP_FACTOR) * line_on_spool_origin_tmp[i] + s_r2_tmp[i]);
+        planner.k1[i] = (SPOOL_BUILDUP_FACTOR) *
+          (line_on_spool_origin_tmp[i] + nr_lines_dir_tmp[i] * line_lengths_origin[i]) + s_r2_tmp[i];
 
-        planner.sqrtk1[i] = sqrt(planner.k1[i]);
+        planner.sqrtk1[i] = SQRT(planner.k1[i]);
       }
       planner.axis_steps_per_mm[E_AXIS] = DEFAULT_E_AXIS_STEPS_PER_UNIT;
 
@@ -13570,7 +13542,8 @@ void ok_to_send() {
     HANGPRINTER_IK(raw);
   }
 
-  /* Hangprinter forward kinematics
+  /**
+   * Hangprinter forward kinematics
    * Basic idea is to subtract squared line lengths to get linear equations.
    * Subtracting d*d from a*a, b*b, and c*c gives the cleanest derivation:
    *
@@ -13596,20 +13569,20 @@ void ok_to_send() {
    * Warning: truncation errors will typically be in the order of a few tens of microns.
    */
   void forward_kinematics_HANGPRINTER(float a, float b, float c, float d){
-    float Asq =                  sq(anchor_A_y) + sq(anchor_A_z),
-          Bsq = sq(anchor_B_x) + sq(anchor_B_y) + sq(anchor_B_z),
-          Csq = sq(anchor_C_x) + sq(anchor_C_y) + sq(anchor_C_z),
-          Dsq =                                   sq(anchor_D_z),
-          aa = a*a,
-          dd = d*d;
-    float k0b = (-b*b + Bsq - Dsq + dd)/(2.0*anchor_B_x) + (anchor_B_y/(2.0*anchor_A_y*anchor_B_x))*(Dsq - Asq + aa - dd),
-          k0c = (-c*c + Csq - Dsq + dd)/(2.0*anchor_C_x) + (anchor_C_y/(2.0*anchor_A_y*anchor_C_x))*(Dsq - Asq + aa - dd);
-    float k1b = (anchor_B_y*(anchor_A_z - anchor_D_z))/(anchor_A_y*anchor_B_x) + (anchor_D_z - anchor_B_z)/anchor_B_x,
-          k1c = (anchor_C_y*(anchor_A_z - anchor_D_z))/(anchor_A_y*anchor_C_x) + (anchor_D_z - anchor_C_z)/anchor_C_x;
+    const float Asq =                  sq(anchor_A_y) + sq(anchor_A_z),
+                Bsq = sq(anchor_B_x) + sq(anchor_B_y) + sq(anchor_B_z),
+                Csq = sq(anchor_C_x) + sq(anchor_C_y) + sq(anchor_C_z),
+                Dsq =                                   sq(anchor_D_z),
+                aa = sq(a),
+                dd = sq(d),
+                k0b = (-sq(b) + Bsq - Dsq + dd) / (2.0 * anchor_B_x) + (anchor_B_y / (2.0 * anchor_A_y * anchor_B_x)) * (Dsq - Asq + aa - dd),
+                k0c = (-sq(c) + Csq - Dsq + dd) / (2.0 * anchor_C_x) + (anchor_C_y / (2.0 * anchor_A_y * anchor_C_x)) * (Dsq - Asq + aa - dd),
+                k1b = (anchor_B_y * (anchor_A_z - anchor_D_z)) / (anchor_A_y * anchor_B_x) + (anchor_D_z - anchor_B_z) / anchor_B_x,
+                k1c = (anchor_C_y * (anchor_A_z - anchor_D_z)) / (anchor_A_y * anchor_C_x) + (anchor_D_z - anchor_C_z) / anchor_C_x;
 
-    cartes[Z_AXIS] = (k0b - k0c)/(k1c - k1b);
-    cartes[X_AXIS] = k0c + k1c*cartes[Z_AXIS];
-    cartes[Y_AXIS] = (Asq - Dsq - aa + dd)/(2.0*anchor_A_y) + ((anchor_D_z - anchor_A_z)/anchor_A_y)*cartes[Z_AXIS];
+    cartes[Z_AXIS] = (k0b - k0c) / (k1c - k1b);
+    cartes[X_AXIS] = k0c + k1c * cartes[Z_AXIS];
+    cartes[Y_AXIS] = (Asq - Dsq - aa + dd) / (2.0 * anchor_A_y) + ((anchor_D_z - anchor_A_z) / anchor_A_y) * cartes[Z_AXIS];
   }
 #endif // HANGPRINTER
 
@@ -13927,7 +13900,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       #if ENABLED(HANGPRINTER)
         && !zdiff
       #endif
-        ) {
+    ) {
       planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
       return false; // caller will update current_position
     }
@@ -14068,14 +14041,12 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         safe_delay(5);
         //*/
         oldA = delta[A_AXIS]; oldB = delta[B_AXIS]; oldC = delta[C_AXIS];
+      #elif ENABLED(HANGPRINTER)
+        if (!planner.buffer_line(line_lengths[A_AXIS], line_lengths[B_AXIS], line_lengths[C_AXIS], line_lengths[D_AXIS], raw[E_CART], _feedrate_mm_s, active_extruder, cartesian_segment_mm))
+          break;
       #else
-        #if ENABLED(HANGPRINTER)
-          if (!planner.buffer_line(line_lengths[A_AXIS], line_lengths[B_AXIS], line_lengths[C_AXIS], line_lengths[D_AXIS], raw[E_CART], _feedrate_mm_s, active_extruder, cartesian_segment_mm))
-            break;
-        #else
-          if (!planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_CART], _feedrate_mm_s, active_extruder, cartesian_segment_mm))
-            break;
-        #endif
+        if (!planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_CART], _feedrate_mm_s, active_extruder, cartesian_segment_mm))
+          break;
       #endif
     }
 
@@ -15290,6 +15261,7 @@ void setup() {
   #if ENABLED(USE_WATCHDOG)
     watchdog_init();
   #endif
+
   #if ENABLED(HANGPRINTER)
     enable_A();
     enable_B();

@@ -36,7 +36,7 @@ typedef void (*twiRequestFunc_t)();
 #if ENABLED(MECHADUINO_I2C_COMMANDS)
   typedef union {
     float fval;
-    byte bval[4];
+    byte bval[sizeof(float)];
   } i2cFloat;
 #endif
 

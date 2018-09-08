@@ -137,7 +137,7 @@ void cubic_b_spline(const float pos[XYZE], const float cart_target[XYZE], const 
     float new_pos0 = eval_bezier(pos[X_AXIS], first0, second0, cart_target[X_AXIS], new_t),
           new_pos1 = eval_bezier(pos[Y_AXIS], first1, second1, cart_target[Y_AXIS], new_t);
     for (;;) {
-    if (new_t - t < (MIN_STEP)) break;
+      if (new_t - t < (MIN_STEP)) break;
       const float candidate_t = 0.5f * (t + new_t),
                   candidate_pos0 = eval_bezier(pos[X_AXIS], first0, second0, cart_target[X_AXIS], candidate_t),
                   candidate_pos1 = eval_bezier(pos[Y_AXIS], first1, second1, cart_target[Y_AXIS], candidate_t),

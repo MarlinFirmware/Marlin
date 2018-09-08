@@ -1632,12 +1632,11 @@ uint32_t Stepper::stepper_block_phase_isr() {
       // Sync block? Sync the stepper counts and return
       while (TEST(current_block->flag, BLOCK_BIT_SYNC_POSITION)) {
         _set_position(
-          current_block->position[A_AXIS], current_block->position[B_AXIS],
-          current_block->position[C_AXIS]
+          current_block->position[A_AXIS], current_block->position[B_AXIS], current_block->position[C_AXIS],
           #if ENABLED(HANGPRINTER)
-            , current_block->position[D_AXIS]
+            current_block->position[D_AXIS],
           #endif
-          , current_block->position[E_AXIS]
+          current_block->position[E_AXIS]
         );
         planner.discard_current_block();
 
@@ -2112,6 +2111,49 @@ void Stepper::init() {
 }
 
 /**
+ * Set the stepper positions directly in steps
+ *
+ * The input is based on the typical per-axis XYZ steps.
+ * For CORE machines XYZ needs to be translated to ABC.
+ *
+ * This allows get_axis_position_mm to correctly
+ * derive the current XYZ position later on.
+ */
+void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c,
+    #if ENABLED(HANGPRINTER)
+      const int32_t &d,
+    #endif
+  const int32_t &e
+) {
+  #if CORE_IS_XY
+    // corexy positioning
+    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+    count_position[A_AXIS] = a + b;
+    count_position[B_AXIS] = CORESIGN(a - b);
+    count_position[Z_AXIS] = c;
+  #elif CORE_IS_XZ
+    // corexz planning
+    count_position[A_AXIS] = a + c;
+    count_position[Y_AXIS] = b;
+    count_position[C_AXIS] = CORESIGN(a - c);
+  #elif CORE_IS_YZ
+    // coreyz planning
+    count_position[X_AXIS] = a;
+    count_position[B_AXIS] = b + c;
+    count_position[C_AXIS] = CORESIGN(b - c);
+  #else
+    // default non-h-bot planning
+    count_position[X_AXIS] = a;
+    count_position[Y_AXIS] = b;
+    count_position[Z_AXIS] = c;
+    #if ENABLED(HANGPRINTER)
+      count_position[D_AXIS] = d;
+    #endif
+  #endif
+  count_position[E_AXIS] = e;
+}
+
+/**
  * Get a stepper's position in steps.
  */
 int32_t Stepper::position(const AxisEnum axis) {
@@ -2165,49 +2207,6 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
   return v;
 }
 
-/**
- * Set the stepper positions directly in steps
- *
- * The input is based on the typical per-axis XYZ steps.
- * For CORE machines XYZ needs to be translated to ABC.
- *
- * This allows get_axis_position_mm to correctly
- * derive the current XYZ position later on.
- */
-void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c
-    #if ENABLED(HANGPRINTER)
-      , const int32_t &d
-    #endif
-  , const int32_t &e
-) {
-  #if CORE_IS_XY
-    // corexy positioning
-    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-    count_position[A_AXIS] = a + b;
-    count_position[B_AXIS] = CORESIGN(a - b);
-    count_position[Z_AXIS] = c;
-  #elif CORE_IS_XZ
-    // corexz planning
-    count_position[A_AXIS] = a + c;
-    count_position[Y_AXIS] = b;
-    count_position[C_AXIS] = CORESIGN(a - c);
-  #elif CORE_IS_YZ
-    // coreyz planning
-    count_position[X_AXIS] = a;
-    count_position[B_AXIS] = b + c;
-    count_position[C_AXIS] = CORESIGN(b - c);
-  #else
-    // default non-h-bot planning
-    count_position[X_AXIS] = a;
-    count_position[Y_AXIS] = b;
-    count_position[Z_AXIS] = c;
-    #if ENABLED(HANGPRINTER)
-      count_position[D_AXIS] = d;
-    #endif
-  #endif
-  count_position[E_AXIS] = e;
-}
-
 void Stepper::report_positions() {
 
   // Protect the access to the position.
@@ -2245,8 +2244,7 @@ void Stepper::report_positions() {
   SERIAL_PROTOCOL(zpos);
 
   #if ENABLED(HANGPRINTER)
-    SERIAL_PROTOCOLPGM(" D:");
-    SERIAL_PROTOCOL(dpos);
+    SERIAL_PROTOCOLPAIR(" D:", dpos);
   #endif
 
   SERIAL_EOL();

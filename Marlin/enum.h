@@ -40,19 +40,13 @@ enum AxisEnum : unsigned char {
   Z_AXIS    = 2,
   C_AXIS    = 2,
   E_CART    = 3,
-  // Hangprinter order: A_AXIS, B_AXIS, C_AXIS, D_AXIS, E_AXIS
-  #if ENABLED(HANGPRINTER)
-    D_AXIS    = 3,
-    E_AXIS    = 4,
-    X_HEAD    = 5,
-    Y_HEAD    = 6,
-    Z_HEAD    = 7,
+  #if ENABLED(HANGPRINTER) // Hangprinter order: A_AXIS, B_AXIS, C_AXIS, D_AXIS, E_AXIS
+    D_AXIS  = 3,
+    E_AXIS  = 4,
   #else
-    E_AXIS    = 3,
-    X_HEAD    = 4,
-    Y_HEAD    = 5,
-    Z_HEAD    = 6,
+    E_AXIS  = 3,
   #endif
+  X_HEAD, Y_HEAD, Z_HEAD,
   ALL_AXES  = 0xFE,
   NO_AXIS   = 0xFF
 };

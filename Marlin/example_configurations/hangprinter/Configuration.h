@@ -528,12 +528,12 @@
   #define ANCHOR_C_Z   -12
   #define ANCHOR_D_Z  1234
 
-  // Comment this out if you plan to place your anchors at unconventional places
+  // Disable this if you plan to place your anchors at unconventional places
   // See SanityCheck.h for exact definition of the tested convention
-  // Warning: For this to work, you may not have decimal points in your ANCHOR_ABCD_XYZ definitions.
+  // Warning: For this to work, don't use decimal points in the ANCHOR_ABCD_XYZ definitions.
   #define CONVENTIONAL_GEOMETRY
 
-  /*
+  /**
    * Line buildup compensation feature
    * For documentation of theory behind, see:
    *   https://vitana.se/opr3d/tbear/2017.html#hangprinter_project_29
@@ -557,19 +557,23 @@
     // The point where line meets mover is called action point
     #define ACTION_POINTS { 2, 2, 2, 3 }
 
-    /* Naive buildup factor calculation (assumes cylindrical, straight line)
+    /**
+     * Naive buildup factor calculation (assumes cylindrical, straight line)
      * line diameter: 0.5 mm
      * spool height: 8.0 mm
      * (line_cross_section_area)/(height*pi): ((0.5/2)*(0.5/2)*pi)/(8.0*pi) = 0.0078 mm
      *
      * Default buildup factor for 0.50 mm FireLine: 0.0078
      * Default buildup factor for 0.39 mm FireLine: 0.00475
-     * In practice you might want to compensate a bit more or a bit less */
+     * In practice you might want to compensate a bit more or a bit less
+     */
     #define SPOOL_BUILDUP_FACTOR 0.0078
 
-    /* Total length of lines on each spool
+    /**
+     * Total length of lines on each spool
      * Default assumes all nine lines are cut to length 7500 mm.
-     * Change to whatever length you have cut your different lines to. */
+     * Change to whatever length you have cut your different lines to.
+     */
     #define MOUNTED_LINE { 7500.0, 7500.0, 7500.0, 4000.0 }
 
     // Measuring your spool radii and adjusting this number will improve your Hangprinter's precision
@@ -582,7 +586,7 @@
   #endif // LINE_BUILDUP_COMPENSATION_FEATURE
 #endif // HANGPRINTER
 
-// Activete G6: Direct Stepper Move
+// Activate G6: Direct Stepper Move
 // Super useful when Hangprinting
 #define UNREGISTERED_MOVE_SUPPORT
 

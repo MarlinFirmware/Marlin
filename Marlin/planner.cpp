@@ -1144,12 +1144,13 @@ void Planner::recalculate() {
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       block_t* block = &block_buffer[b];
-      #if ENABLED(HANGPRINTER)
-        if (block->steps[A_AXIS] || block->steps[B_AXIS] || block->steps[C_AXIS] || block->steps[D_AXIS])
-      #else
-        if (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
-      #endif
-      {
+      if (
+        #if ENABLED(HANGPRINTER)
+          block->steps[A_AXIS] || block->steps[B_AXIS] || block->steps[C_AXIS] || block->steps[D_AXIS]
+        #else
+          block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS]
+        #endif
+      ) {
         const float se = (float)block->steps[E_AXIS] / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
       }
@@ -1527,7 +1528,7 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     axis_steps = stepper.position(axis);
   #endif
   #if ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE)
-    if (axis != E_AXIS) return (sq(axis_steps / k0[axis] + sqrtk1[axis]) - k1[axis])/k2[axis];
+    if (axis != E_AXIS) return (sq(axis_steps / k0[axis] + sqrtk1[axis]) - k1[axis]) / k2[axis];
   #endif
   return axis_steps * steps_to_mm[axis];
 }
@@ -1977,9 +1978,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N];
 
   if (block->steps[A_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[B_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[C_AXIS] < MIN_STEPS_PER_SEGMENT
-      #if ENABLED(HANGPRINTER)
-        && block->steps[D_AXIS] < MIN_STEPS_PER_SEGMENT
-      #endif
+    #if ENABLED(HANGPRINTER)
+      && block->steps[D_AXIS] < MIN_STEPS_PER_SEGMENT
+    #endif
   ) {
     block->millimeters = ABS(delta_mm[E_AXIS]);
   }
@@ -2659,21 +2660,20 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c
   #if ENABLED(DISTINCT_E_FACTORS)
     last_extruder = active_extruder;
   #endif
-  const cm = axis_steps_per_mm[C_AXIS] * (c + (
-    #if !IS_KINEMATIC && ENABLED(AUTO_BED_LEVELING_UBL)
-      leveling_active ? ubl.get_z_correction(a, b) :
-    #endif
-    0
-  ));
   #if ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE)
-    position[A_AXIS] = LROUND(k0[A_AXIS] * (SQRT(k1[A_AXIS] + a  * k2[A_AXIS]) - sqrtk1[A_AXIS])),
-    position[B_AXIS] = LROUND(k0[B_AXIS] * (SQRT(k1[B_AXIS] + b  * k2[B_AXIS]) - sqrtk1[B_AXIS])),
-    position[C_AXIS] = LROUND(k0[C_AXIS] * (SQRT(k1[C_AXIS] + cm * k2[C_AXIS]) - sqrtk1[C_AXIS])),
-    position[D_AXIS] = LROUND(k0[D_AXIS] * (SQRT(k1[D_AXIS] + d  * k2[D_AXIS]) - sqrtk1[D_AXIS])),
+    position[A_AXIS] = LROUND(k0[A_AXIS] * (SQRT(k1[A_AXIS] + a * k2[A_AXIS]) - sqrtk1[A_AXIS])),
+    position[B_AXIS] = LROUND(k0[B_AXIS] * (SQRT(k1[B_AXIS] + b * k2[B_AXIS]) - sqrtk1[B_AXIS])),
+    position[C_AXIS] = LROUND(k0[C_AXIS] * (SQRT(k1[C_AXIS] + c * k2[C_AXIS]) - sqrtk1[C_AXIS])),
+    position[D_AXIS] = LROUND(k0[D_AXIS] * (SQRT(k1[D_AXIS] + d * k2[D_AXIS]) - sqrtk1[D_AXIS])),
   #else
     position[A_AXIS] = LROUND(a * axis_steps_per_mm[A_AXIS]);
     position[B_AXIS] = LROUND(b * axis_steps_per_mm[B_AXIS]);
-    position[C_AXIS] = LROUND(cm);
+    position[C_AXIS] = LROUND(axis_steps_per_mm[C_AXIS] * (c + (
+      #if !IS_KINEMATIC && ENABLED(AUTO_BED_LEVELING_UBL)
+        leveling_active ? ubl.get_z_correction(a, b) :
+      #endif
+      0)
+    ));
     #if ENABLED(HANGPRINTER)
       position[D_AXIS] = LROUND(d * axis_steps_per_mm[D_AXIS]),
     #endif
@@ -2698,7 +2698,8 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c
       #if ENABLED(HANGPRINTER)
         position[D_AXIS],
       #endif
-      position[E_AXIS]);
+      position[E_AXIS]
+    );
 }
 
 void Planner::set_position_mm_kinematic(const float (&cart)[XYZE]) {

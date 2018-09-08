@@ -1660,8 +1660,7 @@
 #endif
 
 // @section Mechaduino
-//
-//
+
 #if ENABLED(MECHADUINO_I2C_COMMANDS)
   #define EXPERIMENTAL_I2CBUS
   #define I2C_SLAVE_ADDRESS 0 // Do not act as a slave
@@ -1670,10 +1669,10 @@
     #define B_IS_MECHADUINO
     #define C_IS_MECHADUINO
     #define D_IS_MECHADUINO
-    #define A_MOTOR_I2C_ADDR 0x0a
-    #define B_MOTOR_I2C_ADDR 0x0b
-    #define C_MOTOR_I2C_ADDR 0x0c
-    #define D_MOTOR_I2C_ADDR 0x0d
+    #define A_MOTOR_I2C_ADDR 0x0A
+    #define B_MOTOR_I2C_ADDR 0x0B
+    #define C_MOTOR_I2C_ADDR 0x0C
+    #define D_MOTOR_I2C_ADDR 0x0D
     #define A_INVERT_REPORTED_ANGLE false // Angle reports from Mechaduino encoder sent via i2c are used by
     #define B_INVERT_REPORTED_ANGLE false // M114 S1
     #define C_INVERT_REPORTED_ANGLE false // which is used in Hangprinter auto anchor localization
@@ -1682,15 +1681,15 @@
     #define X_IS_MECHADUINO
     #define Y_IS_MECHADUINO
     #define Z_IS_MECHADUINO
-    #define X_MOTOR_I2C_ADDR 0x0a
-    #define Y_MOTOR_I2C_ADDR 0x0b
-    #define Z_MOTOR_I2C_ADDR 0x0c
+    #define X_MOTOR_I2C_ADDR 0x0A
+    #define Y_MOTOR_I2C_ADDR 0x0B
+    #define Z_MOTOR_I2C_ADDR 0x0C
     #define X_INVERT_REPORTED_ANGLE false
     #define Y_INVERT_REPORTED_ANGLE false
     #define Z_INVERT_REPORTED_ANGLE false
   #endif
   //#define E_IS_MECHADUINO
-  //#define E_MOTOR_I2C_ADDR 0x0e
+  //#define E_MOTOR_I2C_ADDR 0x0E
   //#define E_INVERT_REPORTED_ANGLE false
 #endif
 
@@ -1698,6 +1697,7 @@
   // 1/16 microstepping on 200 step/rev motor gives 16*200=3200 microsteps/rev
   #define STEPS_PER_MOTOR_REVOLUTION 3200
 #endif
+
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
 

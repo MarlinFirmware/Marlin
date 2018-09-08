@@ -163,6 +163,7 @@ typedef struct SettingsDataStruct {
   // DELTA / [XYZ]_DUAL_ENDSTOPS
   //
   #if ENABLED(DELTA)
+
     float delta_height,                                 // M666 H
           delta_endstop_adj[ABC],                       // M666 XYZ
           delta_radius,                                 // M665 R
@@ -170,7 +171,9 @@ typedef struct SettingsDataStruct {
           delta_segments_per_second,                    // M665 S
           delta_calibration_radius,                     // M665 B
           delta_tower_angle_trim[ABC];                  // M665 XYZ
+
   #elif ENABLED(HANGPRINTER)
+
     float anchor_A_y,                                   // M665 W
           anchor_A_z,                                   // M665 E
           anchor_B_x,                                   // M665 R
@@ -180,12 +183,15 @@ typedef struct SettingsDataStruct {
           anchor_C_y,                                   // M665 I
           anchor_C_z,                                   // M665 O
           anchor_D_z,                                   // M665 P
-          delta_segments_per_second;                    // M665 S
-    float hangprinter_calibration_radius_placeholder;
+          delta_segments_per_second,                    // M665 S
+          hangprinter_calibration_radius_placeholder;
+
   #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+
     float x_endstop_adj,                                // M666 X
           y_endstop_adj,                                // M666 Y
           z_endstop_adj;                                // M666 Z
+
   #endif
 
   //
@@ -581,6 +587,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
 
     #elif ENABLED(HANGPRINTER)
+
       dummy = 0.0f;
       _FIELD_TEST(anchor_A_y);
       EEPROM_WRITE(anchor_A_y);                // 1 float
@@ -1842,6 +1849,7 @@ void MarlinSettings::reset() {
     COPY(delta_tower_angle_trim, dta);
 
   #elif ENABLED(HANGPRINTER)
+
     anchor_A_y = float(ANCHOR_A_Y);
     anchor_A_z = float(ANCHOR_A_Z);
     anchor_B_x = float(ANCHOR_B_X);
@@ -2192,7 +2200,7 @@ void MarlinSettings::reset() {
 
     if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOPGM("Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>");
+      SERIAL_ECHOPGM("Advanced: Q<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>");
       #if ENABLED(JUNCTION_DEVIATION)
         SERIAL_ECHOPGM(" J<junc_dev>");
       #else
