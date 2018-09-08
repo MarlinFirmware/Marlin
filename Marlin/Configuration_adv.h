@@ -1617,7 +1617,7 @@
 #if ENABLED(CUSTOM_USER_MENUS)
   //#define USER_SCRIPT_DONE "M117 User Script Done"
   //#define USER_SCRIPT_AUDIBLE_FEEDBACK
-  //#define USER_SCRIPT_RETURN  // Return to status screen after a script
+  #define USER_SCRIPT_RETURN  // Return to status screen after a script
 
   #define USER_DESC_1 "Préchauffage PLA"
   #define USER_GCODE_1 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
