@@ -254,7 +254,7 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K;                     // M900 K    planner.extruder_advance_K
+  float planner_extruder_advance_K[EXTRUDERS];                     // M900 K    planner.extruder_advance_K
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -871,14 +871,18 @@ void MarlinSettings::postprocess() {
     //
     // Linear Advance
     //
-
-    _FIELD_TEST(planner_extruder_advance_K);
-
+    LOOP_L_N(i,EXTRUDERS) {
+      _FIELD_TEST(planner_extruder_advance_K[i]);
+    }
     #if ENABLED(LIN_ADVANCE)
-      EEPROM_WRITE(planner.extruder_advance_K);
+    LOOP_L_N(i,EXTRUDERS) {
+      EEPROM_WRITE(planner.extruder_advance_K[i]);
+    }
     #else
+      LOOP_L_N(i,EXTRUDERS) {
       dummy = 0;
       EEPROM_WRITE(dummy);
+      }
     #endif
 
     _FIELD_TEST(motor_current_setting);
@@ -1471,13 +1475,18 @@ void MarlinSettings::postprocess() {
       //
       // Linear Advance
       //
-
-      _FIELD_TEST(planner_extruder_advance_K);
+      LOOP_L_N(i,EXTRUDERS) {
+        _FIELD_TEST(planner_extruder_advance_K[i]);
+      }
 
       #if ENABLED(LIN_ADVANCE)
-        EEPROM_READ(planner.extruder_advance_K);
+      LOOP_L_N(i,EXTRUDERS) {
+        EEPROM_READ(planner.extruder_advance_K[i]);
+      }
       #else
+      LOOP_L_N(i,EXTRUDERS) {
         EEPROM_READ(dummy);
+        }
       #endif
 
       //
@@ -1957,7 +1966,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   reset_stepper_drivers();
 
   #if ENABLED(LIN_ADVANCE)
-    planner.extruder_advance_K = LIN_ADVANCE_K;
+  LOOP_L_N(i,EXTRUDERS){planner.extruder_advance_K[i] = LIN_ADVANCE_K;}
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
@@ -2721,7 +2730,12 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOLNPGM_P(port, "Linear Advance:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR_P(port, "  M900 K", planner.extruder_advance_K);
+      LOOP_L_N(i,EXTRUDERS){
+        SERIAL_ECHOPGM_P(port,"M900 T");
+        SERIAL_ECHO(i);
+        SERIAL_ECHOLNPAIR_P(port, " K", planner.extruder_advance_K[i]);
+      }
+
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM
