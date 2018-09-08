@@ -207,6 +207,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   // Cancel the active G29 session
   #if ENABLED(PROBE_MANUALLY)
+    extern bool g29_in_progress;
     g29_in_progress = false;
   #endif
 
@@ -397,7 +398,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  #if ENABLED(RESTORE_LEVELING_AFTER_G28)
+  #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G28)
     set_bed_leveling_enabled(leveling_was_active);
   #endif
 
