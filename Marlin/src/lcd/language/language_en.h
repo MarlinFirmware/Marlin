@@ -188,7 +188,7 @@
   #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
 #endif
 #ifndef MSG_USER_MENU
-  #define MSG_USER_MENU                       _UxGT("Custom Commands")
+  #define MSG_USER_MENU                       _UxGT("Custom User Commands")
 #endif
 #ifndef MSG_UBL_DOING_G29
   #define MSG_UBL_DOING_G29                   _UxGT("Doing G29")
@@ -201,6 +201,18 @@
 #endif
 #ifndef MSG_UBL_LEVEL_BED
   #define MSG_UBL_LEVEL_BED                   _UxGT("Unified Bed Leveling")
+#endif
+#ifndef MSG_IDEX_MENU
+  #define MSG_IDEX_MENU                       _UxGT("IDEX Mode")
+#endif
+#ifndef MSG_IDEX_MODE_AUTOPARK
+  #define MSG_IDEX_MODE_AUTOPARK              _UxGT("Auto-Park")
+#endif
+#ifndef MSG_IDEX_MODE_DUPLICATE
+  #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplication")
+#endif
+#ifndef MSG_IDEX_MODE_FULL_CTRL
+  #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Full control")
 #endif
 #ifndef MSG_UBL_MANUAL_MESH
   #define MSG_UBL_MANUAL_MESH                 _UxGT("Manually Build Mesh")

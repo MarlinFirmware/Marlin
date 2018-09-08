@@ -3,11 +3,9 @@
 # exit on first failure
 set -e
 
-env_backup
-
+restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
-update_defaults
-
+cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
 #
 # Test Teensy3.5 with default config
 #
@@ -94,4 +92,5 @@ opt_add_adv Z2_MAX_PIN 2
 opt_enable USE_XMAX_PLUG
 exec_test $1 $2 "Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS"
 
-env_restore
+#cleanup
+restore_configs

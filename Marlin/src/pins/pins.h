@@ -132,8 +132,10 @@
   #include "pins_AZTEEG_X3_PRO.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(ULTIMAIN_2)
   #include "pins_ULTIMAIN_2.h"        // ATmega2560                                 env:megaatmega2560
-#elif MB(FORMBOT)
-  #include "pins_FORMBOT.h"           // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_TREX2)
+  #include "pins_FORMBOT_TREX2.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_TREX3)
+  #include "pins_FORMBOT_TREX3.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RUMBA)
   #include "pins_RUMBA.h"             // ATmega2560                                 env:megaatmega2560
 #elif MB(BQ_ZUM_MEGA_3D)
@@ -623,6 +625,10 @@
 
 #ifndef MAX_EXTRUDERS
   #define MAX_EXTRUDERS 5
+#endif
+
+#ifndef MAX_SERVOS
+  #define MAX_SERVOS 4
 #endif
 
 //

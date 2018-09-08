@@ -3,11 +3,8 @@
 # exit on first failure
 set -e
 
-env_backup
-
+restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
-update_defaults
-
 exec_test $1 $2 "Build Re-ARM Default Configuration"
 
 restore_configs
@@ -63,4 +60,5 @@ opt_enable FAN_SOFT_PWM SDSUPPORT
 opt_enable USE_XMAX_PLUG
 exec_test $1 $2 "MKS SBASE Many less common options"
 
-env_restore
+#clean up
+restore_configs

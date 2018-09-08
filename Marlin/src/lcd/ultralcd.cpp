@@ -488,6 +488,10 @@ uint16_t max_display_update_time = 0;
     #define manual_move_e_index 0
   #endif
 
+  #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+    float manual_move_e_origin = 0;
+  #endif
+
   #if IS_KINEMATIC
     bool processing_manual_move = false;
     float manual_move_offset = 0;
@@ -1041,6 +1045,23 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // HAS_DEBUG_MENU
 
+   /**
+    * IDEX submenu
+    */
+  #if ENABLED(DUAL_X_CARRIAGE)
+    static void IDEX_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MAIN);
+      MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK, PSTR("M605 S1\nG28 X\nG1 X100"));
+      if (!TEST(axis_known_position, Y_AXIS) || !TEST(axis_known_position, Z_AXIS))
+        MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, PSTR("T0\nG28\nM605 S2 X200\nG28 X\nG1 X100"));  // If Y or Z is not homed, a full G28 is done first.
+      else
+        MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, PSTR("T0\nM605 S2 X200\nG28 X\nG1 X100"));       // If Y and Z is homed, a full G28 is not needed first.
+      MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
+      END_MENU();
+    }
+  #endif // DUAL_X_CARRIAGE
+
   #if ENABLED(CUSTOM_USER_MENUS)
 
     #ifdef USER_SCRIPT_DONE
@@ -1116,6 +1137,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     #if ENABLED(CUSTOM_USER_MENUS)
       MENU_ITEM(submenu, MSG_USER_MENU, _lcd_user_menu);
+    #endif
+
+    #if ENABLED(DUAL_X_CARRIAGE)
+      MENU_ITEM(submenu, MSG_IDEX_MENU, IDEX_menu);
     #endif
 
     //
@@ -3271,6 +3296,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #if IS_KINEMATIC
           + manual_move_offset
         #endif
+        #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+          - manual_move_e_origin
+        #endif
       ));
     }
   }
@@ -3319,7 +3347,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
         case Z_AXIS:
           STATIC_ITEM(MSG_MOVE_Z, true, true); break;
         default:
-          STATIC_ITEM(MSG_MOVE_E, true, true); break;
+          #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+            manual_move_e_origin = current_position[E_AXIS];
+          #endif
+          STATIC_ITEM(MSG_MOVE_E, true, true);
+          break;
       }
     }
     MENU_BACK(MSG_MOVE_AXIS);

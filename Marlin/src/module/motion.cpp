@@ -650,7 +650,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         // For SCARA scale the feed rate from mm/s to degrees/s
         // i.e., Complete the angular vector in the given time.
-        if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder))
+        if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder, segment_length))
           break;
         /*
         SERIAL_ECHO(segments);
@@ -663,7 +663,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
       #elif ENABLED(DELTA_FEEDRATE_SCALING)
         // For DELTA scale the feed rate from Effector mm/s to Carriage mm/s
         // i.e., Complete the linear vector in the given time.
-        if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], SQRT(sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC)) * inverse_secs, active_extruder))
+        if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], SQRT(sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC)) * inverse_secs, active_extruder, segment_length))
           break;
         /*
         SERIAL_ECHO(segments);
@@ -688,7 +688,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       const float diff2 = HYPOT2(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB);
       if (diff2) {
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder, segment_length);
         /*
         SERIAL_ECHOPAIR("final: A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]);
         SERIAL_ECHOPAIR(" adiff=", delta[A_AXIS] - oldA); SERIAL_ECHOPAIR(" bdiff=", delta[B_AXIS] - oldB);
@@ -700,7 +700,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     #elif ENABLED(DELTA_FEEDRATE_SCALING)
       const float diff2 = sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC);
       if (diff2) {
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
+        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder, segment_length);
         /*
         SERIAL_ECHOPAIR("final: A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]); SERIAL_ECHOPAIR(" C=", delta[C_AXIS]);
         SERIAL_ECHOPAIR(" adiff=", delta[A_AXIS] - oldA); SERIAL_ECHOPAIR(" bdiff=", delta[B_AXIS] - oldB); SERIAL_ECHOPAIR(" cdiff=", delta[C_AXIS] - oldC);
@@ -834,7 +834,8 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 #endif // !UBL_SEGMENTED
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  bool extruder_duplication_enabled = false;                              // Used in Dual X mode 2
+  bool extruder_duplication_enabled = false,                              // Used in Dual X mode 2 & 3
+       symmetric_duplication_mode   = false;                              // Used in Dual X mode 2 & 3
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
@@ -883,15 +884,20 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             }
           }
           // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
-          for (uint8_t i = 0; i < 3; i++)
-            if (!planner.buffer_line(
-              i == 0 ? raised_parked_position[X_AXIS] : current_position[X_AXIS],
-              i == 0 ? raised_parked_position[Y_AXIS] : current_position[Y_AXIS],
-              i == 2 ? current_position[Z_AXIS] : raised_parked_position[Z_AXIS],
-              current_position[E_AXIS],
-              i == 1 ? PLANNER_XY_FEEDRATE() : planner.max_feedrate_mm_s[Z_AXIS],
-              active_extruder)
-            ) break;
+
+            #define CUR_X    current_position[X_AXIS]
+            #define CUR_Y    current_position[Y_AXIS]
+            #define CUR_Z    current_position[Z_AXIS]
+            #define CUR_E    current_position[E_AXIS]
+            #define RAISED_X raised_parked_position[X_AXIS]
+            #define RAISED_Y raised_parked_position[Y_AXIS]
+            #define RAISED_Z raised_parked_position[Z_AXIS]
+
+            //SERIAL_ECHOLNPGM("dual_x_carriage_unpark()\n");
+
+            if (  planner.buffer_line(RAISED_X, RAISED_Y, RAISED_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder))
+              if (planner.buffer_line(   CUR_X,    CUR_Y, RAISED_Z, CUR_E, PLANNER_XY_FEEDRATE(),             active_extruder))
+                  planner.buffer_line(   CUR_X,    CUR_Y,    CUR_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
           delayed_move_time = 0;
           active_extruder_parked = false;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -975,7 +981,12 @@ void prepare_move_to_destination() {
 
   if (
     #if UBL_SEGMENTED
-      ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
+//    ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))   // This does not seem to work correctly on UBL.
+      #if ENABLED(DELTA)                                                      // A Delta case and a Cartesian case can work
+        ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s)) // around the problem until it is fixed.
+      #else
+        prepare_move_to_destination_cartesian()
+      #endif
     #elif IS_KINEMATIC
       prepare_kinematic_move_to(destination)
     #else

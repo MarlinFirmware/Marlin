@@ -558,6 +558,11 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #endif
 #endif
 
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  constexpr float npp[] = NOZZLE_PARK_POINT;
+  static_assert(COUNT(npp) == XYZ, "NOZZLE_PARK_POINT requires X, Y, and Z values.");
+#endif
+
 /**
  * Individual axis homing is useless for DELTAS
  */
@@ -707,6 +712,37 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * Switching Toolhead requirements
+ */
+#if ENABLED(SWITCHING_TOOLHEAD)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #error "SWITCHING_TOOLHEAD and DUAL_X_CARRIAGE are incompatible."
+  #elif ENABLED(SINGLENOZZLE)
+    #error "SWITCHING_TOOLHEAD and SINGLENOZZLE are incompatible."
+  #elif ENABLED(PARKING_EXTRUDER)
+    #error "SWITCHING_TOOLHEAD and PARKING_EXTRUDER are incompatible."
+  #elif !defined(SWITCHING_TOOLHEAD_SERVO_NR)
+    #error "SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_SERVO_NR."
+  #elif EXTRUDERS < 2
+    #error "SWITCHING_TOOLHEAD requires at least 2 EXTRUDERS."
+  #elif NUM_SERVOS < (SWITCHING_TOOLHEAD_SERVO_NR - 1)
+    #if SWITCHING_TOOLHEAD_SERVO_NR == 0
+      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 0 requires NUM_SERVOS >= 1."
+    #elif SWITCHING_TOOLHEAD_SERVO_NR == 1
+      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 1 requires NUM_SERVOS >= 2."
+    #elif SWITCHING_TOOLHEAD_SERVO_NR == 2
+      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 2 requires NUM_SERVOS >= 3."
+    #elif SWITCHING_TOOLHEAD_SERVO_NR == 3
+      #error "A SWITCHING_TOOLHEAD_SERVO_NR of 3 requires NUM_SERVOS >= 4."
+    #endif
+  #elif !defined(SWITCHING_TOOLHEAD_SECURITY_RAISE)
+    #error "SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_SECURITY_RAISE."
+  #elif SWITCHING_TOOLHEAD_SECURITY_RAISE < 0
+    #error "SWITCHING_TOOLHEAD _SECURITY_RAISE must be 0 or higher."
+  #endif
+#endif
+
+/**
  * Part-Cooling Fan Multiplexer requirements
  */
 #if PIN_EXISTS(FANMUX1)
@@ -720,15 +756,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * Limited number of servos
  */
-#if NUM_SERVOS > 4
-  #error "The maximum number of SERVOS in Marlin is 4."
+#if NUM_SERVOS > MAX_SERVOS
+  #error "The selected board doesn't support enough servos for your configuration. Reduce NUM_SERVOS."
 #endif
 
 /**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_PROBE && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR)
-  #error "Z_PROBE_SERVO_NR, switching nozzle, or switching extruder is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_PROBE && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR)
+  #error "Z_PROBE_SERVO_NR, switching nozzle, switching toolhead or switching extruder is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**

@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
-#
-# start_tests
-#
-# Run one or more tests
-#
-
 export PATH="$PATH:$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )"
 export PATH="$PATH:./buildroot/bin"
 
 # exit on first failure
 set -e
 
-exec_test() {
+exec_test () {
   printf "\033[0;32m[Test $2] \033[0m$3... "
   if build_marlin_pio $1 "-e $2"; then
     printf "\033[0;32mPassed\033[0m\n"
@@ -23,6 +17,9 @@ exec_test() {
   fi
 }
 export -f exec_test
+
+env_backup
+printf "Running \033[0;32m$2\033[0m Tests\n"
 
 if [[ $3 = "--deep-clean" ]]; then
   echo "Deleting all PlatformIO caches, downloads and installed packages..."
@@ -39,9 +36,8 @@ if [[ $2 = "ALL" ]]; then
     $f $1 $testenv
   done
 else
-  printf "Running \033[0;32m$2\033[0m Tests\n"
   exec_test $1 "$2 --target clean" "Setup Build Environment"
   $2_tests $1 $2
 fi
-
 printf "\033[0;32mAll tests completed successfully\033[0m\n"
+env_restore

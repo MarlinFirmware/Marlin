@@ -777,25 +777,25 @@ void GcodeSuite::G26() {
         if (xi == 0) {                             // left edge
           sx = f ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
           ex = b ? circle_x + INTERSECTION_CIRCLE_RADIUS : circle_x;
-          sy = f ? circle_y : circle_y - INTERSECTION_CIRCLE_RADIUS;
+          sy = f ? circle_y : circle_y - (INTERSECTION_CIRCLE_RADIUS);
           ey = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (r) {                             // right edge
-          sx = b ? circle_x - INTERSECTION_CIRCLE_RADIUS : circle_x;
-          ex = f ? circle_x - INTERSECTION_CIRCLE_RADIUS : circle_x;
+          sx = b ? circle_x - (INTERSECTION_CIRCLE_RADIUS) : circle_x;
+          ex = f ? circle_x - (INTERSECTION_CIRCLE_RADIUS) : circle_x;
           sy = b ? circle_y : circle_y + INTERSECTION_CIRCLE_RADIUS;
-          ey = f ? circle_y : circle_y - INTERSECTION_CIRCLE_RADIUS;
+          ey = f ? circle_y : circle_y - (INTERSECTION_CIRCLE_RADIUS);
           arc_length = (f || b) ? ARC_LENGTH(1) : ARC_LENGTH(2);
         }
         else if (f) {
           sx = circle_x + INTERSECTION_CIRCLE_RADIUS;
-          ex = circle_x - INTERSECTION_CIRCLE_RADIUS;
+          ex = circle_x - (INTERSECTION_CIRCLE_RADIUS);
           sy = ey = circle_y;
           arc_length = ARC_LENGTH(2);
         }
         else if (b) {
-          sx = circle_x - INTERSECTION_CIRCLE_RADIUS;
+          sx = circle_x - (INTERSECTION_CIRCLE_RADIUS);
           ex = circle_x + INTERSECTION_CIRCLE_RADIUS;
           sy = ey = circle_y;
           arc_length = ARC_LENGTH(2);
