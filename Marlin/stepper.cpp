@@ -271,56 +271,19 @@ int8_t Stepper::count_direction[NUM_AXIS] = {
  * Place D connector on your first "free" extruder output.
  */
 #if ENABLED(HANGPRINTER)
-  #define A_ENABLE_PIN      X_ENABLE_PIN
-  #define A_DIR_PIN         X_DIR_PIN
-  #define A_STEP_PIN        X_STEP_PIN
-  #define A_MS1_PIN         X_MS1_PIN
   #define A_APPLY_DIR(v,Q)  X_APPLY_DIR(v,Q)
   #define A_APPLY_STEP(v,Q) X_APPLY_STEP(v,Q)
 
-  #define B_ENABLE_PIN      Y_ENABLE_PIN
-  #define B_DIR_PIN         Y_DIR_PIN
-  #define B_STEP_PIN        Y_STEP_PIN
-  #define B_MS1_PIN         Y_MS1_PIN
   #define B_APPLY_DIR(v,Q)  Y_APPLY_DIR(v,Q)
   #define B_APPLY_STEP(v,Q) Y_APPLY_STEP(v,Q)
 
-  #define C_ENABLE_PIN      Z_ENABLE_PIN
-  #define C_DIR_PIN         Z_DIR_PIN
-  #define C_STEP_PIN        Z_STEP_PIN
-  #define C_MS1_PIN         Z_MS1_PIN
   #define C_APPLY_DIR(v,Q)  Z_APPLY_DIR(v,Q)
   #define C_APPLY_STEP(v,Q) Z_APPLY_STEP(v,Q)
 
-  #if EXTRUDERS < 2
-    #define D_ENABLE_PIN      E1_ENABLE_PIN
-    #define D_DIR_PIN         E1_DIR_PIN
-    #define D_STEP_PIN        E1_STEP_PIN
-    #define D_MS1_PIN         E1_MS1_PIN
-    #define D_APPLY_DIR(v,Q)  E1_DIR_WRITE(v)
-    #define D_APPLY_STEP(v,Q) E1_STEP_WRITE(v)
-  #elif EXTRUDERS == 2
-    #define D_ENABLE_PIN      E2_ENABLE_PIN
-    #define D_DIR_PIN         E2_DIR_PIN
-    #define D_STEP_PIN        E2_STEP_PIN
-    #define D_MS1_PIN         E2_MS1_PIN
-    #define D_APPLY_DIR(v,Q)  E2_DIR_WRITE(v)
-    #define D_APPLY_STEP(v,Q) E2_STEP_WRITE(v)
-  #elif EXTRUDERS == 3
-    #define D_ENABLE_PIN      E3_ENABLE_PIN
-    #define D_DIR_PIN         E3_DIR_PIN
-    #define D_STEP_PIN        E3_STEP_PIN
-    #define D_MS1_PIN         E3_MS1_PIN
-    #define D_APPLY_DIR(v,Q)  E3_DIR_WRITE(v)
-    #define D_APPLY_STEP(v,Q) E3_STEP_WRITE(v)
-  #elif EXTRUDERS == 4
-    #define D_ENABLE_PIN      E4_ENABLE_PIN
-    #define D_DIR_PIN         E4_DIR_PIN
-    #define D_STEP_PIN        E4_STEP_PIN
-    #define D_MS1_PIN         E4_MS1_PIN
-    #define D_APPLY_DIR(v,Q)  E4_DIR_WRITE(v)
-    #define D_APPLY_STEP(v,Q) E4_STEP_WRITE(v)
-  #endif // EXTRUDERS
+  #define __D_APPLY(I,T,v) E##I##_##T##_WRITE(v)
+  #define _D_APPLY(I,T,v) __D_APPLY(I,T,v)
+  #define D_APPLY_DIR(v,Q)  _D_APPLY(EXTRUDERS, DIR, v)
+  #define D_APPLY_STEP(v,Q) _D_APPLY(EXTRUDERS, STEP, v)
 #endif
 
 #if DISABLED(MIXING_EXTRUDER)

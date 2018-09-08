@@ -60,18 +60,10 @@ extern const char axis_codes[XYZE];
 
 #if HAS_X2_ENABLE
   #define  enable_X() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
-  #if ENABLED(HANGPRINTER)
-    #define disable_X() NOOP
-  #else
-    #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
-  #endif
+  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
 #elif HAS_X_ENABLE
   #define  enable_X() X_ENABLE_WRITE( X_ENABLE_ON)
-  #if ENABLED(HANGPRINTER)
-    #define disable_X() NOOP
-  #else
-    #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
-  #endif
+  #define disable_X() do{ X_ENABLE_WRITE(!X_ENABLE_ON); CBI(axis_known_position, X_AXIS); }while(0)
 #else
   #define  enable_X() NOOP
   #define disable_X() NOOP
@@ -79,18 +71,10 @@ extern const char axis_codes[XYZE];
 
 #if HAS_Y2_ENABLE
   #define  enable_Y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
-  #if ENABLED(HANGPRINTER)
-    #define disable_Y() NOOP
-  #else
-    #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
-  #endif
+  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
 #elif HAS_Y_ENABLE
   #define  enable_Y() Y_ENABLE_WRITE( Y_ENABLE_ON)
-  #if ENABLED(HANGPRINTER)
-    #define disable_Y() NOOP
-  #else
-    #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
-  #endif
+  #define disable_Y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); CBI(axis_known_position, Y_AXIS); }while(0)
 #else
   #define  enable_Y() NOOP
   #define disable_Y() NOOP
@@ -98,18 +82,10 @@ extern const char axis_codes[XYZE];
 
 #if HAS_Z2_ENABLE
   #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
-  #if ENABLED(HANGPRINTER)
-    #define disable_Z() NOOP
-  #else
-    #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
-  #endif
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
 #elif HAS_Z_ENABLE
   #define  enable_Z() Z_ENABLE_WRITE( Z_ENABLE_ON)
-  #if ENABLED(HANGPRINTER)
-    #define disable_Z() NOOP
-  #else
-    #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
-  #endif
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
 #else
   #define  enable_Z() NOOP
   #define disable_Z() NOOP
@@ -191,18 +167,18 @@ extern const char axis_codes[XYZE];
   #define enable_A() enable_X()
   #define enable_B() enable_Y()
   #define enable_C() enable_Z()
+  #define __D_ENABLE(p) E##p##_ENABLE_WRITE(E_ENABLE_ON)
+  #define _D_ENABLE(p) __D_ENABLE(p)
+  #define enable_D() _D_ENABLE(EXTRUDERS)
 
-  #if EXTRUDERS == 1
-    #define enable_D() E1_ENABLE_WRITE(E_ENABLE_ON)
-  #elif EXTRUDERS == 2
-    #define enable_D() E2_ENABLE_WRITE(E_ENABLE_ON)
-  #elif EXTRUDERS == 3
-    #define enable_D() E3_ENABLE_WRITE(E_ENABLE_ON)
-  #elif EXTRUDERS == 4
-    #define enable_D() E4_ENABLE_WRITE(E_ENABLE_ON)
-  #endif
+  // Don't allow any axes to be disabled
+  #undef disable_X
+  #undef disable_Y
+  #undef disable_Z
+  #define disable_X() NOOP
+  #define disable_Y() NOOP
+  #define disable_Z() NOOP
 
-  // Don't allow D Axis to be disabled
   #if EXTRUDERS >= 1
     #undef disable_E1
     #define disable_E1() NOOP
