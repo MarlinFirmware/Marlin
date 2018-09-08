@@ -721,6 +721,10 @@ private:
     static void M605();
   #endif
 
+  #if ENABLED(BUCKET_FEATURE)
+    static void M606();
+  #endif
+  
   #if IS_KINEMATIC
     static void M665();
   #endif
