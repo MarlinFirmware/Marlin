@@ -40,6 +40,8 @@
 #include "sd/cardreader.h"
 #include "module/configuration_store.h"
 #include "module/printcounter.h" // PrintCounter or Stopwatch
+#include "feature/closedloop.h"
+
 #ifdef ARDUINO
   #include <pins_arduino.h>
 #endif
@@ -902,6 +904,10 @@ void setup() {
 
   #if ENABLED(USE_WATCHDOG) // Reinit watchdog after HAL_get_reset_source call
     watchdog_init();
+  #endif
+
+  #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
+    init_closedloop();
   #endif
 }
 
