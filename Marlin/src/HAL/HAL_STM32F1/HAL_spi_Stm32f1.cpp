@@ -81,8 +81,8 @@ void spiBegin() {
   #if !PIN_EXISTS(SS)
     #error "SS_PIN not defined!"
   #endif
-  WRITE(SS_PIN, HIGH);
   SET_OUTPUT(SS_PIN);
+  WRITE(SS_PIN, HIGH);
 }
 
 /**
@@ -104,7 +104,7 @@ void spiInit(uint8_t spiRate) {
     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
     default:                clock = SPI_CLOCK_DIV2; // Default from the SPI library
   }
-  spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
+  spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE3);
   SPI.begin();
 }
 

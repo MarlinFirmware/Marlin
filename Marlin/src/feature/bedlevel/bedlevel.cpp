@@ -77,6 +77,8 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
   if (can_change && enable != planner.leveling_active) {
 
+    planner.synchronize();
+
     #if ENABLED(MESH_BED_LEVELING)
 
       if (!enable)

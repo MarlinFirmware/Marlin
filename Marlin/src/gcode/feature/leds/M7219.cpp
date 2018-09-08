@@ -32,7 +32,7 @@
  *
  *  I         - Initialize (clear) the matrix
  *  F         - Fill the matrix (set all bits)
- *  P         - Dump the LEDs[] array values
+ *  P         - Dump the led_line[] array values
  *  C<column> - Set a column to the 8-bit value V
  *  R<row>    - Set a row to the 8-bit value V
  *  X<pos>    - X position of an LED to set or toggle
@@ -43,40 +43,46 @@
  */
 void GcodeSuite::M7219() {
   if (parser.seen('I')) {
-    Max7219_Clear();
-    Max7219_register_setup();
+    max7219.register_setup();
+    max7219.clear();
   }
 
-  if (parser.seen('F'))
-    for (uint8_t x = 0; x < MAX7219_X_LEDS; x++)
-      Max7219_Set_Column(x, 0xFFFFFFFF);
+  if (parser.seen('F')) max7219.fill();
+
+  const uint32_t v = parser.ulongval('V');
 
   if (parser.seenval('R')) {
-    const uint32_t r = parser.value_int();
-    Max7219_Set_Row(r, parser.ulongval('V'));
-    return;
+    const uint8_t r = parser.value_byte();
+    max7219.set_row(r, v);
   }
   else if (parser.seenval('C')) {
-    const uint32_t c = parser.value_int();
-    Max7219_Set_Column(c, parser.ulongval('V'));
-    return;
+    const uint8_t c = parser.value_byte();
+    max7219.set_column(c, v);
   }
-
-  if (parser.seenval('X') || parser.seenval('Y')) {
+  else if (parser.seenval('X') || parser.seenval('Y')) {
     const uint8_t x = parser.byteval('X'), y = parser.byteval('Y');
     if (parser.seenval('V'))
-      Max7219_LED_Set(x, y, parser.boolval('V'));
+      max7219.led_set(x, y, parser.boolval('V'));
     else
-      Max7219_LED_Toggle(x, y);
+      max7219.led_toggle(x, y);
+  }
+  else if (parser.seen('D')) {
+    const uint8_t line = parser.byteval('D') + (parser.byteval('U') << 3);
+    if (line < MAX7219_LINES) {
+      max7219.led_line[line] = v;
+      return max7219.refresh_line(line);
+    }
   }
 
   if (parser.seen('P')) {
-    for (uint8_t x = 0; x < COUNT(LEDs); x++) {
-      SERIAL_ECHOPAIR("LEDs[", x);
-      SERIAL_ECHOPAIR("]=", LEDs[x]);
+    for (uint8_t r = 0; r < MAX7219_LINES; r++) {
+      SERIAL_ECHOPGM("led_line[");
+      if (r < 10) SERIAL_CHAR(' ');
+      SERIAL_ECHO(int(r));
+      SERIAL_ECHO("]=");
+      for (uint8_t b = 8; b--;) SERIAL_CHAR('0' + TEST(max7219.led_line[r], b));
       SERIAL_EOL();
     }
-    return;
   }
 }
 

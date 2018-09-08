@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V55"
+#define EEPROM_VERSION "V56"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -68,6 +68,10 @@
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
+#endif
+
+#if HAS_SERVOS
+  #include "servo.h"
 #endif
 
 #if HAS_BED_PROBE
@@ -126,7 +130,7 @@ typedef struct SettingsDataStruct {
 
   float home_offset[XYZ];                               // M206 XYZ
 
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     float hotend_offset[XYZ][HOTENDS - 1];              // M218 XYZ
   #endif
 
@@ -173,6 +177,11 @@ typedef struct SettingsDataStruct {
   //
   bool planner_leveling_active;                         // M420 S  planner.leveling_active
   int8_t ubl_storage_slot;                              // ubl.storage_slot
+
+  //
+  // SERVO_ANGLES
+  //
+  uint16_t servo_angles[MAX_SERVOS][2];                 // M281 P L U
 
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -433,7 +442,7 @@ void MarlinSettings::postprocess() {
     #endif
     EEPROM_WRITE(home_offset);
 
-    #if HOTENDS > 1
+    #if HAS_HOTEND_OFFSET
       // Skip hotend 0 which must be 0
       for (uint8_t e = 1; e < HOTENDS; e++)
         LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
@@ -531,6 +540,26 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ubl_active);
       EEPROM_WRITE(storage_slot);
     #endif // AUTO_BED_LEVELING_UBL
+
+    #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
+      #if ENABLED(SWITCHING_EXTRUDER)
+        constexpr uint16_t sesa[][2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+      #endif
+      constexpr uint16_t servo_angles[MAX_SERVOS][2] = {
+        #if ENABLED(SWITCHING_EXTRUDER)
+          [SWITCHING_EXTRUDER_SERVO_NR] = { sesa[0], sesa[1] }
+          #if EXTRUDERS > 3
+            , [SWITCHING_EXTRUDER_E23_SERVO_NR] = { sesa[2], sesa[3] }
+          #endif
+        #elif ENABLED(SWITCHING_NOZZLE)
+          [SWITCHING_NOZZLE_SERVO_NR] = SWITCHING_NOZZLE_SERVO_ANGLES
+        #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
+          [Z_PROBE_SERVO_NR] = Z_SERVO_ANGLES
+        #endif
+      };
+    #endif
+
+    EEPROM_WRITE(servo_angles);
 
     // 11 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
@@ -1038,7 +1067,7 @@ void MarlinSettings::postprocess() {
       // Hotend Offsets, if any
       //
 
-      #if HOTENDS > 1
+      #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; e++)
           LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
@@ -1134,6 +1163,14 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(dummyb);
         EEPROM_READ(dummyui8);
       #endif // AUTO_BED_LEVELING_UBL
+
+      //
+      // SERVO_ANGLES
+      //
+      #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
+        uint16_t servo_angles[MAX_SERVOS][2];
+      #endif
+      EEPROM_READ(servo_angles);
 
       //
       // DELTA Geometry or Dual Endstops offsets
@@ -1749,16 +1786,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     ZERO(home_offset);
   #endif
 
-  #if HOTENDS > 1
-    constexpr float tmp4[XYZ][HOTENDS] = {
-      HOTEND_OFFSET_X,
-      HOTEND_OFFSET_Y
-      #ifdef HOTEND_OFFSET_Z
-        , HOTEND_OFFSET_Z
-      #else
-        , { 0 }
-      #endif
-    };
+  #if HAS_HOTEND_OFFSET
+    constexpr float tmp4[XYZ][HOTENDS] = { HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z };
     static_assert(
       tmp4[X_AXIS][0] == 0 && tmp4[Y_AXIS][0] == 0 && tmp4[Z_AXIS][0] == 0,
       "Offsets for the first hotend must be 0.0."
@@ -1781,6 +1810,44 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #if HAS_BED_PROBE
     zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
   #endif
+
+  //
+  // Servo Angles
+  //
+
+  #if HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES)
+
+    #if ENABLED(SWITCHING_EXTRUDER)
+
+      #if EXTRUDERS > 3
+        #define REQ_ANGLES 4
+      #else
+        #define REQ_ANGLES 2
+      #endif
+      constexpr uint16_t extruder_angles[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+      static_assert(COUNT(extruder_angles) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
+      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][0] = extruder_angles[0];
+      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][1] = extruder_angles[1];
+      #if EXTRUDERS > 3
+        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][0] = extruder_angles[2];
+        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][1] = extruder_angles[3];
+      #endif
+
+    #elif ENABLED(SWITCHING_NOZZLE)
+
+      constexpr uint16_t nozzle_angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+      servo_angles[SWITCHING_NOZZLE_SERVO_NR][0] = nozzle_angles[0];
+      servo_angles[SWITCHING_NOZZLE_SERVO_NR][1] = nozzle_angles[1];
+
+    #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
+
+      constexpr uint16_t z_probe_angles[2] = Z_SERVO_ANGLES;
+      servo_angles[Z_PROBE_SERVO_NR][0] = z_probe_angles[0];
+      servo_angles[Z_PROBE_SERVO_NR][1] = z_probe_angles[1];
+
+    #endif
+
+  #endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
 
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ,
@@ -2163,7 +2230,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPAIR_P(port, " Z", LINEAR_UNIT(home_offset[Z_AXIS]));
     #endif
 
-    #if HOTENDS > 1
+    #if HAS_HOTEND_OFFSET
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM_P(port, "Hotend offsets:");
@@ -2173,9 +2240,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOPAIR_P(port, "  M218 T", (int)e);
         SERIAL_ECHOPAIR_P(port, " X", LINEAR_UNIT(hotend_offset[X_AXIS][e]));
         SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e]));
-        #if HAS_HOTEND_OFFSET_Z
-          SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]));
-        #endif
+        SERIAL_ECHO_P(port, " Z");
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(hotend_offset[Z_AXIS][e]), 3);
         SERIAL_EOL_P(port);
       }
     #endif
@@ -2261,6 +2327,35 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif
 
     #endif // HAS_LEVELING
+
+    #if HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES)
+
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM_P(port, "Servo Angles:");
+      }
+      for (uint8_t i = 0; i < NUM_SERVOS; i++) {
+        switch (i) {
+          #if ENABLED(SWITCHING_EXTRUDER)
+            case SWITCHING_EXTRUDER_SERVO_NR:
+            #if EXTRUDERS > 3
+              case SWITCHING_EXTRUDER_E23_SERVO_NR:
+            #endif
+          #elif ENABLED(SWITCHING_NOZZLE)
+            case SWITCHING_NOZZLE_SERVO_NR:
+          #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
+            case Z_PROBE_SERVO_NR:
+          #endif
+            CONFIG_ECHO_START;
+            SERIAL_ECHOPAIR_P(port, "  M281 P", int(i));
+            SERIAL_ECHOPAIR_P(port, " L", servo_angles[i][0]);
+            SERIAL_ECHOPAIR_P(port, " U", servo_angles[i][1]);
+            SERIAL_EOL_P(port);
+          default: break;
+        }
+      }
+
+    #endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
 
     #if ENABLED(DELTA)
 

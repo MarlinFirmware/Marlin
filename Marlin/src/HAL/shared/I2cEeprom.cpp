@@ -75,10 +75,10 @@
 static uint8_t eeprom_device_address = 0x50;
 
 static void eeprom_init(void) {
-  static bool eeprom_initialised = false;
-  if (!eeprom_initialised) {
+  static bool eeprom_initialized = false;
+  if (!eeprom_initialized) {
     Wire.begin();
-    eeprom_initialised = true;
+    eeprom_initialized = true;
   }
 }
 

@@ -1,22 +1,18 @@
 #!/usr/bin/env bash
 
-if [ ! -z "$1" ]; then
-    cd $1
-fi
+[ -z "$1" ] || cd $1
 
 if [ -d ".test" ]; then
-  cp .test/Configuration.h Marlin/Configuration.h
-  cp .test/Configuration_adv.h Marlin/Configuration_adv.h
-  rm .test/Configuration.h
-  rm .test/Configuration_adv.h
+  cp .test/Configuration*.h Marlin/
+  rm .test/Configuration*.h
 
   if [ -f .test/_Bootscreen.h ]; then
-    cp .test/_Bootscreen.h Marlin/_Bootscreen.h
+    cp .test/_Bootscreen.h Marlin/
     rm .test/_Bootscreen.h
   fi
 
   if [ -f .test/_Statusscreen.h ]; then
-    cp .test/_Statusscreen.h Marlin/_Statusscreen.h
+    cp .test/_Statusscreen.h Marlin/
     rm .test/_Statusscreen.h
   fi
 

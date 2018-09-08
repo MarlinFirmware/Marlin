@@ -132,6 +132,10 @@
   #include "pins_AZTEEG_X3_PRO.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(ULTIMAIN_2)
   #include "pins_ULTIMAIN_2.h"        // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_TREX2)
+  #include "pins_FORMBOT_TREX2.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_TREX3)
+  #include "pins_FORMBOT_TREX3.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RUMBA)
   #include "pins_RUMBA.h"             // ATmega2560                                 env:megaatmega2560
 #elif MB(BQ_ZUM_MEGA_3D)
@@ -275,31 +279,33 @@
 //
 
 #elif MB(RAMPS_14_RE_ARM_EFB)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_EEB)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_EFF)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_EEF)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(RAMPS_14_RE_ARM_SF)
-  #include "pins_RAMPS_RE_ARM.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_RAMPS_RE_ARM.h"      // LPC1768                                    env:LPC1768
 #elif MB(MKS_SBASE)
-  #include "pins_MKS_SBASE.h"         // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_MKS_SBASE.h"         // LPC1768                                    env:LPC1768
 #elif MB(AZSMZ_MINI)
-  #include "pins_AZSMZ_MINI.h"        // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_AZSMZ_MINI.h"        // LPC1768                                    env:LPC1768
 #elif MB(AZTEEG_X5_GT)
-  #include "pins_AZTEEG_X5_GT.h"      // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_AZTEEG_X5_GT.h"      // LPC1769                                    env:LPC1768
+#elif MB(AZTEEG_X5_MINI_WIFI)
+  #include "pins_AZTEEG_X5_MINI_WIFI.h" // LPC1769                                  env:LPC1768
 #elif MB(BIQU_BQ111_A4)
-  #include "pins_BIQU_BQ111_A4.h"     // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_BIQU_BQ111_A4.h"     // LPC1768                                    env:LPC1768
 #elif MB(SELENA_COMPACT)
-  #include "pins_SELENA_COMPACT.h"    // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_SELENA_COMPACT.h"    // LPC1768                                    env:LPC1768
 #elif MB(COHESION3D_REMIX)
-  #include "pins_COHESION3D_REMIX.h"  // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_COHESION3D_REMIX.h"  // LPC1769                                    env:LPC1768
 #elif MB(COHESION3D_MINI)
-  #include "pins_COHESION3D_MINI.h"   // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_COHESION3D_MINI.h"   // LPC1769                                    env:LPC1768
 #elif MB(SMOOTHIEBOARD)
-  #include "pins_SMOOTHIEBOARD.h"     // LPC176x                                    env:LPC1768 env:LPC1768_debug_and_upload
+  #include "pins_SMOOTHIEBOARD.h"     // LPC1769                                    env:LPC1768
 
 //
 // Other 32-bit Boards
@@ -370,11 +376,15 @@
   #include "pins_CHITU3D.h"           // STM32F1                                    env:STM32F1
 #elif MB(GTM32_PRO_VB)
   #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1
+#elif MB(MORPHEUS)
+  #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
 
 //
 // STM32 ARM Cortex-M4F
 //
 
+#elif MB(TEENSY31_32)
+  #include "pins_TEENSY31_32.h"       // TEENSY31_32                                env:teensy31
 #elif MB(TEENSY35_36)
   #include "pins_TEENSY35_36.h"       // TEENSY35_36                                env:teensy35
 #elif MB(BEAST)
@@ -615,6 +625,10 @@
 
 #ifndef MAX_EXTRUDERS
   #define MAX_EXTRUDERS 5
+#endif
+
+#ifndef MAX_SERVOS
+  #define MAX_SERVOS 4
 #endif
 
 //

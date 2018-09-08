@@ -102,7 +102,7 @@ void recalc_delta_settings() {
   }while(0)
 
 void inverse_kinematics(const float raw[XYZ]) {
-  #if HOTENDS > 1
+  #if HAS_HOTEND_OFFSET
     // Delta hotend offsets must be applied in Cartesian space with no "spoofing"
     const float pos[XYZ] = {
       raw[X_AXIS] - hotend_offset[X_AXIS][active_extruder],

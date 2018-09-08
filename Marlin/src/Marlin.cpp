@@ -535,7 +535,7 @@ void idle(
   #endif
 ) {
   #if ENABLED(MAX7219_DEBUG)
-    Max7219_idle_tasks();
+    max7219.idle_tasks();
   #endif
 
   lcd_update();
@@ -672,7 +672,7 @@ void setup() {
   #endif
 
   #if ENABLED(MAX7219_DEBUG)
-    Max7219_init();
+    max7219.init();
   #endif
 
   #if ENABLED(DISABLE_JTAG)

@@ -262,37 +262,38 @@ void safe_delay(millis_t ms) {
   #include "../feature/bedlevel/bedlevel.h"
 
   void log_machine_info() {
-    SERIAL_ECHOPGM("Machine Type: ");
-    #if ENABLED(DELTA)
-      SERIAL_ECHOLNPGM("Delta");
-    #elif IS_SCARA
-      SERIAL_ECHOLNPGM("SCARA");
-    #elif IS_CORE
-      SERIAL_ECHOLNPGM("Core");
-    #else
-      SERIAL_ECHOLNPGM("Cartesian");
-    #endif
+    SERIAL_ECHOLNPGM("Machine Type: "
+      #if ENABLED(DELTA)
+        "Delta"
+      #elif IS_SCARA
+        "SCARA"
+      #elif IS_CORE
+        "Core"
+      #else
+        "Cartesian"
+      #endif
+    );
 
-    SERIAL_ECHOPGM("Probe: ");
-    #if ENABLED(PROBE_MANUALLY)
-      SERIAL_ECHOLNPGM("PROBE_MANUALLY");
-    #elif ENABLED(FIX_MOUNTED_PROBE)
-      SERIAL_ECHOLNPGM("FIX_MOUNTED_PROBE");
-    #elif ENABLED(BLTOUCH)
-      SERIAL_ECHOLNPGM("BLTOUCH");
-    #elif HAS_Z_SERVO_PROBE
-      SERIAL_ECHOLNPGM("SERVO PROBE");
-    #elif ENABLED(Z_PROBE_SLED)
-      SERIAL_ECHOLNPGM("Z_PROBE_SLED");
-    #elif ENABLED(Z_PROBE_ALLEN_KEY)
-      SERIAL_ECHOLNPGM("Z_PROBE_ALLEN_KEY");
-    #else
-      SERIAL_ECHOLNPGM("NONE");
-    #endif
+    SERIAL_ECHOLNPGM("Probe: "
+      #if ENABLED(PROBE_MANUALLY)
+        "PROBE_MANUALLY"
+      #elif ENABLED(FIX_MOUNTED_PROBE)
+        "FIX_MOUNTED_PROBE"
+      #elif ENABLED(BLTOUCH)
+        "BLTOUCH"
+      #elif HAS_Z_SERVO_PROBE
+        "SERVO PROBE"
+      #elif ENABLED(Z_PROBE_SLED)
+        "Z_PROBE_SLED"
+      #elif ENABLED(Z_PROBE_ALLEN_KEY)
+        "Z_PROBE_ALLEN_KEY"
+      #else
+        "NONE"
+      #endif
+    );
 
     #if HAS_BED_PROBE
-      SERIAL_ECHOPAIR("Probe Offset X:", X_PROBE_OFFSET_FROM_EXTRUDER);
-      SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
+      SERIAL_ECHOPGM("Probe Offset X:" STRINGIFY(X_PROBE_OFFSET_FROM_EXTRUDER) " Y:" STRINGIFY(Y_PROBE_OFFSET_FROM_EXTRUDER));
       SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
       #if X_PROBE_OFFSET_FROM_EXTRUDER > 0
         SERIAL_ECHOPGM(" (Right");
@@ -328,16 +329,17 @@ void safe_delay(millis_t ms) {
     #endif
 
     #if HAS_ABL
-      SERIAL_ECHOPGM("Auto Bed Leveling: ");
-      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-        SERIAL_ECHOPGM("LINEAR");
-      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        SERIAL_ECHOPGM("BILINEAR");
-      #elif ENABLED(AUTO_BED_LEVELING_3POINT)
-        SERIAL_ECHOPGM("3POINT");
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        SERIAL_ECHOPGM("UBL");
-      #endif
+      SERIAL_ECHOLNPGM("Auto Bed Leveling: "
+        #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+          "LINEAR"
+        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          "BILINEAR"
+        #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+          "3POINT"
+        #elif ENABLED(AUTO_BED_LEVELING_UBL)
+          "UBL"
+        #endif
+      );
       if (planner.leveling_active) {
         SERIAL_ECHOLNPGM(" (enabled)");
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)

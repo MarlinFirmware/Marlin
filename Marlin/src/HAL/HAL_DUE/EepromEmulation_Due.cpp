@@ -310,9 +310,9 @@ static bool ee_PageErase(uint16_t page) {
 
   #ifdef EE_EMU_DEBUG
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR("EEPROM PageErase  ",page);
-    SERIAL_ECHOLNPAIR(" in FLASH address ",(uint32_t)addrflash);
-    SERIAL_ECHOLNPAIR(" base address     ",(uint32_t)getFlashStorage(0));
+    SERIAL_ECHOLNPAIR("EEPROM PageErase  ", page);
+    SERIAL_ECHOLNPAIR(" in FLASH address ", (uint32_t)addrflash);
+    SERIAL_ECHOLNPAIR(" base address     ", (uint32_t)getFlashStorage(0));
     SERIAL_FLUSH();
   #endif
 

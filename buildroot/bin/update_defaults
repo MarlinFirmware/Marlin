@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
 
-cp Marlin/Configuration.h     Marlin/src/config/default/Configuration.h
-cp Marlin/Configuration_adv.h Marlin/src/config/default/Configuration_adv.h
+cp Marlin/Configuration*.h Marlin/src/config/default

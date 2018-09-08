@@ -66,14 +66,16 @@
  *                   With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY and detach.
  */
 
-#ifndef SERVO_H
-#define SERVO_H
+#pragma once
 
-#if IS_32BIT_TEENSY
-  #include "../HAL_TEENSY35_36/HAL_Servo_Teensy.h" // Teensy HAL uses an inherited library
-
+#if IS_TEENSY32
+  #include "../HAL_TEENSY31_32/HAL_Servo_Teensy.h"
+#elif IS_TEENSY35 || IS_TEENSY36
+  #include "../HAL_TEENSY35_36/HAL_Servo_Teensy.h"
 #elif defined(TARGET_LPC1768)
   #include "../HAL_LPC1768/LPC1768_Servo.h"
+#elif defined(STM32F1) || defined(STM32F1xx)
+  #include "../HAL_STM32F1/HAL_Servo_STM32F1.h"
 #elif defined(STM32F4) || defined(STM32F4xx)
   #include "../HAL_STM32F4/HAL_Servo_STM32F4.h"
 #else
@@ -109,5 +111,3 @@
   };
 
 #endif
-
-#endif // SERVO_H

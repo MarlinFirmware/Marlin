@@ -49,7 +49,7 @@ extern "C" {
   #include "lpc17xx_iap.h"
 }
 
-#define SECTOR_START(sector)	((sector < 16) ? (sector * 0x1000) : ((sector - 14) * 0x8000))
+#define SECTOR_START(sector)  ((sector < 16) ? (sector * 0x1000) : ((sector - 14) * 0x8000))
 #define EEPROM_SECTOR 29
 #define EEPROM_SIZE (4096)
 #define SECTOR_SIZE (32768)

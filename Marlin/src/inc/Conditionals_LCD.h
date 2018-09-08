@@ -423,11 +423,10 @@
   #if DISABLED(SWITCHING_NOZZLE)
     #define HOTENDS       E_STEPPERS
   #endif
-  #define E_MANUAL        EXTRUDERS
 #elif ENABLED(MIXING_EXTRUDER)
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
-#else
+#elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
 #endif
@@ -454,9 +453,19 @@
   #define HOTENDS EXTRUDERS
 #endif
 
+#ifndef E_STEPPERS
+  #define E_STEPPERS EXTRUDERS
+#endif
+
+#ifndef E_MANUAL
+  #define E_MANUAL EXTRUDERS
+#endif
+
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 
 #define DO_SWITCH_EXTRUDER (ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR))
+
+#define HAS_HOTEND_OFFSET (HOTENDS > 1)
 
 /**
  * DISTINCT_E_FACTORS affects how some E factors are accessed

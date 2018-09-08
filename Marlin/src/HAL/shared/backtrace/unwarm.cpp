@@ -51,7 +51,7 @@ void UnwInvalidateRegisterFile(RegData *regFile) {
 
 
 /**
- * Initialise the data used for unwinding.
+ * Initialize the data used for unwinding.
  */
 void UnwInitState(UnwState * const state,     /**< Pointer to structure to fill. */
                   const UnwindCallbacks *cb,  /**< Callbacks. */
