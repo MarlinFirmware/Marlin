@@ -75,6 +75,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("As verplaatsen")
 #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #define MSG_LEVEL_BED                       _UxGT("Level bed")
+
 #define MSG_MOVING                          _UxGT("Verplaatsen...")
 #define MSG_FREE_XY                         _UxGT("Vrij XY")
 #define MSG_MOVE_X                          _UxGT("Verplaats X")
