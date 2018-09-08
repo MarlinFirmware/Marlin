@@ -148,4 +148,9 @@ void HAL_timer_isr_prologue(const uint8_t timer_num) {
   }
 }
 
+bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
+  const uint32_t IRQ_Id = uint32_t(timerConfig[timer_num].IRQ_Id);
+  return NVIC->ISER[IRQ_Id >> 5] & _BV32(IRQ_Id & 0x1F);
+}
+
 #endif // STM32F7
