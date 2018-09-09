@@ -20,8 +20,18 @@
  *
  */
 
-// Anycubic Probe version 1 or 2
-#define ANYCUBIC_PROBE_VERSION 1
+/**
+ * Choose your version: 
+ */
+// normal size or plus?
+//#define ANCYUBIC_KOSSEL_PLUS 
+// Anycubic Probe version 1 or 2 see README.md; 0 for no probe
+#define ANYCUBIC_PROBE_VERSION 0
+// Heated Bed: 
+// 0 ... no heated bed
+// 1 ... aluminium heated bed with "BuildTak-like" sticker
+// 2 ... ultrabase heated bed
+#define ANYCUBIC_KOSSEL_ENABLE_BED 0
 
 /**
  * Configuration.h
@@ -319,7 +329,13 @@
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
-#define TEMP_SENSOR_BED 5
+
+#if ANYCUBIC_KOSSEL_ENABLE_BED > 0
+   #define TEMP_SENSOR_BED 5
+#else
+  #define TEMP_SENSOR_BED 0
+#endif
+
 #define TEMP_SENSOR_CHAMBER 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
@@ -337,7 +353,7 @@
 #define TEMP_WINDOW     1       // (degC) Window around target to start the residency timer x degC early.
 
 // Bed temperature must be close to target for this long before M190 returns success
-#define TEMP_BED_RESIDENCY_TIME 0   // (seconds)
+#define TEMP_BED_RESIDENCY_TIME 10  // (seconds)
 #define TEMP_BED_HYSTERESIS 3       // (degC) range of +/- temperatures considered "close" to the target one
 #define TEMP_BED_WINDOW     1       // (degC) Window around target to start the residency timer x degC early.
 
@@ -422,8 +438,9 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
-#define PIDTEMPBED
-
+#if ANYCUBIC_KOSSEL_ENABLE_BED > 0
+  #define PIDTEMPBED
+#endif
 //#define BED_LIMIT_SWITCHING
 
 /**
@@ -439,9 +456,16 @@
   // Anycubic Kossel
   // this is for the aluminium bed with a BuildTak-like sticker on it
   // from pid autotune. "M303 E-1 C8 S60" to run autotune on the bed at 60 degreesC for 8 cycles
-  #define DEFAULT_bedKp 374.03
-  #define DEFAULT_bedKi 72.47
-  #define DEFAULT_bedKd 482.59
+  #if ANYCUBIC_KOSSEL_ENABLE_BED == 1
+    #define DEFAULT_bedKp 374.03
+    #define DEFAULT_bedKi 72.47
+    #define DEFAULT_bedKd 482.59
+  #elif ANYCUBIC_KOSSEL_ENABLE_BED == 2
+    // TODO get real PID values for Ultrabase Bed
+    #define DEFAULT_bedKp 374.03
+    #define DEFAULT_bedKi 72.47
+    #define DEFAULT_bedKd 482.59
+  #endif
 
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
@@ -496,7 +520,9 @@
  */
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
-#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
+#if ANYCUBIC_KOSSEL_ENABLE_BED > 0
+  #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
+#endif
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -524,10 +550,10 @@
   // Make delta curves from many straight lines (linear interpolation).
   // This is a trade-off between visible corners (not enough segments)
   // and processor overload (too many expensive sqrt calls).
-  #define DELTA_SEGMENTS_PER_SECOND 200
+  #define DELTA_SEGMENTS_PER_SECOND 80
 
   // Convert feedrates to apply to the Effector instead of the Carriages
-  #define DELTA_FEEDRATE_SCALING
+  //#define DELTA_FEEDRATE_SCALING
 
   // After homing move down to a height where XY movement is unconstrained
   #define DELTA_HOME_TO_SAFE_ZONE
@@ -538,7 +564,9 @@
   #define DELTA_CALIBRATION_MENU
 
   // uncomment to add G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
-  #define DELTA_AUTO_CALIBRATION
+  #if ANYCUBIC_PROBE_VERSION > 0
+    #define DELTA_AUTO_CALIBRATION
+  #endif
 
   // NOTE NB all values for DELTA_* values MUST be floating point, so always have a decimal point in them
 
@@ -554,25 +582,33 @@
     #define PROBE_MANUALLY_STEP 0.05 // mm
   #endif
 
-  // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-  #define DELTA_PRINTABLE_RADIUS 116.0 // mm
-
-  // Center-to-center distance of the holes in the diagonal push rods.
-  #define DELTA_DIAGONAL_ROD 271.5 // mm
+  
+  #if ENABLED(ANCYUBIC_KOSSEL_PLUS)
+    // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
+    #define DELTA_PRINTABLE_RADIUS 116.0 // mm
+    // Center-to-center distance of the holes in the diagonal push rods.
+    #define DELTA_DIAGONAL_ROD 271.5 // mm
+      // Horizontal offset from middle of printer to smooth rod center.
+    #define DELTA_SMOOTH_ROD_OFFSET 186 // mm
+    // Horizontal offset of the universal joints on the end effector.
+    #define DELTA_EFFECTOR_OFFSET 31 // mm
+    // Horizontal offset of the universal joints on the carriages.
+    #define DELTA_CARRIAGE_OFFSET 20.6 // mm
+    // Horizontal distance bridged by diagonal push rods when effector is centered.
+    #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))  //mm  Get this value from auto calibrate
+  #else
+    // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
+    #define DELTA_PRINTABLE_RADIUS 90.0 // mm
+    // Center-to-center distance of the holes in the diagonal push rods.
+    #define DELTA_DIAGONAL_ROD 218.0 // mm
+    // Horizontal distance bridged by diagonal push rods when effector is centered.
+    #define DELTA_RADIUS 97.0 //mm  Get this value from auto calibrate
+  #endif
 
   // height from z=0 to home position
-  #define DELTA_HEIGHT 350.00 // get this value from auto calibrate
+  #define DELTA_HEIGHT 320.00 // get this value from auto calibrate
 
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // get these from auto calibrate
-  
-  // Horizontal offset from middle of printer to smooth rod center.
-  #define DELTA_SMOOTH_ROD_OFFSET 186 // mm
-  // Horizontal offset of the universal joints on the end effector.
-  #define DELTA_EFFECTOR_OFFSET 31 // mm
-  // Horizontal offset of the universal joints on the carriages.
-  #define DELTA_CARRIAGE_OFFSET 20.6 // mm
-  // Horizontal distance bridged by diagonal push rods when effector is centered.
-  #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))  //mm  Get this value from auto calibrate
 
   // Trim adjustments for individual towers
   // tower angle corrections for X and Y tower / rotate XYZ so Z tower angle = 0
@@ -596,7 +632,9 @@
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
 //#define USE_XMIN_PLUG
 //#define USE_YMIN_PLUG
-#define USE_ZMIN_PLUG // a Z probe
+#if ANYCUBIC_PROBE_VERSION > 0
+  #define USE_ZMIN_PLUG // a Z probe
+#endif
 #define USE_XMAX_PLUG
 #define USE_YMAX_PLUG
 #define USE_ZMAX_PLUG
@@ -724,7 +762,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 200, 200}
+#define DEFAULT_MAX_FEEDRATE          { 100, 100, 100, 100}
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -783,7 +821,9 @@
  *
  * Enable this option for a probe connected to the Z Min endstop pin.
  */
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#if ANYCUBIC_PROBE_VERSION > 0
+  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#endif
 
 /**
  * Z_MIN_PROBE_ENDSTOP
@@ -818,14 +858,18 @@
  * Use G29 repeatedly, adjusting the Z height at each point with movement commands
  * or (with LCD_BED_LEVELING) the LCD controller.
  */
-//#define PROBE_MANUALLY
-//#define MANUAL_PROBE_START_Z 0.2
+#if ANYCUBIC_PROBE_VERSION == 0
+  #define PROBE_MANUALLY
+  #define MANUAL_PROBE_START_Z 1.5
+#endif
 
 /**
  * A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
-#define FIX_MOUNTED_PROBE
+#if ANYCUBIC_PROBE_VERSION > 0
+  #define FIX_MOUNTED_PROBE
+#endif
 
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -888,7 +932,9 @@
 #define X_PROBE_OFFSET_FROM_EXTRUDER 0     // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 0     // Y offset: -front +behind [the nozzle]
 
-#if ANYCUBIC_PROBE_VERSION == 1
+#if ANYCUBIC_PROBE_VERSION == 0
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0     // Z offset: -below +above  [the nozzle]
+#elif ANYCUBIC_PROBE_VERSION == 1
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -19.0 // Z offset: -below +above  [the nozzle]
 #else
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -16.8 // Z offset: -below +above  [the nozzle]
@@ -975,7 +1021,7 @@
 #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
-//#define Z_AFTER_PROBING           5 // Z position after probing is done
+#define Z_AFTER_PROBING            30 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
@@ -984,7 +1030,9 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-#define Z_MIN_PROBE_REPEATABILITY_TEST
+#if ANYCUBIC_PROBE_VERSION > 0
+  #define Z_MIN_PROBE_REPEATABILITY_TEST
+#endif
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -1135,17 +1183,19 @@
  *   leveling in steps so you can manually adjust the Z height at each grid-point.
  *   With an LCD controller the process is guided step-by-step.
  */
-//#define AUTO_BED_LEVELING_3POINT
+#if ANYCUBIC_PROBE_VERSION == 0
+  #define AUTO_BED_LEVELING_3POINT
+#else
 //#define AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR
+  #define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
-
+#endif
 /**
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-//#define RESTORE_LEVELING_AFTER_G28
+#define RESTORE_LEVELING_AFTER_G28
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -1199,7 +1249,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    //#define EXTRAPOLATE_BEYOND_GRID
+    #define EXTRAPOLATE_BEYOND_GRID
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -1250,12 +1300,12 @@
  * Override if the automatically selected points are inadequate.
  */
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
-  //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 180
-  //#define PROBE_PT_2_X 15
-  //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 170
-  //#define PROBE_PT_3_Y 20
+  #define PROBE_PT_1_X -40
+  #define PROBE_PT_1_Y 60
+  #define PROBE_PT_2_X 40
+  #define PROBE_PT_2_Y 60
+  #define PROBE_PT_3_X 0
+  #define PROBE_PT_3_Y -70
 #endif
 
 /**
@@ -1265,7 +1315,7 @@
 #define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
-  #define MBL_Z_STEP 0.025    // Step size while manually probing Z axis.
+  #define MBL_Z_STEP 0.05    // Step size while manually probing Z axis.
   #define LCD_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
 #endif
 
@@ -1536,7 +1586,7 @@
  *
  * View the current statistics with M78.
  */
-//#define PRINTCOUNTER
+#define PRINTCOUNTER
 
 //=============================================================================
 //============================= LCD and SD support ============================
