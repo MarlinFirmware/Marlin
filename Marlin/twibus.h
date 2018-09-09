@@ -33,6 +33,13 @@
 typedef void (*twiReceiveFunc_t)(int bytes);
 typedef void (*twiRequestFunc_t)();
 
+#if ENABLED(MECHADUINO_I2C_COMMANDS)
+  typedef union {
+    float fval;
+    byte bval[sizeof(float)];
+  } i2cFloat;
+#endif
+
 #define TWIBUS_BUFFER_SIZE 32
 
 /**
@@ -99,7 +106,7 @@ class TWIBus {
      *
      * @param c a data byte
      */
-    void addbyte(const char c);
+    void addbyte(const byte c);
 
     /**
      * @brief Add some bytes to the buffer
@@ -109,7 +116,7 @@ class TWIBus {
      * @param src source data address
      * @param bytes the number of bytes to add
      */
-    void addbytes(char src[], uint8_t bytes);
+    void addbytes(byte src[], uint8_t bytes);
 
     /**
      * @brief Add a null-terminated string to the buffer
@@ -172,7 +179,7 @@ class TWIBus {
      * @param bytes the number of bytes to request
      * @return the number of bytes captured to the buffer
      */
-    uint8_t capture(char *dst, const uint8_t bytes);
+    uint8_t capture(byte *dst, const uint8_t bytes);
 
     /**
      * @brief Flush the i2c bus.

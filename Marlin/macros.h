@@ -23,13 +23,18 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#define NUM_AXIS 4
-#define ABCE 4
-#define XYZE 4
-#define ABC  3
-#define XYZ  3
+#define XYZ   3
+#define XYZE  4
+#define ABC   3
+#define ABCD  4
+#define ABCE  4
+#define ABCDE 5
 
-// For use in macros that take a single axis letter
+/**
+ * For use in macros that take a single axis letter
+ * The axis order in all axis related arrays is X, Y, Z, E
+ * For Hangprinter it is A, B, C, D, E
+ */
 #define _AXIS(A) (A##_AXIS)
 
 #define _XMIN_ 100

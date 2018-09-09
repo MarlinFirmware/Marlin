@@ -136,7 +136,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-//#define CUSTOM_MACHINE_NAME "3D Printer"
+#define CUSTOM_MACHINE_NAME "Hangprinter"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -145,11 +145,12 @@
 // @section extruder
 
 // This defines the number of extruders
+// With Hangprinter, max number of extruders is 4
 // :[1, 2, 3, 4, 5]
 #define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -238,7 +239,7 @@
  *
  * :{ 0:'No power switch', 1:'ATX', 2:'X-Box 360' }
  */
-#define POWER_SUPPLY 0
+#define POWER_SUPPLY 1
 
 #if POWER_SUPPLY > 0
   // Enable this option to leave the PSU off at startup.
@@ -310,7 +311,7 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '501':"100K Zonestar (Tronxy X3A)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-4':"Thermocouple + AD8495", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 5 // Setting gotten from wiki.e3d-online.net instructions for V6 hot end
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -379,10 +380,15 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
+  // Hangprinter (Volcano, e3d V6, RAMPS, 120W power supply)
+  #define  DEFAULT_Kp 39.76
+  #define  DEFAULT_Ki 3.26
+  #define  DEFAULT_Kd 121.18
+
   // Ultimaker
-  #define DEFAULT_Kp 22.2
-  #define DEFAULT_Ki 1.08
-  #define DEFAULT_Kd 114
+  //#define DEFAULT_Kp 22.2
+  //#define DEFAULT_Ki 1.08
+  //#define DEFAULT_Kd 114
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -499,6 +505,129 @@
 //#define COREZY
 
 //===========================================================================
+//============================== Hangprinter Settings =======================
+//===========================================================================
+
+// This value is used whether LINE_BUILDUP_COMPENSATION_FEATURE is enabled or not.
+#define DEFAULT_E_AXIS_STEPS_PER_UNIT 410.0 // 410.0 set quite at random
+
+// Enable HANGPRINTER kinematics and most of the default configuration for Hangprinters
+#define HANGPRINTER
+#if ENABLED(HANGPRINTER)
+  #define KINEMATIC_SEGMENTS_PER_SECOND 40
+  #define HANGPRINTER_PRINTABLE_RADIUS 1500.0
+  // Anchor position coordinates
+  // ANCHOR_A_X = 0 by definition. Left out of all calculations
+  #define ANCHOR_A_Y -1234
+  #define ANCHOR_A_Z   -12
+  #define ANCHOR_B_X  1234
+  #define ANCHOR_B_Y   123
+  #define ANCHOR_B_Z   -12
+  #define ANCHOR_C_X -1234
+  #define ANCHOR_C_Y  1234
+  #define ANCHOR_C_Z   -12
+  #define ANCHOR_D_Z  1234
+
+  // Disable this if you plan to place your anchors at unconventional places
+  // See SanityCheck.h for exact definition of the tested convention
+  // Warning: For this to work, don't use decimal points in the ANCHOR_ABCD_XYZ definitions.
+  #define CONVENTIONAL_GEOMETRY
+
+  /**
+   * Line buildup compensation feature
+   * For documentation of theory behind, see:
+   *   https://vitana.se/opr3d/tbear/2017.html#hangprinter_project_29
+   *
+   * Lets you use more info about your lines and spools to improve accuracy and print volume.
+   * The amount of D-compensation at 3 m height is ~75 mm for a 0.5 mm line setup.
+   *
+   * If you plan on printing > 2 m you should definitely enable this
+   * and check that your motors wind/unwind close to exact amounts.
+   *
+   * Check by putting your printer in home position and wind/unwind using
+   * G6 S2 A2000
+   * Note that this requires UNREGISTERED_MOVE_SUPPORT,
+   * and that your printer will be confused about where it is after a G6 move
+   */
+  #define LINE_BUILDUP_COMPENSATION_FEATURE
+  #if ENABLED(LINE_BUILDUP_COMPENSATION_FEATURE)
+    // Allows gearing down with pulley principle
+    #define MECHANICAL_ADVANTAGE { 1, 1, 1, 1 }
+
+    // The point where line meets mover is called action point
+    #define ACTION_POINTS { 2, 2, 2, 3 }
+
+    /**
+     * Naive buildup factor calculation (assumes cylindrical, straight line)
+     * line diameter: 0.5 mm
+     * spool height: 8.0 mm
+     * (line_cross_section_area)/(height*pi): ((0.5/2)*(0.5/2)*pi)/(8.0*pi) = 0.0078 mm
+     *
+     * Default buildup factor for 0.50 mm FireLine: 0.0078
+     * Default buildup factor for 0.39 mm FireLine: 0.00475
+     * In practice you might want to compensate a bit more or a bit less
+     */
+    #define SPOOL_BUILDUP_FACTOR 0.0078
+
+    /**
+     * Total length of lines on each spool
+     * Default assumes all nine lines are cut to length 7500 mm.
+     * Change to whatever length you have cut your different lines to.
+     */
+    #define MOUNTED_LINE { 7500.0, 7500.0, 7500.0, 4000.0 }
+
+    // Measuring your spool radii and adjusting this number will improve your Hangprinter's precision
+    #define SPOOL_RADII { 55.0, 55.0, 55.0, 55.0 }
+
+    // Used for calculating steps per spool radian and the static steps per mm used in acceleration planning
+    #define MOTOR_GEAR_TEETH { 10, 10, 10, 10 }
+    #define SPOOL_GEAR_TEETH { 100, 100, 100, 100 }
+
+  #endif // LINE_BUILDUP_COMPENSATION_FEATURE
+#endif // HANGPRINTER
+
+// Activate G6: Direct Stepper Move
+// Super useful when Hangprinting
+#define UNREGISTERED_MOVE_SUPPORT
+
+/**
+ * == Torque mode: G95 [ A B C D ] ==
+ * Sets your Mechaduino-driven and i2c-connected Mechaduino in torque mode.
+ * Parameters: A, B, C, and D, each with argument +-[1-254] for specifying magnitude of torque.
+ * The argument 0 is special and places motor back into position mode.
+ *
+ * Changing the sign of the argument changes the torque direction.
+ * A positive sign or no sign should tigthen line by winding line inwards, onto the spool.
+ *
+ * If several motors are simultaneously in torque mode, the mover can be pushed around by hand.
+ * This is useful when homing manually (placing nozzle in origin and tightening lines).
+ *
+ * Try for example:
+ * G95 A40 B40 C40 D30
+ * Now push mover until nozzle is in origo.
+ * Then go back to position mode:
+ * G95 A0 B0 C0 D0
+ * Re-establish correct G0/G1-moves
+ * G92 X0 Y0 Z0
+ *
+ * Your Hangprinter will be confused about where it is during/after G95.
+ * This is the reason for the G92 in the above example.
+ *
+ * == Mark reference point: G96 [ A B C D ] ==
+ * Tells the Mechaduino to read it's encoder value and remember it.
+ * This encoder position will be used as reference point when issuing M114 S1 later.
+ * If one or several of [ A B C D ] parameters are issued, then only those axes get their reference points marked.
+ *
+ * == Get line length from encoder: M114 S1 ==
+ * Asks all Mechaduinos how much encoders have rotated since the last G96.
+ * Uses that data to calculate how much line has been wound in or out.
+ * Takes line buildup into account if LINE_BUILDUP_COMPENSATION_FEATURE is enabled,
+ *   but the compensation will be imperfect if configured anchor positions are imperfect
+ *   or if the machine was not at the origin with tight lines when the previous G96 was issued.
+ */
+#define MECHADUINO_I2C_COMMANDS
+
+//===========================================================================
 //============================== Endstop Settings ===========================
 //===========================================================================
 
@@ -507,9 +636,9 @@
 // Specify here all the endstop connectors that are connected to any endstop or probe.
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
-#define USE_XMIN_PLUG
-#define USE_YMIN_PLUG
-#define USE_ZMIN_PLUG
+//#define USE_XMIN_PLUG
+//#define USE_YMIN_PLUG
+//#define USE_ZMIN_PLUG // a Z probe
 //#define USE_XMAX_PLUG
 //#define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
@@ -528,13 +657,13 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
+#define X_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define X_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define Y_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define Z_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING true  // set to true to invert the logic of the probe.
 
 /**
  * Stepper Drivers
@@ -606,24 +735,25 @@
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ * LINE_BUILDUP_COMPENSATION_FEATURE overrides ABCD values
+ *                                           A       B       C       D
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 92.599, 92.599, 92.599, 92.599, DEFAULT_E_AXIS_STEPS_PER_UNIT }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                        A    B    C    D   E
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 500, 300, 25 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                         A     B     C      D     E
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 1000, 1000, 10000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
@@ -633,9 +763,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_ACCELERATION          900    // X, Y, Z and E acceleration for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_TRAVEL_ACCELERATION   900    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk (mm/s)
@@ -645,9 +775,10 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define DEFAULT_XJERK                 10.0
-#define DEFAULT_YJERK                 10.0
-#define DEFAULT_ZJERK                  0.3
+#define DEFAULT_AJERK                 13.0
+#define DEFAULT_BJERK                 13.0
+#define DEFAULT_CJERK                 13.0
+#define DEFAULT_DJERK                 13.0
 #define DEFAULT_EJERK                  5.0
 
 /**
@@ -776,18 +907,18 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 0     // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -10   // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -3.5  // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 10
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 8000
+#define XY_PROBE_SPEED 4000
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
-#define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
+#define Z_PROBE_SPEED_FAST DUMMY_HOMING_FEEDRATE
 
 // Feedrate (mm/m) for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
@@ -811,7 +942,7 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_DEPLOY_PROBE   15 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
 //#define Z_AFTER_PROBING           5 // Z position after probing is done
@@ -834,6 +965,7 @@
 
 // Disables axis stepper immediately when it's not being used.
 // WARNING: When motors turn off there is a chance of losing position accuracy!
+// Never disable any motors on a Hangprinter
 #define DISABLE_X false
 #define DISABLE_Y false
 #define DISABLE_Z false
@@ -843,27 +975,52 @@
 // @section extruder
 
 #define DISABLE_E false // For all extruders
-#define DISABLE_INACTIVE_EXTRUDER true // Keep only the active extruder enabled.
+#define DISABLE_INACTIVE_EXTRUDER false // Keep only the active extruder enabled.
 
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR false
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
+#define INVERT_A_DIR false
+#define INVERT_B_DIR true
+#define INVERT_C_DIR false
+#define INVERT_D_DIR false
+
+#define INVERT_X_DIR INVERT_A_DIR
+#define INVERT_Y_DIR INVERT_B_DIR
+#define INVERT_Z_DIR INVERT_C_DIR
+#if EXTRUDERS == 1
+  #define INVERT_E1_DIR INVERT_D_DIR
+#elif EXTRUDERS == 2
+  #define INVERT_E2_DIR INVERT_D_DIR
+#elif EXTRUDERS == 3
+  #define INVERT_E3_DIR INVERT_D_DIR
+#elif EXTRUDERS == 4
+  #define INVERT_E4_DIR INVERT_D_DIR
+#endif
+
+// Enable this option for Toshiba stepper drivers
+//#define CONFIG_STEPPERS_TOSHIBA
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 #define INVERT_E0_DIR false
-#define INVERT_E1_DIR false
-#define INVERT_E2_DIR false
-#define INVERT_E3_DIR false
-#define INVERT_E4_DIR false
+#if EXTRUDERS != 1
+  #define INVERT_E1_DIR false
+#endif
+#if EXTRUDERS != 2
+  #define INVERT_E2_DIR false
+#endif
+#if EXTRUDERS != 3
+  #define INVERT_E3_DIR false
+#endif
+#if EXTRUDERS != 4
+  #define INVERT_E4_DIR false
+#endif
 
 // @section homing
 
-//#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed
+//#define NO_MOTION_BEFORE_HOMING  // Inhibit movement until all axes have been homed. Don't use with Hangprinter
 
 //#define UNKNOWN_Z_NO_RAISE // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
 
@@ -872,23 +1029,23 @@
 
 // Direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
-#define X_HOME_DIR -1
-#define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
+#define X_HOME_DIR 1  // Doesn't make sense for Hangprinter since it doesn't move while homing
+#define Y_HOME_DIR 1
+#define Z_HOME_DIR 1
 
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 200
-#define Y_BED_SIZE 200
+#define X_BED_SIZE ((HANGPRINTER_PRINTABLE_RADIUS) * 2)
+#define Y_BED_SIZE ((HANGPRINTER_PRINTABLE_RADIUS) * 2)
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
+#define X_MIN_POS -(HANGPRINTER_PRINTABLE_RADIUS)
+#define Y_MIN_POS -(HANGPRINTER_PRINTABLE_RADIUS)
 #define Z_MIN_POS 0
-#define X_MAX_POS X_BED_SIZE
-#define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 200
+#define X_MAX_POS HANGPRINTER_PRINTABLE_RADIUS
+#define Y_MAX_POS HANGPRINTER_PRINTABLE_RADIUS
+#define Z_MAX_POS (ANCHOR_D_Z - 300.0)
 
 /**
  * Software Endstops
@@ -900,7 +1057,8 @@
  */
 
 // Min software endstops constrain movement within minimum coordinate bounds
-#define MIN_SOFTWARE_ENDSTOPS
+// Don't use with Hangprinter
+//#define MIN_SOFTWARE_ENDSTOPS
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
@@ -908,7 +1066,8 @@
 #endif
 
 // Max software endstops constrain movement within maximum coordinate bounds
-#define MAX_SOFTWARE_ENDSTOPS
+// Don't use with Hangprinter
+//#define MAX_SOFTWARE_ENDSTOPS
 #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
   #define MAX_SOFTWARE_ENDSTOP_X
   #define MAX_SOFTWARE_ENDSTOP_Y
@@ -996,7 +1155,10 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
+  //#define ENABLE_LEVELING_FADE_HEIGHT
+
+  // Set the boundaries for probing (where the probe can reach).
+  #define HANGPRINTER_PROBEABLE_RADIUS (HANGPRINTER_PRINTABLE_RADIUS - 10)
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
@@ -1020,14 +1182,14 @@
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 9
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  //#define LEFT_PROBE_BED_POSITION MIN_PROBE_EDGE
-  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - MIN_PROBE_EDGE)
-  //#define FRONT_PROBE_BED_POSITION MIN_PROBE_EDGE
-  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - MIN_PROBE_EDGE)
+  #define LEFT_PROBE_BED_POSITION -(HANGPRINTER_PROBEABLE_RADIUS)
+  #define RIGHT_PROBE_BED_POSITION HANGPRINTER_PROBEABLE_RADIUS
+  #define FRONT_PROBE_BED_POSITION -(HANGPRINTER_PROBEABLE_RADIUS)
+  #define BACK_PROBE_BED_POSITION HANGPRINTER_PROBEABLE_RADIUS
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1087,12 +1249,14 @@
  * Override if the automatically selected points are inadequate.
  */
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
-  //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 180
-  //#define PROBE_PT_2_X 15
-  //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 170
-  //#define PROBE_PT_3_Y 20
+  #define _PX(R,A) (R) * cos(RADIANS(A))
+  #define _PY(R,A) (R) * sin(RADIANS(A))
+  #define UBL_PROBE_PT_1_X _PX(HANGPRINTER_PROBEABLE_RADIUS, 0)   // Probing points for 3-Point leveling of the mesh
+  #define UBL_PROBE_PT_1_Y _PY(HANGPRINTER_PROBEABLE_RADIUS, 0)
+  #define UBL_PROBE_PT_2_X _PX(HANGPRINTER_PROBEABLE_RADIUS, 120)
+  #define UBL_PROBE_PT_2_Y _PY(HANGPRINTER_PROBEABLE_RADIUS, 120)
+  #define UBL_PROBE_PT_3_X _PX(HANGPRINTER_PROBEABLE_RADIUS, 240)
+  #define UBL_PROBE_PT_3_Y _PY(HANGPRINTER_PROBEABLE_RADIUS, 240)
 #endif
 
 /**
@@ -1124,10 +1288,10 @@
 // @section homing
 
 // The center of the bed is at (X=0, Y=0)
-//#define BED_CENTER_AT_0_0
+#define BED_CENTER_AT_0_0
 
 // Manually set the home position. Leave these undefined for automatic settings.
-// For DELTA this is the top-center of the Cartesian print volume.
+// For HANGPRINTER this is the bottom-center of the Cartesian print volume.
 //#define MANUAL_X_HOME_POS 0
 //#define MANUAL_Y_HOME_POS 0
 //#define MANUAL_Z_HOME_POS 0
@@ -1147,6 +1311,9 @@
   #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
   #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
 #endif
+
+// Hangprinter doesn't have automatic homing
+#define DUMMY_HOMING_FEEDRATE  (200*60)
 
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60)
@@ -1223,7 +1390,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //
-//#define EEPROM_SETTINGS // Enable for M500 and M501 commands
+#define EEPROM_SETTINGS // Enable for M500 and M501 commands
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
@@ -1257,11 +1424,11 @@
 // Preheat Constants
 #define PREHEAT_1_TEMP_HOTEND 180
 #define PREHEAT_1_TEMP_BED     70
-#define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
+#define PREHEAT_1_FAN_SPEED   255 // Value from 0 to 255
 
 #define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
-#define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
+#define PREHEAT_2_TEMP_BED    100
+#define PREHEAT_2_FAN_SPEED   255 // Value from 0 to 255
 
 /**
  * Nozzle Park
