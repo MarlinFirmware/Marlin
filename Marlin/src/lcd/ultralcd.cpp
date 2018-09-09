@@ -3847,7 +3847,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
       MENU_ITEM(submenu, MSG_FILAMENT, lcd_advanced_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
-      MENU_ITEM_EDIT(float32, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
+      MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
     #endif
 
     // M540 S - Abort on endstop hit when SD printing
