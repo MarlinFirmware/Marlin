@@ -54,7 +54,7 @@ float FWRetract::retract_length,                     // M207 S - G10 Retract len
       FWRetract::swap_retract_length,                // M207 W - G10 Swap Retract length
       FWRetract::swap_retract_recover_length,        // M208 W - G11 Swap Recover length
       FWRetract::swap_retract_recover_feedrate_mm_s, // M208 R - G11 Swap Recover feedrate
-      FWRetract::hop_amount;
+      FWRetract::current_hop;
 
 void FWRetract::reset() {
   autoretract_enabled = false;
@@ -66,7 +66,7 @@ void FWRetract::reset() {
   swap_retract_length = RETRACT_LENGTH_SWAP;
   swap_retract_recover_length = RETRACT_RECOVER_LENGTH_SWAP;
   swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
-  hop_amount = 0.0;
+  current_hop = 0.0;
 
   for (uint8_t i = 0; i < EXTRUDERS; ++i) {
     retracted[i] = false;
@@ -96,7 +96,7 @@ void FWRetract::retract(const bool retracting
   #endif
 ) {
 
-  static float hop_amount = 0.0;  // Total amount lifted, for use in recover
+  static float current_hop = 0.0;  // Total amount lifted, for use in recover
 
   // Prevent two retracts or recovers in a row
   if (retracted[active_extruder] == retracting) return;
@@ -125,7 +125,7 @@ void FWRetract::retract(const bool retracting
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
     SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
-    SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
+    SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 
   const float old_feedrate_mm_s = feedrate_mm_s,
@@ -144,8 +144,8 @@ void FWRetract::retract(const bool retracting
     prepare_move_to_destination();                        // set_current_to_destination
 
     // Is a Z hop set, and has the hop not yet been done?
-    if (retract_zlift > 0.01 && !hop_amount) {            // Apply hop only once
-      hop_amount += retract_zlift;                        // Add to the hop total (again, only once)
+    if (retract_zlift > 0.01 && !current_hop) {           // Apply hop only once
+      current_hop += retract_zlift;                       // Add to the hop total (again, only once)
       destination[Z_AXIS] += retract_zlift;               // Raise Z by the zlift (M207 Z) amount
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Maximum Z feedrate
       prepare_move_to_destination();                      // Raise up, set_current_to_destination
@@ -153,12 +153,12 @@ void FWRetract::retract(const bool retracting
   }
   else {
     // If a hop was done and Z hasn't changed, undo the Z hop
-    if (hop_amount) {
-      current_position[Z_AXIS] += hop_amount;             // Restore the actual Z position
+    if (current_hop) {
+      current_position[Z_AXIS] += current_hop;            // Restore the actual Z position
       SYNC_PLAN_POSITION_KINEMATIC();                     // Unspoof the position planner
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
       prepare_move_to_destination();                      // Lower Z, set_current_to_destination
-      hop_amount = 0.0;                                   // Clear the hop amount
+      current_hop = 0.0;                                  // Clear the hop amount
     }
 
     destination[E_AXIS] += (base_retract + (swapping ? swap_retract_recover_length : retract_recover_length)) * renormalize;
@@ -192,7 +192,7 @@ void FWRetract::retract(const bool retracting
     }
     SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
     SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
-    SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
+    SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 
 }

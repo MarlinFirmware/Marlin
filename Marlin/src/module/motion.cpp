@@ -1462,7 +1462,7 @@ void homeaxis(const AxisEnum axis) {
 
   // Clear retracted status if homing the Z axis
   #if ENABLED(FWRETRACT)
-    if (axis == Z_AXIS) fwretract.hop_amount = 0.0;
+    if (axis == Z_AXIS) fwretract.current_hop = 0.0;
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
