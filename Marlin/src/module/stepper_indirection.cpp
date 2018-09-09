@@ -273,33 +273,33 @@
       { constexpr uint8_t extruder = 5; _TMC2130_INIT(E5, planner.axis_steps_per_mm[E_AXIS_N]); UNUSED(extruder); }
     #endif
 
-    #if ENABLED(SENSORLESS_HOMING)
-      #define TMC_INIT_SGT(P,Q) stepper##Q.sgt(P##_HOMING_SENSITIVITY);
+    #if USE_SENSORLESS
+      #define TMC_INIT_SGT(P,Q) stepper##Q.sgt(P##_STALL_SENSITIVITY);
       #if X_SENSORLESS
         #if AXIS_DRIVER_TYPE(X, TMC2130)
-          stepperX.sgt(X_HOMING_SENSITIVITY);
+          stepperX.sgt(X_STALL_SENSITIVITY);
         #endif
         #if AXIS_DRIVER_TYPE(X2, TMC2130)
-          stepperX2.sgt(X_HOMING_SENSITIVITY);
+          stepperX2.sgt(X_STALL_SENSITIVITY);
         #endif
       #endif
       #if Y_SENSORLESS
         #if AXIS_DRIVER_TYPE(Y, TMC2130)
-          stepperY.sgt(Y_HOMING_SENSITIVITY);
+          stepperY.sgt(Y_STALL_SENSITIVITY);
         #endif
         #if AXIS_DRIVER_TYPE(Y2, TMC2130)
-          stepperY2.sgt(Y_HOMING_SENSITIVITY);
+          stepperY2.sgt(Y_STALL_SENSITIVITY);
         #endif
       #endif
       #if Z_SENSORLESS
         #if AXIS_DRIVER_TYPE(Z, TMC2130)
-          stepperZ.sgt(Z_HOMING_SENSITIVITY);
+          stepperZ.sgt(Z_STALL_SENSITIVITY);
         #endif
         #if AXIS_DRIVER_TYPE(Z2, TMC2130)
-          stepperZ2.sgt(Z_HOMING_SENSITIVITY);
+          stepperZ2.sgt(Z_STALL_SENSITIVITY);
         #endif
         #if ENABLED(Z3_IS_TMC2130)
-          stepperZ3.sgt(Z_HOMING_SENSITIVITY);
+          stepperZ3.sgt(Z_STALL_SENSITIVITY);
         #endif
       #endif
     #endif

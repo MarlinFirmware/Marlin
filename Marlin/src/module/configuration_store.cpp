@@ -920,10 +920,10 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(tmc_hybrid_threshold);
 
     //
-    // TMC2130 Sensorless homing threshold
+    // TMC2130 StallGuard threshold
     //
     int16_t tmc_sgt[XYZ] = {
-      #if ENABLED(SENSORLESS_HOMING)
+      #if USE_SENSORLESS
         #if X_SENSORLESS
           stepperX.sgt(),
         #else
@@ -1530,16 +1530,16 @@ void MarlinSettings::postprocess() {
       #endif
 
       /*
-       * TMC2130 Sensorless homing threshold.
+       * TMC2130 StallGuard threshold.
        * X and X2 use the same value
        * Y and Y2 use the same value
        * Z, Z2 and Z3 use the same value
        */
       int16_t tmc_sgt[XYZ];
       EEPROM_READ(tmc_sgt);
-      #if ENABLED(SENSORLESS_HOMING)
+      #if USE_SENSORLESS
         if (!validating) {
-          #ifdef X_HOMING_SENSITIVITY
+          #ifdef X_STALL_SENSITIVITY
             #if AXIS_HAS_STALLGUARD(X)
               stepperX.sgt(tmc_sgt[0]);
             #endif
@@ -1547,7 +1547,7 @@ void MarlinSettings::postprocess() {
               stepperX2.sgt(tmc_sgt[0]);
             #endif
           #endif
-          #ifdef Y_HOMING_SENSITIVITY
+          #ifdef Y_STALL_SENSITIVITY
             #if AXIS_HAS_STALLGUARD(Y)
               stepperY.sgt(tmc_sgt[1]);
             #endif
@@ -1555,7 +1555,7 @@ void MarlinSettings::postprocess() {
               stepperY2.sgt(tmc_sgt[1]);
             #endif
           #endif
-          #ifdef Z_HOMING_SENSITIVITY
+          #ifdef Z_STALL_SENSITIVITY
             #if AXIS_HAS_STALLGUARD(Z)
               stepperZ.sgt(tmc_sgt[2]);
             #endif
@@ -2120,7 +2120,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #if ENABLED(HYBRID_THRESHOLD)
       void say_M913(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M913"); }
     #endif
-    #if ENABLED(SENSORLESS_HOMING)
+    #if USE_SENSORLESS
       void say_M914(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M914"); }
     #endif
   #endif
@@ -2824,12 +2824,12 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif // HYBRID_THRESHOLD
 
       /**
-       * TMC2130 Sensorless homing thresholds
+     * TMC2130 Sensorless homing thresholds
        */
-      #if ENABLED(SENSORLESS_HOMING)
+      #if USE_SENSORLESS
         if (!forReplay) {
           CONFIG_ECHO_START;
-          SERIAL_ECHOLNPGM_P(port, "Sensorless homing threshold:");
+          SERIAL_ECHOLNPGM_P(port, "TMC2130 StallGuard threshold:");
         }
         CONFIG_ECHO_START;
         #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
@@ -2846,10 +2846,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_EOL_P(port);
         #endif
 
-        #define HAS_X2_SENSORLESS (defined(X_HOMING_SENSITIVITY) && AXIS_HAS_STALLGUARD(X2))
-        #define HAS_Y2_SENSORLESS (defined(Y_HOMING_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2))
-        #define HAS_Z2_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z2))
-        #define HAS_Z3_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z3))
+        #define HAS_X2_SENSORLESS (defined(X_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(X2))
+        #define HAS_Y2_SENSORLESS (defined(Y_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2))
+        #define HAS_Z2_SENSORLESS (defined(Z_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z2))
+        #define HAS_Z3_SENSORLESS (defined(Z_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z3))
         #if HAS_X2_SENSORLESS || HAS_Y2_SENSORLESS || HAS_Z2_SENSORLESS
           say_M914(PORTVAR_SOLO);
           SERIAL_ECHOPGM_P(port, " I1");
@@ -2871,7 +2871,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_ECHOLNPAIR_P(port, " Z", stepperZ3.sgt());
         #endif
 
-      #endif // SENSORLESS_HOMING
+      #endif // USE_SENSORLESS
 
     #endif // HAS_TRINAMIC
 
