@@ -1034,9 +1034,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // HAS_DEBUG_MENU
 
-   /**
-    * IDEX submenu
-    */
+  /**
+   * IDEX submenu
+   */
   #if ENABLED(DUAL_X_CARRIAGE)
     static void IDEX_menu() {
       START_MENU();

@@ -1599,7 +1599,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * TMC2208 software UART is only supported on AVR
  */
-#if HAS_DRIVER(TMC2208) && !defined(__AVR__) && !( \
+#if HAS_DRIVER(TMC2208) && !defined(__AVR__) && !defined(TARGET_LPC1768) && !( \
        defined(X_HARDWARE_SERIAL ) \
     || defined(X2_HARDWARE_SERIAL) \
     || defined(Y_HARDWARE_SERIAL ) \
@@ -1611,7 +1611,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     || defined(E2_HARDWARE_SERIAL) \
     || defined(E3_HARDWARE_SERIAL) \
     || defined(E4_HARDWARE_SERIAL) )
-  #error "TMC2208 Software Serial is supported only on AVR platforms."
+  #error "TMC2208 Software Serial is supported only on AVR and LPC1768 platforms."
 #endif
 
 #if ENABLED(SENSORLESS_HOMING)
