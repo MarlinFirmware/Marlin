@@ -459,6 +459,23 @@
 #endif
 
 /**
+ * Switching Toolhead
+ *
+ * Support for swappable and dockable toolheads, such as
+ * the E3D Tool Changer. Toolheads are locked with a servo.
+ */
+//#define SWITCHING_TOOLHEAD
+#if ENABLED(SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
+  #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
+  #define SWITCHING_TOOLHEAD_Y_POS        235         // (mm) Y position of the toolhead dock
+  #define SWITCHING_TOOLHEAD_Y_SECURITY    10         // (mm) Security distance Y axis
+  #define SWITCHING_TOOLHEAD_Y_CLEAR       60         // (mm) Minimum distance from dock for unobstructed X axis
+  #define SWITCHING_TOOLHEAD_X_POS        { 215, 0 }  // (mm) X positions for parking the extruders
+  #define SWITCHING_TOOLHEAD_SECURITY_RAISE 5         // (mm) Z-raise before parking
+#endif
+
+/**
  * "Mixing Extruder"
  *   - Adds a new code, M165, to set the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
@@ -1105,7 +1122,7 @@
 #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 0
+#define MIN_PROBE_EDGE BED_MARGIN
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000

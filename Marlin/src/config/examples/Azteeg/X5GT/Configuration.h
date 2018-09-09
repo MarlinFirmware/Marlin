@@ -207,6 +207,23 @@
 #endif
 
 /**
+ * Switching Toolhead
+ *
+ * Support for swappable and dockable toolheads, such as
+ * the E3D Tool Changer. Toolheads are locked with a servo.
+ */
+//#define SWITCHING_TOOLHEAD
+#if ENABLED(SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
+  #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
+  #define SWITCHING_TOOLHEAD_Y_POS        235         // (mm) Y position of the toolhead dock
+  #define SWITCHING_TOOLHEAD_Y_SECURITY    10         // (mm) Security distance Y axis
+  #define SWITCHING_TOOLHEAD_Y_CLEAR       60         // (mm) Minimum distance from dock for unobstructed X axis
+  #define SWITCHING_TOOLHEAD_X_POS        { 215, 0 }  // (mm) X positions for parking the extruders
+  #define SWITCHING_TOOLHEAD_SECURITY_RAISE 5         // (mm) Z-raise before parking
+#endif
+
+/**
  * "Mixing Extruder"
  *   - Adds a new code, M165, to set the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
@@ -1040,9 +1057,9 @@
 
   // Set the boundaries for probing (where the probe can reach).
   //#define LEFT_PROBE_BED_POSITION MIN_PROBE_EDGE
-  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - MIN_PROBE_EDGE)
+  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - (MIN_PROBE_EDGE))
   //#define FRONT_PROBE_BED_POSITION MIN_PROBE_EDGE
-  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - MIN_PROBE_EDGE)
+  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - (MIN_PROBE_EDGE))
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1568,26 +1585,6 @@
 //#define PANEL_ONE
 
 //
-// MaKr3d Makr-Panel with graphic controller and SD support.
-// http://reprap.org/wiki/MaKr3d_MaKrPanel
-//
-//#define MAKRPANEL
-
-//
-// Activate one of these if you have a Panucatt Devices
-// Viki 2.0 or mini Viki with Graphic LCD
-// http://panucatt.com
-//
-#define VIKI2
-//#define miniVIKI
-
-//
-// Adafruit ST7565 Full Graphic Controller.
-// https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
-//
-//#define ELB_FULL_GRAPHIC_CONTROLLER
-
-//
 // GADGETS3D G3D LCD/SD Controller
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
 //
@@ -1709,7 +1706,7 @@
 // Viki 2.0 or mini Viki with Graphic LCD
 // http://panucatt.com
 //
-//#define VIKI2
+#define VIKI2
 //#define miniVIKI
 
 //

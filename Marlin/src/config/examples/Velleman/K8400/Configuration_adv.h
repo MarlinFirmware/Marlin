@@ -425,6 +425,7 @@
 
 #if ENABLED(ULTIPANEL)
   #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
+  #define MANUAL_E_MOVES_RELATIVE // Show LCD extruder moves as relative rather than absolute positions
   #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
 
@@ -1646,7 +1647,7 @@
   #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
   #define MAX7219_NUMBER_UNITS 1   // Number of Max7219 units in chain.
   #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
-                                   // connector at:  right=0   bottom=-90  top=90  left=18
+                                   // connector at:  right=0   bottom=-90  top=90  left=180
 
   /**
    * Sample debug features

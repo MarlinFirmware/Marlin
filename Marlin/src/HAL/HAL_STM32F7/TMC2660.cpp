@@ -33,7 +33,7 @@
 #include <SPI.h>
 #include "TMC2660.h"
 
-#include "../../HAL/HAL_STM32F7/HAL_STM32F7.h"
+#include "../../HAL/HAL_STM32F7/HAL.h"
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 #include "../../Marlin.h"
@@ -448,7 +448,7 @@ void TMC26XStepper::setMicrosteps(int number_of_steps) {
 /**
  * returns the effective number of microsteps at the moment
  */
-int TMC26XStepper::getMicrosteps(void) { return microsteps }
+int TMC26XStepper::getMicrosteps(void) { return microsteps; }
 
 /**
  * constant_off_time: The off time setting controls the minimum chopper frequency.

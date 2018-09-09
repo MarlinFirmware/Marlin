@@ -477,6 +477,10 @@ uint16_t max_display_update_time = 0;
     #define manual_move_e_index 0
   #endif
 
+  #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+    float manual_move_e_origin = 0;
+  #endif
+
   #if IS_KINEMATIC
     bool processing_manual_move = false;
     float manual_move_offset = 0;
@@ -1030,9 +1034,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // HAS_DEBUG_MENU
 
-   /**
-    * IDEX submenu
-    */
+  /**
+   * IDEX submenu
+   */
   #if ENABLED(DUAL_X_CARRIAGE)
     static void IDEX_menu() {
       START_MENU();
@@ -3066,6 +3070,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #if IS_KINEMATIC
           + manual_move_offset
         #endif
+        #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+          - manual_move_e_origin
+        #endif
       ));
     }
   }
@@ -3114,7 +3121,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
         case Z_AXIS:
           STATIC_ITEM(MSG_MOVE_Z, true, true); break;
         default:
-          STATIC_ITEM(MSG_MOVE_E, true, true); break;
+          #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+            manual_move_e_origin = current_position[E_AXIS];
+          #endif
+          STATIC_ITEM(MSG_MOVE_E, true, true);
+          break;
       }
     }
     MENU_BACK(MSG_MOVE_AXIS);
@@ -3836,7 +3847,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
       MENU_ITEM(submenu, MSG_FILAMENT, lcd_advanced_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
-      MENU_ITEM_EDIT(float32, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
+      MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
     #endif
 
     // M540 S - Abort on endstop hit when SD printing

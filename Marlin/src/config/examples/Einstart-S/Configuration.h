@@ -87,7 +87,7 @@
  * by the standard Marlin logo with version number and web URL.
  *
  * We encourage you to take advantage of this new feature and we also
- * respecfully request that you retain the unmodified Marlin boot screen.
+ * respectfully request that you retain the unmodified Marlin boot screen.
  */
 
 // Enable to show the bitmap in Marlin/_Bootscreen.h on startup.
@@ -204,6 +204,23 @@
   #define PARKING_EXTRUDER_PARKING_X { -78, 184 }     // X positions for parking the extruders
   #define PARKING_EXTRUDER_GRAB_DISTANCE 1            // mm to move beyond the parking point to grab the extruder
   #define PARKING_EXTRUDER_SECURITY_RAISE 5           // Z-raise before parking
+#endif
+
+/**
+ * Switching Toolhead
+ *
+ * Support for swappable and dockable toolheads, such as
+ * the E3D Tool Changer. Toolheads are locked with a servo.
+ */
+//#define SWITCHING_TOOLHEAD
+#if ENABLED(SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
+  #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
+  #define SWITCHING_TOOLHEAD_Y_POS        235         // (mm) Y position of the toolhead dock
+  #define SWITCHING_TOOLHEAD_Y_SECURITY    10         // (mm) Security distance Y axis
+  #define SWITCHING_TOOLHEAD_Y_CLEAR       60         // (mm) Minimum distance from dock for unobstructed X axis
+  #define SWITCHING_TOOLHEAD_X_POS        { 215, 0 }  // (mm) X positions for parking the extruders
+  #define SWITCHING_TOOLHEAD_SECURITY_RAISE 5         // (mm) Z-raise before parking
 #endif
 
 /**
@@ -561,6 +578,32 @@
 #define X_STOP_INVERTING true
 #define Y_STOP_INVERTING true
 #define Z_STOP_INVERTING true
+
+/**
+ * Stepper Drivers
+ *
+ * These settings allow Marlin to tune stepper driver timing and enable advanced options for
+ * stepper drivers that support them. You may also override timing options in Configuration_adv.h.
+ *
+ * A4988 is assumed for unspecified drivers.
+ *
+ * Options: A4988, A5984, DRV8825, LV8729, L6470, TB6560, TB6600, TMC2100,
+ *          TMC2130, TMC2130_STANDALONE, TMC2208, TMC2208_STANDALONE,
+ *          TMC26X,  TMC26X_STANDALONE,  TMC2660, TMC2660_STANDALONE,
+ *          TMC5130, TMC5130_STANDALONE
+ * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE']
+ */
+//#define X_DRIVER_TYPE  A4988
+//#define Y_DRIVER_TYPE  A4988
+//#define Z_DRIVER_TYPE  A4988
+//#define X2_DRIVER_TYPE A4988
+//#define Y2_DRIVER_TYPE A4988
+//#define Z2_DRIVER_TYPE A4988
+//#define E0_DRIVER_TYPE A4988
+//#define E1_DRIVER_TYPE A4988
+//#define E2_DRIVER_TYPE A4988
+//#define E3_DRIVER_TYPE A4988
+//#define E4_DRIVER_TYPE A4988
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -1024,9 +1067,9 @@
 
   // Set the boundaries for probing (where the probe can reach).
   //#define LEFT_PROBE_BED_POSITION MIN_PROBE_EDGE
-  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - MIN_PROBE_EDGE)
+  //#define RIGHT_PROBE_BED_POSITION (X_BED_SIZE - (MIN_PROBE_EDGE))
   //#define FRONT_PROBE_BED_POSITION MIN_PROBE_EDGE
-  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - MIN_PROBE_EDGE)
+  //#define BACK_PROBE_BED_POSITION (Y_BED_SIZE - (MIN_PROBE_EDGE))
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
@@ -1870,7 +1913,7 @@
  * For Neopixel LED an overall brightness parameter is also available.
  *
  * *** CAUTION ***
- *  LED Strips require a MOFSET Chip between PWM lines and LEDs,
+ *  LED Strips require a MOSFET Chip between PWM lines and LEDs,
  *  as the Arduino cannot handle the current the LEDs will require.
  *  Failure to follow this precaution can destroy your Arduino!
  *  NOTE: A separate 5V power supply is required! The Neopixel LED needs

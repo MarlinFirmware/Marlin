@@ -207,6 +207,23 @@
 #endif
 
 /**
+ * Switching Toolhead
+ *
+ * Support for swappable and dockable toolheads, such as
+ * the E3D Tool Changer. Toolheads are locked with a servo.
+ */
+//#define SWITCHING_TOOLHEAD
+#if ENABLED(SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
+  #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
+  #define SWITCHING_TOOLHEAD_Y_POS        235         // (mm) Y position of the toolhead dock
+  #define SWITCHING_TOOLHEAD_Y_SECURITY    10         // (mm) Security distance Y axis
+  #define SWITCHING_TOOLHEAD_Y_CLEAR       60         // (mm) Minimum distance from dock for unobstructed X axis
+  #define SWITCHING_TOOLHEAD_X_POS        { 215, 0 }  // (mm) X positions for parking the extruders
+  #define SWITCHING_TOOLHEAD_SECURITY_RAISE 5         // (mm) Z-raise before parking
+#endif
+
+/**
  * "Mixing Extruder"
  *   - Adds a new code, M165, to set the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
@@ -1174,10 +1191,10 @@
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  //#define LEFT_PROBE_BED_POSITION -(DELTA_PRINTABLE_RADIUS - MIN_PROBE_EDGE)
-  //#define RIGHT_PROBE_BED_POSITION (DELTA_PRINTABLE_RADIUS - MIN_PROBE_EDGE)
-  //#define FRONT_PROBE_BED_POSITION -(DELTA_PRINTABLE_RADIUS - MIN_PROBE_EDGE)
-  //#define BACK_PROBE_BED_POSITION (DELTA_PRINTABLE_RADIUS - MIN_PROBE_EDGE)
+  //#define LEFT_PROBE_BED_POSITION -(DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  //#define RIGHT_PROBE_BED_POSITION (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  //#define FRONT_PROBE_BED_POSITION -(DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
+  //#define BACK_PROBE_BED_POSITION (DELTA_PRINTABLE_RADIUS - (MIN_PROBE_EDGE))
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
