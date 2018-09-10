@@ -31,9 +31,9 @@
 #define TB6560              0x006
 #define TB6600              0x007
 #define TMC2100             0x008
-#define TMC2130             0x109
+#define TMC2130             2130
 #define TMC2130_STANDALONE  0x009
-#define TMC2208             0x10A
+#define TMC2208             2208
 #define TMC2208_STANDALONE  0x00A
 #define TMC26X              0x10B
 #define TMC26X_STANDALONE   0x00B
