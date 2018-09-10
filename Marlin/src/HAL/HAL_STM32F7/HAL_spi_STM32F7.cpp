@@ -41,7 +41,7 @@
 #include "pins_arduino.h"
 #include "spi_pins.h"
 #include "../../core/macros.h"
-
+#include <SPI.h>
 
 // --------------------------------------------------------------------------
 // Public Variables

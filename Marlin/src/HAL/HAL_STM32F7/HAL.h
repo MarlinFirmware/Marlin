@@ -114,6 +114,8 @@
 #define ISRS_ENABLED() (!__get_PRIMASK())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
+#define cli() __disable_irq()
+#define sei() __enable_irq()
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -151,11 +153,7 @@ extern uint16_t HAL_adc_result;
 // Public functions
 // --------------------------------------------------------------------------
 
-// Disable interrupts
-#define cli() do {  DISABLE_TEMPERATURE_INTERRUPT(); DISABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
-// Enable interrupts
-#define sei() do {  ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
 // Memory related
 #define __bss_end __bss_end__
