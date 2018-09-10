@@ -871,17 +871,14 @@ void MarlinSettings::postprocess() {
     //
     // Linear Advance
     //
-    LOOP_L_N(i,EXTRUDERS) {
-      _FIELD_TEST(planner_extruder_advance_K[i]);
-    }
+    LOOP_L_N(i,EXTRUDERS) _FIELD_TEST(planner_extruder_advance_K[i]);
+
     #if ENABLED(LIN_ADVANCE)
-    LOOP_L_N(i,EXTRUDERS) {
-      EEPROM_WRITE(planner.extruder_advance_K[i]);
-    }
+      LOOP_L_N(i,EXTRUDERS) EEPROM_WRITE(planner.extruder_advance_K[i]);
     #else
       LOOP_L_N(i,EXTRUDERS) {
-      dummy = 0;
-      EEPROM_WRITE(dummy);
+        dummy = 0;
+        EEPROM_WRITE(dummy);
       }
     #endif
 
@@ -1475,18 +1472,14 @@ void MarlinSettings::postprocess() {
       //
       // Linear Advance
       //
-      LOOP_L_N(i,EXTRUDERS) {
-        _FIELD_TEST(planner_extruder_advance_K[i]);
-      }
+      LOOP_L_N(i,EXTRUDERS) _FIELD_TEST(planner_extruder_advance_K[i]);
+
 
       #if ENABLED(LIN_ADVANCE)
-      LOOP_L_N(i,EXTRUDERS) {
-        EEPROM_READ(planner.extruder_advance_K[i]);
-      }
+        LOOP_L_N(i,EXTRUDERS) EEPROM_READ(planner.extruder_advance_K[i]);
+
       #else
-      LOOP_L_N(i,EXTRUDERS) {
-        EEPROM_READ(dummy);
-        }
+        LOOP_L_N(i,EXTRUDERS) EEPROM_READ(dummy);
       #endif
 
       //
@@ -1966,7 +1959,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   reset_stepper_drivers();
 
   #if ENABLED(LIN_ADVANCE)
-  LOOP_L_N(i,EXTRUDERS){planner.extruder_advance_K[i] = LIN_ADVANCE_K;}
+  LOOP_L_N(i,EXTRUDERS) {planner.extruder_advance_K[i] = LIN_ADVANCE_K;}
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
@@ -2729,8 +2722,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM_P(port, "Linear Advance:");
       }
-      CONFIG_ECHO_START;
+
       LOOP_L_N(i,EXTRUDERS){
+        CONFIG_ECHO_START;
         SERIAL_ECHOPGM_P(port,"M900 T");
         SERIAL_ECHO(i);
         SERIAL_ECHOLNPAIR_P(port, " K", planner.extruder_advance_K[i]);

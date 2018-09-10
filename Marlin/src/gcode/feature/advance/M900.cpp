@@ -37,7 +37,7 @@ void GcodeSuite::M900() {
   int T = active_extruder;
   if (parser.seenval('T')){
     T = parser.intval('T');
-    if (!(T<EXTRUDERS)){
+    if (!(T < EXTRUDERS)){
       SERIAL_PROTOCOLLNPGM("?T value out of range.");
       return;
     }
