@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V56"
+#define EEPROM_VERSION "V57"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -254,7 +254,7 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K[EXTRUDERS];                     // M900 K    planner.extruder_advance_K
+  float planner_extruder_advance_K[EXTRUDERS];          // M900 K  planner.extruder_advance_K
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -871,15 +871,13 @@ void MarlinSettings::postprocess() {
     //
     // Linear Advance
     //
-    LOOP_L_N(i,EXTRUDERS) _FIELD_TEST(planner_extruder_advance_K[i]);
+    _FIELD_TEST(planner_extruder_advance_K);
 
     #if ENABLED(LIN_ADVANCE)
-      LOOP_L_N(i,EXTRUDERS) EEPROM_WRITE(planner.extruder_advance_K[i]);
+      LOOP_L_N(i, EXTRUDERS) EEPROM_WRITE(planner.extruder_advance_K[i]);
     #else
-      LOOP_L_N(i,EXTRUDERS) {
-        dummy = 0;
-        EEPROM_WRITE(dummy);
-      }
+      dummy = 0;
+      LOOP_L_N(i, EXTRUDERS) EEPROM_WRITE(dummy);
     #endif
 
     _FIELD_TEST(motor_current_setting);
@@ -1472,15 +1470,15 @@ void MarlinSettings::postprocess() {
       //
       // Linear Advance
       //
-      LOOP_L_N(i,EXTRUDERS) _FIELD_TEST(planner_extruder_advance_K[i]);
+      _FIELD_TEST(planner_extruder_advance_K);
 
-
-      #if ENABLED(LIN_ADVANCE)
-        LOOP_L_N(i,EXTRUDERS) EEPROM_READ(planner.extruder_advance_K[i]);
-
-      #else
-        LOOP_L_N(i,EXTRUDERS) EEPROM_READ(dummy);
-      #endif
+      LOOP_L_N(i, EXTRUDERS) {
+        #if ENABLED(LIN_ADVANCE)
+          EEPROM_READ(planner.extruder_advance_K[i]);
+        #else
+          EEPROM_READ(dummy);
+        #endif
+      }
 
       //
       // Motor Current PWM
@@ -1959,7 +1957,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   reset_stepper_drivers();
 
   #if ENABLED(LIN_ADVANCE)
-  LOOP_L_N(i,EXTRUDERS) {planner.extruder_advance_K[i] = LIN_ADVANCE_K;}
+    LOOP_L_N(i, EXTRUDERS) planner.extruder_advance_K[i] = LIN_ADVANCE_K;
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
@@ -2723,13 +2721,11 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOLNPGM_P(port, "Linear Advance:");
       }
 
-      LOOP_L_N(i,EXTRUDERS){
+      LOOP_L_N(i, EXTRUDERS) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPGM_P(port,"M900 T");
-        SERIAL_ECHO(i);
+        SERIAL_ECHOPAIR_P(port, "M900 T", int(i));
         SERIAL_ECHOLNPAIR_P(port, " K", planner.extruder_advance_K[i]);
       }
-
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM

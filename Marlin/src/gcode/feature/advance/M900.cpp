@@ -34,30 +34,29 @@
  *  K<factor>   Set advance K factor
  */
 void GcodeSuite::M900() {
-  int T = active_extruder;
-  if (parser.seenval('T')){
-    T = parser.intval('T');
-    if (!(T < EXTRUDERS)){
-      SERIAL_PROTOCOLLNPGM("?T value out of range.");
-      return;
-    }
+  const uint8_t tmp_extruder = parser.seenval('T') ? parser.value_int() : active_extruder;
+  if (tmp_extruder >= EXTRUDERS) {
+    SERIAL_PROTOCOLLNPGM("?T value out of range.");
+    return;
   }
+
   if (parser.seenval('K')) {
     const float newK = parser.floatval('K');
     if (WITHIN(newK, 0, 10)) {
       planner.synchronize();
-      planner.extruder_advance_K[T] = newK;
+      planner.extruder_advance_K[tmp_extruder] = newK;
     }
     else
       SERIAL_PROTOCOLLNPGM("?K value out of range (0-10).");
   }
   else {
     SERIAL_ECHO_START();
+    SERIAL_ECHOPGM("Advance K");
     LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_ECHOPGM("Advance T");
-      SERIAL_ECHO(i);
-      SERIAL_ECHOLNPAIR(" K=", planner.extruder_advance_K[i]);
+      SERIAL_CHAR(' '); SERIAL_ECHO(int(i));
+      SERIAL_CHAR('='); SERIAL_ECHO(planner.extruder_advance_K[i]);
     }
+    SERIAL_EOL();
   }
 }
 
