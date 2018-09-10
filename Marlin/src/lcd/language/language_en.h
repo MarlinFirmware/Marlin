@@ -46,6 +46,9 @@
 #ifndef MSG_BACK
   #define MSG_BACK                            _UxGT("Back")
 #endif
+#ifndef MSG_ACTIVE
+  #define MSG_ACTIVE                          _UxGT("Active")
+#endif
 #ifndef MSG_SD_INSERTED
   #define MSG_SD_INSERTED                     _UxGT("Card inserted")
 #endif
@@ -80,7 +83,7 @@
   #define MSG_PROGRESS_BAR_TEST               _UxGT("Progress Bar Test")
 #endif
 #ifndef MSG_AUTO_HOME
-  #define MSG_AUTO_HOME                       _UxGT("Auto home")
+  #define MSG_AUTO_HOME                       _UxGT("Auto Home All")
 #endif
 #ifndef MSG_AUTO_HOME_X
   #define MSG_AUTO_HOME_X                     _UxGT("Home X")
@@ -170,7 +173,7 @@
   #define MSG_EXTRUDE                         _UxGT("Extrude")
 #endif
 #ifndef MSG_RETRACT
-  #define MSG_RETRACT                         _UxGT("Retract")
+  #define MSG_RETRACT                         _UxGT("Retraction")
 #endif
 #ifndef MSG_MOVE_AXIS
   #define MSG_MOVE_AXIS                       _UxGT("Move axis")
@@ -642,6 +645,9 @@
 #ifndef MSG_VOLUMETRIC_ENABLED
   #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
 #endif
+#ifndef MSG_VOLUMETRIC
+  #define MSG_VOLUMETRIC                     _UxGT("Volumetric E")
+#endif
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
 #endif
@@ -798,6 +804,9 @@
 #ifndef MSG_ZPROBE_ZOFFSET
   #define MSG_ZPROBE_ZOFFSET                  _UxGT("Probe Z Offset")
 #endif
+#ifndef MSG_BABYSTEPPING
+  #define MSG_BABYSTEPPING                    _UxGT("Babystepping")
+#endif
 #ifndef MSG_BABYSTEP_X
   #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
 #endif
@@ -908,6 +917,9 @@
 #endif
 #ifndef MSG_INFO_PRINTER_MENU
   #define MSG_INFO_PRINTER_MENU               _UxGT("Printer Info")
+#endif
+#ifndef MSG_LIN_ADVANCE
+  #define MSG_LIN_ADVANCE                     _UxGT("Linear Advance")
 #endif
 #ifndef MSG_3POINT_LEVELING
   #define MSG_3POINT_LEVELING                 _UxGT("3-Point Leveling")
