@@ -34,11 +34,16 @@
  *  K<factor>   Set advance K factor
  */
 void GcodeSuite::M900() {
-  const uint8_t tmp_extruder = parser.seenval('T') ? parser.value_int() : active_extruder;
-  if (tmp_extruder >= EXTRUDERS) {
-    SERIAL_PROTOCOLLNPGM("?T value out of range.");
-    return;
-  }
+
+  #if EXTRUDERS < 2
+    constexpr uint8_t tmp_extruder = 0;
+  #else
+    const uint8_t tmp_extruder = parser.seenval('T') ? parser.value_int() : active_extruder;
+    if (tmp_extruder >= EXTRUDERS) {
+      SERIAL_PROTOCOLLNPGM("?T value out of range.");
+      return;
+    }
+  #endif
 
   if (parser.seenval('K')) {
     const float newK = parser.floatval('K');
@@ -51,12 +56,16 @@ void GcodeSuite::M900() {
   }
   else {
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM("Advance K");
-    LOOP_L_N(i, EXTRUDERS) {
-      SERIAL_CHAR(' '); SERIAL_ECHO(int(i));
-      SERIAL_CHAR('='); SERIAL_ECHO(planner.extruder_advance_K[i]);
-    }
-    SERIAL_EOL();
+    #if EXTRUDERS < 2
+      SERIAL_ECHOLNPAIR("Advance K=", planner.extruder_advance_K[0]);
+    #else
+      SERIAL_ECHOPGM("Advance K");
+      LOOP_L_N(i, EXTRUDERS) {
+        SERIAL_CHAR(' '); SERIAL_ECHO(int(i));
+        SERIAL_CHAR('='); SERIAL_ECHO(planner.extruder_advance_K[i]);
+      }
+      SERIAL_EOL();
+    #endif
   }
 }
 

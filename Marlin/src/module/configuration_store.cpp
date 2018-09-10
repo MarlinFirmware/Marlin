@@ -2721,11 +2721,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOLNPGM_P(port, "Linear Advance:");
       }
 
-      LOOP_L_N(i, EXTRUDERS) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR_P(port, "M900 T", int(i));
-        SERIAL_ECHOLNPAIR_P(port, " K", planner.extruder_advance_K[i]);
-      }
+      CONFIG_ECHO_START;
+      #if EXTRUDERS < 2
+        SERIAL_ECHOLNPAIR_P(port, "  M900 K", planner.extruder_advance_K[0]);
+      #else
+        LOOP_L_N(i, EXTRUDERS) {
+          SERIAL_ECHOPAIR_P(port, "  M900 T", int(i));
+          SERIAL_ECHOLNPAIR_P(port, " K", planner.extruder_advance_K[i]);
+        }
+      #endif
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM
