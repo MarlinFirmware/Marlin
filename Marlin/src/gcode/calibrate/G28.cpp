@@ -207,6 +207,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
+
     // Cancel the active G29 session
     #if ENABLED(PROBE_MANUALLY)
       extern bool g29_in_progress;
