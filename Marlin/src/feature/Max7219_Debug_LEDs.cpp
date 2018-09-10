@@ -55,6 +55,8 @@ Max7219 max7219;
 
 uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
 
+QueueHandle_t Max7219::queue; // = NULL
+
 #define LINE_REG(Q)     (max7219_reg_digit0 + ((Q) & 0x7))
 #if _ROT == 0 || _ROT == 270
   #define _LED_BIT(Q)   (7 - ((Q) & 0x7))
@@ -104,58 +106,42 @@ void Max7219::error(const char * const func, const int32_t v1, const int32_t v2/
   #endif
 }
 
-extern QueueHandle_t Max7219_Queue;
-struct LED_Msg incoming_led_msg;
-#define MSG incoming_led_msg
+void Max7219::do_command(uint8_t msg, uint8_t col, uint8_t row, uint32_t val ) {
+  led_msg_t out_led_msg;
 
-void Max7219_Do_Cmd(uint8_t msg, uint8_t col, uint8_t row, uint32_t val ) {
-  struct LED_Msg out_going_led_msg;
+  out_led_msg.operation = msg;
+  out_led_msg.col       = col;
+  out_led_msg.row       = row;
+  out_led_msg.val       = val;
 
-  out_going_led_msg.operation = msg;
-  out_going_led_msg.col       = col;
-  out_going_led_msg.row       = row;
-  out_going_led_msg.val       = val;
-
-  while (pdPASS != xQueueSendToBack(Max7219_Queue, &out_going_led_msg, 100)) { /* nada */ }
+  while (pdPASS != xQueueSendToBack(queue, &out_led_msg, 100)) { /* nada */ }
 }
 
-TaskFunction_t Max7219_Cmd_Processor(void *ptr) {
+TaskFunction_t Max7219::command_processor(void *ptr) {
 
-  while (Max7219_Queue == NULL)    // wait until the message queue is set up to look for stuff to process
-    vTaskDelay(50);
+  static led_msg_t in_led_msg;
+
+  while (queue == NULL) vTaskDelay(50); // wait until the message queue is set up before processing
 
   for (;;) {
 
-    while (pdPASS != xQueueReceive( Max7219_Queue, &incoming_led_msg, 2000)) { /* nada */ }
+    while (pdPASS != xQueueReceive(queue, &in_led_msg, 2000)) { /* nada */ }
 
-    switch (MSG.operation) {
-      case LED_NOP:          break;
-      case LED_INIT:         Max7219_init();
-                             break;
-      case LED_LOAD_REGS:    Max7219_register_setup();
-                             break;
-      case LED_ON:           Max7219_LED_On(MSG.col, MSG.row);
-                             break;
-      case LED_OFF:          Max7219_LED_Off(MSG.col, MSG.row);
-                             break;
-      case LED_TOGGLE:       Max7219_LED_Toggle(MSG.col, MSG.row);
-                             break;
-      case LED_CLEAR_MATRIX: Max7219_Clear();
-                             break;
-      case LED_CLEAR_ROW:    Max7219_Clear_Row(MSG.row);
-                             break;
-      case LED_CLEAR_COLUMN: Max7219_Clear_Column(MSG.col);
-                             break;
-      case LED_SET_ROW:      Max7219_Set_Row(MSG.row, (uint8_t) MSG.val);
-                             break;
-      case LED_SET_2_ROWS:   Max7219_Set_2_Rows(MSG.row, (uint16_t) MSG.val);
-                             break;
-      case LED_SET_4_ROWS:   Max7219_Set_4_Rows(MSG.row, MSG.val);
-                             break;
-      case LED_SET_COLUMN:   Max7219_Set_Column(MSG.col, (uint8_t) MSG.val);
-                             break;
-      case LED_IDLE_TASK:    Max7219_idle_tasks();
-                             break;
+    switch (in_led_msg.operation) {
+      case LED_NOP:           break;
+      case LED_INIT:          max7219.reinit();                                                  break;
+      case LED_LOAD_REGS:     max7219.register_setup();                                          break;
+      case LED_ON:            max7219.led_on(in_led_msg.col, in_led_msg.row);                    break;
+      case LED_OFF:           max7219.led_off(in_led_msg.col, in_led_msg.row);                   break;
+      case LED_TOGGLE:        max7219.led_toggle(in_led_msg.col, in_led_msg.row);                break;
+      case LED_CLEAR_MATRIX:  max7219.clear();                                                   break;
+      case LED_CLEAR_ROW:     max7219.clear_row(in_led_msg.row);                                 break;
+      case LED_CLEAR_COLUMN:  max7219.clear_column(in_led_msg.col);                              break;
+      case LED_SET_ROW:       max7219.set_row(in_led_msg.row, (uint8_t)in_led_msg.val);          break;
+      case LED_SET_2_ROWS:    max7219.set_rows_16bits(in_led_msg.row, (uint16_t)in_led_msg.val); break;
+      case LED_SET_4_ROWS:    max7219.set_rows_32bits(in_led_msg.row, in_led_msg.val);           break;
+      case LED_SET_COLUMN:    max7219.set_column(in_led_msg.col, (uint8_t)in_led_msg.val);       break;
+      case LED_IDLE_TASK:     max7219.idle_tasks();                                              break;
     }
   }
 }
@@ -485,7 +471,7 @@ void Max7219::register_setup() {
 #endif
 #endif // MAX7219_INIT_TEST
 
-void Max7219::init() {
+void Max7219::reinit() {
   SET_OUTPUT(MAX7219_DIN_PIN);
   SET_OUTPUT(MAX7219_CLK_PIN);
   OUT_WRITE(MAX7219_LOAD_PIN, HIGH);
@@ -514,6 +500,22 @@ void Max7219::init() {
       sweep(-1, 20, false);
     #endif
   #endif
+}
+
+void Max7219::init() {
+  reinit();
+
+  queue = xQueueCreate(3 /* # of queue items */, sizeof(led_msg_t));
+  if (!queue) {
+    max7219.set_row(0, 0xE5);
+    for (;;) { /* nada */ }
+  }
+
+  // Create the Max7219 debug task.  It is very low priority in an attempt to not affect the
+  // normal timing of Marlin.  But if too many messages are sent too quickly to the task,
+  // the command queue will fill up and the sender will block until a message has been drained
+  // to make room for the next message.  
+  xTaskCreate((TaskFunction_t)max7219.command_processor, "Max7219::LEDs", 200 /* Stack size */, NULL, 2  /* priority */, NULL);
 }
 
 /**

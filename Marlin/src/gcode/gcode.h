@@ -516,6 +516,7 @@ private:
   #endif
 
   static void M101();
+
   #if ENABLED(MAX7219_DEBUG)
     static void M102();
   #endif

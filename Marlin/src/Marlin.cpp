@@ -532,7 +532,6 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 }
 
 #if ENABLED(MAX7219_DEBUG)
-  QueueHandle_t Max7219_Queue = NULL;
   unsigned long int zz = 0,         // Temporary - will go away soon - used by loop()   
                     zzz = 0,        // Temporary - will go away soon - used by Marlin_idle()   
                     zzzz = 0,       // Temporary - will go away soon - used by Marlin_main_loop()
@@ -549,7 +548,7 @@ void idle(
 ) {
   #if ENABLED(MAX7219_DEBUG)
     zzzzz++;
-    Max7219_Do_Cmd(LED_SET_ROW, 0, 5, uint8_t(zzzzz >> 5));
+    max7219.do_command(LED_SET_ROW, 0, 5, uint8_t(zzzzz >> 5));
   #endif
 
   lcd_update();
@@ -692,22 +691,10 @@ void setup() {
 
   #if ENABLED(MAX7219_DEBUG)
     max7219.init();
-
-    Max7219_Queue = xQueueCreate(3 /* # of queue items */, sizeof(LED_Msg));
-    if (Max7219_Queue == NULL) {
-      Max7219_Set_Row(0, 0xe5);
-      for (;;);
-    }
-
-    // Create the Max7219 debug task.  It is very low priority in an attempt to not affect the
-    // normal timing of Marlin.  But if too many messages are sent too quickly to the task,
-    // the command queue will fill up and the sender will block until a message has been drained
-    // to make room for the next message.  
-    xTaskCreate((TaskFunction_t)Max7219_Cmd_Processor, "Max7219_LEDs", 200 /* Stack size */, NULL, 2  /* priority */, NULL);
   #endif
 
-  ptr = (char *) malloc(75);  // reserve some memory for the RTOS to use later.  It will be given
-                              // back after the Marlin-loop task is started.
+  ptr = (char*)malloc(75);  // reserve some memory for the RTOS to use later.  It will be given
+                            // back after the Marlin-loop task is started.
                      
   xTaskCreate((TaskFunction_t) Marlin_idle, "Marlin_idle", 450 /* Stack size */, NULL,  4  /* priority */,  NULL );
 
@@ -720,7 +707,7 @@ void setup() {
     if (pdPASS == xTaskCreate((TaskFunction_t) Marlin_main_loop, "Marlin_loop", ss /* Stack size */, NULL, 5 /* priority */, NULL))
       break;
 
-  if (ss < 350) for (;;); // Die if Marlin_main_loop didn't get enough memory.
+  if (ss < 350) for (;;) { /* nada */ } // Die if Marlin_main_loop didn't get enough memory.
 
   free(ptr);         // give back the memory we reserved for generic RTOS usage
 
@@ -986,15 +973,17 @@ TaskFunction_t Marlin_main_loop() {
                           // In the mean time...  settings.load() is run at the start of the Marlin_main_loop()
                           // task.  This approach seems to work around what ever the problem is.
 
-  Max7219_Do_Cmd(LED_CLEAR_MATRIX, 0, 0, 0);
+  #if ENABLED(MAX7219_DEBUG)
+    max7219.do_command(LED_CLEAR_MATRIX, 0, 0, 0);
+  #endif
 
   for (;;) {
 
     #if ENABLED(MAX7219_DEBUG)
       zzzz++;
-      Max7219_Do_Cmd(LED_SET_ROW, 0, 7, uint8_t(zzzz >> 4));
+      max7219.do_command(LED_SET_ROW, 0, 7, uint8_t(zzzz >> 4));
       if ((zzzz & 0x20) == 0x20)
-        Max7219_Do_Cmd(LED_TOGGLE, 5, 1, 0);
+        max7219.do_command(LED_TOGGLE, 5, 1, 0);
     #endif
 
     #if ENABLED(SDSUPPORT)
@@ -1033,7 +1022,11 @@ TaskFunction_t Marlin_main_loop() {
 
 TaskFunction_t Marlin_idle() {
   for (;;) {
-    Max7219_Do_Cmd(LED_SET_ROW, 0, 6, (uint8_t) (zzz++>>3));
+
+    #if ENABLED(MAX7219_DEBUG)
+      max7219.do_command(LED_SET_ROW, 0, 6, (uint8_t) (zzz++ >> 3));
+    #endif
+    
     vTaskDelay(3);
   }
 }
@@ -1050,6 +1043,6 @@ TaskFunction_t Marlin_idle() {
 
 void loop() {
   #if ENABLED(MAX7219_DEBUG)
-    Max7219_LED_Toggle(7, 0); // Max7219_Do_Cmd(LED_TOGGLE, 7, 0, 0); can not be used because loop() is not allowed to block!
+    max7219.led_toggle(7, 0); // max7219.do_command(LED_TOGGLE, 7, 0, 0); // can't be used because loop() is not allowed to block!
   #endif
 }

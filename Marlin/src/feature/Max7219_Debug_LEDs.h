@@ -36,11 +36,13 @@
  *
  * If you are using the Max7219 matrix for firmware debug purposes in time sensitive
  * areas of the code, please be aware that the orientation (rotation) of the display can
- * affect the speed.   The Max7219 can update a single column fairly fast.  It is much
- * faster to do a Max7219_Set_Column() with a rotation of 90 or 270 degrees than to do
- * a Max7219_Set_Row().    The opposite is true for rotations of 0 or 180 degrees.
+ * affect the speed. The Max7219 can update a single column fairly fast. It is much
+ * faster to do a max7219.set_column() with a rotation of 90 or 270 degrees than to do
+ * a max7219.set_row(). The opposite is true for rotations of 0 or 180 degrees.
  */
 #pragma once
+
+#include <task.h>
 
 #ifndef MAX7219_ROTATE
   #define MAX7219_ROTATE 0
@@ -83,11 +85,22 @@
 
 class Max7219 {
 public:
+
+  typedef struct {
+    uint8_t operation;
+    uint8_t row, col;
+    uint32_t val;
+  } led_msg_t;
+
+  static led_msg_t led_msg;
+  QueueHandle_t queue;
+
   static uint8_t led_line[MAX7219_LINES];
 
   Max7219() { }
 
   static void init();
+  static void reinit();
   static void register_setup();
   static void putbyte(uint8_t data);
   static void pulse_load();
@@ -135,6 +148,10 @@ public:
   // Apply custom code to update the matrix
   static void idle_tasks();
 
+  // RTOS hooks
+  static void do_command(uint8_t msg, uint8_t row, uint8_t col, uint32_t val);
+  TaskFunction_t command_processor(void*);
+
 private:
   static void error(const char * const func, const int32_t v1, const int32_t v2=-1);
   static void noop();
@@ -156,13 +173,9 @@ private:
 
 extern Max7219 max7219;
 
-// RTOS hooks
-void Max7219_Do_Cmd(uint8_t msg, uint8_t row, uint8_t col, uint32_t val);
-TaskFunction_t Max7219_Cmd_Processor(void*);
-
 #define LED_NOP          0x00
 #define LED_LOAD_REGS    0x01
-#define LED_INIT         0x02
+#define LED_REINIT       0x02
 #define LED_ON           0x03
 #define LED_OFF          0x04
 #define LED_TOGGLE       0x05
@@ -174,12 +187,5 @@ TaskFunction_t Max7219_Cmd_Processor(void*);
 #define LED_SET_4_ROWS   0x0b
 #define LED_SET_COLUMN   0x0c
 #define LED_IDLE_TASK    0x0d
-
-struct LED_Msg {
-  uint8_t operation;
-  uint8_t row;
-  uint8_t col;
-  uint32_t val;
-};
 
 #endif // __MAX7219_DEBUG_LEDS_H__
