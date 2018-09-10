@@ -18,7 +18,7 @@ Please do a manual paper test (moving the nozzle slowly down to Z0 and checking 
 
 # Select the Configuration
 
-Please select the correct subdirectory for your printer.
+**Please select the correct values at the start of the Configuration.h file**
 
 The Kossel comes in 3 versions:
 
@@ -28,8 +28,7 @@ The Kossel comes in 3 versions:
  
 Pulley and Linear use the same configuration, the Linear Plus is bigger and uses slightly different configurations.
  
-Typically the probes for the Anycubic Delta Kossel printers come in two different versions. Specify your probe version at the top of the `Configuration.h` file for your machine.
-
+Typically the probes for the Anycubic Delta Kossel printers come in two different versions. 
 
   * Version 1: Z Probe Offset of -19.0mm
 
@@ -39,7 +38,7 @@ Typically the probes for the Anycubic Delta Kossel printers come in two differen
 
     ![Version 2 Probe](images/Version2Probe.jpg)
 
-Additionally, there's a configuration version available for the Kossel (Linear or Pulley) without Z-Probe and without heated bed. It's very important to follow the correct procedure to set it up after flashing the firmware, otherwise you might damage the printer by ramming the nozzle into the buildplate:
+If you select the `ANYCUBIC_PROBE_VERSION 0`: It's very important to follow the correct procedure to set it up after flashing the firmware, otherwise you might damage the printer by ramming the nozzle into the buildplate:
 
 * `Configuration > Advanced Settings > Initialize EEPROM`
 * `Motion > Move Axis > Soft Endstops` : `Off`

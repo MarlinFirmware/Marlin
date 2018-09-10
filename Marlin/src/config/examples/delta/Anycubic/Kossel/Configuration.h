@@ -520,9 +520,7 @@
  */
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
-#if ANYCUBIC_KOSSEL_ENABLE_BED > 0
-  #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
-#endif
+#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 
 //===========================================================================
 //============================= Mechanical Settings =========================
