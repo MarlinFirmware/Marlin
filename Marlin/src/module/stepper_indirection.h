@@ -57,15 +57,17 @@
   void tmc26x_init_to_defaults();
 #endif
 
-#if HAS_DRIVER(TMC2130)
-  #include <TMC2130Stepper.h>
-  void tmc2130_init_to_defaults();
-#endif
+#if HAS_TRINAMIC
+  #include <TMCStepper.h>
 
-#if HAS_DRIVER(TMC2208)
-  #include <TMC2208Stepper.h>
-  void tmc2208_serial_begin();
-  void tmc2208_init_to_defaults();
+  #if TMCSTEPPER_VERSION < 0x000001
+    #error "Update TMCStepper library to 0.0.1 or newer."
+  #endif
+
+  #endif
+  #if HAS_DRIVER(TMC2208)
+    void tmc2208_serial_begin();
+  #endif
 #endif
 
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
@@ -293,17 +295,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z3_DIR_WRITE(STATE) stepperZ3.Step_Clock(STATE)
     #define Z3_DIR_READ (stepperZ3.getStatus() & STATUS_DIR)
   #else
+    #if AXIS_IS_TMC(Z3)
+      extern TMC_CLASS(Z3_DRIVER_TYPE) stepperZ3;
+    #endif
     #if ENABLED(Z3_IS_TMC26X)
       extern TMC26XStepper stepperZ3;
       #define Z3_ENABLE_INIT NOOP
       #define Z3_ENABLE_WRITE(STATE) stepperZ3.setEnabled(STATE)
       #define Z3_ENABLE_READ stepperZ3.isEnabled()
     #else
-      #if ENABLED(Z3_IS_TMC2130)
-        extern TMC2130Stepper stepperZ3;
-      #elif ENABLED(Z3_IS_TMC2208)
-        extern TMC2208Stepper stepperZ3;
-      #endif
       #define Z3_ENABLE_INIT SET_OUTPUT(Z3_ENABLE_PIN)
       #define Z3_ENABLE_WRITE(STATE) WRITE(Z3_ENABLE_PIN,STATE)
       #define Z3_ENABLE_READ READ(Z3_ENABLE_PIN)
@@ -492,17 +492,15 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define E5_DIR_WRITE(STATE) stepperE5.Step_Clock(STATE)
   #define E5_DIR_READ (stepperE5.getStatus() & STATUS_DIR)
 #else
+  #if AXIS_IS_TMC(E5)
+    extern TMC_CLASS(E5_DRIVER_TYPE) stepperE5;
+  #endif
   #if AXIS_DRIVER_TYPE(E5, TMC26X)
     extern TMC26XStepper stepperE5;
     #define E5_ENABLE_INIT NOOP
     #define E5_ENABLE_WRITE(STATE) stepperE5.setEnabled(STATE)
     #define E5_ENABLE_READ stepperE5.isEnabled()
   #else
-    #if AXIS_DRIVER_TYPE(E5, TMC2130)
-      extern TMC2130Stepper stepperE5;
-    #elif AXIS_DRIVER_TYPE(E5, TMC2208)
-      extern TMC2208Stepper stepperE5;
-    #endif
     #define E5_ENABLE_INIT SET_OUTPUT(E5_ENABLE_PIN)
     #define E5_ENABLE_WRITE(STATE) WRITE(E5_ENABLE_PIN,STATE)
     #define E5_ENABLE_READ READ(E5_ENABLE_PIN)

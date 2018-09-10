@@ -736,6 +736,9 @@ void setup() {
   SERIAL_ECHO_START();
 
   #if HAS_DRIVER(TMC2130)
+    #if DISABLED(TMC_USE_SW_SPI)
+      SPI.begin();
+    #endif
     tmc_init_cs_pins();
   #endif
   #if HAS_DRIVER(TMC2208)
