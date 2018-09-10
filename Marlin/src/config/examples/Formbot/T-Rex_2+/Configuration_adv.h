@@ -1519,12 +1519,12 @@
  */
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
-//#define USER_SCRIPT_AUDIBLE_FEEDBACK
+  //#define USER_SCRIPT_AUDIBLE_FEEDBACK
   #define USER_SCRIPT_RETURN  // Return to status screen after a script
 
   #define USER_DESC_1  "User cmd 1"
   #define USER_GCODE_1 "G28 X \n"
- 
+
   #define USER_DESC_2  "User cmd 2"
   #define USER_GCODE_2 "G28 \nG1 X100 \n"
 
