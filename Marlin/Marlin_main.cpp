@@ -834,10 +834,10 @@ extern "C" {
 
   int freeMemory() {
     int free_memory;
-    if ((int)__brkval == 0)
-      free_memory = ((int)&free_memory) - ((int)&__bss_end);
+    if (int(__brkval) == 0)
+      free_memory = (int(&free_memory)) - (int(&__bss_end));
     else
-      free_memory = ((int)&free_memory) - ((int)__brkval);
+      free_memory = (int(&free_memory)) - (int(__brkval));
     return free_memory;
   }
 }
@@ -2664,7 +2664,7 @@ void clean_up_after_endstop_or_probe_move() {
       for (uint8_t x = 0; x < sx; x++) {
         for (uint8_t i = 0; i < precision + 2 + (x < 10 ? 1 : 0); i++)
           SERIAL_PROTOCOLCHAR(' ');
-        SERIAL_PROTOCOL((int)x);
+        SERIAL_PROTOCOL(int(x));
       }
       SERIAL_EOL();
     #endif
@@ -2676,14 +2676,14 @@ void clean_up_after_endstop_or_probe_move() {
         SERIAL_PROTOCOLPGM(" [");           // open sub-array
       #else
         if (y < 10) SERIAL_PROTOCOLCHAR(' ');
-        SERIAL_PROTOCOL((int)y);
+        SERIAL_PROTOCOL(int(y));
       #endif
       for (uint8_t x = 0; x < sx; x++) {
         SERIAL_PROTOCOLCHAR(' ');
         const float offset = fn(x, y);
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_PROTOCOLCHAR('+');
-          SERIAL_PROTOCOL_F(offset, precision);
+          SERIAL_PROTOCOL_F(offset, int(precision));
         }
         else {
           #ifdef SCAD_MESH_OUTPUT
@@ -2724,11 +2724,11 @@ void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPGM("Extrapolate [");
         if (x < 10) SERIAL_CHAR(' ');
-        SERIAL_ECHO((int)x);
+        SERIAL_ECHO(int(x));
         SERIAL_CHAR(xdir ? (xdir > 0 ? '+' : '-') : ' ');
         SERIAL_CHAR(' ');
         if (y < 10) SERIAL_CHAR(' ');
-        SERIAL_ECHO((int)y);
+        SERIAL_ECHO(int(y));
         SERIAL_CHAR(ydir ? (ydir > 0 ? '+' : '-') : ' ');
         SERIAL_CHAR(']');
       }
@@ -4963,10 +4963,10 @@ void home_all_axes() { gcode_G28(true); }
 
         xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_SPEED));
 
-        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
-        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
-        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
-        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
+        left_probe_bed_position  = parser.seenval('L') ? int(RAW_X_POSITION(parser.value_linear_units())) : LEFT_PROBE_BED_POSITION;
+        right_probe_bed_position = parser.seenval('R') ? int(RAW_X_POSITION(parser.value_linear_units())) : RIGHT_PROBE_BED_POSITION;
+        front_probe_bed_position = parser.seenval('F') ? int(RAW_Y_POSITION(parser.value_linear_units())) : FRONT_PROBE_BED_POSITION;
+        back_probe_bed_position  = parser.seenval('B') ? int(RAW_Y_POSITION(parser.value_linear_units())) : BACK_PROBE_BED_POSITION;
 
         if (
           #if IS_SCARA || ENABLED(DELTA)
@@ -6279,9 +6279,9 @@ void home_all_axes() { gcode_G28(true); }
           char mess[21];
           strcpy_P(mess, PSTR("Calibration sd:"));
           if (zero_std_dev_min < 1)
-            sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0));
+            sprintf_P(&mess[15], PSTR("0.%03i"), int(LROUND(zero_std_dev_min * 1000.0)));
           else
-            sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev_min));
+            sprintf_P(&mess[15], PSTR("%03i.x"), int(LROUND(zero_std_dev_min)));
           lcd_setstatus(mess);
           print_calibration_settings(_endstop_results, _angle_results);
           serialprintPGM(save_message);
@@ -6290,7 +6290,7 @@ void home_all_axes() { gcode_G28(true); }
         else { // !end iterations
           char mess[15];
           if (iterations < 31)
-            sprintf_P(mess, PSTR("Iteration : %02i"), (int)iterations);
+            sprintf_P(mess, PSTR("Iteration : %02i"), int(iterations));
           else
             strcpy_P(mess, PSTR("No convergence"));
           SERIAL_PROTOCOL(mess);
@@ -6315,9 +6315,9 @@ void home_all_axes() { gcode_G28(true); }
         strcpy_P(mess, enddryrun);
         strcpy_P(&mess[11], PSTR(" sd:"));
         if (zero_std_dev < 1)
-          sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev * 1000.0));
+          sprintf_P(&mess[15], PSTR("0.%03i"), int(LROUND(zero_std_dev * 1000.0)));
         else
-          sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev));
+          sprintf_P(&mess[15], PSTR("%03i.x"), int(LROUND(zero_std_dev)));
         lcd_setstatus(mess);
       }
       ac_home();
@@ -8127,7 +8127,7 @@ inline void gcode_M42() {
           if (verbose_level > 1) {
             SERIAL_PROTOCOL(n + 1);
             SERIAL_PROTOCOLPGM(" of ");
-            SERIAL_PROTOCOL((int)n_samples);
+            SERIAL_PROTOCOL(int(n_samples));
             SERIAL_PROTOCOLPGM(": z: ");
             SERIAL_PROTOCOL_F(sample_set[n], 3);
             if (verbose_level > 2) {
@@ -11126,7 +11126,7 @@ inline void gcode_M502() {
 
   inline void gcode_M605() {
     planner.synchronize();
-    extruder_duplication_enabled = parser.intval('S') == (int)DXC_DUPLICATION_MODE;
+    extruder_duplication_enabled = parser.intval('S') == int(DXC_DUPLICATION_MODE);
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
   }
@@ -12013,7 +12013,7 @@ inline void gcode_M355() {
     }
     else {
       if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM("Case light: on");
-      else SERIAL_ECHOLNPAIR("Case light: ", (int)case_light_brightness);
+      else SERIAL_ECHOLNPAIR("Case light: ", int(case_light_brightness));
     }
 
   #else
@@ -12590,7 +12590,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     #endif
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
+    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }
@@ -15087,7 +15087,7 @@ void setup() {
 
   SERIAL_ECHO_START();
   SERIAL_ECHOPAIR(MSG_FREE_MEMORY, freeMemory());
-  SERIAL_ECHOLNPAIR(MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
+  SERIAL_ECHOLNPAIR(MSG_PLANNER_BUFFER_BYTES, int(sizeof(block_t))*(BLOCK_BUFFER_SIZE));
 
   // Send "ok" after commands by default
   for (int8_t i = 0; i < BUFSIZE; i++) send_ok[i] = true;
