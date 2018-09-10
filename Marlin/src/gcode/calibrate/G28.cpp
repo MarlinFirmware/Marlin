@@ -205,14 +205,15 @@ void GcodeSuite::G28(const bool always_home_all) {
   // Wait for planner moves to finish!
   planner.synchronize();
 
-  // Cancel the active G29 session
-  #if ENABLED(PROBE_MANUALLY)
-    extern bool g29_in_progress;
-    g29_in_progress = false;
-  #endif
-
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
+
+    // Cancel the active G29 session
+    #if ENABLED(PROBE_MANUALLY)
+      extern bool g29_in_progress;
+      g29_in_progress = false;
+    #endif
+
     #if ENABLED(RESTORE_LEVELING_AFTER_G28)
       const bool leveling_was_active = planner.leveling_active;
     #endif
