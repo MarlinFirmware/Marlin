@@ -214,7 +214,7 @@ void reset_bed_level() {
       for (uint8_t x = 0; x < sx; x++) {
         for (uint8_t i = 0; i < precision + 2 + (x < 10 ? 1 : 0); i++)
           SERIAL_PROTOCOLCHAR(' ');
-        SERIAL_PROTOCOL((int)x);
+        SERIAL_PROTOCOL(int(x));
       }
       SERIAL_EOL();
     #endif
@@ -226,14 +226,14 @@ void reset_bed_level() {
         SERIAL_PROTOCOLPGM(" [");           // open sub-array
       #else
         if (y < 10) SERIAL_PROTOCOLCHAR(' ');
-        SERIAL_PROTOCOL((int)y);
+        SERIAL_PROTOCOL(int(y));
       #endif
       for (uint8_t x = 0; x < sx; x++) {
         SERIAL_PROTOCOLCHAR(' ');
         const float offset = fn(x, y);
         if (!isnan(offset)) {
           if (offset >= 0) SERIAL_PROTOCOLCHAR('+');
-          SERIAL_PROTOCOL_F(offset, precision);
+          SERIAL_PROTOCOL_F(offset, int(precision));
         }
         else {
           #ifdef SCAD_MESH_OUTPUT

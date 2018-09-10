@@ -154,6 +154,9 @@
 #ifndef MSG_PREHEAT_2_SETTINGS
   #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" conf")
 #endif
+#ifndef MSG_PREHEAT_CUSTOM
+  #define MSG_PREHEAT_CUSTOM                  _UxGT("Preheat Custom")
+#endif
 #ifndef MSG_COOLDOWN
   #define MSG_COOLDOWN                        _UxGT("Cooldown")
 #endif

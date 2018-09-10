@@ -291,6 +291,13 @@
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
+// Employ an external closed loop controller. Override pins here if needed.
+//#define EXTERNAL_CLOSED_LOOP_CONTROLLER
+#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
+  //#define CLOSED_LOOP_ENABLE_PIN        -1
+  //#define CLOSED_LOOP_MOVE_COMPLETE_PIN -1
+#endif
+
 /**
  * Dual Steppers / Dual Endstops
  *
@@ -365,7 +372,7 @@
   //                                              once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
   //    Mode 3 (DXC_SYMMETRIC_DUPLICATION_MODE) : Symmetric Duplication mode. The firmware will perform similarly to DXC_DUPLICATION_MODE except in a mirror
   //                                              image of the first x-carriage.  ie. If you are printing a right hand shoe on the 1st extruder, you will
-  //                                              get a left hand shoe on the 2nd extruder.  
+  //                                              get a left hand shoe on the 2nd extruder.
 
   // This is the default power-up mode which can be later using M605.
   #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_AUTO_PARK_MODE
@@ -1514,12 +1521,12 @@
  */
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
-//#define USER_SCRIPT_AUDIBLE_FEEDBACK
+  //#define USER_SCRIPT_AUDIBLE_FEEDBACK
   #define USER_SCRIPT_RETURN  // Return to status screen after a script
 
   #define USER_DESC_1  "User cmd 1"
   #define USER_GCODE_1 "G28 X \n"
- 
+
   #define USER_DESC_2  "User cmd 2"
   #define USER_GCODE_2 "G28 \nG1 X100 \n"
 
