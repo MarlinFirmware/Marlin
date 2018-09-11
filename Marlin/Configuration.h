@@ -1560,6 +1560,7 @@
   #if ENABLED(NOZZLE_PROBE)
     #define Z_SAFE_X_POINT PROBE_X_LEFT
     #define Z_SAFE_Y_POINT PROBE_Y_BACK
+  #endif
 #endif
 
 #if ENABLED(Z_SAFE_HOMING)
