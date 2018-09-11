@@ -43,6 +43,7 @@
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #include "../feature/pause.h"
+    #include "../module/motion.h" // for active_extruder
   #endif
 
   bool lcd_hasstatus();
@@ -116,7 +117,6 @@
     void lcd_completion_feedback(const bool good=true);
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      extern uint8_t active_extruder;
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
                                            const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT,
                                            const uint8_t extruder=active_extruder);
