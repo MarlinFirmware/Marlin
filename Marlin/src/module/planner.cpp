@@ -1759,7 +1759,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     block->e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
 
-  block->active_extruder = extruder;
+  #if EXTRUDERS > 1
+    block->active_extruder = extruder;
+  #endif
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
