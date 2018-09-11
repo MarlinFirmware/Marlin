@@ -76,7 +76,12 @@ extern float feedrate_mm_s;
 extern int16_t feedrate_percentage;
 #define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01f)
 
-extern uint8_t active_extruder;
+// The active extruder (tool). Set with T<extruder> command.
+#if EXTRUDERS > 1
+  extern uint8_t active_extruder;
+#else
+  constexpr uint8_t active_extruder = 0;
+#endif
 
 #if HAS_HOTEND_OFFSET
   extern float hotend_offset[XYZ][HOTENDS];

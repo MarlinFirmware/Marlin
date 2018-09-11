@@ -3847,7 +3847,21 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
       MENU_ITEM(submenu, MSG_FILAMENT, lcd_advanced_filament_menu);
     #elif ENABLED(LIN_ADVANCE)
-      MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
+      #if EXTRUDERS == 1
+        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+      #elif EXTRUDERS > 1
+        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E1, &planner.extruder_advance_K[0], 0, 999);
+        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E2, &planner.extruder_advance_K[1], 0, 999);
+        #if EXTRUDERS > 2
+          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E3, &planner.extruder_advance_K[2], 0, 999);
+          #if EXTRUDERS > 3
+            MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E4, &planner.extruder_advance_K[3], 0, 999);
+            #if EXTRUDERS > 4
+              MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E5, &planner.extruder_advance_K[4], 0, 999);
+            #endif // EXTRUDERS > 4
+          #endif // EXTRUDERS > 3
+        #endif // EXTRUDERS > 2
+      #endif // EXTRUDERS > 1
     #endif
 
     // M540 S - Abort on endstop hit when SD printing
@@ -3882,7 +3896,21 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_ADVANCED_SETTINGS);
 
       #if ENABLED(LIN_ADVANCE)
-        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
+        #if EXTRUDERS == 1
+          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+        #elif EXTRUDERS > 1
+          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E1, &planner.extruder_advance_K[0], 0, 999);
+          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E2, &planner.extruder_advance_K[1], 0, 999);
+          #if EXTRUDERS > 2
+            MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E3, &planner.extruder_advance_K[2], 0, 999);
+            #if EXTRUDERS > 3
+              MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E4, &planner.extruder_advance_K[3], 0, 999);
+              #if EXTRUDERS > 4
+                MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E5, &planner.extruder_advance_K[4], 0, 999);
+              #endif // EXTRUDERS > 4
+            #endif // EXTRUDERS > 3
+          #endif // EXTRUDERS > 2
+        #endif // EXTRUDERS > 1
       #endif
 
       #if DISABLED(NO_VOLUMETRICS)

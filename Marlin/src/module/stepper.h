@@ -254,8 +254,11 @@ class Stepper {
 
     static bool abort_current_block;        // Signals to the stepper that current block should be aborted
 
-    #if DISABLED(MIXING_EXTRUDER)
-      static uint8_t last_moved_extruder;   // Last-moved extruder, as set when the last movement was fetched from planner
+    // Last-moved extruder, as set when the last movement was fetched from planner
+    #if EXTRUDERS < 2
+      static constexpr uint8_t last_moved_extruder = 0;
+    #elif DISABLED(MIXING_EXTRUDER)
+      static uint8_t last_moved_extruder;
     #endif
 
     #if ENABLED(X_DUAL_ENDSTOPS)
@@ -293,8 +296,10 @@ class Stepper {
                       advance_divisor_m;
       #define MIXING_STEPPERS_LOOP(VAR) \
         for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
+    #elif EXTRUDERS > 1
+      static uint8_t active_extruder;
     #else
-      static int8_t active_extruder;      // Active extruder
+      static constexpr uint8_t active_extruder = 0;
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
@@ -385,7 +390,7 @@ class Stepper {
     // The extruder associated to the last movement
     FORCE_INLINE static uint8_t movement_extruder() {
       return
-        #if ENABLED(MIXING_EXTRUDER)
+        #if ENABLED(MIXING_EXTRUDER) || EXTRUDERS < 2
           0
         #else
           last_moved_extruder

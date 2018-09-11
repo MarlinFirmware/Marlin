@@ -213,7 +213,7 @@ float Planner::previous_speed[NUM_AXIS],
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  float Planner::extruder_advance_K; // Initialized by settings.load()
+  float Planner::extruder_advance_K[EXTRUDERS]; // Initialized by settings.load()
 #endif
 
 #if HAS_POSITION_FLOAT
@@ -1082,7 +1082,7 @@ void Planner::recalculate_trapezoids() {
             calculate_trapezoid_for_block(current, current_entry_speed * nomr, next_entry_speed * nomr);
             #if ENABLED(LIN_ADVANCE)
               if (current->use_advance_lead) {
-                const float comp = current->e_D_ratio * extruder_advance_K * axis_steps_per_mm[E_AXIS];
+                const float comp = current->e_D_ratio * extruder_advance_K[active_extruder] * axis_steps_per_mm[E_AXIS];
                 current->max_adv_steps = current_nominal_speed * comp;
                 current->final_adv_steps = next_entry_speed * comp;
               }
@@ -1121,7 +1121,7 @@ void Planner::recalculate_trapezoids() {
       calculate_trapezoid_for_block(next, next_entry_speed * nomr, float(MINIMUM_PLANNER_SPEED) * nomr);
       #if ENABLED(LIN_ADVANCE)
         if (next->use_advance_lead) {
-          const float comp = next->e_D_ratio * extruder_advance_K * axis_steps_per_mm[E_AXIS];
+          const float comp = next->e_D_ratio * extruder_advance_K[active_extruder] * axis_steps_per_mm[E_AXIS];
           next->max_adv_steps = next_nominal_speed * comp;
           next->final_adv_steps = (MINIMUM_PLANNER_SPEED) * comp;
         }
@@ -1759,7 +1759,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     block->e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
 
-  block->active_extruder = extruder;
+  #if EXTRUDERS > 1
+    block->active_extruder = extruder;
+  #endif
 
   #if ENABLED(AUTO_POWER_CONTROL)
     if (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
@@ -2130,12 +2132,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
        *
        * esteps             : This is a print move, because we checked for A, B, C steps before.
        *
-       * extruder_advance_K : There is an advance factor set.
+       * extruder_advance_K[active_extruder] : There is an advance factor set for this extruder.
        *
        * de > 0             : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
        */
       block->use_advance_lead =  esteps
-                              && extruder_advance_K
+                              && extruder_advance_K[active_extruder]
                               && de > 0;
 
       if (block->use_advance_lead) {
@@ -2154,7 +2156,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         if (block->e_D_ratio > 3.0f)
           block->use_advance_lead = false;
         else {
-          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK / (extruder_advance_K * block->e_D_ratio) * steps_per_mm;
+          const uint32_t max_accel_steps_per_s2 = MAX_E_JERK / (extruder_advance_K[active_extruder] * block->e_D_ratio) * steps_per_mm;
           #if ENABLED(LA_DEBUG)
             if (accel > max_accel_steps_per_s2) SERIAL_ECHOLNPGM("Acceleration limited.");
           #endif
@@ -2190,9 +2192,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
-      block->advance_speed = (STEPPER_TIMER_RATE) / (extruder_advance_K * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N]);
+      block->advance_speed = (STEPPER_TIMER_RATE) / (extruder_advance_K[active_extruder] * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N]);
       #if ENABLED(LA_DEBUG)
-        if (extruder_advance_K * block->e_D_ratio * block->acceleration * 2 < SQRT(block->nominal_speed_sqr) * block->e_D_ratio)
+        if (extruder_advance_K[active_extruder] * block->e_D_ratio * block->acceleration * 2 < SQRT(block->nominal_speed_sqr) * block->e_D_ratio)
           SERIAL_ECHOLNPGM("More than 2 steps per eISR loop executed.");
         if (block->advance_speed < 200)
           SERIAL_ECHOLNPGM("eISR running at > 10kHz.");
