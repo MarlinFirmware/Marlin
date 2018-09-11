@@ -1386,6 +1386,7 @@
   #define PROBE_X_RIGHT X_BED_SIZE - BED_MARGIN - SENSOR_LEFT
 #endif
 
+
 /**
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
@@ -1497,11 +1498,11 @@
  */
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
   #define PROBE_PT_1_X PROBE_X_LEFT // Probing points for 3-Point leveling of the mesh
-  #define PROBE_PT_1_Y PROBE_Y_FRONT
+  #define PROBE_PT_1_Y PROBE_Y_BACK
   #define PROBE_PT_2_X PROBE_X_RIGHT
-  #define PROBE_PT_2_Y PROBE_Y_FRONT
+  #define PROBE_PT_2_Y PROBE_Y_BACK
   #define PROBE_PT_3_X PROBE_X_RIGHT
-  #define PROBE_PT_3_Y PROBE_Y_BACK
+  #define PROBE_PT_3_Y PROBE_Y_FRONT
 #endif
 
 /**
@@ -1554,11 +1555,16 @@
 //
 #if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE)
   #define Z_SAFE_HOMING
+  #define Z_SAFE_X_POINT ((X_BED_SIZE) / 2)
+  #define Z_SAFE_Y_POINT ((Y_BED_SIZE) / 2)
+  #if ENABLED(NOZZLE_PROBE)
+    #define Z_SAFE_X_POINT PROBE_X_LEFT
+    #define Z_SAFE_Y_POINT PROBE_Y_BACK
 #endif
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_X_POINT ((Z_SAFE_X_POINT) / 2)    // X point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Z_SAFE_Y_POINT) / 2)    // Y point for Z homing when homing all axes (G28).
 #endif
 
 // Homing speeds (mm/m)
