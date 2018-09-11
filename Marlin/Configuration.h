@@ -1553,19 +1553,20 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE)
+#if ENABLED(BLTOUCH) || ENABLED(SN04) || ENABLED(INDUCTIVE_NC) || ENABLED(INDUCTIVE_NO) || ENABLED(SERVO_PROBE) || ENABLED(NOZZLE_PROBE)
   #define Z_SAFE_HOMING
-  #define Z_SAFE_X_POINT ((X_BED_SIZE) / 2)
-  #define Z_SAFE_Y_POINT ((Y_BED_SIZE) / 2)
   #if ENABLED(NOZZLE_PROBE)
     #define Z_SAFE_X_POINT PROBE_X_LEFT
     #define Z_SAFE_Y_POINT PROBE_Y_BACK
+  #else
+    #define Z_SAFE_X_POINT ((X_BED_SIZE) / 2)
+    #define Z_SAFE_Y_POINT ((Y_BED_SIZE) / 2)
   #endif
 #endif
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((Z_SAFE_X_POINT) / 2)    // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Z_SAFE_Y_POINT) / 2)    // Y point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_X_POINT Z_SAFE_X_POINT    // X point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_Y_POINT Z_SAFE_Y_POINT    // Y point for Z homing when homing all axes (G28).
 #endif
 
 // Homing speeds (mm/m)
