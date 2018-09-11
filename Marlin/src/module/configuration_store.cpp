@@ -181,7 +181,7 @@ typedef struct SettingsDataStruct {
   //
   // SERVO_ANGLES
   //
-  uint16_t servo_angles[MAX_SERVOS][2];                 // M281 P L U
+  uint16_t servo_angles[NUM_SERVO_PLUGS][2];                 // M281 P L U
 
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -545,7 +545,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(SWITCHING_EXTRUDER)
         constexpr uint16_t sesa[][2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
       #endif
-      constexpr uint16_t servo_angles[MAX_SERVOS][2] = {
+      constexpr uint16_t servo_angles[NUM_SERVO_PLUGS][2] = {
         #if ENABLED(SWITCHING_EXTRUDER)
           [SWITCHING_EXTRUDER_SERVO_NR] = { sesa[0], sesa[1] }
           #if EXTRUDERS > 3
@@ -1167,7 +1167,7 @@ void MarlinSettings::postprocess() {
       // SERVO_ANGLES
       //
       #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
-        uint16_t servo_angles[MAX_SERVOS][2];
+        uint16_t servo_angles[NUM_SERVO_PLUGS][2];
       #endif
       EEPROM_READ(servo_angles);
 

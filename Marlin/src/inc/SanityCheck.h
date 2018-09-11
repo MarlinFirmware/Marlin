@@ -756,7 +756,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 /**
  * Limited number of servos
  */
-#if NUM_SERVOS > MAX_SERVOS
+#if NUM_SERVOS > NUM_SERVO_PLUGS
   #error "The selected board doesn't support enough servos for your configuration. Reduce NUM_SERVOS."
 #endif
 
