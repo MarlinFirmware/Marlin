@@ -1385,7 +1385,6 @@
 #else
   #define PROBE_X_RIGHT X_BED_SIZE - BED_MARGIN - SENSOR_LEFT
 #endif
-#define PROBE_X_MIDDLE (X_BED_SIZE / 2)
 
 /**
  * Normally G28 leaves leveling disabled on completion. Enable
@@ -1501,7 +1500,7 @@
   #define PROBE_PT_1_Y PROBE_Y_FRONT
   #define PROBE_PT_2_X PROBE_X_RIGHT
   #define PROBE_PT_2_Y PROBE_Y_FRONT
-  #define PROBE_PT_3_X PROBE_X_MIDDLE
+  #define PROBE_PT_3_X PROBE_X_RIGHT
   #define PROBE_PT_3_Y PROBE_Y_BACK
 #endif
 
