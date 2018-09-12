@@ -133,7 +133,8 @@ double extruder_position = 0;
 
 void prepare_move(const ExtraData& extra_data)
 {
-  Planner::buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], MMS_SCALED(feedrate_mm_s/60), active_extruder, 0.0, extra_data);
+  printf("%f\n", feedrate_mm_s);
+  Planner::buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], MMS_SCALED(feedrate_mm_s), active_extruder, 0.0, extra_data);
 
   bool moved = destination[X_AXIS] != current_position[X_AXIS] ||
                destination[Y_AXIS] != current_position[Y_AXIS] ||
@@ -172,7 +173,7 @@ void get_coordinates()
     else destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
-    double next_feedrate_mm_s = code_value();
+    double next_feedrate_mm_s = MMM_TO_MMS(code_value());
     if(next_feedrate_mm_s > 0.0) feedrate_mm_s = next_feedrate_mm_s;
   }
 }
@@ -261,13 +262,18 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
       total_time += codenum / 1000.0;
       break;
-    case 10: //G10 firmware retraction
+      case 10: //G10 firmware retraction from G10_G11.cpp
       {
         if (code_seen('S')) {
           fwretract.retract(true, extra_data, code_value());
         } else {
           fwretract.retract(true, extra_data);
         }
+      }
+      break;
+    case 11: //G11 firmware retraction from G10_G11.cpp
+      {
+        fwretract.retract(false, extra_data);
       }
       break;
     case 28: //G28 Home all Axis one at a time
@@ -371,6 +377,7 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         break;
       case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
         if(code_seen('B')) Planner::min_segment_time_us = code_value();
+        // These ought to be MMM_TO_MMS but even the Marlin source gets it wrong so we'll leave it like this.
         if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
         if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
 
@@ -390,6 +397,25 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           if (WITHIN(junc_dev, 0.01f, 0.3f)) {
             Planner::junction_deviation_mm = junc_dev;
             planner.recalculate_max_e_jerk();
+          }
+        }
+        break;
+      case 207: //from M207-M209.cpp
+        if (code_seen('S')) fwretract.retract_length = code_value();
+        if (code_seen('F')) fwretract.retract_feedrate_mm_s = MMM_TO_MMS(code_value());
+        if (code_seen('Z')) fwretract.retract_zlift = code_value();
+        if (code_seen('W')) fwretract.swap_retract_length = code_value();
+        break;
+      case 208: //from M207-M209.cpp
+        if (code_seen('S')) fwretract.retract_recover_length = code_value();
+        if (code_seen('F')) fwretract.retract_recover_feedrate_mm_s = MMM_TO_MMS(code_value());
+        if (code_seen('R')) fwretract.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(code_value());
+        if (code_seen('W')) fwretract.swap_retract_recover_length = code_value();
+        break;
+      case 209: //from M207-M209.cpp
+        if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
+          if (code_seen('S')) {
+            fwretract.enable_autoretract(code_value());
           }
         }
         break;
