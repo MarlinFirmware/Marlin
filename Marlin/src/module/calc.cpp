@@ -133,7 +133,6 @@ double extruder_position = 0;
 
 void prepare_move(const ExtraData& extra_data)
 {
-  printf("%f\n", feedrate_mm_s);
   Planner::buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], MMS_SCALED(feedrate_mm_s), active_extruder, 0.0, extra_data);
 
   bool moved = destination[X_AXIS] != current_position[X_AXIS] ||
