@@ -909,6 +909,10 @@ void setup() {
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
     init_closedloop();
   #endif
+
+  #if ENABLED(SDSUPPORT) && DISABLED(ULTRA_LCD)
+    card.beginautostart();
+  #endif
 }
 
 /**
