@@ -11,6 +11,7 @@
 #include "../core/macros.h"
 #include "../../Configuration.h"
 #include "planner.h"
+#include "../feature/fwretract.h"
 
 //===========================================================================
 //=============================public variables=============================
@@ -252,8 +253,16 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
-
-	  total_time += codenum / 1000.0;
+      total_time += codenum / 1000.0;
+      break;
+    case 10: //G10 firmware retraction
+      {
+        if (code_seen('S')) {
+          fwretract.retract(true, code_value());
+        } else {
+          fwretract.retract(true);
+        }
+      }
       break;
     case 28: //G28 Home all Axis one at a time
       total_time += 5; // 5 seconds to home

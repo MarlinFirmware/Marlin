@@ -27,6 +27,7 @@
 #ifndef FWRETRACT_H
 #define FWRETRACT_H
 
+#include "../module/hax.h"
 #include "../inc/MarlinConfig.h"
 
 class FWRetract {

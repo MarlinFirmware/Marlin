@@ -34,7 +34,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 
 #include "../module/motion.h"
 #include "../module/planner.h"
-#include "../module/stepper.h"
+//#include "../module/stepper.h"
 
 // private:
 
@@ -127,8 +127,8 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
     SERIAL_ECHOLNPAIR("hop_amount ", hop_amount);
   //*/
-
-  const float old_feedrate_mm_s = feedrate_mm_s,
+  // No need to remember the old feedrate because we don't use motion.cpp.
+  const float /* old_feedrate_mm_s = feedrate_mm_s, */
               renormalize = RECIPROCAL(planner.e_factor[active_extruder]),
               base_retract = swapping ? swap_retract_length : retract_length,
               old_z = current_position[Z_AXIS],
@@ -166,7 +166,8 @@ void FWRetract::retract(const bool retracting
     prepare_move_to_destination();                        // Recover E, set_current_to_destination
   }
 
-  feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
+  // No need to remember the old feedrate because we don't use motion.cpp.
+  //feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
   current_position[Z_AXIS] = old_z;                       // Restore Z and E positions
   current_position[E_AXIS] = old_e;
   SYNC_PLAN_POSITION_KINEMATIC();                         // As if the move never took place

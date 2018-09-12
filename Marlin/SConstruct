@@ -1,48 +1,55 @@
+import os
+
 debug = ARGUMENTS.get('debug', 0)
 if int(debug):
   debug_flags = '-g'
 else:
   debug_flags = '-O2'
 
+source_files = ['module/planner.cpp', 'module/calc.cpp', 'feature/fwretract.cpp']
+def add_program(env, target):
+  env.Program(os.path.join(target, 'marlin-calc.' + target),
+              [os.path.join(target, x) for x in source_files])
+
+
 env = Environment(
     CXX='clang',
     CPPFLAGS= '-Wall -std=gnu++14 -MMD ' + debug_flags,
     LINKFLAGS='-Wall -std=gnu++14 -lstdc++ ' + debug_flags)
-env.VariantDir('darwin-x86_64', 'src/module', duplicate=0)
-env.Program('darwin-x86_64/marlin-calc.darwin-x86_64', ['darwin-x86_64/planner.cpp', 'darwin-x86_64/calc.cpp'])
+env.VariantDir('darwin-x86_64', 'src', duplicate=0)
+add_program(env, 'darwin-x86_64')
 
 env = Environment(
     CXX='clang',
     CPPFLAGS= '-Wall -std=gnu++14 -m32 -MMD ' + debug_flags,
     LINKFLAGS='-Wall -std=gnu++14 -m32 -lstdc++ ' + debug_flags)
-env.VariantDir('darwin-i686', 'src/module', duplicate=0)
-env.Program('darwin-i686/marlin-calc.darwin-i686', ['darwin-i686/planner.cpp', 'darwin-i686/calc.cpp'])
+env.VariantDir('darwin-i686', 'src', duplicate=0)
+add_program(env, 'darwin-i686')
 
 env = Environment(
     CXX='g++',
     CPPFLAGS= '-Wall -static -std=gnu++11 -MMD ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 ' + debug_flags)
-env.VariantDir('x86_64', 'src/module', duplicate=0)
-env.Program('x86_64/marlin-calc.x86_64', ['x86_64/planner.cpp', 'x86_64/calc.cpp'])
+env.VariantDir('x86_64', 'src', duplicate=0)
+add_program(env, 'x86_64')
 
 env = Environment(
     CXX='g++',
     CPPFLAGS= '-Wall -static -std=gnu++11 -m32 -I/usr/include/x86_64-linux-gnu -MMD ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 -m32 -I/usr/include/x86_64-linux-gnu ' + debug_flags)
-env.VariantDir('i686', 'src/module', duplicate=0)
-env.Program('i686/marlin-calc.i686', ['i686/planner.cpp', 'i686/calc.cpp'])
+env.VariantDir('i686', 'src', duplicate=0)
+add_program(env, 'i686')
 
 env = Environment(
     CXX='arm-linux-gnueabi-g++',
     CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv7 -mlittle-endian -MMD ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 -march=armv7 -mlittle-endian ' + debug_flags)
-env.VariantDir('armv7l', 'src/module', duplicate=0)
-env.Program('armv7l/marlin-calc.armv7l', ['armv7l/planner.cpp', 'armv7l/calc.cpp'])
+env.VariantDir('armv7l', 'src', duplicate=0)
+add_program(env, 'armv7l')
 
 env = Environment(
     CXX='arm-linux-gnueabi-g++',
     CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian -MMD ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 -march=armv6 -mlittle-endian ' + debug_flags)
-env.VariantDir('armv6l', 'src/module', duplicate=0)
-env.Program('armv6l/marlin-calc.armv6l', ['armv6l/planner.cpp', 'armv6l/calc.cpp'])
-
+env.VariantDir('armv6l', 'src', duplicate=0)
+add_program(env, 'armv6l')

@@ -85,7 +85,7 @@
 
 #include "endstops.h"
 #include "planner.h"
-#include "motion.h"
+//#include "motion.h"
 
 #include "../module/temperature.h"
 #include "../lcd/ultralcd.h"
