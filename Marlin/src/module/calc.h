@@ -33,4 +33,11 @@ extern int EtoPPressure;
 
 extern unsigned char active_extruder;
 
+// From motion.h
+void set_destination_from_current();
+extern double feedrate_mm_s;
+extern double destination[NUM_AXIS];
+extern void prepare_move(const ExtraData& extra_data);
+#define prepare_move_to_destination prepare_move
+
 #endif

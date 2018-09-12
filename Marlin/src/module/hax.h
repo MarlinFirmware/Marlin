@@ -11,6 +11,12 @@ void manage_inactivity2();
 #include <string.h>
 #include <inttypes.h>
 #include "../core/enum.h"
+#include "../inc/MarlinConfig.h"
+
+//From motion.h
+#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01f)
+extern float current_position[XYZE];
+#define SYNC_PLAN_POSITION_KINEMATIC()
 
 //From "../HAL/HAL_LPC1768/include/Arduino.h"
 // Program Memory

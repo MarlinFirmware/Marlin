@@ -65,7 +65,7 @@
 #include "planner.h"
 //#include "Configuration.h"
 //#include "stepper.h"
-#include "motion.h"
+//#include "motion.h"
 //#include "../module/temperature.h"
 //#include "../lcd/ultralcd.h"
 #include "../core/language.h"

@@ -35,7 +35,7 @@
 #include "hax.h"
 //#include "../Marlin.h"
 
-#include "motion.h"
+//#include "motion.h"
 #include "../gcode/queue.h"
 
 #if ENABLED(DELTA)
