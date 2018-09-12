@@ -92,7 +92,7 @@
 #define MSG_UBL_MANUAL_MESH                 _UxGT("Mesh Manuale")
 #define MSG_UBL_BC_INSERT                   _UxGT("Metti spes. e misura")
 #define MSG_UBL_BC_INSERT2                  _UxGT("Misura")
-#define MSG_UBL_BC_REMOVE                   _UxGT("Rimuovi e mis. piatto")
+#define MSG_UBL_BC_REMOVE                   _UxGT("Rimuovi e mis.piatto")
 #define MSG_UBL_MOVING_TO_NEXT              _UxGT("Spostamento succes.")
 #define MSG_UBL_ACTIVATE_MESH               _UxGT("Attiva UBL")
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("Disattiva UBL")
