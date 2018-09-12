@@ -158,7 +158,7 @@
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("(4) Move to position near new extruder");
       #endif
-      current_position[X_AXIS] += (active_extruder == 0 ? 10 : -10); // move 10mm away from parked extruder
+      current_position[X_AXIS] += active_extruder ? -10 : 10; // move 10mm away from parked extruder
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Move away from parked extruder", current_position);
@@ -177,7 +177,7 @@
       pe_activate_magnet(tmp_extruder);
 
       // STEP 6
-      current_position[X_AXIS] = grabpos + (tmp_extruder == 0 ? (+10) : (-10));
+      current_position[X_AXIS] = grabpos + (tmp_extruder ? -10 : 10);
       planner.buffer_line_kinematic(current_position, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
       current_position[X_AXIS] = grabpos;
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -393,9 +393,9 @@ inline void invalid_extruder_error(const uint8_t e) {
       #define CUR_Z current_position[Z_AXIS]
       #define CUR_E current_position[E_AXIS]
 
-      planner.buffer_line( CUR_X, CUR_Y, raised_z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-      planner.buffer_line( xhome, CUR_Y, raised_z, CUR_E, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
-      planner.buffer_line( xhome, CUR_Y, CUR_Z,    CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+      planner.buffer_line(CUR_X, CUR_Y, raised_z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+      planner.buffer_line(xhome, CUR_Y, raised_z, CUR_E, planner.max_feedrate_mm_s[X_AXIS], active_extruder);
+      planner.buffer_line(xhome, CUR_Y, CUR_Z,    CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
 
       planner.synchronize();
     }
@@ -607,8 +607,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         select_multiplexed_stepper(tmp_extruder);
       #endif
 
-      // Set the new active extruder
-      active_extruder = tmp_extruder;
+      #if EXTRUDERS > 1
+        // Set the new active extruder
+        active_extruder = tmp_extruder;
+      #endif
 
     #endif // HOTENDS <= 1
 
@@ -627,7 +629,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     #endif
 
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
+    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
 
   #endif // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }

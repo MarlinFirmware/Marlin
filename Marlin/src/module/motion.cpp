@@ -87,9 +87,10 @@ float current_position[XYZE] = { 0 };
  */
 float destination[XYZE] = { 0 };
 
-
 // The active extruder (tool). Set with T<extruder> command.
-uint8_t active_extruder; // = 0;
+#if EXTRUDERS > 1
+  uint8_t active_extruder; // = 0
+#endif
 
 // Extruder offsets
 #if HAS_HOTEND_OFFSET

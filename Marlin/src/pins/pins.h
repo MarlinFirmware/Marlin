@@ -627,8 +627,8 @@
   #define MAX_EXTRUDERS 5
 #endif
 
-#ifndef MAX_SERVOS
-  #define MAX_SERVOS 4
+#ifndef NUM_SERVO_PLUGS
+  #define NUM_SERVO_PLUGS 4
 #endif
 
 //

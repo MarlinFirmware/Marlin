@@ -1679,6 +1679,10 @@ void Temperature::set_current_temp_raw() {
   temp_meas_ready = true;
 }
 
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  uint32_t raw_filwidth_value; // = 0
+#endif
+
 void Temperature::readings_ready() {
   // Update the raw values if they've been read. Else we could be updating them during reading.
   if (!temp_meas_ready) set_current_temp_raw();
@@ -1817,10 +1821,6 @@ void Temperature::isr() {
   #endif // HOTENDS > 1
   #if HAS_HEATED_BED
     ISR_STATICS(BED);
-  #endif
-
-  #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    static unsigned long raw_filwidth_value = 0;
   #endif
 
   #if DISABLED(SLOW_PWM_HEATERS)
@@ -2177,8 +2177,8 @@ void Temperature::isr() {
         if (!HAL_ADC_READY())
           next_sensor_state = adc_sensor_state; // redo this state
         else if (HAL_READ_ADC() > 102) { // Make sure ADC is reading > 0.5 volts, otherwise don't read.
-          raw_filwidth_value -= (raw_filwidth_value >> 7); // Subtract 1/128th of the raw_filwidth_value
-          raw_filwidth_value += ((unsigned long)HAL_READ_ADC() << 7); // Add new ADC reading, scaled by 128
+          raw_filwidth_value -= raw_filwidth_value >> 7; // Subtract 1/128th of the raw_filwidth_value
+          raw_filwidth_value += uint32_t(HAL_READ_ADC()) << 7; // Add new ADC reading, scaled by 128
         }
       break;
     #endif

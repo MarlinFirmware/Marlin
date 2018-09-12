@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V56"
+#define EEPROM_VERSION "V57"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -181,7 +181,7 @@ typedef struct SettingsDataStruct {
   //
   // SERVO_ANGLES
   //
-  uint16_t servo_angles[MAX_SERVOS][2];                 // M281 P L U
+  uint16_t servo_angles[NUM_SERVO_PLUGS][2];                 // M281 P L U
 
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -254,7 +254,7 @@ typedef struct SettingsDataStruct {
   //
   // LIN_ADVANCE
   //
-  float planner_extruder_advance_K;                     // M900 K    planner.extruder_advance_K
+  float planner_extruder_advance_K[EXTRUDERS];          // M900 K  planner.extruder_advance_K
 
   //
   // HAS_MOTOR_CURRENT_PWM
@@ -545,7 +545,7 @@ void MarlinSettings::postprocess() {
       #if ENABLED(SWITCHING_EXTRUDER)
         constexpr uint16_t sesa[][2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
       #endif
-      constexpr uint16_t servo_angles[MAX_SERVOS][2] = {
+      constexpr uint16_t servo_angles[NUM_SERVO_PLUGS][2] = {
         #if ENABLED(SWITCHING_EXTRUDER)
           [SWITCHING_EXTRUDER_SERVO_NR] = { sesa[0], sesa[1] }
           #if EXTRUDERS > 3
@@ -871,14 +871,13 @@ void MarlinSettings::postprocess() {
     //
     // Linear Advance
     //
-
     _FIELD_TEST(planner_extruder_advance_K);
 
     #if ENABLED(LIN_ADVANCE)
-      EEPROM_WRITE(planner.extruder_advance_K);
+      LOOP_L_N(i, EXTRUDERS) EEPROM_WRITE(planner.extruder_advance_K[i]);
     #else
       dummy = 0;
-      EEPROM_WRITE(dummy);
+      LOOP_L_N(i, EXTRUDERS) EEPROM_WRITE(dummy);
     #endif
 
     _FIELD_TEST(motor_current_setting);
@@ -1168,7 +1167,7 @@ void MarlinSettings::postprocess() {
       // SERVO_ANGLES
       //
       #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
-        uint16_t servo_angles[MAX_SERVOS][2];
+        uint16_t servo_angles[NUM_SERVO_PLUGS][2];
       #endif
       EEPROM_READ(servo_angles);
 
@@ -1471,14 +1470,15 @@ void MarlinSettings::postprocess() {
       //
       // Linear Advance
       //
-
       _FIELD_TEST(planner_extruder_advance_K);
 
-      #if ENABLED(LIN_ADVANCE)
-        EEPROM_READ(planner.extruder_advance_K);
-      #else
-        EEPROM_READ(dummy);
-      #endif
+      LOOP_L_N(i, EXTRUDERS) {
+        #if ENABLED(LIN_ADVANCE)
+          EEPROM_READ(planner.extruder_advance_K[i]);
+        #else
+          EEPROM_READ(dummy);
+        #endif
+      }
 
       //
       // Motor Current PWM
@@ -1957,7 +1957,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   reset_stepper_drivers();
 
   #if ENABLED(LIN_ADVANCE)
-    planner.extruder_advance_K = LIN_ADVANCE_K;
+    LOOP_L_N(i, EXTRUDERS) planner.extruder_advance_K[i] = LIN_ADVANCE_K;
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
@@ -2720,8 +2720,16 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM_P(port, "Linear Advance:");
       }
+
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR_P(port, "  M900 K", planner.extruder_advance_K);
+      #if EXTRUDERS < 2
+        SERIAL_ECHOLNPAIR_P(port, "  M900 K", planner.extruder_advance_K[0]);
+      #else
+        LOOP_L_N(i, EXTRUDERS) {
+          SERIAL_ECHOPAIR_P(port, "  M900 T", int(i));
+          SERIAL_ECHOLNPAIR_P(port, " K", planner.extruder_advance_K[i]);
+        }
+      #endif
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM
