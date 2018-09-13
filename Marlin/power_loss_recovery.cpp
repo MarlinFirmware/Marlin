@@ -159,7 +159,7 @@ void check_print_job_recovery() {
         #endif
 
         dtostrf(job_recovery_info.current_position[Z_AXIS] + 2, 1, 3, str_1);
-        dtostrf(job_recovery_info.current_position[E_AXIS]
+        dtostrf(job_recovery_info.current_position[E_CART]
           #if ENABLED(SAVE_EACH_CMD_MODE)
             - 5
           #endif

@@ -139,7 +139,7 @@
  * Also, if the temperature is set to a value below mintemp, it will not be changed by autotemp.
  * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
  */
-  #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
+  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
 #define AUTOTEMP
 #endif
 #if ENABLED(AUTOTEMP)
@@ -147,7 +147,7 @@
 #endif
 
 // Show extra position information in M114
-  #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
+  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
 #define M114_DETAIL
 #endif
 // Show Temperature ADC value
@@ -434,8 +434,9 @@
 #define DEFAULT_MINSEGMENTTIME        20000
 
 // If defined the movements slow down when the look ahead buffer is only half full
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
 #define SLOWDOWN
-
+#endif
 // Frequency limit
 // See nophead's blog for more info
 // Not working O
@@ -508,7 +509,7 @@
 // @section lcd
 
 // Include a page of printer information in the LCD Main Menu
-  #if(!ENABLED(MachineCR10Orig))
+  #if(DISABLED(MachineCR10Orig))
 #define LCD_INFO_MENU
 #endif
 // Leave out seldom-used LCD menu items to recover some Program Memory
@@ -517,7 +518,7 @@
 #endif
 
 // Scroll a longer status message into view
- #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
+ #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
 #define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
@@ -527,10 +528,11 @@
 #define LCD_TIMEOUT_TO_STATUS 15000
 
 // Add an 'M73' G-code to set the current percentage
+ #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
 #define LCD_SET_PROGRESS_MANUALLY
-
+#endif
 #if ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  #if((ENABLED(MachineEnder4) && !ENABLED(GraphicLCD)))
+  #if((ENABLED(MachineEnder4) && DISABLED(GraphicLCD)))
   #define LCD_PROGRESS_BAR
   #endif// Show a progress bar on HD44780 LCDs for SD printing
   #if ENABLED(LCD_PROGRESS_BAR)
@@ -574,7 +576,7 @@
 
   // Reverse SD sort to show "more recent" files first, according to the card's FAT.
   // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
-   #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
+   #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
   #define SDCARD_RATHERRECENTFIRST
 #endif
   // Add an option in the menu to run all auto#.g files
@@ -613,9 +615,9 @@
    *  - SDSORT_CACHE_NAMES will retain the sorted file listing in RAM. (Expensive!)
    *  - SDSORT_DYNAMIC_RAM only uses RAM when the SD menu is visible. (Use with caution!)
    */
-    #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
-  #define SDCARD_SORT_ALPHA
-#endif
+
+  //#define SDCARD_SORT_ALPHA
+
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
     #define SDSORT_LIMIT       25     // Maximum number of sorted items (10-256). Costs 27 bytes each.
@@ -633,8 +635,9 @@
   //#define LONG_FILENAME_HOST_SUPPORT
 
   // Enable this option to scroll long filenames in the SD card menu
+  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
   #define SCROLL_LONG_FILENAMES
-
+#endif
   /**
    * This option allows you to abort SD printing when any endstop is triggered.
    * This feature must be enabled with "M540 S1" or from the LCD menu.
@@ -652,8 +655,9 @@
   /**
    * Auto-report SdCard status with M27 S<seconds>
    */
+   #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
   #define AUTO_REPORT_SD_STATUS
-
+#endif
 #endif // SDSUPPORT
 
 /**
@@ -680,7 +684,7 @@
 
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
-   #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
+   #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
   #define USE_BIG_EDIT_FONT
 #endif
   // A smaller font may be used on the Info Screen. Costs 2300 bytes of PROGMEM.
@@ -707,7 +711,9 @@
      * Set STATUS_EXPIRE_SECONDS to zero to never clear the status.
      * This will prevent position updates from being displayed.
      */
-    //#define LIGHTWEIGHT_UI
+     #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+    #define LIGHTWEIGHT_UI
+    #endif
     #if ENABLED(LIGHTWEIGHT_UI)
       #define STATUS_EXPIRE_SECONDS 20
     #endif
@@ -744,7 +750,7 @@
   #define BABYSTEP_MULTIPLICATOR 10   // Babysteps are very small. Increase for faster motion.
   #if(ENABLED(ABL_EZABL) || ENABLED(ABL_BLTOUCH))
     #define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
-     #if(!ENABLED(MachineEnder4))
+     #if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
     #define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
     #endif
   #endif
@@ -771,7 +777,7 @@
  * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
  * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
-  #if((!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard)) || ENABLED(OrigLA))
+  #if((DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard)) || ENABLED(OrigLA))
 #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
@@ -799,7 +805,11 @@
   #if( (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - 10) < X_BED_SIZE)
     #define MESH_MAX_X (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - 5)
   #else
-    #define MESH_MAX_X (X_BED_SIZE - 10)
+    #if(ENABLED(MachineEnder3))
+      #define MESH_MAX_X (X_BED_SIZE - 40)
+    #else
+      #define MESH_MAX_X (X_BED_SIZE - 10)
+    #endif
   #endif
 
   #if ( (Y_PROBE_OFFSET_FROM_EXTRUDER + 25) > 10 )
@@ -826,9 +836,7 @@
 //
 // G2/G3 Arc Support
 //
- #if(!ENABLED(MachineCR10Orig) && !ENABLED(LowMemoryBoard))
 #define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
-#endif
 #if ENABLED(ARC_SUPPORT)
   #define MM_PER_ARC_SEGMENT  1   // Length of each arc segment
   #define N_ARC_CORRECTION   25   // Number of intertpolated segments between corrections
@@ -921,7 +929,7 @@
 #define NO_TIMEOUTS 1000 // Milliseconds
 
 // Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
- #if(!ENABLED(MachineCR10Orig))
+ #if(DISABLED(MachineCR10Orig))
 #define ADVANCED_OK
 #endif
 // @section extras
@@ -941,7 +949,9 @@
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *
  */
-//#define FWRETRACT  // ONLY PARTIALLY TESTED
+ #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#define FWRETRACT  // ONLY PARTIALLY TESTED
+#endif
 #if ENABLED(FWRETRACT)
   #define MIN_AUTORETRACT 0.1             // When auto-retract is on, convert E moves of this length and over
   #define MAX_AUTORETRACT 10.0            // Upper limit for auto-retract conversion
@@ -992,7 +1002,11 @@
                                                   // 0 to disable start loading and skip to fast load only
   #define FILAMENT_CHANGE_FAST_LOAD_FEEDRATE  30  // (mm/s) Load filament feedrate. This can be pretty fast.
   #define FILAMENT_CHANGE_FAST_LOAD_ACCEL     25  // (mm/s^2) Lower acceleration may allow a faster feedrate.
-  #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   430  // (mm) Load length of filament, from extruder gear to nozzle.
+  #if(ENABLED(MachineCRX))
+    #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   450  // (mm) Load length of filament, from extruder gear to nozzle.
+  #else
+    #define FILAMENT_CHANGE_FAST_LOAD_LENGTH   430  // (mm) Load length of filament, from extruder gear to nozzle.
+  #endif
                                                   //   For Bowden, the full length of the tube and nozzle.
                                                   //   For direct drive, the full length of the nozzle.
   //#define ADVANCED_PAUSE_CONTINUOUS_PURGE       // Purge continuously up to the purge length until interrupted.
@@ -1007,14 +1021,15 @@
   #define FILAMENT_UNLOAD_DELAY             5000  // (ms) Delay for the filament to cool after retract.
   #define FILAMENT_UNLOAD_PURGE_LENGTH         0  // (mm) An unretract is done, then this length is purged.
   #define PAUSE_PARK_NOZZLE_TIMEOUT           45  // (seconds) Time limit before the nozzle is turned off for safety.
-  #define FILAMENT_CHANGE_ALERT_BEEPS          3  // Number of alert beeps to play when a response is needed.
+  #define FILAMENT_CHANGE_ALERT_BEEPS          2  // Number of alert beeps to play when a response is needed.
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT           // Enable for XYZ steppers to stay powered on during filament change.
 
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   #define HOME_BEFORE_FILAMENT_CHANGE             // Ensure homing has been completed prior to parking for filament change
-
-  //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
-  //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+  #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
+  #define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
+  #endif
 #endif
 
 // @section tmc
@@ -1487,18 +1502,19 @@
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
- #if(!ENABLED(MachineCR10Orig))
+ #if(DISABLED(MachineCR10Orig))
 #define PINS_DEBUGGING
 #endif
 /**
  * Auto-report temperatures with M155 S<seconds>
  */
+  #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
 #define AUTO_REPORT_TEMPERATURES
-
+#endif
 /**
  * Include capabilities in M115 output
  */
-  #if(!ENABLED(MachineCR10Orig))
+  #if(DISABLED(MachineCR10Orig))
 #define EXTENDED_CAPABILITIES_REPORT
 #endif
 /**
@@ -1548,6 +1564,7 @@
 #endif
 
 #if ENABLED(CUSTOM_USER_MENUS)
+#define  "Tinymachines Setup"
   //#define USER_SCRIPT_DONE "M117 User Script Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   #define USER_SCRIPT_RETURN  // Return to status screen after a script

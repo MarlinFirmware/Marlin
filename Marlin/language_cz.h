@@ -50,6 +50,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Domu osa X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Domu osa Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Domu osa Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibrovat Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Mereni podlozky")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknutim spustte")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Dalsi bod")

@@ -395,7 +395,7 @@ void ST7920_Lite_Status_Screen::draw_degree_symbol(uint8_t x, uint8_t y, bool dr
     const uint8_t x_word  = x >> 1;
     const uint8_t y_top   = degree_symbol_y_top;
     const uint8_t y_bot   = y_top + sizeof(degree_symbol)/sizeof(degree_symbol[0]);
-    for(uint8_t i = y_top; i < y_bot; i++) {
+    for (uint8_t i = y_top; i < y_bot; i++) {
       uint8_t byte = pgm_read_byte_near(p_bytes++);
       set_gdram_address(x_word,i+y*16);
       begin_data();
@@ -876,24 +876,32 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
 }
 
 void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
-  #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
-    uint8_t progress_bar_percent;
-  #endif
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) || ENABLED(SDSUPPORT)
 
-  // Set current percentage from SD when actively printing
-  #if ENABLED(SDSUPPORT)
-    if (IS_SD_PRINTING) progress_bar_percent = card.percentDone();
-  #endif
+    #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
+      uint8_t progress_bar_percent; //=0
+    #endif
 
-  // Since the progress bar involves writing
-  // quite a few bytes to GDRAM, only do this
-  // when an update is actually necessary.
+    #if ENABLED(SDSUPPORT)
+      // Progress bar % comes from SD when actively printing
+      if (IS_SD_PRINTING) progress_bar_percent = card.percentDone();
+    #endif
 
-  static uint8_t last_progress = 0;
-  if (!forceUpdate && last_progress == progress_bar_percent) return;
-  last_progress = progress_bar_percent;
+    // Since the progress bar involves writing
+    // quite a few bytes to GDRAM, only do this
+    // when an update is actually necessary.
 
-  draw_progress_bar(progress_bar_percent);
+    static uint8_t last_progress = 0;
+    if (!forceUpdate && last_progress == progress_bar_percent) return;
+    last_progress = progress_bar_percent;
+
+    draw_progress_bar(progress_bar_percent);
+
+  #else
+
+    UNUSED(forceUpdate);
+
+  #endif // LCD_SET_PROGRESS_MANUALLY || SDSUPPORT
 }
 
 void ST7920_Lite_Status_Screen::update(const bool forceUpdate) {

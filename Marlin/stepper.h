@@ -270,8 +270,8 @@ class Stepper {
     #endif
 
     // Delta error variables for the Bresenham line tracer
-    static int32_t delta_error[XYZE];
-    static uint32_t advance_dividend[XYZE],
+    static int32_t delta_error[NUM_AXIS];
+    static uint32_t advance_dividend[NUM_AXIS],
                     advance_divisor,
                     step_events_completed,  // The number of step events executed in the current block
                     accelerate_until,       // The point from where we need to stop acceleration
@@ -425,11 +425,21 @@ class Stepper {
     #endif
 
     // Set the current position in steps
-    inline static void set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+    inline static void set_position(const int32_t &a, const int32_t &b, const int32_t &c
+      #if ENABLED(HANGPRINTER)
+        , const int32_t &d
+      #endif
+      , const int32_t &e
+    ) {
       planner.synchronize();
       const bool was_enabled = STEPPER_ISR_ENABLED();
       if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
-      _set_position(a, b, c, e);
+      _set_position(a, b, c
+        #if ENABLED(HANGPRINTER)
+          , d
+        #endif
+        , e
+      );
       if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
     }
 
@@ -447,7 +457,12 @@ class Stepper {
   private:
 
     // Set the current position in steps
-    static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
+    static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c
+      #if ENABLED(HANGPRINTER)
+        , const int32_t &d
+      #endif
+      , const int32_t &e
+    );
 
     // Set direction bits for all steppers
     static void set_directions();

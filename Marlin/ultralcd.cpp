@@ -874,7 +874,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       lcd_return_to_status();
 
       // Turn leveling off and home
-      enqueue_and_echo_commands_P(PSTR("M420 S0\nG28"
+      enqueue_and_echo_commands_P(PSTR("M420 S0\nG28 R0"
         #if ENABLED(MARLIN_DEV_MODE)
           " S"
         #elif !IS_KINEMATIC
@@ -2676,6 +2676,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
 
     //
+    // TMC Z Calibration
+    //
+    #if ENABLED(TMC_Z_CALIBRATION)
+      MENU_ITEM(gcode, MSG_TMC_Z_CALIBRATION, PSTR("G28\nM915"));
+    #endif
+
+    //
     // Level Bed
     //
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -3070,7 +3077,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #if IS_KINEMATIC
           manual_move_offset += diff;
         #else
-          current_position[E_AXIS] += diff;
+          current_position[E_CART] += diff;
         #endif
         manual_move_to_current(E_AXIS
           #if E_MANUAL > 1
@@ -3100,7 +3107,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
           #endif // E_MANUAL > 2
         }
       #endif // E_MANUAL > 1
-      lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_AXIS]
+      lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_CART]
         #if IS_KINEMATIC
           + manual_move_offset
         #endif
