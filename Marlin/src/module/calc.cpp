@@ -376,7 +376,6 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
         break;
       case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
         if(code_seen('B')) Planner::min_segment_time_us = code_value();
-        // These ought to be MMM_TO_MMS but even the Marlin source gets it wrong so we'll leave it like this.
         if(code_seen('S')) Planner::min_feedrate_mm_s = code_value();
         if(code_seen('T')) Planner::min_travel_feedrate_mm_s = code_value();
 
