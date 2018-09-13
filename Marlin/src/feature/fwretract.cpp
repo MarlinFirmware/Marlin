@@ -32,9 +32,10 @@
 
 FWRetract fwretract; // Single instance - this calls the constructor
 
-#include "../module/motion.h"
+//#include "../module/motion.h"
+#include "../module/calc.h"
 #include "../module/planner.h"
-#include "../module/stepper.h"
+//#include "../module/stepper.h"
 
 // private:
 
@@ -90,7 +91,7 @@ void FWRetract::reset() {
  * Note: Auto-retract will apply the set Z hop in addition to any Z hop
  *       included in the G-code. Use M207 Z0 to to prevent double hop.
  */
-void FWRetract::retract(const bool retracting
+void FWRetract::retract(const bool retracting, const ExtraData& extra_data
   #if EXTRUDERS > 1
     , bool swapping /* =false */
   #endif
@@ -141,14 +142,14 @@ void FWRetract::retract(const bool retracting
     // Retract by moving from a faux E position back to the current E position
     feedrate_mm_s = retract_feedrate_mm_s;
     destination[E_AXIS] -= base_retract * renormalize;
-    prepare_move_to_destination();                        // set_current_to_destination
+    prepare_move_to_destination(extra_data);              // set_current_to_destination
 
     // Is a Z hop set, and has the hop not yet been done?
     if (retract_zlift > 0.01 && !hop_amount) {            // Apply hop only once
       hop_amount += retract_zlift;                        // Add to the hop total (again, only once)
       destination[Z_AXIS] += retract_zlift;               // Raise Z by the zlift (M207 Z) amount
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Maximum Z feedrate
-      prepare_move_to_destination();                      // Raise up, set_current_to_destination
+      prepare_move_to_destination(extra_data);                      // Raise up, set_current_to_destination
     }
   }
   else {
@@ -157,13 +158,13 @@ void FWRetract::retract(const bool retracting
       current_position[Z_AXIS] += hop_amount;             // Restore the actual Z position
       SYNC_PLAN_POSITION_KINEMATIC();                     // Unspoof the position planner
       feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS];  // Z feedrate to max
-      prepare_move_to_destination();                      // Lower Z, set_current_to_destination
+      prepare_move_to_destination(extra_data);            // Lower Z, set_current_to_destination
       hop_amount = 0.0;                                   // Clear the hop amount
     }
 
     destination[E_AXIS] += (base_retract + (swapping ? swap_retract_recover_length : retract_recover_length)) * renormalize;
     feedrate_mm_s = swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s;
-    prepare_move_to_destination();                        // Recover E, set_current_to_destination
+    prepare_move_to_destination(extra_data);                        // Recover E, set_current_to_destination
   }
 
   feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate

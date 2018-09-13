@@ -27,6 +27,7 @@
 #ifndef FWRETRACT_H
 #define FWRETRACT_H
 
+#include "../module/hax.h"
 #include "../inc/MarlinConfig.h"
 
 class FWRetract {
@@ -61,7 +62,7 @@ public:
     refresh_autoretract();
   }
 
-  static void retract(const bool retracting
+  static void retract(const bool retracting, const ExtraData& extra_data
     #if EXTRUDERS > 1
       , bool swapping = false
     #endif

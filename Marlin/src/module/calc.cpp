@@ -11,6 +11,7 @@
 #include "../core/macros.h"
 #include "../../Configuration.h"
 #include "planner.h"
+#include "../feature/fwretract.h"
 
 //===========================================================================
 //=============================public variables=============================
@@ -39,10 +40,10 @@ bool volumetric_enabled = false;
 //=============================private variables=============================
 //===========================================================================
 static double extrusion_length[MAX_EXTRUDERS] = {0,0,0,0,0};
-static double calc_destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+double destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 //static double offset[3] = {0.0, 0.0, 0.0};
 //static bool home_all_axis = true;
-static double feedrate = 1500.0;
+double feedrate_mm_s = 1500.0;
 long gcode_N, gcode_LastN;//, Stopped_gcode_LastN = 0;
 
 static char cmdbuffer[MAX_CMD_SIZE];
@@ -132,26 +133,32 @@ double extruder_position = 0;
 
 void prepare_move(const ExtraData& extra_data)
 {
-  Planner::buffer_line(calc_destination[X_AXIS], calc_destination[Y_AXIS], calc_destination[Z_AXIS], calc_destination[E_AXIS], MMS_SCALED(feedrate/60), active_extruder, 0.0, extra_data);
+  Planner::buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], MMS_SCALED(feedrate_mm_s), active_extruder, 0.0, extra_data);
 
-  bool moved = calc_destination[X_AXIS] != current_position[X_AXIS] ||
-               calc_destination[Y_AXIS] != current_position[Y_AXIS] ||
-               calc_destination[Z_AXIS] != current_position[Z_AXIS];
+  bool moved = destination[X_AXIS] != current_position[X_AXIS] ||
+               destination[Y_AXIS] != current_position[Y_AXIS] ||
+               destination[Z_AXIS] != current_position[Z_AXIS];
   int target_extruder = active_extruder;
   if (code_seen('T')) {
     target_extruder = code_value();
   }
-  double extruded = (calc_destination[E_AXIS] - current_position[E_AXIS]) * Planner::e_factor[target_extruder];
+  double extruded = (destination[E_AXIS] - current_position[E_AXIS]) * Planner::e_factor[target_extruder];
   extruder_position += extruded;
   if (extruded != 0 && moved) {
     for (int i = 0; i < NUM_AXIS - 1; i++) {
-      min_pos_extruded[i] = min(min_pos_extruded[i], calc_destination[i]);
-      max_pos_extruded[i] = max(max_pos_extruded[i], calc_destination[i]);
+      min_pos_extruded[i] = min(min_pos_extruded[i], destination[i]);
+      max_pos_extruded[i] = max(max_pos_extruded[i], destination[i]);
     }
   }
   extrusion_length[target_extruder] += extruded;
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = calc_destination[i];
+  for (int8_t i=0; i < NUM_AXIS; i++) {
+    current_position[i] = destination[i];
+  }
+}
+
+void set_destination_from_current() {
+  for (int8_t i=0; i < NUM_AXIS; i++) {
+    destination[i] = current_position[i];
   }
 }
 
@@ -160,13 +167,13 @@ void get_coordinates()
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i]))
     {
-      calc_destination[i] = (double)code_value() + (axis_relative_modes[i])*current_position[i];
+      destination[i] = (double)code_value() + (axis_relative_modes[i])*current_position[i];
     }
-    else calc_destination[i] = current_position[i]; //Are these else lines really needed?
+    else destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
-    double next_feedrate = code_value();
-    if(next_feedrate > 0.0) feedrate = next_feedrate;
+    double next_feedrate_mm_s = MMM_TO_MMS(code_value());
+    if(next_feedrate_mm_s > 0.0) feedrate_mm_s = next_feedrate_mm_s;
   }
 }
 
@@ -252,8 +259,21 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
-
-	  total_time += codenum / 1000.0;
+      total_time += codenum / 1000.0;
+      break;
+      case 10: //G10 firmware retraction from G10_G11.cpp
+      {
+        if (code_seen('S')) {
+          fwretract.retract(true, extra_data, code_value());
+        } else {
+          fwretract.retract(true, extra_data);
+        }
+      }
+      break;
+    case 11: //G11 firmware retraction from G10_G11.cpp
+      {
+        fwretract.retract(false, extra_data);
+      }
       break;
     case 28: //G28 Home all Axis one at a time
       total_time += 5; // 5 seconds to home
@@ -375,6 +395,25 @@ void process_commands(const std::string& command, const ExtraData& extra_data) {
           if (WITHIN(junc_dev, 0.01f, 0.3f)) {
             Planner::junction_deviation_mm = junc_dev;
             planner.recalculate_max_e_jerk();
+          }
+        }
+        break;
+      case 207: //from M207-M209.cpp
+        if (code_seen('S')) fwretract.retract_length = code_value();
+        if (code_seen('F')) fwretract.retract_feedrate_mm_s = MMM_TO_MMS(code_value());
+        if (code_seen('Z')) fwretract.retract_zlift = code_value();
+        if (code_seen('W')) fwretract.swap_retract_length = code_value();
+        break;
+      case 208: //from M207-M209.cpp
+        if (code_seen('S')) fwretract.retract_recover_length = code_value();
+        if (code_seen('F')) fwretract.retract_recover_feedrate_mm_s = MMM_TO_MMS(code_value());
+        if (code_seen('R')) fwretract.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(code_value());
+        if (code_seen('W')) fwretract.swap_retract_recover_length = code_value();
+        break;
+      case 209: //from M207-M209.cpp
+        if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
+          if (code_seen('S')) {
+            fwretract.enable_autoretract(code_value());
           }
         }
         break;
