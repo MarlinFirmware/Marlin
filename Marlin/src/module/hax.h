@@ -66,26 +66,26 @@ extern bool idle2();
   NO_AXIS   = 0xFF
   };*/
 
-#define enable_X() while(0) {}
-#define enable_Y() while(0) {}
-#define enable_Z() while(0) {}
-#define enable_e()
-#define enable_E0() while(0) {}
-#define enable_E1() while(0) {}
-#define enable_E2() while(0) {}
-#define enable_E3() while(0) {}
-#define enable_E4() while(0) {}
-#define enable_e1()
-#define enable_e2()
+#define enable_X() do {} while(0)
+#define enable_Y() do {} while(0)
+#define enable_Z() do {} while(0)
+#define enable_e() do {} while(0)
+#define enable_E0() do {} while(0)
+#define enable_E1() do {} while(0)
+#define enable_E2() do {} while(0)
+#define enable_E3() do {} while(0)
+#define enable_E4() do {} while(0)
+#define enable_e1() do {} while(0)
+#define enable_e2() do {} while(0)
 
-#define disable_x()
-#define disable_y()
-#define disable_z()
-#define disable_e()
-#define disable_e0()
-#define disable_e1()
-#define disable_e2()
-#define disable_all_steppers()
+#define disable_x() do {} while(0)
+#define disable_y() do {} while(0)
+#define disable_z() do {} while(0)
+#define disable_e() do {} while(0)
+#define disable_e0() do {} while(0)
+#define disable_e1() do {} while(0)
+#define disable_e2() do {} while(0)
+#define disable_all_steppers() do {} while(0)
 #define disable_E0() do { } while (0)
 #define disable_E1() do { } while (0)
 #define disable_E2() do { } while (0)
@@ -100,16 +100,16 @@ extern int extrudemultiply;
 
 #define F_CPU 16000000
 
-#define manage_heater() 
-#define lcd_update() 
+#define manage_heater() do {} while(0)
+#define lcd_update() do {} while(0)
 
 #define byte uint8_t
 
 // Fixes for missing stepper.h and stepper.cpp
 
 #define STEPPER_ISR_ENABLED() false  // TODO: Check if this affects anything.
-#define DISABLE_STEPPER_DRIVER_INTERRUPT()
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() do {} while(0)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT() do {} while(0)
 struct Stepper {
   static bool is_block_busy(const void* const block) {
     return false;

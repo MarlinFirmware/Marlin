@@ -1,3 +1,4 @@
+# -*- mode: scons -*-
 import os
 
 debug = ARGUMENTS.get('debug', 0)
