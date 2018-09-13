@@ -74,6 +74,9 @@ void GcodeSuite::M911() {
   #if M91x_USE_E(4)
     tmc_report_otpw(stepperE4, TMC_E4);
   #endif
+  #if M91x_USE_E(5)
+    tmc_report_otpw(stepperE5, TMC_E5);
+  #endif
 }
 
 /**
@@ -145,6 +148,9 @@ void GcodeSuite::M912() {
       #if M91x_USE_E(4)
         if (hasNone || eval == 4 || (hasE && eval < 0)) tmc_clear_otpw(stepperE4, TMC_E4);
       #endif
+      #if M91x_USE_E(5)
+        if (hasNone || eval == 5 || (hasE && eval == 10)) tmc_clear_otpw(stepperE5, TMC_E5);
+      #endif
     #endif
 }
 
@@ -208,6 +214,9 @@ void GcodeSuite::M912() {
             #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
               case 4: TMC_SET_PWMTHRS_E(4); break;
             #endif
+            #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
+              case 5: TMC_SET_PWMTHRS_E(5); break;
+            #endif
           }
         } break;
       }
@@ -249,6 +258,9 @@ void GcodeSuite::M912() {
       #endif
       #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
         TMC_SAY_PWMTHRS_E(4);
+      #endif
+      #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
+        TMC_SAY_PWMTHRS_E(5);
       #endif
     }
   }

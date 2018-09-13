@@ -227,6 +227,7 @@
 #define MSG_E3STEPS                         _UxGT("E3шаг/мм")
 #define MSG_E4STEPS                         _UxGT("E4шаг/мм")
 #define MSG_E5STEPS                         _UxGT("E5шаг/мм")
+#define MSG_E6STEPS                         _UxGT("E6шаг/мм")
 #define MSG_TEMPERATURE                     _UxGT("Температура")
 #define MSG_MOTION                          _UxGT("Движение")
 #define MSG_FILAMENT                        _UxGT("Филамент")

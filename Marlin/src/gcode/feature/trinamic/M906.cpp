@@ -86,6 +86,9 @@ void GcodeSuite::M906() {
           #if AXIS_IS_TMC(E4)
             case 4: TMC_SET_CURRENT(E4); break;
           #endif
+          #if AXIS_IS_TMC(E5)
+            case 5: TMC_SET_CURRENT(E5); break;
+          #endif
         }
       } break;
     }
@@ -127,6 +130,9 @@ void GcodeSuite::M906() {
     #endif
     #if AXIS_IS_TMC(E4)
       TMC_SAY_CURRENT(E4);
+    #endif
+    #if AXIS_IS_TMC(E5)
+      TMC_SAY_CURRENT(E5);
     #endif
   }
 }

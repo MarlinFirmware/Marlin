@@ -468,6 +468,15 @@
 #ifndef E4_MS3_PIN
   #define E4_MS3_PIN -1
 #endif
+#ifndef E5_MS1_PIN
+  #define E5_MS1_PIN -1
+#endif
+#ifndef E5_MS2_PIN
+  #define E5_MS2_PIN -1
+#endif
+#ifndef E5_MS3_PIN
+  #define E5_MS3_PIN -1
+#endif
 
 #ifndef E0_STEP_PIN
   #define E0_STEP_PIN -1
@@ -514,6 +523,15 @@
 #ifndef E4_ENABLE_PIN
   #define E4_ENABLE_PIN -1
 #endif
+#ifndef E5_STEP_PIN
+  #define E5_STEP_PIN -1
+#endif
+#ifndef E5_DIR_PIN
+  #define E5_DIR_PIN -1
+#endif
+#ifndef E5_ENABLE_PIN
+  #define E5_ENABLE_PIN -1
+#endif
 
 #ifndef X_CS_PIN
   #define X_CS_PIN -1
@@ -538,6 +556,9 @@
 #endif
 #ifndef E4_CS_PIN
   #define E4_CS_PIN -1
+#endif
+#ifndef E5_CS_PIN
+  #define E5_CS_PIN -1
 #endif
 
 #ifndef FAN_PIN
@@ -578,6 +599,9 @@
 #ifndef HEATER_4_PIN
   #define HEATER_4_PIN -1
 #endif
+#ifndef HEATER_5_PIN
+  #define HEATER_5_PIN -1
+#endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN -1
 #endif
@@ -596,6 +620,9 @@
 #endif
 #ifndef TEMP_4_PIN
   #define TEMP_4_PIN -1
+#endif
+#ifndef TEMP_5_PIN
+  #define TEMP_5_PIN -1
 #endif
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN -1
@@ -669,6 +696,13 @@
     #define E4_AUTO_FAN_PIN -1
   #endif
 #endif
+#ifndef E5_AUTO_FAN_PIN
+  #ifdef ORIG_E5_AUTO_FAN_PIN
+    #define E5_AUTO_FAN_PIN ORIG_E5_AUTO_FAN_PIN
+  #else
+    #define E5_AUTO_FAN_PIN -1
+  #endif
+#endif
 #ifndef CHAMBER_AUTO_FAN_PIN
   #ifdef ORIG_CHAMBER_AUTO_FAN_PIN
     #define CHAMBER_AUTO_FAN_PIN ORIG_CHAMBER_AUTO_FAN_PIN
@@ -683,6 +717,7 @@
 #define _E2_PINS
 #define _E3_PINS
 #define _E4_PINS
+#define _E5_PINS
 
 #if ENABLED(SWITCHING_EXTRUDER)
                       // Tools 0 and 1 use E0
@@ -706,6 +741,10 @@
       #if EXTRUDERS > 4
         #undef _E4_PINS
         #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN, E4_MS1_PIN, E4_MS2_PIN, E4_MS3_PIN, E4_CS_PIN,
+        #if EXTRUDERS > 5
+          #undef _E5_PINS
+          #define _E5_PINS E5_STEP_PIN, E5_DIR_PIN, E5_ENABLE_PIN, E5_MS1_PIN, E5_MS2_PIN, E5_MS3_PIN, E5_CS_PIN,
+        #endif // EXTRUDERS > 5
       #endif // EXTRUDERS > 4
     #endif // EXTRUDERS > 3
   #endif // EXTRUDERS > 2
@@ -716,6 +755,7 @@
 #define _H2_PINS
 #define _H3_PINS
 #define _H4_PINS
+#define _H5_PINS
 
 #if HOTENDS > 1
   #undef _H1_PINS
@@ -728,7 +768,11 @@
       #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
       #if HOTENDS > 4
         #undef _H4_PINS
-        #define _H4_PINS HEATER_4_PIN, analogInputToDigitalPin(TEMP_4_PIN),
+        #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_4_PIN),
+        #if HOTENDS > 5
+          #undef _H5_PINS
+          #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_5_PIN),
+        #endif // HOTENDS > 5
       #endif // HOTENDS > 4
     #endif // HOTENDS > 3
   #endif // HOTENDS > 2
@@ -744,6 +788,10 @@
       #if MIXING_STEPPERS > 4
         #undef _E4_PINS
         #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN, E4_MS1_PIN, E4_MS2_PIN, E4_CS_PIN,
+        #if MIXING_STEPPERS > 5
+          #undef _E5_PINS
+          #define _E5_PINS E5_STEP_PIN, E5_DIR_PIN, E5_ENABLE_PIN, E5_MS1_PIN, E5_MS2_PIN, E5_CS_PIN,
+        #endif // MIXING_STEPPERS > 5
       #endif // MIXING_STEPPERS > 4
     #endif // MIXING_STEPPERS > 3
   #endif // MIXING_STEPPERS > 2
@@ -856,7 +904,7 @@
     #ifndef X2_CS_PIN
       #define X2_CS_PIN   _EPIN(E_STEPPERS, CS)
     #endif
-    #if E_STEPPERS > 4 || !PIN_EXISTS(X2_ENABLE)
+    #if E_STEPPERS > MAX_EXTRUDERS || !PIN_EXISTS(X2_ENABLE)
       #error "No E stepper plug left for X2!"
     #endif
   #endif
@@ -881,7 +929,7 @@
     #ifndef Y2_CS_PIN
       #define Y2_CS_PIN   _EPIN(Y2_E_INDEX, CS)
     #endif
-    #if Y2_E_INDEX > 4 || !PIN_EXISTS(Y2_ENABLE)
+    #if Y2_E_INDEX > MAX_EXTRUDERS || !PIN_EXISTS(Y2_ENABLE)
       #error "No E stepper plug left for Y2!"
     #endif
   #endif
@@ -906,7 +954,7 @@
     #ifndef Z2_CS_PIN
       #define Z2_CS_PIN   _EPIN(Z2_E_INDEX, CS)
     #endif
-    #if Z2_E_INDEX > 4 || !PIN_EXISTS(Z2_ENABLE)
+    #if Z2_E_INDEX > MAX_EXTRUDERS || !PIN_EXISTS(Z2_ENABLE)
       #error "No E stepper plug left for Z2!"
     #endif
   #endif
@@ -952,8 +1000,8 @@
     Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Y_MS1_PIN, Y_MS2_PIN, Y_CS_PIN, \
     Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, Z_MS1_PIN, Z_MS2_PIN, Z_MS3_PIN, Z_CS_PIN, Z_MIN_PROBE_PIN, \
     PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLER_FAN_PIN, \
-    _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS BED_PINS \
-    _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS \
+    _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS BED_PINS \
+    _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS \
     _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS \
     HAL_SENSITIVE_PINS \
   }

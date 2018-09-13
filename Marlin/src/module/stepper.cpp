@@ -1982,6 +1982,9 @@ void Stepper::init() {
   #if HAS_E4_DIR
     E4_DIR_INIT;
   #endif
+  #if HAS_E5_DIR
+    E5_DIR_INIT;
+  #endif
 
   // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
@@ -2031,6 +2034,10 @@ void Stepper::init() {
   #if HAS_E4_ENABLE
     E4_ENABLE_INIT;
     if (!E_ENABLE_ON) E4_ENABLE_WRITE(HIGH);
+  #endif
+  #if HAS_E5_ENABLE
+    E5_ENABLE_INIT;
+    if (!E_ENABLE_ON) E5_ENABLE_WRITE(HIGH);
   #endif
 
   #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
@@ -2087,6 +2094,9 @@ void Stepper::init() {
   #endif
   #if E_STEPPERS > 4 && HAS_E4_STEP
     E_AXIS_INIT(4);
+  #endif
+  #if E_STEPPERS > 5 && HAS_E5_STEP
+    E_AXIS_INIT(5);
   #endif
 
   // Init Stepper ISR to 122 Hz for quick starting
@@ -2524,6 +2534,10 @@ void Stepper::report_positions() {
       SET_OUTPUT(E4_MS1_PIN);
       SET_OUTPUT(E4_MS2_PIN);
     #endif
+    #if HAS_E5_MICROSTEPS
+      SET_OUTPUT(E5_MS1_PIN);
+      SET_OUTPUT(E5_MS2_PIN);
+    #endif
     static const uint8_t microstep_modes[] = MICROSTEP_MODES;
     for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
       microstep_mode(i, microstep_modes[i]);
@@ -2553,6 +2567,9 @@ void Stepper::report_positions() {
       #if HAS_E4_MICROSTEPS
         case 7: WRITE(E4_MS1_PIN, ms1); break;
       #endif
+      #if HAS_E5_MICROSTEPS
+        case 8: WRITE(E5_MS1_PIN, ms1); break;
+      #endif
     }
     if (ms2 >= 0) switch (driver) {
       case 0: WRITE(X_MS2_PIN, ms2); break;
@@ -2576,6 +2593,9 @@ void Stepper::report_positions() {
       #endif
       #if HAS_E4_MICROSTEPS
         case 7: WRITE(E4_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_E5_MICROSTEPS
+        case 8: WRITE(E5_MS2_PIN, ms2); break;
       #endif
     }
   }
@@ -2637,6 +2657,11 @@ void Stepper::report_positions() {
       SERIAL_PROTOCOLPGM("E4: ");
       SERIAL_PROTOCOL(READ(E4_MS1_PIN));
       SERIAL_PROTOCOLLN(READ(E4_MS2_PIN));
+    #endif
+    #if HAS_E5_MICROSTEPS
+      SERIAL_PROTOCOLPGM("E5: ");
+      SERIAL_PROTOCOL(READ(E5_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E5_MS2_PIN));
     #endif
   }
 

@@ -233,6 +233,7 @@
 #define MSG_E3STEPS                         _UxGT("E3kroků/mm")
 #define MSG_E4STEPS                         _UxGT("E4kroků/mm")
 #define MSG_E5STEPS                         _UxGT("E5kroků/mm")
+#define MSG_E6STEPS                         _UxGT("E6kroků/mm")
 #define MSG_TEMPERATURE                     _UxGT("Teplota")
 #define MSG_MOTION                          _UxGT("Pohyb")
 #define MSG_FILAMENT                        _UxGT("Filament")

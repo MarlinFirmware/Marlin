@@ -226,6 +226,7 @@
 #define MSG_E3STEPS                         _UxGT("擠出機3步數/mm") //"E3steps/mm"
 #define MSG_E4STEPS                         _UxGT("擠出機4步數/mm") //"E4steps/mm"
 #define MSG_E5STEPS                         _UxGT("擠出機5步數/mm") //"E5steps/mm"
+#define MSG_E6STEPS                         _UxGT("擠出機6步數/mm") //"E6steps/mm"
 #define MSG_TEMPERATURE                     _UxGT("溫度")  //"Temperature"
 #define MSG_MOTION                          _UxGT("運作")  //"Motion"
 #define MSG_FILAMENT                        _UxGT("絲料測容")  //"Filament" lcd_control_volumetric_menu
