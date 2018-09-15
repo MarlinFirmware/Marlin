@@ -35,6 +35,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#include "../module/stepper.h"
+
 //
 // TMC26X Driver objects and inits
 //
@@ -580,6 +582,7 @@ void reset_stepper_drivers() {
   #if HAS_DRIVER(L6470)
     L6470_init_to_defaults();
   #endif
+  stepper.set_directions();
 }
 
 //
