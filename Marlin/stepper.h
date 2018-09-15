@@ -445,6 +445,9 @@ class Stepper {
     }
 
   private:
+  
+    // Allow reset_stepper_drivers to access the internal set_directions method.
+    friend void reset_stepper_drivers();
 
     // Set the current position in steps
     static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
