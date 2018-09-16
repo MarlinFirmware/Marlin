@@ -26,4 +26,10 @@
 
 #define BOARD_NAME "Ender-4"
 
+// The board only has one controllable fan connector, the others are just plain 12V connectors
+// in the default configuration, this is used to control the brightness of the LED band
+// hotend and controller fan are therefore always-on
+#define ENDER4_FAN_PIN RAMPS_D9_PIN
+#define FAN_PIN -1
+
 #include "pins_RAMPS.h"
