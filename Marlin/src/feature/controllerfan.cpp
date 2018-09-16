@@ -50,6 +50,9 @@ void controllerfan_update() {
         #if HAS_Z2_ENABLE
           || Z2_ENABLE_READ == Z_ENABLE_ON
         #endif
+        #if HAS_Z3_ENABLE
+          || Z3_ENABLE_READ == Z_ENABLE_ON
+        #endif
         || E0_ENABLE_READ == E_ENABLE_ON
         #if E_STEPPERS > 1
           || E1_ENABLE_READ == E_ENABLE_ON

@@ -106,6 +106,7 @@
     || defined(Y2_HARDWARE_SERIAL) \
     || defined(Z_HARDWARE_SERIAL ) \
     || defined(Z2_HARDWARE_SERIAL) \
+    || defined(Z3_HARDWARE_SERIAL) \
     || defined(E0_HARDWARE_SERIAL) \
     || defined(E1_HARDWARE_SERIAL) \
     || defined(E2_HARDWARE_SERIAL) \

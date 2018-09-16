@@ -151,6 +151,8 @@
 #define MSG_Z_MAX                           "z_max: "
 #define MSG_Z2_MIN                          "z2_min: "
 #define MSG_Z2_MAX                          "z2_max: "
+#define MSG_Z3_MIN                          "z3_min: "
+#define MSG_Z3_MAX                          "z3_max: "
 #define MSG_Z_PROBE                         "z_probe: "
 #define MSG_PROBE_Z_OFFSET                  "Probe Z Offset"
 #define MSG_SKEW_MIN                        "min_skew_factor: "
