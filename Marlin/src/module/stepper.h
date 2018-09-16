@@ -472,13 +472,10 @@ class Stepper {
       #endif
     }
 
-  private:
-
     // Set direction bits for all steppers
     static void set_directions();
 
-    // Allow reset_stepper_drivers to access private set_directions
-    friend void reset_stepper_drivers();
+  private:
 
     // Set the current position in steps
     static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);

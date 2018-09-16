@@ -1886,6 +1886,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       "Offsets for the first hotend must be 0.0."
     );
     LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp4[i][e];
+    #if ENABLED(DUAL_X_CARRIAGE)
+      hotend_offset[X_AXIS][1] = MAX(X2_HOME_POS, X2_MAX_POS);
+    #endif
   #endif
 
   //

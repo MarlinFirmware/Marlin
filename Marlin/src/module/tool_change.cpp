@@ -366,6 +366,8 @@ inline void invalid_extruder_error(const uint8_t e) {
         switch (dual_x_carriage_mode) {
           case DXC_FULL_CONTROL_MODE: SERIAL_ECHOLNPGM("DXC_FULL_CONTROL_MODE"); break;
           case DXC_AUTO_PARK_MODE: SERIAL_ECHOLNPGM("DXC_AUTO_PARK_MODE"); break;
+          case DXC_DUPLICATION_MODE: SERIAL_ECHOLNPGM("DXC_DUPLICATION_MODE"); break;
+          case DXC_SCALED_DUPLICATION_MODE: SERIAL_ECHOLNPGM("DXC_SCALED_DUPLICATION_MODE"); break;
         }
       }
     #endif
@@ -455,9 +457,8 @@ inline void invalid_extruder_error(const uint8_t e) {
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
   planner.synchronize();
 
-  #if ENABLED(DUAL_X_CARRIAGE)
-    // Only T0 allowed in DXC_DUPLICATION_MODE
-    if (tmp_extruder != 0 && dual_x_carriage_mode == DXC_DUPLICATION_MODE)
+  #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_SCALED_DUPLICATION_MODE
+    if (tmp_extruder != 0 && (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE))
        return invalid_extruder_error(tmp_extruder);
   #endif
 

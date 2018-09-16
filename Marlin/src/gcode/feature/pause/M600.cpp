@@ -56,6 +56,27 @@ void GcodeSuite::M600() {
 
   if (get_target_extruder_from_command()) return;
 
+  #if ENABLED(DUAL_X_CARRIAGE)
+    int8_t DXC_extruder = target_extruder;
+    bool   no_target_specified = !parser.seen('T');
+    
+    if (no_target_specified) {  // if no target was specified to the M600 command, it probably was caused by a 
+                                // filament runout sensor.  If so, we may modify the DXC_extruder that is going to
+                                // be acted upon.  (But only if the printer is in one of the DXC Duplication modes!)
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        if (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE) {     
+          if (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING)
+            DXC_extruder = 0;
+          
+          if (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING)
+            DXC_extruder = 1;
+        } 
+      #else
+        DXC_extruder = active_extruder;
+      #endif
+    }
+  #endif
+
   // Show initial "wait for start" message
   #if ENABLED(ULTIPANEL)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, target_extruder);
@@ -63,14 +84,21 @@ void GcodeSuite::M600() {
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // Don't allow filament change without homing first
-    if (axis_unhomed_error()) home_all_axes();
+    if (axis_unhomed_error()) gcode.home_all_axes();
   #endif
 
   #if EXTRUDERS > 1
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
+    #if ENABLED(DUAL_X_CARRIAGE)
+      if (dual_x_carriage_mode != DXC_DUPLICATION_MODE && dual_x_carriage_mode != DXC_SCALED_DUPLICATION_MODE) {
+        if (active_extruder != target_extruder)        // if not in a DXC Duplication mode, do a tool change if specified
+          tool_change(target_extruder, 0, true);
+      }
+    #else
     if (active_extruder != target_extruder)
       tool_change(target_extruder, 0, true);
+  #endif
   #endif
 
   // Initial retract before move to filament change position
@@ -113,9 +141,16 @@ void GcodeSuite::M600() {
 
   const bool job_running = print_job_timer.isRunning();
 
+    #if ENABLED(DUAL_X_CARRIAGE)
+      if (pause_print(retract, park_point, unload_length, true, DXC_extruder)) {
+        wait_for_filament_reload(beep_count, DXC_extruder);
+      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count, DXC_extruder);
+    #else
+
   if (pause_print(retract, park_point, unload_length, true)) {
     wait_for_filament_reload(beep_count);
     resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count);
+    #endif 
   }
 
   #if EXTRUDERS > 1

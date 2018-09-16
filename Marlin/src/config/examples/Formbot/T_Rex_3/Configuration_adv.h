@@ -385,9 +385,7 @@
   //    Mode 2 (DXC_DUPLICATION_MODE) :           Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all
   //                                              actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
   //                                              once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
-  //    Mode 3 (DXC_SYMMETRIC_DUPLICATION_MODE) : Symmetric Duplication mode. The firmware will perform similarly to DXC_DUPLICATION_MODE except in a mirror
-  //                                              image of the first x-carriage.  ie. If you are printing a right hand shoe on the 1st extruder, you will
-  //                                              get a left hand shoe on the 2nd extruder.
+  //    Mode 3 (DXC_SCALED_DUPLICATION_MODE) :    Not working yet, but support routines in place
 
   // This is the default power-up mode which can be later using M605.
   #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_AUTO_PARK_MODE

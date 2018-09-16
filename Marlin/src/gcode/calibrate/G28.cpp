@@ -369,7 +369,7 @@ void GcodeSuite::G28(const bool always_home_all) {
    */
   #if ENABLED(DUAL_X_CARRIAGE)
 
-    if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
+    if (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE) {
 
       // Always home the 2nd (right) extruder first
       active_extruder = 1;
@@ -387,7 +387,10 @@ void GcodeSuite::G28(const bool always_home_all) {
       delayed_move_time = 0;
       active_extruder_parked = true;
       extruder_duplication_enabled = IDEX_saved_duplication_state;
+      extruder_duplication_enabled = false;
+
       dual_x_carriage_mode         = IDEX_saved_mode;
+      stepper.set_directions();
     }
 
   #endif // DUAL_X_CARRIAGE
