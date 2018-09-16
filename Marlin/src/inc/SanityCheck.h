@@ -1185,6 +1185,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * Test case light not using the same pin as the fan
+ */
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #if CASE_LIGHT_PIN == FAN_PIN
+    #error "You cannot set CASE_LIGHT_PIN equal to FAN_PIN."
+  #endif
+#endif
+
+/**
  * Test Heater, Temp Sensor, and Extruder Pins; Sensor Type must also be set.
  */
 #if !HAS_HEATER_0
