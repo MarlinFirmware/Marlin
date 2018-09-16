@@ -1920,9 +1920,7 @@
 // If the servo can't reach the requested position, increase it.
 #define SERVO_DELAY { 500, 500 }
 
-// Servo deactivation
-//
-// With this option servos are powered only during movement, then turned off to prevent jitter.
+// Only power servos during movement, otherwise leave off to prevent jitter
 #define DEACTIVATE_SERVOS_AFTER_MOVE
 
 #endif // CONFIGURATION_H
