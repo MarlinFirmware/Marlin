@@ -1849,6 +1849,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                 DISABLE_IDLE_E(3);
                 #if EXTRUDERS > 4
                   DISABLE_IDLE_E(4);
+                  #if EXTRUDERS > 5
+                    DISABLE_IDLE_E(5);
+                  #endif // EXTRUDERS > 5
                 #endif // EXTRUDERS > 4
               #endif // EXTRUDERS > 3
             #endif // EXTRUDERS > 2
@@ -1871,6 +1874,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                 DISABLE_IDLE_E(3);
                 #if EXTRUDERS > 4
                   DISABLE_IDLE_E(4);
+                  #if EXTRUDERS > 5
+                    DISABLE_IDLE_E(5);
+                  #endif // EXTRUDERS > 5
                 #endif // EXTRUDERS > 4
               #endif // EXTRUDERS > 3
             #endif // EXTRUDERS > 2
@@ -1885,6 +1891,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                 DISABLE_IDLE_E(3);
                 #if EXTRUDERS > 4
                   DISABLE_IDLE_E(4);
+                  #if EXTRUDERS > 5
+                    DISABLE_IDLE_E(5);
+                  #endif
                 #endif
               #endif
               enable_E2();
@@ -1897,6 +1906,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                 DISABLE_IDLE_E(2);
                 #if EXTRUDERS > 4
                   DISABLE_IDLE_E(4);
+                  #if EXTRUDERS > 5
+                    DISABLE_IDLE_E(5);
+                  #endif
                 #endif
                 enable_E3();
                 g_uc_extruder_last_move[3] = (BLOCK_BUFFER_SIZE) * 2;
@@ -1907,9 +1919,23 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                   DISABLE_IDLE_E(1);
                   DISABLE_IDLE_E(2);
                   DISABLE_IDLE_E(3);
+                  #if EXTRUDERS > 5
+                    DISABLE_IDLE_E(5);
+                  #endif
                   enable_E4();
                   g_uc_extruder_last_move[4] = (BLOCK_BUFFER_SIZE) * 2;
                 break;
+                #if EXTRUDERS > 5
+                  case 5:
+                    DISABLE_IDLE_E(0);
+                    DISABLE_IDLE_E(1);
+                    DISABLE_IDLE_E(2);
+                    DISABLE_IDLE_E(3);
+                    DISABLE_IDLE_E(4);
+                    enable_E5();
+                    g_uc_extruder_last_move[5] = (BLOCK_BUFFER_SIZE) * 2;
+                  break;
+                #endif // EXTRUDERS > 5
               #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
           #endif // EXTRUDERS > 2
@@ -1921,6 +1947,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       enable_E2();
       enable_E3();
       enable_E4();
+      enable_E5();
     #endif
   }
 

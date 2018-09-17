@@ -54,6 +54,7 @@
 #define AXIS_DRIVER_TYPE_E2(T) (E_STEPPERS > 2 && _AXIS_DRIVER_TYPE(E2,T))
 #define AXIS_DRIVER_TYPE_E3(T) (E_STEPPERS > 3 && _AXIS_DRIVER_TYPE(E3,T))
 #define AXIS_DRIVER_TYPE_E4(T) (E_STEPPERS > 4 && _AXIS_DRIVER_TYPE(E4,T))
+#define AXIS_DRIVER_TYPE_E5(T) (E_STEPPERS > 5 && _AXIS_DRIVER_TYPE(E5,T))
 
 #define AXIS_DRIVER_TYPE(A,T) AXIS_DRIVER_TYPE_##A(T)
 
@@ -62,7 +63,7 @@
                         AXIS_DRIVER_TYPE_Z(T)  || AXIS_DRIVER_TYPE_Z2(T) || AXIS_DRIVER_TYPE_Z3(T) || \
                         AXIS_DRIVER_TYPE_E0(T) || AXIS_DRIVER_TYPE_E1(T) || \
                         AXIS_DRIVER_TYPE_E2(T) || AXIS_DRIVER_TYPE_E3(T) || \
-                        AXIS_DRIVER_TYPE_E4(T) )
+                        AXIS_DRIVER_TYPE_E4(T) || AXIS_DRIVER_TYPE_E5(T) )
 
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations

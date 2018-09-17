@@ -49,19 +49,24 @@ enum TMC_AxisEnum : char {
   #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
     , TMC_Z3
   #endif
-  , TMC_E0
-  #if E_STEPPERS > 1
-    , TMC_E1
-    #if E_STEPPERS > 2
-      , TMC_E2
-      #if E_STEPPERS > 3
-        , TMC_E3
-        #if E_STEPPERS > 4
-          , TMC_E4
-        #endif
-      #endif
-    #endif
-  #endif
+  #if E_STEPPERS
+    , TMC_E0
+    #if E_STEPPERS > 1
+      , TMC_E1
+      #if E_STEPPERS > 2
+        , TMC_E2
+        #if E_STEPPERS > 3
+          , TMC_E3
+          #if E_STEPPERS > 4
+            , TMC_E4
+            #if E_STEPPERS > 5
+              , TMC_E5
+            #endif // E_STEPPERS > 5
+          #endif // E_STEPPERS > 4
+        #endif // E_STEPPERS > 3
+      #endif // E_STEPPERS > 2
+    #endif // E_STEPPERS > 1
+  #endif // E_STEPPERS
 };
 
 constexpr uint32_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {

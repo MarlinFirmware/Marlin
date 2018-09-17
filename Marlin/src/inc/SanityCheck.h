@@ -273,19 +273,19 @@
 #elif defined(HAVE_L6470DRIVER)
   #error "HAVE_L6470DRIVER is now [AXIS]_DRIVER_TYPE L6470. Please update your Configuration.h."
 #elif defined(X_IS_TMC) || defined(X2_IS_TMC) || defined(Y_IS_TMC) || defined(Y2_IS_TMC) || defined(Z_IS_TMC) || defined(Z2_IS_TMC) || defined(Z3_IS_TMC) \
-   || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC)
+   || defined(E0_IS_TMC) || defined(E1_IS_TMC) || defined(E2_IS_TMC) || defined(E3_IS_TMC) || defined(E4_IS_TMC) || defined(E5_IS_TMC)
   #error "[AXIS]_IS_TMC is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
 #elif defined(X_IS_TMC26X) || defined(X2_IS_TMC26X) || defined(Y_IS_TMC26X) || defined(Y2_IS_TMC26X) || defined(Z_IS_TMC26X) || defined(Z2_IS_TMC26X) || defined(Z3_IS_TMC26X) \
-   || defined(E0_IS_TMC26X) || defined(E1_IS_TMC26X) || defined(E2_IS_TMC26X) || defined(E3_IS_TMC26X) || defined(E4_IS_TMC26X)
+   || defined(E0_IS_TMC26X) || defined(E1_IS_TMC26X) || defined(E2_IS_TMC26X) || defined(E3_IS_TMC26X) || defined(E4_IS_TMC26X) || defined(E5_IS_TMC26X)
   #error "[AXIS]_IS_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
 #elif defined(X_IS_TMC2130) || defined(X2_IS_TMC2130) || defined(Y_IS_TMC2130) || defined(Y2_IS_TMC2130) || defined(Z_IS_TMC2130) || defined(Z2_IS_TMC2130) || defined(Z3_IS_TMC2130) \
-   || defined(E0_IS_TMC2130) || defined(E1_IS_TMC2130) || defined(E2_IS_TMC2130) || defined(E3_IS_TMC2130) || defined(E4_IS_TMC2130)
+   || defined(E0_IS_TMC2130) || defined(E1_IS_TMC2130) || defined(E2_IS_TMC2130) || defined(E3_IS_TMC2130) || defined(E4_IS_TMC2130) || defined(E5_IS_TMC2130)
   #error "[AXIS]_IS_TMC2130 is now [AXIS]_DRIVER_TYPE TMC2130. Please update your Configuration.h."
 #elif defined(X_IS_TMC2208) || defined(X2_IS_TMC2208) || defined(Y_IS_TMC2208) || defined(Y2_IS_TMC2208) || defined(Z_IS_TMC2208) || defined(Z2_IS_TMC2208) || defined(Z3_IS_TMC2208) \
-   || defined(E0_IS_TMC2208) || defined(E1_IS_TMC2208) || defined(E2_IS_TMC2208) || defined(E3_IS_TMC2208) || defined(E4_IS_TMC2208)
+   || defined(E0_IS_TMC2208) || defined(E1_IS_TMC2208) || defined(E2_IS_TMC2208) || defined(E3_IS_TMC2208) || defined(E4_IS_TMC2208) || defined(E5_IS_TMC2208)
   #error "[AXIS]_IS_TMC2208 is now [AXIS]_DRIVER_TYPE TMC2208. Please update your Configuration.h."
 #elif defined(X_IS_L6470) || defined(X2_IS_L6470) || defined(Y_IS_L6470) || defined(Y2_IS_L6470) || defined(Z_IS_L6470) || defined(Z2_IS_L6470) || defined(Z3_IS_L6470) \
-   || defined(E0_IS_L6470) || defined(E1_IS_L6470) || defined(E2_IS_L6470) || defined(E3_IS_L6470) || defined(E4_IS_L6470)
+   || defined(E0_IS_L6470) || defined(E1_IS_L6470) || defined(E2_IS_L6470) || defined(E3_IS_L6470) || defined(E4_IS_L6470) || defined(E5_IS_L6470)
   #error "[AXIS]_IS_L6470 is now [AXIS]_DRIVER_TYPE L6470. Please update your Configuration.h."
 #elif defined(AUTOMATIC_CURRENT_CONTROL)
   #error "AUTOMATIC_CURRENT_CONTROL is now MONITOR_DRIVER_STATUS. Please update your configuration."
@@ -534,6 +534,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 3 requires FIL_RUNOUT4_PIN."
   #elif NUM_RUNOUT_SENSORS > 4 && !PIN_EXISTS(FIL_RUNOUT5)
     #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 4 requires FIL_RUNOUT5_PIN."
+  #elif NUM_RUNOUT_SENSORS > 5 && !PIN_EXISTS(FIL_RUNOUT6)
+    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 5 requires FIL_RUNOUT6_PIN."
   #elif DISABLED(SDSUPPORT) && DISABLED(PRINTJOB_TIMER_AUTOSTART)
     #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT or PRINTJOB_TIMER_AUTOSTART."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
@@ -1242,13 +1244,28 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
         #elif !PIN_EXISTS(TEMP_4)
           #error "TEMP_4_PIN not defined for this board."
         #endif
+        #if HOTENDS > 5
+          #if TEMP_SENSOR_5 == 0
+            #error "TEMP_SENSOR_5 is required with 5 HOTENDS."
+          #elif !HAS_HEATER_5
+            #error "HEATER_5_PIN not defined for this board."
+          #elif !PIN_EXISTS(TEMP_5)
+            #error "TEMP_5_PIN not defined for this board."
+          #endif
+        #elif TEMP_SENSOR_5 != 0
+          #error "TEMP_SENSOR_5 shouldn't be set with only 5 HOTENDS."
+        #endif
       #elif TEMP_SENSOR_4 != 0
         #error "TEMP_SENSOR_4 shouldn't be set with only 4 HOTENDS."
+      #elif TEMP_SENSOR_5 != 0
+        #error "TEMP_SENSOR_5 shouldn't be set with only 5 HOTENDS."
       #endif
     #elif TEMP_SENSOR_3 != 0
       #error "TEMP_SENSOR_3 shouldn't be set with only 3 HOTENDS."
     #elif TEMP_SENSOR_4 != 0
       #error "TEMP_SENSOR_4 shouldn't be set with only 3 HOTENDS."
+    #elif TEMP_SENSOR_5 != 0
+      #error "TEMP_SENSOR_5 shouldn't be set with only 4 HOTENDS."
     #endif
   #elif TEMP_SENSOR_2 != 0
     #error "TEMP_SENSOR_2 shouldn't be set with only 2 HOTENDS."
@@ -1256,6 +1273,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "TEMP_SENSOR_3 shouldn't be set with only 2 HOTENDS."
   #elif TEMP_SENSOR_4 != 0
     #error "TEMP_SENSOR_4 shouldn't be set with only 2 HOTENDS."
+  #elif TEMP_SENSOR_5 != 0
+    #error "TEMP_SENSOR_5 shouldn't be set with only 2 HOTENDS."
   #endif
 #elif TEMP_SENSOR_1 != 0 && DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   #error "TEMP_SENSOR_1 shouldn't be set with only 1 HOTEND."
@@ -1265,6 +1284,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #error "TEMP_SENSOR_3 shouldn't be set with only 1 HOTEND."
 #elif TEMP_SENSOR_4 != 0
   #error "TEMP_SENSOR_4 shouldn't be set with only 1 HOTEND."
+#elif TEMP_SENSOR_5 != 0
+  #error "TEMP_SENSOR_5 shouldn't be set with only 1 HOTEND."
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
@@ -1306,23 +1327,36 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * Test Extruder Stepper Pins
  */
 #if DISABLED(MK2_MULTIPLEXER) // MK2_MULTIPLEXER uses E0 stepper only
-  #if E_STEPPERS > 4
-    #if !(PIN_EXISTS(E4_STEP) && PIN_EXISTS(E4_DIR) && PIN_EXISTS(E4_ENABLE))
-      #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
+  #if E_STEPPERS
+    #if !(PIN_EXISTS(E0_STEP) && PIN_EXISTS(E0_DIR) && PIN_EXISTS(E0_ENABLE))
+      #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
     #endif
-  #elif E_STEPPERS > 3
-    #if !(PIN_EXISTS(E3_STEP) && PIN_EXISTS(E3_DIR) && PIN_EXISTS(E3_ENABLE))
-      #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
-    #endif
-  #elif E_STEPPERS > 2
-    #if !(PIN_EXISTS(E2_STEP) && PIN_EXISTS(E2_DIR) && PIN_EXISTS(E2_ENABLE))
-      #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
-    #endif
-  #elif E_STEPPERS > 1
-    #if !(PIN_EXISTS(E1_STEP) && PIN_EXISTS(E1_DIR) && PIN_EXISTS(E1_ENABLE))
-      #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
-    #endif
-  #endif
+    #if E_STEPPERS > 1
+      #if !(PIN_EXISTS(E1_STEP) && PIN_EXISTS(E1_DIR) && PIN_EXISTS(E1_ENABLE))
+        #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
+      #endif
+      #if E_STEPPERS > 2
+        #if !(PIN_EXISTS(E2_STEP) && PIN_EXISTS(E2_DIR) && PIN_EXISTS(E2_ENABLE))
+          #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
+        #endif
+        #if E_STEPPERS > 3
+          #if !(PIN_EXISTS(E3_STEP) && PIN_EXISTS(E3_DIR) && PIN_EXISTS(E3_ENABLE))
+            #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
+          #endif
+          #if E_STEPPERS > 4
+            #if !(PIN_EXISTS(E4_STEP) && PIN_EXISTS(E4_DIR) && PIN_EXISTS(E4_ENABLE))
+              #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
+            #endif
+            #if E_STEPPERS > 5
+              #if !(PIN_EXISTS(E5_STEP) && PIN_EXISTS(E5_DIR) && PIN_EXISTS(E5_ENABLE))
+                #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
+              #endif
+            #endif // E_STEPPERS > 5
+          #endif // E_STEPPERS > 4
+        #endif // E_STEPPERS > 3
+      #endif // E_STEPPERS > 2
+    #endif // E_STEPPERS > 1
+  #endif // E_STEPPERS
 #endif
 
 /**
@@ -1625,6 +1659,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #error "E3_CS_PIN is required for TMC2130. Define E3_CS_PIN in Configuration_adv.h."
 #elif AXIS_DRIVER_TYPE(E4, TMC2130) && !PIN_EXISTS(E4_CS)
   #error "E4_CS_PIN is required for TMC2130. Define E4_CS_PIN in Configuration_adv.h."
+#elif AXIS_DRIVER_TYPE(E5, TMC2130) && !PIN_EXISTS(E5_CS)
+  #error "E5_CS_PIN is required for TMC2130. Define E5_CS_PIN in Configuration_adv.h."
 #endif
 
 /**
@@ -1642,8 +1678,9 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     || defined(E1_HARDWARE_SERIAL) \
     || defined(E2_HARDWARE_SERIAL) \
     || defined(E3_HARDWARE_SERIAL) \
-    || defined(E4_HARDWARE_SERIAL) )
-  #error "select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+    || defined(E4_HARDWARE_SERIAL) \
+    || defined(E5_HARDWARE_SERIAL) )
+  #error "Select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
 #endif
 
 /**
@@ -1660,7 +1697,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     || defined(E1_HARDWARE_SERIAL) \
     || defined(E2_HARDWARE_SERIAL) \
     || defined(E3_HARDWARE_SERIAL) \
-    || defined(E4_HARDWARE_SERIAL) )
+    || defined(E4_HARDWARE_SERIAL) \
+    || defined(E5_HARDWARE_SERIAL) )
   #error "TMC2208 Software Serial is supported only on AVR and LPC1768 platforms."
 #endif
 
