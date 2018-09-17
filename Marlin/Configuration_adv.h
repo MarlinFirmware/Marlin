@@ -1564,7 +1564,7 @@
 #endif
 
 #if ENABLED(CUSTOM_USER_MENUS)
-#define  "Tinymachines Setup"
+#define  MSG_USER_MENU  "Tinymachines Setup"
   //#define USER_SCRIPT_DONE "M117 User Script Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   #define USER_SCRIPT_RETURN  // Return to status screen after a script
