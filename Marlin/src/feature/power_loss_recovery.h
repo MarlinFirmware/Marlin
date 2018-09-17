@@ -60,6 +60,10 @@ typedef struct {
     float fade;
   #endif
 
+  #if ENABLED(FWRETRACT)
+    float retract[EXTRUDERS], retract_hop;
+  #endif
+
   // Command queue
   uint8_t cmd_queue_index_r, commands_in_queue;
   char command_queue[BUFSIZE][MAX_CMD_SIZE];

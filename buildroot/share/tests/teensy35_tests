@@ -92,5 +92,5 @@ opt_add_adv Z2_MAX_PIN 2
 opt_enable USE_XMAX_PLUG
 exec_test $1 $2 "Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS"
 
-#cleanup
+# Clean up
 restore_configs

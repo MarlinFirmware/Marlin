@@ -24,8 +24,7 @@
  * scara.h - SCARA-specific functions
  */
 
-#ifndef __SCARA_H__
-#define __SCARA_H__
+#pragma once
 
 #include "../core/macros.h"
 
@@ -38,9 +37,11 @@ float constexpr L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
 
 void scara_set_axis_is_at_home(const AxisEnum axis);
 
-void inverse_kinematics(const float raw[XYZ]);
+void inverse_kinematics(const float (&raw)[XYZ]);
+FORCE_INLINE void inverse_kinematics(const float (&raw)[XYZE]) {
+  const float raw_xyz[XYZ] = { raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS] };
+  inverse_kinematics(raw_xyz);
+}
 void forward_kinematics_SCARA(const float &a, const float &b);
 
 void scara_report_positions();
-
-#endif // __SCARA_H__
