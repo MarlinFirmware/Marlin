@@ -60,8 +60,8 @@ void normalize_mix() {
   // Scale all values if they don't add up to ~1.0
   if (!NEAR(mix_total, 1.0)) {
     SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
-    mix_total = RECIPROCAL(mix_total);
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= mix_total; // Ex: 1/4*2 + 1/8*2 + 1/8*2 = 1/2 + 1/4 + 1/4 = 1
+    const float inverse_sum = RECIPROCAL(mix_total);
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= inverse_sum; // Ex: 1/4*2 + 1/8*2 + 1/8*2 = 1/2 + 1/4 + 1/4 = 1
   }
 }
 
