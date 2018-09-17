@@ -129,13 +129,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 void sync_plan_position();
 void sync_plan_position_e();
 
-#if IS_KINEMATIC
-  void sync_plan_position_kinematic();
-  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_kinematic()
-#else
-  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
-#endif
-
 /**
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
@@ -352,22 +345,6 @@ void homeaxis(const AxisEnum axis);
 
 #if HAS_M206_COMMAND
   void set_home_offset(const AxisEnum axis, const float v);
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #if ENABLED(DELTA)
-    #define ADJUST_DELTA(V) \
-      if (planner.leveling_active) { \
-        const float zadj = bilinear_z_offset(V); \
-        delta[A_AXIS] += zadj; \
-        delta[B_AXIS] += zadj; \
-        delta[C_AXIS] += zadj; \
-      }
-  #else
-    #define ADJUST_DELTA(V) if (planner.leveling_active) { delta[Z_AXIS] += bilinear_z_offset(V); }
-  #endif
-#else
-  #define ADJUST_DELTA(V) NOOP
 #endif
 
 #endif // MOTION_H

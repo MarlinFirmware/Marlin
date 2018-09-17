@@ -75,7 +75,7 @@ bool relative_mode; // = false;
  * Cartesian Current Position
  *   Used to track the native machine position as moves are queued.
  *   Used by 'buffer_line_to_current_position' to do a move after changing it.
- *   Used by 'SYNC_PLAN_POSITION_KINEMATIC' to update 'planner.position'.
+ *   Used by 'sync_plan_position' to update 'planner.position'.
  */
 float current_position[XYZE] = { 0 };
 
@@ -218,15 +218,22 @@ void get_cartesian_from_steppers() {
  * may have been applied.
  *
  * To prevent small shifts in axis position always call
- * SYNC_PLAN_POSITION_KINEMATIC after updating axes with this.
+ * sync_plan_position after updating axes with this.
  *
  * To keep hosts in sync, always call report_current_position
  * after updating the current_position.
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
-  #if PLANNER_LEVELING
-    planner.unapply_leveling(cartes);
+
+  #if HAS_POSITION_MODIFIERS
+    float pos[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], current_position[E_AXIS] };
+    planner.unapply_modifiers(pos
+      #if HAS_LEVELING
+        , true
+      #endif
+    );
+    const float (&cartes)[XYZE] = pos;
   #endif
   if (axis == ALL_AXES)
     COPY(current_position, cartes);
@@ -252,13 +259,6 @@ void buffer_line_to_destination(const float fr_mm_s) {
 
 #if IS_KINEMATIC
 
-  void sync_plan_position_kinematic() {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_kinematic", current_position);
-    #endif
-    planner.set_position_mm_kinematic(current_position);
-  }
-
   /**
    * Calculate delta, start a line, and set current_position to destination
    */
@@ -277,7 +277,7 @@ void buffer_line_to_destination(const float fr_mm_s) {
         && current_position[E_AXIS] == destination[E_AXIS]
       ) return;
 
-      planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
+      planner.buffer_line(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
     #endif
 
     set_current_from_destination();
@@ -538,7 +538,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
     // If the move is only in Z/E don't split up the move
     if (!xdiff && !ydiff) {
-      planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder);
+      planner.buffer_line(rtarget, _feedrate_mm_s, active_extruder);
       return false; // caller will update current_position
     }
 
@@ -580,53 +580,22 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
                   ydiff * inv_segments,
                   zdiff * inv_segments,
                   ediff * inv_segments
-                };
-
-    #if !HAS_FEEDRATE_SCALING
-      const float cartesian_segment_mm = cartesian_mm * inv_segments;
+                },
+                cartesian_segment_mm = cartesian_mm * inv_segments;
+    
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
+      const float inv_duration = _feedrate_mm_s / cartesian_segment_mm;
     #endif
 
     /*
     SERIAL_ECHOPAIR("mm=", cartesian_mm);
     SERIAL_ECHOPAIR(" seconds=", seconds);
     SERIAL_ECHOPAIR(" segments=", segments);
-    #if !HAS_FEEDRATE_SCALING
-      SERIAL_ECHOPAIR(" segment_mm=", cartesian_segment_mm);
-    #endif
+    SERIAL_ECHOPAIR(" segment_mm=", cartesian_segment_mm);
     SERIAL_EOL();
     //*/
 
-    #if HAS_FEEDRATE_SCALING
-      // SCARA needs to scale the feed rate from mm/s to degrees/s
-      // i.e., Complete the angular vector in the given time.
-      const float segment_length = cartesian_mm * inv_segments,
-                  inv_segment_length = 1.0f / segment_length, // 1/mm/segs
-                  inverse_secs = inv_segment_length * _feedrate_mm_s;
-
-      float oldA = planner.position_float[A_AXIS],
-            oldB = planner.position_float[B_AXIS]
-            #if ENABLED(DELTA_FEEDRATE_SCALING)
-              , oldC = planner.position_float[C_AXIS]
-            #endif
-            ;
-
-      /*
-      SERIAL_ECHOPGM("Scaled kinematic move: ");
-      SERIAL_ECHOPAIR(" segment_length (inv)=", segment_length);
-      SERIAL_ECHOPAIR(" (", inv_segment_length);
-      SERIAL_ECHOPAIR(") _feedrate_mm_s=", _feedrate_mm_s);
-      SERIAL_ECHOPAIR(" inverse_secs=", inverse_secs);
-      SERIAL_ECHOPAIR(" oldA=", oldA);
-      SERIAL_ECHOPAIR(" oldB=", oldB);
-      #if ENABLED(DELTA_FEEDRATE_SCALING)
-        SERIAL_ECHOPAIR(" oldC=", oldC);
-      #endif
-      SERIAL_EOL();
-      safe_delay(5);
-      //*/
-    #endif
-
-     // Get the current position as starting point
+    // Get the current position as starting point
     float raw[XYZE];
     COPY(raw, current_position);
 
@@ -642,78 +611,20 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
       LOOP_XYZE(i) raw[i] += segment_distance[i];
 
-      #if ENABLED(DELTA) && HOTENDS < 2
-        DELTA_IK(raw); // Delta can inline its kinematics
-      #else
-        inverse_kinematics(raw);
-      #endif
-      ADJUST_DELTA(raw); // Adjust Z if bed leveling is enabled
-
-      #if ENABLED(SCARA_FEEDRATE_SCALING)
-        // For SCARA scale the feed rate from mm/s to degrees/s
-        // i.e., Complete the angular vector in the given time.
-        if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder, segment_length))
-          break;
-        /*
-        SERIAL_ECHO(segments);
-        SERIAL_ECHOPAIR(": X=", raw[X_AXIS]); SERIAL_ECHOPAIR(" Y=", raw[Y_AXIS]);
-        SERIAL_ECHOPAIR(" A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]);
-        SERIAL_ECHOLNPAIR(" F", HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs * 60);
-        safe_delay(5);
-        //*/
-        oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
-      #elif ENABLED(DELTA_FEEDRATE_SCALING)
-        // For DELTA scale the feed rate from Effector mm/s to Carriage mm/s
-        // i.e., Complete the linear vector in the given time.
-        if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], SQRT(sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC)) * inverse_secs, active_extruder, segment_length))
-          break;
-        /*
-        SERIAL_ECHO(segments);
-        SERIAL_ECHOPAIR(": X=", raw[X_AXIS]); SERIAL_ECHOPAIR(" Y=", raw[Y_AXIS]);
-        SERIAL_ECHOPAIR(" A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]); SERIAL_ECHOPAIR(" C=", delta[C_AXIS]);
-        SERIAL_ECHOLNPAIR(" F", SQRT(sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC)) * inverse_secs * 60);
-        safe_delay(5);
-        //*/
-        oldA = delta[A_AXIS]; oldB = delta[B_AXIS]; oldC = delta[C_AXIS];
-      #else
-        if (!planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], _feedrate_mm_s, active_extruder, cartesian_segment_mm))
-          break;
-      #endif
+      if (!planner.buffer_line(raw, _feedrate_mm_s, active_extruder, cartesian_segment_mm
+        #if ENABLED(SCARA_FEEDRATE_SCALING)
+          , inv_duration
+        #endif
+      ))
+        break;
     }
 
     // Ensure last segment arrives at target location.
-    #if HAS_FEEDRATE_SCALING
-      inverse_kinematics(rtarget);
-      ADJUST_DELTA(rtarget);
-    #endif
-
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
-      const float diff2 = HYPOT2(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB);
-      if (diff2) {
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], rtarget[Z_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder, segment_length);
-        /*
-        SERIAL_ECHOPAIR("final: A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]);
-        SERIAL_ECHOPAIR(" adiff=", delta[A_AXIS] - oldA); SERIAL_ECHOPAIR(" bdiff=", delta[B_AXIS] - oldB);
-        SERIAL_ECHOLNPAIR(" F", SQRT(diff2) * inverse_secs * 60);
-        SERIAL_EOL();
-        safe_delay(5);
-        //*/
-      }
-    #elif ENABLED(DELTA_FEEDRATE_SCALING)
-      const float diff2 = sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC);
-      if (diff2) {
-        planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], rtarget[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder, segment_length);
-        /*
-        SERIAL_ECHOPAIR("final: A=", delta[A_AXIS]); SERIAL_ECHOPAIR(" B=", delta[B_AXIS]); SERIAL_ECHOPAIR(" C=", delta[C_AXIS]);
-        SERIAL_ECHOPAIR(" adiff=", delta[A_AXIS] - oldA); SERIAL_ECHOPAIR(" bdiff=", delta[B_AXIS] - oldB); SERIAL_ECHOPAIR(" cdiff=", delta[C_AXIS] - oldC);
-        SERIAL_ECHOLNPAIR(" F", SQRT(diff2) * inverse_secs * 60);
-        SERIAL_EOL();
-        safe_delay(5);
-        //*/
-      }
-    #else
-      planner.buffer_line_kinematic(rtarget, _feedrate_mm_s, active_extruder, cartesian_segment_mm);
-    #endif
+    planner.buffer_line(rtarget, _feedrate_mm_s, active_extruder, cartesian_segment_mm
+      #if ENABLED(SCARA_FEEDRATE_SCALING)
+        , inv_duration
+      #endif
+    );
 
     return false; // caller will update current_position
   }
@@ -736,7 +647,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
       // If the move is only in Z/E don't split up the move
       if (!xdiff && !ydiff) {
-        planner.buffer_line_kinematic(destination, fr_mm_s, active_extruder);
+        planner.buffer_line(destination, fr_mm_s, active_extruder);
         return;
       }
 
@@ -766,6 +677,10 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
                     ediff * inv_segments
                   };
 
+      #if ENABLED(SCARA_FEEDRATE_SCALING)
+        const float inv_duration = _feedrate_mm_s / cartesian_segment_mm;
+      #endif
+
       // SERIAL_ECHOPAIR("mm=", cartesian_mm);
       // SERIAL_ECHOLNPAIR(" segments=", segments);
       // SERIAL_ECHOLNPAIR(" segment_mm=", cartesian_segment_mm);
@@ -783,13 +698,21 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           idle();
         }
         LOOP_XYZE(i) raw[i] += segment_distance[i];
-        if (!planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder, cartesian_segment_mm))
+        if (!planner.buffer_line(raw, fr_mm_s, active_extruder, cartesian_segment_mm
+          #if ENABLED(SCARA_FEEDRATE_SCALING)
+            , inv_duration
+          #endif
+        ))
           break;
       }
 
       // Since segment_distance is only approximate,
       // the final move must be to the exact destination.
-      planner.buffer_line_kinematic(destination, fr_mm_s, active_extruder, cartesian_segment_mm);
+      planner.buffer_line(destination, fr_mm_s, active_extruder, cartesian_segment_mm
+        #if ENABLED(SCARA_FEEDRATE_SCALING)
+          , inv_duration
+        #endif
+      );
     }
 
   #endif // SEGMENT_LEVELED_MOVES
@@ -922,7 +845,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
               planner.max_feedrate_mm_s[X_AXIS], 1)
             ) break;
             planner.synchronize();
-            SYNC_PLAN_POSITION_KINEMATIC();
+            sync_plan_position();
             extruder_duplication_enabled = true;
             active_extruder_parked = false;
             #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1092,7 +1015,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
 /**
  * Home an individual linear axis
  */
-static void do_homing_move(const AxisEnum axis, const float distance, const float fr_mm_s=0.0) {
+void do_homing_move(const AxisEnum axis, const float distance, const float fr_mm_s=0.0) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -1139,18 +1062,29 @@ static void do_homing_move(const AxisEnum axis, const float distance, const floa
     #endif
   }
 
-  // Tell the planner the axis is at 0
-  current_position[axis] = 0;
-
   #if IS_SCARA
-    SYNC_PLAN_POSITION_KINEMATIC();
-    current_position[axis] = distance;
-    inverse_kinematics(current_position);
-    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], current_position[E_AXIS], fr_mm_s ? fr_mm_s : homing_feedrate(axis), active_extruder);
-  #else
+    // Tell the planner the axis is at 0
+    current_position[axis] = 0;
     sync_plan_position();
-    current_position[axis] = distance; // Set delta/cartesian axes directly
-    planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], fr_mm_s ? fr_mm_s : homing_feedrate(axis), active_extruder);
+    current_position[axis] = distance;
+    planner.buffer_line(current_position, fr_mm_s ? fr_mm_s : homing_feedrate(axis), active_extruder);
+  #else
+    float target[ABCE] = { planner.get_axis_position_mm(A_AXIS), planner.get_axis_position_mm(B_AXIS), planner.get_axis_position_mm(C_AXIS), planner.get_axis_position_mm(E_AXIS) };
+    target[axis] = 0;
+    planner.set_machine_position_mm(target);
+    target[axis] = distance;
+
+    #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+      const float delta_mm_cart[XYZE] = {0, 0, 0, 0};
+    #endif
+
+    // Set delta/cartesian axes directly
+    planner.buffer_segment(target
+      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+        , delta_mm_cart
+      #endif
+      , fr_mm_s ? fr_mm_s : homing_feedrate(axis), active_extruder
+    );
   #endif
 
   planner.synchronize();
@@ -1349,7 +1283,14 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && set_bltouch_deployed(true)) return;
   #endif
 
-  do_homing_move(axis, 1.5f * max_length(axis) * axis_home_dir);
+  do_homing_move(axis, 1.5f * max_length(
+    #if ENABLED(DELTA)
+      Z_AXIS
+    #else
+      axis
+    #endif
+    ) * axis_home_dir
+  );
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     // BLTOUCH needs to be stowed after trigger to rearm itself
@@ -1481,7 +1422,7 @@ void homeaxis(const AxisEnum axis) {
   #if IS_SCARA
 
     set_axis_is_at_home(axis);
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
   #elif ENABLED(DELTA)
 

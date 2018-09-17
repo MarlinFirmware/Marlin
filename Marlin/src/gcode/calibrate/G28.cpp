@@ -101,7 +101,7 @@
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Z_SAFE_HOMING >>>");
     #endif
 
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
     /**
      * Move the Z probe (or just the nozzle) to the safe homing point
@@ -182,7 +182,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #if ENABLED(MARLIN_DEV_MODE)
     if (parser.seen('S')) {
       LOOP_XYZ(a) set_axis_is_at_home((AxisEnum)a);
-      SYNC_PLAN_POSITION_KINEMATIC();
+      sync_plan_position();
       SERIAL_ECHOLNPGM("Simulated Homing");
       report_current_position();
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -357,7 +357,7 @@ void GcodeSuite::G28(const bool always_home_all) {
       } // home_all || homeZ
     #endif // Z_HOME_DIR < 0
 
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
   #endif // !DELTA (G28)
 
