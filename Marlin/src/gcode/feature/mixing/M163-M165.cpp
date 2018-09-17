@@ -37,11 +37,8 @@
  */
 void GcodeSuite::M163() {
   const int mix_index = parser.intval('S');
-  if (mix_index < MIXING_STEPPERS) {
-    float mix_value = parser.floatval('P');
-    NOLESS(mix_value, 0.0);
-    mixing_factor[mix_index] = RECIPROCAL(mix_value);
-  }
+  if (mix_index < MIXING_STEPPERS)
+    mixing_factor[mix_index] = MAX(parser.floatval('P'), 0.0);
 }
 
 /**
@@ -66,7 +63,7 @@ void GcodeSuite::M164() {
   /**
    * M165: Set multiple mix factors for a mixing extruder.
    *       Factors that are left out will be set to 0.
-   *       All factors together must add up to 1.0.
+   *       All factors should sum to 1.0, but they will be normalized regardless.
    *
    *   A[factor] Mix factor for extruder stepper 1
    *   B[factor] Mix factor for extruder stepper 2
