@@ -582,7 +582,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
                   ediff * inv_segments
                 },
                 cartesian_segment_mm = cartesian_mm * inv_segments;
-    
+
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       const float inv_duration = _feedrate_mm_s / cartesian_segment_mm;
     #endif

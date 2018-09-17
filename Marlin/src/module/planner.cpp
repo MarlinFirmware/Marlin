@@ -2642,7 +2642,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
  *  fr_mm_s      - (target) speed of the move (mm/s)
  *  extruder     - target extruder
  *  millimeters  - the length of the movement, if known
- *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled) 
+ *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
  */
 bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters
   #if ENABLED(SCARA_FEEDRATE_SCALING)
@@ -2666,7 +2666,7 @@ bool Planner::buffer_line(const float &rx, const float &ry, const float &rz, con
 
     float mm = millimeters;
     if (mm == 0.0)
-      mm = (delta_mm_cart[X_AXIS] != 0.0 || delta_mm_cart[Y_AXIS] != 0.0) ? SQRT(sq(delta_mm_cart[X_AXIS]) + sq(delta_mm_cart[Y_AXIS]) + sq(delta_mm_cart[Z_AXIS])) : fabs(delta_mm_cart[Z_AXIS]);
+      mm = (delta_mm_cart[X_AXIS] != 0.0 || delta_mm_cart[Y_AXIS] != 0.0) ? SQRT(sq(delta_mm_cart[X_AXIS]) + sq(delta_mm_cart[Y_AXIS]) + sq(delta_mm_cart[Z_AXIS])) : ABS(delta_mm_cart[Z_AXIS]);
 
     inverse_kinematics(raw);
 

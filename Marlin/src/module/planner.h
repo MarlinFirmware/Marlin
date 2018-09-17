@@ -642,7 +642,7 @@ class Planner {
      *  fr_mm_s      - (target) speed of the move (mm/s)
      *  extruder     - target extruder
      *  millimeters  - the length of the movement, if known
-     *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled) 
+     *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
      */
     static bool buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters=0.0
       #if ENABLED(SCARA_FEEDRATE_SCALING)
@@ -665,7 +665,7 @@ class Planner {
     /**
      * Set the planner.position and individual stepper positions.
      * Used by G92, G28, G29, and other procedures.
-     * 
+     *
      * The supplied position is in the cartesian coordinate space and is
      * translated in to machine space as needed. Modifiers such as leveling
      * and skew are also applied.
@@ -681,7 +681,7 @@ class Planner {
 
     /**
      * Set the planner.position and individual stepper positions.
-     * 
+     *
      * The supplied position is in machine space, and no additional
      * conversions are applied.
      */
