@@ -11322,7 +11322,7 @@ inline void gcode_M502() {
         SERIAL_ECHOPGM("led_line[");
         if (r < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(int(r));
-        SERIAL_ECHO("]=");
+        SERIAL_ECHOPGM("]=");
         for (uint8_t b = 8; b--;) SERIAL_CHAR('0' + TEST(max7219.led_line[r], b));
         SERIAL_EOL();
       }
