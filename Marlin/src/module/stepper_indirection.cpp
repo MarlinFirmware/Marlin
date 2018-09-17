@@ -87,6 +87,9 @@
   #if AXIS_DRIVER_TYPE(E4, TMC26X)
     _TMC26X_DEFINE(E4);
   #endif
+  #if AXIS_DRIVER_TYPE(E5, TMC26X)
+    _TMC26X_DEFINE(E5);
+  #endif
 
   #define _TMC26X_INIT(A) do{ \
     stepper##A.setMicrosteps(A##_MICROSTEPS); \
@@ -129,6 +132,9 @@
     #endif
     #if AXIS_DRIVER_TYPE(E4, TMC26X)
       _TMC26X_INIT(E4);
+    #endif
+    #if AXIS_DRIVER_TYPE(E5, TMC26X)
+      _TMC26X_INIT(E5);
     #endif
   }
 #endif // TMC26X
@@ -189,6 +195,9 @@
   #endif
   #if AXIS_DRIVER_TYPE(E4, TMC2130)
     _TMC2130_DEFINE(E4);
+  #endif
+  #if AXIS_DRIVER_TYPE(E5, TMC2130)
+    _TMC2130_DEFINE(E5);
   #endif
 
   // Use internal reference voltage for current calculations. This is the default.
@@ -394,6 +403,13 @@
       _TMC2208_DEFINE_SOFTWARE(E4);
     #endif
   #endif
+  #if AXIS_DRIVER_TYPE(E5, TMC2208)
+    #ifdef E5_HARDWARE_SERIAL
+      _TMC2208_DEFINE_HARDWARE(E5);
+    #else
+      _TMC2208_DEFINE_SOFTWARE(E5);
+    #endif
+  #endif
 
   void tmc2208_serial_begin() {
     #if AXIS_DRIVER_TYPE(X, TMC2208)
@@ -478,6 +494,13 @@
         E4_HARDWARE_SERIAL.begin(115200);
       #else
         stepperE4.beginSerial(115200);
+      #endif
+    #endif
+    #if AXIS_DRIVER_TYPE(E5, TMC2208)
+      #ifdef E5_HARDWARE_SERIAL
+        E5_HARDWARE_SERIAL.begin(115200);
+      #else
+        stepperE5.beginSerial(115200);
       #endif
     #endif
   }
@@ -597,6 +620,9 @@ void restore_stepper_drivers() {
   #if AXIS_IS_TMC(E4)
     stepperE4.push();
   #endif
+  #if AXIS_IS_TMC(E5)
+    stepperE5.push();
+  #endif
 }
 
 void reset_stepper_drivers() {
@@ -667,6 +693,9 @@ void reset_stepper_drivers() {
   #if AXIS_DRIVER_TYPE(E4, L6470)
     _L6470_DEFINE(E4);
   #endif
+  #if AXIS_DRIVER_TYPE(E5, L6470)
+    _L6470_DEFINE(E5);
+  #endif
 
   #define _L6470_INIT(A) do{ \
     stepper##A.init(); \
@@ -712,6 +741,9 @@ void reset_stepper_drivers() {
     #endif
     #if AXIS_DRIVER_TYPE(E4, L6470)
       _L6470_INIT(E4);
+    #endif
+    #if AXIS_DRIVER_TYPE(E5, L6470)
+      _L6470_INIT(E5);
     #endif
   }
 

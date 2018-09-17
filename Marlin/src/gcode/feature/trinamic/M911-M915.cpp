@@ -131,8 +131,8 @@ void GcodeSuite::M912() {
       #endif
     #endif
 
-    #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4)
-      const int8_t eval = int8_t(parser.byteval(axis_codes[E_AXIS], 0xFF));
+    #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5)
+      const uint8_t eval = int8_t(parser.byteval(axis_codes[E_AXIS], 0xFF));
       #if M91x_USE_E(0)
         if (hasNone || eval == 0 || (hasE && eval < 0)) tmc_clear_otpw(stepperE0, TMC_E0);
       #endif
@@ -149,7 +149,7 @@ void GcodeSuite::M912() {
         if (hasNone || eval == 4 || (hasE && eval < 0)) tmc_clear_otpw(stepperE4, TMC_E4);
       #endif
       #if M91x_USE_E(5)
-        if (hasNone || eval == 5 || (hasE && eval == 10)) tmc_clear_otpw(stepperE5, TMC_E5);
+        if (hasNone || eval == 5 || (hasE && eval < 0)) tmc_clear_otpw(stepperE5, TMC_E5);
       #endif
     #endif
 }
