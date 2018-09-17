@@ -82,10 +82,10 @@ void GcodeSuite::M701() {
                                                        : filament_change_load_length[active_extruder]);
   load_filament(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, FILAMENT_CHANGE_ALERT_BEEPS,
                 true, thermalManager.wait_for_heating(target_extruder), ADVANCED_PAUSE_MODE_LOAD_FILAMENT
-  #if ENABLED(DUAL_X_CARRIAGE)
-                , target_extruder
-  #endif
-                );
+                #if ENABLED(DUAL_X_CARRIAGE)
+                  , target_extruder
+                #endif
+              );
 
   // Restore Z axis
   if (park_point.z > 0)

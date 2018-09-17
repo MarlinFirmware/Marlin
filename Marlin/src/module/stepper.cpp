@@ -254,10 +254,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
       X2_DIR_WRITE(v); \
     } \
     else { \
-      if (movement_extruder()) \
-        X2_DIR_WRITE(v); \
-      else \
-        X_DIR_WRITE(v); \
+      if (movement_extruder()) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
     }
   #define X_APPLY_STEP(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
@@ -265,10 +262,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
       X2_STEP_WRITE(v); \
     } \
     else { \
-      if (movement_extruder()) \
-        X2_STEP_WRITE(v); \
-      else \
-        X_STEP_WRITE(v); \
+      if (movement_extruder()) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
     }
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)

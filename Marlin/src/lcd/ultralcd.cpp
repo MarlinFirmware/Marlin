@@ -1040,32 +1040,31 @@ void lcd_quick_feedback(const bool clear_buttons) {
    * IDEX submenu
    */
   #if ENABLED(DUAL_X_CARRIAGE)
-    static void _recalc_IDEX_setttings() {
-
-      if (active_extruder != 0) {                   // If the 2nd extruder is active, the machine needs to be re-homed so the next
-        enqueue_and_echo_commands_P(PSTR("G28"));   // tool change will pick up the new offsets
-        active_extruder = 0;                        // In the future, we can babystep the 2nd extruder if it active and this would make
-      }                                             // homing unneeded.
+    static void _recalc_IDEX_settings() {
+      if (active_extruder) {                      // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+        enqueue_and_echo_commands_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
+        active_extruder = 0;
+      }
     }
-
 
     static void IDEX_menu() {
       START_MENU();
       MENU_BACK(MSG_MAIN);
-      MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100\n"));
-      if (!TEST(axis_known_position, Y_AXIS) || !TEST(axis_known_position, Z_AXIS)) {
-        MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE,   PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\n"));               // If Y or Z is not homed, a full G28 is done first.
-        MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200\n")); // DXC_SCALED_DUPLICATION_MODE
-      } else { 
-        MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE,   PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\n"));                    // If Y and Z is homed, a full G28 is not needed first.
-        MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200\n"));      // DXC_SCALED_DUPLICATION_MODE
-      }
-      MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL,   PSTR("M605 S0\nG28 X\n"));
-
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_setttings);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_setttings);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Z_OFFSET , &hotend_offset[Z_AXIS][1], -10.0, 10.0, _recalc_IDEX_setttings);
-      MENU_ITEM(gcode, MSG_IDEX_SAVE_OFFSETS, PSTR("M500\n"));
+      MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
+      const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
+      MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, need_g28
+        ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
+        : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
+      );
+      MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, need_g28
+        ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
+        : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
+      );
+      MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Z_OFFSET , &hotend_offset[Z_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
+      MENU_ITEM(gcode, MSG_IDEX_SAVE_OFFSETS, PSTR("M500"));
       END_MENU();
     }
   #endif // DUAL_X_CARRIAGE

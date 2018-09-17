@@ -369,7 +369,7 @@ void GcodeSuite::G28(const bool always_home_all) {
    */
   #if ENABLED(DUAL_X_CARRIAGE)
 
-    if (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE) {
+    if (dxc_is_duplicating()) {
 
       // Always home the 2nd (right) extruder first
       active_extruder = 1;

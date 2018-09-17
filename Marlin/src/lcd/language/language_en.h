@@ -214,20 +214,20 @@
 #ifndef MSG_IDEX_MODE_DUPLICATE
   #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplication")
 #endif
-#ifndef MSG_IDEX_MODE_SYM_COPY
+#ifndef MSG_IDEX_MODE_SCALED_COPY
   #define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Scaled copy")
 #endif
 #ifndef MSG_IDEX_MODE_FULL_CTRL
   #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Full control")
 #endif
 #ifndef MSG_IDEX_X_OFFSET
-  #define MSG_IDEX_X_OFFSET                   _UxGT("2nd nozzle X ")
+  #define MSG_IDEX_X_OFFSET                   _UxGT("2nd nozzle X")
 #endif
 #ifndef MSG_IDEX_Y_OFFSET
-  #define MSG_IDEX_Y_OFFSET                   _UxGT("2nd nozzle Y ")
+  #define MSG_IDEX_Y_OFFSET                   _UxGT("2nd nozzle Y")
 #endif
 #ifndef MSG_IDEX_Z_OFFSET
-  #define MSG_IDEX_Z_OFFSET                   _UxGT("2nd nozzle Z ")
+  #define MSG_IDEX_Z_OFFSET                   _UxGT("2nd nozzle Z")
 #endif
 #ifndef MSG_IDEX_SAVE_OFFSETS
   #define MSG_IDEX_SAVE_OFFSETS               _UxGT("Save Offsets")

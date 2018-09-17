@@ -458,7 +458,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
   planner.synchronize();
 
   #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_SCALED_DUPLICATION_MODE
-    if (tmp_extruder != 0 && (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE))
+    if (tmp_extruder != 0 && dxc_is_duplicating())
        return invalid_extruder_error(tmp_extruder);
   #endif
 

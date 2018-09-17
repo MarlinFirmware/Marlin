@@ -147,13 +147,11 @@
 
 
 #if DISABLED(ICSP_PORT_SWITCHES)
-//#define FIL_RUNOUT_PIN    22
-//#define FIL_RUNOUT2_PIN   21
-#else
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    #define FIL_RUNOUT_PIN  52
-    #define FIL_RUNOUT2_PIN 50
-  #endif
+  //#define FIL_RUNOUT_PIN    22
+  //#define FIL_RUNOUT2_PIN   21
+#elif ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #define FIL_RUNOUT_PIN   52
+  #define FIL_RUNOUT2_PIN  50
 #endif
 
 //

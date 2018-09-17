@@ -140,9 +140,7 @@ static void do_pause_e_move(const float &length, const float &fr) {
 bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=0*/, const int8_t max_beep_count/*=0*/,
                    const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/,
                    const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
-#if ENABLED(DUAL_X_CARRIAGE)
-                     , const int8_t DXC_ext /*-1*/
-#endif
+                   DXC_ARGS
 ) {
   #if DISABLED(ULTIPANEL)
     UNUSED(show_lcd);
@@ -188,9 +186,8 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    int8_t saved_ext          = active_extruder;
-    bool   saved_ext_dup_mode = extruder_duplication_enabled;
-
+    const int8_t saved_ext        = active_extruder;
+    const bool saved_ext_dup_mode = extruder_duplication_enabled;
     active_extruder = DXC_ext;
     extruder_duplication_enabled = false;
   #endif
@@ -345,12 +342,8 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
  */
 uint8_t did_pause_print = 0;
 
-#if ENABLED(DUAL_X_CARRIAGE)
-  bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/, const int8_t DXC_ext) {
-#else
+bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/ DXC_ARGS) {
 
-bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/) {
-#endif
   if (did_pause_print) return false; // already paused
 
   #ifdef ACTION_ON_PAUSE
@@ -403,9 +396,8 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
     Nozzle::park(2, park_point);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    int8_t saved_ext          = active_extruder;
-    bool   saved_ext_dup_mode = extruder_duplication_enabled;
-
+    const int8_t saved_ext        = active_extruder;
+    const bool saved_ext_dup_mode = extruder_duplication_enabled;
     active_extruder = DXC_ext;
     extruder_duplication_enabled = false;
   #endif
@@ -429,11 +421,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
  *
  * Used by M125 and M600
  */
-#if ENABLED(DUAL_X_CARRIAGE)
-  void wait_for_filament_reload(const int8_t max_beep_count/*=0*/, const int8_t DXC_ext) {
-#else
-  void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
-#endif
+void wait_for_filament_reload(const int8_t max_beep_count/*=0*/ DXC_ARGS) {
   bool nozzle_timed_out = false;
 
   #if ENABLED(ULTIPANEL)
@@ -453,9 +441,8 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
     thermalManager.start_heater_idle_timer(e, nozzle_timeout);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    int8_t saved_ext          = active_extruder;
-    bool   saved_ext_dup_mode = extruder_duplication_enabled;
-
+    const int8_t saved_ext        = active_extruder;
+    const bool saved_ext_dup_mode = extruder_duplication_enabled;
     active_extruder = DXC_ext;
     extruder_duplication_enabled = false;
   #endif
@@ -550,17 +537,14 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
  * - Send host action for resume, if configured
  * - Resume the current SD print job, if any
  */
-#if ENABLED(DUAL_X_CARRIAGE)
-  void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/, const int8_t DXC_ext) {
-#else
-void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/) {
-#endif
-/*
-SERIAL_ECHO("start of resume_print()\n");
-SERIAL_ECHOPAIR("\ndual_x_carriage_mode:", dual_x_carriage_mode);
-SERIAL_ECHOPAIR("\nextruder_duplication_enabled:", extruder_duplication_enabled);
-SERIAL_ECHOPAIR("\nactive_extruder:", active_extruder);
-SERIAL_ECHO("\n\n"); */
+void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
+  /*
+  SERIAL_ECHOPGM("start of resume_print()\n");
+  SERIAL_ECHOPAIR("\ndual_x_carriage_mode:", dual_x_carriage_mode);
+  SERIAL_ECHOPAIR("\nextruder_duplication_enabled:", extruder_duplication_enabled);
+  SERIAL_ECHOPAIR("\nactive_extruder:", active_extruder);
+  SERIAL_ECHOPGM("\n\n");
+  */
 
   if (!did_pause_print) return;
 
@@ -571,18 +555,11 @@ SERIAL_ECHO("\n\n"); */
     thermalManager.reset_heater_idle_timer(e);
   }
 
-  if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) {
-    // Load the new filament
-    #if ENABLED(DUAL_X_CARRIAGE)
-      load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, ADVANCED_PAUSE_MODE_PAUSE_PRINT, DXC_ext);
-    #else
-    load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out);
-    #endif
-  }
+  if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) // Load the new filament
+    load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, ADVANCED_PAUSE_MODE_PAUSE_PRINT DXC_PASS);
 
   #if ENABLED(ULTIPANEL)
-    // "Wait for print to resume"
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME);
+    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME); // "Wait for print to resume"
   #endif
 
   // Intelligent resuming

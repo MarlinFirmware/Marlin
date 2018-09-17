@@ -145,10 +145,8 @@
 #define FAN_PIN             9
 //#define FAN1_PIN          4
 
-
-#define FIL_RUNOUT_PIN    23
-#define FIL_RUNOUT2_PIN   21
-
+#define FIL_RUNOUT_PIN     23
+#define FIL_RUNOUT2_PIN    21
 
 //
 // Misc. Functions

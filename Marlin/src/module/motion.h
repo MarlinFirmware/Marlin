@@ -328,6 +328,8 @@ void homeaxis(const AxisEnum axis);
   extern millis_t delayed_move_time;              // used in mode 1
   extern int16_t duplicate_extruder_temp_offset;  // used in mode 2 & 3
 
+  FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
+
   float x_home_pos(const int extruder);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }

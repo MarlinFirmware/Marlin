@@ -56,8 +56,8 @@
     planner.synchronize();
 
     if (parser.seen('S')) {
-      DualXMode  previous_mode, requested_mode = (DualXMode)parser.value_byte();
-      previous_mode = dual_x_carriage_mode;
+      const DualXMode previous_mode = dual_x_carriage_mode;
+
       dual_x_carriage_mode = (DualXMode)parser.value_byte();
       scaled_duplication_mode = false;
 
@@ -68,12 +68,13 @@
           dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
           return;
         }
-        float x_jog = current_position[X_AXIS] - .1;
         scaled_duplication_mode = true;
         stepper.set_directions();
-        planner.buffer_line(x_jog, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, 0);
-        x_jog += .1;
-        planner.buffer_line(x_jog, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, 0);
+        float x_jog = current_position[X_AXIS] - .1;
+        for (uint8_t i = 2; --i;) {
+          planner.buffer_line(x_jog, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, 0);
+          x_jog += .1;
+        }
         return;
       }
 
@@ -102,60 +103,45 @@
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("IDEX mode: ");
       switch (dual_x_carriage_mode) {
-        case DXC_FULL_CONTROL_MODE:
-          SERIAL_ECHOPGM("DXC_FULL_CONTROL_MODE\n");
-          break;
-        case DXC_AUTO_PARK_MODE:
-          SERIAL_ECHOPGM("DXC_AUTO_PARK_MODE\n");
-          break;
-        case DXC_DUPLICATION_MODE:
-          SERIAL_ECHOPGM("DXC_DUPLICATION_MODE\n");
-          break;
-        case DXC_SCALED_DUPLICATION_MODE:
-          SERIAL_ECHOPGM("DXC_SCALED_DUPLICATION_MODE\n");
-          break;
+        case DXC_FULL_CONTROL_MODE:       SERIAL_ECHOPGM("DXC_FULL_CONTROL_MODE");       break;
+        case DXC_AUTO_PARK_MODE:          SERIAL_ECHOPGM("DXC_AUTO_PARK_MODE");          break;
+        case DXC_DUPLICATION_MODE:        SERIAL_ECHOPGM("DXC_DUPLICATION_MODE");        break;
+        case DXC_SCALED_DUPLICATION_MODE: SERIAL_ECHOPGM("DXC_SCALED_DUPLICATION_MODE"); break;
       }
       SERIAL_ECHOPAIR("\nActive Ext: ", int(active_extruder));
       if (!active_extruder_parked) SERIAL_ECHOPGM(" NOT ");
-      SERIAL_ECHOLNPGM(" parked.");
-      SERIAL_ECHOPAIR("active_extruder_x_pos: ", current_position[X_AXIS]);
+      SERIAL_ECHOPGM(" parked.");
+      SERIAL_ECHOPAIR("\nactive_extruder_x_pos: ", current_position[X_AXIS]);
       SERIAL_ECHOPAIR("\ninactive_extruder_x_pos: ", inactive_extruder_x_pos);
       SERIAL_ECHOPAIR("\nextruder_duplication_enabled: ", int(extruder_duplication_enabled));
       SERIAL_ECHOPAIR("\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset);
       SERIAL_ECHOPAIR("\nduplicate_extruder_temp_offset: ", duplicate_extruder_temp_offset);
       SERIAL_ECHOPAIR("\ndelayed_move_time: ", delayed_move_time);
       SERIAL_ECHOPAIR("\nX1 Home X: ", x_home_pos(0));
-      SERIAL_ECHOPAIR("\nX1_MIN_POS=", X1_MIN_POS);
-      SERIAL_ECHOPAIR("\nX1_MAX_POS=", X1_MAX_POS);
+      SERIAL_ECHOPAIR("\nX1_MIN_POS=", int(X1_MIN_POS));
+      SERIAL_ECHOPAIR("\nX1_MAX_POS=", int(X1_MAX_POS));
       SERIAL_ECHOPAIR("\nX2 Home X: ", x_home_pos(1));
-      SERIAL_ECHOPAIR("\nX2_MIN_POS=", X2_MIN_POS);
-      SERIAL_ECHOPAIR("\nX2_MAX_POS=", X2_MAX_POS);
-      SERIAL_ECHOPAIR("\nX2_HOME_DIR=", X2_HOME_DIR);
-      SERIAL_ECHOPAIR("\nX2_HOME_POS=", X2_HOME_POS);
-      SERIAL_ECHOPAIR("\nDEFAULT_DUAL_X_CARRIAGE_MODE=", DEFAULT_DUAL_X_CARRIAGE_MODE);
-      SERIAL_ECHOPAIR("\nTOOLCHANGE_PARK_ZLIFT=", TOOLCHANGE_PARK_ZLIFT);
-      SERIAL_ECHOPAIR("\nTOOLCHANGE_UNPARK_ZLIFT=", TOOLCHANGE_UNPARK_ZLIFT);
-      SERIAL_ECHOPAIR("\nDEFAULT_DUPLICATION_X_OFFSET=", DEFAULT_DUPLICATION_X_OFFSET);
+      SERIAL_ECHOPAIR("\nX2_MIN_POS=", int(X2_MIN_POS));
+      SERIAL_ECHOPAIR("\nX2_MAX_POS=", int(X2_MAX_POS));
+      SERIAL_ECHOPAIR("\nX2_HOME_DIR=", int(X2_HOME_DIR));
+      SERIAL_ECHOPAIR("\nX2_HOME_POS=", int(X2_HOME_POS));
+      SERIAL_ECHOPAIR("\nDEFAULT_DUAL_X_CARRIAGE_MODE=", STRINGIFY(DEFAULT_DUAL_X_CARRIAGE_MODE));
+      SERIAL_ECHOPAIR("\nTOOLCHANGE_PARK_ZLIFT=", float(TOOLCHANGE_PARK_ZLIFT));
+      SERIAL_ECHOPAIR("\nTOOLCHANGE_UNPARK_ZLIFT=", float(TOOLCHANGE_UNPARK_ZLIFT));
+      SERIAL_ECHOPAIR("\nDEFAULT_DUPLICATION_X_OFFSET=", int(DEFAULT_DUPLICATION_X_OFFSET));
 
-      SERIAL_ECHO("\n");
-      for(uint8_t i=0; i<2; i++) {
-        SERIAL_ECHOPAIR(" nozzle:",i);
-        for(uint8_t j=0; j<3; j++) {
-          SERIAL_ECHO("    hotend_offset[");
-          switch (j) {
-            case 0: SERIAL_ECHO("X");
-                    break;
-            case 1: SERIAL_ECHO("Y");
-                    break;
-            case 2: SERIAL_ECHO("Z");
-                    break;
-          }
-          SERIAL_ECHOPAIR("_AXIS][",i);
-          SERIAL_ECHOPAIR("]=",hotend_offset[j][i]);
+      SERIAL_EOL();
+      for (uint8_t i = 0; i < 2; i++) {
+        SERIAL_ECHOPAIR(" nozzle:", int(i));
+        LOOP_XYZ(j) {
+          SERIAL_ECHOPGM("    hotend_offset[");
+          SERIAL_CHAR(axis_codes[j]);
+          SERIAL_ECHOPAIR("_AXIS][", int(i));
+          SERIAL_ECHOPAIR("]=", hotend_offset[j][i]);
         }
-        SERIAL_ECHO("\n");
+        SERIAL_EOL();
       }
-      SERIAL_ECHO("\n");
+      SERIAL_EOL();
     }
   }
 
