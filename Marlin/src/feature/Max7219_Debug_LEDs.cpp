@@ -56,6 +56,8 @@ uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
 #if _ROT == 0 || _ROT == 270
   #define _LED_BIT(Q)   (7 - ((Q) & 0x7))
   #define _LED_UNIT(Q)  ((Q) & ~0x7)
+  //#define _LED_UNIT(Q)  ((MAX7219_NUMBER_UNITS - 1 - ((Q) >> 3)) << 3)  // some Max7219 boards have rotated the matrix
+                                                                          // this line can be substituted to correct orientation
 #else
   #define _LED_BIT(Q)   ((Q) & 0x7)
   #define _LED_UNIT(Q)  ((MAX7219_NUMBER_UNITS - 1 - ((Q) >> 3)) << 3)

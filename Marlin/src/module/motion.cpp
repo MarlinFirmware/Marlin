@@ -760,7 +760,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   bool extruder_duplication_enabled = false,                              // Used in Dual X mode 2 & 3
-       symmetric_duplication_mode   = false;                              // Used in Dual X mode 2 & 3
+       scaled_duplication_mode      = false;                              // Used in Dual X mode 2 & 3
 #endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
@@ -818,8 +818,6 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             #define RAISED_Y raised_parked_position[Y_AXIS]
             #define RAISED_Z raised_parked_position[Z_AXIS]
 
-            //SERIAL_ECHOLNPGM("dual_x_carriage_unpark()\n");
-
             if (  planner.buffer_line(RAISED_X, RAISED_Y, RAISED_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder))
               if (planner.buffer_line(   CUR_X,    CUR_Y, RAISED_Z, CUR_E, PLANNER_XY_FEEDRATE(),             active_extruder))
                   planner.buffer_line(   CUR_X,    CUR_Y,    CUR_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
@@ -829,6 +827,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Clear active_extruder_parked");
           #endif
           break;
+        case DXC_SCALED_DUPLICATION_MODE:
         case DXC_DUPLICATION_MODE:
           if (active_extruder == 0) {
             #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -839,10 +838,12 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             #endif
             // move duplicate extruder into correct duplication position.
             planner.set_position_mm(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
             if (!planner.buffer_line(
-              current_position[X_AXIS] + duplicate_extruder_x_offset,
-              current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],
-              planner.max_feedrate_mm_s[X_AXIS], 1)
+                dual_x_carriage_mode == DXC_DUPLICATION_MODE ? duplicate_extruder_x_offset + current_position[X_AXIS] : inactive_extruder_x_pos,
+                current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],
+                planner.max_feedrate_mm_s[X_AXIS], 1
+              )
             ) break;
             planner.synchronize();
             sync_plan_position();
@@ -860,6 +861,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
           break;
       }
     }
+    stepper.set_directions();
     return false;
   }
 
@@ -906,9 +908,9 @@ void prepare_move_to_destination() {
 
   if (
     #if UBL_SEGMENTED
-//    ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))   // This does not seem to work correctly on UBL.
-      #if ENABLED(DELTA)                                                      // A Delta case and a Cartesian case can work
-        ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s)) // around the problem until it is fixed.
+      //ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))   // This doesn't seem to work correctly on UBL.
+      #if IS_KINEMATIC                                                          // Use Kinematic / Cartesian cases as a workaround for now.
+        ubl.prepare_segmented_line_to(destination, MMS_SCALED(feedrate_mm_s))
       #else
         prepare_move_to_destination_cartesian()
       #endif
@@ -1499,7 +1501,7 @@ void homeaxis(const AxisEnum axis) {
           soft_endstop_min[X_AXIS] = X2_MIN_POS;
           soft_endstop_max[X_AXIS] = dual_max_x;
         }
-        else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
+        else if (dxc_is_duplicating()) {
           // In Duplication Mode, T0 can move as far left as X_MIN_POS
           // but not so far to the right that T1 would move past the end
           soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS);

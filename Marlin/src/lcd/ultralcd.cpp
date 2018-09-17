@@ -38,6 +38,8 @@
 #include "../gcode/gcode.h"
 #include "../gcode/queue.h"
 #include "../module/configuration_store.h"
+#include "../module/tool_change.h"
+
 
 #include "../Marlin.h"
 
@@ -521,7 +523,7 @@ uint16_t max_display_update_time = 0;
           if (currentScreen == lcd_status_screen)
             doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
         }
-        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms) && (planner.movesplanned() || IS_SD_PRINTING))
+        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms)/* && (planner.movesplanned() || IS_SD_PRINTING)*/)
           screen =
             #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
               lcd_babystep_zoffset
@@ -1038,15 +1040,31 @@ void lcd_quick_feedback(const bool clear_buttons) {
    * IDEX submenu
    */
   #if ENABLED(DUAL_X_CARRIAGE)
+    static void _recalc_IDEX_settings() {
+      if (active_extruder) {                      // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+        enqueue_and_echo_commands_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
+        active_extruder = 0;
+      }
+    }
+
     static void IDEX_menu() {
       START_MENU();
       MENU_BACK(MSG_MAIN);
-      MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK, PSTR("M605 S1\nG28 X\nG1 X100"));
-      if (!TEST(axis_known_position, Y_AXIS) || !TEST(axis_known_position, Z_AXIS))
-        MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, PSTR("T0\nG28\nM605 S2 X200\nG28 X\nG1 X100"));  // If Y or Z is not homed, a full G28 is done first.
-      else
-        MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, PSTR("T0\nM605 S2 X200\nG28 X\nG1 X100"));       // If Y and Z is homed, a full G28 is not needed first.
+      MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
+      const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
+      MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, need_g28
+        ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
+        : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
+      );
+      MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, need_g28
+        ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
+        : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
+      );
       MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Z_OFFSET , &hotend_offset[Z_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
+      MENU_ITEM(gcode, MSG_IDEX_SAVE_OFFSETS, PSTR("M500"));
       END_MENU();
     }
   #endif // DUAL_X_CARRIAGE
