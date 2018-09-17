@@ -256,6 +256,7 @@ void _tmc_say_axis(const TMC_AxisEnum axis) {
         #endif
       #endif
     #endif
+  ;
 
   static const char* const tmc_axes[] PROGMEM = {
     ext_X, ext_Y, ext_Z
