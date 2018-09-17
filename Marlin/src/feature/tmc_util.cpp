@@ -225,7 +225,7 @@ bool report_tmc_status = false;
 #endif // MONITOR_DRIVER_STATUS
 
 void _tmc_say_axis(const TMC_AxisEnum axis) {
-  static const char ext_X[] PROGMEM = "X", ext_Y[] PROGMEM = "Y", ext_Z[] PROGMEM = "Z",
+  static const char ext_X[] PROGMEM = "X", ext_Y[] PROGMEM = "Y", ext_Z[] PROGMEM = "Z"
     #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)
       , ext_X2[] PROGMEM = "X2"
     #endif
