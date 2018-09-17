@@ -21,13 +21,13 @@
  */
 
 /**
- * Choose your version: 
+ * Choose your version:
  */
 // normal size or plus?
-//#define ANCYUBIC_KOSSEL_PLUS 
+//#define ANCYUBIC_KOSSEL_PLUS
 // Anycubic Probe version 1 or 2 see README.md; 0 for no probe
 #define ANYCUBIC_PROBE_VERSION 0
-// Heated Bed: 
+// Heated Bed:
 // 0 ... no heated bed
 // 1 ... aluminium heated bed with "BuildTak-like" sticker
 // 2 ... ultrabase heated bed
@@ -580,7 +580,6 @@
     #define PROBE_MANUALLY_STEP 0.05 // mm
   #endif
 
-  
   #if ENABLED(ANCYUBIC_KOSSEL_PLUS)
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
     #define DELTA_PRINTABLE_RADIUS 116.0 // mm
