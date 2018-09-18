@@ -557,6 +557,10 @@ void GcodeSuite::process_parsed_command(
         case 402: M402(); break;                                  // M402: Stow probe
       #endif
 
+      #if ENABLED(PRUSA_MMU2)
+        case 403: M403(); break;
+      #endif
+
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
         case 404: M404(); break;                                  // M404: Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
         case 405: M405(); break;                                  // M405: Turn on filament sensor for control

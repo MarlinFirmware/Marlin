@@ -368,7 +368,8 @@
  *  E_MANUAL     - Number of E steppers for LCD move options
  *
  */
-#if ENABLED(SWITCHING_EXTRUDER)                               // One stepper for every two EXTRUDERS
+
+#if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
   #if EXTRUDERS > 4
     #define E_STEPPERS    3
   #elif EXTRUDERS > 2
@@ -385,6 +386,11 @@
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
+#elif ENABLED(PRUSA_MMU2)
+  #define E_STEPPERS 1
+  #ifndef TOOLCHANGE_ZRAISE
+    #define TOOLCHANGE_ZRAISE 0
+  #endif
 #endif
 
 // No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE
@@ -392,8 +398,8 @@
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// MK2 Multiplexer forces SINGLENOZZLE
-#if ENABLED(MK2_MULTIPLEXER)
+// Prusa MK2 Multiplexer and MMU 2.0 force SINGLENOZZLE
+#if ENABLED(MK2_MULTIPLEXER) || ENABLED(PRUSA_MMU2)
   #define SINGLENOZZLE
 #endif
 
