@@ -38,6 +38,8 @@
 #include "fastio_AVR.h"
 #include "watchdog_AVR.h"
 #include "math_AVR.h"
+#include "HAL_uart.h"
+
 
 #ifdef USBCON
   #include "HardwareSerial.h"
@@ -354,5 +356,9 @@ inline void HAL_adc_init(void) {
 
 // AVR compatibility
 #define strtof strtod
+
+// support uarts
+#define HAL_UART
+
 
 #endif // _HAL_AVR_H_

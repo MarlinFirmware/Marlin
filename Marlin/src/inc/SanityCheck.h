@@ -1814,4 +1814,8 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
   #error "PRINTCOUNTER requires EEPROM_SETTINGS. Please update your Configuration."
 #endif
 
+#if ENABLED(USE_UART) && !defined(HAL_UART)
+  #error "UARTs not supported for this platform."
+#endif
+
 #endif // _SANITYCHECK_H_
