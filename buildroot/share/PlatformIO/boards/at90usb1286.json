@@ -8,7 +8,7 @@
   "frameworks": [
     "arduino"
   ],
-  "name": "at90USB1286.json",
+  "name": "at90usb1286.json",
   "upload": {
     "maximum_ram_size": 8192,
     "maximum_size": 122880,

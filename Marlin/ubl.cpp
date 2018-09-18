@@ -76,7 +76,7 @@
       // ignore the status of the g26_debug_flag
       if (*title != '!' && !g26_debug_flag) return;
 
-      const float de = destination[E_AXIS] - current_position[E_AXIS];
+      const float de = destination[E_CART] - current_position[E_CART];
 
       if (de == 0.0) return; // Printing moves only
 
@@ -97,7 +97,7 @@
       SERIAL_ECHOPGM(", ");
       SERIAL_ECHO_F(current_position[Z_AXIS], 6);
       SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[E_AXIS], 6);
+      SERIAL_ECHO_F(current_position[E_CART], 6);
       SERIAL_ECHOPGM(" )   destination=( ");
       debug_echo_axis(X_AXIS);
       SERIAL_ECHOPGM(", ");

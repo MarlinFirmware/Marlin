@@ -135,9 +135,8 @@ uint8_t Stepper::steps_per_isr;
 #endif
     uint8_t Stepper::oversampling_factor;
 
-int32_t Stepper::delta_error[XYZE] = { 0 };
-
-uint32_t Stepper::advance_dividend[XYZE] = { 0 },
+int32_t Stepper::delta_error[NUM_AXIS] = { 0 };
+uint32_t Stepper::advance_dividend[NUM_AXIS] = { 0 },
          Stepper::advance_divisor = 0,
          Stepper::step_events_completed = 0, // The number of step events executed in the current block
          Stepper::accelerate_until,          // The point from where we need to stop acceleration
@@ -180,14 +179,19 @@ uint32_t Stepper::nextMainISR = 0;
 #endif // LIN_ADVANCE
 
 int32_t Stepper::ticks_nominal = -1;
+
 #if DISABLED(S_CURVE_ACCELERATION)
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
 
-volatile int32_t Stepper::endstops_trigsteps[XYZ];
-
-volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
-int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
+volatile int32_t Stepper::endstops_trigsteps[XYZ],
+                 Stepper::count_position[NUM_AXIS] = { 0 };
+int8_t Stepper::count_direction[NUM_AXIS] = {
+  1, 1, 1, 1
+  #if ENABLED(HANGPRINTER)
+    , 1
+  #endif
+};
 
 #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
   #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
@@ -258,6 +262,28 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
 #else
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
   #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
+#endif
+
+/**
+ * Hangprinter's mapping {A,B,C,D} <-> {X,Y,Z,E1} happens here.
+ * If you have two extruders: {A,B,C,D} <-> {X,Y,Z,E2}
+ * ... etc up to max 4 extruders.
+ * Place D connector on your first "free" extruder output.
+ */
+#if ENABLED(HANGPRINTER)
+  #define A_APPLY_DIR(v,Q)  X_APPLY_DIR(v,Q)
+  #define A_APPLY_STEP(v,Q) X_APPLY_STEP(v,Q)
+
+  #define B_APPLY_DIR(v,Q)  Y_APPLY_DIR(v,Q)
+  #define B_APPLY_STEP(v,Q) Y_APPLY_STEP(v,Q)
+
+  #define C_APPLY_DIR(v,Q)  Z_APPLY_DIR(v,Q)
+  #define C_APPLY_STEP(v,Q) Z_APPLY_STEP(v,Q)
+
+  #define __D_APPLY(I,T,v) E##I##_##T##_WRITE(v)
+  #define _D_APPLY(I,T,v) __D_APPLY(I,T,v)
+  #define D_APPLY_DIR(v,Q)  _D_APPLY(EXTRUDERS, DIR, v)
+  #define D_APPLY_STEP(v,Q) _D_APPLY(EXTRUDERS, STEP, v)
 #endif
 
 #if DISABLED(MIXING_EXTRUDER)
@@ -356,6 +382,9 @@ void Stepper::set_directions() {
   #endif
   #if HAS_Z_DIR
     SET_STEP_DIR(Z); // C
+  #endif
+  #if ENABLED(HANGPRINTER)
+    SET_STEP_DIR(D);
   #endif
 
   #if DISABLED(LIN_ADVANCE)
@@ -1251,6 +1280,12 @@ void Stepper::isr() {
  * call to this method that might cause variation in the timing. The aim
  * is to keep pulse timing as regular as possible.
  */
+#if ENABLED(UNREGISTERED_MOVE_SUPPORT)
+  #define COUNT_IT current_block->count_it
+#else
+  #define COUNT_IT true
+#endif
+
 void Stepper::stepper_pulse_phase_isr() {
 
   // If we must abort the current block, do so!
@@ -1289,7 +1324,7 @@ void Stepper::stepper_pulse_phase_isr() {
       delta_error[_AXIS(AXIS)] += advance_dividend[_AXIS(AXIS)]; \
       if (delta_error[_AXIS(AXIS)] >= 0) { \
         _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), 0); \
-        count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+        if (COUNT_IT) count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
       } \
     }while(0)
 
@@ -1302,22 +1337,37 @@ void Stepper::stepper_pulse_phase_isr() {
     }while(0)
 
     // Pulse start
-    #if HAS_X_STEP
-      PULSE_START(X);
-    #endif
-    #if HAS_Y_STEP
-      PULSE_START(Y);
-    #endif
-    #if HAS_Z_STEP
-      PULSE_START(Z);
-    #endif
+    #if ENABLED(HANGPRINTER)
+      #if HAS_A_STEP
+        PULSE_START(A);
+      #endif
+      #if HAS_B_STEP
+        PULSE_START(B);
+      #endif
+      #if HAS_C_STEP
+        PULSE_START(C);
+      #endif
+      #if HAS_D_STEP
+        PULSE_START(D);
+      #endif
+    #else
+      #if HAS_X_STEP
+        PULSE_START(X);
+      #endif
+      #if HAS_Y_STEP
+        PULSE_START(Y);
+      #endif
+      #if HAS_Z_STEP
+        PULSE_START(Z);
+      #endif
+    #endif // HANGPRINTER
 
     // Pulse E/Mixing extruders
     #if ENABLED(LIN_ADVANCE)
       // Tick the E axis, correct error term and update position
       delta_error[E_AXIS] += advance_dividend[E_AXIS];
       if (delta_error[E_AXIS] >= 0) {
-        count_position[E_AXIS] += count_direction[E_AXIS];
+        if (COUNT_IT) count_position[E_AXIS] += count_direction[E_AXIS];
         delta_error[E_AXIS] -= advance_divisor;
 
         // Don't step E here - But remember the number of steps to perform
@@ -1329,7 +1379,7 @@ void Stepper::stepper_pulse_phase_isr() {
         // Tick the E axis
         delta_error[E_AXIS] += advance_dividend[E_AXIS];
         if (delta_error[E_AXIS] >= 0) {
-          count_position[E_AXIS] += count_direction[E_AXIS];
+          if (COUNT_IT) count_position[E_AXIS] += count_direction[E_AXIS];
           delta_error[E_AXIS] -= advance_divisor;
         }
 
@@ -1354,15 +1404,29 @@ void Stepper::stepper_pulse_phase_isr() {
     // Add the delay needed to ensure the maximum driver rate is enforced
     if (signed(added_step_ticks) > 0) pulse_end += hal_timer_t(added_step_ticks);
 
-    // Pulse stop
-    #if HAS_X_STEP
-      PULSE_STOP(X);
-    #endif
-    #if HAS_Y_STEP
-      PULSE_STOP(Y);
-    #endif
-    #if HAS_Z_STEP
-      PULSE_STOP(Z);
+    #if ENABLED(HANGPRINTER)
+      #if HAS_A_STEP
+        PULSE_STOP(A);
+      #endif
+      #if HAS_B_STEP
+        PULSE_STOP(B);
+      #endif
+      #if HAS_C_STEP
+        PULSE_STOP(C);
+      #endif
+      #if HAS_D_STEP
+        PULSE_STOP(D);
+      #endif
+    #else
+      #if HAS_X_STEP
+        PULSE_STOP(X);
+      #endif
+      #if HAS_Y_STEP
+        PULSE_STOP(Y);
+      #endif
+      #if HAS_Z_STEP
+        PULSE_STOP(Z);
+      #endif
     #endif
 
     #if DISABLED(LIN_ADVANCE)
@@ -1437,16 +1501,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
         #if ENABLED(LIN_ADVANCE)
           if (LA_use_advance_lead) {
-            // Wake up eISR on first acceleration loop and fire ISR if final adv_rate is reached
-            if (step_events_completed == steps_per_isr || (LA_steps && LA_isr_rate != current_block->advance_speed)) {
-              nextAdvanceISR = 0;
-              LA_isr_rate = current_block->advance_speed;
-            }
+            // Fire ISR if final adv_rate is reached
+            if (LA_steps && LA_isr_rate != current_block->advance_speed) nextAdvanceISR = 0;
           }
-          else {
-            LA_isr_rate = LA_ADV_NEVER;
-            if (LA_steps) nextAdvanceISR = 0;
-          }
+          else if (LA_steps) nextAdvanceISR = 0;
         #endif // LIN_ADVANCE
       }
       // Are we in Deceleration phase ?
@@ -1488,17 +1546,13 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
         #if ENABLED(LIN_ADVANCE)
           if (LA_use_advance_lead) {
-            if (step_events_completed <= decelerate_after + steps_per_isr ||
-               (LA_steps && LA_isr_rate != current_block->advance_speed)
-            ) {
-              nextAdvanceISR = 0; // Wake up eISR on first deceleration loop
+            // Wake up eISR on first deceleration loop and fire ISR if final adv_rate is reached
+            if (step_events_completed <= decelerate_after + steps_per_isr || (LA_steps && LA_isr_rate != current_block->advance_speed)) {
+              nextAdvanceISR = 0;
               LA_isr_rate = current_block->advance_speed;
             }
           }
-          else {
-            LA_isr_rate = LA_ADV_NEVER;
-            if (LA_steps) nextAdvanceISR = 0;
-          }
+          else if (LA_steps) nextAdvanceISR = 0;
         #endif // LIN_ADVANCE
       }
       // We must be in cruise phase otherwise
@@ -1531,8 +1585,11 @@ uint32_t Stepper::stepper_block_phase_isr() {
       // Sync block? Sync the stepper counts and return
       while (TEST(current_block->flag, BLOCK_BIT_SYNC_POSITION)) {
         _set_position(
-          current_block->position[A_AXIS], current_block->position[B_AXIS],
-          current_block->position[C_AXIS], current_block->position[E_AXIS]
+          current_block->position[A_AXIS], current_block->position[B_AXIS], current_block->position[C_AXIS],
+          #if ENABLED(HANGPRINTER)
+            current_block->position[D_AXIS],
+          #endif
+          current_block->position[E_AXIS]
         );
         planner.discard_current_block();
 
@@ -1678,7 +1735,11 @@ uint32_t Stepper::stepper_block_phase_isr() {
         if ((LA_use_advance_lead = current_block->use_advance_lead)) {
           LA_final_adv_steps = current_block->final_adv_steps;
           LA_max_adv_steps = current_block->max_adv_steps;
+          //Start the ISR
+          nextAdvanceISR = 0;
+          LA_isr_rate = current_block->advance_speed;
         }
+        else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
       if (current_block->direction_bits != last_direction_bits
@@ -2015,7 +2076,12 @@ void Stepper::init() {
  * This allows get_axis_position_mm to correctly
  * derive the current XYZ position later on.
  */
-void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c,
+    #if ENABLED(HANGPRINTER)
+      const int32_t &d,
+    #endif
+  const int32_t &e
+) {
   #if CORE_IS_XY
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
@@ -2037,6 +2103,9 @@ void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c
     count_position[X_AXIS] = a;
     count_position[Y_AXIS] = b;
     count_position[Z_AXIS] = c;
+    #if ENABLED(HANGPRINTER)
+      count_position[D_AXIS] = d;
+    #endif
   #endif
   count_position[E_AXIS] = e;
 }
@@ -2103,30 +2172,37 @@ void Stepper::report_positions() {
 
   const int32_t xpos = count_position[X_AXIS],
                 ypos = count_position[Y_AXIS],
+                #if ENABLED(HANGPRINTER)
+                  dpos = count_position[D_AXIS],
+                #endif
                 zpos = count_position[Z_AXIS];
 
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
 
-  #if CORE_IS_XY || CORE_IS_XZ || IS_DELTA || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_XZ || IS_DELTA || IS_SCARA || ENABLED(HANGPRINTER)
     SERIAL_PROTOCOLPGM(MSG_COUNT_A);
   #else
     SERIAL_PROTOCOLPGM(MSG_COUNT_X);
   #endif
   SERIAL_PROTOCOL(xpos);
 
-  #if CORE_IS_XY || CORE_IS_YZ || IS_DELTA || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_YZ || IS_DELTA || IS_SCARA || ENABLED(HANGPRINTER)
     SERIAL_PROTOCOLPGM(" B:");
   #else
     SERIAL_PROTOCOLPGM(" Y:");
   #endif
   SERIAL_PROTOCOL(ypos);
 
-  #if CORE_IS_XZ || CORE_IS_YZ || IS_DELTA
+  #if CORE_IS_XZ || CORE_IS_YZ || IS_DELTA || ENABLED(HANGPRINTER)
     SERIAL_PROTOCOLPGM(" C:");
   #else
     SERIAL_PROTOCOLPGM(" Z:");
   #endif
   SERIAL_PROTOCOL(zpos);
+
+  #if ENABLED(HANGPRINTER)
+    SERIAL_PROTOCOLPAIR(" D:", dpos);
+  #endif
 
   SERIAL_EOL();
 }
