@@ -347,9 +347,9 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   if (did_pause_print) return false; // already paused
 
   #ifdef ACTION_ON_PAUSE
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+    SERIAL_ECHOLNPGM(ACTION_ON_PAUSE);
   #endif
-
+  planner.synchronize(); //sync planner to hopefully allow octoprint to recognize all ok messages and complete status
   #if ENABLED(ULTIPANEL)
     if (show_lcd) // Show initial message
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT);
@@ -592,7 +592,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #endif
 
   #ifdef ACTION_ON_RESUME
-    SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
+    SERIAL_ECHOLNPGM(ACTION_ON_RESUME);
   #endif
 
   --did_pause_print;

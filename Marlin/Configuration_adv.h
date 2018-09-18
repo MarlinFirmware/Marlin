@@ -1589,16 +1589,16 @@
  */
 
 //Octoprint
-//#define ACTION_ON_PAUSE "action:pause"
-//#define ACTION_ON_RESUME "action:resume"
+//#define ACTION_ON_PAUSE "//action:pause"
+//#define ACTION_ON_RESUME "//action:resume"
 
 //Repetiere
 //#define ACTION_ON_PAUSE "RequestPause:FilamentRunout"
 //#define ACTION_ON_RESUME "RequestContinue:FilamentRunoutResume"
 
 //Octoprint & Repetiere
-//#define ACTION_ON_PAUSE "action:pause\nRequestPause:FilamentRunout"
-//#define ACTION_ON_RESUME "action:resume\nRequestContinue:FilamentRunoutResume"
+//#define ACTION_ON_PAUSE "//action:pause\nRequestPause:FilamentRunout"
+//#define ACTION_ON_RESUME "//action:resume\nRequestContinue:FilamentRunoutResume"
 //===========================================================================
 //====================== I2C Position Encoder Settings ======================
 //===========================================================================
