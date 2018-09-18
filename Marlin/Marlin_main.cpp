@@ -152,8 +152,8 @@
  * M150 - Set Status LED Color as R<red> U<green> B<blue> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, or PCA9632).
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
- * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
- * M165 - Set the proportions for a mixing extruder. Use parameters ABCDHI to set the mixing factors. (Requires MIXING_EXTRUDER)
+ * M164 - Commit the mix (Req. MIXING_EXTRUDER) and optionally save as a virtual tool (Req. MIXING_VIRTUAL_TOOLS > 1)
+ * M165 - Set the mix for a mixing extruder wuth parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M190 - Sxxx Wait for bed current temp to reach target temp. ** Waits only when heating! **
  *        Rxxx Wait for bed current temp to reach target temp. ** Waits for heating or cooling. **
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
@@ -3284,8 +3284,8 @@ static void homeaxis(const AxisEnum axis) {
     // Scale all values if they don't add up to ~1.0
     if (!NEAR(mix_total, 1.0)) {
       SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
-      mix_total = RECIPROCAL(mix_total);
-      for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= mix_total;
+      const float inverse_sum = RECIPROCAL(mix_total);
+      for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= inverse_sum;
     }
   }
 
@@ -3294,14 +3294,25 @@ static void homeaxis(const AxisEnum axis) {
     // The total "must" be 1.0 (but it will be normalized)
     // If no mix factors are given, the old mix is preserved
     void gcode_get_mix() {
-      const char* mixing_codes = "ABCDHI";
+      const char mixing_codes[] = { 'A', 'B'
+        #if MIXING_STEPPERS > 2
+          , 'C'
+          #if MIXING_STEPPERS > 3
+            , 'D'
+            #if MIXING_STEPPERS > 4
+              , 'H'
+              #if MIXING_STEPPERS > 5
+                , 'I'
+              #endif // MIXING_STEPPERS > 5
+            #endif // MIXING_STEPPERS > 4
+          #endif // MIXING_STEPPERS > 3
+        #endif // MIXING_STEPPERS > 2
+      };
       byte mix_bits = 0;
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
         if (parser.seenval(mixing_codes[i])) {
           SBI(mix_bits, i);
-          float v = parser.value_float();
-          NOLESS(v, 0.0);
-          mixing_factor[i] = RECIPROCAL(v);
+          mixing_factor[i] = MAX(parser.value_float(), 0.0);
         }
       }
       // If any mixing factors were included, clear the rest
@@ -12028,44 +12039,39 @@ inline void gcode_M355() {
   /**
    * M163: Set a single mix factor for a mixing extruder
    *       This is called "weight" by some systems.
+   *       The 'P' values must sum to 1.0 or must be followed by M164 to normalize them.
    *
    *   S[index]   The channel index to set
    *   P[float]   The mix value
-   *
    */
   inline void gcode_M163() {
     const int mix_index = parser.intval('S');
-    if (mix_index < MIXING_STEPPERS) {
-      float mix_value = parser.floatval('P');
-      NOLESS(mix_value, 0.0);
-      mixing_factor[mix_index] = RECIPROCAL(mix_value);
-    }
+    if (mix_index < MIXING_STEPPERS)
+      mixing_factor[mix_index] = MAX(parser.floatval('P'), 0.0);
   }
 
-  #if MIXING_VIRTUAL_TOOLS > 1
-
-    /**
-     * M164: Store the current mix factors as a virtual tool.
-     *
-     *   S[index]   The virtual tool to store
-     *
-     */
-    inline void gcode_M164() {
-      const int tool_index = parser.intval('S');
-      if (tool_index < MIXING_VIRTUAL_TOOLS) {
-        normalize_mix();
+  /**
+   * M164: Normalize and commit the mix.
+   *       If 'S' is given store as a virtual tool. (Requires MIXING_VIRTUAL_TOOLS > 1)
+   *
+   *   S[index]   The virtual tool to store
+   */
+  inline void gcode_M164() {
+    normalize_mix();
+    #if MIXING_VIRTUAL_TOOLS > 1
+      const int tool_index = parser.intval('S', -1);
+      if (WITHIN(tool_index, 0, MIXING_VIRTUAL_TOOLS - 1)) {
         for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
           mixing_virtual_tool_mix[tool_index][i] = mixing_factor[i];
       }
-    }
-
-  #endif
+    #endif
+  }
 
   #if ENABLED(DIRECT_MIXING_IN_G1)
     /**
      * M165: Set multiple mix factors for a mixing extruder.
      *       Factors that are left out will be set to 0.
-     *       All factors together must add up to 1.0.
+     *       All factors should sum to 1.0, but they will be normalized regardless.
      *
      *   A[factor] Mix factor for extruder stepper 1
      *   B[factor] Mix factor for extruder stepper 2
@@ -12073,7 +12079,6 @@ inline void gcode_M355() {
      *   D[factor] Mix factor for extruder stepper 4
      *   H[factor] Mix factor for extruder stepper 5
      *   I[factor] Mix factor for extruder stepper 6
-     *
      */
     inline void gcode_M165() { gcode_get_mix(); }
   #endif
