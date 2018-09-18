@@ -28,8 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if E_STEPPERS > 3 || HOTENDS > 3
-  #error "Formbot supports up to 3 hotends / E-steppers. Comment this line to keep going."
+#if E_STEPPERS > 2 || HOTENDS > 2
+  #error "Formbot supports up to 2 hotends / E-steppers. Comment this line to keep going."
 #endif
 
 #define DEFAULT_MACHINE_NAME "Formbot"
@@ -143,17 +143,15 @@
 #define HEATER_BED_PIN     58
 
 #define FAN_PIN             9
-#define FAN1_PIN            4
+//#define FAN1_PIN            4
 
 
 #if DISABLED(ICSP_PORT_SWITCHES)
-  #define FIL_RUNOUT_PIN    22
-  #define FIL_RUNOUT2_PIN   21
-#else
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    #define FIL_RUNOUT_PIN  52
-    #define FIL_RUNOUT2_PIN 50
-  #endif
+  //#define FIL_RUNOUT_PIN    22
+  //#define FIL_RUNOUT2_PIN   21
+#elif ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #define FIL_RUNOUT_PIN   52
+  #define FIL_RUNOUT2_PIN  50
 #endif
 
 //
@@ -162,8 +160,8 @@
 #define CASE_LIGHT_PIN      8
 #define SDSS               53
 #ifndef ROXYs_TRex
-  #define LED_PIN          13
-#endif
+  #define LED_PIN          13   // The Formbot v 1 board has almost no unassigned pins on it.  The Board's LED
+#endif                          // is a good place to get a signal to control the Max7219 LED Matrix.
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input

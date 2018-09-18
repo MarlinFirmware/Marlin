@@ -20,15 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #define TREX3              // Turn this on to generate a T-Rex 3  firmware image
 
 // The next few options are for firmware development and probably should not be used by Formbot.
 #define ICSP_PORT_SWITCHES // If ICSP_PORT_SWITCHES is defined, those pins become filament runout sensors
                            // (But the SD Memory card won't work and is turned off!!!)
- 
+
 #define ROXYs_TRex         // Turn this on to get customizations only available on Roxy's T-Rex 2+
-                           // Marlin controlled heat bed, Max7219 debug LED's, less bright LED light level 
+                           // Marlin controlled heat bed, Max7219 debug LED's, less bright LED light level
                            // More aggressive PID numbers for hotends (due to double fans)
 /**
  * Configuration.h
@@ -330,6 +330,7 @@
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
+#define TEMP_SENSOR_5 0
 
 #if(ENABLED(ROXYs_TRex))
   #define TEMP_SENSOR_BED 11
@@ -372,6 +373,7 @@
 #define HEATER_2_MINTEMP 5
 #define HEATER_3_MINTEMP 5
 #define HEATER_4_MINTEMP 5
+#define HEATER_5_MINTEMP 5
 #define BED_MINTEMP 5
 
 // When temperature exceeds max temp, your heater will be switched off.
@@ -382,6 +384,7 @@
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
 #define BED_MAXTEMP 150
 
 //===========================================================================
@@ -610,11 +613,13 @@
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
+//#define Z3_DRIVER_TYPE A4988
 //#define E0_DRIVER_TYPE A4988
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
+//#define E5_DRIVER_TYPE A4988
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -660,7 +665,7 @@
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 160, 1600, 93 }
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 800, 93 }
@@ -668,7 +673,7 @@
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 //#define DEFAULT_MAX_FEEDRATE          { 250, 150, 5, 25 }
 #define DEFAULT_MAX_FEEDRATE          { 250, 100, 5, 25 }
@@ -677,7 +682,7 @@
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #define DEFAULT_MAX_ACCELERATION      { 1500, 500, 400, 4000 }
 
@@ -927,6 +932,7 @@
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
 
 // @section homing
 
@@ -999,11 +1005,11 @@
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
 
-#ifdef TREX3  
+#ifdef TREX3
   #define FILAMENT_RUNOUT_SENSOR
   #define NUM_RUNOUT_SENSORS   2     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 #else
-//#define FILAMENT_RUNOUT_SENSOR
+  //#define FILAMENT_RUNOUT_SENSOR
 #endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -1014,7 +1020,6 @@
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
-//#define FILAMENT_RUNOUT_SCRIPT "M601"
 #endif
 
 //===========================================================================
@@ -2021,9 +2026,7 @@
 // If the servo can't reach the requested position, increase it.
 #define SERVO_DELAY { 300 }
 
-// Servo deactivation
-//
-// With this option servos are powered only during movement, then turned off to prevent jitter.
+// Only power servos during movement, otherwise leave off to prevent jitter
 //#define DEACTIVATE_SERVOS_AFTER_MOVE
 
 #endif // CONFIGURATION_H

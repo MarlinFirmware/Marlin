@@ -28,7 +28,7 @@
   #include "../gcode/parser.h"
 #endif
 
-float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise >= 1.0.
+float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise <= 1.0. (Array must sum to 1.0.)
 
 #if MIXING_VIRTUAL_TOOLS > 1
 
@@ -56,11 +56,12 @@ float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off
 
 void normalize_mix() {
   float mix_total = 0.0;
-  for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mix_total += RECIPROCAL(mixing_factor[i]);
+  for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mix_total += mixing_factor[i]; // Ex: 1/4 + 1/8 + 1/8 = 1/2
   // Scale all values if they don't add up to ~1.0
   if (!NEAR(mix_total, 1.0)) {
     SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= mix_total;
+    mix_total = RECIPROCAL(mix_total);
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= mix_total; // Ex: 1/4*2 + 1/8*2 + 1/8*2 = 1/2 + 1/4 + 1/4 = 1
   }
 }
 

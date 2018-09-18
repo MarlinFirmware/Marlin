@@ -64,7 +64,10 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define disable_Y() NOOP
 #endif
 
-#if HAS_Z2_ENABLE
+#if HAS_Z3_ENABLE
+  #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); Z3_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); Z3_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
+#elif HAS_Z2_ENABLE
   #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
   #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
 #elif HAS_Z_ENABLE
@@ -80,7 +83,10 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   /**
    * Mixing steppers synchronize their enable (and direction) together
    */
-  #if MIXING_STEPPERS > 4
+  #if MIXING_STEPPERS > 5
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); E4_ENABLE_WRITE( E_ENABLE_ON); E5_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); E4_ENABLE_WRITE(!E_ENABLE_ON); E5_ENABLE_WRITE(!E_ENABLE_ON); }
+  #elif MIXING_STEPPERS > 4
     #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); E4_ENABLE_WRITE( E_ENABLE_ON); }
     #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); E4_ENABLE_WRITE(!E_ENABLE_ON); }
   #elif MIXING_STEPPERS > 3
@@ -101,6 +107,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define disable_E3() NOOP
   #define  enable_E4() NOOP
   #define disable_E4() NOOP
+  #define  enable_E5() NOOP
+  #define disable_E5() NOOP
 
 #else // !MIXING_EXTRUDER
 
@@ -142,6 +150,14 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #else
     #define  enable_E4() NOOP
     #define disable_E4() NOOP
+  #endif
+
+  #if E_STEPPERS > 5 && HAS_E5_ENABLE
+    #define  enable_E5() E5_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E5() E5_ENABLE_WRITE(!E_ENABLE_ON)
+  #else
+    #define  enable_E5() NOOP
+    #define disable_E5() NOOP
   #endif
 
 #endif // !MIXING_EXTRUDER

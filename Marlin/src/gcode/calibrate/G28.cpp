@@ -101,7 +101,7 @@
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Z_SAFE_HOMING >>>");
     #endif
 
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
     /**
      * Move the Z probe (or just the nozzle) to the safe homing point
@@ -182,7 +182,7 @@ void GcodeSuite::G28(const bool always_home_all) {
   #if ENABLED(MARLIN_DEV_MODE)
     if (parser.seen('S')) {
       LOOP_XYZ(a) set_axis_is_at_home((AxisEnum)a);
-      SYNC_PLAN_POSITION_KINEMATIC();
+      sync_plan_position();
       SERIAL_ECHOLNPGM("Simulated Homing");
       report_current_position();
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -205,13 +205,15 @@ void GcodeSuite::G28(const bool always_home_all) {
   // Wait for planner moves to finish!
   planner.synchronize();
 
-  // Cancel the active G29 session
-  #if ENABLED(PROBE_MANUALLY)
-    g29_in_progress = false;
-  #endif
-
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
+
+    // Cancel the active G29 session
+    #if ENABLED(PROBE_MANUALLY)
+      extern bool g29_in_progress;
+      g29_in_progress = false;
+    #endif
+
     #if ENABLED(RESTORE_LEVELING_AFTER_G28)
       const bool leveling_was_active = planner.leveling_active;
     #endif
@@ -355,7 +357,7 @@ void GcodeSuite::G28(const bool always_home_all) {
       } // home_all || homeZ
     #endif // Z_HOME_DIR < 0
 
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
   #endif // !DELTA (G28)
 
@@ -367,7 +369,7 @@ void GcodeSuite::G28(const bool always_home_all) {
    */
   #if ENABLED(DUAL_X_CARRIAGE)
 
-    if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
+    if (dxc_is_duplicating()) {
 
       // Always home the 2nd (right) extruder first
       active_extruder = 1;
@@ -385,7 +387,10 @@ void GcodeSuite::G28(const bool always_home_all) {
       delayed_move_time = 0;
       active_extruder_parked = true;
       extruder_duplication_enabled = IDEX_saved_duplication_state;
+      extruder_duplication_enabled = false;
+
       dual_x_carriage_mode         = IDEX_saved_mode;
+      stepper.set_directions();
     }
 
   #endif // DUAL_X_CARRIAGE
@@ -397,7 +402,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  #if ENABLED(RESTORE_LEVELING_AFTER_G28)
+  #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G28)
     set_bed_leveling_enabled(leveling_was_active);
   #endif
 

@@ -104,7 +104,7 @@ void forward_kinematics_SCARA(const float &a, const float &b) {
  * Maths and first version by QHARLEY.
  * Integrated into Marlin and slightly restructured by Joachim Cerny.
  */
-void inverse_kinematics(const float raw[XYZ]) {
+void inverse_kinematics(const float (&raw)[XYZ]) {
 
   static float C2, S2, SK1, SK2, THETA, PSI;
 
