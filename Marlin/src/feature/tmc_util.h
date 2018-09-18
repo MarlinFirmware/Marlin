@@ -171,8 +171,16 @@ void monitor_tmc_driver();
  * Defined here because of limitations with templates and headers.
  */
 #if USE_SENSORLESS
-  void tmc_stallguard(TMC2130Stepper &st, const bool enable=true);
-  void tmc_stallguard(TMC2660Stepper &st, const bool enable=true);
+  // Track enabled status of stealthChop and only re-enable where applicable
+  struct sensorless_t {
+    bool x, y, z;
+  };
+
+  bool tmc_enable_stallguard(TMC2130Stepper &st);
+  void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth);
+
+  bool tmc_enable_stallguard(TMC2660Stepper);
+  void tmc_disable_stallguard(TMC2660Stepper, const bool);
 #endif
 
 #if TMC_HAS_SPI

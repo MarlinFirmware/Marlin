@@ -664,16 +664,29 @@
 
 #if USE_SENSORLESS
 
-  void tmc_stallguard(TMC2130Stepper &st, const bool enable/*=true*/) {
-    st.TCOOLTHRS(enable ? 0xFFFFF : 0);
-    #if ENABLED(STEALTHCHOP)
-      st.en_pwm_mode(!enable);
+  bool tmc_enable_stallguard(TMC2130Stepper &st) {
+    bool stealthChop_was_enabled = st.en_pwm_mode();
+
+    st.TCOOLTHRS(0xFFFFF);
+    #if STEALTHCHOP_ENABLED
+      st.en_pwm_mode(false);
     #endif
-    st.diag1_stall(enable ? 1 : 0);
+    st.diag1_stall(true);
+
+    return stealthChop_was_enabled;
   }
-  void tmc_sensorless_homing(TMC2660Stepper &st, const bool enable) {
+  void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth) {
+    st.TCOOLTHRS(0);
+    #if STEALTHCHOP_ENABLED
+      st.en_pwm_mode(restore_stealth);
+    #endif
+    st.diag1_stall(false);
+  }
+  bool tmc_enable_stallguard(TMC2660Stepper) {
     // TODO
+    return false;
   }
+  void tmc_disable_stallguard(TMC2660Stepper, const bool) {};
 
 #endif // USE_SENSORLESS
 
