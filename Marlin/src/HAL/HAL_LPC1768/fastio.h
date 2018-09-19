@@ -39,19 +39,19 @@
 
 #define USEABLE_HARDWARE_PWM(pin) useable_hardware_PWM(pin)
 
-#define LPC_PIN(pin)            (gpio_pin(pin))
-#define LPC_GPIO(port)          (gpio_port(port))
+#define LPC_PIN(pin)            gpio_pin(pin)
+#define LPC_GPIO(port)          gpio_port(port)
 
-#define SET_DIR_INPUT(IO)       (gpio_set_input(IO))
-#define SET_DIR_OUTPUT(IO)      (gpio_set_output(IO))
+#define SET_DIR_INPUT(IO)       gpio_set_input(IO)
+#define SET_DIR_OUTPUT(IO)      gpio_set_output(IO)
 
-#define SET_MODE(IO, mode)      (pinMode(IO, mode))
+#define SET_MODE(IO, mode)      pinMode(IO, mode)
 
-#define WRITE_PIN_SET(IO)       (gpio_set(IO))
-#define WRITE_PIN_CLR(IO)       (gpio_clear(IO))
+#define WRITE_PIN_SET(IO)       gpio_set(IO)
+#define WRITE_PIN_CLR(IO)       gpio_clear(IO)
 
-#define READ_PIN(IO)            (gpio_get(IO))
-#define WRITE_PIN(IO,V)         (gpio_set(IO, V))
+#define READ_PIN(IO)            gpio_get(IO)
+#define WRITE_PIN(IO,V)         gpio_set(IO, V)
 
 /**
  * Magic I/O routines

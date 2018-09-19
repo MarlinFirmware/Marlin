@@ -299,19 +299,19 @@
 #elif MB(AZSMZ_MINI)
   #include "pins_AZSMZ_MINI.h"        // LPC1768                                    env:LPC1768
 #elif MB(AZTEEG_X5_GT)
-  #include "pins_AZTEEG_X5_GT.h"      // LPC1769                                    env:LPC1768
+  #include "pins_AZTEEG_X5_GT.h"      // LPC1769                                    env:LPC1769
 #elif MB(AZTEEG_X5_MINI_WIFI)
-  #include "pins_AZTEEG_X5_MINI_WIFI.h" // LPC1769                                  env:LPC1768
+  #include "pins_AZTEEG_X5_MINI_WIFI.h" // LPC1769                                  env:LPC1769
 #elif MB(BIQU_BQ111_A4)
   #include "pins_BIQU_BQ111_A4.h"     // LPC1768                                    env:LPC1768
 #elif MB(SELENA_COMPACT)
   #include "pins_SELENA_COMPACT.h"    // LPC1768                                    env:LPC1768
 #elif MB(COHESION3D_REMIX)
-  #include "pins_COHESION3D_REMIX.h"  // LPC1769                                    env:LPC1768
+  #include "pins_COHESION3D_REMIX.h"  // LPC1769                                    env:LPC1769
 #elif MB(COHESION3D_MINI)
-  #include "pins_COHESION3D_MINI.h"   // LPC1769                                    env:LPC1768
+  #include "pins_COHESION3D_MINI.h"   // LPC1769                                    env:LPC1769
 #elif MB(SMOOTHIEBOARD)
-  #include "pins_SMOOTHIEBOARD.h"     // LPC1769                                    env:LPC1768
+  #include "pins_SMOOTHIEBOARD.h"     // LPC1769                                    env:LPC1769
 
 //
 // Other 32-bit Boards

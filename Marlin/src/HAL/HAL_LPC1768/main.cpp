@@ -9,7 +9,13 @@
 #include <usb/cdcuser.h>
 #include <usb/mscuser.h>
 #include <CDCSerial.h>
+#include <usb/mscuser.h>
 
+extern "C" {
+  #include <debug_frmwrk.h>
+}
+
+#include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 #include "HAL_timers.h"
@@ -41,15 +47,28 @@ void HAL_init() {
       delay(100);
     }
   #endif
-
-  (void)MSC_SD_Init(0);
-
-  USB_Init();
+  //debug_frmwrk_init();
+  //_DBG("\n\nDebug running\n");
+  // Initialise the SD card chip select pins as soon as possible
+  #ifdef SS_PIN
+    digitalWrite(SS_PIN, HIGH);
+    pinMode(SS_PIN, OUTPUT);
+  #endif
+  #ifdef ONBOARD_SD_CS
+    digitalWrite(ONBOARD_SD_CS, HIGH);
+    pinMode(ONBOARD_SD_CS, OUTPUT);
+  #endif
+  USB_Init();                               // USB Initialization
+  USB_Connect(FALSE);                       // USB clear connection
+  delay(1000);                              // Give OS time to notice
   USB_Connect(TRUE);
-
+  #ifndef USB_SD_DISABLED
+    MSC_SD_Init(0);                         // Enable USB SD card access
+  #endif
   const uint32_t usb_timeout = millis() + 2000;
   while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
     delay(50);
+    HAL_idletask();
     #if PIN_EXISTS(LED)
       TOGGLE(LED_PIN);     // Flash quickly during USB initialization
     #endif
@@ -66,6 +85,25 @@ void HAL_init() {
 
   HAL_timer_init();
   LPC1768_PWM_init();
+}
+
+// HAL idle task
+void HAL_idletask(void) {
+  #if ENABLED(SDSUPPORT) && defined(SHARED_SD_CARD)
+    // If Marlin is using the SD card we need to lock it to prevent access from
+    // a PC via USB.
+    // Other HALs use IS_SD_PRINTING and IS_SD_FILE_OPEN to check for access but
+    // this will not reliably detect delete operations. To be safe we will lock
+    // the disk if Marlin has it mounted. Unfortuately there is currently no way
+    // to unmount the disk from the LCD menu.
+    // if (IS_SD_PRINTING || IS_SD_FILE_OPEN)
+    if (card.cardOK)
+      MSC_Aquire_Lock();
+    else
+      MSC_Release_Lock();
+  #endif
+  // Perform USB stack housekeeping
+  MSC_RunDeferredCommands();
 }
 
 #endif // TARGET_LPC1768
