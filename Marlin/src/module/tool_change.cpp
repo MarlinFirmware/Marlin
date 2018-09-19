@@ -22,12 +22,11 @@
 
 #include "tool_change.h"
 
+#include "probe.h"
 #include "motion.h"
 #include "planner.h"
 
 #include "../Marlin.h"
-
-#include "../inc/MarlinConfig.h"
 
 #if ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0
   #include "../gcode/gcode.h" // for dwell()
@@ -55,6 +54,10 @@
 
 #if HAS_FANMUX
   #include "../feature/fanmux.h"
+#endif
+
+#if ENABLED(ULTIPANEL)
+  #include "../lcd/ultralcd.h"
 #endif
 
 #if DO_SWITCH_EXTRUDER
@@ -498,11 +501,24 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             active_extruder = tmp_extruder;
             update_software_endstops(X_AXIS);
             active_extruder = !tmp_extruder;
+
+            // Don't move the new extruder out of bounds
+            if (!WITHIN(current_position[X_AXIS], soft_endstop_min[X_AXIS], soft_endstop_max[X_AXIS]))
+              no_move = true;
+
+          #else
+              // No software endstops? Use the configured limits
+              if (active_extruder == 0) {
+                if (!WITHIN(current_position[X_AXIS], X2_MIN_POS, X2_MAX_POS))
+                  no_move = true;
+              }
+              else if (!WITHIN(current_position[X_AXIS], X1_MIN_POS, X1_MAX_POS))
+                no_move = true;
           #endif
 
-          // Don't move the new extruder out of bounds
-          if (!WITHIN(current_position[X_AXIS], soft_endstop_min[X_AXIS], soft_endstop_max[X_AXIS]))
-            no_move = true;
+          #if ENABLED(ULTIPANEL)
+            lcd_return_to_status();
+          #endif
 
           if (!no_move) set_destination_from_current();
           dualx_tool_change(tmp_extruder, no_move); // Can modify no_move
@@ -584,6 +600,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       } // (tmp_extruder != active_extruder)
 
       planner.synchronize();
+
+      #if ENABLED(INDEPENDENT_Z_OFFSETS)
+        zprobe_zoffset = dxc_zprobe_zoffset[active_extruder];
+      #endif
 
       #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
         disable_all_solenoids();

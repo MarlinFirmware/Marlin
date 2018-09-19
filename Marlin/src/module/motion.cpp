@@ -1502,15 +1502,15 @@ void homeaxis(const AxisEnum axis) {
           soft_endstop_max[X_AXIS] = dual_max_x;
         }
         else if (dxc_is_duplicating()) {
-          // In Duplication Mode, T0 can move as far left as X_MIN_POS
+          // In Duplication Mode, T0 can move as far left as X1_MIN_POS
           // but not so far to the right that T1 would move past the end
-          soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS);
-          soft_endstop_max[X_AXIS] = MIN(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset);
+          soft_endstop_min[X_AXIS] = X1_MIN_POS;
+          soft_endstop_max[X_AXIS] = MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
         }
         else {
-          // In other modes, T0 can move from X_MIN_POS to X_MAX_POS
-          soft_endstop_min[axis] = base_min_pos(axis);
-          soft_endstop_max[axis] = base_max_pos(axis);
+          // In other modes, T0 can move from X1_MIN_POS to X1_MAX_POS
+          soft_endstop_min[X_AXIS] = X1_MIN_POS;
+          soft_endstop_max[X_AXIS] = X1_MAX_POS;
         }
       }
     #elif ENABLED(DELTA)

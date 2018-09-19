@@ -1320,6 +1320,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
           if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
             thermalManager.babystep_axis(Z_AXIS, babystep_increment);
             zprobe_zoffset = new_zoffset;
+            #if ENABLED(INDEPENDENT_Z_OFFSETS)
+              dxc_zprobe_zoffset[active_extruder] = new_zoffset;
+            #endif
             lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           }
         }

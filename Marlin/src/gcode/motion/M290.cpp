@@ -37,6 +37,9 @@
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
   FORCE_INLINE void mod_zprobe_zoffset(const float &offs) {
     zprobe_zoffset += offs;
+    #if ENABLED(INDEPENDENT_Z_OFFSETS)
+      dxc_zprobe_zoffset[active_extruder] = zprobe_zoffset;
+    #endif
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
   }
