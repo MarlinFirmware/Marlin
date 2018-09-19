@@ -109,7 +109,7 @@
     #endif
   }
 
-  inline void parking_extruder_tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+  inline void parking_extruder_tool_change(const uint8_t tmp_extruder, bool no_move) {
     if (!no_move) {
 
       const float parkingposx[] = PARKING_EXTRUDER_PARKING_X,
