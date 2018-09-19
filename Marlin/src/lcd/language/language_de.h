@@ -81,6 +81,7 @@
 #define MSG_NEXT_CORNER                     _UxGT("Nächste Ecke")
 #define MSG_EDITING_STOPPED                 _UxGT("Netzbearb. angeh.")
 #define MSG_USER_MENU                       _UxGT("Benutzer Menü")
+
 #define MSG_MOVING                          _UxGT("In Bewegung...")
 #define MSG_FREE_XY                         _UxGT("Abstand XY")
 #define MSG_MOVE_X                          _UxGT("X")
