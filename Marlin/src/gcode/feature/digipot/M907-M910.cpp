@@ -50,8 +50,9 @@ void GcodeSuite::M907() {
 
   #elif HAS_MOTOR_CURRENT_PWM
 
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_X) || PIN_EXISTS(MOTOR_CURRENT_PWM_Y) || PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
       if (parser.seen('X')) stepper.digipot_current(0, parser.value_int());
+      if (parser.seen('Y')) stepper.digipot_current(0, parser.value_int());
     #endif
     #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
       if (parser.seen('Z')) stepper.digipot_current(1, parser.value_int());
