@@ -83,8 +83,8 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("Nivelar Cantos")
 #define MSG_NEXT_CORNER                     _UxGT("Próximo Canto")
 #define MSG_EDITING_STOPPED                 _UxGT("Fim da Edição")
-
 #define MSG_USER_MENU                       _UxGT("Comando customizado")
+
 #define MSG_UBL_DOING_G29                   _UxGT("Executando G29")
 #define MSG_UBL_UNHOMED                     _UxGT("Fora da Origam")
 #define MSG_UBL_TOOLS                       _UxGT("Ferramentas UBL")
@@ -237,6 +237,7 @@
 #define MSG_E3STEPS                         _UxGT("E3/mm")
 #define MSG_E4STEPS                         _UxGT("E4/mm")
 #define MSG_E5STEPS                         _UxGT("E5/mm")
+#define MSG_E6STEPS                         _UxGT("E6/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movimento")
 #define MSG_FILAMENT                        _UxGT("Filamento")

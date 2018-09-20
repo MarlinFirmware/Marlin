@@ -81,6 +81,7 @@
 #define MSG_NEXT_CORNER                     _UxGT("Следующий угол")
 #define MSG_EDITING_STOPPED                 _UxGT("Ред. сетки завершено")
 #define MSG_USER_MENU                       _UxGT("Свои комманды")
+
 #define MSG_UBL_DOING_G29                   _UxGT("Выполняем G29")
 #define MSG_UBL_UNHOMED                     _UxGT("Паркуем сначала XYZ")
 #define MSG_UBL_TOOLS                       _UxGT("Утилиты UBL")
@@ -227,6 +228,7 @@
 #define MSG_E3STEPS                         _UxGT("E3шаг/мм")
 #define MSG_E4STEPS                         _UxGT("E4шаг/мм")
 #define MSG_E5STEPS                         _UxGT("E5шаг/мм")
+#define MSG_E6STEPS                         _UxGT("E6шаг/мм")
 #define MSG_TEMPERATURE                     _UxGT("Температура")
 #define MSG_MOTION                          _UxGT("Движение")
 #define MSG_FILAMENT                        _UxGT("Филамент")

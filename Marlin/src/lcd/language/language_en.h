@@ -191,7 +191,7 @@
   #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
 #endif
 #ifndef MSG_USER_MENU
-  #define MSG_USER_MENU                       _UxGT("Custom User Commands")
+  #define MSG_USER_MENU                       _UxGT("Custom Commands")
 #endif
 #ifndef MSG_UBL_DOING_G29
   #define MSG_UBL_DOING_G29                   _UxGT("Doing G29")
@@ -214,8 +214,23 @@
 #ifndef MSG_IDEX_MODE_DUPLICATE
   #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplication")
 #endif
+#ifndef MSG_IDEX_MODE_SCALED_COPY
+  #define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Scaled copy")
+#endif
 #ifndef MSG_IDEX_MODE_FULL_CTRL
   #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Full control")
+#endif
+#ifndef MSG_IDEX_X_OFFSET
+  #define MSG_IDEX_X_OFFSET                   _UxGT("2nd nozzle X")
+#endif
+#ifndef MSG_IDEX_Y_OFFSET
+  #define MSG_IDEX_Y_OFFSET                   _UxGT("2nd nozzle Y")
+#endif
+#ifndef MSG_IDEX_Z_OFFSET
+  #define MSG_IDEX_Z_OFFSET                   _UxGT("2nd nozzle Z")
+#endif
+#ifndef MSG_IDEX_SAVE_OFFSETS
+  #define MSG_IDEX_SAVE_OFFSETS               _UxGT("Save Offsets")
 #endif
 #ifndef MSG_UBL_MANUAL_MESH
   #define MSG_UBL_MANUAL_MESH                 _UxGT("Manually Build Mesh")
@@ -629,6 +644,12 @@
 #endif
 #ifndef MSG_E5STEPS
   #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#endif
+#ifndef MSG_E6STEPS
+  #define MSG_E6STEPS                         _UxGT("E6steps/mm")
+#endif
+#ifndef MSG_E6STEPS
+  #define MSG_E6STEPS                         _UxGT("E6steps/mm")
 #endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     _UxGT("Temperature")

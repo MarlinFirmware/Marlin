@@ -230,11 +230,11 @@
 
 /**
  * "Mixing Extruder"
- *   - Adds a new code, M165, to set the current mix factors.
+ *   - Adds G-codes M163 and M164 to set and "commit" the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
- *   - Optional support for Repetier Firmware M163, M164, and virtual extruder.
- *   - This implementation supports only a single extruder.
- *   - Enable DIRECT_MIXING_IN_G1 for Pia Taubert's reference implementation
+ *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
+ *   - This implementation supports up to two mixing extruders.
+ *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 //#define MIXING_EXTRUDER
 #if ENABLED(MIXING_EXTRUDER)
@@ -338,6 +338,7 @@
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
+#define TEMP_SENSOR_5 0
 
 // For Malyan M150, some discussions around changing the TEMP_SENSOR_BED from 1 to 3 on a french discussion board.
 // The reasons are inconclusive so I leave at 1
@@ -371,6 +372,7 @@
 #define HEATER_2_MINTEMP 5
 #define HEATER_3_MINTEMP 5
 #define HEATER_4_MINTEMP 5
+#define HEATER_5_MINTEMP 5
 #define BED_MINTEMP 5
 
 // When temperature exceeds max temp, your heater will be switched off.
@@ -381,6 +383,7 @@
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
 #define BED_MAXTEMP 150
 
 //===========================================================================
@@ -624,7 +627,7 @@
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
                                       // Standard M150 17T MXL on X and Y
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 3200/34.544, 3200/34.544, 1600, 103.00 }
@@ -638,7 +641,7 @@
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
 
@@ -646,7 +649,7 @@
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #define DEFAULT_MAX_ACCELERATION      { 700, 700, 100, 10000 }
 
@@ -889,6 +892,7 @@
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
 
 // @section homing
 

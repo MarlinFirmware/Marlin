@@ -64,6 +64,9 @@ void GcodeSuite::M906() {
         #if AXIS_IS_TMC(Z2)
           if (index == 1) TMC_SET_CURRENT(Z2);
         #endif
+        #if AXIS_IS_TMC(Z3)
+          if (index == 2) TMC_SET_CURRENT(Z3);
+        #endif
         break;
       case E_AXIS: {
         if (get_target_extruder_from_command()) return;
@@ -82,6 +85,9 @@ void GcodeSuite::M906() {
           #endif
           #if AXIS_IS_TMC(E4)
             case 4: TMC_SET_CURRENT(E4); break;
+          #endif
+          #if AXIS_IS_TMC(E5)
+            case 5: TMC_SET_CURRENT(E5); break;
           #endif
         }
       } break;
@@ -107,6 +113,9 @@ void GcodeSuite::M906() {
     #if AXIS_IS_TMC(Z2)
       TMC_SAY_CURRENT(Z2);
     #endif
+    #if AXIS_IS_TMC(Z3)
+      TMC_SAY_CURRENT(Z3);
+    #endif
     #if AXIS_IS_TMC(E0)
       TMC_SAY_CURRENT(E0);
     #endif
@@ -121,6 +130,9 @@ void GcodeSuite::M906() {
     #endif
     #if AXIS_IS_TMC(E4)
       TMC_SAY_CURRENT(E4);
+    #endif
+    #if AXIS_IS_TMC(E5)
+      TMC_SAY_CURRENT(E5);
     #endif
   }
 }

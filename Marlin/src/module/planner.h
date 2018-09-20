@@ -45,6 +45,10 @@
   #include "../libs/vector_3.h"
 #endif
 
+#if ENABLED(FWRETRACT)
+  #include "../feature/fwretract.h"
+#endif
+
 enum BlockFlagBit : char {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
@@ -151,7 +155,7 @@ typedef struct {
 
 } block_t;
 
-#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || HAS_FEEDRATE_SCALING)
+#define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || ENABLED(SCARA_FEEDRATE_SCALING))
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
@@ -210,14 +214,22 @@ class Planner {
     #if ENABLED(JUNCTION_DEVIATION)
       static float junction_deviation_mm;       // (mm) M205 J
       #if ENABLED(LIN_ADVANCE)
-        #if ENABLED(DISTINCT_E_FACTORS)
-          static float max_e_jerk[EXTRUDERS];   // Calculated from junction_deviation_mm
-        #else
-          static float max_e_jerk;
-        #endif
+        static float max_e_jerk                 // Calculated from junction_deviation_mm
+          #if ENABLED(DISTINCT_E_FACTORS)
+            [EXTRUDERS]
+          #endif
+        ;
       #endif
-    #else
-      static float max_jerk[XYZE];              // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
+    #endif
+
+    #if HAS_CLASSIC_JERK
+      static float max_jerk[
+        #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+          XYZ                                    // (mm/s^2) M205 XYZ - The largest speed change requiring no acceleration.
+        #else
+          XYZE                                   // (mm/s^2) M205 XYZE - The largest speed change requiring no acceleration.
+        #endif
+      ];
     #endif
 
     #if HAS_LEVELING
@@ -238,6 +250,10 @@ class Planner {
 
     #if HAS_POSITION_FLOAT
       static float position_float[XYZE];
+    #endif
+
+    #if IS_KINEMATIC
+      static float position_cart[XYZE];
     #endif
 
     #if ENABLED(SKEW_CORRECTION)
@@ -410,6 +426,8 @@ class Planner {
           }
         }
       }
+      FORCE_INLINE static void skew(float (&raw)[XYZ]) { skew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
+      FORCE_INLINE static void skew(float (&raw)[XYZE]) { skew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
 
       FORCE_INLINE static void unskew(float &cx, float &cy, const float &cz) {
         if (WITHIN(cx, X_MIN_POS, X_MAX_POS) && WITHIN(cy, Y_MIN_POS, Y_MAX_POS)) {
@@ -420,28 +438,75 @@ class Planner {
           }
         }
       }
+      FORCE_INLINE static void unskew(float (&raw)[XYZ]) { unskew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
+      FORCE_INLINE static void unskew(float (&raw)[XYZE]) { unskew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
 
     #endif // SKEW_CORRECTION
 
-    #if PLANNER_LEVELING || HAS_UBL_AND_CURVES
+    #if HAS_LEVELING
       /**
        * Apply leveling to transform a cartesian position
        * as it will be given to the planner and steppers.
        */
       static void apply_leveling(float &rx, float &ry, float &rz);
       FORCE_INLINE static void apply_leveling(float (&raw)[XYZ]) { apply_leveling(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
+      FORCE_INLINE static void apply_leveling(float (&raw)[XYZE]) { apply_leveling(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]); }
+
+      static void unapply_leveling(float raw[XYZ]);
     #endif
 
-    #if PLANNER_LEVELING
-      #define ARG_X float rx
-      #define ARG_Y float ry
-      #define ARG_Z float rz
-      static void unapply_leveling(float raw[XYZ]);
-    #else
-      #define ARG_X const float &rx
-      #define ARG_Y const float &ry
-      #define ARG_Z const float &rz
+    #if ENABLED(FWRETRACT)
+      static void apply_retract(float &rz, float &e);
+      FORCE_INLINE static void apply_retract(float (&raw)[XYZE]) { apply_retract(raw[Z_AXIS], raw[E_AXIS]); }
+      static void unapply_retract(float &rz, float &e);
+      FORCE_INLINE static void unapply_retract(float (&raw)[XYZE]) { unapply_retract(raw[Z_AXIS], raw[E_AXIS]); }
     #endif
+
+    #if HAS_POSITION_MODIFIERS
+      FORCE_INLINE static void apply_modifiers(float (&pos)[XYZE]
+        #if HAS_LEVELING
+          , bool leveling =
+          #if PLANNER_LEVELING
+            true
+          #else
+            false
+          #endif
+        #endif
+      ) {
+        #if ENABLED(SKEW_CORRECTION)
+          skew(pos);
+        #endif
+        #if HAS_LEVELING
+          if (leveling)
+            apply_leveling(pos);
+        #endif
+        #if ENABLED(FWRETRACT)
+          apply_retract(pos);
+        #endif
+      }
+
+      FORCE_INLINE static void unapply_modifiers(float (&pos)[XYZE]
+        #if HAS_LEVELING
+          , bool leveling =
+          #if PLANNER_LEVELING
+            true
+          #else
+            false
+          #endif
+        #endif
+      ) {
+        #if ENABLED(FWRETRACT)
+          unapply_retract(pos);
+        #endif
+        #if HAS_LEVELING
+          if (leveling)
+            unapply_leveling(pos);
+        #endif
+        #if ENABLED(SKEW_CORRECTION)
+          unskew(pos);
+        #endif
+      }
+    #endif // HAS_POSITION_MODIFIERS
 
     // Number of moves currently in the planner including the busy block, if any
     FORCE_INLINE static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail); }
@@ -489,7 +554,10 @@ class Planner {
      */
     static bool _buffer_steps(const int32_t (&target)[XYZE]
       #if HAS_POSITION_FLOAT
-        , const float (&target_float)[XYZE]
+        , const float (&target_float)[ABCE]
+      #endif
+      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+        , const float (&delta_mm_cart)[XYZE]
       #endif
       , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
@@ -511,6 +579,9 @@ class Planner {
       #if HAS_POSITION_FLOAT
         , const float (&target_float)[XYZE]
       #endif
+      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+        , const float (&delta_mm_cart)[XYZE]
+      #endif
       , float fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
     );
 
@@ -519,6 +590,13 @@ class Planner {
      * Add a block to the buffer that just updates the position
      */
     static void buffer_sync_block();
+
+  #if IS_KINEMATIC
+    private:
+
+      // Allow do_homing_move to access internal functions, such as buffer_segment.
+      friend void do_homing_move(const AxisEnum, const float, const float);
+  #endif
 
     /**
      * Planner::buffer_segment
@@ -532,74 +610,83 @@ class Planner {
      *  extruder    - target extruder
      *  millimeters - the length of the movement, if known
      */
-    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e, const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0);
-
-    static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
-
-    /**
-     * Add a new linear movement to the buffer.
-     * The target is NOT translated to delta/scara
-     *
-     * Leveling will be applied to input on cartesians.
-     * Kinematic machines should call buffer_line_kinematic (for leveled moves).
-     * (Cartesians may also call buffer_line_kinematic.)
-     *
-     *  rx,ry,rz,e   - target position in mm or degrees
-     *  fr_mm_s      - (target) speed of the move (mm/s)
-     *  extruder     - target extruder
-     *  millimeters  - the length of the movement, if known
-     */
-    FORCE_INLINE static bool buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
-      #if PLANNER_LEVELING && IS_CARTESIAN
-        apply_leveling(rx, ry, rz);
+    static bool buffer_segment(const float &a, const float &b, const float &c, const float &e
+      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+        , const float (&delta_mm_cart)[XYZE]
       #endif
-      return buffer_segment(rx, ry, rz, e, fr_mm_s, extruder, millimeters);
+      , const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+    );
+
+    FORCE_INLINE static bool buffer_segment(const float (&abce)[ABCE]
+      #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+        , const float (&delta_mm_cart)[XYZE]
+      #endif
+      , const float &fr_mm_s, const uint8_t extruder, const float &millimeters=0.0
+    ) {
+      return buffer_segment(abce[A_AXIS], abce[B_AXIS], abce[C_AXIS], abce[E_AXIS]
+        #if IS_KINEMATIC && ENABLED(JUNCTION_DEVIATION)
+          , delta_mm_cart
+        #endif
+        , fr_mm_s, extruder, millimeters);
     }
+
+  public:
 
     /**
      * Add a new linear movement to the buffer.
      * The target is cartesian, it's translated to delta/scara if
      * needed.
      *
-     *  cart         - x,y,z,e CARTESIAN target in mm
+     *
+     *  rx,ry,rz,e   - target position in mm or degrees
      *  fr_mm_s      - (target) speed of the move (mm/s)
      *  extruder     - target extruder
      *  millimeters  - the length of the movement, if known
+     *  inv_duration - the reciprocal if the duration of the movement, if known (kinematic only if feeedrate scaling is enabled)
      */
-    FORCE_INLINE static bool buffer_line_kinematic(const float (&cart)[XYZE], const float &fr_mm_s, const uint8_t extruder, const float millimeters = 0.0) {
-      #if PLANNER_LEVELING
-        float raw[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
-        apply_leveling(raw);
-      #else
-        const float (&raw)[XYZE] = cart;
+    static bool buffer_line(const float &rx, const float &ry, const float &rz, const float &e, const float &fr_mm_s, const uint8_t extruder, const float millimeters=0.0
+      #if ENABLED(SCARA_FEEDRATE_SCALING)
+        , const float &inv_duration=0.0
       #endif
-      #if IS_KINEMATIC
-        inverse_kinematics(raw);
-        return buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
-      #else
-        return buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters);
+    );
+
+    FORCE_INLINE static bool buffer_line(const float (&cart)[XYZE], const float &fr_mm_s, const uint8_t extruder, const float millimeters=0.0
+      #if ENABLED(SCARA_FEEDRATE_SCALING)
+        , const float &inv_duration=0.0
       #endif
+    ) {
+      return buffer_line(cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS], cart[E_AXIS], fr_mm_s, extruder, millimeters
+        #if ENABLED(SCARA_FEEDRATE_SCALING)
+          , inv_duration
+        #endif
+      );
     }
 
     /**
      * Set the planner.position and individual stepper positions.
      * Used by G92, G28, G29, and other procedures.
      *
+     * The supplied position is in the cartesian coordinate space and is
+     * translated in to machine space as needed. Modifiers such as leveling
+     * and skew are also applied.
+     *
      * Multiplies by axis_steps_per_mm[] and does necessary conversion
      * for COREXY / COREXZ / COREYZ to set the corresponding stepper positions.
      *
      * Clears previous speed values.
      */
-    FORCE_INLINE static void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
-      #if PLANNER_LEVELING && IS_CARTESIAN
-        apply_leveling(rx, ry, rz);
-      #endif
-      _set_position_mm(rx, ry, rz, e);
-    }
-    static void set_position_mm_kinematic(const float (&cart)[XYZE]);
-    static void set_position_mm(const AxisEnum axis, const float &v);
-    FORCE_INLINE static void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
-    FORCE_INLINE static void set_e_position_mm(const float &e) { set_position_mm(E_AXIS, e); }
+    static void set_position_mm(const float &rx, const float &ry, const float &rz, const float &e);
+    FORCE_INLINE static void set_position_mm(const float (&cart)[XYZE]) { set_position_mm(cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS], cart[E_AXIS]); }
+    static void set_e_position_mm(const float &e);
+
+    /**
+     * Set the planner.position and individual stepper positions.
+     *
+     * The supplied position is in machine space, and no additional
+     * conversions are applied.
+     */
+    static void set_machine_position_mm(const float &a, const float &b, const float &c, const float &e);
+    FORCE_INLINE static void set_machine_position_mm(const float (&abce)[ABCE]) { set_machine_position_mm(abce[A_AXIS], abce[B_AXIS], abce[C_AXIS], abce[E_AXIS]); }
 
     /**
      * Get an axis position according to stepper position(s)
@@ -756,16 +843,14 @@ class Planner {
       static void autotemp_M104_M109();
     #endif
 
-    #if ENABLED(JUNCTION_DEVIATION)
+    #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
       FORCE_INLINE static void recalculate_max_e_jerk() {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
-        #if ENABLED(LIN_ADVANCE)
-          #if ENABLED(DISTINCT_E_FACTORS)
-            for (uint8_t i = 0; i < EXTRUDERS; i++)
-              max_e_jerk[i] = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS + i]);
-          #else
-            max_e_jerk = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS]);
-          #endif
+        #if ENABLED(DISTINCT_E_FACTORS)
+          for (uint8_t i = 0; i < EXTRUDERS; i++)
+            max_e_jerk[i] = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS + i]);
+        #else
+          max_e_jerk = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS]);
         #endif
       }
     #endif

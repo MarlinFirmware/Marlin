@@ -21,13 +21,13 @@
  */
 
 /**
- * Choose your version: 
+ * Choose your version:
  */
 // normal size or plus?
-//#define ANCYUBIC_KOSSEL_PLUS 
+//#define ANCYUBIC_KOSSEL_PLUS
 // Anycubic Probe version 1 or 2 see README.md; 0 for no probe
 #define ANYCUBIC_PROBE_VERSION 0
-// Heated Bed: 
+// Heated Bed:
 // 0 ... no heated bed
 // 1 ... aluminium heated bed with "BuildTak-like" sticker
 // 2 ... ultrabase heated bed
@@ -221,11 +221,11 @@
 
 /**
  * "Mixing Extruder"
- *   - Adds a new code, M165, to set the current mix factors.
+ *   - Adds G-codes M163 and M164 to set and "commit" the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
- *   - Optional support for Repetier Firmware M163, M164, and virtual extruder.
- *   - This implementation supports only a single extruder.
- *   - Enable DIRECT_MIXING_IN_G1 for Pia Taubert's reference implementation
+ *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
+ *   - This implementation supports up to two mixing extruders.
+ *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 //#define MIXING_EXTRUDER
 #if ENABLED(MIXING_EXTRUDER)
@@ -329,6 +329,7 @@
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
+#define TEMP_SENSOR_5 0
 
 #if ANYCUBIC_KOSSEL_ENABLE_BED > 0
    #define TEMP_SENSOR_BED 5
@@ -365,6 +366,7 @@
 #define HEATER_2_MINTEMP 5
 #define HEATER_3_MINTEMP 5
 #define HEATER_4_MINTEMP 5
+#define HEATER_5_MINTEMP 5
 #define BED_MINTEMP 5
 
 // When temperature exceeds max temp, your heater will be switched off.
@@ -375,6 +377,7 @@
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
 #define BED_MAXTEMP 120
 
 //===========================================================================
@@ -580,7 +583,6 @@
     #define PROBE_MANUALLY_STEP 0.05 // mm
   #endif
 
-  
   #if ENABLED(ANCYUBIC_KOSSEL_PLUS)
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
     #define DELTA_PRINTABLE_RADIUS 116.0 // mm
@@ -692,11 +694,13 @@
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
+//#define Z3_DRIVER_TYPE A4988
 //#define E0_DRIVER_TYPE A4988
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
+//#define E5_DRIVER_TYPE A4988
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -743,7 +747,7 @@
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 // variables to calculate steps
 #define XYZ_FULL_STEPS_PER_ROTATION 200
@@ -758,7 +762,7 @@
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #define DEFAULT_MAX_FEEDRATE          { 100, 100, 100, 100}
 
@@ -766,7 +770,7 @@
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #define DEFAULT_MAX_ACCELERATION       { 3000, 3000, 3000, 3000 }
 
@@ -1017,8 +1021,8 @@
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
 #define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
-#define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
+#define Z_CLEARANCE_BETWEEN_PROBES 25 // Z Clearance between probe points
+#define Z_CLEARANCE_MULTI_PROBE    25 // Z Clearance between multiple probes
 #define Z_AFTER_PROBING            30 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
@@ -1067,6 +1071,7 @@
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
 
 // @section homing
 
@@ -1488,7 +1493,7 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z }
-  #define NOZZLE_PARK_POINT { 0, 0, MANUAL_Z_HOME_POS }
+  #define NOZZLE_PARK_POINT { 0, 0, 20 }
   #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
   #define NOZZLE_PARK_Z_FEEDRATE 100      // Z axis feedrate in mm/s (not used for delta printers)
 #endif

@@ -130,6 +130,7 @@
 #define MSG_E3STEPS                         _UxGT("E3 trangos/mm")
 #define MSG_E4STEPS                         _UxGT("E4 trangos/mm")
 #define MSG_E5STEPS                         _UxGT("E5 trangos/mm")
+#define MSG_E6STEPS                         _UxGT("E6 trangos/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movimiento")
 #define MSG_FILAMENT                        _UxGT("Filamento")

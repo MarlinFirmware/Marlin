@@ -275,7 +275,7 @@ void quickstop_stepper() {
   planner.quick_stop();
   planner.synchronize();
   set_current_from_steppers_for_axis(ALL_AXES);
-  SYNC_PLAN_POSITION_KINEMATIC();
+  sync_plan_position();
 }
 
 void enable_all_steppers() {
@@ -290,6 +290,7 @@ void enable_all_steppers() {
   enable_E2();
   enable_E3();
   enable_E4();
+  enable_E5();
 }
 
 void disable_e_steppers() {
@@ -298,6 +299,7 @@ void disable_e_steppers() {
   disable_E2();
   disable_E3();
   disable_E4();
+  disable_E5();
 }
 
 void disable_e_stepper(const uint8_t e) {
@@ -307,6 +309,7 @@ void disable_e_stepper(const uint8_t e) {
     case 2: disable_E2(); break;
     case 3: disable_E3(); break;
     case 4: disable_E4(); break;
+    case 5: disable_E5(); break;
   }
 }
 
@@ -440,7 +443,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
           #if E_STEPPERS > 1
             case 2: case 3: oldstatus = E1_ENABLE_READ; enable_E1(); break;
             #if E_STEPPERS > 2
-              case 4: oldstatus = E2_ENABLE_READ; enable_E2(); break;
+              case 4: case 5: oldstatus = E2_ENABLE_READ; enable_E2(); break;
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
@@ -456,6 +459,9 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
                 case 3: oldstatus = E3_ENABLE_READ; enable_E3(); break;
                 #if E_STEPPERS > 4
                   case 4: oldstatus = E4_ENABLE_READ; enable_E4(); break;
+                  #if E_STEPPERS > 5
+                    case 5: oldstatus = E5_ENABLE_READ; enable_E5(); break;
+                  #endif // E_STEPPERS > 5
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
             #endif // E_STEPPERS > 2
@@ -465,7 +471,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
       const float olde = current_position[E_AXIS];
       current_position[E_AXIS] += EXTRUDER_RUNOUT_EXTRUDE;
-      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder);
+      planner.buffer_line(current_position, MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder);
       current_position[E_AXIS] = olde;
       planner.set_e_position_mm(olde);
       planner.synchronize();
@@ -476,7 +482,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
           #if E_STEPPERS > 1
             case 2: case 3: oldstatus = E1_ENABLE_WRITE(oldstatus); break;
             #if E_STEPPERS > 2
-              case 4: oldstatus = E2_ENABLE_WRITE(oldstatus); break;
+              case 4: case 5: oldstatus = E2_ENABLE_WRITE(oldstatus); break;
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
@@ -491,6 +497,9 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
                 case 3: E3_ENABLE_WRITE(oldstatus); break;
                 #if E_STEPPERS > 4
                   case 4: E4_ENABLE_WRITE(oldstatus); break;
+                  #if E_STEPPERS > 5
+                    case 5: E5_ENABLE_WRITE(oldstatus); break;
+                  #endif // E_STEPPERS > 5
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
             #endif // E_STEPPERS > 2
@@ -766,7 +775,7 @@ void setup() {
   #endif
 
   // Vital to init stepper/planner equivalent for current_position
-  SYNC_PLAN_POSITION_KINEMATIC();
+  sync_plan_position();
 
   thermalManager.init();    // Initialize temperature loop
 
@@ -908,6 +917,10 @@ void setup() {
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
     init_closedloop();
+  #endif
+
+  #if ENABLED(SDSUPPORT) && DISABLED(ULTRA_LCD)
+    card.beginautostart();
   #endif
 }
 

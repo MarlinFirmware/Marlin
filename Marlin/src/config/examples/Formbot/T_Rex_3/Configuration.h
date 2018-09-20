@@ -220,11 +220,11 @@
 
 /**
  * "Mixing Extruder"
- *   - Adds a new code, M165, to set the current mix factors.
+ *   - Adds G-codes M163 and M164 to set and "commit" the current mix factors.
  *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
- *   - Optional support for Repetier Firmware M163, M164, and virtual extruder.
- *   - This implementation supports only a single extruder.
- *   - Enable DIRECT_MIXING_IN_G1 for Pia Taubert's reference implementation
+ *   - Optional support for Repetier Firmware's 'M164 S<index>' supporting virtual tools.
+ *   - This implementation supports up to two mixing extruders.
+ *   - Enable DIRECT_MIXING_IN_G1 for M165 and mixing in G1 (from Pia Taubert's reference implementation).
  */
 //#define MIXING_EXTRUDER
 #if ENABLED(MIXING_EXTRUDER)
@@ -330,6 +330,7 @@
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
+#define TEMP_SENSOR_5 0
 
 #if(ENABLED(ROXYs_TRex))
   #define TEMP_SENSOR_BED 11
@@ -372,6 +373,7 @@
 #define HEATER_2_MINTEMP 5
 #define HEATER_3_MINTEMP 5
 #define HEATER_4_MINTEMP 5
+#define HEATER_5_MINTEMP 5
 #define BED_MINTEMP 5
 
 // When temperature exceeds max temp, your heater will be switched off.
@@ -382,6 +384,7 @@
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
 #define BED_MAXTEMP 150
 
 //===========================================================================
@@ -610,11 +613,13 @@
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
+//#define Z3_DRIVER_TYPE A4988
 //#define E0_DRIVER_TYPE A4988
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
+//#define E5_DRIVER_TYPE A4988
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -660,7 +665,7 @@
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 160, 1600, 93 }
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 800, 93 }
@@ -668,7 +673,7 @@
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 //#define DEFAULT_MAX_FEEDRATE          { 250, 150, 5, 25 }
 #define DEFAULT_MAX_FEEDRATE          { 250, 100, 5, 25 }
@@ -677,7 +682,7 @@
  * Default Max Acceleration (change/s) change = mm/s
  * (Maximum start speed for accelerated moves)
  * Override with M201
- *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
 #define DEFAULT_MAX_ACCELERATION      { 1500, 500, 400, 4000 }
 
@@ -927,6 +932,7 @@
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
 
 // @section homing
 
@@ -2020,9 +2026,7 @@
 // If the servo can't reach the requested position, increase it.
 #define SERVO_DELAY { 300 }
 
-// Servo deactivation
-//
-// With this option servos are powered only during movement, then turned off to prevent jitter.
+// Only power servos during movement, otherwise leave off to prevent jitter
 //#define DEACTIVATE_SERVOS_AFTER_MOVE
 
 #endif // CONFIGURATION_H

@@ -49,12 +49,11 @@
      * as possible to determine if this is the case. If this move is within the same cell, we will
      * just do the required Z-Height correction, call the Planner's buffer_line() routine, and leave
      */
-    #if ENABLED(SKEW_CORRECTION)
-      // For skew correction just adjust the destination point and we're done
+    #if HAS_POSITION_MODIFIERS
       float start[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS] },
             end[XYZE] = { destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS] };
-      planner.skew(start[X_AXIS], start[Y_AXIS], start[Z_AXIS]);
-      planner.skew(end[X_AXIS], end[Y_AXIS], end[Z_AXIS]);
+      planner.apply_modifiers(start);
+      planner.apply_modifiers(end);
     #else
       const float (&start)[XYZE] = current_position,
                     (&end)[XYZE] = destination;
@@ -364,47 +363,6 @@
 
 #else // UBL_SEGMENTED
 
-  #if IS_SCARA // scale the feed rate from mm/s to degrees/s
-    static float scara_feed_factor, scara_oldA, scara_oldB;
-  #endif
-
-  // We don't want additional apply_leveling() performed by regular buffer_line or buffer_line_kinematic,
-  // so we call buffer_segment directly here.  Per-segmented leveling and kinematics performed first.
-
-  inline void _O2 ubl_buffer_segment_raw(const float (&in_raw)[XYZE], const float &fr) {
-
-    #if ENABLED(SKEW_CORRECTION)
-      float raw[XYZE] = { in_raw[X_AXIS], in_raw[Y_AXIS], in_raw[Z_AXIS] };
-      planner.skew(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS]);
-    #else
-      const float (&raw)[XYZE] = in_raw;
-    #endif
-
-    #if ENABLED(DELTA)  // apply delta inverse_kinematics
-
-      DELTA_IK(raw);
-      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], fr, active_extruder);
-
-    #elif IS_SCARA  // apply scara inverse_kinematics (should be changed to save raw->logical->raw)
-
-      inverse_kinematics(raw);  // this writes delta[ABC] from raw[XYZE]
-                                // should move the feedrate scaling to scara inverse_kinematics
-
-      const float adiff = ABS(delta[A_AXIS] - scara_oldA),
-                  bdiff = ABS(delta[B_AXIS] - scara_oldB);
-      scara_oldA = delta[A_AXIS];
-      scara_oldB = delta[B_AXIS];
-      float s_feedrate = MAX(adiff, bdiff) * scara_feed_factor;
-
-      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], in_raw[E_AXIS], s_feedrate, active_extruder);
-
-    #else // CARTESIAN
-
-      planner.buffer_segment(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], in_raw[E_AXIS], fr, active_extruder);
-
-    #endif
-  }
-
   #if IS_SCARA
     #define DELTA_SEGMENT_MIN_LENGTH 0.25 // SCARA minimum segment size is 0.25mm
   #elif ENABLED(DELTA)
@@ -439,20 +397,19 @@
 
     #if IS_KINEMATIC
       const float seconds = cartesian_xy_mm / feedrate;                                  // seconds to move xy distance at requested rate
-      uint16_t segments = lroundf(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
-               seglimit = lroundf(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
+      uint16_t segments = LROUND(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
+               seglimit = LROUND(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
       NOMORE(segments, seglimit);                                                        // limit to minimum segment length (fewer segments)
     #else
-      uint16_t segments = lroundf(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
+      uint16_t segments = LROUND(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
     #endif
 
     NOLESS(segments, 1U);                        // must have at least one segment
     const float inv_segments = 1.0f / segments;  // divide once, multiply thereafter
 
-    #if IS_SCARA // scale the feed rate from mm/s to degrees/s
-      scara_feed_factor = cartesian_xy_mm * inv_segments * feedrate;
-      scara_oldA = planner.get_axis_position_degrees(A_AXIS);
-      scara_oldB = planner.get_axis_position_degrees(B_AXIS);
+    const float segment_xyz_mm = HYPOT(cartesian_xy_mm, total[Z_AXIS]) * inv_segments;   // length of each segment
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
+      const float inv_duration = feedrate / segment_xyz_mm;
     #endif
 
     const float diff[XYZE] = {
@@ -476,9 +433,17 @@
     if (!planner.leveling_active || !planner.leveling_active_at_z(rtarget[Z_AXIS])) {   // no mesh leveling
       while (--segments) {
         LOOP_XYZE(i) raw[i] += diff[i];
-        ubl_buffer_segment_raw(raw, feedrate);
+        planner.buffer_line(raw, feedrate, active_extruder, segment_xyz_mm
+          #if ENABLED(SCARA_FEEDRATE_SCALING)
+            , inv_duration
+          #endif
+        );
       }
-      ubl_buffer_segment_raw(rtarget, feedrate);
+      planner.buffer_line(rtarget, feedrate, active_extruder, segment_xyz_mm
+        #if ENABLED(SCARA_FEEDRATE_SCALING)
+          , inv_duration
+        #endif
+      );
       return false; // moved but did not set_current_from_destination();
     }
 
@@ -554,7 +519,11 @@
 
         const float z = raw[Z_AXIS];
         raw[Z_AXIS] += z_cxcy;
-        ubl_buffer_segment_raw(raw, feedrate);
+        planner.buffer_line(raw, feedrate, active_extruder, segment_xyz_mm
+          #if ENABLED(SCARA_FEEDRATE_SCALING)
+            , inv_duration
+          #endif
+        );
         raw[Z_AXIS] = z;
 
         if (segments == 0)                        // done with last segment

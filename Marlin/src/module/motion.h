@@ -129,13 +129,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 void sync_plan_position();
 void sync_plan_position_e();
 
-#if IS_KINEMATIC
-  void sync_plan_position_kinematic();
-  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_kinematic()
-#else
-  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
-#endif
-
 /**
  * Move the planner to the current position from wherever it last moved
  * (or from wherever it has been told it is located).
@@ -312,7 +305,7 @@ void homeaxis(const AxisEnum axis);
  */
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              symmetric_duplication_mode;         // Used in Dual X mode 2
+              scaled_duplication_mode;            // Used in Dual X mode 3
 #endif
 
 /**
@@ -321,9 +314,10 @@ void homeaxis(const AxisEnum axis);
 #if ENABLED(DUAL_X_CARRIAGE)
 
   enum DualXMode : char {
-    DXC_FULL_CONTROL_MODE,  // DUAL_X_CARRIAGE only
-    DXC_AUTO_PARK_MODE,     // DUAL_X_CARRIAGE only
-    DXC_DUPLICATION_MODE
+    DXC_FULL_CONTROL_MODE,
+    DXC_AUTO_PARK_MODE,
+    DXC_DUPLICATION_MODE,
+    DXC_SCALED_DUPLICATION_MODE
   };
 
   extern DualXMode dual_x_carriage_mode;
@@ -333,6 +327,8 @@ void homeaxis(const AxisEnum axis);
   extern bool active_extruder_parked;             // used in mode 1, 2 & 3
   extern millis_t delayed_move_time;              // used in mode 1
   extern int16_t duplicate_extruder_temp_offset;  // used in mode 2 & 3
+
+  FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
   float x_home_pos(const int extruder);
 
@@ -352,22 +348,6 @@ void homeaxis(const AxisEnum axis);
 
 #if HAS_M206_COMMAND
   void set_home_offset(const AxisEnum axis, const float v);
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #if ENABLED(DELTA)
-    #define ADJUST_DELTA(V) \
-      if (planner.leveling_active) { \
-        const float zadj = bilinear_z_offset(V); \
-        delta[A_AXIS] += zadj; \
-        delta[B_AXIS] += zadj; \
-        delta[C_AXIS] += zadj; \
-      }
-  #else
-    #define ADJUST_DELTA(V) if (planner.leveling_active) { delta[Z_AXIS] += bilinear_z_offset(V); }
-  #endif
-#else
-  #define ADJUST_DELTA(V) NOOP
 #endif
 
 #endif // MOTION_H

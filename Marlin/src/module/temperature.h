@@ -163,7 +163,7 @@ class Temperature {
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static volatile int babystepsTodo[3];
+      static volatile int16_t babystepsTodo[3];
     #endif
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)

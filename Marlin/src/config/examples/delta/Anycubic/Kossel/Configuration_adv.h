@@ -237,11 +237,12 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN ORIG_E0_AUTO_FAN_PIN
+//#define E0_AUTO_FAN_PIN -1
 #define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
 #define E4_AUTO_FAN_PIN -1
+#define E5_AUTO_FAN_PIN -1
 #define CHAMBER_AUTO_FAN_PIN -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
@@ -466,7 +467,7 @@
 //#define ADAPTIVE_STEP_SMOOTHING
 
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
-#define MICROSTEP_MODES { 16, 16, 16, 16, 16 } // [1,2,4,8,16]
+#define MICROSTEP_MODES { 16, 16, 16, 16, 16, 16 } // [1,2,4,8,16]
 
 /**
  *  @section  stepper motor current
@@ -1042,7 +1043,7 @@
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT           // Enable for XYZ steppers to stay powered on during filament change.
 
   #define PARK_HEAD_ON_PAUSE                    // Park the nozzle during pause and filament change.
-  //#define HOME_BEFORE_FILAMENT_CHANGE           // Ensure homing has been completed prior to parking for filament change
+  #define HOME_BEFORE_FILAMENT_CHANGE           // Ensure homing has been completed prior to parking for filament change
 
   #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
@@ -1101,6 +1102,10 @@
   #define E4_MAX_CURRENT    1000
   #define E4_SENSE_RESISTOR   91
   #define E4_MICROSTEPS       16
+
+  #define E5_MAX_CURRENT    1000
+  #define E5_SENSE_RESISTOR   91
+  #define E5_MICROSTEPS       16
 
 #endif // TMC26X
 
@@ -1163,6 +1168,9 @@
   #define E4_CURRENT         800
   #define E4_MICROSTEPS       16
 
+  #define E5_CURRENT         800
+  #define E5_MICROSTEPS       16
+
   /**
    * Use software SPI for TMC2130.
    * The default SW SPI pins are defined the respective pins files,
@@ -1212,11 +1220,13 @@
   #define Y2_HYBRID_THRESHOLD    100
   #define Z_HYBRID_THRESHOLD       3
   #define Z2_HYBRID_THRESHOLD      3
+  #define Z3_HYBRID_THRESHOLD      3
   #define E0_HYBRID_THRESHOLD     30
   #define E1_HYBRID_THRESHOLD     30
   #define E2_HYBRID_THRESHOLD     30
   #define E3_HYBRID_THRESHOLD     30
   #define E4_HYBRID_THRESHOLD     30
+  #define E5_HYBRID_THRESHOLD     30
 
   /**
    * Use stallGuard2 to sense an obstacle and trigger an endstop.
@@ -1286,49 +1296,57 @@
  */
 #if HAS_DRIVER(L6470)
 
-  #define X_MICROSTEPS      16 // number of microsteps
-  #define X_OVERCURRENT   2000 // maxc current in mA. If the current goes over this value, the driver will switch off
-  #define X_STALLCURRENT  1500 // current in mA where the driver will detect a stall
+  #define X_MICROSTEPS        16 // number of microsteps
+  #define X_OVERCURRENT     2000 // maxc current in mA. If the current goes over this value, the driver will switch off
+  #define X_STALLCURRENT    1500 // current in mA where the driver will detect a stall
 
-  #define X2_MICROSTEPS     16
-  #define X2_OVERCURRENT  2000
-  #define X2_STALLCURRENT 1500
+  #define X2_MICROSTEPS       16
+  #define X2_OVERCURRENT    2000
+  #define X2_STALLCURRENT   1500
 
-  #define Y_MICROSTEPS      16
-  #define Y_OVERCURRENT   2000
-  #define Y_STALLCURRENT  1500
+  #define Y_MICROSTEPS        16
+  #define Y_OVERCURRENT     2000
+  #define Y_STALLCURRENT    1500
 
-  #define Y2_MICROSTEPS     16
-  #define Y2_OVERCURRENT  2000
-  #define Y2_STALLCURRENT 1500
+  #define Y2_MICROSTEPS       16
+  #define Y2_OVERCURRENT    2000
+  #define Y2_STALLCURRENT   1500
 
-  #define Z_MICROSTEPS      16
-  #define Z_OVERCURRENT   2000
-  #define Z_STALLCURRENT  1500
+  #define Z_MICROSTEPS        16
+  #define Z_OVERCURRENT     2000
+  #define Z_STALLCURRENT    1500
 
-  #define Z2_MICROSTEPS     16
-  #define Z2_OVERCURRENT  2000
-  #define Z2_STALLCURRENT 1500
+  #define Z2_MICROSTEPS       16
+  #define Z2_OVERCURRENT    2000
+  #define Z2_STALLCURRENT   1500
 
-  #define E0_MICROSTEPS     16
-  #define E0_OVERCURRENT  2000
-  #define E0_STALLCURRENT 1500
+  #define Z3_MICROSTEPS       16
+  #define Z3_OVERCURRENT    2000
+  #define Z3_STALLCURRENT   1500
 
-  #define E1_MICROSTEPS     16
-  #define E1_OVERCURRENT  2000
-  #define E1_STALLCURRENT 1500
+  #define E0_MICROSTEPS       16
+  #define E0_OVERCURRENT    2000
+  #define E0_STALLCURRENT   1500
 
-  #define E2_MICROSTEPS     16
-  #define E2_OVERCURRENT  2000
-  #define E2_STALLCURRENT 1500
+  #define E1_MICROSTEPS       16
+  #define E1_OVERCURRENT    2000
+  #define E1_STALLCURRENT   1500
 
-  #define E3_MICROSTEPS     16
-  #define E3_OVERCURRENT  2000
-  #define E3_STALLCURRENT 1500
+  #define E2_MICROSTEPS       16
+  #define E2_OVERCURRENT    2000
+  #define E2_STALLCURRENT   1500
 
-  #define E4_MICROSTEPS     16
-  #define E4_OVERCURRENT  2000
-  #define E4_STALLCURRENT 1500
+  #define E3_MICROSTEPS       16
+  #define E3_OVERCURRENT    2000
+  #define E3_STALLCURRENT   1500
+
+  #define E4_MICROSTEPS       16
+  #define E4_OVERCURRENT    2000
+  #define E4_STALLCURRENT   1500
+
+  #define E5_MICROSTEPS       16
+  #define E5_OVERCURRENT    2000
+  #define E5_STALLCURRENT   1500
 
 #endif // L6470
 
@@ -1514,6 +1532,7 @@
  */
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
+  //#define CUSTOM_USER_MENU_TITLE "Custom Commands"
   #define USER_SCRIPT_DONE "M117 User Script Done"
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   //#define USER_SCRIPT_RETURN  // Return to status screen after a script
@@ -1650,6 +1669,7 @@
   #define MAX7219_NUMBER_UNITS 1   // Number of Max7219 units in chain.
   #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
                                    // connector at:  right=0   bottom=-90  top=90  left=180
+  //#define MAX7219_REVERSE_ORDER  // The individual LED matrix units may be in reversed order
 
   /**
    * Sample debug features

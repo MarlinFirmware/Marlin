@@ -80,6 +80,7 @@
 #define MSG_NEXT_CORNER                     _UxGT("Hurrengo ertza")
 //#define MSG_EDITING_STOPPED               _UxGT("Mesh Editing Stopped")
 //#define MSG_USER_MENU                     _UxGT("Custom Commands")
+
 #define MSG_UBL_DOING_G29                   _UxGT("G29 exekutatzen")
 #define MSG_UBL_UNHOMED                     _UxGT("XYZ etxeratu lehenengo")
 #define MSG_UBL_TOOLS                       _UxGT("UBL Tresnak")
@@ -160,6 +161,7 @@
 #define MSG_INTENSITY_B                     _UxGT("Intentsitate urdina")
 #define MSG_INTENSITY_W                     _UxGT("Intentsitate zuria")
 #define MSG_LED_BRIGHTNESS                  _UxGT("Distira")
+
 #define MSG_MOVING                          _UxGT("Mugitzen...")
 #define MSG_FREE_XY                         _UxGT("Askatu XY")
 #define MSG_MOVE_X                          _UxGT("Mugitu X")
@@ -224,6 +226,7 @@
 #define MSG_E3STEPS                         _UxGT("E3 pausoak/mm")
 #define MSG_E4STEPS                         _UxGT("E4 pausoak/mm")
 #define MSG_E5STEPS                         _UxGT("E5 pausoak/mm")
+#define MSG_E6STEPS                         _UxGT("E6 pausoak/mm")
 #define MSG_TEMPERATURE                     _UxGT("Tenperatura")
 #define MSG_MOTION                          _UxGT("Mugimendua")
 #define MSG_FILAMENT                        _UxGT("Harizpia")
