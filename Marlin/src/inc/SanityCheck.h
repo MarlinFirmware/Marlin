@@ -1880,6 +1880,19 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
   #error "FAST_PWM_FAN only supported by 8 bit CPUs."
 #endif
 
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #if !Z_MULTI_STEPPER_DRIVERS
+    #error "Z_STEPPER_AUTO_ALIGN requires Z_DUAL_STEPPER_DRIVERS or Z_TRIPLE_STEPPER_DRIVERS."
+  #elif !HAS_BED_PROBE
+    #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
+  #endif
+  constexpr float sanity_arr_z_align_x[] = Z_STEPPER_ALIGN_X, sanity_arr_z_align_y[] = Z_STEPPER_ALIGN_Y;
+  static_assert(
+    COUNT(sanity_arr_z_align_x) == Z_STEPPER_COUNT && COUNT(sanity_arr_z_align_y) == Z_STEPPER_COUNT,
+    "Z_STEPPER_ALIGN_[XY]POS settings require one element per Z stepper."
+  );
+#endif
+
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
   #error "PRINTCOUNTER requires EEPROM_SETTINGS. Please update your Configuration."
 #endif

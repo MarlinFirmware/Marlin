@@ -197,6 +197,8 @@ void clean_up_after_endstop_or_probe_move();
 
 void set_axis_is_at_home(const AxisEnum axis);
 
+void set_axis_is_not_at_home(const AxisEnum axis);
+
 void homeaxis(const AxisEnum axis);
 
 #if ENABLED(SENSORLESS_HOMING)

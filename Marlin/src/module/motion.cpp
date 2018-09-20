@@ -1210,6 +1210,34 @@ void set_axis_is_at_home(const AxisEnum axis) {
 }
 
 /**
+ * Set an axis' to be unhomed.
+ */
+void set_axis_is_not_at_home(const AxisEnum axis) {
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOPAIR(">>> set_axis_is_not_at_home(", axis_codes[axis]);
+      SERIAL_CHAR(')');
+      SERIAL_EOL();
+    }
+  #endif
+
+  CBI(axis_known_position, axis);
+  CBI(axis_homed, axis);
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOPAIR("<<< set_axis_is_not_at_home(", axis_codes[axis]);
+      SERIAL_CHAR(')');
+      SERIAL_EOL();
+    }
+  #endif
+
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    I2CPEM.unhomed(axis);
+  #endif
+}
+
+/**
  * Home an individual "raw axis" to its endstop.
  * This applies to XYZ on Cartesian and Core robots, and
  * to the individual ABC steppers on DELTA and SCARA.
@@ -1260,17 +1288,7 @@ void homeaxis(const AxisEnum axis) {
       #if ENABLED(Y_DUAL_ENDSTOPS)
         case Y_AXIS:
       #endif
-      #if ENABLED(Z_DUAL_ENDSTOPS)
-        case Z_AXIS:
-      #endif
-      stepper.set_separate_multi_axis(true);
-      default: break;
-    }
-  #endif
-
-  #if ENABLED(Z_TRIPLE_ENDSTOPS)
-    switch (axis) {
-      #if ENABLED(Z_TRIPLE_ENDSTOPS)
+      #if Z_MULTI_ENDSTOPS
         case Z_AXIS:
       #endif
       stepper.set_separate_multi_axis(true);
