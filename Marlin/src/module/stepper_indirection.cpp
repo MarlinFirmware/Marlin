@@ -258,16 +258,16 @@
       _TMC2130_INIT(E0, planner.axis_steps_per_mm[E_AXIS]);
     #endif
     #if AXIS_DRIVER_TYPE(E1, TMC2130)
-      { constexpr int extruder = 1; _TMC2130_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); }
+      { _TMC2130_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); }
     #endif
     #if AXIS_DRIVER_TYPE(E2, TMC2130)
-      { constexpr int extruder = 2; _TMC2130_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); }
+      { _TMC2130_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); }
     #endif
     #if AXIS_DRIVER_TYPE(E3, TMC2130)
-      { constexpr int extruder = 3; _TMC2130_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); }
+      { _TMC2130_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); }
     #endif
     #if AXIS_DRIVER_TYPE(E4, TMC2130)
-      { constexpr int extruder = 4; _TMC2130_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); }
+      { _TMC2130_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); }
     #endif
 
     #if ENABLED(SENSORLESS_HOMING)
