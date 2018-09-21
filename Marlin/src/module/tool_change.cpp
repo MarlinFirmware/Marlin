@@ -585,6 +585,13 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
           #endif
+          #if ENABLED(DUAL_X_CARRIAGE)
+            // Dual x carriage does not properly apply these to current position due to command ordering
+            // So we apply the offsets for y and z to the destination here. X cannot have an offset in this mode
+            // as it is utilized for X2 home position.
+            destination[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][tmp_extruder];
+            destination[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+          #endif
           // Move back to the original (or tweaked) position
           do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
           #if ENABLED(DUAL_X_CARRIAGE)
@@ -602,7 +609,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       planner.synchronize();
 
       #if ENABLED(INDEPENDENT_Z_OFFSETS)
-        zprobe_zoffset = dxc_zprobe_zoffset[active_extruder];
+        //zprobe_zoffset = dxc_zprobe_zoffset[active_extruder];
       #endif
 
       #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
