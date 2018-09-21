@@ -558,9 +558,9 @@ void MarlinSettings::postprocess() {
       #endif
       constexpr uint16_t servo_angles[NUM_SERVO_PLUGS][2] = {
         #if ENABLED(SWITCHING_EXTRUDER)
-          [SWITCHING_EXTRUDER_SERVO_NR] = { sesa[0], sesa[1] }
+          [SWITCHING_EXTRUDER_SERVO_NR] = { sesa[0][0], sesa[0][1] }
           #if EXTRUDERS > 3
-            , [SWITCHING_EXTRUDER_E23_SERVO_NR] = { sesa[2], sesa[3] }
+            , [SWITCHING_EXTRUDER_E23_SERVO_NR] = { sesa[1][0], sesa[1][1] }
           #endif
         #elif ENABLED(SWITCHING_NOZZLE)
           [SWITCHING_NOZZLE_SERVO_NR] = SWITCHING_NOZZLE_SERVO_ANGLES
