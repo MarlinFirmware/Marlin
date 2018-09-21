@@ -315,4 +315,4 @@ __attribute__((naked)) void RSTC_Handler(void) {
   );
 }
 }
-#endif // ARDUINO_ARCH_SAM
+#endif // TARGET_LPC1768

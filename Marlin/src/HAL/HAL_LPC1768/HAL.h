@@ -151,6 +151,8 @@ using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
 
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
+// P0.6 thru P0.9 are for the onboard SD card
+#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
 
 #define HAL_IDLETASK 1
 void HAL_idletask(void);

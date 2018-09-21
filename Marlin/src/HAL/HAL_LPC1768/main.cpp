@@ -1,6 +1,5 @@
 #ifdef TARGET_LPC1768
 
-#include <LPC1768_PWM.h>
 #include <usb/usb.h>
 #include <usb/usbcfg.h>
 #include <usb/usbhw.h>
@@ -84,7 +83,6 @@ void HAL_init() {
   #endif
 
   HAL_timer_init();
-  LPC1768_PWM_init();
 }
 
 // HAL idle task

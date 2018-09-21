@@ -50,25 +50,24 @@
 #ifndef SERVO_PRIVATE_H
 #define SERVO_PRIVATE_H
 
-#include <LPC1768_Servo.h>
+#include <Servo.h>
 
 class MarlinServo: public Servo  {
+  public:
   void move(const int value) {
     constexpr uint16_t servo_delay[] = SERVO_DELAY;
     static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
-    if (this->attach(0) >= 0) {    // notice the pin number is zero here
+
+    if (this->attach(servo_info[this->servoIndex].Pin.nbr) >= 0) {    // try to reattach
       this->write(value);
-
-      safe_delay(servo_delay[this->servoIndex]);
-
+      safe_delay(servo_delay[this->servoIndex]); // delay to allow servo to reach position
       #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
         this->detach();
-        LPC1768_PWM_detach_pin(servo_info[this->servoIndex].Pin.nbr);  // shut down the PWM signal
-        LPC1768_PWM_attach_pin(servo_info[this->servoIndex].Pin.nbr, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH, this->servoIndex);  // make sure no one else steals the slot
       #endif
     }
+
   }
-}
+};
 
 #define HAL_SERVO_LIB MarlinServo
 
