@@ -54,8 +54,6 @@ class Endstops {
 
   public:
 
-    static bool enabled, enabled_globally;
-
     #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
       typedef uint16_t esbits_t;
       #if ENABLED(X_DUAL_ENDSTOPS)
@@ -75,6 +73,7 @@ class Endstops {
     #endif
 
   private:
+    static bool enabled, enabled_globally;
     static esbits_t live_state;
     static volatile uint8_t hit_state;      // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
 

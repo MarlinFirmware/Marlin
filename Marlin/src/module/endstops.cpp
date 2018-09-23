@@ -248,7 +248,7 @@ void Endstops::poll() {
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && ENABLED(ENDSTOP_NOISE_FILTER)
     if (endstop_poll_count) update();
-  #elif DISABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(ENDSTOP_NOISE_FILTER)
+  #elif DISABLED(ENDSTOP_INTERRUPTS_FEATURE)
     update();
   #endif
 }
