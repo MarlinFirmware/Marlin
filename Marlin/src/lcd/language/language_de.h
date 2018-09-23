@@ -198,6 +198,8 @@
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch Reset")
 #define MSG_BLTOUCH_DEPLOY                  _UxGT("BLTouch ausfahren")
 #define MSG_BLTOUCH_STOW                    _UxGT("BLTouch einfahren")
+#define MSG_MANUAL_DEPLOY                   _UxGT("Z-Sensor anbringen")
+#define MSG_MANUAL_STOW                     _UxGT("Z-Sensor entfernen")
 #define MSG_HOME                            _UxGT("Vorher")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("homen")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Versatz")

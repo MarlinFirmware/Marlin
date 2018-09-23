@@ -28,6 +28,8 @@
 
 #if HAS_BED_PROBE
 
+#include "../libs/buzzer.h"
+
 #include "probe.h"
 #include "motion.h"
 #include "temperature.h"
@@ -377,7 +379,8 @@ bool set_probe_deployed(const bool deploy) {
 
   // Make room for probe to deploy (or stow)
   // Fix-mounted probe should only raise for deploy
-  #if ENABLED(FIX_MOUNTED_PROBE)
+  // unless MANUAL_DEPLOY_STOW is enabled
+  #if ENABLED(FIX_MOUNTED_PROBE) && DISABLED(MANUAL_DEPLOY_STOW)
     const bool deploy_stow_condition = deploy;
   #else
     constexpr bool deploy_stow_condition = true;
@@ -439,6 +442,26 @@ bool set_probe_deployed(const bool deploy) {
       #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
         deploy ? run_deploy_moves_script() : run_stow_moves_script();
+
+      #elif ENABLED(MANUAL_DEPLOY_STOW)
+
+        do_probe_raise(Z_CLEARANCE_DEPLOY_PROBE);
+
+        #if PIN_EXISTS(BEEPER) || ENABLED(LCD_USE_I2C_BUZZER)
+          BUZZ(100, 659);
+          BUZZ(100, 698);
+        #endif
+
+        const char * const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
+        lcd_setalertstatusPGM(ds_str);
+        serialprintPGM(ds_str);
+        SERIAL_EOL();
+
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        wait_for_user = true;
+        while (wait_for_user) idle();
+        lcd_reset_status();
+        KEEPALIVE_STATE(IN_HANDLER);
 
       #endif
 
