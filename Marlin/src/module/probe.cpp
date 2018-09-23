@@ -447,10 +447,8 @@ bool set_probe_deployed(const bool deploy) {
 
         do_probe_raise(Z_CLEARANCE_DEPLOY_PROBE);
 
-        #if PIN_EXISTS(BEEPER) || ENABLED(LCD_USE_I2C_BUZZER)
-          BUZZ(100, 659);
-          BUZZ(100, 698);
-        #endif
+        BUZZ(100, 659);
+        BUZZ(100, 698);
 
         const char * const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
         lcd_setalertstatusPGM(ds_str);
