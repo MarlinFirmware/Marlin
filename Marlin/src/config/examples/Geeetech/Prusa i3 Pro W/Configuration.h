@@ -753,6 +753,9 @@
  *   (e.g., an inductive probe or a nozzle-based probe-switch.)
  */
 //#define FIX_MOUNTED_PROBE
+#if ENABLED(FIX_MOUNTED_PROBE)
+  //#define MANUAL_DEPLOY_STOW
+#endif
 
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
