@@ -813,7 +813,7 @@
 #ifndef MSG_MANUAL_DEPLOY
   #define MSG_MANUAL_DEPLOY                   _UxGT("Deploy Z-Probe")
 #endif
-#ifndef MSG_MANUAL_STOW 
+#ifndef MSG_MANUAL_STOW
   #define MSG_MANUAL_STOW                     _UxGT("Stow Z-Probe")
 #endif
 #ifndef MSG_HOME

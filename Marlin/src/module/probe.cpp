@@ -446,25 +446,23 @@ bool set_probe_deployed(const bool deploy) {
       #elif ENABLED(MANUAL_DEPLOY_STOW)
 
         do_probe_raise(Z_CLEARANCE_DEPLOY_PROBE);
-        
-        if (deploy) {
-          SERIAL_ECHOLNPGM(MSG_MANUAL_DEPLOY);
-          LCD_ALERTMESSAGEPGM(MSG_MANUAL_DEPLOY);
-        }
-        else {
-          SERIAL_ECHOLNPGM(MSG_MANUAL_STOW);
-          LCD_ALERTMESSAGEPGM(MSG_MANUAL_STOW);
-        }
-        lcd_quick_feedback(true);
+
         #if PIN_EXISTS(BEEPER) || ENABLED(LCD_USE_I2C_BUZZER)
           BUZZ(100, 659);
           BUZZ(100, 698);
         #endif
+
+        const char * const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
+        lcd_setalertstatusPGM(ds_str);
+        serialprintPGM(ds_str);
+        SERIAL_EOL();
+
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         wait_for_user = true;
         while (wait_for_user) idle();
         lcd_reset_status();
         KEEPALIVE_STATE(IN_HANDLER);
+
       #endif
 
   #ifdef _TRIGGERED_WHEN_STOWED_TEST
