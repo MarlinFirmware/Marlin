@@ -42,6 +42,13 @@ env.VariantDir('i686', 'src', duplicate=0)
 add_program(env, 'i686')
 
 env = Environment(
+    CXX='mipsel-linux-gnu-g++',
+    CPPFLAGS= '-Wall -static -std=gnu++14 -MMD ' + debug_flags,
+    LINKFLAGS='-Wall -static -std=gnu++14 ' + debug_flags)
+env.VariantDir('mips', 'src', duplicate=0)
+add_program(env, 'mips')
+
+env = Environment(
     CXX='arm-linux-gnueabi-g++',
     CPPFLAGS= '-Wall -static -std=gnu++11 -march=armv7 -mlittle-endian -MMD ' + debug_flags,
     LINKFLAGS='-Wall -static -std=gnu++11 -march=armv7 -mlittle-endian ' + debug_flags)
