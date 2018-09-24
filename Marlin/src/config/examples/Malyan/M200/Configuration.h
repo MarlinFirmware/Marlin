@@ -875,6 +875,7 @@
 #define DISABLE_X true
 #define DISABLE_Y true
 #define DISABLE_Z true
+
 // Warn on display about possibly reduced accuracy
 //#define DISABLE_REDUCED_ACCURACY_WARNING
 
