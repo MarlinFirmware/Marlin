@@ -246,10 +246,10 @@ void Endstops::poll() {
     run_monitor();  // report changes in endstop status
   #endif
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && ENABLED(ENDSTOP_NOISE_FILTER)
-    if (endstop_poll_count) update();
-  #elif DISABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(ENDSTOP_NOISE_FILTER)
+  #if DISABLED(ENDSTOP_INTERRUPTS_FEATURE)
     update();
+  #elif ENABLED(ENDSTOP_NOISE_FILTER)
+    if (endstop_poll_count) update();
   #endif
 }
 
@@ -275,7 +275,16 @@ void Endstops::not_homing() {
   enabled = enabled_globally;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    update();
+    // Still 'enabled'? Then endstops are always on and kept in sync.
+    // Otherwise reset 'live's variables to let axes move in both directions.
+    if (!enabled) {
+      #if ENABLED(ENDSTOP_NOISE_FILTER)
+        endstop_poll_count = validated_live_state = 0; // Stop filtering
+      #endif
+      live_state = 0;
+    }
+  //#else
+    // When in polling endstops are always kept in sync
   #endif
 }
 
@@ -666,7 +675,7 @@ void Endstops::update() {
     if (triple_hit) { \
       _ENDSTOP_HIT(AXIS1, MINMAX); \
       /* if not performing home or if both endstops were trigged during homing... */ \
-      if (!stepper.separate_multi_axis || triple_hit == 0x7) \
+      if (!stepper.separate_multi_axis || triple_hit == 0b111) \
         planner.endstop_triggered(_AXIS(AXIS1)); \
     } \
   }while(0)
