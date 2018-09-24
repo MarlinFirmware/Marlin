@@ -1320,7 +1320,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
           if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
 
 
-            #if ENABLED(INDEPENDENT_Z_OFFSETS)
+            #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
               if (active_extruder == 0)
               {
                 thermalManager.babystep_axis(Z_AXIS, babystep_increment);
@@ -1329,16 +1329,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
                   thermalManager.babystep_axis(Z_AXIS, babystep_increment);
                   hotend_offset[Z_AXIS][active_extruder] -= (planner.steps_to_mm[Z_AXIS] * babystep_increment);
                 }
-              //dxc_zprobe_zoffset[active_extruder] = new_zoffset;
             #else
-
               zprobe_zoffset = new_zoffset;
             #endif
             lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           }
         }
         if (lcdDrawUpdate) {
-          #if ENABLED(INDEPENDENT_Z_OFFSETS)
+          #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
             if (active_extruder == 0) {
               lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
             } else {

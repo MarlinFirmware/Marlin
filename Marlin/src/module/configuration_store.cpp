@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V59"
+#define EEPROM_VERSION "V58"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -154,13 +154,7 @@ typedef struct SettingsDataStruct {
   // HAS_BED_PROBE
   //
 
-  float
-    #if DISABLED(INDEPENDENT_Z_OFFSETS)
-      zprobe_zoffset                                    // M851 Z
-    #else
-      dxc_zprobe_zoffset[2]
-    #endif
-  ;
+  float zprobe_zoffset;
 
   //
   // ABL_PLANAR
@@ -505,13 +499,8 @@ void MarlinSettings::postprocess() {
       const float zprobe_zoffset = 0;
     #endif
 
-    #if ENABLED(INDEPENDENT_Z_OFFSETS)
-      _FIELD_TEST(dxc_zprobe_zoffset);
-      EEPROM_WRITE(dxc_zprobe_zoffset);
-    #else
       _FIELD_TEST(zprobe_zoffset);
       EEPROM_WRITE(zprobe_zoffset);
-    #endif
 
     //
     // Planar Bed Leveling matrix
@@ -1196,14 +1185,8 @@ void MarlinSettings::postprocess() {
         float zprobe_zoffset;
       #endif
 
-      #if ENABLED(INDEPENDENT_Z_OFFSETS)
-        _FIELD_TEST(dxc_zprobe_zoffset);
-        EEPROM_READ(dxc_zprobe_zoffset);
-        zprobe_zoffset = dxc_zprobe_zoffset[active_extruder];
-      #else
         _FIELD_TEST(zprobe_zoffset);
         EEPROM_READ(zprobe_zoffset);
-      #endif
 
       //
       // Planar Bed Leveling matrix
@@ -1923,10 +1906,6 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   #if HAS_BED_PROBE
     zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
-  #endif
-
-  #if ENABLED(INDEPENDENT_Z_OFFSETS)
-    dxc_zprobe_zoffset[0] = dxc_zprobe_zoffset[1] = zprobe_zoffset;
   #endif
 
   //

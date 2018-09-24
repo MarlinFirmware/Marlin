@@ -373,10 +373,6 @@
       // without modifying the firmware (through the "M218 T1 X???" command).
       // Remember: you should set the second extruder x-offset to 0 in your slicer.
 
-  // A separate Z offset for X2, allowing compensation for tools at different heights.
-  // Ignored in Duplicate mode, where the default Z probe offset will be used.
-  //#define INDEPENDENT_Z_OFFSETS
-
   // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
   //    Mode 0 (DXC_FULL_CONTROL_MODE): Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
   //                                    as long as it supports dual x-carriages. (M605 S0)
@@ -779,6 +775,10 @@
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
                                         // Note: Extra time may be added to mitigate controller latency.
   //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
+
+  // Allow babystepping tool z offsets, allowing compensation for tools at different heights.
+  // Ignored in Independent X Carriage Duplicate mode, where tool 0 Z probe offset will be used.
+  //#define BABYSTEP_HOTEND_Z_OFFSET
 #endif
 
 // @section extruder

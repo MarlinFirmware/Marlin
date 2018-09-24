@@ -31,9 +31,6 @@
 
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
-  #if ENABLED(INDEPENDENT_Z_OFFSETS)
-    extern float dxc_zprobe_zoffset[2];
-  #endif
   bool set_probe_deployed(const bool deploy);
   #ifdef Z_AFTER_PROBING
     void move_z_after_probing();

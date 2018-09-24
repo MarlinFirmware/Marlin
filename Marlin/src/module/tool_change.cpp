@@ -608,10 +608,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       planner.synchronize();
 
-      #if ENABLED(INDEPENDENT_Z_OFFSETS)
-        //zprobe_zoffset = dxc_zprobe_zoffset[active_extruder];
-      #endif
-
       #if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
         disable_all_solenoids();
         enable_solenoid_on_active_extruder();

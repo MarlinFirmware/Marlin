@@ -52,10 +52,6 @@
 
 float zprobe_zoffset; // Initialized by settings.load()
 
-#if ENABLED(INDEPENDENT_Z_OFFSETS)
-  float dxc_zprobe_zoffset[2];
-#endif
-
 #if HAS_Z_SERVO_PROBE
   #include "../module/servo.h"
 #endif
