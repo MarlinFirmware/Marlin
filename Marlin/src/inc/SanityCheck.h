@@ -307,6 +307,8 @@
   #error "MAX7219_DEBUG_STEPPER_TAIL is now MAX7219_DEBUG_PLANNER_TAIL. Please update your configuration."
 #elif defined(MAX7219_DEBUG_STEPPER_QUEUE)
   #error "MAX7219_DEBUG_STEPPER_QUEUE is now MAX7219_DEBUG_PLANNER_QUEUE. Please update your configuration."
+#elif defined(ENDSTOP_NOISE_FILTER)
+  #error "ENDSTOP_NOISE_FILTER is now ENDSTOP_NOISE_THRESHOLD [2-7]. Please update your configuration."
 #endif
 
 #define BOARD_MKS_13     -47
@@ -1505,6 +1507,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #endif
 #endif
 
+#if defined(ENDSTOP_NOISE_THRESHOLD) && !WITHIN(ENDSTOP_NOISE_THRESHOLD, 2, 7)
+  #error "ENDSTOP_NOISE_THRESHOLD must be an integer from 2 to 7."
+#endif
+
 /**
  * emergency-command parser
  */
@@ -1726,8 +1732,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "SENSORLESS_HOMING requires Z_MIN_ENDSTOP_INVERTING and ENDSTOPPULLUP_ZMIN when homing to Z_MIN."
   #elif Z_SENSORLESS && Z_HOME_DIR ==  1 && (DISABLED(Z_MAX_ENDSTOP_INVERTING) || DISABLED(ENDSTOPPULLUP_ZMAX))
     #error "SENSORLESS_HOMING requires Z_MAX_ENDSTOP_INVERTING and ENDSTOPPULLUP_ZMAX when homing to Z_MAX."
-  #elif ENABLED(ENDSTOP_NOISE_FILTER)
-    #error "SENSORLESS_HOMING is incompatible with ENDSTOP_NOISE_FILTER."
+  #elif ENDSTOP_NOISE_THRESHOLD
+    #error "SENSORLESS_HOMING is incompatible with ENDSTOP_NOISE_THRESHOLD."
   #endif
 #endif
 
