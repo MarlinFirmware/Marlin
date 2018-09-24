@@ -83,7 +83,7 @@
 #define BOARD_TRIGORILLA_13     343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
 #define BOARD_TRIGORILLA_14     443   // TriGorilla Anycubic version 1.4 based on RAMPS EFB
 #define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
-
+#define BOARD_GT2560_V3_0       76    // Geeetech  A10
 //
 // Other ATmega1280, ATmega2560
 //
