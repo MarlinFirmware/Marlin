@@ -275,15 +275,15 @@ void Endstops::not_homing() {
   enabled = enabled_globally;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    // if is still 'enabled' then it means endstops are always on and are kept in sync
-    // Otherwise I need to reset 'live's variables to let axes move in both directions.
+    // Still 'enabled'? Then endstops are always on and kept in sync.
+    // Otherwise reset 'live's variables to let axes move in both directions.
     if (!enabled) {
       #if ENABLED(ENDSTOP_NOISE_FILTER)
         endstop_poll_count = 0;     // Stop filtering
         validated_live_state = 0;
       #endif
       live_state = 0;
-      }
+    }
   //#else
     // When in polling endstops are always kept in sync
   #endif
