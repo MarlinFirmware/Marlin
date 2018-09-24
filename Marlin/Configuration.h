@@ -606,9 +606,22 @@
  * Endstop Noise Filter
  *
  * Enable this option if endstops falsely trigger due to noise.
+ *
  * NOTE: Enabling this feature means adds an error of +/-0.2mm, so homing
  * will end up at a slightly different position on each G28. This will also
  * reduce accuracy of some bed probes.
+ *
+ * NOTE: Above note is inaccurate.
+ * The point where the endstop/probe will trigger is shifted by
+ * 'ENDSTOP_NOISE_FILTER_LEVEL * Z_PROBE_SPEED_SLOW * STEPS_PER_UNIT / 1000ms/s'
+ * steps. Usually that does not matter much. The difference can be calibrated away.
+ * What matters, is jitter in the 1ms timer interrupt caused by the load of other
+ * interrupts, delaying it. We have observed delays up to nearly one ms. Keeping
+ * the interrupt load low by, stepping slow, not sending or receiving high amounts
+ * of data over the serial line, not using SPI or I2C devices, during homing/probing,
+ * does not help to completely avoid this jitter, but to reduce it. Stepping slow
+ * does help most! This jitter does not add up with the number of filter loops!
+ *
  * For mechanical switches, the better approach to reduce noise is to install
  * a 100 nanofarads ceramic capacitor in parallel with the switch, making it
  * essentially noise-proof without sacrificing accuracy.
@@ -617,7 +630,10 @@
  * (This feature is not required for common micro-switches mounted on PCBs
  * based on the Makerbot design, since they already include the 100nF capacitor.)
  */
-//#define ENDSTOP_NOISE_FILTER
+#define ENDSTOP_NOISE_FILTER
+#ifdef ENDSTOP_NOISE_FILTER
+  ENDSTOP_NOISE_FILTER_LEVEL 2
+#endif
 
 //=============================================================================
 //============================== Movement Settings ============================

@@ -246,9 +246,9 @@ void Endstops::poll() {
     run_monitor();  // report changes in endstop status
   #endif
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && ENABLED(ENDSTOP_NOISE_FILTER)
+  #if ENABLED(ENDSTOP_NOISE_FILTER) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     if (endstop_poll_count) update();
-  #elif DISABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(ENDSTOP_NOISE_FILTER)
+  #elif ENABLED(ENDSTOP_NOISE_FILTER) || DISABLED(ENDSTOP_INTERRUPTS_FEATURE)
     update();
   #endif
 }
@@ -623,10 +623,25 @@ void Endstops::update() {
      * reduces chances of bad readings in half, at the cost of 1 extra sample period, but chances
      * still exist. The only way to reduce them further is to increase the number of samples.
      * To reduce the chance to 1% (1/128th) requires 7 samples (adding 7ms of delay).
+     *
+     * The above assumption is unrealistic. If 50% of the samples gives the one value and 50% the
+     * other you can't get a a valid decision: You can only get a random decision because you
+     * randomly got 7 consecutive readings being the same.
+     * A usable, but noisy, signal has usually rare single pulses into the other level. The
+     * probability to catch them in an interrupt is still extremely high. We often see only one
+     * or at most a few of them during a homing process. Nerveless these false positives do ruin
+     * that homing. If the endstops are always on, a single pulse can ruin our part. A move is 
+     * stopped before its end. This will look like random layer shifting.
+     * So we need some filtering. Experience from the last years shows, one further test is
+     * usually enough. The probability to pass two consecutive tests is nearly zero when we
+     * have only a few pulses per second. Catching any pulse by polling is very unlikely.
+     * Catching two consecrative ones is neatly impossible.
+     *
+     * ENDSTOP_NOISE_FILTER_LEVEL defaults to 2. If that is really not enough - increase.
      */
     static esbits_t old_live_state;
     if (old_live_state != live_state) {
-      endstop_poll_count = 7;
+      endstop_poll_count = ENDSTOP_NOISE_FILTER_LEVEL;
       old_live_state = live_state;
     }
     else if (endstop_poll_count && !--endstop_poll_count)
