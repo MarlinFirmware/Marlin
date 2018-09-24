@@ -427,8 +427,6 @@ bool set_probe_deployed(const bool deploy) {
 
       #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
 
-        do_probe_raise(Z_CLEARANCE_DEPLOY_PROBE);
-
         BUZZ(100, 659);
         BUZZ(100, 698);
 
