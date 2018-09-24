@@ -153,7 +153,8 @@ typedef struct SettingsDataStruct {
   //
   // HAS_BED_PROBE
   //
-  float zprobe_zoffset;                                 // M851 Z
+
+  float zprobe_zoffset;
 
   //
   // ABL_PLANAR
@@ -494,12 +495,12 @@ void MarlinSettings::postprocess() {
       for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummy);
     #endif // MESH_BED_LEVELING
 
-    _FIELD_TEST(zprobe_zoffset);
-
     #if !HAS_BED_PROBE
       const float zprobe_zoffset = 0;
     #endif
-    EEPROM_WRITE(zprobe_zoffset);
+
+      _FIELD_TEST(zprobe_zoffset);
+      EEPROM_WRITE(zprobe_zoffset);
 
     //
     // Planar Bed Leveling matrix
@@ -1180,12 +1181,12 @@ void MarlinSettings::postprocess() {
         for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummy);
       #endif // MESH_BED_LEVELING
 
-      _FIELD_TEST(zprobe_zoffset);
-
       #if !HAS_BED_PROBE
         float zprobe_zoffset;
       #endif
-      EEPROM_READ(zprobe_zoffset);
+
+        _FIELD_TEST(zprobe_zoffset);
+        EEPROM_READ(zprobe_zoffset);
 
       //
       // Planar Bed Leveling matrix

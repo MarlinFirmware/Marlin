@@ -775,6 +775,10 @@
   #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
                                         // Note: Extra time may be added to mitigate controller latency.
   //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
+
+  // Allow babystepping tool z offsets, allowing compensation for tools at different heights.
+  // Ignored in Independent X Carriage Duplicate mode, where tool 0 Z probe offset will be used.
+  //#define BABYSTEP_HOTEND_Z_OFFSET
 #endif
 
 // @section extruder

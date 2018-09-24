@@ -46,6 +46,7 @@
     #include "../module/motion.h" // for active_extruder
   #endif
 
+  void lcd_return_to_status();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatusPGM(const char* message, const int8_t level=0);

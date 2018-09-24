@@ -1317,15 +1317,35 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
           const float new_zoffset = zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * babystep_increment;
           if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-            thermalManager.babystep_axis(Z_AXIS, babystep_increment);
-            zprobe_zoffset = new_zoffset;
+
+
+            #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+              if (active_extruder == 0)
+              {
+                thermalManager.babystep_axis(Z_AXIS, babystep_increment);
+                zprobe_zoffset = new_zoffset;
+              } else {
+                  thermalManager.babystep_axis(Z_AXIS, babystep_increment);
+                  hotend_offset[Z_AXIS][active_extruder] -= (planner.steps_to_mm[Z_AXIS] * babystep_increment);
+                }
+            #else
+              zprobe_zoffset = new_zoffset;
+            #endif
             lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           }
         }
         if (lcdDrawUpdate) {
-          lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+          #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+            if (active_extruder == 0) {
+              lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+            } else {
+              lcd_implementation_drawedit(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
+            }
+          #endif
           #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-            _lcd_zoffset_overlay_gfx(zprobe_zoffset);
+            if (active_extruder == 0) {
+              _lcd_zoffset_overlay_gfx(zprobe_zoffset);
+            }
           #endif
         }
       }
