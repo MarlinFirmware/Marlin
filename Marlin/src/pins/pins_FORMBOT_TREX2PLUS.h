@@ -143,15 +143,12 @@
 #define HEATER_BED_PIN     58
 
 #define FAN_PIN             9
-#if(DISABLED(FILAMENT_RUNOUT_SENSOR))
-  // Though defined as a fan pin, it is utilized as a dedicated laser pin by Formbot. May
-  // swapped plug and play with a fil;ament runout sensor.
-  #define FAN1_PIN            4 
-#endif
-
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define FIL_RUNOUT_PIN   4
+  #define FIL_RUNOUT_PIN    4
   //#define FIL_RUNOUT2_PIN  -1
+#else
+  // Though defined as a fan pin, it is utilized as a dedicated laser pin by Formbot.
+  #define FAN1_PIN          4
 #endif
 
 //

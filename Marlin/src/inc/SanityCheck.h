@@ -312,12 +312,15 @@
 #define BOARD_MKS_13     -47
 #define BOARD_TRIGORILLA -343
 #define BOARD_RURAMPS4D  -1550
+#define BOARD_FORMBOT_TREX2 -81
 #if MB(MKS_13)
   #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
-#elif MB(BOARD_TRIGORILLA)
+#elif MB(TRIGORILLA)
   #error "BOARD_TRIGORILLA has been renamed BOARD_TRIGORILLA_13. Please update your configuration."
-#elif MB(BOARD_RURAMPS4D)
+#elif MB(RURAMPS4D)
   #error "BOARD_RURAMPS4D has been renamed BOARD_RURAMPS4D_11. Please update your configuration."
+#elif MB(FORMBOT_TREX2)
+  #error "FORMBOT_TREX2 has been renamed BOARD_FORMBOT_TREX2PLUS. Please update your configuration."
 #endif
 
 /**
@@ -515,6 +518,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a Graphical LCD."
   #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a BABYSTEP_ZPROBE_OFFSET."
+  #elif ENABLED(BABYSTEP_HOTEND_Z_OFFSET) && !HAS_HOTEND_OFFSET
+    #error "BABYSTEP_HOTEND_Z_OFFSET requires 2 or more HOTENDS."
   #endif
 #endif
 

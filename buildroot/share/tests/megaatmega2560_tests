@@ -54,7 +54,7 @@ exec_test $1 $2 "Probeless build of AUTO_BED_LEVELING_UBL, with lots of extruder
 opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
 opt_set LCD_LANGUAGE jp-kana
 opt_disable SEGMENT_LEVELED_MOVES
-opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING
+opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING BABYSTEP_HOTEND_Z_OFFSET
 exec_test $1 $2 "Add a Sled Z Probe, use UBL Cartesian moves, use Japanese language"
 #
 # Test a Servo Probe
