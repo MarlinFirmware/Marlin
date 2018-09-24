@@ -578,7 +578,7 @@ static uint32_t ee_GetAddrRange(uint32_t address, bool excludeRAMBuffer = false)
 static bool ee_IsPageClean(int page) {
   uint32_t* pflash = (uint32_t*) getFlashStorage(page);
   for (uint16_t i = 0; i < (PageSize >> 2); ++i)
-    if (*pflash++ != 0xFFFFFFFF) eturn false;
+    if (*pflash++ != 0xFFFFFFFF) return false;
   return true;
 }
 

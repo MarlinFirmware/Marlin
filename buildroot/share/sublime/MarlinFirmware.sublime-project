@@ -2,6 +2,17 @@
 	"folders":
 	[
 		{
+			"folder_exclude_patterns":
+			[
+				".pio*",
+				"MarlinFirmware/lib",
+				"Marlin/lib",
+				"datatmp",
+				"Marlin/*/src",
+				".vscode"
+			],
+			"binary_file_patterns":
+			[ "*.png", "*.jpg", "*.jpeg", "*.bdf", "*.patch", "avrdude_5.*", "*.svg" ],
 			"file_exclude_patterns":
 			[
 				"Marlin/platformio.ini",
@@ -10,16 +21,6 @@
 				"Marlin/*/platformio.ini",
 				"Marlin/*/.travis.yml",
 				"Marlin/*/.gitignore"
-			],
-			"folder_exclude_patterns":
-			[
-				".pio*",
-				"MarlinFirmware/lib",
-				"Marlin/lib",
-				"src/lib",
-				"datatmp",
-				"Marlin/*/src",
-				".vscode"
 			],
 			"path": "../../.."
 		}

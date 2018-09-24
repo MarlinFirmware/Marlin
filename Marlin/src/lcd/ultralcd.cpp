@@ -71,7 +71,6 @@
   #include "../feature/leds/leds.h"
 #endif
 
-// For i2c define BUZZ to use lcd_buzz
 #if DISABLED(LCD_USE_I2C_BUZZER)
   #include "../libs/buzzer.h"
 #endif
