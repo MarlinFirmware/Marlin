@@ -279,8 +279,7 @@ void Endstops::not_homing() {
     // Otherwise reset 'live's variables to let axes move in both directions.
     if (!enabled) {
       #if ENABLED(ENDSTOP_NOISE_FILTER)
-        endstop_poll_count = 0;     // Stop filtering
-        validated_live_state = 0;
+        endstop_poll_count = validated_live_state = 0; // Stop filtering
       #endif
       live_state = 0;
     }
