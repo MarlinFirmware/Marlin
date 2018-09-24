@@ -875,9 +875,6 @@
  */
 #if ANYCUBIC_PROBE_VERSION > 0
   #define FIX_MOUNTED_PROBE
-#if ENABLED(FIX_MOUNTED_PROBE)
-  #define MANUAL_DEPLOY_STOW
-#endif
 #endif
 
 /**
@@ -1024,6 +1021,9 @@
 #if ANYCUBIC_PROBE_VERSION > 0
   #define Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
+
+// Before deploy/stow pause for user confirmation
+#define PAUSE_BEFORE_DEPLOY_STOW
 
 /**
  * Enable one or more of the following if probing seems unreliable.
