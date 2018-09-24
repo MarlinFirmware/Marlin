@@ -1182,6 +1182,9 @@
 #define HOMING_FEEDRATE_XY 2000
 #define HOMING_FEEDRATE_Z  150
 
+// Validate that endstops are triggered on homing moves
+#define VALIDATE_HOMING_ENDSTOPS
+
 // @section calibrate
 
 /**

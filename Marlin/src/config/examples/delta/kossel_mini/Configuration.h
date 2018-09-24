@@ -1311,6 +1311,9 @@
 // Delta only homes to Z
 #define HOMING_FEEDRATE_Z  (200*60)
 
+// Validate that endstops are triggered on homing moves
+#define VALIDATE_HOMING_ENDSTOPS
+
 // @section calibrate
 
 /**
