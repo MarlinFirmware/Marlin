@@ -279,12 +279,11 @@ void Endstops::not_homing() {
     // Otherwise reset 'live's variables to let axes move in both directions.
     if (!enabled) {
       #if ENDSTOP_NOISE_THRESHOLD
-        endstop_poll_count = validated_live_state = 0; // Stop filtering
+        endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
+        validated_live_state = 0;
       #endif
       live_state = 0;
     }
-  //#else
-    // When in polling endstops are always kept in sync
   #endif
 }
 
