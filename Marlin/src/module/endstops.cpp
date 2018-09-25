@@ -45,7 +45,7 @@ volatile uint8_t Endstops::hit_state;
 
 Endstops::esbits_t Endstops::live_state = 0;
 
-#if ENABLED(ENDSTOP_NOISE_FILTER)
+#if ENDSTOP_NOISE_THRESHOLD
   Endstops::esbits_t Endstops::validated_live_state;
   uint8_t Endstops::endstop_poll_count;
 #endif
@@ -479,7 +479,7 @@ void _O2 Endstops::M119() {
 // Check endstops - Could be called from Temperature ISR!
 void Endstops::update() {
 
-  #if DISABLED(ENDSTOP_NOISE_FILTER)
+  #if !ENDSTOP_NOISE_THRESHOLD
     if (!abort_enabled()) return;
   #endif
 
@@ -622,7 +622,8 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if ENABLED(ENDSTOP_NOISE_FILTER)
+  #if ENDSTOP_NOISE_THRESHOLD
+
     /**
      * Filtering out noise on endstops requires a delayed decision. Let's assume, due to noise,
      * that 50% of endstop signal samples are good and 50% are bad (assuming normal distribution
@@ -635,7 +636,7 @@ void Endstops::update() {
      */
     static esbits_t old_live_state;
     if (old_live_state != live_state) {
-      endstop_poll_count = 7;
+      endstop_poll_count = ENDSTOP_NOISE_THRESHOLD;
       old_live_state = live_state;
     }
     else if (endstop_poll_count && !--endstop_poll_count)
