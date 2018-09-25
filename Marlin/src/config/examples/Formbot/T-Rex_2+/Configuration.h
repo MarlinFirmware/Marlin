@@ -327,7 +327,7 @@
 #define TEMP_SENSOR_4 0
 #define TEMP_SENSOR_5 0
 
-#if(ENABLED(ROXYs_TRex))
+#ifdef ROXYs_TRex
   #define TEMP_SENSOR_BED 11
 #else
 #define TEMP_SENSOR_BED 0
@@ -398,7 +398,7 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
-  #if(ENABLED(ROXYs_TRex))
+  #ifdef ROXYs_TRex
     // Roxy's T-Rex 2+
     #define DEFAULT_Kp 15.17
     #define DEFAULT_Ki 0.88
@@ -455,7 +455,7 @@
 
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
-  #if(ENABLED(ROXYs_TRex))
+  #ifdef ROXYs_TRex
     // T-Rex 2+
     #define DEFAULT_bedKp 289.73
     #define DEFAULT_bedKi 51.26
@@ -953,7 +953,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS 450
 #define Y_MAX_POS Y_BED_SIZE
-#if(ENABLED(tallVersion))
+#if ENABLED(tallVersion)
   #define Z_MAX_POS 700
 #else
   #define Z_MAX_POS 500
