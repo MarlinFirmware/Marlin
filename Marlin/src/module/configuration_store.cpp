@@ -678,7 +678,12 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(autoretract_enabled);
       EEPROM_WRITE(autoretract_defaults);
     #else
-      EEPROM_WRITE(fwretract.autoretract_enabled);
+      #if DISABLED(FWRETRACT_AUTORETRACT)
+        const bool autoretract_enabled = false;
+        EEPROM_WRITE(autoretract_enabled);
+      #else
+        EEPROM_WRITE(fwretract.autoretract_enabled);
+      #endif
       EEPROM_WRITE(fwretract.retract_length);
       EEPROM_WRITE(fwretract.retract_feedrate_mm_s);
       EEPROM_WRITE(fwretract.retract_zlift);
@@ -1070,7 +1075,7 @@ void MarlinSettings::postprocess() {
     }
     else {
       float dummy = 0;
-      #if DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(FWRETRACT) || ENABLED(NO_VOLUMETRICS)
+      #if DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(FWRETRACT) || DISABLED(FWRETRACT_AUTORETRACT) || ENABLED(NO_VOLUMETRICS)
         bool dummyb;
       #endif
 
@@ -1374,7 +1379,11 @@ void MarlinSettings::postprocess() {
       //
 
       #if ENABLED(FWRETRACT)
-        EEPROM_READ(fwretract.autoretract_enabled);
+        #if DISABLED(FWRETRACT_AUTORETRACT)
+          EEPROM_READ(dummyb);
+        #else
+          EEPROM_READ(fwretract.autoretract_enabled);
+        #endif
         EEPROM_READ(fwretract.retract_length);
         EEPROM_READ(fwretract.retract_feedrate_mm_s);
         EEPROM_READ(fwretract.retract_zlift);

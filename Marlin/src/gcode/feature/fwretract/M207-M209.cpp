@@ -63,11 +63,13 @@ void GcodeSuite::M208() {
  *   moves will be classified as retraction.
  */
 void GcodeSuite::M209() {
-  if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
-    if (parser.seen('S')) {
-      fwretract.enable_autoretract(parser.value_bool());
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
+      if (parser.seen('S')) {
+        fwretract.enable_autoretract(parser.value_bool());
+      }
     }
-  }
+  #endif
 }
 
 #endif // FWRETRACT
