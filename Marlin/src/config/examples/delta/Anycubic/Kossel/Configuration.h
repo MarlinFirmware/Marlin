@@ -668,7 +668,11 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#if ANYCUBIC_PROBE_VERSION == 1
+  #define Z_MIN_ENDSTOP_INVERTING false  // V1 Probe is NC
+#elif ANYCUBIC_PROBE_VERSION == 2
+  #define Z_MIN_ENDSTOP_INVERTING true  // V2 Probe is NO
+#endif
 #define X_MAX_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
