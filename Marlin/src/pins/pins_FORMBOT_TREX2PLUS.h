@@ -143,6 +143,7 @@
 #define HEATER_BED_PIN     58
 
 #define FAN_PIN             9
+
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_PIN    4
   //#define FIL_RUNOUT2_PIN  -1
