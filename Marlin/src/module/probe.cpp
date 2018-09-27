@@ -431,7 +431,7 @@ bool set_probe_deployed(const bool deploy) {
         BUZZ(100, 698);
 
         const char * const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
-        lcd_setalertstatusPGM(ds_str);
+        lcd_setstatusPGM(ds_str);
         serialprintPGM(ds_str);
         SERIAL_EOL();
 
