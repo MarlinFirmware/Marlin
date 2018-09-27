@@ -79,7 +79,8 @@
  * under the stepper driver! Plug-and-play results in StealthChop 2 being enabled.
  * Stealthchop with TMC2208 on E will disable Linear Advance!
  * Enable SpreadCycle to use Linear Advance with a TMC2208 on the extruder!
- * If a UART connection was used to set the driver to SpreadCycle mode, please select that as well.
+ * These options assume configuration with OTP bits.
+ * If a UART connection is used to configure the driver, please select that as well in Configuration_adv.h.
  */
 //#define X_2208
 //#define X_SpreadCycle
