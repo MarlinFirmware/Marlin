@@ -438,6 +438,8 @@ bool set_probe_deployed(const bool deploy) {
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         wait_for_user = true;
         while (wait_for_user) idle();
+        lcd_reset_alert_level();
+        lcd_quick_feedback(true);
         lcd_reset_status();
         KEEPALIVE_STATE(IN_HANDLER);
 
