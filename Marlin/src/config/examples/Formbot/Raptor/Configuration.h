@@ -1,47 +1,3 @@
-// CUSTOMIZE FOR YOUR MACHINE BELOW
-// CUSTOMIZE FOR YOUR MACHINE BELOW
-// CUSTOMIZE FOR YOUR MACHINE BELOW
-// CUSTOMIZE FOR YOUR MACHINE BELOW
-// CUSTOMIZE FOR YOUR MACHINE BELOW
-
-/**
- * Enable if you replace the stepper drivers with TMC 2208. Be sure to remove MS3 jumper
- * underneath the stepper driver! Plug and Play will result in Stealth Chop 2 Mode enabled
- * Stealthchop with 2208 on E will disabe inear Advance! Please enable stealthchop if
- * you require Linear Advance with a TMC2208 on the extruder!
- * If you have used a UART connection to program the driver to SpreadCycle mode, pease seect that as well
- */
-//#define X_2208
-//#define X_SpreadCycle
-//#define Y_2208
-//#define Y_SpreadCyclebed
-//#define E_2208
-//#define E_SpreadCycle
-
-
-/**
- * Enable if you install a KEENOVO AC BED with Solid State Relay
- */
-//#define BED_AC
-
-//#define HotendAllMetal
-/**
- * Enable if you install a filament runout sensor from www.formbotusa.com
- */
-//#define RunoutSensor
-
-/**
- * Enable if you wish to change the auto level strategy to Unified Bed Leveling. Under CUSTOM COMMANDS, run Step 1 and 2 before setting Z Offset
- */
-//#define UBL
-
-//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
-//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
-//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
-//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
-//ONLY MAKE CHANGES ABOVE FOR RELIABLE FUNCTION
-
-
 /**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -112,6 +68,46 @@
 // For a SCARA printer start with the configuration files in
 // config/examples/SCARA and customize for your machine.
 //
+
+// vvvvvv CUSTOMIZE FOR YOUR MACHINE vvvvvv
+
+// Change only the flags in this section.
+// Further customizations have not been tested.
+
+/**
+ * Enable if you replace the stepper drivers with TMC2208. Be sure to remove MS3 jumper
+ * under the stepper driver! Plug and Play will result in Stealth Chop 2 Mode enabled
+ * Stealthchop with TMC2208 on E will disable Linear Advance!
+ * Enable stealthchop to use Linear Advance with a TMC2208 on the extruder!
+ * If a UART connection was used to set the driver to SpreadCycle mode, please select that as well.
+ */
+//#define X_2208
+//#define X_SpreadCycle
+//#define Y_2208
+//#define Y_SpreadCyclebed
+//#define E_2208
+//#define E_SpreadCycle
+
+
+/**
+ * Enable if you install a KEENOVO AC BED with Solid State Relay
+ */
+//#define BED_AC
+
+//#define HotendAllMetal
+/**
+ * Enable if you install a filament runout sensor from www.formbotusa.com
+ */
+//#define RunoutSensor
+
+/**
+ * Enable if you wish to select Unified Bed Leveling.
+ * Under CUSTOM COMMANDS, run Step 1 and 2 before setting Z Offset.
+ */
+//#define UBL
+
+// ^^^^^^ CUSTOMIZE FOR YOUR MACHINE ^^^^^^
+
 
 // @section info
 
@@ -362,10 +358,10 @@
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
 #define TEMP_SENSOR_5 0
-#if(ENABLED(BED_AC))
-#define TEMP_SENSOR_BED 11
+#if ENABLED(BED_AC)
+  #define TEMP_SENSOR_BED 11
 #else
-#define TEMP_SENSOR_BED 1
+  #define TEMP_SENSOR_BED 1
 #endif
 #define TEMP_SENSOR_CHAMBER 0
 
@@ -406,10 +402,10 @@
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275
-#if(ENABLED(BED_AC))
-#define BED_MAXTEMP 150
+#if ENABLED(BED_AC)
+  #define BED_MAXTEMP 150
 #else
-#define BED_MAXTEMP 100
+  #define BED_MAXTEMP 100
 #endif
 
 //===========================================================================
@@ -435,7 +431,7 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  #if(ENABLED(HotendAllMetal))
+  #if ENABLED(HotendAllMetal)
     #define  DEFAULT_Kp 21.9
     #define  DEFAULT_Ki 1.5
     #define  DEFAULT_Kd 79.88
@@ -680,11 +676,12 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
- #if(ENABLED(Y_2208))
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, 96 }
+#if ENABLED(Y_2208)
+  #define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 1600, 96 }
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 160, 1600, 96 }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 160, 1600, 96 }
 #endif
+
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
@@ -698,25 +695,25 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
- #if(ENABLED(X_2208))
-  #if(ENABLED(X_SpreadCycle))
+#if ENABLED(X_2208)
+  #if ENABLED(X_SpreadCycle)
     #define x_accel 1750
   #else
     #define x_accel 1000
   #endif
- #else
-  #define x_accel 1500
- #endif
+#else
+    #define x_accel 1500
+#endif
 
-  #if(ENABLED(Y_2208))
-  #if(ENABLED(Y_SpreadCycle))
+#if ENABLED(Y_2208)
+  #if ENABLED(Y_SpreadCycle)
     #define y_accel 500
   #else
     #define y_accel 300
   #endif
- #else
+#else
   #define y_accel 500
- #endif
+#endif
 #define DEFAULT_MAX_ACCELERATION      { x_accel, y_accel, 400, 4000 }
 
 /**
@@ -739,13 +736,13 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#if(ENABLED(X_SpreadCycle) || !ENABLED(X_2208))
+#if ENABLED(X_SpreadCycle) || !ENABLED(X_2208)
   #define DEFAULT_XJERK                 20.0
 #else
   #define DEFAULT_XJERK                 10.0
 #endif
 
-#if(ENABLED(Y_SpreadCycle) || !ENABLED(Y_2208))
+#if ENABLED(Y_SpreadCycle) || !ENABLED(Y_2208)
   #define DEFAULT_YJERK                 10.0
 #else
   #define DEFAULT_YJERK                 5.0
@@ -967,15 +964,15 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
- #if(ENABLED(X_2208))
-#define INVERT_X_DIR true
+#if ENABLED(X_2208)
+  #define INVERT_X_DIR true
 #else
-#define INVERT_X_DIR false
+  #define INVERT_X_DIR false
 #endif
- #if(ENABLED(Y_2208))
-#define INVERT_Y_DIR true
+#if ENABLED(Y_2208)
+  #define INVERT_Y_DIR true
 #else
-#define INVERT_Y_DIR false
+  #define INVERT_Y_DIR false
 #endif
 #define INVERT_Z_DIR true
 
@@ -983,12 +980,12 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#if(ENABLED(E_2208))
-#define INVERT_E0_DIR false
-#define INVERT_E1_DIR false
+#if ENABLED(E_2208)
+  #define INVERT_E0_DIR false
+  #define INVERT_E1_DIR false
 #else
-#define INVERT_E0_DIR true
-#define INVERT_E1_DIR true
+  #define INVERT_E0_DIR true
+  #define INVERT_E1_DIR true
 #endif
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1061,7 +1058,7 @@
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
- #if(ENABLED(RunoutSensor))
+#if ENABLED(RunoutSensor)
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -1113,7 +1110,7 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#if(ENABLED(UBL))
+#if ENABLED(UBL)
    #define AUTO_BED_LEVELING_UBL
 #else
    #define AUTO_BED_LEVELING_BILINEAR

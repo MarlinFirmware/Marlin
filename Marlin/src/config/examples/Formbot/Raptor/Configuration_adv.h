@@ -787,8 +787,8 @@
  * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
  * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
-#if(DISABLED(E_2208))
-   #define LIN_ADVANCE
+#if DISABLED(E_2208)
+  #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
   #define LIN_ADVANCE_K 0.22  // Unit: mm compression per 1mm/s extruder speed
@@ -1540,7 +1540,7 @@
 /**
  * User-defined menu items that execute custom GCode
  */
- #if(ENABLED(UBL))
+#if ENABLED(UBL)
   #define CUSTOM_USER_MENUS
 #endif
 #if ENABLED(CUSTOM_USER_MENUS)
