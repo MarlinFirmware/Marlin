@@ -1075,44 +1075,40 @@ inline void get_serial_commands() {
 
         gcode_N = strtol(npos + 1, NULL, 10);
 
-        if (gcode_N != gcode_LastN + 1 && !M110) {
-          gcode_line_error(PSTR(MSG_ERR_LINE_NO));
-          return;
-        }
+        if (gcode_N != gcode_LastN + 1 && !M110)
+          return gcode_line_error(PSTR(MSG_ERR_LINE_NO));
 
         char *apos = strrchr(command, '*');
         if (apos) {
           uint8_t checksum = 0, count = uint8_t(apos - command);
           while (count) checksum ^= command[--count];
-          if (strtol(apos + 1, NULL, 10) != checksum) {
-            gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
-            return;
-          }
+          if (strtol(apos + 1, NULL, 10) != checksum)
+            return gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
         }
-        else {
-          gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
-          return;
-        }
+        else
+          return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
 
         gcode_LastN = gcode_N;
       }
       #if ENABLED(SDSUPPORT)
-        else if (card.saving) {
-          gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
-          return;
-        }
+        else if (card.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
+          return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
       #endif
 
       // Movement commands alert when stopped
       if (IsStopped()) {
         char* gpos = strchr(command, 'G');
         if (gpos) {
-          const int codenum = strtol(gpos + 1, NULL, 10);
-          switch (codenum) {
+          switch (strtol(gpos + 1, NULL, 10)) {
             case 0:
             case 1:
-            case 2:
-            case 3:
+            #if ENABLED(ARC_SUPPORT)
+              case 2:
+              case 3:
+            #endif
+            #if ENABLED(BEZIER_CURVE_SUPPORT)
+              case 5:
+            #endif
               SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
               LCD_MESSAGEPGM(MSG_STOPPED);
               break;
