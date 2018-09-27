@@ -350,7 +350,7 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.saving)
+          else if (card.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
@@ -358,13 +358,17 @@ inline void get_serial_commands() {
         if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
-            const int codenum = strtol(gpos + 1, NULL, 10);
-            switch (codenum) {
+            switch (strtol(gpos + 1, NULL, 10)) {
               case 0:
               case 1:
-              case 2:
-              case 3:
-                SERIAL_ERRORLNPGM_P(i, MSG_ERR_STOPPED);
+              #if ENABLED(ARC_SUPPORT)
+                case 2:
+                case 3:
+              #endif
+              #if ENABLED(BEZIER_CURVE_SUPPORT)
+                case 5:
+              #endif
+                SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;
             }
