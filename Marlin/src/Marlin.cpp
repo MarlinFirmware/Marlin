@@ -687,9 +687,12 @@ void setup() {
   #endif
 
   #if ENABLED(DISABLE_JTAG)
-    // Disable JTAG on AT90USB chips to free up pins for IO
-    MCUCR = 0x80;
-    MCUCR = 0x80;
+    // Disable JTAG to free up pins for IO
+    #ifdef JTAG_DISABLE
+      JTAG_DISABLE();
+    #else
+      #error "DISABLE_JTAG is not supported for the selected MCU/Board"
+    #endif
   #endif
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
