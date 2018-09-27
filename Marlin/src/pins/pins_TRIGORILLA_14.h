@@ -28,19 +28,20 @@
   #define BOARD_NAME "Anycubic RAMPS 1.4"
 #endif
 
-#define IS_RAMPS_EFB
+// Remap MOSFET pins to common usages
+#if HOTENDS > 1
+  #define RAMPS_D9_PIN     45   // EEB, EEF
+  #if !TEMP_SENSOR_BED
+    #define RAMPS_D8_PIN    9   // EEF
+  #endif
+#elif TEMP_SENSOR_BED
+  #define FAN1_PIN          7   // EFB
+#else
+  #define FAN2_PIN         44   // EFF
+#endif
 
-// FAN0 / D9  - Typically used for the part fan on Anycubic Delta devices
-#define FAN_PIN               9
-
-// FAN1 / D7  - Typically unused, can be allocated as Case Fan
-#define FAN1_PIN              7
-
-// FAN2 / D44 - Typical Extruder Fan on Anycubic Delta devices
-#define FAN2_PIN              44
-#define ORIG_E0_AUTO_FAN_PIN  44
-
-#define HEATER_1_PIN          45
+// D44 - Typical Extruder Fan on Anycubic Delta devices
+#define ORIG_E0_AUTO_FAN_PIN 44
 
 #include "pins_RAMPS.h"
 
