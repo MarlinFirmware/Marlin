@@ -20,8 +20,6 @@
  *
  */
 
-//#define TREX3              // Turn this on for T-Rex 3 features like dual filament run out sensors
-
 //#define ROXYs_TRex         // Turn this on to get customizations only available on Roxy's T-Rex 2+
                              // Marlin controlled heat bed, Max7219 debug LED's, less bright LED light level
                              // More aggressive PID numbers for hotends (due to double fans)

@@ -21,15 +21,6 @@
  *
  */
 
-#define TREX3              // Turn this on to generate a T-Rex 3  firmware image
-
-// The next few options are for firmware development and probably should not be used by Formbot.
-#define ICSP_PORT_SWITCHES // If ICSP_PORT_SWITCHES is defined, those pins become filament runout sensors
-                           // (But the SD Memory card won't work and is turned off!!!)
-
-#define ROXYs_TRex         // Turn this on to get customizations only available on Roxy's T-Rex 2+
-                           // Marlin controlled heat bed, Max7219 debug LED's, less bright LED light level
-                           // More aggressive PID numbers for hotends (due to double fans)
 /**
  * Configuration.h
  *
@@ -78,6 +69,10 @@
 // For a SCARA printer start with the configuration files in
 // config/examples/SCARA and customize for your machine.
 //
+
+#define ICSP_PORT_SWITCHES // If ICSP_PORT_SWITCHES is defined, those pins become filament runout sensors
+                           // (But the SD Memory card won't work and is turned off!!!)
+
 
 // @section info
 
@@ -236,11 +231,8 @@
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
-
-#ifdef ROXYs_TRex
-  #define HOTEND_OFFSET_X {0.0, 0.00}  // (in mm) for each extruder, offset of the hotend on the X axis
-  #define HOTEND_OFFSET_Y {0.0, 1.25}  // (in mm) for each extruder, offset of the hotend on the Y axis
-#endif
+//#define HOTEND_OFFSET_X {0.0, 0.00}  // (in mm) for each extruder, offset of the hotend on the X axis
+//#define HOTEND_OFFSET_Y {0.0, 1.25}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 // @section machine
 
@@ -331,14 +323,7 @@
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
 #define TEMP_SENSOR_5 0
-
-#ifdef ROXYs_TRex
-  #define TEMP_SENSOR_BED 11
-#endif
-
-#if ENABLED(TREX3)
-  #define TEMP_SENSOR_BED 11
-#endif
+#define TEMP_SENSOR_BED 11
 
 #ifndef TEMP_SENSOR_BED
   #define TEMP_SENSOR_BED 0
@@ -409,17 +394,10 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
-  #ifdef ROXYs_TRex
-    // Roxy's T-Rex 2+
-    #define DEFAULT_Kp 15.17
-    #define DEFAULT_Ki 0.88
-    #define DEFAULT_Kd 65.24
-  #else
-    // T-Rex 2+
-    #define DEFAULT_Kp 22.2
-    #define DEFAULT_Ki 1.08
-    #define DEFAULT_Kd 114
-  #endif
+  // Based on T-Rex 2+
+  #define DEFAULT_Kp 22.2
+  #define DEFAULT_Ki 1.08
+  #define DEFAULT_Kd 114
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -466,18 +444,11 @@
 
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
-  #ifdef ROXYs_TRex
-    // T-Rex 2+
-    #define DEFAULT_bedKp 289.73
-    #define DEFAULT_bedKi 51.26
-    #define DEFAULT_bedKd 409.43
-  #else
-    //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-    //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-    #define DEFAULT_bedKp 10.00
-    #define DEFAULT_bedKi .023
-    #define DEFAULT_bedKd 305.4
-  #endif
+  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
+  #define DEFAULT_bedKp 10.00
+  #define DEFAULT_bedKi .023
+  #define DEFAULT_bedKd 305.4
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -1005,12 +976,8 @@
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
 
-#ifdef TREX3
-  #define FILAMENT_RUNOUT_SENSOR
-  #define NUM_RUNOUT_SENSORS   2     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-#else
-  //#define FILAMENT_RUNOUT_SENSOR
-#endif
+#define FILAMENT_RUNOUT_SENSOR
+#define NUM_RUNOUT_SENSORS   2     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #ifndef NUM_RUNOUT_SENSORS
@@ -1145,12 +1112,7 @@
 
   #define MESH_EDIT_GFX_OVERLAY      // Display a graphics overlay while editing the mesh
 
-  #ifdef ROXYs_TRex
-    #define MESH_INSET 25            // Set Mesh bounds as an inset region of the bed
-  #else
-    #define MESH_INSET 0
-  #endif
-
+  #define MESH_INSET 0               // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 11       // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
@@ -1521,8 +1483,8 @@
  *
  */
 
-#ifndef ICSP_PORT_SWITCHES // If ICSP_PORT is in use, those pins now are filament runout sensors
-  #define SDSUPPORT        // instead of being used by the SD Memory card socket
+#if DISABLED(ICSP_PORT_SWITCHES)  // If ICSP_PORT is in use, those pins now are filament runout sensors
+  #define SDSUPPORT               // instead of being used by the SD Memory card socket
 #endif
 
 /**
