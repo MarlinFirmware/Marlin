@@ -366,12 +366,12 @@
  */
 #define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
-  #define X1_MIN_POS X_MIN_POS        // set minimum to ensure first x-carriage doesn't hit the parked second X-carriage
-  #define X1_MAX_POS (X_BED_SIZE)     // set maximum to ensure first x-carriage doesn't hit the parked second X-carriage
-  #define X2_MIN_POS 0                // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
-  #define X2_MAX_POS (442-4.0)        // set maximum to the distance between toolheads when both heads are homed
-  #define X2_HOME_DIR 1               // the second X-carriage always homes to the maximum endstop position
-  #define X2_HOME_POS X2_MAX_POS      // default home position is the maximum carriage position
+  #define X1_MIN_POS X_MIN_POS  // set minimum to ensure first x-carriage doesn't hit the parked second X-carriage
+  #define X1_MAX_POS X_BED_SIZE // set maximum to ensure first x-carriage doesn't hit the parked second X-carriage
+  #define X2_MIN_POS  0     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
+  #define X2_MAX_POS (442-4.0) // set maximum to the distance between toolheads when both heads are homed
+  #define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
+  #define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position
       // However: In this mode the HOTEND_OFFSET_X value for the second extruder provides a software
       // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
       // without modifying the firmware (through the "M218 T1 X???" command).
@@ -1106,6 +1106,10 @@
   #define Z2_SENSE_RESISTOR   91
   #define Z2_MICROSTEPS       16
 
+  #define Z3_MAX_CURRENT    1000
+  #define Z3_SENSE_RESISTOR   91
+  #define Z3_MICROSTEPS       16
+
   #define E0_MAX_CURRENT    1000
   #define E0_SENSE_RESISTOR   91
   #define E0_MICROSTEPS       16
@@ -1175,6 +1179,9 @@
 
   #define Z2_CURRENT         800
   #define Z2_MICROSTEPS       16
+
+  #define Z3_CURRENT         800
+  #define Z3_MICROSTEPS       16
 
   #define E0_CURRENT         800
   #define E0_MICROSTEPS       16
@@ -1683,15 +1690,15 @@
 #endif
 
 #if ENABLED(MAX7219_DEBUG)
-/*
-#define MAX7219_CLK_PIN   50       // Configuration of the 3 pins to control the display
-#define MAX7219_DIN_PIN   51       // on RUMBA (or Formbot) using the ICSP port.
-#define MAX7219_LOAD_PIN  52       // This will affect your use of the SD Memory card */
+  /*
+  #define MAX7219_CLK_PIN   50       // Configuration of the 3 pins to control the display
+  #define MAX7219_DIN_PIN   51       // on RUMBA (or Formbot) using the ICSP port.
+  #define MAX7219_LOAD_PIN  52       // This will affect your use of the SD Memory card
+  */
 
-#define MAX7219_CLK_PIN   41       // Configuration of the 3 pins to control the display
-#define MAX7219_DIN_PIN   13       // 41 is LCD_Kill_Button, 13 is Arduino_LED, 37 is LCD_Beeper
-#define MAX7219_LOAD_PIN  37
-
+  #define MAX7219_CLK_PIN   41       // Configuration of the 3 pins to control the display
+  #define MAX7219_DIN_PIN   13       // 41 is LCD_Kill_Button, 13 is Arduino_LED, 37 is LCD_Beeper
+  #define MAX7219_LOAD_PIN  37
 
   #define MAX7219_GCODE            // Add the M7219 G-code to control the LED matrix
   #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
