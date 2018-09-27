@@ -745,6 +745,7 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
+    STOW_PROBE();
     LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
