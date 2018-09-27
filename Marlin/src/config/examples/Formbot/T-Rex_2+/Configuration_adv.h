@@ -780,7 +780,7 @@
                                          // Note: Extra time may be added to mitigate controller latency.
 //#define BABYSTEP_ZPROBE_GFX_OVERLAY    // Enable graphical overlay on Z-offset editor
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    //#define BABYSTEP_HOTEND_Z_OFFSET // For multiple hotends, babystep relative Z offsets
+    #define BABYSTEP_HOTEND_Z_OFFSET // For multiple hotends, babystep relative Z offsets
   #endif
 #endif
 
@@ -1555,6 +1555,7 @@
  */
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
+  //#define CUSTOM_USER_MENU_TITLE "Custom Commands"
   //#define USER_SCRIPT_AUDIBLE_FEEDBACK
   #define USER_SCRIPT_RETURN  // Return to status screen after a script
 
