@@ -76,15 +76,15 @@
 
 /**
  * Enable if you replace the stepper drivers with TMC2208. Be sure to remove MS3 jumper
- * under the stepper driver! Plug and Play will result in Stealth Chop 2 Mode enabled
+ * under the stepper driver! Plug-and-play results in StealthChop 2 being enabled.
  * Stealthchop with TMC2208 on E will disable Linear Advance!
- * Enable stealthchop to use Linear Advance with a TMC2208 on the extruder!
+ * Enable SpreadCycle to use Linear Advance with a TMC2208 on the extruder!
  * If a UART connection was used to set the driver to SpreadCycle mode, please select that as well.
  */
 //#define X_2208
 //#define X_SpreadCycle
 //#define Y_2208
-//#define Y_SpreadCyclebed
+//#define Y_SpreadCycle
 //#define E_2208
 //#define E_SpreadCycle
 
