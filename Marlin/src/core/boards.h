@@ -75,11 +75,16 @@
 #define BOARD_AZTEEG_X3_PRO     68    // Azteeg X3 Pro
 #define BOARD_ULTIMAIN_2        72    // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
 #define BOARD_RUMBA             80    // Rumba
+#define BOARD_FORMBOT_TREX2PLUS 95    // Formbot version 1
+#define BOARD_FORMBOT_TREX3     96    // Formbot T-Rex 3 revision
+#define BOARD_FORMBOT_RAPTOR    97    // Formbot version 1
 #define BOARD_BQ_ZUM_MEGA_3D    503   // bq ZUM Mega 3D
 #define BOARD_MAKEBOARD_MINI    431   // MakeBoard Mini v2.1.2 is a control board sold by MicroMake
 #define BOARD_TRIGORILLA_13     343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
 #define BOARD_TRIGORILLA_14     443   // TriGorilla Anycubic version 1.4 based on RAMPS EFB
 #define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
+#define BOARD_GT2560_V3         76    // Geeetech A10
+#define BOARD_FYSETC_F6_13      541   // Fysetc F6
 
 //
 // Other ATmega1280, ATmega2560
@@ -174,6 +179,8 @@
 #define BOARD_SELENA_COMPACT      1754  // Selena Compact (Power outputs: Hotend0, Hotend1, Bed0, Bed1, Fan0, Fan1)
 #define BOARD_COHESION3D_REMIX    1755  // Cohesion3D ReMix
 #define BOARD_COHESION3D_MINI     1756  // Cohesion3D Mini
+#define BOARD_SMOOTHIEBOARD       1757  // Smoothieboard
+#define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
 
 //
 // SAM3X8E ARM Cortex M3
@@ -213,11 +220,13 @@
 #define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
 #define BOARD_STM3R_MINI       1803   // STM32 Libmaple based stm32f1 controller
 #define BOARD_GTM32_PRO_VB     1805   // STM32f103VET6 controller
+#define BOARD_MORPHEUS         1806   // STM32F103C8/STM32F103CB Libmaple based stm32f1 controller
 
 //
 // STM32 ARM Cortex-M4F
 //
 
+#define BOARD_TEENSY31_32      1552   // Teensy3.1 and Teensy3.2
 #define BOARD_TEENSY35_36       841   // Teensy3.5 and Teensy3.6
 #define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller

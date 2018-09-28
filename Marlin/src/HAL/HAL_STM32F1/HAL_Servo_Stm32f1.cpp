@@ -27,22 +27,88 @@
 
 #if HAS_SERVOS
 
+uint8_t ServoCount; //=0
+
 #include "HAL_Servo_Stm32f1.h"
 
-int8_t libServo::attach(const int pin) {
-  if (this->servoIndex >= MAX_SERVOS) return -1;
-  return Servo::attach(pin);
+//#include "Servo.h"
+
+#include <boards.h>
+#include <io.h>
+#include <pwm.h>
+#include <wirish_math.h>
+
+/**
+ * 20 millisecond period config. For a 1-based prescaler,
+ *
+ *    (prescaler * overflow / CYC_MSEC) msec = 1 timer cycle = 20 msec
+ * => prescaler * overflow = 20 * CYC_MSEC
+ *
+ * This uses the smallest prescaler that allows an overflow < 2^16.
+ */
+#define MAX_OVERFLOW    ((1 << 16) - 1)
+#define CYC_MSEC        (1000 * CYCLES_PER_MICROSECOND)
+#define TAU_MSEC        20
+#define TAU_USEC        (TAU_MSEC * 1000)
+#define TAU_CYC         (TAU_MSEC * CYC_MSEC)
+#define SERVO_PRESCALER (TAU_CYC / MAX_OVERFLOW + 1)
+#define SERVO_OVERFLOW  ((uint16)round((double)TAU_CYC / SERVO_PRESCALER))
+
+// Unit conversions
+#define US_TO_COMPARE(us) ((uint16)map((us), 0, TAU_USEC, 0, SERVO_OVERFLOW))
+#define COMPARE_TO_US(c)  ((uint32)map((c), 0, SERVO_OVERFLOW, 0, TAU_USEC))
+#define ANGLE_TO_US(a)    ((uint16)(map((a), this->minAngle, this->maxAngle, \
+                                        SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_PW)))
+#define US_TO_ANGLE(us)   ((int16)(map((us), SERVO_DEFAULT_MIN_PW, SERVO_DEFAULT_MAX_PW,  \
+                                       this->minAngle, this->maxAngle)))
+
+libServo::libServo() {
+  this->servoIndex = ServoCount < MAX_SERVOS ? ServoCount++ : INVALID_SERVO;
 }
 
-int8_t libServo::attach(const int pin, const int min, const int max) {
-  return Servo::attach(pin, min, max);
+bool libServo::attach(const int32_t pin, const int32_t minAngle, const int32_t maxAngle) {
+  if (this->servoIndex >= MAX_SERVOS) return false;
+
+  this->pin = pin;
+  this->minAngle = minAngle;
+  this->maxAngle = maxAngle;
+
+  timer_dev *tdev = PIN_MAP[this->pin].timer_device;
+  uint8 tchan = PIN_MAP[this->pin].timer_channel;
+
+  pinMode(this->pin, PWM);
+  pwmWrite(this->pin, 0);
+
+  timer_pause(tdev);
+  timer_set_prescaler(tdev, SERVO_PRESCALER - 1); // prescaler is 1-based
+  timer_set_reload(tdev, SERVO_OVERFLOW);
+  timer_generate_update(tdev);
+  timer_resume(tdev);
+
+  return true;
 }
 
-void libServo::move(const int value) {
+bool libServo::detach() {
+  if (!this->attached()) return false;
+  pwmWrite(this->pin, 0);
+  return true;
+}
+
+int32_t libServo::read() const {
+  if (this->attached()) {
+    timer_dev *tdev = PIN_MAP[this->pin].timer_device;
+    uint8 tchan = PIN_MAP[this->pin].timer_channel;
+    return US_TO_ANGLE(COMPARE_TO_US(timer_get_compare(tdev, tchan)));
+  }
+  return 0;
+}
+
+void libServo::move(const int32_t value) {
   constexpr uint16_t servo_delay[] = SERVO_DELAY;
   static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
-  if (this->attach(0) >= 0) {
-    this->write(value);
+
+  if (this->attached()) {
+    pwmWrite(this->pin, US_TO_COMPARE(ANGLE_TO_US(constrain(value, this->minAngle, this->maxAngle))));
     safe_delay(servo_delay[this->servoIndex]);
     #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
       this->detach();

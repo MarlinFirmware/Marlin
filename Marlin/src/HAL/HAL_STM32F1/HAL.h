@@ -40,7 +40,7 @@
 // --------------------------------------------------------------------------
 
 #include <stdint.h>
-#include <libmaple/atomic.h>
+#include <util/atomic.h>
 #include <Arduino.h>
 
 // --------------------------------------------------------------------------
@@ -56,8 +56,8 @@
 // Includes
 // --------------------------------------------------------------------------
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 
 #include "fastio_Stm32f1.h"
 #include "watchdog_Stm32f1.h"
@@ -248,5 +248,7 @@ void HAL_enable_AdcFreerun(void);
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+#define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
 
 #endif // _HAL_STM32F1_H

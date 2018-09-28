@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "../../HAL_SPI.h"
+#include "../../shared/HAL_SPI.h"
 
 #include <stdint.h>
 

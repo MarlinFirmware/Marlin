@@ -32,6 +32,7 @@
  *                                  P1_20 as M42 P120, etc.
  *
  *  S<byte> Pin status from 0 - 255
+ *  I       Flag to ignore Marlin's pin protection
  */
 void GcodeSuite::M42() {
   if (!parser.seenval('S')) return;
@@ -42,7 +43,7 @@ void GcodeSuite::M42() {
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_index);
 
-  if (pin_is_protected(pin)) return protected_pin_err();
+  if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
   pinMode(pin, OUTPUT);
   digitalWrite(pin, pin_status);

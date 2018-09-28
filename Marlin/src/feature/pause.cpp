@@ -120,7 +120,7 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
 static void do_pause_e_move(const float &length, const float &fr) {
   set_destination_from_current();
   destination[E_AXIS] += length / planner.e_factor[active_extruder];
-  planner.buffer_line_kinematic(destination, fr, active_extruder);
+  planner.buffer_line(destination, fr, active_extruder);
   set_current_from_destination();
   planner.synchronize();
 }
@@ -140,6 +140,7 @@ static void do_pause_e_move(const float &length, const float &fr) {
 bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=0*/, const int8_t max_beep_count/*=0*/,
                    const bool show_lcd/*=false*/, const bool pause_for_user/*=false*/,
                    const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/
+                   DXC_ARGS
 ) {
   #if DISABLED(ULTIPANEL)
     UNUSED(show_lcd);
@@ -184,6 +185,13 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_LOAD, mode);
   #endif
 
+  #if ENABLED(DUAL_X_CARRIAGE)
+    const int8_t saved_ext        = active_extruder;
+    const bool saved_ext_dup_mode = extruder_duplication_enabled;
+    active_extruder = DXC_ext;
+    extruder_duplication_enabled = false;
+  #endif
+
   // Slow Load filament
   if (slow_load_length) do_pause_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
 
@@ -200,6 +208,12 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       planner.retract_acceleration = saved_acceleration;
     #endif
   }
+
+  #if ENABLED(DUAL_X_CARRIAGE)      // Tie the two extruders movement back together.
+    active_extruder = saved_ext;
+    extruder_duplication_enabled = saved_ext_dup_mode;
+    stepper.set_directions();
+  #endif
 
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
 
@@ -328,7 +342,8 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
  */
 uint8_t did_pause_print = 0;
 
-bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/) {
+bool pause_print(const float &retract, const point_t &park_point, const float &unload_length/*=0*/, const bool show_lcd/*=false*/ DXC_ARGS) {
+
   if (did_pause_print) return false; // already paused
 
   #ifdef ACTION_ON_PAUSE
@@ -380,9 +395,21 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   if (!axis_unhomed_error())
     Nozzle::park(2, park_point);
 
-  // Unload the filament
-  if (unload_length)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    const int8_t saved_ext        = active_extruder;
+    const bool saved_ext_dup_mode = extruder_duplication_enabled;
+    active_extruder = DXC_ext;
+    extruder_duplication_enabled = false;
+  #endif
+
+  if (unload_length)   // Unload the filament
     unload_filament(unload_length, show_lcd);
+
+  #if ENABLED(DUAL_X_CARRIAGE)
+    active_extruder = saved_ext;
+    extruder_duplication_enabled = saved_ext_dup_mode;
+    stepper.set_directions();
+  #endif
 
   return true;
 }
@@ -394,7 +421,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
  *
  * Used by M125 and M600
  */
-void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
+void wait_for_filament_reload(const int8_t max_beep_count/*=0*/ DXC_ARGS) {
   bool nozzle_timed_out = false;
 
   #if ENABLED(ULTIPANEL)
@@ -412,6 +439,13 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
 
   HOTEND_LOOP()
     thermalManager.start_heater_idle_timer(e, nozzle_timeout);
+
+  #if ENABLED(DUAL_X_CARRIAGE)
+    const int8_t saved_ext        = active_extruder;
+    const bool saved_ext_dup_mode = extruder_duplication_enabled;
+    active_extruder = DXC_ext;
+    extruder_duplication_enabled = false;
+  #endif
 
   // Wait for filament insert by user and press button
   KEEPALIVE_STATE(PAUSED_FOR_USER);
@@ -477,6 +511,11 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
 
     idle(true);
   }
+  #if ENABLED(DUAL_X_CARRIAGE)
+    active_extruder = saved_ext;
+    extruder_duplication_enabled = saved_ext_dup_mode;
+    stepper.set_directions();
+  #endif
   KEEPALIVE_STATE(IN_HANDLER);
 }
 
@@ -498,7 +537,15 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/) {
  * - Send host action for resume, if configured
  * - Resume the current SD print job, if any
  */
-void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/) {
+void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_length/*=0*/, const float &purge_length/*=ADVANCED_PAUSE_PURGE_LENGTH*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
+  /*
+  SERIAL_ECHOPGM("start of resume_print()\n");
+  SERIAL_ECHOPAIR("\ndual_x_carriage_mode:", dual_x_carriage_mode);
+  SERIAL_ECHOPAIR("\nextruder_duplication_enabled:", extruder_duplication_enabled);
+  SERIAL_ECHOPAIR("\nactive_extruder:", active_extruder);
+  SERIAL_ECHOPGM("\n\n");
+  */
+
   if (!did_pause_print) return;
 
   // Re-enable the heaters if they timed out
@@ -508,14 +555,11 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     thermalManager.reset_heater_idle_timer(e);
   }
 
-  if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) {
-    // Load the new filament
-    load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out);
-  }
+  if (nozzle_timed_out || thermalManager.hotEnoughToExtrude(active_extruder)) // Load the new filament
+    load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, ADVANCED_PAUSE_MODE_PAUSE_PRINT DXC_PASS);
 
   #if ENABLED(ULTIPANEL)
-    // "Wait for print to resume"
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME);
+    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_RESUME); // "Wait for print to resume"
   #endif
 
   // Intelligent resuming

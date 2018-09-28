@@ -138,6 +138,16 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false
  * Enqueue with Serial Echo
  */
 bool enqueue_and_echo_command(const char* cmd) {
+
+  //SERIAL_ECHOPGM("enqueue_and_echo_command(\"");
+  //SERIAL_ECHO(cmd);
+  //SERIAL_ECHOPGM("\") \n");
+
+  if (*cmd == 0 || *cmd == '\n' || *cmd == '\r') {
+    //SERIAL_ECHOPGM("Null command found...   Did not queue!\n");
+    return true;
+  }
+
   if (_enqueuecommand(cmd)) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
@@ -155,7 +165,7 @@ bool enqueue_and_echo_command(const char* cmd) {
 static bool drain_injected_commands_P() {
   if (injected_commands_P != NULL) {
     size_t i = 0;
-    char c, cmd[30];
+    char c, cmd[60];
     strncpy_P(cmd, injected_commands_P, sizeof(cmd) - 1);
     cmd[sizeof(cmd) - 1] = '\0';
     while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
@@ -340,7 +350,7 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.saving)
+          else if (card.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
@@ -348,13 +358,17 @@ inline void get_serial_commands() {
         if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
-            const int codenum = strtol(gpos + 1, NULL, 10);
-            switch (codenum) {
+            switch (strtol(gpos + 1, NULL, 10)) {
               case 0:
               case 1:
-              case 2:
-              case 3:
-                SERIAL_ERRORLNPGM_P(i, MSG_ERR_STOPPED);
+              #if ENABLED(ARC_SUPPORT)
+                case 2:
+                case 3:
+              #endif
+              #if ENABLED(BEZIER_CURVE_SUPPORT)
+                case 5:
+              #endif
+                SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;
             }

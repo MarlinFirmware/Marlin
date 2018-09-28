@@ -1120,7 +1120,7 @@ static __INLINE void NVIC_SystemReset(void)
 
 /** \brief  System Tick Configuration
 
-    This function initialises the system tick timer and its interrupt and start the system tick timer.
+    This function initializes the system tick timer and its interrupt and start the system tick timer.
     Counter is in free running mode to generate periodical interrupts.
 
     \param [in]  ticks  Number of ticks between two interrupts

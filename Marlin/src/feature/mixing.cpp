@@ -28,7 +28,7 @@
   #include "../gcode/parser.h"
 #endif
 
-float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise >= 1.0.
+float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise <= 1.0. (Array must sum to 1.0.)
 
 #if MIXING_VIRTUAL_TOOLS > 1
 
@@ -56,11 +56,12 @@ float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off
 
 void normalize_mix() {
   float mix_total = 0.0;
-  for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mix_total += RECIPROCAL(mixing_factor[i]);
+  for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mix_total += mixing_factor[i];
   // Scale all values if they don't add up to ~1.0
   if (!NEAR(mix_total, 1.0)) {
     SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= mix_total;
+    const float inverse_sum = RECIPROCAL(mix_total);
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= inverse_sum;
   }
 }
 
@@ -69,14 +70,25 @@ void normalize_mix() {
   // The total "must" be 1.0 (but it will be normalized)
   // If no mix factors are given, the old mix is preserved
   void gcode_get_mix() {
-    const char mixing_codes[] = { 'A', 'B', 'C', 'D', 'H', 'I' };
+    const char mixing_codes[] = { 'A', 'B'
+      #if MIXING_STEPPERS > 2
+        , 'C'
+        #if MIXING_STEPPERS > 3
+          , 'D'
+          #if MIXING_STEPPERS > 4
+            , 'H'
+            #if MIXING_STEPPERS > 5
+              , 'I'
+            #endif // MIXING_STEPPERS > 5
+          #endif // MIXING_STEPPERS > 4
+        #endif // MIXING_STEPPERS > 3
+      #endif // MIXING_STEPPERS > 2
+    };
     byte mix_bits = 0;
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
       if (parser.seenval(mixing_codes[i])) {
         SBI(mix_bits, i);
-        float v = parser.value_float();
-        NOLESS(v, 0.0);
-        mixing_factor[i] = RECIPROCAL(v);
+        mixing_factor[i] = MAX(parser.value_float(), 0.0);
       }
     }
     // If any mixing factors were included, clear the rest
