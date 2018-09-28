@@ -292,6 +292,10 @@ void GcodeSuite::process_parsed_command(
         case 5: M5(); break;                                      // M5 - turn spindle/laser off
       #endif
 
+      #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
+        case 12: M12(); break;                                    // M12: Synchronize and optionally force a CLC set
+      #endif
+
       case 17: M17(); break;                                      // M17: Enable all stepper motors
 
       #if ENABLED(SDSUPPORT)
@@ -359,6 +363,8 @@ void GcodeSuite::process_parsed_command(
         case 108: M108(); break;                                  // M108: Cancel Waiting
         case 112: M112(); break;                                  // M112: Emergency Stop
         case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
+      #else
+        case 108: case 112: case 410: break;
       #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -468,9 +474,11 @@ void GcodeSuite::process_parsed_command(
       #if ENABLED(FWRETRACT)
         case 207: M207(); break;                                  // M207: Set Retract Length, Feedrate, and Z lift
         case 208: M208(); break;                                  // M208: Set Recover (unretract) Additional Length and Feedrate
-        case 209:
-          if (MIN_AUTORETRACT <= MAX_AUTORETRACT) M209();         // M209: Turn Automatic Retract Detection on/off
-          break;
+        #if ENABLED(FWRETRACT_AUTORETRACT)
+          case 209:
+            if (MIN_AUTORETRACT <= MAX_AUTORETRACT) M209();       // M209: Turn Automatic Retract Detection on/off
+            break;
+        #endif
       #endif
 
       case 211: M211(); break;                                    // M211: Enable, Disable, and/or Report software endstops
@@ -485,6 +493,9 @@ void GcodeSuite::process_parsed_command(
 
       #if HAS_SERVOS
         case 280: M280(); break;                                  // M280: Set servo position absolute
+        #if ENABLED(EDITABLE_SERVO_ANGLES)
+          case 281: M281(); break;                                // M281: Set servo angles
+        #endif
       #endif
 
       #if ENABLED(BABYSTEPPING)

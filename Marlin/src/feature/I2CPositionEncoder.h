@@ -120,7 +120,7 @@ class I2CPositionEncoder {
 
     bool      homed               = false,
               trusted             = false,
-              initialised         = false,
+              initialized         = false,
               active              = false,
               invert              = false,
               ec                  = true;

@@ -43,8 +43,8 @@
   #include <USBSerial.h>
 #endif
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 #include "fastio_STM32F4.h"
 #include "watchdog_STM32F4.h"
 
@@ -124,6 +124,8 @@
 #define ISRS_ENABLED() (!__get_PRIMASK())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
+#define cli() __disable_irq()
+#define sei() __enable_irq()
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -162,12 +164,6 @@ extern uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 // Public functions
 // --------------------------------------------------------------------------
-
-// Disable interrupts
-#define cli() do {  DISABLE_TEMPERATURE_INTERRUPT(); DISABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
-
-// Enable interrupts
-#define sei() do {  ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
 // Memory related
 #define __bss_end __bss_end__
@@ -208,7 +204,6 @@ void spiSend(uint32_t chan, byte b);
 void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
 /** Read single byte from specified SPI channel */
 uint8_t spiRec(uint32_t chan);
-
 
 // EEPROM
 
@@ -252,5 +247,7 @@ void HAL_enable_AdcFreerun(void);
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+#define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
 
 #endif // _HAL_STM32F4_H

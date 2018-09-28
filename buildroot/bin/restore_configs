@@ -1,17 +1,9 @@
 #!/usr/bin/env bash
 
-cp Marlin/src/config/default/Configuration.h     Marlin/Configuration.h
-cp Marlin/src/config/default/Configuration_adv.h Marlin/Configuration_adv.h
+cp Marlin/src/config/default/Configuration*.h Marlin
 
-if [ -f Marlin/src/pins/pins_RAMPS.h.backup ]; then
-  cp Marlin/src/pins/pins_RAMPS.h.backup Marlin/src/pins/pins_RAMPS.h
-  rm Marlin/src/pins/pins_RAMPS.h.backup
-fi
+[ -f Marlin/src/pins/pins_RAMPS.h.backup ] && cp Marlin/src/pins/pins_RAMPS.h.backup Marlin/src/pins/pins_RAMPS.h
+rm -f Marlin/src/pins/pins_RAMPS.h.backup
 
-if [ -f Marlin/_Bootscreen.h ]; then
-  rm Marlin/_Bootscreen.h
-fi
-
-if [ -f Marlin/_Statusscreen.h ]; then
-  rm Marlin/_Statusscreen.h
-fi
+rm -f Marlin/_Bootscreen.h
+rm -f Marlin/_Statusscreen.h

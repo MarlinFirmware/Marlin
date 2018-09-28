@@ -28,6 +28,8 @@
 
 #if HAS_BED_PROBE
 
+#include "../libs/buzzer.h"
+
 #include "probe.h"
 #include "motion.h"
 #include "temperature.h"
@@ -54,7 +56,6 @@ float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_PROBE
   #include "../module/servo.h"
-  const int z_servo_angle[2] = Z_SERVO_ANGLES;
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -378,7 +379,8 @@ bool set_probe_deployed(const bool deploy) {
 
   // Make room for probe to deploy (or stow)
   // Fix-mounted probe should only raise for deploy
-  #if ENABLED(FIX_MOUNTED_PROBE)
+  // unless PAUSE_BEFORE_DEPLOY_STOW is enabled
+  #if ENABLED(FIX_MOUNTED_PROBE) && DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
     const bool deploy_stow_condition = deploy;
   #else
     constexpr bool deploy_stow_condition = true;
@@ -423,6 +425,24 @@ bool set_probe_deployed(const bool deploy) {
                                                    // otherwise an Allen-Key probe can't be stowed.
   #endif
 
+      #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
+
+        BUZZ(100, 659);
+        BUZZ(100, 698);
+
+        const char * const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
+        lcd_setstatusPGM(ds_str);
+        serialprintPGM(ds_str);
+        SERIAL_EOL();
+
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        wait_for_user = true;
+        while (wait_for_user) idle();
+        lcd_reset_status();
+        KEEPALIVE_STATE(IN_HANDLER);
+
+      #endif // PAUSE_BEFORE_DEPLOY_STOW
+
       #if ENABLED(SOLENOID_PROBE)
 
         #if HAS_SOLENOID_1
@@ -435,7 +455,7 @@ bool set_probe_deployed(const bool deploy) {
 
       #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
 
-        MOVE_SERVO(Z_PROBE_SERVO_NR, z_servo_angle[deploy ? 0 : 1]);
+        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
 
       #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
@@ -538,7 +558,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
   set_current_from_steppers_for_axis(Z_AXIS);
 
   // Tell the planner where we actually are
-  SYNC_PLAN_POSITION_KINEMATIC();
+  sync_plan_position();
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
@@ -725,6 +745,7 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
+    STOW_PROBE();
     LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);

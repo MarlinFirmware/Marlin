@@ -204,7 +204,7 @@ static float calibration_probe(const float &nx, const float &ny, const bool stow
   #endif
 }
 
-#if HAS_BED_PROBE
+#if HAS_BED_PROBE && ENABLED(ULTIPANEL)
   static float probe_z_shift(const float center) {
     STOW_PROBE();
     endstops.enable_z_probe(false);
@@ -273,7 +273,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
         for (int8_t circle = 0; circle <= offset; circle++) {
           const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
                       r = delta_calibration_radius * (1 - 0.1 * (zig_zag ? offset - circle : circle)),
-                      interpol = fmod(rad, 1);
+                      interpol = FMOD(rad, 1);
           const float z_temp = calibration_probe(cos(a) * r, sin(a) * r, stow_after_each, set_up);
           if (isnan(z_temp)) return false;
           // split probe point to neighbouring calibration points
@@ -588,7 +588,7 @@ void GcodeSuite::G33() {
 
       switch (probe_points) {
         case -1:
-          #if HAS_BED_PROBE
+          #if HAS_BED_PROBE && ENABLED(ULTIPANEL)
             zprobe_zoffset += probe_z_shift(z_at_pt[CEN]);
           #endif
 

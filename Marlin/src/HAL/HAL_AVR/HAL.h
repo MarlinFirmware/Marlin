@@ -34,7 +34,7 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-#include "../HAL_SPI.h"
+#include "../shared/HAL_SPI.h"
 #include "fastio_AVR.h"
 #include "watchdog_AVR.h"
 #include "math_AVR.h"
@@ -170,8 +170,6 @@ FORCE_INLINE void HAL_timer_start(const uint8_t timer_num, const uint32_t freque
 
 #define _CAT(a, ...) a ## __VA_ARGS__
 #define HAL_timer_set_compare(timer, compare) (_CAT(TIMER_OCR_, timer) = compare)
-#define HAL_timer_restrain(timer, interval_ticks) NOLESS(_CAT(TIMER_OCR_, timer), _CAT(TIMER_COUNTER_, timer) + interval_ticks)
-
 #define HAL_timer_get_compare(timer) _CAT(TIMER_OCR_, timer)
 #define HAL_timer_get_count(timer) _CAT(TIMER_COUNTER_, timer)
 
@@ -353,6 +351,10 @@ inline void HAL_adc_init(void) {
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 #define HAL_SENSITIVE_PINS 0, 1
+
+#ifdef __AVR_AT90USB1286__
+  #define JTAG_DISABLE() do{ MCUCR = 0x80; MCUCR = 0x80; }while(0)
+#endif
 
 // AVR compatibility
 #define strtof strtod

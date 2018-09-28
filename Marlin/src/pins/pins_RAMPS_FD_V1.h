@@ -108,8 +108,6 @@
 #define TEMP_0_PIN          1   // Analog Input
 #define TEMP_1_PIN          2   // Analog Input
 #define TEMP_2_PIN          3   // Analog Input
-#define TEMP_3_PIN         -1   // fewer compiler warnings
-#define TEMP_4_PIN         -1   // fewer compiler warnings
 #define TEMP_BED_PIN        0   // Analog Input
 
 // SPI for Max6675 or Max31855 Thermocouple
@@ -130,7 +128,6 @@
 #ifndef FAN_PIN
   #define FAN_PIN          12
 #endif
-#define CONTROLLER_FAN_PIN -1
 
 //
 // Misc. Functions
@@ -170,9 +167,9 @@
     #define STAT_LED_BLUE_PIN   29
     #define STAT_LED_RED_PIN    23
     #define DOGLCD_CS           17
-    #define DOGLCD_SCK          76 //SCK_PIN   - required so that the DUE hardware SPI will be used
-    #define DOGLCD_MOSI         75 //MOSI_PIN  - required so that the DUE hardware SPI will be used
-    #define DOGLCD_MISO         74 //MISO_PIN
+    #define DOGLCD_SCK          76   // SCK_PIN   - These are required for DUE Hardware SPI
+    #define DOGLCD_MOSI         75   // MOSI_PIN
+    #define DOGLCD_MISO         74   // MISO_PIN
   #endif
 
 
