@@ -31,7 +31,8 @@
  * Enables a filament sensor plugged into the laser pin. Disables the laser
  */
 //#define FilamentSensor
-//#define FilamentSensor
+
+
 /**
  * Configuration.h
  *
