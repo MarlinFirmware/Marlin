@@ -40,7 +40,7 @@
   /**
    * Marlin release version identifier
    */
-  #define SHORT_BUILD_VERSION "bugfix-2.0.x_TR1"
+  #define SHORT_BUILD_VERSION "2.0.x_TR2"
 
   /**
    * Verbose version identifier which should contain a reference to the location
@@ -53,7 +53,7 @@
    * here we define this default string as the date where the latest release
    * version was tagged.
    */
-  #define STRING_DISTRIBUTION_DATE "2018-08-08"
+  #define STRING_DISTRIBUTION_DATE "2018-09-28"
 
   /**
    * Required minimum Configuration.h and Configuration_adv.h file versions.
@@ -83,7 +83,7 @@
    * has a distinct Github fork— the Source Code URL should just be the main
    * Marlin repository.
    */
-  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+  #define SOURCE_CODE_URL "https://github.com/InsanityAutomation/Marlin/tree/TM_Trex2+_2.0.x"
 
   /**
    * Default generic printer UUID.
