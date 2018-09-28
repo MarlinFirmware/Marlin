@@ -109,12 +109,7 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
     UNUSED(mode);
   #endif
 
-  wait_for_heatup = true; // M108 will clear this
-  while (wait_for_heatup && thermalManager.wait_for_heating(active_extruder)) idle();
-  const bool status = wait_for_heatup;
-  wait_for_heatup = false;
-
-  return status;
+  return thermalManager.wait_for_hotend(active_extruder);
 }
 
 static void do_pause_e_move(const float &length, const float &fr) {

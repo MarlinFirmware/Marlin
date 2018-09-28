@@ -31,6 +31,9 @@
  * M108: Stop the waiting for heaters in M109, M190, M303. Does not affect the target temperature.
  */
 void GcodeSuite::M108() {
+  #if HAS_RESUME_CONTINUE
+    wait_for_user = false;
+  #endif
   wait_for_heatup = false;
 }
 
