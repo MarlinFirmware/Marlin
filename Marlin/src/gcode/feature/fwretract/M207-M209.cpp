@@ -57,17 +57,18 @@ void GcodeSuite::M208() {
   if (parser.seen('W')) fwretract.swap_retract_recover_length = parser.value_axis_units(E_AXIS);
 }
 
-/**
- * M209: Enable automatic retract (M209 S1)
- *   For slicers that don't support G10/11, reversed extrude-only
- *   moves will be classified as retraction.
- */
-void GcodeSuite::M209() {
-  if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
-    if (parser.seen('S')) {
+#if ENABLED(FWRETRACT_AUTORETRACT)
+
+  /**
+   * M209: Enable automatic retract (M209 S1)
+   *   For slicers that don't support G10/11, reversed extrude-only
+   *   moves will be classified as retraction.
+   */
+  void GcodeSuite::M209() {
+    if (MIN_AUTORETRACT <= MAX_AUTORETRACT && parser.seen('S'))
       fwretract.enable_autoretract(parser.value_bool());
-    }
   }
-}
+
+#endif // FWRETRACT_AUTORETRACT
 
 #endif // FWRETRACT
