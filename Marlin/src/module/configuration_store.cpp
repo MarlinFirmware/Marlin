@@ -672,18 +672,19 @@ void MarlinSettings::postprocess() {
     #endif
     EEPROM_WRITE(lcd_contrast);
 
+    const bool autoretract_enabled =
+      #if DISABLED(FWRETRACT_AUTORETRACT)
+        false
+      #else
+        fwretract.autoretract_enabled
+      #endif
+    ;
+    EEPROM_WRITE(autoretract_enabled);
+
     #if DISABLED(FWRETRACT)
-      const bool autoretract_enabled = false;
       const float autoretract_defaults[] = { 3, 45, 0, 0, 0, 13, 0, 8 };
-      EEPROM_WRITE(autoretract_enabled);
       EEPROM_WRITE(autoretract_defaults);
     #else
-      #if DISABLED(FWRETRACT_AUTORETRACT)
-        const bool autoretract_enabled = false;
-        EEPROM_WRITE(autoretract_enabled);
-      #else
-        EEPROM_WRITE(fwretract.autoretract_enabled);
-      #endif
       EEPROM_WRITE(fwretract.retract_length);
       EEPROM_WRITE(fwretract.retract_feedrate_mm_s);
       EEPROM_WRITE(fwretract.retract_zlift);
@@ -2629,12 +2630,16 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.swap_retract_recover_length));
       SERIAL_ECHOLNPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.retract_recover_feedrate_mm_s)));
 
-      if (!forReplay) {
+      #if ENABLED(FWRETRACT_AUTORETRACT)
+
+        if (!forReplay) {
+          CONFIG_ECHO_START;
+          SERIAL_ECHOLNPGM_P(port, "Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
+        }
         CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
-      }
-      CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR_P(port, "  M209 S", fwretract.autoretract_enabled ? 1 : 0);
+        SERIAL_ECHOLNPAIR_P(port, "  M209 S", fwretract.autoretract_enabled ? 1 : 0);
+
+      #endif // FWRETRACT_AUTORETRACT
 
     #endif // FWRETRACT
 

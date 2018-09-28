@@ -476,9 +476,9 @@ void GcodeSuite::process_parsed_command(
         case 208: M208(); break;                                  // M208: Set Recover (unretract) Additional Length and Feedrate
         #if ENABLED(FWRETRACT_AUTORETRACT)
           case 209:
-            if (MIN_AUTORETRACT <= MAX_AUTORETRACT) M209();         // M209: Turn Automatic Retract Detection on/off
+            if (MIN_AUTORETRACT <= MAX_AUTORETRACT) M209();       // M209: Turn Automatic Retract Detection on/off
             break;
-          #endif
+        #endif
       #endif
 
       case 211: M211(); break;                                    // M211: Enable, Disable, and/or Report software endstops
