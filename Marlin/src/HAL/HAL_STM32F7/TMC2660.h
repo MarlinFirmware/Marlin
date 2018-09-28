@@ -33,14 +33,14 @@
 
 //! return value for TMC26XStepper.getOverTemperature() if there is a overtemperature situation in the TMC chip
 /*!
- * This warning indicates that the TCM chip is too warm.
+ * This warning indicates that the TMC chip is too warm.
  * It is still working but some parameters may be inferior.
  * You should do something against it.
  */
 #define TMC26X_OVERTEMPERATURE_PREWARING 1
 //! return value for TMC26XStepper.getOverTemperature() if there is a overtemperature shutdown in the TMC chip
 /*!
- * This warning indicates that the TCM chip is too warm to operate and has shut down to prevent damage.
+ * This warning indicates that the TMC chip is too warm to operate and has shut down to prevent damage.
  * It will stop working until it cools down again.
  * If you encouter this situation you must do something against it. Like reducing the current or improving the PCB layout
  * and/or heat management.
@@ -115,7 +115,7 @@ class TMC26XStepper {
      *
      * Keep in mind that you must also call TMC26XStepper.start() in order to configure the stepper driver for use.
      *
-     * By default the Constant Off Time chopper is used, see TCM262Stepper.setConstantOffTimeChopper() for details.
+     * By default the Constant Off Time chopper is used, see TMC26XStepper.setConstantOffTimeChopper() for details.
      * This should work on most motors (YMMV). You may want to configure and use the Spread Cycle Chopper, see  setSpreadCycleChopper().
      *
      * By default a microstepping of 1/32th is used to provide a smooth motor run, while still giving a good progression per step.

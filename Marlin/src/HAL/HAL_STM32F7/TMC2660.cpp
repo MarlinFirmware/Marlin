@@ -94,7 +94,7 @@
 #define STALL_GUARD_CONFIG_PATTERN 0x17F00ul
 #define STALL_GUARD_VALUE_PATTERN 0x7F00ul
 
-//definitions for the input from the TCM260
+//definitions for the input from the TMC2660
 #define STATUS_STALL_GUARD_STATUS 0x1ul
 #define STATUS_OVER_TEMPERATURE_SHUTDOWN 0x2ul
 #define STATUS_OVER_TEMPERATURE_WARNING 0x4ul
