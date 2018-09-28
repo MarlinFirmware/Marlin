@@ -422,20 +422,21 @@ void _O2 Endstops::M119() {
     print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_Z_PROBE));
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    #define FRS_COUNT (1 + PIN_EXISTS(FIL_RUNOUT2) + PIN_EXISTS(FIL_RUNOUT3) + PIN_EXISTS(FIL_RUNOUT4) + PIN_EXISTS(FIL_RUNOUT5) + PIN_EXISTS(FIL_RUNOUT6))
-    #if FRS_COUNT == 1
-      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING, MSG_FILAMENT_RUNOUT_SENSOR);
+    //#define FRS_COUNT (1 + PIN_EXISTS(FIL_RUNOUT2) + PIN_EXISTS(FIL_RUNOUT3) + PIN_EXISTS(FIL_RUNOUT4) + PIN_EXISTS(FIL_RUNOUT5) + PIN_EXISTS(FIL_RUNOUT6))
+    #define FRS_COUNT NUM_RUNOUT_SENSORS
+    #if NUM_RUNOUT_SENSORS == 1
+      print_es_state((digitalRead(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING), PSTR(MSG_FILAMENT_RUNOUT_SENSOR));
     #else
       for (uint8_t i = 1; i <=
-        #if   FRS_COUNT == 6
+        #if   NUM_RUNOUT_SENSORS == 6
           6
-        #elif FRS_COUNT == 5
+        #elif NUM_RUNOUT_SENSORS == 5
           5
-        #elif FRS_COUNT == 4
+        #elif NUM_RUNOUT_SENSORS == 4
           4
-        #elif FRS_COUNT == 3
+        #elif NUM_RUNOUT_SENSORS == 3
           3
-        #elif FRS_COUNT == 2
+        #elif NUM_RUNOUT_SENSORS == 2
           2
         #endif
         ; i++
@@ -460,7 +461,7 @@ void _O2 Endstops::M119() {
             case 6: pin = FIL_RUNOUT6_PIN; break;
           #endif
         }
-        SERIAL_PROTOCOLPGM(MSG_FILAMENT_RUNOUT_SENSOR);
+        SERIAL_PROTOCOLPGM(PSTR(MSG_FILAMENT_RUNOUT_SENSOR));
         if (i > 1) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + i); }
         print_es_state(digitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
