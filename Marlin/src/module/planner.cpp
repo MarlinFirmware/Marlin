@@ -2084,7 +2084,17 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0f; // factor <1 decreases speed
   LOOP_XYZE(i) {
-    const float cs = ABS((current_speed[i] = delta_mm[i] * inverse_secs));
+    #if ENABLED(MIXING_EXTRUDER)
+      float delta_mm_i = 0;
+      if (i == E_AXIS) {
+        for (uint8_t s = 0; s < MIXING_STEPPERS; s++)
+          delta_mm_i = MAX(mixing_factor[s] * ABS(delta_mm[i]), delta_mm_i);
+      }
+      else delta_mm_i = ABS(delta_mm[i]);
+    #else
+      const float delta_mm_i = ABS(delta_mm[i]);
+    #endif
+    const float cs = current_speed[i] = delta_mm_i * inverse_secs;
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
     #endif
