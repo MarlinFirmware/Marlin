@@ -1258,11 +1258,11 @@
   #define E5_HYBRID_THRESHOLD     30
 
   /**
-   * Use stallGuard2 to sense an obstacle and trigger an endstop.
-   * You need to place a wire from the driver's DIAG1 pin to the X/Y endstop pin.
+   * Use StallGuard2 to sense an obstacle and trigger an endstop.
+   * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
    * X, Y, and Z homing will always be done in spreadCycle mode.
    *
-   * X/Y/Z_HOMING_SENSITIVITY is used for tuning the trigger sensitivity.
+   * X/Y/Z_STALL_SENSITIVITY is used for tuning the trigger sensitivity.
    * Higher values make the system LESS sensitive.
    * Lower value make the system MORE sensitive.
    * Too low values can lead to false positives, while too high values will collide the axis without triggering.
@@ -1271,10 +1271,18 @@
    */
   //#define SENSORLESS_HOMING // TMC2130 only
 
-  #if ENABLED(SENSORLESS_HOMING)
-    #define X_HOMING_SENSITIVITY  8
-    #define Y_HOMING_SENSITIVITY  8
-    //#define Z_HOMING_SENSITIVITY  8
+  /**
+   * Use StallGuard2 to probe the bed with the nozzle.
+   * 
+   * CAUTION: This could cause damage to machines that use a lead screw or threaded rod
+   *          to move the Z axis. Take extreme care when attempting to enable this feature.
+   */
+  //#define SENSORLESS_PROBING // TMC2130 only
+
+  #if ENABLED(SENSORLESS_HOMING) || ENABLED(SENSORLESS_PROBING)
+    #define X_STALL_SENSITIVITY  8
+    #define Y_STALL_SENSITIVITY  8
+    //#define Z_STALL_SENSITIVITY  8
   #endif
 
   /**
