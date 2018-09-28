@@ -430,17 +430,15 @@ void _O2 Endstops::M119() {
         switch (i) {
           default: continue;
           case 1: pin = FIL_RUNOUT_PIN; break;
-          #if NUM_RUNOUT_SENSORS > 1
-            case 2: pin = FIL_RUNOUT2_PIN; break;
-            #if NUM_RUNOUT_SENSORS > 2
-              case 3: pin = FIL_RUNOUT3_PIN; break;
-              #if NUM_RUNOUT_SENSORS > 3
-                case 4: pin = FIL_RUNOUT4_PIN; break;
-                #if NUM_RUNOUT_SENSORS > 4
-                  case 5: pin = FIL_RUNOUT5_PIN; break;
-                  #if NUM_RUNOUT_SENSORS > 5
-                    case 6: pin = FIL_RUNOUT6_PIN; break;
-                  #endif
+          case 2: pin = FIL_RUNOUT2_PIN; break;
+          #if NUM_RUNOUT_SENSORS > 2
+            case 3: pin = FIL_RUNOUT3_PIN; break;
+            #if NUM_RUNOUT_SENSORS > 3
+              case 4: pin = FIL_RUNOUT4_PIN; break;
+              #if NUM_RUNOUT_SENSORS > 4
+                case 5: pin = FIL_RUNOUT5_PIN; break;
+                #if NUM_RUNOUT_SENSORS > 5
+                  case 6: pin = FIL_RUNOUT6_PIN; break;
                 #endif
               #endif
             #endif
