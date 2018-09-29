@@ -1541,7 +1541,7 @@ void homeaxis(const AxisEnum axis) {
           case X_AXIS:
           case Y_AXIS:
             // Get a minimum radius for clamping
-            soft_endstop_radius = MIN3(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
+            soft_endstop_radius = MIN(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
             soft_endstop_radius_2 = sq(soft_endstop_radius);
             break;
         #endif
