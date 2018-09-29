@@ -995,11 +995,7 @@
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *
  */
-<<<<<<< HEAD:Marlin/src/config/examples/Formbot/Raptor/Configuration_adv.h
-#define FWRETRACT  // ONLY PARTIALLY TESTED
-=======
-//#define FWRETRACT
->>>>>>> patch:Marlin/src/config/examples/Azteeg/X5GT/Configuration_adv.h
+#define FWRETRACT
 #if ENABLED(FWRETRACT)
   #define FWRETRACT_AUTORETRACT           // costs ~500 bytes of PROGMEM
   #if ENABLED(FWRETRACT_AUTORETRACT)
