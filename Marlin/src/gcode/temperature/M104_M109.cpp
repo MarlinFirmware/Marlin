@@ -89,8 +89,9 @@ void GcodeSuite::M109() {
     if (target_extruder != active_extruder) return;
   #endif
 
-  const bool no_wait_for_cooling = parser.seenval('S');
-  if (no_wait_for_cooling || parser.seenval('R')) {
+  const bool no_wait_for_cooling = parser.seenval('S'),
+             set_temp = no_wait_for_cooling || parser.seenval('R')
+  if (set_temp) {
     const int16_t temp = parser.value_celsius();
     thermalManager.setTargetHotend(temp, target_extruder);
 
@@ -123,11 +124,11 @@ void GcodeSuite::M109() {
         #endif
     #endif
   }
-  else return;
 
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
   #endif
 
-  (void)thermalManager.wait_for_hotend(target_extruder, no_wait_for_cooling);
+  if (set_temp)
+    (void)thermalManager.wait_for_hotend(target_extruder, no_wait_for_cooling);
 }
