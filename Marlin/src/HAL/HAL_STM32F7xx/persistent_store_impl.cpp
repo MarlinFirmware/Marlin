@@ -30,10 +30,25 @@
 
 #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
   #include <EEPROM.h>
+  static bool eeprom_data_written = false;
 #endif
 
-bool PersistentStore::access_start() { return true; }
-bool PersistentStore::access_finish() { return true; }
+bool PersistentStore::access_start() {
+  #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+    eeprom_buffer_fill();
+  #endif
+  return true;
+}
+
+bool PersistentStore::access_finish() {
+  #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+    if (eeprom_data_written) {
+      eeprom_buffer_flush();
+      eeprom_data_written = false;
+    }
+  #endif
+  return true;
+}
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
@@ -41,16 +56,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
     // Save to either program flash or Backup SRAM
     #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
-      // FLASH has only ~1,000 write cycles,
-      // so only write bytes that have changed!
-      if (v != EEPROM.read(pos)) {
-        EEPROM.write(pos, v);
-        if (EEPROM.read(pos) != v) {
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
-          return true;
-        }
-      }    
+      eeprom_buffered_write_byte(pos, v);
     #else
       *(__IO uint8_t *)(BKPSRAM_BASE + (uint8_t * const)pos) = v;
     #endif
@@ -59,6 +65,10 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     pos++;
     value++;
   };
+  #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+    eeprom_data_written = true;
+  #endif
+
   return false;
 }
 
@@ -67,7 +77,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
     // Read from either program flash or Backup SRAM
     const uint8_t c = (
       #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
-        EEPROM.read(pos)
+        eeprom_buffered_read_byte(pos)
       #else
         (*(__IO uint8_t *)(BKPSRAM_BASE + ((unsigned char*)pos)))
       #endif
