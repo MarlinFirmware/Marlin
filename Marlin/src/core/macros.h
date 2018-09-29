@@ -19,7 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #pragma once
+
+#include "minmax.h"
 
 #define NUM_AXIS 4
 #define ABCE 4
@@ -91,22 +94,45 @@
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to constrain values
-// Avoid double evaluation of arguments to NOMORE/NOLESS/LIMIT
-#undef NOMORE
-#undef NOLESS
-#undef LIMIT
+#ifdef __cplusplus
 
-// C++11 solution that is standards compliant.
-template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
-	if (v < n) v = n;
-}
-template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
-	if (v > n) v = n;
-}
-template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
-	if (v < n1) v = n1;
-	else if (v > n2) v = n2;
-}
+  // C++11 solution that is standards compliant.
+  template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
+    if (v < n) v = n;
+  }
+  template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
+    if (v > n) v = n;
+  }
+  template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
+    if (v < n1) v = n1;
+    else if (v > n2) v = n2;
+  }
+
+#else
+
+  // Using GCC extensions, but Travis GCC version does not like it and gives
+  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
+  #define NOLESS(v, n) \
+    do { \
+      __typeof__(n) _n = (n); \
+      if (v < _n) v = _n; \
+    } while(0)
+
+  #define NOMORE(v, n) \
+    do { \
+      __typeof__(n) _n = (n); \
+      if (v > _n) v = _n; \
+    } while(0)
+
+  #define LIMIT(v, n1, n2) \
+    do { \
+      __typeof__(n1) _n1 = (n1); \
+      __typeof__(n2) _n2 = (n2); \
+      if (v < _n1) v = _n1; \
+      else if (v > _n2) v = _n2; \
+    } while(0)
+
+#endif
 
 // Macros to support option testing
 #define _CAT(a, ...) a ## __VA_ARGS__
@@ -178,35 +204,13 @@ template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, 
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
-// Avoid double evaluation of arguments on MIN/MAX/ABS
-#undef MIN
-#undef MAX
 #undef ABS
+#ifdef __cplusplus
+  template <class T> static inline constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
+#else
+  #define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
+#endif
 
-template <class T> static inline constexpr const T ABS(const T v) {
-return v >= 0 ? v : -v;
-}
-
-template <class T, class U> 
-constexpr auto MIN(const T first, const U second) -> decltype(first + second) {
-  return first < second ? first : second;
-}
-
-template <class T, class U, class ... Args> 
-constexpr auto MIN(const T first, const U second, const Args ... rest) -> decltype(first + second) {
-  return MIN(MIN(first, second), rest ...);
-}
-
-template <class T, class U> 
-constexpr auto MAX(const T first, const U second) -> decltype(first + second) {
-  return first >= second ? first : second;
-}
-
-template <class T, class U, class ... Args> 
-constexpr auto MAX(const T first, const U second, const Args ... rest) -> decltype(first + second) {
-  return MAX(MAX(first, second), rest ...);
-}  
-  
 #define UNEAR_ZERO(x) ((x) < 0.000001f)
 #define NEAR_ZERO(x) WITHIN(x, -0.000001f, 0.000001f)
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
@@ -226,4 +230,3 @@ constexpr auto MAX(const T first, const U second, const Args ... rest) -> declty
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
-
