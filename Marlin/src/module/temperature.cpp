@@ -51,6 +51,10 @@
   #include "../feature/emergency_parser.h"
 #endif
 
+#if ENABLED(PRINTER_EVENT_LEDS)
+  #include "../feature/leds/leds.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
@@ -2411,5 +2415,249 @@ void Temperature::isr() {
     }
 
   #endif // AUTO_REPORT_TEMPERATURES
+
+  #if HAS_TEMP_HOTEND
+
+    #ifndef MIN_COOLING_SLOPE_DEG
+      #define MIN_COOLING_SLOPE_DEG 1.50
+    #endif
+    #ifndef MIN_COOLING_SLOPE_TIME
+      #define MIN_COOLING_SLOPE_TIME 60
+    #endif
+
+    bool Temperature::wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling/*=true*/) {
+      #if TEMP_RESIDENCY_TIME > 0
+        millis_t residency_start_ms = 0;
+        // Loop until the temperature has stabilized
+        #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL))
+      #else
+        // Loop until the temperature is very close target
+        #define TEMP_CONDITIONS (wants_to_cool ? isCoolingHotend(target_extruder) : isHeatingHotend(target_extruder))
+      #endif
+
+      #if DISABLED(BUSY_WHILE_HEATING)
+        #if ENABLED(HOST_KEEPALIVE_FEATURE)
+          const MarlinBusyState old_busy_state = gcode.busy_state;
+        #endif
+        KEEPALIVE_STATE(NOT_BUSY);
+      #endif
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        const float start_temp = degHotend(target_extruder);
+        uint8_t old_blue = 0;
+      #endif
+
+      float target_temp = -1.0, old_temp = 9999.0;
+      bool wants_to_cool = false;
+      wait_for_heatup = true;
+      millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
+      do {
+        // Target temperature might be changed during the loop
+        if (target_temp != degTargetHotend(target_extruder)) {
+          wants_to_cool = isCoolingHotend(target_extruder);
+          target_temp = degTargetHotend(target_extruder);
+
+          // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+          if (no_wait_for_cooling && wants_to_cool) break;
+        }
+
+        now = millis();
+        if (ELAPSED(now, next_temp_ms)) { //Print temp & remaining time every 1s while waiting
+          next_temp_ms = now + 1000UL;
+          print_heaterstates();
+          #if TEMP_RESIDENCY_TIME > 0
+            SERIAL_PROTOCOLPGM(" W:");
+            if (residency_start_ms)
+              SERIAL_PROTOCOL(long((((TEMP_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL));
+            else
+              SERIAL_PROTOCOLCHAR('?');
+          #endif
+          SERIAL_EOL();
+        }
+
+        idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
+
+        const float temp = degHotend(target_extruder);
+
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          // Gradually change LED strip from violet to red as nozzle heats up
+          if (!wants_to_cool) {
+            const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
+            if (blue != old_blue) {
+              old_blue = blue;
+              leds.set_color(
+                MakeLEDColor(255, 0, blue, 0, pixels.getBrightness())
+                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+                  , true
+                #endif
+              );
+            }
+          }
+        #endif
+
+        #if TEMP_RESIDENCY_TIME > 0
+
+          const float temp_diff = ABS(target_temp - temp);
+
+          if (!residency_start_ms) {
+            // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
+            if (temp_diff < TEMP_WINDOW) residency_start_ms = now;
+          }
+          else if (temp_diff > TEMP_HYSTERESIS) {
+            // Restart the timer whenever the temperature falls outside the hysteresis.
+            residency_start_ms = now;
+          }
+
+        #endif
+
+        // Prevent a wait-forever situation if R is misused i.e. M109 R0
+        if (wants_to_cool) {
+          // break after MIN_COOLING_SLOPE_TIME seconds
+          // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG
+          if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
+            if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG)) break;
+            next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME;
+            old_temp = temp;
+          }
+        }
+
+      } while (wait_for_heatup && TEMP_CONDITIONS);
+
+      if (wait_for_heatup) {
+        lcd_reset_status();
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          leds.set_white();
+        #endif
+      }
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        gcode.busy_state = old_busy_state;
+      #endif
+
+      return wait_for_heatup;
+    }
+
+  #endif // HAS_TEMP_HOTEND
+
+  #if HAS_HEATED_BED
+
+    #ifndef MIN_COOLING_SLOPE_DEG_BED
+      #define MIN_COOLING_SLOPE_DEG_BED 1.50
+    #endif
+    #ifndef MIN_COOLING_SLOPE_TIME_BED
+      #define MIN_COOLING_SLOPE_TIME_BED 60
+    #endif
+
+    void Temperature::wait_for_bed(const bool no_wait_for_cooling) {
+      #if TEMP_BED_RESIDENCY_TIME > 0
+        millis_t residency_start_ms = 0;
+        // Loop until the temperature has stabilized
+        #define TEMP_BED_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_BED_RESIDENCY_TIME) * 1000UL))
+      #else
+        // Loop until the temperature is very close target
+        #define TEMP_BED_CONDITIONS (wants_to_cool ? isCoolingBed() : isHeatingBed())
+      #endif
+
+      float target_temp = -1, old_temp = 9999;
+      bool wants_to_cool = false;
+      wait_for_heatup = true;
+      millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
+
+      #if DISABLED(BUSY_WHILE_HEATING)
+        #if ENABLED(HOST_KEEPALIVE_FEATURE)
+          const MarlinBusyState old_busy_state = gcode.busy_state;
+        #endif
+        KEEPALIVE_STATE(NOT_BUSY);
+      #endif
+
+      gcode.target_extruder = active_extruder; // for print_heaterstates
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        const float start_temp = degBed();
+        uint8_t old_red = 127;
+      #endif
+
+      do {
+        // Target temperature might be changed during the loop
+        if (target_temp != degTargetBed()) {
+          wants_to_cool = isCoolingBed();
+          target_temp = degTargetBed();
+
+          // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+          if (no_wait_for_cooling && wants_to_cool) break;
+        }
+
+        now = millis();
+        if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
+          next_temp_ms = now + 1000UL;
+          print_heaterstates();
+          #if TEMP_BED_RESIDENCY_TIME > 0
+            SERIAL_PROTOCOLPGM(" W:");
+            if (residency_start_ms)
+              SERIAL_PROTOCOL(long((((TEMP_BED_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL));
+            else
+              SERIAL_PROTOCOLCHAR('?');
+          #endif
+          SERIAL_EOL();
+        }
+
+        idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
+
+        const float temp = degBed();
+
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          // Gradually change LED strip from blue to violet as bed heats up
+          if (!wants_to_cool) {
+            const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
+            if (red != old_red) {
+              old_red = red;
+              leds.set_color(
+                MakeLEDColor(red, 0, 255, 0, pixels.getBrightness())
+                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+                  , true
+                #endif
+              );
+            }
+          }
+        #endif
+
+        #if TEMP_BED_RESIDENCY_TIME > 0
+
+          const float temp_diff = ABS(target_temp - temp);
+
+          if (!residency_start_ms) {
+            // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
+            if (temp_diff < TEMP_BED_WINDOW) residency_start_ms = now;
+          }
+          else if (temp_diff > TEMP_BED_HYSTERESIS) {
+            // Restart the timer whenever the temperature falls outside the hysteresis.
+            residency_start_ms = now;
+          }
+
+        #endif // TEMP_BED_RESIDENCY_TIME > 0
+
+        // Prevent a wait-forever situation if R is misused i.e. M190 R0
+        if (wants_to_cool) {
+          // Break after MIN_COOLING_SLOPE_TIME_BED seconds
+          // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_BED
+          if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
+            if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG_BED)) break;
+            next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME_BED;
+            old_temp = temp;
+          }
+        }
+
+      } while (wait_for_heatup && TEMP_BED_CONDITIONS);
+
+      if (wait_for_heatup) lcd_reset_status();
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        gcode.busy_state = old_busy_state;
+      #endif
+    }
+
+  #endif // HAS_HEATED_BED
 
 #endif // HAS_TEMP_SENSOR
