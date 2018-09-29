@@ -90,7 +90,7 @@ void GcodeSuite::M109() {
   #endif
 
   const bool no_wait_for_cooling = parser.seenval('S'),
-             set_temp = no_wait_for_cooling || parser.seenval('R')
+             set_temp = no_wait_for_cooling || parser.seenval('R');
   if (set_temp) {
     const int16_t temp = parser.value_celsius();
     thermalManager.setTargetHotend(temp, target_extruder);
