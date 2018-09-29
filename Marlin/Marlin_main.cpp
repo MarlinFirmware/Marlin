@@ -1408,7 +1408,7 @@ bool get_target_extruder_from_command(const uint16_t code) {
           case X_AXIS:
           case Y_AXIS:
             // Get a minimum radius for clamping
-            soft_endstop_radius = MIN3(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
+            soft_endstop_radius = MIN(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
             soft_endstop_radius_2 = sq(soft_endstop_radius);
             break;
         #endif
@@ -6258,7 +6258,7 @@ void home_all_axes() { gcode_G28(true); }
         }
 
         // adjust delta_height and endstops by the max amount
-        const float z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
+        const float z_temp = MAX(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
         delta_height -= z_temp;
         LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
       }
@@ -14626,10 +14626,10 @@ void prepare_move_to_destination() {
       next_status_led_update_ms += 500; // Update every 0.5s
       float max_temp = 0.0;
       #if HAS_HEATED_BED
-        max_temp = MAX3(max_temp, thermalManager.degTargetBed(), thermalManager.degBed());
+        max_temp = MAX(max_temp, thermalManager.degTargetBed(), thermalManager.degBed());
       #endif
       HOTEND_LOOP()
-        max_temp = MAX3(max_temp, thermalManager.degHotend(e), thermalManager.degTargetHotend(e));
+        max_temp = MAX(max_temp, thermalManager.degHotend(e), thermalManager.degTargetHotend(e));
       const bool new_led = (max_temp > 55.0) ? true : (max_temp < 54.0) ? false : red_led;
       if (new_led != red_led) {
         red_led = new_led;

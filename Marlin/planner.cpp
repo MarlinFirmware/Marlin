@@ -1768,9 +1768,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   block->step_event_count = (
     #if ENABLED(HANGPRINTER)
-      MAX5(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], block->steps[D_AXIS], esteps)
+      MAX(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], block->steps[D_AXIS], esteps)
     #else
-      MAX4(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], esteps)
+      MAX(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], esteps)
     #endif
   );
 
@@ -2116,8 +2116,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     }
     ys0 = axis_segment_time_us[Y_AXIS][0] = ys0 + segment_time_us;
 
-    const uint32_t max_x_segment_time = MAX3(xs0, xs1, xs2),
-                   max_y_segment_time = MAX3(ys0, ys1, ys2),
+    const uint32_t max_x_segment_time = MAX(xs0, xs1, xs2),
+                   max_y_segment_time = MAX(ys0, ys1, ys2),
                    min_xy_segment_time = MIN(max_x_segment_time, max_y_segment_time);
     if (min_xy_segment_time < MAX_FREQ_TIME_US) {
       const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME_US);
@@ -2351,7 +2351,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       }
 
       // Get the lowest speed
-      vmax_junction_sqr = MIN3(vmax_junction_sqr, block->nominal_speed_sqr, previous_nominal_speed_sqr);
+      vmax_junction_sqr = MIN(vmax_junction_sqr, block->nominal_speed_sqr, previous_nominal_speed_sqr);
     }
     else // Init entry speed to zero. Assume it starts from rest. Planner will correct this later.
       vmax_junction_sqr = 0;
