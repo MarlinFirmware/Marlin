@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-typedef unsigned long millis_t;
+using millis_t = unsigned long;
 
 typedef struct {
   int8_t x_index, y_index;
