@@ -1145,32 +1145,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
     START_MENU();
     MENU_BACK(MSG_WATCH);
 
-    #if ENABLED(CUSTOM_USER_MENUS)
-      MENU_ITEM(submenu, MSG_USER_MENU, _lcd_user_menu);
-    #endif
-
-    #if ENABLED(DUAL_X_CARRIAGE)
-      MENU_ITEM(submenu, MSG_IDEX_MENU, IDEX_menu);
-    #endif
-
-    //
-    // Debug Menu when certain options are enabled
-    //
-    #if HAS_DEBUG_MENU
-      MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
-    #endif
-
-    //
-    // Set Case light on/off/brightness
-    //
-    #if ENABLED(MENU_ITEM_CASE_LIGHT)
-      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
-        MENU_ITEM(submenu, MSG_CASE_LIGHT, case_light_menu);
-      }
-      else
-        MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-    #endif
-
     #if ENABLED(SDSUPPORT)
       if (card.cardOK) {
         if (card.isFileOpen()) {
@@ -1200,8 +1174,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
     else {
       MENU_ITEM(submenu, MSG_MOTION, lcd_movement_menu);
       MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_temperature_menu);
-      MENU_ITEM(submenu, MSG_CONFIGURATION, lcd_configuration_menu);
     }
+
+    MENU_ITEM(submenu, MSG_CONFIGURATION, lcd_configuration_menu);
+
+    #if ENABLED(CUSTOM_USER_MENUS)
+      MENU_ITEM(submenu, MSG_USER_MENU, _lcd_user_menu);
+    #endif
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
@@ -3413,6 +3392,28 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
       MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
+    #endif
+
+    #if ENABLED(DUAL_X_CARRIAGE)
+      MENU_ITEM(submenu, MSG_IDEX_MENU, IDEX_menu);
+    #endif
+
+    //
+    // Debug Menu when certain options are enabled
+    //
+    #if HAS_DEBUG_MENU
+      MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
+    #endif
+
+    //
+    // Set Case light on/off/brightness
+    //
+    #if ENABLED(MENU_ITEM_CASE_LIGHT)
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+        MENU_ITEM(submenu, MSG_CASE_LIGHT, case_light_menu);
+      }
+      else
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     #endif
 
     #if HAS_LCD_CONTRAST
