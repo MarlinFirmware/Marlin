@@ -30,7 +30,52 @@
 
 #define IS_RAMPS_EFB
 
-#define FAN2_PIN             44
-#define ORIG_E0_AUTO_FAN_PIN 44
+// FAN0 / D9  - Typically used for the part fan on Anycubic Delta devices
+#define FAN_PIN 9
+
+// FAN1 / D7  - Typically unused, can be allocated as Case Fan
+
+// FAN2 / D44 - Typical Extruder Fan on Anycubic Delta devices
+#define FAN2_PIN              44
+#define ORIG_E0_AUTO_FAN_PIN  44
 
 #include "pins_RAMPS.h"
+
+// TODO 1.4 boards do have an E1 stepper driver. However the pin definitions
+// from pins_RAMPS.h are incorrect for this board. e.g., Pin 44 is the Extruder fan.
+#undef E1_STEP_PIN
+#undef E1_DIR_PIN
+#undef E1_ENABLE_PIN
+#undef E1_CS_PIN
+
+//
+// AnyCubic made the following changes to 1.1.0-RC8
+// If these are appropriate for your LCD let us know.
+//
+#if 0 && ENABLED(ULTRA_LCD)
+
+  // LCD Display output pins
+  #if ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
+    #undef LCD_PINS_D6
+    #define LCD_PINS_D6    57
+  #endif
+
+  // LCD Display input pins
+  #if ENABLED(NEWPANEL)
+    #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+      #undef DOGLCD_A0
+      #define DOGLCD_A0    23
+    #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+      #undef BEEPER_PIN
+      #define BEEPER_PIN   33
+      #undef LCD_BACKLIGHT_PIN
+      #define LCD_BACKLIGHT_PIN 67
+    #endif
+  #elif ENABLED(MINIPANEL)
+    #undef BEEPER_PIN
+    #define BEEPER_PIN     33
+    #undef DOGLCD_A0
+    #define DOGLCD_A0      42
+  #endif
+
+#endif // ULTRA_LCD

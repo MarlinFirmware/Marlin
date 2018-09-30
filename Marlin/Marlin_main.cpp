@@ -152,8 +152,8 @@
  * M150 - Set Status LED Color as R<red> U<green> B<blue> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, or PCA9632).
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
- * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
- * M165 - Set the proportions for a mixing extruder. Use parameters ABCDHI to set the mixing factors. (Requires MIXING_EXTRUDER)
+ * M164 - Commit the mix (Req. MIXING_EXTRUDER) and optionally save as a virtual tool (Req. MIXING_VIRTUAL_TOOLS > 1)
+ * M165 - Set the mix for a mixing extruder wuth parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M190 - Sxxx Wait for bed current temp to reach target temp. ** Waits only when heating! **
  *        Rxxx Wait for bed current temp to reach target temp. ** Waits for heating or cooling. **
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
@@ -1075,44 +1075,40 @@ inline void get_serial_commands() {
 
         gcode_N = strtol(npos + 1, NULL, 10);
 
-        if (gcode_N != gcode_LastN + 1 && !M110) {
-          gcode_line_error(PSTR(MSG_ERR_LINE_NO));
-          return;
-        }
+        if (gcode_N != gcode_LastN + 1 && !M110)
+          return gcode_line_error(PSTR(MSG_ERR_LINE_NO));
 
         char *apos = strrchr(command, '*');
         if (apos) {
           uint8_t checksum = 0, count = uint8_t(apos - command);
           while (count) checksum ^= command[--count];
-          if (strtol(apos + 1, NULL, 10) != checksum) {
-            gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
-            return;
-          }
+          if (strtol(apos + 1, NULL, 10) != checksum)
+            return gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
         }
-        else {
-          gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
-          return;
-        }
+        else
+          return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
 
         gcode_LastN = gcode_N;
       }
       #if ENABLED(SDSUPPORT)
-        else if (card.saving) {
-          gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
-          return;
-        }
+        else if (card.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
+          return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
       #endif
 
       // Movement commands alert when stopped
       if (IsStopped()) {
         char* gpos = strchr(command, 'G');
         if (gpos) {
-          const int codenum = strtol(gpos + 1, NULL, 10);
-          switch (codenum) {
+          switch (strtol(gpos + 1, NULL, 10)) {
             case 0:
             case 1:
-            case 2:
-            case 3:
+            #if ENABLED(ARC_SUPPORT)
+              case 2:
+              case 3:
+            #endif
+            #if ENABLED(BEZIER_CURVE_SUPPORT)
+              case 5:
+            #endif
               SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
               LCD_MESSAGEPGM(MSG_STOPPED);
               break;
@@ -3280,11 +3276,12 @@ static void homeaxis(const AxisEnum axis) {
 
   void normalize_mix() {
     float mix_total = 0.0;
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mix_total += RECIPROCAL(mixing_factor[i]);
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mix_total += mixing_factor[i];
     // Scale all values if they don't add up to ~1.0
     if (!NEAR(mix_total, 1.0)) {
       SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
-      for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= mix_total;
+      const float inverse_sum = RECIPROCAL(mix_total);
+      for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= inverse_sum;
     }
   }
 
@@ -3293,14 +3290,25 @@ static void homeaxis(const AxisEnum axis) {
     // The total "must" be 1.0 (but it will be normalized)
     // If no mix factors are given, the old mix is preserved
     void gcode_get_mix() {
-      const char* mixing_codes = "ABCDHI";
+      const char mixing_codes[] = { 'A', 'B'
+        #if MIXING_STEPPERS > 2
+          , 'C'
+          #if MIXING_STEPPERS > 3
+            , 'D'
+            #if MIXING_STEPPERS > 4
+              , 'H'
+              #if MIXING_STEPPERS > 5
+                , 'I'
+              #endif // MIXING_STEPPERS > 5
+            #endif // MIXING_STEPPERS > 4
+          #endif // MIXING_STEPPERS > 3
+        #endif // MIXING_STEPPERS > 2
+      };
       byte mix_bits = 0;
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
         if (parser.seenval(mixing_codes[i])) {
           SBI(mix_bits, i);
-          float v = parser.value_float();
-          NOLESS(v, 0.0);
-          mixing_factor[i] = RECIPROCAL(v);
+          mixing_factor[i] = MAX(parser.value_float(), 0.0);
         }
       }
       // If any mixing factors were included, clear the rest
@@ -8408,8 +8416,9 @@ inline void gcode_M109() {
     if (target_extruder != active_extruder) return;
   #endif
 
-  const bool no_wait_for_cooling = parser.seenval('S');
-  if (no_wait_for_cooling || parser.seenval('R')) {
+  const bool no_wait_for_cooling = parser.seenval('S'),
+             set_temp = no_wait_for_cooling || parser.seenval('R');
+  if (set_temp) {
     const int16_t temp = parser.value_celsius();
     thermalManager.setTargetHotend(temp, target_extruder);
 
@@ -8442,11 +8451,12 @@ inline void gcode_M109() {
         #endif
     #endif
   }
-  else return;
 
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
   #endif
+
+  if (!set_temp) return;
 
   #if TEMP_RESIDENCY_TIME > 0
     millis_t residency_start_ms = 0;
@@ -11322,7 +11332,7 @@ inline void gcode_M502() {
         SERIAL_ECHOPGM("led_line[");
         if (r < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO(int(r));
-        SERIAL_ECHO("]=");
+        SERIAL_ECHOPGM("]=");
         for (uint8_t b = 8; b--;) SERIAL_CHAR('0' + TEST(max7219.led_line[r], b));
         SERIAL_EOL();
       }
@@ -12027,44 +12037,39 @@ inline void gcode_M355() {
   /**
    * M163: Set a single mix factor for a mixing extruder
    *       This is called "weight" by some systems.
+   *       The 'P' values must sum to 1.0 or must be followed by M164 to normalize them.
    *
    *   S[index]   The channel index to set
    *   P[float]   The mix value
-   *
    */
   inline void gcode_M163() {
     const int mix_index = parser.intval('S');
-    if (mix_index < MIXING_STEPPERS) {
-      float mix_value = parser.floatval('P');
-      NOLESS(mix_value, 0.0);
-      mixing_factor[mix_index] = RECIPROCAL(mix_value);
-    }
+    if (mix_index < MIXING_STEPPERS)
+      mixing_factor[mix_index] = MAX(parser.floatval('P'), 0.0);
   }
 
-  #if MIXING_VIRTUAL_TOOLS > 1
-
-    /**
-     * M164: Store the current mix factors as a virtual tool.
-     *
-     *   S[index]   The virtual tool to store
-     *
-     */
-    inline void gcode_M164() {
-      const int tool_index = parser.intval('S');
-      if (tool_index < MIXING_VIRTUAL_TOOLS) {
-        normalize_mix();
+  /**
+   * M164: Normalize and commit the mix.
+   *       If 'S' is given store as a virtual tool. (Requires MIXING_VIRTUAL_TOOLS > 1)
+   *
+   *   S[index]   The virtual tool to store
+   */
+  inline void gcode_M164() {
+    normalize_mix();
+    #if MIXING_VIRTUAL_TOOLS > 1
+      const int tool_index = parser.intval('S', -1);
+      if (WITHIN(tool_index, 0, MIXING_VIRTUAL_TOOLS - 1)) {
         for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
           mixing_virtual_tool_mix[tool_index][i] = mixing_factor[i];
       }
-    }
-
-  #endif
+    #endif
+  }
 
   #if ENABLED(DIRECT_MIXING_IN_G1)
     /**
      * M165: Set multiple mix factors for a mixing extruder.
      *       Factors that are left out will be set to 0.
-     *       All factors together must add up to 1.0.
+     *       All factors should sum to 1.0, but they will be normalized regardless.
      *
      *   A[factor] Mix factor for extruder stepper 1
      *   B[factor] Mix factor for extruder stepper 2
@@ -12072,7 +12077,6 @@ inline void gcode_M355() {
      *   D[factor] Mix factor for extruder stepper 4
      *   H[factor] Mix factor for extruder stepper 5
      *   I[factor] Mix factor for extruder stepper 6
-     *
      */
     inline void gcode_M165() { gcode_get_mix(); }
   #endif
@@ -12310,7 +12314,7 @@ inline void invalid_extruder_error(const uint8_t e) {
 
 #if ENABLED(PARKING_EXTRUDER)
 
-  inline void parking_extruder_tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+  inline void parking_extruder_tool_change(const uint8_t tmp_extruder, bool no_move) {
     constexpr float z_raise = PARKING_EXTRUDER_SECURITY_RAISE;
 
     if (!no_move) {
@@ -12474,7 +12478,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #else // !DUAL_X_CARRIAGE
 
           set_destination_from_current();
-          #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
+
+          #if ENABLED(PARKING_EXTRUDER)
             parking_extruder_tool_change(tmp_extruder, no_move);
           #endif
 

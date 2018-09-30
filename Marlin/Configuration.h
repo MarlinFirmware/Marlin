@@ -29,6 +29,8 @@
 //#define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
 //#define GraphicLCD //Full graphics LCD for Ender 4
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
+//#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
+//#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 /*
    Hotend Type
    Choose one option below.
@@ -1065,28 +1067,42 @@
         O-- FRONT --+
       (0,0)
 */
-#if (ENABLED(ABL_BLTOUCH) && ENABLED(HotendStock))
-#define X_PROBE_OFFSET_FROM_EXTRUDER -41  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -8  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
-#endif
+#if ENABLED(MachineCRX) && ENABLED(HotendStock)
+  #if ENABLED(ABL_BLTOUCH)
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -41  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -8  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #endif
 
-#if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(HotendStock))
-#define X_PROBE_OFFSET_FROM_EXTRUDER -44  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -10  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
-#endif
+  #if ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -44  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -10  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #endif
+#else
+  #if (ENABLED(ABL_BLTOUCH) && ENABLED(HotendStock))
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -41  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -8  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #endif
 
-#if (ENABLED(ABL_BLTOUCH) && ENABLED(HotendE3D))
-#define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
-#endif
+  #if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(HotendStock))
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -44  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -10  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #endif
 
-#if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(HotendE3D))
-#define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #if (ENABLED(ABL_BLTOUCH) && ENABLED(HotendE3D))
+    #define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #endif
+
+  #if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(HotendE3D))
+    #define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER 5  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #endif
 #endif
 
 // Certain types of probes need to stay away from edges
@@ -1367,8 +1383,17 @@
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-#define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-#define FIL_RUNOUT_INVERTING true // set to true to invert the logic of the sensor.
+#if ENABLED(DualFilSensors)
+  #define NUM_RUNOUT_SENSORS   2     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+  #define FIL_RUNOUT2_PIN 15
+#else
+  #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+#endif
+#if ENABLED(lerdgeFilSensor)
+  #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
+#else
+  #define FIL_RUNOUT_INVERTING true // set to true to invert the logic of the sensor.
+#endif
 #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
 #define FILAMENT_RUNOUT_SCRIPT "M600"
 #define FIL_RUNOUT_PIN 2
