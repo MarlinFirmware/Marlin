@@ -6,7 +6,7 @@
 # Great way to clean up your branches after messing around a lot
 #
 
-KEEP="RC|RCBugFix|dev|master|bugfix-1"
+KEEP="RC|RCBugFix|dev|master|bugfix-1|bugfix-2"
 
 echo "Fetching latest upstream and origin..."
 git fetch upstream

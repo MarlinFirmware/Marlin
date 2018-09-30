@@ -56,11 +56,13 @@
   #define FIL_RUNOUT_PIN   34   // X_MAX unless overridden
 #endif
 
-#define FAN_PIN             5
+#ifndef FAN_PIN
+  #define FAN_PIN           5
+#endif
 
 #define HEATER_0_PIN        7
 
-#define E0_AUTO_FAN_PIN     3
+#define ORIG_E0_AUTO_FAN_PIN 3   // Use this by NOT overriding E0_AUTO_FAN_PIN
 #define CONTROLLER_FAN_PIN  2
 
 #define TEMP_0_PIN          7   // Analog Input

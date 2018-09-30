@@ -37,10 +37,10 @@
 //
 // Servos
 //
-#define SERVO0_PIN         46 // AUX3-6
-#define SERVO1_PIN         47 // AUX3-5
-#define SERVO2_PIN         48 // AUX3-4
-#define SERVO3_PIN         49 // AUX3-3
+#define SERVO0_PIN         46   // AUX3-6
+#define SERVO1_PIN         47   // AUX3-5
+#define SERVO2_PIN         48   // AUX3-4
+#define SERVO3_PIN         49   // AUX3-3
 
 //
 // Limit Switches
@@ -118,7 +118,9 @@
 #define HEATER_2_PIN        8
 #define HEATER_BED_PIN     10
 
-#define FAN_PIN             6
+#ifndef FAN_PIN
+  #define FAN_PIN           6
+#endif
 #define FAN1_PIN            7
 
 //
@@ -168,9 +170,9 @@
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#if DISABLED(REPRAPWORLD_KEYPAD)       // try to use the keypad connector first
-  #define SPINDLE_LASER_PWM_PIN    44  // MUST BE HARDWARE PWM
-  #define SPINDLE_LASER_ENABLE_PIN 43  // Pin should have a pullup!
+#if DISABLED(REPRAPWORLD_KEYPAD)        // try to use the keypad connector first
+  #define SPINDLE_LASER_PWM_PIN    44   // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_ENABLE_PIN 43   // Pin should have a pullup!
   #define SPINDLE_DIR_PIN          42
 #elif EXTRUDERS <= 2
   // Hijack the last extruder so that we can get the PWM signal off the Y breakout
@@ -184,7 +186,7 @@
   #define Y_ENABLE_PIN             23
   #define Y_STEP_PIN               22
   #define Y_DIR_PIN                60
-  #define SPINDLE_LASER_PWM_PIN     4  // MUST BE HARDWARE PWM
-  #define SPINDLE_LASER_ENABLE_PIN 17  // Pin should have a pullup!
+  #define SPINDLE_LASER_PWM_PIN     4   // MUST BE HARDWARE PWM
+  #define SPINDLE_LASER_ENABLE_PIN 17   // Pin should have a pullup!
   #define SPINDLE_DIR_PIN           5
 #endif

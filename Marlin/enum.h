@@ -28,24 +28,27 @@
 /**
  * Axis indices as enumerated constants
  *
- * Special axis:
- *  - A_AXIS and B_AXIS are used by COREXY printers
- *  - X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship
- *    between X_AXIS and X Head movement, like CoreXY bots
+ *  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
+ *  - A_AXIS, B_AXIS, and C_AXIS should be used for Steppers, corresponding to XYZ on Cartesians
+ *  - X_HEAD, Y_HEAD, and Z_HEAD should be used for Steppers on Core kinematics
  */
-enum AxisEnum {
-  NO_AXIS   = -1,
+enum AxisEnum : unsigned char {
   X_AXIS    = 0,
   A_AXIS    = 0,
   Y_AXIS    = 1,
   B_AXIS    = 1,
   Z_AXIS    = 2,
   C_AXIS    = 2,
-  E_AXIS    = 3,
-  X_HEAD    = 4,
-  Y_HEAD    = 5,
-  Z_HEAD    = 6,
-  ALL_AXES  = 100
+  E_CART    = 3,
+  #if ENABLED(HANGPRINTER) // Hangprinter order: A_AXIS, B_AXIS, C_AXIS, D_AXIS, E_AXIS
+    D_AXIS  = 3,
+    E_AXIS  = 4,
+  #else
+    E_AXIS  = 3,
+  #endif
+  X_HEAD, Y_HEAD, Z_HEAD,
+  ALL_AXES  = 0xFE,
+  NO_AXIS   = 0xFF
 };
 
 #define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=S; VAR<=N; VAR++)
@@ -55,8 +58,11 @@ enum AxisEnum {
 
 #define LOOP_NA(VAR) LOOP_L_N(VAR, NUM_AXIS)
 #define LOOP_XYZ(VAR) LOOP_S_LE_N(VAR, X_AXIS, Z_AXIS)
-#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_AXIS)
+#define LOOP_XYZE(VAR) LOOP_S_LE_N(VAR, X_AXIS, E_CART)
 #define LOOP_XYZE_N(VAR) LOOP_S_L_N(VAR, X_AXIS, XYZE_N)
+#define LOOP_MOV_AXIS(VAR) LOOP_S_L_N(VAR, A_AXIS, MOV_AXIS)
+#define LOOP_NUM_AXIS(VAR) LOOP_S_L_N(VAR, A_AXIS, NUM_AXIS)
+#define LOOP_NUM_AXIS_N(VAR) LOOP_S_L_N(VAR, A_AXIS, NUM_AXIS_N)
 
 typedef enum {
   LINEARUNIT_MM,
@@ -73,7 +79,7 @@ typedef enum {
  * Debug flags
  * Not yet widely applied
  */
-enum DebugFlags {
+enum DebugFlags : unsigned char {
   DEBUG_NONE          = 0,
   DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
   DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
@@ -85,53 +91,23 @@ enum DebugFlags {
   DEBUG_ALL           = 0xFF
 };
 
-enum EndstopEnum {
-  X_MIN,
-  Y_MIN,
-  Z_MIN,
-  Z_MIN_PROBE,
-  X_MAX,
-  Y_MAX,
-  Z_MAX,
-  X2_MIN,
-  X2_MAX,
-  Y2_MIN,
-  Y2_MAX,
-  Z2_MIN,
-  Z2_MAX
-};
-
-#if ENABLED(EMERGENCY_PARSER)
-  enum e_parser_state {
-    state_RESET,
-    state_N,
-    state_M,
-    state_M1,
-    state_M10,
-    state_M108,
-    state_M11,
-    state_M112,
-    state_M4,
-    state_M41,
-    state_M410,
-    state_IGNORE // to '\n'
-  };
-#endif
-
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  enum AdvancedPauseMenuResponse {
+  enum AdvancedPauseMenuResponse : char {
     ADVANCED_PAUSE_RESPONSE_WAIT_FOR,
     ADVANCED_PAUSE_RESPONSE_EXTRUDE_MORE,
     ADVANCED_PAUSE_RESPONSE_RESUME_PRINT
   };
 
   #if ENABLED(ULTIPANEL)
-    enum AdvancedPauseMessage {
+    enum AdvancedPauseMessage : char {
       ADVANCED_PAUSE_MESSAGE_INIT,
       ADVANCED_PAUSE_MESSAGE_UNLOAD,
       ADVANCED_PAUSE_MESSAGE_INSERT,
       ADVANCED_PAUSE_MESSAGE_LOAD,
-      ADVANCED_PAUSE_MESSAGE_EXTRUDE,
+      ADVANCED_PAUSE_MESSAGE_PURGE,
+      #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+        ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE,
+      #endif
       ADVANCED_PAUSE_MESSAGE_OPTION,
       ADVANCED_PAUSE_MESSAGE_RESUME,
       ADVANCED_PAUSE_MESSAGE_STATUS,
@@ -139,6 +115,12 @@ enum EndstopEnum {
       ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT
     };
   #endif
+
+  enum AdvancedPauseMode : char {
+    ADVANCED_PAUSE_MODE_PAUSE_PRINT,
+    ADVANCED_PAUSE_MODE_LOAD_FILAMENT,
+    ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT
+  };
 #endif
 
 /**
@@ -146,7 +128,7 @@ enum EndstopEnum {
  * Marlin sends messages if blocked or busy
  */
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
-  enum MarlinBusyState {
+  enum MarlinBusyState : char {
     NOT_BUSY,           // Not in a handler
     IN_HANDLER,         // Processing a GCode
     IN_PROCESS,         // Known to be blocking command input (as in G29)
@@ -158,12 +140,12 @@ enum EndstopEnum {
 /**
  * SD Card
  */
-enum LsAction { LS_SerialPrint, LS_Count, LS_GetFilename };
+enum LsAction : char { LS_SerialPrint, LS_Count, LS_GetFilename };
 
 /**
  * Ultra LCD
  */
-enum LCDViewAction {
+enum LCDViewAction : char {
   LCDVIEW_NONE,
   LCDVIEW_REDRAW_NOW,
   LCDVIEW_CALL_REDRAW_NEXT,
@@ -175,7 +157,7 @@ enum LCDViewAction {
  * Dual X Carriage modes. A Dual Nozzle can also do duplication.
  */
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  enum DualXMode {
+  enum DualXMode : char {
     DXC_FULL_CONTROL_MODE,  // DUAL_X_CARRIAGE only
     DXC_AUTO_PARK_MODE,     // DUAL_X_CARRIAGE only
     DXC_DUPLICATION_MODE
@@ -187,7 +169,7 @@ enum LCDViewAction {
  * (and "canned cycles" - not a current feature)
  */
 #if ENABLED(CNC_WORKSPACE_PLANES)
-  enum WorkspacePlane { PLANE_XY, PLANE_ZX, PLANE_YZ };
+  enum WorkspacePlane : char { PLANE_XY, PLANE_ZX, PLANE_YZ };
 #endif
 
 #endif // __ENUM_H__

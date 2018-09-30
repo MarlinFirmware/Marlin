@@ -40,6 +40,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Zeruj X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Zeruj Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Zeruj Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibruj Z")
 #define MSG_LEVEL_BED                       _UxGT("Poziom. stolu")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Pozycja zerowa")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknij by rozp.")
@@ -93,9 +94,15 @@
 #define MSG_SELECT                          _UxGT("Select")
 #define MSG_ACC                             _UxGT("Przyspieszenie")
 #define MSG_JERK                            _UxGT("Zryw")
-#define MSG_VX_JERK                         _UxGT("Zryw Vx")
-#define MSG_VY_JERK                         _UxGT("Zryw Vy")
-#define MSG_VZ_JERK                         _UxGT("Zryw Vz")
+#if IS_KINEMATIC
+  #define MSG_VA_JERK                       _UxGT("Zryw Va")
+  #define MSG_VB_JERK                       _UxGT("Zryw Vb")
+  #define MSG_VC_JERK                       _UxGT("Zryw Vc")
+#else
+  #define MSG_VA_JERK                       _UxGT("Zryw Vx")
+  #define MSG_VB_JERK                       _UxGT("Zryw Vy")
+  #define MSG_VC_JERK                       _UxGT("Zryw Vz")
+#endif
 #define MSG_VE_JERK                         _UxGT("Zryw Ve")
 #define MSG_VMAX                            _UxGT("Vmax ")
 #define MSG_VMIN                            _UxGT("Vmin")
@@ -105,9 +112,15 @@
 #define MSG_A_RETRACT                       _UxGT("A-wycofanie")
 #define MSG_A_TRAVEL                        _UxGT("A-przesun.")
 #define MSG_STEPS_PER_MM                    _UxGT("kroki/mm")
-#define MSG_XSTEPS                          _UxGT("krokiX/mm")
-#define MSG_YSTEPS                          _UxGT("krokiY/mm")
-#define MSG_ZSTEPS                          _UxGT("krokiZ/mm")
+#if IS_KINEMATIC
+  #define MSG_ASTEPS                        _UxGT("krokiA/mm")
+  #define MSG_BSTEPS                        _UxGT("krokiB/mm")
+  #define MSG_CSTEPS                        _UxGT("krokiC/mm")
+#else
+  #define MSG_ASTEPS                        _UxGT("krokiX/mm")
+  #define MSG_BSTEPS                        _UxGT("krokiY/mm")
+  #define MSG_CSTEPS                        _UxGT("krokiZ/mm")
+#endif
 #define MSG_ESTEPS                          _UxGT("krokiE/mm")
 #define MSG_E1STEPS                         _UxGT("krokiE1/mm")
 #define MSG_E2STEPS                         _UxGT("krokiE2/mm")
@@ -134,7 +147,6 @@
 #define MSG_NO_CARD                         _UxGT("Brak karty")
 #define MSG_DWELL                           _UxGT("Uspij...")
 #define MSG_USERWAIT                        _UxGT("Oczekiwanie...")
-#define MSG_RESUMING                        _UxGT("Wznawianie druku")
 #define MSG_PRINT_ABORTED                   _UxGT("Druk przerwany")
 #define MSG_NO_MOVE                         _UxGT("Brak ruchu")
 #define MSG_KILLED                          _UxGT("Ubity. ")
@@ -167,16 +179,14 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Err min temp")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Err max temp stolu")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Err min temp stolu")
-#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z Forbidden")
+#define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("Drukarka zatrzym.")
 #define MSG_PLEASE_RESET                    _UxGT("Prosze zresetowac")
 #define MSG_SHORT_DAY                       _UxGT("d") // One character only
 #define MSG_SHORT_HOUR                      _UxGT("g") // One character only
 #define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
 #define MSG_HEATING                         _UxGT("Rozgrzewanie...")
-#define MSG_HEATING_COMPLETE                _UxGT("Rozgrzano")
 #define MSG_BED_HEATING                     _UxGT("Rozgrzewanie stolu...")
-#define MSG_BED_DONE                        _UxGT("Rozgrzano stol")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Kalibrowanie Delty")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibruj X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibruj Y")
@@ -215,9 +225,8 @@
 #define MSG_DAC_PERCENT                     _UxGT("Sila %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Zapisz DAC EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("ZMIEN FILAMENT")
+#define MSG_FILAMENT_CHANGE_HEADER_PAUSE    _UxGT("ZMIEN FILAMENT")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("ZMIEN OPCJE:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Ekstruduj wiecej")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Wznow drukowanie")
 
 #if LCD_HEIGHT >= 4
@@ -231,8 +240,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("aby kontynuowac...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("wlozenie filamentu")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Czekam na")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("ekstruzje filamentu")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("wznowienie druku")
 #else // LCD_HEIGHT < 4
@@ -241,7 +248,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wysuwanie...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Wloz i nacisnij prz.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ladowanie...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
 
@@ -256,8 +262,6 @@
   #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("aby kontynuowac...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("wlozenie filamentu")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Czekam na")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("ekstruzje filamentu")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Czekam na")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("wznowienie druku")
 #else // LCD_HEIGHT < 4
@@ -266,7 +270,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wysuwanie...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Wloz i nacisnij prz.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ladowanie...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Ekstruzja...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wznowienie...")
 #endif // LCD_HEIGHT < 4
 

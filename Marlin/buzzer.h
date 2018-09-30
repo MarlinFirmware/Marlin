@@ -104,7 +104,7 @@ class Buzzer {
      * @param duration Duration of the tone in milliseconds
      * @param frequency Frequency of the tone in hertz
      */
-    void tone(const uint16_t &duration, const uint16_t &frequency = 0) {
+    void tone(const uint16_t &duration, const uint16_t &frequency=0) {
       while (buffer.isFull()) {
         this->tick();
         thermalManager.manage_heater();

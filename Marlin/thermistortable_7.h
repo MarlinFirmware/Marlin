@@ -20,7 +20,7 @@
  *
  */
 
-// 100k Honeywell 135-104LAG-J01
+// R25 = 100 kOhm, beta25 = 3974 K, 4.7 kOhm pull-up, Honeywell 135-104LAG-J01
 const short temptable_7[][2] PROGMEM = {
   { OV(   1), 941 },
   { OV(  19), 362 },

@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#
+# travis_at_home
+#
+# Run all Travis test builds at home to save time finding typos
+# Make sure to have 'arduino' somewhere in your PATH
+#
+
+LOG="travis-out.txt"
+
+cd `dirname "$0"`/../..
+
+TRAVIS_BUILD_DIR=`pwd`
+echo $'Tests for '$TRAVIS_BUILD_DIR$' ...\n' >"$LOG"
+
+# Add a temporary execution PATH
+export PATH="./buildroot/bin:$PATH"
+
+# Scan .travis.yml and run config/build commands only
+X=1
+while read P; do
+
+  # Command lines start with a hyphen
+  if [[ $P =~ ^-\ (([^ ]+)(\ .*)?)$ ]]; then
+    WORD="${BASH_REMATCH[2]}" ; # The first word
+    CMD="${BASH_REMATCH[1]}" ; # The whole command
+    RUN=1 ; BUILD=0
+    case "$WORD" in
+      cp|opt_*|pins_*|use_*|restore_*|gen*) ;;
+      build_*) BUILD=1 ;;
+      *) RUN=0 ;;
+    esac
+
+    # Runnable command
+    if [[ $RUN == 1 ]]; then
+      echo "$CMD" >>"$LOG"
+      RESULT=$( eval "$CMD >>\"$LOG\" 2>&1" )
+      if [[ $BUILD == 1 ]]; then
+        echo "--- Build $X done."
+        echo >>"$LOG"
+        X=$((X+1))
+      fi
+    fi
+  fi
+done <.travis.yml
+
+cd - >/dev/null

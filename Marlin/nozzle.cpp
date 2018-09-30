@@ -78,7 +78,7 @@
     do_blocking_move_to(start.x, start.y, start.z);
 
     const uint8_t zigs = objects << 1;
-    const bool horiz = FABS(diffx) >= FABS(diffy);    // Do a horizontal wipe?
+    const bool horiz = ABS(diffx) >= ABS(diffy);    // Do a horizontal wipe?
     const float P = (horiz ? diffx : diffy) / zigs;   // Period of each zig / zag
     const point_t *side;
     for (uint8_t j = 0; j < strokes; j++) {
@@ -161,9 +161,11 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
 
-  void Nozzle::park(const uint8_t &z_action, const point_t &park /*= NOZZLE_PARK_POINT*/) {
-    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE;
-    const float fr_z = NOZZLE_PARK_Z_FEEDRATE;
+  constexpr float npp[] = NOZZLE_PARK_POINT;
+  static_assert(COUNT(npp) == XYZ, "NOZZLE_PARK_POINT requires X, Y, and Z values.");
+
+  void Nozzle::park(const uint8_t &z_action, const point_t &park/*=NOZZLE_PARK_POINT*/) {
+    const float fr_xy = NOZZLE_PARK_XY_FEEDRATE, fr_z = NOZZLE_PARK_Z_FEEDRATE;
 
     switch (z_action) {
       case 1: // Go to Z-park height
@@ -171,11 +173,11 @@
         break;
 
       case 2: // Raise by Z-park height
-        do_blocking_move_to_z(min(current_position[Z_AXIS] + park.z, Z_MAX_POS), fr_z);
+        do_blocking_move_to_z(MIN(current_position[Z_AXIS] + park.z, Z_MAX_POS), fr_z);
         break;
 
       default: // Raise to at least the Z-park height
-        do_blocking_move_to_z(max(park.z, current_position[Z_AXIS]), fr_z);
+        do_blocking_move_to_z(MAX(park.z, current_position[Z_AXIS]), fr_z);
     }
 
     do_blocking_move_to_xy(park.x, park.y, fr_xy);

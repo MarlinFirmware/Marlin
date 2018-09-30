@@ -23,10 +23,19 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#define NUM_AXIS 4
-#define XYZE 4
-#define ABC  3
-#define XYZ  3
+#define XYZ   3
+#define XYZE  4
+#define ABC   3
+#define ABCD  4
+#define ABCE  4
+#define ABCDE 5
+
+/**
+ * For use in macros that take a single axis letter
+ * The axis order in all axis related arrays is X, Y, Z, E
+ * For Hangprinter it is A, B, C, D, E
+ */
+#define _AXIS(A) (A##_AXIS)
 
 #define _XMIN_ 100
 #define _YMIN_ 200
@@ -43,55 +52,12 @@
 #define _O2          __attribute__((optimize("O2")))
 #define _O3          __attribute__((optimize("O3")))
 
-// Bracket code that shouldn't be interrupted
-#ifndef CRITICAL_SECTION_START
-  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
-  #define CRITICAL_SECTION_END    SREG = _sreg;
-#endif
-
 // Clock speed factors
 #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20
 #define INT0_PRESCALER 8
 
-// Highly granular delays for step pulses, etc.
-#define DELAY_0_NOP NOOP
-#define DELAY_1_NOP __asm__("nop\n\t")
-#define DELAY_2_NOP DELAY_1_NOP; DELAY_1_NOP
-#define DELAY_3_NOP DELAY_1_NOP; DELAY_2_NOP
-#define DELAY_4_NOP DELAY_1_NOP; DELAY_3_NOP
-#define DELAY_5_NOP DELAY_1_NOP; DELAY_4_NOP
-
-#define DELAY_NOPS(X) \
-  switch (X) { \
-    case 20: DELAY_1_NOP; case 19: DELAY_1_NOP; \
-    case 18: DELAY_1_NOP; case 17: DELAY_1_NOP; \
-    case 16: DELAY_1_NOP; case 15: DELAY_1_NOP; \
-    case 14: DELAY_1_NOP; case 13: DELAY_1_NOP; \
-    case 12: DELAY_1_NOP; case 11: DELAY_1_NOP; \
-    case 10: DELAY_1_NOP; case 9:  DELAY_1_NOP; \
-    case 8:  DELAY_1_NOP; case 7:  DELAY_1_NOP; \
-    case 6:  DELAY_1_NOP; case 5:  DELAY_1_NOP; \
-    case 4:  DELAY_1_NOP; case 3:  DELAY_1_NOP; \
-    case 2:  DELAY_1_NOP; case 1:  DELAY_1_NOP; \
-  }
-
-#define DELAY_10_NOP DELAY_5_NOP;  DELAY_5_NOP
-#define DELAY_20_NOP DELAY_10_NOP; DELAY_10_NOP
-
-#if CYCLES_PER_MICROSECOND == 16
-  #define DELAY_1US DELAY_10_NOP; DELAY_5_NOP; DELAY_1_NOP
-#else
-  #define DELAY_1US DELAY_20_NOP
-#endif
-#define DELAY_2US  DELAY_1US; DELAY_1US
-#define DELAY_3US  DELAY_1US; DELAY_2US
-#define DELAY_4US  DELAY_1US; DELAY_3US
-#define DELAY_5US  DELAY_1US; DELAY_4US
-#define DELAY_6US  DELAY_1US; DELAY_5US
-#define DELAY_7US  DELAY_1US; DELAY_6US
-#define DELAY_8US  DELAY_1US; DELAY_7US
-#define DELAY_9US  DELAY_1US; DELAY_8US
-#define DELAY_10US DELAY_1US; DELAY_9US
+// Nanoseconds per cycle
+#define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
 #define UNUSED(x) (void) (x)
@@ -100,25 +66,34 @@
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
 
+#define A(CODE) " " CODE "\n\t"
+#define L(CODE) CODE ":\n\t"
+
 // Macros for bit masks
-#define TEST(n,b) (((n)&_BV(b))!=0)
+#undef _BV
+#define _BV(b) (1 << (b))
+#define TEST(n,b) !!((n)&_BV(b))
 #define SBI(n,b) (n |= _BV(b))
 #define CBI(n,b) (n &= ~_BV(b))
-#define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (_BV(b))
+#define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
+
+#define _BV32(b) (1UL << (b))
+#define TEST32(n,b) !!((n)&_BV32(b))
+#define SBI32(n,b) (n |= _BV32(b))
+#define CBI32(n,b) (n &= ~_BV32(b))
 
 // Macro to check that a number if a power if 2
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros for maths shortcuts
-#ifndef M_PI
-  #define M_PI 3.14159265358979323846
-#endif
-#define RADIANS(d) ((d)*M_PI/180.0)
-#define DEGREES(r) ((r)*180.0/M_PI)
+#undef M_PI
+#define M_PI 3.14159265358979323846f
+#define RADIANS(d) ((d)*M_PI/180.0f)
+#define DEGREES(r) ((r)*180.0f/M_PI)
 #define HYPOT2(x,y) (sq(x)+sq(y))
 
-#define CIRCLE_AREA(R) (M_PI * sq(R))
-#define CIRCLE_CIRC(R) (2.0 * M_PI * (R))
+#define CIRCLE_AREA(R) (M_PI * sq(float(R)))
+#define CIRCLE_CIRC(R) (2 * M_PI * (float(R)))
 
 #define SIGN(a) ((a>0)-(a<0))
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
@@ -126,6 +101,7 @@
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
 #define NOMORE(v,n) do{ if (v > n) v = n; }while(0)
+#define LIMIT(v,n1,n2) do{ if (v < n1) v = n1; else if (v > n2) v = n2; }while(0)
 
 // Macros to support option testing
 #define _CAT(a, ...) a ## __VA_ARGS__
@@ -133,9 +109,11 @@
 #define SWITCH_ENABLED_true  1
 #define SWITCH_ENABLED_0     0
 #define SWITCH_ENABLED_1     1
+#define SWITCH_ENABLED_0x0   0
+#define SWITCH_ENABLED_0x1   1
 #define SWITCH_ENABLED_      1
 #define ENABLED(b) _CAT(SWITCH_ENABLED_, b)
-#define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
+#define DISABLED(b) !ENABLED(b)
 
 #define WITHIN(V,L,H) ((V) >= (L) && (V) <= (H))
 #define NUMERIC(a) WITHIN(a, '0', '9')
@@ -144,7 +122,7 @@
 #define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
-#define COPY(a,b) memcpy(a,b,min(sizeof(a),sizeof(b)))
+#define COPY(a,b) memcpy(a,b,MIN(sizeof(a),sizeof(b)))
 
 // Macros for initializing arrays
 #define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
@@ -188,38 +166,74 @@
 #define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
-#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
-#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
+#define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
+#define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)
 
 #define NOOP do{} while(0)
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
-#define MIN3(a, b, c)       min(min(a, b), c)
-#define MIN4(a, b, c, d)    min(MIN3(a, b, c), d)
-#define MIN5(a, b, c, d, e) min(MIN4(a, b, c, d), e)
-#define MAX3(a, b, c)       max(max(a, b), c)
-#define MAX4(a, b, c, d)    max(MAX3(a, b, c), d)
-#define MAX5(a, b, c, d, e) max(MAX4(a, b, c, d), e)
+// Avoid double evaluation of arguments on MIN/MAX/ABS
+#undef MIN
+#undef MAX
+#undef ABS
+#ifdef __cplusplus
 
-#define UNEAR_ZERO(x) ((x) < 0.000001)
-#define NEAR_ZERO(x) WITHIN(x, -0.000001, 0.000001)
+  // C++11 solution that is standards compliant. Return type is deduced automatically
+  template <class L, class R> static inline constexpr auto MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+    return lhs < rhs ? lhs : rhs;
+  }
+  template <class L, class R> static inline constexpr auto MAX(const L lhs, const R rhs) -> decltype(lhs + rhs){
+    return lhs > rhs ? lhs : rhs;
+  }
+  template <class T> static inline constexpr const T ABS(const T v) {
+    return v >= 0 ? v : -v;
+  }
+#else
+
+  // Using GCC extensions, but Travis GCC version does not like it and gives
+  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
+  #define MIN(a, b) \
+    ({__typeof__(a) _a = (a); \
+      __typeof__(b) _b = (b); \
+      _a < _b ? _a : _b;})
+
+  #define MAX(a, b) \
+    ({__typeof__(a) _a = (a); \
+      __typeof__(b) _b = (b); \
+      _a > _b ? _a : _b;})
+
+  #define ABS(a) \
+    ({__typeof__(a) _a = (a); \
+      _a >= 0 ? _a : -_a;})
+
+#endif
+
+#define MIN3(a, b, c)       MIN(MIN(a, b), c)
+#define MIN4(a, b, c, d)    MIN(MIN3(a, b, c), d)
+#define MIN5(a, b, c, d, e) MIN(MIN4(a, b, c, d), e)
+#define MAX3(a, b, c)       MAX(MAX(a, b), c)
+#define MAX4(a, b, c, d)    MAX(MAX3(a, b, c), d)
+#define MAX5(a, b, c, d, e) MAX(MAX4(a, b, c, d), e)
+
+#define UNEAR_ZERO(x) ((x) < 0.000001f)
+#define NEAR_ZERO(x) WITHIN(x, -0.000001f, 0.000001f)
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
-#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
-#define FIXFLOAT(f) (f + 0.00001)
+#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0f : 1.0f / (x))
+#define FIXFLOAT(f) (f + (f < 0.0f ? -0.00005f : 0.00005f))
 
 //
 // Maths macros that can be overridden by HAL
 //
-#define ATAN2(y, x) atan2(y, x)
-#define FABS(x)     fabs(x)
-#define POW(x, y)   pow(x, y)
-#define SQRT(x)     sqrt(x)
-#define CEIL(x)     ceil(x)
-#define FLOOR(x)    floor(x)
-#define LROUND(x)   lround(x)
-#define FMOD(x, y)  fmod(x, y)
+#define ATAN2(y, x) atan2f(y, x)
+#define POW(x, y)   powf(x, y)
+#define SQRT(x)     sqrtf(x)
+#define RSQRT(x)    (1 / sqrtf(x))
+#define CEIL(x)     ceilf(x)
+#define FLOOR(x)    floorf(x)
+#define LROUND(x)   lroundf(x)
+#define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
-#endif //__MACROS_H
+#endif // MACROS_H

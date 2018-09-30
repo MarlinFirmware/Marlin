@@ -22,10 +22,10 @@ before_install:
   #
 install:
   #
-  # Install arduino 1.6.10
-  - wget http://downloads-02.arduino.cc/arduino-1.6.10-linux64.tar.xz
-  - tar xf arduino-1.6.10-linux64.tar.xz
-  - sudo mv arduino-1.6.10 /usr/local/share/arduino
+  # Install arduino 1.8.5
+  - wget http://downloads-02.arduino.cc/arduino-1.8.5-linux64.tar.xz
+  - tar xf arduino-1.8.5-linux64.tar.xz
+  - sudo mv arduino-1.8.5 /usr/local/share/arduino
   - ln -s /usr/local/share/arduino/arduino ${TRAVIS_BUILD_DIR}/buildroot/bin/arduino
   #
   # Install: LiquidCrystal_I2C library
@@ -90,26 +90,37 @@ script:
   - opt_set TEMP_SENSOR_0 -2
   - opt_set TEMP_SENSOR_1 1
   - opt_set TEMP_SENSOR_BED 1
-  - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING ARC_P_CIRCLES CNC_WORKSPACE_PLANES CNC_COORDINATE_SYSTEMS
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS
-  - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_LED
+  - opt_set POWER_SUPPLY 1
+  - opt_enable PIDTEMPBED FIX_MOUNTED_PROBE Z_SAFE_HOMING
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT EEPROM_SETTINGS PINS_DEBUGGING
+  - opt_enable BLINKM PCA9632 RGB_LED NEOPIXEL_LED AUTO_POWER_CONTROL NOZZLE_PARK_FEATURE FILAMENT_RUNOUT_SENSOR
   - opt_enable AUTO_BED_LEVELING_LINEAR Z_MIN_PROBE_REPEATABILITY_TEST DEBUG_LEVELING_FEATURE SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
-  - opt_enable_adv FWRETRACT MAX7219_DEBUG LED_CONTROL_MENU
-  - opt_set ABL_GRID_POINTS_X 16
-  - opt_set ABL_GRID_POINTS_Y 16
+  - opt_enable_adv ARC_P_CIRCLES ADVANCED_PAUSE_FEATURE CNC_WORKSPACE_PLANES CNC_COORDINATE_SYSTEMS POWER_LOSS_RECOVERY POWER_LOSS_PIN POWER_LOSS_STATE
+  - opt_enable_adv FWRETRACT MAX7219_DEBUG LED_CONTROL_MENU CASE_LIGHT_ENABLE CASE_LIGHT_USE_NEOPIXEL CODEPENDENT_XY_HOMING
+  - opt_set GRID_MAX_POINTS_X 16
   - opt_set_adv FANMUX0_PIN 53
   - build_marlin
   #
-  # Test a probeless build of AUTO_BED_LEVELING_UBL
+  # Test a probeless build of AUTO_BED_LEVELING_UBL, with lots of extruders
   #
   - restore_configs
-  - opt_enable AUTO_BED_LEVELING_UBL DEBUG_LEVELING_FEATURE G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT EEPROM_SETTINGS EEPROM_CHITCHAT G3D_PANEL
-  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING NANODLP_Z_SYNC
+  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
+  - opt_set EXTRUDERS 5
+  - opt_set TEMP_SENSOR_1 1
+  - opt_set TEMP_SENSOR_2 5
+  - opt_set TEMP_SENSOR_3 20
+  - opt_set TEMP_SENSOR_4 999
+  - opt_set TEMP_SENSOR_BED 1
+  - opt_enable AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 DEBUG_LEVELING_FEATURE G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT SKEW_CORRECTION
+  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  - opt_enable_adv CUSTOM_USER_MENUS I2C_POSITION_ENCODERS BABYSTEPPING BABYSTEP_XY LIN_ADVANCE NANODLP_Z_SYNC QUICK_HOME JUNCTION_DEVIATION MAX7219_DEBUG
+  - opt_set_adv MAX7219_ROTATE 270
   - build_marlin
   #
-  # Add a Sled Z Probe, use UBL Cartesian moves
+  # Add a Sled Z Probe, use UBL Cartesian moves, use Japanese language
   #
-  - opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE
+  - opt_enable Z_PROBE_SLED SKEW_CORRECTION SKEW_CORRECTION_FOR_Z SKEW_CORRECTION_GCODE S_CURVE_ACCELERATION
+  - opt_set LCD_LANGUAGE kana_utf8
   - opt_disable SEGMENT_LEVELED_MOVES
   - opt_enable_adv BABYSTEP_ZPROBE_OFFSET DOUBLECLICK_FOR_Z_BABYSTEPPING
   - build_marlin
@@ -118,7 +129,7 @@ script:
   # ...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES
   #
   - restore_configs
-  - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
+  - opt_enable NUM_SERVOS Z_PROBE_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
   - opt_set NUM_SERVOS 1
   - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - opt_enable_adv NO_VOLUMETRICS EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP G38_PROBE_TARGET
@@ -134,8 +145,8 @@ script:
   #      PROBE_MANUALLY feature, with LCD support,
   #      ULTIMAKERCONTROLLER, FILAMENT_LCD_DISPLAY, FILAMENT_WIDTH_SENSOR,
   #      PRINTCOUNTER, NOZZLE_PARK_FEATURE, NOZZLE_CLEAN_FEATURE, PCA9632,
-  #      Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS, BEZIER_CURVE_SUPPORT, EXPERIMENTAL_I2CBUS,
-  #      ADVANCED_PAUSE_FEATURE, PARK_HEAD_ON_PAUSE, LCD_INFO_MENU,
+  #      Z_DUAL_ENDSTOPS, BEZIER_CURVE_SUPPORT, EXPERIMENTAL_I2CBUS,
+  #      ADVANCED_PAUSE_FEATURE, ADVANCED_PAUSE_CONTINUOUS_PURGE, PARK_HEAD_ON_PAUSE, LCD_INFO_MENU, M114_DETAIL
   #      EEPROM_SETTINGS, EEPROM_CHITCHAT, M100_FREE_MEMORY_WATCHER,
   #      INCH_MODE_SUPPORT, TEMPERATURE_UNITS_SUPPORT
   #
@@ -144,32 +155,20 @@ script:
   - opt_enable PROBE_MANUALLY AUTO_BED_LEVELING_BILINEAR G26_MESH_EDITING LCD_BED_LEVELING ULTIMAKERCONTROLLER
   - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER M100_FREE_MEMORY_DUMPER M100_FREE_MEMORY_CORRUPTOR INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
   - opt_enable ULTIMAKERCONTROLLER SDSUPPORT
-  - opt_enable PRINTCOUNTER NOZZLE_PARK_FEATURE NOZZLE_CLEAN_FEATURE PCA9632 USE_XMAX_PLUG
+  - opt_enable PRINTCOUNTER NOZZLE_PARK_FEATURE NOZZLE_CLEAN_FEATURE PCA9632
   - opt_enable_adv BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
-  - opt_enable_adv ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU M114_DETAIL
+  - opt_enable_adv ADVANCED_PAUSE_FEATURE ADVANCED_PAUSE_CONTINUOUS_PURGE FILAMENT_LOAD_UNLOAD_GCODES PARK_HEAD_ON_PAUSE LCD_INFO_MENU M114_DETAIL
   - opt_set_adv PWM_MOTOR_CURRENT {1300,1300,1250}
   - opt_set_adv I2C_SLAVE_ADDRESS 63
   - build_marlin
   #
-  # Test 5 extruders on AZTEEG_X3_PRO (can use any board with >=5 extruders defined)
-  # Include a test for LIN_ADVANCE here also
-  #
-  - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
-  - opt_set EXTRUDERS 5
-  - opt_set TEMP_SENSOR_1 1
-  - opt_set TEMP_SENSOR_2 5
-  - opt_set TEMP_SENSOR_3 20
-  - opt_set TEMP_SENSOR_4 999
-  - opt_set TEMP_SENSOR_BED 1
-  - opt_enable_adv LIN_ADVANCE
-  - build_marlin
-  #
-  # Mixing Extruder with 5 steppers
+  # Mixing Extruder with 5 steppers, Cyrillic
   #
   - restore_configs
   - opt_set MOTHERBOARD BOARD_AZTEEG_X3_PRO
-  - opt_enable MIXING_EXTRUDER
+  - opt_enable MIXING_EXTRUDER CR10_STOCKDISPLAY
   - opt_set MIXING_STEPPERS 5
+  - opt_set LCD_LANGUAGE ru
   - build_marlin
   #
   # Test DUAL_X_CARRIAGE
@@ -184,11 +183,11 @@ script:
   #
   # Test SPEAKER with BOARD_BQ_ZUM_MEGA_3D and BQ_LCD_SMART_CONTROLLER
   #
-  - restore_configs
-  - opt_set MOTHERBOARD BOARD_BQ_ZUM_MEGA_3D
-  - opt_set LCD_FEEDBACK_FREQUENCY_DURATION_MS 10
-  - opt_set LCD_FEEDBACK_FREQUENCY_HZ 100
-  - opt_enable BQ_LCD_SMART_CONTROLLER SPEAKER
+  #- restore_configs
+  #- opt_set MOTHERBOARD BOARD_BQ_ZUM_MEGA_3D
+  #- opt_set LCD_FEEDBACK_FREQUENCY_DURATION_MS 10
+  #- opt_set LCD_FEEDBACK_FREQUENCY_HZ 100
+  #- opt_enable BQ_LCD_SMART_CONTROLLER SPEAKER
   #
   # Test SWITCHING_EXTRUDER
   #
@@ -197,15 +196,14 @@ script:
   - opt_set EXTRUDERS 2
   - opt_enable NUM_SERVOS
   - opt_set NUM_SERVOS 1
-  - opt_set TEMP_SENSOR_1 1
   - opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
   - build_marlin
   #
   # Enable COREXY
   #
-  - restore_configs
-  - opt_enable COREXY
-  - build_marlin
+  #- restore_configs
+  #- opt_enable COREXY
+  #- build_marlin
   #
   # Test many less common options
   #
@@ -219,7 +217,7 @@ script:
   - opt_enable_adv VOLUMETRIC_DEFAULT_ON NO_WORKSPACE_OFFSETS ACTION_ON_KILL
   - opt_enable_adv EXTRA_FAN_SPEED FWERETRACT Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
   - opt_enable_adv MENU_ADDAUTOSTART SDCARD_SORT_ALPHA
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
   - opt_enable FILAMENT_LCD_DISPLAY FILAMENT_WIDTH_SENSOR
   - opt_enable ENDSTOP_INTERRUPTS_FEATURE FAN_SOFT_PWM SDSUPPORT
   - opt_enable USE_XMAX_PLUG
@@ -229,15 +227,15 @@ script:
   #
   # ULTRA_LCD
   #
-  - restore_configs
-  - opt_enable ULTRA_LCD
-  - build_marlin
+  #- restore_configs
+  #- opt_enable ULTRA_LCD
+  #- build_marlin
   #
   # DOGLCD
   #
-  - restore_configs
-  - opt_enable DOGLCD
-  - build_marlin
+  #- restore_configs
+  #- opt_enable DOGLCD
+  #- build_marlin
   #
   # MAKRPANEL
   # Needs to use Melzi and Sanguino hardware
@@ -248,27 +246,31 @@ script:
   #
   # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, BABYSTEPPING, RIGIDBOARD_V2, and DAC_MOTOR_CURRENT_DEFAULT
   #
-  - restore_configs
-  - opt_set MOTHERBOARD BOARD_RIGIDBOARD_V2
-  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
-  - build_marlin
-  #
+  #- restore_configs
+  #- opt_set MOTHERBOARD BOARD_RIGIDBOARD_V2
+  #- opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
+  #- build_marlin
+  # #
   # G3D_PANEL with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
   #
+  #- restore_configs
+  #- opt_enable G3D_PANEL SDSUPPORT
+  #- opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
+  #- opt_set_adv SDSORT_GCODE true
+  #- opt_set_adv SDSORT_USES_RAM true
+  #- opt_set_adv SDSORT_USES_STACK true
+  #- opt_set_adv SDSORT_CACHE_NAMES true
+  #- build_marlin
+  #
+  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER with LIGHTWEIGHT_UI
+  #
   - restore_configs
-  - opt_enable G3D_PANEL SDSUPPORT
-  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
+  - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
+  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES LIGHTWEIGHT_UI
   - opt_set_adv SDSORT_GCODE true
   - opt_set_adv SDSORT_USES_RAM true
   - opt_set_adv SDSORT_USES_STACK true
   - opt_set_adv SDSORT_CACHE_NAMES true
-  - build_marlin
-  #
-  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
-  #
-  - restore_configs
-  - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-  - opt_enable_adv SDCARD_SORT_ALPHA STATUS_MESSAGE_SCROLLING SCROLL_LONG_FILENAMES
   - build_marlin
   #
   # REPRAPWORLD_KEYPAD
@@ -280,9 +282,9 @@ script:
   #
   # RA_CONTROL_PANEL
   #
-  - restore_configs
-  - opt_enable RA_CONTROL_PANEL PINS_DEBUGGING
-  - build_marlin
+  #- restore_configs
+  #- opt_enable RA_CONTROL_PANEL PINS_DEBUGGING
+  #- build_marlin
   #
   ######## I2C LCD/PANELS ##############
   #
@@ -290,10 +292,10 @@ script:
   # Most I2C configurations are failing at the moment because they require
   # a different Liquid Crystal library "LiquidTWI2".
   #
-  # LCD_I2C_SAINSMART_YWROBOT
+  # LCD_SAINSMART_I2C_1602
   #
   #- restore_configs
-  #- opt_enable LCD_I2C_SAINSMART_YWROBOT
+  #- opt_enable LCD_SAINSMART_I2C_1602
   #- build_marlin
   #
   # LCD_I2C_PANELOLU2
@@ -310,9 +312,19 @@ script:
   #
   # LCM1602
   #
-  - restore_configs
-  - opt_enable LCM1602
-  - build_marlin
+  #- restore_configs
+  #- opt_enable LCM1602
+  #- build_marlin
+  #
+  # Language files test with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #
+  #- restore_configs
+  #- opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
+  #- for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin
+  #
+  #- restore_configs
+  #- opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
+  #- for lang in an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; build_marlin
   #
   #
   ######## Example Configurations ##############
@@ -330,8 +342,8 @@ script:
   # Delta Config (generic) + UBL + ALLEN_KEY + OLED_PANEL_TINYBOY2 + EEPROM_SETTINGS
   #
   - use_example_configs delta/generic
-  - opt_disable DISABLE_MIN_ENDSTOPS
-  - opt_enable AUTO_BED_LEVELING_UBL Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT OLED_PANEL_TINYBOY2 MESH_EDIT_GFX_OVERLAY
+  - opt_enable AUTO_BED_LEVELING_UBL RESTORE_LEVELING_AFTER_G28 Z_PROBE_ALLEN_KEY EEPROM_SETTINGS EEPROM_CHITCHAT
+  - opt_enable OLED_PANEL_TINYBOY2 MESH_EDIT_GFX_OVERLAY
   - build_marlin
   #
   # Delta Config (FLSUN AC because it's complex)
@@ -348,14 +360,20 @@ script:
   #
   - use_example_configs SCARA
   - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
-  - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
-  - opt_enable_adv MONITOR_DRIVER_STATUS STEALTHCHOP HYBRID_THRESHOLD TMC_DEBUG SENSORLESS_HOMING
+  - opt_set X_DRIVER_TYPE TMC2130
+  - opt_set Y_DRIVER_TYPE TMC2130
+  - opt_set Z_DRIVER_TYPE TMC2130
+  - opt_set E0_DRIVER_TYPE TMC2130
+  - opt_enable_adv MONITOR_DRIVER_STATUS STEALTHCHOP HYBRID_THRESHOLD SENSORLESS_HOMING
   - build_marlin
   #
   # TMC2208 Config
   #
   - restore_configs
-  - opt_enable_adv HAVE_TMC2208 X_IS_TMC2208 Y_IS_TMC2208 Z_IS_TMC2208
+  - opt_set X_DRIVER_TYPE TMC2208
+  - opt_set Y_DRIVER_TYPE TMC2208
+  - opt_set Z_DRIVER_TYPE TMC2208
+  - opt_set E0_DRIVER_TYPE TMC2208
   - opt_enable_adv MONITOR_DRIVER_STATUS STEALTHCHOP HYBRID_THRESHOLD TMC_DEBUG
   - build_marlin
   #

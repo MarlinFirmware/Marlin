@@ -63,7 +63,7 @@ int SdFatUtil::FreeRam() {
  * \param[in] str Pointer to string stored in flash memory.
  */
 void SdFatUtil::print_P(PGM_P str) {
-  for (uint8_t c; (c = pgm_read_byte(str)); str++) MYSERIAL.write(c);
+  for (uint8_t c; (c = pgm_read_byte(str)); str++) SERIAL_CHAR(c);
 }
 
 /**
@@ -72,7 +72,7 @@ void SdFatUtil::print_P(PGM_P str) {
  * \param[in] pr Print object for output.
  * \param[in] str Pointer to string stored in flash memory.
  */
-void SdFatUtil::println_P(PGM_P str) { print_P(str); MYSERIAL.println(); }
+void SdFatUtil::println_P(PGM_P str) { print_P(str); SERIAL_EOL(); }
 
 /**
  * %Print a string in flash memory to Serial.

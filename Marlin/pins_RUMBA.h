@@ -107,6 +107,7 @@
 
 // optional for extruder 4 or chamber:
 //#define TEMP_X_PIN         12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
+//#define TEMP_CHAMBER_PIN   12   // Analog Input (default connector for thermistor *T3* on rumba board is used)
 
 #if TEMP_SENSOR_BED == -1
   #define TEMP_BED_PIN      7   // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_2 is defined as thermocouple)
@@ -123,7 +124,9 @@
 #define HEATER_3_PIN        8
 #define HEATER_BED_PIN      9
 
-#define FAN_PIN             7
+#ifndef FAN_PIN
+  #define FAN_PIN           7
+#endif
 #define FAN1_PIN            8
 
 //
@@ -136,23 +139,40 @@
 #define CASE_LIGHT_PIN     45
 
 //
+// M3/M4/M5 - Spindle/Laser Control
+//
+#ifndef SPINDLE_LASER_PWM_PIN
+  #define SPINDLE_LASER_PWM_PIN     4   // MUST BE HARDWARE PWM. Pin 4 interrupts OC0* and OC1* always in use?
+#endif
+#ifndef SPINDLE_LASER_ENABLE_PIN
+  #define SPINDLE_LASER_ENABLE_PIN 14   // Pin should have a pullup!
+#endif
+#ifndef SPINDLE_DIR_PIN
+  #define SPINDLE_DIR_PIN          15
+#endif
+
+//
 // LCD / Controller
 //
 #define SD_DETECT_PIN      49
 #define BEEPER_PIN         44
-#define LCD_PINS_RS        19
-#define LCD_PINS_ENABLE    42
-#define LCD_PINS_D4        18
-#define LCD_PINS_D5        38
-#define LCD_PINS_D6        41
 #define LCD_PINS_D7        40
 #define BTN_EN1            11
 #define BTN_EN2            12
 #define BTN_ENC            43
 
-//
-// M3/M4/M5 - Spindle/Laser Control
-//
-#define SPINDLE_LASER_PWM_PIN     4  // MUST BE HARDWARE PWM
-#define SPINDLE_LASER_ENABLE_PIN 14  // Pin should have a pullup!
-#define SPINDLE_DIR_PIN          15
+#if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
+  #define LCD_PINS_DC      38 // Set as output on init
+  #define LCD_PINS_RS      41 // Pull low for 1s to init
+  // DOGM SPI LCD Support
+  #define DOGLCD_CS        19
+  #define DOGLCD_MOSI      42
+  #define DOGLCD_SCK       18
+  #define DOGLCD_A0        LCD_PINS_DC
+#else
+  #define LCD_PINS_RS      19
+  #define LCD_PINS_ENABLE  42
+  #define LCD_PINS_D4      18
+  #define LCD_PINS_D5      38
+  #define LCD_PINS_D6      41
+#endif
