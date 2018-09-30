@@ -1047,6 +1047,9 @@
 #ifndef MSG_FILAMENT_CHANGE_NOZZLE
   #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozzle: ")
 #endif
+#ifndef MSG_FILAMENT_RUNOUT_ENABLE
+  #define MSG_FILAMENT_RUNOUT_ENABLE          _UxGT("Filament Runout")
+#endif
 #ifndef MSG_ERR_HOMING_FAILED
   #define MSG_ERR_HOMING_FAILED               _UxGT("Homing failed")
 #endif
