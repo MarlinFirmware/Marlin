@@ -1997,11 +1997,27 @@ void lcd_quick_feedback(const bool clear_buttons) {
       END_MENU();
     }
 
+    void _lcd_level_bed_corners_homing() {
+      if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
+      lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+      if (all_axes_homed()) {
+        lcd_goto_screen(_lcd_corner_submenu);
+        bed_corner = 0;
+        _lcd_goto_next_corner();
+      }
+    }
+
     void _lcd_level_bed_corners() {
       defer_return_to_status = true;
-      lcd_goto_screen(_lcd_corner_submenu);
-      bed_corner = 0;
-      _lcd_goto_next_corner();
+      if (!all_axes_homed())
+      {
+        lcd_goto_screen(_lcd_level_bed_corners_homing);
+        enqueue_and_echo_commands_P(PSTR("G28"));
+      } else {
+        lcd_goto_screen(_lcd_corner_submenu);
+        bed_corner = 0;
+        _lcd_goto_next_corner();
+      }
     }
 
   #endif // LEVEL_BED_CORNERS
@@ -2754,7 +2770,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       #if ENABLED(LEVEL_BED_CORNERS)
         // Move to the next corner for leveling
-        if (all_axes_homed()) MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+        MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
       #endif
 
       #if ENABLED(EEPROM_SETTINGS)
@@ -2835,7 +2851,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
 
     #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
-      if (all_axes_homed())
         MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
     #endif
 
