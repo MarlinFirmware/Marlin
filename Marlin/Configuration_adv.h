@@ -1602,9 +1602,18 @@
  * Will be sent in the form '//action:ACTION_ON_PAUSE', e.g. '//action:pause'.
  * The host must be configured to handle the action command.
  */
-//#define ACTION_ON_PAUSE "pause"
-//#define ACTION_ON_RESUME "resume"
 
+//Octoprint
+//#define ACTION_ON_PAUSE "//action:pause"
+//#define ACTION_ON_RESUME "//action:resume"
+
+//Repetiere
+//#define ACTION_ON_PAUSE "RequestPause:FilamentRunout"
+//#define ACTION_ON_RESUME "RequestContinue:FilamentRunoutResume"
+
+//Octoprint & Repetiere
+//#define ACTION_ON_PAUSE "//action:pause\nRequestPause:FilamentRunout"
+//#define ACTION_ON_RESUME "//action:resume\nRequestContinue:FilamentRunoutResume"
 //===========================================================================
 //====================== I2C Position Encoder Settings ======================
 //===========================================================================
