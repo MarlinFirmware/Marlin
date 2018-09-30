@@ -76,10 +76,10 @@ void vector_3::normalize() {
 }
 
 void vector_3::apply_rotation(const matrix_3x3 &matrix) {
-  const float _x = x * matrix.matrix[3 * 0 + 0] + y * matrix.matrix[3 * 1 + 0] + z * matrix.matrix[3 * 2 + 0],
-              _y = x * matrix.matrix[3 * 0 + 1] + y * matrix.matrix[3 * 1 + 1] + z * matrix.matrix[3 * 2 + 1],
-              _z = x * matrix.matrix[3 * 0 + 2] + y * matrix.matrix[3 * 1 + 2] + z * matrix.matrix[3 * 2 + 2];
-  x = _x; y = _y; z = _z;
+  const float _x = x, _y = y;
+  x = _x * matrix.matrix[3 * 0 + 0] + _y * matrix.matrix[3 * 1 + 0] + z * matrix.matrix[3 * 2 + 0];
+  y = _x * matrix.matrix[3 * 0 + 1] + _y * matrix.matrix[3 * 1 + 1] + z * matrix.matrix[3 * 2 + 1];
+  z = _x * matrix.matrix[3 * 0 + 2] + _y * matrix.matrix[3 * 1 + 2] + z * matrix.matrix[3 * 2 + 2];
 }
 
 void vector_3::debug(const char * const title) {
