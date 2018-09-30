@@ -1347,6 +1347,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
               lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
             else
               lcd_implementation_drawedit(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
+          #else
+            lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
           #endif
           #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
             if (do_probe) _lcd_zoffset_overlay_gfx(zprobe_zoffset);
