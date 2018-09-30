@@ -663,9 +663,9 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
 
 #endif // TMC_DEBUG
 
-#if ENABLED(SENSORLESS_HOMING)
+#if USE_SENSORLESS
 
-  void tmc_sensorless_homing(TMC2130Stepper &st, const bool enable/*=true*/) {
+  void tmc_stallguard(TMC2130Stepper &st, const bool enable/*=true*/) {
     st.coolstep_min_speed(enable ? 1024UL * 1024UL - 1UL : 0);
     #if ENABLED(STEALTHCHOP)
       st.stealthChop(!enable);
@@ -673,7 +673,7 @@ void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt) {
     st.diag1_stall(enable ? 1 : 0);
   }
 
-#endif // SENSORLESS_HOMING
+#endif // USE_SENSORLESS
 
 #if HAS_DRIVER(TMC2130)
   #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)

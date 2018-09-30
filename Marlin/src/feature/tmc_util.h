@@ -128,8 +128,8 @@ void monitor_tmc_driver();
  *
  * Defined here because of limitations with templates and headers.
  */
-#if ENABLED(SENSORLESS_HOMING)
-  void tmc_sensorless_homing(TMC2130Stepper &st, const bool enable=true);
+#if USE_SENSORLESS
+  void tmc_stallguard(TMC2130Stepper &st, const bool enable=true);
 #endif
 
 #if HAS_DRIVER(TMC2130)
