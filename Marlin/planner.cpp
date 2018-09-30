@@ -1780,13 +1780,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // For a mixing extruder, get a magnified esteps for each
   #if ENABLED(MIXING_EXTRUDER)
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      block->mix_steps[i] = mixing_factor[i] * (
-        #if ENABLED(LIN_ADVANCE)
-          esteps
-        #else
-          block->step_event_count
-        #endif
-      );
+      block->mix_steps[i] = mixing_factor[i] * esteps;
   #endif
 
   #if FAN_COUNT > 0
