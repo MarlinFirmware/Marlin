@@ -21,3 +21,14 @@ pins_set RAMPS Y_MAX_PIN -1
 opt_add_adv Z2_MAX_PIN 2
 opt_add_adv Z3_MAX_PIN 3
 exec_test $1 $2 "RADDS Z_TRIPLE"
+
+#
+# Test SWITCHING_EXTRUDER
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_RAMPS4DUE_EEF
+opt_set EXTRUDERS 2
+opt_enable NUM_SERVOS
+opt_set NUM_SERVOS 1
+opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
+exec_test $1 $2 "SWITCHING_EXTRUDER"

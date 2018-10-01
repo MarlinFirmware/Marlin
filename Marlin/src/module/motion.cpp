@@ -287,7 +287,6 @@ void buffer_line_to_destination(const float fr_mm_s) {
 
 /**
  *  Plan a move to (X, Y, Z) and set the current_position
- *  The final current_position may not be the one that was requested
  */
 void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s/*=0.0*/) {
   const float old_feedrate_mm_s = feedrate_mm_s;
@@ -981,31 +980,31 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
       default: break;
       #if X_SENSORLESS
         case X_AXIS:
-          tmc_sensorless_homing(stepperX, enable);
+          tmc_stallguard(stepperX, enable);
           #if CORE_IS_XY && Y_SENSORLESS
-            tmc_sensorless_homing(stepperY, enable);
+            tmc_stallguard(stepperY, enable);
           #elif CORE_IS_XZ && Z_SENSORLESS
-            tmc_sensorless_homing(stepperZ, enable);
+            tmc_stallguard(stepperZ, enable);
           #endif
           break;
       #endif
       #if Y_SENSORLESS
         case Y_AXIS:
-          tmc_sensorless_homing(stepperY, enable);
+          tmc_stallguard(stepperY, enable);
           #if CORE_IS_XY && X_SENSORLESS
-            tmc_sensorless_homing(stepperX, enable);
+            tmc_stallguard(stepperX, enable);
           #elif CORE_IS_YZ && Z_SENSORLESS
-            tmc_sensorless_homing(stepperZ, enable);
+            tmc_stallguard(stepperZ, enable);
           #endif
           break;
       #endif
       #if Z_SENSORLESS
         case Z_AXIS:
-          tmc_sensorless_homing(stepperZ, enable);
+          tmc_stallguard(stepperZ, enable);
           #if CORE_IS_XZ && X_SENSORLESS
-            tmc_sensorless_homing(stepperX, enable);
+            tmc_stallguard(stepperX, enable);
           #elif CORE_IS_YZ && Y_SENSORLESS
-            tmc_sensorless_homing(stepperY, enable);
+            tmc_stallguard(stepperY, enable);
           #endif
           break;
       #endif
@@ -1502,15 +1501,15 @@ void homeaxis(const AxisEnum axis) {
           soft_endstop_max[X_AXIS] = dual_max_x;
         }
         else if (dxc_is_duplicating()) {
-          // In Duplication Mode, T0 can move as far left as X_MIN_POS
+          // In Duplication Mode, T0 can move as far left as X1_MIN_POS
           // but not so far to the right that T1 would move past the end
-          soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS);
-          soft_endstop_max[X_AXIS] = MIN(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset);
+          soft_endstop_min[X_AXIS] = X1_MIN_POS;
+          soft_endstop_max[X_AXIS] = MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
         }
         else {
-          // In other modes, T0 can move from X_MIN_POS to X_MAX_POS
-          soft_endstop_min[axis] = base_min_pos(axis);
-          soft_endstop_max[axis] = base_max_pos(axis);
+          // In other modes, T0 can move from X1_MIN_POS to X1_MAX_POS
+          soft_endstop_min[X_AXIS] = X1_MIN_POS;
+          soft_endstop_max[X_AXIS] = X1_MAX_POS;
         }
       }
     #elif ENABLED(DELTA)
@@ -1541,7 +1540,7 @@ void homeaxis(const AxisEnum axis) {
           case X_AXIS:
           case Y_AXIS:
             // Get a minimum radius for clamping
-            soft_endstop_radius = MIN3(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
+            soft_endstop_radius = MIN(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
             soft_endstop_radius_2 = sq(soft_endstop_radius);
             break;
         #endif

@@ -58,8 +58,10 @@ public:
   }
 
   static void enable_autoretract(const bool enable) {
-    autoretract_enabled = enable;
-    refresh_autoretract();
+    #if ENABLED(FWRETRACT_AUTORETRACT)
+      autoretract_enabled = enable;
+      refresh_autoretract();
+    #endif
   }
 
   static void retract(const bool retracting

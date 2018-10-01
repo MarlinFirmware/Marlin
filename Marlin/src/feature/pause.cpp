@@ -109,12 +109,7 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
     UNUSED(mode);
   #endif
 
-  wait_for_heatup = true; // M108 will clear this
-  while (wait_for_heatup && thermalManager.wait_for_heating(active_extruder)) idle();
-  const bool status = wait_for_heatup;
-  wait_for_heatup = false;
-
-  return status;
+  return thermalManager.wait_for_hotend(active_extruder);
 }
 
 static void do_pause_e_move(const float &length, const float &fr) {
@@ -467,11 +462,11 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/ DXC_ARGS) {
       #endif
       SERIAL_ECHO_START();
       #if ENABLED(ULTIPANEL) && ENABLED(EMERGENCY_PARSER)
-        SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_HEAT);
+        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_HEAT);
       #elif ENABLED(EMERGENCY_PARSER)
-        SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_HEAT_M108);
+        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_HEAT_M108);
       #else
-        SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_HEAT_LCD);
+        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_HEAT_LCD);
       #endif
 
       // Wait for LCD click or M108
@@ -488,11 +483,11 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/ DXC_ARGS) {
       #endif
       SERIAL_ECHO_START();
       #if ENABLED(ULTIPANEL) && ENABLED(EMERGENCY_PARSER)
-        SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_INSERT);
+        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_INSERT);
       #elif ENABLED(EMERGENCY_PARSER)
-        SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_INSERT_M108);
+        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_INSERT_M108);
       #else
-        SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_INSERT_LCD);
+        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_INSERT_LCD);
       #endif
 
       // Start the heater idle timers

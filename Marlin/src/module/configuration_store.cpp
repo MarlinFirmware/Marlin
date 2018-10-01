@@ -153,7 +153,8 @@ typedef struct SettingsDataStruct {
   //
   // HAS_BED_PROBE
   //
-  float zprobe_zoffset;                                 // M851 Z
+
+  float zprobe_zoffset;
 
   //
   // ABL_PLANAR
@@ -558,9 +559,9 @@ void MarlinSettings::postprocess() {
       #endif
       constexpr uint16_t servo_angles[NUM_SERVO_PLUGS][2] = {
         #if ENABLED(SWITCHING_EXTRUDER)
-          [SWITCHING_EXTRUDER_SERVO_NR] = { sesa[0], sesa[1] }
+          [SWITCHING_EXTRUDER_SERVO_NR] = { sesa[0][0], sesa[0][1] }
           #if EXTRUDERS > 3
-            , [SWITCHING_EXTRUDER_E23_SERVO_NR] = { sesa[2], sesa[3] }
+            , [SWITCHING_EXTRUDER_E23_SERVO_NR] = { sesa[1][0], sesa[1][1] }
           #endif
         #elif ENABLED(SWITCHING_NOZZLE)
           [SWITCHING_NOZZLE_SERVO_NR] = SWITCHING_NOZZLE_SERVO_ANGLES
@@ -671,13 +672,19 @@ void MarlinSettings::postprocess() {
     #endif
     EEPROM_WRITE(lcd_contrast);
 
+    const bool autoretract_enabled =
+      #if DISABLED(FWRETRACT_AUTORETRACT)
+        false
+      #else
+        fwretract.autoretract_enabled
+      #endif
+    ;
+    EEPROM_WRITE(autoretract_enabled);
+
     #if DISABLED(FWRETRACT)
-      const bool autoretract_enabled = false;
       const float autoretract_defaults[] = { 3, 45, 0, 0, 0, 13, 0, 8 };
-      EEPROM_WRITE(autoretract_enabled);
       EEPROM_WRITE(autoretract_defaults);
     #else
-      EEPROM_WRITE(fwretract.autoretract_enabled);
       EEPROM_WRITE(fwretract.retract_length);
       EEPROM_WRITE(fwretract.retract_feedrate_mm_s);
       EEPROM_WRITE(fwretract.retract_zlift);
@@ -773,7 +780,7 @@ void MarlinSettings::postprocess() {
                 0,
               #endif
               #if MAX_EXTRUDERS > 3
-                  #if AXIS_IS_TMC(E3)
+                #if AXIS_IS_TMC(E3)
                   stepperE3.getCurrent(),
                 #else
                   0,
@@ -913,10 +920,10 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(tmc_hybrid_threshold);
 
     //
-    // TMC2130 Sensorless homing threshold
+    // TMC2130 StallGuard threshold
     //
     int16_t tmc_sgt[XYZ] = {
-      #if ENABLED(SENSORLESS_HOMING)
+      #if USE_SENSORLESS
         #if X_SENSORLESS
           stepperX.sgt(),
         #else
@@ -1069,7 +1076,7 @@ void MarlinSettings::postprocess() {
     }
     else {
       float dummy = 0;
-      #if DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(FWRETRACT) || ENABLED(NO_VOLUMETRICS)
+      #if DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(FWRETRACT) || DISABLED(FWRETRACT_AUTORETRACT) || ENABLED(NO_VOLUMETRICS)
         bool dummyb;
       #endif
 
@@ -1373,7 +1380,11 @@ void MarlinSettings::postprocess() {
       //
 
       #if ENABLED(FWRETRACT)
-        EEPROM_READ(fwretract.autoretract_enabled);
+        #if DISABLED(FWRETRACT_AUTORETRACT)
+          EEPROM_READ(dummyb);
+        #else
+          EEPROM_READ(fwretract.autoretract_enabled);
+        #endif
         EEPROM_READ(fwretract.retract_length);
         EEPROM_READ(fwretract.retract_feedrate_mm_s);
         EEPROM_READ(fwretract.retract_zlift);
@@ -1519,16 +1530,16 @@ void MarlinSettings::postprocess() {
       #endif
 
       /*
-       * TMC2130 Sensorless homing threshold.
+       * TMC2130 StallGuard threshold.
        * X and X2 use the same value
        * Y and Y2 use the same value
        * Z, Z2 and Z3 use the same value
        */
       int16_t tmc_sgt[XYZ];
       EEPROM_READ(tmc_sgt);
-      #if ENABLED(SENSORLESS_HOMING)
+      #if USE_SENSORLESS
         if (!validating) {
-          #ifdef X_HOMING_SENSITIVITY
+          #ifdef X_STALL_SENSITIVITY
             #if AXIS_HAS_STALLGUARD(X)
               stepperX.sgt(tmc_sgt[0]);
             #endif
@@ -1536,7 +1547,7 @@ void MarlinSettings::postprocess() {
               stepperX2.sgt(tmc_sgt[0]);
             #endif
           #endif
-          #ifdef Y_HOMING_SENSITIVITY
+          #ifdef Y_STALL_SENSITIVITY
             #if AXIS_HAS_STALLGUARD(Y)
               stepperY.sgt(tmc_sgt[1]);
             #endif
@@ -1544,7 +1555,7 @@ void MarlinSettings::postprocess() {
               stepperY2.sgt(tmc_sgt[1]);
             #endif
           #endif
-          #ifdef Z_HOMING_SENSITIVITY
+          #ifdef Z_STALL_SENSITIVITY
             #if AXIS_HAS_STALLGUARD(Z)
               stepperZ.sgt(tmc_sgt[2]);
             #endif
@@ -2109,7 +2120,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #if ENABLED(HYBRID_THRESHOLD)
       void say_M913(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M913"); }
     #endif
-    #if ENABLED(SENSORLESS_HOMING)
+    #if USE_SENSORLESS
       void say_M914(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M914"); }
     #endif
   #endif
@@ -2619,12 +2630,16 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.swap_retract_recover_length));
       SERIAL_ECHOLNPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.retract_recover_feedrate_mm_s)));
 
-      if (!forReplay) {
+      #if ENABLED(FWRETRACT_AUTORETRACT)
+
+        if (!forReplay) {
+          CONFIG_ECHO_START;
+          SERIAL_ECHOLNPGM_P(port, "Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
+        }
         CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
-      }
-      CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR_P(port, "  M209 S", fwretract.autoretract_enabled ? 1 : 0);
+        SERIAL_ECHOLNPAIR_P(port, "  M209 S", fwretract.autoretract_enabled ? 1 : 0);
+
+      #endif // FWRETRACT_AUTORETRACT
 
     #endif // FWRETRACT
 
@@ -2714,23 +2729,23 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         say_M906(PORTVAR_SOLO);
         SERIAL_ECHOLNPAIR_P(port, " T0 E", stepperE0.getCurrent());
       #endif
-      #if E_STEPPERS > 1 && AXIS_IS_TMC(E1)
+      #if AXIS_IS_TMC(E1)
         say_M906(PORTVAR_SOLO);
         SERIAL_ECHOLNPAIR_P(port, " T1 E", stepperE1.getCurrent());
       #endif
-      #if E_STEPPERS > 2 && AXIS_IS_TMC(E2)
+      #if AXIS_IS_TMC(E2)
         say_M906(PORTVAR_SOLO);
         SERIAL_ECHOLNPAIR_P(port, " T2 E", stepperE2.getCurrent());
       #endif
-      #if E_STEPPERS > 3 && AXIS_IS_TMC(E3)
+      #if AXIS_IS_TMC(E3)
         say_M906(PORTVAR_SOLO);
         SERIAL_ECHOLNPAIR_P(port, " T3 E", stepperE3.getCurrent());
       #endif
-      #if E_STEPPERS > 4 && AXIS_IS_TMC(E4)
+      #if AXIS_IS_TMC(E4)
         say_M906(PORTVAR_SOLO);
         SERIAL_ECHOLNPAIR_P(port, " T4 E", stepperE4.getCurrent());
       #endif
-      #if E_STEPPERS > 5 && AXIS_IS_TMC(E5)
+      #if AXIS_IS_TMC(E5)
         say_M906(PORTVAR_SOLO);
         SERIAL_ECHOLNPAIR_P(port, " T5 E", stepperE5.getCurrent());
       #endif
@@ -2785,23 +2800,23 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T0 E", TMC_GET_PWMTHRS(E, E0));
         #endif
-        #if E_STEPPERS > 1 && AXIS_IS_TMC(E1)
+        #if AXIS_IS_TMC(E1)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T1 E", TMC_GET_PWMTHRS(E, E1));
         #endif
-        #if E_STEPPERS > 2 && AXIS_IS_TMC(E2)
+        #if AXIS_IS_TMC(E2)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T2 E", TMC_GET_PWMTHRS(E, E2));
         #endif
-        #if E_STEPPERS > 3 && AXIS_IS_TMC(E3)
+        #if AXIS_IS_TMC(E3)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T3 E", TMC_GET_PWMTHRS(E, E3));
         #endif
-        #if E_STEPPERS > 4 && AXIS_IS_TMC(E4)
+        #if AXIS_IS_TMC(E4)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T4 E", TMC_GET_PWMTHRS(E, E4));
         #endif
-        #if E_STEPPERS > 5 && AXIS_IS_TMC(E5)
+        #if AXIS_IS_TMC(E5)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T5 E", TMC_GET_PWMTHRS(E, E5));
         #endif
@@ -2809,12 +2824,12 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif // HYBRID_THRESHOLD
 
       /**
-       * TMC2130 Sensorless homing thresholds
+     * TMC2130 Sensorless homing thresholds
        */
-      #if ENABLED(SENSORLESS_HOMING)
+      #if USE_SENSORLESS
         if (!forReplay) {
           CONFIG_ECHO_START;
-          SERIAL_ECHOLNPGM_P(port, "Sensorless homing threshold:");
+          SERIAL_ECHOLNPGM_P(port, "TMC2130 StallGuard threshold:");
         }
         CONFIG_ECHO_START;
         #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
@@ -2831,10 +2846,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_EOL_P(port);
         #endif
 
-        #define HAS_X2_SENSORLESS (defined(X_HOMING_SENSITIVITY) && AXIS_HAS_STALLGUARD(X2))
-        #define HAS_Y2_SENSORLESS (defined(Y_HOMING_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2))
-        #define HAS_Z2_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z2))
-        #define HAS_Z3_SENSORLESS (defined(Z_HOMING_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z3))
+        #define HAS_X2_SENSORLESS (defined(X_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(X2))
+        #define HAS_Y2_SENSORLESS (defined(Y_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Y2))
+        #define HAS_Z2_SENSORLESS (defined(Z_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z2))
+        #define HAS_Z3_SENSORLESS (defined(Z_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z3))
         #if HAS_X2_SENSORLESS || HAS_Y2_SENSORLESS || HAS_Z2_SENSORLESS
           say_M914(PORTVAR_SOLO);
           SERIAL_ECHOPGM_P(port, " I1");
@@ -2856,7 +2871,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_ECHOLNPAIR_P(port, " Z", stepperZ3.sgt());
         #endif
 
-      #endif // SENSORLESS_HOMING
+      #endif // USE_SENSORLESS
 
     #endif // HAS_TRINAMIC
 

@@ -331,4 +331,9 @@
 
 #include "../lcd/language/language_en.h"
 
+#ifdef CUSTOM_USER_MENU_TITLE
+  #undef MSG_USER_MENU
+  #define MSG_USER_MENU CUSTOM_USER_MENU_TITLE
+#endif
+
 #endif // __LANGUAGE_H

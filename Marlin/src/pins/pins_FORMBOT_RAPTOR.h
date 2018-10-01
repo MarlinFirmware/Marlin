@@ -28,19 +28,19 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if E_STEPPERS > 2 || HOTENDS > 2
-  #error "Formbot supports up to 2 hotends / E-steppers. Comment this line to keep going."
+#if E_STEPPERS > 3 || HOTENDS > 3
+  #error "Formbot supports up to 3 hotends / E-steppers. Comment this line to keep going."
 #endif
 
-#define DEFAULT_MACHINE_NAME "Formbot"
-#define BOARD_NAME           "Formbot"
+#define DEFAULT_MACHINE_NAME "Formbot Raptor"
+#define BOARD_NAME           "Formbot Raptor"
 
 //
 // Servos
 //
 #define SERVO0_PIN         11
-#define SERVO1_PIN         -1    // was 6
-#define SERVO2_PIN         -1    // was 5
+#define SERVO1_PIN          6
+#define SERVO2_PIN          5
 #define SERVO3_PIN         -1
 
 //
@@ -109,7 +109,7 @@
 //
 #define TEMP_0_PIN         13   // Analog Input
 #define TEMP_1_PIN         15   // Analog Input
-#define TEMP_BED_PIN        3   // Analog Input
+#define TEMP_BED_PIN       14   // Analog Input
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
@@ -140,28 +140,21 @@
 //
 #define HEATER_0_PIN       10
 #define HEATER_1_PIN        7
-#define HEATER_BED_PIN     58
+#define HEATER_BED_PIN     8
+
+#define LED4_PIN            5
 
 #define FAN_PIN             9
-//#define FAN1_PIN            4
 
-
-#if DISABLED(ICSP_PORT_SWITCHES)
-  //#define FIL_RUNOUT_PIN    22
-  //#define FIL_RUNOUT2_PIN   21
-#elif ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #define FIL_RUNOUT_PIN   52
-  #define FIL_RUNOUT2_PIN  50
+#if DISABLED(FILAMENT_RUNOUT_SENSOR)
+  #define FAN1_PIN          4
 #endif
 
 //
 // Misc. Functions
 //
-#define CASE_LIGHT_PIN      8
 #define SDSS               53
-#ifndef ROXYs_TRex
-  #define LED_PIN          13   // The Formbot v 1 board has almost no unassigned pins on it.  The Board's LED
-#endif                          // is a good place to get a signal to control the Max7219 LED Matrix.
+#define LED_PIN            13
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input
@@ -182,12 +175,10 @@
   #define LCD_PINS_D5      25
   #define LCD_PINS_D6      27
   #define LCD_PINS_D7      29
+  #define BEEPER_PIN       37
   #define BTN_EN1          31
   #define BTN_EN2          33
   #define BTN_ENC          35
   #define SD_DETECT_PIN    49
-  #ifndef ROXYs_TRex
-    #define KILL_PIN       41
-    #define BEEPER_PIN     37
-  #endif
+  #define KILL_PIN         41
 #endif

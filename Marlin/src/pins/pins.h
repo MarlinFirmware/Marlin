@@ -132,8 +132,10 @@
   #include "pins_AZTEEG_X3_PRO.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(ULTIMAIN_2)
   #include "pins_ULTIMAIN_2.h"        // ATmega2560                                 env:megaatmega2560
-#elif MB(FORMBOT_TREX2)
-  #include "pins_FORMBOT_TREX2.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_RAPTOR)
+  #include "pins_FORMBOT_RAPTOR.h"    // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_TREX2PLUS)
+  #include "pins_FORMBOT_TREX2PLUS.h" // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_TREX3)
   #include "pins_FORMBOT_TREX3.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RUMBA)
@@ -148,6 +150,10 @@
   #include "pins_TRIGORILLA_14.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMPS_ENDER_4)
   #include "pins_RAMPS_ENDER_4.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(GT2560_V3)
+  #include "pins_GT2560_V3.h"         // ATmega2560                                 env:megaatmega2560
+#elif MB(FYSETC_F6_13)
+  #include "pins_FYSETC_F6_13.h"      // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560

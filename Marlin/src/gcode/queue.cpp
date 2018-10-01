@@ -84,7 +84,7 @@ bool send_ok[BUFSIZE];
  * Used by Marlin internally to ensure that commands initiated from within
  * are enqueued ahead of any pending serial or sd card commands.
  */
-static const char *injected_commands_P = NULL;
+static PGM_P injected_commands_P = NULL;
 
 void queue_setup() {
   // Send "ok" after commands by default
@@ -181,7 +181,7 @@ static bool drain_injected_commands_P() {
  * Aborts the current queue, if any.
  * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
  */
-void enqueue_and_echo_commands_P(const char * const pgcode) {
+void enqueue_and_echo_commands_P(PGM_P const pgcode) {
   injected_commands_P = pgcode;
   (void)drain_injected_commands_P(); // first command executed asap (when possible)
 }
@@ -197,7 +197,7 @@ void enqueue_and_echo_commands_P(const char * const pgcode) {
     /**
      * Enqueue from program memory and return only when commands are actually enqueued
      */
-    void enqueue_and_echo_commands_now_P(const char * const pgcode) {
+    void enqueue_and_echo_commands_now_P(PGM_P const pgcode) {
       enqueue_and_echo_commands_P(pgcode);
       while (drain_injected_commands_P()) idle();
     }
@@ -249,7 +249,7 @@ void flush_and_request_resend() {
   ok_to_send();
 }
 
-void gcode_line_error(const char* err, uint8_t port) {
+void gcode_line_error(PGM_P err, uint8_t port) {
   SERIAL_ERROR_START_P(port);
   serialprintPGM_P(port, err);
   SERIAL_ERRORLN_P(port, gcode_LastN);
@@ -350,7 +350,7 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.saving)
+          else if (card.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
@@ -358,13 +358,17 @@ inline void get_serial_commands() {
         if (IsStopped()) {
           char* gpos = strchr(command, 'G');
           if (gpos) {
-            const int codenum = strtol(gpos + 1, NULL, 10);
-            switch (codenum) {
+            switch (strtol(gpos + 1, NULL, 10)) {
               case 0:
               case 1:
-              case 2:
-              case 3:
-                SERIAL_ERRORLNPGM_P(i, MSG_ERR_STOPPED);
+              #if ENABLED(ARC_SUPPORT)
+                case 2:
+                case 3:
+              #endif
+              #if ENABLED(BEZIER_CURVE_SUPPORT)
+                case 5:
+              #endif
+                SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;
             }

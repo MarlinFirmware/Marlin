@@ -45,7 +45,7 @@ volatile uint8_t Endstops::hit_state;
 
 Endstops::esbits_t Endstops::live_state = 0;
 
-#if ENABLED(ENDSTOP_NOISE_FILTER)
+#if ENDSTOP_NOISE_THRESHOLD
   Endstops::esbits_t Endstops::validated_live_state;
   uint8_t Endstops::endstop_poll_count;
 #endif
@@ -246,10 +246,10 @@ void Endstops::poll() {
     run_monitor();  // report changes in endstop status
   #endif
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && ENABLED(ENDSTOP_NOISE_FILTER)
-    if (endstop_poll_count) update();
-  #elif DISABLED(ENDSTOP_INTERRUPTS_FEATURE) || ENABLED(ENDSTOP_NOISE_FILTER)
+  #if DISABLED(ENDSTOP_INTERRUPTS_FEATURE)
     update();
+  #elif ENDSTOP_NOISE_THRESHOLD
+    if (endstop_poll_count) update();
   #endif
 }
 
@@ -275,7 +275,15 @@ void Endstops::not_homing() {
   enabled = enabled_globally;
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    update();
+    // Still 'enabled'? Then endstops are always on and kept in sync.
+    // Otherwise reset 'live's variables to let axes move in both directions.
+    if (!enabled) {
+      #if ENDSTOP_NOISE_THRESHOLD
+        endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
+        validated_live_state = 0;
+      #endif
+      live_state = 0;
+    }
   #endif
 }
 
@@ -358,7 +366,7 @@ void Endstops::event_handler() {
   prev_hit_state = hit_state;
 } // Endstops::report_state
 
-static void print_es_state(const bool is_hit, const char * const label=NULL) {
+static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
   if (label) serialprintPGM(label);
   SERIAL_PROTOCOLPGM(": ");
   serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN));
@@ -367,7 +375,7 @@ static void print_es_state(const bool is_hit, const char * const label=NULL) {
 
 void _O2 Endstops::M119() {
   SERIAL_PROTOCOLLNPGM(MSG_M119_REPORT);
-  #define ES_REPORT(S) print_es_state(READ(S##_PIN) == S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
+  #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
   #if HAS_X_MIN
     ES_REPORT(X_MIN);
   #endif
@@ -411,50 +419,34 @@ void _O2 Endstops::M119() {
     ES_REPORT(Z3_MAX);
   #endif
   #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-    print_es_state(READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_Z_PROBE));
+    print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_Z_PROBE));
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    #define FRS_COUNT (1 + PIN_EXISTS(FIL_RUNOUT2) + PIN_EXISTS(FIL_RUNOUT3) + PIN_EXISTS(FIL_RUNOUT4) + PIN_EXISTS(FIL_RUNOUT5) + PIN_EXISTS(FIL_RUNOUT6))
-    #if FRS_COUNT == 1
-      print_es_state(READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING, MSG_FILAMENT_RUNOUT_SENSOR);
+    #if NUM_RUNOUT_SENSORS == 1
+      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING, PSTR(MSG_FILAMENT_RUNOUT_SENSOR));
     #else
-      for (uint8_t i = 1; i <=
-        #if   FRS_COUNT == 6
-          6
-        #elif FRS_COUNT == 5
-          5
-        #elif FRS_COUNT == 4
-          4
-        #elif FRS_COUNT == 3
-          3
-        #elif FRS_COUNT == 2
-          2
-        #endif
-        ; i++
-      ) {
+      for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; i++) {
         pin_t pin;
         switch (i) {
           default: continue;
           case 1: pin = FIL_RUNOUT_PIN; break;
-          #if PIN_EXISTS(FIL_RUNOUT2)
-            case 2: pin = FIL_RUNOUT2_PIN; break;
-          #endif
-          #if PIN_EXISTS(FIL_RUNOUT3)
+          case 2: pin = FIL_RUNOUT2_PIN; break;
+          #if NUM_RUNOUT_SENSORS > 2
             case 3: pin = FIL_RUNOUT3_PIN; break;
-          #endif
-          #if PIN_EXISTS(FIL_RUNOUT4)
-            case 4: pin = FIL_RUNOUT4_PIN; break;
-          #endif
-          #if PIN_EXISTS(FIL_RUNOUT5)
-            case 5: pin = FIL_RUNOUT5_PIN; break;
-          #endif
-          #if PIN_EXISTS(FIL_RUNOUT6)
-            case 6: pin = FIL_RUNOUT6_PIN; break;
+            #if NUM_RUNOUT_SENSORS > 3
+              case 4: pin = FIL_RUNOUT4_PIN; break;
+              #if NUM_RUNOUT_SENSORS > 4
+                case 5: pin = FIL_RUNOUT5_PIN; break;
+                #if NUM_RUNOUT_SENSORS > 5
+                  case 6: pin = FIL_RUNOUT6_PIN; break;
+                #endif
+              #endif
+            #endif
           #endif
         }
         SERIAL_PROTOCOLPGM(MSG_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + i); }
-        print_es_state(digitalRead(pin) == FIL_RUNOUT_INVERTING);
+        print_es_state(digitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
     #endif
   #endif
@@ -470,7 +462,7 @@ void _O2 Endstops::M119() {
 // Check endstops - Could be called from Temperature ISR!
 void Endstops::update() {
 
-  #if DISABLED(ENDSTOP_NOISE_FILTER)
+  #if !ENDSTOP_NOISE_THRESHOLD
     if (!abort_enabled()) return;
   #endif
 
@@ -613,7 +605,8 @@ void Endstops::update() {
     #endif
   #endif
 
-  #if ENABLED(ENDSTOP_NOISE_FILTER)
+  #if ENDSTOP_NOISE_THRESHOLD
+
     /**
      * Filtering out noise on endstops requires a delayed decision. Let's assume, due to noise,
      * that 50% of endstop signal samples are good and 50% are bad (assuming normal distribution
@@ -626,7 +619,7 @@ void Endstops::update() {
      */
     static esbits_t old_live_state;
     if (old_live_state != live_state) {
-      endstop_poll_count = 7;
+      endstop_poll_count = ENDSTOP_NOISE_THRESHOLD;
       old_live_state = live_state;
     }
     else if (endstop_poll_count && !--endstop_poll_count)
@@ -666,7 +659,7 @@ void Endstops::update() {
     if (triple_hit) { \
       _ENDSTOP_HIT(AXIS1, MINMAX); \
       /* if not performing home or if both endstops were trigged during homing... */ \
-      if (!stepper.separate_multi_axis || triple_hit == 0x7) \
+      if (!stepper.separate_multi_axis || triple_hit == 0b111) \
         planner.endstop_triggered(_AXIS(AXIS1)); \
     } \
   }while(0)

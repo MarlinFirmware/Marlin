@@ -347,7 +347,7 @@ void lcd_implementation_clear() { lcd.clear(); }
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
-  void lcd_scroll(const uint8_t col, const uint8_t line, const char* const text, const uint8_t len, const int16_t time) {
+  void lcd_scroll(const uint8_t col, const uint8_t line, PGM_P const text, const uint8_t len, const int16_t time) {
     uint8_t slen = utf8_strlen_P(text);
     if (slen < len) {
       // Fits into,
@@ -360,7 +360,7 @@ void lcd_implementation_clear() { lcd.clear(); }
       safe_delay(time);
     }
     else {
-      const char* p = text;
+      PGM_P p = text;
       int dly = time / MAX(slen, 1);
       for (uint8_t i = 0; i <= slen; i++) {
 
@@ -387,7 +387,7 @@ void lcd_implementation_clear() { lcd.clear(); }
     }
   }
 
-  static void logo_lines(const char* const extra) {
+  static void logo_lines(PGM_P const extra) {
     int16_t indent = (LCD_WIDTH - 8 - utf8_strlen_P(extra)) / 2;
     lcd_moveto(indent, 0); lcd_put_wchar('\x00'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x01');
     lcd_moveto(indent, 1);                        lcd_put_u8str_P(PSTR("|Marlin|"));  lcd_put_u8str_P(extra);
@@ -867,7 +867,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
-  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
+  static void lcd_implementation_drawmenu_static(const uint8_t row, PGM_P pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
     UNUSED(invert);
     int8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
@@ -880,7 +880,7 @@ static void lcd_implementation_status_screen() {
     for (; n > 0; --n) lcd_put_wchar(' ');
   }
 
-  static void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
+  static void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
     uint8_t n = LCD_WIDTH - 2;
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -889,7 +889,7 @@ static void lcd_implementation_status_screen() {
     lcd_put_wchar(post_char);
   }
 
-  static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
+  static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
     uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -898,7 +898,7 @@ static void lcd_implementation_status_screen() {
     while (n--) lcd_put_wchar(' ');
     lcd_put_u8str(data);
   }
-  static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
+  static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
     uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -911,7 +911,7 @@ static void lcd_implementation_status_screen() {
   #define DRAWMENU_SETTING_EDIT_GENERIC(_src) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', _src)
   #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
-  void lcd_implementation_drawedit(const char* pstr, const char* const value=NULL) {
+  void lcd_implementation_drawedit(PGM_P pstr, const char* const value=NULL) {
     lcd_moveto(1, 1);
     lcd_put_u8str_P(pstr);
     if (value != NULL) {
@@ -926,7 +926,7 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(SDSUPPORT)
 
-    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, CardReader &theCard, const uint8_t concat, const char post_char) {
+    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
       lcd_moveto(0, row);
       lcd_put_wchar(sel ? '>' : ' ');
@@ -960,11 +960,11 @@ static void lcd_implementation_status_screen() {
       lcd_put_wchar(post_char);
     }
 
-    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, const char* pstr, CardReader &theCard) {
+    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard) {
       lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, ' ');
     }
 
-    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, CardReader &theCard) {
+    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard) {
       lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, LCD_STR_FOLDER[0]);
     }
 

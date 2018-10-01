@@ -75,6 +75,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("Mover ejes")
 #define MSG_BED_LEVELING                    _UxGT("Nivelar cama")
 #define MSG_LEVEL_BED                       _UxGT("Nivelar cama")
+
 #define MSG_MOVING                          _UxGT("Moviendo...")
 #define MSG_FREE_XY                         _UxGT("Libre XY")
 #define MSG_MOVE_X                          _UxGT("Mover X")
