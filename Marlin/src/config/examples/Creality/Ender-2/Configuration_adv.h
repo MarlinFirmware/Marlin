@@ -1273,7 +1273,7 @@
 
   /**
    * Use StallGuard2 to probe the bed with the nozzle.
-   * 
+   *
    * CAUTION: This could cause damage to machines that use a lead screw or threaded rod
    *          to move the Z axis. Take extreme care when attempting to enable this feature.
    */
