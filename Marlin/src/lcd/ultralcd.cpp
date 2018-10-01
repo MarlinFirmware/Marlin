@@ -507,6 +507,8 @@ uint16_t max_display_update_time = 0;
     return click;
   }
 
+  inline bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING; }
+
   /**
    * General function to go directly to a screen
    */
@@ -526,7 +528,7 @@ uint16_t max_display_update_time = 0;
           if (currentScreen == lcd_status_screen)
             doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
         }
-        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms)/* && (planner.movesplanned() || IS_SD_PRINTING)*/)
+        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms)/* && printer_busy()*/)
           screen =
             #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
               lcd_babystep_zoffset
@@ -1053,6 +1055,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     static void IDEX_menu() {
       START_MENU();
       MENU_BACK(MSG_MAIN);
+
       MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
       const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
       MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, need_g28
@@ -1169,7 +1172,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
       }
     #endif // SDSUPPORT
 
-    if (planner.movesplanned() || IS_SD_PRINTING)
+    const bool busy = printer_busy();
+    if (busy)
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     else {
       MENU_ITEM(submenu, MSG_MOTION, lcd_movement_menu);
@@ -1215,7 +1219,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
     // Autostart
     //
     #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
-      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
+      if (!busy)
+        MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
     #endif
 
     END_MENU();
@@ -2691,7 +2696,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
      *    Load Settings       (Req: EEPROM_SETTINGS)
      *    Save Settings       (Req: EEPROM_SETTINGS)
      */
-    void lcd_bed_leveling() {
+    void lcd_bed_leveling_menu() {
       START_MENU();
       MENU_BACK(MSG_MOTION);
 
@@ -2800,7 +2805,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #if ENABLED(PROBE_MANUALLY)
         if (!g29_in_progress)
       #endif
-          MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling);
+          MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling_menu);
 
     #elif HAS_LEVELING && DISABLED(SLIM_LCD_MENUS)
 
@@ -3385,19 +3390,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
     START_MENU();
     MENU_BACK(MSG_MAIN);
 
-    MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, lcd_advanced_settings_menu);
-
-    //
-    // Delta Calibration
-    //
-    #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
-    #endif
-
-    #if ENABLED(DUAL_X_CARRIAGE)
-      MENU_ITEM(submenu, MSG_IDEX_MENU, IDEX_menu);
-    #endif
-
     //
     // Debug Menu when certain options are enabled
     //
@@ -3405,13 +3397,32 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
     #endif
 
+    MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, lcd_advanced_settings_menu);
+
+    const bool busy = printer_busy();
+    if (!busy) {
+      //
+      // Delta Calibration
+      //
+      #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
+        MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
+      #endif
+
+      #if ENABLED(DUAL_X_CARRIAGE)
+        MENU_ITEM(submenu, MSG_IDEX_MENU, IDEX_menu);
+      #endif
+
+      #if ENABLED(BLTOUCH)
+        MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
+      #endif
+    }
+
     //
     // Set Case light on/off/brightness
     //
     #if ENABLED(MENU_ITEM_CASE_LIGHT)
-      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
         MENU_ITEM(submenu, MSG_CASE_LIGHT, case_light_menu);
-      }
       else
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     #endif
@@ -3429,10 +3440,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_pwm_menu);
     #endif
 
-    #if ENABLED(BLTOUCH)
-      MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
-    #endif
-
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       MENU_ITEM_EDIT(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled);
     #endif
@@ -3445,10 +3452,12 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
-      MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+      if (!busy)
+        MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
     #endif
 
-    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
+    if (!busy)
+      MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
 
     END_MENU();
   }
@@ -4659,7 +4668,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #endif // E_STEPPERS == 1
 
         #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-          if (!planner.movesplanned() && !IS_SD_FILE_OPEN) {
+          if (!printer_busy()) {
             // Load filament
             #if E_STEPPERS == 1
               PGM_P msg0 = PSTR(MSG_FILAMENTLOAD);
