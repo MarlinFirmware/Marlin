@@ -28,7 +28,6 @@ exec_test $1 $2 "RADDS Z_TRIPLE"
 restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS4DUE_EEF
 opt_set EXTRUDERS 2
-opt_enable NUM_SERVOS
 opt_set NUM_SERVOS 1
 opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
 exec_test $1 $2 "SWITCHING_EXTRUDER"
