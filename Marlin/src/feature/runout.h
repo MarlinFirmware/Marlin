@@ -36,10 +36,10 @@
 
 #define FIL_RUNOUT_THRESHOLD 5
 
-static bool filament_sensor_enabled = true;
-
 class FilamentRunoutSensor {
   public:
+    static bool enabled;
+
     FilamentRunoutSensor() {}
 
     static void setup();
@@ -57,10 +57,8 @@ class FilamentRunoutSensor {
     static bool filament_ran_out;
     static uint8_t runout_count;
 
-
     FORCE_INLINE static bool check() {
-      if(!filament_sensor_enabled)
-        return false;
+      if (!enabled) return false;
       #if NUM_RUNOUT_SENSORS < 2
         // A single sensor applying to all extruders
         const bool is_out = READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING;

@@ -3433,7 +3433,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
 
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      MENU_ITEM_EDIT(bool, MSG_FILAMENT_RUNOUT_ENABLE, &filament_sensor_enabled);
+      MENU_ITEM_EDIT(bool, MSG_FILAMENT_RUNOUT_ENABLE, &runout.enabled);
     #endif
 
     #if DISABLED(SLIM_LCD_MENUS)
