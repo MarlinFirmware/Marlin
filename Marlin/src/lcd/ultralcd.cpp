@@ -1343,13 +1343,12 @@ void lcd_quick_feedback(const bool clear_buttons) {
         }
         if (lcdDrawUpdate) {
           #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-            if (do_probe)
-              lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
-            else
+            if (!do_probe)
               lcd_implementation_drawedit(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
-          #else
-            lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+            else
           #endif
+              lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+
           #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
             if (do_probe) _lcd_zoffset_overlay_gfx(zprobe_zoffset);
           #endif
