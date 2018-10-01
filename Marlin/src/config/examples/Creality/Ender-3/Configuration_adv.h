@@ -1112,6 +1112,37 @@
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
+/**
+ * Dynamic Tool Migration
+ *
+ * Tool/Spool swap during a print (on Runout / LCD / G-code)
+ * Preserve all properties : Temperature, Flow %, E position, retraction, etc.
+ * Useful to : Finish a nearly-empty spool without user intervention
+ *           : Swap the current extruder quickly from the LCD
+ *           : Recover from broken filament or a jammed extruder
+ *
+ * M606 L[index]  Last extruder to use after runout (0 to disable).
+ *      T[index]  Migrate to desired extruder (Next extruder by default).
+ *
+ * Requirements:
+ *  - At least 2 matching extruders
+ * *  - FILAMENT_RUNOUT_SENSOR for auto-migration on runout
+ *  - Single extruder printing
+ */
+//#define DYNAMIC_TOOL_MIGRATION
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  #define DTM_UNLOAD_LENGTH     50  // (mm) Don't eject completely since filament needs to stay inserted
+  #define DTM_UNLOAD_FEEDRATE 3000  // (mm/m)
+  #define DTM_LOAD_LENGTH       50  // Usually the same as 'unload'
+  #define DTM_LOAD_FEEDRATE   1500  // (mm/m)
+  #define DTM_PURGE_LENGTH      10  // Initialization / Purge - Just a little because same color/material
+  #define DTM_PURGE_FEEDRATE   400  // (mm/m)
+  #define DTM_FANSPEED         120  // Fan speed after purge
+  #define DTM_FAN                0  // Fan index
+  #define DTM_DWELL         4*1000  // (ms) Pause for filament cooling
+  #define DTM_NOZZLE_PARK           // Park nozzle before migration. (Requires NOZZLE_PARK_FEATURE)
+#endif
+
 // @section tmc
 
 /**
