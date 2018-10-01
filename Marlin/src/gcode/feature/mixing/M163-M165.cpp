@@ -38,7 +38,7 @@
 void GcodeSuite::M163() {
   const int mix_index = parser.intval('S');
   if (mix_index < MIXING_STEPPERS)
-    mixing_factor[mix_index] = MAX(parser.floatval('P'), 0.0);
+    mixing_factor[mix_index] = biggest(parser.floatval('P'), 0.0);
 }
 
 /**

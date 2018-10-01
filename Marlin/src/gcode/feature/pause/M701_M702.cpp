@@ -74,7 +74,7 @@ void GcodeSuite::M701() {
 
   // Lift Z axis
   if (park_point.z > 0)
-    do_blocking_move_to_z(MIN(current_position[Z_AXIS] + park_point.z, Z_MAX_POS), NOZZLE_PARK_Z_FEEDRATE);
+    do_blocking_move_to_z(smallest(current_position[Z_AXIS] + park_point.z, Z_MAX_POS), NOZZLE_PARK_Z_FEEDRATE);
 
   // Load filament
   constexpr float slow_load_length = FILAMENT_CHANGE_SLOW_LOAD_LENGTH;
@@ -89,7 +89,7 @@ void GcodeSuite::M701() {
 
   // Restore Z axis
   if (park_point.z > 0)
-    do_blocking_move_to_z(MAX(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
+    do_blocking_move_to_z(biggest(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
   #if EXTRUDERS > 1
     // Restore toolhead if it was changed
@@ -140,7 +140,7 @@ void GcodeSuite::M702() {
 
   // Lift Z axis
   if (park_point.z > 0)
-    do_blocking_move_to_z(MIN(current_position[Z_AXIS] + park_point.z, Z_MAX_POS), NOZZLE_PARK_Z_FEEDRATE);
+    do_blocking_move_to_z(smallest(current_position[Z_AXIS] + park_point.z, Z_MAX_POS), NOZZLE_PARK_Z_FEEDRATE);
 
   // Unload filament
   #if EXTRUDERS > 1 && ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
@@ -162,7 +162,7 @@ void GcodeSuite::M702() {
 
   // Restore Z axis
   if (park_point.z > 0)
-    do_blocking_move_to_z(MAX(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
+    do_blocking_move_to_z(biggest(current_position[Z_AXIS] - park_point.z, 0), NOZZLE_PARK_Z_FEEDRATE);
 
   #if EXTRUDERS > 1
     // Restore toolhead if it was changed

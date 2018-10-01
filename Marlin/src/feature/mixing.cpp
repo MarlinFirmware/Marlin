@@ -88,7 +88,7 @@ void normalize_mix() {
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
       if (parser.seenval(mixing_codes[i])) {
         SBI(mix_bits, i);
-        mixing_factor[i] = MAX(parser.value_float(), 0.0);
+        mixing_factor[i] = biggest(parser.value_float(), 0.0);
       }
     }
     // If any mixing factors were included, clear the rest
