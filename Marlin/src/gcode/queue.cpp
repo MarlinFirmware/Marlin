@@ -119,7 +119,7 @@ inline void _commit_command(bool say_ok
  * Return true if the command was successfully added.
  * Return false for a full buffer, or if the 'command' is a comment.
  */
-inline bool _enqueuecommand(const char* cmd, bool say_ok=false
+inline bool _enqueuecommand(const char * const cmd, bool say_ok=false
   #if NUM_SERIAL > 1
     , int16_t port = -1
   #endif
@@ -137,7 +137,7 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false
 /**
  * Enqueue with Serial Echo
  */
-bool enqueue_and_echo_command(const char* cmd) {
+bool enqueue_and_echo_command(const char * const cmd) {
 
   //SERIAL_ECHOPGM("enqueue_and_echo_command(\"");
   //SERIAL_ECHO(cmd);
@@ -190,7 +190,7 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode) {
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  void enqueue_and_echo_command_now(const char* cmd) {
+  void enqueue_and_echo_command_now(const char * const cmd) {
     while (!enqueue_and_echo_command(cmd)) idle();
   }
   #if HAS_LCD_QUEUE_NOW

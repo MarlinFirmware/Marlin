@@ -83,6 +83,10 @@ class TFilamentSensor : public FilamentSensorBase {
           #if ENABLED(EXTENSIBLE_UI)
             UI::onFilamentRunout();
           #endif
+          #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+            if (active_extruder < dtm_last_usable_extruder)
+              return enqueue_and_echo_commands_P(PSTR("M606"));
+          #endif
           enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
           planner.synchronize();
         }

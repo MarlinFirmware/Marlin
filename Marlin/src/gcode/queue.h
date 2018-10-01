@@ -95,7 +95,7 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode);
 /**
  * Enqueue with Serial Echo
  */
-bool enqueue_and_echo_command(const char* cmd);
+bool enqueue_and_echo_command(const char * const cmd);
 
 #define HAS_LCD_QUEUE_NOW (ENABLED(MALYAN_LCD) || (ENABLED(ULTIPANEL) && (ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE))))
 #define HAS_QUEUE_NOW (ENABLED(SDSUPPORT) || HAS_LCD_QUEUE_NOW)
@@ -104,7 +104,7 @@ bool enqueue_and_echo_command(const char* cmd);
   /**
    * Enqueue and return only when commands are actually enqueued
    */
-  void enqueue_and_echo_command_now(const char* cmd);
+  void enqueue_and_echo_command_now(const char * const cmd);
   #if HAS_LCD_QUEUE_NOW
     /**
      * Enqueue from program memory and return only when commands are actually enqueued

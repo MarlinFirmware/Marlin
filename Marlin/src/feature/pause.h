@@ -70,6 +70,10 @@ extern fil_change_settings_t fc_settings[EXTRUDERS];
 
 extern uint8_t did_pause_print;
 
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  extern uint8_t dtm_last_usable_extruder;
+#endif
+
 #if ENABLED(DUAL_X_CARRIAGE)
   #define DXC_PARAMS , const int8_t DXC_ext=-1
   #define DXC_ARGS   , const int8_t DXC_ext
@@ -80,7 +84,7 @@ extern uint8_t did_pause_print;
   #define DXC_PASS
 #endif
 
-void do_pause_e_move(const float &length, const float &fr);
+void unscaled_relative_e_move(const float &length, const float &fr);
 
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
 

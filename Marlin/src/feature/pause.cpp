@@ -111,7 +111,10 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
   return thermalManager.wait_for_hotend(active_extruder);
 }
 
-void do_pause_e_move(const float &length, const float &fr) {
+/**
+ * Move E by an absolute number of mm
+ */
+void unscaled_relative_e_move(const float &length, const float &fr) {
   current_position[E_AXIS] += length / planner.e_factor[active_extruder];
   planner.buffer_line(current_position, fr, active_extruder);
   planner.synchronize();
@@ -185,7 +188,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   #endif
 
   // Slow Load filament
-  if (slow_load_length) do_pause_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
+  if (slow_load_length) unscaled_relative_e_move(slow_load_length, FILAMENT_CHANGE_SLOW_LOAD_FEEDRATE);
 
   // Fast Load Filament
   if (fast_load_length) {
@@ -194,7 +197,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
       planner.settings.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
     #endif
 
-    do_pause_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
+    unscaled_relative_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
 
     #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
       planner.settings.retract_acceleration = saved_acceleration;
@@ -216,7 +219,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 
     wait_for_user = true;
     for (float purge_count = purge_length; purge_count > 0 && wait_for_user; --purge_count)
-      do_pause_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
+      unscaled_relative_e_move(1, ADVANCED_PAUSE_PURGE_FEEDRATE);
     wait_for_user = false;
 
   #else
@@ -230,7 +233,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
         #endif
 
         // Extrude filament to get into hotend
-        do_pause_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
+        unscaled_relative_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
 
       // Show "Purge More" / "Resume" menu and wait for reply
@@ -288,13 +291,13 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
   #endif
 
   // Retract filament
-  do_pause_e_move(-FILAMENT_UNLOAD_RETRACT_LENGTH, PAUSE_PARK_RETRACT_FEEDRATE);
+  unscaled_relative_e_move(-FILAMENT_UNLOAD_RETRACT_LENGTH, PAUSE_PARK_RETRACT_FEEDRATE);
 
   // Wait for filament to cool
   safe_delay(FILAMENT_UNLOAD_DELAY);
 
   // Quickly purge
-  do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.settings.max_feedrate_mm_s[E_AXIS]);
+  unscaled_relative_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.settings.max_feedrate_mm_s[E_AXIS]);
 
   // Unload filament
   #if FILAMENT_CHANGE_UNLOAD_ACCEL > 0
@@ -302,7 +305,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
     planner.settings.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
   #endif
 
-  do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
+  unscaled_relative_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
 
   #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
     planner.settings.retract_acceleration = saved_acceleration;
@@ -381,7 +384,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
 
   // Initial retract before move to filament change position
   if (retract && thermalManager.hotEnoughToExtrude(active_extruder))
-    do_pause_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
+    unscaled_relative_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
   // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
   if (!axis_unhomed_error())
@@ -558,11 +561,11 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #if ENABLED(FWRETRACT)
     // If retracted before goto pause
     if (fwretract.retracted[active_extruder])
-      do_pause_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
+      unscaled_relative_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
   #endif
 
   // If resume_position is negative
-  if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
+  if (resume_position[E_AXIS] < 0) unscaled_relative_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
 
   // Move XY to starting position, then Z
   do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);

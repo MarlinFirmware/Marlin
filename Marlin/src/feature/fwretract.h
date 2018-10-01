@@ -83,6 +83,14 @@ public:
       , bool swapping = false
     #endif
   );
+
+  #if EXTRUDERS > 1
+    // Migrate retraction from one extruder to another
+    static void migrate(const uint8_t se, const uint8_t de) {
+      retracted[de] = retracted[se];
+      retracted_swap[de] = retracted_swap[se];
+    }
+  #endif
 };
 
 extern FWRetract fwretract;

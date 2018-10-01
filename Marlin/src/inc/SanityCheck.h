@@ -1885,4 +1885,16 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
   #error "SD_FIRMWARE_UPDATE requires an ATmega2560-based (Arduino Mega) board."
 #endif
 
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  #if EXTRUDERS < 2
+    #error "DYNAMIC_TOOL_MIGRATION requires 2 or more EXTRUDERS."
+  #elif ENABLED(MIXING_EXTRUDER)
+    #error "DYNAMIC_TOOL_MIGRATION is not compatible with MIXING_EXTRUDER."
+  #elif ENABLED(SWITCHING_TOOLHEAD)
+    #error "DYNAMIC_TOOL_MIGRATION is not compatible with SWITCHING_TOOLHEAD."
+  #elif ENABLED(DUAL_X_CARRIAGE)
+    #error "DYNAMIC_TOOL_MIGRATION is not compatible with DUAL_X_CARRIAGE."
+  #endif
+#endif
+
 #endif // _SANITYCHECK_H_

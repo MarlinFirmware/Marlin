@@ -75,6 +75,12 @@
   #include "../feature/runout.h"
 #endif
 
+#if ENABLED(DYNAMIC_TOOL_MIGRATION)
+  #define TOOL_MIGRATION_COMMAND "M606 T"
+  void tool_migration_menu();
+  void tool_migration_gcode(const char * const cmd);
+#endif
+
 #if DISABLED(LCD_USE_I2C_BUZZER)
   #include "../libs/buzzer.h"
 #endif
@@ -1512,6 +1518,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
     // Speed:
     //
     MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999);
+
+    //
+    // Dynamic tool migration
+    //
+    #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+      MENU_ITEM(submenu, MSG_TOOL_MIGRATION, tool_migration_menu);
+    #endif
 
     //
     // Manual bed leveling, Bed Z:
@@ -3417,6 +3430,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
     #endif
 
+    #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+      MENU_ITEM(submenu, MSG_TOOL_MIGRATION, tool_migration_menu);
+    #endif
+
     MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, lcd_advanced_settings_menu);
 
     const bool busy = printer_busy();
@@ -4200,6 +4217,60 @@ void lcd_quick_feedback(const bool clear_buttons) {
       END_MENU();
     }
   #endif // !NO_VOLUMETRICS || ADVANCED_PAUSE_FEATURE
+
+  /**
+   *
+   * "Dynamic Tool Migration" submenu
+   *
+   */
+  #if ENABLED(DYNAMIC_TOOL_MIGRATION)
+
+    void _tool_migration_gcode(const char e) {
+      constexpr int len = strlen(TOOL_MIGRATION_COMMAND);
+      char * const cmd = TOOL_MIGRATION_COMMAND ".";
+      cmd[len] = e;
+      enqueue_and_echo_command(cmd);
+      lcd_return_to_status();
+    }
+    void tool_migration_gcode_T0() { _tool_migration_gcode('0'); }
+    void tool_migration_gcode_T1() { _tool_migration_gcode('1'); }
+    #if EXTRUDERS > 2
+      void tool_migration_gcode_T2() { _tool_migration_gcode('2'); }
+      #if EXTRUDERS > 3
+        void tool_migration_gcode_T3() { _tool_migration_gcode('3'); }
+        #if EXTRUDERS > 4
+          void tool_migration_gcode_T4() { _tool_migration_gcode('4'); }
+          #if EXTRUDERS > 5
+            void tool_migration_gcode_T5() { _tool_migration_gcode('5'); }
+          #endif // EXTRUDERS > 5
+        #endif // EXTRUDERS > 4
+      #endif // EXTRUDERS > 3
+    #endif // EXTRUDERS > 2
+
+    void tool_migration_menu() {
+      const char * const msg_on_off = dtm_last_usable_extruder ? PSTR(MSG_TOOL_MIGRATION_ON) : PSTR(MSG_TOOL_MIGRATION_OFF);
+      START_MENU();
+      MENU_BACK(MSG_BACK);
+      STATIC_ITEM_P(msg_on_off, false, false);
+      MENU_ITEM_EDIT(int8, MSG_TOOL_MIGRATION_LAST, &dtm_last_usable_extruder, 0, EXTRUDERS - 1);
+      if (active_extruder != 0) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E1, tool_migration_gcode_T0);
+      if (active_extruder != 1) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E2, tool_migration_gcode_T1);
+      #if EXTRUDERS > 2
+        if (active_extruder != 2) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E3, tool_migration_gcode_T2);
+        #if EXTRUDERS > 3
+          if (active_extruder != 3) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E4, tool_migration_gcode_T3);
+          #if EXTRUDERS > 4
+            if (active_extruder != 4) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E5, tool_migration_gcode_T4);
+            #if EXTRUDERS > 5
+              if (active_extruder != 5) MENU_ITEM(function, MSG_TOOL_MIGRATION_SWAP MSG_E6, tool_migration_gcode_T5);
+            #endif // EXTRUDERS > 5
+          #endif // EXTRUDERS > 4
+        #endif // EXTRUDERS > 3
+      #endif // EXTRUDERS > 2
+      END_MENU();
+    }
+
+  #endif // DYNAMIC_TOOL_MIGRATION
 
   /**
    *
