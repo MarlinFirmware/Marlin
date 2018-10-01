@@ -509,6 +509,9 @@ uint16_t max_display_update_time = 0;
 
   inline bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING; }
 
+  void lcd_move_z();
+  float move_menu_scale;
+
   /**
    * General function to go directly to a screen
    */
@@ -528,14 +531,23 @@ uint16_t max_display_update_time = 0;
           if (currentScreen == lcd_status_screen)
             doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
         }
-        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms)/* && printer_busy()*/)
-          screen =
-            #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-              lcd_babystep_zoffset
-            #else
-              lcd_babystep_z
-            #endif
-          ;
+        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms)) {
+          if (printer_busy()) {
+            screen =
+              #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+                lcd_babystep_zoffset
+              #else
+                lcd_babystep_z
+              #endif
+            ;
+          }
+          #if ENABLED(MOVE_Z_WHEN_IDLE)
+            else {
+              move_menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
+              screen = lcd_move_z;
+            }
+          #endif
+        }
       #endif
 
       currentScreen = screen;
@@ -2850,11 +2862,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     END_MENU();
   }
 
-  float move_menu_scale;
-
   #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
-
-    void lcd_move_z();
 
     void _man_probe_pt(const float &rx, const float &ry) {
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
