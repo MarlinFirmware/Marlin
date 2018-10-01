@@ -79,7 +79,7 @@ bool PersistentStore::access_finish() {
 // This extra chit-chat goes away soon, but is helpful for now
 // to see errors that are happening in read_data / write_data
 static void debug_rw(const bool write, int &pos, const uint8_t *value, const size_t size, const FRESULT s, const size_t total=0) {
-  const char * const rw_str = write ? PSTR("write") : PSTR("read");
+  PGM_P const rw_str = write ? PSTR("write") : PSTR("read");
   SERIAL_PROTOCOLCHAR(' ');
   serialprintPGM(rw_str);
   SERIAL_PROTOCOLPAIR("_data(", pos);

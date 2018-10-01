@@ -599,7 +599,7 @@ void idle(
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(const char* lcd_msg) {
+void kill(PGM_P lcd_msg) {
   SERIAL_ERROR_START();
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
@@ -686,7 +686,16 @@ void setup() {
     max7219.init();
   #endif
 
-  #if ENABLED(DISABLE_JTAG)
+  #if ENABLED(DISABLE_DEBUG)
+    // Disable any hardware debug to free up pins for IO
+    #ifdef JTAGSWD_DISABLE
+      JTAGSWD_DISABLE();
+    #elif defined(JTAG_DISABLE)
+      JTAG_DISABLE();
+    #else
+      #error "DISABLE_DEBUG is not supported for the selected MCU/Board"
+    #endif
+  #elif ENABLED(DISABLE_JTAG)
     // Disable JTAG to free up pins for IO
     #ifdef JTAG_DISABLE
       JTAG_DISABLE();

@@ -32,30 +32,30 @@ const char echomagic[] PROGMEM = "echo:";
     while (char ch = pgm_read_byte(str++)) SERIAL_CHAR_P(p, ch);
   }
 
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, const char *v)   { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, char v)          { serialprintPGM_P(p, s_P); SERIAL_CHAR_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, int v)           { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, long v)          { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, float v)         { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, double v)        { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, unsigned int v)  { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, unsigned long v) { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, const char *v)   { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, char v)          { serialprintPGM_P(p, s_P); SERIAL_CHAR_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, int v)           { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, long v)          { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, float v)         { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, double v)        { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, unsigned int v)  { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, unsigned long v) { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
 
   void serial_spaces_P(const int8_t p, uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR_P(p, ' '); }
 #endif
 
-void serialprintPGM(const char * str) {
+void serialprintPGM(PGM_P str) {
   while (char ch = pgm_read_byte(str++)) SERIAL_CHAR(ch);
 }
 
-void serial_echopair_PGM(const char* s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(const char* s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
-void serial_echopair_PGM(const char* s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(const char* s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(const char* s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(const char* s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(const char* s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(const char* s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
+void serial_echopair_PGM(PGM_P s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
@@ -63,7 +63,7 @@ void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (c
 
   #include "enum.h"
 
-  void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z) {
+  void print_xyz(PGM_P prefix, PGM_P suffix, const float x, const float y, const float z) {
     serialprintPGM(prefix);
     SERIAL_CHAR('(');
     SERIAL_ECHO(x);
@@ -73,7 +73,7 @@ void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (c
     if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
   }
 
-  void print_xyz(const char* prefix, const char* suffix, const float xyz[]) {
+  void print_xyz(PGM_P prefix, PGM_P suffix, const float xyz[]) {
     print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
   }
 

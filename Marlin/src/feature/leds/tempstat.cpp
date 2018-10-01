@@ -38,10 +38,10 @@ void handle_status_leds(void) {
     next_status_led_update_ms += 500; // Update every 0.5s
     float max_temp = 0.0;
     #if HAS_HEATED_BED
-      max_temp = MAX3(max_temp, thermalManager.degTargetBed(), thermalManager.degBed());
+      max_temp = MAX(max_temp, thermalManager.degTargetBed(), thermalManager.degBed());
     #endif
     HOTEND_LOOP()
-      max_temp = MAX3(max_temp, thermalManager.degHotend(e), thermalManager.degTargetHotend(e));
+      max_temp = MAX(max_temp, thermalManager.degHotend(e), thermalManager.degTargetHotend(e));
     const bool new_led = (max_temp > 55.0) ? true : (max_temp < 54.0) ? false : red_led;
     if (new_led != red_led) {
       red_led = new_led;

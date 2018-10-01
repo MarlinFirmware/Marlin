@@ -365,7 +365,7 @@
   #error "Set SERIAL_PORT to the port on your board. Usually this is 0."
 #endif
 
-#if SERIAL_PORT_2 && NUM_SERIAL < 2
+#if defined(SERIAL_PORT_2) && NUM_SERIAL < 2
   #error "SERIAL_PORT_2 is not supported for your MOTHERBOARD. Disable it to continue."
 #endif
 
@@ -895,14 +895,20 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   /**
    * Require pin options and pins to be defined
    */
-  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #if ENABLED(SENSORLESS_PROBING)
+    #if ENABLED(DELTA) && (!AXIS_DRIVER_TYPE_X(TMC2130) || !AXIS_DRIVER_TYPE_Y(TMC2130) || !AXIS_DRIVER_TYPE_Z(TMC2130))
+      #error "SENSORLESS_PROBING requires TMC2130 drivers on X, Y, and Z."
+    #elif !AXIS_DRIVER_TYPE_Z(TMC2130)
+      #error "SENSORLESS_PROBING requires a TMC2130 driver on Z."
+    #endif
+  #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
       #error "Enable only one option: Z_MIN_PROBE_ENDSTOP or Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN."
     #elif DISABLED(USE_ZMIN_PLUG)
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires USE_ZMIN_PLUG to be enabled."
     #elif !HAS_Z_MIN
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires the Z_MIN_PIN to be defined."
-    #elif ENABLED(Z_MIN_PROBE_ENDSTOP_INVERTING) != ENABLED(Z_MIN_ENDSTOP_INVERTING)
+    #elif Z_MIN_PROBE_ENDSTOP_INVERTING != Z_MIN_ENDSTOP_INVERTING
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires Z_MIN_ENDSTOP_INVERTING to match Z_MIN_PROBE_ENDSTOP_INVERTING."
     #endif
   #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
@@ -1746,19 +1752,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #error "CoreYZ requires both Y and Z to use sensorless homing if either does."
 #endif
 
+// Other TMC feature requirements
 #if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
   #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
-#endif
-#if ENABLED(TMC_Z_CALIBRATION) && !AXIS_IS_TMC(Z) && !AXIS_IS_TMC(Z2) && !AXIS_IS_TMC(Z3)
+#elif ENABLED(TMC_Z_CALIBRATION) && !AXIS_IS_TMC(Z) && !AXIS_IS_TMC(Z2) && !AXIS_IS_TMC(Z3)
   #error "TMC_Z_CALIBRATION requires at least one TMC driver on Z axis"
-#endif
-
-#if ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
-  #error "SENSORLESS_HOMING requires TMC2130 or TMC2660 stepper drivers."
-#endif
-#if ENABLED(STEALTHCHOP) && !HAS_STEALTHCHOP
+#elif ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
+  #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
+#elif ENABLED(SENSORLESS_PROBING) && !HAS_STALLGUARD
+  #error "SENSORLESS_PROBING requires TMC2130 stepper drivers."
+#elif ENABLED(STEALTHCHOP) && !HAS_STEALTHCHOP
   #error "STEALTHCHOP requires TMC2130 or TMC2208 stepper drivers."
- #endif
+#endif
 
 /**
  * Digipot requirement

@@ -75,18 +75,18 @@ void ST7920_Lite_Status_Screen::write_str(const char *str, uint8_t len) {
   while (*str && len--) write_byte(*str++);
 }
 
-void ST7920_Lite_Status_Screen::write_str_P(const char * const str) {
-  const char *p_str = (const char *)str;
+void ST7920_Lite_Status_Screen::write_str_P(PGM_P const str) {
+  PGM_P p_str = (PGM_P)str;
   while (char c = pgm_read_byte_near(p_str++)) write_byte(c);
 }
 
 void ST7920_Lite_Status_Screen::write_str(progmem_str str) {
-  write_str_P((const char*)str);
+  write_str_P((PGM_P)str);
 }
 
 void ST7920_Lite_Status_Screen::write_number(const int16_t value, const uint8_t digits/*=3*/) {
   char str[7];
-  const char *fmt;
+  PGM_P fmt;
   switch (digits) {
     case 6: fmt = PSTR("%6d"); break;
     case 5: fmt = PSTR("%5d"); break;

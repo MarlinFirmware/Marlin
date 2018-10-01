@@ -767,16 +767,24 @@
  */
 #define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
-  #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR 5   // Babysteps are very small. Increase for faster motion.
-  //#define BABYSTEP_ZPROBE_OFFSET   // Combine M851 Z and Babystepping
-  #define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
-  #define DOUBLECLICK_MAX_INTERVAL 1250 // Maximum interval between clicks, in milliseconds.
-                                        // Note: Extra time may be added to mitigate controller latency.
-  //#define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
+  //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
+  #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
+  #define BABYSTEP_MULTIPLICATOR  5         // Babysteps are very small. Increase for faster motion.
+
+  #define DOUBLECLICK_FOR_Z_BABYSTEPPING    // Double-click on the Status Screen for Z Babystepping.
+  #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
+    #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
+                                            // Note: Extra time may be added to mitigate controller latency.
+  #endif
+
+  //#define MOVE_Z_WHEN_IDLE                // Jump to the move Z menu on doubleclick when printer is idle.
+  #if ENABLED(MOVE_Z_WHEN_IDLE)
+    #define MOVE_Z_IDLE_MULTIPLICATOR 1     // Multiply 1mm by this factor for the move step size.
+  #endif
+  //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    //#define BABYSTEP_HOTEND_Z_OFFSET // For multiple hotends, babystep relative Z offsets
+    //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
+    //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
   #endif
 #endif
 
@@ -993,10 +1001,13 @@
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *
  */
-//#define FWRETRACT  // ONLY PARTIALLY TESTED
+//#define FWRETRACT
 #if ENABLED(FWRETRACT)
-  #define MIN_AUTORETRACT 0.1             // When auto-retract is on, convert E moves of this length and over
-  #define MAX_AUTORETRACT 10.0            // Upper limit for auto-retract conversion
+  #define FWRETRACT_AUTORETRACT           // costs ~500 bytes of PROGMEM
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    #define MIN_AUTORETRACT 0.1           // When auto-retract is on, convert E moves of this length and over
+    #define MAX_AUTORETRACT 10.0          // Upper limit for auto-retract conversion
+  #endif
   #define RETRACT_LENGTH 3                // Default retract length (positive mm)
   #define RETRACT_LENGTH_SWAP 13          // Default swap retract length (positive mm), for extruder change
   #define RETRACT_FEEDRATE 45             // Default feedrate for retracting (mm/s)
@@ -1255,11 +1266,11 @@
   #define E5_HYBRID_THRESHOLD     30
 
   /**
-   * Use stallGuard2 to sense an obstacle and trigger an endstop.
-   * You need to place a wire from the driver's DIAG1 pin to the X/Y endstop pin.
+   * Use StallGuard2 to sense an obstacle and trigger an endstop.
+   * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
    * X, Y, and Z homing will always be done in spreadCycle mode.
    *
-   * X/Y/Z_HOMING_SENSITIVITY is used for tuning the trigger sensitivity.
+   * X/Y/Z_STALL_SENSITIVITY is used for tuning the trigger sensitivity.
    * Higher values make the system LESS sensitive.
    * Lower value make the system MORE sensitive.
    * Too low values can lead to false positives, while too high values will collide the axis without triggering.
@@ -1268,10 +1279,18 @@
    */
   //#define SENSORLESS_HOMING // TMC2130 only
 
-  #if ENABLED(SENSORLESS_HOMING)
-    #define X_HOMING_SENSITIVITY  8
-    #define Y_HOMING_SENSITIVITY  8
-    //#define Z_HOMING_SENSITIVITY  8
+  /**
+   * Use StallGuard2 to probe the bed with the nozzle.
+   *
+   * CAUTION: This could cause damage to machines that use a lead screw or threaded rod
+   *          to move the Z axis. Take extreme care when attempting to enable this feature.
+   */
+  //#define SENSORLESS_PROBING // TMC2130 only
+
+  #if ENABLED(SENSORLESS_HOMING) || ENABLED(SENSORLESS_PROBING)
+    #define X_STALL_SENSITIVITY  8
+    #define Y_STALL_SENSITIVITY  8
+    //#define Z_STALL_SENSITIVITY  8
   #endif
 
   /**

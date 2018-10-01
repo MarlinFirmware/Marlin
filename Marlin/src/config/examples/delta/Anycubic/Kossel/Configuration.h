@@ -605,7 +605,7 @@
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
     #define DELTA_PRINTABLE_RADIUS 116.0 // mm
     // Center-to-center distance of the holes in the diagonal push rods.
-    #define DELTA_DIAGONAL_ROD 271.5 // mm
+    #define DELTA_DIAGONAL_ROD 267 // mm
       // Horizontal offset from middle of printer to smooth rod center.
     #define DELTA_SMOOTH_ROD_OFFSET 186 // mm
     // Horizontal offset of the universal joints on the end effector.
@@ -987,7 +987,7 @@
 #endif
 
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 20
+#define MIN_PROBE_EDGE 15
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 6000
@@ -1267,7 +1267,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    #define EXTRAPOLATE_BEYOND_GRID
+    //#define EXTRAPOLATE_BEYOND_GRID
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.

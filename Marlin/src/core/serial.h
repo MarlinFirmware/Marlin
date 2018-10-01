@@ -105,24 +105,24 @@ extern const char errormagic[] PROGMEM;
   #define SERIAL_ECHOPAIR_F_P(p,pre,value)          SERIAL_ECHOPAIR_P(p, pre, FIXFLOAT(value))
   #define SERIAL_ECHOLNPAIR_F_P(p,pre, value)       SERIAL_ECHOLNPAIR_P(p, pre, FIXFLOAT(value))
 
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, const char *v);
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, char v);
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, int v);
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, long v);
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, float v);
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, double v);
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, unsigned int v);
-  void serial_echopair_PGM_P(const int8_t p, const char* s_P, unsigned long v);
-  FORCE_INLINE void serial_echopair_PGM_P(const int8_t p, const char* s_P, uint8_t v) { serial_echopair_PGM_P(p, s_P, (int)v); }
-  FORCE_INLINE void serial_echopair_PGM_P(const int8_t p, const char* s_P, bool v) { serial_echopair_PGM_P(p, s_P, (int)v); }
-  FORCE_INLINE void serial_echopair_PGM_P(const int8_t p, const char* s_P, void *v) { serial_echopair_PGM_P(p, s_P, (unsigned long)v); }
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, const char *v);
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, char v);
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, int v);
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, long v);
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, float v);
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, double v);
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, unsigned int v);
+  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, unsigned long v);
+  FORCE_INLINE void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, uint8_t v) { serial_echopair_PGM_P(p, s_P, (int)v); }
+  FORCE_INLINE void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, bool v) { serial_echopair_PGM_P(p, s_P, (int)v); }
+  FORCE_INLINE void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, void *v) { serial_echopair_PGM_P(p, s_P, (unsigned long)v); }
 
   void serial_spaces_P(const int8_t p, uint8_t count);
   #define SERIAL_ECHO_SP_P(p,C)     serial_spaces_P(p,C)
   #define SERIAL_ERROR_SP_P(p,C)    serial_spaces_P(p,C)
   #define SERIAL_PROTOCOL_SP_P(p,C) serial_spaces_P(p,C)
 
-  void serialprintPGM_P(const int8_t p, const char* str);
+  void serialprintPGM_P(const int8_t p, PGM_P str);
 #else
   #define SERIAL_CHAR_P(p,x)          SERIAL_CHAR(x)
   #define SERIAL_PROTOCOL_P(p,x)      SERIAL_PROTOCOL(x)
@@ -215,17 +215,17 @@ extern const char errormagic[] PROGMEM;
 #define SERIAL_ECHOPAIR_F(pre,value)        SERIAL_ECHOPAIR(pre, FIXFLOAT(value))
 #define SERIAL_ECHOLNPAIR_F(pre, value)     SERIAL_ECHOLNPAIR(pre, FIXFLOAT(value))
 
-void serial_echopair_PGM(const char* s_P, const char *v);
-void serial_echopair_PGM(const char* s_P, char v);
-void serial_echopair_PGM(const char* s_P, int v);
-void serial_echopair_PGM(const char* s_P, long v);
-void serial_echopair_PGM(const char* s_P, float v);
-void serial_echopair_PGM(const char* s_P, double v);
-void serial_echopair_PGM(const char* s_P, unsigned int v);
-void serial_echopair_PGM(const char* s_P, unsigned long v);
-FORCE_INLINE void serial_echopair_PGM(const char* s_P, uint8_t v) { serial_echopair_PGM(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_PGM(const char* s_P, bool v) { serial_echopair_PGM(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_PGM(const char* s_P, void *v) { serial_echopair_PGM(s_P, (unsigned long)v); }
+void serial_echopair_PGM(PGM_P s_P, const char *v);
+void serial_echopair_PGM(PGM_P s_P, char v);
+void serial_echopair_PGM(PGM_P s_P, int v);
+void serial_echopair_PGM(PGM_P s_P, long v);
+void serial_echopair_PGM(PGM_P s_P, float v);
+void serial_echopair_PGM(PGM_P s_P, double v);
+void serial_echopair_PGM(PGM_P s_P, unsigned int v);
+void serial_echopair_PGM(PGM_P s_P, unsigned long v);
+FORCE_INLINE void serial_echopair_PGM(PGM_P s_P, uint8_t v) { serial_echopair_PGM(s_P, (int)v); }
+FORCE_INLINE void serial_echopair_PGM(PGM_P s_P, bool v) { serial_echopair_PGM(s_P, (int)v); }
+FORCE_INLINE void serial_echopair_PGM(PGM_P s_P, void *v) { serial_echopair_PGM(s_P, (unsigned long)v); }
 
 void serial_spaces(uint8_t count);
 #define SERIAL_ECHO_SP(C)     serial_spaces(C)
@@ -235,11 +235,11 @@ void serial_spaces(uint8_t count);
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
-void serialprintPGM(const char* str);
+void serialprintPGM(PGM_P str);
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
-  void print_xyz(const char* prefix, const char* suffix, const float x, const float y, const float z);
-  void print_xyz(const char* prefix, const char* suffix, const float xyz[]);
+  void print_xyz(PGM_P prefix, PGM_P suffix, const float x, const float y, const float z);
+  void print_xyz(PGM_P prefix, PGM_P suffix, const float xyz[]);
   #define DEBUG_POS(SUFFIX,VAR) do { print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
 #endif
 

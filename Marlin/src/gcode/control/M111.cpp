@@ -38,7 +38,7 @@ void GcodeSuite::M111() {
                     #endif
                     ;
 
-  static const char* const debug_strings[] PROGMEM = {
+  static PGM_P const debug_strings[] PROGMEM = {
     str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       , str_debug_32

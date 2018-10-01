@@ -433,7 +433,12 @@ class Temperature {
       return target_temperature[HOTEND_INDEX] < current_temperature[HOTEND_INDEX];
     }
 
+    #if HAS_TEMP_HOTEND
+      static bool wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling=true);
+    #endif
+
     #if HAS_HEATED_BED
+
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawBedTemp()  { return current_temperature_bed_raw; }
       #endif
@@ -461,7 +466,10 @@ class Temperature {
       #if WATCH_THE_BED
         static void start_watching_bed();
       #endif
-    #endif
+
+      static void wait_for_bed(const bool no_wait_for_cooling);
+
+    #endif // HAS_HEATED_BED
 
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -470,7 +478,7 @@ class Temperature {
       FORCE_INLINE static float degChamber() { return current_temperature_chamber; }
     #endif
 
-    FORCE_INLINE static bool wait_for_heating(const uint8_t e) {
+    FORCE_INLINE static bool still_heating(const uint8_t e) {
       return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
     }
 
@@ -629,7 +637,7 @@ class Temperature {
       static float get_pid_output_bed();
     #endif
 
-    static void _temp_error(const int8_t e, const char * const serial_msg, const char * const lcd_msg);
+    static void _temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
     static void min_temp_error(const int8_t e);
     static void max_temp_error(const int8_t e);
 

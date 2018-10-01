@@ -58,6 +58,11 @@ float zprobe_zoffset; // Initialized by settings.load()
   #include "../module/servo.h"
 #endif
 
+#if ENABLED(SENSORLESS_PROBING)
+  #include "stepper.h"
+  #include "../feature/tmc_util.h"
+#endif
+
 #if ENABLED(Z_PROBE_SLED)
 
   #ifndef SLED_DOCKING_OFFSET
@@ -430,7 +435,7 @@ bool set_probe_deployed(const bool deploy) {
         BUZZ(100, 659);
         BUZZ(100, 698);
 
-        const char * const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
+        PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
         lcd_setstatusPGM(ds_str);
         serialprintPGM(ds_str);
         SERIAL_EOL();
@@ -527,24 +532,50 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (set_bltouch_deployed(true)) return true;
   #endif
 
+  // Disable stealthChop if used. Enable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_PROBING)
+    #if ENABLED(DELTA)
+      tmc_stallguard(stepperX);
+      tmc_stallguard(stepperY);
+    #endif
+    tmc_stallguard(stepperZ);
+  #endif
+
   #if QUIET_PROBING
     probing_pause(true);
   #endif
+
+  endstops.enable(true);
 
   // Move down until probe triggered
   do_blocking_move_to_z(z, fr_mm_s);
 
   // Check to see if the probe was triggered
-  const bool probe_triggered = TEST(endstops.trigger_state(),
-    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      Z_MIN
+  const bool probe_triggered =
+    #if ENABLED(DELTA) && ENABLED(SENSORLESS_PROBING)
+      endstops.trigger_state() & (_BV(X_MIN) | _BV(Y_MIN) | _BV(Z_MIN))
     #else
-      Z_MIN_PROBE
+      TEST(endstops.trigger_state(),
+        #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+          Z_MIN
+        #else
+          Z_MIN_PROBE
+        #endif
+      )
     #endif
-  );
+  ;
 
   #if QUIET_PROBING
     probing_pause(false);
+  #endif
+
+  // Re-enable stealthChop if used. Disable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_PROBING)
+    #if ENABLED(DELTA)
+      tmc_stallguard(stepperX, false);
+      tmc_stallguard(stepperY, false);
+    #endif
+    tmc_stallguard(stepperZ, false);
   #endif
 
   // Retract BLTouch immediately after a probe if it was triggered
@@ -552,6 +583,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (probe_triggered && set_bltouch_deployed(false)) return true;
   #endif
 
+  // Clear endstop flags
   endstops.hit_on_purpose();
 
   // Get Z where the steppers were interrupted
@@ -606,13 +638,11 @@ static float run_z_probe() {
     // move up to make clearance for the probe
     do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
-  #else
+  #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
 
     // If the nozzle is well over the travel height then
     // move down quickly before doing the slow probe
-    float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0;
-    if (zprobe_zoffset < 0) z -= zprobe_zoffset;
-
+    const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (zprobe_zoffset < 0 ? -zprobe_zoffset : 0);
     if (current_position[Z_AXIS] > z) {
       // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
       if (!do_probe_move(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
