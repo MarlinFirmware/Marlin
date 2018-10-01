@@ -27,9 +27,11 @@
 #ifndef _HAL_UART_H_
 #define _HAL_UART_H_
 
-#if ENABLED(USE_UART)
 
 #include "../../inc/MarlinConfigPre.h"
+
+#ifdef USE_UART
+
 #include <Arduino.h>
 
 
@@ -42,11 +44,11 @@ class MarlinUART {
 
     void begin(unsigned long baud) { serial->begin(baud); }
     void end() { serial->end(); };
-    int available(void) { return serial->available(void);};
-    int peek(void) { return serial->peek(void); };
-    int read(void) { return serial->read(void); };
-    int availableForWrite(void) { return serial->availableFroWrite(void); };
-    void flush(void) { serial->flush(void); };
+    int available(void) { return serial->available();};
+    int peek(void) { return serial->peek(); };
+    int read(void) { return serial->read(); };
+    int availableForWrite(void) { return serial->availableForWrite(); };
+    void flush(void) { serial->flush(); };
     size_t write(uint8_t v) { return serial->write(v); };
     inline size_t write(unsigned long n) { return write((uint8_t)n); }
     inline size_t write(long n) { return write((uint8_t)n); }
@@ -56,22 +58,12 @@ class MarlinUART {
 
   private:
     HardwareSerial * serial;
-}
+};
 
-#if USE_UART == 1
-    MarlinUART(&Serial1) marlinUART;
-#endif
-
-#if USE_UART == 2
-    MarlinUART(&Serial2) marlinUART;
-#endif
-
-#if USE_UART == 3
-    MarlinUART(&Serial3) marlinUART;
-#endif
+extern MarlinUART marlinUART;
 
 
 
-#endif // ENABLED(USE_UART)
+#endif // USE_UART
 
 #endif // _HAL_UART_H_

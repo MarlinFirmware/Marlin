@@ -1732,7 +1732,7 @@
  * enable additional UART
  * set uart port to use
  */
-//#define USE_UART 2
+#define USE_UART 2
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
