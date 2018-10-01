@@ -98,7 +98,7 @@ enum ADCSensorState : char {
 // get all oversampled sensor readings
 #define MIN_ADC_ISR_LOOPS 10
 
-#define ACTUAL_ADC_SAMPLES MAX(int(MIN_ADC_ISR_LOOPS), int(SensorsReady))
+#define ACTUAL_ADC_SAMPLES biggest(int(MIN_ADC_ISR_LOOPS), int(SensorsReady))
 
 #if HAS_PID_HEATING
   #define PID_K2 (1-float(PID_K1))
@@ -453,7 +453,7 @@ class Temperature {
         #endif
         target_temperature_bed =
           #ifdef BED_MAXTEMP
-            MIN(celsius, BED_MAXTEMP)
+            smallest(celsius, BED_MAXTEMP)
           #else
             celsius
           #endif

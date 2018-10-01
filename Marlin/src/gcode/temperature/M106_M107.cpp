@@ -55,14 +55,14 @@ void GcodeSuite::M106() {
             fanSpeeds[p] = new_fanSpeeds[p];
             break;
           default:
-            new_fanSpeeds[p] = MIN(t, 255);
+            new_fanSpeeds[p] = smallest(t, 255);
             break;
         }
         return;
       }
     #endif // EXTRA_FAN_SPEED
     const uint16_t s = parser.ushortval('S', 255);
-    fanSpeeds[p] = MIN(s, 255U);
+    fanSpeeds[p] = smallest(s, 255U);
   }
 }
 
