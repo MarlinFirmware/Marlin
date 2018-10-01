@@ -20,26 +20,29 @@
  *
  */
 
-#pragma once
-
 #undef MIN
 #undef MAX
 
 #ifdef __cplusplus
 
-  extern "C++" {
+  #ifndef _MINMAX_H_
+  #define _MINMAX_H_
 
-    // C++11 solution that is standards compliant. Return type is deduced automatically
-    template <class L, class R> static inline constexpr auto MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
-      return lhs < rhs ? lhs : rhs;
-    }
-    template <class L, class R> static inline constexpr auto MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
-      return lhs > rhs ? lhs : rhs;
-    }
-    template<class T, class ... Ts> static inline constexpr const T MIN(T V, Ts... Vs) { return MIN(V, MIN(Vs...)); }
-    template<class T, class ... Ts> static inline constexpr const T MAX(T V, Ts... Vs) { return MAX(V, MAX(Vs...)); }
+    extern "C++" {
 
-  }
+      // C++11 solution that is standards compliant. Return type is deduced automatically
+      template <class L, class R> static inline constexpr auto MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+        return lhs < rhs ? lhs : rhs;
+      }
+      template <class L, class R> static inline constexpr auto MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+        return lhs > rhs ? lhs : rhs;
+      }
+      template<class T, class ... Ts> static inline constexpr const T MIN(T V, Ts... Vs) { return MIN(V, MIN(Vs...)); }
+      template<class T, class ... Ts> static inline constexpr const T MAX(T V, Ts... Vs) { return MAX(V, MAX(Vs...)); }
+
+    }
+
+  #endif
 
 #else
 
