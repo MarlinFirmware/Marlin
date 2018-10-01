@@ -170,7 +170,7 @@ void GcodeSuite::dwell(millis_t time) {
 // Placeholders for non-migrated codes
 //
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
-  extern void M100_dump_routine(const char * const title, const char *start, const char *end);
+  extern void M100_dump_routine(PGM_P const title, const char *start, const char *end);
 #endif
 
 /**
@@ -700,7 +700,7 @@ void GcodeSuite::process_next_command() {
     SERIAL_ECHOLN(current_command);
     #if ENABLED(M100_FREE_MEMORY_WATCHER)
       SERIAL_ECHOPAIR("slot:", cmd_queue_index_r);
-      M100_dump_routine("   Command Queue:", (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
+      M100_dump_routine(PSTR("   Command Queue:"), (const char*)command_queue, (const char*)(command_queue + sizeof(command_queue)));
     #endif
   }
 
@@ -714,14 +714,14 @@ void GcodeSuite::process_next_command() {
    * Run a series of commands, bypassing the command queue to allow
    * G-code "macros" to be called from within other G-code handlers.
    */
-  void GcodeSuite::process_subcommands_now_P(const char *pgcode) {
+  void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
     // Save the parser state
     char * const saved_cmd = parser.command_ptr;
 
     // Process individual commands in string
     while (pgm_read_byte_near(pgcode)) {
       // Break up string at '\n' delimiters
-      const char *delim = strchr_P(pgcode, '\n');
+      PGM_P const delim = strchr_P(pgcode, '\n');
       size_t len = delim ? delim - pgcode : strlen_P(pgcode);
       char cmd[len + 1];
       strncpy_P(cmd, pgcode, len);

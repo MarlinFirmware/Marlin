@@ -582,7 +582,7 @@ int Temperature::getHeaterPower(const int heater) {
 //
 // Temperature Error Handlers
 //
-void Temperature::_temp_error(const int8_t e, const char * const serial_msg, const char * const lcd_msg) {
+void Temperature::_temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg) {
   static bool killed = false;
   if (IsRunning()) {
     SERIAL_ERROR_START();

@@ -295,7 +295,7 @@ public:
   static void process_next_command();
 
   #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
-    static void process_subcommands_now_P(const char *pgcode);
+    static void process_subcommands_now_P(PGM_P pgcode);
   #endif
 
   FORCE_INLINE static void home_all_axes() { G28(true); }

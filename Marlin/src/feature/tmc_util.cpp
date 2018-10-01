@@ -258,7 +258,7 @@ void _tmc_say_axis(const TMC_AxisEnum axis) {
     #endif
   ;
 
-  static const char* const tmc_axes[] PROGMEM = {
+  static PGM_P const tmc_axes[] PROGMEM = {
     ext_X, ext_Y, ext_Z
     #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)
       , ext_X2

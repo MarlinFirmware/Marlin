@@ -637,7 +637,7 @@ class Temperature {
       static float get_pid_output_bed();
     #endif
 
-    static void _temp_error(const int8_t e, const char * const serial_msg, const char * const lcd_msg);
+    static void _temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
     static void min_temp_error(const int8_t e);
     static void max_temp_error(const int8_t e);
 

@@ -74,7 +74,7 @@ void HAL_adc_init(void) {
 // externals need to make the call to KILL compile
 #include "../../core/language.h"
 
-extern void kill(const char*);
+extern void kill(PGM_P);
 extern const char errormagic[];
 
 void HAL_adc_enable_channel(int ch) {
