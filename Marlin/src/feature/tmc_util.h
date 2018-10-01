@@ -28,8 +28,6 @@
   #include <TMCStepper.h>
 #endif
 
-extern bool report_tmc_status;
-
 #define TMC_X_LABEL 'X', '0'
 #define TMC_Y_LABEL 'Y', '0'
 #define TMC_Z_LABEL 'Z', '0'

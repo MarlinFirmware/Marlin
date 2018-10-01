@@ -36,8 +36,6 @@
   #include "../module/planner.h"
 #endif
 
-bool report_tmc_status = false;
-
 /**
  * Check for over temperature or short to ground error flags.
  * Report and log warning of overtemperature condition.
@@ -46,6 +44,8 @@ bool report_tmc_status = false;
  * and so we don't repeatedly report warning before the condition is cleared.
  */
 #if ENABLED(MONITOR_DRIVER_STATUS)
+  static bool report_tmc_status = false;
+
   struct TMC_driver_data {
     uint32_t drv_status;
     bool is_otpw;

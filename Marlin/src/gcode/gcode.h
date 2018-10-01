@@ -775,8 +775,10 @@ private:
       static void M122();
     #endif
     static void M906();
-    static void M911();
-    static void M912();
+    #if ENABLED(MONITOR_DRIVER_STATUS)
+        static void M911();
+        static void M912();
+    #endif
     #if ENABLED(HYBRID_THRESHOLD)
       static void M913();
     #endif
