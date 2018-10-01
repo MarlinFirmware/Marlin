@@ -57,7 +57,7 @@
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
-#define UNUSED(x) (void) (x)
+#define UNUSED(x) ((void)(x))
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
