@@ -117,10 +117,9 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
 // The main status screen
 void lcd_status_screen();
 
-millis_t next_lcd_update_ms;
-
-uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
+LCDViewAction lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 uint16_t max_display_update_time = 0;
+millis_t next_lcd_update_ms;
 
 #if ENABLED(ULTIPANEL)
 

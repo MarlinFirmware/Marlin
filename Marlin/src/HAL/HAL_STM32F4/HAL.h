@@ -110,6 +110,7 @@
   #define NUM_SERIAL 1
 #endif
 
+#undef _BV
 #define _BV(b) (1 << (b))
 
 /**

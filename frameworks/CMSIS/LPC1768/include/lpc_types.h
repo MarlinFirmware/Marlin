@@ -145,8 +145,6 @@ typedef int32_t(*PFI)();
 /* External data/function define */
 #define EXTERN extern
 
-#include "../../../../src/core/minmax.h"
-
 /**
  * @}
  */

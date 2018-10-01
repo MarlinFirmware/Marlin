@@ -57,7 +57,15 @@
   void lcd_kill_screen();
   void kill_screen(PGM_P lcd_msg);
 
-  extern uint8_t lcdDrawUpdate;
+  enum LCDViewAction : uint8_t {
+    LCDVIEW_NONE,
+    LCDVIEW_REDRAW_NOW,
+    LCDVIEW_CALL_REDRAW_NEXT,
+    LCDVIEW_CLEAR_CALL_REDRAW,
+    LCDVIEW_CALL_NO_REDRAW
+  };
+
+  extern LCDViewAction lcdDrawUpdate;
   inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
 
   #if HAS_BUZZER

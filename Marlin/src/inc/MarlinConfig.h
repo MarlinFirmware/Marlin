@@ -43,5 +43,6 @@
 #include "../core/language.h"
 #include "../core/utility.h"
 #include "../core/serial.h"
+#include "../core/minmax.h"
 
 #endif // _MARLIN_CONFIG_H_
