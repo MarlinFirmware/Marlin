@@ -57,7 +57,7 @@ struct vector_3 {
   float get_length() const;
   vector_3 get_normal() const;
 
-  void debug(const char * const title);
+  void debug(PGM_P const title);
   void apply_rotation(const matrix_3x3 &matrix);
 };
 
@@ -70,7 +70,7 @@ struct matrix_3x3 {
 
   void set_to_identity();
 
-  void debug(const char * const title);
+  void debug(PGM_P const title);
 };
 
 

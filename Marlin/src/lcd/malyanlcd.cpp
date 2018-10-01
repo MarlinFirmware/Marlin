@@ -81,7 +81,7 @@ int inbound_count;
 bool last_printing_status = false;
 
 // Everything written needs the high bit set.
-void write_to_lcd_P(const char * const message) {
+void write_to_lcd_P(PGM_P const message) {
   char encoded_message[MAX_CURLY_COMMAND];
   uint8_t message_length = MIN(strlen_P(message), sizeof(encoded_message));
 
@@ -481,7 +481,7 @@ void lcd_init() {
 /**
  * Set an alert.
  */
-void lcd_setalertstatusPGM(const char* message) {
+void lcd_setalertstatusPGM(PGM_P message) {
   char message_buffer[MAX_CURLY_COMMAND];
   sprintf_P(message_buffer, PSTR("{E:%s}"), message);
   write_to_lcd(message_buffer);
