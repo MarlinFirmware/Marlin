@@ -152,11 +152,6 @@
   #include "feature/controllerfan.h"
 #endif
 
-#ifdef USE_UART
-#include "HAL/platforms.h"
-#include HAL_PATH(HAL, HAL_uart.h)
-
-#endif
 
 bool Running = true;
 
@@ -222,13 +217,6 @@ void setup_killpin() {
   #if HAS_KILL
     SET_INPUT_PULLUP(KILL_PIN);
   #endif
-
-  #if USE_UART == 2
-
-marlinUART.begin(115200);
-
-#endif
-
 }
 
 void setup_powerhold() {
