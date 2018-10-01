@@ -1950,6 +1950,12 @@ void lcd_quick_feedback(const bool clear_buttons) {
     static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
   #endif
 
+  inline void _lcd_draw_homing() {
+    constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
+    if (lcdDrawUpdate) lcd_implementation_drawmenu_static(line, PSTR(MSG_LEVEL_BED_HOMING));
+    lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+  }
+
   #if ENABLED(LEVEL_BED_CORNERS)
 
     /**
@@ -2001,11 +2007,22 @@ void lcd_quick_feedback(const bool clear_buttons) {
       END_MENU();
     }
 
+    void _lcd_level_bed_corners_homing() {
+      _lcd_draw_homing();
+      if (all_axes_homed()) {
+        bed_corner = 0;
+        lcd_goto_screen(_lcd_corner_submenu);
+        _lcd_goto_next_corner();
+      }
+    }
+
     void _lcd_level_bed_corners() {
       defer_return_to_status = true;
-      lcd_goto_screen(_lcd_corner_submenu);
-      bed_corner = 0;
-      _lcd_goto_next_corner();
+      if (!all_axes_known()) {
+        axis_homed = 0;
+        enqueue_and_echo_commands_P(PSTR("G28"));
+      }
+      lcd_goto_screen(_lcd_level_bed_corners_homing);
     }
 
   #endif // LEVEL_BED_CORNERS
@@ -2152,8 +2169,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
      * Step 3: Display "Homing XYZ" - Wait for homing to finish
      */
     void _lcd_level_bed_homing() {
-      if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-      lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+      _lcd_draw_homing();
       if (all_axes_homed()) lcd_goto_screen(_lcd_level_bed_homing_done);
     }
 
@@ -2494,8 +2510,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     void _lcd_ubl_map_homing() {
       defer_return_to_status = true;
-      if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT < 3 ? 0 : (LCD_HEIGHT > 4 ? 2 : 1), PSTR(MSG_LEVEL_BED_HOMING));
-      lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+      _lcd_draw_homing();
       if (all_axes_homed()) {
         ubl.lcd_map_control = true; // Return to the map screen
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
@@ -2758,7 +2773,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       #if ENABLED(LEVEL_BED_CORNERS)
         // Move to the next corner for leveling
-        if (all_axes_homed()) MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+        MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
       #endif
 
       #if ENABLED(EEPROM_SETTINGS)
@@ -2839,7 +2854,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
 
     #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
-      if (all_axes_homed())
         MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
     #endif
 
@@ -2886,10 +2900,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #if ENABLED(DELTA_CALIBRATION_MENU)
 
     void _lcd_calibrate_homing() {
-      if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_LEVEL_BED_HOMING));
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-      if (all_axes_homed())
-        lcd_goto_previous_menu();
+      _lcd_draw_homing();
+      if (all_axes_homed()) lcd_goto_previous_menu();
     }
 
     void _lcd_delta_calibrate_home() {
