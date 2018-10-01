@@ -33,6 +33,8 @@
 
 #include "SdFile.h"
 
+enum LsAction : uint8_t { LS_SerialPrint, LS_Count, LS_GetFilename };
+
 class CardReader {
 public:
   CardReader();
