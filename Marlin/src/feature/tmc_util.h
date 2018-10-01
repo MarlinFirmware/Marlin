@@ -44,40 +44,6 @@
 #define TMC_E4_LABEL 'E', '4'
 #define TMC_E5_LABEL 'E', '5'
 
-enum TMC_AxisEnum : char {
-  TMC_X, TMC_Y, TMC_Z
-  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)
-    , TMC_X2
-  #endif
-  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-    , TMC_Y2
-  #endif
-  #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-    , TMC_Z2
-  #endif
-  #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-    , TMC_Z3
-  #endif
-  #if E_STEPPERS
-    , TMC_E0
-    #if E_STEPPERS > 1
-      , TMC_E1
-      #if E_STEPPERS > 2
-        , TMC_E2
-        #if E_STEPPERS > 3
-          , TMC_E3
-          #if E_STEPPERS > 4
-            , TMC_E4
-            #if E_STEPPERS > 5
-              , TMC_E5
-            #endif // E_STEPPERS > 5
-          #endif // E_STEPPERS > 4
-        #endif // E_STEPPERS > 3
-      #endif // E_STEPPERS > 2
-    #endif // E_STEPPERS > 1
-  #endif // E_STEPPERS
-};
-
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCStorage {
   protected:
