@@ -71,6 +71,10 @@
   #include "../feature/leds/leds.h"
 #endif
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../feature/runout.h"
+#endif
+
 #if DISABLED(LCD_USE_I2C_BUZZER)
   #include "../libs/buzzer.h"
 #endif
@@ -3426,6 +3430,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     #if ENABLED(BLTOUCH)
       MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
+    #endif
+
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+      MENU_ITEM_EDIT(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled);
     #endif
 
     #if DISABLED(SLIM_LCD_MENUS)
