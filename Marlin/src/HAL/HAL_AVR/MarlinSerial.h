@@ -33,7 +33,7 @@
 #ifndef _MARLINSERIAL_H_
 #define _MARLINSERIAL_H_
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../shared/MarlinSerial.h"
 
 #include <WString.h>
 
@@ -148,7 +148,8 @@
   template<bool b, typename T, typename F> struct TypeSelector { typedef T type;} ;
   template<typename T, typename F> struct TypeSelector<false, T, F> { typedef F type; };
 
-  template<int portNr,
+  template<
+    int portNr,
     int RX_SIZE = 128,
     int TX_SIZE = 32,
     bool USE_XONOFF = false,
@@ -200,11 +201,10 @@
 
     // XON / XOFF character definitions
     static constexpr uint8_t XON_CHAR  = 17, XOFF_CHAR = 19;
-    static uint8_t xon_xoff_state;
-
-    static uint8_t rx_dropped_bytes;
-    static uint8_t rx_buffer_overruns;
-    static uint8_t rx_framing_errors;
+    static uint8_t xon_xoff_state,
+                   rx_dropped_bytes,
+                   rx_buffer_overruns,
+                   rx_framing_errors;
     static ring_buffer_pos_t rx_max_enqueued;
 
     static FORCE_INLINE ring_buffer_pos_t atomic_read_rx_head();
@@ -266,33 +266,16 @@
       static void printFloat(double, uint8_t);
   };
 
-  // Make sure ENABLED() evaluates to 0 if feature disabled
-  #ifndef SERIAL_XON_XOFF
-    #define SERIAL_XON_XOFF 0
-  #endif
-  #ifndef EMERGENCY_PARSER
-    #define EMERGENCY_PARSER 0
-  #endif
-  #ifndef SERIAL_STATS_DROPPED_RX
-    #define SERIAL_STATS_DROPPED_RX 0
-  #endif
-  #ifndef SERIAL_STATS_RX_BUFFER_OVERRUNS
-    #define SERIAL_STATS_RX_BUFFER_OVERRUNS 0
-  #endif
-  #ifndef SERIAL_STATS_MAX_RX_QUEUED
-    #define SERIAL_STATS_MAX_RX_QUEUED 0
-  #endif
-
   extern MarlinSerial<
     SERIAL_PORT,
     RX_BUFFER_SIZE,
     TX_BUFFER_SIZE,
-    ENABLED(SERIAL_XON_XOFF),
-    ENABLED(EMERGENCY_PARSER),
-    ENABLED(SERIAL_STATS_DROPPED_RX),
-    ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS),
-    ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS),
-    ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+    bSERIAL_XON_XOFF,
+    bEMERGENCY_PARSER,
+    bSERIAL_STATS_DROPPED_RX,
+    bSERIAL_STATS_RX_BUFFER_OVERRUNS,
+    bSERIAL_STATS_RX_FRAMING_ERRORS,
+    bSERIAL_STATS_MAX_RX_QUEUED
   > customizedSerial;
 
 #endif // !USBCON
