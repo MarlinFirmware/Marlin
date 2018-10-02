@@ -292,6 +292,12 @@ float zprobe_zoffset; // Initialized by settings.load()
     #if ENABLED(PROBING_FANS_OFF)
       fans_pause(p);
     #endif
+    #if ENABLED(PROBING_STEPPERS_OFF)
+      disable_e_steppers();
+      #if DISABLED(DELTA)
+        disable_X(); disable_Y();
+      #endif
+    #endif
     if (p) safe_delay(
       #if DELAY_BEFORE_PROBING > 25
         DELAY_BEFORE_PROBING
