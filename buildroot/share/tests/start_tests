@@ -6,7 +6,7 @@ export PATH="$PATH:./buildroot/bin"
 set -e
 
 exec_test () {
-  printf "\033[0;32m[Test $2] \033[0m$3... "
+  printf "\n\033[0;32m[Test $2] \033[0m$3...\n"
   if build_marlin_pio $1 "-e $2"; then
     printf "\033[0;32mPassed\033[0m\n"
     return 0

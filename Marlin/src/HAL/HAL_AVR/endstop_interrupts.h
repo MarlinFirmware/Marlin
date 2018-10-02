@@ -38,9 +38,9 @@
 #ifndef _ENDSTOP_INTERRUPTS_H_
 #define _ENDSTOP_INTERRUPTS_H_
 
-#include "../../core/macros.h"
-#include <stdint.h>
 #include "../../module/endstops.h"
+#include "../../inc/MarlinConfig.h"
+#include <stdint.h>
 
 // One ISR for all EXT-Interrupts
 void endstop_ISR(void) { endstops.update(); }
