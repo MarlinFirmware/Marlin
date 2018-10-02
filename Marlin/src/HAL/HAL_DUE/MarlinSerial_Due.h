@@ -102,7 +102,6 @@ template<> struct MarlinSerialPortInfo<4> {
   static constexpr int IRQ_ID = ID_USART3;
 };
 
-
 template<
   int portNr,
   int RX_SIZE = 128,

@@ -58,3 +58,8 @@ constexpr bool
       || true
     #endif
   );
+
+#if SERIAL_PORT >= 0
+  #define TEMPLATE_SIG int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED
+  #define TEMPLATE_ARG     portNr,     RX_SIZE,     TX_SIZE,      USE_XONOFF,      USE_EMERGENCYPARSER,      STATS_DROPPED_RX,      STATS_RX_OVERRUNS,      STATS_RX_FRAMING_ERRORS,      STATS_MAX_RX_QUEUED
+#endif

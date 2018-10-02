@@ -42,32 +42,14 @@
   #include "MarlinSerial.h"
   #include "../../Marlin.h"
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-    typename MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::ring_buffer_r
-      MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::rx_buffer; // = { { 0 }, 0, 0 };
-
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-    typename MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::ring_buffer_t
-      MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::tx_buffer; // = { { 0 }, 0, 0 };
-
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-    bool MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::_written = false;
-
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-    uint8_t MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::xon_xoff_state = MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::XON_XOFF_CHAR_SENT | MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::XON_CHAR;
-
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-    uint8_t MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::rx_dropped_bytes = 0;
-
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-    uint8_t MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::rx_buffer_overruns = 0;
-
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-    uint8_t MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::rx_framing_errors = 0;
-
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-    typename MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::ring_buffer_pos_t
-      MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::rx_max_enqueued = 0;
+  template<TEMPLATE_SIG> typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_r MarlinSerial<TEMPLATE_ARG>::rx_buffer; // = { { 0 }, 0, 0 };
+  template<TEMPLATE_SIG> typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_t MarlinSerial<TEMPLATE_ARG>::tx_buffer; // = { { 0 }, 0, 0 };
+  template<TEMPLATE_SIG> bool     MarlinSerial<TEMPLATE_ARG>::_written = false;
+  template<TEMPLATE_SIG> uint8_t  MarlinSerial<TEMPLATE_ARG>::xon_xoff_state = MarlinSerial<TEMPLATE_ARG>::XON_XOFF_CHAR_SENT | MarlinSerial<TEMPLATE_ARG>::XON_CHAR;
+  template<TEMPLATE_SIG> uint8_t  MarlinSerial<TEMPLATE_ARG>::rx_dropped_bytes = 0;
+  template<TEMPLATE_SIG> uint8_t  MarlinSerial<TEMPLATE_ARG>::rx_buffer_overruns = 0;
+  template<TEMPLATE_SIG> uint8_t  MarlinSerial<TEMPLATE_ARG>::rx_framing_errors = 0;
+  template<TEMPLATE_SIG> typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t MarlinSerial<TEMPLATE_ARG>::rx_max_enqueued = 0;
 
   // A SW memory barrier, to ensure GCC does not overoptimize loops
   #define sw_barrier() asm volatile("": : :"memory");
@@ -77,8 +59,8 @@
   // "Atomically" read the RX head index value without disabling interrupts:
   // This MUST be called with RX interrupts enabled, and CAN'T be called
   // from the RX ISR itself!
-  template<int portNr, int RX_SIZE,int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  FORCE_INLINE typename MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::ring_buffer_pos_t MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::atomic_read_rx_head() {
+  template<TEMPLATE_SIG>
+  FORCE_INLINE typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t MarlinSerial<TEMPLATE_ARG>::atomic_read_rx_head() {
     if (RX_SIZE > 256) {
       // Keep reading until 2 consecutive reads return the same value,
       // meaning there was no update in-between caused by an interrupt.
@@ -99,17 +81,17 @@
     }
   }
 
-  template<int portNr, int RX_SIZE,int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  volatile bool MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::rx_tail_value_not_stable = false;
-  template<int portNr, int RX_SIZE,int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  volatile uint16_t MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::rx_tail_value_backup = 0;
+  template<TEMPLATE_SIG>
+  volatile bool MarlinSerial<TEMPLATE_ARG>::rx_tail_value_not_stable = false;
+  template<TEMPLATE_SIG>
+  volatile uint16_t MarlinSerial<TEMPLATE_ARG>::rx_tail_value_backup = 0;
 
   // Set RX tail index, taking into account the RX ISR could interrupt
   //  the write to this variable in the middle - So a backup strategy
   //  is used to ensure reads of the correct values.
   //    -Must NOT be called from the RX ISR -
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  FORCE_INLINE void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::atomic_set_rx_tail(typename MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::ring_buffer_pos_t value) {
+  template<TEMPLATE_SIG>
+  FORCE_INLINE void MarlinSerial<TEMPLATE_ARG>::atomic_set_rx_tail(typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t value) {
     if (RX_SIZE > 256) {
       // Store the new value in the backup
       rx_tail_value_backup = value;
@@ -131,8 +113,8 @@
   // Get the RX tail index, taking into account the read could be
   //  interrupting in the middle of the update of that index value
   //    -Called from the RX ISR -
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  FORCE_INLINE typename MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::ring_buffer_pos_t MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::atomic_read_rx_tail() {
+  template<TEMPLATE_SIG>
+  FORCE_INLINE typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t MarlinSerial<TEMPLATE_ARG>::atomic_read_rx_tail() {
     if (RX_SIZE > 256) {
       // If the true index is being modified, return the backup value
       if (rx_tail_value_not_stable) return rx_tail_value_backup;
@@ -142,8 +124,8 @@
   }
 
   // (called with RX interrupts disabled)
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  FORCE_INLINE void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::store_rxd_char() {
+  template<TEMPLATE_SIG>
+  FORCE_INLINE void MarlinSerial<TEMPLATE_ARG>::store_rxd_char() {
 
     static EmergencyParser::State emergency_state; // = EP_RESET
 
@@ -300,8 +282,8 @@
   }
 
   // (called with TX irqs disabled)
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  FORCE_INLINE void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::_tx_udr_empty_irq(void) {
+  template<TEMPLATE_SIG>
+  FORCE_INLINE void MarlinSerial<TEMPLATE_ARG>::_tx_udr_empty_irq(void) {
     if (TX_SIZE > 0) {
       // Read positions
       uint8_t t = tx_buffer.tail;
@@ -353,8 +335,8 @@
   }
 
   // Public Methods
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::begin(const long baud) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::begin(const long baud) {
     uint16_t baud_setting;
     bool useU2X = true;
 
@@ -386,22 +368,22 @@
     _written = false;
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::end() {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::end() {
     B_RXEN = 0;
     B_TXEN = 0;
     B_RXCIE = 0;
     B_UDRIE = 0;
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  int MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::peek(void) {
+  template<TEMPLATE_SIG>
+  int MarlinSerial<TEMPLATE_ARG>::peek(void) {
     const ring_buffer_pos_t h = atomic_read_rx_head(), t = rx_buffer.tail;
     return h == t ? -1 : rx_buffer.buffer[t];
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  int MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::read(void) {
+  template<TEMPLATE_SIG>
+  int MarlinSerial<TEMPLATE_ARG>::read(void) {
     const ring_buffer_pos_t h = atomic_read_rx_head();
 
     // Read the tail. Main thread owns it, so it is safe to directly read it
@@ -442,14 +424,14 @@
     return v;
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  typename MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::ring_buffer_pos_t MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::available(void) {
+  template<TEMPLATE_SIG>
+  typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t MarlinSerial<TEMPLATE_ARG>::available(void) {
     const ring_buffer_pos_t h = atomic_read_rx_head(), t = rx_buffer.tail;
     return (ring_buffer_pos_t)(RX_SIZE + h - t) & (RX_SIZE - 1);
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::flush(void) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::flush(void) {
 
     // Set the tail to the head:
     //  - Read the RX head index in a safe way. (See atomic_read_rx_head.)
@@ -475,8 +457,8 @@
     }
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::write(const uint8_t c) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::write(const uint8_t c) {
     if (TX_SIZE == 0) {
 
       _written = true;
@@ -533,8 +515,8 @@
     }
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::flushTX(void) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::flushTX(void) {
 
     if (TX_SIZE == 0) {
       // No bytes written, no need to flush. This special case is needed since there's
@@ -581,28 +563,28 @@
    * Imports from print.h
    */
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::print(char c, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::print(char c, int base) {
     print((long)c, base);
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::print(unsigned char b, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::print(unsigned char b, int base) {
     print((unsigned long)b, base);
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::print(int n, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::print(int n, int base) {
     print((long)n, base);
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::print(unsigned int n, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::print(unsigned int n, int base) {
     print((unsigned long)n, base);
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::print(long n, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::print(long n, int base) {
     if (base == 0) write(n);
     else if (base == 10) {
       if (n < 0) { print('-'); n = -n; }
@@ -612,81 +594,81 @@
       printNumber(n, base);
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::print(unsigned long n, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::print(unsigned long n, int base) {
     if (base == 0) write(n);
     else printNumber(n, base);
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::print(double n, int digits) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::print(double n, int digits) {
     printFloat(n, digits);
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(void) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(void) {
     print('\r');
     print('\n');
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(const String& s) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(const String& s) {
     print(s);
     println();
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(const char c[]) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(const char c[]) {
     print(c);
     println();
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(char c, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(char c, int base) {
     print(c, base);
     println();
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(unsigned char b, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(unsigned char b, int base) {
     print(b, base);
     println();
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(int n, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(int n, int base) {
     print(n, base);
     println();
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(unsigned int n, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(unsigned int n, int base) {
     print(n, base);
     println();
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(long n, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(long n, int base) {
     print(n, base);
     println();
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(unsigned long n, int base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(unsigned long n, int base) {
     print(n, base);
     println();
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::println(double n, int digits) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::println(double n, int digits) {
     print(n, digits);
     println();
   }
 
   // Private Methods
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::printNumber(unsigned long n, uint8_t base) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::printNumber(unsigned long n, uint8_t base) {
     if (n) {
       unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
       int8_t i = 0;
@@ -701,8 +683,8 @@
       print('0');
   }
 
-  template<int portNr, int RX_SIZE, int TX_SIZE, bool USE_XONOFF, bool USE_EMERGENCYPARSER, bool STATS_DROPPED_RX, bool STATS_RX_OVERRUNS, bool STATS_RX_FRAMING_ERRORS, bool STATS_MAX_RX_QUEUED>
-  void MarlinSerial<portNr, RX_SIZE, TX_SIZE, USE_XONOFF, USE_EMERGENCYPARSER, STATS_DROPPED_RX, STATS_RX_OVERRUNS, STATS_RX_FRAMING_ERRORS, STATS_MAX_RX_QUEUED>::printFloat(double number, uint8_t digits) {
+  template<TEMPLATE_SIG>
+  void MarlinSerial<TEMPLATE_ARG>::printFloat(double number, uint8_t digits) {
     // Handle negative numbers
     if (number < 0.0) {
       print('-');
