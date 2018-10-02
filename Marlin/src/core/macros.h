@@ -19,10 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
-#include "minmax.h"
+#include "config.h"
 
 #define NUM_AXIS 4
 #define ABCE 4
@@ -31,22 +30,6 @@
 #define XYZ  3
 
 #define _AXIS(A) (A##_AXIS)
-
-#define _XMIN_ 100
-#define _YMIN_ 200
-#define _ZMIN_ 300
-#define _XMAX_ 101
-#define _YMAX_ 201
-#define _ZMAX_ 301
-
-#define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
-#define  FORCE_INLINE  __attribute__((always_inline)) inline
-#define _UNUSED      __attribute__((unused))
-#define _O0          __attribute__((optimize("O0")))
-#define _Os          __attribute__((optimize("Os")))
-#define _O1          __attribute__((optimize("O1")))
-#define _O2          __attribute__((optimize("O2")))
-#define _O3          __attribute__((optimize("O3")))
 
 // Clock speed factors
 #if !defined(CYCLES_PER_MICROSECOND) && !defined(__STM32F1__)
@@ -57,31 +40,15 @@
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
+#undef UNUSED
 #define UNUSED(x) ((void)(x))
 
-// Macros to make a string from a macro
-#define STRINGIFY_(M) #M
-#define STRINGIFY(M) STRINGIFY_(M)
-
+// Assembly wrappers for code and labels
 #define A(CODE) " " CODE "\n\t"
 #define L(CODE) CODE ":\n\t"
 
 // Macros for bit masks
-#undef _BV
-#define _BV(n) (1<<(n))
-#define TEST(n,b) !!((n)&_BV(b))
-#define SBI(n,b) (n |= _BV(b))
-#define CBI(n,b) (n &= ~_BV(b))
 #define SET_BIT_TO(N,B,TF) do{ if (TF) SBI(N,B); else CBI(N,B); }while(0)
-
-#define _BV32(b) (1UL << (b))
-#define TEST32(n,b) !!((n)&_BV32(b))
-#define SBI32(n,b) (n |= _BV32(b))
-#define CBI32(n,b) (n &= ~_BV32(b))
-
-// Macros for maths shortcuts
-#undef M_PI
-#define M_PI 3.14159265358979323846f
 
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
@@ -91,24 +58,44 @@
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
 #define SIGN(a) ((a>0)-(a<0))
-#define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
-// Macros to constrain values
+// Convenience templates / macros
+#undef ABS
+#undef MIN
+#undef MAX
 #ifdef __cplusplus
 
-  // C++11 solution that is standards compliant.
-  template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
-    if (v < n) v = n;
-  }
-  template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
-    if (v > n) v = n;
-  }
-  template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
-    if (v < n1) v = n1;
-    else if (v > n2) v = n2;
+  // Standards-compliant C++11 solutions
+
+  extern "C++" {
+
+    template <class T> static inline constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
+
+    template <class V, class N> static inline constexpr void NOLESS(V& v, const N n) {
+      if (v < n) v = n;
+    }
+    template <class V, class N> static inline constexpr void NOMORE(V& v, const N n) {
+      if (v > n) v = n;
+    }
+    template <class V, class N1, class N2> static inline constexpr void LIMIT(V& v, const N1 n1, const N2 n2) {
+      if (v < n1) v = n1;
+      else if (v > n2) v = n2;
+    }
+
+    template <class L, class R> static inline constexpr auto MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+      return lhs < rhs ? lhs : rhs;
+    }
+    template <class L, class R> static inline constexpr auto MAX(const L lhs, const R rhs) -> decltype(lhs + rhs) {
+      return lhs > rhs ? lhs : rhs;
+    }
+    template<class T, class ... Ts> static inline constexpr const T MIN(T V, Ts... Vs) { return MIN(V, MIN(Vs...)); }
+    template<class T, class ... Ts> static inline constexpr const T MAX(T V, Ts... Vs) { return MAX(V, MAX(Vs...)); }
+
   }
 
 #else
+
+  #define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
 
   // Using GCC extensions, but Travis GCC version does not like it and gives
   //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
@@ -132,21 +119,30 @@
       else if (v > _n2) v = _n2; \
     } while(0)
 
+  // NUM_ARGS(...) evaluates to the number of arguments
+  #define _NUM_ARGS(X,X6,X5,X4,X3,X2,X1,N,...) N
+  #define NUM_ARGS(...) _NUM_ARGS(0, __VA_ARGS__ ,6,5,4,3,2,1,0)
+
+  #define MIN_2(a,b)      ({__typeof__(a) _a = (a); __typeof__(b) _b = (b); _a > _b ? _a : _b;})
+  #define MIN_3(a,...)    MIN_2(a,MIN_2(__VA_ARGS__))
+  #define MIN_4(a,...)    MIN_2(a,MIN_3(__VA_ARGS__))
+  #define MIN_5(a,...)    MIN_2(a,MIN_4(__VA_ARGS__))
+  #define MIN_6(a,...)    MIN_2(a,MIN_5(__VA_ARGS__))
+  #define __MIN_N(N, ...) MIN_ ## N(__VA_ARGS__)
+  #define _MIN_N(N, ...)  __MIN_N(N, __VA_ARGS__)
+  #define MIN(...)        _MIN_N(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+
+  #define MAX_2(a,b)      ({__typeof__(a) _a = (a); __typeof__(b) _b = (b); _a > _b ? _a : _b;})
+  #define MAX_3(a,...)    MAX_2(a,MAX_2(__VA_ARGS__))
+  #define MAX_4(a,...)    MAX_2(a,MAX_3(__VA_ARGS__))
+  #define MAX_5(a,...)    MAX_2(a,MAX_4(__VA_ARGS__))
+  #define MAX_6(a,...)    MAX_2(a,MAX_5(__VA_ARGS__))
+  #define __MAX_N(N, ...) MAX_ ## N(__VA_ARGS__)
+  #define _MAX_N(N, ...)  __MAX_N(N, __VA_ARGS__)
+  #define MAX(...)        _MAX_N(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+
 #endif
 
-// Macros to support option testing
-#define _CAT(a, ...) a ## __VA_ARGS__
-#define SWITCH_ENABLED_false 0
-#define SWITCH_ENABLED_true  1
-#define SWITCH_ENABLED_0     0
-#define SWITCH_ENABLED_1     1
-#define SWITCH_ENABLED_0x0   0
-#define SWITCH_ENABLED_0x1   1
-#define SWITCH_ENABLED_      1
-#define ENABLED(b) _CAT(SWITCH_ENABLED_, b)
-#define DISABLED(b) !ENABLED(b)
-
-#define WITHIN(V,L,H) ((V) >= (L) && (V) <= (H))
 #define NUMERIC(a) WITHIN(a, '0', '9')
 #define DECIMAL(a) (NUMERIC(a) || a == '.')
 #define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-' || (a) == '+')
@@ -154,45 +150,6 @@
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 #define ZERO(a) memset(a,0,sizeof(a))
 #define COPY(a,b) memcpy(a,b,MIN(sizeof(a),sizeof(b)))
-
-// Macros for initializing arrays
-#define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
-#define ARRAY_5(v1, v2, v3, v4, v5, ...)     { v1, v2, v3, v4, v5 }
-#define ARRAY_4(v1, v2, v3, v4, ...)         { v1, v2, v3, v4 }
-#define ARRAY_3(v1, v2, v3, ...)             { v1, v2, v3 }
-#define ARRAY_2(v1, v2, ...)                 { v1, v2 }
-#define ARRAY_1(v1, ...)                     { v1 }
-
-#define _ARRAY_N(N, ...) ARRAY_ ##N(__VA_ARGS__)
-#define ARRAY_N(N, ...) _ARRAY_N(N, __VA_ARGS__)
-
-// Macros for adding
-#define INC_0 1
-#define INC_1 2
-#define INC_2 3
-#define INC_3 4
-#define INC_4 5
-#define INC_5 6
-#define INC_6 7
-#define INC_7 8
-#define INC_8 9
-#define INCREMENT_(n) INC_ ##n
-#define INCREMENT(n) INCREMENT_(n)
-
-// Macros for subtracting
-#define DEC_1 0
-#define DEC_2 1
-#define DEC_3 2
-#define DEC_4 3
-#define DEC_5 4
-#define DEC_6 5
-#define DEC_7 6
-#define DEC_8 7
-#define DEC_9 8
-#define DECREMENT_(n) DEC_ ##n
-#define DECREMENT(n) DECREMENT_(n)
-
-#define PIN_EXISTS(PN) (defined(PN ##_PIN) && PN ##_PIN >= 0)
 
 #define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
@@ -203,13 +160,6 @@
 #define NOOP do{} while(0)
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
-
-#undef ABS
-#ifdef __cplusplus
-  template <class T> static inline constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
-#else
-  #define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
-#endif
 
 #define UNEAR_ZERO(x) ((x) < 0.000001f)
 #define NEAR_ZERO(x) WITHIN(x, -0.000001f, 0.000001f)
