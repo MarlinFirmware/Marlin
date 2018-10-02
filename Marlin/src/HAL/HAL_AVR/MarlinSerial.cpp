@@ -29,6 +29,7 @@
  * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
  * Modified 01 October 2017 by Eduardo José Tagle (added XON/XOFF)
  * Modified 10 June 2018 by Eduardo José Tagle (See #10991)
+ * Templatized 01 October 2018 by Eduardo José Tagle to allow multiple instances
  */
 
 #ifdef __AVR__
@@ -42,14 +43,14 @@
   #include "MarlinSerial.h"
   #include "../../Marlin.h"
 
-  template<TEMPLATE_SIG> typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_r MarlinSerial<TEMPLATE_ARG>::rx_buffer; // = { { 0 }, 0, 0 };
-  template<TEMPLATE_SIG> typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_t MarlinSerial<TEMPLATE_ARG>::tx_buffer; // = { { 0 }, 0, 0 };
-  template<TEMPLATE_SIG> bool     MarlinSerial<TEMPLATE_ARG>::_written = false;
-  template<TEMPLATE_SIG> uint8_t  MarlinSerial<TEMPLATE_ARG>::xon_xoff_state = MarlinSerial<TEMPLATE_ARG>::XON_XOFF_CHAR_SENT | MarlinSerial<TEMPLATE_ARG>::XON_CHAR;
-  template<TEMPLATE_SIG> uint8_t  MarlinSerial<TEMPLATE_ARG>::rx_dropped_bytes = 0;
-  template<TEMPLATE_SIG> uint8_t  MarlinSerial<TEMPLATE_ARG>::rx_buffer_overruns = 0;
-  template<TEMPLATE_SIG> uint8_t  MarlinSerial<TEMPLATE_ARG>::rx_framing_errors = 0;
-  template<TEMPLATE_SIG> typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t MarlinSerial<TEMPLATE_ARG>::rx_max_enqueued = 0;
+  template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_r MarlinSerial<Cfg>::rx_buffer = { 0 };
+  template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_t MarlinSerial<Cfg>::tx_buffer = { 0 };
+  template<typename Cfg> bool     MarlinSerial<Cfg>::_written = false;
+  template<typename Cfg> uint8_t  MarlinSerial<Cfg>::xon_xoff_state = MarlinSerial<Cfg>::XON_XOFF_CHAR_SENT | MarlinSerial<Cfg>::XON_CHAR;
+  template<typename Cfg> uint8_t  MarlinSerial<Cfg>::rx_dropped_bytes = 0;
+  template<typename Cfg> uint8_t  MarlinSerial<Cfg>::rx_buffer_overruns = 0;
+  template<typename Cfg> uint8_t  MarlinSerial<Cfg>::rx_framing_errors = 0;
+  template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::rx_max_enqueued = 0;
 
   // A SW memory barrier, to ensure GCC does not overoptimize loops
   #define sw_barrier() asm volatile("": : :"memory");
@@ -59,9 +60,9 @@
   // "Atomically" read the RX head index value without disabling interrupts:
   // This MUST be called with RX interrupts enabled, and CAN'T be called
   // from the RX ISR itself!
-  template<TEMPLATE_SIG>
-  FORCE_INLINE typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t MarlinSerial<TEMPLATE_ARG>::atomic_read_rx_head() {
-    if (RX_SIZE > 256) {
+  template<typename Cfg>
+  FORCE_INLINE typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::atomic_read_rx_head() {
+    if (Cfg::RX_SIZE > 256) {
       // Keep reading until 2 consecutive reads return the same value,
       // meaning there was no update in-between caused by an interrupt.
       // This works because serial RX interrupts happen at a slower rate
@@ -81,18 +82,18 @@
     }
   }
 
-  template<TEMPLATE_SIG>
-  volatile bool MarlinSerial<TEMPLATE_ARG>::rx_tail_value_not_stable = false;
-  template<TEMPLATE_SIG>
-  volatile uint16_t MarlinSerial<TEMPLATE_ARG>::rx_tail_value_backup = 0;
+  template<typename Cfg>
+  volatile bool MarlinSerial<Cfg>::rx_tail_value_not_stable = false;
+  template<typename Cfg>
+  volatile uint16_t MarlinSerial<Cfg>::rx_tail_value_backup = 0;
 
   // Set RX tail index, taking into account the RX ISR could interrupt
   //  the write to this variable in the middle - So a backup strategy
   //  is used to ensure reads of the correct values.
   //    -Must NOT be called from the RX ISR -
-  template<TEMPLATE_SIG>
-  FORCE_INLINE void MarlinSerial<TEMPLATE_ARG>::atomic_set_rx_tail(typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t value) {
-    if (RX_SIZE > 256) {
+  template<typename Cfg>
+  FORCE_INLINE void MarlinSerial<Cfg>::atomic_set_rx_tail(typename MarlinSerial<Cfg>::ring_buffer_pos_t value) {
+    if (Cfg::RX_SIZE > 256) {
       // Store the new value in the backup
       rx_tail_value_backup = value;
       sw_barrier();
@@ -113,9 +114,9 @@
   // Get the RX tail index, taking into account the read could be
   //  interrupting in the middle of the update of that index value
   //    -Called from the RX ISR -
-  template<TEMPLATE_SIG>
-  FORCE_INLINE typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t MarlinSerial<TEMPLATE_ARG>::atomic_read_rx_tail() {
-    if (RX_SIZE > 256) {
+  template<typename Cfg>
+  FORCE_INLINE typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::atomic_read_rx_tail() {
+    if (Cfg::RX_SIZE > 256) {
       // If the true index is being modified, return the backup value
       if (rx_tail_value_not_stable) return rx_tail_value_backup;
     }
@@ -124,8 +125,8 @@
   }
 
   // (called with RX interrupts disabled)
-  template<TEMPLATE_SIG>
-  FORCE_INLINE void MarlinSerial<TEMPLATE_ARG>::store_rxd_char() {
+  template<typename Cfg>
+  FORCE_INLINE void MarlinSerial<Cfg>::store_rxd_char() {
 
     static EmergencyParser::State emergency_state; // = EP_RESET
 
@@ -138,25 +139,25 @@
     ring_buffer_pos_t h = rx_buffer.head;
 
     // Get the next element
-    ring_buffer_pos_t i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_SIZE - 1);
+    ring_buffer_pos_t i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
 
     // This must read the R_UCSRA register before reading the received byte to detect error causes
-    if (STATS_DROPPED_RX) {
+    if (Cfg::DROPPED_RX) {
       if (B_DOR && !++rx_dropped_bytes) --rx_dropped_bytes;
     }
 
-    if (STATS_RX_OVERRUNS) {
+    if (Cfg::RX_OVERRUNS) {
       if (B_DOR && !++rx_buffer_overruns) --rx_buffer_overruns;
     }
 
-    if (STATS_RX_FRAMING_ERRORS) {
+    if (Cfg::RX_FRAMING_ERRORS) {
       if (B_FE && !++rx_framing_errors) --rx_framing_errors;
     }
 
     // Read the character from the USART
     uint8_t c = R_UDR;
 
-    if (USE_EMERGENCYPARSER) {
+    if (Cfg::EMERGENCYPARSER) {
       emergency_parser.update(emergency_state, c);
     }
 
@@ -167,29 +168,29 @@
       rx_buffer.buffer[h] = c;
       h = i;
     } else {
-      if (STATS_DROPPED_RX)
+      if (Cfg::DROPPED_RX)
         if (!++rx_dropped_bytes) --rx_dropped_bytes;
     }
 
-    if (STATS_MAX_RX_QUEUED) {
+    if (Cfg::MAX_RX_QUEUED) {
       // Calculate count of bytes stored into the RX buffer
-      const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_SIZE - 1);
+      const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
 
       // Keep track of the maximum count of enqueued bytes
       NOLESS(rx_max_enqueued, rx_count);
     }
 
-    if (USE_XONOFF) {
+    if (Cfg::XONOFF) {
       // If the last char that was sent was an XON
       if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XON_CHAR) {
 
         // Bytes stored into the RX buffer
-        const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_SIZE - 1);
+        const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
 
         // If over 12.5% of RX buffer capacity, send XOFF before running out of
         // RX buffer space .. 325 bytes @ 250kbits/s needed to let the host react
         // and stop sending bytes. This translates to 13mS propagation time.
-        if (rx_count >= (RX_SIZE) / 8) {
+        if (rx_count >= (Cfg::RX_SIZE) / 8) {
 
           // At this point, definitely no TX interrupt was executing, since the TX ISR can't be preempted.
           // Don't enable the TX interrupt here as a means to trigger the XOFF char, because if it happens
@@ -208,12 +209,12 @@
             if (B_RXC) {
               // A char arrived while waiting for the TX buffer to be empty - Receive and process it!
 
-              i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_SIZE - 1);
+              i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
 
               // Read the character from the USART
               c = R_UDR;
 
-              if (USE_EMERGENCYPARSER)
+              if (Cfg::EMERGENCYPARSER)
                 emergency_parser.update(emergency_state, c);
 
               // If the character is to be stored at the index just before the tail
@@ -223,7 +224,7 @@
                 rx_buffer.buffer[h] = c;
                 h = i;
               } else {
-                if (STATS_DROPPED_RX)
+                if (Cfg::DROPPED_RX)
                   if (!++rx_dropped_bytes) --rx_dropped_bytes;
               }
             }
@@ -249,12 +250,12 @@
             if (B_RXC) {
               // A char arrived while waiting for the TX buffer to be empty - Receive and process it!
 
-              i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(RX_SIZE - 1);
+              i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
 
               // Read the character from the USART
               c = R_UDR;
 
-              if (USE_EMERGENCYPARSER)
+              if (Cfg::EMERGENCYPARSER)
                 emergency_parser.update(emergency_state, c);
 
               // If the character is to be stored at the index just before the tail
@@ -264,7 +265,7 @@
                 rx_buffer.buffer[h] = c;
                 h = i;
               } else {
-                if (STATS_DROPPED_RX)
+                if (Cfg::DROPPED_RX)
                   if (!++rx_dropped_bytes) --rx_dropped_bytes;
               }
             }
@@ -282,14 +283,14 @@
   }
 
   // (called with TX irqs disabled)
-  template<TEMPLATE_SIG>
-  FORCE_INLINE void MarlinSerial<TEMPLATE_ARG>::_tx_udr_empty_irq(void) {
-    if (TX_SIZE > 0) {
+  template<typename Cfg>
+  FORCE_INLINE void MarlinSerial<Cfg>::_tx_udr_empty_irq(void) {
+    if (Cfg::TX_SIZE > 0) {
       // Read positions
       uint8_t t = tx_buffer.tail;
       const uint8_t h = tx_buffer.head;
 
-      if (USE_XONOFF) {
+      if (Cfg::XONOFF) {
         // If an XON char is pending to be sent, do it now
         if (xon_xoff_state == XON_CHAR) {
 
@@ -321,7 +322,7 @@
 
       // There is something to TX, Send the next byte
       const uint8_t c = tx_buffer.buffer[t];
-      t = (t + 1) & (TX_SIZE - 1);
+      t = (t + 1) & (Cfg::TX_SIZE - 1);
       R_UDR = c;
       tx_buffer.tail = t;
 
@@ -335,8 +336,8 @@
   }
 
   // Public Methods
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::begin(const long baud) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::begin(const long baud) {
     uint16_t baud_setting;
     bool useU2X = true;
 
@@ -363,27 +364,27 @@
     B_RXEN = 1;
     B_TXEN = 1;
     B_RXCIE = 1;
-    if (TX_SIZE > 0)
+    if (Cfg::TX_SIZE > 0)
       B_UDRIE = 0;
     _written = false;
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::end() {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::end() {
     B_RXEN = 0;
     B_TXEN = 0;
     B_RXCIE = 0;
     B_UDRIE = 0;
   }
 
-  template<TEMPLATE_SIG>
-  int MarlinSerial<TEMPLATE_ARG>::peek(void) {
+  template<typename Cfg>
+  int MarlinSerial<Cfg>::peek(void) {
     const ring_buffer_pos_t h = atomic_read_rx_head(), t = rx_buffer.tail;
     return h == t ? -1 : rx_buffer.buffer[t];
   }
 
-  template<TEMPLATE_SIG>
-  int MarlinSerial<TEMPLATE_ARG>::read(void) {
+  template<typename Cfg>
+  int MarlinSerial<Cfg>::read(void) {
     const ring_buffer_pos_t h = atomic_read_rx_head();
 
     // Read the tail. Main thread owns it, so it is safe to directly read it
@@ -394,19 +395,19 @@
 
     // Get the next char
     const int v = rx_buffer.buffer[t];
-    t = (ring_buffer_pos_t)(t + 1) & (RX_SIZE - 1);
+    t = (ring_buffer_pos_t)(t + 1) & (Cfg::RX_SIZE - 1);
 
     // Advance tail - Making sure the RX ISR will always get an stable value, even
     // if it interrupts the writing of the value of that variable in the middle.
     atomic_set_rx_tail(t);
 
-    if (USE_XONOFF) {
+    if (Cfg::XONOFF) {
       // If the XOFF char was sent, or about to be sent...
       if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
         // Get count of bytes in the RX buffer
-        const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(RX_SIZE - 1);
-        if (rx_count < (RX_SIZE) / 10) {
-          if (TX_SIZE > 0) {
+        const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
+        if (rx_count < (Cfg::RX_SIZE) / 10) {
+          if (Cfg::TX_SIZE > 0) {
             // Signal we want an XON character to be sent.
             xon_xoff_state = XON_CHAR;
             // Enable TX ISR. Non atomic, but it will eventually enable them
@@ -424,14 +425,14 @@
     return v;
   }
 
-  template<TEMPLATE_SIG>
-  typename MarlinSerial<TEMPLATE_ARG>::ring_buffer_pos_t MarlinSerial<TEMPLATE_ARG>::available(void) {
+  template<typename Cfg>
+  typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::available(void) {
     const ring_buffer_pos_t h = atomic_read_rx_head(), t = rx_buffer.tail;
-    return (ring_buffer_pos_t)(RX_SIZE + h - t) & (RX_SIZE - 1);
+    return (ring_buffer_pos_t)(Cfg::RX_SIZE + h - t) & (Cfg::RX_SIZE - 1);
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::flush(void) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::flush(void) {
 
     // Set the tail to the head:
     //  - Read the RX head index in a safe way. (See atomic_read_rx_head.)
@@ -439,10 +440,10 @@
     //    if it interrupts the writing of the value of that variable in the middle.
     atomic_set_rx_tail(atomic_read_rx_head());
 
-    if (USE_XONOFF) {
+    if (Cfg::XONOFF) {
       // If the XOFF char was sent, or about to be sent...
       if ((xon_xoff_state & XON_XOFF_CHAR_MASK) == XOFF_CHAR) {
-        if (TX_SIZE > 0) {
+        if (Cfg::TX_SIZE > 0) {
           // Signal we want an XON character to be sent.
           xon_xoff_state = XON_CHAR;
           // Enable TX ISR. Non atomic, but it will eventually enable it.
@@ -457,9 +458,9 @@
     }
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::write(const uint8_t c) {
-    if (TX_SIZE == 0) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::write(const uint8_t c) {
+    if (Cfg::TX_SIZE == 0) {
 
       _written = true;
       while (!B_UDRE) sw_barrier();
@@ -486,7 +487,7 @@
         return;
       }
 
-      const uint8_t i = (tx_buffer.head + 1) & (TX_SIZE - 1);
+      const uint8_t i = (tx_buffer.head + 1) & (Cfg::TX_SIZE - 1);
 
       // If global interrupts are disabled (as the result of being called from an ISR)...
       if (!ISRS_ENABLED()) {
@@ -515,10 +516,10 @@
     }
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::flushTX(void) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::flushTX(void) {
 
-    if (TX_SIZE == 0) {
+    if (Cfg::TX_SIZE == 0) {
       // No bytes written, no need to flush. This special case is needed since there's
       // no way to force the TXC (transmit complete) bit to 1 during initialization.
       if (!_written) return;
@@ -563,28 +564,28 @@
    * Imports from print.h
    */
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::print(char c, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::print(char c, int base) {
     print((long)c, base);
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::print(unsigned char b, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::print(unsigned char b, int base) {
     print((unsigned long)b, base);
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::print(int n, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::print(int n, int base) {
     print((long)n, base);
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::print(unsigned int n, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::print(unsigned int n, int base) {
     print((unsigned long)n, base);
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::print(long n, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::print(long n, int base) {
     if (base == 0) write(n);
     else if (base == 10) {
       if (n < 0) { print('-'); n = -n; }
@@ -594,81 +595,81 @@
       printNumber(n, base);
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::print(unsigned long n, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::print(unsigned long n, int base) {
     if (base == 0) write(n);
     else printNumber(n, base);
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::print(double n, int digits) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::print(double n, int digits) {
     printFloat(n, digits);
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(void) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(void) {
     print('\r');
     print('\n');
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(const String& s) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(const String& s) {
     print(s);
     println();
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(const char c[]) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(const char c[]) {
     print(c);
     println();
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(char c, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(char c, int base) {
     print(c, base);
     println();
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(unsigned char b, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(unsigned char b, int base) {
     print(b, base);
     println();
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(int n, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(int n, int base) {
     print(n, base);
     println();
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(unsigned int n, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(unsigned int n, int base) {
     print(n, base);
     println();
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(long n, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(long n, int base) {
     print(n, base);
     println();
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(unsigned long n, int base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(unsigned long n, int base) {
     print(n, base);
     println();
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::println(double n, int digits) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::println(double n, int digits) {
     print(n, digits);
     println();
   }
 
   // Private Methods
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::printNumber(unsigned long n, uint8_t base) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::printNumber(unsigned long n, uint8_t base) {
     if (n) {
       unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
       int8_t i = 0;
@@ -683,8 +684,8 @@
       print('0');
   }
 
-  template<TEMPLATE_SIG>
-  void MarlinSerial<TEMPLATE_ARG>::printFloat(double number, uint8_t digits) {
+  template<typename Cfg>
+  void MarlinSerial<Cfg>::printFloat(double number, uint8_t digits) {
     // Handle negative numbers
     if (number < 0.0) {
       print('-');
@@ -718,58 +719,18 @@
 
   // Hookup ISR handlers
   ISR(SERIAL_REGNAME(USART,SERIAL_PORT,_RX_vect)) {
-    MarlinSerial<
-      SERIAL_PORT,
-      RX_BUFFER_SIZE,
-      TX_BUFFER_SIZE,
-      bSERIAL_XON_XOFF,
-      bEMERGENCY_PARSER,
-      bSERIAL_STATS_DROPPED_RX,
-      bSERIAL_STATS_RX_BUFFER_OVERRUNS,
-      bSERIAL_STATS_RX_FRAMING_ERRORS,
-      bSERIAL_STATS_MAX_RX_QUEUED
-    >::store_rxd_char();
+    MarlinSerial<MarlinSerialCfg>::store_rxd_char();
   }
 
   ISR(SERIAL_REGNAME(USART,SERIAL_PORT,_UDRE_vect)) {
-    MarlinSerial<
-      SERIAL_PORT,
-      RX_BUFFER_SIZE,
-      TX_BUFFER_SIZE,
-      bSERIAL_XON_XOFF,
-      bEMERGENCY_PARSER,
-      bSERIAL_STATS_DROPPED_RX,
-      bSERIAL_STATS_RX_BUFFER_OVERRUNS,
-      bSERIAL_STATS_RX_FRAMING_ERRORS,
-      bSERIAL_STATS_MAX_RX_QUEUED
-    >::_tx_udr_empty_irq();
+    MarlinSerial<MarlinSerialCfg>::_tx_udr_empty_irq();
   }
 
   // Preinstantiate
-  template class MarlinSerial<
-    SERIAL_PORT,
-    RX_BUFFER_SIZE,
-    TX_BUFFER_SIZE,
-    bSERIAL_XON_XOFF,
-    bEMERGENCY_PARSER,
-    bSERIAL_STATS_DROPPED_RX,
-    bSERIAL_STATS_RX_BUFFER_OVERRUNS,
-    bSERIAL_STATS_RX_FRAMING_ERRORS,
-    bSERIAL_STATS_MAX_RX_QUEUED
-  >;
+  template class MarlinSerial<MarlinSerialCfg>;
 
   // Instantiate
-  MarlinSerial<
-    SERIAL_PORT,
-    RX_BUFFER_SIZE,
-    TX_BUFFER_SIZE,
-    bSERIAL_XON_XOFF,
-    bEMERGENCY_PARSER,
-    bSERIAL_STATS_DROPPED_RX,
-    bSERIAL_STATS_RX_BUFFER_OVERRUNS,
-    bSERIAL_STATS_RX_FRAMING_ERRORS,
-    bSERIAL_STATS_MAX_RX_QUEUED
-  > customizedSerial;
+  MarlinSerial<MarlinSerialCfg> customizedSerial;
 
 #endif // !USBCON && (UBRRH || UBRR0H || UBRR1H || UBRR2H || UBRR3H)
 

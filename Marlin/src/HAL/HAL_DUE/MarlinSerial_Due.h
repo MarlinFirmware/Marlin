@@ -67,70 +67,33 @@ template<typename T, typename F> struct TypeSelector<false, T, F> { typedef F ty
 // Templated structure wrapper
 template<typename S, unsigned int addr> struct StructWrapper {
   constexpr StructWrapper(int) {}
-  S* operator->() const { return (S*)addr; }
+  FORCE_INLINE S* operator->() const { return (S*)addr; }
 };
 
-// Hardware serial port information (by template specialization)
-template<int portNr> struct MarlinSerialPortInfo {};
-template<> struct MarlinSerialPortInfo<0> {
-  static constexpr unsigned int BASE = 0x400E0800U; // UART
-  static constexpr IRQn_Type IRQ = UART_IRQn;
-  static constexpr int IRQ_ID = ID_UART;
-};
-
-template<> struct MarlinSerialPortInfo<1> {
-  static constexpr unsigned int BASE = 0x40098000U; // USART0
-  static constexpr IRQn_Type IRQ = USART0_IRQn;
-  static constexpr int IRQ_ID = ID_USART0;
-};
-
-template<> struct MarlinSerialPortInfo<2> {
-  static constexpr unsigned int BASE = 0x4009C000U; // USART1
-  static constexpr IRQn_Type IRQ = USART1_IRQn;
-  static constexpr int IRQ_ID = ID_USART1;
-};
-
-template<> struct MarlinSerialPortInfo<3> {
-  static constexpr unsigned int BASE = 0x400A0000U; // USART2
-  static constexpr IRQn_Type IRQ = USART2_IRQn;
-  static constexpr int IRQ_ID = ID_USART2;
-};
-
-template<> struct MarlinSerialPortInfo<4> {
-  static constexpr unsigned int BASE = 0x400A4000U; // USART3
-  static constexpr IRQn_Type IRQ = USART3_IRQn;
-  static constexpr int IRQ_ID = ID_USART3;
-};
-
-template<
-  int portNr,
-  int RX_SIZE = 128,
-  int TX_SIZE = 32,
-  bool USE_XONOFF = false,
-  bool ENABLE_EMERGENCYPARSER = false,
-  bool STATS_DROPPED_RX = false,
-  bool STATS_RX_OVERRUNS = false,
-  bool STATS_RX_FRAMING_ERRORS = false,
-  bool STATS_MAX_RX_QUEUED = false
->
+template<typename Cfg>
 class MarlinSerial {
 protected:
+  // Information for all supported UARTs
+  static constexpr uint32_t BASES[] = {0x400E0800U, 0x40098000U, 0x4009C000U, 0x400A0000U, 0x400A4000U};
+  static constexpr IRQn_Type IRQS[] = {  UART_IRQn, USART0_IRQn, USART1_IRQn, USART2_IRQn, USART3_IRQn};
+  static constexpr int    IRQ_IDS[] = {    ID_UART,   ID_USART0,   ID_USART1,   ID_USART2,   ID_USART3};
+
   // Alias for shorter code
-  static constexpr StructWrapper<Uart,MarlinSerialPortInfo<portNr>::BASE> HWUART = 0;
-  static constexpr IRQn_Type HWUART_IRQ = MarlinSerialPortInfo<portNr>::IRQ;
-  static constexpr int HWUART_IRQ_ID = MarlinSerialPortInfo<portNr>::IRQ_ID;
+  static constexpr StructWrapper<Uart,BASES[Cfg::PORT]> HWUART = 0;
+  static constexpr IRQn_Type HWUART_IRQ = IRQS[Cfg::PORT];
+  static constexpr int HWUART_IRQ_ID = IRQ_IDS[Cfg::PORT];
 
   // Base size of type on buffer size
-  typedef typename TypeSelector<(RX_SIZE>256), uint16_t, uint8_t>::type ring_buffer_pos_t;
+  typedef typename TypeSelector<(Cfg::RX_SIZE>256), uint16_t, uint8_t>::type ring_buffer_pos_t;
 
   struct ring_buffer_r {
-    unsigned char buffer[RX_SIZE];
     volatile ring_buffer_pos_t head, tail;
+    unsigned char buffer[Cfg::RX_SIZE];
   };
 
   struct ring_buffer_t {
-    unsigned char buffer[TX_SIZE];
     volatile uint8_t head, tail;
+    unsigned char buffer[Cfg::TX_SIZE];
   };
 
   static ring_buffer_r rx_buffer;
@@ -163,10 +126,10 @@ public:
   static void write(const uint8_t c);
   static void flushTX(void);
 
-  FORCE_INLINE static uint8_t dropped() { return STATS_DROPPED_RX ? rx_dropped_bytes : 0; }
-  FORCE_INLINE static uint8_t buffer_overruns() { return STATS_RX_OVERRUNS ? rx_buffer_overruns : 0; }
-  FORCE_INLINE static uint8_t framing_errors() { return STATS_RX_FRAMING_ERRORS ? rx_framing_errors : 0; }
-  FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return STATS_MAX_RX_QUEUED ? rx_max_enqueued : 0; }
+  FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
+  FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
+  FORCE_INLINE static uint8_t framing_errors() { return Cfg::RX_FRAMING_ERRORS ? rx_framing_errors : 0; }
+  FORCE_INLINE static ring_buffer_pos_t rxMaxEnqueued() { return Cfg::MAX_RX_QUEUED ? rx_max_enqueued : 0; }
 
   FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
   FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
@@ -198,17 +161,20 @@ private:
   static void printFloat(double, uint8_t);
 };
 
-extern MarlinSerial<
-  SERIAL_PORT,
-  RX_BUFFER_SIZE,
-  TX_BUFFER_SIZE,
-  bSERIAL_XON_XOFF,
-  bEMERGENCY_PARSER,
-  bSERIAL_STATS_DROPPED_RX,
-  bSERIAL_STATS_RX_BUFFER_OVERRUNS,
-  bSERIAL_STATS_RX_FRAMING_ERRORS,
-  bSERIAL_STATS_MAX_RX_QUEUED
-> customizedSerial;
+// Serial port configuration
+struct MarlinSerialCfg {
+  static constexpr int PORT = SERIAL_PORT;
+  static constexpr int RX_SIZE = RX_BUFFER_SIZE;
+  static constexpr int TX_SIZE = TX_BUFFER_SIZE;
+  static constexpr bool XONOFF = bSERIAL_XON_XOFF;
+  static constexpr bool EMERGENCYPARSER = bEMERGENCY_PARSER;
+  static constexpr bool DROPPED_RX = bSERIAL_STATS_DROPPED_RX;
+  static constexpr bool RX_OVERRUNS = bSERIAL_STATS_RX_BUFFER_OVERRUNS;
+  static constexpr bool RX_FRAMING_ERRORS = bSERIAL_STATS_RX_FRAMING_ERRORS;
+  static constexpr bool MAX_RX_QUEUED = bSERIAL_STATS_MAX_RX_QUEUED;
+};
+
+extern MarlinSerial<MarlinSerialCfg> customizedSerial;
 
 #endif // SERIAL_PORT >= 0
 
