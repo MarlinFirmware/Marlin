@@ -76,7 +76,8 @@
         sw_barrier();
       } while (vold != vnew);
       return vnew;
-    } else {
+    }
+    else {
       // With an 8bit index, reads are always atomic. No need for special handling
       return rx_buffer.head;
     }
@@ -106,9 +107,9 @@
       // Signal the new value is completely stored into the value
       rx_tail_value_not_stable = false;
       sw_barrier();
-    } else {
-      rx_buffer.tail = value;
     }
+    else
+      rx_buffer.tail = value;
   }
 
   // Get the RX tail index, taking into account the read could be
@@ -142,24 +143,14 @@
     ring_buffer_pos_t i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
 
     // This must read the R_UCSRA register before reading the received byte to detect error causes
-    if (Cfg::DROPPED_RX) {
-      if (B_DOR && !++rx_dropped_bytes) --rx_dropped_bytes;
-    }
-
-    if (Cfg::RX_OVERRUNS) {
-      if (B_DOR && !++rx_buffer_overruns) --rx_buffer_overruns;
-    }
-
-    if (Cfg::RX_FRAMING_ERRORS) {
-      if (B_FE && !++rx_framing_errors) --rx_framing_errors;
-    }
+    if (Cfg::DROPPED_RX && B_DOR && !++rx_dropped_bytes) --rx_dropped_bytes;
+    if (Cfg::RX_OVERRUNS && B_DOR && !++rx_buffer_overruns) --rx_buffer_overruns;
+    if (Cfg::RX_FRAMING_ERRORS && B_FE && !++rx_framing_errors) --rx_framing_errors;
 
     // Read the character from the USART
     uint8_t c = R_UDR;
 
-    if (Cfg::EMERGENCYPARSER) {
-      emergency_parser.update(emergency_state, c);
-    }
+    if (Cfg::EMERGENCYPARSER) emergency_parser.update(emergency_state, c);
 
     // If the character is to be stored at the index just before the tail
     // (such that the head would advance to the current tail), the RX FIFO is
@@ -167,10 +158,9 @@
     if (i != t) {
       rx_buffer.buffer[h] = c;
       h = i;
-    } else {
-      if (Cfg::DROPPED_RX)
-        if (!++rx_dropped_bytes) --rx_dropped_bytes;
     }
+    else if (Cfg::DROPPED_RX && !++rx_dropped_bytes)
+      --rx_dropped_bytes;
 
     if (Cfg::MAX_RX_QUEUED) {
       // Calculate count of bytes stored into the RX buffer
@@ -214,8 +204,7 @@
               // Read the character from the USART
               c = R_UDR;
 
-              if (Cfg::EMERGENCYPARSER)
-                emergency_parser.update(emergency_state, c);
+              if (Cfg::EMERGENCYPARSER) emergency_parser.update(emergency_state, c);
 
               // If the character is to be stored at the index just before the tail
               // (such that the head would advance to the current tail), the FIFO is
@@ -223,10 +212,9 @@
               if (i != t) {
                 rx_buffer.buffer[h] = c;
                 h = i;
-              } else {
-                if (Cfg::DROPPED_RX)
-                  if (!++rx_dropped_bytes) --rx_dropped_bytes;
               }
+              else if (Cfg::DROPPED_RX && !++rx_dropped_bytes)
+                --rx_dropped_bytes;
             }
             sw_barrier();
           }
@@ -264,10 +252,9 @@
               if (i != t) {
                 rx_buffer.buffer[h] = c;
                 h = i;
-              } else {
-                if (Cfg::DROPPED_RX)
-                  if (!++rx_dropped_bytes) --rx_dropped_bytes;
               }
+              else if (Cfg::DROPPED_RX && !++rx_dropped_bytes)
+                --rx_dropped_bytes;
             }
             sw_barrier();
           }
@@ -353,9 +340,8 @@
       B_U2X = 1;
       baud_setting = (F_CPU / 4 / baud - 1) / 2;
     }
-    else {
+    else
       baud_setting = (F_CPU / 8 / baud - 1) / 2;
-    }
 
     // assign the baud_setting, a.k.a. ubbr (USART Baud Rate Register)
     R_UBRRH = baud_setting >> 8;
@@ -364,8 +350,7 @@
     B_RXEN = 1;
     B_TXEN = 1;
     B_RXCIE = 1;
-    if (Cfg::TX_SIZE > 0)
-      B_UDRIE = 0;
+    if (Cfg::TX_SIZE > 0) B_UDRIE = 0;
     _written = false;
   }
 
@@ -412,7 +397,8 @@
             xon_xoff_state = XON_CHAR;
             // Enable TX ISR. Non atomic, but it will eventually enable them
             B_UDRIE = 1;
-          } else {
+          }
+          else {
             // If not using TX interrupts, we must send the XON char now
             xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
             while (!B_UDRE) sw_barrier();
@@ -448,7 +434,8 @@
           xon_xoff_state = XON_CHAR;
           // Enable TX ISR. Non atomic, but it will eventually enable it.
           B_UDRIE = 1;
-        } else {
+        }
+        else {
           // If not using TX interrupts, we must send the XON char now
           xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
           while (!B_UDRE) sw_barrier();
@@ -466,7 +453,8 @@
       while (!B_UDRE) sw_barrier();
       R_UDR = c;
 
-    } else {
+    }
+    else {
 
       _written = true;
 
@@ -504,7 +492,7 @@
       }
       else {
         // Interrupts are enabled, just wait until there is space
-        while (i == tx_buffer.tail) { sw_barrier(); }
+        while (i == tx_buffer.tail) sw_barrier();
       }
 
       // Store new char. head is always safe to move
@@ -530,7 +518,8 @@
       // At this point nothing is queued anymore (DRIE is disabled) and
       // the hardware finished transmission (TXC is set).
 
-    } else {
+    }
+    else {
 
       // No bytes written, no need to flush. This special case is needed since there's
       // no way to force the TXC (transmit complete) bit to 1 during initialization.
@@ -543,8 +532,7 @@
         while (tx_buffer.head != tx_buffer.tail || !B_TXC) {
 
           // If there is more space, send an extra character
-          if (B_UDRE)
-            _tx_udr_empty_irq();
+          if (B_UDRE) _tx_udr_empty_irq();
 
           sw_barrier();
         }
@@ -694,9 +682,7 @@
 
     // Round correctly so that print(1.999, 2) prints as "2.00"
     double rounding = 0.5;
-    for (uint8_t i = 0; i < digits; ++i)
-      rounding *= 0.1;
-
+    for (uint8_t i = 0; i < digits; ++i) rounding *= 0.1;
     number += rounding;
 
     // Extract the integer part of the number and print it

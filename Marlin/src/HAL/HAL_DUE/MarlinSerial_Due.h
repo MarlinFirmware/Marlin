@@ -163,15 +163,15 @@ private:
 
 // Serial port configuration
 struct MarlinSerialCfg {
-  static constexpr int PORT = SERIAL_PORT;
-  static constexpr int RX_SIZE = RX_BUFFER_SIZE;
-  static constexpr int TX_SIZE = TX_BUFFER_SIZE;
-  static constexpr bool XONOFF = bSERIAL_XON_XOFF;
-  static constexpr bool EMERGENCYPARSER = bEMERGENCY_PARSER;
-  static constexpr bool DROPPED_RX = bSERIAL_STATS_DROPPED_RX;
-  static constexpr bool RX_OVERRUNS = bSERIAL_STATS_RX_BUFFER_OVERRUNS;
+  static constexpr int PORT               = SERIAL_PORT;
+  static constexpr unsigned int RX_SIZE   = RX_BUFFER_SIZE;
+  static constexpr unsigned int TX_SIZE   = TX_BUFFER_SIZE;
+  static constexpr bool XONOFF            = bSERIAL_XON_XOFF;
+  static constexpr bool EMERGENCYPARSER   = bEMERGENCY_PARSER;
+  static constexpr bool DROPPED_RX        = bSERIAL_STATS_DROPPED_RX;
+  static constexpr bool RX_OVERRUNS       = bSERIAL_STATS_RX_BUFFER_OVERRUNS;
   static constexpr bool RX_FRAMING_ERRORS = bSERIAL_STATS_RX_FRAMING_ERRORS;
-  static constexpr bool MAX_RX_QUEUED = bSERIAL_STATS_MAX_RX_QUEUED;
+  static constexpr bool MAX_RX_QUEUED     = bSERIAL_STATS_MAX_RX_QUEUED;
 };
 
 extern MarlinSerial<MarlinSerialCfg> customizedSerial;

@@ -68,8 +68,7 @@
     // Read the character from the USART
     uint8_t c = HWUART->UART_RHR;
 
-    if (Cfg::EMERGENCYPARSER)
-      emergency_parser.update(emergency_state, c);
+    if (Cfg::EMERGENCYPARSER) emergency_parser.update(emergency_state, c);
 
     // If the character is to be stored at the index just before the tail
     // (such that the head would advance to the current tail), the RX FIFO is
@@ -78,17 +77,14 @@
       rx_buffer.buffer[h] = c;
       h = i;
     }
-    else {
-      if (Cfg::DROPPED_RX)
-        if (!++rx_dropped_bytes) --rx_dropped_bytes;
-    }
+    else if (Cfg::DROPPED_RX && !++rx_dropped_bytes)
+      --rx_dropped_bytes;
 
     const ring_buffer_pos_t rx_count = (ring_buffer_pos_t)(h - t) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
     // Calculate count of bytes stored into the RX buffer
 
     // Keep track of the maximum count of enqueued bytes
-    if (Cfg::MAX_RX_QUEUED)
-      NOLESS(rx_max_enqueued, rx_count);
+    if (Cfg::MAX_RX_QUEUED) NOLESS(rx_max_enqueued, rx_count);
 
     if (Cfg::XONOFF) {
       // If the last char that was sent was an XON
@@ -125,8 +121,7 @@
               // Read the character from the USART
               c = HWUART->UART_RHR;
 
-              if (Cfg::EMERGENCYPARSER)
-                emergency_parser.update(emergency_state, c);
+              if (Cfg::EMERGENCYPARSER) emergency_parser.update(emergency_state, c);
 
               // If the character is to be stored at the index just before the tail
               // (such that the head would advance to the current tail), the FIFO is
@@ -135,10 +130,8 @@
                 rx_buffer.buffer[h] = c;
                 h = i;
               }
-              else {
-                if (Cfg::DROPPED_RX)
-                  if (!++rx_dropped_bytes) --rx_dropped_bytes;
-              }
+              else if (Cfg::DROPPED_RX && !++rx_dropped_bytes)
+                --rx_dropped_bytes;
             }
             sw_barrier();
           }
@@ -162,8 +155,7 @@
               // Read the character from the USART
               c = HWUART->UART_RHR;
 
-              if (Cfg::EMERGENCYPARSER)
-                emergency_parser.update(emergency_state, c);
+              if (Cfg::EMERGENCYPARSER) emergency_parser.update(emergency_state, c);
 
               // If the character is to be stored at the index just before the tail
               // (such that the head would advance to the current tail), the FIFO is
@@ -172,10 +164,8 @@
                 rx_buffer.buffer[h] = c;
                 h = i;
               }
-              else {
-                if (Cfg::DROPPED_RX)
-                  if (!++rx_dropped_bytes) --rx_dropped_bytes;
-              }
+              else if (Cfg::DROPPED_RX && !++rx_dropped_bytes)
+                --rx_dropped_bytes;
             }
             sw_barrier();
           }
@@ -247,12 +237,9 @@
 
     // Acknowledge errors
     if ((status & UART_SR_OVRE) || (status & UART_SR_FRAME)) {
-      if (Cfg::DROPPED_RX)
-        if (status & UART_SR_OVRE && !++rx_dropped_bytes) --rx_dropped_bytes;
-      if (Cfg::RX_OVERRUNS)
-        if (status & UART_SR_OVRE && !++rx_buffer_overruns) --rx_buffer_overruns;
-      if (Cfg::RX_FRAMING_ERRORS)
-        if (status & UART_SR_FRAME && !++rx_framing_errors) --rx_framing_errors;
+      if (Cfg::DROPPED_RX && (status & UART_SR_OVRE) && !++rx_dropped_bytes) --rx_dropped_bytes;
+      if (Cfg::RX_OVERRUNS && (status & UART_SR_OVRE) && !++rx_buffer_overruns) --rx_buffer_overruns;
+      if (Cfg::RX_FRAMING_ERRORS && (status & UART_SR_FRAME) && !++rx_framing_errors) --rx_framing_errors;
 
       // TODO: error reporting outside ISR
       HWUART->UART_CR = UART_CR_RSTSTA;
@@ -307,8 +294,7 @@
     // Enable receiver and transmitter
     HWUART->UART_CR = UART_CR_RXEN | UART_CR_TXEN;
 
-    if (Cfg::TX_SIZE > 0)
-      _written = false;
+    if (Cfg::TX_SIZE > 0) _written = false;
   }
 
   template<typename Cfg>
@@ -356,7 +342,8 @@
             xon_xoff_state = XON_CHAR;
             // Enable TX isr.
             HWUART->UART_IER = UART_IER_TXRDY;
-          } else {
+          }
+          else {
             // If not using TX interrupts, we must send the XON char now
             xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
             while (!(HWUART->UART_SR & UART_SR_TXRDY)) sw_barrier();
@@ -386,7 +373,8 @@
           xon_xoff_state = XON_CHAR;
           // Enable TX isr.
           HWUART->UART_IER = UART_IER_TXRDY;
-        } else {
+        }
+        else {
           // If not using TX interrupts, we must send the XON char now
           xon_xoff_state = XON_CHAR | XON_XOFF_CHAR_SENT;
           while (!(HWUART->UART_SR & UART_SR_TXRDY)) sw_barrier();
@@ -403,7 +391,8 @@
     if (Cfg::TX_SIZE == 0) {
       while (!(HWUART->UART_SR & UART_SR_TXRDY)) sw_barrier();
       HWUART->UART_THR = c;
-    } else {
+    }
+    else {
 
       // If the TX interrupts are disabled and the data register
       // is empty, just write the byte to the data register and
@@ -459,7 +448,8 @@
       // At this point nothing is queued anymore (DRIE is disabled) and
       // the hardware finished transmission (TXC is set).
 
-    } else {
+    }
+    else {
       // If we have never written a byte, no need to flush. This special
       // case is needed since there is no way to force the TXC (transmit
       // complete) bit to 1 during initialization
@@ -485,7 +475,6 @@
       // the hardware finished transmission (TXC is set).
     }
   }
-
 
   /**
    * Imports from print.h
