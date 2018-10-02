@@ -101,7 +101,7 @@ typedef struct {  int16_t X, Y, Z;                                         } tmc
 
 #pragma pack(push, 1) // No padding between variables
 
-typedef struct PID { float Kp, Ki, Kd; } PID;
+typedef struct PID  { float Kp, Ki, Kd;     } PID;
 typedef struct PIDC { float Kp, Ki, Kd, Kc; } PIDC;
 
 /**
@@ -303,7 +303,7 @@ uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 #endif
 
 void MarlinSettings::postprocess() {
-  const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+  const float oldpos[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS] };
 
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
@@ -439,7 +439,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(dummy);
       #endif
     #else
-      const float planner_max_jerk[] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
+      const float planner_max_jerk[XYZE] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
       EEPROM_WRITE(planner_max_jerk);
     #endif
 
@@ -467,11 +467,13 @@ void MarlinSettings::postprocess() {
     // Global Leveling
     //
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      const float zfh = planner.z_fade_height;
-    #else
-      const float zfh = 10.0;
-    #endif
+    const float zfh = (
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        planner.z_fade_height
+      #else
+        10.0
+      #endif
+    );
     EEPROM_WRITE(zfh);
 
     //
@@ -481,7 +483,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(MESH_BED_LEVELING)
       // Compile time test that sizeof(mbl.z_values) is as expected
       static_assert(
-        sizeof(mbl.z_values) == GRID_MAX_POINTS * sizeof(mbl.z_values[0][0]),
+        sizeof(mbl.z_values) == (GRID_MAX_POINTS) * sizeof(mbl.z_values[0][0]),
         "MBL Z array is the wrong size."
       );
       const uint8_t mesh_num_x = GRID_MAX_POINTS_X, mesh_num_y = GRID_MAX_POINTS_Y;
@@ -523,7 +525,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       // Compile time test that sizeof(z_values) is as expected
       static_assert(
-        sizeof(z_values) == GRID_MAX_POINTS * sizeof(z_values[0][0]),
+        sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
         "Bilinear Z array is the wrong size."
       );
       const uint8_t grid_max_x = GRID_MAX_POINTS_X, grid_max_y = GRID_MAX_POINTS_Y;
@@ -1884,8 +1886,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
 
   #if ENABLED(DELTA)
-    const float adj[ABC] = DELTA_ENDSTOP_ADJ,
-                dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
+    const float adj[ABC] = DELTA_ENDSTOP_ADJ, dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
     delta_height = DELTA_HEIGHT;
     COPY(delta_endstop_adj, adj);
     delta_radius = DELTA_RADIUS;
