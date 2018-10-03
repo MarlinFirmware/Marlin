@@ -71,7 +71,7 @@ bool timers_initialised[NUM_HARDWARE_TIMERS] = {false};
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
   if (!timers_initialised[timer_num]) {
-    constexpr uint32_t step_prescaler = STEPPER_TIMER_PRESCALE - 1,
+    uint32_t step_prescaler = STEPPER_TIMER_PRESCALE - 1,
                        temp_prescaler = TEMP_TIMER_PRESCALE - 1;
     switch (timer_num) {
       case STEP_TIMER_NUM:
