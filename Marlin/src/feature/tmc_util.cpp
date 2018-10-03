@@ -34,6 +34,7 @@
 
 #if ENABLED(TMC_DEBUG)
   #include "../module/planner.h"
+  static bool report_tmc_status; // = false;
 #endif
 
 /**
@@ -44,7 +45,6 @@
  * and so we don't repeatedly report warning before the condition is cleared.
  */
 #if ENABLED(MONITOR_DRIVER_STATUS)
-  static bool report_tmc_status = false;
 
   struct TMC_driver_data {
     uint32_t drv_status;
@@ -144,19 +144,21 @@
     }
     else if (st.otpw_count > 0) st.otpw_count = 0;
 
-    if (report_tmc_status) {
-      const uint32_t pwm_scale = get_pwm_scale(st);
-      st.printLabel();
-      SERIAL_ECHOPAIR(":", pwm_scale);
-      SERIAL_ECHOPGM(" |0b"); SERIAL_PRINT(get_status_response(st), BIN);
-      SERIAL_ECHOPGM("| ");
-      if (data.is_error) SERIAL_CHAR('E');
-      else if (data.is_ot) SERIAL_CHAR('O');
-      else if (data.is_otpw) SERIAL_CHAR('W');
-      else if (st.otpw_count > 0) SERIAL_PRINT(st.otpw_count, DEC);
-      else if (st.flag_otpw) SERIAL_CHAR('F');
-      SERIAL_CHAR('\t');
-    }
+    #if ENABLED(TMC_DEBUG)
+      if (report_tmc_status) {
+        const uint32_t pwm_scale = get_pwm_scale(st);
+        st.printLabel();
+        SERIAL_ECHOPAIR(":", pwm_scale);
+        SERIAL_ECHOPGM(" |0b"); SERIAL_PRINT(get_status_response(st), BIN);
+        SERIAL_ECHOPGM("| ");
+        if (data.is_error) SERIAL_CHAR('E');
+        else if (data.is_ot) SERIAL_CHAR('O');
+        else if (data.is_otpw) SERIAL_CHAR('W');
+        else if (st.otpw_count > 0) SERIAL_PRINT(st.otpw_count, DEC);
+        else if (st.flag_otpw) SERIAL_CHAR('F');
+        SERIAL_CHAR('\t');
+      }
+    #endif
   }
 
   #define HAS_HW_COMMS(ST) AXIS_DRIVER_TYPE(ST, TMC2130) || (AXIS_DRIVER_TYPE(ST, TMC2208) && defined(ST##_HARDWARE_SERIAL))
@@ -205,7 +207,9 @@
         monitor_tmc_driver(stepperE5);
       #endif
 
-      if (report_tmc_status) SERIAL_EOL();
+      #if ENABLED(TMC_DEBUG)
+        if (report_tmc_status) SERIAL_EOL();
+      #endif
     }
   }
 
