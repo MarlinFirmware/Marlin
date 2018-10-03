@@ -89,7 +89,7 @@ private:
   static void printFloat(double, uint8_t);
 };
 
-extern MarlinSerialUSB customizedSerial;
+extern MarlinSerialUSB customizedSerial1;
 
 #endif // SERIAL_PORT == -1
 #endif // MARLINSERIAL_DUE_H

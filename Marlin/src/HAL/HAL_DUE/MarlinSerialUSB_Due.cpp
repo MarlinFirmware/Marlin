@@ -285,7 +285,7 @@ void MarlinSerialUSB::printFloat(double number, uint8_t digits) {
 }
 
 // Preinstantiate
-MarlinSerialUSB customizedSerial;
+MarlinSerialUSB customizedSerial1;
 
 #endif // SERIAL_PORT == -1
 
