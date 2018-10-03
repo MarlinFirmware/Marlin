@@ -27,12 +27,11 @@
 
 #include "../HAL/platforms.h"
 #include "../core/boards.h"
+#include "../core/macros.h"
 #include "../core/types.h"
-#include "../core/config.h"
 #include "Version.h"
 #include "../../Configuration.h"
 #include "Conditionals_LCD.h"
 #include "../core/drivers.h"
 #include "../../Configuration_adv.h"
 #include "Conditionals_adv.h"
-#include "../core/macros.h"

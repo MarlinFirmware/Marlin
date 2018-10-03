@@ -23,7 +23,7 @@
 #ifndef TWIBUS_H
 #define TWIBUS_H
 
-#include "../inc/MarlinConfigPre.h"
+#include "../core/macros.h"
 
 #include <Wire.h>
 

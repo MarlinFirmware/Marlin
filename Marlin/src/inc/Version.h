@@ -23,7 +23,7 @@
 #ifndef _VERSION_H_
 #define _VERSION_H_
 
-#include "../core/config.h" // for ENABLED
+#include "../core/macros.h" // for ENABLED
 
 /**
  * This file is the standard Marlin version identifier file.

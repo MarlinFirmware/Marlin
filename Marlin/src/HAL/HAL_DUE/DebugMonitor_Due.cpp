@@ -22,12 +22,12 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
+#include "../../core/macros.h"
 #include "../../core/serial.h"
+#include <stdarg.h>
 
 #include "../shared/backtrace/unwinder.h"
 #include "../shared/backtrace/unwmemaccess.h"
-
-#include <stdarg.h>
 
 // Debug monitor that dumps to the Programming port all status when
 // an exception or WDT timeout happens - And then resets the board

@@ -47,8 +47,9 @@
 #ifndef _CONF_USB_H_
 #define _CONF_USB_H_
 
-#include "../../../core/macros.h"       /* For ENABLED, DISABLED, MIN, MAX */
-#include "../../../../Configuration.h"  /* For SDSUPPORT and CUSTOM_MACHINE_NAME definition - We just need the name, no C++ allowed! */
+#undef UNUSED                           /* To avoid a macro clash as macros.h already defines it */
+#include "../../../core/macros.h"       /* For ENABLED()/DISABLED() */
+#include "../../../../Configuration.h"  /* For CUSTOM_MACHINE_NAME definition - We just need the name, no C++ allowed! */
 #include "compiler.h"
 
 /**
