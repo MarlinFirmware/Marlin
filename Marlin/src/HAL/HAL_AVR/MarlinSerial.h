@@ -254,10 +254,10 @@
       static void printNumber(unsigned long, const uint8_t);
       static void printFloat(double, uint8_t);
   };
-
-  // Serial port configuration
-  struct MarlinSerialCfg1 {
-    static constexpr int PORT               = SERIAL_PORT;
+  
+  template <uint8_t serial>
+  struct MarlinSerialCfg {
+    static constexpr int PORT               = serial;
     static constexpr unsigned int RX_SIZE   = RX_BUFFER_SIZE;
     static constexpr unsigned int TX_SIZE   = TX_BUFFER_SIZE;
     static constexpr bool XONOFF            = bSERIAL_XON_XOFF;
@@ -267,28 +267,13 @@
     static constexpr bool RX_FRAMING_ERRORS = bSERIAL_STATS_RX_FRAMING_ERRORS;
     static constexpr bool MAX_RX_QUEUED     = bSERIAL_STATS_MAX_RX_QUEUED;
   };
-
-  extern MarlinSerial<MarlinSerialCfg1> customizedSerial1;
+  extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
 
   #ifdef SERIAL_PORT_2
 
-    // Serial port configuration
-    struct MarlinSerialCfg2 {
-      static constexpr int PORT               = SERIAL_PORT_2;
-      static constexpr unsigned int RX_SIZE   = RX_BUFFER_SIZE;
-      static constexpr unsigned int TX_SIZE   = TX_BUFFER_SIZE;
-      static constexpr bool XONOFF            = bSERIAL_XON_XOFF;
-      static constexpr bool EMERGENCYPARSER   = bEMERGENCY_PARSER;
-      static constexpr bool DROPPED_RX        = bSERIAL_STATS_DROPPED_RX;
-      static constexpr bool RX_OVERRUNS       = bSERIAL_STATS_RX_BUFFER_OVERRUNS;
-      static constexpr bool RX_FRAMING_ERRORS = bSERIAL_STATS_RX_FRAMING_ERRORS;
-      static constexpr bool MAX_RX_QUEUED     = bSERIAL_STATS_MAX_RX_QUEUED;
-    };
-
-    extern MarlinSerial<MarlinSerialCfg2> customizedSerial2;
-
+    extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
+    
   #endif
-
 
 #endif // !USBCON
 
