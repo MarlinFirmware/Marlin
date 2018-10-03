@@ -83,6 +83,9 @@
   #include "../feature/tmc_util.h"
   #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.axis_steps_per_mm[_AXIS(A)])
 #endif
+typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stepper_current_t;
+typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_hybrid_threshold_t;
+typedef struct {  int16_t X, Y, Z;                                         } tmc_sgt_t;
 
 #if ENABLED(FWRETRACT)
   #include "../feature/fwretract.h"
@@ -98,7 +101,7 @@
 
 #pragma pack(push, 1) // No padding between variables
 
-typedef struct PID { float Kp, Ki, Kd; } PID;
+typedef struct PID  { float Kp, Ki, Kd;     } PID;
 typedef struct PIDC { float Kp, Ki, Kd, Kc; } PIDC;
 
 /**
@@ -251,9 +254,9 @@ typedef struct SettingsDataStruct {
   // HAS_TRINAMIC
   //
   #define TMC_AXES (MAX_EXTRUDERS + 7)
-  uint16_t tmc_stepper_current[TMC_AXES];               // M906 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
-  uint32_t tmc_hybrid_threshold[TMC_AXES];              // M913 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
-  int16_t tmc_sgt[XYZ];                                 // M914 X Y Z
+  tmc_stepper_current_t tmc_stepper_current;            // M906 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
+  tmc_hybrid_threshold_t tmc_hybrid_threshold;          // M913 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
+  tmc_sgt_t tmc_sgt;                                    // M914 X Y Z
 
   //
   // LIN_ADVANCE
@@ -300,7 +303,7 @@ uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 #endif
 
 void MarlinSettings::postprocess() {
-  const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+  const float oldpos[XYZE] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS] };
 
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
@@ -436,7 +439,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(dummy);
       #endif
     #else
-      const float planner_max_jerk[] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
+      const float planner_max_jerk[XYZE] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
       EEPROM_WRITE(planner_max_jerk);
     #endif
 
@@ -464,11 +467,13 @@ void MarlinSettings::postprocess() {
     // Global Leveling
     //
 
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      const float zfh = planner.z_fade_height;
-    #else
-      const float zfh = 10.0;
-    #endif
+    const float zfh = (
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        planner.z_fade_height
+      #else
+        10.0
+      #endif
+    );
     EEPROM_WRITE(zfh);
 
     //
@@ -478,7 +483,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(MESH_BED_LEVELING)
       // Compile time test that sizeof(mbl.z_values) is as expected
       static_assert(
-        sizeof(mbl.z_values) == GRID_MAX_POINTS * sizeof(mbl.z_values[0][0]),
+        sizeof(mbl.z_values) == (GRID_MAX_POINTS) * sizeof(mbl.z_values[0][0]),
         "MBL Z array is the wrong size."
       );
       const uint8_t mesh_num_x = GRID_MAX_POINTS_X, mesh_num_y = GRID_MAX_POINTS_Y;
@@ -520,7 +525,7 @@ void MarlinSettings::postprocess() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       // Compile time test that sizeof(z_values) is as expected
       static_assert(
-        sizeof(z_values) == GRID_MAX_POINTS * sizeof(z_values[0][0]),
+        sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
         "Bilinear Z array is the wrong size."
       );
       const uint8_t grid_max_x = GRID_MAX_POINTS_X, grid_max_y = GRID_MAX_POINTS_Y;
@@ -719,230 +724,154 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Save TMC2130 or TMC2208 Configuration, and placeholder values
+    // Save TMC Configuration, and placeholder values
     //
 
     _FIELD_TEST(tmc_stepper_current);
 
-    uint16_t tmc_stepper_current[TMC_AXES] = {
-      #if HAS_TRINAMIC
-        #if AXIS_IS_TMC(X)
-          stepperX.getCurrent(),
-        #else
-          0,
-        #endif
-        #if AXIS_IS_TMC(Y)
-          stepperY.getCurrent(),
-        #else
-          0,
-        #endif
-        #if AXIS_IS_TMC(Z)
-          stepperZ.getCurrent(),
-        #else
-          0,
-        #endif
-        #if AXIS_IS_TMC(X2)
-          stepperX2.getCurrent(),
-        #else
-          0,
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          stepperY2.getCurrent(),
-        #else
-          0,
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          stepperZ2.getCurrent(),
-        #else
-          0,
-        #endif
-        #if AXIS_IS_TMC(Z3)
-          stepperZ3.getCurrent(),
-        #else
-          0,
-        #endif
-        #if MAX_EXTRUDERS
-          #if AXIS_IS_TMC(E0)
-            stepperE0.getCurrent(),
-          #else
-            0,
-          #endif
-          #if MAX_EXTRUDERS > 1
-            #if AXIS_IS_TMC(E1)
-              stepperE1.getCurrent(),
-            #else
-              0,
-            #endif
-            #if MAX_EXTRUDERS > 2
-              #if AXIS_IS_TMC(E2)
-                stepperE2.getCurrent(),
-              #else
-                0,
-              #endif
-              #if MAX_EXTRUDERS > 3
-                #if AXIS_IS_TMC(E3)
-                  stepperE3.getCurrent(),
-                #else
-                  0,
-                #endif
-                #if MAX_EXTRUDERS > 4
-                  #if AXIS_IS_TMC(E4)
-                    stepperE4.getCurrent()
-                  #else
-                    0
-                  #endif
-                  #if MAX_EXTRUDERS > 5
-                    #if AXIS_IS_TMC(E5)
-                      stepperE5.getCurrent()
-                    #else
-                      0
-                    #endif
-                  #endif // MAX_EXTRUDERS > 5
-                #endif // MAX_EXTRUDERS > 4
-              #endif // MAX_EXTRUDERS > 3
-            #endif // MAX_EXTRUDERS > 2
-          #endif // MAX_EXTRUDERS > 1
-        #endif // MAX_EXTRUDERS
-      #else
-        0
+    tmc_stepper_current_t tmc_stepper_current = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    #if HAS_TRINAMIC
+      #if AXIS_IS_TMC(X)
+        tmc_stepper_current.X = stepperX.getMilliamps();
       #endif
-    };
+      #if AXIS_IS_TMC(Y)
+        tmc_stepper_current.Y = stepperY.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(Z)
+        tmc_stepper_current.Z = stepperZ.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(X2)
+        tmc_stepper_current.X2 = stepperX2.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        tmc_stepper_current.Y2 = stepperY2.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        tmc_stepper_current.Z2 = stepperZ2.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(Z3)
+        tmc_stepper_current.Z3 = stepperZ3.getMilliamps();
+      #endif
+      #if MAX_EXTRUDERS
+        #if AXIS_IS_TMC(E0)
+          tmc_stepper_current.E0 = stepperE0.getMilliamps();
+        #endif
+        #if MAX_EXTRUDERS > 1
+          #if AXIS_IS_TMC(E1)
+            tmc_stepper_current.E1 = stepperE1.getMilliamps();
+          #endif
+          #if MAX_EXTRUDERS > 2
+            #if AXIS_IS_TMC(E2)
+              tmc_stepper_current.E2 = stepperE2.getMilliamps();
+            #endif
+            #if MAX_EXTRUDERS > 3
+              #if AXIS_IS_TMC(E3)
+                tmc_stepper_current.E3 = stepperE3.getMilliamps();
+              #endif
+              #if MAX_EXTRUDERS > 4
+                #if AXIS_IS_TMC(E4)
+                  tmc_stepper_current.E4 = stepperE4.getMilliamps();
+                #endif
+                #if MAX_EXTRUDERS > 5
+                  #if AXIS_IS_TMC(E5)
+                    tmc_stepper_current.E5 = stepperE5.getMilliamps();
+                  #endif
+                #endif // MAX_EXTRUDERS > 5
+              #endif // MAX_EXTRUDERS > 4
+            #endif // MAX_EXTRUDERS > 3
+          #endif // MAX_EXTRUDERS > 2
+        #endif // MAX_EXTRUDERS > 1
+      #endif // MAX_EXTRUDERS
+    #endif
     EEPROM_WRITE(tmc_stepper_current);
 
     //
-    // Save TMC2130 or TMC2208 Hybrid Threshold, and placeholder values
+    // Save TMC Hybrid Threshold, and placeholder values
     //
 
     _FIELD_TEST(tmc_hybrid_threshold);
 
-    uint32_t tmc_hybrid_threshold[TMC_AXES] = {
-      #if ENABLED(HYBRID_THRESHOLD)
-        #if AXIS_HAS_STEALTHCHOP(X)
-          TMC_GET_PWMTHRS(X, X),
-        #else
-          X_HYBRID_THRESHOLD,
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y)
-          TMC_GET_PWMTHRS(Y, Y),
-        #else
-          Y_HYBRID_THRESHOLD,
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z)
-          TMC_GET_PWMTHRS(Z, Z),
-        #else
-          Z_HYBRID_THRESHOLD,
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X2)
-          TMC_GET_PWMTHRS(X, X2),
-        #else
-          X2_HYBRID_THRESHOLD,
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y2)
-          TMC_GET_PWMTHRS(Y, Y2),
-        #else
-          Y2_HYBRID_THRESHOLD,
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z2)
-          TMC_GET_PWMTHRS(Z, Z2),
-        #else
-          Z2_HYBRID_THRESHOLD,
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z3)
-          TMC_GET_PWMTHRS(Z, Z3),
-        #else
-          Z3_HYBRID_THRESHOLD,
-        #endif
-        #if MAX_EXTRUDERS
-          #if AXIS_HAS_STEALTHCHOP(E0)
-            TMC_GET_PWMTHRS(E, E0),
-          #else
-            E0_HYBRID_THRESHOLD,
-          #endif
-          #if MAX_EXTRUDERS > 1
-            #if AXIS_HAS_STEALTHCHOP(E1)
-              TMC_GET_PWMTHRS(E, E1),
-            #else
-              E1_HYBRID_THRESHOLD,
-            #endif
-            #if MAX_EXTRUDERS > 2
-              #if AXIS_HAS_STEALTHCHOP(E2)
-                TMC_GET_PWMTHRS(E, E2),
-              #else
-                E2_HYBRID_THRESHOLD,
-              #endif
-              #if MAX_EXTRUDERS > 3
-                #if AXIS_HAS_STEALTHCHOP(E3)
-                  TMC_GET_PWMTHRS(E, E3),
-                #else
-                  E3_HYBRID_THRESHOLD,
-                #endif
-                #if MAX_EXTRUDERS > 4
-                  #if AXIS_HAS_STEALTHCHOP(E4)
-                    TMC_GET_PWMTHRS(E, E4)
-                  #else
-                    E4_HYBRID_THRESHOLD
-                  #endif
-                  #if MAX_EXTRUDERS > 5
-                    #if AXIS_HAS_STEALTHCHOP(E5)
-                      TMC_GET_PWMTHRS(E, E5)
-                    #else
-                      E5_HYBRID_THRESHOLD
-                    #endif
-                  #endif // MAX_EXTRUDERS > 5
-                #endif // MAX_EXTRUDERS > 4
-              #endif // MAX_EXTRUDERS > 3
-            #endif // MAX_EXTRUDERS > 2
-          #endif // MAX_EXTRUDERS > 1
-        #endif // MAX_EXTRUDERS
-      #else
-        100, 100, 3,            // X, Y, Z
-        100, 100, 3, 3          // X2, Y2, Z2, Z3
-        #if MAX_EXTRUDERS
-          , 30                  // E0
-          #if MAX_EXTRUDERS > 1
-            , 30                // E1
-            #if MAX_EXTRUDERS > 2
-              , 30              // E2
-              #if MAX_EXTRUDERS > 3
-                , 30            // E3
-                #if MAX_EXTRUDERS > 4
-                  , 30          // E4
-                  #if MAX_EXTRUDERS > 5
-                    , 30        // E5
-                  #endif
-                #endif
-              #endif
-            #endif
-          #endif
-        #endif
+    #if ENABLED(HYBRID_THRESHOLD)
+     tmc_hybrid_threshold_t tmc_hybrid_threshold = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+     #if AXIS_HAS_STEALTHCHOP(X)
+        tmc_hybrid_threshold.X = TMC_GET_PWMTHRS(X, X);
       #endif
-    };
+      #if AXIS_HAS_STEALTHCHOP(Y)
+        tmc_hybrid_threshold.Y = TMC_GET_PWMTHRS(Y, Y);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z)
+        tmc_hybrid_threshold.Z = TMC_GET_PWMTHRS(Z, Z);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(X2)
+        tmc_hybrid_threshold.X2 = TMC_GET_PWMTHRS(X, X2);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Y2)
+        tmc_hybrid_threshold.Y2 = TMC_GET_PWMTHRS(Y, Y2);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z2)
+        tmc_hybrid_threshold.Z2 = TMC_GET_PWMTHRS(Z, Z2);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z3)
+        tmc_hybrid_threshold.Z3 = TMC_GET_PWMTHRS(Z, Z3);
+      #endif
+      #if MAX_EXTRUDERS
+        #if AXIS_HAS_STEALTHCHOP(E0)
+          tmc_hybrid_threshold.E0 = TMC_GET_PWMTHRS(E, E0);
+        #endif
+        #if MAX_EXTRUDERS > 1
+          #if AXIS_HAS_STEALTHCHOP(E1)
+            tmc_hybrid_threshold.E1 = TMC_GET_PWMTHRS(E, E1);
+          #endif
+          #if MAX_EXTRUDERS > 2
+            #if AXIS_HAS_STEALTHCHOP(E2)
+              tmc_hybrid_threshold.E2 = TMC_GET_PWMTHRS(E, E2);
+            #endif
+            #if MAX_EXTRUDERS > 3
+              #if AXIS_HAS_STEALTHCHOP(E3)
+                tmc_hybrid_threshold.E3 = TMC_GET_PWMTHRS(E, E3);
+              #endif
+              #if MAX_EXTRUDERS > 4
+                #if AXIS_HAS_STEALTHCHOP(E4)
+                  tmc_hybrid_threshold.E4 = TMC_GET_PWMTHRS(E, E4);
+                #endif
+                #if MAX_EXTRUDERS > 5
+                  #if AXIS_HAS_STEALTHCHOP(E5)
+                    tmc_hybrid_threshold.E5 = TMC_GET_PWMTHRS(E, E5);
+                  #endif
+                #endif // MAX_EXTRUDERS > 5
+              #endif // MAX_EXTRUDERS > 4
+            #endif // MAX_EXTRUDERS > 3
+          #endif // MAX_EXTRUDERS > 2
+        #endif // MAX_EXTRUDERS > 1
+      #endif // MAX_EXTRUDERS
+    #else
+      const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
+        .X  = 100, .Y  = 100, .Z  =   3,
+        .X2 = 100, .Y2 = 100, .Z2 =   3, .Z3 =   3,
+        .E0 =  30, .E1 =  30, .E2 =  30,
+        .E3 =  30, .E4 =  30, .E5 =  30
+      };
+    #endif
     EEPROM_WRITE(tmc_hybrid_threshold);
 
     //
-    // TMC2130 StallGuard threshold
+    // TMC StallGuard threshold
     //
-    int16_t tmc_sgt[XYZ] = {
-      #if USE_SENSORLESS
-        #if X_SENSORLESS
-          stepperX.sgt(),
-        #else
-          0,
-        #endif
-        #if Y_SENSORLESS
-          stepperY.sgt(),
-        #else
-          0,
-        #endif
-        #if Z_SENSORLESS
-          stepperZ.sgt()
-        #else
-          0
-        #endif
-      #else
-        0
+
+    tmc_sgt_t tmc_sgt = { 0, 0, 0 };
+
+    #if USE_SENSORLESS
+      #if X_SENSORLESS
+        tmc_sgt.X = stepperX.sgt();
       #endif
-    };
+      #if Y_SENSORLESS
+        tmc_sgt.Y = stepperY.sgt();
+      #endif
+      #if Z_SENSORLESS
+        tmc_sgt.Z = stepperZ.sgt();
+      #endif
+    #endif
     EEPROM_WRITE(tmc_sgt);
 
     //
@@ -1423,15 +1352,15 @@ void MarlinSettings::postprocess() {
       if (!validating) reset_stepper_drivers();
 
       //
-      // TMC2130 Stepper Settings
+      // TMC Stepper Settings
       //
 
       _FIELD_TEST(tmc_stepper_current);
 
       #if HAS_TRINAMIC
 
-        #define SET_CURR(Q) stepper##Q.setCurrent(currents[TMC_##Q] ? currents[TMC_##Q] : Q##_CURRENT, R_SENSE, HOLD_MULTIPLIER)
-        uint16_t currents[TMC_AXES];
+        #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
+        tmc_stepper_current_t currents;
         EEPROM_READ(currents);
         if (!validating) {
           #if AXIS_IS_TMC(X)
@@ -1480,8 +1409,8 @@ void MarlinSettings::postprocess() {
       #endif
 
       #if ENABLED(HYBRID_THRESHOLD)
-        #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold[TMC_##Q], planner.axis_steps_per_mm[_AXIS(A)])
-        uint32_t tmc_hybrid_threshold[TMC_AXES];
+        #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold.Q, planner.axis_steps_per_mm[_AXIS(A)])
+        tmc_hybrid_threshold_t tmc_hybrid_threshold;
         EEPROM_READ(tmc_hybrid_threshold);
         if (!validating) {
           #if AXIS_HAS_STEALTHCHOP(X)
@@ -1530,40 +1459,40 @@ void MarlinSettings::postprocess() {
       #endif
 
       /*
-       * TMC2130 StallGuard threshold.
+       * TMC StallGuard threshold.
        * X and X2 use the same value
        * Y and Y2 use the same value
        * Z, Z2 and Z3 use the same value
        */
-      int16_t tmc_sgt[XYZ];
+      tmc_sgt_t tmc_sgt;
       EEPROM_READ(tmc_sgt);
       #if USE_SENSORLESS
         if (!validating) {
           #ifdef X_STALL_SENSITIVITY
             #if AXIS_HAS_STALLGUARD(X)
-              stepperX.sgt(tmc_sgt[0]);
+              stepperX.sgt(tmc_sgt.X);
             #endif
             #if AXIS_HAS_STALLGUARD(X2)
-              stepperX2.sgt(tmc_sgt[0]);
+              stepperX2.sgt(tmc_sgt.X);
             #endif
           #endif
           #ifdef Y_STALL_SENSITIVITY
             #if AXIS_HAS_STALLGUARD(Y)
-              stepperY.sgt(tmc_sgt[1]);
+              stepperY.sgt(tmc_sgt.Y);
             #endif
             #if AXIS_HAS_STALLGUARD(Y2)
-              stepperY2.sgt(tmc_sgt[1]);
+              stepperY2.sgt(tmc_sgt.Y);
             #endif
           #endif
           #ifdef Z_STALL_SENSITIVITY
             #if AXIS_HAS_STALLGUARD(Z)
-              stepperZ.sgt(tmc_sgt[2]);
+              stepperZ.sgt(tmc_sgt.Z);
             #endif
             #if AXIS_HAS_STALLGUARD(Z2)
-              stepperZ2.sgt(tmc_sgt[2]);
+              stepperZ2.sgt(tmc_sgt.Z);
             #endif
             #if AXIS_HAS_STALLGUARD(Z3)
-              stepperZ3.sgt(tmc_sgt[2]);
+              stepperZ3.sgt(tmc_sgt.Z);
             #endif
           #endif
         }
@@ -1957,8 +1886,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
 
   #if ENABLED(DELTA)
-    const float adj[ABC] = DELTA_ENDSTOP_ADJ,
-                dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
+    const float adj[ABC] = DELTA_ENDSTOP_ADJ, dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
     delta_height = DELTA_HEIGHT;
     COPY(delta_endstop_adj, adj);
     delta_radius = DELTA_RADIUS;
@@ -2683,7 +2611,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #if HAS_TRINAMIC
 
       /**
-       * TMC2130 / TMC2208 stepper driver current
+       * TMC stepper driver current
        */
       if (!forReplay) {
         CONFIG_ECHO_START;
@@ -2694,65 +2622,68 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         say_M906(PORTVAR_SOLO);
       #endif
       #if AXIS_IS_TMC(X)
-        SERIAL_ECHOPAIR_P(port, " X", stepperX.getCurrent());
+        SERIAL_ECHOPAIR_P(port, " X", stepperX.getMilliamps());
       #endif
       #if AXIS_IS_TMC(Y)
-        SERIAL_ECHOPAIR_P(port, " Y", stepperY.getCurrent());
+        SERIAL_ECHOPAIR_P(port, " Y", stepperY.getMilliamps());
       #endif
       #if AXIS_IS_TMC(Z)
-        SERIAL_ECHOPAIR_P(port, " Z", stepperZ.getCurrent());
+        SERIAL_ECHOPAIR_P(port, " Z", stepperZ.getMilliamps());
       #endif
       #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
         SERIAL_EOL_P(port);
       #endif
+
       #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2)
         say_M906(PORTVAR_SOLO);
         SERIAL_ECHOPGM_P(port, " I1");
       #endif
       #if AXIS_IS_TMC(X2)
-        SERIAL_ECHOPAIR_P(port, " X", stepperX2.getCurrent());
+        SERIAL_ECHOPAIR_P(port, " X", stepperX2.getMilliamps());
       #endif
       #if AXIS_IS_TMC(Y2)
-        SERIAL_ECHOPAIR_P(port, " Y", stepperY2.getCurrent());
+        SERIAL_ECHOPAIR_P(port, " Y", stepperY2.getMilliamps());
       #endif
       #if AXIS_IS_TMC(Z2)
-        SERIAL_ECHOPAIR_P(port, " Z", stepperZ2.getCurrent());
+        SERIAL_ECHOPAIR_P(port, " Z", stepperZ2.getMilliamps());
       #endif
       #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2)
         SERIAL_EOL_P(port);
       #endif
+
       #if AXIS_IS_TMC(Z3)
         say_M906(PORTVAR_SOLO);
-        SERIAL_ECHOLNPAIR_P(port, " I2 Z", stepperZ3.getCurrent());
+        SERIAL_ECHOLNPAIR_P(port, " I2 Z", stepperZ3.getMilliamps());
       #endif
+
       #if AXIS_IS_TMC(E0)
         say_M906(PORTVAR_SOLO);
-        SERIAL_ECHOLNPAIR_P(port, " T0 E", stepperE0.getCurrent());
+        SERIAL_ECHOLNPAIR_P(port, " T0 E", stepperE0.getMilliamps());
       #endif
       #if AXIS_IS_TMC(E1)
         say_M906(PORTVAR_SOLO);
-        SERIAL_ECHOLNPAIR_P(port, " T1 E", stepperE1.getCurrent());
+        SERIAL_ECHOLNPAIR_P(port, " T1 E", stepperE1.getMilliamps());
       #endif
       #if AXIS_IS_TMC(E2)
         say_M906(PORTVAR_SOLO);
-        SERIAL_ECHOLNPAIR_P(port, " T2 E", stepperE2.getCurrent());
+        SERIAL_ECHOLNPAIR_P(port, " T2 E", stepperE2.getMilliamps());
       #endif
       #if AXIS_IS_TMC(E3)
         say_M906(PORTVAR_SOLO);
-        SERIAL_ECHOLNPAIR_P(port, " T3 E", stepperE3.getCurrent());
+        SERIAL_ECHOLNPAIR_P(port, " T3 E", stepperE3.getMilliamps());
       #endif
       #if AXIS_IS_TMC(E4)
         say_M906(PORTVAR_SOLO);
-        SERIAL_ECHOLNPAIR_P(port, " T4 E", stepperE4.getCurrent());
+        SERIAL_ECHOLNPAIR_P(port, " T4 E", stepperE4.getMilliamps());
       #endif
       #if AXIS_IS_TMC(E5)
         say_M906(PORTVAR_SOLO);
-        SERIAL_ECHOLNPAIR_P(port, " T5 E", stepperE5.getCurrent());
+        SERIAL_ECHOLNPAIR_P(port, " T5 E", stepperE5.getMilliamps());
       #endif
       SERIAL_EOL_P(port);
 
       /**
-       * TMC2130 / TMC2208 / TRAMS Hybrid Threshold
+       * TMC Hybrid Threshold
        */
       #if ENABLED(HYBRID_THRESHOLD)
         if (!forReplay) {
@@ -2760,63 +2691,66 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_ECHOLNPGM_P(port, "Hybrid Threshold:");
         }
         CONFIG_ECHO_START;
-        #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
+        #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Z)
           say_M913(PORTVAR_SOLO);
         #endif
-        #if AXIS_IS_TMC(X)
+        #if AXIS_HAS_STEALTHCHOP(X)
           SERIAL_ECHOPAIR_P(port, " X", TMC_GET_PWMTHRS(X, X));
         #endif
-        #if AXIS_IS_TMC(Y)
+        #if AXIS_HAS_STEALTHCHOP(Y)
           SERIAL_ECHOPAIR_P(port, " Y", TMC_GET_PWMTHRS(Y, Y));
         #endif
-        #if AXIS_IS_TMC(Z)
+        #if AXIS_HAS_STEALTHCHOP(Z)
           SERIAL_ECHOPAIR_P(port, " Z", TMC_GET_PWMTHRS(Z, Z));
         #endif
-        #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
+        #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Z)
           SERIAL_EOL_P(port);
         #endif
-        #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2)
+
+        #if AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z2)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOPGM_P(port, " I1");
         #endif
-        #if AXIS_IS_TMC(X2)
+        #if AXIS_HAS_STEALTHCHOP(X2)
           SERIAL_ECHOPAIR_P(port, " X", TMC_GET_PWMTHRS(X, X2));
         #endif
-        #if AXIS_IS_TMC(Y2)
+        #if AXIS_HAS_STEALTHCHOP(Y2)
           SERIAL_ECHOPAIR_P(port, " Y", TMC_GET_PWMTHRS(Y, Y2));
         #endif
-        #if AXIS_IS_TMC(Z2)
+        #if AXIS_HAS_STEALTHCHOP(Z2)
           SERIAL_ECHOPAIR_P(port, " Z", TMC_GET_PWMTHRS(Z, Z2));
         #endif
-        #if AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z2)
+        #if AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z2)
           SERIAL_EOL_P(port);
         #endif
-        #if AXIS_IS_TMC(Z3)
+
+        #if AXIS_HAS_STEALTHCHOP(Z3)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOPGM_P(port, " I2");
           SERIAL_ECHOLNPAIR_P(port, " Z", TMC_GET_PWMTHRS(Z, Z3));
         #endif
-        #if AXIS_IS_TMC(E0)
+
+        #if AXIS_HAS_STEALTHCHOP(E0)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T0 E", TMC_GET_PWMTHRS(E, E0));
         #endif
-        #if AXIS_IS_TMC(E1)
+        #if AXIS_HAS_STEALTHCHOP(E1)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T1 E", TMC_GET_PWMTHRS(E, E1));
         #endif
-        #if AXIS_IS_TMC(E2)
+        #if AXIS_HAS_STEALTHCHOP(E2)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T2 E", TMC_GET_PWMTHRS(E, E2));
         #endif
-        #if AXIS_IS_TMC(E3)
+        #if AXIS_HAS_STEALTHCHOP(E3)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T3 E", TMC_GET_PWMTHRS(E, E3));
         #endif
-        #if AXIS_IS_TMC(E4)
+        #if AXIS_HAS_STEALTHCHOP(E4)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T4 E", TMC_GET_PWMTHRS(E, E4));
         #endif
-        #if AXIS_IS_TMC(E5)
+        #if AXIS_HAS_STEALTHCHOP(E5)
           say_M913(PORTVAR_SOLO);
           SERIAL_ECHOLNPAIR_P(port, " T5 E", TMC_GET_PWMTHRS(E, E5));
         #endif
@@ -2824,7 +2758,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif // HYBRID_THRESHOLD
 
       /**
-     * TMC2130 Sensorless homing thresholds
+       * TMC Sensorless homing thresholds
        */
       #if USE_SENSORLESS
         if (!forReplay) {

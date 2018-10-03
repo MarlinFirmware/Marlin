@@ -23,91 +23,132 @@
 #ifndef _TMC_UTIL_H_
 #define _TMC_UTIL_H_
 
-#include "../inc/MarlinConfigPre.h"
-
-#if HAS_DRIVER(TMC2130)
-  #include <TMC2130Stepper.h>
+#include "../inc/MarlinConfig.h"
+#if HAS_TRINAMIC
+  #include <TMCStepper.h>
 #endif
 
-#if HAS_DRIVER(TMC2208)
-  #include <TMC2208Stepper.h>
-#endif
+#define TMC_X_LABEL 'X', '0'
+#define TMC_Y_LABEL 'Y', '0'
+#define TMC_Z_LABEL 'Z', '0'
 
-extern bool report_tmc_status;
+#define TMC_X2_LABEL 'X', '2'
+#define TMC_Y2_LABEL 'Y', '2'
+#define TMC_Z2_LABEL 'Z', '2'
+#define TMC_Z3_LABEL 'Z', '3'
 
-enum TMC_AxisEnum : char {
-  TMC_X, TMC_Y, TMC_Z
-  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(X_DUAL_STEPPER_DRIVERS)
-    , TMC_X2
-  #endif
-  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-    , TMC_Y2
-  #endif
-  #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-    , TMC_Z2
-  #endif
-  #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-    , TMC_Z3
-  #endif
-  #if E_STEPPERS
-    , TMC_E0
-    #if E_STEPPERS > 1
-      , TMC_E1
-      #if E_STEPPERS > 2
-        , TMC_E2
-        #if E_STEPPERS > 3
-          , TMC_E3
-          #if E_STEPPERS > 4
-            , TMC_E4
-            #if E_STEPPERS > 5
-              , TMC_E5
-            #endif // E_STEPPERS > 5
-          #endif // E_STEPPERS > 4
-        #endif // E_STEPPERS > 3
-      #endif // E_STEPPERS > 2
-    #endif // E_STEPPERS > 1
-  #endif // E_STEPPERS
+#define TMC_E0_LABEL 'E', '0'
+#define TMC_E1_LABEL 'E', '1'
+#define TMC_E2_LABEL 'E', '2'
+#define TMC_E3_LABEL 'E', '3'
+#define TMC_E4_LABEL 'E', '4'
+#define TMC_E5_LABEL 'E', '5'
+
+template<char AXIS_LETTER, char DRIVER_ID>
+class TMCStorage {
+  protected:
+    // Only a child class has access to constructor => Don't create on its own! "Poor man's abstract class"
+    TMCStorage() {}
+
+    uint16_t val_mA = 0;
+
+  public:
+    #if ENABLED(MONITOR_DRIVER_STATUS)
+      uint8_t otpw_count = 0;
+      bool flag_otpw = false;
+      bool getOTPW() { return flag_otpw; }
+      void clear_otpw() { flag_otpw = 0; }
+    #endif
+
+    uint16_t getMilliamps() { return val_mA; }
+
+    void printLabel() {
+      SERIAL_CHAR(AXIS_LETTER);
+      if (DRIVER_ID > '0') SERIAL_CHAR(DRIVER_ID);
+    }
+};
+
+template<class TMC, char AXIS_LETTER, char DRIVER_ID>
+class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
+  public:
+    TMCMarlin(uint16_t cs_pin, float RS) :
+      TMC(cs_pin, RS)
+      {}
+    TMCMarlin(uint16_t CS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
+      TMC(CS, RS, pinMOSI, pinMISO, pinSCK)
+      {}
+    uint16_t rms_current() { return TMC::rms_current(); }
+    void rms_current(uint16_t mA) {
+      this->val_mA = mA;
+      TMC::rms_current(mA);
+    }
+    void rms_current(uint16_t mA, float mult) {
+      this->val_mA = mA;
+      TMC::rms_current(mA, mult);
+    }
+};
+template<char AXIS_LETTER, char DRIVER_ID>
+class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
+  public:
+    TMCMarlin(Stream * SerialPort, float RS, bool has_rx=true) :
+      TMC2208Stepper(SerialPort, RS, has_rx=true)
+      {}
+    TMCMarlin(uint16_t RX, uint16_t TX, float RS, bool has_rx=true) :
+      TMC2208Stepper(RX, TX, RS, has_rx=true)
+      {}
+    uint16_t rms_current() { return TMC2208Stepper::rms_current(); }
+    void rms_current(uint16_t mA) {
+      this->val_mA = mA;
+      TMC2208Stepper::rms_current(mA);
+    }
+    void rms_current(uint16_t mA, float mult) {
+      this->val_mA = mA;
+      TMC2208Stepper::rms_current(mA, mult);
+    }
 };
 
 constexpr uint32_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
   return 12650000UL * msteps / (256 * thrs * spmm);
 }
 
-void _tmc_say_axis(const TMC_AxisEnum axis);
-void _tmc_say_current(const TMC_AxisEnum axis, const uint16_t curr);
-void _tmc_say_otpw(const TMC_AxisEnum axis, const bool otpw);
-void _tmc_say_otpw_cleared(const TMC_AxisEnum axis);
-void _tmc_say_pwmthrs(const TMC_AxisEnum axis, const uint32_t thrs);
-void _tmc_say_sgt(const TMC_AxisEnum axis, const int8_t sgt);
-
 template<typename TMC>
-void tmc_get_current(TMC &st, const TMC_AxisEnum axis) {
-  _tmc_say_current(axis, st.getCurrent());
+void tmc_get_current(TMC &st) {
+  st.printLabel();
+  SERIAL_ECHOLNPAIR(" driver current: ", st.getMilliamps());
 }
 template<typename TMC>
 void tmc_set_current(TMC &st, const int mA) {
-  st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
+  st.rms_current(mA);
 }
+#if ENABLED(MONITOR_DRIVER_STATUS)
+  template<typename TMC>
+  void tmc_report_otpw(TMC &st) {
+    st.printLabel();
+    SERIAL_ECHOPGM(" temperature prewarn triggered: ");
+    serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false"));
+    SERIAL_EOL();
+  }
+  template<typename TMC>
+  void tmc_clear_otpw(TMC &st) {
+    st.clear_otpw();
+    st.printLabel();
+    SERIAL_ECHOLNPGM(" prewarn flag cleared");
+  }
+#endif
 template<typename TMC>
-void tmc_report_otpw(TMC &st, const TMC_AxisEnum axis) {
-  _tmc_say_otpw(axis, st.getOTPW());
-}
-template<typename TMC>
-void tmc_clear_otpw(TMC &st, const TMC_AxisEnum axis) {
-  st.clear_otpw();
-  _tmc_say_otpw_cleared(axis);
-}
-template<typename TMC>
-void tmc_get_pwmthrs(TMC &st, const TMC_AxisEnum axis, const uint16_t spmm) {
-  _tmc_say_pwmthrs(axis, _tmc_thrs(st.microsteps(), st.TPWMTHRS(), spmm));
+void tmc_get_pwmthrs(TMC &st, const uint16_t spmm) {
+  st.printLabel();
+  SERIAL_ECHOLNPAIR(" stealthChop max speed: ", _tmc_thrs(st.microsteps(), st.TPWMTHRS(), spmm));
 }
 template<typename TMC>
 void tmc_set_pwmthrs(TMC &st, const int32_t thrs, const uint32_t spmm) {
   st.TPWMTHRS(_tmc_thrs(st.microsteps(), thrs, spmm));
 }
 template<typename TMC>
-void tmc_get_sgt(TMC &st, const TMC_AxisEnum axis) {
-  _tmc_say_sgt(axis, st.sgt());
+void tmc_get_sgt(TMC &st) {
+  st.printLabel();
+  SERIAL_ECHOPGM(" homing sensitivity: ");
+  SERIAL_PRINTLN(st.sgt(), DEC);
 }
 template<typename TMC>
 void tmc_set_sgt(TMC &st, const int8_t sgt_val) {

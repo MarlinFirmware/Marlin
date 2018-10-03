@@ -632,8 +632,10 @@ void GcodeSuite::process_parsed_command(
           case 122: M122(); break;
         #endif
         case 906: M906(); break;                                  // M906: Set motor current in milliamps using axis codes X, Y, Z, E
-        case 911: M911(); break;                                  // M911: Report TMC2130 prewarn triggered flags
-        case 912: M912(); break;                                  // M912: Clear TMC2130 prewarn triggered flags
+        #if ENABLED(MONITOR_DRIVER_STATUS)
+          case 911: M911(); break;                                  // M911: Report TMC2130 prewarn triggered flags
+          case 912: M912(); break;                                  // M912: Clear TMC2130 prewarn triggered flags
+        #endif
         #if ENABLED(HYBRID_THRESHOLD)
           case 913: M913(); break;                                // M913: Set HYBRID_THRESHOLD speed.
         #endif
