@@ -1,5 +1,10 @@
 *.d
 calc
 .sconsign.dblite
-armv6l
-armv7l
+/armv6l
+/armv7l
+/mips
+/x86_64
+/i686
+/darwin-x86_64
+/darwin-i686
