@@ -35,7 +35,7 @@
 #ifndef __PINS_H__
 #define __PINS_H__
 
-#include "../inc/MarlinConfig.h"
+#define MAX_EXTRUDERS 6
 
 #if MB(RAMPS_13_EFB) || MB(RAMPS_14_EFB) || MB(RAMPS_PLUS_EFB) || MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_SMART_EFB) || MB(RAMPS_DUO_EFB) || MB(RAMPS4DUE_EFB)
   #define IS_RAMPS_EFB
@@ -656,10 +656,6 @@
 #endif
 #ifndef SUICIDE_PIN
   #define SUICIDE_PIN -1
-#endif
-
-#ifndef MAX_EXTRUDERS
-  #define MAX_EXTRUDERS 5
 #endif
 
 #ifndef NUM_SERVO_PLUGS
