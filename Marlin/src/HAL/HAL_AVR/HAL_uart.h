@@ -19,27 +19,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * UART support
-  */
-
-#ifndef _HAL_UART_H_
-#define _HAL_UART_H_
-
+ */
 
 #include "../../inc/MarlinConfigPre.h"
 
 #ifdef USE_UART
 
-#include "../../inc/MarlinConfigPre.h"
-
 #include <WString.h>
 
 // The presence of the UBRRH register is used to detect a UART.
-#define MUART_PRESENT(port) ((port == 0 && (defined(UBRRH) || defined(UBRR0H))) || \
-                            (port == 1 && defined(UBRR1H)) || (port == 2 && defined(UBRR2H)) || \
-                            (port == 3 && defined(UBRR3H)))
+#define HAS_MUART(port) (    (port == 0 && (defined(UBRRH) || defined(UBRR0H))) \
+                          || (port == 1 && defined(UBRR1H)) \
+                          || (port == 2 && defined(UBRR2H)) \
+                          || (port == 3 && defined(UBRR3H)) )
 
 // These are macros to build serial port register names for the selected USE_UART (C preprocessor
 // requires two levels of indirection to expand macro values properly)
@@ -76,42 +72,39 @@
 #define M_BIN 2
 #define M_BYTE 0
 
-  // We're using a ring buffer (I think), in which rx_buffer_head is the index of the
-  // location to which to write the next incoming character and rx_buffer_tail is the
-  // index of the location from which to read.
+// We're using a ring buffer (I think), in which rx_buffer_head is the index of the
+// location to which to write the next incoming character and rx_buffer_tail is the
+// index of the location from which to read.
+typedef
   #if RX_BUFFER_SIZE > 256
-    typedef uint16_t uart_ring_buffer_pos_t;
+    uint16_t
   #else
-    typedef uint8_t uart_ring_buffer_pos_t;
+    uint8_t
   #endif
+  uart_ring_buffer_pos_t;
 
-  class MarlinUART {
+class MarlinUART {
 
-    public:
-      MarlinUART() {};
-      static void begin(const long);
-      static void end();
-      static int peek(void);
-      static int read(void);
-      static void flush(void);
-      static uart_ring_buffer_pos_t available(void);
-      static void write(const uint8_t c);
-      static void flushTX(void);
+  public:
+    MarlinUART() {};
+    static void begin(const long);
+    static void end();
+    static int peek(void);
+    static int read(void);
+    static void flush(void);
+    static uart_ring_buffer_pos_t available(void);
+    static void write(const uint8_t c);
+    static void flushTX(void);
 
-      FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
-      FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-      FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-      FORCE_INLINE static void print(const char* str) { write(str); }
+    FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
+    FORCE_INLINE static void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
+    FORCE_INLINE static void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
+    FORCE_INLINE static void print(const char* str) { write(str); }
 
-      operator bool() { return true; }
+    operator bool() { return true; }
 
-  };
-
+};
 
 extern MarlinUART marlinUART;
 
-
-
 #endif // USE_UART
-
-#endif // _HAL_UART_H_
