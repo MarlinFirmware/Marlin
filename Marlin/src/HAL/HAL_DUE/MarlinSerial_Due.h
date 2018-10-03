@@ -19,14 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * MarlinSerial_Due.h - Hardware serial library for Arduino DUE
  * Copyright (c) 2017 Eduardo José Tagle. All right reserved
  * Based on MarlinSerial for AVR, copyright (c) 2006 Nicholas Zambetti.  All right reserved.
  */
-
-#pragma once
 
 #include "../shared/MarlinSerial.h"
 
