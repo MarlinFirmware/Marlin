@@ -977,6 +977,9 @@
 // Does not work on boards using AT90USB (USBCON) processors!
 #define EMERGENCY_PARSER
 
+// Enable an additional UART, specifying the UART port to use
+//#define USE_UART 2
+
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.
@@ -1754,13 +1757,6 @@
   #define WIFI_SSID "Wifi SSID"
   #define WIFI_PWD  "Wifi Password"
 #endif
-
-/**
- * enable additional UART
- * set uart port to use
- */
-//#define USE_UART 2
-
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
