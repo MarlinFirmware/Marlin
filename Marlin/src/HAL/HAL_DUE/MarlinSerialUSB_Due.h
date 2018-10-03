@@ -52,11 +52,11 @@ public:
   static void write(const uint8_t c);
 
   #if ENABLED(SERIAL_STATS_DROPPED_RX)
-  FORCE_INLINE static uint32_t dropped() { return 0; }
+    FORCE_INLINE static uint32_t dropped() { return 0; }
   #endif
 
   #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-  FORCE_INLINE static int rxMaxEnqueued() { return 0; }
+    FORCE_INLINE static int rxMaxEnqueued() { return 0; }
   #endif
 
   FORCE_INLINE static void write(const char* str) { while (*str) write(*str++); }
