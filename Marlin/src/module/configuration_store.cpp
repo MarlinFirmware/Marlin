@@ -37,8 +37,8 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V58"
-#define EEPROM_OFFSET 100
+#define EEPROM_VERSION "V59"
+#define EEPROM_OFFSET 0
 
 // Check the integrity of data offsets.
 // Can be disabled for production build.
