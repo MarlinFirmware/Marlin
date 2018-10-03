@@ -60,6 +60,7 @@
 // hr         Croatian
 // it         Italian
 // jp-kana    Japanese
+// ko_KR      Korean (South Korea)
 // nl         Dutch
 // pl         Polish
 // pt         Portuguese
