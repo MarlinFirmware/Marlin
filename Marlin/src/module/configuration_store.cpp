@@ -98,6 +98,11 @@ typedef struct {  int16_t X, Y, Z;                                         } tmc
   #include "../feature/pause.h"
 #endif
 
+#if ENABLED(SINGLENOZZLE)
+  #include "tool_change.h"
+  void M217_report(const bool eeprom);
+#endif
+
 #if ENABLED(PID_EXTRUSION_SCALING)
   #define LPQ_LEN thermalManager.lpq_len
 #endif
@@ -288,6 +293,15 @@ typedef struct SettingsDataStruct {
   //
   float filament_change_unload_length[EXTRUDERS],       // M603 T U
         filament_change_load_length[EXTRUDERS];         // M603 T L
+
+  //
+  // SINGLENOZZLE toolchange values
+  //
+  #if ENABLED(SINGLENOZZLE)
+    float singlenozzle_swap_length;                     // M217 S
+    int16_t singlenozzle_prime_speed,                   // M217 P
+            singlenozzle_retract_speed;                 // M217 R
+  #endif
 
 } SettingsData;
 
@@ -948,6 +962,17 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // SINGLENOZZLE
+    //
+
+    #if ENABLED(SINGLENOZZLE)
+      _FIELD_TEST(singlenozzle_swap_length);
+      EEPROM_WRITE(singlenozzle_swap_length);
+      EEPROM_WRITE(singlenozzle_prime_speed);
+      EEPROM_WRITE(singlenozzle_retract_speed);
+    #endif
+
+    //
     // Validate CRC and Data Size
     //
     if (!eeprom_error) {
@@ -1582,6 +1607,17 @@ void MarlinSettings::postprocess() {
         for (uint8_t q = EXTRUDERS * 2; q--;) EEPROM_READ(dummy);
       #endif
 
+      //
+      // SINGLENOZZLE toolchange values
+      //
+
+      #if ENABLED(SINGLENOZZLE)
+        _FIELD_TEST(singlenozzle_swap_length);
+        EEPROM_READ(singlenozzle_swap_length);
+        EEPROM_READ(singlenozzle_prime_speed);
+        EEPROM_READ(singlenozzle_retract_speed);
+      #endif
+
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         #if ENABLED(EEPROM_CHITCHAT)
@@ -1838,6 +1874,12 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #if ENABLED(DUAL_X_CARRIAGE)
       hotend_offset[X_AXIS][1] = MAX(X2_HOME_POS, X2_MAX_POS);
     #endif
+  #endif
+
+  #if ENABLED(SINGLENOZZLE)
+    singlenozzle_swap_length = SINGLENOZZLE_SWAP_LENGTH;
+    singlenozzle_prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
+    singlenozzle_retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
   #endif
 
   //
@@ -2897,6 +2939,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         #endif // EXTRUDERS > 2
       #endif // EXTRUDERS == 1
     #endif // ADVANCED_PAUSE_FEATURE
+
+    #if ENABLED(SINGLENOZZLE)
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM_P(port, "SINGLENOZZLE:");
+        CONFIG_ECHO_START;
+      }
+      M217_report(true);
+    #endif
   }
 
 #endif // !DISABLE_M503

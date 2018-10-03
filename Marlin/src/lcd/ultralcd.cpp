@@ -138,6 +138,7 @@ millis_t next_lcd_update_ms;
     } \
     typedef void _name##_void
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int16_t, int3, itostr3);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int16_t, int4, itostr4sign);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint8_t, int8, i8tostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float3, ftostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float52, ftostr52);
@@ -267,6 +268,7 @@ millis_t next_lcd_update_ms;
     typedef void _name##_void
 
   DECLARE_MENU_EDIT_TYPE(int16_t, int3);
+  DECLARE_MENU_EDIT_TYPE(int16_t, int4);
   DECLARE_MENU_EDIT_TYPE(uint8_t, int8);
   DECLARE_MENU_EDIT_TYPE(float, float3);
   DECLARE_MENU_EDIT_TYPE(float, float52);
@@ -974,15 +976,23 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // POWER_LOSS_RECOVERY
 
+  #if ENABLED(SINGLENOZZLE)
+    void singlenozzle_swap_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MAIN);
+      MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &singlenozzle_swap_length, 0, 200);
+      MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &singlenozzle_retract_speed, 10, 5400);
+      MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &singlenozzle_prime_speed, 10, 5400);
+      END_MENU();
+    }
+  #endif
+  
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
 
     #include "../feature/caselight.h"
 
     void case_light_menu() {
       START_MENU();
-      //
-      // ^ Main
-      //
       MENU_BACK(MSG_MAIN);
       MENU_ITEM_EDIT_CALLBACK(int8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
       MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
@@ -999,9 +1009,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
      */
     static void bltouch_menu() {
       START_MENU();
-      //
-      // ^ Main
-      //
       MENU_BACK(MSG_MAIN);
       MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
       MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
@@ -1042,7 +1049,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void lcd_debug_menu() {
       START_MENU();
 
-      MENU_BACK(MSG_MAIN); // ^ Main
+      MENU_BACK(MSG_MAIN);
 
       #if ENABLED(LCD_PROGRESS_BAR_TEST)
         MENU_ITEM(submenu, MSG_PROGRESS_BAR_TEST, _progress_bar_test);
@@ -1494,10 +1501,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
    */
   void lcd_tune_menu() {
     START_MENU();
-
-    //
-    // ^ Main
-    //
     MENU_BACK(MSG_MAIN);
 
     //
@@ -3439,6 +3442,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
 
     //
+    // Set single nozzle filament retract and prime length
+    //
+    #if ENABLED(SINGLENOZZLE)
+      MENU_ITEM(submenu, MSG_SINGLENOZZLE_TOOL_CHANGE, singlenozzle_swap_menu);
+    #endif
+
+    //
     // Set Case light on/off/brightness
     //
     #if ENABLED(MENU_ITEM_CASE_LIGHT)
@@ -5143,6 +5153,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     typedef void _name##_void
 
   DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1);
+  DEFINE_MENU_EDIT_TYPE(int16_t, int4, itostr4sign, 1);
   DEFINE_MENU_EDIT_TYPE(uint8_t, int8, i8tostr3, 1);
   DEFINE_MENU_EDIT_TYPE(float, float3, ftostr3, 1);
   DEFINE_MENU_EDIT_TYPE(float, float52, ftostr52, 100);

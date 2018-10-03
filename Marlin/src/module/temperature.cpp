@@ -2416,6 +2416,17 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
+  #if ENABLED(ULTRA_LCD)
+    void Temperature::set_heating_message(const uint8_t e) {
+      const bool heating = isHeatingHotend(e);
+      #if HOTENDS > 1
+        lcd_status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), int(e + 1));
+      #else
+        lcd_setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
+      #endif
+    }
+  #endif
+
   #if HAS_TEMP_HOTEND
 
     #ifndef MIN_COOLING_SLOPE_DEG

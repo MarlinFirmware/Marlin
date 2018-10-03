@@ -616,6 +616,10 @@ class Temperature {
       #endif
     #endif
 
+    #if ENABLED(ULTRA_LCD)
+      static void set_heating_message(const uint8_t e);
+    #endif
+
   private:
 
     #if ENABLED(FAST_PWM_FAN)
@@ -659,7 +663,6 @@ class Temperature {
       #endif
 
     #endif // THERMAL_PROTECTION
-
 };
 
 extern Temperature thermalManager;
