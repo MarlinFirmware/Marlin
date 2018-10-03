@@ -15,6 +15,7 @@
 #if defined(__arm__) || defined(__thumb__)
 
 #include "unwmemaccess.h"
+#include "../../../inc/MarlinConfig.h"
 
 /* Validate address */
 
@@ -73,7 +74,7 @@
 #define END_FLASH_ADDR    0x08080000
 #endif
 
-#ifdef STM32F7
+#if MB(THE_BORG)
 // For STM32F765 in BORG
 //  SRAM  (0x20000000 - 0x20080000) (512kb)
 //  FLASH (0x08000000 - 0x08100000) (1024kb)
@@ -84,7 +85,7 @@
 #define END_FLASH_ADDR    0x08100000
 #endif
 
-#ifdef STM32F7xx
+#if MB(REMRAM_V1)
 // For STM32F765VI in RemRam v1
 //  SRAM  (0x20000000 - 0x20080000) (512kb)
 //  FLASH (0x08000000 - 0x08200000) (2048kb)

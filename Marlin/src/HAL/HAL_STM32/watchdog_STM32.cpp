@@ -20,23 +20,18 @@
  *
  */
 
-#ifdef STM32F7xx
+#ifdef ARDUINO_ARCH_STM32
 
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(USE_WATCHDOG)
 
-  #include "watchdog_STM32F7.h"
+  #include "watchdog_STM32.h"
   #include <IWatchdog.h>
 
-  void watchdog_init() {
-	IWatchdog.begin(4000000); // 4 sec timeout
-  }
+  void watchdog_init() { IWatchdog.begin(4000000); } // 4 sec timeout
 
-  void watchdog_reset() {
-	IWatchdog.reload();
-  }
+  void watchdog_reset() { IWatchdog.reload(); }
 
 #endif // USE_WATCHDOG
-
-#endif // STM32F7xx
+#endif // ARDUINO_ARCH_STM32

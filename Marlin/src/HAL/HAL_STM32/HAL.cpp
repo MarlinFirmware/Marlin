@@ -20,14 +20,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifdef STM32F7xx
+
+#ifdef ARDUINO_ARCH_STM32
 
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
 
 #include "HAL.h"
-#include "stm32f7xx_ll_pwr.h"
+
+#if ENABLED(EEPROM_EMULATED_WITH_SRAM)
+  #if STM32F7xx
+    #include "stm32f7xx_ll_pwr.h"
+  #else
+    #error "EEPROM_EMULATED_WITH_SRAM is currently only supported for STM32F7xx"
+  #endif
+#endif // EEPROM_EMULATED_WITH_SRAM
 
 // --------------------------------------------------------------------------
 // Externals
@@ -103,30 +111,6 @@ extern "C" {
   extern unsigned int _ebss; // end of bss section
 }
 
-// return free memory between end of heap (or end bss) and whatever is current
-
-/*
-#include "wirish/syscalls.c"
-//extern caddr_t _sbrk(int incr);
-#ifndef CONFIG_HEAP_END
-  extern char _lm_heap_end;
-  #define CONFIG_HEAP_END ((caddr_t)&_lm_heap_end)
-#endif
-
-extern "C" {
-  static int freeMemory() {
-    char top = 't';
-    return &top - reinterpret_cast<char*>(sbrk(0));
-  }
-  int freeMemory() {
-    int free_memory;
-    int heap_end = (int)_sbrk(0);
-    free_memory = ((int)&free_memory) - ((int)heap_end);
-    return free_memory;
-  }
-}
-*/
-
 // --------------------------------------------------------------------------
 // ADC
 // --------------------------------------------------------------------------
@@ -139,4 +123,4 @@ uint16_t HAL_adc_get_result(void) {
   return HAL_adc_result;
 }
 
-#endif // STM32F7xx
+#endif // ARDUINO_ARCH_STM32

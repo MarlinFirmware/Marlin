@@ -20,13 +20,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifdef STM32F7xx
+#ifdef ARDUINO_ARCH_STM32
 
 #include "../../inc/MarlinConfig.h"
 
 #if HAS_SERVOS
 
-#include "HAL_Servo_STM32F7.h"
+#include "HAL_Servo_STM32.h"
 
 uint8_t servoPin[MAX_SERVOS] = { 0 };
 
@@ -54,4 +54,4 @@ void libServo::move(const int value) {
 }
 #endif // HAS_SERVOS
 
-#endif // STM32F7xx
+#endif // ARDUINO_ARCH_STM32

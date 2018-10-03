@@ -19,10 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-// TODO Make timer selection configurable 
-
-#ifdef STM32F7xx
+#ifdef ARDUINO_ARCH_STM32
 
 // --------------------------------------------------------------------------
 // Includes
@@ -30,7 +27,7 @@
 
 #include "HAL.h"
 
-#include "HAL_timers_STM32F7.h"
+#include "HAL_timers_STM32.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -41,8 +38,6 @@
 // --------------------------------------------------------------------------
 
 #define NUM_HARDWARE_TIMERS 2
-#define STEP_TIMER_IRQ_ID TIM2_IRQn
-#define TEMP_TIMER_IRQ_ID TIM7_IRQn
 
 //#define PRESCALER 1
 // --------------------------------------------------------------------------
@@ -80,19 +75,19 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
                        temp_prescaler = TEMP_TIMER_PRESCALE - 1;
     switch (timer_num) {
       case STEP_TIMER_NUM:
-        // STEPPER TIMER TIM2 - use a 32bit timer
-        TimerHandle[timer_num].timer = TIM2;
+        // STEPPER TIMER - use a 32bit timer if possible
+        TimerHandle[timer_num].timer = STEP_TIMER_DEV;
         TimerHandle[timer_num].irqHandle = Step_Handler;
         TimerHandleInit(&TimerHandle[timer_num], (((HAL_TIMER_RATE) / step_prescaler) / frequency) - 1, step_prescaler);
-        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_ID, 6, 0);
+        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, 6, 0);
         break;
 
       case TEMP_TIMER_NUM:
-        // TEMP TIMER TIM7 - any available 16bit Timer (1 already used for PWM)
-        TimerHandle[timer_num].timer = TIM7;
+        // TEMP TIMER - any available 16bit Timer
+        TimerHandle[timer_num].timer = TEMP_TIMER_DEV;
         TimerHandle[timer_num].irqHandle = Temp_Handler;
         TimerHandleInit(&TimerHandle[timer_num], (((HAL_TIMER_RATE) / temp_prescaler) / frequency) - 1, temp_prescaler);
-        HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_ID, 2, 0);
+        HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, 2, 0);
         break;
     }
     timers_initialised[timer_num] = true;
@@ -119,4 +114,4 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   return NVIC->ISER[IRQ_Id >> 5] & _BV32(IRQ_Id & 0x1F);
 }
 
-#endif STM32F7xx
+#endif // ARDUINO_ARCH_STM32

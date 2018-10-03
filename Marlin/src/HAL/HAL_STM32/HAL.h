@@ -37,23 +37,20 @@
 
 #include "Arduino.h"
 
-//#ifdef USBCON
-//  #include <USBSerial.h>
-//#endif
+#ifdef USBCON
+  #include <USBSerial.h>
+#endif
 
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-#include "fastio_STM32F7.h"
-#include "watchdog_STM32F7.h"
+#include "fastio_STM32.h"
+#include "watchdog_STM32.h"
 
-#include "HAL_timers_STM32F7.h"
+#include "HAL_timers_STM32.h"
 
 // --------------------------------------------------------------------------
 // Defines
 // --------------------------------------------------------------------------
-
-//Serial override
-//extern HalSerial usb_serial;
 
 #if SERIAL_PORT == 0
   #error "Serial port 0 does not exist"
@@ -63,7 +60,7 @@
   #error "SERIAL_PORT must be from -1 to 6"
 #endif
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 Serial0 // TODO Once CDC is supported
+  #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 1
   #define MYSERIAL0 Serial1
 #elif SERIAL_PORT == 2
@@ -178,21 +175,7 @@ uint8_t HAL_get_reset_source (void);
 
 void _delay_ms(const int delay);
 
-/*
-extern "C" {
-  int freeMemory(void);
-}
-*/
-
 extern "C" char* _sbrk(int incr);
-
-/*
-static int freeMemory() {
-  volatile int top;
-  top = (int)((char*)&top - reinterpret_cast<char*>(_sbrk(0)));
-  return top;
-}
-*/
 
 static int freeMemory() {
   volatile char top;
@@ -211,7 +194,6 @@ uint8_t spiRec(uint32_t chan);
 // EEPROM
 
 /**
- * TODO: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
  * Wire library should work for i2c eeproms.
  */
 void eeprom_write_byte(unsigned char *pos, unsigned char value);
@@ -232,20 +214,6 @@ inline void HAL_adc_init(void) {}
 void HAL_adc_start_conversion(const uint8_t adc_pin);
 
 uint16_t HAL_adc_get_result(void);
-
-/* Todo: Confirm none of this is needed.
-uint16_t HAL_getAdcReading(uint8_t chan);
-
-void HAL_startAdcConversion(uint8_t chan);
-uint8_t HAL_pinToAdcChannel(int pin);
-
-uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
-//uint16_t HAL_getAdcSuperSample(uint8_t chan);
-
-void HAL_enable_AdcFreerun(void);
-//void HAL_disable_AdcFreerun(uint8_t chan);
-
-*/
 
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
