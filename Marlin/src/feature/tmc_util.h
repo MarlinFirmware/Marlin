@@ -158,7 +158,9 @@ void tmc_set_sgt(TMC &st, const int8_t sgt_val) {
 void monitor_tmc_driver();
 
 #if ENABLED(TMC_DEBUG)
-  void tmc_set_report_status(const bool status);
+  #if ENABLED(MONITOR_DRIVER_STATUS)
+    void tmc_set_report_status(const bool status);
+  #endif
   void tmc_report_all();
 #endif
 

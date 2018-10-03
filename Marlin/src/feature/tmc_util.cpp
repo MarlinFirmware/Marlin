@@ -53,8 +53,10 @@
     bool is_error;
   };
   #if HAS_DRIVER(TMC2130)
-    static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
-    static uint8_t get_status_response(TMC2130Stepper &st) { return st.status_response & 0xF; }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2130Stepper &st) { return st.PWM_SCALE(); }
+      static uint8_t get_status_response(TMC2130Stepper &st) { return st.status_response & 0xF; }
+    #endif
     static TMC_driver_data get_driver_data(TMC2130Stepper &st) {
       constexpr uint32_t OTPW_bm = 0x4000000UL;
       constexpr uint8_t OTPW_bp = 26;
@@ -71,15 +73,17 @@
     }
   #endif
   #if HAS_DRIVER(TMC2208)
-    static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
-    static uint8_t get_status_response(TMC2208Stepper &st) {
-      uint32_t drv_status = st.DRV_STATUS();
-      uint8_t gstat = st.GSTAT();
-      uint8_t response = 0;
-      response |= (drv_status >> (31-3)) & 0b1000;
-      response |= gstat & 0b11;
-      return response;
-    }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2208Stepper &st) { return st.pwm_scale_sum(); }
+      static uint8_t get_status_response(TMC2208Stepper &st) {
+        uint32_t drv_status = st.DRV_STATUS();
+        uint8_t gstat = st.GSTAT();
+        uint8_t response = 0;
+        response |= (drv_status >> (31-3)) & 0b1000;
+        response |= gstat & 0b11;
+        return response;
+      }
+    #endif
     static TMC_driver_data get_driver_data(TMC2208Stepper &st) {
       constexpr uint32_t OTPW_bm = 0b1ul;
       constexpr uint8_t OTPW_bp = 0;
@@ -94,8 +98,10 @@
     }
   #endif
   #if HAS_DRIVER(TMC2660)
-    static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
-    static uint8_t get_status_response(TMC2660Stepper, uint32_t) { return 0; }
+    #if ENABLED(TMC_DEBUG)
+      static uint32_t get_pwm_scale(TMC2660Stepper) { return 0; }
+      static uint8_t get_status_response(TMC2660Stepper) { return 0; }
+    #endif
     static TMC_driver_data get_driver_data(TMC2660Stepper &st) {
       constexpr uint32_t OTPW_bm = 0x4UL;
       constexpr uint8_t OTPW_bp = 2;
@@ -233,6 +239,16 @@
 #endif // MONITOR_DRIVER_STATUS
 
 #if ENABLED(TMC_DEBUG)
+
+  /**
+   * M122 S[1,0] Enable periodic status reports
+   */
+  #if ENABLED(MONITOR_DRIVER_STATUS)
+    void tmc_set_report_status(const bool status) {
+      if ((report_tmc_status = status))
+        SERIAL_ECHOLNPGM("axis:pwm_scale |status_response|");
+    }
+  #endif
 
   enum TMC_debug_enum : char {
     TMC_CODES,
@@ -378,7 +394,9 @@
         }
         break;
       case TMC_OTPW: serialprintPGM(st.otpw() ? PSTR("true") : PSTR("false")); break;
-      case TMC_OTPW_TRIGGERED: serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false")); break;
+      #if ENABLED(MONITOR_DRIVER_STATUS)
+        case TMC_OTPW_TRIGGERED: serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false")); break;
+      #endif
       case TMC_TOFF: SERIAL_PRINT(st.toff(), DEC); break;
       case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
       case TMC_HEND: SERIAL_PRINT(st.hysteresis_end(), DEC); break;
@@ -553,10 +571,6 @@
   /**
    * M122 report functions
    */
-  void tmc_set_report_status(const bool status) {
-    if ((report_tmc_status = status))
-      SERIAL_ECHOLNPGM("axis:pwm_scale |status_response|");
-  }
 
   void tmc_report_all() {
     #define TMC_REPORT(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL);  tmc_debug_loop(ITEM); }while(0)
@@ -577,8 +591,10 @@
     TMC_REPORT("pwm\nthreshold\t",   TMC_TPWMTHRS);
     TMC_REPORT("[mm/s]\t",           TMC_TPWMTHRS_MMS);
     TMC_REPORT("OT prewarn",         TMC_OTPW);
-    TMC_REPORT("OT prewarn has\n"
-               "been triggered",     TMC_OTPW_TRIGGERED);
+    #if ENABLED(MONITOR_DRIVER_STATUS)
+      TMC_REPORT("OT prewarn has\n"
+                 "been triggered",   TMC_OTPW_TRIGGERED);
+    #endif
     TMC_REPORT("off time\t",         TMC_TOFF);
     TMC_REPORT("blank time",         TMC_TBL);
     TMC_REPORT("hysteresis\n-end\t", TMC_HEND);
