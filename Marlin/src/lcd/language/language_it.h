@@ -380,9 +380,9 @@
 #define MSG_M600_TOO_COLD                   _UxGT("M600:Troppo freddo")
 
 //
-// Filament Change screens show up to 3 lines on a 4-line display
-//                        ...or up to 2 lines on a 3-line display
-//#if LCD_HEIGHT >= 4
+// Le schermate di Filament Change mostrano fino a 3 linee su un display a 4 righe
+//                                     ...o fino a 2 linee su un display a 3 righe.
+#if LCD_HEIGHT >= 4
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Attendere avvio")
   #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("del cambio")
   #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("di filamento")
