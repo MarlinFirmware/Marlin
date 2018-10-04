@@ -36,7 +36,7 @@
 #define MSG_BACK                            _UxGT("Indietro")
 #define MSG_SD_INSERTED                     _UxGT("SD Card inserita")
 #define MSG_SD_REMOVED                      _UxGT("SD Card rimossa")
-#define MSG_LCD_ENDSTOPS                    _UxGT("Finecor.") // Max length 8 characters
+#define MSG_LCD_ENDSTOPS                    _UxGT("Finecor.") // Max 8 caratteri
 #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Finecorsa Soft")
 #define MSG_MAIN                            _UxGT("Menu principale")
 #define MSG_ADVANCED_SETTINGS               _UxGT("Impostaz. avanzate")
@@ -180,7 +180,7 @@
 #define MSG_MOVE_Y                          _UxGT("Muovi Y")
 #define MSG_MOVE_Z                          _UxGT("Muovi Z")
 #define MSG_MOVE_E                          _UxGT("Estrusore")
-#define MSG_MOVE_01MM                       _UxGT("Muovi di 0,1mm")
+#define MSG_MOVE_01MM                       _UxGT("Muovi di 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Muovi di 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Muovi di 10mm")
 #define MSG_SPEED                           _UxGT("Velocità")
@@ -295,7 +295,7 @@
 #define MSG_BLTOUCH_STOW                    _UxGT("Ritrai BLTouch")
 #define MSG_MANUAL_DEPLOY                   _UxGT("Estendi Sonda-Z")
 #define MSG_MANUAL_STOW                     _UxGT("Ritrai Sonda-Z")
-#define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_HOME                            _UxGT("Home")  // Usato come MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("prima")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Offset sonda Z")
 #define MSG_BABYSTEP_X                      _UxGT("Babystep X")
@@ -314,9 +314,9 @@
 #define MSG_ERR_Z_HOMING                    MSG_HOME _UxGT(" ") MSG_X MSG_Y _UxGT(" ") MSG_FIRST
 #define MSG_HALTED                          _UxGT("STAMPANTE FERMATA")
 #define MSG_PLEASE_RESET                    _UxGT("Riavviare prego")
-#define MSG_SHORT_DAY                       _UxGT("g") // One character only
-#define MSG_SHORT_HOUR                      _UxGT("h") // One character only
-#define MSG_SHORT_MINUTE                    _UxGT("m") // One character only
+#define MSG_SHORT_DAY                       _UxGT("g") // Un solo carattere
+#define MSG_SHORT_HOUR                      _UxGT("h") // Un solo carattere
+#define MSG_SHORT_MINUTE                    _UxGT("m") // Un solo carattere
 #define MSG_HEATING                         _UxGT("Riscaldamento...")
 #define MSG_COOLING                         _UxGT("Raffreddamento..")
 #define MSG_BED_HEATING                     _UxGT("Risc. piatto...")
@@ -380,8 +380,8 @@
 #define MSG_M600_TOO_COLD                   _UxGT("M600:Troppo freddo")
 
 //
-// Le schermate di Filament Change mostrano fino a 3 linee su un display a 4 righe
-//                                     ...o fino a 2 linee su un display a 3 righe.
+// Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe
+//                                                  ...o fino a 2 linee su un display a 3 righe.
 #if LCD_HEIGHT >= 4
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Attendere avvio")
   #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("del cambio")
