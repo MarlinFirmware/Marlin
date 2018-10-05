@@ -593,6 +593,10 @@ void idle(
       #endif
     }
   #endif
+
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    Sd2Card::idle();
+  #endif
 }
 
 /**

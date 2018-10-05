@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define __MARLIN_FIRMWARE__
+
 //
 // Prefix header to acquire configurations
 //
