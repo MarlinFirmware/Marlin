@@ -50,16 +50,17 @@ char *GCodeParser::command_ptr,
      *GCodeParser::value_ptr;
 char GCodeParser::command_letter;
 int GCodeParser::codenum;
+
 #if USE_GCODE_SUBCODES
   uint8_t GCodeParser::subcode;
 #endif
-#if ENABLED(STICKY_MOVE_MODE)
-  int GCodeParser::current_motion_mode_codenum;	
-  #if USE_GCODE_SUBCODES		  
-    uint8_t GCodeParser::current_motion_mode_subcode;	
+
+#if ENABLED(GCODE_MOTION_MODES)
+  int16_t GCodeParser::motion_mode_codenum = -1;
+  #if USE_GCODE_SUBCODES
+    uint8_t GCodeParser::motion_mode_subcode;
   #endif
 #endif
-  
 
 #if ENABLED(FASTER_GCODE_PARSER)
   // Optimized Parameters
@@ -124,12 +125,20 @@ void GCodeParser::parse(char *p) {
     starpos[1] = '\0';
   }
 
+  #if ENABLED(GCODE_MOTION_MODES)
+    #if ENABLED(ARC_SUPPORT)
+      #define GTOP 3
+    #else
+      #define GTOP 1
+    #endif
+  #endif
+
   // Bail if the letter is not G, M, or T
-  switch(letter) { 
-  case 'G': 
-  case 'M': 
-  case 'T': 
- 
+  // (or a valid parameter for the current motion mode)
+  switch (letter) {
+
+    case 'G': case 'M': case 'T':
+
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -142,9 +151,7 @@ void GCodeParser::parse(char *p) {
 
       // Get the code number - integer digits only
       codenum = 0;
-      do {
-      codenum *= 10, codenum += *p++ - '0';
-      } while (NUMERIC(*p));
+      do { codenum *= 10, codenum += *p++ - '0'; } while (NUMERIC(*p));
 
       // Allow for decimal point in command
       #if USE_GCODE_SUBCODES
@@ -158,48 +165,43 @@ void GCodeParser::parse(char *p) {
       // Skip all spaces to get to the first argument, or nul
       while (*p == ' ') p++;
 
-      #if ENABLED(STICKY_MOVE_MODE)
-        if( letter == 'G' && (codenum < 4 || codenum == 5 || codenum == 38 || (codenum>=80 &&codenum < 90  ))) {
-        current_motion_mode_codenum = codenum;
-        #if USE_GCODE_SUBCODES
-          current_motion_mode_subcode = subcode;
-        #endif
+      #if ENABLED(GCODE_MOTION_MODES)
+        if (letter == 'G' && (codenum <= GTOP || codenum == 5
+                                #if ENABLED(G38_PROBE_TARGET)
+                                  || codenum == 38
+                                #endif
+                             )
+        ) {
+          motion_mode_codenum = codenum;
+          #if USE_GCODE_SUBCODES
+            motion_mode_subcode = subcode;
+          #endif
         }
       #endif
+
       break;
-    
-  #if ENABLED(STICKY_MOVE_MODE)
 
-    case 'P':
-    case 'Q':
-      if (current_motion_mode_codenum != 5)
-        return;
-    case 'I':
-    case 'J':
-    case 'R':  
-      if (current_motion_mode_codenum < 2)
-        return;
-    case 'X':
-    case 'Y':
-    case 'Z':
-    case 'E':
-    case 'F':
-
-      command_letter = 'G';
-      codenum = current_motion_mode_codenum;
-      #if USE_GCODE_SUBCODES
-        subcode = current_motion_mode_subcode;
+    #if ENABLED(GCODE_MOTION_MODES)
+      #if ENABLED(ARC_SUPPORT)
+        case 'I': case 'J': case 'R':
+          if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
       #endif
-      
-      // Roll back one character before to use the current arg
-      p--;
-    break;
-  #endif // STICKY_MOVE_MODE
+      case 'P': case 'Q':
+        if (motion_mode_codenum != 5) return;
+      case 'X': case 'Y': case 'Z': case 'E': case 'F':
+        if (motion_mode_codenum < 0) return;
+        command_letter = 'G';
+        codenum = motion_mode_codenum;
+        #if USE_GCODE_SUBCODES
+          subcode = motion_mode_subcode;
+        #endif
+        p--; // Back up one character to use the current parameter
+      break;
+    #endif // GCODE_MOTION_MODES
 
-  default: return; 
+    default: return;
   }
 
- 
   // The command parameters (if any) start here, for sure!
 
   #if DISABLED(FASTER_GCODE_PARSER)

@@ -282,10 +282,11 @@ static int read_serial(const int index) {
  */
 inline void get_serial_commands() {
   static char serial_line_buffer[NUM_SERIAL][MAX_CMD_SIZE];
-  static bool serial_comment_mode[NUM_SERIAL] = { false };
-  #if ENABLED(PARENTHESE_COMMENTS)
-    static bool serial_comment_paranthese_mode[NUM_SERIAL] = { false };
-  #endif
+  static bool serial_comment_mode[NUM_SERIAL] = { false }
+              #if ENABLED(PAREN_COMMENTS)
+                , serial_comment_paren_mode[NUM_SERIAL] = { false }
+              #endif
+            ;
 
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
@@ -313,9 +314,10 @@ inline void get_serial_commands() {
        */
       if (serial_char == '\n' || serial_char == '\r') {
 
-        serial_comment_mode[i] = false;                   // end of line == end of comment
-        #if ENABLED(PARENTHESE_COMMENTS)
-          serial_comment_paranthese_mode[i] = false;                   // end of line == end of comment
+        // Start with comment mode off
+        serial_comment_mode[i] = false;
+        #if ENABLED(PAREN_COMMENTS)
+          serial_comment_paren_mode[i] = false;
         #endif
 
         // Skip empty lines and comments
@@ -411,22 +413,22 @@ inline void get_serial_commands() {
       else if (serial_char == '\\') {  // Handle escapes
         // if we have one more character, copy it over
         if ((c = read_serial(i)) >= 0 && !serial_comment_mode[i]
-        #if ENABLED(PARENTHESE_COMMENTS)
-         && ! serial_comment_paranthese_mode[i]
-        #endif
-         )
+          #if ENABLED(PAREN_COMMENTS)
+            && !serial_comment_paren_mode[i]
+          #endif
+        )
           serial_line_buffer[i][serial_count[i]++] = (char)c;
       }
       else { // it's not a newline, carriage return or escape char
-        if (serial_char == ';') serial_comment_mode[i] = true; 
-        #if ENABLED(PARENTHESE_COMMENTS)
-          else if (serial_char == '(') serial_comment_paranthese_mode[i] = true;
-          else if (serial_char == ')') serial_comment_paranthese_mode[i] = false;
+        if (serial_char == ';') serial_comment_mode[i] = true;
+        #if ENABLED(PAREN_COMMENTS)
+          else if (serial_char == '(') serial_comment_paren_mode[i] = true;
+          else if (serial_char == ')') serial_comment_paren_mode[i] = false;
         #endif
-        else if (!serial_comment_mode[i] 
-        #if ENABLED(PARENTHESE_COMMENTS)
-          && ! serial_comment_paranthese_mode[i]
-        #endif
+        else if (!serial_comment_mode[i]
+          #if ENABLED(PAREN_COMMENTS)
+            && ! serial_comment_paren_mode[i]
+          #endif
         ) serial_line_buffer[i][serial_count[i]++] = serial_char;
       }
     } // for NUM_SERIAL
@@ -442,11 +444,12 @@ inline void get_serial_commands() {
    */
   inline void get_sdcard_commands() {
     static bool stop_buffering = false,
-                sd_comment_mode = false;
+                sd_comment_mode = false
+                #if ENABLED(PAREN_COMMENTS)
+                  , sd_comment_paren_mode = false
+                #endif
+              ;
 
-    #if ENABLED(PARENTHESE_COMMENTS)
-      static bool sd_comment_parenthese_mode = false;
-    #endif
     if (!IS_SD_PRINTING) return;
 
     /**
@@ -467,9 +470,9 @@ inline void get_serial_commands() {
       if (card_eof || n == -1
           || sd_char == '\n' || sd_char == '\r'
           || ((sd_char == '#' || sd_char == ':') && !sd_comment_mode
-          #if ENABLED(PARENTHESE_COMMENTS)
-            && ! sd_comment_parenthese_mode
-          #endif
+            #if ENABLED(PAREN_COMMENTS)
+              && !sd_comment_paren_mode
+            #endif
           )
       ) {
         if (card_eof) {
@@ -506,8 +509,8 @@ inline void get_serial_commands() {
         if (sd_char == '#') stop_buffering = true;
 
         sd_comment_mode = false; // for new command
-        #if ENABLED(PARENTHESE_COMMENTS)
-          sd_comment_parenthese_mode = false;
+        #if ENABLED(PAREN_COMMENTS)
+          sd_comment_paren_mode = false;
         #endif
 
         // Skip empty lines and comments
@@ -525,17 +528,16 @@ inline void get_serial_commands() {
          */
       }
       else {
-        if (sd_char == ';') sd_comment_mode = true; 
-        #if ENABLED(PARENTHESE_COMMENTS)
-          else if (sd_char == '(') sd_comment_parenthese_mode = true; 
-          else if (sd_char == ')') sd_comment_parenthese_mode = false; 
+        if (sd_char == ';') sd_comment_mode = true;
+        #if ENABLED(PAREN_COMMENTS)
+          else if (sd_char == '(') sd_comment_paren_mode = true;
+          else if (sd_char == ')') sd_comment_paren_mode = false;
         #endif
         else if (!sd_comment_mode
-        #if ENABLED(PARENTHESE_COMMENTS) 
-        && ! sd_comment_parenthese_mode
-        #endif
-        ) 
-          command_queue[cmd_queue_index_w][sd_count++] = sd_char;
+          #if ENABLED(PAREN_COMMENTS)
+            && ! sd_comment_paren_mode
+          #endif
+        ) command_queue[cmd_queue_index_w][sd_count++] = sd_char;
       }
     }
   }
