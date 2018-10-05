@@ -52,6 +52,12 @@
 #define GET_OUTPUT(IO)
 #define GET_TIMER(IO)
 
+#define PWM_PIN(p) digitalPinHasPWM(p)
+#define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)
+
+//
+// Pins Definitions
+//
 #define PORTA 0
 #define PORTB 1
 #define PORTC 2

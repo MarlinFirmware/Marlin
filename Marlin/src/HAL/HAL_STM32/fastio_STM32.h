@@ -29,8 +29,6 @@
 
 #define _BV(b) (1 << (b))
 
-#define USEABLE_HARDWARE_PWM(p) true
-
 #define READ(IO)                digitalRead(IO)
 #define WRITE(IO,V)             digitalWrite(IO,V)
 #define WRITE_VAR(IO,V)         WRITE(IO,V)
@@ -51,3 +49,6 @@
 #define GET_INPUT(IO)
 #define GET_OUTPUT(IO)
 #define GET_TIMER(IO)
+
+#define PWM_PIN(p) true
+#define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)
