@@ -78,12 +78,21 @@ public:
   static char *command_ptr,               // The command, so it can be echoed
               *string_arg;                // string of command line
 
+
+
   static char command_letter;             // G, M, or T
   static int codenum;                     // 123
   #if USE_GCODE_SUBCODES
     static uint8_t subcode;               // .1
   #endif
 
+  #if ENABLED(STICKY_MOVE_MODE)
+    static int current_motion_mode_codenum;	
+    #if USE_GCODE_SUBCODES		  
+      static uint8_t current_motion_mode_subcode;	
+    #endif
+  #endif
+  
   #if ENABLED(DEBUG_GCODE_PARSER)
     static void debug();
   #endif

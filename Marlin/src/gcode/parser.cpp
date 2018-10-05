@@ -53,6 +53,13 @@ int GCodeParser::codenum;
 #if USE_GCODE_SUBCODES
   uint8_t GCodeParser::subcode;
 #endif
+#if ENABLED(STICKY_MOVE_MODE)
+  int GCodeParser::current_motion_mode_codenum;	
+  #if USE_GCODE_SUBCODES		  
+    uint8_t GCodeParser::current_motion_mode_subcode;	
+  #endif
+#endif
+  
 
 #if ENABLED(FASTER_GCODE_PARSER)
   // Optimized Parameters
@@ -118,36 +125,81 @@ void GCodeParser::parse(char *p) {
   }
 
   // Bail if the letter is not G, M, or T
-  switch (letter) { case 'G': case 'M': case 'T': break; default: return; }
+  switch(letter) { 
+  case 'G': 
+  case 'M': 
+  case 'T': 
+ 
+      // Skip spaces to get the numeric part
+      while (*p == ' ') p++;
 
-  // Skip spaces to get the numeric part
-  while (*p == ' ') p++;
+      // Bail if there's no command code number
+      if (!NUMERIC(*p)) return;
 
-  // Bail if there's no command code number
-  if (!NUMERIC(*p)) return;
+      // Save the command letter at this point
+      // A '?' signifies an unknown command
+      command_letter = letter;
 
-  // Save the command letter at this point
-  // A '?' signifies an unknown command
-  command_letter = letter;
+      // Get the code number - integer digits only
+      codenum = 0;
+      do {
+      codenum *= 10, codenum += *p++ - '0';
+      } while (NUMERIC(*p));
 
-  // Get the code number - integer digits only
-  codenum = 0;
-  do {
-    codenum *= 10, codenum += *p++ - '0';
-  } while (NUMERIC(*p));
-
-  // Allow for decimal point in command
-  #if USE_GCODE_SUBCODES
-    if (*p == '.') {
-      p++;
-      while (NUMERIC(*p))
+      // Allow for decimal point in command
+      #if USE_GCODE_SUBCODES
+      if (*p == '.') {
+        p++;
+        while (NUMERIC(*p))
         subcode *= 10, subcode += *p++ - '0';
-    }
-  #endif
+      }
+      #endif
 
-  // Skip all spaces to get to the first argument, or nul
-  while (*p == ' ') p++;
+      // Skip all spaces to get to the first argument, or nul
+      while (*p == ' ') p++;
 
+      #if ENABLED(STICKY_MOVE_MODE)
+        if( letter == 'G' && (codenum < 4 || codenum == 5 || codenum == 38 || (codenum>=80 &&codenum < 90  ))) {
+        current_motion_mode_codenum = codenum;
+        #if USE_GCODE_SUBCODES
+          current_motion_mode_subcode = subcode;
+        #endif
+        }
+      #endif
+      break;
+    
+  #if ENABLED(STICKY_MOVE_MODE)
+
+    case 'P':
+    case 'Q':
+      if (current_motion_mode_codenum != 5)
+        return;
+    case 'I':
+    case 'J':
+    case 'R':  
+      if (current_motion_mode_codenum < 2)
+        return;
+    case 'X':
+    case 'Y':
+    case 'Z':
+    case 'E':
+    case 'F':
+
+      command_letter = 'G';
+      codenum = current_motion_mode_codenum;
+      #if USE_GCODE_SUBCODES
+        subcode = current_motion_mode_subcode;
+      #endif
+      
+      // Roll back one character before to use the current arg
+      p--;
+    break;
+  #endif // STICKY_MOVE_MODE
+
+  default: return; 
+  }
+
+ 
   // The command parameters (if any) start here, for sure!
 
   #if DISABLED(FASTER_GCODE_PARSER)

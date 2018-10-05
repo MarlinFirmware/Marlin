@@ -1776,4 +1776,13 @@
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
 
+
+/**
+ * CNC Parsing options
+ * 
+ * These options increase marlin's acceptance of non reprap dialects more in line with what laser cutter or drawing machine cams produce
+ */
+//#define PARENTHESE_COMMENTS // Enable Marlin to interpret parenthese delimited comments as such and ignore them
+//#define STICKY_MOVE_MODE    // Enable marlin to keep the current move mode (G0 G1 G2 G3 G5 G38.X) and use it even if receiving only parameters (X Y Z E F etc.)
+
 #endif // CONFIGURATION_ADV_H
