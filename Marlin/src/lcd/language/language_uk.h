@@ -129,6 +129,7 @@
 #define MSG_E3STEPS                         _UxGT("E3кроків/мм")
 #define MSG_E4STEPS                         _UxGT("E4кроків/мм")
 #define MSG_E5STEPS                         _UxGT("E5кроків/мм")
+#define MSG_E6STEPS                         _UxGT("E6кроків/мм")
 #define MSG_TEMPERATURE                     _UxGT("Температура")
 #define MSG_MOTION                          _UxGT("Рух")
 #define MSG_FILAMENT                        _UxGT("Волокно")

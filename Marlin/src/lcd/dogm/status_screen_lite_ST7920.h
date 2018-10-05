@@ -75,18 +75,18 @@ void ST7920_Lite_Status_Screen::write_str(const char *str, uint8_t len) {
   while (*str && len--) write_byte(*str++);
 }
 
-void ST7920_Lite_Status_Screen::write_str_P(const char * const str) {
-  const char *p_str = (const char *)str;
+void ST7920_Lite_Status_Screen::write_str_P(PGM_P const str) {
+  PGM_P p_str = (PGM_P)str;
   while (char c = pgm_read_byte_near(p_str++)) write_byte(c);
 }
 
 void ST7920_Lite_Status_Screen::write_str(progmem_str str) {
-  write_str_P((const char*)str);
+  write_str_P((PGM_P)str);
 }
 
 void ST7920_Lite_Status_Screen::write_number(const int16_t value, const uint8_t digits/*=3*/) {
   char str[7];
-  const char *fmt;
+  PGM_P fmt;
   switch (digits) {
     case 6: fmt = PSTR("%6d"); break;
     case 5: fmt = PSTR("%5d"); break;
@@ -419,7 +419,7 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
 
   // Draw the static icons in GDRAM
   draw_gdram_icon(1, 1, nozzle_icon);
-  #if EXTRUDERS == 2
+  #if HOTENDS > 1
     draw_gdram_icon(1,2,nozzle_icon);
     draw_gdram_icon(1,3,bed_icon);
   #else
@@ -440,7 +440,7 @@ void ST7920_Lite_Status_Screen::draw_static_elements() {
  * text data (the percentage).
  */
 void ST7920_Lite_Status_Screen::draw_progress_bar(const uint8_t value) {
-  #if EXTRUDERS == 1
+  #if HOTENDS == 1
     // If we have only one extruder, draw a long progress bar on the third line
     const uint8_t top     = 1,         // Top in pixels
                   bottom  = 13,        // Bottom in pixels
@@ -477,7 +477,7 @@ void ST7920_Lite_Status_Screen::draw_progress_bar(const uint8_t value) {
   }
 
   // Draw the percentage as text in DDRAM
-  #if EXTRUDERS == 1
+  #if HOTENDS == 1
     set_ddram_address(DDRAM_LINE_3 + 4);
     begin_data();
     write_byte(' ');
@@ -505,7 +505,7 @@ void ST7920_Lite_Status_Screen::draw_fan_icon(const bool whichIcon) {
 
 void ST7920_Lite_Status_Screen::draw_heat_icon(const bool whichIcon, const bool heating) {
   set_ddram_address(
-    #if EXTRUDERS == 1
+    #if HOTENDS == 1
       DDRAM_LINE_2
     #else
       DDRAM_LINE_3
@@ -573,7 +573,7 @@ void ST7920_Lite_Status_Screen::draw_extruder_2_temp(const int16_t temp, const i
   void ST7920_Lite_Status_Screen::draw_bed_temp(const int16_t temp, const int16_t target, bool forceUpdate) {
     const bool show_target = target && FAR(temp, target);
     draw_temps(2
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         + 1
       #endif
       , temp, target, show_target, display_state.bed_show_target != show_target || forceUpdate
@@ -590,7 +590,7 @@ void ST7920_Lite_Status_Screen::draw_fan_speed(const uint8_t value) {
 }
 
 void ST7920_Lite_Status_Screen::draw_print_time(const duration_t &elapsed) {
-  #if EXTRUDERS == 1
+  #if HOTENDS == 1
     set_ddram_address(DDRAM_LINE_3);
   #else
     set_ddram_address(DDRAM_LINE_3 + 5);
@@ -604,7 +604,7 @@ void ST7920_Lite_Status_Screen::draw_print_time(const duration_t &elapsed) {
 void ST7920_Lite_Status_Screen::draw_feedrate_percentage(const uint16_t percentage) {
   // We only have enough room for the feedrate when
   // we have one extruder
-  #if EXTRUDERS == 1
+  #if HOTENDS == 1
     set_ddram_address(DDRAM_LINE_2 + 6);
     begin_data();
     write_number(percentage, 3);
@@ -712,7 +712,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   const uint16_t   feedrate_perc     = feedrate_percentage;
   const uint8_t    fan_speed         = ((fanSpeeds[0] + 1) * 100) / 256;
   const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
-  #if EXTRUDERS == 2
+  #if HOTENDS > 1
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
   #endif
   #if HAS_HEATED_BED
@@ -720,7 +720,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   #endif
   static uint16_t last_checksum = 0;
   const uint16_t checksum = blink ^ feedrate_perc ^ fan_speed ^ extruder_1_target
-    #if EXTRUDERS == 2
+    #if HOTENDS > 1
       ^ extruder_2_target
     #endif
     #if HAS_HEATED_BED
@@ -740,7 +740,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     const uint8_t    fan_speed         = ((fanSpeeds[0] + 1) * 100) / 256;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
-    #if EXTRUDERS == 2
+    #if HOTENDS > 1
       const int16_t  extruder_2_temp   = thermalManager.degHotend(1),
                      extruder_2_target = thermalManager.degTargetHotend(1);
     #endif
@@ -750,7 +750,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #endif
 
     draw_extruder_1_temp(extruder_1_temp, extruder_1_target, forceUpdate);
-    #if EXTRUDERS == 2
+    #if HOTENDS > 1
       draw_extruder_2_temp(extruder_2_temp, extruder_2_target, forceUpdate);
     #endif
     #if HAS_HEATED_BED

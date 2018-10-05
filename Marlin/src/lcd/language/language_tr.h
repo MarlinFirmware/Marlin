@@ -75,6 +75,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("Eksen Yönet")                                        // Eksenleri Yönet
 #define MSG_BED_LEVELING                    _UxGT("Tabla Seviyele")                                     // Tabla Seviyele
 #define MSG_LEVEL_BED                       _UxGT("Tabla Seviyele")                                     // Tabla Seviyele
+
 #define MSG_MOVING                          _UxGT("Konumlanıyor...")                                    // Konumlanıyor...
 #define MSG_FREE_XY                         _UxGT("Durdur XY")                                          // Durdur XY
 #define MSG_MOVE_X                          _UxGT("X")                                                  // X
@@ -135,7 +136,8 @@
 #define MSG_E2STEPS                         _UxGT("E2steps/mm")                                         // E2steps/mm
 #define MSG_E3STEPS                         _UxGT("E3steps/mm")                                         // E3steps/mm
 #define MSG_E4STEPS                         _UxGT("E4steps/mm")                                         // E4steps/mm
-#define MSG_E5STEPS                         _UxGT("E5steps/mm")                                         // E4steps/mm
+#define MSG_E5STEPS                         _UxGT("E5steps/mm")                                         // E5steps/mm
+#define MSG_E6STEPS                         _UxGT("E6steps/mm")                                         // E6steps/mm
 #define MSG_TEMPERATURE                     _UxGT("Sıcaklık")                                           // Sıcaklık
 #define MSG_MOTION                          _UxGT("Hareket")                                            // Hareket
 #define MSG_FILAMENT                        _UxGT("Filaman")                                            // Filaman

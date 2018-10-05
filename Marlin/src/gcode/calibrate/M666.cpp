@@ -59,44 +59,60 @@
     #endif
   }
 
-#elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+#elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
 
   #include "../../module/endstops.h"
 
   /**
    * M666: Set Dual Endstops offsets for X, Y, and/or Z.
    *       With no parameters report current offsets.
+   *
+   * For Triple Z Endstops:
+   *   Set Z2 Only: M666 S2 Z<offset>
+   *   Set Z3 Only: M666 S3 Z<offset>
+   *      Set Both: M666 Z<offset>
    */
   void GcodeSuite::M666() {
     bool report = true;
     #if ENABLED(X_DUAL_ENDSTOPS)
       if (parser.seen('X')) {
-        endstops.x_endstop_adj = parser.value_linear_units();
+        endstops.x2_endstop_adj = parser.value_linear_units();
         report = false;
       }
     #endif
     #if ENABLED(Y_DUAL_ENDSTOPS)
       if (parser.seen('Y')) {
-        endstops.y_endstop_adj = parser.value_linear_units();
+        endstops.y2_endstop_adj = parser.value_linear_units();
         report = false;
       }
     #endif
-    #if ENABLED(Z_DUAL_ENDSTOPS)
+    #if ENABLED(Z_TRIPLE_ENDSTOPS)
       if (parser.seen('Z')) {
-        endstops.z_endstop_adj = parser.value_linear_units();
+        const int ind = parser.intval('S');
+        const float z_adj = parser.value_linear_units();
+        if (!ind || ind == 2) endstops.z2_endstop_adj = z_adj;
+        if (!ind || ind == 3) endstops.z3_endstop_adj = z_adj;
+        report = false;
+      }
+    #elif Z_MULTI_ENDSTOPS
+      if (parser.seen('Z')) {
+        endstops.z2_endstop_adj = parser.value_linear_units();
         report = false;
       }
     #endif
     if (report) {
       SERIAL_ECHOPGM("Dual Endstop Adjustment (mm): ");
       #if ENABLED(X_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" X", endstops.x_endstop_adj);
+        SERIAL_ECHOPAIR(" X2:", endstops.x2_endstop_adj);
       #endif
       #if ENABLED(Y_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Y", endstops.y_endstop_adj);
+        SERIAL_ECHOPAIR(" Y2:", endstops.y2_endstop_adj);
       #endif
-      #if ENABLED(Z_DUAL_ENDSTOPS)
-        SERIAL_ECHOPAIR(" Z", endstops.z_endstop_adj);
+      #if Z_MULTI_ENDSTOPS
+        SERIAL_ECHOPAIR(" Z2:", endstops.z2_endstop_adj);
+      #endif
+      #if ENABLED(Z_TRIPLE_ENDSTOPS)
+        SERIAL_ECHOPAIR(" Z3:", endstops.z3_endstop_adj);
       #endif
       SERIAL_EOL();
     }

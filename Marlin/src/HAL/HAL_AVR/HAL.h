@@ -79,16 +79,32 @@ typedef int8_t pin_t;
 
 //extern uint8_t MCUSR;
 
-#define NUM_SERIAL 1
-
+// Serial ports
 #ifdef USBCON
   #if ENABLED(BLUETOOTH)
     #define MYSERIAL0 bluetoothSerial
   #else
     #define MYSERIAL0 Serial
   #endif
+  #define NUM_SERIAL 1
 #else
-  #define MYSERIAL0 customizedSerial
+  #if !WITHIN(SERIAL_PORT, -1, 3)
+    #error "SERIAL_PORT must be from -1 to 3"
+  #endif
+
+  #define MYSERIAL0 customizedSerial1
+
+  #ifdef SERIAL_PORT_2
+    #if !WITHIN(SERIAL_PORT_2, -1, 3)
+      #error "SERIAL_PORT_2 must be from -1 to 3"
+    #elif SERIAL_PORT_2 == SERIAL_PORT
+      #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
+    #endif
+    #define NUM_SERIAL 2
+    #define MYSERIAL1 customizedSerial2
+  #else
+    #define NUM_SERIAL 1
+  #endif
 #endif
 
 // --------------------------------------------------------------------------
@@ -351,6 +367,10 @@ inline void HAL_adc_init(void) {
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
 #define HAL_SENSITIVE_PINS 0, 1
+
+#ifdef __AVR_AT90USB1286__
+  #define JTAG_DISABLE() do{ MCUCR = 0x80; MCUCR = 0x80; }while(0)
+#endif
 
 // AVR compatibility
 #define strtof strtod

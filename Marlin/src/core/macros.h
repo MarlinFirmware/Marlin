@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifndef _CORE_MACROS_H_
-#define _CORE_MACROS_H_
+#include "minmax.h"
 
 #define NUM_AXIS 4
 #define ABCE 4
@@ -56,7 +56,7 @@
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
-#define UNUSED(x) (void) (x)
+#define UNUSED(x) ((void)(x))
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
@@ -93,10 +93,6 @@
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to constrain values
-// Avoid double evaluation of arguments to NOMORE/NOLESS/LIMIT
-#undef NOMORE
-#undef NOLESS
-#undef LIMIT
 #ifdef __cplusplus
 
   // C++11 solution that is standards compliant.
@@ -207,48 +203,12 @@
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
-// Avoid double evaluation of arguments on MIN/MAX/ABS
-#undef MIN
-#undef MAX
 #undef ABS
 #ifdef __cplusplus
-
-  // C++11 solution that is standards compliant. Return type is deduced automatically
-  template <class L, class R> static inline constexpr auto MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
-    return lhs < rhs ? lhs : rhs;
-  }
-  template <class L, class R> static inline constexpr auto MAX(const L lhs, const R rhs) -> decltype(lhs + rhs){
-    return lhs > rhs ? lhs : rhs;
-  }
-  template <class T> static inline constexpr const T ABS(const T v) {
-    return v >= 0 ? v : -v;
-  }
+  template <class T> static inline constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
 #else
-
-  // Using GCC extensions, but Travis GCC version does not like it and gives
-  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
-  #define MIN(a, b) \
-    ({__typeof__(a) _a = (a); \
-      __typeof__(b) _b = (b); \
-      _a < _b ? _a : _b;})
-
-  #define MAX(a, b) \
-    ({__typeof__(a) _a = (a); \
-      __typeof__(b) _b = (b); \
-      _a > _b ? _a : _b;})
-
-  #define ABS(a) \
-    ({__typeof__(a) _a = (a); \
-      _a >= 0 ? _a : -_a;})
-
+  #define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
 #endif
-
-#define MIN3(a, b, c)       MIN(MIN(a, b), c)
-#define MIN4(a, b, c, d)    MIN(MIN3(a, b, c), d)
-#define MIN5(a, b, c, d, e) MIN(MIN4(a, b, c, d), e)
-#define MAX3(a, b, c)       MAX(MAX(a, b), c)
-#define MAX4(a, b, c, d)    MAX(MAX3(a, b, c), d)
-#define MAX5(a, b, c, d, e) MAX(MAX4(a, b, c, d), e)
 
 #define UNEAR_ZERO(x) ((x) < 0.000001f)
 #define NEAR_ZERO(x) WITHIN(x, -0.000001f, 0.000001f)
@@ -269,5 +229,3 @@
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
-
-#endif // _CORE_MACROS_H_

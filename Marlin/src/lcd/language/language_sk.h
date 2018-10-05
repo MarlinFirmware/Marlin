@@ -93,8 +93,8 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("Vyrovnať rohy")
 #define MSG_NEXT_CORNER                     _UxGT("Ďalší roh")
 #define MSG_EDITING_STOPPED                 _UxGT("Koniec úprav siete")
-
 #define MSG_USER_MENU                       _UxGT("Vlastné príkazy")
+
 #define MSG_UBL_DOING_G29                   _UxGT("Vykonávam G29")
 #define MSG_UBL_UNHOMED                     _UxGT("Prejdite domov")
 #define MSG_UBL_TOOLS                       _UxGT("Nástroje UBL")
@@ -246,6 +246,7 @@
 #define MSG_E3STEPS                         _UxGT("E3krokov/mm")
 #define MSG_E4STEPS                         _UxGT("E4krokov/mm")
 #define MSG_E5STEPS                         _UxGT("E5krokov/mm")
+#define MSG_E6STEPS                         _UxGT("E6krokov/mm")
 #define MSG_TEMPERATURE                     _UxGT("Teplota")
 #define MSG_MOTION                          _UxGT("Pohyb")
 #define MSG_FILAMENT                        _UxGT("Filament")

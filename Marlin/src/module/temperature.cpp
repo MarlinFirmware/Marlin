@@ -51,6 +51,10 @@
   #include "../feature/emergency_parser.h"
 #endif
 
+#if ENABLED(PRINTER_EVENT_LEDS)
+  #include "../feature/leds/leds.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
@@ -74,6 +78,7 @@ Temperature thermalManager;
     (HOTENDS > 2 && (E) == 2) ? PSTR(MSG_E3 " " MSG) : \
     (HOTENDS > 3 && (E) == 3) ? PSTR(MSG_E4 " " MSG) : \
     (HOTENDS > 4 && (E) == 4) ? PSTR(MSG_E5 " " MSG) : \
+    (HOTENDS > 5 && (E) == 5) ? PSTR(MSG_E6 " " MSG) : \
     PSTR(MSG_E1 " " MSG)
 #else
   #define TEMP_ERR_PSTR(MSG, E) \
@@ -81,6 +86,7 @@ Temperature thermalManager;
     (HOTENDS > 2 && (E) == 2) ? PSTR(MSG_E3 " " MSG) : \
     (HOTENDS > 3 && (E) == 3) ? PSTR(MSG_E4 " " MSG) : \
     (HOTENDS > 4 && (E) == 4) ? PSTR(MSG_E5 " " MSG) : \
+    (HOTENDS > 5 && (E) == 5) ? PSTR(MSG_E6 " " MSG) : \
     PSTR(MSG_E1 " " MSG)
 #endif
 
@@ -149,7 +155,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 #endif
 
 #if ENABLED(BABYSTEPPING)
-  volatile int Temperature::babystepsTodo[XYZ] = { 0 };
+  volatile int16_t Temperature::babystepsTodo[XYZ] = { 0 };
 #endif
 
 #if WATCH_HOTENDS
@@ -527,13 +533,14 @@ int Temperature::getHeaterPower(const int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    static const pin_t fanPin[] PROGMEM = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN, CHAMBER_AUTO_FAN_PIN };
+    static const pin_t fanPin[] PROGMEM = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN, E4_AUTO_FAN_PIN, E5_AUTO_FAN_PIN, CHAMBER_AUTO_FAN_PIN };
     static const uint8_t fanBit[] PROGMEM = {
                     0,
       AUTO_1_IS_0 ? 0 :               1,
       AUTO_2_IS_0 ? 0 : AUTO_2_IS_1 ? 1 :               2,
       AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 :               3,
-      AUTO_4_IS_0 ? 0 : AUTO_4_IS_1 ? 1 : AUTO_4_IS_2 ? 2 : AUTO_4_IS_3 ? 3 : 4,
+      AUTO_4_IS_0 ? 0 : AUTO_4_IS_1 ? 1 : AUTO_4_IS_2 ? 2 : AUTO_4_IS_3 ? 3 :                   4,
+      AUTO_5_IS_0 ? 0 : AUTO_5_IS_1 ? 1 : AUTO_5_IS_2 ? 2 : AUTO_5_IS_3 ? 3 : AUTO_5_IS_4 ? 4 : 5,
       AUTO_CHAMBER_IS_0 ? 0 : AUTO_CHAMBER_IS_1 ? 1 : AUTO_CHAMBER_IS_2 ? 2 : AUTO_CHAMBER_IS_3 ? 3 : AUTO_CHAMBER_IS_4 ? 4 : 5
     };
     uint8_t fanState = 0;
@@ -575,7 +582,7 @@ int Temperature::getHeaterPower(const int heater) {
 //
 // Temperature Error Handlers
 //
-void Temperature::_temp_error(const int8_t e, const char * const serial_msg, const char * const lcd_msg) {
+void Temperature::_temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg) {
   static bool killed = false;
   if (IsRunning()) {
     SERIAL_ERROR_START();
@@ -1193,6 +1200,9 @@ void Temperature::init() {
   #if HAS_TEMP_ADC_4
     HAL_ANALOG_SELECT(TEMP_4_PIN);
   #endif
+  #if HAS_TEMP_ADC_5
+    HAL_ANALOG_SELECT(TEMP_5_PIN);
+  #endif
   #if HAS_HEATED_BED
     HAL_ANALOG_SELECT(TEMP_BED_PIN);
   #endif
@@ -1226,7 +1236,7 @@ void Temperature::init() {
       SET_OUTPUT(E1_AUTO_FAN_PIN);
     #endif
   #endif
-  #if HAS_AUTO_FAN_2 && !AUTO_2_IS_0 && !AUTO_2_IS_1
+  #if HAS_AUTO_FAN_2 && !(AUTO_2_IS_0 || AUTO_2_IS_1)
     #if E2_AUTO_FAN_PIN == FAN1_PIN
       SET_OUTPUT(E2_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
@@ -1236,7 +1246,7 @@ void Temperature::init() {
       SET_OUTPUT(E2_AUTO_FAN_PIN);
     #endif
   #endif
-  #if HAS_AUTO_FAN_3 && !AUTO_3_IS_0 && !AUTO_3_IS_1 && !AUTO_3_IS_2
+  #if HAS_AUTO_FAN_3 && !(AUTO_3_IS_0 || AUTO_3_IS_1 || AUTO_3_IS_2)
     #if E3_AUTO_FAN_PIN == FAN1_PIN
       SET_OUTPUT(E3_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
@@ -1246,7 +1256,7 @@ void Temperature::init() {
       SET_OUTPUT(E3_AUTO_FAN_PIN);
     #endif
   #endif
-  #if HAS_AUTO_FAN_4 && !AUTO_4_IS_0 && !AUTO_4_IS_1 && !AUTO_4_IS_2 && !AUTO_4_IS_3
+  #if HAS_AUTO_FAN_4 && !(AUTO_4_IS_0 || AUTO_4_IS_1 || AUTO_4_IS_2 || AUTO_4_IS_3)
     #if E4_AUTO_FAN_PIN == FAN1_PIN
       SET_OUTPUT(E4_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
@@ -1256,7 +1266,17 @@ void Temperature::init() {
       SET_OUTPUT(E4_AUTO_FAN_PIN);
     #endif
   #endif
-  #if HAS_AUTO_CHAMBER_FAN && !AUTO_CHAMBER_IS_0 && !AUTO_CHAMBER_IS_1 && !AUTO_CHAMBER_IS_2 && !AUTO_CHAMBER_IS_3 && ! AUTO_CHAMBER_IS_4
+  #if HAS_AUTO_FAN_5 && !(AUTO_5_IS_0 || AUTO_5_IS_1 || AUTO_5_IS_2 || AUTO_5_IS_3 || AUTO_5_IS_4)
+    #if E5_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(E5_AUTO_FAN_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(E5_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+    #else
+      SET_OUTPUT(E5_AUTO_FAN_PIN);
+    #endif
+  #endif
+  #if HAS_AUTO_CHAMBER_FAN && !(AUTO_CHAMBER_IS_0 || AUTO_CHAMBER_IS_1 || AUTO_CHAMBER_IS_2 || AUTO_CHAMBER_IS_3 || AUTO_CHAMBER_IS_4 || AUTO_CHAMBER_IS_5)
     #if CHAMBER_AUTO_FAN_PIN == FAN1_PIN
       SET_OUTPUT(CHAMBER_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
@@ -1321,6 +1341,14 @@ void Temperature::init() {
           #ifdef HEATER_4_MAXTEMP
             TEMP_MAX_ROUTINE(4);
           #endif
+          #if HOTENDS > 5
+            #ifdef HEATER_5_MINTEMP
+              TEMP_MIN_ROUTINE(5);
+            #endif
+            #ifdef HEATER_5_MAXTEMP
+              TEMP_MAX_ROUTINE(5);
+            #endif
+          #endif // HOTENDS > 5
         #endif // HOTENDS > 4
       #endif // HOTENDS > 3
     #endif // HOTENDS > 2
@@ -1539,6 +1567,9 @@ void Temperature::disable_all_heaters() {
           DISABLE_HEATER(3);
           #if HOTENDS > 4
             DISABLE_HEATER(4);
+            #if HOTENDS > 5
+              DISABLE_HEATER(5);
+            #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
@@ -1665,10 +1696,13 @@ void Temperature::set_current_temp_raw() {
         current_temperature_raw[3] = raw_temp_value[3];
         #if HAS_TEMP_ADC_4
           current_temperature_raw[4] = raw_temp_value[4];
-        #endif
-      #endif
-    #endif
-  #endif
+          #if HAS_TEMP_ADC_5
+            current_temperature_raw[5] = raw_temp_value[5];
+          #endif // HAS_TEMP_ADC_5
+        #endif // HAS_TEMP_ADC_4
+      #endif // HAS_TEMP_ADC_3
+    #endif // HAS_TEMP_ADC_2
+  #endif // HAS_TEMP_ADC_1
 
   #if HAS_HEATED_BED
     current_temperature_bed_raw = raw_temp_bed_value;
@@ -1718,6 +1752,9 @@ void Temperature::readings_ready() {
           , TEMPDIR(3)
           #if HOTENDS > 4
             , TEMPDIR(4)
+            #if HOTENDS > 5
+              , TEMPDIR(5)
+            #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
@@ -1815,6 +1852,9 @@ void Temperature::isr() {
         ISR_STATICS(3);
         #if HOTENDS > 4
           ISR_STATICS(4);
+          #if HOTENDS > 5
+            ISR_STATICS(5);
+          #endif // HOTENDS > 5
         #endif // HOTENDS > 4
       #endif // HOTENDS > 3
     #endif // HOTENDS > 2
@@ -1851,6 +1891,10 @@ void Temperature::isr() {
             #if HOTENDS > 4
               soft_pwm_count_4 = (soft_pwm_count_4 & pwm_mask) + soft_pwm_amount[4];
               WRITE_HEATER_4(soft_pwm_count_4 > pwm_mask ? HIGH : LOW);
+              #if HOTENDS > 5
+                soft_pwm_count_5 = (soft_pwm_count_5 & pwm_mask) + soft_pwm_amount[5];
+                WRITE_HEATER_5(soft_pwm_count_5 > pwm_mask ? HIGH : LOW);
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -1886,6 +1930,9 @@ void Temperature::isr() {
             if (soft_pwm_count_3 <= pwm_count_tmp) WRITE_HEATER_3(LOW);
             #if HOTENDS > 4
               if (soft_pwm_count_4 <= pwm_count_tmp) WRITE_HEATER_4(LOW);
+              #if HOTENDS > 5
+                if (soft_pwm_count_5 <= pwm_count_tmp) WRITE_HEATER_5(LOW);
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -1968,6 +2015,9 @@ void Temperature::isr() {
             SLOW_PWM_ROUTINE(3);
             #if HOTENDS > 4
               SLOW_PWM_ROUTINE(4);
+              #if HOTENDS > 5
+                SLOW_PWM_ROUTINE(5);
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -1987,6 +2037,9 @@ void Temperature::isr() {
           PWM_OFF_ROUTINE(3);
           #if HOTENDS > 4
             PWM_OFF_ROUTINE(4);
+            #if HOTENDS > 5
+              PWM_OFF_ROUTINE(5);
+            #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
@@ -2047,6 +2100,9 @@ void Temperature::isr() {
             if (state_timer_heater_3 > 0) state_timer_heater_3--;
             #if HOTENDS > 4
               if (state_timer_heater_4 > 0) state_timer_heater_4--;
+              #if HOTENDS > 5
+                if (state_timer_heater_5 > 0) state_timer_heater_5--;
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -2169,6 +2225,15 @@ void Temperature::isr() {
         break;
     #endif
 
+    #if HAS_TEMP_ADC_5
+      case PrepareTemp_5:
+        HAL_START_ADC(TEMP_5_PIN);
+        break;
+      case MeasureTemp_5:
+        ACCUMULATE_ADC(raw_temp_value[5]);
+        break;
+    #endif
+
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case Prepare_FILWIDTH:
         HAL_START_ADC(FILWIDTH_PIN);
@@ -2218,7 +2283,7 @@ void Temperature::isr() {
 
   #if ENABLED(BABYSTEPPING)
     LOOP_XYZ(axis) {
-      const int curTodo = babystepsTodo[axis]; // get rid of volatile for performance
+      const int16_t curTodo = babystepsTodo[axis]; // get rid of volatile for performance
       if (curTodo) {
         stepper.babystep((AxisEnum)axis, curTodo > 0);
         if (curTodo > 0) babystepsTodo[axis]--;
@@ -2350,5 +2415,245 @@ void Temperature::isr() {
     }
 
   #endif // AUTO_REPORT_TEMPERATURES
+
+  #if HAS_TEMP_HOTEND
+
+    #ifndef MIN_COOLING_SLOPE_DEG
+      #define MIN_COOLING_SLOPE_DEG 1.50
+    #endif
+    #ifndef MIN_COOLING_SLOPE_TIME
+      #define MIN_COOLING_SLOPE_TIME 60
+    #endif
+
+    bool Temperature::wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling/*=true*/) {
+      #if TEMP_RESIDENCY_TIME > 0
+        millis_t residency_start_ms = 0;
+        // Loop until the temperature has stabilized
+        #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL))
+      #else
+        // Loop until the temperature is very close target
+        #define TEMP_CONDITIONS (wants_to_cool ? isCoolingHotend(target_extruder) : isHeatingHotend(target_extruder))
+      #endif
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        const GcodeSuite::MarlinBusyState old_busy_state = gcode.busy_state;
+        KEEPALIVE_STATE(NOT_BUSY);
+      #endif
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        const float start_temp = degHotend(target_extruder);
+        uint8_t old_blue = 0;
+      #endif
+
+      float target_temp = -1.0, old_temp = 9999.0;
+      bool wants_to_cool = false;
+      wait_for_heatup = true;
+      millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
+      do {
+        // Target temperature might be changed during the loop
+        if (target_temp != degTargetHotend(target_extruder)) {
+          wants_to_cool = isCoolingHotend(target_extruder);
+          target_temp = degTargetHotend(target_extruder);
+
+          // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+          if (no_wait_for_cooling && wants_to_cool) break;
+        }
+
+        now = millis();
+        if (ELAPSED(now, next_temp_ms)) { //Print temp & remaining time every 1s while waiting
+          next_temp_ms = now + 1000UL;
+          print_heaterstates();
+          #if TEMP_RESIDENCY_TIME > 0
+            SERIAL_PROTOCOLPGM(" W:");
+            if (residency_start_ms)
+              SERIAL_PROTOCOL(long((((TEMP_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL));
+            else
+              SERIAL_PROTOCOLCHAR('?');
+          #endif
+          SERIAL_EOL();
+        }
+
+        idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
+
+        const float temp = degHotend(target_extruder);
+
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          // Gradually change LED strip from violet to red as nozzle heats up
+          if (!wants_to_cool) {
+            const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
+            if (blue != old_blue) {
+              old_blue = blue;
+              leds.set_color(
+                MakeLEDColor(255, 0, blue, 0, pixels.getBrightness())
+                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+                  , true
+                #endif
+              );
+            }
+          }
+        #endif
+
+        #if TEMP_RESIDENCY_TIME > 0
+
+          const float temp_diff = ABS(target_temp - temp);
+
+          if (!residency_start_ms) {
+            // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
+            if (temp_diff < TEMP_WINDOW) residency_start_ms = now;
+          }
+          else if (temp_diff > TEMP_HYSTERESIS) {
+            // Restart the timer whenever the temperature falls outside the hysteresis.
+            residency_start_ms = now;
+          }
+
+        #endif
+
+        // Prevent a wait-forever situation if R is misused i.e. M109 R0
+        if (wants_to_cool) {
+          // break after MIN_COOLING_SLOPE_TIME seconds
+          // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG
+          if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
+            if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG)) break;
+            next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME;
+            old_temp = temp;
+          }
+        }
+
+      } while (wait_for_heatup && TEMP_CONDITIONS);
+
+      if (wait_for_heatup) {
+        lcd_reset_status();
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          leds.set_white();
+        #endif
+      }
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        gcode.busy_state = old_busy_state;
+      #endif
+
+      return wait_for_heatup;
+    }
+
+  #endif // HAS_TEMP_HOTEND
+
+  #if HAS_HEATED_BED
+
+    #ifndef MIN_COOLING_SLOPE_DEG_BED
+      #define MIN_COOLING_SLOPE_DEG_BED 1.50
+    #endif
+    #ifndef MIN_COOLING_SLOPE_TIME_BED
+      #define MIN_COOLING_SLOPE_TIME_BED 60
+    #endif
+
+    void Temperature::wait_for_bed(const bool no_wait_for_cooling) {
+      #if TEMP_BED_RESIDENCY_TIME > 0
+        millis_t residency_start_ms = 0;
+        // Loop until the temperature has stabilized
+        #define TEMP_BED_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_BED_RESIDENCY_TIME) * 1000UL))
+      #else
+        // Loop until the temperature is very close target
+        #define TEMP_BED_CONDITIONS (wants_to_cool ? isCoolingBed() : isHeatingBed())
+      #endif
+
+      float target_temp = -1, old_temp = 9999;
+      bool wants_to_cool = false;
+      wait_for_heatup = true;
+      millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        const GcodeSuite::MarlinBusyState old_busy_state = gcode.busy_state;
+        KEEPALIVE_STATE(NOT_BUSY);
+      #endif
+
+      gcode.target_extruder = active_extruder; // for print_heaterstates
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        const float start_temp = degBed();
+        uint8_t old_red = 127;
+      #endif
+
+      do {
+        // Target temperature might be changed during the loop
+        if (target_temp != degTargetBed()) {
+          wants_to_cool = isCoolingBed();
+          target_temp = degTargetBed();
+
+          // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+          if (no_wait_for_cooling && wants_to_cool) break;
+        }
+
+        now = millis();
+        if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
+          next_temp_ms = now + 1000UL;
+          print_heaterstates();
+          #if TEMP_BED_RESIDENCY_TIME > 0
+            SERIAL_PROTOCOLPGM(" W:");
+            if (residency_start_ms)
+              SERIAL_PROTOCOL(long((((TEMP_BED_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL));
+            else
+              SERIAL_PROTOCOLCHAR('?');
+          #endif
+          SERIAL_EOL();
+        }
+
+        idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
+
+        const float temp = degBed();
+
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          // Gradually change LED strip from blue to violet as bed heats up
+          if (!wants_to_cool) {
+            const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
+            if (red != old_red) {
+              old_red = red;
+              leds.set_color(
+                MakeLEDColor(red, 0, 255, 0, pixels.getBrightness())
+                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+                  , true
+                #endif
+              );
+            }
+          }
+        #endif
+
+        #if TEMP_BED_RESIDENCY_TIME > 0
+
+          const float temp_diff = ABS(target_temp - temp);
+
+          if (!residency_start_ms) {
+            // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
+            if (temp_diff < TEMP_BED_WINDOW) residency_start_ms = now;
+          }
+          else if (temp_diff > TEMP_BED_HYSTERESIS) {
+            // Restart the timer whenever the temperature falls outside the hysteresis.
+            residency_start_ms = now;
+          }
+
+        #endif // TEMP_BED_RESIDENCY_TIME > 0
+
+        // Prevent a wait-forever situation if R is misused i.e. M190 R0
+        if (wants_to_cool) {
+          // Break after MIN_COOLING_SLOPE_TIME_BED seconds
+          // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_BED
+          if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
+            if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG_BED)) break;
+            next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME_BED;
+            old_temp = temp;
+          }
+        }
+
+      } while (wait_for_heatup && TEMP_BED_CONDITIONS);
+
+      if (wait_for_heatup) lcd_reset_status();
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        gcode.busy_state = old_busy_state;
+      #endif
+    }
+
+  #endif // HAS_HEATED_BED
 
 #endif // HAS_TEMP_SENSOR

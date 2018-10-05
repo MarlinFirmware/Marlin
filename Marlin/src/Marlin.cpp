@@ -275,7 +275,7 @@ void quickstop_stepper() {
   planner.quick_stop();
   planner.synchronize();
   set_current_from_steppers_for_axis(ALL_AXES);
-  SYNC_PLAN_POSITION_KINEMATIC();
+  sync_plan_position();
 }
 
 void enable_all_steppers() {
@@ -290,6 +290,7 @@ void enable_all_steppers() {
   enable_E2();
   enable_E3();
   enable_E4();
+  enable_E5();
 }
 
 void disable_e_steppers() {
@@ -298,6 +299,7 @@ void disable_e_steppers() {
   disable_E2();
   disable_E3();
   disable_E4();
+  disable_E5();
 }
 
 void disable_e_stepper(const uint8_t e) {
@@ -307,6 +309,7 @@ void disable_e_stepper(const uint8_t e) {
     case 2: disable_E2(); break;
     case 3: disable_E3(); break;
     case 4: disable_E4(); break;
+    case 5: disable_E5(); break;
   }
 }
 
@@ -440,7 +443,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
           #if E_STEPPERS > 1
             case 2: case 3: oldstatus = E1_ENABLE_READ; enable_E1(); break;
             #if E_STEPPERS > 2
-              case 4: oldstatus = E2_ENABLE_READ; enable_E2(); break;
+              case 4: case 5: oldstatus = E2_ENABLE_READ; enable_E2(); break;
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
@@ -456,6 +459,9 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
                 case 3: oldstatus = E3_ENABLE_READ; enable_E3(); break;
                 #if E_STEPPERS > 4
                   case 4: oldstatus = E4_ENABLE_READ; enable_E4(); break;
+                  #if E_STEPPERS > 5
+                    case 5: oldstatus = E5_ENABLE_READ; enable_E5(); break;
+                  #endif // E_STEPPERS > 5
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
             #endif // E_STEPPERS > 2
@@ -465,7 +471,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
 
       const float olde = current_position[E_AXIS];
       current_position[E_AXIS] += EXTRUDER_RUNOUT_EXTRUDE;
-      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder);
+      planner.buffer_line(current_position, MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder);
       current_position[E_AXIS] = olde;
       planner.set_e_position_mm(olde);
       planner.synchronize();
@@ -476,7 +482,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
           #if E_STEPPERS > 1
             case 2: case 3: oldstatus = E1_ENABLE_WRITE(oldstatus); break;
             #if E_STEPPERS > 2
-              case 4: oldstatus = E2_ENABLE_WRITE(oldstatus); break;
+              case 4: case 5: oldstatus = E2_ENABLE_WRITE(oldstatus); break;
             #endif // E_STEPPERS > 2
           #endif // E_STEPPERS > 1
         }
@@ -491,6 +497,9 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
                 case 3: E3_ENABLE_WRITE(oldstatus); break;
                 #if E_STEPPERS > 4
                   case 4: E4_ENABLE_WRITE(oldstatus); break;
+                  #if E_STEPPERS > 5
+                    case 5: E5_ENABLE_WRITE(oldstatus); break;
+                  #endif // E_STEPPERS > 5
                 #endif // E_STEPPERS > 4
               #endif // E_STEPPERS > 3
             #endif // E_STEPPERS > 2
@@ -584,13 +593,17 @@ void idle(
       #endif
     }
   #endif
+
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    Sd2Card::idle();
+  #endif
 }
 
 /**
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(const char* lcd_msg) {
+void kill(PGM_P lcd_msg) {
   SERIAL_ERROR_START();
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
@@ -677,10 +690,22 @@ void setup() {
     max7219.init();
   #endif
 
-  #if ENABLED(DISABLE_JTAG)
-    // Disable JTAG on AT90USB chips to free up pins for IO
-    MCUCR = 0x80;
-    MCUCR = 0x80;
+  #if ENABLED(DISABLE_DEBUG)
+    // Disable any hardware debug to free up pins for IO
+    #ifdef JTAGSWD_DISABLE
+      JTAGSWD_DISABLE();
+    #elif defined(JTAG_DISABLE)
+      JTAG_DISABLE();
+    #else
+      #error "DISABLE_DEBUG is not supported for the selected MCU/Board"
+    #endif
+  #elif ENABLED(DISABLE_JTAG)
+    // Disable JTAG to free up pins for IO
+    #ifdef JTAG_DISABLE
+      JTAG_DISABLE();
+    #else
+      #error "DISABLE_JTAG is not supported for the selected MCU/Board"
+    #endif
   #endif
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -715,6 +740,9 @@ void setup() {
   SERIAL_ECHO_START();
 
   #if HAS_DRIVER(TMC2130)
+    #if DISABLED(TMC_USE_SW_SPI)
+      SPI.begin();
+    #endif
     tmc_init_cs_pins();
   #endif
   #if HAS_DRIVER(TMC2208)
@@ -766,7 +794,7 @@ void setup() {
   #endif
 
   // Vital to init stepper/planner equivalent for current_position
-  SYNC_PLAN_POSITION_KINEMATIC();
+  sync_plan_position();
 
   thermalManager.init();    // Initialize temperature loop
 
@@ -808,7 +836,7 @@ void setup() {
   #endif
 
   #if ENABLED(USE_CONTROLLER_FAN)
-    SET_OUTPUT(CONTROLLER_FAN_PIN); //Set pin used for driver cooling fan
+    SET_OUTPUT(CONTROLLER_FAN_PIN);
   #endif
 
   #if HAS_STEPPER_RESET
@@ -824,7 +852,7 @@ void setup() {
   #endif
 
   #if (ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE)) && HAS_SOLENOID_1
-    OUT_WRITE(SOL1_PIN, LOW); // turn it off
+    OUT_WRITE(SOL1_PIN, LOW); // OFF
   #endif
 
   #if HAS_HOME
@@ -832,11 +860,11 @@ void setup() {
   #endif
 
   #if PIN_EXISTS(STAT_LED_RED)
-    OUT_WRITE(STAT_LED_RED_PIN, LOW); // turn it off
+    OUT_WRITE(STAT_LED_RED_PIN, LOW); // OFF
   #endif
 
   #if PIN_EXISTS(STAT_LED_BLUE)
-    OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
+    OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
 
   #if HAS_COLOR_LEDS

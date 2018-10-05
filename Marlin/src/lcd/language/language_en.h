@@ -191,7 +191,7 @@
   #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
 #endif
 #ifndef MSG_USER_MENU
-  #define MSG_USER_MENU                       _UxGT("Custom User Commands")
+  #define MSG_USER_MENU                       _UxGT("Custom Commands")
 #endif
 #ifndef MSG_UBL_DOING_G29
   #define MSG_UBL_DOING_G29                   _UxGT("Doing G29")
@@ -214,8 +214,23 @@
 #ifndef MSG_IDEX_MODE_DUPLICATE
   #define MSG_IDEX_MODE_DUPLICATE             _UxGT("Duplication")
 #endif
+#ifndef MSG_IDEX_MODE_SCALED_COPY
+  #define MSG_IDEX_MODE_SCALED_COPY           _UxGT("Scaled copy")
+#endif
 #ifndef MSG_IDEX_MODE_FULL_CTRL
   #define MSG_IDEX_MODE_FULL_CTRL             _UxGT("Full control")
+#endif
+#ifndef MSG_IDEX_X_OFFSET
+  #define MSG_IDEX_X_OFFSET                   _UxGT("2nd nozzle X")
+#endif
+#ifndef MSG_IDEX_Y_OFFSET
+  #define MSG_IDEX_Y_OFFSET                   _UxGT("2nd nozzle Y")
+#endif
+#ifndef MSG_IDEX_Z_OFFSET
+  #define MSG_IDEX_Z_OFFSET                   _UxGT("2nd nozzle Z")
+#endif
+#ifndef MSG_IDEX_SAVE_OFFSETS
+  #define MSG_IDEX_SAVE_OFFSETS               _UxGT("Save Offsets")
 #endif
 #ifndef MSG_UBL_MANUAL_MESH
   #define MSG_UBL_MANUAL_MESH                 _UxGT("Manually Build Mesh")
@@ -630,6 +645,9 @@
 #ifndef MSG_E5STEPS
   #define MSG_E5STEPS                         _UxGT("E5steps/mm")
 #endif
+#ifndef MSG_E6STEPS
+  #define MSG_E6STEPS                         _UxGT("E6steps/mm")
+#endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     _UxGT("Temperature")
 #endif
@@ -789,6 +807,12 @@
 #ifndef MSG_BLTOUCH_STOW
   #define MSG_BLTOUCH_STOW                    _UxGT("Stow BLTouch")
 #endif
+#ifndef MSG_MANUAL_DEPLOY
+  #define MSG_MANUAL_DEPLOY                   _UxGT("Deploy Z-Probe")
+#endif
+#ifndef MSG_MANUAL_STOW
+  #define MSG_MANUAL_STOW                     _UxGT("Stow Z-Probe")
+#endif
 #ifndef MSG_HOME
   #define MSG_HOME                            _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #endif
@@ -946,7 +970,7 @@
   #define MSG_CASE_LIGHT                      _UxGT("Case light")
 #endif
 #ifndef MSG_CASE_LIGHT_BRIGHTNESS
-  #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Light BRIGHTNESS")
+  #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Light Brightness")
 #endif
 #if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
@@ -1019,6 +1043,9 @@
 #endif
 #ifndef MSG_FILAMENT_CHANGE_NOZZLE
   #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozzle: ")
+#endif
+#ifndef MSG_RUNOUT_SENSOR_ENABLE
+  #define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Runout Sensor")
 #endif
 #ifndef MSG_ERR_HOMING_FAILED
   #define MSG_ERR_HOMING_FAILED               _UxGT("Homing failed")

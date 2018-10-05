@@ -28,25 +28,22 @@
   #define BOARD_NAME "Anycubic RAMPS 1.4"
 #endif
 
-#define IS_RAMPS_EFB
+// Remap MOSFET pins to common usages
+#if HOTENDS > 1
+  #define RAMPS_D9_PIN     45   // EEB, EEF
+  #if !TEMP_SENSOR_BED
+    #define RAMPS_D8_PIN    9   // EEF
+  #endif
+#elif TEMP_SENSOR_BED
+  #define FAN1_PIN          7   // EFB
+#else
+  #define FAN2_PIN         44   // EFF
+#endif
 
-// FAN0 / D9  - Typically used for the part fan on Anycubic Delta devices
-#define FAN_PIN 9
-
-// FAN1 / D7  - Typically unused, can be allocated as Case Fan
-
-// FAN2 / D44 - Typical Extruder Fan on Anycubic Delta devices
-#define FAN2_PIN              44
-#define ORIG_E0_AUTO_FAN_PIN  44
+// D44 - Typical Extruder Fan on Anycubic Delta devices
+#define ORIG_E0_AUTO_FAN_PIN 44
 
 #include "pins_RAMPS.h"
-
-// TODO 1.4 boards do have an E1 stepper driver. However the pin definitions
-// from pins_RAMPS.h are incorrect for this board. e.g., Pin 44 is the Extruder fan.
-#undef E1_STEP_PIN
-#undef E1_DIR_PIN
-#undef E1_ENABLE_PIN
-#undef E1_CS_PIN
 
 //
 // AnyCubic made the following changes to 1.1.0-RC8

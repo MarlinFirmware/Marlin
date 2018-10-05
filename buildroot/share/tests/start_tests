@@ -6,7 +6,7 @@ export PATH="$PATH:./buildroot/bin"
 set -e
 
 exec_test () {
-  printf "\033[0;32m[Test $2] \033[0m$3... "
+  printf "\n\033[0;32m[Test $2] \033[0m$3...\n"
   if build_marlin_pio $1 "-e $2"; then
     printf "\033[0;32mPassed\033[0m\n"
     return 0
@@ -18,7 +18,6 @@ exec_test () {
 }
 export -f exec_test
 
-env_backup
 printf "Running \033[0;32m$2\033[0m Tests\n"
 
 if [[ $3 = "--deep-clean" ]]; then
@@ -30,14 +29,17 @@ if [[ $2 = "ALL" ]]; then
   dir_list=("$(dirname "${BASH_SOURCE[0]}")"/*)
   declare -a tests=(${dir_list[@]/*start_tests/})
   for f in "${tests[@]}"; do
+    env_backup
     testenv=$(basename $f | cut -d"_" -f1)
     printf "Running \033[0;32m$f\033[0m Tests\n"
     exec_test $1 "$testenv --target clean" "Setup Build Environment"
     $f $1 $testenv
+    env_restore
   done
 else
+  env_backup
   exec_test $1 "$2 --target clean" "Setup Build Environment"
   $2_tests $1 $2
+  env_restore
 fi
 printf "\033[0;32mAll tests completed successfully\033[0m\n"
-env_restore

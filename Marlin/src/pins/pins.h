@@ -35,7 +35,7 @@
 #ifndef __PINS_H__
 #define __PINS_H__
 
-#include "../inc/MarlinConfig.h"
+#define MAX_EXTRUDERS 6
 
 #if MB(RAMPS_13_EFB) || MB(RAMPS_14_EFB) || MB(RAMPS_PLUS_EFB) || MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_SMART_EFB) || MB(RAMPS_DUO_EFB) || MB(RAMPS4DUE_EFB)
   #define IS_RAMPS_EFB
@@ -132,8 +132,10 @@
   #include "pins_AZTEEG_X3_PRO.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(ULTIMAIN_2)
   #include "pins_ULTIMAIN_2.h"        // ATmega2560                                 env:megaatmega2560
-#elif MB(FORMBOT_TREX2)
-  #include "pins_FORMBOT_TREX2.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_RAPTOR)
+  #include "pins_FORMBOT_RAPTOR.h"    // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_TREX2PLUS)
+  #include "pins_FORMBOT_TREX2PLUS.h" // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_TREX3)
   #include "pins_FORMBOT_TREX3.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RUMBA)
@@ -148,6 +150,10 @@
   #include "pins_TRIGORILLA_14.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMPS_ENDER_4)
   #include "pins_RAMPS_ENDER_4.h"     // ATmega2560                                 env:megaatmega2560
+#elif MB(GT2560_V3)
+  #include "pins_GT2560_V3.h"         // ATmega2560                                 env:megaatmega2560
+#elif MB(FYSETC_F6_13)
+  #include "pins_FYSETC_F6_13.h"      // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -398,6 +404,8 @@
 
 #elif MB(THE_BORG)
   #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7
+#elif MB(REMRAM_V1)
+  #include "pins_REMRAM_V1.h"         // STM32F7                                    env:STM32F7xx
 
 //
 // Espressif ESP32
@@ -468,6 +476,15 @@
 #ifndef E4_MS3_PIN
   #define E4_MS3_PIN -1
 #endif
+#ifndef E5_MS1_PIN
+  #define E5_MS1_PIN -1
+#endif
+#ifndef E5_MS2_PIN
+  #define E5_MS2_PIN -1
+#endif
+#ifndef E5_MS3_PIN
+  #define E5_MS3_PIN -1
+#endif
 
 #ifndef E0_STEP_PIN
   #define E0_STEP_PIN -1
@@ -514,6 +531,15 @@
 #ifndef E4_ENABLE_PIN
   #define E4_ENABLE_PIN -1
 #endif
+#ifndef E5_STEP_PIN
+  #define E5_STEP_PIN -1
+#endif
+#ifndef E5_DIR_PIN
+  #define E5_DIR_PIN -1
+#endif
+#ifndef E5_ENABLE_PIN
+  #define E5_ENABLE_PIN -1
+#endif
 
 #ifndef X_CS_PIN
   #define X_CS_PIN -1
@@ -538,6 +564,9 @@
 #endif
 #ifndef E4_CS_PIN
   #define E4_CS_PIN -1
+#endif
+#ifndef E5_CS_PIN
+  #define E5_CS_PIN -1
 #endif
 
 #ifndef FAN_PIN
@@ -578,6 +607,9 @@
 #ifndef HEATER_4_PIN
   #define HEATER_4_PIN -1
 #endif
+#ifndef HEATER_5_PIN
+  #define HEATER_5_PIN -1
+#endif
 #ifndef HEATER_BED_PIN
   #define HEATER_BED_PIN -1
 #endif
@@ -596,6 +628,9 @@
 #endif
 #ifndef TEMP_4_PIN
   #define TEMP_4_PIN -1
+#endif
+#ifndef TEMP_5_PIN
+  #define TEMP_5_PIN -1
 #endif
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN -1
@@ -621,10 +656,6 @@
 #endif
 #ifndef SUICIDE_PIN
   #define SUICIDE_PIN -1
-#endif
-
-#ifndef MAX_EXTRUDERS
-  #define MAX_EXTRUDERS 5
 #endif
 
 #ifndef NUM_SERVO_PLUGS
@@ -669,6 +700,13 @@
     #define E4_AUTO_FAN_PIN -1
   #endif
 #endif
+#ifndef E5_AUTO_FAN_PIN
+  #ifdef ORIG_E5_AUTO_FAN_PIN
+    #define E5_AUTO_FAN_PIN ORIG_E5_AUTO_FAN_PIN
+  #else
+    #define E5_AUTO_FAN_PIN -1
+  #endif
+#endif
 #ifndef CHAMBER_AUTO_FAN_PIN
   #ifdef ORIG_CHAMBER_AUTO_FAN_PIN
     #define CHAMBER_AUTO_FAN_PIN ORIG_CHAMBER_AUTO_FAN_PIN
@@ -683,6 +721,7 @@
 #define _E2_PINS
 #define _E3_PINS
 #define _E4_PINS
+#define _E5_PINS
 
 #if ENABLED(SWITCHING_EXTRUDER)
                       // Tools 0 and 1 use E0
@@ -706,6 +745,10 @@
       #if EXTRUDERS > 4
         #undef _E4_PINS
         #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN, E4_MS1_PIN, E4_MS2_PIN, E4_MS3_PIN, E4_CS_PIN,
+        #if EXTRUDERS > 5
+          #undef _E5_PINS
+          #define _E5_PINS E5_STEP_PIN, E5_DIR_PIN, E5_ENABLE_PIN, E5_MS1_PIN, E5_MS2_PIN, E5_MS3_PIN, E5_CS_PIN,
+        #endif // EXTRUDERS > 5
       #endif // EXTRUDERS > 4
     #endif // EXTRUDERS > 3
   #endif // EXTRUDERS > 2
@@ -716,6 +759,7 @@
 #define _H2_PINS
 #define _H3_PINS
 #define _H4_PINS
+#define _H5_PINS
 
 #if HOTENDS > 1
   #undef _H1_PINS
@@ -728,7 +772,11 @@
       #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
       #if HOTENDS > 4
         #undef _H4_PINS
-        #define _H4_PINS HEATER_4_PIN, analogInputToDigitalPin(TEMP_4_PIN),
+        #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_4_PIN),
+        #if HOTENDS > 5
+          #undef _H5_PINS
+          #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_5_PIN),
+        #endif // HOTENDS > 5
       #endif // HOTENDS > 4
     #endif // HOTENDS > 3
   #endif // HOTENDS > 2
@@ -744,6 +792,10 @@
       #if MIXING_STEPPERS > 4
         #undef _E4_PINS
         #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN, E4_MS1_PIN, E4_MS2_PIN, E4_CS_PIN,
+        #if MIXING_STEPPERS > 5
+          #undef _E5_PINS
+          #define _E5_PINS E5_STEP_PIN, E5_DIR_PIN, E5_ENABLE_PIN, E5_MS1_PIN, E5_MS2_PIN, E5_CS_PIN,
+        #endif // MIXING_STEPPERS > 5
       #endif // MIXING_STEPPERS > 4
     #endif // MIXING_STEPPERS > 3
   #endif // MIXING_STEPPERS > 2
@@ -842,6 +894,7 @@
 #define _X2_PINS
 #define _Y2_PINS
 #define _Z2_PINS
+#define _Z3_PINS
 
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
@@ -855,7 +908,7 @@
     #ifndef X2_CS_PIN
       #define X2_CS_PIN   _EPIN(E_STEPPERS, CS)
     #endif
-    #if E_STEPPERS > 4 || !PIN_EXISTS(X2_ENABLE)
+    #if E_STEPPERS > MAX_EXTRUDERS || !PIN_EXISTS(X2_ENABLE)
       #error "No E stepper plug left for X2!"
     #endif
   #endif
@@ -880,7 +933,7 @@
     #ifndef Y2_CS_PIN
       #define Y2_CS_PIN   _EPIN(Y2_E_INDEX, CS)
     #endif
-    #if Y2_E_INDEX > 4 || !PIN_EXISTS(Y2_ENABLE)
+    #if Y2_E_INDEX > MAX_EXTRUDERS || !PIN_EXISTS(Y2_ENABLE)
       #error "No E stepper plug left for Y2!"
     #endif
   #endif
@@ -897,7 +950,7 @@
 #endif
 
 // The Z2 axis, if any, should be the next open extruder port
-#if ENABLED(Z_DUAL_STEPPER_DRIVERS)
+#if Z_MULTI_STEPPER_DRIVERS
   #ifndef Z2_STEP_PIN
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
     #define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
@@ -905,7 +958,7 @@
     #ifndef Z2_CS_PIN
       #define Z2_CS_PIN   _EPIN(Z2_E_INDEX, CS)
     #endif
-    #if Z2_E_INDEX > 4 || !PIN_EXISTS(Z2_ENABLE)
+    #if Z2_E_INDEX > MAX_EXTRUDERS || !PIN_EXISTS(Z2_ENABLE)
       #error "No E stepper plug left for Z2!"
     #endif
   #endif
@@ -915,6 +968,30 @@
     #define _Z2_PINS __Z2_PINS Z2_CS_PIN,
   #else
     #define _Z2_PINS __Z2_PINS
+  #endif
+  #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
+#else
+  #define Z3_E_INDEX Z2_E_INDEX
+#endif
+
+#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+  #ifndef Z3_STEP_PIN
+    #define Z3_STEP_PIN   _EPIN(Z3_E_INDEX, STEP)
+    #define Z3_DIR_PIN    _EPIN(Z3_E_INDEX, DIR)
+    #define Z3_ENABLE_PIN _EPIN(Z3_E_INDEX, ENABLE)
+    #ifndef Z3_CS_PIN
+      #define Z3_CS_PIN   _EPIN(Z3_E_INDEX, CS)
+    #endif
+    #if Z3_E_INDEX > 4 || !PIN_EXISTS(Z3_ENABLE)
+      #error "No E stepper plug left for Z3!"
+    #endif
+  #endif
+  #undef _Z3_PINS
+  #define __Z3_PINS Z3_STEP_PIN, Z3_DIR_PIN, Z3_ENABLE_PIN,
+  #ifdef Z3_CS_PIN
+    #define _Z3_PINS __Z3_PINS Z3_CS_PIN,
+  #else
+    #define _Z3_PINS __Z3_PINS
   #endif
 #endif
 
@@ -927,9 +1004,9 @@
     Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Y_MS1_PIN, Y_MS2_PIN, Y_CS_PIN, \
     Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, Z_MS1_PIN, Z_MS2_PIN, Z_MS3_PIN, Z_CS_PIN, Z_MIN_PROBE_PIN, \
     PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLER_FAN_PIN, \
-    _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS BED_PINS \
-    _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS \
-    _X2_PINS _Y2_PINS _Z2_PINS \
+    _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS BED_PINS \
+    _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS \
+    _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS \
     HAL_SENSITIVE_PINS \
   }
 

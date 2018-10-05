@@ -53,6 +53,11 @@ inline void enable_solenoid(const uint8_t num) {
           OUT_WRITE(SOL4_PIN, HIGH);
           break;
       #endif
+      #if HAS_SOLENOID_5 && EXTRUDERS > 5
+        case 5:
+          OUT_WRITE(SOL5_PIN, HIGH);
+          break;
+      #endif
     default:
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM(MSG_INVALID_SOLENOID);
@@ -75,6 +80,9 @@ void disable_all_solenoids() {
   #endif
   #if HAS_SOLENOID_4 && EXTRUDERS > 4
     OUT_WRITE(SOL4_PIN, LOW);
+  #endif
+  #if HAS_SOLENOID_5 && EXTRUDERS > 5
+    OUT_WRITE(SOL5_PIN, LOW);
   #endif
 }
 

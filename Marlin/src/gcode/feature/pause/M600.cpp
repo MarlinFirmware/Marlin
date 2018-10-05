@@ -56,6 +56,19 @@ void GcodeSuite::M600() {
 
   if (get_target_extruder_from_command()) return;
 
+  #if ENABLED(DUAL_X_CARRIAGE)
+    int8_t DXC_ext = target_extruder;
+    if (!parser.seen('T')) {  // If no tool index is specified, M600 was (probably) sent in response to filament runout.
+                              // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR) && NUM_RUNOUT_SENSORS > 1
+        if (dxc_is_duplicating())
+          DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING) ? 1 : 0;
+      #else
+        DXC_ext = active_extruder;
+      #endif
+    }
+  #endif
+
   // Show initial "wait for start" message
   #if ENABLED(ULTIPANEL)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, target_extruder);
@@ -63,14 +76,18 @@ void GcodeSuite::M600() {
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // Don't allow filament change without homing first
-    if (axis_unhomed_error()) home_all_axes();
+    if (axis_unhomed_error()) gcode.home_all_axes();
   #endif
 
   #if EXTRUDERS > 1
     // Change toolhead if specified
-    uint8_t active_extruder_before_filament_change = active_extruder;
-    if (active_extruder != target_extruder)
-      tool_change(target_extruder, 0, true);
+    const uint8_t active_extruder_before_filament_change = active_extruder;
+    if (
+      active_extruder != target_extruder
+      #if ENABLED(DUAL_X_CARRIAGE)
+        && dual_x_carriage_mode != DXC_DUPLICATION_MODE && dual_x_carriage_mode != DXC_SCALED_DUPLICATION_MODE
+      #endif
+    ) tool_change(target_extruder, 0, true);
   #endif
 
   // Initial retract before move to filament change position
@@ -113,9 +130,9 @@ void GcodeSuite::M600() {
 
   const bool job_running = print_job_timer.isRunning();
 
-  if (pause_print(retract, park_point, unload_length, true)) {
-    wait_for_filament_reload(beep_count);
-    resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count);
+  if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
+    wait_for_filament_reload(beep_count DXC_PASS);
+    resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
   }
 
   #if EXTRUDERS > 1

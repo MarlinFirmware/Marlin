@@ -242,6 +242,7 @@
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
 #define E4_AUTO_FAN_PIN -1
+#define E5_AUTO_FAN_PIN -1
 #define CHAMBER_AUTO_FAN_PIN -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
@@ -342,21 +343,35 @@
   #endif
 #endif
 
-// Enable this for dual x-carriage printers.
-// A dual x-carriage design has the advantage that the inactive extruder can be parked which
-// prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
-// allowing faster printing speeds. Connect your X2 stepper to the first unused E plug.
+//#define Z_TRIPLE_STEPPER_DRIVERS
+#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+  //#define Z_TRIPLE_ENDSTOPS
+  #if ENABLED(Z_TRIPLE_ENDSTOPS)
+    #define Z2_USE_ENDSTOP _XMAX_
+    #define Z3_USE_ENDSTOP _YMAX_
+    #define Z_TRIPLE_ENDSTOPS_ADJUSTMENT2  0
+    #define Z_TRIPLE_ENDSTOPS_ADJUSTMENT3  0
+  #endif
+#endif
+
+/**
+ * Dual X Carriage
+ *
+ * This setup has two X carriages that can move independently, each with its own hotend.
+ * The carriages can be used to print an object with two colors or materials, or in
+ * "duplication mode" it can print two identical or X-mirrored objects simultaneously.
+ * The inactive carriage is parked automatically to prevent oozing.
+ * X1 is the left carriage, X2 the right. They park and home at opposite ends of the X axis.
+ * By default the X2 stepper is assigned to the first unused E plug on the board.
+ */
 #define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
-  // Configuration for second X-carriage
-  // Note: the first x-carriage is defined as the x-carriage which homes to the minimum endstop;
-  // the second x-carriage always homes to the maximum endstop.
-  #define X1_MIN_POS X_MIN_POS        // set minimum to ensure first x-carriage doesn't hit the parked second X-carriage
-  #define X1_MAX_POS (X_BED_SIZE)     // set maximum to ensure first x-carriage doesn't hit the parked second X-carriage
-  #define X2_MIN_POS 0                // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
-  #define X2_MAX_POS (442-4.0)        // set maximum to the distance between toolheads when both heads are homed
-  #define X2_HOME_DIR 1               // the second X-carriage always homes to the maximum endstop position
-  #define X2_HOME_POS X2_MAX_POS      // default home position is the maximum carriage position
+  #define X1_MIN_POS X_MIN_POS  // set minimum to ensure first x-carriage doesn't hit the parked second X-carriage
+  #define X1_MAX_POS X_BED_SIZE // set maximum to ensure first x-carriage doesn't hit the parked second X-carriage
+  #define X2_MIN_POS  0     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
+  #define X2_MAX_POS (442-4.0) // set maximum to the distance between toolheads when both heads are homed
+  #define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
+  #define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position
       // However: In this mode the HOTEND_OFFSET_X value for the second extruder provides a software
       // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
       // without modifying the firmware (through the "M218 T1 X???" command).
@@ -370,9 +385,7 @@
   //    Mode 2 (DXC_DUPLICATION_MODE) :           Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all
   //                                              actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
   //                                              once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
-  //    Mode 3 (DXC_SYMMETRIC_DUPLICATION_MODE) : Symmetric Duplication mode. The firmware will perform similarly to DXC_DUPLICATION_MODE except in a mirror
-  //                                              image of the first x-carriage.  ie. If you are printing a right hand shoe on the 1st extruder, you will
-  //                                              get a left hand shoe on the 2nd extruder.
+  //    Mode 3 (DXC_SCALED_DUPLICATION_MODE) :    Not working yet, but support routines in place
 
   // This is the default power-up mode which can be later using M605.
   #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_AUTO_PARK_MODE
@@ -436,6 +449,7 @@
 
 #if ENABLED(ULTIPANEL)
   #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
+  #define MANUAL_E_MOVES_RELATIVE // Show LCD extruder moves as relative rather than absolute positions
   #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
 
@@ -474,7 +488,7 @@
 //#define ADAPTIVE_STEP_SMOOTHING
 
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
-#define MICROSTEP_MODES { 16, 16, 16, 16, 16 } // [1,2,4,8,16]
+#define MICROSTEP_MODES { 16, 16, 16, 16, 16, 16 } // [1,2,4,8,16]
 
 /**
  *  @section  stepper motor current
@@ -488,7 +502,7 @@
  *                         known compatible chips: AD5206
  *    DAC_MOTOR_CURRENT_DEFAULT - used by PRINTRBOARD_REVF & RIGIDBOARD_V2
  *                         known compatible chips: MCP4728
- *    DIGIPOT_I2C_MOTOR_CURRENTS - used by 5DPRINT, AZTEEG_X3_PRO, MIGHTYBOARD_REVE
+ *    DIGIPOT_I2C_MOTOR_CURRENTS - used by 5DPRINT, AZTEEG_X3_PRO, AZTEEG_X5_MINI_WIFI, MIGHTYBOARD_REVE
  *                         known compatible chips: MCP4451, MCP4018
  *
  *  Motor currents can also be set by M907 - M910 and by the LCD.
@@ -506,10 +520,11 @@
   /**
    * Common slave addresses:
    *
-   *                    A   (A shifted)   B   (B shifted)  IC
-   * Smoothie          0x2C (0x58)       0x2D (0x5A)       MCP4451
-   * AZTEEG_X3_PRO     0x2C (0x58)       0x2E (0x5C)       MCP4451
-   * MIGHTYBOARD_REVE  0x2F (0x5E)                         MCP4018
+   *                        A   (A shifted)   B   (B shifted)  IC
+   * Smoothie              0x2C (0x58)       0x2D (0x5A)       MCP4451
+   * AZTEEG_X3_PRO         0x2C (0x58)       0x2E (0x5C)       MCP4451
+   * AZTEEG_X5_MINI_WIFI         0x58              0x5C        MCP4451
+   * MIGHTYBOARD_REVE      0x2F (0x5E)                         MCP4018
    */
   #define DIGIPOT_I2C_ADDRESS_A 0x2C  // unshifted slave address for first DIGIPOT
   #define DIGIPOT_I2C_ADDRESS_B 0x2D  // unshifted slave address for second DIGIPOT
@@ -587,7 +602,7 @@
   #define SD_DETECT_INVERTED
 
   #define SD_FINISHED_STEPPERRELEASE true          // Disable steppers when SD Print is finished
-  #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
+  #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the Z enabled so your bed stays in place.
 
   // Reverse SD sort to show "more recent" files first, according to the card's FAT.
   // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
@@ -673,6 +688,24 @@
    */
   #define AUTO_REPORT_SD_STATUS
 
+  /**
+   * Support for USB thumb drives using an Arduino USB Host Shield or
+   * equivalent MAX3421E breakout board. The USB thumb drive will appear
+   * to Marlin as an SD card.
+   *
+   * The MAX3421E must be assigned the same pins as the SD card reader, with
+   * the following pin mapping:
+   *
+   *    SCLK, MOSI, MISO --> SCLK, MOSI, MISO
+   *    INT              --> SD_DETECT_PIN
+   *    SS               --> SDSS
+   */
+  //#define USB_FLASH_DRIVE_SUPPORT
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    #define USB_CS_PIN         SDSS
+    #define USB_INTR_PIN       SD_DETECT_PIN
+  #endif
+
 #endif // SDSUPPORT
 
 /**
@@ -757,14 +790,25 @@
  */
 #define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  //#define BABYSTEP_XY              // Also enable X/Y Babystepping. Not supported on DELTA!
-  #define BABYSTEP_INVERT_Z false    // Change if Z babysteps should go the other way
-  #define BABYSTEP_MULTIPLICATOR 40  // Babysteps are very small. Increase for faster motion.
-//#define BABYSTEP_ZPROBE_OFFSET     // Enable to combine M851 and Babystepping
-  #define DOUBLECLICK_FOR_Z_BABYSTEPPING // Double-click on the Status Screen for Z Babystepping.
-  #define DOUBLECLICK_MAX_INTERVAL 1250  // Maximum interval between clicks, in milliseconds.
-                                         // Note: Extra time may be added to mitigate controller latency.
-//#define BABYSTEP_ZPROBE_GFX_OVERLAY    // Enable graphical overlay on Z-offset editor
+  //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
+  #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
+  #define BABYSTEP_MULTIPLICATOR 40         // Babysteps are very small. Increase for faster motion.
+
+  #define DOUBLECLICK_FOR_Z_BABYSTEPPING    // Double-click on the Status Screen for Z Babystepping.
+  #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
+    #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
+                                            // Note: Extra time may be added to mitigate controller latency.
+  #endif
+
+  //#define MOVE_Z_WHEN_IDLE                // Jump to the move Z menu on doubleclick when printer is idle.
+  #if ENABLED(MOVE_Z_WHEN_IDLE)
+    #define MOVE_Z_IDLE_MULTIPLICATOR 1     // Multiply 1mm by this factor for the move step size.
+  #endif
+  //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
+  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+    //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
+    //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
+  #endif
 #endif
 
 // @section extruder
@@ -980,10 +1024,13 @@
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *
  */
-//#define FWRETRACT  // ONLY PARTIALLY TESTED
+//#define FWRETRACT
 #if ENABLED(FWRETRACT)
-  #define MIN_AUTORETRACT 0.1             // When auto-retract is on, convert E moves of this length and over
-  #define MAX_AUTORETRACT 10.0            // Upper limit for auto-retract conversion
+  #define FWRETRACT_AUTORETRACT           // costs ~500 bytes of PROGMEM
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    #define MIN_AUTORETRACT 0.1           // When auto-retract is on, convert E moves of this length and over
+    #define MAX_AUTORETRACT 10.0          // Upper limit for auto-retract conversion
+  #endif
   #define RETRACT_LENGTH 3                // Default retract length (positive mm)
   #define RETRACT_LENGTH_SWAP 13          // Default swap retract length (positive mm), for extruder change
   #define RETRACT_FEEDRATE 45             // Default feedrate for retracting (mm/s)
@@ -992,6 +1039,9 @@
   #define RETRACT_RECOVER_LENGTH_SWAP 0   // Default additional swap recover length (mm, added to retract length when recovering from extruder change)
   #define RETRACT_RECOVER_FEEDRATE 8      // Default feedrate for recovering from retraction (mm/s)
   #define RETRACT_RECOVER_FEEDRATE_SWAP 8 // Default feedrate for recovering from swap retraction (mm/s)
+  #if ENABLED(MIXING_EXTRUDER)
+    //#define RETRACT_SYNC_MIXING         // Retract and restore all mixing steppers simultaneously
+  #endif
 #endif
 
 /**
@@ -1089,6 +1139,10 @@
   #define Z2_SENSE_RESISTOR   91
   #define Z2_MICROSTEPS       16
 
+  #define Z3_MAX_CURRENT    1000
+  #define Z3_SENSE_RESISTOR   91
+  #define Z3_MICROSTEPS       16
+
   #define E0_MAX_CURRENT    1000
   #define E0_SENSE_RESISTOR   91
   #define E0_MICROSTEPS       16
@@ -1108,6 +1162,10 @@
   #define E4_MAX_CURRENT    1000
   #define E4_SENSE_RESISTOR   91
   #define E4_MICROSTEPS       16
+
+  #define E5_MAX_CURRENT    1000
+  #define E5_SENSE_RESISTOR   91
+  #define E5_MICROSTEPS       16
 
 #endif // TMC26X
 
@@ -1155,6 +1213,9 @@
   #define Z2_CURRENT         800
   #define Z2_MICROSTEPS       16
 
+  #define Z3_CURRENT         800
+  #define Z3_MICROSTEPS       16
+
   #define E0_CURRENT         800
   #define E0_MICROSTEPS       16
 
@@ -1169,6 +1230,9 @@
 
   #define E4_CURRENT         800
   #define E4_MICROSTEPS       16
+
+  #define E5_CURRENT         800
+  #define E5_MICROSTEPS       16
 
   /**
    * Use software SPI for TMC2130.
@@ -1219,18 +1283,20 @@
   #define Y2_HYBRID_THRESHOLD    100
   #define Z_HYBRID_THRESHOLD       3
   #define Z2_HYBRID_THRESHOLD      3
+  #define Z3_HYBRID_THRESHOLD      3
   #define E0_HYBRID_THRESHOLD     30
   #define E1_HYBRID_THRESHOLD     30
   #define E2_HYBRID_THRESHOLD     30
   #define E3_HYBRID_THRESHOLD     30
   #define E4_HYBRID_THRESHOLD     30
+  #define E5_HYBRID_THRESHOLD     30
 
   /**
-   * Use stallGuard2 to sense an obstacle and trigger an endstop.
-   * You need to place a wire from the driver's DIAG1 pin to the X/Y endstop pin.
+   * Use StallGuard2 to sense an obstacle and trigger an endstop.
+   * Connect the stepper driver's DIAG1 pin to the X/Y endstop pin.
    * X, Y, and Z homing will always be done in spreadCycle mode.
    *
-   * X/Y/Z_HOMING_SENSITIVITY is used for tuning the trigger sensitivity.
+   * X/Y/Z_STALL_SENSITIVITY is used for tuning the trigger sensitivity.
    * Higher values make the system LESS sensitive.
    * Lower value make the system MORE sensitive.
    * Too low values can lead to false positives, while too high values will collide the axis without triggering.
@@ -1239,10 +1305,18 @@
    */
   //#define SENSORLESS_HOMING // TMC2130 only
 
-  #if ENABLED(SENSORLESS_HOMING)
-    #define X_HOMING_SENSITIVITY  8
-    #define Y_HOMING_SENSITIVITY  8
-    #define Z_HOMING_SENSITIVITY  8
+  /**
+   * Use StallGuard2 to probe the bed with the nozzle.
+   *
+   * CAUTION: This could cause damage to machines that use a lead screw or threaded rod
+   *          to move the Z axis. Take extreme care when attempting to enable this feature.
+   */
+  //#define SENSORLESS_PROBING // TMC2130 only
+
+  #if ENABLED(SENSORLESS_HOMING) || ENABLED(SENSORLESS_PROBING)
+    #define X_STALL_SENSITIVITY  8
+    #define Y_STALL_SENSITIVITY  8
+    //#define Z_STALL_SENSITIVITY  8
   #endif
 
   /**
@@ -1281,7 +1355,7 @@
    */
   #define TMC_ADV() {  }
 
-#endif // TMC2130 || TMC2208
+#endif // HAS_TRINAMIC
 
 // @section L6470
 
@@ -1317,6 +1391,10 @@
   #define Z2_OVERCURRENT    2000
   #define Z2_STALLCURRENT   1500
 
+  #define Z3_MICROSTEPS       16
+  #define Z3_OVERCURRENT    2000
+  #define Z3_STALLCURRENT   1500
+
   #define E0_MICROSTEPS       16
   #define E0_OVERCURRENT    2000
   #define E0_STALLCURRENT   1500
@@ -1336,6 +1414,10 @@
   #define E4_MICROSTEPS       16
   #define E4_OVERCURRENT    2000
   #define E4_STALLCURRENT   1500
+
+  #define E5_MICROSTEPS       16
+  #define E5_OVERCURRENT    2000
+  #define E5_STALLCURRENT   1500
 
 #endif // L6470
 
@@ -1648,20 +1730,22 @@
 #endif
 
 #if ENABLED(MAX7219_DEBUG)
-/*
-#define MAX7219_CLK_PIN   50       // Configuration of the 3 pins to control the display
-#define MAX7219_DIN_PIN   51       // on RUMBA (or Formbot) using the ICSP port is used
-#define MAX7219_LOAD_PIN  52       // This will affect your use of the SD Memory card */
+  /*
+  #define MAX7219_CLK_PIN   50       // Configuration of the 3 pins to control the display
+  #define MAX7219_DIN_PIN   51       // on RUMBA (or Formbot) using the ICSP port is used
+  #define MAX7219_LOAD_PIN  52       // This will affect your use of the SD Memory card
+  */
 
-#define MAX7219_CLK_PIN   41       // Configuration of the 3 pins to control the display
-#define MAX7219_DIN_PIN   13       // 41 is LCD_Kill_Button, 13 is Arduino_LED, 37 is LCD_Beeper
-#define MAX7219_LOAD_PIN  37
+  #define MAX7219_CLK_PIN   41       // Configuration of the 3 pins to control the display
+  #define MAX7219_DIN_PIN   13       // 41 is LCD_Kill_Button, 13 is Arduino_LED, 37 is LCD_Beeper
+  #define MAX7219_LOAD_PIN  37
 
   #define MAX7219_GCODE            // Add the M7219 G-code to control the LED matrix
   #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
   #define MAX7219_NUMBER_UNITS 2   // Number of Max7219 units in chain.
   #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
                                    // connector at:  right=0   bottom=-90  top=90  left=180
+  //#define MAX7219_REVERSE_ORDER  // The individual LED matrix units may be in reversed order
 
   /**
    * Sample debug features

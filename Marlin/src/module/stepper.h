@@ -234,8 +234,8 @@ class Stepper {
 
   public:
 
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-      static bool homing_dual_axis;
+    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+      static bool separate_multi_axis;
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM
@@ -267,8 +267,11 @@ class Stepper {
     #if ENABLED(Y_DUAL_ENDSTOPS)
       static bool locked_Y_motor, locked_Y2_motor;
     #endif
-    #if ENABLED(Z_DUAL_ENDSTOPS)
+    #if Z_MULTI_ENDSTOPS
       static bool locked_Z_motor, locked_Z2_motor;
+    #endif
+    #if ENABLED(Z_TRIPLE_ENDSTOPS)
+      static bool locked_Z3_motor;
     #endif
 
     static uint32_t acceleration_time, deceleration_time; // time measured in Stepper Timer ticks
@@ -415,8 +418,8 @@ class Stepper {
       static void microstep_readings();
     #endif
 
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
-      FORCE_INLINE static void set_homing_dual_axis(const bool state) { homing_dual_axis = state; }
+    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+      FORCE_INLINE static void set_separate_multi_axis(const bool state) { separate_multi_axis = state; }
     #endif
     #if ENABLED(X_DUAL_ENDSTOPS)
       FORCE_INLINE static void set_x_lock(const bool state) { locked_X_motor = state; }
@@ -426,9 +429,12 @@ class Stepper {
       FORCE_INLINE static void set_y_lock(const bool state) { locked_Y_motor = state; }
       FORCE_INLINE static void set_y2_lock(const bool state) { locked_Y2_motor = state; }
     #endif
-    #if ENABLED(Z_DUAL_ENDSTOPS)
+    #if Z_MULTI_ENDSTOPS
       FORCE_INLINE static void set_z_lock(const bool state) { locked_Z_motor = state; }
       FORCE_INLINE static void set_z2_lock(const bool state) { locked_Z2_motor = state; }
+    #endif
+    #if ENABLED(Z_TRIPLE_ENDSTOPS)
+      FORCE_INLINE static void set_z3_lock(const bool state) { locked_Z3_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -466,13 +472,13 @@ class Stepper {
       #endif
     }
 
+    // Set direction bits for all steppers
+    static void set_directions();
+
   private:
 
     // Set the current position in steps
     static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
-
-    // Set direction bits for all steppers
-    static void set_directions();
 
     FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t scale, uint8_t* loops) {
       uint32_t timer;

@@ -39,6 +39,10 @@
 #include "../sd/cardreader.h"
 #include "../core/serial.h"
 
+#if ENABLED(FWRETRACT)
+  #include "fwretract.h"
+#endif
+
 // Recovery data
 job_recovery_info_t job_recovery_info;
 JobRecoveryPhase job_recovery_phase = JOB_RECOVERY_IDLE;
@@ -89,6 +93,15 @@ extern uint8_t commands_in_queue, cmd_queue_index_r;
         #if HAS_LEVELING
           SERIAL_PROTOCOLPAIR("leveling: ", int(job_recovery_info.leveling));
           SERIAL_PROTOCOLLNPAIR(" fade: ", int(job_recovery_info.fade));
+        #endif
+        #if ENABLED(FWRETRACT)
+          SERIAL_PROTOCOLPGM("retract: ");
+          for (int8_t e = 0; e < EXTRUDERS; e++) {
+            SERIAL_PROTOCOL(job_recovery_info.retract[e]);
+            if (e < EXTRUDERS - 1) SERIAL_CHAR(',');
+          }
+          SERIAL_EOL();
+          SERIAL_PROTOCOLLNPAIR("retract_hop: ", job_recovery_info.retract_hop);
         #endif
         SERIAL_PROTOCOLLNPAIR("cmd_queue_index_r: ", int(job_recovery_info.cmd_queue_index_r));
         SERIAL_PROTOCOLLNPAIR("commands_in_queue: ", int(job_recovery_info.commands_in_queue));
@@ -158,6 +171,15 @@ void check_print_job_recovery() {
             dtostrf(job_recovery_info.fade, 1, 1, str_1);
             sprintf_P(job_recovery_commands[ind++], PSTR("M420 S%i Z%s"), int(job_recovery_info.leveling), str_1);
           }
+        #endif
+
+        #if ENABLED(FWRETRACT)
+          for (uint8_t e = 0; e < EXTRUDERS; e++) {
+            if (job_recovery_info.retract[e] != 0.0)
+              fwretract.current_retract[e] = job_recovery_info.retract[e];
+              fwretract.retracted[e] = true;
+          }
+          fwretract.current_hop = job_recovery_info.retract_hop;
         #endif
 
         dtostrf(job_recovery_info.current_position[Z_AXIS] + 2, 1, 3, str_1);
@@ -254,6 +276,11 @@ void save_job_recovery_info() {
           0
         #endif
       );
+    #endif
+
+    #if ENABLED(FWRETRACT)
+      COPY(job_recovery_info.retract, fwretract.current_retract);
+      job_recovery_info.retract_hop = fwretract.current_hop;
     #endif
 
     // Commands in the queue

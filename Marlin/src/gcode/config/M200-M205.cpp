@@ -136,14 +136,17 @@ void GcodeSuite::M205() {
       const float junc_dev = parser.value_linear_units();
       if (WITHIN(junc_dev, 0.01f, 0.3f)) {
         planner.junction_deviation_mm = junc_dev;
-        planner.recalculate_max_e_jerk();
+        #if ENABLED(LIN_ADVANCE)
+          planner.recalculate_max_e_jerk();
+        #endif
       }
       else {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM("?J out of range (0.01 to 0.3)");
       }
     }
-  #else
+  #endif
+  #if HAS_CLASSIC_JERK
     if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
     if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
     if (parser.seen('Z')) {
@@ -153,6 +156,8 @@ void GcodeSuite::M205() {
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-    if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+    #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+      if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+    #endif
   #endif
 }

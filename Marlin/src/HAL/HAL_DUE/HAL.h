@@ -41,25 +41,28 @@
 #include "watchdog_Due.h"
 #include "HAL_timers_Due.h"
 
-//
-// Defines
-//
-#define NUM_SERIAL 1
-#define MYSERIAL0 customizedSerial
-
-// We need the previous define before the include, or compilation bombs...
-#include "MarlinSerial_Due.h"
-#include "MarlinSerialUSB_Due.h"
-
-#ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
+// Serial ports
+#if !WITHIN(SERIAL_PORT, -1, 3)
+  #error "SERIAL_PORT must be from -1 to 3"
 #endif
 
-#define CRITICAL_SECTION_START  uint32_t primask = __get_PRIMASK(); __disable_irq()
-#define CRITICAL_SECTION_END    if (!primask) __enable_irq()
-#define ISRS_ENABLED() (!__get_PRIMASK())
-#define ENABLE_ISRS()  __enable_irq()
-#define DISABLE_ISRS() __disable_irq()
+// MYSERIAL0 required before MarlinSerial includes!
+#define MYSERIAL0 customizedSerial1
+
+#ifdef SERIAL_PORT_2
+  #if !WITHIN(SERIAL_PORT_2, -1, 3)
+    #error "SERIAL_PORT_2 must be from -1 to 3"
+  #elif SERIAL_PORT_2 == SERIAL_PORT
+    #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
+  #endif
+  #define NUM_SERIAL 2
+  #define MYSERIAL1 customizedSerial2
+#else
+  #define NUM_SERIAL 1
+#endif
+
+#include "MarlinSerial_Due.h"
+#include "MarlinSerialUSB_Due.h"
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -86,19 +89,18 @@
 #define RST_SOFTWARE   32
 #define RST_BACKUP     64
 
-// --------------------------------------------------------------------------
-// Types
-// --------------------------------------------------------------------------
-
 typedef int8_t pin_t;
 
 #define HAL_SERVO_LIB Servo
 
-// --------------------------------------------------------------------------
-// Public Variables
-// --------------------------------------------------------------------------
-
-extern uint16_t HAL_adc_result;     // result of last ADC conversion
+//
+// Interrupts
+//
+#define CRITICAL_SECTION_START  uint32_t primask = __get_PRIMASK(); __disable_irq()
+#define CRITICAL_SECTION_END    if (!primask) __enable_irq()
+#define ISRS_ENABLED() (!__get_PRIMASK())
+#define ENABLE_ISRS()  __enable_irq()
+#define DISABLE_ISRS() __disable_irq()
 
 void cli(void);                     // Disable interrupts
 void sei(void);                     // Enable interrupts
@@ -106,13 +108,9 @@ void sei(void);                     // Enable interrupts
 void HAL_clear_reset_source(void);  // clear reset reason
 uint8_t HAL_get_reset_source(void); // get reset reason
 
-void _delay_ms(const int delay);
-
-int freeMemory(void);
-
-/**
- * SPI: Extended functions taking a channel number (hardware SPI only)
- */
+//
+// SPI: Extended functions taking a channel number (Hardware SPI only)
+//
 
 // Write single byte to specified SPI channel
 void spiSend(uint32_t chan, byte b);
@@ -123,18 +121,22 @@ void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
 // Read single byte from specified SPI channel
 uint8_t spiRec(uint32_t chan);
 
-/**
- * EEPROM
- */
-
+//
+// EEPROM
+//
 void eeprom_write_byte(unsigned char *pos, unsigned char value);
 unsigned char eeprom_read_byte(unsigned char *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
-/**
- * ADC
- */
+//
+// ADC
+//
+extern uint16_t HAL_adc_result;     // result of last ADC conversion
+
+#ifndef analogInputToDigitalPin
+  #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
+#endif
 
 #define HAL_ANALOG_SELECT(pin)
 
@@ -154,16 +156,16 @@ uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
 void HAL_enable_AdcFreerun(void);
 //void HAL_disable_AdcFreerun(uint8_t chan);
 
-/**
- * Pin Map
- */
+//
+// Pin Map
+//
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-/**
- * Tone
- */
+//
+// Tone
+//
 void toneInit();
 void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
 void noTone(const pin_t _pin);
@@ -173,6 +175,12 @@ void noTone(const pin_t _pin);
 #define HAL_INIT 1
 void HAL_idletask(void);
 void HAL_init(void);
+
+//
+// Utility functions
+//
+void _delay_ms(const int delay);
+int freeMemory(void);
 
 #ifdef __cplusplus
   extern "C" {

@@ -101,7 +101,7 @@ void recalc_delta_settings() {
     SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
   }while(0)
 
-void inverse_kinematics(const float raw[XYZ]) {
+void inverse_kinematics(const float (&raw)[XYZ]) {
   #if HAS_HOTEND_OFFSET
     // Delta hotend offsets must be applied in Cartesian space with no "spoofing"
     const float pos[XYZ] = {
@@ -224,6 +224,7 @@ void home_delta() {
   #endif
   // Init the current position of all carriages to 0,0,0
   ZERO(current_position);
+  ZERO(destination);
   sync_plan_position();
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
@@ -232,9 +233,8 @@ void home_delta() {
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
-  current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (delta_height + 10);
-  feedrate_mm_s = homing_feedrate(X_AXIS);
-  line_to_current_position();
+  destination[Z_AXIS] = (delta_height + 10);
+  buffer_line_to_destination(homing_feedrate(X_AXIS));
   planner.synchronize();
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
@@ -256,7 +256,7 @@ void home_delta() {
   // give the impression that they are the same.
   LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
 
-  SYNC_PLAN_POSITION_KINEMATIC();
+  sync_plan_position();
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);

@@ -53,13 +53,19 @@ Max7219 max7219;
 uint8_t Max7219::led_line[MAX7219_LINES]; // = { 0 };
 
 #define LINE_REG(Q)     (max7219_reg_digit0 + ((Q) & 0x7))
+
 #if _ROT == 0 || _ROT == 270
   #define _LED_BIT(Q)   (7 - ((Q) & 0x7))
-  #define _LED_UNIT(Q)  ((Q) & ~0x7)
 #else
   #define _LED_BIT(Q)   ((Q) & 0x7)
-  #define _LED_UNIT(Q)  ((MAX7219_NUMBER_UNITS - 1 - ((Q) >> 3)) << 3)
 #endif
+
+#if (_ROT == 0 || _ROT == 270) == ENABLED(MAX7219_REVERSE_ORDER)
+  #define _LED_UNIT(Q)  ((MAX7219_NUMBER_UNITS - 1 - ((Q) >> 3)) << 3)
+#else
+  #define _LED_UNIT(Q)  ((Q) & ~0x7)
+#endif
+
 #if _ROT < 180
   #define _LED_IND(P,Q) (_LED_UNIT(P) + (Q))
 #else

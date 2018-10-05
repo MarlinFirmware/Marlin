@@ -646,6 +646,37 @@ void I2CPositionEncodersMgr::init() {
       encoders[i].set_homed();
     #endif
   #endif
+
+  #if I2CPE_ENCODER_CNT > 5
+    i++;
+
+    encoders[i].init(I2CPE_ENC_6_ADDR, I2CPE_ENC_6_AXIS);
+
+    #ifdef I2CPE_ENC_6_TYPE
+      encoders[i].set_type(I2CPE_ENC_6_TYPE);
+    #endif
+    #ifdef I2CPE_ENC_6_TICKS_UNIT
+      encoders[i].set_ticks_unit(I2CPE_ENC_6_TICKS_UNIT);
+    #endif
+    #ifdef I2CPE_ENC_6_TICKS_REV
+      encoders[i].set_stepper_ticks(I2CPE_ENC_6_TICKS_REV);
+    #endif
+    #ifdef I2CPE_ENC_6_INVERT
+      encoders[i].set_inverted(I2CPE_ENC_6_INVERT);
+    #endif
+    #ifdef I2CPE_ENC_6_EC_METHOD
+      encoders[i].set_ec_method(I2CPE_ENC_6_EC_METHOD);
+    #endif
+    #ifdef I2CPE_ENC_6_EC_THRESH
+      encoders[i].set_ec_threshold(I2CPE_ENC_6_EC_THRESH);
+    #endif
+
+    encoders[i].set_active(encoders[i].passes_test(true));
+
+    #if I2CPE_ENC_6_AXIS == E_AXIS
+      encoders[i].set_homed();
+    #endif
+  #endif
 }
 
 void I2CPositionEncodersMgr::report_position(const int8_t idx, const bool units, const bool noOffset) {

@@ -79,8 +79,8 @@
 
 #define MSG_NEXT_CORNER                     _UxGT("下个邊角") // "Next corner"
 #define MSG_EDITING_STOPPED                 _UxGT("網格編輯已停止") // "Mesh Editing Stopped"
-
 #define MSG_USER_MENU                       _UxGT("客制命令") // "Custom Commands"
+
 #define MSG_UBL_DOING_G29                   _UxGT("执行G29") // "Doing G29"
 #define MSG_UBL_UNHOMED                     _UxGT("先回XYZ原點") // "Home XYZ first"
 #define MSG_UBL_TOOLS                       _UxGT("UBL工具") // "UBL Tools"
@@ -161,9 +161,9 @@
 #define MSG_INTENSITY_B                     _UxGT("蓝飽和度") // "Blue Intensity")
 #define MSG_INTENSITY_W                     _UxGT("白飽和度") // "White Intensity")
 #define MSG_LED_BRIGHTNESS                  _UxGT("亮度") // "Brightness")
+
 #define MSG_MOVING                          _UxGT("移动 ...") // "Moving...")
 #define MSG_FREE_XY                         _UxGT("释放 XY") // "Free XY")
-
 #define MSG_MOVE_X                          _UxGT("移動X")  //"Move X"
 #define MSG_MOVE_Y                          _UxGT("移動Y")  //"Move Y"
 #define MSG_MOVE_Z                          _UxGT("移動Z")  //"Move Z"
@@ -226,6 +226,7 @@
 #define MSG_E3STEPS                         _UxGT("擠出機3步數/mm") //"E3steps/mm"
 #define MSG_E4STEPS                         _UxGT("擠出機4步數/mm") //"E4steps/mm"
 #define MSG_E5STEPS                         _UxGT("擠出機5步數/mm") //"E5steps/mm"
+#define MSG_E6STEPS                         _UxGT("擠出機6步數/mm") //"E6steps/mm"
 #define MSG_TEMPERATURE                     _UxGT("溫度")  //"Temperature"
 #define MSG_MOTION                          _UxGT("運作")  //"Motion"
 #define MSG_FILAMENT                        _UxGT("絲料測容")  //"Filament" lcd_control_volumetric_menu
@@ -327,17 +328,17 @@
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("燈亮度") // "Light BRIGHTNESS"
 
 #if LCD_WIDTH > 19
-#define MSG_INFO_PRINT_COUNT              _UxGT("列印計數")  //"Print Count"
-#define MSG_INFO_COMPLETED_PRINTS         _UxGT("已完成")  //"Completed"
-#define MSG_INFO_PRINT_TIME               _UxGT("總列印時間")  //"Total print time"
-#define MSG_INFO_PRINT_LONGEST            _UxGT("最長工作時間")  //"Longest job time"
-#define MSG_INFO_PRINT_FILAMENT           _UxGT("總計擠出")  //"Extruded total"
+  #define MSG_INFO_PRINT_COUNT              _UxGT("列印計數")  //"Print Count"
+  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("已完成")  //"Completed"
+  #define MSG_INFO_PRINT_TIME               _UxGT("總列印時間")  //"Total print time"
+  #define MSG_INFO_PRINT_LONGEST            _UxGT("最長工作時間")  //"Longest job time"
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("總計擠出")  //"Extruded total"
 #else
-#define MSG_INFO_PRINT_COUNT              _UxGT("列印數")  //"Prints"
-#define MSG_INFO_COMPLETED_PRINTS         _UxGT("完成")  //"Completed"
-#define MSG_INFO_PRINT_TIME               _UxGT("總共")  //"Total"
-#define MSG_INFO_PRINT_LONGEST            _UxGT("最長")  //"Longest"
-#define MSG_INFO_PRINT_FILAMENT           _UxGT("已擠出")  //"Extruded"
+  #define MSG_INFO_PRINT_COUNT              _UxGT("列印數")  //"Prints"
+  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("完成")  //"Completed"
+  #define MSG_INFO_PRINT_TIME               _UxGT("總共")  //"Total"
+  #define MSG_INFO_PRINT_LONGEST            _UxGT("最長")  //"Longest"
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("已擠出")  //"Extruded"
 #endif
 
 #define MSG_INFO_MIN_TEMP                   _UxGT("最低溫度")  //"Min Temp"
@@ -358,33 +359,32 @@
 #define MSG_M600_TOO_COLD                   _UxGT("M600: 太涼") // "M600: Too cold"
 
 #if LCD_HEIGHT >= 4
-#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("等待開始")  //"Wait for start"
-#define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("絲料")  //"of the filament"
-#define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("變更")  //"change"
-#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("等待")  //"Wait for"
-#define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("卸下絲料")  //"filament unload"
-#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("插入絲料")  //"Insert filament"
-#define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("並按鍵")  //"and press button"
-#define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("繼續 ...")  //"to continue..."
-#define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("按下按鈕來") // "Press button to"
-#define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("加熱噴嘴.") // "heat nozzle."
-#define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("加熱噴嘴") // "Heating nozzle"
-#define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("請等待 ...") // "Please wait..."
-#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("等待")  //"Wait for"
-#define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("進料")  //"filament load"
-#define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("等待") // "Wait for"
-#define MSG_FILAMENT_CHANGE_PURGE_2         _UxGT("絲料清除") // "filament purge"
-#define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("等待列印")  //"Wait for print"
-#define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("恢復")  //"to resume"
-
+  #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("等待開始")  //"Wait for start"
+  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("絲料")  //"of the filament"
+  #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("變更")  //"change"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("等待")  //"Wait for"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("卸下絲料")  //"filament unload"
+  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("插入絲料")  //"Insert filament"
+  #define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("並按鍵")  //"and press button"
+  #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("繼續 ...")  //"to continue..."
+  #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("按下按鈕來") // "Press button to"
+  #define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("加熱噴嘴.") // "heat nozzle."
+  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("加熱噴嘴") // "Heating nozzle"
+  #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("請等待 ...") // "Please wait..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("等待")  //"Wait for"
+  #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("進料")  //"filament load"
+  #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("等待") // "Wait for"
+  #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("絲料清除") // "filament purge"
+  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("等待列印")  //"Wait for print"
+  #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("恢復")  //"to resume"
 #else // LCD_HEIGHT < 4
-#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("請等待 ...")  //"Please wait..."
-#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("退出中 ...")  //"Ejecting..."
-#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("插入並點擊")  //"Insert and Click"
-#define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("加熱中 ...") // "Heating..."
-#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("載入中 ...")  //"Loading..."
-#define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("清除中 ...") // "Purging..."
-#define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("恢復中 ...")  //"Resuming..."
+  #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("請等待 ...")  //"Please wait..."
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("退出中 ...")  //"Ejecting..."
+  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("插入並點擊")  //"Insert and Click"
+  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("加熱中 ...") // "Heating..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("載入中 ...")  //"Loading..."
+  #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("清除中 ...") // "Purging..."
+  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("恢復中 ...")  //"Resuming..."
 #endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_ZH_TW_H

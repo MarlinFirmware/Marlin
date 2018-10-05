@@ -19,9 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifndef _MARLIN_CONFIG_H_
-#define _MARLIN_CONFIG_H_
+//
+// Prefix header for all Marlin sources
+//
 
 #include "MarlinConfigPre.h"
 
@@ -43,5 +45,4 @@
 #include "../core/language.h"
 #include "../core/utility.h"
 #include "../core/serial.h"
-
-#endif // _MARLIN_CONFIG_H_
+#include "../core/minmax.h"

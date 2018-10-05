@@ -56,7 +56,7 @@
 
     float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
 
-    #if PLANNER_LEVELING
+    #if HAS_LEVELING
       SERIAL_PROTOCOLPGM("Leveled:");
       planner.apply_leveling(leveled);
       report_xyz(leveled);
