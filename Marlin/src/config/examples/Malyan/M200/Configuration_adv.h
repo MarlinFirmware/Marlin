@@ -683,6 +683,24 @@
    */
   //#define AUTO_REPORT_SD_STATUS
 
+  /**
+   * Support for USB thumb drives using an Arduino USB Host Shield or
+   * equivalent MAX3421E breakout board. The USB thumb drive will appear
+   * to Marlin as an SD card.
+   *
+   * The MAX3421E must be assigned the same pins as the SD card reader, with
+   * the following pin mapping:
+   *
+   *    SCLK, MOSI, MISO --> SCLK, MOSI, MISO
+   *    INT              --> SD_DETECT_PIN
+   *    SS               --> SDSS
+   */
+  //#define USB_FLASH_DRIVE_SUPPORT
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    #define USB_CS_PIN         SDSS
+    #define USB_INTR_PIN       SD_DETECT_PIN
+  #endif
+
 #endif // SDSUPPORT
 
 /**
