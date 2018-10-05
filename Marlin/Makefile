@@ -611,12 +611,15 @@ endif
 CINCS = ${addprefix -I ,${VPATH}}
 CXXINCS = ${addprefix -I ,${VPATH}}
 
+# Silence warnings for library code (won't work for .h files, unfortunately)
+LIBWARN = -w -Wno-packed-bitfield-compat
+
 # Compiler flag to set the C/CPP Standard level.
 CSTANDARD = -std=gnu99
 CXXSTANDARD = -std=gnu++11
 CDEBUG = -g$(DEBUG)
-CWARN   = -Wall -Wstrict-prototypes
-CXXWARN = -Wall
+CWARN   = -Wall -Wstrict-prototypes -Wno-packed-bitfield-compat -Wno-pragmas
+CXXWARN = -Wall                     -Wno-packed-bitfield-compat -Wno-pragmas
 CTUNING = -fsigned-char -funsigned-bitfields -fpack-struct -fno-exceptions \
           -fshort-enums -ffunction-sections -fdata-sections
 ifneq ($(HARDWARE_MOTHERBOARD),)
@@ -779,11 +782,11 @@ $(BUILD_DIR)/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
 
 $(BUILD_DIR)/arduino/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
 	$(Pecho) "  CC    $<"
-	$P $(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
+	$P $(CC) -MMD -c $(ALL_CFLAGS) $(LIBWARN) $< -o $@
 
 $(BUILD_DIR)/arduino/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
 	$(Pecho) "  CXX   $<"
-	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
+	$P $(CXX) -MMD -c $(ALL_CXXFLAGS)  $(LIBWARN) $< -o $@
 
 $(BUILD_DIR)/arduino/%.o: %.S $(MAKEFILE)
 	$(Pecho) "  CXX   $<"
