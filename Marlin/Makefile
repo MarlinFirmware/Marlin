@@ -617,7 +617,7 @@ CXXSTANDARD = -std=gnu++11
 CDEBUG = -g$(DEBUG)
 CWARN   = -Wall -Wstrict-prototypes
 CXXWARN = -Wall
-CTUNING = -fsigned-char -funsigned-bitfields -fno-exceptions \
+CTUNING = -fsigned-char -funsigned-bitfields -fpack-struct -fno-exceptions \
           -fshort-enums -ffunction-sections -fdata-sections
 ifneq ($(HARDWARE_MOTHERBOARD),)
 	CTUNING += -DMOTHERBOARD=${HARDWARE_MOTHERBOARD}
