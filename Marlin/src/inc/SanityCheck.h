@@ -769,13 +769,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
- * Limited number of servos
- */
-#if NUM_SERVOS > NUM_SERVO_PLUGS
-  #error "The selected board doesn't support enough servos for your configuration. Reduce NUM_SERVOS."
-#endif
-
-/**
  * Servo deactivation depends on servo endstops, switching nozzle, or switching extruder
  */
 #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_PROBE && !defined(SWITCHING_NOZZLE_SERVO_NR) && !defined(SWITCHING_EXTRUDER_SERVO_NR) && !defined(SWITCHING_TOOLHEAD_SERVO_NR)
