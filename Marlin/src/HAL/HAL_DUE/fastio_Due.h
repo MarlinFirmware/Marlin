@@ -47,7 +47,7 @@
 
 // Due has 12 PWMs assigned to logical pins 2-13.
 // 6, 7, 8 & 9 come from the PWM controller. The others come from the timers.
-#define USEABLE_HARDWARE_PWM(p) ((2 <= p) && (p <= 13))
+#define USEABLE_HARDWARE_PWM(p) WITHIN(p, 2, 13)
 
 #ifndef MASK
   #define MASK(PIN) (1 << PIN)
