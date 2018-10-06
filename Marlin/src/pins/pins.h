@@ -194,7 +194,7 @@
 #elif MB(GT2560_V3)
   #include "pins_GT2560_V3.h"         // ATmega2560                                 env:megaatmega2560
 #elif MB(GT2560_V3_MC2)
-  #include "pins_GT2560_V3_MC2.h"   // ATmega2560                                 env:megaatmega2560  
+  #include "pins_GT2560_V3_MC2.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(EINSTART_S)
   #include "pins_EINSTART-S.h"        // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 
@@ -404,6 +404,8 @@
 
 #elif MB(THE_BORG)
   #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7
+#elif MB(REMRAM_V1)
+  #include "pins_REMRAM_V1.h"         // STM32F7                                    env:STM32F7xx
 
 //
 // Espressif ESP32
