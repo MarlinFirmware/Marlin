@@ -644,46 +644,45 @@
 #endif // USE_SENSORLESS
 
 #if TMC_HAS_SPI
-  #define IS_TMC_SPI(ST) AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2660)
   #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
   void tmc_init_cs_pins() {
-    #if IS_TMC_SPI(X)
+    #if AXIS_HAS_SPI(X)
       SET_CS_PIN(X);
     #endif
-    #if IS_TMC_SPI(Y)
+    #if AXIS_HAS_SPI(Y)
       SET_CS_PIN(Y);
     #endif
-    #if IS_TMC_SPI(Z)
+    #if AXIS_HAS_SPI(Z)
       SET_CS_PIN(Z);
     #endif
-    #if IS_TMC_SPI(X2)
+    #if AXIS_HAS_SPI(X2)
       SET_CS_PIN(X2);
     #endif
-    #if IS_TMC_SPI(Y2)
+    #if AXIS_HAS_SPI(Y2)
       SET_CS_PIN(Y2);
     #endif
-    #if IS_TMC_SPI(Z2)
+    #if AXIS_HAS_SPI(Z2)
       SET_CS_PIN(Z2);
     #endif
-    #if IS_TMC_SPI(Z3)
+    #if AXIS_HAS_SPI(Z3)
       SET_CS_PIN(Z3);
     #endif
-    #if IS_TMC_SPI(E0)
+    #if AXIS_HAS_SPI(E0)
       SET_CS_PIN(E0);
     #endif
-    #if IS_TMC_SPI(E1)
+    #if AXIS_HAS_SPI(E1)
       SET_CS_PIN(E1);
     #endif
-    #if IS_TMC_SPI(E2)
+    #if AXIS_HAS_SPI(E2)
       SET_CS_PIN(E2);
     #endif
-    #if IS_TMC_SPI(E3)
+    #if AXIS_HAS_SPI(E3)
       SET_CS_PIN(E3);
     #endif
-    #if IS_TMC_SPI(E4)
+    #if AXIS_HAS_SPI(E4)
       SET_CS_PIN(E4);
     #endif
-    #if IS_TMC_SPI(E5)
+    #if AXIS_HAS_SPI(E5)
       SET_CS_PIN(E5);
     #endif
   }
