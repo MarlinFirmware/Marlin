@@ -739,7 +739,7 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
-  #if HAS_DRIVER(TMC2130)
+  #if TMC_HAS_SPI
     #if DISABLED(TMC_USE_SW_SPI)
       SPI.begin();
     #endif
