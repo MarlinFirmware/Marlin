@@ -660,10 +660,6 @@
   #define SUICIDE_PIN -1
 #endif
 
-#ifndef NUM_SERVO_PLUGS
-  #define NUM_SERVO_PLUGS 4
-#endif
-
 //
 // Assign auto fan pins if needed
 //
