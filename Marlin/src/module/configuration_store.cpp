@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V59"
+#define EEPROM_VERSION "V60"
 #define EEPROM_OFFSET 0
 
 // Check the integrity of data offsets.
@@ -214,8 +214,8 @@ typedef struct SettingsDataStruct {
   // ULTIPANEL
   //
   int16_t lcd_preheat_hotend_temp[2],                   // M145 S0 H
-          lcd_preheat_bed_temp[2],                      // M145 S0 B
-          lcd_preheat_fan_speed[2];                     // M145 S0 F
+          lcd_preheat_bed_temp[2];                      // M145 S0 B
+  uint8_t lcd_preheat_fan_speed[2];                     // M145 S0 F
 
   //
   // PIDTEMP
@@ -630,8 +630,8 @@ void MarlinSettings::postprocess() {
 
     #if DISABLED(ULTIPANEL)
       constexpr int16_t lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
-                        lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED },
-                        lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
+                        lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
+      constexpr uint8_t lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
     #endif
 
     EEPROM_WRITE(lcd_preheat_hotend_temp);
@@ -1238,16 +1238,12 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(lcd_preheat_hotend_temp);
 
       #if DISABLED(ULTIPANEL)
-        int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+        int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
+        uint8_t lcd_preheat_fan_speed[2];
       #endif
       EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
       EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
       EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
-
-      //EEPROM_ASSERT(
-      //  WITHIN(lcd_preheat_fan_speed, 0, 255),
-      //  "lcd_preheat_fan_speed out of range"
-      //);
 
       //
       // Hotend PID
@@ -2489,7 +2485,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOPAIR_P(port, "  M145 S", (int)i);
         SERIAL_ECHOPAIR_P(port, " H", TEMP_UNIT(lcd_preheat_hotend_temp[i]));
         SERIAL_ECHOPAIR_P(port, " B", TEMP_UNIT(lcd_preheat_bed_temp[i]));
-        SERIAL_ECHOLNPAIR_P(port, " F", lcd_preheat_fan_speed[i]);
+        SERIAL_ECHOLNPAIR_P(port, " F", int(lcd_preheat_fan_speed[i]));
       }
     #endif // ULTIPANEL
 

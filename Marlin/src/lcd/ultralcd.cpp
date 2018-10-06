@@ -159,7 +159,8 @@ millis_t next_lcd_update_ms;
   constexpr int8_t menu_bottom = LCD_HEIGHT - (TALL_FONT_CORRECTION);
 
   // Initialized by settings.load()
-  int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+  int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
+  uint8_t lcd_preheat_fan_speed[2];
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     bool lcd_external_control; // = false
@@ -945,7 +946,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       // Restore print cooling fan speeds
       for (uint8_t i = 0; i < FAN_COUNT; i++) {
-        int16_t f = job_recovery_info.fanSpeeds[i];
+        uint8_t f = job_recovery_info.fan_speed[i];
         if (f) {
           sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
           enqueue_and_echo_command(cmd);
@@ -1553,21 +1554,21 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     #if FAN_COUNT > 0
       #if HAS_FAN0
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fan_speed[0], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fan_speed[0], 3, 255);
         #endif
       #endif
       #if HAS_FAN1
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 2", &fan_speed[1], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 2", &new_fan_speed[1], 3, 255);
         #endif
       #endif
       #if HAS_FAN2
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 3", &fan_speed[2], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 3", &new_fan_speed[2], 3, 255);
         #endif
       #endif
     #endif // FAN_COUNT > 0
@@ -1669,7 +1670,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
    * "Temperature" submenu items
    *
    */
-  void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const int16_t fan) {
+  void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const uint8_t fan) {
     if (temph > 0) thermalManager.setTargetHotend(MIN(heater_maxtemp[endnum], temph), endnum);
     #if HAS_HEATED_BED
       if (tempb >= 0) thermalManager.setTargetBed(tempb);
@@ -1678,9 +1679,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
     #if FAN_COUNT > 0
       #if FAN_COUNT > 1
-        fanSpeeds[active_extruder < FAN_COUNT ? active_extruder : 0] = fan;
+        fan_speed[active_extruder < FAN_COUNT ? active_extruder : 0] = fan;
       #else
-        fanSpeeds[0] = fan;
+        fan_speed[0] = fan;
       #endif
     #else
       UNUSED(fan);
@@ -1915,7 +1916,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   void lcd_cooldown() {
     #if FAN_COUNT > 0
-      for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+      for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
     #endif
     thermalManager.disable_all_heaters();
     lcd_return_to_status();
@@ -3609,21 +3610,21 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     #if FAN_COUNT > 0
       #if HAS_FAN0
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fan_speed[0], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fan_speed[0], 3, 255);
         #endif
       #endif
       #if HAS_FAN1
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 2", &fan_speed[1], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 2", &new_fan_speed[1], 3, 255);
         #endif
       #endif
       #if HAS_FAN2
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 3", &fan_speed[2], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 3", &new_fan_speed[2], 3, 255);
         #endif
       #endif
     #endif // FAN_COUNT > 0
@@ -3755,7 +3756,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #endif
       START_MENU();
       MENU_BACK(MSG_CONFIGURATION);
-      MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &lcd_preheat_fan_speed[material], 0, 255);
+      MENU_ITEM_EDIT(int8, MSG_FAN_SPEED, &lcd_preheat_fan_speed[material], 0, 255);
       #if HAS_TEMP_HOTEND
         MENU_ITEM_EDIT(int3, MSG_NOZZLE, &lcd_preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
       #endif

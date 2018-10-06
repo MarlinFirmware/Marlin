@@ -107,7 +107,8 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
-    extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+    extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
+    extern uint8_t lcd_preheat_fan_speed[2];
 
     #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
       extern bool lcd_external_control;

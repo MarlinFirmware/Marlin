@@ -1187,8 +1187,8 @@ void Planner::recalculate() {
  * Maintain fans, paste extruder pressure,
  */
 void Planner::check_axes_activity() {
-  unsigned char axis_active[NUM_AXIS] = { 0 },
-                tail_fan_speed[FAN_COUNT];
+  uint8_t axis_active[NUM_AXIS] = { 0 },
+          tail_fan_speed[FAN_COUNT];
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
@@ -1225,7 +1225,7 @@ void Planner::check_axes_activity() {
   }
   else {
     #if FAN_COUNT > 0
-      for (uint8_t i = 0; i < FAN_COUNT; i++) tail_fan_speed[i] = fanSpeeds[i];
+      for (uint8_t i = 0; i < FAN_COUNT; i++) tail_fan_speed[i] = fan_speed[i];
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1774,7 +1774,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if FAN_COUNT > 0
-    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fanSpeeds[i];
+    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fan_speed[i];
   #endif
 
   #if ENABLED(BARICUDA)
