@@ -2087,14 +2087,16 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     #if ENABLED(MIXING_EXTRUDER)
       float delta_mm_i = 0;
       if (i == E_AXIS) {
-        for (uint8_t s = 0; s < MIXING_STEPPERS; s++)
-          delta_mm_i = MAX(mixing_factor[s] * ABS(delta_mm[i]), delta_mm_i);
+        for (uint8_t s = 0; s < MIXING_STEPPERS; s++) {
+          const float delta_mm_s = mixing_factor[s] * delta_mm[i];
+          if (ABS(delta_mm_s) > ABS(delta_mm_i)) delta_mm_i = delta_mm_s;
+        }
       }
-      else delta_mm_i = ABS(delta_mm[i]);
+      else delta_mm_i = delta_mm[i];
     #else
-      const float delta_mm_i = ABS(delta_mm[i]);
+      const float delta_mm_i = delta_mm[i];
     #endif
-    const float cs = current_speed[i] = delta_mm_i * inverse_secs;
+    const float cs = ABS(current_speed[i] = delta_mm_i * inverse_secs);
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
     #endif
