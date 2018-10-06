@@ -687,6 +687,6 @@
       SET_CS_PIN(E5);
     #endif
   }
-#endif // TMC2130 TMC2660
+#endif // TMC2130 || TMC2660
 
 #endif // HAS_TRINAMIC

@@ -538,6 +538,9 @@
   #if AXIS_DRIVER_TYPE(E4, TMC2660)
     TMC2660_DEFINE(E4);
   #endif
+  #if AXIS_DRIVER_TYPE(E5, TMC2660)
+    TMC2660_DEFINE(E5);
+  #endif
 
   template<char AXIS_LETTER, char DRIVER_ID>
   void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const float) {
