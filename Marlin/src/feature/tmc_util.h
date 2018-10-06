@@ -176,7 +176,7 @@ void monitor_tmc_driver();
   void tmc_stallguard(TMC2660Stepper &st, const bool enable=true);
 #endif
 
-#if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2660)
+#if TMC_HAS_SPI
   void tmc_init_cs_pins();
 #endif
 

@@ -40,7 +40,7 @@
 #define TMC2660             2660
 #define TMC2660_STANDALONE  0x00C
 
-#define _AXIS_DRIVER_TYPE(A,T) ( defined(A##_DRIVER_TYPE) && (A##_DRIVER_TYPE == T) )
+#define _AXIS_DRIVER_TYPE(A,T) (defined(A##_DRIVER_TYPE) && (A##_DRIVER_TYPE == T))
 
 #define AXIS_DRIVER_TYPE_X(T) _AXIS_DRIVER_TYPE(X,T)
 #define AXIS_DRIVER_TYPE_Y(T) _AXIS_DRIVER_TYPE(Y,T)

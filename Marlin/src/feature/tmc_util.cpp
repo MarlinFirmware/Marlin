@@ -643,7 +643,7 @@
 
 #endif // USE_SENSORLESS
 
-#if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2660)
+#if TMC_HAS_SPI
   #define IS_TMC_SPI(ST) AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2660)
   #define SET_CS_PIN(st) OUT_WRITE(st##_CS_PIN, HIGH)
   void tmc_init_cs_pins() {
@@ -687,6 +687,6 @@
       SET_CS_PIN(E5);
     #endif
   }
-#endif // TMC2130 || TMC2660
+#endif // TMC_HAS_SPI
 
 #endif // HAS_TRINAMIC
