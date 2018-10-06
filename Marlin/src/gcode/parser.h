@@ -76,12 +76,19 @@ public:
 
   // Command line state
   static char *command_ptr,               // The command, so it can be echoed
-              *string_arg;                // string of command line
-
-  static char command_letter;             // G, M, or T
+              *string_arg,                // string of command line
+              command_letter;             // G, M, or T
   static int codenum;                     // 123
   #if USE_GCODE_SUBCODES
     static uint8_t subcode;               // .1
+  #endif
+
+  #if ENABLED(GCODE_MOTION_MODES)
+    static int16_t motion_mode_codenum;
+    #if USE_GCODE_SUBCODES
+      static uint8_t motion_mode_subcode;
+    #endif
+    FORCE_INLINE static void cancel_motion_mode() { motion_mode_codenum = -1; }
   #endif
 
   #if ENABLED(DEBUG_GCODE_PARSER)

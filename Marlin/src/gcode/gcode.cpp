@@ -263,6 +263,10 @@ void GcodeSuite::process_parsed_command(
           break;
       #endif
 
+      #if ENABLED(GCODE_MOTION_MODES)
+        case 80: G80(); break;                                    // G80: Reset the current motion mode
+      #endif
+
       case 90: relative_mode = false; break;                      // G90: Relative Mode
       case 91: relative_mode = true; break;                       // G91: Absolute Mode
 
