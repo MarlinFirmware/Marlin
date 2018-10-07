@@ -527,6 +527,7 @@ class Temperature {
                   babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
                   break;
                 case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
+                default:
                   babystepsTodo[NORMAL_AXIS] += distance;
                   break;
               }
