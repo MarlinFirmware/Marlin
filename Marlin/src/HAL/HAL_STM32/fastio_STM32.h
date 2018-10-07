@@ -23,7 +23,7 @@
 #pragma once
 
 /**
- * Fast I/O interfaces for STM32F7
+ * Fast I/O interfaces for STM32
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
 
@@ -50,5 +50,5 @@
 #define GET_OUTPUT(IO)
 #define GET_TIMER(IO)
 
-#define PWM_PIN(p) true
+#define PWM_PIN(p) digitalPinHasPWM(p)
 #define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)

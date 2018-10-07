@@ -50,7 +50,7 @@
 #define GET_OUTPUT(IO)        (_GET_MODE(IO) == GPIO_OUTPUT_PP)
 #define GET_TIMER(IO)         (PIN_MAP[IO].timer_device != NULL)
 
-#define PWM_PIN(p) digitalPinHasPWM(p)
+#define PWM_PIN(p) true
 #define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)
 
 #endif // _FASTIO_STM32F1_H
