@@ -4578,7 +4578,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       _change_filament_temp_extruder = extruder;
       START_MENU();
       if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), true, true);
-      MENU_BACK(MSG_FILAMENTCHANGE);
+      MENU_BACK(MSG_BACK);
       MENU_ITEM(submenu, MSG_PREHEAT_1, _lcd_change_filament_temp_1_menu);
       MENU_ITEM(submenu, MSG_PREHEAT_2, _lcd_change_filament_temp_2_menu);
       uint16_t max_temp;

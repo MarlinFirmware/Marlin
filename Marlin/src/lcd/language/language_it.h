@@ -70,7 +70,7 @@
 #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2_N _UxGT("Ugello")
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2_N _UxGT("Piatto")
 #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2_N _UxGT("conf")
-#define MSG_PREHEAT_CUSTOM                  _UxGT("Prerisc.personaliz.")
+#define MSG_PREHEAT_CUSTOM                  _UxGT("Prerisc.personal.")
 #define MSG_COOLDOWN                        _UxGT("Raffredda")
 #define MSG_SWITCH_PS_ON                    _UxGT("Accendi aliment.")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Spegni aliment.")
