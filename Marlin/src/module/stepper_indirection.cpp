@@ -627,22 +627,22 @@ void reset_stepper_drivers() {
     _TMC_INIT(Z3, planner.axis_steps_per_mm[Z_AXIS]);
   #endif
   #if AXIS_IS_TMC(E0)
-    _TMC_INIT(E0, planner.axis_steps_per_mm[E_AXIS]);
+    _TMC_INIT(E0, planner.axis_steps_per_mm[E_AXIS_N(0)]);
   #endif
   #if AXIS_IS_TMC(E1)
-    { constexpr uint8_t extruder = 1; _TMC_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N]); UNUSED(extruder); }
+    _TMC_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N(1)]);
   #endif
   #if AXIS_IS_TMC(E2)
-    { constexpr uint8_t extruder = 2; _TMC_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N]); UNUSED(extruder); }
+    _TMC_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N(2)]);
   #endif
   #if AXIS_IS_TMC(E3)
-    { constexpr uint8_t extruder = 3; _TMC_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N]); UNUSED(extruder); }
+    _TMC_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N(3)]);
   #endif
   #if AXIS_IS_TMC(E4)
-    { constexpr uint8_t extruder = 4; _TMC_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N]); UNUSED(extruder); }
+    _TMC_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N(4)]);
   #endif
   #if AXIS_IS_TMC(E5)
-    { constexpr uint8_t extruder = 5; _TMC_INIT(E5, planner.axis_steps_per_mm[E_AXIS_N]); UNUSED(extruder); }
+    _TMC_INIT(E5, planner.axis_steps_per_mm[E_AXIS_N(5)]);
   #endif
 
   #if USE_SENSORLESS
