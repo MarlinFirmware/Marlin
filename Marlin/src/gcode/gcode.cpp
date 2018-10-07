@@ -487,6 +487,10 @@ void GcodeSuite::process_parsed_command(
 
       case 211: M211(); break;                                    // M211: Enable, Disable, and/or Report software endstops
 
+      #if ENABLED(SINGLENOZZLE)
+        case 217: M217(); break;                                  // M217: Set filament swap parameters
+      #endif
+
       #if HOTENDS > 1
         case 218: M218(); break;                                  // M218: Set a tool offset
       #endif

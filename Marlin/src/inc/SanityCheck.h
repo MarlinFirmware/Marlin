@@ -602,6 +602,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
+  #if ENABLED(SINGLENOZZLE) && !defined(SINGLENOZZLE_SWAP_LENGTH)
+    #define SINGLENOZZLE_SWAP_LENGTH 0
+  #endif
+
 #elif ENABLED(MK2_MULTIPLEXER)
   #error "MK2_MULTIPLEXER requires 2 or more EXTRUDERS."
 #elif ENABLED(SINGLENOZZLE)
