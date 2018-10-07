@@ -645,7 +645,7 @@ void reset_stepper_drivers() {
     { constexpr uint8_t extruder = 5; _TMC_INIT(E5, planner.axis_steps_per_mm[E_AXIS_N]); UNUSED(extruder); }
   #endif
 
-  #if ENABLED(SENSORLESS_HOMING)
+  #if USE_SENSORLESS
     #if X_SENSORLESS
       #if AXIS_HAS_STALLGUARD(X)
         stepperX.sgt(X_STALL_SENSITIVITY);

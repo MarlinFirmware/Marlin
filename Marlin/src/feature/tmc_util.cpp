@@ -107,7 +107,7 @@
       constexpr uint8_t OTPW_bp = 2;
       constexpr uint32_t OT_bm = 0x2UL;
       constexpr uint8_t OT_bp = 1;
-      constexpr uint8_t DRIVER_ERROR_bm = 0x1EUL;
+      constexpr uint8_t DRIVER_ERROR_bm = 0x6;
       TMC_driver_data data;
       data.drv_status = st.DRVSTATUS();
       data.is_otpw = (data.drv_status & OTPW_bm) >> OTPW_bp;
