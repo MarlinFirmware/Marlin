@@ -52,7 +52,8 @@ class TMCStorage {
 
   public:
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      uint8_t otpw_count = 0;
+      uint8_t otpw_count = 0,
+              error_count = 0;
       bool flag_otpw = false;
       bool getOTPW() { return flag_otpw; }
       void clear_otpw() { flag_otpw = 0; }
