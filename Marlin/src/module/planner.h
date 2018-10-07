@@ -144,7 +144,7 @@ typedef struct {
            acceleration_steps_per_s2;       // acceleration steps/sec^2
 
   #if FAN_COUNT > 0
-    uint16_t fan_speed[FAN_COUNT];
+    uint8_t fan_speed[FAN_COUNT];
   #endif
 
   #if ENABLED(BARICUDA)

@@ -85,7 +85,7 @@ static const uint8_t u8g_dev_st7920_128x64_HAL_init_seq[] PROGMEM = {
   U8G_ESC_END         // end of sequence
 };
 
-void clear_graphics_DRAM(u8g_t *u8g, u8g_dev_t *dev){
+void clear_graphics_DRAM(u8g_t *u8g, u8g_dev_t *dev) {
   u8g_SetChipSelect(u8g, dev, 1);
   u8g_Delay(1);
   u8g_SetAddress(u8g, dev, 0);         // cmd mode
