@@ -1873,6 +1873,15 @@
 
 #endif // K8200_VM8201
 
+//
+// Extensible UI
+//
+// Enable third-party or vendor customized user interfaces that aren't
+// packaged with Marlin. Source code for the user interface will need to
+// be placed in "src/lcd/extensible_ui/lib"
+//
+//#define EXTENSIBLE_UI
+
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
