@@ -25,7 +25,7 @@
 uint8_t marlin_debug_flags = DEBUG_NONE;
 
 const char errormagic[] PROGMEM = "Error:";
-const char echomagic[] PROGMEM = "echo:";
+const char echomagic[]  PROGMEM = "echo:";
 
 #if NUM_SERIAL > 1
   void serialprintPGM_P(const int8_t p, const char * str) {
@@ -42,6 +42,10 @@ const char echomagic[] PROGMEM = "echo:";
   void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, unsigned long v) { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
 
   void serial_spaces_P(const int8_t p, uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR_P(p, ' '); }
+
+  void serial_echo_start_P(const int8_t p)  { serialprintPGM_P(p, echomagic); }
+  void serial_error_start_P(const int8_t p) { serialprintPGM_P(p, errormagic); }
+
 #endif
 
 void serialprintPGM(PGM_P str) {
@@ -58,6 +62,9 @@ void serial_echopair_PGM(PGM_P s_P, unsigned int v)  { serialprintPGM(s_P); SERI
 void serial_echopair_PGM(PGM_P s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
+
+void serial_echo_start()  { serialprintPGM(echomagic); }
+void serial_error_start() { serialprintPGM(errormagic); }
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
 
