@@ -45,8 +45,8 @@ void M217_report(const bool eeprom=false) {
  * M217 - Set SINGLENOZZLE toolchange parameters
  *
  *  S[mm]   Swap length
- *  P[mm/s] Prime speed
- *  R[mm/s] Retract speed
+ *  P[mm/m] Prime speed
+ *  R[mm/m] Retract speed
  */
 void GcodeSuite::M217() {
 

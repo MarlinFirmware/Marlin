@@ -602,8 +602,25 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
-  #if ENABLED(SINGLENOZZLE) && !defined(SINGLENOZZLE_SWAP_LENGTH)
-    #define SINGLENOZZLE_SWAP_LENGTH 0
+  #if ENABLED(SINGLENOZZLE)
+    #ifndef SINGLENOZZLE_SWAP_LENGTH
+      #error "SINGLENOZZLE requires SINGLENOZZLE_SWAP_LENGTH. Please update your Configuration."
+    #elif !defined(SINGLENOZZLE_SWAP_RETRACT_SPEED)
+      #error "SINGLENOZZLE requires SINGLENOZZLE_SWAP_RETRACT_SPEED. Please update your Configuration."
+    #elif !defined(SINGLENOZZLE_SWAP_PRIME_SPEED)
+      #error "SINGLENOZZLE requires SINGLENOZZLE_SWAP_PRIME_SPEED. Please update your Configuration."
+    #endif
+    #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+      #ifndef SINGLENOZZLE_TOOLCHANGE_POSITION
+        #error "SINGLENOZZLE_SWAP_PARK requires SINGLENOZZLE_TOOLCHANGE_POSITION. Please update your Configuration."
+      #elif !defined(SINGLENOZZLE_PARK_XY_FEEDRATE)
+        #error "SINGLENOZZLE_SWAP_PARK requires SINGLENOZZLE_PARK_XY_FEEDRATE. Please update your Configuration."
+      #endif
+    #else
+      #ifndef SINGLENOZZLE_TOOLCHANGE_ZRAISE
+        #error "SINGLENOZZLE requires SINGLENOZZLE_TOOLCHANGE_ZRAISE. Please update your Configuration."
+      #endif
+    #endif
   #endif
 
 #elif ENABLED(MK2_MULTIPLEXER)
