@@ -1702,14 +1702,8 @@ static_assert(COUNT(sanity_arr_3) <= NUM_AXIS_N, "DEFAULT_MAX_ACCELERATION has t
   #error "POWER_LOSS_RECOVERY currently requires an LCD Controller."
 #endif
 
-#if ENABLED(SD_FIRMWARE_UPGRADE)
-  #if !ENABLED(SDSUPPORT)
-    #error "SD_FIRMWARE_UPGRADE requires SDSUPPORT"
-  #endif
-
-  #if !ENABLED(__AVR_ATmega2560__)
-    #error "SD_FIRMWARE_UPGRADE only works with ATmega2560 (Arduino Mega)"
-  #endif
-#endif // SD_FIRMWARE_UPGRADE
+#if ENABLED(SD_FIRMWARE_UPGRADE) && !defined(__AVR_ATmega2560__)
+  #error "SD_FIRMWARE_UPGRADE requires an ATmega2560-based (Arduino Mega) board."
+#endif
 
 #endif // _SANITYCHECK_H_
