@@ -662,6 +662,24 @@
    */
   //#define AUTO_REPORT_SD_STATUS
 
+  /**
+   * If using a bootloader that supports SD-Firmware-Flashing, add
+   * an extra menu item to activate SD-Flashing on reboot.
+   * 
+   * Requires ATMEGA2560 (Arduino Mega)
+   * 
+   * Tested with this bootloader:
+   *   https://github.com/FleetProbe/MicroBridge-Arduino-ATMega2560
+   */
+  #ifdef __AVR_ATmega2560__
+    //#define SD_FIRMWARE_UPGRADE
+    #if ENABLED(SD_FIRMWARE_UPGRADE)
+      #define SD_FIRMWARE_UPGRADE_EEPROM_ADDRESS        0x1FF
+      #define SD_FIRMWARE_UPGRADE_EEPROM_ACTIVE_VALUE   0xF0
+      #define SD_FIRMWARE_UPGRADE_EEPROM_INACTIVE_VALUE 0xFF
+    #endif
+  #endif
+
 #endif // SDSUPPORT
 
 /**

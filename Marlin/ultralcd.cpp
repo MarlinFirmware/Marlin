@@ -1824,6 +1824,19 @@ void lcd_quick_feedback(const bool clear_buttons) {
     static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
   #endif
 
+  #if ENABLED(SD_FIRMWARE_UPGRADE)
+    static void lcd_sd_firmware_upgrade_activate() {
+      lcd_completion_feedback(settings.enableSDUpgrade());
+      lcd_return_to_status();
+      lcd_setstatusPGM(PSTR(MSG_RESTART_PRINTER));
+    }
+
+    static void lcd_sd_firmware_upgrade_deactivate() {
+      lcd_completion_feedback(settings.disableSDUpgrade());
+      lcd_return_to_status();
+    }
+  #endif // SD_FIRMWARE_UPGRADE
+
   #if ENABLED(LEVEL_BED_CORNERS)
 
     /**
@@ -3360,6 +3373,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
       MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+    #endif
+
+    #if ENABLED(SD_FIRMWARE_UPGRADE)
+      if (settings.SDUpgradeStatus())
+        MENU_ITEM(function, MSG_DEACTIVATE_SD_UPDATE, lcd_sd_firmware_upgrade_deactivate);
+      else
+        MENU_ITEM(function, MSG_ACTIVATE_SD_UPDATE, lcd_sd_firmware_upgrade_activate);
     #endif
 
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
