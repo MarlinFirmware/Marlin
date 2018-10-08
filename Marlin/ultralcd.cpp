@@ -1828,7 +1828,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     static void lcd_sd_firmware_upgrade_activate() {
       lcd_completion_feedback(settings.enableSDUpgrade());
       lcd_return_to_status();
-      lcd_setstatusPGM(PSTR("Restart Printer"));
+      lcd_setstatusPGM(PSTR(MSG_RESTART_PRINTER));
     }
 
     static void lcd_sd_firmware_upgrade_deactivate() {

@@ -162,6 +162,7 @@
 #define MSG_INIT_EEPROM                     _UxGT("Werkseinstellungen")
 #define MSG_ACTIVATE_SD_UPDATE              _UxGT("SD Update an")
 #define MSG_DEACTIVATE_SD_UPDATE            _UxGT("SD Update aus")
+#define MSG_RESTART_PRINTER                 _UxGT("Drucker neustarten")
 #define MSG_REFRESH                         _UxGT("Aktualisieren")
 #define MSG_WATCH                           _UxGT("Info")
 #define MSG_PREPARE                         _UxGT("Vorbereitung")

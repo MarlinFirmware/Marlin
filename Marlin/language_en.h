@@ -654,6 +654,9 @@
 #ifndef MSG_DEACTIVATE_SD_UPDATE
   #define MSG_DEACTIVATE_SD_UPDATE            _UxGT("Turn SD Update off")
 #endif
+#ifndef MSG_RESTART_PRINTER
+  #define MSG_RESTART_PRINTER                 _UxGT("Restart Printer")
+#endif
 #ifndef MSG_REFRESH
   #define MSG_REFRESH                         _UxGT("Refresh")
 #endif
