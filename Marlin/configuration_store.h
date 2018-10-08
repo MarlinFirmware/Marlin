@@ -47,6 +47,12 @@ class MarlinSettings {
       #endif
     }
 
+    #if ENABLED(SDSUPPORT) && ENABLED(SD_FIRMWARE_UPGRADE) && ENABLED(__AVR_ATmega2560__)
+      static bool enableSDUpgrade();  // Return 'true' after EEPROM is set (-> always true)
+      static bool disableSDUpgrade(); // Return 'true' after EEPROM is set (-> always true)
+      static bool SDUpgradeStatus();  // Return 'true' if EEPROM-Byte for SD-Firmware-Upgrade is set
+    #endif
+
     #if ENABLED(EEPROM_SETTINGS)
       static bool load();     // Return 'true' if data was loaded ok
       static bool validate(); // Return 'true' if EEPROM data is ok

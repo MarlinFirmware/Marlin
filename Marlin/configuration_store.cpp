@@ -352,6 +352,29 @@ void MarlinSettings::postprocess() {
     report_current_position();
 }
 
+#if ENABLED(SDSUPPORT) && ENABLED(SD_FIRMWARE_UPGRADE) && ENABLED(__AVR_ATmega2560__)
+  static bool MarlinSettings::enableSDUpgrade() {
+    if(eeprom_read_byte(SD_FIRMWARE_UPGRADE_EEPROM_ADDRESS) != SD_FIRMWARE_UPGRADE_EEPROM_ACTIVE_VALUE)
+      eeprom_write_byte(SD_FIRMWARE_UPGRADE_EEPROM_ADDRESS, SD_FIRMWARE_UPGRADE_EEPROM_ACTIVE_VALUE);
+
+    return true;
+  }
+
+  static bool MarlinSettings::disableSDUpgrade() {
+    if(eeprom_read_byte(SD_FIRMWARE_UPGRADE_EEPROM_ADDRESS) != SD_FIRMWARE_UPGRADE_EEPROM_INACTIVE_VALUE)
+      eeprom_write_byte(SD_FIRMWARE_UPGRADE_EEPROM_ADDRESS, SD_FIRMWARE_UPGRADE_EEPROM_INACTIVE_VALUE);
+
+    return true;
+  }
+
+  static bool MarlinSettings::SDUpgradeStatus() {
+    if(eeprom_read_byte(SD_FIRMWARE_UPGRADE_EEPROM_ADDRESS) == SD_FIRMWARE_UPGRADE_EEPROM_ACTIVE_VALUE)
+      return true;
+    else
+      return false;
+  }
+#endif
+
 #if ENABLED(EEPROM_SETTINGS)
 
   #define DUMMY_PID_VALUE 3000.0f

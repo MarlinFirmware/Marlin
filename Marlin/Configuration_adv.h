@@ -1521,6 +1521,24 @@
 //#define ACTION_ON_PAUSE "pause"
 //#define ACTION_ON_RESUME "resume"
 
+/**
+ * If using an alternative bootloader supporting SD-Firmware-Flashing, configure
+ * an extra menu entry to set the byte in EEPROM to activate SD-Flashing on reboot.
+ * 
+ * Requiers SDSUPPORT and only works with ATMEGA2560 (Arduino Mega)
+ * 
+ * Tested using this bootloader:
+ * https://github.com/FleetProbe/MicroBridge-Arduino-ATMega2560
+ */
+#if ENABLED(SDSUPPORT) && ENABLED(__AVR_ATmega2560__)
+  //#define SD_FIRMWARE_UPGRADE
+  #if ENABLED(SD_FIRMWARE_UPGRADE)
+    #define SD_FIRMWARE_UPGRADE_EEPROM_ADDRESS        0x1FF
+    #define SD_FIRMWARE_UPGRADE_EEPROM_ACTIVE_VALUE   0xF0
+    #define SD_FIRMWARE_UPGRADE_EEPROM_INACTIVE_VALUE 0xFF
+  #endif
+#endif
+
 //===========================================================================
 //====================== I2C Position Encoder Settings ======================
 //===========================================================================
