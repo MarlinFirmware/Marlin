@@ -50,7 +50,7 @@
   #define _NUM_ARGS(X,X6,X5,X4,X3,X2,X1,N,...) N
   #define NUM_ARGS(...) _NUM_ARGS(0, __VA_ARGS__ ,6,5,4,3,2,1,0)
 
-  #define MIN_2(a,b)      ({__typeof__(a) _a = (a); __typeof__(b) _b = (b); _a > _b ? _a : _b;})
+  #define MIN_2(a,b)      ({__typeof__(a) _a = (a); __typeof__(b) _b = (b); _a < _b ? _a : _b;})
   #define MIN_3(a,...)    MIN_2(a,MIN_2(__VA_ARGS__))
   #define MIN_4(a,...)    MIN_2(a,MIN_3(__VA_ARGS__))
   #define MIN_5(a,...)    MIN_2(a,MIN_4(__VA_ARGS__))

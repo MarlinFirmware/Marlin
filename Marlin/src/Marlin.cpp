@@ -170,14 +170,13 @@ uint8_t axis_homed, axis_known_position; // = 0
 #endif
 
 #if FAN_COUNT > 0
-  int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  uint8_t fan_speed[FAN_COUNT] = { 0 };
   #if ENABLED(EXTRA_FAN_SPEED)
-    int16_t old_fanSpeeds[FAN_COUNT],
-            new_fanSpeeds[FAN_COUNT];
+    uint8_t old_fan_speed[FAN_COUNT], new_fan_speed[FAN_COUNT];
   #endif
   #if ENABLED(PROBING_FANS_OFF)
     bool fans_paused; // = false;
-    int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
+    uint8_t paused_fan_speed[FAN_COUNT] = { 0 };
   #endif
 #endif
 
@@ -593,6 +592,10 @@ void idle(
       #endif
     }
   #endif
+
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    Sd2Card::idle();
+  #endif
 }
 
 /**
@@ -735,7 +738,10 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
-  #if HAS_DRIVER(TMC2130)
+  #if TMC_HAS_SPI
+    #if DISABLED(TMC_USE_SW_SPI)
+      SPI.begin();
+    #endif
     tmc_init_cs_pins();
   #endif
   #if HAS_DRIVER(TMC2208)
@@ -829,7 +835,7 @@ void setup() {
   #endif
 
   #if ENABLED(USE_CONTROLLER_FAN)
-    SET_OUTPUT(CONTROLLER_FAN_PIN); //Set pin used for driver cooling fan
+    SET_OUTPUT(CONTROLLER_FAN_PIN);
   #endif
 
   #if HAS_STEPPER_RESET
@@ -845,7 +851,7 @@ void setup() {
   #endif
 
   #if (ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE)) && HAS_SOLENOID_1
-    OUT_WRITE(SOL1_PIN, LOW); // turn it off
+    OUT_WRITE(SOL1_PIN, LOW); // OFF
   #endif
 
   #if HAS_HOME
@@ -853,11 +859,11 @@ void setup() {
   #endif
 
   #if PIN_EXISTS(STAT_LED_RED)
-    OUT_WRITE(STAT_LED_RED_PIN, LOW); // turn it off
+    OUT_WRITE(STAT_LED_RED_PIN, LOW); // OFF
   #endif
 
   #if PIN_EXISTS(STAT_LED_BLUE)
-    OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
+    OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
 
   #if HAS_COLOR_LEDS
@@ -965,7 +971,7 @@ void loop() {
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
         #if FAN_COUNT > 0
-          for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+          for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
         #endif
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)

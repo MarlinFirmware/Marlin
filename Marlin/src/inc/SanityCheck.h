@@ -602,6 +602,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
+  #if ENABLED(SINGLENOZZLE) && !defined(SINGLENOZZLE_SWAP_LENGTH)
+    #define SINGLENOZZLE_SWAP_LENGTH 0
+  #endif
+
 #elif ENABLED(MK2_MULTIPLEXER)
   #error "MK2_MULTIPLEXER requires 2 or more EXTRUDERS."
 #elif ENABLED(SINGLENOZZLE)
@@ -1828,6 +1832,10 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
 
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
   #error "PRINTCOUNTER requires EEPROM_SETTINGS. Please update your Configuration."
+#endif
+
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT) && !(PIN_EXISTS(USB_CS) && PIN_EXISTS(USB_INTR))
+  #error "USB_CS_PIN and USB_INTR_PIN are required for USB_FLASH_DRIVE_SUPPORT."
 #endif
 
 #endif // _SANITYCHECK_H_

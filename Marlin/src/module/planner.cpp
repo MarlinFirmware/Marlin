@@ -1187,8 +1187,8 @@ void Planner::recalculate() {
  * Maintain fans, paste extruder pressure,
  */
 void Planner::check_axes_activity() {
-  unsigned char axis_active[NUM_AXIS] = { 0 },
-                tail_fan_speed[FAN_COUNT];
+  uint8_t axis_active[NUM_AXIS] = { 0 },
+          tail_fan_speed[FAN_COUNT];
 
   #if ENABLED(BARICUDA)
     #if HAS_HEATER_1
@@ -1225,7 +1225,7 @@ void Planner::check_axes_activity() {
   }
   else {
     #if FAN_COUNT > 0
-      for (uint8_t i = 0; i < FAN_COUNT; i++) tail_fan_speed[i] = fanSpeeds[i];
+      for (uint8_t i = 0; i < FAN_COUNT; i++) tail_fan_speed[i] = fan_speed[i];
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1687,7 +1687,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         }
       #endif // PREVENT_COLD_EXTRUSION
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        if (ABS(de * e_factor[extruder]) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
+        if (ABS(de * e_factor[extruder]) > (int32_t)axis_steps_per_mm[E_AXIS_N(extruder)] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           #if HAS_POSITION_FLOAT
             position_float[E_AXIS] = target_float[E_AXIS];
@@ -1774,7 +1774,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if FAN_COUNT > 0
-    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fanSpeeds[i];
+    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fan_speed[i];
   #endif
 
   #if ENABLED(BARICUDA)
@@ -1985,7 +1985,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     delta_mm[B_AXIS] = db * steps_to_mm[B_AXIS];
     delta_mm[C_AXIS] = dc * steps_to_mm[C_AXIS];
   #endif
-  delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N];
+  delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
 
   if (block->steps[A_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[B_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[C_AXIS] < MIN_STEPS_PER_SEGMENT) {
     block->millimeters = ABS(delta_mm[E_AXIS]);
@@ -2084,7 +2084,19 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0f; // factor <1 decreases speed
   LOOP_XYZE(i) {
-    const float cs = ABS((current_speed[i] = delta_mm[i] * inverse_secs));
+    #if ENABLED(MIXING_EXTRUDER)
+      float delta_mm_i = 0;
+      if (i == E_AXIS) {
+        for (uint8_t s = 0; s < MIXING_STEPPERS; s++) {
+          const float delta_mm_s = mixing_factor[s] * delta_mm[i];
+          if (ABS(delta_mm_s) > ABS(delta_mm_i)) delta_mm_i = delta_mm_s;
+        }
+      }
+      else delta_mm_i = delta_mm[i];
+    #else
+      const float delta_mm_i = delta_mm[i];
+    #endif
+    const float cs = ABS(current_speed[i] = delta_mm_i * inverse_secs);
     #if ENABLED(DISTINCT_E_FACTORS)
       if (i == E_AXIS) i += extruder;
     #endif
@@ -2242,7 +2254,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
   #if ENABLED(LIN_ADVANCE)
     if (block->use_advance_lead) {
-      block->advance_speed = (STEPPER_TIMER_RATE) / (extruder_advance_K[active_extruder] * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N]);
+      block->advance_speed = (STEPPER_TIMER_RATE) / (extruder_advance_K[active_extruder] * block->e_D_ratio * block->acceleration * axis_steps_per_mm[E_AXIS_N(extruder)]);
       #if ENABLED(LA_DEBUG)
         if (extruder_advance_K[active_extruder] * block->e_D_ratio * block->acceleration * 2 < SQRT(block->nominal_speed_sqr) * block->e_D_ratio)
           SERIAL_ECHOLNPGM("More than 2 steps per eISR loop executed.");
@@ -2554,8 +2566,8 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
 
   // When changing extruders recalculate steps corresponding to the E position
   #if ENABLED(DISTINCT_E_FACTORS)
-    if (last_extruder != extruder && axis_steps_per_mm[E_AXIS_N] != axis_steps_per_mm[E_AXIS + last_extruder]) {
-      position[E_AXIS] = LROUND(position[E_AXIS] * axis_steps_per_mm[E_AXIS_N] * steps_to_mm[E_AXIS + last_extruder]);
+    if (last_extruder != extruder && axis_steps_per_mm[E_AXIS_N(extruder)] != axis_steps_per_mm[E_AXIS + last_extruder]) {
+      position[E_AXIS] = LROUND(position[E_AXIS] * axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS + last_extruder]);
       last_extruder = extruder;
     }
   #endif
@@ -2566,7 +2578,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
     LROUND(a * axis_steps_per_mm[A_AXIS]),
     LROUND(b * axis_steps_per_mm[B_AXIS]),
     LROUND(c * axis_steps_per_mm[C_AXIS]),
-    LROUND(e * axis_steps_per_mm[E_AXIS_N])
+    LROUND(e * axis_steps_per_mm[E_AXIS_N(extruder)])
   };
 
   #if HAS_POSITION_FLOAT

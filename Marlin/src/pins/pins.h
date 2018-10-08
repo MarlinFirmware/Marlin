@@ -35,7 +35,7 @@
 #ifndef __PINS_H__
 #define __PINS_H__
 
-#include "../inc/MarlinConfig.h"
+#define MAX_EXTRUDERS 6
 
 #if MB(RAMPS_13_EFB) || MB(RAMPS_14_EFB) || MB(RAMPS_PLUS_EFB) || MB(RAMPS_14_RE_ARM_EFB) || MB(RAMPS_SMART_EFB) || MB(RAMPS_DUO_EFB) || MB(RAMPS4DUE_EFB)
   #define IS_RAMPS_EFB
@@ -150,8 +150,6 @@
   #include "pins_TRIGORILLA_14.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMPS_ENDER_4)
   #include "pins_RAMPS_ENDER_4.h"     // ATmega2560                                 env:megaatmega2560
-#elif MB(GT2560_V3)
-  #include "pins_GT2560_V3.h"         // ATmega2560                                 env:megaatmega2560
 #elif MB(FYSETC_F6_13)
   #include "pins_FYSETC_F6_13.h"      // ATmega2560                                 env:megaatmega2560
 
@@ -195,6 +193,10 @@
   #include "pins_GT2560_REV_A.h"      // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 #elif MB(GT2560_REV_A_PLUS)
   #include "pins_GT2560_REV_A_PLUS.h" // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
+#elif MB(GT2560_V3)
+  #include "pins_GT2560_V3.h"         // ATmega2560                                 env:megaatmega2560
+#elif MB(GT2560_V3_MC2)
+  #include "pins_GT2560_V3_MC2.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(EINSTART_S)
   #include "pins_EINSTART-S.h"        // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 
@@ -404,6 +406,8 @@
 
 #elif MB(THE_BORG)
   #include "pins_THE_BORG.h"          // STM32F7                                    env:STM32F7
+#elif MB(REMRAM_V1)
+  #include "pins_REMRAM_V1.h"         // STM32F7                                    env:STM32F7xx
 
 //
 // Espressif ESP32
@@ -654,10 +658,6 @@
 #endif
 #ifndef SUICIDE_PIN
   #define SUICIDE_PIN -1
-#endif
-
-#ifndef MAX_EXTRUDERS
-  #define MAX_EXTRUDERS 5
 #endif
 
 #ifndef NUM_SERVO_PLUGS

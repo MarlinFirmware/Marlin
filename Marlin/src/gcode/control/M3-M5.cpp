@@ -149,7 +149,7 @@ void GcodeSuite::M5() {
   void GcodeSuite::M3_M4(bool is_M3) {
     planner.synchronize();
     const uint16_t s = parser.ushortval('S', 255);
-    fanSpeeds[FAN_NUM_AS_LASER] = MIN(s, 255U);
+    fan_speed[FAN_NUM_AS_LASER] = MIN(s, 255U);
   }
 
   /**
@@ -157,6 +157,6 @@ void GcodeSuite::M5() {
    */
   void GcodeSuite::M5() {
     planner.synchronize();
-    if (FAN_NUM_AS_LASER < FAN_COUNT) fanSpeeds[FAN_NUM_AS_LASER] = 0;
+    if (FAN_NUM_AS_LASER < FAN_COUNT) fan_speed[FAN_NUM_AS_LASER] = 0;
   }
 #endif

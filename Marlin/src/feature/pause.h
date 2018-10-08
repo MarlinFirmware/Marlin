@@ -77,6 +77,8 @@ extern uint8_t did_pause_print;
   #define DXC_PASS
 #endif
 
+void do_pause_e_move(const float &length, const float &fr);
+
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
 
 void wait_for_filament_reload(const int8_t max_beep_count=0 DXC_PARAMS);

@@ -20,8 +20,17 @@
  *
  */
 
+ // If you have a trex 3, stock is this option plus 2208 on all axis. None in spreadcycle.
+//#define TREX3
+
 //#define X_2208
+//#define X_Spreadcycle
 //#define Y_2208
+//#define Y_Spreadcycle
+//#define Z_2208 // NOT Recommended! Dual stepper current draw is above the recommended limit for this driver
+//#define Y_Spreadcycle
+//#define E_2208 // Not Recommended! Stealthchop mode faults with linear advance
+//#define E_Spreadcycle
 
 //#define BedAC
 
@@ -33,6 +42,16 @@
 //#define FilamentSensor
 
 
+
+//////////////////////////////////DO not edit below here unless you know what youre doing!  //////////////////////////////////
+
+#if ENABLED(TREX3)
+  #define X_2208
+  #define Y_2208
+  #define Z_2208
+  #define E_2208
+  #define FilamentSensor
+#endif
 /**
  * Configuration.h
  *
@@ -146,7 +165,11 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
+#if ENABLED(TREX3)
+  #define MOTHERBOARD BOARD_FORMBOT_TREX3
+#else
   #define MOTHERBOARD BOARD_FORMBOT_TREX2PLUS
+#endif
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -604,21 +627,31 @@
  */
 #if ENABLED(X_2208)
   #define X_DRIVER_TYPE  TMC2208_STANDALONE
+  #define X2_DRIVER_TYPE TMC2208_STANDALONE
 #else
   #define X_DRIVER_TYPE  A4988
+  #define X2_DRIVER_TYPE A4988
 #endif
 #if ENABLED(Y_2208)
   #define Y_DRIVER_TYPE  TMC2208_STANDALONE
 #else
   #define Y_DRIVER_TYPE  A4988
 #endif
-#define Z_DRIVER_TYPE  A4988
-#define X2_DRIVER_TYPE A4988
+#if ENABLED(Z_2208)
+  #define Z_DRIVER_TYPE  TMC2208_STANDALONE
+#else
+  #define Z_DRIVER_TYPE  A4988
+#endif
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
-#define E0_DRIVER_TYPE A4988
-#define E1_DRIVER_TYPE A4988
+#if ENABLED(E_2208)
+  #define E0_DRIVER_TYPE  TMC2208_STANDALONE
+  #define E1_DRIVER_TYPE TMC2208_STANDALONE
+#else
+  #define E0_DRIVER_TYPE  DRV8825
+  #define E1_DRIVER_TYPE DRV8825
+#endif
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
 //#define E4_DRIVER_TYPE A4988
@@ -919,22 +952,30 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #if(ENABLED(X_2208))
-#define INVERT_X_DIR true
+  #define INVERT_X_DIR true
 #else
-#define INVERT_X_DIR false
+  #define INVERT_X_DIR false
 #endif
- #if(ENABLED(Y_2208))
-#define INVERT_Y_DIR true
+#if(ENABLED(Y_2208))
+  #define INVERT_Y_DIR true
 #else
-#define INVERT_Y_DIR false
+  #define INVERT_Y_DIR false
 #endif
-#define INVERT_Z_DIR true
-
+#if ENABLED(Z_2208)
+  #define INVERT_Z_DIR false
+#else
+  #define INVERT_Z_DIR true
+#endif
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
-#define INVERT_E1_DIR true
+#if ENABLED(E_2208)
+  #define INVERT_E0_DIR true
+  #define INVERT_E1_DIR false
+#else
+  #define INVERT_E0_DIR false
+  #define INVERT_E1_DIR true
+#endif
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false

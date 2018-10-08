@@ -41,9 +41,25 @@
 #include "watchdog_Due.h"
 #include "HAL_timers_Due.h"
 
-#define NUM_SERIAL 1
-// Required before the include or compilation fails
-#define MYSERIAL0 customizedSerial
+// Serial ports
+#if !WITHIN(SERIAL_PORT, -1, 3)
+  #error "SERIAL_PORT must be from -1 to 3"
+#endif
+
+// MYSERIAL0 required before MarlinSerial includes!
+#define MYSERIAL0 customizedSerial1
+
+#ifdef SERIAL_PORT_2
+  #if !WITHIN(SERIAL_PORT_2, -1, 3)
+    #error "SERIAL_PORT_2 must be from -1 to 3"
+  #elif SERIAL_PORT_2 == SERIAL_PORT
+    #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
+  #endif
+  #define NUM_SERIAL 2
+  #define MYSERIAL1 customizedSerial2
+#else
+  #define NUM_SERIAL 1
+#endif
 
 #include "MarlinSerial_Due.h"
 #include "MarlinSerialUSB_Due.h"

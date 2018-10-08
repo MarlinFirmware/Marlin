@@ -282,7 +282,11 @@ static int read_serial(const int index) {
  */
 inline void get_serial_commands() {
   static char serial_line_buffer[NUM_SERIAL][MAX_CMD_SIZE];
-  static bool serial_comment_mode[NUM_SERIAL] = { false };
+  static bool serial_comment_mode[NUM_SERIAL] = { false }
+              #if ENABLED(PAREN_COMMENTS)
+                , serial_comment_paren_mode[NUM_SERIAL] = { false }
+              #endif
+            ;
 
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
@@ -310,7 +314,11 @@ inline void get_serial_commands() {
        */
       if (serial_char == '\n' || serial_char == '\r') {
 
-        serial_comment_mode[i] = false;                   // end of line == end of comment
+        // Start with comment mode off
+        serial_comment_mode[i] = false;
+        #if ENABLED(PAREN_COMMENTS)
+          serial_comment_paren_mode[i] = false;
+        #endif
 
         // Skip empty lines and comments
         if (!serial_count[i]) { thermalManager.manage_heater(); continue; }
@@ -404,12 +412,24 @@ inline void get_serial_commands() {
       }
       else if (serial_char == '\\') {  // Handle escapes
         // if we have one more character, copy it over
-        if ((c = read_serial(i)) >= 0 && !serial_comment_mode[i])
+        if ((c = read_serial(i)) >= 0 && !serial_comment_mode[i]
+          #if ENABLED(PAREN_COMMENTS)
+            && !serial_comment_paren_mode[i]
+          #endif
+        )
           serial_line_buffer[i][serial_count[i]++] = (char)c;
       }
       else { // it's not a newline, carriage return or escape char
         if (serial_char == ';') serial_comment_mode[i] = true;
-        if (!serial_comment_mode[i]) serial_line_buffer[i][serial_count[i]++] = serial_char;
+        #if ENABLED(PAREN_COMMENTS)
+          else if (serial_char == '(') serial_comment_paren_mode[i] = true;
+          else if (serial_char == ')') serial_comment_paren_mode[i] = false;
+        #endif
+        else if (!serial_comment_mode[i]
+          #if ENABLED(PAREN_COMMENTS)
+            && ! serial_comment_paren_mode[i]
+          #endif
+        ) serial_line_buffer[i][serial_count[i]++] = serial_char;
       }
     } // for NUM_SERIAL
   } // queue has space, serial has data
@@ -424,7 +444,11 @@ inline void get_serial_commands() {
    */
   inline void get_sdcard_commands() {
     static bool stop_buffering = false,
-                sd_comment_mode = false;
+                sd_comment_mode = false
+                #if ENABLED(PAREN_COMMENTS)
+                  , sd_comment_paren_mode = false
+                #endif
+              ;
 
     if (!IS_SD_PRINTING) return;
 
@@ -445,7 +469,11 @@ inline void get_serial_commands() {
       card_eof = card.eof();
       if (card_eof || n == -1
           || sd_char == '\n' || sd_char == '\r'
-          || ((sd_char == '#' || sd_char == ':') && !sd_comment_mode)
+          || ((sd_char == '#' || sd_char == ':') && !sd_comment_mode
+            #if ENABLED(PAREN_COMMENTS)
+              && !sd_comment_paren_mode
+            #endif
+          )
       ) {
         if (card_eof) {
 
@@ -481,6 +509,9 @@ inline void get_serial_commands() {
         if (sd_char == '#') stop_buffering = true;
 
         sd_comment_mode = false; // for new command
+        #if ENABLED(PAREN_COMMENTS)
+          sd_comment_paren_mode = false;
+        #endif
 
         // Skip empty lines and comments
         if (!sd_count) { thermalManager.manage_heater(); continue; }
@@ -498,7 +529,15 @@ inline void get_serial_commands() {
       }
       else {
         if (sd_char == ';') sd_comment_mode = true;
-        if (!sd_comment_mode) command_queue[cmd_queue_index_w][sd_count++] = sd_char;
+        #if ENABLED(PAREN_COMMENTS)
+          else if (sd_char == '(') sd_comment_paren_mode = true;
+          else if (sd_char == ')') sd_comment_paren_mode = false;
+        #endif
+        else if (!sd_comment_mode
+          #if ENABLED(PAREN_COMMENTS)
+            && ! sd_comment_paren_mode
+          #endif
+        ) command_queue[cmd_queue_index_w][sd_count++] = sd_char;
       }
     }
   }
@@ -562,11 +601,11 @@ void advance_command_queue() {
 
         #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
-            SERIAL_ECHOLNPAIR("Dropped bytes: ", customizedSerial.dropped());
+            SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL0.dropped());
           #endif
 
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", customizedSerial.rxMaxEnqueued());
+            SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MYSERIAL0.rxMaxEnqueued());
           #endif
         #endif //  !defined(__AVR__) || !defined(USBCON)
 

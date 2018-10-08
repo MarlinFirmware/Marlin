@@ -112,11 +112,9 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
   return thermalManager.wait_for_hotend(active_extruder);
 }
 
-static void do_pause_e_move(const float &length, const float &fr) {
-  set_destination_from_current();
-  destination[E_AXIS] += length / planner.e_factor[active_extruder];
-  planner.buffer_line(destination, fr, active_extruder);
-  set_current_from_destination();
+void do_pause_e_move(const float &length, const float &fr) {
+  current_position[E_AXIS] += length / planner.e_factor[active_extruder];
+  planner.buffer_line(current_position, fr, active_extruder);
   planner.synchronize();
 }
 
@@ -312,7 +310,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
   #endif
 
   // Disable extruders steppers for manual filament changing (only on boards that have separate ENABLE_PINS)
-  #if E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN
+  #if (E0_ENABLE_PIN != X_ENABLE_PIN && E1_ENABLE_PIN != Y_ENABLE_PIN) || AXIS_DRIVER_TYPE(E0, TMC2660) || AXIS_DRIVER_TYPE(E1, TMC2660) || AXIS_DRIVER_TYPE(E2, TMC2660) || AXIS_DRIVER_TYPE(E3, TMC2660) || AXIS_DRIVER_TYPE(E4, TMC2660) || AXIS_DRIVER_TYPE(E5, TMC2660)
     disable_e_stepper(active_extruder);
     safe_delay(100);
   #endif

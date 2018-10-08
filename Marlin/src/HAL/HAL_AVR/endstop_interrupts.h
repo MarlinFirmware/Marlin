@@ -85,22 +85,21 @@ void pciSetup(const int8_t pin) {
   SBI(PCICR, digitalPinToPCICRbit(pin)); // enable interrupt for the group
 }
 
-
 // Handlers for pin change interrupts
 #ifdef PCINT0_vect
   ISR(PCINT0_vect) { endstop_ISR(); }
 #endif
 
 #ifdef PCINT1_vect
-  ISR(PCINT1_vect) { endstop_ISR(); }
+  ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));
 #endif
 
 #ifdef PCINT2_vect
-  ISR(PCINT2_vect) { endstop_ISR(); }
+  ISR(PCINT2_vect, ISR_ALIASOF(PCINT0_vect));
 #endif
 
 #ifdef PCINT3_vect
-  ISR(PCINT3_vect) { endstop_ISR(); }
+  ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
 #endif
 
 void setup_endstop_interrupts( void ) {

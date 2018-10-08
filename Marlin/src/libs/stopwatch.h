@@ -26,8 +26,8 @@
 // Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
 //#define DEBUG_STOPWATCH
 
-#include "../core/macros.h"
-#include "../core/types.h"
+#include "../core/macros.h" // for FORCE_INLINE
+#include "../core/types.h"  // for millis_t
 
 /**
  * @brief Stopwatch class
@@ -36,11 +36,7 @@
  */
 class Stopwatch {
   private:
-    enum State : char {
-      STOPPED,
-      RUNNING,
-      PAUSED
-    };
+    enum State : char { STOPPED, RUNNING, PAUSED };
 
     static Stopwatch::State state;
     static millis_t accumulator;

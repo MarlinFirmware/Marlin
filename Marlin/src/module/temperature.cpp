@@ -97,7 +97,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
         Temperature::target_temperature[HOTENDS] = { 0 };
 
 #if ENABLED(AUTO_POWER_E_FANS)
-  int16_t Temperature::autofan_speed[HOTENDS] = { 0 };
+  uint8_t Temperature::autofan_speed[HOTENDS] = { 0 };
 #endif
 
 #if HAS_HEATED_BED
@@ -2415,6 +2415,17 @@ void Temperature::isr() {
     }
 
   #endif // AUTO_REPORT_TEMPERATURES
+
+  #if ENABLED(ULTRA_LCD)
+    void Temperature::set_heating_message(const uint8_t e) {
+      const bool heating = isHeatingHotend(e);
+      #if HOTENDS > 1
+        lcd_status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), int(e + 1));
+      #else
+        lcd_setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
+      #endif
+    }
+  #endif
 
   #if HAS_TEMP_HOTEND
 

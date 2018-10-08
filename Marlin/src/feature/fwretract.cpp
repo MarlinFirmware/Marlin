@@ -36,6 +36,10 @@ FWRetract fwretract; // Single instance - this calls the constructor
 #include "../module/planner.h"
 #include "../module/stepper.h"
 
+#if ENABLED(RETRACT_SYNC_MIXING)
+  #include "../feature/mixing.h"
+#endif
+
 // private:
 
 #if EXTRUDERS > 1
@@ -127,14 +131,32 @@ void FWRetract::retract(const bool retracting
   const float old_feedrate_mm_s = feedrate_mm_s,
               unscale_e = RECIPROCAL(planner.e_factor[active_extruder]),
               unscale_fr = 100.0 / feedrate_percentage, // Disable feedrate scaling for retract moves
-              base_retract = swapping ? swap_retract_length : retract_length;
+              base_retract = (
+                (swapping ? swap_retract_length : retract_length)
+                #if ENABLED(RETRACT_SYNC_MIXING)
+                  * (MIXING_STEPPERS)
+                #endif
+              );
 
   // The current position will be the destination for E and Z moves
   set_destination_from_current();
 
+  #if ENABLED(RETRACT_SYNC_MIXING)
+    float old_mixing_factor[MIXING_STEPPERS];
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
+      old_mixing_factor[i] = mixing_factor[i];
+      mixing_factor[i] = RECIPROCAL(MIXING_STEPPERS);
+    }
+  #endif
+
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
-    feedrate_mm_s = retract_feedrate_mm_s * unscale_fr;
+    feedrate_mm_s = (
+      retract_feedrate_mm_s * unscale_fr
+      #if ENABLED(RETRACT_SYNC_MIXING)
+        * (MIXING_STEPPERS)
+      #endif
+    );
     current_retract[active_extruder] = base_retract * unscale_e;
     prepare_move_to_destination();                        // set_current_to_destination
     planner.synchronize();                                // Wait for move to complete
@@ -163,10 +185,19 @@ void FWRetract::retract(const bool retracting
     }
 
     current_retract[active_extruder] = 0.0;
-    feedrate_mm_s = (swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s) * unscale_fr;
+    feedrate_mm_s = (
+      (swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s) * unscale_fr
+      #if ENABLED(RETRACT_SYNC_MIXING)
+        * (MIXING_STEPPERS)
+      #endif
+    );
     prepare_move_to_destination();                        // Recover E, set_current_to_destination
     planner.synchronize();                                // Wait for move to complete
   }
+
+  #if ENABLED(RETRACT_SYNC_MIXING)
+    COPY(mixing_factor, old_mixing_factor);               // Restore original mixing factor
+  #endif
 
   feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
   retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
