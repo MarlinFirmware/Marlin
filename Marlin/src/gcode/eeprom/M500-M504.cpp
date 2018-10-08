@@ -26,7 +26,7 @@
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-#include "../../lcd/extensible_ui/ui_api.h"
+  #include "../../lcd/extensible_ui/ui_api.h"
 #endif
 
 #if NUM_SERIAL > 1
