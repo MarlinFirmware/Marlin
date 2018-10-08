@@ -89,7 +89,7 @@ namespace UI {
     ;
   }
 
-  float getFan_percent(const uint8_t fan) { return ((float(fanSpeeds[fan]) + 1) * 100) / 256; }
+  float getFan_percent(const uint8_t fan) { return ((float(fan_speed[fan]) + 1) * 100) / 256; }
 
   float getAxisPosition_mm(const axis_t axis) {
     switch (axis) {
@@ -376,7 +376,7 @@ namespace UI {
 
   void setFan_percent(const uint8_t fan, float percent) {
     if (fan < FAN_COUNT)
-      fanSpeeds[fan] = clamp(round(percent * 255 / 100), 0, 255);
+      fan_speed[fan] = clamp(round(percent * 255 / 100), 0, 255);
   }
 
   void setFeedrate_percent(const float percent) {
