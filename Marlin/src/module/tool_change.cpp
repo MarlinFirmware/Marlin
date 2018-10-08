@@ -663,6 +663,15 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
           set_destination_from_current();
 
+          if (singlenozzle_swap_length) {
+            #if ENABLED(ADVANCED_PAUSE_FEATURE)
+              do_pause_e_move(-singlenozzle_swap_length, MMM_TO_MMS(singlenozzle_retract_speed));
+            #else
+              current_position[E_AXIS] -= singlenozzle_swap_length / planner.e_factor[active_extruder];
+              planner.buffer_line(current_position, MMM_TO_MMS(singlenozzle_retract_speed), active_extruder);
+            #endif
+          }
+
           current_position[Z_AXIS] += (
             #if ENABLED(SINGLENOZZLE_SWAP_PARK)
               singlenozzle_change_point.z
@@ -676,17 +685,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #if ENABLED(SINGLENOZZLE_SWAP_PARK)
             current_position[X_AXIS] = singlenozzle_change_point.x;
             current_position[Y_AXIS] = singlenozzle_change_point.y;
-            planner.buffer_line(current_position, planner.max_feedrate_mm_s[Y_AXIS], active_extruder);
+            planner.buffer_line(current_position, MMM_TO_MMS(SINGLENOZZLE_PARK_XY_FEEDRATE), active_extruder);
           #endif
-
-          if (singlenozzle_swap_length) {
-            #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(-singlenozzle_swap_length, MMM_TO_MMS(singlenozzle_retract_speed));
-            #else
-              current_position[E_AXIS] -= singlenozzle_swap_length / planner.e_factor[active_extruder];
-              planner.buffer_line(current_position, MMM_TO_MMS(singlenozzle_retract_speed), active_extruder);
-            #endif
-          }
 
           singlenozzle_temp[active_extruder] = thermalManager.target_temperature[0];
           if (singlenozzle_temp[tmp_extruder] && singlenozzle_temp[tmp_extruder] != singlenozzle_temp[active_extruder]) {
@@ -711,7 +711,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #if ENABLED(SINGLENOZZLE_SWAP_PARK)
             current_position[X_AXIS] = destination[X_AXIS];
             current_position[Y_AXIS] = destination[Y_AXIS];
-            planner.buffer_line(current_position, planner.max_feedrate_mm_s[Y_AXIS], active_extruder);
+            planner.buffer_line(current_position, MMM_TO_MMS(SINGLENOZZLE_PARK_XY_FEEDRATE), active_extruder);
           #endif
 
           do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
