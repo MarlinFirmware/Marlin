@@ -649,10 +649,10 @@
   #define MSG_INIT_EEPROM                     _UxGT("Initialize EEPROM")
 #endif
 #ifndef MSG_ACTIVATE_SD_UPDATE
-  #define MSG_ACTIVATE_SD_UPDATE              _UxGT("Activate SD Update")
+  #define MSG_ACTIVATE_SD_UPDATE              _UxGT("Turn SD Update on")
 #endif
 #ifndef MSG_DEACTIVATE_SD_UPDATE
-  #define MSG_DEACTIVATE_SD_UPDATE            _UxGT("Deactivate SD Update")
+  #define MSG_DEACTIVATE_SD_UPDATE            _UxGT("Turn SD Update off")
 #endif
 #ifndef MSG_REFRESH
   #define MSG_REFRESH                         _UxGT("Refresh")
