@@ -704,11 +704,11 @@ sym: $(BUILD_DIR)/$(TARGET).sym
 # Do not try to reset an Arduino if it's not one
 upload: $(BUILD_DIR)/$(TARGET).hex
 ifeq (${AVRDUDE_PROGRAMMER}, arduino)
-  stty hup < $(UPLOAD_PORT); true
+	stty hup < $(UPLOAD_PORT); true
 endif
-  $(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
+	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
 ifeq (${AVRDUDE_PROGRAMMER}, arduino)
-  stty -hup < $(UPLOAD_PORT); true
+	stty -hup < $(UPLOAD_PORT); true
 endif
 
   # Display size of file.
@@ -716,10 +716,10 @@ HEXSIZE = $(SIZE) --target=$(FORMAT) $(BUILD_DIR)/$(TARGET).hex
 ELFSIZE = $(SIZE)  $(SIZE_FLAGS) $(BUILD_DIR)/$(TARGET).elf; \
           $(SIZE)  $(BUILD_DIR)/$(TARGET).elf
 sizebefore:
-  $P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
+	$P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
 
 sizeafter: build
-  $P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
+	$P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
 
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
@@ -731,71 +731,71 @@ COFFCONVERT=$(OBJCOPY) --debugging \
 
 
 coff: $(BUILD_DIR)/$(TARGET).elf
-  $(COFFCONVERT) -O coff-avr $(BUILD_DIR)/$(TARGET).elf $(TARGET).cof
+	$(COFFCONVERT) -O coff-avr $(BUILD_DIR)/$(TARGET).elf $(TARGET).cof
 
 
 extcoff: $(TARGET).elf
-  $(COFFCONVERT) -O coff-ext-avr $(BUILD_DIR)/$(TARGET).elf $(TARGET).cof
+	$(COFFCONVERT) -O coff-ext-avr $(BUILD_DIR)/$(TARGET).elf $(TARGET).cof
 
 
 .SUFFIXES: .elf .hex .eep .lss .sym .bin
 .PRECIOUS: .o
 
 .elf.hex:
-  $(Pecho) "  COPY  $@"
-  $P $(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
+	$(Pecho) "  COPY  $@"
+	$P $(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
 
 .elf.bin:
-  $(Pecho) "  COPY  $@"
-  $P $(OBJCOPY) -O binary -R .eeprom $< $@
+	$(Pecho) "  COPY  $@"
+	$P $(OBJCOPY) -O binary -R .eeprom $< $@
 
 .elf.eep:
-  -$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
     --change-section-lma .eeprom=0 -O $(FORMAT) $< $@
 
 # Create extended listing file from ELF output file.
 .elf.lss:
-  $(OBJDUMP) -h -S $< > $@
+	$(OBJDUMP) -h -S $< > $@
 
 # Create a symbol table from ELF output file.
 .elf.sym:
-  $(NM) -n $< > $@
+	$(NM) -n $< > $@
 
   # Link: create ELF output file from library.
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
-  $(Pecho) "  CXX   $@"
-  $P $(CC) $(LD_PREFIX) $(ALL_CXXFLAGS) -o $@ -L. $(OBJ) $(LDFLAGS) $(LD_SUFFIX)
+	$(Pecho) "  CXX   $@"
+	$P $(CC) $(LD_PREFIX) $(ALL_CXXFLAGS) -o $@ -L. $(OBJ) $(LDFLAGS) $(LD_SUFFIX)
 
 # Object files that were found in "src" will be stored in $(BUILD_DIR)
 # in directories that mirror the structure of "src"
 
 $(BUILD_DIR)/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
-  $(Pecho) "  CC    $<"
-  $P $(CC) -MMD -c $(ALL_CFLAGS) $(CWARN) $< -o $@
+	$(Pecho) "  CC    $<"
+	$P $(CC) -MMD -c $(ALL_CFLAGS) $(CWARN) $< -o $@
 
 $(BUILD_DIR)/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-  $(Pecho) "  CXX   $<"
-  $P $(CXX) -MMD -c $(ALL_CXXFLAGS) $(CXXWARN) $< -o $@
+	$(Pecho) "  CXX   $<"
+	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $(CXXWARN) $< -o $@
 
 # Object files for Arduino libs will be created in $(BUILD_DIR)/arduino
 
 $(BUILD_DIR)/arduino/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
-  $(Pecho) "  CC    $<"
-  $P $(CC) -MMD -c $(ALL_CFLAGS) $(LIBWARN) $< -o $@
+	$(Pecho) "  CC    $<"
+	$P $(CC) -MMD -c $(ALL_CFLAGS) $(LIBWARN) $< -o $@
 
 $(BUILD_DIR)/arduino/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-  $(Pecho) "  CXX   $<"
-  $P $(CXX) -MMD -c $(ALL_CXXFLAGS)  $(LIBWARN) $< -o $@
+	$(Pecho) "  CXX   $<"
+	$P $(CXX) -MMD -c $(ALL_CXXFLAGS)  $(LIBWARN) $< -o $@
 
 $(BUILD_DIR)/arduino/%.o: %.S $(MAKEFILE)
-  $(Pecho) "  CXX   $<"
-  $P $(CXX) -MMD -c $(ALL_ASFLAGS) $< -o $@
+	$(Pecho) "  CXX   $<"
+	$P $(CXX) -MMD -c $(ALL_ASFLAGS) $< -o $@
 
 # Target: clean project.
 clean:
-  $(Pecho) "  RMDIR $(BUILD_DIR)/"
-  $P rm -rf $(BUILD_DIR)
+	$(Pecho) "  RMDIR $(BUILD_DIR)/"
+	$P rm -rf $(BUILD_DIR)
 
 
 .PHONY: all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter
