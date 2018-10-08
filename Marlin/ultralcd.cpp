@@ -3375,8 +3375,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
     #endif
 
-    #if ENABLED(__AVR_ATmega2560__) && ENABLED(SDSUPPORT) && ENABLED(SD_FIRMWARE_UPGRADE)
-      if(settings.SDUpgradeStatus())
+    #if ENABLED(SD_FIRMWARE_UPGRADE)
+      if (settings.SDUpgradeStatus())
         MENU_ITEM(function, MSG_DEACTIVATE_SD_UPDATE, lcd_sd_firmware_upgrade_deactivate);
       else
         MENU_ITEM(function, MSG_ACTIVATE_SD_UPDATE, lcd_sd_firmware_upgrade_activate);
