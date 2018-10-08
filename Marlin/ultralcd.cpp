@@ -1824,18 +1824,18 @@ void lcd_quick_feedback(const bool clear_buttons) {
     static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
   #endif
 
-  #if ENABLED(SDSUPPORT) && ENABLED(SD_FIRMWARE_UPGRADE) && ENABLED(__AVR_ATmega2560__)
-    static void lcd_sd_firmware_upgrade_activate()   {
+  #if ENABLED(SD_FIRMWARE_UPGRADE)
+    static void lcd_sd_firmware_upgrade_activate() {
       lcd_completion_feedback(settings.enableSDUpgrade());
       lcd_return_to_status();
-      enqueue_and_echo_commands_P(PSTR("M117 Restart Printer"));
+      lcd_setstatusPGM(PSTR("Restart Printer"));
     }
 
     static void lcd_sd_firmware_upgrade_deactivate() {
       lcd_completion_feedback(settings.disableSDUpgrade());
       lcd_return_to_status();
     }
-  #endif
+  #endif // SD_FIRMWARE_UPGRADE
 
   #if ENABLED(LEVEL_BED_CORNERS)
 
