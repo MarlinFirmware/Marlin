@@ -51,6 +51,12 @@
 #define E1_DIAG_PIN        25   // PD0 E2_DIAG
 
 //
+// Servos
+//
+#define SERVO0_PIN          20   // D20 PB12 (Header J20 20)
+#define SERVO1_PIN          21   // D21 PB13 (Header J20 19)
+
+//
 // Limit Switches
 //
 // Only use Diag Pins when SENSORLESS_HOMING is enabled for the TMC2130 drivers.
@@ -161,7 +167,27 @@
 //
 // Misc. Functions
 //
-#define SDSS               87   // D87 PA29 CS
+
+// Internal MicroSD card reader on the PCB
+#define INT_SCK_PIN         42   // D42 PA19/MCCK
+#define INT_MISO_PIN        43   // D43 PA20/MCCDA
+#define INT_MOSI_PIN        73   // D73 PA21/MCDA0
+#define INT_SDSS            55   // D55 PA24/MCDA3
+
+// The external SD card reader on SC2, as well as 2 Mbyte SPI Flash
+#define SCK_PIN             76   // D76 PA27
+#define MISO_PIN            74   // D74 PA25
+#define MOSI_PIN            75   // D75 PA26
+#define SDSS                87   // D87 PA29
+#define SPI_FLASH_SS        52   // D52 PB21
+
+// Filament runout sensor pins (or GPIO)
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN    66   // D66 PB15 (Header J20 15)
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN   67   // D67 PB16 (Header J20 16)
+#endif
 
 //
 // LCD / Controller
@@ -182,5 +208,5 @@
     #define BTN_EN1        60   // D60 PA3_TIOB1
     #define BTN_EN2        13   // D13 PB27_TIOB0
     #define BTN_ENC        16   // D16 PA13_TXD1 // the click
-  #endif  // NEWPANEL
-#endif // ULTRA_LCD
+  #endif // NEWPANEL
+#endif // ULTRA_LCD || EXTENSIBLE_UI
