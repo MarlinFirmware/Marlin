@@ -24,7 +24,7 @@
 
 #if ENABLED(GCODE_MOTION_MODES)
 
-#include "../parser.h"
+#include "../gcode.h"
 
 /**
  * G80: Cancel current motion mode
