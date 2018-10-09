@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+#
+# Build tests for STM32F103RE
+#
 
 # exit on first failure
 set -e

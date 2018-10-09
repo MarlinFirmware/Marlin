@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+#
+# run_tests
+#
 export PATH="$PATH:$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )"
 export PATH="$PATH:./buildroot/bin"
 
@@ -27,7 +30,7 @@ fi
 
 if [[ $2 = "ALL" ]]; then
   dir_list=("$(dirname "${BASH_SOURCE[0]}")"/*)
-  declare -a tests=(${dir_list[@]/*start_tests/})
+  declare -a tests=(${dir_list[@]/*run_tests/})
   for f in "${tests[@]}"; do
     env_backup
     testenv=$(basename $f | cut -d"_" -f1)
