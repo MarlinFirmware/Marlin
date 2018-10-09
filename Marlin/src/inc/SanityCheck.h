@@ -1855,4 +1855,8 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
   #error "USB_CS_PIN and USB_INTR_PIN are required for USB_FLASH_DRIVE_SUPPORT."
 #endif
 
+#if ENABLED(SD_FIRMWARE_UPDATE) && !defined(__AVR_ATmega2560__)
+  #error "SD_FIRMWARE_UPDATE requires an ATmega2560-based (Arduino Mega) board."
+#endif
+
 #endif // _SANITYCHECK_H_

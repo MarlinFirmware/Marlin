@@ -3996,6 +3996,18 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
   #endif
 
+  #if ENABLED(SD_FIRMWARE_UPDATE)
+    /**
+     * Toggle the SD Firmware Update state in EEPROM
+     */
+    static void _lcd_toggle_sd_update() {
+      const bool new_state = !settings.sd_update_status();
+      lcd_completion_feedback(settings.set_sd_update_status(new_state));
+      lcd_return_to_status();
+      if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else lcd_reset_status();
+    }
+  #endif
+
   void lcd_advanced_settings_menu() {
     START_MENU();
     MENU_BACK(MSG_CONFIGURATION);
@@ -4066,6 +4078,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
       if (!endstops.z_probe_enabled && TEST_BLTOUCH())
         MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+    #endif
+
+    #if ENABLED(SD_FIRMWARE_UPDATE)
+      bool sd_update_state = settings.sd_update_status();
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, _lcd_toggle_sd_update);
     #endif
 
     #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
