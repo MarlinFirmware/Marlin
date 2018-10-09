@@ -115,7 +115,7 @@ namespace UI {
     set_destination_from_current();
     switch (axis) {
       case X: case Y: case Z:
-        destination[Z_AXIS] = position;
+        destination[axis] = position;
         break;
       case E0: case E1: case E2: case E3: case E4: case E5:
         destination[E_AXIS] = position;
