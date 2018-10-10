@@ -231,15 +231,8 @@ typedef struct SettingsDataStruct {
   //
   // FWRETRACT
   //
+  fwretract_settings_t fwretract_settings;              // M207 S F Z W, M208 S F W R
   bool autoretract_enabled;                             // M209 S
-  float retract_length,                                 // M207 S
-        retract_feedrate_mm_s,                          // M207 F
-        retract_zlift,                                  // M207 Z
-        retract_recover_length,                         // M208 S
-        retract_recover_feedrate_mm_s,                  // M208 F
-        swap_retract_length,                            // M207 W
-        swap_retract_recover_length,                    // M208 W
-        swap_retract_recover_feedrate_mm_s;             // M208 R
 
   //
   // !NO_VOLUMETRIC
@@ -696,28 +689,22 @@ void MarlinSettings::postprocess() {
     #endif
     EEPROM_WRITE(lcd_contrast);
 
-    const bool autoretract_enabled =
-      #if DISABLED(FWRETRACT_AUTORETRACT)
-        false
-      #else
-        fwretract.autoretract_enabled
-      #endif
-    ;
-    EEPROM_WRITE(autoretract_enabled);
+    //
+    // Firmware Retraction
+    //
+    {
+      _FIELD_TEST(fwretract_settings);
 
-    #if DISABLED(FWRETRACT)
-      const float autoretract_defaults[] = { 3, 45, 0, 0, 0, 13, 0, 8 };
-      EEPROM_WRITE(autoretract_defaults);
-    #else
-      EEPROM_WRITE(fwretract.retract_length);
-      EEPROM_WRITE(fwretract.retract_feedrate_mm_s);
-      EEPROM_WRITE(fwretract.retract_zlift);
-      EEPROM_WRITE(fwretract.retract_recover_length);
-      EEPROM_WRITE(fwretract.retract_recover_feedrate_mm_s);
-      EEPROM_WRITE(fwretract.swap_retract_length);
-      EEPROM_WRITE(fwretract.swap_retract_recover_length);
-      EEPROM_WRITE(fwretract.swap_retract_recover_feedrate_mm_s);
-    #endif
+      #if ENABLED(FWRETRACT)
+        EEPROM_WRITE(fwretract.settings);
+        EEPROM_WRITE(fwretract.autoretract_enabled);
+      #else
+        const fwretract_settings_t autoretract_defaults = { 3, 45, 0, 0, 0, 13, 0, 8 };
+        const bool autoretract_enabled = false;
+        EEPROM_WRITE(autoretract_defaults);
+        EEPROM_WRITE(autoretract_enabled);
+      #endif
+    }
 
     //
     // Volumetric & Filament Size
@@ -1320,33 +1307,16 @@ void MarlinSettings::postprocess() {
       // Firmware Retraction
       //
       {
-        struct {
-          bool autoretract_enabled;
-          float retract_length,
-                retract_feedrate_mm_s,
-                retract_zlift,
-                retract_recover_length,
-                retract_recover_feedrate_mm_s,
-                swap_retract_length,
-                swap_retract_recover_length,
-                swap_retract_recover_feedrate_mm_s;
-        } storage;
-
-        _FIELD_TEST(autoretract_enabled);
-        EEPROM_READ(storage);
+        _FIELD_TEST(fwretract_settings);
 
         #if ENABLED(FWRETRACT)
-          if (!validating) {
-            fwretract.autoretract_enabled                = storage.autoretract_enabled;
-            fwretract.retract_length                     = storage.retract_length;
-            fwretract.retract_feedrate_mm_s              = storage.retract_feedrate_mm_s;
-            fwretract.retract_zlift                      = storage.retract_zlift;
-            fwretract.retract_recover_length             = storage.retract_recover_length;
-            fwretract.retract_recover_feedrate_mm_s      = storage.retract_recover_feedrate_mm_s;
-            fwretract.swap_retract_length                = storage.swap_retract_length;
-            fwretract.swap_retract_recover_length        = storage.swap_retract_recover_length;
-            fwretract.swap_retract_recover_feedrate_mm_s = storage.swap_retract_recover_feedrate_mm_s;
-          }
+          EEPROM_READ(fwretract.settings);
+          EEPROM_READ(fwretract.autoretract_enabled);
+        #else
+          fwretract_settings_t fwretract_settings;
+          bool autoretract_enabled;
+          EEPROM_READ(fwretract_settings);
+          EEPROM_READ(autoretract_enabled);
         #endif
       }
 
@@ -2580,19 +2550,19 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOLNPGM_P(port, "Retract: S<length> F<units/m> Z<lift>");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR_P(port, "  M207 S", LINEAR_UNIT(fwretract.retract_length));
-      SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.swap_retract_length));
-      SERIAL_ECHOPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.retract_feedrate_mm_s)));
-      SERIAL_ECHOLNPAIR_P(port, " Z", LINEAR_UNIT(fwretract.retract_zlift));
+      SERIAL_ECHOPAIR_P(port, "  M207 S", LINEAR_UNIT(fwretract.settings.retract_length));
+      SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.settings.swap_retract_length));
+      SERIAL_ECHOPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.settings.retract_feedrate_mm_s)));
+      SERIAL_ECHOLNPAIR_P(port, " Z", LINEAR_UNIT(fwretract.settings.retract_zlift));
 
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM_P(port, "Recover: S<length> F<units/m>");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR_P(port, "  M208 S", LINEAR_UNIT(fwretract.retract_recover_length));
-      SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.swap_retract_recover_length));
-      SERIAL_ECHOLNPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.retract_recover_feedrate_mm_s)));
+      SERIAL_ECHOPAIR_P(port, "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_length));
+      SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_length));
+      SERIAL_ECHOLNPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.settings.retract_recover_feedrate_mm_s)));
 
       #if ENABLED(FWRETRACT_AUTORETRACT)
 

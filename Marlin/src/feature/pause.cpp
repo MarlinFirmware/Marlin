@@ -558,7 +558,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #if ENABLED(FWRETRACT)
     // If retracted before goto pause
     if (fwretract.retracted[active_extruder])
-      do_pause_e_move(-fwretract.retract_length, fwretract.retract_feedrate_mm_s);
+      do_pause_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
   #endif
 
   // If resume_position is negative
