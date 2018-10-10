@@ -103,14 +103,7 @@ typedef struct {  int16_t X, Y, Z;                                         } tmc
   void M217_report(const bool eeprom);
 #endif
 
-#if ENABLED(PID_EXTRUSION_SCALING)
-  #define LPQ_LEN thermalManager.lpq_len
-#endif
-
 #pragma pack(push, 1) // No padding between variables
-
-typedef struct PID  { float Kp, Ki, Kd;     } PID;
-typedef struct PIDC { float Kp, Ki, Kd, Kc; } PIDC;
 
 /**
  * Current EEPROM Layout
@@ -225,14 +218,13 @@ typedef struct SettingsDataStruct {
   //
   // PIDTEMP
   //
-  PIDC hotendPID[HOTENDS];                              // M301 En PIDC / M303 En U
-
+  PIDC_t hotendPID[HOTENDS];                            // M301 En PIDC / M303 En U
   int16_t lpq_len;                                      // M301 L
 
   //
   // PIDTEMPBED
   //
-  PID bedPID;                                           // M304 PID / M303 E-1 U
+  PID_t bedPID;                                         // M304 PID / M303 E-1 U
 
   //
   // HAS_LCD_CONTRAST
@@ -405,7 +397,6 @@ void MarlinSettings::postprocess() {
 #if ENABLED(EEPROM_SETTINGS)
   #include "../HAL/shared/persistent_store_api.h"
 
-  #define DUMMY_PID_VALUE 3000.0f
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
   #define EEPROM_FINISH() persistentStore.access_finish()
   #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
@@ -678,40 +669,43 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(lcd_preheat_bed_temp);
     EEPROM_WRITE(lcd_preheat_fan_speed);
 
-    for (uint8_t e = 0; e < HOTENDS; e++) {
-      #if ENABLED(PIDTEMP)
-        EEPROM_WRITE(PID_PARAM(Kp, e));
-        EEPROM_WRITE(PID_PARAM(Ki, e));
-        EEPROM_WRITE(PID_PARAM(Kd, e));
-        #if ENABLED(PID_EXTRUSION_SCALING)
-          EEPROM_WRITE(PID_PARAM(Kc, e));
-        #else
-          dummy = 1.0f; // 1.0 = default kc
-          EEPROM_WRITE(dummy);
-        #endif
+    //
+    // PIDTEMP
+    //
+    {
+      _FIELD_TEST(hotendPID);
+      HOTEND_LOOP() {
+        PIDC_t pidc = {
+          PID_PARAM(Kp, e), PID_PARAM(Ki, e), PID_PARAM(Kd, e), PID_PARAM(Kc, e)
+        };
+        EEPROM_WRITE(pidc);
+      }
+
+      _FIELD_TEST(lpq_len);
+      #if ENABLED(PID_EXTRUSION_SCALING)
+        EEPROM_WRITE(thermalManager.lpq_len);
       #else
-        dummy = DUMMY_PID_VALUE; // When read, will not change the existing value
-        EEPROM_WRITE(dummy); // Kp
-        dummy = 0;
-        for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy); // Ki, Kd, Kc
+        const int16_t lpq_len = 20;
+        EEPROM_WRITE(lpq_len);
       #endif
-    } // Hotends Loop
+    }
 
-    _FIELD_TEST(lpq_len);
+    //
+    // PIDTEMPBED
+    //
+    {
+      _FIELD_TEST(bedPID);
+      #if DISABLED(PIDTEMPBED)
+        const PID_t bed_pid = { DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE };
+        EEPROM_WRITE(bed_pid);
+      #else
+        EEPROM_WRITE(thermalManager.bed_pid);
+      #endif
+    }
 
-    #if DISABLED(PID_EXTRUSION_SCALING)
-      const int16_t LPQ_LEN = 20;
-    #endif
-    EEPROM_WRITE(LPQ_LEN);
-
-    #if DISABLED(PIDTEMPBED)
-      dummy = DUMMY_PID_VALUE;
-      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
-    #else
-      EEPROM_WRITE(thermalManager.bedKp);
-      EEPROM_WRITE(thermalManager.bedKi);
-      EEPROM_WRITE(thermalManager.bedKd);
-    #endif
+    //
+    // LCD Contrast
+    //
 
     _FIELD_TEST(lcd_contrast);
 
@@ -1299,54 +1293,48 @@ void MarlinSettings::postprocess() {
       //
       // Hotend PID
       //
-
-      #if ENABLED(PIDTEMP)
-        for (uint8_t e = 0; e < HOTENDS; e++) {
-          EEPROM_READ(dummy); // Kp
-          if (dummy != DUMMY_PID_VALUE) {
-            // do not need to scale PID values as the values in EEPROM are already scaled
-            if (!validating) PID_PARAM(Kp, e) = dummy;
-            EEPROM_READ(PID_PARAM(Ki, e));
-            EEPROM_READ(PID_PARAM(Kd, e));
-            #if ENABLED(PID_EXTRUSION_SCALING)
-              EEPROM_READ(PID_PARAM(Kc, e));
-            #else
-              EEPROM_READ(dummy);
-            #endif
-          }
-          else
-            for (uint8_t q=3; q--;) EEPROM_READ(dummy); // Ki, Kd, Kc
+      {
+        HOTEND_LOOP() {
+          PIDC_t pidc;
+          EEPROM_READ(pidc);
+          #if ENABLED(PIDTEMP)
+            if (!validating && pidc.Kp != DUMMY_PID_VALUE) {
+              // No need to scale PID values since EEPROM values are scaled
+              PID_PARAM(Kp, e) = pidc.Kp;
+              PID_PARAM(Ki, e) = pidc.Ki;
+              PID_PARAM(Kd, e) = pidc.Kd;
+              #if ENABLED(PID_EXTRUSION_SCALING)
+                PID_PARAM(Kc, e) = pidc.Kc;
+              #endif
+            }
+          #endif
         }
-      #else // !PIDTEMP
-        // 4 x 4 = 16 slots for PID parameters
-        for (uint8_t q = HOTENDS * 4; q--;) EEPROM_READ(dummy);  // Kp, Ki, Kd, Kc
-      #endif // !PIDTEMP
+      }
 
       //
       // PID Extrusion Scaling
       //
-
-      _FIELD_TEST(lpq_len);
-
-      #if DISABLED(PID_EXTRUSION_SCALING)
-        int16_t LPQ_LEN;
-      #endif
-      EEPROM_READ(LPQ_LEN);
+      {
+        _FIELD_TEST(lpq_len);
+        #if ENABLED(PID_EXTRUSION_SCALING)
+          EEPROM_READ(thermalManager.lpq_len);
+        #else
+          int16_t lpq_len;
+          EEPROM_READ(lpq_len);
+        #endif
+      }
 
       //
       // Heated Bed PID
       //
-
-      #if ENABLED(PIDTEMPBED)
-        EEPROM_READ(dummy); // bedKp
-        if (dummy != DUMMY_PID_VALUE) {
-          if (!validating) thermalManager.bedKp = dummy;
-          EEPROM_READ(thermalManager.bedKi);
-          EEPROM_READ(thermalManager.bedKd);
-        }
-      #else
-        for (uint8_t q=3; q--;) EEPROM_READ(dummy); // bedKp, bedKi, bedKd
-      #endif
+      {
+        PID_t pid;
+        EEPROM_READ(pid);
+        #if ENABLED(PIDTEMPBED)
+          if (!validating && pid.Kp != DUMMY_PID_VALUE)
+            memcpy(&thermalManager.bed_pid, &pid, sizeof(pid));
+        #endif
+      }
 
       //
       // LCD Contrast
@@ -2029,10 +2017,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if ENABLED(PIDTEMP)
-    #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-      HOTEND_LOOP()
-    #endif
-    {
+    HOTEND_LOOP() {
       PID_PARAM(Kp, e) = float(DEFAULT_Kp);
       PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
@@ -2046,9 +2031,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif // PIDTEMP
 
   #if ENABLED(PIDTEMPBED)
-    thermalManager.bedKp = DEFAULT_bedKp;
-    thermalManager.bedKi = scalePID_i(DEFAULT_bedKi);
-    thermalManager.bedKd = scalePID_d(DEFAULT_bedKd);
+    thermalManager.bed_pid.Kp = DEFAULT_bedKp;
+    thermalManager.bed_pid.Ki = scalePID_i(DEFAULT_bedKi);
+    thermalManager.bed_pid.Kd = scalePID_d(DEFAULT_bedKd);
   #endif
 
   #if HAS_LCD_CONTRAST
@@ -2597,9 +2582,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
       #if ENABLED(PIDTEMPBED)
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR_P(port, "  M304 P", thermalManager.bedKp);
-        SERIAL_ECHOPAIR_P(port, " I", unscalePID_i(thermalManager.bedKi));
-        SERIAL_ECHOPAIR_P(port, " D", unscalePID_d(thermalManager.bedKd));
+        SERIAL_ECHOPAIR_P(port, "  M304 P", thermalManager.bed_pid.Kp);
+        SERIAL_ECHOPAIR_P(port, " I", unscalePID_i(thermalManager.bed_pid.Ki));
+        SERIAL_ECHOPAIR_P(port, " D", unscalePID_d(thermalManager.bed_pid.Kd));
         SERIAL_EOL_P(port);
       #endif
 
