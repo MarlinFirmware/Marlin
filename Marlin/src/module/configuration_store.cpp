@@ -81,15 +81,6 @@
   #include "../module/probe.h"
 #endif
 
-#if HAS_TRINAMIC
-  #include "stepper_indirection.h"
-  #include "../feature/tmc_util.h"
-  #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.axis_steps_per_mm[_AXIS(A)])
-#endif
-typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stepper_current_t;
-typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_hybrid_threshold_t;
-typedef struct {  int16_t X, Y, Z;                                         } tmc_sgt_t;
-
 #if ENABLED(FWRETRACT)
   #include "../feature/fwretract.h"
 #endif
@@ -103,7 +94,17 @@ typedef struct {  int16_t X, Y, Z;                                         } tmc
   void M217_report(const bool eeprom);
 #endif
 
+#if HAS_TRINAMIC
+  #include "stepper_indirection.h"
+  #include "../feature/tmc_util.h"
+  #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.axis_steps_per_mm[_AXIS(A)])
+#endif
+
 #pragma pack(push, 1) // No padding between variables
+
+typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stepper_current_t;
+typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_hybrid_threshold_t;
+typedef struct {  int16_t X, Y, Z;                                         } tmc_sgt_t;
 
 /**
  * Current EEPROM Layout
@@ -229,7 +230,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_LCD_CONTRAST
   //
-  int16_t lcd_contrast;                                // M250 C
+  int16_t lcd_contrast;                                 // M250 C
 
   //
   // FWRETRACT
@@ -266,7 +267,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_MOTOR_CURRENT_PWM
   //
-  uint32_t motor_current_setting[XYZ];                  // M907 X Z E
+  uint32_t motor_current_setting[3];                    // M907 X Z E
 
   //
   // CNC_COORDINATE_SYSTEMS
@@ -296,8 +297,6 @@ typedef struct SettingsDataStruct {
   #endif
 
 } SettingsData;
-
-#pragma pack(pop)
 
 MarlinSettings settings;
 
@@ -403,7 +402,7 @@ void MarlinSettings::postprocess() {
   #define EEPROM_WRITE(VAR) persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
   #define EEPROM_READ(VAR) persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating)
   #define EEPROM_READ_ALWAYS(VAR) persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
-  #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START_P(port); SERIAL_ERRORLNPGM_P(port, ERR); eeprom_error = true; }while(0)
+  #define EEPROM_ASSERT(TST,ERR) do{ if (!(TST)) { SERIAL_ERROR_START_P(port); SERIAL_ERRORLNPGM_P(port, ERR); eeprom_error = true; } }while(0)
 
   #if ENABLED(DEBUG_EEPROM_READWRITE)
     #define _FIELD_TEST(FIELD) \
@@ -740,202 +739,204 @@ void MarlinSettings::postprocess() {
     //
     // Volumetric & Filament Size
     //
+    {
+      _FIELD_TEST(parser_volumetric_enabled);
 
-    _FIELD_TEST(parser_volumetric_enabled);
+      #if DISABLED(NO_VOLUMETRICS)
 
-    #if DISABLED(NO_VOLUMETRICS)
+        EEPROM_WRITE(parser.volumetric_enabled);
+        EEPROM_WRITE(planner.filament_size);
 
-      EEPROM_WRITE(parser.volumetric_enabled);
+      #else
 
-      // Save filament sizes
-      for (uint8_t q = 0; q < COUNT(planner.filament_size); q++)
-        EEPROM_WRITE(planner.filament_size[q]);
+        const bool volumetric_enabled = false;
+        dummy = DEFAULT_NOMINAL_FILAMENT_DIA;
+        EEPROM_WRITE(volumetric_enabled);
+        for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummy);
 
-    #else
-
-      const bool volumetric_enabled = false;
-      dummy = DEFAULT_NOMINAL_FILAMENT_DIA;
-      EEPROM_WRITE(volumetric_enabled);
-      for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummy);
-
-    #endif
+      #endif
+    }
 
     //
-    // Save TMC Configuration, and placeholder values
+    // TMC Configuration
     //
+    {
+      _FIELD_TEST(tmc_stepper_current);
 
-    _FIELD_TEST(tmc_stepper_current);
+      tmc_stepper_current_t tmc_stepper_current = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    tmc_stepper_current_t tmc_stepper_current = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    #if HAS_TRINAMIC
-      #if AXIS_IS_TMC(X)
-        tmc_stepper_current.X = stepperX.getMilliamps();
-      #endif
-      #if AXIS_IS_TMC(Y)
-        tmc_stepper_current.Y = stepperY.getMilliamps();
-      #endif
-      #if AXIS_IS_TMC(Z)
-        tmc_stepper_current.Z = stepperZ.getMilliamps();
-      #endif
-      #if AXIS_IS_TMC(X2)
-        tmc_stepper_current.X2 = stepperX2.getMilliamps();
-      #endif
-      #if AXIS_IS_TMC(Y2)
-        tmc_stepper_current.Y2 = stepperY2.getMilliamps();
-      #endif
-      #if AXIS_IS_TMC(Z2)
-        tmc_stepper_current.Z2 = stepperZ2.getMilliamps();
-      #endif
-      #if AXIS_IS_TMC(Z3)
-        tmc_stepper_current.Z3 = stepperZ3.getMilliamps();
-      #endif
-      #if MAX_EXTRUDERS
-        #if AXIS_IS_TMC(E0)
-          tmc_stepper_current.E0 = stepperE0.getMilliamps();
+      #if HAS_TRINAMIC
+        #if AXIS_IS_TMC(X)
+          tmc_stepper_current.X = stepperX.getMilliamps();
         #endif
-        #if MAX_EXTRUDERS > 1
-          #if AXIS_IS_TMC(E1)
-            tmc_stepper_current.E1 = stepperE1.getMilliamps();
-          #endif
-          #if MAX_EXTRUDERS > 2
-            #if AXIS_IS_TMC(E2)
-              tmc_stepper_current.E2 = stepperE2.getMilliamps();
-            #endif
-            #if MAX_EXTRUDERS > 3
-              #if AXIS_IS_TMC(E3)
-                tmc_stepper_current.E3 = stepperE3.getMilliamps();
-              #endif
-              #if MAX_EXTRUDERS > 4
-                #if AXIS_IS_TMC(E4)
-                  tmc_stepper_current.E4 = stepperE4.getMilliamps();
-                #endif
-                #if MAX_EXTRUDERS > 5
-                  #if AXIS_IS_TMC(E5)
-                    tmc_stepper_current.E5 = stepperE5.getMilliamps();
-                  #endif
-                #endif // MAX_EXTRUDERS > 5
-              #endif // MAX_EXTRUDERS > 4
-            #endif // MAX_EXTRUDERS > 3
-          #endif // MAX_EXTRUDERS > 2
-        #endif // MAX_EXTRUDERS > 1
-      #endif // MAX_EXTRUDERS
-    #endif
-    EEPROM_WRITE(tmc_stepper_current);
-
-    //
-    // Save TMC Hybrid Threshold, and placeholder values
-    //
-
-    _FIELD_TEST(tmc_hybrid_threshold);
-
-    #if ENABLED(HYBRID_THRESHOLD)
-     tmc_hybrid_threshold_t tmc_hybrid_threshold = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-     #if AXIS_HAS_STEALTHCHOP(X)
-        tmc_hybrid_threshold.X = TMC_GET_PWMTHRS(X, X);
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Y)
-        tmc_hybrid_threshold.Y = TMC_GET_PWMTHRS(Y, Y);
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Z)
-        tmc_hybrid_threshold.Z = TMC_GET_PWMTHRS(Z, Z);
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(X2)
-        tmc_hybrid_threshold.X2 = TMC_GET_PWMTHRS(X, X2);
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Y2)
-        tmc_hybrid_threshold.Y2 = TMC_GET_PWMTHRS(Y, Y2);
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Z2)
-        tmc_hybrid_threshold.Z2 = TMC_GET_PWMTHRS(Z, Z2);
-      #endif
-      #if AXIS_HAS_STEALTHCHOP(Z3)
-        tmc_hybrid_threshold.Z3 = TMC_GET_PWMTHRS(Z, Z3);
-      #endif
-      #if MAX_EXTRUDERS
-        #if AXIS_HAS_STEALTHCHOP(E0)
-          tmc_hybrid_threshold.E0 = TMC_GET_PWMTHRS(E, E0);
+        #if AXIS_IS_TMC(Y)
+          tmc_stepper_current.Y = stepperY.getMilliamps();
         #endif
-        #if MAX_EXTRUDERS > 1
-          #if AXIS_HAS_STEALTHCHOP(E1)
-            tmc_hybrid_threshold.E1 = TMC_GET_PWMTHRS(E, E1);
+        #if AXIS_IS_TMC(Z)
+          tmc_stepper_current.Z = stepperZ.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(X2)
+          tmc_stepper_current.X2 = stepperX2.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Y2)
+          tmc_stepper_current.Y2 = stepperY2.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z2)
+          tmc_stepper_current.Z2 = stepperZ2.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z3)
+          tmc_stepper_current.Z3 = stepperZ3.getMilliamps();
+        #endif
+        #if MAX_EXTRUDERS
+          #if AXIS_IS_TMC(E0)
+            tmc_stepper_current.E0 = stepperE0.getMilliamps();
           #endif
-          #if MAX_EXTRUDERS > 2
-            #if AXIS_HAS_STEALTHCHOP(E2)
-              tmc_hybrid_threshold.E2 = TMC_GET_PWMTHRS(E, E2);
+          #if MAX_EXTRUDERS > 1
+            #if AXIS_IS_TMC(E1)
+              tmc_stepper_current.E1 = stepperE1.getMilliamps();
             #endif
-            #if MAX_EXTRUDERS > 3
-              #if AXIS_HAS_STEALTHCHOP(E3)
-                tmc_hybrid_threshold.E3 = TMC_GET_PWMTHRS(E, E3);
+            #if MAX_EXTRUDERS > 2
+              #if AXIS_IS_TMC(E2)
+                tmc_stepper_current.E2 = stepperE2.getMilliamps();
               #endif
-              #if MAX_EXTRUDERS > 4
-                #if AXIS_HAS_STEALTHCHOP(E4)
-                  tmc_hybrid_threshold.E4 = TMC_GET_PWMTHRS(E, E4);
+              #if MAX_EXTRUDERS > 3
+                #if AXIS_IS_TMC(E3)
+                  tmc_stepper_current.E3 = stepperE3.getMilliamps();
                 #endif
-                #if MAX_EXTRUDERS > 5
-                  #if AXIS_HAS_STEALTHCHOP(E5)
-                    tmc_hybrid_threshold.E5 = TMC_GET_PWMTHRS(E, E5);
+                #if MAX_EXTRUDERS > 4
+                  #if AXIS_IS_TMC(E4)
+                    tmc_stepper_current.E4 = stepperE4.getMilliamps();
                   #endif
-                #endif // MAX_EXTRUDERS > 5
-              #endif // MAX_EXTRUDERS > 4
-            #endif // MAX_EXTRUDERS > 3
-          #endif // MAX_EXTRUDERS > 2
-        #endif // MAX_EXTRUDERS > 1
-      #endif // MAX_EXTRUDERS
-    #else
-      const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
-        .X  = 100, .Y  = 100, .Z  =   3,
-        .X2 = 100, .Y2 = 100, .Z2 =   3, .Z3 =   3,
-        .E0 =  30, .E1 =  30, .E2 =  30,
-        .E3 =  30, .E4 =  30, .E5 =  30
-      };
-    #endif
-    EEPROM_WRITE(tmc_hybrid_threshold);
+                  #if MAX_EXTRUDERS > 5
+                    #if AXIS_IS_TMC(E5)
+                      tmc_stepper_current.E5 = stepperE5.getMilliamps();
+                    #endif
+                  #endif // MAX_EXTRUDERS > 5
+                #endif // MAX_EXTRUDERS > 4
+              #endif // MAX_EXTRUDERS > 3
+            #endif // MAX_EXTRUDERS > 2
+          #endif // MAX_EXTRUDERS > 1
+        #endif // MAX_EXTRUDERS
+      #endif
+      EEPROM_WRITE(tmc_stepper_current);
+    }
+
+    //
+    // TMC Hybrid Threshold, and placeholder values
+    //
+    {
+      _FIELD_TEST(tmc_hybrid_threshold);
+
+      #if ENABLED(HYBRID_THRESHOLD)
+       tmc_hybrid_threshold_t tmc_hybrid_threshold = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        #if AXIS_HAS_STEALTHCHOP(X)
+          tmc_hybrid_threshold.X = TMC_GET_PWMTHRS(X, X);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y)
+          tmc_hybrid_threshold.Y = TMC_GET_PWMTHRS(Y, Y);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z)
+          tmc_hybrid_threshold.Z = TMC_GET_PWMTHRS(Z, Z);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(X2)
+          tmc_hybrid_threshold.X2 = TMC_GET_PWMTHRS(X, X2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Y2)
+          tmc_hybrid_threshold.Y2 = TMC_GET_PWMTHRS(Y, Y2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z2)
+          tmc_hybrid_threshold.Z2 = TMC_GET_PWMTHRS(Z, Z2);
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(Z3)
+          tmc_hybrid_threshold.Z3 = TMC_GET_PWMTHRS(Z, Z3);
+        #endif
+        #if MAX_EXTRUDERS
+          #if AXIS_HAS_STEALTHCHOP(E0)
+            tmc_hybrid_threshold.E0 = TMC_GET_PWMTHRS(E, E0);
+          #endif
+          #if MAX_EXTRUDERS > 1
+            #if AXIS_HAS_STEALTHCHOP(E1)
+              tmc_hybrid_threshold.E1 = TMC_GET_PWMTHRS(E, E1);
+            #endif
+            #if MAX_EXTRUDERS > 2
+              #if AXIS_HAS_STEALTHCHOP(E2)
+                tmc_hybrid_threshold.E2 = TMC_GET_PWMTHRS(E, E2);
+              #endif
+              #if MAX_EXTRUDERS > 3
+                #if AXIS_HAS_STEALTHCHOP(E3)
+                  tmc_hybrid_threshold.E3 = TMC_GET_PWMTHRS(E, E3);
+                #endif
+                #if MAX_EXTRUDERS > 4
+                  #if AXIS_HAS_STEALTHCHOP(E4)
+                    tmc_hybrid_threshold.E4 = TMC_GET_PWMTHRS(E, E4);
+                  #endif
+                  #if MAX_EXTRUDERS > 5
+                    #if AXIS_HAS_STEALTHCHOP(E5)
+                      tmc_hybrid_threshold.E5 = TMC_GET_PWMTHRS(E, E5);
+                    #endif
+                  #endif // MAX_EXTRUDERS > 5
+                #endif // MAX_EXTRUDERS > 4
+              #endif // MAX_EXTRUDERS > 3
+            #endif // MAX_EXTRUDERS > 2
+          #endif // MAX_EXTRUDERS > 1
+        #endif // MAX_EXTRUDERS
+      #else
+        const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
+          .X  = 100, .Y  = 100, .Z  =   3,
+          .X2 = 100, .Y2 = 100, .Z2 =   3, .Z3 =   3,
+          .E0 =  30, .E1 =  30, .E2 =  30,
+          .E3 =  30, .E4 =  30, .E5 =  30
+        };
+      #endif
+      EEPROM_WRITE(tmc_hybrid_threshold);
+    }
 
     //
     // TMC StallGuard threshold
     //
-
-    tmc_sgt_t tmc_sgt = { 0, 0, 0 };
-
-    #if USE_SENSORLESS
-      #if X_SENSORLESS
-        tmc_sgt.X = stepperX.sgt();
+    {
+      tmc_sgt_t tmc_sgt = { 0, 0, 0 };
+      #if USE_SENSORLESS
+        #if X_SENSORLESS
+          tmc_sgt.X = stepperX.sgt();
+        #endif
+        #if Y_SENSORLESS
+          tmc_sgt.Y = stepperY.sgt();
+        #endif
+        #if Z_SENSORLESS
+          tmc_sgt.Z = stepperZ.sgt();
+        #endif
       #endif
-      #if Y_SENSORLESS
-        tmc_sgt.Y = stepperY.sgt();
-      #endif
-      #if Z_SENSORLESS
-        tmc_sgt.Z = stepperZ.sgt();
-      #endif
-    #endif
-    EEPROM_WRITE(tmc_sgt);
+      EEPROM_WRITE(tmc_sgt);
+    }
 
     //
     // Linear Advance
     //
+    {
+      _FIELD_TEST(planner_extruder_advance_K);
 
-    _FIELD_TEST(planner_extruder_advance_K);
-
-    #if ENABLED(LIN_ADVANCE)
-      LOOP_L_N(i, EXTRUDERS) EEPROM_WRITE(planner.extruder_advance_K[i]);
-    #else
-      dummy = 0;
-      LOOP_L_N(i, EXTRUDERS) EEPROM_WRITE(dummy);
-    #endif
-
-    _FIELD_TEST(motor_current_setting);
+      #if ENABLED(LIN_ADVANCE)
+        EEPROM_WRITE(planner.extruder_advance_K);
+      #else
+        dummy = 0;
+        for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummy);
+      #endif
+    }
 
     //
     // Motor Current PWM
     //
+    {
+      _FIELD_TEST(motor_current_setting);
 
-    #if HAS_MOTOR_CURRENT_PWM
-      for (uint8_t q = XYZ; q--;) EEPROM_WRITE(stepper.motor_current_setting[q]);
-    #else
-      const uint32_t dummyui32[XYZ] = { 0 };
-      EEPROM_WRITE(dummyui32);
-    #endif
+      #if HAS_MOTOR_CURRENT_PWM
+        EEPROM_WRITE(stepper.motor_current_setting);
+      #else
+        const uint32_t dummyui32[XYZ] = { 0 };
+        EEPROM_WRITE(dummyui32);
+      #endif
+    }
 
     //
     // CNC Coordinate Systems
@@ -944,16 +945,15 @@ void MarlinSettings::postprocess() {
     _FIELD_TEST(coordinate_system);
 
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
-      EEPROM_WRITE(gcode.coordinate_system); // 27 floats
+      EEPROM_WRITE(gcode.coordinate_system);
     #else
-      dummy = 0;
-      for (uint8_t q = MAX_COORDINATE_SYSTEMS * XYZ; q--;) EEPROM_WRITE(dummy);
+      const float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ] = { { 0 } };
+      EEPROM_WRITE(coordinate_system);
     #endif
 
     //
     // Skew correction factors
     //
-
     _FIELD_TEST(planner_xy_skew_factor);
 
     #if ENABLED(SKEW_CORRECTION)
@@ -1339,298 +1339,323 @@ void MarlinSettings::postprocess() {
       //
       // LCD Contrast
       //
-
-      _FIELD_TEST(lcd_contrast);
-
-      #if !HAS_LCD_CONTRAST
-        int16_t lcd_contrast;
-      #endif
-      EEPROM_READ(lcd_contrast);
+      {
+        _FIELD_TEST(lcd_contrast);
+        #if !HAS_LCD_CONTRAST
+          int16_t lcd_contrast;
+        #endif
+        EEPROM_READ(lcd_contrast);
+      }
 
       //
       // Firmware Retraction
       //
+      {
+        struct {
+          bool autoretract_enabled;
+          float retract_length,
+                retract_feedrate_mm_s,
+                retract_zlift,
+                retract_recover_length,
+                retract_recover_feedrate_mm_s,
+                swap_retract_length,
+                swap_retract_recover_length,
+                swap_retract_recover_feedrate_mm_s;
+        } storage;
 
-      #if ENABLED(FWRETRACT)
-        #if DISABLED(FWRETRACT_AUTORETRACT)
-          EEPROM_READ(dummyb);
-        #else
-          EEPROM_READ(fwretract.autoretract_enabled);
+        _FIELD_TEST(autoretract_enabled);
+        EEPROM_READ(storage);
+
+        #if ENABLED(FWRETRACT)
+          if (!validating) {
+            fwretract.autoretract_enabled                = storage.autoretract_enabled;
+            fwretract.retract_length                     = storage.retract_length;
+            fwretract.retract_feedrate_mm_s              = storage.retract_feedrate_mm_s;
+            fwretract.retract_zlift                      = storage.retract_zlift;
+            fwretract.retract_recover_length             = storage.retract_recover_length;
+            fwretract.retract_recover_feedrate_mm_s      = storage.retract_recover_feedrate_mm_s;
+            fwretract.swap_retract_length                = storage.swap_retract_length;
+            fwretract.swap_retract_recover_length        = storage.swap_retract_recover_length;
+            fwretract.swap_retract_recover_feedrate_mm_s = storage.swap_retract_recover_feedrate_mm_s;
+          }
         #endif
-        EEPROM_READ(fwretract.retract_length);
-        EEPROM_READ(fwretract.retract_feedrate_mm_s);
-        EEPROM_READ(fwretract.retract_zlift);
-        EEPROM_READ(fwretract.retract_recover_length);
-        EEPROM_READ(fwretract.retract_recover_feedrate_mm_s);
-        EEPROM_READ(fwretract.swap_retract_length);
-        EEPROM_READ(fwretract.swap_retract_recover_length);
-        EEPROM_READ(fwretract.swap_retract_recover_feedrate_mm_s);
-      #else
-        EEPROM_READ(dummyb);
-        for (uint8_t q=8; q--;) EEPROM_READ(dummy);
-      #endif
+      }
 
       //
       // Volumetric & Filament Size
       //
+      {
+        struct {
+          bool volumetric_enabled;
+          float filament_size[EXTRUDERS];
+        } storage;
 
-      _FIELD_TEST(parser_volumetric_enabled);
+        _FIELD_TEST(parser_volumetric_enabled);
+        EEPROM_READ(storage);
 
-      #if DISABLED(NO_VOLUMETRICS)
-
-        EEPROM_READ(parser.volumetric_enabled);
-
-        for (uint8_t q = 0; q < COUNT(planner.filament_size); q++) {
-          EEPROM_READ(dummy);
-          if (!validating) planner.filament_size[q] = dummy;
-        }
-
-      #else
-
-        EEPROM_READ(dummyb);
-        for (uint8_t q=EXTRUDERS; q--;) EEPROM_READ(dummy);
-
-      #endif
-
-      if (!validating) reset_stepper_drivers();
+        #if DISABLED(NO_VOLUMETRICS)
+          if (!validating) {
+            parser.volumetric_enabled = storage.volumetric_enabled;
+            COPY(planner.filament_size, storage.filament_size);
+          }
+        #endif
+      }
 
       //
       // TMC Stepper Settings
       //
 
-      _FIELD_TEST(tmc_stepper_current);
+      if (!validating) reset_stepper_drivers();
 
-      #if HAS_TRINAMIC
+      // TMC Stepper Current
+      {
+        _FIELD_TEST(tmc_stepper_current);
 
-        #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
-        tmc_stepper_current_t currents;
-        EEPROM_READ(currents);
-        if (!validating) {
-          #if AXIS_IS_TMC(X)
-            SET_CURR(X);
-          #endif
-          #if AXIS_IS_TMC(Y)
-            SET_CURR(Y);
-          #endif
-          #if AXIS_IS_TMC(Z)
-            SET_CURR(Z);
-          #endif
-          #if AXIS_IS_TMC(X2)
-            SET_CURR(X2);
-          #endif
-          #if AXIS_IS_TMC(Y2)
-            SET_CURR(Y2);
-          #endif
-          #if AXIS_IS_TMC(Z2)
-            SET_CURR(Z2);
-          #endif
-          #if AXIS_IS_TMC(Z3)
-            SET_CURR(Z3);
-          #endif
-          #if AXIS_IS_TMC(E0)
-            SET_CURR(E0);
-          #endif
-          #if AXIS_IS_TMC(E1)
-            SET_CURR(E1);
-          #endif
-          #if AXIS_IS_TMC(E2)
-            SET_CURR(E2);
-          #endif
-          #if AXIS_IS_TMC(E3)
-            SET_CURR(E3);
-          #endif
-          #if AXIS_IS_TMC(E4)
-            SET_CURR(E4);
-          #endif
-          #if AXIS_IS_TMC(E5)
-            SET_CURR(E5);
-          #endif
-        }
-      #else
-        uint16_t val;
-        for (uint8_t q=TMC_AXES; q--;) EEPROM_READ(val);
-      #endif
+        tmc_stepper_current_t tmc_stepper_current;
 
-      _FIELD_TEST(tmc_hybrid_threshold);
+        #if HAS_TRINAMIC
 
-      #if ENABLED(HYBRID_THRESHOLD)
-        #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold.Q, planner.axis_steps_per_mm[_AXIS(A)])
+          #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
+          tmc_stepper_current_t currents;
+          EEPROM_READ(currents);
+          if (!validating) {
+            #if AXIS_IS_TMC(X)
+              SET_CURR(X);
+            #endif
+            #if AXIS_IS_TMC(Y)
+              SET_CURR(Y);
+            #endif
+            #if AXIS_IS_TMC(Z)
+              SET_CURR(Z);
+            #endif
+            #if AXIS_IS_TMC(X2)
+              SET_CURR(X2);
+            #endif
+            #if AXIS_IS_TMC(Y2)
+              SET_CURR(Y2);
+            #endif
+            #if AXIS_IS_TMC(Z2)
+              SET_CURR(Z2);
+            #endif
+            #if AXIS_IS_TMC(Z3)
+              SET_CURR(Z3);
+            #endif
+            #if AXIS_IS_TMC(E0)
+              SET_CURR(E0);
+            #endif
+            #if AXIS_IS_TMC(E1)
+              SET_CURR(E1);
+            #endif
+            #if AXIS_IS_TMC(E2)
+              SET_CURR(E2);
+            #endif
+            #if AXIS_IS_TMC(E3)
+              SET_CURR(E3);
+            #endif
+            #if AXIS_IS_TMC(E4)
+              SET_CURR(E4);
+            #endif
+            #if AXIS_IS_TMC(E5)
+              SET_CURR(E5);
+            #endif
+          }
+        #else
+          uint16_t val;
+          for (uint8_t q=TMC_AXES; q--;) EEPROM_READ(val);
+        #endif
+      }
+
+      // TMC Hybrid Threshold
+      {
         tmc_hybrid_threshold_t tmc_hybrid_threshold;
+        _FIELD_TEST(tmc_hybrid_threshold);
         EEPROM_READ(tmc_hybrid_threshold);
-        if (!validating) {
-          #if AXIS_HAS_STEALTHCHOP(X)
-            TMC_SET_PWMTHRS(X, X);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(Y)
-            TMC_SET_PWMTHRS(Y, Y);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(Z)
-            TMC_SET_PWMTHRS(Z, Z);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(X2)
-            TMC_SET_PWMTHRS(X, X2);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(Y2)
-            TMC_SET_PWMTHRS(Y, Y2);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(Z2)
-            TMC_SET_PWMTHRS(Z, Z2);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(Z3)
-            TMC_SET_PWMTHRS(Z, Z3);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E0)
-            TMC_SET_PWMTHRS(E, E0);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E1)
-            TMC_SET_PWMTHRS(E, E1);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E2)
-            TMC_SET_PWMTHRS(E, E2);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E3)
-            TMC_SET_PWMTHRS(E, E3);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E4)
-            TMC_SET_PWMTHRS(E, E4);
-          #endif
-          #if AXIS_HAS_STEALTHCHOP(E5)
-            TMC_SET_PWMTHRS(E, E5);
-          #endif
-        }
-      #else
-        uint32_t thrs_val;
-        for (uint8_t q=TMC_AXES; q--;) EEPROM_READ(thrs_val);
-      #endif
 
-      /**
-       * TMC StallGuard threshold.
-       * X and X2 use the same value
-       * Y and Y2 use the same value
-       * Z, Z2 and Z3 use the same value
-       */
+        #if ENABLED(HYBRID_THRESHOLD)
+          #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold.Q, planner.axis_steps_per_mm[_AXIS(A)])
+          if (!validating) {
+            #if AXIS_HAS_STEALTHCHOP(X)
+              TMC_SET_PWMTHRS(X, X);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Y)
+              TMC_SET_PWMTHRS(Y, Y);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Z)
+              TMC_SET_PWMTHRS(Z, Z);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(X2)
+              TMC_SET_PWMTHRS(X, X2);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Y2)
+              TMC_SET_PWMTHRS(Y, Y2);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Z2)
+              TMC_SET_PWMTHRS(Z, Z2);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(Z3)
+              TMC_SET_PWMTHRS(Z, Z3);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E0)
+              TMC_SET_PWMTHRS(E, E0);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E1)
+              TMC_SET_PWMTHRS(E, E1);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E2)
+              TMC_SET_PWMTHRS(E, E2);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E3)
+              TMC_SET_PWMTHRS(E, E3);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E4)
+              TMC_SET_PWMTHRS(E, E4);
+            #endif
+            #if AXIS_HAS_STEALTHCHOP(E5)
+              TMC_SET_PWMTHRS(E, E5);
+            #endif
+          }
+        #endif
+      }
 
-      _FIELD_TEST(tmc_sgt);
-
-      tmc_sgt_t tmc_sgt;
-      EEPROM_READ(tmc_sgt);
-      #if USE_SENSORLESS
-        if (!validating) {
-          #ifdef X_STALL_SENSITIVITY
-            #if AXIS_HAS_STALLGUARD(X)
-              stepperX.sgt(tmc_sgt.X);
+      //
+      // TMC StallGuard threshold.
+      // X and X2 use the same value
+      // Y and Y2 use the same value
+      // Z, Z2 and Z3 use the same value
+      //
+      {
+        tmc_sgt_t tmc_sgt;
+        _FIELD_TEST(tmc_sgt);
+        EEPROM_READ(tmc_sgt);
+        #if USE_SENSORLESS
+          if (!validating) {
+            #ifdef X_STALL_SENSITIVITY
+              #if AXIS_HAS_STALLGUARD(X)
+                stepperX.sgt(tmc_sgt.X);
+              #endif
+              #if AXIS_HAS_STALLGUARD(X2)
+                stepperX2.sgt(tmc_sgt.X);
+              #endif
             #endif
-            #if AXIS_HAS_STALLGUARD(X2)
-              stepperX2.sgt(tmc_sgt.X);
+            #ifdef Y_STALL_SENSITIVITY
+              #if AXIS_HAS_STALLGUARD(Y)
+                stepperY.sgt(tmc_sgt.Y);
+              #endif
+              #if AXIS_HAS_STALLGUARD(Y2)
+                stepperY2.sgt(tmc_sgt.Y);
+              #endif
             #endif
-          #endif
-          #ifdef Y_STALL_SENSITIVITY
-            #if AXIS_HAS_STALLGUARD(Y)
-              stepperY.sgt(tmc_sgt.Y);
+            #ifdef Z_STALL_SENSITIVITY
+              #if AXIS_HAS_STALLGUARD(Z)
+                stepperZ.sgt(tmc_sgt.Z);
+              #endif
+              #if AXIS_HAS_STALLGUARD(Z2)
+                stepperZ2.sgt(tmc_sgt.Z);
+              #endif
+              #if AXIS_HAS_STALLGUARD(Z3)
+                stepperZ3.sgt(tmc_sgt.Z);
+              #endif
             #endif
-            #if AXIS_HAS_STALLGUARD(Y2)
-              stepperY2.sgt(tmc_sgt.Y);
-            #endif
-          #endif
-          #ifdef Z_STALL_SENSITIVITY
-            #if AXIS_HAS_STALLGUARD(Z)
-              stepperZ.sgt(tmc_sgt.Z);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Z2)
-              stepperZ2.sgt(tmc_sgt.Z);
-            #endif
-            #if AXIS_HAS_STALLGUARD(Z3)
-              stepperZ3.sgt(tmc_sgt.Z);
-            #endif
-          #endif
-        }
-      #endif
+          }
+        #endif
+      }
 
       //
       // Linear Advance
       //
-      _FIELD_TEST(planner_extruder_advance_K);
-
-      LOOP_L_N(i, EXTRUDERS) {
+      {
+        float extruder_advance_K[EXTRUDERS];
+        _FIELD_TEST(planner_extruder_advance_K);
+        EEPROM_READ(extruder_advance_K);
         #if ENABLED(LIN_ADVANCE)
-          EEPROM_READ(planner.extruder_advance_K[i]);
-        #else
-          EEPROM_READ(dummy);
+          if (!validating)
+            COPY(planner.extruder_advance_K, extruder_advance_K);
         #endif
       }
 
       //
       // Motor Current PWM
       //
-
-      _FIELD_TEST(motor_current_setting);
-
-      #if HAS_MOTOR_CURRENT_PWM
-        for (uint8_t q = XYZ; q--;) EEPROM_READ(stepper.motor_current_setting[q]);
-      #else
-        uint32_t dummyui32[XYZ];
-        EEPROM_READ(dummyui32);
-      #endif
+      {
+        uint32_t motor_current_setting[3];
+        _FIELD_TEST(motor_current_setting);
+        EEPROM_READ(motor_current_setting);
+        #if HAS_MOTOR_CURRENT_PWM
+          if (!validating)
+            COPY(stepper.motor_current_setting, motor_current_setting);
+        #endif
+      }
 
       //
       // CNC Coordinate System
       //
-
-      _FIELD_TEST(coordinate_system);
-
-      #if ENABLED(CNC_COORDINATE_SYSTEMS)
-        if (!validating) (void)gcode.select_coordinate_system(-1); // Go back to machine space
-        EEPROM_READ(gcode.coordinate_system);                  // 27 floats
-      #else
-        for (uint8_t q = MAX_COORDINATE_SYSTEMS * XYZ; q--;) EEPROM_READ(dummy);
-      #endif
+      {
+        _FIELD_TEST(coordinate_system);
+        #if ENABLED(CNC_COORDINATE_SYSTEMS)
+          if (!validating) (void)gcode.select_coordinate_system(-1); // Go back to machine space
+          EEPROM_READ(gcode.coordinate_system);
+        #else
+          float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+          EEPROM_READ(coordinate_system);
+        #endif
+      }
 
       //
       // Skew correction factors
       //
-
-      _FIELD_TEST(planner_xy_skew_factor);
-
-      #if ENABLED(SKEW_CORRECTION_GCODE)
-        EEPROM_READ(planner.xy_skew_factor);
-        #if ENABLED(SKEW_CORRECTION_FOR_Z)
-          EEPROM_READ(planner.xz_skew_factor);
-          EEPROM_READ(planner.yz_skew_factor);
-        #else
-          EEPROM_READ(dummy);
-          EEPROM_READ(dummy);
+      {
+        struct {
+          float xy_skew_factor, xz_skew_factor, yz_skew_factor;
+        } storage;
+        _FIELD_TEST(planner_xy_skew_factor);
+        EEPROM_READ(storage);
+        #if ENABLED(SKEW_CORRECTION_GCODE)
+          if (!validating) {
+            planner.xy_skew_factor = storage.xy_skew_factor;
+            #if ENABLED(SKEW_CORRECTION_FOR_Z)
+              planner.xz_skew_factor = storage.xz_skew_factor;
+              planner.yz_skew_factor = storage.yz_skew_factor;
+            #endif
+          }
         #endif
-      #else
-        for (uint8_t q = 3; q--;) EEPROM_READ(dummy);
-      #endif
+      }
 
       //
       // Advanced Pause filament load & unload lengths
       //
-
-      _FIELD_TEST(filament_change_unload_length);
-
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
-        for (uint8_t q = 0; q < COUNT(filament_change_unload_length); q++) {
-          EEPROM_READ(dummy);
-          if (!validating && q < COUNT(filament_change_unload_length)) filament_change_unload_length[q] = dummy;
-          EEPROM_READ(dummy);
-          if (!validating && q < COUNT(filament_change_load_length)) filament_change_load_length[q] = dummy;
-        }
-      #else
-        for (uint8_t q = EXTRUDERS * 2; q--;) EEPROM_READ(dummy);
-      #endif
+      {
+        struct {
+          float filament_change_unload_length[EXTRUDERS],
+                filament_change_load_length[EXTRUDERS];
+        } storage;
+        _FIELD_TEST(filament_change_unload_length);
+        EEPROM_READ(storage);
+        #if ENABLED(ADVANCED_PAUSE_FEATURE)
+          if (!validating) {
+            COPY(filament_change_unload_length, storage.filament_change_unload_length);
+            COPY(filament_change_load_length, storage.filament_change_load_length);
+          }
+        #endif
+      }
 
       //
       // SINGLENOZZLE toolchange values
       //
-
-      #if ENABLED(SINGLENOZZLE)
-        _FIELD_TEST(singlenozzle_swap_length);
-        EEPROM_READ(singlenozzle_swap_length);
-        EEPROM_READ(singlenozzle_prime_speed);
-        EEPROM_READ(singlenozzle_retract_speed);
-      #endif
+      {
+        #if ENABLED(SINGLENOZZLE)
+          struct {
+            float singlenozzle_swap_length;
+            int16_t singlenozzle_prime_speed, singlenozzle_retract_speed;
+          } storage;
+          _FIELD_TEST(singlenozzle_swap_length);
+          EEPROM_READ(storage);
+          if (!validating) {
+            singlenozzle_swap_length = storage.singlenozzle_swap_length;
+            singlenozzle_prime_speed = storage.singlenozzle_prime_speed;
+            singlenozzle_retract_speed = storage.singlenozzle_retract_speed;
+          }
+        #endif
+      }
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
@@ -2073,8 +2098,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
-    uint32_t tmp_motor_current_setting[XYZ] = PWM_MOTOR_CURRENT;
-    for (uint8_t q = XYZ; q--;)
+    uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
+    for (uint8_t q = 3; q--;)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
   #endif
 
@@ -2962,3 +2987,5 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   }
 
 #endif // !DISABLE_M503
+
+#pragma pack(pop)
