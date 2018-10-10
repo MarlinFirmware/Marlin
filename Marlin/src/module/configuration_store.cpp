@@ -697,11 +697,14 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(FWRETRACT)
         EEPROM_WRITE(fwretract.settings);
-        EEPROM_WRITE(fwretract.autoretract_enabled);
       #else
         const fwretract_settings_t autoretract_defaults = { 3, 45, 0, 0, 0, 13, 0, 8 };
-        const bool autoretract_enabled = false;
         EEPROM_WRITE(autoretract_defaults);
+      #endif
+      #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
+        EEPROM_WRITE(fwretract.autoretract_enabled);
+      #else
+        const bool autoretract_enabled = false;
         EEPROM_WRITE(autoretract_enabled);
       #endif
     }
@@ -1311,11 +1314,11 @@ void MarlinSettings::postprocess() {
 
         #if ENABLED(FWRETRACT)
           EEPROM_READ(fwretract.settings);
+        #endif
+        #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
           EEPROM_READ(fwretract.autoretract_enabled);
         #else
-          fwretract_settings_t fwretract_settings;
           bool autoretract_enabled;
-          EEPROM_READ(fwretract_settings);
           EEPROM_READ(autoretract_enabled);
         #endif
       }
@@ -1575,7 +1578,7 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(sn_settings);
         EEPROM_READ(sn_settings);
       #endif
-  
+
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         #if ENABLED(EEPROM_CHITCHAT)

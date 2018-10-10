@@ -60,7 +60,9 @@ float FWRetract::current_retract[EXTRUDERS],          // Retract value used by p
       FWRetract::current_hop;
 
 void FWRetract::reset() {
-  autoretract_enabled = false;
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    autoretract_enabled = false;
+  #endif
   settings.retract_length = RETRACT_LENGTH;
   settings.retract_feedrate_mm_s = RETRACT_FEEDRATE;
   settings.retract_zlift = RETRACT_ZLIFT;
