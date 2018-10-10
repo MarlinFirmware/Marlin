@@ -287,9 +287,7 @@ typedef struct SettingsDataStruct {
   // SINGLENOZZLE toolchange values
   //
   #if ENABLED(SINGLENOZZLE)
-    float singlenozzle_swap_length;                     // M217 S
-    int16_t singlenozzle_prime_speed,                   // M217 P
-            singlenozzle_retract_speed;                 // M217 R
+    singlenozzle_settings_t sn_settings;                // M217 S P R
   #endif
 
 } SettingsData;
@@ -974,10 +972,8 @@ void MarlinSettings::postprocess() {
     //
 
     #if ENABLED(SINGLENOZZLE)
-      _FIELD_TEST(singlenozzle_swap_length);
-      EEPROM_WRITE(singlenozzle_swap_length);
-      EEPROM_WRITE(singlenozzle_prime_speed);
-      EEPROM_WRITE(singlenozzle_retract_speed);
+      _FIELD_TEST(sn_settings);
+      EEPROM_WRITE(sn_settings);
     #endif
 
     //
@@ -1630,22 +1626,11 @@ void MarlinSettings::postprocess() {
       //
       // SINGLENOZZLE toolchange values
       //
-      {
-        #if ENABLED(SINGLENOZZLE)
-          struct {
-            float singlenozzle_swap_length;
-            int16_t singlenozzle_prime_speed, singlenozzle_retract_speed;
-          } storage;
-          _FIELD_TEST(singlenozzle_swap_length);
-          EEPROM_READ(storage);
-          if (!validating) {
-            singlenozzle_swap_length = storage.singlenozzle_swap_length;
-            singlenozzle_prime_speed = storage.singlenozzle_prime_speed;
-            singlenozzle_retract_speed = storage.singlenozzle_retract_speed;
-          }
-        #endif
-      }
-
+      #if ENABLED(SINGLENOZZLE)
+        _FIELD_TEST(sn_settings);
+        EEPROM_READ(sn_settings);
+      #endif
+  
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         #if ENABLED(EEPROM_CHITCHAT)
@@ -1905,9 +1890,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if ENABLED(SINGLENOZZLE)
-    singlenozzle_swap_length = SINGLENOZZLE_SWAP_LENGTH;
-    singlenozzle_prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
-    singlenozzle_retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
+    sn_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
+    sn_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
+    sn_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
   #endif
 
   //

@@ -30,9 +30,7 @@
 #include "../Marlin.h"
 
 #if ENABLED(SINGLENOZZLE)
-  float singlenozzle_swap_length      = SINGLENOZZLE_SWAP_LENGTH;
-  int16_t singlenozzle_prime_speed    = SINGLENOZZLE_SWAP_PRIME_SPEED,
-          singlenozzle_retract_speed  = SINGLENOZZLE_SWAP_RETRACT_SPEED;
+  singlenozzle_settings_t sn_settings;  // Initialized by settings.load()
   uint16_t singlenozzle_temp[EXTRUDERS];
   #if FAN_COUNT > 0
     uint8_t singlenozzle_fan_speed[EXTRUDERS];
@@ -663,12 +661,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
           set_destination_from_current();
 
-          if (singlenozzle_swap_length) {
+          if (sn_settings.swap_length) {
             #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(-singlenozzle_swap_length, MMM_TO_MMS(singlenozzle_retract_speed));
+              do_pause_e_move(-sn_settings.swap_length, MMM_TO_MMS(sn_settings.retract_speed));
             #else
-              current_position[E_AXIS] -= singlenozzle_swap_length / planner.e_factor[active_extruder];
-              planner.buffer_line(current_position, MMM_TO_MMS(singlenozzle_retract_speed), active_extruder);
+              current_position[E_AXIS] -= sn_settings.swap_length / planner.e_factor[active_extruder];
+              planner.buffer_line(current_position, MMM_TO_MMS(sn_settings.retract_speed), active_extruder);
             #endif
           }
 
@@ -699,12 +697,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
           active_extruder = tmp_extruder;
 
-          if (singlenozzle_swap_length) {
+          if (sn_settings.swap_length) {
             #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(singlenozzle_swap_length, singlenozzle_prime_speed);
+              do_pause_e_move(sn_settings.swap_length, sn_settings.prime_speed);
             #else
-              current_position[E_AXIS] += singlenozzle_swap_length / planner.e_factor[tmp_extruder];
-              planner.buffer_line(current_position, singlenozzle_prime_speed, tmp_extruder);
+              current_position[E_AXIS] += sn_settings.swap_length / planner.e_factor[tmp_extruder];
+              planner.buffer_line(current_position, sn_settings.prime_speed, tmp_extruder);
             #endif
           }
 
