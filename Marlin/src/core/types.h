@@ -19,13 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __TYPES_H__
-#define __TYPES_H__
+#pragma once
 
 #include <stdint.h>
 #include <string.h>
 
 typedef uint32_t millis_t;
-
-#endif
