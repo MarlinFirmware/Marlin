@@ -704,9 +704,9 @@
   /**
    * When using a bootloader that supports SD-Firmware-Flashing,
    * add a menu item to activate SD-FW-Update on the next reboot.
-   * 
+   *
    * Requires ATMEGA2560 (Arduino Mega)
-   * 
+   *
    * Tested with this bootloader:
    *   https://github.com/FleetProbe/MicroBridge-Arduino-ATMega2560
    */
