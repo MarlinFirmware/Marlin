@@ -197,9 +197,9 @@ typedef struct SettingsDataStruct {
           delta_calibration_radius,                     // M665 B
           delta_tower_angle_trim[ABC];                  // M665 XYZ
   #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
-    float x2_endstop_adj,                                // M666 X
-          y2_endstop_adj,                                // M666 Y
-          z2_endstop_adj;                                // M666 Z
+    float x2_endstop_adj,                               // M666 X
+          y2_endstop_adj,                               // M666 Y
+          z2_endstop_adj;                               // M666 Z
     #if ENABLED(Z_TRIPLE_ENDSTOPS)
       float z3_endstop_adj;                             // M666 Z
     #endif
@@ -243,7 +243,6 @@ typedef struct SettingsDataStruct {
   //
   // HAS_TRINAMIC
   //
-  #define TMC_AXES (MAX_EXTRUDERS + 7)
   tmc_stepper_current_t tmc_stepper_current;            // M906 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
   tmc_hybrid_threshold_t tmc_hybrid_threshold;          // M913 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
   tmc_sgt_t tmc_sgt;                                    // M914 X Y Z
@@ -1353,13 +1352,12 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(tmc_stepper_current);
 
-        tmc_stepper_current_t tmc_stepper_current;
+        tmc_stepper_current_t currents;
+        EEPROM_READ(currents);
 
         #if HAS_TRINAMIC
 
           #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
-          tmc_stepper_current_t currents;
-          EEPROM_READ(currents);
           if (!validating) {
             #if AXIS_IS_TMC(X)
               SET_CURR(X);
@@ -1401,9 +1399,6 @@ void MarlinSettings::postprocess() {
               SET_CURR(E5);
             #endif
           }
-        #else
-          uint16_t val;
-          for (uint8_t q=TMC_AXES; q--;) EEPROM_READ(val);
         #endif
       }
 
