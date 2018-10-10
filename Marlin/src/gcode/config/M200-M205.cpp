@@ -60,7 +60,7 @@ void GcodeSuite::M201() {
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
       const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
-      planner.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
+      planner.settings.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
     }
   }
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
@@ -79,7 +79,7 @@ void GcodeSuite::M203() {
   LOOP_XYZE(i)
     if (parser.seen(axis_codes[i])) {
       const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
-      planner.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
+      planner.settings.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
     }
 }
 
@@ -93,25 +93,25 @@ void GcodeSuite::M203() {
 void GcodeSuite::M204() {
   bool report = true;
   if (parser.seenval('S')) { // Kept for legacy compatibility. Should NOT BE USED for new developments.
-    planner.travel_acceleration = planner.acceleration = parser.value_linear_units();
+    planner.settings.travel_acceleration = planner.settings.acceleration = parser.value_linear_units();
     report = false;
   }
   if (parser.seenval('P')) {
-    planner.acceleration = parser.value_linear_units();
+    planner.settings.acceleration = parser.value_linear_units();
     report = false;
   }
   if (parser.seenval('R')) {
-    planner.retract_acceleration = parser.value_linear_units();
+    planner.settings.retract_acceleration = parser.value_linear_units();
     report = false;
   }
   if (parser.seenval('T')) {
-    planner.travel_acceleration = parser.value_linear_units();
+    planner.settings.travel_acceleration = parser.value_linear_units();
     report = false;
   }
   if (report) {
-    SERIAL_ECHOPAIR("Acceleration: P", planner.acceleration);
-    SERIAL_ECHOPAIR(" R", planner.retract_acceleration);
-    SERIAL_ECHOLNPAIR(" T", planner.travel_acceleration);
+    SERIAL_ECHOPAIR("Acceleration: P", planner.settings.acceleration);
+    SERIAL_ECHOPAIR(" R", planner.settings.retract_acceleration);
+    SERIAL_ECHOLNPAIR(" T", planner.settings.travel_acceleration);
   }
 }
 
@@ -128,9 +128,9 @@ void GcodeSuite::M204() {
  *    J = Junction Deviation (mm) (Requires JUNCTION_DEVIATION)
  */
 void GcodeSuite::M205() {
-  if (parser.seen('B')) planner.min_segment_time_us = parser.value_ulong();
-  if (parser.seen('S')) planner.min_feedrate_mm_s = parser.value_linear_units();
-  if (parser.seen('T')) planner.min_travel_feedrate_mm_s = parser.value_linear_units();
+  if (parser.seen('B')) planner.settings.min_segment_time_us = parser.value_ulong();
+  if (parser.seen('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
+  if (parser.seen('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
   #if ENABLED(JUNCTION_DEVIATION)
     if (parser.seen('J')) {
       const float junc_dev = parser.value_linear_units();

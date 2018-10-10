@@ -147,9 +147,9 @@ namespace UI {
   float getAxisSteps_per_mm(const axis_t axis) {
     switch (axis) {
       case X: case Y: case Z:
-        return planner.axis_steps_per_mm[axis];
+        return planner.settings.axis_steps_per_mm[axis];
       case E0: case E1: case E2: case E3: case E4: case E5:
-        return planner.axis_steps_per_mm[E_AXIS_N(axis - E0)];
+        return planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)];
       default: return 0;
     }
   }
@@ -157,10 +157,10 @@ namespace UI {
   void setAxisSteps_per_mm(const axis_t axis, const float steps_per_mm) {
     switch (axis) {
       case X: case Y: case Z:
-        planner.axis_steps_per_mm[axis] = steps_per_mm;
+        planner.settings.axis_steps_per_mm[axis] = steps_per_mm;
         break;
       case E0: case E1: case E2: case E3: case E4: case E5:
-        planner.axis_steps_per_mm[E_AXIS_N(axis - E0)] = steps_per_mm;
+        planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = steps_per_mm;
         break;
     }
   }
@@ -168,9 +168,9 @@ namespace UI {
   float getAxisMaxFeedrate_mm_s(const axis_t axis) {
     switch (axis) {
       case X: case Y: case Z:
-        return planner.max_feedrate_mm_s[axis];
+        return planner.settings.max_feedrate_mm_s[axis];
       case E0: case E1: case E2: case E3: case E4: case E5:
-        return planner.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
+        return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
       default: return 0;
     }
   }
@@ -178,10 +178,10 @@ namespace UI {
   void setAxisMaxFeedrate_mm_s(const axis_t axis, const float max_feedrate_mm_s) {
     switch (axis) {
       case X: case Y: case Z:
-        planner.max_feedrate_mm_s[axis] = max_feedrate_mm_s;
+        planner.settings.max_feedrate_mm_s[axis] = max_feedrate_mm_s;
         break;
       case E0: case E1: case E2: case E3: case E4: case E5:
-        planner.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = max_feedrate_mm_s;
+        planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = max_feedrate_mm_s;
         break;
       default: return;
     }
@@ -190,9 +190,9 @@ namespace UI {
   float getAxisMaxAcceleration_mm_s2(const axis_t axis) {
     switch (axis) {
       case X: case Y: case Z:
-        return planner.max_acceleration_mm_per_s2[axis];
+        return planner.settings.max_acceleration_mm_per_s2[axis];
       case E0: case E1: case E2: case E3: case E4: case E5:
-        return planner.max_acceleration_mm_per_s2[E_AXIS_N(axis - E0)];
+        return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(axis - E0)];
       default: return 0;
     }
   }
@@ -200,10 +200,10 @@ namespace UI {
   void setAxisMaxAcceleration_mm_s2(const axis_t axis, const float max_acceleration_mm_per_s2) {
     switch (axis) {
       case X: case Y: case Z:
-        planner.max_acceleration_mm_per_s2[axis] = max_acceleration_mm_per_s2;
+        planner.settings.max_acceleration_mm_per_s2[axis] = max_acceleration_mm_per_s2;
         break;
       case E0: case E1: case E2: case E3: case E4: case E5:
-        planner.max_acceleration_mm_per_s2[E_AXIS_N(axis - E0)] = max_acceleration_mm_per_s2;
+        planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(axis - E0)] = max_acceleration_mm_per_s2;
         break;
       default: return;
     }
@@ -253,16 +253,16 @@ namespace UI {
     }
   #endif
 
-  float getMinFeedrate_mm_s()                             { return planner.min_feedrate_mm_s; }
-  float getMinTravelFeedrate_mm_s()                       { return planner.min_travel_feedrate_mm_s; }
-  float getPrintingAcceleration_mm_s2()                   { return planner.acceleration; }
-  float getRetractAcceleration_mm_s2()                    { return planner.retract_acceleration; }
-  float getTravelAcceleration_mm_s2()                     { return planner.travel_acceleration; }
-  void setMinFeedrate_mm_s(const float fr)                { planner.min_feedrate_mm_s = fr; }
-  void setMinTravelFeedrate_mm_s(const float fr)          { planner.min_travel_feedrate_mm_s = fr; }
-  void setPrintingAcceleration_mm_per_s2(const float acc) { planner.acceleration = acc; }
-  void setRetractAcceleration_mm_s2(const float acc)      { planner.retract_acceleration = acc; }
-  void setTravelAcceleration_mm_s2(const float acc)       { planner.travel_acceleration = acc; }
+  float getMinFeedrate_mm_s()                             { return planner.settings.min_feedrate_mm_s; }
+  float getMinTravelFeedrate_mm_s()                       { return planner.settings.min_travel_feedrate_mm_s; }
+  float getPrintingAcceleration_mm_s2()                   { return planner.settings.acceleration; }
+  float getRetractAcceleration_mm_s2()                    { return planner.settings.retract_acceleration; }
+  float getTravelAcceleration_mm_s2()                     { return planner.settings.travel_acceleration; }
+  void setMinFeedrate_mm_s(const float fr)                { planner.settings.min_feedrate_mm_s = fr; }
+  void setMinTravelFeedrate_mm_s(const float fr)          { planner.settings.min_travel_feedrate_mm_s = fr; }
+  void setPrintingAcceleration_mm_per_s2(const float acc) { planner.settings.acceleration = acc; }
+  void setRetractAcceleration_mm_s2(const float acc)      { planner.settings.retract_acceleration = acc; }
+  void setTravelAcceleration_mm_s2(const float acc)       { planner.settings.travel_acceleration = acc; }
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     float getZOffset_mm() {

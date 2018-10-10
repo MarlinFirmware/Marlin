@@ -159,6 +159,18 @@ typedef struct {
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
+typedef struct {
+  uint32_t max_acceleration_mm_per_s2[XYZE_N],  // (mm/s^2) M201 XYZE
+           min_segment_time_us;                 // (µs) M205 B
+  float axis_steps_per_mm[XYZE_N],              // (steps) M92 XYZE - Steps per millimeter
+        max_feedrate_mm_s[XYZE_N],              // (mm/s) M203 XYZE - Max speeds
+        acceleration,                           // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
+        retract_acceleration,                   // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
+        travel_acceleration,                    // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
+        min_feedrate_mm_s,                      // (mm/s) M205 S - Minimum linear feedrate
+        min_travel_feedrate_mm_s;               // (mm/s) M205 T - Minimum travel feedrate
+} planner_settings_t;
+
 class Planner {
   public:
 
@@ -199,17 +211,10 @@ class Planner {
                                                       // May be auto-adjusted by a filament width sensor
     #endif
 
-    static uint32_t max_acceleration_mm_per_s2[XYZE_N],    // (mm/s^2) M201 XYZE
-                    max_acceleration_steps_per_s2[XYZE_N], // (steps/s^2) Derived from mm_per_s2
-                    min_segment_time_us;                   // (µs) M205 B
-    static float max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
-                 axis_steps_per_mm[XYZE_N],     // (steps) M92 XYZE - Steps per millimeter
-                 steps_to_mm[XYZE_N],           // (mm) Millimeters per step
-                 min_feedrate_mm_s,             // (mm/s) M205 S - Minimum linear feedrate
-                 acceleration,                  // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
-                 retract_acceleration,          // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
-                 travel_acceleration,           // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
-                 min_travel_feedrate_mm_s;      // (mm/s) M205 T - Minimum travel feedrate
+    static planner_settings_t settings;
+
+    static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
+    static float steps_to_mm[XYZE_N];           // Millimeters per step
 
     #if ENABLED(JUNCTION_DEVIATION)
       static float junction_deviation_mm;       // (mm) M205 J
@@ -848,9 +853,9 @@ class Planner {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
           for (uint8_t i = 0; i < EXTRUDERS; i++)
-            max_e_jerk[i] = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS + i]);
+            max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS + i]);
         #else
-          max_e_jerk = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS]);
+          max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);
         #endif
       }
     #endif
@@ -927,14 +932,14 @@ class Planner {
       FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[XYZE]) {
         float limit_value = max_value;
         LOOP_XYZE(idx) if (unit_vec[idx]) // Avoid divide by zero
-          NOMORE(limit_value, ABS(max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
+          NOMORE(limit_value, ABS(settings.max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
         return limit_value;
       }
 
     #endif // JUNCTION_DEVIATION
 };
 
-#define PLANNER_XY_FEEDRATE() (MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
+#define PLANNER_XY_FEEDRATE() (MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]))
 
 extern Planner planner;
 

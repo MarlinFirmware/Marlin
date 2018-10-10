@@ -97,7 +97,7 @@
 #if HAS_TRINAMIC
   #include "stepper_indirection.h"
   #include "../feature/tmc_util.h"
-  #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.axis_steps_per_mm[_AXIS(A)])
+  #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.settings.axis_steps_per_mm[_AXIS(A)])
 #endif
 
 #pragma pack(push, 1) // No padding between variables
@@ -105,6 +105,9 @@
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stepper_current_t;
 typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_hybrid_threshold_t;
 typedef struct {  int16_t X, Y, Z;                                         } tmc_sgt_t;
+
+// Limit an index to an array size
+#define ALIM(I,ARR) MIN(I, COUNT(ARR) - 1)
 
 /**
  * Current EEPROM Layout
@@ -121,17 +124,10 @@ typedef struct SettingsDataStruct {
   //
   uint8_t   esteppers;                                  // XYZE_N - XYZ
 
-  uint32_t  planner_max_acceleration_mm_per_s2[XYZE_N], // M201 XYZE  planner.max_acceleration_mm_per_s2[XYZE_N]
-            planner_min_segment_time_us;                // M205 B     planner.min_segment_time_us
-  float     planner_axis_steps_per_mm[XYZE_N],          // M92 XYZE   planner.axis_steps_per_mm[XYZE_N]
-            planner_max_feedrate_mm_s[XYZE_N],          // M203 XYZE  planner.max_feedrate_mm_s[XYZE_N]
-            planner_acceleration,                       // M204 P     planner.acceleration
-            planner_retract_acceleration,               // M204 R     planner.retract_acceleration
-            planner_travel_acceleration,                // M204 T     planner.travel_acceleration
-            planner_min_feedrate_mm_s,                  // M205 S     planner.min_feedrate_mm_s
-            planner_min_travel_feedrate_mm_s,           // M205 T     planner.min_travel_feedrate_mm_s
-            planner_max_jerk[XYZE],                     // M205 XYZE  planner.max_jerk[XYZE]
-            planner_junction_deviation_mm;              // M205 J     planner.junction_deviation_mm
+  planner_settings_t planner_settings;
+
+  float planner_max_jerk[XYZE],                         // M205 XYZE  planner.max_jerk[XYZE]
+        planner_junction_deviation_mm;                  // M205 J     planner.junction_deviation_mm
 
   float home_offset[XYZ];                               // M206 XYZ
 
@@ -452,18 +448,10 @@ void MarlinSettings::postprocess() {
 
     _FIELD_TEST(esteppers);
 
-    const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
+    const uint8_t esteppers = COUNT(planner.settings.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
 
-    EEPROM_WRITE(planner.max_acceleration_mm_per_s2);
-    EEPROM_WRITE(planner.min_segment_time_us);
-    EEPROM_WRITE(planner.axis_steps_per_mm);
-    EEPROM_WRITE(planner.max_feedrate_mm_s);
-    EEPROM_WRITE(planner.acceleration);
-    EEPROM_WRITE(planner.retract_acceleration);
-    EEPROM_WRITE(planner.travel_acceleration);
-    EEPROM_WRITE(planner.min_feedrate_mm_s);
-    EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
+    EEPROM_WRITE(planner.settings);
 
     #if HAS_CLASSIC_JERK
       EEPROM_WRITE(planner.max_jerk);
@@ -1081,22 +1069,23 @@ void MarlinSettings::postprocess() {
 
       uint32_t tmp1[XYZ + esteppers];
       EEPROM_READ(tmp1);                         // max_acceleration_mm_per_s2
-      EEPROM_READ(planner.min_segment_time_us);
+      EEPROM_READ(planner.settings.min_segment_time_us);
 
       float tmp2[XYZ + esteppers], tmp3[XYZ + esteppers];
       EEPROM_READ(tmp2);                         // axis_steps_per_mm
       EEPROM_READ(tmp3);                         // max_feedrate_mm_s
       if (!validating) LOOP_XYZE_N(i) {
-        planner.max_acceleration_mm_per_s2[i] = i < XYZ + esteppers ? tmp1[i] : def1[i < COUNT(def1) ? i : COUNT(def1) - 1];
-        planner.axis_steps_per_mm[i]          = i < XYZ + esteppers ? tmp2[i] : def2[i < COUNT(def2) ? i : COUNT(def2) - 1];
-        planner.max_feedrate_mm_s[i]          = i < XYZ + esteppers ? tmp3[i] : def3[i < COUNT(def3) ? i : COUNT(def3) - 1];
+        const bool in = (i < esteppers + XYZ);
+        planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : def1[ALIM(i, def1)];
+        planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : def2[ALIM(i, def2)];
+        planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : def3[ALIM(i, def3)];
       }
 
-      EEPROM_READ(planner.acceleration);
-      EEPROM_READ(planner.retract_acceleration);
-      EEPROM_READ(planner.travel_acceleration);
-      EEPROM_READ(planner.min_feedrate_mm_s);
-      EEPROM_READ(planner.min_travel_feedrate_mm_s);
+      EEPROM_READ(planner.settings.acceleration);
+      EEPROM_READ(planner.settings.retract_acceleration);
+      EEPROM_READ(planner.settings.travel_acceleration);
+      EEPROM_READ(planner.settings.min_feedrate_mm_s);
+      EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
 
       #if HAS_CLASSIC_JERK
         EEPROM_READ(planner.max_jerk);
@@ -1472,7 +1461,7 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(tmc_hybrid_threshold);
 
         #if ENABLED(HYBRID_THRESHOLD)
-          #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold.Q, planner.axis_steps_per_mm[_AXIS(A)])
+          #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold.Q, planner.settings.axis_steps_per_mm[_AXIS(A)])
           if (!validating) {
             #if AXIS_HAS_STEALTHCHOP(X)
               TMC_SET_PWMTHRS(X, X);
@@ -1874,21 +1863,17 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   static const float tmp1[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] PROGMEM = DEFAULT_MAX_FEEDRATE;
   static const uint32_t tmp3[] PROGMEM = DEFAULT_MAX_ACCELERATION;
   LOOP_XYZE_N(i) {
-    planner.axis_steps_per_mm[i]          = pgm_read_float(&tmp1[i < COUNT(tmp1) ? i : COUNT(tmp1) - 1]);
-    planner.max_feedrate_mm_s[i]          = pgm_read_float(&tmp2[i < COUNT(tmp2) ? i : COUNT(tmp2) - 1]);
-    planner.max_acceleration_mm_per_s2[i] = pgm_read_dword_near(&tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1]);
+    planner.settings.axis_steps_per_mm[i]          = pgm_read_float(&tmp1[ALIM(i, tmp1)]);
+    planner.settings.max_feedrate_mm_s[i]          = pgm_read_float(&tmp2[ALIM(i, tmp2)]);
+    planner.settings.max_acceleration_mm_per_s2[i] = pgm_read_dword_near(&tmp3[ALIM(i, tmp3)]);
   }
 
-  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
-  planner.acceleration = DEFAULT_ACCELERATION;
-  planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
-  planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
-  planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
-  planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
-
-  #if ENABLED(JUNCTION_DEVIATION)
-    planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
-  #endif
+  planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
+  planner.settings.acceleration = DEFAULT_ACCELERATION;
+  planner.settings.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
+  planner.settings.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
+  planner.settings.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
+  planner.settings.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
 
   #if HAS_CLASSIC_JERK
     planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
@@ -1897,6 +1882,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
       planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
     #endif
+  #endif
+
+  #if ENABLED(JUNCTION_DEVIATION)
+    planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
   #endif
 
   #if HAS_HOME_OFFSET
@@ -2268,18 +2257,18 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPGM_P(port, "Steps per unit:");
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M92 X", LINEAR_UNIT(planner.axis_steps_per_mm[X_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.axis_steps_per_mm[Y_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.axis_steps_per_mm[Z_AXIS]));
+    SERIAL_ECHOPAIR_P(port, "  M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
     #if DISABLED(DISTINCT_E_FACTORS)
-      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.axis_steps_per_mm[E_AXIS]));
+      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
     #endif
     SERIAL_EOL_P(port);
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M92 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.axis_steps_per_mm[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS + i]));
       }
     #endif
 
@@ -2288,18 +2277,18 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPGM_P(port, "Maximum feedrates (units/s):");
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M203 X", LINEAR_UNIT(planner.max_feedrate_mm_s[X_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.max_feedrate_mm_s[Y_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.max_feedrate_mm_s[Z_AXIS]));
+    SERIAL_ECHOPAIR_P(port, "  M203 X", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS]));
     #if DISABLED(DISTINCT_E_FACTORS)
-      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.max_feedrate_mm_s[E_AXIS]));
+      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS]));
     #endif
     SERIAL_EOL_P(port);
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M203 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.max_feedrate_mm_s[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS + i]));
       }
     #endif
 
@@ -2308,18 +2297,18 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPGM_P(port, "Maximum Acceleration (units/s2):");
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M201 X", LINEAR_UNIT(planner.max_acceleration_mm_per_s2[X_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.max_acceleration_mm_per_s2[Y_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.max_acceleration_mm_per_s2[Z_AXIS]));
+    SERIAL_ECHOPAIR_P(port, "  M201 X", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS]));
     #if DISABLED(DISTINCT_E_FACTORS)
-      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.max_acceleration_mm_per_s2[E_AXIS]));
+      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS]));
     #endif
     SERIAL_EOL_P(port);
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M201 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.max_acceleration_mm_per_s2[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS + i]));
       }
     #endif
 
@@ -2328,9 +2317,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPGM_P(port, "Acceleration (units/s2): P<print_accel> R<retract_accel> T<travel_accel>");
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M204 P", LINEAR_UNIT(planner.acceleration));
-    SERIAL_ECHOPAIR_P(port, " R", LINEAR_UNIT(planner.retract_acceleration));
-    SERIAL_ECHOLNPAIR_P(port, " T", LINEAR_UNIT(planner.travel_acceleration));
+    SERIAL_ECHOPAIR_P(port, "  M204 P", LINEAR_UNIT(planner.settings.acceleration));
+    SERIAL_ECHOPAIR_P(port, " R", LINEAR_UNIT(planner.settings.retract_acceleration));
+    SERIAL_ECHOLNPAIR_P(port, " T", LINEAR_UNIT(planner.settings.travel_acceleration));
 
     if (!forReplay) {
       CONFIG_ECHO_START;
@@ -2347,9 +2336,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_EOL_P(port);
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M205 B", LINEAR_UNIT(planner.min_segment_time_us));
-    SERIAL_ECHOPAIR_P(port, " S", LINEAR_UNIT(planner.min_feedrate_mm_s));
-    SERIAL_ECHOPAIR_P(port, " T", LINEAR_UNIT(planner.min_travel_feedrate_mm_s));
+    SERIAL_ECHOPAIR_P(port, "  M205 B", LINEAR_UNIT(planner.settings.min_segment_time_us));
+    SERIAL_ECHOPAIR_P(port, " S", LINEAR_UNIT(planner.settings.min_feedrate_mm_s));
+    SERIAL_ECHOPAIR_P(port, " T", LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s));
 
     #if ENABLED(JUNCTION_DEVIATION)
       SERIAL_ECHOPAIR_P(port, " J", LINEAR_UNIT(planner.junction_deviation_mm));

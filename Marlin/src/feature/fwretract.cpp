@@ -164,7 +164,7 @@ void FWRetract::retract(const bool retracting
     // Is a Z hop set, and has the hop not yet been done?
     if (retract_zlift > 0.01 && !current_hop) {           // Apply hop only once
       current_hop += retract_zlift;                       // Add to the hop total (again, only once)
-      feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Maximum Z feedrate
+      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Maximum Z feedrate
       prepare_move_to_destination();                      // Raise up, set_current_to_destination
       planner.synchronize();                              // Wait for move to complete
     }
@@ -173,7 +173,7 @@ void FWRetract::retract(const bool retracting
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (current_hop) {
       current_hop = 0.0;
-      feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Z feedrate to max
+      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Z feedrate to max
       prepare_move_to_destination();                      // Lower Z, set_current_to_destination
       planner.synchronize();                              // Wait for move to complete
     }

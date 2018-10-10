@@ -606,43 +606,43 @@ void reset_stepper_drivers() {
   #endif
 
   #if AXIS_IS_TMC(X)
-    _TMC_INIT(X, planner.axis_steps_per_mm[X_AXIS]);
+    _TMC_INIT(X, planner.settings.axis_steps_per_mm[X_AXIS]);
   #endif
   #if AXIS_IS_TMC(X2)
-    _TMC_INIT(X2, planner.axis_steps_per_mm[X_AXIS]);
+    _TMC_INIT(X2, planner.settings.axis_steps_per_mm[X_AXIS]);
   #endif
   #if AXIS_IS_TMC(Y)
-    _TMC_INIT(Y, planner.axis_steps_per_mm[Y_AXIS]);
+    _TMC_INIT(Y, planner.settings.axis_steps_per_mm[Y_AXIS]);
   #endif
   #if AXIS_IS_TMC(Y2)
-    _TMC_INIT(Y2, planner.axis_steps_per_mm[Y_AXIS]);
+    _TMC_INIT(Y2, planner.settings.axis_steps_per_mm[Y_AXIS]);
   #endif
   #if AXIS_IS_TMC(Z)
-    _TMC_INIT(Z, planner.axis_steps_per_mm[Z_AXIS]);
+    _TMC_INIT(Z, planner.settings.axis_steps_per_mm[Z_AXIS]);
   #endif
   #if AXIS_IS_TMC(Z2)
-    _TMC_INIT(Z2, planner.axis_steps_per_mm[Z_AXIS]);
+    _TMC_INIT(Z2, planner.settings.axis_steps_per_mm[Z_AXIS]);
   #endif
   #if AXIS_IS_TMC(Z3)
-    _TMC_INIT(Z3, planner.axis_steps_per_mm[Z_AXIS]);
+    _TMC_INIT(Z3, planner.settings.axis_steps_per_mm[Z_AXIS]);
   #endif
   #if AXIS_IS_TMC(E0)
-    _TMC_INIT(E0, planner.axis_steps_per_mm[E_AXIS_N(0)]);
+    _TMC_INIT(E0, planner.settings.axis_steps_per_mm[E_AXIS_N(0)]);
   #endif
   #if AXIS_IS_TMC(E1)
-    _TMC_INIT(E1, planner.axis_steps_per_mm[E_AXIS_N(1)]);
+    _TMC_INIT(E1, planner.settings.axis_steps_per_mm[E_AXIS_N(1)]);
   #endif
   #if AXIS_IS_TMC(E2)
-    _TMC_INIT(E2, planner.axis_steps_per_mm[E_AXIS_N(2)]);
+    _TMC_INIT(E2, planner.settings.axis_steps_per_mm[E_AXIS_N(2)]);
   #endif
   #if AXIS_IS_TMC(E3)
-    _TMC_INIT(E3, planner.axis_steps_per_mm[E_AXIS_N(3)]);
+    _TMC_INIT(E3, planner.settings.axis_steps_per_mm[E_AXIS_N(3)]);
   #endif
   #if AXIS_IS_TMC(E4)
-    _TMC_INIT(E4, planner.axis_steps_per_mm[E_AXIS_N(4)]);
+    _TMC_INIT(E4, planner.settings.axis_steps_per_mm[E_AXIS_N(4)]);
   #endif
   #if AXIS_IS_TMC(E5)
-    _TMC_INIT(E5, planner.axis_steps_per_mm[E_AXIS_N(5)]);
+    _TMC_INIT(E5, planner.settings.axis_steps_per_mm[E_AXIS_N(5)]);
   #endif
 
   #if USE_SENSORLESS
