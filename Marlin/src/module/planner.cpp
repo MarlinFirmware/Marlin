@@ -170,18 +170,7 @@ float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0f); // The flow perc
   constexpr bool Planner::leveling_active;
 #endif
 
-#if ENABLED(SKEW_CORRECTION)
-  #if ENABLED(SKEW_CORRECTION_GCODE)
-    float Planner::xy_skew_factor;
-  #else
-    constexpr float Planner::xy_skew_factor;
-  #endif
-  #if ENABLED(SKEW_CORRECTION_FOR_Z) && ENABLED(SKEW_CORRECTION_GCODE)
-    float Planner::xz_skew_factor, Planner::yz_skew_factor;
-  #else
-    constexpr float Planner::xz_skew_factor, Planner::yz_skew_factor;
-  #endif
-#endif
+skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 #if ENABLED(AUTOTEMP)
   float Planner::autotemp_max = 250,

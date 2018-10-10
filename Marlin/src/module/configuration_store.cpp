@@ -273,9 +273,7 @@ typedef struct SettingsDataStruct {
   //
   // SKEW_CORRECTION
   //
-  float planner_xy_skew_factor,                         // M852 I  planner.xy_skew_factor
-        planner_xz_skew_factor,                         // M852 J  planner.xz_skew_factor
-        planner_yz_skew_factor;                         // M852 K  planner.yz_skew_factor
+  skew_factor_t planner_skew_factor;                    // M852 I J K  planner.skew_factor
 
   //
   // ADVANCED_PAUSE_FEATURE
@@ -939,16 +937,8 @@ void MarlinSettings::postprocess() {
     //
     // Skew correction factors
     //
-    _FIELD_TEST(planner_xy_skew_factor);
-
-    #if ENABLED(SKEW_CORRECTION)
-      EEPROM_WRITE(planner.xy_skew_factor);
-      EEPROM_WRITE(planner.xz_skew_factor);
-      EEPROM_WRITE(planner.yz_skew_factor);
-    #else
-      dummy = 0;
-      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
-    #endif
+    _FIELD_TEST(planner_skew_factor);
+    EEPROM_WRITE(planner.skew_factor);
 
     //
     // Advanced Pause filament load & unload lengths
@@ -1583,17 +1573,15 @@ void MarlinSettings::postprocess() {
       // Skew correction factors
       //
       {
-        struct {
-          float xy_skew_factor, xz_skew_factor, yz_skew_factor;
-        } storage;
-        _FIELD_TEST(planner_xy_skew_factor);
-        EEPROM_READ(storage);
+        skew_factor_t skew_factor;
+        _FIELD_TEST(planner_skew_factor);
+        EEPROM_READ(skew_factor);
         #if ENABLED(SKEW_CORRECTION_GCODE)
           if (!validating) {
-            planner.xy_skew_factor = storage.xy_skew_factor;
+            planner.skew_factor.xy = skew_factor.xy;
             #if ENABLED(SKEW_CORRECTION_FOR_Z)
-              planner.xz_skew_factor = storage.xz_skew_factor;
-              planner.yz_skew_factor = storage.yz_skew_factor;
+              planner.skew_factor.xz = skew_factor.xz;
+              planner.skew_factor.yz = skew_factor.yz;
             #endif
           }
         #endif
@@ -2065,10 +2053,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
-    planner.xy_skew_factor = XY_SKEW_FACTOR;
+    planner.skew_factor.xy = XY_SKEW_FACTOR;
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      planner.xz_skew_factor = XZ_SKEW_FACTOR;
-      planner.yz_skew_factor = YZ_SKEW_FACTOR;
+      planner.skew_factor.xz = XZ_SKEW_FACTOR;
+      planner.skew_factor.yz = YZ_SKEW_FACTOR;
     #endif
   #endif
 
@@ -2643,15 +2631,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START;
       #if ENABLED(SKEW_CORRECTION_FOR_Z)
         SERIAL_ECHOPGM_P(port, "  M852 I");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.xy), 6);
         SERIAL_ECHOPGM_P(port, " J");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xz_skew_factor), 6);
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.xz), 6);
         SERIAL_ECHOPGM_P(port, " K");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.yz_skew_factor), 6);
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.yz), 6);
         SERIAL_EOL_P(port);
       #else
         SERIAL_ECHOPGM_P(port, "  M852 S");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.xy), 6);
         SERIAL_EOL_P(port);
       #endif
     #endif

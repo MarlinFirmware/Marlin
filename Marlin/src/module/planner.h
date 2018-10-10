@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * planner.h
@@ -28,9 +29,6 @@
  * Derived from Grbl
  * Copyright (c) 2009-2011 Simen Svale Skogsrud
  */
-
-#ifndef PLANNER_H
-#define PLANNER_H
 
 #include "../Marlin.h"
 
@@ -171,6 +169,30 @@ typedef struct {
         min_travel_feedrate_mm_s;               // (mm/s) M205 T - Minimum travel feedrate
 } planner_settings_t;
 
+#ifndef XY_SKEW_FACTOR
+  #define XY_SKEW_FACTOR 0
+#endif
+#ifndef XZ_SKEW_FACTOR
+  #define XZ_SKEW_FACTOR 0
+#endif
+#ifndef YZ_SKEW_FACTOR
+  #define YZ_SKEW_FACTOR 0
+#endif
+
+typedef struct {
+  #if ENABLED(SKEW_CORRECTION_GCODE)
+    float xy;
+    #if ENABLED(SKEW_CORRECTION_FOR_Z)
+      float xz, yz;
+    #else
+      const float xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
+    #endif
+  #else
+    const float xy = XY_SKEW_FACTOR,
+                xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
+  #endif
+} skew_factor_t;
+
 class Planner {
   public:
 
@@ -261,22 +283,7 @@ class Planner {
       static float position_cart[XYZE];
     #endif
 
-    #if ENABLED(SKEW_CORRECTION)
-      #if ENABLED(SKEW_CORRECTION_GCODE)
-        static float xy_skew_factor;
-      #else
-        static constexpr float xy_skew_factor = XY_SKEW_FACTOR;
-      #endif
-      #if ENABLED(SKEW_CORRECTION_FOR_Z)
-        #if ENABLED(SKEW_CORRECTION_GCODE)
-          static float xz_skew_factor, yz_skew_factor;
-        #else
-          static constexpr float xz_skew_factor = XZ_SKEW_FACTOR, yz_skew_factor = YZ_SKEW_FACTOR;
-        #endif
-      #else
-        static constexpr float xz_skew_factor = 0, yz_skew_factor = 0;
-      #endif
-    #endif
+    static skew_factor_t skew_factor;
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
       static bool abort_on_endstop_hit;
@@ -424,8 +431,8 @@ class Planner {
 
       FORCE_INLINE static void skew(float &cx, float &cy, const float &cz) {
         if (WITHIN(cx, X_MIN_POS + 1, X_MAX_POS) && WITHIN(cy, Y_MIN_POS + 1, Y_MAX_POS)) {
-          const float sx = cx - cy * xy_skew_factor - cz * (xz_skew_factor - (xy_skew_factor * yz_skew_factor)),
-                      sy = cy - cz * yz_skew_factor;
+          const float sx = cx - cy * skew_factor.xy - cz * (skew_factor.xz - (skew_factor.xy * skew_factor.yz)),
+                      sy = cy - cz * skew_factor.yz;
           if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
             cx = sx; cy = sy;
           }
@@ -436,8 +443,8 @@ class Planner {
 
       FORCE_INLINE static void unskew(float &cx, float &cy, const float &cz) {
         if (WITHIN(cx, X_MIN_POS, X_MAX_POS) && WITHIN(cy, Y_MIN_POS, Y_MAX_POS)) {
-          const float sx = cx + cy * xy_skew_factor + cz * xz_skew_factor,
-                      sy = cy + cz * yz_skew_factor;
+          const float sx = cx + cy * skew_factor.xy + cz * skew_factor.xz,
+                      sy = cy + cz * skew_factor.yz;
           if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
             cx = sx; cy = sy;
           }
@@ -942,5 +949,3 @@ class Planner {
 #define PLANNER_XY_FEEDRATE() (MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]))
 
 extern Planner planner;
-
-#endif // PLANNER_H
