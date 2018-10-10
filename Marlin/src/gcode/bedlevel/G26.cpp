@@ -475,7 +475,9 @@ inline bool turn_on_heaters() {
 inline bool prime_nozzle() {
 
   #if ENABLED(ULTIPANEL)
-    float Total_Prime = 0.0;
+    #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
+      float Total_Prime = 0.0;
+    #endif
 
     if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
 
@@ -490,7 +492,7 @@ inline bool prime_nozzle() {
       while (!is_lcd_clicked()) {
         lcd_chirp();
         destination[E_AXIS] += 0.25;
-        #ifdef PREVENT_LENGTHY_EXTRUDE
+        #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           Total_Prime += 0.25;
           if (Total_Prime >= EXTRUDE_MAXLENGTH) return G26_ERR;
         #endif
