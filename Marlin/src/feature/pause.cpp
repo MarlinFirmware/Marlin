@@ -25,7 +25,7 @@
  * This may be combined with related G-codes if features are consolidated.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -59,8 +59,7 @@ static float resume_position[XYZE];
 
 AdvancedPauseMenuResponse advanced_pause_menu_response;
 
-float filament_change_unload_length[EXTRUDERS],
-      filament_change_load_length[EXTRUDERS];
+fil_change_settings_t fc_settings[EXTRUDERS];
 
 #if ENABLED(SDSUPPORT)
   #include "../sd/cardreader.h"

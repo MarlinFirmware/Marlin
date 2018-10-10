@@ -25,3 +25,7 @@
 #include <string.h>
 
 typedef uint32_t millis_t;
+
+typedef struct {
+  float unload_length, load_length;
+} fil_change_settings_t;

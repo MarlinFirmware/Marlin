@@ -280,8 +280,7 @@ typedef struct SettingsDataStruct {
   //
   // ADVANCED_PAUSE_FEATURE
   //
-  float filament_change_unload_length[EXTRUDERS],       // M603 T U
-        filament_change_load_length[EXTRUDERS];         // M603 T L
+  fil_change_settings_t fc_settings[EXTRUDERS];         // M603 T U L
 
   //
   // SINGLENOZZLE toolchange values
@@ -954,18 +953,13 @@ void MarlinSettings::postprocess() {
     //
     // Advanced Pause filament load & unload lengths
     //
-
-    _FIELD_TEST(filament_change_unload_length);
-
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      for (uint8_t q = 0; q < COUNT(filament_change_unload_length); q++) {
-        EEPROM_WRITE(filament_change_unload_length[q]);
-        EEPROM_WRITE(filament_change_load_length[q]);
-      }
-    #else
-      dummy = 0;
-      for (uint8_t q = EXTRUDERS * 2; q--;) EEPROM_WRITE(dummy);
-    #endif
+    {
+      #if DISABLED(ADVANCED_PAUSE_FEATURE)
+        const fil_change_settings_t fc_settings[EXTRUDERS] = { { 0 } };
+      #endif
+      _FIELD_TEST(fc_settings);
+      EEPROM_WRITE(fc_settings);
+    }
 
     //
     // SINGLENOZZLE
@@ -1609,18 +1603,11 @@ void MarlinSettings::postprocess() {
       // Advanced Pause filament load & unload lengths
       //
       {
-        struct {
-          float filament_change_unload_length[EXTRUDERS],
-                filament_change_load_length[EXTRUDERS];
-        } storage;
-        _FIELD_TEST(filament_change_unload_length);
-        EEPROM_READ(storage);
-        #if ENABLED(ADVANCED_PAUSE_FEATURE)
-          if (!validating) {
-            COPY(filament_change_unload_length, storage.filament_change_unload_length);
-            COPY(filament_change_load_length, storage.filament_change_load_length);
-          }
+        #if DISABLED(ADVANCED_PAUSE_FEATURE)
+          fil_change_settings_t fc_settings[EXTRUDERS];
         #endif
+        _FIELD_TEST(fc_settings);
+        EEPROM_READ(fc_settings);
       }
 
       //
@@ -2087,8 +2074,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     for (uint8_t e = 0; e < EXTRUDERS; e++) {
-      filament_change_unload_length[e] = FILAMENT_CHANGE_UNLOAD_LENGTH;
-      filament_change_load_length[e] = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
+      fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
+      fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
     }
   #endif
 
@@ -2913,36 +2900,36 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START;
       #if EXTRUDERS == 1
         say_M603(PORTVAR_SOLO);
-        SERIAL_ECHOPAIR_P(port, "L", LINEAR_UNIT(filament_change_load_length[0]));
-        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[0]));
+        SERIAL_ECHOPAIR_P(port, "L", LINEAR_UNIT(fc_settings[0].load_length));
+        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[0].unload_length));
       #else
         say_M603(PORTVAR_SOLO);
-        SERIAL_ECHOPAIR_P(port, "T0 L", LINEAR_UNIT(filament_change_load_length[0]));
-        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[0]));
+        SERIAL_ECHOPAIR_P(port, "T0 L", LINEAR_UNIT(fc_settings[0].load_length));
+        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[0].unload_length));
         CONFIG_ECHO_START;
         say_M603(PORTVAR_SOLO);
-        SERIAL_ECHOPAIR_P(port, "T1 L", LINEAR_UNIT(filament_change_load_length[1]));
-        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[1]));
+        SERIAL_ECHOPAIR_P(port, "T1 L", LINEAR_UNIT(fc_settings[1].load_length));
+        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[1].unload_length));
         #if EXTRUDERS > 2
           CONFIG_ECHO_START;
           say_M603(PORTVAR_SOLO);
-          SERIAL_ECHOPAIR_P(port, "T2 L", LINEAR_UNIT(filament_change_load_length[2]));
-          SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[2]));
+          SERIAL_ECHOPAIR_P(port, "T2 L", LINEAR_UNIT(fc_settings[2].load_length));
+          SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[2].unload_length));
           #if EXTRUDERS > 3
             CONFIG_ECHO_START;
             say_M603(PORTVAR_SOLO);
-            SERIAL_ECHOPAIR_P(port, "T3 L", LINEAR_UNIT(filament_change_load_length[3]));
-            SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[3]));
+            SERIAL_ECHOPAIR_P(port, "T3 L", LINEAR_UNIT(fc_settings[3].load_length));
+            SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[3].unload_length));
             #if EXTRUDERS > 4
               CONFIG_ECHO_START;
               say_M603(PORTVAR_SOLO);
-              SERIAL_ECHOPAIR_P(port, "T4 L", LINEAR_UNIT(filament_change_load_length[4]));
-              SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[4]));
+              SERIAL_ECHOPAIR_P(port, "T4 L", LINEAR_UNIT(fc_settings[4].load_length));
+              SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[4].unload_length));
               #if EXTRUDERS > 5
                 CONFIG_ECHO_START;
                 say_M603(PORTVAR_SOLO);
-                SERIAL_ECHOPAIR_P(port, "T5 L", LINEAR_UNIT(filament_change_load_length[5]));
-                SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[5]));
+                SERIAL_ECHOPAIR_P(port, "T5 L", LINEAR_UNIT(fc_settings[5].load_length));
+                SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[5].unload_length));
               #endif // EXTRUDERS > 5
             #endif // EXTRUDERS > 4
           #endif // EXTRUDERS > 3

@@ -4159,19 +4159,19 @@ void lcd_quick_feedback(const bool clear_buttons) {
         ;
 
         #if EXTRUDERS == 1
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &filament_change_unload_length[0], 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &fc_settings[0].unload_length, 0, extrude_maxlength);
         #else // EXTRUDERS > 1
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &filament_change_unload_length[active_extruder], 0, extrude_maxlength);
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E1, &filament_change_unload_length[0], 0, extrude_maxlength);
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E2, &filament_change_unload_length[1], 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E1, &fc_settings[0].unload_length, 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E2, &fc_settings[1].unload_length, 0, extrude_maxlength);
           #if EXTRUDERS > 2
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E3, &filament_change_unload_length[2], 0, extrude_maxlength);
+            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E3, &fc_settings[2].unload_length, 0, extrude_maxlength);
             #if EXTRUDERS > 3
-              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E4, &filament_change_unload_length[3], 0, extrude_maxlength);
+              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E4, &fc_settings[3].unload_length, 0, extrude_maxlength);
               #if EXTRUDERS > 4
-                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E5, &filament_change_unload_length[4], 0, extrude_maxlength);
+                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E5, &fc_settings[4].unload_length, 0, extrude_maxlength);
                 #if EXTRUDERS > 5
-                  MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E6, &filament_change_unload_length[5], 0, extrude_maxlength);
+                  MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E6, &fc_settings[5].unload_length, 0, extrude_maxlength);
                 #endif // EXTRUDERS > 5
               #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
@@ -4179,19 +4179,19 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #endif // EXTRUDERS > 1
 
         #if EXTRUDERS == 1
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &filament_change_load_length[0], 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &fc_settings[0].load_length, 0, extrude_maxlength);
         #else // EXTRUDERS > 1
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &filament_change_load_length[active_extruder], 0, extrude_maxlength);
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E1, &filament_change_load_length[0], 0, extrude_maxlength);
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E2, &filament_change_load_length[1], 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E1, &fc_settings[0].load_length, 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E2, &fc_settings[1].load_length, 0, extrude_maxlength);
           #if EXTRUDERS > 2
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E3, &filament_change_load_length[2], 0, extrude_maxlength);
+            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E3, &fc_settings[2].load_length, 0, extrude_maxlength);
             #if EXTRUDERS > 3
-              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E4, &filament_change_load_length[3], 0, extrude_maxlength);
+              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E4, &fc_settings[3].load_length, 0, extrude_maxlength);
               #if EXTRUDERS > 4
-                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E5, &filament_change_load_length[4], 0, extrude_maxlength);
+                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E5, &fc_settings[4].load_length, 0, extrude_maxlength);
                 #if EXTRUDERS > 5
-                  MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E6, &filament_change_load_length[5], 0, extrude_maxlength);
+                  MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E6, &fc_settings[5].load_length, 0, extrude_maxlength);
                 #endif // EXTRUDERS > 5
               #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
