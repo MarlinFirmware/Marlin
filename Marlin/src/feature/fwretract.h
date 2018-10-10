@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * fwretract.h - Define firmware-based retraction interface
  */
 
-#ifndef FWRETRACT_H
-#define FWRETRACT_H
-
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
 class FWRetract {
 private:
@@ -36,17 +34,16 @@ private:
   #endif
 
 public:
-  static bool autoretract_enabled,                 // M209 S - Autoretract switch
-              retracted[EXTRUDERS];                // Which extruders are currently retracted
-  static float retract_length,                     // M207 S - G10 Retract length
-               retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
-               retract_zlift,                      // M207 Z - G10 Retract hop size
-               retract_recover_length,             // M208 S - G11 Recover length
-               retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
-               swap_retract_length,                // M207 W - G10 Swap Retract length
-               swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-               swap_retract_recover_feedrate_mm_s, // M208 R - G11 Swap Recover feedrate
-               current_retract[EXTRUDERS],         // Retract value used by planner
+  static fwretract_settings_t settings;
+
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    static bool autoretract_enabled;               // M209 S - Autoretract switch
+  #else
+    constexpr static bool autoretract_enabled = false;
+  #endif
+
+  static bool retracted[EXTRUDERS];                // Which extruders are currently retracted
+  static float current_retract[EXTRUDERS],         // Retract value used by planner
                current_hop;                        // Hop value used by planner
 
   FWRetract() { reset(); }
@@ -54,7 +51,7 @@ public:
   static void reset();
 
   static void refresh_autoretract() {
-    for (uint8_t i = 0; i < EXTRUDERS; i++) retracted[i] = false;
+    LOOP_L_N(i, EXTRUDERS) retracted[i] = false;
   }
 
   static void enable_autoretract(const bool enable) {
@@ -72,5 +69,3 @@ public:
 };
 
 extern FWRetract fwretract;
-
-#endif // FWRETRACT_H

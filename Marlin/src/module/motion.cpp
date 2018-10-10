@@ -817,9 +817,9 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             #define RAISED_Y raised_parked_position[Y_AXIS]
             #define RAISED_Z raised_parked_position[Z_AXIS]
 
-            if (  planner.buffer_line(RAISED_X, RAISED_Y, RAISED_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder))
+            if (  planner.buffer_line(RAISED_X, RAISED_Y, RAISED_Z, CUR_E, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder))
               if (planner.buffer_line(   CUR_X,    CUR_Y, RAISED_Z, CUR_E, PLANNER_XY_FEEDRATE(),             active_extruder))
-                  planner.buffer_line(   CUR_X,    CUR_Y,    CUR_Z, CUR_E, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+                  planner.buffer_line(   CUR_X,    CUR_Y,    CUR_Z, CUR_E, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
           delayed_move_time = 0;
           active_extruder_parked = false;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -841,7 +841,7 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
             if (!planner.buffer_line(
                 dual_x_carriage_mode == DXC_DUPLICATION_MODE ? duplicate_extruder_x_offset + current_position[X_AXIS] : inactive_extruder_x_pos,
                 current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS],
-                planner.max_feedrate_mm_s[X_AXIS], 1
+                planner.settings.max_feedrate_mm_s[X_AXIS], 1
               )
             ) break;
             planner.synchronize();
