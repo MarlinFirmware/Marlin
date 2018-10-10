@@ -1516,13 +1516,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
 
     //
-    // Leveling Fade Height
-    //
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(SLIM_LCD_MENUS)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0, 100, _lcd_set_z_fade_height);
-    #endif
-
-    //
     // Nozzle:
     // Nozzle [1-4]:
     //
@@ -4036,8 +4029,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
       // M205 - Max Jerk
       MENU_ITEM(submenu, MSG_JERK, lcd_advanced_jerk_menu);
 
-      // M92 - Steps Per mm
-      MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_advanced_steps_per_mm_menu);
+      if (!printer_busy) {
+        // M92 - Steps Per mm
+        MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_advanced_steps_per_mm_menu);
+      }
 
     #endif // !SLIM_LCD_MENUS
 
