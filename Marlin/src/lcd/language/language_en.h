@@ -687,6 +687,12 @@
 #ifndef MSG_INIT_EEPROM
   #define MSG_INIT_EEPROM                     _UxGT("Initialize EEPROM")
 #endif
+#ifndef MSG_SD_UPDATE
+  #define MSG_SD_UPDATE                       _UxGT("SD Update")
+#endif
+#ifndef MSG_RESET_PRINTER
+  #define MSG_RESET_PRINTER                   _UxGT("Reset Printer")
+#endif
 #ifndef MSG_REFRESH
   #define MSG_REFRESH                         _UxGT("Refresh")
 #endif

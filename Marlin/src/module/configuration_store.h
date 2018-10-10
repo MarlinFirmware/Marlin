@@ -61,6 +61,11 @@ class MarlinSettings {
       #endif
     }
 
+    #if ENABLED(SD_FIRMWARE_UPDATE)
+      static bool sd_update_status();                       // True if the SD-Firmware-Update EEPROM flag is set
+      static bool set_sd_update_status(const bool enable);  // Return 'true' after EEPROM is set (-> always true)
+    #endif
+
     #if ENABLED(EEPROM_SETTINGS)
       static bool load(PORTINIT_SOLO);      // Return 'true' if data was loaded ok
       static bool validate(PORTINIT_SOLO);  // Return 'true' if EEPROM data is ok
