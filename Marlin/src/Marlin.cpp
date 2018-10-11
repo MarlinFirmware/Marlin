@@ -259,6 +259,9 @@ void setup_powerhold() {
 /**
  * Sensitive pin test for M42, M226
  */
+
+#include "pins/sensitive_pins.h"
+
 bool pin_is_protected(const pin_t pin) {
   static const pin_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
   for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {

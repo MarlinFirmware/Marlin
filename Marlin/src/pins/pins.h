@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Include pins definitions
@@ -31,9 +32,6 @@
  *  - Analog Input number if used by analogRead or DAC. (e.g., TEMP_n_PIN)
  *    These numbers are the same in any pin mapping.
  */
-
-#ifndef __PINS_H__
-#define __PINS_H__
 
 #define MAX_EXTRUDERS 6
 
@@ -665,7 +663,8 @@
 #ifndef LED_PIN
   #define LED_PIN -1
 #endif
-#ifndef PS_ON_PIN
+#if POWER_SUPPLY == 0 || !defined(PS_ON_PIN)
+  #undef PS_ON_PIN
   #define PS_ON_PIN -1
 #endif
 #ifndef KILL_PIN
@@ -732,94 +731,6 @@
   #endif
 #endif
 
-// List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
-#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN, E0_CS_PIN,
-#define _E1_PINS
-#define _E2_PINS
-#define _E3_PINS
-#define _E4_PINS
-#define _E5_PINS
-
-#if ENABLED(SWITCHING_EXTRUDER)
-                      // Tools 0 and 1 use E0
-  #if EXTRUDERS > 2   // Tools 2 and 3 use E1
-    #undef _E1_PINS
-    #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN, E1_CS_PIN,
-    #if EXTRUDERS > 4 // Tools 4 and 5 use E2
-      #undef _E2_PINS
-      #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, E2_MS1_PIN, E2_MS2_PIN, E2_CS_PIN,
-    #endif
-  #endif
-#elif EXTRUDERS > 1
-  #undef _E1_PINS
-  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN, E1_CS_PIN,
-  #if EXTRUDERS > 2
-    #undef _E2_PINS
-    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, E2_MS1_PIN, E2_MS2_PIN, E2_CS_PIN,
-    #if EXTRUDERS > 3
-      #undef _E3_PINS
-      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, E3_MS1_PIN, E3_MS2_PIN, E3_MS3_PIN, E3_CS_PIN,
-      #if EXTRUDERS > 4
-        #undef _E4_PINS
-        #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN, E4_MS1_PIN, E4_MS2_PIN, E4_MS3_PIN, E4_CS_PIN,
-        #if EXTRUDERS > 5
-          #undef _E5_PINS
-          #define _E5_PINS E5_STEP_PIN, E5_DIR_PIN, E5_ENABLE_PIN, E5_MS1_PIN, E5_MS2_PIN, E5_MS3_PIN, E5_CS_PIN,
-        #endif // EXTRUDERS > 5
-      #endif // EXTRUDERS > 4
-    #endif // EXTRUDERS > 3
-  #endif // EXTRUDERS > 2
-#endif // EXTRUDERS > 1
-
-#define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_0_PIN),
-#define _H1_PINS
-#define _H2_PINS
-#define _H3_PINS
-#define _H4_PINS
-#define _H5_PINS
-
-#if HOTENDS > 1
-  #undef _H1_PINS
-  #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_1_PIN),
-  #if HOTENDS > 2
-    #undef _H2_PINS
-    #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_2_PIN),
-    #if HOTENDS > 3
-      #undef _H3_PINS
-      #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_3_PIN),
-      #if HOTENDS > 4
-        #undef _H4_PINS
-        #define _H4_PINS HEATER_4_PIN, E4_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_4_PIN),
-        #if HOTENDS > 5
-          #undef _H5_PINS
-          #define _H5_PINS HEATER_5_PIN, E5_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_5_PIN),
-        #endif // HOTENDS > 5
-      #endif // HOTENDS > 4
-    #endif // HOTENDS > 3
-  #endif // HOTENDS > 2
-#elif ENABLED(MIXING_EXTRUDER)
-  #undef _E1_PINS
-  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN, E1_CS_PIN,
-  #if MIXING_STEPPERS > 2
-    #undef _E2_PINS
-    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, E2_MS1_PIN, E2_MS2_PIN, E2_CS_PIN,
-    #if MIXING_STEPPERS > 3
-      #undef _E3_PINS
-      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, E3_MS1_PIN, E3_MS2_PIN, E3_CS_PIN,
-      #if MIXING_STEPPERS > 4
-        #undef _E4_PINS
-        #define _E4_PINS E4_STEP_PIN, E4_DIR_PIN, E4_ENABLE_PIN, E4_MS1_PIN, E4_MS2_PIN, E4_CS_PIN,
-        #if MIXING_STEPPERS > 5
-          #undef _E5_PINS
-          #define _E5_PINS E5_STEP_PIN, E5_DIR_PIN, E5_ENABLE_PIN, E5_MS1_PIN, E5_MS2_PIN, E5_CS_PIN,
-        #endif // MIXING_STEPPERS > 5
-      #endif // MIXING_STEPPERS > 4
-    #endif // MIXING_STEPPERS > 3
-  #endif // MIXING_STEPPERS > 2
-#endif // MIXING_STEPPERS > 1
-
-#define BED_PINS HEATER_BED_PIN, analogInputToDigitalPin(TEMP_BED_PIN),
-
 //
 // Assign endstop pins for boards with only 3 connectors
 //
@@ -856,7 +767,7 @@
 //
 // Disable unused endstop / probe pins
 //
-#if DISABLED(Z_MIN_PROBE_ENDSTOP)
+#if !HAS_BED_PROBE || DISABLED(Z_MIN_PROBE_ENDSTOP)
   #undef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN    -1
 #endif
@@ -904,14 +815,13 @@
   #define LCD_PINS_D7 -1
 #endif
 
-//
-// Dual X-carriage, Dual Y, Dual Z support
-//
-
-#define _X2_PINS
-#define _Y2_PINS
-#define _Z2_PINS
-#define _Z3_PINS
+/**
+ * Auto-Assignment for Dual X, Dual Y, Multi-Z Steppers
+ *
+ * By default X2 is assigned to the next open E plug
+ * on the board, then in order, Y2, Z2, Z3. These can be
+ * overridden in Configuration.h or Configuration_adv.h.
+ */
 
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
@@ -1019,26 +929,3 @@
     #define Z3_MS3_PIN    _EPIN(Z3_E_INDEX, MS3)
   #endif
 #endif
-
-#ifndef HAL_SENSITIVE_PINS
-  #define HAL_SENSITIVE_PINS
-#endif
-
-#define SENSITIVE_PINS { \
-    X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, X_MS1_PIN, X_MS2_PIN, X_CS_PIN, \
-    Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Y_MS1_PIN, Y_MS2_PIN, Y_CS_PIN, \
-    Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, Z_MS1_PIN, Z_MS2_PIN, Z_MS3_PIN, Z_CS_PIN, Z_MIN_PROBE_PIN, \
-    PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLER_FAN_PIN, \
-    _E0_PINS _E1_PINS _E2_PINS _E3_PINS _E4_PINS _E5_PINS BED_PINS \
-    _H0_PINS _H1_PINS _H2_PINS _H3_PINS _H4_PINS _H5_PINS \
-    _X2_PINS _Y2_PINS _Z2_PINS _Z3_PINS \
-    HAL_SENSITIVE_PINS \
-  }
-
-#define HAS_DIGIPOTSS (PIN_EXISTS(DIGIPOTSS))
-
-// Note: default SPI pins are defined in the HAL
-
-#include HAL_PATH(../HAL, spi_pins.h)
-
-#endif // __PINS_H__
