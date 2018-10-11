@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * leds.h - Marlin general RGB LED support
  */
 
-#ifndef __LEDS_H__
-#define __LEDS_H__
-
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(NEOPIXEL_LED)
   #include "neopixel.h"
@@ -180,5 +178,3 @@ public:
 };
 
 extern LEDLights leds;
-
-#endif // __LEDS_H__

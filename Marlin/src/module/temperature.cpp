@@ -52,7 +52,7 @@
 #endif
 
 #if ENABLED(PRINTER_EVENT_LEDS)
-  #include "../feature/leds/leds.h"
+  #include "../feature/leds/printer_event_leds.h"
 #endif
 
 #if HOTEND_USES_THERMISTOR
@@ -250,13 +250,19 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
 
     #if HAS_PID_FOR_BOTH
       #define GHV(B,H) (hotend < 0 ? (B) : (H))
-      #define SHV(S,B,H) if (hotend < 0) S##_bed = B; else S [hotend] = H;
+      #define SHV(S,B,H) do{ if (hotend < 0) S##_bed = B; else S [hotend] = H; }while(0)
+      #define ONHEATINGSTART() do{ if (hotend < 0) printerEventLEDs.onBedHeatingStart(); else printerEventLEDs.onHotendHeatingStart(); }while(0)
+      #define ONHEATING(S,C,T) do{ if (hotend < 0) printerEventLEDs.onBedHeating(S,C,T); else printerEventLEDs.onHotendHeating(S,C,T); }while(0)
     #elif ENABLED(PIDTEMPBED)
       #define GHV(B,H) B
       #define SHV(S,B,H) (S##_bed = B)
+      #define ONHEATINGSTART() printerEventLEDs.onBedHeatingStart()
+      #define ONHEATING(S,C,T) printerEventLEDs.onBedHeating(S,C,T)
     #else
       #define GHV(B,H) H
       #define SHV(S,B,H) (S [hotend] = H)
+      #define ONHEATINGSTART() printerEventLEDs.onHotendHeatingStart()
+      #define ONHEATING(S,C,T) printerEventLEDs.onHotendHeating(S,C,T)
     #endif
 
     #if WATCH_THE_BED || WATCH_HOTENDS
@@ -303,6 +309,10 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
     SHV(soft_pwm_amount, bias = d = (MAX_BED_POWER) >> 1, bias = d = (PID_MAX) >> 1);
 
     wait_for_heatup = true; // Can be interrupted with M108
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      const float start_temp = GHV(current_temperature_bed, current_temperature[hotend]);
+      ONHEATINGSTART();
+    #endif
 
     // PID Tuning loop
     while (wait_for_heatup) {
@@ -316,6 +326,10 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
         current = GHV(current_temperature_bed, current_temperature[hotend]);
         NOLESS(max, current);
         NOMORE(min, current);
+
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          ONHEATING(start_temp, current, target);
+        #endif
 
         #if HAS_AUTO_FAN
           if (ELAPSED(ms, next_auto_fan_check_ms)) {
@@ -483,6 +497,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
       lcd_update();
     }
     disable_all_heaters();
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      printerEventLEDs.onHeatersOff();
+    #endif
   }
 
 #endif // HAS_PID_HEATING
@@ -2439,7 +2456,7 @@ void Temperature::isr() {
 
       #if ENABLED(PRINTER_EVENT_LEDS)
         const float start_temp = degHotend(target_extruder);
-        uint8_t old_blue = 0;
+        printerEventLEDs.onHotendHeatingStart();
       #endif
 
       float target_temp = -1.0, old_temp = 9999.0;
@@ -2477,18 +2494,7 @@ void Temperature::isr() {
 
         #if ENABLED(PRINTER_EVENT_LEDS)
           // Gradually change LED strip from violet to red as nozzle heats up
-          if (!wants_to_cool) {
-            const uint8_t blue = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 255, 0);
-            if (blue != old_blue) {
-              old_blue = blue;
-              leds.set_color(
-                MakeLEDColor(255, 0, blue, 0, pixels.getBrightness())
-                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-                  , true
-                #endif
-              );
-            }
-          }
+          if (!wants_to_cool) printerEventLEDs.onHotendHeating(start_temp, temp, target_temp);
         #endif
 
         #if TEMP_RESIDENCY_TIME > 0
@@ -2522,7 +2528,7 @@ void Temperature::isr() {
       if (wait_for_heatup) {
         lcd_reset_status();
         #if ENABLED(PRINTER_EVENT_LEDS)
-          leds.set_white();
+          printerEventLEDs.onHeated();
         #endif
       }
 
@@ -2568,7 +2574,7 @@ void Temperature::isr() {
 
       #if ENABLED(PRINTER_EVENT_LEDS)
         const float start_temp = degBed();
-        uint8_t old_red = 127;
+        printerEventLEDs.onBedHeatingStart();
       #endif
 
       do {
@@ -2602,18 +2608,7 @@ void Temperature::isr() {
 
         #if ENABLED(PRINTER_EVENT_LEDS)
           // Gradually change LED strip from blue to violet as bed heats up
-          if (!wants_to_cool) {
-            const uint8_t red = map(constrain(temp, start_temp, target_temp), start_temp, target_temp, 0, 255);
-            if (red != old_red) {
-              old_red = red;
-              leds.set_color(
-                MakeLEDColor(red, 0, 255, 0, pixels.getBrightness())
-                #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-                  , true
-                #endif
-              );
-            }
-          }
+          if (!wants_to_cool) printerEventLEDs.onBedHeating(start_temp, temp, target_temp);
         #endif
 
         #if TEMP_BED_RESIDENCY_TIME > 0
