@@ -83,7 +83,7 @@ enum BlockFlag : char {
  * The "nominal" values are as-specified by gcode, and
  * may never actually be reached due to acceleration limits.
  */
-typedef struct {
+typedef struct block_t {
 
   volatile uint8_t flag;                    // Block flags (See BlockFlag enum above) - Modified by ISR and main thread!
 
@@ -109,6 +109,8 @@ typedef struct {
 
   #if EXTRUDERS > 1
     uint8_t extruder;                       // The extruder to move (if E move)
+  #else
+    static constexpr uint8_t extruder = 0;
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)

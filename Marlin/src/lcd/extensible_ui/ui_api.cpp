@@ -53,6 +53,10 @@
   #endif
 #endif
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../../feature/runout.h"
+#endif
+
 inline float clamp(const float value, const float minimum, const float maximum) {
   return MAX(MIN(value, maximum), minimum);
 }
@@ -208,6 +212,21 @@ namespace UI {
       default: return;
     }
   }
+
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    bool isFilamentRunoutEnabled()              { return runout.enabled; }
+    void toggleFilamentRunout(const bool state) { runout.enabled = state; }
+
+    #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+      float getFilamentRunoutDistance_mm() {
+        return RunoutResponseDelayed::runout_distance_mm;
+      }
+
+      void setFilamentRunoutDistance_mm(const float distance) {
+        RunoutResponseDelayed::runout_distance_mm = clamp(distance, 0, 999);
+      }
+    #endif
+  #endif
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const uint8_t extruder) {
