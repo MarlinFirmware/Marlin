@@ -427,11 +427,17 @@
 #ifndef X_MS2_PIN
   #define X_MS2_PIN -1
 #endif
+#ifndef X_MS3_PIN
+  #define X_MS3_PIN -1
+#endif
 #ifndef Y_MS1_PIN
   #define Y_MS1_PIN -1
 #endif
 #ifndef Y_MS2_PIN
   #define Y_MS2_PIN -1
+#endif
+#ifndef Y_MS3_PIN
+  #define Y_MS3_PIN -1
 #endif
 #ifndef Z_MS1_PIN
   #define Z_MS1_PIN -1
@@ -448,17 +454,26 @@
 #ifndef E0_MS2_PIN
   #define E0_MS2_PIN -1
 #endif
+#ifndef E0_MS3_PIN
+  #define E0_MS3_PIN -1
+#endif
 #ifndef E1_MS1_PIN
   #define E1_MS1_PIN -1
 #endif
 #ifndef E1_MS2_PIN
   #define E1_MS2_PIN -1
 #endif
+#ifndef E1_MS3_PIN
+  #define E1_MS3_PIN -1
+#endif
 #ifndef E2_MS1_PIN
   #define E2_MS1_PIN -1
 #endif
 #ifndef E2_MS2_PIN
   #define E2_MS2_PIN -1
+#endif
+#ifndef E2_MS3_PIN
+  #define E2_MS3_PIN -1
 #endif
 #ifndef E3_MS1_PIN
   #define E3_MS1_PIN -1
@@ -907,19 +922,21 @@
     #define X2_STEP_PIN   _EPIN(E_STEPPERS, STEP)
     #define X2_DIR_PIN    _EPIN(E_STEPPERS, DIR)
     #define X2_ENABLE_PIN _EPIN(E_STEPPERS, ENABLE)
-    #ifndef X2_CS_PIN
-      #define X2_CS_PIN   _EPIN(E_STEPPERS, CS)
-    #endif
-    #if E_STEPPERS > MAX_EXTRUDERS || !PIN_EXISTS(X2_ENABLE)
+    #if E_STEPPERS >= MAX_EXTRUDERS || !PIN_EXISTS(X2_STEP)
       #error "No E stepper plug left for X2!"
     #endif
   #endif
-  #undef _X2_PINS
-  #define __X2_PINS X2_STEP_PIN, X2_DIR_PIN, X2_ENABLE_PIN,
-  #ifdef X2_CS_PIN
-    #define _X2_PINS __X2_PINS X2_CS_PIN,
-  #else
-    #define _X2_PINS __X2_PINS
+  #ifndef X2_CS_PIN
+    #define X2_CS_PIN     _EPIN(E_STEPPERS, CS)
+  #endif
+  #ifndef X2_MS1_PIN
+    #define X2_MS1_PIN    _EPIN(E_STEPPERS, MS1)
+  #endif
+  #ifndef X2_MS2_PIN
+    #define X2_MS2_PIN    _EPIN(E_STEPPERS, MS2)
+  #endif
+  #ifndef X2_MS3_PIN
+    #define X2_MS3_PIN    _EPIN(E_STEPPERS, MS3)
   #endif
   #define Y2_E_INDEX INCREMENT(E_STEPPERS)
 #else
@@ -932,19 +949,21 @@
     #define Y2_STEP_PIN   _EPIN(Y2_E_INDEX, STEP)
     #define Y2_DIR_PIN    _EPIN(Y2_E_INDEX, DIR)
     #define Y2_ENABLE_PIN _EPIN(Y2_E_INDEX, ENABLE)
-    #ifndef Y2_CS_PIN
-      #define Y2_CS_PIN   _EPIN(Y2_E_INDEX, CS)
-    #endif
-    #if Y2_E_INDEX > MAX_EXTRUDERS || !PIN_EXISTS(Y2_ENABLE)
+    #if Y2_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(Y2_STEP)
       #error "No E stepper plug left for Y2!"
     #endif
   #endif
-  #undef _Y2_PINS
-  #define __Y2_PINS Y2_STEP_PIN, Y2_DIR_PIN, Y2_ENABLE_PIN,
-  #ifdef Y2_CS_PIN
-    #define _Y2_PINS __Y2_PINS Y2_CS_PIN,
-  #else
-    #define _Y2_PINS __Y2_PINS
+  #ifndef Y2_CS_PIN
+    #define Y2_CS_PIN     _EPIN(Y2_E_INDEX, CS)
+  #endif
+  #ifndef Y2_MS1_PIN
+    #define Y2_MS1_PIN    _EPIN(Y2_E_INDEX, MS1)
+  #endif
+  #ifndef Y2_MS2_PIN
+    #define Y2_MS2_PIN    _EPIN(Y2_E_INDEX, MS2)
+  #endif
+  #ifndef Y2_MS3_PIN
+    #define Y2_MS3_PIN    _EPIN(Y2_E_INDEX, MS3)
   #endif
   #define Z2_E_INDEX INCREMENT(Y2_E_INDEX)
 #else
@@ -957,19 +976,21 @@
     #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
     #define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
     #define Z2_ENABLE_PIN _EPIN(Z2_E_INDEX, ENABLE)
-    #ifndef Z2_CS_PIN
-      #define Z2_CS_PIN   _EPIN(Z2_E_INDEX, CS)
-    #endif
-    #if Z2_E_INDEX > MAX_EXTRUDERS || !PIN_EXISTS(Z2_ENABLE)
+    #if Z2_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(Z2_STEP)
       #error "No E stepper plug left for Z2!"
     #endif
   #endif
-  #undef _Z2_PINS
-  #define __Z2_PINS Z2_STEP_PIN, Z2_DIR_PIN, Z2_ENABLE_PIN,
-  #ifdef Z2_CS_PIN
-    #define _Z2_PINS __Z2_PINS Z2_CS_PIN,
-  #else
-    #define _Z2_PINS __Z2_PINS
+  #ifndef Z2_CS_PIN
+    #define Z2_CS_PIN     _EPIN(Z2_E_INDEX, CS)
+  #endif
+  #ifndef Z2_MS1_PIN
+    #define Z2_MS1_PIN    _EPIN(Z2_E_INDEX, MS1)
+  #endif
+  #ifndef Z2_MS2_PIN
+    #define Z2_MS2_PIN    _EPIN(Z2_E_INDEX, MS2)
+  #endif
+  #ifndef Z2_MS3_PIN
+    #define Z2_MS3_PIN    _EPIN(Z2_E_INDEX, MS3)
   #endif
   #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
 #else
@@ -981,19 +1002,21 @@
     #define Z3_STEP_PIN   _EPIN(Z3_E_INDEX, STEP)
     #define Z3_DIR_PIN    _EPIN(Z3_E_INDEX, DIR)
     #define Z3_ENABLE_PIN _EPIN(Z3_E_INDEX, ENABLE)
-    #ifndef Z3_CS_PIN
-      #define Z3_CS_PIN   _EPIN(Z3_E_INDEX, CS)
-    #endif
-    #if Z3_E_INDEX > 4 || !PIN_EXISTS(Z3_ENABLE)
+    #if Z3_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(Z3_STEP)
       #error "No E stepper plug left for Z3!"
     #endif
   #endif
-  #undef _Z3_PINS
-  #define __Z3_PINS Z3_STEP_PIN, Z3_DIR_PIN, Z3_ENABLE_PIN,
-  #ifdef Z3_CS_PIN
-    #define _Z3_PINS __Z3_PINS Z3_CS_PIN,
-  #else
-    #define _Z3_PINS __Z3_PINS
+  #ifndef Z3_CS_PIN
+    #define Z3_CS_PIN     _EPIN(Z3_E_INDEX, CS)
+  #endif
+  #ifndef Z3_MS1_PIN
+    #define Z3_MS1_PIN    _EPIN(Z3_E_INDEX, MS1)
+  #endif
+  #ifndef Z3_MS2_PIN
+    #define Z3_MS2_PIN    _EPIN(Z3_E_INDEX, MS2)
+  #endif
+  #ifndef Z3_MS3_PIN
+    #define Z3_MS3_PIN    _EPIN(Z3_E_INDEX, MS3)
   #endif
 #endif
 

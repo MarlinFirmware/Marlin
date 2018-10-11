@@ -413,7 +413,7 @@ class Stepper {
     #endif
 
     #if HAS_MICROSTEPS
-      static void microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2);
+      static void microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2, const int8_t ms3);
       static void microstep_mode(const uint8_t driver, const uint8_t stepping);
       static void microstep_readings();
     #endif
