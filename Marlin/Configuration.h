@@ -39,8 +39,8 @@
 /*
  * Enables a filament sensor plugged into the laser pin. Disables the laser
  */
-//#define FilamentSensor
-
+//#define FilamentSensor // Standard older TM3D runout sensor
+//#define lerdgeFilSensor // Newer inverted logic TM3D Runout Sensor
 
 
 //////////////////////////////////DO not edit below here unless you know what youre doing!  //////////////////////////////////
@@ -50,6 +50,9 @@
   #define Y_2208
   #define Z_2208
   #define E_2208
+  #define FilamentSensor
+#endif
+#if ENABLED(lerdgeFilSensor) && DISABLED(FilamentSensor)
   #define FilamentSensor
 #endif
 /**
@@ -1060,7 +1063,11 @@
  #else
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
  #endif
-  #define FIL_RUNOUT_INVERTING true // set to true to invert the logic of the sensor.
+ #if ENABLED(lerdgeFilSensor)
+   #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
+ #else
+   #define FIL_RUNOUT_INVERTING true // set to true to invert the logic of the sensor.
+ #endif
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
   #define FIL_RUNOUT_PIN 4
