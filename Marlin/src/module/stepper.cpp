@@ -2552,7 +2552,7 @@ void Stepper::report_positions() {
       #if PIN_EXISTS(Z3_MS3)
         SET_OUTPUT(Z3_MS3_PIN);
       #endif
-    #endif    
+    #endif
     #if HAS_E0_MICROSTEPS
       SET_OUTPUT(E0_MS1_PIN);
       SET_OUTPUT(E0_MS2_PIN);
@@ -2758,7 +2758,7 @@ void Stepper::report_positions() {
       #endif
       #if HAS_E5_MICROSTEPS && PIN_EXISTS(E5_MS3)
         case 8: WRITE(E5_MS3_PIN, ms3); break;
-      #endif    
+      #endif
     }
   }
 
@@ -2865,7 +2865,7 @@ void Stepper::report_positions() {
       SERIAL_PROTOCOLLN(READ(E5_MS2_PIN));
       #if PIN_EXISTS(E5_MS3)
         SERIAL_PROTOCOLLN(READ(E5_MS3_PIN));
-      #endif      
+      #endif
     #endif
   }
 
