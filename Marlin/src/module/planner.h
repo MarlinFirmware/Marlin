@@ -47,6 +47,10 @@
   #include "../feature/fwretract.h"
 #endif
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../feature/mixing.h"
+#endif
+
 enum BlockFlagBit : char {
   // Recalculate trapezoids on entry junction. For optimization.
   BLOCK_BIT_RECALCULATE,
@@ -104,11 +108,11 @@ typedef struct {
   uint32_t step_event_count;                // The number of step events required to complete this block
 
   #if EXTRUDERS > 1
-    uint8_t active_extruder;                // The extruder to move (if E move)
+    uint8_t active_extruder_b;                // The extruder to move (if E move)
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
-    uint32_t mix_steps[MIXING_STEPPERS];    // Scaled steps[E_AXIS] for the mixing steppers
+    MIXER_BLOCK_DEFINITION                  // Normalized color for the mixing steppers
   #endif
 
   // Settings for the trapezoid generator

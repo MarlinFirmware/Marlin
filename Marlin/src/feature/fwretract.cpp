@@ -142,11 +142,8 @@ void FWRetract::retract(const bool retracting
   set_destination_from_current();
 
   #if ENABLED(RETRACT_SYNC_MIXING)
-    float old_mixing_factor[MIXING_STEPPERS];
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
-      old_mixing_factor[i] = mixing_factor[i];
-      mixing_factor[i] = RECIPROCAL(MIXING_STEPPERS);
-    }
+    uint8_t old_mixing_tool = mixer.get_current_v_tool();
+    mixer.T(MIXER_AUTORETRACT_TOOL);
   #endif
 
   if (retracting) {
@@ -196,7 +193,7 @@ void FWRetract::retract(const bool retracting
   }
 
   #if ENABLED(RETRACT_SYNC_MIXING)
-    COPY(mixing_factor, old_mixing_factor);               // Restore original mixing factor
+    mixer.T(old_mixing_tool);                             // Restore original mixing tool
   #endif
 
   feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate
