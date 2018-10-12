@@ -94,10 +94,6 @@ float zprobe_zoffset; // Initialized by settings.load()
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
-  FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s) {
-    do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
-  }
-
   void run_deploy_moves_script() {
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_X

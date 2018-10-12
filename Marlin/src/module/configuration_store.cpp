@@ -1836,6 +1836,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     sn_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
     sn_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
     sn_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
+    sn_settings.z_raise = SINGLENOZZLE_TOOLCHANGE_ZRAISE;
+    #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+      sn_settings.change_point = SINGLENOZZLE_TOOLCHANGE_POSITION;
+    #endif
   #endif
 
   //

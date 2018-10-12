@@ -52,6 +52,10 @@
   typedef struct {
     float swap_length;
     int16_t prime_speed, retract_speed;
+    #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+      struct { float x, y; } change_point;
+    #endif
+    float z_raise;
   } singlenozzle_settings_t;
   extern singlenozzle_settings_t sn_settings;
   extern uint16_t singlenozzle_temp[EXTRUDERS];
