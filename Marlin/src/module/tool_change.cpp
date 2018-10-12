@@ -643,89 +643,86 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         select_multiplexed_stepper(tmp_extruder);
       #endif
 
-      #if EXTRUDERS > 1
+      #if ENABLED(SINGLENOZZLE)
 
-        #if ENABLED(SINGLENOZZLE)
+        #if ENABLED(PREVENT_COLD_EXTRUSION)
+          if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder) && sn_settings.swap_length) {
+            SERIAL_ERROR_START();
+            SERIAL_ERRORLNPGM(MSG_HOTEND_TOO_COLD);
+            active_extruder = tmp_extruder;
+            return;
+          }
+        #endif
 
-          #if ENABLED(PREVENT_COLD_EXTRUSION)
-            if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder) && sn_settings.swap_length) {
-              SERIAL_ERROR_START();
-              SERIAL_ERRORLNPGM(MSG_HOTEND_TOO_COLD);
-              active_extruder = tmp_extruder;
-              return;
-            }
+        #if FAN_COUNT > 0
+          singlenozzle_fan_speed[active_extruder] = fan_speed[0];
+          fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
+        #endif
+
+        if (!no_move) set_destination_from_current();
+
+        if (sn_settings.swap_length) {
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            do_pause_e_move(-sn_settings.swap_length, MMM_TO_MMS(sn_settings.retract_speed));
+          #else
+            current_position[E_AXIS] -= sn_settings.swap_length / planner.e_factor[active_extruder];
+            planner.buffer_line(current_position, MMM_TO_MMS(sn_settings.retract_speed), active_extruder);
+          #endif
+        }
+
+        if (!no_move) {
+          current_position[Z_AXIS] += (
+            #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+              singlenozzle_change_point.z
+            #else
+              SINGLENOZZLE_TOOLCHANGE_ZRAISE
+            #endif
+          );
+
+          planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
+
+          #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+            current_position[X_AXIS] = singlenozzle_change_point.x;
+            current_position[Y_AXIS] = singlenozzle_change_point.y;
+            planner.buffer_line(current_position, MMM_TO_MMS(SINGLENOZZLE_PARK_XY_FEEDRATE), active_extruder);
+          #endif
+        }
+
+        singlenozzle_temp[active_extruder] = thermalManager.target_temperature[0];
+        if (singlenozzle_temp[tmp_extruder] && singlenozzle_temp[tmp_extruder] != singlenozzle_temp[active_extruder]) {
+          thermalManager.setTargetHotend(singlenozzle_temp[tmp_extruder], 0);
+          #if ENABLED(ULTRA_LCD)
+            thermalManager.set_heating_message(0);
+          #endif
+          (void)thermalManager.wait_for_hotend(0, false);  // Wait for heating or cooling
+        }
+
+        active_extruder = tmp_extruder;
+
+        if (sn_settings.swap_length) {
+          #if ENABLED(ADVANCED_PAUSE_FEATURE)
+            do_pause_e_move(sn_settings.swap_length, sn_settings.prime_speed);
+          #else
+            current_position[E_AXIS] += sn_settings.swap_length / planner.e_factor[tmp_extruder];
+            planner.buffer_line(current_position, sn_settings.prime_speed, tmp_extruder);
+          #endif
+        }
+
+        if (!no_move) {
+          #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+            current_position[X_AXIS] = destination[X_AXIS];
+            current_position[Y_AXIS] = destination[Y_AXIS];
+            planner.buffer_line(current_position, MMM_TO_MMS(SINGLENOZZLE_PARK_XY_FEEDRATE), active_extruder);
           #endif
 
-          #if FAN_COUNT > 0
-            singlenozzle_fan_speed[active_extruder] = fan_speed[0];
-            fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
-          #endif
+          do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
+        }
 
-          if (!no_move) set_destination_from_current();
+      #elif EXTRUDERS > 1
 
-          if (sn_settings.swap_length) {
-            #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(-sn_settings.swap_length, MMM_TO_MMS(sn_settings.retract_speed));
-            #else
-              current_position[E_AXIS] -= sn_settings.swap_length / planner.e_factor[active_extruder];
-              planner.buffer_line(current_position, MMM_TO_MMS(sn_settings.retract_speed), active_extruder);
-            #endif
-          }
+        active_extruder = tmp_extruder;
 
-          if (!no_move) {
-            current_position[Z_AXIS] += (
-              #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-                singlenozzle_change_point.z
-              #else
-                SINGLENOZZLE_TOOLCHANGE_ZRAISE
-              #endif
-            );
-
-            planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
-
-            #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-              current_position[X_AXIS] = singlenozzle_change_point.x;
-              current_position[Y_AXIS] = singlenozzle_change_point.y;
-              planner.buffer_line(current_position, MMM_TO_MMS(SINGLENOZZLE_PARK_XY_FEEDRATE), active_extruder);
-            #endif
-          }
-
-          singlenozzle_temp[active_extruder] = thermalManager.target_temperature[0];
-          if (singlenozzle_temp[tmp_extruder] && singlenozzle_temp[tmp_extruder] != singlenozzle_temp[active_extruder]) {
-            thermalManager.setTargetHotend(singlenozzle_temp[tmp_extruder], 0);
-            #if ENABLED(ULTRA_LCD)
-              thermalManager.set_heating_message(0);
-            #endif
-            (void)thermalManager.wait_for_hotend(0, false);  // Wait for heating or cooling
-          }
-
-          active_extruder = tmp_extruder;
-
-          if (sn_settings.swap_length) {
-            #if ENABLED(ADVANCED_PAUSE_FEATURE)
-              do_pause_e_move(sn_settings.swap_length, sn_settings.prime_speed);
-            #else
-              current_position[E_AXIS] += sn_settings.swap_length / planner.e_factor[tmp_extruder];
-              planner.buffer_line(current_position, sn_settings.prime_speed, tmp_extruder);
-            #endif
-          }
-
-          if (!no_move) {
-            #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-              current_position[X_AXIS] = destination[X_AXIS];
-              current_position[Y_AXIS] = destination[Y_AXIS];
-              planner.buffer_line(current_position, MMM_TO_MMS(SINGLENOZZLE_PARK_XY_FEEDRATE), active_extruder);
-            #endif
-
-            do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
-          }
-        #else // !SINGLENOZZLE
-
-          active_extruder = tmp_extruder;
-
-        #endif // !SINGLENOZZLE
-
-      #endif // EXTRUDERS > 1
+      #endif
 
     #endif // HOTENDS <= 1
 
