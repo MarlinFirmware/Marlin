@@ -611,8 +611,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       #error "SINGLENOZZLE requires SINGLENOZZLE_SWAP_PRIME_SPEED. Please update your Configuration."
     #endif
     #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-      #ifndef SINGLENOZZLE_TOOLCHANGE_POSITION
-        #error "SINGLENOZZLE_SWAP_PARK requires SINGLENOZZLE_TOOLCHANGE_POSITION. Please update your Configuration."
+      #ifndef SINGLENOZZLE_TOOLCHANGE_XY
+        #error "SINGLENOZZLE_SWAP_PARK requires SINGLENOZZLE_TOOLCHANGE_XY. Please update your Configuration."
       #elif !defined(SINGLENOZZLE_PARK_XY_FEEDRATE)
         #error "SINGLENOZZLE_SWAP_PARK requires SINGLENOZZLE_PARK_XY_FEEDRATE. Please update your Configuration."
       #endif
