@@ -879,7 +879,7 @@ void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY) || ENABLED(SDSUPPORT)
 
     #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
-      uint8_t progress_bar_percent; //=0
+      uint8_t progress_bar_percent = 0;
     #endif
 
     #if ENABLED(SDSUPPORT)
