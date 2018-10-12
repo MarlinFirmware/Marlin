@@ -164,7 +164,7 @@ extern uint8_t marlin_debug_flags;
   #define SERIAL_ECHOPAIR_P(p,pre,value)            SERIAL_ECHOPAIR(pre, value)
   #define SERIAL_ECHOLNPAIR_P(p,pre, value)         SERIAL_ECHOLNPAIR(pre, value)
   #define SERIAL_ECHO_F_P(p,x,y)                    SERIAL_ECHO_F(x,y)
-        
+
   #define SERIAL_ERROR_START_P(p)                   SERIAL_ERROR_START()
   #define SERIAL_ERROR_P(p,x)                       SERIAL_ERROR(x)
   #define SERIAL_ERRORPGM_P(p,x)                    SERIAL_ERRORPGM(x)

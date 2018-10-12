@@ -34,6 +34,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extensible_ui/ui_api.h"
+#endif
+
 #define FIL_RUNOUT_THRESHOLD 5
 
 class FilamentRunoutSensor {
@@ -49,6 +53,9 @@ class FilamentRunoutSensor {
     FORCE_INLINE static void run() {
       if ((IS_SD_PRINTING || print_job_timer.isRunning()) && check() && !filament_ran_out) {
         filament_ran_out = true;
+        #if ENABLED(EXTENSIBLE_UI)
+          UI::onFilamentRunout();
+        #endif
         enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
         planner.synchronize();
       }

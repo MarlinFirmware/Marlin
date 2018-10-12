@@ -155,7 +155,7 @@ class I2CPositionEncoder {
         case I2CPE_ENC_TYPE_LINEAR:
           return count / encoderTicksPerUnit;
         case I2CPE_ENC_TYPE_ROTARY:
-          return (count * stepperTicks) / (encoderTicksPerUnit * planner.axis_steps_per_mm[encoderAxis]);
+          return (count * stepperTicks) / (encoderTicksPerUnit * planner.settings.axis_steps_per_mm[encoderAxis]);
       }
     }
 
@@ -199,7 +199,7 @@ class I2CPositionEncoder {
         case I2CPE_ENC_TYPE_LINEAR:
           return encoderTicksPerUnit;
         case I2CPE_ENC_TYPE_ROTARY:
-          return (int)((encoderTicksPerUnit / stepperTicks) * planner.axis_steps_per_mm[encoderAxis]);
+          return (int)((encoderTicksPerUnit / stepperTicks) * planner.settings.axis_steps_per_mm[encoderAxis]);
       }
     }
 

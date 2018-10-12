@@ -31,10 +31,6 @@
   #include "../../module/printcounter.h"
 #endif
 
-#if ENABLED(PRINTER_EVENT_LEDS)
-  #include "../../feature/leds/leds.h"
-#endif
-
 #if ENABLED(SINGLENOZZLE)
   #include "../../module/tool_change.h"
 #endif

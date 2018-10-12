@@ -110,7 +110,7 @@
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
 #define BOARD_GT2560_V3         76    // Geeetech GT2560 Rev B for A10(M/D)
-#define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2																		   																	 
+#define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2
 #define BOARD_EINSTART_S        666   // Einstart retrofit
 
 //

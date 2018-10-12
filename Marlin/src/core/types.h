@@ -19,13 +19,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __TYPES_H__
-#define __TYPES_H__
+#pragma once
 
 #include <stdint.h>
 #include <string.h>
 
 typedef uint32_t millis_t;
 
-#endif
+#pragma pack(push, 1) // No padding between fields
+
+typedef struct {
+  float unload_length, load_length;
+} fil_change_settings_t;
+
+typedef struct {
+  float retract_length,                     // M207 S - G10 Retract length
+        retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
+        retract_zlift,                      // M207 Z - G10 Retract hop size
+        retract_recover_length,             // M208 S - G11 Recover length
+        retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
+        swap_retract_length,                // M207 W - G10 Swap Retract length
+        swap_retract_recover_length,        // M208 W - G11 Swap Recover length
+        swap_retract_recover_feedrate_mm_s; // M208 R - G11 Swap Recover feedrate
+} fwretract_settings_t;
+
+#pragma pack(pop)

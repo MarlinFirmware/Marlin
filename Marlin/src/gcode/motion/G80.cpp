@@ -24,6 +24,8 @@
 
 #if ENABLED(GCODE_MOTION_MODES)
 
+#include "../gcode.h"
+
 /**
  * G80: Cancel current motion mode
  */

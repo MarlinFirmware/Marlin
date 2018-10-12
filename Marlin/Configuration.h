@@ -25,7 +25,7 @@
 
 //#define X_2208
 //#define X_Spreadcycle
-//#define Y_2208
+//#define Y_2208 // Highly recommended as large prints with high mass can cause layer shifts with stealthchop at high speed
 //#define Y_Spreadcycle
 //#define Z_2208 // NOT Recommended! Dual stepper current draw is above the recommended limit for this driver
 //#define Y_Spreadcycle
@@ -1055,7 +1055,11 @@
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+ #if ENABLED(TREX3)
+  #define NUM_RUNOUT_SENSORS   2
+ #else
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+ #endif
   #define FIL_RUNOUT_INVERTING true // set to true to invert the logic of the sensor.
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.

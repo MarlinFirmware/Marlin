@@ -25,7 +25,7 @@
  * This may be combined with related G-codes if features are consolidated.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -59,8 +59,7 @@ static float resume_position[XYZE];
 
 AdvancedPauseMenuResponse advanced_pause_menu_response;
 
-float filament_change_unload_length[EXTRUDERS],
-      filament_change_load_length[EXTRUDERS];
+fil_change_settings_t fc_settings[EXTRUDERS];
 
 #if ENABLED(SDSUPPORT)
   #include "../sd/cardreader.h"
@@ -191,14 +190,14 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   // Fast Load Filament
   if (fast_load_length) {
     #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
-      const float saved_acceleration = planner.retract_acceleration;
-      planner.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
+      const float saved_acceleration = planner.settings.retract_acceleration;
+      planner.settings.retract_acceleration = FILAMENT_CHANGE_FAST_LOAD_ACCEL;
     #endif
 
     do_pause_e_move(fast_load_length, FILAMENT_CHANGE_FAST_LOAD_FEEDRATE);
 
     #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
-      planner.retract_acceleration = saved_acceleration;
+      planner.settings.retract_acceleration = saved_acceleration;
     #endif
   }
 
@@ -295,18 +294,18 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
   safe_delay(FILAMENT_UNLOAD_DELAY);
 
   // Quickly purge
-  do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.max_feedrate_mm_s[E_AXIS]);
+  do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.settings.max_feedrate_mm_s[E_AXIS]);
 
   // Unload filament
   #if FILAMENT_CHANGE_UNLOAD_ACCEL > 0
-    const float saved_acceleration = planner.retract_acceleration;
-    planner.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
+    const float saved_acceleration = planner.settings.retract_acceleration;
+    planner.settings.retract_acceleration = FILAMENT_CHANGE_UNLOAD_ACCEL;
   #endif
 
   do_pause_e_move(unload_length, FILAMENT_CHANGE_UNLOAD_FEEDRATE);
 
   #if FILAMENT_CHANGE_FAST_LOAD_ACCEL > 0
-    planner.retract_acceleration = saved_acceleration;
+    planner.settings.retract_acceleration = saved_acceleration;
   #endif
 
   // Disable extruders steppers for manual filament changing (only on boards that have separate ENABLE_PINS)
@@ -559,7 +558,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #if ENABLED(FWRETRACT)
     // If retracted before goto pause
     if (fwretract.retracted[active_extruder])
-      do_pause_e_move(-fwretract.retract_length, fwretract.retract_feedrate_mm_s);
+      do_pause_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
   #endif
 
   // If resume_position is negative

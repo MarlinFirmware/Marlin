@@ -261,13 +261,13 @@
 /**
  * M355 Case Light on-off / brightness
  */
-//#define CASE_LIGHT_ENABLE
+#define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
-  //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
+  #define CASE_LIGHT_PIN ENDER4_FAN_PIN      // Override the default pin if needed
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
-  #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
+  #define CASE_LIGHT_DEFAULT_ON false         // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
-  //#define MENU_ITEM_CASE_LIGHT              // Add a Case Light option to the LCD main menu
+  #define MENU_ITEM_CASE_LIGHT                // Add a Case Light option to the LCD main menu
   //#define CASE_LIGHT_USE_NEOPIXEL           // Use Neopixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
     #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
@@ -699,6 +699,22 @@
   #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
     #define USB_CS_PIN         SDSS
     #define USB_INTR_PIN       SD_DETECT_PIN
+  #endif
+
+  /**
+   * When using a bootloader that supports SD-Firmware-Flashing,
+   * add a menu item to activate SD-FW-Update on the next reboot.
+   *
+   * Requires ATMEGA2560 (Arduino Mega)
+   *
+   * Tested with this bootloader:
+   *   https://github.com/FleetProbe/MicroBridge-Arduino-ATMega2560
+   */
+  //#define SD_FIRMWARE_UPDATE
+  #if ENABLED(SD_FIRMWARE_UPDATE)
+    #define SD_FIRMWARE_UPDATE_EEPROM_ADDR    0x1FF
+    #define SD_FIRMWARE_UPDATE_ACTIVE_VALUE   0xF0
+    #define SD_FIRMWARE_UPDATE_INACTIVE_VALUE 0xFF
   #endif
 
 #endif // SDSUPPORT

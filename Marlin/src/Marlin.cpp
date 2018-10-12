@@ -152,6 +152,10 @@
   #include "feature/controllerfan.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "lcd/extensible_ui/ui_api.h"
+#endif
+
 bool Running = true;
 
 /**
@@ -255,6 +259,9 @@ void setup_powerhold() {
 /**
  * Sensitive pin test for M42, M226
  */
+
+#include "pins/sensitive_pins.h"
+
 bool pin_is_protected(const pin_t pin) {
   static const pin_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
   for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {
@@ -609,7 +616,9 @@ void kill(PGM_P lcd_msg) {
   thermalManager.disable_all_heaters();
   disable_all_steppers();
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(EXTENSIBLE_UI)
+    UI::onPrinterKilled(lcd_msg);
+  #elif ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
@@ -958,7 +967,7 @@ void loop() {
       card.checkautostart();
     #endif
 
-    #if ENABLED(SDSUPPORT) && ENABLED(ULTIPANEL)
+    #if ENABLED(SDSUPPORT) && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
       if (abort_sd_printing) {
         abort_sd_printing = false;
         card.stopSDPrint(
@@ -978,7 +987,7 @@ void loop() {
           card.removeJobRecoveryFile();
         #endif
       }
-    #endif // SDSUPPORT && ULTIPANEL
+    #endif // SDSUPPORT && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
 
     if (commands_in_queue < BUFSIZE) get_available_commands();
     advance_command_queue();

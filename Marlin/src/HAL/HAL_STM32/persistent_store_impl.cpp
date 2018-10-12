@@ -79,7 +79,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
       #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
         eeprom_buffered_read_byte(pos)
       #else
-        (*(__IO uint8_t *)(BKPSRAM_BASE + ((unsigned char*)pos)))
+        (*(__IO uint8_t *)(BKPSRAM_BASE + ((uint8_t*)pos)))
       #endif
     );
 

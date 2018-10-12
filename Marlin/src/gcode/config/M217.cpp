@@ -36,25 +36,25 @@ void M217_report(const bool eeprom=false) {
     const int16_t port = command_queue_port[cmd_queue_index_r];
   #endif
   serialprintPGM_P(port, eeprom ? PSTR("  M217") : PSTR("Singlenozzle:"));
-  SERIAL_ECHOPAIR_P(port, " S", singlenozzle_swap_length);
-  SERIAL_ECHOPAIR_P(port, " P", singlenozzle_prime_speed);
-  SERIAL_ECHOLNPAIR_P(port, " R", singlenozzle_retract_speed);
+  SERIAL_ECHOPAIR_P(port, " S", sn_settings.swap_length);
+  SERIAL_ECHOPAIR_P(port, " P", sn_settings.prime_speed);
+  SERIAL_ECHOLNPAIR_P(port, " R", sn_settings.retract_speed);
 }
 
 /**
  * M217 - Set SINGLENOZZLE toolchange parameters
  *
  *  S[mm]   Swap length
- *  P[mm/s] Prime speed
- *  R[mm/s] Retract speed
+ *  P[mm/m] Prime speed
+ *  R[mm/m] Retract speed
  */
 void GcodeSuite::M217() {
 
   bool report = true;
 
-  if (parser.seenval('S')) { report = false; const float v = parser.value_float(); singlenozzle_swap_length = constrain(v, 0, 500); }
-  if (parser.seenval('P')) { report = false; const int16_t v = parser.value_int(); singlenozzle_prime_speed = constrain(v, 10, 5400); }
-  if (parser.seenval('R')) { report = false; const int16_t v = parser.value_int(); singlenozzle_retract_speed = constrain(v, 10, 5400); }
+  if (parser.seenval('S')) { report = false; const float v = parser.value_float(); sn_settings.swap_length = constrain(v, 0, 500); }
+  if (parser.seenval('P')) { report = false; const int16_t v = parser.value_int(); sn_settings.prime_speed = constrain(v, 10, 5400); }
+  if (parser.seenval('R')) { report = false; const int16_t v = parser.value_int(); sn_settings.retract_speed = constrain(v, 10, 5400); }
 
   if (report) M217_report();
 
