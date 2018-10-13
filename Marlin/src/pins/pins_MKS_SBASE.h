@@ -189,7 +189,7 @@
  * definitions control this feature:
  */
 //#define USB_SD_DISABLED
-#define USB_SD_ONBOARD
+#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
 
 /*
  * There are a number of configurations available for the SBase SD card reader.
@@ -198,11 +198,11 @@
  * The onboard SD card can be used and optionally shared with a PC via USB.
  */
 
-//#define SBASE_SD_CUSTOM_CABLE // Use a custom cable to access the SD
-//#define SBASE_SD_LCD          // Use the SD drive attached to the LCD
-#define SBASE_SD_ONBOARD        // Use the SD drive on the control board
+//#define LPC_SD_CUSTOM_CABLE // Use a custom cable to access the SD
+//#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
+#define LPC_SD_ONBOARD        // Marlin uses the SD drive attached to the control board
 
-#ifdef SBASE_SD_CUSTOM_CABLE
+#ifdef LPC_SD_CUSTOM_CABLE
   /**
    * A custom cable is needed. See the README file in the
    * Marlin\src\config\examples\Mks\Sbase directory
@@ -225,11 +225,10 @@
                             // selected pins are not on a hardware SPI controller
 #endif
 
-#ifdef SBASE_SD_LCD
+#ifdef LPC_SD_LCD
   // use standard cable and header, SPI and SD detect sre shared with on-board SD card
   // hardware SPI is used for both SD cards. The detect pin is shred between the
   // LCD and onboard SD readers so we disable it.
-  #define SD_DETECT_PIN      P0_27
   #undef SD_DETECT_PIN
   #define SCK_PIN            P0_07
   #define MISO_PIN           P0_08
@@ -238,7 +237,7 @@
   #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
 #endif
 
-#ifdef SBASE_SD_ONBOARD
+#ifdef LPC_SD_ONBOARD
   // The external SD card is not used. Hardware SPI is used to access the card.
   #ifdef USB_SD_ONBOARD
     // When sharing the SD card with a PC we want the menu options to
