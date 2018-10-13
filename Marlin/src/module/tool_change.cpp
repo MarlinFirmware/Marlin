@@ -413,7 +413,6 @@ inline void invalid_extruder_error(const uint8_t e) {
 
       planner.buffer_line(CUR_X, CUR_Y, raised_z, CUR_E, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
       planner.buffer_line(xhome, CUR_Y, raised_z, CUR_E, planner.settings.max_feedrate_mm_s[X_AXIS], active_extruder);
-
       planner.synchronize();
     }
 
@@ -454,7 +453,6 @@ inline void invalid_extruder_error(const uint8_t e) {
       }
     #endif
 
-    // No extra case for HAS_ABL in DUAL_X_CARRIAGE. Does that mean they don't work together?
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -597,10 +595,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             // So we apply the offsets for y and z to the destination here. X cannot have an offset in this mode
             // as it is utilized for X2 home position.
             destination[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][tmp_extruder];
-            destination[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+            destination[Z_AXIS] -= (hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder]) + TOOLCHANGE_PARK_ZLIFT;
           #endif
           // Move back to the original (or tweaked) position
-          do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
+          do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], feedrate_mm_s);
           #if ENABLED(DUAL_X_CARRIAGE)
             active_extruder_parked = false;
           #endif
