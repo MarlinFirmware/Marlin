@@ -391,7 +391,7 @@ inline void invalid_extruder_error(const uint8_t e) {
     const float xhome = x_home_pos(active_extruder);
     if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE
         && IsRunning()
-        && (delayed_move_time || current_position[X_AXIS] != xhome)
+        && (delayed_move_time || current_position[X_AXIS] != xhome) && ! no_move
     ) {
       float raised_z = current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT;
       #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
@@ -413,7 +413,6 @@ inline void invalid_extruder_error(const uint8_t e) {
 
       planner.buffer_line(CUR_X, CUR_Y, raised_z, CUR_E, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
       planner.buffer_line(xhome, CUR_Y, raised_z, CUR_E, planner.settings.max_feedrate_mm_s[X_AXIS], active_extruder);
-      planner.buffer_line(xhome, CUR_Y, CUR_Z,    CUR_E, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
 
       planner.synchronize();
     }
@@ -421,7 +420,7 @@ inline void invalid_extruder_error(const uint8_t e) {
     // Apply Y & Z extruder offset (X offset is used as home pos with Dual X)
     current_position[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][tmp_extruder];
     current_position[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-
+    current_position[Z_AXIS] += TOOLCHANGE_PARK_ZLIFT;
     // Activate the new extruder ahead of calling set_axis_is_at_home!
     active_extruder = tmp_extruder;
 
@@ -443,12 +442,8 @@ inline void invalid_extruder_error(const uint8_t e) {
         inactive_extruder_x_pos = destination[X_AXIS];
         break;
       case DXC_AUTO_PARK_MODE:
-        // record raised toolhead position for use by unpark
+        // record current raised toolhead position for use by unpark
         COPY(raised_parked_position, current_position);
-        raised_parked_position[Z_AXIS] += TOOLCHANGE_PARK_ZLIFT;
-        #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
-          NOMORE(raised_parked_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
-        #endif
         active_extruder_parked = true;
         delayed_move_time = 0;
         break;
@@ -461,7 +456,6 @@ inline void invalid_extruder_error(const uint8_t e) {
       }
     #endif
 
-    // No extra case for HAS_ABL in DUAL_X_CARRIAGE. Does that mean they don't work together?
   }
 
 #endif // DUAL_X_CARRIAGE
@@ -591,7 +585,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
         // Raise, move, and lower again
         if (safe_to_move && !no_move && IsRunning()) {
-          #if DISABLED(SWITCHING_NOZZLE)
+          #if DISABLED(SWITCHING_NOZZLE) && DISABLED(DUAL_X_CARRIAGE)
             // Do a small lift to avoid the workpiece in the move back (below)
             current_position[Z_AXIS] += 1.0;
             planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
