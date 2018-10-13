@@ -39,15 +39,15 @@ millis_t Power::lastPowerOn;
 
 bool Power::is_power_needed() {
   #if ENABLED(AUTO_POWER_FANS)
-    for (uint8_t i = 0; i < FAN_COUNT; i++) if (fanSpeeds[i] > 0) return true;
+    for (uint8_t i = 0; i < FAN_COUNT; i++) if (fan_speed[i]) return true;
   #endif
 
   #if ENABLED(AUTO_POWER_E_FANS)
-    HOTEND_LOOP() if (thermalManager.autofan_speed[e] > 0) return true;
+    HOTEND_LOOP() if (thermalManager.autofan_speed[e]) return true;
   #endif
 
   #if ENABLED(AUTO_POWER_CONTROLLERFAN) && HAS_CONTROLLER_FAN && ENABLED(USE_CONTROLLER_FAN)
-    if (controllerFanSpeed > 0) return true;
+    if (controllerfan_speed) return true;
   #endif
 
   // If any of the drivers or the bed are enabled...

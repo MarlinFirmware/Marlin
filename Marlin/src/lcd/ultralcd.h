@@ -25,7 +25,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
   void lcd_init();
   bool lcd_detected();
   void lcd_update();
@@ -107,7 +107,8 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
-    extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+    extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
+    extern uint8_t lcd_preheat_fan_speed[2];
 
     #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
       extern bool lcd_external_control;
@@ -207,6 +208,15 @@
     void wait_for_release();
   #endif
 
+#elif ENABLED(EXTENSIBLE_UI)
+  // These functions are defined elsewhere
+  void lcd_setstatus(const char* const message, const bool persist=false);
+  void lcd_setstatusPGM(const char* const message, const int8_t level=0);
+  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
+  void lcd_reset_status();
+  void lcd_refresh();
+  void lcd_reset_alert_level();
+  bool lcd_hasstatus();
 #else // MALYAN_LCD or no LCD
 
   constexpr bool lcd_wait_for_move = false;
@@ -278,7 +288,7 @@
   void lcd_reselect_last_file();
 #endif
 
-#if ENABLED(ULTIPANEL) && ENABLED(SDSUPPORT)
+#if (ENABLED(EXTENSIBLE_UI) || ENABLED(ULTIPANEL)) && ENABLED(SDSUPPORT)
   extern bool abort_sd_printing;
 #else
   constexpr bool abort_sd_printing = false;

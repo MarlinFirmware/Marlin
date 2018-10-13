@@ -31,8 +31,8 @@
   #include "../../module/printcounter.h"
 #endif
 
-#if ENABLED(PRINTER_EVENT_LEDS)
-  #include "../../feature/leds/leds.h"
+#if ENABLED(SINGLENOZZLE)
+  #include "../../module/tool_change.h"
 #endif
 
 /**
@@ -44,12 +44,12 @@ void GcodeSuite::M104() {
 
   const uint8_t e = target_extruder;
 
-  #if ENABLED(SINGLENOZZLE)
-    if (e != active_extruder) return;
-  #endif
-
   if (parser.seenval('S')) {
     const int16_t temp = parser.value_celsius();
+    #if ENABLED(SINGLENOZZLE)
+      singlenozzle_temp[e] = temp;
+      if (e != active_extruder) return;
+    #endif
     thermalManager.setTargetHotend(temp, e);
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -85,14 +85,14 @@ void GcodeSuite::M109() {
   if (get_target_extruder_from_command()) return;
   if (DEBUGGING(DRYRUN)) return;
 
-  #if ENABLED(SINGLENOZZLE)
-    if (target_extruder != active_extruder) return;
-  #endif
-
   const bool no_wait_for_cooling = parser.seenval('S'),
              set_temp = no_wait_for_cooling || parser.seenval('R');
   if (set_temp) {
     const int16_t temp = parser.value_celsius();
+    #if ENABLED(SINGLENOZZLE)
+      singlenozzle_temp[target_extruder] = temp;
+      if (target_extruder != active_extruder) return;
+    #endif
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -115,13 +115,8 @@ void GcodeSuite::M109() {
     #endif
 
     #if ENABLED(ULTRA_LCD)
-      const bool heating = thermalManager.isHeatingHotend(target_extruder);
-      if (heating || !no_wait_for_cooling)
-        #if HOTENDS > 1
-          lcd_status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), target_extruder + 1);
-        #else
-          lcd_setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
-        #endif
+      if (thermalManager.isHeatingHotend(target_extruder) || !no_wait_for_cooling)
+        thermalManager.set_heating_message(target_extruder);
     #endif
   }
 

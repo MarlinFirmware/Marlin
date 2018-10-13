@@ -160,6 +160,8 @@
 #define MSG_LOAD_EEPROM                     _UxGT("Konfig. laden")
 #define MSG_RESTORE_FAILSAFE                _UxGT("Standardwerte laden")
 #define MSG_INIT_EEPROM                     _UxGT("Werkseinstellungen")
+#define MSG_SD_UPDATE                       _UxGT("SD Update")
+#define MSG_RESET_PRINTER                   _UxGT("Drucker neustarten")
 #define MSG_REFRESH                         _UxGT("Aktualisieren")
 #define MSG_WATCH                           _UxGT("Info")
 #define MSG_PREPARE                         _UxGT("Vorbereitung")

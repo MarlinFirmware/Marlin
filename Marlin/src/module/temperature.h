@@ -48,6 +48,35 @@
   #define HOTEND_INDEX  e
 #endif
 
+// PID storage
+typedef struct { float Kp, Ki, Kd;     } PID_t;
+typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
+#if ENABLED(PID_EXTRUSION_SCALING)
+  typedef PIDC_t hotend_pid_t;
+#else
+  typedef PID_t hotend_pid_t;
+#endif
+
+#define DUMMY_PID_VALUE 3000.0f
+
+#if ENABLED(PIDTEMP)
+  #define _PID_Kp(H) Temperature::pid[H].Kp
+  #define _PID_Ki(H) Temperature::pid[H].Ki
+  #define _PID_Kd(H) Temperature::pid[H].Kd
+  #if ENABLED(PID_EXTRUSION_SCALING)
+    #define _PID_Kc(H) Temperature::pid[H].Kc
+  #else
+    #define _PID_Kc(H) 1
+  #endif
+#else
+  #define _PID_Kp(H) DUMMY_PID_VALUE
+  #define _PID_Ki(H) DUMMY_PID_VALUE
+  #define _PID_Kd(H) DUMMY_PID_VALUE
+  #define _PID_Kc(H) 1
+#endif
+
+#define PID_PARAM(F,H) _PID_##F(H)
+
 /**
  * States for ADC reading in the ISR
  */
@@ -123,7 +152,7 @@ class Temperature {
     static uint8_t soft_pwm_amount[HOTENDS];
 
     #if ENABLED(AUTO_POWER_E_FANS)
-      static int16_t autofan_speed[HOTENDS];
+      static uint8_t autofan_speed[HOTENDS];
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
@@ -132,25 +161,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PIDTEMP)
-
-      #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-
-        static float Kp[HOTENDS], Ki[HOTENDS], Kd[HOTENDS];
-        #if ENABLED(PID_EXTRUSION_SCALING)
-          static float Kc[HOTENDS];
-        #endif
-        #define PID_PARAM(param, h) Temperature::param[h]
-
-      #else
-
-        static float Kp, Ki, Kd;
-        #if ENABLED(PID_EXTRUSION_SCALING)
-          static float Kc;
-        #endif
-        #define PID_PARAM(param, h) Temperature::param
-
-      #endif // PID_PARAMS_PER_HOTEND
-
+      static hotend_pid_t pid[HOTENDS];
     #endif
 
     #if HAS_HEATED_BED
@@ -158,7 +169,7 @@ class Temperature {
       static int16_t current_temperature_bed_raw, target_temperature_bed;
       static uint8_t soft_pwm_amount_bed;
       #if ENABLED(PIDTEMPBED)
-        static float bedKp, bedKi, bedKd;
+        static PID_t bed_pid;
       #endif
     #endif
 
@@ -210,21 +221,11 @@ class Temperature {
     #endif
 
     #if ENABLED(PIDTEMP)
-      static float temp_iState[HOTENDS],
-                   temp_dState[HOTENDS],
-                   pTerm[HOTENDS],
-                   iTerm[HOTENDS],
-                   dTerm[HOTENDS];
-
       #if ENABLED(PID_EXTRUSION_SCALING)
-        static float cTerm[HOTENDS];
         static long last_e_position;
         static long lpq[LPQ_MAX_LEN];
         static int lpq_ptr;
       #endif
-
-      static float pid_error[HOTENDS];
-      static bool pid_reset[HOTENDS];
     #endif
 
     // Init min and max temp with extreme values to prevent false errors during startup
@@ -239,14 +240,7 @@ class Temperature {
         static uint16_t watch_target_bed_temp;
         static millis_t watch_bed_next_ms;
       #endif
-      #if ENABLED(PIDTEMPBED)
-        static float temp_iState_bed,
-                     temp_dState_bed,
-                     pTerm_bed,
-                     iTerm_bed,
-                     dTerm_bed,
-                     pid_error_bed;
-      #else
+      #if DISABLED(PIDTEMPBED)
         static millis_t next_bed_check_ms;
       #endif
       #if HEATER_IDLE_HANDLER
@@ -527,6 +521,7 @@ class Temperature {
                   babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
                   break;
                 case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
+                default:
                   babystepsTodo[NORMAL_AXIS] += distance;
                   break;
               }
@@ -615,6 +610,10 @@ class Temperature {
       #endif
     #endif
 
+    #if ENABLED(ULTRA_LCD)
+      static void set_heating_message(const uint8_t e);
+    #endif
+
   private:
 
     #if ENABLED(FAST_PWM_FAN)
@@ -658,7 +657,6 @@ class Temperature {
       #endif
 
     #endif // THERMAL_PROTECTION
-
 };
 
 extern Temperature thermalManager;

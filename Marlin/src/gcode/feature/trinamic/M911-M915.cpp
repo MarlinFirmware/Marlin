@@ -161,10 +161,10 @@
  */
 #if ENABLED(HYBRID_THRESHOLD)
   void GcodeSuite::M913() {
-    #define TMC_SAY_PWMTHRS(A,Q) tmc_get_pwmthrs(stepper##Q, planner.axis_steps_per_mm[_AXIS(A)])
-    #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, value, planner.axis_steps_per_mm[_AXIS(A)])
-    #define TMC_SAY_PWMTHRS_E(E) do{ constexpr uint8_t extruder = E; tmc_get_pwmthrs(stepperE##E, planner.axis_steps_per_mm[E_AXIS_N]); UNUSED(extruder); }while(0)
-    #define TMC_SET_PWMTHRS_E(E) do{ constexpr uint8_t extruder = E; tmc_set_pwmthrs(stepperE##E, value, planner.axis_steps_per_mm[E_AXIS_N]); UNUSED(extruder); }while(0)
+    #define TMC_SAY_PWMTHRS(A,Q) tmc_get_pwmthrs(stepper##Q, planner.settings.axis_steps_per_mm[_AXIS(A)])
+    #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, value, planner.settings.axis_steps_per_mm[_AXIS(A)])
+    #define TMC_SAY_PWMTHRS_E(E) tmc_get_pwmthrs(stepperE##E, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
+    #define TMC_SET_PWMTHRS_E(E) tmc_set_pwmthrs(stepperE##E, value, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
 
     bool report = true;
     const uint8_t index = parser.byteval('I');

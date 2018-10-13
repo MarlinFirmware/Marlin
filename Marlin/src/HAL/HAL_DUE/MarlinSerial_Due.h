@@ -170,16 +170,15 @@ struct MarlinSerialCfg {
   static constexpr bool RX_FRAMING_ERRORS = bSERIAL_STATS_RX_FRAMING_ERRORS;
   static constexpr bool MAX_RX_QUEUED     = bSERIAL_STATS_MAX_RX_QUEUED;
 };
-  
+
 #if SERIAL_PORT >= 0
 
   extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
-  
+
 #endif // SERIAL_PORT >= 0
 
 #ifdef SERIAL_PORT_2
 
   extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
-  
-#endif
 
+#endif

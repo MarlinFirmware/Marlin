@@ -52,7 +52,7 @@ typedef struct {
   #endif
 
   #if FAN_COUNT
-    int16_t fanSpeeds[FAN_COUNT];
+    uint8_t fan_speed[FAN_COUNT];
   #endif
 
   #if HAS_LEVELING

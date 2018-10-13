@@ -273,12 +273,12 @@ float zprobe_zoffset; // Initialized by settings.load()
       fans_paused = p;
       if (p)
         for (uint8_t x = 0; x < FAN_COUNT; x++) {
-          paused_fanSpeeds[x] = fanSpeeds[x];
-          fanSpeeds[x] = 0;
+          paused_fan_speed[x] = fan_speed[x];
+          fan_speed[x] = 0;
         }
       else
         for (uint8_t x = 0; x < FAN_COUNT; x++)
-          fanSpeeds[x] = paused_fanSpeeds[x];
+          fan_speed[x] = paused_fan_speed[x];
     }
   }
 

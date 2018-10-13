@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * feature/pause.h - Pause feature support functions
  * This may be combined with related G-codes if features are consolidated.
  */
-
-#ifndef _PAUSE_H_
-#define _PAUSE_H_
 
 #include "../libs/nozzle.h"
 
@@ -62,8 +60,7 @@ enum AdvancedPauseMenuResponse : char {
 
 extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 
-extern float filament_change_unload_length[EXTRUDERS],
-             filament_change_load_length[EXTRUDERS];
+extern fil_change_settings_t fc_settings[EXTRUDERS];
 
 extern uint8_t did_pause_print;
 
@@ -77,6 +74,8 @@ extern uint8_t did_pause_print;
   #define DXC_PASS
 #endif
 
+void do_pause_e_move(const float &length, const float &fr);
+
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
 
 void wait_for_filament_reload(const int8_t max_beep_count=0 DXC_PARAMS);
@@ -87,5 +86,3 @@ bool load_filament(const float &slow_load_length=0, const float &fast_load_lengt
                           const bool pause_for_user=false, const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT DXC_PARAMS);
 
 bool unload_filament(const float &unload_length, const bool show_lcd=false, const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT);
-
-#endif // _PAUSE_H_

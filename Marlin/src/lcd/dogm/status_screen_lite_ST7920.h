@@ -94,6 +94,7 @@ void ST7920_Lite_Status_Screen::write_number(const int16_t value, const uint8_t 
     case 3: fmt = PSTR("%3d"); break;
     case 2: fmt = PSTR("%2d"); break;
     case 1: fmt = PSTR("%1d"); break;
+    default: return;
   }
   sprintf_P(str, fmt, value);
   write_str(str);
@@ -710,7 +711,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
   // them only during blinks we gain a bit of stability.
   const bool       blink             = lcd_blink();
   const uint16_t   feedrate_perc     = feedrate_percentage;
-  const uint8_t    fan_speed         = ((fanSpeeds[0] + 1) * 100) / 256;
+  const uint8_t    fs                = (((uint16_t)fan_speed[0] + 1) * 100) / 256;
   const int16_t    extruder_1_target = thermalManager.degTargetHotend(0);
   #if HOTENDS > 1
     const int16_t  extruder_2_target = thermalManager.degTargetHotend(1);
@@ -719,7 +720,7 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
     const int16_t  bed_target        = thermalManager.degTargetBed();
   #endif
   static uint16_t last_checksum = 0;
-  const uint16_t checksum = blink ^ feedrate_perc ^ fan_speed ^ extruder_1_target
+  const uint16_t checksum = blink ^ feedrate_perc ^ fs ^ extruder_1_target
     #if HOTENDS > 1
       ^ extruder_2_target
     #endif
@@ -737,7 +738,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     const bool       blink             = lcd_blink();
     const duration_t elapsed           = print_job_timer.duration();
     const uint16_t   feedrate_perc     = feedrate_percentage;
-    const uint8_t    fan_speed         = ((fanSpeeds[0] + 1) * 100) / 256;
+    const uint8_t    fs                = (((uint16_t)fan_speed[0] + 1) * 100) / 256;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
     #if HOTENDS > 1
@@ -756,12 +757,12 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #if HAS_HEATED_BED
       draw_bed_temp(bed_temp, bed_target, forceUpdate);
     #endif
-    draw_fan_speed(fan_speed);
+    draw_fan_speed(fs);
     draw_print_time(elapsed);
     draw_feedrate_percentage(feedrate_perc);
 
     // Update the fan and bed animations
-    if (fan_speed > 0) draw_fan_icon(blink);
+    if (fs) draw_fan_icon(blink);
     #if HAS_HEATED_BED
       if (bed_target > 0)
         draw_heat_icon(blink, true);
@@ -879,7 +880,7 @@ void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY) || ENABLED(SDSUPPORT)
 
     #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
-      uint8_t progress_bar_percent; //=0
+      uint8_t progress_bar_percent = 0;
     #endif
 
     #if ENABLED(SDSUPPORT)

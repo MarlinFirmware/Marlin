@@ -19,11 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifndef TOOL_CHANGE_H
-#define TOOL_CHANGE_H
-
-#include "../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
 
 #if DO_SWITCH_EXTRUDER
   void move_extruder_servo(const uint8_t e);
@@ -50,10 +48,20 @@
 
 #endif // PARKING_EXTRUDER
 
+#if ENABLED(SINGLENOZZLE)
+  typedef struct {
+    float swap_length;
+    int16_t prime_speed, retract_speed;
+  } singlenozzle_settings_t;
+  extern singlenozzle_settings_t sn_settings;
+  extern uint16_t singlenozzle_temp[EXTRUDERS];
+  #if FAN_COUNT > 0
+    extern uint8_t singlenozzle_fan_speed[EXTRUDERS];
+  #endif
+#endif
+
 /**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
-
-#endif // TOOL_CHANGE_H

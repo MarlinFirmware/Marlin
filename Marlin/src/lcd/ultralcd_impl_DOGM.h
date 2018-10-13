@@ -225,7 +225,7 @@ static void lcd_setFont(const char font_nr) {
 
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
-    void lcd_custom_bootscreen() {
+    FORCE_INLINE void draw_custom_bootscreen(const u8g_pgm_uint8_t * const bmp, const bool erase=true) {
       constexpr u8g_uint_t left = (LCD_PIXEL_WIDTH  - (CUSTOM_BOOTSCREEN_BMPWIDTH)) / 2,
                            top = (LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2;
       #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
@@ -236,16 +236,31 @@ static void lcd_setFont(const char font_nr) {
       do {
         u8g.drawBitmapP(
           left, top,
-          CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, custom_start_bmp
+          CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp
         );
         #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
-          u8g.setColorIndex(1);
-          if (top) u8g.drawBox(0, 0, LCD_PIXEL_WIDTH, top);
-          if (left) u8g.drawBox(0, top, left, CUSTOM_BOOTSCREEN_BMPHEIGHT);
-          if (right < LCD_PIXEL_WIDTH) u8g.drawBox(right, top, LCD_PIXEL_WIDTH - right, CUSTOM_BOOTSCREEN_BMPHEIGHT);
-          if (bottom < LCD_PIXEL_HEIGHT) u8g.drawBox(0, bottom, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT - bottom);
+          if (erase) {
+            u8g.setColorIndex(1);
+            if (top) u8g.drawBox(0, 0, LCD_PIXEL_WIDTH, top);
+            if (left) u8g.drawBox(0, top, left, CUSTOM_BOOTSCREEN_BMPHEIGHT);
+            if (right < LCD_PIXEL_WIDTH) u8g.drawBox(right, top, LCD_PIXEL_WIDTH - right, CUSTOM_BOOTSCREEN_BMPHEIGHT);
+            if (bottom < LCD_PIXEL_HEIGHT) u8g.drawBox(0, bottom, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT - bottom);
+          }
+        #else
+          UNUSED(erase);
         #endif
       } while (u8g.nextPage());
+    }
+
+    void lcd_custom_bootscreen() {
+      #if ENABLED(ANIMATED_BOOTSCREEN)
+        LOOP_L_N(f, COUNT(custom_bootscreen_animation)) {
+          if (f) safe_delay(CUSTOM_BOOTSCREEN_FRAME_TIME);
+          draw_custom_bootscreen((u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[f]), f == 0);
+        }
+      #else
+        draw_custom_bootscreen(custom_start_bmp);
+      #endif
       safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
     }
 

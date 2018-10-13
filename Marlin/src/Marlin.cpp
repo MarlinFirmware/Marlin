@@ -152,6 +152,10 @@
   #include "feature/controllerfan.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "lcd/extensible_ui/ui_api.h"
+#endif
+
 bool Running = true;
 
 /**
@@ -170,14 +174,13 @@ uint8_t axis_homed, axis_known_position; // = 0
 #endif
 
 #if FAN_COUNT > 0
-  int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  uint8_t fan_speed[FAN_COUNT] = { 0 };
   #if ENABLED(EXTRA_FAN_SPEED)
-    int16_t old_fanSpeeds[FAN_COUNT],
-            new_fanSpeeds[FAN_COUNT];
+    uint8_t old_fan_speed[FAN_COUNT], new_fan_speed[FAN_COUNT];
   #endif
   #if ENABLED(PROBING_FANS_OFF)
     bool fans_paused; // = false;
-    int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
+    uint8_t paused_fan_speed[FAN_COUNT] = { 0 };
   #endif
 #endif
 
@@ -256,6 +259,9 @@ void setup_powerhold() {
 /**
  * Sensitive pin test for M42, M226
  */
+
+#include "pins/sensitive_pins.h"
+
 bool pin_is_protected(const pin_t pin) {
   static const pin_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
   for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {
@@ -610,7 +616,9 @@ void kill(PGM_P lcd_msg) {
   thermalManager.disable_all_heaters();
   disable_all_steppers();
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(EXTENSIBLE_UI)
+    UI::onPrinterKilled(lcd_msg);
+  #elif ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
@@ -739,7 +747,7 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
-  #if HAS_DRIVER(TMC2130)
+  #if TMC_HAS_SPI
     #if DISABLED(TMC_USE_SW_SPI)
       SPI.begin();
     #endif
@@ -959,7 +967,7 @@ void loop() {
       card.checkautostart();
     #endif
 
-    #if ENABLED(SDSUPPORT) && ENABLED(ULTIPANEL)
+    #if ENABLED(SDSUPPORT) && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
       if (abort_sd_printing) {
         abort_sd_printing = false;
         card.stopSDPrint(
@@ -972,14 +980,14 @@ void loop() {
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
         #if FAN_COUNT > 0
-          for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+          for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
         #endif
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
           card.removeJobRecoveryFile();
         #endif
       }
-    #endif // SDSUPPORT && ULTIPANEL
+    #endif // SDSUPPORT && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
 
     if (commands_in_queue < BUFSIZE) get_available_commands();
     advance_command_queue();

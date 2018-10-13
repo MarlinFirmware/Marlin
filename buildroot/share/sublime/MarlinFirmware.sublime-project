@@ -12,7 +12,7 @@
 				".vscode"
 			],
 			"binary_file_patterns":
-			[ "*.png", "*.jpg", "*.jpeg", "*.bdf", "*.patch", "avrdude_5.*", "*.svg" ],
+			[ "*.psd", "*.png", "*.jpg", "*.jpeg", "*.bdf", "*.patch", "avrdude_5.*", "*.svg" ],
 			"file_exclude_patterns":
 			[
 				"Marlin/platformio.ini",

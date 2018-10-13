@@ -687,6 +687,12 @@
 #ifndef MSG_INIT_EEPROM
   #define MSG_INIT_EEPROM                     _UxGT("Initialize EEPROM")
 #endif
+#ifndef MSG_SD_UPDATE
+  #define MSG_SD_UPDATE                       _UxGT("SD Update")
+#endif
+#ifndef MSG_RESET_PRINTER
+  #define MSG_RESET_PRINTER                   _UxGT("Reset Printer")
+#endif
 #ifndef MSG_REFRESH
   #define MSG_REFRESH                         _UxGT("Refresh")
 #endif
@@ -767,6 +773,18 @@
 #endif
 #ifndef MSG_AUTORETRACT
   #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
+#endif
+#ifndef MSG_FILAMENT_SWAP_LENGTH
+  #define MSG_FILAMENT_SWAP_LENGTH            _UxGT("Retract Distance")
+#endif
+#ifndef MSG_SINGLENOZZLE_TOOL_CHANGE
+  #define MSG_SINGLENOZZLE_TOOL_CHANGE        _UxGT("Tool Change")
+#endif
+#ifndef MSG_SINGLENOZZLE_PRIME_SPD
+  #define MSG_SINGLENOZZLE_PRIME_SPD          _UxGT("Prime Speed")
+#endif
+#ifndef MSG_SINGLENOZZLE_RETRACT_SPD
+  #define MSG_SINGLENOZZLE_RETRACT_SPD        _UxGT("Retract Speed")
 #endif
 #ifndef MSG_FILAMENTCHANGE
   #define MSG_FILAMENTCHANGE                  _UxGT("Change filament")

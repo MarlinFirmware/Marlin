@@ -254,7 +254,7 @@
       static void printNumber(unsigned long, const uint8_t);
       static void printFloat(double, uint8_t);
   };
-  
+
   template <uint8_t serial>
   struct MarlinSerialCfg {
     static constexpr int PORT               = serial;
@@ -272,7 +272,7 @@
   #ifdef SERIAL_PORT_2
 
     extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
-    
+
   #endif
 
 #endif // !USBCON

@@ -82,9 +82,9 @@ extern uint8_t commands_in_queue, cmd_queue_index_r;
         #endif
 
         #if FAN_COUNT
-          SERIAL_PROTOCOLPGM("fanSpeeds: ");
+          SERIAL_PROTOCOLPGM("fan_speed: ");
           for (int8_t i = 0; i < FAN_COUNT; i++) {
-            SERIAL_PROTOCOL(job_recovery_info.fanSpeeds[i]);
+            SERIAL_PROTOCOL(job_recovery_info.fan_speed[i]);
             if (i < FAN_COUNT - 1) SERIAL_CHAR(',');
           }
           SERIAL_EOL();
@@ -264,7 +264,7 @@ void save_job_recovery_info() {
     #endif
 
     #if FAN_COUNT
-      COPY(job_recovery_info.fanSpeeds, fanSpeeds);
+      COPY(job_recovery_info.fan_speed, fan_speed);
     #endif
 
     #if HAS_LEVELING

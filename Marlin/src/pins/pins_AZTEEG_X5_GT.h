@@ -58,22 +58,37 @@
 #define X_STEP_PIN         P2_01
 #define X_DIR_PIN          P0_11
 #define X_ENABLE_PIN       P0_10
+#ifndef X_CS_PIN
+  #define X_CS_PIN         P0_10 // BSD2660 default
+#endif
 
 #define Y_STEP_PIN         P2_02
 #define Y_DIR_PIN          P0_20
 #define Y_ENABLE_PIN       P0_19
+#ifndef Y_CS_PIN
+  #define Y_CS_PIN         P0_19 // BSD2660 default
+#endif
 
 #define Z_STEP_PIN         P2_03
 #define Z_DIR_PIN          P0_22
 #define Z_ENABLE_PIN       P0_21
+#ifndef Z_CS_PIN
+  #define Z_CS_PIN         P0_21 // BSD2660 default
+#endif
 
 #define E0_STEP_PIN        P2_00
 #define E0_DIR_PIN         P0_05
 #define E0_ENABLE_PIN      P0_04
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN        P0_04 // BSD2660 default
+#endif
 
 #define E1_STEP_PIN        P2_08
 #define E1_DIR_PIN         P2_13
 #define E1_ENABLE_PIN      P4_29
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN        P4_29 // BSD2660 default
+#endif
 
 //
 // Temperature Sensors

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+#
+# Build tests for Teensy 3.5/3.6 (ARM Cortex-M4)
+#
 
 # exit on first failure
 set -e
@@ -6,10 +9,8 @@ set -e
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
 cp Marlin/src/pins/pins_RAMPS.h Marlin/src/pins/pins_RAMPS.h.backup
-#
-# Test Teensy3.5 with default config
-#
 exec_test $1 $2 "Teensy3.5 with default config"
+
 #
 # Test as many features together as possible
 #
@@ -26,7 +27,8 @@ opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT \
 opt_enable_adv ADVANCED_PAUSE_FEATURE LCD_INFO_MENU ARC_SUPPORT BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES SDCARD_SORT_ALPHA PARK_HEAD_ON_PAUSE
 opt_set_adv I2C_SLAVE_ADDRESS 63
 opt_set GRID_MAX_POINTS_X 16
-exec_test $1 $2 "As many features together as possible"
+exec_test $1 $2 "Teensy3.5 with many features"
+
 #
 # Test a Sled Z Probe with Linear leveling
 #
@@ -34,6 +36,7 @@ restore_configs
 opt_enable EEPROM_SETTINGS \
            Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE
 exec_test $1 $2 "Sled Z Probe with Linear leveling"
+
 #
 # Test a Servo Probe
 #
@@ -48,12 +51,14 @@ exec_test $1 $2 "Sled Z Probe with Linear leveling"
 # opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS
 # opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES
 # exec_test $1 $2 "...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES"
+
 #
 # Test MESH_BED_LEVELING feature, with LCD
 #
 restore_configs
 opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN MANUAL_BED_LEVELING ULTIMAKERCONTROLLER
 exec_test $1 $2 "MESH_BED_LEVELING feature, with LCD"
+
 #
 # Mixing Extruder
 #
@@ -61,6 +66,7 @@ restore_configs
 opt_enable MIXING_EXTRUDER DIRECT_MIXING_IN_G1
 opt_set MIXING_STEPPERS 2
 exec_test $1 $2 "Mixing Extruder"
+
 #
 # Test SWITCHING_EXTRUDER
 #
@@ -75,12 +81,14 @@ exec_test $1 $2 "Mixing Extruder"
 restore_configs
 opt_enable COREXY
 exec_test $1 $2 "COREXY"
+
 #
 # Enable COREXZ
 #
 restore_configs
 opt_enable COREXZ
 exec_test $1 $2 "COREXZ"
+
 #
 # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
 #

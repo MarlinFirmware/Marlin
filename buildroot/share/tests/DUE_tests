@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+#
+# Build tests for DUE (Atmel SAM3X8E ARM Cortex-M3)
+#
 
 # exit on first failure
 set -e

@@ -31,7 +31,7 @@ void fastDigitalWrite(uint8_t pin, bool value) {
  * @return value read
  */
 static inline __attribute__((always_inline))
-bool fastDigitalRead(uint8_t pin){
+bool fastDigitalRead(uint8_t pin) {
   return g_APinDescription[pin].pPort->PIO_PDSR & g_APinDescription[pin].ulPin;
 }
 //------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ bool fastDigitalRead(uint8_t pin){
  * @param[in] level value to write
  */
 static inline __attribute__((always_inline))
-void fastDigitalWrite(uint8_t pin, bool value){
+void fastDigitalWrite(uint8_t pin, bool value) {
   if (value)
     g_APinDescription[pin].pPort->PIO_SODR = g_APinDescription[pin].ulPin;
   else
