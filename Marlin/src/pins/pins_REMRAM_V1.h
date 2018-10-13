@@ -124,3 +124,10 @@
 #define BTN_EN1            54   // BTN_EN1
 #define BTN_EN2            55   // BTN_EN2
 #define BTN_ENC            47   // BTN_ENC
+
+//
+// Timers
+//
+
+#define STEP_TIMER 2
+#define TEMP_TIMER_IRQ_PRIO 6

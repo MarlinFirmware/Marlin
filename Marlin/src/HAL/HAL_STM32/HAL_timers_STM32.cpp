@@ -79,7 +79,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
         TimerHandle[timer_num].timer = STEP_TIMER_DEV;
         TimerHandle[timer_num].irqHandle = Step_Handler;
         TimerHandleInit(&TimerHandle[timer_num], (((HAL_TIMER_RATE) / step_prescaler) / frequency) - 1, step_prescaler);
-        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, 6, 0);
+        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, STEP_TIMER_IRQ_PRIO, 0);
         break;
 
       case TEMP_TIMER_NUM:
@@ -87,7 +87,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
         TimerHandle[timer_num].timer = TEMP_TIMER_DEV;
         TimerHandle[timer_num].irqHandle = Temp_Handler;
         TimerHandleInit(&TimerHandle[timer_num], (((HAL_TIMER_RATE) / temp_prescaler) / frequency) - 1, temp_prescaler);
-        HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, 2, 0);
+        HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, TEMP_TIMER_IRQ_PRIO, 0);
         break;
     }
     timers_initialised[timer_num] = true;
