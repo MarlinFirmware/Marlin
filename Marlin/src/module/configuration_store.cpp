@@ -1313,6 +1313,9 @@ void MarlinSettings::postprocess() {
 
         #if ENABLED(FWRETRACT)
           EEPROM_READ(fwretract.settings);
+        #else
+          fwretract_settings_t fwretract_settings;
+          EEPROM_READ(fwretract_settings);
         #endif
         #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
           EEPROM_READ(fwretract.autoretract_enabled);
