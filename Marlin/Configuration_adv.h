@@ -1598,9 +1598,9 @@
  * CNC G-code options
  * Support CNC-style G-code dialects used by laser cutters, drawing machine cams, etc.
  */
-#define PAREN_COMMENTS      // Support for parentheses-delimited comments
-#define GCODE_MOTION_MODES  // Remember the motion mode (G0 G1 G2 G3 G5 G38.X) and apply for X Y Z E F, etc.
-#define G0_FEEDRATE         // Manages a G0 specific feedrate, and apply it to any G0 move. Any F parameter into a G0 command sets the feedrate for later commands (uses 4bytes of SRAM)
+//#define PAREN_COMMENTS      // Support for parentheses-delimited comments
+//#define GCODE_MOTION_MODES  // Remember the motion mode (G0 G1 G2 G3 G5 G38.X) and apply for X Y Z E F, etc.
+//#define G0_FEEDRATE         // Manages a G0 specific feedrate, and apply it to any G0 move. Any F parameter into a G0 command sets the feedrate for later commands (uses 4bytes of SRAM)
 #if ENABLED(G0_FEEDRATE)
   #define DEFAULT_MMM_FOR_G0 3000.0
 #endif 
