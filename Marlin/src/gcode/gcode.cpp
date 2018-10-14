@@ -194,7 +194,7 @@ void GcodeSuite::process_parsed_command(
                       );
                       break;
 
-      #if ENABLED(ARC_SUPPORT) && DISABLED(IS_SCARA)
+      #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
         case 2: case 3: G2_G3(parser.codenum == 2); break;        // G2: CW ARC, G3: CCW ARC
       #endif
 
