@@ -1613,13 +1613,14 @@
 /**
  * CNC G-code options
  * Support CNC-style G-code dialects used by laser cutters, drawing machine cams, etc.
- * Please note that G0 feedrates should be used with care (if at all) for 3D printing where high feedrates can be cause of ringing and bad printing quality
+ * Note that G0 feedrates should be used with care for 3D printing (if used at all).
+ * High feedrates may cause ringing and harm print quality.
  */
 //#define PAREN_COMMENTS      // Support for parentheses-delimited comments
 //#define GCODE_MOTION_MODES  // Remember the motion mode (G0 G1 G2 G3 G5 G38.X) and apply for X Y Z E F, etc.
-//#define G0_FEEDRATE         // Manages a G0 specific feedrate, and apply it to any G0 move. Any F parameter into a G0 command sets the feedrate for later commands (uses 4bytes of SRAM) 
+//#define G0_FEEDRATE         // Add a G0-specific sticky feedrate, applied to all subsequent G0 moves.
 #if ENABLED(G0_FEEDRATE)
-  #define DEFAULT_MMM_FOR_G0 3000.0
+  #define DEFAULT_G0_FEEDRATE 3000.0  // (mm/m)
 #endif 
 
 /**

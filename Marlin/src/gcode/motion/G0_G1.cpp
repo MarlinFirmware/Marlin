@@ -38,7 +38,7 @@
 extern float destination[XYZE];
 
 #if ENABLED(G0_FEEDRATE)
-float saved_g0_feedrate_mm_s =  MMM_TO_MMS(DEFAULT_MMM_FOR_G0);
+  float saved_g0_feedrate_mm_s =  MMM_TO_MMS(DEFAULT_G0_FEEDRATE);
 #endif
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
@@ -62,12 +62,13 @@ void GcodeSuite::G0_G1(
   if (IsRunning() && G0_G1_CONDITION) {
     
     #if ENABLED(G0_FEEDRATE)
-    if(fast_move) {
-      // Save standard feedrate before setting feedrate to fast/g0
-      saved_g1_feedrate_mm_s = feedrate_mm_s;
-      feedrate_mm_s = saved_g0_feedrate_mm_s;
-    }
+      if (fast_move) {
+        // Save standard feedrate before setting feedrate to fast/g0
+        saved_g1_feedrate_mm_s = feedrate_mm_s;
+        feedrate_mm_s = saved_g0_feedrate_mm_s;
+      }
     #endif
+
     get_destination_from_command(); // For X Y Z E F
 
     #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
@@ -94,11 +95,11 @@ void GcodeSuite::G0_G1(
     #endif
 
     #if ENABLED(G0_FEEDRATE)
-    // save G0 feedrate, and restore standard feedrate as soon as possible 
-    if(fast_move) {
-      saved_g0_feedrate_mm_s = feedrate_mm_s;
-      feedrate_mm_s = saved_g1_feedrate_mm_s;
-    }
+      // save G0 feedrate, and restore standard feedrate as soon as possible 
+      if (fast_move) {
+        saved_g0_feedrate_mm_s = feedrate_mm_s;
+        feedrate_mm_s = saved_g1_feedrate_mm_s;
+      }
     #endif
     
     #if ENABLED(NANODLP_Z_SYNC)
