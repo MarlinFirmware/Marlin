@@ -1313,6 +1313,8 @@ void MarlinSettings::postprocess() {
 
         #if ENABLED(FWRETRACT)
           EEPROM_READ(fwretract.settings);
+        #else
+          for (uint8_t q = sizeof(fwretract_settings_t); q--;) EEPROM_READ(dummyb);
         #endif
         #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
           EEPROM_READ(fwretract.autoretract_enabled);
