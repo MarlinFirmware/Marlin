@@ -67,9 +67,6 @@ void serial_echo_start()  { serialprintPGM(echomagic); }
 void serial_error_start() { serialprintPGM(errormagic); }
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
-
-  #include "enum.h"
-
   void print_xyz(PGM_P prefix, PGM_P suffix, const float x, const float y, const float z) {
     serialprintPGM(prefix);
     SERIAL_CHAR('(');

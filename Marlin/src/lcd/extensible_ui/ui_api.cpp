@@ -330,37 +330,38 @@ namespace UI {
   #endif // ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
   #if HOTENDS > 1
-    float getNozzleOffset_mm(const axis_t axis, uint8_t extruder) {
+    float getNozzleOffset_mm(const axis_t axis, const uint8_t extruder) {
       if (extruder >= HOTENDS) return 0;
       return hotend_offset[axis][extruder];
     }
 
-    void setNozzleOffset_mm(const axis_t axis, uint8_t extruder, float offset) {
+    void setNozzleOffset_mm(const axis_t axis, const uint8_t extruder, const float offset) {
       if (extruder >= HOTENDS) return;
       hotend_offset[axis][extruder] = offset;
     }
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    float getAxisBacklash_mm(const axis_t axis)       {return backlash_distance_mm[axis];}
-    void setAxisBacklash_mm(const axis_t axis, float distance)
-                                                      {backlash_distance_mm[axis] = clamp(distance,0,5);}
+    float getAxisBacklash_mm(const axis_t axis)                       { return backlash_distance_mm[axis]; }
+    void setAxisBacklash_mm(const axis_t axis, const float distance)  { backlash_distance_mm[axis] = clamp(distance, 0, 5); }
 
-    float getBacklashCorrection_percent()             {return backlash_correction*100;}
-    void setBacklashCorrection_percent(float percent) {backlash_correction = clamp(percent, 0, 100)/100;}
+    float getBacklashCorrection_percent()                             { return backlash_correction * 100; }
+    void setBacklashCorrection_percent(const float percent)           { backlash_correction = clamp(percent, 0, 100) / 100; }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      float getBacklashSmoothing_mm()                 {return backlash_smoothing_mm;}
-      void setBacklashSmoothing_mm(float distance)    {backlash_smoothing_mm = clamp(distance,0,999);}
+      float getBacklashSmoothing_mm()                                 { return backlash_smoothing_mm; }
+      void setBacklashSmoothing_mm(const float distance)              { backlash_smoothing_mm = clamp(distance, 0, 999); }
     #endif
   #endif
 
   uint8_t getProgress_percent() {
-    #if ENABLED(SDSUPPORT)
-      return card.percentDone();
-    #else
-      return 0;
-    #endif
+    return
+      #if ENABLED(SDSUPPORT)
+        card.percentDone()
+      #else
+        0
+      #endif
+    ;
   }
 
   uint32_t getProgress_seconds_elapsed() {

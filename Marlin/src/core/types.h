@@ -28,10 +28,16 @@ typedef uint32_t millis_t;
 
 #pragma pack(push, 1) // No padding between fields
 
+//
+// Filament change settings
+//
 typedef struct {
   float unload_length, load_length;
 } fil_change_settings_t;
 
+//
+// FWRETRACT settings
+//
 typedef struct {
   float retract_length,                     // M207 S - G10 Retract length
         retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate

@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifndef __ENUM_H__
-#define __ENUM_H__
+#include "macros.h"
 
 /**
  * Axis indices as enumerated constants
@@ -58,15 +58,13 @@ enum AxisEnum : unsigned char {
 #define LOOP_ABCE(VAR) LOOP_S_LE_N(VAR, A_AXIS, E_AXIS)
 #define LOOP_ABCE_N(VAR) LOOP_S_L_N(VAR, A_AXIS, XYZE_N)
 
-typedef enum {
+enum LinearUnit : unsigned char {
   LINEARUNIT_MM,
   LINEARUNIT_INCH
-} LinearUnit;
+};
 
-typedef enum {
+enum TempUnit : unsigned char {
   TEMPUNIT_C,
   TEMPUNIT_K,
   TEMPUNIT_F
-} TempUnit;
-
-#endif // __ENUM_H__
+};

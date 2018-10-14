@@ -19,14 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifndef _CONDITIONALS_POST_H_
+  #define _CONDITIONALS_POST_H_
+#else
+  #error "Conditionals_post.h should only be included from MarlinConfig.h"
+#endif
 
 /**
  * Conditionals_post.h
  * Defines that depend on configuration but are not editable.
  */
-
-#ifndef CONDITIONALS_POST_H
-#define CONDITIONALS_POST_H
 
 #define AVR_ATmega2560_FAMILY_PLUS_70 ( \
      MB(BQ_ZUM_MEGA_3D)                 \
@@ -1610,5 +1612,3 @@
 #if ENABLED(G29_RETRY_AND_RECOVER)
   #define USE_EXECUTE_COMMANDS_IMMEDIATE
 #endif
-
-#endif // CONDITIONALS_POST_H

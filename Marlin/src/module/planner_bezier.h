@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * planner_bezier.h
@@ -26,9 +27,6 @@
  * Compute and buffer movement commands for Bézier curves
  *
  */
-
-#ifndef PLANNER_BEZIER_H
-#define PLANNER_BEZIER_H
 
 #include "../inc/MarlinConfig.h"
 
@@ -39,5 +37,3 @@ void cubic_b_spline(
               float fr_mm_s,
               uint8_t extruder
             );
-
-#endif // PLANNER_BEZIER_H
