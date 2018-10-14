@@ -89,7 +89,7 @@
   #include "../feature/pause.h"
 #endif
 
-#if ENABLED(SINGLENOZZLE)
+#if EXTRUDERS > 1
   #include "tool_change.h"
   void M217_report(const bool eeprom);
 #endif
@@ -275,8 +275,8 @@ typedef struct SettingsDataStruct {
   //
   // SINGLENOZZLE toolchange values
   //
-  #if ENABLED(SINGLENOZZLE)
-    singlenozzle_settings_t sn_settings;                // M217 S P R
+  #if EXTRUDERS > 1
+    toolchange_settings_t toolchange_settings;                // M217 S P R
   #endif
 
 } SettingsData;
@@ -945,8 +945,8 @@ void MarlinSettings::postprocess() {
     //
 
     #if ENABLED(SINGLENOZZLE)
-      _FIELD_TEST(sn_settings);
-      EEPROM_WRITE(sn_settings);
+      _FIELD_TEST(toolchange_settings);
+      EEPROM_WRITE(toolchange_settings);
     #endif
 
     //
@@ -1573,8 +1573,8 @@ void MarlinSettings::postprocess() {
       // SINGLENOZZLE toolchange values
       //
       #if ENABLED(SINGLENOZZLE)
-        _FIELD_TEST(sn_settings);
-        EEPROM_READ(sn_settings);
+        _FIELD_TEST(toolchange_settings);
+        EEPROM_READ(toolchange_settings);
       #endif
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -1835,13 +1835,16 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif
   #endif
 
+  #if EXTRUDERS > 1
+    toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
+  #endif
+  
   #if ENABLED(SINGLENOZZLE)
-    sn_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
-    sn_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
-    sn_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
-    sn_settings.z_raise = SINGLENOZZLE_TOOLCHANGE_ZRAISE;
+    toolchange_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
+    toolchange_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
+    toolchange_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
     #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-      sn_settings.change_point = SINGLENOZZLE_TOOLCHANGE_XY;
+      toolchange_settings.change_point = SINGLENOZZLE_TOOLCHANGE_XY;
     #endif
   #endif
 

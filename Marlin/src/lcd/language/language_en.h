@@ -777,8 +777,11 @@
 #ifndef MSG_FILAMENT_SWAP_LENGTH
   #define MSG_FILAMENT_SWAP_LENGTH            _UxGT("Retract Distance")
 #endif
-#ifndef MSG_SINGLENOZZLE_TOOL_CHANGE
-  #define MSG_SINGLENOZZLE_TOOL_CHANGE        _UxGT("Tool Change")
+#ifndef MSG_TOOL_CHANGE
+  #define MSG_TOOL_CHANGE                      _UxGT("Tool Change")
+#endif
+#ifndef MSG_TOOL_CHANGE_ZLIFT
+  #define MSG_TOOL_CHANGE_ZLIFT                _UxGT("Z Raise")
 #endif
 #ifndef MSG_SINGLENOZZLE_PRIME_SPD
   #define MSG_SINGLENOZZLE_PRIME_SPD          _UxGT("Prime Speed")
