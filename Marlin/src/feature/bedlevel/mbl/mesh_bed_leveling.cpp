@@ -57,10 +57,10 @@
      */
     void mesh_bed_leveling::line_to_destination(const float fr_mm_s, uint8_t x_splits, uint8_t y_splits) {
       // Get current and destination cells for this line
-      int cx1 = cell_index_x(current_position[X_AXIS]),
-          cy1 = cell_index_y(current_position[Y_AXIS]),
-          cx2 = cell_index_x(destination[X_AXIS]),
-          cy2 = cell_index_y(destination[Y_AXIS]);
+      int cx1 = cell_index_x(current.x),
+          cy1 = cell_index_y(current.y),
+          cx2 = cell_index_x(destination.x),
+          cy2 = cell_index_y(destination.y);
       NOMORE(cx1, GRID_MAX_POINTS_X - 2);
       NOMORE(cy1, GRID_MAX_POINTS_Y - 2);
       NOMORE(cx2, GRID_MAX_POINTS_X - 2);
@@ -73,9 +73,10 @@
         return;
       }
 
-      #define MBL_SEGMENT_END(A) (current_position[_AXIS(A)] + (destination[_AXIS(A)] - current_position[_AXIS(A)]) * normalized_dist)
+      #define MBL_SEGMENT_END(AXIS) (current.AXIS + (destination.AXIS - current.AXIS) * normalized_dist)
 
-      float normalized_dist, end[XYZE];
+      float normalized_dist;
+      xyze_t end;
       const int8_t gcx = MAX(cx1, cx2), gcy = MAX(cy1, cy2);
 
       // Crosses on the X and not already split on this X?
@@ -83,19 +84,19 @@
       if (cx2 != cx1 && TEST(x_splits, gcx)) {
         // Split on the X grid line
         CBI(x_splits, gcx);
-        COPY(end, destination);
-        destination[X_AXIS] = index_to_xpos[gcx];
-        normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
-        destination[Y_AXIS] = MBL_SEGMENT_END(Y);
+        end = destination;
+        destination.x = index_to_xpos[gcx];
+        normalized_dist = (destination.x - current.x) / (end.x - current.x);
+        destination.y = MBL_SEGMENT_END(y);
       }
       // Crosses on the Y and not already split on this Y?
       else if (cy2 != cy1 && TEST(y_splits, gcy)) {
         // Split on the Y grid line
         CBI(y_splits, gcy);
-        COPY(end, destination);
-        destination[Y_AXIS] = index_to_ypos[gcy];
-        normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
-        destination[X_AXIS] = MBL_SEGMENT_END(X);
+        end = destination;
+        destination.y = index_to_ypos[gcy];
+        normalized_dist = (destination.y - current.y) / (end.y - current.y);
+        destination.x = MBL_SEGMENT_END(x);
       }
       else {
         // Must already have been split on these border(s)
@@ -105,14 +106,14 @@
         return;
       }
 
-      destination[Z_AXIS] = MBL_SEGMENT_END(Z);
-      destination[E_AXIS] = MBL_SEGMENT_END(E);
+      destination.z = MBL_SEGMENT_END(z);
+      destination.e = MBL_SEGMENT_END(e);
 
       // Do the split and look for more borders
       line_to_destination(fr_mm_s, x_splits, y_splits);
 
       // Restore destination from stack
-      COPY(destination, end);
+      destination = end;
       line_to_destination(fr_mm_s, x_splits, y_splits);
     }
 

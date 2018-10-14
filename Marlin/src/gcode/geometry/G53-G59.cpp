@@ -34,7 +34,7 @@
 bool GcodeSuite::select_coordinate_system(const int8_t _new) {
   if (active_coordinate_system == _new) return false;
   planner.synchronize();
-  float old_offset[XYZ] = { 0 }, new_offset[XYZ] = { 0 };
+  xyz_t old_offset = { 0 }, new_offset = { 0 };
   if (WITHIN(active_coordinate_system, 0, MAX_COORDINATE_SYSTEMS - 1))
     COPY(old_offset, coordinate_system[active_coordinate_system]);
   if (WITHIN(_new, 0, MAX_COORDINATE_SYSTEMS - 1))

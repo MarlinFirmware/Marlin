@@ -44,15 +44,15 @@ void GcodeSuite::M218() {
 
   bool report = true;
   if (parser.seenval('X')) {
-    hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
+    hotend_offset[target_extruder].x = parser.value_linear_units();
     report = false;
   }
   if (parser.seenval('Y')) {
-    hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
+    hotend_offset[target_extruder].y = parser.value_linear_units();
     report = false;
   }
   if (parser.seenval('Z')) {
-    hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
+    hotend_offset[target_extruder].z = parser.value_linear_units();
     report = false;
   }
 
@@ -61,18 +61,18 @@ void GcodeSuite::M218() {
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
     HOTEND_LOOP() {
       SERIAL_CHAR(' ');
-      SERIAL_ECHO(hotend_offset[X_AXIS][e]);
+      SERIAL_ECHO(hotend_offset[e].x);
       SERIAL_CHAR(',');
-      SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
+      SERIAL_ECHO(hotend_offset[e].y);
       SERIAL_CHAR(',');
-      SERIAL_ECHO_F(hotend_offset[Z_AXIS][e], 3);
+      SERIAL_ECHO_F(hotend_offset[e].z, 3);
     }
     SERIAL_EOL();
   }
 
   #if ENABLED(DELTA)
     if (target_extruder == active_extruder)
-      do_blocking_move_to_xy(current_position[X_AXIS], current_position[Y_AXIS], planner.settings.max_feedrate_mm_s[X_AXIS]);
+      do_blocking_move_to_xy(current.x, current.y, planner.settings.max_feedrate_mm_s.a);
   #endif
 }
 

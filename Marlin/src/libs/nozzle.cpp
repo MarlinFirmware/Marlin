@@ -42,7 +42,7 @@
    */
   void Nozzle::stroke(const point_t &start, const point_t &end, const uint8_t &strokes) {
     #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      const float ix = current_position[X_AXIS], iy = current_position[Y_AXIS], iz = current_position[Z_AXIS];
+      const float ix = current.x, iy = current.y, iz = current.z;
     #endif
 
     // Move to the starting point
@@ -73,7 +73,7 @@
     if (!diffx || !diffy) return;
 
     #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      const float ix = current_position[X_AXIS], iy = current_position[Y_AXIS], iz = current_position[Z_AXIS];
+      const float ix = current.x, iy = current.y, iz = current.z;
     #endif
 
     do_blocking_move_to(start.x, start.y, start.z);
@@ -116,7 +116,7 @@
     if (strokes == 0) return;
 
     #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      const float ix = current_position[X_AXIS], iy = current_position[Y_AXIS], iz = current_position[Z_AXIS];
+      const float ix = current.x, iy = current.y, iz = current.z;
     #endif
 
     do_blocking_move_to(start.x, start.y, start.z);
@@ -172,11 +172,11 @@
         break;
 
       case 2: // Raise by Z-park height
-        do_blocking_move_to_z(MIN(current_position[Z_AXIS] + park.z, Z_MAX_POS), fr_z);
+        do_blocking_move_to_z(MIN(current.z + park.z, Z_MAX_POS), fr_z);
         break;
 
       default: // Raise to at least the Z-park height
-        do_blocking_move_to_z(MAX(park.z, current_position[Z_AXIS]), fr_z);
+        do_blocking_move_to_z(MAX(park.z, current.z), fr_z);
     }
 
     do_blocking_move_to_xy(park.x, park.y, fr_xy);

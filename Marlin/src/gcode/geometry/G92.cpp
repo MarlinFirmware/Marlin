@@ -67,15 +67,15 @@ void GcodeSuite::G92() {
     if (parser.seenval(axis_codes[i])) {
       const float l = parser.value_axis_units((AxisEnum)i),
                   v = i == E_AXIS ? l : LOGICAL_TO_NATIVE(l, i),
-                  d = v - current_position[i];
+                  d = v - current[i];
       if (!NEAR_ZERO(d)) {
         #if IS_SCARA || !HAS_POSITION_SHIFT
           if (i == E_AXIS) didE = true; else didXYZ = true;
-          current_position[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
+          current[i] = v;        // Without workspaces revert to Marlin 1.0 behavior
         #elif HAS_POSITION_SHIFT
           if (i == E_AXIS) {
             didE = true;
-            current_position[E_AXIS] = v; // When using coordinate spaces, only E is set directly
+            current.e = v; // When using coordinate spaces, only E is set directly
           }
           else {
             position_shift[i] += d;       // Other axes simply offset the coordinate space

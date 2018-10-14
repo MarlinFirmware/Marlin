@@ -50,7 +50,7 @@
 
   #define UBL_G29_P31
 
-  extern float destination[XYZE], current_position[XYZE];
+  extern xyze_t destination, current;
 
   #if ENABLED(NEWPANEL)
     void lcd_return_to_status();
@@ -783,7 +783,7 @@
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
-          do_blocking_move_to_z(current_position[Z_AXIS] + float(encoder_diff) * multiplier);
+          do_blocking_move_to_z(current.z + float(encoder_diff) * multiplier);
           encoder_diff = 0;
         }
       }
@@ -793,7 +793,7 @@
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       move_z_with_encoder(0.01f);
       KEEPALIVE_STATE(IN_HANDLER);
-      return current_position[Z_AXIS];
+      return current.z;
     }
 
     static void echo_and_take_a_measurement() { SERIAL_PROTOCOLLNPGM(" and take a measurement."); }
@@ -803,7 +803,7 @@
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
-        //, MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f);
+        //, MIN(planner.settings.max_feedrate_mm_s.a, planner.settings.max_feedrate_mm_s.b) * 0.5f);
       planner.synchronize();
 
       SERIAL_PROTOCOLPGM("Place shim under nozzle");
@@ -812,7 +812,7 @@
       echo_and_take_a_measurement();
 
       const float z1 = measure_point_with_encoder();
-      do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
+      do_blocking_move_to_z(current.z + SIZE_OF_LITTLE_RAISE);
       planner.synchronize();
 
       SERIAL_PROTOCOLPGM("Remove shim");
@@ -821,7 +821,7 @@
 
       const float z2 = measure_point_with_encoder();
 
-      do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES);
+      do_blocking_move_to_z(current.z + Z_CLEARANCE_BETWEEN_PROBES);
 
       const float thickness = ABS(z1 - z2);
 
@@ -852,7 +852,7 @@
       lcd_external_control = true;
 
       save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
-      do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_clearance);
+      do_blocking_move_to(current.x, current.y, z_clearance);
 
       lcd_return_to_status();
 
@@ -880,7 +880,7 @@
         serialprintPGM(parser.seen('B') ? PSTR(MSG_UBL_BC_INSERT) : PSTR(MSG_UBL_BC_INSERT2));
 
         const float z_step = 0.01f;                         // existing behavior: 0.01mm per click, occasionally step
-        //const float z_step = planner.steps_to_mm[Z_AXIS]; // approx one step each click
+        //const float z_step = planner.steps_to_mm.z; // approx one step each click
 
         move_z_with_encoder(z_step);
 
@@ -893,7 +893,7 @@
           return;
         }
 
-        z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - thick;
+        z_values[location.x_index][location.y_index] = current.z - thick;
         if (g29_verbose_level > 2) {
           SERIAL_PROTOCOLPGM("Mesh Point Measured at: ");
           SERIAL_PROTOCOL_F(z_values[location.x_index][location.y_index], 6);
@@ -922,9 +922,9 @@
     g29_repetition_cnt = 0;
 
     g29_x_flag = parser.seenval('X');
-    g29_x_pos = g29_x_flag ? parser.value_float() : current_position[X_AXIS];
+    g29_x_pos = g29_x_flag ? parser.value_float() : current.x;
     g29_y_flag = parser.seenval('Y');
-    g29_y_pos = g29_y_flag ? parser.value_float() : current_position[Y_AXIS];
+    g29_y_pos = g29_y_flag ? parser.value_float() : current.y;
 
     if (parser.seen('R')) {
       g29_repetition_cnt = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS;
@@ -1325,7 +1325,7 @@
 
           // factor in the distance from the current location for the normal case
           // so the nozzle isn't running all over the bed.
-          distance += HYPOT(current_position[X_AXIS] - mx, current_position[Y_AXIS] - my) * 0.1f;
+          distance += HYPOT(current.x - mx, current.y - my) * 0.1f;
           if (distance < best_so_far) {
             best_so_far = distance;   // We found a closer location with
             out_mesh.x_index = i;     // the specified type of mesh value.

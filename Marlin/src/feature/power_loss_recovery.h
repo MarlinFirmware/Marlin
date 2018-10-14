@@ -36,7 +36,8 @@ typedef struct {
   uint8_t valid_head;
 
   // Machine state
-  float current_position[NUM_AXIS], feedrate;
+  xyze_t current;
+  float feedrate;
 
   #if HOTENDS > 1
     uint8_t active_hotend;

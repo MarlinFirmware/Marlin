@@ -197,7 +197,7 @@
  * M410 - Quickstop. Abort all planned moves.
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
- * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
+ * M428 - Set the home_offset based on the current. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -266,7 +266,7 @@ public:
 
   static uint8_t target_extruder;
 
-  static bool axis_relative_modes[];
+  static xyze_bool_t axis_relative_modes;
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
     /**
@@ -280,7 +280,7 @@ public:
   #define MAX_COORDINATE_SYSTEMS 9
   #if ENABLED(CNC_COORDINATE_SYSTEMS)
     static int8_t active_coordinate_system;
-    static float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+    static xyz_t coordinate_system[MAX_COORDINATE_SYSTEMS];
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
@@ -306,11 +306,9 @@ public:
    * Multi-stepper support for M92, M201, M203
    */
   #if ENABLED(DISTINCT_E_FACTORS)
-    #define GET_TARGET_EXTRUDER() if (gcode.get_target_extruder_from_command()) return
-    #define TARGET_EXTRUDER gcode.target_extruder
+    #define GET_TARGET_EXTRUDER() do{ if (gcode.get_target_extruder_from_command()) return; }while(0)
   #else
     #define GET_TARGET_EXTRUDER() NOOP
-    #define TARGET_EXTRUDER 0
   #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)

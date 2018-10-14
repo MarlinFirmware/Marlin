@@ -294,9 +294,9 @@ class Stepper {
     #endif
 
     // Delta error variables for the Bresenham line tracer
-    static int32_t delta_error[XYZE];
-    static uint32_t advance_dividend[XYZE],
-                    advance_divisor,
+    static xyze32_t delta_error;
+    static xyze32u_t advance_dividend;
+    static uint32_t advance_divisor,
                     step_events_completed,  // The number of step events executed in the current block
                     accelerate_until,       // The point from where we need to stop acceleration
                     decelerate_after,       // The point from where we need to start decelerating
@@ -333,17 +333,17 @@ class Stepper {
       static uint32_t acc_step_rate; // needed for deceleration start point
     #endif
 
-    static volatile int32_t endstops_trigsteps[XYZ];
+    static abc32v_t endstops_trigsteps;
 
     //
     // Positions of stepper motors, in step units
     //
-    static volatile int32_t count_position[NUM_AXIS];
+    static abce32v_t count_position;
 
     //
     // Current direction of stepper motors (+1 or -1)
     //
-    static int8_t count_direction[NUM_AXIS];
+    static abce8_t count_direction;
 
   public:
 
@@ -457,6 +457,8 @@ class Stepper {
       if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
     }
 
+    FORCE_INLINE static void set_position(const abce32_t &pos) { set_position(pos.a, pos.b, pos.c, pos.e); }
+
     static inline void set_position(const AxisEnum a, const int32_t &v) {
       planner.synchronize();
 
@@ -482,6 +484,7 @@ class Stepper {
 
     // Set the current position in steps
     static void _set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e);
+    FORCE_INLINE static void _set_position(const abce32_t &pos) { _set_position(pos.a, pos.b, pos.c, pos.e); }
 
     FORCE_INLINE static uint32_t calc_timer_interval(uint32_t step_rate, uint8_t scale, uint8_t* loops) {
       uint32_t timer;

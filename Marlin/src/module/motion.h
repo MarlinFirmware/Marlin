@@ -41,15 +41,14 @@ constexpr float slop = 0.0001;
 
 extern bool relative_mode;
 
-extern float current_position[XYZE],  // High-level current tool position
-             destination[XYZE];       // Destination for a move
+extern xyze_t current, destination;
 
 // Scratch space for a cartesian result
-extern float cartes[XYZ];
+extern xyz_t cartes;
 
 // Until kinematics.cpp is created, declare this here
 #if IS_KINEMATIC
-  extern float delta[ABC];
+  extern abc_t delta;
 #endif
 
 #if OLDSCHOOL_ABL
@@ -84,17 +83,28 @@ extern int16_t feedrate_percentage;
 #endif
 
 #if HAS_HOTEND_OFFSET
-  extern float hotend_offset[XYZ][HOTENDS];
+  extern xyz_t hotend_offset[HOTENDS];
 #endif
 
-extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
+extern xyz_t soft_endstop_min, soft_endstop_max;
 
 FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float_near(p); }
 FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte_near(p); }
 
+template<typename T>
+struct Txyz_P {
+  union {
+    T of[XYZ];
+    T x, y, z;
+  };
+  T operator[](const uint8_t A)         { return pgm_read_any(&of[A]); }
+  T operator[](const uint8_t A) const   { return pgm_read_any(&of[A]); }
+  T operator[](const AxisEnum A)        { return (*this)[(uint8_t)A]; }
+  T operator[](const AxisEnum A) const  { return (*this)[(uint8_t)A]; }
+};
+
 #define XYZ_DEFS(type, array, CONFIG) \
-  extern const type array##_P[XYZ]; \
-  FORCE_INLINE type array(AxisEnum axis) { return pgm_read_any(&array##_P[axis]); } \
+  extern const Txyz_P<type> array; \
   typedef void __void_##CONFIG##__
 
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
@@ -102,11 +112,11 @@ XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);
 XYZ_DEFS(float, max_length,     MAX_LENGTH);
 XYZ_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
-XYZ_DEFS(signed char, home_dir, HOME_DIR);
+XYZ_DEFS(int8_t, home_dir, HOME_DIR);
 
 #if HAS_SOFTWARE_ENDSTOPS
   extern bool soft_endstops_enabled;
-  void clamp_to_software_endstops(float target[XYZ]);
+  void clamp_to_software_endstops(xyze_t &target);
 #else
   #define soft_endstops_enabled false
   #define clamp_to_software_endstops(x) NOOP
@@ -114,8 +124,8 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
 
 void report_current_position();
 
-inline void set_current_from_destination() { COPY(current_position, destination); }
-inline void set_destination_from_current() { COPY(destination, current_position); }
+inline void set_current_from_destination() { COPY(current, destination); }
+inline void set_destination_from_current() { COPY(destination, current); }
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -123,7 +133,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis);
 /**
  * sync_plan_position
  *
- * Set the planner/stepper positions directly from current_position with
+ * Set the planner/stepper positions directly from current with
  * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */
 void sync_plan_position();
@@ -150,17 +160,17 @@ void prepare_move_to_destination();
 /**
  * Blocking movement and shorthand functions
  */
-void do_blocking_move_to(const float rx, const float ry, const float rz, const float &fr_mm_s=0);
+void do_blocking_move_to(const float &rx, const float &ry, const float &rz, const float &fr_mm_s=0);
 void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
 void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
 void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s) {
-  do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
+FORCE_INLINE void do_blocking_move_to(const xyz_t &raw, const float &fr_mm_s) {
+  do_blocking_move_to(raw.x, raw.y, raw.z, fr_mm_s);
 }
 
-FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const float &fr_mm_s) {
-  do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
+FORCE_INLINE void do_blocking_move_to(const xyze_t &raw, const float &fr_mm_s) {
+  do_blocking_move_to(raw.x, raw.y, raw.z, fr_mm_s);
 }
 
 void setup_for_endstop_or_probe_move();
@@ -212,13 +222,13 @@ void homeaxis(const AxisEnum axis);
  */
 #if HAS_WORKSPACE_OFFSET
   #if HAS_HOME_OFFSET
-    extern float home_offset[XYZ];
+    extern xyz_t home_offset;
   #endif
   #if HAS_POSITION_SHIFT
-    extern float position_shift[XYZ];
+    extern xyz_t position_shift;
   #endif
   #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
-    extern float workspace_offset[XYZ];
+    extern xyz_t workspace_offset;
     #define WORKSPACE_OFFSET(AXIS) workspace_offset[AXIS]
   #elif HAS_HOME_OFFSET
     #define WORKSPACE_OFFSET(AXIS) home_offset[AXIS]
@@ -329,8 +339,8 @@ void homeaxis(const AxisEnum axis);
   };
 
   extern DualXMode dual_x_carriage_mode;
+  extern xyze_t raised_parked;      // used in mode 1
   extern float inactive_extruder_x_pos,           // used in mode 0 & 1
-               raised_parked_position[XYZE],      // used in mode 1
                duplicate_extruder_x_offset;       // used in mode 2 & 3
   extern bool active_extruder_parked;             // used in mode 1, 2 & 3
   extern millis_t delayed_move_time;              // used in mode 1

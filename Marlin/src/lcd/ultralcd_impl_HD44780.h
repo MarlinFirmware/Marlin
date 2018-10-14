@@ -690,18 +690,18 @@ static void lcd_implementation_status_screen() {
 
       #else // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
-        _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink);
+        _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current.x)), blink);
 
         lcd_put_wchar(' ');
 
-        _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink);
+        _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current.y)), blink);
 
       #endif // HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
 
     #endif // LCD_WIDTH >= 20
 
     lcd_moveto(LCD_WIDTH - 8, 1);
-    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
+    _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current.z)), blink);
 
     #if HAS_LEVELING && !HAS_HEATED_BED
       lcd_put_wchar(planner.leveling_active || blink ? '_' : ' ');

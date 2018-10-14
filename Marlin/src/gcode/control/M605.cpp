@@ -70,9 +70,9 @@
         }
         scaled_duplication_mode = true;
         stepper.set_directions();
-        float x_jog = current_position[X_AXIS] - .1;
+        float x_jog = current.x - .1;
         for (uint8_t i = 2; --i;) {
-          planner.buffer_line(x_jog, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, 0);
+          planner.buffer_line(x_jog, current.y, current.z, current.e, feedrate_mm_s, 0);
           x_jog += .1;
         }
         return;
@@ -111,7 +111,7 @@
       SERIAL_ECHOPAIR("\nActive Ext: ", int(active_extruder));
       if (!active_extruder_parked) SERIAL_ECHOPGM(" NOT ");
       SERIAL_ECHOPGM(" parked.");
-      SERIAL_ECHOPAIR("\nactive_extruder_x_pos: ", current_position[X_AXIS]);
+      SERIAL_ECHOPAIR("\nactive_extruder_x_pos: ", current.x);
       SERIAL_ECHOPAIR("\ninactive_extruder_x_pos: ", inactive_extruder_x_pos);
       SERIAL_ECHOPAIR("\nextruder_duplication_enabled: ", int(extruder_duplication_enabled));
       SERIAL_ECHOPAIR("\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset);
@@ -137,7 +137,7 @@
           SERIAL_ECHOPGM("    hotend_offset[");
           SERIAL_CHAR(axis_codes[j]);
           SERIAL_ECHOPAIR("_AXIS][", int(i));
-          SERIAL_ECHOPAIR("]=", hotend_offset[j][i]);
+          SERIAL_ECHOPAIR("]=", hotend_offset[i][j]);
         }
         SERIAL_EOL();
       }

@@ -52,7 +52,7 @@ void GcodeSuite::M206() {
 
 /**
  * M428: Set home_offset based on the distance between the
- *       current_position and the nearest "reference point."
+ *       current and the nearest "reference point."
  *       If an axis is past center its endstop position
  *       is the reference-point. Otherwise it uses 0. This allows
  *       the Z offset to be set near the bed when using a max endstop.
@@ -64,11 +64,11 @@ void GcodeSuite::M206() {
 void GcodeSuite::M428() {
   if (axis_unhomed_error()) return;
 
-  float diff[XYZ];
+  xyz_t diff;
   LOOP_XYZ(i) {
-    diff[i] = base_home_pos((AxisEnum)i) - current_position[i];
-    if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
-      diff[i] = -current_position[i];
+    diff[i] = base_home_pos[i] - current[i];
+    if (!WITHIN(diff[i], -20, 20) && home_dir[i] > 0)
+      diff[i] = -current[i];
     if (!WITHIN(diff[i], -20, 20)) {
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);

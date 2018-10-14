@@ -20,11 +20,10 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DIGIPOT_I2C) && ENABLED(DIGIPOT_MCP4018)
 
-#include "../../core/enum.h"
 #include "Stream.h"
 #include "utility/twi.h"
 #include <SlowSoftI2CMaster.h>  //https://github.com/stawel/SlowSoftI2CMaster
@@ -62,13 +61,13 @@ const uint8_t sda_pins[DIGIPOT_I2C_NUM_CHANNELS] = {
 };
 
 static SlowSoftI2CMaster pots[DIGIPOT_I2C_NUM_CHANNELS] = {
-  SlowSoftI2CMaster { sda_pins[X_AXIS], DIGIPOTS_I2C_SCL }
+  SlowSoftI2CMaster { sda_pins.x, DIGIPOTS_I2C_SCL }
   #if DIGIPOT_I2C_NUM_CHANNELS > 1
-    , SlowSoftI2CMaster { sda_pins[Y_AXIS], DIGIPOTS_I2C_SCL }
+    , SlowSoftI2CMaster { sda_pins.y, DIGIPOTS_I2C_SCL }
     #if DIGIPOT_I2C_NUM_CHANNELS > 2
-      , SlowSoftI2CMaster { sda_pins[Z_AXIS], DIGIPOTS_I2C_SCL }
+      , SlowSoftI2CMaster { sda_pins.z, DIGIPOTS_I2C_SCL }
       #if DIGIPOT_I2C_NUM_CHANNELS > 3
-        , SlowSoftI2CMaster { sda_pins[E_AXIS], DIGIPOTS_I2C_SCL }
+        , SlowSoftI2CMaster { sda_pins.e, DIGIPOTS_I2C_SCL }
         #if DIGIPOT_I2C_NUM_CHANNELS > 4
           , SlowSoftI2CMaster { sda_pins[E_AXIS + 1], DIGIPOTS_I2C_SCL }
         #endif

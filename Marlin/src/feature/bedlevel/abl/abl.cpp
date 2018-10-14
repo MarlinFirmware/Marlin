@@ -217,10 +217,10 @@ void print_bilinear_leveling_grid() {
   }
 
   void bed_level_virt_interpolate() {
-    bilinear_grid_spacing_virt[X_AXIS] = bilinear_grid_spacing[X_AXIS] / (BILINEAR_SUBDIVISIONS);
-    bilinear_grid_spacing_virt[Y_AXIS] = bilinear_grid_spacing[Y_AXIS] / (BILINEAR_SUBDIVISIONS);
-    bilinear_grid_factor_virt[X_AXIS] = RECIPROCAL(bilinear_grid_spacing_virt[X_AXIS]);
-    bilinear_grid_factor_virt[Y_AXIS] = RECIPROCAL(bilinear_grid_spacing_virt[Y_AXIS]);
+    bilinear_grid_spacing_virt.x = bilinear_grid_spacing.x / (BILINEAR_SUBDIVISIONS);
+    bilinear_grid_spacing_virt.y = bilinear_grid_spacing.y / (BILINEAR_SUBDIVISIONS);
+    bilinear_grid_factor_virt.x = RECIPROCAL(bilinear_grid_spacing_virt.x);
+    bilinear_grid_factor_virt.y = RECIPROCAL(bilinear_grid_spacing_virt.y);
     for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
         for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ty++)
@@ -240,8 +240,8 @@ void print_bilinear_leveling_grid() {
 
 // Refresh after other values have been updated
 void refresh_bed_level() {
-  bilinear_grid_factor[X_AXIS] = RECIPROCAL(bilinear_grid_spacing[X_AXIS]);
-  bilinear_grid_factor[Y_AXIS] = RECIPROCAL(bilinear_grid_spacing[Y_AXIS]);
+  bilinear_grid_factor.x = RECIPROCAL(bilinear_grid_spacing.x);
+  bilinear_grid_factor.y = RECIPROCAL(bilinear_grid_spacing.y);
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     bed_level_virt_interpolate();
   #endif
@@ -262,7 +262,7 @@ void refresh_bed_level() {
 #endif
 
 // Get the Z adjustment for non-linear bed leveling
-float bilinear_z_offset(const float raw[XYZ]) {
+float bilinear_z_offset(const xyz_t &raw) {
 
   static float z1, d2, z3, d4, L, D, ratio_x, ratio_y,
                last_x = -999.999, last_y = -999.999;
@@ -272,8 +272,8 @@ float bilinear_z_offset(const float raw[XYZ]) {
                 last_gridx = -99, last_gridy = -99;
 
   // XY relative to the probed area
-  const float rx = raw[X_AXIS] - bilinear_start[X_AXIS],
-              ry = raw[Y_AXIS] - bilinear_start[Y_AXIS];
+  const float rx = raw.x - bilinear_start.x,
+              ry = raw.y - bilinear_start.y;
 
   #if ENABLED(EXTRAPOLATE_BEYOND_GRID)
     // Keep using the last grid box
@@ -339,10 +339,10 @@ float bilinear_z_offset(const float raw[XYZ]) {
   if (ABS(last_offset - offset) > 0.2) {
     SERIAL_ECHOPGM("Sudden Shift at ");
     SERIAL_ECHOPAIR("x=", rx);
-    SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[X_AXIS]);
+    SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing.x);
     SERIAL_ECHOLNPAIR(" -> gridx=", gridx);
     SERIAL_ECHOPAIR(" y=", ry);
-    SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[Y_AXIS]);
+    SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing.y);
     SERIAL_ECHOLNPAIR(" -> gridy=", gridy);
     SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
     SERIAL_ECHOLNPAIR(" ratio_y=", ratio_y);
@@ -370,10 +370,10 @@ float bilinear_z_offset(const float raw[XYZ]) {
    */
   void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
     // Get current and destination cells for this line
-    int cx1 = CELL_INDEX(X, current_position[X_AXIS]),
-        cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
-        cx2 = CELL_INDEX(X, destination[X_AXIS]),
-        cy2 = CELL_INDEX(Y, destination[Y_AXIS]);
+    int cx1 = CELL_INDEX(X, current.x),
+        cy1 = CELL_INDEX(Y, current.y),
+        cx2 = CELL_INDEX(X, destination.x),
+        cy2 = CELL_INDEX(Y, destination.y);
     cx1 = constrain(cx1, 0, ABL_BG_POINTS_X - 2);
     cy1 = constrain(cy1, 0, ABL_BG_POINTS_Y - 2);
     cx2 = constrain(cx2, 0, ABL_BG_POINTS_X - 2);
@@ -386,9 +386,10 @@ float bilinear_z_offset(const float raw[XYZ]) {
       return;
     }
 
-    #define LINE_SEGMENT_END(A) (current_position[_AXIS(A)] + (destination[_AXIS(A)] - current_position[_AXIS(A)]) * normalized_dist)
+    #define LINE_SEGMENT_END(A) (current[_AXIS(A)] + (destination[_AXIS(A)] - current[_AXIS(A)]) * normalized_dist)
 
-    float normalized_dist, end[XYZE];
+    float normalized_dist;
+    xyze_t end;
     const int8_t gcx = MAX(cx1, cx2), gcy = MAX(cy1, cy2);
 
     // Crosses on the X and not already split on this X?
@@ -396,19 +397,19 @@ float bilinear_z_offset(const float raw[XYZ]) {
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       // Split on the X grid line
       CBI(x_splits, gcx);
-      COPY(end, destination);
-      destination[X_AXIS] = bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx;
-      normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
-      destination[Y_AXIS] = LINE_SEGMENT_END(Y);
+      end = destination;
+      destination.x = bilinear_start.x + ABL_BG_SPACING(X_AXIS) * gcx;
+      normalized_dist = (destination.x - current.x) / (end.x - current.x);
+      destination.y = LINE_SEGMENT_END(Y);
     }
     // Crosses on the Y and not already split on this Y?
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
       // Split on the Y grid line
       CBI(y_splits, gcy);
-      COPY(end, destination);
-      destination[Y_AXIS] = bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy;
-      normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
-      destination[X_AXIS] = LINE_SEGMENT_END(X);
+      end = destination;
+      destination.y = bilinear_start.y + ABL_BG_SPACING(Y_AXIS) * gcy;
+      normalized_dist = (destination.y - current.y) / (end.y - current.y);
+      destination.x = LINE_SEGMENT_END(X);
     }
     else {
       // Must already have been split on these border(s)
@@ -418,14 +419,14 @@ float bilinear_z_offset(const float raw[XYZ]) {
       return;
     }
 
-    destination[Z_AXIS] = LINE_SEGMENT_END(Z);
-    destination[E_AXIS] = LINE_SEGMENT_END(E);
+    destination.z = LINE_SEGMENT_END(Z);
+    destination.e = LINE_SEGMENT_END(E);
 
     // Do the split and look for more borders
     bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
 
     // Restore destination from stack
-    COPY(destination, end);
+    destination = end;
     bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 

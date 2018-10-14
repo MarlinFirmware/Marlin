@@ -27,16 +27,15 @@
 #pragma once
 
 extern float delta_height,
-             delta_endstop_adj[ABC],
              delta_radius,
              delta_diagonal_rod,
              delta_segments_per_second,
              delta_calibration_radius,
-             delta_tower_angle_trim[ABC];
-
-extern float delta_tower[ABC][2],
-             delta_diagonal_rod_2_tower[ABC],
              delta_clip_start_height;
+extern abc_t delta_endstop_adj,
+             delta_tower_angle_trim,
+             delta_diagonal_rod_2_tower;
+extern xy_t  delta_tower[ABC];
 
 /**
  * Recalculate factors used for delta kinematics whenever
@@ -64,7 +63,7 @@ void recalc_delta_settings();
  */
 
 // Macro to obtain the Z position of an individual tower
-#define DELTA_Z(V,T) V[Z_AXIS] + SQRT(    \
+#define DELTA_Z(V,T) V.z + SQRT(    \
   delta_diagonal_rod_2_tower[T] - HYPOT2( \
       delta_tower[T][X_AXIS] - V[X_AXIS], \
       delta_tower[T][Y_AXIS] - V[Y_AXIS]  \
@@ -72,14 +71,14 @@ void recalc_delta_settings();
   )
 
 #define DELTA_IK(V) do {              \
-  delta[A_AXIS] = DELTA_Z(V, A_AXIS); \
-  delta[B_AXIS] = DELTA_Z(V, B_AXIS); \
-  delta[C_AXIS] = DELTA_Z(V, C_AXIS); \
+  delta.a = DELTA_Z(V, A_AXIS); \
+  delta.b = DELTA_Z(V, B_AXIS); \
+  delta.c = DELTA_Z(V, C_AXIS); \
 }while(0)
 
-void inverse_kinematics(const float (&raw)[XYZ]);
-FORCE_INLINE void inverse_kinematics(const float (&raw)[XYZE]) {
-  const float raw_xyz[XYZ] = { raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS] };
+void inverse_kinematics(const xyz_t &raw);
+FORCE_INLINE void inverse_kinematics(const xyze_t &raw) {
+  const xyz_t raw_xyz = raw;
   inverse_kinematics(raw_xyz);
 }
 
@@ -116,8 +115,8 @@ float delta_safe_distance_from_top();
  */
 void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3);
 
-FORCE_INLINE void forward_kinematics_DELTA(const float (&point)[ABC]) {
-  forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
+FORCE_INLINE void forward_kinematics_DELTA(const abc_t &point) {
+  forward_kinematics_DELTA(point.a, point.b, point.c);
 }
 
 void home_delta();

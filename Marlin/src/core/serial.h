@@ -23,8 +23,7 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#include "../inc/MarlinConfigPre.h"
-#include HAL_PATH(../HAL, HAL.h)
+#include "../inc/MarlinConfig.h"
 
 /**
  * Define debug bit-masks
@@ -242,8 +241,9 @@ void serial_echo_start();
 void serial_error_start();
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
-  void print_xyz(PGM_P prefix, PGM_P suffix, const float x, const float y, const float z);
-  void print_xyz(PGM_P prefix, PGM_P suffix, const float xyz[]);
+  void print_xyz(PGM_P prefix, PGM_P suffix, const float &x, const float &y, const float &z);
+  void print_xyz(PGM_P prefix, PGM_P suffix, const xyz_t &xyz);
+  void print_xyz(PGM_P prefix, PGM_P suffix, const xyze_t &xyze);
   #define DEBUG_POS(SUFFIX,VAR) do { print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
 #endif
 

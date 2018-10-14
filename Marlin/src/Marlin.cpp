@@ -475,10 +475,10 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
         }
       #endif // !SWITCHING_EXTRUDER
 
-      const float olde = current_position[E_AXIS];
-      current_position[E_AXIS] += EXTRUDER_RUNOUT_EXTRUDE;
-      planner.buffer_line(current_position, MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder);
-      current_position[E_AXIS] = olde;
+      const float olde = current.e;
+      current.e += EXTRUDER_RUNOUT_EXTRUDE;
+      planner.buffer_line(current, MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder);
+      current.e = olde;
       planner.set_e_position_mm(olde);
       planner.synchronize();
 
@@ -796,12 +796,12 @@ void setup() {
 
   #if HAS_M206_COMMAND
     // Initialize current position based on home_offset
-    COPY(current_position, home_offset);
+    current = home_offset;
   #else
-    ZERO(current_position);
+    ZERO(current);
   #endif
 
-  // Vital to init stepper/planner equivalent for current_position
+  // Vital to init stepper/planner equivalent for current
   sync_plan_position();
 
   thermalManager.init();    // Initialize temperature loop

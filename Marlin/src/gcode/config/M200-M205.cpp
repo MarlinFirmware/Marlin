@@ -59,8 +59,8 @@ void GcodeSuite::M201() {
 
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
-      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
-      planner.settings.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
+      const uint8_t a = (i == E_AXIS ? E_AXIS_N(gcode.target_extruder) : i);
+      planner.settings.max_acceleration_mm_per_s2.a = parser.value_axis_units((AxisEnum)a);
     }
   }
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
@@ -78,8 +78,8 @@ void GcodeSuite::M203() {
 
   LOOP_XYZE(i)
     if (parser.seen(axis_codes[i])) {
-      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
-      planner.settings.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
+      const uint8_t a = (i == E_AXIS ? E_AXIS_N(gcode.target_extruder) : i);
+      planner.settings.max_feedrate_mm_s.a = parser.value_axis_units((AxisEnum)a);
     }
 }
 
@@ -147,17 +147,17 @@ void GcodeSuite::M205() {
     }
   #endif
   #if HAS_CLASSIC_JERK
-    if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
-    if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
+    if (parser.seen('X')) planner.max_jerk.a = parser.value_linear_units();
+    if (parser.seen('Y')) planner.max_jerk.b = parser.value_linear_units();
     if (parser.seen('Z')) {
-      planner.max_jerk[Z_AXIS] = parser.value_linear_units();
+      planner.max_jerk.c = parser.value_linear_units();
       #if HAS_MESH
-        if (planner.max_jerk[Z_AXIS] <= 0.1f)
+        if (planner.max_jerk.c <= 0.1f)
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
     #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
-      if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
+      if (parser.seen('E')) planner.max_jerk.e = parser.value_linear_units();
     #endif
   #endif
 }

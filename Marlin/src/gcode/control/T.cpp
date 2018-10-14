@@ -40,7 +40,7 @@ void GcodeSuite::T(const uint8_t tmp_extruder) {
       SERIAL_ECHOPAIR(">>> T(", tmp_extruder);
       SERIAL_CHAR(')');
       SERIAL_EOL();
-      DEBUG_POS("BEFORE", current_position);
+      DEBUG_POS("BEFORE", current);
     }
   #endif
 
@@ -60,7 +60,7 @@ void GcodeSuite::T(const uint8_t tmp_extruder) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      DEBUG_POS("AFTER", current_position);
+      DEBUG_POS("AFTER", current);
       SERIAL_ECHOLNPGM("<<< T()");
     }
   #endif
