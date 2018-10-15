@@ -21,13 +21,13 @@
  */
 
 /**
- * Choose your version: 
+ * Choose your version:
  */
 // normal size or plus?
-//#define ANYCUBIC_KOSSEL_PLUS 
+//#define ANYCUBIC_KOSSEL_PLUS
 // Anycubic Probe version 1 or 2 see README.md; 0 for no probe
 #define ANYCUBIC_PROBE_VERSION 0
-// Heated Bed: 
+// Heated Bed:
 // 0 ... no heated bed
 // 1 ... aluminium heated bed with "BuildTak-like" sticker
 // 2 ... ultrabase heated bed
@@ -573,7 +573,7 @@
     #define PROBE_MANUALLY_STEP 0.05 // mm
   #endif
 
-  
+
   #if ENABLED(ANYCUBIC_KOSSEL_PLUS)
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
     #define DELTA_PRINTABLE_RADIUS 116.0 // mm
@@ -646,11 +646,27 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
+
+#if ANYCUBIC_PROBE_VERSION == 0 // if no probe installed, do not invert
+#define Z_MIN_ENDSTOP_INVERTING false
+#elif ANYCUBIC_PROBE_VERSION == 1 // V1 probe is NO so invert the logic
 #define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#elif ANYCUBIC_PROBE_VERSION == 2 // V2 probe is NC so do not invert the logic
+#define Z_MIN_ENDSTOP_INVERTING false
+#endif
+
 #define X_MAX_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING true  // set to true to invert the logic of the probe.
+
+#if ANYCUBIC_PROBE_VERSION == 0 // if no probe installed, do not invert
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false  
+#elif ANYCUBIC_PROBE_VERSION == 1 // V1 probe is NO so invert the logic
+#define Z_MIN_PROBE_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#elif ANYCUBIC_PROBE_VERSION == 2 // V2 probe is NC so do not invert the logic
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false
+#endif
+
 
 /**
  * Stepper Drivers
