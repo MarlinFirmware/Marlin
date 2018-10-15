@@ -648,11 +648,11 @@
 #define Y_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
 
 #if ANYCUBIC_PROBE_VERSION == 0 // if no probe installed, do not invert
-#define Z_MIN_ENDSTOP_INVERTING false
+  #define Z_MIN_ENDSTOP_INVERTING false
 #elif ANYCUBIC_PROBE_VERSION == 1 // V1 probe is NO so invert the logic
-#define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+  #define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
 #elif ANYCUBIC_PROBE_VERSION == 2 // V2 probe is NC so do not invert the logic
-#define Z_MIN_ENDSTOP_INVERTING false
+  #define Z_MIN_ENDSTOP_INVERTING false
 #endif
 
 #define X_MAX_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
@@ -660,11 +660,11 @@
 #define Z_MAX_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
 
 #if ANYCUBIC_PROBE_VERSION == 0 // if no probe installed, do not invert
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false  
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false
 #elif ANYCUBIC_PROBE_VERSION == 1 // V1 probe is NO so invert the logic
-#define Z_MIN_PROBE_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
 #elif ANYCUBIC_PROBE_VERSION == 2 // V2 probe is NC so do not invert the logic
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false
 #endif
 
 
