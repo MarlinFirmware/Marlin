@@ -34,40 +34,64 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 #define hal_timer_t uint32_t
-#define HAL_TIMER_TYPE_MAX 0xFFFF
+#define HAL_TIMER_TYPE_MAX 0xFFFFFFFF // Timers can be 16 or 32 bit
 
 #ifdef STM32F0xx
 
-  #define HAL_TIMER_RATE (HAL_RCC_GetSysClockFreq()) // frequency of timer peripherals
+  #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
 
-  #define STEP_TIMER 16
-  #define TEMP_TIMER 17
+  #ifndef STEP_TIMER
+    #define STEP_TIMER 16
+  #endif
+
+  #ifndef TEMP_TIMER
+    #define TEMP_TIMER 17
+  #endif
 
 #elif defined STM32F1xx
 
-  #define HAL_TIMER_RATE (HAL_RCC_GetPCLK2Freq()) // frequency of timer peripherals
+  #define HAL_TIMER_RATE (F_CPU) // frequency of timer peripherals
 
-  #define STEP_TIMER 4
-  #define TEMP_TIMER 2
+  #ifndef STEP_TIMER
+    #define STEP_TIMER 4
+  #endif
+
+  #ifndef TEMP_TIMER
+    #define TEMP_TIMER 2
+  #endif
 
 #elif defined STM32F4xx
 
-  #define HAL_TIMER_RATE (HAL_RCC_GetPCLK2Freq()) // frequency of timer peripherals
+  #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
-  #define STEP_TIMER 4
-  #define TEMP_TIMER 5
+  #ifndef STEP_TIMER
+    #define STEP_TIMER 5
+  #endif
+
+  #ifndef TEMP_TIMER
+    #define TEMP_TIMER 7
+  #endif
 
 #elif defined STM32F7xx
 
-  #define HAL_TIMER_RATE (HAL_RCC_GetSysClockFreq()/2) // frequency of timer peripherals
+  #define HAL_TIMER_RATE (F_CPU/2) // frequency of timer peripherals
 
-  #define STEP_TIMER 5
-  #define TEMP_TIMER 7
-
-  #if MB(REMRAM_V1)
-  #define STEP_TIMER 2
+  #ifndef STEP_TIMER
+    #define STEP_TIMER 5
   #endif
 
+  #ifndef TEMP_TIMER
+    #define TEMP_TIMER 7
+  #endif
+
+#endif
+
+#ifndef STEP_TIMER_IRQ_PRIO
+  #define STEP_TIMER_IRQ_PRIO 1
+#endif
+
+#ifndef TEMP_TIMER_IRQ_PRIO
+  #define TEMP_TIMER_IRQ_PRIO 2
 #endif
 
 #define STEP_TIMER_NUM 0  // index of timer to use for stepper
@@ -110,9 +134,6 @@
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
-#define TEMP_ISR_ENABLED() HAL_timer_interrupt_enabled(TEMP_TIMER_NUM)
-
 extern void Step_Handler(stimer_t *htim);
 extern void Temp_Handler(stimer_t *htim);
 #define HAL_STEP_TIMER_ISR void Step_Handler(stimer_t *htim)
@@ -151,12 +172,6 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const ui
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   return __HAL_TIM_GET_AUTORELOAD(&TimerHandle[timer_num].handle);
-}
-
-FORCE_INLINE static void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks) {
-  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_ticks;
-  if (HAL_timer_get_compare(timer_num) < mincmp)
-    HAL_timer_set_compare(timer_num, mincmp);
 }
 
 #define HAL_timer_isr_prologue(TIMER_NUM)

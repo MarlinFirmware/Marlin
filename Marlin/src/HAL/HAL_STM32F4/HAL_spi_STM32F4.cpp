@@ -30,7 +30,7 @@
  * Adapted to the STM32F4 HAL
  */
 
-#if defined(STM32F4) || defined(STM32F4xx)
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
 
 // --------------------------------------------------------------------------
 // Includes
