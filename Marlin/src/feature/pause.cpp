@@ -595,6 +595,10 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
       --did_pause_print;
     }
   #endif
+
+  #if ENABLED(ULTRA_LCD)
+    lcd_reset_status();
+  #endif
 }
 
 #endif // ADVANCED_PAUSE_FEATURE
