@@ -43,9 +43,9 @@ void GcodeSuite::M163() {
 
 /**
  * M164: Normalize and commit the mix.
- *       If 'S' is given store as a virtual tool. Else in the active v-tool.
  *
  *   S[index]   The virtual tool to store
+ *              If 'S' is omitted update the active virtual tool.
  */
 void GcodeSuite::M164() {
   #if MIXING_VIRTUAL_TOOLS > 1
