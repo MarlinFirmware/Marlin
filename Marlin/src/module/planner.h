@@ -108,7 +108,7 @@ typedef struct {
   uint32_t step_event_count;                // The number of step events required to complete this block
 
   #if EXTRUDERS > 1
-    uint8_t active_extruder_b;              // The extruder to move (if E move)
+    uint8_t extruder;                       // The extruder to move (if E move)
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)

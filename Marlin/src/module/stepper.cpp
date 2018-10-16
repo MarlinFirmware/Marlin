@@ -1711,7 +1711,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       #if EXTRUDERS > 1
-        active_extruder_s = current_block->active_extruder_b;
+        active_extruder_s = current_block->extruder;
       #endif
 
       // Initialize the trapezoid generator from the current block.

@@ -1763,7 +1763,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if EXTRUDERS > 1
-    block->active_extruder_b = extruder;
+    block->extruder = extruder;
   #endif
 
   #if ENABLED(AUTO_POWER_CONTROL)
