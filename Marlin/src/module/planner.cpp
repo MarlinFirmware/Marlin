@@ -1750,7 +1750,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
   #if ENABLED(MIXING_EXTRUDER)
-    MIXER_POPULATE_BLOCK;
+    MIXER_POPULATE_BLOCK();
   #endif
 
   #if FAN_COUNT > 0
@@ -2064,7 +2064,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0f; // factor <1 decreases speed
   LOOP_XYZE(i) {
-    #if ENABLED(MIXING_EXTRUDER) && defined(RETRACT_SYNC_MIXING)
+    #if ENABLED(MIXING_EXTRUDER) && ENABLED(RETRACT_SYNC_MIXING)
       // In worst case, only one extruder running, no change is needed.
       // In best case, all extruders run the same amount, we can divide by MIXING_STEPPERS
       float delta_mm_i = 0;

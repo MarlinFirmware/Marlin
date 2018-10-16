@@ -33,10 +33,12 @@
 
 Mixer mixer;
 
+// Used up to Planner level
 uint_fast8_t  Mixer::selected_v_tool = 0;
 float         Mixer::M163_collector[MIXING_STEPPERS]; // mix proportion. 0.0 = off, otherwise <= COLOR_A_MASK.
 mixer_color_t Mixer::color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
-// Used in stepper
+
+// Used in Stepper
 int_fast8_t   Mixer::runner = 0;
 mixer_color_t Mixer::s_color[MIXING_STEPPERS];
 mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
@@ -55,8 +57,8 @@ void Mixer::normalize(const uint8_t tool_index) {
   #ifdef MIXER_NORMALIZER_DEBUG
     SERIAL_ECHOPGM("Mixer: Relation before normalising: [ ");
     MIXER_STEPPER_LOOP(i) {
-      SERIAL_ECHO_F(M163_collector[i]/csum,3);
-      SERIAL_ECHOPGM(" ");
+      SERIAL_ECHO_F(M163_collector[i] / csum, 3);
+      SERIAL_CHAR(' ');
     }
     SERIAL_ECHOPGM("]\n");
   #endif
@@ -70,17 +72,17 @@ void Mixer::normalize(const uint8_t tool_index) {
     csum = 0;
     SERIAL_ECHOPGM("Mixer: Normalising to             : [ ");
     MIXER_STEPPER_LOOP(i) {
-      SERIAL_ECHO(uint16_t (color[tool_index][i]));
-      SERIAL_ECHOPGM(" ");
+      SERIAL_ECHO(uint16_t(color[tool_index][i]));
+      SERIAL_CHAR(' ');
       csum += color[tool_index][i];
     }
-    SERIAL_ECHOPGM("]\n");
+    SERIAL_ECHOLNPGM("]");
     SERIAL_ECHOPGM("Mixer: Relation  after normalising: [ ");
     MIXER_STEPPER_LOOP(i) {
-    SERIAL_ECHO_F(uint16_t (color[tool_index][i])/csum,3);
-      SERIAL_ECHOPGM(" ");
+      SERIAL_ECHO_F(uint16_t(color[tool_index][i]) / csum, 3);
+      SERIAL_CHAR(' ');
     }
-    SERIAL_ECHOPGM("]\n");
+    SERIAL_ECHOLNPGM("]");
   #endif
 }
 
@@ -99,15 +101,13 @@ void Mixer::init( void ) {
         color[t][i] = (i == 0) ? COLOR_A_MASK : 0;
   #endif
 
-  #ifdef RETRACT_SYNC_MIXING
+  #if ENABLED(RETRACT_SYNC_MIXING)
     // AUTORETRACT_TOOL gets the same amount of all filaments
     MIXER_STEPPER_LOOP(i)
       color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;
   #endif
 
-  MIXER_STEPPER_LOOP(i)
-    M163_collector[i] = 0.0f;
+  ZERO(M163_collector);
 }
-
 
 #endif // MIXING_EXTRUDER

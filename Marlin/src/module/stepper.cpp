@@ -162,7 +162,7 @@ uint32_t Stepper::advance_dividend[XYZE] = { 0 },
          Stepper::decelerate_after,          // The point from where we need to start decelerating
          Stepper::step_event_count;          // The total event count for the current block
 
-#if (EXTRUDERS > 1) || ENABLED(MIXING_EXTRUDER)
+#if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
   uint8_t Stepper::active_extruder_s;
 #else
   constexpr uint8_t Stepper::active_extruder_s;
@@ -1707,8 +1707,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
       decelerate_after = current_block->decelerate_after << oversampling;
 
       #if ENABLED(MIXING_EXTRUDER)
-        MIXER_STEPPER_SETUP;
+        MIXER_STEPPER_SETUP();
       #endif
+
       #if EXTRUDERS > 1
         active_extruder_s = current_block->active_extruder_b;
       #endif
@@ -1730,20 +1731,17 @@ uint32_t Stepper::stepper_block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      #if ENABLED(MIXING_EXTRUDER)
-       if (current_block->direction_bits != last_direction_bits) {
-          last_direction_bits = current_block->direction_bits;
-          set_directions();
-       }
-      #else
-        if (current_block->direction_bits != last_direction_bits || active_extruder_s != last_moved_extruder) {
-          last_direction_bits = current_block->direction_bits;
-          #if EXTRUDERS > 1
-            last_moved_extruder = active_extruder_s;
+      if (current_block->direction_bits != last_direction_bits
+          #if DISABLED(MIXING_EXTRUDER)
+            || active_extruder_s != last_moved_extruder
           #endif
-          set_directions();
-        }
-      #endif
+      ) {
+        last_direction_bits = current_block->direction_bits;
+        set_directions();
+        #if EXTRUDERS > 1
+          last_moved_extruder = active_extruder_s;
+        #endif
+      }
 
       // At this point, we must ensure the movement about to execute isn't
       // trying to force the head against a limit switch. If using interrupt-
@@ -1810,7 +1808,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       interval = LA_ADV_NEVER;
 
       #if ENABLED(MIXING_EXTRUDER)
-        // We don't know what steppers we will step because of LA loop follows,
+        // We don't know which steppers will be stepped because LA loop follows,
         // with potentially multiple steps. Set all.
         if (LA_steps >= 0)
           MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);

@@ -473,7 +473,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
       return invalid_extruder_error(tmp_extruder);
     // T0-Tnnn: Switch virtual tool by changing the index to the mix
-    mixer.T(uint_fast8_t (tmp_extruder));
+    mixer.T(uint_fast8_t(tmp_extruder));
     UNUSED(fr_mm_s);
     UNUSED(no_move);
 

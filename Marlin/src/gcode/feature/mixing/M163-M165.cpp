@@ -50,11 +50,11 @@ void GcodeSuite::M163() {
 void GcodeSuite::M164() {
   #if MIXING_VIRTUAL_TOOLS > 1
     const int tool_index = parser.intval('S', -1);
-    if (WITHIN(tool_index, 0, MIXING_VIRTUAL_TOOLS - 1))
   #else
-    const int tool_index = 0;
+    constexpr int tool_index = 0;
   #endif
-  mixer.normalize(tool_index);
+  if (WITHIN(tool_index, 0, MIXING_VIRTUAL_TOOLS - 1))
+    mixer.normalize(tool_index);
 }
 
 #if ENABLED(DIRECT_MIXING_IN_G1)
@@ -72,9 +72,9 @@ void GcodeSuite::M164() {
    *   I[factor] Mix factor for extruder stepper 6
    */
   void GcodeSuite::M165() {
-  // Get mixing parameters from the GCode
-  // The total "must" be 1.0 (but it will be normalized)
-  // If no mix factors are given, the old mix is preserved
+    // Get mixing parameters from the GCode
+    // The total "must" be 1.0 (but it will be normalized)
+    // If no mix factors are given, the old mix is preserved
     const char mixing_codes[] = { 'A', 'B'
       #if MIXING_STEPPERS > 2
         , 'C'

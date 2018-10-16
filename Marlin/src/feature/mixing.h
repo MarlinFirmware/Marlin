@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __MIXING_H__
-#define __MIXING_H__
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -52,60 +50,58 @@
 #define MIXER_STEPPER_LOOP(VAR) \
   for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
 
-#define MIXER_BLOCK_DEFINITION mixer_color_t b_color[MIXING_STEPPERS];
-#define MIXER_POPULATE_BLOCK mixer.populate_block(block->b_color);
-#define MIXER_STEPPER_SETUP mixer.stepper_setup(current_block->b_color);
+#define MIXER_BLOCK_DEFINITION mixer_color_t b_color[MIXING_STEPPERS]
+#define MIXER_POPULATE_BLOCK() mixer.populate_block(block->b_color)
+#define MIXER_STEPPER_SETUP() mixer.stepper_setup(current_block->b_color)
 
 class Mixer {
   public:
 
-  static void init( void ); // populate colors at boot time
+  static void init(void); // Populate colors at boot time
 
-  // used up to planner level
+  // Used up to Planner level
   static void normalize(const uint8_t tool_index);
   FORCE_INLINE static uint8_t get_current_v_tool(void) { return selected_v_tool; }
   FORCE_INLINE static void T(const uint_fast8_t c) { selected_v_tool = c; }
-  FORCE_INLINE static void set_M163_collector(uint8_t c, float f) { M163_collector[c] = f; }
+  FORCE_INLINE static void set_M163_collector(const uint8_t c, const float f) { M163_collector[c] = f; }
 
-  // user when dealing with the blocks
-  FORCE_INLINE static void populate_block(mixer_color_t b_color[] ) {
+  // Used when dealing with blocks
+  FORCE_INLINE static void populate_block(mixer_color_t b_color[]) {
     uint_fast8_t j = get_current_v_tool();
-    MIXER_STEPPER_LOOP(i)
-      b_color[i] = color[j][i];
+    MIXER_STEPPER_LOOP(i) b_color[i] = color[j][i];
   }
   FORCE_INLINE static void stepper_setup(mixer_color_t b_color[]) { MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i]; }
 
-  // used in stepper
+  // Used in Stepper
   FORCE_INLINE static uint8_t get_stepper(void) { return runner; }
   FORCE_INLINE static uint8_t get_next_stepper(void) {
     do {
       if (--runner < 0) runner = MIXING_STEPPERS - 1;
       accu[runner] += s_color[runner];
-      #ifdef MIXER_ACCU_SIGNED
-        if (accu[runner] < 0)
-      #else
-        if (accu[runner] & COLOR_A_MASK)
-      #endif
-        {
-          accu[runner] &= COLOR_MASK;
-          return runner;
-        }
+      if (
+        #ifdef MIXER_ACCU_SIGNED
+          accu[runner] < 0
+        #else
+          accu[runner] & COLOR_A_MASK
+        #endif
+      ) {
+        accu[runner] &= COLOR_MASK;
+        return runner;
+      }
     } while( true );
   }
 
   private:
 
-  // used up to planner level
+  // Used up to Planner level
   static uint_fast8_t  selected_v_tool;
   static float         M163_collector[MIXING_STEPPERS];
   static mixer_color_t color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
 
-  // Used in stepper
+  // Used in Stepper
   static int_fast8_t   runner;
   static mixer_color_t s_color[MIXING_STEPPERS];
   static mixer_accu_t  accu[MIXING_STEPPERS];
 };
 
 extern Mixer mixer;
-
-#endif // __MIXING_H__
