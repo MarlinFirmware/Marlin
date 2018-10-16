@@ -215,11 +215,11 @@
 #endif
 #define MSG_VE_JERK                         _UxGT("V E Jerk")
 #define MSG_VELOCITY                        _UxGT("Geschwindigkeit")
-#define MSG_VMAX                            _UxGT("V max ") // space by purpose
+#define MSG_VMAX                            _UxGT("V max ") // space intentional
 #define MSG_VMIN                            _UxGT("V min")
 #define MSG_VTRAV_MIN                       _UxGT("V min Leerfahrt")
 #define MSG_ACCELERATION                    _UxGT("Beschleunigung")
-#define MSG_AMAX                            _UxGT("A max ") // space by purpose
+#define MSG_AMAX                            _UxGT("A max ") // space intentional
 #define MSG_A_RETRACT                       _UxGT("A Rückzug")
 #define MSG_A_TRAVEL                        _UxGT("A Leerfahrt")
 #define MSG_STEPS_PER_MM                    _UxGT("Steps/mm")
