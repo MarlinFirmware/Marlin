@@ -58,9 +58,9 @@ void GcodeSuite::G0_G1(
   #if ENABLED(G0_FEEDRATE)
     float saved_g1_feedrate_mm_s;
   #endif
-  
+
   if (IsRunning() && G0_G1_CONDITION) {
-    
+
     #if ENABLED(G0_FEEDRATE)
       if (fast_move) {
         // Save standard feedrate before setting feedrate to fast/g0
@@ -95,13 +95,13 @@ void GcodeSuite::G0_G1(
     #endif
 
     #if ENABLED(G0_FEEDRATE)
-      // save G0 feedrate, and restore standard feedrate as soon as possible 
+      // save G0 feedrate, and restore standard feedrate as soon as possible
       if (fast_move) {
         saved_g0_feedrate_mm_s = feedrate_mm_s;
         feedrate_mm_s = saved_g1_feedrate_mm_s;
       }
     #endif
-    
+
     #if ENABLED(NANODLP_Z_SYNC)
       #if ENABLED(NANODLP_ALL_AXIS)
         #define _MOVE_SYNC parser.seenval('X') || parser.seenval('Y') || parser.seenval('Z')  // For any move wait and output sync message

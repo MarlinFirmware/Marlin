@@ -1621,7 +1621,7 @@
 //#define G0_FEEDRATE         // Add a G0-specific sticky feedrate, applied to all subsequent G0 moves.
 #if ENABLED(G0_FEEDRATE)
   #define DEFAULT_G0_FEEDRATE 3000  // (mm/m)
-#endif 
+#endif
 
 /**
  * User-defined menu items that execute custom GCode
