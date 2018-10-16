@@ -303,9 +303,9 @@ class Stepper {
                     step_event_count;       // The total event count for the current block
 
     #if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
-      static uint8_t active_extruder_s;
+      static uint8_t stepper_extruder;
     #else
-      static constexpr uint8_t active_extruder_s = 0;
+      static constexpr uint8_t stepper_extruder = 0;
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)

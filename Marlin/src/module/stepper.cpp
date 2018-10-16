@@ -163,9 +163,9 @@ uint32_t Stepper::advance_dividend[XYZE] = { 0 },
          Stepper::step_event_count;          // The total event count for the current block
 
 #if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
-  uint8_t Stepper::active_extruder_s;
+  uint8_t Stepper::stepper_extruder;
 #else
-  constexpr uint8_t Stepper::active_extruder_s;
+  constexpr uint8_t Stepper::stepper_extruder;
 #endif
 
 #if ENABLED(S_CURVE_ACCELERATION)
@@ -303,7 +303,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
 #endif
 
 #if DISABLED(MIXING_EXTRUDER)
-  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(active_extruder_s, v)
+  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
 #endif
 
 void Stepper::wake_up() {
@@ -354,11 +354,11 @@ void Stepper::set_directions() {
       }
     #else
       if (motor_direction(E_AXIS)) {
-        REV_E_DIR(active_extruder_s);
+        REV_E_DIR(stepper_extruder);
         count_direction[E_AXIS] = -1;
       }
       else {
-        NORM_E_DIR(active_extruder_s);
+        NORM_E_DIR(stepper_extruder);
         count_direction[E_AXIS] = 1;
       }
     #endif
@@ -1711,14 +1711,14 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       #if EXTRUDERS > 1
-        active_extruder_s = current_block->extruder;
+        stepper_extruder = current_block->extruder;
       #endif
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
         #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
           // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
-          if (active_extruder_s != last_moved_extruder) LA_current_adv_steps = 0;
+          if (stepper_extruder != last_moved_extruder) LA_current_adv_steps = 0;
         #endif
 
         if ((LA_use_advance_lead = current_block->use_advance_lead)) {
@@ -1733,13 +1733,13 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       if (current_block->direction_bits != last_direction_bits
           #if DISABLED(MIXING_EXTRUDER)
-            || active_extruder_s != last_moved_extruder
+            || stepper_extruder != last_moved_extruder
           #endif
       ) {
         last_direction_bits = current_block->direction_bits;
         set_directions();
         #if EXTRUDERS > 1
-          last_moved_extruder = active_extruder_s;
+          last_moved_extruder = stepper_extruder;
         #endif
       }
 
@@ -1816,9 +1816,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
           MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
       #else
         if (LA_steps >= 0)
-          NORM_E_DIR(active_extruder_s);
+          NORM_E_DIR(stepper_extruder);
         else
-          REV_E_DIR(active_extruder_s);
+          REV_E_DIR(stepper_extruder);
       #endif
 
     // Get the timer count and estimate the end of the pulse
@@ -1833,7 +1833,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #if ENABLED(MIXING_EXTRUDER)
         E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
       #else
-        E_STEP_WRITE(active_extruder_s, !INVERT_E_STEP_PIN);
+        E_STEP_WRITE(stepper_extruder, !INVERT_E_STEP_PIN);
       #endif
 
       // Enforce a minimum duration for STEP pulse ON
@@ -1851,7 +1851,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #if ENABLED(MIXING_EXTRUDER)
         E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
       #else
-        E_STEP_WRITE(active_extruder_s, INVERT_E_STEP_PIN);
+        E_STEP_WRITE(stepper_extruder, INVERT_E_STEP_PIN);
       #endif
 
       // For minimum pulse time wait before looping
