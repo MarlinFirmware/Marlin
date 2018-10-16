@@ -55,7 +55,7 @@
 
 // private:
 
-static float resume_position[XYZE];
+static xyze_t resume;
 
 AdvancedPauseMenuResponse advanced_pause_menu_response;
 
@@ -112,8 +112,8 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
 }
 
 void do_pause_e_move(const float &length, const float &fr) {
-  current_position[E_AXIS] += length / planner.e_factor[active_extruder];
-  planner.buffer_line(current_position, fr, active_extruder);
+  current.e += length / planner.e_factor[active_extruder];
+  planner.buffer_line(current, fr, active_extruder);
   planner.synchronize();
 }
 
@@ -294,7 +294,7 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
   safe_delay(FILAMENT_UNLOAD_DELAY);
 
   // Quickly purge
-  do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.settings.max_feedrate_mm_s[E_AXIS]);
+  do_pause_e_move(FILAMENT_UNLOAD_RETRACT_LENGTH + FILAMENT_UNLOAD_PURGE_LENGTH, planner.settings.max_feedrate_mm_s.E(active_extruder));
 
   // Unload filament
   #if FILAMENT_CHANGE_UNLOAD_ACCEL > 0
@@ -374,7 +374,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   print_job_timer.pause();
 
   // Save current position
-  COPY(resume_position, current_position);
+  resume = current;
 
   // Wait for buffered blocks to complete
   planner.synchronize();
@@ -522,10 +522,10 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/ DXC_ARGS) {
  * - Display "wait for print to resume"
  * - Re-prime the nozzle...
  *   -  FWRETRACT: Recover/prime from the prior G10.
- *   - !FWRETRACT: Retract by resume_position[E], if negative.
+ *   - !FWRETRACT: Retract by resume.e, if negative.
  *                 Not sure how this logic comes into use.
- * - Move the nozzle back to resume_position
- * - Sync the planner E to resume_position[E]
+ * - Move the nozzle back to resume.position
+ * - Sync the planner E to resume.e
  * - Send host action for resume, if configured
  * - Resume the current SD print job, if any
  */
@@ -561,18 +561,18 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
       do_pause_e_move(-fwretract.settings.retract_length, fwretract.settings.retract_feedrate_mm_s);
   #endif
 
-  // If resume_position is negative
-  if (resume_position[E_AXIS] < 0) do_pause_e_move(resume_position[E_AXIS], PAUSE_PARK_RETRACT_FEEDRATE);
+  // If resume.e is negative
+  if (resume.e < 0) do_pause_e_move(resume.e, PAUSE_PARK_RETRACT_FEEDRATE);
 
   // Move XY to starting position, then Z
-  do_blocking_move_to_xy(resume_position[X_AXIS], resume_position[Y_AXIS], NOZZLE_PARK_XY_FEEDRATE);
+  do_blocking_move_to_xy(resume.x, resume.y, NOZZLE_PARK_XY_FEEDRATE);
 
   // Move Z_AXIS to saved position
-  do_blocking_move_to_z(resume_position[Z_AXIS], NOZZLE_PARK_Z_FEEDRATE);
+  do_blocking_move_to_z(resume.z, NOZZLE_PARK_Z_FEEDRATE);
 
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
-  planner.set_e_position_mm((destination[E_AXIS] = current_position[E_AXIS] = resume_position[E_AXIS]));
+  planner.set_e_position_mm((destination.e = current.e = resume.e));
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     runout.reset();

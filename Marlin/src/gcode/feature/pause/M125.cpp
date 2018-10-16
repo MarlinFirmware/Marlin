@@ -66,8 +66,8 @@ void GcodeSuite::M125() {
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
   #if HAS_HOTEND_OFFSET && DISABLED(DUAL_X_CARRIAGE) && DISABLED(DELTA)
-    park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
-    park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
+    park_point.x += (active_extruder ? hotend_offset[active_extruder].x : 0);
+    park_point.y += (active_extruder ? hotend_offset[active_extruder].y : 0);
   #endif
 
   #if DISABLED(SDSUPPORT)

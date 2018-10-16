@@ -456,66 +456,46 @@
 
   static void tmc_debug_loop(const TMC_debug_enum i) {
     #if AXIS_IS_TMC(X)
-      tmc_status(stepperX, i, planner.settings.axis_steps_per_mm[X_AXIS]);
+      tmc_status(stepperX, i, planner.settings.axis_steps_per_mm.a);
     #endif
     #if AXIS_IS_TMC(X2)
-      tmc_status(stepperX2, i, planner.settings.axis_steps_per_mm[X_AXIS]);
+      tmc_status(stepperX2, i, planner.settings.axis_steps_per_mm.a);
     #endif
 
     #if AXIS_IS_TMC(Y)
-      tmc_status(stepperY, i, planner.settings.axis_steps_per_mm[Y_AXIS]);
+      tmc_status(stepperY, i, planner.settings.axis_steps_per_mm.b);
     #endif
     #if AXIS_IS_TMC(Y2)
-      tmc_status(stepperY2, i, planner.settings.axis_steps_per_mm[Y_AXIS]);
+      tmc_status(stepperY2, i, planner.settings.axis_steps_per_mm.b);
     #endif
 
     #if AXIS_IS_TMC(Z)
-      tmc_status(stepperZ, i, planner.settings.axis_steps_per_mm[Z_AXIS]);
+      tmc_status(stepperZ, i, planner.settings.axis_steps_per_mm.c);
     #endif
     #if AXIS_IS_TMC(Z2)
-      tmc_status(stepperZ2, i, planner.settings.axis_steps_per_mm[Z_AXIS]);
+      tmc_status(stepperZ2, i, planner.settings.axis_steps_per_mm.c);
     #endif
     #if AXIS_IS_TMC(Z3)
-      tmc_status(stepperZ3, i, planner.settings.axis_steps_per_mm[Z_AXIS]);
+      tmc_status(stepperZ3, i, planner.settings.axis_steps_per_mm.c);
     #endif
 
     #if AXIS_IS_TMC(E0)
-      tmc_status(stepperE0, i, planner.settings.axis_steps_per_mm[E_AXIS]);
+      tmc_status(stepperE0, i, planner.settings.axis_steps_per_mm.E(0));
     #endif
     #if AXIS_IS_TMC(E1)
-      tmc_status(stepperE1, i, planner.settings.axis_steps_per_mm[E_AXIS
-        #if ENABLED(DISTINCT_E_FACTORS)
-          + 1
-        #endif
-      ]);
+      tmc_status(stepperE1, i, planner.settings.axis_steps_per_mm.E(1));
     #endif
     #if AXIS_IS_TMC(E2)
-      tmc_status(stepperE2, i, planner.settings.axis_steps_per_mm[E_AXIS
-        #if ENABLED(DISTINCT_E_FACTORS)
-          + 2
-        #endif
-      ]);
+      tmc_status(stepperE2, i, planner.settings.axis_steps_per_mm.E(2));
     #endif
     #if AXIS_IS_TMC(E3)
-      tmc_status(stepperE3, i, planner.settings.axis_steps_per_mm[E_AXIS
-        #if ENABLED(DISTINCT_E_FACTORS)
-          + 3
-        #endif
-      ]);
+      tmc_status(stepperE3, i, planner.settings.axis_steps_per_mm.E(3));
     #endif
     #if AXIS_IS_TMC(E4)
-      tmc_status(stepperE4, i, planner.settings.axis_steps_per_mm[E_AXIS
-        #if ENABLED(DISTINCT_E_FACTORS)
-          + 4
-        #endif
-      ]);
+      tmc_status(stepperE4, i, planner.settings.axis_steps_per_mm.E(4));
     #endif
     #if AXIS_IS_TMC(E5)
-      tmc_status(stepperE5, i, planner.settings.axis_steps_per_mm[E_AXIS
-        #if ENABLED(DISTINCT_E_FACTORS)
-          + 5
-        #endif
-      ]);
+      tmc_status(stepperE5, i, planner.settings.axis_steps_per_mm.E(5));
     #endif
 
     SERIAL_EOL();

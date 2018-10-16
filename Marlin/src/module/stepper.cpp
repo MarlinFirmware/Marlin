@@ -157,11 +157,11 @@ uint8_t Stepper::steps_per_isr;
 #endif
     uint8_t Stepper::oversampling_factor;
 
-int32_t Stepper::delta_error[XYZE] = { 0 };
+xyze32_t Stepper::delta_error; // = { 0 };
 
-uint32_t Stepper::advance_dividend[XYZE] = { 0 },
-         Stepper::advance_divisor = 0,
-         Stepper::step_events_completed = 0, // The number of step events executed in the current block
+xyze32u_t Stepper::advance_dividend;
+uint32_t Stepper::advance_divisor,
+         Stepper::step_events_completed,     // The number of step events executed in the current block
          Stepper::accelerate_until,          // The point from where we need to stop acceleration
          Stepper::decelerate_after,          // The point from where we need to start decelerating
          Stepper::step_event_count;          // The total event count for the current block
@@ -206,10 +206,10 @@ int32_t Stepper::ticks_nominal = -1;
   uint32_t Stepper::acc_step_rate; // needed for deceleration start point
 #endif
 
-volatile int32_t Stepper::endstops_trigsteps[XYZ];
+abc32v_t Stepper::endstops_trigsteps;
 
-volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
-int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
+abce32v_t Stepper::count_position = { 0 };
+abce8_t Stepper::count_direction = { 0 };
 
 #define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                       \
   if (separate_multi_axis) {                                                                                                \
@@ -350,20 +350,20 @@ void Stepper::set_directions() {
        // what e-steppers will step. Likely all. Set all.
       if (motor_direction(E_AXIS)) {
         MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
-        count_direction[E_AXIS] = -1;
+        count_direction.e = -1;
       }
       else {
         MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
-        count_direction[E_AXIS] = 1;
+        count_direction.e = 1;
       }
     #else
       if (motor_direction(E_AXIS)) {
         REV_E_DIR(stepper_extruder);
-        count_direction[E_AXIS] = -1;
+        count_direction.e = -1;
       }
       else {
         NORM_E_DIR(stepper_extruder);
-        count_direction[E_AXIS] = 1;
+        count_direction.e = 1;
       }
     #endif
   #endif // !LIN_ADVANCE
@@ -1398,15 +1398,15 @@ void Stepper::stepper_pulse_phase_isr() {
     // Pulse Extruders
     // Tick the E axis, correct error term and update position
     #if ENABLED(LIN_ADVANCE) || ENABLED(MIXING_EXTRUDER)
-      delta_error[E_AXIS] += advance_dividend[E_AXIS];
-      if (delta_error[E_AXIS] >= 0) {
-        count_position[E_AXIS] += count_direction[E_AXIS];
+      delta_error.e += advance_dividend.e;
+      if (delta_error.e >= 0) {
+        count_position.e += count_direction.e;
         #if ENABLED(LIN_ADVANCE)
-          delta_error[E_AXIS] -= advance_divisor;
+          delta_error.e -= advance_divisor;
           // Don't step E here - But remember the number of steps to perform
           motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
         #else // !LIN_ADVANCE && MIXING_EXTRUDER
-          // Don't adjust delta_error[E_AXIS] here!
+          // Don't adjust delta_error.e here!
           // Being positive is the criteria for ending the pulse.
           E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
         #endif
@@ -1438,8 +1438,8 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
-        if (delta_error[E_AXIS] >= 0) {
-          delta_error[E_AXIS] -= advance_divisor;
+        if (delta_error.e >= 0) {
+          delta_error.e -= advance_divisor;
           E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
         }
       #else // !MIXING_EXTRUDER
@@ -1592,10 +1592,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       // Sync block? Sync the stepper counts and return
       while (TEST(current_block->flag, BLOCK_BIT_SYNC_POSITION)) {
-        _set_position(
-          current_block->position[A_AXIS], current_block->position[B_AXIS],
-          current_block->position[C_AXIS], current_block->position[E_AXIS]
-        );
+        _set_position(current_block->position);
         planner.discard_current_block();
 
         // Try to get a new block
@@ -1626,7 +1623,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #endif
         #define X_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) X_CMP D_(2)) )
       #else
-        #define X_MOVE_TEST !!current_block->steps[A_AXIS]
+        #define X_MOVE_TEST !!current_block->steps.a
       #endif
 
       #if CORE_IS_XY || CORE_IS_YZ
@@ -1644,7 +1641,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #endif
         #define Y_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Y_CMP D_(2)) )
       #else
-        #define Y_MOVE_TEST !!current_block->steps[B_AXIS]
+        #define Y_MOVE_TEST !!current_block->steps.b
       #endif
 
       #if CORE_IS_XZ || CORE_IS_YZ
@@ -1662,17 +1659,17 @@ uint32_t Stepper::stepper_block_phase_isr() {
         #endif
         #define Z_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && D_(1) Z_CMP D_(2)) )
       #else
-        #define Z_MOVE_TEST !!current_block->steps[C_AXIS]
+        #define Z_MOVE_TEST !!current_block->steps.c
       #endif
 
       uint8_t axis_bits = 0;
       if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
       if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
       if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
-      //if (!!current_block->steps[E_AXIS]) SBI(axis_bits, E_AXIS);
-      //if (!!current_block->steps[A_AXIS]) SBI(axis_bits, X_HEAD);
-      //if (!!current_block->steps[B_AXIS]) SBI(axis_bits, Y_HEAD);
-      //if (!!current_block->steps[C_AXIS]) SBI(axis_bits, Z_HEAD);
+      //if (!!current_block->steps.e) SBI(axis_bits, E_AXIS);
+      //if (!!current_block->steps.a) SBI(axis_bits, X_HEAD);
+      //if (!!current_block->steps.b) SBI(axis_bits, Y_HEAD);
+      //if (!!current_block->steps.c) SBI(axis_bits, Z_HEAD);
       axis_did_move = axis_bits;
 
       // No acceleration / deceleration time elapsed so far
@@ -1695,13 +1692,13 @@ uint32_t Stepper::stepper_block_phase_isr() {
       step_event_count = current_block->step_event_count << oversampling;
 
       // Initialize Bresenham delta errors to 1/2
-      delta_error[X_AXIS] = delta_error[Y_AXIS] = delta_error[Z_AXIS] = delta_error[E_AXIS] = -int32_t(step_event_count);
+      delta_error.x = delta_error.y = delta_error.z = delta_error.e = -int32_t(step_event_count);
 
       // Calculate Bresenham dividends
-      advance_dividend[X_AXIS] = current_block->steps[X_AXIS] << 1;
-      advance_dividend[Y_AXIS] = current_block->steps[Y_AXIS] << 1;
-      advance_dividend[Z_AXIS] = current_block->steps[Z_AXIS] << 1;
-      advance_dividend[E_AXIS] = current_block->steps[E_AXIS] << 1;
+      advance_dividend.x = current_block->steps.a << 1;
+      advance_dividend.y = current_block->steps.b << 1;
+      advance_dividend.z = current_block->steps.c << 1;
+      advance_dividend.e = current_block->steps.e << 1;
 
       // Calculate Bresenham divisor
       advance_divisor = step_event_count << 1;
@@ -1763,7 +1760,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
         // If delayed Z enable, enable it now. This option will severely interfere with
         // timing between pulses when chaining motion between blocks, and it could lead
         // to lost steps in both X and Y axis, so avoid using it unless strictly necessary!!
-        if (current_block->steps[Z_AXIS]) enable_Z();
+        if (current_block->steps.c) enable_Z();
       #endif
 
       // Mark the time_nominal as not calculated yet
@@ -2101,26 +2098,26 @@ void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c
   #if CORE_IS_XY
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-    count_position[A_AXIS] = a + b;
-    count_position[B_AXIS] = CORESIGN(a - b);
-    count_position[Z_AXIS] = c;
+    count_position.a = a + b;
+    count_position.b = CORESIGN(a - b);
+    count_position.c = c;
   #elif CORE_IS_XZ
     // corexz planning
-    count_position[A_AXIS] = a + c;
-    count_position[Y_AXIS] = b;
-    count_position[C_AXIS] = CORESIGN(a - c);
+    count_position.a = a + c;
+    count_position.b = b;
+    count_position.c = CORESIGN(a - c);
   #elif CORE_IS_YZ
     // coreyz planning
-    count_position[X_AXIS] = a;
-    count_position[B_AXIS] = b + c;
-    count_position[C_AXIS] = CORESIGN(b - c);
+    count_position.a = a;
+    count_position.b = b + c;
+    count_position.c = CORESIGN(b - c);
   #else
     // default non-h-bot planning
-    count_position[X_AXIS] = a;
-    count_position[Y_AXIS] = b;
-    count_position[Z_AXIS] = c;
+    count_position.a = a;
+    count_position.b = b;
+    count_position.c = c;
   #endif
-  count_position[E_AXIS] = e;
+  count_position.e = e;
 }
 
 /**
@@ -2134,7 +2131,7 @@ int32_t Stepper::position(const AxisEnum axis) {
     if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
   #endif
 
-  const int32_t v = count_position[axis];
+  const int32_t v = (int32_t)count_position[axis];
 
   #ifdef __AVR__
     // Reenable Stepper ISR
@@ -2197,9 +2194,9 @@ void Stepper::report_positions() {
   const bool was_enabled = STEPPER_ISR_ENABLED();
   if (was_enabled) DISABLE_STEPPER_DRIVER_INTERRUPT();
 
-  const int32_t xpos = count_position[X_AXIS],
-                ypos = count_position[Y_AXIS],
-                zpos = count_position[Z_AXIS];
+  const int32_t xpos = count_position.a,
+                ypos = count_position.b,
+                zpos = count_position.c;
 
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
 

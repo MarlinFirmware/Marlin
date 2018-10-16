@@ -48,9 +48,9 @@
     if (parser.seen('R')) delta_radius                   = parser.value_linear_units();
     if (parser.seen('S')) delta_segments_per_second      = parser.value_float();
     if (parser.seen('B')) delta_calibration_radius       = parser.value_float();
-    if (parser.seen('X')) delta_tower_angle_trim[A_AXIS] = parser.value_float();
-    if (parser.seen('Y')) delta_tower_angle_trim[B_AXIS] = parser.value_float();
-    if (parser.seen('Z')) delta_tower_angle_trim[C_AXIS] = parser.value_float();
+    if (parser.seen('X')) delta_tower_angle_trim.a = parser.value_float();
+    if (parser.seen('Y')) delta_tower_angle_trim.b = parser.value_float();
+    if (parser.seen('Z')) delta_tower_angle_trim.c = parser.value_float();
     recalc_delta_settings();
   }
 
@@ -76,7 +76,7 @@
     const bool hasA = parser.seen('A'), hasP = parser.seen('P'), hasX = parser.seen('X');
     const uint8_t sumAPX = hasA + hasP + hasX;
     if (sumAPX == 1)
-      home_offset[A_AXIS] = parser.value_float();
+      home_offset.a = parser.value_float();
     else if (sumAPX > 1) {
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM("Only one of A, P, or X is allowed.");
@@ -86,7 +86,7 @@
     const bool hasB = parser.seen('B'), hasT = parser.seen('T'), hasY = parser.seen('Y');
     const uint8_t sumBTY = hasB + hasT + hasY;
     if (sumBTY == 1)
-      home_offset[B_AXIS] = parser.value_float();
+      home_offset.b = parser.value_float();
     else if (sumBTY > 1) {
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM("Only one of B, T, or Y is allowed.");

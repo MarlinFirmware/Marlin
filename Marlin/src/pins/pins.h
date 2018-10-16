@@ -19,7 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#ifndef _PINS_H_
+  #define _PINS_H_
+#else
+  #error "pins.h should only be included from MarlinConfig.h"
+#endif
 
 /**
  * Include pins definitions

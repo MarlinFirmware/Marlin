@@ -58,9 +58,9 @@ extern uint8_t commands_in_queue, cmd_queue_index_r;
     SERIAL_PROTOCOLLNPAIR(" valid_foot:", int(job_recovery_info.valid_foot));
     if (job_recovery_info.valid_head) {
       if (job_recovery_info.valid_head == job_recovery_info.valid_foot) {
-        SERIAL_PROTOCOLPGM("current_position: ");
+        SERIAL_PROTOCOLPGM("current: ");
         LOOP_XYZE(i) {
-          SERIAL_PROTOCOL(job_recovery_info.current_position[i]);
+          SERIAL_PROTOCOL(job_recovery_info.current[i]);
           if (i < E_AXIS) SERIAL_CHAR(',');
         }
         SERIAL_EOL();
@@ -182,8 +182,8 @@ void check_print_job_recovery() {
           fwretract.current_hop = job_recovery_info.retract_hop;
         #endif
 
-        dtostrf(job_recovery_info.current_position[Z_AXIS] + 2, 1, 3, str_1);
-        dtostrf(job_recovery_info.current_position[E_AXIS]
+        dtostrf(job_recovery_info.current.z + 2, 1, 3, str_1);
+        dtostrf(job_recovery_info.current.e
           #if ENABLED(SAVE_EACH_CMD_MODE)
             - 5
           #endif
@@ -238,7 +238,7 @@ void save_job_recovery_info() {
         ELAPSED(ms, next_save_ms) ||
       #endif
       // Save on every new Z height
-      (current_position[Z_AXIS] > 0 && current_position[Z_AXIS] > job_recovery_info.current_position[Z_AXIS])
+      (current.z > 0 && current.z > job_recovery_info.current.z)
     #endif
   ) {
     #if SAVE_INFO_INTERVAL_MS > 0
@@ -250,7 +250,7 @@ void save_job_recovery_info() {
     job_recovery_info.valid_foot = job_recovery_info.valid_head;
 
     // Machine state
-    COPY(job_recovery_info.current_position, current_position);
+    job_recovery_info.current = current;
     job_recovery_info.feedrate = feedrate_mm_s;
 
     #if HOTENDS > 1

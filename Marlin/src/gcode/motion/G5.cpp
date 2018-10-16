@@ -27,9 +27,9 @@
 #include "../../module/motion.h"
 #include "../../module/planner_bezier.h"
 
-void plan_cubic_move(const float (&cart)[XYZE], const float (&offset)[4]) {
-  cubic_b_spline(current_position, cart, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
-  COPY(current_position, cart);
+void plan_cubic_move(const xyze_t &cart, const float (&offset)[4]) {
+  cubic_b_spline(current, cart, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
+  COPY(current, cart);
 }
 
 /**

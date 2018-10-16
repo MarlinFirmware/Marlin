@@ -36,7 +36,7 @@
 
 #include "dac_mcp4728.h"
 
-uint16_t mcp4728_values[XYZE];
+xyze16u_t mcp4728_values;
 
 /**
  * Begin I2C, get current values (input register and eeprom) of mcp4728
@@ -122,7 +122,7 @@ uint8_t mcp4728_getDrvPct(uint8_t channel) { return uint8_t(100.0 * mcp4728_valu
  * Receives all Drive strengths as 0-100 percent values, updates
  * DAC Values array and calls fastwrite to update the DAC.
  */
-void mcp4728_setDrvPct(uint8_t pct[XYZE]) {
+void mcp4728_setDrvPct(xyze8u_t pct) {
   LOOP_XYZE(i) mcp4728_values[i] = 0.01 * pct[i] * (DAC_STEPPER_MAX);
   mcp4728_fastWrite();
 }

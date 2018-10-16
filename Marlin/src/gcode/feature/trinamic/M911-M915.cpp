@@ -93,14 +93,14 @@
    *       M912 E1  ; clear E1 only
    */
   void GcodeSuite::M912() {
-      const bool hasX = parser.seen(axis_codes[X_AXIS]),
-                 hasY = parser.seen(axis_codes[Y_AXIS]),
-                 hasZ = parser.seen(axis_codes[Z_AXIS]),
-                 hasE = parser.seen(axis_codes[E_AXIS]),
+      const bool hasX = parser.seen(axis_codes.x),
+                 hasY = parser.seen(axis_codes.y),
+                 hasZ = parser.seen(axis_codes.z),
+                 hasE = parser.seen(axis_codes.e),
                  hasNone = !hasX && !hasY && !hasZ && !hasE;
 
       #if M91x_USE(X) || M91x_USE(X2)
-        const int8_t xval = int8_t(parser.byteval(axis_codes[X_AXIS], 0xFF));
+        const int8_t xval = int8_t(parser.byteval(axis_codes.x, 0xFF));
         #if M91x_USE(X)
           if (hasNone || xval == 1 || (hasX && xval < 0)) tmc_clear_otpw(stepperX);
         #endif
@@ -110,7 +110,7 @@
       #endif
 
       #if M91x_USE(Y) || M91x_USE(Y2)
-        const int8_t yval = int8_t(parser.byteval(axis_codes[Y_AXIS], 0xFF));
+        const int8_t yval = int8_t(parser.byteval(axis_codes.y, 0xFF));
         #if M91x_USE(Y)
           if (hasNone || yval == 1 || (hasY && yval < 0)) tmc_clear_otpw(stepperY);
         #endif
@@ -120,7 +120,7 @@
       #endif
 
       #if M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3)
-        const int8_t zval = int8_t(parser.byteval(axis_codes[Z_AXIS], 0xFF));
+        const int8_t zval = int8_t(parser.byteval(axis_codes.z, 0xFF));
         #if M91x_USE(Z)
           if (hasNone || zval == 1 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ);
         #endif
@@ -133,7 +133,7 @@
       #endif
 
       #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5)
-        const int8_t eval = int8_t(parser.byteval(axis_codes[E_AXIS], 0xFF));
+        const int8_t eval = int8_t(parser.byteval(axis_codes.e, 0xFF));
         #if M91x_USE_E(0)
           if (hasNone || eval == 0 || (hasE && eval < 0)) tmc_clear_otpw(stepperE0);
         #endif
@@ -163,8 +163,8 @@
   void GcodeSuite::M913() {
     #define TMC_SAY_PWMTHRS(A,Q) tmc_get_pwmthrs(stepper##Q, planner.settings.axis_steps_per_mm[_AXIS(A)])
     #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, value, planner.settings.axis_steps_per_mm[_AXIS(A)])
-    #define TMC_SAY_PWMTHRS_E(E) tmc_get_pwmthrs(stepperE##E, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
-    #define TMC_SET_PWMTHRS_E(E) tmc_set_pwmthrs(stepperE##E, value, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
+    #define TMC_SAY_PWMTHRS_E(N) tmc_get_pwmthrs(stepperE##N, planner.settings.axis_steps_per_mm.E(N))
+    #define TMC_SET_PWMTHRS_E(N) tmc_set_pwmthrs(stepperE##N, value, planner.settings.axis_steps_per_mm.E(N))
 
     bool report = true;
     const uint8_t index = parser.byteval('I');

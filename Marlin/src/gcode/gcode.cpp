@@ -41,7 +41,7 @@ GcodeSuite gcode;
 uint8_t GcodeSuite::target_extruder;
 millis_t GcodeSuite::previous_move_ms;
 
-bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
+xyze_bool_t GcodeSuite::axis_relative_modes = AXIS_RELATIVE_MODES;
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
   GcodeSuite::MarlinBusyState GcodeSuite::busy_state = NOT_BUSY;
@@ -54,7 +54,7 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS)
   int8_t GcodeSuite::active_coordinate_system = -1; // machine space
-  float GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
+  xyz_t GcodeSuite::coordinate_system[MAX_COORDINATE_SYSTEMS];
 #endif
 
 /**
@@ -92,11 +92,11 @@ void GcodeSuite::get_destination_from_command() {
     if (parser.seen(axis_codes[i])) {
       const float v = parser.value_axis_units((AxisEnum)i);
       destination[i] = (axis_relative_modes[i] || relative_mode)
-        ? current_position[i] + v
+        ? current[i] + v
         : (i == E_AXIS) ? v : LOGICAL_TO_NATIVE(v, i);
     }
     else
-      destination[i] = current_position[i];
+      destination[i] = current[i];
   }
 
   if (parser.linearval('F') > 0)
@@ -104,7 +104,7 @@ void GcodeSuite::get_destination_from_command() {
 
   #if ENABLED(PRINTCOUNTER)
     if (!DEBUGGING(DRYRUN))
-      print_job_timer.incFilamentUsed(destination[E_AXIS] - current_position[E_AXIS]);
+      print_job_timer.incFilamentUsed(destination.e - current.e);
   #endif
 
   // Get ABCDHI mixing factors
@@ -571,7 +571,7 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       #if HAS_M206_COMMAND
-        case 428: M428(); break;                                  // M428: Apply current_position to home_offset
+        case 428: M428(); break;                                  // M428: Apply current to home_offset
       #endif
 
       case 500: M500(); break;                                    // M500: Store settings in EEPROM

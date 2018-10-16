@@ -139,7 +139,7 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 #endif
 
 #if ENABLED(BABYSTEPPING)
-  volatile int16_t Temperature::babystepsTodo[XYZ] = { 0 };
+  volatile xyz16_T Temperature::babystepsTodo = { 0 };
 #endif
 
 #if WATCH_HOTENDS
@@ -657,7 +657,7 @@ float Temperature::get_pid_output(const int8_t e) {
                   lpq[lpq_ptr] = 0;
 
                 if (++lpq_ptr >= lpq_len) lpq_ptr = 0;
-                work_pid[HOTEND_INDEX].Kc = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
+                work_pid[HOTEND_INDEX].Kc = (lpq[lpq_ptr] * planner.steps_to_mm.e) * PID_PARAM(Kc, HOTEND_INDEX);
                 pid_output += work_pid[HOTEND_INDEX].Kc;
               }
             #endif // PID_EXTRUSION_SCALING

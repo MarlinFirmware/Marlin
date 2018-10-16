@@ -178,7 +178,7 @@ millis_t next_lcd_update_ms;
 
   #if ENABLED(DAC_STEPPER_CURRENT)
     #include "../feature/dac/stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
-    uint8_t driverPercent[XYZE];
+    xyze8u_t driverPercent;
   #endif
 
   ////////////////////////////////////////////
@@ -862,11 +862,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
   }
 
   inline void line_to_current_z() {
-    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
+    planner.buffer_line(current, MMM_TO_MMS(manual_feedrate_mm_m.z), active_extruder);
   }
 
   inline void line_to_z(const float &z) {
-    current_position[Z_AXIS] = z;
+    current.z = z;
     line_to_current_z();
   }
 
@@ -1086,9 +1086,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
       //  : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
       //);
       MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Z_OFFSET , &hotend_offset[Z_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[1].x, MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[1].y, -10.0, 10.0, _recalc_IDEX_settings);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Z_OFFSET , &hotend_offset[1].z, -10.0, 10.0, _recalc_IDEX_settings);
       MENU_ITEM(gcode, MSG_IDEX_SAVE_OFFSETS, PSTR("M500"));
       END_MENU();
     }
@@ -1327,11 +1327,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
           const int16_t babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
           encoderPosition = 0;
 
-          const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
+          const float diff = planner.steps_to_mm.z * babystep_increment,
                       new_probe_offset = zprobe_zoffset + diff,
                       new_offs =
                         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-                          do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
+                          do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
                         #else
                           new_probe_offset
                         #endif
@@ -1342,7 +1342,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
             if (do_probe) zprobe_zoffset = new_offs;
             #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-              else hotend_offset[Z_AXIS][active_extruder] = new_offs;
+              else hotend_offset[active_extruder].z = new_offs;
             #endif
 
             lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
@@ -1351,7 +1351,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         if (lcdDrawUpdate) {
           #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
             if (!do_probe)
-              lcd_implementation_drawedit(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
+              lcd_implementation_drawedit(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[active_extruder].z));
             else
           #endif
               lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
@@ -1630,10 +1630,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
       dac_driver_getValues();
       START_MENU();
       MENU_BACK(MSG_CONTROL);
-      MENU_ITEM_EDIT_CALLBACK(int8, MSG_X " " MSG_DAC_PERCENT, &driverPercent[X_AXIS], 0, 100, dac_driver_commit);
-      MENU_ITEM_EDIT_CALLBACK(int8, MSG_Y " " MSG_DAC_PERCENT, &driverPercent[Y_AXIS], 0, 100, dac_driver_commit);
-      MENU_ITEM_EDIT_CALLBACK(int8, MSG_Z " " MSG_DAC_PERCENT, &driverPercent[Z_AXIS], 0, 100, dac_driver_commit);
-      MENU_ITEM_EDIT_CALLBACK(int8, MSG_E " " MSG_DAC_PERCENT, &driverPercent[E_AXIS], 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_X " " MSG_DAC_PERCENT, &driverPercent.x, 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_Y " " MSG_DAC_PERCENT, &driverPercent.y, 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_Z " " MSG_DAC_PERCENT, &driverPercent.z, 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int8, MSG_E " " MSG_DAC_PERCENT, &driverPercent.e, 0, 100, dac_driver_commit);
       MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_driver_eeprom_write);
       END_MENU();
     }
@@ -1959,26 +1959,26 @@ void lcd_quick_feedback(const bool clear_buttons) {
       line_to_z(4.0);
       switch (bed_corner) {
         case 0:
-          current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
-          current_position[Y_AXIS] = Y_MIN_BED + LEVEL_CORNERS_INSET;
+          current.x = X_MIN_BED + LEVEL_CORNERS_INSET;
+          current.y = Y_MIN_BED + LEVEL_CORNERS_INSET;
           break;
         case 1:
-          current_position[X_AXIS] = X_MAX_BED - LEVEL_CORNERS_INSET;
+          current.x = X_MAX_BED - LEVEL_CORNERS_INSET;
           break;
         case 2:
-          current_position[Y_AXIS] = Y_MAX_BED - LEVEL_CORNERS_INSET;
+          current.y = Y_MAX_BED - LEVEL_CORNERS_INSET;
           break;
         case 3:
-          current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
+          current.x = X_MIN_BED + LEVEL_CORNERS_INSET;
           break;
         #if ENABLED(LEVEL_CENTER_TOO)
           case 4:
-            current_position[X_AXIS] = X_CENTER;
-            current_position[Y_AXIS] = Y_CENTER;
+            current.x = X_CENTER;
+            current.y = Y_CENTER;
             break;
         #endif
       }
-      planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
+      planner.buffer_line(current, MMM_TO_MMS(manual_feedrate_mm_m.x), active_extruder);
       line_to_z(0.0);
       if (++bed_corner > 3
         #if ENABLED(LEVEL_CENTER_TOO)
@@ -2103,7 +2103,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       // Encoder knob or keypad buttons adjust the Z position
       //
       if (encoderPosition) {
-        const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MBL_Z_STEP);
+        const float z = current.z + float((int32_t)encoderPosition) * (MBL_Z_STEP);
         line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f));
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
         encoderPosition = 0;
@@ -2113,7 +2113,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       // Draw on first display, then only on Z change
       //
       if (lcdDrawUpdate) {
-        const float v = current_position[Z_AXIS];
+        const float v = current.z;
         lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
       }
     }
@@ -2525,9 +2525,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
      * UBL LCD Map Movement
      */
     void ubl_map_move_to_xy() {
-      current_position[X_AXIS] = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]);
-      current_position[Y_AXIS] = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
-      planner.buffer_line(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
+      current.x = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]);
+      current.y = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
+      planner.buffer_line(current, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
     }
 
     /**
@@ -2881,7 +2881,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       while (wait_for_user) idle();
       KEEPALIVE_STATE(IN_HANDLER);
       lcd_goto_previous_menu_no_defer();
-      return current_position[Z_AXIS];
+      return current.z;
     }
 
   #endif // DELTA_AUTO_CALIBRATION
@@ -2918,13 +2918,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
       START_MENU();
       MENU_BACK(MSG_DELTA_CALIBRATE);
       MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Ex", &delta_endstop_adj[A_AXIS], -5, 5, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Ey", &delta_endstop_adj[B_AXIS], -5, 5, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Ez", &delta_endstop_adj[C_AXIS], -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Ex", &delta_endstop_adj.a, -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Ey", &delta_endstop_adj.b, -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Ez", &delta_endstop_adj.c, -5, 5, _recalc_delta_settings);
       MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Tx", &delta_tower_angle_trim[A_AXIS], -5, 5, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Ty", &delta_tower_angle_trim[B_AXIS], -5, 5, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Tz", &delta_tower_angle_trim[C_AXIS], -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Tx", &delta_tower_angle_trim.a, -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Ty", &delta_tower_angle_trim.b, -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Tz", &delta_tower_angle_trim.c, -5, 5, _recalc_delta_settings);
       MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta_settings);
       END_MENU();
     }
@@ -2999,7 +2999,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       #else
 
-        planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
+        planner.buffer_line(current, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
         manual_move_axis = (int8_t)NO_AXIS;
 
       #endif
@@ -3008,7 +3008,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   /**
    * Set a flag that lcd_update() should start a move
-   * to "current_position" after a short delay.
+   * to "current" after a short delay.
    */
   inline void manual_move_to_current(AxisEnum axis
     #if E_MANUAL > 1
@@ -3037,34 +3037,34 @@ void lcd_quick_feedback(const bool clear_buttons) {
     if (encoderPosition && !processing_manual_move) {
 
       // Start with no limits to movement
-      float min = current_position[axis] - 1000,
-            max = current_position[axis] + 1000;
+      float min = current[axis] - 1000,
+            max = current[axis] + 1000;
 
       // Limit to software endstops, if enabled
       #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
         if (soft_endstops_enabled) switch (axis) {
           case X_AXIS:
             #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-              min = soft_endstop_min[X_AXIS];
+              min = soft_endstop_min.x;
             #endif
             #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-              max = soft_endstop_max[X_AXIS];
+              max = soft_endstop_max.x;
             #endif
             break;
           case Y_AXIS:
             #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-              min = soft_endstop_min[Y_AXIS];
+              min = soft_endstop_min.y;
             #endif
             #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-              max = soft_endstop_max[Y_AXIS];
+              max = soft_endstop_max.y;
             #endif
             break;
           case Z_AXIS:
             #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-              min = soft_endstop_min[Z_AXIS];
+              min = soft_endstop_min.z;
             #endif
             #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-              max = soft_endstop_max[Z_AXIS];
+              max = soft_endstop_max.z;
             #endif
           default: break;
         }
@@ -3074,7 +3074,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       // This assumes the center is 0,0
       #if ENABLED(DELTA)
         if (axis != Z_AXIS) {
-          max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+          max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
           min = -max;
         }
       #endif
@@ -3084,15 +3084,15 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #if IS_KINEMATIC
         manual_move_offset += diff;
         if ((int32_t)encoderPosition < 0)
-          NOLESS(manual_move_offset, min - current_position[axis]);
+          NOLESS(manual_move_offset, min - current[axis]);
         else
-          NOMORE(manual_move_offset, max - current_position[axis]);
+          NOMORE(manual_move_offset, max - current[axis]);
       #else
-        current_position[axis] += diff;
+        current[axis] += diff;
         if ((int32_t)encoderPosition < 0)
-          NOLESS(current_position[axis], min);
+          NOLESS(current[axis], min);
         else
-          NOMORE(current_position[axis], max);
+          NOMORE(current[axis], max);
       #endif
 
       manual_move_to_current(axis);
@@ -3100,7 +3100,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
     encoderPosition = 0;
     if (lcdDrawUpdate) {
-      const float pos = NATIVE_TO_LOGICAL(processing_manual_move ? destination[axis] : current_position[axis]
+      const float pos = NATIVE_TO_LOGICAL(processing_manual_move ? destination[axis] : current[axis]
         #if IS_KINEMATIC
           + manual_move_offset
         #endif
@@ -3124,7 +3124,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #if IS_KINEMATIC
           manual_move_offset += diff;
         #else
-          current_position[E_AXIS] += diff;
+          current.e += diff;
         #endif
         manual_move_to_current(E_AXIS
           #if E_MANUAL > 1
@@ -3157,7 +3157,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
           #endif // E_MANUAL > 2
         }
       #endif // E_MANUAL > 1
-      lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_AXIS]
+      lcd_implementation_drawedit(pos_label, ftostr41sign(current.e
         #if IS_KINEMATIC
           + manual_move_offset
         #endif
@@ -3216,7 +3216,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
           STATIC_ITEM(MSG_MOVE_Z, true, true); break;
         default:
           #if ENABLED(MANUAL_E_MOVES_RELATIVE)
-            manual_move_e_origin = current_position[E_AXIS];
+            manual_move_e_origin = current.e;
           #endif
           STATIC_ITEM(MSG_MOVE_E, true, true);
           break;
@@ -3262,7 +3262,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #endif
 
   #if ENABLED(DELTA)
-    #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
+    #define _MOVE_XY_ALLOWED (current.z <= delta_clip_start_height)
     void lcd_lower_z_to_clip_height() {
       line_to_z(delta_clip_start_height);
       lcd_synchronize();
@@ -3811,7 +3811,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         if (e == active_extruder)
           _planner_refresh_positioning();
         else
-          planner.steps_to_mm[E_AXIS + e] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS + e];
+          planner.steps_to_mm.E(e) = 1.0f / planner.settings.axis_steps_per_mm.E(e);
       }
       void _planner_refresh_e0_positioning() { _planner_refresh_e_positioning(0); }
       void _planner_refresh_e1_positioning() { _planner_refresh_e_positioning(1); }
@@ -3835,28 +3835,26 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_ADVANCED_SETTINGS);
 
       // M203 Max Feedrate
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_A, &planner.settings.max_feedrate_mm_s[A_AXIS], 1, 999);
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_B, &planner.settings.max_feedrate_mm_s[B_AXIS], 1, 999);
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_C, &planner.settings.max_feedrate_mm_s[C_AXIS], 1, 999);
+      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_A, &planner.settings.max_feedrate_mm_s.a, 1, 999);
+      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_B, &planner.settings.max_feedrate_mm_s.b, 1, 999);
+      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_C, &planner.settings.max_feedrate_mm_s.c, 1, 999);
 
+      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s.E(active_extruder), 1, 999);
       #if ENABLED(DISTINCT_E_FACTORS)
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS + active_extruder], 1, 999);
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E1, &planner.settings.max_feedrate_mm_s[E_AXIS], 1, 999);
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E2, &planner.settings.max_feedrate_mm_s[E_AXIS + 1], 1, 999);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E1, &planner.settings.max_feedrate_mm_s.E(0), 1, 999);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E2, &planner.settings.max_feedrate_mm_s.E(1), 1, 999);
         #if E_STEPPERS > 2
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.settings.max_feedrate_mm_s[E_AXIS + 2], 1, 999);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.settings.max_feedrate_mm_s.E(2), 1, 999);
           #if E_STEPPERS > 3
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E4, &planner.settings.max_feedrate_mm_s[E_AXIS + 3], 1, 999);
+            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E4, &planner.settings.max_feedrate_mm_s.E(3), 1, 999);
             #if E_STEPPERS > 4
-              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E5, &planner.settings.max_feedrate_mm_s[E_AXIS + 4], 1, 999);
+              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E5, &planner.settings.max_feedrate_mm_s.E(4), 1, 999);
               #if E_STEPPERS > 5
-                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E6, &planner.settings.max_feedrate_mm_s[E_AXIS + 5], 1, 999);
+                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E6, &planner.settings.max_feedrate_mm_s.E(5), 1, 999);
               #endif // E_STEPPERS > 5
             #endif // E_STEPPERS > 4
           #endif // E_STEPPERS > 3
         #endif // E_STEPPERS > 2
-      #else
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS], 1, 999);
       #endif
 
       // M205 S Min Feedrate
@@ -3883,28 +3881,26 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 100, 99000);
 
       // M201 settings
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_A, &planner.settings.max_acceleration_mm_per_s2[A_AXIS], 100, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_B, &planner.settings.max_acceleration_mm_per_s2[B_AXIS], 100, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_C, &planner.settings.max_acceleration_mm_per_s2[C_AXIS], 10, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_A, &planner.settings.max_acceleration_mm_per_s2.a, 100, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_B, &planner.settings.max_acceleration_mm_per_s2.b, 100, 99000, _reset_acceleration_rates);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_C, &planner.settings.max_acceleration_mm_per_s2.c, 10, 99000, _reset_acceleration_rates);
 
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2.E(active_extruder), 100, 99000, _reset_acceleration_rates);
       #if ENABLED(DISTINCT_E_FACTORS)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + active_extruder], 100, 99000, _reset_acceleration_rates);
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E1, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_e0_acceleration_rate);
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E2, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 1], 100, 99000, _reset_e1_acceleration_rate);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E1, &planner.settings.max_acceleration_mm_per_s2.E(0), 100, 99000, _reset_e0_acceleration_rate);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E2, &planner.settings.max_acceleration_mm_per_s2.E(1), 100, 99000, _reset_e1_acceleration_rate);
         #if E_STEPPERS > 2
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E3, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 2], 100, 99000, _reset_e2_acceleration_rate);
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E3, &planner.settings.max_acceleration_mm_per_s2.E(2), 100, 99000, _reset_e2_acceleration_rate);
           #if E_STEPPERS > 3
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E4, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 3], 100, 99000, _reset_e3_acceleration_rate);
+            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E4, &planner.settings.max_acceleration_mm_per_s2.E(3), 100, 99000, _reset_e3_acceleration_rate);
             #if E_STEPPERS > 4
-              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E5, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 4], 100, 99000, _reset_e4_acceleration_rate);
+              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E5, &planner.settings.max_acceleration_mm_per_s2.E(4), 100, 99000, _reset_e4_acceleration_rate);
               #if E_STEPPERS > 5
-                MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E6, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 5], 100, 99000, _reset_e5_acceleration_rate);
+                MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E6, &planner.settings.max_acceleration_mm_per_s2.E(5), 100, 99000, _reset_e5_acceleration_rate);
               #endif // E_STEPPERS > 5
             #endif // E_STEPPERS > 4
           #endif // E_STEPPERS > 3
         #endif // E_STEPPERS > 2
-      #else
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_acceleration_rates);
       #endif
 
       END_MENU();
@@ -3923,15 +3919,15 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #endif
       #endif
       #if HAS_CLASSIC_JERK
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk.a, 1, 990);
+        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk.b, 1, 990);
         #if ENABLED(DELTA)
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 1, 990);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VC_JERK, &planner.max_jerk.c, 1, 990);
         #else
-          MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f, 990);
+          MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk.c, 0.1f, 990);
         #endif
         #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk.e, 1, 990);
         #endif
       #endif
 
@@ -3943,28 +3939,26 @@ void lcd_quick_feedback(const bool clear_buttons) {
       START_MENU();
       MENU_BACK(MSG_ADVANCED_SETTINGS);
 
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ASTEPS, &planner.settings.axis_steps_per_mm[A_AXIS], 5, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_BSTEPS, &planner.settings.axis_steps_per_mm[B_AXIS], 5, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_CSTEPS, &planner.settings.axis_steps_per_mm[C_AXIS], 5, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ASTEPS, &planner.settings.axis_steps_per_mm.a, 5, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_BSTEPS, &planner.settings.axis_steps_per_mm.b, 5, 9999, _planner_refresh_positioning);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_CSTEPS, &planner.settings.axis_steps_per_mm.c, 5, 9999, _planner_refresh_positioning);
 
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm.E(active_extruder), 5, 9999, _planner_refresh_positioning);
       #if ENABLED(DISTINCT_E_FACTORS)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E1STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_e0_positioning);
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E2STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 1], 5, 9999, _planner_refresh_e1_positioning);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E1STEPS, &planner.settings.axis_steps_per_mm.E(0), 5, 9999, _planner_refresh_e0_positioning);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E2STEPS, &planner.settings.axis_steps_per_mm.E(1), 5, 9999, _planner_refresh_e1_positioning);
         #if E_STEPPERS > 2
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E3STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E3STEPS, &planner.settings.axis_steps_per_mm.E(2), 5, 9999, _planner_refresh_e2_positioning);
           #if E_STEPPERS > 3
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
+            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.settings.axis_steps_per_mm.E(3), 5, 9999, _planner_refresh_e3_positioning);
             #if E_STEPPERS > 4
-              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E5STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 4], 5, 9999, _planner_refresh_e4_positioning);
+              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E5STEPS, &planner.settings.axis_steps_per_mm.E(4), 5, 9999, _planner_refresh_e4_positioning);
               #if E_STEPPERS > 5
-                MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E6STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 5], 5, 9999, _planner_refresh_e5_positioning);
+                MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E6STEPS, &planner.settings.axis_steps_per_mm.E(5), 5, 9999, _planner_refresh_e5_positioning);
               #endif // E_STEPPERS > 5
             #endif // E_STEPPERS > 4
           #endif // E_STEPPERS > 3
         #endif // E_STEPPERS > 2
-      #else
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
       #endif
 
       END_MENU();
@@ -3980,7 +3974,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #if HAS_M206_COMMAND
     /**
-     * Set the home offset based on the current_position
+     * Set the home offset based on the current
      */
     void lcd_set_home_offsets() {
       // M428 Command

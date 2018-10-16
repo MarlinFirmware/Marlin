@@ -70,8 +70,8 @@ void GcodeSuite::M48() {
 
   const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
-  float X_current = current_position[X_AXIS],
-        Y_current = current_position[Y_AXIS];
+  float X_current = current.x,
+        Y_current = current.y;
 
   const float X_probe_location = parser.linearval('X', X_current + X_PROBE_OFFSET_FROM_EXTRUDER),
               Y_probe_location = parser.linearval('Y', Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER);
@@ -181,7 +181,7 @@ void GcodeSuite::M48() {
             SERIAL_PROTOCOLPGM("Going to:");
             SERIAL_ECHOPAIR(" X", X_current);
             SERIAL_ECHOPAIR(" Y", Y_current);
-            SERIAL_ECHOLNPAIR(" Z", current_position[Z_AXIS]);
+            SERIAL_ECHOLNPAIR(" Z", current.z);
           }
           do_blocking_move_to_xy(X_current, Y_current);
         } // n_legs loop

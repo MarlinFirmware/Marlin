@@ -67,10 +67,7 @@ void serial_echo_start()  { serialprintPGM(echomagic); }
 void serial_error_start() { serialprintPGM(errormagic); }
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
-
-  #include "enum.h"
-
-  void print_xyz(PGM_P prefix, PGM_P suffix, const float x, const float y, const float z) {
+  void print_xyz(PGM_P prefix, PGM_P suffix, const float &x, const float &y, const float &z) {
     serialprintPGM(prefix);
     SERIAL_CHAR('(');
     SERIAL_ECHO(x);
@@ -79,9 +76,6 @@ void serial_error_start() { serialprintPGM(errormagic); }
     SERIAL_CHAR(')');
     if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
   }
-
-  void print_xyz(PGM_P prefix, PGM_P suffix, const float xyz[]) {
-    print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
-  }
-
+  void print_xyz(PGM_P prefix, PGM_P suffix, const xyz_t &xyz)  { print_xyz(prefix, suffix, xyz.x, xyz.y, xyz.z); }
+  void print_xyz(PGM_P prefix, PGM_P suffix, const xyze_t &xyze) { print_xyz(prefix, suffix, xyze.x, xyze.y, xyze.z); }
 #endif

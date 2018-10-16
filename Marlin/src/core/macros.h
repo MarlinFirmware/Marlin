@@ -151,19 +151,20 @@
 #define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a) (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
-#define ZERO(a) memset(a,0,sizeof(a))
-#define COPY(a,b) memcpy(a,b,MIN(sizeof(a),sizeof(b)))
+#define ZERO(a) memset(&a,0,sizeof(a))
+#define COPY(a,b) memcpy(&a,&b,MIN(sizeof(a),sizeof(b)))
 
 // Macros for initializing arrays
-#define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
-#define ARRAY_5(v1, v2, v3, v4, v5, ...)     { v1, v2, v3, v4, v5 }
-#define ARRAY_4(v1, v2, v3, v4, ...)         { v1, v2, v3, v4 }
-#define ARRAY_3(v1, v2, v3, ...)             { v1, v2, v3 }
-#define ARRAY_2(v1, v2, ...)                 { v1, v2 }
-#define ARRAY_1(v1, ...)                     { v1 }
+#define LIST_6(v1, v2, v3, v4, v5, v6, ...) v1, v2, v3, v4, v5, v6
+#define LIST_5(v1, v2, v3, v4, v5, ...)     v1, v2, v3, v4, v5
+#define LIST_4(v1, v2, v3, v4, ...)         v1, v2, v3, v4
+#define LIST_3(v1, v2, v3, ...)             v1, v2, v3
+#define LIST_2(v1, v2, ...)                 v1, v2
+#define LIST_1(v1, ...)                     v1
 
-#define _ARRAY_N(N, ...) ARRAY_ ##N(__VA_ARGS__)
-#define ARRAY_N(N, ...) _ARRAY_N(N, __VA_ARGS__)
+#define _LIST_N(N, ...) LIST_ ##N(__VA_ARGS__)
+#define  LIST_N(N, ...) _LIST_N(N, __VA_ARGS__)
+#define ARRAY_N(N, ...) { _LIST_N(N, __VA_ARGS__) }
 
 // Macros for adding
 #define INC_0 1

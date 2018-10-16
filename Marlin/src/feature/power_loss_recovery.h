@@ -19,16 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * power_loss_recovery.h - Resume an SD print after power-loss
  */
 
-#ifndef _POWER_LOSS_RECOVERY_H_
-#define _POWER_LOSS_RECOVERY_H_
-
 #include "../sd/cardreader.h"
-#include "../core/types.h"
 #include "../inc/MarlinConfigPre.h"
 
 #define SAVE_INFO_INTERVAL_MS 0
@@ -39,7 +36,8 @@ typedef struct {
   uint8_t valid_head;
 
   // Machine state
-  float current_position[NUM_AXIS], feedrate;
+  xyze_t current;
+  float feedrate;
 
   #if HOTENDS > 1
     uint8_t active_hotend;
@@ -99,5 +97,3 @@ extern uint8_t job_recovery_commands_count;
 
 void check_print_job_recovery();
 void save_job_recovery_info();
-
-#endif // _POWER_LOSS_RECOVERY_H_

@@ -174,7 +174,7 @@ class Temperature {
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static volatile int16_t babystepsTodo[3];
+      static volatile xyz16_t babystepsTodo;
     #endif
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -530,7 +530,7 @@ class Temperature {
               babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
               babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
             #else
-              babystepsTodo[Z_AXIS] += distance;
+              babystepsTodo.z += distance;
             #endif
           #else
             babystepsTodo[axis] += distance;

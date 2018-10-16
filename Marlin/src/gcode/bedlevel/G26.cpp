@@ -57,7 +57,7 @@
 #define G26_ERR true
 
 #if ENABLED(ARC_SUPPORT)
-  void plan_arc(const float (&cart)[XYZE], const float (&offset)[2], const uint8_t clockwise);
+  void plan_arc(const xyze_t &cart, const float (&offset)[2], const uint8_t clockwise);
 #endif
 
 /**
@@ -228,16 +228,16 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
   float feed_value;
   static float last_z = -999.99;
 
-  bool has_xy_component = (rx != current_position[X_AXIS] || ry != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
+  bool has_xy_component = (rx != current.x || ry != current.y); // Check if X or Y is involved in the movement.
 
   if (z != last_z) {
     last_z = z;
-    feed_value = planner.settings.max_feedrate_mm_s[Z_AXIS]/(3.0);  // Base the feed rate off of the configured Z_AXIS feed rate
+    feed_value = planner.settings.max_feedrate_mm_s.c/(3.0);  // Base the feed rate off of the configured Z_AXIS feed rate
 
-    destination[X_AXIS] = current_position[X_AXIS];
-    destination[Y_AXIS] = current_position[Y_AXIS];
-    destination[Z_AXIS] = z;                          // We know the last_z==z or we wouldn't be in this block of code.
-    destination[E_AXIS] = current_position[E_AXIS];
+    destination.x = current.x;
+    destination.y = current.y;
+    destination.z = z;                          // We know the last_z==z or we wouldn't be in this block of code.
+    destination.e = current.e;
 
     G26_line_to_destination(feed_value);
     set_destination_from_current();
@@ -245,28 +245,28 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
   // Check if X or Y is involved in the movement.
   // Yes: a 'normal' movement. No: a retract() or recover()
-  feed_value = has_xy_component ? PLANNER_XY_FEEDRATE() / 10.0 : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
+  feed_value = has_xy_component ? PLANNER_XY_FEEDRATE() / 10.0 : planner.settings.max_feedrate_mm_s.E(active_extruder) / 1.5;
 
   if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to() feed_value for XY:", feed_value);
 
-  destination[X_AXIS] = rx;
-  destination[Y_AXIS] = ry;
-  destination[E_AXIS] += e_delta;
+  destination.x = rx;
+  destination.y = ry;
+  destination.e += e_delta;
 
   G26_line_to_destination(feed_value);
   set_destination_from_current();
 }
 
-FORCE_INLINE void move_to(const float (&where)[XYZE], const float &de) { move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], de); }
+FORCE_INLINE void move_to(const xyze_t &where, const float &de) { move_to(where.x, where.y, where.z, de); }
 
-void retract_filament(const float (&where)[XYZE]) {
+void retract_filament(const xyze_t &where) {
   if (!g26_retracted) { // Only retract if we are not already retracted!
     g26_retracted = true;
     move_to(where, -1.0 * g26_retraction_multiplier);
   }
 }
 
-void recover_filament(const float (&where)[XYZE]) {
+void recover_filament(const xyze_t &where) {
   if (g26_retracted) { // Only un-retract if we are retracted.
     move_to(where, 1.2 * g26_retraction_multiplier);
     g26_retracted = false;
@@ -289,12 +289,12 @@ void recover_filament(const float (&where)[XYZE]) {
  * cases where the optimization comes into play.
  */
 void print_line_from_here_to_there(const float &sx, const float &sy, const float &sz, const float &ex, const float &ey, const float &ez) {
-  const float dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual line segment
-              dy_s = current_position[Y_AXIS] - sy,
+  const float dx_s = current.x - sx,   // find our distance from the start of the actual line segment
+              dy_s = current.y - sy,
               dist_start = HYPOT2(dx_s, dy_s),        // We don't need to do a sqrt(), we can compare the distance^2
                                                       // to save computation time
-              dx_e = current_position[X_AXIS] - ex,   // find our distance from the end of the actual line segment
-              dy_e = current_position[Y_AXIS] - ey,
+              dx_e = current.x - ex,   // find our distance from the end of the actual line segment
+              dy_e = current.y - ey,
               dist_end = HYPOT2(dx_e, dy_e),
 
               line_length = HYPOT(ex - sx, ey - sy);
@@ -309,7 +309,7 @@ void print_line_from_here_to_there(const float &sx, const float &sy, const float
   if (dist_start > 2.0) {
     retract_filament(destination);
     //todo:  parameterize the bump height with a define
-    move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 0.500, 0.0);  // Z bump to minimize scraping
+    move_to(current.x, current.y, current.z + 0.500, 0.0);  // Z bump to minimize scraping
     move_to(sx, sy, sz + 0.500, 0.0); // Get to the starting point with no extrusion while bumped
   }
 
@@ -491,12 +491,12 @@ inline bool prime_nozzle() {
 
       while (!is_lcd_clicked()) {
         lcd_chirp();
-        destination[E_AXIS] += 0.25;
+        destination.e += 0.25;
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           Total_Prime += 0.25;
           if (Total_Prime >= EXTRUDE_MAXLENGTH) return G26_ERR;
         #endif
-        G26_line_to_destination(planner.settings.max_feedrate_mm_s[E_AXIS] / 15.0);
+        G26_line_to_destination(planner.settings.max_feedrate_mm_s.E(active_extruder) / 15.0);
         set_destination_from_current();
         planner.synchronize();    // Without this synchronize, the purge is more consistent,
                                   // but because the planner has a buffer, we won't be able
@@ -518,8 +518,8 @@ inline bool prime_nozzle() {
       lcd_quick_feedback(true);
     #endif
     set_destination_from_current();
-    destination[E_AXIS] += g26_prime_length;
-    G26_line_to_destination(planner.settings.max_feedrate_mm_s[E_AXIS] / 15.0);
+    destination.e += g26_prime_length;
+    G26_line_to_destination(planner.settings.max_feedrate_mm_s.E(active_extruder) / 15.0);
     set_destination_from_current();
     retract_filament(destination);
   }
@@ -679,8 +679,8 @@ void GcodeSuite::G26() {
     return;
   }
 
-  g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position[X_AXIS];
-  g26_y_pos = parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position[Y_AXIS];
+  g26_x_pos = parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current.x;
+  g26_y_pos = parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current.y;
   if (!position_is_reachable(g26_x_pos, g26_y_pos)) {
     SERIAL_PROTOCOLLNPGM("?Specified X,Y coordinate out of bounds.");
     return;
@@ -691,14 +691,14 @@ void GcodeSuite::G26() {
    */
   set_bed_leveling_enabled(!parser.seen('D'));
 
-  if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
+  if (current.z < Z_CLEARANCE_BETWEEN_PROBES) {
     do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
     set_current_from_destination();
   }
 
   if (turn_on_heaters() != G26_OK) goto LEAVE;
 
-  current_position[E_AXIS] = 0.0;
+  current.e = 0.0;
   sync_plan_position_e();
 
   if (g26_prime_flag && prime_nozzle() != G26_OK) goto LEAVE;
@@ -719,7 +719,7 @@ void GcodeSuite::G26() {
 
   // Move nozzle to the specified height for the first layer
   set_destination_from_current();
-  destination[Z_AXIS] = g26_layer_height;
+  destination.z = g26_layer_height;
   move_to(destination, 0.0);
   move_to(destination, g26_ooze_amount);
 
@@ -752,7 +752,7 @@ void GcodeSuite::G26() {
   mesh_index_pair location;
   do {
      location = g26_continue_with_closest
-      ? find_closest_circle_to_print(current_position[X_AXIS], current_position[Y_AXIS])
+      ? find_closest_circle_to_print(current.x, current.y)
       : find_closest_circle_to_print(g26_x_pos, g26_y_pos); // Find the closest Mesh Intersection to where we are now.
 
     if (location.x_index >= 0 && location.y_index >= 0) {
@@ -807,19 +807,19 @@ void GcodeSuite::G26() {
           circle_y - sy
         };
 
-        const float dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual circle
-                    dy_s = current_position[Y_AXIS] - sy,
+        const float dx_s = current.x - sx,   // find our distance from the start of the actual circle
+                    dy_s = current.y - sy,
                     dist_start = HYPOT2(dx_s, dy_s);
-        const float endpoint[XYZE] = {
+        const xyze_t endpoint = {
           ex, ey,
           g26_layer_height,
-          current_position[E_AXIS] + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
+          current.e + (arc_length * g26_e_axis_feedrate * g26_extrusion_multiplier)
         };
 
         if (dist_start > 2.0) {
           retract_filament(destination);
           //todo:  parameterize the bump height with a define
-          move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 0.500, 0.0);  // Z bump to minimize scraping
+          move_to(current.x, current.y, current.z + 0.500, 0.0);  // Z bump to minimize scraping
           move_to(sx, sy, g26_layer_height + 0.500, 0.0); // Get to the starting point with no extrusion while bumped
         }
 
@@ -893,15 +893,15 @@ void GcodeSuite::G26() {
   lcd_setstatusPGM(PSTR("Leaving G26"), -1);
 
   retract_filament(destination);
-  destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
+  destination.z = Z_CLEARANCE_BETWEEN_PROBES;
 
   //debug_current_and_destination(PSTR("ready to do Z-Raise."));
   move_to(destination, 0); // Raise the nozzle
   //debug_current_and_destination(PSTR("done doing Z-Raise."));
 
-  destination[X_AXIS] = g26_x_pos;                               // Move back to the starting position
-  destination[Y_AXIS] = g26_y_pos;
-  //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;            // Keep the nozzle where it is
+  destination.x = g26_x_pos;                               // Move back to the starting position
+  destination.y = g26_y_pos;
+  //destination.z = Z_CLEARANCE_BETWEEN_PROBES;            // Keep the nozzle where it is
 
   move_to(destination, 0); // Move back to the starting position
   //debug_current_and_destination(PSTR("done doing X/Y move."));

@@ -68,8 +68,8 @@ void reset_bed_level();
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #define _GET_MESH_X(I) (bilinear_start[X_AXIS] + (I) * bilinear_grid_spacing[X_AXIS])
-  #define _GET_MESH_Y(J) (bilinear_start[Y_AXIS] + (J) * bilinear_grid_spacing[Y_AXIS])
+  #define _GET_MESH_X(I) (bilinear_start.x + (I) * bilinear_grid_spacing.x)
+  #define _GET_MESH_Y(J) (bilinear_start.y + (J) * bilinear_grid_spacing.y)
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
   #define _GET_MESH_X(I) ubl.mesh_index_to_xpos(I)
   #define _GET_MESH_Y(J) ubl.mesh_index_to_ypos(J)

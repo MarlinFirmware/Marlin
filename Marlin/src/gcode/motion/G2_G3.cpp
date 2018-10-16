@@ -50,8 +50,8 @@
  * options for G2/G3 arc generation. In future these options may be GCode tunable.
  */
 void plan_arc(
-  const float (&cart)[XYZE],  // Destination position
-  const float (&offset)[2],   // Center of rotation relative to current_position
+  const xyze_t &cart,         // Destination position
+  const float (&offset)[2],   // Center of rotation relative to current
   const uint8_t clockwise     // Clockwise?
 ) {
   #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -70,12 +70,12 @@ void plan_arc(
   float r_P = -offset[0], r_Q = -offset[1];
 
   const float radius = HYPOT(r_P, r_Q),
-              center_P = current_position[p_axis] - r_P,
-              center_Q = current_position[q_axis] - r_Q,
+              center_P = current[p_axis] - r_P,
+              center_Q = current[q_axis] - r_Q,
               rt_X = cart[p_axis] - center_P,
               rt_Y = cart[q_axis] - center_Q,
-              linear_travel = cart[l_axis] - current_position[l_axis],
-              extruder_travel = cart[E_AXIS] - current_position[E_AXIS];
+              linear_travel = cart[l_axis] - current[l_axis],
+              extruder_travel = cart.e - current.e;
 
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
   float angular_travel = ATAN2(r_P * rt_Y - r_Q * rt_X, r_P * rt_X + r_Q * rt_Y);
@@ -83,7 +83,7 @@ void plan_arc(
   if (clockwise) angular_travel -= RADIANS(360);
 
   // Make a circle if the angular rotation is 0 and the target is current position
-  if (angular_travel == 0 && current_position[p_axis] == cart[p_axis] && current_position[q_axis] == cart[q_axis])
+  if (angular_travel == 0 && current[p_axis] == cart[p_axis] && current[q_axis] == cart[q_axis])
     angular_travel = RADIANS(360);
 
   const float flat_mm = radius * angular_travel,
@@ -120,7 +120,7 @@ void plan_arc(
    * This is important when there are successive arc motions.
    */
   // Vector rotation matrix values
-  float raw[XYZE];
+  xyze_t raw;
   const float theta_per_segment = angular_travel / segments,
               linear_per_segment = linear_travel / segments,
               extruder_per_segment = extruder_travel / segments,
@@ -128,10 +128,10 @@ void plan_arc(
               cos_T = 1 - 0.5f * sq(theta_per_segment); // Small angle approximation
 
   // Initialize the linear axis
-  raw[l_axis] = current_position[l_axis];
+  raw[l_axis] = current[l_axis];
 
   // Initialize the extruder axis
-  raw[E_AXIS] = current_position[E_AXIS];
+  raw.e = current.e;
 
   const float fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
@@ -180,7 +180,7 @@ void plan_arc(
     raw[p_axis] = center_P + r_P;
     raw[q_axis] = center_Q + r_Q;
     raw[l_axis] += linear_per_segment;
-    raw[E_AXIS] += extruder_per_segment;
+    raw.e += extruder_per_segment;
 
     clamp_to_software_endstops(raw);
 
@@ -209,7 +209,7 @@ void plan_arc(
     #endif
   );
 
-  COPY(current_position, raw);
+  COPY(current, raw);
 } // plan_arc
 
 /**
@@ -255,8 +255,8 @@ void GcodeSuite::G2_G3(const bool clockwise) {
     float arc_offset[2] = { 0, 0 };
     if (parser.seenval('R')) {
       const float r = parser.value_linear_units(),
-                  p1 = current_position[X_AXIS], q1 = current_position[Y_AXIS],
-                  p2 = destination[X_AXIS], q2 = destination[Y_AXIS];
+                  p1 = current.x, q1 = current.y,
+                  p2 = destination.x, q2 = destination.y;
       if (r && (p2 != p1 || q2 != q1)) {
         const float e = clockwise ^ (r < 0) ? -1 : 1,            // clockwise -1/1, counterclockwise 1/-1
                     dx = p2 - p1, dy = q2 - q1,                  // X and Y differences
@@ -285,7 +285,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
           SERIAL_ERRORLNPGM(MSG_ERR_ARC_ARGS);
         }
         while (circles_to_do--)
-          plan_arc(current_position, arc_offset, clockwise);
+          plan_arc(current, arc_offset, clockwise);
       #endif
 
       // Send the arc to the planner

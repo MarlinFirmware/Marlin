@@ -45,11 +45,11 @@ void GcodeSuite::G42() {
     }
 
     set_destination_from_current();
-    if (hasI) destination[X_AXIS] = _GET_MESH_X(ix);
-    if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
+    if (hasI) destination.x = _GET_MESH_X(ix);
+    if (hasJ) destination.y = _GET_MESH_Y(iy);
     if (parser.boolval('P')) {
-      if (hasI) destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      if (hasJ) destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      if (hasI) destination.x -= X_PROBE_OFFSET_FROM_EXTRUDER;
+      if (hasJ) destination.y -= Y_PROBE_OFFSET_FROM_EXTRUDER;
     }
 
     const float fval = parser.linearval('F');

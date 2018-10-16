@@ -51,7 +51,8 @@
 #include "ui_api.h"
 
 #if ENABLED(BACKLASH_GCODE)
-  extern float backlash_distance_mm[XYZ], backlash_correction;
+  extern xyz_t backlash_distance_mm;
+  extern float backlash_correction;
   #ifdef BACKLASH_SMOOTHING_MM
     extern float backlash_smoothing_mm;
   #endif
@@ -102,9 +103,9 @@ namespace UI {
   float getAxisPosition_mm(const axis_t axis) {
     switch (axis) {
       case X: case Y: case Z:
-        return current_position[axis];
+        return current[axis];
       case E0: case E1: case E2: case E3: case E4: case E5:
-        return current_position[E_AXIS];
+        return current.e;
       default: return 0;
     }
   }
@@ -126,7 +127,7 @@ namespace UI {
         destination[axis] = position;
         break;
       case E0: case E1: case E2: case E3: case E4: case E5:
-        destination[E_AXIS] = position;
+        destination.e = position;
         break;
     }
 
@@ -157,7 +158,7 @@ namespace UI {
       case X: case Y: case Z:
         return planner.settings.axis_steps_per_mm[axis];
       case E0: case E1: case E2: case E3: case E4: case E5:
-        return planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)];
+        return planner.settings.axis_steps_per_mm.E(axis - E0);
       default: return 0;
     }
   }
@@ -168,7 +169,7 @@ namespace UI {
         planner.settings.axis_steps_per_mm[axis] = steps_per_mm;
         break;
       case E0: case E1: case E2: case E3: case E4: case E5:
-        planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = steps_per_mm;
+        planner.settings.axis_steps_per_mm.E(axis - E0) = steps_per_mm;
         break;
     }
   }
@@ -178,7 +179,7 @@ namespace UI {
       case X: case Y: case Z:
         return planner.settings.max_feedrate_mm_s[axis];
       case E0: case E1: case E2: case E3: case E4: case E5:
-        return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
+        return planner.settings.max_feedrate_mm_s.E(axis - E0);
       default: return 0;
     }
   }
@@ -189,7 +190,7 @@ namespace UI {
         planner.settings.max_feedrate_mm_s[axis] = max_feedrate_mm_s;
         break;
       case E0: case E1: case E2: case E3: case E4: case E5:
-        planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = max_feedrate_mm_s;
+        planner.settings.max_feedrate_mm_s.E(axis - E0) = max_feedrate_mm_s;
         break;
       default: return;
     }
@@ -200,7 +201,7 @@ namespace UI {
       case X: case Y: case Z:
         return planner.settings.max_acceleration_mm_per_s2[axis];
       case E0: case E1: case E2: case E3: case E4: case E5:
-        return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(axis - E0)];
+        return planner.settings.max_acceleration_mm_per_s2.E(axis - E0);
       default: return 0;
     }
   }
@@ -211,7 +212,7 @@ namespace UI {
         planner.settings.max_acceleration_mm_per_s2[axis] = max_acceleration_mm_per_s2;
         break;
       case E0: case E1: case E2: case E3: case E4: case E5:
-        planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(axis - E0)] = max_acceleration_mm_per_s2;
+        planner.settings.max_acceleration_mm_per_s2.E(axis - E0) = max_acceleration_mm_per_s2;
         break;
       default: return;
     }
@@ -256,9 +257,9 @@ namespace UI {
     float getAxisMaxJerk_mm_s(const axis_t axis) {
       switch (axis) {
         case X: case Y: case Z:
-          return planner.max_jerk[axis];
+          return planner.max_jerk.of[axis];
         case E0: case E1: case E2: case E3: case E4: case E5:
-          return planner.max_jerk[E_AXIS];
+          return planner.max_jerk.e;
         default: return 0;
       }
     }
@@ -266,10 +267,10 @@ namespace UI {
     void setAxisMaxJerk_mm_s(const axis_t axis, const float max_jerk) {
       switch (axis) {
         case X: case Y: case Z:
-          planner.max_jerk[axis] = max_jerk;
+          planner.max_jerk.of[axis] = max_jerk;
           break;
         case E0: case E1: case E2: case E3: case E4: case E5:
-          planner.max_jerk[E_AXIS] = max_jerk;
+          planner.max_jerk.e = max_jerk;
           break;
         default: return;
       }
@@ -291,14 +292,14 @@ namespace UI {
     float getZOffset_mm() {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (active_extruder != 0)
-          return hotend_offset[Z_AXIS][active_extruder];
+          return hotend_offset[active_extruder].z;
         else
       #endif
           return zprobe_zoffset;
     }
 
     void setZOffset_mm(const float zoffset_mm) {
-      const float diff = (zoffset_mm - getZOffset_mm()) / planner.steps_to_mm[Z_AXIS];
+      const float diff = (zoffset_mm - getZOffset_mm()) / planner.steps_to_mm.z;
       incrementZOffset_steps(diff > 0 ? ceil(diff) : floor(diff));
     }
 
@@ -308,11 +309,11 @@ namespace UI {
       #else
         constexpr bool do_probe = true;
       #endif
-      const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
+      const float diff = planner.steps_to_mm.z * babystep_increment,
                   new_probe_offset = zprobe_zoffset + diff,
                   new_offs =
                     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-                      do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
+                      do_probe ? new_probe_offset : hotend_offset[active_extruder].z - diff
                     #else
                       new_probe_offset
                     #endif
@@ -323,44 +324,45 @@ namespace UI {
 
         if (do_probe) zprobe_zoffset = new_offs;
         #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          else hotend_offset[Z_AXIS][active_extruder] = new_offs;
+          else hotend_offset[active_extruder].z = new_offs;
         #endif
       }
     }
   #endif // ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
   #if HOTENDS > 1
-    float getNozzleOffset_mm(const axis_t axis, uint8_t extruder) {
+    float getNozzleOffset_mm(const axis_t axis, const uint8_t extruder) {
       if (extruder >= HOTENDS) return 0;
-      return hotend_offset[axis][extruder];
+      return hotend_offset[extruder][axis];
     }
 
-    void setNozzleOffset_mm(const axis_t axis, uint8_t extruder, float offset) {
+    void setNozzleOffset_mm(const axis_t axis, const uint8_t extruder, const float offset) {
       if (extruder >= HOTENDS) return;
-      hotend_offset[axis][extruder] = offset;
+      hotend_offset[extruder][axis] = offset;
     }
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    float getAxisBacklash_mm(const axis_t axis)       {return backlash_distance_mm[axis];}
-    void setAxisBacklash_mm(const axis_t axis, float distance)
-                                                      {backlash_distance_mm[axis] = clamp(distance,0,5);}
+    float getAxisBacklash_mm(const axis_t axis)                       { return backlash_distance_mm[axis]; }
+    void setAxisBacklash_mm(const axis_t axis, const float distance)  { backlash_distance_mm[axis] = clamp(distance, 0, 5); }
 
-    float getBacklashCorrection_percent()             {return backlash_correction*100;}
-    void setBacklashCorrection_percent(float percent) {backlash_correction = clamp(percent, 0, 100)/100;}
+    float getBacklashCorrection_percent()                             { return backlash_correction * 100; }
+    void setBacklashCorrection_percent(const float percent)           { backlash_correction = clamp(percent, 0, 100) / 100; }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      float getBacklashSmoothing_mm()                 {return backlash_smoothing_mm;}
-      void setBacklashSmoothing_mm(float distance)    {backlash_smoothing_mm = clamp(distance,0,999);}
+      float getBacklashSmoothing_mm()                                 { return backlash_smoothing_mm; }
+      void setBacklashSmoothing_mm(const float distance)              { backlash_smoothing_mm = clamp(distance, 0, 999); }
     #endif
   #endif
 
   uint8_t getProgress_percent() {
-    #if ENABLED(SDSUPPORT)
-      return card.percentDone();
-    #else
-      return 0;
-    #endif
+    return
+      #if ENABLED(SDSUPPORT)
+        card.percentDone()
+      #else
+        0
+      #endif
+    ;
   }
 
   uint32_t getProgress_seconds_elapsed() {

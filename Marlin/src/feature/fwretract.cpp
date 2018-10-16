@@ -123,8 +123,8 @@ void FWRetract::retract(const bool retracting
         SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
       #endif
     }
-    SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
-    SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
+    SERIAL_ECHOLNPAIR("current.z ", current.z);
+    SERIAL_ECHOLNPAIR("current.e ", current.e);
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 
@@ -161,7 +161,7 @@ void FWRetract::retract(const bool retracting
     // Is a Z hop set, and has the hop not yet been done?
     if (settings.retract_zraise > 0.01 && !current_hop) {           // Apply hop only once
       current_hop += settings.retract_zraise;                       // Add to the hop total (again, only once)
-      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Maximum Z feedrate
+      feedrate_mm_s = planner.settings.max_feedrate_mm_s.c * unscale_fr;  // Maximum Z feedrate
       prepare_move_to_destination();                      // Raise up, set_current_to_destination
       planner.synchronize();                              // Wait for move to complete
     }
@@ -170,14 +170,14 @@ void FWRetract::retract(const bool retracting
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (current_hop) {
       current_hop = 0.0;
-      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Z feedrate to max
+      feedrate_mm_s = planner.settings.max_feedrate_mm_s.c * unscale_fr;  // Z feedrate to max
       prepare_move_to_destination();                      // Lower Z, set_current_to_destination
       planner.synchronize();                              // Wait for move to complete
     }
 
     const float extra_recover = swapping ? settings.swap_retract_recover_length : settings.retract_recover_length;
     if (extra_recover != 0.0) {
-      current_position[E_AXIS] -= extra_recover;          // Adjust the current E position by the extra amount to recover
+      current.e -= extra_recover;          // Adjust the current E position by the extra amount to recover
       sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
     }
 
@@ -216,8 +216,8 @@ void FWRetract::retract(const bool retracting
         SERIAL_ECHOLNPAIR("] ", retracted_swap[i]);
       #endif
     }
-    SERIAL_ECHOLNPAIR("current_position[z] ", current_position[Z_AXIS]);
-    SERIAL_ECHOLNPAIR("current_position[e] ", current_position[E_AXIS]);
+    SERIAL_ECHOLNPAIR("current.z ", current.z);
+    SERIAL_ECHOLNPAIR("current.e ", current.e);
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 }

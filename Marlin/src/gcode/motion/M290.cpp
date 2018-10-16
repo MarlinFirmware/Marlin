@@ -47,9 +47,9 @@
     }
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
       else {
-        hotend_offset[Z_AXIS][active_extruder] -= offs;
+        hotend_offset[active_extruder].z -= offs;
         SERIAL_ECHO_START();
-        SERIAL_ECHOLNPAIR(MSG_IDEX_Z_OFFSET ": ", hotend_offset[Z_AXIS][active_extruder]);
+        SERIAL_ECHOLNPAIR(MSG_IDEX_Z_OFFSET ": ", hotend_offset[active_extruder].z);
       }
     #endif
   }
@@ -72,7 +72,7 @@ void GcodeSuite::M290() {
   #else
     if (parser.seenval('Z') || parser.seenval('S')) {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
-      thermalManager.babystep_axis(Z_AXIS, offs * planner.settings.axis_steps_per_mm[Z_AXIS]);
+      thermalManager.babystep_axis(Z_AXIS, offs * planner.settings.axis_steps_per_mm.z);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         if (!parser.seen('P') || parser.value_bool()) mod_zprobe_zoffset(offs);
       #endif

@@ -44,6 +44,7 @@
 
 // Include all core headers
 #include "../core/enum.h"
+#include "../core/dep_types.h"
 #include "../core/language.h"
 #include "../core/utility.h"
 #include "../core/serial.h"

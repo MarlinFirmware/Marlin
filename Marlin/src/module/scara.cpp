@@ -36,36 +36,36 @@ float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
 
 void scara_set_axis_is_at_home(const AxisEnum axis) {
   if (axis == Z_AXIS)
-    current_position[Z_AXIS] = Z_HOME_POS;
+    current.z = Z_HOME_POS;
   else {
 
     /**
      * SCARA homes XY at the same time
      */
-    float homeposition[XYZ];
-    LOOP_XYZ(i) homeposition[i] = base_home_pos((AxisEnum)i);
+    xyz_t homeposition;
+    LOOP_XYZ(i) homeposition[i] = base_home_pos[i];
 
-    // SERIAL_ECHOPAIR("homeposition X:", homeposition[X_AXIS]);
-    // SERIAL_ECHOLNPAIR(" Y:", homeposition[Y_AXIS]);
+    // SERIAL_ECHOPAIR("homeposition X:", homeposition.x);
+    // SERIAL_ECHOLNPAIR(" Y:", homeposition.y);
 
     /**
      * Get Home position SCARA arm angles using inverse kinematics,
      * and calculate homing offset using forward kinematics
      */
     inverse_kinematics(homeposition);
-    forward_kinematics_SCARA(delta[A_AXIS], delta[B_AXIS]);
+    forward_kinematics_SCARA(delta.a, delta.b);
 
-    // SERIAL_ECHOPAIR("Cartesian X:", cartes[X_AXIS]);
-    // SERIAL_ECHOLNPAIR(" Y:", cartes[Y_AXIS]);
+    // SERIAL_ECHOPAIR("Cartesian X:", cartes.x);
+    // SERIAL_ECHOLNPAIR(" Y:", cartes.y);
 
-    current_position[axis] = cartes[axis];
+    current[axis] = cartes[axis];
 
     /**
      * SCARA home positions are based on configuration since the actual
      * limits are determined by the inverse kinematic transform.
      */
-    soft_endstop_min[axis] = base_min_pos(axis); // + (cartes[axis] - base_home_pos(axis));
-    soft_endstop_max[axis] = base_max_pos(axis); // + (cartes[axis] - base_home_pos(axis));
+    soft_endstop_min[axis] = base_min_pos[axis]; // + (cartes[axis] - base_home_pos[axis]);
+    soft_endstop_max[axis] = base_max_pos[axis]; // + (cartes[axis] - base_home_pos[axis]);
   }
 }
 
@@ -81,8 +81,8 @@ void forward_kinematics_SCARA(const float &a, const float &b) {
               b_sin = sin(RADIANS(b)) * L2,
               b_cos = cos(RADIANS(b)) * L2;
 
-  cartes[X_AXIS] = a_cos + b_cos + SCARA_OFFSET_X;  //theta
-  cartes[Y_AXIS] = a_sin + b_sin + SCARA_OFFSET_Y;  //theta+phi
+  cartes.x = a_cos + b_cos + SCARA_OFFSET_X;  //theta
+  cartes.y = a_sin + b_sin + SCARA_OFFSET_Y;  //theta+phi
 
   /*
     SERIAL_ECHOPAIR("SCARA FK Angle a=", a);
@@ -91,8 +91,8 @@ void forward_kinematics_SCARA(const float &a, const float &b) {
     SERIAL_ECHOPAIR(" a_cos=", a_cos);
     SERIAL_ECHOPAIR(" b_sin=", b_sin);
     SERIAL_ECHOLNPAIR(" b_cos=", b_cos);
-    SERIAL_ECHOPAIR(" cartes[X_AXIS]=", cartes[X_AXIS]);
-    SERIAL_ECHOLNPAIR(" cartes[Y_AXIS]=", cartes[Y_AXIS]);
+    SERIAL_ECHOPAIR(" cartes.x=", cartes.x);
+    SERIAL_ECHOLNPAIR(" cartes.y=", cartes.y);
   //*/
 }
 
@@ -104,12 +104,12 @@ void forward_kinematics_SCARA(const float &a, const float &b) {
  * Maths and first version by QHARLEY.
  * Integrated into Marlin and slightly restructured by Joachim Cerny.
  */
-void inverse_kinematics(const float (&raw)[XYZ]) {
+void inverse_kinematics(const xyz_t &raw) {
 
   static float C2, S2, SK1, SK2, THETA, PSI;
 
-  float sx = raw[X_AXIS] - SCARA_OFFSET_X,  // Translate SCARA to standard X Y
-        sy = raw[Y_AXIS] - SCARA_OFFSET_Y;  // With scaling factor.
+  float sx = raw.x - SCARA_OFFSET_X,  // Translate SCARA to standard X Y
+        sy = raw.y - SCARA_OFFSET_Y;  // With scaling factor.
 
   if (L1 == L2)
     C2 = HYPOT2(sx, sy) / L1_2_2 - 1;
@@ -130,9 +130,9 @@ void inverse_kinematics(const float (&raw)[XYZ]) {
   // Angle of Arm2
   PSI = ATAN2(S2, C2);
 
-  delta[A_AXIS] = DEGREES(THETA);        // theta is support arm angle
-  delta[B_AXIS] = DEGREES(THETA + PSI);  // equal to sub arm angle (inverted motor)
-  delta[C_AXIS] = raw[Z_AXIS];
+  delta.a = DEGREES(THETA);        // theta is support arm angle
+  delta.b = DEGREES(THETA + PSI);  // equal to sub arm angle (inverted motor)
+  delta.c = raw.z;
 
   /*
     DEBUG_POS("SCARA IK", raw);

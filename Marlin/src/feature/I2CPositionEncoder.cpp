@@ -340,7 +340,7 @@ bool I2CPositionEncoder::test_axis() {
   //only works on XYZ cartesian machines for the time being
   if (!(encoderAxis == X_AXIS || encoderAxis == Y_AXIS || encoderAxis == Z_AXIS)) return false;
 
-  float startCoord[NUM_AXIS] = { 0 }, endCoord[NUM_AXIS] = { 0 };
+  xyze_t startCoord = { 0 }, endCoord = { 0 };
 
   const float startPosition = soft_endstop_min[encoderAxis] + 10,
               endPosition = soft_endstop_max[encoderAxis] - 10,
@@ -358,7 +358,7 @@ bool I2CPositionEncoder::test_axis() {
 
   planner.synchronize();
 
-  planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
+  planner.buffer_line(startCoord.x, startCoord.y, startCoord.z,
                       planner.get_axis_position_mm(E_AXIS), feedrate, 0);
   planner.synchronize();
 
@@ -370,7 +370,7 @@ bool I2CPositionEncoder::test_axis() {
   }
 
   if (trusted) { // if trusted, commence test
-    planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
+    planner.buffer_line(endCoord.x, endCoord.y, endCoord.z,
                         planner.get_axis_position_mm(E_AXIS), feedrate, 0);
     planner.synchronize();
   }
@@ -391,8 +391,8 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
 
   float old_steps_mm, new_steps_mm,
         startDistance, endDistance,
-        travelDistance, travelledDistance, total = 0,
-        startCoord[NUM_AXIS] = { 0 }, endCoord[NUM_AXIS] = { 0 };
+        travelDistance, travelledDistance, total = 0;
+  xyze_t startCoord = { 0 }, endCoord = { 0 };
 
   float feedrate;
 
@@ -418,16 +418,16 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
   planner.synchronize();
 
   LOOP_L_N(i, iter) {
-    planner.buffer_line(startCoord[X_AXIS], startCoord[Y_AXIS], startCoord[Z_AXIS],
+    planner.buffer_line(startCoord.x, startCoord.y, startCoord.z,
                         planner.get_axis_position_mm(E_AXIS), feedrate, 0);
     planner.synchronize();
 
     delay(250);
     startCount = get_position();
 
-    //do_blocking_move_to(endCoord[X_AXIS],endCoord[Y_AXIS],endCoord[Z_AXIS]);
+    //do_blocking_move_to(endCoord.x,endCoord.y,endCoord.z);
 
-    planner.buffer_line(endCoord[X_AXIS], endCoord[Y_AXIS], endCoord[Z_AXIS],
+    planner.buffer_line(endCoord.x, endCoord.y, endCoord.z,
                         planner.get_axis_position_mm(E_AXIS), feedrate, 0);
     planner.synchronize();
 

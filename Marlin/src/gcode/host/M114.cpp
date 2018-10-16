@@ -44,17 +44,17 @@
   void report_current_position_detail() {
 
     SERIAL_PROTOCOLPGM("\nLogical:");
-    const float logical[XYZ] = {
-      LOGICAL_X_POSITION(current_position[X_AXIS]),
-      LOGICAL_Y_POSITION(current_position[Y_AXIS]),
-      LOGICAL_Z_POSITION(current_position[Z_AXIS])
+    const xyz_t logical = {
+      LOGICAL_X_POSITION(current.x),
+      LOGICAL_Y_POSITION(current.y),
+      LOGICAL_Z_POSITION(current.z)
     };
     report_xyz(logical);
 
     SERIAL_PROTOCOLPGM("Raw:    ");
-    report_xyz(current_position);
+    report_xyz(current);
 
-    float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+    xyz_t leveled = current;
 
     #if HAS_LEVELING
       SERIAL_PROTOCOLPGM("Leveled:");
@@ -62,7 +62,7 @@
       report_xyz(leveled);
 
       SERIAL_PROTOCOLPGM("UnLevel:");
-      float unleveled[XYZ] = { leveled[X_AXIS], leveled[Y_AXIS], leveled[Z_AXIS] };
+      xyz_t unleveled = leveled;
       planner.unapply_leveling(unleveled);
       report_xyz(unleveled);
     #endif
@@ -89,7 +89,7 @@
     SERIAL_EOL();
 
     #if IS_SCARA
-      const float deg[XYZ] = {
+      const xyz_t deg = {
         planner.get_axis_position_degrees(A_AXIS),
         planner.get_axis_position_degrees(B_AXIS)
       };
@@ -99,14 +99,14 @@
 
     SERIAL_PROTOCOLPGM("FromStp:");
     get_cartesian_from_steppers();  // writes cartes[XYZ] (with forward kinematics)
-    const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], planner.get_axis_position_mm(E_AXIS) };
+    const xyze_t from_steppers = { cartes.x, cartes.y, cartes.z, planner.get_axis_position_mm(E_AXIS) };
     report_xyze(from_steppers);
 
-    const float diff[XYZE] = {
-      from_steppers[X_AXIS] - leveled[X_AXIS],
-      from_steppers[Y_AXIS] - leveled[Y_AXIS],
-      from_steppers[Z_AXIS] - leveled[Z_AXIS],
-      from_steppers[E_AXIS] - current_position[E_AXIS]
+    const xyze_t diff = {
+      from_steppers.x - leveled.x,
+      from_steppers.y - leveled.y,
+      from_steppers.z - leveled.z,
+      from_steppers.e - current.e
     };
     SERIAL_PROTOCOLPGM("Differ: ");
     report_xyze(diff);

@@ -155,7 +155,7 @@ G29_TYPE GcodeSuite::G29() {
     const uint8_t old_debug_flags = marlin_debug_flags;
     if (seenQ) marlin_debug_flags |= DEBUG_LEVELING;
     if (DEBUGGING(LEVELING)) {
-      DEBUG_POS(">>> G29", current_position);
+      DEBUG_POS(">>> G29", current);
       log_machine_info();
     }
     marlin_debug_flags = old_debug_flags;
@@ -294,7 +294,7 @@ G29_TYPE GcodeSuite::G29() {
           G29_RETURN(false);
         }
 
-        const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : current_position[Z_AXIS];
+        const float rz = parser.seenval('Z') ? RAW_Z_POSITION(parser.value_linear_units()) : current.z;
         if (!WITHIN(rz, -10, 10)) {
           SERIAL_ERROR_START();
           SERIAL_ERRORLNPGM("Bad Z value");
@@ -308,8 +308,8 @@ G29_TYPE GcodeSuite::G29() {
 
         if (!isnan(rx) && !isnan(ry)) {
           // Get nearest i / j from rx / ry
-          i = (rx - bilinear_start[X_AXIS] + 0.5 * xGridSpacing) / xGridSpacing;
-          j = (ry - bilinear_start[Y_AXIS] + 0.5 * yGridSpacing) / yGridSpacing;
+          i = (rx - bilinear_start.x + 0.5 * xGridSpacing) / xGridSpacing;
+          j = (ry - bilinear_start.y + 0.5 * yGridSpacing) / yGridSpacing;
           i = constrain(i, 0, GRID_MAX_POINTS_X - 1);
           j = constrain(j, 0, GRID_MAX_POINTS_Y - 1);
         }
@@ -434,19 +434,19 @@ G29_TYPE GcodeSuite::G29() {
       #if ENABLED(PROBE_MANUALLY)
         if (!no_action)
       #endif
-      if ( xGridSpacing != bilinear_grid_spacing[X_AXIS]
-        || yGridSpacing != bilinear_grid_spacing[Y_AXIS]
-        || left_probe_bed_position != bilinear_start[X_AXIS]
-        || front_probe_bed_position != bilinear_start[Y_AXIS]
+      if ( xGridSpacing != bilinear_grid_spacing.x
+        || yGridSpacing != bilinear_grid_spacing.y
+        || left_probe_bed_position != bilinear_start.x
+        || front_probe_bed_position != bilinear_start.y
       ) {
         // Reset grid to 0.0 or "not probed". (Also disables ABL)
         reset_bed_level();
 
         // Initialize a grid with the given dimensions
-        bilinear_grid_spacing[X_AXIS] = xGridSpacing;
-        bilinear_grid_spacing[Y_AXIS] = yGridSpacing;
-        bilinear_start[X_AXIS] = left_probe_bed_position;
-        bilinear_start[Y_AXIS] = front_probe_bed_position;
+        bilinear_grid_spacing.x = xGridSpacing;
+        bilinear_grid_spacing.y = yGridSpacing;
+        bilinear_start.x = left_probe_bed_position;
+        bilinear_start.y = front_probe_bed_position;
 
         // Can't re-enable (on error) until the new grid is written
         abl_should_enable = false;
@@ -518,7 +518,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // For G29 after adjusting Z.
       // Save the previous Z before going to the next point
-      measured_z = current_position[Z_AXIS];
+      measured_z = current.z;
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
@@ -771,7 +771,7 @@ G29_TYPE GcodeSuite::G29() {
   //
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
+    if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current);
   #endif
 
   #if ENABLED(PROBE_MANUALLY)
@@ -916,36 +916,35 @@ G29_TYPE GcodeSuite::G29() {
         //
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
+          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current);
         #endif
 
-        float converted[XYZ];
-        COPY(converted, current_position);
+        xyz_t converted = current;
 
         planner.leveling_active = true;
         planner.unapply_leveling(converted); // use conversion machinery
         planner.leveling_active = false;
 
         // Use the last measured distance to the bed, if possible
-        if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
-          && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+        if ( NEAR(current.x, xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
+          && NEAR(current.y, yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
         ) {
-          const float simple_z = current_position[Z_AXIS] - measured_z;
+          const float simple_z = current.z - measured_z;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_ECHOPAIR("Z from Probe:", simple_z);
-              SERIAL_ECHOPAIR("  Matrix:", converted[Z_AXIS]);
-              SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - converted[Z_AXIS]);
+              SERIAL_ECHOPAIR("  Matrix:", converted.z);
+              SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - converted.z);
             }
           #endif
-          converted[Z_AXIS] = simple_z;
+          converted.z = simple_z;
         }
 
-        // The rotated XY and corrected Z are now current_position
-        COPY(current_position, converted);
+        // The rotated XY and corrected Z are now current
+        current = converted;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
+          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current);
         #endif
       }
 
@@ -953,15 +952,15 @@ G29_TYPE GcodeSuite::G29() {
 
       if (!dryrun) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current.z);
         #endif
 
         // Unapply the offset because it is going to be immediately applied
         // and cause compensation movement in Z
-        current_position[Z_AXIS] -= bilinear_z_offset(current_position);
+        current.z -= bilinear_z_offset(current);
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current.z);
         #endif
       }
 

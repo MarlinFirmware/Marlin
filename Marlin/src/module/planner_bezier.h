@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * planner_bezier.h
@@ -27,17 +28,6 @@
  *
  */
 
-#ifndef PLANNER_BEZIER_H
-#define PLANNER_BEZIER_H
-
 #include "../inc/MarlinConfig.h"
 
-void cubic_b_spline(
-              const float position[NUM_AXIS], // current position
-              const float target[NUM_AXIS],   // target position
-              const float offset[4],          // a pair of offsets
-              float fr_mm_s,
-              uint8_t extruder
-            );
-
-#endif // PLANNER_BEZIER_H
+void cubic_b_spline(const xyze_t position, const xyze_t target, const float offset[4], const float fr_mm_s, const uint8_t extruder);

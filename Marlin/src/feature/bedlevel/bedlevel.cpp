@@ -48,7 +48,7 @@ bool leveling_is_valid() {
     #if ENABLED(MESH_BED_LEVELING)
       mbl.has_mesh()
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      !!bilinear_grid_spacing[X_AXIS]
+      !!bilinear_grid_spacing.x
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
       ubl.mesh_is_valid()
     #else // 3POINT, LINEAR
@@ -78,19 +78,19 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
       // Force bilinear_z_offset to re-calculate next time
-      const float reset[XYZ] = { -9999.999, -9999.999, 0 };
+      const xyz_t reset = { -9999.999, -9999.999, 0 };
       (void)bilinear_z_offset(reset);
     #endif
 
     if (planner.leveling_active) {      // leveling from on to off
-      // change unleveled current_position to physical current_position without moving steppers.
-      planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+      // change unleveled current to physical current without moving steppers.
+      planner.apply_leveling(current);
       planner.leveling_active = false;  // disable only AFTER calling apply_leveling
     }
     else {                              // leveling from off to on
       planner.leveling_active = true;   // enable BEFORE calling unapply_leveling, otherwise ignored
-      // change physical current_position to unleveled current_position without moving steppers.
-      planner.unapply_leveling(current_position);
+      // change physical current to unleveled current without moving steppers.
+      planner.unapply_leveling(current);
     }
 
     sync_plan_position();
@@ -109,9 +109,9 @@ void set_bed_leveling_enabled(const bool enable/*=true*/) {
     planner.set_z_fade_height(zfh);
 
     if (leveling_was_active) {
-      const float oldpos[] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
+      const xyze_t oldpos = current;
       set_bed_leveling_enabled(true);
-      if (do_report && memcmp(oldpos, current_position, sizeof(oldpos)))
+      if (do_report && memcmp(&oldpos, &current, sizeof(oldpos)))
         report_current_position();
     }
   }
@@ -131,8 +131,8 @@ void reset_bed_level() {
   #elif ENABLED(AUTO_BED_LEVELING_UBL)
     ubl.reset();
   #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
-    bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
+    bilinear_start.x = bilinear_start.y =
+    bilinear_grid_spacing.x = bilinear_grid_spacing.y = 0;
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
         z_values[x][y] = NAN;
@@ -223,15 +223,15 @@ void reset_bed_level() {
         do_blocking_move_to(rx, ry, MAX(0,MANUAL_PROBE_START_Z));
       #endif
     #elif MANUAL_PROBE_HEIGHT > 0
-      const float prev_z = current_position[Z_AXIS];
+      const float prev_z = current.z;
       do_blocking_move_to(rx, ry, MANUAL_PROBE_HEIGHT);
       do_blocking_move_to_z(prev_z);
     #else
       do_blocking_move_to_xy(rx, ry);
     #endif
 
-    current_position[X_AXIS] = rx;
-    current_position[Y_AXIS] = ry;
+    current.x = rx;
+    current.y = ry;
 
     #if ENABLED(LCD_BED_LEVELING)
       lcd_wait_for_move = false;
