@@ -575,7 +575,6 @@
     #define PROBE_MANUALLY_STEP 0.05 // mm
   #endif
 
-
   #if ENABLED(ANYCUBIC_KOSSEL_PLUS)
     // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
     #define DELTA_PRINTABLE_RADIUS 116.0 // mm
