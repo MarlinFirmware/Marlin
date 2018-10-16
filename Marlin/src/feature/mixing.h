@@ -24,17 +24,16 @@
 #include "../inc/MarlinConfig.h"
 
 #ifdef __AVR__
-  #define COLOR_MASK 0x7F    // 7bit colors.
-  #define COLOR_A_MASK (COLOR_MASK + 1)
   #define MIXER_ACCU_SIGNED
   typedef uint8_t mixer_color_t;
   typedef int8_t mixer_accu_t;
 #else
-  #define COLOR_MASK 0x7FFF  // 15bit colors.
-  #define COLOR_A_MASK (COLOR_MASK + 1)
   typedef uint_fast16_t mixer_color_t;
   typedef uint_fast16_t mixer_accu_t;
 #endif
+
+#define COLOR_A_MASK _BV(sizeof(mixer_color_t) * 8 - 1) // 0x80 or 0x8000
+#define COLOR_MASK (COLOR_A_MASK - 1)                   // 0x7F or 0x7FFF
 
 #ifndef MIXING_VIRTUAL_TOOLS
   #define MIXING_VIRTUAL_TOOLS 1
