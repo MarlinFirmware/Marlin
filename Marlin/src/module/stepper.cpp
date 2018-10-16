@@ -1412,7 +1412,7 @@ void Stepper::stepper_pulse_phase_isr() {
         #endif
       }
     #else // !LIN_ADVANCE && !MIXING_EXTRUDER
-      #if HAS_E_STEP
+      #if HAS_E0_STEP
         PULSE_START(E);
       #endif
     #endif
