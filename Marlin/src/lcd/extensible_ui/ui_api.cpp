@@ -369,11 +369,11 @@ namespace UI {
   }
 
   #if ENABLED(PRINTCOUNTER)
-    char    *getTotalPrints_str(char buffer[21])    {strcpy(buffer,itostr3left(print_job_timer.getStats().totalPrints));    return buffer;}
-    char    *getFinishedPrints_str(char buffer[21]) {strcpy(buffer,itostr3left(print_job_timer.getStats().finishedPrints)); return buffer;}
-    char    *getTotalPrintTime_str(char buffer[21]) {duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer;}
-    char    *getLongestPrint_str(char buffer[21])   {duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer;}
-    char    *getFilamentUsed_str(char buffer[21])   {
+    char* getTotalPrints_str(char buffer[21])    { strcpy(buffer,itostr3left(print_job_timer.getStats().totalPrints));    return buffer; }
+    char* getFinishedPrints_str(char buffer[21]) { strcpy(buffer,itostr3left(print_job_timer.getStats().finishedPrints)); return buffer; }
+    char* getTotalPrintTime_str(char buffer[21]) { duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer; }
+    char* getLongestPrint_str(char buffer[21])   { duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer; }
+    char* getFilamentUsed_str(char buffer[21])   {
       printStatistics stats = print_job_timer.getStats();
       sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int16_t(stats.filamentUsed / 100) % 10);
       return buffer;
@@ -580,7 +580,7 @@ void lcd_init() {
   UI::onStartup();
 }
 
-void lcd_update()                                                                {
+void lcd_update() {
   #if ENABLED(SDSUPPORT)
     static bool last_sd_status;
     const bool sd_status = IS_SD_INSERTED;
@@ -611,7 +611,7 @@ void lcd_refresh()                                                              
 void lcd_setstatus(const char * const message, const bool persist /* = false */) { UI::onStatusChanged(message); }
 void lcd_setstatusPGM(const char * const message, int8_t level /* = 0 */)        { UI::onStatusChanged((progmem_str)message); }
 void lcd_setalertstatusPGM(const char * const message)                           { lcd_setstatusPGM(message, 0); }
-void lcd_reset_status()                                                          {
+void lcd_reset_status() {
   static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
   static const char printing[] PROGMEM = MSG_PRINTING;
   static const char welcome[] PROGMEM = WELCOME_MSG;
