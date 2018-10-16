@@ -1141,7 +1141,10 @@ void MarlinSettings::postprocess() {
       #if ABL_PLANAR
         EEPROM_READ(planner.bed_level_matrix);
       #else
-        for (uint8_t q = 9; q--;) EEPROM_READ(dummy);
+        {
+          float matrix[9];
+          EEPROM_READ(matrix);
+        }
       #endif
 
       //
@@ -1149,22 +1152,22 @@ void MarlinSettings::postprocess() {
       //
 
       uint8_t grid_max_x, grid_max_y;
-      EEPROM_READ_ALWAYS(grid_max_x);                       // 1 byte
-      EEPROM_READ_ALWAYS(grid_max_y);                       // 1 byte
+      EEPROM_READ_ALWAYS(grid_max_x);
+      EEPROM_READ_ALWAYS(grid_max_y);
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         if (grid_max_x == GRID_MAX_POINTS_X && grid_max_y == GRID_MAX_POINTS_Y) {
           if (!validating) set_bed_leveling_enabled(false);
-          EEPROM_READ(bilinear_grid_spacing);        // 2 ints
-          EEPROM_READ(bilinear_start);               // 2 ints
-          EEPROM_READ(z_values);                     // 9 to 256 floats
+          EEPROM_READ(bilinear_grid_spacing);
+          EEPROM_READ(bilinear_start);
+          EEPROM_READ(z_values);
         }
         else // EEPROM data is stale
       #endif // AUTO_BED_LEVELING_BILINEAR
         {
           // Skip past disabled (or stale) Bilinear Grid data
-          int bgs[2], bs[2];
-          EEPROM_READ(bgs);
-          EEPROM_READ(bs);
+          int bilinear_grid_spacing[2], bilinear_start[2];
+          EEPROM_READ(bilinear_grid_spacing);
+          EEPROM_READ(bilinear_start);
           for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummy);
         }
 
@@ -1186,48 +1189,54 @@ void MarlinSettings::postprocess() {
       //
       // SERVO_ANGLES
       //
-      #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
-        uint16_t servo_angles[NUM_SERVOS][2];
-      #endif
-      EEPROM_READ(servo_angles);
-
-      //
-      // DELTA Geometry or Dual Endstops offsets
-      //
+      {
+        #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
+          uint16_t servo_angles[NUM_SERVOS][2];
+        #endif
+        EEPROM_READ(servo_angles);
+      }
 
       #if ENABLED(DELTA)
 
+        //
+        // DELTA Geometry
+        //
+
         _FIELD_TEST(delta_height);
 
-        EEPROM_READ(delta_height);              // 1 float
-        EEPROM_READ(delta_endstop_adj);         // 3 floats
-        EEPROM_READ(delta_radius);              // 1 float
-        EEPROM_READ(delta_diagonal_rod);        // 1 float
-        EEPROM_READ(delta_segments_per_second); // 1 float
-        EEPROM_READ(delta_calibration_radius);  // 1 float
-        EEPROM_READ(delta_tower_angle_trim);    // 3 floats
+        EEPROM_READ(delta_height);
+        EEPROM_READ(delta_endstop_adj);
+        EEPROM_READ(delta_radius);
+        EEPROM_READ(delta_diagonal_rod);
+        EEPROM_READ(delta_segments_per_second);
+        EEPROM_READ(delta_calibration_radius);
+        EEPROM_READ(delta_tower_angle_trim);
 
       #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+
+        //
+        // Dual Endstops offsets
+        //
 
         _FIELD_TEST(x2_endstop_adj);
 
         #if ENABLED(X_DUAL_ENDSTOPS)
-          EEPROM_READ(endstops.x2_endstop_adj);  // 1 float
+          EEPROM_READ(endstops.x2_endstop_adj);
         #else
           EEPROM_READ(dummy);
         #endif
         #if ENABLED(Y_DUAL_ENDSTOPS)
-          EEPROM_READ(endstops.y2_endstop_adj);  // 1 float
+          EEPROM_READ(endstops.y2_endstop_adj);
         #else
           EEPROM_READ(dummy);
         #endif
         #if Z_MULTI_ENDSTOPS
-          EEPROM_READ(endstops.z2_endstop_adj); // 1 float
+          EEPROM_READ(endstops.z2_endstop_adj);
         #else
           EEPROM_READ(dummy);
         #endif
         #if ENABLED(Z_TRIPLE_ENDSTOPS)
-          EEPROM_READ(endstops.z3_endstop_adj); // 1 float
+          EEPROM_READ(endstops.z3_endstop_adj);
         #else
           EEPROM_READ(dummy);
         #endif
@@ -1237,16 +1246,17 @@ void MarlinSettings::postprocess() {
       //
       // LCD Preheat settings
       //
+      {
+        _FIELD_TEST(lcd_preheat_hotend_temp);
 
-      _FIELD_TEST(lcd_preheat_hotend_temp);
-
-      #if DISABLED(ULTIPANEL)
-        int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
-        uint8_t lcd_preheat_fan_speed[2];
-      #endif
-      EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
-      EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
-      EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
+        #if DISABLED(ULTIPANEL)
+          int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
+          uint8_t lcd_preheat_fan_speed[2];
+        #endif
+        EEPROM_READ(lcd_preheat_hotend_temp);
+        EEPROM_READ(lcd_preheat_bed_temp);
+        EEPROM_READ(lcd_preheat_fan_speed);
+      }
 
       //
       // Hotend PID
