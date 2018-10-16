@@ -30,7 +30,7 @@
 // UI methods in "../ui_api.h"
 //
 // Although it may be possible to access other state
-// variables from Marlin, using the API here possible
+// variables from Marlin, using the API here possibly
 // helps ensure future compatibility.
 
 namespace UI {
@@ -43,7 +43,6 @@ namespace UI {
      *   SET_INPUT(pin)
      *   WRITE(pin,value)
      *   READ(pin)
-     *
      */
   }
   void onIdle() {}
