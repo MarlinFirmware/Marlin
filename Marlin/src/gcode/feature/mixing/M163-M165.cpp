@@ -43,9 +43,9 @@ void GcodeSuite::M163() {
 
 /**
  * M164: Normalize and commit the mix.
- *       If 'S' is given store as a virtual tool. Else in T0.
  *
  *   S[index]   The virtual tool to store
+ *              If 'S' is omitted update the active virtual tool.
  */
 void GcodeSuite::M164() {
   #if MIXING_VIRTUAL_TOOLS > 1
@@ -55,6 +55,8 @@ void GcodeSuite::M164() {
   #endif
   if (WITHIN(tool_index, 0, MIXING_VIRTUAL_TOOLS - 1))
     mixer.normalize(tool_index);
+  else
+    mixer.normalize(mixer.get_current_v_tool());
 }
 
 #if ENABLED(DIRECT_MIXING_IN_G1)
