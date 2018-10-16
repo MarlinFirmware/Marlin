@@ -1624,7 +1624,7 @@
 //#define GCODE_MOTION_MODES  // Remember the motion mode (G0 G1 G2 G3 G5 G38.X) and apply for X Y Z E F, etc.
 //#define G0_FEEDRATE         // Add a G0-specific sticky feedrate, applied to all subsequent G0 moves.
 #if ENABLED(G0_FEEDRATE)
-  #define DEFAULT_G0_FEEDRATE 3000.0  // (mm/m)
+  #define DEFAULT_G0_FEEDRATE 3000  // (mm/m)
 #endif 
 
 /**
