@@ -69,20 +69,15 @@ bool PersistentStore::access_start() {
   __disable_irq();
   status = BlankCheckSector(EEPROM_SECTOR, EEPROM_SECTOR, &first_nblank_loc, &first_nblank_val);
   __enable_irq();
-  SERIAL_PROTOCOLLNPAIR("Blank check status: ", status);
+
   if (status == CMD_SUCCESS) {
     // sector is blank so nothing stored yet
-    SERIAL_PROTOCOLLNPGM("FLASH empty");
     for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = EEPROM_ERASE;
     current_slot = EEPROM_SLOTS;
-  }
-  else {
+  } else {
     // current slot is the first non blank one
     current_slot = first_nblank_loc / EEPROM_SIZE;
-    SERIAL_PROTOCOLLNPAIR("Flash slot: ", current_slot);
     uint8_t *eeprom_data = SLOT_ADDRESS(EEPROM_SECTOR, current_slot);
-    SERIAL_PROTOCOLLNPAIR("Address: ", (int)eeprom_data);
-
     // load current settings
     for (int i = 0; i < EEPROM_SIZE; i++) ram_eeprom[i] = eeprom_data[i];
   }
@@ -100,15 +95,15 @@ bool PersistentStore::access_finish() {
       PrepareSector(EEPROM_SECTOR, EEPROM_SECTOR);
       status = EraseSector(EEPROM_SECTOR, EEPROM_SECTOR);
       __enable_irq();
-      SERIAL_PROTOCOLLNPAIR("Erase status: ", status);
+
       current_slot = EEPROM_SLOTS - 1;
     }
-    SERIAL_PROTOCOLLNPAIR("Writing data to: ", current_slot);
+
     __disable_irq();
     PrepareSector(EEPROM_SECTOR, EEPROM_SECTOR);
     status = CopyRAM2Flash(SLOT_ADDRESS(EEPROM_SECTOR, current_slot), ram_eeprom, IAP_WRITE_4096);
     __enable_irq();
-    SERIAL_PROTOCOLLNPAIR("CopyRAM2Flash status: ", status);
+
     if (status != CMD_SUCCESS) return false;
     eeprom_dirty = false;
   }
@@ -116,7 +111,7 @@ bool PersistentStore::access_finish() {
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
-  for (int i = 0; i < size; i++) ram_eeprom[pos + i] = value[i];
+  for (size_t i = 0; i < size; i++) ram_eeprom[pos + i] = value[i];
   eeprom_dirty = true;
   crc16(crc, value, size);
   pos += size;
@@ -125,7 +120,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   const uint8_t * const buff = writing ? &value[0] : &ram_eeprom[pos];
-  if (writing) for (int i = 0; i < size; i++) value[i] = ram_eeprom[pos + i];
+  if (writing) for (size_t i = 0; i < size; i++) value[i] = ram_eeprom[pos + i];
   crc16(crc, buff, size);
   pos += size;
   return false;  // return true for any error

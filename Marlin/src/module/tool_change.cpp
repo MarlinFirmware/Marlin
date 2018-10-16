@@ -35,10 +35,6 @@
   #if FAN_COUNT > 0
     uint8_t singlenozzle_fan_speed[EXTRUDERS];
   #endif
-  #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-    #include "../libs/point_t.h"
-    const point_t singlenozzle_change_point = SINGLENOZZLE_TOOLCHANGE_POSITION;
-  #endif
 #endif
 
 #if ENABLED(PARKING_EXTRUDER) && PARKING_EXTRUDER_SOLENOIDS_DELAY > 0
@@ -360,19 +356,6 @@ inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
 }
 
-#if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-
-  inline void mixing_tool_change(const uint8_t tmp_extruder) {
-    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
-      return invalid_extruder_error(tmp_extruder);
-
-    // T0-Tnnn: Switch virtual tool by changing the mix
-    for (uint8_t j = 0; j < MIXING_STEPPERS; j++)
-      mixing_factor[j] = mixing_virtual_tool_mix[tmp_extruder][j];
-  }
-
-#endif // MIXING_EXTRUDER && MIXING_VIRTUAL_TOOLS > 1
-
 #if ENABLED(DUAL_X_CARRIAGE)
 
   inline void dualx_tool_change(const uint8_t tmp_extruder, bool &no_move) {
@@ -471,7 +454,9 @@ inline void invalid_extruder_error(const uint8_t e) {
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
-  planner.synchronize();
+  #if DISABLED(MIXING_EXTRUDER)
+    planner.synchronize();
+  #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_SCALED_DUPLICATION_MODE
     if (tmp_extruder != 0 && dxc_is_duplicating())
@@ -485,8 +470,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
   #endif
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-
-    mixing_tool_change(tmp_extruder);
+    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
+      return invalid_extruder_error(tmp_extruder);
+    // T0-Tnnn: Switch virtual tool by changing the index to the mix
+    mixer.T(uint_fast8_t(tmp_extruder));
+    UNUSED(fr_mm_s);
+    UNUSED(no_move);
 
   #else // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 
@@ -659,8 +648,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
         #endif
 
-        if (!no_move) set_destination_from_current();
-
         if (sn_settings.swap_length) {
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
             do_pause_e_move(-sn_settings.swap_length, MMM_TO_MMS(sn_settings.retract_speed));
@@ -670,22 +657,26 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
         }
 
-        if (!no_move) {
-          current_position[Z_AXIS] += (
-            #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-              singlenozzle_change_point.z
-            #else
-              SINGLENOZZLE_TOOLCHANGE_ZRAISE
-            #endif
-          );
+        constexpr float snfr =
+          #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+            MMM_TO_MMS(SINGLENOZZLE_PARK_XY_FEEDRATE);
+          #else
+            0
+          #endif
+        ;
 
-          planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
+        float old_pos[XYZ];
+
+        if (!no_move) {
+          COPY(old_pos, current_position);
 
           #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-            current_position[X_AXIS] = singlenozzle_change_point.x;
-            current_position[Y_AXIS] = singlenozzle_change_point.y;
-            planner.buffer_line(current_position, MMM_TO_MMS(SINGLENOZZLE_PARK_XY_FEEDRATE), active_extruder);
+            current_position[X_AXIS] = sn_settings.change_point.x;
+            current_position[Y_AXIS] = sn_settings.change_point.y;
           #endif
+          current_position[Z_AXIS] += sn_settings.z_raise;
+
+          do_blocking_move_to(current_position, snfr);
         }
 
         singlenozzle_temp[active_extruder] = thermalManager.target_temperature[0];
@@ -708,15 +699,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #endif
         }
 
-        if (!no_move) {
-          #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-            current_position[X_AXIS] = destination[X_AXIS];
-            current_position[Y_AXIS] = destination[Y_AXIS];
-            planner.buffer_line(current_position, MMM_TO_MMS(SINGLENOZZLE_PARK_XY_FEEDRATE), active_extruder);
-          #endif
-
-          do_blocking_move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS]);
-        }
+        if (!no_move) do_blocking_move_to(old_pos, snfr);
 
       #elif EXTRUDERS > 1
 

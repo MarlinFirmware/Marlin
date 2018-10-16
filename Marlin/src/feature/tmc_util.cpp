@@ -138,7 +138,7 @@
 
     // Report if a warning was triggered
     if (data.is_otpw && st.otpw_count == 0) {
-      char timestamp[10];
+      char timestamp[14];
       duration_t elapsed = print_job_timer.duration();
       const bool has_days = (elapsed.value > 60*60*24L);
       (void)elapsed.toDigital(timestamp, has_days);

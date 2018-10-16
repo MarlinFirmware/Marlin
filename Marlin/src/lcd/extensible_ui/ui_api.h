@@ -109,6 +109,16 @@ namespace UI {
     #endif
   #endif
 
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    bool isFilamentRunoutEnabled();
+    void toggleFilamentRunout(const bool state);
+
+    #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+      float getFilamentRunoutDistance_mm();
+      void setFilamentRunoutDistance_mm(const float distance);
+    #endif
+  #endif
+
   void delay_ms(unsigned long ms);
   void yield(); // Within lengthy loop, call this periodically
 

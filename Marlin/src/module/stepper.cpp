@@ -103,7 +103,15 @@
   #include <SPI.h>
 #endif
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../feature/mixing.h"
+#endif
+
 Stepper stepper; // Singleton
+
+#if FILAMENT_RUNOUT_DISTANCE_MM > 0
+  #include "../feature/runout.h"
+#endif
 
 // public:
 
@@ -158,12 +166,10 @@ uint32_t Stepper::advance_dividend[XYZE] = { 0 },
          Stepper::decelerate_after,          // The point from where we need to start decelerating
          Stepper::step_event_count;          // The total event count for the current block
 
-#if ENABLED(MIXING_EXTRUDER)
-  int32_t Stepper::delta_error_m[MIXING_STEPPERS];
-  uint32_t Stepper::advance_dividend_m[MIXING_STEPPERS],
-           Stepper::advance_divisor_m;
-#elif EXTRUDERS > 1
-  uint8_t Stepper::active_extruder;          // Active extruder
+#if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
+  uint8_t Stepper::stepper_extruder;
+#else
+  constexpr uint8_t Stepper::stepper_extruder;
 #endif
 
 #if ENABLED(S_CURVE_ACCELERATION)
@@ -301,7 +307,7 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
 #endif
 
 #if DISABLED(MIXING_EXTRUDER)
-  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(active_extruder, v)
+  #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
 #endif
 
 void Stepper::wake_up() {
@@ -340,21 +346,23 @@ void Stepper::set_directions() {
 
   #if DISABLED(LIN_ADVANCE)
     #if ENABLED(MIXING_EXTRUDER)
+       // Because this is valid for the whole block we don't know
+       // what e-steppers will step. Likely all. Set all.
       if (motor_direction(E_AXIS)) {
-        MIXING_STEPPERS_LOOP(j) REV_E_DIR(j);
+        MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
         count_direction[E_AXIS] = -1;
       }
       else {
-        MIXING_STEPPERS_LOOP(j) NORM_E_DIR(j);
+        MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
         count_direction[E_AXIS] = 1;
       }
     #else
       if (motor_direction(E_AXIS)) {
-        REV_E_DIR(active_extruder);
+        REV_E_DIR(stepper_extruder);
         count_direction[E_AXIS] = -1;
       }
       else {
-        NORM_E_DIR(active_extruder);
+        NORM_E_DIR(stepper_extruder);
         count_direction[E_AXIS] = 1;
       }
     #endif
@@ -1387,39 +1395,27 @@ void Stepper::stepper_pulse_phase_isr() {
       PULSE_START(Z);
     #endif
 
-    // Pulse E/Mixing extruders
-    #if ENABLED(LIN_ADVANCE)
-      // Tick the E axis, correct error term and update position
+    // Pulse Extruders
+    // Tick the E axis, correct error term and update position
+    #if ENABLED(LIN_ADVANCE) || ENABLED(MIXING_EXTRUDER)
       delta_error[E_AXIS] += advance_dividend[E_AXIS];
       if (delta_error[E_AXIS] >= 0) {
         count_position[E_AXIS] += count_direction[E_AXIS];
-        delta_error[E_AXIS] -= advance_divisor;
-
-        // Don't step E here - But remember the number of steps to perform
-        motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
-      }
-    #else // !LIN_ADVANCE - use linear interpolation for E also
-      #if ENABLED(MIXING_EXTRUDER)
-
-        // Tick the E axis
-        delta_error[E_AXIS] += advance_dividend[E_AXIS];
-        if (delta_error[E_AXIS] >= 0) {
-          count_position[E_AXIS] += count_direction[E_AXIS];
+        #if ENABLED(LIN_ADVANCE)
           delta_error[E_AXIS] -= advance_divisor;
-        }
-
-        // Tick the counters used for this mix in proper proportion
-        MIXING_STEPPERS_LOOP(j) {
-          // Step mixing steppers (proportionally)
-          delta_error_m[j] += advance_dividend_m[j];
-          // Step when the counter goes over zero
-          if (delta_error_m[j] >= 0) E_STEP_WRITE(j, !INVERT_E_STEP_PIN);
-        }
-
-      #else // !MIXING_EXTRUDER
+          // Don't step E here - But remember the number of steps to perform
+          motor_direction(E_AXIS) ? --LA_steps : ++LA_steps;
+        #else // !LIN_ADVANCE && MIXING_EXTRUDER
+          // Don't adjust delta_error[E_AXIS] here!
+          // Being positive is the criteria for ending the pulse.
+          E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
+        #endif
+      }
+    #else // !LIN_ADVANCE && !MIXING_EXTRUDER
+      #if HAS_E_STEP
         PULSE_START(E);
       #endif
-    #endif // !LIN_ADVANCE
+    #endif
 
     #if MINIMUM_STEPPER_PULSE
       // Just wait for the requested pulse duration
@@ -1442,11 +1438,9 @@ void Stepper::stepper_pulse_phase_isr() {
 
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
-        MIXING_STEPPERS_LOOP(j) {
-          if (delta_error_m[j] >= 0) {
-            delta_error_m[j] -= advance_divisor_m;
-            E_STEP_WRITE(j, INVERT_E_STEP_PIN);
-          }
+        if (delta_error[E_AXIS] >= 0) {
+          delta_error[E_AXIS] -= advance_divisor;
+          E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
         }
       #else // !MIXING_EXTRUDER
         PULSE_STOP(E);
@@ -1483,6 +1477,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
     // If current block is finished, reset pointer
     if (step_events_completed >= step_event_count) {
+      #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+        runout.block_complete(current_block);
+      #endif
       axis_did_move = 0;
       current_block = NULL;
       planner.discard_current_block();
@@ -1717,27 +1714,18 @@ uint32_t Stepper::stepper_block_phase_isr() {
       decelerate_after = current_block->decelerate_after << oversampling;
 
       #if ENABLED(MIXING_EXTRUDER)
-        const uint32_t e_steps = (
-          #if ENABLED(LIN_ADVANCE)
-            current_block->steps[E_AXIS]
-          #else
-            step_event_count
-          #endif
-        );
-        MIXING_STEPPERS_LOOP(i) {
-          delta_error_m[i] = -int32_t(e_steps);
-          advance_dividend_m[i] = current_block->mix_steps[i] << 1;
-        }
-        advance_divisor_m = e_steps << 1;
-      #elif EXTRUDERS > 1
-        active_extruder = current_block->active_extruder;
+        MIXER_STEPPER_SETUP();
+      #endif
+
+      #if EXTRUDERS > 1
+        stepper_extruder = current_block->extruder;
       #endif
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
         #if DISABLED(MIXING_EXTRUDER) && E_STEPPERS > 1
           // If the now active extruder wasn't in use during the last move, its pressure is most likely gone.
-          if (active_extruder != last_moved_extruder) LA_current_adv_steps = 0;
+          if (stepper_extruder != last_moved_extruder) LA_current_adv_steps = 0;
         #endif
 
         if ((LA_use_advance_lead = current_block->use_advance_lead)) {
@@ -1751,15 +1739,15 @@ uint32_t Stepper::stepper_block_phase_isr() {
       #endif
 
       if (current_block->direction_bits != last_direction_bits
-        #if DISABLED(MIXING_EXTRUDER)
-          || active_extruder != last_moved_extruder
-        #endif
+          #if DISABLED(MIXING_EXTRUDER)
+            || stepper_extruder != last_moved_extruder
+          #endif
       ) {
         last_direction_bits = current_block->direction_bits;
-        #if DISABLED(MIXING_EXTRUDER) && EXTRUDERS > 1
-          last_moved_extruder = active_extruder;
-        #endif
         set_directions();
+        #if EXTRUDERS > 1
+          last_moved_extruder = stepper_extruder;
+        #endif
       }
 
       // At this point, we must ensure the movement about to execute isn't
@@ -1827,15 +1815,17 @@ uint32_t Stepper::stepper_block_phase_isr() {
       interval = LA_ADV_NEVER;
 
       #if ENABLED(MIXING_EXTRUDER)
+        // We don't know which steppers will be stepped because LA loop follows,
+        // with potentially multiple steps. Set all.
         if (LA_steps >= 0)
-          MIXING_STEPPERS_LOOP(j) NORM_E_DIR(j);
+          MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
         else
-          MIXING_STEPPERS_LOOP(j) REV_E_DIR(j);
+          MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
       #else
         if (LA_steps >= 0)
-          NORM_E_DIR(active_extruder);
+          NORM_E_DIR(stepper_extruder);
         else
-          REV_E_DIR(active_extruder);
+          REV_E_DIR(stepper_extruder);
       #endif
 
     // Get the timer count and estimate the end of the pulse
@@ -1848,14 +1838,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       // Set the STEP pulse ON
       #if ENABLED(MIXING_EXTRUDER)
-        MIXING_STEPPERS_LOOP(j) {
-          // Step mixing steppers (proportionally)
-          delta_error_m[j] += advance_dividend_m[j];
-          // Step when the counter goes over zero
-          if (delta_error_m[j] >= 0) E_STEP_WRITE(j, !INVERT_E_STEP_PIN);
-        }
+        E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
       #else
-        E_STEP_WRITE(active_extruder, !INVERT_E_STEP_PIN);
+        E_STEP_WRITE(stepper_extruder, !INVERT_E_STEP_PIN);
       #endif
 
       // Enforce a minimum duration for STEP pulse ON
@@ -1871,14 +1856,9 @@ uint32_t Stepper::stepper_block_phase_isr() {
 
       // Set the STEP pulse OFF
       #if ENABLED(MIXING_EXTRUDER)
-        MIXING_STEPPERS_LOOP(j) {
-          if (delta_error_m[j] >= 0) {
-            delta_error_m[j] -= advance_divisor_m;
-            E_STEP_WRITE(j, INVERT_E_STEP_PIN);
-          }
-        }
+        E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
       #else
-        E_STEP_WRITE(active_extruder, INVERT_E_STEP_PIN);
+        E_STEP_WRITE(stepper_extruder, INVERT_E_STEP_PIN);
       #endif
 
       // For minimum pulse time wait before looping
@@ -2106,8 +2086,6 @@ void Stepper::init() {
 
   endstops.enable(true); // Start with endstops active. After homing they can be disabled
   sei();
-
-  set_directions(); // Init directions to last_direction_bits = 0
 }
 
 /**

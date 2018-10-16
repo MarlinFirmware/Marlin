@@ -1313,6 +1313,9 @@ void MarlinSettings::postprocess() {
 
         #if ENABLED(FWRETRACT)
           EEPROM_READ(fwretract.settings);
+        #else
+          fwretract_settings_t fwretract_settings;
+          EEPROM_READ(fwretract_settings);
         #endif
         #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
           EEPROM_READ(fwretract.autoretract_enabled);
@@ -1836,6 +1839,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     sn_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
     sn_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
     sn_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
+    sn_settings.z_raise = SINGLENOZZLE_TOOLCHANGE_ZRAISE;
+    #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+      sn_settings.change_point = SINGLENOZZLE_TOOLCHANGE_XY;
+    #endif
   #endif
 
   //
@@ -2096,15 +2103,11 @@ void MarlinSettings::reset(PORTARG_SOLO) {
      */
     CONFIG_ECHO_START;
     #if ENABLED(INCH_MODE_SUPPORT)
-      #define LINEAR_UNIT(N) (float(N) / parser.linear_unit_factor)
-      #define VOLUMETRIC_UNIT(N) (float(N) / (parser.volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
       SERIAL_ECHOPGM_P(port, "  G2");
       SERIAL_CHAR_P(port, parser.linear_unit_factor == 1.0 ? '1' : '0');
       SERIAL_ECHOPGM_P(port, " ;");
       SAY_UNITS_P(port, false);
     #else
-      #define LINEAR_UNIT(N) (N)
-      #define VOLUMETRIC_UNIT(N) (N)
       SERIAL_ECHOPGM_P(port, "  G21    ; Units in mm");
       SAY_UNITS_P(port, false);
     #endif
@@ -2116,13 +2119,11 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
       CONFIG_ECHO_START;
       #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-        #define TEMP_UNIT(N) parser.to_temp_units(N)
         SERIAL_ECHOPGM_P(port, "  M149 ");
         SERIAL_CHAR_P(port, parser.temp_units_code());
         SERIAL_ECHOPGM_P(port, " ; Units in ");
         serialprintPGM_P(port, parser.temp_units_name());
       #else
-        #define TEMP_UNIT(N) (N)
         SERIAL_ECHOLNPGM_P(port, "  M149 C ; Units in Celsius");
       #endif
 

@@ -905,8 +905,8 @@ void setup() {
     lcd_bootscreen();
   #endif
 
-  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-    mixing_tools_init();
+  #if ENABLED(MIXING_EXTRUDER)
+    mixer.init();
   #endif
 
   #if ENABLED(BLTOUCH)

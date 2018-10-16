@@ -1749,10 +1749,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
-  // For a mixing extruder, get a magnified esteps for each
   #if ENABLED(MIXING_EXTRUDER)
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      block->mix_steps[i] = mixing_factor[i] * esteps;
+    MIXER_POPULATE_BLOCK();
   #endif
 
   #if FAN_COUNT > 0
@@ -1765,7 +1763,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if EXTRUDERS > 1
-    block->active_extruder = extruder;
+    block->extruder = extruder;
   #endif
 
   #if ENABLED(AUTO_POWER_CONTROL)
@@ -2066,15 +2064,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0f; // factor <1 decreases speed
   LOOP_XYZE(i) {
-    #if ENABLED(MIXING_EXTRUDER)
+    #if ENABLED(MIXING_EXTRUDER) && ENABLED(RETRACT_SYNC_MIXING)
+      // In worst case, only one extruder running, no change is needed.
+      // In best case, all extruders run the same amount, we can divide by MIXING_STEPPERS
       float delta_mm_i = 0;
-      if (i == E_AXIS) {
-        for (uint8_t s = 0; s < MIXING_STEPPERS; s++) {
-          const float delta_mm_s = mixing_factor[s] * delta_mm[i];
-          if (ABS(delta_mm_s) > ABS(delta_mm_i)) delta_mm_i = delta_mm_s;
-        }
-      }
-      else delta_mm_i = delta_mm[i];
+      if (i == E_AXIS && mixer.get_current_v_tool() == MIXER_AUTORETRACT_TOOL)
+        delta_mm_i = delta_mm[i] / MIXING_STEPPERS;
+      else
+        delta_mm_i = delta_mm[i];
     #else
       const float delta_mm_i = delta_mm[i];
     #endif
