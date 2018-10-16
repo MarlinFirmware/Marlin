@@ -55,7 +55,7 @@ void Mixer::normalize(const uint8_t tool_index) {
     #endif
   }
   #ifdef MIXER_NORMALIZER_DEBUG
-    SERIAL_ECHOPGM("Mixer: Relation before normalising: [ ");
+    SERIAL_ECHOPGM("Mixer: Relation before normalizing: [ ");
     MIXER_STEPPER_LOOP(i) {
       SERIAL_ECHO_F(M163_collector[i] / csum, 3);
       SERIAL_CHAR(' ');
@@ -70,14 +70,14 @@ void Mixer::normalize(const uint8_t tool_index) {
 
   #ifdef MIXER_NORMALIZER_DEBUG
     csum = 0;
-    SERIAL_ECHOPGM("Mixer: Normalising to             : [ ");
+    SERIAL_ECHOPGM("Mixer: Normalizing to             : [ ");
     MIXER_STEPPER_LOOP(i) {
       SERIAL_ECHO(uint16_t(color[tool_index][i]));
       SERIAL_CHAR(' ');
       csum += color[tool_index][i];
     }
     SERIAL_ECHOLNPGM("]");
-    SERIAL_ECHOPGM("Mixer: Relation  after normalising: [ ");
+    SERIAL_ECHOPGM("Mixer: Relation after normalizing:  [ ");
     MIXER_STEPPER_LOOP(i) {
       SERIAL_ECHO_F(uint16_t(color[tool_index][i]) / csum, 3);
       SERIAL_CHAR(' ');
