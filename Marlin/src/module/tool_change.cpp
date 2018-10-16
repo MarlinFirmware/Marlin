@@ -356,19 +356,6 @@ inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
 }
 
-#if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-
-  inline void mixing_tool_change(const uint8_t tmp_extruder) {
-    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
-      return invalid_extruder_error(tmp_extruder);
-
-    // T0-Tnnn: Switch virtual tool by changing the mix
-    for (uint8_t j = 0; j < MIXING_STEPPERS; j++)
-      mixing_factor[j] = mixing_virtual_tool_mix[tmp_extruder][j];
-  }
-
-#endif // MIXING_EXTRUDER && MIXING_VIRTUAL_TOOLS > 1
-
 #if ENABLED(DUAL_X_CARRIAGE)
 
   inline void dualx_tool_change(const uint8_t tmp_extruder, bool &no_move) {
@@ -467,7 +454,9 @@ inline void invalid_extruder_error(const uint8_t e) {
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
-  planner.synchronize();
+  #if DISABLED(MIXING_EXTRUDER)
+    planner.synchronize();
+  #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_SCALED_DUPLICATION_MODE
     if (tmp_extruder != 0 && dxc_is_duplicating())
@@ -481,8 +470,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
   #endif
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-
-    mixing_tool_change(tmp_extruder);
+    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
+      return invalid_extruder_error(tmp_extruder);
+    // T0-Tnnn: Switch virtual tool by changing the index to the mix
+    mixer.T(uint_fast8_t(tmp_extruder));
+    UNUSED(fr_mm_s);
+    UNUSED(no_move);
 
   #else // !MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 

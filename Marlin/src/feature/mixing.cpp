@@ -24,81 +24,90 @@
 
 #if ENABLED(MIXING_EXTRUDER)
 
-#if ENABLED(DIRECT_MIXING_IN_G1)
-  #include "../gcode/parser.h"
+//#define MIXER_NORMALIZER_DEBUG
+#ifdef MIXER_NORMALIZER_DEBUG
+  #include "../core/serial.h"
 #endif
 
-float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise <= 1.0. (Array must sum to 1.0.)
+#include "mixing.h"
 
-#if MIXING_VIRTUAL_TOOLS > 1
+Mixer mixer;
 
-  float mixing_virtual_tool_mix[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
+// Used up to Planner level
+uint_fast8_t  Mixer::selected_v_tool = 0;
+float         Mixer::M163_collector[MIXING_STEPPERS]; // mix proportion. 0.0 = off, otherwise <= COLOR_A_MASK.
+mixer_color_t Mixer::color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
 
-  void mixing_tools_init() {
-    // Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
-    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS && t < MIXING_STEPPERS; t++)
-      for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-        mixing_virtual_tool_mix[t][i] = (t == i) ? 1.0 : 0.0;
+// Used in Stepper
+int_fast8_t   Mixer::runner = 0;
+mixer_color_t Mixer::s_color[MIXING_STEPPERS];
+mixer_accu_t  Mixer::accu[MIXING_STEPPERS] = { 0 };
 
-    // Remaining virtual tools are 100% filament 1
-    #if MIXING_STEPPERS < MIXING_VIRTUAL_TOOLS
-      for (uint8_t t = MIXING_STEPPERS; t < MIXING_VIRTUAL_TOOLS; t++)
-        for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-          mixing_virtual_tool_mix[t][i] = (i == 0) ? 1.0 : 0.0;
+void Mixer::normalize(const uint8_t tool_index) {
+  float cmax = 0;
+  #ifdef MIXER_NORMALIZER_DEBUG
+    float csum = 0;
+  #endif
+  MIXER_STEPPER_LOOP(i) {
+    cmax = max(cmax, M163_collector[i]);
+    #ifdef MIXER_NORMALIZER_DEBUG
+      csum += M163_collector[i];
     #endif
-
-    // Initialize mixing to tool 0 color
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      mixing_factor[i] = mixing_virtual_tool_mix[0][i];
   }
+  #ifdef MIXER_NORMALIZER_DEBUG
+    SERIAL_ECHOPGM("Mixer: Relation before normalizing: [ ");
+    MIXER_STEPPER_LOOP(i) {
+      SERIAL_ECHO_F(M163_collector[i] / csum, 3);
+      SERIAL_CHAR(' ');
+    }
+    SERIAL_ECHOPGM("]\n");
+  #endif
 
-#endif // MIXING_VIRTUAL_TOOLS > 1
+  // Scale all values so their maximum is COLOR_A_MASK
+  const float inverse_max = RECIPROCAL(cmax);
+  MIXER_STEPPER_LOOP(i)
+    color[tool_index][i] = M163_collector[i] * COLOR_A_MASK * inverse_max;
 
-void normalize_mix() {
-  float mix_total = 0.0;
-  for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mix_total += mixing_factor[i];
-  // Scale all values if they don't add up to ~1.0
-  if (!NEAR(mix_total, 1.0)) {
-    SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
-    const float inverse_sum = RECIPROCAL(mix_total);
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= inverse_sum;
-  }
+  #ifdef MIXER_NORMALIZER_DEBUG
+    csum = 0;
+    SERIAL_ECHOPGM("Mixer: Normalizing to             : [ ");
+    MIXER_STEPPER_LOOP(i) {
+      SERIAL_ECHO(uint16_t(color[tool_index][i]));
+      SERIAL_CHAR(' ');
+      csum += color[tool_index][i];
+    }
+    SERIAL_ECHOLNPGM("]");
+    SERIAL_ECHOPGM("Mixer: Relation after normalizing:  [ ");
+    MIXER_STEPPER_LOOP(i) {
+      SERIAL_ECHO_F(uint16_t(color[tool_index][i]) / csum, 3);
+      SERIAL_CHAR(' ');
+    }
+    SERIAL_ECHOLNPGM("]");
+  #endif
 }
 
-#if ENABLED(DIRECT_MIXING_IN_G1)
-  // Get mixing parameters from the GCode
-  // The total "must" be 1.0 (but it will be normalized)
-  // If no mix factors are given, the old mix is preserved
-  void gcode_get_mix() {
-    const char mixing_codes[] = { 'A', 'B'
-      #if MIXING_STEPPERS > 2
-        , 'C'
-        #if MIXING_STEPPERS > 3
-          , 'D'
-          #if MIXING_STEPPERS > 4
-            , 'H'
-            #if MIXING_STEPPERS > 5
-              , 'I'
-            #endif // MIXING_STEPPERS > 5
-          #endif // MIXING_STEPPERS > 4
-        #endif // MIXING_STEPPERS > 3
-      #endif // MIXING_STEPPERS > 2
-    };
-    byte mix_bits = 0;
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
-      if (parser.seenval(mixing_codes[i])) {
-        SBI(mix_bits, i);
-        mixing_factor[i] = MAX(parser.value_float(), 0.0);
-      }
-    }
-    // If any mixing factors were included, clear the rest
-    // If none were included, preserve the last mix
-    if (mix_bits) {
-      for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-        if (!TEST(mix_bits, i)) mixing_factor[i] = 0.0;
-      normalize_mix();
-    }
-  }
-#endif
+// called at boot
+void Mixer::init( void ) {
+  // Virtual Tools 0, 1, 2, 3 = Filament 1, 2, 3, 4, etc.
+  // Every virtual tool gets a pure filament
+  for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS && t < MIXING_STEPPERS; t++)
+    MIXER_STEPPER_LOOP(i)
+      color[t][i] = (t == i) ? COLOR_A_MASK : 0;
+
+  // Remaining virtual tools are 100% filament 1
+  #if MIXING_STEPPERS < MIXING_VIRTUAL_TOOLS
+    for (uint8_t t = MIXING_STEPPERS; t < MIXING_VIRTUAL_TOOLS; t++)
+      MIXER_STEPPER_LOOP(i)
+        color[t][i] = (i == 0) ? COLOR_A_MASK : 0;
+  #endif
+
+  #if ENABLED(RETRACT_SYNC_MIXING)
+    // AUTORETRACT_TOOL gets the same amount of all filaments
+    MIXER_STEPPER_LOOP(i)
+      color[MIXER_AUTORETRACT_TOOL][i] = COLOR_A_MASK;
+  #endif
+
+  ZERO(M163_collector);
+}
 
 #endif // MIXING_EXTRUDER
