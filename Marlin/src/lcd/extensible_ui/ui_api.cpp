@@ -27,9 +27,7 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/probe.h"
-#include "../../module/printcounter.h"
 #include "../../module/temperature.h"
-#include "../../sd/cardreader.h"
 #include "../../libs/duration_t.h"
 
 #if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
@@ -37,11 +35,17 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
+  #include "../../sd/cardreader.h"
   #include "../../feature/emergency_parser.h"
 
   bool abort_sd_printing; // =false
 #else
   constexpr bool abort_sd_printing = false;
+#endif
+
+#if ENABLED(PRINTCOUNTER)
+  #include "../../core/utility.h"
+  #include "../../module/printcounter.h"
 #endif
 
 #include "ui_api.h"
@@ -272,16 +276,16 @@ namespace UI {
     }
   #endif
 
-  float getMinFeedrate_mm_s()                             { return planner.settings.min_feedrate_mm_s; }
-  float getMinTravelFeedrate_mm_s()                       { return planner.settings.min_travel_feedrate_mm_s; }
-  float getPrintingAcceleration_mm_s2()                   { return planner.settings.acceleration; }
-  float getRetractAcceleration_mm_s2()                    { return planner.settings.retract_acceleration; }
-  float getTravelAcceleration_mm_s2()                     { return planner.settings.travel_acceleration; }
-  void setMinFeedrate_mm_s(const float fr)                { planner.settings.min_feedrate_mm_s = fr; }
-  void setMinTravelFeedrate_mm_s(const float fr)          { planner.settings.min_travel_feedrate_mm_s = fr; }
-  void setPrintingAcceleration_mm_per_s2(const float acc) { planner.settings.acceleration = acc; }
-  void setRetractAcceleration_mm_s2(const float acc)      { planner.settings.retract_acceleration = acc; }
-  void setTravelAcceleration_mm_s2(const float acc)       { planner.settings.travel_acceleration = acc; }
+  float getMinFeedrate_mm_s()                         { return planner.settings.min_feedrate_mm_s; }
+  float getMinTravelFeedrate_mm_s()                   { return planner.settings.min_travel_feedrate_mm_s; }
+  float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
+  float getRetractAcceleration_mm_s2()                { return planner.settings.retract_acceleration; }
+  float getTravelAcceleration_mm_s2()                 { return planner.settings.travel_acceleration; }
+  void setMinFeedrate_mm_s(const float fr)            { planner.settings.min_feedrate_mm_s = fr; }
+  void setMinTravelFeedrate_mm_s(const float fr)      { planner.settings.min_travel_feedrate_mm_s = fr; }
+  void setPrintingAcceleration_mm_s2(const float acc) { planner.settings.acceleration = acc; }
+  void setRetractAcceleration_mm_s2(const float acc)  { planner.settings.retract_acceleration = acc; }
+  void setTravelAcceleration_mm_s2(const float acc)   { planner.settings.travel_acceleration = acc; }
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     float getZOffset_mm() {
@@ -363,6 +367,18 @@ namespace UI {
     const duration_t elapsed = print_job_timer.duration();
     return elapsed.value;
   }
+
+  #if ENABLED(PRINTCOUNTER)
+    char* getTotalPrints_str(char buffer[21])    { strcpy(buffer,itostr3left(print_job_timer.getStats().totalPrints));    return buffer; }
+    char* getFinishedPrints_str(char buffer[21]) { strcpy(buffer,itostr3left(print_job_timer.getStats().finishedPrints)); return buffer; }
+    char* getTotalPrintTime_str(char buffer[21]) { duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer; }
+    char* getLongestPrint_str(char buffer[21])   { duration_t(print_job_timer.getStats().printTime).toString(buffer);     return buffer; }
+    char* getFilamentUsed_str(char buffer[21])   {
+      printStatistics stats = print_job_timer.getStats();
+      sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int16_t(stats.filamentUsed / 100) % 10);
+      return buffer;
+    }
+  #endif
 
   float getFeedRate_percent() {
     return feedrate_percentage;
@@ -564,7 +580,7 @@ void lcd_init() {
   UI::onStartup();
 }
 
-void lcd_update()                                                                {
+void lcd_update() {
   #if ENABLED(SDSUPPORT)
     static bool last_sd_status;
     const bool sd_status = IS_SD_INSERTED;
@@ -585,7 +601,7 @@ void lcd_update()                                                               
       }
     }
   #endif // SDSUPPORT
-  UI::onUpdate();
+  UI::onIdle();
 }
 
 bool lcd_hasstatus()                                                             { return true; }
@@ -594,8 +610,25 @@ void lcd_reset_alert_level()                                                    
 void lcd_refresh()                                                               {}
 void lcd_setstatus(const char * const message, const bool persist /* = false */) { UI::onStatusChanged(message); }
 void lcd_setstatusPGM(const char * const message, int8_t level /* = 0 */)        { UI::onStatusChanged((progmem_str)message); }
-void lcd_reset_status()                                                          {}
 void lcd_setalertstatusPGM(const char * const message)                           { lcd_setstatusPGM(message, 0); }
+void lcd_reset_status() {
+  static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
+  static const char printing[] PROGMEM = MSG_PRINTING;
+  static const char welcome[] PROGMEM = WELCOME_MSG;
+  PGM_P msg;
+  if (print_job_timer.isPaused())
+    msg = paused;
+  #if ENABLED(SDSUPPORT)
+    else if (card.sdprinting)
+      return lcd_setstatus(card.longest_filename(), true);
+  #endif
+  else if (print_job_timer.isRunning())
+    msg = printing;
+  else
+    msg = welcome;
+
+  lcd_setstatusPGM(msg, -1);
+}
 void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   char buff[64];
   va_list args;
