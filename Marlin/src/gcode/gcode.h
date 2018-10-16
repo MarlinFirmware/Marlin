@@ -341,7 +341,7 @@ public:
 private:
 
   static void G0_G1(
-    #if IS_SCARA
+    #if IS_SCARA || ENABLED(G0_FEEDRATE)
       bool fast_move=false
     #endif
   );

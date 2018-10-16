@@ -188,7 +188,7 @@ void GcodeSuite::process_parsed_command(
     case 'G': switch (parser.codenum) {
 
       case 0: case 1: G0_G1(                                      // G0: Fast Move, G1: Linear Move
-                        #if IS_SCARA
+                        #if IS_SCARA || ENABLED(G0_FEEDRATE)
                           parser.codenum == 0
                         #endif
                       );
