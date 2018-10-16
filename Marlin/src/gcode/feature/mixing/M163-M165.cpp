@@ -63,8 +63,8 @@ void GcodeSuite::M164() {
 
   /**
    * M165: Set multiple mix factors for a mixing extruder.
-   *       Factors that are left out will be set to 0.
-   *       All factors will be normalized and stored in the current v-tool.
+   *       Omitted factors will be set to 0.
+   *       The mix is normalized and stored in the current virtual tool.
    *
    *   A[factor] Mix factor for extruder stepper 1
    *   B[factor] Mix factor for extruder stepper 2
