@@ -67,14 +67,16 @@ uint8_t HAL_get_reset_source(void) {
 
 void watchdog_reset() {
   WDT_Feed();
-  #if !defined(PINS_DEBUGGING) && PIN_EXISTS(LED)
+  #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
     TOGGLE(LED_PIN);  // heart beat indicator
   #endif
 }
 
 #else
+
   void HAL_clear_reset_source(void) {}
   uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
+
 #endif // USE_WATCHDOG
 
 #endif // TARGET_LPC1768
