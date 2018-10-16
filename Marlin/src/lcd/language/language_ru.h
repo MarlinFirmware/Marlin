@@ -261,7 +261,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Втягивание мм")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Втягивание смены мм")
 #define MSG_CONTROL_RETRACTF                _UxGT("Втягивание V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Втяг. прыжка мм")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Втяг. прыжка мм")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Возврат мм")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Возврат смены мм")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Возврат V")

@@ -756,8 +756,8 @@
 #ifndef MSG_CONTROL_RETRACTF
   #define MSG_CONTROL_RETRACTF                _UxGT("Retract  V")
 #endif
-#ifndef MSG_CONTROL_RETRACT_ZLIFT
-  #define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")
+#ifndef MSG_CONTROL_RETRACT_ZHOP
+  #define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Hop mm")
 #endif
 #ifndef MSG_CONTROL_RETRACT_RECOVER
   #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")

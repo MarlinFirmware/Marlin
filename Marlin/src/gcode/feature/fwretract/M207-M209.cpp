@@ -33,12 +33,12 @@
  *   S[+units]    retract_length
  *   W[+units]    swap_retract_length (multi-extruder)
  *   F[units/min] retract_feedrate_mm_s
- *   Z[units]     retract_zlift
+ *   Z[units]     retract_zraise
  */
 void GcodeSuite::M207() {
   if (parser.seen('S')) fwretract.settings.retract_length = parser.value_axis_units(E_AXIS);
   if (parser.seen('F')) fwretract.settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('Z')) fwretract.settings.retract_zlift = parser.value_linear_units();
+  if (parser.seen('Z')) fwretract.settings.retract_zraise = parser.value_linear_units();
   if (parser.seen('W')) fwretract.settings.swap_retract_length = parser.value_axis_units(E_AXIS);
 }
 

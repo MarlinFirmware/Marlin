@@ -309,6 +309,8 @@
   #error "MAX7219_DEBUG_STEPPER_QUEUE is now MAX7219_DEBUG_PLANNER_QUEUE. Please update your configuration."
 #elif defined(ENDSTOP_NOISE_FILTER)
   #error "ENDSTOP_NOISE_FILTER is now ENDSTOP_NOISE_THRESHOLD [2-7]. Please update your configuration."
+#elif defined(RETRACT_ZLIFT)
+  #error "RETRACT_ZLIFT is now RETRACT_ZRAISE. Please update your Configuration_adv.h."
 #endif
 
 #define BOARD_MKS_13     -47

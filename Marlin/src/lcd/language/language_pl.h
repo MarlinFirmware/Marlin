@@ -157,7 +157,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Wycofaj mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Z Wycof. mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Wycofaj  V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Skok Z mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Skok Z mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Cof. wycof. mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Z Cof. wyc. mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Cof. wycof.  V")
