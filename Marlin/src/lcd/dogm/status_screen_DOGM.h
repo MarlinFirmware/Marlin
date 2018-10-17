@@ -295,7 +295,7 @@ static void lcd_implementation_status_screen() {
     }
   #endif // SDSUPPORT
 
-  #if ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  #if HAS_PRINT_PROGRESS
     //
     // Progress bar frame
     //
