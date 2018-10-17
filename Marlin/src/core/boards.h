@@ -75,6 +75,7 @@
 #define BOARD_AZTEEG_X3_PRO     68    // Azteeg X3 Pro
 #define BOARD_ULTIMAIN_2        72    // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
 #define BOARD_RUMBA             80    // Rumba
+#define BOARD_CREATBOT          542   // Rumba derivative
 #define BOARD_FORMBOT_TREX2PLUS 95    // Formbot version 1
 #define BOARD_FORMBOT_TREX3     96    // Formbot T-Rex 3 revision
 #define BOARD_FORMBOT_RAPTOR    97    // Formbot version 1
@@ -110,7 +111,7 @@
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
 #define BOARD_GT2560_V3         76    // Geeetech GT2560 Rev B for A10(M/D)
-#define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2
+#define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2																		   																	 
 #define BOARD_EINSTART_S        666   // Einstart retrofit
 
 //
