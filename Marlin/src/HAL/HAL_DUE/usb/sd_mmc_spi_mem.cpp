@@ -24,10 +24,12 @@ Ctrl_status sd_mmc_spi_test_unit_ready(void) {
   return CTRL_GOOD;
 }
 
+// NOTE: This function is defined as returning the address of the last block
+// in the card, which is cardSize() - 1
 Ctrl_status sd_mmc_spi_read_capacity(uint32_t *nb_sector) {
   if (!IS_SD_INSERTED || IS_SD_PRINTING || IS_SD_FILE_OPEN || !card.cardOK)
     return CTRL_NO_PRESENT;
-  *nb_sector = card.getSd2Card().cardSize();
+  *nb_sector = card.getSd2Card().cardSize() - 1;
   return CTRL_GOOD;
 }
 
