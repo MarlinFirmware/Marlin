@@ -31,6 +31,8 @@
 
 #define LARGE_FLASH true
 
+#define ARMED_EINSY
+
 #define E2END 0xFFF // EEPROM end address (4kB)
 
 // Ignore temp readings during develpment.
@@ -69,37 +71,59 @@
 // Steppers
 //
 
-#define E1_STEP_PIN         _STM32_PIN(D, 3)
-#define E1_DIR_PIN          _STM32_PIN(D, 2)
-#define E1_ENABLE_PIN       _STM32_PIN(D, 0)
+#ifdef ARMED_EINSY
+  #define X_STEP_PIN        _STM32_PIN(E, 4)
+  #define X_DIR_PIN         _STM32_PIN(E, 2)
+  #define X_ENABLE_PIN      _STM32_PIN(E, 3)
+#else
+  #define X_STEP_PIN        _STM32_PIN(D, 3)
+  #define X_DIR_PIN         _STM32_PIN(D, 2)
+  #define X_ENABLE_PIN      _STM32_PIN(D, 0)
+#endif
+
 // #ifndef X_CS_PIN
 //   #define X_CS_PIN         _STM32_PIN(D, 1)
 // #endif
 
-#define Y_STEP_PIN         _STM32_PIN(E, 11)
-#define Y_DIR_PIN          _STM32_PIN(E, 10)
-#define Y_ENABLE_PIN       _STM32_PIN(E, 13)
+#define Y_STEP_PIN        _STM32_PIN(E, 11)
+#define Y_DIR_PIN         _STM32_PIN(E, 10)
+#define Y_ENABLE_PIN      _STM32_PIN(E, 13)
+
 // #ifndef Y_CS_PIN
 //   #define Y_CS_PIN         _STM32_PIN(E, 12)
 // #endif
 
-#define Z_STEP_PIN         _STM32_PIN(D, 6)
-#define Z_DIR_PIN          _STM32_PIN(D, 7)
-#define Z_ENABLE_PIN       _STM32_PIN(D, 4)
+#define Z_STEP_PIN        _STM32_PIN(D, 6)
+#define Z_DIR_PIN         _STM32_PIN(D, 7)
+#define Z_ENABLE_PIN      _STM32_PIN(D, 4)
+
 // #ifndef Z_CS_PIN
 //   #define Z_CS_PIN         _STM32_PIN(D, 5)
 // #endif
 
-#define E0_STEP_PIN        _STM32_PIN(B, 5)
-#define E0_DIR_PIN         _STM32_PIN(B, 6)
-#define E0_ENABLE_PIN      _STM32_PIN(B, 3)
+#define E0_STEP_PIN       _STM32_PIN(B, 5)
+#define E0_DIR_PIN        _STM32_PIN(B, 6)
+
+#ifdef ARMED_V1_0
+  #define E0_ENABLE_PIN      _STM32_PIN(B, 3)
+#else
+  #define E0_ENABLE_PIN      _STM32_PIN(C, 12)
+#endif
+
 // #ifndef E0_CS_PIN
 //   #define E0_CS_PIN         _STM32_PIN(B, 4)
 // #endif
 
-#define X_STEP_PIN        _STM32_PIN(E, 4)
-#define X_DIR_PIN         _STM32_PIN(E, 2)
-#define X_ENABLE_PIN      _STM32_PIN(E, 3)
+#ifdef ARMED_EINSY
+  #define E1_STEP_PIN         _STM32_PIN(D, 3)
+  #define E1_DIR_PIN          _STM32_PIN(D, 2)
+  #define E1_ENABLE_PIN       _STM32_PIN(D, 0)
+#else
+  #define E1_STEP_PIN         _STM32_PIN(E, 4)
+  #define E1_DIR_PIN          _STM32_PIN(E, 2)
+  #define E1_ENABLE_PIN       _STM32_PIN(E, 3)
+#endif
+
 // #ifndef E1_CS_PIN
 //   #define E1_CS_PIN         _STM32_PIN(E, 5)
 // #endif
