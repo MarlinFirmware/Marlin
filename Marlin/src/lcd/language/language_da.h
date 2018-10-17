@@ -158,7 +158,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Tilbagetræk mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Skift Re.mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Tilbagetræk V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Hop mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Skift UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")

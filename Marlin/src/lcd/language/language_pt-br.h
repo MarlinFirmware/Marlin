@@ -267,7 +267,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retrair mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Retrair Troca mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retrair V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Saltar mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Saltar mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Des-Retrair mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Des-RetTroca mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Des-Retrair  V")

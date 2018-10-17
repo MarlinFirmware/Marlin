@@ -28,11 +28,25 @@
 // To implement a new UI, complete the functions below and
 // read or update Marlin's state using the methods in the
 // UI methods in "../ui_api.h"
+//
+// Although it may be possible to access other state
+// variables from Marlin, using the API here possibly
+// helps ensure future compatibility.
 
 namespace UI {
-  void onStartup() {}
-  void onUpdate() {}
-  void onPrinterKilled(const char* lcd_msg) {}
+  void onStartup() {
+    /* Initialize the display module here. The following
+     * routines are available for access to the GPIO pins:
+     *
+     *   SET_OUTPUT(pin)
+     *   SET_INPUT_PULLUP(pin)
+     *   SET_INPUT(pin)
+     *   WRITE(pin,value)
+     *   READ(pin)
+     */
+  }
+  void onIdle() {}
+  void onPrinterKilled(const char* msg) {}
   void onMediaInserted();
   void onMediaError();
   void onMediaRemoved();
@@ -41,9 +55,10 @@ namespace UI {
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
   void onFilamentRunout() {}
-  void onStatusChanged(const char* lcd_msg) {}
-  void onStatusChanged(progmem_str lcd_msg) {}
+  void onStatusChanged(const char* msg) {}
+  void onStatusChanged(progmem_str msg) {}
   void onFactoryReset() {}
+  void onLoadSettings() {}
   void onStoreSettings() {}
 }
 

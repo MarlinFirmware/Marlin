@@ -261,7 +261,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retrait mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Ech. Retr. mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retrait V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Saut Z mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Saut Z mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Rappel mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Ech. Rappel mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Rappel V")

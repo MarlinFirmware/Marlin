@@ -152,7 +152,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("ヒキコミリョウ mm")                // "Retract mm"
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("ヒキコミリョウS mm")               // "Swap Re.mm"
 #define MSG_CONTROL_RETRACTF                _UxGT("ヒキコミソクド mm/s")             // "Retract  V"
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("ノズルタイヒ mm")                // "Hop mm"
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("ノズルタイヒ mm")                // "Hop mm"
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("ホショウリョウ mm")               // "UnRet mm"
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("ホショウリョウS mm")              // "S UnRet mm"
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("ホショウソクド mm/s")            // "UnRet  V"

@@ -259,7 +259,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Atzera egin mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Swap Atzera mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Atzera egin V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Igo mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Igo mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Atzera egin mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Swap Atzera mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Atzera egin V")
