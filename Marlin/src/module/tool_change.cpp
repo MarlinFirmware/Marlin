@@ -20,6 +20,8 @@
  *
  */
 
+#include "../inc/MarlinConfigPre.h"
+
 #include "tool_change.h"
 
 #include "probe.h"
@@ -29,8 +31,11 @@
 
 #include "../Marlin.h"
 
+#if EXTRUDERS > 1
+  toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
+#endif
+
 #if ENABLED(SINGLENOZZLE)
-  singlenozzle_settings_t sn_settings;  // Initialized by settings.load()
   uint16_t singlenozzle_temp[EXTRUDERS];
   #if FAN_COUNT > 0
     uint8_t singlenozzle_fan_speed[EXTRUDERS];
@@ -142,7 +147,7 @@
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Start Autopark", current_position);
       #endif
-      current_position[Z_AXIS] += PARKING_EXTRUDER_SECURITY_RAISE;
+      current_position[Z_AXIS] += toolchange_settings.z_raise;
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("(1) Raise Z-Axis", current_position);
       #endif
@@ -249,7 +254,7 @@
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("Starting Toolhead change", current_position);
     #endif
-    current_position[Z_AXIS] += SWITCHING_TOOLHEAD_SECURITY_RAISE;
+    current_position[Z_AXIS] += toolchange_settings.z_raise;
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("(1) Raise Z-Axis", current_position);
     #endif
@@ -376,7 +381,7 @@ inline void invalid_extruder_error(const uint8_t e) {
         && IsRunning()
         && (delayed_move_time || current_position[X_AXIS] != xhome)
     ) {
-      float raised_z = current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT;
+      float raised_z = current_position[Z_AXIS] + toolchange_settings.z_raise;
       #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
         NOMORE(raised_z, soft_endstop_max[Z_AXIS]);
       #endif
@@ -428,7 +433,7 @@ inline void invalid_extruder_error(const uint8_t e) {
       case DXC_AUTO_PARK_MODE:
         // record raised toolhead position for use by unpark
         COPY(raised_parked_position, current_position);
-        raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
+        raised_parked_position[Z_AXIS] += toolchange_settings.z_raise;
         #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
           NOMORE(raised_parked_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
         #endif
@@ -542,8 +547,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           #else
             const float zdiff = hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
             #if ENABLED(SWITCHING_NOZZLE)
-              // Always raise by at least 1 to avoid workpiece
-              current_position[Z_AXIS] += MAX(-zdiff, 0.0) + 1;
+              // Always raise by a configured distance to avoid workpiece
+              current_position[Z_AXIS] += MAX(-zdiff, 0.0) + toolchange_settings.z_raise;
               planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
               move_nozzle_servo(tmp_extruder);
             #endif
@@ -582,7 +587,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         if (safe_to_move && !no_move && IsRunning()) {
           #if DISABLED(SWITCHING_NOZZLE)
             // Do a small lift to avoid the workpiece in the move back (below)
-            current_position[Z_AXIS] += 1.0;
+            current_position[Z_AXIS] += toolchange_settings.z_raise;
             planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
           #endif
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -635,7 +640,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #if ENABLED(SINGLENOZZLE)
 
         #if ENABLED(PREVENT_COLD_EXTRUSION)
-          if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder) && sn_settings.swap_length) {
+          if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder) && toolchange_settings.swap_length) {
             SERIAL_ERROR_START();
             SERIAL_ERRORLNPGM(MSG_HOTEND_TOO_COLD);
             active_extruder = tmp_extruder;
@@ -648,12 +653,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
         #endif
 
-        if (sn_settings.swap_length) {
+        if (toolchange_settings.swap_length) {
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            do_pause_e_move(-sn_settings.swap_length, MMM_TO_MMS(sn_settings.retract_speed));
+            do_pause_e_move(-toolchange_settings.swap_length, MMM_TO_MMS(toolchange_settings.retract_speed));
           #else
-            current_position[E_AXIS] -= sn_settings.swap_length / planner.e_factor[active_extruder];
-            planner.buffer_line(current_position, MMM_TO_MMS(sn_settings.retract_speed), active_extruder);
+            current_position[E_AXIS] -= toolchange_settings.swap_length / planner.e_factor[active_extruder];
+            planner.buffer_line(current_position, MMM_TO_MMS(toolchange_settings.retract_speed), active_extruder);
           #endif
         }
 
@@ -671,10 +676,10 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           COPY(old_pos, current_position);
 
           #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-            current_position[X_AXIS] = sn_settings.change_point.x;
-            current_position[Y_AXIS] = sn_settings.change_point.y;
+            current_position[X_AXIS] = toolchange_settings.change_point.x;
+            current_position[Y_AXIS] = toolchange_settings.change_point.y;
           #endif
-          current_position[Z_AXIS] += sn_settings.z_raise;
+          current_position[Z_AXIS] += toolchange_settings.z_raise;
 
           do_blocking_move_to(current_position, snfr);
         }
@@ -690,12 +695,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
         active_extruder = tmp_extruder;
 
-        if (sn_settings.swap_length) {
+        if (toolchange_settings.swap_length) {
           #if ENABLED(ADVANCED_PAUSE_FEATURE)
-            do_pause_e_move(sn_settings.swap_length, sn_settings.prime_speed);
+            do_pause_e_move(toolchange_settings.swap_length, toolchange_settings.prime_speed);
           #else
-            current_position[E_AXIS] += sn_settings.swap_length / planner.e_factor[tmp_extruder];
-            planner.buffer_line(current_position, sn_settings.prime_speed, tmp_extruder);
+            current_position[E_AXIS] += toolchange_settings.swap_length / planner.e_factor[tmp_extruder];
+            planner.buffer_line(current_position, toolchange_settings.prime_speed, tmp_extruder);
           #endif
         }
 

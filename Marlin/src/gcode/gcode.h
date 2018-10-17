@@ -612,7 +612,7 @@ private:
 
   static void M211();
 
-  #if ENABLED(SINGLENOZZLE)
+  #if EXTRUDERS > 1
     static void M217();
   #endif
 
