@@ -87,7 +87,7 @@
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 Serial0 // TODO Once CDC is supported
+    #define MYSERIAL1 SerialUSB
   #elif SERIAL_PORT_2 == 1
     #define MYSERIAL1 Serial1
   #elif SERIAL_PORT_2 == 2
