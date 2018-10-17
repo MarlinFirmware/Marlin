@@ -38,7 +38,7 @@ void GcodeSuite::M111() {
                     #endif
                     ;
 
-  static const char* const debug_strings[] PROGMEM = {
+  static PGM_P const debug_strings[] PROGMEM = {
     str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       , str_debug_32
@@ -60,19 +60,19 @@ void GcodeSuite::M111() {
     SERIAL_ECHOPGM(MSG_DEBUG_OFF);
     #if !defined(__AVR__) || !defined(USBCON)
       #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
-        SERIAL_ECHOPAIR("\nBuffer Overruns: ", customizedSerial.buffer_overruns());
+        SERIAL_ECHOPAIR("\nBuffer Overruns: ", MYSERIAL0.buffer_overruns());
       #endif
 
       #if ENABLED(SERIAL_STATS_RX_FRAMING_ERRORS)
-        SERIAL_ECHOPAIR("\nFraming Errors: ", customizedSerial.framing_errors());
+        SERIAL_ECHOPAIR("\nFraming Errors: ", MYSERIAL0.framing_errors());
       #endif
 
       #if ENABLED(SERIAL_STATS_DROPPED_RX)
-        SERIAL_ECHOPAIR("\nDropped bytes: ", customizedSerial.dropped());
+        SERIAL_ECHOPAIR("\nDropped bytes: ", MYSERIAL0.dropped());
       #endif
 
       #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-        SERIAL_ECHOPAIR("\nMax RX Queue Size: ", customizedSerial.rxMaxEnqueued());
+        SERIAL_ECHOPAIR("\nMax RX Queue Size: ", MYSERIAL0.rxMaxEnqueued());
       #endif
     #endif //  !defined(__AVR__) || !defined(USBCON)
   }

@@ -22,13 +22,13 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(EXT_SOLENOID)
+#if ENABLED(EXT_SOLENOID) || ENABLED(MANUAL_SOLENOID_CONTROL)
 
 #include "solenoid.h"
 
 #include "../module/motion.h" // for active_extruder
 
-inline void enable_solenoid(const uint8_t num) {
+void enable_solenoid(const uint8_t num) {
   switch (num) {
     case 0:
       OUT_WRITE(SOL0_PIN, HIGH);

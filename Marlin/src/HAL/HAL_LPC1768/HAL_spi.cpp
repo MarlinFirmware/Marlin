@@ -49,7 +49,6 @@
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
-
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
@@ -59,7 +58,6 @@
 // --------------------------------------------------------------------------
 // Public functions
 // --------------------------------------------------------------------------
-
 #if ENABLED(LPC_SOFTWARE_SPI)
 
   #include "SoftwareSPI.h"
@@ -127,8 +125,25 @@
   #include <lpc17xx_ssp.h>
   #include <lpc17xx_clkpwr.h>
 
-  void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
+  // decide which HW SPI device to use
+  #ifndef LPC_HW_SPI_DEV
+    #if (SCK_PIN == P0_07 && MISO_PIN == P0_08 && MOSI_PIN == P0_09)
+      #define LPC_HW_SPI_DEV 1
+    #else
+      #if (SCK_PIN == P0_15 && MISO_PIN == P0_17 && MOSI_PIN == P0_18)
+        #define LPC_HW_SPI_DEV 0
+      #else
+        #error "Invalid pins selected for hardware SPI"
+      #endif
+    #endif
+  #endif
+  #if (LPC_HW_SPI_DEV == 0)
+    #define LPC_SSPn LPC_SSP0
+  #else
+    #define LPC_SSPn LPC_SSP1
+  #endif
 
+  void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
     PINSEL_CFG_Type PinCfg;  // data structure to hold init values
     PinCfg.Funcnum = 2;
     PinCfg.OpenDrain = 0;
@@ -147,10 +162,13 @@
     PinCfg.Portnum = LPC1768_PIN_PORT(MOSI_PIN);
     PINSEL_ConfigPin(&PinCfg);
     SET_OUTPUT(MOSI_PIN);
+    // divide PCLK by 2 for SSP0
+    CLKPWR_SetPCLKDiv(LPC_HW_SPI_DEV == 0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
+    spiInit(0);
+    SSP_Cmd(LPC_SSPn, ENABLE);  // start SSP running
   }
 
   void spiInit(uint8_t spiRate) {
-    SSP_Cmd(LPC_SSP0, DISABLE); // Disable SSP0 before changing rate
     // table to convert Marlin spiRates (0-5 plus default) into bit rates
     uint32_t Marlin_speed[7]; // CPSR is always 2
     Marlin_speed[0] = 8333333; //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
@@ -160,33 +178,32 @@
     Marlin_speed[4] =  500000; //(SCR: 49)  desired:   500,000  actual:   500,000         SPI_SPEED_5
     Marlin_speed[5] =  250000; //(SCR: 99)  desired:   250,000  actual:   250,000         SPI_SPEED_6
     Marlin_speed[6] =  125000; //(SCR:199)  desired:   125,000  actual:   125,000         Default from HAL.h
-
-    // divide PCLK by 2 for SSP0
-    CLKPWR_SetPCLKDiv(CLKPWR_PCLKSEL_SSP0, CLKPWR_PCLKSEL_CCLK_DIV_2);
-
     // setup for SPI mode
     SSP_CFG_Type HW_SPI_init; // data structure to hold init values
     SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode
     HW_SPI_init.ClockRate = Marlin_speed[MIN(spiRate, 6)]; // put in the specified bit rate
-    SSP_Init(LPC_SSP0, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
+    HW_SPI_init.Mode |= SSP_CR1_SSP_EN;
+    SSP_Init(LPC_SSPn, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
+  }
 
-    SSP_Cmd(LPC_SSP0, ENABLE);  // start SSP0 running
+
+  static uint8_t doio(uint8_t b) {
+    /* send and receive a single byte */
+    SSP_SendData(LPC_SSPn, b & 0x00FF);
+    while (SSP_GetStatus(LPC_SSPn, SSP_STAT_BUSY));  // wait for it to finish
+    return SSP_ReceiveData(LPC_SSPn) & 0x00FF;
   }
 
   void spiSend(uint8_t b) {
-    while (!SSP_GetStatus(LPC_SSP0, SSP_STAT_TXFIFO_NOTFULL));   // wait for room in the buffer
-    SSP_SendData(LPC_SSP0, b & 0x00FF);
-    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY));  // wait for it to finish
+    doio(b);
   }
 
 
   void spiSend(const uint8_t* buf, size_t n) {
     if (n == 0) return;
     for (uint16_t i = 0; i < n; i++) {
-      while (!SSP_GetStatus(LPC_SSP0, SSP_STAT_TXFIFO_NOTFULL));   // wait for room in the buffer
-      SSP_SendData(LPC_SSP0, buf[i] & 0x00FF);
+      doio(buf[i]);
     }
-    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY));  // wait for it to finish
   }
 
   void spiSend(uint32_t chan, byte b) {
@@ -195,17 +212,9 @@
   void spiSend(uint32_t chan, const uint8_t* buf, size_t n) {
   }
 
-  static uint8_t get_one_byte() {
-    // send a dummy byte so can clock in receive data
-    SSP_SendData(LPC_SSP0,0x00FF);
-    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY));  // wait for it to finish
-    return SSP_ReceiveData(LPC_SSP0) & 0x00FF;
-  }
-
   // Read single byte from SPI
   uint8_t spiRec() {
-    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_RXFIFO_NOTEMPTY) || SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY)) SSP_ReceiveData(LPC_SSP0);  //flush the receive buffer
-    return get_one_byte();
+    return doio(0xff);
   }
 
   uint8_t spiRec(uint32_t chan) {
@@ -214,22 +223,25 @@
 
   // Read from SPI into buffer
   void spiRead(uint8_t*buf, uint16_t nbyte) {
-    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_RXFIFO_NOTEMPTY) || SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY)) SSP_ReceiveData(LPC_SSP0);  //flush the receive buffer
     if (nbyte == 0) return;
     for (int i = 0; i < nbyte; i++) {
-      buf[i] = get_one_byte();
+      buf[i] = doio(0xff);
     }
   }
 
   static uint8_t spiTransfer(uint8_t b) {
-    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_RXFIFO_NOTEMPTY) || SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY)) SSP_ReceiveData(LPC_SSP0);  //flush the receive buffer
-    SSP_SendData(LPC_SSP0, b);  // send the byte
-    while (SSP_GetStatus(LPC_SSP0, SSP_STAT_BUSY));  // wait for it to finish
-    return SSP_ReceiveData(LPC_SSP0) & 0x00FF;
+    return doio(b);
   }
 
   // Write from buffer to SPI
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
+    uint8_t response;
+    response = spiTransfer(token);
+
+    for (uint16_t i = 0; i < 512; i++) {
+      response = spiTransfer(buf[i]);
+    }
+    UNUSED(response);
   }
 
   /** Begin SPI transaction, set clock, bit order, data mode */
@@ -270,4 +282,3 @@ uint16_t SPIClass::transfer16(uint16_t data) {
 SPIClass SPI;
 
 #endif // TARGET_LPC1768
-

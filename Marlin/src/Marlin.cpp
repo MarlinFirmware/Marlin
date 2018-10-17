@@ -152,6 +152,10 @@
   #include "feature/controllerfan.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "lcd/extensible_ui/ui_api.h"
+#endif
+
 bool Running = true;
 
 /**
@@ -170,14 +174,13 @@ uint8_t axis_homed, axis_known_position; // = 0
 #endif
 
 #if FAN_COUNT > 0
-  int16_t fanSpeeds[FAN_COUNT] = { 0 };
+  uint8_t fan_speed[FAN_COUNT] = { 0 };
   #if ENABLED(EXTRA_FAN_SPEED)
-    int16_t old_fanSpeeds[FAN_COUNT],
-            new_fanSpeeds[FAN_COUNT];
+    uint8_t old_fan_speed[FAN_COUNT], new_fan_speed[FAN_COUNT];
   #endif
   #if ENABLED(PROBING_FANS_OFF)
     bool fans_paused; // = false;
-    int16_t paused_fanSpeeds[FAN_COUNT] = { 0 };
+    uint8_t paused_fan_speed[FAN_COUNT] = { 0 };
   #endif
 #endif
 
@@ -256,6 +259,9 @@ void setup_powerhold() {
 /**
  * Sensitive pin test for M42, M226
  */
+
+#include "pins/sensitive_pins.h"
+
 bool pin_is_protected(const pin_t pin) {
   static const pin_t sensitive_pins[] PROGMEM = SENSITIVE_PINS;
   for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {
@@ -593,20 +599,26 @@ void idle(
       #endif
     }
   #endif
+
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+    Sd2Card::idle();
+  #endif
 }
 
 /**
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(const char* lcd_msg) {
+void kill(PGM_P lcd_msg) {
   SERIAL_ERROR_START();
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
   thermalManager.disable_all_heaters();
   disable_all_steppers();
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(EXTENSIBLE_UI)
+    UI::onPrinterKilled(lcd_msg);
+  #elif ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
@@ -686,10 +698,22 @@ void setup() {
     max7219.init();
   #endif
 
-  #if ENABLED(DISABLE_JTAG)
-    // Disable JTAG on AT90USB chips to free up pins for IO
-    MCUCR = 0x80;
-    MCUCR = 0x80;
+  #if ENABLED(DISABLE_DEBUG)
+    // Disable any hardware debug to free up pins for IO
+    #ifdef JTAGSWD_DISABLE
+      JTAGSWD_DISABLE();
+    #elif defined(JTAG_DISABLE)
+      JTAG_DISABLE();
+    #else
+      #error "DISABLE_DEBUG is not supported for the selected MCU/Board"
+    #endif
+  #elif ENABLED(DISABLE_JTAG)
+    // Disable JTAG to free up pins for IO
+    #ifdef JTAG_DISABLE
+      JTAG_DISABLE();
+    #else
+      #error "DISABLE_JTAG is not supported for the selected MCU/Board"
+    #endif
   #endif
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -723,7 +747,10 @@ void setup() {
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START();
 
-  #if HAS_DRIVER(TMC2130)
+  #if TMC_HAS_SPI
+    #if DISABLED(TMC_USE_SW_SPI)
+      SPI.begin();
+    #endif
     tmc_init_cs_pins();
   #endif
   #if HAS_DRIVER(TMC2208)
@@ -817,7 +844,7 @@ void setup() {
   #endif
 
   #if ENABLED(USE_CONTROLLER_FAN)
-    SET_OUTPUT(CONTROLLER_FAN_PIN); //Set pin used for driver cooling fan
+    SET_OUTPUT(CONTROLLER_FAN_PIN);
   #endif
 
   #if HAS_STEPPER_RESET
@@ -833,7 +860,7 @@ void setup() {
   #endif
 
   #if (ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE)) && HAS_SOLENOID_1
-    OUT_WRITE(SOL1_PIN, LOW); // turn it off
+    OUT_WRITE(SOL1_PIN, LOW); // OFF
   #endif
 
   #if HAS_HOME
@@ -841,11 +868,11 @@ void setup() {
   #endif
 
   #if PIN_EXISTS(STAT_LED_RED)
-    OUT_WRITE(STAT_LED_RED_PIN, LOW); // turn it off
+    OUT_WRITE(STAT_LED_RED_PIN, LOW); // OFF
   #endif
 
   #if PIN_EXISTS(STAT_LED_BLUE)
-    OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // turn it off
+    OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
 
   #if HAS_COLOR_LEDS
@@ -878,8 +905,8 @@ void setup() {
     lcd_bootscreen();
   #endif
 
-  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-    mixing_tools_init();
+  #if ENABLED(MIXING_EXTRUDER)
+    mixer.init();
   #endif
 
   #if ENABLED(BLTOUCH)
@@ -940,7 +967,7 @@ void loop() {
       card.checkautostart();
     #endif
 
-    #if ENABLED(SDSUPPORT) && ENABLED(ULTIPANEL)
+    #if ENABLED(SDSUPPORT) && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
       if (abort_sd_printing) {
         abort_sd_printing = false;
         card.stopSDPrint(
@@ -953,14 +980,14 @@ void loop() {
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
         #if FAN_COUNT > 0
-          for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+          for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
         #endif
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
           card.removeJobRecoveryFile();
         #endif
       }
-    #endif // SDSUPPORT && ULTIPANEL
+    #endif // SDSUPPORT && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
 
     if (commands_in_queue < BUFSIZE) get_available_commands();
     advance_command_queue();

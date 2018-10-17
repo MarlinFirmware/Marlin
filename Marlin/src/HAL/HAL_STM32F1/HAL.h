@@ -73,7 +73,7 @@
   #error "SERIAL_PORT must be from -1 to 3"
 #endif
 #if SERIAL_PORT == -1
-extern USBSerial SerialUSB;
+  extern USBSerial SerialUSB;
   #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 0
   #define MYSERIAL0 Serial
@@ -93,7 +93,7 @@ extern USBSerial SerialUSB;
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-  extern USBSerial SerialUSB;
+    extern USBSerial SerialUSB;
     #define MYSERIAL1 SerialUSB
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 Serial
@@ -212,8 +212,8 @@ uint8_t spiRec(uint32_t chan);
  * TODO: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
  * Wire library should work for i2c eeproms.
  */
-void eeprom_write_byte(unsigned char *pos, unsigned char value);
-unsigned char eeprom_read_byte(unsigned char *pos);
+void eeprom_write_byte(uint8_t *pos, unsigned char value);
+uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
@@ -248,5 +248,8 @@ void HAL_enable_AdcFreerun(void);
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+#define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
+#define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
 
 #endif // _HAL_STM32F1_H

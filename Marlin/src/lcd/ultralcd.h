@@ -25,16 +25,16 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD)
+#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
   void lcd_init();
   bool lcd_detected();
   void lcd_update();
-  void lcd_setalertstatusPGM(const char* message);
+  void lcd_setalertstatusPGM(PGM_P message);
 #else
   inline void lcd_init() {}
   inline bool lcd_detected() { return true; }
   inline void lcd_update() {}
-  inline void lcd_setalertstatusPGM(const char* message) { UNUSED(message); }
+  inline void lcd_setalertstatusPGM(PGM_P message) { UNUSED(message); }
 #endif
 
 #if ENABLED(ULTRA_LCD)
@@ -46,17 +46,26 @@
     #include "../module/motion.h" // for active_extruder
   #endif
 
+  void lcd_return_to_status();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
-  void lcd_setstatusPGM(const char* message, const int8_t level=0);
-  void lcd_setalertstatusPGM(const char* message);
+  void lcd_setstatusPGM(PGM_P message, const int8_t level=0);
+  void lcd_setalertstatusPGM(PGM_P message);
   void lcd_reset_alert_level();
   void lcd_reset_status();
-  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
+  void lcd_status_printf_P(const uint8_t level, PGM_P const fmt, ...);
   void lcd_kill_screen();
-  void kill_screen(const char* lcd_msg);
+  void kill_screen(PGM_P lcd_msg);
 
-  extern uint8_t lcdDrawUpdate;
+  enum LCDViewAction : uint8_t {
+    LCDVIEW_NONE,
+    LCDVIEW_REDRAW_NOW,
+    LCDVIEW_CALL_REDRAW_NEXT,
+    LCDVIEW_CLEAR_CALL_REDRAW,
+    LCDVIEW_CALL_NO_REDRAW
+  };
+
+  extern LCDViewAction lcdDrawUpdate;
   inline void lcd_refresh() { lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
 
   #if HAS_BUZZER
@@ -98,7 +107,8 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
-    extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+    extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
+    extern uint8_t lcd_preheat_fan_speed[2];
 
     #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
       extern bool lcd_external_control;
@@ -198,6 +208,15 @@
     void wait_for_release();
   #endif
 
+#elif ENABLED(EXTENSIBLE_UI)
+  // These functions are defined elsewhere
+  void lcd_setstatus(const char* const message, const bool persist=false);
+  void lcd_setstatusPGM(const char* const message, const int8_t level=0);
+  void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...);
+  void lcd_reset_status();
+  void lcd_refresh();
+  void lcd_reset_alert_level();
+  bool lcd_hasstatus();
 #else // MALYAN_LCD or no LCD
 
   constexpr bool lcd_wait_for_move = false;
@@ -205,8 +224,8 @@
   inline void lcd_refresh() {}
   inline bool lcd_hasstatus() { return false; }
   inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
-  inline void lcd_setstatusPGM(const char* const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
-  inline void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) { UNUSED(level); UNUSED(fmt); }
+  inline void lcd_setstatusPGM(PGM_P const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
+  inline void lcd_status_printf_P(const uint8_t level, PGM_P const fmt, ...) { UNUSED(level); UNUSED(fmt); }
   inline void lcd_reset_alert_level() {}
   inline void lcd_reset_status() {}
 
@@ -269,7 +288,7 @@
   void lcd_reselect_last_file();
 #endif
 
-#if ENABLED(ULTIPANEL) && ENABLED(SDSUPPORT)
+#if (ENABLED(EXTENSIBLE_UI) || ENABLED(ULTIPANEL)) && ENABLED(SDSUPPORT)
   extern bool abort_sd_printing;
 #else
   constexpr bool abort_sd_printing = false;

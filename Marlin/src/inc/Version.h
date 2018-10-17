@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _VERSION_H_
-#define _VERSION_H_
+#pragma once
 
 #include "../core/macros.h" // for ENABLED
 
@@ -97,5 +95,3 @@
   #define WEBSITE_URL "http://marlinfw.org"
 
 #endif // USE_AUTOMATIC_VERSIONING
-
-#endif // _VERSION_H_

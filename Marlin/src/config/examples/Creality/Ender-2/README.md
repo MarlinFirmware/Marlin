@@ -16,3 +16,18 @@ For U8Glib, at least version 1.14 and at most 1.17 is used, because
 ## Bitmaps
 
 The bootscreen and custom status screens come from Creality's firmware.
+
+## Creality Ender-2 firmware status
+
+The firmware source code has been published on 2018/07/10.
+It is based on Marlin 1.1. The source code and .hex binaries for all printers (including Ender-2) can be obtained from:
+https://www.creality3d.cn/download/firmware_c0001
+
+And repositories for CR-10S and Ender-3 can be found here:
+https://github.com/Creality3DPrinting
+
+The configuration files have been verified to match the original configuration, but further investigation is needed to ensure there aren't any extra changes in the source code.
+
+## Ender-2 specific changelog:
+
+* 2018/10/08 - Updated BED_MAXTEMP to 75 to match the original Creality Ender-2 Firmware (which is now open source)

@@ -397,11 +397,11 @@
 
     #if IS_KINEMATIC
       const float seconds = cartesian_xy_mm / feedrate;                                  // seconds to move xy distance at requested rate
-      uint16_t segments = lroundf(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
-               seglimit = lroundf(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
+      uint16_t segments = LROUND(delta_segments_per_second * seconds),                  // preferred number of segments for distance @ feedrate
+               seglimit = LROUND(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // number of segments at minimum segment length
       NOMORE(segments, seglimit);                                                        // limit to minimum segment length (fewer segments)
     #else
-      uint16_t segments = lroundf(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
+      uint16_t segments = LROUND(cartesian_xy_mm * (1.0f / (DELTA_SEGMENT_MIN_LENGTH))); // cartesian fixed segment length
     #endif
 
     NOLESS(segments, 1U);                        // must have at least one segment

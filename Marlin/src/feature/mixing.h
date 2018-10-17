@@ -19,23 +19,88 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __MIXING_H__
-#define __MIXING_H__
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
-extern float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise >= 1.0.
-
-#if MIXING_VIRTUAL_TOOLS > 1
-  extern float mixing_virtual_tool_mix[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
-  void mixing_tools_init();
+#ifdef __AVR__
+  #define MIXER_ACCU_SIGNED
+  typedef uint8_t mixer_color_t;
+  typedef int8_t mixer_accu_t;
+#else
+  typedef uint_fast16_t mixer_color_t;
+  typedef uint_fast16_t mixer_accu_t;
 #endif
 
-void normalize_mix();
+#define COLOR_A_MASK _BV(sizeof(mixer_color_t) * 8 - 1) // 0x80 or 0x8000
+#define COLOR_MASK (COLOR_A_MASK - 1)                   // 0x7F or 0x7FFF
 
-#if ENABLED(DIRECT_MIXING_IN_G1)
-  void gcode_get_mix();
+#ifndef MIXING_VIRTUAL_TOOLS
+  #define MIXING_VIRTUAL_TOOLS 1
 #endif
 
-#endif // __MIXING_H__
+#ifdef RETRACT_SYNC_MIXING
+  #define NR_MIXING_VIRTUAL_TOOLS (MIXING_VIRTUAL_TOOLS + 1)
+  #define MIXER_AUTORETRACT_TOOL MIXING_VIRTUAL_TOOLS
+#else
+  #define NR_MIXING_VIRTUAL_TOOLS (MIXING_VIRTUAL_TOOLS)
+#endif
+
+#define MIXER_STEPPER_LOOP(VAR) \
+  for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
+
+#define MIXER_BLOCK_DEFINITION mixer_color_t b_color[MIXING_STEPPERS]
+#define MIXER_POPULATE_BLOCK() mixer.populate_block(block->b_color)
+#define MIXER_STEPPER_SETUP() mixer.stepper_setup(current_block->b_color)
+
+class Mixer {
+  public:
+
+  static void init(void); // Populate colors at boot time
+
+  // Used up to Planner level
+  static void normalize(const uint8_t tool_index);
+  FORCE_INLINE static uint8_t get_current_v_tool(void) { return selected_v_tool; }
+  FORCE_INLINE static void T(const uint_fast8_t c) { selected_v_tool = c; }
+  FORCE_INLINE static void set_M163_collector(const uint8_t c, const float f) { M163_collector[c] = f; }
+
+  // Used when dealing with blocks
+  FORCE_INLINE static void populate_block(mixer_color_t b_color[]) {
+    uint_fast8_t j = get_current_v_tool();
+    MIXER_STEPPER_LOOP(i) b_color[i] = color[j][i];
+  }
+  FORCE_INLINE static void stepper_setup(mixer_color_t b_color[]) { MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i]; }
+
+  // Used in Stepper
+  FORCE_INLINE static uint8_t get_stepper(void) { return runner; }
+  FORCE_INLINE static uint8_t get_next_stepper(void) {
+    do {
+      if (--runner < 0) runner = MIXING_STEPPERS - 1;
+      accu[runner] += s_color[runner];
+      if (
+        #ifdef MIXER_ACCU_SIGNED
+          accu[runner] < 0
+        #else
+          accu[runner] & COLOR_A_MASK
+        #endif
+      ) {
+        accu[runner] &= COLOR_MASK;
+        return runner;
+      }
+    } while( true );
+  }
+
+  private:
+
+  // Used up to Planner level
+  static uint_fast8_t  selected_v_tool;
+  static float         M163_collector[MIXING_STEPPERS];
+  static mixer_color_t color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
+
+  // Used in Stepper
+  static int_fast8_t   runner;
+  static mixer_color_t s_color[MIXING_STEPPERS];
+  static mixer_accu_t  accu[MIXING_STEPPERS];
+};
+
+extern Mixer mixer;

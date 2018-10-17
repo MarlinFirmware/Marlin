@@ -21,7 +21,7 @@
  *
  */
 
-#if defined(STM32F4) || defined(STM32F4xx)
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
 
 #include "../shared/persistent_store_api.h"
 
@@ -55,7 +55,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing) {
   do {
-    uint8_t c = eeprom_read_byte((unsigned char*)pos);
+    uint8_t c = eeprom_read_byte((uint8_t*)pos);
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;

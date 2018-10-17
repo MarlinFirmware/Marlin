@@ -65,6 +65,7 @@
  * G33  - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
+ * G80  - Cancel current motion mode (Requires GCODE_MOTION_MODES)
  * G90  - Use Absolute Coordinates
  * G91  - Use Relative Coordinates
  * G92  - Set current position to coordinates given
@@ -112,7 +113,7 @@
  * M84  - Disable steppers until next move, or use S<seconds> to specify an idle
  *        duration after which steppers should turn off. S0 disables the timeout.
  * M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
- * M92  - Set planner.axis_steps_per_mm for one or more axes.
+ * M92  - Set planner.settings.axis_steps_per_mm for one or more axes.
  * M100 - Watch Free Memory (for debugging) (Requires M100_FREE_MEMORY_WATCHER)
  * M104 - Set extruder target temp.
  * M105 - Report current temperatures.
@@ -145,8 +146,8 @@
  * M150 - Set Status LED Color as R<red> U<green> B<blue> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, or PCA9632).
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
- * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
- * M165 - Set the proportions for a mixing extruder. Use parameters ABCDHI to set the mixing factors. (Requires MIXING_EXTRUDER)
+ * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
+ * M165 - Set the mix for the mixing extruder (and current virtual tool) with parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M190 - Sxxx Wait for bed current temp to reach target temp. ** Waits only when heating! **
  *        Rxxx Wait for bed current temp to reach target temp. ** Waits for heating or cooling. **
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
@@ -161,9 +162,10 @@
  * M206 - Set additional homing offset. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M207 - Set Retract Length: S<length>, Feedrate: F<units/min>, and Z lift: Z<distance>. (Requires FWRETRACT)
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
- * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT)
+ * M209 - Turn Automatic Retract Detection on/off: S<0|1> (For slicers that don't support G10/11). (Requires FWRETRACT_AUTORETRACT)
           Every normal extrude-only move will be classified as retract depending on the direction.
  * M211 - Enable, Disable, and/or Report software endstops: S<0|1> (Requires MIN_SOFTWARE_ENDSTOPS or MAX_SOFTWARE_ENDSTOPS)
+ * M217 - Set filament swap parameters: "M217 S<length> P<feedrate> R<feedrate>". (Requires SINGLENOZZLE)
  * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
  * M221 - Set Flow Percentage: "M221 S<percent>"
@@ -229,7 +231,7 @@
  * M911 - Report stepper driver overtemperature pre-warn condition. (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
  * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires at least one _DRIVER_TYPE defined as TMC2130/TMC2208/TMC2660)
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
- * M914 - Set SENSORLESS_HOMING sensitivity. (Requires SENSORLESS_HOMING)
+ * M914 - Set StallGuard sensitivity. (Requires SENSORLESS_HOMING or SENSORLESS_PROBING)
  *
  * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
  * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
@@ -295,7 +297,7 @@ public:
   static void process_next_command();
 
   #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
-    static void process_subcommands_now_P(const char *pgcode);
+    static void process_subcommands_now_P(PGM_P pgcode);
   #endif
 
   FORCE_INLINE static void home_all_axes() { G28(true); }
@@ -334,16 +336,12 @@ public:
     #define KEEPALIVE_STATE(n) NOOP
   #endif
 
-  #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT) && HAS_RESUME_CONTINUE
-    static bool lights_off_after_print;
-  #endif
-
   static void dwell(millis_t time);
 
 private:
 
   static void G0_G1(
-    #if IS_SCARA
+    #if IS_SCARA || ENABLED(G0_FEEDRATE)
       bool fast_move=false
     #endif
   );
@@ -426,6 +424,10 @@ private:
     static void G57();
     static void G58();
     static void G59();
+  #endif
+
+  #if ENABLED(GCODE_MOTION_MODES)
+    static void G80();
   #endif
 
   static void G92();
@@ -579,9 +581,7 @@ private:
 
   #if ENABLED(MIXING_EXTRUDER)
     static void M163();
-    #if MIXING_VIRTUAL_TOOLS > 1
-      static void M164();
-    #endif
+    static void M164();
     #if ENABLED(DIRECT_MIXING_IN_G1)
       static void M165();
     #endif
@@ -605,10 +605,16 @@ private:
   #if ENABLED(FWRETRACT)
     static void M207();
     static void M208();
-    static void M209();
+    #if ENABLED(FWRETRACT_AUTORETRACT)
+      static void M209();
+    #endif
   #endif
 
   static void M211();
+
+  #if ENABLED(SINGLENOZZLE)
+    static void M217();
+  #endif
 
   #if HOTENDS > 1
     static void M218();
@@ -675,7 +681,7 @@ private:
     static bool M364();
   #endif
 
-  #if ENABLED(EXT_SOLENOID)
+  #if ENABLED(EXT_SOLENOID) || ENABLED(MANUAL_SOLENOID_CONTROL)
     static void M380();
     static void M381();
   #endif
@@ -773,12 +779,14 @@ private:
       static void M122();
     #endif
     static void M906();
-    static void M911();
-    static void M912();
+    #if ENABLED(MONITOR_DRIVER_STATUS)
+      static void M911();
+      static void M912();
+    #endif
     #if ENABLED(HYBRID_THRESHOLD)
       static void M913();
     #endif
-    #if ENABLED(SENSORLESS_HOMING)
+    #if USE_SENSORLESS
       static void M914();
     #endif
     #if ENABLED(TMC_Z_CALIBRATION)

@@ -544,8 +544,8 @@ void CardReader::checkautostart() {
       && !jobRecoverFileExists() // Don't run auto#.g when a resume file exists
     #endif
   ) {
-    char autoname[10];
-    sprintf_P(autoname, PSTR("auto%i.g"), int(autostart_index));
+    char autoname[8];
+    sprintf_P(autoname, PSTR("auto%c.g"), autostart_index + '0');
     dir_t p;
     root.rewind();
     while (root.readDir(&p, NULL) > 0) {

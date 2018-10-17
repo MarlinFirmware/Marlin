@@ -81,7 +81,7 @@ int inbound_count;
 bool last_printing_status = false;
 
 // Everything written needs the high bit set.
-void write_to_lcd_P(const char * const message) {
+void write_to_lcd_P(PGM_P const message) {
   char encoded_message[MAX_CURLY_COMMAND];
   uint8_t message_length = MIN(strlen_P(message), sizeof(encoded_message));
 
@@ -255,7 +255,7 @@ void process_lcd_p_command(const char* command) {
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
         #if FAN_COUNT > 0
-          for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+          for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
         #endif
         wait_for_heatup = false;
         write_to_lcd_P(PSTR("{SYS:STARTED}"));
@@ -481,7 +481,7 @@ void lcd_init() {
 /**
  * Set an alert.
  */
-void lcd_setalertstatusPGM(const char* message) {
+void lcd_setalertstatusPGM(PGM_P message) {
   char message_buffer[MAX_CURLY_COMMAND];
   sprintf_P(message_buffer, PSTR("{E:%s}"), message);
   write_to_lcd(message_buffer);

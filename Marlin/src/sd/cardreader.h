@@ -33,6 +33,8 @@
 
 #include "SdFile.h"
 
+enum LsAction : uint8_t { LS_SerialPrint, LS_Count, LS_GetFilename };
+
 class CardReader {
 public:
   CardReader();
@@ -241,7 +243,9 @@ private:
   #endif
 };
 
-#if PIN_EXISTS(SD_DETECT)
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #define IS_SD_INSERTED Sd2Card::isInserted()
+#elif PIN_EXISTS(SD_DETECT)
   #if ENABLED(SD_DETECT_INVERTED)
     #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == HIGH)
   #else

@@ -75,6 +75,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("Eksen Yönet")                                        // Eksenleri Yönet
 #define MSG_BED_LEVELING                    _UxGT("Tabla Seviyele")                                     // Tabla Seviyele
 #define MSG_LEVEL_BED                       _UxGT("Tabla Seviyele")                                     // Tabla Seviyele
+
 #define MSG_MOVING                          _UxGT("Konumlanıyor...")                                    // Konumlanıyor...
 #define MSG_FREE_XY                         _UxGT("Durdur XY")                                          // Durdur XY
 #define MSG_MOVE_X                          _UxGT("X")                                                  // X

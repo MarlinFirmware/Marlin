@@ -30,8 +30,6 @@
 #include "../inc/MarlinConfig.h"
 #include <stdint.h>
 
-#define VALIDATE_HOMING_ENDSTOPS
-
 enum EndstopEnum : char {
   X_MIN,
   Y_MIN,
@@ -54,8 +52,6 @@ class Endstops {
 
   public:
 
-    static bool enabled, enabled_globally;
-
     #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
       typedef uint16_t esbits_t;
       #if ENABLED(X_DUAL_ENDSTOPS)
@@ -75,10 +71,11 @@ class Endstops {
     #endif
 
   private:
+    static bool enabled, enabled_globally;
     static esbits_t live_state;
     static volatile uint8_t hit_state;      // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
 
-    #if ENABLED(ENDSTOP_NOISE_FILTER)
+    #if ENDSTOP_NOISE_THRESHOLD
       static esbits_t validated_live_state;
       static uint8_t endstop_poll_count;    // Countdown from threshold for polling
     #endif
@@ -124,7 +121,7 @@ class Endstops {
      */
     FORCE_INLINE static esbits_t state() {
       return
-        #if ENABLED(ENDSTOP_NOISE_FILTER)
+        #if ENDSTOP_NOISE_THRESHOLD
           validated_live_state
         #else
           live_state

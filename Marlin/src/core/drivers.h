@@ -31,21 +31,21 @@
 #define TB6560              0x006
 #define TB6600              0x007
 #define TMC2100             0x008
-#define TMC2130             0x109
+#define TMC2130             2130
 #define TMC2130_STANDALONE  0x009
-#define TMC2208             0x10A
+#define TMC2208             2208
 #define TMC2208_STANDALONE  0x00A
 #define TMC26X              0x10B
 #define TMC26X_STANDALONE   0x00B
-#define TMC2660             0x10C
+#define TMC2660             2660
 #define TMC2660_STANDALONE  0x00C
 
-#define _AXIS_DRIVER_TYPE(A,T) ( defined(A##_DRIVER_TYPE) && (A##_DRIVER_TYPE == T) )
+#define _AXIS_DRIVER_TYPE(A,T) (defined(A##_DRIVER_TYPE) && (A##_DRIVER_TYPE == T))
 
 #define AXIS_DRIVER_TYPE_X(T) _AXIS_DRIVER_TYPE(X,T)
 #define AXIS_DRIVER_TYPE_Y(T) _AXIS_DRIVER_TYPE(Y,T)
 #define AXIS_DRIVER_TYPE_Z(T) _AXIS_DRIVER_TYPE(Z,T)
-#define AXIS_DRIVER_TYPE_X2(T) (ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(DUAL_X_CARRIAGE)) && _AXIS_DRIVER_TYPE(X2,T)
+#define AXIS_DRIVER_TYPE_X2(T) ((ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(DUAL_X_CARRIAGE)) && _AXIS_DRIVER_TYPE(X2,T))
 #define AXIS_DRIVER_TYPE_Y2(T) (ENABLED(Y_DUAL_STEPPER_DRIVERS) && _AXIS_DRIVER_TYPE(Y2,T))
 #define AXIS_DRIVER_TYPE_Z2(T) (Z_MULTI_STEPPER_DRIVERS && _AXIS_DRIVER_TYPE(Z2,T))
 #define AXIS_DRIVER_TYPE_Z3(T) (ENABLED(Z_TRIPLE_STEPPER_DRIVERS) && _AXIS_DRIVER_TYPE(Z3,T))
@@ -67,7 +67,8 @@
 
 // Test for supported TMC drivers that require advanced configuration
 // Does not match standalone configurations
-#define HAS_TRINAMIC (HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208))
+#define HAS_TRINAMIC (HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2208) || HAS_DRIVER(TMC2660))
 
 #define AXIS_IS_TMC(A) ( AXIS_DRIVER_TYPE_##A(TMC2130) || \
-                         AXIS_DRIVER_TYPE_##A(TMC2208) )
+                         AXIS_DRIVER_TYPE_##A(TMC2208) || \
+                         AXIS_DRIVER_TYPE_##A(TMC2660) )

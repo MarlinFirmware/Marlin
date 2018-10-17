@@ -79,8 +79,8 @@
 
 #define MSG_NEXT_CORNER                     _UxGT("下个边角") // "Next corner"
 #define MSG_EDITING_STOPPED                 _UxGT("网格编辑已停止") // "Mesh Editing Stopped"
-
 #define MSG_USER_MENU                       _UxGT("定制命令") // "Custom Commands"
+
 #define MSG_UBL_DOING_G29                   _UxGT("执行G29") // "Doing G29"
 #define MSG_UBL_UNHOMED                     _UxGT("先回XYZ原点") // "Home XYZ first"
 #define MSG_UBL_TOOLS                       _UxGT("UBL工具") // "UBL Tools"
@@ -161,9 +161,9 @@
 #define MSG_INTENSITY_B                     _UxGT("蓝饱和度") // "Blue Intensity")
 #define MSG_INTENSITY_W                     _UxGT("白饱和度") // "White Intensity")
 #define MSG_LED_BRIGHTNESS                  _UxGT("亮度") // "Brightness")
+
 #define MSG_MOVING                          _UxGT("移动 ...") // "Moving...")
 #define MSG_FREE_XY                         _UxGT("释放 XY") // "Free XY")
-
 #define MSG_MOVE_X                          _UxGT("移动X")  //"Move X"
 #define MSG_MOVE_Y                          _UxGT("移动Y")  //"Move Y"
 #define MSG_MOVE_Z                          _UxGT("移动Z")  //"Move Z"

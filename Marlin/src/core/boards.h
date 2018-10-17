@@ -75,13 +75,15 @@
 #define BOARD_AZTEEG_X3_PRO     68    // Azteeg X3 Pro
 #define BOARD_ULTIMAIN_2        72    // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
 #define BOARD_RUMBA             80    // Rumba
-#define BOARD_FORMBOT_TREX2     81    // Formbot version 1
-#define BOARD_FORMBOT_TREX3     82    // Formbot T-Rex 3 revision
+#define BOARD_FORMBOT_TREX2PLUS 95    // Formbot version 1
+#define BOARD_FORMBOT_TREX3     96    // Formbot T-Rex 3 revision
+#define BOARD_FORMBOT_RAPTOR    97    // Formbot version 1
 #define BOARD_BQ_ZUM_MEGA_3D    503   // bq ZUM Mega 3D
 #define BOARD_MAKEBOARD_MINI    431   // MakeBoard Mini v2.1.2 is a control board sold by MicroMake
 #define BOARD_TRIGORILLA_13     343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
 #define BOARD_TRIGORILLA_14     443   // TriGorilla Anycubic version 1.4 based on RAMPS EFB
 #define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
+#define BOARD_FYSETC_F6_13      541   // Fysetc F6
 
 //
 // Other ATmega1280, ATmega2560
@@ -107,6 +109,8 @@
 #define BOARD_SCOOVO_X9H        321   // abee Scoovo X9H
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
+#define BOARD_GT2560_V3         76    // Geeetech GT2560 Rev B for A10(M/D)
+#define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2
 #define BOARD_EINSTART_S        666   // Einstart retrofit
 
 //
@@ -234,6 +238,7 @@
 //
 
 #define BOARD_THE_BORG         1860   // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_REMRAM_V1        1862   // RemRam v1
 
 //
 // Espressif ESP32 WiFi

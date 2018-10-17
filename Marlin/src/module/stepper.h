@@ -150,7 +150,12 @@
 #define ISR_E_STEPPER_CYCLES         ISR_STEPPER_CYCLES
 
 // If linear advance is disabled, then the loop also handles them
-#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER)
+#if DISABLED(LIN_ADVANCE) && ENABLED(MIXING_EXTRUDER) // ToDo: ???
+  // HELP ME: What is what?
+  // Directions are set up for MIXING_STEPPERS - like before.
+  // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
+  //   These loops are a bit faster than advancing a bresenham counter.
+  // Always only one e-stepper is stepped.
   #define ISR_START_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_START_STEPPER_CYCLES))
   #define ISR_MIXING_STEPPER_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
 #else
@@ -188,7 +193,12 @@
 #if ENABLED(LIN_ADVANCE)
 
   // Estimate the minimum LA loop time
-  #if ENABLED(MIXING_EXTRUDER)
+  #if ENABLED(MIXING_EXTRUDER) // ToDo: ???
+    // HELP ME: What is what?
+    // Directions are set up for MIXING_STEPPERS - like before.
+    // Finding the right stepper may last up to MIXING_STEPPERS loops in get_next_stepper().
+    //   These loops are a bit faster than advancing a bresenham counter.
+    // Always only one e-stepper is stepped.
     #define MIN_ISR_LA_LOOP_CYCLES ((MIXING_STEPPERS) * (ISR_STEPPER_CYCLES))
   #else
     #define MIN_ISR_LA_LOOP_CYCLES ISR_STEPPER_CYCLES
@@ -292,17 +302,10 @@ class Stepper {
                     decelerate_after,       // The point from where we need to start decelerating
                     step_event_count;       // The total event count for the current block
 
-    // Mixing extruder mix delta_errors for bresenham tracing
-    #if ENABLED(MIXING_EXTRUDER)
-      static int32_t delta_error_m[MIXING_STEPPERS];
-      static uint32_t advance_dividend_m[MIXING_STEPPERS],
-                      advance_divisor_m;
-      #define MIXING_STEPPERS_LOOP(VAR) \
-        for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
-    #elif EXTRUDERS > 1
-      static uint8_t active_extruder;
+    #if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
+      static uint8_t stepper_extruder;
     #else
-      static constexpr uint8_t active_extruder = 0;
+      static constexpr uint8_t stepper_extruder = 0;
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
@@ -413,7 +416,7 @@ class Stepper {
     #endif
 
     #if HAS_MICROSTEPS
-      static void microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2);
+      static void microstep_ms(const uint8_t driver, const int8_t ms1, const int8_t ms2, const int8_t ms3);
       static void microstep_mode(const uint8_t driver, const uint8_t stepping);
       static void microstep_readings();
     #endif

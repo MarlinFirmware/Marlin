@@ -20,9 +20,8 @@
  */
 
 /**
- * HAL for Arduino Due and compatible (SAM3X8E)
  *
- * For ARDUINO_ARCH_SAM
+ * HAL For LPC1768
  */
 
 #ifndef _HAL_TIMERS_H

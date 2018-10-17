@@ -225,7 +225,7 @@ static void lcd_setFont(const char font_nr) {
 
   #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
 
-    void lcd_custom_bootscreen() {
+    FORCE_INLINE void draw_custom_bootscreen(const u8g_pgm_uint8_t * const bmp, const bool erase=true) {
       constexpr u8g_uint_t left = (LCD_PIXEL_WIDTH  - (CUSTOM_BOOTSCREEN_BMPWIDTH)) / 2,
                            top = (LCD_PIXEL_HEIGHT - (CUSTOM_BOOTSCREEN_BMPHEIGHT)) / 2;
       #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
@@ -236,16 +236,31 @@ static void lcd_setFont(const char font_nr) {
       do {
         u8g.drawBitmapP(
           left, top,
-          CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, custom_start_bmp
+          CEILING(CUSTOM_BOOTSCREEN_BMPWIDTH, 8), CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp
         );
         #if ENABLED(CUSTOM_BOOTSCREEN_INVERTED)
-          u8g.setColorIndex(1);
-          if (top) u8g.drawBox(0, 0, LCD_PIXEL_WIDTH, top);
-          if (left) u8g.drawBox(0, top, left, CUSTOM_BOOTSCREEN_BMPHEIGHT);
-          if (right < LCD_PIXEL_WIDTH) u8g.drawBox(right, top, LCD_PIXEL_WIDTH - right, CUSTOM_BOOTSCREEN_BMPHEIGHT);
-          if (bottom < LCD_PIXEL_HEIGHT) u8g.drawBox(0, bottom, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT - bottom);
+          if (erase) {
+            u8g.setColorIndex(1);
+            if (top) u8g.drawBox(0, 0, LCD_PIXEL_WIDTH, top);
+            if (left) u8g.drawBox(0, top, left, CUSTOM_BOOTSCREEN_BMPHEIGHT);
+            if (right < LCD_PIXEL_WIDTH) u8g.drawBox(right, top, LCD_PIXEL_WIDTH - right, CUSTOM_BOOTSCREEN_BMPHEIGHT);
+            if (bottom < LCD_PIXEL_HEIGHT) u8g.drawBox(0, bottom, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT - bottom);
+          }
+        #else
+          UNUSED(erase);
         #endif
       } while (u8g.nextPage());
+    }
+
+    void lcd_custom_bootscreen() {
+      #if ENABLED(ANIMATED_BOOTSCREEN)
+        LOOP_L_N(f, COUNT(custom_bootscreen_animation)) {
+          if (f) safe_delay(CUSTOM_BOOTSCREEN_FRAME_TIME);
+          draw_custom_bootscreen((u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[f]), f == 0);
+        }
+      #else
+        draw_custom_bootscreen(custom_start_bmp);
+      #endif
       safe_delay(CUSTOM_BOOTSCREEN_TIMEOUT);
     }
 
@@ -408,7 +423,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char* valstr=NULL) {
+  static void lcd_implementation_drawmenu_static(const uint8_t row, PGM_P pstr, const bool center=true, const bool invert=false, const char* valstr=NULL) {
 
     if (lcd_implementation_mark_as_selected(row, invert)) {
 
@@ -428,7 +443,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a generic menu item
-  static void lcd_implementation_drawmenu_generic(const bool isSelected, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
+  static void lcd_implementation_drawmenu_generic(const bool isSelected, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
     UNUSED(pre_char);
 
     if (lcd_implementation_mark_as_selected(row, isSelected)) {
@@ -449,7 +464,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
   // Draw a menu item with an editable value
-  static void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, const char* pstr, const char* const data, const bool pgm) {
+  static void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, PGM_P pstr, const char* const data, const bool pgm) {
     if (lcd_implementation_mark_as_selected(row, isSelected)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
       uint8_t n = LCD_WIDTH - (START_COL) - 2 - vallen;
@@ -469,7 +484,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   #define DRAWMENU_SETTING_EDIT_GENERIC(_src) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, _src)
   #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
-  void lcd_implementation_drawedit(const char* const pstr, const char* const value=NULL) {
+  void lcd_implementation_drawedit(PGM_P const pstr, const char* const value=NULL) {
     const uint8_t labellen = utf8_strlen_P(pstr),
                   vallen = utf8_strlen(value);
 
@@ -521,7 +536,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   #if ENABLED(SDSUPPORT)
 
-    static void _drawmenu_sd(const bool isSelected, const uint8_t row, const char* const pstr, CardReader &theCard, const bool isDir) {
+    static void _drawmenu_sd(const bool isSelected, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
       UNUSED(pstr);
 
       lcd_implementation_mark_as_selected(row, isSelected);

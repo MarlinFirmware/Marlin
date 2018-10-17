@@ -191,7 +191,7 @@
   #define MSG_EDITING_STOPPED                 _UxGT("Mesh Editing Stopped")
 #endif
 #ifndef MSG_USER_MENU
-  #define MSG_USER_MENU                       _UxGT("Custom User Commands")
+  #define MSG_USER_MENU                       _UxGT("Custom Commands")
 #endif
 #ifndef MSG_UBL_DOING_G29
   #define MSG_UBL_DOING_G29                   _UxGT("Doing G29")
@@ -648,9 +648,6 @@
 #ifndef MSG_E6STEPS
   #define MSG_E6STEPS                         _UxGT("E6steps/mm")
 #endif
-#ifndef MSG_E6STEPS
-  #define MSG_E6STEPS                         _UxGT("E6steps/mm")
-#endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     _UxGT("Temperature")
 #endif
@@ -689,6 +686,12 @@
 #endif
 #ifndef MSG_INIT_EEPROM
   #define MSG_INIT_EEPROM                     _UxGT("Initialize EEPROM")
+#endif
+#ifndef MSG_SD_UPDATE
+  #define MSG_SD_UPDATE                       _UxGT("SD Update")
+#endif
+#ifndef MSG_RESET_PRINTER
+  #define MSG_RESET_PRINTER                   _UxGT("Reset Printer")
 #endif
 #ifndef MSG_REFRESH
   #define MSG_REFRESH                         _UxGT("Refresh")
@@ -771,6 +774,18 @@
 #ifndef MSG_AUTORETRACT
   #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #endif
+#ifndef MSG_FILAMENT_SWAP_LENGTH
+  #define MSG_FILAMENT_SWAP_LENGTH            _UxGT("Retract Distance")
+#endif
+#ifndef MSG_SINGLENOZZLE_TOOL_CHANGE
+  #define MSG_SINGLENOZZLE_TOOL_CHANGE        _UxGT("Tool Change")
+#endif
+#ifndef MSG_SINGLENOZZLE_PRIME_SPD
+  #define MSG_SINGLENOZZLE_PRIME_SPD          _UxGT("Prime Speed")
+#endif
+#ifndef MSG_SINGLENOZZLE_RETRACT_SPD
+  #define MSG_SINGLENOZZLE_RETRACT_SPD        _UxGT("Retract Speed")
+#endif
 #ifndef MSG_FILAMENTCHANGE
   #define MSG_FILAMENTCHANGE                  _UxGT("Change filament")
 #endif
@@ -809,6 +824,12 @@
 #endif
 #ifndef MSG_BLTOUCH_STOW
   #define MSG_BLTOUCH_STOW                    _UxGT("Stow BLTouch")
+#endif
+#ifndef MSG_MANUAL_DEPLOY
+  #define MSG_MANUAL_DEPLOY                   _UxGT("Deploy Z-Probe")
+#endif
+#ifndef MSG_MANUAL_STOW
+  #define MSG_MANUAL_STOW                     _UxGT("Stow Z-Probe")
 #endif
 #ifndef MSG_HOME
   #define MSG_HOME                            _UxGT("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
@@ -967,7 +988,7 @@
   #define MSG_CASE_LIGHT                      _UxGT("Case light")
 #endif
 #ifndef MSG_CASE_LIGHT_BRIGHTNESS
-  #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Light BRIGHTNESS")
+  #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Light Brightness")
 #endif
 #if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
@@ -1040,6 +1061,9 @@
 #endif
 #ifndef MSG_FILAMENT_CHANGE_NOZZLE
   #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozzle: ")
+#endif
+#ifndef MSG_RUNOUT_SENSOR_ENABLE
+  #define MSG_RUNOUT_SENSOR_ENABLE            _UxGT("Runout Sensor")
 #endif
 #ifndef MSG_ERR_HOMING_FAILED
   #define MSG_ERR_HOMING_FAILED               _UxGT("Homing failed")

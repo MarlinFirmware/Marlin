@@ -48,7 +48,7 @@ class ST7920_Lite_Status_Screen {
 
     static void write_str(const char *str);
     static void write_str(const char *str, const uint8_t len);
-    static void write_str_P(const char * const str);
+    static void write_str_P(PGM_P const str);
     static void write_str(progmem_str str);
     static void write_number(const int16_t value, const uint8_t digits=3);
 

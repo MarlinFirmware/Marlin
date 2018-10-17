@@ -17,7 +17,7 @@
  *
  */
 
-#if defined(STM32F4) || defined(STM32F4xx)
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
 
 /**
  * Description: functions for I2C connected external EEPROM.
@@ -96,7 +96,7 @@ void eeprom_init() {
   }
 }
 
-void eeprom_write_byte(unsigned char *pos, unsigned char value) {
+void eeprom_write_byte(uint8_t *pos, unsigned char value) {
   uint16_t eeprom_address = (unsigned) pos;
 
   eeprom_init();
@@ -110,7 +110,7 @@ void eeprom_write_byte(unsigned char *pos, unsigned char value) {
   HAL_FLASH_Lock();
 }
 
-unsigned char eeprom_read_byte(unsigned char *pos) {
+uint8_t eeprom_read_byte(uint8_t *pos) {
   uint16_t data = 0xFF;
   uint16_t eeprom_address = (unsigned)pos;
 
