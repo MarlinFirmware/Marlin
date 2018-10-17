@@ -28,24 +28,30 @@ void SysTick_Callback() {
 }
 
 void HAL_init() {
+
+  // Support the 4 LEDs some LPC176x boards have
   #if PIN_EXISTS(LED)
     SET_DIR_OUTPUT(LED_PIN);
     WRITE_PIN_CLR(LED_PIN);
-
-    // MKS_SBASE has 3 other LEDs the bootloader uses during flashing. Clear them.
-    SET_DIR_OUTPUT(P1_19);
-    WRITE_PIN_CLR(P1_19);
-    SET_DIR_OUTPUT(P1_20);
-    WRITE_PIN_CLR(P1_20);
-    SET_DIR_OUTPUT(P1_21);
-    WRITE_PIN_CLR(P1_21);
-
+    #if PIN_EXISTS(LED2)
+        SET_DIR_OUTPUT(LED2_PIN);
+        WRITE_PIN_CLR(LED2_PIN);
+      #if PIN_EXISTS(LED3)
+          SET_DIR_OUTPUT(LED3_PIN);
+          WRITE_PIN_CLR(LED3_PIN);
+        #if PIN_EXISTS(LED4)
+            SET_DIR_OUTPUT(LED4_PIN);
+            WRITE_PIN_CLR(LED4_PIN);
+        #endif
+      #endif
+    #endif
     // Flash status LED 3 times to indicate Marlin has started booting
     for (uint8_t i = 0; i < 6; ++i) {
       TOGGLE(LED_PIN);
       delay(100);
     }
   #endif
+
   //debug_frmwrk_init();
   //_DBG("\n\nDebug running\n");
   // Initialise the SD card chip select pins as soon as possible
