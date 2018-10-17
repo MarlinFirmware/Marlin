@@ -139,7 +139,7 @@
 #define MSG_UBL_EDIT_MESH_MENU              _UxGT("Netz bearbeiten")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Menge an Füllung")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Manuelles Füllen")
-#define MSG_UBL_SMART_FILLIN                _UxGT("Intelligentes Füllen")
+#define MSG_UBL_SMART_FILLIN                _UxGT("Cleveres Füllen")
 #define MSG_UBL_FILLIN_MESH                 _UxGT("Netz Füllen")
 #define MSG_UBL_INVALIDATE_ALL              _UxGT("Alles annullieren")
 #define MSG_UBL_INVALIDATE_CLOSEST          _UxGT("Nächstlieg. ann.")
