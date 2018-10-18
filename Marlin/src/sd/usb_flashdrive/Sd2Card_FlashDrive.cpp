@@ -119,7 +119,7 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
 uint32_t Sd2Card::cardSize() {
   if (!ready()) return 0;
   #ifndef USB_DEBUG
-  const uint32_t
+    const uint32_t
   #endif
   lun0_capacity = bulk.GetCapacity(0);
   return lun0_capacity;
