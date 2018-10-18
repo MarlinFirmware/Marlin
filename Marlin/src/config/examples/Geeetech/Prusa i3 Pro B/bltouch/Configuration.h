@@ -755,7 +755,7 @@
  */
 #define Z_MIN_PROBE_ENDSTOP
 #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-  #define Z_MIN_PROBE_ENDSTOP 32
+  #define Z_MIN_PROBE_PIN 32
 #endif
 
 /**
