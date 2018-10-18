@@ -34,17 +34,18 @@ void HAL_init() {
     SET_DIR_OUTPUT(LED_PIN);
     WRITE_PIN_CLR(LED_PIN);
     #if PIN_EXISTS(LED2)
-        SET_DIR_OUTPUT(LED2_PIN);
-        WRITE_PIN_CLR(LED2_PIN);
+      SET_DIR_OUTPUT(LED2_PIN);
+      WRITE_PIN_CLR(LED2_PIN);
       #if PIN_EXISTS(LED3)
-          SET_DIR_OUTPUT(LED3_PIN);
-          WRITE_PIN_CLR(LED3_PIN);
+        SET_DIR_OUTPUT(LED3_PIN);
+        WRITE_PIN_CLR(LED3_PIN);
         #if PIN_EXISTS(LED4)
-            SET_DIR_OUTPUT(LED4_PIN);
-            WRITE_PIN_CLR(LED4_PIN);
+          SET_DIR_OUTPUT(LED4_PIN);
+          WRITE_PIN_CLR(LED4_PIN);
         #endif
       #endif
     #endif
+
     // Flash status LED 3 times to indicate Marlin has started booting
     for (uint8_t i = 0; i < 6; ++i) {
       TOGGLE(LED_PIN);
