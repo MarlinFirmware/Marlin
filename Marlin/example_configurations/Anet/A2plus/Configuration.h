@@ -728,6 +728,9 @@
  *
  */
 //#define Z_MIN_PROBE_ENDSTOP
+#if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #define Z_MIN_PROBE_ENDSTOP -1
+#endif
 
 /**
  * Probe Type
