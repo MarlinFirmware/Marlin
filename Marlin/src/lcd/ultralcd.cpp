@@ -778,7 +778,11 @@ void lcd_status_screen() {
 
   #endif // ULTIPANEL
 
-  lcd_implementation_status_screen();
+  #if LCD_INFO_SCREEN_STYLE == 0
+    lcd_impl_status_screen_0();
+  #elif LCD_INFO_SCREEN_STYLE == 1
+    lcd_impl_status_screen_1();
+  #endif
 }
 
 /**
