@@ -704,7 +704,9 @@
  *
  */
 #define Z_MIN_PROBE_ENDSTOP
-#define Z_MIN_PROBE_PIN 32
+#if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #define Z_MIN_PROBE_PIN 32
+#endif
 
 /**
  * Probe Type
