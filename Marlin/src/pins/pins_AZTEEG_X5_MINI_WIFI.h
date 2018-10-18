@@ -35,6 +35,11 @@
 #endif
 
 //
+// LED
+//
+#define LED_PIN             P1_18
+
+//
 // Servo
 //
 #define SERVO0_PIN         P1_29
@@ -174,10 +179,12 @@
 // SD Support
 //
 //#define USB_SD_DISABLED     // Disable host access to SD card as mass storage device through USB
-#define USB_SD_ONBOARD        // Enable host access to SD card as mass storage device through USB
+//#define USB_SD_ONBOARD      // Enable host access to SD card as mass storage device through USB
 
 //#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
-#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
+#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board.  There is no SD detect pin 
+                              // for the onboard card.  Init card from LCD menu or send M21 whenever printer
+                              // is powered on to enable SD access.
 
 #ifdef LPC_SD_LCD
   #define SCK_PIN            P0_15
