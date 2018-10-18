@@ -186,7 +186,7 @@
                               // for the onboard card.  Init card from LCD menu or send M21 whenever printer
                               // is powered on to enable SD access.
 
-#ifdef LPC_SD_LCD
+#if ENABLED(LPC_SD_LCD)
   #define SCK_PIN            P0_15
   #define MISO_PIN           P0_17
   #define MOSI_PIN           P0_18
@@ -194,8 +194,8 @@
   #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
 #endif
 
-#ifdef LPC_SD_ONBOARD
-  #ifdef USB_SD_ONBOARD
+#if ENABLED(LPC_SD_ONBOARD)
+  #if ENABLED(USB_SD_ONBOARD)
     // When sharing the SD card with a PC we want the menu options to
     // mount/unmount the card and refresh it. So we disable card detect.
     #define SHARED_SD_CARD
