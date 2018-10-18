@@ -34,7 +34,7 @@
 // Ignore temp readings during develpment.
 //#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
-#if E_STEPPERS > 2 || HOTENDS > 2
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "STM32F4 supports up to 2 hotends / E-steppers."
 #endif
 
