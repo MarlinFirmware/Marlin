@@ -84,13 +84,13 @@ class Sd2Card {
 
     static void idle();
 
-    bool readStart(uint32_t block)                       {pos = block; return ready();}
-    bool readData(uint8_t* dst)                          {return readBlock(pos++, dst);}
-    bool readStop()                                      {return true;}
+    bool readStart(uint32_t block)                       { pos = block; return ready(); }
+    bool readData(uint8_t* dst)                          { return readBlock(pos++, dst); }
+    bool readStop()                                      { return true; }
 
-    bool writeStart(uint32_t block, uint32_t eraseCount) {pos = block; return ready();}
-    bool writeData(uint8_t* src)                         {return writeBlock(pos++, src);}
-    bool writeStop()                                     {return true;}
+    bool writeStart(uint32_t block, uint32_t eraseCount) { pos = block; return ready(); }
+    bool writeData(uint8_t* src)                         { return writeBlock(pos++, src); }
+    bool writeStop()                                     { return true; }
 
 
     bool readBlock(uint32_t block, uint8_t* dst);
