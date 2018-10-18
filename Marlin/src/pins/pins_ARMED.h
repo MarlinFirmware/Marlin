@@ -20,12 +20,12 @@
  *
  */
 
-#if !defined(STM32F4)
-    #error "Oops!  Make sure you have an STM32F4 board selected from the 'Tools -> Boards' menu."
+#ifndef STM32F4
+  #error "Oops!  Make sure you have an STM32F4 board selected from the 'Tools -> Boards' menu."
 #endif
 
 #ifndef ARMED_V1_0
-#define ARMED_V1_1
+  #define ARMED_V1_1
 #endif
 
 #define DEFAULT_MACHINE_NAME "Arm'ed"
@@ -35,33 +35,25 @@
 
 #define E2END 0xFFF // EEPROM end address (4kB)
 
-#if E_STEPPERS > 2 || HOTENDS > 2
+#if HOTENDS > 2 || E_STEPPERS > 2
   #error "Arm'ed supports up to 2 hotends / E-steppers."
 #endif
-
-#define PORTA 0
-#define PORTB 1
-#define PORTC 2
-#define PORTD 3
-#define PORTE 4
-
-#define _STM32_PIN(_PORT,_PIN) ((PORT##_PORT * 16) + _PIN)
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN         _STM32_PIN(E, 0)
-#define X_MAX_PIN         -1
-#define Y_MIN_PIN         _STM32_PIN(E, 1)
-#define Y_MAX_PIN         -1
-#define Z_MIN_PIN         _STM32_PIN(E, 14)
-#define Z_MAX_PIN         -1
+#define X_MIN_PIN          PE0
+#define X_MAX_PIN          -1
+#define Y_MIN_PIN          PE1
+#define Y_MAX_PIN          -1
+#define Z_MIN_PIN          PE14
+#define Z_MAX_PIN          -1
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 // #ifndef Z_MIN_PROBE_PIN
-//   #define Z_MIN_PROBE_PIN  _STM32_PIN(A, 4)
+//   #define Z_MIN_PROBE_PIN  PA4
 // #endif
 
 //
@@ -69,132 +61,130 @@
 //
 
 #ifdef ARMED_SWAP_X_E1
-  #define X_STEP_PIN        _STM32_PIN(E, 4)
-  #define X_DIR_PIN         _STM32_PIN(E, 2)
-  #define X_ENABLE_PIN      _STM32_PIN(E, 3)
-  #define X_CS_PIN          _STM32_PIN(E, 5)
+  #define X_STEP_PIN       PE4
+  #define X_DIR_PIN        PE2
+  #define X_ENABLE_PIN     PE3
+  #define X_CS_PIN         PE5
 #else
-  #define X_STEP_PIN        _STM32_PIN(D, 3)
-  #define X_DIR_PIN         _STM32_PIN(D, 2)
-  #define X_ENABLE_PIN      _STM32_PIN(D, 0)
-  #define X_CS_PIN          _STM32_PIN(D, 1)
+  #define X_STEP_PIN       PD3
+  #define X_DIR_PIN        PD2
+  #define X_ENABLE_PIN     PD0
+  #define X_CS_PIN         PD1
 #endif
 
-#define Y_STEP_PIN        _STM32_PIN(E, 11)
-#define Y_DIR_PIN         _STM32_PIN(E, 10)
-#define Y_ENABLE_PIN      _STM32_PIN(E, 13)
-#define Y_CS_PIN          _STM32_PIN(E, 12)
+#define Y_STEP_PIN         PE11
+#define Y_DIR_PIN          PE10
+#define Y_ENABLE_PIN       PE13
+#define Y_CS_PIN           PE12
 
-#define Z_STEP_PIN        _STM32_PIN(D, 6)
-#define Z_DIR_PIN         _STM32_PIN(D, 7)
-#define Z_ENABLE_PIN      _STM32_PIN(D, 4)
-#define Z_CS_PIN          _STM32_PIN(D, 5)
+#define Z_STEP_PIN         PD6
+#define Z_DIR_PIN          PD7
+#define Z_ENABLE_PIN       PD4
+#define Z_CS_PIN           PD5
 
-#define E0_STEP_PIN       _STM32_PIN(B, 5)
-#define E0_DIR_PIN        _STM32_PIN(B, 6)
-#define E0_CS_PIN         _STM32_PIN(B, 4)
+#define E0_STEP_PIN        PB5
+#define E0_DIR_PIN         PB6
+#define E0_CS_PIN          PB4
 
 #ifdef ARMED_V1_0
-  #define E0_ENABLE_PIN      _STM32_PIN(B, 3)
+  #define E0_ENABLE_PIN    PB3
 #else
-  #define E0_ENABLE_PIN      _STM32_PIN(C, 12)
+  #define E0_ENABLE_PIN    PC12
 #endif
 
 #ifdef ARMED_SWAP_X_E1
-  #define E1_STEP_PIN         _STM32_PIN(D, 3)
-  #define E1_DIR_PIN          _STM32_PIN(D, 2)
-  #define E1_ENABLE_PIN       _STM32_PIN(D, 0)
-  #define E1_CS_PIN           _STM32_PIN(D, 1)
+  #define E1_STEP_PIN      PD3
+  #define E1_DIR_PIN       PD2
+  #define E1_ENABLE_PIN    PD0
+  #define E1_CS_PIN        PD1
 #else
-  #define E1_STEP_PIN         _STM32_PIN(E, 4)
-  #define E1_DIR_PIN          _STM32_PIN(E, 2)
-  #define E1_ENABLE_PIN       _STM32_PIN(E, 3)
-  #define E1_CS_PIN           _STM32_PIN(E, 5)
+  #define E1_STEP_PIN      PE4
+  #define E1_DIR_PIN       PE2
+  #define E1_ENABLE_PIN    PE3
+  #define E1_CS_PIN        PE5
 #endif
 
 //
 // SPI
 //
-#define SCK_PIN             _STM32_PIN(A, 5)
-#define MISO_PIN            _STM32_PIN(A, 6)
-#define MOSI_PIN            _STM32_PIN(A, 7)
+#define SCK_PIN            PA5
+#define MISO_PIN           PA6
+#define MOSI_PIN           PA7
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          _STM32_PIN(C, 0)   // Analog Input
-#define TEMP_1_PIN          _STM32_PIN(C, 1)   // Analog Input
-#define TEMP_BED_PIN        _STM32_PIN(C, 2)   // Analog Input
+#define TEMP_0_PIN         PC0   // Analog Input
+#define TEMP_1_PIN         PC1   // Analog Input
+#define TEMP_BED_PIN       PC2   // Analog Input
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        _STM32_PIN(A, 1)   // PWM pin
-#define HEATER_1_PIN        _STM32_PIN(A, 2)   // PWM pin
-#define HEATER_BED_PIN      _STM32_PIN(A, 0)   // PWM pin
+#define HEATER_0_PIN       PA1   // PWM pin
+#define HEATER_1_PIN       PA2   // PWM pin
+#define HEATER_BED_PIN     PA0   // PWM pin
 
-#define FAN_PIN             _STM32_PIN(C, 6)   // PWM pin, Part cooling fan
-#define FAN1_PIN            _STM32_PIN(C, 7)   // PWM pin, Extruder fan
-#define FAN2_PIN            _STM32_PIN(C, 8)   // PWM pin, Controller fan
+#define FAN_PIN            PC6   // PWM pin, Part cooling fan
+#define FAN1_PIN           PC7   // PWM pin, Extruder fan
+#define FAN2_PIN           PC8   // PWM pin, Controller fan
 
 //
 // Misc functions
 //
-#define SDSS                _STM32_PIN(E, 7)
-#define SS_PIN              _STM32_PIN(E, 7)
-#define LED_PIN             _STM32_PIN(B, 7)   // Heart beat
-#define PS_ON_PIN           _STM32_PIN(A, 10)
-#define KILL_PIN            _STM32_PIN(A, 8)     
-#define PWR_LOSS            _STM32_PIN(A, 4)   // Power loss / nAC_FAULT
+#define SDSS               PE7
+#define SS_PIN             PE7
+#define LED_PIN            PB7   // Heart beat
+#define PS_ON_PIN          PA10
+#define KILL_PIN           PA8
+#define PWR_LOSS           PA4   // Power loss / nAC_FAULT
 
 //
 // LCD / Controller
 //
-#define SD_DETECT_PIN       _STM32_PIN(A, 15)     
-#define BEEPER_PIN          _STM32_PIN(C, 9)      
-#define LCD_PINS_RS         _STM32_PIN(E, 9)      
-#define LCD_PINS_ENABLE     _STM32_PIN(E, 8)      
-#define LCD_PINS_D4         _STM32_PIN(B, 12)     
-#define LCD_PINS_D5         _STM32_PIN(B, 13)     
-#define LCD_PINS_D6         _STM32_PIN(B, 14)     
-#define LCD_PINS_D7         _STM32_PIN(B, 15)     
-#define BTN_EN1             _STM32_PIN(C, 4)      
-#define BTN_EN2             _STM32_PIN(C, 5)      
-#define BTN_ENC             _STM32_PIN(C, 3)      
+#define SD_DETECT_PIN      PA15
+#define BEEPER_PIN         PC9
+#define LCD_PINS_RS        PE9
+#define LCD_PINS_ENABLE    PE8
+#define LCD_PINS_D4        PB12
+#define LCD_PINS_D5        PB13
+#define LCD_PINS_D6        PB14
+#define LCD_PINS_D7        PB15
+#define BTN_EN1            PC4
+#define BTN_EN2            PC5
+#define BTN_ENC            PC3
 
 //
 // Filament runout detection
 //
-#define FIL_RUNOUT_PIN      _STM32_PIN(A, 3)
+#define FIL_RUNOUT_PIN     PA3
 
 //
 // Extension pins
 //
-#define EXT0_PIN            _STM32_PIN(B, 0) 
-#define EXT1_PIN            _STM32_PIN(B, 1) 
-#define EXT2_PIN            _STM32_PIN(B, 2) 
-#define EXT3_PIN            _STM32_PIN(D, 8) 
-#define EXT4_PIN            _STM32_PIN(D, 9) 
-#define EXT5_PIN            _STM32_PIN(D, 10) 
-#define EXT6_PIN            _STM32_PIN(D, 11) 
-#define EXT7_PIN            _STM32_PIN(D, 12) 
-#define EXT8_PIN            _STM32_PIN(B, 10) 
-#define EXT9_PIN            _STM32_PIN(B, 11) 
+#define EXT0_PIN           PB0
+#define EXT1_PIN           PB1
+#define EXT2_PIN           PB2
+#define EXT3_PIN           PD8
+#define EXT4_PIN           PD9
+#define EXT5_PIN           PD10
+#define EXT6_PIN           PD11
+#define EXT7_PIN           PD12
+#define EXT8_PIN           PB10
+#define EXT9_PIN           PB11
 
 //
 // ST7920 Delays
 //
-#define STM_DELAY_LONG       { __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); }
-#define STM_DELAY_SHORT      { __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); }
+#define STM_DELAY_LONG      { __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); }
+#define STM_DELAY_SHORT     { __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); __asm__("nop\n\t"); }
 
 #ifndef ST7920_DELAY_1
-#define ST7920_DELAY_1 { STM_DELAY_SHORT; STM_DELAY_SHORT; }
+  #define ST7920_DELAY_1 { STM_DELAY_SHORT; STM_DELAY_SHORT; }
 #endif
-
 #ifndef ST7920_DELAY_2
-#define ST7920_DELAY_2 { STM_DELAY_SHORT; }
+  #define ST7920_DELAY_2 { STM_DELAY_SHORT; }
 #endif
-
 #ifndef ST7920_DELAY_3
-#define ST7920_DELAY_3 { STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; }
+  #define ST7920_DELAY_3 { STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; STM_DELAY_LONG; }
 #endif
