@@ -68,7 +68,7 @@ uint8_t HAL_get_reset_source(void) {
 void watchdog_reset() {
   WDT_Feed();
   #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heart beat indicator
+    TOGGLE(LED_PIN);  // heartbeat indicator
   #endif
 }
 
