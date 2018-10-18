@@ -26,12 +26,12 @@
 #if EXTRUDERS > 1
 
   typedef struct {
-    #if ENABLED(SINGLENOZZLE)
+    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       float swap_length;
       int16_t prime_speed, retract_speed;
-      #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-        struct { float x, y; } change_point;
-      #endif
+    #endif
+    #if ENABLED(TOOLCHANGE_PARK)
+      struct { float x, y; } change_point;
     #endif
     float z_raise;
   } toolchange_settings_t;
