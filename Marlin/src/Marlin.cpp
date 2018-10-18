@@ -351,7 +351,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   if (max_inactive_time && ELAPSED(ms, gcode.previous_move_ms + max_inactive_time)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(MSG_KILL_INACTIVE_TIME, parser.command_ptr);
-    kill(PSTR(MSG_KILLED));
+    kill();
   }
 
   // Prevent steppers timing-out in the middle of M600
@@ -408,7 +408,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     if (killCount >= KILL_DELAY) {
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_KILL_BUTTON);
-      kill(PSTR(MSG_KILLED));
+      kill();
     }
   #endif
 
@@ -609,7 +609,7 @@ void idle(
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(PGM_P lcd_msg) {
+void kill(PGM_P const lcd_msg/*=NULL*/) {
   SERIAL_ERROR_START();
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
@@ -617,22 +617,27 @@ void kill(PGM_P lcd_msg) {
   disable_all_steppers();
 
   #if ENABLED(EXTENSIBLE_UI)
-    UI::onPrinterKilled(lcd_msg);
+    UI::onPrinterKilled(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
   #elif ENABLED(ULTRA_LCD)
-    kill_screen(lcd_msg);
+    kill_screen(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
   #else
     UNUSED(lcd_msg);
   #endif
 
-  _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
-  cli(); // Stop interrupts
-
-  _delay_ms(250); //Wait to ensure all interrupts routines stopped
-  thermalManager.disable_all_heaters(); //turn off heaters again
-
   #ifdef ACTION_ON_KILL
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_KILL);
   #endif
+
+  minkill();
+}
+
+void minkill() {
+
+  _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
+  cli(); // Stop interrupts
+  _delay_ms(250); // Wait to ensure all interrupts stopped
+
+  thermalManager.disable_all_heaters(); // turn off heaters again
 
   #if HAS_POWER_SWITCH
     PSU_OFF();
@@ -655,6 +660,7 @@ void kill(PGM_P lcd_msg) {
  */
 void stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
+  print_job_timer.stop();
 
   #if ENABLED(PROBING_FANS_OFF)
     if (fans_paused) fans_pause(false); // put things back the way they were
@@ -979,9 +985,7 @@ void loop() {
         quickstop_stepper();
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
-        #if FAN_COUNT > 0
-          for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
-        #endif
+        zero_fan_speeds();
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
           card.removeJobRecoveryFile();

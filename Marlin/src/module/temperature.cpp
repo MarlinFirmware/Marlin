@@ -304,7 +304,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
 
     SERIAL_ECHOLNPGM(MSG_PID_AUTOTUNE_START);
 
-    disable_all_heaters(); // switch off all heaters.
+    disable_all_heaters();
 
     SHV(soft_pwm_amount, bias = d = (MAX_BED_POWER) >> 1, bias = d = (PID_MAX) >> 1);
 
@@ -779,7 +779,7 @@ void Temperature::manage_heater() {
   #endif
 
   #if ENABLED(EMERGENCY_PARSER)
-    if (emergency_parser.killed_by_M112) kill(PSTR(MSG_KILLED));
+    if (emergency_parser.killed_by_M112) kill();
   #endif
 
   if (!temp_meas_ready) return;
@@ -949,7 +949,7 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
       SERIAL_ERROR_START();
       SERIAL_ERROR((int)e);
       SERIAL_ERRORLNPGM(MSG_INVALID_EXTRUDER_NUM);
-      kill(PSTR(MSG_KILLED));
+      kill();
       return 0.0;
     }
 
@@ -1550,9 +1550,6 @@ void Temperature::disable_all_heaters() {
   #if ENABLED(PROBING_HEATERS_OFF)
     pause(false);
   #endif
-
-  // If all heaters go down then for sure our print job has stopped
-  print_job_timer.stop();
 
   #define DISABLE_HEATER(NR) { \
     setTargetHotend(0, NR); \
