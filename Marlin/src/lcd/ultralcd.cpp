@@ -982,7 +982,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void tool_change_menu() {
       START_MENU();
       MENU_BACK(MSG_MAIN);
-      #if ENABLED(SINGLENOZZLE)
+      #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
         MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, 200);
         MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
         MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);
