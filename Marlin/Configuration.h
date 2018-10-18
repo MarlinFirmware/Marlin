@@ -737,8 +737,13 @@
  * WARNING: Setting the wrong pin may have unexpected and potentially
  * disastrous consequences. Use with caution and do your homework.
  *
+ * NOTE: The line below, '#define Z_MIN_PROBE_PIN 32' specifies the
+ * use of Digital Pin 32 (D32), on the motherboard. This pin selection
+ * is arbitrary and YOU must enter the correct pin for your configuration
+ *
  */
 //#define Z_MIN_PROBE_ENDSTOP
+//#define Z_MIN_PROBE_PIN 32
 
 /**
  * Probe Type
