@@ -420,22 +420,24 @@ namespace UI {
     #endif
   }
 
+  bool isPrintingFromMediaPaused() {
+    #if ENABLED(SDSUPPORT)
+      return isPrintingFromMedia() && !card.sdprinting;
+    #else
+      return false;
+    #endif
+  }
+
   bool isPrintingFromMedia() {
     #if ENABLED(SDSUPPORT)
-      return card.cardOK && card.isFileOpen() && card.sdprinting;
+      return card.cardOK && card.isFileOpen();
     #else
       return false;
     #endif
   }
 
   bool isPrinting() {
-    return (planner.movesplanned() || IS_SD_PRINTING() ||
-      #if ENABLED(SDSUPPORT)
-        (card.cardOK && card.isFileOpen())
-      #else
-        false
-      #endif
-    );
+    return (planner.movesplanned() || IS_SD_PRINTING() || isPrintingFromMedia());
   }
 
   bool isMediaInserted() {

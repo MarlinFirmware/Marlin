@@ -133,6 +133,7 @@ namespace UI {
   void enqueueCommands(progmem_str gcode);
 
   void printFile(const char *filename);
+  bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
   void stopPrint();
