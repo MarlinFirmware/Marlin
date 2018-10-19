@@ -1075,44 +1075,40 @@ inline void get_serial_commands() {
 
         gcode_N = strtol(npos + 1, NULL, 10);
 
-        if (gcode_N != gcode_LastN + 1 && !M110) {
-          gcode_line_error(PSTR(MSG_ERR_LINE_NO));
-          return;
-        }
+        if (gcode_N != gcode_LastN + 1 && !M110)
+          return gcode_line_error(PSTR(MSG_ERR_LINE_NO));
 
         char *apos = strrchr(command, '*');
         if (apos) {
           uint8_t checksum = 0, count = uint8_t(apos - command);
           while (count) checksum ^= command[--count];
-          if (strtol(apos + 1, NULL, 10) != checksum) {
-            gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
-            return;
-          }
+          if (strtol(apos + 1, NULL, 10) != checksum)
+            return gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
         }
-        else {
-          gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
-          return;
-        }
+        else
+          return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
 
         gcode_LastN = gcode_N;
       }
       #if ENABLED(SDSUPPORT)
-        else if (card.saving) {
-          gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
-          return;
-        }
+        else if (card.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
+          return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
       #endif
 
       // Movement commands alert when stopped
       if (IsStopped()) {
         char* gpos = strchr(command, 'G');
         if (gpos) {
-          const int codenum = strtol(gpos + 1, NULL, 10);
-          switch (codenum) {
+          switch (strtol(gpos + 1, NULL, 10)) {
             case 0:
             case 1:
-            case 2:
-            case 3:
+            #if ENABLED(ARC_SUPPORT)
+              case 2:
+              case 3:
+            #endif
+            #if ENABLED(BEZIER_CURVE_SUPPORT)
+              case 5:
+            #endif
               SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
               LCD_MESSAGEPGM(MSG_STOPPED);
               break;
@@ -8420,8 +8416,9 @@ inline void gcode_M109() {
     if (target_extruder != active_extruder) return;
   #endif
 
-  const bool no_wait_for_cooling = parser.seenval('S');
-  if (no_wait_for_cooling || parser.seenval('R')) {
+  const bool no_wait_for_cooling = parser.seenval('S'),
+             set_temp = no_wait_for_cooling || parser.seenval('R');
+  if (set_temp) {
     const int16_t temp = parser.value_celsius();
     thermalManager.setTargetHotend(temp, target_extruder);
 
@@ -8454,11 +8451,12 @@ inline void gcode_M109() {
         #endif
     #endif
   }
-  else return;
 
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
   #endif
+
+  if (!set_temp) return;
 
   #if TEMP_RESIDENCY_TIME > 0
     millis_t residency_start_ms = 0;
@@ -12316,7 +12314,7 @@ inline void invalid_extruder_error(const uint8_t e) {
 
 #if ENABLED(PARKING_EXTRUDER)
 
-  inline void parking_extruder_tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+  inline void parking_extruder_tool_change(const uint8_t tmp_extruder, bool no_move) {
     constexpr float z_raise = PARKING_EXTRUDER_SECURITY_RAISE;
 
     if (!no_move) {
@@ -12480,7 +12478,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #else // !DUAL_X_CARRIAGE
 
           set_destination_from_current();
-          #if ENABLED(PARKING_EXTRUDER) // Dual Parking extruder
+
+          #if ENABLED(PARKING_EXTRUDER)
             parking_extruder_tool_change(tmp_extruder, no_move);
           #endif
 
