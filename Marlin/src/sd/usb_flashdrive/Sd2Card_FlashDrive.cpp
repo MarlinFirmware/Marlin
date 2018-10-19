@@ -38,7 +38,7 @@ Sd2Card::state_t Sd2Card::state;
 
 // The USB library needs to be called periodically to detect USB thumbdrive
 // insertion and removals. Call this idle() function periodically to allow
-// the USB libary to monitor for such events. This function also takes care
+// the USB library to monitor for such events. This function also takes care
 // of initializing the USB library for the first time.
 
 void Sd2Card::idle() {

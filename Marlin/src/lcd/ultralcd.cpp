@@ -1918,9 +1918,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   void lcd_cooldown() {
-    #if FAN_COUNT > 0
-      for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
-    #endif
+    zero_fan_speeds();
     thermalManager.disable_all_heaters();
     lcd_return_to_status();
   }

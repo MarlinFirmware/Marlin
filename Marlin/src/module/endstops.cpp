@@ -36,6 +36,10 @@
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
 
+#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
+  #include "../module/printcounter.h" // for print_job_timer
+#endif
+
 Endstops endstops;
 
 // public:
@@ -359,7 +363,8 @@ void Endstops::event_handler() {
         card.sdprinting = false;
         card.closefile();
         quickstop_stepper();
-        thermalManager.disable_all_heaters(); // switch off all heaters.
+        thermalManager.disable_all_heaters();
+        print_job_timer.stop();
       }
     #endif
   }
