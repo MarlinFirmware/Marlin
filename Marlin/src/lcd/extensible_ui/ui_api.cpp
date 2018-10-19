@@ -37,10 +37,6 @@
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
   #include "../../feature/emergency_parser.h"
-
-  bool abort_sd_printing; // =false
-#else
-  constexpr bool abort_sd_printing = false;
 #endif
 
 #if ENABLED(PRINTCOUNTER)

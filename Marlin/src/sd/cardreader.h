@@ -257,6 +257,7 @@ private:
 #endif
 
 extern CardReader card;
+extern bool abort_sd_printing;
 
 #endif // SDSUPPORT
 

@@ -584,6 +584,10 @@ void GcodeSuite::process_parsed_command(
         case 504: M504(); break;                                  // M504: Validate EEPROM contents
       #endif
 
+      #if ENABLED(SDSUPPORT)
+        case 524: M524(); break;                                   // M524: Abort the current SD print job
+      #endif
+      
       #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
       #endif
