@@ -37,7 +37,7 @@ void HAL_init();
 #include <stdarg.h>
 #include <algorithm>
 
-extern "C" volatile uint32_t _millis;
+extern "C" volatile millis_t _millis;
 
 #include <Arduino.h>
 #include <pinmapping.h>

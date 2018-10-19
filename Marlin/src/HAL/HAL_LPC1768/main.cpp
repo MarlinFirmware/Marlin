@@ -71,7 +71,7 @@ void HAL_init() {
   #ifndef USB_SD_DISABLED
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
-  const uint32_t usb_timeout = millis() + 2000;
+  const millis_t usb_timeout = millis() + 2000;
   while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
     delay(50);
     HAL_idletask();
