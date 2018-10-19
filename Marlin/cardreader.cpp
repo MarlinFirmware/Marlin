@@ -315,7 +315,7 @@ void CardReader::stopSDPrint(
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     did_pause_print = 0;
   #endif
-  sdprinting = false;
+  sdprinting = abort_sd_printing = false;
   if (isFileOpen()) file.close();
   #if SD_RESORT
     if (re_sort) presort();
