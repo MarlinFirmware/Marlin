@@ -612,7 +612,6 @@ void idle(
 void kill(PGM_P const lcd_msg/*=NULL*/) {
 
   thermalManager.disable_all_heaters();
-  disable_all_steppers();
 
   SERIAL_ERROR_START();
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
@@ -638,6 +637,7 @@ void minkill() {
   cli();           // Stop interrupts
   _delay_ms(250);  // Wait to ensure all interrupts stopped
 
+  disable_all_steppers();
   thermalManager.disable_all_heaters(); // turn off heaters again
 
   #if HAS_POWER_SWITCH
