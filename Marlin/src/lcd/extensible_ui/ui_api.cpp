@@ -37,10 +37,6 @@
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
   #include "../../feature/emergency_parser.h"
-
-  bool abort_sd_printing; // =false
-#else
-  constexpr bool abort_sd_printing = false;
 #endif
 
 #if ENABLED(PRINTCOUNTER)
@@ -476,7 +472,7 @@ namespace UI {
   void stopPrint() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
-      abort_sd_printing = true;
+      card.abort_sd_printing = true;
       UI::onStatusChanged(PSTR(MSG_PRINT_ABORTED));
     #endif
   }

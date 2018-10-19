@@ -149,7 +149,7 @@ public:
   FORCE_INLINE char* longest_filename() { return longFilename[0] ? longFilename : filename; }
 
 public:
-  bool saving, logging, sdprinting, cardOK, filenameIsDir;
+  bool saving, logging, sdprinting, cardOK, filenameIsDir, abort_sd_printing;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   int8_t autostart_index;
 private:

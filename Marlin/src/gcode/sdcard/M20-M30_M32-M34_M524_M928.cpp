@@ -245,6 +245,13 @@ void GcodeSuite::M32() {
 #endif // SDCARD_SORT_ALPHA && SDSORT_GCODE
 
 /**
+ * M524: Abort the current SD print job (started with M24)
+ */
+void GcodeSuite::M524() {
+  if (IS_SD_PRINTING()) card.abort_sd_printing = true;
+}
+
+/**
  * M928: Start SD Write
  */
 void GcodeSuite::M928() {

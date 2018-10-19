@@ -972,11 +972,8 @@ void loop() {
 
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
-    #endif
-
-    #if ENABLED(SDSUPPORT) && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
-      if (abort_sd_printing) {
-        abort_sd_printing = false;
+    
+      if (card.abort_sd_printing) {
         card.stopSDPrint(
           #if SD_RESORT
             true
@@ -992,7 +989,7 @@ void loop() {
           card.removeJobRecoveryFile();
         #endif
       }
-    #endif // SDSUPPORT && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
+    #endif // SDSUPPORT
 
     if (commands_in_queue < BUFSIZE) get_available_commands();
     advance_command_queue();
