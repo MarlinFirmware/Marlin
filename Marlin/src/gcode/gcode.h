@@ -723,7 +723,7 @@ private:
   #if ENABLED(SDSUPPORT)
     static void M524();
   #endif
-    
+
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     static void M540();
   #endif

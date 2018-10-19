@@ -972,7 +972,7 @@ void loop() {
 
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
-    
+
       if (card.abort_sd_printing) {
         card.stopSDPrint(
           #if SD_RESORT
