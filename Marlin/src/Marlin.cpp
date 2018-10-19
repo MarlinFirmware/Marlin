@@ -610,11 +610,12 @@ void idle(
  * After this the machine will need to be reset.
  */
 void kill(PGM_P const lcd_msg/*=NULL*/) {
-  SERIAL_ERROR_START();
-  SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
   thermalManager.disable_all_heaters();
   disable_all_steppers();
+
+  SERIAL_ERROR_START();
+  SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
   #if ENABLED(EXTENSIBLE_UI)
     UI::onPrinterKilled(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
@@ -633,9 +634,9 @@ void kill(PGM_P const lcd_msg/*=NULL*/) {
 
 void minkill() {
 
-  _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
-  cli(); // Stop interrupts
-  _delay_ms(250); // Wait to ensure all interrupts stopped
+  _delay_ms(600);  // Wait a short time (allows messages to get out before shutting down.
+  cli();           // Stop interrupts
+  _delay_ms(250);  // Wait to ensure all interrupts stopped
 
   thermalManager.disable_all_heaters(); // turn off heaters again
 
