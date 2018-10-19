@@ -472,7 +472,7 @@ namespace UI {
   void stopPrint() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
-      abort_sd_printing = true;
+      card.abort_sd_printing = true;
       UI::onStatusChanged(PSTR(MSG_PRINT_ABORTED));
     #endif
   }

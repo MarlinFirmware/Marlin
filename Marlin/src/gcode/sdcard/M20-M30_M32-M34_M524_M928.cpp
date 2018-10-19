@@ -248,7 +248,7 @@ void GcodeSuite::M32() {
  * M524: Abort the current SD print job (started with M24)
  */
 void GcodeSuite::M524() {
-  if (IS_SD_PRINTING()) abort_sd_printing = true;
+  if (IS_SD_PRINTING()) card.abort_sd_printing = true;
 }
 
 /**

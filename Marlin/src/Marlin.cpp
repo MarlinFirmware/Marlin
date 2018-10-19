@@ -103,7 +103,6 @@
 
 #if ENABLED(SDSUPPORT)
   CardReader card;
-  bool abort_sd_printing = false;
 #endif
 
 #if ENABLED(G38_PROBE_TARGET)
@@ -974,8 +973,7 @@ void loop() {
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
     
-      if (abort_sd_printing) {
-        abort_sd_printing = false;
+      if (card.abort_sd_printing) {
         card.stopSDPrint(
           #if SD_RESORT
             true
