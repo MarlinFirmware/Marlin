@@ -278,17 +278,15 @@ void Endstops::enable(const bool onoff) {
 void Endstops::not_homing() {
   enabled = enabled_globally;
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    // Still 'enabled'? Then endstops are always on and kept in sync.
-    // Otherwise reset 'live's variables to let axes move in both directions.
-    if (!enabled) {
-      #if ENDSTOP_NOISE_THRESHOLD
-        endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
-        validated_live_state = 0;
-      #endif
-      live_state = 0;
-    }
-  #endif
+  // Still 'enabled'? Then endstops are always on and kept in sync.
+  // Otherwise reset 'live's variables to let axes move in both directions.
+  if (!enabled) {
+    #if ENDSTOP_NOISE_THRESHOLD
+      endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
+      validated_live_state = 0;
+    #endif
+    live_state = 0;
+  }
 }
 
 #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
