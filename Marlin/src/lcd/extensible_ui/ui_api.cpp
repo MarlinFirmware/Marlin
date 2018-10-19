@@ -433,7 +433,7 @@ namespace UI {
   }
 
   bool isPrinting() {
-    return (planner.movesplanned() || IS_SD_PRINTING ||
+    return (planner.movesplanned() || IS_SD_PRINTING() ||
       #if ENABLED(SDSUPPORT)
         (card.cardOK && card.isFileOpen())
       #else
@@ -444,7 +444,7 @@ namespace UI {
 
   bool isMediaInserted() {
     #if ENABLED(SDSUPPORT)
-      return IS_SD_INSERTED && card.cardOK;
+      return IS_SD_INSERTED() && card.cardOK;
     #else
       return false;
     #endif
@@ -583,7 +583,7 @@ void lcd_init() {
 void lcd_update() {
   #if ENABLED(SDSUPPORT)
     static bool last_sd_status;
-    const bool sd_status = IS_SD_INSERTED;
+    const bool sd_status = IS_SD_INSERTED();
     if (sd_status != last_sd_status) {
       last_sd_status = sd_status;
       if (sd_status) {

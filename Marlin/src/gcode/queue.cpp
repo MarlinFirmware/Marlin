@@ -450,7 +450,7 @@ inline void get_serial_commands() {
                 #endif
               ;
 
-    if (!IS_SD_PRINTING) return;
+    if (!IS_SD_PRINTING()) return;
 
     /**
      * '#' stops reading from SD to the buffer prematurely, so procedural

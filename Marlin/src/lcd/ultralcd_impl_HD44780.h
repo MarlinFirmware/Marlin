@@ -571,7 +571,7 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
   FORCE_INLINE void _draw_print_progress() {
     const uint8_t percent = (
       #if ENABLED(SDSUPPORT)
-        IS_SD_PRINTING ? card.percentDone() : 0
+        IS_SD_PRINTING() ? card.percentDone() : 0
       #else
         progress_bar_percent
       #endif

@@ -509,7 +509,7 @@ millis_t next_lcd_update_ms;
     return click;
   }
 
-  inline bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING; }
+  inline bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING(); }
 
   void lcd_move_z();
   float move_menu_scale;
@@ -689,7 +689,7 @@ void lcd_status_screen() {
 
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
     // Progress bar % comes from SD when actively printing
-    if (IS_SD_PRINTING)
+    if (IS_SD_PRINTING())
       progress_bar_percent = card.percentDone();
   #endif
 
@@ -5462,7 +5462,7 @@ void lcd_update() {
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 
-    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED;
+    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
     if (sd_status != lcd_sd_status && lcd_detected()) {
 
       uint8_t old_sd_status = lcd_sd_status; // prevent re-entry to this block!
