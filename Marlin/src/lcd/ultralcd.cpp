@@ -4032,7 +4032,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       // M205 - Max Jerk
       MENU_ITEM(submenu, MSG_JERK, lcd_advanced_jerk_menu);
 
-      if (!printer_busy) {
+      if (!printer_busy()) {
         // M92 - Steps Per mm
         MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_advanced_steps_per_mm_menu);
       }
