@@ -81,13 +81,8 @@
   #include "../module/probe.h"
 #endif
 
-#if ENABLED(FWRETRACT)
-  #include "../feature/fwretract.h"
-#endif
-
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "../feature/pause.h"
-#endif
+#include "../feature/fwretract.h"
+#include "../feature/pause.h"
 
 #if EXTRUDERS > 1
   #include "tool_change.h"

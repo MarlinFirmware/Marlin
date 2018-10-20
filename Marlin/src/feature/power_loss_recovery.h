@@ -28,7 +28,7 @@
 #define _POWER_LOSS_RECOVERY_H_
 
 #include "../sd/cardreader.h"
-#include "../core/types.h"
+#include "../core/millis_t.h"
 #include "../inc/MarlinConfigPre.h"
 
 #define SAVE_INFO_INTERVAL_MS 0
