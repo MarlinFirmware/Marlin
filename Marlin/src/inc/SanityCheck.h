@@ -309,6 +309,16 @@
   #error "MAX7219_DEBUG_STEPPER_QUEUE is now MAX7219_DEBUG_PLANNER_QUEUE. Please update your configuration."
 #elif defined(ENDSTOP_NOISE_FILTER)
   #error "ENDSTOP_NOISE_FILTER is now ENDSTOP_NOISE_THRESHOLD [2-7]. Please update your configuration."
+#elif defined(RETRACT_ZLIFT)
+  #error "RETRACT_ZLIFT is now RETRACT_ZRAISE. Please update your Configuration_adv.h."
+#elif defined(TOOLCHANGE_PARK_ZLIFT) || defined(TOOLCHANGE_UNPARK_ZLIFT)
+  #error "TOOLCHANGE_PARK_ZLIFT and TOOLCHANGE_UNPARK_ZLIFT are now TOOLCHANGE_ZRAISE. Please update your configuration."
+#elif defined(SINGLENOZZLE_TOOLCHANGE_ZRAISE)
+  #error "SINGLENOZZLE_TOOLCHANGE_ZRAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
+#elif defined(PARKING_EXTRUDER_SECURITY_RAISE)
+  #error "PARKING_EXTRUDER_SECURITY_RAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
+#elif defined(SWITCHING_TOOLHEAD_SECURITY_RAISE)
+  #error "SWITCHING_TOOLHEAD_SECURITY_RAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
 #endif
 
 #define BOARD_MKS_13     -47
@@ -440,6 +450,17 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #error "Enable only one of ENDSTOPPULLUP_Y_MIN or ENDSTOPPULLDOWN_Y_MIN."
 #elif ENABLED(ENDSTOPPULLUP_ZMIN) && ENABLED(ENDSTOPPULLDOWN_ZMIN)
   #error "Enable only one of ENDSTOPPULLUP_Z_MIN or ENDSTOPPULLDOWN_Z_MIN."
+#endif
+
+/**
+ * LCD Info Screen Style
+ */
+#if LCD_INFO_SCREEN_STYLE > 0
+  #if ENABLED(DOGLCD) || LCD_WIDTH < 20 || LCD_HEIGHT < 4
+    #error "Alternative LCD_INFO_SCREEN_STYLE requires 20x4 Character LCD."
+  #elif LCD_INFO_SCREEN_STYLE > 1
+    #error "LCD_INFO_SCREEN_STYLE only has options 0 and 1 at this time."
+  #endif
 #endif
 
 /**
@@ -617,8 +638,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
         #error "SINGLENOZZLE_SWAP_PARK requires SINGLENOZZLE_PARK_XY_FEEDRATE. Please update your Configuration."
       #endif
     #else
-      #ifndef SINGLENOZZLE_TOOLCHANGE_ZRAISE
-        #error "SINGLENOZZLE requires SINGLENOZZLE_TOOLCHANGE_ZRAISE. Please update your Configuration."
+      #ifndef TOOLCHANGE_ZRAISE
+        #error "SINGLENOZZLE requires TOOLCHANGE_ZRAISE. Please update your Configuration."
       #endif
     #endif
   #endif
@@ -734,10 +755,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "PARKING_EXTRUDER requires SOL0_PIN and SOL1_PIN."
   #elif !defined(PARKING_EXTRUDER_PARKING_X)
     #error "PARKING_EXTRUDER requires PARKING_EXTRUDER_PARKING_X."
-  #elif !defined(PARKING_EXTRUDER_SECURITY_RAISE)
-    #error "PARKING_EXTRUDER requires PARKING_EXTRUDER_SECURITY_RAISE."
-  #elif PARKING_EXTRUDER_SECURITY_RAISE < 0
-    #error "PARKING_EXTRUDER_SECURITY_RAISE must be 0 or higher."
+  #elif !defined(TOOLCHANGE_ZRAISE)
+    #error "PARKING_EXTRUDER requires TOOLCHANGE_ZRAISE."
+  #elif TOOLCHANGE_ZRAISE < 0
+    #error "TOOLCHANGE_ZRAISE must be 0 or higher."
   #elif !defined(PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE, LOW, HIGH)
     #error "PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE must be defined as HIGH or LOW."
   #elif !defined(PARKING_EXTRUDER_SOLENOIDS_DELAY) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_DELAY, 0, 2000)
@@ -769,10 +790,10 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #elif SWITCHING_TOOLHEAD_SERVO_NR == 3
       #error "A SWITCHING_TOOLHEAD_SERVO_NR of 3 requires NUM_SERVOS >= 4."
     #endif
-  #elif !defined(SWITCHING_TOOLHEAD_SECURITY_RAISE)
-    #error "SWITCHING_TOOLHEAD requires SWITCHING_TOOLHEAD_SECURITY_RAISE."
-  #elif SWITCHING_TOOLHEAD_SECURITY_RAISE < 0
-    #error "SWITCHING_TOOLHEAD _SECURITY_RAISE must be 0 or higher."
+  #elif !defined(TOOLCHANGE_ZRAISE)
+    #error "SWITCHING_TOOLHEAD requires TOOLCHANGE_ZRAISE."
+  #elif TOOLCHANGE_ZRAISE < 0
+    #error "TOOLCHANGE_ZRAISE must be 0 or higher."
   #endif
 #endif
 
@@ -1222,6 +1243,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #elif E3_AUTO_FAN_PIN == CONTROLLER_FAN_PIN
     #error "You cannot set E3_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
   #endif
+#endif
+
+/**
+ * Test case light not using the same pin as the fan
+ */
+#if ENABLED(CASE_LIGHT_ENABLE) && CASE_LIGHT_PIN == FAN_PIN
+  #error "You cannot set CASE_LIGHT_PIN equal to FAN_PIN."
 #endif
 
 /**

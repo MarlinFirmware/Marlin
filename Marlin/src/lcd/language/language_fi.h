@@ -148,7 +148,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Vedä mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Va. Vedä mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Vedä V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Z mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Z mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Va. UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")

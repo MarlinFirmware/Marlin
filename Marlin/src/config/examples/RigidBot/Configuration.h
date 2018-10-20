@@ -164,7 +164,6 @@
   #define SINGLENOZZLE_SWAP_RETRACT_SPEED 3600  // (mm/m)
   #define SINGLENOZZLE_SWAP_PRIME_SPEED   3600  // (mm/m)
   //#define SINGLENOZZLE_SWAP_PARK
-  #define SINGLENOZZLE_TOOLCHANGE_ZRAISE     2  // (mm)
   #if ENABLED(SINGLENOZZLE_SWAP_PARK)
     #define SINGLENOZZLE_TOOLCHANGE_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
     #define SINGLENOZZLE_PARK_XY_FEEDRATE 6000  // (mm/m)
@@ -218,7 +217,6 @@
   #define PARKING_EXTRUDER_SOLENOIDS_DELAY 250        // Delay (ms) for magnetic field. No delay if 0 or not defined.
   #define PARKING_EXTRUDER_PARKING_X { -78, 184 }     // X positions for parking the extruders
   #define PARKING_EXTRUDER_GRAB_DISTANCE 1            // mm to move beyond the parking point to grab the extruder
-  #define PARKING_EXTRUDER_SECURITY_RAISE 5           // Z-raise before parking
   //#define MANUAL_SOLENOID_CONTROL                   // Manual control of docking solenoids with M380 S / M381
 #endif
 
@@ -236,7 +234,6 @@
   #define SWITCHING_TOOLHEAD_Y_SECURITY    10         // (mm) Security distance Y axis
   #define SWITCHING_TOOLHEAD_Y_CLEAR       60         // (mm) Minimum distance from dock for unobstructed X axis
   #define SWITCHING_TOOLHEAD_X_POS        { 215, 0 }  // (mm) X positions for parking the extruders
-  #define SWITCHING_TOOLHEAD_SECURITY_RAISE 5         // (mm) Z-raise before parking
 #endif
 
 /**
@@ -940,6 +937,9 @@
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 254  // RigidBot regular and Big are 254mm
 
+// Z raise distance for tool-change, as needed for some extruders
+#define TOOLCHANGE_ZRAISE     2  // (mm)
+
 /**
  * Software Endstops
  *
@@ -1483,6 +1483,13 @@
  * :['JAPANESE', 'WESTERN', 'CYRILLIC']
  */
 #define DISPLAY_CHARSET_HD44780 JAPANESE
+
+/**
+ * Info Screen Style (0:Classic, 1:Prusa)
+ *
+ * :[0:'Classic', 1:'Prusa']
+ */
+#define LCD_INFO_SCREEN_STYLE 0
 
 /**
  * SD CARD

@@ -158,7 +158,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retraer mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Swap Retraer mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retraer  F")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Devantar mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Devantar mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("DesRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Swap DesRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("DesRet F")

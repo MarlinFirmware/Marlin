@@ -1412,7 +1412,7 @@ void Stepper::stepper_pulse_phase_isr() {
         #endif
       }
     #else // !LIN_ADVANCE && !MIXING_EXTRUDER
-      #if HAS_E_STEP
+      #if HAS_E0_STEP
         PULSE_START(E);
       #endif
     #endif
@@ -1443,7 +1443,9 @@ void Stepper::stepper_pulse_phase_isr() {
           E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
         }
       #else // !MIXING_EXTRUDER
-        PULSE_STOP(E);
+        #if HAS_E0_STEP
+          PULSE_STOP(E);
+        #endif
       #endif
     #endif // !LIN_ADVANCE
 

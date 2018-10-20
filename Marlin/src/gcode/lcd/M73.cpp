@@ -38,7 +38,7 @@
  *   This has no effect during an SD print job
  */
 void GcodeSuite::M73() {
-  if (!IS_SD_PRINTING && parser.seen('P')) {
+  if (!IS_SD_PRINTING() && parser.seen('P')) {
     progress_bar_percent = parser.value_byte();
     NOMORE(progress_bar_percent, 100);
   }

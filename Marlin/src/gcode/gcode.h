@@ -202,6 +202,7 @@
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
+ * M524 - Abort the current SD print job (started with M24)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
@@ -612,7 +613,7 @@ private:
 
   static void M211();
 
-  #if ENABLED(SINGLENOZZLE)
+  #if EXTRUDERS > 1
     static void M217();
   #endif
 
@@ -717,6 +718,10 @@ private:
   #endif
   #if ENABLED(EEPROM_SETTINGS)
     static void M504();
+  #endif
+
+  #if ENABLED(SDSUPPORT)
+    static void M524();
   #endif
 
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)

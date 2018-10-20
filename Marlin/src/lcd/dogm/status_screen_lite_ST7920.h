@@ -885,7 +885,7 @@ void ST7920_Lite_Status_Screen::update_progress(const bool forceUpdate) {
 
     #if ENABLED(SDSUPPORT)
       // Progress bar % comes from SD when actively printing
-      if (IS_SD_PRINTING) progress_bar_percent = card.percentDone();
+      if (IS_SD_PRINTING()) progress_bar_percent = card.percentDone();
     #endif
 
     // Since the progress bar involves writing
@@ -947,7 +947,7 @@ void ST7920_Lite_Status_Screen::clear_text_buffer() {
   ncs();
 }
 
-static void lcd_implementation_status_screen() {
+static void lcd_impl_status_screen_0() {
   ST7920_Lite_Status_Screen::update(false);
 }
 

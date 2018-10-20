@@ -42,6 +42,8 @@
 #include "module/printcounter.h" // PrintCounter or Stopwatch
 #include "feature/closedloop.h"
 
+#include "HAL/shared/Delay.h"
+
 #ifdef ARDUINO
   #include <pins_arduino.h>
 #endif
@@ -351,7 +353,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
   if (max_inactive_time && ELAPSED(ms, gcode.previous_move_ms + max_inactive_time)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(MSG_KILL_INACTIVE_TIME, parser.command_ptr);
-    kill(PSTR(MSG_KILLED));
+    kill();
   }
 
   // Prevent steppers timing-out in the middle of M600
@@ -408,7 +410,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     if (killCount >= KILL_DELAY) {
       SERIAL_ERROR_START();
       SERIAL_ERRORLNPGM(MSG_KILL_BUTTON);
-      kill(PSTR(MSG_KILLED));
+      kill();
     }
   #endif
 
@@ -417,7 +419,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     // ---------------------------------------------------------
     static int homeDebounceCount = 0;   // poor man's debouncing count
     const int HOME_DEBOUNCE_DELAY = 2500;
-    if (!IS_SD_PRINTING && !READ(HOME_PIN)) {
+    if (!IS_SD_PRINTING() && !READ(HOME_PIN)) {
       if (!homeDebounceCount) {
         enqueue_and_echo_commands_P(PSTR("G28"));
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
@@ -609,30 +611,38 @@ void idle(
  * Kill all activity and lock the machine.
  * After this the machine will need to be reset.
  */
-void kill(PGM_P lcd_msg) {
+void kill(PGM_P const lcd_msg/*=NULL*/) {
+  thermalManager.disable_all_heaters();
+
   SERIAL_ERROR_START();
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
-  thermalManager.disable_all_heaters();
-  disable_all_steppers();
-
   #if ENABLED(EXTENSIBLE_UI)
-    UI::onPrinterKilled(lcd_msg);
+    UI::onPrinterKilled(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
   #elif ENABLED(ULTRA_LCD)
-    kill_screen(lcd_msg);
+    kill_screen(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
   #else
     UNUSED(lcd_msg);
   #endif
 
-  _delay_ms(600); // Wait a short time (allows messages to get out before shutting down.
-  cli(); // Stop interrupts
-
-  _delay_ms(250); //Wait to ensure all interrupts routines stopped
-  thermalManager.disable_all_heaters(); //turn off heaters again
-
   #ifdef ACTION_ON_KILL
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_KILL);
   #endif
+
+  minkill();
+}
+
+void minkill() {
+
+  // Wait a short time (allows messages to get out before shutting down.
+  DELAY_US(600000);
+
+  cli(); // Stop interrupts
+
+  // Wait to ensure all interrupts stopped
+  DELAY_US(250000);
+
+  thermalManager.disable_all_heaters(); // turn off heaters again
 
   #if HAS_POWER_SWITCH
     PSU_OFF();
@@ -655,6 +665,7 @@ void kill(PGM_P lcd_msg) {
  */
 void stop() {
   thermalManager.disable_all_heaters(); // 'unpause' taken care of in here
+  print_job_timer.stop();
 
   #if ENABLED(PROBING_FANS_OFF)
     if (fans_paused) fans_pause(false); // put things back the way they were
@@ -965,11 +976,8 @@ void loop() {
 
     #if ENABLED(SDSUPPORT)
       card.checkautostart();
-    #endif
 
-    #if ENABLED(SDSUPPORT) && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
-      if (abort_sd_printing) {
-        abort_sd_printing = false;
+      if (card.abort_sd_printing) {
         card.stopSDPrint(
           #if SD_RESORT
             true
@@ -979,15 +987,13 @@ void loop() {
         quickstop_stepper();
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
-        #if FAN_COUNT > 0
-          for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
-        #endif
+        zero_fan_speeds();
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
           card.removeJobRecoveryFile();
         #endif
       }
-    #endif // SDSUPPORT && (ENABLED(ULTIPANEL) || ENABLED(EXTENSIBLE_UI))
+    #endif // SDSUPPORT
 
     if (commands_in_queue < BUFSIZE) get_available_commands();
     advance_command_queue();

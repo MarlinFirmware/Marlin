@@ -23,6 +23,7 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 #include "../../module/stepper.h"
+#include "../../module/printcounter.h" // for print_job_timer
 
 #include "../../inc/MarlinConfig.h"
 
@@ -95,10 +96,11 @@
  */
 void GcodeSuite::M81() {
   thermalManager.disable_all_heaters();
+  print_job_timer.stop();
   planner.finish_and_disable();
 
   #if FAN_COUNT > 0
-    for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
+    zero_fan_speeds();
     #if ENABLED(PROBING_FANS_OFF)
       fans_paused = false;
       ZERO(paused_fan_speed);

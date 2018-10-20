@@ -63,9 +63,8 @@ void watchdog_init() {
   ISR(WDT_vect) {
     sei();  // With the interrupt driven serial we need to allow interrupts.
     SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM("Watchdog barked, please turn off the printer.");
-    kill(PSTR("ERR:Watchdog")); //kill blocks //up to 16 characters so it fits on a 16x2 display
-    while (1); //wait for user or serial reset
+    SERIAL_ERRORLNPGM(MSG_WATCHDOG_FIRED);
+    minkill();  // interrupt-safe final kill and infinite loop
   }
 #endif // WATCHDOG_RESET_MANUAL
 

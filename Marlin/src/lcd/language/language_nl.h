@@ -166,7 +166,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retract mm")  //accepted English term in Dutch
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Ruil Retract mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retract  F")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Hop mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Ruil UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  F")

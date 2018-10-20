@@ -268,7 +268,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retrakt mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Výměna Re.mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retraktovat  V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Zvednuti Z mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Zvednuti Z mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")

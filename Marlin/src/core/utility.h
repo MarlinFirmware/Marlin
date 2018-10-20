@@ -45,7 +45,7 @@ void safe_delay(millis_t ms);
   FORCE_INLINE bool is_bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
 #endif
 
-#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE)
+#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(EXTENSIBLE_UI)
 
   // Convert uint8_t to string with 123 format
   char* i8tostr3(const uint8_t x);

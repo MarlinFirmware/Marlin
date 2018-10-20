@@ -35,15 +35,14 @@
 #endif
 
 //
-//  Set CPU
+// LED
 //
-#undef F_CPU
-#define F_CPU 120000000
+#define LED_PIN             P1_18
 
 //
 // Servo
 //
-#define SERVO0_PIN         P1_23
+#define SERVO0_PIN         P1_29
 
 //
 // Limit Switches
@@ -163,11 +162,6 @@
       #define DOGLCD_CS    P0_16   // (16)
     #endif
 
-    //#define MISO_PIN     P0_17   // (50)  system defined J3-10 & AUX-3
-    //#define MOSI_PIN     P0_18   // (51)  system defined J3-10 & AUX-3
-    //#define SCK_PIN      P0_15   // (52)  system defined J3-9 & AUX-3
-    //#define SS_PIN       P1_23   // (53)  system defined J3-5 & AUX-3 - sometimes called SDSS
-
     #if ENABLED(MINIPANEL)
       // GLCD features
       //#define LCD_CONTRAST   190
@@ -180,3 +174,36 @@
   #endif
 
 #endif // ULTRA_LCD
+
+//
+// SD Support
+//
+//#define USB_SD_DISABLED     // Disable host access to SD card as mass storage device through USB
+//#define USB_SD_ONBOARD      // Enable host access to SD card as mass storage device through USB
+
+//#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
+#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board.  There is no SD detect pin
+                              // for the onboard card.  Init card from LCD menu or send M21 whenever printer
+                              // is powered on to enable SD access.
+
+#if ENABLED(LPC_SD_LCD)
+  #define SCK_PIN            P0_15
+  #define MISO_PIN           P0_17
+  #define MOSI_PIN           P0_18
+  #define SS_PIN             P1_23   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
+#endif
+
+#if ENABLED(LPC_SD_ONBOARD)
+  #if ENABLED(USB_SD_ONBOARD)
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    #define SHARED_SD_CARD
+    #undef SD_DETECT_PIN // there is also no detect pin for the onboard card
+  #endif
+  #define SCK_PIN            P0_07
+  #define MISO_PIN           P0_08
+  #define MOSI_PIN           P0_09
+  #define SS_PIN             P0_06   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
+#endif

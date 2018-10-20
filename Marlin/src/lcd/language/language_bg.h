@@ -127,7 +127,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Откат mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Смяна Откат mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Откат  V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Скок mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Скок mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Възврат mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Смяна Възврат mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Възврат  V")
