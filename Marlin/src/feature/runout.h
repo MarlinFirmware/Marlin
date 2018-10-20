@@ -167,6 +167,10 @@ class FilamentSensorTypeSwitch : public FilamentSensorTypeBase {
         return runout_bits;                     // A single sensor applying to all extruders
       #else
         #if ENABLED(DUAL_X_CARRIAGE)
+          if (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE)
+            return runout_bits;                 // Any extruder
+          else
+        #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
           if (extruder_duplication_enabled)
             return runout_bits;                 // Any extruder
           else
