@@ -635,12 +635,12 @@ void kill(PGM_P const lcd_msg/*=NULL*/) {
 void minkill() {
 
   // Wait a short time (allows messages to get out before shutting down.
-  DELAY_US(600000);
+  for (uint8_t i = 100; i--;) DELAY_US(6000);
 
   cli(); // Stop interrupts
 
   // Wait to ensure all interrupts stopped
-  DELAY_US(250000);
+  for (uint8_t i = 100; i--;) DELAY_US(2500);
 
   thermalManager.disable_all_heaters(); // turn off heaters again
 
