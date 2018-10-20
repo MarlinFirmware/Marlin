@@ -37,6 +37,9 @@
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
   #include "../../feature/emergency_parser.h"
+  #define IFSD(A,B) (A)
+#else
+  #define IFSD(A,B) (B)
 #endif
 
 #if ENABLED(PRINTCOUNTER)
@@ -352,11 +355,7 @@ namespace UI {
   #endif
 
   uint8_t getProgress_percent() {
-    #if ENABLED(SDSUPPORT)
-      return card.percentDone();
-    #else
-      return 0;
-    #endif
+    return IFSD(card.percentDone(), 0);
   }
 
   uint32_t getProgress_seconds_elapsed() {
@@ -415,35 +414,23 @@ namespace UI {
   }
 
   void printFile(const char *filename) {
-    #if ENABLED(SDSUPPORT)
-      card.openAndPrintFile(filename);
-    #endif
+    IFSD(card.openAndPrintFile(filename), NOOP);
+  }
+
+  bool isPrintingFromMediaPaused() {
+    return IFSD(isPrintingFromMedia() && !card.sdprinting, false);
   }
 
   bool isPrintingFromMedia() {
-    #if ENABLED(SDSUPPORT)
-      return card.cardOK && card.isFileOpen() && card.sdprinting;
-    #else
-      return false;
-    #endif
+    return IFSD(card.cardOK && card.isFileOpen(), false);
   }
 
   bool isPrinting() {
-    return (planner.movesplanned() || IS_SD_PRINTING() ||
-      #if ENABLED(SDSUPPORT)
-        (card.cardOK && card.isFileOpen())
-      #else
-        false
-      #endif
-    );
+    return (planner.movesplanned() || IS_SD_PRINTING() || isPrintingFromMedia());
   }
 
   bool isMediaInserted() {
-    #if ENABLED(SDSUPPORT)
-      return IS_SD_INSERTED() && card.cardOK;
-    #else
-      return false;
-    #endif
+    return IFSD(IS_SD_INSERTED() && card.cardOK, false);
   }
 
   void pausePrint() {
@@ -504,42 +491,23 @@ namespace UI {
   }
 
   const char* FileList::filename() {
-    #if ENABLED(SDSUPPORT)
-      return (card.longFilename && card.longFilename[0]) ? card.longFilename : card.filename;
-    #else
-      return "";
-    #endif
+    return IFSD(card.longFilename && card.longFilename[0]) ? card.longFilename : card.filename, "");
   }
 
   const char* FileList::shortFilename() {
-    #if ENABLED(SDSUPPORT)
-      return card.filename;
-    #else
-      return "";
-    #endif
+    return IFSD(card.filename, "");
   }
 
   const char* FileList::longFilename() {
-    #if ENABLED(SDSUPPORT)
-      return card.longFilename;
-    #else
-      return "";
-    #endif
+    return IFSD(card.longFilename, "");
   }
 
   bool FileList::isDir() {
-    #if ENABLED(SDSUPPORT)
-      return card.filenameIsDir;
-    #else
-      return false;
-    #endif
+    return IFSD(card.filenameIsDir, false);
   }
 
   uint16_t FileList::count() {
-    #if ENABLED(SDSUPPORT)
-      if (num_files == 0xFFFF) num_files = card.get_num_Files();
-      return num_files;
-    #endif
+    return IFSD((num_files = (num_files == 0xFFFF ? card.get_num_Files() : num_files)), 0);
   }
 
   bool FileList::isAtRootDir() {
