@@ -28,19 +28,50 @@
   #define BOARD_NAME "Anycubic RAMPS 1.4"
 #endif
 
-#define IS_RAMPS_EEB          // Board supports 2 hotends and one heated bed
+// LABELED PINS
+#define TRIGORILLA_HEATBED_PIN      8   // HEATBED
+#define TRIGORILLA_HEATER0_PIN     10   // HEATER 0
+#define TRIGORILLA_HEATER1_PIN     45   // HEATER 1, unused on Anycubic Kossel Deltas
 
-#define RAMPS_D8_PIN      8   // HEATBED
-#define RAMPS_D10_PIN    10   // HEATER 0
-#define RAMPS_D9_PIN     45   // HEATER 1
+#define TRIGORILLA_FAN0_PIN          9   // on Anycubic Kossel Delta devices usually the part cooling fan
+#define TRIGORILLA_FAN1_PIN          7   // unused on Anycubic Kossel Deltas
+#define TRIGORILLA_FAN2_PIN         44   // Hotend Fan on Anycubic Kossel Deltas
+// END LABELED PINS
 
-#define FAN0_PIN          9   // on Anycubic Delta devices usually the part cooling fan
-#define FAN1_PIN          7   // unused on Anycubic Deltas
-#define FAN2_PIN         44   // Hotend Fan on Anycubic Deltas
+#define ORIG_E0_AUTO_FAN_PIN TRIGORILLA_FAN2_PIN // used in Anycubic Kossel example config
 
-#define ORIG_E0_AUTO_FAN_PIN FAN2_PIN
+// Remap MOSFET pins to common usages:
 
-#define FAN_PIN FAN0_PIN 
+#define RAMPS_D10_PIN    TRIGORILLA_HEATER0_PIN // HEATER_0_PIN is always RAMPS_D10_PIN in pins_RAMPS.h
+
+#if HOTENDS > 1
+  #if !TEMP_SENSOR_BED
+    // EEF
+    #define RAMPS_D9_PIN TRIGORILLA_HEATER1_PIN
+    #define RAMPS_D8_PIN TRIGORILLA_FAN0_PIN
+  #else
+    // EEB
+    #define RAMPS_D8_PIN TRIGORILLA_HEATBED_PIN
+    #define RAMPS_D9_PIN TRIGORILLA_HEATER1_PIN
+    #define FAN_PIN      TRIGORILLA_FAN0_PIN    // overriding definition of pin 4 in pins_RAMPS.h
+  #endif
+  // additional FAN PINs for EEF and EEB
+  #define FAN1_PIN       TRIGORILLA_FAN1_PIN 
+  #define FAN2_PIN       TRIGORILLA_FAN2_PIN
+#elif TEMP_SENSOR_BED
+  // EFB - default setup for the Anycubic Kossel Deltas
+  #define RAMPS_D8_PIN   TRIGORILLA_HEATBED_PIN
+  #define RAMPS_D9_PIN   TRIGORILLA_FAN0_PIN
+  // additional FAN PINs
+  #define FAN1_PIN       TRIGORILLA_FAN1_PIN 
+  #define FAN2_PIN       TRIGORILLA_FAN2_PIN
+#else
+  // EFF
+  #define RAMPS_D8_PIN   TRIGORILLA_FAN0_PIN
+  #define RAMPS_D9_PIN   TRIGORILLA_FAN1_PIN
+  // additional FAN PIN
+  #define FAN2_PIN       TRIGORILLA_FAN2_PIN
+#endif
 
 #include "pins_RAMPS.h"
 
