@@ -180,7 +180,8 @@ void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
 void disable_all_steppers();
 
-void kill(PGM_P);
+void kill(PGM_P const lcd_msg=NULL);
+void minkill();
 
 void quickstop_stepper();
 
@@ -217,6 +218,12 @@ extern millis_t max_inactive_time, stepper_inactive_time;
     extern uint8_t paused_fan_speed[FAN_COUNT];
   #endif
 #endif
+
+inline void zero_fan_speeds() {
+  #if FAN_COUNT > 0
+    LOOP_L_N(i, FAN_COUNT) fan_speed[i] = 0;
+  #endif
+}
 
 #if ENABLED(USE_CONTROLLER_FAN)
   extern uint8_t controllerfan_speed;

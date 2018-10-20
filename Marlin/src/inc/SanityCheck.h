@@ -453,6 +453,17 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * LCD Info Screen Style
+ */
+#if LCD_INFO_SCREEN_STYLE > 0
+  #if ENABLED(DOGLCD) || LCD_WIDTH < 20 || LCD_HEIGHT < 4
+    #error "Alternative LCD_INFO_SCREEN_STYLE requires 20x4 Character LCD."
+  #elif LCD_INFO_SCREEN_STYLE > 1
+    #error "LCD_INFO_SCREEN_STYLE only has options 0 and 1 at this time."
+  #endif
+#endif
+
+/**
  * Progress Bar
  */
 #if ENABLED(LCD_PROGRESS_BAR)
@@ -1232,6 +1243,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #elif E3_AUTO_FAN_PIN == CONTROLLER_FAN_PIN
     #error "You cannot set E3_AUTO_FAN_PIN equal to CONTROLLER_FAN_PIN."
   #endif
+#endif
+
+/**
+ * Test case light not using the same pin as the fan
+ */
+#if ENABLED(CASE_LIGHT_ENABLE) && CASE_LIGHT_PIN == FAN_PIN
+  #error "You cannot set CASE_LIGHT_PIN equal to FAN_PIN."
 #endif
 
 /**

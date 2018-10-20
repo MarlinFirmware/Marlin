@@ -29,7 +29,7 @@
 
 #define EEPROM_EMULATED_WITH_SRAM // Emulate the EEPROM using Backup SRAM
 
-#if E_STEPPERS > 1 || HOTENDS > 1
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "RemRam supports only one hotend / E-stepper."
 #endif
 

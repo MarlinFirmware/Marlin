@@ -24,49 +24,22 @@
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
 
+#include "../../core/serial.h"
+
 #include "lib/Usb.h"
 #include "lib/masstorage.h"
 
 #include "Sd2Card_FlashDrive.h"
 
-#include <SPI.h>
-
-#include "../../core/serial.h"
-
 USB usb;
 BulkOnly bulk(&usb);
 
 Sd2Card::state_t Sd2Card::state;
-uint32_t         Sd2Card::block;
 
-bool Sd2Card::usbHostReady() {
-  return state == USB_HOST_INITIALIZED;
-}
-
-bool Sd2Card::isInserted() {
-  return usb.getUsbTaskState() == USB_STATE_RUNNING;
-}
-
-// Marlin calls this whenever an SD card is detected, so this method
-// should not be used to initialize the USB host library
-bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
-  if (!usbHostReady()) return false;
-
-  if (!bulk.LUNIsGood(0)) {
-    SERIAL_ECHOLNPGM("LUN zero is not good\n");
-    return false;
-  }
-
-  SERIAL_ECHOLNPAIR("LUN Capacity: ",bulk.GetCapacity(0));
-
-  const uint32_t sectorSize = bulk.GetSectorSize(0);
-  if (sectorSize != 512) {
-    SERIAL_ECHOLNPAIR("Expecting sector size of 512, got: ",sectorSize);
-    return false;
-  }
-
-  return true;
-}
+// The USB library needs to be called periodically to detect USB thumbdrive
+// insertion and removals. Call this idle() function periodically to allow
+// the USB library to monitor for such events. This function also takes care
+// of initializing the USB library for the first time.
 
 void Sd2Card::idle() {
   static uint32_t next_retry;
@@ -100,60 +73,84 @@ void Sd2Card::idle() {
 
       if (lastUsbTaskState == USB_STATE_RUNNING && newUsbTaskState != USB_STATE_RUNNING) {
         // the user pulled the flash drive. Make sure the bulk storage driver releases the address
-        SERIAL_ECHOLNPGM("Drive removed\n");
+        #ifdef USB_DEBUG
+          SERIAL_ECHOLNPGM("USB drive removed");
+        #endif
         //bulk.Release();
       }
-      if (lastUsbTaskState != USB_STATE_RUNNING && newUsbTaskState == USB_STATE_RUNNING)
-        SERIAL_ECHOLNPGM("Drive inserted\n");
+      if (lastUsbTaskState != USB_STATE_RUNNING && newUsbTaskState == USB_STATE_RUNNING) {
+        #ifdef USB_DEBUG
+          SERIAL_ECHOLNPGM("USB drive inserted");
+        #endif
+      }
       break;
   }
 }
 
-uint32_t Sd2Card::cardSize() {
-  if (!usbHostReady()) return 0;
-  return bulk.GetCapacity(0);
-}
+// Marlin calls this function to check whether an USB drive is inserted.
+// This is equivalent to polling the SD_DETECT when using SD cards.
+bool Sd2Card::isInserted() {
+  return usb.getUsbTaskState() == USB_STATE_RUNNING;
+};
 
-bool Sd2Card::readData(uint8_t* dst) {
-  return readBlock(block++, dst);
-}
+// Marlin calls this to initialize an SD card once it is inserted.
+bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
+  if (!ready()) return false;
 
-bool Sd2Card::readStart(uint32_t blockNumber) {
-  block = blockNumber;
+  if (!bulk.LUNIsGood(0)) {
+    SERIAL_ECHOLNPGM("LUN zero is not good");
+    return false;
+  }
+
+  const uint32_t sectorSize = bulk.GetSectorSize(0);
+  if (sectorSize != 512) {
+    SERIAL_ECHOLNPAIR("Expecting sector size of 512, got:", sectorSize);
+    return false;
+  }
+
+  #ifdef USB_DEBUG
+    lun0_capacity = bulk.GetCapacity(0);
+    SERIAL_ECHOLNPAIR("LUN Capacity (in blocks): ", lun0_capacity);
+  #endif
   return true;
 }
 
-bool Sd2Card::readStop() {
-  return usbHostReady();
+// Returns the capacity of the card in blocks.
+uint32_t Sd2Card::cardSize() {
+  if (!ready()) return 0;
+  #ifndef USB_DEBUG
+    const uint32_t
+  #endif
+  lun0_capacity = bulk.GetCapacity(0);
+  return lun0_capacity;
 }
 
 bool Sd2Card::readBlock(uint32_t block, uint8_t* dst) {
-  if (!usbHostReady()) {
-    SERIAL_ECHOLNPGM("Read from uninitalized USB host");
-    return false;
-  }
+  if (!ready()) return false;
+  #ifdef USB_DEBUG
+    if (block >= lun0_capacity) {
+      SERIAL_ECHOLNPAIR("Attempt to read past end of LUN: ", block);
+      return false;
+    }
+    #if USB_DEBUG > 1
+      SERIAL_ECHOLNPAIR("Read block ", block);
+    #endif
+  #endif
   return bulk.Read(0, block, 512, 1, dst) == 0;
 }
 
-bool Sd2Card::writeData(const uint8_t* src) {
-  return writeBlock(block++, src);
-}
-
-bool Sd2Card::writeStart(uint32_t blockNumber, uint32_t eraseCount) {
-  block = blockNumber;
-  return true;
-}
-
-bool Sd2Card::writeStop() {
-  return usbHostReady();
-}
-
-bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
-  if (!usbHostReady()) {
-    SERIAL_ECHOLNPGM("Write to uninitalized USB host");
-    return false;
-  }
-  return bulk.Write(0, blockNumber, 512, 1, src) == 0;
+bool Sd2Card::writeBlock(uint32_t block, const uint8_t* src) {
+  if (!ready()) return false;
+  #ifdef USB_DEBUG
+    if (block >= lun0_capacity) {
+      SERIAL_ECHOLNPAIR("Attempt to write past end of LUN: ", block);
+      return false;
+    }
+    #if USB_DEBUG > 1
+      SERIAL_ECHOLNPAIR("Write block ", block);
+    #endif
+  #endif
+  return bulk.Write(0, block, 512, 1, src) == 0;
 }
 
 #endif // USB_FLASH_DRIVE_SUPPORT

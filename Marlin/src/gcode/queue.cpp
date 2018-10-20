@@ -391,7 +391,7 @@ inline void get_serial_commands() {
               wait_for_user = false;
             #endif
           }
-          if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
+          if (strcmp(command, "M112") == 0) kill();
           if (strcmp(command, "M410") == 0) quickstop_stepper();
         #endif
 
@@ -450,7 +450,7 @@ inline void get_serial_commands() {
                 #endif
               ;
 
-    if (!IS_SD_PRINTING) return;
+    if (!IS_SD_PRINTING()) return;
 
     /**
      * '#' stops reading from SD to the buffer prematurely, so procedural

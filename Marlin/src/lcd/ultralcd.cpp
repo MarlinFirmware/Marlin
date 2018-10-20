@@ -509,7 +509,7 @@ millis_t next_lcd_update_ms;
     return click;
   }
 
-  inline bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING; }
+  inline bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING(); }
 
   void lcd_move_z();
   float move_menu_scale;
@@ -689,7 +689,7 @@ void lcd_status_screen() {
 
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
     // Progress bar % comes from SD when actively printing
-    if (IS_SD_PRINTING)
+    if (IS_SD_PRINTING())
       progress_bar_percent = card.percentDone();
   #endif
 
@@ -778,7 +778,11 @@ void lcd_status_screen() {
 
   #endif // ULTIPANEL
 
-  lcd_implementation_status_screen();
+  #if LCD_INFO_SCREEN_STYLE == 0
+    lcd_impl_status_screen_0();
+  #elif LCD_INFO_SCREEN_STYLE == 1
+    lcd_impl_status_screen_1();
+  #endif
 }
 
 /**
@@ -891,11 +895,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
       lcd_reset_status();
     }
 
-    bool abort_sd_printing; // =false
-
     void lcd_sdcard_stop() {
       wait_for_heatup = wait_for_user = false;
-      abort_sd_printing = true;
+      card.abort_sd_printing = true;
       lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
       lcd_return_to_status();
     }
@@ -1914,9 +1916,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   void lcd_cooldown() {
-    #if FAN_COUNT > 0
-      for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
-    #endif
+    zero_fan_speeds();
     thermalManager.disable_all_heaters();
     lcd_return_to_status();
   }
@@ -5460,7 +5460,7 @@ void lcd_update() {
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 
-    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED;
+    const uint8_t sd_status = (uint8_t)IS_SD_INSERTED();
     if (sd_status != lcd_sd_status && lcd_detected()) {
 
       uint8_t old_sd_status = lcd_sd_status; // prevent re-entry to this block!

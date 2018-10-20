@@ -42,7 +42,10 @@
 #define PIN_P0_03          P0_03   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
 */
 
-#define LED_PIN            P1_18   // LED2 P1_19, LED3 P1_20, LED4 P1_21
+#define LED_PIN            P1_18   // Used as a status indicator
+#define LED2_PIN           P1_19
+#define LED3_PIN           P1_20
+#define LED4_PIN           P1_21
 
 //
 // Servo pin

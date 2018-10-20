@@ -75,7 +75,7 @@ class TFilamentSensor : public FilamentSensorBase {
     }
 
     static void run() {
-      if (enabled && !filament_ran_out && (IS_SD_PRINTING || print_job_timer.isRunning())) {
+      if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning())) {
         response.run();
         sensor.run();
         if (response.has_runout()) {

@@ -37,7 +37,7 @@
 
 #include <Arduino.h>
 
-#define USEABLE_HARDWARE_PWM(pin) useable_hardware_PWM(pin)
+#define USEABLE_HARDWARE_PWM(pin) TRUE // all pins are PWM capable
 
 #define LPC_PIN(pin)            gpio_pin(pin)
 #define LPC_GPIO(port)          gpio_port(port)
