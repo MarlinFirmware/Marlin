@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V61"
+#define EEPROM_VERSION "V62"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -194,10 +194,8 @@ typedef struct SettingsDataStruct {
   #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
-          z2_endstop_adj;                               // M666 Z
-    #if ENABLED(Z_TRIPLE_ENDSTOPS)
-      float z3_endstop_adj;                             // M666 Z
-    #endif
+          z2_endstop_adj,                               // M666 Z (S2)
+          z3_endstop_adj;                               // M666 Z (S3)
   #endif
 
   //
@@ -270,7 +268,7 @@ typedef struct SettingsDataStruct {
   //
   // SINGLENOZZLE toolchange values
   //
-  #if ENABLED(SINGLENOZZLE)
+  #if EXTRUDERS > 1
     toolchange_settings_t toolchange_settings;                // M217 S P R
   #endif
 
@@ -620,6 +618,8 @@ void MarlinSettings::postprocess() {
 
       #if ENABLED(Z_TRIPLE_ENDSTOPS)
         EEPROM_WRITE(endstops.z3_endstop_adj);   // 1 float
+      #else
+        EEPROM_WRITE(dummy);
       #endif
 
     #endif
@@ -937,7 +937,7 @@ void MarlinSettings::postprocess() {
     // SINGLENOZZLE
     //
 
-    #if ENABLED(SINGLENOZZLE)
+    #if EXTRUDERS > 1
       _FIELD_TEST(toolchange_settings);
       EEPROM_WRITE(toolchange_settings);
     #endif
@@ -1221,6 +1221,8 @@ void MarlinSettings::postprocess() {
         #endif
         #if ENABLED(Z_TRIPLE_ENDSTOPS)
           EEPROM_READ(endstops.z3_endstop_adj); // 1 float
+        #else
+          EEPROM_READ(dummy);
         #endif
 
       #endif
@@ -1563,7 +1565,7 @@ void MarlinSettings::postprocess() {
       //
       // SINGLENOZZLE toolchange values
       //
-      #if ENABLED(SINGLENOZZLE)
+      #if EXTRUDERS > 1
         _FIELD_TEST(toolchange_settings);
         EEPROM_READ(toolchange_settings);
       #endif
@@ -1827,16 +1829,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if EXTRUDERS > 1
-    toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
-  #endif
-  
-  #if ENABLED(SINGLENOZZLE)
-    toolchange_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
-    toolchange_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
-    toolchange_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
-    #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-      toolchange_settings.change_point = SINGLENOZZLE_TOOLCHANGE_XY;
+    #if ENABLED(SINGLENOZZLE)
+      toolchange_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
+      toolchange_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
+      toolchange_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
+      #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+        toolchange_settings.change_point = SINGLENOZZLE_TOOLCHANGE_XY;
+      #endif
     #endif
+    toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
   #endif
 
   //
