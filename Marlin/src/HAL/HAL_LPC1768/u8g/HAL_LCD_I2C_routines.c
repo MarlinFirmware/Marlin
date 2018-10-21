@@ -157,8 +157,8 @@ uint8_t u8g_i2c_send_byte(uint8_t data) {
   LPC_I2C1->I2DAT = data & I2C_I2DAT_BITMASK; // transmit data
   LPC_I2C1->I2CONSET = I2C_I2CONSET_AA;
   LPC_I2C1->I2CONCLR = I2C_I2CONCLR_SIC;
-  millis_t timeout = _millis + I2C_TIMEOUT;
-  while ((I2C_status != I2C_I2STAT_M_TX_DAT_ACK) && (I2C_status != I2C_I2STAT_M_TX_DAT_NACK) && (timeout > _millis));  // wait for xmit to finish
+  const millis_t timeout = _millis + I2C_TIMEOUT;
+  while ((I2C_status != I2C_I2STAT_M_TX_DAT_ACK) && (I2C_status != I2C_I2STAT_M_TX_DAT_NACK) && PENDING(_millis, timeout));  // wait for xmit to finish
   // had hangs with SH1106 so added time out - have seen temporary screen corruption when this happens
   return 1;
 }
