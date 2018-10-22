@@ -1690,12 +1690,23 @@ uint32_t Stepper::stepper_block_phase_isr() {
       step_event_count = current_block->step_event_count << oversampling;
 
       // Initialize Bresenham delta errors to 1/2
-      delta_error[X_AXIS] = delta_error[Y_AXIS] = delta_error[Z_AXIS] = delta_error[E_AXIS] = -int32_t(step_event_count);
+      #if ENABLED(HANGPRINTER)
+        delta_error[A_AXIS] = delta_error[B_AXIS] = delta_error[C_AXIS] = delta_error[D_AXIS] = delta_error[E_AXIS] = -int32_t(step_event_count);
+      #else
+        delta_error[X_AXIS] = delta_error[Y_AXIS] = delta_error[Z_AXIS] = delta_error[E_AXIS] = -int32_t(step_event_count);
+      #endif
 
       // Calculate Bresenham dividends
-      advance_dividend[X_AXIS] = current_block->steps[X_AXIS] << 1;
-      advance_dividend[Y_AXIS] = current_block->steps[Y_AXIS] << 1;
-      advance_dividend[Z_AXIS] = current_block->steps[Z_AXIS] << 1;
+      #if ENABLED(HANGPRINTER)
+        advance_dividend[A_AXIS] = current_block->steps[A_AXIS] << 1;
+        advance_dividend[B_AXIS] = current_block->steps[B_AXIS] << 1;
+        advance_dividend[C_AXIS] = current_block->steps[C_AXIS] << 1;
+        advance_dividend[D_AXIS] = current_block->steps[D_AXIS] << 1;
+      #else
+        advance_dividend[X_AXIS] = current_block->steps[X_AXIS] << 1;
+        advance_dividend[Y_AXIS] = current_block->steps[Y_AXIS] << 1;
+        advance_dividend[Z_AXIS] = current_block->steps[Z_AXIS] << 1;
+      #endif
       advance_dividend[E_AXIS] = current_block->steps[E_AXIS] << 1;
 
       // Calculate Bresenham divisor
@@ -2043,16 +2054,16 @@ void Stepper::init() {
   #if E_STEPPERS > 0 && HAS_E0_STEP
     E_AXIS_INIT(0);
   #endif
-  #if E_STEPPERS > 1 && HAS_E1_STEP
+  #if (E_STEPPERS > 1 || (E_STEPPERS == 1 && ENABLED(HANGPRINTER))) && HAS_E1_STEP
     E_AXIS_INIT(1);
   #endif
-  #if E_STEPPERS > 2 && HAS_E2_STEP
+  #if (E_STEPPERS > 2 || (E_STEPPERS == 2 && ENABLED(HANGPRINTER))) && HAS_E2_STEP
     E_AXIS_INIT(2);
   #endif
-  #if E_STEPPERS > 3 && HAS_E3_STEP
+  #if (E_STEPPERS > 3 || (E_STEPPERS == 3 && ENABLED(HANGPRINTER))) && HAS_E3_STEP
     E_AXIS_INIT(3);
   #endif
-  #if E_STEPPERS > 4 && HAS_E4_STEP
+  #if (E_STEPPERS > 4 || (E_STEPPERS == 4 && ENABLED(HANGPRINTER))) && HAS_E4_STEP
     E_AXIS_INIT(4);
   #endif
 
