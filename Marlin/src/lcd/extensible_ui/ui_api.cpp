@@ -29,6 +29,7 @@
 #include "../../module/probe.h"
 #include "../../module/temperature.h"
 #include "../../libs/duration_t.h"
+#include "../../HAL/shared/Delay.h"
 
 #if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
   #include "../../module/tool_change.h"
@@ -64,14 +65,72 @@ inline float clamp(const float value, const float minimum, const float maximum) 
   return MAX(MIN(value, maximum), minimum);
 }
 
+static bool printer_killed = false;
+
 namespace UI {
+  #if defined(__SAM3X8E__)
+    /* Implement a special millis() to allow measurement of
+     * time from within an ISR (such as when the printer
+     * is killed).
+     *
+     * To keep proper time, must be called at least every
+     * 1 second
+     */
+    uint32_t safe_millis() {
+      /* If not killed, just call the old Arduino code */
+      if (!printer_killed) {
+        return millis();
+      }
+
+      static uint32_t currTimeHI = 0; /* Current time */
+
+      /* Machine was killed, reinit SysTick so we are able to compute time without ISRs */
+      if (currTimeHI == 0) {
+        /* Get the last time the Arduino time computed (from CMSIS) and convert it to SysTicks*/
+        currTimeHI = (uint32_t)((GetTickCount() * (uint64_t)(F_CPU/8000)) >> 24);
+
+        /* Reinit the SysTick timer to maximize its period */
+        SysTick->LOAD  = SysTick_LOAD_RELOAD_Msk;                    /* get the full range for the systick timer */
+        SysTick->VAL   = 0;                                          /* Load the SysTick Counter Value */
+        SysTick->CTRL  = /* MCLK/8 as source */
+                         /* No interrupts */
+                         SysTick_CTRL_ENABLE_Msk;                    /* Enable SysTick Timer */
+     }
+
+      /* Check if there was a timer overflow from the last read */
+      if (SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) {
+        /* There was. This means (SysTick_LOAD_RELOAD_Msk * 1000 * 8)/F_CPU milliseconds
+           have elapsed */
+        currTimeHI++;
+      }
+
+      /* Calculate current time in milliseconds */
+      uint32_t currTimeLO = SysTick_LOAD_RELOAD_Msk - SysTick->VAL; // (in MCLK/8)
+      uint64_t currTime = ((uint64_t)currTimeLO) | (((uint64_t)currTimeHI) << 24);
+
+      /* The count of milliseconds is */
+      return (uint32_t)(currTime / (F_CPU/8000));
+    }
+  #else
+    // TODO: Implement this for AVR
+    uint32_t safe_millis() {return millis();}
+  #endif
+
+  void delay_us(unsigned long us) {
+    DELAY_US(us);
+  }
 
   void delay_ms(unsigned long ms) {
-    safe_delay(ms);
+    if (!printer_killed) {
+      safe_delay(ms);
+    } else {
+      DELAY_US(ms * 1000);
+    }
   }
 
   void yield() {
-    thermalManager.manage_heater();
+    if (!printer_killed)
+      thermalManager.manage_heater();
   }
 
   float getActualTemp_celsius(const uint8_t extruder) {
@@ -491,7 +550,7 @@ namespace UI {
   }
 
   const char* FileList::filename() {
-    return IFSD(card.longFilename && card.longFilename[0]) ? card.longFilename : card.filename, "");
+    return IFSD(card.longFilename && card.longFilename[0] ? card.longFilename : card.filename, "");
   }
 
   const char* FileList::shortFilename() {
@@ -601,6 +660,13 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   va_end(args);
   buff[63] = '\0';
   UI::onStatusChanged(buff);
+}
+
+void kill_screen(PGM_P msg) {
+  if(!printer_killed) {
+    printer_killed = true;
+    UI::onPrinterKilled(msg);
+  }
 }
 
 #endif // EXTENSIBLE_UI

@@ -127,6 +127,9 @@ namespace UI {
     #endif
   #endif
 
+  // This safe_millis is safe to use even when printer is killed (as long as called at least every 1 second)
+  uint32_t safe_millis();
+  void delay_us(unsigned long us);
   void delay_ms(unsigned long ms);
   void yield(); // Within lengthy loop, call this periodically
 
