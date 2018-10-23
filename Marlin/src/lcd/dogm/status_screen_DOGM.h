@@ -198,7 +198,7 @@ inline void lcd_implementation_status_message(const bool blink) {
   #endif
 }
 
-static void lcd_impl_status_screen_0() {
+void lcd_impl_status_screen_0() {
 
   const bool blink = lcd_blink();
 

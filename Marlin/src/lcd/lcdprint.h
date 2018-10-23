@@ -11,10 +11,12 @@
 
 #include "fontutils.h"
 
-#if DISABLED(DOGLCD)
-  #define _UxGT(a) a
+#include "../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_LCD
+  #include "dogm/u8g_fontutf8.h"
 #else
-  #include "u8g_fontutf8.h"
+  #define _UxGT(a) a
 #endif
 
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)

@@ -19,11 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef ULTRALCD_H
-#define ULTRALCD_H
+#pragma once
 
 #include "../inc/MarlinConfig.h"
+
+#if ENABLED(DOGLCD)
+  extern bool first_page;
+#else
+  constexpr bool first_page = true;
+  enum HD44780CharSet : uint8_t {
+    CHARSET_MENU,
+    CHARSET_INFO,
+    CHARSET_BOOT
+  };
+#endif
 
 #if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
   void lcd_init();
@@ -71,6 +80,8 @@
 
   #if HAS_BUZZER
     void lcd_buzz(const long duration, const uint16_t freq);
+  #else
+    inline void lcd_buzz(const long duration, const uint16_t freq) { UNUSED(duration); UNUSED(freq); }
   #endif
 
   void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
@@ -108,13 +119,14 @@
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if ENABLED(ULTIPANEL) // LCD with a click-wheel input
+  #if HAS_LCD_MENU
 
-    extern bool defer_return_to_status;
-
-    // Function pointer to menu functions.
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
+    extern screenFunc_t currentScreen;
+    void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
+
+    extern bool lcd_clicked, defer_return_to_status;
 
     extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
     extern uint8_t lcd_preheat_fan_speed[2];
@@ -131,9 +143,13 @@
       constexpr bool lcd_wait_for_move = false;
     #endif
 
-    void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
-
-    void lcd_completion_feedback(const bool good=true);
+    // Manual Movement
+    constexpr float manual_feedrate_mm_m[XYZE] = MANUAL_FEEDRATE;
+    #if IS_KINEMATIC
+      extern bool processing_manual_move;
+    #else
+      constexpr bool processing_manual_move = false;
+    #endif
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
@@ -273,6 +289,10 @@
 
 #endif
 
+#if ENABLED(LCD_HAS_SLOW_BUTTONS)
+  extern volatile uint8_t slow_buttons;
+#endif
+
 #if ENABLED(REPRAPWORLD_KEYPAD)
   #ifdef EN_C
     #define LCD_CLICKED ((buttons & EN_C) || REPRAPWORLD_KEYPAD_MOVE_MENU)
@@ -297,5 +317,6 @@
   void lcd_reselect_last_file();
 #endif
 
-
-#endif // ULTRALCD_H
+// LCD implementations
+void lcd_implementation_clear();
+void lcd_implementation_init();

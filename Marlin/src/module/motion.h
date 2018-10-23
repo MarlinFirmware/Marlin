@@ -108,7 +108,7 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
   extern bool soft_endstops_enabled;
   void clamp_to_software_endstops(float target[XYZ]);
 #else
-  #define soft_endstops_enabled false
+  constexpr bool soft_endstops_enabled = false;
   #define clamp_to_software_endstops(x) NOOP
 #endif
 
