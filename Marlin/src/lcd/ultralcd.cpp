@@ -341,7 +341,7 @@ millis_t next_lcd_update_ms;
 
   // Used to print static text with no visible cursor.
   // Parameters: label [, bool center [, bool invert [, char *value] ] ]
-  #define STATIC_ITEM_P(LABEL, ...) \
+  #define STATIC_ITEM_P(LABEL, ...) do{ \
     if (_menuLineNr == _thisItemNr) { \
       if (_skipStatic && encoderLine <= _thisItemNr) { \
         encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
@@ -350,7 +350,7 @@ millis_t next_lcd_update_ms;
       if (lcdDrawUpdate) \
         lcd_implementation_drawmenu_static(_lcdLineNr, LABEL, ## __VA_ARGS__); \
     } \
-    ++_thisItemNr
+    ++_thisItemNr; } while(0)
 
   #define STATIC_ITEM(LABEL, ...) STATIC_ITEM_P(PSTR(LABEL), ## __VA_ARGS__)
 
@@ -3225,10 +3225,17 @@ void lcd_quick_feedback(const bool clear_buttons) {
           break;
       }
     }
-    MENU_BACK(MSG_MOVE_AXIS);
-    MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
-    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
-    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
+    #if ENABLED(PREVENT_COLD_EXTRUSION)
+      if (thermalManager.tooColdToExtrude(active_extruder))
+        MENU_BACK(MSG_HOTEND_TOO_COLD);
+      else
+    #endif
+    {
+      MENU_BACK(MSG_MOVE_AXIS);
+      MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+      MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
+      MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
+    }
     END_MENU();
   }
   void lcd_move_get_x_amount()        { _lcd_move_distance_menu(X_AXIS, lcd_move_x); }
