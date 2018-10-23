@@ -525,7 +525,7 @@
 #endif
 
 #ifndef PREHEAT_2_LABEL
-  #define PREHEAT_1_LABEL "ABS"
+  #define PREHEAT_2_LABEL "ABS"
 #endif
 
 /**
