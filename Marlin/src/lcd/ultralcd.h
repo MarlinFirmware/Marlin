@@ -30,6 +30,7 @@
   bool lcd_detected();
   void lcd_update();
   void lcd_setalertstatusPGM(PGM_P message);
+  void kill_screen(PGM_P lcd_msg);
 #else
   inline void lcd_init() {}
   inline bool lcd_detected() { return true; }
