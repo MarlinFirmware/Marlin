@@ -277,8 +277,8 @@
 #ifndef MSG_UBL_DONE_EDITING_MESH
   #define MSG_UBL_DONE_EDITING_MESH           _UxGT("Done Editing Mesh")
 #endif
-#ifndef MSG_UBL_BUILD_MESH_CUSTOM
-  #define MSG_UBL_BUILD_MESH_CUSTOM           _UxGT("Build Custom Mesh")
+#ifndef MSG_UBL_BUILD_CUSTOM_MESH
+  #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("Build Custom Mesh")
 #endif
 #ifndef MSG_UBL_BUILD_MESH_MENU
   #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Build Mesh")
@@ -307,8 +307,8 @@
 #ifndef MSG_UBL_VALIDATE_MESH_M2
   #define MSG_UBL_VALIDATE_MESH_M2            _UxGT("Validate Mesh (" PREHEAT_2_LABEL ")")
 #endif
-#ifndef MSG_UBL_VALIDATE_MESH_CUSTOM
-  #define MSG_UBL_VALIDATE_MESH_CUSTOM        _UxGT("Validate Custom Mesh")
+#ifndef MSG_UBL_VALIDATE_CUSTOM_MESH
+  #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Validate Custom Mesh")
 #endif
 #ifndef MSG_UBL_CONTINUE_MESH
   #define MSG_UBL_CONTINUE_MESH               _UxGT("Continue Bed Mesh")

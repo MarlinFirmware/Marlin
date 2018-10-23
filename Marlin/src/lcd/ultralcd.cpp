@@ -2230,7 +2230,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #if HAS_HEATED_BED
         MENU_ITEM_EDIT(int3, MSG_UBL_BED_TEMP_CUSTOM, &custom_bed_temp, BED_MINTEMP, (BED_MAXTEMP - 15));
       #endif
-      MENU_ITEM(function, MSG_UBL_BUILD_MESH_CUSTOM, _lcd_ubl_build_custom_mesh);
+      MENU_ITEM(function, MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_build_custom_mesh);
       END_MENU();
     }
 
@@ -2316,7 +2316,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         MENU_ITEM(gcode, MSG_UBL_VALIDATE_MESH_M1, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_1_TEMP_HOTEND) " P"));
         MENU_ITEM(gcode, MSG_UBL_VALIDATE_MESH_M2, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
       #endif
-      MENU_ITEM(function, MSG_UBL_VALIDATE_MESH_CUSTOM, _lcd_ubl_validate_custom_mesh);
+      MENU_ITEM(function, MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
       MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
       END_MENU();
     }
@@ -2444,7 +2444,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
           "M104 S0"
         ));
       #endif
-      MENU_ITEM(submenu, MSG_UBL_BUILD_MESH_CUSTOM, _lcd_ubl_custom_mesh);
+      MENU_ITEM(submenu, MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_custom_mesh);
       MENU_ITEM(gcode, MSG_UBL_BUILD_COLD_MESH, PSTR("G28\nG29 P1"));
       MENU_ITEM(submenu, MSG_UBL_FILLIN_MESH, _lcd_ubl_fillin_menu);
       MENU_ITEM(gcode, MSG_UBL_CONTINUE_MESH, PSTR("G29 P1 C"));
