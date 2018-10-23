@@ -2088,6 +2088,7 @@ void Stepper::init() {
 
   endstops.enable(true); // Start with endstops active. After homing they can be disabled
   sei();
+  set_directions(); // Init directions to last_direction_bits = 0  Keeps Z from being reversed
 }
 
 /**
