@@ -1323,10 +1323,12 @@
 // @section temperature
 
 // Preheat Constants
+#define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 210
 #define PREHEAT_1_TEMP_BED      0
 #define PREHEAT_1_FAN_SPEED   165 // Value from 0 to 255
 
+#define PREHEAT_2_LABEL       "ABS"
 #define PREHEAT_2_TEMP_HOTEND 245
 #define PREHEAT_2_TEMP_BED      0
 #define PREHEAT_2_FAN_SPEED   165 // Value from 0 to 255

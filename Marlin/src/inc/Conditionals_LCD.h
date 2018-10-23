@@ -520,6 +520,14 @@
   #endif
 #endif
 
+#ifndef PREHEAT_1_LABEL
+  #define PREHEAT_1_LABEL "PLA"
+#endif
+
+#ifndef PREHEAT_2_LABEL
+  #define PREHEAT_1_LABEL "ABS"
+#endif
+
 /**
  * Set a flag for a servo probe
  */
