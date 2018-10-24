@@ -1746,10 +1746,10 @@ uint32_t Stepper::stepper_block_phase_isr() {
           #endif
       ) {
         last_direction_bits = current_block->direction_bits;
-        set_directions();
         #if EXTRUDERS > 1
           last_moved_extruder = stepper_extruder;
         #endif
+        set_directions();
       }
 
       // At this point, we must ensure the movement about to execute isn't
