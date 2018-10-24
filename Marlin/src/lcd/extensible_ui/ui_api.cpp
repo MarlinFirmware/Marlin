@@ -68,6 +68,9 @@
 #if ENABLED(PRINTCOUNTER)
   #include "../../core/utility.h"
   #include "../../module/printcounter.h"
+  #define IFPC(A,B) (A)
+#else
+  #define IFPC(A,B) (B)  
 #endif
 
 #include "ui_api.h"
@@ -194,7 +197,9 @@ namespace UI {
     switch (axis) {
       case X: case Y: case Z: break;
       case E0: case E1: case E2: case E3: case E4: case E5:
-        active_extruder = axis - E0;
+        #if EXTRUDERS > 1
+          active_extruder = axis - E0;
+        #endif
         break;
       default: return;
     }
@@ -223,7 +228,9 @@ namespace UI {
       if (extruder != active_extruder)
         tool_change(extruder, 0, no_move);
     #endif
-    active_extruder = extruder;
+    #if EXTRUDERS > 1
+      active_extruder = extruder;
+    #endif
   }
 
   uint8_t getActiveTool() { return active_extruder + 1; }
@@ -438,7 +445,7 @@ namespace UI {
   }
 
   uint32_t getProgress_seconds_elapsed() {
-    const duration_t elapsed = print_job_timer.duration();
+    const duration_t elapsed = IFPC(print_job_timer.duration(), 0);
     return elapsed.value;
   }
 
@@ -493,7 +500,7 @@ namespace UI {
   }
 
   void printFile(const char *filename) {
-    IFSD(card.openAndPrintFile(filename), NOOP);
+    IFSD(card.openAndPrintFile(filename), 0);
   }
 
   bool isPrintingFromMediaPaused() {
@@ -505,7 +512,7 @@ namespace UI {
   }
 
   bool isPrinting() {
-    return (planner.movesplanned() || IS_SD_PRINTING() || isPrintingFromMedia());
+    return (planner.movesplanned() || IFSD(IS_SD_PRINTING(), false) || isPrintingFromMedia());
   }
 
   bool isMediaInserted() {
@@ -515,7 +522,9 @@ namespace UI {
   void pausePrint() {
     #if ENABLED(SDSUPPORT)
       card.pauseSDPrint();
-      print_job_timer.pause();
+      #if ENABLED(PRINTCOUNTER)
+        print_job_timer.pause();
+      #endif
       #if ENABLED(PARK_HEAD_ON_PAUSE)
         enqueue_and_echo_commands_P(PSTR("M125"));
       #endif
@@ -529,7 +538,9 @@ namespace UI {
         enqueue_and_echo_commands_P(PSTR("M24"));
       #else
         card.startFileprint();
-        print_job_timer.start();
+        #if ENABLED(PRINTCOUNTER)
+          print_job_timer.start();
+        #endif
       #endif
       UI::onStatusChanged(PSTR(MSG_PRINTING));
     #endif
@@ -659,13 +670,13 @@ void lcd_reset_status() {
   static const char printing[] PROGMEM = MSG_PRINTING;
   static const char welcome[] PROGMEM = WELCOME_MSG;
   PGM_P msg;
-  if (print_job_timer.isPaused())
+  if (IFPC(print_job_timer.isPaused(), false))
     msg = paused;
   #if ENABLED(SDSUPPORT)
     else if (card.sdprinting)
       return lcd_setstatus(card.longest_filename(), true);
   #endif
-  else if (print_job_timer.isRunning())
+  else if (IFPC(print_job_timer.isRunning(), false))
     msg = printing;
   else
     msg = welcome;
