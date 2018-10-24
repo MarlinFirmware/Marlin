@@ -421,7 +421,7 @@ namespace UI {
   }
 
   void printFile(const char *filename) {
-    #IFSD(card.openAndPrintFile(filename), 0);    
+    IFSD(card.openAndPrintFile(filename), 0);    
   }
 
   bool isPrintingFromMediaPaused() {
