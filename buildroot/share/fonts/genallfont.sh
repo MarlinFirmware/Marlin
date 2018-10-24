@@ -64,13 +64,13 @@ for LANG in ${MARLIN_LANGS:=$LANGS_DEFAULT} ; do
   ${EXEC_WXGGEN} "${FN_FONT}"
   sed -i fontutf8-data.h -e 's|fonts//|fonts/|g' -e 's|fonts//|fonts/|g' -e 's|[/0-9a-zA-Z_\-]*buildroot/share/fonts|buildroot/share/fonts|' 2>/dev/null
   cd ../
-  mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/language_data_${LANG}.h
+  mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/fontdata/language_data_${LANG}.h
   rm -rf ${DN_WORK}/
 done
 
 #
 # Generate default ASCII font (char range 0-255):
-#   Marlin/src/lcd/dogm/dogm_font_data_ISO10646_1.h
+#   Marlin/src/lcd/dogm/fontdata/fontdata_ISO10646_1.h
 #
 #if [ "${MARLIN_LANGS}" == "${LANGS_DEFAULT}" ]; then
 if [ 1 = 1 ]; then
@@ -82,7 +82,7 @@ if [ 1 = 1 ]; then
   TMP1=$(cat tmp1.h) ; rm tmp1.h
   TMP2=$(cat tmp2.h) ; rm tmp2.h
 
-  cat <<EOF >../src/lcd/dogm/dogm_font_data_ISO10646_1.h
+  cat <<EOF >../src/lcd/dogm/fontdata/fontdata_ISO10646_1.h
 /**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]

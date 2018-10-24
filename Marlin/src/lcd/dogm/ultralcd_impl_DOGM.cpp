@@ -60,7 +60,7 @@
   #include "../../feature/bedlevel/ubl/ubl.h"
 #endif
 
-// The Marlin special symbols is now in the dogm_font_data_ISO10646_1.h
+// The Marlin special symbols is now in the fontdata_ISO10646_1.h
 #define FONT_SPECIAL_NAME ISO10646_1_5x7
 
 // Only Western languages support big / small fonts
@@ -70,7 +70,7 @@
 #endif
 
 #if ENABLED(USE_SMALL_INFOFONT)
-  #include "dogm_font_data_6x9_marlin.h"
+  #include "fontdata/fontdata_6x9_marlin.h"
   #define FONT_STATUSMENU_NAME u8g_font_6x9
   #define INFO_FONT_HEIGHT 7
 #else
@@ -80,7 +80,7 @@
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
-#include "dogm_font_data_ISO10646_1.h"
+#include "fontdata/fontdata_ISO10646_1.h"
 #define FONT_MENU_NAME ISO10646_1_5x7
 
 // DOGM parameters (size in pixels)
