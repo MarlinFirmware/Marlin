@@ -421,11 +421,7 @@ namespace UI {
   }
 
   void printFile(const char *filename) {
-    #if ENABLED(SDSUPPORT)
-      card.openAndPrintFile(filename);
-    #else
-      NOOP;
-    #endif
+    #IFSD(card.openAndPrintFile(filename), 0);    
   }
 
   bool isPrintingFromMediaPaused() {
