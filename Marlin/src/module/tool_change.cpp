@@ -542,7 +542,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           current_position[Z_AXIS] += toolchange_settings.z_raise;
           #if HAS_SOFTWARE_ENDSTOPS
             NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
-            update_software_endstops(Z_AXIS);
           #endif
           planner.buffer_line(current_position, feedrate_mm_s, active_extruder);
         #endif
@@ -568,7 +567,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         current_position[Z_AXIS] += MAX(-zdiff, 0.0) + toolchange_settings.z_raise;
         #if HAS_SOFTWARE_ENDSTOPS
           NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
-          update_software_endstops(Z_AXIS);
         #endif
         if (!no_move)planner.buffer_line(current_position, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder);
         move_nozzle_servo(tmp_extruder);
@@ -590,24 +588,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       current_position[Y_AXIS] += ydiff;
       current_position[Z_AXIS] += zdiff;
 
-      #if HAS_SOFTWARE_ENDSTOPS
-        NOMORE(current_position[X_AXIS], soft_endstop_max[X_AXIS]);
-        NOLESS(current_position[X_AXIS], soft_endstop_min[X_AXIS]);
-        NOMORE(current_position[Y_AXIS], soft_endstop_max[Y_AXIS]);
-        NOLESS(current_position[Y_AXIS], soft_endstop_min[Y_AXIS]);
-        NOMORE(current_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
-        NOLESS(current_position[Z_AXIS], soft_endstop_min[Z_AXIS]);
-        update_software_endstops(X_AXIS);
-        update_software_endstops(Y_AXIS);
-        update_software_endstops(Z_AXIS);
-      #else
-        NOMORE(current_position[X_AXIS], X_MAX_POS);
-        NOLESS(current_position[X_AXIS], X_MIN_POS);
-        NOMORE(current_position[Y_AXIS], Y_MAX_POS);
-        NOLESS(current_position[Y_AXIS], Y_MIN_POS);
-        NOMORE(current_position[Z_AXIS], Z_MAX_POS);
-        NOLESS(current_position[Z_AXIS], Z_MIN_POS);
-      #endif
       // Set the new active extruder if not already done in tool specific function above
       active_extruder = tmp_extruder;
 
