@@ -399,7 +399,7 @@ class Stepper {
         #if ENABLED(MIXING_EXTRUDER) || EXTRUDERS < 2
           0
         #else
-          active_extruder
+          last_moved_extruder
         #endif
       ;
     }
