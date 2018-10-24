@@ -169,6 +169,11 @@ class Temperature {
       #endif
     #endif
 
+    #if HAS_HEATED_CHAMBER
+      static int16_t target_temperature_chamber;
+      static uint8_t soft_pwm_amount_chamber;
+    #endif
+
     #if ENABLED(BABYSTEPPING)
       static volatile int16_t babystepsTodo[3];
     #endif
@@ -253,6 +258,26 @@ class Temperature {
       static uint16_t raw_temp_chamber_value;
       static float current_temperature_chamber;
       static int16_t current_temperature_chamber_raw;
+
+      #if HAS_HEATED_CHAMBER
+        #if WATCH_THE_CHAMBER
+          static uint16_t watch_target_chamber_temp;
+          static millis_t watch_chamber_next_ms;
+        #endif
+        #if DISABLED(PIDTEMPCHAMBER)
+          static millis_t next_chamber_check_ms;
+        #endif
+        #if HEATER_IDLE_HANDLER
+          static millis_t chamber_idle_timeout_ms;
+          static bool chamber_idle_timeout_exceeded;
+        #endif
+        #ifdef CHAMBER_MINTEMP
+          static int16_t chamber_minttemp_raw;
+        #endif
+        #ifdef CHAMBER_MAXTEMP
+          static int16_t chamber_maxttemp_raw;
+        #endif
+      #endif
     #endif
 
     #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
@@ -472,6 +497,27 @@ class Temperature {
       #endif
     }
 
+    #if WATCH_THE_CHAMBER
+      static void start_watching_chamber();
+    #endif
+
+    #if HAS_TEMP_CHAMBER
+      static void setTargetChamber(const int16_t celsius) {
+        #if HAS_HEATED_CHAMBER
+          target_temperature_chamber =
+            #ifdef CHAMBER_MAXTEMP
+              min(celsius, CHAMBER_MAXTEMP)
+            #else
+              celsius
+            #endif
+          ;
+          #if WATCH_THE_CHAMBER
+            start_watching_chamber();
+          #endif
+        #endif // HAS_HEATED_CHAMBER
+      }
+    #endif // HAS_TEMP_CHAMBER
+
     FORCE_INLINE static bool isHeatingHotend(const uint8_t e) {
       #if HOTENDS == 1
         UNUSED(e);
@@ -537,7 +583,12 @@ class Temperature {
         FORCE_INLINE static int16_t rawChamberTemp() { return current_temperature_chamber_raw; }
       #endif
       FORCE_INLINE static float degChamber() { return current_temperature_chamber; }
-    #endif
+      #if HAS_HEATED_CHAMBER
+        FORCE_INLINE static bool isHeatingChamber()     { return target_temperature_chamber > current_temperature_chamber; }
+        FORCE_INLINE static bool isCoolingChamber()     { return target_temperature_chamber < current_temperature_chamber; }
+        FORCE_INLINE static int16_t degTargetChamber() {return target_temperature_chamber; }
+      #endif
+    #endif // HAS_TEMP_CHAMBER
 
     FORCE_INLINE static bool still_heating(const uint8_t e) {
       return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
@@ -689,11 +740,18 @@ class Temperature {
       static float get_pid_output_bed();
     #endif
 
+    #if HAS_HEATED_CHAMBER
+      static float get_pid_output_chamber();
+    #endif
+
     static void _temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
     static void min_temp_error(const int8_t e);
     static void max_temp_error(const int8_t e);
+    #if HAS_TEMP_CHAMBER
+      static void chamber_temp_error(const bool max);
+    #endif
 
-    #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED
+    #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED || ENABLED(THERMAL_PROTECTION_CHAMBER)
 
       enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway };
 
@@ -707,6 +765,11 @@ class Temperature {
       #if HAS_THERMALLY_PROTECTED_BED
         static TRState thermal_runaway_bed_state_machine;
         static millis_t thermal_runaway_bed_timer;
+      #endif
+
+      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
+        static TRState thermal_runaway_chamber_state_machine;
+        static millis_t thermal_runaway_chamber_timer;
       #endif
 
     #endif // THERMAL_PROTECTION
