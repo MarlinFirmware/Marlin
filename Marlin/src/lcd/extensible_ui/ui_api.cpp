@@ -445,7 +445,7 @@ namespace UI {
   }
 
   uint32_t getProgress_seconds_elapsed() {
-    return IFPC(print_job_timer.duration(), 0);
+    return IFPC(print_job_timer.duration() / 1000UL, 0);
   }
 
   #if ENABLED(PRINTCOUNTER)
