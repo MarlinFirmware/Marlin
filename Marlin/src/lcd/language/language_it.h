@@ -180,6 +180,7 @@
 #define MSG_MOVE_Y                          _UxGT("Muovi Y")
 #define MSG_MOVE_Z                          _UxGT("Muovi Z")
 #define MSG_MOVE_E                          _UxGT("Estrusore")
+#define MSG_HOTEND_TOO_COLD                 _UxGT("Ugello freddo")
 #define MSG_MOVE_01MM                       _UxGT("Muovi di 0.1mm")
 #define MSG_MOVE_1MM                        _UxGT("Muovi di 1mm")
 #define MSG_MOVE_10MM                       _UxGT("Muovi di 10mm")
