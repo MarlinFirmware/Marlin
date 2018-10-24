@@ -23,18 +23,124 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(DOGLCD)
-  extern bool first_page;
-#else
-  constexpr bool first_page = true;
-  enum HD44780CharSet : uint8_t {
-    CHARSET_MENU,
-    CHARSET_INFO,
-    CHARSET_BOOT
-  };
-#endif
+#if HAS_GRAPHICAL_LCD
 
-#if ENABLED(ULTRA_LCD) || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
+  // LCD selection
+  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+    #define U8G_CLASS U8GLIB_ST7920_128X64_4X
+    #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
+      #define U8G_PARAM LCD_PINS_RS
+    #else
+      #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS
+    #endif
+
+  #elif ENABLED(U8GLIB_ST7920)
+    // RepRap Discount Full Graphics Smart Controller
+    #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
+      #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL
+      #define U8G_PARAM LCD_PINS_RS // 2 stripes, HW SPI (shared with SD card, on AVR does not use standard LCD adapter)
+    #else
+      //#define U8G_CLASS U8GLIB_ST7920_128X64_4X
+      //#define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS     // Original u8glib device. 2 stripes, SW SPI
+      #define U8G_CLASS U8GLIB_ST7920_128X64_RRD
+      #define U8G_PARAM LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS       // Number of stripes can be adjusted in ultralcd_st7920_u8glib_rrd.h with PAGE_HEIGHT
+                                                                        // AVR version ignores these pin settings
+                                                                        // HAL version uses these pin settings
+    #endif
+
+  #elif ENABLED(CARTESIO_UI)
+    // The CartesioUI display
+    //#define U8G_CLASS U8GLIB_DOGM128_2X
+    //#define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes
+    #define U8G_CLASS U8GLIB_DOGM128_2X
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 4 stripes
+
+  #elif ENABLED(U8GLIB_LM6059_AF)
+    // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
+    //#define U8G_CLASS U8GLIB_LM6059
+    //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 8 stripes
+    #define U8G_CLASS U8GLIB_LM6059_2X
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 4 stripes
+
+  #elif ENABLED(U8GLIB_ST7565_64128N)
+    // The MaKrPanel, Mini Viki, Viki 2.0 & AZSMZ 12864 ST7565 controller
+    #define SMART_RAMPS (MB(RAMPS_SMART_EFB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_SMART_EFF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_SMART_SF))
+    #if DOGLCD_SCK == SCK_PIN && DOGLCD_MOSI == MOSI_PIN && !SMART_RAMPS
+      #define U8G_CLASS U8GLIB_64128N_2X_HAL
+      #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // using HW-SPI
+    #else
+      #define U8G_CLASS U8GLIB_64128N_2X_HAL
+      #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // using SW-SPI
+    #endif
+
+  #elif ENABLED(MKS_12864OLED_SSD1306)
+    // MKS 128x64 (SSD1306) OLED I2C LCD
+    #define U8G_CLASS U8GLIB_SSD1306_128X64
+    #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0     // 8 stripes
+    //#define U8G_CLASS U8GLIB_SSD1306_128X64_2X
+    //#define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes
+
+  #elif ENABLED(U8GLIB_SSD1306)
+    // Generic support for SSD1306 OLED I2C LCDs
+    //#define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE 
+    //#define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)           // 4 stripes
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X
+    #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)             // 4 stripes
+
+  #elif ENABLED(MKS_12864OLED)
+    // MKS 128x64 (SH1106) OLED I2C LCD
+    #define U8G_CLASS U8GLIB_SH1106_128X64
+    #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0     // 8 stripes
+    //#define U8G_CLASS U8GLIB_SH1106_128X64_2X
+    //#define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes
+  #elif ENABLED(U8GLIB_SH1106)
+    // Generic support for SH1106 OLED I2C LCDs
+    //#define U8G_CLASS U8GLIB_SH1106_128X64_2X_I2C_2_WIRE 
+    //#define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)           // 4 stripes
+    #define U8G_CLASS U8GLIB_SH1106_128X64_2X
+    #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)             // 4 stripes
+  #elif ENABLED(U8GLIB_SSD1309)
+    // Generic support for SSD1309 OLED I2C LCDs
+    #define U8G_CLASS U8GLIB_SSD1309_128X64
+    #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)
+  #elif ENABLED(MINIPANEL)
+    // The MINIPanel display
+    //#define U8G_CLASS U8GLIB_MINI12864
+    //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // 8 stripes
+    #define U8G_CLASS U8GLIB_MINI12864_2X
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // 4 stripes
+  #elif ENABLED(U8GLIB_SH1106_EINSTART)
+    // Connected via motherboard header
+    #define U8G_CLASS U8GLIB_SH1106_128X64
+    #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS
+  #else
+    // for regular DOGM128 display with HW-SPI
+    //#define U8G_CLASS U8GLIB_DOGM128
+    //#define U8G_PARAM DOGLCD_CS, DOGLCD_A0                            // HW-SPI Com: CS, A0  // 8 stripes
+    #define U8G_CLASS U8GLIB_DOGM128_2X
+    #define U8G_PARAM DOGLCD_CS, DOGLCD_A0                              // HW-SPI Com: CS, A0 // 4 stripes
+  #endif
+
+  #include <U8glib.h>
+  #include "dogm/HAL_LCD_class_defines.h"
+  extern U8G_CLASS u8g;
+
+  enum MarlinFont : uint8_t {
+    FONT_STATUSMENU = 1,
+    FONT_SPECIAL,
+    FONT_MENU_EDIT,
+    FONT_MENU,
+  };
+
+  void lcd_setFont(const MarlinFont font_nr);
+
+  #if ENABLED(LIGHTWEIGHT_UI)
+    void lcd_in_status(const bool inStatus);
+  #endif
+
+#endif // HAS_GRAPHICAL_LCD
+
+#if HAS_SPI_LCD || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
   void lcd_init();
   bool lcd_detected();
   void lcd_update();
@@ -47,7 +153,7 @@
   inline void lcd_setalertstatusPGM(PGM_P message) { UNUSED(message); }
 #endif
 
-#if ENABLED(ULTRA_LCD)
+#if HAS_SPI_LCD
 
   #include "../Marlin.h"
 
@@ -168,65 +274,21 @@
       float lcd_z_offset_edit();
     #endif
 
-  #endif
+    #if ENABLED(SCROLL_LONG_FILENAMES)
+      extern uint8_t filename_scroll_pos, filename_scroll_max;
+    #endif
+
+  #endif // ULTIPANEL
 
   #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
     extern millis_t previous_lcd_status_ms;
   #endif
 
-  bool lcd_blink();
-
-  #if ENABLED(REPRAPWORLD_KEYPAD) // is also ULTIPANEL and NEWPANEL
-
-    #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
-
-    #define BLEN_REPRAPWORLD_KEYPAD_F3     0
-    #define BLEN_REPRAPWORLD_KEYPAD_F2     1
-    #define BLEN_REPRAPWORLD_KEYPAD_F1     2
-    #define BLEN_REPRAPWORLD_KEYPAD_DOWN   3
-    #define BLEN_REPRAPWORLD_KEYPAD_RIGHT  4
-    #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5
-    #define BLEN_REPRAPWORLD_KEYPAD_UP     6
-    #define BLEN_REPRAPWORLD_KEYPAD_LEFT   7
-
-    #define EN_REPRAPWORLD_KEYPAD_F3      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F3))
-    #define EN_REPRAPWORLD_KEYPAD_F2      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F2))
-    #define EN_REPRAPWORLD_KEYPAD_F1      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F1))
-    #define EN_REPRAPWORLD_KEYPAD_DOWN    (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_DOWN))
-    #define EN_REPRAPWORLD_KEYPAD_RIGHT   (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_RIGHT))
-    #define EN_REPRAPWORLD_KEYPAD_MIDDLE  (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_MIDDLE))
-    #define EN_REPRAPWORLD_KEYPAD_UP      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_UP))
-    #define EN_REPRAPWORLD_KEYPAD_LEFT    (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_LEFT))
-
-    #define REPRAPWORLD_KEYPAD_MOVE_Z_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F3)
-    #define REPRAPWORLD_KEYPAD_MOVE_Z_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F2)
-    #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
-    #define REPRAPWORLD_KEYPAD_MOVE_X_RIGHT (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT)
-    #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
-    #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
-
-    #if ENABLED(ADC_KEYPAD)
-      #define KEYPAD_HOME EN_REPRAPWORLD_KEYPAD_F1
-      #define KEYPAD_EN_C EN_REPRAPWORLD_KEYPAD_MIDDLE
-    #else
-      #define KEYPAD_HOME EN_REPRAPWORLD_KEYPAD_MIDDLE
-      #define KEYPAD_EN_C EN_REPRAPWORLD_KEYPAD_F1
-    #endif
-    #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & KEYPAD_HOME)
-    #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & KEYPAD_EN_C)
-
-    #define REPRAPWORLD_KEYPAD_PRESSED      (buttons_reprapworld_keypad & ( \
-                                              EN_REPRAPWORLD_KEYPAD_F3 | \
-                                              EN_REPRAPWORLD_KEYPAD_F2 | \
-                                              EN_REPRAPWORLD_KEYPAD_F1 | \
-                                              EN_REPRAPWORLD_KEYPAD_DOWN | \
-                                              EN_REPRAPWORLD_KEYPAD_RIGHT | \
-                                              EN_REPRAPWORLD_KEYPAD_MIDDLE | \
-                                              EN_REPRAPWORLD_KEYPAD_UP | \
-                                              EN_REPRAPWORLD_KEYPAD_LEFT) \
-                                            )
-
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
+    extern uint8_t status_scroll_offset;
   #endif
+
+  bool lcd_blink();
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     bool is_lcd_clicked();
@@ -234,6 +296,7 @@
   #endif
 
 #elif ENABLED(EXTENSIBLE_UI)
+
   // These functions are defined elsewhere
   void lcd_setstatus(const char* const message, const bool persist=false);
   void lcd_setstatusPGM(const char* const message, const int8_t level=0);
@@ -242,6 +305,7 @@
   void lcd_refresh();
   void lcd_reset_alert_level();
   bool lcd_hasstatus();
+
 #else // MALYAN_LCD or no LCD
 
   constexpr bool lcd_wait_for_move = false;
@@ -254,11 +318,11 @@
   inline void lcd_reset_alert_level() {}
   inline void lcd_reset_status() {}
 
-#endif // ULTRA_LCD
+#endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
-  #if ENABLED(NEWPANEL) // Uses digital switches, not a shift register
+  #if HAS_DIGITAL_ENCODER
 
     // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
     #define BLEN_A 0
@@ -305,6 +369,9 @@
   #define LCD_CLICKED false
 #endif
 
+extern uint8_t lcd_status_update_delay;
+extern char lcd_status_message[];
+
 #define LCD_MESSAGEPGM(x)      lcd_setstatusPGM(PSTR(x))
 #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatusPGM(PSTR(x))
 
@@ -320,3 +387,19 @@
 // LCD implementations
 void lcd_implementation_clear();
 void lcd_implementation_init();
+
+#if HAS_GRAPHICAL_LCD
+  extern bool drawing_screen, first_page;
+#elif HAS_SPI_LCD
+  constexpr bool first_page = true;
+#endif
+
+#if HAS_CHARACTER_LCD
+
+  enum HD44780CharSet : uint8_t {
+    CHARSET_MENU,
+    CHARSET_INFO,
+    CHARSET_BOOT
+  };
+
+#endif

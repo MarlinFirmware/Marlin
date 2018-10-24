@@ -29,6 +29,8 @@
 #ifndef _STATUS_SCREEN_DOGM_H_
 #define _STATUS_SCREEN_DOGM_H_
 
+#include "../../module/motion.h"
+
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const uint8_t y) {
   const char * const str = itostr3(temp);
   lcd_moveto(x - (str[0] != ' ' ? 0 : str[1] != ' ' ? 1 : 2) * DOG_CHAR_WIDTH / 2, y);

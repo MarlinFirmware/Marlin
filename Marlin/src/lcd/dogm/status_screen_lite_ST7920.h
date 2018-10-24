@@ -963,7 +963,7 @@ void lcd_impl_status_screen_0() {
  * entered the Status Screen and calls the on_entry()
  * and on_exit() methods for cleanup.
  */
-static void lcd_in_status(const bool inStatus) {
+void lcd_in_status(const bool inStatus) {
   static bool lastInStatus = false;
   if (lastInStatus == inStatus) return;
   if ((lastInStatus = inStatus))

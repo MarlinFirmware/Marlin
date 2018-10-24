@@ -20,15 +20,25 @@
  *
  */
 
-#ifndef ULTRALCD_IMPL_HD44780_H
-#define ULTRALCD_IMPL_HD44780_H
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(ULTRA_LCD) && DISABLED(DOGLCD)
 
 /**
+ * ultralcd_impl_HD44780.cpp
+ *
  * Implementation of the LCD display routines for a Hitachi HD44780 display.
  * These are the most common LCD character displays.
  */
 
 #include "ultralcd_common_HD44780.h"
+#include "../ultralcd.h"
+
+#include "../../sd/cardreader.h"
+#include "../../module/temperature.h"
+#include "../../module/printcounter.h"
+#include "../../module/planner.h"
+#include "../../module/motion.h"
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
@@ -1043,6 +1053,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
       const char *outstr = theCard.longest_filename();
       if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
+          static uint8_t filename_scroll_hash;
           if (sel) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
@@ -1079,6 +1090,8 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
   #endif // SDSUPPORT
 
   #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+
+    extern millis_t next_button_update_ms;
 
     static uint8_t lcd_implementation_read_slow_buttons() {
       #if ENABLED(LCD_I2C_TYPE_MCP23017)
@@ -1570,4 +1583,4 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
 
 #endif // ULTIPANEL
 
-#endif // ULTRALCD_IMPL_HD44780_H
+#endif // ULTRA_LCD && !DOGLCD

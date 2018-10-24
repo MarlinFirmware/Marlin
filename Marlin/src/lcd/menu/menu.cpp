@@ -54,10 +54,6 @@
   #include "../../libs/duration_t.h"
 #endif
 
-#if ENABLED(FILAMENT_LCD_DISPLAY)
-  #include "../../feature/filwidth.h"
-#endif
-
 #if ENABLED(BLTOUCH)
   #include "../../module/endstops.h"
 #endif
@@ -72,15 +68,6 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #include "../../feature/runout.h"
-#endif
-
-////////////////////////////////////////////
-///////////////// Externs //////////////////
-////////////////////////////////////////////
-
-// LCD Updates
-#if HAS_GRAPHICAL_LCD
-  extern bool drawing_screen;
 #endif
 
 ////////////////////////////////////////////

@@ -21,9 +21,11 @@
  */
 
 /**
- * ultralcd_impl_DOGM.h
+ * ultralcd_impl_DOGM.cpp
  *
- * Graphics LCD implementation for 128x64 pixel LCDs by STB for ErikZalm/Marlin
+ * Implementation of the LCD display routines for a DOGM128 graphic display.
+ * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
+ *
  * Demonstrator: http://www.reprap.org/wiki/STB_Electronics
  * License: http://opensource.org/licenses/BSD-3-Clause
  *
@@ -33,33 +35,33 @@
  * License: http://opensource.org/licenses/BSD-3-Clause
  */
 
-#ifndef ULTRALCD_IMPL_DOGM_H
-#define ULTRALCD_IMPL_DOGM_H
+#include "../../inc/MarlinConfigPre.h"
 
-#include "../../inc/MarlinConfig.h"
+#if ENABLED(DOGLCD)
 
-/**
- * Implementation of the LCD display routines for a DOGM128 graphic display.
- * These are common LCD 128x64 pixel graphic displays.
- */
 #include "../ultralcd.h"
 
+#include <U8glib.h>
+#include "HAL_LCD_class_defines.h"
+
+#include "../fontutils.h"
+#include "u8g_fontutf8.h"
 #include "dogm_bitmaps.h"
+
+#include "../../sd/cardreader.h"
+#include "../../module/temperature.h"
+#include "../../module/printcounter.h"
 
 #if ENABLED(SDSUPPORT)
   #include "../../libs/duration_t.h"
 #endif
 
-#include <U8glib.h>
-
-#include "../fontutils.h"
-#include "u8g_fontutf8.h"
-
-#include "HAL_LCD_class_defines.h"
-
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/ubl/ubl.h"
 #endif
+
+// The Marlin special symbols is now in the dogm_font_data_ISO10646_1.h
+#define FONT_SPECIAL_NAME ISO10646_1_5x7
 
 // Only Western languages support big / small fonts
 #if DISABLED(DISPLAY_CHARSET_ISO10646_1)
@@ -76,20 +78,10 @@
   #define INFO_FONT_HEIGHT 8
 #endif
 
-// The Marlin special symbols is now in the dogm_font_data_ISO10646_1.h
-#define FONT_SPECIAL_NAME ISO10646_1_5x7
-
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
 #include "dogm_font_data_ISO10646_1.h"
 #define FONT_MENU_NAME ISO10646_1_5x7
-
-//#define FONT_STATUSMENU_NAME FONT_MENU_NAME
-
-#define FONT_STATUSMENU 1
-#define FONT_SPECIAL 2
-#define FONT_MENU_EDIT 3
-#define FONT_MENU 4
 
 // DOGM parameters (size in pixels)
 #define DOG_CHAR_WIDTH         6
@@ -110,78 +102,7 @@
 
 #define START_COL              0
 
-// LCD selection
-#if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
-    U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_RS); // 2 stripes, HW SPI (shared with SD card)
-  #else
-    U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // Original u8glib device. 2 stripes, SW SPI
-  #endif
-
-#elif ENABLED(U8GLIB_ST7920)
-  // RepRap Discount Full Graphics Smart Controller
-  #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
-    U8GLIB_ST7920_128X64_4X_HAL u8g(LCD_PINS_RS); // 2 stripes, HW SPI (shared with SD card, on AVR does not use standard LCD adapter)
-  #else
-    //U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // Original u8glib device. 2 stripes, SW SPI
-    U8GLIB_ST7920_128X64_RRD u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // Number of stripes can be adjusted in ultralcd_st7920_u8glib_rrd.h with PAGE_HEIGHT
-                                                                           // AVR version ignores these pin settings
-                                                                           // HAL version uses these pin settings
-  #endif
-
-#elif ENABLED(CARTESIO_UI)
-  // The CartesioUI display
-    //U8GLIB_DOGM128_2X u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0); // 4 stripes
-    U8GLIB_DOGM128_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes
-
-#elif ENABLED(U8GLIB_LM6059_AF)
-  // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
-    //U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
-    U8GLIB_LM6059_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes
-
-#elif ENABLED(U8GLIB_ST7565_64128N)
-  // The MaKrPanel, Mini Viki, Viki 2.0 & AZSMZ 12864 ST7565 controller
-  #define SMART_RAMPS (MB(RAMPS_SMART_EFB) || MB(RAMPS_SMART_EEB) || MB(RAMPS_SMART_EFF) || MB(RAMPS_SMART_EEF) || MB(RAMPS_SMART_SF))
-  #if DOGLCD_SCK == SCK_PIN && DOGLCD_MOSI == MOSI_PIN && !SMART_RAMPS
-    U8GLIB_64128N_2X_HAL u8g(DOGLCD_CS, DOGLCD_A0);  // using HW-SPI
-  #else
-    U8GLIB_64128N_2X_HAL u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);  // using SW-SPI
-  #endif
-
-#elif ENABLED(MKS_12864OLED_SSD1306)
-  // MKS 128x64 (SSD1306) OLED I2C LCD
-    U8GLIB_SSD1306_128X64 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);      // 8 stripes
-    //U8GLIB_SSD1306_128X64_2X u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0); // 4 stripes
-
-#elif ENABLED(U8GLIB_SSD1306)
-  // Generic support for SSD1306 OLED I2C LCDs
-    //U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE  u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST); // 4 stripes
-    U8GLIB_SSD1306_128X64_2X u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST); // 4 stripes
-
-#elif ENABLED(MKS_12864OLED)
-  // MKS 128x64 (SH1106) OLED I2C LCD
-    U8GLIB_SH1106_128X64 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);      // 8 stripes
-    //U8GLIB_SH1106_128X64_2X u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0); // 4 stripes
-#elif ENABLED(U8GLIB_SH1106)
-  // Generic support for SH1106 OLED I2C LCDs
-    //U8GLIB_SH1106_128X64_2X_I2C_2_WIRE  u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST); // 4 stripes
-    U8GLIB_SH1106_128X64_2X u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST); // 4 stripes
-#elif ENABLED(U8GLIB_SSD1309)
-  // Generic support for SSD1309 OLED I2C LCDs
-  U8GLIB_SSD1309_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);
-#elif ENABLED(MINIPANEL)
-  // The MINIPanel display
-    //U8GLIB_MINI12864 u8g(DOGLCD_CS, DOGLCD_A0);  // 8 stripes
-    U8GLIB_MINI12864_2X u8g(DOGLCD_CS, DOGLCD_A0); // 4 stripes
-#elif ENABLED(U8GLIB_SH1106_EINSTART)
-  // Connected via motherboard header
-  U8GLIB_SH1106_128X64 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS);
-#else
-  // for regular DOGM128 display with HW-SPI
-    //U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0  // 8 stripes
-    U8GLIB_DOGM128_2X u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0 // 4 stripes
-#endif
-
+U8G_CLASS u8g(U8G_PARAM);
 U8GLIB *pu8g = &u8g;
 
 #ifndef LCD_PIXEL_WIDTH
@@ -193,8 +114,16 @@ U8GLIB *pu8g = &u8g;
 
 #include "../lcdprint.h"
 
-int16_t lcd_contrast; // Initialized by settings.load()
-static char currentfont = 0;
+#if HAS_LCD_CONTRAST
+
+  int16_t lcd_contrast; // Initialized by settings.load()
+
+  void set_lcd_contrast(const int16_t value) {
+    lcd_contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
+    u8g.setContrast(lcd_contrast);
+  }
+
+#endif
 
 // The current graphical page being rendered
 u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
@@ -203,13 +132,16 @@ u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
 #define PAGE_UNDER(yb) (u8g.getU8g()->current_page.y0 <= (yb))
 #define PAGE_CONTAINS(ya, yb) (PAGE_UNDER(yb) && u8g.getU8g()->current_page.y1 >= (ya))
 
-static void lcd_setFont(const char font_nr) {
-  switch (font_nr) {
-    case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
-    default:
-    case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
-    case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
-    case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
+void lcd_setFont(const MarlinFont font_nr) {
+  static char currentfont = 0;
+  if (font_nr != currentfont) {
+    switch ((currentfont = font_nr)) {
+      case FONT_STATUSMENU : u8g.setFont(FONT_STATUSMENU_NAME); break;
+      default:
+      case FONT_MENU       : u8g.setFont(FONT_MENU_NAME);       break;
+      case FONT_SPECIAL    : u8g.setFont(FONT_SPECIAL_NAME);    break;
+      case FONT_MENU_EDIT  : u8g.setFont(FONT_MENU_EDIT_NAME);  break;
+    }
   }
 }
 
@@ -324,8 +256,8 @@ void lcd_implementation_init() {
     u8g.begin();
   #endif
 
-  #if DISABLED(MINIPANEL) // setContrast not working for Mini Panel
-    u8g.setContrast(lcd_contrast);
+  #if HAS_LCD_CONTRAST
+    set_lcd_contrast(lcd_contrast);
   #endif
 
   #if ENABLED(LCD_SCREEN_ROT_90)
@@ -336,7 +268,7 @@ void lcd_implementation_init() {
     u8g.setRot270();  // Rotate screen by 270°
   #endif
 
-  uxg_SetUtf8Fonts (g_fontinfo, NUM_ARRAY(g_fontinfo));
+  uxg_SetUtf8Fonts(g_fontinfo, NUM_ARRAY(g_fontinfo));
 }
 
 // The kill screen is displayed for unrecoverable conditions
@@ -526,6 +458,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       const char *outstr = theCard.longest_filename();
       if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
+          static uint8_t filename_scroll_hash;
           if (isSelected) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
@@ -682,4 +615,4 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
 #endif // ULTIPANEL
 
-#endif // __ULTRALCD_IMPL_DOGM_H
+#endif // DOGLCD
