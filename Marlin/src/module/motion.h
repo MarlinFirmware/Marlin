@@ -350,7 +350,7 @@ void homeaxis(const AxisEnum axis);
 
 #endif
 
-#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA) || HAS_SOFTWARE_ENDSTOPS
+#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
   void update_software_endstops(const AxisEnum axis);
 #endif
 
