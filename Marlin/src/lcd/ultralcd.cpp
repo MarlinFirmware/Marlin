@@ -3226,7 +3226,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
       }
     }
     #if ENABLED(PREVENT_COLD_EXTRUSION)
-      if (thermalManager.tooColdToExtrude(eindex >= 0 ? eindex : active_extruder))
+      if ((axis == E_AXIS) &&
+          (thermalManager.tooColdToExtrude(eindex >= 0 ? eindex : active_extruder)))
         MENU_BACK(MSG_HOTEND_TOO_COLD);
       else
     #endif
