@@ -87,9 +87,17 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if ENABLED(DOGLCD)
+  #if HAS_LCD_CONTRAST
     extern int16_t lcd_contrast;
     void set_lcd_contrast(const int16_t value);
+  #endif
+
+  #if ENABLED(DOGLCD)
+    #define SETCURSOR(col, row) lcd_moveto(col * (DOG_CHAR_WIDTH), (row + 1) * row_height)
+    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - len * (DOG_CHAR_WIDTH), (row + 1) * row_height)
+  #else
+    #define SETCURSOR(col, row) lcd_moveto(col, row)
+    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - len, row)
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)

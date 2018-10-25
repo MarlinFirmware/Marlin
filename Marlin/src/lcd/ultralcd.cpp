@@ -121,6 +121,13 @@ LCDViewAction lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 uint16_t max_display_update_time = 0;
 millis_t next_lcd_update_ms;
 
+#if HAS_LCD_CONTRAST
+  void set_lcd_contrast(const int16_t value) {
+    lcd_contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
+    u8g.setContrast(lcd_contrast);
+  }
+#endif
+
 #if ENABLED(ULTIPANEL)
 
   #define DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(_type, _name, _strFunc) \
@@ -338,6 +345,12 @@ millis_t next_lcd_update_ms;
   #define MENU_ITEM(TYPE, LABEL, ...) MENU_ITEM_P(TYPE, PSTR(LABEL), ## __VA_ARGS__)
 
   #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
+
+  #define MENU_ITEM_ADDON_START(X) \
+    if (lcdDrawUpdate && _menuLineNr == _thisItemNr - 1) { \
+      SETCURSOR(X, _lcdLineNr)
+
+  #define MENU_ITEM_ADDON_END() } (0)
 
   // Used to print static text with no visible cursor.
   // Parameters: label [, bool center [, bool invert [, char *value] ] ]
@@ -3264,21 +3277,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
    * "Motion" > "Move Axis" submenu
    *
    */
-
-  #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-    #define _MOVE_XYZ_ALLOWED (all_axes_homed())
-  #else
-    #define _MOVE_XYZ_ALLOWED true
-  #endif
-
   #if ENABLED(DELTA)
-    #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
     void lcd_lower_z_to_clip_height() {
       line_to_z(delta_clip_start_height);
       lcd_synchronize();
     }
-  #else
-    #define _MOVE_XY_ALLOWED true
   #endif
 
   void lcd_move_menu() {
@@ -3289,8 +3292,18 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM_EDIT(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstops_enabled);
     #endif
 
-    if (_MOVE_XYZ_ALLOWED) {
-      if (_MOVE_XY_ALLOWED) {
+    #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
+      const bool do_move_xyz = all_axes_homed();
+    #else
+      constexpr bool do_move_xyz = true;
+    #endif
+    if (do_move_xyz) {
+      #if ENABLED(DELTA)
+        const bool do_move_xy = current_position[Z_AXIS] <= delta_clip_start_height;
+      #else
+        constexpr bool do_move_xy = true;
+      #endif
+      if (do_move_xy) {
         MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_get_x_amount);
         MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_get_y_amount);
       }
@@ -5803,15 +5816,6 @@ void lcd_setalertstatusPGM(PGM_P const message) {
 }
 
 void lcd_reset_alert_level() { lcd_status_message_level = 0; }
-
-#if HAS_LCD_CONTRAST
-
-  void set_lcd_contrast(const int16_t value) {
-    lcd_contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
-    u8g.setContrast(lcd_contrast);
-  }
-
-#endif
 
 #if ENABLED(ULTIPANEL)
 
