@@ -1160,7 +1160,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS ? delta_height
     #if HAS_BED_PROBE
-      - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER    
+      - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER
     #endif
     : base_home_pos(axis));
   #else

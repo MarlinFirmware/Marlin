@@ -70,7 +70,7 @@
   #include "../../module/printcounter.h"
   #define IFPC(A,B) (A)
 #else
-  #define IFPC(A,B) (B)  
+  #define IFPC(A,B) (B)
 #endif
 
 #include "ui_api.h"
