@@ -319,6 +319,8 @@
   #error "PARKING_EXTRUDER_SECURITY_RAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
 #elif defined(SWITCHING_TOOLHEAD_SECURITY_RAISE)
   #error "SWITCHING_TOOLHEAD_SECURITY_RAISE is now TOOLCHANGE_ZRAISE. Please update your configuration."
+#elif defined(G0_FEEDRATE) && G0_FEEDRATE == 0
+  #error "G0_FEEDRATE is now used to set the G0 feedrate. Please update your configuration."
 #endif
 
 #define BOARD_MKS_13     -47
