@@ -738,7 +738,7 @@
  * controller events, as there is a trade-off between reliable
  * printing performance versus fast display updates.
  */
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
   // Show SD percentage next to the progress bar
   //#define DOGM_SD_PERCENT
 
