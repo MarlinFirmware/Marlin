@@ -1034,6 +1034,7 @@
 #define PROBING_FANS_OFF          // Turn fans off when probing
 #if(ENABLED(MachineCR10Orig))
 #define SOLENOID_PROBE PIN_27
+#define SERVO0_PIN 27
 #elif(ENABLED(MachineEnder4))
 #define SOLENOID_PROBE PIN_15
 #else
