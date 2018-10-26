@@ -7875,9 +7875,9 @@ inline void gcode_M42() {
 
     // Enable or disable endstop monitoring
     if (parser.seen('E')) {
-      endstop_monitor_flag = parser.value_bool();
+      endstops.monitor_flag = parser.value_bool();
       SERIAL_PROTOCOLPGM("endstop monitor ");
-      serialprintPGM(endstop_monitor_flag ? PSTR("en") : PSTR("dis"));
+      serialprintPGM(endstops.monitor_flag ? PSTR("en") : PSTR("dis"));
       SERIAL_PROTOCOLLNPGM("abled");
       return;
     }
