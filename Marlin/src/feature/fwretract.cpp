@@ -43,34 +43,34 @@ FWRetract fwretract; // Single instance - this calls the constructor
 // private:
 
 #if EXTRUDERS > 1
-  bool FWRetract::retracted_swap[EXTRUDERS];         // Which extruders are swap-retracted
+  bool FWRetract::retracted_swap[EXTRUDERS];          // Which extruders are swap-retracted
 #endif
 
 // public:
 
-bool FWRetract::autoretract_enabled,                 // M209 S - Autoretract switch
-     FWRetract::retracted[EXTRUDERS];                // Which extruders are currently retracted
-float FWRetract::retract_length,                     // M207 S - G10 Retract length
-      FWRetract::retract_feedrate_mm_s,              // M207 F - G10 Retract feedrate
-      FWRetract::retract_zlift,                      // M207 Z - G10 Retract hop size
-      FWRetract::retract_recover_length,             // M208 S - G11 Recover length
-      FWRetract::retract_recover_feedrate_mm_s,      // M208 F - G11 Recover feedrate
-      FWRetract::swap_retract_length,                // M207 W - G10 Swap Retract length
-      FWRetract::swap_retract_recover_length,        // M208 W - G11 Swap Recover length
-      FWRetract::swap_retract_recover_feedrate_mm_s, // M208 R - G11 Swap Recover feedrate
-      FWRetract::current_retract[EXTRUDERS],         // Retract value used by planner
+fwretract_settings_t FWRetract::settings;             // M207 S F Z W, M208 S F W R
+
+#if ENABLED(FWRETRACT_AUTORETRACT)
+  bool FWRetract::autoretract_enabled;                // M209 S - Autoretract switch
+#endif
+
+bool FWRetract::retracted[EXTRUDERS];                 // Which extruders are currently retracted
+
+float FWRetract::current_retract[EXTRUDERS],          // Retract value used by planner
       FWRetract::current_hop;
 
 void FWRetract::reset() {
-  autoretract_enabled = false;
-  retract_length = RETRACT_LENGTH;
-  retract_feedrate_mm_s = RETRACT_FEEDRATE;
-  retract_zlift = RETRACT_ZLIFT;
-  retract_recover_length = RETRACT_RECOVER_LENGTH;
-  retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
-  swap_retract_length = RETRACT_LENGTH_SWAP;
-  swap_retract_recover_length = RETRACT_RECOVER_LENGTH_SWAP;
-  swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
+  #if ENABLED(FWRETRACT_AUTORETRACT)
+    autoretract_enabled = false;
+  #endif
+  settings.retract_length = RETRACT_LENGTH;
+  settings.retract_feedrate_mm_s = RETRACT_FEEDRATE;
+  settings.retract_zraise = RETRACT_ZRAISE;
+  settings.retract_recover_length = RETRACT_RECOVER_LENGTH;
+  settings.retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
+  settings.swap_retract_length = RETRACT_LENGTH_SWAP;
+  settings.swap_retract_recover_length = RETRACT_RECOVER_LENGTH_SWAP;
+  settings.swap_retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE_SWAP;
   current_hop = 0.0;
 
   for (uint8_t i = 0; i < EXTRUDERS; ++i) {
@@ -132,7 +132,7 @@ void FWRetract::retract(const bool retracting
               unscale_e = RECIPROCAL(planner.e_factor[active_extruder]),
               unscale_fr = 100.0 / feedrate_percentage, // Disable feedrate scaling for retract moves
               base_retract = (
-                (swapping ? swap_retract_length : retract_length)
+                (swapping ? settings.swap_retract_length : settings.retract_length)
                 #if ENABLED(RETRACT_SYNC_MIXING)
                   * (MIXING_STEPPERS)
                 #endif
@@ -142,17 +142,14 @@ void FWRetract::retract(const bool retracting
   set_destination_from_current();
 
   #if ENABLED(RETRACT_SYNC_MIXING)
-    float old_mixing_factor[MIXING_STEPPERS];
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
-      old_mixing_factor[i] = mixing_factor[i];
-      mixing_factor[i] = RECIPROCAL(MIXING_STEPPERS);
-    }
+    uint8_t old_mixing_tool = mixer.get_current_v_tool();
+    mixer.T(MIXER_AUTORETRACT_TOOL);
   #endif
 
   if (retracting) {
     // Retract by moving from a faux E position back to the current E position
     feedrate_mm_s = (
-      retract_feedrate_mm_s * unscale_fr
+      settings.retract_feedrate_mm_s * unscale_fr
       #if ENABLED(RETRACT_SYNC_MIXING)
         * (MIXING_STEPPERS)
       #endif
@@ -162,9 +159,9 @@ void FWRetract::retract(const bool retracting
     planner.synchronize();                                // Wait for move to complete
 
     // Is a Z hop set, and has the hop not yet been done?
-    if (retract_zlift > 0.01 && !current_hop) {           // Apply hop only once
-      current_hop += retract_zlift;                       // Add to the hop total (again, only once)
-      feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Maximum Z feedrate
+    if (settings.retract_zraise > 0.01 && !current_hop) {           // Apply hop only once
+      current_hop += settings.retract_zraise;                       // Add to the hop total (again, only once)
+      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Maximum Z feedrate
       prepare_move_to_destination();                      // Raise up, set_current_to_destination
       planner.synchronize();                              // Wait for move to complete
     }
@@ -173,12 +170,12 @@ void FWRetract::retract(const bool retracting
     // If a hop was done and Z hasn't changed, undo the Z hop
     if (current_hop) {
       current_hop = 0.0;
-      feedrate_mm_s = planner.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Z feedrate to max
+      feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Z feedrate to max
       prepare_move_to_destination();                      // Lower Z, set_current_to_destination
       planner.synchronize();                              // Wait for move to complete
     }
 
-    const float extra_recover = swapping ? swap_retract_recover_length : retract_recover_length;
+    const float extra_recover = swapping ? settings.swap_retract_recover_length : settings.retract_recover_length;
     if (extra_recover != 0.0) {
       current_position[E_AXIS] -= extra_recover;          // Adjust the current E position by the extra amount to recover
       sync_plan_position_e();                             // Sync the planner position so the extra amount is recovered
@@ -186,7 +183,7 @@ void FWRetract::retract(const bool retracting
 
     current_retract[active_extruder] = 0.0;
     feedrate_mm_s = (
-      (swapping ? swap_retract_recover_feedrate_mm_s : retract_recover_feedrate_mm_s) * unscale_fr
+      (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s) * unscale_fr
       #if ENABLED(RETRACT_SYNC_MIXING)
         * (MIXING_STEPPERS)
       #endif
@@ -196,7 +193,7 @@ void FWRetract::retract(const bool retracting
   }
 
   #if ENABLED(RETRACT_SYNC_MIXING)
-    COPY(mixing_factor, old_mixing_factor);               // Restore original mixing factor
+    mixer.T(old_mixing_tool);                             // Restore original mixing tool
   #endif
 
   feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate

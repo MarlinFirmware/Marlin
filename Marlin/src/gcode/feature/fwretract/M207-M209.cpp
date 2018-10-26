@@ -33,13 +33,13 @@
  *   S[+units]    retract_length
  *   W[+units]    swap_retract_length (multi-extruder)
  *   F[units/min] retract_feedrate_mm_s
- *   Z[units]     retract_zlift
+ *   Z[units]     retract_zraise
  */
 void GcodeSuite::M207() {
-  if (parser.seen('S')) fwretract.retract_length = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) fwretract.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('Z')) fwretract.retract_zlift = parser.value_linear_units();
-  if (parser.seen('W')) fwretract.swap_retract_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('S')) fwretract.settings.retract_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) fwretract.settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('Z')) fwretract.settings.retract_zraise = parser.value_linear_units();
+  if (parser.seen('W')) fwretract.settings.swap_retract_length = parser.value_axis_units(E_AXIS);
 }
 
 /**
@@ -51,10 +51,10 @@ void GcodeSuite::M207() {
  *   R[units/min] swap_retract_recover_feedrate_mm_s
  */
 void GcodeSuite::M208() {
-  if (parser.seen('S')) fwretract.retract_recover_length = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) fwretract.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('R')) fwretract.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) fwretract.swap_retract_recover_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('S')) fwretract.settings.retract_recover_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) fwretract.settings.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('R')) fwretract.settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('W')) fwretract.settings.swap_retract_recover_length = parser.value_axis_units(E_AXIS);
 }
 
 #if ENABLED(FWRETRACT_AUTORETRACT)

@@ -28,6 +28,13 @@
 #ifndef _SD2CARD_FLASHDRIVE_H_
 #define _SD2CARD_FLASHDRIVE_H_
 
+/* Uncomment USB_DEBUG to enable debugging.
+ *    1 - basic debugging and bounds checking
+ *    2 - print each block access
+ */
+//#define USB_DEBUG 1
+
+
 #include "../SdFatConfig.h"
 #include "../SdInfo.h"
 
@@ -63,29 +70,34 @@ class Sd2Card {
       USB_HOST_INITIALIZED
     } state_t;
 
-    static state_t  state;
-    static uint32_t block;
+    static state_t state;
 
-    static bool usbHostReady();
+    uint32_t pos;
+    #ifdef USB_DEBUG
+      uint32_t lun0_capacity;
+    #endif
+
+    static inline bool ready() {return state == USB_HOST_INITIALIZED;}
 
   public:
-    static void idle();
-
-    static bool isInserted();
-
-    uint32_t cardSize();
-
     bool init(uint8_t sckRateID = 0, uint8_t chipSelectPin = SD_CHIP_SELECT_PIN);
 
-    bool readData(uint8_t* dst);
-    bool readStart(uint32_t blockNumber);
-    bool readStop();
-    bool readBlock(uint32_t block, uint8_t* dst);
+    static void idle();
 
-    bool writeData(const uint8_t* src);
-    bool writeStart(uint32_t blockNumber, uint32_t eraseCount);
-    bool writeStop();
+    bool readStart(uint32_t block)                       { pos = block; return ready(); }
+    bool readData(uint8_t* dst)                          { return readBlock(pos++, dst); }
+    bool readStop()                                      { return true; }
+
+    bool writeStart(uint32_t block, uint32_t eraseCount) { pos = block; return ready(); }
+    bool writeData(uint8_t* src)                         { return writeBlock(pos++, src); }
+    bool writeStop()                                     { return true; }
+
+
+    bool readBlock(uint32_t block, uint8_t* dst);
     bool writeBlock(uint32_t blockNumber, const uint8_t* src);
+
+    uint32_t cardSize();
+    static bool isInserted();
 };
 
 #endif  // _SD2CARD_FLASHDRIVE_H_

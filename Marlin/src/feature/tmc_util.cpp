@@ -138,7 +138,7 @@
 
     // Report if a warning was triggered
     if (data.is_otpw && st.otpw_count == 0) {
-      char timestamp[10];
+      char timestamp[14];
       duration_t elapsed = print_job_timer.duration();
       const bool has_days = (elapsed.value > 60*60*24L);
       (void)elapsed.toDigital(timestamp, has_days);
@@ -456,62 +456,62 @@
 
   static void tmc_debug_loop(const TMC_debug_enum i) {
     #if AXIS_IS_TMC(X)
-      tmc_status(stepperX, i, planner.axis_steps_per_mm[X_AXIS]);
+      tmc_status(stepperX, i, planner.settings.axis_steps_per_mm[X_AXIS]);
     #endif
     #if AXIS_IS_TMC(X2)
-      tmc_status(stepperX2, i, planner.axis_steps_per_mm[X_AXIS]);
+      tmc_status(stepperX2, i, planner.settings.axis_steps_per_mm[X_AXIS]);
     #endif
 
     #if AXIS_IS_TMC(Y)
-      tmc_status(stepperY, i, planner.axis_steps_per_mm[Y_AXIS]);
+      tmc_status(stepperY, i, planner.settings.axis_steps_per_mm[Y_AXIS]);
     #endif
     #if AXIS_IS_TMC(Y2)
-      tmc_status(stepperY2, i, planner.axis_steps_per_mm[Y_AXIS]);
+      tmc_status(stepperY2, i, planner.settings.axis_steps_per_mm[Y_AXIS]);
     #endif
 
     #if AXIS_IS_TMC(Z)
-      tmc_status(stepperZ, i, planner.axis_steps_per_mm[Z_AXIS]);
+      tmc_status(stepperZ, i, planner.settings.axis_steps_per_mm[Z_AXIS]);
     #endif
     #if AXIS_IS_TMC(Z2)
-      tmc_status(stepperZ2, i, planner.axis_steps_per_mm[Z_AXIS]);
+      tmc_status(stepperZ2, i, planner.settings.axis_steps_per_mm[Z_AXIS]);
     #endif
     #if AXIS_IS_TMC(Z3)
-      tmc_status(stepperZ3, i, planner.axis_steps_per_mm[Z_AXIS]);
+      tmc_status(stepperZ3, i, planner.settings.axis_steps_per_mm[Z_AXIS]);
     #endif
 
     #if AXIS_IS_TMC(E0)
-      tmc_status(stepperE0, i, planner.axis_steps_per_mm[E_AXIS]);
+      tmc_status(stepperE0, i, planner.settings.axis_steps_per_mm[E_AXIS]);
     #endif
     #if AXIS_IS_TMC(E1)
-      tmc_status(stepperE1, i, planner.axis_steps_per_mm[E_AXIS
+      tmc_status(stepperE1, i, planner.settings.axis_steps_per_mm[E_AXIS
         #if ENABLED(DISTINCT_E_FACTORS)
           + 1
         #endif
       ]);
     #endif
     #if AXIS_IS_TMC(E2)
-      tmc_status(stepperE2, i, planner.axis_steps_per_mm[E_AXIS
+      tmc_status(stepperE2, i, planner.settings.axis_steps_per_mm[E_AXIS
         #if ENABLED(DISTINCT_E_FACTORS)
           + 2
         #endif
       ]);
     #endif
     #if AXIS_IS_TMC(E3)
-      tmc_status(stepperE3, i, planner.axis_steps_per_mm[E_AXIS
+      tmc_status(stepperE3, i, planner.settings.axis_steps_per_mm[E_AXIS
         #if ENABLED(DISTINCT_E_FACTORS)
           + 3
         #endif
       ]);
     #endif
     #if AXIS_IS_TMC(E4)
-      tmc_status(stepperE4, i, planner.axis_steps_per_mm[E_AXIS
+      tmc_status(stepperE4, i, planner.settings.axis_steps_per_mm[E_AXIS
         #if ENABLED(DISTINCT_E_FACTORS)
           + 4
         #endif
       ]);
     #endif
     #if AXIS_IS_TMC(E5)
-      tmc_status(stepperE5, i, planner.axis_steps_per_mm[E_AXIS
+      tmc_status(stepperE5, i, planner.settings.axis_steps_per_mm[E_AXIS
         #if ENABLED(DISTINCT_E_FACTORS)
           + 5
         #endif

@@ -1010,16 +1010,16 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
 }
 
 /**
-* @brief Draw a UTF-8 string
-*
-* @param utf8_str : the UTF-8 string
-* @param cb_read_byte : the callback function to read one byte from the utf8_str (from RAM or ROM)
-* @param max_length : the pixel length of the string allowed (or number of slots in HD44780)
-*
-* @return the number of pixels advanced
-*
-* Draw a UTF-8 string
-*/
+ * @brief Draw a UTF-8 string
+ *
+ * @param utf8_str : the UTF-8 string
+ * @param cb_read_byte : the callback function to read one byte from the utf8_str (from RAM or ROM)
+ * @param max_length : the pixel length of the string allowed (or number of slots in HD44780)
+ *
+ * @return the number of pixels advanced
+ *
+ * Draw a UTF-8 string
+ */
 static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(uint8_t * str), pixel_len_t max_length) {
   pixel_len_t ret = 0;
   uint8_t *p = (uint8_t *)utf8_str;

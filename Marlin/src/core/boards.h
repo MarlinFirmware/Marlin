@@ -110,7 +110,7 @@
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
 #define BOARD_GT2560_V3         76    // Geeetech GT2560 Rev B for A10(M/D)
-#define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2																		   																	 
+#define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2
 #define BOARD_EINSTART_S        666   // Einstart retrofit
 
 //
@@ -231,6 +231,7 @@
 #define BOARD_TEENSY35_36       841   // Teensy3.5 and Teensy3.6
 #define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
+#define BOARD_ARMED            1807   // Arm'ed STM32F4 based controller
 
 //
 // ARM Cortex M7

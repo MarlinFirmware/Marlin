@@ -198,7 +198,7 @@ inline void lcd_implementation_status_message(const bool blink) {
   #endif
 }
 
-static void lcd_implementation_status_screen() {
+static void lcd_impl_status_screen_0() {
 
   const bool blink = lcd_blink();
 
@@ -295,7 +295,7 @@ static void lcd_implementation_status_screen() {
     }
   #endif // SDSUPPORT
 
-  #if ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  #if HAS_PRINT_PROGRESS
     //
     // Progress bar frame
     //
@@ -377,7 +377,7 @@ static void lcd_implementation_status_screen() {
     #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 1
   #endif
 
-  static char xstring[5], ystring[5], zstring[7];
+  static char xstring[5], ystring[5], zstring[8];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
   #endif

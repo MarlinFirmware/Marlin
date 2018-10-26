@@ -48,7 +48,7 @@ void safe_delay(millis_t ms) {
 
 #endif // EEPROM_SETTINGS
 
-#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE)
+#if ENABLED(ULTRA_LCD) || ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(EXTENSIBLE_UI)
 
   char conv[8] = { 0 };
 
@@ -231,7 +231,8 @@ void safe_delay(millis_t ms) {
   char* ftostr52sp(const float &f) {
     long i = (f * 1000 + (f < 0 ? -5: 5)) / 10;
     uint8_t dig;
-    conv[1] = MINUSOR(i, RJDIGIT(i, 10000));
+    conv[0] = MINUSOR(i, ' ');
+    conv[1] = RJDIGIT(i, 10000);
     conv[2] = RJDIGIT(i, 1000);
     conv[3] = DIGIMOD(i, 100);
 
@@ -249,7 +250,7 @@ void safe_delay(millis_t ms) {
         conv[4] = conv[5] = ' ';
       conv[6] = ' ';
     }
-    return &conv[1];
+    return conv;
   }
 
 #endif // ULTRA_LCD

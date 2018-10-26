@@ -32,36 +32,21 @@
 
 FilamentRunoutSensor runout;
 
-bool FilamentRunoutSensor::enabled = true,
-     FilamentRunoutSensor::filament_ran_out; // = false
-uint8_t FilamentRunoutSensor::runout_count; // = 0
+bool FilamentSensorBase::enabled = true,
+     FilamentSensorBase::filament_ran_out; // = false
 
-void FilamentRunoutSensor::setup() {
-
-  #if ENABLED(FIL_RUNOUT_PULLUP)
-    #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLUP(P)
-  #elif ENABLED(FIL_RUNOUT_PULLDOWN)
-    #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLDOWN(P)
-  #else
-    #define INIT_RUNOUT_PIN(P) SET_INPUT(P)
-  #endif
-
-  INIT_RUNOUT_PIN(FIL_RUNOUT_PIN);
-  #if NUM_RUNOUT_SENSORS > 1
-    INIT_RUNOUT_PIN(FIL_RUNOUT2_PIN);
-    #if NUM_RUNOUT_SENSORS > 2
-      INIT_RUNOUT_PIN(FIL_RUNOUT3_PIN);
-      #if NUM_RUNOUT_SENSORS > 3
-        INIT_RUNOUT_PIN(FIL_RUNOUT4_PIN);
-        #if NUM_RUNOUT_SENSORS > 4
-          INIT_RUNOUT_PIN(FIL_RUNOUT5_PIN);
-          #if NUM_RUNOUT_SENSORS > 5
-            INIT_RUNOUT_PIN(FIL_RUNOUT6_PIN);
-          #endif
-        #endif
-      #endif
-    #endif
-  #endif
+void FilamentSensorTypeBase::filament_present(const uint8_t extruder) {
+  runout.filament_present(extruder);
 }
+
+uint8_t FilamentSensorTypeEncoder::motion_detected,
+        FilamentSensorTypeEncoder::old_state; // = 0
+
+#if FILAMENT_RUNOUT_DISTANCE_MM > 0
+  float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
+  int32_t RunoutResponseDelayed::steps_since_detection[EXTRUDERS];
+#else
+  uint8_t RunoutResponseDebounced::runout_count; // = 0
+#endif
 
 #endif // FILAMENT_RUNOUT_SENSOR

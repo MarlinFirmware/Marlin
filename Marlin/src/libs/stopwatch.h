@@ -27,7 +27,7 @@
 //#define DEBUG_STOPWATCH
 
 #include "../core/macros.h" // for FORCE_INLINE
-#include "../core/types.h"  // for millis_t
+#include "../core/millis_t.h"
 
 /**
  * @brief Stopwatch class

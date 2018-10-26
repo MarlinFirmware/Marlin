@@ -19,18 +19,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * feature/pause.h - Pause feature support functions
  * This may be combined with related G-codes if features are consolidated.
  */
 
-#ifndef _PAUSE_H_
-#define _PAUSE_H_
-
-#include "../libs/nozzle.h"
+typedef struct {
+  float unload_length, load_length;
+} fil_change_settings_t;
 
 #include "../inc/MarlinConfigPre.h"
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+
+#include "../libs/nozzle.h"
 
 enum AdvancedPauseMode : char {
   ADVANCED_PAUSE_MODE_PAUSE_PRINT,
@@ -62,8 +66,7 @@ enum AdvancedPauseMenuResponse : char {
 
 extern AdvancedPauseMenuResponse advanced_pause_menu_response;
 
-extern float filament_change_unload_length[EXTRUDERS],
-             filament_change_load_length[EXTRUDERS];
+extern fil_change_settings_t fc_settings[EXTRUDERS];
 
 extern uint8_t did_pause_print;
 
@@ -90,4 +93,4 @@ bool load_filament(const float &slow_load_length=0, const float &fast_load_lengt
 
 bool unload_filament(const float &unload_length, const bool show_lcd=false, const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT);
 
-#endif // _PAUSE_H_
+#endif //ADVANCED_PAUSE_FEATURE

@@ -36,10 +36,6 @@ GcodeSuite gcode;
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(DIRECT_MIXING_IN_G1)
-  #include "../feature/mixing.h"
-#endif
-
 #include "../Marlin.h" // for idle() and suspend_auto_report
 
 uint8_t GcodeSuite::target_extruder;
@@ -113,7 +109,7 @@ void GcodeSuite::get_destination_from_command() {
 
   // Get ABCDHI mixing factors
   #if ENABLED(MIXING_EXTRUDER) && ENABLED(DIRECT_MIXING_IN_G1)
-    gcode_get_mix();
+    M165();
   #endif
 }
 
@@ -188,7 +184,7 @@ void GcodeSuite::process_parsed_command(
     case 'G': switch (parser.codenum) {
 
       case 0: case 1: G0_G1(                                      // G0: Fast Move, G1: Linear Move
-                        #if IS_SCARA
+                        #if IS_SCARA || defined(G0_FEEDRATE)
                           parser.codenum == 0
                         #endif
                       );
@@ -441,9 +437,7 @@ void GcodeSuite::process_parsed_command(
 
       #if ENABLED(MIXING_EXTRUDER)
         case 163: M163(); break;                                  // M163: Set a component weight for mixing extruder
-        #if MIXING_VIRTUAL_TOOLS > 1
-          case 164: M164(); break;                                // M164: Save current mix as a virtual extruder
-        #endif
+        case 164: M164(); break;                                  // M164: Save current mix as a virtual extruder
         #if ENABLED(DIRECT_MIXING_IN_G1)
           case 165: M165(); break;                                // M165: Set multiple mix weights
         #endif
@@ -487,7 +481,7 @@ void GcodeSuite::process_parsed_command(
 
       case 211: M211(); break;                                    // M211: Enable, Disable, and/or Report software endstops
 
-      #if ENABLED(SINGLENOZZLE)
+      #if EXTRUDERS > 1
         case 217: M217(); break;                                  // M217: Set filament swap parameters
       #endif
 
@@ -588,6 +582,10 @@ void GcodeSuite::process_parsed_command(
       #endif
       #if ENABLED(EEPROM_SETTINGS)
         case 504: M504(); break;                                  // M504: Validate EEPROM contents
+      #endif
+
+      #if ENABLED(SDSUPPORT)
+        case 524: M524(); break;                                   // M524: Abort the current SD print job
       #endif
 
       #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)

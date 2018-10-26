@@ -33,8 +33,8 @@
 #include "../module/temperature.h"
 #include "../Marlin.h"
 
-#if HAS_COLOR_LEDS
-  #include "../feature/leds/leds.h"
+#if ENABLED(PRINTER_EVENT_LEDS)
+  #include "../feature/leds/printer_event_leds.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -391,7 +391,7 @@ inline void get_serial_commands() {
               wait_for_user = false;
             #endif
           }
-          if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
+          if (strcmp(command, "M112") == 0) kill();
           if (strcmp(command, "M410") == 0) quickstop_stepper();
         #endif
 
@@ -450,7 +450,7 @@ inline void get_serial_commands() {
                 #endif
               ;
 
-    if (!IS_SD_PRINTING) return;
+    if (!IS_SD_PRINTING()) return;
 
     /**
      * '#' stops reading from SD to the buffer prematurely, so procedural
@@ -484,10 +484,8 @@ inline void get_serial_commands() {
           else {
             SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
             #if ENABLED(PRINTER_EVENT_LEDS)
-              LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-              leds.set_green();
+              printerEventLEDs.onPrintCompleted();
               #if HAS_RESUME_CONTINUE
-                gcode.lights_off_after_print = true;
                 enqueue_and_echo_commands_P(PSTR("M0 S"
                   #if ENABLED(NEWPANEL)
                     "1800"
@@ -495,9 +493,6 @@ inline void get_serial_commands() {
                     "60"
                   #endif
                 ));
-              #else
-                safe_delay(2000);
-                leds.set_off();
               #endif
             #endif // PRINTER_EVENT_LEDS
           }

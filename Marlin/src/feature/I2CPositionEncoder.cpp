@@ -163,8 +163,8 @@ void I2CPositionEncoder::update() {
     //SERIAL_ECHOLN(error);
 
     #ifdef I2CPE_ERR_THRESH_ABORT
-      if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
-        //kill("Significant Error");
+      if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.settings.axis_steps_per_mm[encoderAxis]) {
+        //kill(PSTR("Significant Error"));
         SERIAL_ECHOPGM("Axis error greater than set threshold, aborting!");
         SERIAL_ECHOLN(error);
         safe_delay(5000);
@@ -175,7 +175,7 @@ void I2CPositionEncoder::update() {
       if (errIdx == 0) {
         // In order to correct for "error" but avoid correcting for noise and non-skips
         // it must be > threshold and have a difference average of < 10 and be < 2000 steps
-        if (ABS(error) > threshold * planner.axis_steps_per_mm[encoderAxis] &&
+        if (ABS(error) > threshold * planner.settings.axis_steps_per_mm[encoderAxis] &&
             diffSum < 10 * (I2CPE_ERR_ARRAY_SIZE - 1) && ABS(error) < 2000) { // Check for persistent error (skip)
           errPrst[errPrstIdx++] = error; // Error must persist for I2CPE_ERR_PRST_ARRAY_SIZE error cycles. This also serves to improve the average accuracy
           if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
@@ -193,14 +193,14 @@ void I2CPositionEncoder::update() {
           errPrstIdx = 0;
       }
     #else
-      if (ABS(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
+      if (ABS(error) > threshold * planner.settings.axis_steps_per_mm[encoderAxis]) {
         //SERIAL_ECHOLN(error);
         //SERIAL_ECHOLN(position);
         thermalManager.babystepsTodo[encoderAxis] = -LROUND(error / 2);
       }
     #endif
 
-    if (ABS(error) > I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) {
+    if (ABS(error) > I2CPE_ERR_CNT_THRESH * planner.settings.axis_steps_per_mm[encoderAxis]) {
       const millis_t ms = millis();
       if (ELAPSED(ms, nextErrorCountTime)) {
         SERIAL_ECHOPAIR("Large error on ", axis_codes[encoderAxis]);
@@ -284,7 +284,7 @@ int32_t I2CPositionEncoder::get_axis_error_steps(const bool report) {
   //int32_t stepperTicks = stepper.position(encoderAxis);
 
   // With a rotary encoder we're concerned with ticks/rev; whereas with a linear we're concerned with ticks/mm
-  stepperTicksPerUnit = (type == I2CPE_ENC_TYPE_ROTARY) ? stepperTicks : planner.axis_steps_per_mm[encoderAxis];
+  stepperTicksPerUnit = (type == I2CPE_ENC_TYPE_ROTARY) ? stepperTicks : planner.settings.axis_steps_per_mm[encoderAxis];
 
   //convert both 'ticks' into same units / base
   encoderCountInStepperTicksScaled = LROUND((stepperTicksPerUnit * encoderTicks) / encoderTicksPerUnit);
@@ -444,14 +444,14 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     SERIAL_ECHOLNPGM("mm.");
 
     //Calculate new axis steps per unit
-    old_steps_mm = planner.axis_steps_per_mm[encoderAxis];
+    old_steps_mm = planner.settings.axis_steps_per_mm[encoderAxis];
     new_steps_mm = (old_steps_mm * travelDistance) / travelledDistance;
 
     SERIAL_ECHOLNPAIR("Old steps per mm: ", old_steps_mm);
     SERIAL_ECHOLNPAIR("New steps per mm: ", new_steps_mm);
 
     //Save new value
-    planner.axis_steps_per_mm[encoderAxis] = new_steps_mm;
+    planner.settings.axis_steps_per_mm[encoderAxis] = new_steps_mm;
 
     if (iter > 1) {
       total += new_steps_mm;

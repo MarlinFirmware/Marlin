@@ -31,7 +31,12 @@
 
   void watchdog_init() { IWatchdog.begin(4000000); } // 4 sec timeout
 
-  void watchdog_reset() { IWatchdog.reload(); }
+  void watchdog_reset() {
+    IWatchdog.reload();
+    #if PIN_EXISTS(LED)
+      TOGGLE(LED_PIN);  // heartbeat indicator
+    #endif
+  }
 
 #endif // USE_WATCHDOG
 #endif // ARDUINO_ARCH_STM32

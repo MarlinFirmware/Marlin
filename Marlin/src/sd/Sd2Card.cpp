@@ -240,7 +240,7 @@ bool Sd2Card::init(uint8_t sckRateID, pin_t chipSelectPin) {
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
   // 16-bit init start time allows over a minute
-  uint16_t t0 = (uint16_t)millis();
+  const millis_t init_timeout = millis() + SD_INIT_TIMEOUT;
   uint32_t arg;
 
   // If init takes more than 4s it could trigger
@@ -268,7 +268,7 @@ bool Sd2Card::init(uint8_t sckRateID, pin_t chipSelectPin) {
 
   // Command to go idle in SPI mode
   while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
-    if (((uint16_t)millis() - t0) > SD_INIT_TIMEOUT) {
+    if (ELAPSED(millis(), init_timeout)) {
       error(SD_CARD_ERROR_CMD0);
       goto FAIL;
     }
@@ -297,7 +297,7 @@ bool Sd2Card::init(uint8_t sckRateID, pin_t chipSelectPin) {
       break;
     }
 
-    if (((uint16_t)millis() - t0) > SD_INIT_TIMEOUT) {
+    if (ELAPSED(millis(), init_timeout)) {
       error(SD_CARD_ERROR_CMD8);
       goto FAIL;
     }
@@ -312,7 +312,7 @@ bool Sd2Card::init(uint8_t sckRateID, pin_t chipSelectPin) {
   arg = type() == SD_CARD_TYPE_SD2 ? 0x40000000 : 0;
   while ((status_ = cardAcmd(ACMD41, arg)) != R1_READY_STATE) {
     // check for timeout
-    if (((uint16_t)millis() - t0) > SD_INIT_TIMEOUT) {
+    if (ELAPSED(millis(), init_timeout)) {
       error(SD_CARD_ERROR_ACMD41);
       goto FAIL;
     }
@@ -449,9 +449,9 @@ bool Sd2Card::readData(uint8_t* dst) {
 
 bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   // wait for start block token
-  uint16_t t0 = millis();
+  const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
   while ((status_ = spiRec()) == 0xFF) {
-    if (((uint16_t)millis() - t0) > SD_READ_TIMEOUT) {
+    if (ELAPSED(millis(), read_timeout)) {
       error(SD_CARD_ERROR_READ_TIMEOUT);
       goto FAIL;
     }
@@ -553,10 +553,10 @@ bool Sd2Card::setSckRate(uint8_t sckRateID) {
 }
 
 // wait for card to go not busy
-bool Sd2Card::waitNotBusy(uint16_t timeoutMillis) {
-  uint16_t t0 = millis();
+bool Sd2Card::waitNotBusy(const millis_t timeout_ms) {
+  const millis_t wait_timeout = millis() + timeout_ms;
   while (spiRec() != 0xFF)
-    if (((uint16_t)millis() - t0) >= timeoutMillis) return false;
+    if (ELAPSED(millis(), wait_timeout)) return false;
 
   return true;
 }

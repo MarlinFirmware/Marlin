@@ -643,7 +643,7 @@ void GcodeSuite::G33() {
 
     if (verbose_level != 0) {                                    // !dry run
 
-      // normalise angles to least squares
+      // Normalize angles to least-squares
       if (_angle_results) {
         float a_sum = 0.0;
         LOOP_XYZ(axis) a_sum += delta_tower_angle_trim[axis];

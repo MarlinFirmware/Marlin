@@ -30,7 +30,7 @@
 #include "../HAL/platforms.h"
 #include "../core/boards.h"
 #include "../core/macros.h"
-#include "../core/types.h"
+#include "../core/millis_t.h"
 #include "Version.h"
 #include "../../Configuration.h"
 #include "Conditionals_LCD.h"

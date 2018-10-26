@@ -41,7 +41,7 @@ void GcodeSuite::M108() {
  * M112: Emergency Stop
  */
 void GcodeSuite::M112() {
-  kill(PSTR(MSG_KILLED));
+  kill();
 }
 
 /**

@@ -30,6 +30,7 @@
   bool lcd_detected();
   void lcd_update();
   void lcd_setalertstatusPGM(PGM_P message);
+  void kill_screen(PGM_P lcd_msg);
 #else
   inline void lcd_init() {}
   inline bool lcd_detected() { return true; }
@@ -86,9 +87,17 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #if ENABLED(DOGLCD)
+  #if HAS_LCD_CONTRAST
     extern int16_t lcd_contrast;
     void set_lcd_contrast(const int16_t value);
+  #endif
+
+  #if ENABLED(DOGLCD)
+    #define SETCURSOR(col, row) lcd_moveto(col * (DOG_CHAR_WIDTH), (row + 1) * row_height)
+    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - len * (DOG_CHAR_WIDTH), (row + 1) * row_height)
+  #else
+    #define SETCURSOR(col, row) lcd_moveto(col, row)
+    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - len, row)
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
@@ -288,10 +297,5 @@
   void lcd_reselect_last_file();
 #endif
 
-#if (ENABLED(EXTENSIBLE_UI) || ENABLED(ULTIPANEL)) && ENABLED(SDSUPPORT)
-  extern bool abort_sd_printing;
-#else
-  constexpr bool abort_sd_printing = false;
-#endif
 
 #endif // ULTRALCD_H

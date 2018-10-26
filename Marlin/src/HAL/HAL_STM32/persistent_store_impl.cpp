@@ -28,20 +28,20 @@
 
 #include "../shared/persistent_store_api.h"
 
-#if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+#if DISABLED(EEPROM_EMULATED_WITH_SRAM) && DISABLED(SPI_EEPROM) && DISABLED(I2C_EEPROM)
   #include <EEPROM.h>
   static bool eeprom_data_written = false;
 #endif
 
 bool PersistentStore::access_start() {
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+  #if DISABLED(EEPROM_EMULATED_WITH_SRAM) && DISABLED(SPI_EEPROM) && DISABLED(I2C_EEPROM)
     eeprom_buffer_fill();
   #endif
   return true;
 }
 
 bool PersistentStore::access_finish() {
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+  #if DISABLED(EEPROM_EMULATED_WITH_SRAM) && DISABLED(SPI_EEPROM) && DISABLED(I2C_EEPROM)
     if (eeprom_data_written) {
       eeprom_buffer_flush();
       eeprom_data_written = false;
@@ -54,8 +54,20 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   while (size--) {
     uint8_t v = *value;
 
-    // Save to either program flash or Backup SRAM
-    #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+    // Save to either external EEPROM, program flash or Backup SRAM
+    #if ENABLED(SPI_EEPROM) || ENABLED(I2C_EEPROM)
+      // EEPROM has only ~100,000 write cycles,
+      // so only write bytes that have changed!
+      uint8_t * const p = (uint8_t * const)pos;
+      if (v != eeprom_read_byte(p)) {
+        eeprom_write_byte(p, v);
+        if (eeprom_read_byte(p) != v) {
+          SERIAL_ECHO_START();
+          SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+          return true;
+        }
+      }
+    #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
       eeprom_buffered_write_byte(pos, v);
     #else
       *(__IO uint8_t *)(BKPSRAM_BASE + (uint8_t * const)pos) = v;
@@ -65,7 +77,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     pos++;
     value++;
   };
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+  #if DISABLED(EEPROM_EMULATED_WITH_SRAM) && DISABLED(SPI_EEPROM) && DISABLED(I2C_EEPROM)
     eeprom_data_written = true;
   #endif
 
@@ -74,9 +86,11 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
 
 bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing) {
   do {
-    // Read from either program flash or Backup SRAM
+    // Read from either external EEPROM, program flash or Backup SRAM
     const uint8_t c = (
-      #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+      #if ENABLED(SPI_EEPROM) || ENABLED(I2C_EEPROM)
+        eeprom_read_byte((uint8_t*)pos)
+      #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
         eeprom_buffered_read_byte(pos)
       #else
         (*(__IO uint8_t *)(BKPSRAM_BASE + ((uint8_t*)pos)))
@@ -92,7 +106,9 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 }
 
 size_t PersistentStore::capacity() {
-  #if DISABLED(EEPROM_EMULATED_WITH_SRAM)
+  #if ENABLED(SPI_EEPROM) || ENABLED(I2C_EEPROM)
+    return E2END + 1;
+  #elif DISABLED(EEPROM_EMULATED_WITH_SRAM)
     return E2END + 1;
   #else
     return 4096; // 4kB
