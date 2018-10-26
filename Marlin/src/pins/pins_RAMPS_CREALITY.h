@@ -21,18 +21,18 @@
  */
 
 #if HOTENDS > 2 || E_STEPPERS > 2
-  #error "Ender-4 supports only 2 hotends / E-steppers. Comment out this line to continue."
+  #error "Creality3D RAMPS supports only 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_NAME "Creality"
+#define BOARD_NAME "Creality3D RAMPS"
 
 //
 // Heaters / Fans
 //
+
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 
 #define FIL_RUNOUT_PIN 2
 
 #include "pins_RAMPS.h"
-
