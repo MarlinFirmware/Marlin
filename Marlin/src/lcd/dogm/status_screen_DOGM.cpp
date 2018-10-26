@@ -481,7 +481,7 @@ void lcd_impl_status_screen_0() {
   // Status line
   //
 
-  #define STATUS_BASELINE (55 + INFO_FONT_HEIGHT)
+  #define STATUS_BASELINE (53 + INFO_FONT_HEIGHT)
 
   if (PAGE_CONTAINS(STATUS_BASELINE - (INFO_FONT_HEIGHT - 1), STATUS_BASELINE)) {
     lcd_moveto(0, STATUS_BASELINE);
