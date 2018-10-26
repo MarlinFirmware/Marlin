@@ -187,14 +187,15 @@
                               // is powered on to enable SD access.
 
 #if ENABLED(LPC_SD_LCD)
+
   #define SCK_PIN            P0_15
   #define MISO_PIN           P0_17
   #define MOSI_PIN           P0_18
   #define SS_PIN             P1_23   // Chip select for SD card used by Marlin
   #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
-#endif
 
-#if ENABLED(LPC_SD_ONBOARD)
+#elif ENABLED(LPC_SD_ONBOARD)
+
   #if ENABLED(USB_SD_ONBOARD)
     // When sharing the SD card with a PC we want the menu options to
     // mount/unmount the card and refresh it. So we disable card detect.
@@ -206,4 +207,5 @@
   #define MOSI_PIN           P0_09
   #define SS_PIN             P0_06   // Chip select for SD card used by Marlin
   #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
+
 #endif
