@@ -927,7 +927,7 @@ void MarlinSettings::postprocess() {
     //
     {
       #if DISABLED(ADVANCED_PAUSE_FEATURE)
-        const fil_change_settings_t fc_settings[EXTRUDERS] = { { 0 } };
+        const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
       #endif
       _FIELD_TEST(fc_settings);
       EEPROM_WRITE(fc_settings);
