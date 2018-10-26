@@ -36,3 +36,8 @@
 #define FIL_RUNOUT_PIN 2
 
 #include "pins_RAMPS.h"
+
+#define EXP1_PIN 65   // A11
+#define EXP2_PIN 66   // A12
+#define EXP3_PIN 11   // SERVO0_PIN
+#define EXP4_PIN 12   // PS_ON_PIN
