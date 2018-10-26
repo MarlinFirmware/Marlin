@@ -56,21 +56,25 @@ void HAL_init() {
   //debug_frmwrk_init();
   //_DBG("\n\nDebug running\n");
   // Initialise the SD card chip select pins as soon as possible
-  #ifdef SS_PIN
-    digitalWrite(SS_PIN, HIGH);
-    pinMode(SS_PIN, OUTPUT);
+  #if PIN_EXISTS(SS)
+    WRITE(SS_PIN, HIGH);
+    SET_OUTPUT(SS_PIN);
   #endif
-  #ifdef ONBOARD_SD_CS
-    digitalWrite(ONBOARD_SD_CS, HIGH);
-    pinMode(ONBOARD_SD_CS, OUTPUT);
+
+  #if defined(ONBOARD_SD_CS) && ONBOARD_SD_CS > -1
+    WRITE(ONBOARD_SD_CS, HIGH);
+    SET_OUTPUT(ONBOARD_SD_CS);
   #endif
+
   USB_Init();                               // USB Initialization
   USB_Connect(FALSE);                       // USB clear connection
   delay(1000);                              // Give OS time to notice
   USB_Connect(TRUE);
-  #ifndef USB_SD_DISABLED
+
+  #if DISABLED(USB_SD_DISABLED)
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
+
   const millis_t usb_timeout = millis() + 2000;
   while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
     delay(50);
@@ -94,7 +98,7 @@ void HAL_init() {
 
 // HAL idle task
 void HAL_idletask(void) {
-  #if ENABLED(SDSUPPORT) && defined(SHARED_SD_CARD)
+  #if ENABLED(SDSUPPORT) && ENABLED(SHARED_SD_CARD)
     // If Marlin is using the SD card we need to lock it to prevent access from
     // a PC via USB.
     // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
