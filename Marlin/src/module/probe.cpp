@@ -468,9 +468,9 @@ bool set_probe_deployed(const bool deploy) {
 
         deploy ? run_deploy_moves_script() : run_stow_moves_script();
 
-      #elif ENABLED(Z_PROBE_MOTION_DEPLOYED)
+      #elif ENABLED(RACK_AND_PINION_PROBE)
         
-        do_blocking_move_to_x(deploy? Z_PROBE_DEPLOY_XPOS : Z_PROBE_RETRACT_XPOS);
+        do_blocking_move_to_x(deploy ? Z_PROBE_DEPLOY_X : Z_PROBE_RETRACT_X);
 
       #endif
 

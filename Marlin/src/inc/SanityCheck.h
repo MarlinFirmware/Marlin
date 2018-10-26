@@ -892,7 +892,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   + ENABLED(SOLENOID_PROBE) \
   + ENABLED(Z_PROBE_ALLEN_KEY) \
   + ENABLED(Z_PROBE_SLED) \
-  + ENABLED(Z_PROBE_MOTION_DEPLOYED)
+  + ENABLED(RACK_AND_PINION_PROBE)
   #error "Please enable only one probe option: PROBE_MANUALLY, FIX_MOUNTED_PROBE, BLTOUCH, SOLENOID_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z Servo."
 #endif
 
@@ -935,13 +935,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #endif
   #endif
 
-  #if ENABLED(Z_PROBE_MOTION_DEPLOYED)
-    #ifndef Z_PROBE_DEPLOY_XPOS
-      #error "You must set deploy position for a Z probe deployed by the motion of the x axis (Z_PROBE_DEPLOY_XPOS)."
-    #endif
-    #ifndef Z_PROBE_RETRACT_XPOS
-      #error "You must set retract position for a Z probe deployed by the motion of the x axis (Z_PROBE_RETRACT_XPOS)."
-    #endif
+  #if ENABLED(RACK_AND_PINION_PROBE) && !(defined(Z_PROBE_DEPLOY_X) && defined(Z_PROBE_RETRACT_X))
+    #error "RACK_AND_PINION_PROBE requires Z_PROBE_DEPLOY_X and Z_PROBE_RETRACT_X."
   #endif
 
   /**
