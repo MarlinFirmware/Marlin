@@ -281,7 +281,7 @@ namespace UI {
   }
 
   extruder_t getActiveTool() {
-    switch(active_extruder) {
+    switch (active_extruder) {
       case 5:  return E6;
       case 4:  return E5;
       case 3:  return E4;
@@ -291,10 +291,10 @@ namespace UI {
     }
   }
 
-  bool isMoving()                         { return planner.has_blocks_queued(); }
+  bool isMoving() { return planner.has_blocks_queued(); }
 
   bool canMove(const axis_t axis) {
-    switch(axis) {
+    switch (axis) {
       #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
       case X: return TEST(axis_homed, X_AXIS);
       case Y: return TEST(axis_homed, Y_AXIS);
@@ -477,16 +477,16 @@ namespace UI {
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    float getAxisBacklash_mm(const axis_t axis)       {return backlash_distance_mm[axis];}
+    float getAxisBacklash_mm(const axis_t axis)       { return backlash_distance_mm[axis]; }
     void setAxisBacklash_mm(const float value, const axis_t axis)
-                                                      {backlash_distance_mm[axis] = clamp(value,0,5);}
+                                                      { backlash_distance_mm[axis] = clamp(value,0,5); }
 
-    float getBacklashCorrection_percent()             {return backlash_correction*100;}
-    void setBacklashCorrection_percent(const float value) {backlash_correction = clamp(value, 0, 100)/100;}
+    float getBacklashCorrection_percent()             { return backlash_correction * 100; }
+    void setBacklashCorrection_percent(const float value) { backlash_correction = clamp(value, 0, 100) / 100; }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      float getBacklashSmoothing_mm()                 {return backlash_smoothing_mm;}
-      void setBacklashSmoothing_mm(const float value) {backlash_smoothing_mm = clamp(value,0,999);}
+      float getBacklashSmoothing_mm()                 { return backlash_smoothing_mm; }
+      void setBacklashSmoothing_mm(const float value) { backlash_smoothing_mm = clamp(value, 0, 999); }
     #endif
   #endif
 
@@ -530,11 +530,11 @@ namespace UI {
     if (heater == BED)
       thermalManager.setTargetBed(clamp(value,0,200));
     #endif
-      thermalManager.setTargetHotend(clamp(value,0,500), heater-H1);
+      thermalManager.setTargetHotend(clamp(value,0,500), heater - H1);
   }
 
   void setTargetTemp_celsius(float value, const extruder_t extruder) {
-    thermalManager.setTargetHotend(clamp(value,0,500), extruder-E1);
+    thermalManager.setTargetHotend(clamp(value,0,500), extruder - E1);
   }
 
   void setFan_percent(float value, const fan_t fan) {
