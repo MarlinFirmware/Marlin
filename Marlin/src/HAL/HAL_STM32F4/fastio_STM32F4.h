@@ -29,9 +29,8 @@
 #ifndef _FASTIO_STM32F4_H
 #define _FASTIO_STM32F4_H
 
+#undef _BV
 #define _BV(b) (1 << (b))
-
-#define USEABLE_HARDWARE_PWM(p) true
 
 #define READ(IO)                digitalRead(IO)
 #define WRITE(IO,V)             digitalWrite(IO,V)
@@ -54,6 +53,12 @@
 #define GET_OUTPUT(IO)
 #define GET_TIMER(IO)
 
+#define PWM_PIN(p) true
+#define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)
+
+//
+// Pins Definitions
+//
 #define PORTA 0
 #define PORTB 1
 #define PORTC 2

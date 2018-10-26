@@ -50,6 +50,16 @@
 
 #endif // PARKING_EXTRUDER
 
+#if ENABLED(SINGLENOZZLE)
+  extern float singlenozzle_swap_length;
+  extern int16_t singlenozzle_prime_speed,
+                 singlenozzle_retract_speed;
+  extern uint16_t singlenozzle_temp[EXTRUDERS];
+  #if FAN_COUNT > 0
+    extern uint8_t singlenozzle_fan_speed[EXTRUDERS];
+  #endif
+#endif
+
 /**
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.

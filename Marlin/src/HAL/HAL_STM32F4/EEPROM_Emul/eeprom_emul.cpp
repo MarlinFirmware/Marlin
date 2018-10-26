@@ -78,7 +78,7 @@ static uint16_t EE_VerifyPageFullyErased(uint32_t Address);
   * @retval - Flash error code: on write Flash error
   *         - FLASH_COMPLETE: on success
   */
-uint16_t EE_Initialise(void) {
+uint16_t EE_Initialize(void) {
   uint16_t PageStatus0 = 6, PageStatus1 = 6;
   uint16_t VarIdx = 0;
   uint16_t EepromStatus = 0, ReadStatus = 0;
@@ -103,12 +103,10 @@ uint16_t EE_Initialise(void) {
     case ERASED:
       if (PageStatus1 == VALID_PAGE) { /* Page0 erased, Page1 valid */
           /* Erase Page0 */
-        if(!EE_VerifyPageFullyErased(PAGE0_BASE_ADDRESS)) {
+        if (!EE_VerifyPageFullyErased(PAGE0_BASE_ADDRESS)) {
           FlashStatus = HAL_FLASHEx_Erase(&pEraseInit, &SectorError);
           /* If erase operation was failed, a Flash error code is returned */
-          if (FlashStatus != HAL_OK) {
-            return FlashStatus;
-          }
+          if (FlashStatus != HAL_OK) return FlashStatus;
         }
       }
       else if (PageStatus1 == RECEIVE_DATA) { /* Page0 erased, Page1 receive */

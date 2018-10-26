@@ -61,7 +61,7 @@
 
 #include <U8glib.h>
 #include "SoftwareSPI.h"
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 #define SPI_SPEED 3  // About 1 MHz
 

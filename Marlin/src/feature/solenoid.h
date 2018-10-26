@@ -25,5 +25,6 @@
 
 void enable_solenoid_on_active_extruder();
 void disable_all_solenoids();
+void enable_solenoid(const uint8_t num);
 
 #endif // __SOLENOID_H__

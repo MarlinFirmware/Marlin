@@ -286,18 +286,6 @@
     #define KILL_PIN            P1_22   // (41) J5-4 & AUX-4
     #define LCD_PINS_RS         P0_16   // (16) J3-7 & AUX-4
     #define LCD_SDSS            P0_16   // (16) J3-7 & AUX-4
-    #define LCD_BACKLIGHT_PIN   P0_16   // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
-    #define LCD_PINS_ENABLE     P0_18   // (51) (MOSI) J3-10 & AUX-3
-    #define LCD_PINS_D4         P0_15   // (52) (SCK)  J3-9 & AUX-3
-
-    #define DOGLCD_A0           P2_06   // (59) J3-8 & AUX-2
-    #define DOGLCD_CS           P0_26   // (63) J5-3 & AUX-2
-
-    #ifdef ULTIPANEL
-      #define LCD_PINS_D5       P1_17   // (71) ENET_MDIO
-      #define LCD_PINS_D6       P1_14   // (73) ENET_RX_ER
-      #define LCD_PINS_D7       P1_10   // (75) ENET_RXD1
-    #endif
 
     #if ENABLED(NEWPANEL)
       #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -315,9 +303,6 @@
     #if ENABLED(VIKI2) || ENABLED(miniVIKI)
       // #define LCD_SCREEN_ROT_180
 
-      #undef  BEEPER_PIN
-      #define BEEPER_PIN          P1_30   // (37) may change if cable changes
-
       #define BTN_EN1             P3_26   // (31) J3-2 & AUX-4
       #define BTN_EN2             P3_25   // (33) J3-4 & AUX-4
       #define BTN_ENC             P2_11   // (35) J3-3 & AUX-4
@@ -325,21 +310,24 @@
       #define SD_DETECT_PIN       P1_31   // (49) not 5V tolerant   J3-1 & AUX-3
       #define KILL_PIN            P1_22   // (41) J5-4 & AUX-4
 
-      #undef  DOGLCD_CS
       #define DOGLCD_CS           P0_16   // (16)
-      #undef  LCD_BACKLIGHT_PIN   //P0_16   // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
-      #undef  LCD_PINS_ENABLE     //P0_18   // (51) (MOSI) J3-10 & AUX-3
-      #undef  LCD_PINS_D4         //P0_15   // (52) (SCK)  J3-9 & AUX-3
-
-      #undef  LCD_PINS_D5         //P2_06   // (59) J3-8 & AUX-2
       #define DOGLCD_A0           P2_06   // (59) J3-8 & AUX-2
-      #undef  LCD_PINS_D6         //P0_26   // (63) J5-3 & AUX-2
-      #undef  LCD_PINS_D7         //P1_21   // ( 6) (SERVO1) J5-1 & SERVO connector
       #define DOGLCD_SCK          SCK_PIN
       #define DOGLCD_MOSI         MOSI_PIN
 
       #define STAT_LED_BLUE_PIN   P0_26   // (63)  may change if cable changes
       #define STAT_LED_RED_PIN    P1_21   // ( 6)  may change if cable changes
+    #else
+      #define DOGLCD_CS           P0_26   // (63) J5-3 & AUX-2
+      #define DOGLCD_A0           P2_06   // (59) J3-8 & AUX-2
+      #define LCD_BACKLIGHT_PIN   P0_16   // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
+      #define LCD_PINS_ENABLE     P0_18   // (51) (MOSI) J3-10 & AUX-3
+      #define LCD_PINS_D4         P0_15   // (52) (SCK)  J3-9 & AUX-3
+      #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5       P1_17   // (71) ENET_MDIO
+        #define LCD_PINS_D6       P1_14   // (73) ENET_RX_ER
+        #define LCD_PINS_D7       P1_10   // (75) ENET_RXD1
+      #endif
     #endif
 
     //#define MISO_PIN            P0_17   // (50)  system defined J3-10 & AUX-3
@@ -363,7 +351,7 @@
 //
 // Ethernet pins
 //
-#ifndef ULTIPANEL
+#if DISABLED(ULTIPANEL)
   #define ENET_MDIO   P1_17   // (71)  J12-4
   #define ENET_RX_ER  P1_14   // (73)  J12-6
   #define ENET_RXD1   P1_10   // (75)  J12-8

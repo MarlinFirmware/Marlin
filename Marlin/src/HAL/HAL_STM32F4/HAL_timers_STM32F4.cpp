@@ -69,11 +69,11 @@ stm32f4_timer_t TimerHandle[NUM_HARDWARE_TIMERS];
 // Public functions
 // --------------------------------------------------------------------------
 
-bool timers_initialised[NUM_HARDWARE_TIMERS] = {false};
+bool timers_initialized[NUM_HARDWARE_TIMERS] = {false};
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
-  if (!timers_initialised[timer_num]) {
+  if (!timers_initialized[timer_num]) {
     constexpr uint32_t step_prescaler = STEPPER_TIMER_PRESCALE - 1,
                        temp_prescaler = TEMP_TIMER_PRESCALE - 1;
     switch (timer_num) {
@@ -111,7 +111,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
         HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_ID, 2, 0);
         break;
     }
-    timers_initialised[timer_num] = true;
+    timers_initialized[timer_num] = true;
   }
 
   #ifdef STM32GENERIC

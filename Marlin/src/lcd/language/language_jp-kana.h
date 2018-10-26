@@ -52,6 +52,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Xジク ゲンテンフッキ")             // "Home X"
 #define MSG_AUTO_HOME_Y                     _UxGT("Yジク ゲンテンフッキ")             // "Home Y"
 #define MSG_AUTO_HOME_Z                     _UxGT("Zジク ゲンテンフッキ")             // "Home Z"
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Zジク コウセイ")
 #define MSG_LEVEL_BED_HOMING                _UxGT("ゲンテンフッキチュウ")              // "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               _UxGT("レベリングカイシ")                // "Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("ツギノソクテイテンヘ")             // "Next Point"
@@ -77,6 +78,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("ジクイドウ")                    // "Move axis"
 #define MSG_BED_LEVELING                    _UxGT("ベッドレベリング")                // "Bed leveling"
 #define MSG_LEVEL_BED                       _UxGT("ベッドレベリング")                // "Level bed"
+
 #define MSG_MOVING                          _UxGT("イドウチュウ")                   // "Moving..."
 #define MSG_FREE_XY                         _UxGT("XYジク カイホウ")                // "Free XY"
 #define MSG_MOVE_X                          _UxGT("Xジク イドウ")                  // "Move X"

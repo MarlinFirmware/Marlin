@@ -63,6 +63,7 @@
 #define BOARD_MKS_BASE_HEROIC   41    // MKS BASE 1.0 with Heroic HR4982 stepper drivers
 #define BOARD_MKS_GEN_13        47    // MKS GEN v1.3 or 1.4
 #define BOARD_MKS_GEN_L         53    // MKS GEN L
+#define BOARD_KFB_2             136   // Bigtreetech or BIQU KFB2.0
 #define BOARD_ZRIB_V20          504   // zrib V2.0 control board (Chinese knock off RAMPS replica)
 #define BOARD_FELIX2            37    // Felix 2.0+ Electronics Board (RAMPS like)
 #define BOARD_RIGIDBOARD        42    // Invent-A-Part RigidBoard
@@ -74,11 +75,15 @@
 #define BOARD_AZTEEG_X3_PRO     68    // Azteeg X3 Pro
 #define BOARD_ULTIMAIN_2        72    // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
 #define BOARD_RUMBA             80    // Rumba
+#define BOARD_FORMBOT_TREX2PLUS 95    // Formbot version 1
+#define BOARD_FORMBOT_TREX3     96    // Formbot T-Rex 3 revision
+#define BOARD_FORMBOT_RAPTOR    97    // Formbot version 1
 #define BOARD_BQ_ZUM_MEGA_3D    503   // bq ZUM Mega 3D
 #define BOARD_MAKEBOARD_MINI    431   // MakeBoard Mini v2.1.2 is a control board sold by MicroMake
 #define BOARD_TRIGORILLA_13     343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
 #define BOARD_TRIGORILLA_14     443   // TriGorilla Anycubic version 1.4 based on RAMPS EFB
 #define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
+#define BOARD_FYSETC_F6_13      541   // Fysetc F6
 
 //
 // Other ATmega1280, ATmega2560
@@ -104,6 +109,9 @@
 #define BOARD_SCOOVO_X9H        321   // abee Scoovo X9H
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
+#define BOARD_GT2560_V3         76    // Geeetech GT2560 Rev B for A10(M/D)
+#define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2																		   																	 
+#define BOARD_EINSTART_S        666   // Einstart retrofit
 
 //
 // ATmega1281, ATmega2561
@@ -172,6 +180,8 @@
 #define BOARD_SELENA_COMPACT      1754  // Selena Compact (Power outputs: Hotend0, Hotend1, Bed0, Bed1, Fan0, Fan1)
 #define BOARD_COHESION3D_REMIX    1755  // Cohesion3D ReMix
 #define BOARD_COHESION3D_MINI     1756  // Cohesion3D Mini
+#define BOARD_SMOOTHIEBOARD       1757  // Smoothieboard
+#define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
 
 //
 // SAM3X8E ARM Cortex M3
@@ -197,7 +207,8 @@
 #define BOARD_RAMPS4DUE_EFF    1545   // RAMPS4DUE (Power outputs: Hotend, Fan0, Fan1)
 #define BOARD_RAMPS4DUE_EEF    1546   // RAMPS4DUE (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS4DUE_SF     1548   // RAMPS4DUE (Power outputs: Spindle, Controller Fan)
-#define BOARD_RURAMPS4D        1550   // RuRAMPS4Duo v1 (Power outputs: Hotend0, Hotend2, Hotend2, Fan0, Fan1, Bed)
+#define BOARD_RURAMPS4D_11     1550   // RuRAMPS4Duo v1.1 (Power outputs: Hotend0, Hotend1, Hotend2, Fan0, Fan1, Bed)
+#define BOARD_RURAMPS4D_13     1551   // RuRAMPS4Duo v1.3 (Power outputs: Hotend0, Hotend1, Hotend2, Fan0, Fan1, Bed)
 #define BOARD_ULTRATRONICS_PRO 1560   // ReprapWorld Ultratronics Pro V1.0
 #define BOARD_ARCHIM2          1590   // UltiMachine Archim2 (with TMC2130 drivers)
 #define BOARD_ALLIGATOR        1602   // Alligator Board R2
@@ -210,11 +221,13 @@
 #define BOARD_MALYAN_M200      1801   // STM32C8T6 Libmaple based stm32f1 controller
 #define BOARD_STM3R_MINI       1803   // STM32 Libmaple based stm32f1 controller
 #define BOARD_GTM32_PRO_VB     1805   // STM32f103VET6 controller
+#define BOARD_MORPHEUS         1806   // STM32F103C8/STM32F103CB Libmaple based stm32f1 controller
 
 //
 // STM32 ARM Cortex-M4F
 //
 
+#define BOARD_TEENSY31_32      1552   // Teensy3.1 and Teensy3.2
 #define BOARD_TEENSY35_36       841   // Teensy3.5 and Teensy3.6
 #define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
@@ -224,6 +237,7 @@
 //
 
 #define BOARD_THE_BORG         1860   // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_REMRAM_V1        1862   // RemRam v1
 
 //
 // Espressif ESP32 WiFi

@@ -90,7 +90,7 @@
         SERIAL_ECHO_F(destination[X_AXIS], 6);
     }
 
-    void debug_current_and_destination(const char *title) {
+    void debug_current_and_destination(PGM_P title) {
 
       // if the title message starts with a '!' it is so important, we are going to
       // ignore the status of the g26_debug_flag
@@ -127,7 +127,7 @@
       SERIAL_ECHOPGM(", ");
       debug_echo_axis(E_AXIS);
       SERIAL_ECHOPGM(" )   ");
-      SERIAL_ECHO(title);
+      serialprintPGM(title);
       SERIAL_EOL();
 
     }

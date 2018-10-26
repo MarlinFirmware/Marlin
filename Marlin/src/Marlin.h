@@ -64,7 +64,10 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define disable_Y() NOOP
 #endif
 
-#if HAS_Z2_ENABLE
+#if HAS_Z3_ENABLE
+  #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); Z3_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
+  #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); Z3_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
+#elif HAS_Z2_ENABLE
   #define  enable_Z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
   #define disable_Z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); CBI(axis_known_position, Z_AXIS); }while(0)
 #elif HAS_Z_ENABLE
@@ -80,7 +83,13 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   /**
    * Mixing steppers synchronize their enable (and direction) together
    */
-  #if MIXING_STEPPERS > 3
+  #if MIXING_STEPPERS > 5
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); E4_ENABLE_WRITE( E_ENABLE_ON); E5_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); E4_ENABLE_WRITE(!E_ENABLE_ON); E5_ENABLE_WRITE(!E_ENABLE_ON); }
+  #elif MIXING_STEPPERS > 4
+    #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); E4_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); E4_ENABLE_WRITE(!E_ENABLE_ON); }
+  #elif MIXING_STEPPERS > 3
     #define  enable_E0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); }
     #define disable_E0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); }
   #elif MIXING_STEPPERS > 2
@@ -98,6 +107,8 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
   #define disable_E3() NOOP
   #define  enable_E4() NOOP
   #define disable_E4() NOOP
+  #define  enable_E5() NOOP
+  #define disable_E5() NOOP
 
 #else // !MIXING_EXTRUDER
 
@@ -141,6 +152,14 @@ void manage_inactivity(const bool ignore_stepper_queue=false);
     #define disable_E4() NOOP
   #endif
 
+  #if E_STEPPERS > 5 && HAS_E5_ENABLE
+    #define  enable_E5() E5_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_E5() E5_ENABLE_WRITE(!E_ENABLE_ON)
+  #else
+    #define  enable_E5() NOOP
+    #define disable_E5() NOOP
+  #endif
+
 #endif // !MIXING_EXTRUDER
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
@@ -161,7 +180,7 @@ void disable_e_stepper(const uint8_t e);
 void disable_e_steppers();
 void disable_all_steppers();
 
-void kill(const char*);
+void kill(PGM_P);
 
 void quickstop_stepper();
 
@@ -185,28 +204,22 @@ extern volatile bool wait_for_heatup;
   extern bool suspend_auto_report;
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  typedef struct { double A, B, D; } linear_fit;
-  linear_fit* lsf_linear_fit(double x[], double y[], double z[], const int);
-#endif
-
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 
 #if FAN_COUNT > 0
-  extern int16_t fanSpeeds[FAN_COUNT];
+  extern uint8_t fan_speed[FAN_COUNT];
   #if ENABLED(EXTRA_FAN_SPEED)
-    extern int16_t old_fanSpeeds[FAN_COUNT],
-                   new_fanSpeeds[FAN_COUNT];
+    extern uint8_t old_fan_speed[FAN_COUNT], new_fan_speed[FAN_COUNT];
   #endif
   #if ENABLED(PROBING_FANS_OFF)
     extern bool fans_paused;
-    extern int16_t paused_fanSpeeds[FAN_COUNT];
+    extern uint8_t paused_fan_speed[FAN_COUNT];
   #endif
 #endif
 
 #if ENABLED(USE_CONTROLLER_FAN)
-  extern uint8_t controllerFanSpeed;
+  extern uint8_t controllerfan_speed;
 #endif
 
 #if HAS_POWER_SWITCH

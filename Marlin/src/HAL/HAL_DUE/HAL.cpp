@@ -29,6 +29,7 @@
 // Includes
 // --------------------------------------------------------------------------
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
 #include <Wire.h>

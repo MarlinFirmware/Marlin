@@ -43,8 +43,6 @@
 #define FALLING      0x03
 #define RISING       0x04
 
-#define E2END 0xFFF // EEPROM end address
-
 typedef uint8_t byte;
 #define PROGMEM
 #define PSTR(v) (v)
@@ -69,8 +67,8 @@ typedef uint8_t byte;
 //Interrupts
 void cli(void); // Disable
 void sei(void); // Enable
-void attachInterrupt(uint32_t pin, void (*callback)(void), uint32_t mode);
-void detachInterrupt(uint32_t pin);
+void attachInterrupt(const pin_t pin, void (*callback)(void), uint32_t mode);
+void detachInterrupt(const pin_t pin);
 extern "C" void GpioEnableInt(uint32_t port, uint32_t pin, uint32_t mode);
 extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
 
@@ -111,8 +109,8 @@ void analogWrite(pin_t, int);
 uint16_t analogRead(pin_t);
 
 // EEPROM
-void eeprom_write_byte(unsigned char *pos, unsigned char value);
-unsigned char eeprom_read_byte(unsigned char *pos);
+void eeprom_write_byte(uint8_t *pos, unsigned char value);
+uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 

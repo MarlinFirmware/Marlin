@@ -66,7 +66,7 @@
   #define G29_RETURN(b) return b;
 #else
   #define G29_RETURN(b) return;
-#endif 
+#endif
 
 /**
  * G29: Detailed Z probe, probes the bed at 3 or more points.
@@ -677,8 +677,8 @@ G29_TYPE GcodeSuite::G29() {
         // Inner loop is Y with PROBE_Y_FIRST enabled
         for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
 
-          float xBase = left_probe_bed_position + xGridSpacing * xCount,
-                yBase = front_probe_bed_position + yGridSpacing * yCount;
+          const float xBase = left_probe_bed_position + xGridSpacing * xCount,
+                      yBase = front_probe_bed_position + yGridSpacing * yCount;
 
           xProbe = FLOOR(xBase + (xBase < 0 ? 0 : 0.5));
           yProbe = FLOOR(yBase + (yBase < 0 ? 0 : 0.5));
@@ -989,14 +989,14 @@ G29_TYPE GcodeSuite::G29() {
   KEEPALIVE_STATE(IN_HANDLER);
 
   if (planner.leveling_active)
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
   #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
     move_z_after_probing();
   #endif
 
   report_current_position();
-  
+
   G29_RETURN(isnan(measured_z));
 }
 

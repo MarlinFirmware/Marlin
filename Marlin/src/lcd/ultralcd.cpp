@@ -38,6 +38,8 @@
 #include "../gcode/gcode.h"
 #include "../gcode/queue.h"
 #include "../module/configuration_store.h"
+#include "../module/tool_change.h"
+
 
 #include "../Marlin.h"
 
@@ -69,7 +71,10 @@
   #include "../feature/leds/leds.h"
 #endif
 
-// For i2c define BUZZ to use lcd_buzz
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #include "../feature/runout.h"
+#endif
+
 #if DISABLED(LCD_USE_I2C_BUZZER)
   #include "../libs/buzzer.h"
 #endif
@@ -112,28 +117,28 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
 // The main status screen
 void lcd_status_screen();
 
-millis_t next_lcd_update_ms;
-
-uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
+LCDViewAction lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 uint16_t max_display_update_time = 0;
+millis_t next_lcd_update_ms;
 
 #if ENABLED(ULTIPANEL)
 
   #define DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(_type, _name, _strFunc) \
-    inline void lcd_implementation_drawmenu_setting_edit_ ## _name (const bool sel, const uint8_t row, const char* pstr, const char* pstr2, _type * const data, ...) { \
+    inline void lcd_implementation_drawmenu_setting_edit_ ## _name (const bool sel, const uint8_t row, PGM_P pstr, PGM_P pstr2, _type * const data, ...) { \
       UNUSED(pstr2); \
       DRAWMENU_SETTING_EDIT_GENERIC(_strFunc(*(data))); \
     } \
-    inline void lcd_implementation_drawmenu_setting_edit_callback_ ## _name (const bool sel, const uint8_t row, const char* pstr, const char* pstr2, _type * const data, ...) { \
+    inline void lcd_implementation_drawmenu_setting_edit_callback_ ## _name (const bool sel, const uint8_t row, PGM_P pstr, PGM_P pstr2, _type * const data, ...) { \
       UNUSED(pstr2); \
       DRAWMENU_SETTING_EDIT_GENERIC(_strFunc(*(data))); \
     } \
-    inline void lcd_implementation_drawmenu_setting_edit_accessor_ ## _name (const bool sel, const uint8_t row, const char* pstr, const char* pstr2, _type (*pget)(), void (*pset)(_type), ...) { \
+    inline void lcd_implementation_drawmenu_setting_edit_accessor_ ## _name (const bool sel, const uint8_t row, PGM_P pstr, PGM_P pstr2, _type (*pget)(), void (*pset)(_type), ...) { \
       UNUSED(pstr2); UNUSED(pset); \
       DRAWMENU_SETTING_EDIT_GENERIC(_strFunc(pget())); \
     } \
     typedef void _name##_void
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int16_t, int3, itostr3);
+  DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int16_t, int4, itostr4sign);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(uint8_t, int8, i8tostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float3, ftostr3);
   DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float, float52, ftostr52);
@@ -155,7 +160,8 @@ uint16_t max_display_update_time = 0;
   constexpr int8_t menu_bottom = LCD_HEIGHT - (TALL_FONT_CORRECTION);
 
   // Initialized by settings.load()
-  int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+  int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
+  uint8_t lcd_preheat_fan_speed[2];
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     bool lcd_external_control; // = false
@@ -181,19 +187,19 @@ uint16_t max_display_update_time = 0;
 
   void lcd_main_menu();
   void lcd_tune_menu();
-  void lcd_prepare_menu();
+  void lcd_movement_menu();
   void lcd_move_menu();
-  void lcd_control_menu();
-  void lcd_control_temperature_menu();
-  void lcd_control_motion_menu();
+  void lcd_configuration_menu();
+  void lcd_temperature_menu();
+  void lcd_advanced_settings_menu();
 
   #if DISABLED(SLIM_LCD_MENUS)
-    void lcd_control_temperature_preheat_material1_settings_menu();
-    void lcd_control_temperature_preheat_material2_settings_menu();
+    void lcd_configuration_temperature_preheat_material1_settings_menu();
+    void lcd_configuration_temperature_preheat_material2_settings_menu();
   #endif
 
   #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
-    void lcd_control_filament_menu();
+    void lcd_advanced_filament_menu();
   #endif
 
   #if ENABLED(LCD_INFO_MENU)
@@ -226,7 +232,7 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(FWRETRACT)
     #include "../feature/fwretract.h"
-    void lcd_control_retract_menu();
+    void lcd_config_retract_menu();
   #endif
 
   #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
@@ -249,19 +255,20 @@ uint16_t max_display_update_time = 0;
   #define menu_action_back(dummy) _menu_action_back()
   void _menu_action_back();
   void menu_action_submenu(screenFunc_t data);
-  void menu_action_gcode(const char* pgcode);
+  void menu_action_gcode(PGM_P pgcode);
   void menu_action_function(menuAction_t data);
 
   #define DECLARE_MENU_EDIT_TYPE(_type, _name) \
     bool _menu_edit_ ## _name(); \
     void menu_edit_ ## _name(); \
     void menu_edit_callback_ ## _name(); \
-    void _menu_action_setting_edit_ ## _name(const char * const pstr, _type* const ptr, const _type minValue, const _type maxValue); \
-    void menu_action_setting_edit_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue); \
-    void menu_action_setting_edit_callback_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback=NULL, const bool live=false); \
+    void _menu_action_setting_edit_ ## _name(PGM_P const pstr, _type* const ptr, const _type minValue, const _type maxValue); \
+    void menu_action_setting_edit_ ## _name(PGM_P const pstr, _type * const ptr, const _type minValue, const _type maxValue); \
+    void menu_action_setting_edit_callback_ ## _name(PGM_P const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback=NULL, const bool live=false); \
     typedef void _name##_void
 
   DECLARE_MENU_EDIT_TYPE(int16_t, int3);
+  DECLARE_MENU_EDIT_TYPE(int16_t, int4);
   DECLARE_MENU_EDIT_TYPE(uint8_t, int8);
   DECLARE_MENU_EDIT_TYPE(float, float3);
   DECLARE_MENU_EDIT_TYPE(float, float52);
@@ -272,13 +279,13 @@ uint16_t max_display_update_time = 0;
   DECLARE_MENU_EDIT_TYPE(float, float62);
   DECLARE_MENU_EDIT_TYPE(uint32_t, long5);
 
-  void menu_action_setting_edit_bool(const char* pstr, bool* ptr);
-  void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callbackFunc);
+  void menu_action_setting_edit_bool(PGM_P pstr, bool* ptr);
+  void menu_action_setting_edit_callback_bool(PGM_P pstr, bool* ptr, screenFunc_t callbackFunc);
 
   #if ENABLED(SDSUPPORT)
     void lcd_sdcard_menu();
-    void menu_action_sdfile(const char* filename, char* longFilename);
-    void menu_action_sddirectory(const char* filename, char* longFilename);
+    void menu_action_sdfile(CardReader &theCard);
+    void menu_action_sddirectory(CardReader &theCard);
   #endif
 
   ////////////////////////////////////////////
@@ -369,14 +376,14 @@ uint16_t max_display_update_time = 0;
   #endif // !ENCODER_RATE_MULTIPLIER
 
   #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
-  #define MENU_ITEM_EDIT(TYPE, LABEL, ...) MENU_ITEM(setting_edit_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-  #define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) MENU_ITEM(setting_edit_callback_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+  #define MENU_ITEM_EDIT(TYPE, LABEL, ...) MENU_ITEM(_CAT(setting_edit_,TYPE), LABEL, PSTR(LABEL), ## __VA_ARGS__)
+  #define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) MENU_ITEM(_CAT(setting_edit_callback_,TYPE), LABEL, PSTR(LABEL), ## __VA_ARGS__)
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
-    #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) MENU_MULTIPLIER_ITEM(setting_edit_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-    #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) MENU_MULTIPLIER_ITEM(setting_edit_callback_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) MENU_MULTIPLIER_ITEM(_CAT(setting_edit_,TYPE), LABEL, PSTR(LABEL), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) MENU_MULTIPLIER_ITEM(_CAT(setting_edit_callback_,TYPE), LABEL, PSTR(LABEL), ## __VA_ARGS__)
   #else // !ENCODER_RATE_MULTIPLIER
-    #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) MENU_ITEM(setting_edit_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-    #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) MENU_ITEM(setting_edit_callback_ ## TYPE, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) MENU_ITEM(_CAT(setting_edit_,TYPE), LABEL, PSTR(LABEL), ## __VA_ARGS__)
+    #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) MENU_ITEM(_CAT(setting_edit_callback_,TYPE), LABEL, PSTR(LABEL), ## __VA_ARGS__)
   #endif // !ENCODER_RATE_MULTIPLIER
 
   #define SCREEN_OR_MENU_LOOP() \
@@ -461,7 +468,7 @@ uint16_t max_display_update_time = 0;
   bool screen_changed, defer_return_to_status;
 
   // Value Editing
-  const char *editLabel;
+  PGM_P editLabel;
   void *editValue;
   int32_t minEditValue, maxEditValue;
   screenFunc_t callbackFunc;
@@ -477,9 +484,13 @@ uint16_t max_display_update_time = 0;
     #define manual_move_e_index 0
   #endif
 
+  #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+    float manual_move_e_origin = 0;
+  #endif
+
   #if IS_KINEMATIC
     bool processing_manual_move = false;
-    float manual_move_offset = 0.0;
+    float manual_move_offset = 0;
   #else
     constexpr bool processing_manual_move = false;
   #endif
@@ -497,6 +508,11 @@ uint16_t max_display_update_time = 0;
     lcd_clicked = false;
     return click;
   }
+
+  inline bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING; }
+
+  void lcd_move_z();
+  float move_menu_scale;
 
   /**
    * General function to go directly to a screen
@@ -517,14 +533,23 @@ uint16_t max_display_update_time = 0;
           if (currentScreen == lcd_status_screen)
             doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
         }
-        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms) && (planner.movesplanned() || IS_SD_PRINTING))
-          screen =
-            #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-              lcd_babystep_zoffset
-            #else
-              lcd_babystep_z
-            #endif
-          ;
+        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms)) {
+          if (printer_busy()) {
+            screen =
+              #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+                lcd_babystep_zoffset
+              #else
+                lcd_babystep_z
+              #endif
+            ;
+          }
+          #if ENABLED(MOVE_Z_WHEN_IDLE)
+            else {
+              move_menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
+              screen = lcd_move_z;
+            }
+          #endif
+        }
       #endif
 
       currentScreen = screen;
@@ -561,7 +586,7 @@ uint16_t max_display_update_time = 0;
    * Show "Moving..." till moves are done, then revert to previous display.
    */
   static const char moving[] PROGMEM = MSG_MOVING;
-  static const char *sync_message = moving;
+  static PGM_P sync_message = moving;
 
   //
   // Display the synchronize screen until moves are
@@ -582,7 +607,7 @@ uint16_t max_display_update_time = 0;
 
   // Display the synchronize screen with a custom message
   // ** This blocks the command queue! **
-  void lcd_synchronize(const char * const msg=NULL) {
+  void lcd_synchronize(PGM_P const msg=NULL) {
     sync_message = msg ? msg : moving;
     _lcd_synchronize();
   }
@@ -763,12 +788,12 @@ void lcd_reset_status() {
   static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
   static const char printing[] PROGMEM = MSG_PRINTING;
   static const char welcome[] PROGMEM = WELCOME_MSG;
-  const char *msg;
+  PGM_P msg;
   if (print_job_timer.isPaused())
     msg = paused;
   #if ENABLED(SDSUPPORT)
     else if (card.sdprinting)
-      return lcd_setstatus(card.longFilename[0] ? card.longFilename : card.filename, true);
+      return lcd_setstatus(card.longest_filename(), true);
   #endif
   else if (print_job_timer.isRunning())
     msg = printing;
@@ -783,7 +808,7 @@ void lcd_reset_status() {
  * draw the kill screen
  *
  */
-void kill_screen(const char* lcd_msg) {
+void kill_screen(PGM_P lcd_msg) {
   lcd_init();
   lcd_setalertstatusPGM(lcd_msg);
   lcd_kill_screen();
@@ -837,7 +862,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   }
 
   inline void line_to_current_z() {
-    planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
+    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
   }
 
   inline void line_to_z(const float &z) {
@@ -873,67 +898,94 @@ void lcd_quick_feedback(const bool clear_buttons) {
       abort_sd_printing = true;
       lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
       lcd_return_to_status();
-
-      #if ENABLED(POWER_LOSS_RECOVERY)
-        card.removeJobRecoveryFile();
-      #endif
     }
 
   #endif // SDSUPPORT
 
   #if ENABLED(POWER_LOSS_RECOVERY)
 
-    static void lcd_sdcard_recover_job() {
+    static void lcd_power_loss_recovery_resume() {
       char cmd[20];
 
       // Return to status now
       lcd_return_to_status();
 
       // Turn leveling off and home
-      enqueue_and_echo_commands_P(PSTR("M420 S0\nG28"
-        #if !IS_KINEMATIC
+      enqueue_and_echo_commands_P(PSTR("M420 S0\nG28 R0"
+        #if ENABLED(MARLIN_DEV_MODE)
+          " S"
+        #elif !IS_KINEMATIC
           " X Y"
         #endif
       ));
 
       #if HAS_HEATED_BED
-        // Restore the bed temperature
-        sprintf_P(cmd, PSTR("M190 S%i"), job_recovery_info.target_temperature_bed);
-        enqueue_and_echo_command(cmd);
+        const int16_t bt = job_recovery_info.target_temperature_bed;
+        if (bt) {
+          // Restore the bed temperature
+          sprintf_P(cmd, PSTR("M190 S%i"), bt);
+          enqueue_and_echo_command(cmd);
+        }
       #endif
 
       // Restore all hotend temperatures
       HOTEND_LOOP() {
-        sprintf_P(cmd, PSTR("M109 S%i"), job_recovery_info.target_temperature[e]);
-        enqueue_and_echo_command(cmd);
+        const int16_t et = job_recovery_info.target_temperature[e];
+        if (et) {
+          #if HOTENDS > 1
+            sprintf_P(cmd, PSTR("T%i"), e);
+            enqueue_and_echo_command(cmd);
+          #endif
+          sprintf_P(cmd, PSTR("M109 S%i"), et);
+          enqueue_and_echo_command(cmd);
+        }
       }
+
+      #if HOTENDS > 1
+        sprintf_P(cmd, PSTR("T%i"), job_recovery_info.active_hotend);
+        enqueue_and_echo_command(cmd);
+      #endif
 
       // Restore print cooling fan speeds
       for (uint8_t i = 0; i < FAN_COUNT; i++) {
-        sprintf_P(cmd, PSTR("M106 P%i S%i"), i, job_recovery_info.fanSpeeds[i]);
-        enqueue_and_echo_command(cmd);
+        uint8_t f = job_recovery_info.fan_speed[i];
+        if (f) {
+          sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
+          enqueue_and_echo_command(cmd);
+        }
       }
 
       // Start draining the job recovery command queue
       job_recovery_phase = JOB_RECOVERY_YES;
+    }
 
-      // Resume the print job timer
-      if (job_recovery_info.print_job_elapsed)
-        print_job_timer.resume(job_recovery_info.print_job_elapsed);
-
-      // Start getting commands from SD
-      card.startFileprint();
+    static void lcd_power_loss_recovery_cancel() {
+      card.removeJobRecoveryFile();
+      card.autostart_index = 0;
+      lcd_return_to_status();
     }
 
     static void lcd_job_recovery_menu() {
       defer_return_to_status = true;
       START_MENU();
-      MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_recover_job);
-      MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+      STATIC_ITEM(MSG_POWER_LOSS_RECOVERY);
+      MENU_ITEM(function, MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);
+      MENU_ITEM(function, MSG_STOP_PRINT, lcd_power_loss_recovery_cancel);
       END_MENU();
     }
 
   #endif // POWER_LOSS_RECOVERY
+
+  #if ENABLED(SINGLENOZZLE)
+    void singlenozzle_swap_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MAIN);
+      MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &singlenozzle_swap_length, 0, 200);
+      MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &singlenozzle_retract_speed, 10, 5400);
+      MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &singlenozzle_prime_speed, 10, 5400);
+      END_MENU();
+    }
+  #endif
 
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
 
@@ -941,9 +993,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     void case_light_menu() {
       START_MENU();
-      //
-      // ^ Main
-      //
       MENU_BACK(MSG_MAIN);
       MENU_ITEM_EDIT_CALLBACK(int8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
       MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
@@ -960,9 +1009,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
      */
     static void bltouch_menu() {
       START_MENU();
-      //
-      // ^ Main
-      //
       MENU_BACK(MSG_MAIN);
       MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
       MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
@@ -986,9 +1032,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
       bar_percent = constrain(bar_percent, 0, 100);
       encoderPosition = 0;
       lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
-      lcd.setCursor((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-      lcd.print(itostr3(bar_percent)); lcd.write('%');
-      lcd.setCursor(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
+      lcd_moveto((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
+      lcd_put_u8str(int(bar_percent)); lcd_put_wchar('%');
+      lcd_moveto(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
     }
 
     void _progress_bar_test() {
@@ -1003,7 +1049,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void lcd_debug_menu() {
       START_MENU();
 
-      MENU_BACK(MSG_MAIN); // ^ Main
+      MENU_BACK(MSG_MAIN);
 
       #if ENABLED(LCD_PROGRESS_BAR_TEST)
         MENU_ITEM(submenu, MSG_PROGRESS_BAR_TEST, _progress_bar_test);
@@ -1014,6 +1060,40 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // HAS_DEBUG_MENU
 
+  /**
+   * IDEX submenu
+   */
+  #if ENABLED(DUAL_X_CARRIAGE)
+    static void _recalc_IDEX_settings() {
+      if (active_extruder) {                      // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+        enqueue_and_echo_commands_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
+        active_extruder = 0;
+      }
+    }
+
+    static void IDEX_menu() {
+      START_MENU();
+      MENU_BACK(MSG_MAIN);
+
+      MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
+      const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
+      MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, need_g28
+        ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
+        : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
+      );
+      //MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, need_g28
+      //  ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
+      //  : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
+      //);
+      MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Z_OFFSET , &hotend_offset[Z_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
+      MENU_ITEM(gcode, MSG_IDEX_SAVE_OFFSETS, PSTR("M500"));
+      END_MENU();
+    }
+  #endif // DUAL_X_CARRIAGE
+
   #if ENABLED(CUSTOM_USER_MENUS)
 
     #ifdef USER_SCRIPT_DONE
@@ -1022,7 +1102,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #define _DONE_SCRIPT ""
     #endif
 
-    void _lcd_user_gcode(const char * const cmd) {
+    void _lcd_user_gcode(PGM_P const cmd) {
       enqueue_and_echo_commands_P(cmd);
       #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK)
         lcd_completion_feedback();
@@ -1077,38 +1157,15 @@ void lcd_quick_feedback(const bool clear_buttons) {
    *
    */
 
+  #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
+
+    void lcd_autostart_sd() { card.beginautostart(); }
+
+  #endif
+
   void lcd_main_menu() {
     START_MENU();
     MENU_BACK(MSG_WATCH);
-
-    #if ENABLED(CUSTOM_USER_MENUS)
-      MENU_ITEM(submenu, MSG_USER_MENU, _lcd_user_menu);
-    #endif
-
-    //
-    // Debug Menu when certain options are enabled
-    //
-    #if HAS_DEBUG_MENU
-      MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
-    #endif
-
-    //
-    // Set Case light on/off/brightness
-    //
-    #if ENABLED(MENU_ITEM_CASE_LIGHT)
-      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) {
-        MENU_ITEM(submenu, MSG_CASE_LIGHT, case_light_menu);
-      }
-      else
-        MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-    #endif
-
-    if (planner.movesplanned() || IS_SD_PRINTING)
-      MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
-    else
-      MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-
-    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 
     #if ENABLED(SDSUPPORT)
       if (card.cardOK) {
@@ -1134,12 +1191,55 @@ void lcd_quick_feedback(const bool clear_buttons) {
       }
     #endif // SDSUPPORT
 
+    const bool busy = printer_busy();
+    if (busy)
+      MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
+    else {
+      MENU_ITEM(submenu, MSG_MOTION, lcd_movement_menu);
+      MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_temperature_menu);
+    }
+
+    MENU_ITEM(submenu, MSG_CONFIGURATION, lcd_configuration_menu);
+
+    #if ENABLED(CUSTOM_USER_MENUS)
+      MENU_ITEM(submenu, MSG_USER_MENU, _lcd_user_menu);
+    #endif
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
+        if (thermalManager.targetHotEnoughToExtrude(active_extruder))
+          MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
+        else
+          MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
+      #else
+        MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_change_filament_menu);
+      #endif
+    #endif
+
     #if ENABLED(LCD_INFO_MENU)
       MENU_ITEM(submenu, MSG_INFO_MENU, lcd_info_menu);
     #endif
 
     #if ENABLED(LED_CONTROL_MENU)
       MENU_ITEM(submenu, MSG_LED_CONTROL, lcd_led_menu);
+    #endif
+
+    //
+    // Switch power on/off
+    //
+    #if HAS_POWER_SWITCH
+      if (powersupply_on)
+        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
+      else
+        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
+    #endif
+
+    //
+    // Autostart
+    //
+    #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
+      if (!busy)
+        MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
     #endif
 
     END_MENU();
@@ -1150,17 +1250,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
    * "Tune" submenu items
    *
    */
-
-  #if HAS_M206_COMMAND
-    /**
-     * Set the home offset based on the current_position
-     */
-    void lcd_set_home_offsets() {
-      // M428 Command
-      enqueue_and_echo_commands_P(PSTR("M428"));
-      lcd_return_to_status();
-    }
-  #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
 
@@ -1202,7 +1291,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #if ENABLED(BABYSTEPPING)
 
-    void _lcd_babystep(const AxisEnum axis, const char* msg) {
+    void _lcd_babystep(const AxisEnum axis, PGM_P msg) {
       if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
       ENCODER_DIRECTION_NORMAL();
       if (encoderPosition) {
@@ -1228,22 +1317,47 @@ void lcd_quick_feedback(const bool clear_buttons) {
       void lcd_babystep_zoffset() {
         if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
         defer_return_to_status = true;
+        #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+          const bool do_probe = (active_extruder == 0);
+        #else
+          constexpr bool do_probe = true;
+        #endif
         ENCODER_DIRECTION_NORMAL();
         if (encoderPosition) {
           const int16_t babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
           encoderPosition = 0;
 
-          const float new_zoffset = zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * babystep_increment;
-          if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+          const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
+                      new_probe_offset = zprobe_zoffset + diff,
+                      new_offs =
+                        #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+                          do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
+                        #else
+                          new_probe_offset
+                        #endif
+                      ;
+          if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+
             thermalManager.babystep_axis(Z_AXIS, babystep_increment);
-            zprobe_zoffset = new_zoffset;
+
+            if (do_probe) zprobe_zoffset = new_offs;
+            #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+              else hotend_offset[Z_AXIS][active_extruder] = new_offs;
+            #endif
+
             lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           }
         }
         if (lcdDrawUpdate) {
-          lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+          #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+            if (!do_probe)
+              lcd_implementation_drawedit(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
+            else
+          #endif
+              lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+
           #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-            _lcd_zoffset_overlay_gfx(zprobe_zoffset);
+            if (do_probe) _lcd_zoffset_overlay_gfx(zprobe_zoffset);
           #endif
         }
       }
@@ -1263,19 +1377,19 @@ void lcd_quick_feedback(const bool clear_buttons) {
                                                   // separate value that doesn't lose precision.
     static int16_t ubl_encoderPosition = 0;
 
-    static void _lcd_mesh_fine_tune(const char* msg) {
+    static void _lcd_mesh_fine_tune(PGM_P msg) {
       defer_return_to_status = true;
       if (ubl.encoder_diff) {
         ubl_encoderPosition = (ubl.encoder_diff > 0) ? 1 : -1;
         ubl.encoder_diff = 0;
 
-        mesh_edit_accumulator += float(ubl_encoderPosition) * 0.005 / 2.0;
+        mesh_edit_accumulator += float(ubl_encoderPosition) * 0.005f * 0.5f;
         mesh_edit_value = mesh_edit_accumulator;
         encoderPosition = 0;
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
 
-        const int32_t rounded = (int32_t)(mesh_edit_value * 1000.0);
-        mesh_edit_value = float(rounded - (rounded % 5L)) / 1000.0;
+        const int32_t rounded = (int32_t)(mesh_edit_value * 1000);
+        mesh_edit_value = float(rounded - (rounded % 5L)) / 1000;
       }
 
       if (lcdDrawUpdate) {
@@ -1337,6 +1451,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
           void watch_temp_callback_E3() { _WATCH_FUNC(3); }
           #if HOTENDS > 4
             void watch_temp_callback_E4() { _WATCH_FUNC(4); }
+            #if HOTENDS > 5
+              void watch_temp_callback_E5() { _WATCH_FUNC(5); }
+            #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
@@ -1369,6 +1486,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
         inline void _lcd_refresh_e_factor_3() { planner.refresh_e_factor(3); }
         #if EXTRUDERS > 4
           inline void _lcd_refresh_e_factor_4() { planner.refresh_e_factor(4); }
+          #if EXTRUDERS > 5
+            inline void _lcd_refresh_e_factor_5() { planner.refresh_e_factor(5); }
+          #endif // EXTRUDERS > 5
         #endif // EXTRUDERS > 4
       #endif // EXTRUDERS > 3
     #endif // EXTRUDERS > 2
@@ -1381,10 +1501,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
    */
   void lcd_tune_menu() {
     START_MENU();
-
-    //
-    // ^ Main
-    //
     MENU_BACK(MSG_MAIN);
 
     //
@@ -1403,7 +1519,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     // Leveling Fade Height
     //
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) && DISABLED(SLIM_LCD_MENUS)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0, 100, _lcd_set_z_fade_height);
     #endif
 
     //
@@ -1421,6 +1537,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
           MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N4, &thermalManager.target_temperature[3], 0, HEATER_3_MAXTEMP - 15, watch_temp_callback_E3);
           #if HOTENDS > 4
             MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N5, &thermalManager.target_temperature[4], 0, HEATER_4_MAXTEMP - 15, watch_temp_callback_E4);
+            #if HOTENDS > 5
+              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N6, &thermalManager.target_temperature[5], 0, HEATER_5_MAXTEMP - 15, watch_temp_callback_E5);
+            #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
@@ -1438,21 +1557,21 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     #if FAN_COUNT > 0
       #if HAS_FAN0
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fan_speed[0], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fan_speed[0], 3, 255);
         #endif
       #endif
       #if HAS_FAN1
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 2", &fan_speed[1], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 2", &new_fan_speed[1], 3, 255);
         #endif
       #endif
       #if HAS_FAN2
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 3", &fan_speed[2], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 3", &new_fan_speed[2], 3, 255);
         #endif
       #endif
     #endif // FAN_COUNT > 0
@@ -1473,6 +1592,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
           MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N4, &planner.flow_percentage[3], 10, 999, _lcd_refresh_e_factor_3);
           #if EXTRUDERS > 4
             MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N5, &planner.flow_percentage[4], 10, 999, _lcd_refresh_e_factor_4);
+            #if EXTRUDERS > 5
+              MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N6, &planner.flow_percentage[5], 10, 999, _lcd_refresh_e_factor_5);
+            #endif // EXTRUDERS > 5
           #endif // EXTRUDERS > 4
         #endif // EXTRUDERS > 3
       #endif // EXTRUDERS > 2
@@ -1492,20 +1614,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
         MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
       #else
         MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
-      #endif
-    #endif
-
-    //
-    // Change filament
-    //
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-        if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-          MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-        else
-          MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
-      #else
-        MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_change_filament_menu);
       #endif
     #endif
 
@@ -1562,10 +1670,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   /**
    *
-   * "Prepare" submenu items
+   * "Temperature" submenu items
    *
    */
-  void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const int16_t fan) {
+  void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb, const uint8_t fan) {
     if (temph > 0) thermalManager.setTargetHotend(MIN(heater_maxtemp[endnum], temph), endnum);
     #if HAS_HEATED_BED
       if (tempb >= 0) thermalManager.setTargetBed(tempb);
@@ -1574,9 +1682,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
     #if FAN_COUNT > 0
       #if FAN_COUNT > 1
-        fanSpeeds[active_extruder < FAN_COUNT ? active_extruder : 0] = fan;
+        fan_speed[active_extruder < FAN_COUNT ? active_extruder : 0] = fan;
       #else
-        fanSpeeds[0] = fan;
+        fan_speed[0] = fan;
       #endif
     #else
       UNUSED(fan);
@@ -1621,6 +1729,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
             void lcd_preheat_m1_e4() { _lcd_preheat(4, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
             void lcd_preheat_m2_e4() { _lcd_preheat(4, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
           #endif
+          #if HOTENDS > 5
+            void lcd_preheat_m1_e5_only() { _lcd_preheat(5, lcd_preheat_hotend_temp[0], -1, lcd_preheat_fan_speed[0]); }
+            void lcd_preheat_m2_e5_only() { _lcd_preheat(5, lcd_preheat_hotend_temp[1], -1, lcd_preheat_fan_speed[1]); }
+            #if HAS_HEATED_BED
+              void lcd_preheat_m1_e5() { _lcd_preheat(5, lcd_preheat_hotend_temp[0], lcd_preheat_bed_temp[0], lcd_preheat_fan_speed[0]); }
+              void lcd_preheat_m2_e5() { _lcd_preheat(5, lcd_preheat_hotend_temp[1], lcd_preheat_bed_temp[1], lcd_preheat_fan_speed[1]); }
+            #endif
+          #endif // HOTENDS > 5
         #endif // HOTENDS > 4
       #endif // HOTENDS > 3
     #endif // HOTENDS > 2
@@ -1634,6 +1750,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
             thermalManager.setTargetHotend(lcd_preheat_hotend_temp[0], 3);
             #if HOTENDS > 4
               thermalManager.setTargetHotend(lcd_preheat_hotend_temp[0], 4);
+              #if HOTENDS > 5
+                thermalManager.setTargetHotend(lcd_preheat_hotend_temp[0], 5);
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -1653,6 +1772,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
             thermalManager.setTargetHotend(lcd_preheat_hotend_temp[1], 3);
             #if HOTENDS > 4
               thermalManager.setTargetHotend(lcd_preheat_hotend_temp[1], 4);
+              #if HOTENDS > 5
+                thermalManager.setTargetHotend(lcd_preheat_hotend_temp[1], 5);
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -1675,7 +1797,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     void lcd_preheat_m1_menu() {
       START_MENU();
-      MENU_BACK(MSG_PREPARE);
+      MENU_BACK(MSG_TEMPERATURE);
       #if HOTENDS == 1
         #if HAS_HEATED_BED
           MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0);
@@ -1714,6 +1836,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
               #else
                 MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H5, lcd_preheat_m1_e4_only);
               #endif
+              #if HOTENDS > 5
+                #if HAS_HEATED_BED
+                  MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H6, lcd_preheat_m1_e5);
+                  MENU_ITEM(function, MSG_PREHEAT_1_END " " MSG_E6, lcd_preheat_m1_e5_only);
+                #else
+                  MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H6, lcd_preheat_m1_e5_only);
+                #endif
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -1727,7 +1857,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     void lcd_preheat_m2_menu() {
       START_MENU();
-      MENU_BACK(MSG_PREPARE);
+      MENU_BACK(MSG_TEMPERATURE);
       #if HOTENDS == 1
         #if HAS_HEATED_BED
           MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0);
@@ -1766,6 +1896,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
               #else
                 MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H5, lcd_preheat_m2_e4_only);
               #endif
+              #if HOTENDS > 5
+                #if HAS_HEATED_BED
+                  MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H6, lcd_preheat_m2_e5);
+                  MENU_ITEM(function, MSG_PREHEAT_2_END " " MSG_E6, lcd_preheat_m2_e5_only);
+                #else
+                  MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H6, lcd_preheat_m2_e5_only);
+                #endif
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -1781,7 +1919,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   void lcd_cooldown() {
     #if FAN_COUNT > 0
-      for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+      for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
     #endif
     thermalManager.disable_all_heaters();
     lcd_return_to_status();
@@ -1799,7 +1937,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       no_reentry = false;
     }
 
-    void lcd_enqueue_commands_P(const char * const cmd) {
+    void lcd_enqueue_commands_P(PGM_P const cmd) {
       no_reentry = true;
       enqueue_and_echo_commands_now_P(cmd);
       no_reentry = false;
@@ -1807,16 +1945,16 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif
 
-  #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
-
-    void lcd_autostart_sd() { card.beginautostart(); }
-
-  #endif
-
   #if ENABLED(EEPROM_SETTINGS)
     static void lcd_store_settings()   { lcd_completion_feedback(settings.save()); }
     static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
   #endif
+
+  inline void _lcd_draw_homing() {
+    constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
+    if (lcdDrawUpdate) lcd_implementation_drawmenu_static(line, PSTR(MSG_LEVEL_BED_HOMING));
+    lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+  }
 
   #if ENABLED(LEVEL_BED_CORNERS)
 
@@ -1847,7 +1985,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
             break;
         #endif
       }
-      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
+      planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
       line_to_z(0.0);
       if (++bed_corner > 3
         #if ENABLED(LEVEL_CENTER_TOO)
@@ -1869,11 +2007,22 @@ void lcd_quick_feedback(const bool clear_buttons) {
       END_MENU();
     }
 
+    void _lcd_level_bed_corners_homing() {
+      _lcd_draw_homing();
+      if (all_axes_homed()) {
+        bed_corner = 0;
+        lcd_goto_screen(_lcd_corner_submenu);
+        _lcd_goto_next_corner();
+      }
+    }
+
     void _lcd_level_bed_corners() {
       defer_return_to_status = true;
-      lcd_goto_screen(_lcd_corner_submenu);
-      bed_corner = 0;
-      _lcd_goto_next_corner();
+      if (!all_axes_known()) {
+        axis_homed = 0;
+        enqueue_and_echo_commands_P(PSTR("G28"));
+      }
+      lcd_goto_screen(_lcd_level_bed_corners_homing);
     }
 
   #endif // LEVEL_BED_CORNERS
@@ -1882,7 +2031,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     /**
      *
-     * "Prepare" > "Level Bed" handlers
+     * "Motion" > "Level Bed" handlers
      *
      */
 
@@ -1962,7 +2111,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       //
       if (encoderPosition) {
         const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MBL_Z_STEP);
-        line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5));
+        line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f));
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
         encoderPosition = 0;
       }
@@ -1972,7 +2121,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       //
       if (lcdDrawUpdate) {
         const float v = current_position[Z_AXIS];
-        lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001 : 0.0001), '+'));
+        lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
       }
     }
 
@@ -2020,8 +2169,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
      * Step 3: Display "Homing XYZ" - Wait for homing to finish
      */
     void _lcd_level_bed_homing() {
-      if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-      lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+      _lcd_draw_homing();
       if (all_axes_homed()) lcd_goto_screen(_lcd_level_bed_homing_done);
     }
 
@@ -2362,8 +2510,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     void _lcd_ubl_map_homing() {
       defer_return_to_status = true;
-      if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT < 3 ? 0 : (LCD_HEIGHT > 4 ? 2 : 1), PSTR(MSG_LEVEL_BED_HOMING));
-      lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+      _lcd_draw_homing();
       if (all_axes_homed()) {
         ubl.lcd_map_control = true; // Return to the map screen
         lcd_goto_screen(_lcd_ubl_output_map_lcd);
@@ -2387,7 +2534,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void ubl_map_move_to_xy() {
       current_position[X_AXIS] = pgm_read_float(&ubl._mesh_index_to_xpos[x_plot]);
       current_position[Y_AXIS] = pgm_read_float(&ubl._mesh_index_to_ypos[y_plot]);
-      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
+      planner.buffer_line(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
     }
 
     /**
@@ -2408,9 +2555,6 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     void _lcd_ubl_output_map_lcd() {
       static int16_t step_scaler = 0;
-
-      if (!all_axes_known())
-        return lcd_goto_screen(_lcd_ubl_map_homing);
 
       if (use_click()) return _lcd_ubl_map_lcd_edit_cmd();
       ENCODER_DIRECTION_NORMAL();
@@ -2532,7 +2676,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     /**
      * UBL System submenu
      *
-     * << Prepare
+     * << Motion
      *  - Manually Build Mesh >>
      *  - Activate UBL >>
      *  - Deactivate UBL >>
@@ -2545,7 +2689,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     void _lcd_ubl_level_bed() {
       START_MENU();
-      MENU_BACK(MSG_PREPARE);
+      MENU_BACK(MSG_MOTION);
       MENU_ITEM(gcode, MSG_UBL_ACTIVATE_MESH, PSTR("G29 A"));
       MENU_ITEM(gcode, MSG_UBL_DEACTIVATE_MESH, PSTR("G29 D"));
       MENU_ITEM(submenu, MSG_UBL_STEP_BY_STEP_MENU, _lcd_ubl_step_by_step);
@@ -2555,7 +2699,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(submenu, MSG_UBL_TOOLS, _lcd_ubl_tools_menu);
       MENU_ITEM(gcode, MSG_UBL_INFO_UBL, PSTR("G29 W"));
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0, 100, _lcd_set_z_fade_height);
       #endif
       END_MENU();
     }
@@ -2572,7 +2716,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     /**
      * Step 1: Bed Level entry-point
      *
-     * << Prepare
+     * << Motion
      *    Auto Home           (if homing needed)
      *    Leveling On/Off     (if data exists, and homed)
      *    Fade Height: ---    (Req: ENABLE_LEVELING_FADE_HEIGHT)
@@ -2583,9 +2727,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
      *    Load Settings       (Req: EEPROM_SETTINGS)
      *    Save Settings       (Req: EEPROM_SETTINGS)
      */
-    void lcd_bed_leveling() {
+    void lcd_bed_leveling_menu() {
       START_MENU();
-      MENU_BACK(MSG_PREPARE);
+      MENU_BACK(MSG_MOTION);
 
       const bool is_homed = all_axes_known();
 
@@ -2611,7 +2755,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       // Z Fade Height
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0, 100, _lcd_set_z_fade_height);
       #endif
 
       //
@@ -2629,7 +2773,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       #if ENABLED(LEVEL_BED_CORNERS)
         // Move to the next corner for leveling
-        if (all_axes_homed()) MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
+        MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
       #endif
 
       #if ENABLED(EEPROM_SETTINGS)
@@ -2643,11 +2787,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   /**
    *
-   * "Prepare" submenu
+   * "Movement" submenu
    *
    */
 
-  void lcd_prepare_menu() {
+  void lcd_movement_menu() {
     START_MENU();
 
     //
@@ -2674,6 +2818,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #endif
 
     //
+    // TMC Z Calibration
+    //
+    #if ENABLED(TMC_Z_CALIBRATION)
+      MENU_ITEM(gcode, MSG_TMC_Z_CALIBRATION, PSTR("G28\nM915"));
+    #endif
+
+    //
     // Level Bed
     //
     #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -2685,7 +2836,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #if ENABLED(PROBE_MANUALLY)
         if (!g29_in_progress)
       #endif
-          MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling);
+          MENU_ITEM(submenu, MSG_BED_LEVELING, lcd_bed_leveling_menu);
 
     #elif HAS_LEVELING && DISABLED(SLIM_LCD_MENUS)
 
@@ -2697,21 +2848,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
         MENU_ITEM_EDIT_CALLBACK(bool, MSG_BED_LEVELING, &new_level_state, _lcd_toggle_bed_leveling);
       }
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0.0, 100.0, _lcd_set_z_fade_height);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float3, MSG_Z_FADE_HEIGHT, &new_z_fade_height, 0, 100, _lcd_set_z_fade_height);
       #endif
 
     #endif
 
     #if ENABLED(LEVEL_BED_CORNERS) && DISABLED(LCD_BED_LEVELING)
-      if (all_axes_homed())
         MENU_ITEM(function, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
-    #endif
-
-    #if HAS_M206_COMMAND && DISABLED(SLIM_LCD_MENUS)
-      //
-      // Set Home Offsets
-      //
-      MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
     #endif
 
     //
@@ -2719,88 +2862,10 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
 
-    //
-    // Change filament
-    //
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      if (!IS_SD_FILE_OPEN) {
-        #if E_STEPPERS == 1 && !ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-          if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-            MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-          else
-            MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_temp_menu_e0_filament_change);
-        #else
-          MENU_ITEM(submenu, MSG_FILAMENTCHANGE, lcd_change_filament_menu);
-        #endif
-      }
-    #endif // ADVANCED_PAUSE_FEATURE
-
-    #if HAS_TEMP_HOTEND
-
-      //
-      // Cooldown
-      //
-      bool has_heat = false;
-      HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
-      #if HAS_HEATED_BED
-        if (thermalManager.target_temperature_bed) has_heat = true;
-      #endif
-      if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
-
-      //
-      // Preheat for Material 1 and 2
-      //
-      #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || HAS_HEATED_BED
-        MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_m1_menu);
-        MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_m2_menu);
-      #else
-        MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
-        MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
-      #endif
-
-    #endif // HAS_TEMP_HOTEND
-
-    //
-    // BLTouch Self-Test and Reset
-    //
-    #if ENABLED(BLTOUCH)
-      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-      if (!endstops.z_probe_enabled && TEST_BLTOUCH())
-        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-    #endif
-
-    //
-    // Switch power on/off
-    //
-    #if HAS_POWER_SWITCH
-      if (powersupply_on)
-        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
-      else
-        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
-    #endif
-
-    //
-    // Autostart
-    //
-    #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
-      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
-    #endif
-
-    //
-    // Delta Calibration
-    //
-    #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
-    #endif
-
     END_MENU();
   }
 
-  float move_menu_scale;
-
   #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
-
-    void lcd_move_z();
 
     void _man_probe_pt(const float &rx, const float &ry) {
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
@@ -2831,10 +2896,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #if ENABLED(DELTA_CALIBRATION_MENU)
 
     void _lcd_calibrate_homing() {
-      if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_LEVEL_BED_HOMING));
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-      if (all_axes_homed())
-        lcd_goto_previous_menu();
+      _lcd_draw_homing();
+      if (all_axes_homed()) lcd_goto_previous_menu();
     }
 
     void _lcd_delta_calibrate_home() {
@@ -2861,15 +2924,15 @@ void lcd_quick_feedback(const bool clear_buttons) {
     void lcd_delta_settings() {
       START_MENU();
       MENU_BACK(MSG_DELTA_CALIBRATE);
-      MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10.0, delta_height + 10.0, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Ex", &delta_endstop_adj[A_AXIS], -5.0, 5.0, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Ey", &delta_endstop_adj[B_AXIS], -5.0, 5.0, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Ez", &delta_endstop_adj[C_AXIS], -5.0, 5.0, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5.0, delta_radius + 5.0, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Tx", &delta_tower_angle_trim[A_AXIS], -5.0, 5.0, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Ty", &delta_tower_angle_trim[B_AXIS], -5.0, 5.0, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float43, "Tz", &delta_tower_angle_trim[C_AXIS], -5.0, 5.0, _recalc_delta_settings);
-      MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5.0, delta_diagonal_rod + 5.0, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Ex", &delta_endstop_adj[A_AXIS], -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Ey", &delta_endstop_adj[B_AXIS], -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Ez", &delta_endstop_adj[C_AXIS], -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Tx", &delta_tower_angle_trim[A_AXIS], -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Ty", &delta_tower_angle_trim[B_AXIS], -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float43, "Tz", &delta_tower_angle_trim[C_AXIS], -5, 5, _recalc_delta_settings);
+      MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta_settings);
       END_MENU();
     }
 
@@ -2878,7 +2941,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_BACK(MSG_MAIN);
       #if ENABLED(DELTA_AUTO_CALIBRATION)
         MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33"));
-        MENU_ITEM(gcode, MSG_DELTA_HEIGHT_CALIBRATE, PSTR("G33 P1"));
+        MENU_ITEM(gcode, MSG_DELTA_HEIGHT_CALIBRATE, PSTR("G33 S P1"));
         MENU_ITEM(gcode, MSG_DELTA_Z_OFFSET_CALIBRATE, PSTR("G33 P-1"));
         #if ENABLED(EEPROM_SETTINGS)
           MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
@@ -2917,7 +2980,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
         #if EXTRUDERS > 1
           const int8_t old_extruder = active_extruder;
-          active_extruder = manual_move_e_index;
+          if (manual_move_axis == E_AXIS) active_extruder = manual_move_e_index;
         #endif
 
         // Set movement on a single axis
@@ -2925,7 +2988,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         destination[manual_move_axis] += manual_move_offset;
 
         // Reset for the next move
-        manual_move_offset = 0.0;
+        manual_move_offset = 0;
         manual_move_axis = (int8_t)NO_AXIS;
 
         // DELTA and SCARA machines use segmented moves, which could fill the planner during the call to
@@ -2943,7 +3006,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
       #else
 
-        planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_e_index);
+        planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_axis == E_AXIS ? manual_move_e_index : active_extruder);
         manual_move_axis = (int8_t)NO_AXIS;
 
       #endif
@@ -2965,17 +3028,17 @@ void lcd_quick_feedback(const bool clear_buttons) {
       #endif
           manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
     #endif
-    manual_move_start_time = millis() + (move_menu_scale < 0.99 ? 0UL : 250UL); // delay for bigger moves
+    manual_move_start_time = millis() + (move_menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
     manual_move_axis = (int8_t)axis;
   }
 
   /**
    *
-   * "Prepare" > "Move Axis" submenu
+   * "Motion" > "Move Axis" submenu
    *
    */
 
-  void _lcd_move_xyz(const char* name, AxisEnum axis) {
+  void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
     if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition && !processing_manual_move) {
@@ -3049,7 +3112,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
           + manual_move_offset
         #endif
       , axis);
-      lcd_implementation_drawedit(name, move_menu_scale >= 0.1 ? ftostr41sign(pos) : ftostr43sign(pos));
+      lcd_implementation_drawedit(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
     }
   }
   void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
@@ -3093,6 +3156,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
               case 3: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E4); break;
               #if E_MANUAL > 4
                 case 4: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E5); break;
+                #if E_MANUAL > 5
+                  case 5: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E6); break;
+                #endif // E_MANUAL > 5
               #endif // E_MANUAL > 4
             #endif // E_MANUAL > 3
           #endif // E_MANUAL > 2
@@ -3101,6 +3167,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
       lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_AXIS]
         #if IS_KINEMATIC
           + manual_move_offset
+        #endif
+        #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+          - manual_move_e_origin
         #endif
       ));
     }
@@ -3116,6 +3185,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
         void lcd_move_e3() { _lcd_move_e(3); }
         #if E_MANUAL > 4
           void lcd_move_e4() { _lcd_move_e(4); }
+          #if E_MANUAL > 5
+            void lcd_move_e5() { _lcd_move_e(5); }
+          #endif // E_MANUAL > 5
         #endif // E_MANUAL > 4
       #endif // E_MANUAL > 3
     #endif // E_MANUAL > 2
@@ -3123,7 +3195,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   /**
    *
-   * "Prepare" > "Move Xmm" > "Move XYZ" submenu
+   * "Motion" > "Move Xmm" > "Move XYZ" submenu
    *
    */
 
@@ -3134,9 +3206,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
     move_menu_scale = scale;
     lcd_goto_screen(_manual_move_func_ptr);
   }
-  void lcd_move_menu_10mm() { _goto_manual_move(10.0); }
-  void lcd_move_menu_1mm()  { _goto_manual_move( 1.0); }
-  void lcd_move_menu_01mm() { _goto_manual_move( 0.1); }
+  void lcd_move_menu_10mm() { _goto_manual_move(10); }
+  void lcd_move_menu_1mm()  { _goto_manual_move( 1); }
+  void lcd_move_menu_01mm() { _goto_manual_move( 0.1f); }
 
   void _lcd_move_distance_menu(const AxisEnum axis, const screenFunc_t func) {
     _manual_move_func_ptr = func;
@@ -3150,7 +3222,11 @@ void lcd_quick_feedback(const bool clear_buttons) {
         case Z_AXIS:
           STATIC_ITEM(MSG_MOVE_Z, true, true); break;
         default:
-          STATIC_ITEM(MSG_MOVE_E, true, true); break;
+          #if ENABLED(MANUAL_E_MOVES_RELATIVE)
+            manual_move_e_origin = current_position[E_AXIS];
+          #endif
+          STATIC_ITEM(MSG_MOVE_E, true, true);
+          break;
       }
     }
     MENU_BACK(MSG_MOVE_AXIS);
@@ -3172,6 +3248,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
         void lcd_move_get_e3_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e3); }
         #if E_MANUAL > 4
           void lcd_move_get_e4_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e4); }
+          #if E_MANUAL > 5
+            void lcd_move_get_e5_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e5); }
+          #endif // E_MANUAL > 5
         #endif // E_MANUAL > 4
       #endif // E_MANUAL > 3
     #endif // E_MANUAL > 2
@@ -3179,7 +3258,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   /**
    *
-   * "Prepare" > "Move Axis" submenu
+   * "Motion" > "Move Axis" submenu
    *
    */
 
@@ -3201,7 +3280,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   void lcd_move_menu() {
     START_MENU();
-    MENU_BACK(MSG_PREPARE);
+    MENU_BACK(MSG_MOTION);
 
     #if HAS_SOFTWARE_ENDSTOPS && ENABLED(SOFT_ENDSTOPS_MENU_ITEM)
       MENU_ITEM_EDIT(bool, MSG_LCD_SOFT_ENDSTOPS, &soft_endstops_enabled);
@@ -3224,7 +3303,16 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     #if ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE)
 
-      #if EXTRUDERS == 4
+      #if EXTRUDERS == 6
+        switch (active_extruder) {
+          case 0: MENU_ITEM(gcode, MSG_SELECT " " MSG_E2, PSTR("T1")); break;
+          case 1: MENU_ITEM(gcode, MSG_SELECT " " MSG_E1, PSTR("T0")); break;
+          case 2: MENU_ITEM(gcode, MSG_SELECT " " MSG_E4, PSTR("T3")); break;
+          case 3: MENU_ITEM(gcode, MSG_SELECT " " MSG_E3, PSTR("T2")); break;
+          case 4: MENU_ITEM(gcode, MSG_SELECT " " MSG_E6, PSTR("T5")); break;
+          case 5: MENU_ITEM(gcode, MSG_SELECT " " MSG_E5, PSTR("T4")); break;
+        }
+      #elif EXTRUDERS == 5 || EXTRUDERS == 4
         switch (active_extruder) {
           case 0: MENU_ITEM(gcode, MSG_SELECT " " MSG_E2, PSTR("T1")); break;
           case 1: MENU_ITEM(gcode, MSG_SELECT " " MSG_E1, PSTR("T0")); break;
@@ -3278,6 +3366,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
             MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E4, lcd_move_get_e3_amount);
             #if E_MANUAL > 4
               MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E5, lcd_move_get_e4_amount);
+              #if E_MANUAL > 5
+                MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E6, lcd_move_get_e5_amount);
+              #endif // E_MANUAL > 5
             #endif // E_MANUAL > 4
           #endif // E_MANUAL > 3
         #endif // E_MANUAL > 2
@@ -3290,7 +3381,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   /**
    *
-   * "Control" submenu
+   * "Configuration" submenu
    *
    */
 
@@ -3312,30 +3403,66 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     static void lcd_init_eeprom_confirm() {
       START_MENU();
-      MENU_BACK(MSG_CONTROL);
+      MENU_BACK(MSG_ADVANCED_SETTINGS);
       MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
       END_MENU();
     }
 
   #endif
 
-  void lcd_control_menu() {
+  void lcd_configuration_menu() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
-    MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
 
-    #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
-      MENU_ITEM(submenu, MSG_FILAMENT, lcd_control_filament_menu);
-    #elif ENABLED(LIN_ADVANCE)
-      MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
+    //
+    // Debug Menu when certain options are enabled
+    //
+    #if HAS_DEBUG_MENU
+      MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
+    #endif
+
+    MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, lcd_advanced_settings_menu);
+
+    const bool busy = printer_busy();
+    if (!busy) {
+      //
+      // Delta Calibration
+      //
+      #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
+        MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
+      #endif
+
+      #if ENABLED(DUAL_X_CARRIAGE)
+        MENU_ITEM(submenu, MSG_IDEX_MENU, IDEX_menu);
+      #endif
+
+      #if ENABLED(BLTOUCH)
+        MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
+      #endif
+    }
+
+    //
+    // Set single nozzle filament retract and prime length
+    //
+    #if ENABLED(SINGLENOZZLE)
+      MENU_ITEM(submenu, MSG_SINGLENOZZLE_TOOL_CHANGE, singlenozzle_swap_menu);
+    #endif
+
+    //
+    // Set Case light on/off/brightness
+    //
+    #if ENABLED(MENU_ITEM_CASE_LIGHT)
+      if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
+        MENU_ITEM(submenu, MSG_CASE_LIGHT, case_light_menu);
+      else
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
     #endif
 
     #if HAS_LCD_CONTRAST
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
     #endif
     #if ENABLED(FWRETRACT)
-      MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
+      MENU_ITEM(submenu, MSG_RETRACT, lcd_config_retract_menu);
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
       MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu);
@@ -3344,20 +3471,24 @@ void lcd_quick_feedback(const bool clear_buttons) {
       MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_pwm_menu);
     #endif
 
-    #if ENABLED(BLTOUCH)
-      MENU_ITEM(submenu, MSG_BLTOUCH, bltouch_menu);
+    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+      MENU_ITEM_EDIT(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled);
+    #endif
+
+    #if DISABLED(SLIM_LCD_MENUS)
+      // Preheat configurations
+      MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_configuration_temperature_preheat_material1_settings_menu);
+      MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_configuration_temperature_preheat_material2_settings_menu);
     #endif
 
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
-      MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
+      if (!busy)
+        MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
     #endif
 
-    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
-
-    #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
-      MENU_ITEM(submenu, MSG_INIT_EEPROM, lcd_init_eeprom_confirm);
-    #endif
+    if (!busy)
+      MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
 
     END_MENU();
   }
@@ -3434,6 +3565,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
             DEFINE_PIDTEMP_FUNCS(3);
             #if HOTENDS > 4
               DEFINE_PIDTEMP_FUNCS(4);
+              #if HOTENDS > 5
+                DEFINE_PIDTEMP_FUNCS(5);
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -3444,16 +3578,12 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   /**
    *
-   * "Control" > "Temperature" submenu
+   * "Temperature" submenu
    *
    */
-  void lcd_control_temperature_menu() {
+  void lcd_temperature_menu() {
     START_MENU();
-
-    //
-    // ^ Control
-    //
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_MAIN);
 
     //
     // Nozzle:
@@ -3470,6 +3600,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
           MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N4, &thermalManager.target_temperature[3], 0, HEATER_3_MAXTEMP - 15, watch_temp_callback_E3);
           #if HOTENDS > 4
             MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N5, &thermalManager.target_temperature[4], 0, HEATER_4_MAXTEMP - 15, watch_temp_callback_E4);
+            #if HOTENDS > 5
+              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N6, &thermalManager.target_temperature[5], 0, HEATER_5_MAXTEMP - 15, watch_temp_callback_E5);
+            #endif // HOTENDS > 5
           #endif // HOTENDS > 4
         #endif // HOTENDS > 3
       #endif // HOTENDS > 2
@@ -3487,33 +3620,69 @@ void lcd_quick_feedback(const bool clear_buttons) {
     //
     #if FAN_COUNT > 0
       #if HAS_FAN0
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fanSpeeds[0], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fan_speed[0], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fanSpeeds[0], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fan_speed[0], 3, 255);
         #endif
       #endif
       #if HAS_FAN1
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 2", &fan_speed[1], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 2", &new_fanSpeeds[1], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 2", &new_fan_speed[1], 3, 255);
         #endif
       #endif
       #if HAS_FAN2
-        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 3", &fan_speed[2], 0, 255);
         #if ENABLED(EXTRA_FAN_SPEED)
-          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_EXTRA_FAN_SPEED " 3", &new_fanSpeeds[2], 3, 255);
+          MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 3", &new_fan_speed[2], 3, 255);
         #endif
       #endif
     #endif // FAN_COUNT > 0
 
+    #if HAS_TEMP_HOTEND
+
+      //
+      // Cooldown
+      //
+      bool has_heat = false;
+      HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
+      #if HAS_TEMP_BED
+        if (thermalManager.target_temperature_bed) has_heat = true;
+      #endif
+      if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+
+      //
+      // Preheat for Material 1 and 2
+      //
+      #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || HAS_HEATED_BED
+        MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_m1_menu);
+        MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_m2_menu);
+      #else
+        MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_m1_e0_only);
+        MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_m2_e0_only);
+      #endif
+
+    #endif // HAS_TEMP_HOTEND
+
+    END_MENU();
+  }
+
+  /**
+   *
+   * "Advanced Settings" -> "Temperature" submenu
+   *
+   */
+  void lcd_advanced_temperature_menu() {
+    START_MENU();
+    MENU_BACK(MSG_ADVANCED_SETTINGS);
     //
     // Autotemp, Min, Max, Fact
     //
     #if ENABLED(AUTOTEMP) && HAS_TEMP_HOTEND
       MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
-      MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, HEATER_0_MAXTEMP - 15);
-      MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, HEATER_0_MAXTEMP - 15);
-      MENU_ITEM_EDIT(float52, MSG_FACTOR, &planner.autotemp_factor, 0.0, 1.0);
+      MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - 15);
+      MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - 15);
+      MENU_ITEM_EDIT(float52, MSG_FACTOR, &planner.autotemp_factor, 0, 1);
     #endif
 
     //
@@ -3530,7 +3699,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
         raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
         MENU_ITEM_EDIT(float52sign, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
-        MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_I ELABEL, &raw_Ki, 0.01, 9990, copy_and_scalePID_i_E ## eindex); \
+        MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_I ELABEL, &raw_Ki, 0.01f, 9990, copy_and_scalePID_i_E ## eindex); \
         MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
 
       #if ENABLED(PID_EXTRUSION_SCALING)
@@ -3558,6 +3727,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
             PID_MENU_ITEMS(" " MSG_E4, 3);
             #if HOTENDS > 4
               PID_MENU_ITEMS(" " MSG_E5, 4);
+              #if HOTENDS > 5
+                PID_MENU_ITEMS(" " MSG_E6, 5);
+              #endif // HOTENDS > 5
             #endif // HOTENDS > 4
           #endif // HOTENDS > 3
         #endif // HOTENDS > 2
@@ -3567,33 +3739,24 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     #endif // PIDTEMP
 
-    #if DISABLED(SLIM_LCD_MENUS)
-      //
-      // Preheat Material 1 conf
-      //
-      MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, lcd_control_temperature_preheat_material1_settings_menu);
-
-      //
-      // Preheat Material 2 conf
-      //
-      MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, lcd_control_temperature_preheat_material2_settings_menu);
-    #endif
-
     END_MENU();
   }
 
   #if DISABLED(SLIM_LCD_MENUS)
 
-    void _lcd_control_temperature_preheat_settings_menu(const uint8_t material) {
-      #if HOTENDS > 4
-        #define MINTEMP_ALL MIN5(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP)
-        #define MAXTEMP_ALL MAX5(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP)
+    void _lcd_configuration_temperature_preheat_settings_menu(const uint8_t material) {
+      #if HOTENDS > 5
+        #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP, HEATER_5_MINTEMP)
+        #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP)
+      #elif HOTENDS > 4
+        #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP)
+        #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP)
       #elif HOTENDS > 3
-        #define MINTEMP_ALL MIN4(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP)
-        #define MAXTEMP_ALL MAX4(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP)
+        #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP)
+        #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP)
       #elif HOTENDS > 2
-        #define MINTEMP_ALL MIN3(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP)
-        #define MAXTEMP_ALL MAX3(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP)
+        #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP)
+        #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP)
       #elif HOTENDS > 1
         #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP)
         #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP)
@@ -3602,8 +3765,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
         #define MAXTEMP_ALL HEATER_0_MAXTEMP
       #endif
       START_MENU();
-      MENU_BACK(MSG_TEMPERATURE);
-      MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &lcd_preheat_fan_speed[material], 0, 255);
+      MENU_BACK(MSG_CONFIGURATION);
+      MENU_ITEM_EDIT(int8, MSG_FAN_SPEED, &lcd_preheat_fan_speed[material], 0, 255);
       #if HAS_TEMP_HOTEND
         MENU_ITEM_EDIT(int3, MSG_NOZZLE, &lcd_preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
       #endif
@@ -3621,14 +3784,14 @@ void lcd_quick_feedback(const bool clear_buttons) {
      * "Temperature" > "Preheat Material 1 conf" submenu
      *
      */
-    void lcd_control_temperature_preheat_material1_settings_menu() { _lcd_control_temperature_preheat_settings_menu(0); }
+    void lcd_configuration_temperature_preheat_material1_settings_menu() { _lcd_configuration_temperature_preheat_settings_menu(0); }
 
     /**
      *
      * "Temperature" > "Preheat Material 2 conf" submenu
      *
      */
-    void lcd_control_temperature_preheat_material2_settings_menu() { _lcd_control_temperature_preheat_settings_menu(1); }
+    void lcd_configuration_temperature_preheat_material2_settings_menu() { _lcd_configuration_temperature_preheat_settings_menu(1); }
 
     void _reset_acceleration_rates() { planner.reset_acceleration_rates(); }
     #if ENABLED(DISTINCT_E_FACTORS)
@@ -3641,6 +3804,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
           void _reset_e3_acceleration_rate() { _reset_e_acceleration_rate(3); }
           #if E_STEPPERS > 4
             void _reset_e4_acceleration_rate() { _reset_e_acceleration_rate(4); }
+            #if E_STEPPERS > 5
+              void _reset_e5_acceleration_rate() { _reset_e_acceleration_rate(5); }
+            #endif // E_STEPPERS > 5
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
@@ -3652,7 +3818,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         if (e == active_extruder)
           _planner_refresh_positioning();
         else
-          planner.steps_to_mm[E_AXIS + e] = 1.0 / planner.axis_steps_per_mm[E_AXIS + e];
+          planner.steps_to_mm[E_AXIS + e] = 1.0f / planner.axis_steps_per_mm[E_AXIS + e];
       }
       void _planner_refresh_e0_positioning() { _planner_refresh_e_positioning(0); }
       void _planner_refresh_e1_positioning() { _planner_refresh_e_positioning(1); }
@@ -3662,15 +3828,18 @@ void lcd_quick_feedback(const bool clear_buttons) {
           void _planner_refresh_e3_positioning() { _planner_refresh_e_positioning(3); }
           #if E_STEPPERS > 4
             void _planner_refresh_e4_positioning() { _planner_refresh_e_positioning(4); }
+            #if E_STEPPERS > 5
+              void _planner_refresh_e5_positioning() { _planner_refresh_e_positioning(5); }
+            #endif // E_STEPPERS > 5
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
       #endif // E_STEPPERS > 2
     #endif
 
     // M203 / M205 Velocity options
-    void lcd_control_motion_velocity_menu() {
+    void lcd_advanced_velocity_menu() {
       START_MENU();
-      MENU_BACK(MSG_MOTION);
+      MENU_BACK(MSG_ADVANCED_SETTINGS);
 
       // M203 Max Feedrate
       MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_A, &planner.max_feedrate_mm_s[A_AXIS], 1, 999);
@@ -3687,6 +3856,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
             MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E4, &planner.max_feedrate_mm_s[E_AXIS + 3], 1, 999);
             #if E_STEPPERS > 4
               MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E5, &planner.max_feedrate_mm_s[E_AXIS + 4], 1, 999);
+              #if E_STEPPERS > 5
+                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E6, &planner.max_feedrate_mm_s[E_AXIS + 5], 1, 999);
+              #endif // E_STEPPERS > 5
             #endif // E_STEPPERS > 4
           #endif // E_STEPPERS > 3
         #endif // E_STEPPERS > 2
@@ -3704,9 +3876,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
 
     // M201 / M204 Accelerations
-    void lcd_control_motion_acceleration_menu() {
+    void lcd_advanced_acceleration_menu() {
       START_MENU();
-      MENU_BACK(MSG_MOTION);
+      MENU_BACK(MSG_ADVANCED_SETTINGS);
 
       // M204 P Acceleration
       MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_ACC, &planner.acceleration, 10, 99000);
@@ -3732,6 +3904,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
             MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E4, &planner.max_acceleration_mm_per_s2[E_AXIS + 3], 100, 99000, _reset_e3_acceleration_rate);
             #if E_STEPPERS > 4
               MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E5, &planner.max_acceleration_mm_per_s2[E_AXIS + 4], 100, 99000, _reset_e4_acceleration_rate);
+              #if E_STEPPERS > 5
+                MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E6, &planner.max_acceleration_mm_per_s2[E_AXIS + 5], 100, 99000, _reset_e5_acceleration_rate);
+              #endif // E_STEPPERS > 5
             #endif // E_STEPPERS > 4
           #endif // E_STEPPERS > 3
         #endif // E_STEPPERS > 2
@@ -3743,30 +3918,37 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
 
     // M205 Jerk
-    void lcd_control_motion_jerk_menu() {
+    void lcd_advanced_jerk_menu() {
       START_MENU();
-      MENU_BACK(MSG_MOTION);
+      MENU_BACK(MSG_ADVANCED_SETTINGS);
 
       #if ENABLED(JUNCTION_DEVIATION)
-        MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01, 0.3, planner.recalculate_max_e_jerk);
-      #else
+        #if ENABLED(LIN_ADVANCE)
+          MENU_ITEM_EDIT_CALLBACK(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f, planner.recalculate_max_e_jerk);
+        #else
+          MENU_ITEM_EDIT(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.01f, 0.3f);
+        #endif
+      #endif
+      #if HAS_CLASSIC_JERK
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);
         #if ENABLED(DELTA)
           MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 1, 990);
         #else
-          MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1, 990);
+          MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f, 990);
         #endif
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+        #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+        #endif
       #endif
 
       END_MENU();
     }
 
     // M92 Steps-per-mm
-    void lcd_control_motion_steps_per_mm_menu() {
+    void lcd_advanced_steps_per_mm_menu() {
       START_MENU();
-      MENU_BACK(MSG_MOTION);
+      MENU_BACK(MSG_ADVANCED_SETTINGS);
 
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ASTEPS, &planner.axis_steps_per_mm[A_AXIS], 5, 9999, _planner_refresh_positioning);
       MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_BSTEPS, &planner.axis_steps_per_mm[B_AXIS], 5, 9999, _planner_refresh_positioning);
@@ -3782,6 +3964,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
             MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
             #if E_STEPPERS > 4
               MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E5STEPS, &planner.axis_steps_per_mm[E_AXIS + 4], 5, 9999, _planner_refresh_e4_positioning);
+              #if E_STEPPERS > 5
+                MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E6STEPS, &planner.axis_steps_per_mm[E_AXIS + 5], 5, 9999, _planner_refresh_e5_positioning);
+              #endif // E_STEPPERS > 5
             #endif // E_STEPPERS > 4
           #endif // E_STEPPERS > 3
         #endif // E_STEPPERS > 2
@@ -3796,13 +3981,36 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   /**
    *
-   * "Control" > "Motion" submenu
+   * "Advanced Settings" submenu
    *
    */
 
-  void lcd_control_motion_menu() {
+  #if HAS_M206_COMMAND
+    /**
+     * Set the home offset based on the current_position
+     */
+    void lcd_set_home_offsets() {
+      // M428 Command
+      enqueue_and_echo_commands_P(PSTR("M428"));
+      lcd_return_to_status();
+    }
+  #endif
+
+  #if ENABLED(SD_FIRMWARE_UPDATE)
+    /**
+     * Toggle the SD Firmware Update state in EEPROM
+     */
+    static void _lcd_toggle_sd_update() {
+      const bool new_state = !settings.sd_update_status();
+      lcd_completion_feedback(settings.set_sd_update_status(new_state));
+      lcd_return_to_status();
+      if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else lcd_reset_status();
+    }
+  #endif
+
+  void lcd_advanced_settings_menu() {
     START_MENU();
-    MENU_BACK(MSG_CONTROL);
+    MENU_BACK(MSG_CONFIGURATION);
 
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
       MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
@@ -3812,23 +4020,73 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
     #if DISABLED(SLIM_LCD_MENUS)
 
+      #if HAS_M206_COMMAND
+        //
+        // Set Home Offsets
+        //
+        MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
+      #endif
+
       // M203 / M205 - Feedrate items
-      MENU_ITEM(submenu, MSG_VELOCITY, lcd_control_motion_velocity_menu);
+      MENU_ITEM(submenu, MSG_VELOCITY, lcd_advanced_velocity_menu);
 
       // M201 - Acceleration items
-      MENU_ITEM(submenu, MSG_ACCELERATION, lcd_control_motion_acceleration_menu);
+      MENU_ITEM(submenu, MSG_ACCELERATION, lcd_advanced_acceleration_menu);
 
       // M205 - Max Jerk
-      MENU_ITEM(submenu, MSG_JERK, lcd_control_motion_jerk_menu);
+      MENU_ITEM(submenu, MSG_JERK, lcd_advanced_jerk_menu);
 
       // M92 - Steps Per mm
-      MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_control_motion_steps_per_mm_menu);
+      MENU_ITEM(submenu, MSG_STEPS_PER_MM, lcd_advanced_steps_per_mm_menu);
 
     #endif // !SLIM_LCD_MENUS
+
+    MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_advanced_temperature_menu);
+
+    #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
+      MENU_ITEM(submenu, MSG_FILAMENT, lcd_advanced_filament_menu);
+    #elif ENABLED(LIN_ADVANCE)
+      #if EXTRUDERS == 1
+        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+      #elif EXTRUDERS > 1
+        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E1, &planner.extruder_advance_K[0], 0, 999);
+        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E2, &planner.extruder_advance_K[1], 0, 999);
+        #if EXTRUDERS > 2
+          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E3, &planner.extruder_advance_K[2], 0, 999);
+          #if EXTRUDERS > 3
+            MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E4, &planner.extruder_advance_K[3], 0, 999);
+            #if EXTRUDERS > 4
+              MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E5, &planner.extruder_advance_K[4], 0, 999);
+              #if EXTRUDERS > 5
+                MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E6, &planner.extruder_advance_K[5], 0, 999);
+              #endif // EXTRUDERS > 5
+            #endif // EXTRUDERS > 4
+          #endif // EXTRUDERS > 3
+        #endif // EXTRUDERS > 2
+      #endif // EXTRUDERS > 1
+    #endif
 
     // M540 S - Abort on endstop hit when SD printing
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
       MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &planner.abort_on_endstop_hit);
+    #endif
+
+    //
+    // BLTouch Self-Test and Reset
+    //
+    #if ENABLED(BLTOUCH)
+      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
+      if (!endstops.z_probe_enabled && TEST_BLTOUCH())
+        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+    #endif
+
+    #if ENABLED(SD_FIRMWARE_UPDATE)
+      bool sd_update_state = settings.sd_update_status();
+      MENU_ITEM_EDIT_CALLBACK(bool, MSG_SD_UPDATE, &sd_update_state, _lcd_toggle_sd_update);
+    #endif
+
+    #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
+      MENU_ITEM(submenu, MSG_INIT_EEPROM, lcd_init_eeprom_confirm);
     #endif
 
     END_MENU();
@@ -3837,15 +4095,32 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
     /**
      *
-     * "Control" > "Filament" submenu
+     * "Advanced Settings" > "Filament" submenu
      *
      */
-    void lcd_control_filament_menu() {
+    void lcd_advanced_filament_menu() {
       START_MENU();
-      MENU_BACK(MSG_CONTROL);
+      MENU_BACK(MSG_ADVANCED_SETTINGS);
 
       #if ENABLED(LIN_ADVANCE)
-        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K, 0, 999);
+        #if EXTRUDERS == 1
+          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+        #elif EXTRUDERS > 1
+          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E1, &planner.extruder_advance_K[0], 0, 999);
+          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E2, &planner.extruder_advance_K[1], 0, 999);
+          #if EXTRUDERS > 2
+            MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E3, &planner.extruder_advance_K[2], 0, 999);
+            #if EXTRUDERS > 3
+              MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E4, &planner.extruder_advance_K[3], 0, 999);
+              #if EXTRUDERS > 4
+                MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E5, &planner.extruder_advance_K[4], 0, 999);
+                #if EXTRUDERS > 5
+                  MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E6, &planner.extruder_advance_K[5], 0, 999);
+                #endif // EXTRUDERS > 5
+              #endif // EXTRUDERS > 4
+            #endif // EXTRUDERS > 3
+          #endif // EXTRUDERS > 2
+        #endif // EXTRUDERS > 1
       #endif
 
       #if DISABLED(NO_VOLUMETRICS)
@@ -3853,17 +4128,20 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
         if (parser.volumetric_enabled) {
           #if EXTRUDERS == 1
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM, &planner.filament_size[0], 1.5, 3.25, planner.calculate_volumetric_multipliers);
+            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM, &planner.filament_size[0], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
           #else // EXTRUDERS > 1
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5, 3.25, planner.calculate_volumetric_multipliers);
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E1, &planner.filament_size[0], 1.5, 3.25, planner.calculate_volumetric_multipliers);
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E2, &planner.filament_size[1], 1.5, 3.25, planner.calculate_volumetric_multipliers);
+            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E1, &planner.filament_size[0], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E2, &planner.filament_size[1], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
             #if EXTRUDERS > 2
-              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E3, &planner.filament_size[2], 1.5, 3.25, planner.calculate_volumetric_multipliers);
-            #if EXTRUDERS > 3
-              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E4, &planner.filament_size[3], 1.5, 3.25, planner.calculate_volumetric_multipliers);
-              #if EXTRUDERS > 4
-                  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E5, &planner.filament_size[4], 1.5, 3.25, planner.calculate_volumetric_multipliers);
+              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E3, &planner.filament_size[2], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+              #if EXTRUDERS > 3
+                MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E4, &planner.filament_size[3], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+                #if EXTRUDERS > 4
+                  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E5, &planner.filament_size[4], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+                  #if EXTRUDERS > 5
+                    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E6, &planner.filament_size[5], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+                  #endif // EXTRUDERS > 5
                 #endif // EXTRUDERS > 4
               #endif // EXTRUDERS > 3
             #endif // EXTRUDERS > 2
@@ -3876,39 +4154,45 @@ void lcd_quick_feedback(const bool clear_buttons) {
           #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
             EXTRUDE_MAXLENGTH
           #else
-            999.0f
+            999
           #endif
         ;
 
         #if EXTRUDERS == 1
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &filament_change_unload_length[0], 0.0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &filament_change_unload_length[0], 0, extrude_maxlength);
         #else // EXTRUDERS > 1
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &filament_change_unload_length[active_extruder], 0.0, extrude_maxlength);
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E1, &filament_change_unload_length[0], 0.0, extrude_maxlength);
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E2, &filament_change_unload_length[1], 0.0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &filament_change_unload_length[active_extruder], 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E1, &filament_change_unload_length[0], 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E2, &filament_change_unload_length[1], 0, extrude_maxlength);
           #if EXTRUDERS > 2
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E3, &filament_change_unload_length[2], 0.0, extrude_maxlength);
-          #if EXTRUDERS > 3
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E4, &filament_change_unload_length[3], 0.0, extrude_maxlength);
-            #if EXTRUDERS > 4
-                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E5, &filament_change_unload_length[4], 0.0, extrude_maxlength);
+            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E3, &filament_change_unload_length[2], 0, extrude_maxlength);
+            #if EXTRUDERS > 3
+              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E4, &filament_change_unload_length[3], 0, extrude_maxlength);
+              #if EXTRUDERS > 4
+                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E5, &filament_change_unload_length[4], 0, extrude_maxlength);
+                #if EXTRUDERS > 5
+                  MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E6, &filament_change_unload_length[5], 0, extrude_maxlength);
+                #endif // EXTRUDERS > 5
               #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
           #endif // EXTRUDERS > 2
         #endif // EXTRUDERS > 1
 
         #if EXTRUDERS == 1
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &filament_change_load_length[0], 0.0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &filament_change_load_length[0], 0, extrude_maxlength);
         #else // EXTRUDERS > 1
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &filament_change_load_length[active_extruder], 0.0, extrude_maxlength);
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E1, &filament_change_load_length[0], 0.0, extrude_maxlength);
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E2, &filament_change_load_length[1], 0.0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &filament_change_load_length[active_extruder], 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E1, &filament_change_load_length[0], 0, extrude_maxlength);
+          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E2, &filament_change_load_length[1], 0, extrude_maxlength);
           #if EXTRUDERS > 2
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E3, &filament_change_load_length[2], 0.0, extrude_maxlength);
-          #if EXTRUDERS > 3
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E4, &filament_change_load_length[3], 0.0, extrude_maxlength);
-            #if EXTRUDERS > 4
-                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E5, &filament_change_load_length[4], 0.0, extrude_maxlength);
+            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E3, &filament_change_load_length[2], 0, extrude_maxlength);
+            #if EXTRUDERS > 3
+              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E4, &filament_change_load_length[3], 0, extrude_maxlength);
+              #if EXTRUDERS > 4
+                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E5, &filament_change_load_length[4], 0, extrude_maxlength);
+                #if EXTRUDERS > 5
+                  MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E6, &filament_change_load_length[5], 0, extrude_maxlength);
+                #endif // EXTRUDERS > 5
               #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
           #endif // EXTRUDERS > 2
@@ -3921,15 +4205,17 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   /**
    *
-   * "Control" > "Retract" submenu
+   * "Configuration" > "Retract" submenu
    *
    */
   #if ENABLED(FWRETRACT)
 
-    void lcd_control_retract_menu() {
+    void lcd_config_retract_menu() {
       START_MENU();
       MENU_BACK(MSG_CONTROL);
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
+      #if ENABLED(FWRETRACT_AUTORETRACT)
+        MENU_ITEM_EDIT_CALLBACK(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
+      #endif
       MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT, &fwretract.retract_length, 0, 100);
       #if EXTRUDERS > 1
         MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_SWAP, &fwretract.swap_retract_length, 0, 100);
@@ -4029,9 +4315,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
           #endif
 
           if (card.filenameIsDir)
-            MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
+            MENU_ITEM(sddirectory, MSG_CARD_MENU, card);
           else
-            MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
+            MENU_ITEM(sdfile, MSG_CARD_MENU, card);
         }
         else {
           MENU_ITEM_DUMMY();
@@ -4280,7 +4566,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     static AdvancedPauseMode _change_filament_temp_mode;
     static int8_t _change_filament_temp_extruder;
 
-    static const char* _change_filament_temp_command() {
+    static PGM_P _change_filament_temp_command() {
       switch (_change_filament_temp_mode) {
         case ADVANCED_PAUSE_MODE_LOAD_FILAMENT:
           return PSTR("M701 T%d");
@@ -4293,16 +4579,17 @@ void lcd_quick_feedback(const bool clear_buttons) {
       return PSTR(MSG_FILAMENTCHANGE);
     }
 
-    void _change_filament_temp(const uint8_t index) {
+    void _change_filament_temp(const uint16_t temperature) {
       char cmd[11];
       sprintf_P(cmd, _change_filament_temp_command(), _change_filament_temp_extruder);
-      thermalManager.setTargetHotend(index == 1 ? PREHEAT_1_TEMP_HOTEND : PREHEAT_2_TEMP_HOTEND, _change_filament_temp_extruder);
+      thermalManager.setTargetHotend(temperature, _change_filament_temp_extruder);
       lcd_enqueue_command(cmd);
     }
-    void _lcd_change_filament_temp_1_menu() { _change_filament_temp(1); }
-    void _lcd_change_filament_temp_2_menu() { _change_filament_temp(2); }
+    void _lcd_change_filament_temp_1_menu() { _change_filament_temp(PREHEAT_1_TEMP_HOTEND); }
+    void _lcd_change_filament_temp_2_menu() { _change_filament_temp(PREHEAT_2_TEMP_HOTEND); }
+    void _lcd_change_filament_temp_custom_menu() { _change_filament_temp(thermalManager.target_temperature[_change_filament_temp_extruder]); }
 
-    static const char* change_filament_header(const AdvancedPauseMode mode) {
+    static PGM_P change_filament_header(const AdvancedPauseMode mode) {
       switch (mode) {
         case ADVANCED_PAUSE_MODE_LOAD_FILAMENT:
           return PSTR(MSG_FILAMENTLOAD);
@@ -4318,9 +4605,29 @@ void lcd_quick_feedback(const bool clear_buttons) {
       _change_filament_temp_extruder = extruder;
       START_MENU();
       if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), true, true);
-      MENU_BACK(MSG_FILAMENTCHANGE);
+      MENU_BACK(MSG_BACK);
       MENU_ITEM(submenu, MSG_PREHEAT_1, _lcd_change_filament_temp_1_menu);
       MENU_ITEM(submenu, MSG_PREHEAT_2, _lcd_change_filament_temp_2_menu);
+      uint16_t max_temp;
+      switch (extruder) {
+        default: max_temp = HEATER_0_MAXTEMP;
+        #if HOTENDS > 1
+          case 1: max_temp = HEATER_1_MAXTEMP; break;
+          #if HOTENDS > 2
+            case 2: max_temp = HEATER_2_MAXTEMP; break;
+            #if HOTENDS > 3
+              case 3: max_temp = HEATER_3_MAXTEMP; break;
+              #if HOTENDS > 4
+                case 4: max_temp = HEATER_4_MAXTEMP; break;
+                #if HOTENDS > 5
+                  case 5: max_temp = HEATER_5_MAXTEMP; break;
+                #endif
+              #endif
+            #endif
+          #endif
+        #endif
+      }
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PREHEAT_CUSTOM, &thermalManager.target_temperature[_change_filament_temp_extruder], EXTRUDE_MINTEMP, max_temp - 15, _lcd_change_filament_temp_custom_menu);
       END_MENU();
     }
     void lcd_temp_menu_e0_filament_change()  { _lcd_temp_menu_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 0); }
@@ -4358,7 +4665,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
       void lcd_change_filament_menu() {
         START_MENU();
-        MENU_BACK(MSG_PREPARE);
+        MENU_BACK(MSG_MAIN);
 
         // Change filament
         #if E_STEPPERS == 1
@@ -4396,13 +4703,20 @@ void lcd_quick_feedback(const bool clear_buttons) {
                   MENU_ITEM_P(submenu, msg4, lcd_temp_menu_e4_filament_change);
                 else
                   MENU_ITEM_P(gcode, msg4, PSTR("M600 B0 T4"));
+                #if E_STEPPERS > 5
+                  PGM_P msg5 = PSTR(MSG_FILAMENTCHANGE " " MSG_E6);
+                  if (thermalManager.targetTooColdToExtrude(5))
+                    MENU_ITEM_P(submenu, msg5, lcd_temp_menu_e5_filament_change);
+                  else
+                    MENU_ITEM_P(gcode, msg5, PSTR("M600 B0 T5"));
+                #endif // E_STEPPERS > 5
               #endif // E_STEPPERS > 4
             #endif // E_STEPPERS > 3
           #endif // E_STEPPERS > 2
         #endif // E_STEPPERS == 1
 
         #if ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-          if (!planner.movesplanned() && !IS_SD_FILE_OPEN) {
+          if (!printer_busy()) {
             // Load filament
             #if E_STEPPERS == 1
               PGM_P msg0 = PSTR(MSG_FILAMENTLOAD);
@@ -4439,6 +4753,13 @@ void lcd_quick_feedback(const bool clear_buttons) {
                       MENU_ITEM_P(submenu, msg4, lcd_temp_menu_e4_filament_load);
                     else
                       MENU_ITEM_P(gcode, msg4, PSTR("M701 T4"));
+                    #if E_STEPPERS > 5
+                      PGM_P msg5 = PSTR(MSG_FILAMENTLOAD " " MSG_E6);
+                      if (thermalManager.targetTooColdToExtrude(5))
+                        MENU_ITEM_P(submenu, msg5, lcd_temp_menu_e5_filament_load);
+                      else
+                        MENU_ITEM_P(gcode, msg5, PSTR("M701 T5"));
+                    #endif // E_STEPPERS > 5
                   #endif // E_STEPPERS > 4
                 #endif // E_STEPPERS > 3
               #endif // E_STEPPERS > 2
@@ -4461,6 +4782,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
                         && thermalManager.targetHotEnoughToExtrude(3)
                         #if E_STEPPERS > 4
                           && thermalManager.targetHotEnoughToExtrude(4)
+                          #if E_STEPPERS > 5
+                            && thermalManager.targetHotEnoughToExtrude(5)
+                          #endif // E_STEPPERS > 5
                         #endif // E_STEPPERS > 4
                       #endif // E_STEPPERS > 3
                     #endif // E_STEPPERS > 2
@@ -4493,6 +4817,12 @@ void lcd_quick_feedback(const bool clear_buttons) {
                       MENU_ITEM(gcode, MSG_FILAMENTUNLOAD " " MSG_E5, PSTR("M702 T4"));
                     else
                       MENU_ITEM(submenu, MSG_FILAMENTUNLOAD " " MSG_E5, lcd_temp_menu_e4_filament_unload);
+                    #if E_STEPPERS > 5
+                      if (thermalManager.targetHotEnoughToExtrude(5))
+                        MENU_ITEM(gcode, MSG_FILAMENTUNLOAD " " MSG_E6, PSTR("M702 T5"));
+                      else
+                        MENU_ITEM(submenu, MSG_FILAMENTUNLOAD " " MSG_E6, lcd_temp_menu_e5_filament_unload);
+                    #endif // E_STEPPERS > 5
                   #endif // E_STEPPERS > 4
                 #endif // E_STEPPERS > 3
               #endif // E_STEPPERS > 2
@@ -4507,7 +4837,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     static AdvancedPauseMode advanced_pause_mode = ADVANCED_PAUSE_MODE_PAUSE_PRINT;
     static uint8_t hotend_status_extruder = 0;
 
-    static const char* advanced_pause_header() {
+    static PGM_P advanced_pause_header() {
       switch (advanced_pause_mode) {
         case ADVANCED_PAUSE_MODE_LOAD_FILAMENT:
           return PSTR(MSG_FILAMENT_CHANGE_HEADER_LOAD);
@@ -4789,9 +5119,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
    *   bool _menu_edit_int3();
    *   void menu_edit_int3(); // edit int16_t (interactively)
    *   void menu_edit_callback_int3(); // edit int16_t (interactively) with callback on completion
-   *   void _menu_action_setting_edit_int3(const char * const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
-   *   void menu_action_setting_edit_int3(const char * const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
-   *   void menu_action_setting_edit_callback_int3(const char * const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback, const bool live); // edit int16_t with callback
+   *   void _menu_action_setting_edit_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
+   *   void menu_action_setting_edit_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
+   *   void menu_action_setting_edit_callback_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback, const bool live); // edit int16_t with callback
    *
    * You can then use one of the menu macros to present the edit interface:
    *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
@@ -4808,9 +5138,9 @@ void lcd_quick_feedback(const bool clear_buttons) {
       if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
       if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue; \
       if (lcdDrawUpdate) \
-        lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale))); \
+        lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) * (1.0f / _scale))); \
       if (lcd_clicked || (liveEdit && lcdDrawUpdate)) { \
-        _type value = ((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale); \
+        _type value = ((_type)((int32_t)encoderPosition + minEditValue)) * (1.0f / _scale); \
         if (editValue != NULL) *((_type*)editValue) = value; \
         if (callbackFunc && (liveEdit || lcd_clicked)) (*callbackFunc)(); \
         if (lcd_clicked) lcd_goto_previous_menu(); \
@@ -4818,7 +5148,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
       return use_click(); \
     } \
     void menu_edit_ ## _name() { _menu_edit_ ## _name(); } \
-    void _menu_action_setting_edit_ ## _name(const char * const pstr, _type* const ptr, const _type minValue, const _type maxValue) { \
+    void _menu_action_setting_edit_ ## _name(PGM_P const pstr, _type* const ptr, const _type minValue, const _type maxValue) { \
       lcd_save_previous_screen(); \
       lcd_refresh(); \
       \
@@ -4828,27 +5158,28 @@ void lcd_quick_feedback(const bool clear_buttons) {
       maxEditValue = maxValue * _scale - minEditValue; \
       encoderPosition = (*ptr) * _scale - minEditValue; \
     } \
-    void menu_action_setting_edit_callback_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback, const bool live) { \
+    void menu_action_setting_edit_callback_ ## _name(PGM_P const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback, const bool live) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
       currentScreen = menu_edit_ ## _name; \
       callbackFunc = callback; \
       liveEdit = live; \
     } \
-    FORCE_INLINE void menu_action_setting_edit_ ## _name(const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue) { \
+    FORCE_INLINE void menu_action_setting_edit_ ## _name(PGM_P const pstr, _type * const ptr, const _type minValue, const _type maxValue) { \
       menu_action_setting_edit_callback_ ## _name(pstr, ptr, minValue, maxValue); \
     } \
     typedef void _name##_void
 
   DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1);
+  DEFINE_MENU_EDIT_TYPE(int16_t, int4, itostr4sign, 1);
   DEFINE_MENU_EDIT_TYPE(uint8_t, int8, i8tostr3, 1);
-  DEFINE_MENU_EDIT_TYPE(float, float3, ftostr3, 1.0);
-  DEFINE_MENU_EDIT_TYPE(float, float52, ftostr52, 100.0);
-  DEFINE_MENU_EDIT_TYPE(float, float43, ftostr43sign, 1000.0);
-  DEFINE_MENU_EDIT_TYPE(float, float5, ftostr5rj, 0.01);
-  DEFINE_MENU_EDIT_TYPE(float, float51, ftostr51sign, 10.0);
-  DEFINE_MENU_EDIT_TYPE(float, float52sign, ftostr52sign, 100.0);
-  DEFINE_MENU_EDIT_TYPE(float, float62, ftostr62rj, 100.0);
-  DEFINE_MENU_EDIT_TYPE(uint32_t, long5, ftostr5rj, 0.01);
+  DEFINE_MENU_EDIT_TYPE(float, float3, ftostr3, 1);
+  DEFINE_MENU_EDIT_TYPE(float, float52, ftostr52, 100);
+  DEFINE_MENU_EDIT_TYPE(float, float43, ftostr43sign, 1000);
+  DEFINE_MENU_EDIT_TYPE(float, float5, ftostr5rj, 0.01f);
+  DEFINE_MENU_EDIT_TYPE(float, float51, ftostr51sign, 10);
+  DEFINE_MENU_EDIT_TYPE(float, float52sign, ftostr52sign, 100);
+  DEFINE_MENU_EDIT_TYPE(float, float62, ftostr62rj, 100);
+  DEFINE_MENU_EDIT_TYPE(uint32_t, long5, ftostr5rj, 0.01f);
 
   /**
    *
@@ -4947,24 +5278,22 @@ void lcd_quick_feedback(const bool clear_buttons) {
    */
   void _menu_action_back() { lcd_goto_previous_menu(); }
   void menu_action_submenu(screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
-  void menu_action_gcode(const char* pgcode) { enqueue_and_echo_commands_P(pgcode); }
+  void menu_action_gcode(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
   void menu_action_function(screenFunc_t func) { (*func)(); }
 
   #if ENABLED(SDSUPPORT)
 
-    void menu_action_sdfile(const char* filename, char* longFilename) {
+    void menu_action_sdfile(CardReader &theCard) {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         last_sdfile_encoderPosition = encoderPosition;  // Save which file was selected for later use
       #endif
-      UNUSED(longFilename);
-      card.openAndPrintFile(filename);
+      card.openAndPrintFile(theCard.filename);
       lcd_return_to_status();
       lcd_reset_status();
     }
 
-    void menu_action_sddirectory(const char* filename, char* longFilename) {
-      UNUSED(longFilename);
-      card.chdir(filename);
+    void menu_action_sddirectory(CardReader &theCard) {
+      card.chdir(theCard.filename);
       encoderTopLine = 0;
       encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
       screen_changed = true;
@@ -4976,8 +5305,8 @@ void lcd_quick_feedback(const bool clear_buttons) {
 
   #endif // SDSUPPORT
 
-  void menu_action_setting_edit_bool(const char* pstr, bool* ptr) { UNUSED(pstr); *ptr ^= true; lcd_refresh(); }
-  void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callback) {
+  void menu_action_setting_edit_bool(PGM_P pstr, bool* ptr) { UNUSED(pstr); *ptr ^= true; lcd_refresh(); }
+  void menu_action_setting_edit_callback_bool(PGM_P pstr, bool* ptr, screenFunc_t callback) {
     menu_action_setting_edit_bool(pstr, ptr);
     (*callback)();
   }
@@ -5212,7 +5541,7 @@ void lcd_update() {
               if (lastEncoderMovementMillis) {
                 // Note that the rate is always calculated between two passes through the
                 // loop and that the abs of the encoderDiff value is tracked.
-                float encoderStepRate = float(encoderMovementSteps) / float(ms - lastEncoderMovementMillis) * 1000.0;
+                float encoderStepRate = float(encoderMovementSteps) / float(ms - lastEncoderMovementMillis) * 1000;
 
                 if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
                 else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
@@ -5424,7 +5753,7 @@ void lcd_setstatus(const char * const message, const bool persist) {
   lcd_finishstatus(persist);
 }
 
-void lcd_setstatusPGM(const char * const message, int8_t level) {
+void lcd_setstatusPGM(PGM_P const message, int8_t level) {
   if (level < 0) level = lcd_status_message_level = 0;
   if (level < lcd_status_message_level) return;
   lcd_status_message_level = level;
@@ -5434,7 +5763,7 @@ void lcd_setstatusPGM(const char * const message, int8_t level) {
   // that there is no cutting in the middle of a multibyte character!
 
   // Get a pointer to the null terminator
-  const char* pend = message + strlen_P(message);
+  PGM_P pend = message + strlen_P(message);
 
   //  If length of supplied UTF8 string is greater than
   // our buffer size, start cutting whole UTF8 chars
@@ -5451,7 +5780,7 @@ void lcd_setstatusPGM(const char * const message, int8_t level) {
   lcd_finishstatus(level > 0);
 }
 
-void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
+void lcd_status_printf_P(const uint8_t level, PGM_P const fmt, ...) {
   if (level < lcd_status_message_level) return;
   lcd_status_message_level = level;
   va_list args;
@@ -5461,7 +5790,7 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   lcd_finishstatus(level > 0);
 }
 
-void lcd_setalertstatusPGM(const char * const message) {
+void lcd_setalertstatusPGM(PGM_P const message) {
   lcd_setstatusPGM(message, 1);
   #if ENABLED(ULTIPANEL)
     lcd_return_to_status();

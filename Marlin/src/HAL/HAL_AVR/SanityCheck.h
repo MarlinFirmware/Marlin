@@ -78,6 +78,8 @@
       #error "SPINDLE_LASER_PWM_PIN is used by E3_AUTO_FAN_PIN."
     #elif PIN_EXISTS(E4_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E4_AUTO_FAN_PIN
       #error "SPINDLE_LASER_PWM_PIN is used by E4_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E5_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E5_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E5_AUTO_FAN_PIN."
     #elif PIN_EXISTS(FAN) && SPINDLE_LASER_PWM_PIN == FAN_PIN
       #error "SPINDLE_LASER_PWM_PIN is used FAN_PIN."
     #elif PIN_EXISTS(FAN1) && SPINDLE_LASER_PWM_PIN == FAN1_PIN
@@ -99,13 +101,14 @@
 /**
  * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
  */
-#if ENABLED(HAVE_TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
+#if HAS_DRIVER(TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
        defined(X_HARDWARE_SERIAL ) \
     || defined(X2_HARDWARE_SERIAL) \
     || defined(Y_HARDWARE_SERIAL ) \
     || defined(Y2_HARDWARE_SERIAL) \
     || defined(Z_HARDWARE_SERIAL ) \
     || defined(Z2_HARDWARE_SERIAL) \
+    || defined(Z3_HARDWARE_SERIAL) \
     || defined(E0_HARDWARE_SERIAL) \
     || defined(E1_HARDWARE_SERIAL) \
     || defined(E2_HARDWARE_SERIAL) \

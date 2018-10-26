@@ -25,7 +25,7 @@
 
 #include "../../Marlin.h"
 
-#if ENABLED(FWRETRACT)
+#if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
   #include "../../feature/fwretract.h"
 #endif
 
@@ -54,7 +54,7 @@ void GcodeSuite::G0_G1(
   if (IsRunning() && G0_G1_CONDITION) {
     get_destination_from_command(); // For X Y Z E F
 
-    #if ENABLED(FWRETRACT)
+    #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
 
       if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
         // When M209 Autoretract is enabled, convert E-only moves to firmware retract/recover moves

@@ -40,8 +40,8 @@
 #undef DISABLED
 #define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 
 #include "fastio_ESP32.h"
 #include "watchdog_ESP32.h"
@@ -98,8 +98,8 @@ int freeMemory(void);
 void analogWrite(int pin, int value);
 
 // EEPROM
-void eeprom_write_byte(unsigned char *pos, unsigned char value);
-unsigned char eeprom_read_byte(unsigned char *pos);
+void eeprom_write_byte(uint8_t *pos, unsigned char value);
+uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
@@ -109,7 +109,8 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 void HAL_adc_init(void);
 
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
-#define HAL_READ_ADC        HAL_adc_result
+#define HAL_READ_ADC()      HAL_adc_result
+#define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion (uint8_t adc_pin);
 

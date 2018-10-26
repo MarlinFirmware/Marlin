@@ -45,6 +45,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("X a origen")
 #define MSG_AUTO_HOME_Y                     _UxGT("Y a origen")
 #define MSG_AUTO_HOME_Z                     _UxGT("Z a origen")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibra Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Origen XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Premeu per iniciar")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Següent punt")
@@ -70,6 +71,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("Mou eixos")
 #define MSG_BED_LEVELING                    _UxGT("Anivella llit")
 #define MSG_LEVEL_BED                       _UxGT("Anivella llit")
+
 #define MSG_MOVING                          _UxGT("Movent..")
 #define MSG_FREE_XY                         _UxGT("XY lliures")
 #define MSG_MOVE_X                          _UxGT("Mou X")
@@ -131,6 +133,7 @@
 #define MSG_E3STEPS                         _UxGT("E3passos/mm")
 #define MSG_E4STEPS                         _UxGT("E4passos/mm")
 #define MSG_E5STEPS                         _UxGT("E5passos/mm")
+#define MSG_E6STEPS                         _UxGT("E6passos/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Moviment")
 #define MSG_FILAMENT                        _UxGT("Filament")

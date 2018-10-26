@@ -103,8 +103,8 @@ inline void servo_probe_test() {
 
     SERIAL_PROTOCOLLNPGM("Servo probe test");
     SERIAL_PROTOCOLLNPAIR(".  using index:  ", probe_index);
-    SERIAL_PROTOCOLLNPAIR(".  deploy angle: ", z_servo_angle[0]);
-    SERIAL_PROTOCOLLNPAIR(".  stow angle:   ", z_servo_angle[1]);
+    SERIAL_PROTOCOLLNPAIR(".  deploy angle: ", servo_angles[probe_index][0]);
+    SERIAL_PROTOCOLLNPAIR(".  stow angle:   ", servo_angles[probe_index][1]);
 
     bool probe_inverting;
 
@@ -146,10 +146,10 @@ inline void servo_probe_test() {
     uint8_t i = 0;
     bool deploy_state, stow_state;
     do {
-      MOVE_SERVO(probe_index, z_servo_angle[0]); //deploy
+      MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
       safe_delay(500);
       deploy_state = READ(PROBE_TEST_PIN);
-      MOVE_SERVO(probe_index, z_servo_angle[1]); //stow
+      MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
       safe_delay(500);
       stow_state = READ(PROBE_TEST_PIN);
     } while (++i < 4);
@@ -170,7 +170,7 @@ inline void servo_probe_test() {
       #endif
     }
     else {                                           // measure active signal length
-      MOVE_SERVO(probe_index, z_servo_angle[0]);     // deploy
+      MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
       safe_delay(500);
       SERIAL_PROTOCOLLNPGM("please trigger probe");
       uint16_t probe_counter = 0;
@@ -194,7 +194,7 @@ inline void servo_probe_test() {
           else
             SERIAL_PROTOCOLLNPGM("noise detected - please re-run test"); // less than 2mS pulse
 
-          MOVE_SERVO(probe_index, z_servo_angle[1]); //stow
+          MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
 
         }  // pulse detected
 

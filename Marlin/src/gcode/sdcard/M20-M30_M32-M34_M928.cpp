@@ -72,6 +72,9 @@ void GcodeSuite::M22() { card.release(); }
  * M23: Open a file
  */
 void GcodeSuite::M23() {
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    card.removeJobRecoveryFile();
+  #endif
   // Simplify3D includes the size, so zero out all spaces (#7227)
   for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
   card.openFile(parser.string_arg, true);
@@ -81,16 +84,22 @@ void GcodeSuite::M23() {
  * M24: Start or Resume SD Print
  */
 void GcodeSuite::M24() {
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    card.removeJobRecoveryFile();
-  #endif
-
   #if ENABLED(PARK_HEAD_ON_PAUSE)
     resume_print();
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (parser.seenval('S')) card.setIndex(parser.value_long());
+  #endif
+
   card.startFileprint();
-  print_job_timer.start();
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if (parser.seenval('T'))
+      print_job_timer.resume(parser.value_long());
+    else
+  #endif
+      print_job_timer.start();
 }
 
 /**

@@ -34,10 +34,14 @@
 #ifndef _SDVOLUME_H_
 #define _SDVOLUME_H_
 
-#include "SdFatConfig.h"
-#include "Sd2Card.h"
-#include "SdFatStructs.h"
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #include "usb_flashdrive/Sd2Card_FlashDrive.h"
+#else
+  #include "Sd2Card.h"
+#endif
 
+#include "SdFatConfig.h"
+#include "SdFatStructs.h"
 #include <stdint.h>
 
 //==============================================================================

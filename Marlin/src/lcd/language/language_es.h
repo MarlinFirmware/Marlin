@@ -47,6 +47,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Origen X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Origen Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Origen Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Origen XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Iniciar (Presione)")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Siguiente punto")
@@ -74,6 +75,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("Mover ejes")
 #define MSG_BED_LEVELING                    _UxGT("Nivelar cama")
 #define MSG_LEVEL_BED                       _UxGT("Nivelar cama")
+
 #define MSG_MOVING                          _UxGT("Moviendo...")
 #define MSG_FREE_XY                         _UxGT("Libre XY")
 #define MSG_MOVE_X                          _UxGT("Mover X")
@@ -124,6 +126,7 @@
 #define MSG_E3STEPS                         _UxGT("E3 pasos/mm")
 #define MSG_E4STEPS                         _UxGT("E4 pasos/mm")
 #define MSG_E5STEPS                         _UxGT("E5 pasos/mm")
+#define MSG_E6STEPS                         _UxGT("E6 pasos/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movimiento")
 #define MSG_FILAMENT                        _UxGT("Filamento")

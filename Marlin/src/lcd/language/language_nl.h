@@ -47,6 +47,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibreer Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klik voor begin")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Volgende Plaats")
@@ -74,6 +75,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("As verplaatsen")
 #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #define MSG_LEVEL_BED                       _UxGT("Level bed")
+
 #define MSG_MOVING                          _UxGT("Verplaatsen...")
 #define MSG_FREE_XY                         _UxGT("Vrij XY")
 #define MSG_MOVE_X                          _UxGT("Verplaats X")
@@ -135,6 +137,7 @@
 #define MSG_E3STEPS                         _UxGT("E3steps/mm")
 #define MSG_E4STEPS                         _UxGT("E4steps/mm")
 #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#define MSG_E6STEPS                         _UxGT("E6steps/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatuur")
 #define MSG_MOTION                          _UxGT("Beweging")
 #define MSG_FILAMENT                        _UxGT("Filament")

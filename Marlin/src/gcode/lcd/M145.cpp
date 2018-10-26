@@ -49,7 +49,7 @@ void GcodeSuite::M145() {
     }
     if (parser.seenval('F')) {
       v = parser.value_int();
-      lcd_preheat_fan_speed[material] = constrain(v, 0, 255);
+      lcd_preheat_fan_speed[material] = (uint8_t)constrain(v, 0, 255);
     }
     #if TEMP_SENSOR_BED != 0
       if (parser.seenval('B')) {
