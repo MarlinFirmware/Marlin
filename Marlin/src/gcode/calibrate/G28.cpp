@@ -175,8 +175,14 @@ void GcodeSuite::G28(const bool always_home_all) {
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    bool IDEX_saved_duplication_state = extruder_duplication_enabled;
     DualXMode IDEX_saved_mode = dual_x_carriage_mode;
+    dual_x_carriage_mode =
+      #if DEFAULT_DUAL_X_CARRIAGE_MODE != DXC_DUPLICATION_MODE && DEFAULT_DUAL_X_CARRIAGE_MODE != DXC_SCALED_DUPLICATION_MODE
+        DEFAULT_DUAL_X_CARRIAGE_MODE
+      #else
+        DXC_FULL_CONTROL_MODE
+      #endif
+    ;
   #endif
 
   #if ENABLED(MARLIN_DEV_MODE)
@@ -328,6 +334,22 @@ void GcodeSuite::G28(const bool always_home_all) {
         delayed_move_time = 0;
         active_extruder_parked = true;
 
+        if (IDEX_saved_mode >= DXC_DUPLICATION_MODE) {
+          enqueue_and_echo_commands_P("M605 S1\nT0");
+          char idexbuffer[20];
+          sprintf_P(idexbuffer, PSTR("M605 S2 X%i"), DEFAULT_DUPLICATION_X_OFFSET);
+          enqueue_and_echo_commands_P(idexbuffer);
+          enqueue_and_echo_commands_P(PSTR("G28 X"));
+          sprintf_P(idexbuffer, PSTR("G1 X%i"), (X_BED_SIZE) / 3);
+          enqueue_and_echo_commands_P(idexbuffer);
+          if (IDEX_saved_mode >= DXC_SCALED_DUPLICATION_MODE) {
+            sprintf_P(idexbuffer, PSTR("M605 S3 X%i"), DEFAULT_DUPLICATION_X_OFFSET);
+            enqueue_and_echo_commands_P(idexbuffer);
+          }
+        }
+        else
+          dual_x_carriage_mode = DXC_FULL_CONTROL_MODE;
+
       #else
 
         homeaxis(X_AXIS);
@@ -359,40 +381,6 @@ void GcodeSuite::G28(const bool always_home_all) {
     sync_plan_position();
 
   #endif // !DELTA (G28)
-
-  /**
-   * Preserve DXC mode across a G28 for IDEX printers in DXC_DUPLICATION_MODE.
-   * This is important because it lets a user use the LCD Panel to set an IDEX Duplication mode, and
-   * then print a standard GCode file that contains a single print that does a G28 and has no other
-   * IDEX specific commands in it.
-   */
-  #if ENABLED(DUAL_X_CARRIAGE)
-
-    if (dxc_is_duplicating()) {
-
-      // Always home the 2nd (right) extruder first
-      active_extruder = 1;
-      homeaxis(X_AXIS);
-
-      // Remember this extruder's position for later tool change
-      inactive_extruder_x_pos = current_position[X_AXIS];
-
-      // Home the 1st (left) extruder
-      active_extruder = 0;
-      homeaxis(X_AXIS);
-
-      // Consider the active extruder to be parked
-      COPY(raised_parked_position, current_position);
-      delayed_move_time = 0;
-      active_extruder_parked = true;
-      extruder_duplication_enabled = IDEX_saved_duplication_state;
-      extruder_duplication_enabled = false;
-
-      dual_x_carriage_mode         = IDEX_saved_mode;
-      stepper.set_directions();
-    }
-
-  #endif // DUAL_X_CARRIAGE
 
   endstops.not_homing();
 
