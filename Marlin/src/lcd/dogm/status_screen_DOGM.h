@@ -377,7 +377,7 @@ static void lcd_impl_status_screen_0() {
     #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 1
   #endif
 
-  static char xstring[5], ystring[5], zstring[7];
+  static char xstring[5], ystring[5], zstring[8];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
   #endif
