@@ -195,7 +195,7 @@ namespace UI {
   }
 
   void setAxisPosition_mm(const float position, const axis_t axis, const float _feedrate_mm_s) {
-    if(!flags.deferred_motion)
+    if (!flags.deferred_motion)
       set_destination_from_current();
 
     // Start with no limits to movement
@@ -247,7 +247,7 @@ namespace UI {
 
     // We don't want to stack up moves, so wait until the
     // machine has stopped moving before sending another.
-    if(isMoving())
+    if (isMoving())
       flags.deferred_motion = true;
     else
       prepare_move_to_destination();
@@ -256,7 +256,7 @@ namespace UI {
   void setAxisPosition_mm(const float position, const extruder_t extruder, const float _feedrate_mm_s) {
     setActiveTool(extruder, true);
 
-    if(!flags.deferred_motion)
+    if (!flags.deferred_motion)
       set_destination_from_current();
 
     destination[E_AXIS] = position;
@@ -265,7 +265,7 @@ namespace UI {
 
     // We don't want to stack up moves, so wait until the
     // machine has stopped moving before sending another.
-    if(isMoving())
+    if (isMoving())
       flags.deferred_motion = true;
     else
       prepare_move_to_destination();
@@ -311,51 +311,51 @@ namespace UI {
   }
 
   float getAxisSteps_per_mm(const axis_t axis) {
-      return planner.settings.axis_steps_per_mm[axis];
+    return planner.settings.axis_steps_per_mm[axis];
   }
 
   float getAxisSteps_per_mm(const extruder_t extruder) {
-      return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E1)];
+    return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E1)];
   }
 
   void setAxisSteps_per_mm(const float value, const axis_t axis) {
-      planner.settings.axis_steps_per_mm[axis] = value;
+    planner.settings.axis_steps_per_mm[axis] = value;
   }
 
   void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
-      planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E1)] = value;
+    planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E1)] = value;
   }
 
   float getAxisMaxFeedrate_mm_s(const axis_t axis) {
-      return planner.settings.max_feedrate_mm_s[axis];
+    return planner.settings.max_feedrate_mm_s[axis];
   }
 
   float getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
-      return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E1)];
+    return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E1)];
   }
 
   void setAxisMaxFeedrate_mm_s(const float value, const axis_t axis) {
-      planner.settings.max_feedrate_mm_s[axis] = value;
+    planner.settings.max_feedrate_mm_s[axis] = value;
   }
 
   void setAxisMaxFeedrate_mm_s(const float value, const extruder_t extruder) {
-      planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E1)] = value;
+    planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E1)] = value;
   }
 
   float getAxisMaxAcceleration_mm_s2(const axis_t axis) {
-      return planner.settings.max_acceleration_mm_per_s2[axis];
+    return planner.settings.max_acceleration_mm_per_s2[axis];
   }
 
   float getAxisMaxAcceleration_mm_s2(const extruder_t extruder) {
-      return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E1)];
+    return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E1)];
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const axis_t axis) {
-      planner.settings.max_acceleration_mm_per_s2[axis] = value;
+    planner.settings.max_acceleration_mm_per_s2[axis] = value;
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
-      planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E1)] = value;
+    planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E1)] = value;
   }
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -511,9 +511,7 @@ namespace UI {
     }
   #endif
 
-  float getFeedrate_percent() {
-    return feedrate_percentage;
-  }
+  float getFeedrate_percent() { return feedrate_percentage; }
 
   void enqueueCommands(progmem_str gcode) {
     enqueue_and_echo_commands_P((PGM_P)gcode);
@@ -599,13 +597,9 @@ namespace UI {
     #endif
   }
 
-  FileList::FileList() {
-    refresh();
-  }
+  FileList::FileList() { refresh(); }
 
-  void FileList::refresh() {
-    num_files = 0xFFFF;
-  }
+  void FileList::refresh() { num_files = 0xFFFF; }
 
   bool FileList::seek(uint16_t pos, bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
@@ -695,14 +689,13 @@ void lcd_update() {
       else {
         const bool ok = card.cardOK;
         card.release();
-        if (ok)
-          UI::onMediaRemoved();
+        if (ok) UI::onMediaRemoved();
       }
     }
   #endif // SDSUPPORT
 
   // Finish up deferred moves from setAxisPosition_mm
-  if(flags.deferred_motion && !UI::isMoving()) {
+  if (flags.deferred_motion && !UI::isMoving()) {
     flags.deferred_motion = false;
     prepare_move_to_destination();
   }
