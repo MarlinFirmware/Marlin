@@ -470,7 +470,7 @@ bool set_probe_deployed(const bool deploy) {
 
       #elif ENABLED(Z_PROBE_MOTION_DEPLOYED)
         
-          do_blocking_move_to_x(deploy? Z_PROBE_DEPLOY_XPOS : Z_PROBE_RETRACT_XPOS);
+        do_blocking_move_to_x(deploy? Z_PROBE_DEPLOY_XPOS : Z_PROBE_RETRACT_XPOS);
 
       #endif
 
