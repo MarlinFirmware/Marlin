@@ -49,9 +49,8 @@ typedef const __FlashStringHelper *progmem_str;
 
 namespace UI {
 
-  /* Use of labels rather than integers resolves the ambiguity
-   * inherent in zero-based vs one-based indexing. For a user
-   * facing UI, one-based labels are far more natural. */
+  /* Labels to resolve ambiguity around zero-based vs one-based indexing.
+   * For a user-facing UI, one-based labels are far more natural. */
 
   enum axis_t     : uint8_t { X,    Y,    Z };
   enum extruder_t : uint8_t { E1,   E2,   E3,   E4,   E5,   E6        };
