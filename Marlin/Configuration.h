@@ -782,6 +782,15 @@
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5  // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
+// A probe that is deployed using the motion of the x-axis, like the rack and pinion on the Wilson II designed by Marty Rice.
+#define Z_PROBE_MOTION_DEPLOYED
+#if ENABLED(Z_PROBE_MOTION_DEPLOYED)
+  #define Z_PROBE_DEPLOY_XPOS 0
+  #define Z_PROBE_RETRACT_XPOS X_MAX_POS
+#endif
+
+//#define SLED_DOCKING_OFFSET 5  // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
+
 //
 // For Z_PROBE_ALLEN_KEY see the Delta example configurations.
 //
