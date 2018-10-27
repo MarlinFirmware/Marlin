@@ -72,7 +72,7 @@
 #endif // SDSUPPORT
 
 void menu_tune();
-void menu_movement();
+void menu_motion();
 void menu_temperature();
 void menu_configuration();
 void _menu_user();
@@ -113,7 +113,7 @@ void menu_main() {
   if (busy)
     MENU_ITEM(submenu, MSG_TUNE, menu_tune);
   else {
-    MENU_ITEM(submenu, MSG_MOTION, menu_movement);
+    MENU_ITEM(submenu, MSG_MOTION, menu_motion);
     MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
   }
 

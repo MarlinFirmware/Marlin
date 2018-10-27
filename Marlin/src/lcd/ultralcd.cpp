@@ -131,6 +131,7 @@ void lcd_status_screen();
   uint32_t encoderPosition;
   millis_t lastEncoderMovementMillis = 0;
   bool lcd_clicked, wait_for_unclick;
+  float move_menu_scale;
 
   bool use_click() {
     const bool click = lcd_clicked;
