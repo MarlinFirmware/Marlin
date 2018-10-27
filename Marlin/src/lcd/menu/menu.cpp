@@ -30,7 +30,6 @@
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
-#include "../../module/stepper.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 #include "../../module/printcounter.h"
@@ -64,10 +63,6 @@
 
 #if ENABLED(LED_CONTROL_MENU)
   #include "../../feature/leds/leds.h"
-#endif
-
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #include "../../feature/runout.h"
 #endif
 
 ////////////////////////////////////////////
@@ -256,13 +251,6 @@ void menu_action_setting_edit_callback_bool(PGM_P pstr, bool* ptr, screenFunc_t 
 ///////////////// Menu Tree ////////////////
 ////////////////////////////////////////////
 
-void menu_advanced_settings();
-
-#if DISABLED(SLIM_LCD_MENUS)
-  void menu_preheat_material1_settings();
-  void menu_preheat_material2_settings();
-#endif
-
 #if DISABLED(NO_VOLUMETRICS) || ENABLED(ADVANCED_PAUSE_FEATURE)
   void menu_advanced_filament();
 #endif
@@ -281,22 +269,6 @@ void menu_advanced_settings();
   #else
     void menu_temp_e0_filament_change();
   #endif
-#endif
-
-#if ENABLED(DAC_STEPPER_CURRENT)
-  void dac_driver_commit();
-  void dac_driver_getValues();
-  void menu_dac();
-  void lcd_dac_write_eeprom();
-#endif
-
-#if ENABLED(FWRETRACT)
-  #include "../../feature/fwretract.h"
-  void menu_config_retract();
-#endif
-
-#if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
-  void menu_delta_calibrate();
 #endif
 
 #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
@@ -558,127 +530,6 @@ void line_to_z(const float &z) {
 
 #endif // POWER_LOSS_RECOVERY
 
-#if EXTRUDERS > 1
-  void menu_tool_change() {
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-    #if ENABLED(SINGLENOZZLE)
-      MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, 200);
-      MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
-      MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);
-    #endif
-    MENU_ITEM_EDIT(float3, MSG_TOOL_CHANGE_ZLIFT, &toolchange_settings.z_raise, 0, 10);
-    END_MENU();
-  }
-#endif
-
-#if ENABLED(MENU_ITEM_CASE_LIGHT)
-
-  #include "../../feature/caselight.h"
-
-  void menu_case_light() {
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-    MENU_ITEM_EDIT_CALLBACK(int8, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
-    MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-    END_MENU();
-  }
-#endif // MENU_ITEM_CASE_LIGHT
-
-#if ENABLED(BLTOUCH)
-
-  /**
-   *
-   * "BLTouch" submenu
-   *
-   */
-  static void menu_bltouch() {
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-    MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_DEPLOY, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_DEPLOY)));
-    MENU_ITEM(gcode, MSG_BLTOUCH_STOW, PSTR("M280 P" STRINGIFY(Z_PROBE_SERVO_NR) " S" STRINGIFY(BLTOUCH_STOW)));
-    END_MENU();
-  }
-
-#endif // BLTOUCH
-
-#if ENABLED(LCD_PROGRESS_BAR_TEST)
-
-  static void progress_bar_test() {
-    static int8_t bar_percent = 0;
-    if (use_click()) {
-      lcd_goto_previous_menu();
-      lcd_set_custom_characters(CHARSET_MENU);
-      return;
-    }
-    bar_percent += (int8_t)encoderPosition;
-    bar_percent = constrain(bar_percent, 0, 100);
-    encoderPosition = 0;
-    lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
-    lcd_moveto((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-    lcd_put_u8str(int(bar_percent)); lcd_put_wchar('%');
-    lcd_moveto(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
-  }
-
-  void _progress_bar_test() {
-    lcd_goto_screen(progress_bar_test);
-    lcd_set_custom_characters();
-  }
-
-#endif // LCD_PROGRESS_BAR_TEST
-
-#if HAS_DEBUG_MENU
-
-  void menu_debug() {
-    START_MENU();
-
-    MENU_BACK(MSG_MAIN);
-
-    #if ENABLED(LCD_PROGRESS_BAR_TEST)
-      MENU_ITEM(submenu, MSG_PROGRESS_BAR_TEST, _progress_bar_test);
-    #endif
-
-    END_MENU();
-  }
-
-#endif // HAS_DEBUG_MENU
-
-/**
- * IDEX submenu
- */
-#if ENABLED(DUAL_X_CARRIAGE)
-  static void _recalc_IDEX_settings() {
-    if (active_extruder) {                      // For the 2nd extruder re-home so the next tool-change gets the new offsets.
-      enqueue_and_echo_commands_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
-      active_extruder = 0;
-    }
-  }
-
-  static void menu_IDEX() {
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-
-    MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
-    const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
-    MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, need_g28
-      ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
-      : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
-    );
-    //MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, need_g28
-    //  ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
-    //  : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
-    //);
-    MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Z_OFFSET , &hotend_offset[Z_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
-    MENU_ITEM(gcode, MSG_IDEX_SAVE_OFFSETS, PSTR("M500"));
-    END_MENU();
-  }
-#endif // DUAL_X_CARRIAGE
-
 #if ENABLED(CUSTOM_USER_MENUS)
 
   #ifdef USER_SCRIPT_DONE
@@ -882,55 +733,6 @@ void watch_temp_callback_bed() {
     thermalManager.start_watching_bed();
   #endif
 }
-
-/**
- *
- * "Driver current control" submenu items
- *
- */
-#if ENABLED(DAC_STEPPER_CURRENT)
-
-  #include "../../feature/dac/stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
-  uint8_t driverPercent[XYZE];
-
-  void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
-
-  void dac_driver_commit() { dac_current_set_percents(driverPercent); }
-
-  void dac_driver_eeprom_write() { dac_commit_eeprom(); }
-
-  void menu_dac() {
-    dac_driver_getValues();
-    START_MENU();
-    MENU_BACK(MSG_CONTROL);
-    MENU_ITEM_EDIT_CALLBACK(int8, MSG_X " " MSG_DAC_PERCENT, &driverPercent[X_AXIS], 0, 100, dac_driver_commit);
-    MENU_ITEM_EDIT_CALLBACK(int8, MSG_Y " " MSG_DAC_PERCENT, &driverPercent[Y_AXIS], 0, 100, dac_driver_commit);
-    MENU_ITEM_EDIT_CALLBACK(int8, MSG_Z " " MSG_DAC_PERCENT, &driverPercent[Z_AXIS], 0, 100, dac_driver_commit);
-    MENU_ITEM_EDIT_CALLBACK(int8, MSG_E " " MSG_DAC_PERCENT, &driverPercent[E_AXIS], 0, 100, dac_driver_commit);
-    MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_driver_eeprom_write);
-    END_MENU();
-  }
-
-#endif // DAC_STEPPER_CURRENT
-
-#if HAS_MOTOR_CURRENT_PWM
-
-  void menu_pwm() {
-    START_MENU();
-    MENU_BACK(MSG_CONTROL);
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-      MENU_ITEM_EDIT_CALLBACK(long5, MSG_X MSG_Y, &stepper.motor_current_setting[0], 100, 2000, Stepper::refresh_motor_power);
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-      MENU_ITEM_EDIT_CALLBACK(long5, MSG_Z, &stepper.motor_current_setting[1], 100, 2000, Stepper::refresh_motor_power);
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-      MENU_ITEM_EDIT_CALLBACK(long5, MSG_E, &stepper.motor_current_setting[2], 100, 2000, Stepper::refresh_motor_power);
-    #endif
-    END_MENU();
-  }
-
-#endif // HAS_MOTOR_CURRENT_PWM
 
 /**
  *
@@ -1204,8 +1006,20 @@ void lcd_cooldown() {
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
-  static void lcd_store_settings()   { lcd_completion_feedback(settings.save()); }
-  static void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
+  void lcd_store_settings()   { lcd_completion_feedback(settings.save()); }
+  void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
+  #if DISABLED(SLIM_LCD_MENUS)
+    static void lcd_init_eeprom() {
+      lcd_completion_feedback(settings.init_eeprom());
+      lcd_goto_previous_menu();
+    }
+    static void lcd_init_eeprom_confirm() {
+      START_MENU();
+      MENU_BACK(MSG_ADVANCED_SETTINGS);
+      MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
+      END_MENU();
+    }
+  #endif
 #endif
 
 void _lcd_draw_homing() {
@@ -2599,120 +2413,6 @@ void menu_move() {
 
 /**
  *
- * "Configuration" submenu
- *
- */
-
-#if HAS_LCD_CONTRAST
-  void lcd_callback_set_contrast() { set_lcd_contrast(lcd_contrast); }
-#endif
-
-static void lcd_factory_settings() {
-  settings.reset();
-  lcd_completion_feedback();
-}
-
-#if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
-
-  static void lcd_init_eeprom() {
-    lcd_completion_feedback(settings.init_eeprom());
-    lcd_goto_previous_menu();
-  }
-
-  static void lcd_init_eeprom_confirm() {
-    START_MENU();
-    MENU_BACK(MSG_ADVANCED_SETTINGS);
-    MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
-    END_MENU();
-  }
-
-#endif
-
-void menu_configuration() {
-  START_MENU();
-  MENU_BACK(MSG_MAIN);
-
-  //
-  // Debug Menu when certain options are enabled
-  //
-  #if HAS_DEBUG_MENU
-    MENU_ITEM(submenu, MSG_DEBUG_MENU, menu_debug);
-  #endif
-
-  MENU_ITEM(submenu, MSG_ADVANCED_SETTINGS, menu_advanced_settings);
-
-  const bool busy = printer_busy();
-  if (!busy) {
-    //
-    // Delta Calibration
-    //
-    #if ENABLED(DELTA_CALIBRATION_MENU) || ENABLED(DELTA_AUTO_CALIBRATION)
-      MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, menu_delta_calibrate);
-    #endif
-
-    #if ENABLED(DUAL_X_CARRIAGE)
-      MENU_ITEM(submenu, MSG_IDEX_MENU, menu_IDEX);
-    #endif
-
-    #if ENABLED(BLTOUCH)
-      MENU_ITEM(submenu, MSG_BLTOUCH, menu_bltouch);
-    #endif
-  }
-
-  //
-  // Set single nozzle filament retract and prime length
-  //
-  #if EXTRUDERS > 1
-    MENU_ITEM(submenu, MSG_TOOL_CHANGE, menu_tool_change);
-  #endif
-
-  //
-  // Set Case light on/off/brightness
-  //
-  #if ENABLED(MENU_ITEM_CASE_LIGHT)
-    if (USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN))
-      MENU_ITEM(submenu, MSG_CASE_LIGHT, menu_case_light);
-    else
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
-  #endif
-
-  #if HAS_LCD_CONTRAST
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
-  #endif
-  #if ENABLED(FWRETRACT)
-    MENU_ITEM(submenu, MSG_RETRACT, menu_config_retract);
-  #endif
-  #if ENABLED(DAC_STEPPER_CURRENT)
-    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_dac);
-  #endif
-  #if HAS_MOTOR_CURRENT_PWM
-    MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, menu_pwm);
-  #endif
-
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    MENU_ITEM_EDIT(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled);
-  #endif
-
-  #if DISABLED(SLIM_LCD_MENUS)
-    // Preheat configurations
-    MENU_ITEM(submenu, MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
-    MENU_ITEM(submenu, MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
-  #endif
-
-  #if ENABLED(EEPROM_SETTINGS)
-    MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
-    if (!busy)
-      MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
-  #endif
-
-  if (!busy)
-    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
-
-  END_MENU();
-}
-
-/**
- *
  * "Temperature" submenu
  *
  */
@@ -2961,55 +2661,6 @@ void menu_advanced_temperature() {
 }
 
 #if DISABLED(SLIM_LCD_MENUS)
-
-  void _menu_configuration_preheat_settings(const uint8_t material) {
-    #if HOTENDS > 5
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP, HEATER_5_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP)
-    #elif HOTENDS > 4
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP, HEATER_4_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP)
-    #elif HOTENDS > 3
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP, HEATER_3_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP)
-    #elif HOTENDS > 2
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP, HEATER_2_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP)
-    #elif HOTENDS > 1
-      #define MINTEMP_ALL MIN(HEATER_0_MINTEMP, HEATER_1_MINTEMP)
-      #define MAXTEMP_ALL MAX(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP)
-    #else
-      #define MINTEMP_ALL HEATER_0_MINTEMP
-      #define MAXTEMP_ALL HEATER_0_MAXTEMP
-    #endif
-    START_MENU();
-    MENU_BACK(MSG_CONFIGURATION);
-    MENU_ITEM_EDIT(int8, MSG_FAN_SPEED, &lcd_preheat_fan_speed[material], 0, 255);
-    #if HAS_TEMP_HOTEND
-      MENU_ITEM_EDIT(int3, MSG_NOZZLE, &lcd_preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
-    #endif
-    #if HAS_HEATED_BED
-      MENU_ITEM_EDIT(int3, MSG_BED, &lcd_preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 15);
-    #endif
-    #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
-    #endif
-    END_MENU();
-  }
-
-  /**
-   *
-   * "Temperature" > "Preheat Material 1 conf" submenu
-   *
-   */
-  void menu_preheat_material1_settings() { _menu_configuration_preheat_settings(0); }
-
-  /**
-   *
-   * "Temperature" > "Preheat Material 2 conf" submenu
-   *
-   */
-  void menu_preheat_material2_settings() { _menu_configuration_preheat_settings(1); }
 
   void _reset_acceleration_rates() { planner.reset_acceleration_rates(); }
   #if ENABLED(DISTINCT_E_FACTORS)
@@ -3422,38 +3073,6 @@ void menu_advanced_settings() {
     END_MENU();
   }
 #endif // !NO_VOLUMETRICS || ADVANCED_PAUSE_FEATURE
-
-/**
- *
- * "Configuration" > "Retract" submenu
- *
- */
-#if ENABLED(FWRETRACT)
-
-  void menu_config_retract() {
-    START_MENU();
-    MENU_BACK(MSG_CONTROL);
-    #if ENABLED(FWRETRACT_AUTORETRACT)
-      MENU_ITEM_EDIT_CALLBACK(bool, MSG_AUTORETRACT, &fwretract.autoretract_enabled, fwretract.refresh_autoretract);
-    #endif
-    MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT, &fwretract.settings.retract_length, 0, 100);
-    #if EXTRUDERS > 1
-      MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_SWAP, &fwretract.settings.swap_retract_length, 0, 100);
-    #endif
-    MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &fwretract.settings.retract_feedrate_mm_s, 1, 999);
-    MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_ZHOP, &fwretract.settings.retract_zraise, 0, 999);
-    MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER, &fwretract.settings.retract_recover_length, -100, 100);
-    #if EXTRUDERS > 1
-      MENU_ITEM_EDIT(float52sign, MSG_CONTROL_RETRACT_RECOVER_SWAP, &fwretract.settings.swap_retract_recover_length, -100, 100);
-    #endif
-    MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &fwretract.settings.retract_recover_feedrate_mm_s, 1, 999);
-    #if EXTRUDERS > 1
-      MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVER_SWAPF, &fwretract.settings.swap_retract_recover_feedrate_mm_s, 1, 999);
-    #endif
-    END_MENU();
-  }
-
-#endif // FWRETRACT
 
 #if ENABLED(SDSUPPORT)
 
