@@ -28,7 +28,7 @@
 // Make a buzzer and macro
 #if ENABLED(LCD_USE_I2C_BUZZER)
   // BUZZ() will be defined in ultralcd.h
-#elif PIN_EXISTS(BEEPER)
+#elif PIN_EXISTS(BEEPER) || ENABLED(EXTENSIBLE_UI)
 
 #include "circularqueue.h"
 

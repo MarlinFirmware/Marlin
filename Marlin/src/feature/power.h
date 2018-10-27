@@ -19,13 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * power.h - power control
  */
 
-#include "../core/millis_t.h"
+#ifndef POWER_H
+#define POWER_H
+
+#include "../core/types.h"
 
 class Power {
   public:
@@ -38,3 +40,5 @@ class Power {
 };
 
 extern Power powerManager;
+
+#endif // POWER_H

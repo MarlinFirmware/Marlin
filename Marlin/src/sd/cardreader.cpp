@@ -351,7 +351,7 @@ void CardReader::stopSDPrint(
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     did_pause_print = 0;
   #endif
-  sdprinting = abort_sd_printing = false;
+  sdprinting = false;
   if (isFileOpen()) file.close();
   #if SD_RESORT
     if (re_sort) presort();
@@ -394,7 +394,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
         SERIAL_ERROR_START();
         SERIAL_ERRORPGM("trying to call sub-gcode files with too many levels. MAX level is:");
         SERIAL_ERRORLN((int)SD_PROCEDURE_DEPTH);
-        kill();
+        kill(PSTR(MSG_KILLED));
         return;
       }
 
@@ -544,8 +544,8 @@ void CardReader::checkautostart() {
       && !jobRecoverFileExists() // Don't run auto#.g when a resume file exists
     #endif
   ) {
-    char autoname[8];
-    sprintf_P(autoname, PSTR("auto%c.g"), autostart_index + '0');
+    char autoname[10];
+    sprintf_P(autoname, PSTR("auto%i.g"), int(autostart_index));
     dir_t p;
     root.rewind();
     while (root.readDir(&p, NULL) > 0) {

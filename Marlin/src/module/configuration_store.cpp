@@ -37,8 +37,8 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V62"
-#define EEPROM_OFFSET 100
+#define EEPROM_VERSION "V60"
+#define EEPROM_OFFSET 0
 
 // Check the integrity of data offsets.
 // Can be disabled for production build.
@@ -81,28 +81,36 @@
   #include "../module/probe.h"
 #endif
 
-#include "../feature/fwretract.h"
-#include "../feature/pause.h"
-
-#if EXTRUDERS > 1
-  #include "tool_change.h"
-  void M217_report(const bool eeprom);
-#endif
-
 #if HAS_TRINAMIC
   #include "stepper_indirection.h"
   #include "../feature/tmc_util.h"
-  #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.settings.axis_steps_per_mm[_AXIS(A)])
+  #define TMC_GET_PWMTHRS(A,Q) _tmc_thrs(stepper##Q.microsteps(), stepper##Q.TPWMTHRS(), planner.axis_steps_per_mm[_AXIS(A)])
 #endif
-
-#pragma pack(push, 1) // No padding between variables
-
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_stepper_current_t;
 typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, E0, E1, E2, E3, E4, E5; } tmc_hybrid_threshold_t;
 typedef struct {  int16_t X, Y, Z;                                         } tmc_sgt_t;
 
-// Limit an index to an array size
-#define ALIM(I,ARR) MIN(I, COUNT(ARR) - 1)
+#if ENABLED(FWRETRACT)
+  #include "../feature/fwretract.h"
+#endif
+
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h"
+#endif
+
+#if ENABLED(SINGLENOZZLE)
+  #include "tool_change.h"
+  void M217_report(const bool eeprom);
+#endif
+
+#if ENABLED(PID_EXTRUSION_SCALING)
+  #define LPQ_LEN thermalManager.lpq_len
+#endif
+
+#pragma pack(push, 1) // No padding between variables
+
+typedef struct PID  { float Kp, Ki, Kd;     } PID;
+typedef struct PIDC { float Kp, Ki, Kd, Kc; } PIDC;
 
 /**
  * Current EEPROM Layout
@@ -119,10 +127,17 @@ typedef struct SettingsDataStruct {
   //
   uint8_t   esteppers;                                  // XYZE_N - XYZ
 
-  planner_settings_t planner_settings;
-
-  float planner_max_jerk[XYZE],                         // M205 XYZE  planner.max_jerk[XYZE]
-        planner_junction_deviation_mm;                  // M205 J     planner.junction_deviation_mm
+  uint32_t  planner_max_acceleration_mm_per_s2[XYZE_N], // M201 XYZE  planner.max_acceleration_mm_per_s2[XYZE_N]
+            planner_min_segment_time_us;                // M205 B     planner.min_segment_time_us
+  float     planner_axis_steps_per_mm[XYZE_N],          // M92 XYZE   planner.axis_steps_per_mm[XYZE_N]
+            planner_max_feedrate_mm_s[XYZE_N],          // M203 XYZE  planner.max_feedrate_mm_s[XYZE_N]
+            planner_acceleration,                       // M204 P     planner.acceleration
+            planner_retract_acceleration,               // M204 R     planner.retract_acceleration
+            planner_travel_acceleration,                // M204 T     planner.travel_acceleration
+            planner_min_feedrate_mm_s,                  // M205 S     planner.min_feedrate_mm_s
+            planner_min_travel_feedrate_mm_s,           // M205 T     planner.min_travel_feedrate_mm_s
+            planner_max_jerk[XYZE],                     // M205 XYZE  planner.max_jerk[XYZE]
+            planner_junction_deviation_mm;              // M205 J     planner.junction_deviation_mm
 
   float home_offset[XYZ];                               // M206 XYZ
 
@@ -192,10 +207,12 @@ typedef struct SettingsDataStruct {
           delta_calibration_radius,                     // M665 B
           delta_tower_angle_trim[ABC];                  // M665 XYZ
   #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
-    float x2_endstop_adj,                               // M666 X
-          y2_endstop_adj,                               // M666 Y
-          z2_endstop_adj,                               // M666 Z (S2)
-          z3_endstop_adj;                               // M666 Z (S3)
+    float x2_endstop_adj,                                // M666 X
+          y2_endstop_adj,                                // M666 Y
+          z2_endstop_adj;                                // M666 Z
+    #if ENABLED(Z_TRIPLE_ENDSTOPS)
+      float z3_endstop_adj;                             // M666 Z
+    #endif
   #endif
 
   //
@@ -208,24 +225,32 @@ typedef struct SettingsDataStruct {
   //
   // PIDTEMP
   //
-  PIDC_t hotendPID[HOTENDS];                            // M301 En PIDC / M303 En U
+  PIDC hotendPID[HOTENDS];                              // M301 En PIDC / M303 En U
+
   int16_t lpq_len;                                      // M301 L
 
   //
   // PIDTEMPBED
   //
-  PID_t bedPID;                                         // M304 PID / M303 E-1 U
+  PID bedPID;                                           // M304 PID / M303 E-1 U
 
   //
   // HAS_LCD_CONTRAST
   //
-  int16_t lcd_contrast;                                 // M250 C
+  int16_t lcd_contrast;                                // M250 C
 
   //
   // FWRETRACT
   //
-  fwretract_settings_t fwretract_settings;              // M207 S F Z W, M208 S F W R
   bool autoretract_enabled;                             // M209 S
+  float retract_length,                                 // M207 S
+        retract_feedrate_mm_s,                          // M207 F
+        retract_zlift,                                  // M207 Z
+        retract_recover_length,                         // M208 S
+        retract_recover_feedrate_mm_s,                  // M208 F
+        swap_retract_length,                            // M207 W
+        swap_retract_recover_length,                    // M208 W
+        swap_retract_recover_feedrate_mm_s;             // M208 R
 
   //
   // !NO_VOLUMETRIC
@@ -236,6 +261,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_TRINAMIC
   //
+  #define TMC_AXES (MAX_EXTRUDERS + 7)
   tmc_stepper_current_t tmc_stepper_current;            // M906 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
   tmc_hybrid_threshold_t tmc_hybrid_threshold;          // M913 X Y Z X2 Y2 Z2 Z3 E0 E1 E2 E3 E4 E5
   tmc_sgt_t tmc_sgt;                                    // M914 X Y Z
@@ -248,7 +274,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_MOTOR_CURRENT_PWM
   //
-  uint32_t motor_current_setting[3];                    // M907 X Z E
+  uint32_t motor_current_setting[XYZ];                  // M907 X Z E
 
   //
   // CNC_COORDINATE_SYSTEMS
@@ -258,21 +284,28 @@ typedef struct SettingsDataStruct {
   //
   // SKEW_CORRECTION
   //
-  skew_factor_t planner_skew_factor;                    // M852 I J K  planner.skew_factor
+  float planner_xy_skew_factor,                         // M852 I  planner.xy_skew_factor
+        planner_xz_skew_factor,                         // M852 J  planner.xz_skew_factor
+        planner_yz_skew_factor;                         // M852 K  planner.yz_skew_factor
 
   //
   // ADVANCED_PAUSE_FEATURE
   //
-  fil_change_settings_t fc_settings[EXTRUDERS];         // M603 T U L
+  float filament_change_unload_length[EXTRUDERS],       // M603 T U
+        filament_change_load_length[EXTRUDERS];         // M603 T L
 
   //
   // SINGLENOZZLE toolchange values
   //
-  #if EXTRUDERS > 1
-    toolchange_settings_t toolchange_settings;                // M217 S P R
+  #if ENABLED(SINGLENOZZLE)
+    float singlenozzle_swap_length;                     // M217 S
+    int16_t singlenozzle_prime_speed,                   // M217 P
+            singlenozzle_retract_speed;                 // M217 R
   #endif
 
 } SettingsData;
+
+#pragma pack(pop)
 
 MarlinSettings settings;
 
@@ -372,13 +405,14 @@ void MarlinSettings::postprocess() {
 #if ENABLED(EEPROM_SETTINGS)
   #include "../HAL/shared/persistent_store_api.h"
 
+  #define DUMMY_PID_VALUE 3000.0f
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
   #define EEPROM_FINISH() persistentStore.access_finish()
   #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
   #define EEPROM_WRITE(VAR) persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
   #define EEPROM_READ(VAR) persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating)
   #define EEPROM_READ_ALWAYS(VAR) persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
-  #define EEPROM_ASSERT(TST,ERR) do{ if (!(TST)) { SERIAL_ERROR_START_P(port); SERIAL_ERRORLNPGM_P(port, ERR); eeprom_error = true; } }while(0)
+  #define EEPROM_ASSERT(TST,ERR) if (!(TST)) do{ SERIAL_ERROR_START_P(port); SERIAL_ERRORLNPGM_P(port, ERR); eeprom_error = true; }while(0)
 
   #if ENABLED(DEBUG_EEPROM_READWRITE)
     #define _FIELD_TEST(FIELD) \
@@ -428,10 +462,18 @@ void MarlinSettings::postprocess() {
 
     _FIELD_TEST(esteppers);
 
-    const uint8_t esteppers = COUNT(planner.settings.axis_steps_per_mm) - XYZ;
+    const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
 
-    EEPROM_WRITE(planner.settings);
+    EEPROM_WRITE(planner.max_acceleration_mm_per_s2);
+    EEPROM_WRITE(planner.min_segment_time_us);
+    EEPROM_WRITE(planner.axis_steps_per_mm);
+    EEPROM_WRITE(planner.max_feedrate_mm_s);
+    EEPROM_WRITE(planner.acceleration);
+    EEPROM_WRITE(planner.retract_acceleration);
+    EEPROM_WRITE(planner.travel_acceleration);
+    EEPROM_WRITE(planner.min_feedrate_mm_s);
+    EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
 
     #if HAS_CLASSIC_JERK
       EEPROM_WRITE(planner.max_jerk);
@@ -636,43 +678,40 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(lcd_preheat_bed_temp);
     EEPROM_WRITE(lcd_preheat_fan_speed);
 
-    //
-    // PIDTEMP
-    //
-    {
-      _FIELD_TEST(hotendPID);
-      HOTEND_LOOP() {
-        PIDC_t pidc = {
-          PID_PARAM(Kp, e), PID_PARAM(Ki, e), PID_PARAM(Kd, e), PID_PARAM(Kc, e)
-        };
-        EEPROM_WRITE(pidc);
-      }
-
-      _FIELD_TEST(lpq_len);
-      #if ENABLED(PID_EXTRUSION_SCALING)
-        EEPROM_WRITE(thermalManager.lpq_len);
+    for (uint8_t e = 0; e < HOTENDS; e++) {
+      #if ENABLED(PIDTEMP)
+        EEPROM_WRITE(PID_PARAM(Kp, e));
+        EEPROM_WRITE(PID_PARAM(Ki, e));
+        EEPROM_WRITE(PID_PARAM(Kd, e));
+        #if ENABLED(PID_EXTRUSION_SCALING)
+          EEPROM_WRITE(PID_PARAM(Kc, e));
+        #else
+          dummy = 1.0f; // 1.0 = default kc
+          EEPROM_WRITE(dummy);
+        #endif
       #else
-        const int16_t lpq_len = 20;
-        EEPROM_WRITE(lpq_len);
+        dummy = DUMMY_PID_VALUE; // When read, will not change the existing value
+        EEPROM_WRITE(dummy); // Kp
+        dummy = 0;
+        for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy); // Ki, Kd, Kc
       #endif
-    }
+    } // Hotends Loop
 
-    //
-    // PIDTEMPBED
-    //
-    {
-      _FIELD_TEST(bedPID);
-      #if DISABLED(PIDTEMPBED)
-        const PID_t bed_pid = { DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE };
-        EEPROM_WRITE(bed_pid);
-      #else
-        EEPROM_WRITE(thermalManager.bed_pid);
-      #endif
-    }
+    _FIELD_TEST(lpq_len);
 
-    //
-    // LCD Contrast
-    //
+    #if DISABLED(PID_EXTRUSION_SCALING)
+      const int16_t LPQ_LEN = 20;
+    #endif
+    EEPROM_WRITE(LPQ_LEN);
+
+    #if DISABLED(PIDTEMPBED)
+      dummy = DUMMY_PID_VALUE;
+      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
+    #else
+      EEPROM_WRITE(thermalManager.bedKp);
+      EEPROM_WRITE(thermalManager.bedKi);
+      EEPROM_WRITE(thermalManager.bedKd);
+    #endif
 
     _FIELD_TEST(lcd_contrast);
 
@@ -681,227 +720,228 @@ void MarlinSettings::postprocess() {
     #endif
     EEPROM_WRITE(lcd_contrast);
 
-    //
-    // Firmware Retraction
-    //
-    {
-      _FIELD_TEST(fwretract_settings);
+    const bool autoretract_enabled =
+      #if DISABLED(FWRETRACT_AUTORETRACT)
+        false
+      #else
+        fwretract.autoretract_enabled
+      #endif
+    ;
+    EEPROM_WRITE(autoretract_enabled);
 
-      #if ENABLED(FWRETRACT)
-        EEPROM_WRITE(fwretract.settings);
-      #else
-        const fwretract_settings_t autoretract_defaults = { 3, 45, 0, 0, 0, 13, 0, 8 };
-        EEPROM_WRITE(autoretract_defaults);
-      #endif
-      #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
-        EEPROM_WRITE(fwretract.autoretract_enabled);
-      #else
-        const bool autoretract_enabled = false;
-        EEPROM_WRITE(autoretract_enabled);
-      #endif
-    }
+    #if DISABLED(FWRETRACT)
+      const float autoretract_defaults[] = { 3, 45, 0, 0, 0, 13, 0, 8 };
+      EEPROM_WRITE(autoretract_defaults);
+    #else
+      EEPROM_WRITE(fwretract.retract_length);
+      EEPROM_WRITE(fwretract.retract_feedrate_mm_s);
+      EEPROM_WRITE(fwretract.retract_zlift);
+      EEPROM_WRITE(fwretract.retract_recover_length);
+      EEPROM_WRITE(fwretract.retract_recover_feedrate_mm_s);
+      EEPROM_WRITE(fwretract.swap_retract_length);
+      EEPROM_WRITE(fwretract.swap_retract_recover_length);
+      EEPROM_WRITE(fwretract.swap_retract_recover_feedrate_mm_s);
+    #endif
 
     //
     // Volumetric & Filament Size
     //
-    {
-      _FIELD_TEST(parser_volumetric_enabled);
 
-      #if DISABLED(NO_VOLUMETRICS)
+    _FIELD_TEST(parser_volumetric_enabled);
 
-        EEPROM_WRITE(parser.volumetric_enabled);
-        EEPROM_WRITE(planner.filament_size);
+    #if DISABLED(NO_VOLUMETRICS)
 
-      #else
+      EEPROM_WRITE(parser.volumetric_enabled);
 
-        const bool volumetric_enabled = false;
-        dummy = DEFAULT_NOMINAL_FILAMENT_DIA;
-        EEPROM_WRITE(volumetric_enabled);
-        for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummy);
+      // Save filament sizes
+      for (uint8_t q = 0; q < COUNT(planner.filament_size); q++)
+        EEPROM_WRITE(planner.filament_size[q]);
 
+    #else
+
+      const bool volumetric_enabled = false;
+      dummy = DEFAULT_NOMINAL_FILAMENT_DIA;
+      EEPROM_WRITE(volumetric_enabled);
+      for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummy);
+
+    #endif
+
+    //
+    // Save TMC Configuration, and placeholder values
+    //
+
+    _FIELD_TEST(tmc_stepper_current);
+
+    tmc_stepper_current_t tmc_stepper_current = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+    #if HAS_TRINAMIC
+      #if AXIS_IS_TMC(X)
+        tmc_stepper_current.X = stepperX.getMilliamps();
       #endif
-    }
-
-    //
-    // TMC Configuration
-    //
-    {
-      _FIELD_TEST(tmc_stepper_current);
-
-      tmc_stepper_current_t tmc_stepper_current = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-      #if HAS_TRINAMIC
-        #if AXIS_IS_TMC(X)
-          tmc_stepper_current.X = stepperX.getMilliamps();
+      #if AXIS_IS_TMC(Y)
+        tmc_stepper_current.Y = stepperY.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(Z)
+        tmc_stepper_current.Z = stepperZ.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(X2)
+        tmc_stepper_current.X2 = stepperX2.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(Y2)
+        tmc_stepper_current.Y2 = stepperY2.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        tmc_stepper_current.Z2 = stepperZ2.getMilliamps();
+      #endif
+      #if AXIS_IS_TMC(Z3)
+        tmc_stepper_current.Z3 = stepperZ3.getMilliamps();
+      #endif
+      #if MAX_EXTRUDERS
+        #if AXIS_IS_TMC(E0)
+          tmc_stepper_current.E0 = stepperE0.getMilliamps();
         #endif
-        #if AXIS_IS_TMC(Y)
-          tmc_stepper_current.Y = stepperY.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z)
-          tmc_stepper_current.Z = stepperZ.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(X2)
-          tmc_stepper_current.X2 = stepperX2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Y2)
-          tmc_stepper_current.Y2 = stepperY2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z2)
-          tmc_stepper_current.Z2 = stepperZ2.getMilliamps();
-        #endif
-        #if AXIS_IS_TMC(Z3)
-          tmc_stepper_current.Z3 = stepperZ3.getMilliamps();
-        #endif
-        #if MAX_EXTRUDERS
-          #if AXIS_IS_TMC(E0)
-            tmc_stepper_current.E0 = stepperE0.getMilliamps();
+        #if MAX_EXTRUDERS > 1
+          #if AXIS_IS_TMC(E1)
+            tmc_stepper_current.E1 = stepperE1.getMilliamps();
           #endif
-          #if MAX_EXTRUDERS > 1
-            #if AXIS_IS_TMC(E1)
-              tmc_stepper_current.E1 = stepperE1.getMilliamps();
+          #if MAX_EXTRUDERS > 2
+            #if AXIS_IS_TMC(E2)
+              tmc_stepper_current.E2 = stepperE2.getMilliamps();
             #endif
-            #if MAX_EXTRUDERS > 2
-              #if AXIS_IS_TMC(E2)
-                tmc_stepper_current.E2 = stepperE2.getMilliamps();
+            #if MAX_EXTRUDERS > 3
+              #if AXIS_IS_TMC(E3)
+                tmc_stepper_current.E3 = stepperE3.getMilliamps();
               #endif
-              #if MAX_EXTRUDERS > 3
-                #if AXIS_IS_TMC(E3)
-                  tmc_stepper_current.E3 = stepperE3.getMilliamps();
+              #if MAX_EXTRUDERS > 4
+                #if AXIS_IS_TMC(E4)
+                  tmc_stepper_current.E4 = stepperE4.getMilliamps();
                 #endif
-                #if MAX_EXTRUDERS > 4
-                  #if AXIS_IS_TMC(E4)
-                    tmc_stepper_current.E4 = stepperE4.getMilliamps();
+                #if MAX_EXTRUDERS > 5
+                  #if AXIS_IS_TMC(E5)
+                    tmc_stepper_current.E5 = stepperE5.getMilliamps();
                   #endif
-                  #if MAX_EXTRUDERS > 5
-                    #if AXIS_IS_TMC(E5)
-                      tmc_stepper_current.E5 = stepperE5.getMilliamps();
-                    #endif
-                  #endif // MAX_EXTRUDERS > 5
-                #endif // MAX_EXTRUDERS > 4
-              #endif // MAX_EXTRUDERS > 3
-            #endif // MAX_EXTRUDERS > 2
-          #endif // MAX_EXTRUDERS > 1
-        #endif // MAX_EXTRUDERS
+                #endif // MAX_EXTRUDERS > 5
+              #endif // MAX_EXTRUDERS > 4
+            #endif // MAX_EXTRUDERS > 3
+          #endif // MAX_EXTRUDERS > 2
+        #endif // MAX_EXTRUDERS > 1
+      #endif // MAX_EXTRUDERS
+    #endif
+    EEPROM_WRITE(tmc_stepper_current);
+
+    //
+    // Save TMC Hybrid Threshold, and placeholder values
+    //
+
+    _FIELD_TEST(tmc_hybrid_threshold);
+
+    #if ENABLED(HYBRID_THRESHOLD)
+     tmc_hybrid_threshold_t tmc_hybrid_threshold = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+     #if AXIS_HAS_STEALTHCHOP(X)
+        tmc_hybrid_threshold.X = TMC_GET_PWMTHRS(X, X);
       #endif
-      EEPROM_WRITE(tmc_stepper_current);
-    }
-
-    //
-    // TMC Hybrid Threshold, and placeholder values
-    //
-    {
-      _FIELD_TEST(tmc_hybrid_threshold);
-
-      #if ENABLED(HYBRID_THRESHOLD)
-       tmc_hybrid_threshold_t tmc_hybrid_threshold = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        #if AXIS_HAS_STEALTHCHOP(X)
-          tmc_hybrid_threshold.X = TMC_GET_PWMTHRS(X, X);
+      #if AXIS_HAS_STEALTHCHOP(Y)
+        tmc_hybrid_threshold.Y = TMC_GET_PWMTHRS(Y, Y);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z)
+        tmc_hybrid_threshold.Z = TMC_GET_PWMTHRS(Z, Z);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(X2)
+        tmc_hybrid_threshold.X2 = TMC_GET_PWMTHRS(X, X2);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Y2)
+        tmc_hybrid_threshold.Y2 = TMC_GET_PWMTHRS(Y, Y2);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z2)
+        tmc_hybrid_threshold.Z2 = TMC_GET_PWMTHRS(Z, Z2);
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z3)
+        tmc_hybrid_threshold.Z3 = TMC_GET_PWMTHRS(Z, Z3);
+      #endif
+      #if MAX_EXTRUDERS
+        #if AXIS_HAS_STEALTHCHOP(E0)
+          tmc_hybrid_threshold.E0 = TMC_GET_PWMTHRS(E, E0);
         #endif
-        #if AXIS_HAS_STEALTHCHOP(Y)
-          tmc_hybrid_threshold.Y = TMC_GET_PWMTHRS(Y, Y);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z)
-          tmc_hybrid_threshold.Z = TMC_GET_PWMTHRS(Z, Z);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X2)
-          tmc_hybrid_threshold.X2 = TMC_GET_PWMTHRS(X, X2);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y2)
-          tmc_hybrid_threshold.Y2 = TMC_GET_PWMTHRS(Y, Y2);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z2)
-          tmc_hybrid_threshold.Z2 = TMC_GET_PWMTHRS(Z, Z2);
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z3)
-          tmc_hybrid_threshold.Z3 = TMC_GET_PWMTHRS(Z, Z3);
-        #endif
-        #if MAX_EXTRUDERS
-          #if AXIS_HAS_STEALTHCHOP(E0)
-            tmc_hybrid_threshold.E0 = TMC_GET_PWMTHRS(E, E0);
+        #if MAX_EXTRUDERS > 1
+          #if AXIS_HAS_STEALTHCHOP(E1)
+            tmc_hybrid_threshold.E1 = TMC_GET_PWMTHRS(E, E1);
           #endif
-          #if MAX_EXTRUDERS > 1
-            #if AXIS_HAS_STEALTHCHOP(E1)
-              tmc_hybrid_threshold.E1 = TMC_GET_PWMTHRS(E, E1);
+          #if MAX_EXTRUDERS > 2
+            #if AXIS_HAS_STEALTHCHOP(E2)
+              tmc_hybrid_threshold.E2 = TMC_GET_PWMTHRS(E, E2);
             #endif
-            #if MAX_EXTRUDERS > 2
-              #if AXIS_HAS_STEALTHCHOP(E2)
-                tmc_hybrid_threshold.E2 = TMC_GET_PWMTHRS(E, E2);
+            #if MAX_EXTRUDERS > 3
+              #if AXIS_HAS_STEALTHCHOP(E3)
+                tmc_hybrid_threshold.E3 = TMC_GET_PWMTHRS(E, E3);
               #endif
-              #if MAX_EXTRUDERS > 3
-                #if AXIS_HAS_STEALTHCHOP(E3)
-                  tmc_hybrid_threshold.E3 = TMC_GET_PWMTHRS(E, E3);
+              #if MAX_EXTRUDERS > 4
+                #if AXIS_HAS_STEALTHCHOP(E4)
+                  tmc_hybrid_threshold.E4 = TMC_GET_PWMTHRS(E, E4);
                 #endif
-                #if MAX_EXTRUDERS > 4
-                  #if AXIS_HAS_STEALTHCHOP(E4)
-                    tmc_hybrid_threshold.E4 = TMC_GET_PWMTHRS(E, E4);
+                #if MAX_EXTRUDERS > 5
+                  #if AXIS_HAS_STEALTHCHOP(E5)
+                    tmc_hybrid_threshold.E5 = TMC_GET_PWMTHRS(E, E5);
                   #endif
-                  #if MAX_EXTRUDERS > 5
-                    #if AXIS_HAS_STEALTHCHOP(E5)
-                      tmc_hybrid_threshold.E5 = TMC_GET_PWMTHRS(E, E5);
-                    #endif
-                  #endif // MAX_EXTRUDERS > 5
-                #endif // MAX_EXTRUDERS > 4
-              #endif // MAX_EXTRUDERS > 3
-            #endif // MAX_EXTRUDERS > 2
-          #endif // MAX_EXTRUDERS > 1
-        #endif // MAX_EXTRUDERS
-      #else
-        const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
-          .X  = 100, .Y  = 100, .Z  =   3,
-          .X2 = 100, .Y2 = 100, .Z2 =   3, .Z3 =   3,
-          .E0 =  30, .E1 =  30, .E2 =  30,
-          .E3 =  30, .E4 =  30, .E5 =  30
-        };
-      #endif
-      EEPROM_WRITE(tmc_hybrid_threshold);
-    }
+                #endif // MAX_EXTRUDERS > 5
+              #endif // MAX_EXTRUDERS > 4
+            #endif // MAX_EXTRUDERS > 3
+          #endif // MAX_EXTRUDERS > 2
+        #endif // MAX_EXTRUDERS > 1
+      #endif // MAX_EXTRUDERS
+    #else
+      const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
+        .X  = 100, .Y  = 100, .Z  =   3,
+        .X2 = 100, .Y2 = 100, .Z2 =   3, .Z3 =   3,
+        .E0 =  30, .E1 =  30, .E2 =  30,
+        .E3 =  30, .E4 =  30, .E5 =  30
+      };
+    #endif
+    EEPROM_WRITE(tmc_hybrid_threshold);
 
     //
     // TMC StallGuard threshold
     //
-    {
-      tmc_sgt_t tmc_sgt = { 0, 0, 0 };
-      #if USE_SENSORLESS
-        #if X_SENSORLESS
-          tmc_sgt.X = stepperX.sgt();
-        #endif
-        #if Y_SENSORLESS
-          tmc_sgt.Y = stepperY.sgt();
-        #endif
-        #if Z_SENSORLESS
-          tmc_sgt.Z = stepperZ.sgt();
-        #endif
+
+    tmc_sgt_t tmc_sgt = { 0, 0, 0 };
+
+    #if USE_SENSORLESS
+      #if X_SENSORLESS
+        tmc_sgt.X = stepperX.sgt();
       #endif
-      EEPROM_WRITE(tmc_sgt);
-    }
+      #if Y_SENSORLESS
+        tmc_sgt.Y = stepperY.sgt();
+      #endif
+      #if Z_SENSORLESS
+        tmc_sgt.Z = stepperZ.sgt();
+      #endif
+    #endif
+    EEPROM_WRITE(tmc_sgt);
 
     //
     // Linear Advance
     //
-    {
-      _FIELD_TEST(planner_extruder_advance_K);
 
-      #if ENABLED(LIN_ADVANCE)
-        EEPROM_WRITE(planner.extruder_advance_K);
-      #else
-        dummy = 0;
-        for (uint8_t q = EXTRUDERS; q--;) EEPROM_WRITE(dummy);
-      #endif
-    }
+    _FIELD_TEST(planner_extruder_advance_K);
+
+    #if ENABLED(LIN_ADVANCE)
+      LOOP_L_N(i, EXTRUDERS) EEPROM_WRITE(planner.extruder_advance_K[i]);
+    #else
+      dummy = 0;
+      LOOP_L_N(i, EXTRUDERS) EEPROM_WRITE(dummy);
+    #endif
+
+    _FIELD_TEST(motor_current_setting);
 
     //
     // Motor Current PWM
     //
-    {
-      _FIELD_TEST(motor_current_setting);
 
-      #if HAS_MOTOR_CURRENT_PWM
-        EEPROM_WRITE(stepper.motor_current_setting);
-      #else
-        const uint32_t dummyui32[XYZ] = { 0 };
-        EEPROM_WRITE(dummyui32);
-      #endif
-    }
+    #if HAS_MOTOR_CURRENT_PWM
+      for (uint8_t q = XYZ; q--;) EEPROM_WRITE(stepper.motor_current_setting[q]);
+    #else
+      const uint32_t dummyui32[XYZ] = { 0 };
+      EEPROM_WRITE(dummyui32);
+    #endif
 
     //
     // CNC Coordinate Systems
@@ -910,36 +950,52 @@ void MarlinSettings::postprocess() {
     _FIELD_TEST(coordinate_system);
 
     #if ENABLED(CNC_COORDINATE_SYSTEMS)
-      EEPROM_WRITE(gcode.coordinate_system);
+      EEPROM_WRITE(gcode.coordinate_system); // 27 floats
     #else
-      const float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ] = { { 0 } };
-      EEPROM_WRITE(coordinate_system);
+      dummy = 0;
+      for (uint8_t q = MAX_COORDINATE_SYSTEMS * XYZ; q--;) EEPROM_WRITE(dummy);
     #endif
 
     //
     // Skew correction factors
     //
-    _FIELD_TEST(planner_skew_factor);
-    EEPROM_WRITE(planner.skew_factor);
+
+    _FIELD_TEST(planner_xy_skew_factor);
+
+    #if ENABLED(SKEW_CORRECTION)
+      EEPROM_WRITE(planner.xy_skew_factor);
+      EEPROM_WRITE(planner.xz_skew_factor);
+      EEPROM_WRITE(planner.yz_skew_factor);
+    #else
+      dummy = 0;
+      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
+    #endif
 
     //
     // Advanced Pause filament load & unload lengths
     //
-    {
-      #if DISABLED(ADVANCED_PAUSE_FEATURE)
-        const fil_change_settings_t fc_settings[EXTRUDERS] = { 0, 0 };
-      #endif
-      _FIELD_TEST(fc_settings);
-      EEPROM_WRITE(fc_settings);
-    }
+
+    _FIELD_TEST(filament_change_unload_length);
+
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      for (uint8_t q = 0; q < COUNT(filament_change_unload_length); q++) {
+        EEPROM_WRITE(filament_change_unload_length[q]);
+        EEPROM_WRITE(filament_change_load_length[q]);
+      }
+    #else
+      dummy = 0;
+      for (uint8_t q = EXTRUDERS * 2; q--;) EEPROM_WRITE(dummy);
+    #endif
 
     //
     // SINGLENOZZLE
     //
 
-    #if EXTRUDERS > 1
-      _FIELD_TEST(toolchange_settings);
-      EEPROM_WRITE(toolchange_settings);
+    #if ENABLED(SINGLENOZZLE)
+      _FIELD_TEST(singlenozzle_swap_length);
+      EEPROM_WRITE(singlenozzle_swap_length);
+      EEPROM_WRITE(singlenozzle_prime_speed);
+      EEPROM_WRITE(singlenozzle_retract_speed);
     #endif
 
     //
@@ -1031,23 +1087,22 @@ void MarlinSettings::postprocess() {
 
       uint32_t tmp1[XYZ + esteppers];
       EEPROM_READ(tmp1);                         // max_acceleration_mm_per_s2
-      EEPROM_READ(planner.settings.min_segment_time_us);
+      EEPROM_READ(planner.min_segment_time_us);
 
       float tmp2[XYZ + esteppers], tmp3[XYZ + esteppers];
       EEPROM_READ(tmp2);                         // axis_steps_per_mm
       EEPROM_READ(tmp3);                         // max_feedrate_mm_s
       if (!validating) LOOP_XYZE_N(i) {
-        const bool in = (i < esteppers + XYZ);
-        planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : def1[ALIM(i, def1)];
-        planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : def2[ALIM(i, def2)];
-        planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : def3[ALIM(i, def3)];
+        planner.max_acceleration_mm_per_s2[i] = i < XYZ + esteppers ? tmp1[i] : def1[i < COUNT(def1) ? i : COUNT(def1) - 1];
+        planner.axis_steps_per_mm[i]          = i < XYZ + esteppers ? tmp2[i] : def2[i < COUNT(def2) ? i : COUNT(def2) - 1];
+        planner.max_feedrate_mm_s[i]          = i < XYZ + esteppers ? tmp3[i] : def3[i < COUNT(def3) ? i : COUNT(def3) - 1];
       }
 
-      EEPROM_READ(planner.settings.acceleration);
-      EEPROM_READ(planner.settings.retract_acceleration);
-      EEPROM_READ(planner.settings.travel_acceleration);
-      EEPROM_READ(planner.settings.min_feedrate_mm_s);
-      EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
+      EEPROM_READ(planner.acceleration);
+      EEPROM_READ(planner.retract_acceleration);
+      EEPROM_READ(planner.travel_acceleration);
+      EEPROM_READ(planner.min_feedrate_mm_s);
+      EEPROM_READ(planner.min_travel_feedrate_mm_s);
 
       #if HAS_CLASSIC_JERK
         EEPROM_READ(planner.max_jerk);
@@ -1244,330 +1299,349 @@ void MarlinSettings::postprocess() {
       //
       // Hotend PID
       //
-      {
-        HOTEND_LOOP() {
-          PIDC_t pidc;
-          EEPROM_READ(pidc);
-          #if ENABLED(PIDTEMP)
-            if (!validating && pidc.Kp != DUMMY_PID_VALUE) {
-              // No need to scale PID values since EEPROM values are scaled
-              PID_PARAM(Kp, e) = pidc.Kp;
-              PID_PARAM(Ki, e) = pidc.Ki;
-              PID_PARAM(Kd, e) = pidc.Kd;
-              #if ENABLED(PID_EXTRUSION_SCALING)
-                PID_PARAM(Kc, e) = pidc.Kc;
-              #endif
-            }
-          #endif
+
+      #if ENABLED(PIDTEMP)
+        for (uint8_t e = 0; e < HOTENDS; e++) {
+          EEPROM_READ(dummy); // Kp
+          if (dummy != DUMMY_PID_VALUE) {
+            // do not need to scale PID values as the values in EEPROM are already scaled
+            if (!validating) PID_PARAM(Kp, e) = dummy;
+            EEPROM_READ(PID_PARAM(Ki, e));
+            EEPROM_READ(PID_PARAM(Kd, e));
+            #if ENABLED(PID_EXTRUSION_SCALING)
+              EEPROM_READ(PID_PARAM(Kc, e));
+            #else
+              EEPROM_READ(dummy);
+            #endif
+          }
+          else
+            for (uint8_t q=3; q--;) EEPROM_READ(dummy); // Ki, Kd, Kc
         }
-      }
+      #else // !PIDTEMP
+        // 4 x 4 = 16 slots for PID parameters
+        for (uint8_t q = HOTENDS * 4; q--;) EEPROM_READ(dummy);  // Kp, Ki, Kd, Kc
+      #endif // !PIDTEMP
 
       //
       // PID Extrusion Scaling
       //
-      {
-        _FIELD_TEST(lpq_len);
-        #if ENABLED(PID_EXTRUSION_SCALING)
-          EEPROM_READ(thermalManager.lpq_len);
-        #else
-          int16_t lpq_len;
-          EEPROM_READ(lpq_len);
-        #endif
-      }
+
+      _FIELD_TEST(lpq_len);
+
+      #if DISABLED(PID_EXTRUSION_SCALING)
+        int16_t LPQ_LEN;
+      #endif
+      EEPROM_READ(LPQ_LEN);
 
       //
       // Heated Bed PID
       //
-      {
-        PID_t pid;
-        EEPROM_READ(pid);
-        #if ENABLED(PIDTEMPBED)
-          if (!validating && pid.Kp != DUMMY_PID_VALUE)
-            memcpy(&thermalManager.bed_pid, &pid, sizeof(pid));
-        #endif
-      }
+
+      #if ENABLED(PIDTEMPBED)
+        EEPROM_READ(dummy); // bedKp
+        if (dummy != DUMMY_PID_VALUE) {
+          if (!validating) thermalManager.bedKp = dummy;
+          EEPROM_READ(thermalManager.bedKi);
+          EEPROM_READ(thermalManager.bedKd);
+        }
+      #else
+        for (uint8_t q=3; q--;) EEPROM_READ(dummy); // bedKp, bedKi, bedKd
+      #endif
 
       //
       // LCD Contrast
       //
-      {
-        _FIELD_TEST(lcd_contrast);
-        #if !HAS_LCD_CONTRAST
-          int16_t lcd_contrast;
-        #endif
-        EEPROM_READ(lcd_contrast);
-      }
+
+      _FIELD_TEST(lcd_contrast);
+
+      #if !HAS_LCD_CONTRAST
+        int16_t lcd_contrast;
+      #endif
+      EEPROM_READ(lcd_contrast);
 
       //
       // Firmware Retraction
       //
-      {
-        _FIELD_TEST(fwretract_settings);
 
-        #if ENABLED(FWRETRACT)
-          EEPROM_READ(fwretract.settings);
+      #if ENABLED(FWRETRACT)
+        #if DISABLED(FWRETRACT_AUTORETRACT)
+          EEPROM_READ(dummyb);
         #else
-          fwretract_settings_t fwretract_settings;
-          EEPROM_READ(fwretract_settings);
-        #endif
-        #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
           EEPROM_READ(fwretract.autoretract_enabled);
-        #else
-          bool autoretract_enabled;
-          EEPROM_READ(autoretract_enabled);
         #endif
-      }
+        EEPROM_READ(fwretract.retract_length);
+        EEPROM_READ(fwretract.retract_feedrate_mm_s);
+        EEPROM_READ(fwretract.retract_zlift);
+        EEPROM_READ(fwretract.retract_recover_length);
+        EEPROM_READ(fwretract.retract_recover_feedrate_mm_s);
+        EEPROM_READ(fwretract.swap_retract_length);
+        EEPROM_READ(fwretract.swap_retract_recover_length);
+        EEPROM_READ(fwretract.swap_retract_recover_feedrate_mm_s);
+      #else
+        EEPROM_READ(dummyb);
+        for (uint8_t q=8; q--;) EEPROM_READ(dummy);
+      #endif
 
       //
       // Volumetric & Filament Size
       //
-      {
-        struct {
-          bool volumetric_enabled;
-          float filament_size[EXTRUDERS];
-        } storage;
 
-        _FIELD_TEST(parser_volumetric_enabled);
-        EEPROM_READ(storage);
+      _FIELD_TEST(parser_volumetric_enabled);
 
-        #if DISABLED(NO_VOLUMETRICS)
-          if (!validating) {
-            parser.volumetric_enabled = storage.volumetric_enabled;
-            COPY(planner.filament_size, storage.filament_size);
-          }
-        #endif
-      }
+      #if DISABLED(NO_VOLUMETRICS)
+
+        EEPROM_READ(parser.volumetric_enabled);
+
+        for (uint8_t q = 0; q < COUNT(planner.filament_size); q++) {
+          EEPROM_READ(dummy);
+          if (!validating) planner.filament_size[q] = dummy;
+        }
+
+      #else
+
+        EEPROM_READ(dummyb);
+        for (uint8_t q=EXTRUDERS; q--;) EEPROM_READ(dummy);
+
+      #endif
+
+      if (!validating) reset_stepper_drivers();
 
       //
       // TMC Stepper Settings
       //
 
-      if (!validating) reset_stepper_drivers();
+      _FIELD_TEST(tmc_stepper_current);
 
-      // TMC Stepper Current
-      {
-        _FIELD_TEST(tmc_stepper_current);
+      #if HAS_TRINAMIC
 
+        #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
         tmc_stepper_current_t currents;
         EEPROM_READ(currents);
+        if (!validating) {
+          #if AXIS_IS_TMC(X)
+            SET_CURR(X);
+          #endif
+          #if AXIS_IS_TMC(Y)
+            SET_CURR(Y);
+          #endif
+          #if AXIS_IS_TMC(Z)
+            SET_CURR(Z);
+          #endif
+          #if AXIS_IS_TMC(X2)
+            SET_CURR(X2);
+          #endif
+          #if AXIS_IS_TMC(Y2)
+            SET_CURR(Y2);
+          #endif
+          #if AXIS_IS_TMC(Z2)
+            SET_CURR(Z2);
+          #endif
+          #if AXIS_IS_TMC(Z3)
+            SET_CURR(Z3);
+          #endif
+          #if AXIS_IS_TMC(E0)
+            SET_CURR(E0);
+          #endif
+          #if AXIS_IS_TMC(E1)
+            SET_CURR(E1);
+          #endif
+          #if AXIS_IS_TMC(E2)
+            SET_CURR(E2);
+          #endif
+          #if AXIS_IS_TMC(E3)
+            SET_CURR(E3);
+          #endif
+          #if AXIS_IS_TMC(E4)
+            SET_CURR(E4);
+          #endif
+          #if AXIS_IS_TMC(E5)
+            SET_CURR(E5);
+          #endif
+        }
+      #else
+        uint16_t val;
+        for (uint8_t q=TMC_AXES; q--;) EEPROM_READ(val);
+      #endif
 
-        #if HAS_TRINAMIC
+      _FIELD_TEST(tmc_hybrid_threshold);
 
-          #define SET_CURR(Q) stepper##Q.rms_current(currents.Q ? currents.Q : Q##_CURRENT)
-          if (!validating) {
-            #if AXIS_IS_TMC(X)
-              SET_CURR(X);
-            #endif
-            #if AXIS_IS_TMC(Y)
-              SET_CURR(Y);
-            #endif
-            #if AXIS_IS_TMC(Z)
-              SET_CURR(Z);
-            #endif
-            #if AXIS_IS_TMC(X2)
-              SET_CURR(X2);
-            #endif
-            #if AXIS_IS_TMC(Y2)
-              SET_CURR(Y2);
-            #endif
-            #if AXIS_IS_TMC(Z2)
-              SET_CURR(Z2);
-            #endif
-            #if AXIS_IS_TMC(Z3)
-              SET_CURR(Z3);
-            #endif
-            #if AXIS_IS_TMC(E0)
-              SET_CURR(E0);
-            #endif
-            #if AXIS_IS_TMC(E1)
-              SET_CURR(E1);
-            #endif
-            #if AXIS_IS_TMC(E2)
-              SET_CURR(E2);
-            #endif
-            #if AXIS_IS_TMC(E3)
-              SET_CURR(E3);
-            #endif
-            #if AXIS_IS_TMC(E4)
-              SET_CURR(E4);
-            #endif
-            #if AXIS_IS_TMC(E5)
-              SET_CURR(E5);
-            #endif
-          }
-        #endif
-      }
-
-      // TMC Hybrid Threshold
-      {
+      #if ENABLED(HYBRID_THRESHOLD)
+        #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold.Q, planner.axis_steps_per_mm[_AXIS(A)])
         tmc_hybrid_threshold_t tmc_hybrid_threshold;
-        _FIELD_TEST(tmc_hybrid_threshold);
         EEPROM_READ(tmc_hybrid_threshold);
+        if (!validating) {
+          #if AXIS_HAS_STEALTHCHOP(X)
+            TMC_SET_PWMTHRS(X, X);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Y)
+            TMC_SET_PWMTHRS(Y, Y);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Z)
+            TMC_SET_PWMTHRS(Z, Z);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(X2)
+            TMC_SET_PWMTHRS(X, X2);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Y2)
+            TMC_SET_PWMTHRS(Y, Y2);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Z2)
+            TMC_SET_PWMTHRS(Z, Z2);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Z3)
+            TMC_SET_PWMTHRS(Z, Z3);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E0)
+            TMC_SET_PWMTHRS(E, E0);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E1)
+            TMC_SET_PWMTHRS(E, E1);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E2)
+            TMC_SET_PWMTHRS(E, E2);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E3)
+            TMC_SET_PWMTHRS(E, E3);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E4)
+            TMC_SET_PWMTHRS(E, E4);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(E5)
+            TMC_SET_PWMTHRS(E, E5);
+          #endif
+        }
+      #else
+        uint32_t thrs_val;
+        for (uint8_t q=TMC_AXES; q--;) EEPROM_READ(thrs_val);
+      #endif
 
-        #if ENABLED(HYBRID_THRESHOLD)
-          #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, tmc_hybrid_threshold.Q, planner.settings.axis_steps_per_mm[_AXIS(A)])
-          if (!validating) {
-            #if AXIS_HAS_STEALTHCHOP(X)
-              TMC_SET_PWMTHRS(X, X);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(Y)
-              TMC_SET_PWMTHRS(Y, Y);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(Z)
-              TMC_SET_PWMTHRS(Z, Z);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(X2)
-              TMC_SET_PWMTHRS(X, X2);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(Y2)
-              TMC_SET_PWMTHRS(Y, Y2);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(Z2)
-              TMC_SET_PWMTHRS(Z, Z2);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(Z3)
-              TMC_SET_PWMTHRS(Z, Z3);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(E0)
-              TMC_SET_PWMTHRS(E, E0);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(E1)
-              TMC_SET_PWMTHRS(E, E1);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(E2)
-              TMC_SET_PWMTHRS(E, E2);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(E3)
-              TMC_SET_PWMTHRS(E, E3);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(E4)
-              TMC_SET_PWMTHRS(E, E4);
-            #endif
-            #if AXIS_HAS_STEALTHCHOP(E5)
-              TMC_SET_PWMTHRS(E, E5);
-            #endif
-          }
-        #endif
-      }
+      /**
+       * TMC StallGuard threshold.
+       * X and X2 use the same value
+       * Y and Y2 use the same value
+       * Z, Z2 and Z3 use the same value
+       */
 
-      //
-      // TMC StallGuard threshold.
-      // X and X2 use the same value
-      // Y and Y2 use the same value
-      // Z, Z2 and Z3 use the same value
-      //
-      {
-        tmc_sgt_t tmc_sgt;
-        _FIELD_TEST(tmc_sgt);
-        EEPROM_READ(tmc_sgt);
-        #if USE_SENSORLESS
-          if (!validating) {
-            #ifdef X_STALL_SENSITIVITY
-              #if AXIS_HAS_STALLGUARD(X)
-                stepperX.sgt(tmc_sgt.X);
-              #endif
-              #if AXIS_HAS_STALLGUARD(X2)
-                stepperX2.sgt(tmc_sgt.X);
-              #endif
+      _FIELD_TEST(tmc_sgt);
+
+      tmc_sgt_t tmc_sgt;
+      EEPROM_READ(tmc_sgt);
+      #if USE_SENSORLESS
+        if (!validating) {
+          #ifdef X_STALL_SENSITIVITY
+            #if AXIS_HAS_STALLGUARD(X)
+              stepperX.sgt(tmc_sgt.X);
             #endif
-            #ifdef Y_STALL_SENSITIVITY
-              #if AXIS_HAS_STALLGUARD(Y)
-                stepperY.sgt(tmc_sgt.Y);
-              #endif
-              #if AXIS_HAS_STALLGUARD(Y2)
-                stepperY2.sgt(tmc_sgt.Y);
-              #endif
+            #if AXIS_HAS_STALLGUARD(X2)
+              stepperX2.sgt(tmc_sgt.X);
             #endif
-            #ifdef Z_STALL_SENSITIVITY
-              #if AXIS_HAS_STALLGUARD(Z)
-                stepperZ.sgt(tmc_sgt.Z);
-              #endif
-              #if AXIS_HAS_STALLGUARD(Z2)
-                stepperZ2.sgt(tmc_sgt.Z);
-              #endif
-              #if AXIS_HAS_STALLGUARD(Z3)
-                stepperZ3.sgt(tmc_sgt.Z);
-              #endif
+          #endif
+          #ifdef Y_STALL_SENSITIVITY
+            #if AXIS_HAS_STALLGUARD(Y)
+              stepperY.sgt(tmc_sgt.Y);
             #endif
-          }
-        #endif
-      }
+            #if AXIS_HAS_STALLGUARD(Y2)
+              stepperY2.sgt(tmc_sgt.Y);
+            #endif
+          #endif
+          #ifdef Z_STALL_SENSITIVITY
+            #if AXIS_HAS_STALLGUARD(Z)
+              stepperZ.sgt(tmc_sgt.Z);
+            #endif
+            #if AXIS_HAS_STALLGUARD(Z2)
+              stepperZ2.sgt(tmc_sgt.Z);
+            #endif
+            #if AXIS_HAS_STALLGUARD(Z3)
+              stepperZ3.sgt(tmc_sgt.Z);
+            #endif
+          #endif
+        }
+      #endif
 
       //
       // Linear Advance
       //
-      {
-        float extruder_advance_K[EXTRUDERS];
-        _FIELD_TEST(planner_extruder_advance_K);
-        EEPROM_READ(extruder_advance_K);
+      _FIELD_TEST(planner_extruder_advance_K);
+
+      LOOP_L_N(i, EXTRUDERS) {
         #if ENABLED(LIN_ADVANCE)
-          if (!validating)
-            COPY(planner.extruder_advance_K, extruder_advance_K);
+          EEPROM_READ(planner.extruder_advance_K[i]);
+        #else
+          EEPROM_READ(dummy);
         #endif
       }
 
       //
       // Motor Current PWM
       //
-      {
-        uint32_t motor_current_setting[3];
-        _FIELD_TEST(motor_current_setting);
-        EEPROM_READ(motor_current_setting);
-        #if HAS_MOTOR_CURRENT_PWM
-          if (!validating)
-            COPY(stepper.motor_current_setting, motor_current_setting);
-        #endif
-      }
+
+      _FIELD_TEST(motor_current_setting);
+
+      #if HAS_MOTOR_CURRENT_PWM
+        for (uint8_t q = XYZ; q--;) EEPROM_READ(stepper.motor_current_setting[q]);
+      #else
+        uint32_t dummyui32[XYZ];
+        EEPROM_READ(dummyui32);
+      #endif
 
       //
       // CNC Coordinate System
       //
-      {
-        _FIELD_TEST(coordinate_system);
-        #if ENABLED(CNC_COORDINATE_SYSTEMS)
-          if (!validating) (void)gcode.select_coordinate_system(-1); // Go back to machine space
-          EEPROM_READ(gcode.coordinate_system);
-        #else
-          float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
-          EEPROM_READ(coordinate_system);
-        #endif
-      }
+
+      _FIELD_TEST(coordinate_system);
+
+      #if ENABLED(CNC_COORDINATE_SYSTEMS)
+        if (!validating) (void)gcode.select_coordinate_system(-1); // Go back to machine space
+        EEPROM_READ(gcode.coordinate_system);                  // 27 floats
+      #else
+        for (uint8_t q = MAX_COORDINATE_SYSTEMS * XYZ; q--;) EEPROM_READ(dummy);
+      #endif
 
       //
       // Skew correction factors
       //
-      {
-        skew_factor_t skew_factor;
-        _FIELD_TEST(planner_skew_factor);
-        EEPROM_READ(skew_factor);
-        #if ENABLED(SKEW_CORRECTION_GCODE)
-          if (!validating) {
-            planner.skew_factor.xy = skew_factor.xy;
-            #if ENABLED(SKEW_CORRECTION_FOR_Z)
-              planner.skew_factor.xz = skew_factor.xz;
-              planner.skew_factor.yz = skew_factor.yz;
-            #endif
-          }
+
+      _FIELD_TEST(planner_xy_skew_factor);
+
+      #if ENABLED(SKEW_CORRECTION_GCODE)
+        EEPROM_READ(planner.xy_skew_factor);
+        #if ENABLED(SKEW_CORRECTION_FOR_Z)
+          EEPROM_READ(planner.xz_skew_factor);
+          EEPROM_READ(planner.yz_skew_factor);
+        #else
+          EEPROM_READ(dummy);
+          EEPROM_READ(dummy);
         #endif
-      }
+      #else
+        for (uint8_t q = 3; q--;) EEPROM_READ(dummy);
+      #endif
 
       //
       // Advanced Pause filament load & unload lengths
       //
-      {
-        #if DISABLED(ADVANCED_PAUSE_FEATURE)
-          fil_change_settings_t fc_settings[EXTRUDERS];
-        #endif
-        _FIELD_TEST(fc_settings);
-        EEPROM_READ(fc_settings);
-      }
+
+      _FIELD_TEST(filament_change_unload_length);
+
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        for (uint8_t q = 0; q < COUNT(filament_change_unload_length); q++) {
+          EEPROM_READ(dummy);
+          if (!validating && q < COUNT(filament_change_unload_length)) filament_change_unload_length[q] = dummy;
+          EEPROM_READ(dummy);
+          if (!validating && q < COUNT(filament_change_load_length)) filament_change_load_length[q] = dummy;
+        }
+      #else
+        for (uint8_t q = EXTRUDERS * 2; q--;) EEPROM_READ(dummy);
+      #endif
 
       //
       // SINGLENOZZLE toolchange values
       //
-      #if EXTRUDERS > 1
-        _FIELD_TEST(toolchange_settings);
-        EEPROM_READ(toolchange_settings);
+
+      #if ENABLED(SINGLENOZZLE)
+        _FIELD_TEST(singlenozzle_swap_length);
+        EEPROM_READ(singlenozzle_swap_length);
+        EEPROM_READ(singlenozzle_prime_speed);
+        EEPROM_READ(singlenozzle_retract_speed);
       #endif
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -1787,17 +1861,21 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   static const float tmp1[] PROGMEM = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] PROGMEM = DEFAULT_MAX_FEEDRATE;
   static const uint32_t tmp3[] PROGMEM = DEFAULT_MAX_ACCELERATION;
   LOOP_XYZE_N(i) {
-    planner.settings.axis_steps_per_mm[i]          = pgm_read_float(&tmp1[ALIM(i, tmp1)]);
-    planner.settings.max_feedrate_mm_s[i]          = pgm_read_float(&tmp2[ALIM(i, tmp2)]);
-    planner.settings.max_acceleration_mm_per_s2[i] = pgm_read_dword_near(&tmp3[ALIM(i, tmp3)]);
+    planner.axis_steps_per_mm[i]          = pgm_read_float(&tmp1[i < COUNT(tmp1) ? i : COUNT(tmp1) - 1]);
+    planner.max_feedrate_mm_s[i]          = pgm_read_float(&tmp2[i < COUNT(tmp2) ? i : COUNT(tmp2) - 1]);
+    planner.max_acceleration_mm_per_s2[i] = pgm_read_dword_near(&tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1]);
   }
 
-  planner.settings.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
-  planner.settings.acceleration = DEFAULT_ACCELERATION;
-  planner.settings.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
-  planner.settings.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
-  planner.settings.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
-  planner.settings.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
+  planner.min_segment_time_us = DEFAULT_MINSEGMENTTIME;
+  planner.acceleration = DEFAULT_ACCELERATION;
+  planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
+  planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
+  planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
+  planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
+
+  #if ENABLED(JUNCTION_DEVIATION)
+    planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
+  #endif
 
   #if HAS_CLASSIC_JERK
     planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
@@ -1806,10 +1884,6 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
       planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
     #endif
-  #endif
-
-  #if ENABLED(JUNCTION_DEVIATION)
-    planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
   #endif
 
   #if HAS_HOME_OFFSET
@@ -1828,16 +1902,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif
   #endif
 
-  #if EXTRUDERS > 1
-    #if ENABLED(SINGLENOZZLE)
-      toolchange_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
-      toolchange_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
-      toolchange_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
-      #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-        toolchange_settings.change_point = SINGLENOZZLE_TOOLCHANGE_XY;
-      #endif
-    #endif
-    toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
+  #if ENABLED(SINGLENOZZLE)
+    singlenozzle_swap_length = SINGLENOZZLE_SWAP_LENGTH;
+    singlenozzle_prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
+    singlenozzle_retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
   #endif
 
   //
@@ -1961,7 +2029,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if ENABLED(PIDTEMP)
-    HOTEND_LOOP() {
+    #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
+      HOTEND_LOOP()
+    #endif
+    {
       PID_PARAM(Kp, e) = float(DEFAULT_Kp);
       PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
@@ -1975,9 +2046,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif // PIDTEMP
 
   #if ENABLED(PIDTEMPBED)
-    thermalManager.bed_pid.Kp = DEFAULT_bedKp;
-    thermalManager.bed_pid.Ki = scalePID_i(DEFAULT_bedKi);
-    thermalManager.bed_pid.Kd = scalePID_d(DEFAULT_bedKd);
+    thermalManager.bedKp = DEFAULT_bedKp;
+    thermalManager.bedKi = scalePID_i(DEFAULT_bedKi);
+    thermalManager.bedKd = scalePID_d(DEFAULT_bedKd);
   #endif
 
   #if HAS_LCD_CONTRAST
@@ -2017,23 +2088,23 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if HAS_MOTOR_CURRENT_PWM
-    uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
-    for (uint8_t q = 3; q--;)
+    uint32_t tmp_motor_current_setting[XYZ] = PWM_MOTOR_CURRENT;
+    for (uint8_t q = XYZ; q--;)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
   #endif
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
-    planner.skew_factor.xy = XY_SKEW_FACTOR;
+    planner.xy_skew_factor = XY_SKEW_FACTOR;
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      planner.skew_factor.xz = XZ_SKEW_FACTOR;
-      planner.skew_factor.yz = YZ_SKEW_FACTOR;
+      planner.xz_skew_factor = XZ_SKEW_FACTOR;
+      planner.yz_skew_factor = YZ_SKEW_FACTOR;
     #endif
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     for (uint8_t e = 0; e < EXTRUDERS; e++) {
-      fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
-      fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
+      filament_change_unload_length[e] = FILAMENT_CHANGE_UNLOAD_LENGTH;
+      filament_change_load_length[e] = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
     }
   #endif
 
@@ -2098,11 +2169,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
      */
     CONFIG_ECHO_START;
     #if ENABLED(INCH_MODE_SUPPORT)
+      #define LINEAR_UNIT(N) (float(N) / parser.linear_unit_factor)
+      #define VOLUMETRIC_UNIT(N) (float(N) / (parser.volumetric_enabled ? parser.volumetric_unit_factor : parser.linear_unit_factor))
       SERIAL_ECHOPGM_P(port, "  G2");
       SERIAL_CHAR_P(port, parser.linear_unit_factor == 1.0 ? '1' : '0');
       SERIAL_ECHOPGM_P(port, " ;");
       SAY_UNITS_P(port, false);
     #else
+      #define LINEAR_UNIT(N) (N)
+      #define VOLUMETRIC_UNIT(N) (N)
       SERIAL_ECHOPGM_P(port, "  G21    ; Units in mm");
       SAY_UNITS_P(port, false);
     #endif
@@ -2114,11 +2189,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
       CONFIG_ECHO_START;
       #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
+        #define TEMP_UNIT(N) parser.to_temp_units(N)
         SERIAL_ECHOPGM_P(port, "  M149 ");
         SERIAL_CHAR_P(port, parser.temp_units_code());
         SERIAL_ECHOPGM_P(port, " ; Units in ");
         serialprintPGM_P(port, parser.temp_units_name());
       #else
+        #define TEMP_UNIT(N) (N)
         SERIAL_ECHOLNPGM_P(port, "  M149 C ; Units in Celsius");
       #endif
 
@@ -2181,18 +2258,18 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPGM_P(port, "Steps per unit:");
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
+    SERIAL_ECHOPAIR_P(port, "  M92 X", LINEAR_UNIT(planner.axis_steps_per_mm[X_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.axis_steps_per_mm[Y_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.axis_steps_per_mm[Z_AXIS]));
     #if DISABLED(DISTINCT_E_FACTORS)
-      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
+      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.axis_steps_per_mm[E_AXIS]));
     #endif
     SERIAL_EOL_P(port);
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M92 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.axis_steps_per_mm[E_AXIS + i]));
       }
     #endif
 
@@ -2201,18 +2278,18 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPGM_P(port, "Maximum feedrates (units/s):");
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M203 X", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS]));
+    SERIAL_ECHOPAIR_P(port, "  M203 X", LINEAR_UNIT(planner.max_feedrate_mm_s[X_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.max_feedrate_mm_s[Y_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.max_feedrate_mm_s[Z_AXIS]));
     #if DISABLED(DISTINCT_E_FACTORS)
-      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS]));
+      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.max_feedrate_mm_s[E_AXIS]));
     #endif
     SERIAL_EOL_P(port);
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M203 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.max_feedrate_mm_s[E_AXIS + i]));
       }
     #endif
 
@@ -2221,18 +2298,18 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPGM_P(port, "Maximum Acceleration (units/s2):");
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M201 X", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS]));
-    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS]));
+    SERIAL_ECHOPAIR_P(port, "  M201 X", LINEAR_UNIT(planner.max_acceleration_mm_per_s2[X_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.max_acceleration_mm_per_s2[Y_AXIS]));
+    SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.max_acceleration_mm_per_s2[Z_AXIS]));
     #if DISABLED(DISTINCT_E_FACTORS)
-      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS]));
+      SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.max_acceleration_mm_per_s2[E_AXIS]));
     #endif
     SERIAL_EOL_P(port);
     #if ENABLED(DISTINCT_E_FACTORS)
       CONFIG_ECHO_START;
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M201 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.max_acceleration_mm_per_s2[E_AXIS + i]));
       }
     #endif
 
@@ -2241,9 +2318,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPGM_P(port, "Acceleration (units/s2): P<print_accel> R<retract_accel> T<travel_accel>");
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M204 P", LINEAR_UNIT(planner.settings.acceleration));
-    SERIAL_ECHOPAIR_P(port, " R", LINEAR_UNIT(planner.settings.retract_acceleration));
-    SERIAL_ECHOLNPAIR_P(port, " T", LINEAR_UNIT(planner.settings.travel_acceleration));
+    SERIAL_ECHOPAIR_P(port, "  M204 P", LINEAR_UNIT(planner.acceleration));
+    SERIAL_ECHOPAIR_P(port, " R", LINEAR_UNIT(planner.retract_acceleration));
+    SERIAL_ECHOLNPAIR_P(port, " T", LINEAR_UNIT(planner.travel_acceleration));
 
     if (!forReplay) {
       CONFIG_ECHO_START;
@@ -2260,9 +2337,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_EOL_P(port);
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR_P(port, "  M205 B", LINEAR_UNIT(planner.settings.min_segment_time_us));
-    SERIAL_ECHOPAIR_P(port, " S", LINEAR_UNIT(planner.settings.min_feedrate_mm_s));
-    SERIAL_ECHOPAIR_P(port, " T", LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s));
+    SERIAL_ECHOPAIR_P(port, "  M205 B", LINEAR_UNIT(planner.min_segment_time_us));
+    SERIAL_ECHOPAIR_P(port, " S", LINEAR_UNIT(planner.min_feedrate_mm_s));
+    SERIAL_ECHOPAIR_P(port, " T", LINEAR_UNIT(planner.min_travel_feedrate_mm_s));
 
     #if ENABLED(JUNCTION_DEVIATION)
       SERIAL_ECHOPAIR_P(port, " J", LINEAR_UNIT(planner.junction_deviation_mm));
@@ -2520,9 +2597,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
       #if ENABLED(PIDTEMPBED)
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR_P(port, "  M304 P", thermalManager.bed_pid.Kp);
-        SERIAL_ECHOPAIR_P(port, " I", unscalePID_i(thermalManager.bed_pid.Ki));
-        SERIAL_ECHOPAIR_P(port, " D", unscalePID_d(thermalManager.bed_pid.Kd));
+        SERIAL_ECHOPAIR_P(port, "  M304 P", thermalManager.bedKp);
+        SERIAL_ECHOPAIR_P(port, " I", unscalePID_i(thermalManager.bedKi));
+        SERIAL_ECHOPAIR_P(port, " D", unscalePID_d(thermalManager.bedKd));
         SERIAL_EOL_P(port);
       #endif
 
@@ -2544,19 +2621,19 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOLNPGM_P(port, "Retract: S<length> F<units/m> Z<lift>");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR_P(port, "  M207 S", LINEAR_UNIT(fwretract.settings.retract_length));
-      SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.settings.swap_retract_length));
-      SERIAL_ECHOPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.settings.retract_feedrate_mm_s)));
-      SERIAL_ECHOLNPAIR_P(port, " Z", LINEAR_UNIT(fwretract.settings.retract_zraise));
+      SERIAL_ECHOPAIR_P(port, "  M207 S", LINEAR_UNIT(fwretract.retract_length));
+      SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.swap_retract_length));
+      SERIAL_ECHOPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.retract_feedrate_mm_s)));
+      SERIAL_ECHOLNPAIR_P(port, " Z", LINEAR_UNIT(fwretract.retract_zlift));
 
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM_P(port, "Recover: S<length> F<units/m>");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR_P(port, "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_length));
-      SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_length));
-      SERIAL_ECHOLNPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.settings.retract_recover_feedrate_mm_s)));
+      SERIAL_ECHOPAIR_P(port, "  M208 S", LINEAR_UNIT(fwretract.retract_recover_length));
+      SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.swap_retract_recover_length));
+      SERIAL_ECHOLNPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.retract_recover_feedrate_mm_s)));
 
       #if ENABLED(FWRETRACT_AUTORETRACT)
 
@@ -2595,15 +2672,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START;
       #if ENABLED(SKEW_CORRECTION_FOR_Z)
         SERIAL_ECHOPGM_P(port, "  M852 I");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.xy), 6);
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
         SERIAL_ECHOPGM_P(port, " J");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.xz), 6);
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xz_skew_factor), 6);
         SERIAL_ECHOPGM_P(port, " K");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.yz), 6);
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.yz_skew_factor), 6);
         SERIAL_EOL_P(port);
       #else
         SERIAL_ECHOPGM_P(port, "  M852 S");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.xy), 6);
+        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.xy_skew_factor), 6);
         SERIAL_EOL_P(port);
       #endif
     #endif
@@ -2852,36 +2929,36 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START;
       #if EXTRUDERS == 1
         say_M603(PORTVAR_SOLO);
-        SERIAL_ECHOPAIR_P(port, "L", LINEAR_UNIT(fc_settings[0].load_length));
-        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[0].unload_length));
+        SERIAL_ECHOPAIR_P(port, "L", LINEAR_UNIT(filament_change_load_length[0]));
+        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[0]));
       #else
         say_M603(PORTVAR_SOLO);
-        SERIAL_ECHOPAIR_P(port, "T0 L", LINEAR_UNIT(fc_settings[0].load_length));
-        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[0].unload_length));
+        SERIAL_ECHOPAIR_P(port, "T0 L", LINEAR_UNIT(filament_change_load_length[0]));
+        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[0]));
         CONFIG_ECHO_START;
         say_M603(PORTVAR_SOLO);
-        SERIAL_ECHOPAIR_P(port, "T1 L", LINEAR_UNIT(fc_settings[1].load_length));
-        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[1].unload_length));
+        SERIAL_ECHOPAIR_P(port, "T1 L", LINEAR_UNIT(filament_change_load_length[1]));
+        SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[1]));
         #if EXTRUDERS > 2
           CONFIG_ECHO_START;
           say_M603(PORTVAR_SOLO);
-          SERIAL_ECHOPAIR_P(port, "T2 L", LINEAR_UNIT(fc_settings[2].load_length));
-          SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[2].unload_length));
+          SERIAL_ECHOPAIR_P(port, "T2 L", LINEAR_UNIT(filament_change_load_length[2]));
+          SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[2]));
           #if EXTRUDERS > 3
             CONFIG_ECHO_START;
             say_M603(PORTVAR_SOLO);
-            SERIAL_ECHOPAIR_P(port, "T3 L", LINEAR_UNIT(fc_settings[3].load_length));
-            SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[3].unload_length));
+            SERIAL_ECHOPAIR_P(port, "T3 L", LINEAR_UNIT(filament_change_load_length[3]));
+            SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[3]));
             #if EXTRUDERS > 4
               CONFIG_ECHO_START;
               say_M603(PORTVAR_SOLO);
-              SERIAL_ECHOPAIR_P(port, "T4 L", LINEAR_UNIT(fc_settings[4].load_length));
-              SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[4].unload_length));
+              SERIAL_ECHOPAIR_P(port, "T4 L", LINEAR_UNIT(filament_change_load_length[4]));
+              SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[4]));
               #if EXTRUDERS > 5
                 CONFIG_ECHO_START;
                 say_M603(PORTVAR_SOLO);
-                SERIAL_ECHOPAIR_P(port, "T5 L", LINEAR_UNIT(fc_settings[5].load_length));
-                SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[5].unload_length));
+                SERIAL_ECHOPAIR_P(port, "T5 L", LINEAR_UNIT(filament_change_load_length[5]));
+                SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(filament_change_unload_length[5]));
               #endif // EXTRUDERS > 5
             #endif // EXTRUDERS > 4
           #endif // EXTRUDERS > 3
@@ -2900,5 +2977,3 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   }
 
 #endif // !DISABLE_M503
-
-#pragma pack(pop)

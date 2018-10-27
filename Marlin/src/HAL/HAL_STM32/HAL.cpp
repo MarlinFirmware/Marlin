@@ -29,8 +29,6 @@
 
 #include "HAL.h"
 
-#include "../../inc/MarlinConfig.h"
-
 #if ENABLED(EEPROM_EMULATED_WITH_SRAM)
   #if STM32F7xx
     #include "stm32f7xx_ll_pwr.h"

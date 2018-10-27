@@ -28,7 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if HOTENDS > 2 || E_STEPPERS > 2
+#if E_STEPPERS > 2 || HOTENDS > 2
   #error "Formbot supports up to 2 hotends / E-steppers. Comment this line to keep going."
 #endif
 
@@ -159,6 +159,10 @@
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input
+
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN        12
+#endif
 
 //
 // LCD / Controller

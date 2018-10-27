@@ -33,8 +33,9 @@
 
 #include "../../sd/cardreader.h"
 
-#if HAS_LEDS_OFF_FLAG
-  #include "../../feature/leds/printer_event_leds.h"
+#if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
+  bool GcodeSuite::lights_off_after_print;
+  #include "../../feature/leds/leds.h"
 #endif
 
 /**
@@ -89,8 +90,11 @@ void GcodeSuite::M0_M1() {
   else
     while (wait_for_user) idle();
 
-  #if HAS_LEDS_OFF_FLAG
-    printerEventLEDs.onResumeAfterWait();
+  #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
+    if (lights_off_after_print) {
+      leds.set_off();
+      lights_off_after_print = false;
+    }
   #endif
 
   #if ENABLED(ULTIPANEL)

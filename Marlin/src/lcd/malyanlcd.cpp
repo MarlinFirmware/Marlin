@@ -254,7 +254,9 @@ void process_lcd_p_command(const char* command) {
         quickstop_stepper();
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
-        zero_fan_speeds();
+        #if FAN_COUNT > 0
+          for (uint8_t i = 0; i < FAN_COUNT; i++) fan_speed[i] = 0;
+        #endif
         wait_for_heatup = false;
         write_to_lcd_P(PSTR("{SYS:STARTED}"));
       #endif

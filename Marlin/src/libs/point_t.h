@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#include <math.h>
+#ifndef __POINT_T__
+#define __POINT_T__
 
 /**
  * @brief Cartesian Point
@@ -53,3 +53,5 @@ struct point_t {
   point_t(const float x, const float y) : point_t(x, y, NAN) {}
 
 };
+
+#endif // __POINT_T__

@@ -36,10 +36,6 @@
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
 
-#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
-  #include "../module/printcounter.h" // for print_job_timer
-#endif
-
 Endstops endstops;
 
 // public:
@@ -278,15 +274,17 @@ void Endstops::enable(const bool onoff) {
 void Endstops::not_homing() {
   enabled = enabled_globally;
 
-  // Still 'enabled'? Then endstops are always on and kept in sync.
-  // Otherwise reset 'live's variables to let axes move in both directions.
-  if (!enabled) {
-    #if ENDSTOP_NOISE_THRESHOLD
-      endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
-      validated_live_state = 0;
-    #endif
-    live_state = 0;
-  }
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    // Still 'enabled'? Then endstops are always on and kept in sync.
+    // Otherwise reset 'live's variables to let axes move in both directions.
+    if (!enabled) {
+      #if ENDSTOP_NOISE_THRESHOLD
+        endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
+        validated_live_state = 0;
+      #endif
+      live_state = 0;
+    }
+  #endif
 }
 
 #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
@@ -361,8 +359,7 @@ void Endstops::event_handler() {
         card.sdprinting = false;
         card.closefile();
         quickstop_stepper();
-        thermalManager.disable_all_heaters();
-        print_job_timer.stop();
+        thermalManager.disable_all_heaters(); // switch off all heaters.
       }
     #endif
   }

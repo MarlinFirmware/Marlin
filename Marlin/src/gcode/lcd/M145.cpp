@@ -30,7 +30,7 @@
 /**
  * M145: Set the heatup state for a material in the LCD menu
  *
- *   S<material>
+ *   S<material> (0=PLA, 1=ABS)
  *   H<hotend temp>
  *   B<bed temp>
  *   F<fan speed>

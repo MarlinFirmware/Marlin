@@ -47,17 +47,17 @@ void GcodeSuite::M603() {
 
   // Unload length
   if (parser.seen('U')) {
-    fc_settings[target_extruder].unload_length = ABS(parser.value_axis_units(E_AXIS));
+    filament_change_unload_length[target_extruder] = ABS(parser.value_axis_units(E_AXIS));
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-      NOMORE(fc_settings[target_extruder].unload_length, EXTRUDE_MAXLENGTH);
+      NOMORE(filament_change_unload_length[target_extruder], EXTRUDE_MAXLENGTH);
     #endif
   }
 
   // Load length
   if (parser.seen('L')) {
-    fc_settings[target_extruder].load_length = ABS(parser.value_axis_units(E_AXIS));
+    filament_change_load_length[target_extruder] = ABS(parser.value_axis_units(E_AXIS));
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-      NOMORE(fc_settings[target_extruder].load_length, EXTRUDE_MAXLENGTH);
+      NOMORE(filament_change_load_length[target_extruder], EXTRUDE_MAXLENGTH);
     #endif
   }
 }

@@ -21,5 +21,7 @@
  */
 #pragma once
 
+#include "../../inc/MarlinConfig.h"
+
 void watchdog_init();
 void watchdog_reset();

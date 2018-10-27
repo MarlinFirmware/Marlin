@@ -58,9 +58,6 @@ void GcodeSuite::M501() {
       CHAT_PORT
     #endif
   );
-  #if ENABLED(EXTENSIBLE_UI)
-    UI::onLoadSettings();
-  #endif
 }
 
 /**
