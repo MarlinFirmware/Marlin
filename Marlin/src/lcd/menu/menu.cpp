@@ -308,10 +308,6 @@ void menu_advanced_settings();
   void _lcd_set_z_fade_height() { set_z_fade_height(lcd_z_fade_height); }
 #endif
 
-#if ENABLED(BABYSTEPPING)
-  long babysteps_done = 0;
-#endif
-
 bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING(); }
 
 float move_menu_scale;
@@ -740,93 +736,57 @@ void line_to_z(const float &z) {
 
 #endif
 
-/**
- *
- * "Tune" submenu items
- *
- */
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-#if ENABLED(BABYSTEPPING)
-
-  void _lcd_babystep(const AxisEnum axis, PGM_P msg) {
+  void lcd_babystep_zoffset() {
     if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
+    defer_return_to_status = true;
+    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+      const bool do_probe = (active_extruder == 0);
+    #else
+      constexpr bool do_probe = true;
+    #endif
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
       const int16_t babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
       encoderPosition = 0;
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-      thermalManager.babystep_axis(axis, babystep_increment);
-      babysteps_done += babystep_increment;
+
+      const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
+                  new_probe_offset = zprobe_zoffset + diff,
+                  new_offs =
+                    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+                      do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
+                    #else
+                      new_probe_offset
+                    #endif
+                  ;
+      if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+
+        thermalManager.babystep_axis(Z_AXIS, babystep_increment);
+
+        if (do_probe) zprobe_zoffset = new_offs;
+        #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+          else hotend_offset[Z_AXIS][active_extruder] = new_offs;
+        #endif
+
+        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+      }
     }
-    if (lcdDrawUpdate)
-      lcd_implementation_drawedit(msg, ftostr43sign(planner.steps_to_mm[axis] * babysteps_done));
+    if (lcdDrawUpdate) {
+      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+        if (!do_probe)
+          lcd_implementation_drawedit(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
+        else
+      #endif
+          lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+
+      #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
+        if (do_probe) _lcd_zoffset_overlay_gfx(zprobe_zoffset);
+      #endif
+    }
   }
 
-  #if ENABLED(BABYSTEP_XY)
-    void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEP_X)); }
-    void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEP_Y)); }
-    void lcd_babystep_x() { lcd_goto_screen(_lcd_babystep_x); babysteps_done = 0; defer_return_to_status = true; }
-    void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
-  #endif
-
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-
-    void lcd_babystep_zoffset() {
-      if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
-      defer_return_to_status = true;
-      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        const bool do_probe = (active_extruder == 0);
-      #else
-        constexpr bool do_probe = true;
-      #endif
-      ENCODER_DIRECTION_NORMAL();
-      if (encoderPosition) {
-        const int16_t babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
-        encoderPosition = 0;
-
-        const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
-                    new_probe_offset = zprobe_zoffset + diff,
-                    new_offs =
-                      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-                        do_probe ? new_probe_offset : hotend_offset[Z_AXIS][active_extruder] - diff
-                      #else
-                        new_probe_offset
-                      #endif
-                    ;
-        if (WITHIN(new_offs, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-
-          thermalManager.babystep_axis(Z_AXIS, babystep_increment);
-
-          if (do_probe) zprobe_zoffset = new_offs;
-          #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-            else hotend_offset[Z_AXIS][active_extruder] = new_offs;
-          #endif
-
-          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-        }
-      }
-      if (lcdDrawUpdate) {
-        #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-          if (!do_probe)
-            lcd_implementation_drawedit(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
-          else
-        #endif
-            lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
-
-        #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
-          if (do_probe) _lcd_zoffset_overlay_gfx(zprobe_zoffset);
-        #endif
-      }
-    }
-
-  #else // !BABYSTEP_ZPROBE_OFFSET
-
-    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEP_Z)); }
-    void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
-
-  #endif // !BABYSTEP_ZPROBE_OFFSET
-
-#endif // BABYSTEPPING
+#endif // BABYSTEP_ZPROBE_OFFSET
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -921,144 +881,6 @@ void watch_temp_callback_bed() {
   #if WATCH_THE_BED
     thermalManager.start_watching_bed();
   #endif
-}
-
-// Refresh the E factor after changing flow
-inline void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
-#if EXTRUDERS > 1
-  inline void _lcd_refresh_e_factor() { planner.refresh_e_factor(active_extruder); }
-  inline void _lcd_refresh_e_factor_1() { planner.refresh_e_factor(1); }
-  #if EXTRUDERS > 2
-    inline void _lcd_refresh_e_factor_2() { planner.refresh_e_factor(2); }
-    #if EXTRUDERS > 3
-      inline void _lcd_refresh_e_factor_3() { planner.refresh_e_factor(3); }
-      #if EXTRUDERS > 4
-        inline void _lcd_refresh_e_factor_4() { planner.refresh_e_factor(4); }
-        #if EXTRUDERS > 5
-          inline void _lcd_refresh_e_factor_5() { planner.refresh_e_factor(5); }
-        #endif // EXTRUDERS > 5
-      #endif // EXTRUDERS > 4
-    #endif // EXTRUDERS > 3
-  #endif // EXTRUDERS > 2
-#endif // EXTRUDERS > 1
-
-/**
- *
- * "Tune" submenu
- *
- */
-void menu_tune() {
-  START_MENU();
-  MENU_BACK(MSG_MAIN);
-
-  //
-  // Speed:
-  //
-  MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999);
-
-  //
-  // Manual bed leveling, Bed Z:
-  //
-  #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
-    MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
-  #endif
-
-  //
-  // Nozzle:
-  // Nozzle [1-4]:
-  //
-  #if HOTENDS == 1
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
-  #else // HOTENDS > 1
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &thermalManager.target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
-    #if HOTENDS > 2
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N3, &thermalManager.target_temperature[2], 0, HEATER_2_MAXTEMP - 15, watch_temp_callback_E2);
-      #if HOTENDS > 3
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N4, &thermalManager.target_temperature[3], 0, HEATER_3_MAXTEMP - 15, watch_temp_callback_E3);
-        #if HOTENDS > 4
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N5, &thermalManager.target_temperature[4], 0, HEATER_4_MAXTEMP - 15, watch_temp_callback_E4);
-          #if HOTENDS > 5
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N6, &thermalManager.target_temperature[5], 0, HEATER_5_MAXTEMP - 15, watch_temp_callback_E5);
-          #endif // HOTENDS > 5
-        #endif // HOTENDS > 4
-      #endif // HOTENDS > 3
-    #endif // HOTENDS > 2
-  #endif // HOTENDS > 1
-
-  //
-  // Bed:
-  //
-  #if HAS_HEATED_BED
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
-  #endif
-
-  //
-  // Fan Speed:
-  //
-  #if FAN_COUNT > 0
-    #if HAS_FAN0
-      MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED FAN_SPEED_1_SUFFIX, &fan_speed[0], 0, 255);
-      #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED FAN_SPEED_1_SUFFIX, &new_fan_speed[0], 3, 255);
-      #endif
-    #endif
-    #if HAS_FAN1
-      MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 2", &fan_speed[1], 0, 255);
-      #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 2", &new_fan_speed[1], 3, 255);
-      #endif
-    #endif
-    #if HAS_FAN2
-      MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_FAN_SPEED " 3", &fan_speed[2], 0, 255);
-      #if ENABLED(EXTRA_FAN_SPEED)
-        MENU_MULTIPLIER_ITEM_EDIT(int8, MSG_EXTRA_FAN_SPEED " 3", &new_fan_speed[2], 3, 255);
-      #endif
-    #endif
-  #endif // FAN_COUNT > 0
-
-  //
-  // Flow:
-  // Flow [1-5]:
-  //
-  #if EXTRUDERS == 1
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
-  #else // EXTRUDERS > 1
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, _lcd_refresh_e_factor);
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N1, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N2, &planner.flow_percentage[1], 10, 999, _lcd_refresh_e_factor_1);
-    #if EXTRUDERS > 2
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N3, &planner.flow_percentage[2], 10, 999, _lcd_refresh_e_factor_2);
-      #if EXTRUDERS > 3
-        MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N4, &planner.flow_percentage[3], 10, 999, _lcd_refresh_e_factor_3);
-        #if EXTRUDERS > 4
-          MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N5, &planner.flow_percentage[4], 10, 999, _lcd_refresh_e_factor_4);
-          #if EXTRUDERS > 5
-            MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N6, &planner.flow_percentage[5], 10, 999, _lcd_refresh_e_factor_5);
-          #endif // EXTRUDERS > 5
-        #endif // EXTRUDERS > 4
-      #endif // EXTRUDERS > 3
-    #endif // EXTRUDERS > 2
-  #endif // EXTRUDERS > 1
-
-  //
-  // Babystep X:
-  // Babystep Y:
-  // Babystep Z:
-  //
-  #if ENABLED(BABYSTEPPING)
-    #if ENABLED(BABYSTEP_XY)
-      MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
-      MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
-    #endif
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
-    #else
-      MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
-    #endif
-  #endif
-
-  END_MENU();
 }
 
 /**
