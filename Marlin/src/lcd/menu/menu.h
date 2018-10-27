@@ -179,7 +179,7 @@ void menu_action_setting_edit_callback_bool(PGM_P pstr, bool* ptr, screenFunc_t 
  */
 #define SCREEN_OR_MENU_LOOP() \
   int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-  for (int8_t _lcdLineNr = 0; _lcdLineNr < menu_bottom; _lcdLineNr++, _menuLineNr++) { \
+  for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
     _thisItemNr = 0
 
 /**
@@ -190,7 +190,7 @@ void menu_action_setting_edit_callback_bool(PGM_P pstr, bool* ptr, screenFunc_t 
  *               Scroll as-needed to keep the selected line in view.
  */
 #define START_SCREEN() \
-  scroll_screen(menu_bottom, false); \
+  scroll_screen(LCD_HEIGHT, false); \
   bool _skipStatic = false; \
   SCREEN_OR_MENU_LOOP()
 

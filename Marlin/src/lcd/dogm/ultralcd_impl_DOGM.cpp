@@ -96,10 +96,6 @@
   #define DOG_CHAR_HEIGHT_EDIT DOG_CHAR_HEIGHT
 #endif
 
-#ifndef TALL_FONT_CORRECTION
-  #define TALL_FONT_CORRECTION 0
-#endif
-
 #define START_COL              0
 
 U8G_CLASS u8g(U8G_PARAM);
@@ -294,13 +290,12 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 #if ENABLED(ULTIPANEL)
 
   uint8_t row_y1, row_y2;
-  uint8_t constexpr row_height = DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION);
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     void lcd_implementation_hotend_status(const uint8_t row, const uint8_t extruder) {
-      row_y1 = row * row_height + 1;
-      row_y2 = row_y1 + row_height - 1;
+      row_y1 = row * (DOG_CHAR_HEIGHT) + 1;
+      row_y2 = row_y1 + DOG_CHAR_HEIGHT - 1;
 
       if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return;
 
@@ -319,8 +314,8 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   // Set the colors for a menu item based on whether it is selected
   static bool mark_as_selected(const uint8_t row, const bool isSelected) {
-    row_y1 = row * row_height + 1;
-    row_y2 = row_y1 + row_height - 1;
+    row_y1 = row * (DOG_CHAR_HEIGHT) + 1;
+    row_y2 = row_y1 + DOG_CHAR_HEIGHT - 1;
 
     if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return false;
 
@@ -330,7 +325,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
         u8g.drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
       #else
         u8g.setColorIndex(1); // black on white
-        u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, row_height - 1);
+        u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT - 1);
         u8g.setColorIndex(0); // white on black
       #endif
     }

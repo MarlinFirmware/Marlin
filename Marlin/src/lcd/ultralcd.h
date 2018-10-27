@@ -210,8 +210,8 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    #define SETCURSOR(col, row) lcd_moveto(col * (DOG_CHAR_WIDTH), (row + 1) * row_height)
-    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - len * (DOG_CHAR_WIDTH), (row + 1) * row_height)
+    #define SETCURSOR(col, row) lcd_moveto(col * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT))
+    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - len * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT))
   #else
     #define SETCURSOR(col, row) lcd_moveto(col, row)
     #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - len, row)

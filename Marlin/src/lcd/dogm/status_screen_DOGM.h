@@ -285,15 +285,15 @@ void lcd_impl_status_screen_0() {
     //
     // SD Card Symbol
     //
-    if (card.isFileOpen() && PAGE_CONTAINS(42 - (TALL_FONT_CORRECTION), 51 - (TALL_FONT_CORRECTION))) {
+    if (card.isFileOpen() && PAGE_CONTAINS(42, 51)) {
       // Upper box
-      u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);     // 42-48 (or 41-47)
+      u8g.drawBox(42, 42, 8, 7);     // 42-48 (or 41-47)
       // Right edge
-      u8g.drawBox(50, 44 - (TALL_FONT_CORRECTION), 2, 5);     // 44-48 (or 43-47)
+      u8g.drawBox(50, 44, 2, 5);     // 44-48 (or 43-47)
       // Bottom hollow box
-      u8g.drawFrame(42, 49 - (TALL_FONT_CORRECTION), 10, 4);  // 49-52 (or 48-51)
+      u8g.drawFrame(42, 49, 10, 4);  // 49-52 (or 48-51)
       // Corner pixel
-      u8g.drawPixel(50, 43 - (TALL_FONT_CORRECTION));         // 43 (or 42)
+      u8g.drawPixel(50, 43);         // 43 (or 42)
     }
   #endif // SDSUPPORT
 
@@ -304,10 +304,10 @@ void lcd_impl_status_screen_0() {
     #define PROGRESS_BAR_X 54
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
-    if (PAGE_CONTAINS(49, 52 - (TALL_FONT_CORRECTION)))       // 49-52 (or 49-51)
+    if (PAGE_CONTAINS(49, 52))       // 49-52 (or 49-51)
       u8g.drawFrame(
         PROGRESS_BAR_X, 49,
-        PROGRESS_BAR_WIDTH, 4 - (TALL_FONT_CORRECTION)
+        PROGRESS_BAR_WIDTH, 4
       );
 
     #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -320,10 +320,10 @@ void lcd_impl_status_screen_0() {
       // Progress bar solid part
       //
 
-      if (PAGE_CONTAINS(50, 51 - (TALL_FONT_CORRECTION)))     // 50-51 (or just 50)
+      if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
         u8g.drawBox(
           PROGRESS_BAR_X + 1, 50,
-          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress_bar_percent * 0.01), 2 - (TALL_FONT_CORRECTION)
+          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress_bar_percent * 0.01), 2
         );
 
       //

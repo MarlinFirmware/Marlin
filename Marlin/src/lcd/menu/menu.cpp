@@ -101,12 +101,7 @@ bool liveEdit;
   float raw_Ki, raw_Kd; // place-holders for Ki and Kd edits
 #endif
 
-#ifndef TALL_FONT_CORRECTION
-  #define TALL_FONT_CORRECTION 0
-#endif
-
 bool no_reentry = false;
-constexpr int8_t menu_bottom = LCD_HEIGHT - (TALL_FONT_CORRECTION);
 
 // Initialized by settings.load()
 int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
@@ -478,8 +473,8 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
   }
   if (is_menu) {
     NOMORE(encoderTopLine, encoderLine);
-    if (encoderLine >= encoderTopLine + menu_bottom)
-      encoderTopLine = encoderLine - menu_bottom + 1;
+    if (encoderLine >= encoderTopLine + LCD_HEIGHT)
+      encoderTopLine = encoderLine - LCD_HEIGHT + 1;
   }
   else
     encoderTopLine = encoderLine;
