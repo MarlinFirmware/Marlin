@@ -380,12 +380,33 @@ G29_TYPE GcodeSuite::G29() {
     #if ABL_GRID
 
       xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_SPEED));
-
-      left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
-      right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
-      front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
-      back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
-
+      
+	  #if ENABLED(G29_SQUARE_GRID_SIZE)
+      
+	    if (parser.seen('G')){
+          int dimens = (int)parser.linearval('G');
+          left_probe_bed_position = (MAX_PROBE_X + MIN_PROBE_X-dimens)/2;
+          right_probe_bed_position = left_probe_bed_position+dimens;
+          front_probe_bed_position = (MAX_PROBE_Y + MIN_PROBE_Y-dimens)/2;
+          back_probe_bed_position = front_probe_bed_position + dimens;
+        } 
+		else
+		{
+          left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
+          right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
+          front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
+          back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
+		}
+		
+	  #else		
+		  
+        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
+        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
+        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
+        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
+      
+	  #endif
+	  
       if (
         #if IS_SCARA || ENABLED(DELTA)
              !position_is_reachable_by_probe(left_probe_bed_position, 0)
