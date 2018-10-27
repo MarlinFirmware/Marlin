@@ -111,7 +111,28 @@
     SERIAL_PROTOCOLPGM("Differ: ");
     report_xyze(diff);
   }
+  
+  void report_mode_detail() {
 
+    LOOP_XYZE(i) {
+      
+      SERIAL_CHAR(axis_codes[i]);
+      SERIAL_CHAR(':');
+      SERIAL_PROTOCOL(axis_relative_modes[i] || relative_mode ? 1 : 0);
+    }
+    
+    SERIAL_PROTOCOLPGM(" XYZ:");
+    SERIAL_CHAR(relative_mode ? 'R' : 'A');
+    
+    SERIAL_PROTOCOLPGM(" E:");
+    SERIAL_CHAR((relative_mode || axis_relative_modes[E_AXIS]) ? 'R' : 'A');
+    
+    SERIAL_EOL();
+    
+    
+    
+    
+  }
 #endif // M114_DETAIL
 
 /**
@@ -128,4 +149,11 @@ void GcodeSuite::M114() {
 
   planner.synchronize();
   report_current_position();
+  
+  #if ENABLED(M114_DETAIL)
+    if (parser.seen('M')) {
+      report_mode_detail();
+      
+    }
+  #endif
 }
