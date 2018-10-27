@@ -270,7 +270,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("Harizpia deskargatu")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Erabat deskargatu")
 #define MSG_INIT_SDCARD                     _UxGT("Hasieratu SD-a")
-#define MSG_CNG_SDCARD                      _UxGT("Aldatu txartela")
+#define MSG_CHANGE_SDCARD                   _UxGT("Aldatu txartela")
 #define MSG_ZPROBE_OUT                      _UxGT("Z zunda kanpora")
 #define MSG_SKEW_FACTOR                     _UxGT("Okertze faktorea")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")

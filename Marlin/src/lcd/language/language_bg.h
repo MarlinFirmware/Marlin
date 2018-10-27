@@ -134,7 +134,7 @@
 #define MSG_AUTORETRACT                     _UxGT("Автоoткат")
 #define MSG_FILAMENTCHANGE                  _UxGT("Смяна нишка")
 #define MSG_INIT_SDCARD                     _UxGT("Иниц. SD-Карта")
-#define MSG_CNG_SDCARD                      _UxGT("Смяна SD-Карта")
+#define MSG_CHANGE_SDCARD                   _UxGT("Смяна SD-Карта")
 #define MSG_ZPROBE_OUT                      _UxGT("Z-сондата е извадена")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Отстояние")
 #define MSG_BABYSTEP_X                      _UxGT("Министъпка X")

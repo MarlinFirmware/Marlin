@@ -163,7 +163,7 @@
 #define MSG_AUTORETRACT                     _UxGT("Αυτόματη ανάσυρση")
 #define MSG_FILAMENTCHANGE                  _UxGT("Αλλαγή νήματος")
 #define MSG_INIT_SDCARD                     _UxGT("Προετοιμασία κάρτας SD")
-#define MSG_CNG_SDCARD                      _UxGT("Αλλαγή κάρτας SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Αλλαγή κάρτας SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Διερεύνηση Z εκτός κλίνης")
 #define MSG_YX_UNHOMED                      _UxGT("Επαναφορά Χ/Υ πριν από Ζ")
 #define MSG_XYZ_UNHOMED                     _UxGT("Επαναφορά ΧΥΖ πρώτα")

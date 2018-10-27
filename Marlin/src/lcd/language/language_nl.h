@@ -173,7 +173,7 @@
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Verv. Filament")
 #define MSG_INIT_SDCARD                     _UxGT("Init. SD kaart")
-#define MSG_CNG_SDCARD                      _UxGT("Verv. SD Kaart")
+#define MSG_CHANGE_SDCARD                   _UxGT("Verv. SD Kaart")
 #define MSG_ZPROBE_OUT                      _UxGT("Z probe uit. bed")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Zelf-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")

@@ -1197,7 +1197,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
         else {
           MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
           #if !PIN_EXISTS(SD_DETECT)
-            MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
+            MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
           #endif
         }
       }

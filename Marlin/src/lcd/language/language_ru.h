@@ -272,7 +272,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("Выгрузка филамента")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Выгрузить всё")
 #define MSG_INIT_SDCARD                     _UxGT("Иниц. SD карту")
-#define MSG_CNG_SDCARD                      _UxGT("Сменить SD карту")
+#define MSG_CHANGE_SDCARD                   _UxGT("Сменить SD карту")
 #define MSG_ZPROBE_OUT                      _UxGT("Z датчик вне стола")
 #define MSG_SKEW_FACTOR                     _UxGT("Фактор наклона")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")

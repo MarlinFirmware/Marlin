@@ -293,7 +293,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("Rimuovi filamento")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Rimuovi tutto")
 #define MSG_INIT_SDCARD                     _UxGT("Iniz. SD-Card")
-#define MSG_CNG_SDCARD                      _UxGT("Cambia SD-Card")
+#define MSG_CHANGE_SDCARD                   _UxGT("Cambia SD-Card")
 #define MSG_ZPROBE_OUT                      _UxGT("Z probe fuori piatto")
 #define MSG_SKEW_FACTOR                     _UxGT("Fattore distorsione")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")

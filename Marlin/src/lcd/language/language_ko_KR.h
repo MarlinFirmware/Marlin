@@ -285,7 +285,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("Unload filament")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Unload All")
 #define MSG_INIT_SDCARD                     _UxGT("Init. SD card")
-#define MSG_CNG_SDCARD                      _UxGT("Change SD card")
+#define MSG_CHANGE_SDCARD                   _UxGT("Change SD card")
 #define MSG_ZPROBE_OUT                      _UxGT("Z Probe past bed")
 #define MSG_SKEW_FACTOR                     _UxGT("Skew Factor")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")

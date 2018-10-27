@@ -164,7 +164,7 @@
 #define MSG_AUTORETRACT                     _UxGT("Retraccion auto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambiar filamen.")
 #define MSG_INIT_SDCARD                     _UxGT("Iniciando SD")
-#define MSG_CNG_SDCARD                      _UxGT("Cambiar SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Cambiar SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda-Z sen cama")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_BLTOUCH_SELFTEST                _UxGT("Comprobar BLTouch")

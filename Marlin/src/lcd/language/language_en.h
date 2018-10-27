@@ -807,8 +807,8 @@
 #ifndef MSG_INIT_SDCARD
   #define MSG_INIT_SDCARD                     _UxGT("Init. SD card")
 #endif
-#ifndef MSG_CNG_SDCARD
-  #define MSG_CNG_SDCARD                      _UxGT("Change SD card")
+#ifndef MSG_CHANGE_SDCARD
+  #define MSG_CHANGE_SDCARD                   _UxGT("Change SD card")
 #endif
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      _UxGT("Z Probe past bed")

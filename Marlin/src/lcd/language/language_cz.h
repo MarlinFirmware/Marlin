@@ -280,7 +280,7 @@
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Vysunout vše")
 
 #define MSG_INIT_SDCARD                     _UxGT("Načíst SD kartu")
-#define MSG_CNG_SDCARD                      _UxGT("Vyměnit SD kartu")
+#define MSG_CHANGE_SDCARD                   _UxGT("Vyměnit SD kartu")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z mimo podl")
 #define MSG_SKEW_FACTOR                     _UxGT("Faktor zkosení")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
