@@ -32,8 +32,7 @@
 
 FilamentRunoutSensor runout;
 
-bool FilamentRunoutSensor::enabled = true,
-     FilamentRunoutSensor::filament_ran_out; // = false
+bool FilamentRunoutSensor::filament_ran_out; // = false
 uint8_t FilamentRunoutSensor::runout_count; // = 0
 
 void FilamentRunoutSensor::setup() {
@@ -55,9 +54,6 @@ void FilamentRunoutSensor::setup() {
         INIT_RUNOUT_PIN(FIL_RUNOUT4_PIN);
         #if NUM_RUNOUT_SENSORS > 4
           INIT_RUNOUT_PIN(FIL_RUNOUT5_PIN);
-          #if NUM_RUNOUT_SENSORS > 5
-            INIT_RUNOUT_PIN(FIL_RUNOUT6_PIN);
-          #endif
         #endif
       #endif
     #endif

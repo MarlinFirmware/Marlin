@@ -39,7 +39,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#pragma once
+#ifndef VECTOR_3_H
+#define VECTOR_3_H
 
 class matrix_3x3;
 
@@ -49,30 +50,32 @@ struct vector_3 {
   vector_3();
   vector_3(float x, float y, float z);
 
-  static vector_3 cross(const vector_3 &a, const vector_3 &b);
+  static vector_3 cross(vector_3 a, vector_3 b);
 
-  vector_3 operator+(const vector_3 &v);
-  vector_3 operator-(const vector_3 &v);
+  vector_3 operator+(vector_3 v);
+  vector_3 operator-(vector_3 v);
   void normalize();
-  float get_length() const;
-  vector_3 get_normal() const;
+  float get_length();
+  vector_3 get_normal();
 
-  void debug(PGM_P const title);
-  void apply_rotation(const matrix_3x3 &matrix);
+  void debug(const char * const title);
+
+  void apply_rotation(matrix_3x3 matrix);
 };
 
 struct matrix_3x3 {
   float matrix[9];
 
-  static matrix_3x3 create_from_rows(const vector_3 &row_0, const vector_3 &row_1, const vector_3 &row_2);
-  static matrix_3x3 create_look_at(const vector_3 &target);
-  static matrix_3x3 transpose(const matrix_3x3 &original);
+  static matrix_3x3 create_from_rows(vector_3 row_0, vector_3 row_1, vector_3 row_2);
+  static matrix_3x3 create_look_at(vector_3 target);
+  static matrix_3x3 transpose(matrix_3x3 original);
 
   void set_to_identity();
 
-  void debug(PGM_P const title);
+  void debug(const char * const title);
 };
 
 
-void apply_rotation_xyz(const matrix_3x3 &rotationMatrix, float &x, float &y, float &z);
+void apply_rotation_xyz(matrix_3x3 rotationMatrix, float &x, float &y, float &z);
 
+#endif // VECTOR_3_H

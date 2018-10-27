@@ -34,28 +34,33 @@
 // This is for EEPROM emulation in flash
 #if ENABLED(EEPROM_SETTINGS) && ENABLED(FLASH_EEPROM_EMULATION)
 
-#include "../shared/persistent_store_api.h"
+#include "../persistent_store_api.h"
 
 #include <flash_stm32.h>
 #include <EEPROM.h>
 
-// Store settings in the last two pages
-// Flash pages must be erased before writing, so keep track.
-bool firstWrite = false;
-uint32_t pageBase = EEPROM_START_ADDRESS;
+namespace HAL {
+namespace PersistentStore {
 
-bool PersistentStore::access_start() {
+namespace {
+  // Store settings in the last two pages
+  // Flash pages must be erased before writing, so keep track.
+  bool firstWrite = false;
+  uint32_t pageBase = EEPROM_START_ADDRESS;
+}
+
+bool access_start() {
   firstWrite = true;
   return true;
 }
 
-bool PersistentStore::access_finish() {
+bool access_finish(){
   FLASH_Lock();
   firstWrite = false;
   return true;
 }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
+bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   FLASH_Status status;
 
   if (firstWrite) {
@@ -90,7 +95,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t si
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (uint16_t i = 0; i < size; i++) {
     byte* accessPoint = (byte*)(pageBase + pos + i);
     uint8_t c = *accessPoint;
@@ -101,7 +106,8 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   return false;
 }
 
-size_t PersistentStore::capacity() { return E2END + 1; }
+} // PersistentStore
+} // HAL
 
 #endif // EEPROM_SETTINGS && EEPROM FLASH
 #endif // __STM32F1__

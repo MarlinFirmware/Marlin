@@ -28,7 +28,7 @@
 // Make a buzzer and macro
 #if ENABLED(LCD_USE_I2C_BUZZER)
   // BUZZ() will be defined in ultralcd.h
-#elif PIN_EXISTS(BEEPER) || ENABLED(EXTENSIBLE_UI)
+#elif PIN_EXISTS(BEEPER)
 
 #include "circularqueue.h"
 
@@ -82,7 +82,7 @@ class Buzzer {
      * @brief Resets the state of the class
      * @details Brings the class state to a known one.
      */
-    static inline void reset() {
+    inline static void reset() {
       off();
       state.endtime = 0;
     }

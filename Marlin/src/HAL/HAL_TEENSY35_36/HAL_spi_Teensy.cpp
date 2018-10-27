@@ -9,7 +9,7 @@
 static SPISettings spiConfig;
 
 // Standard SPI functions
-/** Initialize SPI bus */
+/** Initialise SPI bus */
 void spiBegin(void) {
   #if !PIN_EXISTS(SS)
     #error SS_PIN not defined!

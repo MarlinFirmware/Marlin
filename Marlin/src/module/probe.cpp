@@ -28,8 +28,6 @@
 
 #if HAS_BED_PROBE
 
-#include "../libs/buzzer.h"
-
 #include "probe.h"
 #include "motion.h"
 #include "temperature.h"
@@ -56,11 +54,7 @@ float zprobe_zoffset; // Initialized by settings.load()
 
 #if HAS_Z_SERVO_PROBE
   #include "../module/servo.h"
-#endif
-
-#if ENABLED(SENSORLESS_PROBING)
-  #include "stepper.h"
-  #include "../feature/tmc_util.h"
+  const int z_servo_angle[2] = Z_SERVO_ANGLES;
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -273,12 +267,12 @@ float zprobe_zoffset; // Initialized by settings.load()
       fans_paused = p;
       if (p)
         for (uint8_t x = 0; x < FAN_COUNT; x++) {
-          paused_fan_speed[x] = fan_speed[x];
-          fan_speed[x] = 0;
+          paused_fanSpeeds[x] = fanSpeeds[x];
+          fanSpeeds[x] = 0;
         }
       else
         for (uint8_t x = 0; x < FAN_COUNT; x++)
-          fan_speed[x] = paused_fan_speed[x];
+          fanSpeeds[x] = paused_fanSpeeds[x];
     }
   }
 
@@ -291,12 +285,6 @@ float zprobe_zoffset; // Initialized by settings.load()
     #endif
     #if ENABLED(PROBING_FANS_OFF)
       fans_pause(p);
-    #endif
-    #if ENABLED(PROBING_STEPPERS_OFF)
-      disable_e_steppers();
-      #if DISABLED(DELTA)
-        disable_X(); disable_Y();
-      #endif
     #endif
     if (p) safe_delay(
       #if DELAY_BEFORE_PROBING > 25
@@ -390,8 +378,7 @@ bool set_probe_deployed(const bool deploy) {
 
   // Make room for probe to deploy (or stow)
   // Fix-mounted probe should only raise for deploy
-  // unless PAUSE_BEFORE_DEPLOY_STOW is enabled
-  #if ENABLED(FIX_MOUNTED_PROBE) && DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
+  #if ENABLED(FIX_MOUNTED_PROBE)
     const bool deploy_stow_condition = deploy;
   #else
     constexpr bool deploy_stow_condition = true;
@@ -436,24 +423,6 @@ bool set_probe_deployed(const bool deploy) {
                                                    // otherwise an Allen-Key probe can't be stowed.
   #endif
 
-      #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
-
-        BUZZ(100, 659);
-        BUZZ(100, 698);
-
-        PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
-        lcd_setstatusPGM(ds_str);
-        serialprintPGM(ds_str);
-        SERIAL_EOL();
-
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        wait_for_user = true;
-        while (wait_for_user) idle();
-        lcd_reset_status();
-        KEEPALIVE_STATE(IN_HANDLER);
-
-      #endif // PAUSE_BEFORE_DEPLOY_STOW
-
       #if ENABLED(SOLENOID_PROBE)
 
         #if HAS_SOLENOID_1
@@ -466,7 +435,7 @@ bool set_probe_deployed(const bool deploy) {
 
       #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
 
-        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+        MOVE_SERVO(Z_PROBE_SERVO_NR, z_servo_angle[deploy ? 0 : 1]);
 
       #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
@@ -538,50 +507,24 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (set_bltouch_deployed(true)) return true;
   #endif
 
-  // Disable stealthChop if used. Enable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_PROBING)
-    #if ENABLED(DELTA)
-      tmc_stallguard(stepperX);
-      tmc_stallguard(stepperY);
-    #endif
-    tmc_stallguard(stepperZ);
-  #endif
-
   #if QUIET_PROBING
     probing_pause(true);
   #endif
-
-  endstops.enable(true);
 
   // Move down until probe triggered
   do_blocking_move_to_z(z, fr_mm_s);
 
   // Check to see if the probe was triggered
-  const bool probe_triggered =
-    #if ENABLED(DELTA) && ENABLED(SENSORLESS_PROBING)
-      endstops.trigger_state() & (_BV(X_MIN) | _BV(Y_MIN) | _BV(Z_MIN))
+  const bool probe_triggered = TEST(endstops.trigger_state(),
+    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      Z_MIN
     #else
-      TEST(endstops.trigger_state(),
-        #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-          Z_MIN
-        #else
-          Z_MIN_PROBE
-        #endif
-      )
+      Z_MIN_PROBE
     #endif
-  ;
+  );
 
   #if QUIET_PROBING
     probing_pause(false);
-  #endif
-
-  // Re-enable stealthChop if used. Disable diag1 pin on driver.
-  #if ENABLED(SENSORLESS_PROBING)
-    #if ENABLED(DELTA)
-      tmc_stallguard(stepperX, false);
-      tmc_stallguard(stepperY, false);
-    #endif
-    tmc_stallguard(stepperZ, false);
   #endif
 
   // Retract BLTouch immediately after a probe if it was triggered
@@ -589,14 +532,13 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (probe_triggered && set_bltouch_deployed(false)) return true;
   #endif
 
-  // Clear endstop flags
   endstops.hit_on_purpose();
 
   // Get Z where the steppers were interrupted
   set_current_from_steppers_for_axis(Z_AXIS);
 
   // Tell the planner where we actually are
-  sync_plan_position();
+  SYNC_PLAN_POSITION_KINEMATIC();
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
@@ -642,13 +584,15 @@ static float run_z_probe() {
     #endif
 
     // move up to make clearance for the probe
-    do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+    do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
-  #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
+  #else
 
     // If the nozzle is well over the travel height then
     // move down quickly before doing the slow probe
-    const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (zprobe_zoffset < 0 ? -zprobe_zoffset : 0);
+    float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0;
+    if (zprobe_zoffset < 0) z -= zprobe_zoffset;
+
     if (current_position[Z_AXIS] > z) {
       // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
       if (!do_probe_move(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
@@ -674,14 +618,14 @@ static float run_z_probe() {
 
   #if MULTIPLE_PROBING > 2
       probes_total += current_position[Z_AXIS];
-      if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      if (p > 1) do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
   #endif
 
   #if MULTIPLE_PROBING > 2
 
     // Return the average value of all probes
-    const float measured_z = probes_total * (1.0f / (MULTIPLE_PROBING));
+    const float measured_z = probes_total * (1.0 / (MULTIPLE_PROBING));
 
   #elif MULTIPLE_PROBING == 2
 
@@ -781,7 +725,6 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
-    STOW_PROBE();
     LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);

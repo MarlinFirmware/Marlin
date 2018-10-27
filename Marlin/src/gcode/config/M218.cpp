@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_HOTEND_OFFSET
+#if HOTENDS > 1
 
 #include "../gcode.h"
 #include "../../module/motion.h"
@@ -37,7 +37,7 @@
  *   T<tool>
  *   X<xoffset>
  *   Y<yoffset>
- *   Z<zoffset>
+ *   Z<zoffset> - Available with DUAL_X_CARRIAGE, SWITCHING_NOZZLE and PARKING_EXTRUDER
  */
 void GcodeSuite::M218() {
   if (get_target_extruder_from_command() || target_extruder == 0) return;
@@ -51,10 +51,13 @@ void GcodeSuite::M218() {
     hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
     report = false;
   }
-  if (parser.seenval('Z')) {
-    hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
-    report = false;
-  }
+
+  #if HAS_HOTEND_OFFSET_Z
+    if (parser.seenval('Z')) {
+      hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
+      report = false;
+    }
+  #endif
 
   if (report) {
     SERIAL_ECHO_START();
@@ -64,8 +67,10 @@ void GcodeSuite::M218() {
       SERIAL_ECHO(hotend_offset[X_AXIS][e]);
       SERIAL_CHAR(',');
       SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-      SERIAL_CHAR(',');
-      SERIAL_ECHO_F(hotend_offset[Z_AXIS][e], 3);
+      #if HAS_HOTEND_OFFSET_Z
+        SERIAL_CHAR(',');
+        SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
+      #endif
     }
     SERIAL_EOL();
   }
@@ -76,4 +81,4 @@ void GcodeSuite::M218() {
   #endif
 }
 
-#endif // HAS_HOTEND_OFFSET
+#endif // HOTENDS > 1

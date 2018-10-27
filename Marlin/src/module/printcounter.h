@@ -37,13 +37,13 @@
   #define STATS_EEPROM_ADDRESS 0x32
 #endif
 
-struct printStatistics {    // 16 bytes
+struct printStatistics {    // 16 bytes (20 with real doubles)
   //const uint8_t magic;    // Magic header, it will always be 0x16
   uint16_t totalPrints;     // Number of prints
   uint16_t finishedPrints;  // Number of complete prints
   uint32_t printTime;       // Accumulated printing time
   uint32_t longestPrint;    // Longest successful print job
-  float    filamentUsed;    // Accumulated filament consumed in mm
+  double   filamentUsed;    // Accumulated filament consumed in mm
 };
 
 class PrintCounter: public Stopwatch {
@@ -72,7 +72,7 @@ class PrintCounter: public Stopwatch {
      * @note The max value for this option is 60(s), otherwise integer
      * overflow will happen.
      */
-    static constexpr uint16_t updateInterval = 10;
+    static const uint16_t updateInterval;
 
     /**
      * @brief Interval in seconds between EEPROM saves
@@ -80,7 +80,7 @@ class PrintCounter: public Stopwatch {
      * EEPROM save cycle, the development team recommends to set this value
      * no lower than 3600 secs (1 hour).
      */
-    static constexpr uint16_t saveInterval = 3600;
+    static const uint16_t saveInterval;
 
     /**
      * @brief Timestamp of the last call to deltaDuration()
@@ -128,7 +128,7 @@ class PrintCounter: public Stopwatch {
      *
      * @param amount The amount of filament used in mm
      */
-    static void incFilamentUsed(float const &amount);
+    static void incFilamentUsed(double const &amount);
 
     /**
      * @brief Reset the Print Statistics

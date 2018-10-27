@@ -100,9 +100,9 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
 #endif
 
 void pca9632_set_led_color(const LEDColor &color) {
-  Wire.begin();
   if (!PCA_init) {
     PCA_init = 1;
+    Wire.begin();
     PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_MODE1, PCA9632_MODE1_VALUE);
     PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_MODE2, PCA9632_MODE2_VALUE);
   }

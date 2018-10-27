@@ -23,39 +23,20 @@
 #include "../gcode.h"
 #include "../../module/printcounter.h"
 
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extensible_ui/ui_api.h"
-#endif
-
 /**
  * M75: Start print timer
  */
-void GcodeSuite::M75() {
-  print_job_timer.start();
-  #if ENABLED(EXTENSIBLE_UI)
-    UI::onPrintTimerStarted();
-  #endif
-}
+void GcodeSuite::M75() { print_job_timer.start(); }
 
 /**
  * M76: Pause print timer
  */
-void GcodeSuite::M76() {
-  print_job_timer.pause();
-  #if ENABLED(EXTENSIBLE_UI)
-    UI::onPrintTimerPaused();
-  #endif
-}
+void GcodeSuite::M76() { print_job_timer.pause(); }
 
 /**
  * M77: Stop print timer
  */
-void GcodeSuite::M77() {
- print_job_timer.stop();
- #if ENABLED(EXTENSIBLE_UI)
-   UI::onPrintTimerStopped();
- #endif
-}
+void GcodeSuite::M77() { print_job_timer.stop(); }
 
 #if ENABLED(PRINTCOUNTER)
 

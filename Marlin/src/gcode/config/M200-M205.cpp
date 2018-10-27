@@ -40,7 +40,7 @@
       // setting any extruder filament size disables volumetric on the assumption that
       // slicers either generate in extruder values as cubic mm or as as filament feeds
       // for all extruders
-      if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0)) )
+      if ( (parser.volumetric_enabled = (parser.value_linear_units() != 0.0)) )
         planner.set_filament_size(target_extruder, parser.value_linear_units());
     }
     planner.calculate_volumetric_multipliers();
@@ -134,30 +134,25 @@ void GcodeSuite::M205() {
   #if ENABLED(JUNCTION_DEVIATION)
     if (parser.seen('J')) {
       const float junc_dev = parser.value_linear_units();
-      if (WITHIN(junc_dev, 0.01f, 0.3f)) {
+      if (WITHIN(junc_dev, 0.01, 0.3)) {
         planner.junction_deviation_mm = junc_dev;
-        #if ENABLED(LIN_ADVANCE)
-          planner.recalculate_max_e_jerk();
-        #endif
+        planner.recalculate_max_e_jerk();
       }
       else {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM("?J out of range (0.01 to 0.3)");
       }
     }
-  #endif
-  #if HAS_CLASSIC_JERK
+  #else
     if (parser.seen('X')) planner.max_jerk[X_AXIS] = parser.value_linear_units();
     if (parser.seen('Y')) planner.max_jerk[Y_AXIS] = parser.value_linear_units();
     if (parser.seen('Z')) {
       planner.max_jerk[Z_AXIS] = parser.value_linear_units();
       #if HAS_MESH
-        if (planner.max_jerk[Z_AXIS] <= 0.1f)
+        if (planner.max_jerk[Z_AXIS] <= 0.1)
           SERIAL_ECHOLNPGM("WARNING! Low Z Jerk may lead to unwanted pauses.");
       #endif
     }
-    #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
-      if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
-    #endif
+    if (parser.seen('E')) planner.max_jerk[E_AXIS] = parser.value_linear_units();
   #endif
 }

@@ -32,7 +32,6 @@
  */
 #ifdef ARDUINO_ARCH_SAM
 
-#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 #include "InterruptVectors_Due.h"
 

@@ -67,7 +67,7 @@
 
 
 typedef struct {
-  PGM_P const name;
+  const char * const name;
   pin_t pin;
   bool is_digital;
 } PinInfo;

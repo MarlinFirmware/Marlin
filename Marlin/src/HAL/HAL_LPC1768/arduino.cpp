@@ -26,7 +26,7 @@
 #include <lpc17xx_pinsel.h>
 
 #include "../../inc/MarlinConfig.h"
-#include "../shared/Delay.h"
+#include "../Delay.h"
 
 // Interrupts
 void cli(void) { __disable_irq(); } // Disable
@@ -143,11 +143,11 @@ uint16_t analogRead(pin_t adc_pin) {
 // Persistent Config Storage
 // **************************
 
-void eeprom_write_byte(uint8_t *pos, unsigned char value) {
+void eeprom_write_byte(unsigned char *pos, unsigned char value) {
 
 }
 
-uint8_t eeprom_read_byte(uint8_t * pos) { return '\0'; }
+unsigned char eeprom_read_byte(uint8_t * pos) { return '\0'; }
 
 void eeprom_read_block(void *__dst, const void *__src, size_t __n) { }
 

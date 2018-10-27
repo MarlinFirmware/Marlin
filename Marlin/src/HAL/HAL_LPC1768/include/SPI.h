@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "../../shared/HAL_SPI.h"
+#include "../../HAL_SPI.h"
 
 #include <stdint.h>
 
@@ -31,16 +31,13 @@
 
 class SPISettings {
   public:
-    SPISettings(uint32_t speed, int, int) : spi_speed(speed) {};
-    uint32_t spiRate() { return spi_speed; }
-  private:
-    uint32_t spi_speed;
+    SPISettings(int a, int b, int c) {};
 };
 
 class SPIClass {
   public:
     void begin();
-    void beginTransaction(SPISettings);
+    void beginTransaction(SPISettings foo) {};
     void endTransaction() {};
     uint8_t transfer(uint8_t data);
     uint16_t transfer16(uint16_t data);

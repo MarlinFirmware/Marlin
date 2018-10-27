@@ -52,6 +52,8 @@
   #endif
 #endif
 
+#include <binary.h>
+
 extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
 ////////////////////////////////////
@@ -197,3 +199,5 @@ enum HD44780CharSet : char {
 };
 
 #endif // ULTRALCD_COMMON_HD44780_H
+
+

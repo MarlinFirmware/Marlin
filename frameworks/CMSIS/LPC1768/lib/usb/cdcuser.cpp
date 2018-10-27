@@ -71,7 +71,7 @@ uint32_t CDC_OutBufAvailChar(uint32_t *availChar) {
 /* end Buffer handling */
 
 /*----------------------------------------------------------------------------
- CDC Initialization
+ CDC Initialisation
  Initializes the data structures and serial port
  Parameters:   None
  Return Value: None

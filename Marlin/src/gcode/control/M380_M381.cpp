@@ -22,28 +22,19 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(EXT_SOLENOID) || ENABLED(MANUAL_SOLENOID_CONTROL)
+#if ENABLED(EXT_SOLENOID)
 
 #include "../gcode.h"
 #include "../../feature/solenoid.h"
-#include "../../module/motion.h"
 
 /**
  * M380: Enable solenoid on the active extruder
- *
- *   S<index> to specify a solenoid (Requires MANUAL_SOLENOID_CONTROL)
  */
-void GcodeSuite::M380() {
-  #if ENABLED(MANUAL_SOLENOID_CONTROL)
-    enable_solenoid(parser.seenval('S') ? parser.value_int() : active_extruder);
-  #else
-    enable_solenoid_on_active_extruder();
-  #endif
-}
+void GcodeSuite::M380() { enable_solenoid_on_active_extruder(); }
 
 /**
  * M381: Disable all solenoids
  */
 void GcodeSuite::M381() { disable_all_solenoids(); }
 
-#endif // EXT_SOLENOID || MANUAL_SOLENOID_CONTROL
+#endif // EXT_SOLENOID

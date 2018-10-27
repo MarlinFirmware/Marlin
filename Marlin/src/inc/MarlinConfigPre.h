@@ -19,13 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#define __MARLIN_FIRMWARE__
-
-//
-// Prefix header to acquire configurations
-//
+#ifndef _MARLIN_CONFIGPRE_H_
+#define _MARLIN_CONFIGPRE_H_
 
 #include "../HAL/platforms.h"
 #include "../core/boards.h"
@@ -34,6 +30,7 @@
 #include "Version.h"
 #include "../../Configuration.h"
 #include "Conditionals_LCD.h"
-#include "../core/drivers.h"
 #include "../../Configuration_adv.h"
 #include "Conditionals_adv.h"
+
+#endif // _MARLIN_CONFIGPRE_H_

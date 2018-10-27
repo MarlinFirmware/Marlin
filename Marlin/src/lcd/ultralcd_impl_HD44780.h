@@ -347,7 +347,7 @@ void lcd_implementation_clear() { lcd.clear(); }
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
-  void lcd_scroll(const uint8_t col, const uint8_t line, PGM_P const text, const uint8_t len, const int16_t time) {
+  void lcd_scroll(const uint8_t col, const uint8_t line, const char* const text, const uint8_t len, const int16_t time) {
     uint8_t slen = utf8_strlen_P(text);
     if (slen < len) {
       // Fits into,
@@ -360,7 +360,7 @@ void lcd_implementation_clear() { lcd.clear(); }
       safe_delay(time);
     }
     else {
-      PGM_P p = text;
+      const char* p = text;
       int dly = time / MAX(slen, 1);
       for (uint8_t i = 0; i <= slen; i++) {
 
@@ -387,7 +387,7 @@ void lcd_implementation_clear() { lcd.clear(); }
     }
   }
 
-  static void logo_lines(PGM_P const extra) {
+  static void logo_lines(const char* const extra) {
     int16_t indent = (LCD_WIDTH - 8 - utf8_strlen_P(extra)) / 2;
     lcd_moveto(indent, 0); lcd_put_wchar('\x00'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x01');
     lcd_moveto(indent, 1);                        lcd_put_u8str_P(PSTR("|Marlin|"));  lcd_put_u8str_P(extra);
@@ -867,7 +867,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
-  static void lcd_implementation_drawmenu_static(const uint8_t row, PGM_P pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
+  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
     UNUSED(invert);
     int8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
@@ -880,7 +880,7 @@ static void lcd_implementation_status_screen() {
     for (; n > 0; --n) lcd_put_wchar(' ');
   }
 
-  static void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
+  static void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
     uint8_t n = LCD_WIDTH - 2;
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -889,7 +889,7 @@ static void lcd_implementation_status_screen() {
     lcd_put_wchar(post_char);
   }
 
-  static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
+  static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -898,7 +898,7 @@ static void lcd_implementation_status_screen() {
     while (n--) lcd_put_wchar(' ');
     lcd_put_u8str(data);
   }
-  static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
+  static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -911,7 +911,7 @@ static void lcd_implementation_status_screen() {
   #define DRAWMENU_SETTING_EDIT_GENERIC(_src) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', _src)
   #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
-  void lcd_implementation_drawedit(PGM_P pstr, const char* const value=NULL) {
+  void lcd_implementation_drawedit(const char* pstr, const char* const value=NULL) {
     lcd_moveto(1, 1);
     lcd_put_u8str_P(pstr);
     if (value != NULL) {
@@ -926,29 +926,29 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(SDSUPPORT)
 
-    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const uint8_t concat, const char post_char) {
+    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
       lcd_moveto(0, row);
       lcd_put_wchar(sel ? '>' : ' ');
 
       uint8_t n = LCD_WIDTH - concat;
-      const char *outstr = theCard.longest_filename();
-      if (theCard.longFilename[0]) {
+      const char *outstr = longFilename[0] ? longFilename : filename;
+      if (longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
           if (sel) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
-              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor
+              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ filename[l];  // rotate, xor
             if (filename_scroll_hash != name_hash) {                            // If the hash changed...
               filename_scroll_hash = name_hash;                                 // Save the new hash
-              filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - n);  // Update the scroll limit
+              filename_scroll_max = MAX(0, utf8_strlen(longFilename) - n);  // Update the scroll limit
               filename_scroll_pos = 0;                                          // Reset scroll to the start
               lcd_status_update_delay = 8;                                      // Don't scroll right away
             }
             outstr += filename_scroll_pos;
           }
         #else
-          theCard.longFilename[n] = '\0'; // cutoff at screen edge
+          longFilename[n] = '\0'; // cutoff at screen edge
         #endif
       }
 
@@ -960,12 +960,12 @@ static void lcd_implementation_status_screen() {
       lcd_put_wchar(post_char);
     }
 
-    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard) {
-      lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, ' ');
+    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
+      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, ' ');
     }
 
-    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard) {
-      lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, LCD_STR_FOLDER[0]);
+    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
+      lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, LCD_STR_FOLDER[0]);
     }
 
   #endif // SDSUPPORT
@@ -1008,13 +1008,13 @@ static void lcd_implementation_status_screen() {
       #if FAN_COUNT > 0
         if (0
           #if HAS_FAN0
-            || fan_speed[0]
+            || fanSpeeds[0]
           #endif
           #if HAS_FAN1
-            || fan_speed[1]
+            || fanSpeeds[1]
           #endif
           #if HAS_FAN2
-            || fan_speed[2]
+            || fanSpeeds[2]
           #endif
         ) leds |= LED_C;
       #endif // FAN_COUNT > 0

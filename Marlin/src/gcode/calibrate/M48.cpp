@@ -28,7 +28,9 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 
+
 #include "../../feature/bedlevel/bedlevel.h"
+
 
 #if HAS_LEVELING
   #include "../../module/planner.h"
@@ -109,7 +111,7 @@ void GcodeSuite::M48() {
 
   setup_for_endstop_or_probe_move();
 
-  float mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
+  double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
 
   // Move to the first point, deploy, and probe
   const float t = probe_pt(X_probe_location, Y_probe_location, raise_after, verbose_level);
@@ -140,7 +142,7 @@ void GcodeSuite::M48() {
         }
 
         for (uint8_t l = 0; l < n_legs - 1; l++) {
-          float delta_angle;
+          double delta_angle;
 
           if (schizoid_flag)
             // The points of a 5 point star are 72 degrees apart.  We need to
@@ -197,7 +199,7 @@ void GcodeSuite::M48() {
       /**
        * Get the current mean for the data points we have so far
        */
-      float sum = 0.0;
+      double sum = 0.0;
       for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
       mean = sum / (n + 1);
 

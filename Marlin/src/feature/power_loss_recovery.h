@@ -40,28 +40,16 @@ typedef struct {
 
   // Machine state
   float current_position[NUM_AXIS], feedrate;
-
-  #if HOTENDS > 1
-    uint8_t active_hotend;
-  #endif
-
-  int16_t target_temperature[HOTENDS];
+  int16_t target_temperature[HOTENDS],
+          fanSpeeds[FAN_COUNT];
 
   #if HAS_HEATED_BED
     int16_t target_temperature_bed;
   #endif
 
-  #if FAN_COUNT
-    uint8_t fan_speed[FAN_COUNT];
-  #endif
-
   #if HAS_LEVELING
     bool leveling;
     float fade;
-  #endif
-
-  #if ENABLED(FWRETRACT)
-    float retract[EXTRUDERS], retract_hop;
   #endif
 
   // Command queue
@@ -83,21 +71,20 @@ extern job_recovery_info_t job_recovery_info;
 enum JobRecoveryPhase : unsigned char {
   JOB_RECOVERY_IDLE,
   JOB_RECOVERY_MAYBE,
-  JOB_RECOVERY_YES,
-  JOB_RECOVERY_DONE
+  JOB_RECOVERY_YES
 };
 extern JobRecoveryPhase job_recovery_phase;
 
 #if HAS_LEVELING
-  #define APPEND_CMD_COUNT 9
-#else
   #define APPEND_CMD_COUNT 7
+#else
+  #define APPEND_CMD_COUNT 5
 #endif
 
 extern char job_recovery_commands[BUFSIZE + APPEND_CMD_COUNT][MAX_CMD_SIZE];
 extern uint8_t job_recovery_commands_count;
 
-void check_print_job_recovery();
+void do_print_job_recovery();
 void save_job_recovery_info();
 
 #endif // _POWER_LOSS_RECOVERY_H_
