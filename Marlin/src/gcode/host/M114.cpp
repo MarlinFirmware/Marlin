@@ -114,43 +114,28 @@
 #endif
   
 #if ENABLED(M114_MODE_DETAIL)
-  
-  
+
   void report_mode_detail() {
 
     SERIAL_PROTOCOLPGM("XYZ:");
-    if(relative_mode) {
-      SERIAL_PROTOCOLPGM("Relative");
-    }
-    else {
-      SERIAL_PROTOCOLPGM("Absolute");
-    }
-    
+    serialprintPGM(relative_mode ? PSTR("Relative") : PSTR("Absolute"));
+
     SERIAL_PROTOCOLPGM(" E:");
-    if(relative_mode || GcodeSuite::axis_relative_modes[E_AXIS]) {
-      SERIAL_PROTOCOLPGM("Relative");
-    }
-    else {
-      SERIAL_PROTOCOLPGM("Absolute");
-    }
-    
+    serialprintPGM(relative_mode || gcode.axis_relative_modes[E_AXIS] ? PSTR("Relative") : PSTR("Absolute"));
+
     #if ENABLED(INCH_MODE_SUPPORT)
       SERIAL_PROTOCOLPGM(" Unit:");
-       if(GCodeParser::linear_unit_factor == 1.0) {
-        SERIAL_PROTOCOLPGM("mm");
-      }
-      else {
-        SERIAL_PROTOCOLPGM("inch");
-      }
+      serialprintPGM(parser.linear_unit_factor == 1.0 ? PSTR("mm") : PSTR("inch"));
     #endif
-    
+
     #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
       SERIAL_PROTOCOLPGM(" Temp:");
-      SERIAL_CHAR(GCodeParser::temp_units_code());
+      SERIAL_CHAR(parser.temp_units_code());
     #endif
-    
+
     SERIAL_EOL();
   }
+
 #endif // M114_MODE_DETAIL
 
 /**
@@ -169,8 +154,6 @@ void GcodeSuite::M114() {
   report_current_position();
   
   #if ENABLED(M114_MODE_DETAIL)
-    if (parser.seen('M')) {
-      report_mode_detail();
-    }
+    if (parser.seen('M')) report_mode_detail();
   #endif
 }
