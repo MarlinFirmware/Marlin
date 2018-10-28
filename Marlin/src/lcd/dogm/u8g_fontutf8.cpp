@@ -7,12 +7,12 @@
  * @copyright GPL/BSD
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DOGLCD)
 
 #include <string.h>
-#include "fontutils.h"
+#include "../fontutils.h"
 #include "u8g_fontutf8.h"
 
 ////////////////////////////////////////////////////////////

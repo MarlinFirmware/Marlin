@@ -20,14 +20,28 @@
  *
  */
 
-/**
- * status_screen_DOGM.h
- *
- * Standard Status Screen for Graphical Display
- */
+//
+// status_screen_DOGM.cpp
+// Standard Status Screen for Graphical Display
+//
 
-#ifndef _STATUS_SCREEN_DOGM_H_
-#define _STATUS_SCREEN_DOGM_H_
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_LCD && DISABLED(LIGHTWEIGHT_UI)
+
+#include "dogm_Statusscreen.h"
+#include "../ultralcd.h"
+#include "../lcdprint.h"
+#include "../../module/motion.h"
+#include "../../module/temperature.h"
+
+#if ENABLED(SDSUPPORT)
+  #include "../../sd/cardreader.h"
+#endif
+
+#if HAS_PRINT_PROGRESS
+  #include "../../module/printcounter.h"
+#endif
 
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const uint8_t y) {
   const char * const str = itostr3(temp);
@@ -121,7 +135,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
-inline void lcd_implementation_status_message(const bool blink) {
+FORCE_INLINE void lcd_implementation_status_message(const bool blink) {
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     static bool last_blink = false;
 
@@ -198,10 +212,33 @@ inline void lcd_implementation_status_message(const bool blink) {
   #endif
 }
 
-static void lcd_impl_status_screen_0() {
+// The current graphical page being rendered
+u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
+
+void lcd_impl_status_screen_0() {
 
   const bool blink = lcd_blink();
 
+  // Status Menu Font
+  lcd_setFont(FONT_STATUSMENU);
+
+  //
+  // Fan Animation
+  //
+  // Draw the entire heading image bitmap rather than each element
+  // separately. This is an optimization because it's slower to draw
+  // multiple elements than a single bitmap.
+  //
+  // The bitmap:
+  //  - May be offset in X
+  //  - Includes all nozzle(s), bed(s), and the fan.
+  //
+  // TODO:
+  //
+  //  - Only draw the whole header on the first
+  //    entry to the status screen. Nozzle, bed, and
+  //    fan outline bits don't change.
+  //
   #if FAN_ANIM_FRAMES > 2
     static bool old_blink;
     static uint8_t fan_frame;
@@ -211,29 +248,7 @@ static void lcd_impl_status_screen_0() {
     }
   #endif
 
-  // Status Menu Font
-  lcd_setFont(FONT_STATUSMENU);
-
-  //
-  // Fan Animation
-  //
-  // Draws the whole heading image as a B/W bitmap rather than
-  // drawing the elements separately.
-  // This was done as an optimization, as it was slower to draw
-  // multiple parts compared to a single bitmap.
-  //
-  // The bitmap:
-  // - May be offset in X
-  // - Includes all nozzle(s), bed(s), and the fan.
-  //
-  // TODO:
-  //
-  // - Only draw the whole header on the first
-  //   entry to the status screen. Nozzle, bed, and
-  //   fan outline bits don't change.
-  //
-  if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1)) {
-
+  if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1))
     u8g.drawBitmapP(
       STATUS_SCREEN_X, STATUS_SCREEN_Y,
       (STATUS_SCREENWIDTH + 7) / 8, STATUS_SCREENHEIGHT,
@@ -250,8 +265,6 @@ static void lcd_impl_status_screen_0() {
       #endif
       status_screen0_bmp
     );
-
-  }
 
   //
   // Temperature Graphics and Info
@@ -283,15 +296,15 @@ static void lcd_impl_status_screen_0() {
     //
     // SD Card Symbol
     //
-    if (card.isFileOpen() && PAGE_CONTAINS(42 - (TALL_FONT_CORRECTION), 51 - (TALL_FONT_CORRECTION))) {
+    if (card.isFileOpen() && PAGE_CONTAINS(42, 51)) {
       // Upper box
-      u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);     // 42-48 (or 41-47)
+      u8g.drawBox(42, 42, 8, 7);     // 42-48 (or 41-47)
       // Right edge
-      u8g.drawBox(50, 44 - (TALL_FONT_CORRECTION), 2, 5);     // 44-48 (or 43-47)
+      u8g.drawBox(50, 44, 2, 5);     // 44-48 (or 43-47)
       // Bottom hollow box
-      u8g.drawFrame(42, 49 - (TALL_FONT_CORRECTION), 10, 4);  // 49-52 (or 48-51)
+      u8g.drawFrame(42, 49, 10, 4);  // 49-52 (or 48-51)
       // Corner pixel
-      u8g.drawPixel(50, 43 - (TALL_FONT_CORRECTION));         // 43 (or 42)
+      u8g.drawPixel(50, 43);         // 43 (or 42)
     }
   #endif // SDSUPPORT
 
@@ -302,10 +315,10 @@ static void lcd_impl_status_screen_0() {
     #define PROGRESS_BAR_X 54
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
-    if (PAGE_CONTAINS(49, 52 - (TALL_FONT_CORRECTION)))       // 49-52 (or 49-51)
+    if (PAGE_CONTAINS(49, 52))       // 49-52 (or 49-51)
       u8g.drawFrame(
         PROGRESS_BAR_X, 49,
-        PROGRESS_BAR_WIDTH, 4 - (TALL_FONT_CORRECTION)
+        PROGRESS_BAR_WIDTH, 4
       );
 
     #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -318,10 +331,10 @@ static void lcd_impl_status_screen_0() {
       // Progress bar solid part
       //
 
-      if (PAGE_CONTAINS(50, 51 - (TALL_FONT_CORRECTION)))     // 50-51 (or just 50)
+      if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
         u8g.drawBox(
           PROGRESS_BAR_X + 1, 50,
-          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress_bar_percent * 0.01), 2 - (TALL_FONT_CORRECTION)
+          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress_bar_percent * 0.01), 2
         );
 
       //
@@ -357,7 +370,7 @@ static void lcd_impl_status_screen_0() {
       lcd_put_u8str(buffer);
     }
 
-  #endif // SDSUPPORT || LCD_SET_PROGRESS_MANUALLY
+  #endif // HAS_PRINT_PROGRESS
 
   //
   // XYZ Coordinates
@@ -492,4 +505,4 @@ static void lcd_impl_status_screen_0() {
   }
 }
 
-#endif // _STATUS_SCREEN_DOGM_H_
+#endif // HAS_GRAPHICAL_LCD && !LIGHTWEIGHT_UI

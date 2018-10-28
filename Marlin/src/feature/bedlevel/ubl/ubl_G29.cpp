@@ -628,7 +628,7 @@
 
     LEAVE:
 
-    #if ENABLED(NEWPANEL)
+    #if ENABLED(ULTIPANEL)
       lcd_reset_alert_level();
       lcd_quick_feedback(true);
       lcd_reset_status();

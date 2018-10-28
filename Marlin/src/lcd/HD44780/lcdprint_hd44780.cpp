@@ -12,17 +12,16 @@
  *   Western(English), Cyrillic(Russian), Kana(Japanese) charsets.
  */
 
-#include "../inc/MarlinConfigPre.h"
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ULTRA_LCD)
-#include "ultralcd.h"
-#include "../Marlin.h"
+#if ENABLED(ULTRA_LCD) && DISABLED(DOGLCD)
 
-#if DISABLED(DOGLCD)
+#include "../ultralcd.h"
+#include "../../Marlin.h"
+
 #include <string.h>
-#include "fontutils.h"
-#include "lcdprint.h"
+#include "../fontutils.h"
+#include "../lcdprint.h"
 
 #include "ultralcd_common_HD44780.h"
 #ifndef LCD_CLASS
@@ -1040,5 +1039,4 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str_P, read_byte_rom, max_length);
 }
 
-#endif // DOGLCD
-#endif // ULTRA_LCD
+#endif // ULTRA_LCD && !DOGLCD

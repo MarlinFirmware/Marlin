@@ -19,23 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef ULTRALCD_COMMON_HD44780_H
-#define ULTRALCD_COMMON_HD44780_H
+#pragma once
 
 /**
  * Implementation of the LCD display routines for a Hitachi HD44780 display.
  * These are the most common LCD character displays.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if LCD_HEIGHT > 3
-  #include "../libs/duration_t.h"
+  #include "../../libs/duration_t.h"
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../feature/bedlevel/ubl/ubl.h"
+  #include "../../feature/bedlevel/ubl/ubl.h"
 
   #if ENABLED(ULTIPANEL)
     #define ULTRA_X_PIXELS_PER_CHAR    5
@@ -52,8 +50,6 @@
   #endif
 #endif
 
-extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
-
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
 //
@@ -62,6 +58,8 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 // via a shift/i2c register.
 
 #if ENABLED(ULTIPANEL)
+
+  extern volatile uint8_t buttons;
 
   //
   // Setup other button mappings of each panel
@@ -183,17 +181,9 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
 #endif
 
-#include "fontutils.h"
-#include "lcdprint.h"
+#include "../fontutils.h"
+#include "../lcdprint.h"
 
 #if ENABLED(LCD_PROGRESS_BAR)
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
-
-enum HD44780CharSet : char {
-  CHARSET_MENU,
-  CHARSET_INFO,
-  CHARSET_BOOT
-};
-
-#endif // ULTRALCD_COMMON_HD44780_H
