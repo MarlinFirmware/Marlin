@@ -167,7 +167,7 @@ void GcodeSuite::M28() {
   ;
 
   // Binary transfer mode
-  if (parser.seenval('B')) {
+  if (parser.byteval('B')) {
     SERIAL_ECHO_START_P(port);
     SERIAL_ECHO_P(port, " preparing to receive: ");
     SERIAL_ECHOLN_P(port, parser.string_arg);
