@@ -182,7 +182,7 @@ void lcd_setFont(const MarlinFont font_nr) {
 #endif // SHOW_BOOTSCREEN
 
 #if ENABLED(LIGHTWEIGHT_UI)
-  #include "status_screen_lite_ST7920.h"
+  #include "status_screen_lite_ST7920_class.h"
 #endif
 
 // Initialize or re-initialize the LCD
