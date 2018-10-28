@@ -401,7 +401,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     deploy ? run_deploy_moves_script() : run_stow_moves_script();
 
   #elif ENABLED(RACK_AND_PINION_PROBE)
-    
+
     do_blocking_move_to_x(deploy ? Z_PROBE_DEPLOY_X : Z_PROBE_RETRACT_X);
 
   #endif
