@@ -41,6 +41,16 @@
   #include "../feature/power_loss_recovery.h"
 #endif
 
+#if ENABLED(SDSUPPORT)
+  CARD_CHAR_P(C) SERIAL_CHAR_P(card.transfer_port, C)
+  CARD_ECHO_P(V) SERIAL_ECHO_P(card.transfer_port, V)
+  CARD_ECHOLN_P(V) SERIAL_ECHOLN_P(card.transfer_port, V)
+#else
+  CARD_CHAR_P(C) NOOP
+  CARD_ECHO_P(V) NOOP
+  CARD_ECHOLN_P(V) NOOP
+#endif
+
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
  * sending commands to Marlin, and lines will be checked for sequentiality.
@@ -356,8 +366,10 @@ public:
       stream_state = StreamState::PACKET_TIMEOUT;
       return false;
     }
-    if (!serial_data_available(card.transfer_port)) return false;
-    data = read_serial(card.transfer_port);
+    #if ENABLED(SDSUPPORT)
+      if (!serial_data_available(card.transfer_port)) return false;
+      data = read_serial(card.transfer_port);
+    #endif
     packet.timeout = millis() + STREAM_MAX_WAIT;
     return true;
   }
@@ -382,16 +394,16 @@ public:
             stream_state = StreamState::PACKET_RESET;
             bytes_received = 0;
             time_stream_start = millis();
-            SERIAL_ECHO_P(card.transfer_port, "echo: Datastream initialised (");
-            SERIAL_ECHO_P(card.transfer_port, stream_header.filesize);
-            SERIAL_ECHOLN_P(card.transfer_port, "Bytes expected)");
-            SERIAL_ECHO_P(card.transfer_port, "so"); // confirm active stream and the maximum block size supported
-            SERIAL_CHAR_P(card.transfer_port, buffer_size & 0xff);
-            SERIAL_CHAR_P(card.transfer_port, buffer_size >> 8 & 0xff);
-            SERIAL_CHAR_P(card.transfer_port, '\n');
+            CARD_ECHO_P("echo: Datastream initialised (");
+            CARD_ECHO_P(stream_header.filesize);
+            CARD_ECHOLN_P("Bytes expected)");
+            CARD_ECHO_P("so"); // confirm active stream and the maximum block size supported
+            CARD_CHAR_P(buffer_size & 0xff);
+            CARD_CHAR_P(buffer_size >> 8 & 0xff);
+            CARD_CHAR_P('\n');
           }
           else {
-            SERIAL_ECHOLN_P(card.transfer_port, "echo: Datastream initialisation error (invalid token)");
+            CARD_ECHOLN_P("echo: Datastream initialisation error (invalid token)");
             stream_state = StreamState::STREAM_FAILED;
           }
           buffer_next_index = 0;
@@ -407,7 +419,7 @@ public:
               stream_state = StreamState::PACKET_DATA;
             }
             else {
-              SERIAL_ECHO_P(card.transfer_port, "echo: Datastream packet out of order");
+              CARD_ECHO_P("echo: Datastream packet out of order");
               stream_state = StreamState::PACKET_FLUSHRX;
             }
           }
@@ -419,7 +431,7 @@ public:
             buffer[buffer_next_index] = data;
           }
           else {
-            SERIAL_ECHO_P(card.transfer_port, "echo: Datastream packet data buffer overrun");
+            CARD_ECHO_P("echo: Datastream packet data buffer overrun");
             stream_state = StreamState::STREAM_FAILED;
             break;
           }
@@ -444,22 +456,24 @@ public:
             else {
               if (bytes_received < stream_header.filesize) {
                 stream_state = StreamState::PACKET_RESET;    // reset and receive next packet
-                SERIAL_ECHOLN_P(card.transfer_port, "ok");   // transmit confirm packet received and valid token
+                CARD_ECHOLN_P("ok");   // transmit confirm packet received and valid token
               }
               else  {
                 stream_state = StreamState::STREAM_COMPLETE; // no more data required
               }
-              if(card.write(buffer, buffer_next_index) < 0) {
-                stream_state = StreamState::STREAM_FAILED;
-                SERIAL_ECHO_P(card.transfer_port, "echo: IO ERROR");
-                break;
-              };
+              #if ENABLED(SDSUPPORT)
+                if (card.write(buffer, buffer_next_index) < 0) {
+                  stream_state = StreamState::STREAM_FAILED;
+                  CARD_ECHO_P("echo: IO ERROR");
+                  break;
+                };
+              #endif
             }
           }
           else {
-            SERIAL_ECHO_P(card.transfer_port, "echo: Block(");
-            SERIAL_ECHO_P(card.transfer_port, packet.header.id);
-            SERIAL_ECHOLN_P(card.transfer_port, ") Corrupt");
+            CARD_ECHO_P("echo: Block(");
+            CARD_ECHO_P(packet.header.id);
+            CARD_ECHOLN_P(") Corrupt");
             stream_state = StreamState::PACKET_FLUSHRX;
           }
           break;
@@ -467,9 +481,9 @@ public:
           if (packet_retries < MAX_RETRIES) {
             packet_retries ++;
             stream_state = StreamState::PACKET_RESET;
-            SERIAL_ECHO_P(card.transfer_port, "echo: Resend request ");
-            SERIAL_ECHOLN_P(card.transfer_port, packet_retries);
-            SERIAL_ECHOLN_P(card.transfer_port, "rs"); // transmit resend packet token
+            CARD_ECHO_P("echo: Resend request ");
+            CARD_ECHOLN_P(packet_retries);
+            CARD_ECHOLN_P("rs"); // transmit resend packet token
           }
           else {
             stream_state = StreamState::STREAM_FAILED;
@@ -480,32 +494,38 @@ public:
             stream_state = StreamState::PACKET_RESEND;
             break;
           }
-          if (!serial_data_available(card.transfer_port)) break;
-          read_serial(card.transfer_port); // throw away data
+          #if ENABLED(SDSUPPORT)
+            if (!serial_data_available(card.transfer_port)) break;
+            read_serial(card.transfer_port); // throw away data
+          #endif
           packet.timeout = millis() + STREAM_MAX_WAIT;
           break;
         case StreamState::PACKET_TIMEOUT:
-          SERIAL_ECHOLN_P(card.transfer_port, "echo: Datastream timeout");
+          CARD_ECHOLN_P("echo: Datastream timeout");
           stream_state = StreamState::PACKET_RESEND;
           break;
         case StreamState::STREAM_COMPLETE:
           stream_state = StreamState::STREAM_RESET;
-          card.transfer_mode = 0;
-          card.closefile();
-          SERIAL_ECHO_P(card.transfer_port, "echo: ");
-          SERIAL_ECHO_P(card.transfer_port, card.filename);
-          SERIAL_ECHO_P(card.transfer_port, " transfer completed @ ");
-          SERIAL_ECHO_P(card.transfer_port, ((bytes_received / (millis() - time_stream_start) * 1000) / 1024 ));
-          SERIAL_ECHOLN_P(card.transfer_port, "KiB/s");
-          SERIAL_ECHOLN_P(card.transfer_port, "sc"); // transmit stream complete token
+          #if ENABLED(SDSUPPORT)
+            card.transfer_mode = 0;
+            card.closefile();
+            CARD_ECHO_P("echo: ");
+            CARD_ECHO_P(card.filename);
+            CARD_ECHO_P(" transfer completed @ ");
+            CARD_ECHO_P(((bytes_received / (millis() - time_stream_start) * 1000) / 1024 ));
+            CARD_ECHOLN_P("KiB/s");
+            CARD_ECHOLN_P("sc"); // transmit stream complete token
+          #endif
           return;
         case StreamState::STREAM_FAILED:
           stream_state = StreamState::STREAM_RESET;
-          card.transfer_mode = 0;
-          card.closefile();
-          card.removeFile(card.filename);
-          SERIAL_ECHOLN_P(card.transfer_port, "echo: File transfer failed");
-          SERIAL_ECHOLN_P(card.transfer_port, "sf"); // transmit stream failed token
+          #if ENABLED(SDSUPPORT)
+            card.transfer_mode = 0;
+            card.closefile();
+            card.removeFile(card.filename);
+            CARD_ECHOLN_P("echo: File transfer failed");
+            CARD_ECHOLN_P("sf"); // transmit stream failed token
+          #endif
           return;
       }
     }
@@ -534,12 +554,14 @@ inline void get_serial_commands() {
               #endif
             ;
 
-  if(card.saving && card.transfer_mode == 1) {
-    // if transfering a file in binary stream mode receive it using serial_line_buffer for the working buffer, this limits the packet size to MAX_CMD_SIZE
-    // the serial receive buffer also limits the packet size for reliable transmission
-    binaryStream.receive(serial_line_buffer[card.transfer_port]);
-    return;
-  }
+  #if ENABLED(SDSUPPORT)
+    if (card.saving && card.transfer_mode == 1) {
+      // if transfering a file in binary stream mode receive it using serial_line_buffer for the working buffer, this limits the packet size to MAX_CMD_SIZE
+      // the serial receive buffer also limits the packet size for reliable transmission
+      binaryStream.receive(serial_line_buffer[card.transfer_port]);
+      return;
+    }
+  #endif
 
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
