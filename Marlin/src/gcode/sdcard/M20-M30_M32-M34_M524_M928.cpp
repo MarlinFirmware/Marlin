@@ -166,10 +166,11 @@ void GcodeSuite::M28() {
     #endif
   ;
 
-  //binary transfer mode
+  // Binary transfer mode
   if (parser.seenval('B')) {
-    SERIAL_ECHO_P(port, "echo: prepairing to receive: ");
-    SERIAL_ECHOLN_P(port,parser.string_arg);
+    SERIAL_ECHO_START_P(port);
+    SERIAL_ECHO_P(port, " preparing to receive: ");
+    SERIAL_ECHOLN_P(port, parser.string_arg);
     card.openFile(parser.string_arg, false);
     card.transfer_mode = 1;
     card.transfer_port = port;
