@@ -118,30 +118,6 @@ void menu_action_submenu(screenFunc_t func) { lcd_save_previous_screen(); lcd_go
 void menu_action_gcode(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
 void menu_action_function(screenFunc_t func) { (*func)(); }
 
-#if ENABLED(SDSUPPORT)
-
-  void menu_action_sdfile(CardReader &theCard) {
-    #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-      last_sdfile_encoderPosition = encoderPosition;  // Save which file was selected for later use
-    #endif
-    card.openAndPrintFile(theCard.filename);
-    lcd_return_to_status();
-    lcd_reset_status();
-  }
-
-  void menu_action_sddirectory(CardReader &theCard) {
-    card.chdir(theCard.filename);
-    encoderTopLine = 0;
-    encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
-    screen_changed = true;
-    #if HAS_GRAPHICAL_LCD
-      drawing_screen = false;
-    #endif
-    lcd_refresh();
-  }
-
-#endif // SDSUPPORT
-
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
@@ -504,98 +480,5 @@ void _lcd_draw_homing() {
   #include "../../feature/bedlevel/bedlevel.h"
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
-
-#if ENABLED(SDSUPPORT)
-
-  #if !PIN_EXISTS(SD_DETECT)
-    void lcd_sd_refresh() {
-      card.initsd();
-      encoderTopLine = 0;
-    }
-  #endif
-
-  void lcd_sd_updir() {
-    encoderPosition = card.updir() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
-    encoderTopLine = 0;
-    screen_changed = true;
-    lcd_refresh();
-  }
-
-  /**
-   *
-   * "Print from SD" submenu
-   *
-   */
-
-  #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-    uint32_t last_sdfile_encoderPosition = 0xFFFF;
-
-    void lcd_reselect_last_file() {
-      if (last_sdfile_encoderPosition == 0xFFFF) return;
-      #if HAS_GRAPHICAL_LCD
-        // Some of this is a hack to force the screen update to work.
-        // TODO: Fix the real issue that causes this!
-        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-        lcd_synchronize();
-        safe_delay(50);
-        lcd_synchronize();
-        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-        drawing_screen = screen_changed = true;
-      #endif
-
-      lcd_goto_screen(menu_sdcard, last_sdfile_encoderPosition);
-      defer_return_to_status = true;
-      last_sdfile_encoderPosition = 0xFFFF;
-
-      #if HAS_GRAPHICAL_LCD
-        lcd_update();
-      #endif
-    }
-  #endif
-
-  void menu_sdcard() {
-    ENCODER_DIRECTION_MENUS();
-
-    const uint16_t fileCnt = card.get_num_Files();
-
-    START_MENU();
-    MENU_BACK(MSG_MAIN);
-    card.getWorkDirName();
-    if (card.filename[0] == '/') {
-      #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
-      #endif
-    }
-    else {
-      MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
-    }
-
-    for (uint16_t i = 0; i < fileCnt; i++) {
-      if (_menuLineNr == _thisItemNr) {
-        const uint16_t nr =
-          #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-            fileCnt - 1 -
-          #endif
-        i;
-
-        #if ENABLED(SDCARD_SORT_ALPHA)
-          card.getfilename_sorted(nr);
-        #else
-          card.getfilename(nr);
-        #endif
-
-        if (card.filenameIsDir)
-          MENU_ITEM(sddirectory, MSG_CARD_MENU, card);
-        else
-          MENU_ITEM(sdfile, MSG_CARD_MENU, card);
-      }
-      else {
-        MENU_ITEM_DUMMY();
-      }
-    }
-    END_MENU();
-  }
-
-#endif // SDSUPPORT
 
 #endif // ULTIPANEL

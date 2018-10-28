@@ -130,11 +130,6 @@ void menu_action_submenu(screenFunc_t data);
 void menu_action_function(menuAction_t data);
 void menu_action_gcode(const char* pgcode);
 
-#if ENABLED(SDSUPPORT)
-  void menu_action_sdfile(CardReader &theCard);
-  void menu_action_sddirectory(CardReader &theCard);
-#endif
-
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
