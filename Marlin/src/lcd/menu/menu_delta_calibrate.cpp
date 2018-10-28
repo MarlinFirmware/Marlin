@@ -92,13 +92,15 @@ void lcd_delta_settings() {
   START_MENU();
   MENU_BACK(MSG_DELTA_CALIBRATE);
   MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta_settings);
-  MENU_ITEM_EDIT_CALLBACK(float43, "Ex", &delta_endstop_adj[A_AXIS], -5, 5, _recalc_delta_settings);
-  MENU_ITEM_EDIT_CALLBACK(float43, "Ey", &delta_endstop_adj[B_AXIS], -5, 5, _recalc_delta_settings);
-  MENU_ITEM_EDIT_CALLBACK(float43, "Ez", &delta_endstop_adj[C_AXIS], -5, 5, _recalc_delta_settings);
+  #define EDIT_ENDSTOP_ADJ(LABEL,N) MENU_ITEM_EDIT_CALLBACK(float43, LABEL, &delta_endstop_adj[_AXIS(N)], -5, 5, _recalc_delta_settings)
+  EDIT_ENDSTOP_ADJ("Ex",A);
+  EDIT_ENDSTOP_ADJ("Ey",B);
+  EDIT_ENDSTOP_ADJ("Ez",C);
   MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta_settings);
-  MENU_ITEM_EDIT_CALLBACK(float43, "Tx", &delta_tower_angle_trim[A_AXIS], -5, 5, _recalc_delta_settings);
-  MENU_ITEM_EDIT_CALLBACK(float43, "Ty", &delta_tower_angle_trim[B_AXIS], -5, 5, _recalc_delta_settings);
-  MENU_ITEM_EDIT_CALLBACK(float43, "Tz", &delta_tower_angle_trim[C_AXIS], -5, 5, _recalc_delta_settings);
+  #define EDIT_ANGLE_TRIM(LABEL,N) MENU_ITEM_EDIT_CALLBACK(float43, LABEL, &delta_tower_angle_trim[_AXIS(N)], -5, 5, _recalc_delta_settings)
+  EDIT_ANGLE_TRIM("Tx",A);
+  EDIT_ANGLE_TRIM("Ty",B);
+  EDIT_ANGLE_TRIM("Tz",C);
   MENU_ITEM_EDIT_CALLBACK(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta_settings);
   END_MENU();
 }

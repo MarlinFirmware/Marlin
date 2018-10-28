@@ -83,16 +83,17 @@
       #if EXTRUDERS == 1
         MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
       #elif EXTRUDERS > 1
-        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E1, &planner.extruder_advance_K[0], 0, 999);
-        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E2, &planner.extruder_advance_K[1], 0, 999);
+        #define EDIT_ADVANCE_K(N) MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
+        EDIT_ADVANCE_K(1);
+        EDIT_ADVANCE_K(2);
         #if EXTRUDERS > 2
-          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E3, &planner.extruder_advance_K[2], 0, 999);
+          EDIT_ADVANCE_K(3);
           #if EXTRUDERS > 3
-            MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E4, &planner.extruder_advance_K[3], 0, 999);
+            EDIT_ADVANCE_K(4);
             #if EXTRUDERS > 4
-              MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E5, &planner.extruder_advance_K[4], 0, 999);
+              EDIT_ADVANCE_K(5);
               #if EXTRUDERS > 5
-                MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E6, &planner.extruder_advance_K[5], 0, 999);
+                EDIT_ADVANCE_K(6);
               #endif // EXTRUDERS > 5
             #endif // EXTRUDERS > 4
           #endif // EXTRUDERS > 3
@@ -107,17 +108,18 @@
         #if EXTRUDERS == 1
           MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM, &planner.filament_size[0], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #else // EXTRUDERS > 1
+          #define EDIT_FIL_DIAM(N) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E##N, &planner.filament_size[N-1], 1.5f, 3.25f, planner.calculate_volumetric_multipliers)
           MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E1, &planner.filament_size[0], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E2, &planner.filament_size[1], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+          EDIT_FIL_DIAM(1);
+          EDIT_FIL_DIAM(2);
           #if EXTRUDERS > 2
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E3, &planner.filament_size[2], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+            EDIT_FIL_DIAM(3);
             #if EXTRUDERS > 3
-              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E4, &planner.filament_size[3], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+              EDIT_FIL_DIAM(4);
               #if EXTRUDERS > 4
-                MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E5, &planner.filament_size[4], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+                EDIT_FIL_DIAM(5);
                 #if EXTRUDERS > 5
-                  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_DIAM MSG_DIAM_E6, &planner.filament_size[5], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
+                  EDIT_FIL_DIAM(6);
                 #endif // EXTRUDERS > 5
               #endif // EXTRUDERS > 4
             #endif // EXTRUDERS > 3
@@ -138,17 +140,18 @@
       #if EXTRUDERS == 1
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &fc_settings[0].unload_length, 0, extrude_maxlength);
       #else // EXTRUDERS > 1
+        #define EDIT_FIL_UNLOAD(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E##N, &fc_settings[N-1].unload_length, 0, extrude_maxlength)
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E1, &fc_settings[0].unload_length, 0, extrude_maxlength);
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E2, &fc_settings[1].unload_length, 0, extrude_maxlength);
+        EDIT_FIL_UNLOAD(1);
+        EDIT_FIL_UNLOAD(2);
         #if EXTRUDERS > 2
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E3, &fc_settings[2].unload_length, 0, extrude_maxlength);
+          EDIT_FIL_UNLOAD(3);
           #if EXTRUDERS > 3
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E4, &fc_settings[3].unload_length, 0, extrude_maxlength);
+            EDIT_FIL_UNLOAD(4);
             #if EXTRUDERS > 4
-              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E5, &fc_settings[4].unload_length, 0, extrude_maxlength);
+              EDIT_FIL_UNLOAD(5);
               #if EXTRUDERS > 5
-                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_UNLOAD MSG_DIAM_E6, &fc_settings[5].unload_length, 0, extrude_maxlength);
+                EDIT_FIL_UNLOAD(6);
               #endif // EXTRUDERS > 5
             #endif // EXTRUDERS > 4
           #endif // EXTRUDERS > 3
@@ -158,17 +161,18 @@
       #if EXTRUDERS == 1
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &fc_settings[0].load_length, 0, extrude_maxlength);
       #else // EXTRUDERS > 1
+        #define EDIT_FIL_LOAD(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E##N, &fc_settings[N-1].load_length, 0, extrude_maxlength)
         MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E1, &fc_settings[0].load_length, 0, extrude_maxlength);
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E2, &fc_settings[1].load_length, 0, extrude_maxlength);
+        EDIT_FIL_LOAD(1);
+        EDIT_FIL_LOAD(2);
         #if EXTRUDERS > 2
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E3, &fc_settings[2].load_length, 0, extrude_maxlength);
+          EDIT_FIL_LOAD(3);
           #if EXTRUDERS > 3
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E4, &fc_settings[3].load_length, 0, extrude_maxlength);
+            EDIT_FIL_LOAD(4);
             #if EXTRUDERS > 4
-              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E5, &fc_settings[4].load_length, 0, extrude_maxlength);
+              EDIT_FIL_LOAD(5);
               #if EXTRUDERS > 5
-                MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_FILAMENT_LOAD MSG_DIAM_E6, &fc_settings[5].load_length, 0, extrude_maxlength);
+                EDIT_FIL_LOAD(6);
               #endif // EXTRUDERS > 5
             #endif // EXTRUDERS > 4
           #endif // EXTRUDERS > 3
@@ -388,22 +392,24 @@ void menu_advanced_temperature() {
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
     // M203 Max Feedrate
-    MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_A, &planner.settings.max_feedrate_mm_s[A_AXIS], 1, 999);
-    MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_B, &planner.settings.max_feedrate_mm_s[B_AXIS], 1, 999);
-    MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_C, &planner.settings.max_feedrate_mm_s[C_AXIS], 1, 999);
+    #define EDIT_VMAX(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_A, &planner.settings.max_feedrate_mm_s[A_AXIS], 1, 999)
+    EDIT_VMAX(A);
+    EDIT_VMAX(B);
+    EDIT_VMAX(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS + active_extruder], 1, 999);
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E1, &planner.settings.max_feedrate_mm_s[E_AXIS], 1, 999);
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E2, &planner.settings.max_feedrate_mm_s[E_AXIS + 1], 1, 999);
+      #define EDIT_VMAX_E(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E##N, &planner.settings.max_feedrate_mm_s[E_AXIS_N(N-1)], 1, 999)
+      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, 999);
+      EDIT_VMAX_E(1);
+      EDIT_VMAX_E(2);
       #if E_STEPPERS > 2
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E3, &planner.settings.max_feedrate_mm_s[E_AXIS + 2], 1, 999);
+        EDIT_VMAX_E(3);
         #if E_STEPPERS > 3
-          MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E4, &planner.settings.max_feedrate_mm_s[E_AXIS + 3], 1, 999);
+          EDIT_VMAX_E(4);
           #if E_STEPPERS > 4
-            MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E5, &planner.settings.max_feedrate_mm_s[E_AXIS + 4], 1, 999);
+            EDIT_VMAX_E(5);
             #if E_STEPPERS > 5
-              MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_E6, &planner.settings.max_feedrate_mm_s[E_AXIS + 5], 1, 999);
+              EDIT_VMAX_E(6);
             #endif // E_STEPPERS > 5
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
@@ -436,22 +442,24 @@ void menu_advanced_temperature() {
     MENU_MULTIPLIER_ITEM_EDIT(float5, MSG_A_TRAVEL, &planner.settings.travel_acceleration, 100, 99000);
 
     // M201 settings
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_A, &planner.settings.max_acceleration_mm_per_s2[A_AXIS], 100, 99000, _reset_acceleration_rates);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_B, &planner.settings.max_acceleration_mm_per_s2[B_AXIS], 100, 99000, _reset_acceleration_rates);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_C, &planner.settings.max_acceleration_mm_per_s2[C_AXIS], 10, 99000, _reset_acceleration_rates);
+    #define EDIT_AMAX(Q,L) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_##Q, &planner.settings.max_acceleration_mm_per_s2[_AXIS(Q)], L, 99000, _reset_acceleration_rates)
+    EDIT_AMAX(A,100);
+    EDIT_AMAX(B,100);
+    EDIT_AMAX(C, 10);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + active_extruder], 100, 99000, _reset_acceleration_rates);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E1, &planner.settings.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_e0_acceleration_rate);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E2, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 1], 100, 99000, _reset_e1_acceleration_rate);
+      #define EDIT_AMAX_E(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E##N, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(E)], 100, 99000, _reset_e##E##_acceleration_rate)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, 99000, _reset_acceleration_rates);
+      EDIT_AMAX_E(1,0);
+      EDIT_AMAX_E(2,1);
       #if E_STEPPERS > 2
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E3, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 2], 100, 99000, _reset_e2_acceleration_rate);
+        EDIT_AMAX_E(3,2);
         #if E_STEPPERS > 3
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E4, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 3], 100, 99000, _reset_e3_acceleration_rate);
+          EDIT_AMAX_E(4,3);
           #if E_STEPPERS > 4
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E5, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 4], 100, 99000, _reset_e4_acceleration_rate);
+            EDIT_AMAX_E(5,4);
             #if E_STEPPERS > 5
-              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E6, &planner.settings.max_acceleration_mm_per_s2[E_AXIS + 5], 100, 99000, _reset_e5_acceleration_rate);
+              EDIT_AMAX_E(6,5);
             #endif // E_STEPPERS > 5
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
@@ -476,15 +484,16 @@ void menu_advanced_temperature() {
       #endif
     #endif
     #if HAS_CLASSIC_JERK
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VA_JERK, &planner.max_jerk[A_AXIS], 1, 990);
-      MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VB_JERK, &planner.max_jerk[B_AXIS], 1, 990);
+      #define EDIT_JERK(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_V##N##_JERK, &planner.max_jerk[_AXIS(N)], 1, 990)
+      EDIT_JERK(A);
+      EDIT_JERK(B);
       #if ENABLED(DELTA)
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 1, 990);
+        EDIT_JERK(C);
       #else
         MENU_MULTIPLIER_ITEM_EDIT(float52sign, MSG_VC_JERK, &planner.max_jerk[C_AXIS], 0.1f, 990);
       #endif
       #if DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE)
-        MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
+        EDIT_JERK(E);
       #endif
     #endif
 
@@ -496,22 +505,24 @@ void menu_advanced_temperature() {
     START_MENU();
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ASTEPS, &planner.settings.axis_steps_per_mm[A_AXIS], 5, 9999, _planner_refresh_positioning);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_BSTEPS, &planner.settings.axis_steps_per_mm[B_AXIS], 5, 9999, _planner_refresh_positioning);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_CSTEPS, &planner.settings.axis_steps_per_mm[C_AXIS], 5, 9999, _planner_refresh_positioning);
+    #define EDIT_QSTEPS(Q) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_##Q##STEPS, &planner.settings.axis_steps_per_mm[_AXIS(Q)], 5, 9999, _planner_refresh_positioning)
+    EDIT_QSTEPS(A);
+    EDIT_QSTEPS(B);
+    EDIT_QSTEPS(C);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E1STEPS, &planner.settings.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_e0_positioning);
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E2STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 1], 5, 9999, _planner_refresh_e1_positioning);
+      #define EDIT_ESTEPS(N,E) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E##N##STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(E)], 5, 9999, _planner_refresh_e##E##_positioning)
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, _planner_refresh_positioning);
+      EDIT_ESTEPS(1,0);
+      EDIT_ESTEPS(2,1);
       #if E_STEPPERS > 2
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E3STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
+        EDIT_ESTEPS(3,2);
         #if E_STEPPERS > 3
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E4STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
+          EDIT_ESTEPS(4,3);
           #if E_STEPPERS > 4
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E5STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 4], 5, 9999, _planner_refresh_e4_positioning);
+            EDIT_ESTEPS(5,4);
             #if E_STEPPERS > 5
-              MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float62, MSG_E6STEPS, &planner.settings.axis_steps_per_mm[E_AXIS + 5], 5, 9999, _planner_refresh_e5_positioning);
+              EDIT_ESTEPS(6,5);
             #endif // E_STEPPERS > 5
           #endif // E_STEPPERS > 4
         #endif // E_STEPPERS > 3
@@ -586,16 +597,17 @@ void menu_advanced_settings() {
     #if EXTRUDERS == 1
       MENU_ITEM_EDIT(float52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
     #elif EXTRUDERS > 1
-      MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E1, &planner.extruder_advance_K[0], 0, 999);
-      MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E2, &planner.extruder_advance_K[1], 0, 999);
+      #define EDIT_ADVANCE_K(N) MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E##N, &planner.extruder_advance_K[N-1], 0, 999)
+      EDIT_ADVANCE_K(1);
+      EDIT_ADVANCE_K(2);
       #if EXTRUDERS > 2
-        MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E3, &planner.extruder_advance_K[2], 0, 999);
+        EDIT_ADVANCE_K(3);
         #if EXTRUDERS > 3
-          MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E4, &planner.extruder_advance_K[3], 0, 999);
+          EDIT_ADVANCE_K(4);
           #if EXTRUDERS > 4
-            MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E5, &planner.extruder_advance_K[4], 0, 999);
+            EDIT_ADVANCE_K(5);
             #if EXTRUDERS > 5
-              MENU_ITEM_EDIT(float52, MSG_ADVANCE_K MSG_E6, &planner.extruder_advance_K[5], 0, 999);
+              EDIT_ADVANCE_K(6);
             #endif // EXTRUDERS > 5
           #endif // EXTRUDERS > 4
         #endif // EXTRUDERS > 3
