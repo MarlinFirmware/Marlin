@@ -25,6 +25,13 @@
 
 #if HAS_GRAPHICAL_LCD
 
+  #ifndef LCD_PIXEL_WIDTH
+    #define LCD_PIXEL_WIDTH 128
+  #endif
+  #ifndef LCD_PIXEL_HEIGHT
+    #define LCD_PIXEL_HEIGHT 64
+  #endif
+
   // LCD selection
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X
@@ -125,12 +132,42 @@
   #include "dogm/HAL_LCD_class_defines.h"
   extern U8G_CLASS u8g;
 
+  // DOGM font sizes
+  #define DOG_CHAR_WIDTH         6
+  #define DOG_CHAR_HEIGHT        12
+  #if ENABLED(USE_BIG_EDIT_FONT)
+    #define FONT_MENU_EDIT_NAME u8g_font_9x18
+    #define DOG_CHAR_WIDTH_EDIT  9
+    #define DOG_CHAR_HEIGHT_EDIT 18
+  #else
+    #define FONT_MENU_EDIT_NAME FONT_MENU_NAME
+    #define DOG_CHAR_WIDTH_EDIT  DOG_CHAR_WIDTH
+    #define DOG_CHAR_HEIGHT_EDIT DOG_CHAR_HEIGHT
+  #endif
+
   enum MarlinFont : uint8_t {
     FONT_STATUSMENU = 1,
     FONT_SPECIAL,
     FONT_MENU_EDIT,
     FONT_MENU,
   };
+
+  // Only Western languages support big / small fonts
+  #if DISABLED(DISPLAY_CHARSET_ISO10646_1)
+    #undef USE_BIG_EDIT_FONT
+    #undef USE_SMALL_INFOFONT
+  #endif
+
+  #if ENABLED(USE_SMALL_INFOFONT)
+    extern const u8g_fntpgm_uint8_t u8g_font_6x9[];
+    #define INFO_FONT_HEIGHT 7
+  #else
+    #define INFO_FONT_HEIGHT 8
+  #endif
+
+  // For selective rendering within a Y range
+  #define PAGE_UNDER(yb) (u8g.getU8g()->current_page.y0 <= (yb))
+  #define PAGE_CONTAINS(ya, yb) (PAGE_UNDER(yb) && u8g.getU8g()->current_page.y1 >= (ya))
 
   void lcd_setFont(const MarlinFont font_nr);
 

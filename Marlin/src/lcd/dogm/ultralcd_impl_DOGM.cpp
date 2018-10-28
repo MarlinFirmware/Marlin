@@ -37,16 +37,16 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
 
 #include "../ultralcd.h"
 
 #include <U8glib.h>
 #include "HAL_LCD_class_defines.h"
-
-#include "../fontutils.h"
 #include "u8g_fontutf8.h"
-#include "dogm_bitmaps.h"
+#include "../lcdprint.h"
+#include "../fontutils.h"
+#include "dogm_Bootscreen.h"
 
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
@@ -60,55 +60,22 @@
   #include "../../feature/bedlevel/ubl/ubl.h"
 #endif
 
-// The Marlin special symbols is now in the fontdata_ISO10646_1.h
 #define FONT_SPECIAL_NAME ISO10646_1_5x7
-
-// Only Western languages support big / small fonts
-#if DISABLED(DISPLAY_CHARSET_ISO10646_1)
-  #undef USE_BIG_EDIT_FONT
-  #undef USE_SMALL_INFOFONT
-#endif
-
+#define FONT_MENU_NAME ISO10646_1_5x7
+#include "fontdata/fontdata_ISO10646_1.h"
 #if ENABLED(USE_SMALL_INFOFONT)
   #include "fontdata/fontdata_6x9_marlin.h"
   #define FONT_STATUSMENU_NAME u8g_font_6x9
-  #define INFO_FONT_HEIGHT 7
 #else
   #define FONT_STATUSMENU_NAME FONT_MENU_NAME
-  #define INFO_FONT_HEIGHT 8
 #endif
 
-#include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
-
-#include "fontdata/fontdata_ISO10646_1.h"
-#define FONT_MENU_NAME ISO10646_1_5x7
-
-// DOGM parameters (size in pixels)
-#define DOG_CHAR_WIDTH         6
-#define DOG_CHAR_HEIGHT        12
-#if ENABLED(USE_BIG_EDIT_FONT)
-  #define FONT_MENU_EDIT_NAME u8g_font_9x18
-  #define DOG_CHAR_WIDTH_EDIT  9
-  #define DOG_CHAR_HEIGHT_EDIT 18
-#else
-  #define FONT_MENU_EDIT_NAME FONT_MENU_NAME
-  #define DOG_CHAR_WIDTH_EDIT  DOG_CHAR_WIDTH
-  #define DOG_CHAR_HEIGHT_EDIT DOG_CHAR_HEIGHT
-#endif
-
-#define START_COL              0
+#define START_COL 0
 
 U8G_CLASS u8g(U8G_PARAM);
 U8GLIB *pu8g = &u8g;
 
-#ifndef LCD_PIXEL_WIDTH
-  #define LCD_PIXEL_WIDTH 128
-#endif
-#ifndef LCD_PIXEL_HEIGHT
-  #define LCD_PIXEL_HEIGHT 64
-#endif
-
-#include "../lcdprint.h"
+#include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
 #if HAS_LCD_CONTRAST
 
@@ -120,13 +87,6 @@ U8GLIB *pu8g = &u8g;
   }
 
 #endif
-
-// The current graphical page being rendered
-u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
-
-// For selective rendering within a Y range
-#define PAGE_UNDER(yb) (u8g.getU8g()->current_page.y0 <= (yb))
-#define PAGE_CONTAINS(ya, yb) (PAGE_UNDER(yb) && u8g.getU8g()->current_page.y1 >= (ya))
 
 void lcd_setFont(const MarlinFont font_nr) {
   static char currentfont = 0;
@@ -223,8 +183,6 @@ void lcd_setFont(const MarlinFont font_nr) {
 
 #if ENABLED(LIGHTWEIGHT_UI)
   #include "status_screen_lite_ST7920.h"
-#else
-  #include "status_screen_DOGM.h"
 #endif
 
 // Initialize or re-initialize the LCD
@@ -572,6 +530,95 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
 
+    const unsigned char cw_bmp[] PROGMEM = {
+      B00000011,B11111000,B00000000,
+      B00001111,B11111110,B00000000,
+      B00011110,B00001111,B00000000,
+      B00111000,B00000111,B00000000,
+      B00111000,B00000011,B10000000,
+      B01110000,B00000011,B10000000,
+      B01110000,B00001111,B11100000,
+      B01110000,B00000111,B11000000,
+      B01110000,B00000011,B10000000,
+      B01110000,B00000001,B00000000,
+      B01110000,B00000000,B00000000,
+      B00111000,B00000000,B00000000,
+      B00111000,B00000111,B00000000,
+      B00011110,B00001111,B00000000,
+      B00001111,B11111110,B00000000,
+      B00000011,B11111000,B00000000
+    };
+
+    const unsigned char ccw_bmp[] PROGMEM = {
+      B00000000,B11111110,B00000000,
+      B00000011,B11111111,B10000000,
+      B00000111,B10000011,B11000000,
+      B00001110,B00000001,B11000000,
+      B00001110,B00000000,B11100000,
+      B00011100,B00000000,B11100000,
+      B01111111,B00000000,B11100000,
+      B00111110,B00000000,B11100000,
+      B00011100,B00000000,B11100000,
+      B00001000,B00000000,B11100000,
+      B00000000,B00000000,B11100000,
+      B00000000,B00000001,B11000000,
+      B00001110,B00000001,B11000000,
+      B00001111,B00000111,B10000000,
+      B00000111,B11111111,B00000000,
+      B00000001,B11111100,B00000000
+    };
+
+    const unsigned char up_arrow_bmp[] PROGMEM = {
+      B00000100,B00000000,
+      B00001110,B00000000,
+      B00011111,B00000000,
+      B00111111,B10000000,
+      B01111111,B11000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000
+    };
+
+    const unsigned char down_arrow_bmp[] PROGMEM = {
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B00001110,B00000000,
+      B01111111,B11000000,
+      B00111111,B10000000,
+      B00011111,B00000000,
+      B00001110,B00000000,
+      B00000100,B00000000
+    };
+
+    const unsigned char offset_bedline_bmp[] PROGMEM = {
+      B11111111,B11111111,B11111111
+    };
+
+    const unsigned char nozzle_bmp[] PROGMEM = {
+      B01111111,B10000000,
+      B11111111,B11000000,
+      B11111111,B11000000,
+      B11111111,B11000000,
+      B01111111,B10000000,
+      B01111111,B10000000,
+      B11111111,B11000000,
+      B11111111,B11000000,
+      B11111111,B11000000,
+      B00111111,B00000000,
+      B00011110,B00000000,
+      B00001100,B00000000
+    };
+
     void _lcd_zoffset_overlay_gfx(const float zvalue) {
       // Determine whether the user is raising or lowering the nozzle.
       static int8_t dir;
@@ -610,4 +657,4 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
 #endif // ULTIPANEL
 
-#endif // DOGLCD
+#endif // HAS_GRAPHICAL_LCD
