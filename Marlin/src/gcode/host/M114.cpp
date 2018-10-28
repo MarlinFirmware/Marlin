@@ -111,6 +111,7 @@
     SERIAL_PROTOCOLPGM("Differ: ");
     report_xyze(diff);
   }
+
 #endif // M114_DETAIL
   
 #if ENABLED(M114_MODE_DETAIL)
