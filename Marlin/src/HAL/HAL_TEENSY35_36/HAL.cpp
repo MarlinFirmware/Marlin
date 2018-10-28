@@ -18,7 +18,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ****************************************************************************/
 
-
 /**
  * Description: HAL for Teensy35 (MK64FX512)
  */
@@ -30,7 +29,7 @@
 
 #include <Wire.h>
 
-uint16_t HAL_adc_result;
+uint16_t HAL_adc_result, HAL_adc_select;
 
 static const uint8_t pin2sc1a[] = {
   5, 14, 8, 9, 13, 12, 6, 7, 15, 4, 3, 19+128, 14+128, 15+128, // 0-13 -> A0-A13
@@ -59,6 +58,7 @@ static const uint8_t pin2sc1a[] = {
 void HAL_adc_init() {
   analog_init();
   while (ADC0_SC3 & ADC_SC3_CAL) {}; // Wait for calibration to finish
+  while (ADC1_SC3 & ADC_SC3_CAL) {}; // Wait for calibration to finish
   NVIC_ENABLE_IRQ(IRQ_FTM1);
 }
 
@@ -91,8 +91,28 @@ extern "C" {
   }
 }
 
-void HAL_adc_start_conversion(const uint8_t adc_pin) { ADC0_SC1A = pin2sc1a[adc_pin]; }
+void HAL_adc_start_conversion(const uint8_t adc_pin) {
+  uint16_t pin = pin2sc1a[adc_pin];
+  if (pin == 0xFF) {
+    // Digital only
+    HAL_adc_select = -1;
+  }
+  else if (pin & 0x80) {
+    HAL_adc_select = 1;
+    ADC1_SC1A = pin & 0x7F;
+  }
+  else {
+    HAL_adc_select = 0;
+    ADC0_SC1A = pin;
+  }
+}
 
-uint16_t HAL_adc_get_result(void) { return ADC0_RA; }
+uint16_t HAL_adc_get_result(void) {
+  switch (HAL_adc_select) {
+    case 0: return ADC0_RA;
+    case 1: return ADC1_RA;
+  }
+  return 0;
+}
 
 #endif // __MK64FX512__ || __MK66FX1M0__

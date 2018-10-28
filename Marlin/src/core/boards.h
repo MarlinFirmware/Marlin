@@ -83,7 +83,7 @@
 #define BOARD_TRIGORILLA_13     343   // TriGorilla Anycubic version 1.3 based on RAMPS EFB
 #define BOARD_TRIGORILLA_14     443   // TriGorilla Anycubic version 1.4 based on RAMPS EFB
 #define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
-#define BOARD_GT2560_V3         76    // Geeetech A10
+#define BOARD_RAMPS_CREALITY    244   // Creality: CR10S, CR20, CR-X
 #define BOARD_FYSETC_F6_13      541   // Fysetc F6
 
 //
@@ -110,6 +110,8 @@
 #define BOARD_SCOOVO_X9H        321   // abee Scoovo X9H
 #define BOARD_GT2560_REV_A      74    // Geeetech GT2560 Rev. A
 #define BOARD_GT2560_REV_A_PLUS 75    // Geeetech GT2560 Rev. A+ (with auto level probe)
+#define BOARD_GT2560_V3         76    // Geeetech GT2560 Rev B for A10(M/D)
+#define BOARD_GT2560_V3_MC2     73    // Geeetech GT2560 Rev B for Mecreator2
 #define BOARD_EINSTART_S        666   // Einstart retrofit
 
 //
@@ -230,12 +232,14 @@
 #define BOARD_TEENSY35_36       841   // Teensy3.5 and Teensy3.6
 #define BOARD_BEAST            1802   // STM32FxxxVxT6 Libmaple based stm32f4 controller
 #define BOARD_STM32F4          1804   // STM32 STM32GENERIC based STM32F4 controller
+#define BOARD_ARMED            1807   // Arm'ed STM32F4 based controller
 
 //
 // ARM Cortex M7
 //
 
 #define BOARD_THE_BORG         1860   // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_REMRAM_V1        1862   // RemRam v1
 
 //
 // Espressif ESP32 WiFi

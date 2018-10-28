@@ -58,6 +58,11 @@ float zprobe_zoffset; // Initialized by settings.load()
   #include "../module/servo.h"
 #endif
 
+#if ENABLED(SENSORLESS_PROBING)
+  #include "stepper.h"
+  #include "../feature/tmc_util.h"
+#endif
+
 #if ENABLED(Z_PROBE_SLED)
 
   #ifndef SLED_DOCKING_OFFSET
@@ -88,10 +93,6 @@ float zprobe_zoffset; // Initialized by settings.load()
   }
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
-
-  FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s) {
-    do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
-  }
 
   void run_deploy_moves_script() {
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Z)
@@ -268,12 +269,12 @@ float zprobe_zoffset; // Initialized by settings.load()
       fans_paused = p;
       if (p)
         for (uint8_t x = 0; x < FAN_COUNT; x++) {
-          paused_fanSpeeds[x] = fanSpeeds[x];
-          fanSpeeds[x] = 0;
+          paused_fan_speed[x] = fan_speed[x];
+          fan_speed[x] = 0;
         }
       else
         for (uint8_t x = 0; x < FAN_COUNT; x++)
-          fanSpeeds[x] = paused_fanSpeeds[x];
+          fan_speed[x] = paused_fan_speed[x];
     }
   }
 
@@ -286,6 +287,12 @@ float zprobe_zoffset; // Initialized by settings.load()
     #endif
     #if ENABLED(PROBING_FANS_OFF)
       fans_pause(p);
+    #endif
+    #if ENABLED(PROBING_STEPPERS_OFF)
+      disable_e_steppers();
+      #if DISABLED(DELTA)
+        disable_X(); disable_Y();
+      #endif
     #endif
     if (p) safe_delay(
       #if DELAY_BEFORE_PROBING > 25
@@ -356,17 +363,52 @@ inline void do_probe_raise(const float z_raise) {
     do_blocking_move_to_z(z_dest);
 }
 
+FORCE_INLINE void probe_specific_action(const bool deploy) {
+  #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
+
+    BUZZ(100, 659);
+    BUZZ(100, 698);
+
+    PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
+    lcd_setstatusPGM(ds_str);
+    serialprintPGM(ds_str);
+    SERIAL_EOL();
+
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
+    wait_for_user = true;
+    while (wait_for_user) idle();
+    lcd_reset_status();
+    KEEPALIVE_STATE(IN_HANDLER);
+
+  #endif // PAUSE_BEFORE_DEPLOY_STOW
+
+  #if ENABLED(SOLENOID_PROBE)
+
+    #if HAS_SOLENOID_1
+      WRITE(SOL1_PIN, deploy);
+    #endif
+
+  #elif ENABLED(Z_PROBE_SLED)
+
+    dock_sled(!deploy);
+
+  #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
+
+    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+
+  #elif ENABLED(Z_PROBE_ALLEN_KEY)
+
+    deploy ? run_deploy_moves_script() : run_stow_moves_script();
+
+  #elif ENABLED(RACK_AND_PINION_PROBE)
+
+    do_blocking_move_to_x(deploy ? Z_PROBE_DEPLOY_X : Z_PROBE_RETRACT_X);
+
+  #endif
+}
+
 // returns false for ok and true for failure
 bool set_probe_deployed(const bool deploy) {
-
-  // Can be extended to servo probes, if needed.
-  #if ENABLED(PROBE_IS_TRIGGERED_WHEN_STOWED_TEST)
-    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-      #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
-    #else
-      #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
-    #endif
-  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -413,61 +455,24 @@ bool set_probe_deployed(const bool deploy) {
   const float oldXpos = current_position[X_AXIS],
               oldYpos = current_position[Y_AXIS];
 
-  #ifdef _TRIGGERED_WHEN_STOWED_TEST
-
-    // If endstop is already false, the Z probe is deployed
-    if (_TRIGGERED_WHEN_STOWED_TEST == deploy) {     // closed after the probe specific actions.
-                                                     // Would a goto be less ugly?
-      //while (!_TRIGGERED_WHEN_STOWED_TEST) idle(); // would offer the opportunity
-                                                     // for a triggered when stowed manual probe.
-
-      if (!deploy) endstops.enable_z_probe(false); // Switch off triggered when stowed probes early
-                                                   // otherwise an Allen-Key probe can't be stowed.
+  #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
+    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+      #define PROBE_STOWED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
+    #else
+      #define PROBE_STOWED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+    #endif
   #endif
 
-      #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
+  #ifdef PROBE_STOWED
 
-        BUZZ(100, 659);
-        BUZZ(100, 698);
+    // Only deploy/stow if needed
+    if (PROBE_STOWED() == deploy) {
+      if (!deploy) endstops.enable_z_probe(false); // Switch off triggered when stowed probes early
+                                                   // otherwise an Allen-Key probe can't be stowed.
+      probe_specific_action(deploy);
+    }
 
-        const char * const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
-        lcd_setstatusPGM(ds_str);
-        serialprintPGM(ds_str);
-        SERIAL_EOL();
-
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        wait_for_user = true;
-        while (wait_for_user) idle();
-        lcd_reset_status();
-        KEEPALIVE_STATE(IN_HANDLER);
-
-      #endif // PAUSE_BEFORE_DEPLOY_STOW
-
-      #if ENABLED(SOLENOID_PROBE)
-
-        #if HAS_SOLENOID_1
-          WRITE(SOL1_PIN, deploy);
-        #endif
-
-      #elif ENABLED(Z_PROBE_SLED)
-
-        dock_sled(!deploy);
-
-      #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
-
-        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
-
-      #elif ENABLED(Z_PROBE_ALLEN_KEY)
-
-        deploy ? run_deploy_moves_script() : run_stow_moves_script();
-
-      #endif
-
-  #ifdef _TRIGGERED_WHEN_STOWED_TEST
-    } // _TRIGGERED_WHEN_STOWED_TEST == deploy
-
-    if (_TRIGGERED_WHEN_STOWED_TEST == deploy) { // State hasn't changed?
-
+    if (PROBE_STOWED() == deploy) {                // Unchanged after deploy/stow action?
       if (IsRunning()) {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM("Z-Probe failed");
@@ -475,8 +480,11 @@ bool set_probe_deployed(const bool deploy) {
       }
       stop();
       return true;
+    }
 
-    } // _TRIGGERED_WHEN_STOWED_TEST == deploy
+  #else
+
+    probe_specific_action(deploy);
 
   #endif
 
@@ -527,24 +535,50 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (set_bltouch_deployed(true)) return true;
   #endif
 
+  // Disable stealthChop if used. Enable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_PROBING)
+    #if ENABLED(DELTA)
+      tmc_stallguard(stepperX);
+      tmc_stallguard(stepperY);
+    #endif
+    tmc_stallguard(stepperZ);
+  #endif
+
   #if QUIET_PROBING
     probing_pause(true);
   #endif
+
+  endstops.enable(true);
 
   // Move down until probe triggered
   do_blocking_move_to_z(z, fr_mm_s);
 
   // Check to see if the probe was triggered
-  const bool probe_triggered = TEST(endstops.trigger_state(),
-    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      Z_MIN
+  const bool probe_triggered =
+    #if ENABLED(DELTA) && ENABLED(SENSORLESS_PROBING)
+      endstops.trigger_state() & (_BV(X_MIN) | _BV(Y_MIN) | _BV(Z_MIN))
     #else
-      Z_MIN_PROBE
+      TEST(endstops.trigger_state(),
+        #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+          Z_MIN
+        #else
+          Z_MIN_PROBE
+        #endif
+      )
     #endif
-  );
+  ;
 
   #if QUIET_PROBING
     probing_pause(false);
+  #endif
+
+  // Re-enable stealthChop if used. Disable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_PROBING)
+    #if ENABLED(DELTA)
+      tmc_stallguard(stepperX, false);
+      tmc_stallguard(stepperY, false);
+    #endif
+    tmc_stallguard(stepperZ, false);
   #endif
 
   // Retract BLTouch immediately after a probe if it was triggered
@@ -552,6 +586,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (probe_triggered && set_bltouch_deployed(false)) return true;
   #endif
 
+  // Clear endstop flags
   endstops.hit_on_purpose();
 
   // Get Z where the steppers were interrupted
@@ -606,13 +641,11 @@ static float run_z_probe() {
     // move up to make clearance for the probe
     do_blocking_move_to_z(current_position[Z_AXIS] + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
-  #else
+  #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
 
     // If the nozzle is well over the travel height then
     // move down quickly before doing the slow probe
-    float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0;
-    if (zprobe_zoffset < 0) z -= zprobe_zoffset;
-
+    const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (zprobe_zoffset < 0 ? -zprobe_zoffset : 0);
     if (current_position[Z_AXIS] > z) {
       // If we don't make it to the z position (i.e. the probe triggered), move up to make clearance for the probe
       if (!do_probe_move(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))

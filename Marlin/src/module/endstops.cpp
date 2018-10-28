@@ -36,6 +36,10 @@
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
 
+#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
+  #include "../module/printcounter.h" // for print_job_timer
+#endif
+
 Endstops endstops;
 
 // public:
@@ -274,17 +278,15 @@ void Endstops::enable(const bool onoff) {
 void Endstops::not_homing() {
   enabled = enabled_globally;
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    // Still 'enabled'? Then endstops are always on and kept in sync.
-    // Otherwise reset 'live's variables to let axes move in both directions.
-    if (!enabled) {
-      #if ENDSTOP_NOISE_THRESHOLD
-        endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
-        validated_live_state = 0;
-      #endif
-      live_state = 0;
-    }
-  #endif
+  // Still 'enabled'? Then endstops are always on and kept in sync.
+  // Otherwise reset 'live's variables to let axes move in both directions.
+  if (!enabled) {
+    #if ENDSTOP_NOISE_THRESHOLD
+      endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
+      validated_live_state = 0;
+    #endif
+    live_state = 0;
+  }
 }
 
 #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
@@ -359,14 +361,15 @@ void Endstops::event_handler() {
         card.sdprinting = false;
         card.closefile();
         quickstop_stepper();
-        thermalManager.disable_all_heaters(); // switch off all heaters.
+        thermalManager.disable_all_heaters();
+        print_job_timer.stop();
       }
     #endif
   }
   prev_hit_state = hit_state;
 } // Endstops::report_state
 
-static void print_es_state(const bool is_hit, const char * const label=NULL) {
+static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
   if (label) serialprintPGM(label);
   SERIAL_PROTOCOLPGM(": ");
   serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN));
@@ -422,42 +425,26 @@ void _O2 Endstops::M119() {
     print_es_state(READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING, PSTR(MSG_Z_PROBE));
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    #define FRS_COUNT (1 + PIN_EXISTS(FIL_RUNOUT2) + PIN_EXISTS(FIL_RUNOUT3) + PIN_EXISTS(FIL_RUNOUT4) + PIN_EXISTS(FIL_RUNOUT5) + PIN_EXISTS(FIL_RUNOUT6))
-    #if FRS_COUNT == 1
-      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING, MSG_FILAMENT_RUNOUT_SENSOR);
+    #if NUM_RUNOUT_SENSORS == 1
+      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING, PSTR(MSG_FILAMENT_RUNOUT_SENSOR));
     #else
-      for (uint8_t i = 1; i <=
-        #if   FRS_COUNT == 6
-          6
-        #elif FRS_COUNT == 5
-          5
-        #elif FRS_COUNT == 4
-          4
-        #elif FRS_COUNT == 3
-          3
-        #elif FRS_COUNT == 2
-          2
-        #endif
-        ; i++
-      ) {
+      for (uint8_t i = 1; i <= NUM_RUNOUT_SENSORS; i++) {
         pin_t pin;
         switch (i) {
           default: continue;
           case 1: pin = FIL_RUNOUT_PIN; break;
-          #if PIN_EXISTS(FIL_RUNOUT2)
-            case 2: pin = FIL_RUNOUT2_PIN; break;
-          #endif
-          #if PIN_EXISTS(FIL_RUNOUT3)
+          case 2: pin = FIL_RUNOUT2_PIN; break;
+          #if NUM_RUNOUT_SENSORS > 2
             case 3: pin = FIL_RUNOUT3_PIN; break;
-          #endif
-          #if PIN_EXISTS(FIL_RUNOUT4)
-            case 4: pin = FIL_RUNOUT4_PIN; break;
-          #endif
-          #if PIN_EXISTS(FIL_RUNOUT5)
-            case 5: pin = FIL_RUNOUT5_PIN; break;
-          #endif
-          #if PIN_EXISTS(FIL_RUNOUT6)
-            case 6: pin = FIL_RUNOUT6_PIN; break;
+            #if NUM_RUNOUT_SENSORS > 3
+              case 4: pin = FIL_RUNOUT4_PIN; break;
+              #if NUM_RUNOUT_SENSORS > 4
+                case 5: pin = FIL_RUNOUT5_PIN; break;
+                #if NUM_RUNOUT_SENSORS > 5
+                  case 6: pin = FIL_RUNOUT6_PIN; break;
+                #endif
+              #endif
+            #endif
           #endif
         }
         SERIAL_PROTOCOLPGM(MSG_FILAMENT_RUNOUT_SENSOR);

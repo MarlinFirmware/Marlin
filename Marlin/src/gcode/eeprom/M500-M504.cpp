@@ -25,6 +25,10 @@
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extensible_ui/ui_api.h"
+#endif
+
 #if NUM_SERIAL > 1
   #include "../../gcode/queue.h"
 #endif
@@ -40,6 +44,9 @@
  */
 void GcodeSuite::M500() {
   (void)settings.save(CHAT_PORT);
+  #if ENABLED(EXTENSIBLE_UI)
+    UI::onStoreSettings();
+  #endif
 }
 
 /**
@@ -51,6 +58,9 @@ void GcodeSuite::M501() {
       CHAT_PORT
     #endif
   );
+  #if ENABLED(EXTENSIBLE_UI)
+    UI::onLoadSettings();
+  #endif
 }
 
 /**
@@ -58,6 +68,9 @@ void GcodeSuite::M501() {
  */
 void GcodeSuite::M502() {
   (void)settings.reset(CHAT_PORT);
+  #if ENABLED(EXTENSIBLE_UI)
+    UI::onFactoryReset();
+  #endif
 }
 
 #if DISABLED(DISABLE_M503)

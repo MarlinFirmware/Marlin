@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
+#pragma once
 
 // use this file to create the public interface for device drivers that are NOT in the U8G library
 
@@ -36,7 +36,6 @@ class U8GLIB_64128N_2X_HAL : public U8GLIB
       { }
 };
 
-
 extern u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_sw_spi;
 extern u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_hw_spi;
 class U8GLIB_ST7920_128X64_4X_HAL : public U8GLIB
@@ -50,7 +49,6 @@ class U8GLIB_ST7920_128X64_4X_HAL : public U8GLIB
       { }
 };
 
-
 // AVR version uses ultralcd_st7920_u8glib_rrd_AVR.cpp, HAL version uses u8g_dev_st7920_128x64_HAL.cpp
 extern u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi;
 class U8GLIB_ST7920_128X64_RRD : public U8GLIB
@@ -61,7 +59,6 @@ class U8GLIB_ST7920_128X64_RRD : public U8GLIB
       { }
 };
 
-
 extern u8g_dev_t u8g_dev_sh1106_128x64_2x_i2c_2_wire;
 class U8GLIB_SH1106_128X64_2X_I2C_2_WIRE : public U8GLIB {
   public:
@@ -69,8 +66,6 @@ class U8GLIB_SH1106_128X64_2X_I2C_2_WIRE : public U8GLIB {
     : U8GLIB(&u8g_dev_sh1106_128x64_2x_i2c_2_wire, options)
     {  }
 };
-
-
 
 extern u8g_dev_t u8g_dev_ssd1306_128x64_2x_i2c_2_wire;
 class U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE : public U8GLIB {

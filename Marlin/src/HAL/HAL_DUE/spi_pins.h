@@ -48,9 +48,15 @@
 #else
   // defaults
   #define DUE_SOFTWARE_SPI
-  #define SCK_PIN           52
-  #define MISO_PIN          50
-  #define MOSI_PIN          51
+  #ifndef SCK_PIN
+    #define SCK_PIN           52
+  #endif
+  #ifndef MISO_PIN
+    #define MISO_PIN          50
+  #endif
+  #ifndef MOSI_PIN
+    #define MOSI_PIN          51
+  #endif
 #endif
 
 /* A.28, A.29, B.21, C.26, C.29 */

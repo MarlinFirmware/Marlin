@@ -33,7 +33,7 @@
  * Report driver currents when no axis specified
  */
 void GcodeSuite::M906() {
-  #define TMC_SAY_CURRENT(Q) tmc_get_current(stepper##Q, TMC_##Q)
+  #define TMC_SAY_CURRENT(Q) tmc_get_current(stepper##Q)
   #define TMC_SET_CURRENT(Q) tmc_set_current(stepper##Q, value)
 
   bool report = true;

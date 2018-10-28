@@ -20,7 +20,7 @@
  *
  */
 
-#if defined(STM32F4) || defined(STM32F4xx)
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
 
 // --------------------------------------------------------------------------
 // Includes
@@ -91,7 +91,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
           TimerHandle[timer_num].irqHandle = TC5_Handler;
           TimerHandleInit(&TimerHandle[timer_num], (((HAL_TIMER_RATE) / step_prescaler) / frequency) - 1, step_prescaler);
         #endif
-        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_ID, 6, 0);
+        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_ID, 1, 0);
         break;
 
       case TEMP_TIMER_NUM:

@@ -33,6 +33,8 @@
 
 #include "SdFile.h"
 
+enum LsAction : uint8_t { LS_SerialPrint, LS_Count, LS_GetFilename };
+
 class CardReader {
 public:
   CardReader();
@@ -147,7 +149,7 @@ public:
   FORCE_INLINE char* longest_filename() { return longFilename[0] ? longFilename : filename; }
 
 public:
-  bool saving, logging, sdprinting, cardOK, filenameIsDir;
+  bool saving, logging, sdprinting, cardOK, filenameIsDir, abort_sd_printing;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   int8_t autostart_index;
 private:
@@ -241,15 +243,17 @@ private:
   #endif
 };
 
-#if PIN_EXISTS(SD_DETECT)
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #define IS_SD_INSERTED() Sd2Card::isInserted()
+#elif PIN_EXISTS(SD_DETECT)
   #if ENABLED(SD_DETECT_INVERTED)
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == HIGH)
+    #define IS_SD_INSERTED()  READ(SD_DETECT_PIN)
   #else
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == LOW)
+    #define IS_SD_INSERTED() !READ(SD_DETECT_PIN)
   #endif
 #else
   // No card detect line? Assume the card is inserted.
-  #define IS_SD_INSERTED true
+  #define IS_SD_INSERTED() true
 #endif
 
 extern CardReader card;
@@ -257,11 +261,11 @@ extern CardReader card;
 #endif // SDSUPPORT
 
 #if ENABLED(SDSUPPORT)
-  #define IS_SD_PRINTING (card.sdprinting)
-  #define IS_SD_FILE_OPEN (card.isFileOpen())
+  #define IS_SD_PRINTING()  card.sdprinting
+  #define IS_SD_FILE_OPEN() card.isFileOpen()
 #else
-  #define IS_SD_PRINTING (false)
-  #define IS_SD_FILE_OPEN (false)
+  #define IS_SD_PRINTING()  false
+  #define IS_SD_FILE_OPEN() false
 #endif
 
 #endif // _CARDREADER_H_

@@ -37,22 +37,47 @@
 
 extern float destination[XYZE];
 
-#if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define G0_G1_CONDITION !axis_unhomed_error(parser.seen('X'), parser.seen('Y'), parser.seen('Z'))
-#else
-  #define G0_G1_CONDITION true
+#if ENABLED(VARIABLE_G0_FEEDRATE)
+  float saved_g0_feedrate_mm_s = MMM_TO_MMS(G0_FEEDRATE);
 #endif
 
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
 void GcodeSuite::G0_G1(
-  #if IS_SCARA
+  #if IS_SCARA || defined(G0_FEEDRATE)
     bool fast_move/*=false*/
   #endif
 ) {
-  if (IsRunning() && G0_G1_CONDITION) {
+
+  if (IsRunning()
+    #if ENABLED(NO_MOTION_BEFORE_HOMING)
+      && !axis_unhomed_error(parser.seen('X'), parser.seen('Y'), parser.seen('Z'))
+    #endif
+  ) {
+
+    #ifdef G0_FEEDRATE
+      float saved_feedrate_mm_s;
+      #if ENABLED(VARIABLE_G0_FEEDRATE)
+        if (fast_move) {
+          saved_feedrate_mm_s = feedrate_mm_s;      // Back up the (old) motion mode feedrate
+          feedrate_mm_s = saved_g0_feedrate_mm_s;   // Get G0 feedrate from last usage
+        }
+      #endif
+    #endif
+
     get_destination_from_command(); // For X Y Z E F
+
+    #ifdef G0_FEEDRATE
+      if (fast_move) {
+        #if ENABLED(VARIABLE_G0_FEEDRATE)
+          saved_g0_feedrate_mm_s = feedrate_mm_s;   // Save feedrate for the next G0
+        #else
+          saved_feedrate_mm_s = feedrate_mm_s;      // Back up the (new) motion mode feedrate
+          feedrate_mm_s = MMM_TO_MMS(G0_FEEDRATE);  // Get the fixed G0 feedrate
+        #endif
+      }
+    #endif
 
     #if ENABLED(FWRETRACT) && ENABLED(FWRETRACT_AUTORETRACT)
 
@@ -75,6 +100,11 @@ void GcodeSuite::G0_G1(
       fast_move ? prepare_uninterpolated_move_to_destination() : prepare_move_to_destination();
     #else
       prepare_move_to_destination();
+    #endif
+
+    #ifdef G0_FEEDRATE
+      // Restore the motion mode feedrate
+      if (fast_move) feedrate_mm_s = saved_feedrate_mm_s;
     #endif
 
     #if ENABLED(NANODLP_Z_SYNC)

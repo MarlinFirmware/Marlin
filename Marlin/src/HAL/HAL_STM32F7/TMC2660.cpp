@@ -94,7 +94,7 @@
 #define STALL_GUARD_CONFIG_PATTERN 0x17F00ul
 #define STALL_GUARD_VALUE_PATTERN 0x7F00ul
 
-//definitions for the input from the TCM260
+//definitions for the input from the TMC2660
 #define STATUS_STALL_GUARD_STATUS 0x1ul
 #define STATUS_OVER_TEMPERATURE_SHUTDOWN 0x2ul
 #define STATUS_OVER_TEMPERATURE_WARNING 0x4ul
@@ -190,7 +190,7 @@ void TMC26XStepper::start() {
   pinMode(step_pin, OUTPUT);
   pinMode(dir_pin, OUTPUT);
   pinMode(cs_pin, OUTPUT);
-  //pinMode(STEPPER_ENABLE_PIN, OUTPUT);
+  //SET_OUTPUT(STEPPER_ENABLE_PIN);
   digitalWrite(step_pin, LOW);
   digitalWrite(dir_pin, LOW);
   digitalWrite(cs_pin, HIGH);
@@ -887,7 +887,7 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   //}
 
   //select the TMC driver
-  digitalWrite(cs_pin,LOW);
+  digitalWrite(cs_pin, LOW);
 
   //ensure that only valid bist are set (0-19)
   //datagram &=REGISTER_BIT_PATTERN;
@@ -916,7 +916,7 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   #endif
 
   //deselect the TMC chip
-  digitalWrite(cs_pin,HIGH);
+  digitalWrite(cs_pin, HIGH);
 
   //restore the previous SPI mode if neccessary
   //if the mode is not correct set it to mode 3

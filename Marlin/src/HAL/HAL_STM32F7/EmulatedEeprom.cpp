@@ -94,7 +94,7 @@ void eeprom_init() {
   }
 }
 
-void eeprom_write_byte(unsigned char *pos, unsigned char value) {
+void eeprom_write_byte(uint8_t *pos, unsigned char value) {
   uint16_t eeprom_address = (unsigned) pos;
 
   eeprom_init();
@@ -108,7 +108,7 @@ void eeprom_write_byte(unsigned char *pos, unsigned char value) {
   HAL_FLASH_Lock();
 }
 
-unsigned char eeprom_read_byte(unsigned char *pos) {
+uint8_t eeprom_read_byte(uint8_t *pos) {
   uint16_t data = 0xFF;
   uint16_t eeprom_address = (unsigned)pos;
 

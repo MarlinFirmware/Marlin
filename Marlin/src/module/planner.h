@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * planner.h
@@ -28,9 +29,6 @@
  * Derived from Grbl
  * Copyright (c) 2009-2011 Simen Svale Skogsrud
  */
-
-#ifndef PLANNER_H
-#define PLANNER_H
 
 #include "../Marlin.h"
 
@@ -47,6 +45,10 @@
 
 #if ENABLED(FWRETRACT)
   #include "../feature/fwretract.h"
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../feature/mixing.h"
 #endif
 
 enum BlockFlagBit : char {
@@ -81,7 +83,7 @@ enum BlockFlag : char {
  * The "nominal" values are as-specified by gcode, and
  * may never actually be reached due to acceleration limits.
  */
-typedef struct {
+typedef struct block_t {
 
   volatile uint8_t flag;                    // Block flags (See BlockFlag enum above) - Modified by ISR and main thread!
 
@@ -106,11 +108,13 @@ typedef struct {
   uint32_t step_event_count;                // The number of step events required to complete this block
 
   #if EXTRUDERS > 1
-    uint8_t active_extruder;                // The extruder to move (if E move)
+    uint8_t extruder;                       // The extruder to move (if E move)
+  #else
+    static constexpr uint8_t extruder = 0;
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
-    uint32_t mix_steps[MIXING_STEPPERS];    // Scaled steps[E_AXIS] for the mixing steppers
+    MIXER_BLOCK_DEFINITION;                 // Normalized color for the mixing steppers
   #endif
 
   // Settings for the trapezoid generator
@@ -144,7 +148,7 @@ typedef struct {
            acceleration_steps_per_s2;       // acceleration steps/sec^2
 
   #if FAN_COUNT > 0
-    uint16_t fan_speed[FAN_COUNT];
+    uint8_t fan_speed[FAN_COUNT];
   #endif
 
   #if ENABLED(BARICUDA)
@@ -158,6 +162,42 @@ typedef struct {
 #define HAS_POSITION_FLOAT (ENABLED(LIN_ADVANCE) || ENABLED(SCARA_FEEDRATE_SCALING))
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
+
+typedef struct {
+  uint32_t max_acceleration_mm_per_s2[XYZE_N],  // (mm/s^2) M201 XYZE
+           min_segment_time_us;                 // (µs) M205 B
+  float axis_steps_per_mm[XYZE_N],              // (steps) M92 XYZE - Steps per millimeter
+        max_feedrate_mm_s[XYZE_N],              // (mm/s) M203 XYZE - Max speeds
+        acceleration,                           // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
+        retract_acceleration,                   // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
+        travel_acceleration,                    // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
+        min_feedrate_mm_s,                      // (mm/s) M205 S - Minimum linear feedrate
+        min_travel_feedrate_mm_s;               // (mm/s) M205 T - Minimum travel feedrate
+} planner_settings_t;
+
+#ifndef XY_SKEW_FACTOR
+  #define XY_SKEW_FACTOR 0
+#endif
+#ifndef XZ_SKEW_FACTOR
+  #define XZ_SKEW_FACTOR 0
+#endif
+#ifndef YZ_SKEW_FACTOR
+  #define YZ_SKEW_FACTOR 0
+#endif
+
+typedef struct {
+  #if ENABLED(SKEW_CORRECTION_GCODE)
+    float xy;
+    #if ENABLED(SKEW_CORRECTION_FOR_Z)
+      float xz, yz;
+    #else
+      const float xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
+    #endif
+  #else
+    const float xy = XY_SKEW_FACTOR,
+                xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
+  #endif
+} skew_factor_t;
 
 class Planner {
   public:
@@ -199,17 +239,10 @@ class Planner {
                                                       // May be auto-adjusted by a filament width sensor
     #endif
 
-    static uint32_t max_acceleration_mm_per_s2[XYZE_N],    // (mm/s^2) M201 XYZE
-                    max_acceleration_steps_per_s2[XYZE_N], // (steps/s^2) Derived from mm_per_s2
-                    min_segment_time_us;                   // (µs) M205 B
-    static float max_feedrate_mm_s[XYZE_N],     // (mm/s) M203 XYZE - Max speeds
-                 axis_steps_per_mm[XYZE_N],     // (steps) M92 XYZE - Steps per millimeter
-                 steps_to_mm[XYZE_N],           // (mm) Millimeters per step
-                 min_feedrate_mm_s,             // (mm/s) M205 S - Minimum linear feedrate
-                 acceleration,                  // (mm/s^2) M204 S - Normal acceleration. DEFAULT ACCELERATION for all printing moves.
-                 retract_acceleration,          // (mm/s^2) M204 R - Retract acceleration. Filament pull-back and push-forward while standing still in the other axes
-                 travel_acceleration,           // (mm/s^2) M204 T - Travel acceleration. DEFAULT ACCELERATION for all NON printing moves.
-                 min_travel_feedrate_mm_s;      // (mm/s) M205 T - Minimum travel feedrate
+    static planner_settings_t settings;
+
+    static uint32_t max_acceleration_steps_per_s2[XYZE_N]; // (steps/s^2) Derived from mm_per_s2
+    static float steps_to_mm[XYZE_N];           // Millimeters per step
 
     #if ENABLED(JUNCTION_DEVIATION)
       static float junction_deviation_mm;       // (mm) M205 J
@@ -256,22 +289,7 @@ class Planner {
       static float position_cart[XYZE];
     #endif
 
-    #if ENABLED(SKEW_CORRECTION)
-      #if ENABLED(SKEW_CORRECTION_GCODE)
-        static float xy_skew_factor;
-      #else
-        static constexpr float xy_skew_factor = XY_SKEW_FACTOR;
-      #endif
-      #if ENABLED(SKEW_CORRECTION_FOR_Z)
-        #if ENABLED(SKEW_CORRECTION_GCODE)
-          static float xz_skew_factor, yz_skew_factor;
-        #else
-          static constexpr float xz_skew_factor = XZ_SKEW_FACTOR, yz_skew_factor = YZ_SKEW_FACTOR;
-        #endif
-      #else
-        static constexpr float xz_skew_factor = 0, yz_skew_factor = 0;
-      #endif
-    #endif
+    static skew_factor_t skew_factor;
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
       static bool abort_on_endstop_hit;
@@ -419,8 +437,8 @@ class Planner {
 
       FORCE_INLINE static void skew(float &cx, float &cy, const float &cz) {
         if (WITHIN(cx, X_MIN_POS + 1, X_MAX_POS) && WITHIN(cy, Y_MIN_POS + 1, Y_MAX_POS)) {
-          const float sx = cx - cy * xy_skew_factor - cz * (xz_skew_factor - (xy_skew_factor * yz_skew_factor)),
-                      sy = cy - cz * yz_skew_factor;
+          const float sx = cx - cy * skew_factor.xy - cz * (skew_factor.xz - (skew_factor.xy * skew_factor.yz)),
+                      sy = cy - cz * skew_factor.yz;
           if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
             cx = sx; cy = sy;
           }
@@ -431,8 +449,8 @@ class Planner {
 
       FORCE_INLINE static void unskew(float &cx, float &cy, const float &cz) {
         if (WITHIN(cx, X_MIN_POS, X_MAX_POS) && WITHIN(cy, Y_MIN_POS, Y_MAX_POS)) {
-          const float sx = cx + cy * xy_skew_factor + cz * xz_skew_factor,
-                      sy = cy + cz * yz_skew_factor;
+          const float sx = cx + cy * skew_factor.xy + cz * skew_factor.xz,
+                      sy = cy + cz * skew_factor.yz;
           if (WITHIN(sx, X_MIN_POS, X_MAX_POS) && WITHIN(sy, Y_MIN_POS, Y_MAX_POS)) {
             cx = sx; cy = sy;
           }
@@ -848,9 +866,9 @@ class Planner {
         #define GET_MAX_E_JERK(N) SQRT(SQRT(0.5) * junction_deviation_mm * (N) * RECIPROCAL(1.0 - SQRT(0.5)))
         #if ENABLED(DISTINCT_E_FACTORS)
           for (uint8_t i = 0; i < EXTRUDERS; i++)
-            max_e_jerk[i] = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS + i]);
+            max_e_jerk[i] = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS + i]);
         #else
-          max_e_jerk = GET_MAX_E_JERK(max_acceleration_mm_per_s2[E_AXIS]);
+          max_e_jerk = GET_MAX_E_JERK(settings.max_acceleration_mm_per_s2[E_AXIS]);
         #endif
       }
     #endif
@@ -927,15 +945,13 @@ class Planner {
       FORCE_INLINE static float limit_value_by_axis_maximum(const float &max_value, float (&unit_vec)[XYZE]) {
         float limit_value = max_value;
         LOOP_XYZE(idx) if (unit_vec[idx]) // Avoid divide by zero
-          NOMORE(limit_value, ABS(max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
+          NOMORE(limit_value, ABS(settings.max_acceleration_mm_per_s2[idx] / unit_vec[idx]));
         return limit_value;
       }
 
     #endif // JUNCTION_DEVIATION
 };
 
-#define PLANNER_XY_FEEDRATE() (MIN(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
+#define PLANNER_XY_FEEDRATE() (MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]))
 
 extern Planner planner;
-
-#endif // PLANNER_H

@@ -19,16 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * power_loss_recovery.h - Resume an SD print after power-loss
  */
 
-#ifndef _POWER_LOSS_RECOVERY_H_
-#define _POWER_LOSS_RECOVERY_H_
-
 #include "../sd/cardreader.h"
-#include "../core/types.h"
+#include "../core/millis_t.h"
 #include "../inc/MarlinConfigPre.h"
 
 #define SAVE_INFO_INTERVAL_MS 0
@@ -52,7 +50,7 @@ typedef struct {
   #endif
 
   #if FAN_COUNT
-    int16_t fanSpeeds[FAN_COUNT];
+    uint8_t fan_speed[FAN_COUNT];
   #endif
 
   #if HAS_LEVELING
@@ -99,5 +97,3 @@ extern uint8_t job_recovery_commands_count;
 
 void check_print_job_recovery();
 void save_job_recovery_info();
-
-#endif // _POWER_LOSS_RECOVERY_H_
