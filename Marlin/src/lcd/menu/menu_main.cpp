@@ -75,7 +75,7 @@ void menu_tune();
 void menu_motion();
 void menu_temperature();
 void menu_configuration();
-void _menu_user();
+void menu_user();
 void menu_temp_e0_filament_change();
 void menu_change_filament();
 void menu_info();
@@ -120,7 +120,7 @@ void menu_main() {
   MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);
 
   #if ENABLED(CUSTOM_USER_MENUS)
-    MENU_ITEM(submenu, MSG_USER_MENU, _menu_user);
+    MENU_ITEM(submenu, MSG_USER_MENU, menu_user);
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
