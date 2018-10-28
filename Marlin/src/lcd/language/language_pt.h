@@ -161,7 +161,7 @@
 #define MSG_AUTORETRACT                     _UxGT(" AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Trocar filamento")
 #define MSG_INIT_SDCARD                     _UxGT("Inici. cartão SD")
-#define MSG_CNG_SDCARD                      _UxGT("Trocar cartão SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Trocar cartão SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sensor fora/base")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("first")

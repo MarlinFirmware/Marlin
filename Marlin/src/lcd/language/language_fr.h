@@ -272,7 +272,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("Décharger fil.")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Décharger tout")
 #define MSG_INIT_SDCARD                     _UxGT("Init. la carte SD")
-#define MSG_CNG_SDCARD                      _UxGT("Changer de carte")
+#define MSG_CHANGE_SDCARD                   _UxGT("Changer de carte")
 #define MSG_ZPROBE_OUT                      _UxGT("Z sonde hors lit")
 #define MSG_SKEW_FACTOR                     _UxGT("Facteur écart")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")

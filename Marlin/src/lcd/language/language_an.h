@@ -165,7 +165,7 @@
 #define MSG_AUTORETRACT                     _UxGT("Retraccion auto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambear filamento")
 #define MSG_INIT_SDCARD                     _UxGT("Encetan. tarcheta")
-#define MSG_CNG_SDCARD                      _UxGT("Cambiar tarcheta")
+#define MSG_CHANGE_SDCARD                   _UxGT("Cambiar tarcheta")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z fuera")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Auto-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")

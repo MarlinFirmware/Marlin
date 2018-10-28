@@ -274,7 +274,7 @@
 #define MSG_AUTORETRACT                     _UxGT("Retração Automática")
 #define MSG_FILAMENTCHANGE                  _UxGT("Trocar Filamento")
 #define MSG_INIT_SDCARD                     _UxGT("Iniciar SD")
-#define MSG_CNG_SDCARD                      _UxGT("Trocar SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Trocar SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda fora da mesa")
 #define MSG_SKEW_FACTOR                     _UxGT("Fator de Cisalho")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")

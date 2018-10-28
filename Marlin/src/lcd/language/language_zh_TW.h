@@ -270,7 +270,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("卸載絲料") // "Unload filament"
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("卸載全部") // "Unload All"
 #define MSG_INIT_SDCARD                     _UxGT("初始化記憶卡")  //"Init. SD card"
-#define MSG_CNG_SDCARD                      _UxGT("更換記憶卡")  //"Change SD card"
+#define MSG_CHANGE_SDCARD                   _UxGT("更換記憶卡")  //"Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Z探針在熱床之外")  //"Z probe out. bed" Z probe is not within the physical limits
 #define MSG_SKEW_FACTOR                     _UxGT("偏斜因數") // "Skew Factor"
 #define MSG_BLTOUCH                         _UxGT("BLTouch")     // "BLTouch"

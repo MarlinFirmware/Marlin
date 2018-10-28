@@ -173,7 +173,7 @@
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")                                          // AutoRetr.
 #define MSG_FILAMENTCHANGE                  _UxGT("Filaman Değiştir")                                   // Filaman Değiştir
 #define MSG_INIT_SDCARD                     _UxGT("Init. SD")                                           // Init. SD
-#define MSG_CNG_SDCARD                      _UxGT("SD Değiştir")                                        // SD Değiştir
+#define MSG_CHANGE_SDCARD                   _UxGT("SD Değiştir")                                        // SD Değiştir
 #define MSG_ZPROBE_OUT                      _UxGT("Z Prob Açık. Tabla")                                 // Z Prob Açık. Tabla
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")                                  // BLTouch Self-Test
 #define MSG_BLTOUCH_RESET                   _UxGT("Sıfırla BLTouch")                                    // Sıfırla BLTouch

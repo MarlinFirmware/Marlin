@@ -293,7 +293,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("Filament entladen")
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Alles entladen")
 #define MSG_INIT_SDCARD                     _UxGT("SD-Karte erkennen")  // Manually initialize the SD-card via user interface
-#define MSG_CNG_SDCARD                      _UxGT("SD-Karte getauscht") // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
+#define MSG_CHANGE_SDCARD                   _UxGT("SD-Karte getauscht") // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
 #define MSG_ZPROBE_OUT                      _UxGT("Z-Sonde außerhalb")
 #define MSG_SKEW_FACTOR                     _UxGT("Korrekturfaktor")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
