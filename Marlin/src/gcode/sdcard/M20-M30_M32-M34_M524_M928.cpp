@@ -158,23 +158,24 @@ void GcodeSuite::M27() {
  * M28: Start SD Write
  */
 void GcodeSuite::M28() {
-  const int16_t port
-  #if NUM_SERIAL > 1
-    = command_queue_port[cmd_queue_index_r];
-  #else
-    = 0;
-  #endif
+  const int16_t port =
+    #if NUM_SERIAL > 1
+      command_queue_port[cmd_queue_index_r]
+    #else
+      0
+    #endif
+  ;
 
   //binary transfer mode
-  if (parser.seenval('B')){
+  if (parser.seenval('B')) {
     SERIAL_ECHO_P(port, "echo: prepairing to receive: ");
     SERIAL_ECHOLN_P(port,parser.string_arg);
     card.openFile(parser.string_arg, false);
     card.transfer_mode = 1;
     card.transfer_port = port;
-  } else {
-    card.openFile(parser.string_arg, false);
   }
+  else
+    card.openFile(parser.string_arg, false);
 }
 
 /**
