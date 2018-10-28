@@ -42,13 +42,13 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
-  CARD_CHAR_P(C) SERIAL_CHAR_P(card.transfer_port, C)
-  CARD_ECHO_P(V) SERIAL_ECHO_P(card.transfer_port, V)
-  CARD_ECHOLN_P(V) SERIAL_ECHOLN_P(card.transfer_port, V)
+  #define CARD_CHAR_P(C) SERIAL_CHAR_P(card.transfer_port, C)
+  #define CARD_ECHO_P(V) SERIAL_ECHO_P(card.transfer_port, V)
+  #define CARD_ECHOLN_P(V) SERIAL_ECHOLN_P(card.transfer_port, V)
 #else
-  CARD_CHAR_P(C) NOOP
-  CARD_ECHO_P(V) NOOP
-  CARD_ECHOLN_P(V) NOOP
+  #define CARD_CHAR_P(C) NOOP
+  #define CARD_ECHO_P(V) NOOP
+  #define CARD_ECHOLN_P(V) NOOP
 #endif
 
 /**
@@ -398,8 +398,8 @@ public:
             CARD_ECHO_P(stream_header.filesize);
             CARD_ECHOLN_P("Bytes expected)");
             CARD_ECHO_P("so"); // confirm active stream and the maximum block size supported
-            CARD_CHAR_P(buffer_size & 0xff);
-            CARD_CHAR_P(buffer_size >> 8 & 0xff);
+            CARD_CHAR_P(static_cast<uint8_t>(buffer_size & 0xff));
+            CARD_CHAR_P(static_cast<uint8_t>(buffer_size >> 8 & 0xff));
             CARD_CHAR_P('\n');
           }
           else {
