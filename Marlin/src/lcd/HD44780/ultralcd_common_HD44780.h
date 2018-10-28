@@ -50,8 +50,6 @@
   #endif
 #endif
 
-extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
-
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
 //
@@ -60,6 +58,8 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 // via a shift/i2c register.
 
 #if ENABLED(ULTIPANEL)
+
+  extern volatile uint8_t buttons;
 
   //
   // Setup other button mappings of each panel

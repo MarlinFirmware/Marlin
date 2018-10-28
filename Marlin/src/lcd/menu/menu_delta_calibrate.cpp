@@ -45,6 +45,8 @@ void _man_probe_pt(const float &rx, const float &ry) {
 
 #if ENABLED(DELTA_AUTO_CALIBRATION)
 
+  #include "../../gcode/gcode.h"
+
   float lcd_probe_pt(const float &rx, const float &ry) {
     _man_probe_pt(rx, ry);
     KEEPALIVE_STATE(PAUSED_FOR_USER);

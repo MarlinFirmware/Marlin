@@ -25,33 +25,31 @@
 #if ENABLED(ULTIPANEL)
 
 #include "menu.h"
-
 #include "../ultralcd.h"
 #include "../../module/planner.h"
 #include "../../module/motion.h"
-#include "../../module/probe.h"
-#include "../../module/printcounter.h"
-#include "../../gcode/gcode.h"
 #include "../../gcode/queue.h"
-#include "../../module/configuration_store.h"
-#include "../../module/tool_change.h"
-#include "../../Marlin.h"
+#include "../../sd/cardreader.h"
 
-#include <stdarg.h>
+#if ENABLED(EEPROM_SETTINGS)
+  #include "../../module/configuration_store.h"
+#endif
 
-#if ENABLED(SDSUPPORT)
-  #include "../../sd/cardreader.h"
+#if WATCH_HOTENDS || WATCH_THE_BED
+  #include "../../module/temperature.h"
+#endif
+
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #include "../../module/probe.h"
+#endif
+
+#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT) || ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 ////////////////////////////////////////////
 ///////////// Global Variables /////////////
 ////////////////////////////////////////////
-
-// Buttons
-volatile uint8_t buttons;
-#if ENABLED(REPRAPWORLD_KEYPAD)
-  volatile uint8_t buttons_reprapworld_keypad;
-#endif
 
 // Menu Navigation
 int8_t encoderTopLine;
@@ -70,11 +68,8 @@ int32_t minEditValue, maxEditValue;
 screenFunc_t callbackFunc;
 bool liveEdit;
 
+// Prevent recursion into screen handlers
 bool no_reentry = false;
-
-// Initialized by settings.load()
-int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
-uint8_t lcd_preheat_fan_speed[2];
 
 ////////////////////////////////////////////
 //////// Menu Navigation & History /////////
@@ -110,7 +105,7 @@ void lcd_goto_previous_menu_no_defer() {
 }
 
 ////////////////////////////////////////////
-/////////////// Menu Actions ///////////////
+/////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
 void _menu_action_back() { lcd_goto_previous_menu(); }
@@ -355,14 +350,14 @@ void lcd_completion_feedback(const bool good/*=true*/) {
   else lcd_buzz(20, 440);
 }
 
-inline void line_to_current_z() {
-  planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
-}
+#if HAS_LINE_TO_Z
 
-void line_to_z(const float &z) {
-  current_position[Z_AXIS] = z;
-  line_to_current_z();
-}
+  void line_to_z(const float &z) {
+    current_position[Z_AXIS] = z;
+    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[Z_AXIS]), active_extruder);
+  }
+
+#endif
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 

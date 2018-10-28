@@ -74,6 +74,9 @@
   #include "../libs/buzzer.h"
 #endif
 
+// Buttons
+volatile uint8_t buttons;
+
 #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
   uint8_t lcd_sd_status;
 #endif
@@ -218,6 +221,10 @@ bool lcd_blink() {
 ////////////////////////////////////////////
 ///////////// Keypad Handling //////////////
 ////////////////////////////////////////////
+
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  volatile uint8_t buttons_reprapworld_keypad;
+#endif
 
 #if ENABLED(ADC_KEYPAD)
 
