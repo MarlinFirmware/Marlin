@@ -1294,10 +1294,7 @@
 
   // Probe along the Y axis, advancing X after each column
   //#define PROBE_Y_FIRST
-  
-  // Enable G29 G parameter to set dimension of square centered probing area
-  //#define G29_SQUARE_GRID_SIZE
-  
+
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
     // Beyond the probed grid, continue the implied tilt?
