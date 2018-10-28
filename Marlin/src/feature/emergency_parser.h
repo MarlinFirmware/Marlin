@@ -53,11 +53,12 @@ public:
 
   static bool killed_by_M112;
 
-  EmergencyParser() {}
+  EmergencyParser() { enabled = true; }
+  void enable() { enabled = true; }
+  void disable() { enabled = false; }
 
   __attribute__((always_inline)) inline
   static void update(State &state, const uint8_t c) {
-
     switch (state) {
       case EP_RESET:
         switch (c) {
@@ -118,7 +119,7 @@ public:
 
       default:
         if (c == '\n') {
-          switch (state) {
+          if (enabled) switch (state) {
             case EP_M108:
               wait_for_user = wait_for_heatup = false;
               break;
@@ -136,6 +137,8 @@ public:
     }
   }
 
+private:
+  static bool enabled;
 };
 
 extern EmergencyParser emergency_parser;

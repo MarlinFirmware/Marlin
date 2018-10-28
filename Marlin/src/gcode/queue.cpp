@@ -265,6 +265,16 @@ static bool serial_data_available() {
     false);
 }
 
+static bool serial_data_available(const int index) {
+  switch (index) {
+    case 0: return MYSERIAL0.available();
+    #if NUM_SERIAL > 1
+      case 1: return MYSERIAL1.available();
+    #endif
+    default: return false;
+  }
+}
+
 static int read_serial(const int index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
@@ -275,11 +285,247 @@ static int read_serial(const int index) {
   }
 }
 
+class BinaryStream {
+public:
+  enum class StreamState : uint8_t {
+    STREAM_RESET,
+    PACKET_RESET,
+    STREAM_HEADER,
+    PACKET_HEADER,
+    PACKET_DATA,
+    PACKET_VALIDATE,
+    PACKET_RESEND,
+    PACKET_FLUSHRX,
+    PACKET_TIMEOUT,
+    STREAM_COMPLETE,
+    STREAM_FAILED,
+  };
+
+#pragma pack(push, 1)
+  struct StreamHeader {
+    uint16_t token;
+    uint32_t filesize;
+  };
+  union {
+    uint8_t stream_header_bytes[sizeof(StreamHeader)];
+    StreamHeader stream_header;
+  };
+
+  struct Packet {
+    struct Header {
+      uint32_t id;
+      uint16_t size, checksum;
+    };
+    union {
+      uint8_t header_bytes[sizeof(Header)];
+      Header header;
+    };
+    uint32_t bytes_received;
+    uint16_t checksum;
+    millis_t timeout;
+  } packet{};
+#pragma pack(pop)
+
+  void packet_reset() {
+    packet.header.id = 0;
+    packet.header.size = 0;
+    packet.header.checksum = 0;
+    packet.bytes_received = 0;
+    packet.checksum = 0x53A2;
+    packet.timeout = millis() + STREAM_MAX_WAIT;
+  }
+
+  void stream_reset() {
+    packets_received = 0;
+    bytes_received = 0;
+    packet_retries = 0;
+    buffer_next_index = 0;
+    stream_header.token = 0;
+    stream_header.filesize = 0;
+  }
+
+  uint32_t checksum(uint32_t seed, uint8_t value) {
+    return ((seed ^ value) ^ (seed << 8)) & 0xFFFF;
+  }
+
+  // read the next byte from the data stream keeping track of
+  // whether the stream times out from data starvation
+  // takes the data variable by reference in order to return status
+  bool stream_read(uint8_t& data) {
+    if (ELAPSED(millis(), packet.timeout)) {
+      stream_state = StreamState::PACKET_TIMEOUT;
+      return false;
+    }
+    if (!serial_data_available(card.transfer_port)) return false;
+    data = read_serial(card.transfer_port);
+    packet.timeout = millis() + STREAM_MAX_WAIT;
+    return true;
+  }
+
+  template<const size_t buffer_size>
+  void receive(char (&buffer)[buffer_size]) {
+    uint8_t data = 0;
+    millis_t tranfer_timeout = millis() + RX_TIMESLICE;
+    while (PENDING(millis(), tranfer_timeout)) {
+      switch (stream_state) {
+        case StreamState::STREAM_RESET:
+          stream_reset();
+        case StreamState::PACKET_RESET:
+          packet_reset();
+          stream_state = StreamState::PACKET_HEADER;
+          break;
+        case StreamState::STREAM_HEADER: // we could also transfer the filename in this packet, rather than handling it in the gcode
+          for (size_t i = 0; i < sizeof(stream_header); ++i) {
+            stream_header_bytes[i] = buffer[i];
+          }
+          if (stream_header.token == 0x1234) {
+            stream_state = StreamState::PACKET_RESET;
+            bytes_received = 0;
+            time_stream_start = millis();
+            SERIAL_ECHO_P(card.transfer_port, "echo: Datastream initialised (");
+            SERIAL_ECHO_P(card.transfer_port, stream_header.filesize);
+            SERIAL_ECHOLN_P(card.transfer_port, "Bytes expected)");
+            SERIAL_ECHO_P(card.transfer_port, "so"); // confirm active stream and the maximum block size supported
+            SERIAL_CHAR_P(card.transfer_port, buffer_size & 0xff);
+            SERIAL_CHAR_P(card.transfer_port, buffer_size >> 8 & 0xff);
+            SERIAL_CHAR_P(card.transfer_port, '\n');
+          }
+          else {
+            SERIAL_ECHOLN_P(card.transfer_port, "echo: Datastream initialisation error (invalid token)");
+            stream_state = StreamState::STREAM_FAILED;
+          }
+          buffer_next_index = 0;
+          break;
+        case StreamState::PACKET_HEADER:
+          if (!stream_read(data)) break;
+
+          packet.header_bytes[packet.bytes_received++] = data;
+          if (packet.bytes_received == sizeof(Packet::Header)) {
+            if (packet.header.id == packets_received) {
+              buffer_next_index = 0;
+              packet.bytes_received = 0;
+              stream_state = StreamState::PACKET_DATA;
+            }
+            else {
+              SERIAL_ECHO_P(card.transfer_port, "echo: Datastream packet out of order");
+              stream_state = StreamState::PACKET_FLUSHRX;
+            }
+          }
+          break;
+        case StreamState::PACKET_DATA:
+          if (!stream_read(data)) break;
+
+          if (buffer_next_index < buffer_size) {
+            buffer[buffer_next_index] = data;
+          }
+          else {
+            SERIAL_ECHO_P(card.transfer_port, "echo: Datastream packet data buffer overrun");
+            stream_state = StreamState::STREAM_FAILED;
+            break;
+          }
+
+          packet.checksum = checksum(packet.checksum, data);
+          packet.bytes_received ++;
+          buffer_next_index ++;
+
+          if (packet.bytes_received == packet.header.size) {
+            stream_state = StreamState::PACKET_VALIDATE;
+          }
+          break;
+        case StreamState::PACKET_VALIDATE:
+          if (packet.header.checksum == packet.checksum) {
+            packet_retries = 0;
+            packets_received ++;
+            bytes_received += packet.header.size;
+
+            if (packet.header.id == 0) {                 // id 0 is always the stream descriptor
+              stream_state = StreamState::STREAM_HEADER; // defer packet confirmation to STREAM_HEADER state
+            }
+            else {
+              if (bytes_received < stream_header.filesize) {
+                stream_state = StreamState::PACKET_RESET;    // reset and receive next packet
+                SERIAL_ECHOLN_P(card.transfer_port, "ok");   // transmit confirm packet received and valid token
+              }
+              else  {
+                stream_state = StreamState::STREAM_COMPLETE; // no more data required
+              }
+              if(card.write(buffer, buffer_next_index) < 0) {
+                stream_state = StreamState::STREAM_FAILED;
+                SERIAL_ECHO_P(card.transfer_port, "echo: IO ERROR");
+                break;
+              };
+            }
+          }
+          else {
+            SERIAL_ECHO_P(card.transfer_port, "echo: Block(");
+            SERIAL_ECHO_P(card.transfer_port, packet.header.id);
+            SERIAL_ECHOLN_P(card.transfer_port, ") Corrupt");
+            stream_state = StreamState::PACKET_FLUSHRX;
+          }
+          break;
+        case StreamState::PACKET_RESEND:
+          if (packet_retries < MAX_RETRIES) {
+            packet_retries ++;
+            stream_state = StreamState::PACKET_RESET;
+            SERIAL_ECHO_P(card.transfer_port, "echo: Resend request ");
+            SERIAL_ECHOLN_P(card.transfer_port, packet_retries);
+            SERIAL_ECHOLN_P(card.transfer_port, "rs"); // transmit resend packet token
+          }
+          else {
+            stream_state = StreamState::STREAM_FAILED;
+          }
+          break;
+        case StreamState::PACKET_FLUSHRX:
+          if (ELAPSED(millis(), packet.timeout)) {
+            stream_state = StreamState::PACKET_RESEND;
+            break;
+          }
+          if (!serial_data_available(card.transfer_port)) break;
+          read_serial(card.transfer_port); // throw away data
+          packet.timeout = millis() + STREAM_MAX_WAIT;
+          break;
+        case StreamState::PACKET_TIMEOUT:
+          SERIAL_ECHOLN_P(card.transfer_port, "echo: Datastream timeout");
+          stream_state = StreamState::PACKET_RESEND;
+          break;
+        case StreamState::STREAM_COMPLETE:
+          stream_state = StreamState::STREAM_RESET;
+          card.transfer_mode = 0;
+          card.closefile();
+          SERIAL_ECHO_P(card.transfer_port, "echo: ");
+          SERIAL_ECHO_P(card.transfer_port, card.filename);
+          SERIAL_ECHO_P(card.transfer_port, " transfer completed @ ");
+          SERIAL_ECHO_P(card.transfer_port, ((bytes_received / (millis() - time_stream_start) * 1000) / 1024 ));
+          SERIAL_ECHOLN_P(card.transfer_port, "KiB/s");
+          SERIAL_ECHOLN_P(card.transfer_port, "sc"); // transmit stream complete token
+          return;
+        case StreamState::STREAM_FAILED:
+          stream_state = StreamState::STREAM_RESET;
+          card.transfer_mode = 0;
+          card.closefile();
+          card.removeFile(card.filename);
+          SERIAL_ECHOLN_P(card.transfer_port, "echo: File transfer failed");
+          SERIAL_ECHOLN_P(card.transfer_port, "sf"); // transmit stream failed token
+          return;
+      }
+    }
+  }
+
+  static const uint16_t STREAM_MAX_WAIT = 500, RX_TIMESLICE = 20, MAX_RETRIES = 3;
+  uint8_t  packet_retries;
+  uint16_t buffer_next_index;
+  uint32_t packets_received,  bytes_received;
+  millis_t time_stream_start;
+  StreamState stream_state = StreamState::STREAM_RESET;
+
+} binaryStream{};
+
 /**
  * Get all commands waiting on the serial port and queue them.
  * Exit when the buffer is full or when no more characters are
  * left on the serial port.
  */
+
 inline void get_serial_commands() {
   static char serial_line_buffer[NUM_SERIAL][MAX_CMD_SIZE];
   static bool serial_comment_mode[NUM_SERIAL] = { false }
@@ -287,6 +533,13 @@ inline void get_serial_commands() {
                 , serial_comment_paren_mode[NUM_SERIAL] = { false }
               #endif
             ;
+
+  if(card.saving && card.transfer_mode == 1) {
+    // if transfering a file in binary stream mode receive it using serial_line_buffer for the working buffer, this limits the packet size to MAX_CMD_SIZE
+    // the serial receive buffer also limits the packet size for reliable transmission
+    binaryStream.receive(serial_line_buffer[card.transfer_port]);
+    return;
+  }
 
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.

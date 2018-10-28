@@ -32,6 +32,7 @@
 
 // Static data members
 bool EmergencyParser::killed_by_M112; // = false
+bool EmergencyParser::enabled;
 
 // Global instance
 EmergencyParser emergency_parser;
