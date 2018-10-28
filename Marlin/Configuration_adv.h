@@ -135,6 +135,8 @@
 
 // Show extra position information in M114
 //#define M114_DETAIL
+// Show extra mode information in M114
+//#define M114_MODE_DETAIL
 
 // Show Temperature ADC value
 // Enable for M105 to include ADC values read from temperature sensors.

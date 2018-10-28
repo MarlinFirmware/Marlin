@@ -166,6 +166,13 @@ void GcodeSuite::M115() {
         , true
       #endif
     );
+    
+    // MODE_REPORT (M114)
+    cap_line(PSTR("MODE_REPORT")
+      #if ENABLED(M114_MODE_DETAIL)
+        , true
+      #endif
+    );
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

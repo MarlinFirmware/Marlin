@@ -111,29 +111,47 @@
     SERIAL_PROTOCOLPGM("Differ: ");
     report_xyze(diff);
   }
+#endif
+  
+#if ENABLED(M114_MODE_DETAIL)
+  
   
   void report_mode_detail() {
 
-    LOOP_XYZE(i) {
-      
-      SERIAL_CHAR(axis_codes[i]);
-      SERIAL_CHAR(':');
-      SERIAL_PROTOCOL(axis_relative_modes[i] || relative_mode ? 1 : 0);
+    SERIAL_PROTOCOLPGM("XYZ:");
+    if(relative_mode) {
+      SERIAL_PROTOCOLPGM("Relative");
+    }
+    else {
+      SERIAL_PROTOCOLPGM("Absolute");
     }
     
-    SERIAL_PROTOCOLPGM(" XYZ:");
-    SERIAL_CHAR(relative_mode ? 'R' : 'A');
-    
     SERIAL_PROTOCOLPGM(" E:");
-    SERIAL_CHAR((relative_mode || axis_relative_modes[E_AXIS]) ? 'R' : 'A');
+    if(relative_mode || GcodeSuite::axis_relative_modes[E_AXIS]) {
+      SERIAL_PROTOCOLPGM("Relative");
+    }
+    else {
+      SERIAL_PROTOCOLPGM("Absolute");
+    }
+    
+    #if ENABLED(INCH_MODE_SUPPORT)
+      SERIAL_PROTOCOLPGM(" Unit:");
+       if(GCodeParser::linear_unit_factor == 1.0) {
+        SERIAL_PROTOCOLPGM("mm");
+      }
+      else {
+        SERIAL_PROTOCOLPGM("inch");
+      }
+    #endif
+    
+    #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
+      SERIAL_PROTOCOLPGM(" Temp:");
+      SERIAL_CHAR(GCodeParser::temp_units_code());
+    #endif
     
     SERIAL_EOL();
-    
-    
-    
-    
   }
-#endif // M114_DETAIL
+#endif // M114_MODE_DETAIL
 
 /**
  * M114: Report current position to host
@@ -150,10 +168,9 @@ void GcodeSuite::M114() {
   planner.synchronize();
   report_current_position();
   
-  #if ENABLED(M114_DETAIL)
+  #if ENABLED(M114_MODE_DETAIL)
     if (parser.seen('M')) {
       report_mode_detail();
-      
     }
   #endif
 }

@@ -273,7 +273,7 @@ public:
 
     static inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
 
-    #if ENABLED(ULTIPANEL) && DISABLED(DISABLE_M503)
+    #if (ENABLED(ULTIPANEL) && DISABLED(DISABLE_M503)) || ENABLED(M114_MODE_DETAIL)
 
       FORCE_INLINE static char temp_units_code() {
         return input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C';
