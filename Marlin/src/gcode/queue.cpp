@@ -398,8 +398,8 @@ public:
             CARD_ECHO_P(stream_header.filesize);
             CARD_ECHOLN_P("Bytes expected)");
             CARD_ECHO_P("so"); // confirm active stream and the maximum block size supported
-            CARD_CHAR_P(static_cast<uint8_t>(buffer_size & 0xff));
-            CARD_CHAR_P(static_cast<uint8_t>(buffer_size >> 8 & 0xff));
+            CARD_CHAR_P(static_cast<uint8_t>(buffer_size & 0xFF));
+            CARD_CHAR_P(static_cast<uint8_t>((buffer_size >> 8) & 0xFF));
             CARD_CHAR_P('\n');
           }
           else {
