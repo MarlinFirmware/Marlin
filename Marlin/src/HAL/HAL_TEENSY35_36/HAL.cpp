@@ -18,7 +18,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ****************************************************************************/
 
-
 /**
  * Description: HAL for Teensy35 (MK64FX512)
  */
@@ -94,23 +93,24 @@ extern "C" {
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
   uint16_t pin = pin2sc1a[adc_pin];
-  if (pin == 255) {
+  if (pin == 0xFF) {
     // Digital only
     HAL_adc_select = -1;
-  } else if ((pin & 128) == 128) {
+  }
+  else if (pin & 0x80) {
     HAL_adc_select = 1;
-    ADC1_SC1A = pin - 128;
-  } else {
+    ADC1_SC1A = pin & 0x7F;
+  }
+  else {
     HAL_adc_select = 0;
     ADC0_SC1A = pin;
   }
 }
 
 uint16_t HAL_adc_get_result(void) {
-  if (HAL_adc_select == 0) {
-    return ADC0_RA;
-  } else if (HAL_adc_select == 1) {
-    return ADC1_RA;
+  switch (HAL_adc_select) {
+    case 0: return ADC0_RA;
+    case 1: return ADC1_RA;
   }
   return 0;
 }
