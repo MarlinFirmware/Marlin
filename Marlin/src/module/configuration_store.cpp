@@ -1829,13 +1829,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if EXTRUDERS > 1
-    #if ENABLED(SINGLENOZZLE)
-      toolchange_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
-      toolchange_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
-      toolchange_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
-      #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-        toolchange_settings.change_point = SINGLENOZZLE_TOOLCHANGE_XY;
-      #endif
+    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+       toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
+       toolchange_settings.prime_speed = TOOLCHANGE_FIL_SWAP_PRIME_SPEED;
+       toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
+     #endif
+     #if ENABLED(TOOLCHANGE_PARK)
+       toolchange_settings.change_point = TOOLCHANGE_PARK_XY;
     #endif
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
   #endif
@@ -2889,7 +2889,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif // EXTRUDERS == 1
     #endif // ADVANCED_PAUSE_FEATURE
 
-    #if ENABLED(SINGLENOZZLE)
+    #if EXTRUDERS > 1
       CONFIG_ECHO_START;
       if (!forReplay) {
         SERIAL_ECHOLNPGM_P(port, "SINGLENOZZLE:");
