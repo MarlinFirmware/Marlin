@@ -105,14 +105,15 @@ namespace UI {
   void        setTargetTemp_celsius          (const float, const heater_t);
   void        setTargetTemp_celsius          (const float, const extruder_t);
   void        setFan_percent                 (const float, const fan_t);
-  void        setAxisPosition_mm             (const float, const axis_t,     float _feedrate_mm_s);
-  void        setAxisPosition_mm             (const float, const extruder_t, float _feedrate_mm_s);
+  void        setAxisPosition_mm             (const float, const axis_t);
+  void        setAxisPosition_mm             (const float, const extruder_t);
   void        setAxisSteps_per_mm            (const float, const axis_t);
   void        setAxisSteps_per_mm            (const float, const extruder_t);
   void        setAxisMaxFeedrate_mm_s        (const float, const axis_t);
   void        setAxisMaxFeedrate_mm_s        (const float, const extruder_t);
   void        setAxisMaxAcceleration_mm_s2   (const float, const axis_t);
   void        setAxisMaxAcceleration_mm_s2   (const float, const extruder_t);
+  void        setFeedrate_mm_s               (const float);
   void        setMinFeedrate_mm_s            (const float);
   void        setMinTravelFeedrate_mm_s      (const float);
   void        setPrintingAcceleration_mm_s2  (const float);

@@ -89,7 +89,7 @@ inline float clamp(const float value, const float minimum, const float maximum) 
 
 static struct {
   uint8_t printer_killed  : 1;
-  uint8_t deferred_motion : 1;
+  uint8_t manual_motion : 1;
 } flags;
 
 namespace UI {
@@ -187,17 +187,14 @@ namespace UI {
   float getFan_percent(const fan_t fan) { return ((float(fan_speed[fan - FAN1]) + 1) * 100) / 256; }
 
   float getAxisPosition_mm(const axis_t axis) {
-    return flags.deferred_motion ? destination[axis] : current_position[axis];
+    return flags.manual_motion ? destination[axis] : current_position[axis];
   }
 
   float getAxisPosition_mm(const extruder_t extruder) {
-    return flags.deferred_motion ? destination[E_AXIS] : current_position[E_AXIS];
+    return flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
   }
 
-  void setAxisPosition_mm(const float position, const axis_t axis, const float _feedrate_mm_s) {
-    if (!flags.deferred_motion)
-      set_destination_from_current();
-
+  void setAxisPosition_mm(const float position, const axis_t axis) {
     // Start with no limits to movement
     float min = current_position[axis] - 1000,
           max = current_position[axis] + 1000;
@@ -241,34 +238,50 @@ namespace UI {
       }
     #endif
 
+    if (!flags.manual_motion)
+      set_destination_from_current();
     destination[axis] = clamp(position, min, max);
-
-    feedrate_mm_s = _feedrate_mm_s;
-
-    // We don't want to stack up moves, so wait until the
-    // machine has stopped moving before sending another.
-    if (isMoving())
-      flags.deferred_motion = true;
-    else
-      prepare_move_to_destination();
+    flags.manual_motion = true;
   }
 
-  void setAxisPosition_mm(const float position, const extruder_t extruder, const float _feedrate_mm_s) {
+  void setAxisPosition_mm(const float position, const extruder_t extruder) {
     setActiveTool(extruder, true);
 
-    if (!flags.deferred_motion)
+    if (!flags.manual_motion)
       set_destination_from_current();
-
     destination[E_AXIS] = position;
+    flags.manual_motion = true;
+  }
 
-    feedrate_mm_s = _feedrate_mm_s;
+  void _processManualMoveToDestination() {
+    // Lower max_response_lag makes controls more responsive, but makes CPU work harder
+    constexpr float   max_response_lag = 0.1; // seconds
+    constexpr uint8_t segments_to_buffer = 4; // keep planner filled with this many segments
 
-    // We don't want to stack up moves, so wait until the
-    // machine has stopped moving before sending another.
-    if (isMoving())
-      flags.deferred_motion = true;
-    else
-      prepare_move_to_destination();
+    if (flags.manual_motion && planner.movesplanned() < segments_to_buffer) {
+      float saved_destination[XYZ];
+      COPY(saved_destination, destination);
+      // Compute direction vector from current_position towards destination.
+      destination[X_AXIS] -= current_position[X_AXIS];
+      destination[Y_AXIS] -= current_position[Y_AXIS];
+      destination[Z_AXIS] -= current_position[Z_AXIS];
+      const float inv_length = RSQRT(sq(destination[X_AXIS]) + sq(destination[Y_AXIS]) + sq(destination[Z_AXIS]));
+      // Find move segment length so that all segments can execute in less time than max_response_lag
+      const float scale = inv_length * feedrate_mm_s * max_response_lag / segments_to_buffer;
+      if (scale < 1) {
+        // Move a small bit towards the destination.
+        destination[X_AXIS] = scale * destination[X_AXIS] + current_position[X_AXIS];
+        destination[Y_AXIS] = scale * destination[Y_AXIS] + current_position[Y_AXIS];
+        destination[Z_AXIS] = scale * destination[Z_AXIS] + current_position[Z_AXIS];
+        prepare_move_to_destination();
+        COPY(destination, saved_destination);
+      } else {
+        // We are close enough to finish off the move.
+        COPY(destination, saved_destination);
+        prepare_move_to_destination();
+        flags.manual_motion = false;
+      }
+    }
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
@@ -411,11 +424,13 @@ namespace UI {
     }
   #endif
 
+  float getFeedrate_mm_s()                            { return feedrate_mm_s; }
   float getMinFeedrate_mm_s()                         { return planner.settings.min_feedrate_mm_s; }
   float getMinTravelFeedrate_mm_s()                   { return planner.settings.min_travel_feedrate_mm_s; }
   float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
   float getRetractAcceleration_mm_s2()                { return planner.settings.retract_acceleration; }
   float getTravelAcceleration_mm_s2()                 { return planner.settings.travel_acceleration; }
+  void setFeedrate_mm_s(const float fr)               { feedrate_mm_s = fr; }
   void setMinFeedrate_mm_s(const float fr)            { planner.settings.min_feedrate_mm_s = fr; }
   void setMinTravelFeedrate_mm_s(const float fr)      { planner.settings.min_travel_feedrate_mm_s = fr; }
   void setPrintingAcceleration_mm_s2(const float acc) { planner.settings.acceleration = acc; }
@@ -693,13 +708,7 @@ void lcd_update() {
       }
     }
   #endif // SDSUPPORT
-
-  // Finish up deferred moves from setAxisPosition_mm
-  if (flags.deferred_motion && !UI::isMoving()) {
-    flags.deferred_motion = false;
-    prepare_move_to_destination();
-  }
-
+  UI::_processManualMoveToDestination();
   UI::onIdle();
 }
 
