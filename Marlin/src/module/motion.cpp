@@ -1158,7 +1158,11 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #if ENABLED(MORGAN_SCARA)
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
-    current_position[axis] = (axis == Z_AXIS ? delta_height : base_home_pos(axis));
+    current_position[axis] = (axis == Z_AXIS ? delta_height
+    #if HAS_BED_PROBE
+      - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER
+    #endif
+    : base_home_pos(axis));
   #else
     current_position[axis] = base_home_pos(axis);
   #endif
@@ -1514,7 +1518,11 @@ void homeaxis(const AxisEnum axis) {
       }
     #elif ENABLED(DELTA)
       soft_endstop_min[axis] = base_min_pos(axis);
-      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height : base_max_pos(axis));
+      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height
+      #if HAS_BED_PROBE
+        - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER
+      #endif
+      : base_max_pos(axis));
     #else
       soft_endstop_min[axis] = base_min_pos(axis);
       soft_endstop_max[axis] = base_max_pos(axis);

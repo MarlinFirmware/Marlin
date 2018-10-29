@@ -199,7 +199,7 @@ class Sd2Card {
   void chipDeselect();
   void chipSelect();
   void type(uint8_t value) { type_ = value; }
-  bool waitNotBusy(uint16_t timeoutMillis);
+  bool waitNotBusy(const millis_t timeout_ms);
   bool writeData(uint8_t token, const uint8_t* src);
 };
 

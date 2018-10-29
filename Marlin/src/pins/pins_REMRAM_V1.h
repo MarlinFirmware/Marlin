@@ -29,7 +29,7 @@
 
 #define EEPROM_EMULATED_WITH_SRAM // Emulate the EEPROM using Backup SRAM
 
-#if E_STEPPERS > 1 || HOTENDS > 1
+#if HOTENDS > 1 || E_STEPPERS > 1
   #error "RemRam supports only one hotend / E-stepper."
 #endif
 
@@ -106,9 +106,9 @@
 #define SERVO0_PIN         26   // PWM_EXT1
 #define SERVO1_PIN         27   // PWM_EXT2
 
-#define SDSS                9
+#define SDSS               57   // Onboard SD card reader
+//#define SDSS              9   // LCD SD card reader
 #define LED_PIN            21   // STATUS_LED
-#define KILL_PIN           57
 
 //
 // LCD / Controller
@@ -124,3 +124,9 @@
 #define BTN_EN1            54   // BTN_EN1
 #define BTN_EN2            55   // BTN_EN2
 #define BTN_ENC            47   // BTN_ENC
+
+//
+// Timers
+//
+
+#define STEP_TIMER 2

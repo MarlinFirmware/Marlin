@@ -72,7 +72,7 @@
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(0)
   #define CPU_ST7920_DELAY_3 DELAY_NS(189)
-#elif MB(REMRAM_V1)
+#elif defined(ARDUINO_ARCH_STM32)
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(0)
   #define CPU_ST7920_DELAY_3 DELAY_NS(0)
@@ -81,7 +81,7 @@
   #define CPU_ST7920_DELAY_2 DELAY_NS(0)
   #define CPU_ST7920_DELAY_3 DELAY_NS(63)
 #else
-  #error "No valid condition for delays in 'ultralcd_st7920_u8glib_rrd.h'"
+  #error "No valid condition for delays in 'ultralcd_st7920_u8glib_rrd_AVR.h'"
 #endif
 
 #ifndef ST7920_DELAY_1

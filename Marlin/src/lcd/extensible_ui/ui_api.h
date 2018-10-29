@@ -1,3 +1,25 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 /************
  * ui_api.h *
  ************/
@@ -49,12 +71,20 @@ namespace UI {
   float getAxisMaxAcceleration_mm_s2(const axis_t axis);
   float getMinFeedrate_mm_s();
   float getMinTravelFeedrate_mm_s();
-  float getPrintingAcceleration_mm_per_s2();
-  float getRetractAcceleration_mm_per_s2();
-  float getTravelAcceleration_mm_per_s2();
+  float getPrintingAcceleration_mm_s2();
+  float getRetractAcceleration_mm_s2();
+  float getTravelAcceleration_mm_s2();
   float getFeedRate_percent();
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
+
+  #if ENABLED(PRINTCOUNTER)
+    char *getTotalPrints_str(char buffer[21]);
+    char *getFinishedPrints_str(char buffer[21]);
+    char *getTotalPrintTime_str(char buffer[21]);
+    char *getLongestPrint_str(char buffer[21]);
+    char *getFilamentUsed_str(char buffer[21]);
+  #endif
 
   void setTargetTemp_celsius(const uint8_t extruder, float temp);
   void setFan_percent(const uint8_t fan, const float percent);
@@ -109,12 +139,26 @@ namespace UI {
     #endif
   #endif
 
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    bool isFilamentRunoutEnabled();
+    void toggleFilamentRunout(const bool state);
+
+    #if FILAMENT_RUNOUT_DISTANCE_MM > 0
+      float getFilamentRunoutDistance_mm();
+      void setFilamentRunoutDistance_mm(const float distance);
+    #endif
+  #endif
+
+  // This safe_millis is safe to use even when printer is killed (as long as called at least every 1 second)
+  uint32_t safe_millis();
+  void delay_us(unsigned long us);
   void delay_ms(unsigned long ms);
   void yield(); // Within lengthy loop, call this periodically
 
   void enqueueCommands(progmem_str gcode);
 
   void printFile(const char *filename);
+  bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
   void stopPrint();
@@ -147,7 +191,7 @@ namespace UI {
   // module and will be called by Marlin.
 
   void onStartup();
-  void onUpdate();
+  void onIdle();
   void onMediaInserted();
   void onMediaError();
   void onMediaRemoved();
@@ -161,4 +205,5 @@ namespace UI {
   void onStatusChanged(progmem_str msg);
   void onFactoryReset();
   void onStoreSettings();
+  void onLoadSettings();
 };

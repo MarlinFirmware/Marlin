@@ -32,7 +32,7 @@
 // Ignore temp readings during develpment.
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
-#if E_STEPPERS > 3 || HOTENDS > 3
+#if HOTENDS > 3 || E_STEPPERS > 3
   #error "The-Borg supports up to 3 hotends / E-steppers."
 #endif
 

@@ -23,6 +23,23 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+#if EXTRUDERS > 1
+
+  typedef struct {
+    #if ENABLED(SINGLENOZZLE)
+      float swap_length;
+      int16_t prime_speed, retract_speed;
+      #if ENABLED(SINGLENOZZLE_SWAP_PARK)
+        struct { float x, y; } change_point;
+      #endif
+    #endif
+    float z_raise;
+  } toolchange_settings_t;
+
+  extern toolchange_settings_t toolchange_settings;
+
+#endif
+
 #if DO_SWITCH_EXTRUDER
   void move_extruder_servo(const uint8_t e);
 #endif
@@ -49,11 +66,6 @@
 #endif // PARKING_EXTRUDER
 
 #if ENABLED(SINGLENOZZLE)
-  typedef struct {
-    float swap_length;
-    int16_t prime_speed, retract_speed;
-  } singlenozzle_settings_t;
-  extern singlenozzle_settings_t sn_settings;
   extern uint16_t singlenozzle_temp[EXTRUDERS];
   #if FAN_COUNT > 0
     extern uint8_t singlenozzle_fan_speed[EXTRUDERS];

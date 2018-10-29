@@ -146,8 +146,8 @@
  * M150 - Set Status LED Color as R<red> U<green> B<blue> P<bright>. Values 0-255. (Requires BLINKM, RGB_LED, RGBW_LED, NEOPIXEL_LED, or PCA9632).
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
- * M164 - Commit the mix (Req. MIXING_EXTRUDER) and optionally save as a virtual tool (Req. MIXING_VIRTUAL_TOOLS > 1)
- * M165 - Set the mix for a mixing extruder wuth parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
+ * M164 - Commit the mix and save to a virtual tool (current, or as specified by 'S'). (Requires MIXING_EXTRUDER)
+ * M165 - Set the mix for the mixing extruder (and current virtual tool) with parameters ABCDHI. (Requires MIXING_EXTRUDER and DIRECT_MIXING_IN_G1)
  * M190 - Sxxx Wait for bed current temp to reach target temp. ** Waits only when heating! **
  *        Rxxx Wait for bed current temp to reach target temp. ** Waits for heating or cooling. **
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
@@ -202,6 +202,7 @@
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
+ * M524 - Abort the current SD print job (started with M24)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
@@ -341,7 +342,7 @@ public:
 private:
 
   static void G0_G1(
-    #if IS_SCARA
+    #if IS_SCARA || defined(G0_FEEDRATE)
       bool fast_move=false
     #endif
   );
@@ -436,7 +437,7 @@ private:
     static void M0_M1();
   #endif
 
-  #if (ENABLED(SPINDLE_LASER_ENABLE) || ENABLED(FAN_AS_LASER))
+  #if ENABLED(SPINDLE_LASER_ENABLE)
     static void M3_M4(bool is_M3);
     static void M5();
   #endif
@@ -581,9 +582,7 @@ private:
 
   #if ENABLED(MIXING_EXTRUDER)
     static void M163();
-    #if MIXING_VIRTUAL_TOOLS > 1
-      static void M164();
-    #endif
+    static void M164();
     #if ENABLED(DIRECT_MIXING_IN_G1)
       static void M165();
     #endif
@@ -614,7 +613,7 @@ private:
 
   static void M211();
 
-  #if ENABLED(SINGLENOZZLE)
+  #if EXTRUDERS > 1
     static void M217();
   #endif
 
@@ -719,6 +718,10 @@ private:
   #endif
   #if ENABLED(EEPROM_SETTINGS)
     static void M504();
+  #endif
+
+  #if ENABLED(SDSUPPORT)
+    static void M524();
   #endif
 
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)

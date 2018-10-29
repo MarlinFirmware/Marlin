@@ -65,7 +65,7 @@ void FWRetract::reset() {
   #endif
   settings.retract_length = RETRACT_LENGTH;
   settings.retract_feedrate_mm_s = RETRACT_FEEDRATE;
-  settings.retract_zlift = RETRACT_ZLIFT;
+  settings.retract_zraise = RETRACT_ZRAISE;
   settings.retract_recover_length = RETRACT_RECOVER_LENGTH;
   settings.retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
   settings.swap_retract_length = RETRACT_LENGTH_SWAP;
@@ -142,11 +142,8 @@ void FWRetract::retract(const bool retracting
   set_destination_from_current();
 
   #if ENABLED(RETRACT_SYNC_MIXING)
-    float old_mixing_factor[MIXING_STEPPERS];
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
-      old_mixing_factor[i] = mixing_factor[i];
-      mixing_factor[i] = RECIPROCAL(MIXING_STEPPERS);
-    }
+    uint8_t old_mixing_tool = mixer.get_current_v_tool();
+    mixer.T(MIXER_AUTORETRACT_TOOL);
   #endif
 
   if (retracting) {
@@ -162,8 +159,8 @@ void FWRetract::retract(const bool retracting
     planner.synchronize();                                // Wait for move to complete
 
     // Is a Z hop set, and has the hop not yet been done?
-    if (settings.retract_zlift > 0.01 && !current_hop) {           // Apply hop only once
-      current_hop += settings.retract_zlift;                       // Add to the hop total (again, only once)
+    if (settings.retract_zraise > 0.01 && !current_hop) {           // Apply hop only once
+      current_hop += settings.retract_zraise;                       // Add to the hop total (again, only once)
       feedrate_mm_s = planner.settings.max_feedrate_mm_s[Z_AXIS] * unscale_fr;  // Maximum Z feedrate
       prepare_move_to_destination();                      // Raise up, set_current_to_destination
       planner.synchronize();                              // Wait for move to complete
@@ -196,7 +193,7 @@ void FWRetract::retract(const bool retracting
   }
 
   #if ENABLED(RETRACT_SYNC_MIXING)
-    COPY(mixing_factor, old_mixing_factor);               // Restore original mixing factor
+    mixer.T(old_mixing_tool);                             // Restore original mixing tool
   #endif
 
   feedrate_mm_s = old_feedrate_mm_s;                      // Restore original feedrate

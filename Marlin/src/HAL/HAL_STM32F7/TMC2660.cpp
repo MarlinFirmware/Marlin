@@ -190,7 +190,7 @@ void TMC26XStepper::start() {
   pinMode(step_pin, OUTPUT);
   pinMode(dir_pin, OUTPUT);
   pinMode(cs_pin, OUTPUT);
-  //pinMode(STEPPER_ENABLE_PIN, OUTPUT);
+  //SET_OUTPUT(STEPPER_ENABLE_PIN);
   digitalWrite(step_pin, LOW);
   digitalWrite(dir_pin, LOW);
   digitalWrite(cs_pin, HIGH);
@@ -887,7 +887,7 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   //}
 
   //select the TMC driver
-  digitalWrite(cs_pin,LOW);
+  digitalWrite(cs_pin, LOW);
 
   //ensure that only valid bist are set (0-19)
   //datagram &=REGISTER_BIT_PATTERN;
@@ -916,7 +916,7 @@ inline void TMC26XStepper::send262(uint32_t datagram) {
   #endif
 
   //deselect the TMC chip
-  digitalWrite(cs_pin,HIGH);
+  digitalWrite(cs_pin, HIGH);
 
   //restore the previous SPI mode if neccessary
   //if the mode is not correct set it to mode 3

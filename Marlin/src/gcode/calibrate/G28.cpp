@@ -210,7 +210,6 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     // Cancel the active G29 session
     #if ENABLED(PROBE_MANUALLY)
-      extern bool g29_in_progress;
       g29_in_progress = false;
     #endif
 

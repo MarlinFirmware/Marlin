@@ -138,25 +138,3 @@ void GcodeSuite::M5() {
 }
 
 #endif // SPINDLE_LASER_ENABLE
-
-#if ENABLED(FAN_AS_LASER)
-#include "../gcode.h"
-#include "../../module/stepper.h"
-
-  /**
-   * M3, M4: Laser On
-   */
-  void GcodeSuite::M3_M4(bool is_M3) {
-    planner.synchronize();
-    const uint16_t s = parser.ushortval('S', 255);
-    fan_speed[FAN_NUM_AS_LASER] = MIN(s, 255U);
-  }
-
-  /**
-   * M5: Laser Off
-   */
-  void GcodeSuite::M5() {
-    planner.synchronize();
-    if (FAN_NUM_AS_LASER < FAN_COUNT) fan_speed[FAN_NUM_AS_LASER] = 0;
-  }
-#endif

@@ -36,7 +36,7 @@ void GcodeSuite::M92() {
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
       if (i == E_AXIS) {
-        const float value = parser.value_per_axis_unit((AxisEnum)(E_AXIS + TARGET_EXTRUDER));
+        const float value = parser.value_per_axis_units((AxisEnum)(E_AXIS + TARGET_EXTRUDER));
         if (value < 20) {
           float factor = planner.settings.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] / value; // increase e constants if M92 E14 is given for netfab.
           #if HAS_CLASSIC_JERK && (DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE))
@@ -48,7 +48,7 @@ void GcodeSuite::M92() {
         planner.settings.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] = value;
       }
       else {
-        planner.settings.axis_steps_per_mm[i] = parser.value_per_axis_unit((AxisEnum)i);
+        planner.settings.axis_steps_per_mm[i] = parser.value_per_axis_units((AxisEnum)i);
       }
     }
   }

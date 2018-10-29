@@ -108,7 +108,7 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
   extern bool soft_endstops_enabled;
   void clamp_to_software_endstops(float target[XYZ]);
 #else
-  #define soft_endstops_enabled false
+  constexpr bool soft_endstops_enabled = false;
   #define clamp_to_software_endstops(x) NOOP
 #endif
 
@@ -154,6 +154,14 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 void do_blocking_move_to_x(const float &rx, const float &fr_mm_s=0);
 void do_blocking_move_to_z(const float &rz, const float &fr_mm_s=0);
 void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm_s=0);
+
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZ], const float &fr_mm_s) {
+  do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
+}
+
+FORCE_INLINE void do_blocking_move_to(const float (&raw)[XYZE], const float &fr_mm_s) {
+  do_blocking_move_to(raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS], fr_mm_s);
+}
 
 void setup_for_endstop_or_probe_move();
 void clean_up_after_endstop_or_probe_move();

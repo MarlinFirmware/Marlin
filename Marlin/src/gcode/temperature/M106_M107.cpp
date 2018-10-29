@@ -47,10 +47,6 @@
  */
 void GcodeSuite::M106() {
   const uint8_t p = parser.byteval('P');
-  #if(ENABLED(LASER_PIN_DEDICATED) && ENABLED(FAN_AS_LASER))
-    if(FAN_NUM_AS_LASER==p)
-      return;
-  #endif
   const uint16_t s = parser.ushortval('S', 255);
 
   #if ENABLED(SINGLENOZZLE)
@@ -88,10 +84,6 @@ void GcodeSuite::M106() {
  */
 void GcodeSuite::M107() {
   const uint16_t p = parser.ushortval('P');
-  #if(ENABLED(LASER_PIN_DEDICATED) && ENABLED(FAN_AS_LASER))
-    if(FAN_NUM_AS_LASER==p)
-      return;
-  #endif
   #if ENABLED(SINGLENOZZLE)
     if (p != active_extruder) {
       if (p < EXTRUDERS) singlenozzle_fan_speed[p] = 0;

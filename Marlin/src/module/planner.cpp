@@ -141,9 +141,6 @@ float Planner::steps_to_mm[XYZE_N];           // (mm) Millimeters per step
 
 #if ENABLED(DISTINCT_E_FACTORS)
   uint8_t Planner::last_extruder = 0;     // Respond to extruder change
-  #define _EINDEX (E_AXIS + active_extruder)
-#else
-  #define _EINDEX E_AXIS
 #endif
 
 int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
@@ -1749,10 +1746,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return false;
 
-  // For a mixing extruder, get a magnified esteps for each
   #if ENABLED(MIXING_EXTRUDER)
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      block->mix_steps[i] = mixing_factor[i] * esteps;
+    MIXER_POPULATE_BLOCK();
   #endif
 
   #if FAN_COUNT > 0
@@ -1765,7 +1760,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if EXTRUDERS > 1
-    block->active_extruder = extruder;
+    block->extruder = extruder;
   #endif
 
   #if ENABLED(AUTO_POWER_CONTROL)
@@ -2066,15 +2061,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0f; // factor <1 decreases speed
   LOOP_XYZE(i) {
-    #if ENABLED(MIXING_EXTRUDER)
+    #if ENABLED(MIXING_EXTRUDER) && ENABLED(RETRACT_SYNC_MIXING)
+      // In worst case, only one extruder running, no change is needed.
+      // In best case, all extruders run the same amount, we can divide by MIXING_STEPPERS
       float delta_mm_i = 0;
-      if (i == E_AXIS) {
-        for (uint8_t s = 0; s < MIXING_STEPPERS; s++) {
-          const float delta_mm_s = mixing_factor[s] * delta_mm[i];
-          if (ABS(delta_mm_s) > ABS(delta_mm_i)) delta_mm_i = delta_mm_s;
-        }
-      }
-      else delta_mm_i = delta_mm[i];
+      if (i == E_AXIS && mixer.get_current_v_tool() == MIXER_AUTORETRACT_TOOL)
+        delta_mm_i = delta_mm[i] / MIXING_STEPPERS;
+      else
+        delta_mm_i = delta_mm[i];
     #else
       const float delta_mm_i = delta_mm[i];
     #endif
@@ -2699,7 +2693,7 @@ void Planner::set_machine_position_mm(const float &a, const float &b, const floa
   position[A_AXIS] = LROUND(a * settings.axis_steps_per_mm[A_AXIS]);
   position[B_AXIS] = LROUND(b * settings.axis_steps_per_mm[B_AXIS]);
   position[C_AXIS] = LROUND(c * settings.axis_steps_per_mm[C_AXIS]);
-  position[E_AXIS] = LROUND(e * settings.axis_steps_per_mm[_EINDEX]);
+  position[E_AXIS] = LROUND(e * settings.axis_steps_per_mm[E_AXIS_N(active_extruder)]);
   #if HAS_POSITION_FLOAT
     position_float[A_AXIS] = a;
     position_float[B_AXIS] = b;
@@ -2741,11 +2735,9 @@ void Planner::set_position_mm(const float &rx, const float &ry, const float &rz,
  * Setters for planner position (also setting stepper position).
  */
 void Planner::set_e_position_mm(const float &e) {
+  const uint8_t axis_index = E_AXIS_N(active_extruder);
   #if ENABLED(DISTINCT_E_FACTORS)
-    const uint8_t axis_index = E_AXIS + active_extruder;
     last_extruder = active_extruder;
-  #else
-    const uint8_t axis_index = E_AXIS;
   #endif
   #if ENABLED(FWRETRACT)
     float e_new = e - fwretract.current_retract[active_extruder];
@@ -2768,7 +2760,7 @@ void Planner::set_e_position_mm(const float &e) {
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
 void Planner::reset_acceleration_rates() {
   #if ENABLED(DISTINCT_E_FACTORS)
-    #define AXIS_CONDITION (i < E_AXIS || i == E_AXIS + active_extruder)
+    #define AXIS_CONDITION (i < E_AXIS || i == E_AXIS_N(active_extruder))
   #else
     #define AXIS_CONDITION true
   #endif
