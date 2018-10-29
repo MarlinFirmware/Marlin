@@ -38,7 +38,7 @@
 #define _ENDSTOP_INTERRUPTS_H_
 
 #include "../../module/endstops.h"
-
+#define LPC1768_PIN_INTERRUPT_M(pin) ((pin >> 0x5 & 0x7) == 0 || (pin >> 0x5 & 0x7) == 2)
 // One ISR for all EXT-Interrupts
 void endstop_ISR(void) { endstops.update(); }
 
