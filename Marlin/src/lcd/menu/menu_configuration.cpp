@@ -122,17 +122,16 @@ static void lcd_factory_settings() {
   void menu_IDEX() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-
-    MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
+    char menu_buffer[65];
+    sprintf_P(menu_buffer, PSTR("M605 S1\nG28 X\nG1 X%i"), int((X_BED_SIZE) / 2));
+    MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK, menu_buffer);
     const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
-    MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, need_g28
-      ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
-      : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
-    );
-    //MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, need_g28
-    //  ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")  // If Y or Z is not homed, do a full G28 first
-    //  : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100\nM605 S3 X200")
-    //);
+    const char * const g28 = need_g28 ? "G28\n" : "";
+    sprintf_P(menu_buffer, PSTR("M605 S1\nT0\n%sM605 S2 X%i\nG28 X\nG1 X%i"), g28, DEFAULT_DUPLICATION_X_OFFSET, int((X_BED_SIZE) / 3));
+    MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, menu_buffer);
+    //sprintf_P(menu_buffer, PSTR("M605 S1\nT0\n%sM605 S2 X%i\nG28 X\nG1 X%i\nM605 S3 X%i"), g28, DEFAULT_DUPLICATION_X_OFFSET, int((X_BED_SIZE) / 3), DEFAULT_DUPLICATION_X_OFFSET);
+    //MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, menu_buffer);
+
     MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
     MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);
     MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_Y_OFFSET , &hotend_offset[Y_AXIS][1], -10.0, 10.0, _recalc_IDEX_settings);
