@@ -49,13 +49,10 @@ typedef const __FlashStringHelper *progmem_str;
 
 namespace UI {
 
-  /* Labels to resolve ambiguity around zero-based vs one-based indexing.
-   * For a user-facing UI, one-based labels are far more natural. */
-
   enum axis_t     : uint8_t { X,    Y,    Z };
-  enum extruder_t : uint8_t { E1,   E2,   E3,   E4,   E5,   E6        };
-  enum heater_t   : uint8_t { H1,   H2,   H3,   H4,   H5,   H6,   BED };
-  enum fan_t      : uint8_t { FAN1, FAN2, FAN3, FAN4, FAN5, FAN6      };
+  enum extruder_t : uint8_t { E0,   E1,   E2,   E3,   E4,   E5        };
+  enum heater_t   : uint8_t { H0,   H1,   H2,   H3,   H4,   H5,   BED };
+  enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5      };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -239,17 +236,17 @@ namespace UI {
 
 /* Helper macros to increment or decrement a value. For example:
  *
- *   UI_INCREMENT_BY(TargetTemp_celsius, 10, E1)
+ *   UI_INCREMENT_BY(TargetTemp_celsius, 10, E0)
  *
  * Expands to:
  *
- *   setTargetTemp_celsius(getTargetTemp_celsius(E1) + 10, E1);
+ *   setTargetTemp_celsius(getTargetTemp_celsius(E0) + 10, E0);
  *
  * Or, in the case where a constant increment is desired:
  *
  *   constexpr float increment = 10;
  *
- *   UI_INCREMENT(TargetTemp_celsius, E1)
+ *   UI_INCREMENT(TargetTemp_celsius, E0)
  *
  */
 

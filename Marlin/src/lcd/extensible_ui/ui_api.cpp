@@ -163,11 +163,11 @@ namespace UI {
       #else
         0
       #endif
-      : thermalManager.degHotend(heater - H1);
+      : thermalManager.degHotend(heater - H0);
   }
 
   float getActualTemp_celsius(const extruder_t extruder) {
-    return thermalManager.degHotend(extruder - E1);
+    return thermalManager.degHotend(extruder - E0);
   }
 
   float getTargetTemp_celsius(const heater_t heater) {
@@ -177,14 +177,14 @@ namespace UI {
       #else
         0
       #endif
-      : thermalManager.degTargetHotend(heater - H1);
+      : thermalManager.degTargetHotend(heater - H0);
   }
 
   float getTargetTemp_celsius(const extruder_t extruder) {
-    return thermalManager.degTargetHotend(extruder - E1);
+    return thermalManager.degTargetHotend(extruder - E0);
   }
 
-  float getFan_percent(const fan_t fan) { return ((float(fan_speed[fan - FAN1]) + 1) * 100) / 256; }
+  float getFan_percent(const fan_t fan) { return ((float(fan_speed[fan - FAN0]) + 1) * 100) / 256; }
 
   float getAxisPosition_mm(const axis_t axis) {
     return flags.manual_motion ? destination[axis] : current_position[axis];
@@ -285,7 +285,7 @@ namespace UI {
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
-    const uint8_t e = extruder - E1;
+    const uint8_t e = extruder - E0;
     #if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
       if (e != active_extruder)
         tool_change(e, 0, no_move);
@@ -295,12 +295,12 @@ namespace UI {
 
   extruder_t getActiveTool() {
     switch (active_extruder) {
-      case 5:  return E6;
-      case 4:  return E5;
-      case 3:  return E4;
-      case 2:  return E3;
-      case 1:  return E2;
-      default: return E1;
+      case 5:  return E5;
+      case 4:  return E4;
+      case 3:  return E3;
+      case 2:  return E2;
+      case 1:  return E1;
+      default: return E0;
     }
   }
 
@@ -320,7 +320,7 @@ namespace UI {
   }
 
   bool canMove(const extruder_t extruder) {
-    return !thermalManager.tooColdToExtrude(extruder - E1);
+    return !thermalManager.tooColdToExtrude(extruder - E0);
   }
 
   float getAxisSteps_per_mm(const axis_t axis) {
@@ -328,7 +328,7 @@ namespace UI {
   }
 
   float getAxisSteps_per_mm(const extruder_t extruder) {
-    return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E1)];
+    return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
   }
 
   void setAxisSteps_per_mm(const float value, const axis_t axis) {
@@ -336,7 +336,7 @@ namespace UI {
   }
 
   void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
-    planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E1)] = value;
+    planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = value;
   }
 
   float getAxisMaxFeedrate_mm_s(const axis_t axis) {
@@ -344,7 +344,7 @@ namespace UI {
   }
 
   float getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
-    return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E1)];
+    return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
   }
 
   void setAxisMaxFeedrate_mm_s(const float value, const axis_t axis) {
@@ -352,7 +352,7 @@ namespace UI {
   }
 
   void setAxisMaxFeedrate_mm_s(const float value, const extruder_t extruder) {
-    planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E1)] = value;
+    planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = value;
   }
 
   float getAxisMaxAcceleration_mm_s2(const axis_t axis) {
@@ -360,7 +360,7 @@ namespace UI {
   }
 
   float getAxisMaxAcceleration_mm_s2(const extruder_t extruder) {
-    return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E1)];
+    return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)];
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const axis_t axis) {
@@ -368,7 +368,7 @@ namespace UI {
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
-    planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E1)] = value;
+    planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)] = value;
   }
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -388,12 +388,12 @@ namespace UI {
 
   #if ENABLED(LIN_ADVANCE)
     float getLinearAdvance_mm_mm_s(const extruder_t extruder) {
-      return (extruder < EXTRUDERS) ? planner.extruder_advance_K[extruder - E1] : 0;
+      return (extruder < EXTRUDERS) ? planner.extruder_advance_K[extruder - E0] : 0;
     }
 
     void setLinearAdvance_mm_mm_s(const float value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
-        planner.extruder_advance_K[extruder - E1] = clamp(value, 0, 999);
+        planner.extruder_advance_K[extruder - E0] = clamp(value, 0, 999);
     }
   #endif
 
@@ -481,13 +481,13 @@ namespace UI {
 
   #if HOTENDS > 1
     float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
-      if (extruder >= HOTENDS) return 0;
-      return hotend_offset[axis][extruder - E1];
+      if (extruder - E0 >= HOTENDS) return 0;
+      return hotend_offset[axis][extruder - E0];
     }
 
     void setNozzleOffset_mm(const float value, const axis_t axis, const extruder_t extruder) {
-      if (extruder >= HOTENDS) return;
-      hotend_offset[axis][extruder - E1] = value;
+      if (extruder - E0 >= HOTENDS) return;
+      hotend_offset[axis][extruder - E0] = value;
     }
   #endif
 
@@ -545,11 +545,11 @@ namespace UI {
     if (heater == BED)
       thermalManager.setTargetBed(clamp(value,0,200));
     #endif
-      thermalManager.setTargetHotend(clamp(value,0,500), heater - H1);
+      thermalManager.setTargetHotend(clamp(value,0,500), heater - H0);
   }
 
   void setTargetTemp_celsius(float value, const extruder_t extruder) {
-    thermalManager.setTargetHotend(clamp(value,0,500), extruder - E1);
+    thermalManager.setTargetHotend(clamp(value,0,500), extruder - E0);
   }
 
   void setFan_percent(float value, const fan_t fan) {
