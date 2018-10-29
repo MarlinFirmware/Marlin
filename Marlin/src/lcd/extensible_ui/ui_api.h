@@ -64,9 +64,10 @@ namespace UI {
   bool        canMove                        (const extruder_t);
   void        enqueueCommands                (progmem_str);
 
-  /* Getter and setters */
-  /* Should be used by the EXTENSIBLE_UI to query or change Marlin's state. */
-
+  /**
+   * Getter and setters
+   * Should be used by the EXTENSIBLE_UI to query or change Marlin's state.
+   */
   progmem_str getFirmwareName_str            ();
 
   float       getActualTemp_celsius          (const heater_t);
@@ -171,18 +172,22 @@ namespace UI {
     #endif
   #endif
 
-  /* Delay and timing routines */
-  /* Should be used by the EXTENSIBLE_UI to safely pause or measure time */
-  /* safe_millis must be called at least every 1 sec to guarantee time */
-  /* yield should be called within lengthy loops */
+  /**
+   * Delay and timing routines
+   * Should be used by the EXTENSIBLE_UI to safely pause or measure time
+   * safe_millis must be called at least every 1 sec to guarantee time
+   * yield should be called within lengthy loops
+   */
   uint32_t    safe_millis                    ();
   void        delay_us                       (unsigned long us);
   void        delay_ms                       (unsigned long ms);
   void        yield                          ();
 
-  /* Media access routines */
-  /* Should be used by the EXTENSIBLE_UI to operate on files */
-
+  /**
+   * Media access routines
+   *
+   * Should be used by the EXTENSIBLE_UI to operate on files
+   */
   bool        isMediaInserted                ();
   bool        isPrintingFromMediaPaused      ();
   bool        isPrintingFromMedia            ();
@@ -213,9 +218,11 @@ namespace UI {
       uint16_t    count                      ();
   };
 
-  /* Event callback routines */
-  /* Should be declared by EXTENSIBLE_UI and will be called by Marlin */
-
+  /**
+   * Event callback routines
+   *
+   * Should be declared by EXTENSIBLE_UI and will be called by Marlin
+   */
   void        onStartup                      ();
   void        onIdle                         ();
   void        onMediaInserted                ();
@@ -234,7 +241,8 @@ namespace UI {
   void        onLoadSettings                 ();
 };
 
-/* Helper macros to increment or decrement a value. For example:
+/**
+ * Helper macros to increment or decrement a value. For example:
  *
  *   UI_INCREMENT_BY(TargetTemp_celsius, 10, E0)
  *
@@ -249,7 +257,6 @@ namespace UI {
  *   UI_INCREMENT(TargetTemp_celsius, E0)
  *
  */
-
 #define UI_INCREMENT_BY(method, inc, ...) UI::set ## method(UI::get ## method (__VA_ARGS__) + inc, ##__VA_ARGS__)
 #define UI_DECREMENT_BY(method, inc, ...) UI::set ## method(UI::get ## method (__VA_ARGS__) - inc, ##__VA_ARGS__)
 
