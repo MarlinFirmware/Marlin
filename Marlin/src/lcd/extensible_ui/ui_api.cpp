@@ -554,7 +554,7 @@ namespace UI {
 
   void setFan_percent(float value, const fan_t fan) {
     if (fan < FAN_COUNT)
-      fan_speed[fan - FAN1] = clamp(round(value * 255 / 100), 0, 255);
+      fan_speed[fan - FAN0] = clamp(round(value * 255 / 100), 0, 255);
   }
 
   void setFeedrate_percent(const float value) {
