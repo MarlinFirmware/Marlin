@@ -193,7 +193,7 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode) {
   void enqueue_and_echo_command_now(const char* cmd) {
     while (!enqueue_and_echo_command(cmd)) idle();
   }
-  #if HAS_LCD_QUEUE_NOW
+  #if HAS_QUEUE_NOW_P
     /**
      * Enqueue from program memory and return only when commands are actually enqueued
      */

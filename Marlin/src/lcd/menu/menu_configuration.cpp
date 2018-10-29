@@ -112,25 +112,57 @@ static void lcd_factory_settings() {
   #include "../../module/motion.h"
   #include "../../gcode/queue.h"
 
-  void _recalc_IDEX_settings() {
+  inline void _recalc_IDEX_settings() {
     if (active_extruder) {                      // For the 2nd extruder re-home so the next tool-change gets the new offsets.
       enqueue_and_echo_commands_P(PSTR("G28")); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
       active_extruder = 0;
     }
   }
 
+  inline void _lcd_idex_mode_autopark() {
+    no_reentry = true;
+    char cmd[10];
+    enqueue_and_echo_commands_now_P(PSTR("M605 S1\nG28 X"));
+    sprintf_P(cmd, PSTR("G1 X%i"), int((X_BED_SIZE) / 2));
+    enqueue_and_echo_command_now(cmd);
+    no_reentry = false;
+  }
+
+  inline void _lcd_idex_mode_common() {
+    no_reentry = true;
+    char cmd[16];
+    enqueue_and_echo_commands_now_P(PSTR("M605 S1\nT0"));
+    if (!TEST(axis_known_position, Y_AXIS) || !TEST(axis_known_position, Z_AXIS))
+      enqueue_and_echo_commands_now_P(PSTR("G28"));
+    sprintf_P(cmd, PSTR("M605 S2 X%i"), int(DEFAULT_DUPLICATION_X_OFFSET));
+    enqueue_and_echo_command_now(cmd);
+    enqueue_and_echo_commands_now_P(PSTR("G28 X"));
+    sprintf_P(cmd, PSTR("G1 X%i"), int((X_BED_SIZE) / 3));
+    enqueue_and_echo_command_now(cmd);
+  }
+
+  inline void _lcd_idex_mode_duplicate() {
+    _lcd_idex_mode_common();
+    no_reentry = false;
+  }
+
+  /*
+  inline void _lcd_idex_mode_scaled() {
+    _lcd_idex_mode_common();
+    char cmd[16];
+    sprintf_P(cmd, PSTR("M605 S3 X%i"), int(DEFAULT_DUPLICATION_X_OFFSET));
+    enqueue_and_echo_command_now(cmd);
+    no_reentry = false;
+  }
+  */
+
   void menu_IDEX() {
+    if (no_reentry) return;
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    char menu_buffer[65];
-    sprintf_P(menu_buffer, PSTR("M605 S1\nG28 X\nG1 X%i"), int((X_BED_SIZE) / 2));
-    MENU_ITEM(gcode, MSG_IDEX_MODE_AUTOPARK, menu_buffer);
-    const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
-    const char * const g28 = need_g28 ? "G28\n" : "";
-    sprintf_P(menu_buffer, PSTR("M605 S1\nT0\n%sM605 S2 X%i\nG28 X\nG1 X%i"), g28, DEFAULT_DUPLICATION_X_OFFSET, int((X_BED_SIZE) / 3));
-    MENU_ITEM(gcode, MSG_IDEX_MODE_DUPLICATE, menu_buffer);
-    //sprintf_P(menu_buffer, PSTR("M605 S1\nT0\n%sM605 S2 X%i\nG28 X\nG1 X%i\nM605 S3 X%i"), g28, DEFAULT_DUPLICATION_X_OFFSET, int((X_BED_SIZE) / 3), DEFAULT_DUPLICATION_X_OFFSET);
-    //MENU_ITEM(gcode, MSG_IDEX_MODE_SCALED_COPY, menu_buffer);
+    MENU_ITEM(function, MSG_IDEX_MODE_AUTOPARK, _lcd_idex_mode_autopark);
+    MENU_ITEM(function, MSG_IDEX_MODE_DUPLICATE, _lcd_idex_mode_duplicate);
+    //MENU_ITEM(function, MSG_IDEX_MODE_SCALED_COPY, _lcd_idex_mode_scaled);
 
     MENU_ITEM(gcode, MSG_IDEX_MODE_FULL_CTRL, PSTR("M605 S0\nG28 X"));
     MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float52, MSG_IDEX_X_OFFSET , &hotend_offset[X_AXIS][1], MIN(X2_HOME_POS, X2_MAX_POS) - 25.0, MAX(X2_HOME_POS, X2_MAX_POS) + 25.0, _recalc_IDEX_settings);

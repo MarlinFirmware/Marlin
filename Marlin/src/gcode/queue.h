@@ -97,15 +97,18 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode);
  */
 bool enqueue_and_echo_command(const char* cmd);
 
-#define HAS_LCD_QUEUE_NOW (ENABLED(MALYAN_LCD) || (HAS_LCD_MENU && (ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE))))
-#define HAS_QUEUE_NOW (ENABLED(SDSUPPORT) || HAS_LCD_QUEUE_NOW)
+#define HAS_QUEUE_NOW_P (    ENABLED(DUAL_X_CARRIAGE) \
+                          || ENABLED(MALYAN_LCD) \
+                          || (HAS_LCD_MENU && (ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE))) \
+                        )
+#define HAS_QUEUE_NOW (ENABLED(SDSUPPORT) || HAS_QUEUE_NOW_P)
 
 #if HAS_QUEUE_NOW
   /**
    * Enqueue and return only when commands are actually enqueued
    */
   void enqueue_and_echo_command_now(const char* cmd);
-  #if HAS_LCD_QUEUE_NOW
+  #if HAS_QUEUE_NOW_P
     /**
      * Enqueue from program memory and return only when commands are actually enqueued
      */

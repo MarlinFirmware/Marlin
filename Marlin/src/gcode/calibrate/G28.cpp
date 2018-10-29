@@ -335,16 +335,16 @@ void GcodeSuite::G28(const bool always_home_all) {
         active_extruder_parked = true;
 
         if (IDEX_saved_mode >= DXC_DUPLICATION_MODE) {
-          enqueue_and_echo_commands_P("M605 S1\nT0");
-          char idexbuffer[20];
-          sprintf_P(idexbuffer, PSTR("M605 S2 X%i"), DEFAULT_DUPLICATION_X_OFFSET);
-          enqueue_and_echo_commands_P(idexbuffer);
-          enqueue_and_echo_commands_P(PSTR("G28 X"));
-          sprintf_P(idexbuffer, PSTR("G1 X%i"), (X_BED_SIZE) / 3);
-          enqueue_and_echo_commands_P(idexbuffer);
+          enqueue_and_echo_commands_now_P(PSTR("M605 S1\nT0"));
+          char cmd[16];
+          sprintf_P(cmd, PSTR("M605 S2 X%i"), DEFAULT_DUPLICATION_X_OFFSET);
+          enqueue_and_echo_command_now(cmd);
+          enqueue_and_echo_commands_now_P(PSTR("G28 X"));
+          sprintf_P(cmd, PSTR("G1 X%i"), (X_BED_SIZE) / 3);
+          enqueue_and_echo_command_now(cmd);
           if (IDEX_saved_mode >= DXC_SCALED_DUPLICATION_MODE) {
-            sprintf_P(idexbuffer, PSTR("M605 S3 X%i"), DEFAULT_DUPLICATION_X_OFFSET);
-            enqueue_and_echo_commands_P(idexbuffer);
+            sprintf_P(cmd, PSTR("M605 S3 X%i"), DEFAULT_DUPLICATION_X_OFFSET);
+            enqueue_and_echo_commands_now_P(cmd);
           }
         }
         else
