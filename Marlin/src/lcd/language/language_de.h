@@ -51,6 +51,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home Z")
+#define MSG_AUTO_Z_ALIGN                    _UxGT("Z-Achsen abgleichen")
 #define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibriere Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Home XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klick zum Starten")

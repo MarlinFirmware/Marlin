@@ -452,6 +452,13 @@ void menu_motion() {
   #endif
 
   //
+  // Auto Z-Align
+  //
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    MENU_ITEM(gcode, MSG_AUTO_Z_ALIGN, PSTR("G34"));
+  #endif
+
+  //
   // TMC Z Calibration
   //
   #if ENABLED(TMC_Z_CALIBRATION)
