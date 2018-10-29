@@ -166,17 +166,25 @@ void GcodeSuite::M28() {
     #endif
   ;
 
+  bool binary_mode = false;
+  char *p = parser.string_arg;
+  if (p[0] == 'B' && p[1] == '0') {
+    binary_mode = true;
+    p += 2;
+    while (*p == ' ') ++p;
+  }
+
   // Binary transfer mode
-  if (parser.byteval('B')) {
+  if (binary_mode) {
     SERIAL_ECHO_START_P(port);
     SERIAL_ECHO_P(port, " preparing to receive: ");
-    SERIAL_ECHOLN_P(port, parser.string_arg);
-    card.openFile(parser.string_arg, false);
+    SERIAL_ECHOLN_P(port, p);
+    card.openFile(p, false);
     card.transfer_mode = 1;
     card.transfer_port = port;
   }
   else
-    card.openFile(parser.string_arg, false);
+    card.openFile(p, false);
 }
 
 /**
