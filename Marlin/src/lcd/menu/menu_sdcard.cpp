@@ -116,11 +116,7 @@ void menu_sdcard() {
         #endif
       i;
 
-      #if ENABLED(SDCARD_SORT_ALPHA)
-        card.getfilename_sorted(nr);
-      #else
-        card.getfilename(nr);
-      #endif
+      card.getfilename_sorted(nr);
 
       if (card.filenameIsDir)
         MENU_ITEM(sddirectory, MSG_CARD_MENU, card);

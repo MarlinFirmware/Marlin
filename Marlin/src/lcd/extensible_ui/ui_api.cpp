@@ -570,11 +570,7 @@ namespace UI {
         #endif
       pos;
 
-      #if ENABLED(SDCARD_SORT_ALPHA)
-        card.getfilename_sorted(nr);
-      #else
-        card.getfilename(nr);
-      #endif
+      card.getfilename_sorted(nr);
       return card.filename && card.filename[0] != '\0';
     #endif
   }
