@@ -275,7 +275,8 @@ namespace UI {
         destination[Z_AXIS] = scale * destination[Z_AXIS] + current_position[Z_AXIS];
         prepare_move_to_destination();
         COPY(destination, saved_destination);
-      } else {
+      }
+      else {
         // We are close enough to finish off the move.
         COPY(destination, saved_destination);
         prepare_move_to_destination();
@@ -309,11 +310,11 @@ namespace UI {
   bool canMove(const axis_t axis) {
     switch (axis) {
       #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-      case X: return TEST(axis_homed, X_AXIS);
-      case Y: return TEST(axis_homed, Y_AXIS);
-      case Z: return TEST(axis_homed, Z_AXIS);
+        case X: return TEST(axis_homed, X_AXIS);
+        case Y: return TEST(axis_homed, Y_AXIS);
+        case Z: return TEST(axis_homed, Z_AXIS);
       #else
-      case X: case Y: case Z: return true;
+        case X: case Y: case Z: return true;
       #endif
       default: return false;
     }
