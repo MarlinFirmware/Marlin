@@ -181,7 +181,9 @@ void GcodeSuite::M28() {
     SERIAL_ECHOLN_P(port, p);
     card.openFile(p, false);
     card.transfer_mode = 1;
-    card.transfer_port = port;
+    #if NUM_SERIAL > 1
+      card.transfer_port = port;
+    #endif
   }
   else
     card.openFile(p, false);

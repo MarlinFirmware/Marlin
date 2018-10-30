@@ -148,7 +148,14 @@ public:
 public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir, abort_sd_printing;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
-  int8_t autostart_index, transfer_mode, transfer_port;
+  int8_t autostart_index, transfer_mode;
+
+  #if NUM_SERIAL > 1
+    uint8_t transfer_port;
+  #else
+    static constexpr uint8_t transfer_port = 0;
+  #endif
+
 private:
   SdFile root, workDir, workDirParents[MAX_DIR_DEPTH];
   uint8_t workDirDepth;

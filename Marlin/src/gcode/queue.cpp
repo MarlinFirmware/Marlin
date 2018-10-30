@@ -268,14 +268,15 @@ void gcode_line_error(PGM_P err, uint8_t port) {
 }
 
 static bool serial_data_available() {
-  return (MYSERIAL0.available() ? true :
+  return false
+    || MYSERIAL0.available()
     #if NUM_SERIAL > 1
-      MYSERIAL1.available() ? true :
+      || MYSERIAL1.available()
     #endif
-    false);
+  ;
 }
 
-static bool serial_data_available(const int index) {
+static bool serial_data_available(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.available();
     #if NUM_SERIAL > 1
@@ -285,7 +286,7 @@ static bool serial_data_available(const int index) {
   }
 }
 
-static int read_serial(const int index) {
+static int read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
     #if NUM_SERIAL > 1
