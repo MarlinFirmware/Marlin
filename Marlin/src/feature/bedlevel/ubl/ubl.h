@@ -157,7 +157,7 @@ class unified_bed_leveling {
                               MESH_MIN_Y + 14 * (MESH_Y_DIST), MESH_MIN_Y + 15 * (MESH_Y_DIST)
                             };
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
       static bool lcd_map_control;
     #endif
 

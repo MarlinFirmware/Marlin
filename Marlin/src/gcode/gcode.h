@@ -571,7 +571,7 @@ private:
     static void M190();
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     static void M145();
   #endif
 

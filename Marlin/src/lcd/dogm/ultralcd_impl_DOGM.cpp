@@ -245,7 +245,7 @@ void lcd_kill_screen() {
 
 void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   uint8_t row_y1, row_y2;
 
@@ -655,6 +655,6 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
 #endif // HAS_GRAPHICAL_LCD

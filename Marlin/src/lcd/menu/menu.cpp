@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
 #include "menu.h"
 #include "../ultralcd.h"
@@ -74,8 +74,6 @@ bool no_reentry = false;
 ////////////////////////////////////////////
 //////// Menu Navigation & History /////////
 ////////////////////////////////////////////
-
-void lcd_status_screen();
 
 void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
 
@@ -203,14 +201,6 @@ void menu_action_setting_edit_callback_bool(PGM_P pstr, bool* ptr, screenFunc_t 
 
 bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING(); }
 
-#if HAS_CHARACTER_LCD && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(LCD_PROGRESS_BAR_TEST) || ENABLED(AUTO_BED_LEVELING_UBL))
-  void lcd_set_custom_characters(
-    #if ENABLED(LCD_PROGRESS_BAR) || ENABLED(SHOW_BOOTSCREEN)
-      const uint8_t screen_charset=CHARSET_INFO
-    #endif
-  );
-#endif
-
 /**
  * General function to go directly to a screen
  */
@@ -258,19 +248,17 @@ void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
       #endif
       screen_history_depth = 0;
     }
+
     lcd_implementation_clear();
+
     // Re-initialize custom characters that may be re-used
-    #if HAS_CHARACTER_LCD && ENABLED(AUTO_BED_LEVELING_UBL)
-      if (!ubl.lcd_map_control) {
-        lcd_set_custom_characters(
-          #if ENABLED(LCD_PROGRESS_BAR)
-            screen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU
-          #endif
-        );
-      }
-    #elif ENABLED(LCD_PROGRESS_BAR)
-      lcd_set_custom_characters(screen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU);
+    #if HAS_CHARACTER_LCD
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        if (!ubl.lcd_map_control)
+      #endif
+          LCD_SET_CHARSET(screen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU);
     #endif
+
     lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
     screen_changed = true;
     #if HAS_GRAPHICAL_LCD
@@ -476,4 +464,4 @@ void _lcd_draw_homing() {
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
