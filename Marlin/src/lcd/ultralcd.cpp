@@ -376,7 +376,7 @@ void lcd_status_screen() {
     ENCODER_RATE_MULTIPLY(false);
   #endif
 
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || HAS_GRAPHICAL_LCD)
     // Progress bar % comes from SD when actively printing
     if (IS_SD_PRINTING())
       progress_bar_percent = card.percentDone();
@@ -730,7 +730,7 @@ void lcd_update() {
 
   const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
-    #if ENABLED(DOGLCD)
+    #if HAS_GRAPHICAL_LCD
       || drawing_screen
     #endif
   ) {
@@ -808,7 +808,7 @@ void lcd_update() {
       !lcd_status_update_delay--
     ) {
       lcd_status_update_delay = 9
-        #if ENABLED(DOGLCD)
+        #if HAS_GRAPHICAL_LCD
           + 3
         #endif
       ;
@@ -830,7 +830,7 @@ void lcd_update() {
     // then we want to use 1/2 of the time only.
     uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
-    #if ENABLED(DOGLCD)
+    #if HAS_GRAPHICAL_LCD
       const bool &is_drawing = drawing_screen;
     #else
       constexpr bool is_drawing = false;
@@ -861,7 +861,7 @@ void lcd_update() {
         #define CURRENTSCREEN() lcd_status_screen()
       #endif
 
-      #if ENABLED(DOGLCD)
+      #if HAS_GRAPHICAL_LCD
         #if ENABLED(LIGHTWEIGHT_UI)
           #if HAS_LCD_MENU
             const bool in_status = currentScreen == lcd_status_screen;

@@ -246,7 +246,7 @@
     void set_lcd_contrast(const int16_t value);
   #endif
 
-  #if ENABLED(DOGLCD)
+  #if HAS_GRAPHICAL_LCD
     #define SETCURSOR(col, row) lcd_moveto(col * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT))
     #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - len * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT))
   #else

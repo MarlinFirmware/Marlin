@@ -59,7 +59,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
 
 #include <U8glib.h>
 
@@ -114,19 +114,18 @@ uint8_t u8g_dev_uc1701_mini12864_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_init_seq);
       break;
-    case U8G_DEV_MSG_STOP:
-      break;
-    case U8G_DEV_MSG_PAGE_NEXT:
-      {
-        u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
-        u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_data_start);
-        u8g_WriteByte(u8g, dev, 0x0B0 | pb->p.page); /* select current page */
-        u8g_SetAddress(u8g, dev, 1);           /* data mode */
-        if ( u8g_pb_WriteBuffer(pb, u8g, dev) == 0 )
-          return 0;
-        u8g_SetChipSelect(u8g, dev, 0);
-      }
-      break;
+
+    case U8G_DEV_MSG_STOP: break;
+
+    case U8G_DEV_MSG_PAGE_NEXT: {
+      u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
+      u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_data_start);
+      u8g_WriteByte(u8g, dev, 0x0B0 | pb->p.page); /* select current page */
+      u8g_SetAddress(u8g, dev, 1);           /* data mode */
+      if (!u8g_pb_WriteBuffer(pb, u8g, dev)) return 0;
+      u8g_SetChipSelect(u8g, dev, 0);
+    } break;
+
     case U8G_DEV_MSG_CONTRAST:
       u8g_SetChipSelect(u8g, dev, 1);
       u8g_SetAddress(u8g, dev, 0);          /* instruction mode */
@@ -144,25 +143,25 @@ uint8_t u8g_dev_uc1701_mini12864_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_init_seq);
       break;
-    case U8G_DEV_MSG_STOP:
-      break;
-    case U8G_DEV_MSG_PAGE_NEXT:
-      {
-        u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
 
-        u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_data_start);
-        u8g_WriteByte(u8g, dev, 0x0B0 | (2*pb->p.page)); /* select current page */
-        u8g_SetAddress(u8g, dev, 1);           /* data mode */
-  u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)pb->buf);
-        u8g_SetChipSelect(u8g, dev, 0);
+    case U8G_DEV_MSG_STOP: break;
 
-        u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_data_start);
-        u8g_WriteByte(u8g, dev, 0x0B0 | (2*pb->p.page+1)); /* select current page */
-        u8g_SetAddress(u8g, dev, 1);           /* data mode */
-  u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
-        u8g_SetChipSelect(u8g, dev, 0);
-      }
-      break;
+    case U8G_DEV_MSG_PAGE_NEXT: {
+      u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
+
+      u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_data_start);
+      u8g_WriteByte(u8g, dev, 0x0B0 | (2*pb->p.page)); /* select current page */
+      u8g_SetAddress(u8g, dev, 1);           /* data mode */
+      u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)pb->buf);
+      u8g_SetChipSelect(u8g, dev, 0);
+
+      u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_data_start);
+      u8g_WriteByte(u8g, dev, 0x0B0 | (2*pb->p.page+1)); /* select current page */
+      u8g_SetAddress(u8g, dev, 1);           /* data mode */
+      u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width);
+      u8g_SetChipSelect(u8g, dev, 0);
+    } break;
+
     case U8G_DEV_MSG_CONTRAST:
       u8g_SetChipSelect(u8g, dev, 1);
       u8g_SetAddress(u8g, dev, 0);          /* instruction mode */
@@ -182,4 +181,4 @@ u8g_pb_t u8g_dev_uc1701_mini12864_HAL_2x_pb = { {16, HEIGHT, 0, 0, 0},  WIDTH, u
 u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_sw_spi = { u8g_dev_uc1701_mini12864_HAL_2x_fn, &u8g_dev_uc1701_mini12864_HAL_2x_pb, U8G_COM_HAL_SW_SPI_FN };
 u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_hw_spi = { u8g_dev_uc1701_mini12864_HAL_2x_fn, &u8g_dev_uc1701_mini12864_HAL_2x_pb, U8G_COM_HAL_HW_SPI_FN };
 
-#endif // DOGLCD
+#endif // HAS_GRAPHICAL_LCD
