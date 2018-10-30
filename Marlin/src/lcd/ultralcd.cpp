@@ -122,8 +122,6 @@ millis_t next_button_update_ms;
   int8_t encoderDirection = 1;
 #endif
 
-void lcd_status_screen();
-
 #if HAS_LCD_MENU
   #include "menu/menu.h"
 
@@ -363,6 +361,14 @@ bool lcd_blink() {
  * This is very display-dependent, so the lcd implementation draws this.
  */
 
+#if ENABLED(LCD_PROGRESS_BAR)
+  millis_t progress_bar_ms = 0;     // Start millis of the current progress bar cycle
+  #if PROGRESS_MSG_EXPIRE > 0
+    static millis_t expire_status_ms = 0;
+    void dontExpireStatus() { expire_status_ms = 0; }
+  #endif
+#endif
+
 #if LCD_INFO_SCREEN_STYLE == 0
   void lcd_impl_status_screen_0();
 #elif LCD_INFO_SCREEN_STYLE == 1
@@ -431,12 +437,8 @@ void lcd_status_screen() {
       #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
         previous_lcd_status_ms = millis();  // get status message to show up for a while
       #endif
-      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-        #if ENABLED(LCD_PROGRESS_BAR)
-          CHARSET_MENU
-        #endif
-      );
       lcd_goto_screen(menu_main);
+      lcd_implementation_init(); // May revive the LCD if static electricity killed it
       return;
     }
 
@@ -712,11 +714,7 @@ void lcd_update() {
       }
 
       lcd_refresh();
-      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-        #if ENABLED(LCD_PROGRESS_BAR)
-          currentScreen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU
-        #endif
-      );
+      lcd_implementation_init(); // May revive the LCD if static electricity killed it
     }
 
   #endif // SDSUPPORT && SD_DETECT_PIN
@@ -942,6 +940,7 @@ void lcd_finishstatus(const bool persist=false) {
       expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
     #endif
   #endif
+
   lcd_refresh();
 
   #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
@@ -952,10 +951,6 @@ void lcd_finishstatus(const bool persist=false) {
     status_scroll_offset = 0;
   #endif
 }
-
-#if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
-  void dontExpireStatus() { expire_status_ms = 0; }
-#endif
 
 bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 

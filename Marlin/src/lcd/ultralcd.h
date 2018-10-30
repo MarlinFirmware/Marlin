@@ -199,6 +199,7 @@
     #include "../module/motion.h" // for active_extruder
   #endif
 
+  void lcd_status_screen();
   void lcd_return_to_status();
   bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
@@ -229,8 +230,11 @@
 
   void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
 
-  #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
-    void dontExpireStatus();
+  #if ENABLED(LCD_PROGRESS_BAR)
+    extern millis_t progress_bar_ms;  // Start time for the current progress bar cycle
+    #if PROGRESS_MSG_EXPIRE > 0
+      void dontExpireStatus();
+    #endif
   #endif
 
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -422,22 +426,29 @@ extern char lcd_status_message[];
   void lcd_reselect_last_file();
 #endif
 
-// LCD implementations
-void lcd_implementation_clear();
-void lcd_implementation_init();
-
 #if HAS_GRAPHICAL_LCD
   extern bool drawing_screen, first_page;
 #elif HAS_SPI_LCD
   constexpr bool first_page = true;
 #endif
 
+// LCD implementations
+void lcd_implementation_clear();
+void lcd_implementation_init();
+
 #if HAS_CHARACTER_LCD
 
-  enum HD44780CharSet : uint8_t {
-    CHARSET_MENU,
-    CHARSET_INFO,
-    CHARSET_BOOT
-  };
+  enum HD44780CharSet : uint8_t { CHARSET_MENU, CHARSET_INFO, CHARSET_BOOT };
+
+  void lcd_set_custom_characters(
+    #if ENABLED(LCD_PROGRESS_BAR) || ENABLED(SHOW_BOOTSCREEN)
+      const HD44780CharSet screen_charset=CHARSET_INFO
+    #endif
+  );
+  #if ENABLED(LCD_PROGRESS_BAR)
+    #define LCD_SET_CHARSET(C) lcd_set_custom_characters(C)
+  #else
+    #define LCD_SET_CHARSET(C) lcd_set_custom_characters()
+  #endif
 
 #endif

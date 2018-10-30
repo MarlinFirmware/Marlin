@@ -19,11 +19,10 @@
 #include "../ultralcd.h"
 #include "../../Marlin.h"
 
-#include <string.h>
-#include "../fontutils.h"
-#include "../lcdprint.h"
-
 #include "ultralcd_common_HD44780.h"
+
+#include <string.h>
+
 #ifndef LCD_CLASS
   #include <LiquidCrystal.h>
   #define LCD_CLASS LiquidCrystal
