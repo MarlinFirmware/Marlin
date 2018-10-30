@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Configuration_adv.h
@@ -39,8 +40,6 @@
   *
   */
 
-#ifndef CONFIGURATION_ADV_H
-#define CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H_VERSION 020000
 
 // @section temperature
@@ -1843,5 +1842,3 @@
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
-
-#endif // CONFIGURATION_ADV_H

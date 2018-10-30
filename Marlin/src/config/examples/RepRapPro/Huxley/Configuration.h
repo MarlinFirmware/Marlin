@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Configuration.h
@@ -35,8 +36,6 @@
  * Advanced settings can be found in Configuration_adv.h
  *
  */
-#ifndef CONFIGURATION_H
-#define CONFIGURATION_H
 #define CONFIGURATION_H_VERSION 020000
 
 //===========================================================================
@@ -2080,5 +2079,3 @@ Black rubber belt(MXL), 18 - tooth aluminium pulley : 87.489 step per mm (Huxley
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
-
-#endif // CONFIGURATION_H

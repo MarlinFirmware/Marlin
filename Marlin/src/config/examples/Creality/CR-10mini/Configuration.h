@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Configuration.h
@@ -44,8 +45,6 @@
  * CR10_STOCKDISPLAY (RAMPS-compatible with single 10-pin plug)
  */
 
-#ifndef CONFIGURATION_H
-#define CONFIGURATION_H
 #define CONFIGURATION_H_VERSION 020000
 
 //===========================================================================
@@ -2050,5 +2049,3 @@
 
 // Allow servo angle to be edited and saved to EEPROM
 //#define EDITABLE_SERVO_ANGLES
-
-#endif // CONFIGURATION_H
