@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ULTRA_LCD) && DISABLED(DOGLCD)
+#if HAS_CHARACTER_LCD
 
 /**
  * ultralcd_impl_HD44780.cpp
@@ -1583,4 +1583,4 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
 
 #endif // HAS_LCD_MENU
 
-#endif // ULTRA_LCD && !DOGLCD
+#endif // HAS_CHARACTER_LCD

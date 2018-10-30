@@ -14,7 +14,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ULTRA_LCD) && DISABLED(DOGLCD)
+#if HAS_CHARACTER_LCD
 
 #include "../ultralcd.h"
 #include "../../Marlin.h"
@@ -1039,4 +1039,4 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str_P, read_byte_rom, max_length);
 }
 
-#endif // ULTRA_LCD && !DOGLCD
+#endif // HAS_CHARACTER_LCD
