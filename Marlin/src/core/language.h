@@ -200,7 +200,7 @@
 #define MSG_ENDSTOPS_HIT                    "endstops hit: "
 #define MSG_ERR_COLD_EXTRUDE_STOP           " cold extrusion prevented"
 #define MSG_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
-#define MSG_HOTEND_TOO_COLD                 "Hotend too cold"
+#define MSG_ERR_HOTEND_TOO_COLD             "Hotend too cold"
 
 #define MSG_FILAMENT_CHANGE_HEAT            "Press button (or M108) to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT          "Insert filament and press button (or M108)"
@@ -264,7 +264,7 @@
 
 // LCD Menu Messages
 
-#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(../lcd/dogm/language_data_##M.h)
+#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/language_data_##M.h)
 #define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
 #define INCLUDE_LANGUAGE_DATA LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 

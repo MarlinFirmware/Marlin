@@ -103,6 +103,8 @@ public:
       FORCE_INLINE void setSortFolders(int i) { sort_folders = i; presort(); }
       //FORCE_INLINE void setSortReverse(bool b) { sort_reverse = b; }
     #endif
+  #else
+    FORCE_INLINE void getfilename_sorted(const uint16_t nr) { getfilename(nr); }
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)

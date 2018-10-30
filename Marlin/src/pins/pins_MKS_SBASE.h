@@ -196,16 +196,17 @@
 
 /*
  * There are a number of configurations available for the SBase SD card reader.
- * A custom cable can be used to allow access to the LCD based SD card.
- * A standard cable can be used for access to the LCD SD card (but no SD detect).
- * The onboard SD card can be used and optionally shared with a PC via USB.
+ * - A custom cable can be used to allow access to the LCD based SD card.
+ * - A standard cable can be used for access to the LCD SD card (but no SD detect).
+ * - The onboard SD card can be used and optionally shared with a PC via USB.
  */
 
 //#define LPC_SD_CUSTOM_CABLE // Use a custom cable to access the SD
 //#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
 #define LPC_SD_ONBOARD        // Marlin uses the SD drive attached to the control board
 
-#ifdef LPC_SD_CUSTOM_CABLE
+#if ENABLED(LPC_SD_CUSTOM_CABLE)
+
   /**
    * A custom cable is needed. See the README file in the
    * Marlin\src\config\examples\Mks\Sbase directory
@@ -218,43 +219,41 @@
    * If you can't find a pin to use for the LCD's SD_DETECT then comment out
    * SD_DETECT_PIN entirely and remove that wire from the the custom cable.
    */
-  #define SD_DETECT_PIN      P2_11   // J8-5 (moved from EXP2 P0.27)
-  #define SCK_PIN            P1_22   // J8-2 (moved from EXP2 P0.7)
-  #define MISO_PIN           P1_23   // J8-3 (moved from EXP2 P0.8)
-  #define MOSI_PIN           P2_12   // J8-4 (moved from EXP2 P0.9)
-  #define SS_PIN             P0_28   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
+  #define SD_DETECT_PIN    P2_11   // J8-5 (moved from EXP2 P0.27)
+  #define SCK_PIN          P1_22   // J8-2 (moved from EXP2 P0.7)
+  #define MISO_PIN         P1_23   // J8-3 (moved from EXP2 P0.8)
+  #define MOSI_PIN         P2_12   // J8-4 (moved from EXP2 P0.9)
+  #define SS_PIN           P0_28   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
   #define LPC_SOFTWARE_SPI  // With a custom cable we need software SPI because the
                             // selected pins are not on a hardware SPI controller
-#endif
+#elif ENABLED(LPC_SD_LCD)
 
-#ifdef LPC_SD_LCD
   // use standard cable and header, SPI and SD detect sre shared with on-board SD card
   // hardware SPI is used for both SD cards. The detect pin is shred between the
   // LCD and onboard SD readers so we disable it.
-  #undef SD_DETECT_PIN
-  #define SCK_PIN            P0_07
-  #define MISO_PIN           P0_08
-  #define MOSI_PIN           P0_09
-  #define SS_PIN             P0_28   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
-#endif
+  #define SCK_PIN          P0_07
+  #define MISO_PIN         P0_08
+  #define MOSI_PIN         P0_09
+  #define SS_PIN           P0_28   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
 
-#ifdef LPC_SD_ONBOARD
+#elif ENABLED(LPC_SD_ONBOARD)
+
   // The external SD card is not used. Hardware SPI is used to access the card.
-  #ifdef USB_SD_ONBOARD
+  #if ENABLED(USB_SD_ONBOARD)
     // When sharing the SD card with a PC we want the menu options to
     // mount/unmount the card and refresh it. So we disable card detect.
     #define SHARED_SD_CARD
-    #undef SD_DETECT_PIN
   #else
-    #define SD_DETECT_PIN      P0_27
+    #define SD_DETECT_PIN  P0_27
   #endif
-  #define SCK_PIN            P0_07
-  #define MISO_PIN           P0_08
-  #define MOSI_PIN           P0_09
-  #define SS_PIN             P0_06   // Chip select for SD card used by Marlin
-  #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
+  #define SCK_PIN          P0_07
+  #define MISO_PIN         P0_08
+  #define MOSI_PIN         P0_09
+  #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
+
 #endif
 
 /**
@@ -286,6 +285,7 @@
   #endif
  #endif
 #endif
+
 #if HAS_DRIVER(TMC2208)
   // The shortage of pins becomes apparent.
   // Worst case you may have to give up the LCD

@@ -12,17 +12,16 @@
  *   Western(English), Cyrillic(Russian), Kana(Japanese) charsets.
  */
 
-#include "../inc/MarlinConfigPre.h"
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ULTRA_LCD)
-#include "ultralcd.h"
-#include "../Marlin.h"
+#if ENABLED(ULTRA_LCD) && DISABLED(DOGLCD)
 
-#if DISABLED(DOGLCD)
+#include "../ultralcd.h"
+#include "../../Marlin.h"
+
 #include <string.h>
-#include "fontutils.h"
-#include "lcdprint.h"
+#include "../fontutils.h"
+#include "../lcdprint.h"
 
 #include "ultralcd_common_HD44780.h"
 #ifndef LCD_CLASS
@@ -1010,16 +1009,16 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
 }
 
 /**
-* @brief Draw a UTF-8 string
-*
-* @param utf8_str : the UTF-8 string
-* @param cb_read_byte : the callback function to read one byte from the utf8_str (from RAM or ROM)
-* @param max_length : the pixel length of the string allowed (or number of slots in HD44780)
-*
-* @return the number of pixels advanced
-*
-* Draw a UTF-8 string
-*/
+ * @brief Draw a UTF-8 string
+ *
+ * @param utf8_str : the UTF-8 string
+ * @param cb_read_byte : the callback function to read one byte from the utf8_str (from RAM or ROM)
+ * @param max_length : the pixel length of the string allowed (or number of slots in HD44780)
+ *
+ * @return the number of pixels advanced
+ *
+ * Draw a UTF-8 string
+ */
 static int lcd_put_u8str_max_cb(const char * utf8_str, uint8_t (*cb_read_byte)(uint8_t * str), pixel_len_t max_length) {
   pixel_len_t ret = 0;
   uint8_t *p = (uint8_t *)utf8_str;
@@ -1040,5 +1039,4 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str_P, read_byte_rom, max_length);
 }
 
-#endif // DOGLCD
-#endif // ULTRA_LCD
+#endif // ULTRA_LCD && !DOGLCD

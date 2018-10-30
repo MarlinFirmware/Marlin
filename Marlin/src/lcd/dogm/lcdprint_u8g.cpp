@@ -7,7 +7,7 @@
  * @copyright GPL/BSD
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DOGLCD)
 
@@ -16,12 +16,12 @@ extern U8GLIB *pu8g;
 #define _lcd_write(a) pu8g->print(a)
 #define _lcd_setcursor(col, row) pu8g->setPrintPos((col), (row));
 
-#include "ultralcd.h"
-#include "../Marlin.h"
+#include "../ultralcd.h"
+#include "../../Marlin.h"
 
-#include "fontutils.h"
+#include "../fontutils.h"
 #include "u8g_fontutf8.h"
-#include "lcdprint.h"
+#include "../lcdprint.h"
 
 int lcd_glyph_height(void) {
   return u8g_GetFontBBXHeight(pu8g->getU8g());

@@ -363,17 +363,52 @@ inline void do_probe_raise(const float z_raise) {
     do_blocking_move_to_z(z_dest);
 }
 
+FORCE_INLINE void probe_specific_action(const bool deploy) {
+  #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
+
+    BUZZ(100, 659);
+    BUZZ(100, 698);
+
+    PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
+    lcd_setstatusPGM(ds_str);
+    serialprintPGM(ds_str);
+    SERIAL_EOL();
+
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
+    wait_for_user = true;
+    while (wait_for_user) idle();
+    lcd_reset_status();
+    KEEPALIVE_STATE(IN_HANDLER);
+
+  #endif // PAUSE_BEFORE_DEPLOY_STOW
+
+  #if ENABLED(SOLENOID_PROBE)
+
+    #if HAS_SOLENOID_1
+      WRITE(SOL1_PIN, deploy);
+    #endif
+
+  #elif ENABLED(Z_PROBE_SLED)
+
+    dock_sled(!deploy);
+
+  #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
+
+    MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
+
+  #elif ENABLED(Z_PROBE_ALLEN_KEY)
+
+    deploy ? run_deploy_moves_script() : run_stow_moves_script();
+
+  #elif ENABLED(RACK_AND_PINION_PROBE)
+
+    do_blocking_move_to_x(deploy ? Z_PROBE_DEPLOY_X : Z_PROBE_RETRACT_X);
+
+  #endif
+}
+
 // returns false for ok and true for failure
 bool set_probe_deployed(const bool deploy) {
-
-  // Can be extended to servo probes, if needed.
-  #if ENABLED(PROBE_IS_TRIGGERED_WHEN_STOWED_TEST)
-    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-      #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
-    #else
-      #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
-    #endif
-  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -420,61 +455,24 @@ bool set_probe_deployed(const bool deploy) {
   const float oldXpos = current_position[X_AXIS],
               oldYpos = current_position[Y_AXIS];
 
-  #ifdef _TRIGGERED_WHEN_STOWED_TEST
-
-    // If endstop is already false, the Z probe is deployed
-    if (_TRIGGERED_WHEN_STOWED_TEST == deploy) {     // closed after the probe specific actions.
-                                                     // Would a goto be less ugly?
-      //while (!_TRIGGERED_WHEN_STOWED_TEST) idle(); // would offer the opportunity
-                                                     // for a triggered when stowed manual probe.
-
-      if (!deploy) endstops.enable_z_probe(false); // Switch off triggered when stowed probes early
-                                                   // otherwise an Allen-Key probe can't be stowed.
+  #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
+    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+      #define PROBE_STOWED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
+    #else
+      #define PROBE_STOWED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+    #endif
   #endif
 
-      #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
+  #ifdef PROBE_STOWED
 
-        BUZZ(100, 659);
-        BUZZ(100, 698);
+    // Only deploy/stow if needed
+    if (PROBE_STOWED() == deploy) {
+      if (!deploy) endstops.enable_z_probe(false); // Switch off triggered when stowed probes early
+                                                   // otherwise an Allen-Key probe can't be stowed.
+      probe_specific_action(deploy);
+    }
 
-        PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
-        lcd_setstatusPGM(ds_str);
-        serialprintPGM(ds_str);
-        SERIAL_EOL();
-
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        wait_for_user = true;
-        while (wait_for_user) idle();
-        lcd_reset_status();
-        KEEPALIVE_STATE(IN_HANDLER);
-
-      #endif // PAUSE_BEFORE_DEPLOY_STOW
-
-      #if ENABLED(SOLENOID_PROBE)
-
-        #if HAS_SOLENOID_1
-          WRITE(SOL1_PIN, deploy);
-        #endif
-
-      #elif ENABLED(Z_PROBE_SLED)
-
-        dock_sled(!deploy);
-
-      #elif HAS_Z_SERVO_PROBE && DISABLED(BLTOUCH)
-
-        MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][deploy ? 0 : 1]);
-
-      #elif ENABLED(Z_PROBE_ALLEN_KEY)
-
-        deploy ? run_deploy_moves_script() : run_stow_moves_script();
-
-      #endif
-
-  #ifdef _TRIGGERED_WHEN_STOWED_TEST
-    } // _TRIGGERED_WHEN_STOWED_TEST == deploy
-
-    if (_TRIGGERED_WHEN_STOWED_TEST == deploy) { // State hasn't changed?
-
+    if (PROBE_STOWED() == deploy) {                // Unchanged after deploy/stow action?
       if (IsRunning()) {
         SERIAL_ERROR_START();
         SERIAL_ERRORLNPGM("Z-Probe failed");
@@ -482,8 +480,11 @@ bool set_probe_deployed(const bool deploy) {
       }
       stop();
       return true;
+    }
 
-    } // _TRIGGERED_WHEN_STOWED_TEST == deploy
+  #else
+
+    probe_specific_action(deploy);
 
   #endif
 

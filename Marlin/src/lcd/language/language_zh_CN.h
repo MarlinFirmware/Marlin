@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_ZH_CN_H
 #define LANGUAGE_ZH_CN_H
 
-//#define TALL_FONT_CORRECTION (1)
-
 #define CHARSIZE 3
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT("已就绪.")  //" ready."
@@ -57,12 +55,12 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("设置原点偏移")  //"Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("偏移已启用")  //"Offsets applied"
 #define MSG_SET_ORIGIN                      _UxGT("设置原点")  //"Set origin"
-#define MSG_PREHEAT_1                       _UxGT("预热PLA")  //"Preheat PLA"
+#define MSG_PREHEAT_1                       _UxGT("预热" PREHEAT_1_LABEL)  //"Preheat PREHEAT_2_LABEL"
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")  //MSG_PREHEAT_1 " "
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" 全部")  //MSG_PREHEAT_1 " All"
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" 热床")  //MSG_PREHEAT_1 " Bed"
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" 设置")  //MSG_PREHEAT_1 " conf"
-#define MSG_PREHEAT_2                       _UxGT("预热ABS")  //"Preheat ABS"
+#define MSG_PREHEAT_2                       _UxGT("预热" PREHEAT_2_LABEL)  //"Preheat PREHEAT_2_LABEL"
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")  //MSG_PREHEAT_2 " "
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" 全部")  //MSG_PREHEAT_2 " All"
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" 热床")  //MSG_PREHEAT_2 " Bed"
@@ -93,22 +91,22 @@
 #define MSG_UBL_MOVING_TO_NEXT              _UxGT("移动到下一个") // "Moving to next"
 #define MSG_UBL_ACTIVATE_MESH               _UxGT("激活UBL") // "Activate UBL"
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("关闭UBL") // "Deactivate UBL"
-#define MSG_UBL_SET_BED_TEMP                _UxGT("设置热床温度") // "Bed Temp"
-#define MSG_UBL_SET_HOTEND_TEMP             _UxGT("热端温度") // "Hotend Temp"
+#define MSG_UBL_SET_TEMP_BED                _UxGT("设置热床温度") // "Bed Temp"
+#define MSG_UBL_SET_TEMP_HOTEND             _UxGT("热端温度") // "Hotend Temp"
 #define MSG_UBL_MESH_EDIT                   _UxGT("网格编辑") // "Mesh Edit"
 #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("编辑客户网格") // "Edit Custom Mesh"
 #define MSG_UBL_FINE_TUNE_MESH              _UxGT("细调网格") // "Fine Tuning Mesh"
 #define MSG_UBL_DONE_EDITING_MESH           _UxGT("完成编辑网格") // "Done Editing Mesh"
 #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("创设客户网格") // "Build Custom Mesh"
 #define MSG_UBL_BUILD_MESH_MENU             _UxGT("创设网格") // "Build Mesh"
-#define MSG_UBL_BUILD_PLA_MESH              _UxGT("创设PLA网格") // "Build PLA Mesh"
-#define MSG_UBL_BUILD_ABS_MESH              _UxGT("创设ABS网格") // "Build ABS Mesh"
+#define MSG_UBL_BUILD_MESH_M1               _UxGT("创设" PREHEAT_1_LABEL "网格") // "Build PREHEAT_1_LABEL Mesh"
+#define MSG_UBL_BUILD_MESH_M2               _UxGT("创设" PREHEAT_2_LABEL "网格") // "Build PREHEAT_2_LABEL Mesh"
 #define MSG_UBL_BUILD_COLD_MESH             _UxGT("创设冷网格") // "Build Cold Mesh"
 #define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("调整网格高度") // "Adjust Mesh Height"
 #define MSG_UBL_MESH_HEIGHT_AMOUNT          _UxGT("高度合计") // "Height Amount"
 #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("批准网格") // "Validate Mesh"
-#define MSG_UBL_VALIDATE_PLA_MESH           _UxGT("批准PLA网格") // "Validate PLA Mesh"
-#define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("批准ABS网格") // "Validate ABS Mesh"
+#define MSG_UBL_VALIDATE_MESH_M1            _UxGT("批准" PREHEAT_1_LABEL "网格") // "Validate PREHEAT_1_LABEL Mesh"
+#define MSG_UBL_VALIDATE_MESH_M2            _UxGT("批准" PREHEAT_2_LABEL "网格") // "Validate PREHEAT_2_LABEL Mesh"
 #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("批准客户网格") // "Validate Custom Mesh"
 #define MSG_UBL_CONTINUE_MESH               _UxGT("继续热床网格") // "Continue Bed Mesh"
 #define MSG_UBL_MESH_LEVELING               _UxGT("网格调平") // "Mesh Leveling"
@@ -229,7 +227,7 @@
 #define MSG_E6STEPS                         _UxGT("挤出机6步数/mm") //"E6steps/mm"
 #define MSG_TEMPERATURE                     _UxGT("温度")  //"Temperature"
 #define MSG_MOTION                          _UxGT("运动")  //"Motion"
-#define MSG_FILAMENT                        _UxGT("丝料测容")  //"Filament" lcd_control_volumetric_menu
+#define MSG_FILAMENT                        _UxGT("丝料测容")  //"Filament" menu_advanced_filament
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("测容积mm³")  //"E in mm3" volumetric_enabled
 #define MSG_FILAMENT_DIAM                   _UxGT("丝料直径")  //"Fil. Dia."
 #define MSG_FILAMENT_UNLOAD                 _UxGT("卸载 mm") // "Unload mm"
@@ -270,7 +268,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("卸载丝料") // "Unload filament"
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("卸载全部") // "Unload All"
 #define MSG_INIT_SDCARD                     _UxGT("初始化存储卡")  //"Init. SD card"
-#define MSG_CNG_SDCARD                      _UxGT("更换存储卡")  //"Change SD card"
+#define MSG_CHANGE_SDCARD                   _UxGT("更换存储卡")  //"Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Z探针在热床之外")  //"Z probe out. bed" Z probe is not within the physical limits
 #define MSG_SKEW_FACTOR                     _UxGT("偏斜因数") // "Skew Factor"
 #define MSG_BLTOUCH                         _UxGT("BLTouch")     // "BLTouch"

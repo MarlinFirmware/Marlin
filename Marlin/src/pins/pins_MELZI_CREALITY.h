@@ -53,6 +53,10 @@
 #define LCD_PINS_D4        30   // ST9720 CLK
 #define FIL_RUNOUT_PIN     -1   // Uses Beeper/LED Pin Pulled to GND
 
+#if DISABLED(SPEAKER) && ENABLED(BLTOUCH)
+  #define SERVO0_PIN 27
+#endif
+
 // Alter timing for graphical display
 #ifndef ST7920_DELAY_1
   #define ST7920_DELAY_1 DELAY_NS(125)

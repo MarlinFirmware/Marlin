@@ -143,8 +143,8 @@ void MarlinSerialUSB::write(const uint8_t c) {
 }
 
 /**
-* Imports from print.h
-*/
+ * Imports from print.h
+ */
 
 void MarlinSerialUSB::print(char c, int base) {
   print((long)c, base);

@@ -642,7 +642,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         #if ENABLED(PREVENT_COLD_EXTRUSION)
           if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder) && toolchange_settings.swap_length) {
             SERIAL_ERROR_START();
-            SERIAL_ERRORLNPGM(MSG_HOTEND_TOO_COLD);
+            SERIAL_ERRORLNPGM(MSG_ERR_HOTEND_TOO_COLD);
             active_extruder = tmp_extruder;
             return;
           }
