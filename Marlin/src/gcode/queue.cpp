@@ -42,12 +42,12 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
-  #define CARD_CHAR_P(C) SERIAL_CHAR_P(card.transfer_port, C)
-  #define CARD_ECHO_P(V) SERIAL_ECHO_P(card.transfer_port, V)
+  #define CARD_CHAR_P(C)   SERIAL_CHAR_P(card.transfer_port, C)
+  #define CARD_ECHO_P(V)   SERIAL_ECHO_P(card.transfer_port, V)
   #define CARD_ECHOLN_P(V) SERIAL_ECHOLN_P(card.transfer_port, V)
 #else
-  #define CARD_CHAR_P(C) NOOP
-  #define CARD_ECHO_P(V) NOOP
+  #define CARD_CHAR_P(C)   NOOP
+  #define CARD_ECHO_P(V)   NOOP
   #define CARD_ECHOLN_P(V) NOOP
 #endif
 
@@ -545,7 +545,6 @@ public:
  * Exit when the buffer is full or when no more characters are
  * left on the serial port.
  */
-
 inline void get_serial_commands() {
   static char serial_line_buffer[NUM_SERIAL][MAX_CMD_SIZE];
   static bool serial_comment_mode[NUM_SERIAL] = { false }
@@ -556,8 +555,11 @@ inline void get_serial_commands() {
 
   #if ENABLED(SDSUPPORT)
     if (card.saving && card.transfer_mode == 1) {
-      // if transfering a file in binary stream mode receive it using serial_line_buffer for the working buffer, this limits the packet size to MAX_CMD_SIZE
-      // the serial receive buffer also limits the packet size for reliable transmission
+      /**
+       * For binary stream file transfer, use serial_line_buffer as the working
+       * receive buffer (which limits the packet size to MAX_CMD_SIZE).
+       * The receive buffer also limits the packet size for reliable transmission.
+       */
       binaryStream.receive(serial_line_buffer[card.transfer_port]);
       return;
     }
