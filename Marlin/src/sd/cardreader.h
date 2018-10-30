@@ -148,12 +148,15 @@ public:
 public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir, abort_sd_printing;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
-  int8_t autostart_index, transfer_mode;
+  int8_t autostart_index;
 
-  #if NUM_SERIAL > 1
-    uint8_t transfer_port;
-  #else
-    static constexpr uint8_t transfer_port = 0;
+  #if ENABLED(FAST_FILE_TRANSFER)
+    bool binary_mode;
+    #if NUM_SERIAL > 1
+      uint8_t transfer_port;
+    #else
+      constexpr uint8_t transfer_port = 0;
+    #endif
   #endif
 
 private:
