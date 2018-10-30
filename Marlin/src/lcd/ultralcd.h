@@ -89,7 +89,7 @@
 
   #elif ENABLED(U8GLIB_SSD1306)
     // Generic support for SSD1306 OLED I2C LCDs
-    //#define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE 
+    //#define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE
     //#define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)           // 4 stripes
     #define U8G_CLASS U8GLIB_SSD1306_128X64_2X
     #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)             // 4 stripes
@@ -102,7 +102,7 @@
     //#define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0   // 4 stripes
   #elif ENABLED(U8GLIB_SH1106)
     // Generic support for SH1106 OLED I2C LCDs
-    //#define U8G_CLASS U8GLIB_SH1106_128X64_2X_I2C_2_WIRE 
+    //#define U8G_CLASS U8GLIB_SH1106_128X64_2X_I2C_2_WIRE
     //#define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)           // 4 stripes
     #define U8G_CLASS U8GLIB_SH1106_128X64_2X
     #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)             // 4 stripes
