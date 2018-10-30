@@ -49,7 +49,7 @@
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/power_loss_recovery.h"
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     void menu_job_recovery();
   #endif
 #endif
@@ -100,7 +100,7 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
   millis_t previous_lcd_status_ms = 0;
 #endif
 
-#if ENABLED(SDSUPPORT) && ENABLED(ULTIPANEL) && ENABLED(SCROLL_LONG_FILENAMES)
+#if HAS_LCD_MENU && ENABLED(SDSUPPORT) && ENABLED(SCROLL_LONG_FILENAMES)
   uint8_t filename_scroll_pos, filename_scroll_max;
 #endif
 
@@ -202,7 +202,7 @@ void lcd_init() {
 
   lcd_buttons_update();
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     encoderDiff = 0;
   #endif
 }
@@ -371,7 +371,7 @@ bool lcd_blink() {
 
 void lcd_status_screen() {
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     ENCODER_DIRECTION_NORMAL();
     ENCODER_RATE_MULTIPLY(false);
   #endif
@@ -425,7 +425,7 @@ void lcd_status_screen() {
 
   #endif // LCD_PROGRESS_BAR
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
 
     if (use_click()) {
       #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
@@ -465,7 +465,7 @@ void lcd_status_screen() {
 
     feedrate_percentage = constrain(feedrate_percentage, 10, 999);
 
-  #endif // ULTIPANEL
+  #endif // HAS_LCD_MENU
 
   #if LCD_INFO_SCREEN_STYLE == 0
     lcd_impl_status_screen_0();
@@ -514,7 +514,7 @@ void kill_screen(PGM_P lcd_msg) {
 
 void lcd_quick_feedback(const bool clear_buttons) {
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     lcd_refresh();
     if (clear_buttons) buttons = 0;
     next_button_update_ms = millis() + 500;
@@ -525,7 +525,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   // Buzz and wait. The delay is needed for buttons to settle!
   lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     #if ENABLED(LCD_USE_I2C_BUZZER)
       delay(10);
     #elif PIN_EXISTS(BEEPER)
@@ -534,7 +534,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #endif
 }
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   extern bool no_reentry; // Flag to prevent recursion into menu handlers
 
@@ -602,7 +602,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
   }
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
 /**
  * Update the LCD, read encoder buttons, etc.
@@ -652,7 +652,7 @@ void lcd_update() {
   static uint16_t max_display_update_time = 0;
   static millis_t next_lcd_update_ms;
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     static millis_t return_to_status_ms = 0;
 
     // Handle any queued Move Axis motion
@@ -688,7 +688,7 @@ void lcd_update() {
       }
     #endif
 
-  #endif // ULTIPANEL
+  #endif // HAS_LCD_MENU
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 
@@ -741,7 +741,7 @@ void lcd_update() {
       lcd_implementation_update_indicators();
     #endif
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
 
       #if ENABLED(LCD_HAS_SLOW_BUTTONS)
         slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
@@ -797,12 +797,12 @@ void lcd_update() {
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       }
 
-    #endif // ULTIPANEL
+    #endif // HAS_LCD_MENU
 
     // This runs every ~100ms when idling often enough.
     // Instead of tracking changes just redraw the Status Screen once per second.
     if (
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         currentScreen == lcd_status_screen &&
       #endif
       !lcd_status_update_delay--
@@ -816,7 +816,7 @@ void lcd_update() {
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
 
-    #if ENABLED(ULTIPANEL) && ENABLED(SCROLL_LONG_FILENAMES)
+    #if HAS_LCD_MENU && ENABLED(SCROLL_LONG_FILENAMES)
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
       if (currentScreen == menu_sdcard && filename_scroll_pos < filename_scroll_max && !lcd_status_update_delay--) {
@@ -855,7 +855,7 @@ void lcd_update() {
         buttons_reprapworld_keypad = 0;
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         #define CURRENTSCREEN() (*currentScreen)()
       #else
         #define CURRENTSCREEN() lcd_status_screen()
@@ -863,7 +863,7 @@ void lcd_update() {
 
       #if ENABLED(DOGLCD)
         #if ENABLED(LIGHTWEIGHT_UI)
-          #if ENABLED(ULTIPANEL)
+          #if HAS_LCD_MENU
             const bool in_status = currentScreen == lcd_status_screen;
           #else
             constexpr bool in_status = true;
@@ -896,7 +896,7 @@ void lcd_update() {
         CURRENTSCREEN();
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         lcd_clicked = false;
       #endif
 
@@ -905,7 +905,7 @@ void lcd_update() {
       NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
 
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
@@ -913,7 +913,7 @@ void lcd_update() {
       else if (ELAPSED(ms, return_to_status_ms))
         lcd_return_to_status();
 
-    #endif // ULTIPANEL
+    #endif // HAS_LCD_MENU
 
     // Change state of drawing flag between screen updates
     if (!is_drawing) switch (lcdDrawUpdate) {
@@ -1023,7 +1023,7 @@ void lcd_status_printf_P(const uint8_t level, PGM_P const fmt, ...) {
 
 void lcd_setalertstatusPGM(PGM_P const message) {
   lcd_setstatusPGM(message, 1);
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     lcd_return_to_status();
   #endif
 }
@@ -1068,7 +1068,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   }
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   /**
    * Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
@@ -1252,6 +1252,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     }
   }
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
 #endif // ULTRA_LCD

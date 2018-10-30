@@ -60,7 +60,7 @@ void GcodeSuite::M18_M84() {
       #endif
     }
 
-    #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
+    #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
       if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
     #endif
   }

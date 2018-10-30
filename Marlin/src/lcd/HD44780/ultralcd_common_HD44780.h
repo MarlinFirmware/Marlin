@@ -35,7 +35,7 @@
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../../feature/bedlevel/ubl/ubl.h"
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     #define ULTRA_X_PIXELS_PER_CHAR    5
     #define ULTRA_Y_PIXELS_PER_CHAR    8
     #define ULTRA_COLUMNS_FOR_MESH_MAP 7
@@ -57,7 +57,7 @@
 // macro name. The mapping is independent of whether the button is directly connected or
 // via a shift/i2c register.
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   extern volatile uint8_t buttons;
 
@@ -119,7 +119,7 @@
     #define LCD_CLICKED (buttons & (B_MI|B_ST))
   #endif
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information

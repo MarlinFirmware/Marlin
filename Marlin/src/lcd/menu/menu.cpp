@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
 #include "menu.h"
 #include "../ultralcd.h"
@@ -476,4 +476,4 @@ void _lcd_draw_homing() {
   void _lcd_toggle_bed_leveling() { set_bed_leveling_enabled(!planner.leveling_active); }
 #endif
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU

@@ -316,7 +316,7 @@
       extern uint8_t filename_scroll_pos, filename_scroll_max;
     #endif
 
-  #endif // ULTIPANEL
+  #endif // HAS_LCD_MENU
 
   #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
     extern millis_t previous_lcd_status_ms;

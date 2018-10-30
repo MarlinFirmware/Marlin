@@ -975,7 +975,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
 
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -1581,6 +1581,6 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
 #endif // ULTRA_LCD && !DOGLCD
