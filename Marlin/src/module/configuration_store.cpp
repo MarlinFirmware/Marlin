@@ -1008,10 +1008,6 @@ void MarlinSettings::postprocess() {
     }
     else {
       float dummy = 0;
-      #if DISABLED(AUTO_BED_LEVELING_UBL) || DISABLED(FWRETRACT) || DISABLED(FWRETRACT_AUTORETRACT) || ENABLED(NO_VOLUMETRICS)
-        bool dummyb;
-      #endif
-
       working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
       _FIELD_TEST(esteppers);
@@ -1023,223 +1019,241 @@ void MarlinSettings::postprocess() {
       //
       // Planner Motion
       //
+      {
+        // Get only the number of E stepper parameters previously stored
+        // Any steppers added later are set to their defaults
+        const uint32_t def1[] = DEFAULT_MAX_ACCELERATION;
+        const float def2[] = DEFAULT_AXIS_STEPS_PER_UNIT, def3[] = DEFAULT_MAX_FEEDRATE;
 
-      // Get only the number of E stepper parameters previously stored
-      // Any steppers added later are set to their defaults
-      const uint32_t def1[] = DEFAULT_MAX_ACCELERATION;
-      const float def2[] = DEFAULT_AXIS_STEPS_PER_UNIT, def3[] = DEFAULT_MAX_FEEDRATE;
+        uint32_t tmp1[XYZ + esteppers];
+        EEPROM_READ(tmp1);                         // max_acceleration_mm_per_s2
+        EEPROM_READ(planner.settings.min_segment_time_us);
 
-      uint32_t tmp1[XYZ + esteppers];
-      EEPROM_READ(tmp1);                         // max_acceleration_mm_per_s2
-      EEPROM_READ(planner.settings.min_segment_time_us);
+        float tmp2[XYZ + esteppers], tmp3[XYZ + esteppers];
+        EEPROM_READ(tmp2);                         // axis_steps_per_mm
+        EEPROM_READ(tmp3);                         // max_feedrate_mm_s
+        if (!validating) LOOP_XYZE_N(i) {
+          const bool in = (i < esteppers + XYZ);
+          planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : def1[ALIM(i, def1)];
+          planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : def2[ALIM(i, def2)];
+          planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : def3[ALIM(i, def3)];
+        }
 
-      float tmp2[XYZ + esteppers], tmp3[XYZ + esteppers];
-      EEPROM_READ(tmp2);                         // axis_steps_per_mm
-      EEPROM_READ(tmp3);                         // max_feedrate_mm_s
-      if (!validating) LOOP_XYZE_N(i) {
-        const bool in = (i < esteppers + XYZ);
-        planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : def1[ALIM(i, def1)];
-        planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : def2[ALIM(i, def2)];
-        planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : def3[ALIM(i, def3)];
-      }
+        EEPROM_READ(planner.settings.acceleration);
+        EEPROM_READ(planner.settings.retract_acceleration);
+        EEPROM_READ(planner.settings.travel_acceleration);
+        EEPROM_READ(planner.settings.min_feedrate_mm_s);
+        EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
 
-      EEPROM_READ(planner.settings.acceleration);
-      EEPROM_READ(planner.settings.retract_acceleration);
-      EEPROM_READ(planner.settings.travel_acceleration);
-      EEPROM_READ(planner.settings.min_feedrate_mm_s);
-      EEPROM_READ(planner.settings.min_travel_feedrate_mm_s);
+        #if HAS_CLASSIC_JERK
+          EEPROM_READ(planner.max_jerk);
+          #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+            EEPROM_READ(dummy);
+          #endif
+        #else
+          for (uint8_t q = 4; q--;) EEPROM_READ(dummy);
+        #endif
 
-      #if HAS_CLASSIC_JERK
-        EEPROM_READ(planner.max_jerk);
-        #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+        #if ENABLED(JUNCTION_DEVIATION)
+          EEPROM_READ(planner.junction_deviation_mm);
+        #else
           EEPROM_READ(dummy);
         #endif
-      #else
-        for (uint8_t q = 4; q--;) EEPROM_READ(dummy);
-      #endif
-
-      #if ENABLED(JUNCTION_DEVIATION)
-        EEPROM_READ(planner.junction_deviation_mm);
-      #else
-        EEPROM_READ(dummy);
-      #endif
+      }
 
       //
       // Home Offset (M206)
       //
+      {
+        _FIELD_TEST(home_offset);
 
-      _FIELD_TEST(home_offset);
-
-      #if !HAS_HOME_OFFSET
-        float home_offset[XYZ];
-      #endif
-      EEPROM_READ(home_offset);
+        #if !HAS_HOME_OFFSET
+          float home_offset[XYZ];
+        #endif
+        EEPROM_READ(home_offset);
+      }
 
       //
       // Hotend Offsets, if any
       //
-
-      #if HAS_HOTEND_OFFSET
-        // Skip hotend 0 which must be 0
-        for (uint8_t e = 1; e < HOTENDS; e++)
-          LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
-      #endif
+      {
+        #if HAS_HOTEND_OFFSET
+          // Skip hotend 0 which must be 0
+          for (uint8_t e = 1; e < HOTENDS; e++)
+            LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
+        #endif
+      }
 
       //
       // Global Leveling
       //
-
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        EEPROM_READ(new_z_fade_height);
-      #else
-        EEPROM_READ(dummy);
-      #endif
+      {
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          EEPROM_READ(new_z_fade_height);
+        #else
+          EEPROM_READ(dummy);
+        #endif
+      }
 
       //
       // Mesh (Manual) Bed Leveling
       //
+      {
+        uint8_t mesh_num_x, mesh_num_y;
+        EEPROM_READ(dummy);
+        EEPROM_READ_ALWAYS(mesh_num_x);
+        EEPROM_READ_ALWAYS(mesh_num_y);
 
-      uint8_t mesh_num_x, mesh_num_y;
-      EEPROM_READ(dummy);
-      EEPROM_READ_ALWAYS(mesh_num_x);
-      EEPROM_READ_ALWAYS(mesh_num_y);
-
-      #if ENABLED(MESH_BED_LEVELING)
-        if (!validating) mbl.z_offset = dummy;
-        if (mesh_num_x == GRID_MAX_POINTS_X && mesh_num_y == GRID_MAX_POINTS_Y) {
-          // EEPROM data fits the current mesh
-          EEPROM_READ(mbl.z_values);
-        }
-        else {
-          // EEPROM data is stale
-          if (!validating) mbl.reset();
+        #if ENABLED(MESH_BED_LEVELING)
+          if (!validating) mbl.z_offset = dummy;
+          if (mesh_num_x == GRID_MAX_POINTS_X && mesh_num_y == GRID_MAX_POINTS_Y) {
+            // EEPROM data fits the current mesh
+            EEPROM_READ(mbl.z_values);
+          }
+          else {
+            // EEPROM data is stale
+            if (!validating) mbl.reset();
+            for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummy);
+          }
+        #else
+          // MBL is disabled - skip the stored data
           for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummy);
-        }
-      #else
-        // MBL is disabled - skip the stored data
-        for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummy);
-      #endif // MESH_BED_LEVELING
+        #endif // MESH_BED_LEVELING
+      }
 
-      _FIELD_TEST(zprobe_zoffset);
+      //
+      // Probe Z Offset
+      //
+      {
+        _FIELD_TEST(zprobe_zoffset);
 
-      #if !HAS_BED_PROBE
-        float zprobe_zoffset;
-      #endif
-      EEPROM_READ(zprobe_zoffset);
+        #if !HAS_BED_PROBE
+          float zprobe_zoffset;
+        #endif
+        EEPROM_READ(zprobe_zoffset);
+      }
 
       //
       // Planar Bed Leveling matrix
       //
-
-      #if ABL_PLANAR
-        EEPROM_READ(planner.bed_level_matrix);
-      #else
-        for (uint8_t q = 9; q--;) EEPROM_READ(dummy);
-      #endif
+      {
+        #if ABL_PLANAR
+          EEPROM_READ(planner.bed_level_matrix);
+        #else
+          for (uint8_t q = 9; q--;) EEPROM_READ(dummy);
+        #endif
+      }
 
       //
       // Bilinear Auto Bed Leveling
       //
-
-      uint8_t grid_max_x, grid_max_y;
-      EEPROM_READ_ALWAYS(grid_max_x);                       // 1 byte
-      EEPROM_READ_ALWAYS(grid_max_y);                       // 1 byte
-      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        if (grid_max_x == GRID_MAX_POINTS_X && grid_max_y == GRID_MAX_POINTS_Y) {
-          if (!validating) set_bed_leveling_enabled(false);
-          EEPROM_READ(bilinear_grid_spacing);        // 2 ints
-          EEPROM_READ(bilinear_start);               // 2 ints
-          EEPROM_READ(z_values);                     // 9 to 256 floats
-        }
-        else // EEPROM data is stale
-      #endif // AUTO_BED_LEVELING_BILINEAR
-        {
-          // Skip past disabled (or stale) Bilinear Grid data
-          int bgs[2], bs[2];
-          EEPROM_READ(bgs);
-          EEPROM_READ(bs);
-          for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummy);
-        }
+      {
+        uint8_t grid_max_x, grid_max_y;
+        EEPROM_READ_ALWAYS(grid_max_x);                       // 1 byte
+        EEPROM_READ_ALWAYS(grid_max_y);                       // 1 byte
+        #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          if (grid_max_x == GRID_MAX_POINTS_X && grid_max_y == GRID_MAX_POINTS_Y) {
+            if (!validating) set_bed_leveling_enabled(false);
+            EEPROM_READ(bilinear_grid_spacing);        // 2 ints
+            EEPROM_READ(bilinear_start);               // 2 ints
+            EEPROM_READ(z_values);                     // 9 to 256 floats
+          }
+          else // EEPROM data is stale
+        #endif // AUTO_BED_LEVELING_BILINEAR
+          {
+            // Skip past disabled (or stale) Bilinear Grid data
+            int bgs[2], bs[2];
+            EEPROM_READ(bgs);
+            EEPROM_READ(bs);
+            for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummy);
+          }
+      }
 
       //
       // Unified Bed Leveling active state
       //
+      {
+        _FIELD_TEST(planner_leveling_active);
 
-      _FIELD_TEST(planner_leveling_active);
-
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
-        EEPROM_READ(planner.leveling_active);
-        EEPROM_READ(ubl.storage_slot);
-      #else
-        uint8_t dummyui8;
-        EEPROM_READ(dummyb);
-        EEPROM_READ(dummyui8);
-      #endif // AUTO_BED_LEVELING_UBL
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          EEPROM_READ(planner.leveling_active);
+          EEPROM_READ(ubl.storage_slot);
+        #else
+          bool planner_leveling_active;
+          uint8_t ubl_storage_slot;
+          EEPROM_READ(planner_leveling_active);
+          EEPROM_READ(ubl_storage_slot);
+        #endif
+      }
 
       //
       // SERVO_ANGLES
       //
-      #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
-        uint16_t servo_angles[NUM_SERVOS][2];
-      #endif
-      EEPROM_READ(servo_angles);
+      {
+        #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
+          uint16_t servo_angles[NUM_SERVOS][2];
+        #endif
+        EEPROM_READ(servo_angles);
+      }
 
       //
       // DELTA Geometry or Dual Endstops offsets
       //
+      {
+        #if ENABLED(DELTA)
 
-      #if ENABLED(DELTA)
+          _FIELD_TEST(delta_height);
 
-        _FIELD_TEST(delta_height);
+          EEPROM_READ(delta_height);              // 1 float
+          EEPROM_READ(delta_endstop_adj);         // 3 floats
+          EEPROM_READ(delta_radius);              // 1 float
+          EEPROM_READ(delta_diagonal_rod);        // 1 float
+          EEPROM_READ(delta_segments_per_second); // 1 float
+          EEPROM_READ(delta_calibration_radius);  // 1 float
+          EEPROM_READ(delta_tower_angle_trim);    // 3 floats
 
-        EEPROM_READ(delta_height);              // 1 float
-        EEPROM_READ(delta_endstop_adj);         // 3 floats
-        EEPROM_READ(delta_radius);              // 1 float
-        EEPROM_READ(delta_diagonal_rod);        // 1 float
-        EEPROM_READ(delta_segments_per_second); // 1 float
-        EEPROM_READ(delta_calibration_radius);  // 1 float
-        EEPROM_READ(delta_tower_angle_trim);    // 3 floats
+        #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
 
-      #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+          _FIELD_TEST(x2_endstop_adj);
 
-        _FIELD_TEST(x2_endstop_adj);
+          #if ENABLED(X_DUAL_ENDSTOPS)
+            EEPROM_READ(endstops.x2_endstop_adj);  // 1 float
+          #else
+            EEPROM_READ(dummy);
+          #endif
+          #if ENABLED(Y_DUAL_ENDSTOPS)
+            EEPROM_READ(endstops.y2_endstop_adj);  // 1 float
+          #else
+            EEPROM_READ(dummy);
+          #endif
+          #if Z_MULTI_ENDSTOPS
+            EEPROM_READ(endstops.z2_endstop_adj); // 1 float
+          #else
+            EEPROM_READ(dummy);
+          #endif
+          #if ENABLED(Z_TRIPLE_ENDSTOPS)
+            EEPROM_READ(endstops.z3_endstop_adj); // 1 float
+          #else
+            EEPROM_READ(dummy);
+          #endif
 
-        #if ENABLED(X_DUAL_ENDSTOPS)
-          EEPROM_READ(endstops.x2_endstop_adj);  // 1 float
-        #else
-          EEPROM_READ(dummy);
         #endif
-        #if ENABLED(Y_DUAL_ENDSTOPS)
-          EEPROM_READ(endstops.y2_endstop_adj);  // 1 float
-        #else
-          EEPROM_READ(dummy);
-        #endif
-        #if Z_MULTI_ENDSTOPS
-          EEPROM_READ(endstops.z2_endstop_adj); // 1 float
-        #else
-          EEPROM_READ(dummy);
-        #endif
-        #if ENABLED(Z_TRIPLE_ENDSTOPS)
-          EEPROM_READ(endstops.z3_endstop_adj); // 1 float
-        #else
-          EEPROM_READ(dummy);
-        #endif
-
-      #endif
+      }
 
       //
       // LCD Preheat settings
       //
+      {
+        _FIELD_TEST(lcd_preheat_hotend_temp);
 
-      _FIELD_TEST(lcd_preheat_hotend_temp);
-
-      #if DISABLED(ULTIPANEL)
-        int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
-        uint8_t lcd_preheat_fan_speed[2];
-      #endif
-      EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
-      EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
-      EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
+        #if DISABLED(ULTIPANEL)
+          int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
+          uint8_t lcd_preheat_fan_speed[2];
+        #endif
+        EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
+        EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
+        EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
+      }
 
       //
       // Hotend PID
