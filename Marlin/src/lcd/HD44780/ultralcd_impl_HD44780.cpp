@@ -887,7 +887,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
    *  |01234567890123456789|
    */
 
-  static void lcd_impl_status_screen_1() {
+  void lcd_impl_status_screen_1() {
     const bool blink = lcd_blink();
 
     // ========== Line 1 ==========
