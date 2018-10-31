@@ -741,6 +741,9 @@
     #define SD_FIRMWARE_UPDATE_INACTIVE_VALUE 0xFF
   #endif
 
+  // Add an optimized binary file transfer mode, initiated with 'M28 B1'
+  //#define FAST_FILE_TRANSFER
+
 #endif // SDSUPPORT
 
 /**

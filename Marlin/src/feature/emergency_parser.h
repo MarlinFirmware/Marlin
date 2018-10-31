@@ -19,13 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * emergency_parser.h - Intercept special commands directly in the serial stream
  */
 
-#ifndef _EMERGENCY_PARSER_H_
-#define _EMERGENCY_PARSER_H_
+#define FORCE_INLINE __attribute__((always_inline)) inline
 
 // External references
 extern volatile bool wait_for_user, wait_for_heatup;
@@ -53,11 +53,13 @@ public:
 
   static bool killed_by_M112;
 
-  EmergencyParser() {}
+  EmergencyParser() { enable(); }
 
-  __attribute__((always_inline)) inline
-  static void update(State &state, const uint8_t c) {
+  FORCE_INLINE static void enable()  { enabled = true; }
 
+  FORCE_INLINE static void disable() { enabled = false; }
+
+  FORCE_INLINE static void update(State &state, const uint8_t c) {
     switch (state) {
       case EP_RESET:
         switch (c) {
@@ -118,7 +120,7 @@ public:
 
       default:
         if (c == '\n') {
-          switch (state) {
+          if (enabled) switch (state) {
             case EP_M108:
               wait_for_user = wait_for_heatup = false;
               break;
@@ -136,8 +138,8 @@ public:
     }
   }
 
+private:
+  static bool enabled;
 };
 
 extern EmergencyParser emergency_parser;
-
-#endif // _EMERGENCY_PARSER_H_

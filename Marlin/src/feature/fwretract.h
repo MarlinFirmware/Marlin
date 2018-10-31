@@ -56,7 +56,7 @@ public:
   #if ENABLED(FWRETRACT_AUTORETRACT)
     static bool autoretract_enabled;               // M209 S - Autoretract switch
   #else
-    constexpr static bool autoretract_enabled = false;
+    static constexpr bool autoretract_enabled = false;
   #endif
 
   static bool retracted[EXTRUDERS];                // Which extruders are currently retracted
