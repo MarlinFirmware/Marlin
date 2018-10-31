@@ -232,6 +232,16 @@ void I2CPositionEncoder::set_homed() {
   }
 }
 
+void I2CPositionEncoder::set_unhomed() {
+  zeroOffset = 0;
+  homed = trusted = false;
+
+  #ifdef I2CPE_DEBUG
+    SERIAL_ECHO(axis_codes[encoderAxis]);
+    SERIAL_ECHOLNPGM(" axis encoder unhomed.");
+  #endif
+}
+
 bool I2CPositionEncoder::passes_test(const bool report) {
   if (report) {
     if (H != I2CPE_MAG_SIG_GOOD) SERIAL_ECHOPGM("Warning. ");

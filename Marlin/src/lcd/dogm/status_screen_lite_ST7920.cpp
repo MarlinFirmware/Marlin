@@ -36,9 +36,28 @@
  *    bar, so updates are sporadic.
  */
 
+//
+// status_screen_lite_ST7920.cpp
+// Lightweight Status Screen for Graphical Display
+//
+
+#include "../../inc/MarlinConfigPre.h"
+
+#if ENABLED(LIGHTWEIGHT_UI)
+
 #include "status_screen_lite_ST7920_class.h"
 
+#include "../ultralcd.h"
+#include "../fontutils.h"
+#include "../lcdprint.h"
 #include "../../libs/duration_t.h"
+#include "../../module/motion.h"
+#include "../../module/printcounter.h"
+#include "../../module/temperature.h"
+
+#if ENABLED(SDSUPPORT)
+  #include "../../sd/cardreader.h"
+#endif
 
 #define BUFFER_WIDTH   256
 #define BUFFER_HEIGHT  32
@@ -947,7 +966,7 @@ void ST7920_Lite_Status_Screen::clear_text_buffer() {
   ncs();
 }
 
-static void lcd_impl_status_screen_0() {
+void lcd_impl_status_screen_0() {
   ST7920_Lite_Status_Screen::update(false);
 }
 
@@ -963,7 +982,7 @@ static void lcd_impl_status_screen_0() {
  * entered the Status Screen and calls the on_entry()
  * and on_exit() methods for cleanup.
  */
-static void lcd_in_status(const bool inStatus) {
+void lcd_in_status(const bool inStatus) {
   static bool lastInStatus = false;
   if (lastInStatus == inStatus) return;
   if ((lastInStatus = inStatus))
@@ -971,3 +990,5 @@ static void lcd_in_status(const bool inStatus) {
   else
     ST7920_Lite_Status_Screen::on_exit();
 }
+
+#endif // LIGHTWEIGHT_UI

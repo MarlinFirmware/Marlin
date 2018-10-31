@@ -19,40 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef ULTRALCD_COMMON_HD44780_H
-#define ULTRALCD_COMMON_HD44780_H
+#pragma once
 
 /**
  * Implementation of the LCD display routines for a Hitachi HD44780 display.
  * These are the most common LCD character displays.
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if LCD_HEIGHT > 3
-  #include "../libs/duration_t.h"
+  #include "../../libs/duration_t.h"
 #endif
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../feature/bedlevel/ubl/ubl.h"
-
-  #if ENABLED(ULTIPANEL)
-    #define ULTRA_X_PIXELS_PER_CHAR    5
-    #define ULTRA_Y_PIXELS_PER_CHAR    8
-    #define ULTRA_COLUMNS_FOR_MESH_MAP 7
-    #define ULTRA_ROWS_FOR_MESH_MAP    4
-
-    #define N_USER_CHARS    8
-
-    #define TOP_LEFT      _BV(0)
-    #define TOP_RIGHT     _BV(1)
-    #define LOWER_LEFT    _BV(2)
-    #define LOWER_RIGHT   _BV(3)
-  #endif
-#endif
-
-extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
@@ -61,7 +39,9 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 // macro name. The mapping is independent of whether the button is directly connected or
 // via a shift/i2c register.
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
+
+  extern volatile uint8_t buttons;
 
   //
   // Setup other button mappings of each panel
@@ -121,7 +101,21 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define LCD_CLICKED (buttons & (B_MI|B_ST))
   #endif
 
-#endif // ULTIPANEL
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #define ULTRA_X_PIXELS_PER_CHAR    5
+    #define ULTRA_Y_PIXELS_PER_CHAR    8
+    #define ULTRA_COLUMNS_FOR_MESH_MAP 7
+    #define ULTRA_ROWS_FOR_MESH_MAP    4
+
+    #define N_USER_CHARS    8
+
+    #define TOP_LEFT      _BV(0)
+    #define TOP_RIGHT     _BV(1)
+    #define LOWER_LEFT    _BV(2)
+    #define LOWER_RIGHT   _BV(3)
+  #endif
+
+#endif // HAS_LCD_MENU
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
@@ -143,11 +137,10 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
 #elif ENABLED(LCD_I2C_TYPE_MCP23017)
   // For the LED indicators (which may be mapped to different events in lcd_implementation_update_indicators())
+  #define LCD_HAS_STATUS_INDICATORS
   #define LED_A 0x04 //100
   #define LED_B 0x02 //010
   #define LED_C 0x01 //001
-
-  #define LCD_HAS_STATUS_INDICATORS
 
   #include <Wire.h>
   #include <LiquidTWI2.h>
@@ -162,9 +155,9 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #include <LiquidCrystal_I2C.h>
   #define LCD_CLASS LiquidCrystal_I2C
 
-// 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 #elif ENABLED(SR_LCD_2W_NL)
+  // 2 wire Non-latching LCD SR from:
+  // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
   extern "C" void __cxa_pure_virtual() { while (1); }
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
@@ -180,20 +173,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   // Standard directly connected LCD implementations
   #include <LiquidCrystal.h>
   #define LCD_CLASS LiquidCrystal
-
 #endif
 
-#include "fontutils.h"
-#include "lcdprint.h"
-
-#if ENABLED(LCD_PROGRESS_BAR)
-  #define LCD_STR_PROGRESS  "\x03\x04\x05"
-#endif
-
-enum HD44780CharSet : char {
-  CHARSET_MENU,
-  CHARSET_INFO,
-  CHARSET_BOOT
-};
-
-#endif // ULTRALCD_COMMON_HD44780_H
+#include "../fontutils.h"
+#include "../lcdprint.h"

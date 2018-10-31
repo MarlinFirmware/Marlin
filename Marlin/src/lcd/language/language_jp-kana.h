@@ -60,15 +60,15 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("キジュンオフセットセッテイ")         // "Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("オフセットガテキヨウサレマシタ")       // "Offsets applied"
 #define MSG_SET_ORIGIN                      _UxGT("キジュンセット")                 // "Set origin"
-#define MSG_PREHEAT_1                       _UxGT("PLA ヨネツ")                   // "Preheat PLA"
+#define MSG_PREHEAT_1                       _UxGT(PREHEAT_1_LABEL " ヨネツ")       // "Preheat " PREHEAT_1_LABEL
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
-#define MSG_PREHEAT_1_ALL                   _UxGT("PLA スベテヨネツ")              // " All"
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("PLA ベッドヨネツ")              // " Bed"
+#define MSG_PREHEAT_1_ALL                   _UxGT(PREHEAT_1_LABEL " スベテヨネツ")  // " All"
+#define MSG_PREHEAT_1_BEDONLY               _UxGT(PREHEAT_1_LABEL " ベッドヨネツ")  // " Bed"
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT("セッテイ")       // " conf"
-#define MSG_PREHEAT_2                       _UxGT("ABS ヨネツ")                  // "Preheat ABS"
+#define MSG_PREHEAT_2                       _UxGT(PREHEAT_2_LABEL " ヨネツ")      // "Preheat " PREHEAT_2_LABEL
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
-#define MSG_PREHEAT_2_ALL                   _UxGT("ABS スベテヨネツ")              // " All"
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("ABS ベッドヨネツ")              // " Bed"
+#define MSG_PREHEAT_2_ALL                   _UxGT(PREHEAT_2_LABEL " スベテヨネツ")  // " All"
+#define MSG_PREHEAT_2_BEDONLY               _UxGT(PREHEAT_2_LABEL " ベッドヨネツ")  // " Bed"
 #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT("セッテイ")       // " conf"
 #define MSG_COOLDOWN                        _UxGT("カネツテイシ")                  // "Cooldown"
 #define MSG_SWITCH_PS_ON                    _UxGT("デンゲン オン")                 // "Switch power on"
@@ -159,7 +159,7 @@
 #define MSG_AUTORETRACT                     _UxGT("ジドウヒキコミ")                 // "AutoRetr."
 #define MSG_FILAMENTCHANGE                  _UxGT("フィラメントコウカン")              // "Change filament"
 #define MSG_INIT_SDCARD                     _UxGT("SDカードサイヨミコミ")             // "Init. SD card"
-#define MSG_CNG_SDCARD                      _UxGT("SDカードコウカン")               // "Change SD card"
+#define MSG_CHANGE_SDCARD                   _UxGT("SDカードコウカン")               // "Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Zプローブ ベッドガイ")            // "Z probe out. bed"
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch ジコシンダン")          // "BLTouch Self-Test"
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch リセット")             // "Reset BLTouch"

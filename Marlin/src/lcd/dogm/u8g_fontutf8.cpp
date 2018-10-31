@@ -7,12 +7,12 @@
  * @copyright GPL/BSD
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
 
 #include <string.h>
-#include "fontutils.h"
+#include "../fontutils.h"
 #include "u8g_fontutf8.h"
 
 ////////////////////////////////////////////////////////////
@@ -317,4 +317,4 @@ int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, PGM_P utf8_msg) {
   return data.adv;
 }
 
-#endif // DOGLCD
+#endif // HAS_GRAPHICAL_LCD

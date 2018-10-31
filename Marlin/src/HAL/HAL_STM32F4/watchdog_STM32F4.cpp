@@ -46,9 +46,9 @@
       //Error_Handler();
     }
     else {
-    #if PIN_EXISTS(LED)
-      TOGGLE(LED_PIN);  // heart beat indicator
-    #endif
+      #if PIN_EXISTS(LED)
+        TOGGLE(LED_PIN);  // heartbeat indicator
+      #endif
     }
   }
 

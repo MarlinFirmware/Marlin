@@ -20,15 +20,29 @@
  *
  */
 
-#ifndef ULTRALCD_IMPL_HD44780_H
-#define ULTRALCD_IMPL_HD44780_H
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_CHARACTER_LCD
 
 /**
+ * ultralcd_impl_HD44780.cpp
+ *
  * Implementation of the LCD display routines for a Hitachi HD44780 display.
  * These are the most common LCD character displays.
  */
 
 #include "ultralcd_common_HD44780.h"
+#include "../ultralcd.h"
+
+#include "../../sd/cardreader.h"
+#include "../../module/temperature.h"
+#include "../../module/printcounter.h"
+#include "../../module/planner.h"
+#include "../../module/motion.h"
+
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "../../feature/bedlevel/ubl/ubl.h"
+#endif
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
@@ -69,16 +83,6 @@
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7); //RS,Enable,D4,D5,D6,D7
 #endif
 
-#include "fontutils.h"
-#include "lcdprint.h"
-
-#if ENABLED(LCD_PROGRESS_BAR)
-  static millis_t progress_bar_ms = 0;     // Start millis of the current progress bar cycle
-  #if PROGRESS_MSG_EXPIRE > 0
-    static millis_t expire_status_ms = 0;  // millis at which to expire the status message
-  #endif
-#endif
-
 #if ENABLED(LCD_HAS_STATUS_INDICATORS)
   static void lcd_implementation_update_indicators();
 #endif
@@ -90,9 +94,13 @@ static void createChar_P(const char c, const byte * const ptr) {
   lcd.createChar(c, temp);
 }
 
-static void lcd_set_custom_characters(
+#if ENABLED(LCD_PROGRESS_BAR)
+  #define LCD_STR_PROGRESS  "\x03\x04\x05"
+#endif
+
+void lcd_set_custom_characters(
   #if ENABLED(LCD_PROGRESS_BAR) || ENABLED(SHOW_BOOTSCREEN)
-    const uint8_t screen_charset=CHARSET_INFO
+    const HD44780CharSet screen_charset/*=CHARSET_INFO*/
   #endif
 ) {
   // CHARSET_BOOT
@@ -308,11 +316,7 @@ static void lcd_set_custom_characters(
 
 }
 
-static void lcd_implementation_init(
-  #if ENABLED(LCD_PROGRESS_BAR)
-    const uint8_t screen_charset=CHARSET_INFO
-  #endif
-) {
+void lcd_implementation_init() {
 
   #if ENABLED(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
@@ -338,11 +342,7 @@ static void lcd_implementation_init(
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   #endif
 
-  lcd_set_custom_characters(
-    #if ENABLED(LCD_PROGRESS_BAR)
-      screen_charset
-    #endif
-  );
+  LCD_SET_CHARSET(currentScreen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU);
 
   lcd.clear();
 }
@@ -406,7 +406,7 @@ void lcd_implementation_clear() { lcd.clear(); }
   }
 
   void lcd_bootscreen() {
-    lcd_set_custom_characters(CHARSET_BOOT);
+    LCD_SET_CHARSET(CHARSET_BOOT);
     lcd.clear();
 
     #define LCD_EXTRA_SPACE (LCD_WIDTH-8)
@@ -475,7 +475,7 @@ void lcd_implementation_clear() { lcd.clear(); }
 
     lcd.clear();
     safe_delay(100);
-    lcd_set_custom_characters();
+    LCD_SET_CHARSET(CHARSET_INFO);
     lcd.clear();
   }
 
@@ -744,7 +744,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
    *         |01234567890123456789|
    */
 
-  static void lcd_impl_status_screen_0() {
+  void lcd_impl_status_screen_0() {
     const bool blink = lcd_blink();
 
     // ========== Line 1 ==========
@@ -887,7 +887,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
    *  |01234567890123456789|
    */
 
-  static void lcd_impl_status_screen_1() {
+  void lcd_impl_status_screen_1() {
     const bool blink = lcd_blink();
 
     // ========== Line 1 ==========
@@ -965,11 +965,11 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
 
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-    static void lcd_implementation_hotend_status(const uint8_t row, const uint8_t extruder=active_extruder) {
+    void lcd_implementation_hotend_status(const uint8_t row, const uint8_t extruder) {
       if (row < LCD_HEIGHT) {
         lcd_moveto(LCD_WIDTH - 9, row);
         _draw_heater_status(extruder, LCD_STR_THERMOMETER[0], lcd_blink());
@@ -978,7 +978,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
 
   #endif // ADVANCED_PAUSE_FEATURE
 
-  static void lcd_implementation_drawmenu_static(const uint8_t row, PGM_P pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
+  void lcd_implementation_drawmenu_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char *valstr/*=NULL*/) {
     UNUSED(invert);
     int8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
@@ -991,7 +991,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
     for (; n > 0; --n) lcd_put_wchar(' ');
   }
 
-  static void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
+  void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
     uint8_t n = LCD_WIDTH - 2;
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -1000,7 +1000,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
     lcd_put_wchar(post_char);
   }
 
-  static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
+  void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
     uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -1009,7 +1009,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
     while (n--) lcd_put_wchar(' ');
     lcd_put_u8str(data);
   }
-  static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
+  void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
     uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
@@ -1019,10 +1019,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
     lcd_put_u8str_P(data);
   }
 
-  #define DRAWMENU_SETTING_EDIT_GENERIC(_src) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', _src)
-  #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
-
-  void lcd_implementation_drawedit(PGM_P pstr, const char* const value=NULL) {
+  void lcd_implementation_drawedit(PGM_P pstr, const char* const value/*=NULL*/) {
     lcd_moveto(1, 1);
     lcd_put_u8str_P(pstr);
     if (value != NULL) {
@@ -1046,6 +1043,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
       const char *outstr = theCard.longest_filename();
       if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
+          static uint8_t filename_scroll_hash;
           if (sel) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
@@ -1071,20 +1069,15 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
       lcd_put_wchar(post_char);
     }
 
-    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard) {
+    void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard) {
       lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, ' ');
     }
 
-    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard) {
+    void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard) {
       lcd_implementation_drawmenu_sd(sel, row, pstr, theCard, 2, LCD_STR_FOLDER[0]);
     }
 
   #endif // SDSUPPORT
-
-  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_UPLEVEL_CHAR, LCD_UPLEVEL_CHAR)
-  #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
-  #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
-  #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
   #if ENABLED(LCD_HAS_SLOW_BUTTONS)
 
@@ -1578,6 +1571,6 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
-#endif // ULTRALCD_IMPL_HD44780_H
+#endif // HAS_CHARACTER_LCD

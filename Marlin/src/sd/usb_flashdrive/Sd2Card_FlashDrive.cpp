@@ -50,7 +50,7 @@ void Sd2Card::idle() {
       state = USB_HOST_WAITING;
       break;
     case USB_HOST_WAITING:
-      if (millis() > next_retry) {
+      if (ELAPSED(millis(), next_retry)) {
         next_retry = millis() + 10000;
         state = USB_HOST_UNINITIALIZED;
       }

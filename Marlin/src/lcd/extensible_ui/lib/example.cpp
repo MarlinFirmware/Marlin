@@ -47,9 +47,9 @@ namespace UI {
   }
   void onIdle() {}
   void onPrinterKilled(const char* msg) {}
-  void onMediaInserted();
-  void onMediaError();
-  void onMediaRemoved();
+  void onMediaInserted() {};
+  void onMediaError() {};
+  void onMediaRemoved() {};
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}

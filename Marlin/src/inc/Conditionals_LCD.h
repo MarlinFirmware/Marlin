@@ -298,7 +298,13 @@
   #define ULTIPANEL
 #endif
 
-#if ENABLED(DOGLCD) // Change number of lines to match the DOG graphic display
+#if ENABLED(NO_LCD_MENUS)
+  #undef ULTIPANEL
+#endif
+
+#define HAS_GRAPHICAL_LCD ENABLED(DOGLCD)
+
+#if HAS_GRAPHICAL_LCD
   #ifndef LCD_WIDTH
     #ifdef LCD_WIDTH_OVERRIDE
       #define LCD_WIDTH LCD_WIDTH_OVERRIDE
@@ -309,10 +315,6 @@
   #ifndef LCD_HEIGHT
     #define LCD_HEIGHT 5
   #endif
-#endif
-
-#if ENABLED(NO_LCD_MENUS)
-  #undef ULTIPANEL
 #endif
 
 #if ENABLED(ULTIPANEL)
@@ -333,7 +335,14 @@
   #endif
 #endif
 
-#if ENABLED(DOGLCD)
+// Aliases for LCD features
+#define HAS_SPI_LCD          ENABLED(ULTRA_LCD)
+#define HAS_CHARACTER_LCD   (ENABLED(ULTRA_LCD) && DISABLED(DOGLCD))
+#define HAS_DIGITAL_ENCODER (HAS_SPI_LCD && ENABLED(NEWPANEL))
+#define HAS_LCD_MENU         ENABLED(ULTIPANEL)
+#define HAS_DEBUG_MENU      (HAS_LCD_MENU && ENABLED(LCD_PROGRESS_BAR_TEST))
+
+#if HAS_GRAPHICAL_LCD
   /* Custom characters defined in font Marlin_symbols.fon which was merged to ISO10646-0-3.bdf */
   // \x00 intentionally skipped to avoid problems in strings
   #define LCD_STR_REFRESH     "\x01"
@@ -369,7 +378,7 @@
 /**
  * Default LCD contrast for dogm-like LCD displays
  */
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
 
   #define HAS_LCD_CONTRAST ( \
       ENABLED(MAKRPANEL) \
@@ -394,13 +403,11 @@
 #endif
 
 // Boot screens
-#if DISABLED(ULTRA_LCD)
+#if !HAS_SPI_LCD
   #undef SHOW_BOOTSCREEN
 #elif !defined(BOOTSCREEN_TIMEOUT)
   #define BOOTSCREEN_TIMEOUT 2500
 #endif
-
-#define HAS_DEBUG_MENU (ENABLED(ULTIPANEL) && ENABLED(LCD_PROGRESS_BAR_TEST))
 
 /**
  * Extruders have some combination of stepper motors and hotends
@@ -520,6 +527,14 @@
   #endif
 #endif
 
+#ifndef PREHEAT_1_LABEL
+  #define PREHEAT_1_LABEL "PLA"
+#endif
+
+#ifndef PREHEAT_2_LABEL
+  #define PREHEAT_2_LABEL "ABS"
+#endif
+
 /**
  * Set a flag for a servo probe
  */
@@ -528,7 +543,7 @@
 /**
  * Set flags for enabled probes
  */
-#define HAS_BED_PROBE (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_PROBE || ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE) || ENABLED(SENSORLESS_PROBING))
+#define HAS_BED_PROBE (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_PROBE || ENABLED(Z_PROBE_SLED) || ENABLED(SOLENOID_PROBE) || ENABLED(SENSORLESS_PROBING) || ENABLED(RACK_AND_PINION_PROBE))
 #define PROBE_SELECTED (HAS_BED_PROBE || ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING))
 
 #if !HAS_BED_PROBE
@@ -537,7 +552,7 @@
   #undef Z_MIN_PROBE_ENDSTOP
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
   // Extra test for Allen Key Probe
-  #define PROBE_IS_TRIGGERED_WHEN_STOWED_TEST
+  #define PROBE_TRIGGERED_WHEN_STOWED_TEST
 #endif
 
 #define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))

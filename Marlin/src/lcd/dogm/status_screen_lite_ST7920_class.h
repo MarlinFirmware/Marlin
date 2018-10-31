@@ -13,9 +13,7 @@
  * FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
  *
  */
-
-#ifndef STATUS_SCREEN_LITE_ST7920_CLASS_H
-#define STATUS_SCREEN_LITE_ST7920_CLASS_H
+#pragma once
 
 #include "../../core/macros.h"
 #include "../../libs/duration_t.h"
@@ -107,5 +105,3 @@ class ST7920_Lite_Status_Screen {
     static void on_exit();
     static void clear_text_buffer();
 };
-
-#endif // STATUS_SCREEN_LITE_ST7920_CLASS_H

@@ -140,9 +140,9 @@
 #endif
 
 // Delay in nanoseconds
-#define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU/1000000L) / 1000L )
+#define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU / 1000000UL) / 1000UL )
 
 // Delay in microseconds
-#define DELAY_US(x) DELAY_CYCLES( (x) * (F_CPU/1000000L) )
+#define DELAY_US(x) DELAY_CYCLES( (x) * (F_CPU / 1000000UL) )
 
 #endif // MARLIN_DELAY_H

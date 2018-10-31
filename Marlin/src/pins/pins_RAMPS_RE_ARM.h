@@ -363,23 +363,23 @@
 #define ENET_TXD0     P1_00   // (78)  J12-11
 #define ENET_TXD1     P1_01   // (79)  J12-12
 
-
 //#define USB_SD_DISABLED
 #define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
 
 //#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
 #define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
 
-#ifdef LPC_SD_LCD
+#if ENABLED(LPC_SD_LCD)
+
   #define SCK_PIN            P0_15
   #define MISO_PIN           P0_17
   #define MOSI_PIN           P0_18
   #define SS_PIN             P1_23   // Chip select for SD card used by Marlin
   #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
-#endif
 
-#ifdef LPC_SD_ONBOARD
-  #ifdef USB_SD_ONBOARD
+#elif ENABLED(LPC_SD_ONBOARD)
+
+  #if ENABLED(USB_SD_ONBOARD)
     // When sharing the SD card with a PC we want the menu options to
     // mount/unmount the card and refresh it. So we disable card detect.
     #define SHARED_SD_CARD
@@ -390,10 +390,11 @@
   #define MOSI_PIN           P0_09
   #define SS_PIN             P0_06   // Chip select for SD card used by Marlin
   #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
+
 #endif
 
 /**
- *  Fast PWMS
+ *  Fast PWMs
  *
  *  The LPC1768's hardware PWM controller has 6 channels.  Each channel
  *  can be setup to either control a dedicated pin directly or to generate
@@ -418,7 +419,7 @@
  */
 
  /**
-  * special pins
+  * Special pins
   *   P1_30  (37) - not 5V tolerant
   *   P1_31  (49) - not 5V tolerant
   *   P0_27  (57) - open collector

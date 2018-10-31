@@ -1158,7 +1158,11 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #if ENABLED(MORGAN_SCARA)
     scara_set_axis_is_at_home(axis);
   #elif ENABLED(DELTA)
-    current_position[axis] = (axis == Z_AXIS ? delta_height : base_home_pos(axis));
+    current_position[axis] = (axis == Z_AXIS ? delta_height
+    #if HAS_BED_PROBE
+      - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER
+    #endif
+    : base_home_pos(axis));
   #else
     current_position[axis] = base_home_pos(axis);
   #endif
@@ -1202,6 +1206,34 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
   #if ENABLED(I2C_POSITION_ENCODERS)
     I2CPEM.homed(axis);
+  #endif
+}
+
+/**
+ * Set an axis' to be unhomed.
+ */
+void set_axis_is_not_at_home(const AxisEnum axis) {
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOPAIR(">>> set_axis_is_not_at_home(", axis_codes[axis]);
+      SERIAL_CHAR(')');
+      SERIAL_EOL();
+    }
+  #endif
+
+  CBI(axis_known_position, axis);
+  CBI(axis_homed, axis);
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOPAIR("<<< set_axis_is_not_at_home(", axis_codes[axis]);
+      SERIAL_CHAR(')');
+      SERIAL_EOL();
+    }
+  #endif
+
+  #if ENABLED(I2C_POSITION_ENCODERS)
+    I2CPEM.unhomed(axis);
   #endif
 }
 
@@ -1256,17 +1288,7 @@ void homeaxis(const AxisEnum axis) {
       #if ENABLED(Y_DUAL_ENDSTOPS)
         case Y_AXIS:
       #endif
-      #if ENABLED(Z_DUAL_ENDSTOPS)
-        case Z_AXIS:
-      #endif
-      stepper.set_separate_multi_axis(true);
-      default: break;
-    }
-  #endif
-
-  #if ENABLED(Z_TRIPLE_ENDSTOPS)
-    switch (axis) {
-      #if ENABLED(Z_TRIPLE_ENDSTOPS)
+      #if Z_MULTI_ENDSTOPS
         case Z_AXIS:
       #endif
       stepper.set_separate_multi_axis(true);
@@ -1514,7 +1536,11 @@ void homeaxis(const AxisEnum axis) {
       }
     #elif ENABLED(DELTA)
       soft_endstop_min[axis] = base_min_pos(axis);
-      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height : base_max_pos(axis));
+      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height
+      #if HAS_BED_PROBE
+        - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER
+      #endif
+      : base_max_pos(axis));
     #else
       soft_endstop_min[axis] = base_min_pos(axis);
       soft_endstop_max[axis] = base_max_pos(axis);

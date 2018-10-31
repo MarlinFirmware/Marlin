@@ -628,7 +628,7 @@
 
     LEAVE:
 
-    #if ENABLED(NEWPANEL)
+    #if HAS_LCD_MENU
       lcd_reset_alert_level();
       lcd_quick_feedback(true);
       lcd_reset_status();
