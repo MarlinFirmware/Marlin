@@ -81,8 +81,8 @@ uint16_t HAL_adc_result;
 // HAL initialization task
 void HAL_init(void) {
 
-  // Needed for DELAY_NS() / DELAY_US() on CORTEX-M3/M4/M7 platforms
-  #if __CORTEX_M == 3 || __CORTEX_M == 4 || __CORTEX_M == 7
+  // Needed for DELAY_NS() / DELAY_US() on CORTEX-M7
+  #if (defined(__arm__) || defined(__thumb__)) && __CORTEX_M == 7
     enableCycleCounter();
   #endif
 
