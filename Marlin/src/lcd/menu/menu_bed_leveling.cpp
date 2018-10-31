@@ -188,83 +188,12 @@
   //
   void _lcd_level_bed_continue() {
     defer_return_to_status = true;
-    axis_homed = 0;
+    set_all_unhomed();
     lcd_goto_screen(_lcd_level_bed_homing);
     enqueue_and_echo_commands_P(PSTR("G28"));
   }
 
 #endif // PROBE_MANUALLY || MESH_BED_LEVELING
-
-#if ENABLED(LEVEL_BED_CORNERS)
-
-  /**
-   * Level corners, starting in the front-left corner.
-   */
-  static int8_t bed_corner;
-  void _lcd_goto_next_corner() {
-    line_to_z(4.0);
-    switch (bed_corner) {
-      case 0:
-        current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
-        current_position[Y_AXIS] = Y_MIN_BED + LEVEL_CORNERS_INSET;
-        break;
-      case 1:
-        current_position[X_AXIS] = X_MAX_BED - LEVEL_CORNERS_INSET;
-        break;
-      case 2:
-        current_position[Y_AXIS] = Y_MAX_BED - LEVEL_CORNERS_INSET;
-        break;
-      case 3:
-        current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
-        break;
-      #if ENABLED(LEVEL_CENTER_TOO)
-        case 4:
-          current_position[X_AXIS] = X_CENTER;
-          current_position[Y_AXIS] = Y_CENTER;
-          break;
-      #endif
-    }
-    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
-    line_to_z(0.0);
-    if (++bed_corner > 3
-      #if ENABLED(LEVEL_CENTER_TOO)
-        + 1
-      #endif
-    ) bed_corner = 0;
-  }
-
-  void _lcd_corner_submenu() {
-    START_MENU();
-    MENU_ITEM(function,
-      #if ENABLED(LEVEL_CENTER_TOO)
-        MSG_LEVEL_BED_NEXT_POINT
-      #else
-        MSG_NEXT_CORNER
-      #endif
-      , _lcd_goto_next_corner);
-    MENU_ITEM(function, MSG_BACK, lcd_goto_previous_menu_no_defer);
-    END_MENU();
-  }
-
-  void _lcd_level_bed_corners_homing() {
-    _lcd_draw_homing();
-    if (all_axes_homed()) {
-      bed_corner = 0;
-      lcd_goto_screen(_lcd_corner_submenu);
-      _lcd_goto_next_corner();
-    }
-  }
-
-  void _lcd_level_bed_corners() {
-    defer_return_to_status = true;
-    if (!all_axes_known()) {
-      axis_homed = 0;
-      enqueue_and_echo_commands_P(PSTR("G28"));
-    }
-    lcd_goto_screen(_lcd_level_bed_corners_homing);
-  }
-
-#endif // LEVEL_BED_CORNERS
 
 /**
  * Step 1: Bed Level entry-point
@@ -325,7 +254,6 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS)
-    // Move to the next corner for leveling
     MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
   #endif
 
