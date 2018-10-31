@@ -132,25 +132,9 @@
   #include "dogm/HAL_LCD_class_defines.h"
   extern U8G_CLASS u8g;
 
-  // DOGM font sizes
-  #define DOG_CHAR_WIDTH         6
-  #define DOG_CHAR_HEIGHT        12
-  #if ENABLED(USE_BIG_EDIT_FONT)
-    #define FONT_MENU_EDIT_NAME u8g_font_9x18
-    #define DOG_CHAR_WIDTH_EDIT  9
-    #define DOG_CHAR_HEIGHT_EDIT 18
-  #else
-    #define FONT_MENU_EDIT_NAME FONT_MENU_NAME
-    #define DOG_CHAR_WIDTH_EDIT  DOG_CHAR_WIDTH
-    #define DOG_CHAR_HEIGHT_EDIT DOG_CHAR_HEIGHT
-  #endif
-
-  enum MarlinFont : uint8_t {
-    FONT_STATUSMENU = 1,
-    FONT_SPECIAL,
-    FONT_MENU_EDIT,
-    FONT_MENU,
-  };
+  // For selective rendering within a Y range
+  #define PAGE_UNDER(yb) (u8g.getU8g()->current_page.y0 <= (yb))
+  #define PAGE_CONTAINS(ya, yb) (PAGE_UNDER(yb) && u8g.getU8g()->current_page.y1 >= (ya))
 
   // Only Western languages support big / small fonts
   #if DISABLED(DISPLAY_CHARSET_ISO10646_1)
@@ -158,17 +142,41 @@
     #undef USE_SMALL_INFOFONT
   #endif
 
+  #define MENU_FONT_NAME    ISO10646_1_5x7
+  #define MENU_FONT_WIDTH    6
+  #define MENU_FONT_ASCENT  10
+  #define MENU_FONT_DESCENT  2
+  #define MENU_FONT_HEIGHT  (MENU_FONT_ASCENT + MENU_FONT_DESCENT)
+
+  #if ENABLED(USE_BIG_EDIT_FONT)
+    #define EDIT_FONT_NAME    u8g_font_9x18
+    #define EDIT_FONT_WIDTH    9
+    #define EDIT_FONT_ASCENT  10
+    #define EDIT_FONT_DESCENT  3
+  #else
+    #define EDIT_FONT_NAME    MENU_FONT_NAME
+    #define EDIT_FONT_WIDTH   MENU_FONT_WIDTH
+    #define EDIT_FONT_ASCENT  MENU_FONT_ASCENT
+    #define EDIT_FONT_DESCENT MENU_FONT_DESCENT
+  #endif
+  #define EDIT_FONT_HEIGHT (EDIT_FONT_ASCENT + EDIT_FONT_DESCENT)
+
+  // Get the Ascent, Descent, and total Height for the Info Screen font
   #if ENABLED(USE_SMALL_INFOFONT)
     extern const u8g_fntpgm_uint8_t u8g_font_6x9[];
-    #define INFO_FONT_HEIGHT 7
+    #define INFO_FONT_ASCENT 7
   #else
-    #define INFO_FONT_HEIGHT 8
+    #define INFO_FONT_ASCENT 8
   #endif
+  #define INFO_FONT_DESCENT 2
+  #define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
 
-  // For selective rendering within a Y range
-  #define PAGE_UNDER(yb) (u8g.getU8g()->current_page.y0 <= (yb))
-  #define PAGE_CONTAINS(ya, yb) (PAGE_UNDER(yb) && u8g.getU8g()->current_page.y1 >= (ya))
-
+  // Font IDs
+  enum MarlinFont : uint8_t {
+    FONT_STATUSMENU = 1,
+    FONT_EDIT,
+    FONT_MENU
+  };
   void lcd_setFont(const MarlinFont font_nr);
 
   #if ENABLED(LIGHTWEIGHT_UI)
@@ -251,8 +259,8 @@
   #endif
 
   #if HAS_GRAPHICAL_LCD
-    #define SETCURSOR(col, row) lcd_moveto(col * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT))
-    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - len * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT))
+    #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
+    #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - len * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
   #else
     #define SETCURSOR(col, row) lcd_moveto(col, row)
     #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - len, row)
