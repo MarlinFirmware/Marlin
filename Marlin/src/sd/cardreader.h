@@ -157,7 +157,7 @@ public:
     #if NUM_SERIAL > 1
       uint8_t transfer_port;
     #else
-      constexpr uint8_t transfer_port = 0;
+      static constexpr uint8_t transfer_port = 0;
     #endif
   #endif
 
