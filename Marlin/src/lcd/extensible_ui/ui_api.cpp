@@ -498,7 +498,7 @@ namespace UI {
                                                       { backlash_distance_mm[axis] = clamp(value,0,5); }
 
     float getBacklashCorrection_percent()             { return backlash_correction * 100; }
-    void setBacklashCorrection_percent(const float value) { backlash_correction = clamp(value, 0, 100) / 100; }
+    void setBacklashCorrection_percent(const float value) { backlash_correction = clamp(value, 0, 100) / 100.0f; }
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm()                 { return backlash_smoothing_mm; }
@@ -713,10 +713,10 @@ void lcd_update() {
   UI::onIdle();
 }
 
-bool lcd_hasstatus()                                                             { return true; }
-bool lcd_detected()                                                              { return true; }
-void lcd_reset_alert_level()                                                     {}
-void lcd_refresh()                                                               {}
+bool lcd_hasstatus() { return true; }
+bool lcd_detected() { return true; }
+void lcd_reset_alert_level() { }
+void lcd_refresh() { }
 void lcd_setstatus(const char * const message, const bool persist /* = false */) { UI::onStatusChanged(message); }
 void lcd_setstatusPGM(const char * const message, int8_t level /* = 0 */)        { UI::onStatusChanged((progmem_str)message); }
 void lcd_setalertstatusPGM(const char * const message)                           { lcd_setstatusPGM(message, 0); }
