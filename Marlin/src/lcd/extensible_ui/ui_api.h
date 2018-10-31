@@ -49,10 +49,10 @@ typedef const __FlashStringHelper *progmem_str;
 
 namespace UI {
 
-  enum axis_t     : uint8_t { X,    Y,    Z };
-  enum extruder_t : uint8_t { E0,   E1,   E2,   E3,   E4,   E5        };
-  enum heater_t   : uint8_t { H0,   H1,   H2,   H3,   H4,   H5,   BED };
-  enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5      };
+  enum axis_t     : uint8_t { X, Y, Z };
+  enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5 };
+  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED };
+  enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5 };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
   constexpr uint8_t hotendCount   = HOTENDS;
@@ -65,7 +65,7 @@ namespace UI {
   void enqueueCommands(progmem_str);
 
   /**
-   * Getter and setters
+   * Getters and setters
    * Should be used by the EXTENSIBLE_UI to query or change Marlin's state.
    */
   progmem_str getFirmwareName_str();
