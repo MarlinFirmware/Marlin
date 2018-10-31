@@ -68,6 +68,17 @@ XYZ_CONSTS(float, max_length,     MAX_LENGTH);
 XYZ_CONSTS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_CONSTS(signed char, home_dir, HOME_DIR);
 
+/**
+ * axis_homed
+ *   Flags that each linear axis was homed.
+ *   XYZ on cartesian, ABC on delta, ABZ on SCARA.
+ *
+ * axis_known_position
+ *   Flags that the position is known in each linear axis. Set when homed.
+ *   Cleared whenever a stepper powers off, potentially losing its position.
+ */
+uint8_t axis_homed, axis_known_position; // = 0
+
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 

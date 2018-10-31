@@ -73,7 +73,7 @@ void recalc_delta_settings() {
   delta_diagonal_rod_2_tower[B_AXIS] = sq(delta_diagonal_rod + drt[B_AXIS]);
   delta_diagonal_rod_2_tower[C_AXIS] = sq(delta_diagonal_rod + drt[C_AXIS]);
   update_software_endstops(Z_AXIS);
-  axis_homed = 0;
+  set_all_unhomed();
 }
 
 /**

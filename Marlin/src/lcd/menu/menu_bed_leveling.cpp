@@ -188,7 +188,7 @@
   //
   void _lcd_level_bed_continue() {
     defer_return_to_status = true;
-    axis_homed = 0;
+    set_all_unhomed();
     lcd_goto_screen(_lcd_level_bed_homing);
     enqueue_and_echo_commands_P(PSTR("G28"));
   }
