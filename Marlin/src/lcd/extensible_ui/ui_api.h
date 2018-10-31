@@ -58,117 +58,117 @@ namespace UI {
   constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
 
-  bool        isMoving                       ();
-  bool        isAxisPositionKnown            (const axis_t);
-  bool        canMove                        (const axis_t);
-  bool        canMove                        (const extruder_t);
-  void        enqueueCommands                (progmem_str);
+  bool isMoving();
+  bool isAxisPositionKnown(const axis_t);
+  bool canMove(const axis_t);
+  bool canMove(const extruder_t);
+  void enqueueCommands(progmem_str);
 
   /**
    * Getter and setters
    * Should be used by the EXTENSIBLE_UI to query or change Marlin's state.
    */
-  progmem_str getFirmwareName_str            ();
+  progmem_str getFirmwareName_str();
 
-  float       getActualTemp_celsius          (const heater_t);
-  float       getActualTemp_celsius          (const extruder_t);
-  float       getTargetTemp_celsius          (const heater_t);
-  float       getTargetTemp_celsius          (const extruder_t);
-  float       getFan_percent                 (const fan_t);
-  float       getAxisPosition_mm             (const axis_t);
-  float       getAxisPosition_mm             (const extruder_t);
-  float       getAxisSteps_per_mm            (const axis_t);
-  float       getAxisSteps_per_mm            (const extruder_t);
-  float       getAxisMaxFeedrate_mm_s        (const axis_t);
-  float       getAxisMaxFeedrate_mm_s        (const extruder_t);
-  float       getAxisMaxAcceleration_mm_s2   (const axis_t);
-  float       getAxisMaxAcceleration_mm_s2   (const extruder_t);
-  float       getMinFeedrate_mm_s            ();
-  float       getMinTravelFeedrate_mm_s      ();
-  float       getPrintingAcceleration_mm_s2  ();
-  float       getRetractAcceleration_mm_s2   ();
-  float       getTravelAcceleration_mm_s2    ();
-  float       getFeedrate_percent            ();
-  uint8_t     getProgress_percent            ();
-  uint32_t    getProgress_seconds_elapsed    ();
+  float getActualTemp_celsius(const heater_t);
+  float getActualTemp_celsius(const extruder_t);
+  float getTargetTemp_celsius(const heater_t);
+  float getTargetTemp_celsius(const extruder_t);
+  float getFan_percent(const fan_t);
+  float getAxisPosition_mm(const axis_t);
+  float getAxisPosition_mm(const extruder_t);
+  float getAxisSteps_per_mm(const axis_t);
+  float getAxisSteps_per_mm(const extruder_t);
+  float getAxisMaxFeedrate_mm_s(const axis_t);
+  float getAxisMaxFeedrate_mm_s(const extruder_t);
+  float getAxisMaxAcceleration_mm_s2(const axis_t);
+  float getAxisMaxAcceleration_mm_s2(const extruder_t);
+  float getMinFeedrate_mm_s();
+  float getMinTravelFeedrate_mm_s();
+  float getPrintingAcceleration_mm_s2();
+  float getRetractAcceleration_mm_s2();
+  float getTravelAcceleration_mm_s2();
+  float getFeedrate_percent();
+  uint8_t getProgress_percent();
+  uint32_t getProgress_seconds_elapsed();
 
   #if ENABLED(PRINTCOUNTER)
-    char *    getTotalPrints_str             (char buffer[21]);
-    char *    getFinishedPrints_str          (char buffer[21]);
-    char *    getTotalPrintTime_str          (char buffer[21]);
-    char *    getLongestPrint_str            (char buffer[21]);
-    char *    getFilamentUsed_str            (char buffer[21]);
+    char* getTotalPrints_str(char buffer[21]);
+    char* getFinishedPrints_str(char buffer[21]);
+    char* getTotalPrintTime_str(char buffer[21]);
+    char* getLongestPrint_str(char buffer[21]);
+    char* getFilamentUsed_str(char buffer[21]);
   #endif
 
-  void        setTargetTemp_celsius          (const float, const heater_t);
-  void        setTargetTemp_celsius          (const float, const extruder_t);
-  void        setFan_percent                 (const float, const fan_t);
-  void        setAxisPosition_mm             (const float, const axis_t);
-  void        setAxisPosition_mm             (const float, const extruder_t);
-  void        setAxisSteps_per_mm            (const float, const axis_t);
-  void        setAxisSteps_per_mm            (const float, const extruder_t);
-  void        setAxisMaxFeedrate_mm_s        (const float, const axis_t);
-  void        setAxisMaxFeedrate_mm_s        (const float, const extruder_t);
-  void        setAxisMaxAcceleration_mm_s2   (const float, const axis_t);
-  void        setAxisMaxAcceleration_mm_s2   (const float, const extruder_t);
-  void        setFeedrate_mm_s               (const float);
-  void        setMinFeedrate_mm_s            (const float);
-  void        setMinTravelFeedrate_mm_s      (const float);
-  void        setPrintingAcceleration_mm_s2  (const float);
-  void        setRetractAcceleration_mm_s2   (const float);
-  void        setTravelAcceleration_mm_s2    (const float);
-  void        setFeedrate_percent            (const float);
+  void setTargetTemp_celsius(const float, const heater_t);
+  void setTargetTemp_celsius(const float, const extruder_t);
+  void setFan_percent(const float, const fan_t);
+  void setAxisPosition_mm(const float, const axis_t);
+  void setAxisPosition_mm(const float, const extruder_t);
+  void setAxisSteps_per_mm(const float, const axis_t);
+  void setAxisSteps_per_mm(const float, const extruder_t);
+  void setAxisMaxFeedrate_mm_s(const float, const axis_t);
+  void setAxisMaxFeedrate_mm_s(const float, const extruder_t);
+  void setAxisMaxAcceleration_mm_s2(const float, const axis_t);
+  void setAxisMaxAcceleration_mm_s2(const float, const extruder_t);
+  void setFeedrate_mm_s(const float);
+  void setMinFeedrate_mm_s(const float);
+  void setMinTravelFeedrate_mm_s(const float);
+  void setPrintingAcceleration_mm_s2(const float);
+  void setRetractAcceleration_mm_s2(const float);
+  void setTravelAcceleration_mm_s2(const float);
+  void setFeedrate_percent(const float);
 
   #if ENABLED(LIN_ADVANCE)
-    float     getLinearAdvance_mm_mm_s       (             const extruder_t);
-    void      setLinearAdvance_mm_mm_s       (const float, const extruder_t);
+    float getLinearAdvance_mm_mm_s(const extruder_t);
+    void setLinearAdvance_mm_mm_s(const float, const extruder_t);
   #endif
 
   #if ENABLED(JUNCTION_DEVIATION)
-    float     getJunctionDeviation_mm        ();
-    void      setJunctionDeviation_mm        (const float);
+    float getJunctionDeviation_mm();
+    void setJunctionDeviation_mm(const float);
   #else
-    float     getAxisMaxJerk_mm_s            (             const axis_t);
-    float     getAxisMaxJerk_mm_s            (             const extruder_t);
-    void      setAxisMaxJerk_mm_s            (const float, const axis_t);
-    void      setAxisMaxJerk_mm_s            (const float, const extruder_t);
+    float getAxisMaxJerk_mm_s(const axis_t);
+    float getAxisMaxJerk_mm_s(const extruder_t);
+    void setAxisMaxJerk_mm_s(const float, const axis_t);
+    void setAxisMaxJerk_mm_s(const float, const extruder_t);
   #endif
 
-  extruder_t  getActiveTool                  ();
-  void        setActiveTool                  (const extruder_t, bool no_move);
+  extruder_t getActiveTool();
+  void setActiveTool(const extruder_t, bool no_move);
 
 
   #if HOTENDS > 1
-    float     getNozzleOffset_mm             (             const axis_t, const extruder_t);
-    void      setNozzleOffset_mm             (const float, const axis_t, const extruder_t);
+    float getNozzleOffset_mm(const axis_t, const extruder_t);
+    void setNozzleOffset_mm(const float, const axis_t, const extruder_t);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-    float     getZOffset_mm                  ();
-    void      setZOffset_mm                  (const float);
-    void      addZOffset_steps               (const int16_t);
+    float getZOffset_mm();
+    void setZOffset_mm(const float);
+    void addZOffset_steps(const int16_t);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    float     getAxisBacklash_mm             (             const axis_t);
-    void      setAxisBacklash_mm             (const float, const axis_t);
+    float getAxisBacklash_mm(const axis_t);
+    void setAxisBacklash_mm(const float, const axis_t);
 
-    float     getBacklashCorrection_percent  ();
-    void      setBacklashCorrection_percent  (const float);
+    float getBacklashCorrection_percent();
+    void setBacklashCorrection_percent(const float);
 
     #ifdef BACKLASH_SMOOTHING_MM
-      float   getBacklashSmoothing_mm        ();
-      void    setBacklashSmoothing_mm        (const float);
+      float getBacklashSmoothing_mm();
+      void setBacklashSmoothing_mm(const float);
     #endif
   #endif
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    bool      getFilamentRunoutEnabled       ();
-    void      setFilamentRunoutEnabled       (const bool);
+    bool getFilamentRunoutEnabled();
+    void setFilamentRunoutEnabled(const bool);
 
     #if FILAMENT_RUNOUT_DISTANCE_MM > 0
-      float   getFilamentRunoutDistance_mm   ();
-      void    setFilamentRunoutDistance_mm   (const float);
+      float getFilamentRunoutDistance_mm();
+      void setFilamentRunoutDistance_mm(const float);
     #endif
   #endif
 
@@ -178,44 +178,44 @@ namespace UI {
    * safe_millis must be called at least every 1 sec to guarantee time
    * yield should be called within lengthy loops
    */
-  uint32_t    safe_millis                    ();
-  void        delay_us                       (unsigned long us);
-  void        delay_ms                       (unsigned long ms);
-  void        yield                          ();
+  uint32_t safe_millis();
+  void delay_us(unsigned long us);
+  void delay_ms(unsigned long ms);
+  void yield();
 
   /**
    * Media access routines
    *
    * Should be used by the EXTENSIBLE_UI to operate on files
    */
-  bool        isMediaInserted                ();
-  bool        isPrintingFromMediaPaused      ();
-  bool        isPrintingFromMedia            ();
-  bool        isPrinting                     ();
+  bool isMediaInserted();
+  bool isPrintingFromMediaPaused();
+  bool isPrintingFromMedia();
+  bool isPrinting();
 
-  void        printFile                      (const char *filename);
-  void        stopPrint                      ();
-  void        pausePrint                     ();
-  void        resumePrint                    ();
+  void printFile(const char *filename);
+  void stopPrint();
+  void pausePrint();
+  void resumePrint();
 
   class FileList {
     private:
       uint16_t num_files;
 
     public:
-      FileList                               ();
-      void        refresh                    ();
-      bool        seek                       (uint16_t, bool skip_range_check = false);
+      FileList();
+      void refresh();
+      bool seek(uint16_t, bool skip_range_check = false);
 
-      const char *longFilename               ();
-      const char *shortFilename              ();
-      const char *filename                   ();
-      bool        isDir                      ();
+      const char *longFilename();
+      const char *shortFilename();
+      const char *filename();
+      bool isDir();
 
-      void        changeDir                  (const char *dirname);
-      void        upDir                      ();
-      bool        isAtRootDir                ();
-      uint16_t    count                      ();
+      void changeDir(const char *dirname);
+      void upDir();
+      bool isAtRootDir();
+      uint16_t    count();
   };
 
   /**
@@ -223,22 +223,22 @@ namespace UI {
    *
    * Should be declared by EXTENSIBLE_UI and will be called by Marlin
    */
-  void        onStartup                      ();
-  void        onIdle                         ();
-  void        onMediaInserted                ();
-  void        onMediaError                   ();
-  void        onMediaRemoved                 ();
-  void        onPlayTone                     (const uint16_t frequency, const uint16_t duration);
-  void        onPrinterKilled                (const char* msg);
-  void        onPrintTimerStarted            ();
-  void        onPrintTimerPaused             ();
-  void        onPrintTimerStopped            ();
-  void        onFilamentRunout               ();
-  void        onStatusChanged                (const char* msg);
-  void        onStatusChanged                (progmem_str msg);
-  void        onFactoryReset                 ();
-  void        onStoreSettings                ();
-  void        onLoadSettings                 ();
+  void onStartup();
+  void onIdle();
+  void onMediaInserted();
+  void onMediaError();
+  void onMediaRemoved();
+  void onPlayTone(const uint16_t frequency, const uint16_t duration);
+  void onPrinterKilled(const char* msg);
+  void onPrintTimerStarted();
+  void onPrintTimerPaused();
+  void onPrintTimerStopped();
+  void onFilamentRunout();
+  void onStatusChanged(const char* msg);
+  void onStatusChanged(progmem_str msg);
+  void onFactoryReset();
+  void onStoreSettings();
+  void onLoadSettings();
 };
 
 /**
