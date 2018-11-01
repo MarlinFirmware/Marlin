@@ -46,7 +46,7 @@ void GcodeSuite::M218() {
   if (parser.seenval('Y')) hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
   if (parser.seenval('Z')) hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
 
-  if (!parser.seen_P(PSTR("XYZ"))) {
+  if (!parser.seen("XYZ")) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
     HOTEND_LOOP() {

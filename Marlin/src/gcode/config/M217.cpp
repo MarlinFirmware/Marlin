@@ -89,7 +89,7 @@ void GcodeSuite::M217() {
 
   if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
 
-  if (!parser.seen_P(SPR_PARAM XY_PARAM "Z")) M217_report();
+  if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
 
 }
 
