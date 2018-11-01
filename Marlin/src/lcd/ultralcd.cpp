@@ -660,7 +660,7 @@ void lcd_update() {
     // Handle any queued Move Axis motion
     manage_manual_move();
 
-    // Update button states for LCD_CLICKED, etc.
+    // Update button states for LCD_CLICKED(), etc.
     // After state changes the next button update
     // may be delayed 300-500ms.
     lcd_buttons_update();
@@ -673,7 +673,7 @@ void lcd_update() {
     #endif
 
     // If the action button is pressed...
-    if (UBL_CONDITION && LCD_CLICKED) {
+    if (UBL_CONDITION && LCD_CLICKED()) {
       if (!wait_for_unclick) {           // If not waiting for a debounce release:
         wait_for_unclick = true;         //  Set debounce flag to ignore continous clicks
         lcd_clicked = !wait_for_user && !no_reentry; //  Keep the click if not waiting for a user-click
@@ -1102,7 +1102,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
-    bool is_lcd_clicked() { return LCD_CLICKED; }
+    bool is_lcd_clicked() { return LCD_CLICKED(); }
     void wait_for_release() {
       while (is_lcd_clicked()) safe_delay(50);
       safe_delay(50);

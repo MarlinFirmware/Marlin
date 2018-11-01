@@ -409,14 +409,14 @@
 
 #if ENABLED(REPRAPWORLD_KEYPAD)
   #ifdef EN_C
-    #define LCD_CLICKED ((buttons & EN_C) || REPRAPWORLD_KEYPAD_MOVE_MENU)
+    #define LCD_CLICKED() ((buttons & EN_C) || REPRAPWORLD_KEYPAD_MOVE_MENU)
   #else
-    #define LCD_CLICKED REPRAPWORLD_KEYPAD_MOVE_MENU
+    #define LCD_CLICKED() REPRAPWORLD_KEYPAD_MOVE_MENU
   #endif
 #elif defined(EN_C)
-  #define LCD_CLICKED (buttons & EN_C)
+  #define LCD_CLICKED() (buttons & EN_C)
 #else
-  #define LCD_CLICKED false
+  #define LCD_CLICKED() false
 #endif
 
 extern uint8_t lcd_status_update_delay;
