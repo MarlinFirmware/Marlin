@@ -301,6 +301,7 @@ public:
 
   #if USE_EXECUTE_COMMANDS_IMMEDIATE
     static void process_subcommands_now_P(PGM_P pgcode);
+    static void process_subcommands_now(char * gcode);
   #endif
 
   FORCE_INLINE static void home_all_axes() { G28(true); }
