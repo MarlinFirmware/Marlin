@@ -735,7 +735,7 @@ void GcodeSuite::process_next_command() {
     char * const saved_cmd = parser.command_ptr;
 
     // Process individual commands in string
-    while (pgm_read_byte_near(pgcode)) {
+    while (pgm_read_byte(pgcode)) {
       // Break up string at '\n' delimiters
       PGM_P const delim = strchr_P(pgcode, '\n');
       size_t len = delim ? delim - pgcode : strlen_P(pgcode);
