@@ -857,15 +857,13 @@
   #define AXIS_HAS_STEALTHCHOP(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208))
 
   #define USE_SENSORLESS (ENABLED(SENSORLESS_HOMING) || ENABLED(SENSORLESS_PROBING))
-  #if USE_SENSORLESS
-    // Disable Z axis sensorless homing if a probe is used to home the Z axis
-    #if HOMING_Z_WITH_PROBE
-      #undef Z_STALL_SENSITIVITY
-    #endif
-    #define X_SENSORLESS (AXIS_HAS_STALLGUARD(X) && defined(X_STALL_SENSITIVITY))
-    #define Y_SENSORLESS (AXIS_HAS_STALLGUARD(Y) && defined(Y_STALL_SENSITIVITY))
-    #define Z_SENSORLESS (AXIS_HAS_STALLGUARD(Z) && defined(Z_STALL_SENSITIVITY))
+  // Disable Z axis sensorless homing if a probe is used to home the Z axis
+  #if HOMING_Z_WITH_PROBE
+    #undef Z_STALL_SENSITIVITY
   #endif
+  #define X_SENSORLESS (AXIS_HAS_STALLGUARD(X) && defined(X_STALL_SENSITIVITY))
+  #define Y_SENSORLESS (AXIS_HAS_STALLGUARD(Y) && defined(Y_STALL_SENSITIVITY))
+  #define Z_SENSORLESS (AXIS_HAS_STALLGUARD(Z) && defined(Z_STALL_SENSITIVITY))
 #endif
 
 // Endstops and bed probe
