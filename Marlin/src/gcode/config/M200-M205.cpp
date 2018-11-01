@@ -91,27 +91,18 @@ void GcodeSuite::M203() {
  *    T = Travel (non printing) moves
  */
 void GcodeSuite::M204() {
-  bool report = true;
-  if (parser.seenval('S')) { // Kept for legacy compatibility. Should NOT BE USED for new developments.
-    planner.settings.travel_acceleration = planner.settings.acceleration = parser.value_linear_units();
-    report = false;
-  }
-  if (parser.seenval('P')) {
-    planner.settings.acceleration = parser.value_linear_units();
-    report = false;
-  }
-  if (parser.seenval('R')) {
-    planner.settings.retract_acceleration = parser.value_linear_units();
-    report = false;
-  }
-  if (parser.seenval('T')) {
-    planner.settings.travel_acceleration = parser.value_linear_units();
-    report = false;
-  }
-  if (report) {
+  if (!parser.seen("PRST")) {
     SERIAL_ECHOPAIR("Acceleration: P", planner.settings.acceleration);
     SERIAL_ECHOPAIR(" R", planner.settings.retract_acceleration);
     SERIAL_ECHOLNPAIR(" T", planner.settings.travel_acceleration);
+  }
+  else {
+    planner.synchronize();
+    // 'S' for legacy compatibility. Should NOT BE USED for new development
+    if (parser.seenval('S')) planner.settings.travel_acceleration = planner.settings.acceleration = parser.value_linear_units();
+    if (parser.seenval('P')) planner.settings.acceleration = parser.value_linear_units();
+    if (parser.seenval('R')) planner.settings.retract_acceleration = parser.value_linear_units();
+    if (parser.seenval('T')) planner.settings.travel_acceleration = parser.value_linear_units();
   }
 }
 
@@ -128,6 +119,19 @@ void GcodeSuite::M204() {
  *    J = Junction Deviation (mm) (Requires JUNCTION_DEVIATION)
  */
 void GcodeSuite::M205() {
+  #if ENABLED(JUNCTION_DEVIATION)
+    #define J_PARAM  "J"
+  #else
+    #define J_PARAM 
+  #endif
+  #if HAS_CLASSIC_JERK
+    #define XYZE_PARAM "XYZE"
+  #else
+    #define XYZE_PARAM 
+  #endif
+  if (!parser.seen("BST" J_PARAM XYZE_PARAM)) return;
+
+  planner.synchronize();
   if (parser.seen('B')) planner.settings.min_segment_time_us = parser.value_ulong();
   if (parser.seen('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
