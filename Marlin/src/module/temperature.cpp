@@ -251,7 +251,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
     #if HAS_PID_FOR_BOTH
       #define GHV(B,H) (hotend < 0 ? (B) : (H))
       #define SHV(S,B,H) do{ if (hotend < 0) S##_bed = B; else S [hotend] = H; }while(0)
-      #define ONHEATINGSTART() do{ if (hotend < 0) printerEventLEDs.onBedHeatingStart(); else printerEventLEDs.onHotendHeatingStart(); }while(0)
+      #define ONHEATINGSTART() (hotend < 0 ? printerEventLEDs.onBedHeatingStart() : printerEventLEDs.onHotendHeatingStart())
       #define ONHEATING(S,C,T) do{ if (hotend < 0) printerEventLEDs.onBedHeating(S,C,T); else printerEventLEDs.onHotendHeating(S,C,T); }while(0)
     #elif ENABLED(PIDTEMPBED)
       #define GHV(B,H) B
@@ -311,7 +311,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
     wait_for_heatup = true; // Can be interrupted with M108
     #if ENABLED(PRINTER_EVENT_LEDS)
       const float start_temp = GHV(current_temperature_bed, current_temperature[hotend]);
-      ONHEATINGSTART();
+      LEDColor color = ONHEATINGSTART();
     #endif
 
     // PID Tuning loop
@@ -492,13 +492,17 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
             _SET_BED_PID();
           #endif
         }
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          printerEventLEDs.onPidTuningDone(color);
+        #endif
+
         return;
       }
       lcd_update();
     }
     disable_all_heaters();
     #if ENABLED(PRINTER_EVENT_LEDS)
-      printerEventLEDs.onHeatersOff();
+      printerEventLEDs.onPidTuningDone(color);
     #endif
   }
 
@@ -2525,7 +2529,7 @@ void Temperature::isr() {
       if (wait_for_heatup) {
         lcd_reset_status();
         #if ENABLED(PRINTER_EVENT_LEDS)
-          printerEventLEDs.onHeated();
+          printerEventLEDs.onHeatingDone();
         #endif
       }
 
