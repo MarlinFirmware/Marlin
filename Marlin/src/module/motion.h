@@ -26,15 +26,21 @@
  * High-level motion commands to feed the planner
  * Some of these methods may migrate to the planner class.
  */
-
-#ifndef MOTION_H
-#define MOTION_H
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
 #if IS_SCARA
   #include "../module/scara.h"
 #endif
+
+// Axis homed and known-position states
+extern uint8_t axis_homed, axis_known_position;
+constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
+FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
+FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
+FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
+FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
 
 // Error margin to work around float imprecision
 constexpr float slop = 0.0001;
@@ -359,5 +365,3 @@ void homeaxis(const AxisEnum axis);
 #if HAS_M206_COMMAND
   void set_home_offset(const AxisEnum axis, const float v);
 #endif
-
-#endif // MOTION_H

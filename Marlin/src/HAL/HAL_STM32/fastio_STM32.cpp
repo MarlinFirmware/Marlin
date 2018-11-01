@@ -4,6 +4,7 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,22 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifdef ARDUINO_ARCH_STM32
 
-/**
- * emergency_parser.cpp - Intercept special commands directly in the serial stream
- */
+#include "../../inc/MarlinConfig.h"
 
-#include "../inc/MarlinConfigPre.h"
+GPIO_TypeDef* FastIOPortMap[LastPort + 1];
 
-#if ENABLED(EMERGENCY_PARSER)
+void FastIO_init() {
+  for (uint8_t i = 0; i < NUM_DIGITAL_PINS; i++)
+    FastIOPortMap[STM_PORT(digitalPin[i])] = get_GPIO_Port(STM_PORT(digitalPin[i]));
+}
 
-#include "emergency_parser.h"
-
-// Static data members
-bool EmergencyParser::killed_by_M112, // = false
-     EmergencyParser::enabled;
-
-// Global instance
-EmergencyParser emergency_parser;
-
-#endif // EMERGENCY_PARSER
+#endif

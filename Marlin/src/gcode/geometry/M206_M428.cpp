@@ -28,7 +28,6 @@
 #include "../../module/motion.h"
 #include "../../lcd/ultralcd.h"
 #include "../../libs/buzzer.h"
-#include "../../Marlin.h" // for axis_homed
 
 /**
  * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y

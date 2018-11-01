@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ULTRA_LCD) && DISABLED(DOGLCD)
+#if HAS_CHARACTER_LCD
 
 /**
  * ultralcd_impl_HD44780.cpp
@@ -39,6 +39,10 @@
 #include "../../module/printcounter.h"
 #include "../../module/planner.h"
 #include "../../module/motion.h"
+
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "../../feature/bedlevel/ubl/ubl.h"
+#endif
 
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
@@ -79,16 +83,6 @@
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7); //RS,Enable,D4,D5,D6,D7
 #endif
 
-#include "../fontutils.h"
-#include "../lcdprint.h"
-
-#if ENABLED(LCD_PROGRESS_BAR)
-  static millis_t progress_bar_ms = 0;     // Start millis of the current progress bar cycle
-  #if PROGRESS_MSG_EXPIRE > 0
-    static millis_t expire_status_ms = 0;  // millis at which to expire the status message
-  #endif
-#endif
-
 #if ENABLED(LCD_HAS_STATUS_INDICATORS)
   static void lcd_implementation_update_indicators();
 #endif
@@ -100,9 +94,13 @@ static void createChar_P(const char c, const byte * const ptr) {
   lcd.createChar(c, temp);
 }
 
+#if ENABLED(LCD_PROGRESS_BAR)
+  #define LCD_STR_PROGRESS  "\x03\x04\x05"
+#endif
+
 void lcd_set_custom_characters(
   #if ENABLED(LCD_PROGRESS_BAR) || ENABLED(SHOW_BOOTSCREEN)
-    const uint8_t screen_charset=CHARSET_INFO
+    const HD44780CharSet screen_charset/*=CHARSET_INFO*/
   #endif
 ) {
   // CHARSET_BOOT
@@ -318,11 +316,7 @@ void lcd_set_custom_characters(
 
 }
 
-void lcd_implementation_init(
-  #if ENABLED(LCD_PROGRESS_BAR)
-    const uint8_t screen_charset=CHARSET_INFO
-  #endif
-) {
+void lcd_implementation_init() {
 
   #if ENABLED(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
@@ -348,11 +342,7 @@ void lcd_implementation_init(
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   #endif
 
-  lcd_set_custom_characters(
-    #if ENABLED(LCD_PROGRESS_BAR)
-      screen_charset
-    #endif
-  );
+  LCD_SET_CHARSET(currentScreen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU);
 
   lcd.clear();
 }
@@ -416,7 +406,7 @@ void lcd_implementation_clear() { lcd.clear(); }
   }
 
   void lcd_bootscreen() {
-    lcd_set_custom_characters(CHARSET_BOOT);
+    LCD_SET_CHARSET(CHARSET_BOOT);
     lcd.clear();
 
     #define LCD_EXTRA_SPACE (LCD_WIDTH-8)
@@ -485,7 +475,7 @@ void lcd_implementation_clear() { lcd.clear(); }
 
     lcd.clear();
     safe_delay(100);
-    lcd_set_custom_characters();
+    LCD_SET_CHARSET(CHARSET_INFO);
     lcd.clear();
   }
 
@@ -897,7 +887,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
    *  |01234567890123456789|
    */
 
-  static void lcd_impl_status_screen_1() {
+  void lcd_impl_status_screen_1() {
     const bool blink = lcd_blink();
 
     // ========== Line 1 ==========
@@ -975,7 +965,7 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
 
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
@@ -1581,6 +1571,6 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
 
   #endif // AUTO_BED_LEVELING_UBL
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
-#endif // ULTRA_LCD && !DOGLCD
+#endif // HAS_CHARACTER_LCD

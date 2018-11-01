@@ -160,17 +160,6 @@
 
 bool Running = true;
 
-/**
- * axis_homed
- *   Flags that each linear axis was homed.
- *   XYZ on cartesian, ABC on delta, ABZ on SCARA.
- *
- * axis_known_position
- *   Flags that the position is known in each linear axis. Set when homed.
- *   Cleared whenever a stepper powers off, potentially losing its position.
- */
-uint8_t axis_homed, axis_known_position; // = 0
-
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   TempUnit input_temp_units = TEMPUNIT_C;
 #endif
@@ -379,7 +368,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       #if ENABLED(DISABLE_INACTIVE_E)
         disable_e_steppers();
       #endif
-      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
+      #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
         if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
       #endif
     }
