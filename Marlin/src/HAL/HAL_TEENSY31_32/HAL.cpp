@@ -26,7 +26,7 @@
 #ifdef __MK20DX256__
 
 #include "HAL.h"
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 #include <Wire.h>
 
