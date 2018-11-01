@@ -173,7 +173,7 @@ void GcodeSuite::dwell(millis_t time) {
  * Process the parsed command and dispatch it to its handler
  */
 void GcodeSuite::process_parsed_command(
-  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  #if USE_EXECUTE_COMMANDS_IMMEDIATE
     const bool no_ok
   #endif
 ) {
@@ -698,7 +698,7 @@ void GcodeSuite::process_parsed_command(
 
   KEEPALIVE_STATE(NOT_BUSY);
 
-  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  #if USE_EXECUTE_COMMANDS_IMMEDIATE
     if (!no_ok)
   #endif
       ok_to_send();
@@ -725,7 +725,7 @@ void GcodeSuite::process_next_command() {
   process_parsed_command();
 }
 
-#if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+#if USE_EXECUTE_COMMANDS_IMMEDIATE
   /**
    * Run a series of commands, bypassing the command queue to allow
    * G-code "macros" to be called from within other G-code handlers.
