@@ -128,10 +128,7 @@ void menu_item_function::action(screenFunc_t func) { (*func)(); }
  *
  *   bool menu_item_int3::_edit();
  *   void menu_item_int3::edit(); // edit int16_t (interactively)
- *   void menu_item_int3::edit_callback(); // edit int16_t (interactively) with callback on completion
- *   void menu_item_int3::_action_setting_edit(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
- *   void menu_item_int3::action_setting_edit(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
- *   void menu_item_int3::action_setting_editcallback_(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback, const bool live); // edit int16_t with callback
+ *   void menu_item_int3::action_setting_edit(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback = null, const bool live = false);
  *
  * You can then use one of the menu macros to present the edit interface:
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
@@ -160,7 +157,7 @@ bool menu_item_template<NAME>::_edit() {
 }
 
 template<typename NAME>
-void menu_item_template<NAME>::_action_setting_edit(PGM_P const pstr, type_t* const ptr, const type_t minValue, const type_t maxValue) {
+void menu_item_template<NAME>::action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) {
   lcd_save_previous_screen();
   lcd_refresh();
 
@@ -169,11 +166,6 @@ void menu_item_template<NAME>::_action_setting_edit(PGM_P const pstr, type_t* co
   minEditValue = minValue * scale;
   maxEditValue = maxValue * scale - minEditValue;
   encoderPosition = (*ptr) * scale - minEditValue;
-}
-
-template<typename NAME>
-void menu_item_template<NAME>::action_setting_edit_callback(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) {
-  _action_setting_edit(pstr, ptr, minValue, maxValue);
   currentScreen = edit;
   callbackFunc = callback;
   liveEdit = live;
@@ -193,10 +185,9 @@ DEFINE_MENU_EDIT_ITEM(float52sign);
 DEFINE_MENU_EDIT_ITEM(float62);
 DEFINE_MENU_EDIT_ITEM(long5);
 
-void menu_item_bool::action_setting_edit(PGM_P pstr, bool* ptr) { UNUSED(pstr); *ptr ^= true; lcd_refresh(); }
-void menu_item_bool::action_setting_edit_callback(PGM_P pstr, bool* ptr, screenFunc_t callback) {
-  menu_item_bool::action_setting_edit(pstr, ptr);
-  (*callback)();
+void menu_item_bool::action_setting_edit(PGM_P pstr, bool* ptr, screenFunc_t callback) {
+  UNUSED(pstr); *ptr ^= true; lcd_refresh();
+  if(callback) (*callback)();
 }
 
 ////////////////////////////////////////////

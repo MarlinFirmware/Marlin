@@ -118,10 +118,6 @@ void lcd_implementation_drawedit(const char* const pstr, const char* const value
     UNUSED(pstr2); \
     DRAWMENU_SETTING_EDIT_GENERIC(STRFUNC(*(data))); \
   } \
-  FORCE_INLINE void lcd_implementation_drawmenu_setting_edit_callback_ ## NAME (const bool sel, const uint8_t row, PGM_P pstr, PGM_P pstr2, TYPE * const data, ...) { \
-    UNUSED(pstr2); \
-    DRAWMENU_SETTING_EDIT_GENERIC(STRFUNC(*(data))); \
-  } \
   FORCE_INLINE void lcd_implementation_drawmenu_setting_edit_accessor_ ## NAME (const bool sel, const uint8_t row, PGM_P pstr, PGM_P pstr2, TYPE (*pget)(), void (*pset)(TYPE), ...) { \
     UNUSED(pstr2); UNUSED(pset); \
     DRAWMENU_SETTING_EDIT_GENERIC(STRFUNC(pget())); \
@@ -141,8 +137,7 @@ DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float52sign);
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float62);
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(long5);
 
-#define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data)                    DRAW_BOOL_SETTING(sel, row, pstr, data)
-#define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) DRAW_BOOL_SETTING(sel, row, pstr, data)
+#define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data, ...)               DRAW_BOOL_SETTING(sel, row, pstr, data, ##__VA_ARGS__)
 #define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset)     DRAW_BOOL_SETTING(sel, row, pstr, data)
 
 ////////////////////////////////////////////
@@ -181,13 +176,9 @@ class menu_item_template {
     typedef typename NAME::type_t type_t;
     static constexpr float scale = NAME::scale;
     static bool _edit();
-    static void _action_setting_edit(PGM_P const pstr, type_t* const ptr, const type_t minValue, const type_t maxValue);
   public:
     static void edit() { _edit(); }
-    static void action_setting_edit_callback(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback = NULL, const bool live = false);
-    static FORCE_INLINE void action_setting_edit (PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue) {
-      action_setting_edit_callback (pstr, ptr, minValue, maxValue);
-    }
+    static void action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback = NULL, const bool live = false);
     typedef void _void;
 };
 
@@ -207,8 +198,7 @@ DECLARE_MENU_EDIT_ITEM(long5);
 
 class menu_item_bool {
   public:
-    static void action_setting_edit(PGM_P pstr, bool* ptr);
-    static void action_setting_edit_callback(PGM_P pstr, bool* ptr, screenFunc_t callbackFunc);
+    static void action_setting_edit(PGM_P pstr, bool* ptr, const screenFunc_t callbackFunc = NULL);
 };
 
 ////////////////////////////////////////////
@@ -367,13 +357,13 @@ class menu_item_bool {
 
 #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
 #define MENU_ITEM_EDIT(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-#define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit_callback, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+#define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
   #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) _MENU_MULTIPLIER_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_MULTIPLIER_ITEM_VARIANT(TYPE, _setting_edit_callback, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_MULTIPLIER_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
 #else // !ENCODER_RATE_MULTIPLIER
-  #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit_, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit_callback, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+  #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
+  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
 #endif // !ENCODER_RATE_MULTIPLIER
 
 ////////////////////////////////////////////
