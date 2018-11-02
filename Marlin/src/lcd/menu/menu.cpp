@@ -106,10 +106,10 @@ void lcd_goto_previous_menu_no_defer() {
 /////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
-void _menu_action_back() { lcd_goto_previous_menu(); }
-void menu_action_submenu(screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
-void menu_action_gcode(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
-void menu_action_function(screenFunc_t func) { (*func)(); }
+void menu_item_back::_action() { lcd_goto_previous_menu(); }
+void menu_item_submenu::action(screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
+void menu_item_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
+void menu_item_function::action(screenFunc_t func) { (*func)(); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -122,71 +122,76 @@ void menu_action_function(screenFunc_t func) { (*func)(); }
  *
  * For example, DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1) expands into these functions:
  *
- *   bool _menu_edit_int3();
- *   void menu_edit_int3(); // edit int16_t (interactively)
- *   void menu_edit_callback_int3(); // edit int16_t (interactively) with callback on completion
- *   void _menu_action_setting_edit_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
- *   void menu_action_setting_edit_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
- *   void menu_action_setting_edit_callback_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback, const bool live); // edit int16_t with callback
+ *   bool menu_item_int3::_edit();
+ *   void menu_item_int3::edit(); // edit int16_t (interactively)
+ *   void menu_item_int3::edit_callback(); // edit int16_t (interactively) with callback on completion
+ *   void menu_item_int3::_action_setting_edit(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
+ *   void menu_item_int3::action_setting_edit(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
+ *   void menu_item_int3::action_setting_editcallback_(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback, const bool live); // edit int16_t with callback
  *
  * You can then use one of the menu macros to present the edit interface:
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
  *
  * This expands into a more primitive menu item:
- *   MENU_ITEM(setting_edit_int3, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *   MENU_ITEM(menu_item_int3::setting_edit, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  * ...which calls:
- *       menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *       menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  */
-#define DEFINE_MENU_EDIT_TYPE(TYPE, NAME, STRFUNC, SCALE) \
-  bool _menu_edit_ ## NAME() { \
-    ENCODER_DIRECTION_NORMAL(); \
-    if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
-    if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue; \
-    if (lcdDrawUpdate) \
-      lcd_implementation_drawedit(editLabel, STRFUNC(((TYPE)((int32_t)encoderPosition + minEditValue)) * (1.0f / SCALE))); \
-    if (lcd_clicked || (liveEdit && lcdDrawUpdate)) { \
-      TYPE value = ((TYPE)((int32_t)encoderPosition + minEditValue)) * (1.0f / SCALE); \
-      if (editValue != NULL) *((TYPE*)editValue) = value; \
-      if (callbackFunc && (liveEdit || lcd_clicked)) (*callbackFunc)(); \
-      if (lcd_clicked) lcd_goto_previous_menu(); \
-    } \
-    return use_click(); \
-  } \
-  void menu_edit_ ## NAME() { _menu_edit_ ## NAME(); } \
-  void _menu_action_setting_edit_ ## NAME(PGM_P const pstr, TYPE* const ptr, const TYPE minValue, const TYPE maxValue) { \
-    lcd_save_previous_screen(); \
-    lcd_refresh(); \
-    \
-    editLabel = pstr; \
-    editValue = ptr; \
-    minEditValue = minValue * SCALE; \
-    maxEditValue = maxValue * SCALE - minEditValue; \
-    encoderPosition = (*ptr) * SCALE - minEditValue; \
-  } \
-  void menu_action_setting_edit_callback_ ## NAME(PGM_P const pstr, TYPE * const ptr, const TYPE minValue, const TYPE maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) { \
-    _menu_action_setting_edit_ ## NAME(pstr, ptr, minValue, maxValue); \
-    currentScreen = menu_edit_ ## NAME; \
-    callbackFunc = callback; \
-    liveEdit = live; \
-  } \
-  typedef void NAME##_void
 
-DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1);
-DEFINE_MENU_EDIT_TYPE(int16_t, int4, itostr4sign, 1);
-DEFINE_MENU_EDIT_TYPE(uint8_t, int8, i8tostr3, 1);
-DEFINE_MENU_EDIT_TYPE(float, float3, ftostr3, 1);
-DEFINE_MENU_EDIT_TYPE(float, float52, ftostr52, 100);
-DEFINE_MENU_EDIT_TYPE(float, float43, ftostr43sign, 1000);
-DEFINE_MENU_EDIT_TYPE(float, float5, ftostr5rj, 0.01f);
-DEFINE_MENU_EDIT_TYPE(float, float51, ftostr51sign, 10);
-DEFINE_MENU_EDIT_TYPE(float, float52sign, ftostr52sign, 100);
-DEFINE_MENU_EDIT_TYPE(float, float62, ftostr62rj, 100);
-DEFINE_MENU_EDIT_TYPE(uint32_t, long5, ftostr5rj, 0.01f);
+template<class NAME>
+bool menu_item_template<NAME>::_edit() {
+  ENCODER_DIRECTION_NORMAL();
+  if ((int32_t)encoderPosition < 0) encoderPosition = 0;
+  if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue;
+  if (lcdDrawUpdate)
+    lcd_implementation_drawedit(editLabel, NAME::strfunc((((int32_t)encoderPosition + minEditValue)) * (1.0f / scale)));
+  if (lcd_clicked || (liveEdit && lcdDrawUpdate)) {
+    type_t value = ((type_t)((int32_t)encoderPosition + minEditValue)) * (1.0f / scale);
+    if (editValue != NULL) *((type_t*)editValue) = value;
+    if (callbackFunc && (liveEdit || lcd_clicked)) (*callbackFunc)();
+    if (lcd_clicked) lcd_goto_previous_menu();
+  }
+  return use_click();
+}
 
-void menu_action_setting_edit_bool(PGM_P pstr, bool* ptr) { UNUSED(pstr); *ptr ^= true; lcd_refresh(); }
-void menu_action_setting_edit_callback_bool(PGM_P pstr, bool* ptr, screenFunc_t callback) {
-  menu_action_setting_edit_bool(pstr, ptr);
+template<typename NAME>
+void menu_item_template<NAME>::_action_setting_edit(PGM_P const pstr, type_t* const ptr, const type_t minValue, const type_t maxValue) {
+  lcd_save_previous_screen();
+  lcd_refresh();
+
+  editLabel = pstr;
+  editValue = ptr;
+  minEditValue = minValue * scale;
+  maxEditValue = maxValue * scale - minEditValue;
+  encoderPosition = (*ptr) * scale - minEditValue;
+}
+
+template<typename NAME>
+void menu_item_template<NAME>::action_setting_edit_callback(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) {
+  _action_setting_edit(pstr, ptr, minValue, maxValue);
+  currentScreen = edit;
+  callbackFunc = callback;
+  liveEdit = live;
+}
+
+#define DEFINE_MENU_EDIT_TYPE(NAME) template class menu_item_template<NAME ## _item_info>;
+
+DEFINE_MENU_EDIT_TYPE(int3);
+DEFINE_MENU_EDIT_TYPE(int4);
+DEFINE_MENU_EDIT_TYPE(int8);
+DEFINE_MENU_EDIT_TYPE(float3);
+DEFINE_MENU_EDIT_TYPE(float52);
+DEFINE_MENU_EDIT_TYPE(float43);
+DEFINE_MENU_EDIT_TYPE(float5);
+DEFINE_MENU_EDIT_TYPE(float51);
+DEFINE_MENU_EDIT_TYPE(float52sign);
+DEFINE_MENU_EDIT_TYPE(float62);
+DEFINE_MENU_EDIT_TYPE(long5);
+
+void menu_item_bool::action_setting_edit(PGM_P pstr, bool* ptr) { UNUSED(pstr); *ptr ^= true; lcd_refresh(); }
+void menu_item_bool::action_setting_edit_callback(PGM_P pstr, bool* ptr, screenFunc_t callback) {
+  menu_item_bool::action_setting_edit(pstr, ptr);
   (*callback)();
 }
 
