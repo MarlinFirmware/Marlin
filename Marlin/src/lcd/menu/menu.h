@@ -137,7 +137,7 @@ DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float52sign);
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float62);
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(long5);
 
-#define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data, ...)               DRAW_BOOL_SETTING(sel, row, pstr, data, ##__VA_ARGS__)
+#define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data, ...)               DRAW_BOOL_SETTING(sel, row, pstr, data)
 #define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset)     DRAW_BOOL_SETTING(sel, row, pstr, data)
 
 ////////////////////////////////////////////
