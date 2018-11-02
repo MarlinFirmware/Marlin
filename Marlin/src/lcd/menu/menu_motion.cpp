@@ -155,9 +155,9 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
     lcd_implementation_drawedit(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
   }
 }
-inline void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
-inline void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS); }
-inline void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS); }
+void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
+void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS); }
+void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS); }
 static void _lcd_move_e(
   #if E_MANUAL > 1
     const int8_t eindex=-1
@@ -449,6 +449,13 @@ void menu_motion() {
     MENU_ITEM(gcode, MSG_AUTO_HOME_X, PSTR("G28 X"));
     MENU_ITEM(gcode, MSG_AUTO_HOME_Y, PSTR("G28 Y"));
     MENU_ITEM(gcode, MSG_AUTO_HOME_Z, PSTR("G28 Z"));
+  #endif
+
+  //
+  // Auto Z-Align
+  //
+  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    MENU_ITEM(gcode, MSG_AUTO_Z_ALIGN, PSTR("G34"));
   #endif
 
   //

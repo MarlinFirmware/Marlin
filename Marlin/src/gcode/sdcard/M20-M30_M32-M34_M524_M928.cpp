@@ -157,7 +157,45 @@ void GcodeSuite::M27() {
 /**
  * M28: Start SD Write
  */
-void GcodeSuite::M28() { card.openFile(parser.string_arg, false); }
+void GcodeSuite::M28() {
+
+  #if ENABLED(FAST_FILE_TRANSFER)
+
+    const int16_t port =
+      #if NUM_SERIAL > 1
+        command_queue_port[cmd_queue_index_r]
+      #else
+        0
+      #endif
+    ;
+
+    bool binary_mode = false;
+    char *p = parser.string_arg;
+    if (p[0] == 'B' && NUMERIC(p[1])) {
+      binary_mode = p[1] > '0';
+      p += 2;
+      while (*p == ' ') ++p;
+    }
+
+    // Binary transfer mode
+    if ((card.binary_mode = binary_mode)) {
+      SERIAL_ECHO_START_P(port);
+      SERIAL_ECHO_P(port, " preparing to receive: ");
+      SERIAL_ECHOLN_P(port, p);
+      card.openFile(p, false);
+      #if NUM_SERIAL > 1
+        card.transfer_port = port;
+      #endif
+    }
+    else
+      card.openFile(p, false);
+
+  #else
+
+    card.openFile(parser.string_arg, false);
+
+  #endif
+}
 
 /**
  * M29: Stop SD Write

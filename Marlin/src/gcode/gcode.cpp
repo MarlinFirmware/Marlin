@@ -252,8 +252,12 @@ void GcodeSuite::process_parsed_command(
         case 33: G33(); break;                                    // G33: Delta Auto-Calibration
       #endif
 
+      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+        case 34: G34(); break;                                    // G34: Z Stepper automatic alignment using probe
+      #endif
+
       #if ENABLED(G38_PROBE_TARGET)
-        case 38:                                                  // G38.2 & G38.3
+        case 38:                                                  // G38.2 & G38.3: Probe towards target
           if (parser.subcode == 2 || parser.subcode == 3)
             G38(parser.subcode == 2);
           break;
@@ -423,7 +427,7 @@ void GcodeSuite::process_parsed_command(
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 
@@ -675,6 +679,10 @@ void GcodeSuite::process_parsed_command(
         case 867: M867(); break;                                  // M867: Toggle error correction
         case 868: M868(); break;                                  // M868: Set error correction threshold
         case 869: M869(); break;                                  // M869: Report axis error
+      #endif
+
+      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+        case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
       #endif
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Configuration_adv.h
@@ -30,8 +31,6 @@
  * Basic settings can be found in Configuration.h
  *
  */
-#ifndef CONFIGURATION_ADV_H
-#define CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H_VERSION 020000
 
 // @section temperature
@@ -409,6 +408,27 @@
 // Enable this if X or Y can't home without homing the other axis first.
 //#define CODEPENDENT_XY_HOMING
 
+/**
+ * Z Steppers Auto-Alignment
+ * Add the G34 command to align multiple Z steppers using a bed probe.
+ */
+//#define Z_STEPPER_AUTO_ALIGN
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  // Define probe X and Y positions for Z1, Z2 [, Z3]
+  #define Z_STEPPER_ALIGN_X { 10, 150, 290 }
+  #define Z_STEPPER_ALIGN_Y { 290, 10, 290 }
+  // Set number of iterations to align
+  #define Z_STEPPER_ALIGN_ITERATIONS 3
+  // Enable to restore leveling setup after operation
+  #define RESTORE_LEVELING_AFTER_G34
+  // Use the amplification factor to de-/increase correction step.
+  // In case the stepper (spindle) position is further out than the test point
+  // Use a value > 1. NOTE: This may cause instability
+  #define Z_STEPPER_ALIGN_AMP 1.0
+  // Stop criterion. If the accuracy is better than this stop iterating early
+  #define Z_STEPPER_ALIGN_ACC 0.02
+#endif
+
 // @section machine
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
@@ -575,7 +595,7 @@
     //#define PROGRESS_MSG_ONCE           // Show the message for MSG_TIME then clear it
     //#define LCD_PROGRESS_BAR_TEST       // Add a menu item to test the progress bar
   #endif
-#endif // SDSUPPORT || LCD_SET_PROGRESS_MANUALLY
+#endif // HAS_PRINT_PROGRESS
 
 /**
  * LED Control Menu
@@ -723,6 +743,9 @@
     #define SD_FIRMWARE_UPDATE_ACTIVE_VALUE   0xF0
     #define SD_FIRMWARE_UPDATE_INACTIVE_VALUE 0xFF
   #endif
+
+  // Add an optimized binary file transfer mode, initiated with 'M28 B1'
+  //#define FAST_FILE_TRANSFER
 
 #endif // SDSUPPORT
 
@@ -1816,5 +1839,3 @@
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
-
-#endif // CONFIGURATION_ADV_H

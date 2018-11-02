@@ -502,7 +502,7 @@ void _lcd_ubl_output_map_lcd() {
  */
 void _lcd_ubl_output_map_lcd_cmd() {
   if (!all_axes_known()) {
-    axis_homed = 0;
+    set_all_unhomed();
     enqueue_and_echo_commands_P(PSTR("G28"));
   }
   lcd_goto_screen(_lcd_ubl_map_homing);

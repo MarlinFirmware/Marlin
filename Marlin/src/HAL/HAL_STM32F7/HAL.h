@@ -153,8 +153,6 @@ extern uint16_t HAL_adc_result;
 // Public functions
 // --------------------------------------------------------------------------
 
-
-
 // Memory related
 #define __bss_end __bss_end__
 

@@ -38,7 +38,7 @@
 static AdvancedPauseMode _change_filament_temp_mode; // =ADVANCED_PAUSE_MODE_PAUSE_PRINT
 static int8_t _change_filament_temp_extruder; // =0
 
-static PGM_P _change_filament_temp_command() {
+inline PGM_P _change_filament_temp_command() {
   switch (_change_filament_temp_mode) {
     case ADVANCED_PAUSE_MODE_LOAD_FILAMENT:
       return PSTR("M701 T%d");
@@ -51,15 +51,15 @@ static PGM_P _change_filament_temp_command() {
   return PSTR(MSG_FILAMENTCHANGE);
 }
 
-void _change_filament_temp(const uint16_t temperature) {
+static void _change_filament_temp(const uint16_t temperature) {
   char cmd[11];
   sprintf_P(cmd, _change_filament_temp_command(), _change_filament_temp_extruder);
   thermalManager.setTargetHotend(temperature, _change_filament_temp_extruder);
   lcd_enqueue_command(cmd);
 }
-void _menu_change_filament_temp_1() { _change_filament_temp(PREHEAT_1_TEMP_HOTEND); }
-void _menu_change_filament_temp_2() { _change_filament_temp(PREHEAT_2_TEMP_HOTEND); }
-void _menu_change_filament_temp_custom() { _change_filament_temp(thermalManager.target_temperature[_change_filament_temp_extruder]); }
+inline void _lcd_change_filament_temp_1_func()    { _change_filament_temp(PREHEAT_1_TEMP_HOTEND); }
+inline void _lcd_change_filament_temp_2_func()    { _change_filament_temp(PREHEAT_2_TEMP_HOTEND); }
+inline void _lcd_change_filament_temp_custom_cb() { _change_filament_temp(thermalManager.target_temperature[_change_filament_temp_extruder]); }
 
 static PGM_P change_filament_header(const AdvancedPauseMode mode) {
   switch (mode) {
@@ -78,8 +78,8 @@ void _menu_temp_filament_op(const AdvancedPauseMode mode, const int8_t extruder)
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), true, true);
   MENU_BACK(MSG_BACK);
-  MENU_ITEM(submenu, MSG_PREHEAT_1, _menu_change_filament_temp_1);
-  MENU_ITEM(submenu, MSG_PREHEAT_2, _menu_change_filament_temp_2);
+  MENU_ITEM(function, MSG_PREHEAT_1, _lcd_change_filament_temp_1_func);
+  MENU_ITEM(function, MSG_PREHEAT_2, _lcd_change_filament_temp_2_func);
   uint16_t max_temp;
   switch (extruder) {
     default: max_temp = HEATER_0_MAXTEMP;
@@ -99,7 +99,7 @@ void _menu_temp_filament_op(const AdvancedPauseMode mode, const int8_t extruder)
       #endif
     #endif
   }
-  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PREHEAT_CUSTOM, &thermalManager.target_temperature[_change_filament_temp_extruder], EXTRUDE_MINTEMP, max_temp - 15, _menu_change_filament_temp_custom);
+  MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PREHEAT_CUSTOM, &thermalManager.target_temperature[_change_filament_temp_extruder], EXTRUDE_MINTEMP, max_temp - 15, _lcd_change_filament_temp_custom_cb);
   END_MENU();
 }
 void menu_temp_e0_filament_change()  { _menu_temp_filament_op(ADVANCED_PAUSE_MODE_PAUSE_PRINT, 0); }

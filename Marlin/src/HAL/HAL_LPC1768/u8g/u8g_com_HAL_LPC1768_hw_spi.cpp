@@ -57,7 +57,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
 
 //#include <inttypes.h>
 #include <U8glib.h>
@@ -132,6 +132,6 @@ uint8_t u8g_com_HAL_LPC1768_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   return 1;
 }
 
-#endif // DOGLCD
+#endif // HAS_GRAPHICAL_LCD
 
 #endif // TARGET_LPC1768

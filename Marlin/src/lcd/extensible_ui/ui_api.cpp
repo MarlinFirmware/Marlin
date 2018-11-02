@@ -41,7 +41,7 @@
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#include "../../Marlin.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EXTENSIBLE_UI)
 
@@ -68,9 +68,6 @@
 #if ENABLED(PRINTCOUNTER)
   #include "../../core/utility.h"
   #include "../../module/printcounter.h"
-  #define IFPC(A,B) (A)
-#else
-  #define IFPC(A,B) (B)
 #endif
 
 #include "ui_api.h"
@@ -90,7 +87,10 @@ inline float clamp(const float value, const float minimum, const float maximum) 
   return MAX(MIN(value, maximum), minimum);
 }
 
-static bool printer_killed = false;
+static struct {
+  uint8_t printer_killed  : 1;
+  uint8_t manual_motion : 1;
+} flags;
 
 namespace UI {
   #ifdef __SAM3X8E__
@@ -102,14 +102,14 @@ namespace UI {
      */
     uint32_t safe_millis() {
       // Not killed? Just call millis()
-      if (!printer_killed) return millis();
+      if (!flags.printer_killed) return millis();
 
       static uint32_t currTimeHI = 0; /* Current time */
 
       // Machine was killed, reinit SysTick so we are able to compute time without ISRs
       if (currTimeHI == 0) {
         // Get the last time the Arduino time computed (from CMSIS) and convert it to SysTick
-        currTimeHI = (uint32_t)((GetTickCount() * (uint64_t)(F_CPU/8000)) >> 24);
+        currTimeHI = (uint32_t)((GetTickCount() * (uint64_t)(F_CPU / 8000)) >> 24);
 
         // Reinit the SysTick timer to maximize its period
         SysTick->LOAD  = SysTick_LOAD_RELOAD_Msk;                    // get the full range for the systick timer
@@ -136,7 +136,7 @@ namespace UI {
   #else
 
     // TODO: Implement for AVR
-    uint32_t safe_millis() { return millis(); }
+    FORCE_INLINE uint32_t safe_millis() { return millis(); }
 
   #endif
 
@@ -145,227 +145,296 @@ namespace UI {
   }
 
   void delay_ms(unsigned long ms) {
-    if (printer_killed)
+    if (flags.printer_killed)
       DELAY_US(ms * 1000);
     else
       safe_delay(ms);
   }
 
   void yield() {
-    if (!printer_killed)
+    if (!flags.printer_killed)
       thermalManager.manage_heater();
   }
 
-  float getActualTemp_celsius(const uint8_t extruder) {
-    return extruder ?
-      thermalManager.degHotend(extruder - 1) :
+  float getActualTemp_celsius(const heater_t heater) {
+    return heater == BED ?
       #if HAS_HEATED_BED
         thermalManager.degBed()
       #else
         0
       #endif
-    ;
+      : thermalManager.degHotend(heater - H0);
   }
 
-  float getTargetTemp_celsius(const uint8_t extruder) {
-    return extruder ?
-      thermalManager.degTargetHotend(extruder - 1) :
+  float getActualTemp_celsius(const extruder_t extruder) {
+    return thermalManager.degHotend(extruder - E0);
+  }
+
+  float getTargetTemp_celsius(const heater_t heater) {
+    return heater == BED ?
       #if HAS_HEATED_BED
         thermalManager.degTargetBed()
       #else
         0
       #endif
-    ;
+      : thermalManager.degTargetHotend(heater - H0);
   }
 
-  float getFan_percent(const uint8_t fan) { return ((float(fan_speed[fan]) + 1) * 100) / 256; }
+  float getTargetTemp_celsius(const extruder_t extruder) {
+    return thermalManager.degTargetHotend(extruder - E0);
+  }
+
+  float getFan_percent(const fan_t fan) { return ((float(fan_speed[fan - FAN0]) + 1) * 100) / 256; }
 
   float getAxisPosition_mm(const axis_t axis) {
-    switch (axis) {
-      case X: case Y: case Z:
-        return current_position[axis];
-      case E0: case E1: case E2: case E3: case E4: case E5:
-        return current_position[E_AXIS];
-      default: return 0;
+    return flags.manual_motion ? destination[axis] : current_position[axis];
+  }
+
+  float getAxisPosition_mm(const extruder_t extruder) {
+    return flags.manual_motion ? destination[E_AXIS] : current_position[E_AXIS];
+  }
+
+  void setAxisPosition_mm(const float position, const axis_t axis) {
+    // Start with no limits to movement
+    float min = current_position[axis] - 1000,
+          max = current_position[axis] + 1000;
+
+    // Limit to software endstops, if enabled
+    #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+      if (soft_endstops_enabled) switch (axis) {
+        case X_AXIS:
+          #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+            min = soft_endstop_min[X_AXIS];
+          #endif
+          #if ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+            max = soft_endstop_max[X_AXIS];
+          #endif
+          break;
+        case Y_AXIS:
+          #if ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+            min = soft_endstop_min[Y_AXIS];
+          #endif
+          #if ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+            max = soft_endstop_max[Y_AXIS];
+          #endif
+          break;
+        case Z_AXIS:
+          #if ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
+            min = soft_endstop_min[Z_AXIS];
+          #endif
+          #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
+            max = soft_endstop_max[Z_AXIS];
+          #endif
+        default: break;
+      }
+    #endif // MIN_SOFTWARE_ENDSTOPS || MAX_SOFTWARE_ENDSTOPS
+
+    // Delta limits XY based on the current offset from center
+    // This assumes the center is 0,0
+    #if ENABLED(DELTA)
+      if (axis != Z_AXIS) {
+        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        min = -max;
+      }
+    #endif
+
+    if (!flags.manual_motion)
+      set_destination_from_current();
+    destination[axis] = clamp(position, min, max);
+    flags.manual_motion = true;
+  }
+
+  void setAxisPosition_mm(const float position, const extruder_t extruder) {
+    setActiveTool(extruder, true);
+
+    if (!flags.manual_motion)
+      set_destination_from_current();
+    destination[E_AXIS] = position;
+    flags.manual_motion = true;
+  }
+
+  void _processManualMoveToDestination() {
+    // Lower max_response_lag makes controls more responsive, but makes CPU work harder
+    constexpr float   max_response_lag = 0.1; // seconds
+    constexpr uint8_t segments_to_buffer = 4; // keep planner filled with this many segments
+
+    if (flags.manual_motion && planner.movesplanned() < segments_to_buffer) {
+      float saved_destination[XYZ];
+      COPY(saved_destination, destination);
+      // Compute direction vector from current_position towards destination.
+      destination[X_AXIS] -= current_position[X_AXIS];
+      destination[Y_AXIS] -= current_position[Y_AXIS];
+      destination[Z_AXIS] -= current_position[Z_AXIS];
+      const float inv_length = RSQRT(sq(destination[X_AXIS]) + sq(destination[Y_AXIS]) + sq(destination[Z_AXIS]));
+      // Find move segment length so that all segments can execute in less time than max_response_lag
+      const float scale = inv_length * feedrate_mm_s * max_response_lag / segments_to_buffer;
+      if (scale < 1) {
+        // Move a small bit towards the destination.
+        destination[X_AXIS] = scale * destination[X_AXIS] + current_position[X_AXIS];
+        destination[Y_AXIS] = scale * destination[Y_AXIS] + current_position[Y_AXIS];
+        destination[Z_AXIS] = scale * destination[Z_AXIS] + current_position[Z_AXIS];
+        prepare_move_to_destination();
+        COPY(destination, saved_destination);
+      }
+      else {
+        // We are close enough to finish off the move.
+        COPY(destination, saved_destination);
+        prepare_move_to_destination();
+        flags.manual_motion = false;
+      }
     }
   }
 
-  void setAxisPosition_mm(const axis_t axis, float position, float _feedrate_mm_s) {
-    #if EXTRUDERS > 1
-      const int8_t old_extruder = active_extruder;
-    #endif
-    switch (axis) {
-      case X: case Y: case Z: break;
-      case E0: case E1: case E2: case E3: case E4: case E5:
-        #if EXTRUDERS > 1
-          active_extruder = axis - E0;
-        #endif
-        break;
-      default: return;
-    }
-    set_destination_from_current();
-    switch (axis) {
-      case X: case Y: case Z:
-        destination[axis] = position;
-        break;
-      case E0: case E1: case E2: case E3: case E4: case E5:
-        destination[E_AXIS] = position;
-        break;
-    }
-
-    const float old_feedrate = feedrate_mm_s;
-    feedrate_mm_s = _feedrate_mm_s;
-    prepare_move_to_destination();
-    feedrate_mm_s = old_feedrate;
-    #if EXTRUDERS > 1
-      active_extruder = old_extruder;
-    #endif
-  }
-
-  void setActiveTool(uint8_t extruder, bool no_move) {
-    extruder--; // Make zero based
+  void setActiveTool(const extruder_t extruder, bool no_move) {
+    const uint8_t e = extruder - E0;
     #if DO_SWITCH_EXTRUDER || ENABLED(SWITCHING_NOZZLE) || ENABLED(PARKING_EXTRUDER)
-      if (extruder != active_extruder)
-        tool_change(extruder, 0, no_move);
+      if (e != active_extruder)
+        tool_change(e, 0, no_move);
     #endif
-    #if EXTRUDERS > 1
-      active_extruder = extruder;
-    #endif
+    active_extruder = e;
   }
 
-  uint8_t getActiveTool() { return active_extruder + 1; }
+  extruder_t getActiveTool() {
+    switch (active_extruder) {
+      case 5:  return E5;
+      case 4:  return E4;
+      case 3:  return E3;
+      case 2:  return E2;
+      case 1:  return E1;
+      default: return E0;
+    }
+  }
 
   bool isMoving() { return planner.has_blocks_queued(); }
 
-  float getAxisSteps_per_mm(const axis_t axis) {
+  bool canMove(const axis_t axis) {
     switch (axis) {
-      case X: case Y: case Z:
-        return planner.settings.axis_steps_per_mm[axis];
-      case E0: case E1: case E2: case E3: case E4: case E5:
-        return planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)];
-      default: return 0;
+      #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
+        case X: return TEST(axis_homed, X_AXIS);
+        case Y: return TEST(axis_homed, Y_AXIS);
+        case Z: return TEST(axis_homed, Z_AXIS);
+      #else
+        case X: case Y: case Z: return true;
+      #endif
+      default: return false;
     }
   }
 
-  void setAxisSteps_per_mm(const axis_t axis, const float steps_per_mm) {
-    switch (axis) {
-      case X: case Y: case Z:
-        planner.settings.axis_steps_per_mm[axis] = steps_per_mm;
-        break;
-      case E0: case E1: case E2: case E3: case E4: case E5:
-        planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = steps_per_mm;
-        break;
-    }
+  bool canMove(const extruder_t extruder) {
+    return !thermalManager.tooColdToExtrude(extruder - E0);
+  }
+
+  float getAxisSteps_per_mm(const axis_t axis) {
+    return planner.settings.axis_steps_per_mm[axis];
+  }
+
+  float getAxisSteps_per_mm(const extruder_t extruder) {
+    return planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)];
+  }
+
+  void setAxisSteps_per_mm(const float value, const axis_t axis) {
+    planner.settings.axis_steps_per_mm[axis] = value;
+  }
+
+  void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
+    planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = value;
   }
 
   float getAxisMaxFeedrate_mm_s(const axis_t axis) {
-    switch (axis) {
-      case X: case Y: case Z:
-        return planner.settings.max_feedrate_mm_s[axis];
-      case E0: case E1: case E2: case E3: case E4: case E5:
-        return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
-      default: return 0;
-    }
+    return planner.settings.max_feedrate_mm_s[axis];
   }
 
-  void setAxisMaxFeedrate_mm_s(const axis_t axis, const float max_feedrate_mm_s) {
-    switch (axis) {
-      case X: case Y: case Z:
-        planner.settings.max_feedrate_mm_s[axis] = max_feedrate_mm_s;
-        break;
-      case E0: case E1: case E2: case E3: case E4: case E5:
-        planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = max_feedrate_mm_s;
-        break;
-      default: return;
-    }
+  float getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
+    return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
+  }
+
+  void setAxisMaxFeedrate_mm_s(const float value, const axis_t axis) {
+    planner.settings.max_feedrate_mm_s[axis] = value;
+  }
+
+  void setAxisMaxFeedrate_mm_s(const float value, const extruder_t extruder) {
+    planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)] = value;
   }
 
   float getAxisMaxAcceleration_mm_s2(const axis_t axis) {
-    switch (axis) {
-      case X: case Y: case Z:
-        return planner.settings.max_acceleration_mm_per_s2[axis];
-      case E0: case E1: case E2: case E3: case E4: case E5:
-        return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(axis - E0)];
-      default: return 0;
-    }
+    return planner.settings.max_acceleration_mm_per_s2[axis];
   }
 
-  void setAxisMaxAcceleration_mm_s2(const axis_t axis, const float max_acceleration_mm_per_s2) {
-    switch (axis) {
-      case X: case Y: case Z:
-        planner.settings.max_acceleration_mm_per_s2[axis] = max_acceleration_mm_per_s2;
-        break;
-      case E0: case E1: case E2: case E3: case E4: case E5:
-        planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(axis - E0)] = max_acceleration_mm_per_s2;
-        break;
-      default: return;
-    }
+  float getAxisMaxAcceleration_mm_s2(const extruder_t extruder) {
+    return planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)];
+  }
+
+  void setAxisMaxAcceleration_mm_s2(const float value, const axis_t axis) {
+    planner.settings.max_acceleration_mm_per_s2[axis] = value;
+  }
+
+  void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
+    planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(extruder - E0)] = value;
   }
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    bool isFilamentRunoutEnabled()              { return runout.enabled; }
-    void toggleFilamentRunout(const bool state) { runout.enabled = state; }
+    bool getFilamentRunoutEnabled()                 { return runout.enabled; }
+    void setFilamentRunoutEnabled(const bool value) { runout.enabled = value; }
 
     #if FILAMENT_RUNOUT_DISTANCE_MM > 0
       float getFilamentRunoutDistance_mm() {
         return RunoutResponseDelayed::runout_distance_mm;
       }
 
-      void setFilamentRunoutDistance_mm(const float distance) {
-        RunoutResponseDelayed::runout_distance_mm = clamp(distance, 0, 999);
+      void setFilamentRunoutDistance_mm(const float value) {
+        RunoutResponseDelayed::runout_distance_mm = clamp(value, 0, 999);
       }
     #endif
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    float getLinearAdvance_mm_mm_s(const uint8_t extruder) {
-      return (extruder < EXTRUDERS) ? planner.extruder_advance_K[extruder] : 0;
+    float getLinearAdvance_mm_mm_s(const extruder_t extruder) {
+      return (extruder < EXTRUDERS) ? planner.extruder_advance_K[extruder - E0] : 0;
     }
 
-    void setLinearAdvance_mm_mm_s(const uint8_t extruder, const float k) {
+    void setLinearAdvance_mm_mm_s(const float value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
-        planner.extruder_advance_K[extruder] = clamp(k, 0, 999);
+        planner.extruder_advance_K[extruder - E0] = clamp(value, 0, 999);
     }
   #endif
 
   #if ENABLED(JUNCTION_DEVIATION)
+
     float getJunctionDeviation_mm() {
       return planner.junction_deviation_mm;
     }
 
-    void setJunctionDeviation_mm(const float junc_dev) {
-      planner.junction_deviation_mm = clamp(junc_dev, 0.01, 0.3);
+    void setJunctionDeviation_mm(const float value) {
+      planner.junction_deviation_mm = clamp(value, 0.01, 0.3);
       planner.recalculate_max_e_jerk();
     }
+
   #else
+
     float getAxisMaxJerk_mm_s(const axis_t axis) {
-      switch (axis) {
-        case X: case Y: case Z:
-          return planner.max_jerk[axis];
-        case E0: case E1: case E2: case E3: case E4: case E5:
-          return planner.max_jerk[E_AXIS];
-        default: return 0;
-      }
+      return planner.max_jerk[axis];
     }
 
-    void setAxisMaxJerk_mm_s(const axis_t axis, const float max_jerk) {
-      switch (axis) {
-        case X: case Y: case Z:
-          planner.max_jerk[axis] = max_jerk;
-          break;
-        case E0: case E1: case E2: case E3: case E4: case E5:
-          planner.max_jerk[E_AXIS] = max_jerk;
-          break;
-        default: return;
-      }
+    float getAxisMaxJerk_mm_s(const extruder_t extruder) {
+      return planner.max_jerk[E_AXIS];
+    }
+
+    void setAxisMaxJerk_mm_s(const float value, const axis_t axis) {
+      planner.max_jerk[axis] = value;
+    }
+
+    void setAxisMaxJerk_mm_s(const float value, const extruder_t extruder) {
+      planner.max_jerk[E_AXIS] = value;
     }
   #endif
 
+  float getFeedrate_mm_s()                            { return feedrate_mm_s; }
   float getMinFeedrate_mm_s()                         { return planner.settings.min_feedrate_mm_s; }
   float getMinTravelFeedrate_mm_s()                   { return planner.settings.min_travel_feedrate_mm_s; }
   float getPrintingAcceleration_mm_s2()               { return planner.settings.acceleration; }
   float getRetractAcceleration_mm_s2()                { return planner.settings.retract_acceleration; }
   float getTravelAcceleration_mm_s2()                 { return planner.settings.travel_acceleration; }
+  void setFeedrate_mm_s(const float fr)               { feedrate_mm_s = fr; }
   void setMinFeedrate_mm_s(const float fr)            { planner.settings.min_feedrate_mm_s = fr; }
   void setMinTravelFeedrate_mm_s(const float fr)      { planner.settings.min_travel_feedrate_mm_s = fr; }
   void setPrintingAcceleration_mm_s2(const float acc) { planner.settings.acceleration = acc; }
@@ -382,12 +451,12 @@ namespace UI {
           return zprobe_zoffset;
     }
 
-    void setZOffset_mm(const float zoffset_mm) {
-      const float diff = (zoffset_mm - getZOffset_mm()) / planner.steps_to_mm[Z_AXIS];
-      incrementZOffset_steps(diff > 0 ? ceil(diff) : floor(diff));
+    void setZOffset_mm(const float value) {
+      const float diff = (value - getZOffset_mm()) / planner.steps_to_mm[Z_AXIS];
+      addZOffset_steps(diff > 0 ? ceil(diff) : floor(diff));
     }
 
-    void incrementZOffset_steps(int16_t babystep_increment) {
+    void addZOffset_steps(int16_t babystep_increment) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         const bool do_probe = (active_extruder == 0);
       #else
@@ -415,28 +484,28 @@ namespace UI {
   #endif // ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
   #if HOTENDS > 1
-    float getNozzleOffset_mm(const axis_t axis, uint8_t extruder) {
-      if (extruder >= HOTENDS) return 0;
-      return hotend_offset[axis][extruder];
+    float getNozzleOffset_mm(const axis_t axis, const extruder_t extruder) {
+      if (extruder - E0 >= HOTENDS) return 0;
+      return hotend_offset[axis][extruder - E0];
     }
 
-    void setNozzleOffset_mm(const axis_t axis, uint8_t extruder, float offset) {
-      if (extruder >= HOTENDS) return;
-      hotend_offset[axis][extruder] = offset;
+    void setNozzleOffset_mm(const float value, const axis_t axis, const extruder_t extruder) {
+      if (extruder - E0 >= HOTENDS) return;
+      hotend_offset[axis][extruder - E0] = value;
     }
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    float getAxisBacklash_mm(const axis_t axis)       {return backlash_distance_mm[axis];}
-    void setAxisBacklash_mm(const axis_t axis, float distance)
-                                                      {backlash_distance_mm[axis] = clamp(distance,0,5);}
+    float getAxisBacklash_mm(const axis_t axis)       { return backlash_distance_mm[axis]; }
+    void setAxisBacklash_mm(const float value, const axis_t axis)
+                                                      { backlash_distance_mm[axis] = clamp(value,0,5); }
 
-    float getBacklashCorrection_percent()             {return backlash_correction*100;}
-    void setBacklashCorrection_percent(float percent) {backlash_correction = clamp(percent, 0, 100)/100;}
+    float getBacklashCorrection_percent()             { return backlash_correction * 100; }
+    void setBacklashCorrection_percent(const float value) { backlash_correction = clamp(value, 0, 100) / 100.0f; }
 
     #ifdef BACKLASH_SMOOTHING_MM
-      float getBacklashSmoothing_mm()                 {return backlash_smoothing_mm;}
-      void setBacklashSmoothing_mm(float distance)    {backlash_smoothing_mm = clamp(distance,0,999);}
+      float getBacklashSmoothing_mm()                 { return backlash_smoothing_mm; }
+      void setBacklashSmoothing_mm(const float value) { backlash_smoothing_mm = clamp(value, 0, 999); }
     #endif
   #endif
 
@@ -445,7 +514,8 @@ namespace UI {
   }
 
   uint32_t getProgress_seconds_elapsed() {
-    return IFPC(print_job_timer.duration() / 1000UL, 0);
+    const duration_t elapsed = print_job_timer.duration();
+    return elapsed.value;
   }
 
   #if ENABLED(PRINTCOUNTER)
@@ -460,46 +530,43 @@ namespace UI {
     }
   #endif
 
-  float getFeedRate_percent() {
-    return feedrate_percentage;
-  }
+  float getFeedrate_percent() { return feedrate_percentage; }
 
   void enqueueCommands(progmem_str gcode) {
     enqueue_and_echo_commands_P((PGM_P)gcode);
   }
 
   bool isAxisPositionKnown(const axis_t axis) {
-    switch (axis) {
-      case X: case Y: case Z:
-        return TEST(axis_known_position, axis);
-      default: return true;
-    }
+    return TEST(axis_known_position, axis);
   }
 
-  progmem_str getFirmwareName() {
+  progmem_str getFirmwareName_str() {
     return F("Marlin " SHORT_BUILD_VERSION);
   }
 
-  void setTargetTemp_celsius(const uint8_t extruder, float temp) {
-    if (extruder)
-      thermalManager.setTargetHotend(clamp(temp,0,500), extruder-1);
+  void setTargetTemp_celsius(float value, const heater_t heater) {
     #if HAS_HEATED_BED
-      else
-        thermalManager.setTargetBed(clamp(temp,0,200));
+    if (heater == BED)
+      thermalManager.setTargetBed(clamp(value,0,200));
     #endif
+      thermalManager.setTargetHotend(clamp(value,0,500), heater - H0);
   }
 
-  void setFan_percent(const uint8_t fan, float percent) {
+  void setTargetTemp_celsius(float value, const extruder_t extruder) {
+    thermalManager.setTargetHotend(clamp(value,0,500), extruder - E0);
+  }
+
+  void setFan_percent(float value, const fan_t fan) {
     if (fan < FAN_COUNT)
-      fan_speed[fan] = clamp(round(percent * 255 / 100), 0, 255);
+      fan_speed[fan - FAN0] = clamp(round(value * 255 / 100), 0, 255);
   }
 
-  void setFeedrate_percent(const float percent) {
-    feedrate_percentage = clamp(percent, 10, 500);
+  void setFeedrate_percent(const float value) {
+    feedrate_percentage = clamp(value, 10, 500);
   }
 
   void printFile(const char *filename) {
-    IFSD(card.openAndPrintFile(filename), 0);
+    IFSD(card.openAndPrintFile(filename), NOOP);
   }
 
   bool isPrintingFromMediaPaused() {
@@ -511,7 +578,7 @@ namespace UI {
   }
 
   bool isPrinting() {
-    return (planner.movesplanned() || IFSD(IS_SD_PRINTING(), false) || isPrintingFromMedia());
+    return (planner.movesplanned() || IS_SD_PRINTING() || isPrintingFromMedia());
   }
 
   bool isMediaInserted() {
@@ -521,9 +588,7 @@ namespace UI {
   void pausePrint() {
     #if ENABLED(SDSUPPORT)
       card.pauseSDPrint();
-      #if ENABLED(PRINTCOUNTER)
-        print_job_timer.pause();
-      #endif
+      print_job_timer.pause();
       #if ENABLED(PARK_HEAD_ON_PAUSE)
         enqueue_and_echo_commands_P(PSTR("M125"));
       #endif
@@ -537,9 +602,7 @@ namespace UI {
         enqueue_and_echo_commands_P(PSTR("M24"));
       #else
         card.startFileprint();
-        #if ENABLED(PRINTCOUNTER)
-          print_job_timer.start();
-        #endif
+        print_job_timer.start();
       #endif
       UI::onStatusChanged(PSTR(MSG_PRINTING));
     #endif
@@ -553,13 +616,9 @@ namespace UI {
     #endif
   }
 
-  FileList::FileList() {
-    refresh();
-  }
+  FileList::FileList() { refresh(); }
 
-  void FileList::refresh() {
-    num_files = 0xFFFF;
-  }
+  void FileList::refresh() { num_files = 0xFFFF; }
 
   bool FileList::seek(uint16_t pos, bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
@@ -570,11 +629,7 @@ namespace UI {
         #endif
       pos;
 
-      #if ENABLED(SDCARD_SORT_ALPHA)
-        card.getfilename_sorted(nr);
-      #else
-        card.getfilename(nr);
-      #endif
+      card.getfilename_sorted(nr);
       return card.filename && card.filename[0] != '\0';
     #endif
   }
@@ -649,39 +704,41 @@ void lcd_update() {
       else {
         const bool ok = card.cardOK;
         card.release();
-        if (ok)
-          UI::onMediaRemoved();
+        if (ok) UI::onMediaRemoved();
       }
     }
   #endif // SDSUPPORT
+  UI::_processManualMoveToDestination();
   UI::onIdle();
 }
 
-bool lcd_hasstatus()                                                             { return true; }
-bool lcd_detected()                                                              { return true; }
-void lcd_reset_alert_level()                                                     {}
-void lcd_refresh()                                                               {}
+bool lcd_hasstatus() { return true; }
+bool lcd_detected() { return true; }
+void lcd_reset_alert_level() { }
+void lcd_refresh() { }
 void lcd_setstatus(const char * const message, const bool persist /* = false */) { UI::onStatusChanged(message); }
 void lcd_setstatusPGM(const char * const message, int8_t level /* = 0 */)        { UI::onStatusChanged((progmem_str)message); }
 void lcd_setalertstatusPGM(const char * const message)                           { lcd_setstatusPGM(message, 0); }
+
 void lcd_reset_status() {
   static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
   static const char printing[] PROGMEM = MSG_PRINTING;
   static const char welcome[] PROGMEM = WELCOME_MSG;
   PGM_P msg;
-  if (IFPC(print_job_timer.isPaused(), false))
+  if (print_job_timer.isPaused())
     msg = paused;
   #if ENABLED(SDSUPPORT)
     else if (card.sdprinting)
       return lcd_setstatus(card.longest_filename(), true);
   #endif
-  else if (IFPC(print_job_timer.isRunning(), false))
+  else if (print_job_timer.isRunning())
     msg = printing;
   else
     msg = welcome;
 
   lcd_setstatusPGM(msg, -1);
 }
+
 void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   char buff[64];
   va_list args;
@@ -693,8 +750,8 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
 }
 
 void kill_screen(PGM_P msg) {
-  if (!printer_killed) {
-    printer_killed = true;
+  if (!flags.printer_killed) {
+    flags.printer_killed = true;
     UI::onPrinterKilled(msg);
   }
 }

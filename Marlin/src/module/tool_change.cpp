@@ -70,7 +70,7 @@
   #include "../feature/fanmux.h"
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
   #include "../lcd/ultralcd.h"
 #endif
 
@@ -524,7 +524,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                 no_move = true;
           #endif
 
-          #if ENABLED(ULTIPANEL)
+          #if HAS_LCD_MENU
             lcd_return_to_status();
           #endif
 

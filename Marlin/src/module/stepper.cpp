@@ -115,7 +115,7 @@ Stepper stepper; // Singleton
 
 // public:
 
-#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
   bool Stepper::separate_multi_axis = false;
 #endif
 
@@ -142,10 +142,10 @@ bool Stepper::abort_current_block;
 #if ENABLED(Y_DUAL_ENDSTOPS)
   bool Stepper::locked_Y_motor = false, Stepper::locked_Y2_motor = false;
 #endif
-#if Z_MULTI_ENDSTOPS
+#if Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
   bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false;
 #endif
-#if ENABLED(Z_TRIPLE_ENDSTOPS)
+#if ENABLED(Z_TRIPLE_ENDSTOPS) || (ENABLED(Z_STEPPER_AUTO_ALIGN) && ENABLED(Z_TRIPLE_STEPPER_DRIVERS))
   bool Stepper::locked_Z3_motor = false;
 #endif
 
@@ -211,7 +211,7 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
 volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
 int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
 
-#define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                       \
+#define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
   if (separate_multi_axis) {                                                                                                \
     if (A##_HOME_DIR < 0) {                                                                                                 \
       if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
@@ -227,7 +227,17 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     A##2_STEP_WRITE(V);                                                                                                     \
   }
 
-#define TRIPLE_ENDSTOP_APPLY_STEP(A,V)                                                                                       \
+#define DUAL_SEPARATE_APPLY_STEP(A,V)             \
+  if (separate_multi_axis) {                      \
+    if (!locked_##A##_motor) A##_STEP_WRITE(V);   \
+    if (!locked_##A##2_motor) A##2_STEP_WRITE(V); \
+  }                                               \
+  else {                                          \
+    A##_STEP_WRITE(V);                            \
+    A##2_STEP_WRITE(V);                           \
+  }
+
+#define TRIPLE_ENDSTOP_APPLY_STEP(A,V)                                                                                      \
   if (separate_multi_axis) {                                                                                                \
     if (A##_HOME_DIR < 0) {                                                                                                 \
       if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
@@ -298,6 +308,8 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }while(0)
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
+  #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #define Z_APPLY_STEP(v,Q) DUAL_SEPARATE_APPLY_STEP(Z,v)
   #else
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }while(0)
   #endif

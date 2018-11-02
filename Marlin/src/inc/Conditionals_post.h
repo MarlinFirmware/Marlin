@@ -239,7 +239,7 @@
 /**
  * Override here because this is set in Configuration_adv.h
  */
-#if ENABLED(ULTIPANEL) && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+#if HAS_LCD_MENU && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
   #undef SD_DETECT_INVERTED
 #endif
 
@@ -857,15 +857,13 @@
   #define AXIS_HAS_STEALTHCHOP(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208))
 
   #define USE_SENSORLESS (ENABLED(SENSORLESS_HOMING) || ENABLED(SENSORLESS_PROBING))
-  #if USE_SENSORLESS
-    // Disable Z axis sensorless homing if a probe is used to home the Z axis
-    #if HOMING_Z_WITH_PROBE
-      #undef Z_STALL_SENSITIVITY
-    #endif
-    #define X_SENSORLESS (AXIS_HAS_STALLGUARD(X) && defined(X_STALL_SENSITIVITY))
-    #define Y_SENSORLESS (AXIS_HAS_STALLGUARD(Y) && defined(Y_STALL_SENSITIVITY))
-    #define Z_SENSORLESS (AXIS_HAS_STALLGUARD(Z) && defined(Z_STALL_SENSITIVITY))
+  // Disable Z axis sensorless homing if a probe is used to home the Z axis
+  #if HOMING_Z_WITH_PROBE
+    #undef Z_STALL_SENSITIVITY
   #endif
+  #define X_SENSORLESS (AXIS_HAS_STALLGUARD(X) && defined(X_STALL_SENSITIVITY))
+  #define Y_SENSORLESS (AXIS_HAS_STALLGUARD(Y) && defined(Y_STALL_SENSITIVITY))
+  #define Z_SENSORLESS (AXIS_HAS_STALLGUARD(Z) && defined(Z_STALL_SENSITIVITY))
 #endif
 
 // Endstops and bed probe
@@ -1630,6 +1628,14 @@
 
 #if ENABLED(G29_RETRY_AND_RECOVER)
   #define USE_EXECUTE_COMMANDS_IMMEDIATE
+#endif
+
+#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
+  #define Z_STEPPER_COUNT 3
+#elif ENABLED(Z_DUAL_STEPPER_DRIVERS)
+  #define Z_STEPPER_COUNT 2
+#else
+  #define Z_STEPPER_COUNT 1
 #endif
 
 #endif // CONDITIONALS_POST_H

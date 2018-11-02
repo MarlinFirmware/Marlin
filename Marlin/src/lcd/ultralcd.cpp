@@ -49,7 +49,7 @@
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/power_loss_recovery.h"
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     void menu_job_recovery();
   #endif
 #endif
@@ -100,7 +100,7 @@ uint8_t lcd_status_update_delay = 1, // First update one loop delayed
   millis_t previous_lcd_status_ms = 0;
 #endif
 
-#if ENABLED(SDSUPPORT) && ENABLED(ULTIPANEL) && ENABLED(SCROLL_LONG_FILENAMES)
+#if HAS_LCD_MENU && ENABLED(SDSUPPORT) && ENABLED(SCROLL_LONG_FILENAMES)
   uint8_t filename_scroll_pos, filename_scroll_max;
 #endif
 
@@ -121,8 +121,6 @@ millis_t next_button_update_ms;
 #if ENABLED(REVERSE_MENU_DIRECTION)
   int8_t encoderDirection = 1;
 #endif
-
-void lcd_status_screen();
 
 #if HAS_LCD_MENU
   #include "menu/menu.h"
@@ -202,7 +200,7 @@ void lcd_init() {
 
   lcd_buttons_update();
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     encoderDiff = 0;
   #endif
 }
@@ -226,10 +224,27 @@ bool lcd_blink() {
   volatile uint8_t buttons_reprapworld_keypad;
 #endif
 
-#if ENABLED(ADC_KEYPAD)
+#if ENABLED(REPRAPWORLD_KEYPAD) || ENABLED(ADC_KEYPAD)
+  #define REPRAPWORLD_BTN_OFFSET         0 // bit offset into buttons for shift register values
 
-  #define KEYPAD_HOME EN_REPRAPWORLD_KEYPAD_F1
-  #define KEYPAD_EN_C EN_REPRAPWORLD_KEYPAD_MIDDLE
+  #define BLEN_REPRAPWORLD_KEYPAD_F3     0
+  #define BLEN_REPRAPWORLD_KEYPAD_F2     1
+  #define BLEN_REPRAPWORLD_KEYPAD_F1     2
+
+  #define BLEN_REPRAPWORLD_KEYPAD_DOWN   3
+  #define BLEN_REPRAPWORLD_KEYPAD_RIGHT  4
+  #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5
+  #define BLEN_REPRAPWORLD_KEYPAD_UP     6
+  #define BLEN_REPRAPWORLD_KEYPAD_LEFT   7
+  #define EN_REPRAPWORLD_KEYPAD_DOWN     (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_DOWN))
+  #define EN_REPRAPWORLD_KEYPAD_RIGHT    (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_RIGHT))
+  #define EN_REPRAPWORLD_KEYPAD_MIDDLE   (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_MIDDLE))
+  #define EN_REPRAPWORLD_KEYPAD_UP       (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_UP))
+  #define EN_REPRAPWORLD_KEYPAD_LEFT     (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_LEFT))
+  
+#endif // REPRAPWORLD_KEYPAD || ADC_KEYPAD
+
+#if ENABLED(ADC_KEYPAD)
 
   inline bool handle_adc_keypad() {
     #define ADC_MIN_KEY_DELAY 100
@@ -261,48 +276,37 @@ bool lcd_blink() {
 
 #elif ENABLED(REPRAPWORLD_KEYPAD)
 
-  #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
+  #define KEYPAD_HOME EN_REPRAPWORLD_KEYPAD_F1
+  #define KEYPAD_EN_C EN_REPRAPWORLD_KEYPAD_MIDDLE
 
-  #define BLEN_REPRAPWORLD_KEYPAD_F3     0
-  #define BLEN_REPRAPWORLD_KEYPAD_F2     1
-  #define BLEN_REPRAPWORLD_KEYPAD_F1     2
-  #define BLEN_REPRAPWORLD_KEYPAD_DOWN   3
-  #define BLEN_REPRAPWORLD_KEYPAD_RIGHT  4
-  #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5
-  #define BLEN_REPRAPWORLD_KEYPAD_UP     6
-  #define BLEN_REPRAPWORLD_KEYPAD_LEFT   7
-
-  #define EN_REPRAPWORLD_KEYPAD_F3      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F3))
-  #define EN_REPRAPWORLD_KEYPAD_F2      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F2))
-  #define EN_REPRAPWORLD_KEYPAD_F1      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F1))
-  #define EN_REPRAPWORLD_KEYPAD_DOWN    (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_DOWN))
-  #define EN_REPRAPWORLD_KEYPAD_RIGHT   (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_RIGHT))
-  #define EN_REPRAPWORLD_KEYPAD_MIDDLE  (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_MIDDLE))
-  #define EN_REPRAPWORLD_KEYPAD_UP      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_UP))
-  #define EN_REPRAPWORLD_KEYPAD_LEFT    (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_LEFT))
-
-  #define REPRAPWORLD_KEYPAD_MOVE_Z_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F3)
+  #define EN_REPRAPWORLD_KEYPAD_F1        (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F1))
+  #define EN_REPRAPWORLD_KEYPAD_F2        (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F2))
+  #define EN_REPRAPWORLD_KEYPAD_F3        (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F3))
+  
   #define REPRAPWORLD_KEYPAD_MOVE_Z_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F2)
+  #define REPRAPWORLD_KEYPAD_MOVE_Z_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F3)
   #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
   #define REPRAPWORLD_KEYPAD_MOVE_X_RIGHT (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT)
   #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
   #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
 
-  #define KEYPAD_HOME EN_REPRAPWORLD_KEYPAD_MIDDLE
-  #define KEYPAD_EN_C EN_REPRAPWORLD_KEYPAD_F1
   #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & KEYPAD_HOME)
   #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & KEYPAD_EN_C)
 
   #define REPRAPWORLD_KEYPAD_PRESSED      (buttons_reprapworld_keypad & ( \
-                                            EN_REPRAPWORLD_KEYPAD_F3 | \
-                                            EN_REPRAPWORLD_KEYPAD_F2 | \
                                             EN_REPRAPWORLD_KEYPAD_F1 | \
+                                            EN_REPRAPWORLD_KEYPAD_F2 | \
+                                            EN_REPRAPWORLD_KEYPAD_F3 | \
                                             EN_REPRAPWORLD_KEYPAD_DOWN | \
                                             EN_REPRAPWORLD_KEYPAD_RIGHT | \
                                             EN_REPRAPWORLD_KEYPAD_MIDDLE | \
                                             EN_REPRAPWORLD_KEYPAD_UP | \
                                             EN_REPRAPWORLD_KEYPAD_LEFT) \
                                           )
+
+  void lcd_move_x();
+  void lcd_move_y();
+  void lcd_move_z();
 
   void _reprapworld_keypad_move(const AxisEnum axis, const int16_t dir) {
     move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
@@ -349,9 +353,7 @@ bool lcd_blink() {
         if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN)   reprapworld_keypad_move_y_down();
         if (REPRAPWORLD_KEYPAD_MOVE_Y_UP)     reprapworld_keypad_move_y_up();
       }
-      else {
-        if (REPRAPWORLD_KEYPAD_MOVE_HOME)     reprapworld_keypad_move_home();
-      }
+      else if (REPRAPWORLD_KEYPAD_MOVE_HOME)  reprapworld_keypad_move_home();
     }
   }
 
@@ -363,6 +365,14 @@ bool lcd_blink() {
  * This is very display-dependent, so the lcd implementation draws this.
  */
 
+#if ENABLED(LCD_PROGRESS_BAR)
+  millis_t progress_bar_ms = 0;     // Start millis of the current progress bar cycle
+  #if PROGRESS_MSG_EXPIRE > 0
+    static millis_t expire_status_ms = 0;
+    void dontExpireStatus() { expire_status_ms = 0; }
+  #endif
+#endif
+
 #if LCD_INFO_SCREEN_STYLE == 0
   void lcd_impl_status_screen_0();
 #elif LCD_INFO_SCREEN_STYLE == 1
@@ -371,12 +381,12 @@ bool lcd_blink() {
 
 void lcd_status_screen() {
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     ENCODER_DIRECTION_NORMAL();
     ENCODER_RATE_MULTIPLY(false);
   #endif
 
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || ENABLED(DOGLCD))
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && ENABLED(SDSUPPORT) && (ENABLED(LCD_PROGRESS_BAR) || HAS_GRAPHICAL_LCD)
     // Progress bar % comes from SD when actively printing
     if (IS_SD_PRINTING())
       progress_bar_percent = card.percentDone();
@@ -425,18 +435,14 @@ void lcd_status_screen() {
 
   #endif // LCD_PROGRESS_BAR
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
 
     if (use_click()) {
       #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
         previous_lcd_status_ms = millis();  // get status message to show up for a while
       #endif
-      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-        #if ENABLED(LCD_PROGRESS_BAR)
-          CHARSET_MENU
-        #endif
-      );
       lcd_goto_screen(menu_main);
+      lcd_implementation_init(); // May revive the LCD if static electricity killed it
       return;
     }
 
@@ -465,7 +471,7 @@ void lcd_status_screen() {
 
     feedrate_percentage = constrain(feedrate_percentage, 10, 999);
 
-  #endif // ULTIPANEL
+  #endif // HAS_LCD_MENU
 
   #if LCD_INFO_SCREEN_STYLE == 0
     lcd_impl_status_screen_0();
@@ -514,7 +520,7 @@ void kill_screen(PGM_P lcd_msg) {
 
 void lcd_quick_feedback(const bool clear_buttons) {
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     lcd_refresh();
     if (clear_buttons) buttons = 0;
     next_button_update_ms = millis() + 500;
@@ -525,7 +531,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   // Buzz and wait. The delay is needed for buttons to settle!
   lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     #if ENABLED(LCD_USE_I2C_BUZZER)
       delay(10);
     #elif PIN_EXISTS(BEEPER)
@@ -534,7 +540,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
   #endif
 }
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   extern bool no_reentry; // Flag to prevent recursion into menu handlers
 
@@ -602,7 +608,7 @@ void lcd_quick_feedback(const bool clear_buttons) {
     }
   }
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
 /**
  * Update the LCD, read encoder buttons, etc.
@@ -652,13 +658,13 @@ void lcd_update() {
   static uint16_t max_display_update_time = 0;
   static millis_t next_lcd_update_ms;
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     static millis_t return_to_status_ms = 0;
 
     // Handle any queued Move Axis motion
     manage_manual_move();
 
-    // Update button states for LCD_CLICKED, etc.
+    // Update button states for LCD_CLICKED(), etc.
     // After state changes the next button update
     // may be delayed 300-500ms.
     lcd_buttons_update();
@@ -671,7 +677,7 @@ void lcd_update() {
     #endif
 
     // If the action button is pressed...
-    if (UBL_CONDITION && LCD_CLICKED) {
+    if (UBL_CONDITION && LCD_CLICKED()) {
       if (!wait_for_unclick) {           // If not waiting for a debounce release:
         wait_for_unclick = true;         //  Set debounce flag to ignore continous clicks
         lcd_clicked = !wait_for_user && !no_reentry; //  Keep the click if not waiting for a user-click
@@ -688,7 +694,7 @@ void lcd_update() {
       }
     #endif
 
-  #endif // ULTIPANEL
+  #endif // HAS_LCD_MENU
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 
@@ -712,11 +718,7 @@ void lcd_update() {
       }
 
       lcd_refresh();
-      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-        #if ENABLED(LCD_PROGRESS_BAR)
-          currentScreen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU
-        #endif
-      );
+      lcd_implementation_init(); // May revive the LCD if static electricity killed it
     }
 
   #endif // SDSUPPORT && SD_DETECT_PIN
@@ -730,7 +732,7 @@ void lcd_update() {
 
   const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
-    #if ENABLED(DOGLCD)
+    #if HAS_GRAPHICAL_LCD
       || drawing_screen
     #endif
   ) {
@@ -741,7 +743,7 @@ void lcd_update() {
       lcd_implementation_update_indicators();
     #endif
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
 
       #if ENABLED(LCD_HAS_SLOW_BUTTONS)
         slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
@@ -797,18 +799,18 @@ void lcd_update() {
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       }
 
-    #endif // ULTIPANEL
+    #endif // HAS_LCD_MENU
 
     // This runs every ~100ms when idling often enough.
     // Instead of tracking changes just redraw the Status Screen once per second.
     if (
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         currentScreen == lcd_status_screen &&
       #endif
       !lcd_status_update_delay--
     ) {
       lcd_status_update_delay = 9
-        #if ENABLED(DOGLCD)
+        #if HAS_GRAPHICAL_LCD
           + 3
         #endif
       ;
@@ -816,7 +818,7 @@ void lcd_update() {
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
 
-    #if ENABLED(ULTIPANEL) && ENABLED(SCROLL_LONG_FILENAMES)
+    #if HAS_LCD_MENU && ENABLED(SCROLL_LONG_FILENAMES)
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
       if (currentScreen == menu_sdcard && filename_scroll_pos < filename_scroll_max && !lcd_status_update_delay--) {
@@ -830,7 +832,7 @@ void lcd_update() {
     // then we want to use 1/2 of the time only.
     uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
-    #if ENABLED(DOGLCD)
+    #if HAS_GRAPHICAL_LCD
       const bool &is_drawing = drawing_screen;
     #else
       constexpr bool is_drawing = false;
@@ -855,15 +857,15 @@ void lcd_update() {
         buttons_reprapworld_keypad = 0;
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         #define CURRENTSCREEN() (*currentScreen)()
       #else
         #define CURRENTSCREEN() lcd_status_screen()
       #endif
 
-      #if ENABLED(DOGLCD)
+      #if HAS_GRAPHICAL_LCD
         #if ENABLED(LIGHTWEIGHT_UI)
-          #if ENABLED(ULTIPANEL)
+          #if HAS_LCD_MENU
             const bool in_status = currentScreen == lcd_status_screen;
           #else
             constexpr bool in_status = true;
@@ -896,7 +898,7 @@ void lcd_update() {
         CURRENTSCREEN();
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         lcd_clicked = false;
       #endif
 
@@ -905,7 +907,7 @@ void lcd_update() {
       NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
 
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
@@ -913,7 +915,7 @@ void lcd_update() {
       else if (ELAPSED(ms, return_to_status_ms))
         lcd_return_to_status();
 
-    #endif // ULTIPANEL
+    #endif // HAS_LCD_MENU
 
     // Change state of drawing flag between screen updates
     if (!is_drawing) switch (lcdDrawUpdate) {
@@ -942,6 +944,7 @@ void lcd_finishstatus(const bool persist=false) {
       expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
     #endif
   #endif
+
   lcd_refresh();
 
   #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
@@ -952,10 +955,6 @@ void lcd_finishstatus(const bool persist=false) {
     status_scroll_offset = 0;
   #endif
 }
-
-#if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
-  void dontExpireStatus() { expire_status_ms = 0; }
-#endif
 
 bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 
@@ -1023,7 +1022,7 @@ void lcd_status_printf_P(const uint8_t level, PGM_P const fmt, ...) {
 
 void lcd_setalertstatusPGM(PGM_P const message) {
   lcd_setstatusPGM(message, 1);
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     lcd_return_to_status();
   #endif
 }
@@ -1068,7 +1067,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   }
 #endif
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   /**
    * Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
@@ -1107,7 +1106,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
-    bool is_lcd_clicked() { return LCD_CLICKED; }
+    bool is_lcd_clicked() { return LCD_CLICKED(); }
     void wait_for_release() {
       while (is_lcd_clicked()) safe_delay(50);
       safe_delay(50);
@@ -1252,6 +1251,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     }
   }
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
 #endif // ULTRA_LCD

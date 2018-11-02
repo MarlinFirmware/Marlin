@@ -60,17 +60,13 @@
   #include "../../feature/bedlevel/ubl/ubl.h"
 #endif
 
-#define FONT_SPECIAL_NAME ISO10646_1_5x7
-#define FONT_MENU_NAME ISO10646_1_5x7
 #include "fontdata/fontdata_ISO10646_1.h"
 #if ENABLED(USE_SMALL_INFOFONT)
   #include "fontdata/fontdata_6x9_marlin.h"
   #define FONT_STATUSMENU_NAME u8g_font_6x9
 #else
-  #define FONT_STATUSMENU_NAME FONT_MENU_NAME
+  #define FONT_STATUSMENU_NAME MENU_FONT_NAME
 #endif
-
-#define START_COL 0
 
 U8G_CLASS u8g(U8G_PARAM);
 U8GLIB *pu8g = &u8g;
@@ -93,10 +89,9 @@ void lcd_setFont(const MarlinFont font_nr) {
   if (font_nr != currentfont) {
     switch ((currentfont = font_nr)) {
       case FONT_STATUSMENU : u8g.setFont(FONT_STATUSMENU_NAME); break;
+      case FONT_EDIT       : u8g.setFont(EDIT_FONT_NAME);       break;
       default:
-      case FONT_MENU       : u8g.setFont(FONT_MENU_NAME);       break;
-      case FONT_SPECIAL    : u8g.setFont(FONT_SPECIAL_NAME);    break;
-      case FONT_MENU_EDIT  : u8g.setFont(FONT_MENU_EDIT_NAME);  break;
+      case FONT_MENU       : u8g.setFont(MENU_FONT_NAME);       break;
     }
   }
 }
@@ -155,7 +150,7 @@ void lcd_setFont(const MarlinFont font_nr) {
       #if ENABLED(START_BMPHIGH)
         (LCD_PIXEL_HEIGHT - (START_BMPHEIGHT)) / 2
       #else
-        DOG_CHAR_HEIGHT
+        MENU_FONT_HEIGHT
       #endif
     ;
 
@@ -167,13 +162,13 @@ void lcd_setFont(const MarlinFont font_nr) {
       u8g.drawBitmapP(offx, offy, (START_BMPWIDTH + 7) / 8, START_BMPHEIGHT, start_bmp);
       lcd_setFont(FONT_MENU);
       #ifndef STRING_SPLASH_LINE2
-        const uint8_t txt1X = width - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH);
-        u8g.drawStr(txt1X, (height + DOG_CHAR_HEIGHT) / 2, STRING_SPLASH_LINE1);
+        const uint8_t txt1X = width - (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH);
+        u8g.drawStr(txt1X, (height + MENU_FONT_HEIGHT) / 2, STRING_SPLASH_LINE1);
       #else
-        const uint8_t txt1X = (width - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2,
-                      txt2X = (width - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
-        u8g.drawStr(txt1X, height - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
-        u8g.drawStr(txt2X, height - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
+        const uint8_t txt1X = (width - (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH)) / 2,
+                      txt2X = (width - (sizeof(STRING_SPLASH_LINE2) - 1) * (MENU_FONT_WIDTH)) / 2;
+        u8g.drawStr(txt1X, height - (MENU_FONT_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
+        u8g.drawStr(txt2X, height - (MENU_FONT_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
       #endif
     } while (u8g.nextPage());
     safe_delay(BOOTSCREEN_TIMEOUT);
@@ -245,19 +240,19 @@ void lcd_kill_screen() {
 
 void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
 
   uint8_t row_y1, row_y2;
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
     void lcd_implementation_hotend_status(const uint8_t row, const uint8_t extruder) {
-      row_y1 = row * (DOG_CHAR_HEIGHT) + 1;
-      row_y2 = row_y1 + DOG_CHAR_HEIGHT - 1;
+      row_y1 = row * (MENU_FONT_HEIGHT) + 1;
+      row_y2 = row_y1 + MENU_FONT_HEIGHT - 1;
 
       if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return;
 
-      lcd_moveto(LCD_PIXEL_WIDTH - 11 * (DOG_CHAR_WIDTH), row_y2);
+      lcd_moveto(LCD_PIXEL_WIDTH - 11 * (MENU_FONT_WIDTH), row_y2);
       lcd_put_wchar('E');
       lcd_put_wchar((char)('1' + extruder));
       lcd_put_wchar(' ');
@@ -272,8 +267,8 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   // Set the colors for a menu item based on whether it is selected
   static bool mark_as_selected(const uint8_t row, const bool isSelected) {
-    row_y1 = row * (DOG_CHAR_HEIGHT) + 1;
-    row_y2 = row_y1 + DOG_CHAR_HEIGHT - 1;
+    row_y1 = row * (MENU_FONT_HEIGHT) + 1;
+    row_y2 = row_y1 + MENU_FONT_HEIGHT - 1;
 
     if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return false;
 
@@ -283,7 +278,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
         u8g.drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
       #else
         u8g.setColorIndex(1); // black on white
-        u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT - 1);
+        u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, MENU_FONT_HEIGHT - 1);
         u8g.setColorIndex(0); // white on black
       #endif
     }
@@ -295,7 +290,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
     if (!PAGE_CONTAINS(row_y1, row_y2)) return false;
 
-    lcd_moveto((START_COL) * (DOG_CHAR_WIDTH), row_y2);
+    lcd_moveto(0, row_y2);
     return true;
   }
 
@@ -304,7 +299,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
     if (mark_as_selected(row, invert)) {
 
-      uint8_t n = LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * (START_COL); // pixel width of string allowed
+      uint8_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
 
       if (center && !valstr) {
         int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
@@ -315,7 +310,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
         n -= lcd_put_u8str_max(valstr, n);
       }
 
-      while (n - DOG_CHAR_WIDTH > 0) { n -= lcd_put_wchar(' '); }
+      while (n - MENU_FONT_WIDTH > 0) { n -= lcd_put_wchar(' '); }
     }
   }
 
@@ -324,11 +319,11 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     UNUSED(pre_char);
 
     if (mark_as_selected(row, isSelected)) {
-      uint8_t n = LCD_WIDTH - (START_COL) - 2;
-      n *= DOG_CHAR_WIDTH;
+      uint8_t n = LCD_WIDTH - 2;
+      n *= MENU_FONT_WIDTH;
       n -= lcd_put_u8str_max_P(pstr, n);
-      while (n - DOG_CHAR_WIDTH > 0) { n -= lcd_put_wchar(' '); }
-      lcd_moveto(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), row_y2);
+      while (n - MENU_FONT_WIDTH > 0) { n -= lcd_put_wchar(' '); }
+      lcd_moveto(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2);
       lcd_put_wchar(post_char);
       lcd_put_wchar(' ');
     }
@@ -338,60 +333,62 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, PGM_P pstr, const char* const data, const bool pgm) {
     if (mark_as_selected(row, isSelected)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
-      uint8_t n = LCD_WIDTH - (START_COL) - 2 - vallen;
-      n *= DOG_CHAR_WIDTH;
+      uint8_t n = LCD_WIDTH - 2 - vallen;
+      n *= MENU_FONT_WIDTH;
       n -= lcd_put_u8str_max_P(pstr, n);
       lcd_put_wchar(':');
-      while (n - DOG_CHAR_WIDTH > 0) { n -= lcd_put_wchar(' '); }
-      lcd_moveto(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * vallen, row_y2);
+      while (n - MENU_FONT_WIDTH > 0) { n -= lcd_put_wchar(' '); }
+      lcd_moveto(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH) * vallen, row_y2);
       if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str((char*)data);
     }
   }
 
   void lcd_implementation_drawedit(PGM_P const pstr, const char* const value/*=NULL*/) {
-    const uint8_t labellen = utf8_strlen_P(pstr),
-                  vallen = utf8_strlen(value);
+    const uint8_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
 
-    uint8_t rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
+    bool extra_row = labellen > LCD_WIDTH - 2 - vallen;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
-      constexpr uint8_t lcd_width_edit = (LCD_PIXEL_WIDTH) / (DOG_CHAR_WIDTH_EDIT);
-
-      uint8_t lcd_width, char_width;
-      if (labellen <= lcd_width_edit - 1) {
-        if (labellen + vallen + 2 >= lcd_width_edit) rows = 2;
-        lcd_width = lcd_width_edit + 1;
-        char_width = DOG_CHAR_WIDTH_EDIT;
-        lcd_setFont(FONT_MENU_EDIT);
+      // Use the menu font if the label won't fit on a single line
+      constexpr uint8_t lcd_edit_width = (LCD_PIXEL_WIDTH) / (EDIT_FONT_WIDTH);
+      uint8_t lcd_chr_fit, one_chr_width;
+      if (labellen <= lcd_edit_width - 1) {
+        if (labellen + vallen + 1 > lcd_edit_width) extra_row = true;
+        lcd_chr_fit = lcd_edit_width + 1;
+        one_chr_width = EDIT_FONT_WIDTH;
+        lcd_setFont(FONT_EDIT);
       }
       else {
-        lcd_width = LCD_WIDTH - (START_COL);
-        char_width = DOG_CHAR_WIDTH;
+        lcd_chr_fit = LCD_WIDTH;
+        one_chr_width = MENU_FONT_WIDTH;
         lcd_setFont(FONT_MENU);
       }
     #else
-      constexpr uint8_t lcd_width = LCD_WIDTH - (START_COL),
-                        char_width = DOG_CHAR_WIDTH;
+      constexpr uint8_t lcd_chr_fit = LCD_WIDTH,
+                        one_chr_width = MENU_FONT_WIDTH;
     #endif
 
-    // Center either one or two rows
-    const uint8_t segmentHeight = u8g.getHeight() / (rows + 1); // 1 / (rows+1) = 1/2 or 1/3
-    uint8_t baseline = segmentHeight + (DOG_CHAR_HEIGHT_EDIT + 1) / 2;
+    // Center the label and value lines on the middle line
+    uint8_t baseline = extra_row ? (LCD_PIXEL_HEIGHT) / 2
+                                 : (LCD_PIXEL_HEIGHT + EDIT_FONT_ASCENT) / 2;
 
-    bool onpage = PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline);
+    // Assume the label is alpha-numeric (with a descender)
+    bool onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline + EDIT_FONT_DESCENT);
     if (onpage) {
       lcd_moveto(0, baseline);
       lcd_put_u8str_P(pstr);
     }
 
+    // If a value is included, print a colon, then print the value right-justified
     if (value != NULL) {
       lcd_put_wchar(':');
-      if (rows == 2) {
-        baseline += segmentHeight;
-        onpage = PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline);
+      if (extra_row) {
+        // Assume the value is numeric (with no descender)
+        baseline += EDIT_FONT_ASCENT;
+        onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
       if (onpage) {
-        lcd_moveto(((lcd_width - 1) - (vallen + 1)) * char_width, baseline); // Right-justified, leaving padded by spaces
+        lcd_moveto(((lcd_chr_fit - 1) - (vallen + 1)) * one_chr_width, baseline); // Right-justified, leaving padded by spaces
         lcd_put_wchar(' '); // overwrite char if value gets shorter
         lcd_put_u8str(value);
       }
@@ -407,7 +404,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
       if (!PAGE_CONTAINS(row_y1, row_y2)) return;
 
-      constexpr uint8_t maxlen = LCD_WIDTH - (START_COL) - 1;
+      constexpr uint8_t maxlen = LCD_WIDTH - 1;
       const char *outstr = theCard.longest_filename();
       if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
@@ -432,9 +429,9 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       if (isDir) lcd_put_wchar(LCD_STR_FOLDER[0]);
 
       int n;
-      n = lcd_put_u8str_max(outstr, maxlen * (DOG_CHAR_WIDTH));
-      n = maxlen * (DOG_CHAR_WIDTH) - n;
-      while (n - DOG_CHAR_WIDTH > 0) { n -= lcd_put_wchar(' '); }
+      n = lcd_put_u8str_max(outstr, maxlen * (MENU_FONT_WIDTH));
+      n = maxlen * (MENU_FONT_WIDTH) - n;
+      while (n - MENU_FONT_WIDTH > 0) { n -= lcd_put_wchar(' '); }
     }
 
   #endif // SDSUPPORT
@@ -655,6 +652,6 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   #endif // BABYSTEP_ZPROBE_GFX_OVERLAY || MESH_EDIT_GFX_OVERLAY
 
-#endif // ULTIPANEL
+#endif // HAS_LCD_MENU
 
 #endif // HAS_GRAPHICAL_LCD
