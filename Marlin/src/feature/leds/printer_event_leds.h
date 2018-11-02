@@ -48,7 +48,7 @@ public:
   #endif
 
   #if HAS_TEMP_HOTEND || HAS_HEATED_BED
-    FORCE_INLINE static void onHeated() { leds.set_color(LEDColorWhite()); }
+    FORCE_INLINE static void onHeatingDone() { leds.set_color(LEDColorWhite()); }
     FORCE_INLINE static void onPidTuningDone(LEDColor c) { leds.set_color(c); }
   #endif
 
