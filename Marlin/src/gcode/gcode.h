@@ -293,14 +293,15 @@ public:
   static bool get_target_extruder_from_command();
   static void get_destination_from_command();
   static void process_parsed_command(
-    #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+    #if USE_EXECUTE_COMMANDS_IMMEDIATE
       const bool no_ok = false
     #endif
   );
   static void process_next_command();
 
-  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  #if USE_EXECUTE_COMMANDS_IMMEDIATE
     static void process_subcommands_now_P(PGM_P pgcode);
+    static void process_subcommands_now(char * gcode);
   #endif
 
   FORCE_INLINE static void home_all_axes() { G28(true); }
