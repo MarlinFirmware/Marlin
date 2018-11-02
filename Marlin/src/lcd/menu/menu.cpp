@@ -118,9 +118,13 @@ void menu_item_function::action(screenFunc_t func) { (*func)(); }
 /**
  * Functions for editing single values
  *
- * The "DEFINE_MENU_EDIT_TYPE" macro generates the functions needed to edit a numerical value.
+ * The "DEFINE_MENU_EDIT_ITEM" macro generates the functions needed to edit a numerical value.
  *
- * For example, DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1) expands into these functions:
+ * The prerequisite is that in the header the type was already declared:
+ *
+ *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1)
+ *
+ * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into these functions:
  *
  *   bool menu_item_int3::_edit();
  *   void menu_item_int3::edit(); // edit int16_t (interactively)
@@ -133,7 +137,7 @@ void menu_item_function::action(screenFunc_t func) { (*func)(); }
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
  *
  * This expands into a more primitive menu item:
- *   MENU_ITEM(menu_item_int3::setting_edit, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *   MENU_ITEM_VARIANT(int3, _setting_edit, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  * ...which calls:
  *       menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
@@ -175,19 +179,19 @@ void menu_item_template<NAME>::action_setting_edit_callback(PGM_P const pstr, ty
   liveEdit = live;
 }
 
-#define DEFINE_MENU_EDIT_TYPE(NAME) template class menu_item_template<NAME ## _item_info>;
+#define DEFINE_MENU_EDIT_ITEM(NAME) template class menu_item_template<NAME ## _item_info>;
 
-DEFINE_MENU_EDIT_TYPE(int3);
-DEFINE_MENU_EDIT_TYPE(int4);
-DEFINE_MENU_EDIT_TYPE(int8);
-DEFINE_MENU_EDIT_TYPE(float3);
-DEFINE_MENU_EDIT_TYPE(float52);
-DEFINE_MENU_EDIT_TYPE(float43);
-DEFINE_MENU_EDIT_TYPE(float5);
-DEFINE_MENU_EDIT_TYPE(float51);
-DEFINE_MENU_EDIT_TYPE(float52sign);
-DEFINE_MENU_EDIT_TYPE(float62);
-DEFINE_MENU_EDIT_TYPE(long5);
+DEFINE_MENU_EDIT_ITEM(int3);
+DEFINE_MENU_EDIT_ITEM(int4);
+DEFINE_MENU_EDIT_ITEM(int8);
+DEFINE_MENU_EDIT_ITEM(float3);
+DEFINE_MENU_EDIT_ITEM(float52);
+DEFINE_MENU_EDIT_ITEM(float43);
+DEFINE_MENU_EDIT_ITEM(float5);
+DEFINE_MENU_EDIT_ITEM(float51);
+DEFINE_MENU_EDIT_ITEM(float52sign);
+DEFINE_MENU_EDIT_ITEM(float62);
+DEFINE_MENU_EDIT_ITEM(long5);
 
 void menu_item_bool::action_setting_edit(PGM_P pstr, bool* ptr) { UNUSED(pstr); *ptr ^= true; lcd_refresh(); }
 void menu_item_bool::action_setting_edit_callback(PGM_P pstr, bool* ptr, screenFunc_t callback) {

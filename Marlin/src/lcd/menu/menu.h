@@ -298,24 +298,23 @@ class menu_item_bool {
 /**
  * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
  *
- *   lcd_implementation_drawmenu_[type_variant](sel, row, label, arg3...)
- *   menu_item_[type]::action[_variant](arg3...)
+ *   lcd_implementation_drawmenu_<type>[_variant](sel, row, label, arg3...)
+ *   menu_item_<type>::action[_variant](arg3...)
  *
  * Examples:
  *   MENU_ITEM(back, MSG_WATCH, 0 [dummy parameter] )
  *   or
  *   MENU_BACK(MSG_WATCH)
  *     lcd_implementation_drawmenu_back(sel, row, PSTR(MSG_WATCH))
- *     menu_item_back::action_()
+ *     menu_item_back::action()
  *
  *   MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause)
  *     lcd_implementation_drawmenu_function(sel, row, PSTR(MSG_PAUSE_PRINT), lcd_sdcard_pause)
  *     menu_item_function::action(lcd_sdcard_pause)
  *
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
- *   MENU_ITEM(setting_edit_int3, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *     lcd_implementation_drawmenu_setting_edit_int3(sel, row, PSTR(MSG_SPEED), PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
- *     menu_item_int3::action_setting_edit_(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *     menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  */
 #define _MENU_ITEM_PART_1(TYPE, VARIANT, ...) \
