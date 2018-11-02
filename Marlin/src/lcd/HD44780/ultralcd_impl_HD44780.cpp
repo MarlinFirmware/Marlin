@@ -861,9 +861,9 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
         #if HAS_PRINT_PROGRESS
           _draw_print_progress();
         #else
+          char c;
+          int per;
           #if HAS_FAN0
-            char c;
-            int per;
             if (blink) {
               c = 'F';
               per = ((int(fan_speed[0]) + 1) * 100) / 256;
