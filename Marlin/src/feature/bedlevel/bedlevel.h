@@ -80,6 +80,6 @@ void reset_bed_level();
   #include "mbl/mesh_bed_leveling.h"
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl/ubl.h"
-#elif HAS_ABL
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
   #include "abl/abl.h"
 #endif
