@@ -37,6 +37,7 @@ bool printer_busy();
 void lcd_completion_feedback(const bool good=true);
 void lcd_goto_previous_menu();
 void lcd_goto_previous_menu_no_defer();
+void lcd_save_previous_screen();
 
 ////////////////////////////////////////////
 ////////// Menu Item Numeric Types /////////
@@ -151,7 +152,7 @@ class menu_item_back {
 
 class menu_item_submenu {
   public:
-    static void action(screenFunc_t data);
+    static inline void action(const screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
 };
 
 class menu_item_function {
