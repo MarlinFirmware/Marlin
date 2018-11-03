@@ -77,7 +77,7 @@ void lcd_implementation_drawedit(const char* const pstr, const char* const value
 #endif
 #if HAS_GRAPHICAL_LCD
   void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, const char* pstr, const char* const data, const bool pgm);
-  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+  #define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
   #define lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, false)
   #define lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, true)
   #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, SRC)
@@ -91,7 +91,7 @@ void lcd_implementation_drawedit(const char* const pstr, const char* const value
     void _lcd_zoffset_overlay_gfx(const float zvalue);
   #endif
 #else
-  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_UPLEVEL_CHAR, LCD_UPLEVEL_CHAR)
+  #define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_UPLEVEL_CHAR, LCD_UPLEVEL_CHAR)
   void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
   void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
   #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', SRC)
@@ -145,10 +145,8 @@ DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(long5);
 ////////////////////////////////////////////
 
 class menu_item_back {
-  private:
-    static void _action();
   public:
-    static void action(int) {_action();};
+    static inline void action() { lcd_goto_previous_menu(); }
 };
 
 class menu_item_submenu {
@@ -338,7 +336,7 @@ class menu_item_bool {
 
 #define MENU_ITEM_ADDON_END() } (0)
 
-#define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
+#define MENU_BACK(LABEL) MENU_ITEM(back, LABEL)
 
 // Used to print static text with no visible cursor.
 // Parameters: label [, bool center [, bool invert [, char *value] ] ]

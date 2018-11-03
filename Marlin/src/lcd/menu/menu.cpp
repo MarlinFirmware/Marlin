@@ -106,7 +106,6 @@ void lcd_goto_previous_menu_no_defer() {
 /////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
-void menu_item_back::_action() { lcd_goto_previous_menu(); }
 void menu_item_submenu::action(screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
 void menu_item_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
 void menu_item_function::action(screenFunc_t func) { (*func)(); }
