@@ -139,7 +139,7 @@ void menu_item_function::action(const screenFunc_t func) { (*func)(); }
  */
 
 template<class NAME>
-bool menu_item_template<NAME>::_edit() {
+void menu_item_template<NAME>::edit() {
   ENCODER_DIRECTION_NORMAL();
   if ((int32_t)encoderPosition < 0) encoderPosition = 0;
   if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue;
@@ -150,8 +150,8 @@ bool menu_item_template<NAME>::_edit() {
     if (editValue != NULL) *((type_t*)editValue) = value;
     if (callbackFunc && (liveEdit || lcd_clicked)) (*callbackFunc)();
     if (lcd_clicked) lcd_goto_previous_menu();
+    lcd_clicked = false;
   }
-  return use_click();
 }
 
 // A single helper function to init item editing for all types

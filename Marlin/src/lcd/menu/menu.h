@@ -174,9 +174,8 @@ class menu_item_template {
   private:
     typedef typename NAME::type_t type_t;
     static constexpr float scale = NAME::scale;
-    static bool _edit();
   public:
-    FORCE_INLINE static void edit() { (void)_edit(); }
+    static void edit();
     static void action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=NULL, const bool live=false);
 };
 
