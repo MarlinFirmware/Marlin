@@ -2218,21 +2218,21 @@ void Stepper::report_positions() {
 
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
 
-  #if CORE_IS_XY || CORE_IS_XZ || IS_DELTA || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
     SERIAL_PROTOCOLPGM(MSG_COUNT_A);
   #else
     SERIAL_PROTOCOLPGM(MSG_COUNT_X);
   #endif
   SERIAL_PROTOCOL(xpos);
 
-  #if CORE_IS_XY || CORE_IS_YZ || IS_DELTA || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_YZ || ENABLED(DELTA) || IS_SCARA
     SERIAL_PROTOCOLPGM(" B:");
   #else
     SERIAL_PROTOCOLPGM(" Y:");
   #endif
   SERIAL_PROTOCOL(ypos);
 
-  #if CORE_IS_XZ || CORE_IS_YZ || IS_DELTA
+  #if CORE_IS_XZ || CORE_IS_YZ || ENABLED(DELTA)
     SERIAL_PROTOCOLPGM(" C:");
   #else
     SERIAL_PROTOCOLPGM(" Z:");

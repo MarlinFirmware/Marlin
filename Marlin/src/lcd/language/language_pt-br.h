@@ -200,7 +200,7 @@
   #define MSG_VA_JERK                       _UxGT("jogo VA")
   #define MSG_VB_JERK                       _UxGT("jogo VB")
   #define MSG_VC_JERK                       _UxGT("jogo VZ")
-#elif IS_DELTA
+#elif ENABLED(DELTA)
   #define MSG_VA_JERK                       _UxGT("jogo VA")
   #define MSG_VB_JERK                       _UxGT("jogo VB")
   #define MSG_VC_JERK                       _UxGT("jogo VC")
@@ -222,7 +222,7 @@
   #define MSG_ASTEPS                        _UxGT("Passo A/deg")
   #define MSG_BSTEPS                        _UxGT("Passo B/deg")
   #define MSG_CSTEPS                        _UxGT("Passo Z/mm")
-#elif IS_DELTA
+#elif ENABLED(DELTA)
   #define MSG_ASTEPS                        _UxGT("Passo A/mm")
   #define MSG_BSTEPS                        _UxGT("Passo B/mm")
   #define MSG_CSTEPS                        _UxGT("Passo C/mm")
