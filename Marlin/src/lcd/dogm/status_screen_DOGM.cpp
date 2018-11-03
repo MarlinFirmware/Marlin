@@ -212,9 +212,6 @@ FORCE_INLINE void lcd_implementation_status_message(const bool blink) {
   #endif
 }
 
-// The current graphical page being rendered
-u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
-
 void lcd_impl_status_screen_0() {
 
   const bool blink = lcd_blink();
@@ -396,7 +393,7 @@ void lcd_impl_status_screen_0() {
   #endif
 
   // At the first page, regenerate the XYZ strings
-  if (page.page == 0) {
+  if (first_page) {
     strcpy(xstring, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
     strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
     strcpy(zstring, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])));
