@@ -112,16 +112,17 @@ void menu_tune() {
   #if HOTENDS == 1
     MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
   #else // HOTENDS > 1
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &thermalManager.target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
+    #define EDIT_NOZZLE(N) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.target_temperature[N], 0, HEATER_##N##_MAXTEMP - 15, watch_temp_callback_E##N)
+    EDIT_NOZZLE(0);
+    EDIT_NOZZLE(1);
     #if HOTENDS > 2
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N3, &thermalManager.target_temperature[2], 0, HEATER_2_MAXTEMP - 15, watch_temp_callback_E2);
+      EDIT_NOZZLE(2);
       #if HOTENDS > 3
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N4, &thermalManager.target_temperature[3], 0, HEATER_3_MAXTEMP - 15, watch_temp_callback_E3);
+        EDIT_NOZZLE(3);
         #if HOTENDS > 4
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N5, &thermalManager.target_temperature[4], 0, HEATER_4_MAXTEMP - 15, watch_temp_callback_E4);
+          EDIT_NOZZLE(4);
           #if HOTENDS > 5
-            MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N6, &thermalManager.target_temperature[5], 0, HEATER_5_MAXTEMP - 15, watch_temp_callback_E5);
+            EDIT_NOZZLE(5);
           #endif // HOTENDS > 5
         #endif // HOTENDS > 4
       #endif // HOTENDS > 3
@@ -167,16 +168,17 @@ void menu_tune() {
     MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
   #else // EXTRUDERS > 1
     MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, _lcd_refresh_e_factor);
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N1, &planner.flow_percentage[0], 10, 999, _lcd_refresh_e_factor_0);
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N2, &planner.flow_percentage[1], 10, 999, _lcd_refresh_e_factor_1);
+    #define EDIT_FLOW(N) MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_LCD_N##N, &planner.flow_percentage[N], 10, 999, _lcd_refresh_e_factor_##N)
+    EDIT_FLOW(0);
+    EDIT_FLOW(1);
     #if EXTRUDERS > 2
-      MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N3, &planner.flow_percentage[2], 10, 999, _lcd_refresh_e_factor_2);
+      EDIT_FLOW(2);
       #if EXTRUDERS > 3
-        MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N4, &planner.flow_percentage[3], 10, 999, _lcd_refresh_e_factor_3);
+        EDIT_FLOW(3);
         #if EXTRUDERS > 4
-          MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N5, &planner.flow_percentage[4], 10, 999, _lcd_refresh_e_factor_4);
+          EDIT_FLOW(4);
           #if EXTRUDERS > 5
-            MENU_ITEM_EDIT_CALLBACK(int3, MSG_FLOW MSG_N6, &planner.flow_percentage[5], 10, 999, _lcd_refresh_e_factor_5);
+            EDIT_FLOW(5);
           #endif // EXTRUDERS > 5
         #endif // EXTRUDERS > 4
       #endif // EXTRUDERS > 3
