@@ -32,6 +32,24 @@
   #include "../../libs/duration_t.h"
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "../../feature/bedlevel/ubl/ubl.h"
+
+  #if HAS_LCD_MENU
+    #define ULTRA_X_PIXELS_PER_CHAR    5
+    #define ULTRA_Y_PIXELS_PER_CHAR    8
+    #define ULTRA_COLUMNS_FOR_MESH_MAP 7
+    #define ULTRA_ROWS_FOR_MESH_MAP    4
+
+    #define N_USER_CHARS    8
+
+    #define TOP_LEFT      _BV(0)
+    #define TOP_RIGHT     _BV(1)
+    #define LOWER_LEFT    _BV(2)
+    #define LOWER_RIGHT   _BV(3)
+  #endif
+#endif
+
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
 //
@@ -60,9 +78,9 @@
     #if BUTTON_EXISTS(ENC)
       // the pause/stop/restart button is connected to BTN_ENC when used
       #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
-      #define LCD_CLICKED() (buttons & (B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
+      #define LCD_CLICKED (buttons & (B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
     #else
-      #define LCD_CLICKED() (buttons & (B_MI|B_RI))
+      #define LCD_CLICKED (buttons & (B_MI|B_RI))
     #endif
 
     // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
@@ -77,7 +95,7 @@
       #define B_MI (PANELOLU2_ENCODER_C << B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
       #undef LCD_CLICKED
-      #define LCD_CLICKED() (buttons & B_MI)
+      #define LCD_CLICKED (buttons & B_MI)
 
       // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
       #define LCD_HAS_SLOW_BUTTONS
@@ -98,21 +116,7 @@
     #define B_DW (_BV(BL_DW))
     #define B_RI (_BV(BL_RI))
     #define B_ST (_BV(BL_ST))
-    #define LCD_CLICKED() (buttons & (B_MI|B_ST))
-  #endif
-
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #define ULTRA_X_PIXELS_PER_CHAR    5
-    #define ULTRA_Y_PIXELS_PER_CHAR    8
-    #define ULTRA_COLUMNS_FOR_MESH_MAP 7
-    #define ULTRA_ROWS_FOR_MESH_MAP    4
-
-    #define N_USER_CHARS    8
-
-    #define TOP_LEFT      _BV(0)
-    #define TOP_RIGHT     _BV(1)
-    #define LOWER_LEFT    _BV(2)
-    #define LOWER_RIGHT   _BV(3)
+    #define LCD_CLICKED (buttons & (B_MI|B_ST))
   #endif
 
 #endif // HAS_LCD_MENU
@@ -142,7 +146,7 @@
   #define LED_B 0x02 //010
   #define LED_C 0x01 //001
 
-  #include <Wire.h>
+    #include <Wire.h>
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
 
@@ -156,8 +160,8 @@
   #define LCD_CLASS LiquidCrystal_I2C
 
 #elif ENABLED(SR_LCD_2W_NL)
-  // 2 wire Non-latching LCD SR from:
-  // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+// 2 wire Non-latching LCD SR from:
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
   extern "C" void __cxa_pure_virtual() { while (1); }
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
@@ -173,7 +177,12 @@
   // Standard directly connected LCD implementations
   #include <LiquidCrystal.h>
   #define LCD_CLASS LiquidCrystal
+
 #endif
 
 #include "../fontutils.h"
 #include "../lcdprint.h"
+
+#if ENABLED(LCD_PROGRESS_BAR)
+  #define LCD_STR_PROGRESS  "\x03\x04\x05"
+#endif
