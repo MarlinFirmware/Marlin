@@ -42,7 +42,7 @@ void GcodeSuite::G92() {
             const float v = position_shift[i];
             if (v) {
               position_shift[i] = 0;
-              update_software_endstops((AxisEnum)i);
+              update_workspace_offset((AxisEnum)i);
             }
           }
         #endif // Not SCARA
@@ -79,7 +79,7 @@ void GcodeSuite::G92() {
           }
           else {
             position_shift[i] += d;       // Other axes simply offset the coordinate space
-            update_software_endstops((AxisEnum)i);
+            update_workspace_offset((AxisEnum)i);
           }
         #endif
       }

@@ -93,8 +93,6 @@ extern int16_t feedrate_percentage;
   extern float hotend_offset[XYZ][HOTENDS];
 #endif
 
-extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
-
 FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
 FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
@@ -110,12 +108,23 @@ XYZ_DEFS(float, max_length,     MAX_LENGTH);
 XYZ_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_DEFS(signed char, home_dir, HOME_DIR);
 
+#if HAS_WORKSPACE_OFFSET
+  void update_workspace_offset(const AxisEnum axis);
+#else
+  #define update_workspace_offset(x) NOOP
+#endif
+
 #if HAS_SOFTWARE_ENDSTOPS
   extern bool soft_endstops_enabled;
+  extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
   void clamp_to_software_endstops(float target[XYZ]);
+  void update_software_endstops(const AxisEnum axis);
 #else
   constexpr bool soft_endstops_enabled = false;
+  constexpr float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
+                  soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
   #define clamp_to_software_endstops(x) NOOP
+  #define update_software_endstops(x) NOOP
 #endif
 
 void report_current_position();
@@ -252,6 +261,10 @@ void homeaxis(const AxisEnum axis);
     extern const float L1, L2;
   #endif
 
+  #if HAS_SCARA_OFFSET
+    extern float scara_home_offset[ABC]; // A and B angular offsets, Z mm offset
+  #endif
+
   // Return true if the given point is within the printable area
   inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
     #if ENABLED(DELTA)
@@ -352,10 +365,6 @@ void homeaxis(const AxisEnum axis);
     DXC_DUPLICATION_MODE = 2
   };
 
-#endif
-
-#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
-  void update_software_endstops(const AxisEnum axis);
 #endif
 
 #if HAS_M206_COMMAND

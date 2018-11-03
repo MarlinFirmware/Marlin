@@ -124,7 +124,7 @@ typedef struct SettingsDataStruct {
   float planner_max_jerk[XYZE],                         // M205 XYZE  planner.max_jerk[XYZE]
         planner_junction_deviation_mm;                  // M205 J     planner.junction_deviation_mm
 
-  float home_offset[XYZ];                               // M206 XYZ
+  float home_offset[XYZ];                               // M206 XYZ / M665 TPZ
 
   #if HAS_HOTEND_OFFSET
     float hotend_offset[XYZ][HOTENDS - 1];              // M218 XYZ
@@ -309,10 +309,11 @@ void MarlinSettings::postprocess() {
       planner.refresh_e_factor(i);
   #endif
 
-  #if HAS_HOME_OFFSET || ENABLED(DUAL_X_CARRIAGE)
-    // Software endstops depend on home_offset
-    LOOP_XYZ(i) update_software_endstops((AxisEnum)i);
-  #endif
+  // Software endstops depend on home_offset
+  LOOP_XYZ(i) {
+    update_workspace_offset((AxisEnum)i);
+    update_software_endstops((AxisEnum)i);
+  }
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     set_z_fade_height(new_z_fade_height, false); // false = no report
@@ -453,10 +454,14 @@ void MarlinSettings::postprocess() {
 
     _FIELD_TEST(home_offset);
 
-    #if !HAS_HOME_OFFSET
-      const float home_offset[XYZ] = { 0 };
+    #if HAS_SCARA_OFFSET
+      EEPROM_WRITE(scara_home_offset);
+    #else
+      #if !HAS_HOME_OFFSET
+        const float home_offset[XYZ] = { 0 };
+      #endif
+      EEPROM_WRITE(home_offset);
     #endif
-    EEPROM_WRITE(home_offset);
 
     #if HAS_HOTEND_OFFSET
       // Skip hotend 0 which must be 0
@@ -1062,15 +1067,19 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // Home Offset (M206)
+      // Home Offset (M206 / M665)
       //
       {
         _FIELD_TEST(home_offset);
 
-        #if !HAS_HOME_OFFSET
-          float home_offset[XYZ];
+        #if HAS_SCARA_OFFSET
+          EEPROM_READ(scara_home_offset);
+        #else
+          #if !HAS_HOME_OFFSET
+            float home_offset[XYZ];
+          #endif
+          EEPROM_READ(home_offset);
         #endif
-        EEPROM_READ(home_offset);
       }
 
       //
@@ -1826,7 +1835,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     planner.junction_deviation_mm = float(JUNCTION_DEVIATION_MM);
   #endif
 
-  #if HAS_HOME_OFFSET
+  #if HAS_SCARA_OFFSET
+    ZERO(scara_home_offset);
+  #elif HAS_HOME_OFFSET
     ZERO(home_offset);
   #endif
 
@@ -2430,7 +2441,20 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
 
-    #if ENABLED(DELTA)
+    #if HAS_SCARA_OFFSET
+
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM_P(port, "SCARA settings: S<seg-per-sec> P<theta-psi-offset> T<theta-offset>");
+      }
+      CONFIG_ECHO_START;
+      SERIAL_ECHOPAIR_P(port, "  M665 S", delta_segments_per_second);
+      SERIAL_ECHOPAIR_P(port, " P", scara_home_offset[A_AXIS]);
+      SERIAL_ECHOPAIR_P(port, " T", scara_home_offset[B_AXIS]);
+      SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(scara_home_offset[Z_AXIS]));
+      SERIAL_EOL_P(port);
+
+    #elif ENABLED(DELTA)
 
       if (!forReplay) {
         CONFIG_ECHO_START;
