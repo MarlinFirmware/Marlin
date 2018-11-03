@@ -107,7 +107,7 @@ void lcd_goto_previous_menu_no_defer() {
 ////////////////////////////////////////////
 
 void menu_item_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
-void menu_item_function::action(screenFunc_t func) { (*func)(); }
+void menu_item_function::action(const screenFunc_t func) { (*func)(); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -188,9 +188,9 @@ DEFINE_MENU_EDIT_ITEM(float52sign);
 DEFINE_MENU_EDIT_ITEM(float62);
 DEFINE_MENU_EDIT_ITEM(long5);
 
-void menu_item_bool::action_setting_edit(PGM_P pstr, bool* ptr, screenFunc_t callback) {
+void menu_item_bool::action_setting_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   UNUSED(pstr); *ptr ^= true; lcd_refresh();
-  if(callback) (*callback)();
+  if (callback) (*callback)();
 }
 
 ////////////////////////////////////////////

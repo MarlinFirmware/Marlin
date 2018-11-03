@@ -138,8 +138,8 @@ DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float52sign);
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float62);
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(long5);
 
-#define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data, ...)               DRAW_BOOL_SETTING(sel, row, pstr, data)
-#define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset)     DRAW_BOOL_SETTING(sel, row, pstr, data)
+#define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
+#define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
 
 ////////////////////////////////////////////
 /////////////// Menu Actions ///////////////
@@ -155,14 +155,14 @@ class menu_item_submenu {
     static inline void action(const screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
 };
 
-class menu_item_function {
-  public:
-    static void action(menuAction_t data);
-};
-
 class menu_item_gcode {
   public:
-    static void action(const char* pgcode);
+    static void action(const char * const pgcode);
+};
+
+class menu_item_function {
+  public:
+    static void action(const menuAction_t func);
 };
 
 ////////////////////////////////////////////
@@ -176,9 +176,8 @@ class menu_item_template {
     static constexpr float scale = NAME::scale;
     static bool _edit();
   public:
-    static void edit() { _edit(); }
-    static void action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback = NULL, const bool live = false);
-    typedef void _void;
+    FORCE_INLINE static void edit() { (void)_edit(); }
+    static void action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=NULL, const bool live=false);
 };
 
 #define DECLARE_MENU_EDIT_ITEM(NAME) typedef menu_item_template<NAME ## _item_info> menu_item_ ## NAME;
@@ -197,7 +196,7 @@ DECLARE_MENU_EDIT_ITEM(long5);
 
 class menu_item_bool {
   public:
-    static void action_setting_edit(PGM_P pstr, bool* ptr, const screenFunc_t callbackFunc = NULL);
+    static void action_setting_edit(PGM_P pstr, bool* ptr, const screenFunc_t callbackFunc=NULL);
 };
 
 ////////////////////////////////////////////

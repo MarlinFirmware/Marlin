@@ -279,7 +279,7 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
     extern screenFunc_t currentScreen;
-    void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
+    void lcd_goto_screen(const screenFunc_t screen, const uint32_t encoder=0);
 
     extern bool lcd_clicked, defer_return_to_status;
 
