@@ -47,7 +47,7 @@ void lcd_save_previous_screen();
   struct NAME ## _item_info { \
     typedef TYPE type_t; \
     static constexpr float scale = SCALE; \
-    static FORCE_INLINE char *strfunc(const float value) {return STRFUNC((TYPE) value);} \
+    static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
 DECLARE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1);
