@@ -155,19 +155,24 @@ bool menu_item_template<NAME>::_edit() {
   return use_click();
 }
 
-template<typename NAME>
-void menu_item_template<NAME>::action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) {
+// A single helper function to init item editing for all types
+static void init_item_editing(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint32_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
   lcd_save_previous_screen();
   lcd_refresh();
+  editLabel = el;
+  editValue = ev;
+  minEditValue = minv;
+  maxEditValue = maxv;
+  encoderPosition = ep;
+  currentScreen = cs;
+  callbackFunc = cb;
+  liveEdit = le;
+}
 
-  editLabel = pstr;
-  editValue = ptr;
-  minEditValue = minValue * scale;
-  maxEditValue = maxValue * scale - minEditValue;
-  encoderPosition = (*ptr) * scale - minEditValue;
-  currentScreen = edit;
-  callbackFunc = callback;
-  liveEdit = live;
+template<typename NAME>
+void menu_item_template<NAME>::action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) {
+  const int32_t minv = minValue * scale;
+  init_item_editing(pstr, ptr, minv, int32_t(maxValue * scale) - minv, int32_t((*ptr) * scale) - minv, edit, callback, live);
 }
 
 #define DEFINE_MENU_EDIT_ITEM(NAME) template class menu_item_template<NAME ## _item_info>;
