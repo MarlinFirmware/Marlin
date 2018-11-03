@@ -138,20 +138,18 @@ float cartes[XYZ];
  * The workspace can be offset by some commands, or
  * these offsets may be omitted to save on computation.
  */
-#if HAS_WORKSPACE_OFFSET
-  #if HAS_POSITION_SHIFT
-    // The distance that XYZ has been offset by G92. Reset by G28.
-    float position_shift[XYZ] = { 0 };
-  #endif
-  #if HAS_HOME_OFFSET
-    // This offset is added to the configured home position.
-    // Set by M206, M428, or menu item. Saved to EEPROM.
-    float home_offset[XYZ] = { 0 };
-  #endif
-  #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
-    // The above two are combined to save on computes
-    float workspace_offset[XYZ] = { 0 };
-  #endif
+#if HAS_POSITION_SHIFT
+  // The distance that XYZ has been offset by G92. Reset by G28.
+  float position_shift[XYZ] = { 0 };
+#endif
+#if HAS_HOME_OFFSET
+  // This offset is added to the configured home position.
+  // Set by M206, M428, or menu item. Saved to EEPROM.
+  float home_offset[XYZ] = { 0 };
+#endif
+#if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+  // The above two are combined to save on computes
+  float workspace_offset[XYZ] = { 0 };
 #endif
 
 #if OLDSCHOOL_ABL
@@ -1518,7 +1516,7 @@ void homeaxis(const AxisEnum axis) {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis) {
-    #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+    #if HAS_HOME_OFFSET
       workspace_offset[axis] = home_offset[axis] + position_shift[axis];
     #endif
 

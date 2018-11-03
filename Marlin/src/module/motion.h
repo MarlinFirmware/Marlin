@@ -211,14 +211,10 @@ void homeaxis(const AxisEnum axis);
   void sensorless_homing_per_axis(const AxisEnum axis, const bool enable=true);
 #endif
 
-//
-// Macros
-//
-
 /**
  * Workspace offsets
  */
-#if HAS_WORKSPACE_OFFSET
+#if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
   #if HAS_HOME_OFFSET
     extern float home_offset[XYZ];
   #endif
@@ -230,7 +226,7 @@ void homeaxis(const AxisEnum axis);
     #define WORKSPACE_OFFSET(AXIS) workspace_offset[AXIS]
   #elif HAS_HOME_OFFSET
     #define WORKSPACE_OFFSET(AXIS) home_offset[AXIS]
-  #elif HAS_POSITION_SHIFT
+  #else
     #define WORKSPACE_OFFSET(AXIS) position_shift[AXIS]
   #endif
   #define NATIVE_TO_LOGICAL(POS, AXIS) ((POS) + WORKSPACE_OFFSET(AXIS))
