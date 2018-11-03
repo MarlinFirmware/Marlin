@@ -39,7 +39,7 @@ void GcodeSuite::M906() {
   bool report = true;
 
   #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3)
-    const uint8_t index = parser.byteval('I'); 
+    const uint8_t index = parser.byteval('I');
   #endif
 
   LOOP_XYZE(i) if (uint16_t value = parser.intval(axis_codes[i])) {
