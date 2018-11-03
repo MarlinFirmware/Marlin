@@ -483,7 +483,9 @@ void GcodeSuite::process_parsed_command(
         #endif
       #endif
 
-      case 211: M211(); break;                                    // M211: Enable, Disable, and/or Report software endstops
+      #if HAS_SOFTWARE_ENDSTOPS
+        case 211: M211(); break;                                  // M211: Enable, Disable, and/or Report software endstops
+      #endif
 
       #if EXTRUDERS > 1
         case 217: M217(); break;                                  // M217: Set filament swap parameters

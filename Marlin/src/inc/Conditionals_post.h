@@ -1527,11 +1527,13 @@
 // Updated G92 behavior shifts the workspace
 #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
 // The home offset also shifts the coordinate space
-#define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA))
-// Either offset yields extra calculations on all moves
-#define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT || HAS_HOME_OFFSET)
-// M206 doesn't apply to DELTA
-#define HAS_M206_COMMAND (HAS_HOME_OFFSET && DISABLED(DELTA))
+#define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_CARTESIAN)
+// The SCARA home offset applies only on G28
+#define HAS_SCARA_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_SCARA)
+// Cumulative offset to workspace to save some calculation
+#define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT && HAS_HOME_OFFSET)
+// M206 sets the home offset for Cartesian machines
+#define HAS_M206_COMMAND (HAS_HOME_OFFSET && !IS_SCARA)
 
 // LCD timeout to status screen default is 15s
 #ifndef LCD_TIMEOUT_TO_STATUS
