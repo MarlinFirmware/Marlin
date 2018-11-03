@@ -136,7 +136,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Ausgabe für CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Externe Sicherung")
 #define MSG_UBL_INFO_UBL                    _UxGT("UBL-Info ausgeben")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Netz bearbeiten")
+#define MSG_EDIT_MESH                       _UxGT("Netz bearbeiten")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Menge an Füllung")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Manuelles Füllen")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Cleveres Füllen")

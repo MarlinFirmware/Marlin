@@ -145,7 +145,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Exportovať do CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Záloha do PC")
 #define MSG_UBL_INFO_UBL                    _UxGT("Info. o UBL do PC")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Upraviť sieť bodov")
+#define MSG_EDIT_MESH                       _UxGT("Upraviť sieť bodov")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Hustota mriežky")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Ručné vyplnenie")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Chytré vyplnenie")
