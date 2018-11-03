@@ -96,7 +96,7 @@ void ST7920_Lite_Status_Screen::write_str(const char *str, uint8_t len) {
 
 void ST7920_Lite_Status_Screen::write_str_P(PGM_P const str) {
   PGM_P p_str = (PGM_P)str;
-  while (char c = pgm_read_byte_near(p_str++)) write_byte(c);
+  while (char c = pgm_read_byte(p_str++)) write_byte(c);
 }
 
 void ST7920_Lite_Status_Screen::write_str(progmem_str str) {
@@ -221,7 +221,7 @@ void ST7920_Lite_Status_Screen::load_cgram_icon(const uint16_t addr, const void 
   set_cgram_address(addr);
   begin_data();
   for (uint8_t i = 16; i--;)
-    write_word(pgm_read_word_near(p_word++));
+    write_word(pgm_read_word(p_word++));
 }
 
 /**
@@ -239,7 +239,7 @@ void ST7920_Lite_Status_Screen::draw_gdram_icon(uint8_t x, uint8_t y, const void
   for (int i = 0; i < 16; i++) {
     set_gdram_address(x, i + y * 16);
     begin_data();
-    write_word(pgm_read_word_near(p_word++));
+    write_word(pgm_read_word(p_word++));
   }
 }
 
@@ -416,8 +416,8 @@ void ST7920_Lite_Status_Screen::draw_degree_symbol(uint8_t x, uint8_t y, bool dr
     const uint8_t y_top   = degree_symbol_y_top;
     const uint8_t y_bot   = y_top + sizeof(degree_symbol)/sizeof(degree_symbol[0]);
     for(uint8_t i = y_top; i < y_bot; i++) {
-      uint8_t byte = pgm_read_byte_near(p_bytes++);
-      set_gdram_address(x_word,i+y*16);
+      uint8_t byte = pgm_read_byte(p_bytes++);
+      set_gdram_address(x_word, i + y * 16);
       begin_data();
       if (draw) {
         write_byte(oddChar ? 0x00 : byte);

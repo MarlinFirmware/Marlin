@@ -95,8 +95,8 @@ extern int16_t feedrate_percentage;
 
 extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 
-FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float_near(p); }
-FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte_near(p); }
+FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
+FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
 #define XYZ_DEFS(type, array, CONFIG) \
   extern const type array##_P[XYZ]; \

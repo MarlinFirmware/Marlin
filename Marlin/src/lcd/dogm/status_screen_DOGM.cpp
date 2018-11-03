@@ -282,7 +282,7 @@ void lcd_impl_status_screen_0() {
     #if HAS_FAN0
       if (PAGE_CONTAINS(STATUS_SCREEN_FAN_TEXT_Y - 7, STATUS_SCREEN_FAN_TEXT_Y)) {
         // Fan
-        const uint16_t per = (((uint16_t)fan_speed[0] + 1) * 100) / 256;
+        const int per = ((int(fan_speed[0]) + 1) * 100) / 256;
         if (per) {
           lcd_moveto(STATUS_SCREEN_FAN_TEXT_X, STATUS_SCREEN_FAN_TEXT_Y);
           lcd_put_u8str(itostr3(per));

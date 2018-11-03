@@ -96,7 +96,7 @@ public:
   static void send(const uint8_t reg, const uint8_t data);
 
   // Refresh all units
-  inline static void refresh() { for (uint8_t i = 0; i < 8; i++) refresh_line(i); }
+  static inline void refresh() { for (uint8_t i = 0; i < 8; i++) refresh_line(i); }
 
   // Update a single native line on all units
   static void refresh_line(const uint8_t line);

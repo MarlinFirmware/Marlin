@@ -32,6 +32,10 @@
 #include "../../module/planner.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
+#if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+  #include "../../module/probe.h"
+#endif
+
 #if ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING)
 
   #include "../../module/motion.h"

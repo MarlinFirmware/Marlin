@@ -30,10 +30,20 @@
 #include "../../../module/planner.h"
 #include "../../queue.h"
 
-#define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || (AXIS_DRIVER_TYPE(ST, TMC2208) && PIN_EXISTS(ST##_SERIAL_RX)))
-#define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
-
 #if ENABLED(MONITOR_DRIVER_STATUS)
+
+  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208))
+  #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
+
+  #define M91x_SOME_X (M91x_USE(X) || M91x_USE(X2))
+  #define M91x_SOME_Y (M91x_USE(Y) || M91x_USE(Y2))
+  #define M91x_SOME_Z (M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3))
+  #define M91x_SOME_E (M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5))
+
+  #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_SOME_E
+    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130 or TMC2208."
+  #endif
+
   /**
    * M911: Report TMC stepper driver overtemperature pre-warn flag
    *       This flag is held by the library, persisting until cleared by M912
@@ -93,68 +103,89 @@
    *       M912 E1  ; clear E1 only
    */
   void GcodeSuite::M912() {
-      const bool hasX = parser.seen(axis_codes[X_AXIS]),
-                 hasY = parser.seen(axis_codes[Y_AXIS]),
-                 hasZ = parser.seen(axis_codes[Z_AXIS]),
-                 hasE = parser.seen(axis_codes[E_AXIS]),
-                 hasNone = !hasX && !hasY && !hasZ && !hasE;
+    #if M91x_SOME_X
+      const bool hasX = parser.seen(axis_codes[X_AXIS]);
+    #else
+      constexpr bool hasX = false;
+    #endif
 
-      #if M91x_USE(X) || M91x_USE(X2)
-        const int8_t xval = int8_t(parser.byteval(axis_codes[X_AXIS], 0xFF));
-        #if M91x_USE(X)
-          if (hasNone || xval == 1 || (hasX && xval < 0)) tmc_clear_otpw(stepperX);
-        #endif
-        #if M91x_USE(X2)
-          if (hasNone || xval == 2 || (hasX && xval < 0)) tmc_clear_otpw(stepperX2);
-        #endif
-      #endif
+    #if M91x_SOME_Y
+      const bool hasY = parser.seen(axis_codes[Y_AXIS]);
+    #else
+      constexpr bool hasY = false;
+    #endif
 
-      #if M91x_USE(Y) || M91x_USE(Y2)
-        const int8_t yval = int8_t(parser.byteval(axis_codes[Y_AXIS], 0xFF));
-        #if M91x_USE(Y)
-          if (hasNone || yval == 1 || (hasY && yval < 0)) tmc_clear_otpw(stepperY);
-        #endif
-        #if M91x_USE(Y2)
-          if (hasNone || yval == 2 || (hasY && yval < 0)) tmc_clear_otpw(stepperY2);
-        #endif
-      #endif
+    #if M91x_SOME_Z
+      const bool hasZ = parser.seen(axis_codes[Z_AXIS]);
+    #else
+      constexpr bool hasZ = false;
+    #endif
 
-      #if M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3)
-        const int8_t zval = int8_t(parser.byteval(axis_codes[Z_AXIS], 0xFF));
-        #if M91x_USE(Z)
-          if (hasNone || zval == 1 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ);
-        #endif
-        #if M91x_USE(Z2)
-          if (hasNone || zval == 2 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ2);
-        #endif
-        #if M91x_USE(Z3)
-          if (hasNone || zval == 3 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ3);
-        #endif
-      #endif
+    #if M91x_SOME_E
+      const bool hasE = parser.seen(axis_codes[E_AXIS]);
+    #else
+      constexpr bool hasE = false;
+    #endif
 
-      #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5)
-        const int8_t eval = int8_t(parser.byteval(axis_codes[E_AXIS], 0xFF));
-        #if M91x_USE_E(0)
-          if (hasNone || eval == 0 || (hasE && eval < 0)) tmc_clear_otpw(stepperE0);
-        #endif
-        #if M91x_USE_E(1)
-          if (hasNone || eval == 1 || (hasE && eval < 0)) tmc_clear_otpw(stepperE1);
-        #endif
-        #if M91x_USE_E(2)
-          if (hasNone || eval == 2 || (hasE && eval < 0)) tmc_clear_otpw(stepperE2);
-        #endif
-        #if M91x_USE_E(3)
-          if (hasNone || eval == 3 || (hasE && eval < 0)) tmc_clear_otpw(stepperE3);
-        #endif
-        #if M91x_USE_E(4)
-          if (hasNone || eval == 4 || (hasE && eval < 0)) tmc_clear_otpw(stepperE4);
-        #endif
-        #if M91x_USE_E(5)
-          if (hasNone || eval == 5 || (hasE && eval < 0)) tmc_clear_otpw(stepperE5);
-        #endif
+    const bool hasNone = !hasX && !hasY && !hasZ && !hasE;
+
+    #if M91x_SOME_X
+      const int8_t xval = int8_t(parser.byteval(axis_codes[X_AXIS], 0xFF));
+      #if M91x_USE(X)
+        if (hasNone || xval == 1 || (hasX && xval < 0)) tmc_clear_otpw(stepperX);
       #endif
+      #if M91x_USE(X2)
+        if (hasNone || xval == 2 || (hasX && xval < 0)) tmc_clear_otpw(stepperX2);
+      #endif
+    #endif
+
+    #if M91x_SOME_Y
+      const int8_t yval = int8_t(parser.byteval(axis_codes[Y_AXIS], 0xFF));
+      #if M91x_USE(Y)
+        if (hasNone || yval == 1 || (hasY && yval < 0)) tmc_clear_otpw(stepperY);
+      #endif
+      #if M91x_USE(Y2)
+        if (hasNone || yval == 2 || (hasY && yval < 0)) tmc_clear_otpw(stepperY2);
+      #endif
+    #endif
+
+    #if M91x_SOME_Z
+      const int8_t zval = int8_t(parser.byteval(axis_codes[Z_AXIS], 0xFF));
+      #if M91x_USE(Z)
+        if (hasNone || zval == 1 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ);
+      #endif
+      #if M91x_USE(Z2)
+        if (hasNone || zval == 2 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ2);
+      #endif
+      #if M91x_USE(Z3)
+        if (hasNone || zval == 3 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ3);
+      #endif
+    #endif
+
+    #if M91x_SOME_E
+      const int8_t eval = int8_t(parser.byteval(axis_codes[E_AXIS], 0xFF));
+      #if M91x_USE_E(0)
+        if (hasNone || eval == 0 || (hasE && eval < 0)) tmc_clear_otpw(stepperE0);
+      #endif
+      #if M91x_USE_E(1)
+        if (hasNone || eval == 1 || (hasE && eval < 0)) tmc_clear_otpw(stepperE1);
+      #endif
+      #if M91x_USE_E(2)
+        if (hasNone || eval == 2 || (hasE && eval < 0)) tmc_clear_otpw(stepperE2);
+      #endif
+      #if M91x_USE_E(3)
+        if (hasNone || eval == 3 || (hasE && eval < 0)) tmc_clear_otpw(stepperE3);
+      #endif
+      #if M91x_USE_E(4)
+        if (hasNone || eval == 4 || (hasE && eval < 0)) tmc_clear_otpw(stepperE4);
+      #endif
+      #if M91x_USE_E(5)
+        if (hasNone || eval == 5 || (hasE && eval < 0)) tmc_clear_otpw(stepperE5);
+      #endif
+    #endif
   }
-#endif
+
+#endif // MONITOR_DRIVER_STATUS
 
 /**
  * M913: Set HYBRID_THRESHOLD speed.
@@ -167,7 +198,9 @@
     #define TMC_SET_PWMTHRS_E(E) tmc_set_pwmthrs(stepperE##E, value, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
 
     bool report = true;
-    const uint8_t index = parser.byteval('I');
+    #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3)
+      const uint8_t index = parser.byteval('I');
+    #endif
     LOOP_XYZE(i) if (int32_t value = parser.longval(axis_codes[i])) {
       report = false;
       switch (i) {

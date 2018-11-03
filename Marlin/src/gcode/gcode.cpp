@@ -173,7 +173,7 @@ void GcodeSuite::dwell(millis_t time) {
  * Process the parsed command and dispatch it to its handler
  */
 void GcodeSuite::process_parsed_command(
-  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  #if USE_EXECUTE_COMMANDS_IMMEDIATE
     const bool no_ok
   #endif
 ) {
@@ -698,7 +698,7 @@ void GcodeSuite::process_parsed_command(
 
   KEEPALIVE_STATE(NOT_BUSY);
 
-  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  #if USE_EXECUTE_COMMANDS_IMMEDIATE
     if (!no_ok)
   #endif
       ok_to_send();
@@ -725,35 +725,43 @@ void GcodeSuite::process_next_command() {
   process_parsed_command();
 }
 
-#if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+#if USE_EXECUTE_COMMANDS_IMMEDIATE
+
   /**
    * Run a series of commands, bypassing the command queue to allow
    * G-code "macros" to be called from within other G-code handlers.
    */
+
   void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
-    // Save the parser state
-    char * const saved_cmd = parser.command_ptr;
-
-    // Process individual commands in string
-    while (pgm_read_byte_near(pgcode)) {
-      // Break up string at '\n' delimiters
-      PGM_P const delim = strchr_P(pgcode, '\n');
-      size_t len = delim ? delim - pgcode : strlen_P(pgcode);
-      char cmd[len + 1];
-      strncpy_P(cmd, pgcode, len);
-      cmd[len] = '\0';
-      pgcode += len;
-      if (delim) pgcode++;
-
-      // Parse the next command in the string
-      parser.parse(cmd);
-      process_parsed_command(true);
+    char * const saved_cmd = parser.command_ptr;        // Save the parser state
+    for (;;) {
+      PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline
+      const size_t len = delim ? delim - pgcode : strlen_P(pgcode); // Get the command length
+      char cmd[len + 1];                                // Allocate a stack buffer
+      strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
+      cmd[len] = '\0';                                  // End with a nul
+      parser.parse(cmd);                                // Parse the command
+      process_parsed_command(true);                     // Process it
+      if (!delim) break;                                // Last command?
+      pgcode = delim + 1;                               // Get the next command
     }
-
-    // Restore the parser state
-    parser.parse(saved_cmd);
+    parser.parse(saved_cmd);                            // Restore the parser state
   }
-#endif
+
+  void GcodeSuite::process_subcommands_now(char * gcode) {
+    char * const saved_cmd = parser.command_ptr;        // Save the parser state
+    for (;;) {
+      const char * const delim = strchr(gcode, '\n');   // Get address of next newline
+      if (delim) *delim = '\0';                         // Replace with nul
+      parser.parse(gcode);                              // Parse the current command
+      process_parsed_command(true);                     // Process it
+      if (!delim) break;                                // Last command?
+      gcode = delim + 1;                                // Get the next command
+    }
+    parser.parse(saved_cmd);                            // Restore the parser state
+  }
+
+#endif // USE_EXECUTE_COMMANDS_IMMEDIATE
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 

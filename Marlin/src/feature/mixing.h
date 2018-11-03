@@ -27,13 +27,14 @@
   #define MIXER_ACCU_SIGNED
   typedef uint8_t mixer_color_t;
   typedef int8_t mixer_accu_t;
+  #define COLOR_A_MASK 0x80
+  #define COLOR_MASK 0x7F
 #else
   typedef uint_fast16_t mixer_color_t;
   typedef uint_fast16_t mixer_accu_t;
+  #define COLOR_A_MASK 0x8000
+  #define COLOR_MASK 0x7FFF
 #endif
-
-#define COLOR_A_MASK _BV(sizeof(mixer_color_t) * 8 - 1) // 0x80 or 0x8000
-#define COLOR_MASK (COLOR_A_MASK - 1)                   // 0x7F or 0x7FFF
 
 #ifndef MIXING_VIRTUAL_TOOLS
   #define MIXING_VIRTUAL_TOOLS 1
@@ -42,8 +43,14 @@
 #ifdef RETRACT_SYNC_MIXING
   #define NR_MIXING_VIRTUAL_TOOLS (MIXING_VIRTUAL_TOOLS + 1)
   #define MIXER_AUTORETRACT_TOOL MIXING_VIRTUAL_TOOLS
+  #if NR_MIXING_VIRTUAL_TOOLS > 254
+    #error "MIXING_VIRTUAL_TOOLS must be <= 254!"
+  #endif
 #else
   #define NR_MIXING_VIRTUAL_TOOLS (MIXING_VIRTUAL_TOOLS)
+  #if NR_MIXING_VIRTUAL_TOOLS > 255
+    #error "MIXING_VIRTUAL_TOOLS must be <= 255!"
+  #endif
 #endif
 
 #define MIXER_STEPPER_LOOP(VAR) \
