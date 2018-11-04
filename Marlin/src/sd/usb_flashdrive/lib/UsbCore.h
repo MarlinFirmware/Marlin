@@ -26,8 +26,7 @@ e-mail   :  support@circuitsathome.com
   #error "Never include UsbCore.h directly; include Usb.h instead"
 #endif
 
-#ifndef USBCORE_H
-#define USBCORE_H
+#pragma once
 
 // Not used anymore? If anyone uses this, please let us know so that this may be
 // moved to the proper place, settings.h.
@@ -310,5 +309,3 @@ inline uint8_t USB::setConf(uint8_t addr, uint8_t ep, uint8_t conf_value) {
 }
 
 #endif // defined(USB_METHODS_INLINE)
-
-#endif /* USBCORE_H */

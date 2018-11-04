@@ -22,8 +22,7 @@ Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
-#if !defined(__MASSTORAGE_H__)
-#define __MASSTORAGE_H__
+#pragma once
 
 // Cruft removal, makes driver smaller, faster.
 #ifndef MS_WANT_PARSER
@@ -574,5 +573,3 @@ private:
         uint8_t HandleSCSIError(uint8_t status);
 
 };
-
-#endif // __MASSTORAGE_H__

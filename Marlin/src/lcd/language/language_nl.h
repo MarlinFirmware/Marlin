@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Dutch
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_NL_H
-#define LANGUAGE_NL_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
@@ -281,5 +280,3 @@
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("printing...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_NL_H

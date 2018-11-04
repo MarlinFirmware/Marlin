@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Pin mapping for the 168, 328, and 328P
@@ -26,9 +27,6 @@
  *   Logical Pin: 08 09 10 11 12 13 14 15 16 17 18 19 20 21 00 01 02 03 04 05 06 07
  *   Port:        B0 B1 B2 B3 B4 B5 C0 C1 C2 C3 C4 C5 C6 C7 D0 D1 D2 D3 D4 D5 D6 D7
  */
-
-#ifndef _FASTIO_168_H_
-#define _FASTIO_168_H_
 
 #include "fastio_AVR.h"
 
@@ -357,5 +355,3 @@
 #define PD7_WPORT   PORTD
 #define PD7_DDR     DDRD
 #define PD7_PWM     NULL
-
-#endif // _FASTIO_168_H_

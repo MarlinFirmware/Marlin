@@ -38,6 +38,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+#pragma once
 
 /**
  * Based on "servo.h - Interrupt driven Servo library for Arduino using 16 bit timers -
@@ -47,12 +48,9 @@
  *
  */
 
-#ifndef SERVO_PRIVATE_H
-#define SERVO_PRIVATE_H
-
 #include <Servo.h>
 
-class MarlinServo: public Servo  {
+class MarlinServo: public Servo {
   public:
   void move(const int value) {
     constexpr uint16_t servo_delay[] = SERVO_DELAY;
@@ -70,5 +68,3 @@ class MarlinServo: public Servo  {
 };
 
 #define HAL_SERVO_LIB MarlinServo
-
-#endif // SERVO_PRIVATE_H

@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef SPEED_LOOKUPTABLE_H
-#define SPEED_LOOKUPTABLE_H
+#pragma once
 
 #if F_CPU == 16000000
 
@@ -168,5 +166,3 @@
   };
 
 #endif
-
-#endif // SPEED_LOOKUPTABLE_H

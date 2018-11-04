@@ -19,13 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef SPI_PINS_H_
-#define SPI_PINS_H_
+#pragma once
 
 #define SCK_PIN   13
 #define MISO_PIN  12
 #define MOSI_PIN  11
-#define SS_PIN    20 //SDSS // A.28, A.29, B.21, C.26, C.29
-
-#endif /* SPI_PINS_H_ */
+#define SS_PIN    20 // SDSS // A.28, A.29, B.21, C.26, C.29

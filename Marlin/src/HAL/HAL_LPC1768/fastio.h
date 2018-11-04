@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O Routines for LPC1768/9
@@ -31,9 +32,6 @@
  *
  * For TARGET LPC1768
  */
-
-#ifndef _FASTIO_LPC1768_H
-#define _FASTIO_LPC1768_H
 
 #include <Arduino.h>
 
@@ -123,5 +121,3 @@
 
 // Shorthand
 #define OUT_WRITE(IO,V)   do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
-
-#endif // _FASTIO_LPC1768_H

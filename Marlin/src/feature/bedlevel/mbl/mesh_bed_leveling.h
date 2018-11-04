@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _MESH_BED_LEVELING_H_
-#define _MESH_BED_LEVELING_H_
+#pragma once
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -120,5 +118,3 @@ public:
 };
 
 extern mesh_bed_leveling mbl;
-
-#endif // _MESH_BED_LEVELING_H_

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * \file
@@ -31,8 +32,6 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef _SD2CARD_H_
-#define _SD2CARD_H_
 
 #include "SdFatConfig.h"
 #include "SdInfo.h"
@@ -202,5 +201,3 @@ class Sd2Card {
   bool waitNotBusy(const millis_t timeout_ms);
   bool writeData(uint8_t token, const uint8_t* src);
 };
-
-#endif  // _SD2CARD_H_

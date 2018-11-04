@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __ABL_H__
-#define __ABL_H__
+#pragma once
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -47,5 +45,3 @@
   #endif
 
 #endif // AUTO_BED_LEVELING_BILINEAR
-
-#endif // __ABL_H__

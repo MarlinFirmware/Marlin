@@ -19,18 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Driver for the Philips PCA9632 LED driver.
  * Written by Robert Mendon Feb 2017.
  */
 
-#ifndef __PCA9632_H__
-#define __PCA9632_H__
-
 struct LEDColor;
 typedef LEDColor LEDColor;
 
 void pca9632_set_led_color(const LEDColor &color);
-
-#endif // __PCA9632_H__

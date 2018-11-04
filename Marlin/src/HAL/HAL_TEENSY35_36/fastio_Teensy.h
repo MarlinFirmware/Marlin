@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O Routines for Teensy 3.5 and Teensy 3.6
  * Use direct port manipulation to save scads of processor time.
  * Contributed by Triffid_Hunter and modified by Kliment, thinkyhead, Bob-the-Kuhn, et.al.
  */
-
-#ifndef _FASTIO_TEENSY_H
-#define _FASTIO_TEENSY_H
 
 #ifndef MASK
   #define MASK(PIN) (1 << PIN)
@@ -91,5 +89,3 @@
  */
 
 #define DIO0_PIN 8
-
-#endif  /* _FASTIO_TEENSY_H */

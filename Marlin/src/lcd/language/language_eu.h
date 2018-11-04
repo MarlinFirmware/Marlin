@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Basque-Euskera
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_EU_H
-#define LANGUAGE_EU_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
@@ -387,5 +386,3 @@
 //  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Purging...")
 //  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Resuming...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_EU_H

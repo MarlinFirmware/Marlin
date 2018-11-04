@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __SERIAL_H__
-#define __SERIAL_H__
+#pragma once
 
 #include "../inc/MarlinConfigPre.h"
 #include HAL_PATH(../HAL, HAL.h)
@@ -246,5 +244,3 @@ void serial_error_start();
   void print_xyz(PGM_P prefix, PGM_P suffix, const float xyz[]);
   #define DEBUG_POS(SUFFIX,VAR) do { print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
 #endif
-
-#endif // __SERIAL_H__

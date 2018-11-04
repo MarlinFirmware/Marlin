@@ -20,14 +20,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O interfaces for STM32F1
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
-
-#ifndef _FASTIO_STM32F1_H
-#define _FASTIO_STM32F1_H
 
 #include <libmaple/gpio.h>
 
@@ -52,5 +50,3 @@
 
 #define PWM_PIN(p) true
 #define USEABLE_HARDWARE_PWM(p) PWM_PIN(p)
-
-#endif // _FASTIO_STM32F1_H

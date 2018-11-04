@@ -11,8 +11,7 @@
  * File Description: Internal interface between the ARM unwinding sub-modules.
  **************************************************************************/
 
-#ifndef UNWARM_H
-#define UNWARM_H
+#pragma once
 
 #include "unwinder.h"
 
@@ -139,5 +138,3 @@ bool UnwReportRetAddr(UnwState * const state, uint32_t addr);
 bool UnwMemWriteRegister(UnwState * const state, const uint32_t addr, const RegData * const reg);
 bool UnwMemReadRegister(UnwState * const state, const uint32_t addr, RegData * const reg);
 void UnwMemHashGC(UnwState * const state);
-
-#endif // UNWARM_H

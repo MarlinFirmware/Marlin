@@ -19,11 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _BACKTRACE_H_
-#define _BACKTRACE_H_
+#pragma once
 
 // Perform a backtrace to the serial port
 void backtrace(void);
-
-#endif
