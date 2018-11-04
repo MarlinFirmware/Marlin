@@ -24,12 +24,9 @@
  * THE SOFTWARE.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
-
-// ensure this library description is only included once
-#ifndef _TMC26XSTEPPER_H_
-#define _TMC26XSTEPPER_H_
+#include <stdint.h>
 
 //! return value for TMC26XStepper.getOverTemperature() if there is a overtemperature situation in the TMC chip
 /*!
@@ -601,5 +598,3 @@ class TMC26XStepper {
     // SPI sender
     inline void send262(uint32_t datagram);
 };
-
-#endif // _TMC26XSTEPPER_H_

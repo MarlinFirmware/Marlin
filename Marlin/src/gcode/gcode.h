@@ -251,9 +251,7 @@
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
  */
-
-#ifndef _GCODE_H_
-#define _GCODE_H_
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 #include "parser.h"
@@ -829,5 +827,3 @@ private:
 };
 
 extern GcodeSuite gcode;
-
-#endif // _GCODE_H_

@@ -20,9 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _HAL_STM32F4_H
-#define _HAL_STM32F4_H
+#pragma once
 
 #define CPU_32_BIT
 #undef DEBUG_NONE
@@ -251,5 +249,3 @@ void HAL_enable_AdcFreerun(void);
 
 #define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
 #define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)
-
-#endif // _HAL_STM32F4_H

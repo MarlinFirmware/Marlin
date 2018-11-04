@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Pin mapping for the 1280 and 2560
@@ -27,9 +28,6 @@
  *   Port          : E0 E1 E4 E5 G5 E3 H3 H4 H5 H6 B4 B5 B6 B7 J1 J0 H1 H0 D3 D2 D1 D0 A0 A1 A2 A3 A4 A5 A6 A7 C7 C6 C5 C4 C3 C2 C1 C0 D7 G2 G1 G0 L7 L6 L5 L4 L3 L2 L1 L0 B3 B2 B1 B0 F0 F1 F2 F3 F4 F5 F6 F7 K0 K1 K2 K3 K4 K5 K6 K7 E2 E6 E7 xx xx H2 H7 G3 G4 xx xx xx xx xx D4 D5 D6 xx xx J2 J3 J4 J5 J6 J7 xx xx xx xx xx
  *   Logical Pin   : 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx
  */
-
-#ifndef _FASTIO_1280_H_
-#define _FASTIO_1280_H_
 
 #include "fastio_AVR.h"
 
@@ -1111,5 +1109,3 @@
 #define PL7_WPORT   PORTL
 #define PL7_DDR     DDRL
 #define PL7_PWM     NULL
-
-#endif // _FASTIO_1280_H_

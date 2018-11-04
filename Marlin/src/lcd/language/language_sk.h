@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Slovak
@@ -31,8 +32,6 @@
  * http://www.facebook.com/farmamam
  *
  */
-#ifndef LANGUAGE_SK_UTF_H
-#define LANGUAGE_SK_UTF_H
 
 // Put characters here that should be displayed with M117
 //_UxGT("aäAÄaáAÁeéEÉiíIÍlĺLĹ")
@@ -437,5 +436,3 @@
   #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Vytlačovanie...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Pokračovanie...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_SK_UTF_H

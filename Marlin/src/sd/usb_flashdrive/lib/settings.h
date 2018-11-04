@@ -22,8 +22,7 @@ Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
-#ifndef USB_HOST_SHIELD_SETTINGS_H
-#define USB_HOST_SHIELD_SETTINGS_H
+#pragma once
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -232,5 +231,3 @@ e-mail   :  support@circuitsathome.com
 #ifdef ARDUINO_ESP8266_WIFIO
   #error "This board is currently not supported"
 #endif
-
-#endif /* SETTINGS_H */

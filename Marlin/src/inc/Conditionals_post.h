@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Conditionals_post.h
  * Defines that depend on configuration but are not editable.
  */
-
-#ifndef CONDITIONALS_POST_H
-#define CONDITIONALS_POST_H
 
 #define AVR_ATmega2560_FAMILY_PLUS_70 ( \
      MB(BQ_ZUM_MEGA_3D)                 \
@@ -1637,5 +1635,3 @@
 #else
   #define Z_STEPPER_COUNT 1
 #endif
-
-#endif // CONDITIONALS_POST_H

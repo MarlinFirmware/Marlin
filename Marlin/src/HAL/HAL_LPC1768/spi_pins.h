@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef SPI_PINS_LPC1768_H
-#define SPI_PINS_LPC1768_H
+#pragma once
 
 #include "src/core/macros.h"
 
@@ -54,5 +52,3 @@
   #undef SDSS
   #define SDSS              SS_PIN
 #endif
-
-#endif // SPI_PINS_LPC1768_H

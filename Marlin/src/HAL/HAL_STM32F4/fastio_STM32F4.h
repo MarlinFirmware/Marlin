@@ -20,14 +20,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O interfaces for STM32F4
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
-
-#ifndef _FASTIO_STM32F4_H
-#define _FASTIO_STM32F4_H
 
 #undef _BV
 #define _BV(b) (1 << (b))
@@ -151,5 +149,3 @@
 #define PE13 _STM32_PIN(E, 13)
 #define PE14 _STM32_PIN(E, 14)
 #define PE15 _STM32_PIN(E, 15)
-
-#endif // _FASTIO_STM32F4_H

@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __ENUM_H__
-#define __ENUM_H__
+#pragma once
 
 /**
  * Axis indices as enumerated constants
@@ -68,5 +66,3 @@ typedef enum {
   TEMPUNIT_K,
   TEMPUNIT_F
 } TempUnit;
-
-#endif // __ENUM_H__

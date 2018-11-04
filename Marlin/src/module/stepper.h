@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * stepper.h - stepper motor driver: executes motion plans of planner.c using the stepper motors
@@ -39,9 +40,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef STEPPER_H
-#define STEPPER_H
 
 #include "../inc/MarlinConfig.h"
 
@@ -559,5 +557,3 @@ class Stepper {
 };
 
 extern Stepper stepper;
-
-#endif // STEPPER_H

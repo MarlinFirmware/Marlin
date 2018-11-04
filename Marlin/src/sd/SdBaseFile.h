@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * \file
@@ -31,9 +32,6 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef _SDBASEFILE_H_
-#define _SDBASEFILE_H_
-
 
 #include "SdFatConfig.h"
 #include "SdVolume.h"
@@ -387,5 +385,3 @@ class SdBaseFile {
   bool openCachedEntry(uint8_t cacheIndex, uint8_t oflags);
   dir_t* readDirCache();
 };
-
-#endif // _SDBASEFILE_H_

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * \file
@@ -31,8 +32,6 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef _SDVOLUME_H_
-#define _SDVOLUME_H_
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
   #include "usb_flashdrive/Sd2Card_FlashDrive.h"
@@ -195,5 +194,3 @@ class SdVolume {
   bool readBlock(uint32_t block, uint8_t* dst) { return sdCard_->readBlock(block, dst); }
   bool writeBlock(uint32_t block, const uint8_t* dst) { return sdCard_->writeBlock(block, dst); }
 };
-
-#endif // _SDVOLUME_H_

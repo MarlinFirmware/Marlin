@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * probe.h - Move, deploy, enable, etc.
  */
-
-#ifndef PROBE_H
-#define PROBE_H
 
 #include "../inc/MarlinConfig.h"
 
@@ -73,5 +71,3 @@
     set_bltouch_deployed(false);
   }
 #endif
-
-#endif // PROBE_H

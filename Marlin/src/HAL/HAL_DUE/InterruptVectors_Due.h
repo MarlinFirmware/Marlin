@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * InterruptVectors_Due.h
@@ -35,11 +36,6 @@
  * Copyright (c) 2017 Eduardo José Tagle. All right reserved
  */
 
-#ifndef INTERRUPTVECTORS_DUE_H
-#define INTERRUPTVECTORS_DUE_H
-
-#include "../../inc/MarlinConfig.h"
-
 #ifdef ARDUINO_ARCH_SAM
 
 // ISR handler type
@@ -49,4 +45,3 @@ typedef void (*pfnISR_Handler)(void);
 pfnISR_Handler install_isr(IRQn_Type irq, pfnISR_Handler newHandler);
 
 #endif // ARDUINO_ARCH_SAM
-#endif // INTERRUPTVECTORS_DUE_H

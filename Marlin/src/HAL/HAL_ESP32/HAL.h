@@ -16,13 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 
 /**
  * Description: HAL for Espressif ESP32 WiFi
  */
-
-#ifndef _HAL_ESP32_H
-#define _HAL_ESP32_H
 
 #define CPU_32_BIT
 
@@ -123,5 +121,3 @@ void HAL_adc_start_conversion (uint8_t adc_pin);
 #define HAL_INIT 1
 void HAL_idletask(void);
 void HAL_init(void);
-
-#endif // _HAL_ESP32_H

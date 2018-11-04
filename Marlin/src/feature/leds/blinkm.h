@@ -19,17 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * blinkm.h - Control a BlinkM over i2c
  */
 
-#ifndef _BLINKM_H_
-#define _BLINKM_H_
-
 struct LEDColor;
 typedef LEDColor LEDColor;
 
 void blinkm_set_led_color(const LEDColor &color);
-
-#endif // _BLINKM_H_
