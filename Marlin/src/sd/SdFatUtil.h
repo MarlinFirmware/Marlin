@@ -28,8 +28,6 @@
  * This file is part of the Arduino Sd2Card Library
  */
 
-#include <string.h>
-
 /**
  * \file
  * \brief Useful utility functions.
