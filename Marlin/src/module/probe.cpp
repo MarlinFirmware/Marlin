@@ -373,9 +373,6 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     // leave the menu if it is displayed to make LCD messsages visible
     lcd_return_to_status();
     lcd_setstatusPGM(ds_str, 99);
-    #if HAS_LCD_MENU
-      lcd_quick_feedback(true);
-    #endif
     serialprintPGM(ds_str);
     SERIAL_EOL();
 
@@ -383,9 +380,6 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     wait_for_user = true;
     while (wait_for_user) idle();
     lcd_reset_status();
-    #if HAS_LCD_MENU
-      lcd_quick_feedback(true);
-    #endif
     KEEPALIVE_STATE(IN_HANDLER);
 
   #endif // PAUSE_BEFORE_DEPLOY_STOW
