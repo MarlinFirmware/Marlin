@@ -16,13 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef SPI_PINS_H_
-#define SPI_PINS_H_
+#pragma once
 
 #define SS_PIN    5
 #define SCK_PIN  18
 #define MISO_PIN 19
 #define MOSI_PIN 23
-
-#endif // SPI_PINS_H_

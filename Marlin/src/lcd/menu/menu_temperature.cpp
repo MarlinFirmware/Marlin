@@ -310,17 +310,17 @@ void menu_temperature() {
   #if HOTENDS == 1
     MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
   #else // HOTENDS > 1
-    #define EDIT_TARGET(N,I) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N##N, &thermalManager.target_temperature[I], 0, HEATER_##I##_MAXTEMP - 15, watch_temp_callback_E##I)
-    EDIT_TARGET(1,0);
-    EDIT_TARGET(2,1);
+    #define EDIT_TARGET(N) MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_LCD_N##N, &thermalManager.target_temperature[N], 0, HEATER_##N##_MAXTEMP - 15, watch_temp_callback_E##N)
+    EDIT_TARGET(0);
+    EDIT_TARGET(1);
     #if HOTENDS > 2
-      EDIT_TARGET(3,2);
+      EDIT_TARGET(2);
       #if HOTENDS > 3
-        EDIT_TARGET(4,3);
+        EDIT_TARGET(3);
         #if HOTENDS > 4
-          EDIT_TARGET(5,4);
+          EDIT_TARGET(4);
           #if HOTENDS > 5
-            EDIT_TARGET(6,5);
+            EDIT_TARGET(5);
           #endif // HOTENDS > 5
         #endif // HOTENDS > 4
       #endif // HOTENDS > 3

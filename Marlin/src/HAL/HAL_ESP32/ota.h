@@ -16,11 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef _HAL_OTA_H
-#define _HAL_OTA_H
+#pragma once
 
 void OTA_init();
 void OTA_handle();
-
-#endif

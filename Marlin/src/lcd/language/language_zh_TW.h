@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Traditional Chinese
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_ZH_TW_H
-#define LANGUAGE_ZH_TW_H
 
 #define CHARSIZE 3
 
@@ -384,5 +383,3 @@
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("清除中 ...") // "Purging..."
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("恢復中 ...")  //"Resuming..."
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_ZH_TW_H

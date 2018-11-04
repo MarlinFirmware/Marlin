@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _MATH_AVR_H_
-#define _MATH_AVR_H_
+#pragma once
 
 /**
  * Optimized math functions for AVR
@@ -113,5 +111,3 @@ static FORCE_INLINE uint16_t MultiU16X8toH16(uint8_t charIn1, uint16_t intIn2) {
   );
   return intRes;
 }
-
-#endif // _MATH_AVR_H_

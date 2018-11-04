@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _HAL_TIMERS_STM32F4_H
-#define _HAL_TIMERS_STM32F4_H
+#pragma once
 
 // --------------------------------------------------------------------------
 // Includes
@@ -130,5 +128,3 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
 #endif
 
 #define HAL_timer_isr_epilogue(TIMER_NUM)
-
-#endif // _HAL_TIMERS_STM32F4_H

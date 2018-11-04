@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _HAL_TIMERS_STM32F7_H
-#define _HAL_TIMERS_STM32F7_H
+#pragma once
 
 // --------------------------------------------------------------------------
 // Includes
@@ -101,5 +99,3 @@ hal_timer_t HAL_timer_get_compare(const uint8_t timer_num);
 uint32_t HAL_timer_get_count(const uint8_t timer_num);
 void HAL_timer_isr_prologue(const uint8_t timer_num);
 #define HAL_timer_isr_epilogue(TIMER_NUM)
-
-#endif // _HAL_TIMERS_STM32F7_H

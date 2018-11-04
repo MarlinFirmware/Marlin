@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * MarlinSerial.h - Hardware serial library for Wiring
@@ -29,9 +30,6 @@
  * Modified 01 October 2017 by Eduardo José Tagle (added XON/XOFF)
  * Templatized 01 October 2018 by Eduardo José Tagle to allow multiple instances
  */
-
-#ifndef _MARLINSERIAL_H_
-#define _MARLINSERIAL_H_
 
 #include "../shared/MarlinSerial.h"
 
@@ -281,5 +279,3 @@
 #if defined(USBCON) && ENABLED(BLUETOOTH)
   extern HardwareSerial bluetoothSerial;
 #endif
-
-#endif // _MARLINSERIAL_H_

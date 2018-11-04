@@ -623,7 +623,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       feedrate_mm_s = old_feedrate_mm_s;
 
-      #if HAS_SOFTWARE_ENDSTOPS && ENABLED(DUAL_X_CARRIAGE)
+      #if ENABLED(DUAL_X_CARRIAGE)
         update_software_endstops(X_AXIS);
       #endif
 

@@ -12,8 +12,7 @@
  * File Description: Utility functions to access memory
  **************************************************************************/
 
-#ifndef UNWMEMACCESS_H
-#define UNWMEMACCESS_H
+#pragma once
 
 #include "unwarm.h"
 #include <stdint.h>
@@ -21,6 +20,3 @@
 bool UnwReadW(const uint32_t a, uint32_t *v);
 bool UnwReadH(const uint32_t a, uint16_t *v);
 bool UnwReadB(const uint32_t a, uint8_t *v);
-
-#endif
-

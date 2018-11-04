@@ -88,7 +88,7 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
           max = current_position[axis] + 1000;
 
     // Limit to software endstops, if enabled
-    #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+    #if HAS_SOFTWARE_ENDSTOPS
       if (soft_endstops_enabled) switch (axis) {
         case X_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
@@ -115,7 +115,7 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
           #endif
         default: break;
       }
-    #endif // MIN_SOFTWARE_ENDSTOPS || MAX_SOFTWARE_ENDSTOPS
+    #endif // HAS_SOFTWARE_ENDSTOPS
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
@@ -155,9 +155,9 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
     lcd_implementation_drawedit(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
   }
 }
-inline void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
-inline void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS); }
-inline void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS); }
+void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
+void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS); }
+void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS); }
 static void _lcd_move_e(
   #if E_MANUAL > 1
     const int8_t eindex=-1

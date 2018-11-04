@@ -60,12 +60,7 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
 
     current_position[axis] = cartes[axis];
 
-    /**
-     * SCARA home positions are based on configuration since the actual
-     * limits are determined by the inverse kinematic transform.
-     */
-    soft_endstop_min[axis] = base_min_pos(axis); // + (cartes[axis] - base_home_pos(axis));
-    soft_endstop_max[axis] = base_max_pos(axis); // + (cartes[axis] - base_home_pos(axis));
+    update_software_endstops(axis);
   }
 }
 

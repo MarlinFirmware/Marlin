@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * queue.h - The G-code command queue, which holds commands before they
  *           go to the parser and dispatcher.
  */
-
-#ifndef GCODE_QUEUE_H
-#define GCODE_QUEUE_H
 
 #include "../inc/MarlinConfig.h"
 
@@ -125,5 +123,3 @@ void get_available_commands();
  * Get the next command in the queue, optionally log it to SD, then dispatch it
  */
 void advance_command_queue();
-
-#endif // GCODE_QUEUE_H

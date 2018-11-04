@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * TEST
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_TEST_H
-#define LANGUAGE_TEST_H
 
 // Select ONE of the following Mappers.
 // They decide what to do with a symbol in the area of [0x80:0xFF]. They take a symbol of this language file and make them point
@@ -226,5 +225,3 @@
   #define MSG_PID_P                           STRG_OKTAL_e
   #define MSG_PID_I                           STRG_OKTAL_f
 #endif
-
-#endif // LANGUAGE_TEST_H

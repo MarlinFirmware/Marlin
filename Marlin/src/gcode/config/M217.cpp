@@ -66,24 +66,30 @@ void M217_report(const bool eeprom=false) {
  */
 void GcodeSuite::M217() {
 
-  bool report = true;
+  #define SPR_PARAM
+  #define XY_PARAM
 
   #if ENABLED(SINGLENOZZLE)
 
-    if (parser.seenval('S')) { report = false; const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, 500); }
-    if (parser.seenval('P')) { report = false; const int16_t v = parser.value_linear_units(); toolchange_settings.prime_speed = constrain(v, 10, 5400); }
-    if (parser.seenval('R')) { report = false; const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
+    #undef SPR_PARAM
+    #define SPR_PARAM "SPR"
+
+    if (parser.seenval('S')) { const float v = parser.value_linear_units(); toolchange_settings.swap_length = constrain(v, 0, 500); }
+    if (parser.seenval('P')) { const int16_t v = parser.value_linear_units(); toolchange_settings.prime_speed = constrain(v, 10, 5400); }
+    if (parser.seenval('R')) { const int16_t v = parser.value_linear_units(); toolchange_settings.retract_speed = constrain(v, 10, 5400); }
 
     #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-      if (parser.seenval('X')) { report = false; toolchange_settings.change_point.x = parser.value_linear_units(); }
-      if (parser.seenval('Y')) { report = false; toolchange_settings.change_point.y = parser.value_linear_units(); }
+      #undef XY_PARAM
+      #define XY_PARAM "XY"
+      if (parser.seenval('X')) { toolchange_settings.change_point.x = parser.value_linear_units(); }
+      if (parser.seenval('Y')) { toolchange_settings.change_point.y = parser.value_linear_units(); }
     #endif
 
   #endif
 
-  if (parser.seenval('Z')) { report = false; toolchange_settings.z_raise = parser.value_linear_units(); }
+  if (parser.seenval('Z')) { toolchange_settings.z_raise = parser.value_linear_units(); }
 
-  if (report) M217_report();
+  if (!parser.seen(SPR_PARAM XY_PARAM "Z")) M217_report();
 
 }
 

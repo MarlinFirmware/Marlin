@@ -848,18 +848,37 @@ FORCE_INLINE void _draw_status_message(const bool blink) {
       lcd_put_u8str(itostr3(feedrate_percentage));
       lcd_put_wchar('%');
 
-      #if LCD_WIDTH >= 20 && HAS_PRINT_PROGRESS
-        lcd_moveto(7, 2);
-        _draw_print_progress();
-      #endif
-
       char buffer[14];
       duration_t elapsed = print_job_timer.duration();
-      uint8_t len = elapsed.toDigital(buffer);
-
-      lcd_moveto(LCD_WIDTH - len - 1, 2);
+      const uint8_t len = elapsed.toDigital(buffer),
+                    timepos = LCD_WIDTH - len - 1;
+      lcd_moveto(timepos, 2);
       lcd_put_wchar(LCD_CLOCK_CHAR);
       lcd_put_u8str(buffer);
+
+      #if LCD_WIDTH >= 20
+        lcd_moveto(timepos - 7, 2);
+        #if HAS_PRINT_PROGRESS
+          _draw_print_progress();
+        #else
+          char c;
+          int per;
+          #if HAS_FAN0
+            if (blink) {
+              c = 'F';
+              per = ((int(fan_speed[0]) + 1) * 100) / 256;
+            }
+            else
+          #endif
+            {
+              c = 'E';
+              per = planner.flow_percentage[0];
+            }
+          lcd_put_wchar(c);
+          lcd_put_u8str(itostr3(per));
+          lcd_put_wchar('%');
+        #endif
+      #endif
 
     #endif // LCD_HEIGHT > 3
 

@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _CARDREADER_H_
-#define _CARDREADER_H_
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -265,16 +263,14 @@ private:
   #define IS_SD_INSERTED() true
 #endif
 
+#define IS_SD_PRINTING()  card.sdprinting
+#define IS_SD_FILE_OPEN() card.isFileOpen()
+
 extern CardReader card;
 
-#endif // SDSUPPORT
+#else // !SDSUPPORT
 
-#if ENABLED(SDSUPPORT)
-  #define IS_SD_PRINTING()  card.sdprinting
-  #define IS_SD_FILE_OPEN() card.isFileOpen()
-#else
-  #define IS_SD_PRINTING()  false
-  #define IS_SD_FILE_OPEN() false
-#endif
+#define IS_SD_PRINTING()  false
+#define IS_SD_FILE_OPEN() false
 
-#endif // _CARDREADER_H_
+#endif // !SDSUPPORT

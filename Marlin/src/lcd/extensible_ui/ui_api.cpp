@@ -41,7 +41,7 @@
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#include "../../Marlin.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EXTENSIBLE_UI)
 
@@ -109,7 +109,7 @@ namespace UI {
       // Machine was killed, reinit SysTick so we are able to compute time without ISRs
       if (currTimeHI == 0) {
         // Get the last time the Arduino time computed (from CMSIS) and convert it to SysTick
-        currTimeHI = (uint32_t)((GetTickCount() * (uint64_t)(F_CPU/8000)) >> 24);
+        currTimeHI = (uint32_t)((GetTickCount() * (uint64_t)(F_CPU / 8000)) >> 24);
 
         // Reinit the SysTick timer to maximize its period
         SysTick->LOAD  = SysTick_LOAD_RELOAD_Msk;                    // get the full range for the systick timer
@@ -136,7 +136,7 @@ namespace UI {
   #else
 
     // TODO: Implement for AVR
-    uint32_t safe_millis() { return millis(); }
+    FORCE_INLINE uint32_t safe_millis() { return millis(); }
 
   #endif
 
@@ -200,7 +200,7 @@ namespace UI {
           max = current_position[axis] + 1000;
 
     // Limit to software endstops, if enabled
-    #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+    #if HAS_SOFTWARE_ENDSTOPS
       if (soft_endstops_enabled) switch (axis) {
         case X_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
@@ -227,7 +227,7 @@ namespace UI {
           #endif
         default: break;
       }
-    #endif // MIN_SOFTWARE_ENDSTOPS || MAX_SOFTWARE_ENDSTOPS
+    #endif // HAS_SOFTWARE_ENDSTOPS
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
@@ -399,6 +399,7 @@ namespace UI {
   #endif
 
   #if ENABLED(JUNCTION_DEVIATION)
+
     float getJunctionDeviation_mm() {
       return planner.junction_deviation_mm;
     }
@@ -407,13 +408,15 @@ namespace UI {
       planner.junction_deviation_mm = clamp(value, 0.01, 0.3);
       planner.recalculate_max_e_jerk();
     }
+
   #else
+
     float getAxisMaxJerk_mm_s(const axis_t axis) {
-        return planner.max_jerk[axis];
+      return planner.max_jerk[axis];
     }
 
     float getAxisMaxJerk_mm_s(const extruder_t extruder) {
-        return planner.max_jerk[E_AXIS];
+      return planner.max_jerk[E_AXIS];
     }
 
     void setAxisMaxJerk_mm_s(const float value, const axis_t axis) {

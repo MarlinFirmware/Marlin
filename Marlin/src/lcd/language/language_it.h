@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Italian
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_IT_H
-#define LANGUAGE_IT_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 
@@ -423,5 +422,3 @@
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Spurgo filamento")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Ripresa...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_IT_H

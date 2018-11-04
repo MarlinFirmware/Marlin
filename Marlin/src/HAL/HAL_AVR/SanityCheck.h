@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _SANITYCHECK_AVR_8_BIT_H_
-#define _SANITYCHECK_AVR_8_BIT_H_
+#pragma once
 
 /**
  * Test AVR specific configuration values for errors at compile-time.
@@ -116,5 +114,3 @@
     || defined(E4_HARDWARE_SERIAL) )
   #error "Select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
 #endif
-
-#endif // _SANITYCHECK_AVR_8_BIT_H_

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Portuguese
@@ -28,8 +29,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_PT_UTF_H
-#define LANGUAGE_PT_UTF_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
@@ -186,5 +185,3 @@
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrar Centro")
 
 #define MSG_LCD_ENDSTOPS                    _UxGT("Fim de curso")
-
-#endif // LANGUAGE_PT_UTF_H

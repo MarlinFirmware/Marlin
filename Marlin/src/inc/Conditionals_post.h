@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Conditionals_post.h
  * Defines that depend on configuration but are not editable.
  */
-
-#ifndef CONDITIONALS_POST_H
-#define CONDITIONALS_POST_H
 
 #define AVR_ATmega2560_FAMILY_PLUS_70 ( \
      MB(BQ_ZUM_MEGA_3D)                 \
@@ -857,15 +855,13 @@
   #define AXIS_HAS_STEALTHCHOP(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208))
 
   #define USE_SENSORLESS (ENABLED(SENSORLESS_HOMING) || ENABLED(SENSORLESS_PROBING))
-  #if USE_SENSORLESS
-    // Disable Z axis sensorless homing if a probe is used to home the Z axis
-    #if HOMING_Z_WITH_PROBE
-      #undef Z_STALL_SENSITIVITY
-    #endif
-    #define X_SENSORLESS (AXIS_HAS_STALLGUARD(X) && defined(X_STALL_SENSITIVITY))
-    #define Y_SENSORLESS (AXIS_HAS_STALLGUARD(Y) && defined(Y_STALL_SENSITIVITY))
-    #define Z_SENSORLESS (AXIS_HAS_STALLGUARD(Z) && defined(Z_STALL_SENSITIVITY))
+  // Disable Z axis sensorless homing if a probe is used to home the Z axis
+  #if HOMING_Z_WITH_PROBE
+    #undef Z_STALL_SENSITIVITY
   #endif
+  #define X_SENSORLESS (AXIS_HAS_STALLGUARD(X) && defined(X_STALL_SENSITIVITY))
+  #define Y_SENSORLESS (AXIS_HAS_STALLGUARD(Y) && defined(Y_STALL_SENSITIVITY))
+  #define Z_SENSORLESS (AXIS_HAS_STALLGUARD(Z) && defined(Z_STALL_SENSITIVITY))
 #endif
 
 // Endstops and bed probe
@@ -1529,11 +1525,13 @@
 // Updated G92 behavior shifts the workspace
 #define HAS_POSITION_SHIFT DISABLED(NO_WORKSPACE_OFFSETS)
 // The home offset also shifts the coordinate space
-#define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA))
-// Either offset yields extra calculations on all moves
-#define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT || HAS_HOME_OFFSET)
-// M206 doesn't apply to DELTA
-#define HAS_M206_COMMAND (HAS_HOME_OFFSET && DISABLED(DELTA))
+#define HAS_HOME_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_CARTESIAN)
+// The SCARA home offset applies only on G28
+#define HAS_SCARA_OFFSET (DISABLED(NO_WORKSPACE_OFFSETS) && IS_SCARA)
+// Cumulative offset to workspace to save some calculation
+#define HAS_WORKSPACE_OFFSET (HAS_POSITION_SHIFT && HAS_HOME_OFFSET)
+// M206 sets the home offset for Cartesian machines
+#define HAS_M206_COMMAND (HAS_HOME_OFFSET && !IS_SCARA)
 
 // LCD timeout to status screen default is 15s
 #ifndef LCD_TIMEOUT_TO_STATUS
@@ -1628,9 +1626,7 @@
 // If platform requires early initialization of watchdog to properly boot
 #define EARLY_WATCHDOG (ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM))
 
-#if ENABLED(G29_RETRY_AND_RECOVER)
-  #define USE_EXECUTE_COMMANDS_IMMEDIATE
-#endif
+#define USE_EXECUTE_COMMANDS_IMMEDIATE ENABLED(G29_RETRY_AND_RECOVER)
 
 #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
   #define Z_STEPPER_COUNT 3
@@ -1639,5 +1635,3 @@
 #else
   #define Z_STEPPER_COUNT 1
 #endif
-
-#endif // CONDITIONALS_POST_H

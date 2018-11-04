@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * MarlinSerialUSB_Due.h - Hardware Serial over USB (CDC) library for Arduino DUE
  * Copyright (c) 2017 Eduardo José Tagle. All right reserved
  */
-
-#ifndef MARLINSERIALUSB_DUE_H
-#define MARLINSERIALUSB_DUE_H
 
 #include "../../inc/MarlinConfig.h"
 
@@ -92,4 +90,3 @@ private:
 extern MarlinSerialUSB customizedSerial1;
 
 #endif // SERIAL_PORT == -1
-#endif // MARLINSERIAL_DUE_H
