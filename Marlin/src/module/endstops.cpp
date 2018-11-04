@@ -367,7 +367,7 @@ void Endstops::event_handler() {
     #endif
   }
   prev_hit_state = hit_state;
-} // Endstops::report_state
+}
 
 static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
   if (label) serialprintPGM(label);
