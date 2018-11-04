@@ -151,7 +151,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
           #endif
           {
             if (!GET_ARRAY_IS_DIGITAL(x)) {
-              sprintf_P(buffer, PSTR("Analog in = %5ld"), analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)));
+              sprintf_P(buffer, PSTR("Analog in = %5ld"), (long)analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)));
               SERIAL_ECHO(buffer);
             }
             else {
@@ -213,7 +213,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
         }
         else {
           if (IS_ANALOG(pin)) {
-            sprintf_P(buffer, PSTR("   Analog in = %5ld"), analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)));
+            sprintf_P(buffer, PSTR("   Analog in = %5ld"), (long)analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)));
             SERIAL_ECHO(buffer);
             SERIAL_ECHOPGM("   ");
           }
