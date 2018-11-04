@@ -611,8 +611,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #if EXTRUDERS > 1
 
-  #if EXTRUDERS > 5
-    #error "Marlin supports a maximum of 5 EXTRUDERS."
+  #if EXTRUDERS > 6
+    #error "Marlin supports a maximum of 6 EXTRUDERS."
   #endif
 
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
@@ -1303,7 +1303,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       #endif
       #if HOTENDS > 4
         #if TEMP_SENSOR_4 == 0
-          #error "TEMP_SENSOR_4 is required with 5 HOTENDS."
+          #error "TEMP_SENSOR_4 is required with 5 or more HOTENDS."
         #elif !HAS_HEATER_4
           #error "HEATER_4_PIN not defined for this board."
         #elif !PIN_EXISTS(TEMP_4)
@@ -1311,7 +1311,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
         #endif
         #if HOTENDS > 5
           #if TEMP_SENSOR_5 == 0
-            #error "TEMP_SENSOR_5 is required with 5 HOTENDS."
+            #error "TEMP_SENSOR_5 is required with 6 HOTENDS."
           #elif !HAS_HEATER_5
             #error "HEATER_5_PIN not defined for this board."
           #elif !PIN_EXISTS(TEMP_5)
@@ -1323,14 +1323,14 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       #elif TEMP_SENSOR_4 != 0
         #error "TEMP_SENSOR_4 shouldn't be set with only 4 HOTENDS."
       #elif TEMP_SENSOR_5 != 0
-        #error "TEMP_SENSOR_5 shouldn't be set with only 5 HOTENDS."
+        #error "TEMP_SENSOR_5 shouldn't be set with only 4 HOTENDS."
       #endif
     #elif TEMP_SENSOR_3 != 0
       #error "TEMP_SENSOR_3 shouldn't be set with only 3 HOTENDS."
     #elif TEMP_SENSOR_4 != 0
       #error "TEMP_SENSOR_4 shouldn't be set with only 3 HOTENDS."
     #elif TEMP_SENSOR_5 != 0
-      #error "TEMP_SENSOR_5 shouldn't be set with only 4 HOTENDS."
+      #error "TEMP_SENSOR_5 shouldn't be set with only 3 HOTENDS."
     #endif
   #elif TEMP_SENSOR_2 != 0
     #error "TEMP_SENSOR_2 shouldn't be set with only 2 HOTENDS."
