@@ -355,11 +355,11 @@ void Planner::init() {
       // For small divisors, it is best to directly retrieve the results
       if (d <= 110) return pgm_read_dword(&small_inv_tab[d]);
 
-      register uint8_t r8 = d & 0xFF,
-                       r9 = (d >> 8) & 0xFF,
-                       r10 = (d >> 16) & 0xFF,
-                       r2,r3,r4,r5,r6,r7,r11,r12,r13,r14,r15,r16,r17,r18;
-      register const uint8_t* ptab = inv_tab;
+      uint8_t r8 = d & 0xFF,
+              r9 = (d >> 8) & 0xFF,
+              r10 = (d >> 16) & 0xFF,
+              r2,r3,r4,r5,r6,r7,r11,r12,r13,r14,r15,r16,r17,r18;
+      const uint8_t* ptab = inv_tab;
 
       __asm__ __volatile__(
         // %8:%7:%6 = interval
