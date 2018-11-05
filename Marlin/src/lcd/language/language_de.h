@@ -84,6 +84,7 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("Ecken nivellieren")
 #define MSG_NEXT_CORNER                     _UxGT("Nächste Ecke")
 #define MSG_EDITING_STOPPED                 _UxGT("Netzbearb. angeh.")
+#define MSG_MESH_EDIT_Z                     _UxGT("Z-Wert")
 #define MSG_USER_MENU                       _UxGT("Benutzer-Menü")
 #define MSG_UBL_DOING_G29                   _UxGT("G29 ausführen")
 #define MSG_UBL_UNHOMED                     _UxGT("Home XYZ zuerst")
