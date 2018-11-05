@@ -251,9 +251,7 @@
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
  *
  */
-
-#ifndef _GCODE_H_
-#define _GCODE_H_
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 #include "parser.h"
@@ -293,14 +291,15 @@ public:
   static bool get_target_extruder_from_command();
   static void get_destination_from_command();
   static void process_parsed_command(
-    #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+    #if USE_EXECUTE_COMMANDS_IMMEDIATE
       const bool no_ok = false
     #endif
   );
   static void process_next_command();
 
-  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  #if USE_EXECUTE_COMMANDS_IMMEDIATE
     static void process_subcommands_now_P(PGM_P pgcode);
+    static void process_subcommands_now(char * gcode);
   #endif
 
   FORCE_INLINE static void home_all_axes() { G28(true); }
@@ -748,7 +747,7 @@ private:
     static void M665();
   #endif
 
-  #if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+  #if ENABLED(DELTA) || ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
     static void M666();
   #endif
 
@@ -828,5 +827,3 @@ private:
 };
 
 extern GcodeSuite gcode;
-
-#endif // _GCODE_H_

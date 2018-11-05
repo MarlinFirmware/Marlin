@@ -88,7 +88,7 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
           max = current_position[axis] + 1000;
 
     // Limit to software endstops, if enabled
-    #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+    #if HAS_SOFTWARE_ENDSTOPS
       if (soft_endstops_enabled) switch (axis) {
         case X_AXIS:
           #if ENABLED(MIN_SOFTWARE_ENDSTOP_X)
@@ -115,7 +115,7 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
           #endif
         default: break;
       }
-    #endif // MIN_SOFTWARE_ENDSTOPS || MAX_SOFTWARE_ENDSTOPS
+    #endif // HAS_SOFTWARE_ENDSTOPS
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0

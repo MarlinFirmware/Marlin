@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Czech
@@ -32,8 +33,6 @@
  * http://www.zahradniksebavi.cz
  *
  */
-#ifndef LANGUAGE_CZ_UTF_H
-#define LANGUAGE_CZ_UTF_H
 
 #define DISPLAY_CHARSET_ISO10646_CZ
 #define CHARSIZE 2
@@ -406,5 +405,3 @@
   #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Vytlačování...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Pokračování...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_CZ_UTF_H

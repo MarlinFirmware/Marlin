@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef CONFIGURATION_STORE_H
-#define CONFIGURATION_STORE_H
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -120,5 +118,3 @@ extern MarlinSettings settings;
 
 #undef PORTINIT_SOLO
 #undef PORTINIT_AFTER
-
-#endif // CONFIGURATION_STORE_H

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Croatian (Hrvatski)
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_HR_H
-#define LANGUAGE_HR_H
 
 #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #define CHARSIZE 2
@@ -250,5 +249,3 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Loading...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Nastavljam...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_HR_H

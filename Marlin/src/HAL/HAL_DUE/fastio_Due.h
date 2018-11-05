@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O Routines for SAM3X8E
@@ -35,9 +36,6 @@
  * amount of instructions. Be very carefull if you modify them, as "clean code"
  * leads to less efficient compiled code!!
  */
-
-#ifndef _FASTIO_DUE_H
-#define _FASTIO_DUE_H
 
 #include <pins_arduino.h>
 
@@ -495,5 +493,3 @@
   #define DIO100_PIN 11
   #define DIO100_WPORT PIOC
 #endif
-
-#endif // _FASTIO_DUE_H

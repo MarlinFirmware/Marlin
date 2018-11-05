@@ -19,8 +19,7 @@
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#ifndef _USB_HOST_H_
-#define _USB_HOST_H_
+#pragma once
 
 /* This the following comes from "lib/usbhost.h", but has been rewritten
  * to use the SPI functions from Marlin's HAL */
@@ -57,5 +56,3 @@ class MAX3421e {
 #if defined(__SAM3X8E__) && !defined(ARDUINO_SAM_DUE)
   #define ARDUINO_SAM_DUE // Spoof the USB library that this is a DUE
 #endif
-
-#endif // _USB_HOST_H_

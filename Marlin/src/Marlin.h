@@ -19,8 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifndef __MARLIN_H__
-#define __MARLIN_H__
+#pragma once
 
 #include "inc/MarlinConfig.h"
 
@@ -242,5 +241,3 @@ void protected_pin_err();
 #if HAS_SUICIDE
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, LOW); }
 #endif
-
-#endif // __MARLIN_H__

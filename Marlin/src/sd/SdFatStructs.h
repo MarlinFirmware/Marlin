@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * \file
@@ -31,8 +32,6 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef SDFATSTRUCTS_H
-#define SDFATSTRUCTS_H
 
 #include <stdint.h>
 
@@ -613,5 +612,3 @@ static inline uint8_t DIR_IS_SUBDIR(const dir_t* dir) {
 static inline uint8_t DIR_IS_FILE_OR_SUBDIR(const dir_t* dir) {
   return (dir->attributes & DIR_ATT_VOLUME_ID) == 0;
 }
-
-#endif // SDFATSTRUCTS_H

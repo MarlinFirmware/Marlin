@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _FASTIO_ESP32_H
-#define _FASTIO_ESP32_H
+#pragma once
 
 /**
  * Utility functions
@@ -64,9 +62,3 @@
 // TWI (I2C)
 #define SCL        5
 #define SDA        4
-
-//
-// pins
-//
-
-#endif // _FASTIO_ESP32_H

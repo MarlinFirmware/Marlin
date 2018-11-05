@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Arduino Sd2Card Library
@@ -26,8 +27,6 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef _SDINFO_H_
-#define _SDINFO_H_
 
 #include <stdint.h>
 
@@ -264,5 +263,3 @@ union csd_t {
   csd1_t v1;
   csd2_t v2;
 };
-
-#endif // _SDINFO_H_

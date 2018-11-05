@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Italian
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_IT_H
-#define LANGUAGE_IT_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 
@@ -49,6 +48,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home asse X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home asse Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home asse Z")
+#define MSG_AUTO_Z_ALIGN                    _UxGT("Allineam.automat. Z")
 #define MSG_TMC_Z_CALIBRATION               _UxGT("Calibra Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Home assi XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Premi per iniziare")
@@ -423,5 +423,3 @@
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Spurgo filamento")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Ripresa...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_IT_H

@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_SOFTWARE_ENDSTOPS
+
 #include "../gcode.h"
 #include "../../module/motion.h"
 
@@ -46,3 +50,5 @@ void GcodeSuite::M211() {
   SERIAL_ECHOPAIR(" " MSG_Y, LOGICAL_Y_POSITION(soft_endstop_max[Y_AXIS]));
   SERIAL_ECHOLNPAIR(" " MSG_Z, LOGICAL_Z_POSITION(soft_endstop_max[Z_AXIS]));
 }
+
+#endif

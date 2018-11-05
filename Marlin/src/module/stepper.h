@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * stepper.h - stepper motor driver: executes motion plans of planner.c using the stepper motors
@@ -39,9 +40,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef STEPPER_H
-#define STEPPER_H
 
 #include "../inc/MarlinConfig.h"
 
@@ -526,15 +524,15 @@ class Stepper {
         if (step_rate >= (8 * 256)) { // higher step rate
           const uint8_t tmp_step_rate = (step_rate & 0x00FF);
           const uint16_t table_address = (uint16_t)&speed_lookuptable_fast[(uint8_t)(step_rate >> 8)][0],
-                         gain = (uint16_t)pgm_read_word_near(table_address + 2);
+                         gain = (uint16_t)pgm_read_word(table_address + 2);
           timer = MultiU16X8toH16(tmp_step_rate, gain);
-          timer = (uint16_t)pgm_read_word_near(table_address) - timer;
+          timer = (uint16_t)pgm_read_word(table_address) - timer;
         }
         else { // lower step rates
           uint16_t table_address = (uint16_t)&speed_lookuptable_slow[0][0];
           table_address += ((step_rate) >> 1) & 0xFFFC;
-          timer = (uint16_t)pgm_read_word_near(table_address)
-                - (((uint16_t)pgm_read_word_near(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
+          timer = (uint16_t)pgm_read_word(table_address)
+                - (((uint16_t)pgm_read_word(table_address + 2) * (uint8_t)(step_rate & 0x0007)) >> 3);
         }
         // (there is no need to limit the timer value here. All limits have been
         // applied above, and AVR is able to keep up at 30khz Stepping ISR rate)
@@ -559,5 +557,3 @@ class Stepper {
 };
 
 extern Stepper stepper;
-
-#endif // STEPPER_H

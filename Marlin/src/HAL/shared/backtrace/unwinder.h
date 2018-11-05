@@ -13,8 +13,7 @@
  * Interface to the ARM stack unwinding module.
  **************************************************************************/
 
-#ifndef UNWINDER_H
-#define UNWINDER_H
+#pragma once
 
 #include <stdint.h>
 
@@ -171,5 +170,3 @@ typedef struct {
  * get function names in the traceback. Otherwise, you will not.
  */
 UnwResult UnwindStart(UnwindFrame* frame, const UnwindCallbacks *cb, void *data);
-
-#endif /* UNWINDER_H */

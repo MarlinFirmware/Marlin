@@ -1831,6 +1831,7 @@ void Temperature::isr() {
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
   // avoid multiple loads of pwm_count
   uint8_t pwm_count_tmp = pwm_count;
+
   #if ENABLED(ADC_KEYPAD)
     static unsigned int raw_ADCKey_value = 0;
   #endif

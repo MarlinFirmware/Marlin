@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _HAL_TIMERS_ESP32_H
-#define _HAL_TIMERS_ESP32_H
+#pragma once
 
 // --------------------------------------------------------------------------
 // Includes
@@ -104,5 +102,3 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 #define HAL_timer_isr_prologue(TIMER_NUM)
 #define HAL_timer_isr_epilogue(TIMER_NUM)
-
-#endif // _HAL_TIMERS_ESP32_H

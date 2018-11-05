@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Portuguese (Brazil)
@@ -28,8 +29,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_PT_BR_UTF_H
-#define LANGUAGE_PT_BR_UTF_H
 
 // Put characters here that should be displayed with M117
 //_UxGT("áãàçÉéêíóõ")
@@ -200,7 +199,7 @@
   #define MSG_VA_JERK                       _UxGT("jogo VA")
   #define MSG_VB_JERK                       _UxGT("jogo VB")
   #define MSG_VC_JERK                       _UxGT("jogo VZ")
-#elif IS_DELTA
+#elif ENABLED(DELTA)
   #define MSG_VA_JERK                       _UxGT("jogo VA")
   #define MSG_VB_JERK                       _UxGT("jogo VB")
   #define MSG_VC_JERK                       _UxGT("jogo VC")
@@ -222,7 +221,7 @@
   #define MSG_ASTEPS                        _UxGT("Passo A/deg")
   #define MSG_BSTEPS                        _UxGT("Passo B/deg")
   #define MSG_CSTEPS                        _UxGT("Passo Z/mm")
-#elif IS_DELTA
+#elif ENABLED(DELTA)
   #define MSG_ASTEPS                        _UxGT("Passo A/mm")
   #define MSG_BSTEPS                        _UxGT("Passo B/mm")
   #define MSG_CSTEPS                        _UxGT("Passo C/mm")
@@ -382,5 +381,3 @@
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1     _UxGT("Extrusando...")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Continuando...")
 #endif
-
-#endif // LANGUAGE_PT_BR_UTF_H

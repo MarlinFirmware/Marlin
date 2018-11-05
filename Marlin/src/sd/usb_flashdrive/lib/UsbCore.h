@@ -26,8 +26,7 @@ e-mail   :  support@circuitsathome.com
   #error "Never include UsbCore.h directly; include Usb.h instead"
 #endif
 
-#ifndef USBCORE_H
-#define USBCORE_H
+#pragma once
 
 // Not used anymore? If anyone uses this, please let us know so that this may be
 // moved to the proper place, settings.h.
@@ -137,68 +136,68 @@ typedef MAX3421e<P10, P9> MAX3421E; // Official Arduinos (UNO, Duemilanove, Mega
 class USBDeviceConfig {
 public:
 
-        virtual uint8_t Init(uint8_t parent __attribute__((unused)), uint8_t port __attribute__((unused)), bool lowspeed __attribute__((unused))) {
-                return 0;
-        }
+  virtual uint8_t Init(uint8_t parent __attribute__((unused)), uint8_t port __attribute__((unused)), bool lowspeed __attribute__((unused))) {
+    return 0;
+  }
 
-        virtual uint8_t ConfigureDevice(uint8_t parent __attribute__((unused)), uint8_t port __attribute__((unused)), bool lowspeed __attribute__((unused))) {
-                return 0;
-        }
+  virtual uint8_t ConfigureDevice(uint8_t parent __attribute__((unused)), uint8_t port __attribute__((unused)), bool lowspeed __attribute__((unused))) {
+    return 0;
+  }
 
-        virtual uint8_t Release() {
-                return 0;
-        }
+  virtual uint8_t Release() {
+    return 0;
+  }
 
-        virtual uint8_t Poll() {
-                return 0;
-        }
+  virtual uint8_t Poll() {
+    return 0;
+  }
 
-        virtual uint8_t GetAddress() {
-                return 0;
-        }
+  virtual uint8_t GetAddress() {
+    return 0;
+  }
 
-        virtual void ResetHubPort(uint8_t port __attribute__((unused))) {
-                return;
-        } // Note used for hubs only!
+  virtual void ResetHubPort(uint8_t port __attribute__((unused))) {
+    return;
+  } // Note used for hubs only!
 
-        virtual bool VIDPIDOK(uint16_t vid __attribute__((unused)), uint16_t pid __attribute__((unused))) {
-                return false;
-        }
+  virtual bool VIDPIDOK(uint16_t vid __attribute__((unused)), uint16_t pid __attribute__((unused))) {
+    return false;
+  }
 
-        virtual bool DEVCLASSOK(uint8_t klass __attribute__((unused))) {
-                return false;
-        }
+  virtual bool DEVCLASSOK(uint8_t klass __attribute__((unused))) {
+    return false;
+  }
 
-        virtual bool DEVSUBCLASSOK(uint8_t subklass __attribute__((unused))) {
-                return true;
-        }
+  virtual bool DEVSUBCLASSOK(uint8_t subklass __attribute__((unused))) {
+    return true;
+  }
 
 };
 
 /* USB Setup Packet Structure   */
 typedef struct {
 
-        union { // offset   description
-                uint8_t bmRequestType; //   0      Bit-map of request type
+  union { // offset   description
+    uint8_t bmRequestType; //   0      Bit-map of request type
 
-                struct {
-                        uint8_t recipient : 5; //          Recipient of the request
-                        uint8_t type : 2; //          Type of request
-                        uint8_t direction : 1; //          Direction of data X-fer
-                } __attribute__((packed));
-        } ReqType_u;
-        uint8_t bRequest; //   1      Request
+    struct {
+      uint8_t recipient : 5; //          Recipient of the request
+      uint8_t type : 2; //          Type of request
+      uint8_t direction : 1; //          Direction of data X-fer
+    } __attribute__((packed));
+  } ReqType_u;
+  uint8_t bRequest; //   1      Request
 
-        union {
-                uint16_t wValue; //   2      Depends on bRequest
+  union {
+    uint16_t wValue; //   2      Depends on bRequest
 
-                struct {
-                        uint8_t wValueLo;
-                        uint8_t wValueHi;
-                } __attribute__((packed));
-        } wVal_u;
-        uint16_t wIndex; //   4      Depends on bRequest
-        uint16_t wLength; //   6      Depends on bRequest
+    struct {
+      uint8_t wValueLo;
+      uint8_t wValueHi;
+    } __attribute__((packed));
+  } wVal_u;
+  uint16_t wIndex; //   4      Depends on bRequest
+  uint16_t wLength; //   6      Depends on bRequest
 } __attribute__((packed)) SETUP_PKT, *PSETUP_PKT;
 
 
@@ -207,108 +206,106 @@ typedef struct {
 
 class USBReadParser {
 public:
-        virtual void Parse(const uint16_t len, const uint8_t *pbuf, const uint16_t &offset) = 0;
+  virtual void Parse(const uint16_t len, const uint8_t *pbuf, const uint16_t &offset) = 0;
 };
 
 class USB : public MAX3421E {
-        AddressPoolImpl<USB_NUMDEVICES> addrPool;
-        USBDeviceConfig* devConfig[USB_NUMDEVICES];
-        uint8_t bmHubPre;
+  AddressPoolImpl<USB_NUMDEVICES> addrPool;
+  USBDeviceConfig* devConfig[USB_NUMDEVICES];
+  uint8_t bmHubPre;
 
 public:
-        USB(void);
+  USB(void);
 
-        void SetHubPreMask() {
-                bmHubPre |= bmHUBPRE;
-        };
+  void SetHubPreMask() {
+    bmHubPre |= bmHUBPRE;
+  };
 
-        void ResetHubPreMask() {
-                bmHubPre &= (~bmHUBPRE);
-        };
+  void ResetHubPreMask() {
+    bmHubPre &= (~bmHUBPRE);
+  };
 
-        AddressPool& GetAddressPool() {
-                return (AddressPool&)addrPool;
-        };
+  AddressPool& GetAddressPool() {
+    return (AddressPool&)addrPool;
+  };
 
-        uint8_t RegisterDeviceClass(USBDeviceConfig *pdev) {
-                for(uint8_t i = 0; i < USB_NUMDEVICES; i++) {
-                        if(!devConfig[i]) {
-                                devConfig[i] = pdev;
-                                return 0;
-                        }
-                }
-                return USB_ERROR_UNABLE_TO_REGISTER_DEVICE_CLASS;
-        };
+  uint8_t RegisterDeviceClass(USBDeviceConfig *pdev) {
+    for(uint8_t i = 0; i < USB_NUMDEVICES; i++) {
+      if(!devConfig[i]) {
+        devConfig[i] = pdev;
+        return 0;
+      }
+    }
+    return USB_ERROR_UNABLE_TO_REGISTER_DEVICE_CLASS;
+  };
 
-        void ForEachUsbDevice(UsbDeviceHandleFunc pfunc) {
-                addrPool.ForEachUsbDevice(pfunc);
-        };
-        uint8_t getUsbTaskState(void);
-        void setUsbTaskState(uint8_t state);
+  void ForEachUsbDevice(UsbDeviceHandleFunc pfunc) {
+    addrPool.ForEachUsbDevice(pfunc);
+  };
+  uint8_t getUsbTaskState(void);
+  void setUsbTaskState(uint8_t state);
 
-        EpInfo* getEpInfoEntry(uint8_t addr, uint8_t ep);
-        uint8_t setEpInfoEntry(uint8_t addr, uint8_t epcount, EpInfo* eprecord_ptr);
+  EpInfo* getEpInfoEntry(uint8_t addr, uint8_t ep);
+  uint8_t setEpInfoEntry(uint8_t addr, uint8_t epcount, EpInfo* eprecord_ptr);
 
-        /* Control requests */
-        uint8_t getDevDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* dataptr);
-        uint8_t getConfDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t conf, uint8_t* dataptr);
+  /* Control requests */
+  uint8_t getDevDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* dataptr);
+  uint8_t getConfDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t conf, uint8_t* dataptr);
 
-        uint8_t getConfDescr(uint8_t addr, uint8_t ep, uint8_t conf, USBReadParser *p);
+  uint8_t getConfDescr(uint8_t addr, uint8_t ep, uint8_t conf, USBReadParser *p);
 
-        uint8_t getStrDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t index, uint16_t langid, uint8_t* dataptr);
-        uint8_t setAddr(uint8_t oldaddr, uint8_t ep, uint8_t newaddr);
-        uint8_t setConf(uint8_t addr, uint8_t ep, uint8_t conf_value);
-        /**/
-        uint8_t ctrlData(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* dataptr, bool direction);
-        uint8_t ctrlStatus(uint8_t ep, bool direction, uint16_t nak_limit);
-        uint8_t inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t* data, uint8_t bInterval = 0);
-        uint8_t outTransfer(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* data);
-        uint8_t dispatchPkt(uint8_t token, uint8_t ep, uint16_t nak_limit);
+  uint8_t getStrDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t index, uint16_t langid, uint8_t* dataptr);
+  uint8_t setAddr(uint8_t oldaddr, uint8_t ep, uint8_t newaddr);
+  uint8_t setConf(uint8_t addr, uint8_t ep, uint8_t conf_value);
+  /**/
+  uint8_t ctrlData(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* dataptr, bool direction);
+  uint8_t ctrlStatus(uint8_t ep, bool direction, uint16_t nak_limit);
+  uint8_t inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t* data, uint8_t bInterval = 0);
+  uint8_t outTransfer(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* data);
+  uint8_t dispatchPkt(uint8_t token, uint8_t ep, uint16_t nak_limit);
 
-        void Task(void);
+  void Task(void);
 
-        uint8_t DefaultAddressing(uint8_t parent, uint8_t port, bool lowspeed);
-        uint8_t Configuring(uint8_t parent, uint8_t port, bool lowspeed);
-        uint8_t ReleaseDevice(uint8_t addr);
+  uint8_t DefaultAddressing(uint8_t parent, uint8_t port, bool lowspeed);
+  uint8_t Configuring(uint8_t parent, uint8_t port, bool lowspeed);
+  uint8_t ReleaseDevice(uint8_t addr);
 
-        uint8_t ctrlReq(uint8_t addr, uint8_t ep, uint8_t bmReqType, uint8_t bRequest, uint8_t wValLo, uint8_t wValHi,
-                uint16_t wInd, uint16_t total, uint16_t nbytes, uint8_t* dataptr, USBReadParser *p);
+  uint8_t ctrlReq(uint8_t addr, uint8_t ep, uint8_t bmReqType, uint8_t bRequest, uint8_t wValLo, uint8_t wValHi,
+    uint16_t wInd, uint16_t total, uint16_t nbytes, uint8_t* dataptr, USBReadParser *p);
 
 private:
-        void init();
-        uint8_t SetAddress(uint8_t addr, uint8_t ep, EpInfo **ppep, uint16_t *nak_limit);
-        uint8_t OutTransfer(EpInfo *pep, uint16_t nak_limit, uint16_t nbytes, uint8_t *data);
-        uint8_t InTransfer(EpInfo *pep, uint16_t nak_limit, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval = 0);
-        uint8_t AttemptConfig(uint8_t driver, uint8_t parent, uint8_t port, bool lowspeed);
+  void init();
+  uint8_t SetAddress(uint8_t addr, uint8_t ep, EpInfo **ppep, uint16_t *nak_limit);
+  uint8_t OutTransfer(EpInfo *pep, uint16_t nak_limit, uint16_t nbytes, uint8_t *data);
+  uint8_t InTransfer(EpInfo *pep, uint16_t nak_limit, uint16_t *nbytesptr, uint8_t *data, uint8_t bInterval = 0);
+  uint8_t AttemptConfig(uint8_t driver, uint8_t parent, uint8_t port, bool lowspeed);
 };
 
 #if 0 //defined(USB_METHODS_INLINE)
 //get device descriptor
 
 inline uint8_t USB::getDevDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* dataptr) {
-        return ( ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, 0x00, USB_DESCRIPTOR_DEVICE, 0x0000, nbytes, dataptr));
+  return ( ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, 0x00, USB_DESCRIPTOR_DEVICE, 0x0000, nbytes, dataptr));
 }
 //get configuration descriptor
 
 inline uint8_t USB::getConfDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t conf, uint8_t* dataptr) {
-        return ( ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, conf, USB_DESCRIPTOR_CONFIGURATION, 0x0000, nbytes, dataptr));
+  return ( ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, conf, USB_DESCRIPTOR_CONFIGURATION, 0x0000, nbytes, dataptr));
 }
 //get string descriptor
 
 inline uint8_t USB::getStrDescr(uint8_t addr, uint8_t ep, uint16_t nuint8_ts, uint8_t index, uint16_t langid, uint8_t* dataptr) {
-        return ( ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, index, USB_DESCRIPTOR_STRING, langid, nuint8_ts, dataptr));
+  return ( ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, index, USB_DESCRIPTOR_STRING, langid, nuint8_ts, dataptr));
 }
 //set address
 
 inline uint8_t USB::setAddr(uint8_t oldaddr, uint8_t ep, uint8_t newaddr) {
-        return ( ctrlReq(oldaddr, ep, bmREQ_SET, USB_REQUEST_SET_ADDRESS, newaddr, 0x00, 0x0000, 0x0000, NULL));
+  return ( ctrlReq(oldaddr, ep, bmREQ_SET, USB_REQUEST_SET_ADDRESS, newaddr, 0x00, 0x0000, 0x0000, NULL));
 }
 //set configuration
 
 inline uint8_t USB::setConf(uint8_t addr, uint8_t ep, uint8_t conf_value) {
-        return ( ctrlReq(addr, ep, bmREQ_SET, USB_REQUEST_SET_CONFIGURATION, conf_value, 0x00, 0x0000, 0x0000, NULL));
+  return ( ctrlReq(addr, ep, bmREQ_SET, USB_REQUEST_SET_CONFIGURATION, conf_value, 0x00, 0x0000, 0x0000, NULL));
 }
 
 #endif // defined(USB_METHODS_INLINE)
-
-#endif /* USBCORE_H */

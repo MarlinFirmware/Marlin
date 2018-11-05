@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef WATCHDOG_LPC1768_H
-#define WATCHDOG_LPC1768_H
+#pragma once
 
 #define RST_POWER_ON   1
 #define RST_EXTERNAL   2
@@ -34,5 +32,3 @@ void watchdog_init(void);
 void watchdog_reset(void);
 void HAL_clear_reset_source(void);
 uint8_t HAL_get_reset_source(void);
-
-#endif /* WATCHDOG_H */

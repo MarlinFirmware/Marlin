@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef UNIFIED_BED_LEVELING_H
-#define UNIFIED_BED_LEVELING_H
+#pragma once
 
 //#define UBL_DEVEL_DEBUGGING
 
@@ -372,5 +370,3 @@ class unified_bed_leveling {
 }; // class unified_bed_leveling
 
 extern unified_bed_leveling ubl;
-
-#endif // UNIFIED_BED_LEVELING_H

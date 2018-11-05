@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * stepper_indirection.h - stepper motor driver indirection macros
@@ -40,9 +41,6 @@
  * You should have received a copy of the GNU General Public License
  * along with Marlin.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef STEPPER_INDIRECTION_H
-#define STEPPER_INDIRECTION_H
 
 #include "../inc/MarlinConfig.h"
 
@@ -615,5 +613,3 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define   NORM_E_DIR(E)   E0_DIR_WRITE(!INVERT_E0_DIR)
   #define    REV_E_DIR(E)   E0_DIR_WRITE( INVERT_E0_DIR)
 #endif
-
-#endif // STEPPER_INDIRECTION_H

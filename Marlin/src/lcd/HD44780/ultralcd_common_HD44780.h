@@ -101,20 +101,6 @@
     #define LCD_CLICKED() (buttons & (B_MI|B_ST))
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    #define ULTRA_X_PIXELS_PER_CHAR    5
-    #define ULTRA_Y_PIXELS_PER_CHAR    8
-    #define ULTRA_COLUMNS_FOR_MESH_MAP 7
-    #define ULTRA_ROWS_FOR_MESH_MAP    4
-
-    #define N_USER_CHARS    8
-
-    #define TOP_LEFT      _BV(0)
-    #define TOP_RIGHT     _BV(1)
-    #define LOWER_LEFT    _BV(2)
-    #define LOWER_RIGHT   _BV(3)
-  #endif
-
 #endif // HAS_LCD_MENU
 
 ////////////////////////////////////

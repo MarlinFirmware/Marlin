@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Danish
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_DA_H
-#define LANGUAGE_DA_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
@@ -250,5 +249,3 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Indtager...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Fortsætter...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_DA_H

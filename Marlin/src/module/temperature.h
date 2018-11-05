@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * temperature.h - temperature controller
  */
-
-#ifndef TEMPERATURE_H
-#define TEMPERATURE_H
 
 #include "thermistor/thermistors.h"
 #include "../inc/MarlinConfig.h"
@@ -660,5 +658,3 @@ class Temperature {
 };
 
 extern Temperature thermalManager;
-
-#endif // TEMPERATURE_H
