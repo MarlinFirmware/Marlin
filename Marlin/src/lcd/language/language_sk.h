@@ -59,6 +59,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Domov os X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Domov os Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Domov os Z")
+#define MSG_AUTO_Z_ALIGN                    _UxGT("Auto-zarovn. Z")
 #define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibrovať Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Parkovanie XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknutím spusťte")
@@ -92,6 +93,9 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("Vyrovnať rohy")
 #define MSG_NEXT_CORNER                     _UxGT("Ďalší roh")
 #define MSG_EDITING_STOPPED                 _UxGT("Koniec úprav siete")
+#define MSG_MESH_X                          _UxGT("Index X")
+#define MSG_MESH_Y                          _UxGT("Index Y")
+#define MSG_MESH_EDIT_Z                     _UxGT("Hodnota Z")
 #define MSG_USER_MENU                       _UxGT("Vlastné príkazy")
 
 #define MSG_UBL_DOING_G29                   _UxGT("Vykonávam G29")
