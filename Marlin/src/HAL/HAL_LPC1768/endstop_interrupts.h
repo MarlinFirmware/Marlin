@@ -90,9 +90,15 @@ void setup_endstop_interrupts(void) {
     attachInterrupt(digitalPinToInterrupt(Z2_MIN_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z3_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(Z3_MIN_PIN)
+      #error "Z3_MIN_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Z3_MAX_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z3_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(Z3_MIN_PIN)
+      #error "Z3_MIN_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Z3_MIN_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MIN_PROBE_PIN
