@@ -212,7 +212,7 @@
     MENU_BACK(MSG_BED_LEVELING);
     MENU_ITEM_EDIT(int8, MSG_MESH_X, &xind, 0, GRID_MAX_POINTS_X - 1);
     MENU_ITEM_EDIT(int8, MSG_MESH_Y, &yind, 0, GRID_MAX_POINTS_Y - 1);
-    MENU_ITEM_EDIT_CALLBACK(float43, MSG_MESH_EDIT_Z, &Z_VALUES(xind, yind), -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_MESH_EDIT_Z, &Z_VALUES(xind, yind), -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
     END_MENU();
   }
 
