@@ -119,7 +119,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("输出到CSV") // "Output for CSV"
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("输出到备份") // "Off Printer Backup"
 #define MSG_UBL_INFO_UBL                    _UxGT("输出UBL信息") // "Output UBL Info"
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("编辑网格") // "Edit Mesh"
+#define MSG_EDIT_MESH                       _UxGT("编辑网格") // "Edit Mesh"
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("填充合计") // "Fill-in Amount"
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("手工填充") // "Manual Fill-in"
 #define MSG_UBL_SMART_FILLIN                _UxGT("聪明填充") // "Smart Fill-in"

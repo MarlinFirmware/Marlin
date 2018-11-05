@@ -158,7 +158,7 @@ void _lcd_ubl_adjust_height_cmd() {
  */
 void _menu_ubl_height_adjust() {
   START_MENU();
-  MENU_BACK(MSG_UBL_EDIT_MESH_MENU);
+  MENU_BACK(MSG_EDIT_MESH);
   MENU_ITEM_EDIT_CALLBACK(int3, MSG_UBL_MESH_HEIGHT_AMOUNT, &ubl_height_amount, -9, 9, _lcd_ubl_adjust_height_cmd);
   MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
   END_MENU();
@@ -542,7 +542,7 @@ void _menu_ubl_tools() {
   MENU_ITEM(submenu, MSG_UBL_BUILD_MESH_MENU, _lcd_ubl_build_mesh);
   MENU_ITEM(gcode, MSG_UBL_MANUAL_MESH, PSTR("G29 I999\nG29 P2 B T0"));
   MENU_ITEM(submenu, MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
-  MENU_ITEM(submenu, MSG_UBL_EDIT_MESH_MENU, _lcd_ubl_edit_mesh);
+  MENU_ITEM(submenu, MSG_EDIT_MESH, _lcd_ubl_edit_mesh);
   MENU_ITEM(submenu, MSG_UBL_MESH_LEVELING, _lcd_ubl_mesh_leveling);
   END_MENU();
 }

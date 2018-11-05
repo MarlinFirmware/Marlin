@@ -120,7 +120,7 @@
     // Encoder knob or keypad buttons adjust the Z position
     //
     if (encoderPosition) {
-      const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MBL_Z_STEP);
+      const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MESH_EDIT_Z_STEP);
       line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f));
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       encoderPosition = 0;
@@ -199,6 +199,25 @@
 
 #endif // PROBE_MANUALLY || MESH_BED_LEVELING
 
+#if ENABLED(MESH_EDIT_MENU)
+
+  inline void refresh_planner() {
+    set_current_from_steppers_for_axis(ALL_AXES);
+    sync_plan_position();
+  }
+
+  void menu_mbl_edit_mesh() {
+    static uint8_t xind, yind; // =0
+    START_MENU();
+    MENU_BACK(MSG_BED_LEVELING);
+    MENU_ITEM_EDIT(int8, MSG_MESH_X, &xind, 0, GRID_MAX_POINTS_X - 1);
+    MENU_ITEM_EDIT(int8, MSG_MESH_Y, &yind, 0, GRID_MAX_POINTS_Y - 1);
+    MENU_ITEM_EDIT_CALLBACK(float43, MSG_MESH_EDIT_Z, &Z_VALUES(xind, yind), -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
+    END_MENU();
+  }
+
+#endif // MESH_EDIT_MENU
+
 /**
  * Step 1: Bed Level entry-point
  *
@@ -233,6 +252,10 @@ void menu_bed_leveling() {
     MENU_ITEM(gcode, MSG_LEVEL_BED, is_homed ? PSTR("G29") : PSTR("G28\nG29"));
   #endif
 
+  #if ENABLED(MESH_EDIT_MENU)
+    MENU_ITEM(submenu, MSG_EDIT_MESH, menu_mbl_edit_mesh);
+  #endif
+
   // Homed and leveling is valid? Then leveling can be toggled.
   if (is_homed && leveling_is_valid()) {
     bool new_level_state = planner.leveling_active;
@@ -245,7 +268,7 @@ void menu_bed_leveling() {
   #endif
 
   //
-  // MBL Z Offset
+  // Mesh Bed Leveling Z-Offset
   //
   #if ENABLED(MESH_BED_LEVELING)
     MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);

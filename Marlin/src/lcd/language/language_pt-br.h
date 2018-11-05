@@ -127,7 +127,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Salvar Malha CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Salvar Backup")
 #define MSG_UBL_INFO_UBL                    _UxGT("Informação do UBL")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Editar Malha")
+#define MSG_EDIT_MESH                       _UxGT("Editar Malha")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Qtd de Enchimento")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Enchimento Manual")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Enchimento Smart")

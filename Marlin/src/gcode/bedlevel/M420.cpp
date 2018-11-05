@@ -105,12 +105,6 @@ void GcodeSuite::M420() {
 
   #if HAS_MESH
 
-    #if ENABLED(MESH_BED_LEVELING)
-      #define Z_VALUES(X,Y) mbl.z_values[X][Y]
-    #else
-      #define Z_VALUES(X,Y) z_values[X][Y]
-    #endif
-
     // Subtract the given value or the mean from all mesh values
     if (leveling_is_valid() && parser.seen('C')) {
       const float cval = parser.value_float();
