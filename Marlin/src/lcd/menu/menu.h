@@ -275,22 +275,11 @@ class menu_item_bool {
 
   extern bool encoderRateMultiplierEnabled;
   #define ENCODER_RATE_MULTIPLY(F) (encoderRateMultiplierEnabled = F)
-
+  #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER) if(USE_MULTIPLIER) {encoderRateMultiplierEnabled = true; lastEncoderMovementMillis = 0;}
   //#define ENCODER_RATE_MULTIPLIER_DEBUG  // If defined, output the encoder steps per second value
-
-  /**
-   * MENU_MULTIPLIER_ITEM generates drawing and handling code for a multiplier menu item
-   */
-  #define _MENU_MULTIPLIER_ITEM_VARIANT(TYPE, VARIANT, LABEL, ...) do { \
-      _MENU_ITEM_PART_1(TYPE, VARIANT, ## __VA_ARGS__); \
-      encoderRateMultiplierEnabled = true; \
-      lastEncoderMovementMillis = 0; \
-      _MENU_ITEM_PART_2(TYPE, VARIANT, PSTR(LABEL), ## __VA_ARGS__); \
-    }while(0)
-  #define MENU_MULTIPLIER_ITEM(TYPE, LABEL, ...) _MENU_MULTIPLIER_ITEM_VARIANT(TYPE,, LABEL, ...)
-
 #else // !ENCODER_RATE_MULTIPLIER
   #define ENCODER_RATE_MULTIPLY(F) NOOP
+  #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER)
 #endif // !ENCODER_RATE_MULTIPLIER
 
 /**
@@ -315,30 +304,34 @@ class menu_item_bool {
  *     menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  */
-#define _MENU_ITEM_PART_1(TYPE, VARIANT, ...) \
-  if (_menuLineNr == _thisItemNr) { \
-    if (encoderLine == _thisItemNr && lcd_clicked) { \
-      lcd_clicked = false
+#define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, USE_MULTIPLIER, PLABEL, ...) do { \
+    _skipStatic = false; \
+    if (_menuLineNr == _thisItemNr) { \
+      if (encoderLine == _thisItemNr && lcd_clicked) { \
+        lcd_clicked = false; \
+        _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER); \
+        menu_item_ ## TYPE ::action ## VARIANT(__VA_ARGS__); \
+        if (screen_changed) return; \
+      } \
+      if (lcdDrawUpdate) \
+        lcd_implementation_drawmenu ## VARIANT ## _ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PLABEL, ## __VA_ARGS__); \
+    } \
+  ++_thisItemNr; \
+}while(0)
 
-#define _MENU_ITEM_PART_2(TYPE, VARIANT, PLABEL, ...) \
-      menu_item_ ## TYPE ::action ## VARIANT(__VA_ARGS__); \
-      if (screen_changed) return; \
+// Used to print static text with no visible cursor.
+// Parameters: label [, bool center [, bool invert [, char *value] ] ]
+#define STATIC_ITEM_P(PLABEL, ...) do{ \
+  if (_menuLineNr == _thisItemNr) { \
+    if (_skipStatic && encoderLine <= _thisItemNr) { \
+      encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
+      ++encoderLine; \
     } \
     if (lcdDrawUpdate) \
-      lcd_implementation_drawmenu ## VARIANT ## _ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PLABEL, ## __VA_ARGS__); \
+      lcd_implementation_drawmenu_static(_lcdLineNr, PLABEL, ## __VA_ARGS__); \
   } \
-  ++_thisItemNr
-
-#define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, PLABEL, ...) do { \
-    _skipStatic = false; \
-    _MENU_ITEM_PART_1(TYPE, VARIANT, ## __VA_ARGS__); \
-    _MENU_ITEM_PART_2(TYPE, VARIANT, PLABEL, ## __VA_ARGS__); \
-  }while(0)
-
-#define MENU_ITEM_P(TYPE, PLABEL, ...) _MENU_ITEM_VARIANT_P(TYPE,, PLABEL, ## __VA_ARGS__)
-
-#define MENU_ITEM(TYPE, LABEL, ...) MENU_ITEM_P(TYPE, PSTR(LABEL), ## __VA_ARGS__)
-#define _MENU_ITEM_VARIANT(TYPE, VARIANT, LABEL, ...) _MENU_ITEM_VARIANT_P(TYPE, VARIANT, PSTR(LABEL), ## __VA_ARGS__)
+  ++_thisItemNr; \
+} while(0)
 
 #define MENU_ITEM_ADDON_START(X) \
   if (lcdDrawUpdate && _menuLineNr == _thisItemNr - 1) { \
@@ -346,33 +339,16 @@ class menu_item_bool {
 
 #define MENU_ITEM_ADDON_END() } (0)
 
-#define MENU_BACK(LABEL) MENU_ITEM(back, LABEL)
-
-// Used to print static text with no visible cursor.
-// Parameters: label [, bool center [, bool invert [, char *value] ] ]
-#define STATIC_ITEM_P(LABEL, ...) do{ \
-  if (_menuLineNr == _thisItemNr) { \
-    if (_skipStatic && encoderLine <= _thisItemNr) { \
-      encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
-      ++encoderLine; \
-    } \
-    if (lcdDrawUpdate) \
-      lcd_implementation_drawmenu_static(_lcdLineNr, LABEL, ## __VA_ARGS__); \
-  } \
-  ++_thisItemNr; } while(0)
-
 #define STATIC_ITEM(LABEL, ...) STATIC_ITEM_P(PSTR(LABEL), ## __VA_ARGS__)
 
+#define MENU_BACK(LABEL) MENU_ITEM(back, LABEL)
 #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
-#define MENU_ITEM_EDIT(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-#define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-#if ENABLED(ENCODER_RATE_MULTIPLIER)
-  #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) _MENU_MULTIPLIER_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_MULTIPLIER_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-#else // !ENCODER_RATE_MULTIPLIER
-  #define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_ITEM_VARIANT(TYPE, _setting_edit, LABEL, PSTR(LABEL), ## __VA_ARGS__)
-#endif // !ENCODER_RATE_MULTIPLIER
+#define MENU_ITEM_P(TYPE, PLABEL, ...)                       _MENU_ITEM_VARIANT_P(TYPE,              , 0, PLABEL,                   ## __VA_ARGS__)
+#define MENU_ITEM(TYPE, LABEL, ...)                          _MENU_ITEM_VARIANT_P(TYPE,              , 0, PSTR(LABEL),              ## __VA_ARGS__)
+#define MENU_ITEM_EDIT(TYPE, LABEL, ...)                     _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, 0, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
+#define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...)            _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, 0, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
+#define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...)          _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, 1, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
+#define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, 1, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
 
 ////////////////////////////////////////////
 /////////////// Menu Screens ///////////////
