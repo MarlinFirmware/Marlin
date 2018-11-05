@@ -27,7 +27,6 @@
  */
 
 #define CPU_32_BIT
-#undef DEBUG_NONE
 
 #ifndef vsnprintf_P
   #define vsnprintf_P vsnprintf
@@ -40,15 +39,6 @@
 #include <stdint.h>
 #include <util/atomic.h>
 #include <Arduino.h>
-
-// --------------------------------------------------------------------------
-// Undefine DEBUG_ settings
-// --------------------------------------------------------------------------
-
-
-#undef DEBUG_NONE
-#undef DEBUG_FAULT
-#undef DEBUG_ALL
 
 // --------------------------------------------------------------------------
 // Includes
