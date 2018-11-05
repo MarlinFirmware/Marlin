@@ -498,14 +498,14 @@ void Stepper::set_directions() {
    *        rhi = int32_t((mul >> 32) & 0xFFFFFFFF);
    *      }
    *      int32_t _eval_bezier_curve_arm(uint32_t curr_step) {
-   *        register uint32_t flo = 0;
-   *        register uint32_t fhi = bezier_AV * curr_step;
-   *        register uint32_t t = fhi;
-   *        register int32_t alo = bezier_F;
-   *        register int32_t ahi = 0;
-   *        register int32_t A = bezier_A;
-   *        register int32_t B = bezier_B;
-   *        register int32_t C = bezier_C;
+   *        uint32_t flo = 0;
+   *        uint32_t fhi = bezier_AV * curr_step;
+   *        uint32_t t = fhi;
+   *        int32_t alo = bezier_F;
+   *        int32_t ahi = 0;
+   *        int32_t A = bezier_A;
+   *        int32_t B = bezier_B;
+   *        int32_t C = bezier_C;
    *
    *        lsrs(ahi, alo, 1);          // a  = F << 31
    *        lsls(alo, alo, 31);         //
@@ -630,13 +630,13 @@ void Stepper::set_directions() {
       bezier_AV = av;
 
       // Calculate the rest of the coefficients
-      register uint8_t r2 = v0 & 0xFF;
-      register uint8_t r3 = (v0 >> 8) & 0xFF;
-      register uint8_t r12 = (v0 >> 16) & 0xFF;
-      register uint8_t r5 = v1 & 0xFF;
-      register uint8_t r6 = (v1 >> 8) & 0xFF;
-      register uint8_t r7 = (v1 >> 16) & 0xFF;
-      register uint8_t r4,r8,r9,r10,r11;
+      uint8_t r2 = v0 & 0xFF;
+      uint8_t r3 = (v0 >> 8) & 0xFF;
+      uint8_t r12 = (v0 >> 16) & 0xFF;
+      uint8_t r5 = v1 & 0xFF;
+      uint8_t r6 = (v1 >> 8) & 0xFF;
+      uint8_t r7 = (v1 >> 16) & 0xFF;
+      uint8_t r4,r8,r9,r10,r11;
 
       __asm__ __volatile__(
         /* Calculate the Bézier coefficients */
@@ -732,11 +732,11 @@ void Stepper::set_directions() {
       if (!curr_step)
         return bezier_F;
 
-      register uint8_t r0 = 0; /* Zero register */
-      register uint8_t r2 = (curr_step) & 0xFF;
-      register uint8_t r3 = (curr_step >> 8) & 0xFF;
-      register uint8_t r4 = (curr_step >> 16) & 0xFF;
-      register uint8_t r1,r5,r6,r7,r8,r9,r10,r11; /* Temporary registers */
+      uint8_t r0 = 0; /* Zero register */
+      uint8_t r2 = (curr_step) & 0xFF;
+      uint8_t r3 = (curr_step >> 8) & 0xFF;
+      uint8_t r4 = (curr_step >> 16) & 0xFF;
+      uint8_t r1,r5,r6,r7,r8,r9,r10,r11; /* Temporary registers */
 
       __asm__ __volatile(
         /* umul24x24to16hi(t, bezier_AV, curr_step);  t: Range 0 - 1^16 = 16 bits*/
@@ -1127,14 +1127,14 @@ void Stepper::set_directions() {
       #if defined(__ARM__) || defined(__thumb__)
 
         // For ARM Cortex M3/M4 CPUs, we have the optimized assembler version, that takes 43 cycles to execute
-        register uint32_t flo = 0;
-        register uint32_t fhi = bezier_AV * curr_step;
-        register uint32_t t = fhi;
-        register int32_t alo = bezier_F;
-        register int32_t ahi = 0;
-        register int32_t A = bezier_A;
-        register int32_t B = bezier_B;
-        register int32_t C = bezier_C;
+        uint32_t flo = 0;
+        uint32_t fhi = bezier_AV * curr_step;
+        uint32_t t = fhi;
+        int32_t alo = bezier_F;
+        int32_t ahi = 0;
+        int32_t A = bezier_A;
+        int32_t B = bezier_B;
+        int32_t C = bezier_C;
 
          __asm__ __volatile__(
           ".syntax unified" "\n\t"              // is to prevent CM0,CM1 non-unified syntax
@@ -2098,7 +2098,6 @@ void Stepper::init() {
 
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
-  endstops.enable(true); // Start with endstops active. After homing they can be disabled
   sei();
   set_directions(); // Init directions to last_direction_bits = 0  Keeps Z from being reversed
 }

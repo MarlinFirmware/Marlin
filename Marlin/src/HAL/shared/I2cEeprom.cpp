@@ -155,5 +155,4 @@ void eeprom_read_block(void* pos, const void* eeprom_address, size_t n) {
     if (Wire.available()) *((uint8_t*)pos + c) = Wire.read();
 }
 
-
-#endif // ENABLED(I2C_EEPROM)
+#endif // I2C_EEPROM

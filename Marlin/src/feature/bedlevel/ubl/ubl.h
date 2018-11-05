@@ -370,3 +370,5 @@ class unified_bed_leveling {
 }; // class unified_bed_leveling
 
 extern unified_bed_leveling ubl;
+
+#define Z_VALUES(X,Y) ubl.z_values[X][Y]

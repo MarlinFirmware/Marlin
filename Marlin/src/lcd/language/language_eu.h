@@ -122,7 +122,7 @@
 //#define MSG_UBL_OUTPUT_MAP_CSV            _UxGT("Output for CSV")
 //#define MSG_UBL_OUTPUT_MAP_BACKUP         _UxGT("Off Printer Backup")
 //#define MSG_UBL_INFO_UBL                  _UxGT("Output UBL Info")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Sarea editatu")
+#define MSG_EDIT_MESH                       _UxGT("Sarea editatu")
 //#define MSG_UBL_FILLIN_AMOUNT             _UxGT("Fill-in Amount")
 //#define MSG_UBL_MANUAL_FILLIN             _UxGT("Manual Fill-in")
 //#define MSG_UBL_SMART_FILLIN              _UxGT("Smart Fill-in")

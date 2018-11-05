@@ -161,4 +161,3 @@ void matrix_3x3::debug(PGM_P const title) {
 }
 
 #endif // HAS_ABL
-

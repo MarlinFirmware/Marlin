@@ -432,214 +432,264 @@ void MarlinSettings::postprocess() {
     const uint8_t esteppers = COUNT(planner.settings.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
 
-    EEPROM_WRITE(planner.settings);
+    //
+    // Planner Motion
+    //
+    {
+      EEPROM_WRITE(planner.settings);
 
-    #if HAS_CLASSIC_JERK
-      EEPROM_WRITE(planner.max_jerk);
-      #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
-        dummy = float(DEFAULT_EJERK);
+      #if HAS_CLASSIC_JERK
+        EEPROM_WRITE(planner.max_jerk);
+        #if ENABLED(JUNCTION_DEVIATION) && ENABLED(LIN_ADVANCE)
+          dummy = float(DEFAULT_EJERK);
+          EEPROM_WRITE(dummy);
+        #endif
+      #else
+        const float planner_max_jerk[XYZE] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
+        EEPROM_WRITE(planner_max_jerk);
+      #endif
+
+      #if ENABLED(JUNCTION_DEVIATION)
+        EEPROM_WRITE(planner.junction_deviation_mm);
+      #else
+        dummy = 0.02f;
         EEPROM_WRITE(dummy);
       #endif
-    #else
-      const float planner_max_jerk[XYZE] = { float(DEFAULT_XJERK), float(DEFAULT_YJERK), float(DEFAULT_ZJERK), float(DEFAULT_EJERK) };
-      EEPROM_WRITE(planner_max_jerk);
-    #endif
+    }
 
-    #if ENABLED(JUNCTION_DEVIATION)
-      EEPROM_WRITE(planner.junction_deviation_mm);
-    #else
-      dummy = 0.02f;
-      EEPROM_WRITE(dummy);
-    #endif
+    //
+    // Home Offset
+    //
+    {
+      _FIELD_TEST(home_offset);
 
-    _FIELD_TEST(home_offset);
-
-    #if HAS_SCARA_OFFSET
-      EEPROM_WRITE(scara_home_offset);
-    #else
-      #if !HAS_HOME_OFFSET
-        const float home_offset[XYZ] = { 0 };
+      #if HAS_SCARA_OFFSET
+        EEPROM_WRITE(scara_home_offset);
+      #else
+        #if !HAS_HOME_OFFSET
+          const float home_offset[XYZ] = { 0 };
+        #endif
+        EEPROM_WRITE(home_offset);
       #endif
-      EEPROM_WRITE(home_offset);
-    #endif
 
-    #if HAS_HOTEND_OFFSET
-      // Skip hotend 0 which must be 0
-      for (uint8_t e = 1; e < HOTENDS; e++)
-        LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
-    #endif
+      #if HAS_HOTEND_OFFSET
+        // Skip hotend 0 which must be 0
+        for (uint8_t e = 1; e < HOTENDS; e++)
+          LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
+      #endif
+    }
 
     //
     // Global Leveling
     //
-
-    const float zfh = (
-      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        planner.z_fade_height
-      #else
-        10.0
-      #endif
-    );
-    EEPROM_WRITE(zfh);
+    {
+      const float zfh = (
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          planner.z_fade_height
+        #else
+          10.0
+        #endif
+      );
+      EEPROM_WRITE(zfh);
+    }
 
     //
     // Mesh Bed Leveling
     //
+    {
+      #if ENABLED(MESH_BED_LEVELING)
+        // Compile time test that sizeof(mbl.z_values) is as expected
+        static_assert(
+          sizeof(mbl.z_values) == (GRID_MAX_POINTS) * sizeof(mbl.z_values[0][0]),
+          "MBL Z array is the wrong size."
+        );
+        const uint8_t mesh_num_x = GRID_MAX_POINTS_X, mesh_num_y = GRID_MAX_POINTS_Y;
+        EEPROM_WRITE(mbl.z_offset);
+        EEPROM_WRITE(mesh_num_x);
+        EEPROM_WRITE(mesh_num_y);
+        EEPROM_WRITE(mbl.z_values);
+      #else // For disabled MBL write a default mesh
+        dummy = 0;
+        const uint8_t mesh_num_x = 3, mesh_num_y = 3;
+        EEPROM_WRITE(dummy); // z_offset
+        EEPROM_WRITE(mesh_num_x);
+        EEPROM_WRITE(mesh_num_y);
+        for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummy);
+      #endif
+    }
 
-    #if ENABLED(MESH_BED_LEVELING)
-      // Compile time test that sizeof(mbl.z_values) is as expected
-      static_assert(
-        sizeof(mbl.z_values) == (GRID_MAX_POINTS) * sizeof(mbl.z_values[0][0]),
-        "MBL Z array is the wrong size."
-      );
-      const uint8_t mesh_num_x = GRID_MAX_POINTS_X, mesh_num_y = GRID_MAX_POINTS_Y;
-      EEPROM_WRITE(mbl.z_offset);
-      EEPROM_WRITE(mesh_num_x);
-      EEPROM_WRITE(mesh_num_y);
-      EEPROM_WRITE(mbl.z_values);
-    #else // For disabled MBL write a default mesh
-      dummy = 0;
-      const uint8_t mesh_num_x = 3, mesh_num_y = 3;
-      EEPROM_WRITE(dummy); // z_offset
-      EEPROM_WRITE(mesh_num_x);
-      EEPROM_WRITE(mesh_num_y);
-      for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummy);
-    #endif // MESH_BED_LEVELING
+    //
+    // Probe Z Offset
+    //
+    {
+      _FIELD_TEST(zprobe_zoffset);
 
-    _FIELD_TEST(zprobe_zoffset);
-
-    #if !HAS_BED_PROBE
-      const float zprobe_zoffset = 0;
-    #endif
-    EEPROM_WRITE(zprobe_zoffset);
+      #if !HAS_BED_PROBE
+        const float zprobe_zoffset = 0;
+      #endif
+      EEPROM_WRITE(zprobe_zoffset);
+    }
 
     //
     // Planar Bed Leveling matrix
     //
-
-    #if ABL_PLANAR
-      EEPROM_WRITE(planner.bed_level_matrix);
-    #else
-      dummy = 0;
-      for (uint8_t q = 9; q--;) EEPROM_WRITE(dummy);
-    #endif
+    {
+      #if ABL_PLANAR
+        EEPROM_WRITE(planner.bed_level_matrix);
+      #else
+        dummy = 0;
+        for (uint8_t q = 9; q--;) EEPROM_WRITE(dummy);
+      #endif
+    }
 
     //
     // Bilinear Auto Bed Leveling
     //
-
-    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      // Compile time test that sizeof(z_values) is as expected
-      static_assert(
-        sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
-        "Bilinear Z array is the wrong size."
-      );
-      const uint8_t grid_max_x = GRID_MAX_POINTS_X, grid_max_y = GRID_MAX_POINTS_Y;
-      EEPROM_WRITE(grid_max_x);            // 1 byte
-      EEPROM_WRITE(grid_max_y);            // 1 byte
-      EEPROM_WRITE(bilinear_grid_spacing); // 2 ints
-      EEPROM_WRITE(bilinear_start);        // 2 ints
-      EEPROM_WRITE(z_values);              // 9-256 floats
-    #else
-      // For disabled Bilinear Grid write an empty 3x3 grid
-      const uint8_t grid_max_x = 3, grid_max_y = 3;
-      const int bilinear_start[2] = { 0 }, bilinear_grid_spacing[2] = { 0 };
-      dummy = 0;
-      EEPROM_WRITE(grid_max_x);
-      EEPROM_WRITE(grid_max_y);
-      EEPROM_WRITE(bilinear_grid_spacing);
-      EEPROM_WRITE(bilinear_start);
-      for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummy);
-    #endif // AUTO_BED_LEVELING_BILINEAR
-
-    _FIELD_TEST(planner_leveling_active);
-
-    #if ENABLED(AUTO_BED_LEVELING_UBL)
-      EEPROM_WRITE(planner.leveling_active);
-      EEPROM_WRITE(ubl.storage_slot);
-    #else
-      const bool ubl_active = false;
-      const int8_t storage_slot = -1;
-      EEPROM_WRITE(ubl_active);
-      EEPROM_WRITE(storage_slot);
-    #endif // AUTO_BED_LEVELING_UBL
-
-    #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
-      #if ENABLED(SWITCHING_EXTRUDER)
-        constexpr uint16_t sesa[][2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+    {
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        // Compile time test that sizeof(z_values) is as expected
+        static_assert(
+          sizeof(z_values) == (GRID_MAX_POINTS) * sizeof(z_values[0][0]),
+          "Bilinear Z array is the wrong size."
+        );
+        const uint8_t grid_max_x = GRID_MAX_POINTS_X, grid_max_y = GRID_MAX_POINTS_Y;
+        EEPROM_WRITE(grid_max_x);            // 1 byte
+        EEPROM_WRITE(grid_max_y);            // 1 byte
+        EEPROM_WRITE(bilinear_grid_spacing); // 2 ints
+        EEPROM_WRITE(bilinear_start);        // 2 ints
+        EEPROM_WRITE(z_values);              // 9-256 floats
+      #else
+        // For disabled Bilinear Grid write an empty 3x3 grid
+        const uint8_t grid_max_x = 3, grid_max_y = 3;
+        const int bilinear_start[2] = { 0 }, bilinear_grid_spacing[2] = { 0 };
+        dummy = 0;
+        EEPROM_WRITE(grid_max_x);
+        EEPROM_WRITE(grid_max_y);
+        EEPROM_WRITE(bilinear_grid_spacing);
+        EEPROM_WRITE(bilinear_start);
+        for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummy);
       #endif
-      constexpr uint16_t servo_angles[NUM_SERVOS][2] = {
+    }
+
+    //
+    // Unified Bed Leveling
+    //
+    {
+      _FIELD_TEST(planner_leveling_active);
+
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        EEPROM_WRITE(planner.leveling_active);
+        EEPROM_WRITE(ubl.storage_slot);
+      #else
+        const bool ubl_active = false;
+        const int8_t storage_slot = -1;
+        EEPROM_WRITE(ubl_active);
+        EEPROM_WRITE(storage_slot);
+      #endif // AUTO_BED_LEVELING_UBL
+    }
+
+    //
+    // Servo Angles
+    //
+    {
+      #if !(HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES))
+
+        uint16_t servo_angles[NUM_SERVOS][2] = { { 0, 0 } };
+
         #if ENABLED(SWITCHING_EXTRUDER)
-          [SWITCHING_EXTRUDER_SERVO_NR] = { sesa[0][0], sesa[0][1] }
+
+          constexpr uint16_t sesa[][2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+          servo_angles[SWITCHING_EXTRUDER_SERVO_NR][0] = sesa[0][0];
+          servo_angles[SWITCHING_EXTRUDER_SERVO_NR][1] = sesa[0][1];
           #if EXTRUDERS > 3
-            , [SWITCHING_EXTRUDER_E23_SERVO_NR] = { sesa[1][0], sesa[1][1] }
+            servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][0] = sesa[1][0];
+            servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][1] = sesa[1][1];
           #endif
+
         #elif ENABLED(SWITCHING_NOZZLE)
-          [SWITCHING_NOZZLE_SERVO_NR] = SWITCHING_NOZZLE_SERVO_ANGLES
+
+          constexpr uint16_t snsa[] = SWITCHING_NOZZLE_SERVO_ANGLES;
+          servo_angles[SWITCHING_NOZZLE_SERVO_NR][0] = snsa[0];
+          servo_angles[SWITCHING_NOZZLE_SERVO_NR][1] = snsa[1];
+
         #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
-          [Z_PROBE_SERVO_NR] = Z_SERVO_ANGLES
+
+          constexpr uint16_t zsa[] = Z_SERVO_ANGLES;
+          servo_angles[Z_PROBE_SERVO_NR][0] = zsa[0];
+          servo_angles[Z_PROBE_SERVO_NR][1] = zsa[1];
+
         #endif
-      };
-    #endif
 
-    EEPROM_WRITE(servo_angles);
+      #endif // !HAS_SERVOS || !EDITABLE_SERVO_ANGLES
 
-    // 11 floats for DELTA / [XYZ]_DUAL_ENDSTOPS
-    #if ENABLED(DELTA)
+      EEPROM_WRITE(servo_angles);
+    }
 
-      _FIELD_TEST(delta_height);
+    //
+    // DELTA Geometry or Dual Endstops offsets
+    //
+    {
+      #if ENABLED(DELTA)
 
-      EEPROM_WRITE(delta_height);              // 1 float
-      EEPROM_WRITE(delta_endstop_adj);         // 3 floats
-      EEPROM_WRITE(delta_radius);              // 1 float
-      EEPROM_WRITE(delta_diagonal_rod);        // 1 float
-      EEPROM_WRITE(delta_segments_per_second); // 1 float
-      EEPROM_WRITE(delta_calibration_radius);  // 1 float
-      EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
+        _FIELD_TEST(delta_height);
 
-    #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+        EEPROM_WRITE(delta_height);              // 1 float
+        EEPROM_WRITE(delta_endstop_adj);         // 3 floats
+        EEPROM_WRITE(delta_radius);              // 1 float
+        EEPROM_WRITE(delta_diagonal_rod);        // 1 float
+        EEPROM_WRITE(delta_segments_per_second); // 1 float
+        EEPROM_WRITE(delta_calibration_radius);  // 1 float
+        EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
 
-      _FIELD_TEST(x2_endstop_adj);
+      #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
 
-      // Write dual endstops in X, Y, Z order. Unused = 0.0
-      dummy = 0;
-      #if ENABLED(X_DUAL_ENDSTOPS)
-        EEPROM_WRITE(endstops.x2_endstop_adj);   // 1 float
-      #else
-        EEPROM_WRITE(dummy);
+        _FIELD_TEST(x2_endstop_adj);
+
+        // Write dual endstops in X, Y, Z order. Unused = 0.0
+        dummy = 0;
+        #if ENABLED(X_DUAL_ENDSTOPS)
+          EEPROM_WRITE(endstops.x2_endstop_adj);   // 1 float
+        #else
+          EEPROM_WRITE(dummy);
+        #endif
+
+        #if ENABLED(Y_DUAL_ENDSTOPS)
+          EEPROM_WRITE(endstops.y2_endstop_adj);   // 1 float
+        #else
+          EEPROM_WRITE(dummy);
+        #endif
+
+        #if Z_MULTI_ENDSTOPS
+          EEPROM_WRITE(endstops.z2_endstop_adj);   // 1 float
+        #else
+          EEPROM_WRITE(dummy);
+        #endif
+
+        #if ENABLED(Z_TRIPLE_ENDSTOPS)
+          EEPROM_WRITE(endstops.z3_endstop_adj);   // 1 float
+        #else
+          EEPROM_WRITE(dummy);
+        #endif
+
+      #endif
+    }
+
+    //
+    // LCD Preheat settings
+    //
+    {
+      _FIELD_TEST(lcd_preheat_hotend_temp);
+
+      #if DISABLED(ULTIPANEL)
+        constexpr int16_t lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
+                          lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
+        constexpr uint8_t lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
       #endif
 
-      #if ENABLED(Y_DUAL_ENDSTOPS)
-        EEPROM_WRITE(endstops.y2_endstop_adj);   // 1 float
-      #else
-        EEPROM_WRITE(dummy);
-      #endif
-
-      #if Z_MULTI_ENDSTOPS
-        EEPROM_WRITE(endstops.z2_endstop_adj);   // 1 float
-      #else
-        EEPROM_WRITE(dummy);
-      #endif
-
-      #if ENABLED(Z_TRIPLE_ENDSTOPS)
-        EEPROM_WRITE(endstops.z3_endstop_adj);   // 1 float
-      #else
-        EEPROM_WRITE(dummy);
-      #endif
-
-    #endif
-
-    _FIELD_TEST(lcd_preheat_hotend_temp);
-
-    #if DISABLED(ULTIPANEL)
-      constexpr int16_t lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
-                        lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
-      constexpr uint8_t lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
-    #endif
-
-    EEPROM_WRITE(lcd_preheat_hotend_temp);
-    EEPROM_WRITE(lcd_preheat_bed_temp);
-    EEPROM_WRITE(lcd_preheat_fan_speed);
+      EEPROM_WRITE(lcd_preheat_hotend_temp);
+      EEPROM_WRITE(lcd_preheat_bed_temp);
+      EEPROM_WRITE(lcd_preheat_fan_speed);
+    }
 
     //
     // PIDTEMP
@@ -678,13 +728,14 @@ void MarlinSettings::postprocess() {
     //
     // LCD Contrast
     //
+    {
+      _FIELD_TEST(lcd_contrast);
 
-    _FIELD_TEST(lcd_contrast);
-
-    #if !HAS_LCD_CONTRAST
-      const int16_t lcd_contrast = 32;
-    #endif
-    EEPROM_WRITE(lcd_contrast);
+      #if !HAS_LCD_CONTRAST
+        const int16_t lcd_contrast = 32;
+      #endif
+      EEPROM_WRITE(lcd_contrast);
+    }
 
     //
     // Firmware Retraction
@@ -1199,7 +1250,7 @@ void MarlinSettings::postprocess() {
       // SERVO_ANGLES
       //
       {
-        #if !HAS_SERVOS || DISABLED(EDITABLE_SERVO_ANGLES)
+        #if !(HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES))
           uint16_t servo_angles[NUM_SERVOS][2];
         #endif
         EEPROM_READ(servo_angles);
@@ -1894,26 +1945,26 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #else
         #define REQ_ANGLES 2
       #endif
-      constexpr uint16_t extruder_angles[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
-      static_assert(COUNT(extruder_angles) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
-      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][0] = extruder_angles[0];
-      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][1] = extruder_angles[1];
+      constexpr uint16_t sesa[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+      static_assert(COUNT(sesa) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
+      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][0] = sesa[0];
+      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][1] = sesa[1];
       #if EXTRUDERS > 3
-        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][0] = extruder_angles[2];
-        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][1] = extruder_angles[3];
+        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][0] = sesa[2];
+        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][1] = sesa[3];
       #endif
 
     #elif ENABLED(SWITCHING_NOZZLE)
 
-      constexpr uint16_t nozzle_angles[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
-      servo_angles[SWITCHING_NOZZLE_SERVO_NR][0] = nozzle_angles[0];
-      servo_angles[SWITCHING_NOZZLE_SERVO_NR][1] = nozzle_angles[1];
+      constexpr uint16_t snsa[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
+      servo_angles[SWITCHING_NOZZLE_SERVO_NR][0] = snsa[0];
+      servo_angles[SWITCHING_NOZZLE_SERVO_NR][1] = snsa[1];
 
     #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
 
-      constexpr uint16_t z_probe_angles[2] = Z_SERVO_ANGLES;
-      servo_angles[Z_PROBE_SERVO_NR][0] = z_probe_angles[0];
-      servo_angles[Z_PROBE_SERVO_NR][1] = z_probe_angles[1];
+      constexpr uint16_t zsa[2] = Z_SERVO_ANGLES;
+      servo_angles[Z_PROBE_SERVO_NR][0] = zsa[0];
+      servo_angles[Z_PROBE_SERVO_NR][1] = zsa[1];
 
     #endif
 

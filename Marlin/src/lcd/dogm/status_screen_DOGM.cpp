@@ -359,7 +359,7 @@ void lcd_impl_status_screen_0() {
     #endif
 
     if (PAGE_CONTAINS(41, 48)) {
-      char buffer[10];
+      char buffer[13];
       duration_t elapsed = print_job_timer.duration();
       bool has_days = (elapsed.value >= 60*60*24L);
       uint8_t len = elapsed.toDigital(buffer, has_days);

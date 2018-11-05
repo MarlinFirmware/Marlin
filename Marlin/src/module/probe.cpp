@@ -543,15 +543,14 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
       tmc_stallguard(stepperY);
     #endif
     tmc_stallguard(stepperZ);
+    endstops.enable(true);
   #endif
 
   #if QUIET_PROBING
     probing_pause(true);
   #endif
 
-  endstops.enable(true);
-
-  // Move down until probe triggered
+  // Move down until the probe is triggered
   do_blocking_move_to_z(z, fr_mm_s);
 
   // Check to see if the probe was triggered
@@ -575,6 +574,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
+    endstops.not_homing();
     #if ENABLED(DELTA)
       tmc_stallguard(stepperX, false);
       tmc_stallguard(stepperY, false);

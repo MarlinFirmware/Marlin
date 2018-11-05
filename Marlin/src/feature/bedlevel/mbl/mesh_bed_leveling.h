@@ -118,3 +118,5 @@ public:
 };
 
 extern mesh_bed_leveling mbl;
+
+#define Z_VALUES(X,Y) mbl.z_values[X][Y]
