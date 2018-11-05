@@ -107,7 +107,6 @@ void lcd_goto_previous_menu_no_defer() {
 ////////////////////////////////////////////
 
 void menu_item_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
-void menu_item_function::action(const screenFunc_t func) { (*func)(); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -162,12 +161,6 @@ void menu_item_invariants::init(PGM_P const el, void * const ev, const int32_t m
   currentScreen = cs;
   callbackFunc = cb;
   liveEdit = le;
-}
-
-template<typename NAME>
-void menu_item_template<NAME>::action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) {
-  const int32_t minv = scale(minValue);
-  init(pstr, ptr, minv, int32_t(scale(maxValue)) - minv, int32_t(scale(*ptr)) - minv, edit, callback, live);
 }
 
 #define DEFINE_MENU_EDIT_ITEM(NAME) template class menu_item_template<NAME ## _item_info>;

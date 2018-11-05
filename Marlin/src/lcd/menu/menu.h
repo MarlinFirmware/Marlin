@@ -162,7 +162,7 @@ class menu_item_gcode {
 
 class menu_item_function {
   public:
-    static void action(const menuAction_t func);
+    static inline void action(const menuAction_t func) { (*func)(); };
 };
 
 ////////////////////////////////////////////
@@ -186,7 +186,10 @@ class menu_item_template : menu_item_invariants {
     static void  load(void *ptr, const int32_t value) {*((type_t*)ptr) = unscale(value);}
     static char* to_string(const int32_t value)       {return NAME::strfunc(unscale(value));}
   public:
-    static void action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=NULL, const bool live=false);
+    static void action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=NULL, const bool live=false) {
+      const int32_t minv = scale(minValue);
+      init(pstr, ptr, minv, int32_t(scale(maxValue)) - minv, int32_t(scale(*ptr)) - minv, edit, callback, live);
+    }
     static void edit() {menu_item_invariants::edit(to_string, load);}
 };
 
