@@ -10,4 +10,3 @@
 #endif
 
 #endif // MYGETLINE_H
-
