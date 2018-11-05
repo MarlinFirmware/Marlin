@@ -732,7 +732,7 @@ void lcd_update() {
                   SERIAL_ECHOPAIR("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
                   SERIAL_ECHOPAIR("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
                   SERIAL_EOL();
-                #endif // ENCODER_RATE_MULTIPLIER_DEBUG
+                #endif
               }
 
               lastEncoderMovementMillis = ms;
