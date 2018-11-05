@@ -321,6 +321,8 @@
   #error "G0_FEEDRATE is now used to set the G0 feedrate. Please update your configuration."
 #elif defined(MBL_Z_STEP)
   #error "MBL_Z_STEP is now MESH_EDIT_Z_STEP. Please update your configuration."
+#elif defined(CHDK)
+  #error "CHDK is now CHDK_PIN. Please update your Configuration_adv.h."
 #endif
 
 #define BOARD_MKS_13     -47

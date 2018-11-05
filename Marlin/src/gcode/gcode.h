@@ -171,7 +171,7 @@
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
  * M221 - Set Flow Percentage: "M221 S<percent>"
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>"
- * M240 - Trigger a camera to take a photograph. (Requires CHDK or PHOTOGRAPH_PIN)
+ * M240 - Trigger a camera to take a photograph. (Requires CHDK_PIN or PHOTOGRAPH_PIN)
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
@@ -631,7 +631,7 @@ private:
   static void M221();
   static void M226();
 
-  #if defined(CHDK) || HAS_PHOTOGRAPH
+  #if PIN_EXISTS(CHDK) || HAS_PHOTOGRAPH
     static void M240();
   #endif
 
