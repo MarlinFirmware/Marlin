@@ -600,7 +600,10 @@ void lcd_update() {
   static millis_t next_lcd_update_ms;
 
   #if HAS_LCD_MENU
-    static millis_t return_to_status_ms = 0;
+
+    #if LCD_TIMEOUT_TO_STATUS
+      static millis_t return_to_status_ms = 0;
+    #endif
 
     // Handle any queued Move Axis motion
     manage_manual_move();
@@ -692,8 +695,11 @@ void lcd_update() {
 
       #if ENABLED(ADC_KEYPAD)
 
-        if (handle_adc_keypad())
-          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        if (handle_adc_keypad()) {
+          #if LCD_TIMEOUT_TO_STATUS
+            return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+          #endif
+        }
 
       #elif ENABLED(REPRAPWORLD_KEYPAD)
 
@@ -736,7 +742,9 @@ void lcd_update() {
           encoderPosition += (encoderDiff * encoderMultiplier) / ENCODER_PULSES_PER_STEP;
           encoderDiff = 0;
         }
-        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        #if LCD_TIMEOUT_TO_STATUS
+          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        #endif
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       }
 
@@ -766,7 +774,9 @@ void lcd_update() {
         lcd_status_update_delay = 6;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
         filename_scroll_pos++;
-        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        #if LCD_TIMEOUT_TO_STATUS
+          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        #endif
       }
     #endif
 
@@ -848,15 +858,13 @@ void lcd_update() {
       NOLESS(max_display_update_time, millis() - ms);
     }
 
-    #if HAS_LCD_MENU
-
+    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
       // Return to Status Screen after a timeout
       if (currentScreen == lcd_status_screen || defer_return_to_status)
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
       else if (ELAPSED(ms, return_to_status_ms))
         lcd_return_to_status();
-
-    #endif // HAS_LCD_MENU
+    #endif
 
     // Change state of drawing flag between screen updates
     if (!is_drawing) switch (lcdDrawUpdate) {
