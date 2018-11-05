@@ -137,25 +137,21 @@ void menu_item_function::action(const screenFunc_t func) { (*func)(); }
  * ...which calls:
  *       menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  */
-
-template<class NAME>
-void menu_item_template<NAME>::edit() {
+void menu_item_invariants::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   ENCODER_DIRECTION_NORMAL();
   if ((int32_t)encoderPosition < 0) encoderPosition = 0;
   if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue;
   if (lcdDrawUpdate)
-    lcd_implementation_drawedit(editLabel, NAME::strfunc((((int32_t)encoderPosition + minEditValue)) * (1.0f / scale)));
+    lcd_implementation_drawedit(editLabel, strfunc(encoderPosition + minEditValue));
   if (lcd_clicked || (liveEdit && lcdDrawUpdate)) {
-    type_t value = ((type_t)((int32_t)encoderPosition + minEditValue)) * (1.0f / scale);
-    if (editValue != NULL) *((type_t*)editValue) = value;
+    if (editValue != NULL) loadfunc(editValue, encoderPosition + minEditValue);
     if (callbackFunc && (liveEdit || lcd_clicked)) (*callbackFunc)();
     if (lcd_clicked) lcd_goto_previous_menu();
     lcd_clicked = false;
   }
 }
 
-// A single helper function to init item editing for all types
-static void init_item_editing(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint32_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
+void menu_item_invariants::init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint32_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
   lcd_save_previous_screen();
   lcd_refresh();
   editLabel = el;
@@ -170,8 +166,8 @@ static void init_item_editing(PGM_P const el, void * const ev, const int32_t min
 
 template<typename NAME>
 void menu_item_template<NAME>::action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) {
-  const int32_t minv = minValue * scale;
-  init_item_editing(pstr, ptr, minv, int32_t(maxValue * scale) - minv, int32_t((*ptr) * scale) - minv, edit, callback, live);
+  const int32_t minv = scale(minValue);
+  init(pstr, ptr, minv, int32_t(scale(maxValue)) - minv, int32_t(scale(*ptr)) - minv, edit, callback, live);
 }
 
 #define DEFINE_MENU_EDIT_ITEM(NAME) template class menu_item_template<NAME ## _item_info>;

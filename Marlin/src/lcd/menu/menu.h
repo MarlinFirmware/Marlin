@@ -169,14 +169,25 @@ class menu_item_function {
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
 
+class menu_item_invariants {
+  protected:
+    typedef char* (*strfunc_t)(const int32_t);
+    typedef void (*loadfunc_t)(void *, const int32_t);
+    static void init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint32_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le);
+    static void edit(strfunc_t, loadfunc_t);
+};
+
 template<typename NAME>
-class menu_item_template {
+class menu_item_template : menu_item_invariants {
   private:
     typedef typename NAME::type_t type_t;
-    static constexpr float scale = NAME::scale;
+    inline static float unscale(const float value)    {return value * (1.0f / NAME::scale);}
+    inline static float scale(const float value)      {return value * NAME::scale;}
+    static void  load(void *ptr, const int32_t value) {*((type_t*)ptr) = unscale(value);}
+    static char* to_string(const int32_t value)       {return NAME::strfunc(unscale(value));}
   public:
-    static void edit();
     static void action_setting_edit(PGM_P const pstr, type_t * const ptr, const type_t minValue, const type_t maxValue, const screenFunc_t callback=NULL, const bool live=false);
+    static void edit() {menu_item_invariants::edit(to_string, load);}
 };
 
 #define DECLARE_MENU_EDIT_ITEM(NAME) typedef menu_item_template<NAME ## _item_info> menu_item_ ## NAME;
