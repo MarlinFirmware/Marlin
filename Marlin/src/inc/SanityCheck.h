@@ -1157,7 +1157,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   #if ENABLED(HOME_AFTER_DEACTIVATE) || ENABLED(Z_SAFE_HOMING)
     #error "DISABLE_[XYZ] is not compatible with HOME_AFTER_DEACTIVATE or Z_SAFE_HOMING."
   #endif
-#endif // DISABLE_[XYZ]
+#endif
 
 /**
  * Filament Width Sensor
