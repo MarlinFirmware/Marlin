@@ -206,7 +206,7 @@
     sync_plan_position();
   }
 
-  void menu_mbl_edit_mesh() {
+  void menu_edit_mesh() {
     static uint8_t xind, yind; // =0
     START_MENU();
     MENU_BACK(MSG_BED_LEVELING);
@@ -253,7 +253,8 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(MESH_EDIT_MENU)
-    MENU_ITEM(submenu, MSG_EDIT_MESH, menu_mbl_edit_mesh);
+    if (leveling_is_valid())
+      MENU_ITEM(submenu, MSG_EDIT_MESH, menu_edit_mesh);
   #endif
 
   // Homed and leveling is valid? Then leveling can be toggled.
