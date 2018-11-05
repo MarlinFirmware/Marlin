@@ -4591,7 +4591,8 @@ void home_all_axes() { gcode_G28(true); }
         if (parser.seenval('X')) {
           px = parser.value_int() - 1;
           if (!WITHIN(px, 0, GRID_MAX_POINTS_X - 1)) {
-            SERIAL_PROTOCOLLNPGM("X out of range (1-" STRINGIFY(GRID_MAX_POINTS_X) ").");
+            SERIAL_PROTOCOLPAIR("X out of range (0-", int(GRID_MAX_POINTS_X));
+            SERIAL_PROTOCOLLNPGM(")");
             return;
           }
         }
@@ -4603,7 +4604,8 @@ void home_all_axes() { gcode_G28(true); }
         if (parser.seenval('Y')) {
           py = parser.value_int() - 1;
           if (!WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
-            SERIAL_PROTOCOLLNPGM("Y out of range (1-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
+            SERIAL_PROTOCOLPAIR("Y out of range (0-", int(GRID_MAX_POINTS_Y));
+            SERIAL_PROTOCOLLNPGM(")");
             return;
           }
         }
