@@ -500,10 +500,10 @@ FORCE_INLINE screenFunc_t ap_message_screen(const AdvancedPauseMessage message) 
 
 void lcd_advanced_pause_show_message(
   const AdvancedPauseMessage message,
-  const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/,
+  const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_SAME*/,
   const uint8_t extruder/*=active_extruder*/
 ) {
-  advanced_pause_mode = mode;
+  if (mode != ADVANCED_PAUSE_MODE_SAME) advanced_pause_mode = mode;
   hotend_status_extruder = extruder;
   const screenFunc_t next_screen = ap_message_screen(message);
   if (next_screen) {

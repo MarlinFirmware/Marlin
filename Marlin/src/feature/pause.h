@@ -37,6 +37,7 @@ typedef struct {
 #include "../libs/nozzle.h"
 
 enum AdvancedPauseMode : char {
+  ADVANCED_PAUSE_MODE_SAME,
   ADVANCED_PAUSE_MODE_PAUSE_PRINT,
   ADVANCED_PAUSE_MODE_LOAD_FILAMENT,
   ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT
