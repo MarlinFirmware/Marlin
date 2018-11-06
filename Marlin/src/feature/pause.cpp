@@ -103,7 +103,7 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
   #endif
 
   #if HAS_LCD_MENU
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT, mode);
+    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_HEATING, mode);
   #else
     UNUSED(mode);
   #endif
@@ -413,14 +413,27 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
  *
  * Used by M125 and M600
  */
-void wait_for_filament_reload(const int8_t max_beep_count/*=0*/ DXC_ARGS) {
-  bool nozzle_timed_out = false;
 
+#if HAS_LCD_MENU && ENABLED(EMERGENCY_PARSER)
+  #define _PMSG(L) L
+#elif ENABLED(EMERGENCY_PARSER)
+  #define _PMSG(L) L##_M108
+#else
+  #define _PMSG(L) L##_LCD
+#endif
+
+void show_continue_prompt(const bool is_reload) {
   #if HAS_LCD_MENU
-    lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
+    lcd_advanced_pause_show_message(is_reload ? ADVANCED_PAUSE_MESSAGE_INSERT : ADVANCED_PAUSE_MESSAGE_WAITING);
   #endif
   SERIAL_ECHO_START();
-  SERIAL_ERRORLNPGM(MSG_FILAMENT_CHANGE_INSERT);
+  serialprintPGM(is_reload ? PSTR(_PMSG(MSG_FILAMENT_CHANGE_INSERT) "\n") : PSTR(_PMSG(MSG_FILAMENT_CHANGE_WAIT) "\n"));
+}
+
+void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep_count/*=0*/ DXC_ARGS) {
+  bool nozzle_timed_out = false;
+
+  show_continue_prompt(is_reload);
 
   #if HAS_BUZZER
     filament_change_beep(max_beep_count, true);
@@ -447,24 +460,18 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/ DXC_ARGS) {
       filament_change_beep(max_beep_count);
     #endif
 
-    // If the nozzle has timed out, wait for the user to press the button to re-heat the nozzle, then
-    // re-heat the nozzle, re-show the insert screen, restart the idle timers, and start over
+    // If the nozzle has timed out...
     if (!nozzle_timed_out)
-      HOTEND_LOOP()
-        nozzle_timed_out |= thermalManager.is_heater_idle(e);
+      HOTEND_LOOP() nozzle_timed_out |= thermalManager.is_heater_idle(e);
 
+    // Wait for the user to press the button to re-heat the nozzle, then
+    // re-heat the nozzle, re-show the continue prompt, restart idle timers, start over
     if (nozzle_timed_out) {
       #if HAS_LCD_MENU
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
+        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_HEAT);
       #endif
       SERIAL_ECHO_START();
-      #if HAS_LCD_MENU && ENABLED(EMERGENCY_PARSER)
-        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_HEAT);
-      #elif ENABLED(EMERGENCY_PARSER)
-        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_HEAT_M108);
-      #else
-        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_HEAT_LCD);
-      #endif
+      SERIAL_ECHOLNPGM(_PMSG(MSG_FILAMENT_CHANGE_HEAT));
 
       // Wait for LCD click or M108
       while (wait_for_user) idle(true);
@@ -475,17 +482,8 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/ DXC_ARGS) {
       // Wait for the heaters to reach the target temperatures
       ensure_safe_temperature();
 
-      #if HAS_LCD_MENU
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT);
-      #endif
-      SERIAL_ECHO_START();
-      #if HAS_LCD_MENU && ENABLED(EMERGENCY_PARSER)
-        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_INSERT);
-      #elif ENABLED(EMERGENCY_PARSER)
-        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_INSERT_M108);
-      #else
-        SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_INSERT_LCD);
-      #endif
+      // Show the prompt to continue
+      show_continue_prompt(is_reload);
 
       // Start the heater idle timers
       const millis_t nozzle_timeout = (millis_t)(PAUSE_PARK_NOZZLE_TIMEOUT) * 1000UL;
@@ -493,7 +491,7 @@ void wait_for_filament_reload(const int8_t max_beep_count/*=0*/ DXC_ARGS) {
       HOTEND_LOOP()
         thermalManager.start_heater_idle_timer(e, nozzle_timeout);
 
-      wait_for_user = true; // Wait for user to load filament
+      wait_for_user = true;
       nozzle_timed_out = false;
 
       #if HAS_BUZZER
