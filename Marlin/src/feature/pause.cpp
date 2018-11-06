@@ -210,8 +210,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
 
     #if HAS_LCD_MENU
-      if (show_lcd)
-        lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE);
+      if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_PURGE);
     #endif
 
     wait_for_user = true;

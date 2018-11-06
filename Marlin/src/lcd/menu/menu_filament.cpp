@@ -481,22 +481,17 @@ void lcd_advanced_pause_purge_message() {
 
 FORCE_INLINE screenFunc_t ap_message_screen(const AdvancedPauseMessage message) {
   switch (message) {
-    case ADVANCED_PAUSE_MESSAGE_INIT:    return lcd_advanced_pause_init_message;
-    case ADVANCED_PAUSE_MESSAGE_UNLOAD:  return lcd_advanced_pause_unload_message;
-    case ADVANCED_PAUSE_MESSAGE_WAITING: return lcd_advanced_pause_waiting_message;
-    case ADVANCED_PAUSE_MESSAGE_INSERT:  return lcd_advanced_pause_insert_message;
-    case ADVANCED_PAUSE_MESSAGE_LOAD:    return lcd_advanced_pause_load_message;
-    #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-      case ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE:
-    #else
-      case ADVANCED_PAUSE_MESSAGE_PURGE:
-    #endif
-                                         return lcd_advanced_pause_purge_message;
-    case ADVANCED_PAUSE_MESSAGE_RESUME:  return lcd_advanced_pause_resume_message;
-    case ADVANCED_PAUSE_MESSAGE_HEAT:    return lcd_advanced_pause_heat_message;
-    case ADVANCED_PAUSE_MESSAGE_HEATING: return lcd_advanced_pause_heating_message;
-    case ADVANCED_PAUSE_MESSAGE_OPTION:  advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_WAIT_FOR;
-                                         return menu_advanced_pause_option;
+    case ADVANCED_PAUSE_MESSAGE_INIT:     return lcd_advanced_pause_init_message;
+    case ADVANCED_PAUSE_MESSAGE_UNLOAD:   return lcd_advanced_pause_unload_message;
+    case ADVANCED_PAUSE_MESSAGE_WAITING:  return lcd_advanced_pause_waiting_message;
+    case ADVANCED_PAUSE_MESSAGE_INSERT:   return lcd_advanced_pause_insert_message;
+    case ADVANCED_PAUSE_MESSAGE_LOAD:     return lcd_advanced_pause_load_message;
+    case ADVANCED_PAUSE_MESSAGE_PURGE:    return lcd_advanced_pause_purge_message;
+    case ADVANCED_PAUSE_MESSAGE_RESUME:   return lcd_advanced_pause_resume_message;
+    case ADVANCED_PAUSE_MESSAGE_HEAT:     return lcd_advanced_pause_heat_message;
+    case ADVANCED_PAUSE_MESSAGE_HEATING:  return lcd_advanced_pause_heating_message;
+    case ADVANCED_PAUSE_MESSAGE_OPTION:   advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_WAIT_FOR;
+                                          return menu_advanced_pause_option;
     case ADVANCED_PAUSE_MESSAGE_STATUS:
     default: break;
   }
