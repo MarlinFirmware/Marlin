@@ -71,8 +71,8 @@ void GcodeSuite::M125() {
   const bool job_running = print_job_timer.isRunning();
 
   if (pause_print(retract, park_point) && !IS_SD_PRINTING()) {
-    wait_for_filament_reload(); // Wait for lcd click or M108
-    resume_print();             // Return to print position and continue
+    wait_for_confirmation();  // Wait for lcd click or M108
+    resume_print();           // Return to print position and continue
   }
 
   if (job_running) print_job_timer.start();
