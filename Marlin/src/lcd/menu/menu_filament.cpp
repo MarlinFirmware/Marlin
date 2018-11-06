@@ -458,27 +458,25 @@ void lcd_advanced_pause_resume_message() {
 }
 
 void lcd_advanced_pause_purge_message() {
-  START_SCREEN();
-  STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_1);
-  #ifdef MSG_FILAMENT_CHANGE_PURGE_2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_2);
-    #ifdef MSG_FILAMENT_CHANGE_PURGE_3
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_3);
+  _lcd_advanced_pause_message(
+    #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+      PSTR(MSG_FILAMENT_CHANGE_CONT_PURGE_1)
+      #ifdef MSG_FILAMENT_CHANGE_CONT_PURGE_2
+        , PSTR(MSG_FILAMENT_CHANGE_CONT_PURGE_2)
+        #ifdef MSG_FILAMENT_CHANGE_CONT_PURGE_3
+          , PSTR(MSG_FILAMENT_CHANGE_CONT_PURGE_3)
+        #endif
+      #endif
+    #else
+      PSTR(MSG_FILAMENT_CHANGE_PURGE_1)
+      #ifdef MSG_FILAMENT_CHANGE_PURGE_2
+        , PSTR(MSG_FILAMENT_CHANGE_PURGE_2)
+        #ifdef MSG_FILAMENT_CHANGE_PURGE_3
+          , PSTR(MSG_FILAMENT_CHANGE_PURGE_3)
+        #endif
+      #endif
     #endif
-  #endif
-  #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-    #define _PURGE_BASE 3
-  #else
-    #define _PURGE_BASE 2
-  #endif
-  #if (_PURGE_BASE + defined(MSG_FILAMENT_CHANGE_PURGE_2) + defined(MSG_FILAMENT_CHANGE_PURGE_3)) < LCD_HEIGHT - 1
-    STATIC_ITEM(" ");
-  #endif
-  HOTEND_STATUS_ITEM();
-  #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-    STATIC_ITEM(MSG_USERWAIT);
-  #endif
-  END_SCREEN();
+  );
 }
 
 FORCE_INLINE screenFunc_t ap_message_screen(const AdvancedPauseMessage message) {
