@@ -1142,9 +1142,6 @@
   #ifndef MSG_FILAMENT_CHANGE_INIT_1
     #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Please wait...")
   #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
-    #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Ejecting...")
-  #endif
   #ifndef MSG_FILAMENT_CHANGE_INSERT_1
     #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Insert and Click")
   #endif
@@ -1153,6 +1150,9 @@
   #endif
   #ifndef MSG_FILAMENT_CHANGE_HEATING_1
     #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Heating...")
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
+    #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Ejecting...")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Loading...")
