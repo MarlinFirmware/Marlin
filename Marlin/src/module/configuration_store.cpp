@@ -2078,6 +2078,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
   #endif
 
+  #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    mpe_settings_init();
+  #endif
+
   //
   // Global Leveling
   //

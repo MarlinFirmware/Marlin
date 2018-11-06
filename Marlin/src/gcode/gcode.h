@@ -243,6 +243,7 @@
  * M914 - Set StallGuard sensitivity. (Requires SENSORLESS_HOMING or SENSORLESS_PROBING)
  * M917 - L6470 tuning: Find minimum current thresholds
  * M918 - L6470 tuning: Increase speed until max or error
+ * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
  *
  * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
  * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
@@ -840,6 +841,10 @@ private:
 
   #if ENABLED(SDSUPPORT)
     static void M928();
+  #endif
+
+  #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    static void M951();
   #endif
 
   static void M999();

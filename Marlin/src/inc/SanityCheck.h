@@ -791,7 +791,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Parking Extruder requirements
+ * (Magnetic) Parking Extruder requirements
  */
 #if ENABLED(PARKING_EXTRUDER)
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -800,6 +800,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "PARKING_EXTRUDER and SINGLENOZZLE are incompatible."
   #elif ENABLED(EXT_SOLENOID)
     #error "PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
+  #elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
+    #error "Enable only one of PARKING_EXTRUDER and MAGNETIC_PARKING_EXTRUDER."
   #elif EXTRUDERS != 2
     #error "PARKING_EXTRUDER requires exactly 2 EXTRUDERS."
   #elif !PIN_EXISTS(SOL0) || !PIN_EXISTS(SOL1)
@@ -814,6 +816,22 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE must be defined as HIGH or LOW."
   #elif !defined(PARKING_EXTRUDER_SOLENOIDS_DELAY) || !WITHIN(PARKING_EXTRUDER_SOLENOIDS_DELAY, 0, 2000)
     #error "PARKING_EXTRUDER_SOLENOIDS_DELAY must be between 0 and 2000 (ms)."
+  #endif
+#elif ENABLED(MAGNETIC_PARKING_EXTRUDER)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #error "MAGNETIC_PARKING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
+  #elif ENABLED(SINGLENOZZLE)
+    #error "MAGNETIC_PARKING_EXTRUDER and SINGLENOZZLE are incompatible."
+  #elif ENABLED(EXT_SOLENOID)
+    #error "MAGNETIC_PARKING_EXTRUDER and EXT_SOLENOID are incompatible. (Pins are used twice.)"
+  #elif EXTRUDERS != 2
+    #error "MAGNETIC_PARKING_EXTRUDER requires exactly 2 EXTRUDERS."
+  #elif !defined(PARKING_EXTRUDER_PARKING_X)
+    #error "MAGNETIC_PARKING_EXTRUDER requires PARKING_EXTRUDER_PARKING_X."
+  #elif !defined(TOOLCHANGE_ZRAISE)
+    #error "MAGNETIC_PARKING_EXTRUDER requires TOOLCHANGE_ZRAISE."
+  #elif TOOLCHANGE_ZRAISE < 0
+    #error "TOOLCHANGE_ZRAISE must be 0 or higher."
   #endif
 #endif
 
