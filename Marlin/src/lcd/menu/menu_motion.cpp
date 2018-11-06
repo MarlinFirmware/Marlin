@@ -241,7 +241,7 @@ inline void lcd_move_e() { _lcd_move_e(); }
 screenFunc_t _manual_move_func_ptr;
 
 void _goto_manual_move(const float scale) {
-  defer_return_to_status = true;
+  set_defer_return_to_status(true);
   move_menu_scale = scale;
   lcd_goto_screen(_manual_move_func_ptr);
 }

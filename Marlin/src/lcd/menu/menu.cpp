@@ -59,7 +59,11 @@ typedef struct {
 } menuPosition;
 menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
-bool screen_changed, defer_return_to_status;
+bool screen_changed;
+
+#if LCD_TIMEOUT_TO_STATUS
+  bool defer_return_to_status;
+#endif
 
 // Value Editing
 PGM_P editLabel;
@@ -97,10 +101,12 @@ void lcd_goto_previous_menu() {
     lcd_return_to_status();
 }
 
-void lcd_goto_previous_menu_no_defer() {
-  defer_return_to_status = false;
-  lcd_goto_previous_menu();
-}
+#if LCD_TIMEOUT_TO_STATUS
+  void lcd_goto_previous_menu_no_defer() {
+    set_defer_return_to_status(false);
+    lcd_goto_previous_menu();
+  }
+#endif
 
 ////////////////////////////////////////////
 /////////// Common Menu Actions ////////////
@@ -234,7 +240,7 @@ void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
     currentScreen = screen;
     encoderPosition = encoder;
     if (screen == lcd_status_screen) {
-      defer_return_to_status = false;
+      set_defer_return_to_status(false);
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         ubl.lcd_map_control = false;
       #endif
@@ -343,7 +349,7 @@ void lcd_completion_feedback(const bool good/*=true*/) {
 
   void lcd_babystep_zoffset() {
     if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
-    defer_return_to_status = true;
+    set_defer_return_to_status(true);
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
       const bool do_probe = (active_extruder == 0);
     #else
