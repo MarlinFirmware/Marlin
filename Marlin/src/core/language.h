@@ -202,10 +202,13 @@
 
 #define MSG_FILAMENT_CHANGE_HEAT            "Press button (or M108) to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT          "Insert filament and press button (or M108)"
+#define MSG_FILAMENT_CHANGE_WAIT            "Press button (or M108) to resume"
 #define MSG_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_LCD      "Insert filament and press button"
+#define MSG_FILAMENT_CHANGE_WAIT_LCD        "Press button to resume"
 #define MSG_FILAMENT_CHANGE_HEAT_M108       "Send M108 to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_M108     "Insert filament and send M108"
+#define MSG_FILAMENT_CHANGE_WAIT_M108       "Send M108 to resume"
 
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 

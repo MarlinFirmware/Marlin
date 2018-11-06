@@ -27,20 +27,20 @@
 /**
  * Define debug bit-masks
  */
-enum DebugFlags : unsigned char {
-  DEBUG_NONE          = 0,
-  DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
-  DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
-  DEBUG_ERRORS        = _BV(2), ///< Not implemented
-  DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
-  DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
-  DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
-  DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
-  DEBUG_ALL           = 0xFF
+enum MarlinDebugFlags : uint8_t {
+  MARLIN_DEBUG_NONE          = 0,
+  MARLIN_DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
+  MARLIN_DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
+  MARLIN_DEBUG_ERRORS        = _BV(2), ///< Not implemented
+  MARLIN_DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
+  MARLIN_DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
+  MARLIN_DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
+  MARLIN_DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
+  MARLIN_DEBUG_ALL           = 0xFF
 };
 
 extern uint8_t marlin_debug_flags;
-#define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
+#define DEBUGGING(F) (marlin_debug_flags & (MARLIN_DEBUG_## F))
 
 #if TX_BUFFER_SIZE < 1
   #define SERIAL_FLUSHTX_P(p)
