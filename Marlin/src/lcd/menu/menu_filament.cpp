@@ -370,88 +370,88 @@ void _lcd_advanced_pause_message(PGM_P const msg1, PGM_P const msg2=NULL, PGM_P 
 }
 
 void lcd_advanced_pause_init_message() {
-  _lcd_advanced_pause_message(MSG_FILAMENT_CHANGE_INIT_1
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_INIT_1)
     #ifdef MSG_FILAMENT_CHANGE_INIT_2
-      , MSG_FILAMENT_CHANGE_INIT_2
+      , PSTR(MSG_FILAMENT_CHANGE_INIT_2)
       #ifdef MSG_FILAMENT_CHANGE_INIT_3
-        , MSG_FILAMENT_CHANGE_INIT_3
+        , PSTR(MSG_FILAMENT_CHANGE_INIT_3)
       #endif
     #endif
   );
 }
 
 void lcd_advanced_pause_unload_message() {
-  _lcd_advanced_pause_message(MSG_FILAMENT_CHANGE_UNLOAD_1
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_UNLOAD_1)
     #ifdef MSG_FILAMENT_CHANGE_UNLOAD_2
-      , MSG_FILAMENT_CHANGE_UNLOAD_2
+      , PSTR(MSG_FILAMENT_CHANGE_UNLOAD_2)
       #ifdef MSG_FILAMENT_CHANGE_UNLOAD_3
-        , MSG_FILAMENT_CHANGE_UNLOAD_3
+        , PSTR(MSG_FILAMENT_CHANGE_UNLOAD_3)
       #endif
     #endif
   );
 }
 
 void lcd_advanced_pause_heating_message() {
-  _lcd_advanced_pause_message(MSG_FILAMENT_CHANGE_HEATING_1
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_HEATING_1)
     #ifdef MSG_FILAMENT_CHANGE_HEATING_2
-      , MSG_FILAMENT_CHANGE_HEATING_2
+      , PSTR(MSG_FILAMENT_CHANGE_HEATING_2)
       #ifdef MSG_FILAMENT_CHANGE_HEATING_3
-        , MSG_FILAMENT_CHANGE_HEATING_3
+        , PSTR(MSG_FILAMENT_CHANGE_HEATING_3)
       #endif
     #endif
   );
 }
 
 void lcd_advanced_pause_heat_message() {
-  _lcd_advanced_pause_message(MSG_FILAMENT_CHANGE_HEAT_1
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_HEAT_1)
     #ifdef MSG_FILAMENT_CHANGE_HEAT_2
-      , MSG_FILAMENT_CHANGE_HEAT_2
+      , PSTR(MSG_FILAMENT_CHANGE_HEAT_2)
       #ifdef MSG_FILAMENT_CHANGE_HEAT_3
-        , MSG_FILAMENT_CHANGE_HEAT_3
+        , PSTR(MSG_FILAMENT_CHANGE_HEAT_3)
       #endif
     #endif
   );
 }
 
 void lcd_advanced_pause_insert_message() {
-  _lcd_advanced_pause_message(MSG_FILAMENT_CHANGE_INSERT_1
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_INSERT_1)
     #ifdef MSG_FILAMENT_CHANGE_INSERT_2
-      , MSG_FILAMENT_CHANGE_INSERT_2
+      , PSTR(MSG_FILAMENT_CHANGE_INSERT_2)
       #ifdef MSG_FILAMENT_CHANGE_INSERT_3
-        , MSG_FILAMENT_CHANGE_INSERT_3
+        , PSTR(MSG_FILAMENT_CHANGE_INSERT_3)
       #endif
     #endif
   );
 }
 
 void lcd_advanced_pause_load_message() {
-  _lcd_advanced_pause_message(MSG_FILAMENT_CHANGE_LOAD_1
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_LOAD_1)
     #ifdef MSG_FILAMENT_CHANGE_LOAD_2
-      , MSG_FILAMENT_CHANGE_LOAD_2
+      , PSTR(MSG_FILAMENT_CHANGE_LOAD_2)
       #ifdef MSG_FILAMENT_CHANGE_LOAD_3
-        , MSG_FILAMENT_CHANGE_LOAD_3
+        , PSTR(MSG_FILAMENT_CHANGE_LOAD_3)
       #endif
     #endif
   );
 }
 
 void lcd_advanced_pause_waiting_message() {
-  _lcd_advanced_pause_message(MSG_ADVANCED_PAUSE_WAITING_1
+  _lcd_advanced_pause_message(PSTR(MSG_ADVANCED_PAUSE_WAITING_1)
     #ifdef MSG_ADVANCED_PAUSE_WAITING_2
-      , MSG_ADVANCED_PAUSE_WAITING_2
+      , PSTR(MSG_ADVANCED_PAUSE_WAITING_2)
       #ifdef MSG_ADVANCED_PAUSE_WAITING_3
-        , MSG_ADVANCED_PAUSE_WAITING_3
+        , PSTR(MSG_ADVANCED_PAUSE_WAITING_3)
       #endif
     #endif
   );
 }
 
 void lcd_advanced_pause_resume_message() {
-  _lcd_advanced_pause_message(MSG_FILAMENT_CHANGE_RESUME_1
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_RESUME_1)
     #ifdef MSG_FILAMENT_CHANGE_RESUME_2
-      , MSG_FILAMENT_CHANGE_RESUME_2
+      , PSTR(MSG_FILAMENT_CHANGE_RESUME_2)
       #ifdef MSG_FILAMENT_CHANGE_RESUME_3
-        , MSG_FILAMENT_CHANGE_RESUME_3
+        , PSTR(MSG_FILAMENT_CHANGE_RESUME_3)
       #endif
     #endif
   );
