@@ -129,29 +129,30 @@ const float homing_feedrate_mm_s[4] PROGMEM = {
 // Cartesian conversion result goes here:
 float cartes[XYZ];
 
-// Until kinematics.cpp is created, create this here
 #if IS_KINEMATIC
   float delta[ABC];
+#endif
+
+#if HAS_SCARA_OFFSET
+  float scara_home_offset[ABC];
 #endif
 
 /**
  * The workspace can be offset by some commands, or
  * these offsets may be omitted to save on computation.
  */
-#if HAS_WORKSPACE_OFFSET
-  #if HAS_POSITION_SHIFT
-    // The distance that XYZ has been offset by G92. Reset by G28.
-    float position_shift[XYZ] = { 0 };
-  #endif
-  #if HAS_HOME_OFFSET
-    // This offset is added to the configured home position.
-    // Set by M206, M428, or menu item. Saved to EEPROM.
-    float home_offset[XYZ] = { 0 };
-  #endif
-  #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
-    // The above two are combined to save on computes
-    float workspace_offset[XYZ] = { 0 };
-  #endif
+#if HAS_POSITION_SHIFT
+  // The distance that XYZ has been offset by G92. Reset by G28.
+  float position_shift[XYZ] = { 0 };
+#endif
+#if HAS_HOME_OFFSET
+  // This offset is added to the configured home position.
+  // Set by M206, M428, or menu item. Saved to EEPROM.
+  float home_offset[XYZ] = { 0 };
+#endif
+#if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
+  // The above two are combined to save on computes
+  float workspace_offset[XYZ] = { 0 };
 #endif
 
 #if OLDSCHOOL_ABL
@@ -454,14 +455,13 @@ void bracket_probe_move(const bool before) {
 void setup_for_endstop_or_probe_move() { bracket_probe_move(true); }
 void clean_up_after_endstop_or_probe_move() { bracket_probe_move(false); }
 
-// Software Endstops are based on the configured limits.
-float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
-      soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
-
 #if HAS_SOFTWARE_ENDSTOPS
 
-  // Software Endstops are based on the configured limits.
   bool soft_endstops_enabled = true;
+
+  // Software Endstops are based on the configured limits.
+  float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
+        soft_endstop_max[XYZ] = { X_MAX_BED, Y_MAX_BED, Z_MAX_POS };
 
   #if IS_KINEMATIC
     float soft_endstop_radius, soft_endstop_radius_2;
@@ -501,6 +501,79 @@ float soft_endstop_min[XYZ] = { X_MIN_BED, Y_MIN_BED, Z_MIN_POS },
     #endif
     #if ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
       NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
+    #endif
+  }
+
+  /**
+   * Software endstops can be used to monitor the open end of
+   * an axis that has a hardware endstop on the other end. Or
+   * they can prevent axes from moving past endstops and grinding.
+   *
+   * To keep doing their job as the coordinate system changes,
+   * the software endstop positions must be refreshed to remain
+   * at the same positions relative to the machine.
+   */
+  void update_software_endstops(const AxisEnum axis) {
+
+    #if ENABLED(DUAL_X_CARRIAGE)
+
+      if (axis == X_AXIS) {
+
+        // In Dual X mode hotend_offset[X] is T1's home position
+        const float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
+
+        if (active_extruder != 0) {
+          // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
+          soft_endstop_min[X_AXIS] = X2_MIN_POS;
+          soft_endstop_max[X_AXIS] = dual_max_x;
+        }
+        else if (dxc_is_duplicating()) {
+          // In Duplication Mode, T0 can move as far left as X1_MIN_POS
+          // but not so far to the right that T1 would move past the end
+          soft_endstop_min[X_AXIS] = X1_MIN_POS;
+          soft_endstop_max[X_AXIS] = MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
+        }
+        else {
+          // In other modes, T0 can move from X1_MIN_POS to X1_MAX_POS
+          soft_endstop_min[X_AXIS] = X1_MIN_POS;
+          soft_endstop_max[X_AXIS] = X1_MAX_POS;
+        }
+      }
+
+    #elif ENABLED(DELTA)
+
+      soft_endstop_min[axis] = base_min_pos(axis);
+      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height
+      #if HAS_BED_PROBE
+        - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER
+      #endif
+      : base_max_pos(axis));
+
+      switch (axis) {
+        case X_AXIS:
+        case Y_AXIS:
+          // Get a minimum radius for clamping
+          soft_endstop_radius = MIN(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
+          soft_endstop_radius_2 = sq(soft_endstop_radius);
+          break;
+        case Z_AXIS:
+          delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+        default: break;
+      }
+
+    #else
+
+      soft_endstop_min[axis] = base_min_pos(axis);
+      soft_endstop_max[axis] = base_max_pos(axis);
+
+    #endif
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("For ", axis_codes[axis]);
+        SERIAL_ECHOPAIR(" axis:\n soft_endstop_min = ", soft_endstop_min[axis]);
+        SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
+      }
     #endif
   }
 
@@ -1156,7 +1229,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
 
   #if HAS_POSITION_SHIFT
     position_shift[axis] = 0;
-    update_software_endstops(axis);
+    update_workspace_offset(axis);
   #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
@@ -1506,89 +1579,18 @@ void homeaxis(const AxisEnum axis) {
   #endif
 } // homeaxis()
 
-#if HAS_WORKSPACE_OFFSET || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
-
-  /**
-   * Software endstops can be used to monitor the open end of
-   * an axis that has a hardware endstop on the other end. Or
-   * they can prevent axes from moving past endstops and grinding.
-   *
-   * To keep doing their job as the coordinate system changes,
-   * the software endstop positions must be refreshed to remain
-   * at the same positions relative to the machine.
-   */
-  void update_software_endstops(const AxisEnum axis) {
-    #if HAS_HOME_OFFSET && HAS_POSITION_SHIFT
-      workspace_offset[axis] = home_offset[axis] + position_shift[axis];
-    #endif
-
-    #if ENABLED(DUAL_X_CARRIAGE)
-      if (axis == X_AXIS) {
-
-        // In Dual X mode hotend_offset[X] is T1's home position
-        const float dual_max_x = MAX(hotend_offset[X_AXIS][1], X2_MAX_POS);
-
-        if (active_extruder != 0) {
-          // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
-          soft_endstop_min[X_AXIS] = X2_MIN_POS;
-          soft_endstop_max[X_AXIS] = dual_max_x;
-        }
-        else if (dxc_is_duplicating()) {
-          // In Duplication Mode, T0 can move as far left as X1_MIN_POS
-          // but not so far to the right that T1 would move past the end
-          soft_endstop_min[X_AXIS] = X1_MIN_POS;
-          soft_endstop_max[X_AXIS] = MIN(X1_MAX_POS, dual_max_x - duplicate_extruder_x_offset);
-        }
-        else {
-          // In other modes, T0 can move from X1_MIN_POS to X1_MAX_POS
-          soft_endstop_min[X_AXIS] = X1_MIN_POS;
-          soft_endstop_max[X_AXIS] = X1_MAX_POS;
-        }
-      }
-    #elif ENABLED(DELTA)
-      soft_endstop_min[axis] = base_min_pos(axis);
-      soft_endstop_max[axis] = (axis == Z_AXIS ? delta_height
-      #if HAS_BED_PROBE
-        - zprobe_zoffset + Z_PROBE_OFFSET_FROM_EXTRUDER
-      #endif
-      : base_max_pos(axis));
-    #else
-      soft_endstop_min[axis] = base_min_pos(axis);
-      soft_endstop_max[axis] = base_max_pos(axis);
-    #endif
-
+#if HAS_WORKSPACE_OFFSET
+  void update_workspace_offset(const AxisEnum axis) {
+    workspace_offset[axis] = home_offset[axis] + position_shift[axis];
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR("For ", axis_codes[axis]);
-        #if HAS_HOME_OFFSET
-          SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
-        #endif
-        #if HAS_POSITION_SHIFT
-          SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
-        #endif
-        SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
-        SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
-      }
-    #endif
-
-    #if ENABLED(DELTA)
-      switch (axis) {
-        #if HAS_SOFTWARE_ENDSTOPS
-          case X_AXIS:
-          case Y_AXIS:
-            // Get a minimum radius for clamping
-            soft_endstop_radius = MIN(ABS(MAX(soft_endstop_min[X_AXIS], soft_endstop_min[Y_AXIS])), soft_endstop_max[X_AXIS], soft_endstop_max[Y_AXIS]);
-            soft_endstop_radius_2 = sq(soft_endstop_radius);
-            break;
-        #endif
-        case Z_AXIS:
-          delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
-        default: break;
+        SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
+        SERIAL_ECHOLNPAIR("\n position_shift = ", position_shift[axis]);
       }
     #endif
   }
-
-#endif // HAS_WORKSPACE_OFFSET || DUAL_X_CARRIAGE || DELTA
+#endif
 
 #if HAS_M206_COMMAND
   /**
@@ -1597,6 +1599,6 @@ void homeaxis(const AxisEnum axis) {
    */
   void set_home_offset(const AxisEnum axis, const float v) {
     home_offset[axis] = v;
-    update_software_endstops(axis);
+    update_workspace_offset(axis);
   }
 #endif // HAS_M206_COMMAND

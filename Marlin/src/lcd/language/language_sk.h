@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Slovak
@@ -31,8 +32,6 @@
  * http://www.facebook.com/farmamam
  *
  */
-#ifndef LANGUAGE_SK_UTF_H
-#define LANGUAGE_SK_UTF_H
 
 // Put characters here that should be displayed with M117
 //_UxGT("aäAÄaáAÁeéEÉiíIÍlĺLĹ")
@@ -60,6 +59,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Domov os X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Domov os Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Domov os Z")
+#define MSG_AUTO_Z_ALIGN                    _UxGT("Auto-zarovn. Z")
 #define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibrovať Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Parkovanie XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknutím spusťte")
@@ -93,6 +93,9 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("Vyrovnať rohy")
 #define MSG_NEXT_CORNER                     _UxGT("Ďalší roh")
 #define MSG_EDITING_STOPPED                 _UxGT("Koniec úprav siete")
+#define MSG_MESH_X                          _UxGT("Index X")
+#define MSG_MESH_Y                          _UxGT("Index Y")
+#define MSG_MESH_EDIT_Z                     _UxGT("Hodnota Z")
 #define MSG_USER_MENU                       _UxGT("Vlastné príkazy")
 
 #define MSG_UBL_DOING_G29                   _UxGT("Vykonávam G29")
@@ -146,7 +149,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Exportovať do CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Záloha do PC")
 #define MSG_UBL_INFO_UBL                    _UxGT("Info. o UBL do PC")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Upraviť sieť bodov")
+#define MSG_EDIT_MESH                       _UxGT("Upraviť sieť bodov")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Hustota mriežky")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Ručné vyplnenie")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Chytré vyplnenie")
@@ -437,5 +440,3 @@
   #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Vytlačovanie...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Pokračovanie...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_SK_UTF_H

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Finnish
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_FI_H
-#define LANGUAGE_FI_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
@@ -169,5 +168,3 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibroi Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Kalibroi Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Kalibroi Center")
-
-#endif // LANGUAGE_FI_H

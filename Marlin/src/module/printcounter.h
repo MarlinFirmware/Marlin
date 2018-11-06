@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef PRINTCOUNTER_H
-#define PRINTCOUNTER_H
+#pragma once
 
 #include "../libs/stopwatch.h"
 #include "../libs/duration_t.h"
@@ -193,5 +191,3 @@ class PrintCounter: public Stopwatch {
 #else
   extern Stopwatch print_job_timer;
 #endif
-
-#endif // PRINTCOUNTER_H

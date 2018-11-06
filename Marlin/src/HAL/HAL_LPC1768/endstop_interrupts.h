@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Endstop Interrupts
@@ -33,9 +34,6 @@
  * Test whether pins issue interrupts on your board by flashing 'pin_interrupt_test.ino'.
  * (Located in Marlin/buildroot/share/pin_interrupt_test/pin_interrupt_test.ino)
  */
-
-#ifndef _ENDSTOP_INTERRUPTS_H_
-#define _ENDSTOP_INTERRUPTS_H_
 
 #include "../../module/endstops.h"
 
@@ -92,9 +90,15 @@ void setup_endstop_interrupts(void) {
     attachInterrupt(digitalPinToInterrupt(Z2_MIN_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z3_MAX
+    #if !LPC1768_PIN_INTERRUPT_M(Z3_MIN_PIN)
+      #error "Z3_MIN_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Z3_MAX_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z3_MIN
+    #if !LPC1768_PIN_INTERRUPT_M(Z3_MIN_PIN)
+      #error "Z3_MIN_PIN is not an INTERRUPT capable pin."
+    #endif
     attachInterrupt(digitalPinToInterrupt(Z3_MIN_PIN), endstop_ISR, CHANGE);
   #endif
   #if HAS_Z_MIN_PROBE_PIN
@@ -104,5 +108,3 @@ void setup_endstop_interrupts(void) {
     attachInterrupt(digitalPinToInterrupt(Z_MIN_PROBE_PIN), endstop_ISR, CHANGE);
   #endif
 }
-
-#endif //_ENDSTOP_INTERRUPTS_H_

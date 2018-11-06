@@ -757,7 +757,7 @@ inline void get_serial_commands() {
               printerEventLEDs.onPrintCompleted();
               #if HAS_RESUME_CONTINUE
                 enqueue_and_echo_commands_P(PSTR("M0 S"
-                  #if ENABLED(NEWPANEL)
+                  #if HAS_LCD_MENU
                     "1800"
                   #else
                     "60"

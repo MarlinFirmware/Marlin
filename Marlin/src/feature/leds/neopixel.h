@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Neopixel support
  */
-
-#ifndef __NEOPIXEL_H__
-#define __NEOPIXEL_H__
 
 #include "../../inc/MarlinConfig.h"
 
@@ -46,5 +44,3 @@ void set_neopixel_color(const uint32_t color);
 //bool neopixel_set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
 
 extern Adafruit_NeoPixel pixels;
-
-#endif // __NEOPIXEL_H__

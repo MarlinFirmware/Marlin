@@ -78,11 +78,11 @@
 
   // run at ~8 .. ~10Mhz - Tx version (Rx data discarded)
   static uint8_t spiTransferTx0(uint8_t bout) { // using Mode 0
-    register uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(MOSI_PIN)) + 0x30;  /* SODR of port */
-    register uint32_t MOSI_MASK = PIN_MASK(MOSI_PIN);
-    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
-    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
-    register uint32_t idx = 0;
+    uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(MOSI_PIN)) + 0x30;  /* SODR of port */
+    uint32_t MOSI_MASK = PIN_MASK(MOSI_PIN);
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+    uint32_t idx = 0;
 
     /* Negate bout, as the assembler requires a negated value */
     bout = ~bout;
@@ -161,11 +161,11 @@
 
   // run at ~8 .. ~10Mhz - Rx version (Tx line not altered)
   static uint8_t spiTransferRx0(uint8_t bout) { // using Mode 0
-    register uint32_t bin = 0;
-    register uint32_t work = 0;
-    register uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
-    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
-    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+    uint32_t bin = 0;
+    uint32_t work = 0;
+    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
     UNUSED(bout);
 
     /* The software SPI routine */
@@ -281,12 +281,12 @@
 
   // Block transfers run at ~8 .. ~10Mhz - Tx version (Rx data discarded)
   static void spiTxBlock0(const uint8_t* ptr, uint32_t todo) {
-    register uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(MOSI_PIN)) + 0x30;  /* SODR of port */
-    register uint32_t MOSI_MASK = PIN_MASK(MOSI_PIN);
-    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
-    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
-    register uint32_t work = 0;
-    register uint32_t txval = 0;
+    uint32_t MOSI_PORT_PLUS30 = ((uint32_t) PORT(MOSI_PIN)) + 0x30;  /* SODR of port */
+    uint32_t MOSI_MASK = PIN_MASK(MOSI_PIN);
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+    uint32_t work = 0;
+    uint32_t txval = 0;
 
     /* The software SPI routine */
     __asm__ __volatile__(
@@ -360,11 +360,11 @@
   }
 
   static void spiRxBlock0(uint8_t* ptr, uint32_t todo) {
-    register uint32_t bin = 0;
-    register uint32_t work = 0;
-    register uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
-    register uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
-    register uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
+    uint32_t bin = 0;
+    uint32_t work = 0;
+    uint32_t BITBAND_MISO_PORT = BITBAND_ADDRESS( ((uint32_t)PORT(MISO_PIN))+0x3C, PIN_SHIFT(MISO_PIN));  /* PDSR of port in bitband area */
+    uint32_t SCK_PORT_PLUS30 = ((uint32_t) PORT(SCK_PIN)) + 0x30;    /* SODR of port */
+    uint32_t SCK_MASK = PIN_MASK(SCK_PIN);
 
     /* The software SPI routine */
     __asm__ __volatile__(

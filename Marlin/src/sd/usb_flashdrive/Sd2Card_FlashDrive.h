@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * \file
  * \brief Sd2Card class for V2 SD/SDHC cards
  */
-
-#ifndef _SD2CARD_FLASHDRIVE_H_
-#define _SD2CARD_FLASHDRIVE_H_
 
 /* Uncomment USB_DEBUG to enable debugging.
  *    1 - basic debugging and bounds checking
@@ -99,5 +97,3 @@ class Sd2Card {
     uint32_t cardSize();
     static bool isInserted();
 };
-
-#endif  // _SD2CARD_FLASHDRIVE_H_

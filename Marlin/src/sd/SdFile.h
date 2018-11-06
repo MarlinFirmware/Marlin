@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * \file
@@ -31,8 +32,6 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef _SDFILE_H_
-#define _SDFILE_H_
 
 #include "SdBaseFile.h"
 
@@ -58,5 +57,3 @@ class SdFile : public SdBaseFile/*, public Print*/ {
   void write_P(PGM_P str);
   void writeln_P(PGM_P str);
 };
-
-#endif // _SDFILE_H_

@@ -131,7 +131,7 @@ void GcodeSuite::M600() {
   const bool job_running = print_job_timer.isRunning();
 
   if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
-    wait_for_filament_reload(beep_count DXC_PASS);
+    wait_for_confirmation(true, beep_count DXC_PASS);
     resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
   }
 

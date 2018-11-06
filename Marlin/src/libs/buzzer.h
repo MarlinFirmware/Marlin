@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __BUZZER_H__
-#define __BUZZER_H__
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -121,7 +119,5 @@ class Buzzer {
 #else // No buzz capability
 
   #define BUZZ(d,f) NOOP
-
-#endif
 
 #endif

@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _TMC_UTIL_H_
-#define _TMC_UTIL_H_
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 #if HAS_TRINAMIC
@@ -179,5 +177,3 @@ void monitor_tmc_driver();
 #if TMC_HAS_SPI
   void tmc_init_cs_pins();
 #endif
-
-#endif // _TMC_UTIL_H_

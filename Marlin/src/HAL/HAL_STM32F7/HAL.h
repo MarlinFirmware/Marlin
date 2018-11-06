@@ -20,12 +20,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _HAL_STM32F7_H
-#define _HAL_STM32F7_H
+#pragma once
 
 #define CPU_32_BIT
-#undef DEBUG_NONE
 
 #ifndef vsnprintf_P
   #define vsnprintf_P vsnprintf
@@ -234,5 +231,3 @@ void HAL_enable_AdcFreerun(void);
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
-
-#endif // _HAL_STM32F7_H

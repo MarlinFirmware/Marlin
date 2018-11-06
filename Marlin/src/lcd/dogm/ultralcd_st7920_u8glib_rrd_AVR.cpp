@@ -25,9 +25,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(U8GLIB_ST7920)
-
-#if !(defined(U8G_HAL_LINKS) || defined(__SAM3X8E__))
+#if ENABLED(U8GLIB_ST7920) && !defined(U8G_HAL_LINKS) && !defined(__SAM3X8E__)
 
 #include "../../HAL/shared/Delay.h"
 
@@ -202,6 +200,4 @@ u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = {u8g_dev_rrd_st7920_128x64_fn, &u8g
 
 #pragma GCC reset_options
 
-#endif // U8G_HAL_LINKS
-
-#endif // U8GLIB_ST7920
+#endif // U8GLIB_ST7920 && !U8G_HAL_LINKS && !__SAM3X8E__

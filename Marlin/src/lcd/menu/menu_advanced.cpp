@@ -392,7 +392,7 @@ void menu_advanced_temperature() {
     MENU_BACK(MSG_ADVANCED_SETTINGS);
 
     // M203 Max Feedrate
-    #define EDIT_VMAX(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_A, &planner.settings.max_feedrate_mm_s[A_AXIS], 1, 999)
+    #define EDIT_VMAX(N) MENU_MULTIPLIER_ITEM_EDIT(float3, MSG_VMAX MSG_##N, &planner.settings.max_feedrate_mm_s[_AXIS(N)], 1, 999)
     EDIT_VMAX(A);
     EDIT_VMAX(B);
     EDIT_VMAX(C);

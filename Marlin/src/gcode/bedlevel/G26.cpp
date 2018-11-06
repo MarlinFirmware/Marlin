@@ -124,8 +124,8 @@
  *   S #  Nozzle      Used to control the size of nozzle diameter. If not specified, a .4mm nozzle is assumed.
  *
  *   U #  Random      Randomize the order that the circles are drawn on the bed. The search for the closest
- *                    undrawn cicle is still done. But the distance to the location for each circle has a
- *                    random number of the size specified added to it. Specifying S50 will give an interesting
+ *                    un-drawn circle is still done. But the distance to the location for each circle has a
+ *                    random number of the specified size added to it. Specifying S50 will give an interesting
  *                    deviation from the normal behaviour on a 10 x 10 Mesh.
  *
  *   X #  X Coord.    Specify the starting location of the drawing activity.

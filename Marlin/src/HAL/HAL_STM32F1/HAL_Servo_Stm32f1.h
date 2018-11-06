@@ -20,9 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef HAL_SERVO_STM32F1_H
-#define HAL_SERVO_STM32F1_H
+#pragma once
 
 // Pin number of unattached pins
 #define NOT_ATTACHED                    (-1)
@@ -53,5 +51,3 @@ class libServo {
     int32_t minAngle;
     int32_t maxAngle;
 };
-
-#endif // HAL_SERVO_STM32F1_H

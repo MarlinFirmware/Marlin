@@ -16,9 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef _HAL_AVR_H_
-#define _HAL_AVR_H_
+#pragma once
 
 // --------------------------------------------------------------------------
 // Includes
@@ -374,5 +372,3 @@ inline void HAL_adc_init(void) {
 
 // AVR compatibility
 #define strtof strtod
-
-#endif // _HAL_AVR_H_

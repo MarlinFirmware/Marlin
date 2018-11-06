@@ -279,7 +279,7 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
     extern screenFunc_t currentScreen;
-    void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder=0);
+    void lcd_goto_screen(const screenFunc_t screen, const uint32_t encoder=0);
 
     extern bool lcd_clicked, defer_return_to_status;
 
@@ -320,8 +320,6 @@
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       void lcd_mesh_edit_setup(const float &initial);
       float lcd_mesh_edit();
-      void lcd_z_offset_edit_setup(const float &initial);
-      float lcd_z_offset_edit();
     #endif
 
     #if ENABLED(SCROLL_LONG_FILENAMES)

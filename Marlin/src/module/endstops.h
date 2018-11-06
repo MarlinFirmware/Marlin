@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * endstops.h - manages endstops
  */
-
-#ifndef __ENDSTOPS_H__
-#define __ENDSTOPS_H__
 
 #include "../inc/MarlinConfig.h"
 #include <stdint.h>
@@ -173,5 +171,3 @@ class Endstops {
 };
 
 extern Endstops endstops;
-
-#endif // __ENDSTOPS_H__

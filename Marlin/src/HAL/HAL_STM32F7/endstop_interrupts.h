@@ -20,11 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-
-
-#ifndef _ENDSTOP_INTERRUPTS_H_
-#define _ENDSTOP_INTERRUPTS_H_
+#pragma once
 
 #include "../../module/endstops.h"
 
@@ -66,5 +62,3 @@ void setup_endstop_interrupts(void) {
     attachInterrupt(Z_MIN_PROBE_PIN, endstop_ISR, CHANGE);
   #endif
 }
-
-#endif //_ENDSTOP_INTERRUPTS_H_
