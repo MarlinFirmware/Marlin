@@ -122,12 +122,12 @@ void GcodeSuite::M205() {
   #if ENABLED(JUNCTION_DEVIATION)
     #define J_PARAM  "J"
   #else
-    #define J_PARAM 
+    #define J_PARAM
   #endif
   #if HAS_CLASSIC_JERK
     #define XYZE_PARAM "XYZE"
   #else
-    #define XYZE_PARAM 
+    #define XYZE_PARAM
   #endif
   if (!parser.seen("BST" J_PARAM XYZE_PARAM)) return;
 
