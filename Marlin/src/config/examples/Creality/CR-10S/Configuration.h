@@ -934,9 +934,6 @@
 #define Y_MAX_POS 306 // 4mm Extra space behind the bed
 #define Z_MAX_POS 400
 
-// Z raise distance for tool-change, as needed for some extruders
-#define TOOLCHANGE_ZRAISE     2  // (mm)
-
 /**
  * Software Endstops
  *

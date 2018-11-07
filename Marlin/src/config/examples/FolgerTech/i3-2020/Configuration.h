@@ -940,9 +940,6 @@
 #define Y_MAX_POS 182
 #define Z_MAX_POS 175
 
-// Z raise distance for tool-change, as needed for some extruders
-#define TOOLCHANGE_ZRAISE     2  // (mm)
-
 /**
  * Software Endstops
  *

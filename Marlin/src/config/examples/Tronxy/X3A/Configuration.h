@@ -938,9 +938,6 @@
 #define Y_MAX_POS Y_BED_SIZE - (TRONXY_Y_BED_OFFSET + 5)
 #define Z_MAX_POS 316
 
-// Z raise distance for tool-change, as needed for some extruders
-#define TOOLCHANGE_ZRAISE     2  // (mm)
-
 /**
  * Software Endstops
  *
