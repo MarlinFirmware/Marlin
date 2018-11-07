@@ -1115,8 +1115,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  * LCD_BED_LEVELING requirements
  */
 #if ENABLED(LCD_BED_LEVELING)
-  #if DISABLED(ULTIPANEL)
-    #error "LCD_BED_LEVELING requires an LCD controller."
+  #if !HAS_LCD_MENU
+    #error "LCD_BED_LEVELING requires a programmable LCD controller."
   #elif !(ENABLED(MESH_BED_LEVELING) || OLDSCHOOL_ABL)
     #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or AUTO_BED_LEVELING."
   #endif

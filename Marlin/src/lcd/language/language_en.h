@@ -1131,6 +1131,10 @@
     #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Wait for")
     #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("filament purge")
   #endif
+  #ifndef MSG_FILAMENT_CHANGE_CONT_PURGE_1
+    #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Click to finish")
+    #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("filament purge")
+  #endif
   #ifndef MSG_FILAMENT_CHANGE_RESUME_1
     #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Wait for print")
     #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("to resume...")
@@ -1159,6 +1163,9 @@
   #endif
   #ifndef MSG_FILAMENT_CHANGE_PURGE_1
     #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Purging...")
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_CONT_PURGE_1
+    #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Click to finish")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_RESUME_1
     #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Resuming...")

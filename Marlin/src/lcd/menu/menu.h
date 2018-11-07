@@ -35,9 +35,13 @@ void scroll_screen(const uint8_t limit, const bool is_menu);
 bool use_click();
 bool printer_busy();
 void lcd_completion_feedback(const bool good=true);
-void lcd_goto_previous_menu();
-void lcd_goto_previous_menu_no_defer();
 void lcd_save_previous_screen();
+void lcd_goto_previous_menu();
+#if LCD_TIMEOUT_TO_STATUS
+  void lcd_goto_previous_menu_no_defer();
+#else
+  #define lcd_goto_previous_menu_no_defer() lcd_goto_previous_menu()
+#endif
 
 ////////////////////////////////////////////
 ////////// Menu Item Numeric Types /////////

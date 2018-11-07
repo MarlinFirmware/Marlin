@@ -281,7 +281,14 @@
     extern screenFunc_t currentScreen;
     void lcd_goto_screen(const screenFunc_t screen, const uint32_t encoder=0);
 
-    extern bool lcd_clicked, defer_return_to_status;
+    extern bool lcd_clicked;
+    #if LCD_TIMEOUT_TO_STATUS
+      extern bool defer_return_to_status;
+      inline void set_defer_return_to_status(const bool defer) { defer_return_to_status = defer; }
+    #else
+      constexpr bool defer_return_to_status = false;
+      #define set_defer_return_to_status(D) NOOP
+    #endif
 
     extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
     extern uint8_t lcd_preheat_fan_speed[2];
@@ -309,7 +316,7 @@
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
-                                           const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT,
+                                           const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_SAME,
                                            const uint8_t extruder=active_extruder);
     #endif
 
