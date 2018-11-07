@@ -395,7 +395,6 @@ inline void invalid_extruder_error(const uint8_t e) {
     // Apply Y & Z extruder offset (X offset is used as home pos with Dual X)
     current_position[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][tmp_extruder];
     current_position[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-    current_position[Z_AXIS] += TOOLCHANGE_ZRAISE;
 
     // Activate the new extruder ahead of calling set_axis_is_at_home!
     active_extruder = tmp_extruder;
