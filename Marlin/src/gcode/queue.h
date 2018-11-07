@@ -90,10 +90,6 @@ void ok_to_send();
  */
 void enqueue_and_echo_commands_P(PGM_P const pgcode);
 
-#if ENABLED(GCODE_MACROS)
-  void enqueue_and_echo_commands_SRAM(const char * const gcode);
-#endif
-
 /**
  * Enqueue with Serial Echo
  */

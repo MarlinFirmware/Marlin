@@ -59,8 +59,8 @@ void GcodeSuite::M810_819() {
   }
   else {
     // Execute a macro
-    char *cmd = gcode_macros[index];
-    if (strlen(cmd)) enqueue_and_echo_commands_SRAM(cmd);
+    char * const cmd = gcode_macros[index];
+    if (strlen(cmd)) process_subcommands_now(cmd);
   }
 }
 

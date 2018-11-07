@@ -186,40 +186,6 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode) {
   (void)drain_injected_commands_P(); // first command executed asap (when possible)
 }
 
-#if ENABLED(GCODE_MACROS)
-
-  static const char *injected_commands_SRAM = NULL;
-
-  /**
-   * Inject the next "immediate" command, when possible, onto the front of the queue.
-   * Return true if any immediate commands remain to inject.
-   */
-  static bool drain_injected_commands_SRAM() {
-    if (injected_commands_SRAM != NULL) {
-      size_t i = 0;
-      char c, cmd[GCODE_MACROS_SLOT_SIZE + 1];
-      strncpy(cmd, injected_commands_SRAM, sizeof(cmd) - 1);
-      cmd[sizeof(cmd) - 1] = '\0';
-      while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
-      cmd[i] = '\0';
-      if (enqueue_and_echo_command(cmd))     // success?
-        injected_commands_SRAM = c ? injected_commands_SRAM + i + 1 : NULL; // next command or done
-    }
-    return (injected_commands_SRAM != NULL);    // return whether any more remain
-  }
-
-  /**
-   * Record one or many commands to run from program memory.
-   * Aborts the current queue, if any.
-   * Note: drain_injected_commands_SRAM() must be called repeatedly to drain the commands afterwards
-   */
-  void enqueue_and_echo_commands_SRAM(const char * const gcode) {
-    injected_commands_SRAM = gcode;
-    (void)drain_injected_commands_SRAM(); // first command executed asap (when possible)
-  }
-
-#endif
-
 #if HAS_QUEUE_NOW
   /**
    * Enqueue and return only when commands are actually enqueued.
@@ -870,11 +836,7 @@ inline void get_serial_commands() {
 void get_available_commands() {
 
   // if any immediate commands remain, don't get other commands yet
-  if (drain_injected_commands_P()
-    #if ENABLED(GCODE_MACROS)
-      || drain_injected_commands_SRAM()
-    #endif
-  ) return;
+  if (drain_injected_commands_P()) return;
 
   get_serial_commands();
 
