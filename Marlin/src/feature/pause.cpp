@@ -357,11 +357,12 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
 
   // Pause the print job and timer
   #if ENABLED(SDSUPPORT)
-    if (card.sdprinting) {
+    if (IS_SD_PRINTING()) {
       card.pauseSDPrint();
       ++did_pause_print; // Indicate SD pause also
     }
   #endif
+
   print_job_timer.pause();
 
   // Save current position

@@ -570,7 +570,7 @@ namespace UI {
   }
 
   bool isPrintingFromMediaPaused() {
-    return IFSD(isPrintingFromMedia() && !card.sdprinting, false);
+    return IFSD(isPrintingFromMedia() && !IS_SD_PRINTING(), false);
   }
 
   bool isPrintingFromMedia() {
@@ -728,7 +728,7 @@ void lcd_reset_status() {
   if (print_job_timer.isPaused())
     msg = paused;
   #if ENABLED(SDSUPPORT)
-    else if (card.sdprinting)
+    else if (IS_SD_PRINTING())
       return lcd_setstatus(card.longest_filename(), true);
   #endif
   else if (print_job_timer.isRunning())
