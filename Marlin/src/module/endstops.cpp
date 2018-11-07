@@ -358,8 +358,7 @@ void Endstops::event_handler() {
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
-        card.sdprinting = false;
-        card.closefile();
+        card.stopSDPrint();
         quickstop_stepper();
         thermalManager.disable_all_heaters();
         print_job_timer.stop();
