@@ -610,11 +610,15 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       }
 
       #if HOTENDS > 1
-        const float xdiff = hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
-                    ydiff = hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder],
+        #if ENABLED(DUAL_X_CARRIAGE)
+          constexpr float xdiff = 0;
+        #else
+          const float xdiff = hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder];
+        #endif
+        const float ydiff = hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder],
                     zdiff = hotend_offset[Z_AXIS][tmp_extruder] - hotend_offset[Z_AXIS][active_extruder];
       #else
-        const float xdiff = 0, ydiff = 0, zdiff = 0;
+        constexpr float xdiff = 0, ydiff = 0, zdiff = 0;
       #endif
 
       #if ENABLED(DUAL_X_CARRIAGE)
@@ -643,9 +647,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #endif
 
       // The newly-selected extruder XY is actually at...
-      #if DISABLED(DUAL_X_CARRIAGE)
-        current_position[X_AXIS] += xdiff;
-      #endif
+      current_position[X_AXIS] += xdiff;
       current_position[Y_AXIS] += ydiff;
       current_position[Z_AXIS] += zdiff;
 
