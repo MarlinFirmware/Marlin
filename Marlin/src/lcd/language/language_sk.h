@@ -406,31 +406,36 @@
 #define MSG_ERR_PROBING_FAILED              _UxGT("Kalibrácia zlyhala")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: Príliš studený")
 
+//
+// Filament Change screens show up to 3 lines on a 4-line display
+//                        ...or up to 2 lines on a 3-line display
+//
 #if LCD_HEIGHT >= 4
-  // Up to 3 lines allowed
+  #define MSG_ADVANCED_PAUSE_WAITING_1        _UxGT("Stlačte tlačidlo")
+  #define MSG_ADVANCED_PAUSE_WAITING_2        _UxGT("pre obnovu tlače")
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Čakajte prosím")
   #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("na spustenie")
   #define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("výmeny filamentu")
+  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vložte filament")
+  #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("a stlačte tlačidlo")
+  #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("pre pokračovanie")
+  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Stlačte tlačidlo")
+  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("pre ohrev trysky")
+  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Ohrev trysky")
+  #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Čakajte prosím...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Čakajte prosím")
   #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("na vysunutie")
   #define MSG_FILAMENT_CHANGE_UNLOAD_3        _UxGT("filamentu")
-  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vložte filament")
-  #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("a stlačte")
-  #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("tlačidlo...")
-  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Kliknite pre")
-  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("ohrev trysky")
-  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Čakajte prosím")
-  #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("na teplotu trysky")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Čakajte prosím")
   #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("na zavedenie")
   #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("filamentu")
-  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Čakajte na")
-  #define MSG_FILAMENT_CHANGE_PURGE_2         _UxGT("vytlačenie")
-  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Čakajte prosím")
-  #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("na pokračovanie")
-  #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("tlače")
+  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Čakajte prosím")
+  #define MSG_FILAMENT_CHANGE_PURGE_2         _UxGT("na vytlačenie")
+  #define MSG_FILAMENT_CHANGE_PURGE_3         _UxGT("filamentu")
+  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Čakajte prosím na")
+  #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("obnovenie tlače...")
 #else // LCD_HEIGHT < 4
-  // Up to 2 lines allowed
+  #define MSG_ADVANCED_PAUSE_WAITING_1        _UxGT("Kliknite pre pokr.")
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Čakajte prosím...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Vysúvanie...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vložte a kliknite")

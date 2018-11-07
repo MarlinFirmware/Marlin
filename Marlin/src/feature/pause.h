@@ -37,6 +37,7 @@ typedef struct {
 #include "../libs/nozzle.h"
 
 enum AdvancedPauseMode : char {
+  ADVANCED_PAUSE_MODE_SAME,
   ADVANCED_PAUSE_MODE_PAUSE_PRINT,
   ADVANCED_PAUSE_MODE_LOAD_FILAMENT,
   ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT
@@ -44,18 +45,16 @@ enum AdvancedPauseMode : char {
 
 enum AdvancedPauseMessage : char {
   ADVANCED_PAUSE_MESSAGE_INIT,
+  ADVANCED_PAUSE_MESSAGE_WAITING,
   ADVANCED_PAUSE_MESSAGE_UNLOAD,
   ADVANCED_PAUSE_MESSAGE_INSERT,
   ADVANCED_PAUSE_MESSAGE_LOAD,
   ADVANCED_PAUSE_MESSAGE_PURGE,
-  #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-    ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE,
-  #endif
   ADVANCED_PAUSE_MESSAGE_OPTION,
   ADVANCED_PAUSE_MESSAGE_RESUME,
   ADVANCED_PAUSE_MESSAGE_STATUS,
-  ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE,
-  ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT
+  ADVANCED_PAUSE_MESSAGE_HEAT,
+  ADVANCED_PAUSE_MESSAGE_HEATING
 };
 
 enum AdvancedPauseMenuResponse : char {
@@ -84,7 +83,7 @@ void do_pause_e_move(const float &length, const float &fr);
 
 bool pause_print(const float &retract, const point_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
 
-void wait_for_filament_reload(const int8_t max_beep_count=0 DXC_PARAMS);
+void wait_for_confirmation(const bool is_reload=false, const int8_t max_beep_count=0 DXC_PARAMS);
 
 void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=ADVANCED_PAUSE_PURGE_LENGTH, const int8_t max_beep_count=0 DXC_PARAMS);
 

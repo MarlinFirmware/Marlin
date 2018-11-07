@@ -62,7 +62,7 @@ void lcd_sd_updir() {
     #endif
 
     lcd_goto_screen(menu_sdcard, last_sdfile_encoderPosition);
-    defer_return_to_status = true;
+    set_defer_return_to_status(true);
     last_sdfile_encoderPosition = 0xFFFF;
 
     #if HAS_GRAPHICAL_LCD
@@ -71,25 +71,31 @@ void lcd_sd_updir() {
   }
 #endif
 
-void menu_action_sdfile(CardReader &theCard) {
-  #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-    last_sdfile_encoderPosition = encoderPosition;  // Save which file was selected for later use
-  #endif
-  card.openAndPrintFile(theCard.filename);
-  lcd_return_to_status();
-  lcd_reset_status();
-}
+class menu_item_sdfile {
+  public:
+    static void action(CardReader &theCard) {
+      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+        last_sdfile_encoderPosition = encoderPosition;  // Save which file was selected for later use
+      #endif
+      card.openAndPrintFile(theCard.filename);
+      lcd_return_to_status();
+      lcd_reset_status();
+    }
+};
 
-void menu_action_sddirectory(CardReader &theCard) {
-  card.chdir(theCard.filename);
-  encoderTopLine = 0;
-  encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
-  screen_changed = true;
-  #if HAS_GRAPHICAL_LCD
-    drawing_screen = false;
-  #endif
-  lcd_refresh();
-}
+class menu_item_sddirectory {
+  public:
+    static void action(CardReader &theCard) {
+      card.chdir(theCard.filename);
+      encoderTopLine = 0;
+      encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
+      screen_changed = true;
+      #if HAS_GRAPHICAL_LCD
+        drawing_screen = false;
+      #endif
+      lcd_refresh();
+    }
+};
 
 void menu_sdcard() {
   ENCODER_DIRECTION_MENUS();

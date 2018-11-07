@@ -23,7 +23,6 @@
 #pragma once
 
 #define CPU_32_BIT
-#undef DEBUG_NONE
 
 // --------------------------------------------------------------------------
 // Includes

@@ -68,14 +68,16 @@ void GcodeSuite::M125() {
     park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
   #endif
 
-  const bool job_running = print_job_timer.isRunning();
+  const bool job_running = print_job_timer.isRunning(),
+             sd_printing = IS_SD_PRINTING();
 
-  if (pause_print(retract, park_point) && !IS_SD_PRINTING()) {
-    wait_for_filament_reload(); // Wait for lcd click or M108
-    resume_print();             // Return to print position and continue
+  if (pause_print(retract, park_point)) {
+    if (!sd_printing) {
+      wait_for_confirmation();
+      resume_print();
+    }
+    if (job_running) print_job_timer.start();
   }
-
-  if (job_running) print_job_timer.start();
 }
 
 #endif // PARK_HEAD_ON_PAUSE

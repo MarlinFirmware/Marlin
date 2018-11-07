@@ -95,7 +95,7 @@ static void lcd_power_loss_recovery_cancel() {
 }
 
 void menu_job_recovery() {
-  defer_return_to_status = true;
+  set_defer_return_to_status(true);
   START_MENU();
   STATIC_ITEM(MSG_POWER_LOSS_RECOVERY);
   MENU_ITEM(function, MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);

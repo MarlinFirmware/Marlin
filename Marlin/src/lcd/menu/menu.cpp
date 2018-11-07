@@ -59,7 +59,11 @@ typedef struct {
 } menuPosition;
 menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
-bool screen_changed, defer_return_to_status;
+bool screen_changed;
+
+#if LCD_TIMEOUT_TO_STATUS
+  bool defer_return_to_status;
+#endif
 
 // Value Editing
 PGM_P editLabel;
@@ -97,19 +101,18 @@ void lcd_goto_previous_menu() {
     lcd_return_to_status();
 }
 
-void lcd_goto_previous_menu_no_defer() {
-  defer_return_to_status = false;
-  lcd_goto_previous_menu();
-}
+#if LCD_TIMEOUT_TO_STATUS
+  void lcd_goto_previous_menu_no_defer() {
+    set_defer_return_to_status(false);
+    lcd_goto_previous_menu();
+  }
+#endif
 
 ////////////////////////////////////////////
 /////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
-void _menu_action_back() { lcd_goto_previous_menu(); }
-void menu_action_submenu(screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
-void menu_action_gcode(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
-void menu_action_function(screenFunc_t func) { (*func)(); }
+void menu_item_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -118,76 +121,71 @@ void menu_action_function(screenFunc_t func) { (*func)(); }
 /**
  * Functions for editing single values
  *
- * The "DEFINE_MENU_EDIT_TYPE" macro generates the functions needed to edit a numerical value.
+ * The "DEFINE_MENU_EDIT_ITEM" macro generates the functions needed to edit a numerical value.
  *
- * For example, DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1) expands into these functions:
+ * The prerequisite is that in the header the type was already declared:
  *
- *   bool _menu_edit_int3();
- *   void menu_edit_int3(); // edit int16_t (interactively)
- *   void menu_edit_callback_int3(); // edit int16_t (interactively) with callback on completion
- *   void _menu_action_setting_edit_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
- *   void menu_action_setting_edit_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
- *   void menu_action_setting_edit_callback_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback, const bool live); // edit int16_t with callback
+ *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1)
+ *
+ * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into these functions:
+ *
+ *   bool menu_item_int3::_edit();
+ *   void menu_item_int3::edit(); // edit int16_t (interactively)
+ *   void menu_item_int3::action_setting_edit(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback = null, const bool live = false);
  *
  * You can then use one of the menu macros to present the edit interface:
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
  *
  * This expands into a more primitive menu item:
- *   MENU_ITEM(setting_edit_int3, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *   MENU_ITEM_VARIANT(int3, _setting_edit, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  * ...which calls:
- *       menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *       menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  */
-#define DEFINE_MENU_EDIT_TYPE(TYPE, NAME, STRFUNC, SCALE) \
-  bool _menu_edit_ ## NAME() { \
-    ENCODER_DIRECTION_NORMAL(); \
-    if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
-    if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue; \
-    if (lcdDrawUpdate) \
-      lcd_implementation_drawedit(editLabel, STRFUNC(((TYPE)((int32_t)encoderPosition + minEditValue)) * (1.0f / SCALE))); \
-    if (lcd_clicked || (liveEdit && lcdDrawUpdate)) { \
-      TYPE value = ((TYPE)((int32_t)encoderPosition + minEditValue)) * (1.0f / SCALE); \
-      if (editValue != NULL) *((TYPE*)editValue) = value; \
-      if (callbackFunc && (liveEdit || lcd_clicked)) (*callbackFunc)(); \
-      if (lcd_clicked) lcd_goto_previous_menu(); \
-    } \
-    return use_click(); \
-  } \
-  void menu_edit_ ## NAME() { _menu_edit_ ## NAME(); } \
-  void _menu_action_setting_edit_ ## NAME(PGM_P const pstr, TYPE* const ptr, const TYPE minValue, const TYPE maxValue) { \
-    lcd_save_previous_screen(); \
-    lcd_refresh(); \
-    \
-    editLabel = pstr; \
-    editValue = ptr; \
-    minEditValue = minValue * SCALE; \
-    maxEditValue = maxValue * SCALE - minEditValue; \
-    encoderPosition = (*ptr) * SCALE - minEditValue; \
-  } \
-  void menu_action_setting_edit_callback_ ## NAME(PGM_P const pstr, TYPE * const ptr, const TYPE minValue, const TYPE maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) { \
-    _menu_action_setting_edit_ ## NAME(pstr, ptr, minValue, maxValue); \
-    currentScreen = menu_edit_ ## NAME; \
-    callbackFunc = callback; \
-    liveEdit = live; \
-  } \
-  typedef void NAME##_void
+void menu_item_invariants::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
+  ENCODER_DIRECTION_NORMAL();
+  if ((int32_t)encoderPosition < 0) encoderPosition = 0;
+  if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue;
+  if (lcdDrawUpdate)
+    lcd_implementation_drawedit(editLabel, strfunc(encoderPosition + minEditValue));
+  if (lcd_clicked || (liveEdit && lcdDrawUpdate)) {
+    if (editValue != NULL) loadfunc(editValue, encoderPosition + minEditValue);
+    if (callbackFunc && (liveEdit || lcd_clicked)) (*callbackFunc)();
+    if (lcd_clicked) lcd_goto_previous_menu();
+    lcd_clicked = false;
+  }
+}
 
-DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1);
-DEFINE_MENU_EDIT_TYPE(int16_t, int4, itostr4sign, 1);
-DEFINE_MENU_EDIT_TYPE(uint8_t, int8, i8tostr3, 1);
-DEFINE_MENU_EDIT_TYPE(float, float3, ftostr3, 1);
-DEFINE_MENU_EDIT_TYPE(float, float52, ftostr52, 100);
-DEFINE_MENU_EDIT_TYPE(float, float43, ftostr43sign, 1000);
-DEFINE_MENU_EDIT_TYPE(float, float5, ftostr5rj, 0.01f);
-DEFINE_MENU_EDIT_TYPE(float, float51, ftostr51sign, 10);
-DEFINE_MENU_EDIT_TYPE(float, float52sign, ftostr52sign, 100);
-DEFINE_MENU_EDIT_TYPE(float, float62, ftostr62rj, 100);
-DEFINE_MENU_EDIT_TYPE(uint32_t, long5, ftostr5rj, 0.01f);
+void menu_item_invariants::init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint32_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
+  lcd_save_previous_screen();
+  lcd_refresh();
+  editLabel = el;
+  editValue = ev;
+  minEditValue = minv;
+  maxEditValue = maxv;
+  encoderPosition = ep;
+  currentScreen = cs;
+  callbackFunc = cb;
+  liveEdit = le;
+}
 
-void menu_action_setting_edit_bool(PGM_P pstr, bool* ptr) { UNUSED(pstr); *ptr ^= true; lcd_refresh(); }
-void menu_action_setting_edit_callback_bool(PGM_P pstr, bool* ptr, screenFunc_t callback) {
-  menu_action_setting_edit_bool(pstr, ptr);
-  (*callback)();
+#define DEFINE_MENU_EDIT_ITEM(NAME) template class menu_item_template<NAME ## _item_info>;
+
+DEFINE_MENU_EDIT_ITEM(int3);
+DEFINE_MENU_EDIT_ITEM(int4);
+DEFINE_MENU_EDIT_ITEM(int8);
+DEFINE_MENU_EDIT_ITEM(float3);
+DEFINE_MENU_EDIT_ITEM(float52);
+DEFINE_MENU_EDIT_ITEM(float43);
+DEFINE_MENU_EDIT_ITEM(float5);
+DEFINE_MENU_EDIT_ITEM(float51);
+DEFINE_MENU_EDIT_ITEM(float52sign);
+DEFINE_MENU_EDIT_ITEM(float62);
+DEFINE_MENU_EDIT_ITEM(long5);
+
+void menu_item_bool::action_setting_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
+  UNUSED(pstr); *ptr ^= true; lcd_refresh();
+  if (callback) (*callback)();
 }
 
 ////////////////////////////////////////////
@@ -242,7 +240,7 @@ void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
     currentScreen = screen;
     encoderPosition = encoder;
     if (screen == lcd_status_screen) {
-      defer_return_to_status = false;
+      set_defer_return_to_status(false);
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         ubl.lcd_map_control = false;
       #endif
@@ -351,7 +349,7 @@ void lcd_completion_feedback(const bool good/*=true*/) {
 
   void lcd_babystep_zoffset() {
     if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
-    defer_return_to_status = true;
+    set_defer_return_to_status(true);
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
       const bool do_probe = (active_extruder == 0);
     #else

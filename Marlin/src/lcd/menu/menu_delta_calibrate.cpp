@@ -50,7 +50,7 @@ void _man_probe_pt(const float &rx, const float &ry) {
   float lcd_probe_pt(const float &rx, const float &ry) {
     _man_probe_pt(rx, ry);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
-    defer_return_to_status = true;
+    set_defer_return_to_status(true);
     wait_for_user = true;
     while (wait_for_user) idle();
     KEEPALIVE_STATE(IN_HANDLER);

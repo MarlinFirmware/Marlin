@@ -432,7 +432,7 @@ void lcd_reset_status() {
   if (print_job_timer.isPaused())
     msg = paused;
   #if ENABLED(SDSUPPORT)
-    else if (card.sdprinting)
+    else if (IS_SD_PRINTING())
       return lcd_setstatus(card.longest_filename(), true);
   #endif
   else if (print_job_timer.isRunning())

@@ -22,7 +22,7 @@
 
 #include "serial.h"
 
-uint8_t marlin_debug_flags = DEBUG_NONE;
+uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[]  PROGMEM = "echo:";
