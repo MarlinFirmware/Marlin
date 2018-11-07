@@ -20,6 +20,11 @@
  *
  */
 
+/**
+ * 24 May 2018 - @chepo for STM32F103VET6
+ * Schematic: https://github.com/chepo92/Smartto/blob/master/circuit_diagram/Rostock301/Hardware_GTM32_PRO_VB.pdf
+ */
+
 #ifndef __STM32F1__
   #error "Oops!  Make sure you have an STM32F1 board selected from the 'Tools -> Boards' menu."
 #endif
@@ -28,7 +33,7 @@
 #define BOARD_NAME "GTM32 Pro VB"
 
 //#define DISABLE_DEBUG
-//#define DISABLE_JTAG
+#define DISABLE_JTAG
 //#define DISABLE_JTAGSWD
 
 // Ignore temp readings during development.
@@ -75,6 +80,8 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN       PB0
+#define HEATER_1_PIN       PB5
+#define HEATER_2_PIN       PB4
 #define HEATER_BED_PIN     PB1
 
 #define FAN0_PIN           PB7   // TODO: Add functionality
@@ -85,6 +92,8 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN         PC2   // PORT NUMBERING
+#define TEMP_1_PIN         PC1   // PORT NUMBERING
+#define TEMP_2_PIN         PC0   // PORT NUMBERING
 #define TEMP_BED_PIN       PC3   // PORT NUMBERING
 
 //
