@@ -753,7 +753,7 @@ void GcodeSuite::process_next_command() {
   void GcodeSuite::process_subcommands_now(char * gcode) {
     char * const saved_cmd = parser.command_ptr;        // Save the parser state
     for (;;) {
-      const char * const delim = strchr(gcode, '\n');   // Get address of next newline
+      char * const delim = strchr(gcode, '\n');         // Get address of next newline
       if (delim) *delim = '\0';                         // Replace with nul
       parser.parse(gcode);                              // Parse the current command
       process_parsed_command(true);                     // Process it
