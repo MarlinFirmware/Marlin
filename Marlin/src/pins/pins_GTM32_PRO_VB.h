@@ -71,10 +71,13 @@
 #define E2_DIR_PIN         PB11
 #define E2_ENABLE_PIN      PC4
 
+#define NUM_SERIAL 2
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN       PB0
+#define HEATER_1_PIN       PB4
+#define HEATER_2_PIN       PB5
 #define HEATER_BED_PIN     PB1
 
 #define FAN0_PIN           PB7   // TODO: Add functionality
@@ -85,6 +88,8 @@
 // Temperature Sensors
 //
 #define TEMP_0_PIN         PC2   // PORT NUMBERING
+#define TEMP_1_PIN         PC0   // PORT NUMBERING
+#define TEMP_2_PIN	       PC1  // PORT NUMBERING
 #define TEMP_BED_PIN       PC3   // PORT NUMBERING
 
 //
@@ -92,9 +97,10 @@
 //
 #define LED_PWM            PD12   // External LED, pin 2 on LED labeled connector
 //#define RESET_PIN        NRST
-#define T_PEN              PE6
-
+//#define T_PEN              PE6
+#define SDSS               PA4
 #define BEEPER_PIN         PB10
+#define SDPOWER            -1
 
 //
 // LCD / Controller
@@ -142,6 +148,7 @@
 #define SPI2_MISO          PB14
 #define SPI2_SCK           PB13
 #define SPI2_NSS           PB12
+
 
 //
 // SD Card on LCD
