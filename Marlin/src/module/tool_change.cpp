@@ -538,7 +538,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #endif
     }
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
       lcd_return_to_status();
     #endif
 

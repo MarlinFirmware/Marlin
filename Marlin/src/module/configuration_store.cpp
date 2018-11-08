@@ -680,7 +680,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(lcd_preheat_hotend_temp);
 
-      #if DISABLED(ULTIPANEL)
+      #if !HAS_LCD_MENU
         constexpr int16_t lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
                           lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
         constexpr uint8_t lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
@@ -1306,7 +1306,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(lcd_preheat_hotend_temp);
 
-        #if DISABLED(ULTIPANEL)
+        #if !HAS_LCD_MENU
           int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
           uint8_t lcd_preheat_fan_speed[2];
         #endif
@@ -2027,7 +2027,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     lcd_preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     lcd_preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
     lcd_preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
@@ -2184,7 +2184,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif
     SERIAL_EOL_P(port);
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
 
       // Temperature units - for Ultipanel temperature options
 
@@ -2555,7 +2555,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #endif // [XYZ]_DUAL_ENDSTOPS
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
+
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM_P(port, "Material heatup parameters:");
@@ -2567,7 +2568,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOPAIR_P(port, " B", TEMP_UNIT(lcd_preheat_bed_temp[i]));
         SERIAL_ECHOLNPAIR_P(port, " F", int(lcd_preheat_fan_speed[i]));
       }
-    #endif // ULTIPANEL
+
+    #endif
 
     #if HAS_PID_HEATING
 
