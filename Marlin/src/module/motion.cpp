@@ -432,8 +432,6 @@ void do_blocking_move_to_xy(const float &rx, const float &ry, const float &fr_mm
 //
 //  - Save current feedrates
 //  - Reset the rate multiplier
-//  - Reset the command timeout
-//  - Enable the endstops (for endstop moves)
 //
 void bracket_probe_move(const bool before) {
   static float saved_feedrate_mm_s;
