@@ -198,6 +198,12 @@
   inline void lcd_setalertstatusPGM(PGM_P message) { UNUSED(message); }
 #endif
 
+#define HAS_ENCODER_ACTION (HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY))
+
+#if HAS_ENCODER_ACTION
+  extern uint32_t encoderPosition;
+#endif
+
 #if HAS_SPI_LCD
 
   #include "../Marlin.h"
@@ -375,29 +381,31 @@
 
 #endif
 
+#define HAS_DIGITAL_ENCODER (HAS_SPI_LCD && ENABLED(NEWPANEL))
+
+#if HAS_DIGITAL_ENCODER
+
+  // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
+  #define BLEN_A 0
+  #define BLEN_B 1
+
+  #define EN_A _BV(BLEN_A)
+  #define EN_B _BV(BLEN_B)
+
+  #if BUTTON_EXISTS(ENC)
+    #define BLEN_C 2
+    #define EN_C _BV(BLEN_C)
+  #endif
+
+  #if BUTTON_EXISTS(BACK)
+    #define BLEN_D 3
+    #define EN_D _BV(BLEN_D)
+    #define LCD_BACK_CLICKED (buttons & EN_D)
+  #endif
+
+#endif // HAS_DIGITAL_ENCODER
+
 #if HAS_LCD_MENU
-
-  #if HAS_DIGITAL_ENCODER
-
-    // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
-    #define BLEN_A 0
-    #define BLEN_B 1
-
-    #define EN_A _BV(BLEN_A)
-    #define EN_B _BV(BLEN_B)
-
-    #if BUTTON_EXISTS(ENC)
-      #define BLEN_C 2
-      #define EN_C _BV(BLEN_C)
-    #endif
-
-    #if BUTTON_EXISTS(BACK)
-      #define BLEN_D 3
-      #define EN_D _BV(BLEN_D)
-      #define LCD_BACK_CLICKED (buttons & EN_D)
-    #endif
-
-  #endif // NEWPANEL
 
   extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
   void lcd_buttons_update();

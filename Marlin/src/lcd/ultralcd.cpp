@@ -114,12 +114,16 @@ millis_t next_button_update_ms;
   bool drawing_screen, first_page; // = false
 #endif
 
-#if ENABLED(ENCODER_RATE_MULTIPLIER)
-  bool encoderRateMultiplierEnabled;
-#endif
-
-#if ENABLED(REVERSE_MENU_DIRECTION)
-  int8_t encoderDirection = 1;
+// Encoder Handling
+#if HAS_ENCODER_ACTION
+  uint32_t encoderPosition;
+  volatile int8_t encoderDiff; // Updated in lcd_buttons_update, added to encoderPosition every LCD update
+  #if ENABLED(ENCODER_RATE_MULTIPLIER)
+    bool encoderRateMultiplierEnabled;
+  #endif
+  #if ENABLED(REVERSE_MENU_DIRECTION)
+    int8_t encoderDirection = 1;
+  #endif
 #endif
 
 #if HAS_LCD_MENU
@@ -127,10 +131,10 @@ millis_t next_button_update_ms;
 
   screenFunc_t currentScreen = lcd_status_screen;
 
-  // Encoder Handling
-  volatile int8_t encoderDiff; // Updated in lcd_buttons_update, added to encoderPosition every LCD update
-  uint32_t encoderPosition;
-  millis_t lastEncoderMovementMillis = 0;
+  #if ENABLED(ENCODER_RATE_MULTIPLIER)
+    millis_t lastEncoderMovementMillis = 0;
+  #endif
+
   bool lcd_clicked, wait_for_unclick;
   float move_menu_scale;
 
@@ -139,6 +143,11 @@ millis_t next_button_update_ms;
     lcd_clicked = false;
     return click;
   }
+
+#else
+
+  constexpr bool lcd_clicked = false;
+
 #endif
 
 void lcd_init() {
@@ -200,7 +209,7 @@ void lcd_init() {
 
   lcd_buttons_update();
 
-  #if HAS_LCD_MENU
+  #if HAS_ENCODER_ACTION
     encoderDiff = 0;
   #endif
 }
@@ -229,17 +238,20 @@ bool lcd_blink() {
   inline bool handle_adc_keypad() {
     #define ADC_MIN_KEY_DELAY 100
     if (buttons_reprapworld_keypad) {
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-      if (encoderDirection == -1) { // side effect which signals we are inside a menu
-        if      (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
-        else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
-        else if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))   { menu_action_back();     lcd_quick_feedback(true); }
-        else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))  { lcd_return_to_status(); lcd_quick_feedback(true); }
-      }
-      else if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))     encoderPosition += ENCODER_PULSES_PER_STEP;
-      else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))       encoderPosition -= ENCODER_PULSES_PER_STEP;
-      else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))    encoderPosition = 0;
-
+      #if HAS_ENCODER_ACTION
+        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        if (encoderDirection == -1) { // side effect which signals we are inside a menu
+          #if HAS_LCD_MENU
+            if      (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
+            else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+            else if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))   { menu_item_back::action(); lcd_quick_feedback(true); }
+            else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))  { lcd_return_to_status(); lcd_quick_feedback(true); }
+          #endif
+        }
+        else if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))     encoderPosition += ENCODER_PULSES_PER_STEP;
+        else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))       encoderPosition -= ENCODER_PULSES_PER_STEP;
+        else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))    encoderPosition = 0;
+      #endif
       next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
       return true;
     }
@@ -249,20 +261,24 @@ bool lcd_blink() {
 
 #elif ENABLED(REPRAPWORLD_KEYPAD)
 
-  void lcd_move_x();
-  void lcd_move_y();
-  void lcd_move_z();
+  #if HAS_LCD_MENU
 
-  void _reprapworld_keypad_move(const AxisEnum axis, const int16_t dir) {
-    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-    encoderPosition = dir;
-    switch (axis) {
-      case X_AXIS: lcd_move_x(); break;
-      case Y_AXIS: lcd_move_y(); break;
-      case Z_AXIS: lcd_move_z();
-      default: break;
+    void lcd_move_x();
+    void lcd_move_y();
+    void lcd_move_z();
+
+    void _reprapworld_keypad_move(const AxisEnum axis, const int16_t dir) {
+      move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+      encoderPosition = dir;
+      switch (axis) {
+        case X_AXIS: lcd_move_x(); break;
+        case Y_AXIS: lcd_move_y(); break;
+        case Z_AXIS: lcd_move_z();
+        default: break;
+      }
     }
-  }
+
+  #endif
 
   inline void handle_reprapworld_keypad() {
 
@@ -278,23 +294,30 @@ bool lcd_blink() {
     else if (!keypad_debounce) {
       keypad_debounce = 2;
 
-      if (RRK(EN_REPRAPWORLD_KEYPAD_MIDDLE))  lcd_goto_screen(menu_move);
+      const bool homed = all_axes_homed();
 
-      #if DISABLED(DELTA) && Z_HOME_DIR == -1
-        if (RRK(EN_REPRAPWORLD_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
-      #endif
+      #if HAS_LCD_MENU
 
-      if (all_axes_homed()) {
-        #if ENABLED(DELTA) || Z_HOME_DIR != -1
-          if (RRK(EN_REPRAPWORLD_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
+        if (RRK(EN_REPRAPWORLD_KEYPAD_MIDDLE))  lcd_goto_screen(menu_move);
+
+        #if DISABLED(DELTA) && Z_HOME_DIR == -1
+          if (RRK(EN_REPRAPWORLD_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
         #endif
-        if (RRK(EN_REPRAPWORLD_KEYPAD_F3))    _reprapworld_keypad_move(Z_AXIS, -1);
-        if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))  _reprapworld_keypad_move(X_AXIS, -1);
-        if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT)) _reprapworld_keypad_move(X_AXIS,  1);
-        if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))  _reprapworld_keypad_move(Y_AXIS,  1);
-        if (RRK(EN_REPRAPWORLD_KEYPAD_UP))    _reprapworld_keypad_move(Y_AXIS, -1);
-      }
-      else if (RRK(EN_REPRAPWORLD_KEYPAD_F1)) enqueue_and_echo_commands_P(PSTR("G28"));
+
+        if (homed) {
+          #if ENABLED(DELTA) || Z_HOME_DIR != -1
+            if (RRK(EN_REPRAPWORLD_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
+          #endif
+          if (RRK(EN_REPRAPWORLD_KEYPAD_F3))    _reprapworld_keypad_move(Z_AXIS, -1);
+          if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))  _reprapworld_keypad_move(X_AXIS, -1);
+          if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT)) _reprapworld_keypad_move(X_AXIS,  1);
+          if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))  _reprapworld_keypad_move(Y_AXIS,  1);
+          if (RRK(EN_REPRAPWORLD_KEYPAD_UP))    _reprapworld_keypad_move(Y_AXIS, -1);
+        }
+
+      #endif // HAS_LCD_MENU
+
+      if (!homed && RRK(EN_REPRAPWORLD_KEYPAD_F1)) enqueue_and_echo_commands_P(PSTR("G28"));
     }
   }
 
@@ -387,32 +410,34 @@ void lcd_status_screen() {
       return;
     }
 
-    #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
-      const int16_t new_frm = feedrate_percentage + (int32_t)encoderPosition;
-      // Dead zone at 100% feedrate
-      if ((feedrate_percentage < 100 && new_frm > 100) || (feedrate_percentage > 100 && new_frm < 100)) {
-        feedrate_percentage = 100;
+  #endif // HAS_LCD_MENU
+
+  #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
+
+    const int16_t new_frm = feedrate_percentage + (int32_t)encoderPosition;
+    // Dead zone at 100% feedrate
+    if ((feedrate_percentage < 100 && new_frm > 100) || (feedrate_percentage > 100 && new_frm < 100)) {
+      feedrate_percentage = 100;
+      encoderPosition = 0;
+    }
+    else if (feedrate_percentage == 100) {
+      if ((int32_t)encoderPosition > ENCODER_FEEDRATE_DEADZONE) {
+        feedrate_percentage += (int32_t)encoderPosition - (ENCODER_FEEDRATE_DEADZONE);
         encoderPosition = 0;
       }
-      else if (feedrate_percentage == 100) {
-        if ((int32_t)encoderPosition > ENCODER_FEEDRATE_DEADZONE) {
-          feedrate_percentage += (int32_t)encoderPosition - (ENCODER_FEEDRATE_DEADZONE);
-          encoderPosition = 0;
-        }
-        else if ((int32_t)encoderPosition < -(ENCODER_FEEDRATE_DEADZONE)) {
-          feedrate_percentage += (int32_t)encoderPosition + ENCODER_FEEDRATE_DEADZONE;
-          encoderPosition = 0;
-        }
-      }
-      else {
-        feedrate_percentage = new_frm;
+      else if ((int32_t)encoderPosition < -(ENCODER_FEEDRATE_DEADZONE)) {
+        feedrate_percentage += (int32_t)encoderPosition + ENCODER_FEEDRATE_DEADZONE;
         encoderPosition = 0;
       }
-    #endif // ULTIPANEL_FEEDMULTIPLY
+    }
+    else {
+      feedrate_percentage = new_frm;
+      encoderPosition = 0;
+    }
 
     feedrate_percentage = constrain(feedrate_percentage, 10, 999);
 
-  #endif // HAS_LCD_MENU
+  #endif // ULTIPANEL_FEEDMULTIPLY
 
   #if LCD_INFO_SCREEN_STYLE == 0
     lcd_impl_status_screen_0();
@@ -594,6 +619,16 @@ LCDViewAction lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
   volatile uint8_t slow_buttons;
 #endif
 
+bool lcd_detected() {
+  return
+    #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && defined(DETECT_DEVICE)
+      lcd.LcdDetected() == 1
+    #else
+      true
+    #endif
+  ;
+}
+
 void lcd_update() {
 
   static uint16_t max_display_update_time = 0;
@@ -693,10 +728,14 @@ void lcd_update() {
         slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
       #endif
 
+    #endif // HAS_LCD_MENU
+
+    #if HAS_ENCODER_ACTION
+
       #if ENABLED(ADC_KEYPAD)
 
         if (handle_adc_keypad()) {
-          #if LCD_TIMEOUT_TO_STATUS
+          #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
             return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
           #endif
         }
@@ -710,9 +749,10 @@ void lcd_update() {
       const bool encoderPastThreshold = (ABS(encoderDiff) >= ENCODER_PULSES_PER_STEP);
       if (encoderPastThreshold || lcd_clicked) {
         if (encoderPastThreshold) {
-          int32_t encoderMultiplier = 1;
 
-          #if ENABLED(ENCODER_RATE_MULTIPLIER)
+          #if HAS_LCD_MENU && ENABLED(ENCODER_RATE_MULTIPLIER)
+
+            int32_t encoderMultiplier = 1;
 
             if (encoderRateMultiplierEnabled) {
               int32_t encoderMovementSteps = ABS(encoderDiff) / ENCODER_PULSES_PER_STEP;
@@ -737,18 +777,23 @@ void lcd_update() {
 
               lastEncoderMovementMillis = ms;
             } // encoderRateMultiplierEnabled
+
+          #else
+
+            constexpr int32_t encoderMultiplier = 1;
+
           #endif // ENCODER_RATE_MULTIPLIER
 
           encoderPosition += (encoderDiff * encoderMultiplier) / ENCODER_PULSES_PER_STEP;
           encoderDiff = 0;
         }
-        #if LCD_TIMEOUT_TO_STATUS
+        #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
           return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
         #endif
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       }
 
-    #endif // HAS_LCD_MENU
+    #endif
 
     // This runs every ~100ms when idling often enough.
     // Instead of tracking changes just redraw the Status Screen once per second.
@@ -1038,12 +1083,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       WRITE(SHIFT_CLK, LOW); \
     } \
     DST = ~new_##DST; //invert it, because a pressed switch produces a logical 0
-
-  #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && ENABLED(DETECT_DEVICE)
-    bool lcd_detected() { return lcd.LcdDetected() == 1; }
-  #else
-    bool lcd_detected() { return true; }
-  #endif
 
   #if ENABLED(G26_MESH_VALIDATION)
     void lcd_chirp() {
