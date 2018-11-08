@@ -103,6 +103,17 @@ class Endstops {
     static void poll();
 
     /**
+     * Update endstops, wait filter time to be sure to get a correct endstop status
+    */
+    FORCE_INLINE static void forceupdate() {
+      #if ENDSTOP_NOISE_THRESHOLD
+        do { update(); } while (endstop_poll_count);
+      #else
+        update();
+      #endif
+    }
+
+    /**
      * Update endstops bits from the pins. Apply filtering to get a verified state.
      * If abort_enabled() and moving towards a triggered switch, abort the current move.
      * Called from ISR contexts.

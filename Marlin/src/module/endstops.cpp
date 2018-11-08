@@ -260,18 +260,14 @@ void Endstops::poll() {
 void Endstops::enable_globally(const bool onoff) {
   enabled_globally = enabled = onoff;
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    update();
-  #endif
+  forceupdate();
 }
 
 // Enable / disable endstop checking
 void Endstops::enable(const bool onoff) {
   enabled = onoff;
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    update();
-  #endif
+  forceupdate();
 }
 
 // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
@@ -302,9 +298,7 @@ void Endstops::not_homing() {
   void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
 
-    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-      update();
-    #endif
+    forceupdate();
   }
 #endif
 

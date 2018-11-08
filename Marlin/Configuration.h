@@ -600,19 +600,21 @@
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
 //#define ENDSTOP_INTERRUPTS_FEATURE
 
-/**
- * Endstop Noise Threshold
- *
- * Enable if your probe or endstops falsely trigger due to noise.
- *
- * - Higher values may affect repeatability or accuracy of some bed probes.
- * - To fix noise install a 100nF ceramic capacitor inline with the switch.
- * - This feature is not required for common micro-switches mounted on PCBs
- *   based on the Makerbot design, which already have the 100nF capacitor.
- *
- * :[2,3,4,5,6,7]
- */
-//#define ENDSTOP_NOISE_THRESHOLD 2
+#if DISABLED(ENDSTOP_INTERRUPTS_FEATURE)
+  /**
+   * Endstop Noise Threshold
+   *
+   * Enable if your probe or endstops falsely trigger due to noise.
+   *
+   * - Higher values may affect repeatability or accuracy of some bed probes.
+   * - To fix noise install a 100nF ceramic capacitor inline with the switch.
+   * - This feature is not required for common micro-switches mounted on PCBs
+   *   based on the Makerbot design, which already have the 100nF capacitor.
+   *
+   * :[2,3,4,5,6,7]
+   */
+  //#define ENDSTOP_NOISE_THRESHOLD 2
+#endif
 
 //=============================================================================
 //============================== Movement Settings ============================
