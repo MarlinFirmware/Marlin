@@ -32,7 +32,7 @@
 
 #if ENABLED(MONITOR_DRIVER_STATUS)
 
-  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208))
+  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2660))
   #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 
   #define M91x_SOME_X (M91x_USE(X) || M91x_USE(X2))
@@ -41,7 +41,7 @@
   #define M91x_SOME_E (M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5))
 
   #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_SOME_E
-    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130 or TMC2208."
+    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, TMC2208, or TMC2660."
   #endif
 
   /**
