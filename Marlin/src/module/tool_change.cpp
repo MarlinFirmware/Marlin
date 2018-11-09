@@ -499,9 +499,10 @@ inline void invalid_extruder_error(const uint8_t e) {
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
   #if EXTRUDERS < 2
-
-    return invalid_extruder_error(tmp_extruder);
-
+  {
+    if(tmp_extruder) return invalid_extruder_error(tmp_extruder);
+    return;
+  }
   #elif ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
       if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
