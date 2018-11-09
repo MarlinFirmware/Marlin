@@ -1522,6 +1522,20 @@ void homeaxis(const AxisEnum axis) {
       }
     #endif
 
+    // Reset flags for X, Y, Z motor locking
+    switch (axis) {
+      #if ENABLED(X_DUAL_ENDSTOPS)
+        case X_AXIS:
+      #endif
+      #if ENABLED(Y_DUAL_ENDSTOPS)
+        case Y_AXIS:
+      #endif
+      #if Z_MULTI_ENDSTOPS
+        case Z_AXIS:
+      #endif
+      stepper.set_separate_multi_axis(false);
+      default: break;
+    }
   #endif
 
   #if IS_SCARA
