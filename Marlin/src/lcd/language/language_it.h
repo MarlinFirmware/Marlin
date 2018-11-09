@@ -416,6 +416,9 @@
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Attendere")
   #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("lo spurgo")
   #define MSG_FILAMENT_CHANGE_PURGE_3       _UxGT("del filamento")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Premi x terminare")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("lo spurgo")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_3  _UxGT("del filamento")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Attendere")
   #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("la ripresa")
   #define MSG_FILAMENT_CHANGE_RESUME_3      _UxGT("della stampa...")
@@ -428,5 +431,6 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Espulsione...")
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Caricamento...")
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Spurgo filamento")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Premi x terminare")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Ripresa...")
 #endif // LCD_HEIGHT < 4
