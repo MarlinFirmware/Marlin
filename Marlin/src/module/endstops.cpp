@@ -260,14 +260,14 @@ void Endstops::poll() {
 void Endstops::enable_globally(const bool onoff) {
   enabled_globally = enabled = onoff;
 
-  forceupdate();
+  force_update();
 }
 
 // Enable / disable endstop checking
 void Endstops::enable(const bool onoff) {
   enabled = onoff;
 
-  forceupdate();
+  force_update();
 }
 
 // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
@@ -298,7 +298,7 @@ void Endstops::not_homing() {
   void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
 
-    forceupdate();
+    force_update();
   }
 #endif
 
