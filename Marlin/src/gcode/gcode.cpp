@@ -624,6 +624,12 @@ void GcodeSuite::process_parsed_command(
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
+      #if ENABLED(GCODE_MACROS)
+        case 810: case 811: case 812: case 813: case 814:
+        case 815: case 816: case 817: case 818: case 819:
+        M810_819(); break;                                        // M810-M819: Define/execute G-code macro
+      #endif
+
       #if ENABLED(LIN_ADVANCE)
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif

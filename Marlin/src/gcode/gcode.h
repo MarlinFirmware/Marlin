@@ -211,8 +211,9 @@
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M665 - Set delta configurations: "M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim> (Requires DELTA)
  * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops (Requires [XYZ]_DUAL_ENDSTOPS).
- * M701 - Load filament (requires FILAMENT_LOAD_UNLOAD_GCODES)
- * M702 - Unload filament (requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
  * M860 - Report the position of position encoder modules.
@@ -758,6 +759,10 @@ private:
 
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
+  #endif
+
+  #if ENABLED(GCODE_MACROS)
+    static void M810_819();
   #endif
 
   #if HAS_BED_PROBE

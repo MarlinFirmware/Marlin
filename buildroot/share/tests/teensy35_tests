@@ -35,6 +35,7 @@ exec_test $1 $2 "Teensy3.5 with many features"
 restore_configs
 opt_enable EEPROM_SETTINGS \
            Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE
+opt_enable_adv GCODE_MACROS
 exec_test $1 $2 "Sled Z Probe with Linear leveling"
 
 #

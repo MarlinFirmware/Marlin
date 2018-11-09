@@ -188,7 +188,8 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode) {
 
 #if HAS_QUEUE_NOW
   /**
-   * Enqueue and return only when commands are actually enqueued
+   * Enqueue and return only when commands are actually enqueued.
+   * Never call this from a G-code handler!
    */
   void enqueue_and_echo_command_now(const char* cmd) {
     while (!enqueue_and_echo_command(cmd)) idle();
@@ -196,6 +197,7 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode) {
   #if HAS_LCD_QUEUE_NOW
     /**
      * Enqueue from program memory and return only when commands are actually enqueued
+     * Never call this from a G-code handler!
      */
     void enqueue_and_echo_commands_now_P(PGM_P const pgcode) {
       enqueue_and_echo_commands_P(pgcode);
