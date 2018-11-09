@@ -258,16 +258,14 @@ void Endstops::poll() {
 }
 
 void Endstops::enable_globally(const bool onoff) {
+  if (onoff && !enabled) force_update();
   enabled_globally = enabled = onoff;
-
-  force_update();
 }
 
 // Enable / disable endstop checking
 void Endstops::enable(const bool onoff) {
+  if (onoff && !enabled) force_update();
   enabled = onoff;
-
-  force_update();
 }
 
 // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
@@ -296,9 +294,8 @@ void Endstops::not_homing() {
 // Enable / disable endstop z-probe checking
 #if HAS_BED_PROBE
   void Endstops::enable_z_probe(const bool onoff) {
+    if (onoff && !z_probe_enabled) force_update();
     z_probe_enabled = onoff;
-
-    force_update();
   }
 #endif
 
