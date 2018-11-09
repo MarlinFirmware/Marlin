@@ -27,7 +27,7 @@
 /**
  * ultralcd_impl_HD44780.cpp
  *
- * Implementation of the LCD display routines for a Hitachi HD44780 display.
+ * LCD display implementations for Hitachi HD44780.
  * These are the most common LCD character displays.
  */
 
@@ -44,43 +44,46 @@
   #include "../../feature/bedlevel/ubl/ubl.h"
 #endif
 
-////////////////////////////////////
-// Create LCD class instance and chipset-specific information
+//
+// Create LCD instance and chipset-specific information
+//
+
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
+
   LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_I2C_PIN_EN, LCD_I2C_PIN_RW, LCD_I2C_PIN_RS, LCD_I2C_PIN_D4, LCD_I2C_PIN_D5, LCD_I2C_PIN_D6, LCD_I2C_PIN_D7);
 
-#elif ENABLED(LCD_I2C_TYPE_MCP23017)
-  #if ENABLED(DETECT_DEVICE)
-    LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
-  #else
-    LCD_CLASS lcd(LCD_I2C_ADDRESS);
-  #endif
+#elif ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)
 
-#elif ENABLED(LCD_I2C_TYPE_MCP23008)
-  #if ENABLED(DETECT_DEVICE)
-    LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
-  #else
-    LCD_CLASS lcd(LCD_I2C_ADDRESS);
-  #endif
+  LCD_CLASS lcd(LCD_I2C_ADDRESS
+    #ifdef DETECT_DEVICE
+      , 1
+    #endif
+  );
 
 #elif ENABLED(LCD_I2C_TYPE_PCA8574)
+
   LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
 
-// 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 #elif ENABLED(SR_LCD_2W_NL)
-  #if PIN_EXISTS(SR_STROBE)
-    LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN, SR_STROBE_PIN);
-  #else
-    LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
-  #endif
+
+  // 2 wire Non-latching LCD SR from:
+  // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+
+  LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN
+    #if PIN_EXISTS(SR_STROBE)
+      , SR_STROBE_PIN
+    #endif
+  );
 
 #elif ENABLED(LCM1602)
+
   LCD_CLASS lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);
 
 #else
-  // Standard directly connected LCD implementations
-  LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7); //RS,Enable,D4,D5,D6,D7
+
+  // Standard direct-connected LCD implementations
+  LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7);
+
 #endif
 
 #if ENABLED(LCD_HAS_STATUS_INDICATORS)

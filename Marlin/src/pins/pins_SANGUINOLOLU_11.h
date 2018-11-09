@@ -153,7 +153,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if ENABLED(ULTRA_LCD)
 
   #if ENABLED(DOGLCD)
 
@@ -217,9 +217,6 @@
 
   #endif // !DOGLCD
 
-  #define BTN_EN1               11
-  #define BTN_EN2               10
-
   #if ENABLED(LCD_I2C_PANELOLU2)
 
     #if ENABLED(IS_MELZI)
@@ -258,7 +255,6 @@
     #define LCD_PINS_D7         17
     #define ADC_KEYPAD_PIN       1
 
-    // Not used
     #define BTN_EN1             -1
     #define BTN_EN2             -1
 
@@ -269,9 +265,14 @@
 
   #endif
 
+  #if ENABLED(NEWPANEL) && !defined(BTN_EN1)
+    #define BTN_EN1             11
+    #define BTN_EN2             10
+  #endif
+
   #define SD_DETECT_PIN         -1
 
-#endif // ULTRA_LCD && NEWPANEL
+#endif // ULTRA_LCD
 
 //
 // M3/M4/M5 - Spindle/Laser Control

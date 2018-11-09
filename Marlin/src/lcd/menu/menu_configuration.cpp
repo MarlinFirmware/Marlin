@@ -36,6 +36,8 @@
   #include "../../feature/runout.h"
 #endif
 
+#define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
+
 void menu_advanced_settings();
 void menu_delta_calibrate();
 
