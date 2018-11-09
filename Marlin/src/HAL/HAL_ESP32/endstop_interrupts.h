@@ -38,7 +38,7 @@
 #include "../../module/endstops.h"
 
 // One ISR for all EXT-Interrupts
-void ICACHE_RAM_ATTR endstop_ISR(void) { endstops.update(); }
+void ICACHE_RAM_ATTR endstop_ISR(void) { endstops.force_update(); }
 
 void setup_endstop_interrupts(void) {
   #if HAS_X_MAX
