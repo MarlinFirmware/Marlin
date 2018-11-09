@@ -104,7 +104,7 @@ class Endstops {
 
     /**
      * Update endstops, wait filter time to be sure to get a correct endstop status
-    */
+     */
     FORCE_INLINE static void forceupdate() {
       #if ENDSTOP_NOISE_THRESHOLD
         do { update(); } while (endstop_poll_count);
