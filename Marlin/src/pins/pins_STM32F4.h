@@ -21,7 +21,7 @@
  */
 
 #if !defined(STM32F4) && !defined(STM32F4xx)
-  #error "Oops!  Make sure you have an STM32F4 board selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
 #define DEFAULT_MACHINE_NAME "STM32F407VET6"

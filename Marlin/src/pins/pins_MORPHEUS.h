@@ -30,7 +30,7 @@
  */
 
 #ifndef __STM32F1__
-  #error "Oops!  Make sure you have an STM32F1 board selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
 #define BOARD_NAME "Bluepill based board"

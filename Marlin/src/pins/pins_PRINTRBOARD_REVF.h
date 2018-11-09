@@ -33,7 +33,7 @@
  *  Teensyduino -  https://www.pjrc.com/teensy/teensyduino.html
  *  Installation - https://www.pjrc.com/teensy/td_download.html
  *
- *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools -> Boards' menu
+ *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Note: With Teensyduino extension, the Arduino IDE will report 130048 bytes of program storage space available,
  *    but there is actually only 122880 bytes due to the larger DFU bootloader shipped by default on all Printrboard RevF.
@@ -48,7 +48,7 @@
  *          hardware directory in Arduino.  The Arduino hardware directory will probably
  *          be located in a path similar to this: C:\Program Files (x86)\Arduino\hardware.
  *       3. Restart Arduino.
- *       4. Select "Printrboard" from the 'Tools -> Boards' menu.
+ *       4. Select "Printrboard" from the 'Tools > Board' menu.
  *
  *  Teensyduino is the most popular and easiest option.
  */
@@ -63,7 +63,7 @@
  */
 
 #ifndef __AVR_AT90USB1286__
-  #error "Oops!  Make sure you have 'Teensy++ 2.0' or 'Printrboard' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
 #ifndef USBCON
