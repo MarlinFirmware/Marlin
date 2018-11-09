@@ -45,14 +45,14 @@
  */
 
 #if ENABLED(TARGET_LPC1768)
-  #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
+  #error "Oops!  Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
 #elif defined(__STM32F1__)
-  #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
+  #error "Oops!  Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
 #endif
 
 #if DISABLED(IS_RAMPS_SMART) && DISABLED(IS_RAMPS_DUO) && DISABLED(IS_RAMPS4DUE) && DISABLED(TARGET_LPC1768)
   #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-    #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
+    #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
   #endif
 #endif
 
@@ -66,9 +66,9 @@
 #ifdef IS_RAMPS_13
   #define SERVO0_PIN        7   // RAMPS_13 // Will conflict with BTN_EN2 on LCD_I2C_VIKI
 #else
-  #define SERVO0_PIN       11
+  #define SERVO0_PIN        6	  // 11
 #endif
-#define SERVO1_PIN          6
+#define SERVO1_PIN         -1	  // 6
 #define SERVO2_PIN          5
 #ifndef SERVO3_PIN
   #define SERVO3_PIN        4
@@ -84,13 +84,13 @@
 #define Y_MIN_PIN          14
 #define Y_MAX_PIN          15
 #define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#define Z_MAX_PIN          -1
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  32
+  #define Z_MIN_PROBE_PIN  19
 #endif
 
 //
@@ -100,35 +100,39 @@
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
 #ifndef X_CS_PIN
-  #define X_CS_PIN         53
+  #define X_CS_PIN         37
 #endif
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
 #ifndef Y_CS_PIN
-  #define Y_CS_PIN         49
+  #define Y_CS_PIN         16
 #endif
 
 #define Z_STEP_PIN         46
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
 #ifndef Z_CS_PIN
-  #define Z_CS_PIN         40
+  #define Z_CS_PIN         23
+#endif
+
+#ifndef Z2_CS_PIN
+  #define Z2_CS_PIN        29
 #endif
 
 #define E0_STEP_PIN        26
 #define E0_DIR_PIN         28
 #define E0_ENABLE_PIN      24
 #ifndef E0_CS_PIN
-  #define E0_CS_PIN        42
+  #define E0_CS_PIN        27
 #endif
 
 #define E1_STEP_PIN        36
 #define E1_DIR_PIN         34
 #define E1_ENABLE_PIN      30
 #ifndef E1_CS_PIN
-  #define E1_CS_PIN        44
+  #define E1_CS_PIN        -1
 #endif
 
 /**
@@ -136,13 +140,13 @@
  */
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI    66
+    #define TMC_SW_MOSI    51
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO    44
+    #define TMC_SW_MISO    50
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK     64
+    #define TMC_SW_SCK     52
   #endif
 #endif
 
@@ -231,7 +235,7 @@
 // Heaters / Fans
 //
 #ifndef MOSFET_D_PIN
-  #define MOSFET_D_PIN     -1
+  #define MOSFET_D_PIN     7
 #endif
 #ifndef RAMPS_D8_PIN
   #define RAMPS_D8_PIN      8
@@ -278,7 +282,7 @@
 //
 // Misc. Functions
 //
-#define SDSS               53
+#define SDSS               49
 #define LED_PIN            13
 
 #ifndef FILWIDTH_PIN
@@ -370,12 +374,15 @@
 
     #elif ENABLED(ZONESTAR_LCD)
 
-      #define LCD_PINS_RS       64
-      #define LCD_PINS_ENABLE   44
-      #define LCD_PINS_D4       63
-      #define LCD_PINS_D5       40
-      #define LCD_PINS_D6       42
-      #define LCD_PINS_D7       65
+      #define LCD_PINS_RS       40
+      #define LCD_PINS_ENABLE   42
+      #define LCD_PINS_D4       59 // A5 SCK
+      #define LCD_PINS_D5       64 // A10
+      #define LCD_PINS_D6       44 // Digi SCL
+      #define LCD_PINS_D7       66 // A12 SDA
+      #define BTN_EN1          -1
+      #define BTN_EN2          -1
+      #define BTN_ENC          -1
 
     #else
 
@@ -544,7 +551,7 @@
 
     #elif ENABLED(ZONESTAR_LCD)
 
-      #define ADC_KEYPAD_PIN    12
+      #define ADC_KEYPAD_PIN    11
 
     #elif ENABLED(AZSMZ_12864)
 

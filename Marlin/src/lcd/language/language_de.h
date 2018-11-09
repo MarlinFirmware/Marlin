@@ -159,6 +159,7 @@
 #define MSG_UBL_RESTORE_ERROR               _UxGT("ERR:UBL wiederherst.")
 #define MSG_UBL_Z_OFFSET_STOPPED            _UxGT("Z-Versatz angehalten")
 #define MSG_UBL_STEP_BY_STEP_MENU           _UxGT("Schrittweises UBL")
+
 #define MSG_LED_CONTROL                     _UxGT("LED-Steuerung")
 #define MSG_LEDS                            _UxGT("Licht")
 #define MSG_LED_PRESETS                     _UxGT("Licht-Einstellungen")
@@ -177,6 +178,7 @@
 #define MSG_INTENSITY_B                     _UxGT("Intensität Blau")
 #define MSG_INTENSITY_W                     _UxGT("Intensität Weiß")
 #define MSG_LED_BRIGHTNESS                  _UxGT("Helligkeit")
+
 #define MSG_MOVING                          _UxGT("In Bewegung...")
 #define MSG_FREE_XY                         _UxGT("Abstand XY")
 #define MSG_MOVE_X                          _UxGT("Bewege X")
@@ -377,7 +379,6 @@
 #define MSG_INFO_MIN_TEMP                   _UxGT("Min Temp")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Max Temp")
 #define MSG_INFO_PSU                        _UxGT("Netzteil")
-
 #define MSG_DRIVE_STRENGTH                  _UxGT("Treiberstärke")
 #define MSG_DAC_PERCENT                     _UxGT("Treiber %")
 #define MSG_DAC_EEPROM_WRITE                _UxGT("Werte speichern")
@@ -393,16 +394,15 @@
 #define MSG_ERR_PROBING_FAILED              _UxGT("Probing gescheitert")
 #define MSG_M600_TOO_COLD                   _UxGT("M600: zu kalt")
 
+//
+// Die Filament-Change-Bildschirme können bis zu 3 Zeilen auf einem 4-Zeilen-Display anzeigen
+//                                       ...oder 2 Zeilen auf einem 3-Zeilen-Display.
 #if LCD_HEIGHT >= 4
-  // Up to 3 lines allowed
   #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("Knopf drücken um")
   #define MSG_ADVANCED_PAUSE_WAITING_2      _UxGT("Druck fortzusetzen")
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Warte auf den")
   #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("Start des")
   #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("Filamentwechsels...")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Warte auf")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("Herausnahme")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_3      _UxGT("des Filaments...")
   #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Filament einlegen")
   #define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("und Knopf drücken")
   #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("um fortzusetzen")
@@ -410,24 +410,31 @@
   #define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("Düse aufzuheizen")
   #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Düse heizt auf")
   #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("bitte warten...")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Warte auf")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("Herausnahme")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_3      _UxGT("des Filaments...")
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Warte auf")
   #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("Laden des")
   #define MSG_FILAMENT_CHANGE_LOAD_3        _UxGT("Filaments...")
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Warte auf")
   #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("Entladen des")
   #define MSG_FILAMENT_CHANGE_PURGE_3       _UxGT("Filaments...")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Klicke um")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("die Fila-Entladung")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_3  _UxGT("zu beenden")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Warte auf")
   #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("Fortsetzen des")
   #define MSG_FILAMENT_CHANGE_RESUME_3      _UxGT("Drucks...")
 #else // LCD_HEIGHT < 4
-  // Up to 2 lines allowed
   #define MSG_ADVANCED_PAUSE_WAITING_1      MSG_USERWAIT
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Bitte warten...")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Entladen...")
   #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Laden und Klick")
   #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("Klick zum Heizen")
   #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Heizen...")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Entladen...")
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Laden...")
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Entladen...")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Klick zum beenden")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("der Fila-Entladung")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Fortsetzen...")
 #endif // LCD_HEIGHT < 4
