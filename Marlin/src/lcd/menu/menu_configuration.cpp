@@ -36,6 +36,8 @@
   #include "../../feature/runout.h"
 #endif
 
+#define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
+
 void menu_advanced_settings();
 void menu_delta_calibrate();
 
@@ -54,7 +56,7 @@ static void lcd_factory_settings() {
     static int8_t bar_percent = 0;
     if (use_click()) {
       lcd_goto_previous_menu();
-      lcd_set_custom_characters(CHARSET_MENU);
+      LCD_SET_CHARSET(CHARSET_MENU);
       return;
     }
     bar_percent += (int8_t)encoderPosition;
@@ -68,7 +70,7 @@ static void lcd_factory_settings() {
 
   void _progress_bar_test() {
     lcd_goto_screen(progress_bar_test);
-    lcd_set_custom_characters();
+    LCD_SET_CHARSET(CHARSET_INFO);
   }
 
 #endif // LCD_PROGRESS_BAR_TEST
@@ -96,7 +98,7 @@ static void lcd_factory_settings() {
   void menu_tool_change() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
-    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    #if ENABLED(TOOLCHANGE_PARK)
       MENU_ITEM_EDIT(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, 200);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
       MENU_MULTIPLIER_ITEM_EDIT(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);

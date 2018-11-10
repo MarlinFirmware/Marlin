@@ -370,7 +370,8 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
     BUZZ(100, 698);
 
     PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
-    lcd_setstatusPGM(ds_str);
+    lcd_return_to_status();       // To display the new status message
+    lcd_setstatusPGM(ds_str, 99);
     serialprintPGM(ds_str);
     SERIAL_EOL();
 
@@ -542,15 +543,14 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
       tmc_stallguard(stepperY);
     #endif
     tmc_stallguard(stepperZ);
+    endstops.enable(true);
   #endif
 
   #if QUIET_PROBING
     probing_pause(true);
   #endif
 
-  endstops.enable(true);
-
-  // Move down until probe triggered
+  // Move down until the probe is triggered
   do_blocking_move_to_z(z, fr_mm_s);
 
   // Check to see if the probe was triggered
@@ -574,6 +574,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_PROBING)
+    endstops.not_homing();
     #if ENABLED(DELTA)
       tmc_stallguard(stepperX, false);
       tmc_stallguard(stepperY, false);

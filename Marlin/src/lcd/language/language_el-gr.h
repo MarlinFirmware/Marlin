@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Greek (Greece)
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_EL_GR_H
-#define LANGUAGE_EL_GR_H
 
 #define DISPLAY_CHARSET_ISO10646_GREEK
 #define CHARSIZE 2
@@ -186,5 +185,3 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Βαθμονόμηση Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Βαθμονόμηση Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Βαθμονόμηση κέντρου")
-
-#endif // LANGUAGE_EL_GR_H

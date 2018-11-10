@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Description: HAL for Arduino Due and compatible (SAM3X8E)
  *
  * For ARDUINO_ARCH_SAM
  */
-
-#ifndef _HAL_DUE_H
-#define _HAL_DUE_H
 
 #define CPU_32_BIT
 
@@ -189,5 +187,3 @@ char *dtostrf (double __val, signed char __width, unsigned char __prec, char *__
 #ifdef __cplusplus
   }
 #endif
-
-#endif // _HAL_DUE_H

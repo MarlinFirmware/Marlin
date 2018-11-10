@@ -19,9 +19,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifndef MARLINSERIAL_H
-#define MARLINSERIAL_H
 #include <HardwareSerial.h>
 #include <WString.h>
 
@@ -33,7 +32,6 @@
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0
 #endif
-
 #ifndef RX_BUFFER_SIZE
   #define RX_BUFFER_SIZE 128
 #endif
@@ -67,5 +65,3 @@ extern MarlinSerial MSerial;
 extern MarlinSerial MSerial1;
 extern MarlinSerial MSerial2;
 extern MarlinSerial MSerial3;
-
-#endif // MARLINSERIAL_H

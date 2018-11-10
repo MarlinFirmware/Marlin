@@ -115,12 +115,12 @@ typedef struct LEDColor {
  * Color helpers and presets
  */
 #if HAS_WHITE_LED
-  #define LEDColorWhite() LEDColor(0, 0, 0, 255)
   #if ENABLED(NEOPIXEL_LED)
     #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W, I)
   #else
     #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W)
   #endif
+  #define LEDColorWhite() LEDColor(0, 0, 0, 255)
 #else
   #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B)
   #define LEDColorWhite() LEDColor(255, 255, 255)
@@ -164,9 +164,9 @@ public:
     );
   }
 
-  static void set_white();
   FORCE_INLINE static void set_off()   { set_color(LEDColorOff()); }
   FORCE_INLINE static void set_green() { set_color(LEDColorGreen()); }
+  FORCE_INLINE static void set_white() { set_color(LEDColorWhite()); }
 
   #if ENABLED(LED_COLOR_PRESETS)
     static const LEDColor defaultLEDColor;
@@ -179,9 +179,15 @@ public:
     FORCE_INLINE static void set_violet()   { set_color(LEDColorViolet()); }
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    FORCE_INLINE static LEDColor get_color() { return lights_on ? color : LEDColorOff(); }
+  #endif
+
+  #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
     static LEDColor color; // last non-off color
     static bool lights_on; // the last set color was "on"
+  #endif
+  #if ENABLED(LED_CONTROL_MENU)
     static void toggle();  // swap "off" with color
     FORCE_INLINE static void update() { set_color(color); }
   #endif

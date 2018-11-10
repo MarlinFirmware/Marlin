@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __BEDLEVEL_H__
-#define __BEDLEVEL_H__
+#pragma once
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -82,8 +80,6 @@ void reset_bed_level();
   #include "mbl/mesh_bed_leveling.h"
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
   #include "ubl/ubl.h"
-#elif HAS_ABL
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
   #include "abl/abl.h"
 #endif
-
-#endif // __BEDLEVEL_H__

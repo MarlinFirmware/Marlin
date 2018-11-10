@@ -43,7 +43,7 @@
  */
 
 #if !defined(__SAM3X8E__) && !defined(__AVR_ATmega2560__)
-  #error "Oops!  Make sure you have 'Arduino Due' or 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
 #ifndef BOARD_NAME

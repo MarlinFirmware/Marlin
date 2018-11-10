@@ -160,17 +160,6 @@
 
 bool Running = true;
 
-/**
- * axis_homed
- *   Flags that each linear axis was homed.
- *   XYZ on cartesian, ABC on delta, ABZ on SCARA.
- *
- * axis_known_position
- *   Flags that the position is known in each linear axis. Set when homed.
- *   Cleared whenever a stepper powers off, potentially losing its position.
- */
-uint8_t axis_homed, axis_known_position; // = 0
-
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   TempUnit input_temp_units = TEMPUNIT_C;
 #endif
@@ -202,9 +191,9 @@ volatile bool wait_for_heatup = true;
 millis_t max_inactive_time, // = 0
          stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
-#ifdef CHDK
-  millis_t chdkHigh; // = 0;
-  bool chdkActive; // = false;
+#if PIN_EXISTS(CHDK)
+  extern bool chdk_active;
+  extern millis_t chdk_timeout;
 #endif
 
 #if ENABLED(I2C_POSITION_ENCODERS)
@@ -334,7 +323,7 @@ void disable_all_steppers() {
  *  - Keep the command buffer full
  *  - Check for maximum inactive time between commands
  *  - Check for maximum inactive time between stepper commands
- *  - Check if pin CHDK needs to go LOW
+ *  - Check if CHDK_PIN needs to go LOW
  *  - Check for KILL button held down
  *  - Check for HOME button held down
  *  - Check if cooling fan needs to be switched on
@@ -379,16 +368,19 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
       #if ENABLED(DISABLE_INACTIVE_E)
         disable_e_steppers();
       #endif
-      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(ULTIPANEL)  // Only needed with an LCD
-        if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
+      #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
+        if (ubl.lcd_map_control) {
+          ubl.lcd_map_control = false;
+          set_defer_return_to_status(false);
+        }
       #endif
     }
   }
 
-  #ifdef CHDK // Check if pin should be set to LOW after M240 set it to HIGH
-    if (chdkActive && ELAPSED(ms, chdkHigh + CHDK_DELAY)) {
-      chdkActive = false;
-      WRITE(CHDK, LOW);
+  #if PIN_EXISTS(CHDK) // Check if pin should be set to LOW (after M240 set it HIGH)
+    if (chdk_active && ELAPSED(ms, chdk_timeout)) {
+      chdk_active = false;
+      WRITE(CHDK_PIN, LOW);
     }
   #endif
 

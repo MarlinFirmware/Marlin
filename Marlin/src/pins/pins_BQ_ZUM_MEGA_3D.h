@@ -25,7 +25,7 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops! Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
 #define BOARD_NAME "ZUM Mega 3D"
@@ -33,10 +33,10 @@
 //
 // Heaters / Fans
 //
-#define RAMPS_D8_PIN  10
-#define RAMPS_D9_PIN  12
-#define RAMPS_D10_PIN  9
-#define MOSFET_D_PIN   7
+#define RAMPS_D8_PIN       10
+#define RAMPS_D9_PIN       12
+#define RAMPS_D10_PIN       9
+#define MOSFET_D_PIN        7
 
 //
 // Auto fans
@@ -45,11 +45,6 @@
 #define ORIG_E1_AUTO_FAN_PIN  6
 #define ORIG_E2_AUTO_FAN_PIN  6
 #define ORIG_E3_AUTO_FAN_PIN  6
-
-//
-// Misc. Functions
-//
-#define CASE_LIGHT_PIN     44   // MUST BE HARDWARE PWM
 
 //
 // M3/M4/M5 - Spindle/Laser Control
@@ -64,37 +59,39 @@
 // Limit Switches
 //
 #undef X_MAX_PIN
-#define X_MAX_PIN         79   // 2
+#define X_MAX_PIN          79   // 2
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #undef Z_MIN_PROBE_PIN
-#define Z_MIN_PROBE_PIN   19   // IND_S_5V
+#define Z_MIN_PROBE_PIN    19   // IND_S_5V
 
 #undef Z_ENABLE_PIN
-#define Z_ENABLE_PIN      77   // 62
+#define Z_ENABLE_PIN       77   // 62
 
 //
 // Steppers
 //
-#define DIGIPOTSS_PIN     22
-#define DIGIPOT_CHANNELS  { 4, 5, 3, 0, 1 }
+#define DIGIPOTSS_PIN      22
+#define DIGIPOT_CHANNELS   { 4, 5, 3, 0, 1 }
 
 //
 // Temperature Sensors
 //
 #undef TEMP_1_PIN
-#define TEMP_1_PIN        14   // Analog Input (15)
+#define TEMP_1_PIN         14   // Analog Input (15)
 
 #undef TEMP_BED_PIN
-#define TEMP_BED_PIN      15   // Analog Input (14)
+#define TEMP_BED_PIN       15   // Analog Input (14)
 
 //
 // Misc. Functions
 //
-#undef PS_ON_PIN               // 12
-#define PS_ON_PIN         81   // External Power Supply
+#undef PS_ON_PIN                // 12
+#define PS_ON_PIN          81   // External Power Supply
+
+#define CASE_LIGHT_PIN     44   // MUST BE HARDWARE PWM
 
 
 // This board has headers for Z-min, Z-max and IND_S_5V *but* as the bq team
@@ -104,15 +101,14 @@
 #ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef Z_MIN_PIN
   #undef Z_MAX_PIN
-  #define Z_MIN_PIN       19   // IND_S_5V
-  #define Z_MAX_PIN       18   // Z-MIN Label
+  #define Z_MIN_PIN        19   // IND_S_5V
+  #define Z_MAX_PIN        18   // Z-MIN Label
 #endif
 
-
 //
-// This pin is used by the official Hephestos 2 heated bed upgrade kit
+// Used by the Hephestos 2 heated bed upgrade kit
 //
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
   #undef HEATER_BED_PIN
-  #define HEATER_BED_PIN 8
+  #define HEATER_BED_PIN    8
 #endif

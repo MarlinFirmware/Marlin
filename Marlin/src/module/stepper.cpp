@@ -115,7 +115,7 @@ Stepper stepper; // Singleton
 
 // public:
 
-#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
+#if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
   bool Stepper::separate_multi_axis = false;
 #endif
 
@@ -142,10 +142,10 @@ bool Stepper::abort_current_block;
 #if ENABLED(Y_DUAL_ENDSTOPS)
   bool Stepper::locked_Y_motor = false, Stepper::locked_Y2_motor = false;
 #endif
-#if Z_MULTI_ENDSTOPS
+#if Z_MULTI_ENDSTOPS || ENABLED(Z_STEPPER_AUTO_ALIGN)
   bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false;
 #endif
-#if ENABLED(Z_TRIPLE_ENDSTOPS)
+#if ENABLED(Z_TRIPLE_ENDSTOPS) || (ENABLED(Z_STEPPER_AUTO_ALIGN) && ENABLED(Z_TRIPLE_STEPPER_DRIVERS))
   bool Stepper::locked_Z3_motor = false;
 #endif
 
@@ -211,7 +211,7 @@ volatile int32_t Stepper::endstops_trigsteps[XYZ];
 volatile int32_t Stepper::count_position[NUM_AXIS] = { 0 };
 int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
 
-#define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                       \
+#define DUAL_ENDSTOP_APPLY_STEP(A,V)                                                                                        \
   if (separate_multi_axis) {                                                                                                \
     if (A##_HOME_DIR < 0) {                                                                                                 \
       if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
@@ -227,7 +227,17 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     A##2_STEP_WRITE(V);                                                                                                     \
   }
 
-#define TRIPLE_ENDSTOP_APPLY_STEP(A,V)                                                                                       \
+#define DUAL_SEPARATE_APPLY_STEP(A,V)             \
+  if (separate_multi_axis) {                      \
+    if (!locked_##A##_motor) A##_STEP_WRITE(V);   \
+    if (!locked_##A##2_motor) A##2_STEP_WRITE(V); \
+  }                                               \
+  else {                                          \
+    A##_STEP_WRITE(V);                            \
+    A##2_STEP_WRITE(V);                           \
+  }
+
+#define TRIPLE_ENDSTOP_APPLY_STEP(A,V)                                                                                      \
   if (separate_multi_axis) {                                                                                                \
     if (A##_HOME_DIR < 0) {                                                                                                 \
       if (!(TEST(endstops.state(), A##_MIN) && count_direction[_AXIS(A)] < 0) && !locked_##A##_motor) A##_STEP_WRITE(V);    \
@@ -298,6 +308,8 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }while(0)
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Z,v)
+  #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #define Z_APPLY_STEP(v,Q) DUAL_SEPARATE_APPLY_STEP(Z,v)
   #else
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }while(0)
   #endif
@@ -486,14 +498,14 @@ void Stepper::set_directions() {
    *        rhi = int32_t((mul >> 32) & 0xFFFFFFFF);
    *      }
    *      int32_t _eval_bezier_curve_arm(uint32_t curr_step) {
-   *        register uint32_t flo = 0;
-   *        register uint32_t fhi = bezier_AV * curr_step;
-   *        register uint32_t t = fhi;
-   *        register int32_t alo = bezier_F;
-   *        register int32_t ahi = 0;
-   *        register int32_t A = bezier_A;
-   *        register int32_t B = bezier_B;
-   *        register int32_t C = bezier_C;
+   *        uint32_t flo = 0;
+   *        uint32_t fhi = bezier_AV * curr_step;
+   *        uint32_t t = fhi;
+   *        int32_t alo = bezier_F;
+   *        int32_t ahi = 0;
+   *        int32_t A = bezier_A;
+   *        int32_t B = bezier_B;
+   *        int32_t C = bezier_C;
    *
    *        lsrs(ahi, alo, 1);          // a  = F << 31
    *        lsls(alo, alo, 31);         //
@@ -618,13 +630,13 @@ void Stepper::set_directions() {
       bezier_AV = av;
 
       // Calculate the rest of the coefficients
-      register uint8_t r2 = v0 & 0xFF;
-      register uint8_t r3 = (v0 >> 8) & 0xFF;
-      register uint8_t r12 = (v0 >> 16) & 0xFF;
-      register uint8_t r5 = v1 & 0xFF;
-      register uint8_t r6 = (v1 >> 8) & 0xFF;
-      register uint8_t r7 = (v1 >> 16) & 0xFF;
-      register uint8_t r4,r8,r9,r10,r11;
+      uint8_t r2 = v0 & 0xFF;
+      uint8_t r3 = (v0 >> 8) & 0xFF;
+      uint8_t r12 = (v0 >> 16) & 0xFF;
+      uint8_t r5 = v1 & 0xFF;
+      uint8_t r6 = (v1 >> 8) & 0xFF;
+      uint8_t r7 = (v1 >> 16) & 0xFF;
+      uint8_t r4,r8,r9,r10,r11;
 
       __asm__ __volatile__(
         /* Calculate the Bézier coefficients */
@@ -720,11 +732,11 @@ void Stepper::set_directions() {
       if (!curr_step)
         return bezier_F;
 
-      register uint8_t r0 = 0; /* Zero register */
-      register uint8_t r2 = (curr_step) & 0xFF;
-      register uint8_t r3 = (curr_step >> 8) & 0xFF;
-      register uint8_t r4 = (curr_step >> 16) & 0xFF;
-      register uint8_t r1,r5,r6,r7,r8,r9,r10,r11; /* Temporary registers */
+      uint8_t r0 = 0; /* Zero register */
+      uint8_t r2 = (curr_step) & 0xFF;
+      uint8_t r3 = (curr_step >> 8) & 0xFF;
+      uint8_t r4 = (curr_step >> 16) & 0xFF;
+      uint8_t r1,r5,r6,r7,r8,r9,r10,r11; /* Temporary registers */
 
       __asm__ __volatile(
         /* umul24x24to16hi(t, bezier_AV, curr_step);  t: Range 0 - 1^16 = 16 bits*/
@@ -1115,14 +1127,14 @@ void Stepper::set_directions() {
       #if defined(__ARM__) || defined(__thumb__)
 
         // For ARM Cortex M3/M4 CPUs, we have the optimized assembler version, that takes 43 cycles to execute
-        register uint32_t flo = 0;
-        register uint32_t fhi = bezier_AV * curr_step;
-        register uint32_t t = fhi;
-        register int32_t alo = bezier_F;
-        register int32_t ahi = 0;
-        register int32_t A = bezier_A;
-        register int32_t B = bezier_B;
-        register int32_t C = bezier_C;
+        uint32_t flo = 0;
+        uint32_t fhi = bezier_AV * curr_step;
+        uint32_t t = fhi;
+        int32_t alo = bezier_F;
+        int32_t ahi = 0;
+        int32_t A = bezier_A;
+        int32_t B = bezier_B;
+        int32_t C = bezier_C;
 
          __asm__ __volatile__(
           ".syntax unified" "\n\t"              // is to prevent CM0,CM1 non-unified syntax
@@ -2086,7 +2098,6 @@ void Stepper::init() {
 
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
-  endstops.enable(true); // Start with endstops active. After homing they can be disabled
   sei();
   set_directions(); // Init directions to last_direction_bits = 0  Keeps Z from being reversed
 }
@@ -2206,21 +2217,21 @@ void Stepper::report_positions() {
 
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
 
-  #if CORE_IS_XY || CORE_IS_XZ || IS_DELTA || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
     SERIAL_PROTOCOLPGM(MSG_COUNT_A);
   #else
     SERIAL_PROTOCOLPGM(MSG_COUNT_X);
   #endif
   SERIAL_PROTOCOL(xpos);
 
-  #if CORE_IS_XY || CORE_IS_YZ || IS_DELTA || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_YZ || ENABLED(DELTA) || IS_SCARA
     SERIAL_PROTOCOLPGM(" B:");
   #else
     SERIAL_PROTOCOLPGM(" Y:");
   #endif
   SERIAL_PROTOCOL(ypos);
 
-  #if CORE_IS_XZ || CORE_IS_YZ || IS_DELTA
+  #if CORE_IS_XZ || CORE_IS_YZ || ENABLED(DELTA)
     SERIAL_PROTOCOLPGM(" C:");
   #else
     SERIAL_PROTOCOLPGM(" Z:");

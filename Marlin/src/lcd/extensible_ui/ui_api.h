@@ -49,123 +49,154 @@ typedef const __FlashStringHelper *progmem_str;
 
 namespace UI {
 
-  enum axis_t : uint8_t { X, Y, Z, E0, E1, E2, E3, E4, E5 };
+  enum axis_t     : uint8_t { X, Y, Z };
+  enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5 };
+  enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED };
+  enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5 };
 
   constexpr uint8_t extruderCount = EXTRUDERS;
+  constexpr uint8_t hotendCount   = HOTENDS;
   constexpr uint8_t fanCount      = FAN_COUNT;
 
-  // The following methods should be used by the extension module to
-  // query or change Marlin's state.
-
-  progmem_str getFirmwareName();
-
-  bool isAxisPositionKnown(const axis_t axis);
   bool isMoving();
+  bool isAxisPositionKnown(const axis_t);
+  bool canMove(const axis_t);
+  bool canMove(const extruder_t);
+  void enqueueCommands(progmem_str);
 
-  float getActualTemp_celsius(const uint8_t extruder);
-  float getTargetTemp_celsius(const uint8_t extruder);
-  float getFan_percent(const uint8_t fan);
-  float getAxisPosition_mm(const axis_t axis);
-  float getAxisSteps_per_mm(const axis_t axis);
-  float getAxisMaxFeedrate_mm_s(const axis_t axis);
-  float getAxisMaxAcceleration_mm_s2(const axis_t axis);
+  /**
+   * Getters and setters
+   * Should be used by the EXTENSIBLE_UI to query or change Marlin's state.
+   */
+  progmem_str getFirmwareName_str();
+
+  float getActualTemp_celsius(const heater_t);
+  float getActualTemp_celsius(const extruder_t);
+  float getTargetTemp_celsius(const heater_t);
+  float getTargetTemp_celsius(const extruder_t);
+  float getFan_percent(const fan_t);
+  float getAxisPosition_mm(const axis_t);
+  float getAxisPosition_mm(const extruder_t);
+  float getAxisSteps_per_mm(const axis_t);
+  float getAxisSteps_per_mm(const extruder_t);
+  float getAxisMaxFeedrate_mm_s(const axis_t);
+  float getAxisMaxFeedrate_mm_s(const extruder_t);
+  float getAxisMaxAcceleration_mm_s2(const axis_t);
+  float getAxisMaxAcceleration_mm_s2(const extruder_t);
   float getMinFeedrate_mm_s();
   float getMinTravelFeedrate_mm_s();
   float getPrintingAcceleration_mm_s2();
   float getRetractAcceleration_mm_s2();
   float getTravelAcceleration_mm_s2();
-  float getFeedRate_percent();
+  float getFeedrate_percent();
   uint8_t getProgress_percent();
   uint32_t getProgress_seconds_elapsed();
 
   #if ENABLED(PRINTCOUNTER)
-    char *getTotalPrints_str(char buffer[21]);
-    char *getFinishedPrints_str(char buffer[21]);
-    char *getTotalPrintTime_str(char buffer[21]);
-    char *getLongestPrint_str(char buffer[21]);
-    char *getFilamentUsed_str(char buffer[21]);
+    char* getTotalPrints_str(char buffer[21]);
+    char* getFinishedPrints_str(char buffer[21]);
+    char* getTotalPrintTime_str(char buffer[21]);
+    char* getLongestPrint_str(char buffer[21]);
+    char* getFilamentUsed_str(char buffer[21]);
   #endif
 
-  void setTargetTemp_celsius(const uint8_t extruder, float temp);
-  void setFan_percent(const uint8_t fan, const float percent);
-  void setAxisPosition_mm(const axis_t axis, float position, float _feedrate_mm_s);
-  void setAxisSteps_per_mm(const axis_t axis, const float steps_per_mm);
-  void setAxisMaxFeedrate_mm_s(const axis_t axis, const float max_feedrate_mm_s);
-  void setAxisMaxAcceleration_mm_s2(const axis_t axis, const float max_acceleration_mm_per_s2);
-  void setMinFeedrate_mm_s(const float min_feedrate_mm_s);
-  void setMinTravelFeedrate_mm_s(const float min_travel_feedrate_mm_s);
-  void setPrintingAcceleration_mm_s2(const float acceleration);
-  void setRetractAcceleration_mm_s2(const float retract_acceleration);
-  void setTravelAcceleration_mm_s2(const float travel_acceleration);
-  void setFeedrate_percent(const float percent);
+  void setTargetTemp_celsius(const float, const heater_t);
+  void setTargetTemp_celsius(const float, const extruder_t);
+  void setFan_percent(const float, const fan_t);
+  void setAxisPosition_mm(const float, const axis_t);
+  void setAxisPosition_mm(const float, const extruder_t);
+  void setAxisSteps_per_mm(const float, const axis_t);
+  void setAxisSteps_per_mm(const float, const extruder_t);
+  void setAxisMaxFeedrate_mm_s(const float, const axis_t);
+  void setAxisMaxFeedrate_mm_s(const float, const extruder_t);
+  void setAxisMaxAcceleration_mm_s2(const float, const axis_t);
+  void setAxisMaxAcceleration_mm_s2(const float, const extruder_t);
+  void setFeedrate_mm_s(const float);
+  void setMinFeedrate_mm_s(const float);
+  void setMinTravelFeedrate_mm_s(const float);
+  void setPrintingAcceleration_mm_s2(const float);
+  void setRetractAcceleration_mm_s2(const float);
+  void setTravelAcceleration_mm_s2(const float);
+  void setFeedrate_percent(const float);
 
   #if ENABLED(LIN_ADVANCE)
-    float getLinearAdvance_mm_mm_s(const uint8_t extruder);
-    void setLinearAdvance_mm_mm_s(const uint8_t extruder, const float k);
+    float getLinearAdvance_mm_mm_s(const extruder_t);
+    void setLinearAdvance_mm_mm_s(const float, const extruder_t);
   #endif
 
   #if ENABLED(JUNCTION_DEVIATION)
     float getJunctionDeviation_mm();
-    void setJunctionDeviation_mm(const float junc_dev);
+    void setJunctionDeviation_mm(const float);
   #else
-    float getAxisMaxJerk_mm_s(const axis_t axis);
-    void setAxisMaxJerk_mm_s(const axis_t axis, const float max_jerk);
+    float getAxisMaxJerk_mm_s(const axis_t);
+    float getAxisMaxJerk_mm_s(const extruder_t);
+    void setAxisMaxJerk_mm_s(const float, const axis_t);
+    void setAxisMaxJerk_mm_s(const float, const extruder_t);
   #endif
 
-  void setActiveTool(uint8_t extruder, bool no_move);
-  uint8_t getActiveTool();
+  extruder_t getActiveTool();
+  void setActiveTool(const extruder_t, bool no_move);
+
 
   #if HOTENDS > 1
-    float getNozzleOffset_mm(const axis_t axis, uint8_t extruder);
-    void setNozzleOffset_mm(const axis_t axis, uint8_t extruder, float offset);
+    float getNozzleOffset_mm(const axis_t, const extruder_t);
+    void setNozzleOffset_mm(const float, const axis_t, const extruder_t);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     float getZOffset_mm();
-    void setZOffset_mm(const float zoffset_mm);
-    void incrementZOffset_steps(const int16_t babystep_increment);
+    void setZOffset_mm(const float);
+    void addZOffset_steps(const int16_t);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
-    float getAxisBacklash_mm(const axis_t axis);
-    void setAxisBacklash_mm(const axis_t axis, float distance);
+    float getAxisBacklash_mm(const axis_t);
+    void setAxisBacklash_mm(const float, const axis_t);
 
     float getBacklashCorrection_percent();
-    void setBacklashCorrection_percent(float percent);
+    void setBacklashCorrection_percent(const float);
 
     #ifdef BACKLASH_SMOOTHING_MM
       float getBacklashSmoothing_mm();
-      void setBacklashSmoothing_mm(float distance);
+      void setBacklashSmoothing_mm(const float);
     #endif
   #endif
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    bool isFilamentRunoutEnabled();
-    void toggleFilamentRunout(const bool state);
+    bool getFilamentRunoutEnabled();
+    void setFilamentRunoutEnabled(const bool);
 
     #if FILAMENT_RUNOUT_DISTANCE_MM > 0
       float getFilamentRunoutDistance_mm();
-      void setFilamentRunoutDistance_mm(const float distance);
+      void setFilamentRunoutDistance_mm(const float);
     #endif
   #endif
 
-  // This safe_millis is safe to use even when printer is killed (as long as called at least every 1 second)
+  /**
+   * Delay and timing routines
+   * Should be used by the EXTENSIBLE_UI to safely pause or measure time
+   * safe_millis must be called at least every 1 sec to guarantee time
+   * yield should be called within lengthy loops
+   */
   uint32_t safe_millis();
   void delay_us(unsigned long us);
   void delay_ms(unsigned long ms);
-  void yield(); // Within lengthy loop, call this periodically
+  void yield();
 
-  void enqueueCommands(progmem_str gcode);
-
-  void printFile(const char *filename);
+  /**
+   * Media access routines
+   *
+   * Should be used by the EXTENSIBLE_UI to operate on files
+   */
+  bool isMediaInserted();
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
+
+  void printFile(const char *filename);
   void stopPrint();
   void pausePrint();
   void resumePrint();
-
-  bool isMediaInserted();
 
   class FileList {
     private:
@@ -173,23 +204,25 @@ namespace UI {
 
     public:
       FileList();
-      void        refresh();
-      bool        seek(uint16_t, bool skip_range_check = false);
+      void refresh();
+      bool seek(uint16_t, bool skip_range_check = false);
 
       const char *longFilename();
       const char *shortFilename();
       const char *filename();
-      bool        isDir();
+      bool isDir();
 
-      void        changeDir(const char *dirname);
-      void        upDir();
-      bool        isAtRootDir();
+      void changeDir(const char *dirname);
+      void upDir();
+      bool isAtRootDir();
       uint16_t    count();
   };
 
-  // The following event handlers are to be declared by the extension
-  // module and will be called by Marlin.
-
+  /**
+   * Event callback routines
+   *
+   * Should be declared by EXTENSIBLE_UI and will be called by Marlin
+   */
   void onStartup();
   void onIdle();
   void onMediaInserted();
@@ -207,3 +240,25 @@ namespace UI {
   void onStoreSettings();
   void onLoadSettings();
 };
+
+/**
+ * Helper macros to increment or decrement a value. For example:
+ *
+ *   UI_INCREMENT_BY(TargetTemp_celsius, 10, E0)
+ *
+ * Expands to:
+ *
+ *   setTargetTemp_celsius(getTargetTemp_celsius(E0) + 10, E0);
+ *
+ * Or, in the case where a constant increment is desired:
+ *
+ *   constexpr float increment = 10;
+ *
+ *   UI_INCREMENT(TargetTemp_celsius, E0)
+ *
+ */
+#define UI_INCREMENT_BY(method, inc, ...) UI::set ## method(UI::get ## method (__VA_ARGS__) + inc, ##__VA_ARGS__)
+#define UI_DECREMENT_BY(method, inc, ...) UI::set ## method(UI::get ## method (__VA_ARGS__) - inc, ##__VA_ARGS__)
+
+#define UI_INCREMENT(method, ...) UI_INCREMENT_BY(method, increment, ##__VA_ARGS__)
+#define UI_DECREMENT(method, ...) UI_DECREMENT_BY(method, increment, ##__VA_ARGS__)

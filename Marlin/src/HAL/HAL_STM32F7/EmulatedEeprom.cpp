@@ -137,4 +137,3 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n) {
 }
 
 #endif // STM32F7
-

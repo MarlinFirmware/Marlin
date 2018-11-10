@@ -110,7 +110,7 @@ git reset --hard
 git clean -d -f
 
 # Copy built-site into the gh-pages branch
-git checkout gh-pages
+git checkout gh-pages || { echo "Something went wrong!"; exit 1; }
 rsync -av ${TMPFOLDER}/ ./
 
 # Commit and push the new live site directly

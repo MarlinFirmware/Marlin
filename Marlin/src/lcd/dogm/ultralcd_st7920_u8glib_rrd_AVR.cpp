@@ -25,9 +25,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(U8GLIB_ST7920)
-
-#if !(defined(U8G_HAL_LINKS) || defined(__SAM3X8E__))
+#if ENABLED(U8GLIB_ST7920) && !defined(U8G_HAL_LINKS) && !defined(__SAM3X8E__)
 
 #include "../../HAL/shared/Delay.h"
 
@@ -73,9 +71,9 @@
   #define CPU_ST7920_DELAY_2 DELAY_NS(0)
   #define CPU_ST7920_DELAY_3 DELAY_NS(189)
 #elif defined(ARDUINO_ARCH_STM32)
-  #define CPU_ST7920_DELAY_1 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_2 DELAY_NS(0)
-  #define CPU_ST7920_DELAY_3 DELAY_NS(0)
+  #define CPU_ST7920_DELAY_1 DELAY_NS(300)
+  #define CPU_ST7920_DELAY_2 DELAY_NS(40)
+  #define CPU_ST7920_DELAY_3 DELAY_NS(340)
 #elif F_CPU == 16000000
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(0)
@@ -202,6 +200,4 @@ u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = {u8g_dev_rrd_st7920_128x64_fn, &u8g
 
 #pragma GCC reset_options
 
-#endif // U8G_HAL_LINKS
-
-#endif // U8GLIB_ST7920
+#endif // U8GLIB_ST7920 && !U8G_HAL_LINKS && !__SAM3X8E__

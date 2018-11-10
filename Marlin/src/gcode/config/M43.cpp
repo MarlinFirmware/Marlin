@@ -38,7 +38,7 @@ inline void toggle_pins() {
   const bool ignore_protection = parser.boolval('I');
   const int repeat = parser.intval('R', 1),
             start = PARSED_PIN_INDEX('S', 0),
-            end = PARSED_PIN_INDEX('E', NUM_DIGITAL_PINS - 1),
+            end = PARSED_PIN_INDEX('L', NUM_DIGITAL_PINS - 1),
             wait = parser.intval('W', 500);
 
   for (uint8_t i = start; i <= end; i++) {

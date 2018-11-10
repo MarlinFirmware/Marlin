@@ -79,7 +79,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
 
 #include <U8glib.h>
 
@@ -156,7 +156,7 @@ uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
          return 0;
         }
 
-        register uint8_t *ptr = (uint8_t *)arg_ptr;
+        uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
           if (u8g_i2c_send_byte(*ptr++) == 0) {
             u8g_i2c_stop();
@@ -175,7 +175,7 @@ uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
           return 0;
         }
 
-        register uint8_t *ptr = (uint8_t *)arg_ptr;
+        uint8_t *ptr = (uint8_t *)arg_ptr;
         while (arg_val > 0) {
           if (u8g_i2c_send_byte(u8g_pgm_read(ptr)) == 0)
             return 0;
@@ -198,6 +198,6 @@ uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
   return 1;
 }
 
-#endif // DOGLCD
+#endif // HAS_GRAPHICAL_LCD
 
 #endif // TARGET_LPC1768

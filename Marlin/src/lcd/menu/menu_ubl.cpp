@@ -51,7 +51,7 @@ float mesh_edit_value, mesh_edit_accumulator; // We round mesh_edit_value to 2.5
 static int16_t ubl_encoderPosition = 0;
 
 static void _lcd_mesh_fine_tune(PGM_P msg) {
-  defer_return_to_status = true;
+  set_defer_return_to_status(true);
   if (ubl.encoder_diff) {
     ubl_encoderPosition = (ubl.encoder_diff > 0) ? 1 : -1;
     ubl.encoder_diff = 0;
@@ -74,7 +74,7 @@ static void _lcd_mesh_fine_tune(PGM_P msg) {
 }
 
 void _lcd_mesh_edit_NOP() {
-  defer_return_to_status = true;
+  set_defer_return_to_status(true);
 }
 
 float lcd_mesh_edit() {
@@ -158,7 +158,7 @@ void _lcd_ubl_adjust_height_cmd() {
  */
 void _menu_ubl_height_adjust() {
   START_MENU();
-  MENU_BACK(MSG_UBL_EDIT_MESH_MENU);
+  MENU_BACK(MSG_EDIT_MESH);
   MENU_ITEM_EDIT_CALLBACK(int3, MSG_UBL_MESH_HEIGHT_AMOUNT, &ubl_height_amount, -9, 9, _lcd_ubl_adjust_height_cmd);
   MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
   END_MENU();
@@ -408,7 +408,7 @@ void _lcd_ubl_storage_mesh() {
 void _lcd_ubl_output_map_lcd();
 
 void _lcd_ubl_map_homing() {
-  defer_return_to_status = true;
+  set_defer_return_to_status(true);
   _lcd_draw_homing();
   if (all_axes_homed()) {
     ubl.lcd_map_control = true; // Return to the map screen
@@ -502,7 +502,7 @@ void _lcd_ubl_output_map_lcd() {
  */
 void _lcd_ubl_output_map_lcd_cmd() {
   if (!all_axes_known()) {
-    axis_homed = 0;
+    set_all_unhomed();
     enqueue_and_echo_commands_P(PSTR("G28"));
   }
   lcd_goto_screen(_lcd_ubl_map_homing);
@@ -542,7 +542,7 @@ void _menu_ubl_tools() {
   MENU_ITEM(submenu, MSG_UBL_BUILD_MESH_MENU, _lcd_ubl_build_mesh);
   MENU_ITEM(gcode, MSG_UBL_MANUAL_MESH, PSTR("G29 I999\nG29 P2 B T0"));
   MENU_ITEM(submenu, MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
-  MENU_ITEM(submenu, MSG_UBL_EDIT_MESH_MENU, _lcd_ubl_edit_mesh);
+  MENU_ITEM(submenu, MSG_EDIT_MESH, _lcd_ubl_edit_mesh);
   MENU_ITEM(submenu, MSG_UBL_MESH_LEVELING, _lcd_ubl_mesh_leveling);
   END_MENU();
 }

@@ -21,7 +21,7 @@
  */
 
 #if !defined(__STM32F1__) && !defined(__STM32F4__)
-  #error "Oops!  Make sure you have an STM32F1/4 board selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select an STM32F1/4 board in 'Tools > Board.'"
 #endif
 
 /**
@@ -286,4 +286,3 @@
 #define U_MIN_PIN          -1
 #define V_MIN_PIN          -1
 #define W_MIN_PIN          -1
-

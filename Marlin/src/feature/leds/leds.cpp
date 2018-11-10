@@ -48,7 +48,7 @@
   );
 #endif
 
-#if ENABLED(LED_CONTROL_MENU)
+#if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
   LEDColor LEDLights::color;
   bool LEDLights::lights_on;
 #endif
@@ -72,7 +72,9 @@ void LEDLights::set_color(const LEDColor &incol
 
   #if ENABLED(NEOPIXEL_LED)
 
-    const uint32_t neocolor = pixels.Color(incol.r, incol.g, incol.b, incol.w);
+    const uint32_t neocolor = LEDColorWhite() == incol
+                            ? pixels.Color(NEO_WHITE)
+                            : pixels.Color(incol.r, incol.g, incol.b, incol.w);
     static uint16_t nextLed = 0;
 
     pixels.setBrightness(incol.i);
@@ -117,19 +119,10 @@ void LEDLights::set_color(const LEDColor &incol
     pca9632_set_led_color(incol);
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
+  #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
     // Don't update the color when OFF
     lights_on = !incol.is_off();
     if (lights_on) color = incol;
-  #endif
-}
-
-void LEDLights::set_white() {
-  #if ENABLED(RGB_LED) || ENABLED(RGBW_LED) || ENABLED(BLINKM) || ENABLED(PCA9632)
-    set_color(LEDColorWhite());
-  #endif
-  #if ENABLED(NEOPIXEL_LED)
-    set_neopixel_color(pixels.Color(NEO_WHITE));
   #endif
 }
 

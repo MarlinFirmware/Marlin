@@ -32,7 +32,7 @@
  */
 
 #ifndef __AVR_ATmega1281__
-  #error "Oops!  Make sure you have 'Minitronics' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Minitronics' in 'Tools > Board.'"
 #endif
 
 #if HOTENDS > 2 || E_STEPPERS > 2

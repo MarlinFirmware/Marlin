@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * module/servo.h
  */
-
-#ifndef _SERVO_H_
-#define _SERVO_H_
 
 #include "../inc/MarlinConfig.h"
 #include "../HAL/shared/servo.h"
@@ -40,5 +38,3 @@ extern void servo_init();
   #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][0])
   #define STOW_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][1])
 #endif
-
-#endif // _SERVO_H_

@@ -42,21 +42,11 @@
 void GcodeSuite::M218() {
   if (get_target_extruder_from_command() || target_extruder == 0) return;
 
-  bool report = true;
-  if (parser.seenval('X')) {
-    hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
-    report = false;
-  }
-  if (parser.seenval('Y')) {
-    hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
-    report = false;
-  }
-  if (parser.seenval('Z')) {
-    hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
-    report = false;
-  }
+  if (parser.seenval('X')) hotend_offset[X_AXIS][target_extruder] = parser.value_linear_units();
+  if (parser.seenval('Y')) hotend_offset[Y_AXIS][target_extruder] = parser.value_linear_units();
+  if (parser.seenval('Z')) hotend_offset[Z_AXIS][target_extruder] = parser.value_linear_units();
 
-  if (report) {
+  if (!parser.seen("XYZ")) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
     HOTEND_LOOP() {

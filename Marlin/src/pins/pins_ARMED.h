@@ -21,7 +21,7 @@
  */
 
 #ifndef STM32F4
-  #error "Oops!  Make sure you have an STM32F4 board selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
 #ifndef ARMED_V1_0
@@ -105,13 +105,6 @@
 #endif
 
 //
-// SPI
-//
-#define SCK_PIN            PA5
-#define MISO_PIN           PA6
-#define MOSI_PIN           PA7
-
-//
 // Temperature Sensors
 //
 #define TEMP_0_PIN         PC0   // Analog Input
@@ -133,7 +126,6 @@
 // Misc functions
 //
 #define SDSS               PE7
-#define SS_PIN             PE7
 #define LED_PIN            PB7   // Heart beat
 #define PS_ON_PIN          PA10
 #define KILL_PIN           PA8

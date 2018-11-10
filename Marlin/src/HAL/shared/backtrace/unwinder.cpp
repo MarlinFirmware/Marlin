@@ -57,5 +57,3 @@ UnwResult UnwindStart(UnwindFrame* frame, const UnwindCallbacks *cb, void *data)
   }
 }
 #endif
-
-

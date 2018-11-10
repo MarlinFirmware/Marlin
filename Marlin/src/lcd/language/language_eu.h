@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Basque-Euskera
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_EU_H
-#define LANGUAGE_EU_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
@@ -123,7 +122,7 @@
 //#define MSG_UBL_OUTPUT_MAP_CSV            _UxGT("Output for CSV")
 //#define MSG_UBL_OUTPUT_MAP_BACKUP         _UxGT("Off Printer Backup")
 //#define MSG_UBL_INFO_UBL                  _UxGT("Output UBL Info")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Sarea editatu")
+#define MSG_EDIT_MESH                       _UxGT("Sarea editatu")
 //#define MSG_UBL_FILLIN_AMOUNT             _UxGT("Fill-in Amount")
 //#define MSG_UBL_MANUAL_FILLIN             _UxGT("Manual Fill-in")
 //#define MSG_UBL_SMART_FILLIN              _UxGT("Smart Fill-in")
@@ -360,32 +359,30 @@
 //                        ...or up to 2 lines on a 3-line display
 //
 #if LCD_HEIGHT >= 4
-//  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Wait for start")
-//  #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("of the filament")
-//  #define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("change")
-//  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Wait for")
-//  #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("filament unload")
-//  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insert filament")
-//  #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("and press button")
-//  #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("to continue...")
-//  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Press button to")
-//  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("heat nozzle.")
-//  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Heating nozzle")
-//  #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Please wait...")
-//  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wait for")
-//  #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("filament load")
-//  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Wait for")
-//  #define MSG_FILAMENT_CHANGE_PURGE_2         _UxGT("filament purge")
-//  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wait for print")
-//  #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("to resume")
+  //#define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Wait for start")
+  //#define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("of the filament")
+  //#define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("change")
+  //#define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Wait for")
+  //#define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("filament unload")
+  //#define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Insert filament")
+  //#define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("and press button")
+  //#define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("to continue...")
+  //#define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("Press button to")
+  //#define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("heat nozzle.")
+  //#define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Heating nozzle")
+  //#define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("Please wait...")
+  //#define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Wait for")
+  //#define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("filament load")
+  //#define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Wait for")
+  //#define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("filament purge")
+  //#define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Wait for print")
+  //#define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("to resume")
 #else // LCD_HEIGHT < 4
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Mesedez, itxaron...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Deskargatzen...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Sartu eta click egin")
   #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Berotzen...")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Kargatzen...")
-//  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Purging...")
-//  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Resuming...")
+  //#define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Purging...")
+  //#define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Resuming...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_EU_H

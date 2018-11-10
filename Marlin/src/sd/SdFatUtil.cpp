@@ -32,6 +32,7 @@
 #if ENABLED(SDSUPPORT)
 
 #include "SdFatUtil.h"
+#include <string.h>
 
 /**
  * Amount of free RAM

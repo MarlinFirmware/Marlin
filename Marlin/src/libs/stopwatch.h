@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef STOPWATCH_H
-#define STOPWATCH_H
+#pragma once
 
 // Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
 //#define DEBUG_STOPWATCH
@@ -116,5 +114,3 @@ class Stopwatch {
 
     #endif
 };
-
-#endif // STOPWATCH_H

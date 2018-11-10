@@ -173,7 +173,7 @@ void GcodeSuite::dwell(millis_t time) {
  * Process the parsed command and dispatch it to its handler
  */
 void GcodeSuite::process_parsed_command(
-  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  #if USE_EXECUTE_COMMANDS_IMMEDIATE
     const bool no_ok
   #endif
 ) {
@@ -252,8 +252,12 @@ void GcodeSuite::process_parsed_command(
         case 33: G33(); break;                                    // G33: Delta Auto-Calibration
       #endif
 
+      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+        case 34: G34(); break;                                    // G34: Z Stepper automatic alignment using probe
+      #endif
+
       #if ENABLED(G38_PROBE_TARGET)
-        case 38:                                                  // G38.2 & G38.3
+        case 38:                                                  // G38.2 & G38.3: Probe towards target
           if (parser.subcode == 2 || parser.subcode == 3)
             G38(parser.subcode == 2);
           break;
@@ -423,7 +427,7 @@ void GcodeSuite::process_parsed_command(
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if ENABLED(ULTIPANEL)
+      #if HAS_LCD_MENU
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 
@@ -479,7 +483,9 @@ void GcodeSuite::process_parsed_command(
         #endif
       #endif
 
-      case 211: M211(); break;                                    // M211: Enable, Disable, and/or Report software endstops
+      #if HAS_SOFTWARE_ENDSTOPS
+        case 211: M211(); break;                                  // M211: Enable, Disable, and/or Report software endstops
+      #endif
 
       #if EXTRUDERS > 1
         case 217: M217(); break;                                  // M217: Set filament swap parameters
@@ -516,7 +522,7 @@ void GcodeSuite::process_parsed_command(
         case 304: M304(); break;                                  // M304: Set bed PID parameters
       #endif
 
-      #if defined(CHDK) || HAS_PHOTOGRAPH
+      #if PIN_EXISTS(CHDK) || HAS_PHOTOGRAPH
         case 240: M240(); break;                                  // M240: Trigger a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
       #endif
 
@@ -618,6 +624,12 @@ void GcodeSuite::process_parsed_command(
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
+      #if ENABLED(GCODE_MACROS)
+        case 810: case 811: case 812: case 813: case 814:
+        case 815: case 816: case 817: case 818: case 819:
+        M810_819(); break;                                        // M810-M819: Define/execute G-code macro
+      #endif
+
       #if ENABLED(LIN_ADVANCE)
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
@@ -677,6 +689,10 @@ void GcodeSuite::process_parsed_command(
         case 869: M869(); break;                                  // M869: Report axis error
       #endif
 
+      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+        case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
+      #endif
+
       case 999: M999(); break;                                    // M999: Restart after being Stopped
 
       default: parser.unknown_command_error(); break;
@@ -690,7 +706,7 @@ void GcodeSuite::process_parsed_command(
 
   KEEPALIVE_STATE(NOT_BUSY);
 
-  #if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+  #if USE_EXECUTE_COMMANDS_IMMEDIATE
     if (!no_ok)
   #endif
       ok_to_send();
@@ -717,35 +733,43 @@ void GcodeSuite::process_next_command() {
   process_parsed_command();
 }
 
-#if ENABLED(USE_EXECUTE_COMMANDS_IMMEDIATE)
+#if USE_EXECUTE_COMMANDS_IMMEDIATE
+
   /**
    * Run a series of commands, bypassing the command queue to allow
    * G-code "macros" to be called from within other G-code handlers.
    */
+
   void GcodeSuite::process_subcommands_now_P(PGM_P pgcode) {
-    // Save the parser state
-    char * const saved_cmd = parser.command_ptr;
-
-    // Process individual commands in string
-    while (pgm_read_byte_near(pgcode)) {
-      // Break up string at '\n' delimiters
-      PGM_P const delim = strchr_P(pgcode, '\n');
-      size_t len = delim ? delim - pgcode : strlen_P(pgcode);
-      char cmd[len + 1];
-      strncpy_P(cmd, pgcode, len);
-      cmd[len] = '\0';
-      pgcode += len;
-      if (delim) pgcode++;
-
-      // Parse the next command in the string
-      parser.parse(cmd);
-      process_parsed_command(true);
+    char * const saved_cmd = parser.command_ptr;        // Save the parser state
+    for (;;) {
+      PGM_P const delim = strchr_P(pgcode, '\n');       // Get address of next newline
+      const size_t len = delim ? delim - pgcode : strlen_P(pgcode); // Get the command length
+      char cmd[len + 1];                                // Allocate a stack buffer
+      strncpy_P(cmd, pgcode, len);                      // Copy the command to the stack
+      cmd[len] = '\0';                                  // End with a nul
+      parser.parse(cmd);                                // Parse the command
+      process_parsed_command(true);                     // Process it
+      if (!delim) break;                                // Last command?
+      pgcode = delim + 1;                               // Get the next command
     }
-
-    // Restore the parser state
-    parser.parse(saved_cmd);
+    parser.parse(saved_cmd);                            // Restore the parser state
   }
-#endif
+
+  void GcodeSuite::process_subcommands_now(char * gcode) {
+    char * const saved_cmd = parser.command_ptr;        // Save the parser state
+    for (;;) {
+      char * const delim = strchr(gcode, '\n');         // Get address of next newline
+      if (delim) *delim = '\0';                         // Replace with nul
+      parser.parse(gcode);                              // Parse the current command
+      process_parsed_command(true);                     // Process it
+      if (!delim) break;                                // Last command?
+      gcode = delim + 1;                                // Get the next command
+    }
+    parser.parse(saved_cmd);                            // Restore the parser state
+  }
+
+#endif // USE_EXECUTE_COMMANDS_IMMEDIATE
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 

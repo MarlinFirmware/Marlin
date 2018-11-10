@@ -20,13 +20,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Structures for 2560 family boards that use more than 70 pins
  */
-
-#ifndef _PINSDEBUG_PLUS_70_H_
-#define _PINSDEBUG_PLUS_70_H_
 
 #undef NUM_DIGITAL_PINS
 #if MB(BQ_ZUM_MEGA_3D)
@@ -336,6 +334,3 @@ const uint8_t PROGMEM digital_pin_to_timer_PGM_plus_70[] = {
  *  PCINT14 J5 76
  *  PCINT15 J6 77
  */
-
-
-#endif // _PINSDEBUG_PLUS_70_H_

@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _CARDREADER_H_
-#define _CARDREADER_H_
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -103,6 +101,8 @@ public:
       FORCE_INLINE void setSortFolders(int i) { sort_folders = i; presort(); }
       //FORCE_INLINE void setSortReverse(bool b) { sort_reverse = b; }
     #endif
+  #else
+    FORCE_INLINE void getfilename_sorted(const uint16_t nr) { getfilename(nr); }
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
@@ -122,11 +122,8 @@ public:
   FORCE_INLINE uint32_t getIndex() { return sdpos; }
   FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
-
-  #if defined(__STM32F1__) && ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
-    FORCE_INLINE int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
-    FORCE_INLINE int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
-  #endif
+  FORCE_INLINE int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
+  FORCE_INLINE int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
   Sd2Card& getSd2Card() { return sd2card; }
 
@@ -152,6 +149,16 @@ public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir, abort_sd_printing;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   int8_t autostart_index;
+
+  #if ENABLED(FAST_FILE_TRANSFER)
+    bool binary_mode;
+    #if NUM_SERIAL > 1
+      uint8_t transfer_port;
+    #else
+      static constexpr uint8_t transfer_port = 0;
+    #endif
+  #endif
+
 private:
   SdFile root, workDir, workDirParents[MAX_DIR_DEPTH];
   uint8_t workDirDepth;
@@ -256,16 +263,14 @@ private:
   #define IS_SD_INSERTED() true
 #endif
 
+#define IS_SD_PRINTING()  card.sdprinting
+#define IS_SD_FILE_OPEN() card.isFileOpen()
+
 extern CardReader card;
 
-#endif // SDSUPPORT
+#else // !SDSUPPORT
 
-#if ENABLED(SDSUPPORT)
-  #define IS_SD_PRINTING()  card.sdprinting
-  #define IS_SD_FILE_OPEN() card.isFileOpen()
-#else
-  #define IS_SD_PRINTING()  false
-  #define IS_SD_FILE_OPEN() false
-#endif
+#define IS_SD_PRINTING()  false
+#define IS_SD_FILE_OPEN() false
 
-#endif // _CARDREADER_H_
+#endif // !SDSUPPORT

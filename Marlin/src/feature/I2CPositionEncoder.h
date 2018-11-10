@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef I2CPOSENC_H
-#define I2CPOSENC_H
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -146,6 +144,7 @@ class I2CPositionEncoder {
     void update();
 
     void set_homed();
+    void set_unhomed();
 
     int32_t get_raw_count();
 
@@ -228,6 +227,11 @@ class I2CPositionEncodersMgr {
     static void homed(const AxisEnum axis) {
       LOOP_PE(i)
         if (encoders[i].get_axis() == axis) encoders[i].set_homed();
+    }
+
+    static void unhomed(const AxisEnum axis) {
+      LOOP_PE(i)
+        if (encoders[i].get_axis() == axis) encoders[i].set_unhomed();
     }
 
     static void report_position(const int8_t idx, const bool units, const bool noOffset);
@@ -325,5 +329,3 @@ class I2CPositionEncodersMgr {
 };
 
 extern I2CPositionEncodersMgr I2CPEM;
-
-#endif //I2CPOSENC_H

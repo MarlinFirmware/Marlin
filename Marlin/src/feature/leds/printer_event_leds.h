@@ -38,18 +38,18 @@ private:
 
 public:
   #if HAS_TEMP_HOTEND
-    FORCE_INLINE static void onHotendHeatingStart() { old_intensity = 0; }
+    FORCE_INLINE static LEDColor onHotendHeatingStart() { old_intensity = 0; return leds.get_color(); }
     static void onHotendHeating(const float &start, const float &current, const float &target);
   #endif
 
   #if HAS_HEATED_BED
-    FORCE_INLINE static void onBedHeatingStart() { old_intensity = 127; }
+    FORCE_INLINE static LEDColor onBedHeatingStart() { old_intensity = 127; return leds.get_color(); }
     static void onBedHeating(const float &start, const float &current, const float &target);
   #endif
 
   #if HAS_TEMP_HOTEND || HAS_HEATED_BED
-    FORCE_INLINE static void onHeated()     { leds.set_white(); }
-    FORCE_INLINE static void onHeatersOff() { leds.set_off(); }
+    FORCE_INLINE static void onHeatingDone() { leds.set_color(LEDColorWhite()); }
+    FORCE_INLINE static void onPidTuningDone(LEDColor c) { leds.set_color(c); }
   #endif
 
   #if ENABLED(SDSUPPORT)

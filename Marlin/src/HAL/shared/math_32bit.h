@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef MATH_32BIT_H
-#define MATH_32BIT_H
+#pragma once
 
 #include "../../core/macros.h"
 
@@ -31,5 +29,3 @@
 static FORCE_INLINE uint32_t MultiU32X24toH32(uint32_t longIn1, uint32_t longIn2) {
   return ((uint64_t)longIn1 * longIn2 + 0x00800000) >> 24;
 }
-
-#endif // MATH_32BIT_H

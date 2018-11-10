@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __SERIAL_H__
-#define __SERIAL_H__
+#pragma once
 
 #include "../inc/MarlinConfigPre.h"
 #include HAL_PATH(../HAL, HAL.h)
@@ -29,20 +27,20 @@
 /**
  * Define debug bit-masks
  */
-enum DebugFlags : unsigned char {
-  DEBUG_NONE          = 0,
-  DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
-  DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
-  DEBUG_ERRORS        = _BV(2), ///< Not implemented
-  DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
-  DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
-  DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
-  DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
-  DEBUG_ALL           = 0xFF
+enum MarlinDebugFlags : uint8_t {
+  MARLIN_DEBUG_NONE          = 0,
+  MARLIN_DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
+  MARLIN_DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
+  MARLIN_DEBUG_ERRORS        = _BV(2), ///< Not implemented
+  MARLIN_DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
+  MARLIN_DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
+  MARLIN_DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
+  MARLIN_DEBUG_MESH_ADJUST   = _BV(6), ///< UBL bed leveling
+  MARLIN_DEBUG_ALL           = 0xFF
 };
 
 extern uint8_t marlin_debug_flags;
-#define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
+#define DEBUGGING(F) (marlin_debug_flags & (MARLIN_DEBUG_## F))
 
 #if TX_BUFFER_SIZE < 1
   #define SERIAL_FLUSHTX_P(p)
@@ -246,5 +244,3 @@ void serial_error_start();
   void print_xyz(PGM_P prefix, PGM_P suffix, const float xyz[]);
   #define DEBUG_POS(SUFFIX,VAR) do { print_xyz(PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
 #endif
-
-#endif // __SERIAL_H__

@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * parser.h - Parser for a GCode line, providing a parameter interface.
  *           Codes like M149 control the way the GCode parser behaves,
  *           so settings for these codes are located in this class.
  */
-
-#ifndef _PARSER_H_
-#define _PARSER_H_
 
 #include "../inc/MarlinConfig.h"
 
@@ -115,7 +113,7 @@ public:
     }
 
     // Set the flag and pointer for a parameter
-    static void set(const char c, char * const ptr) {
+    static inline void set(const char c, char * const ptr) {
       const uint8_t ind = LETTER_BIT(c);
       if (ind >= COUNT(param)) return;           // Only A-Z
       SBI32(codebits, ind);                      // parameter exists
@@ -132,7 +130,7 @@ public:
 
     // Code seen bit was set. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    static bool seen(const char c) {
+    static inline bool seen(const char c) {
       const uint8_t ind = LETTER_BIT(c);
       if (ind >= COUNT(param)) return false; // Only A-Z
       const bool b = TEST32(codebits, ind);
@@ -143,7 +141,34 @@ public:
       return b;
     }
 
-    static bool seen_any() { return !!codebits; }
+    FORCE_INLINE static constexpr uint32_t letter_bits(const char * const str) {
+      return  (str[0] ? _BV32(LETTER_BIT(str[0])) |
+              (str[1] ? _BV32(LETTER_BIT(str[1])) |
+              (str[2] ? _BV32(LETTER_BIT(str[2])) |
+              (str[3] ? _BV32(LETTER_BIT(str[3])) |
+              (str[4] ? _BV32(LETTER_BIT(str[4])) |
+              (str[5] ? _BV32(LETTER_BIT(str[5])) |
+              (str[6] ? _BV32(LETTER_BIT(str[6])) |
+              (str[7] ? _BV32(LETTER_BIT(str[7])) |
+              (str[8] ? _BV32(LETTER_BIT(str[8])) |
+              (str[9] ? _BV32(LETTER_BIT(str[9]))
+            : 0) : 0) : 0) : 0) : 0) : 0) : 0) : 0) : 0) : 0);
+    }
+
+    // At least one of a list of code letters was seen
+    #ifdef CPU_32_BIT
+      FORCE_INLINE static bool seen(const char * const str) { return !!(codebits & letter_bits(str)); }
+    #else
+      // At least one of a list of code letters was seen
+      FORCE_INLINE static bool seen(const char * const str) {
+        const uint32_t letrbits = letter_bits(str);
+        const uint8_t * const cb = (uint8_t*)&codebits;
+        const uint8_t * const lb = (uint8_t*)&letrbits;
+        return (cb[0] & lb[0]) || (cb[1] & lb[1]) || (cb[2] & lb[2]) || (cb[3] & lb[3]);
+      }
+    #endif
+
+    static inline bool seen_any() { return !!codebits; }
 
     #define SEEN_TEST(L) TEST32(codebits, LETTER_BIT(L))
 
@@ -151,21 +176,28 @@ public:
 
     // Code is found in the string. If not found, value_ptr is unchanged.
     // This allows "if (seen('A')||seen('B'))" to use the last-found value.
-    static bool seen(const char c) {
+    static inline bool seen(const char c) {
       char *p = strchr(command_args, c);
       const bool b = !!p;
       if (b) value_ptr = valid_float(&p[1]) ? &p[1] : (char*)NULL;
       return b;
     }
 
-    static bool seen_any() { return *command_args == '\0'; }
+    static inline bool seen_any() { return *command_args == '\0'; }
 
     #define SEEN_TEST(L) !!strchr(command_args, L)
+
+    // At least one of a list of code letters was seen
+    static inline bool seen(const char * const str) {
+      for (uint8_t i = 0; const char c = str[i]; i++)
+        if (SEEN_TEST(c)) return true;
+      return false;
+    }
 
   #endif // !FASTER_GCODE_PARSER
 
   // Seen any axis parameter
-  static bool seen_axis() {
+  static inline bool seen_axis() {
     return SEEN_TEST('X') || SEEN_TEST('Y') || SEEN_TEST('Z') || SEEN_TEST('E');
   }
 
@@ -273,7 +305,7 @@ public:
 
     static inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
 
-    #if ENABLED(ULTIPANEL) && DISABLED(DISABLE_M503)
+    #if HAS_LCD_MENU && DISABLED(DISABLE_M503)
 
       FORCE_INLINE static char temp_units_code() {
         return input_temp_units == TEMPUNIT_K ? 'K' : input_temp_units == TEMPUNIT_F ? 'F' : 'C';
@@ -293,7 +325,7 @@ public:
         }
       }
 
-    #endif // ULTIPANEL && !DISABLE_M503
+    #endif // HAS_LCD_MENU && !DISABLE_M503
 
     static inline float value_celsius() {
       const float f = value_float();
@@ -348,5 +380,3 @@ public:
 };
 
 extern GCodeParser parser;
-
-#endif // _PARSER_H_

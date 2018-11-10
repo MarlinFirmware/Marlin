@@ -45,7 +45,7 @@
 
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const uint8_t y) {
   const char * const str = itostr3(temp);
-  lcd_moveto(x - (str[0] != ' ' ? 0 : str[1] != ' ' ? 1 : 2) * DOG_CHAR_WIDTH / 2, y);
+  lcd_moveto(x - (str[0] != ' ' ? 0 : str[1] != ' ' ? 1 : 2) * MENU_FONT_WIDTH / 2, y);
   lcd_put_u8str(str);
   lcd_put_u8str_P(PSTR(LCD_STR_DEGREE " "));
 }
@@ -178,7 +178,7 @@ FORCE_INLINE void lcd_implementation_status_message(const bool blink) {
           lcd_put_wchar('.');
           if (--chars) {
             // Print a second copy of the message
-            lcd_put_u8str_max(lcd_status_message, LCD_PIXEL_WIDTH - ((rlen+2) * DOG_CHAR_WIDTH));
+            lcd_put_u8str_max(lcd_status_message, LCD_PIXEL_WIDTH - ((rlen+2) * MENU_FONT_WIDTH));
           }
         }
       }
@@ -211,9 +211,6 @@ FORCE_INLINE void lcd_implementation_status_message(const bool blink) {
     }
   #endif
 }
-
-// The current graphical page being rendered
-u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
 
 void lcd_impl_status_screen_0() {
 
@@ -282,7 +279,7 @@ void lcd_impl_status_screen_0() {
     #if HAS_FAN0
       if (PAGE_CONTAINS(STATUS_SCREEN_FAN_TEXT_Y - 7, STATUS_SCREEN_FAN_TEXT_Y)) {
         // Fan
-        const uint16_t per = (((uint16_t)fan_speed[0] + 1) * 100) / 256;
+        const int per = ((int(fan_speed[0]) + 1) * 100) / 256;
         if (per) {
           lcd_moveto(STATUS_SCREEN_FAN_TEXT_X, STATUS_SCREEN_FAN_TEXT_Y);
           lcd_put_u8str(itostr3(per));
@@ -356,13 +353,13 @@ void lcd_impl_status_screen_0() {
     //
 
     #if DISABLED(DOGM_SD_PERCENT)
-      #define SD_DURATION_X (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH / 2) - len * (DOG_CHAR_WIDTH / 2))
+      #define SD_DURATION_X (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH / 2) - len * (MENU_FONT_WIDTH / 2))
     #else
-      #define SD_DURATION_X (LCD_PIXEL_WIDTH - len * DOG_CHAR_WIDTH)
+      #define SD_DURATION_X (LCD_PIXEL_WIDTH - len * MENU_FONT_WIDTH)
     #endif
 
     if (PAGE_CONTAINS(41, 48)) {
-      char buffer[10];
+      char buffer[13];
       duration_t elapsed = print_job_timer.duration();
       bool has_days = (elapsed.value >= 60*60*24L);
       uint8_t len = elapsed.toDigital(buffer, has_days);
@@ -376,7 +373,7 @@ void lcd_impl_status_screen_0() {
   // XYZ Coordinates
   //
 
-  #define XYZ_BASELINE (30 + INFO_FONT_HEIGHT)
+  #define XYZ_BASELINE (30 + INFO_FONT_ASCENT)
 
   #define X_LABEL_POS  3
   #define X_VALUE_POS 11
@@ -384,10 +381,10 @@ void lcd_impl_status_screen_0() {
 
   #if ENABLED(XYZ_HOLLOW_FRAME)
     #define XYZ_FRAME_TOP 29
-    #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 3
+    #define XYZ_FRAME_HEIGHT INFO_FONT_ASCENT + 3
   #else
     #define XYZ_FRAME_TOP 30
-    #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 1
+    #define XYZ_FRAME_HEIGHT INFO_FONT_ASCENT + 1
   #endif
 
   static char xstring[5], ystring[5], zstring[8];
@@ -396,7 +393,7 @@ void lcd_impl_status_screen_0() {
   #endif
 
   // At the first page, regenerate the XYZ strings
-  if (page.page == 0) {
+  if (first_page) {
     strcpy(xstring, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
     strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
     strcpy(zstring, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])));
@@ -419,7 +416,7 @@ void lcd_impl_status_screen_0() {
       u8g.drawBox(0, XYZ_FRAME_TOP, LCD_PIXEL_WIDTH, XYZ_FRAME_HEIGHT);   // 8: 30-39  7: 30-37
     #endif
 
-    if (PAGE_CONTAINS(XYZ_BASELINE - (INFO_FONT_HEIGHT - 1), XYZ_BASELINE)) {
+    if (PAGE_CONTAINS(XYZ_BASELINE - (INFO_FONT_ASCENT - 1), XYZ_BASELINE)) {
 
       #if DISABLED(XYZ_HOLLOW_FRAME)
         u8g.setColorIndex(0); // white on black
@@ -449,14 +446,15 @@ void lcd_impl_status_screen_0() {
   //
   // Feedrate
   //
+  #define EXTRAS_BASELINE 50
 
-  if (PAGE_CONTAINS(51 - INFO_FONT_HEIGHT, 49)) {
+  if (PAGE_CONTAINS(EXTRAS_BASELINE - (INFO_FONT_HEIGHT - 1), EXTRAS_BASELINE)) {
     lcd_setFont(FONT_MENU);
-    lcd_moveto(3, 50);
+    lcd_moveto(3, EXTRAS_BASELINE);
     lcd_put_wchar(LCD_STR_FEEDRATE[0]);
 
     lcd_setFont(FONT_STATUSMENU);
-    lcd_moveto(12, 50);
+    lcd_moveto(12, EXTRAS_BASELINE);
     lcd_put_u8str(itostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
@@ -464,15 +462,15 @@ void lcd_impl_status_screen_0() {
     // Filament sensor display if SD is disabled
     //
     #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
-      lcd_moveto(56, 50);
+      lcd_moveto(56, EXTRAS_BASELINE);
       lcd_put_u8str(wstring);
-      lcd_moveto(102, 50);
+      lcd_moveto(102, EXTRAS_BASELINE);
       lcd_put_u8str(mstring);
       lcd_put_wchar('%');
       lcd_setFont(FONT_MENU);
-      lcd_moveto(47, 50);
+      lcd_moveto(47, EXTRAS_BASELINE);
       lcd_put_wchar(LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
-      lcd_moveto(93, 50);
+      lcd_moveto(93, EXTRAS_BASELINE);
       lcd_put_wchar(LCD_STR_FILAM_MUL[0]);
     #endif
   }
@@ -481,9 +479,9 @@ void lcd_impl_status_screen_0() {
   // Status line
   //
 
-  #define STATUS_BASELINE (55 + INFO_FONT_HEIGHT)
+  #define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
 
-  if (PAGE_CONTAINS(STATUS_BASELINE - (INFO_FONT_HEIGHT - 1), STATUS_BASELINE)) {
+  if (PAGE_CONTAINS(STATUS_BASELINE - (INFO_FONT_ASCENT - 1), STATUS_BASELINE)) {
     lcd_moveto(0, STATUS_BASELINE);
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)

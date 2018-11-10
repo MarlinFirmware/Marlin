@@ -26,7 +26,7 @@
  */
 
 #ifndef TARGET_LPC1768
-  #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
+  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
 #ifndef BOARD_NAME
@@ -143,31 +143,7 @@
 //
 // Misc. Functions
 //
-#define PS_ON_PIN          P0_25 //TH3 Connector
-
-/**
- * Smart LCD adapter
- *
- * The Smart LCD adapter can be used for the two 10 pin LCD controllers such as
- * REPRAP_DISCOUNT_SMART_CONTROLLER.  It can't be used for controllers that use
- * DOGLCD_A0, DOGLCD_CS, LCD_PINS_D5, LCD_PINS_D6 or LCD_PINS_D7. A custom cable
- * is needed to pick up 5V for the EXP1 connection.
- *
- * SD card on the LCD uses the same SPI signals as the LCD. This results in garbage/lines
- * on the LCD display during accesses of the SD card. The menus/code has been arranged so
- * that the garbage/lines are erased immediately after the SD card accesses are completed.
- */
-
-#if ENABLED(ULTRA_LCD)
-  #define BEEPER_PIN       P1_31   // EXP1.1
-  #define BTN_ENC          P1_30   // EXP1.2
-  #define BTN_EN1          P3_26   // EXP2.5
-  #define BTN_EN2          P3_25   // EXP2.3
-  #define LCD_PINS_RS      P0_16   // EXP1.4
-  #define LCD_SDSS         P0_28   // EXP2.4
-  #define LCD_PINS_ENABLE  P0_18   // EXP1.3
-  #define LCD_PINS_D4      P0_15   // EXP1.5
-#endif
+#define PS_ON_PIN          P0_25   // TH3 Connector
 
 //
 // Ethernet pins
@@ -186,15 +162,14 @@
 #define ENET_TXD0          P1_00   // J12-11
 #define ENET_TXD1          P1_01   // J12-12
 
-
-/*
+/**
  * The SBase can share the on-board SD card with a PC via USB the following
  * definitions control this feature:
  */
 //#define USB_SD_DISABLED
 #define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
 
-/*
+/**
  * There are a number of configurations available for the SBase SD card reader.
  * - A custom cable can be used to allow access to the LCD based SD card.
  * - A standard cable can be used for access to the LCD SD card (but no SD detect).
@@ -254,6 +229,34 @@
   #define SS_PIN           P0_06   // Chip select for SD card used by Marlin
   #define ONBOARD_SD_CS    P0_06   // Chip select for "System" SD card
 
+#endif
+
+/**
+ * Smart LCD adapter
+ *
+ * The Smart LCD adapter can be used for the two 10 pin LCD controllers such as
+ * REPRAP_DISCOUNT_SMART_CONTROLLER.  It can't be used for controllers that use
+ * DOGLCD_A0, DOGLCD_CS, LCD_PINS_D5, LCD_PINS_D6 or LCD_PINS_D7. A custom cable
+ * is needed to pick up 5V for the EXP1 connection.
+ *
+ * SD card on the LCD uses the same SPI signals as the LCD. This results in garbage/lines
+ * on the LCD display during accesses of the SD card. The menus/code has been arranged so
+ * that the garbage/lines are erased immediately after the SD card accesses are completed.
+ */
+
+#if ENABLED(ULTRA_LCD)
+  #define BEEPER_PIN       P1_31   // EXP1.1
+  #define BTN_ENC          P1_30   // EXP1.2
+  #define BTN_EN1          P3_26   // EXP2.5
+  #define BTN_EN2          P3_25   // EXP2.3
+  #define LCD_PINS_RS      P0_16   // EXP1.4
+  #define LCD_SDSS         P0_28   // EXP2.4
+  #define LCD_PINS_ENABLE  P0_18   // EXP1.3
+  #define LCD_PINS_D4      P0_15   // EXP1.5
+  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+    #define DOGLCD_SCK     SCK_PIN
+    #define DOGLCD_MOSI    MOSI_PIN
+  #endif
 #endif
 
 /**

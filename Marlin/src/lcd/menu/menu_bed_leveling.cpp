@@ -32,6 +32,10 @@
 #include "../../module/planner.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
+#if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+  #include "../../module/probe.h"
+#endif
+
 #if ENABLED(PROBE_MANUALLY) || ENABLED(MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
@@ -116,7 +120,7 @@
     // Encoder knob or keypad buttons adjust the Z position
     //
     if (encoderPosition) {
-      const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MBL_Z_STEP);
+      const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MESH_EDIT_Z_STEP);
       line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f));
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       encoderPosition = 0;
@@ -187,84 +191,32 @@
   // Step 2: Continue Bed Leveling...
   //
   void _lcd_level_bed_continue() {
-    defer_return_to_status = true;
-    axis_homed = 0;
+    set_defer_return_to_status(true);
+    set_all_unhomed();
     lcd_goto_screen(_lcd_level_bed_homing);
     enqueue_and_echo_commands_P(PSTR("G28"));
   }
 
 #endif // PROBE_MANUALLY || MESH_BED_LEVELING
 
-#if ENABLED(LEVEL_BED_CORNERS)
+#if ENABLED(MESH_EDIT_MENU)
 
-  /**
-   * Level corners, starting in the front-left corner.
-   */
-  static int8_t bed_corner;
-  void _lcd_goto_next_corner() {
-    line_to_z(4.0);
-    switch (bed_corner) {
-      case 0:
-        current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
-        current_position[Y_AXIS] = Y_MIN_BED + LEVEL_CORNERS_INSET;
-        break;
-      case 1:
-        current_position[X_AXIS] = X_MAX_BED - LEVEL_CORNERS_INSET;
-        break;
-      case 2:
-        current_position[Y_AXIS] = Y_MAX_BED - LEVEL_CORNERS_INSET;
-        break;
-      case 3:
-        current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;
-        break;
-      #if ENABLED(LEVEL_CENTER_TOO)
-        case 4:
-          current_position[X_AXIS] = X_CENTER;
-          current_position[Y_AXIS] = Y_CENTER;
-          break;
-      #endif
-    }
-    planner.buffer_line(current_position, MMM_TO_MMS(manual_feedrate_mm_m[X_AXIS]), active_extruder);
-    line_to_z(0.0);
-    if (++bed_corner > 3
-      #if ENABLED(LEVEL_CENTER_TOO)
-        + 1
-      #endif
-    ) bed_corner = 0;
+  inline void refresh_planner() {
+    set_current_from_steppers_for_axis(ALL_AXES);
+    sync_plan_position();
   }
 
-  void _lcd_corner_submenu() {
+  void menu_edit_mesh() {
+    static uint8_t xind, yind; // =0
     START_MENU();
-    MENU_ITEM(function,
-      #if ENABLED(LEVEL_CENTER_TOO)
-        MSG_LEVEL_BED_NEXT_POINT
-      #else
-        MSG_NEXT_CORNER
-      #endif
-      , _lcd_goto_next_corner);
-    MENU_ITEM(function, MSG_BACK, lcd_goto_previous_menu_no_defer);
+    MENU_BACK(MSG_BED_LEVELING);
+    MENU_ITEM_EDIT(int8, MSG_MESH_X, &xind, 0, GRID_MAX_POINTS_X - 1);
+    MENU_ITEM_EDIT(int8, MSG_MESH_Y, &yind, 0, GRID_MAX_POINTS_Y - 1);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_MESH_EDIT_Z, &Z_VALUES(xind, yind), -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
     END_MENU();
   }
 
-  void _lcd_level_bed_corners_homing() {
-    _lcd_draw_homing();
-    if (all_axes_homed()) {
-      bed_corner = 0;
-      lcd_goto_screen(_lcd_corner_submenu);
-      _lcd_goto_next_corner();
-    }
-  }
-
-  void _lcd_level_bed_corners() {
-    defer_return_to_status = true;
-    if (!all_axes_known()) {
-      axis_homed = 0;
-      enqueue_and_echo_commands_P(PSTR("G28"));
-    }
-    lcd_goto_screen(_lcd_level_bed_corners_homing);
-  }
-
-#endif // LEVEL_BED_CORNERS
+#endif // MESH_EDIT_MENU
 
 /**
  * Step 1: Bed Level entry-point
@@ -300,6 +252,11 @@ void menu_bed_leveling() {
     MENU_ITEM(gcode, MSG_LEVEL_BED, is_homed ? PSTR("G29") : PSTR("G28\nG29"));
   #endif
 
+  #if ENABLED(MESH_EDIT_MENU)
+    if (leveling_is_valid())
+      MENU_ITEM(submenu, MSG_EDIT_MESH, menu_edit_mesh);
+  #endif
+
   // Homed and leveling is valid? Then leveling can be toggled.
   if (is_homed && leveling_is_valid()) {
     bool new_level_state = planner.leveling_active;
@@ -312,7 +269,7 @@ void menu_bed_leveling() {
   #endif
 
   //
-  // MBL Z Offset
+  // Mesh Bed Leveling Z-Offset
   //
   #if ENABLED(MESH_BED_LEVELING)
     MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
@@ -325,7 +282,6 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS)
-    // Move to the next corner for leveling
     MENU_ITEM(submenu, MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
   #endif
 

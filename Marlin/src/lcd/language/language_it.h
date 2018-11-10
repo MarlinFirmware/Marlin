@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Italian
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_IT_H
-#define LANGUAGE_IT_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 
@@ -49,6 +48,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home asse X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home asse Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home asse Z")
+#define MSG_AUTO_Z_ALIGN                    _UxGT("Allineam.automat. Z")
 #define MSG_TMC_Z_CALIBRATION               _UxGT("Calibra Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Home assi XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Premi per iniziare")
@@ -82,6 +82,9 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("Livella spigoli")
 #define MSG_NEXT_CORNER                     _UxGT("Prossimo spigolo")
 #define MSG_EDITING_STOPPED                 _UxGT("Modif. Mesh Fermata")
+#define MSG_MESH_X                          _UxGT("Indice X")
+#define MSG_MESH_Y                          _UxGT("Indice Y")
+#define MSG_MESH_EDIT_Z                     _UxGT("Valore di Z")
 #define MSG_USER_MENU                       _UxGT("Comandi personaliz.")
 #define MSG_UBL_DOING_G29                   _UxGT("G29 in corso")
 #define MSG_UBL_UNHOMED                     _UxGT("Home XYZ prima")
@@ -134,7 +137,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Esporta in CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Backup esterno")
 #define MSG_UBL_INFO_UBL                    _UxGT("Esporta Info UBL")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Modifica Mesh")
+#define MSG_EDIT_MESH                       _UxGT("Modifica Mesh")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Riempimento")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Riempimento Manuale")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Riempimento Smart")
@@ -391,37 +394,43 @@
 // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe
 //                                                  ...o fino a 2 linee su un display a 3 righe.
 #if LCD_HEIGHT >= 4
+  #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("Premi per")
+  #define MSG_ADVANCED_PAUSE_WAITING_2      _UxGT("riprendere")
+  #define MSG_ADVANCED_PAUSE_WAITING_3      _UxGT("la stampa")
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Attendere avvio")
   #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("del cambio")
   #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("di filamento")
+  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Inserisci il")
+  #define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("filamento e premi")
+  #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("per continuare")
+  #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("Premi per")
+  #define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("riscaldare ugello")
+  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Riscaldam. ugello")
+  #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("Attendere prego...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Attendere")
   #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("l'espulsione")
   #define MSG_FILAMENT_CHANGE_UNLOAD_3      _UxGT("del filamento")
-  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Inserisci il")
-  #define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("filamento e")
-  #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("premi per cont")
-  #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("Premi per")
-  #define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("riscald. ugello")
-  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Riscald. ugello")
-  #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("Attendere...")
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Attendere")
   #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("il caricamento")
   #define MSG_FILAMENT_CHANGE_LOAD_3        _UxGT("del filamento")
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Attendere")
   #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("lo spurgo")
   #define MSG_FILAMENT_CHANGE_PURGE_3       _UxGT("del filamento")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Premi x terminare")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("lo spurgo")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_3  _UxGT("del filamento")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Attendere")
   #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("la ripresa")
-  #define MSG_FILAMENT_CHANGE_RESUME_3      _UxGT("della stampa")
+  #define MSG_FILAMENT_CHANGE_RESUME_3      _UxGT("della stampa...")
 #else // LCD_HEIGHT < 4
+  #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("Premi x continuare")
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Attendere...")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Espulsione...")
   #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Inserisci e premi")
   #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("Riscalda ugello")
   #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Riscaldamento...")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Espulsione...")
   #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Caricamento...")
   #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Spurgo filamento")
+  #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Premi x terminare")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Ripresa...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_IT_H

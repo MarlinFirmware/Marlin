@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef TWIBUS_H
-#define TWIBUS_H
+#pragma once
 
 #include "../core/macros.h"
 
@@ -238,5 +236,3 @@ class TWIBus {
 
     #endif
 };
-
-#endif // TWIBUS_H
