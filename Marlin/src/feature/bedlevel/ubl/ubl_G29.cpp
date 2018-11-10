@@ -53,7 +53,6 @@
   extern float destination[XYZE], current_position[XYZE];
 
   #if HAS_LCD_MENU
-    void lcd_return_to_status();
     void _lcd_ubl_output_map_lcd();
   #endif
 
@@ -629,10 +628,10 @@
     LEAVE:
 
     #if HAS_LCD_MENU
-      lcd_reset_alert_level();
-      lcd_quick_feedback();
-      lcd_reset_status();
-      lcd_external_control = false;
+      ui.reset_alert_level();
+      ui.quick_feedback();
+      ui.reset_status();
+      ui.release();
     #endif
 
     return;
@@ -688,15 +687,15 @@
     typedef void (*clickFunc_t)();
 
     bool click_and_hold(const clickFunc_t func=NULL) {
-      if (is_lcd_clicked()) {
-        lcd_quick_feedback(false);                // Preserve button state for click-and-hold
+      if (ui.button_pressed()) {
+        ui.quick_feedback(false);                // Preserve button state for click-and-hold
         const millis_t nxt = millis() + 1500UL;
-        while (is_lcd_clicked()) {                // Loop while the encoder is pressed. Uses hardware flag!
+        while (ui.button_pressed()) {                // Loop while the encoder is pressed. Uses hardware flag!
           idle();                                 // idle, of course
           if (ELAPSED(millis(), nxt)) {           // After 1.5 seconds
-            lcd_quick_feedback();
+            ui.quick_feedback();
             if (func) (*func)();
-            wait_for_release();
+            ui.wait_for_release();
             return true;
           }
         }
@@ -716,10 +715,10 @@
       mesh_index_pair location;
 
       #if HAS_LCD_MENU
-        lcd_external_control = true;
+        ui.capture();
       #endif
 
-      save_ubl_active_state_and_disable();   // No bed level correction so only raw data is obtained
+      save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       DEPLOY_PROBE();
 
       uint16_t count = GRID_MAX_POINTS;
@@ -728,13 +727,13 @@
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
         #if HAS_LCD_MENU
-          if (is_lcd_clicked()) {
-            lcd_quick_feedback(false); // Preserve button state for click-and-hold
+          if (ui.button_pressed()) {
+            ui.quick_feedback(false); // Preserve button state for click-and-hold
             SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
             STOW_PROBE();
-            wait_for_release();
-            lcd_quick_feedback();
-            lcd_external_control = false;
+            ui.wait_for_release();
+            ui.quick_feedback();
+            ui.release();
             restore_ubl_active_state_and_leave();
             return;
           }
@@ -769,14 +768,13 @@
       );
     }
 
-
   #endif // HAS_BED_PROBE
 
   #if HAS_LCD_MENU
 
     void unified_bed_leveling::move_z_with_encoder(const float &multiplier) {
-      wait_for_release();
-      while (!is_lcd_clicked()) {
+      ui.wait_for_release();
+      while (!ui.button_pressed()) {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
@@ -796,7 +794,7 @@
     static void echo_and_take_a_measurement() { SERIAL_PROTOCOLLNPGM(" and take a measurement."); }
 
     float unified_bed_leveling::measure_business_card_thickness(float in_height) {
-      lcd_external_control = true;
+      ui.capture();
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
@@ -805,7 +803,7 @@
 
       SERIAL_PROTOCOLPGM("Place shim under nozzle");
       LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
-      lcd_return_to_status();
+      ui.return_to_status();
       echo_and_take_a_measurement();
 
       const float z1 = measure_point_with_encoder();
@@ -828,7 +826,7 @@
         SERIAL_PROTOCOLLNPGM("mm thick.");
       }
 
-      lcd_external_control = false;
+      ui.release();
 
       restore_ubl_active_state_and_leave();
 
@@ -838,20 +836,20 @@
     void abort_manual_probe_remaining_mesh() {
       SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
       do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-      lcd_external_control = false;
+      ui.release();
       KEEPALIVE_STATE(IN_HANDLER);
-      lcd_quick_feedback();
+      ui.quick_feedback();
       ubl.restore_ubl_active_state_and_leave();
     }
 
     void unified_bed_leveling::manually_probe_remaining_mesh(const float &rx, const float &ry, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
 
-      lcd_external_control = true;
+      ui.capture();
 
-      save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
+      save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_clearance);
 
-      lcd_return_to_status();
+      ui.return_to_status();
 
       mesh_index_pair location;
       do {
@@ -870,7 +868,7 @@
         do_blocking_move_to_z(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        lcd_external_control = true;
+        ui.capture();
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
@@ -884,7 +882,7 @@
         if (click_and_hold()) {
           SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-          lcd_external_control = false;
+          ui.release();
           KEEPALIVE_STATE(IN_HANDLER);
           restore_ubl_active_state_and_leave();
           return;
@@ -908,8 +906,8 @@
   #endif // HAS_LCD_MENU
 
   inline void set_message_with_feedback(PGM_P const msg_P) {
-    lcd_setstatusPGM(msg_P);
-    lcd_quick_feedback();
+    ui.setstatusPGM(msg_P);
+    ui.quick_feedback();
   }
 
   bool unified_bed_leveling::g29_parameter_parsing() {
@@ -1341,7 +1339,7 @@
   #if HAS_LCD_MENU
 
     void abort_fine_tune() {
-      lcd_return_to_status();
+      ui.return_to_status();
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
       set_message_with_feedback(PSTR(MSG_EDITING_STOPPED));
     }
@@ -1368,7 +1366,7 @@
       save_ubl_active_state_and_disable();
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
-      lcd_external_control = true;                                  // Take over control of the LCD encoder
+      ui.capture();                                                 // Take over control of the LCD encoder
 
       do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);      // Move to the given XY with probe clearance
 
@@ -1401,7 +1399,7 @@
 
         if (do_ubl_mesh_map) display_map(g29_map_type);             // Display the current point
 
-        lcd_refresh();
+        ui.refresh();
 
         float new_z = z_values[location.x_index][location.y_index];
         if (isnan(new_z)) new_z = 0;                                // Invalid points begin at 0
@@ -1416,22 +1414,22 @@
           #endif
           idle();
           SERIAL_FLUSH();                                           // Prevent host M105 buffer overrun.
-        } while (!is_lcd_clicked());
+        } while (!ui.button_pressed());
 
-        if (!lcd_map_control) lcd_return_to_status();               // Just editing a single point? Return to status
+        if (!lcd_map_control) ui.return_to_status();               // Just editing a single point? Return to status
 
         if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
 
         z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
 
         safe_delay(20);                                             // No switch noise
-        lcd_refresh();
+        ui.refresh();
 
       } while (location.x_index >= 0 && --g29_repetition_cnt > 0);
 
       FINE_TUNE_EXIT:
 
-      lcd_external_control = false;
+      ui.release();
       KEEPALIVE_STATE(IN_HANDLER);
 
       if (do_ubl_mesh_map) display_map(g29_map_type);
@@ -1443,9 +1441,9 @@
       SERIAL_ECHOLNPGM("Done Editing Mesh");
 
       if (lcd_map_control)
-        lcd_goto_screen(_lcd_ubl_output_map_lcd);
+        ui.goto_screen(_lcd_ubl_output_map_lcd);
       else
-        lcd_return_to_status();
+        ui.return_to_status();
     }
 
   #endif // HAS_LCD_MENU

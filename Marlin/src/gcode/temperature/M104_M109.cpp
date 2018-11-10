@@ -66,7 +66,7 @@ void GcodeSuite::M104() {
        */
       if (temp <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        lcd_reset_status();
+        ui.reset_status();
       }
     #endif
   }
@@ -108,7 +108,7 @@ void GcodeSuite::M109() {
        */
       if (parser.value_celsius() <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        lcd_reset_status();
+        ui.reset_status();
       }
       else
         print_job_timer.start();

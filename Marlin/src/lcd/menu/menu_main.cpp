@@ -43,7 +43,7 @@
     #if ENABLED(PARK_HEAD_ON_PAUSE)
       enqueue_and_echo_commands_P(PSTR("M125"));
     #endif
-    lcd_reset_status();
+    ui.reset_status();
   }
 
   void lcd_sdcard_resume() {
@@ -53,14 +53,14 @@
       card.startFileprint();
       print_job_timer.start();
     #endif
-    lcd_reset_status();
+    ui.reset_status();
   }
 
   void lcd_sdcard_stop() {
     wait_for_heatup = wait_for_user = false;
     card.abort_sd_printing = true;
-    lcd_setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
-    lcd_return_to_status();
+    ui.setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
+    ui.return_to_status();
   }
 
   #if ENABLED(MENU_ADDAUTOSTART)

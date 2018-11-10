@@ -37,7 +37,7 @@
  */
 void GcodeSuite::M145() {
   const uint8_t material = (uint8_t)parser.intval('S');
-  if (material >= COUNT(lcd_preheat_hotend_temp)) {
+  if (material >= COUNT(ui.preheat_hotend_temp)) {
     SERIAL_ERROR_START();
     SERIAL_ERRORLNPGM(MSG_ERR_MATERIAL_INDEX);
   }
@@ -45,16 +45,16 @@ void GcodeSuite::M145() {
     int v;
     if (parser.seenval('H')) {
       v = parser.value_int();
-      lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
+      ui.preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
     }
     if (parser.seenval('F')) {
       v = parser.value_int();
-      lcd_preheat_fan_speed[material] = (uint8_t)constrain(v, 0, 255);
+      ui.preheat_fan_speed[material] = (uint8_t)constrain(v, 0, 255);
     }
     #if TEMP_SENSOR_BED != 0
       if (parser.seenval('B')) {
         v = parser.value_int();
-        lcd_preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
+        ui.preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
       }
     #endif
   }

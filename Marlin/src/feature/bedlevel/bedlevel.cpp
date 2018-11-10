@@ -233,7 +233,7 @@ void reset_bed_level() {
     current_position[Y_AXIS] = ry;
 
     #if ENABLED(LCD_BED_LEVELING)
-      lcd_wait_for_move = false;
+      ui.wait_for_bl_move = false;
     #endif
   }
 

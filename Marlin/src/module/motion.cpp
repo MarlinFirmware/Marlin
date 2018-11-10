@@ -1026,7 +1026,7 @@ void prepare_move_to_destination() {
       SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
       #if ENABLED(ULTRA_LCD)
-        lcd_status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
+        ui.status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
       #endif
       return true;
     }
@@ -1121,7 +1121,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const float fr_mm
       serialprintPGM(msg_wait_for_bed_heating);
       LCD_MESSAGEPGM(MSG_BED_HEATING);
       while (thermalManager.isHeatingBed()) safe_delay(200);
-      lcd_reset_status();
+      ui.reset_status();
     }
   #endif
 

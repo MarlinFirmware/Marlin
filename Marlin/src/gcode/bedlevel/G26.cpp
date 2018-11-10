@@ -163,12 +163,12 @@ int8_t g26_prime_flag;
    * If the LCD is clicked, cancel, wait for release, return true
    */
   bool user_canceled() {
-    if (!is_lcd_clicked()) return false; // Return if the button isn't pressed
-    lcd_setstatusPGM(PSTR("Mesh Validation Stopped."), 99);
+    if (!ui.button_pressed()) return false; // Return if the button isn't pressed
+    ui.setstatusPGM(PSTR("Mesh Validation Stopped."), 99);
     #if HAS_LCD_MENU
-      lcd_quick_feedback();
+      ui.quick_feedback();
     #endif
-    wait_for_release();
+    ui.wait_for_release();
     return true;
   }
 
@@ -414,10 +414,10 @@ inline bool turn_on_heaters() {
 
     if (g26_bed_temp > 25) {
       #if ENABLED(ULTRA_LCD)
-        lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
-        lcd_quick_feedback();
+        ui.setstatusPGM(PSTR("G26 Heating Bed."), 99);
+        ui.quick_feedback();
         #if HAS_LCD_MENU
-          lcd_external_control = true;
+          ui.capture();
         #endif
       #endif
       thermalManager.setTargetBed(g26_bed_temp);
@@ -435,8 +435,8 @@ inline bool turn_on_heaters() {
 
   // Start heating the active nozzle
   #if ENABLED(ULTRA_LCD)
-    lcd_setstatusPGM(PSTR("G26 Heating Nozzle."), 99);
-    lcd_quick_feedback();
+    ui.setstatusPGM(PSTR("G26 Heating Nozzle."), 99);
+    ui.quick_feedback();
   #endif
   thermalManager.setTargetHotend(g26_hotend_temp, active_extruder);
 
@@ -449,8 +449,8 @@ inline bool turn_on_heaters() {
   ) return G26_ERR;
 
   #if ENABLED(ULTRA_LCD)
-    lcd_reset_status();
-    lcd_quick_feedback();
+    ui.reset_status();
+    ui.quick_feedback();
   #endif
 
   return G26_OK;
@@ -468,16 +468,16 @@ inline bool prime_nozzle() {
 
     if (g26_prime_flag == -1) {  // The user wants to control how much filament gets purged
 
-      lcd_external_control = true;
-      lcd_setstatusPGM(PSTR("User-Controlled Prime"), 99);
-      lcd_chirp();
+      ui.capture();
+      ui.setstatusPGM(PSTR("User-Controlled Prime"), 99);
+      ui.chirp();
 
       set_destination_from_current();
 
       recover_filament(destination); // Make sure G26 doesn't think the filament is retracted().
 
-      while (!is_lcd_clicked()) {
-        lcd_chirp();
+      while (!ui.button_pressed()) {
+        ui.chirp();
         destination[E_AXIS] += 0.25;
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           Total_Prime += 0.25;
@@ -491,18 +491,18 @@ inline bool prime_nozzle() {
                                   // action to give the user a more responsive 'Stop'.
       }
 
-      wait_for_release();
+      ui.wait_for_release();
 
-      lcd_setstatusPGM(PSTR("Done Priming"), 99);
-      lcd_quick_feedback();
-      lcd_external_control = false;
+      ui.setstatusPGM(PSTR("Done Priming"), 99);
+      ui.quick_feedback();
+      ui.release();
     }
     else
   #endif
   {
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatusPGM(PSTR("Fixed Length Prime."), 99);
-      lcd_quick_feedback();
+      ui.setstatusPGM(PSTR("Fixed Length Prime."), 99);
+      ui.quick_feedback();
     #endif
     set_destination_from_current();
     destination[E_AXIS] += g26_prime_length;
@@ -715,7 +715,7 @@ void GcodeSuite::G26() {
   move_to(destination, g26_ooze_amount);
 
   #if HAS_LCD_MENU
-    lcd_external_control = true;
+    ui.capture();
   #endif
 
   //debug_current_and_destination(PSTR("Starting G26 Mesh Validation Pattern."));
@@ -881,8 +881,7 @@ void GcodeSuite::G26() {
   } while (--g26_repeats && location.x_index >= 0 && location.y_index >= 0);
 
   LEAVE:
-  lcd_setstatusPGM(PSTR("Leaving G26"), -1);
-  wait_for_release();
+  ui.setstatusPGM(PSTR("Leaving G26"), -1);
 
   retract_filament(destination);
   destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
@@ -891,15 +890,15 @@ void GcodeSuite::G26() {
   move_to(destination, 0); // Raise the nozzle
   //debug_current_and_destination(PSTR("done doing Z-Raise."));
 
-  destination[X_AXIS] = g26_x_pos;                               // Move back to the starting position
+  destination[X_AXIS] = g26_x_pos;                            // Move back to the starting position
   destination[Y_AXIS] = g26_y_pos;
-  //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;            // Keep the nozzle where it is
+  //destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;         // Keep the nozzle where it is
 
-  move_to(destination, 0); // Move back to the starting position
+  move_to(destination, 0);                                    // Move back to the starting position
   //debug_current_and_destination(PSTR("done doing X/Y move."));
 
   #if HAS_LCD_MENU
-    lcd_external_control = false;     // Give back control of the LCD Panel!
+    ui.release();                                             // Give back control of the LCD
   #endif
 
   if (!g26_keep_heaters_on) {

@@ -40,10 +40,10 @@
 void _lcd_user_gcode(PGM_P const cmd) {
   enqueue_and_echo_commands_P(cmd);
   #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK)
-    lcd_completion_feedback();
+    ui.completion_feedback();
   #endif
   #if ENABLED(USER_SCRIPT_RETURN)
-    lcd_return_to_status();
+    ui.return_to_status();
   #endif
 }
 

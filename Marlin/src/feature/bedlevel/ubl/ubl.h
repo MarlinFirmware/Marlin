@@ -26,6 +26,7 @@
 #include "../bedlevel.h"
 #include "../../../module/planner.h"
 #include "../../../module/motion.h"
+#include "../../../lcd/ultralcd.h"
 #include "../../../Marlin.h"
 
 #define UBL_VERSION "1.01"
@@ -50,10 +51,6 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
 // External references
 
 extern uint8_t ubl_cnt;
-
-#if ENABLED(ULTRA_LCD)
-  void lcd_quick_feedback(const bool clear_buttons);
-#endif
 
 #define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
 #define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
