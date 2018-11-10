@@ -186,7 +186,6 @@ void plan_arc(
     raw[p_axis] = center_P + r_P;
     raw[q_axis] = center_Q + r_Q;
     raw[l_axis] = start_L;
-
     raw[E_AXIS] += extruder_per_segment;
 
     clamp_to_software_endstops(raw);
@@ -216,11 +215,9 @@ void plan_arc(
     , inv_duration
   #endif
   );
-//#endif
 
   raw[l_axis] = start_L;
   COPY(current_position, raw);
-
 } // plan_arc
 
 /**
