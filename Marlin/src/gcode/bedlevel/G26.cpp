@@ -38,6 +38,7 @@
 #include "../../module/planner.h"
 #include "../../module/stepper.h"
 #include "../../module/motion.h"
+#include "../../module/tool_change.h"
 #include "../../module/temperature.h"
 #include "../../lcd/ultralcd.h"
 
@@ -539,16 +540,20 @@ float valid_trig_angle(float d) {
  *  Q  Retraction multiplier
  *  R  Repetitions (number of grid points)
  *  S  Nozzle Size (diameter) in mm
+ *  T  Tool index to change to, if included
  *  U  Random deviation (50 if no value given)
  *  X  X position
  *  Y  Y position
  */
 void GcodeSuite::G26() {
-  SERIAL_ECHOLNPGM("G26 command started.");
+  SERIAL_ECHOLNPGM("G26 starting...");
 
   // Don't allow Mesh Validation without homing first,
   // or if the parameter parsing did not go OK, abort
   if (axis_unhomed_error()) return;
+
+  // Change the tool first, if specified
+  if (parser.seenval('T')) tool_change(parser.value_int());
 
   g26_extrusion_multiplier    = EXTRUSION_MULTIPLIER;
   g26_retraction_multiplier   = RETRACTION_MULTIPLIER;
