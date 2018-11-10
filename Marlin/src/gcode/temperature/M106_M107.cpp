@@ -29,6 +29,7 @@
 
 #if ENABLED(SINGLENOZZLE)
   #include "../../module/motion.h"
+  #include "../../module/tool_change.h"
 #endif
 
 /**
