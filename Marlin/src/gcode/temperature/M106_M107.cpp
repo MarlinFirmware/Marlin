@@ -32,11 +32,21 @@
   #include "../../module/tool_change.h"
 #endif
 
+#if ENABLED(AUTO_FILAMENT_FAN_SELECTION)
+  #include "../../module/planner.h"
+#endif
+
 /**
  * M106: Set Fan Speed
  *
  *  S<int>   Speed between 0-255
  *  P<index> Fan index, if more than one fan
+ *  A        Fan index set to active extruder index, if more than one fan
+ *
+ *  As long as the A argument is not supported by any slicer.
+ *  Most slicer have a customizable gcode post processing, based on python,
+ *  where you can easy modify fan control using regular expression.
+ *  pattern:"(M10[67])( P\d|)( S\d+|)"  substitution:"$1 A$3" 
  *
  * With EXTRA_FAN_SPEED enabled:
  *
@@ -46,7 +56,9 @@
  *           3-255 = Set the speed for use with T2
  */
 void GcodeSuite::M106() {
-  const uint8_t p = parser.byteval('P');
+
+  const uint8_t p = parser.boolval('A') ? active_extruder : parser.byteval('P');
+
   const uint16_t s = parser.ushortval('S', 255);
 
   #if ENABLED(SINGLENOZZLE)
@@ -83,7 +95,9 @@ void GcodeSuite::M106() {
  * M107: Fan Off
  */
 void GcodeSuite::M107() {
-  const uint16_t p = parser.ushortval('P');
+
+  const uint8_t p = parser.boolval('A') ? active_extruder : parser.byteval('P');
+
   #if ENABLED(SINGLENOZZLE)
     if (p != active_extruder) {
       if (p < EXTRUDERS) singlenozzle_fan_speed[p] = 0;
