@@ -697,7 +697,6 @@
             lcd_quick_feedback();
             if (func) (*func)();
             wait_for_release();
-            safe_delay(50);                       // Debounce the Encoder wheel
             return true;
           }
         }
@@ -720,7 +719,7 @@
         lcd_external_control = true;
       #endif
 
-      save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
+      save_ubl_active_state_and_disable();   // No bed level correction so only raw data is obtained
       DEPLOY_PROBE();
 
       uint16_t count = GRID_MAX_POINTS;
@@ -730,14 +729,13 @@
 
         #if HAS_LCD_MENU
           if (is_lcd_clicked()) {
-            SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
             lcd_quick_feedback(false); // Preserve button state for click-and-hold
+            SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
             STOW_PROBE();
-            while (is_lcd_clicked()) idle();
+            wait_for_release();
+            lcd_quick_feedback();
             lcd_external_control = false;
             restore_ubl_active_state_and_leave();
-            lcd_quick_feedback();
-            safe_delay(50);  // Debounce the Encoder wheel
             return;
           }
         #endif
