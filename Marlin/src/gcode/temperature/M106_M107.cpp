@@ -27,8 +27,11 @@
 #include "../gcode.h"
 #include "../../Marlin.h" // for fan_speed — should move those to Planner
 
-#if ENABLED(SINGLENOZZLE)
+#if EXTRUDERS > 1
   #include "../../module/motion.h"
+#endif
+
+#if ENABLED(SINGLENOZZLE)
   #include "../../module/tool_change.h"
 #endif
 
@@ -53,11 +56,15 @@
  */
 void GcodeSuite::M106() {
 
-  const uint8_t p = parser.boolval('A') ? active_extruder : parser.byteval('P');
+  #if EXTRUDERS > 1 
+    const uint8_t p = parser.boolval('A') ? active_extruder : parser.byteval('P');
+  #else
+    const uint8_t p = parser.byteval('P');
+  #endif 
 
   const uint16_t s = parser.ushortval('S', 255);
 
-  #if ENABLED(SINGLENOZZLE)
+  #if ENABLED(SINGLENOZZLE) && EXTRUDERS > 1
     if (p != active_extruder) {
       if (p < EXTRUDERS) singlenozzle_fan_speed[p] = MIN(s, 255U);
       return;
@@ -92,9 +99,13 @@ void GcodeSuite::M106() {
  */
 void GcodeSuite::M107() {
 
-  const uint8_t p = parser.boolval('A') ? active_extruder : parser.byteval('P');
+  #if EXTRUDERS > 1
+    const uint8_t p = parser.boolval('A') ? active_extruder : parser.byteval('P');
+  #else
+    const uint8_t p = parser.byteval('P');
+  #endif 
 
-  #if ENABLED(SINGLENOZZLE)
+  #if ENABLED(SINGLENOZZLE) && EXTRUDERS > 1
     if (p != active_extruder) {
       if (p < EXTRUDERS) singlenozzle_fan_speed[p] = 0;
       return;
