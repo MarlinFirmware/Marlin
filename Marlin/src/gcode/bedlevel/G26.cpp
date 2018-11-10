@@ -171,12 +171,6 @@ int8_t g26_prime_flag;
     return true;
   }
 
-  bool exit_from_g26() {
-    lcd_setstatusPGM(PSTR("Leaving G26"), -1);
-    wait_for_release();
-    return G26_ERR;
-  }
-
 #endif
 
 mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
@@ -412,58 +406,50 @@ inline bool look_for_lines_to_connect() {
  * wait for them to get up to temperature.
  */
 inline bool turn_on_heaters() {
-  millis_t next = millis() + 5000UL;
+
+  SERIAL_ECHOLNPGM("Waiting for heatup.");
+
   #if HAS_HEATED_BED
-    #if ENABLED(ULTRA_LCD)
-      if (g26_bed_temp > 25) {
+
+    if (g26_bed_temp > 25) {
+      #if ENABLED(ULTRA_LCD)
         lcd_setstatusPGM(PSTR("G26 Heating Bed."), 99);
-        lcd_quick_feedback(true);
+        lcd_quick_feedback();
         #if HAS_LCD_MENU
           lcd_external_control = true;
         #endif
-    #endif
-        thermalManager.setTargetBed(g26_bed_temp);
-        while (ABS(thermalManager.degBed() - g26_bed_temp) > 3) {
+      #endif
+      thermalManager.setTargetBed(g26_bed_temp);
 
-          #if HAS_LCD_MENU
-            if (is_lcd_clicked()) return exit_from_g26();
+      // Wait for the temperature to stabilize
+      if (!thermalManager.wait_for_bed(true
+          #if G26_CLICK_CAN_CANCEL
+            , true
           #endif
-
-          if (ELAPSED(millis(), next)) {
-            next = millis() + 5000UL;
-            thermalManager.print_heaterstates();
-            SERIAL_EOL();
-          }
-          idle();
-          SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
-        }
-    #if ENABLED(ULTRA_LCD)
-      }
-      lcd_setstatusPGM(PSTR("G26 Heating Nozzle."), 99);
-      lcd_quick_feedback(true);
-    #endif
-  #endif
-
-  // Start heating the nozzle and wait for it to reach temperature.
-  thermalManager.setTargetHotend(g26_hotend_temp, 0);
-  while (ABS(thermalManager.degHotend(0) - g26_hotend_temp) > 3) {
-
-    #if HAS_LCD_MENU
-      if (is_lcd_clicked()) return exit_from_g26();
-    #endif
-
-    if (ELAPSED(millis(), next)) {
-      next = millis() + 5000UL;
-      thermalManager.print_heaterstates();
-      SERIAL_EOL();
+        )
+      ) return G26_ERR;
     }
-    idle();
-    SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
-  }
+
+  #endif // HAS_HEATED_BED
+
+  // Start heating the active nozzle
+  #if ENABLED(ULTRA_LCD)
+    lcd_setstatusPGM(PSTR("G26 Heating Nozzle."), 99);
+    lcd_quick_feedback();
+  #endif
+  thermalManager.setTargetHotend(g26_hotend_temp, active_extruder);
+
+  // Wait for the temperature to stabilize
+  if (!thermalManager.wait_for_hotend(active_extruder, true
+      #if G26_CLICK_CAN_CANCEL
+        , true
+      #endif
+    )
+  ) return G26_ERR;
 
   #if ENABLED(ULTRA_LCD)
     lcd_reset_status();
-    lcd_quick_feedback(true);
+    lcd_quick_feedback();
   #endif
 
   return G26_OK;
@@ -558,7 +544,7 @@ float valid_trig_angle(float d) {
  *  Y  Y position
  */
 void GcodeSuite::G26() {
-  SERIAL_ECHOLNPGM("G26 command started. Waiting for heater(s).");
+  SERIAL_ECHOLNPGM("G26 command started.");
 
   // Don't allow Mesh Validation without homing first,
   // or if the parameter parsing did not go OK, abort
@@ -891,6 +877,7 @@ void GcodeSuite::G26() {
 
   LEAVE:
   lcd_setstatusPGM(PSTR("Leaving G26"), -1);
+  wait_for_release();
 
   retract_filament(destination);
   destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
@@ -914,7 +901,7 @@ void GcodeSuite::G26() {
     #if HAS_HEATED_BED
       thermalManager.setTargetBed(0);
     #endif
-    thermalManager.setTargetHotend(0, 0);
+    thermalManager.setTargetHotend(active_extruder, 0);
   }
 }
 
