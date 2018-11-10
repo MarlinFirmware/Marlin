@@ -165,7 +165,7 @@ int8_t g26_prime_flag;
     if (!is_lcd_clicked()) return false; // Return if the button isn't pressed
     lcd_setstatusPGM(PSTR("Mesh Validation Stopped."), 99);
     #if HAS_LCD_MENU
-      lcd_quick_feedback(true);
+      lcd_quick_feedback();
     #endif
     wait_for_release();
     return true;
@@ -507,7 +507,7 @@ inline bool prime_nozzle() {
       wait_for_release();
 
       lcd_setstatusPGM(PSTR("Done Priming"), 99);
-      lcd_quick_feedback(true);
+      lcd_quick_feedback();
       lcd_external_control = false;
     }
     else
@@ -515,7 +515,7 @@ inline bool prime_nozzle() {
   {
     #if ENABLED(ULTRA_LCD)
       lcd_setstatusPGM(PSTR("Fixed Length Prime."), 99);
-      lcd_quick_feedback(true);
+      lcd_quick_feedback();
     #endif
     set_destination_from_current();
     destination[E_AXIS] += g26_prime_length;
