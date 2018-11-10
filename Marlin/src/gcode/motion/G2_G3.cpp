@@ -59,13 +59,6 @@ void plan_arc(
   const uint8_t clockwise     // Clockwise?
 ) {
 
-SERIAL_ECHOPAIR("   current[X]=", current_position[X_AXIS]);
-SERIAL_ECHOPAIR(" current[Y]=", current_position[Y_AXIS]);
-SERIAL_ECHOPAIR(" current[Z]=", current_position[Z_AXIS]);
-SERIAL_ECHOPAIR(" current[E]=", current_position[E_AXIS]);
-SERIAL_EOL();
-
-
   #if ENABLED(CNC_WORKSPACE_PLANES)
     AxisEnum p_axis, q_axis, l_axis;
     switch (gcode.workspace_plane) {
@@ -82,7 +75,7 @@ SERIAL_EOL();
   float r_P = -offset[0], r_Q = -offset[1];
 
   const float radius = HYPOT(r_P, r_Q),
-              start_z  = current_position[Z_AXIS],
+              start_L  = current_position[l_axis],
               center_P = current_position[p_axis] - r_P,
               center_Q = current_position[q_axis] - r_Q,
               rt_X = cart[p_axis] - center_P,
@@ -102,13 +95,6 @@ SERIAL_EOL();
   const float flat_mm = radius * angular_travel,
               mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : ABS(flat_mm);
   if (mm_of_travel < 0.001f) return;
-
-SERIAL_ECHOPAIR(" plan_arc(ex=", cart[X_AXIS]);
-SERIAL_ECHOPAIR(", ey=", cart[Y_AXIS]);
-SERIAL_ECHOPAIR(", ez=", cart[Z_AXIS]);
-SERIAL_ECHOPAIR(", rx=", offset[X_AXIS]);
-SERIAL_ECHOPAIR(", ry=", offset[Y_AXIS]);
-SERIAL_ECHO(")\n");
 
   uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
   if (segments == 0) segments = 1;
@@ -199,84 +185,41 @@ SERIAL_ECHO(")\n");
     // Update raw location
     raw[p_axis] = center_P + r_P;
     raw[q_axis] = center_Q + r_Q;
-//  raw[l_axis] += linear_per_segment;
-    raw[l_axis] = start_z;
+    raw[l_axis] = start_L;
 
     raw[E_AXIS] += extruder_per_segment;
 
     clamp_to_software_endstops(raw);
-//    #if ENABLED(AUTO_BED_LEVELING_UBL)
-//destination[X_AXIS] = raw[X_AXIS];
-//destination[Y_AXIS] = raw[Y_AXIS];
-//destination[Z_AXIS] = raw[Z_AXIS];
-//destination[E_AXIS] = raw[E_AXIS];
-
-//      ubl.line_to_destination_cartesian(MMS_SCALED(feedrate_mm_s), active_extruder);  // UBL's motion routine needs to know 
-                                                                                        // about all moves
-//    #else
 
     #if HAS_LEVELING && !PLANNER_LEVELING
       planner.apply_leveling(raw);
     #endif
-
-SERIAL_ECHOPAIR("   rawx=", raw[X_AXIS]);
-SERIAL_ECHOPAIR(" rawy=", raw[Y_AXIS]);
-SERIAL_ECHOPAIR(" rawz=", raw[Z_AXIS]);
-SERIAL_ECHOPAIR(" rawe=", raw[E_AXIS]);
-SERIAL_EOL();
-
 
     if (!planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , inv_duration
       #endif
     ))
-//    #endif
       break;
   }
 
   // Ensure last segment arrives at target location.
   COPY(raw, cart);
-
-//#if ENABLED(AUTO_BED_LEVELING_UBL)
-//destination[X_AXIS] = raw[X_AXIS];
-//destination[Y_AXIS] = raw[Y_AXIS];
-//destination[Z_AXIS] = raw[Z_AXIS];
-//destination[E_AXIS] = raw[E_AXIS];
-
-//  ubl.line_to_destination_cartesian(MMS_SCALED(feedrate_mm_s), active_extruder);  // UBL's motion routine needs to know 
-                                                                                    // about all moves
-//#else
-
-  raw[l_axis] = start_z;
+  raw[l_axis] = start_L;
 
   #if HAS_LEVELING && !PLANNER_LEVELING
     planner.apply_leveling(raw);
   #endif
 
-SERIAL_ECHOPAIR("   RAWX=", raw[X_AXIS]);
-SERIAL_ECHOPAIR(" RAWY=", raw[Y_AXIS]);
-SERIAL_ECHOPAIR(" RAWZ=", raw[Z_AXIS]);
-SERIAL_ECHOPAIR(" RAWE=", raw[E_AXIS]);
-SERIAL_EOL();
-
-
   planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
-      , inv_duration
-    #endif
+  #if ENABLED(SCARA_FEEDRATE_SCALING)
+    , inv_duration
+  #endif
   );
 //#endif
 
-  raw[l_axis] = start_z;
+  raw[l_axis] = start_L;
   COPY(current_position, raw);
-
-SERIAL_ECHOPAIR("   CURRENT[X]=", current_position[X_AXIS]);
-SERIAL_ECHOPAIR(" CURRENT[Y]=", current_position[Y_AXIS]);
-SERIAL_ECHOPAIR(" CURRENT[Z]=", current_position[Z_AXIS]);
-SERIAL_ECHOPAIR(" CURRENT[E]=", current_position[E_AXIS]);
-SERIAL_EOL();
-
 
 } // plan_arc
 
