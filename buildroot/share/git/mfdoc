@@ -29,7 +29,10 @@ opensite() {
 
 echo "Previewing MarlinDocumentation..."
 
-# wait to open the url for about 8s
-( sleep 45; opensite ) &
-
-bundle exec jekyll serve --watch --incremental
+bundle exec jekyll serve --watch --incremental | {
+  while IFS= read -r line
+  do
+    [[ $line =~ "Server running" ]] && opensite
+    echo "$line"
+  done
+}
