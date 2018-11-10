@@ -24,12 +24,12 @@
 #include "../../../inc/MarlinConfig.h"
 
 enum MeshLevelingState : char {
-  MeshReport,
-  MeshStart,
-  MeshNext,
-  MeshSet,
-  MeshSetZOffset,
-  MeshReset
+  MeshReport,     // G29 S0
+  MeshStart,      // G29 S1
+  MeshNext,       // G29 S2
+  MeshSet,        // G29 S3
+  MeshSetZOffset, // G29 S4
+  MeshReset       // G29 S5
 };
 
 #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_POINTS_X - 1))
