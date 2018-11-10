@@ -159,8 +159,7 @@ void reset_bed_level() {
   void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, element_2d_fn fn) {
     #ifndef SCAD_MESH_OUTPUT
       for (uint8_t x = 0; x < sx; x++) {
-        for (uint8_t i = 0; i < precision + 2 + (x < 10 ? 1 : 0); i++)
-          SERIAL_PROTOCOLCHAR(' ');
+        serial_spaces(precision + (x < 10 ? 3 : 2));
         SERIAL_PROTOCOL(int(x));
       }
       SERIAL_EOL();
