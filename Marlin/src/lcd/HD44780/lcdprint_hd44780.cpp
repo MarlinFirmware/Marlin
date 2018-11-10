@@ -1,5 +1,5 @@
 /**
- * @file    lcdprint_hd44780.c
+ * @file    lcdprint_hd44780.cpp
  * @brief   LCD print api for HD44780
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
@@ -39,7 +39,7 @@ typedef struct _hd44780_charmap_t {
   uint8_t idx2;  // the char used to be combined with the idx to simulate a single char
 } hd44780_charmap_t;
 
-#if defined(__AVR__)
+#ifdef __AVR__
   #define IV(a) U##a
 #else
   #define IV(a) L##a
