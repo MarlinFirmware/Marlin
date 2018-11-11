@@ -51,8 +51,6 @@ enum MeshPointType : char { INVALID, REAL, SET_IN_BITMAP };
 
 extern uint8_t ubl_cnt;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #if ENABLED(ULTRA_LCD)
   void lcd_quick_feedback(const bool clear_buttons);
 #endif
@@ -346,11 +344,11 @@ class unified_bed_leveling {
       return z0;
     }
 
-    FORCE_INLINE static float mesh_index_to_xpos(const uint8_t i) {
+    static inline float mesh_index_to_xpos(const uint8_t i) {
       return i < GRID_MAX_POINTS_X ? pgm_read_float(&_mesh_index_to_xpos[i]) : MESH_MIN_X + i * (MESH_X_DIST);
     }
 
-    FORCE_INLINE static float mesh_index_to_ypos(const uint8_t i) {
+    static inline float mesh_index_to_ypos(const uint8_t i) {
       return i < GRID_MAX_POINTS_Y ? pgm_read_float(&_mesh_index_to_ypos[i]) : MESH_MIN_Y + i * (MESH_Y_DIST);
     }
 

@@ -38,23 +38,23 @@ private:
 
 public:
   #if HAS_TEMP_HOTEND
-    FORCE_INLINE static LEDColor onHotendHeatingStart() { old_intensity = 0; return leds.get_color(); }
+    static inline LEDColor onHotendHeatingStart() { old_intensity = 0; return leds.get_color(); }
     static void onHotendHeating(const float &start, const float &current, const float &target);
   #endif
 
   #if HAS_HEATED_BED
-    FORCE_INLINE static LEDColor onBedHeatingStart() { old_intensity = 127; return leds.get_color(); }
+    static inline LEDColor onBedHeatingStart() { old_intensity = 127; return leds.get_color(); }
     static void onBedHeating(const float &start, const float &current, const float &target);
   #endif
 
   #if HAS_TEMP_HOTEND || HAS_HEATED_BED
-    FORCE_INLINE static void onHeatingDone() { leds.set_color(LEDColorWhite()); }
-    FORCE_INLINE static void onPidTuningDone(LEDColor c) { leds.set_color(c); }
+    static inline void onHeatingDone() { leds.set_color(LEDColorWhite()); }
+    static inline void onPidTuningDone(LEDColor c) { leds.set_color(c); }
   #endif
 
   #if ENABLED(SDSUPPORT)
 
-    FORCE_INLINE static void onPrintCompleted() {
+    static inline void onPrintCompleted() {
       leds.set_green();
       #if HAS_LEDS_OFF_FLAG
         leds_off_after_print = true;
@@ -64,7 +64,7 @@ public:
       #endif
     }
 
-    FORCE_INLINE static void onResumeAfterWait() {
+    static inline void onResumeAfterWait() {
       #if HAS_LEDS_OFF_FLAG
         if (leds_off_after_print) {
           leds.set_off();

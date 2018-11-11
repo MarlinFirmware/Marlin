@@ -180,9 +180,9 @@ class FilamentSensorTypeSwitch : public FilamentSensorTypeBase {
     }
 
   public:
-    FORCE_INLINE static void block_complete(const block_t *b) {}
+    static inline void block_complete(const block_t *b) {}
 
-    FORCE_INLINE static void run() {
+    static inline void run() {
       if (!poll_runout_pin(active_extruder))
         filament_present(active_extruder);
     }
@@ -220,7 +220,7 @@ class FilamentSensorTypeEncoder : public FilamentSensorTypeBase {
       motion_detected = 0;
     }
 
-    FORCE_INLINE static void run() { poll_motion_sensor(); }
+    static inline void run() { poll_motion_sensor(); }
 };
 
 /********************************* RESPONSE TYPE *********************************/
@@ -240,7 +240,7 @@ class FilamentSensorTypeEncoder : public FilamentSensorTypeBase {
     public:
       static float runout_distance_mm;
 
-      FORCE_INLINE static bool has_runout() {
+      static inline bool has_runout() {
         return get_mm_since_runout(active_extruder) > runout_distance_mm;
       }
 
@@ -281,11 +281,11 @@ class FilamentSensorTypeEncoder : public FilamentSensorTypeBase {
       static constexpr uint8_t FIL_RUNOUT_THRESHOLD = 5;
       static uint8_t runout_count;
     public:
-      FORCE_INLINE static bool has_runout()                             { return runout_count > FIL_RUNOUT_THRESHOLD; }
-      FORCE_INLINE static void block_complete(const block_t *b)         {}
-      FORCE_INLINE static void filament_present(const uint8_t extruder) { runout_count = 0; UNUSED(extruder); }
-      FORCE_INLINE static void run()                                    { runout_count++; }
-      FORCE_INLINE static void reset()                                  { runout_count = 0; }
+      static inline bool has_runout()                             { return runout_count > FIL_RUNOUT_THRESHOLD; }
+      static inline void block_complete(const block_t *b)         {}
+      static inline void filament_present(const uint8_t extruder) { runout_count = 0; UNUSED(extruder); }
+      static inline void run()                                    { runout_count++; }
+      static inline void reset()                                  { runout_count = 0; }
   };
 
 #endif // !FILAMENT_RUNOUT_DISTANCE_MM

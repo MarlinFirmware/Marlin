@@ -32,7 +32,6 @@ LCD_CLASS *plcd = &lcd;
 
 int lcd_glyph_height(void) { return 1; }
 
-////////////////////////////////////////////////////////////
 typedef struct _hd44780_charmap_t {
   wchar_t uchar; // the unicode char
   uint8_t idx;   // the glyph of the char in the ROM
