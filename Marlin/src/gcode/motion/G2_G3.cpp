@@ -221,9 +221,9 @@ void plan_arc(
   #endif
 
   planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
-  #if ENABLED(SCARA_FEEDRATE_SCALING)
-    , inv_duration
-  #endif
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
+      , inv_duration
+    #endif
   );
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
