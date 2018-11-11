@@ -30,7 +30,6 @@ extern bool screen_changed;
 constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
 
 void scroll_screen(const uint8_t limit, const bool is_menu);
-bool use_click();
 bool printer_busy();
 void lcd_completion_feedback(const bool good=true);
 void lcd_save_previous_screen();

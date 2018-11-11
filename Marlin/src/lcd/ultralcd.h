@@ -242,7 +242,7 @@
     inline void lcd_buzz(const long duration, const uint16_t freq) { UNUSED(duration); UNUSED(freq); }
   #endif
 
-  void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
+  void lcd_quick_feedback(const bool clear_buttons=true); // Audible feedback for a button click - could also be visual
 
   #if ENABLED(LCD_PROGRESS_BAR)
     extern millis_t progress_bar_ms;  // Start time for the current progress bar cycle
@@ -350,6 +350,8 @@
   #endif
 
   bool lcd_blink();
+
+  bool use_click();
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     bool is_lcd_clicked();
