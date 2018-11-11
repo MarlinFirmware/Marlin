@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Portuguese (Brazil)
@@ -28,8 +29,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_PT_BR_UTF_H
-#define LANGUAGE_PT_BR_UTF_H
 
 // Put characters here that should be displayed with M117
 //_UxGT("áãàçÉéêíóõ")
@@ -50,6 +49,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Ir na origem X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Ir na origem Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Ir na origem Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_AUTO_HOME                       _UxGT("Ir na origem XYZ")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Indo para origem")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Clique para Iniciar")
@@ -59,18 +59,18 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Compensar origem")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Alteração feita")
 #define MSG_SET_ORIGIN                      _UxGT("Ajustar Origem")
-#define MSG_PREHEAT_1                       _UxGT("Pre-aquecer PLA")
+#define MSG_PREHEAT_1                       _UxGT("Pre-aquecer " PREHEAT_1_LABEL)
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
-#define MSG_PREHEAT_1_ALL                   _UxGT("Pre-aq.Todo PLA")
+#define MSG_PREHEAT_1_ALL                   _UxGT("Pre-aq.Todo " PREHEAT_1_LABEL)
 #define MSG_PREHEAT_1_END                   _UxGT("Pre-aq.Extrusora")
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("Pre-aq.Mesa PLA")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("Ajustar PLA")
-#define MSG_PREHEAT_2                       _UxGT("Pre-aquecer ABS")
-#define MSG_PREHEAT_2_N                     _UxGT("Pre-aquecer ABS")
-#define MSG_PREHEAT_2_ALL                   _UxGT("Pre-aq.Todo ABS")
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("Pre-aq.Mesa ABS")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Pre-aq.Mesa " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Ajustar " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_2                       _UxGT("Pre-aquecer " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_N                     _UxGT("Pre-aquecer " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_ALL                   _UxGT("Pre-aq.Todo " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Pre-aq.Mesa " PREHEAT_2_LABEL)
 #define MSG_PREHEAT_2_END                   _UxGT("Pre-aq.Extrusora")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("Ajustar ABS")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Ajustar " PREHEAT_2_LABEL)
 #define MSG_COOLDOWN                        _UxGT("Esfriar")
 #define MSG_SWITCH_PS_ON                    _UxGT("Ligar")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Desligar")
@@ -82,8 +82,8 @@
 #define MSG_LEVEL_CORNERS                   _UxGT("Nivelar Cantos")
 #define MSG_NEXT_CORNER                     _UxGT("Próximo Canto")
 #define MSG_EDITING_STOPPED                 _UxGT("Fim da Edição")
-
 #define MSG_USER_MENU                       _UxGT("Comando customizado")
+
 #define MSG_UBL_DOING_G29                   _UxGT("Executando G29")
 #define MSG_UBL_UNHOMED                     _UxGT("Fora da Origam")
 #define MSG_UBL_TOOLS                       _UxGT("Ferramentas UBL")
@@ -96,24 +96,24 @@
 #define MSG_UBL_MOVING_TO_NEXT              _UxGT("Indo para o Próximo")
 #define MSG_UBL_ACTIVATE_MESH               _UxGT("Ativar UBL")
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("Desativar UBL")
-#define MSG_UBL_SET_BED_TEMP                _UxGT("Temp. Mesa")
-#define MSG_UBL_CUSTOM_BED_TEMP             MSG_UBL_SET_BED_TEMP
-#define MSG_UBL_SET_HOTEND_TEMP             _UxGT("Temp. Extrusora")
-#define MSG_UBL_CUSTOM_HOTEND_TEMP          MSG_UBL_SET_HOTEND_TEMP
+#define MSG_UBL_SET_TEMP_BED                _UxGT("Temp. Mesa")
+#define MSG_UBL_BED_TEMP_CUSTOM             MSG_UBL_SET_TEMP_BED
+#define MSG_UBL_SET_TEMP_HOTEND             _UxGT("Temp. Extrusora")
+#define MSG_UBL_HOTEND_TEMP_CUSTOM          MSG_UBL_SET_TEMP_HOTEND
 #define MSG_UBL_MESH_EDIT                   _UxGT("Editar Malha")
 #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("Editar Malha Custom")
 #define MSG_UBL_FINE_TUNE_MESH              _UxGT("Ajuste Fino da Malha")
 #define MSG_UBL_DONE_EDITING_MESH           _UxGT("Fim da Edição")
 #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("Montar Customi")
 #define MSG_UBL_BUILD_MESH_MENU             _UxGT("Montar ")
-#define MSG_UBL_BUILD_PLA_MESH              _UxGT("Montar PLA")
-#define MSG_UBL_BUILD_ABS_MESH              _UxGT("Montar ABS")
+#define MSG_UBL_BUILD_MESH_M1               _UxGT("Montar " PREHEAT_1_LABEL)
+#define MSG_UBL_BUILD_MESH_M2               _UxGT("Montar " PREHEAT_2_LABEL)
 #define MSG_UBL_BUILD_COLD_MESH             _UxGT("Montar fria")
 #define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("Ajustar Altura")
 #define MSG_UBL_MESH_HEIGHT_AMOUNT          _UxGT("Tamanho da Elevação")
 #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("Validar Malha")
-#define MSG_UBL_VALIDATE_PLA_MESH           _UxGT("Checar PLA")
-#define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("Checar ABS")
+#define MSG_UBL_VALIDATE_MESH_M1            _UxGT("Checar " PREHEAT_1_LABEL)
+#define MSG_UBL_VALIDATE_MESH_M2            _UxGT("Checar " PREHEAT_2_LABEL)
 #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("Validar Malha Custom")
 #define MSG_UBL_CONTINUE_MESH               _UxGT("Continuar Malha")
 #define MSG_UBL_MESH_LEVELING               _UxGT("Nivelação da Malha")
@@ -127,7 +127,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("Salvar Malha CSV")
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("Salvar Backup")
 #define MSG_UBL_INFO_UBL                    _UxGT("Informação do UBL")
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("Editar Malha")
+#define MSG_EDIT_MESH                       _UxGT("Editar Malha")
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("Qtd de Enchimento")
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("Enchimento Manual")
 #define MSG_UBL_SMART_FILLIN                _UxGT("Enchimento Smart")
@@ -199,7 +199,7 @@
   #define MSG_VA_JERK                       _UxGT("jogo VA")
   #define MSG_VB_JERK                       _UxGT("jogo VB")
   #define MSG_VC_JERK                       _UxGT("jogo VZ")
-#elif IS_DELTA
+#elif ENABLED(DELTA)
   #define MSG_VA_JERK                       _UxGT("jogo VA")
   #define MSG_VB_JERK                       _UxGT("jogo VB")
   #define MSG_VC_JERK                       _UxGT("jogo VC")
@@ -221,7 +221,7 @@
   #define MSG_ASTEPS                        _UxGT("Passo A/deg")
   #define MSG_BSTEPS                        _UxGT("Passo B/deg")
   #define MSG_CSTEPS                        _UxGT("Passo Z/mm")
-#elif IS_DELTA
+#elif ENABLED(DELTA)
   #define MSG_ASTEPS                        _UxGT("Passo A/mm")
   #define MSG_BSTEPS                        _UxGT("Passo B/mm")
   #define MSG_CSTEPS                        _UxGT("Passo C/mm")
@@ -236,6 +236,7 @@
 #define MSG_E3STEPS                         _UxGT("E3/mm")
 #define MSG_E4STEPS                         _UxGT("E4/mm")
 #define MSG_E5STEPS                         _UxGT("E5/mm")
+#define MSG_E6STEPS                         _UxGT("E6/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movimento")
 #define MSG_FILAMENT                        _UxGT("Filamento")
@@ -265,14 +266,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retrair mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Retrair Troca mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retrair V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Saltar mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Saltar mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Des-Retrair mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Des-RetTroca mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Des-Retrair  V")
 #define MSG_AUTORETRACT                     _UxGT("Retração Automática")
 #define MSG_FILAMENTCHANGE                  _UxGT("Trocar Filamento")
 #define MSG_INIT_SDCARD                     _UxGT("Iniciar SD")
-#define MSG_CNG_SDCARD                      _UxGT("Trocar SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Trocar SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda fora da mesa")
 #define MSG_SKEW_FACTOR                     _UxGT("Fator de Cisalho")
 #define MSG_BLTOUCH                         _UxGT("BLTouch")
@@ -380,5 +381,3 @@
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1     _UxGT("Extrusando...")
   #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Continuando...")
 #endif
-
-#endif // LANGUAGE_PT_BR_UTF_H

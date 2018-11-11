@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+[ -z "$1" ] || cd $1
+
+if [ -d ".test" ]; then
+  cp .test/Configuration*.h Marlin/
+  rm .test/Configuration*.h
+
+  if [ -f .test/_Bootscreen.h ]; then
+    cp .test/_Bootscreen.h Marlin/
+    rm .test/_Bootscreen.h
+  fi
+
+  if [ -f .test/_Statusscreen.h ]; then
+    cp .test/_Statusscreen.h Marlin/
+    rm .test/_Statusscreen.h
+  fi
+
+  cp -r .test/pins Marlin/src
+  rm -r .test/pins
+
+  rmdir .test
+  printf "\033[0;32mEnvironment Restored\033[0m\n"
+else
+  printf "\033[0;31mEnvironment Backup not available!\033[0m\n"
+fi

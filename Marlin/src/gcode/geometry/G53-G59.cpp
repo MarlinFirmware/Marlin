@@ -44,7 +44,7 @@ bool GcodeSuite::select_coordinate_system(const int8_t _new) {
     const float diff = new_offset[i] - old_offset[i];
     if (diff) {
       position_shift[i] += diff;
-      update_software_endstops((AxisEnum)i);
+      update_workspace_offset((AxisEnum)i);
     }
   }
   return true;

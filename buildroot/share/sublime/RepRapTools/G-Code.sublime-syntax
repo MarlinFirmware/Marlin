@@ -1,0 +1,150 @@
+%YAML 1.2
+---
+#
+# G-Code (RepRap, not ISO-6983)
+# Author: @thinkyhead
+#
+# RapRap G-Code is very simple.
+#
+# TODO: Lines that start with N get a different context, accepting a checksum.
+#
+name: G-Code (RepRap)
+file_extensions:
+  - [ gco, gcode ]
+scope: source.gcode
+variables:
+  decimal:  '[+-]?\d+(\.(\d+)?)?'
+
+contexts:
+  prototype:
+    - match: \s+
+
+    - include: mixin_comment
+
+    - match: $
+      pop: true
+
+  main:
+    - meta_content_scope: ctx.line.gcode
+
+    - match: '([Nn]\s*(\d+))'
+      captures:
+        1: ctx.gcode_line_num
+        2: constant.numeric.line-number.gcode
+
+    - match: ()
+      set: gcode_command
+
+  # G, M, or T command
+  gcode_command:
+    - meta_content_scope: ctx.command.gcode
+
+    # M20 S2 P/path/to/file/name.gco
+    - match: ([Mm](20))(\s*(S)(2)\s*(P))
+      captures:
+        1: entity.command.gcode markup.bold.gcode
+        2: constant.numeric.command.gcode
+        3: ctx.params.gcode
+        4: keyword.param.gcode
+        5: constant.numeric.param.gcode
+        6: keyword.param.gcode
+      set: gcode_string_arg
+
+    # command followed by data
+    - match: ([Mm]\s*(11[78]))\b
+      captures:
+        1: entity.command.gcode markup.bold.gcode
+        2: constant.numeric.command.gcode
+      set: gcode_string_arg
+
+    # command followed by data
+    - match: '([GMTgmt]\s*(\d+)((\.)(\d+))?)'
+      captures:
+        1: entity.command.gcode markup.bold.gcode
+        2: constant.numeric.command.gcode
+        4: entity.separator.subcode
+        5: constant.numeric.subcode
+      set: gcode_params
+
+    - match: ()
+      set: syntax_error
+
+  # Parameters of a command
+  gcode_params:
+    - meta_content_scope: ctx.params.gcode
+
+    # M32 [S<pos>] [P<bool>] !/path/file.gco#
+    - match: '!'
+      scope: entity.string.filename.open
+      push: gcode_path_arg
+
+    # asterisk starts a checksum
+    - match: \*
+      scope: entity.checksum.gcode
+      set: gcode_checksum
+
+    # parameter and value
+    - match: ([A-Za-z])\s*({{decimal}})
+      captures:
+        1: keyword.param.gcode
+        2: constant.numeric.param.gcode
+
+    # parameter with no value
+    - match: '[A-Za-z]'
+      scope: keyword.param.gcode
+      set: gcode_params
+
+    - match: ()
+      set: syntax_error
+
+  gcode_string_arg:
+    - meta_content_scope: ctx.string.gcode
+
+    - match: ([^;]+)
+      scope: string.unquoted.gcode
+
+  gcode_path_arg:
+    - meta_content_scope: ctx.path.gcode
+
+    - match: ([^#]+)
+      scope: string.unquoted.path.gcode
+
+    - match: (#)
+      scope: entity.string.path.close.gcode
+      pop: true
+
+  gcode_checksum:
+    - meta_content_scope: ctx.checksum.gcode
+
+    - match: \d+
+      scope: constant.numeric.checksum.gcode
+
+    - match: ()
+      set: syntax_error
+
+  # Done interpreting to the end of the line
+  gcode_line_done:
+    - match: \s*$
+      pop: true
+
+  # Comments begin with a ';' and finish at the end of the line.
+  mixin_comment:
+    - match: ^\s*;
+      scope: punctuation.definition.comment.line.start
+      set: gcode_comment
+    - match: \s*;
+      scope: punctuation.definition.comment.eol.start
+      set: gcode_comment
+
+  # Comment to end of line.
+  gcode_comment:
+    - meta_scope: comment.gcode
+    - match: \s*$
+      pop: true
+
+  # Everything after this point is broken by a syntax error
+  syntax_error:
+    - meta_scope: invalid.error.syntax.gcode
+
+    - match: .*$
+      pop: true

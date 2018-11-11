@@ -19,9 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifndef MACROS_H
-#define MACROS_H
+#include "minmax.h"
 
 #define NUM_AXIS 4
 #define ABCE 4
@@ -49,14 +49,14 @@
 
 // Clock speed factors
 #if !defined(CYCLES_PER_MICROSECOND) && !defined(__STM32F1__)
-  #define CYCLES_PER_MICROSECOND (F_CPU / 1000000L) // 16 or 20 on AVR
+  #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20 on AVR
 #endif
 
 // Nanoseconds per cycle
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
 // Remove compiler warning on an unused variable
-#define UNUSED(x) (void) (x)
+#define UNUSED(x) ((void)(x))
 
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
@@ -79,24 +79,20 @@
 #define CBI32(n,b) (n &= ~_BV32(b))
 
 // Macros for maths shortcuts
-#ifndef M_PI
-  #define M_PI 3.14159265358979323846
-#endif
-#define RADIANS(d) ((d)*M_PI/180.0)
-#define DEGREES(r) ((r)*180.0/M_PI)
+#undef M_PI
+#define M_PI 3.14159265358979323846f
+
+#define RADIANS(d) ((d)*float(M_PI)/180.0f)
+#define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
 
-#define CIRCLE_AREA(R) (M_PI * sq(R))
-#define CIRCLE_CIRC(R) (2.0 * M_PI * (R))
+#define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
+#define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
 #define SIGN(a) ((a>0)-(a<0))
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to constrain values
-// Avoid double evaluation of arguments to NOMORE/NOLESS/LIMIT
-#undef NOMORE
-#undef NOLESS
-#undef LIMIT
 #ifdef __cplusplus
 
   // C++11 solution that is standards compliant.
@@ -197,76 +193,36 @@
 
 #define PIN_EXISTS(PN) (defined(PN ##_PIN) && PN ##_PIN >= 0)
 
-#define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
-#define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
-
-#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
-#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
+#define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
+#define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)
 
 #define NOOP do{} while(0)
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
-// Avoid double evaluation of arguments on MIN/MAX/ABS
-#undef MIN
-#undef MAX
 #undef ABS
 #ifdef __cplusplus
-
-  // C++11 solution that is standards compliant. Return type is deduced automatically
-  template <class L, class R> static inline constexpr auto MIN(const L lhs, const R rhs) -> decltype(lhs + rhs) {
-    return lhs < rhs ? lhs : rhs;
-  }
-  template <class L, class R> static inline constexpr auto MAX(const L lhs, const R rhs) -> decltype(lhs + rhs){
-    return lhs > rhs ? lhs : rhs;
-  }
-  template <class T> static inline constexpr const T ABS(const T v) {
-    return v >= 0 ? v : -v;
-  }
+  template <class T> static inline constexpr const T ABS(const T v) { return v >= 0 ? v : -v; }
 #else
-
-  // Using GCC extensions, but Travis GCC version does not like it and gives
-  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
-  #define MIN(a, b) \
-    ({__typeof__(a) _a = (a); \
-      __typeof__(b) _b = (b); \
-      _a < _b ? _a : _b;})
-
-  #define MAX(a, b) \
-    ({__typeof__(a) _a = (a); \
-      __typeof__(b) _b = (b); \
-      _a > _b ? _a : _b;})
-
-  #define ABS(a) \
-    ({__typeof__(a) _a = (a); \
-      _a >= 0 ? _a : -_a;})
-
+  #define ABS(a) ({__typeof__(a) _a = (a); _a >= 0 ? _a : -_a;})
 #endif
 
-#define MIN3(a, b, c)       MIN(MIN(a, b), c)
-#define MIN4(a, b, c, d)    MIN(MIN3(a, b, c), d)
-#define MIN5(a, b, c, d, e) MIN(MIN4(a, b, c, d), e)
-#define MAX3(a, b, c)       MAX(MAX(a, b), c)
-#define MAX4(a, b, c, d)    MAX(MAX3(a, b, c), d)
-#define MAX5(a, b, c, d, e) MAX(MAX4(a, b, c, d), e)
-
-#define UNEAR_ZERO(x) ((x) < 0.000001)
-#define NEAR_ZERO(x) WITHIN(x, -0.000001, 0.000001)
+#define UNEAR_ZERO(x) ((x) < 0.000001f)
+#define NEAR_ZERO(x) WITHIN(x, -0.000001f, 0.000001f)
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
-#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
-#define FIXFLOAT(f) (f + (f < 0.0 ? -0.00005 : 0.00005))
+#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0 : (1 / float(x)))
+#define FIXFLOAT(f) (f + (f < 0 ? -0.00005f : 0.00005f))
 
 //
 // Maths macros that can be overridden by HAL
 //
-#define ATAN2(y, x) atan2(y, x)
-#define POW(x, y)   pow(x, y)
-#define SQRT(x)     sqrt(x)
-#define CEIL(x)     ceil(x)
-#define FLOOR(x)    floor(x)
-#define LROUND(x)   lround(x)
-#define FMOD(x, y)  fmod(x, y)
+#define ATAN2(y, x) atan2f(y, x)
+#define POW(x, y)   powf(x, y)
+#define SQRT(x)     sqrtf(x)
+#define RSQRT(x)    (1 / sqrtf(x))
+#define CEIL(x)     ceilf(x)
+#define FLOOR(x)    floorf(x)
+#define LROUND(x)   lroundf(x)
+#define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
-
-#endif //__MACROS_H

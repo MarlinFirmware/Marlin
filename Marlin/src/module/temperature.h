@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * temperature.h - temperature controller
  */
-
-#ifndef TEMPERATURE_H
-#define TEMPERATURE_H
 
 #include "thermistor/thermistors.h"
 #include "../inc/MarlinConfig.h"
@@ -48,10 +46,40 @@
   #define HOTEND_INDEX  e
 #endif
 
+// PID storage
+typedef struct { float Kp, Ki, Kd;     } PID_t;
+typedef struct { float Kp, Ki, Kd, Kc; } PIDC_t;
+#if ENABLED(PID_EXTRUSION_SCALING)
+  typedef PIDC_t hotend_pid_t;
+#else
+  typedef PID_t hotend_pid_t;
+#endif
+
+#define DUMMY_PID_VALUE 3000.0f
+
+#if ENABLED(PIDTEMP)
+  #define _PID_Kp(H) Temperature::pid[H].Kp
+  #define _PID_Ki(H) Temperature::pid[H].Ki
+  #define _PID_Kd(H) Temperature::pid[H].Kd
+  #if ENABLED(PID_EXTRUSION_SCALING)
+    #define _PID_Kc(H) Temperature::pid[H].Kc
+  #else
+    #define _PID_Kc(H) 1
+  #endif
+#else
+  #define _PID_Kp(H) DUMMY_PID_VALUE
+  #define _PID_Ki(H) DUMMY_PID_VALUE
+  #define _PID_Kd(H) DUMMY_PID_VALUE
+  #define _PID_Kc(H) 1
+#endif
+
+#define PID_PARAM(F,H) _PID_##F(H)
+
 /**
  * States for ADC reading in the ISR
  */
 enum ADCSensorState : char {
+  StartSampling,
   #if HAS_TEMP_ADC_0
     PrepareTemp_0,
     MeasureTemp_0,
@@ -100,15 +128,17 @@ enum ADCSensorState : char {
 #define ACTUAL_ADC_SAMPLES MAX(int(MIN_ADC_ISR_LOOPS), int(SensorsReady))
 
 #if HAS_PID_HEATING
-  #define PID_K2 (1.0-PID_K1)
+  #define PID_K2 (1-float(PID_K1))
   #define PID_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / TEMP_TIMER_FREQUENCY)
 
   // Apply the scale factors to the PID values
-  #define scalePID_i(i)   ( (i) * PID_dT )
-  #define unscalePID_i(i) ( (i) / PID_dT )
-  #define scalePID_d(d)   ( (d) / PID_dT )
-  #define unscalePID_d(d) ( (d) * PID_dT )
+  #define scalePID_i(i)   ( float(i) * PID_dT )
+  #define unscalePID_i(i) ( float(i) / PID_dT )
+  #define scalePID_d(d)   ( float(d) / PID_dT )
+  #define unscalePID_d(d) ( float(d) * PID_dT )
 #endif
+
+#define G26_CLICK_CAN_CANCEL (HAS_LCD_MENU && ENABLED(G26_MESH_VALIDATION))
 
 class Temperature {
 
@@ -122,7 +152,7 @@ class Temperature {
     static uint8_t soft_pwm_amount[HOTENDS];
 
     #if ENABLED(AUTO_POWER_E_FANS)
-      static int16_t autofan_speed[HOTENDS];
+      static uint8_t autofan_speed[HOTENDS];
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
@@ -131,25 +161,7 @@ class Temperature {
     #endif
 
     #if ENABLED(PIDTEMP)
-
-      #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-
-        static float Kp[HOTENDS], Ki[HOTENDS], Kd[HOTENDS];
-        #if ENABLED(PID_EXTRUSION_SCALING)
-          static float Kc[HOTENDS];
-        #endif
-        #define PID_PARAM(param, h) Temperature::param[h]
-
-      #else
-
-        static float Kp, Ki, Kd;
-        #if ENABLED(PID_EXTRUSION_SCALING)
-          static float Kc;
-        #endif
-        #define PID_PARAM(param, h) Temperature::param
-
-      #endif // PID_PARAMS_PER_HOTEND
-
+      static hotend_pid_t pid[HOTENDS];
     #endif
 
     #if HAS_HEATED_BED
@@ -157,12 +169,12 @@ class Temperature {
       static int16_t current_temperature_bed_raw, target_temperature_bed;
       static uint8_t soft_pwm_amount_bed;
       #if ENABLED(PIDTEMPBED)
-        static float bedKp, bedKi, bedKd;
+        static PID_t bed_pid;
       #endif
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static volatile int babystepsTodo[3];
+      static volatile int16_t babystepsTodo[3];
     #endif
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -209,21 +221,11 @@ class Temperature {
     #endif
 
     #if ENABLED(PIDTEMP)
-      static float temp_iState[HOTENDS],
-                   temp_dState[HOTENDS],
-                   pTerm[HOTENDS],
-                   iTerm[HOTENDS],
-                   dTerm[HOTENDS];
-
       #if ENABLED(PID_EXTRUSION_SCALING)
-        static float cTerm[HOTENDS];
         static long last_e_position;
         static long lpq[LPQ_MAX_LEN];
         static int lpq_ptr;
       #endif
-
-      static float pid_error[HOTENDS];
-      static bool pid_reset[HOTENDS];
     #endif
 
     // Init min and max temp with extreme values to prevent false errors during startup
@@ -238,14 +240,7 @@ class Temperature {
         static uint16_t watch_target_bed_temp;
         static millis_t watch_bed_next_ms;
       #endif
-      #if ENABLED(PIDTEMPBED)
-        static float temp_iState_bed,
-                     temp_dState_bed,
-                     pTerm_bed,
-                     iTerm_bed,
-                     dTerm_bed,
-                     pid_error_bed;
-      #else
+      #if DISABLED(PIDTEMPBED)
         static millis_t next_bed_check_ms;
       #endif
       #if HEATER_IDLE_HANDLER
@@ -328,6 +323,7 @@ class Temperature {
     /**
      * Called from the Temperature ISR
      */
+    static void readings_ready();
     static void isr();
 
     /**
@@ -431,7 +427,16 @@ class Temperature {
       return target_temperature[HOTEND_INDEX] < current_temperature[HOTEND_INDEX];
     }
 
+    #if HAS_TEMP_HOTEND
+      static bool wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling=true
+        #if G26_CLICK_CAN_CANCEL
+          , const bool click_to_cancel=false
+        #endif
+      );
+    #endif
+
     #if HAS_HEATED_BED
+
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         FORCE_INLINE static int16_t rawBedTemp()  { return current_temperature_bed_raw; }
       #endif
@@ -459,7 +464,14 @@ class Temperature {
       #if WATCH_THE_BED
         static void start_watching_bed();
       #endif
-    #endif
+
+      static bool wait_for_bed(const bool no_wait_for_cooling
+        #if G26_CLICK_CAN_CANCEL
+          , const bool click_to_cancel=false
+        #endif
+      );
+
+    #endif // HAS_HEATED_BED
 
     #if HAS_TEMP_CHAMBER
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
@@ -468,7 +480,7 @@ class Temperature {
       FORCE_INLINE static float degChamber() { return current_temperature_chamber; }
     #endif
 
-    FORCE_INLINE static bool wait_for_heating(const uint8_t e) {
+    FORCE_INLINE static bool still_heating(const uint8_t e) {
       return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
     }
 
@@ -517,6 +529,7 @@ class Temperature {
                   babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
                   break;
                 case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
+                default:
                   babystepsTodo[NORMAL_AXIS] += distance;
                   break;
               }
@@ -605,6 +618,10 @@ class Temperature {
       #endif
     #endif
 
+    #if ENABLED(ULTRA_LCD)
+      static void set_heating_message(const uint8_t e);
+    #endif
+
   private:
 
     #if ENABLED(FAST_PWM_FAN)
@@ -627,7 +644,7 @@ class Temperature {
       static float get_pid_output_bed();
     #endif
 
-    static void _temp_error(const int8_t e, const char * const serial_msg, const char * const lcd_msg);
+    static void _temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg);
     static void min_temp_error(const int8_t e);
     static void max_temp_error(const int8_t e);
 
@@ -648,9 +665,6 @@ class Temperature {
       #endif
 
     #endif // THERMAL_PROTECTION
-
 };
 
 extern Temperature thermalManager;
-
-#endif // TEMPERATURE_H

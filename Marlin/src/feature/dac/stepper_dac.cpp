@@ -91,8 +91,8 @@ void dac_current_raw(uint8_t channel, uint16_t val) {
   mcp4728_simpleCommand(UPDATE);
 }
 
-static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * (1.0 / (DAC_STEPPER_MAX)); }
-static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * (1.0 / (DAC_STEPPER_SENSE)); }
+static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * (1.0f / (DAC_STEPPER_MAX)); }
+static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * (1.0f / (DAC_STEPPER_SENSE)); }
 
 uint8_t dac_current_get_percent(AxisEnum axis) { return mcp4728_getDrvPct(dac_order[axis]); }
 void dac_current_set_percents(const uint8_t pct[XYZE]) {

@@ -27,7 +27,7 @@
 ****************************************************************************************/
 
 #if !IS_32BIT_TEENSY
-  #error "Oops!  Make sure you have 'Teensy 3.5' or 'Teensy 3.6' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Teensy 3.5' or 'Teensy 3.6' in 'Tools > Board.'"
 #endif
 
 #if IS_TEENSY35
@@ -139,7 +139,7 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
 #endif
 #endif
 
-#ifdef ULTRA_LCD
+#if ENABLED(ULTRA_LCD)
   #define LCD_PINS_RS      40
   #define LCD_PINS_ENABLE  41
   #define LCD_PINS_D4      42

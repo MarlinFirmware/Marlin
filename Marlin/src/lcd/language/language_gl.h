@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Galician language (ISO "gl")
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_GL_H
-#define LANGUAGE_GL_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
@@ -44,6 +43,7 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Ir orixe X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Ir orixe Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Ir orixe Z")
+#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrar Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Ir orixes XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Prema pulsador")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Seguinte punto")
@@ -51,16 +51,16 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Offsets na orixe")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsets fixados")
 #define MSG_SET_ORIGIN                      _UxGT("Fixar orixe")
-#define MSG_PREHEAT_1                       _UxGT("Prequentar PLA")
-#define MSG_PREHEAT_1_N                     _UxGT("Prequentar PLA ")
-#define MSG_PREHEAT_1_ALL                   _UxGT("Preque. PLA Todo")
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("Preque. PLA Cama")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("Preque. PLA conf")
-#define MSG_PREHEAT_2                       _UxGT("Prequentar ABS")
-#define MSG_PREHEAT_2_N                     _UxGT("Prequentar ABS ")
-#define MSG_PREHEAT_2_ALL                   _UxGT("Preque. ABS Todo")
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("Preque. ABS Cama")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("Preque. ABS conf")
+#define MSG_PREHEAT_1                       _UxGT("Prequentar " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_N                     _UxGT("Prequentar " PREHEAT_1_LABEL " ")
+#define MSG_PREHEAT_1_ALL                   _UxGT("Preque. " PREHEAT_1_LABEL " Todo")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Preque. " PREHEAT_1_LABEL " Cama")
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Preque. " PREHEAT_1_LABEL " conf")
+#define MSG_PREHEAT_2                       _UxGT("Prequentar " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_N                     _UxGT("Prequentar " PREHEAT_2_LABEL " ")
+#define MSG_PREHEAT_2_ALL                   _UxGT("Preque. " PREHEAT_2_LABEL " Todo")
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Preque. " PREHEAT_2_LABEL " Cama")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Preque. " PREHEAT_2_LABEL " conf")
 #define MSG_COOLDOWN                        _UxGT("Arrefriar")
 #define MSG_SWITCH_PS_ON                    _UxGT("Acender")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Apagar")
@@ -128,6 +128,7 @@
 #define MSG_E3STEPS                         _UxGT("E3 pasos/mm")
 #define MSG_E4STEPS                         _UxGT("E4 pasos/mm")
 #define MSG_E5STEPS                         _UxGT("E5 pasos/mm")
+#define MSG_E6STEPS                         _UxGT("E6 pasos/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movemento")
 #define MSG_FILAMENT                        _UxGT("Filamento")
@@ -155,14 +156,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retraccion mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Cambio retra. mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retraccion V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Alzar Z mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Alzar Z mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("Recup. retra. mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Cambio recup. mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("Recuperacion V")
 #define MSG_AUTORETRACT                     _UxGT("Retraccion auto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambiar filamen.")
 #define MSG_INIT_SDCARD                     _UxGT("Iniciando SD")
-#define MSG_CNG_SDCARD                      _UxGT("Cambiar SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Cambiar SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda-Z sen cama")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_BLTOUCH_SELFTEST                _UxGT("Comprobar BLTouch")
@@ -249,6 +250,3 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Cargando...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Seguindo...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_GL_H
-

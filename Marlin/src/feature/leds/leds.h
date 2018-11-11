@@ -19,15 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * leds.h - Marlin general RGB LED support
  */
 
-#ifndef __LEDS_H__
-#define __LEDS_H__
+#include "../../inc/MarlinConfigPre.h"
 
-#include "../../inc/MarlinConfig.h"
+#include <string.h>
 
 #if ENABLED(NEOPIXEL_LED)
   #include "neopixel.h"
@@ -47,6 +47,7 @@ typedef struct LEDColor {
       #endif
     #endif
   ;
+
   LEDColor() : r(255), g(255), b(255)
     #if HAS_WHITE_LED
       , w(255)
@@ -55,6 +56,7 @@ typedef struct LEDColor {
       #endif
     #endif
   {}
+
   LEDColor(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
@@ -70,6 +72,7 @@ typedef struct LEDColor {
       #endif
     #endif
   {}
+
   LEDColor(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
     #if HAS_WHITE_LED
       , w(rgbw[3])
@@ -78,6 +81,7 @@ typedef struct LEDColor {
       #endif
     #endif
   {}
+
   LEDColor& operator=(const uint8_t (&rgbw)[4]) {
     r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
     #if HAS_WHITE_LED
@@ -85,15 +89,19 @@ typedef struct LEDColor {
     #endif
     return *this;
   }
+
   LEDColor& operator=(const LEDColor &right) {
     if (this != &right) memcpy(this, &right, sizeof(LEDColor));
     return *this;
   }
+
   bool operator==(const LEDColor &right) {
     if (this == &right) return true;
     return 0 == memcmp(this, &right, sizeof(LEDColor));
   }
+
   bool operator!=(const LEDColor &right) { return !operator==(right); }
+
   bool is_off() const {
     return 3 > r + g + b
       #if HAS_WHITE_LED
@@ -107,12 +115,12 @@ typedef struct LEDColor {
  * Color helpers and presets
  */
 #if HAS_WHITE_LED
-  #define LEDColorWhite() LEDColor(0, 0, 0, 255)
   #if ENABLED(NEOPIXEL_LED)
     #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W, I)
   #else
     #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B, W)
   #endif
+  #define LEDColorWhite() LEDColor(0, 0, 0, 255)
 #else
   #define MakeLEDColor(R,G,B,W,I) LEDColor(R, G, B)
   #define LEDColorWhite() LEDColor(255, 255, 255)
@@ -138,7 +146,7 @@ public:
     #endif
   );
 
-  FORCE_INLINE void set_color(uint8_t r, uint8_t g, uint8_t b
+  inline void set_color(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
       #if ENABLED(NEOPIXEL_LED)
@@ -156,29 +164,33 @@ public:
     );
   }
 
-  static void set_white();
-  FORCE_INLINE static void set_off()   { set_color(LEDColorOff()); }
-  FORCE_INLINE static void set_green() { set_color(LEDColorGreen()); }
+  static inline void set_off()   { set_color(LEDColorOff()); }
+  static inline void set_green() { set_color(LEDColorGreen()); }
+  static inline void set_white() { set_color(LEDColorWhite()); }
 
   #if ENABLED(LED_COLOR_PRESETS)
     static const LEDColor defaultLEDColor;
-    FORCE_INLINE static void set_default()  { set_color(defaultLEDColor); }
-    FORCE_INLINE static void set_red()      { set_color(LEDColorRed()); }
-    FORCE_INLINE static void set_orange()   { set_color(LEDColorOrange()); }
-    FORCE_INLINE static void set_yellow()   { set_color(LEDColorYellow()); }
-    FORCE_INLINE static void set_blue()     { set_color(LEDColorBlue()); }
-    FORCE_INLINE static void set_indigo()   { set_color(LEDColorIndigo()); }
-    FORCE_INLINE static void set_violet()   { set_color(LEDColorViolet()); }
+    static inline void set_default()  { set_color(defaultLEDColor); }
+    static inline void set_red()      { set_color(LEDColorRed()); }
+    static inline void set_orange()   { set_color(LEDColorOrange()); }
+    static inline void set_yellow()   { set_color(LEDColorYellow()); }
+    static inline void set_blue()     { set_color(LEDColorBlue()); }
+    static inline void set_indigo()   { set_color(LEDColorIndigo()); }
+    static inline void set_violet()   { set_color(LEDColorViolet()); }
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    static inline LEDColor get_color() { return lights_on ? color : LEDColorOff(); }
+  #endif
+
+  #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
     static LEDColor color; // last non-off color
     static bool lights_on; // the last set color was "on"
+  #endif
+  #if ENABLED(LED_CONTROL_MENU)
     static void toggle();  // swap "off" with color
-    FORCE_INLINE static void update() { set_color(color); }
+    static inline void update() { set_color(color); }
   #endif
 };
 
 extern LEDLights leds;
-
-#endif // __LEDS_H__

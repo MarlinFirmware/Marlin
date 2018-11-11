@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __NOZZLE_H__
-#define __NOZZLE_H__
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 #include "point_t.h"
@@ -90,5 +88,3 @@ class Nozzle {
 
   #endif
 };
-
-#endif // __NOZZLE_H__

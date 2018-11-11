@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Arduino SdFat Library
@@ -26,10 +27,6 @@
  *
  * This file is part of the Arduino Sd2Card Library
  */
-#ifndef _SDFATUTIL_H_
-#define _SDFATUTIL_H_
-
-#include <string.h>
 
 /**
  * \file
@@ -41,5 +38,3 @@ namespace SdFatUtil {
 }
 
 using namespace SdFatUtil;  // NOLINT
-
-#endif // _SDFATUTIL_H_

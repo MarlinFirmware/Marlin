@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __CIRCULARQUEUE_H__
-#define __CIRCULARQUEUE_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -141,5 +139,3 @@ class CircularQueue {
       return this->buffer.count;
     }
 };
-
-#endif

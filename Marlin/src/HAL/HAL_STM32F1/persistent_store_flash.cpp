@@ -34,39 +34,36 @@
 // This is for EEPROM emulation in flash
 #if ENABLED(EEPROM_SETTINGS) && ENABLED(FLASH_EEPROM_EMULATION)
 
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
 
 #include <flash_stm32.h>
 #include <EEPROM.h>
-
-namespace HAL {
-namespace PersistentStore {
 
 // Store settings in the last two pages
 // Flash pages must be erased before writing, so keep track.
 bool firstWrite = false;
 uint32_t pageBase = EEPROM_START_ADDRESS;
 
-bool access_start() {
+bool PersistentStore::access_start() {
   firstWrite = true;
   return true;
 }
 
-bool access_finish(){
+bool PersistentStore::access_finish() {
   FLASH_Lock();
   firstWrite = false;
   return true;
 }
 
-bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
+bool PersistentStore::write_data(int &pos, const uint8_t *value, const size_t size, uint16_t *crc) {
   FLASH_Status status;
 
   if (firstWrite) {
     FLASH_Unlock();
     status = FLASH_ErasePage(EEPROM_PAGE0_BASE);
-    if (status != FLASH_COMPLETE) return false;
+    if (status != FLASH_COMPLETE) return true;
     status = FLASH_ErasePage(EEPROM_PAGE1_BASE);
-    if (status != FLASH_COMPLETE) return false;
+    if (status != FLASH_COMPLETE) return true;
     firstWrite = false;
   }
 
@@ -76,7 +73,7 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   uint16_t* wordBuffer = (uint16_t *)value;
   while (wordsToWrite) {
     status = FLASH_ProgramHalfWord(pageBase + pos + (i * 2), wordBuffer[i]);
-    if (status != FLASH_COMPLETE) return false;
+    if (status != FLASH_COMPLETE) return true;
     wordsToWrite--;
     i++;
   }
@@ -85,15 +82,15 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   if (size & 1) {
     uint16_t temp = value[size - 1];
     status = FLASH_ProgramHalfWord(pageBase + pos + i, temp);
-    if (status != FLASH_COMPLETE) return false;
+    if (status != FLASH_COMPLETE) return true;
   }
 
   crc16(crc, value, size);
   pos += ((size + 1) & ~1);
-  return true;
+  return false;
 }
 
-void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (uint16_t i = 0; i < size; i++) {
     byte* accessPoint = (byte*)(pageBase + pos + i);
     uint8_t c = *accessPoint;
@@ -101,10 +98,10 @@ void read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const boo
     crc16(crc, &c, 1);
   }
   pos += ((size + 1) & ~1);
+  return false;
 }
 
-} // PersistentStore
-} // HAL
+size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS && EEPROM FLASH
 #endif // __STM32F1__

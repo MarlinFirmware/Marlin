@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O Routines for LPC1768/9
@@ -32,30 +33,23 @@
  * For TARGET LPC1768
  */
 
-#ifndef _FASTIO_LPC1768_H
-#define _FASTIO_LPC1768_H
-
-#include <LPC17xx.h>
 #include <Arduino.h>
-#include <pinmapping.h>
 
-bool useable_hardware_PWM(pin_t pin);
-#define USEABLE_HARDWARE_PWM(pin) useable_hardware_PWM(pin)
+#define USEABLE_HARDWARE_PWM(pin) TRUE // all pins are PWM capable
 
-#define LPC_PORT_OFFSET         (0x0020)
-#define LPC_PIN(pin)            (1UL << pin)
-#define LPC_GPIO(port)          ((volatile LPC_GPIO_TypeDef *)(LPC_GPIO0_BASE + LPC_PORT_OFFSET * port))
+#define LPC_PIN(pin)            gpio_pin(pin)
+#define LPC_GPIO(port)          gpio_port(port)
 
-#define SET_DIR_INPUT(IO)       (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIODIR &= ~LPC_PIN(LPC1768_PIN_PIN(IO)))
-#define SET_DIR_OUTPUT(IO)      (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIODIR |=  LPC_PIN(LPC1768_PIN_PIN(IO)))
+#define SET_DIR_INPUT(IO)       gpio_set_input(IO)
+#define SET_DIR_OUTPUT(IO)      gpio_set_output(IO)
 
-#define SET_MODE(IO, mode)      (pin_mode((LPC1768_PIN_PORT(IO), LPC1768_PIN_PIN(IO)), mode))
+#define SET_MODE(IO, mode)      pinMode(IO, mode)
 
-#define WRITE_PIN_SET(IO)       (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIOSET = LPC_PIN(LPC1768_PIN_PIN(IO)))
-#define WRITE_PIN_CLR(IO)       (LPC_GPIO(LPC1768_PIN_PORT(IO))->FIOCLR = LPC_PIN(LPC1768_PIN_PIN(IO)))
+#define WRITE_PIN_SET(IO)       gpio_set(IO)
+#define WRITE_PIN_CLR(IO)       gpio_clear(IO)
 
-#define READ_PIN(IO)            ((LPC_GPIO(LPC1768_PIN_PORT(IO))->FIOPIN & LPC_PIN(LPC1768_PIN_PIN(IO))) ? 1 : 0)
-#define WRITE_PIN(IO,V)         ((V) ? WRITE_PIN_SET(IO) : WRITE_PIN_CLR(IO))
+#define READ_PIN(IO)            gpio_get(IO)
+#define WRITE_PIN(IO,V)         gpio_set(IO, V)
 
 /**
  * Magic I/O routines
@@ -88,25 +82,15 @@ bool useable_hardware_PWM(pin_t pin);
 /// set pin as input with pulldown mode
 #define _PULLDOWN(IO,V)   pinMode(IO, (V) ? INPUT_PULLDOWN : INPUT)
 
-// hg42: all pins can be input or output (I hope)
-// hg42: undefined pins create compile error (IO, is no pin)
-// hg42: currently not used, but was used by pinsDebug
-
 /// check if pin is an input
-#define _GET_INPUT(IO)    (LPC1768_PIN_PIN(IO) >= 0)
+#define _GET_INPUT(IO)    (!gpio_get_dir(IO))
 
 /// check if pin is an output
-#define _GET_OUTPUT(IO)   (LPC1768_PIN_PIN(IO) >= 0)
-
-// hg42: GET_TIMER is used only to check if it's a PWM pin
-// hg42: we cannot use USEABLE_HARDWARE_PWM because it uses a function that cannot be used statically
-// hg42: instead use PWM bit from the #define
+#define _GET_OUTPUT(IO)   (gpio_get_dir(IO))
 
 /// check if pin is a timer
-#define _GET_TIMER(IO)    TRUE  // could be LPC1768_PIN_PWM(IO), but there
-// hg42: could be this:
-// #define _GET_TIMER(IO)        LPC1768_PIN_PWM(IO)
-// but this is an incomplete check (12 pins are PWMable, but only 6 can be used at the same time)
+/// all gpio pins are pwm capable, either interrupt or hardware pwm controlled
+#define _GET_TIMER(IO)    TRUE
 
 /// Read a pin wrapper
 #define READ(IO)          _READ(IO)
@@ -137,5 +121,3 @@ bool useable_hardware_PWM(pin_t pin);
 
 // Shorthand
 #define OUT_WRITE(IO,V)   do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
-
-#endif // _FASTIO_LPC1768_H

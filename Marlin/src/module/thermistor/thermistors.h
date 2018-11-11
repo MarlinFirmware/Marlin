@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef THERMISTORS_H_
-#define THERMISTORS_H_
+#pragma once
 
 #include "../../inc/MarlinConfig.h"
 
@@ -36,9 +34,9 @@
 // a=3.9083E-3, b=-5.775E-7
 #define PtA 3.9083E-3
 #define PtB -5.775E-7
-#define PtRt(T,R0) ((R0)*(1.0+(PtA)*(T)+(PtB)*(T)*(T)))
-#define PtAdVal(T,R0,Rup) (short)(1024/(Rup/PtRt(T,R0)+1))
-#define PtLine(T,R0,Rup) { OV(PtAdVal(T,R0,Rup)), T },
+#define PtRt(T,R0) ((R0) * (1.0 + (PtA) * (T) + (PtB) * (T) * (T)))
+#define PtAdVal(T,R0,Rup) (short)(1024 / (Rup / PtRt(T, R0) + 1))
+#define PtLine(T,R0,Rup) { OV(PtAdVal(T, R0, Rup)), T }
 
 #if ANY_THERMISTOR_IS(1) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "EPCOS"
   #include "thermistor_1.h"
@@ -54,6 +52,9 @@
 #endif
 #if ANY_THERMISTOR_IS(5) // beta25 = 4267 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "ParCan, ATC 104GT-2"
   #include "thermistor_5.h"
+#endif
+#if ANY_THERMISTOR_IS(501) // 100K Zonestar thermistor
+  #include "thermistor_501.h"
 #endif
 #if ANY_THERMISTOR_IS(6) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 8.2 kOhm, "EPCOS ?"
   #include "thermistor_6.h"
@@ -97,7 +98,7 @@
 #if ANY_THERMISTOR_IS(60) // beta25 = 3950 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Maker's Tool Works Kapton Bed"
   #include "thermistor_60.h"
 #endif
-#if ANY_THERMISTOR_IS(66) // beta25 = 4500 K, R25 = 2.5 MOhm, Pull-up = 4.7 kOhm, "DyzeDesign 500 °C Thermistor"
+#if ANY_THERMISTOR_IS(66) // beta25 = 4500 K, R25 = 2.5 MOhm, Pull-up = 4.7 kOhm, "DyzeDesign 500 Â°C Thermistor"
   #include "thermistor_66.h"
 #endif
 #if ANY_THERMISTOR_IS(12) // beta25 = 4700 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "Personal calibration for Makibox hot bed"
@@ -114,6 +115,9 @@
 #endif
 #if ANY_THERMISTOR_IS(147) // Pt100 with 4k7 pullup
   #include "thermistor_147.h"
+#endif
+#if ANY_THERMISTOR_IS(666) // beta25 = UNK, R25 = 200K, Pull-up = 10 kOhm, "Unidentified 200K NTC thermistor (Einstart S)"
+  #include "thermistor_666.h"
 #endif
 #if ANY_THERMISTOR_IS(1010) // Pt1000 with 1k0 pullup
   #include "thermistor_1010.h"
@@ -200,8 +204,8 @@
 #endif
 
 // The SCAN_THERMISTOR_TABLE macro needs alteration?
-static_assert(HEATER_0_TEMPTABLE_LEN < 128 && HEATER_1_TEMPTABLE_LEN < 128 && HEATER_2_TEMPTABLE_LEN < 128 && HEATER_3_TEMPTABLE_LEN < 128 && HEATER_4_TEMPTABLE_LEN < 128 && BEDTEMPTABLE_LEN < 128 && CHAMBERTEMPTABLE_LEN < 128,
-  "Temperature conversion tables over 127 entries need special consideration."
+static_assert(HEATER_0_TEMPTABLE_LEN < 256 && HEATER_1_TEMPTABLE_LEN < 256 && HEATER_2_TEMPTABLE_LEN < 256 && HEATER_3_TEMPTABLE_LEN < 256 && HEATER_4_TEMPTABLE_LEN < 256 && BEDTEMPTABLE_LEN < 256 && CHAMBERTEMPTABLE_LEN < 256,
+  "Temperature conversion tables over 255 entries need special consideration."
 );
 
 // Set the high and low raw values for the heaters
@@ -270,5 +274,3 @@ static_assert(HEATER_0_TEMPTABLE_LEN < 128 && HEATER_1_TEMPTABLE_LEN < 128 && HE
     #define HEATER_CHAMBER_RAW_LO_TEMP 0
   #endif
 #endif
-
-#endif // THERMISTORS_H_

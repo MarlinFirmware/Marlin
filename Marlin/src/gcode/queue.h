@@ -19,14 +19,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * queue.h - The G-code command queue, which holds commands before they
  *           go to the parser and dispatcher.
  */
-
-#ifndef GCODE_QUEUE_H
-#define GCODE_QUEUE_H
 
 #include "../inc/MarlinConfig.h"
 
@@ -90,14 +88,14 @@ void ok_to_send();
  * Aborts the current queue, if any.
  * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
  */
-void enqueue_and_echo_commands_P(const char * const pgcode);
+void enqueue_and_echo_commands_P(PGM_P const pgcode);
 
 /**
  * Enqueue with Serial Echo
  */
 bool enqueue_and_echo_command(const char* cmd);
 
-#define HAS_LCD_QUEUE_NOW (ENABLED(MALYAN_LCD) || (ENABLED(ULTIPANEL) && (ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE))))
+#define HAS_LCD_QUEUE_NOW (ENABLED(MALYAN_LCD) || (HAS_LCD_MENU && (ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(PID_AUTOTUNE_MENU) || ENABLED(ADVANCED_PAUSE_FEATURE))))
 #define HAS_QUEUE_NOW (ENABLED(SDSUPPORT) || HAS_LCD_QUEUE_NOW)
 
 #if HAS_QUEUE_NOW
@@ -109,7 +107,7 @@ bool enqueue_and_echo_command(const char* cmd);
     /**
      * Enqueue from program memory and return only when commands are actually enqueued
      */
-    void enqueue_and_echo_commands_now_P(const char * const cmd);
+    void enqueue_and_echo_commands_now_P(PGM_P const cmd);
   #endif
 #endif
 
@@ -125,5 +123,3 @@ void get_available_commands();
  * Get the next command in the queue, optionally log it to SD, then dispatch it
  */
 void advance_command_queue();
-
-#endif // GCODE_QUEUE_H

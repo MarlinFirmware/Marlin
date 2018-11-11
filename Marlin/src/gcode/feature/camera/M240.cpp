@@ -22,20 +22,24 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if defined(CHDK) || HAS_PHOTOGRAPH
+#if PIN_EXISTS(CHDK) || HAS_PHOTOGRAPH
 
 #include "../../gcode.h"
+
+bool chdk_active; // = false
+millis_t chdk_timeout;
 
 /**
  * M240: Trigger a camera by emulating a Canon RC-1
  *       See http://www.doc-diy.net/photo/rc-1_hacked/
  */
 void GcodeSuite::M240() {
-  #ifdef CHDK
 
-    OUT_WRITE(CHDK, HIGH);
-    chdkHigh = millis();
-    chdkActive = true;
+  #if PIN_EXISTS(CHDK)
+
+    OUT_WRITE(CHDK_PIN, HIGH);
+    chdk_timeout = millis() + CHDK_DELAY;
+    chdk_active = true;
 
   #elif HAS_PHOTOGRAPH
 
@@ -58,4 +62,4 @@ void GcodeSuite::M240() {
   #endif
 }
 
-#endif // CHDK || HAS_PHOTOGRAPH
+#endif // CHDK_PIN || HAS_PHOTOGRAPH

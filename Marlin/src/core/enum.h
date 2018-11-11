@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __ENUM_H__
-#define __ENUM_H__
+#pragma once
 
 /**
  * Axis indices as enumerated constants
@@ -45,8 +43,8 @@ enum AxisEnum : unsigned char {
   NO_AXIS   = 0xFF
 };
 
-#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=S; VAR<=N; VAR++)
-#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=S; VAR<N; VAR++)
+#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
+#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
 #define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
 #define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
 
@@ -68,21 +66,3 @@ typedef enum {
   TEMPUNIT_K,
   TEMPUNIT_F
 } TempUnit;
-
-/**
- * SD Card
- */
-enum LsAction : char { LS_SerialPrint, LS_Count, LS_GetFilename };
-
-/**
- * Ultra LCD
- */
-enum LCDViewAction : char {
-  LCDVIEW_NONE,
-  LCDVIEW_REDRAW_NOW,
-  LCDVIEW_CALL_REDRAW_NEXT,
-  LCDVIEW_CLEAR_CALL_REDRAW,
-  LCDVIEW_CALL_NO_REDRAW
-};
-
-#endif // __ENUM_H__

@@ -56,7 +56,7 @@ static bool G38_run_probe() {
 
   endstops.hit_on_purpose();
   set_current_from_steppers_for_axis(ALL_AXES);
-  SYNC_PLAN_POSITION_KINEMATIC();
+  sync_plan_position();
 
   if (G38_endstop_hit) {
 
@@ -82,7 +82,7 @@ static bool G38_run_probe() {
       G38_move = false;
 
       set_current_from_steppers_for_axis(ALL_AXES);
-      SYNC_PLAN_POSITION_KINEMATIC();
+      sync_plan_position();
     #endif
   }
 

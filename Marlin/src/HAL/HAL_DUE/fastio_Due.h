@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O Routines for SAM3X8E
@@ -36,8 +37,7 @@
  * leads to less efficient compiled code!!
  */
 
-#ifndef _FASTIO_DUE_H
-#define _FASTIO_DUE_H
+#include <pins_arduino.h>
 
 /**
  * Utility functions
@@ -45,7 +45,7 @@
 
 // Due has 12 PWMs assigned to logical pins 2-13.
 // 6, 7, 8 & 9 come from the PWM controller. The others come from the timers.
-#define USEABLE_HARDWARE_PWM(p) ((2 <= p) && (p <= 13))
+#define USEABLE_HARDWARE_PWM(p) WITHIN(p, 2, 13)
 
 #ifndef MASK
   #define MASK(PIN) (1 << PIN)
@@ -64,8 +64,8 @@
 
 // Write to a pin
 #define _WRITE_VAR(IO,V) do { \
-  volatile Pio* port = g_APinDescription[IO].pPort; \
-  uint32_t mask = g_APinDescription[IO].ulPin; \
+  volatile Pio* port = digitalPinToPort(IO); \
+  uint32_t mask = digitalPinToBitMask(IO); \
   if (V) port->PIO_SODR = mask; \
   else port->PIO_CODR = mask; \
 } while(0)
@@ -78,56 +78,48 @@
   else port->PIO_CODR = mask; \
 } while(0)
 
-// toggle a pin
+// Toggle a pin
 #define _TOGGLE(IO) _WRITE(IO, !READ(IO))
 
-// set pin as input
+// Set pin as input
 #define _SET_INPUT(IO) do{ \
   pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
-  PIO_Configure(g_APinDescription[IO].pPort, PIO_INPUT, g_APinDescription[IO].ulPin, 0); \
+  PIO_Configure(digitalPinToPort(IO), PIO_INPUT, digitalPinToBitMask(IO), 0); \
 }while(0)
 
-// set pin as output
+// Set pin as output
 #define _SET_OUTPUT(IO) do{ \
   pmc_enable_periph_clk(g_APinDescription[IO].ulPeripheralId); \
-  PIO_Configure(g_APinDescription[IO].pPort, _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, g_APinDescription[IO].ulPin, g_APinDescription[IO].ulPinConfiguration); \
+  PIO_Configure(digitalPinToPort(IO), _READ(IO) ? PIO_OUTPUT_1 : PIO_OUTPUT_0, digitalPinToBitMask(IO), g_APinDescription[IO].ulPinConfiguration); \
   g_pinStatus[IO] = (g_pinStatus[IO] & 0xF0) | PIN_STATUS_DIGITAL_OUTPUT;\
 }while(0)
 
-// set pin as input with pullup mode
+// Set pin as input with pullup mode
 #define _PULLUP(IO,V) pinMode(IO, (V) ? INPUT_PULLUP : INPUT)
 
-// check if pin is an input
-#define _GET_INPUT(IO)
-// check if pin is an output
-#define _GET_OUTPUT(IO)
-
-// check if pin is a timer
-#define _GET_TIMER(IO)
-
-// Read a pin wrapper
+// Read a pin (wrapper)
 #define READ(IO) _READ(IO)
 
-// Write to a pin wrapper
+// Write to a pin (wrapper)
 #define WRITE_VAR(IO,V) _WRITE_VAR(IO,V)
 #define WRITE(IO,V) _WRITE(IO,V)
 
-// toggle a pin wrapper
+// Toggle a pin (wrapper)
 #define TOGGLE(IO) _TOGGLE(IO)
 
-// set pin as input wrapper
+// Set pin as input (wrapper)
 #define SET_INPUT(IO) _SET_INPUT(IO)
-// set pin as input with pullup wrapper
+// Set pin as input with pullup (wrapper)
 #define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
-// set pin as output wrapper -  reads the pin and sets the output to that value
+// Set pin as output (wrapper) -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO) _SET_OUTPUT(IO)
-// check if pin is an input wrapper
-#define GET_INPUT(IO) _GET_INPUT(IO)
-// check if pin is an output wrapper
-#define GET_OUTPUT(IO) _GET_OUTPUT(IO)
 
-// check if pin is a timer (wrapper)
-#define GET_TIMER(IO) _GET_TIMER(IO)
+// Check if pin is an input
+#define GET_INPUT(IO) !(digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO))
+// Check if pin is an output
+#define GET_OUTPUT(IO) !!(digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO))
+// Check if pin is a timer - Must be a constexpr
+#define GET_TIMER(IO) ((IO) >= 2 && (IO) <= 13)
 
 // Shorthand
 #define OUT_WRITE(IO,V) { SET_OUTPUT(IO); WRITE(IO,V); }
@@ -501,5 +493,3 @@
   #define DIO100_PIN 11
   #define DIO100_WPORT PIOC
 #endif
-
-#endif // _FASTIO_DUE_H

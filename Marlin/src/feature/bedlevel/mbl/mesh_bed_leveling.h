@@ -19,19 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _MESH_BED_LEVELING_H_
-#define _MESH_BED_LEVELING_H_
+#pragma once
 
 #include "../../../inc/MarlinConfig.h"
 
 enum MeshLevelingState : char {
-  MeshReport,
-  MeshStart,
-  MeshNext,
-  MeshSet,
-  MeshSetZOffset,
-  MeshReset
+  MeshReport,     // G29 S0
+  MeshStart,      // G29 S1
+  MeshNext,       // G29 S2
+  MeshSet,        // G29 S3
+  MeshSetZOffset, // G29 S4
+  MeshReset       // G29 S5
 };
 
 #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_POINTS_X - 1))
@@ -72,22 +70,22 @@ public:
   }
 
   static int8_t cell_index_x(const float &x) {
-    int8_t cx = (x - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
+    int8_t cx = (x - (MESH_MIN_X)) * (1.0f / (MESH_X_DIST));
     return constrain(cx, 0, (GRID_MAX_POINTS_X) - 2);
   }
 
   static int8_t cell_index_y(const float &y) {
-    int8_t cy = (y - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
+    int8_t cy = (y - (MESH_MIN_Y)) * (1.0f / (MESH_Y_DIST));
     return constrain(cy, 0, (GRID_MAX_POINTS_Y) - 2);
   }
 
   static int8_t probe_index_x(const float &x) {
-    int8_t px = (x - (MESH_MIN_X) + 0.5 * (MESH_X_DIST)) * (1.0 / (MESH_X_DIST));
+    int8_t px = (x - (MESH_MIN_X) + 0.5f * (MESH_X_DIST)) * (1.0f / (MESH_X_DIST));
     return WITHIN(px, 0, GRID_MAX_POINTS_X - 1) ? px : -1;
   }
 
   static int8_t probe_index_y(const float &y) {
-    int8_t py = (y - (MESH_MIN_Y) + 0.5 * (MESH_Y_DIST)) * (1.0 / (MESH_Y_DIST));
+    int8_t py = (y - (MESH_MIN_Y) + 0.5f * (MESH_Y_DIST)) * (1.0f / (MESH_Y_DIST));
     return WITHIN(py, 0, GRID_MAX_POINTS_Y - 1) ? py : -1;
   }
 
@@ -121,4 +119,4 @@ public:
 
 extern mesh_bed_leveling mbl;
 
-#endif // _MESH_BED_LEVELING_H_
+#define Z_VALUES(X,Y) mbl.z_values[X][Y]

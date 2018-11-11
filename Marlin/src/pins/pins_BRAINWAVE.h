@@ -53,9 +53,9 @@
  *
  *    1. In the Arduino IDE, under Files -> Preferences paste the following URL
  *       https://rawgit.com/Bob-the-Kuhn/Marlin_AT90USB/master/package_MARLIN_AT90USB_index.json
- *    2. Under Tools -> Board -> Boards manager, scroll to the bottom, click on MARLIN_AT90USB
+ *    2. Under Tools > Board -> Boards manager, scroll to the bottom, click on MARLIN_AT90USB
  *       and then click on "Install"
- *    3. Select "AT90USB646_TEENSYPP" from the 'Tools -> Boards' menu.
+ *    3. Select "AT90USB646_TEENSYPP" from the 'Tools > Board' menu.
  */
 
 /**
@@ -68,7 +68,7 @@
  */
 
 #ifndef __AVR_AT90USB646__
-  #error "Oops!  Make sure you have 'AT90USB646_TEENSYPP' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'AT90USB646_TEENSYPP' in 'Tools > Board.'"
 #endif
 
 #define BOARD_NAME         "Brainwave"

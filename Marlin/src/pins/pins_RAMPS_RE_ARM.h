@@ -37,7 +37,7 @@
 // numbers in parenthesis () are the mega2560 equivalent pin numbers
 
 #ifndef TARGET_LPC1768
-  #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
+  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
 #ifndef BOARD_NAME
@@ -198,7 +198,6 @@
 // Misc. Functions
 //
 #define LED_PIN           P4_28   // (13)
-#define SDSS              P1_23   // (53)
 
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
 #ifndef FIL_RUNOUT_PIN
@@ -257,47 +256,26 @@
 
 #if ENABLED(ULTRA_LCD)
 
-  #define BEEPER_PIN          P1_30   // (37) not 5V tolerant
+  #if ENABLED(CR10_STOCKDISPLAY)
 
-  #define BTN_EN1             P3_26   // (31) J3-2 & AUX-4
-  #define BTN_EN2             P3_25   // (33) J3-4 & AUX-4
-  #define BTN_ENC             P2_11   // (35) J3-3 & AUX-4
+    // Re-Arm can support Creality stock display without SD card reader and single cable on EXP3.
+    // Re-Arm J3 pins 1 (p1.31) & 2 (P3.26) are not used. Stock cable will need to have one
+    // 10-pin IDC connector trimmed or replaced with a 12-pin IDC connector to fit J3.
+    // Requires REVERSE_ENCODER_DIRECTION in Configuration.h
 
-  #define SD_DETECT_PIN       P1_31   // (49) not 5V tolerant   J3-1 & AUX-3
-  #define KILL_PIN            P1_22   // (41) J5-4 & AUX-4
-  #define LCD_PINS_RS         P0_16   // (16) J3-7 & AUX-4
-  #define LCD_SDSS            P0_16   // (16) J3-7 & AUX-4
-  #define LCD_BACKLIGHT_PIN   P0_16   // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
-  #define LCD_PINS_ENABLE     P0_18   // (51) (MOSI) J3-10 & AUX-3
-  #define LCD_PINS_D4         P0_15   // (52) (SCK)  J3-9 & AUX-3
+    #define BEEPER_PIN          P2_11   // J3-3 & AUX-4
 
-  #define DOGLCD_A0           P2_06   // (59) J3-8 & AUX-2
-  #define DOGLCD_CS           P0_26   // (63) J5-3 & AUX-2
+    #define BTN_EN1             P0_16   // J3-7 & AUX-4
+    #define BTN_EN2             P1_23   // J3-5 & AUX-4
+    #define BTN_ENC             P3_25   // J3-4 & AUX-4
 
-  #ifdef ULTIPANEL
-    #define LCD_PINS_D5       P1_17   // (71) ENET_MDIO
-    #define LCD_PINS_D6       P1_14   // (73) ENET_RX_ER
-    #define LCD_PINS_D7       P1_10   // (75) ENET_RXD1
-  #endif
+    #define LCD_PINS_RS         P0_15   // J3-9 & AUX-4 (CS)
+    #define LCD_PINS_ENABLE     P0_18   // J3-10 & AUX-3 (SID, MOSI)
+    #define LCD_PINS_D4         P2_06   // J3-8 & AUX-3 (SCK, CLK)
 
-  #if ENABLED(NEWPANEL)
-    #if ENABLED(REPRAPWORLD_KEYPAD)
-      #define SHIFT_OUT         P0_18   // (51)  (MOSI) J3-10 & AUX-3
-      #define SHIFT_CLK         P0_15   // (52)  (SCK)  J3-9 & AUX-3
-      #define SHIFT_LD          P1_31   // (49)  not 5V tolerant   J3-1 & AUX-3
-    #endif
   #else
-    //#define SHIFT_CLK           P3_26   // (31)  J3-2 & AUX-4
-    //#define SHIFT_LD            P3_25   // (33)  J3-4 & AUX-4
-    //#define SHIFT_OUT           P2_11   // (35)  J3-3 & AUX-4
-    //#define SHIFT_EN            P1_22   // (41)  J5-4 & AUX-4
-  #endif
 
-  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-    // #define LCD_SCREEN_ROT_180
-
-    #undef  BEEPER_PIN
-    #define BEEPER_PIN          P1_30   // (37) may change if cable changes
+    #define BEEPER_PIN          P1_30   // (37) not 5V tolerant
 
     #define BTN_EN1             P3_26   // (31) J3-2 & AUX-4
     #define BTN_EN2             P3_25   // (33) J3-4 & AUX-4
@@ -305,36 +283,66 @@
 
     #define SD_DETECT_PIN       P1_31   // (49) not 5V tolerant   J3-1 & AUX-3
     #define KILL_PIN            P1_22   // (41) J5-4 & AUX-4
+    #define LCD_PINS_RS         P0_16   // (16) J3-7 & AUX-4
+    #define LCD_SDSS            P0_16   // (16) J3-7 & AUX-4
 
-    #undef  DOGLCD_CS
-    #define DOGLCD_CS           P0_16   // (16)
-    #undef  LCD_BACKLIGHT_PIN   //P0_16   // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
-    #undef  LCD_PINS_ENABLE     //P0_18   // (51) (MOSI) J3-10 & AUX-3
-    #undef  LCD_PINS_D4         //P0_15   // (52) (SCK)  J3-9 & AUX-3
+    #if ENABLED(NEWPANEL)
+      #if ENABLED(REPRAPWORLD_KEYPAD)
+        #define SHIFT_OUT         P0_18   // (51)  (MOSI) J3-10 & AUX-3
+        #define SHIFT_CLK         P0_15   // (52)  (SCK)  J3-9 & AUX-3
+        #define SHIFT_LD          P1_31   // (49)  not 5V tolerant   J3-1 & AUX-3
+      #endif
+    #else
+      //#define SHIFT_CLK           P3_26   // (31)  J3-2 & AUX-4
+      //#define SHIFT_LD            P3_25   // (33)  J3-4 & AUX-4
+      //#define SHIFT_OUT           P2_11   // (35)  J3-3 & AUX-4
+      //#define SHIFT_EN            P1_22   // (41)  J5-4 & AUX-4
+    #endif
 
-    #undef  LCD_PINS_D5         //P2_06   // (59) J3-8 & AUX-2
-    #define DOGLCD_A0           P2_06   // (59) J3-8 & AUX-2
-    #undef  LCD_PINS_D6         //P0_26   // (63) J5-3 & AUX-2
-    #undef  LCD_PINS_D7         //P1_21   // ( 6) (SERVO1) J5-1 & SERVO connector
-    #define DOGLCD_SCK          SCK_PIN
-    #define DOGLCD_MOSI         MOSI_PIN
+    #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+      // #define LCD_SCREEN_ROT_180
 
-    #define STAT_LED_BLUE_PIN   P0_26   // (63)  may change if cable changes
-    #define STAT_LED_RED_PIN    P1_21   // ( 6)  may change if cable changes
-  #endif
+      #define BTN_EN1             P3_26   // (31) J3-2 & AUX-4
+      #define BTN_EN2             P3_25   // (33) J3-4 & AUX-4
+      #define BTN_ENC             P2_11   // (35) J3-3 & AUX-4
 
-  //#define MISO_PIN            P0_17   // (50)  system defined J3-10 & AUX-3
-  //#define MOSI_PIN            P0_18   // (51)  system defined J3-10 & AUX-3
-  //#define SCK_PIN             P0_15   // (52)  system defined J3-9 & AUX-3
-  //#define SS_PIN              P1_23   // (53)  system defined J3-5 & AUX-3 - sometimes called SDSS
+      #define SD_DETECT_PIN       P1_31   // (49) not 5V tolerant   J3-1 & AUX-3
+      #define KILL_PIN            P1_22   // (41) J5-4 & AUX-4
 
-  #if ENABLED(MINIPANEL)
-    // GLCD features
-    //#define LCD_CONTRAST   190
-    // Uncomment screen orientation
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
+      #define DOGLCD_CS           P0_16   // (16)
+      #define DOGLCD_A0           P2_06   // (59) J3-8 & AUX-2
+      #define DOGLCD_SCK          SCK_PIN
+      #define DOGLCD_MOSI         MOSI_PIN
+
+      #define STAT_LED_BLUE_PIN   P0_26   // (63)  may change if cable changes
+      #define STAT_LED_RED_PIN    P1_21   // ( 6)  may change if cable changes
+    #else
+      #define DOGLCD_CS           P0_26   // (63) J5-3 & AUX-2
+      #define DOGLCD_A0           P2_06   // (59) J3-8 & AUX-2
+      #define LCD_BACKLIGHT_PIN   P0_16   // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
+      #define LCD_PINS_ENABLE     P0_18   // (51) (MOSI) J3-10 & AUX-3
+      #define LCD_PINS_D4         P0_15   // (52) (SCK)  J3-9 & AUX-3
+      #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5       P1_17   // (71) ENET_MDIO
+        #define LCD_PINS_D6       P1_14   // (73) ENET_RX_ER
+        #define LCD_PINS_D7       P1_10   // (75) ENET_RXD1
+      #endif
+    #endif
+
+    //#define MISO_PIN            P0_17   // (50)  system defined J3-10 & AUX-3
+    //#define MOSI_PIN            P0_18   // (51)  system defined J3-10 & AUX-3
+    //#define SCK_PIN             P0_15   // (52)  system defined J3-9 & AUX-3
+    //#define SS_PIN              P1_23   // (53)  system defined J3-5 & AUX-3 - sometimes called SDSS
+
+    #if ENABLED(MINIPANEL)
+      // GLCD features
+      //#define LCD_CONTRAST   190
+      // Uncomment screen orientation
+      //#define LCD_SCREEN_ROT_90
+      //#define LCD_SCREEN_ROT_180
+      //#define LCD_SCREEN_ROT_270
+    #endif
+
   #endif
 
 #endif // ULTRA_LCD
@@ -342,7 +350,7 @@
 //
 // Ethernet pins
 //
-#ifndef ULTIPANEL
+#if DISABLED(ULTIPANEL)
   #define ENET_MDIO   P1_17   // (71)  J12-4
   #define ENET_RX_ER  P1_14   // (73)  J12-6
   #define ENET_RXD1   P1_10   // (75)  J12-8
@@ -355,8 +363,38 @@
 #define ENET_TXD0     P1_00   // (78)  J12-11
 #define ENET_TXD1     P1_01   // (79)  J12-12
 
+//#define USB_SD_DISABLED
+#define USB_SD_ONBOARD        // Provide the onboard SD card to the host as a USB mass storage device
+
+//#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
+#define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board
+
+#if ENABLED(LPC_SD_LCD)
+
+  #define SCK_PIN            P0_15
+  #define MISO_PIN           P0_17
+  #define MOSI_PIN           P0_18
+  #define SS_PIN             P1_23   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
+
+#elif ENABLED(LPC_SD_ONBOARD)
+
+  #if ENABLED(USB_SD_ONBOARD)
+    // When sharing the SD card with a PC we want the menu options to
+    // mount/unmount the card and refresh it. So we disable card detect.
+    #define SHARED_SD_CARD
+    #undef SD_DETECT_PIN // there is also no detect pin for the onboard card
+  #endif
+  #define SCK_PIN            P0_07
+  #define MISO_PIN           P0_08
+  #define MOSI_PIN           P0_09
+  #define SS_PIN             P0_06   // Chip select for SD card used by Marlin
+  #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
+
+#endif
+
 /**
- *  Fast PWMS
+ *  Fast PWMs
  *
  *  The LPC1768's hardware PWM controller has 6 channels.  Each channel
  *  can be setup to either control a dedicated pin directly or to generate
@@ -381,7 +419,7 @@
  */
 
  /**
-  * special pins
+  * Special pins
   *   P1_30  (37) - not 5V tolerant
   *   P1_31  (49) - not 5V tolerant
   *   P0_27  (57) - open collector

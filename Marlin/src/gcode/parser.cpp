@@ -50,8 +50,16 @@ char *GCodeParser::command_ptr,
      *GCodeParser::value_ptr;
 char GCodeParser::command_letter;
 int GCodeParser::codenum;
+
 #if USE_GCODE_SUBCODES
   uint8_t GCodeParser::subcode;
+#endif
+
+#if ENABLED(GCODE_MOTION_MODES)
+  int16_t GCodeParser::motion_mode_codenum = -1;
+  #if USE_GCODE_SUBCODES
+    uint8_t GCodeParser::motion_mode_subcode;
+  #endif
 #endif
 
 #if ENABLED(FASTER_GCODE_PARSER)
@@ -117,36 +125,82 @@ void GCodeParser::parse(char *p) {
     starpos[1] = '\0';
   }
 
-  // Bail if the letter is not G, M, or T
-  switch (letter) { case 'G': case 'M': case 'T': break; default: return; }
-
-  // Skip spaces to get the numeric part
-  while (*p == ' ') p++;
-
-  // Bail if there's no command code number
-  if (!NUMERIC(*p)) return;
-
-  // Save the command letter at this point
-  // A '?' signifies an unknown command
-  command_letter = letter;
-
-  // Get the code number - integer digits only
-  codenum = 0;
-  do {
-    codenum *= 10, codenum += *p++ - '0';
-  } while (NUMERIC(*p));
-
-  // Allow for decimal point in command
-  #if USE_GCODE_SUBCODES
-    if (*p == '.') {
-      p++;
-      while (NUMERIC(*p))
-        subcode *= 10, subcode += *p++ - '0';
-    }
+  #if ENABLED(GCODE_MOTION_MODES)
+    #if ENABLED(ARC_SUPPORT)
+      #define GTOP 3
+    #else
+      #define GTOP 1
+    #endif
   #endif
 
-  // Skip all spaces to get to the first argument, or nul
-  while (*p == ' ') p++;
+  // Bail if the letter is not G, M, or T
+  // (or a valid parameter for the current motion mode)
+  switch (letter) {
+
+    case 'G': case 'M': case 'T':
+
+      // Skip spaces to get the numeric part
+      while (*p == ' ') p++;
+
+      // Bail if there's no command code number
+      if (!NUMERIC(*p)) return;
+
+      // Save the command letter at this point
+      // A '?' signifies an unknown command
+      command_letter = letter;
+
+      // Get the code number - integer digits only
+      codenum = 0;
+      do { codenum *= 10, codenum += *p++ - '0'; } while (NUMERIC(*p));
+
+      // Allow for decimal point in command
+      #if USE_GCODE_SUBCODES
+      if (*p == '.') {
+        p++;
+        while (NUMERIC(*p))
+        subcode *= 10, subcode += *p++ - '0';
+      }
+      #endif
+
+      // Skip all spaces to get to the first argument, or nul
+      while (*p == ' ') p++;
+
+      #if ENABLED(GCODE_MOTION_MODES)
+        if (letter == 'G' && (codenum <= GTOP || codenum == 5
+                                #if ENABLED(G38_PROBE_TARGET)
+                                  || codenum == 38
+                                #endif
+                             )
+        ) {
+          motion_mode_codenum = codenum;
+          #if USE_GCODE_SUBCODES
+            motion_mode_subcode = subcode;
+          #endif
+        }
+      #endif
+
+      break;
+
+    #if ENABLED(GCODE_MOTION_MODES)
+      #if ENABLED(ARC_SUPPORT)
+        case 'I': case 'J': case 'R':
+          if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
+      #endif
+      case 'P': case 'Q':
+        if (motion_mode_codenum != 5) return;
+      case 'X': case 'Y': case 'Z': case 'E': case 'F':
+        if (motion_mode_codenum < 0) return;
+        command_letter = 'G';
+        codenum = motion_mode_codenum;
+        #if USE_GCODE_SUBCODES
+          subcode = motion_mode_subcode;
+        #endif
+        p--; // Back up one character to use the current parameter
+      break;
+    #endif // GCODE_MOTION_MODES
+
+    default: return;
+  }
 
   // The command parameters (if any) start here, for sure!
 
@@ -155,7 +209,14 @@ void GCodeParser::parse(char *p) {
   #endif
 
   // Only use string_arg for these M codes
-  if (letter == 'M') switch (codenum) { case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return; default: break; }
+  if (letter == 'M') switch (codenum) {
+    #if ENABLED(GCODE_MACROS)
+      case 810: case 811: case 812: case 813: case 814:
+      case 815: case 816: case 817: case 818: case 819:
+    #endif
+    case 23: case 28: case 30: case 117: case 118: case 928: string_arg = p; return;
+    default: break;
+  }
 
   #if ENABLED(DEBUG_GCODE_PARSER)
     const bool debug = codenum == 800;

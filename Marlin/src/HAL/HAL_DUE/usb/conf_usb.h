@@ -52,7 +52,6 @@
 #include "../../../../Configuration.h"  /* For CUSTOM_MACHINE_NAME definition - We just need the name, no C++ allowed! */
 #include "compiler.h"
 
-
 /**
  * USB Device Configuration
  * @{

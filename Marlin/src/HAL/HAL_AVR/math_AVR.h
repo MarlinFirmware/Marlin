@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _MATH_AVR_H_
-#define _MATH_AVR_H_
+#pragma once
 
 /**
  * Optimized math functions for AVR
@@ -38,9 +36,9 @@
 // D C B A is longIn2
 //
 static FORCE_INLINE uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2) {
-  register uint8_t tmp1;
-  register uint8_t tmp2;
-  register uint16_t intRes;
+  uint8_t tmp1;
+  uint8_t tmp2;
+  uint16_t intRes;
   __asm__ __volatile__(
     A("clr %[tmp1]")
     A("mul %A[longIn1], %B[longIn2]")
@@ -92,8 +90,8 @@ static FORCE_INLINE uint16_t MultiU24X32toH16(uint32_t longIn1, uint32_t longIn2
 // r26 to store 0
 // r27 to store the byte 1 of the 24 bit result
 static FORCE_INLINE uint16_t MultiU16X8toH16(uint8_t charIn1, uint16_t intIn2) {
-  register uint8_t tmp;
-  register uint16_t intRes;
+  uint8_t tmp;
+  uint16_t intRes;
   __asm__ __volatile__ (
     A("clr %[tmp]")
     A("mul %[charIn1], %B[intIn2]")
@@ -113,5 +111,3 @@ static FORCE_INLINE uint16_t MultiU16X8toH16(uint8_t charIn1, uint16_t intIn2) {
   );
   return intRes;
 }
-
-#endif // _MATH_AVR_H_

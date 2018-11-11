@@ -27,7 +27,7 @@
 #include "../module/stepper_indirection.h"
 #include "../module/temperature.h"
 
-uint8_t controllerFanSpeed;
+uint8_t controllerfan_speed;
 
 void controllerfan_update() {
   static millis_t lastMotorOn = 0, // Last time a motor was turned on
@@ -35,33 +35,47 @@ void controllerfan_update() {
   const millis_t ms = millis();
   if (ELAPSED(ms, nextMotorCheck)) {
     nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
+
+    // If any of the drivers or the bed are enabled...
     if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON
       #if HAS_HEATED_BED
         || thermalManager.soft_pwm_amount_bed > 0
       #endif
-        || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
+        #if HAS_X2_ENABLE
+          || X2_ENABLE_READ == X_ENABLE_ON
+        #endif
+        #if HAS_Y2_ENABLE
+          || Y2_ENABLE_READ == Y_ENABLE_ON
+        #endif
+        #if HAS_Z2_ENABLE
+          || Z2_ENABLE_READ == Z_ENABLE_ON
+        #endif
+        #if HAS_Z3_ENABLE
+          || Z3_ENABLE_READ == Z_ENABLE_ON
+        #endif
+        || E0_ENABLE_READ == E_ENABLE_ON
         #if E_STEPPERS > 1
           || E1_ENABLE_READ == E_ENABLE_ON
-          #if HAS_X2_ENABLE
-            || X2_ENABLE_READ == X_ENABLE_ON
-          #endif
           #if E_STEPPERS > 2
             || E2_ENABLE_READ == E_ENABLE_ON
             #if E_STEPPERS > 3
               || E3_ENABLE_READ == E_ENABLE_ON
               #if E_STEPPERS > 4
                 || E4_ENABLE_READ == E_ENABLE_ON
-              #endif // E_STEPPERS > 4
-            #endif // E_STEPPERS > 3
-          #endif // E_STEPPERS > 2
-        #endif // E_STEPPERS > 1
+                #if E_STEPPERS > 5
+                  || E5_ENABLE_READ == E_ENABLE_ON
+                #endif
+              #endif
+            #endif
+          #endif
+        #endif
     ) {
       lastMotorOn = ms; //... set time to NOW so the fan will turn on
     }
 
     // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
     uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
-    controllerFanSpeed = speed;
+    controllerfan_speed = speed;
 
     // allows digital or PWM fan output to be used (see M42 handling)
     WRITE(CONTROLLER_FAN_PIN, speed);

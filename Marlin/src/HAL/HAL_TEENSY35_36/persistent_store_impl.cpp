@@ -4,18 +4,13 @@
 
 #if ENABLED(EEPROM_SETTINGS)
 
-#include "../persistent_store_api.h"
+#include "../shared/persistent_store_api.h"
 
 namespace HAL {
 namespace PersistentStore {
 
-bool access_start() {
-  return true;
-}
-
-bool access_finish() {
-  return true;
-}
+bool access_start() { return true; }
+bool access_finish() { return true; }
 
 bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
   while (size--) {
@@ -40,7 +35,7 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
 
 bool read_data(int &pos, uint8_t* value, uint16_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
-    uint8_t c = eeprom_read_byte((unsigned char*)pos);
+    uint8_t c = eeprom_read_byte((uint8_t*)pos);
     if (writing) *value = c;
     crc16(crc, &c, 1);
     pos++;

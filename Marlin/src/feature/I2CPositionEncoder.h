@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef I2CPOSENC_H
-#define I2CPOSENC_H
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -120,7 +118,7 @@ class I2CPositionEncoder {
 
     bool      homed               = false,
               trusted             = false,
-              initialised         = false,
+              initialized         = false,
               active              = false,
               invert              = false,
               ec                  = true;
@@ -133,15 +131,11 @@ class I2CPositionEncoder {
               nextErrorCountTime  = 0,
               lastErrorTime;
 
-    //double        positionMm; //calculate
-
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
       uint8_t errIdx = 0, errPrstIdx = 0;
       int err[I2CPE_ERR_ARRAY_SIZE] = { 0 },
           errPrst[I2CPE_ERR_PRST_ARRAY_SIZE] = { 0 };
     #endif
-
-    //float        positionMm; //calculate
 
   public:
     void init(const uint8_t address, const AxisEnum axis);
@@ -150,6 +144,7 @@ class I2CPositionEncoder {
     void update();
 
     void set_homed();
+    void set_unhomed();
 
     int32_t get_raw_count();
 
@@ -159,7 +154,7 @@ class I2CPositionEncoder {
         case I2CPE_ENC_TYPE_LINEAR:
           return count / encoderTicksPerUnit;
         case I2CPE_ENC_TYPE_ROTARY:
-          return (count * stepperTicks) / (encoderTicksPerUnit * planner.axis_steps_per_mm[encoderAxis]);
+          return (count * stepperTicks) / (encoderTicksPerUnit * planner.settings.axis_steps_per_mm[encoderAxis]);
       }
     }
 
@@ -203,7 +198,7 @@ class I2CPositionEncoder {
         case I2CPE_ENC_TYPE_LINEAR:
           return encoderTicksPerUnit;
         case I2CPE_ENC_TYPE_ROTARY:
-          return (int)((encoderTicksPerUnit / stepperTicks) * planner.axis_steps_per_mm[encoderAxis]);
+          return (int)((encoderTicksPerUnit / stepperTicks) * planner.settings.axis_steps_per_mm[encoderAxis]);
       }
     }
 
@@ -232,6 +227,11 @@ class I2CPositionEncodersMgr {
     static void homed(const AxisEnum axis) {
       LOOP_PE(i)
         if (encoders[i].get_axis() == axis) encoders[i].set_homed();
+    }
+
+    static void unhomed(const AxisEnum axis) {
+      LOOP_PE(i)
+        if (encoders[i].get_axis() == axis) encoders[i].set_unhomed();
     }
 
     static void report_position(const int8_t idx, const bool units, const bool noOffset);
@@ -329,5 +329,3 @@ class I2CPositionEncodersMgr {
 };
 
 extern I2CPositionEncodersMgr I2CPEM;
-
-#endif //I2CPOSENC_H

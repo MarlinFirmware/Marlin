@@ -1,0 +1,39 @@
+{
+  "build": {
+    "cpu": "cortex-m0",
+    "extra_flags": "-DSTM32F070xB",
+    "f_cpu": "48000000L",
+    "mcu": "stm32f070rbt6",
+    "genericvariant" : "MALYAN_M200_V2",
+    "vec_tab_addr": "0x8002000"
+  },
+  "debug": {
+    "default_tools": [
+      "stlink"
+    ],
+    "onboard_tools": [
+      "stlink"
+    ],
+    "openocd_board": "st_nucleo_f0",
+    "openocd_target": "stm32f0x"
+  },
+  "frameworks": [
+    "mbed",
+    "stm32cube",
+    "arduinoSTM32GENERIC"
+  ],
+  "name": "Malyan M200 V2/Delta",
+  "upload": {
+    "maximum_ram_size": 16384,
+    "maximum_size": 131072,
+    "protocol": "mbed",
+    "protocols": [
+      "jlink",
+      "stlink",
+      "blackmagic",
+      "mbed"
+    ]
+  },
+  "url": "https://developer.mbed.org/platforms/ST-Nucleo-F070RB/",
+  "vendor": "Malyan"
+}

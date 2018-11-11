@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Arduino library for MicroChip MCP4728 I2C D/A converter.
  */
-
-#ifndef DAC_MCP4728_H
-#define DAC_MCP4728_H
 
 #include <Wire.h>
 
@@ -57,5 +55,3 @@ uint8_t mcp4728_fastWrite();
 uint8_t mcp4728_simpleCommand(byte simpleCommand);
 uint8_t mcp4728_getDrvPct(uint8_t channel);
 void mcp4728_setDrvPct(uint8_t pct[XYZE]);
-
-#endif // DAC_MCP4728_H

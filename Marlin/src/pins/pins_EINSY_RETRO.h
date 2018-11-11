@@ -25,7 +25,7 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops!  Make sure you have 'Arduino Mega 2560 or Rambo' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
 #endif
 
 #define BOARD_NAME         "Einsy Retro"
@@ -33,10 +33,8 @@
 //
 // TMC2130 Configuration_adv defaults for EinsyRetro
 //
-#if DISABLED(HAVE_TMC2130)
-  #error "You must enable TMC2130 support in Configuration_adv.h for EinsyRetro."
-#elif DISABLED(X_IS_TMC2130) || DISABLED(Y_IS_TMC2130) || DISABLED(Z_IS_TMC2130) || DISABLED(E0_IS_TMC2130)
-  #error "You must enable ([XYZ]|E0)_IS_TMC2130 in Configuration_adv.h for EinsyRetro."
+#if !AXIS_DRIVER_TYPE(X, TMC2130) || !AXIS_DRIVER_TYPE(Y, TMC2130) || !AXIS_DRIVER_TYPE(Z, TMC2130) || !AXIS_DRIVER_TYPE(E0, TMC2130)
+  #error "You must set ([XYZ]|E0)_DRIVER_TYPE to TMC2130 in Configuration.h for EinsyRetro."
 #endif
 
 // TMC2130 Diag Pins (currently just for reference)

@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __PRIVATE_SPI_H__
-#define __PRIVATE_SPI_H__
+#pragma once
 
 #include "softspi.h"
 #include <stdint.h>
@@ -53,5 +51,3 @@ class SPIclass<MISO_PIN, MOSI_PIN, SCK_PIN> {
     }
 
 };
-
-#endif // __PRIVATE_SPI_H__

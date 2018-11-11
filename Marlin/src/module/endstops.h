@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * endstops.h - manages endstops
  */
-
-#ifndef __ENDSTOPS_H__
-#define __ENDSTOPS_H__
 
 #include "../inc/MarlinConfig.h"
 #include <stdint.h>
@@ -43,36 +41,40 @@ enum EndstopEnum : char {
   Y2_MIN,
   Y2_MAX,
   Z2_MIN,
-  Z2_MAX
+  Z2_MAX,
+  Z3_MIN,
+  Z3_MAX
 };
 
 class Endstops {
 
   public:
 
-    static bool enabled, enabled_globally;
-
-    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
+    #if ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || Z_MULTI_ENDSTOPS
       typedef uint16_t esbits_t;
       #if ENABLED(X_DUAL_ENDSTOPS)
-        static float x_endstop_adj;
+        static float x2_endstop_adj;
       #endif
       #if ENABLED(Y_DUAL_ENDSTOPS)
-        static float y_endstop_adj;
+        static float y2_endstop_adj;
       #endif
-      #if ENABLED(Z_DUAL_ENDSTOPS)
-        static float z_endstop_adj;
+      #if Z_MULTI_ENDSTOPS
+        static float z2_endstop_adj;
+      #endif
+      #if ENABLED(Z_TRIPLE_ENDSTOPS)
+        static float z3_endstop_adj;
       #endif
     #else
       typedef uint8_t esbits_t;
     #endif
 
   private:
+    static bool enabled, enabled_globally;
     static esbits_t live_state;
     static volatile uint8_t hit_state;      // Use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT index
-    #if ENABLED(ENDSTOP_NOISE_FILTER)
-      static esbits_t old_live_state,       // Old endstop value for debouncing and denoising
-                      validated_live_state; // The validated (accepted as true) endstop bits
+
+    #if ENDSTOP_NOISE_THRESHOLD
+      static esbits_t validated_live_state;
       static uint8_t endstop_poll_count;    // Countdown from threshold for polling
     #endif
 
@@ -85,10 +87,15 @@ class Endstops {
     static void init();
 
     /**
-     * A change was detected or presumed to be in endstops pins. Find out what
-     * changed, if anything. Called from ISR contexts
+     * Are endstops or the probe set to abort the move?
      */
-    static void check_possible_change();
+    FORCE_INLINE static bool abort_enabled() {
+      return (enabled
+        #if HAS_BED_PROBE
+          || z_probe_enabled
+        #endif
+      );
+    }
 
     /**
      * Periodic call to poll endstops if required. Called from temperature ISR
@@ -96,7 +103,9 @@ class Endstops {
     static void poll();
 
     /**
-     * Update the endstops bits from the pins
+     * Update endstops bits from the pins. Apply filtering to get a verified state.
+     * If abort_enabled() and moving towards a triggered switch, abort the current move.
+     * Called from ISR contexts.
      */
     static void update();
 
@@ -110,7 +119,7 @@ class Endstops {
      */
     FORCE_INLINE static esbits_t state() {
       return
-        #if ENABLED(ENDSTOP_NOISE_FILTER)
+        #if ENDSTOP_NOISE_THRESHOLD
           validated_live_state
         #else
           live_state
@@ -121,7 +130,7 @@ class Endstops {
     /**
      * Report endstop hits to serial. Called from loop().
      */
-    static void report_state();
+    static void event_handler();
 
     /**
      * Report endstop positions in response to M119
@@ -136,6 +145,13 @@ class Endstops {
 
     // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
     static void not_homing();
+
+    #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
+      // If the last move failed to trigger an endstop, call kill
+      static void validate_homing_move();
+    #else
+      FORCE_INLINE static void validate_homing_move() { hit_on_purpose(); }
+    #endif
 
     // Clear endstops (i.e., they were hit intentionally) to suppress the report
     FORCE_INLINE static void hit_on_purpose() { hit_state = 0; }
@@ -155,5 +171,3 @@ class Endstops {
 };
 
 extern Endstops endstops;
-
-#endif // __ENDSTOPS_H__

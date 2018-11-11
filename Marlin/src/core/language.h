@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef LANGUAGE_H
-#define LANGUAGE_H
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -60,6 +58,7 @@
 // hr         Croatian
 // it         Italian
 // jp-kana    Japanese
+// ko_KR      Korean (South Korea)
 // nl         Dutch
 // pl         Polish
 // pt         Portuguese
@@ -130,6 +129,7 @@
 #define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
 #define MSG_COUNT_X                         " Count X:"
 #define MSG_COUNT_A                         " Count A:"
+#define MSG_WATCHDOG_FIRED                  "Watchdog timeout. Reset required."
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
 #define MSG_BUSY_PROCESSING                 "busy: processing"
@@ -139,23 +139,25 @@
 #define MSG_RESEND                          "Resend: "
 #define MSG_UNKNOWN_COMMAND                 "Unknown command: \""
 #define MSG_ACTIVE_EXTRUDER                 "Active Extruder: "
-#define MSG_X_MIN                           "x_min: "
-#define MSG_X_MAX                           "x_max: "
-#define MSG_X2_MIN                          "x2_min: "
-#define MSG_X2_MAX                          "x2_max: "
-#define MSG_Y_MIN                           "y_min: "
-#define MSG_Y_MAX                           "y_max: "
-#define MSG_Y2_MIN                          "y2_min: "
-#define MSG_Y2_MAX                          "y2_max: "
-#define MSG_Z_MIN                           "z_min: "
-#define MSG_Z_MAX                           "z_max: "
-#define MSG_Z2_MIN                          "z2_min: "
-#define MSG_Z2_MAX                          "z2_max: "
-#define MSG_Z_PROBE                         "z_probe: "
+#define MSG_X_MIN                           "x_min"
+#define MSG_X_MAX                           "x_max"
+#define MSG_X2_MIN                          "x2_min"
+#define MSG_X2_MAX                          "x2_max"
+#define MSG_Y_MIN                           "y_min"
+#define MSG_Y_MAX                           "y_max"
+#define MSG_Y2_MIN                          "y2_min"
+#define MSG_Y2_MAX                          "y2_max"
+#define MSG_Z_MIN                           "z_min"
+#define MSG_Z_MAX                           "z_max"
+#define MSG_Z2_MIN                          "z2_min"
+#define MSG_Z2_MAX                          "z2_max"
+#define MSG_Z3_MIN                          "z3_min"
+#define MSG_Z3_MAX                          "z3_max"
+#define MSG_Z_PROBE                         "z_probe"
+#define MSG_FILAMENT_RUNOUT_SENSOR          "filament"
 #define MSG_PROBE_Z_OFFSET                  "Probe Z Offset"
 #define MSG_SKEW_MIN                        "min_skew_factor: "
 #define MSG_SKEW_MAX                        "max_skew_factor: "
-#define MSG_FILAMENT_RUNOUT_SENSOR          "filament: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define MSG_ERR_M355_NONE                   "No case light"
 #define MSG_ERR_M421_PARAMETERS             "M421 incorrect parameter usage"
@@ -196,14 +198,17 @@
 #define MSG_ENDSTOPS_HIT                    "endstops hit: "
 #define MSG_ERR_COLD_EXTRUDE_STOP           " cold extrusion prevented"
 #define MSG_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
-#define MSG_HOTEND_TOO_COLD                 "Hotend too cold"
+#define MSG_ERR_HOTEND_TOO_COLD             "Hotend too cold"
 
 #define MSG_FILAMENT_CHANGE_HEAT            "Press button (or M108) to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT          "Insert filament and press button (or M108)"
+#define MSG_FILAMENT_CHANGE_WAIT            "Press button (or M108) to resume"
 #define MSG_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_LCD      "Insert filament and press button"
+#define MSG_FILAMENT_CHANGE_WAIT_LCD        "Press button to resume"
 #define MSG_FILAMENT_CHANGE_HEAT_M108       "Send M108 to heat nozzle"
 #define MSG_FILAMENT_CHANGE_INSERT_M108     "Insert filament and send M108"
+#define MSG_FILAMENT_CHANGE_WAIT_M108       "Send M108 to resume"
 
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
@@ -260,7 +265,7 @@
 
 // LCD Menu Messages
 
-#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(../lcd/dogm/language_data_##M.h)
+#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
 #define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
 #define INCLUDE_LANGUAGE_DATA LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
@@ -282,31 +287,41 @@
   #define MSG_B "Y"
   #define MSG_C "Z"
 #endif
+#define MSG_X2 "X2"
+#define MSG_Y2 "Y2"
+#define MSG_Z2 "Z2"
+#define MSG_Z3 "Z3"
 #define MSG_H1 "1"
 #define MSG_H2 "2"
 #define MSG_H3 "3"
 #define MSG_H4 "4"
 #define MSG_H5 "5"
-#define MSG_N1 " 1"
-#define MSG_N2 " 2"
-#define MSG_N3 " 3"
-#define MSG_N4 " 4"
-#define MSG_N5 " 5"
+#define MSG_H6 "6"
+#define MSG_LCD_N0 " 1"
+#define MSG_LCD_N1 " 2"
+#define MSG_LCD_N2 " 3"
+#define MSG_LCD_N3 " 4"
+#define MSG_LCD_N4 " 5"
+#define MSG_LCD_N5 " 6"
+#define MSG_E0 "E0"
 #define MSG_E1 "E1"
 #define MSG_E2 "E2"
 #define MSG_E3 "E3"
 #define MSG_E4 "E4"
 #define MSG_E5 "E5"
+#define MSG_E6 "E6"
 #define MSG_MOVE_E1 "1"
 #define MSG_MOVE_E2 "2"
 #define MSG_MOVE_E3 "3"
 #define MSG_MOVE_E4 "4"
 #define MSG_MOVE_E5 "5"
+#define MSG_MOVE_E6 "6"
 #define MSG_DIAM_E1 " 1"
 #define MSG_DIAM_E2 " 2"
 #define MSG_DIAM_E3 " 3"
 #define MSG_DIAM_E4 " 4"
 #define MSG_DIAM_E5 " 5"
+#define MSG_DIAM_E6 " 6"
 
 #include INCLUDE_LANGUAGE
 
@@ -324,4 +339,7 @@
 
 #include "../lcd/language/language_en.h"
 
-#endif // __LANGUAGE_H
+#ifdef CUSTOM_USER_MENU_TITLE
+  #undef MSG_USER_MENU
+  #define MSG_USER_MENU CUSTOM_USER_MENU_TITLE
+#endif

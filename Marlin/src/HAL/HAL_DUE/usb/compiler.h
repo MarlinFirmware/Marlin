@@ -105,7 +105,7 @@
  * \brief Marking \a v as a unused parameter or value.
  */
 #ifndef UNUSED
-#define UNUSED(x) (void) (x)
+  #define UNUSED(x) ((void)(x))
 #endif
 
 /**
