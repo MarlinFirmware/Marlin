@@ -34,8 +34,6 @@
 
   #include "math.h"
 
-  uint8_t ubl_cnt = 0;
-
   void unified_bed_leveling::echo_name(
     #if NUM_SERIAL > 1
       const int8_t port/*= -1*/
@@ -106,30 +104,19 @@
 
       if (xy_dist == 0.0) return;
 
-      SERIAL_ECHOPGM("   fpmm=");
       const float fpmm = de / xy_dist;
-      SERIAL_ECHO_F(fpmm, 6);
-
+      SERIAL_ECHOPGM("   fpmm="); SERIAL_ECHO_F(fpmm, 6);
       SERIAL_ECHOPGM("    current=( ");
-      SERIAL_ECHO_F(current_position[X_AXIS], 6);
-      SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[Y_AXIS], 6);
-      SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[Z_AXIS], 6);
-      SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[E_AXIS], 6);
-      SERIAL_ECHOPGM(" )   destination=( ");
-      debug_echo_axis(X_AXIS);
-      SERIAL_ECHOPGM(", ");
-      debug_echo_axis(Y_AXIS);
-      SERIAL_ECHOPGM(", ");
-      debug_echo_axis(Z_AXIS);
-      SERIAL_ECHOPGM(", ");
-      debug_echo_axis(E_AXIS);
-      SERIAL_ECHOPGM(" )   ");
+      SERIAL_ECHO_F(current_position[X_AXIS], 6); SERIAL_ECHOPGM(", ");
+      SERIAL_ECHO_F(current_position[Y_AXIS], 6); SERIAL_ECHOPGM(", ");
+      SERIAL_ECHO_F(current_position[Z_AXIS], 6); SERIAL_ECHOPGM(", ");
+      SERIAL_ECHO_F(current_position[E_AXIS], 6); SERIAL_ECHOPGM(" )   destination=( ");
+      debug_echo_axis(X_AXIS); SERIAL_ECHOPGM(", ");
+      debug_echo_axis(Y_AXIS); SERIAL_ECHOPGM(", ");
+      debug_echo_axis(Z_AXIS); SERIAL_ECHOPGM(", ");
+      debug_echo_axis(E_AXIS); SERIAL_ECHOPGM(" )   ");
       serialprintPGM(title);
       SERIAL_EOL();
-
     }
 
   #endif // UBL_DEVEL_DEBUGGING
@@ -150,7 +137,6 @@
   volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    ubl_cnt++;  // Debug counter to ensure we only have one UBL object present in memory.  We can eliminate this (and all references to ubl_cnt) very soon.
     reset();
   }
 
