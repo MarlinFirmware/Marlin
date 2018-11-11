@@ -35,10 +35,6 @@
   #include "../../module/scara.h"
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "../../feature/bedlevel/ubl/ubl.h"
-#endif
-
 #if N_ARC_CORRECTION < 1
   #undef N_ARC_CORRECTION
   #define N_ARC_CORRECTION 1
@@ -58,7 +54,6 @@ void plan_arc(
   const float (&offset)[2],   // Center of rotation relative to current_position
   const uint8_t clockwise     // Clockwise?
 ) {
-
   #if ENABLED(CNC_WORKSPACE_PLANES)
     AxisEnum p_axis, q_axis, l_axis;
     switch (gcode.workspace_plane) {
