@@ -417,7 +417,7 @@ void update_usb_status(const bool forceUpdate) {
  * The optimize attribute fixes a register Compile
  * error for amtel.
  */
-void lcd_update() {
+void MarlinUI::update() {
   static char inbound_buffer[MAX_CURLY_COMMAND];
 
   // First report USB status.
@@ -461,7 +461,7 @@ void lcd_update() {
  * it and translate into gcode, which then gets injected into
  * the command queue where possible.
  */
-void lcd_init() {
+void MarlinUI::init() {
   inbound_count = 0;
   LCD_SERIAL.begin(500000);
 
@@ -479,7 +479,7 @@ void lcd_init() {
 /**
  * Set an alert.
  */
-void lcd_setalertstatusPGM(PGM_P message) {
+void MarlinUI::setalertstatusPGM(PGM_P message) {
   char message_buffer[MAX_CURLY_COMMAND];
   sprintf_P(message_buffer, PSTR("{E:%s}"), message);
   write_to_lcd(message_buffer);

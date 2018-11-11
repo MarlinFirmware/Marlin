@@ -38,7 +38,7 @@ void GcodeSuite::G4() {
     SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
   #endif
 
-  if (!lcd_hasstatus()) LCD_MESSAGEPGM(MSG_DWELL);
+  if (!ui.hasstatus()) LCD_MESSAGEPGM(MSG_DWELL);
 
   dwell(dwell_ms);
 }

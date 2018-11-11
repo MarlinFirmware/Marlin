@@ -31,14 +31,6 @@ constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, H
 
 void scroll_screen(const uint8_t limit, const bool is_menu);
 bool printer_busy();
-void lcd_completion_feedback(const bool good=true);
-void lcd_save_previous_screen();
-void lcd_goto_previous_menu();
-#if LCD_TIMEOUT_TO_STATUS
-  void lcd_goto_previous_menu_no_defer();
-#else
-  #define lcd_goto_previous_menu_no_defer() lcd_goto_previous_menu()
-#endif
 
 ////////////////////////////////////////////
 ////////// Menu Item Numeric Types /////////
@@ -67,60 +59,46 @@ DECLARE_MENU_EDIT_TYPE(uint32_t, long5, ftostr5rj, 0.01f);
 ///////// Menu Item Draw Functions /////////
 ////////////////////////////////////////////
 
+void draw_menu_item_generic(const bool isSelected, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
+void draw_menu_item_static(const uint8_t row, PGM_P const pstr, const bool center=true, const bool invert=false, const char *valstr=NULL);
+void draw_edit_screen(PGM_P const pstr, const char* const value=NULL);
 #if ENABLED(SDSUPPORT)
   class CardReader;
-#endif
-
-void lcd_implementation_drawmenu_generic(const bool isSelected, const uint8_t row, const char* pstr, const char pre_char, const char post_char);
-void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL);
-void lcd_implementation_drawedit(const char* const pstr, const char* const value=NULL);
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  void lcd_implementation_hotend_status(const uint8_t row, const uint8_t extruder);
+  void draw_sd_menu_item(const bool isSelected, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir);
+  inline void draw_menu_item_sdfile(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) { draw_sd_menu_item(sel, row, pstr, theCard, false); }
+  inline void draw_menu_item_sdfolder(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) { draw_sd_menu_item(sel, row, pstr, theCard, true); }
 #endif
 #if HAS_GRAPHICAL_LCD
   void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, const char* pstr, const char* const data, const bool pgm);
-  #define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
-  #define lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, false)
-  #define lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, true)
-  #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, SRC)
-  #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
-  #if ENABLED(SDSUPPORT)
-    void _drawmenu_sd(const bool isSelected, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir);
-    #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, theCard) _drawmenu_sd(sel, row, pstr, theCard, false)
-    #define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, theCard) _drawmenu_sd(sel, row, pstr, theCard, true)
-  #endif
+  #define draw_menu_item_back(sel, row, pstr) draw_menu_item_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+  #define draw_menu_item_setting_edit_generic(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, false)
+  #define draw_menu_item_setting_edit_generic_P(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, true)
+  #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) draw_menu_item_setting_edit_generic(sel, row, pstr, SRC)
+  #define DRAW_BOOL_SETTING(sel, row, pstr, data) draw_menu_item_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
   #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
     void _lcd_zoffset_overlay_gfx(const float zvalue);
   #endif
 #else
-  #define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_UPLEVEL_CHAR, LCD_UPLEVEL_CHAR)
-  void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
-  void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
-  #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', SRC)
-  #define DRAW_BOOL_SETTING(sel, row, pstr, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
-  #if ENABLED(SDSUPPORT)
-    void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard);
-    void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, PGM_P pstr, CardReader &theCard);
-  #endif
+  #define draw_menu_item_back(sel, row, pstr) draw_menu_item_generic(sel, row, pstr, LCD_UPLEVEL_CHAR, LCD_UPLEVEL_CHAR)
+  void draw_menu_item_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
+  void draw_menu_item_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
+  #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) draw_menu_item_setting_edit_generic(sel, row, pstr, '>', SRC)
+  #define DRAW_BOOL_SETTING(sel, row, pstr, data) draw_menu_item_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 #endif
-#define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
-#define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
-#define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
-
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  void lcd_implementation_ubl_plot(const uint8_t x, const uint8_t inverted_y);
-#endif
+#define draw_menu_item_submenu(sel, row, pstr, data) draw_menu_item_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
+#define draw_menu_item_gcode(sel, row, pstr, gcode) draw_menu_item_generic(sel, row, pstr, '>', ' ')
+#define draw_menu_item_function(sel, row, pstr, data) draw_menu_item_generic(sel, row, pstr, '>', ' ')
 
 ////////////////////////////////////////////
 /////// Edit Setting Draw Functions ////////
 ////////////////////////////////////////////
 
 #define _DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(TYPE, NAME, STRFUNC) \
-  FORCE_INLINE void lcd_implementation_drawmenu_setting_edit_ ## NAME (const bool sel, const uint8_t row, PGM_P pstr, PGM_P pstr2, TYPE * const data, ...) { \
+  FORCE_INLINE void draw_menu_item_setting_edit_ ## NAME (const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const pstr2, TYPE * const data, ...) { \
     UNUSED(pstr2); \
     DRAWMENU_SETTING_EDIT_GENERIC(STRFUNC(*(data))); \
   } \
-  FORCE_INLINE void lcd_implementation_drawmenu_setting_edit_accessor_ ## NAME (const bool sel, const uint8_t row, PGM_P pstr, PGM_P pstr2, TYPE (*pget)(), void (*pset)(TYPE), ...) { \
+  FORCE_INLINE void draw_menu_item_setting_edit_accessor_ ## NAME (const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const pstr2, TYPE (*pget)(), void (*pset)(TYPE), ...) { \
     UNUSED(pstr2); UNUSED(pset); \
     DRAWMENU_SETTING_EDIT_GENERIC(STRFUNC(pget())); \
   } \
@@ -139,8 +117,8 @@ DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float52sign);
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(float62);
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(long5);
 
-#define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
-#define lcd_implementation_drawmenu_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
+#define draw_menu_item_setting_edit_bool(sel, row, pstr, pstr2, data, ...)           DRAW_BOOL_SETTING(sel, row, pstr, data)
+#define draw_menu_item_setting_edit_accessor_bool(sel, row, pstr, pstr2, pget, pset) DRAW_BOOL_SETTING(sel, row, pstr, data)
 
 ////////////////////////////////////////////
 /////////////// Menu Actions ///////////////
@@ -148,12 +126,12 @@ DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(long5);
 
 class menu_item_back {
   public:
-    static inline void action() { lcd_goto_previous_menu(); }
+    static inline void action() { ui.goto_previous_screen(); }
 };
 
 class menu_item_submenu {
   public:
-    static inline void action(const screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
+    static inline void action(const screenFunc_t func) { ui.save_previous_screen(); ui.goto_screen(func); }
 };
 
 class menu_item_gcode {
@@ -170,7 +148,7 @@ class menu_item_function {
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
 
-class menu_item_invariants {
+class MenuItemBase {
   protected:
     typedef char* (*strfunc_t)(const int32_t);
     typedef void (*loadfunc_t)(void *, const int32_t);
@@ -179,7 +157,7 @@ class menu_item_invariants {
 };
 
 template<typename NAME>
-class menu_item_template : menu_item_invariants {
+class TMenuItem : MenuItemBase {
   private:
     typedef typename NAME::type_t type_t;
     inline static float unscale(const float value)    {return value * (1.0f / NAME::scale);}
@@ -191,10 +169,10 @@ class menu_item_template : menu_item_invariants {
       const int32_t minv = scale(minValue);
       init(pstr, ptr, minv, int32_t(scale(maxValue)) - minv, int32_t(scale(*ptr)) - minv, edit, callback, live);
     }
-    static void edit() {menu_item_invariants::edit(to_string, load);}
+    static void edit() { MenuItemBase::edit(to_string, load); }
 };
 
-#define DECLARE_MENU_EDIT_ITEM(NAME) typedef menu_item_template<NAME ## _item_info> menu_item_ ## NAME;
+#define DECLARE_MENU_EDIT_ITEM(NAME) typedef TMenuItem<NAME ## _item_info> menu_item_ ## NAME;
 
 DECLARE_MENU_EDIT_ITEM(int3);
 DECLARE_MENU_EDIT_ITEM(int4);
@@ -210,7 +188,7 @@ DECLARE_MENU_EDIT_ITEM(long5);
 
 class menu_item_bool {
   public:
-    static void action_setting_edit(PGM_P pstr, bool* ptr, const screenFunc_t callbackFunc=NULL);
+    static void action_setting_edit(PGM_P const pstr, bool* ptr, const screenFunc_t callbackFunc=NULL);
 };
 
 ////////////////////////////////////////////
@@ -256,69 +234,47 @@ class menu_item_bool {
   screen_items = _thisItemNr; \
   UNUSED(_skipStatic)
 
-/**
- * REVERSE_MENU_DIRECTION
- *
- * To reverse the menu direction we need a general way to reverse
- * the direction of the encoder everywhere. So encoderDirection is
- * added to allow the encoder to go the other way.
- *
- * This behavior is limited to scrolling Menus and SD card listings,
- * and is disabled in other contexts.
- */
-#if ENABLED(REVERSE_MENU_DIRECTION)
-  extern int8_t encoderDirection;
-  #define ENCODER_DIRECTION_NORMAL() (encoderDirection =  1)
-  #define ENCODER_DIRECTION_MENUS()  (encoderDirection = -1)
-#else
-  #define ENCODER_DIRECTION_NORMAL() NOOP
-  #define ENCODER_DIRECTION_MENUS()  NOOP
-#endif
-
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
-  extern millis_t lastEncoderMovementMillis;
-  extern bool encoderRateMultiplierEnabled;
-  #define ENCODER_RATE_MULTIPLY(F) (encoderRateMultiplierEnabled = F)
-  #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER) if (USE_MULTIPLIER) { encoderRateMultiplierEnabled = true; lastEncoderMovementMillis = 0; }
+  #define ENCODER_RATE_MULTIPLY(F) (ui.encoderRateMultiplierEnabled = F)
+  #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER) do{ if (USE_MULTIPLIER) ui.enable_encoder_multiplier(true); }while(0)
   //#define ENCODER_RATE_MULTIPLIER_DEBUG  // If defined, output the encoder steps per second value
-#else // !ENCODER_RATE_MULTIPLIER
+#else
   #define ENCODER_RATE_MULTIPLY(F) NOOP
   #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER)
-#endif // !ENCODER_RATE_MULTIPLIER
+#endif
 
 /**
  * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
  *
- *   lcd_implementation_drawmenu_<type>[_variant](sel, row, label, arg3...)
+ *   draw_menu_item_<type>[_variant](sel, row, label, arg3...)
  *   menu_item_<type>::action[_variant](arg3...)
  *
  * Examples:
  *   MENU_ITEM(back, MSG_WATCH, 0 [dummy parameter] )
  *   or
  *   MENU_BACK(MSG_WATCH)
- *     lcd_implementation_drawmenu_back(sel, row, PSTR(MSG_WATCH))
+ *     draw_menu_item_back(sel, row, PSTR(MSG_WATCH))
  *     menu_item_back::action()
  *
  *   MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause)
- *     lcd_implementation_drawmenu_function(sel, row, PSTR(MSG_PAUSE_PRINT), lcd_sdcard_pause)
+ *     draw_menu_item_function(sel, row, PSTR(MSG_PAUSE_PRINT), lcd_sdcard_pause)
  *     menu_item_function::action(lcd_sdcard_pause)
  *
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
- *     lcd_implementation_drawmenu_setting_edit_int3(sel, row, PSTR(MSG_SPEED), PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *     draw_menu_item_setting_edit_int3(sel, row, PSTR(MSG_SPEED), PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *     menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  */
 #define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, USE_MULTIPLIER, PLABEL, ...) do { \
     _skipStatic = false; \
     if (_menuLineNr == _thisItemNr) { \
-      if (encoderLine == _thisItemNr && lcd_clicked) { \
-        lcd_clicked = false; \
+      if (encoderLine == _thisItemNr && ui.use_click()) { \
         _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER); \
         menu_item_ ## TYPE ::action ## VARIANT(__VA_ARGS__); \
         if (screen_changed) return; \
       } \
-      if (lcdDrawUpdate) \
-        lcd_implementation_drawmenu ## VARIANT ## _ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PLABEL, ## __VA_ARGS__); \
+      if (ui.should_draw()) \
+        draw_menu_item ## VARIANT ## _ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PLABEL, ## __VA_ARGS__); \
     } \
   ++_thisItemNr; \
 }while(0)
@@ -328,17 +284,17 @@ class menu_item_bool {
 #define STATIC_ITEM_P(PLABEL, ...) do{ \
   if (_menuLineNr == _thisItemNr) { \
     if (_skipStatic && encoderLine <= _thisItemNr) { \
-      encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
+      ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
       ++encoderLine; \
     } \
-    if (lcdDrawUpdate) \
-      lcd_implementation_drawmenu_static(_lcdLineNr, PLABEL, ## __VA_ARGS__); \
+    if (ui.should_draw()) \
+      draw_menu_item_static(_lcdLineNr, PLABEL, ## __VA_ARGS__); \
   } \
   ++_thisItemNr; \
 } while(0)
 
 #define MENU_ITEM_ADDON_START(X) \
-  if (lcdDrawUpdate && _menuLineNr == _thisItemNr - 1) { \
+  if (ui.should_draw() && _menuLineNr == _thisItemNr - 1) { \
     SETCURSOR(X, _lcdLineNr)
 
 #define MENU_ITEM_ADDON_END() } (0)
@@ -347,12 +303,12 @@ class menu_item_bool {
 
 #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL)
 #define MENU_ITEM_DUMMY() do { _thisItemNr++; }while(0)
-#define MENU_ITEM_P(TYPE, PLABEL, ...)                       _MENU_ITEM_VARIANT_P(TYPE,              , 0, PLABEL,                   ## __VA_ARGS__)
-#define MENU_ITEM(TYPE, LABEL, ...)                          _MENU_ITEM_VARIANT_P(TYPE,              , 0, PSTR(LABEL),              ## __VA_ARGS__)
-#define MENU_ITEM_EDIT(TYPE, LABEL, ...)                     _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, 0, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
-#define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...)            _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, 0, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
-#define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...)          _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, 1, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
-#define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, 1, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
+#define MENU_ITEM_P(TYPE, PLABEL, ...)                       _MENU_ITEM_VARIANT_P(TYPE,              , false, PLABEL,                   ## __VA_ARGS__)
+#define MENU_ITEM(TYPE, LABEL, ...)                          _MENU_ITEM_VARIANT_P(TYPE,              , false, PSTR(LABEL),              ## __VA_ARGS__)
+#define MENU_ITEM_EDIT(TYPE, LABEL, ...)                     _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, false, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
+#define MENU_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...)            _MENU_ITEM_VARIANT_P(TYPE, _setting_edit, false, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
+#define MENU_MULTIPLIER_ITEM_EDIT(TYPE, LABEL, ...)          _MENU_ITEM_VARIANT_P(TYPE, _setting_edit,  true, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
+#define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(TYPE, LABEL, ...) _MENU_ITEM_VARIANT_P(TYPE, _setting_edit,  true, PSTR(LABEL), PSTR(LABEL), ## __VA_ARGS__)
 
 ////////////////////////////////////////////
 /////////////// Menu Screens ///////////////
@@ -379,7 +335,6 @@ void menu_move();
 ////////////////////////////////////////////
 
 void lcd_move_z();
-void lcd_synchronize(PGM_P const msg=NULL);
 void _lcd_draw_homing();
 
 void watch_temp_callback_E0();
@@ -425,4 +380,8 @@ void watch_temp_callback_bed();
 #if ENABLED(EEPROM_SETTINGS)
   void lcd_store_settings();
   void lcd_load_settings();
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  void menu_job_recovery();
 #endif

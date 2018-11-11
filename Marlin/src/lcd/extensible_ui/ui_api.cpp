@@ -681,14 +681,14 @@ namespace UI {
 
 // At the moment, we piggy-back off the ultralcd calls, but this could be cleaned up in the future
 
-void lcd_init() {
+void MarlinUI::init() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
   UI::onStartup();
 }
 
-void lcd_update() {
+void MarlinUI::update() {
   #if ENABLED(SDSUPPORT)
     static bool last_sd_status;
     const bool sd_status = IS_SD_INSERTED();
@@ -712,15 +712,15 @@ void lcd_update() {
   UI::onIdle();
 }
 
-bool lcd_hasstatus() { return true; }
-bool lcd_detected() { return true; }
-void lcd_reset_alert_level() { }
-void lcd_refresh() { }
-void lcd_setstatus(const char * const message, const bool persist /* = false */) { UI::onStatusChanged(message); }
-void lcd_setstatusPGM(const char * const message, int8_t level /* = 0 */)        { UI::onStatusChanged((progmem_str)message); }
-void lcd_setalertstatusPGM(const char * const message)                           { lcd_setstatusPGM(message, 0); }
+bool MarlinUI::hasstatus() { return true; }
+bool MarlinUI::detected() { return true; }
+void MarlinUI::reset_alert_level() { }
+void MarlinUI::refresh() { }
+void MarlinUI::setstatus(const char * const message, const bool persist /* = false */) { UI::onStatusChanged(message); }
+void MarlinUI::setstatusPGM(const char * const message, int8_t level /* = 0 */)        { UI::onStatusChanged((progmem_str)message); }
+void MarlinUI::setalertstatusPGM(const char * const message)                    { setstatusPGM(message, 0); }
 
-void lcd_reset_status() {
+void MarlinUI::reset_status() {
   static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
   static const char printing[] PROGMEM = MSG_PRINTING;
   static const char welcome[] PROGMEM = WELCOME_MSG;
@@ -729,17 +729,17 @@ void lcd_reset_status() {
     msg = paused;
   #if ENABLED(SDSUPPORT)
     else if (IS_SD_PRINTING())
-      return lcd_setstatus(card.longest_filename(), true);
+      return setstatus(card.longest_filename(), true);
   #endif
   else if (print_job_timer.isRunning())
     msg = printing;
   else
     msg = welcome;
 
-  lcd_setstatusPGM(msg, -1);
+  setstatusPGM(msg, -1);
 }
 
-void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
+void MarlinUI::status_printf_P(const uint8_t level, const char * const fmt, ...) {
   char buff[64];
   va_list args;
   va_start(args, fmt);
@@ -749,7 +749,7 @@ void lcd_status_printf_P(const uint8_t level, const char * const fmt, ...) {
   UI::onStatusChanged(buff);
 }
 
-void kill_screen(PGM_P msg) {
+void MarlinUI::kill_screen(PGM_P const msg) {
   if (!flags.printer_killed) {
     flags.printer_killed = true;
     UI::onPrinterKilled(msg);
