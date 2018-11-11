@@ -207,8 +207,6 @@ void plan_arc(
   COPY(raw, cart);
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     raw[l_axis] = start_L;
-  #else
-    raw[l_axis] += linear_per_segment;
   #endif
 
   #if HAS_LEVELING && !PLANNER_LEVELING
@@ -223,8 +221,6 @@ void plan_arc(
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     raw[l_axis] = start_L;
-  #else
-    raw[l_axis] += linear_per_segment;
   #endif
   COPY(current_position, raw);
 } // plan_arc
