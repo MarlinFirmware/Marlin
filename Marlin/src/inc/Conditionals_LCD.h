@@ -296,10 +296,6 @@
   #define ULTIPANEL
 #endif
 
-#if ENABLED(NO_LCD_MENUS)
-  #undef ULTIPANEL
-#endif
-
 #define HAS_GRAPHICAL_LCD ENABLED(DOGLCD)
 
 #if HAS_GRAPHICAL_LCD
@@ -336,9 +332,7 @@
 // Aliases for LCD features
 #define HAS_SPI_LCD          ENABLED(ULTRA_LCD)
 #define HAS_CHARACTER_LCD   (ENABLED(ULTRA_LCD) && DISABLED(DOGLCD))
-#define HAS_DIGITAL_ENCODER (HAS_SPI_LCD && ENABLED(NEWPANEL))
-#define HAS_LCD_MENU         ENABLED(ULTIPANEL)
-#define HAS_DEBUG_MENU      (HAS_LCD_MENU && ENABLED(LCD_PROGRESS_BAR_TEST))
+#define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 
 #if HAS_GRAPHICAL_LCD
   /* Custom characters defined in font Marlin_symbols.fon which was merged to ISO10646-0-3.bdf */

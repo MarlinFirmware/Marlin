@@ -326,7 +326,7 @@ void CardReader::initsd() {
 }
 
 void CardReader::release() {
-  sdprinting = false;
+  stopSDPrint();
   cardOK = false;
 }
 
@@ -947,7 +947,7 @@ void CardReader::printingHasFinished() {
     startFileprint();
   }
   else {
-    sdprinting = false;
+    stopSDPrint();
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       removeJobRecoveryFile();

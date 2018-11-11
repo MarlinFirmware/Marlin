@@ -138,6 +138,8 @@ enum ADCSensorState : char {
   #define unscalePID_d(d) ( float(d) * PID_dT )
 #endif
 
+#define G26_CLICK_CAN_CANCEL (HAS_LCD_MENU && ENABLED(G26_MESH_VALIDATION))
+
 class Temperature {
 
   public:
@@ -426,7 +428,11 @@ class Temperature {
     }
 
     #if HAS_TEMP_HOTEND
-      static bool wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling=true);
+      static bool wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling=true
+        #if G26_CLICK_CAN_CANCEL
+          , const bool click_to_cancel=false
+        #endif
+      );
     #endif
 
     #if HAS_HEATED_BED
@@ -459,7 +465,11 @@ class Temperature {
         static void start_watching_bed();
       #endif
 
-      static void wait_for_bed(const bool no_wait_for_cooling);
+      static bool wait_for_bed(const bool no_wait_for_cooling
+        #if G26_CLICK_CAN_CANCEL
+          , const bool click_to_cancel=false
+        #endif
+      );
 
     #endif // HAS_HEATED_BED
 

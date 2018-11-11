@@ -266,7 +266,7 @@ typedef struct SettingsDataStruct {
   fil_change_settings_t fc_settings[EXTRUDERS];         // M603 T U L
 
   //
-  // SINGLENOZZLE toolchange values
+  // Tool-change settings
   //
   #if EXTRUDERS > 1
     toolchange_settings_t toolchange_settings;                // M217 S P R
@@ -680,7 +680,7 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(lcd_preheat_hotend_temp);
 
-      #if DISABLED(ULTIPANEL)
+      #if !HAS_LCD_MENU
         constexpr int16_t lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
                           lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
         constexpr uint8_t lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
@@ -990,7 +990,7 @@ void MarlinSettings::postprocess() {
     }
 
     //
-    // SINGLENOZZLE
+    // Multiple Extruders
     //
 
     #if EXTRUDERS > 1
@@ -1306,7 +1306,7 @@ void MarlinSettings::postprocess() {
       {
         _FIELD_TEST(lcd_preheat_hotend_temp);
 
-        #if DISABLED(ULTIPANEL)
+        #if !HAS_LCD_MENU
           int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
           uint8_t lcd_preheat_fan_speed[2];
         #endif
@@ -1637,7 +1637,7 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // SINGLENOZZLE toolchange values
+      // Tool-change settings
       //
       #if EXTRUDERS > 1
         _FIELD_TEST(toolchange_settings);
@@ -1905,13 +1905,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if EXTRUDERS > 1
-    #if ENABLED(SINGLENOZZLE)
-      toolchange_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
-      toolchange_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
-      toolchange_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
-      #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-        toolchange_settings.change_point = SINGLENOZZLE_TOOLCHANGE_XY;
-      #endif
+    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+      toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
+      toolchange_settings.prime_speed = TOOLCHANGE_FIL_SWAP_PRIME_SPEED;
+      toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
+    #endif
+    #if ENABLED(TOOLCHANGE_PARK)
+      toolchange_settings.change_point = TOOLCHANGE_PARK_XY;
     #endif
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
   #endif
@@ -2027,7 +2027,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
     lcd_preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     lcd_preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
     lcd_preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
@@ -2184,7 +2184,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif
     SERIAL_EOL_P(port);
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
 
       // Temperature units - for Ultipanel temperature options
 
@@ -2555,7 +2555,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #endif // [XYZ]_DUAL_ENDSTOPS
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
+
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM_P(port, "Material heatup parameters:");
@@ -2567,7 +2568,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOPAIR_P(port, " B", TEMP_UNIT(lcd_preheat_bed_temp[i]));
         SERIAL_ECHOLNPAIR_P(port, " F", int(lcd_preheat_fan_speed[i]));
       }
-    #endif // ULTIPANEL
+
+    #endif
 
     #if HAS_PID_HEATING
 
@@ -2978,10 +2980,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif // EXTRUDERS == 1
     #endif // ADVANCED_PAUSE_FEATURE
 
-    #if ENABLED(SINGLENOZZLE)
+    #if EXTRUDERS > 1
       CONFIG_ECHO_START;
       if (!forReplay) {
-        SERIAL_ECHOLNPGM_P(port, "SINGLENOZZLE:");
+        SERIAL_ECHOLNPGM_P(port, "Tool-changing:");
         CONFIG_ECHO_START;
       }
       M217_report(true);

@@ -630,7 +630,7 @@
 
     #if HAS_LCD_MENU
       lcd_reset_alert_level();
-      lcd_quick_feedback(true);
+      lcd_quick_feedback();
       lcd_reset_status();
       lcd_external_control = false;
     #endif
@@ -689,16 +689,14 @@
 
     bool click_and_hold(const clickFunc_t func=NULL) {
       if (is_lcd_clicked()) {
-        lcd_quick_feedback(false); // Do NOT clear button status!  If cleared, the code
-                                   // code can not look for a 'click and hold'
+        lcd_quick_feedback(false);                // Preserve button state for click-and-hold
         const millis_t nxt = millis() + 1500UL;
         while (is_lcd_clicked()) {                // Loop while the encoder is pressed. Uses hardware flag!
           idle();                                 // idle, of course
           if (ELAPSED(millis(), nxt)) {           // After 1.5 seconds
-            lcd_quick_feedback(true);
+            lcd_quick_feedback();
             if (func) (*func)();
             wait_for_release();
-            safe_delay(50);                       // Debounce the Encoder wheel
             return true;
           }
         }
@@ -721,7 +719,7 @@
         lcd_external_control = true;
       #endif
 
-      save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
+      save_ubl_active_state_and_disable();   // No bed level correction so only raw data is obtained
       DEPLOY_PROBE();
 
       uint16_t count = GRID_MAX_POINTS;
@@ -731,14 +729,13 @@
 
         #if HAS_LCD_MENU
           if (is_lcd_clicked()) {
+            lcd_quick_feedback(false); // Preserve button state for click-and-hold
             SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
-            lcd_quick_feedback(false);
             STOW_PROBE();
-            while (is_lcd_clicked()) idle();
+            wait_for_release();
+            lcd_quick_feedback();
             lcd_external_control = false;
             restore_ubl_active_state_and_leave();
-            lcd_quick_feedback(true);
-            safe_delay(50);  // Debounce the Encoder wheel
             return;
           }
         #endif
@@ -843,7 +840,7 @@
       do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
       lcd_external_control = false;
       KEEPALIVE_STATE(IN_HANDLER);
-      lcd_quick_feedback(true);
+      lcd_quick_feedback();
       ubl.restore_ubl_active_state_and_leave();
     }
 
@@ -910,12 +907,16 @@
     }
   #endif // HAS_LCD_MENU
 
+  inline void set_message_with_feedback(PGM_P const msg_P) {
+    lcd_setstatusPGM(msg_P);
+    lcd_quick_feedback();
+  }
+
   bool unified_bed_leveling::g29_parameter_parsing() {
     bool err_flag = false;
 
     #if HAS_LCD_MENU
-      LCD_MESSAGEPGM(MSG_UBL_DOING_G29);
-      lcd_quick_feedback(true);
+      set_message_with_feedback(PSTR(MSG_UBL_DOING_G29));
     #endif
 
     g29_constant = 0;
@@ -1037,8 +1038,7 @@
       if (ubl_state_recursion_chk != 1) {
         SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
         #if HAS_LCD_MENU
-          LCD_MESSAGEPGM(MSG_UBL_SAVE_ERROR);
-          lcd_quick_feedback(true);
+          set_message_with_feedback(PSTR(MSG_UBL_SAVE_ERROR));
         #endif
         return;
       }
@@ -1052,8 +1052,7 @@
       if (--ubl_state_recursion_chk) {
         SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
         #if HAS_LCD_MENU
-          LCD_MESSAGEPGM(MSG_UBL_RESTORE_ERROR);
-          lcd_quick_feedback(true);
+          set_message_with_feedback(PSTR(MSG_UBL_RESTORE_ERROR));
         #endif
         return;
       }
@@ -1344,8 +1343,7 @@
     void abort_fine_tune() {
       lcd_return_to_status();
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-      LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
-      lcd_quick_feedback(true);
+      set_message_with_feedback(PSTR(MSG_EDITING_STOPPED));
     }
 
     void unified_bed_leveling::fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) {

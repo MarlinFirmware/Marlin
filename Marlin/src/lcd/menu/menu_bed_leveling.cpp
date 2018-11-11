@@ -191,7 +191,7 @@
   // Step 2: Continue Bed Leveling...
   //
   void _lcd_level_bed_continue() {
-    defer_return_to_status = true;
+    set_defer_return_to_status(true);
     set_all_unhomed();
     lcd_goto_screen(_lcd_level_bed_homing);
     enqueue_and_echo_commands_P(PSTR("G28"));

@@ -24,20 +24,21 @@
 #include "../ultralcd.h"
 #include "../../inc/MarlinConfig.h"
 
-extern uint32_t encoderPosition;
 extern int8_t encoderLine, encoderTopLine, screen_items;
-extern millis_t lastEncoderMovementMillis;
 extern bool screen_changed;
 
 constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP);
 
 void scroll_screen(const uint8_t limit, const bool is_menu);
-bool use_click();
 bool printer_busy();
 void lcd_completion_feedback(const bool good=true);
-void lcd_goto_previous_menu();
-void lcd_goto_previous_menu_no_defer();
 void lcd_save_previous_screen();
+void lcd_goto_previous_menu();
+#if LCD_TIMEOUT_TO_STATUS
+  void lcd_goto_previous_menu_no_defer();
+#else
+  #define lcd_goto_previous_menu_no_defer() lcd_goto_previous_menu()
+#endif
 
 ////////////////////////////////////////////
 ////////// Menu Item Numeric Types /////////
@@ -275,10 +276,10 @@ class menu_item_bool {
 #endif
 
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
-
+  extern millis_t lastEncoderMovementMillis;
   extern bool encoderRateMultiplierEnabled;
   #define ENCODER_RATE_MULTIPLY(F) (encoderRateMultiplierEnabled = F)
-  #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER) if(USE_MULTIPLIER) {encoderRateMultiplierEnabled = true; lastEncoderMovementMillis = 0;}
+  #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER) if (USE_MULTIPLIER) { encoderRateMultiplierEnabled = true; lastEncoderMovementMillis = 0; }
   //#define ENCODER_RATE_MULTIPLIER_DEBUG  // If defined, output the encoder steps per second value
 #else // !ENCODER_RATE_MULTIPLIER
   #define ENCODER_RATE_MULTIPLY(F) NOOP

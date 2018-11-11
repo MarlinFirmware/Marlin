@@ -106,7 +106,7 @@ typedef struct {
 #define M_IsOriginValid(v) (((v) & 0x7F) ? true : false)
 #define M_Origin2Str(v)    ((v) ? "VALID" : "INVALID")
 
-#if defined(UNW_DEBUG)
+#ifdef UNW_DEBUG
 #define UnwPrintd1(a)               state->cb->printf(a)
 #define UnwPrintd2(a,b)             state->cb->printf(a,b)
 #define UnwPrintd3(a,b,c)           state->cb->printf(a,b,c)

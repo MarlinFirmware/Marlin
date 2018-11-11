@@ -198,6 +198,12 @@
   inline void lcd_setalertstatusPGM(PGM_P message) { UNUSED(message); }
 #endif
 
+#define HAS_ENCODER_ACTION (HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY))
+
+#if HAS_ENCODER_ACTION
+  extern uint32_t encoderPosition;
+#endif
+
 #if HAS_SPI_LCD
 
   #include "../Marlin.h"
@@ -236,7 +242,7 @@
     inline void lcd_buzz(const long duration, const uint16_t freq) { UNUSED(duration); UNUSED(freq); }
   #endif
 
-  void lcd_quick_feedback(const bool clear_buttons); // Audible feedback for a button click - could also be visual
+  void lcd_quick_feedback(const bool clear_buttons=true); // Audible feedback for a button click - could also be visual
 
   #if ENABLED(LCD_PROGRESS_BAR)
     extern millis_t progress_bar_ms;  // Start time for the current progress bar cycle
@@ -281,7 +287,14 @@
     extern screenFunc_t currentScreen;
     void lcd_goto_screen(const screenFunc_t screen, const uint32_t encoder=0);
 
-    extern bool lcd_clicked, defer_return_to_status;
+    extern bool lcd_clicked;
+    #if LCD_TIMEOUT_TO_STATUS
+      extern bool defer_return_to_status;
+      inline void set_defer_return_to_status(const bool defer) { defer_return_to_status = defer; }
+    #else
+      constexpr bool defer_return_to_status = false;
+      #define set_defer_return_to_status(D) NOOP
+    #endif
 
     extern int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
     extern uint8_t lcd_preheat_fan_speed[2];
@@ -309,7 +322,7 @@
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_advanced_pause_show_message(const AdvancedPauseMessage message,
-                                           const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT,
+                                           const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_SAME,
                                            const uint8_t extruder=active_extruder);
     #endif
 
@@ -337,6 +350,8 @@
   #endif
 
   bool lcd_blink();
+
+  bool use_click();
 
   #if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(G26_MESH_VALIDATION)
     bool is_lcd_clicked();
@@ -368,29 +383,31 @@
 
 #endif
 
+#define HAS_DIGITAL_ENCODER (HAS_SPI_LCD && ENABLED(NEWPANEL))
+
+#if HAS_DIGITAL_ENCODER
+
+  // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
+  #define BLEN_A 0
+  #define BLEN_B 1
+
+  #define EN_A _BV(BLEN_A)
+  #define EN_B _BV(BLEN_B)
+
+  #if BUTTON_EXISTS(ENC)
+    #define BLEN_C 2
+    #define EN_C _BV(BLEN_C)
+  #endif
+
+  #if BUTTON_EXISTS(BACK)
+    #define BLEN_D 3
+    #define EN_D _BV(BLEN_D)
+    #define LCD_BACK_CLICKED (buttons & EN_D)
+  #endif
+
+#endif // HAS_DIGITAL_ENCODER
+
 #if HAS_LCD_MENU
-
-  #if HAS_DIGITAL_ENCODER
-
-    // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
-    #define BLEN_A 0
-    #define BLEN_B 1
-
-    #define EN_A _BV(BLEN_A)
-    #define EN_B _BV(BLEN_B)
-
-    #if BUTTON_EXISTS(ENC)
-      #define BLEN_C 2
-      #define EN_C _BV(BLEN_C)
-    #endif
-
-    #if BUTTON_EXISTS(BACK)
-      #define BLEN_D 3
-      #define EN_D _BV(BLEN_D)
-      #define LCD_BACK_CLICKED (buttons & EN_D)
-    #endif
-
-  #endif // NEWPANEL
 
   extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
   void lcd_buttons_update();

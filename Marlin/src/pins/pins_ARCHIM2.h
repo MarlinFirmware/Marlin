@@ -36,7 +36,7 @@
  */
 
 #ifndef __SAM3X8E__
-  #error "Oops!  Make sure you have 'Archim' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #endif
 
 //
