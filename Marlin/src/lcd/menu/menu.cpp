@@ -36,7 +36,7 @@
   #include "../../module/configuration_store.h"
 #endif
 
-#if WATCH_HOTENDS || WATCH_THE_BED
+#if WATCH_HOTENDS || WATCH_THE_BED || ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../module/temperature.h"
 #endif
 
