@@ -35,7 +35,7 @@
 
 #define CHARSIZE 2
 
-#define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.") 
+#define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
 
 #define MSG_BACK                            _UxGT("Voltar")
 #define MSG_SD_INSERTED                     _UxGT("Cartão inserido")
