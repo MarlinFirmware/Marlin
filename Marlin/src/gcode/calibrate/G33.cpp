@@ -522,7 +522,7 @@ void GcodeSuite::G33() {
   if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
   if (set_up) SERIAL_PROTOCOLPGM("  (SET-UP)");
   SERIAL_EOL();
-  lcd_setstatusPGM(checkingac);
+  ui.setstatusPGM(checkingac);
 
   print_calibration_settings(_endstop_results, _angle_results);
 
@@ -683,7 +683,7 @@ void GcodeSuite::G33() {
           sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0));
         else
           sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev_min));
-        lcd_setstatus(mess);
+        ui.setstatus(mess);
         print_calibration_settings(_endstop_results, _angle_results);
         serialprintPGM(save_message);
         SERIAL_EOL();
@@ -699,7 +699,7 @@ void GcodeSuite::G33() {
         SERIAL_PROTOCOLPGM("std dev:");
         SERIAL_PROTOCOL_F(zero_std_dev, 3);
         SERIAL_EOL();
-        lcd_setstatus(mess);
+        ui.setstatus(mess);
         if (verbose_level > 1)
           print_calibration_settings(_endstop_results, _angle_results);
       }
@@ -719,7 +719,7 @@ void GcodeSuite::G33() {
         sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev * 1000.0));
       else
         sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev));
-      lcd_setstatus(mess);
+      ui.setstatus(mess);
     }
     ac_home();
   }

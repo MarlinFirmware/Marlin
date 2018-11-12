@@ -30,6 +30,7 @@
 #include "../../module/motion.h"
 #include "../../gcode/queue.h"
 #include "../../sd/cardreader.h"
+#include "../../libs/buzzer.h"
 
 #if ENABLED(EEPROM_SETTINGS)
   #include "../../module/configuration_store.h"
@@ -59,7 +60,7 @@ typedef struct {
 } menuPosition;
 menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
-bool screen_changed, defer_return_to_status;
+bool screen_changed;
 
 // Value Editing
 PGM_P editLabel;
@@ -75,9 +76,9 @@ bool no_reentry = false;
 //////// Menu Navigation & History /////////
 ////////////////////////////////////////////
 
-void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
+void MarlinUI::return_to_status() { goto_screen(status_screen); }
 
-void lcd_save_previous_screen() {
+void MarlinUI::save_previous_screen() {
   if (screen_history_depth < COUNT(screen_history)) {
     screen_history[screen_history_depth].menu_function = currentScreen;
     screen_history[screen_history_depth].encoder_position = encoderPosition;
@@ -85,31 +86,23 @@ void lcd_save_previous_screen() {
   }
 }
 
-void lcd_goto_previous_menu() {
+void MarlinUI::goto_previous_screen() {
   if (screen_history_depth > 0) {
     --screen_history_depth;
-    lcd_goto_screen(
+    goto_screen(
       screen_history[screen_history_depth].menu_function,
       screen_history[screen_history_depth].encoder_position
     );
   }
   else
-    lcd_return_to_status();
-}
-
-void lcd_goto_previous_menu_no_defer() {
-  defer_return_to_status = false;
-  lcd_goto_previous_menu();
+    return_to_status();
 }
 
 ////////////////////////////////////////////
 /////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
-void _menu_action_back() { lcd_goto_previous_menu(); }
-void menu_action_submenu(screenFunc_t func) { lcd_save_previous_screen(); lcd_goto_screen(func); }
-void menu_action_gcode(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
-void menu_action_function(screenFunc_t func) { (*func)(); }
+void menu_item_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -118,76 +111,70 @@ void menu_action_function(screenFunc_t func) { (*func)(); }
 /**
  * Functions for editing single values
  *
- * The "DEFINE_MENU_EDIT_TYPE" macro generates the functions needed to edit a numerical value.
+ * The "DEFINE_MENU_EDIT_ITEM" macro generates the functions needed to edit a numerical value.
  *
- * For example, DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1) expands into these functions:
+ * The prerequisite is that in the header the type was already declared:
  *
- *   bool _menu_edit_int3();
- *   void menu_edit_int3(); // edit int16_t (interactively)
- *   void menu_edit_callback_int3(); // edit int16_t (interactively) with callback on completion
- *   void _menu_action_setting_edit_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
- *   void menu_action_setting_edit_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue);
- *   void menu_action_setting_edit_callback_int3(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback, const bool live); // edit int16_t with callback
+ *   DECLARE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1)
+ *
+ * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into these functions:
+ *
+ *   bool menu_item_int3::_edit();
+ *   void menu_item_int3::edit(); // edit int16_t (interactively)
+ *   void menu_item_int3::action_setting_edit(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback = null, const bool live = false);
  *
  * You can then use one of the menu macros to present the edit interface:
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
  *
  * This expands into a more primitive menu item:
- *   MENU_ITEM(setting_edit_int3, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *   MENU_ITEM_VARIANT(int3, _setting_edit, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  * ...which calls:
- *       menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *       menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  */
-#define DEFINE_MENU_EDIT_TYPE(TYPE, NAME, STRFUNC, SCALE) \
-  bool _menu_edit_ ## NAME() { \
-    ENCODER_DIRECTION_NORMAL(); \
-    if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
-    if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue; \
-    if (lcdDrawUpdate) \
-      lcd_implementation_drawedit(editLabel, STRFUNC(((TYPE)((int32_t)encoderPosition + minEditValue)) * (1.0f / SCALE))); \
-    if (lcd_clicked || (liveEdit && lcdDrawUpdate)) { \
-      TYPE value = ((TYPE)((int32_t)encoderPosition + minEditValue)) * (1.0f / SCALE); \
-      if (editValue != NULL) *((TYPE*)editValue) = value; \
-      if (callbackFunc && (liveEdit || lcd_clicked)) (*callbackFunc)(); \
-      if (lcd_clicked) lcd_goto_previous_menu(); \
-    } \
-    return use_click(); \
-  } \
-  void menu_edit_ ## NAME() { _menu_edit_ ## NAME(); } \
-  void _menu_action_setting_edit_ ## NAME(PGM_P const pstr, TYPE* const ptr, const TYPE minValue, const TYPE maxValue) { \
-    lcd_save_previous_screen(); \
-    lcd_refresh(); \
-    \
-    editLabel = pstr; \
-    editValue = ptr; \
-    minEditValue = minValue * SCALE; \
-    maxEditValue = maxValue * SCALE - minEditValue; \
-    encoderPosition = (*ptr) * SCALE - minEditValue; \
-  } \
-  void menu_action_setting_edit_callback_ ## NAME(PGM_P const pstr, TYPE * const ptr, const TYPE minValue, const TYPE maxValue, const screenFunc_t callback/*=NULL*/, const bool live/*=false*/) { \
-    _menu_action_setting_edit_ ## NAME(pstr, ptr, minValue, maxValue); \
-    currentScreen = menu_edit_ ## NAME; \
-    callbackFunc = callback; \
-    liveEdit = live; \
-  } \
-  typedef void NAME##_void
+void MenuItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
+  ui.encoder_direction_normal();
+  if ((int32_t)ui.encoderPosition < 0) ui.encoderPosition = 0;
+  if ((int32_t)ui.encoderPosition > maxEditValue) ui.encoderPosition = maxEditValue;
+  if (ui.should_draw())
+    draw_edit_screen(editLabel, strfunc(ui.encoderPosition + minEditValue));
+  if (ui.lcd_clicked || (liveEdit && ui.should_draw())) {
+    if (editValue != NULL) loadfunc(editValue, ui.encoderPosition + minEditValue);
+    if (callbackFunc && (liveEdit || ui.lcd_clicked)) (*callbackFunc)();
+    if (ui.use_click()) ui.goto_previous_screen();
+  }
+}
 
-DEFINE_MENU_EDIT_TYPE(int16_t, int3, itostr3, 1);
-DEFINE_MENU_EDIT_TYPE(int16_t, int4, itostr4sign, 1);
-DEFINE_MENU_EDIT_TYPE(uint8_t, int8, i8tostr3, 1);
-DEFINE_MENU_EDIT_TYPE(float, float3, ftostr3, 1);
-DEFINE_MENU_EDIT_TYPE(float, float52, ftostr52, 100);
-DEFINE_MENU_EDIT_TYPE(float, float43, ftostr43sign, 1000);
-DEFINE_MENU_EDIT_TYPE(float, float5, ftostr5rj, 0.01f);
-DEFINE_MENU_EDIT_TYPE(float, float51, ftostr51sign, 10);
-DEFINE_MENU_EDIT_TYPE(float, float52sign, ftostr52sign, 100);
-DEFINE_MENU_EDIT_TYPE(float, float62, ftostr62rj, 100);
-DEFINE_MENU_EDIT_TYPE(uint32_t, long5, ftostr5rj, 0.01f);
+void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, const int32_t maxv, const uint32_t ep, const screenFunc_t cs, const screenFunc_t cb, const bool le) {
+  ui.save_previous_screen();
+  ui.refresh();
+  editLabel = el;
+  editValue = ev;
+  minEditValue = minv;
+  maxEditValue = maxv;
+  ui.encoderPosition = ep;
+  ui.currentScreen = cs;
+  callbackFunc = cb;
+  liveEdit = le;
+}
 
-void menu_action_setting_edit_bool(PGM_P pstr, bool* ptr) { UNUSED(pstr); *ptr ^= true; lcd_refresh(); }
-void menu_action_setting_edit_callback_bool(PGM_P pstr, bool* ptr, screenFunc_t callback) {
-  menu_action_setting_edit_bool(pstr, ptr);
-  (*callback)();
+#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<NAME ## _item_info>;
+
+DEFINE_MENU_EDIT_ITEM(int3);
+DEFINE_MENU_EDIT_ITEM(int4);
+DEFINE_MENU_EDIT_ITEM(int8);
+DEFINE_MENU_EDIT_ITEM(float3);
+DEFINE_MENU_EDIT_ITEM(float52);
+DEFINE_MENU_EDIT_ITEM(float43);
+DEFINE_MENU_EDIT_ITEM(float5);
+DEFINE_MENU_EDIT_ITEM(float51);
+DEFINE_MENU_EDIT_ITEM(float52sign);
+DEFINE_MENU_EDIT_ITEM(float62);
+DEFINE_MENU_EDIT_ITEM(long5);
+
+void menu_item_bool::action_setting_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
+  UNUSED(pstr); *ptr ^= true; ui.refresh();
+  if (callback) (*callback)();
 }
 
 ////////////////////////////////////////////
@@ -204,7 +191,7 @@ bool printer_busy() { return planner.movesplanned() || IS_SD_PRINTING(); }
 /**
  * General function to go directly to a screen
  */
-void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
+void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
   if (currentScreen != screen) {
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -217,10 +204,10 @@ void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
       // Going to menu_main from status screen? Remember first click time.
       // Going back to status screen within a very short time? Go to Z babystepping.
       if (screen == menu_main) {
-        if (currentScreen == lcd_status_screen)
+        if (on_status_screen())
           doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
       }
-      else if (screen == lcd_status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
+      else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
         if (printer_busy()) {
           screen =
             #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -241,25 +228,25 @@ void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
 
     currentScreen = screen;
     encoderPosition = encoder;
-    if (screen == lcd_status_screen) {
-      defer_return_to_status = false;
+    if (screen == status_screen) {
+      ui.defer_status_screen(false);
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         ubl.lcd_map_control = false;
       #endif
       screen_history_depth = 0;
     }
 
-    lcd_implementation_clear();
+    clear_lcd();
 
     // Re-initialize custom characters that may be re-used
     #if HAS_CHARACTER_LCD
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         if (!ubl.lcd_map_control)
       #endif
-          LCD_SET_CHARSET(screen == lcd_status_screen ? CHARSET_INFO : CHARSET_MENU);
+          LCD_SET_CHARSET(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
     #endif
 
-    lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+    refresh(LCDVIEW_CALL_REDRAW_NEXT);
     screen_changed = true;
     #if HAS_GRAPHICAL_LCD
       drawing_screen = false;
@@ -278,24 +265,24 @@ void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
 //
 static PGM_P sync_message;
 
-void _lcd_synchronize() {
-  if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, sync_message);
+void MarlinUI::_synchronize() {
+  if (should_draw()) draw_menu_item_static(LCD_HEIGHT >= 4 ? 1 : 0, sync_message);
   if (no_reentry) return;
   // Make this the current handler till all moves are done
   no_reentry = true;
   const screenFunc_t old_screen = currentScreen;
-  lcd_goto_screen(_lcd_synchronize);
+  goto_screen(_synchronize);
   planner.synchronize(); // idle() is called until moves complete
   no_reentry = false;
-  lcd_goto_screen(old_screen);
+  goto_screen(old_screen);
 }
 
 // Display the synchronize screen with a custom message
 // ** This blocks the command queue! **
-void lcd_synchronize(PGM_P const msg/*=NULL*/) {
+void MarlinUI::synchronize(PGM_P const msg/*=NULL*/) {
   static const char moving[] PROGMEM = MSG_MOVING;
   sync_message = msg ? msg : moving;
-  _lcd_synchronize();
+  _synchronize();
 }
 
 /**
@@ -310,16 +297,16 @@ void lcd_synchronize(PGM_P const msg/*=NULL*/) {
  */
 int8_t encoderLine, screen_items;
 void scroll_screen(const uint8_t limit, const bool is_menu) {
-  ENCODER_DIRECTION_MENUS();
+  ui.encoder_direction_menus();
   ENCODER_RATE_MULTIPLY(false);
-  if (encoderPosition > 0x8000) encoderPosition = 0;
-  if (first_page) {
-    encoderLine = encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM);
+  if (ui.encoderPosition > 0x8000) ui.encoderPosition = 0;
+  if (ui.first_page) {
+    encoderLine = ui.encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM);
     screen_changed = false;
   }
   if (screen_items > 0 && encoderLine >= screen_items - limit) {
     encoderLine = MAX(0, screen_items - limit);
-    encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM);
+    ui.encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM);
   }
   if (is_menu) {
     NOMORE(encoderTopLine, encoderLine);
@@ -330,12 +317,12 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
     encoderTopLine = encoderLine;
 }
 
-void lcd_completion_feedback(const bool good/*=true*/) {
+void MarlinUI::completion_feedback(const bool good/*=true*/) {
   if (good) {
-    lcd_buzz(100, 659);
-    lcd_buzz(100, 698);
+    BUZZ(100, 659);
+    BUZZ(100, 698);
   }
-  else lcd_buzz(20, 440);
+  else BUZZ(20, 440);
 }
 
 #if HAS_LINE_TO_Z
@@ -350,17 +337,17 @@ void lcd_completion_feedback(const bool good/*=true*/) {
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
   void lcd_babystep_zoffset() {
-    if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
-    defer_return_to_status = true;
+    if (ui.use_click()) return ui.goto_previous_screen_no_defer();
+    ui.defer_status_screen(true);
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
       const bool do_probe = (active_extruder == 0);
     #else
       constexpr bool do_probe = true;
     #endif
-    ENCODER_DIRECTION_NORMAL();
-    if (encoderPosition) {
-      const int16_t babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
-      encoderPosition = 0;
+    ui.encoder_direction_normal();
+    if (ui.encoderPosition) {
+      const int16_t babystep_increment = (int32_t)ui.encoderPosition * (BABYSTEP_MULTIPLICATOR);
+      ui.encoderPosition = 0;
 
       const float diff = planner.steps_to_mm[Z_AXIS] * babystep_increment,
                   new_probe_offset = zprobe_zoffset + diff,
@@ -380,16 +367,16 @@ void lcd_completion_feedback(const bool good/*=true*/) {
           else hotend_offset[Z_AXIS][active_extruder] = new_offs;
         #endif
 
-        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+        ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       }
     }
-    if (lcdDrawUpdate) {
+    if (ui.should_draw()) {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
         if (!do_probe)
-          lcd_implementation_drawedit(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
+          draw_edit_screen(PSTR(MSG_IDEX_Z_OFFSET), ftostr43sign(hotend_offset[Z_AXIS][active_extruder]));
         else
       #endif
-          lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+          draw_edit_screen(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
 
       #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY)
         if (do_probe) _lcd_zoffset_overlay_gfx(zprobe_zoffset);
@@ -449,14 +436,14 @@ void watch_temp_callback_bed() {
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
-  void lcd_store_settings()   { lcd_completion_feedback(settings.save()); }
-  void lcd_load_settings()    { lcd_completion_feedback(settings.load()); }
+  void lcd_store_settings()   { ui.completion_feedback(settings.save()); }
+  void lcd_load_settings()    { ui.completion_feedback(settings.load()); }
 #endif
 
 void _lcd_draw_homing() {
   constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
-  if (lcdDrawUpdate) lcd_implementation_drawmenu_static(line, PSTR(MSG_LEVEL_BED_HOMING));
-  lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+  if (ui.should_draw()) draw_menu_item_static(line, PSTR(MSG_LEVEL_BED_HOMING));
+  ui.refresh(LCDVIEW_CALL_NO_REDRAW);
 }
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))

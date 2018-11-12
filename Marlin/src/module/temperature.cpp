@@ -498,7 +498,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
 
         return;
       }
-      lcd_update();
+      ui.update();
     }
     disable_all_heaters();
     #if ENABLED(PRINTER_EVENT_LEDS)
@@ -2123,7 +2123,7 @@ void Temperature::isr() {
   // Update lcd buttons 488 times per second
   //
   static bool do_buttons;
-  if ((do_buttons ^= true)) lcd_buttons_update();
+  if ((do_buttons ^= true)) ui.update_buttons();
 
   /**
    * One sensor is sampled on every other call of the ISR.
@@ -2425,9 +2425,9 @@ void Temperature::isr() {
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       #if HOTENDS > 1
-        lcd_status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), int(e + 1));
+        ui.status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), int(e + 1));
       #else
-        lcd_setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
+        ui.setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
       #endif
     }
   #endif
@@ -2441,7 +2441,11 @@ void Temperature::isr() {
       #define MIN_COOLING_SLOPE_TIME 60
     #endif
 
-    bool Temperature::wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling/*=true*/) {
+    bool Temperature::wait_for_hotend(const uint8_t target_extruder, const bool no_wait_for_cooling/*=true*/
+      #if G26_CLICK_CAN_CANCEL
+        , const bool click_to_cancel/*=false*/
+      #endif
+    ) {
       #if TEMP_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
         // Loop until the temperature has stabilized
@@ -2525,10 +2529,17 @@ void Temperature::isr() {
           }
         }
 
+        #if G26_CLICK_CAN_CANCEL
+          if (click_to_cancel && ui.use_click()) {
+            wait_for_heatup = false;
+            ui.quick_feedback();
+          }
+        #endif
+
       } while (wait_for_heatup && TEMP_CONDITIONS);
 
       if (wait_for_heatup) {
-        lcd_reset_status();
+        ui.reset_status();
         #if ENABLED(PRINTER_EVENT_LEDS)
           printerEventLEDs.onHeatingDone();
         #endif
@@ -2552,7 +2563,11 @@ void Temperature::isr() {
       #define MIN_COOLING_SLOPE_TIME_BED 60
     #endif
 
-    void Temperature::wait_for_bed(const bool no_wait_for_cooling) {
+    bool Temperature::wait_for_bed(const bool no_wait_for_cooling
+      #if G26_CLICK_CAN_CANCEL
+        , const bool click_to_cancel/*=false*/
+      #endif
+    ) {
       #if TEMP_BED_RESIDENCY_TIME > 0
         millis_t residency_start_ms = 0;
         // Loop until the temperature has stabilized
@@ -2639,13 +2654,22 @@ void Temperature::isr() {
           }
         }
 
+        #if G26_CLICK_CAN_CANCEL
+          if (click_to_cancel && ui.use_click()) {
+            wait_for_heatup = false;
+            ui.quick_feedback();
+          }
+        #endif
+
       } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-      if (wait_for_heatup) lcd_reset_status();
+      if (wait_for_heatup) ui.reset_status();
 
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
         gcode.busy_state = old_busy_state;
       #endif
+
+      return wait_for_heatup;
     }
 
   #endif // HAS_HEATED_BED

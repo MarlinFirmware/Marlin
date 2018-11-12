@@ -39,60 +39,67 @@
 #endif
 
 void lcd_sd_updir() {
-  encoderPosition = card.updir() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
+  ui.encoderPosition = card.updir() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
   encoderTopLine = 0;
   screen_changed = true;
-  lcd_refresh();
+  ui.refresh();
 }
 
 #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+
   uint32_t last_sdfile_encoderPosition = 0xFFFF;
 
-  void lcd_reselect_last_file() {
+  void MarlinUI::reselect_last_file() {
     if (last_sdfile_encoderPosition == 0xFFFF) return;
-    #if HAS_GRAPHICAL_LCD
-      // Some of this is a hack to force the screen update to work.
-      // TODO: Fix the real issue that causes this!
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-      lcd_synchronize();
-      safe_delay(50);
-      lcd_synchronize();
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-      drawing_screen = screen_changed = true;
-    #endif
+    //#if HAS_GRAPHICAL_LCD
+    //  // This is a hack to force a screen update.
+    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+    //  ui.synchronize();
+    //  safe_delay(50);
+    //  ui.synchronize();
+    //  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+    //  ui.drawing_screen = screen_changed = true;
+    //#endif
 
-    lcd_goto_screen(menu_sdcard, last_sdfile_encoderPosition);
-    defer_return_to_status = true;
+    goto_screen(menu_sdcard, last_sdfile_encoderPosition);
     last_sdfile_encoderPosition = 0xFFFF;
 
-    #if HAS_GRAPHICAL_LCD
-      lcd_update();
-    #endif
+    defer_status_screen(true);
+
+    //#if HAS_GRAPHICAL_LCD
+    //  update();
+    //#endif
   }
 #endif
 
-void menu_action_sdfile(CardReader &theCard) {
-  #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-    last_sdfile_encoderPosition = encoderPosition;  // Save which file was selected for later use
-  #endif
-  card.openAndPrintFile(theCard.filename);
-  lcd_return_to_status();
-  lcd_reset_status();
-}
+class menu_item_sdfile {
+  public:
+    static void action(CardReader &theCard) {
+      #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+        last_sdfile_encoderPosition = ui.encoderPosition;  // Save which file was selected for later use
+      #endif
+      card.openAndPrintFile(theCard.filename);
+      ui.return_to_status();
+      ui.reset_status();
+    }
+};
 
-void menu_action_sddirectory(CardReader &theCard) {
-  card.chdir(theCard.filename);
-  encoderTopLine = 0;
-  encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
-  screen_changed = true;
-  #if HAS_GRAPHICAL_LCD
-    drawing_screen = false;
-  #endif
-  lcd_refresh();
-}
+class menu_item_sdfolder {
+  public:
+    static void action(CardReader &theCard) {
+      card.chdir(theCard.filename);
+      encoderTopLine = 0;
+      ui.encoderPosition = 2 * ENCODER_STEPS_PER_MENU_ITEM;
+      screen_changed = true;
+      #if HAS_GRAPHICAL_LCD
+        ui.drawing_screen = false;
+      #endif
+      ui.refresh();
+    }
+};
 
 void menu_sdcard() {
-  ENCODER_DIRECTION_MENUS();
+  ui.encoder_direction_menus();
 
   const uint16_t fileCnt = card.get_num_Files();
 
@@ -119,7 +126,7 @@ void menu_sdcard() {
       card.getfilename_sorted(nr);
 
       if (card.filenameIsDir)
-        MENU_ITEM(sddirectory, MSG_CARD_MENU, card);
+        MENU_ITEM(sdfolder, MSG_CARD_MENU, card);
       else
         MENU_ITEM(sdfile, MSG_CARD_MENU, card);
     }

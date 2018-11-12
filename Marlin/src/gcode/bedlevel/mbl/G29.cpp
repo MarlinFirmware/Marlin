@@ -39,7 +39,7 @@
 #include "../../../module/stepper.h"
 
 // Save 130 bytes with non-duplication of PSTR
-void echo_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
+inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_PROTOCOLLNPGM(" not entered."); }
 
 /**
  * G29: Mesh-based Z probe, probes a grid and produces a
@@ -90,7 +90,7 @@ void GcodeSuite::G29() {
     case MeshStart:
       mbl.reset();
       mbl_probe_index = 0;
-      if (!lcd_wait_for_move) {
+      if (!ui.wait_for_bl_move) {
         enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
         return;
       }
@@ -151,7 +151,7 @@ void GcodeSuite::G29() {
         #endif
 
         #if ENABLED(LCD_BED_LEVELING)
-          lcd_wait_for_move = false;
+          ui.wait_for_bl_move = false;
         #endif
       }
       break;
@@ -160,42 +160,36 @@ void GcodeSuite::G29() {
       if (parser.seenval('X')) {
         px = parser.value_int() - 1;
         if (!WITHIN(px, 0, GRID_MAX_POINTS_X - 1)) {
-          SERIAL_PROTOCOLLNPGM("X out of range (1-" STRINGIFY(GRID_MAX_POINTS_X) ").");
+          SERIAL_PROTOCOLPAIR("X out of range (0-", int(GRID_MAX_POINTS_X));
+          SERIAL_PROTOCOLLNPGM(")");
           return;
         }
       }
-      else {
-        SERIAL_CHAR('X'); echo_not_entered();
-        return;
-      }
+      else
+        return echo_not_entered('X');
 
       if (parser.seenval('Y')) {
         py = parser.value_int() - 1;
         if (!WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
-          SERIAL_PROTOCOLLNPGM("Y out of range (1-" STRINGIFY(GRID_MAX_POINTS_Y) ").");
+          SERIAL_PROTOCOLPAIR("Y out of range (0-", int(GRID_MAX_POINTS_Y));
+          SERIAL_PROTOCOLLNPGM(")");
           return;
         }
       }
-      else {
-        SERIAL_CHAR('Y'); echo_not_entered();
-        return;
-      }
+      else
+        return echo_not_entered('Y');
 
       if (parser.seenval('Z'))
         mbl.z_values[px][py] = parser.value_linear_units();
-      else {
-        SERIAL_CHAR('Z'); echo_not_entered();
-        return;
-      }
+      else
+        return echo_not_entered('Z');
       break;
 
     case MeshSetZOffset:
       if (parser.seenval('Z'))
         mbl.z_offset = parser.value_linear_units();
-      else {
-        SERIAL_CHAR('Z'); echo_not_entered();
-        return;
-      }
+      else
+        return echo_not_entered('Z');
       break;
 
     case MeshReset:

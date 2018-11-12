@@ -25,7 +25,7 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops! Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
 #if HOTENDS > 5 || E_STEPPERS > 5
@@ -174,4 +174,3 @@
   #define SPINDLE_LASER_ENABLE_PIN 20   // Pin should have a pullup!
   #define SPINDLE_DIR_PIN          21
 #endif
-

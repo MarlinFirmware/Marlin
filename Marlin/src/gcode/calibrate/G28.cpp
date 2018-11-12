@@ -192,14 +192,22 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
   #endif
 
-  if (all_axes_known() && parser.boolval('O')) { // home only if needed
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("> homing not needed, skip");
-        SERIAL_ECHOLNPGM("<<< G28");
-      }
-    #endif
-    return;
+  if (parser.boolval('O')) {
+    if (
+      #if ENABLED(HOME_AFTER_DEACTIVATE)
+        all_axes_known()  // homing needed anytime steppers deactivate
+      #else
+        all_axes_homed()  // homing needed only if never homed
+      #endif
+    ) {
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOLNPGM("> homing not needed, skip");
+          SERIAL_ECHOLNPGM("<<< G28");
+        }
+      #endif
+      return;
+    }
   }
 
   // Wait for planner moves to finish!
@@ -417,7 +425,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     tool_change(old_tool_index, 0, NO_FETCH);
   #endif
 
-  lcd_refresh();
+  ui.refresh();
 
   report_current_position();
   #if ENABLED(NANODLP_Z_SYNC)

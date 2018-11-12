@@ -51,22 +51,22 @@ float mesh_edit_value, mesh_edit_accumulator; // We round mesh_edit_value to 2.5
 static int16_t ubl_encoderPosition = 0;
 
 static void _lcd_mesh_fine_tune(PGM_P msg) {
-  defer_return_to_status = true;
+  ui.defer_status_screen(true);
   if (ubl.encoder_diff) {
     ubl_encoderPosition = (ubl.encoder_diff > 0) ? 1 : -1;
     ubl.encoder_diff = 0;
 
     mesh_edit_accumulator += float(ubl_encoderPosition) * 0.005f * 0.5f;
     mesh_edit_value = mesh_edit_accumulator;
-    encoderPosition = 0;
-    lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+    ui.encoderPosition = 0;
+    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
 
     const int32_t rounded = (int32_t)(mesh_edit_value * 1000);
     mesh_edit_value = float(rounded - (rounded % 5L)) / 1000;
   }
 
-  if (lcdDrawUpdate) {
-    lcd_implementation_drawedit(msg, ftostr43sign(mesh_edit_value));
+  if (ui.should_draw()) {
+    draw_edit_screen(msg, ftostr43sign(mesh_edit_value));
     #if ENABLED(MESH_EDIT_GFX_OVERLAY)
       _lcd_zoffset_overlay_gfx(mesh_edit_value);
     #endif
@@ -74,19 +74,19 @@ static void _lcd_mesh_fine_tune(PGM_P msg) {
 }
 
 void _lcd_mesh_edit_NOP() {
-  defer_return_to_status = true;
+  ui.defer_status_screen(true);
 }
 
 float lcd_mesh_edit() {
-  lcd_goto_screen(_lcd_mesh_edit_NOP);
-  lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+  ui.goto_screen(_lcd_mesh_edit_NOP);
+  ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   _lcd_mesh_fine_tune(PSTR("Mesh Editor"));
   return mesh_edit_value;
 }
 
 void lcd_mesh_edit_setup(const float &initial) {
   mesh_edit_value = mesh_edit_accumulator = initial;
-  lcd_goto_screen(_lcd_mesh_edit_NOP);
+  ui.goto_screen(_lcd_mesh_edit_NOP);
 }
 
 void _lcd_z_offset_edit() {
@@ -94,13 +94,13 @@ void _lcd_z_offset_edit() {
 }
 
 float lcd_z_offset_edit() {
-  lcd_goto_screen(_lcd_z_offset_edit);
+  ui.goto_screen(_lcd_z_offset_edit);
   return mesh_edit_value;
 }
 
 void lcd_z_offset_edit_setup(const float &initial) {
   mesh_edit_value = mesh_edit_accumulator = initial;
-  lcd_goto_screen(_lcd_z_offset_edit);
+  ui.goto_screen(_lcd_z_offset_edit);
 }
 
 /**
@@ -158,9 +158,9 @@ void _lcd_ubl_adjust_height_cmd() {
  */
 void _menu_ubl_height_adjust() {
   START_MENU();
-  MENU_BACK(MSG_UBL_EDIT_MESH_MENU);
+  MENU_BACK(MSG_EDIT_MESH);
   MENU_ITEM_EDIT_CALLBACK(int3, MSG_UBL_MESH_HEIGHT_AMOUNT, &ubl_height_amount, -9, 9, _lcd_ubl_adjust_height_cmd);
-  MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
+  MENU_ITEM(function, MSG_WATCH, ui.return_to_status);
   END_MENU();
 }
 
@@ -179,7 +179,7 @@ void _lcd_ubl_edit_mesh() {
   MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_ALL, PSTR("G29 P4 R999 T"));
   MENU_ITEM(gcode, MSG_UBL_FINE_TUNE_CLOSEST, PSTR("G29 P4 T"));
   MENU_ITEM(submenu, MSG_UBL_MESH_HEIGHT_ADJUST, _menu_ubl_height_adjust);
-  MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
+  MENU_ITEM(function, MSG_WATCH, ui.return_to_status);
   END_MENU();
 }
 
@@ -220,7 +220,7 @@ void _lcd_ubl_validate_mesh() {
     MENU_ITEM(gcode, MSG_UBL_VALIDATE_MESH_M2, PSTR("G28\nG26 C B0 H" STRINGIFY(PREHEAT_2_TEMP_HOTEND) " P"));
   #endif
   MENU_ITEM(function, MSG_UBL_VALIDATE_CUSTOM_MESH, _lcd_ubl_validate_custom_mesh);
-  MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
+  MENU_ITEM(function, MSG_WATCH, ui.return_to_status);
   END_MENU();
 }
 
@@ -261,7 +261,7 @@ void _lcd_ubl_mesh_leveling() {
   MENU_BACK(MSG_UBL_TOOLS);
   MENU_ITEM(gcode, MSG_UBL_3POINT_MESH_LEVELING, PSTR("G29 J0"));
   MENU_ITEM(submenu, MSG_UBL_GRID_MESH_LEVELING, _lcd_ubl_grid_level);
-  MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
+  MENU_ITEM(function, MSG_WATCH, ui.return_to_status);
   END_MENU();
 }
 
@@ -290,7 +290,7 @@ void _menu_ubl_fillin() {
   MENU_ITEM_EDIT_CALLBACK(int3, MSG_UBL_FILLIN_AMOUNT, &ubl_fillin_amount, 0, 9, _lcd_ubl_fillin_amount_cmd);
   MENU_ITEM(gcode, MSG_UBL_SMART_FILLIN, PSTR("G29 P3 T0"));
   MENU_ITEM(gcode, MSG_UBL_MANUAL_FILLIN, PSTR("G29 P2 B T0"));
-  MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
+  MENU_ITEM(function, MSG_WATCH, ui.return_to_status);
   END_MENU();
 }
 
@@ -353,7 +353,7 @@ void _lcd_ubl_build_mesh() {
   MENU_ITEM(gcode, MSG_UBL_CONTINUE_MESH, PSTR("G29 P1 C"));
   MENU_ITEM(function, MSG_UBL_INVALIDATE_ALL, _lcd_ubl_invalidate);
   MENU_ITEM(gcode, MSG_UBL_INVALIDATE_CLOSEST, PSTR("G29 I"));
-  MENU_ITEM(function, MSG_WATCH, lcd_return_to_status);
+  MENU_ITEM(function, MSG_WATCH, ui.return_to_status);
   END_MENU();
 }
 
@@ -408,11 +408,11 @@ void _lcd_ubl_storage_mesh() {
 void _lcd_ubl_output_map_lcd();
 
 void _lcd_ubl_map_homing() {
-  defer_return_to_status = true;
+  ui.defer_status_screen(true);
   _lcd_draw_homing();
   if (all_axes_homed()) {
     ubl.lcd_map_control = true; // Return to the map screen
-    lcd_goto_screen(_lcd_ubl_output_map_lcd);
+    ui.goto_screen(_lcd_ubl_output_map_lcd);
   }
 }
 
@@ -444,10 +444,10 @@ void sync_plan_position();
 
 void _lcd_do_nothing() {}
 void _lcd_hard_stop() {
-  const screenFunc_t old_screen = currentScreen;
-  currentScreen = _lcd_do_nothing;
+  const screenFunc_t old_screen = ui.currentScreen;
+  ui.currentScreen = _lcd_do_nothing;
   planner.quick_stop();
-  currentScreen = old_screen;
+  ui.currentScreen = old_screen;
   set_current_from_steppers_for_axis(ALL_AXES);
   sync_plan_position();
 }
@@ -455,15 +455,15 @@ void _lcd_hard_stop() {
 void _lcd_ubl_output_map_lcd() {
   static int16_t step_scaler = 0;
 
-  if (use_click()) return _lcd_ubl_map_lcd_edit_cmd();
-  ENCODER_DIRECTION_NORMAL();
+  if (ui.use_click()) return _lcd_ubl_map_lcd_edit_cmd();
+  ui.encoder_direction_normal();
 
-  if (encoderPosition) {
-    step_scaler += (int32_t)encoderPosition;
+  if (ui.encoderPosition) {
+    step_scaler += (int32_t)ui.encoderPosition;
     x_plot += step_scaler / (ENCODER_STEPS_PER_MENU_ITEM);
     if (ABS(step_scaler) >= ENCODER_STEPS_PER_MENU_ITEM) step_scaler = 0;
-    encoderPosition = 0;
-    lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+    ui.encoderPosition = 0;
+    ui.refresh(LCDVIEW_REDRAW_NOW);
   }
 
   // Encoder to the right (++)
@@ -487,8 +487,8 @@ void _lcd_ubl_output_map_lcd() {
     n_edit_pts = yc ? (xc ? 9 : 6) : (xc ? 6 : 4); // Corners
   #endif
 
-  if (lcdDrawUpdate) {
-    lcd_implementation_ubl_plot(x_plot, y_plot);
+  if (ui.should_draw()) {
+    ui.ubl_plot(x_plot, y_plot);
 
     if (planner.movesplanned()) // If the nozzle is already moving, cancel the move.
       _lcd_hard_stop();
@@ -505,7 +505,7 @@ void _lcd_ubl_output_map_lcd_cmd() {
     set_all_unhomed();
     enqueue_and_echo_commands_P(PSTR("G28"));
   }
-  lcd_goto_screen(_lcd_ubl_map_homing);
+  ui.goto_screen(_lcd_ubl_map_homing);
 }
 
 /**
@@ -542,7 +542,7 @@ void _menu_ubl_tools() {
   MENU_ITEM(submenu, MSG_UBL_BUILD_MESH_MENU, _lcd_ubl_build_mesh);
   MENU_ITEM(gcode, MSG_UBL_MANUAL_MESH, PSTR("G29 I999\nG29 P2 B T0"));
   MENU_ITEM(submenu, MSG_UBL_VALIDATE_MESH_MENU, _lcd_ubl_validate_mesh);
-  MENU_ITEM(submenu, MSG_UBL_EDIT_MESH_MENU, _lcd_ubl_edit_mesh);
+  MENU_ITEM(submenu, MSG_EDIT_MESH, _lcd_ubl_edit_mesh);
   MENU_ITEM(submenu, MSG_UBL_MESH_LEVELING, _lcd_ubl_mesh_leveling);
   END_MENU();
 }

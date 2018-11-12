@@ -43,10 +43,6 @@
   #define NOT_A_PIN 0 // For PINS_DEBUGGING
 #endif
 
-#define IS_SCARA (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA))
-#define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
-#define IS_CARTESIAN !IS_KINEMATIC
-
 #define HAS_CLASSIC_JERK (IS_KINEMATIC || DISABLED(JUNCTION_DEVIATION))
 
 /**
@@ -1538,9 +1534,6 @@
   #define LCD_TIMEOUT_TO_STATUS 15000
 #endif
 
-// Shorthand
-#define GRID_MAX_POINTS ((GRID_MAX_POINTS_X) * (GRID_MAX_POINTS_Y))
-
 // Add commands that need sub-codes to this list
 #define USE_GCODE_SUBCODES ENABLED(G38_PROBE_TARGET) || ENABLED(CNC_COORDINATE_SYSTEMS) || ENABLED(POWER_LOSS_RECOVERY)
 
@@ -1626,7 +1619,7 @@
 // If platform requires early initialization of watchdog to properly boot
 #define EARLY_WATCHDOG (ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM))
 
-#define USE_EXECUTE_COMMANDS_IMMEDIATE ENABLED(G29_RETRY_AND_RECOVER)
+#define USE_EXECUTE_COMMANDS_IMMEDIATE (ENABLED(G29_RETRY_AND_RECOVER) || ENABLED(GCODE_MACROS))
 
 #if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
   #define Z_STEPPER_COUNT 3
@@ -1634,4 +1627,40 @@
   #define Z_STEPPER_COUNT 2
 #else
   #define Z_STEPPER_COUNT 1
+#endif
+
+// Get LCD character width/height, which may be overridden by pins, configs, etc.
+#if HAS_GRAPHICAL_LCD
+  #ifndef LCD_WIDTH
+    #ifdef LCD_WIDTH_OVERRIDE
+      #define LCD_WIDTH LCD_WIDTH_OVERRIDE
+    #elif ENABLED(LIGHTWEIGHT_UI)
+      #define LCD_WIDTH 16
+    #else
+      #define LCD_WIDTH 22
+    #endif
+  #endif
+  #ifndef LCD_HEIGHT
+    #ifdef LCD_HEIGHT_OVERRIDE
+      #define LCD_HEIGHT LCD_HEIGHT_OVERRIDE
+    #elif ENABLED(LIGHTWEIGHT_UI)
+      #define LCD_HEIGHT 4
+    #else
+      #define LCD_HEIGHT 5
+    #endif
+  #endif
+#elif ENABLED(ULTIPANEL)
+  #ifndef LCD_WIDTH
+    #define LCD_WIDTH 20
+  #endif
+  #ifndef LCD_HEIGHT
+    #define LCD_HEIGHT 4
+  #endif
+#elif HAS_SPI_LCD
+  #ifndef LCD_WIDTH
+    #define LCD_WIDTH 16
+  #endif
+  #ifndef LCD_HEIGHT
+    #define LCD_HEIGHT 2
+  #endif
 #endif

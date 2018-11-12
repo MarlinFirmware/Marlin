@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(LCD_BED_LEVELING)
+#if ENABLED(LCD_BED_LEVELING)
 
 #include "menu.h"
 #include "../../module/planner.h"
@@ -56,7 +56,7 @@
     #endif
   );
 
-  bool lcd_wait_for_move;
+  bool MarlinUI::wait_for_bl_move; // = false
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -70,17 +70,17 @@
   // ** This blocks the command queue! **
   //
   void _lcd_level_bed_done() {
-    if (!lcd_wait_for_move) {
+    if (!ui.wait_for_bl_move) {
       #if MANUAL_PROBE_HEIGHT > 0 && DISABLED(MESH_BED_LEVELING)
         // Display "Done" screen and wait for moves to complete
         line_to_z(MANUAL_PROBE_HEIGHT);
-        lcd_synchronize(PSTR(MSG_LEVEL_BED_DONE));
+        ui.synchronize(PSTR(MSG_LEVEL_BED_DONE));
       #endif
-      lcd_goto_previous_menu_no_defer();
-      lcd_completion_feedback();
+      ui.goto_previous_screen_no_defer();
+      ui.completion_feedback();
     }
-    if (lcdDrawUpdate) lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_LEVEL_BED_DONE));
-    lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+    if (ui.should_draw()) draw_menu_item_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_LEVEL_BED_DONE));
+    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   }
 
   void _lcd_level_goto_next_point();
@@ -89,9 +89,9 @@
   // Step 7: Get the Z coordinate, click goes to the next point or exits
   //
   void _lcd_level_bed_get_z() {
-    ENCODER_DIRECTION_NORMAL();
+    ui.encoder_direction_normal();
 
-    if (use_click()) {
+    if (ui.use_click()) {
 
       //
       // Save the current Z position and move
@@ -102,8 +102,8 @@
         //
         // The last G29 records the point and enables bed leveling
         //
-        lcd_wait_for_move = true;
-        lcd_goto_screen(_lcd_level_bed_done);
+        ui.wait_for_bl_move = true;
+        ui.goto_screen(_lcd_level_bed_done);
         #if ENABLED(MESH_BED_LEVELING)
           enqueue_and_echo_commands_P(PSTR("G29 S2"));
         #elif ENABLED(PROBE_MANUALLY)
@@ -119,19 +119,19 @@
     //
     // Encoder knob or keypad buttons adjust the Z position
     //
-    if (encoderPosition) {
-      const float z = current_position[Z_AXIS] + float((int32_t)encoderPosition) * (MBL_Z_STEP);
+    if (ui.encoderPosition) {
+      const float z = current_position[Z_AXIS] + float((int32_t)ui.encoderPosition) * (MESH_EDIT_Z_STEP);
       line_to_z(constrain(z, -(LCD_PROBE_Z_RANGE) * 0.5f, (LCD_PROBE_Z_RANGE) * 0.5f));
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
-      encoderPosition = 0;
+      ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+      ui.encoderPosition = 0;
     }
 
     //
     // Draw on first display, then only on Z change
     //
-    if (lcdDrawUpdate) {
+    if (ui.should_draw()) {
       const float v = current_position[Z_AXIS];
-      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
+      draw_edit_screen(PSTR(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001f : 0.0001f), '+'));
     }
   }
 
@@ -139,23 +139,23 @@
   // Step 6: Display "Next point: 1 / 9" while waiting for move to finish
   //
   void _lcd_level_bed_moving() {
-    if (lcdDrawUpdate) {
+    if (ui.should_draw()) {
       char msg[10];
       sprintf_P(msg, PSTR("%i / %u"), (int)(manual_probe_index + 1), total_probe_points);
-      lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_NEXT_POINT), msg);
+      draw_edit_screen(PSTR(MSG_LEVEL_BED_NEXT_POINT), msg);
     }
-    lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
-    if (!lcd_wait_for_move) lcd_goto_screen(_lcd_level_bed_get_z);
+    ui.refresh(LCDVIEW_CALL_NO_REDRAW);
+    if (!ui.wait_for_bl_move) ui.goto_screen(_lcd_level_bed_get_z);
   }
 
   //
   // Step 5: Initiate a move to the next point
   //
   void _lcd_level_goto_next_point() {
-    lcd_goto_screen(_lcd_level_bed_moving);
+    ui.goto_screen(_lcd_level_bed_moving);
 
     // G29 Records Z, moves, and signals when it pauses
-    lcd_wait_for_move = true;
+    ui.wait_for_bl_move = true;
     #if ENABLED(MESH_BED_LEVELING)
       enqueue_and_echo_commands_P(manual_probe_index ? PSTR("G29 S2") : PSTR("G29 S1"));
     #elif ENABLED(PROBE_MANUALLY)
@@ -168,8 +168,8 @@
   //         Move to the first probe position
   //
   void _lcd_level_bed_homing_done() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING));
-    if (use_click()) {
+    if (ui.should_draw()) draw_edit_screen(PSTR(MSG_LEVEL_BED_WAITING));
+    if (ui.use_click()) {
       manual_probe_index = 0;
       _lcd_level_goto_next_point();
     }
@@ -180,7 +180,7 @@
   //
   void _lcd_level_bed_homing() {
     _lcd_draw_homing();
-    if (all_axes_homed()) lcd_goto_screen(_lcd_level_bed_homing_done);
+    if (all_axes_homed()) ui.goto_screen(_lcd_level_bed_homing_done);
   }
 
   #if ENABLED(PROBE_MANUALLY)
@@ -191,13 +191,32 @@
   // Step 2: Continue Bed Leveling...
   //
   void _lcd_level_bed_continue() {
-    defer_return_to_status = true;
+    ui.defer_status_screen(true);
     set_all_unhomed();
-    lcd_goto_screen(_lcd_level_bed_homing);
+    ui.goto_screen(_lcd_level_bed_homing);
     enqueue_and_echo_commands_P(PSTR("G28"));
   }
 
 #endif // PROBE_MANUALLY || MESH_BED_LEVELING
+
+#if ENABLED(MESH_EDIT_MENU)
+
+  inline void refresh_planner() {
+    set_current_from_steppers_for_axis(ALL_AXES);
+    sync_plan_position();
+  }
+
+  void menu_edit_mesh() {
+    static uint8_t xind, yind; // =0
+    START_MENU();
+    MENU_BACK(MSG_BED_LEVELING);
+    MENU_ITEM_EDIT(int8, MSG_MESH_X, &xind, 0, GRID_MAX_POINTS_X - 1);
+    MENU_ITEM_EDIT(int8, MSG_MESH_Y, &yind, 0, GRID_MAX_POINTS_Y - 1);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(float43, MSG_MESH_EDIT_Z, &Z_VALUES(xind, yind), -(LCD_PROBE_Z_RANGE) * 0.5, (LCD_PROBE_Z_RANGE) * 0.5, refresh_planner);
+    END_MENU();
+  }
+
+#endif // MESH_EDIT_MENU
 
 /**
  * Step 1: Bed Level entry-point
@@ -233,6 +252,11 @@ void menu_bed_leveling() {
     MENU_ITEM(gcode, MSG_LEVEL_BED, is_homed ? PSTR("G29") : PSTR("G28\nG29"));
   #endif
 
+  #if ENABLED(MESH_EDIT_MENU)
+    if (leveling_is_valid())
+      MENU_ITEM(submenu, MSG_EDIT_MESH, menu_edit_mesh);
+  #endif
+
   // Homed and leveling is valid? Then leveling can be toggled.
   if (is_homed && leveling_is_valid()) {
     bool new_level_state = planner.leveling_active;
@@ -245,7 +269,7 @@ void menu_bed_leveling() {
   #endif
 
   //
-  // MBL Z Offset
+  // Mesh Bed Leveling Z-Offset
   //
   #if ENABLED(MESH_BED_LEVELING)
     MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
@@ -268,4 +292,4 @@ void menu_bed_leveling() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && LCD_BED_LEVELING
+#endif // LCD_BED_LEVELING

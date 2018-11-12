@@ -58,4 +58,3 @@ constexpr bool
       || true
     #endif
   );
-

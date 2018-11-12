@@ -195,17 +195,6 @@
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
-#if ENABLED(SINGLENOZZLE)
-  // Parameters for filament retract / prime on toolchange
-  #define SINGLENOZZLE_SWAP_LENGTH          12  // (mm)
-  #define SINGLENOZZLE_SWAP_RETRACT_SPEED 3600  // (mm/m)
-  #define SINGLENOZZLE_SWAP_PRIME_SPEED   3600  // (mm/m)
-  //#define SINGLENOZZLE_SWAP_PARK
-  #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-    #define SINGLENOZZLE_TOOLCHANGE_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
-    #define SINGLENOZZLE_PARK_XY_FEEDRATE 6000  // (mm/m)
-  #endif
-#endif
 
 /**
  * Průša MK2 Single Nozzle Multi-Material Multiplexer, and variants.
@@ -762,19 +751,19 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#if ENABLED(X_SpreadCycle) || !ENABLED(X_2208)
-  #define DEFAULT_XJERK                 20.0
+#if ENABLED(X_SpreadCycle) || DISABLED(X_2208)
+  #define DEFAULT_XJERK   20.0
 #else
-  #define DEFAULT_XJERK                 10.0
+  #define DEFAULT_XJERK   10.0
 #endif
 
-#if ENABLED(Y_SpreadCycle) || !ENABLED(Y_2208)
-  #define DEFAULT_YJERK                 10.0
+#if ENABLED(Y_SpreadCycle) || DISABLED(Y_2208)
+  #define DEFAULT_YJERK   10.0
 #else
-  #define DEFAULT_YJERK                 5.0
+  #define DEFAULT_YJERK    5.0
 #endif
-#define DEFAULT_ZJERK                  0.4
-#define DEFAULT_EJERK                  5.0
+#define DEFAULT_ZJERK      0.4
+#define DEFAULT_EJERK      5.0
 
 /**
  * S-Curve Acceleration
@@ -1041,9 +1030,6 @@
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 500
 
-// Z raise distance for tool-change, as needed for some extruders
-#define TOOLCHANGE_ZRAISE     2  // (mm)
-
 /**
  * Software Endstops
  *
@@ -1279,8 +1265,9 @@
 //#define LCD_BED_LEVELING
 
 #if ENABLED(LCD_BED_LEVELING)
-  #define MBL_Z_STEP 0.025    // Step size while manually probing Z axis.
-  #define LCD_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
+  #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
+  #define LCD_PROBE_Z_RANGE 4     // (mm) Z Range centered on Z_MIN_POS for LCD Z adjustment
+  //#define MESH_EDIT_MENU        // Add a menu to edit mesh points
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment

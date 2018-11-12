@@ -62,29 +62,29 @@ void _lcd_refresh_e_factor_0() { planner.refresh_e_factor(0); }
   long babysteps_done = 0;
 
   void _lcd_babystep(const AxisEnum axis, PGM_P msg) {
-    if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
-    ENCODER_DIRECTION_NORMAL();
-    if (encoderPosition) {
-      const int16_t babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
-      encoderPosition = 0;
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+    if (ui.use_click()) return ui.goto_previous_screen_no_defer();
+    ui.encoder_direction_normal();
+    if (ui.encoderPosition) {
+      const int16_t babystep_increment = (int32_t)ui.encoderPosition * (BABYSTEP_MULTIPLICATOR);
+      ui.encoderPosition = 0;
+      ui.refresh(LCDVIEW_REDRAW_NOW);
       thermalManager.babystep_axis(axis, babystep_increment);
       babysteps_done += babystep_increment;
     }
-    if (lcdDrawUpdate)
-      lcd_implementation_drawedit(msg, ftostr43sign(planner.steps_to_mm[axis] * babysteps_done));
+    if (ui.should_draw())
+      draw_edit_screen(msg, ftostr43sign(planner.steps_to_mm[axis] * babysteps_done));
   }
 
   #if ENABLED(BABYSTEP_XY)
     void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEP_X)); }
     void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEP_Y)); }
-    void lcd_babystep_x() { lcd_goto_screen(_lcd_babystep_x); babysteps_done = 0; defer_return_to_status = true; }
-    void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
+    void lcd_babystep_x() { ui.goto_screen(_lcd_babystep_x); babysteps_done = 0; ui.defer_status_screen(true); }
+    void lcd_babystep_y() { ui.goto_screen(_lcd_babystep_y); babysteps_done = 0; ui.defer_status_screen(true); }
   #endif
 
   #if DISABLED(BABYSTEP_ZPROBE_OFFSET)
     void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEP_Z)); }
-    void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
+    void lcd_babystep_z() { ui.goto_screen(_lcd_babystep_z); babysteps_done = 0; ui.defer_status_screen(true); }
   #endif
 
 #endif // BABYSTEPPING

@@ -89,7 +89,7 @@
  */
 
 #ifndef __AVR_ATmega1284P__
-  #error "Oops!  Make sure you have 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' selected in the 'Tools -> Boards' menu and ATmega1284P selected in 'Tools -> Processor' menu."
+  #error "Oops! Select 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
 #ifndef BOARD_NAME

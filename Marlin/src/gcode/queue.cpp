@@ -188,7 +188,8 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode) {
 
 #if HAS_QUEUE_NOW
   /**
-   * Enqueue and return only when commands are actually enqueued
+   * Enqueue and return only when commands are actually enqueued.
+   * Never call this from a G-code handler!
    */
   void enqueue_and_echo_command_now(const char* cmd) {
     while (!enqueue_and_echo_command(cmd)) idle();
@@ -196,6 +197,7 @@ void enqueue_and_echo_commands_P(PGM_P const pgcode) {
   #if HAS_LCD_QUEUE_NOW
     /**
      * Enqueue from program memory and return only when commands are actually enqueued
+     * Never call this from a G-code handler!
      */
     void enqueue_and_echo_commands_now_P(PGM_P const pgcode) {
       enqueue_and_echo_commands_P(pgcode);
@@ -749,7 +751,7 @@ inline void get_serial_commands() {
 
           card.printingHasFinished();
 
-          if (card.sdprinting)
+          if (IS_SD_PRINTING())
             sd_count = 0; // If a sub-file was printing, continue from call point
           else {
             SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
@@ -757,7 +759,7 @@ inline void get_serial_commands() {
               printerEventLEDs.onPrintCompleted();
               #if HAS_RESUME_CONTINUE
                 enqueue_and_echo_commands_P(PSTR("M0 S"
-                  #if ENABLED(NEWPANEL)
+                  #if HAS_LCD_MENU
                     "1800"
                   #else
                     "60"
@@ -888,7 +890,7 @@ void advance_command_queue() {
     else {
       gcode.process_next_command();
       #if ENABLED(POWER_LOSS_RECOVERY)
-        if (card.cardOK && card.sdprinting) save_job_recovery_info();
+        if (card.cardOK && IS_SD_PRINTING()) save_job_recovery_info();
       #endif
     }
 

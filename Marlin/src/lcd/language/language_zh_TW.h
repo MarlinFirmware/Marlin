@@ -119,7 +119,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("輸出到CSV") // "Output for CSV"
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("輸出到備份") // "Off Printer Backup"
 #define MSG_UBL_INFO_UBL                    _UxGT("輸出UBL信息") // "Output UBL Info"
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("編輯網格") // "Edit Mesh"
+#define MSG_EDIT_MESH                       _UxGT("編輯網格") // "Edit Mesh"
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("填充合計") // "Fill-in Amount"
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("手工填充") // "Manual Fill-in"
 #define MSG_UBL_SMART_FILLIN                _UxGT("聰明填充") // "Smart Fill-in"
@@ -324,7 +324,7 @@
 #define MSG_CASE_LIGHT                      _UxGT("外殼燈") // "Case light"
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("燈亮度") // "Light BRIGHTNESS"
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("列印計數")  //"Print Count"
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("已完成")  //"Completed"
   #define MSG_INFO_PRINT_TIME               _UxGT("總列印時間")  //"Total print time"

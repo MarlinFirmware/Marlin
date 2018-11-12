@@ -260,33 +260,19 @@ void Endstops::poll() {
 void Endstops::enable_globally(const bool onoff) {
   enabled_globally = enabled = onoff;
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    update();
-  #endif
+  update();
 }
 
 // Enable / disable endstop checking
 void Endstops::enable(const bool onoff) {
   enabled = onoff;
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    update();
-  #endif
+  update();
 }
 
 // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
 void Endstops::not_homing() {
   enabled = enabled_globally;
-
-  // Still 'enabled'? Then endstops are always on and kept in sync.
-  // Otherwise reset 'live's variables to let axes move in both directions.
-  if (!enabled) {
-    #if ENDSTOP_NOISE_THRESHOLD
-      endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
-      validated_live_state = 0;
-    #endif
-    live_state = 0;
-  }
 }
 
 #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
@@ -302,9 +288,7 @@ void Endstops::not_homing() {
   void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
 
-    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-      update();
-    #endif
+    update();
   }
 #endif
 
@@ -353,13 +337,12 @@ void Endstops::event_handler() {
     SERIAL_EOL();
 
     #if ENABLED(ULTRA_LCD)
-      lcd_status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
+      ui.status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
       if (planner.abort_on_endstop_hit) {
-        card.sdprinting = false;
-        card.closefile();
+        card.stopSDPrint();
         quickstop_stepper();
         thermalManager.disable_all_heaters();
         print_job_timer.stop();

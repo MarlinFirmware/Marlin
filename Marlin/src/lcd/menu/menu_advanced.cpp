@@ -52,7 +52,7 @@
   //
   void _lcd_set_home_offsets() {
     enqueue_and_echo_commands_P(PSTR("M428"));
-    lcd_return_to_status();
+    ui.return_to_status();
   }
 #endif
 
@@ -65,9 +65,9 @@
   //
   static void _lcd_toggle_sd_update() {
     const bool new_state = !settings.sd_update_status();
-    lcd_completion_feedback(settings.set_sd_update_status(new_state));
-    lcd_return_to_status();
-    if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else lcd_reset_status();
+    ui.completion_feedback(settings.set_sd_update_status(new_state));
+    ui.return_to_status();
+    if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
   }
 #endif
 
@@ -539,8 +539,8 @@ void menu_advanced_temperature() {
     #include "../../module/configuration_store.h"
 
     static void lcd_init_eeprom() {
-      lcd_completion_feedback(settings.init_eeprom());
-      lcd_goto_previous_menu();
+      ui.completion_feedback(settings.init_eeprom());
+      ui.goto_previous_screen();
     }
 
     static void lcd_init_eeprom_confirm() {

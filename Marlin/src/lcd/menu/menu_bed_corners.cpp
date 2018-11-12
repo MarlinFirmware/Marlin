@@ -77,7 +77,7 @@ void menu_level_bed_corners() {
       MSG_NEXT_CORNER
     #endif
     , _lcd_goto_next_corner);
-  MENU_ITEM(function, MSG_BACK, lcd_goto_previous_menu_no_defer);
+  MENU_ITEM(function, MSG_BACK, ui.goto_previous_screen_no_defer);
   END_MENU();
 }
 
@@ -85,18 +85,18 @@ void _lcd_level_bed_corners_homing() {
   _lcd_draw_homing();
   if (all_axes_homed()) {
     bed_corner = 0;
-    lcd_goto_screen(menu_level_bed_corners);
+    ui.goto_screen(menu_level_bed_corners);
     _lcd_goto_next_corner();
   }
 }
 
 void _lcd_level_bed_corners() {
-  defer_return_to_status = true;
+  ui.defer_status_screen(true);
   if (!all_axes_known()) {
     set_all_unhomed();
     enqueue_and_echo_commands_P(PSTR("G28"));
   }
-  lcd_goto_screen(_lcd_level_bed_corners_homing);
+  ui.goto_screen(_lcd_level_bed_corners_homing);
 }
 
 #endif // HAS_LCD_MENU && LEVEL_BED_CORNERS

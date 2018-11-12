@@ -25,6 +25,7 @@
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
 #include "abl.h"
+#include "../bedlevel.h"
 
 #include "../../../module/motion.h"
 

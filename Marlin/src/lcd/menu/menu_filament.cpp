@@ -323,15 +323,15 @@ static PGM_P advanced_pause_header() {
 // Portions from STATIC_ITEM...
 #define HOTEND_STATUS_ITEM() do { \
   if (_menuLineNr == _thisItemNr) { \
-    if (lcdDrawUpdate) { \
-      lcd_implementation_drawmenu_static(_lcdLineNr, PSTR(MSG_FILAMENT_CHANGE_NOZZLE), false, true); \
-      lcd_implementation_hotend_status(_lcdLineNr, hotend_status_extruder); \
+    if (ui.should_draw()) { \
+      draw_menu_item_static(_lcdLineNr, PSTR(MSG_FILAMENT_CHANGE_NOZZLE), false, true); \
+      ui.draw_hotend_status(_lcdLineNr, hotend_status_extruder); \
     } \
     if (_skipStatic && encoderLine <= _thisItemNr) { \
-      encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
+      ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
       ++encoderLine; \
     } \
-    lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
+    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT); \
   } \
   ++_thisItemNr; \
 }while(0)
@@ -354,208 +354,144 @@ void menu_advanced_pause_option() {
   END_MENU();
 }
 
-void lcd_advanced_pause_init_message() {
+//
+// ADVANCED_PAUSE_FEATURE message screens
+//
+
+void _lcd_advanced_pause_message(PGM_P const msg1, PGM_P const msg2=NULL, PGM_P const msg3=NULL) {
   START_SCREEN();
   STATIC_ITEM_P(advanced_pause_header(), true, true);
-  STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_1);
-  #ifdef MSG_FILAMENT_CHANGE_INIT_2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_2);
-    #define __FC_LINES_A 3
-  #else
-    #define __FC_LINES_A 2
-  #endif
-  #ifdef MSG_FILAMENT_CHANGE_INIT_3
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_3);
-    #define _FC_LINES_A (__FC_LINES_A + 1)
-  #else
-    #define _FC_LINES_A __FC_LINES_A
-  #endif
-  #if LCD_HEIGHT > _FC_LINES_A + 1
-    STATIC_ITEM(" ");
-  #endif
+  STATIC_ITEM_P(msg1);
+  if (msg2) STATIC_ITEM_P(msg2);
+  if (msg3) STATIC_ITEM_P(msg3);
+  if ((!!msg2) + (!!msg3) + 2 < LCD_HEIGHT - 1) STATIC_ITEM(" ");
   HOTEND_STATUS_ITEM();
   END_SCREEN();
+}
+
+void lcd_advanced_pause_init_message() {
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_INIT_1)
+    #ifdef MSG_FILAMENT_CHANGE_INIT_2
+      , PSTR(MSG_FILAMENT_CHANGE_INIT_2)
+      #ifdef MSG_FILAMENT_CHANGE_INIT_3
+        , PSTR(MSG_FILAMENT_CHANGE_INIT_3)
+      #endif
+    #endif
+  );
 }
 
 void lcd_advanced_pause_unload_message() {
-  START_SCREEN();
-  STATIC_ITEM_P(advanced_pause_header(), true, true);
-  STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_1);
-  #ifdef MSG_FILAMENT_CHANGE_UNLOAD_2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_2);
-    #define __FC_LINES_B 3
-  #else
-    #define __FC_LINES_B 2
-  #endif
-  #ifdef MSG_FILAMENT_CHANGE_UNLOAD_3
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_3);
-    #define _FC_LINES_B (__FC_LINES_B + 1)
-  #else
-    #define _FC_LINES_B __FC_LINES_B
-  #endif
-  #if LCD_HEIGHT > _FC_LINES_B + 1
-    STATIC_ITEM(" ");
-  #endif
-  HOTEND_STATUS_ITEM();
-  END_SCREEN();
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_UNLOAD_1)
+    #ifdef MSG_FILAMENT_CHANGE_UNLOAD_2
+      , PSTR(MSG_FILAMENT_CHANGE_UNLOAD_2)
+      #ifdef MSG_FILAMENT_CHANGE_UNLOAD_3
+        , PSTR(MSG_FILAMENT_CHANGE_UNLOAD_3)
+      #endif
+    #endif
+  );
 }
 
-void lcd_advanced_pause_wait_for_nozzles_to_heat() {
-  START_SCREEN();
-  STATIC_ITEM_P(advanced_pause_header(), true, true);
-  STATIC_ITEM(MSG_FILAMENT_CHANGE_HEATING_1);
-  #ifdef MSG_FILAMENT_CHANGE_HEATING_2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_HEATING_2);
-    #define _FC_LINES_C 3
-  #else
-    #define _FC_LINES_C 2
-  #endif
-  #if LCD_HEIGHT > _FC_LINES_C + 1
-    STATIC_ITEM(" ");
-  #endif
-  HOTEND_STATUS_ITEM();
-  END_SCREEN();
+void lcd_advanced_pause_heating_message() {
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_HEATING_1)
+    #ifdef MSG_FILAMENT_CHANGE_HEATING_2
+      , PSTR(MSG_FILAMENT_CHANGE_HEATING_2)
+      #ifdef MSG_FILAMENT_CHANGE_HEATING_3
+        , PSTR(MSG_FILAMENT_CHANGE_HEATING_3)
+      #endif
+    #endif
+  );
 }
 
-void lcd_advanced_pause_heat_nozzle() {
-  START_SCREEN();
-  STATIC_ITEM_P(advanced_pause_header(), true, true);
-  STATIC_ITEM(MSG_FILAMENT_CHANGE_HEAT_1);
-  #ifdef MSG_FILAMENT_CHANGE_INSERT_2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_HEAT_2);
-    #define _FC_LINES_D 3
-  #else
-    #define _FC_LINES_D 2
-  #endif
-  #if LCD_HEIGHT > _FC_LINES_D + 1
-    STATIC_ITEM(" ");
-  #endif
-  HOTEND_STATUS_ITEM();
-  END_SCREEN();
+void lcd_advanced_pause_heat_message() {
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_HEAT_1)
+    #ifdef MSG_FILAMENT_CHANGE_HEAT_2
+      , PSTR(MSG_FILAMENT_CHANGE_HEAT_2)
+      #ifdef MSG_FILAMENT_CHANGE_HEAT_3
+        , PSTR(MSG_FILAMENT_CHANGE_HEAT_3)
+      #endif
+    #endif
+  );
 }
 
 void lcd_advanced_pause_insert_message() {
-  START_SCREEN();
-  STATIC_ITEM_P(advanced_pause_header(), true, true);
-  STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_1);
-  #ifdef MSG_FILAMENT_CHANGE_INSERT_2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_2);
-    #define __FC_LINES_E 3
-  #else
-    #define __FC_LINES_E 2
-  #endif
-  #ifdef MSG_FILAMENT_CHANGE_INSERT_3
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
-    #define _FC_LINES_E (__FC_LINES_E + 1)
-  #else
-    #define _FC_LINES_E __FC_LINES_E
-  #endif
-  #if LCD_HEIGHT > _FC_LINES_E + 1
-    STATIC_ITEM(" ");
-  #endif
-  HOTEND_STATUS_ITEM();
-  END_SCREEN();
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_INSERT_1)
+    #ifdef MSG_FILAMENT_CHANGE_INSERT_2
+      , PSTR(MSG_FILAMENT_CHANGE_INSERT_2)
+      #ifdef MSG_FILAMENT_CHANGE_INSERT_3
+        , PSTR(MSG_FILAMENT_CHANGE_INSERT_3)
+      #endif
+    #endif
+  );
 }
 
 void lcd_advanced_pause_load_message() {
-  START_SCREEN();
-  STATIC_ITEM_P(advanced_pause_header(), true, true);
-  STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_1);
-  #ifdef MSG_FILAMENT_CHANGE_LOAD_2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_2);
-    #define __FC_LINES_F 3
-  #else
-    #define __FC_LINES_F 2
-  #endif
-  #ifdef MSG_FILAMENT_CHANGE_LOAD_3
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_3);
-    #define _FC_LINES_F (__FC_LINES_F + 1)
-  #else
-    #define _FC_LINES_F __FC_LINES_F
-  #endif
-  #if LCD_HEIGHT > _FC_LINES_F + 1
-    STATIC_ITEM(" ");
-  #endif
-  HOTEND_STATUS_ITEM();
-  END_SCREEN();
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_LOAD_1)
+    #ifdef MSG_FILAMENT_CHANGE_LOAD_2
+      , PSTR(MSG_FILAMENT_CHANGE_LOAD_2)
+      #ifdef MSG_FILAMENT_CHANGE_LOAD_3
+        , PSTR(MSG_FILAMENT_CHANGE_LOAD_3)
+      #endif
+    #endif
+  );
+}
+
+void lcd_advanced_pause_waiting_message() {
+  _lcd_advanced_pause_message(PSTR(MSG_ADVANCED_PAUSE_WAITING_1)
+    #ifdef MSG_ADVANCED_PAUSE_WAITING_2
+      , PSTR(MSG_ADVANCED_PAUSE_WAITING_2)
+      #ifdef MSG_ADVANCED_PAUSE_WAITING_3
+        , PSTR(MSG_ADVANCED_PAUSE_WAITING_3)
+      #endif
+    #endif
+  );
+}
+
+void lcd_advanced_pause_resume_message() {
+  _lcd_advanced_pause_message(PSTR(MSG_FILAMENT_CHANGE_RESUME_1)
+    #ifdef MSG_FILAMENT_CHANGE_RESUME_2
+      , PSTR(MSG_FILAMENT_CHANGE_RESUME_2)
+      #ifdef MSG_FILAMENT_CHANGE_RESUME_3
+        , PSTR(MSG_FILAMENT_CHANGE_RESUME_3)
+      #endif
+    #endif
+  );
 }
 
 void lcd_advanced_pause_purge_message() {
-  START_SCREEN();
-  STATIC_ITEM_P(advanced_pause_header(), true, true);
-  STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_1);
-  #ifdef MSG_FILAMENT_CHANGE_PURGE_2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_2);
-    #define __FC_LINES_G 3
-  #else
-    #define __FC_LINES_G 2
-  #endif
-  #ifdef MSG_FILAMENT_CHANGE_PURGE_3
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_3);
-    #define _FC_LINES_G (__FC_LINES_G + 1)
-  #else
-    #define _FC_LINES_G __FC_LINES_G
-  #endif
-  #if LCD_HEIGHT > _FC_LINES_G + 1
-    STATIC_ITEM(" ");
-  #endif
-  HOTEND_STATUS_ITEM();
-  END_SCREEN();
-}
-
-#if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-  void menu_advanced_pause_continuous_purge() {
-    START_SCREEN();
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_1);
-    #ifdef MSG_FILAMENT_CHANGE_PURGE_2
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_2);
-      #define __FC_LINES_G 3
+  _lcd_advanced_pause_message(
+    #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
+      PSTR(MSG_FILAMENT_CHANGE_CONT_PURGE_1)
+      #ifdef MSG_FILAMENT_CHANGE_CONT_PURGE_2
+        , PSTR(MSG_FILAMENT_CHANGE_CONT_PURGE_2)
+        #ifdef MSG_FILAMENT_CHANGE_CONT_PURGE_3
+          , PSTR(MSG_FILAMENT_CHANGE_CONT_PURGE_3)
+        #endif
+      #endif
     #else
-      #define __FC_LINES_G 2
+      PSTR(MSG_FILAMENT_CHANGE_PURGE_1)
+      #ifdef MSG_FILAMENT_CHANGE_PURGE_2
+        , PSTR(MSG_FILAMENT_CHANGE_PURGE_2)
+        #ifdef MSG_FILAMENT_CHANGE_PURGE_3
+          , PSTR(MSG_FILAMENT_CHANGE_PURGE_3)
+        #endif
+      #endif
     #endif
-    #ifdef MSG_FILAMENT_CHANGE_PURGE_3
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_PURGE_3);
-      #define _FC_LINES_G (__FC_LINES_G + 1)
-    #else
-      #define _FC_LINES_G __FC_LINES_G
-    #endif
-    #if LCD_HEIGHT > _FC_LINES_G + 1
-      STATIC_ITEM(" ");
-    #endif
-    HOTEND_STATUS_ITEM();
-    STATIC_ITEM(MSG_USERWAIT);
-    END_SCREEN();
-  }
-#endif
-
-void lcd_advanced_pause_resume_message() {
-  START_SCREEN();
-  STATIC_ITEM_P(advanced_pause_header(), true, true);
-  STATIC_ITEM(MSG_FILAMENT_CHANGE_RESUME_1);
-  #ifdef MSG_FILAMENT_CHANGE_RESUME_2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_RESUME_2);
-  #endif
-  #ifdef MSG_FILAMENT_CHANGE_RESUME_3
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_RESUME_3);
-  #endif
-  END_SCREEN();
+  );
 }
 
 FORCE_INLINE screenFunc_t ap_message_screen(const AdvancedPauseMessage message) {
   switch (message) {
-    case ADVANCED_PAUSE_MESSAGE_INIT:                     return lcd_advanced_pause_init_message;
-    case ADVANCED_PAUSE_MESSAGE_UNLOAD:                   return lcd_advanced_pause_unload_message;
-    case ADVANCED_PAUSE_MESSAGE_INSERT:                   return lcd_advanced_pause_insert_message;
-    case ADVANCED_PAUSE_MESSAGE_LOAD:                     return lcd_advanced_pause_load_message;
-    case ADVANCED_PAUSE_MESSAGE_PURGE:                    return lcd_advanced_pause_purge_message;
-    case ADVANCED_PAUSE_MESSAGE_RESUME:                   return lcd_advanced_pause_resume_message;
-    case ADVANCED_PAUSE_MESSAGE_CLICK_TO_HEAT_NOZZLE:     return lcd_advanced_pause_heat_nozzle;
-    case ADVANCED_PAUSE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT: return lcd_advanced_pause_wait_for_nozzles_to_heat;
-    case ADVANCED_PAUSE_MESSAGE_OPTION:                   advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_WAIT_FOR;
-                                                          return menu_advanced_pause_option;
-    #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
-      case ADVANCED_PAUSE_MESSAGE_CONTINUOUS_PURGE:       return menu_advanced_pause_continuous_purge;
-    #endif
+    case ADVANCED_PAUSE_MESSAGE_INIT:     return lcd_advanced_pause_init_message;
+    case ADVANCED_PAUSE_MESSAGE_UNLOAD:   return lcd_advanced_pause_unload_message;
+    case ADVANCED_PAUSE_MESSAGE_WAITING:  return lcd_advanced_pause_waiting_message;
+    case ADVANCED_PAUSE_MESSAGE_INSERT:   return lcd_advanced_pause_insert_message;
+    case ADVANCED_PAUSE_MESSAGE_LOAD:     return lcd_advanced_pause_load_message;
+    case ADVANCED_PAUSE_MESSAGE_PURGE:    return lcd_advanced_pause_purge_message;
+    case ADVANCED_PAUSE_MESSAGE_RESUME:   return lcd_advanced_pause_resume_message;
+    case ADVANCED_PAUSE_MESSAGE_HEAT:     return lcd_advanced_pause_heat_message;
+    case ADVANCED_PAUSE_MESSAGE_HEATING:  return lcd_advanced_pause_heating_message;
+    case ADVANCED_PAUSE_MESSAGE_OPTION:   advanced_pause_menu_response = ADVANCED_PAUSE_RESPONSE_WAIT_FOR;
+                                          return menu_advanced_pause_option;
     case ADVANCED_PAUSE_MESSAGE_STATUS:
     default: break;
   }
@@ -564,18 +500,18 @@ FORCE_INLINE screenFunc_t ap_message_screen(const AdvancedPauseMessage message) 
 
 void lcd_advanced_pause_show_message(
   const AdvancedPauseMessage message,
-  const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_PAUSE_PRINT*/,
+  const AdvancedPauseMode mode/*=ADVANCED_PAUSE_MODE_SAME*/,
   const uint8_t extruder/*=active_extruder*/
 ) {
-  advanced_pause_mode = mode;
+  if (mode != ADVANCED_PAUSE_MODE_SAME) advanced_pause_mode = mode;
   hotend_status_extruder = extruder;
   const screenFunc_t next_screen = ap_message_screen(message);
   if (next_screen) {
-    defer_return_to_status = true;
-    lcd_goto_screen(next_screen);
+    ui.defer_status_screen(true);
+    ui.goto_screen(next_screen);
   }
   else
-    lcd_return_to_status();
+    ui.return_to_status();
 }
 
 #endif // HAS_LCD_MENU && ADVANCED_PAUSE_FEATURE

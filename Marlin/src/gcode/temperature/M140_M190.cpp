@@ -64,7 +64,7 @@ void GcodeSuite::M190() {
   }
   else return;
 
-  lcd_setstatusPGM(thermalManager.isHeatingBed() ? PSTR(MSG_BED_HEATING) : PSTR(MSG_BED_COOLING));
+  ui.setstatusPGM(thermalManager.isHeatingBed() ? PSTR(MSG_BED_HEATING) : PSTR(MSG_BED_COOLING));
 
   thermalManager.wait_for_bed(no_wait_for_cooling);
 }
