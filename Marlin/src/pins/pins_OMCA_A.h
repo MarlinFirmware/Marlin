@@ -23,7 +23,7 @@
 /**
  * Open Motion controller with enable based extruders (Alpha!)
  *
- *                        ATMega644
+ *                        ATmega644
  *
  *                        +---\/---+
  *            (D 0) PB0  1|        |40  PA0 (AI 0 / D31)
@@ -76,7 +76,7 @@
  */
 
 #ifndef __AVR_ATmega644__
-  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Sanguino' in 'Tools > Board' and ATmega644 in 'Tools > Processor.'"
 #endif
 
 #define BOARD_NAME         "Alpha OMCA"

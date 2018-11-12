@@ -31,7 +31,7 @@
  *  and with the mainstream Marlin software.
  *
  *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
- *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools -> Boards' menu
+ *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Installation instructions are at the above URL.  Don't bother loading the
  *    libraries - they are not used with the Marlin software.
@@ -46,7 +46,7 @@
  *          hardware directory in Arduino.  The Arduino hardware directory will probably
  *          be located in a path similar to this: C:\Program Files (x86)\Arduino\hardware.
  *       3. Restart Arduino.
- *       4. Select "Printrboard" from the 'Tools -> Boards' menu.
+ *       4. Select "Printrboard" from the 'Tools > Board' menu.
  *
  *  Teensyduino is the most popular option. Printrboard is used if your board doesn't have
  *  the Teensyduino bootloader on it.
@@ -68,7 +68,7 @@
  */
 
 #ifndef __AVR_AT90USB1286__
-  #error "Oops!  Make sure you have 'Teensy++ 2.0' or 'Printrboard' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
 #define DEFAULT_MACHINE_NAME "Makibox"

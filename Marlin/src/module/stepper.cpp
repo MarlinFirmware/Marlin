@@ -590,29 +590,29 @@ void Stepper::set_directions() {
    *        uint16_t t;
    *        umul24x24to16hi(t, bezier_AV, curr_step);   // t: Range 0 - 1^16 = 16 bits
    *        uint16_t f = t;
-   *        umul16x16to16hi(f, f, t);           // Range 16 bits (unsigned)
-   *        umul16x16to16hi(f, f, t);           // Range 16 bits : f = t^3  (unsigned)
-   *        uint24_t acc = bezier_F;          // Range 20 bits (unsigned)
+   *        umul16x16to16hi(f, f, t);                   // Range 16 bits (unsigned)
+   *        umul16x16to16hi(f, f, t);                   // Range 16 bits : f = t^3  (unsigned)
+   *        uint24_t acc = bezier_F;                    // Range 20 bits (unsigned)
    *        if (A_negative) {
    *          uint24_t v;
-   *          umul16x24to24hi(v, f, bezier_C);    // Range 21bits
+   *          umul16x24to24hi(v, f, bezier_C);          // Range 21bits
    *          acc -= v;
-   *          umul16x16to16hi(f, f, t);         // Range 16 bits : f = t^4  (unsigned)
-   *          umul16x24to24hi(v, f, bezier_B);    // Range 22bits
+   *          umul16x16to16hi(f, f, t);                 // Range 16 bits : f = t^4  (unsigned)
+   *          umul16x24to24hi(v, f, bezier_B);          // Range 22bits
    *          acc += v;
-   *          umul16x16to16hi(f, f, t);         // Range 16 bits : f = t^5  (unsigned)
-   *          umul16x24to24hi(v, f, bezier_A);    // Range 21bits + 15 = 36bits (plus sign)
+   *          umul16x16to16hi(f, f, t);                 // Range 16 bits : f = t^5  (unsigned)
+   *          umul16x24to24hi(v, f, bezier_A);          // Range 21bits + 15 = 36bits (plus sign)
    *          acc -= v;
    *        }
    *        else {
    *          uint24_t v;
-   *          umul16x24to24hi(v, f, bezier_C);    // Range 21bits
+   *          umul16x24to24hi(v, f, bezier_C);          // Range 21bits
    *          acc += v;
-   *          umul16x16to16hi(f, f, t);       // Range 16 bits : f = t^4  (unsigned)
-   *          umul16x24to24hi(v, f, bezier_B);    // Range 22bits
+   *          umul16x16to16hi(f, f, t);                 // Range 16 bits : f = t^4  (unsigned)
+   *          umul16x24to24hi(v, f, bezier_B);          // Range 22bits
    *          acc -= v;
-   *          umul16x16to16hi(f, f, t);               // Range 16 bits : f = t^5  (unsigned)
-   *          umul16x24to24hi(v, f, bezier_A);    // Range 21bits + 15 = 36bits (plus sign)
+   *          umul16x16to16hi(f, f, t);                 // Range 16 bits : f = t^5  (unsigned)
+   *          umul16x24to24hi(v, f, bezier_A);          // Range 21bits + 15 = 36bits (plus sign)
    *          acc += v;
    *        }
    *        return acc;

@@ -296,53 +296,23 @@
   #define ULTIPANEL
 #endif
 
-#if ENABLED(NO_LCD_MENUS)
-  #undef ULTIPANEL
-#endif
-
-#define HAS_GRAPHICAL_LCD ENABLED(DOGLCD)
-
-#if HAS_GRAPHICAL_LCD
-  #ifndef LCD_WIDTH
-    #ifdef LCD_WIDTH_OVERRIDE
-      #define LCD_WIDTH LCD_WIDTH_OVERRIDE
-    #else
-      #define LCD_WIDTH 22
-    #endif
-  #endif
-  #ifndef LCD_HEIGHT
-    #define LCD_HEIGHT 5
-  #endif
-#endif
-
 #if ENABLED(ULTIPANEL)
   #define NEWPANEL  // Disable this if you actually have no click-encoder panel
   #define ULTRA_LCD
-  #ifndef LCD_WIDTH
-    #define LCD_WIDTH 20
-  #endif
-  #ifndef LCD_HEIGHT
-    #define LCD_HEIGHT 4
-  #endif
-#elif ENABLED(ULTRA_LCD)  // no panel but just LCD
-  #ifndef LCD_WIDTH
-    #define LCD_WIDTH 16
-  #endif
-  #ifndef LCD_HEIGHT
-    #define LCD_HEIGHT 2
-  #endif
 #endif
 
 // Aliases for LCD features
 #define HAS_SPI_LCD          ENABLED(ULTRA_LCD)
-#define HAS_CHARACTER_LCD   (ENABLED(ULTRA_LCD) && DISABLED(DOGLCD))
-#define HAS_DIGITAL_ENCODER (HAS_SPI_LCD && ENABLED(NEWPANEL))
-#define HAS_LCD_MENU         ENABLED(ULTIPANEL)
-#define HAS_DEBUG_MENU      (HAS_LCD_MENU && ENABLED(LCD_PROGRESS_BAR_TEST))
+#define HAS_GRAPHICAL_LCD    ENABLED(DOGLCD)
+#define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
+#define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
+#define HAS_DIGITAL_ENCODER  ENABLED(NEWPANEL)
 
 #if HAS_GRAPHICAL_LCD
-  /* Custom characters defined in font Marlin_symbols.fon which was merged to ISO10646-0-3.bdf */
+  //
+  // Custom characters from Marlin_symbols.fon which was merged into ISO10646-0-3.bdf
   // \x00 intentionally skipped to avoid problems in strings
+  //
   #define LCD_STR_REFRESH     "\x01"
   #define LCD_STR_FOLDER      "\x02"
   #define LCD_STR_ARROW_RIGHT "\x03"
@@ -360,33 +330,18 @@
   // Symbol characters
   #define LCD_STR_FILAM_DIA   "\xf8"
   #define LCD_STR_FILAM_MUL   "\xa4"
-#else
-  // Custom characters defined in the first 8 characters of the LCD
-  #define LCD_BEDTEMP_CHAR     0x00  // Print only as a char. This will have 'unexpected' results when used in a string!
-  #define LCD_DEGREE_CHAR      0x01
-  #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
-  #define LCD_UPLEVEL_CHAR     0x03
-  #define LCD_STR_REFRESH     "\x04"
-  #define LCD_STR_FOLDER      "\x05"
-  #define LCD_FEEDRATE_CHAR    0x06
-  #define LCD_CLOCK_CHAR       0x07
-  #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
-#endif
 
-/**
- * Default LCD contrast for dogm-like LCD displays
- */
-#if HAS_GRAPHICAL_LCD
-
-  #define HAS_LCD_CONTRAST ( \
-      ENABLED(MAKRPANEL) \
-   || ENABLED(CARTESIO_UI) \
-   || ENABLED(VIKI2) \
-   || ENABLED(AZSMZ_12864) \
-   || ENABLED(miniVIKI) \
-   || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+  /**
+   * Default LCD contrast for dogm-like LCD displays
+   */
+  #define HAS_LCD_CONTRAST (                \
+       ENABLED(MAKRPANEL)                   \
+    || ENABLED(CARTESIO_UI)                 \
+    || ENABLED(VIKI2)                       \
+    || ENABLED(AZSMZ_12864)                 \
+    || ENABLED(miniVIKI)                    \
+    || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
   )
-
   #if HAS_LCD_CONTRAST
     #ifndef LCD_CONTRAST_MIN
       #define LCD_CONTRAST_MIN 0
@@ -398,6 +353,20 @@
       #define DEFAULT_LCD_CONTRAST 32
     #endif
   #endif
+
+#else
+
+  // Custom characters defined in the first 8 characters of the LCD
+  #define LCD_BEDTEMP_CHAR     0x00  // Print only as a char. This will have 'unexpected' results when used in a string!
+  #define LCD_DEGREE_CHAR      0x01
+  #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
+  #define LCD_UPLEVEL_CHAR     0x03
+  #define LCD_STR_REFRESH     "\x04"
+  #define LCD_STR_FOLDER      "\x05"
+  #define LCD_FEEDRATE_CHAR    0x06
+  #define LCD_CLOCK_CHAR       0x07
+  #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
+
 #endif
 
 // Boot screens

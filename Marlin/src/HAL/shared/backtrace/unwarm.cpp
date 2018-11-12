@@ -23,7 +23,7 @@
 #include "unwarm.h"
 #include "unwarmmem.h"
 
-#if defined(UNW_DEBUG)
+#ifdef UNW_DEBUG
 
 /**
  * Printf wrapper.

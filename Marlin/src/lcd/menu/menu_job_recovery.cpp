@@ -37,7 +37,7 @@ static void lcd_power_loss_recovery_resume() {
   char cmd[20];
 
   // Return to status now
-  lcd_return_to_status();
+  ui.return_to_status();
 
   // Turn leveling off and home
   enqueue_and_echo_commands_P(PSTR("M420 S0\nG28 R0"
@@ -91,11 +91,11 @@ static void lcd_power_loss_recovery_resume() {
 static void lcd_power_loss_recovery_cancel() {
   card.removeJobRecoveryFile();
   card.autostart_index = 0;
-  lcd_return_to_status();
+  ui.return_to_status();
 }
 
 void menu_job_recovery() {
-  defer_return_to_status = true;
+  ui.defer_status_screen(true);
   START_MENU();
   STATIC_ITEM(MSG_POWER_LOSS_RECOVERY);
   MENU_ITEM(function, MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);

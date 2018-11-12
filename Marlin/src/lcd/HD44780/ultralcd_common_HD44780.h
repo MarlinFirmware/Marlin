@@ -39,70 +39,6 @@
 // macro name. The mapping is independent of whether the button is directly connected or
 // via a shift/i2c register.
 
-#if HAS_LCD_MENU
-
-  extern volatile uint8_t buttons;
-
-  //
-  // Setup other button mappings of each panel
-  //
-  #if ENABLED(LCD_I2C_VIKI)
-    #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-
-    // button and encoder bit positions within 'buttons'
-    #define B_LE (BUTTON_LEFT   << B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
-    #define B_UP (BUTTON_UP     << B_I2C_BTN_OFFSET)
-    #define B_MI (BUTTON_SELECT << B_I2C_BTN_OFFSET)
-    #define B_DW (BUTTON_DOWN   << B_I2C_BTN_OFFSET)
-    #define B_RI (BUTTON_RIGHT  << B_I2C_BTN_OFFSET)
-
-    #undef LCD_CLICKED
-    #if BUTTON_EXISTS(ENC)
-      // the pause/stop/restart button is connected to BTN_ENC when used
-      #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
-      #define LCD_CLICKED() (buttons & (B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
-    #else
-      #define LCD_CLICKED() (buttons & (B_MI|B_RI))
-    #endif
-
-    // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
-    #define LCD_HAS_SLOW_BUTTONS
-
-  #elif ENABLED(LCD_I2C_PANELOLU2)
-
-    #if !BUTTON_EXISTS(ENC) // Use I2C if not directly connected to a pin
-
-      #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-
-      #define B_MI (PANELOLU2_ENCODER_C << B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
-
-      #undef LCD_CLICKED
-      #define LCD_CLICKED() (buttons & B_MI)
-
-      // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
-      #define LCD_HAS_SLOW_BUTTONS
-
-    #endif
-
-  #elif DISABLED(NEWPANEL) // old style ULTIPANEL
-    // Shift register bits correspond to buttons:
-    #define BL_LE 7   // Left
-    #define BL_UP 6   // Up
-    #define BL_MI 5   // Middle
-    #define BL_DW 4   // Down
-    #define BL_RI 3   // Right
-    #define BL_ST 2   // Red Button
-    #define B_LE (_BV(BL_LE))
-    #define B_UP (_BV(BL_UP))
-    #define B_MI (_BV(BL_MI))
-    #define B_DW (_BV(BL_DW))
-    #define B_RI (_BV(BL_RI))
-    #define B_ST (_BV(BL_ST))
-    #define LCD_CLICKED() (buttons & (B_MI|B_ST))
-  #endif
-
-#endif // HAS_LCD_MENU
-
 ////////////////////////////////////
 // Create LCD class instance and chipset-specific information
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
@@ -122,7 +58,7 @@
   #define LCD_CLASS LiquidCrystal_I2C
 
 #elif ENABLED(LCD_I2C_TYPE_MCP23017)
-  // For the LED indicators (which may be mapped to different events in lcd_implementation_update_indicators())
+  // For the LED indicators (which may be mapped to different events in update_indicators())
   #define LCD_HAS_STATUS_INDICATORS
   #define LED_A 0x04 //100
   #define LED_B 0x02 //010

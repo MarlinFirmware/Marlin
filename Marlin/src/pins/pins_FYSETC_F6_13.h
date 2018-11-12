@@ -25,7 +25,7 @@
 //
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops!  Make sure you have 'FYSETC_F6' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'FYSETC_F6' in 'Tools > Board.'"
 #endif
 
 #ifndef BOARD_NAME

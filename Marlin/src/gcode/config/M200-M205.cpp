@@ -97,7 +97,7 @@ void GcodeSuite::M204() {
     SERIAL_ECHOLNPAIR(" T", planner.settings.travel_acceleration);
   }
   else {
-    planner.synchronize();
+    //planner.synchronize();
     // 'S' for legacy compatibility. Should NOT BE USED for new development
     if (parser.seenval('S')) planner.settings.travel_acceleration = planner.settings.acceleration = parser.value_linear_units();
     if (parser.seenval('P')) planner.settings.acceleration = parser.value_linear_units();
@@ -131,7 +131,7 @@ void GcodeSuite::M205() {
   #endif
   if (!parser.seen("BST" J_PARAM XYZE_PARAM)) return;
 
-  planner.synchronize();
+  //planner.synchronize();
   if (parser.seen('B')) planner.settings.min_segment_time_us = parser.value_ulong();
   if (parser.seen('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();

@@ -28,7 +28,7 @@
 #define BOARD_NAME "Ultratronics v1.0"
 
 #ifndef ARDUINO_ARCH_SAM
-  #error Oops!  Make sure you have 'Arduino Due' selected from the 'Tools -> Boards' menu.
+  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
 //

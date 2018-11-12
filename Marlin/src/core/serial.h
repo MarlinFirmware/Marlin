@@ -108,9 +108,9 @@ extern uint8_t marlin_debug_flags;
   void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, double v);
   void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, unsigned int v);
   void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, unsigned long v);
-  FORCE_INLINE void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, uint8_t v) { serial_echopair_PGM_P(p, s_P, (int)v); }
-  FORCE_INLINE void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, bool v)    { serial_echopair_PGM_P(p, s_P, (int)v); }
-  FORCE_INLINE void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, void *v)   { serial_echopair_PGM_P(p, s_P, (unsigned long)v); }
+  inline void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, uint8_t v) { serial_echopair_PGM_P(p, s_P, (int)v); }
+  inline void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, bool v)    { serial_echopair_PGM_P(p, s_P, (int)v); }
+  inline void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, void *v)   { serial_echopair_PGM_P(p, s_P, (unsigned long)v); }
 
   void serial_spaces_P(const int8_t p, uint8_t count);
   #define SERIAL_ECHO_SP_P(p,C)                     serial_spaces_P(p,C)
@@ -223,9 +223,9 @@ void serial_echopair_PGM(PGM_P s_P, float v);
 void serial_echopair_PGM(PGM_P s_P, double v);
 void serial_echopair_PGM(PGM_P s_P, unsigned int v);
 void serial_echopair_PGM(PGM_P s_P, unsigned long v);
-FORCE_INLINE void serial_echopair_PGM(PGM_P s_P, uint8_t v) { serial_echopair_PGM(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_PGM(PGM_P s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_PGM(PGM_P s_P, void *v)   { serial_echopair_PGM(s_P, (unsigned long)v); }
+inline void serial_echopair_PGM(PGM_P s_P, uint8_t v) { serial_echopair_PGM(s_P, (int)v); }
+inline void serial_echopair_PGM(PGM_P s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
+inline void serial_echopair_PGM(PGM_P s_P, void *v)   { serial_echopair_PGM(s_P, (unsigned long)v); }
 
 void serial_spaces(uint8_t count);
 #define SERIAL_ECHO_SP(C)                           serial_spaces(C)

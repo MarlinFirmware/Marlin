@@ -114,22 +114,22 @@ public:
     void removeJobRecoveryFile();
   #endif
 
-  FORCE_INLINE void pauseSDPrint() { sdprinting = false; }
-  FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
-  FORCE_INLINE bool eof() { return sdpos >= filesize; }
-  FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
-  FORCE_INLINE void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
-  FORCE_INLINE uint32_t getIndex() { return sdpos; }
-  FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
-  FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
-  FORCE_INLINE int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
-  FORCE_INLINE int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
+  inline void pauseSDPrint() { sdprinting = false; }
+  inline bool isFileOpen() { return file.isOpen(); }
+  inline bool eof() { return sdpos >= filesize; }
+  inline int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
+  inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
+  inline uint32_t getIndex() { return sdpos; }
+  inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
+  inline char* getWorkDirName() { workDir.getFilename(filename); return filename; }
+  inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
+  inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
   Sd2Card& getSd2Card() { return sd2card; }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     void auto_report_sd_status(void);
-    FORCE_INLINE void set_auto_report_interval(uint8_t v
+    inline void set_auto_report_interval(uint8_t v
       #if NUM_SERIAL > 1
         , int8_t port
       #endif
@@ -143,7 +143,7 @@ public:
     }
   #endif
 
-  FORCE_INLINE char* longest_filename() { return longFilename[0] ? longFilename : filename; }
+  inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
 
 public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir, abort_sd_printing;

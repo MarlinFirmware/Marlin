@@ -45,7 +45,7 @@
 #define FTM3_CH5_PIN 36
 #define FTM3_CH6_PIN 37
 #define FTM3_CH7_PIN 38
-#if defined(__MK66FX1M0__) // Teensy3.6
+#ifdef __MK66FX1M0__ // Teensy3.6
   #define TPM1_CH0_PIN 16
   #define TPM1_CH1_PIN 17
 #endif

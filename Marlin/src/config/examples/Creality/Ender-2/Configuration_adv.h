@@ -586,7 +586,7 @@
 // Add an 'M73' G-code to set the current percentage
 //#define LCD_SET_PROGRESS_MANUALLY
 
-#if HAS_PRINT_PROGRESS
+#if HAS_CHARACTER_LCD && HAS_PRINT_PROGRESS
   //#define LCD_PROGRESS_BAR              // Show a progress bar on HD44780 LCDs for SD printing
   #if ENABLED(LCD_PROGRESS_BAR)
     #define PROGRESS_BAR_BAR_TIME 2000    // (ms) Amount of time to show the bar
@@ -1091,6 +1091,33 @@
   #define RETRACT_RECOVER_FEEDRATE_SWAP 8 // Default feedrate for recovering from swap retraction (mm/s)
   #if ENABLED(MIXING_EXTRUDER)
     //#define RETRACT_SYNC_MIXING         // Retract and restore all mixing steppers simultaneously
+  #endif
+#endif
+
+/**
+ * Universal tool change settings.
+ * Applies to all types of extruders except where explicitly noted.
+ */
+#if EXTRUDERS > 1
+  // Z raise distance for tool-change, as needed for some extruders
+  #define TOOLCHANGE_ZRAISE     2  // (mm)
+
+  // Retract and prime filament on tool-change
+  //#define TOOLCHANGE_FILAMENT_SWAP
+  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+    #define TOOLCHANGE_FIL_SWAP_LENGTH          12  // (mm)
+    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED 3600  // (mm/m)
+    #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED   3600  // (mm/m)
+  #endif
+
+  /**
+   * Position to park head during tool change.
+   * Doesn't apply to SWITCHING_TOOLHEAD, DUAL_X_CARRIAGE, or PARKING_EXTRUDER
+   */
+  //#define TOOLCHANGE_PARK
+  #if ENABLED(TOOLCHANGE_PARK)
+    #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
+    #define TOOLCHANGE_PARK_XY_FEEDRATE 6000  // (mm/m)
   #endif
 #endif
 
@@ -1661,6 +1688,18 @@
 //#define G0_FEEDRATE 3000 // (mm/m)
 #ifdef G0_FEEDRATE
   //#define VARIABLE_G0_FEEDRATE // The G0 feedrate is set by F in G0 motion mode
+#endif
+
+/**
+ * G-code Macros
+ *
+ * Add G-codes M810-M819 to define and run G-code macros.
+ * Macros are not saved to EEPROM.
+ */
+//#define GCODE_MACROS
+#if ENABLED(GCODE_MACROS)
+  #define GCODE_MACROS_SLOTS       5  // Up to 10 may be used
+  #define GCODE_MACROS_SLOT_SIZE  50  // Maximum length of a single macro
 #endif
 
 /**

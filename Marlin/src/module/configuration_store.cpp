@@ -201,9 +201,9 @@ typedef struct SettingsDataStruct {
   //
   // ULTIPANEL
   //
-  int16_t lcd_preheat_hotend_temp[2],                   // M145 S0 H
-          lcd_preheat_bed_temp[2];                      // M145 S0 B
-  uint8_t lcd_preheat_fan_speed[2];                     // M145 S0 F
+  int16_t ui_preheat_hotend_temp[2],                    // M145 S0 H
+          ui_preheat_bed_temp[2];                       // M145 S0 B
+  uint8_t ui_preheat_fan_speed[2];                      // M145 S0 F
 
   //
   // PIDTEMP
@@ -266,7 +266,7 @@ typedef struct SettingsDataStruct {
   fil_change_settings_t fc_settings[EXTRUDERS];         // M603 T U L
 
   //
-  // SINGLENOZZLE toolchange values
+  // Tool-change settings
   //
   #if EXTRUDERS > 1
     toolchange_settings_t toolchange_settings;                // M217 S P R
@@ -680,15 +680,19 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(lcd_preheat_hotend_temp);
 
-      #if DISABLED(ULTIPANEL)
-        constexpr int16_t lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
-                          lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
-        constexpr uint8_t lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
+      #if HAS_LCD_MENU
+        const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
+                      (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
+        const uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
+      #else
+        constexpr int16_t ui_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
+                          ui_preheat_bed_temp[2]    = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
+        constexpr uint8_t ui_preheat_fan_speed[2]   = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
       #endif
 
-      EEPROM_WRITE(lcd_preheat_hotend_temp);
-      EEPROM_WRITE(lcd_preheat_bed_temp);
-      EEPROM_WRITE(lcd_preheat_fan_speed);
+      EEPROM_WRITE(ui_preheat_hotend_temp);
+      EEPROM_WRITE(ui_preheat_bed_temp);
+      EEPROM_WRITE(ui_preheat_fan_speed);
     }
 
     //
@@ -717,6 +721,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(bedPID);
+
       #if DISABLED(PIDTEMPBED)
         const PID_t bed_pid = { DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE };
         EEPROM_WRITE(bed_pid);
@@ -731,9 +736,13 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(lcd_contrast);
 
-      #if !HAS_LCD_CONTRAST
-        const int16_t lcd_contrast = 32;
-      #endif
+      const int16_t lcd_contrast =
+        #if HAS_LCD_CONTRAST
+          ui.contrast
+        #else
+          32
+        #endif
+      ;
       EEPROM_WRITE(lcd_contrast);
     }
 
@@ -990,7 +999,7 @@ void MarlinSettings::postprocess() {
     }
 
     //
-    // SINGLENOZZLE
+    // Multiple Extruders
     //
 
     #if EXTRUDERS > 1
@@ -1304,15 +1313,19 @@ void MarlinSettings::postprocess() {
       // LCD Preheat settings
       //
       {
-        _FIELD_TEST(lcd_preheat_hotend_temp);
+        _FIELD_TEST(ui_preheat_hotend_temp);
 
-        #if DISABLED(ULTIPANEL)
-          int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
-          uint8_t lcd_preheat_fan_speed[2];
+        #if HAS_LCD_MENU
+          int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
+                  (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
+          uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
+        #else
+          int16_t ui_preheat_hotend_temp[2], ui_preheat_bed_temp[2];
+          uint8_t ui_preheat_fan_speed[2];
         #endif
-        EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
-        EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
-        EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
+        EEPROM_READ(ui_preheat_hotend_temp); // 2 floats
+        EEPROM_READ(ui_preheat_bed_temp);    // 2 floats
+        EEPROM_READ(ui_preheat_fan_speed);   // 2 floats
       }
 
       //
@@ -1366,10 +1379,12 @@ void MarlinSettings::postprocess() {
       //
       {
         _FIELD_TEST(lcd_contrast);
-        #if !HAS_LCD_CONTRAST
-          int16_t lcd_contrast;
-        #endif
+
+        int16_t lcd_contrast;
         EEPROM_READ(lcd_contrast);
+        #if HAS_LCD_CONTRAST
+          ui.set_contrast(lcd_contrast);
+        #endif
       }
 
       //
@@ -1637,7 +1652,7 @@ void MarlinSettings::postprocess() {
       }
 
       //
-      // SINGLENOZZLE toolchange values
+      // Tool-change settings
       //
       #if EXTRUDERS > 1
         _FIELD_TEST(toolchange_settings);
@@ -1905,13 +1920,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if EXTRUDERS > 1
-    #if ENABLED(SINGLENOZZLE)
-      toolchange_settings.swap_length = SINGLENOZZLE_SWAP_LENGTH;
-      toolchange_settings.prime_speed = SINGLENOZZLE_SWAP_PRIME_SPEED;
-      toolchange_settings.retract_speed = SINGLENOZZLE_SWAP_RETRACT_SPEED;
-      #if ENABLED(SINGLENOZZLE_SWAP_PARK)
-        toolchange_settings.change_point = SINGLENOZZLE_TOOLCHANGE_XY;
-      #endif
+    #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
+      toolchange_settings.swap_length = TOOLCHANGE_FIL_SWAP_LENGTH;
+      toolchange_settings.prime_speed = TOOLCHANGE_FIL_SWAP_PRIME_SPEED;
+      toolchange_settings.retract_speed = TOOLCHANGE_FIL_SWAP_RETRACT_SPEED;
+    #endif
+    #if ENABLED(TOOLCHANGE_PARK)
+      toolchange_settings.change_point = TOOLCHANGE_PARK_XY;
     #endif
     toolchange_settings.z_raise = TOOLCHANGE_ZRAISE;
   #endif
@@ -2027,13 +2042,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   #endif
 
-  #if ENABLED(ULTIPANEL)
-    lcd_preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
-    lcd_preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
-    lcd_preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
-    lcd_preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
-    lcd_preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
-    lcd_preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+  #if HAS_LCD_MENU
+    ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
+    ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+    ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
+    ui.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+    ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
+    ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
   #endif
 
   #if ENABLED(PIDTEMP)
@@ -2057,7 +2072,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #endif
 
   #if HAS_LCD_CONTRAST
-    lcd_contrast = DEFAULT_LCD_CONTRAST;
+    ui.set_contrast(DEFAULT_LCD_CONTRAST);
   #endif
 
   #if ENABLED(FWRETRACT)
@@ -2184,7 +2199,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif
     SERIAL_EOL_P(port);
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
 
       // Temperature units - for Ultipanel temperature options
 
@@ -2555,19 +2570,21 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #endif // [XYZ]_DUAL_ENDSTOPS
 
-    #if ENABLED(ULTIPANEL)
+    #if HAS_LCD_MENU
+
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM_P(port, "Material heatup parameters:");
       }
-      for (uint8_t i = 0; i < COUNT(lcd_preheat_hotend_temp); i++) {
+      for (uint8_t i = 0; i < COUNT(ui.preheat_hotend_temp); i++) {
         CONFIG_ECHO_START;
         SERIAL_ECHOPAIR_P(port, "  M145 S", (int)i);
-        SERIAL_ECHOPAIR_P(port, " H", TEMP_UNIT(lcd_preheat_hotend_temp[i]));
-        SERIAL_ECHOPAIR_P(port, " B", TEMP_UNIT(lcd_preheat_bed_temp[i]));
-        SERIAL_ECHOLNPAIR_P(port, " F", int(lcd_preheat_fan_speed[i]));
+        SERIAL_ECHOPAIR_P(port, " H", TEMP_UNIT(ui.preheat_hotend_temp[i]));
+        SERIAL_ECHOPAIR_P(port, " B", TEMP_UNIT(ui.preheat_bed_temp[i]));
+        SERIAL_ECHOLNPAIR_P(port, " F", int(ui.preheat_fan_speed[i]));
       }
-    #endif // ULTIPANEL
+
+    #endif
 
     #if HAS_PID_HEATING
 
@@ -2623,7 +2640,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         SERIAL_ECHOLNPGM_P(port, "LCD Contrast:");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR_P(port, "  M250 C", lcd_contrast);
+      SERIAL_ECHOLNPAIR_P(port, "  M250 C", ui.contrast);
     #endif
 
     #if ENABLED(FWRETRACT)
@@ -2978,10 +2995,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif // EXTRUDERS == 1
     #endif // ADVANCED_PAUSE_FEATURE
 
-    #if ENABLED(SINGLENOZZLE)
+    #if EXTRUDERS > 1
       CONFIG_ECHO_START;
       if (!forReplay) {
-        SERIAL_ECHOLNPGM_P(port, "SINGLENOZZLE:");
+        SERIAL_ECHOLNPGM_P(port, "Tool-changing:");
         CONFIG_ECHO_START;
       }
       M217_report(true);

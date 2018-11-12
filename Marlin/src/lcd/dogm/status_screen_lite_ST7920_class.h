@@ -74,7 +74,7 @@ class ST7920_Lite_Status_Screen {
     static uint8_t string_checksum(const char *str);
 
   protected:
-    static void draw_degree_symbol(uint8_t x, uint8_t y, bool draw);
+    static void draw_degree_symbol(uint8_t x, uint8_t y, const bool draw);
     static void draw_static_elements();
     static void draw_progress_bar(const uint8_t value);
     static void draw_fan_icon(const bool whichIcon);
@@ -86,7 +86,7 @@ class ST7920_Lite_Status_Screen {
     static void draw_fan_speed(const uint8_t value);
     static void draw_print_time(const duration_t &elapsed);
     static void draw_feedrate_percentage(const uint16_t percentage);
-    static void draw_status_message(const char *str);
+    static void draw_status_message();
     static void draw_position(const float x, const float y, const float z, bool position_known = true);
 
     static bool indicators_changed();

@@ -38,9 +38,9 @@
 
 void _man_probe_pt(const float &rx, const float &ry) {
   do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
-  lcd_synchronize();
+  ui.synchronize();
   move_menu_scale = MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / float(DEFAULT_XYZ_STEPS_PER_UNIT));
-  lcd_goto_screen(lcd_move_z);
+  ui.goto_screen(lcd_move_z);
 }
 
 #if ENABLED(DELTA_AUTO_CALIBRATION)
@@ -50,11 +50,11 @@ void _man_probe_pt(const float &rx, const float &ry) {
   float lcd_probe_pt(const float &rx, const float &ry) {
     _man_probe_pt(rx, ry);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
-    defer_return_to_status = true;
+    ui.defer_status_screen(true);
     wait_for_user = true;
     while (wait_for_user) idle();
     KEEPALIVE_STATE(IN_HANDLER);
-    lcd_goto_previous_menu_no_defer();
+    ui.goto_previous_screen_no_defer();
     return current_position[Z_AXIS];
   }
 
@@ -66,12 +66,12 @@ void _man_probe_pt(const float &rx, const float &ry) {
 
   void _lcd_calibrate_homing() {
     _lcd_draw_homing();
-    if (all_axes_homed()) lcd_goto_previous_menu();
+    if (all_axes_homed()) ui.goto_previous_screen();
   }
 
   void _lcd_delta_calibrate_home() {
     enqueue_and_echo_commands_P(PSTR("G28"));
-    lcd_goto_screen(_lcd_calibrate_homing);
+    ui.goto_screen(_lcd_calibrate_homing);
   }
 
   void _goto_tower_x() { _man_probe_pt(cos(RADIANS(210)) * delta_calibration_radius, sin(RADIANS(210)) * delta_calibration_radius); }

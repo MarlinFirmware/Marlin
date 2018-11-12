@@ -324,7 +324,7 @@
 #define MSG_CASE_LIGHT                      _UxGT("外殼燈") // "Case light"
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("燈亮度") // "Light BRIGHTNESS"
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("列印計數")  //"Print Count"
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("已完成")  //"Completed"
   #define MSG_INFO_PRINT_TIME               _UxGT("總列印時間")  //"Total print time"

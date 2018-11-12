@@ -326,7 +326,7 @@ void CardReader::initsd() {
 }
 
 void CardReader::release() {
-  sdprinting = false;
+  stopSDPrint();
   cardOK = false;
 }
 
@@ -446,7 +446,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
 
       getfilename(0, fname);
-      lcd_setstatus(longFilename[0] ? longFilename : fname);
+      ui.setstatus(longFilename[0] ? longFilename : fname);
       //if (longFilename[0]) {
       //  SERIAL_PROTOCOLPAIR(MSG_SD_FILE_LONG_NAME, longFilename);
       //}
@@ -470,7 +470,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
         emergency_parser.disable();
       #endif
       SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, fname);
-      lcd_setstatus(fname);
+      ui.setstatus(fname);
     }
   }
 }
@@ -947,7 +947,7 @@ void CardReader::printingHasFinished() {
     startFileprint();
   }
   else {
-    sdprinting = false;
+    stopSDPrint();
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       removeJobRecoveryFile();
@@ -963,10 +963,10 @@ void CardReader::printingHasFinished() {
       presort();
     #endif
     #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
-      progress_bar_percent = 0;
+      ui.progress_bar_percent = 0;
     #endif
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
-      lcd_reselect_last_file();
+      ui.reselect_last_file();
     #endif
   }
 }

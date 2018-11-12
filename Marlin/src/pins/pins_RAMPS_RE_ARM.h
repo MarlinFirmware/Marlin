@@ -37,7 +37,7 @@
 // numbers in parenthesis () are the mega2560 equivalent pin numbers
 
 #ifndef TARGET_LPC1768
-  #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
+  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
 #ifndef BOARD_NAME

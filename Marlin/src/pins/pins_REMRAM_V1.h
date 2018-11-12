@@ -21,7 +21,7 @@
  */
 
 #ifndef STM32F7xx
-  #error "Oops!  Make sure you have an STM32F7 board selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select an STM32F7 board in 'Tools > Board.'"
 #endif
 
 #define DEFAULT_MACHINE_NAME "RemRam"

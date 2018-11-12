@@ -21,7 +21,7 @@
  */
 
 #ifndef STM32F4
-  #error "Oops!  Make sure you have an STM32F4 board selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
 #ifndef ARMED_V1_0

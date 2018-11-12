@@ -61,7 +61,10 @@ void GcodeSuite::M18_M84() {
     }
 
     #if HAS_LCD_MENU && ENABLED(AUTO_BED_LEVELING_UBL)
-      if (ubl.lcd_map_control) ubl.lcd_map_control = defer_return_to_status = false;
+      if (ubl.lcd_map_control) {
+        ubl.lcd_map_control = false;
+        ui.defer_status_screen(false);
+      }
     #endif
   }
 }
