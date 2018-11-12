@@ -540,10 +540,10 @@
   #define MSG_AUTOTEMP                        _UxGT("Autotemp")
 #endif
 #ifndef MSG_ON
-  #define MSG_ON                              _UxGT("On ")
+  #define MSG_LCD_ON                          _UxGT("On")
 #endif
 #ifndef MSG_OFF
-  #define MSG_OFF                             _UxGT("Off")
+  #define MSG_LCD_OFF                         _UxGT("Off")
 #endif
 #ifndef MSG_PID_P
   #define MSG_PID_P                           _UxGT("PID-P")

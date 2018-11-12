@@ -238,6 +238,8 @@ void serial_spaces(uint8_t count);
 void serialprintPGM(PGM_P str);
 void serial_echo_start();
 void serial_error_start();
+void serialprint_onoff(const bool onoff);
+void serialprintln_onoff(const bool onoff);
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void print_xyz(PGM_P prefix, PGM_P suffix, const float x, const float y, const float z);

@@ -74,7 +74,7 @@ void draw_edit_screen(PGM_P const pstr, const char* const value=NULL);
   #define draw_menu_item_setting_edit_generic(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, false)
   #define draw_menu_item_setting_edit_generic_P(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, true)
   #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) draw_menu_item_setting_edit_generic(sel, row, pstr, SRC)
-  #define DRAW_BOOL_SETTING(sel, row, pstr, data) draw_menu_item_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
+  #define DRAW_BOOL_SETTING(sel, row, pstr, data) draw_menu_item_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_LCD_ON):PSTR(MSG_LCD_OFF))
   #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
     void _lcd_zoffset_overlay_gfx(const float zvalue);
   #endif
@@ -83,7 +83,7 @@ void draw_edit_screen(PGM_P const pstr, const char* const value=NULL);
   void draw_menu_item_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
   void draw_menu_item_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
   #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) draw_menu_item_setting_edit_generic(sel, row, pstr, '>', SRC)
-  #define DRAW_BOOL_SETTING(sel, row, pstr, data) draw_menu_item_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
+  #define DRAW_BOOL_SETTING(sel, row, pstr, data) draw_menu_item_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_LCD_ON):PSTR(MSG_LCD_OFF))
 #endif
 #define draw_menu_item_submenu(sel, row, pstr, data) draw_menu_item_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
 #define draw_menu_item_gcode(sel, row, pstr, gcode) draw_menu_item_generic(sel, row, pstr, '>', ' ')
