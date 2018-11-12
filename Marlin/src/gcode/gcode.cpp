@@ -568,6 +568,10 @@ void GcodeSuite::process_parsed_command(
         case 407: M407(); break;                                  // M407: Display measured filament diameter
       #endif
 
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        case 412: M412(); break;                                  // M412: Enable/Disable filament runout detection
+      #endif
+
       #if HAS_LEVELING
         case 420: M420(); break;                                  // M420: Enable/Disable Bed Leveling
       #endif
