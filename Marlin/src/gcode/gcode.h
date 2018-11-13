@@ -78,7 +78,7 @@
  * M3   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to clockwise
  * M4   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to counter-clockwise
  * M5   - Turn laser/spindle off
- * M12  - Set up closed loop control system. More features coming soon. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
+ * M12  - Set up closed loop control system. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
  * M20  - List SD card. (Requires SDSUPPORT)
@@ -196,6 +196,7 @@
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
+ * M412 - Enable / Disable filament runout detection. (Requires FILAMENT_RUNOUT_SENSOR)
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
@@ -706,6 +707,10 @@ private:
     static void M405();
     static void M406();
     static void M407();
+  #endif
+
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    static void M412();
   #endif
 
   #if HAS_LEVELING
