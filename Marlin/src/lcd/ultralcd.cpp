@@ -26,6 +26,9 @@
 #if HAS_SPI_LCD || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
   #include "ultralcd.h"
   MarlinUI ui;
+  #if ENABLED(SDSUPPORT)
+    #include "../sd/cardreader.h"
+  #endif
 #endif
 
 #if HAS_SPI_LCD
