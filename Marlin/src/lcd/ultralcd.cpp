@@ -30,6 +30,10 @@
 
 #if HAS_SPI_LCD
 
+#if HAS_GRAPHICAL_LCD
+  #include "dogm/ultralcd_DOGM.h"
+#endif
+
 #include "lcdprint.h"
 
 #include "../sd/cardreader.h"

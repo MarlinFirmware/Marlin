@@ -31,7 +31,7 @@
  * These are the most common LCD character displays.
  */
 
-#include "ultralcd_common_HD44780.h"
+#include "ultralcd_HD44780.h"
 #include "../ultralcd.h"
 
 #include "../../sd/cardreader.h"

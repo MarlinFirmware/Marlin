@@ -39,14 +39,13 @@
 
 #if HAS_GRAPHICAL_LCD
 
-#include "../ultralcd.h"
-
-#include <U8glib.h>
-#include "HAL_LCD_class_defines.h"
+#include "ultralcd_DOGM.h"
 #include "u8g_fontutf8.h"
+#include "dogm_Bootscreen.h"
+
 #include "../lcdprint.h"
 #include "../fontutils.h"
-#include "dogm_Bootscreen.h"
+#include "../ultralcd.h"
 
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
@@ -177,7 +176,7 @@ void MarlinUI::set_font(const MarlinFont font_nr) {
 #endif // SHOW_BOOTSCREEN
 
 #if ENABLED(LIGHTWEIGHT_UI)
-  #include "status_screen_lite_ST7920_class.h"
+  #include "status_screen_lite_ST7920.h"
 #endif
 
 // Initialize or re-initialize the LCD

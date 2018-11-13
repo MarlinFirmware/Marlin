@@ -30,8 +30,10 @@
 #if HAS_GRAPHICAL_LCD && DISABLED(LIGHTWEIGHT_UI)
 
 #include "dogm_Statusscreen.h"
+#include "ultralcd_DOGM.h"
 #include "../ultralcd.h"
 #include "../lcdprint.h"
+
 #include "../../module/motion.h"
 #include "../../module/temperature.h"
 

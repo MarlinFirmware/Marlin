@@ -45,7 +45,7 @@
 
 #if ENABLED(LIGHTWEIGHT_UI)
 
-#include "status_screen_lite_ST7920_class.h"
+#include "status_screen_lite_ST7920.h"
 
 #include "../ultralcd.h"
 #include "../fontutils.h"
@@ -916,8 +916,7 @@ void ST7920_Lite_Status_Screen::on_exit() {
 }
 
 // This is called prior to the KILL screen to
-// clear the screen so we don't end up with a
-// garbled display.
+// clear the screen, preventing a garbled display.
 void ST7920_Lite_Status_Screen::clear_text_buffer() {
   cs();
   reset_state_from_unknown();
@@ -926,23 +925,42 @@ void ST7920_Lite_Status_Screen::clear_text_buffer() {
   ncs();
 }
 
+#if ENABLED(U8GLIB_ST7920) && !defined(U8G_HAL_LINKS) && !defined(__SAM3X8E__)
+
+  #include "ultralcd_st7920_u8glib_rrd_AVR.h"
+
+  void ST7920_Lite_Status_Screen::cs() {
+    ST7920_CS();
+    current_bits.synced = false;
+  }
+
+  void ST7920_Lite_Status_Screen::ncs() {
+    ST7920_NCS();
+    current_bits.synced = false;
+  }
+
+  void ST7920_Lite_Status_Screen::sync_cmd() {
+    ST7920_SET_CMD();
+  }
+
+  void ST7920_Lite_Status_Screen::sync_dat() {
+    ST7920_SET_DAT();
+  }
+
+  void ST7920_Lite_Status_Screen::write_byte(const uint8_t data) {
+    ST7920_WRITE_BYTE(data);
+  }
+
+#endif
+
 void MarlinUI::draw_status_screen() {
   ST7920_Lite_Status_Screen::update(false);
 }
 
-/**
- * In order to properly update the lite Status Screen,
- * we must know when we have entered and left the
- * Status Screen. Since the ultralcd code is not
- * set up for doing this, we call this function before
- * each update indicating whether the current screen
- * is the Status Screen.
- *
- * This function keeps track of whether we have left or
- * entered the Status Screen and calls the on_entry()
- * and on_exit() methods for cleanup.
- */
-void lcd_in_status(const bool inStatus) {
+// This method is called before each screen update and
+// fires on_entry() and on_exit() events upon entering
+// or exiting the Status Screen.
+void MarlinUI::lcd_in_status(const bool inStatus) {
   static bool lastInStatus = false;
   if (lastInStatus == inStatus) return;
   if ((lastInStatus = inStatus))
