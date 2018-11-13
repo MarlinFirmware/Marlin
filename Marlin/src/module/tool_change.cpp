@@ -498,25 +498,28 @@ inline void invalid_extruder_error(const uint8_t e) {
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
-  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+  #if ENABLED(MIXING_EXTRUDER)
 
-      if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
-        return invalid_extruder_error(tmp_extruder);
+    UNUSED(fr_mm_s);
+    UNUSED(no_move);
+    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
+      return invalid_extruder_error(tmp_extruder);
+
+    #if MIXING_VIRTUAL_TOOLS >  1
       // T0-Tnnn: Switch virtual tool by changing the index to the mix
       mixer.T(uint_fast8_t(tmp_extruder));
-      UNUSED(fr_mm_s);
-      UNUSED(no_move);
+    #endif
 
   #elif EXTRUDERS < 2
 
+    UNUSED(fr_mm_s);
+    UNUSED(no_move);
     if (tmp_extruder) invalid_extruder_error(tmp_extruder);
     return;
 
   #else
 
-    #if DISABLED(MIXING_EXTRUDER)
-      planner.synchronize();
-    #endif
+    planner.synchronize();
 
     #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_SCALED_DUPLICATION_MODE
       if (tmp_extruder != 0 && dxc_is_duplicating())
