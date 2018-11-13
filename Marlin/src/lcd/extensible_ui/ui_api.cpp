@@ -45,6 +45,7 @@
 
 #if ENABLED(EXTENSIBLE_UI)
 
+#include "../ultralcd.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
@@ -712,32 +713,9 @@ void MarlinUI::update() {
   UI::onIdle();
 }
 
-bool MarlinUI::hasstatus() { return true; }
-bool MarlinUI::detected() { return true; }
-void MarlinUI::reset_alert_level() { }
-void MarlinUI::refresh() { }
-void MarlinUI::setstatus(const char * const message, const bool persist /* = false */) { UI::onStatusChanged(message); }
-void MarlinUI::setstatusPGM(const char * const message, int8_t level /* = 0 */)        { UI::onStatusChanged((progmem_str)message); }
-void MarlinUI::setalertstatusPGM(const char * const message)                    { setstatusPGM(message, 0); }
-
-void MarlinUI::reset_status() {
-  static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
-  static const char printing[] PROGMEM = MSG_PRINTING;
-  static const char welcome[] PROGMEM = WELCOME_MSG;
-  PGM_P msg;
-  if (print_job_timer.isPaused())
-    msg = paused;
-  #if ENABLED(SDSUPPORT)
-    else if (IS_SD_PRINTING())
-      return setstatus(card.longest_filename(), true);
-  #endif
-  else if (print_job_timer.isRunning())
-    msg = printing;
-  else
-    msg = welcome;
-
-  setstatusPGM(msg, -1);
-}
+void MarlinUI::setstatus(const char * const message, const bool persist/*=false*/)  { UI::onStatusChanged(message); }
+void MarlinUI::setstatusPGM(PGM_P const message, int8_t level/*=0*/)                { UI::onStatusChanged((progmem_str)message); }
+void MarlinUI::setalertstatusPGM(PGM_P const message)                               { setstatusPGM(message, 0); }
 
 void MarlinUI::status_printf_P(const uint8_t level, const char * const fmt, ...) {
   char buff[64];

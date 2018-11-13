@@ -397,18 +397,18 @@ public:
   #if HAS_SPI_LCD || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
     static void init();
     static void update();
-    static bool detected();
     static void setalertstatusPGM(PGM_P message);
   #else // NO LCD
     static inline void init() {}
     static inline void update() {}
-    static constexpr bool detected() { return true; }
     static inline void setalertstatusPGM(PGM_P message) { UNUSED(message); }
   #endif
 
   #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
 
     #if HAS_SPI_LCD
+
+      static bool detected();
 
       static LCDViewAction lcdDrawUpdate;
       static inline bool should_draw() { return bool(lcdDrawUpdate); }
@@ -455,6 +455,7 @@ public:
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         static uint8_t status_scroll_offset;
       #endif
+      static bool hasstatus();
 
       static uint8_t lcd_status_update_delay;
       static uint8_t status_message_level;      // Higher levels block lower levels
@@ -495,15 +496,15 @@ public:
 
     #else
 
-      static void refresh();
-      static void reset_alert_level();
+      static void refresh() {}
+      static inline void reset_alert_level() {}
+      static constexpr bool hasstatus() { return true; }
 
     #endif
 
     static bool get_blink();
     static void kill_screen(PGM_P const lcd_msg);
     static void draw_kill_screen();
-    static bool hasstatus();
     static void setstatus(const char* const message, const bool persist=false);
     static void setstatusPGM(PGM_P const message, const int8_t level=0);
     static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
@@ -512,12 +513,12 @@ public:
   #else // MALYAN_LCD or NO LCD
 
     static inline void refresh() {}
-    static constexpr bool hasstatus() { return false; }
     static inline void setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
     static inline void setstatusPGM(PGM_P const message, const int8_t level=0) { UNUSED(message); UNUSED(level); }
     static inline void status_printf_P(const uint8_t level, PGM_P const fmt, ...) { UNUSED(level); UNUSED(fmt); }
     static inline void reset_status() {}
     static inline void reset_alert_level() {}
+    static constexpr bool hasstatus() { return false; }
 
   #endif
 
@@ -636,13 +637,13 @@ public:
       static inline void encoder_direction_menus()  { encoderDirection = -(ENCODERBASE); }
     #else
       static constexpr int8_t encoderDirection = ENCODERBASE;
-      static inline void encoder_direction_normal() { }
-      static inline void encoder_direction_menus()  { }
+      static inline void encoder_direction_normal() {}
+      static inline void encoder_direction_menus()  {}
     #endif
 
   #else
 
-    static inline void update_buttons() { }
+    static inline void update_buttons() {}
 
   #endif
 
@@ -660,6 +661,8 @@ private:
     #endif
     static void draw_status_screen();
     static void finishstatus(const bool persist);
+  #else
+    static inline void finishstatus(const bool persist) { UNUSED(persist); refresh(); }
   #endif
 };
 

@@ -45,6 +45,7 @@
 
 #if ENABLED(MALYAN_LCD)
 
+#include "ultralcd.h"
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/stepper.h"
@@ -479,10 +480,10 @@ void MarlinUI::init() {
 /**
  * Set an alert.
  */
-void MarlinUI::setalertstatusPGM(PGM_P message) {
-  char message_buffer[MAX_CURLY_COMMAND];
-  sprintf_P(message_buffer, PSTR("{E:%s}"), message);
-  write_to_lcd(message_buffer);
+void MarlinUI::setalertstatusPGM(PGM_P const message) {
+  write_to_lcd_P(PSTR("{E:"));
+  write_to_lcd_P(message);
+  write_to_lcd_P("}");
 }
 
 #endif // MALYAN_LCD
