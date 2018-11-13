@@ -79,7 +79,7 @@ void draw_edit_screen(PGM_P const pstr, const char* const value=NULL);
     void _lcd_zoffset_overlay_gfx(const float zvalue);
   #endif
 #else
-  #define draw_menu_item_back(sel, row, pstr) draw_menu_item_generic(sel, row, pstr, LCD_UPLEVEL_CHAR, LCD_UPLEVEL_CHAR)
+  #define draw_menu_item_back(sel, row, pstr) draw_menu_item_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
   void draw_menu_item_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
   void draw_menu_item_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
   #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) draw_menu_item_setting_edit_generic(sel, row, pstr, '>', SRC)
