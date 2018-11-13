@@ -25,6 +25,9 @@
 // These displays all share the MarlinUI class
 #if HAS_SPI_LCD || ENABLED(MALYAN_LCD) || ENABLED(EXTENSIBLE_UI)
   #include "ultralcd.h"
+  #if ENABLED(SDSUPPORT)
+    #include "../sd/cardreader.h"
+  #endif
   MarlinUI ui;
 #endif
 
