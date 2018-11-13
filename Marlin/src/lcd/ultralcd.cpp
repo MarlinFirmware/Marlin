@@ -269,7 +269,7 @@ bool MarlinUI::get_blink() {
             #if HAS_LCD_MENU
               if      (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
-              else if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))   { menu_item_back::action(); quick_feedback(); }
+              else if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
               else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
             #endif
           }

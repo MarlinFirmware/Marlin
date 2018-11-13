@@ -72,7 +72,7 @@ void lcd_sd_updir() {
   }
 #endif
 
-class menu_item_sdfile {
+class MenuItem_sdfile {
   public:
     static void action(CardReader &theCard) {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
@@ -84,7 +84,7 @@ class menu_item_sdfile {
     }
 };
 
-class menu_item_sdfolder {
+class MenuItem_sdfolder {
   public:
     static void action(CardReader &theCard) {
       card.chdir(theCard.filename);

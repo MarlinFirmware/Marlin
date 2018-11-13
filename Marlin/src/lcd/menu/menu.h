@@ -37,7 +37,7 @@ bool printer_busy();
 ////////////////////////////////////////////
 
 #define DECLARE_MENU_EDIT_TYPE(TYPE, NAME, STRFUNC, SCALE) \
-  struct NAME ## _item_info { \
+  struct MenuItemInfo_##NAME { \
     typedef TYPE type_t; \
     static constexpr float scale = SCALE; \
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
@@ -65,24 +65,24 @@ void draw_edit_screen(PGM_P const pstr, const char* const value=NULL);
 #if ENABLED(SDSUPPORT)
   class CardReader;
   void draw_sd_menu_item(const bool isSelected, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir);
-  inline void draw_menu_item_sdfile(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) { draw_sd_menu_item(sel, row, pstr, theCard, false); }
-  inline void draw_menu_item_sdfolder(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard) { draw_sd_menu_item(sel, row, pstr, theCard, true); }
+  inline void draw_menu_item_sdfile(const bool isSelected, const uint8_t row, PGM_P const pstr, CardReader &theCard) { draw_sd_menu_item(sel, row, pstr, theCard, false); }
+  inline void draw_menu_item_sdfolder(const bool isSelected, const uint8_t row, PGM_P const pstr, CardReader &theCard) { draw_sd_menu_item(sel, row, pstr, theCard, true); }
 #endif
+
+#define draw_menu_item_back(sel, row, pstr) draw_menu_item_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
 #if HAS_GRAPHICAL_LCD
   void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, const char* pstr, const char* const data, const bool pgm);
-  #define draw_menu_item_back(sel, row, pstr) draw_menu_item_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
   #define draw_menu_item_setting_edit_generic(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, false)
   #define draw_menu_item_setting_edit_generic_P(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, true)
-  #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) draw_menu_item_setting_edit_generic(sel, row, pstr, SRC)
+  #define DRAWMENU_SETTING_EDIT_GENERIC(VAL) draw_menu_item_setting_edit_generic(sel, row, pstr, VAL)
   #define DRAW_BOOL_SETTING(sel, row, pstr, data) draw_menu_item_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_LCD_ON):PSTR(MSG_LCD_OFF))
   #if ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) || ENABLED(MESH_EDIT_GFX_OVERLAY)
     void _lcd_zoffset_overlay_gfx(const float zvalue);
   #endif
 #else
-  #define draw_menu_item_back(sel, row, pstr) draw_menu_item_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
-  void draw_menu_item_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
-  void draw_menu_item_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
-  #define DRAWMENU_SETTING_EDIT_GENERIC(SRC) draw_menu_item_setting_edit_generic(sel, row, pstr, '>', SRC)
+  void draw_menu_item_setting_edit_generic(const bool isSelected, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
+  void draw_menu_item_setting_edit_generic_P(const bool isSelected, const uint8_t row, const char* pstr, const char pre_char, const char* const data);
+  #define DRAWMENU_SETTING_EDIT_GENERIC(VAL) draw_menu_item_setting_edit_generic(sel, row, pstr, '>', VAL)
   #define DRAW_BOOL_SETTING(sel, row, pstr, data) draw_menu_item_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_LCD_ON):PSTR(MSG_LCD_OFF))
 #endif
 #define draw_menu_item_submenu(sel, row, pstr, data) draw_menu_item_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
@@ -94,16 +94,16 @@ void draw_edit_screen(PGM_P const pstr, const char* const value=NULL);
 ////////////////////////////////////////////
 
 #define _DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(TYPE, NAME, STRFUNC) \
-  FORCE_INLINE void draw_menu_item_setting_edit_ ## NAME (const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const pstr2, TYPE * const data, ...) { \
+  FORCE_INLINE void draw_menu_item_setting_edit_##NAME (const bool isSelected, const uint8_t row, PGM_P const pstr, PGM_P const pstr2, TYPE * const data, ...) { \
     UNUSED(pstr2); \
     DRAWMENU_SETTING_EDIT_GENERIC(STRFUNC(*(data))); \
   } \
-  FORCE_INLINE void draw_menu_item_setting_edit_accessor_ ## NAME (const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const pstr2, TYPE (*pget)(), void (*pset)(TYPE), ...) { \
+  FORCE_INLINE void draw_menu_item_setting_edit_accessor_##NAME (const bool isSelected, const uint8_t row, PGM_P const pstr, PGM_P const pstr2, TYPE (*pget)(), void (*pset)(TYPE), ...) { \
     UNUSED(pstr2); UNUSED(pset); \
     DRAWMENU_SETTING_EDIT_GENERIC(STRFUNC(pget())); \
   } \
   typedef void NAME##_void
-#define DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(NAME) _DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(NAME ## _item_info::type_t, NAME, NAME ## _item_info::strfunc)
+#define DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(NAME) _DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(MenuItemInfo_##NAME::type_t, NAME, MenuItemInfo_##NAME::strfunc)
 
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int3);
 DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(int4);
@@ -124,22 +124,22 @@ DEFINE_LCD_IMPLEMENTATION_DRAWMENU_SETTING_EDIT_TYPE(long5);
 /////////////// Menu Actions ///////////////
 ////////////////////////////////////////////
 
-class menu_item_back {
+class MenuItem_back {
   public:
     static inline void action() { ui.goto_previous_screen(); }
 };
 
-class menu_item_submenu {
+class MenuItem_submenu {
   public:
     static inline void action(const screenFunc_t func) { ui.save_previous_screen(); ui.goto_screen(func); }
 };
 
-class menu_item_gcode {
+class MenuItem_gcode {
   public:
     static void action(const char * const pgcode);
 };
 
-class menu_item_function {
+class MenuItem_function {
   public:
     static inline void action(const menuAction_t func) { (*func)(); };
 };
@@ -172,7 +172,7 @@ class TMenuItem : MenuItemBase {
     static void edit() { MenuItemBase::edit(to_string, load); }
 };
 
-#define DECLARE_MENU_EDIT_ITEM(NAME) typedef TMenuItem<NAME ## _item_info> menu_item_ ## NAME;
+#define DECLARE_MENU_EDIT_ITEM(NAME) typedef TMenuItem<MenuItemInfo_##NAME> MenuItem_##NAME;
 
 DECLARE_MENU_EDIT_ITEM(int3);
 DECLARE_MENU_EDIT_ITEM(int4);
@@ -186,7 +186,7 @@ DECLARE_MENU_EDIT_ITEM(float52sign);
 DECLARE_MENU_EDIT_ITEM(float62);
 DECLARE_MENU_EDIT_ITEM(long5);
 
-class menu_item_bool {
+class MenuItem_bool {
   public:
     static void action_setting_edit(PGM_P const pstr, bool* ptr, const screenFunc_t callbackFunc=NULL);
 };
@@ -247,22 +247,22 @@ class menu_item_bool {
  * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
  *
  *   draw_menu_item_<type>[_variant](sel, row, label, arg3...)
- *   menu_item_<type>::action[_variant](arg3...)
+ *   MenuItem_<type>::action[_variant](arg3...)
  *
  * Examples:
  *   MENU_ITEM(back, MSG_WATCH, 0 [dummy parameter] )
  *   or
  *   MENU_BACK(MSG_WATCH)
  *     draw_menu_item_back(sel, row, PSTR(MSG_WATCH))
- *     menu_item_back::action()
+ *     MenuItem_back::action()
  *
  *   MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause)
  *     draw_menu_item_function(sel, row, PSTR(MSG_PAUSE_PRINT), lcd_sdcard_pause)
- *     menu_item_function::action(lcd_sdcard_pause)
+ *     MenuItem_function::action(lcd_sdcard_pause)
  *
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
  *     draw_menu_item_setting_edit_int3(sel, row, PSTR(MSG_SPEED), PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
- *     menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *     MenuItem_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  */
 #define _MENU_ITEM_VARIANT_P(TYPE, VARIANT, USE_MULTIPLIER, PLABEL, ...) do { \
@@ -270,7 +270,7 @@ class menu_item_bool {
     if (_menuLineNr == _thisItemNr) { \
       if (encoderLine == _thisItemNr && ui.use_click()) { \
         _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER); \
-        menu_item_ ## TYPE ::action ## VARIANT(__VA_ARGS__); \
+        MenuItem_##TYPE ::action ## VARIANT(__VA_ARGS__); \
         if (screen_changed) return; \
       } \
       if (ui.should_draw()) \
