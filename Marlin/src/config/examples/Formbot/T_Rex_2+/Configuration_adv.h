@@ -219,7 +219,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-#define FAN_MIN_PWM 64
+#define FAN_MIN_PWM 45
 //#define FAN_MAX_PWM 128
 
 // @section extruder
@@ -365,12 +365,12 @@
  */
 #define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
-  #define X1_MIN_POS X_MIN_POS  // set minimum to ensure first x-carriage doesn't hit the parked second X-carriage
-  #define X1_MAX_POS X_BED_SIZE // set maximum to ensure first x-carriage doesn't hit the parked second X-carriage
-  #define X2_MIN_POS  0     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
-  #define X2_MAX_POS (442-4.0) // set maximum to the distance between toolheads when both heads are homed
-  #define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
-  #define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position
+  #define X1_MIN_POS X_MIN_POS        // set minimum to ensure first x-carriage doesn't hit the parked second X-carriage
+  #define X1_MAX_POS (X_BED_SIZE)     // set maximum to ensure first x-carriage doesn't hit the parked second X-carriage
+  #define X2_MIN_POS  0               // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
+  #define X2_MAX_POS (442-4.0)        // set maximum to the distance between toolheads when both heads are homed
+  #define X2_HOME_DIR 1               // the second X-carriage always homes to the maximum endstop position
+  #define X2_HOME_POS X2_MAX_POS      // default home position is the maximum carriage position
       // However: In this mode the HOTEND_OFFSET_X value for the second extruder provides a software
       // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
       // without modifying the firmware (through the "M218 T1 X???" command).
@@ -432,6 +432,7 @@
   // Stop criterion. If the accuracy is better than this stop iterating early
   #define Z_STEPPER_ALIGN_ACC 0.02
 #endif
+
 
 // @section machine
 
@@ -513,6 +514,7 @@
 //#define MICROSTEP16 LOW,LOW,HIGH
 //#define MICROSTEP32 HIGH,LOW,HIGH
 
+
 // Microstep setting (Only functional when stepper driver microstep pins are connected to MCU.
 #define MICROSTEP_MODES { 16, 16, 16, 16, 16, 16 } // [1,2,4,8,16]
 
@@ -590,7 +592,7 @@
 // Add an 'M73' G-code to set the current percentage
 #define LCD_SET_PROGRESS_MANUALLY
 
-#if HAS_CHARACTER_LCD && HAS_PRINT_PROGRESS
+#if HAS_PRINT_PROGRESS
   //#define LCD_PROGRESS_BAR              // Show a progress bar on HD44780 LCDs for SD printing
   #if ENABLED(LCD_PROGRESS_BAR)
     #define PROGRESS_BAR_BAR_TIME 2000    // (ms) Amount of time to show the bar
@@ -1061,7 +1063,7 @@
  *   'M106 P<fan> T2'     : Use the set secondary speed
  *   'M106 P<fan> T1'     : Restore the previous fan speed
  */
-#define EXTRA_FAN_SPEED
+//#define EXTRA_FAN_SPEED
 
 /**
  * Firmware-based and LCD-controlled retract
@@ -1097,34 +1099,6 @@
     //#define RETRACT_SYNC_MIXING         // Retract and restore all mixing steppers simultaneously
   #endif
 #endif
-
-/**
- * Universal tool change settings.
- * Applies to all types of extruders except where explicitly noted.
- */
-#if EXTRUDERS > 1
-  // Z raise distance for tool-change, as needed for some extruders
-  #define TOOLCHANGE_ZRAISE     2  // (mm)
-
-  // Retract and prime filament on tool-change
-  //#define TOOLCHANGE_FILAMENT_SWAP
-  #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-    #define TOOLCHANGE_FIL_SWAP_LENGTH          12  // (mm)
-    #define TOOLCHANGE_FIL_SWAP_RETRACT_SPEED 3600  // (mm/m)
-    #define TOOLCHANGE_FIL_SWAP_PRIME_SPEED   3600  // (mm/m)
-  #endif
-
-  /**
-   * Position to park head during tool change.
-   * Doesn't apply to SWITCHING_TOOLHEAD, DUAL_X_CARRIAGE, or PARKING_EXTRUDER
-   */
-  //#define TOOLCHANGE_PARK
-  #if ENABLED(TOOLCHANGE_PARK)
-    #define TOOLCHANGE_PARK_XY    { X_MIN_POS + 10, Y_MIN_POS + 10 }
-    #define TOOLCHANGE_PARK_XY_FEEDRATE 6000  // (mm/m)
-  #endif
-#endif
-
 /**
  * Advanced Pause
  * Experimental feature for filament change support and for parking the nozzle when paused.
@@ -1162,19 +1136,19 @@
                                                   //   until extrusion is consistent, and to purge old filament.
 
                                                   // Filament Unload does a Retract, Delay, and Purge first:
-  #define FILAMENT_UNLOAD_RETRACT_LENGTH       4  // (mm) Unload initial retract length.
-  #define FILAMENT_UNLOAD_DELAY             5000  // (ms) Delay for the filament to cool after retract.
+  #define FILAMENT_UNLOAD_RETRACT_LENGTH       0  // (mm) Unload initial retract length.
+  #define FILAMENT_UNLOAD_DELAY              500  // (ms) Delay for the filament to cool after retract.
   #define FILAMENT_UNLOAD_PURGE_LENGTH         0  // (mm) An unretract is done, then this length is purged.
 
-  #define PAUSE_PARK_NOZZLE_TIMEOUT           45  // (seconds) Time limit before the nozzle is turned off for safety.
-  #define FILAMENT_CHANGE_ALERT_BEEPS          1  // Number of alert beeps to play when a response is needed.
+  #define PAUSE_PARK_NOZZLE_TIMEOUT       (3*60)  // (seconds) Time limit before the nozzle is turned off for safety.
+  #define FILAMENT_CHANGE_ALERT_BEEPS          3  // Number of alert beeps to play when a response is needed.
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT           // Enable for XYZ steppers to stay powered on during filament change.
 
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   #define HOME_BEFORE_FILAMENT_CHANGE             // Ensure homing has been completed prior to parking for filament change
 
-  //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
-  //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
+  #define FILAMENT_LOAD_UNLOAD_GCODES             // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
+  #define FILAMENT_UNLOAD_ALL_EXTRUDERS           // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
 // @section tmc
@@ -1695,18 +1669,6 @@
 #endif
 
 /**
- * G-code Macros
- *
- * Add G-codes M810-M819 to define and run G-code macros.
- * Macros are not saved to EEPROM.
- */
-//#define GCODE_MACROS
-#if ENABLED(GCODE_MACROS)
-  #define GCODE_MACROS_SLOTS       5  // Up to 10 may be used
-  #define GCODE_MACROS_SLOT_SIZE  50  // Maximum length of a single macro
-#endif
-
-/**
  * User-defined menu items that execute custom GCode
  */
 //#define CUSTOM_USER_MENUS
@@ -1851,7 +1813,7 @@
 
   #define MAX7219_GCODE            // Add the M7219 G-code to control the LED matrix
   #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
-  #define MAX7219_NUMBER_UNITS 2   // Number of Max7219 units in chain.
+  #define MAX7219_NUMBER_UNITS 3   // Number of Max7219 units in chain.
   #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
                                    // connector at:  right=0   bottom=-90  top=90  left=180
   #define MAX7219_REVERSE_ORDER   // The individual LED matrix units may be in reversed order
