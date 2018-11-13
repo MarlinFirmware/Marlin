@@ -293,10 +293,10 @@ void Endstops::not_homing() {
 void Endstops::resync() {
   if (!abort_enabled()) return;     // If endstops/probes are disabled the loop below can hang
 
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !ENDSTOP_NOISE_THRESHOLD
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     update();
   #else
-    safe_delay(2);  // Wait for Temperature ISR (runs at 1KHz)
+    safe_delay(2);  // Wait for Temperature ISR to run at least once (runs at 1KHz)
   #endif
   #if ENDSTOP_NOISE_THRESHOLD
     while (endstop_poll_count) safe_delay(1);
