@@ -296,7 +296,7 @@ void Endstops::resync() {
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     update();
   #else
-    safe_delay(2);  // Wait for Temperature ISR calls update at least 1 time (runs at 1KHz)
+    safe_delay(2);  // Wait for Temperature ISR to run at least once (runs at 1KHz)
   #endif
   #if ENDSTOP_NOISE_THRESHOLD
     while (endstop_poll_count) safe_delay(1);
