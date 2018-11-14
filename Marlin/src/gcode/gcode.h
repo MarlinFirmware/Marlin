@@ -822,7 +822,7 @@ private:
 
   static void M999();
 
-  static void T(const uint8_t tmp_extruder);
+  static void T(const uint8_t tool_index);
 
 };
 
