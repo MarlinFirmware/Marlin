@@ -21,9 +21,9 @@
  */
 
 /**
- * ARCHIM2 pin assignment
+ * ARCHIM1 pin assignment
  *
- * The Archim 2.0 board requires Arduino Archim addons installed.
+ * The Archim 1.0 board requires Arduino Archim addons installed.
  *
  * - Add the following URL to Arduino IDE's Additional Board Manager URLs:
  *   https://raw.githubusercontent.com/ultimachine/ArduinoAddons/master/package_ultimachine_index.json
@@ -40,7 +40,7 @@
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME "Archim 2.0"
+#define BOARD_NAME "Archim 1.0"
 
 //
 // Items marked * have been altered from Archim v1.0
@@ -52,47 +52,14 @@
 #define SERVO0_PIN         20   // D20 PB12 (Header J20 20)
 #define SERVO1_PIN         21   // D21 PB13 (Header J20 19)
 
+
 //
 // Limit Switches
 //
-
-#if ENABLED(SENSORLESS_HOMING)
-
-  // Only use Diag Pins when SENSORLESS_HOMING is enabled for the TMC2130 drivers.
-  // Otherwise use a physical endstop based configuration.
-
-  // TMC2130 Diag Pins
-  #define X_DIAG_PIN       59   // PA4
-  #define Y_DIAG_PIN       48   // PC15
-  #define Z_DIAG_PIN       36   // PC4
-  #define E0_DIAG_PIN      78   // PB23
-  #define E1_DIAG_PIN      25   // PD0
-
-  #if X_HOME_DIR == -1
-    #define X_MIN_PIN      X_DIAG_PIN
-    #define X_MAX_PIN      32
-  #else
-    #define X_MIN_PIN      14
-    #define X_MAX_PIN      X_DIAG_PIN
-  #endif
-
-  #if Y_HOME_DIR == -1
-    #define Y_MIN_PIN      Y_DIAG_PIN
-    #define Y_MAX_PIN      15
-  #else
-    #define Y_MIN_PIN      29
-    #define Y_MAX_PIN      Y_DIAG_PIN
-  #endif
-
-#else
-
-  #define X_MIN_PIN        14   // PD4 MIN ES1
-  #define X_MAX_PIN        32   // PD10 MAX ES1
-  #define Y_MIN_PIN        29   // PD6 MIN ES2
-  #define Y_MAX_PIN        15   // PD5 MAX ES2
-
-#endif
-
+#define X_MIN_PIN          14   // PD4 MIN ES1
+#define X_MAX_PIN          32   // PD10 MAX ES1
+#define Y_MIN_PIN          29   // PD6 MIN ES2
+#define Y_MAX_PIN          15   // PD5 MAX ES2
 #define Z_MIN_PIN          31   // PA7 MIN ES3
 #define Z_MAX_PIN          30   // PD9 MAX ES3
 
@@ -110,53 +77,60 @@
   #define FIL_RUNOUT2_PIN  67   // D67 PB16 (Header J20 16)
 #endif
 
+
 //
 // Steppers
 //
-#define X_STEP_PIN         38   // PC6 X-STEP *
-#define X_DIR_PIN          37   // PC5 X-DIR *
+#define X_STEP_PIN         40   // PC8 STEP1 *
+#define X_DIR_PIN          59   // PA4 DIR1 *
 #define X_ENABLE_PIN       41   // PC9 EN1
-#ifndef X_CS_PIN
-  #define X_CS_PIN         39   // PC7 X_nCS
-#endif
 
-#define Y_STEP_PIN         51   // PC12 Y-STEP *
-#define Y_DIR_PIN          92   // PC11 Y-DIR -AddOns *
-#define Y_ENABLE_PIN       49   // PC14 Y-EN *
-#ifndef Y_CS_PIN
-  #define Y_CS_PIN         50   // PC13 Y_nCS
-#endif
+#define Y_STEP_PIN         49   // PC14 STEP2 *
+#define Y_DIR_PIN          47   // PC16 DIR2 *
+#define Y_ENABLE_PIN       48   // PC15 EN2 *
 
-#define Z_STEP_PIN         46   // PC17 Z-STEP *
-#define Z_DIR_PIN          47   // PC16 Z-DIR *
-#define Z_ENABLE_PIN       44   // PC19 Z-END *
-#ifndef Z_CS_PIN
-  #define Z_CS_PIN         45   // PC18 Z_nCS
-#endif
+#define Z_STEP_PIN         36   // PC4 STEP Z *
+#define Z_DIR_PIN         107   // PB10 DIR Z *
+#define Z_ENABLE_PIN       96   // PC10 EN Z -AddOns *
 
-#define E0_STEP_PIN       107   // PB10 E1-STEP -AddOns *
-#define E0_DIR_PIN         96   // PC10 E1-DIR -AddOns *
-#define E0_ENABLE_PIN     105   // PB22 E1-EN -AddOns *
-#ifndef E0_CS_PIN
-  #define E0_CS_PIN       104   // PC20 E1_nCS -AddOns *
-#endif
+#define E0_STEP_PIN        78   // PB23 STEP3 *
+#define E0_DIR_PIN         22   // PB26 DIR3 *
+#define E0_ENABLE_PIN      97   // PB24 EN3 -Addons *
 
-#define E1_STEP_PIN        22   // PB26 E2_STEP *
-#define E1_DIR_PIN         97   // PB24 E2_DIR -AddOns *
-#define E1_ENABLE_PIN      18   // PA11 E2-EN
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN        19   // PA10 E2_nCS
-#endif
+#define E1_STEP_PIN        26   // PD1 STEP4 *
+#define E1_DIR_PIN         27   // PD2 DIR4 *
+#define E1_ENABLE_PIN      28   // PD3 EN4 *
 
-//
-// Software SPI pins for TMC2130 stepper drivers.
-// Required for the Archim2 board.
-//
-#if ENABLED(TMC_USE_SW_SPI)
-  #define TMC_SW_MOSI      28   // PD3
-  #define TMC_SW_MISO      26   // PD1
-  #define TMC_SW_SCK       27   // PD2
-#endif
+// Microstepping mode pins *
+#define X_MS1_PIN          39   // PC7 MOD0E1 - As listed in schematic
+#define X_MS2_PIN          38   // PC6 MOD1E1
+#define X_MS3_PIN          37   // PC5 MOD2E1
+
+#define Y_MS1_PIN          50   // PC13 MODE0E2
+#define Y_MS2_PIN          51   // PC12 MODE1E2
+#define Y_MS3_PIN          92   // PC11 MODE2E2 - AddOns
+
+#define Z_MS1_PIN          44   // PC19 MOD0E Z
+#define Z_MS2_PIN          45   // PC18 MOD1E Z
+#define Z_MS3_PIN          46   // PC17 MOD2E Z
+
+#define E0_MS1_PIN        105   // PB22 MOD0E3 - AddOns
+#define E0_MS2_PIN        106   // PC27 MOD1E3 - AddOns
+#define E0_MS3_PIN        104   // PC20 MOD2E3 - AddOns
+
+#define E1_MS1_PIN         25   // PD0 MOD0E4
+#define E1_MS2_PIN         18   // PA11 MOD1E4
+#define E1_MS3_PIN         19   // PA10 MOD2E4
+
+// Motor current PWM pins *
+#define MOTOR_CURRENT_PWM_X_PIN   58   // PA6   X-REF TIOB2
+#define MOTOR_CURRENT_PWM_Y_PIN   12   // PD8   Y-REF TIOB8
+#define MOTOR_CURRENT_PWM_Z_PIN   10   // PC29  Z-REF TIOB7
+#define MOTOR_CURRENT_PWM_E0_PIN   3   // PC28 E1-REF TIOA7
+#define MOTOR_CURRENT_PWM_E1_PIN  11   // PD7  E2-REF TIOA8
+
+#define MOTOR_CURRENT_PWM_RANGE 2750   // (3.3 Volts * 100000 Ohms) / (100000 Ohms + 20000 Ohms) = 2.75 Volts (max vref)
+#define DEFAULT_PWM_MOTOR_CURRENT  { 1000, 1000, 1000 } //, 1000, 1000}   // X Y Z E0 E1, 1000 = 1000mAh
 
 //
 // Temperature Sensors
@@ -216,6 +190,6 @@
     // Buttons on AUX-2
     #define BTN_EN1        60   // D60 PA3_TIOB1
     #define BTN_EN2        13   // D13 PB27_TIOB0
-    #define BTN_ENC        16   // D16 PA13_TXD1 // the click
+    #define BTN_ENC        16   // D16 PA13_TXD1
   #endif // NEWPANEL
 #endif // ULTRA_LCD
