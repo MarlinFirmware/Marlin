@@ -40,12 +40,12 @@
  *
  *  S<int>   Speed between 0-255
  *  P<index> Fan index, if more than one fan
- *  A        Fan index set to active extruder index, if more than one fan
+ *  A        Use the active extruder index as the fan index
  *
- *  As long as the A argument is not supported by any slicer.
- *  Most slicer have a customizable gcode post processing, based on python,
- *  where you can easy modify fan control using regular expression.
- *  pattern:"(M10[67])( P\d|)( S\d+|)"  substitution:"$1 A$3" 
+ *  As long as the A argument is not supported by any slicer,
+ *  most slicers have customizable g-code post-processing based on Python
+ *  so fan control can be modified with a regular expression.
+ *  For example: "(M10[67]) *(P\d+)? *(S\d+)?" ... substituting "$1 A $3"
  *
  * With EXTRA_FAN_SPEED enabled:
  *
@@ -57,9 +57,9 @@
 void GcodeSuite::M106() {
 
   const uint8_t p =
-    #if EXTRUDERS > 1 
+    #if EXTRUDERS > 1
       parser.seen('A') ? active_extruder :
-    #endif 
+    #endif
     parser.byteval('P')
   ;
 
@@ -101,9 +101,9 @@ void GcodeSuite::M106() {
 void GcodeSuite::M107() {
 
   const uint8_t p =
-    #if EXTRUDERS > 1 
+    #if EXTRUDERS > 1
       parser.seen('A') ? active_extruder :
-    #endif 
+    #endif
     parser.byteval('P')
   ;
 
