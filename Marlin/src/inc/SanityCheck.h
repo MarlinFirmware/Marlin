@@ -142,7 +142,7 @@
   #error "FILAMENT_CHANGE_NOZZLE_TIMEOUT is now PAUSE_PARK_NOZZLE_TIMEOUT. Please update your configuration."
 #elif defined(FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS)
   #error "FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS is now FILAMENT_CHANGE_ALERT_BEEPS. Please update your configuration."
-#elif ENABLED(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
+#elif defined(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
   #error "FILAMENT_CHANGE_NO_STEPPER_TIMEOUT is now PAUSE_PARK_NO_STEPPER_TIMEOUT. Please update your configuration."
 #elif defined(PLA_PREHEAT_HOTEND_TEMP)
   #error "PLA_PREHEAT_HOTEND_TEMP is now PREHEAT_1_TEMP_HOTEND. Please update your configuration."
