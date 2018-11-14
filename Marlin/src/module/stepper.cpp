@@ -1492,7 +1492,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     // If current block is finished, reset pointer
     if (step_events_completed >= step_event_count) {
       #if FILAMENT_RUNOUT_DISTANCE_MM > 0
-        runout.block_complete(current_block);
+        runout.block_completed(current_block);
       #endif
       axis_did_move = 0;
       current_block = NULL;
