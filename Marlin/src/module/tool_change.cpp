@@ -500,8 +500,8 @@ inline void invalid_extruder_error(const uint8_t e) {
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
   #if ENABLED(MIXING_EXTRUDER)
 
-    UNUSED(fr_mm_s);
-    UNUSED(no_move);
+    UNUSED(fr_mm_s); UNUSED(no_move);
+
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
       return invalid_extruder_error(tmp_extruder);
 
@@ -512,12 +512,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
   #elif EXTRUDERS < 2
 
-    UNUSED(fr_mm_s);
-    UNUSED(no_move);
+    UNUSED(fr_mm_s); UNUSED(no_move);
+
     if (tmp_extruder) invalid_extruder_error(tmp_extruder);
     return;
 
-  #else
+  #else // EXTRUDERS > 1
 
     planner.synchronize();
 
@@ -751,5 +751,5 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
 
-  #endif // EXTRUDERS <= 1 && (!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1)
+  #endif // EXTRUDERS > 1
 }

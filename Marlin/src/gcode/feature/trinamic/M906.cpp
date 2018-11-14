@@ -73,7 +73,8 @@ void GcodeSuite::M906() {
         #endif
         break;
       case E_AXIS: {
-        if (get_target_extruder_from_command()) return;
+        const int8_t target_extruder = get_target_extruder_from_command();
+        if (target_extruder < 0) return;
         switch (target_extruder) {
           #if AXIS_IS_TMC(E0)
             case 0: TMC_SET_CURRENT(E0); break;

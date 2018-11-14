@@ -31,7 +31,9 @@
  * M105: Read hot end and bed temperature
  */
 void GcodeSuite::M105() {
-  if (get_target_extruder_from_command()) return;
+
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
 
   #if NUM_SERIAL > 1
     const int16_t port = command_queue_port[cmd_queue_index_r];
@@ -39,9 +41,9 @@ void GcodeSuite::M105() {
 
   #if HAS_TEMP_SENSOR
     SERIAL_PROTOCOLPGM_P(port, MSG_OK);
-    thermalManager.print_heaterstates(
+    thermalManager.print_heater_states(target_extruder
       #if NUM_SERIAL > 1
-        port
+        , port
       #endif
     );
   #else // !HAS_TEMP_SENSOR

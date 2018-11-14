@@ -601,9 +601,9 @@ class Temperature {
     #endif // HEATER_IDLE_HANDLER
 
     #if HAS_TEMP_SENSOR
-      static void print_heaterstates(
+      static void print_heater_states(const uint8_t target_extruder
         #if NUM_SERIAL > 1
-          const int8_t port = -1
+          , const int8_t port = -1
         #endif
       );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)

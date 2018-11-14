@@ -267,8 +267,6 @@ public:
 
   GcodeSuite() {}
 
-  static uint8_t target_extruder;
-
   static bool axis_relative_modes[];
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -290,8 +288,9 @@ public:
   static millis_t previous_move_ms;
   FORCE_INLINE static void reset_stepper_timeout() { previous_move_ms = millis(); }
 
-  static bool get_target_extruder_from_command();
+  static int8_t get_target_extruder_from_command();
   static void get_destination_from_command();
+
   static void process_parsed_command(
     #if USE_EXECUTE_COMMANDS_IMMEDIATE
       const bool no_ok = false
@@ -305,17 +304,6 @@ public:
   #endif
 
   FORCE_INLINE static void home_all_axes() { G28(true); }
-
-  /**
-   * Multi-stepper support for M92, M201, M203
-   */
-  #if ENABLED(DISTINCT_E_FACTORS)
-    #define GET_TARGET_EXTRUDER() if (gcode.get_target_extruder_from_command()) return
-    #define TARGET_EXTRUDER gcode.target_extruder
-  #else
-    #define GET_TARGET_EXTRUDER() NOOP
-    #define TARGET_EXTRUDER 0
-  #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     /**
@@ -669,7 +657,9 @@ private:
     static void M302();
   #endif
 
-  static void M303();
+  #if HAS_PID_HEATING
+    static void M303();
+  #endif
 
   #if ENABLED(PIDTEMPBED)
     static void M304();
@@ -832,7 +822,7 @@ private:
 
   static void M999();
 
-  static void T(const uint8_t tmp_extruder);
+  static void T(const uint8_t tool_index);
 
 };
 
