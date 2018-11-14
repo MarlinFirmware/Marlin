@@ -29,10 +29,8 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Smoothieboard"
-  #define DEFAULT_WEBSITE_URL "http://smoothieware.org/smoothieboard"
-#endif
+#define BOARD_NAME          "Smoothieboard"
+#define DEFAULT_WEBSITE_URL "http://smoothieware.org/smoothieboard"
 
 #undef F_CPU
 #define F_CPU 120000000

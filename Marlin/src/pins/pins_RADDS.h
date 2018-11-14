@@ -28,7 +28,7 @@
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME         "RADDS"
+#define BOARD_NAME "RADDS"
 
 //
 // Servos

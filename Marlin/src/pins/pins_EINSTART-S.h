@@ -21,7 +21,7 @@
  */
 
 /**
- * Einstart S pin assignments
+ * Einstart-S pin assignments
  * PCB Silkscreen: 3DPrinterCon_v3.5
  */
 
@@ -37,9 +37,7 @@
   #endif
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "EINSTART_S"
-#endif
+#define BOARD_NAME "Einstart-S"
 
 //
 // Limit Switches

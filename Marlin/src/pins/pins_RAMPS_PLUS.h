@@ -41,9 +41,7 @@
  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
- #define BOARD_NAME "RAMPS 1.4 Plus"
-#endif
+#define BOARD_NAME "RAMPS 1.4 Plus"
 
 #define RAMPS_D8_PIN  10
 #define RAMPS_D10_PIN  8

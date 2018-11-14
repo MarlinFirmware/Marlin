@@ -32,7 +32,7 @@
 #endif
 
 #ifndef BOARD_NAME
-  #define BOARD_NAME       "RAMPS-FD"
+  #define BOARD_NAME "RAMPS-FD v1"
 #endif
 
 #define INVERTED_HEATER_PINS
