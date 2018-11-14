@@ -95,7 +95,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
         if (ran_out) {
           filament_ran_out = true;
           #if ENABLED(EXTENSIBLE_UI)
-            UI::onFilamentRunout();
+            ExtUI::onFilamentRunout();
           #endif
           enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
           planner.synchronize();

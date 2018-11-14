@@ -27,13 +27,13 @@
 
 // To implement a new UI, complete the functions below and
 // read or update Marlin's state using the methods in the
-// UI methods in "../ui_api.h"
+// ExtUI methods in "../ui_api.h"
 //
 // Although it may be possible to access other state
 // variables from Marlin, using the API here possibly
 // helps ensure future compatibility.
 
-namespace UI {
+namespace ExtUI {
   void onStartup() {
     /* Initialize the display module here. The following
      * routines are available for access to the GPIO pins:
