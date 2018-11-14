@@ -303,7 +303,7 @@ public:
       #if ENABLED(STATUS_MESSAGE_SCROLLING)
         static uint8_t status_scroll_offset;
       #endif
-      static bool hasstatus();
+      static bool has_status();
 
       static uint8_t lcd_status_update_delay;
       static uint8_t status_message_level;      // Higher levels block lower levels
@@ -346,7 +346,7 @@ public:
 
       static void refresh() {}
       static inline void reset_alert_level() {}
-      static constexpr bool hasstatus() { return true; }
+      static constexpr bool has_status() { return true; }
 
     #endif
 
@@ -366,7 +366,7 @@ public:
     static inline void status_printf_P(const uint8_t level, PGM_P const fmt, ...) { UNUSED(level); UNUSED(fmt); }
     static inline void reset_status() {}
     static inline void reset_alert_level() {}
-    static constexpr bool hasstatus() { return false; }
+    static constexpr bool has_status() { return false; }
 
   #endif
 

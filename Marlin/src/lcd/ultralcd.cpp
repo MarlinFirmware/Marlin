@@ -1090,7 +1090,7 @@ void MarlinUI::finishstatus(const bool persist) {
   refresh();
 }
 
-bool MarlinUI::hasstatus() { return (status_message[0] != '\0'); }
+bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
 
 void MarlinUI::setstatus(const char * const message, const bool persist) {
   if (status_message_level > 0) return;
