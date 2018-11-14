@@ -370,7 +370,7 @@
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Intensidade Brilho")
 
 #if LCD_WIDTH >= 20
-  #define MSG_INFO_PRINT_COUNT              _UxGT("Quantidade de Impressões")
+  #define MSG_INFO_PRINT_COUNT              _UxGT("Total de Impressões")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Realizadas")
   #define MSG_INFO_PRINT_TIME               _UxGT("Tempo de Impressão")
   #define MSG_INFO_PRINT_LONGEST            _UxGT("Trabalho Mais longo")
