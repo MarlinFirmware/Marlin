@@ -146,7 +146,16 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
   #define LCD_PINS_D5      43
   #define LCD_PINS_D6      44
   #define LCD_PINS_D7      45
+#endif
+
+#if ENABLED(NEWPANEL)
   #define BTN_EN1          46
   #define BTN_EN2          47
   #define BTN_ENC          48
+#endif
+
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  #define SHIFT_OUT        40
+  #define SHIFT_CLK        44
+  #define SHIFT_LD         42
 #endif
