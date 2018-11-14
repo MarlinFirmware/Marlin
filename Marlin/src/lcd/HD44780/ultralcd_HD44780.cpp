@@ -990,32 +990,23 @@ void MarlinUI::draw_status_screen() {
     for (; n > 0; --n) lcd_put_wchar(' ');
   }
 
-  void draw_menu_item_generic(const bool isSelected, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
+  void draw_menu_item(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
     uint8_t n = LCD_WIDTH - 2;
     lcd_moveto(0, row);
-    lcd_put_wchar(isSelected ? pre_char : ' ');
+    lcd_put_wchar(sel ? pre_char : ' ');
     n -= lcd_put_u8str_max_P(pstr, n);
     while (n--) lcd_put_wchar(' ');
     lcd_put_wchar(post_char);
   }
 
-  void draw_menu_item_setting_edit_generic(const bool isSelected, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
-    uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
+  void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P pstr, const char* const data, const bool pgm) {
+    uint8_t n = LCD_WIDTH - 2 - (pgm ? utf8_strlen_P(data) : utf8_strlen(data));
     lcd_moveto(0, row);
-    lcd_put_wchar(isSelected ? pre_char : ' ');
+    lcd_put_wchar(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
     n -= lcd_put_u8str_max_P(pstr, n);
     lcd_put_wchar(':');
     while (n--) lcd_put_wchar(' ');
-    lcd_put_u8str(data);
-  }
-  void draw_menu_item_setting_edit_generic_P(const bool isSelected, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
-    uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
-    lcd_moveto(0, row);
-    lcd_put_wchar(isSelected ? pre_char : ' ');
-    n -= lcd_put_u8str_max_P(pstr, n);
-    lcd_put_wchar(':');
-    while (n--) lcd_put_wchar(' ');
-    lcd_put_u8str_P(data);
+    if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str(data);
   }
 
   void draw_edit_screen(PGM_P const pstr, const char* const value/*=NULL*/) {
@@ -1033,9 +1024,9 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(SDSUPPORT)
 
-    void draw_sd_menu_item(const bool isSelected, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
+    void draw_sd_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
       const char post_char = isDir ? LCD_STR_FOLDER[0] : ' ',
-                 sel_char = isSelected ? '>' : ' ';
+                 sel_char = sel ? LCD_STR_ARROW_RIGHT[0] : ' ';
       UNUSED(pstr);
       lcd_moveto(0, row);
       lcd_put_wchar(sel_char);
@@ -1045,7 +1036,7 @@ void MarlinUI::draw_status_screen() {
       if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
           static uint8_t filename_scroll_hash;
-          if (isSelected) {
+          if (sel) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
               name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor
