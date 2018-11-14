@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if HAS_PID_HEATING
+
 #include "../gcode.h"
 #include "../../module/temperature.h"
 
@@ -32,26 +36,36 @@
  *       U<bool> with a non-zero value will apply the result to current settings
  */
 void GcodeSuite::M303() {
-  #if HAS_PID_HEATING
-    const int e = parser.intval('E'), c = parser.intval('C', 5);
-    const bool u = parser.boolval('U');
 
-    int16_t temp = parser.celsiusval('S', e < 0 ? 70 : 150);
+  const int8_t e = parser.byteval('E');
 
-    if (WITHIN(e, 0, HOTENDS - 1))
-      target_extruder = e;
-
-    #if DISABLED(BUSY_WHILE_HEATING)
-      KEEPALIVE_STATE(NOT_BUSY);
+  if (!WITHIN(e, 0
+    #if ENABLED(PIDTEMPBED)
+      -1
     #endif
-
-    thermalManager.PID_autotune(temp, e, c, u);
-
-    #if DISABLED(BUSY_WHILE_HEATING)
-      KEEPALIVE_STATE(IN_HANDLER);
+    ,
+    #if ENABLED(PIDTEMP)
+      HOTENDS
     #endif
-  #else
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_M303_DISABLED);
+    -1
+  )) {
+    SERIAL_ECHOLNPGM(MSG_PID_BAD_EXTRUDER_NUM);
+    return;
+  }
+
+  const int c = parser.intval('C', 5);
+  const bool u = parser.boolval('U');
+  const int16_t temp = parser.celsiusval('S', e < 0 ? 70 : 150);
+
+  #if DISABLED(BUSY_WHILE_HEATING)
+    KEEPALIVE_STATE(NOT_BUSY);
+  #endif
+
+  thermalManager.PID_autotune(temp, e, c, u);
+
+  #if DISABLED(BUSY_WHILE_HEATING)
+    KEEPALIVE_STATE(IN_HANDLER);
   #endif
 }
+
+#endif // HAS_PID_HEATING
