@@ -56,11 +56,12 @@
  */
 void GcodeSuite::M106() {
 
-  #if EXTRUDERS > 1 
-    const uint8_t p = parser.boolval('A') ? active_extruder : parser.byteval('P');
-  #else
-    const uint8_t p = parser.byteval('P');
-  #endif 
+  const uint8_t p =
+    #if EXTRUDERS > 1 
+      parser.seen('A') ? active_extruder :
+    #endif 
+    parser.byteval('P')
+  ;
 
   const uint16_t s = parser.ushortval('S', 255);
 
@@ -99,11 +100,12 @@ void GcodeSuite::M106() {
  */
 void GcodeSuite::M107() {
 
-  #if EXTRUDERS > 1
-    const uint8_t p = parser.boolval('A') ? active_extruder : parser.byteval('P');
-  #else
-    const uint8_t p = parser.byteval('P');
-  #endif 
+  const uint8_t p =
+    #if EXTRUDERS > 1 
+      parser.seen('A') ? active_extruder :
+    #endif 
+    parser.byteval('P')
+  ;
 
   #if ENABLED(SINGLENOZZLE) && EXTRUDERS > 1
     if (p != active_extruder) {
