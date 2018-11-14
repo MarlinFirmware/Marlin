@@ -235,38 +235,10 @@ bool MarlinUI::get_blink() {
 ////////////////////////////////////////////
 
 #if ENABLED(REPRAPWORLD_KEYPAD)
-  volatile uint8_t buttons_reprapworld_keypad;
-#endif
 
-#if ENABLED(ADC_KEYPAD)
+  volatile uint8_t MarlinUI::buttons_reprapworld_keypad;
 
-  inline bool handle_adc_keypad() {
-    #define ADC_MIN_KEY_DELAY 100
-    if (buttons_reprapworld_keypad) {
-      #if HAS_ENCODER_ACTION
-        ui.refresh(LCDVIEW_REDRAW_NOW);
-        if (encoderDirection == -1) { // side effect which signals we are inside a menu
-          #if HAS_LCD_MENU
-            if      (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
-            else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
-            else if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))   { menu_item_back::action(); ui.quick_feedback(); }
-            else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))  { ui.return_to_status(); ui.quick_feedback(); }
-          #endif
-        }
-        else if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))     encoderPosition += ENCODER_PULSES_PER_STEP;
-        else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))       encoderPosition -= ENCODER_PULSES_PER_STEP;
-        else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))    encoderPosition = 0;
-      #endif
-      next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
-      return true;
-    }
-
-    return false;
-  }
-
-#elif ENABLED(REPRAPWORLD_KEYPAD)
-
-  #if HAS_LCD_MENU
+  #if DISABLED(ADC_KEYPAD) && HAS_LCD_MENU
 
     void lcd_move_x();
     void lcd_move_y();
@@ -285,45 +257,74 @@ bool MarlinUI::get_blink() {
 
   #endif
 
-  inline void handle_reprapworld_keypad() {
+  bool MarlinUI::handle_keypad() {
 
-    static uint8_t keypad_debounce = 0;
+    #if ENABLED(ADC_KEYPAD)
 
-    if (!RRK( EN_REPRAPWORLD_KEYPAD_F1    | EN_REPRAPWORLD_KEYPAD_F2
-            | EN_REPRAPWORLD_KEYPAD_F3    | EN_REPRAPWORLD_KEYPAD_DOWN
-            | EN_REPRAPWORLD_KEYPAD_RIGHT | EN_REPRAPWORLD_KEYPAD_MIDDLE
-            | EN_REPRAPWORLD_KEYPAD_UP    | EN_REPRAPWORLD_KEYPAD_LEFT )
-    ) {
-      if (keypad_debounce > 0) keypad_debounce--;
-    }
-    else if (!keypad_debounce) {
-      keypad_debounce = 2;
-
-      const bool homed = all_axes_homed();
-
-      #if HAS_LCD_MENU
-
-        if (RRK(EN_REPRAPWORLD_KEYPAD_MIDDLE))  ui.goto_screen(menu_move);
-
-        #if DISABLED(DELTA) && Z_HOME_DIR == -1
-          if (RRK(EN_REPRAPWORLD_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
+      #define ADC_MIN_KEY_DELAY 100
+      if (buttons_reprapworld_keypad) {
+        #if HAS_ENCODER_ACTION
+          refresh(LCDVIEW_REDRAW_NOW);
+          if (encoderDirection == -1) { // side effect which signals we are inside a menu
+            #if HAS_LCD_MENU
+              if      (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
+              else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+              else if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))   { menu_item_back::action(); quick_feedback(); }
+              else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
+            #endif
+          }
+          else if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))     encoderPosition += ENCODER_PULSES_PER_STEP;
+          else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))       encoderPosition -= ENCODER_PULSES_PER_STEP;
+          else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))    encoderPosition = 0;
         #endif
+        next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
+        return true;
+      }
 
-        if (homed) {
-          #if ENABLED(DELTA) || Z_HOME_DIR != -1
-            if (RRK(EN_REPRAPWORLD_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
+    #else // !ADC_KEYPAD
+
+      static uint8_t keypad_debounce = 0;
+
+      if (!RRK( EN_REPRAPWORLD_KEYPAD_F1    | EN_REPRAPWORLD_KEYPAD_F2
+              | EN_REPRAPWORLD_KEYPAD_F3    | EN_REPRAPWORLD_KEYPAD_DOWN
+              | EN_REPRAPWORLD_KEYPAD_RIGHT | EN_REPRAPWORLD_KEYPAD_MIDDLE
+              | EN_REPRAPWORLD_KEYPAD_UP    | EN_REPRAPWORLD_KEYPAD_LEFT )
+      ) {
+        if (keypad_debounce > 0) keypad_debounce--;
+      }
+      else if (!keypad_debounce) {
+        keypad_debounce = 2;
+
+        const bool homed = all_axes_homed();
+
+        #if HAS_LCD_MENU
+
+          if (RRK(EN_REPRAPWORLD_KEYPAD_MIDDLE))  goto_screen(menu_move);
+
+          #if DISABLED(DELTA) && Z_HOME_DIR == -1
+            if (RRK(EN_REPRAPWORLD_KEYPAD_F2))    _reprapworld_keypad_move(Z_AXIS,  1);
           #endif
-          if (RRK(EN_REPRAPWORLD_KEYPAD_F3))    _reprapworld_keypad_move(Z_AXIS, -1);
-          if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))  _reprapworld_keypad_move(X_AXIS, -1);
-          if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT)) _reprapworld_keypad_move(X_AXIS,  1);
-          if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))  _reprapworld_keypad_move(Y_AXIS,  1);
-          if (RRK(EN_REPRAPWORLD_KEYPAD_UP))    _reprapworld_keypad_move(Y_AXIS, -1);
-        }
 
-      #endif // HAS_LCD_MENU
+          if (homed) {
+            #if ENABLED(DELTA) || Z_HOME_DIR != -1
+              if (RRK(EN_REPRAPWORLD_KEYPAD_F2))  _reprapworld_keypad_move(Z_AXIS,  1);
+            #endif
+            if (RRK(EN_REPRAPWORLD_KEYPAD_F3))    _reprapworld_keypad_move(Z_AXIS, -1);
+            if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))  _reprapworld_keypad_move(X_AXIS, -1);
+            if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT)) _reprapworld_keypad_move(X_AXIS,  1);
+            if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))  _reprapworld_keypad_move(Y_AXIS,  1);
+            if (RRK(EN_REPRAPWORLD_KEYPAD_UP))    _reprapworld_keypad_move(Y_AXIS, -1);
+          }
 
-      if (!homed && RRK(EN_REPRAPWORLD_KEYPAD_F1)) enqueue_and_echo_commands_P(PSTR("G28"));
-    }
+        #endif // HAS_LCD_MENU
+
+        if (!homed && RRK(EN_REPRAPWORLD_KEYPAD_F1)) enqueue_and_echo_commands_P(PSTR("G28"));
+        return true;
+      }
+
+    #endif // !ADC_KEYPAD
+
+    return false;
   }
 
 #endif // REPRAPWORLD_KEYPAD
@@ -684,18 +685,19 @@ void MarlinUI::update() {
         slow_buttons = read_slow_buttons(); // Buttons that take too long to read in interrupt context
       #endif
 
-      #if ENABLED(ADC_KEYPAD)
+      #if ENABLED(REPRAPWORLD_KEYPAD)
 
-        if (handle_adc_keypad()) {
+        if (
+          #if ENABLED(ADC_KEYPAD)
+            handle_keypad()
+          #else
+            handle_keypad()
+          #endif
+        ) {
           #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
             return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
           #endif
         }
-
-      #elif ENABLED(REPRAPWORLD_KEYPAD)
-
-        handle_reprapworld_keypad();
-
       #endif
 
       const float abs_diff = ABS(encoderDiff);
@@ -990,25 +992,26 @@ void MarlinUI::update() {
 
         #endif // LCD_HAS_DIRECTIONAL_BUTTONS
 
-        buttons = newbutton
-          #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-            | slow_buttons
-          #endif
-        ;
-
         #if ENABLED(ADC_KEYPAD)
 
-          uint8_t newbutton_reprapworld_keypad = 0;
           buttons = 0;
           if (buttons_reprapworld_keypad == 0) {
-            newbutton_reprapworld_keypad = get_ADC_keyValue();
+            uint8_t newbutton_reprapworld_keypad = get_ADC_keyValue();
             if (WITHIN(newbutton_reprapworld_keypad, 1, 8))
               buttons_reprapworld_keypad = _BV(newbutton_reprapworld_keypad - 1);
           }
 
-        #elif ENABLED(REPRAPWORLD_KEYPAD)
+        #else
 
-          GET_SHIFT_BUTTON_STATES(buttons_reprapworld_keypad);
+          buttons = newbutton
+            #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+              | slow_buttons
+            #endif
+          ;
+
+          #if ENABLED(REPRAPWORLD_KEYPAD)
+            GET_SHIFT_BUTTON_STATES(buttons_reprapworld_keypad);
+          #endif
 
         #endif
 
