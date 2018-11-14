@@ -44,8 +44,7 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
 }
 
 #if ENABLED(FILAMENT_MOTION_SENSOR)
-  uint8_t FilamentSensorEncoder::motion_detected,
-          FilamentSensorEncoder::old_state; // = 0
+  uint8_t FilamentSensorEncoder::motion_detected;
 #endif
 
 #if FILAMENT_RUNOUT_DISTANCE_MM > 0
