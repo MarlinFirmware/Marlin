@@ -19,7 +19,7 @@
 #include "../ultralcd.h"
 #include "../../Marlin.h"
 
-#include "ultralcd_common_HD44780.h"
+#include "ultralcd_HD44780.h"
 
 #include <string.h>
 

@@ -38,7 +38,6 @@ GcodeSuite gcode;
 
 #include "../Marlin.h" // for idle() and suspend_auto_report
 
-uint8_t GcodeSuite::target_extruder;
 millis_t GcodeSuite::previous_move_ms;
 
 bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -58,11 +57,10 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
 #endif
 
 /**
- * Set target_extruder from the T parameter or the active_extruder
- *
- * Returns TRUE if the target is invalid
+ * Get the target extruder from the T parameter or the active_extruder
+ * Return -1 if the T parameter is out of range
  */
-bool GcodeSuite::get_target_extruder_from_command() {
+int8_t GcodeSuite::get_target_extruder_from_command() {
   if (parser.seenval('T')) {
     const int8_t e = parser.value_byte();
     if (e >= EXTRUDERS) {
@@ -70,14 +68,11 @@ bool GcodeSuite::get_target_extruder_from_command() {
       SERIAL_CHAR('M');
       SERIAL_ECHO(parser.codenum);
       SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", e);
-      return true;
+      return -1;
     }
-    target_extruder = e;
+    return e;
   }
-  else
-    target_extruder = active_extruder;
-
-  return false;
+  return active_extruder;
 }
 
 /**
@@ -539,7 +534,9 @@ void GcodeSuite::process_parsed_command(
         case 302: M302(); break;                                  // M302: Allow cold extrudes (set the minimum extrude temperature)
       #endif
 
-      case 303: M303(); break;                                    // M303: PID autotune
+      #if HAS_PID_HEATING
+        case 303: M303(); break;                                  // M303: PID autotune
+      #endif
 
       #if ENABLED(MORGAN_SCARA)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
@@ -566,6 +563,10 @@ void GcodeSuite::process_parsed_command(
         case 405: M405(); break;                                  // M405: Turn on filament sensor for control
         case 406: M406(); break;                                  // M406: Turn off filament sensor for control
         case 407: M407(); break;                                  // M407: Display measured filament diameter
+      #endif
+
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        case 412: M412(); break;                                  // M412: Enable/Disable filament runout detection
       #endif
 
       #if HAS_LEVELING

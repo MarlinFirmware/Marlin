@@ -42,7 +42,7 @@
 
 Endstops endstops;
 
-// public:
+// private:
 
 bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load()
 volatile uint8_t Endstops::hit_state;
@@ -259,15 +259,13 @@ void Endstops::poll() {
 
 void Endstops::enable_globally(const bool onoff) {
   enabled_globally = enabled = onoff;
-
-  update();
+  resync();
 }
 
 // Enable / disable endstop checking
 void Endstops::enable(const bool onoff) {
   enabled = onoff;
-
-  update();
+  resync();
 }
 
 // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
@@ -287,10 +285,23 @@ void Endstops::not_homing() {
 #if HAS_BED_PROBE
   void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
-
-    update();
+    resync();
   }
 #endif
+
+// Get the stable endstop states when enabled
+void Endstops::resync() {
+  if (!abort_enabled()) return;     // If endstops/probes are disabled the loop below can hang
+
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    update();
+  #else
+    safe_delay(2);  // Wait for Temperature ISR to run at least once (runs at 1KHz)
+  #endif
+  #if ENDSTOP_NOISE_THRESHOLD
+    while (endstop_poll_count) safe_delay(1);
+  #endif
+}
 
 #if ENABLED(PINS_DEBUGGING)
   void Endstops::run_monitor() {

@@ -31,7 +31,7 @@
  * These are the most common LCD character displays.
  */
 
-#include "ultralcd_common_HD44780.h"
+#include "ultralcd_HD44780.h"
 #include "../ultralcd.h"
 
 #include "../../sd/cardreader.h"
@@ -290,11 +290,11 @@ void MarlinUI::set_custom_characters(
     else
   #endif
     { // Info Screen uses 5 special characters
-      createChar_P(LCD_BEDTEMP_CHAR, bedTemp);
-      createChar_P(LCD_DEGREE_CHAR, degree);
+      createChar_P(LCD_STR_BEDTEMP[0], bedTemp);
+      createChar_P(LCD_STR_DEGREE[0], degree);
       createChar_P(LCD_STR_THERMOMETER[0], thermometer);
-      createChar_P(LCD_FEEDRATE_CHAR, feedrate);
-      createChar_P(LCD_CLOCK_CHAR, clock);
+      createChar_P(LCD_STR_FEEDRATE[0], feedrate);
+      createChar_P(LCD_STR_CLOCK[0], clock);
 
       #if ENABLED(LCD_PROGRESS_BAR)
         if (screen_charset == CHARSET_INFO) { // 3 Progress bar characters for info screen
@@ -304,7 +304,7 @@ void MarlinUI::set_custom_characters(
         else
       #endif
         {
-          createChar_P(LCD_UPLEVEL_CHAR, uplevel);
+          createChar_P(LCD_STR_UPLEVEL[0], uplevel);
           #if ENABLED(SDSUPPORT)
             // SD Card sub-menu special characters
             createChar_P(LCD_STR_REFRESH[0], refresh);
@@ -553,7 +553,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const char prefix, co
       lcd_put_u8str(itostr3left(t2 + 0.5));
 
   if (prefix >= 0) {
-    lcd_put_wchar(LCD_DEGREE_CHAR);
+    lcd_put_wchar(LCD_STR_DEGREE[0]);
     lcd_put_wchar(' ');
     if (t2 < 10) lcd_put_wchar(' ');
   }
@@ -564,7 +564,7 @@ FORCE_INLINE void _draw_bed_status(const bool blink) {
     #if HAS_LEVELING
       planner.leveling_active && blink ? '_' :
     #endif
-    LCD_BEDTEMP_CHAR
+    LCD_STR_BEDTEMP[0]
   ), blink);
 }
 
@@ -769,11 +769,11 @@ void MarlinUI::draw_status_screen() {
       //
       #if HOTENDS > 1
         lcd_moveto(8, 0);
-        lcd_put_wchar((char)LCD_STR_THERMOMETER[0]);
+        lcd_put_wchar(LCD_STR_THERMOMETER[0]);
         _draw_heater_status(1, -1, blink);
       #elif HAS_HEATED_BED
         lcd_moveto(8, 0);
-        lcd_put_wchar((char)LCD_BEDTEMP_CHAR);
+        lcd_put_wchar(LCD_STR_BEDTEMP[0]);
         _draw_heater_status(-1, -1, blink);
       #endif
 
@@ -850,7 +850,7 @@ void MarlinUI::draw_status_screen() {
     #if LCD_HEIGHT > 3
 
       lcd_moveto(0, 2);
-      lcd_put_wchar(LCD_FEEDRATE_CHAR);
+      lcd_put_wchar(LCD_STR_FEEDRATE[0]);
       lcd_put_u8str(itostr3(feedrate_percentage));
       lcd_put_wchar('%');
 
@@ -859,7 +859,7 @@ void MarlinUI::draw_status_screen() {
       const uint8_t len = elapsed.toDigital(buffer),
                     timepos = LCD_WIDTH - len - 1;
       lcd_moveto(timepos, 2);
-      lcd_put_wchar(LCD_CLOCK_CHAR);
+      lcd_put_wchar(LCD_STR_CLOCK[0]);
       lcd_put_u8str(buffer);
 
       #if LCD_WIDTH >= 20
@@ -921,7 +921,7 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     lcd_moveto(LCD_WIDTH - 9, 1);
-    lcd_put_wchar(LCD_FEEDRATE_CHAR);
+    lcd_put_wchar(LCD_STR_FEEDRATE[0]);
     lcd_put_u8str(itostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
@@ -950,7 +950,7 @@ void MarlinUI::draw_status_screen() {
       duration_t elapsed = print_job_timer.duration();
       char buffer[14];
       (void)elapsed.toDigital(buffer);
-      lcd_put_wchar(LCD_CLOCK_CHAR);
+      lcd_put_wchar(LCD_STR_CLOCK[0]);
       lcd_put_u8str(buffer);
     #endif
 
@@ -990,32 +990,23 @@ void MarlinUI::draw_status_screen() {
     for (; n > 0; --n) lcd_put_wchar(' ');
   }
 
-  void draw_menu_item_generic(const bool isSelected, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
+  void draw_menu_item(const bool sel, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
     uint8_t n = LCD_WIDTH - 2;
     lcd_moveto(0, row);
-    lcd_put_wchar(isSelected ? pre_char : ' ');
+    lcd_put_wchar(sel ? pre_char : ' ');
     n -= lcd_put_u8str_max_P(pstr, n);
     while (n--) lcd_put_wchar(' ');
     lcd_put_wchar(post_char);
   }
 
-  void draw_menu_item_setting_edit_generic(const bool isSelected, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
-    uint8_t n = LCD_WIDTH - 2 - utf8_strlen(data);
+  void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P pstr, const char* const data, const bool pgm) {
+    uint8_t n = LCD_WIDTH - 2 - (pgm ? utf8_strlen_P(data) : utf8_strlen(data));
     lcd_moveto(0, row);
-    lcd_put_wchar(isSelected ? pre_char : ' ');
+    lcd_put_wchar(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
     n -= lcd_put_u8str_max_P(pstr, n);
     lcd_put_wchar(':');
     while (n--) lcd_put_wchar(' ');
-    lcd_put_u8str(data);
-  }
-  void draw_menu_item_setting_edit_generic_P(const bool isSelected, const uint8_t row, PGM_P pstr, const char pre_char, const char* const data) {
-    uint8_t n = LCD_WIDTH - 2 - utf8_strlen_P(data);
-    lcd_moveto(0, row);
-    lcd_put_wchar(isSelected ? pre_char : ' ');
-    n -= lcd_put_u8str_max_P(pstr, n);
-    lcd_put_wchar(':');
-    while (n--) lcd_put_wchar(' ');
-    lcd_put_u8str_P(data);
+    if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str(data);
   }
 
   void draw_edit_screen(PGM_P const pstr, const char* const value/*=NULL*/) {
@@ -1033,9 +1024,9 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(SDSUPPORT)
 
-    void draw_sd_menu_item(const bool isSelected, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
+    void draw_sd_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
       const char post_char = isDir ? LCD_STR_FOLDER[0] : ' ',
-                 sel_char = isSelected ? '>' : ' ';
+                 sel_char = sel ? LCD_STR_ARROW_RIGHT[0] : ' ';
       UNUSED(pstr);
       lcd_moveto(0, row);
       lcd_put_wchar(sel_char);
@@ -1045,7 +1036,7 @@ void MarlinUI::draw_status_screen() {
       if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
           static uint8_t filename_scroll_hash;
-          if (isSelected) {
+          if (sel) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
               name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor

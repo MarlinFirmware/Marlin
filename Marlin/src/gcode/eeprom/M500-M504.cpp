@@ -45,7 +45,7 @@
 void GcodeSuite::M500() {
   (void)settings.save(CHAT_PORT);
   #if ENABLED(EXTENSIBLE_UI)
-    UI::onStoreSettings();
+    ExtUI::onStoreSettings();
   #endif
 }
 
@@ -59,7 +59,7 @@ void GcodeSuite::M501() {
     #endif
   );
   #if ENABLED(EXTENSIBLE_UI)
-    UI::onLoadSettings();
+    ExtUI::onLoadSettings();
   #endif
 }
 
@@ -69,7 +69,7 @@ void GcodeSuite::M501() {
 void GcodeSuite::M502() {
   (void)settings.reset(CHAT_PORT);
   #if ENABLED(EXTENSIBLE_UI)
-    UI::onFactoryReset();
+    ExtUI::onFactoryReset();
   #endif
 }
 

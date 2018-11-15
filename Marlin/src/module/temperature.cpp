@@ -236,7 +236,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
    * Alternately heat and cool the nozzle, observing its behavior to
    * determine the best PID values to achieve a stable temperature.
    */
-  void Temperature::PID_autotune(const float &target, const int8_t hotend, const int8_t ncycles, const bool set_result/*=false*/) {
+  void Temperature::PID_autotune(const float &target, const int8_t heater, const int8_t ncycles, const bool set_result/*=false*/) {
     float current = 0.0;
     int cycles = 0;
     bool heating = true;
@@ -249,10 +249,10 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
     float max = 0, min = 10000;
 
     #if HAS_PID_FOR_BOTH
-      #define GHV(B,H) (hotend < 0 ? (B) : (H))
-      #define SHV(S,B,H) do{ if (hotend < 0) S##_bed = B; else S [hotend] = H; }while(0)
-      #define ONHEATINGSTART() (hotend < 0 ? printerEventLEDs.onBedHeatingStart() : printerEventLEDs.onHotendHeatingStart())
-      #define ONHEATING(S,C,T) do{ if (hotend < 0) printerEventLEDs.onBedHeating(S,C,T); else printerEventLEDs.onHotendHeating(S,C,T); }while(0)
+      #define GHV(B,H) (heater < 0 ? (B) : (H))
+      #define SHV(S,B,H) do{ if (heater < 0) S##_bed = B; else S [heater] = H; }while(0)
+      #define ONHEATINGSTART() (heater < 0 ? printerEventLEDs.onBedHeatingStart() : printerEventLEDs.onHotendHeatingStart())
+      #define ONHEATING(S,C,T) do{ if (heater < 0) printerEventLEDs.onBedHeating(S,C,T); else printerEventLEDs.onHotendHeating(S,C,T); }while(0)
     #elif ENABLED(PIDTEMPBED)
       #define GHV(B,H) B
       #define SHV(S,B,H) (S##_bed = B)
@@ -260,7 +260,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
       #define ONHEATING(S,C,T) printerEventLEDs.onBedHeating(S,C,T)
     #else
       #define GHV(B,H) H
-      #define SHV(S,B,H) (S [hotend] = H)
+      #define SHV(S,B,H) (S [heater] = H)
       #define ONHEATINGSTART() printerEventLEDs.onHotendHeatingStart()
       #define ONHEATING(S,C,T) printerEventLEDs.onHotendHeating(S,C,T)
     #endif
@@ -268,7 +268,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
     #if WATCH_THE_BED || WATCH_HOTENDS
       #define HAS_TP_BED (ENABLED(THERMAL_PROTECTION_BED) && ENABLED(PIDTEMPBED))
       #if HAS_TP_BED && ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(PIDTEMP)
-        #define GTV(B,H) (hotend < 0 ? (B) : (H))
+        #define GTV(B,H) (heater < 0 ? (B) : (H))
       #elif HAS_TP_BED
         #define GTV(B,H) (B)
       #else
@@ -286,22 +286,6 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
       next_auto_fan_check_ms = next_temp_ms + 2500UL;
     #endif
 
-    #if ENABLED(PIDTEMP)
-      #define _TOP_HOTEND HOTENDS - 1
-    #else
-      #define _TOP_HOTEND -1
-    #endif
-    #if ENABLED(PIDTEMPBED)
-      #define _BOT_HOTEND -1
-    #else
-      #define _BOT_HOTEND 0
-    #endif
-
-    if (!WITHIN(hotend, _BOT_HOTEND, _TOP_HOTEND)) {
-      SERIAL_ECHOLNPGM(MSG_PID_BAD_EXTRUDER_NUM);
-      return;
-    }
-
     SERIAL_ECHOLNPGM(MSG_PID_AUTOTUNE_START);
 
     disable_all_heaters();
@@ -310,7 +294,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
 
     wait_for_heatup = true; // Can be interrupted with M108
     #if ENABLED(PRINTER_EVENT_LEDS)
-      const float start_temp = GHV(current_temperature_bed, current_temperature[hotend]);
+      const float start_temp = GHV(current_temperature_bed, current_temperature[heater]);
       LEDColor color = ONHEATINGSTART();
     #endif
 
@@ -323,7 +307,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
         updateTemperaturesFromRawValues();
 
         // Get the current temperature and constrain it
-        current = GHV(current_temperature_bed, current_temperature[hotend]);
+        current = GHV(current_temperature_bed, current_temperature[heater]);
         NOLESS(max, current);
         NOMORE(min, current);
 
@@ -412,7 +396,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
       // Report heater states every 2 seconds
       if (ELAPSED(ms, next_temp_ms)) {
         #if HAS_TEMP_SENSOR
-          print_heaterstates();
+          print_heater_states(heater >= 0 ? heater : active_extruder);
           SERIAL_EOL();
         #endif
         next_temp_ms = ms + 2000UL;
@@ -423,9 +407,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
             #if WATCH_THE_BED && WATCH_HOTENDS
               true
             #elif WATCH_HOTENDS
-              hotend >= 0
+              heater >= 0
             #else
-              hotend < 0
+              heater < 0
             #endif
           ) {
             if (!heated) {                                          // If not yet reached target...
@@ -435,10 +419,10 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
                 if (current > watch_temp_target) heated = true;     // - Flag if target temperature reached
               }
               else if (ELAPSED(ms, temp_change_ms))                 // Watch timer expired
-                _temp_error(hotend, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, hotend));
+                _temp_error(heater, PSTR(MSG_T_HEATING_FAILED), TEMP_ERR_PSTR(MSG_HEATING_FAILED_LCD, heater));
             }
             else if (current < target - (MAX_OVERSHOOT_PID_AUTOTUNE)) // Heated, then temperature fell too far?
-              _temp_error(hotend, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, hotend));
+              _temp_error(heater, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, heater));
           }
         #endif
       } // every 2 seconds
@@ -477,15 +461,15 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
         }while(0)
 
         #define _SET_EXTRUDER_PID() do { \
-          PID_PARAM(Kp, hotend) = tune_pid.Kp; \
-          PID_PARAM(Ki, hotend) = scalePID_i(tune_pid.Ki); \
-          PID_PARAM(Kd, hotend) = scalePID_d(tune_pid.Kd); \
+          PID_PARAM(Kp, heater) = tune_pid.Kp; \
+          PID_PARAM(Ki, heater) = scalePID_i(tune_pid.Ki); \
+          PID_PARAM(Kd, heater) = scalePID_d(tune_pid.Kd); \
           updatePID(); }while(0)
 
         // Use the result? (As with "M303 U1")
         if (set_result) {
           #if HAS_PID_FOR_BOTH
-            if (hotend < 0) _SET_BED_PID(); else _SET_EXTRUDER_PID();
+            if (heater < 0) _SET_BED_PID(); else _SET_EXTRUDER_PID();
           #elif ENABLED(PIDTEMP)
             _SET_EXTRUDER_PID();
           #else
@@ -575,13 +559,13 @@ int Temperature::getHeaterPower(const int heater) {
 //
 // Temperature Error Handlers
 //
-void Temperature::_temp_error(const int8_t e, PGM_P const serial_msg, PGM_P const lcd_msg) {
+void Temperature::_temp_error(const int8_t heater, PGM_P const serial_msg, PGM_P const lcd_msg) {
   static bool killed = false;
   if (IsRunning()) {
     SERIAL_ERROR_START();
     serialprintPGM(serial_msg);
     SERIAL_ERRORPGM(MSG_STOPPED_HEATER);
-    if (e >= 0) SERIAL_ERRORLN((int)e); else SERIAL_ERRORLNPGM(MSG_HEATER_BED);
+    if (heater >= 0) SERIAL_ERRORLN((int)heater); else SERIAL_ERRORLNPGM(MSG_HEATER_BED);
   }
   #if DISABLED(BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE)
     if (!killed) {
@@ -594,12 +578,12 @@ void Temperature::_temp_error(const int8_t e, PGM_P const serial_msg, PGM_P cons
   #endif
 }
 
-void Temperature::max_temp_error(const int8_t e) {
-  _temp_error(e, PSTR(MSG_T_MAXTEMP), TEMP_ERR_PSTR(MSG_ERR_MAXTEMP, e));
+void Temperature::max_temp_error(const int8_t heater) {
+  _temp_error(heater, PSTR(MSG_T_MAXTEMP), TEMP_ERR_PSTR(MSG_ERR_MAXTEMP, heater));
 }
 
-void Temperature::min_temp_error(const int8_t e) {
-  _temp_error(e, PSTR(MSG_T_MINTEMP), TEMP_ERR_PSTR(MSG_ERR_MINTEMP, e));
+void Temperature::min_temp_error(const int8_t heater) {
+  _temp_error(heater, PSTR(MSG_T_MINTEMP), TEMP_ERR_PSTR(MSG_ERR_MINTEMP, heater));
 }
 
 float Temperature::get_pid_output(const int8_t e) {
@@ -943,7 +927,7 @@ void Temperature::manage_heater() {
 
 // Derived from RepRap FiveD extruder::getTemperature()
 // For hot end temperature measurement.
-float Temperature::analog2temp(const int raw, const uint8_t e) {
+float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     if (e > HOTENDS)
   #else
@@ -1015,7 +999,7 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
 #if HAS_HEATED_BED
   // Derived from RepRap FiveD extruder::getTemperature()
   // For bed temperature measurement.
-  float Temperature::analog2tempBed(const int raw) {
+  float Temperature::analog_to_celsius_bed(const int raw) {
     #if ENABLED(HEATER_BED_USES_THERMISTOR)
       SCAN_THERMISTOR_TABLE(BEDTEMPTABLE, BEDTEMPTABLE_LEN);
     #elif ENABLED(HEATER_BED_USES_AD595)
@@ -1031,7 +1015,7 @@ float Temperature::analog2temp(const int raw, const uint8_t e) {
 #if HAS_TEMP_CHAMBER
   // Derived from RepRap FiveD extruder::getTemperature()
   // For chamber temperature measurement.
-  float Temperature::analog2tempChamber(const int raw) {
+  float Temperature::analog_to_celsiusChamber(const int raw) {
     #if ENABLED(HEATER_CHAMBER_USES_THERMISTOR)
       SCAN_THERMISTOR_TABLE(CHAMBERTEMPTABLE, CHAMBERTEMPTABLE_LEN);
     #elif ENABLED(HEATER_CHAMBER_USES_AD595)
@@ -1054,18 +1038,18 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if ENABLED(HEATER_0_USES_MAX6675)
     current_temperature_raw[0] = read_max6675();
   #endif
-  HOTEND_LOOP() current_temperature[e] = Temperature::analog2temp(current_temperature_raw[e], e);
+  HOTEND_LOOP() current_temperature[e] = analog_to_celsius_hotend(current_temperature_raw[e], e);
   #if HAS_HEATED_BED
-    current_temperature_bed = Temperature::analog2tempBed(current_temperature_bed_raw);
+    current_temperature_bed = analog_to_celsius_bed(current_temperature_bed_raw);
   #endif
   #if HAS_TEMP_CHAMBER
-    current_temperature_chamber = Temperature::analog2tempChamber(current_temperature_chamber_raw);
+    current_temperature_chamber = analog_to_celsiusChamber(current_temperature_chamber_raw);
   #endif
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-    redundant_temperature = Temperature::analog2temp(redundant_temperature_raw, 1);
+    redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1);
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    filament_width_meas = analog2widthFil();
+    filament_width_meas = analog_to_mm_fil_width();
   #endif
 
   #if ENABLED(USE_WATCHDOG)
@@ -1080,7 +1064,7 @@ void Temperature::updateTemperaturesFromRawValues() {
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
 
   // Convert raw Filament Width to millimeters
-  float Temperature::analog2widthFil() {
+  float Temperature::analog_to_mm_fil_width() {
     return current_raw_filwidth * 5.0f * (1.0f / 16383.0f);
   }
 
@@ -1299,7 +1283,7 @@ void Temperature::init() {
 
   #define TEMP_MIN_ROUTINE(NR) \
     minttemp[NR] = HEATER_ ##NR## _MINTEMP; \
-    while (analog2temp(minttemp_raw[NR], NR) < HEATER_ ##NR## _MINTEMP) { \
+    while (analog_to_celsius_hotend(minttemp_raw[NR], NR) < HEATER_ ##NR## _MINTEMP) { \
       if (HEATER_ ##NR## _RAW_LO_TEMP < HEATER_ ##NR## _RAW_HI_TEMP) \
         minttemp_raw[NR] += OVERSAMPLENR; \
       else \
@@ -1307,7 +1291,7 @@ void Temperature::init() {
     }
   #define TEMP_MAX_ROUTINE(NR) \
     maxttemp[NR] = HEATER_ ##NR## _MAXTEMP; \
-    while (analog2temp(maxttemp_raw[NR], NR) > HEATER_ ##NR## _MAXTEMP) { \
+    while (analog_to_celsius_hotend(maxttemp_raw[NR], NR) > HEATER_ ##NR## _MAXTEMP) { \
       if (HEATER_ ##NR## _RAW_LO_TEMP < HEATER_ ##NR## _RAW_HI_TEMP) \
         maxttemp_raw[NR] -= OVERSAMPLENR; \
       else \
@@ -1363,7 +1347,7 @@ void Temperature::init() {
 
   #if HAS_HEATED_BED
     #ifdef BED_MINTEMP
-      while (analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
+      while (analog_to_celsius_bed(bed_minttemp_raw) < BED_MINTEMP) {
         #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
           bed_minttemp_raw += OVERSAMPLENR;
         #else
@@ -1372,7 +1356,7 @@ void Temperature::init() {
       }
     #endif // BED_MINTEMP
     #ifdef BED_MAXTEMP
-      while (analog2tempBed(bed_maxttemp_raw) > BED_MAXTEMP) {
+      while (analog_to_celsius_bed(bed_maxttemp_raw) > BED_MAXTEMP) {
         #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
           bed_maxttemp_raw -= OVERSAMPLENR;
         #else
@@ -2346,15 +2330,15 @@ void Temperature::isr() {
     delay(2);
   }
 
-  void Temperature::print_heaterstates(
+  void Temperature::print_heater_states(const uint8_t target_extruder
     #if NUM_SERIAL > 1
-      const int8_t port
+      , const int8_t port
     #endif
   ) {
     #if HAS_TEMP_HOTEND
-      print_heater_state(degHotend(gcode.target_extruder), degTargetHotend(gcode.target_extruder)
+      print_heater_state(degHotend(target_extruder), degTargetHotend(target_extruder)
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
-          , rawHotendTemp(gcode.target_extruder)
+          , rawHotendTemp(target_extruder)
         #endif
         #if NUM_SERIAL > 1
           , port
@@ -2392,7 +2376,7 @@ void Temperature::isr() {
       );
     #endif
     SERIAL_PROTOCOLPGM_P(port, " @:");
-    SERIAL_PROTOCOL_P(port, getHeaterPower(gcode.target_extruder));
+    SERIAL_PROTOCOL_P(port, getHeaterPower(target_extruder));
     #if HAS_HEATED_BED
       SERIAL_PROTOCOLPGM_P(port, " B@:");
       SERIAL_PROTOCOL_P(port, getHeaterPower(-1));
@@ -2414,7 +2398,7 @@ void Temperature::isr() {
     void Temperature::auto_report_temperatures() {
       if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
         next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
-        print_heaterstates();
+        print_heater_states(active_extruder);
         SERIAL_EOL();
       }
     }
@@ -2480,9 +2464,9 @@ void Temperature::isr() {
         }
 
         now = millis();
-        if (ELAPSED(now, next_temp_ms)) { //Print temp & remaining time every 1s while waiting
+        if (ELAPSED(now, next_temp_ms)) { // Print temp & remaining time every 1s while waiting
           next_temp_ms = now + 1000UL;
-          print_heaterstates();
+          print_heater_states(target_extruder);
           #if TEMP_RESIDENCY_TIME > 0
             SERIAL_PROTOCOLPGM(" W:");
             if (residency_start_ms)
@@ -2587,8 +2571,6 @@ void Temperature::isr() {
         KEEPALIVE_STATE(NOT_BUSY);
       #endif
 
-      gcode.target_extruder = active_extruder; // for print_heaterstates
-
       #if ENABLED(PRINTER_EVENT_LEDS)
         const float start_temp = degBed();
         printerEventLEDs.onBedHeatingStart();
@@ -2607,7 +2589,7 @@ void Temperature::isr() {
         now = millis();
         if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
           next_temp_ms = now + 1000UL;
-          print_heaterstates();
+          print_heater_states(active_extruder);
           #if TEMP_BED_RESIDENCY_TIME > 0
             SERIAL_PROTOCOLPGM(" W:");
             if (residency_start_ms)

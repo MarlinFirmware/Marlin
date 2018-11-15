@@ -92,9 +92,7 @@
   #error "Oops! Select 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Anet"
-#endif
+#define BOARD_NAME "Anet 1.0"
 
 //
 // Limit Switches

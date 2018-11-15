@@ -54,7 +54,8 @@
 void GcodeSuite::M600() {
   point_t park_point = NOZZLE_PARK_POINT;
 
-  if (get_target_extruder_from_command()) return;
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
 
   #if ENABLED(DUAL_X_CARRIAGE)
     int8_t DXC_ext = target_extruder;

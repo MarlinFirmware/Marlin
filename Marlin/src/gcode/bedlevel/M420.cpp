@@ -212,7 +212,8 @@ void GcodeSuite::M420() {
   }
 
   SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR("Bed Leveling ", planner.leveling_active ? MSG_ON : MSG_OFF);
+  SERIAL_ECHOPGM("Bed Leveling ");
+  serialprintln_onoff(planner.leveling_active);
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     SERIAL_ECHO_START();

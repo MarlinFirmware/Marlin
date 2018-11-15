@@ -34,15 +34,13 @@
  *
  */
 
-// numbers in parenthesis () are the mega2560 equivalent pin numbers
+// Numbers in parentheses () are the corresponding mega2560 pin numbers
 
 #ifndef TARGET_LPC1768
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Re-ARM RAMPS 1.4"
-#endif
+#define BOARD_NAME "Re-ARM RAMPS 1.4"
 
 //
 // Servos

@@ -36,7 +36,7 @@
   #include "../../module/configuration_store.h"
 #endif
 
-#if WATCH_HOTENDS || WATCH_THE_BED
+#if WATCH_HOTENDS || WATCH_THE_BED || ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../module/temperature.h"
 #endif
 
@@ -102,7 +102,7 @@ void MarlinUI::goto_previous_screen() {
 /////////// Common Menu Actions ////////////
 ////////////////////////////////////////////
 
-void menu_item_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
+void MenuItem_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -119,18 +119,18 @@ void menu_item_gcode::action(PGM_P pgcode) { enqueue_and_echo_commands_P(pgcode)
  *
  * For example, DEFINE_MENU_EDIT_ITEM(int3) expands into these functions:
  *
- *   bool menu_item_int3::_edit();
- *   void menu_item_int3::edit(); // edit int16_t (interactively)
- *   void menu_item_int3::action_setting_edit(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback = null, const bool live = false);
+ *   bool MenuItem_int3::_edit();
+ *   void MenuItem_int3::edit(); // edit int16_t (interactively)
+ *   void MenuItem_int3::action_edit(PGM_P const pstr, int16_t * const ptr, const int16_t minValue, const int16_t maxValue, const screenFunc_t callback = null, const bool live = false);
  *
  * You can then use one of the menu macros to present the edit interface:
  *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
  *
  * This expands into a more primitive menu item:
- *   MENU_ITEM_VARIANT(int3, _setting_edit, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *   MENU_ITEM_VARIANT(int3, _edit, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  *
  * ...which calls:
- *       menu_item_int3::action_setting_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
+ *       MenuItem_int3::action_edit(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
  */
 void MenuItemBase::edit(strfunc_t strfunc, loadfunc_t loadfunc) {
   ui.encoder_direction_normal();
@@ -158,7 +158,7 @@ void MenuItemBase::init(PGM_P const el, void * const ev, const int32_t minv, con
   liveEdit = le;
 }
 
-#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<NAME ## _item_info>;
+#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuItem<MenuItemInfo_##NAME>;
 
 DEFINE_MENU_EDIT_ITEM(int3);
 DEFINE_MENU_EDIT_ITEM(int4);
@@ -172,7 +172,7 @@ DEFINE_MENU_EDIT_ITEM(float52sign);
 DEFINE_MENU_EDIT_ITEM(float62);
 DEFINE_MENU_EDIT_ITEM(long5);
 
-void menu_item_bool::action_setting_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
+void MenuItem_bool::action_edit(PGM_P pstr, bool *ptr, screenFunc_t callback) {
   UNUSED(pstr); *ptr ^= true; ui.refresh();
   if (callback) (*callback)();
 }

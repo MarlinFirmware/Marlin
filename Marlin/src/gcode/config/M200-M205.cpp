@@ -34,7 +34,8 @@
    */
   void GcodeSuite::M200() {
 
-    if (get_target_extruder_from_command()) return;
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
 
     if (parser.seen('D')) {
       // setting any extruder filament size disables volumetric on the assumption that
@@ -55,11 +56,12 @@
  */
 void GcodeSuite::M201() {
 
-  GET_TARGET_EXTRUDER();
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
 
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
-      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
+      const uint8_t a = (i == E_AXIS ? E_AXIS_N(target_extruder) : i);
       planner.settings.max_acceleration_mm_per_s2[a] = parser.value_axis_units((AxisEnum)a);
     }
   }
@@ -74,11 +76,12 @@ void GcodeSuite::M201() {
  */
 void GcodeSuite::M203() {
 
-  GET_TARGET_EXTRUDER();
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
 
   LOOP_XYZE(i)
     if (parser.seen(axis_codes[i])) {
-      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
+      const uint8_t a = (i == E_AXIS ? E_AXIS_N(target_extruder) : i);
       planner.settings.max_feedrate_mm_s[a] = parser.value_axis_units((AxisEnum)a);
     }
 }
@@ -97,7 +100,7 @@ void GcodeSuite::M204() {
     SERIAL_ECHOLNPAIR(" T", planner.settings.travel_acceleration);
   }
   else {
-    planner.synchronize();
+    //planner.synchronize();
     // 'S' for legacy compatibility. Should NOT BE USED for new development
     if (parser.seenval('S')) planner.settings.travel_acceleration = planner.settings.acceleration = parser.value_linear_units();
     if (parser.seenval('P')) planner.settings.acceleration = parser.value_linear_units();
@@ -131,7 +134,7 @@ void GcodeSuite::M205() {
   #endif
   if (!parser.seen("BST" J_PARAM XYZE_PARAM)) return;
 
-  planner.synchronize();
+  //planner.synchronize();
   if (parser.seen('B')) planner.settings.min_segment_time_us = parser.value_ulong();
   if (parser.seen('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();

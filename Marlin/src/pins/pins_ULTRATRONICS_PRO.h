@@ -24,12 +24,11 @@
  * ReprapWorld ULTRATRONICS v1.0
  */
 
-#define KNOWN_BOARD
-#define BOARD_NAME "Ultratronics v1.0"
-
 #ifndef ARDUINO_ARCH_SAM
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
+
+#define BOARD_NAME "Ultratronics v1.0"
 
 //
 // Servos

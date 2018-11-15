@@ -45,6 +45,7 @@
 
 #if ENABLED(EXTENSIBLE_UI)
 
+#include "../ultralcd.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
@@ -92,7 +93,7 @@ static struct {
   uint8_t manual_motion : 1;
 } flags;
 
-namespace UI {
+namespace ExtUI {
   #ifdef __SAM3X8E__
     /**
      * Implement a special millis() to allow time measurement
@@ -592,7 +593,7 @@ namespace UI {
       #if ENABLED(PARK_HEAD_ON_PAUSE)
         enqueue_and_echo_commands_P(PSTR("M125"));
       #endif
-      UI::onStatusChanged(PSTR(MSG_PRINT_PAUSED));
+      ExtUI::onStatusChanged(PSTR(MSG_PRINT_PAUSED));
     #endif
   }
 
@@ -604,7 +605,7 @@ namespace UI {
         card.startFileprint();
         print_job_timer.start();
       #endif
-      UI::onStatusChanged(PSTR(MSG_PRINTING));
+      ExtUI::onStatusChanged(PSTR(MSG_PRINTING));
     #endif
   }
 
@@ -612,7 +613,7 @@ namespace UI {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
       card.abort_sd_printing = true;
-      UI::onStatusChanged(PSTR(MSG_PRINT_ABORTED));
+      ExtUI::onStatusChanged(PSTR(MSG_PRINT_ABORTED));
     #endif
   }
 
@@ -677,7 +678,7 @@ namespace UI {
     #endif
   }
 
-} // namespace UI
+} // namespace ExtUI
 
 // At the moment, we piggy-back off the ultralcd calls, but this could be cleaned up in the future
 
@@ -685,7 +686,7 @@ void MarlinUI::init() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
-  UI::onStartup();
+  ExtUI::onStartup();
 }
 
 void MarlinUI::update() {
@@ -697,47 +698,24 @@ void MarlinUI::update() {
       if (sd_status) {
         card.initsd();
         if (card.cardOK)
-          UI::onMediaInserted();
+          ExtUI::onMediaInserted();
         else
-          UI::onMediaError();
+          ExtUI::onMediaError();
       }
       else {
         const bool ok = card.cardOK;
         card.release();
-        if (ok) UI::onMediaRemoved();
+        if (ok) ExtUI::onMediaRemoved();
       }
     }
   #endif // SDSUPPORT
-  UI::_processManualMoveToDestination();
-  UI::onIdle();
+  ExtUI::_processManualMoveToDestination();
+  ExtUI::onIdle();
 }
 
-bool MarlinUI::hasstatus() { return true; }
-bool MarlinUI::detected() { return true; }
-void MarlinUI::reset_alert_level() { }
-void MarlinUI::refresh() { }
-void MarlinUI::setstatus(const char * const message, const bool persist /* = false */) { UI::onStatusChanged(message); }
-void MarlinUI::setstatusPGM(const char * const message, int8_t level /* = 0 */)        { UI::onStatusChanged((progmem_str)message); }
-void MarlinUI::setalertstatusPGM(const char * const message)                    { setstatusPGM(message, 0); }
-
-void MarlinUI::reset_status() {
-  static const char paused[] PROGMEM = MSG_PRINT_PAUSED;
-  static const char printing[] PROGMEM = MSG_PRINTING;
-  static const char welcome[] PROGMEM = WELCOME_MSG;
-  PGM_P msg;
-  if (print_job_timer.isPaused())
-    msg = paused;
-  #if ENABLED(SDSUPPORT)
-    else if (IS_SD_PRINTING())
-      return setstatus(card.longest_filename(), true);
-  #endif
-  else if (print_job_timer.isRunning())
-    msg = printing;
-  else
-    msg = welcome;
-
-  setstatusPGM(msg, -1);
-}
+void MarlinUI::setstatus(const char * const message, const bool persist/*=false*/)  { ExtUI::onStatusChanged(message); }
+void MarlinUI::setstatusPGM(PGM_P const message, int8_t level/*=0*/)                { ExtUI::onStatusChanged((progmem_str)message); }
+void MarlinUI::setalertstatusPGM(PGM_P const message)                               { setstatusPGM(message, 0); }
 
 void MarlinUI::status_printf_P(const uint8_t level, const char * const fmt, ...) {
   char buff[64];
@@ -746,13 +724,13 @@ void MarlinUI::status_printf_P(const uint8_t level, const char * const fmt, ...)
   vsnprintf_P(buff, sizeof(buff), fmt, args);
   va_end(args);
   buff[63] = '\0';
-  UI::onStatusChanged(buff);
+  ExtUI::onStatusChanged(buff);
 }
 
 void MarlinUI::kill_screen(PGM_P const msg) {
   if (!flags.printer_killed) {
     flags.printer_killed = true;
-    UI::onPrinterKilled(msg);
+    ExtUI::onPrinterKilled(msg);
   }
 }
 
