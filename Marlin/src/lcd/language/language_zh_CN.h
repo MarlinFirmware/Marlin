@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Simplified Chinese
@@ -27,10 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_ZH_CN_H
-#define LANGUAGE_ZH_CN_H
-
-//#define TALL_FONT_CORRECTION (1)
 
 #define CHARSIZE 3
 
@@ -57,12 +54,12 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("设置原点偏移")  //"Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("偏移已启用")  //"Offsets applied"
 #define MSG_SET_ORIGIN                      _UxGT("设置原点")  //"Set origin"
-#define MSG_PREHEAT_1                       _UxGT("预热PLA")  //"Preheat PLA"
+#define MSG_PREHEAT_1                       _UxGT("预热" PREHEAT_1_LABEL)  //"Preheat PREHEAT_2_LABEL"
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")  //MSG_PREHEAT_1 " "
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" 全部")  //MSG_PREHEAT_1 " All"
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" 热床")  //MSG_PREHEAT_1 " Bed"
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" 设置")  //MSG_PREHEAT_1 " conf"
-#define MSG_PREHEAT_2                       _UxGT("预热ABS")  //"Preheat ABS"
+#define MSG_PREHEAT_2                       _UxGT("预热" PREHEAT_2_LABEL)  //"Preheat PREHEAT_2_LABEL"
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")  //MSG_PREHEAT_2 " "
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" 全部")  //MSG_PREHEAT_2 " All"
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" 热床")  //MSG_PREHEAT_2 " Bed"
@@ -79,8 +76,8 @@
 
 #define MSG_NEXT_CORNER                     _UxGT("下个边角") // "Next corner"
 #define MSG_EDITING_STOPPED                 _UxGT("网格编辑已停止") // "Mesh Editing Stopped"
-
 #define MSG_USER_MENU                       _UxGT("定制命令") // "Custom Commands"
+
 #define MSG_UBL_DOING_G29                   _UxGT("执行G29") // "Doing G29"
 #define MSG_UBL_UNHOMED                     _UxGT("先回XYZ原点") // "Home XYZ first"
 #define MSG_UBL_TOOLS                       _UxGT("UBL工具") // "UBL Tools"
@@ -93,22 +90,22 @@
 #define MSG_UBL_MOVING_TO_NEXT              _UxGT("移动到下一个") // "Moving to next"
 #define MSG_UBL_ACTIVATE_MESH               _UxGT("激活UBL") // "Activate UBL"
 #define MSG_UBL_DEACTIVATE_MESH             _UxGT("关闭UBL") // "Deactivate UBL"
-#define MSG_UBL_SET_BED_TEMP                _UxGT("设置热床温度") // "Bed Temp"
-#define MSG_UBL_SET_HOTEND_TEMP             _UxGT("热端温度") // "Hotend Temp"
+#define MSG_UBL_SET_TEMP_BED                _UxGT("设置热床温度") // "Bed Temp"
+#define MSG_UBL_SET_TEMP_HOTEND             _UxGT("热端温度") // "Hotend Temp"
 #define MSG_UBL_MESH_EDIT                   _UxGT("网格编辑") // "Mesh Edit"
 #define MSG_UBL_EDIT_CUSTOM_MESH            _UxGT("编辑客户网格") // "Edit Custom Mesh"
 #define MSG_UBL_FINE_TUNE_MESH              _UxGT("细调网格") // "Fine Tuning Mesh"
 #define MSG_UBL_DONE_EDITING_MESH           _UxGT("完成编辑网格") // "Done Editing Mesh"
 #define MSG_UBL_BUILD_CUSTOM_MESH           _UxGT("创设客户网格") // "Build Custom Mesh"
 #define MSG_UBL_BUILD_MESH_MENU             _UxGT("创设网格") // "Build Mesh"
-#define MSG_UBL_BUILD_PLA_MESH              _UxGT("创设PLA网格") // "Build PLA Mesh"
-#define MSG_UBL_BUILD_ABS_MESH              _UxGT("创设ABS网格") // "Build ABS Mesh"
+#define MSG_UBL_BUILD_MESH_M1               _UxGT("创设" PREHEAT_1_LABEL "网格") // "Build PREHEAT_1_LABEL Mesh"
+#define MSG_UBL_BUILD_MESH_M2               _UxGT("创设" PREHEAT_2_LABEL "网格") // "Build PREHEAT_2_LABEL Mesh"
 #define MSG_UBL_BUILD_COLD_MESH             _UxGT("创设冷网格") // "Build Cold Mesh"
 #define MSG_UBL_MESH_HEIGHT_ADJUST          _UxGT("调整网格高度") // "Adjust Mesh Height"
 #define MSG_UBL_MESH_HEIGHT_AMOUNT          _UxGT("高度合计") // "Height Amount"
 #define MSG_UBL_VALIDATE_MESH_MENU          _UxGT("批准网格") // "Validate Mesh"
-#define MSG_UBL_VALIDATE_PLA_MESH           _UxGT("批准PLA网格") // "Validate PLA Mesh"
-#define MSG_UBL_VALIDATE_ABS_MESH           _UxGT("批准ABS网格") // "Validate ABS Mesh"
+#define MSG_UBL_VALIDATE_MESH_M1            _UxGT("批准" PREHEAT_1_LABEL "网格") // "Validate PREHEAT_1_LABEL Mesh"
+#define MSG_UBL_VALIDATE_MESH_M2            _UxGT("批准" PREHEAT_2_LABEL "网格") // "Validate PREHEAT_2_LABEL Mesh"
 #define MSG_UBL_VALIDATE_CUSTOM_MESH        _UxGT("批准客户网格") // "Validate Custom Mesh"
 #define MSG_UBL_CONTINUE_MESH               _UxGT("继续热床网格") // "Continue Bed Mesh"
 #define MSG_UBL_MESH_LEVELING               _UxGT("网格调平") // "Mesh Leveling"
@@ -122,7 +119,7 @@
 #define MSG_UBL_OUTPUT_MAP_CSV              _UxGT("输出到CSV") // "Output for CSV"
 #define MSG_UBL_OUTPUT_MAP_BACKUP           _UxGT("输出到备份") // "Off Printer Backup"
 #define MSG_UBL_INFO_UBL                    _UxGT("输出UBL信息") // "Output UBL Info"
-#define MSG_UBL_EDIT_MESH_MENU              _UxGT("编辑网格") // "Edit Mesh"
+#define MSG_EDIT_MESH                       _UxGT("编辑网格") // "Edit Mesh"
 #define MSG_UBL_FILLIN_AMOUNT               _UxGT("填充合计") // "Fill-in Amount"
 #define MSG_UBL_MANUAL_FILLIN               _UxGT("手工填充") // "Manual Fill-in"
 #define MSG_UBL_SMART_FILLIN                _UxGT("聪明填充") // "Smart Fill-in"
@@ -161,9 +158,9 @@
 #define MSG_INTENSITY_B                     _UxGT("蓝饱和度") // "Blue Intensity")
 #define MSG_INTENSITY_W                     _UxGT("白饱和度") // "White Intensity")
 #define MSG_LED_BRIGHTNESS                  _UxGT("亮度") // "Brightness")
+
 #define MSG_MOVING                          _UxGT("移动 ...") // "Moving...")
 #define MSG_FREE_XY                         _UxGT("释放 XY") // "Free XY")
-
 #define MSG_MOVE_X                          _UxGT("移动X")  //"Move X"
 #define MSG_MOVE_Y                          _UxGT("移动Y")  //"Move Y"
 #define MSG_MOVE_Z                          _UxGT("移动Z")  //"Move Z"
@@ -183,8 +180,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 最大")  //" " LCD_STR_THERMOMETER " Max"
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 因数")  //" " LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        _UxGT("自动控温")  //"Autotemp"
-#define MSG_ON                              _UxGT("开 ")  //"On "
-#define MSG_OFF                             _UxGT("关 ")  //"Off"
+#define MSG_LCD_ON                          _UxGT("开")  //"On"
+#define MSG_LCD_OFF                         _UxGT("关")  //"Off"
 #define MSG_PID_P                           _UxGT("PID-P")  //"PID-P"
 #define MSG_PID_I                           _UxGT("PID-I")  //"PID-I"
 #define MSG_PID_D                           _UxGT("PID-D")  //"PID-D"
@@ -226,9 +223,10 @@
 #define MSG_E3STEPS                         _UxGT("挤出机3步数/mm") //"E3steps/mm"
 #define MSG_E4STEPS                         _UxGT("挤出机4步数/mm") //"E4steps/mm"
 #define MSG_E5STEPS                         _UxGT("挤出机5步数/mm") //"E5steps/mm"
+#define MSG_E6STEPS                         _UxGT("挤出机6步数/mm") //"E6steps/mm"
 #define MSG_TEMPERATURE                     _UxGT("温度")  //"Temperature"
 #define MSG_MOTION                          _UxGT("运动")  //"Motion"
-#define MSG_FILAMENT                        _UxGT("丝料测容")  //"Filament" lcd_control_volumetric_menu
+#define MSG_FILAMENT                        _UxGT("丝料测容")  //"Filament" menu_advanced_filament
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("测容积mm³")  //"E in mm3" volumetric_enabled
 #define MSG_FILAMENT_DIAM                   _UxGT("丝料直径")  //"Fil. Dia."
 #define MSG_FILAMENT_UNLOAD                 _UxGT("卸载 mm") // "Unload mm"
@@ -258,7 +256,7 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("回抽长度mm")  //"Retract mm" retract_length, retract length (positive mm)
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("换手回抽长度mm")  //"Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
 #define MSG_CONTROL_RETRACTF                _UxGT("回抽速率mm/s")  //"Retract  V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")  //"Hop mm" retract_zlift, retract Z-lift
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Hop mm")  //"Hop mm" retract_zraise, retract Z-lift
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("回抽恢复长度mm")  //"UnRet +mm" retract_recover_length, additional recover length (mm, added to retract length when recovering)
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("换手回抽恢复长度mm")  //"S UnRet+mm" swap_retract_recover_length, additional swap recover length (mm, added to retract length when recovering from extruder change)
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("回抽恢复后进料速率mm/s")  //"UnRet  V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
@@ -269,7 +267,7 @@
 #define MSG_FILAMENTUNLOAD                  _UxGT("卸载丝料") // "Unload filament"
 #define MSG_FILAMENTUNLOAD_ALL              _UxGT("卸载全部") // "Unload All"
 #define MSG_INIT_SDCARD                     _UxGT("初始化存储卡")  //"Init. SD card"
-#define MSG_CNG_SDCARD                      _UxGT("更换存储卡")  //"Change SD card"
+#define MSG_CHANGE_SDCARD                   _UxGT("更换存储卡")  //"Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Z探针在热床之外")  //"Z probe out. bed" Z probe is not within the physical limits
 #define MSG_SKEW_FACTOR                     _UxGT("偏斜因数") // "Skew Factor"
 #define MSG_BLTOUCH                         _UxGT("BLTouch")     // "BLTouch"
@@ -326,18 +324,18 @@
 #define MSG_CASE_LIGHT                      _UxGT("外壳灯") // "Case light"
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("灯亮度") // "Light BRIGHTNESS"
 
-#if LCD_WIDTH > 19
-#define MSG_INFO_PRINT_COUNT              _UxGT("打印计数")  //"Print Count"
-#define MSG_INFO_COMPLETED_PRINTS         _UxGT("完成了")  //"Completed"
-#define MSG_INFO_PRINT_TIME               _UxGT("总打印时间")  //"Total print time"
-#define MSG_INFO_PRINT_LONGEST            _UxGT("最长工作时间")  //"Longest job time"
-#define MSG_INFO_PRINT_FILAMENT           _UxGT("总计挤出")  //"Extruded total"
+#if LCD_WIDTH >= 20
+  #define MSG_INFO_PRINT_COUNT              _UxGT("打印计数")  //"Print Count"
+  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("完成了")  //"Completed"
+  #define MSG_INFO_PRINT_TIME               _UxGT("总打印时间")  //"Total print time"
+  #define MSG_INFO_PRINT_LONGEST            _UxGT("最长工作时间")  //"Longest job time"
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("总计挤出")  //"Extruded total"
 #else
-#define MSG_INFO_PRINT_COUNT              _UxGT("打印数")  //"Prints"
-#define MSG_INFO_COMPLETED_PRINTS         _UxGT("完成")  //"Completed"
-#define MSG_INFO_PRINT_TIME               _UxGT("总共")  //"Total"
-#define MSG_INFO_PRINT_LONGEST            _UxGT("最长")  //"Longest"
-#define MSG_INFO_PRINT_FILAMENT           _UxGT("已挤出")  //"Extruded"
+  #define MSG_INFO_PRINT_COUNT              _UxGT("打印数")  //"Prints"
+  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("完成")  //"Completed"
+  #define MSG_INFO_PRINT_TIME               _UxGT("总共")  //"Total"
+  #define MSG_INFO_PRINT_LONGEST            _UxGT("最长")  //"Longest"
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("已挤出")  //"Extruded"
 #endif
 
 #define MSG_INFO_MIN_TEMP                   _UxGT("最低温度")  //"Min Temp"
@@ -358,33 +356,30 @@
 #define MSG_M600_TOO_COLD                   _UxGT("M600: 太凉") // "M600: Too cold"
 
 #if LCD_HEIGHT >= 4
-#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("等待开始")  //"Wait for start"
-#define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("丝料")  //"of the filament"
-#define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("变更")  //"change"
-#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("等待")  //"Wait for"
-#define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("卸下丝料")  //"filament unload"
-#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("插入丝料")  //"Insert filament"
-#define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("并按键")  //"and press button"
-#define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("来继续 ...")  //"to continue..."
-#define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("按下按钮来") // "Press button to"
-#define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("加热喷嘴.") // "heat nozzle."
-#define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("加热喷嘴") // "Heating nozzle"
-#define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("请等待 ...") // "Please wait..."
-#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("等待")  //"Wait for"
-#define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("进料")  //"filament load"
-#define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("等待") // "Wait for"
-#define MSG_FILAMENT_CHANGE_PURGE_2         _UxGT("丝料清除") // "filament purge"
-#define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("等待打印")  //"Wait for print"
-#define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("恢复")  //"to resume"
-
+  #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("等待开始")  //"Wait for start"
+  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("丝料")  //"of the filament"
+  #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("变更")  //"change"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("等待")  //"Wait for"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("卸下丝料")  //"filament unload"
+  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("插入丝料")  //"Insert filament"
+  #define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("并按键")  //"and press button"
+  #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("来继续 ...")  //"to continue..."
+  #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("按下按钮来") // "Press button to"
+  #define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("加热喷嘴.") // "heat nozzle."
+  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("加热喷嘴") // "Heating nozzle"
+  #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("请等待 ...") // "Please wait..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("等待")  //"Wait for"
+  #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("进料")  //"filament load"
+  #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("等待") // "Wait for"
+  #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("丝料清除") // "filament purge"
+  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("等待打印")  //"Wait for print"
+  #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("恢复")  //"to resume"
 #else // LCD_HEIGHT < 4
-#define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("请等待 ...")  //"Please wait..."
-#define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("退出中 ...")  //"Ejecting..."
-#define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("插入并单击")  //"Insert and Click"
-#define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("加热中 ...") // "Heating..."
-#define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("装载中 ...")  //"Loading..."
-#define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("清除中 ...") // "Purging..."
-#define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("恢复中 ...")  //"Resuming..."
+  #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("请等待 ...")  //"Please wait..."
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("退出中 ...")  //"Ejecting..."
+  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("插入并单击")  //"Insert and Click"
+  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("加热中 ...") // "Heating..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("装载中 ...")  //"Loading..."
+  #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("清除中 ...") // "Purging..."
+  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("恢复中 ...")  //"Resuming..."
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_ZH_CN_H

@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
-
-#ifndef WATCHDOG_STM32F1_H
-#define WATCHDOG_STM32F1_H
 
 #include <libmaple/iwdg.h>
 
@@ -51,5 +49,3 @@ inline void watchdog_reset() {
   #endif
   iwdg_feed();
 }
-
-#endif // WATCHDOG_STM32F1_H

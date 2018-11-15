@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
-
-#ifndef _HAL_TIMERS_STM32F1_H
-#define _HAL_TIMERS_STM32F1_H
 
 // --------------------------------------------------------------------------
 // Includes
@@ -151,11 +149,6 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   }
 }
 
-FORCE_INLINE static void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks) {
-  const hal_timer_t mincmp = HAL_timer_get_count(timer_num) + interval_ticks;
-  if (HAL_timer_get_compare(timer_num) < mincmp) HAL_timer_set_compare(timer_num, mincmp);
-}
-
 FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
   case STEP_TIMER_NUM:
@@ -172,5 +165,3 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
 }
 
 #define HAL_timer_isr_epilogue(TIMER_NUM)
-
-#endif // _HAL_TIMERS_STM32F1_H

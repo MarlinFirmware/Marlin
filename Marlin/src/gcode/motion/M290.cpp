@@ -33,13 +33,27 @@
   #include "../../core/serial.h"
 #endif
 
-
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+
   FORCE_INLINE void mod_zprobe_zoffset(const float &offs) {
-    zprobe_zoffset += offs;
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
+    if (true
+      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+        && active_extruder == 0
+      #endif
+    ) {
+      zprobe_zoffset += offs;
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
+    }
+    #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
+      else {
+        hotend_offset[Z_AXIS][active_extruder] -= offs;
+        SERIAL_ECHO_START();
+        SERIAL_ECHOLNPAIR(MSG_IDEX_Z_OFFSET ": ", hotend_offset[Z_AXIS][active_extruder]);
+      }
+    #endif
   }
+
 #endif
 
 /**
@@ -50,7 +64,7 @@ void GcodeSuite::M290() {
     for (uint8_t a = X_AXIS; a <= Z_AXIS; a++)
       if (parser.seenval(axis_codes[a]) || (a == Z_AXIS && parser.seenval('S'))) {
         const float offs = constrain(parser.value_axis_units((AxisEnum)a), -2, 2);
-        thermalManager.babystep_axis((AxisEnum)a, offs * planner.axis_steps_per_mm[a]);
+        thermalManager.babystep_axis((AxisEnum)a, offs * planner.settings.axis_steps_per_mm[a]);
         #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
           if (a == Z_AXIS && (!parser.seen('P') || parser.value_bool())) mod_zprobe_zoffset(offs);
         #endif
@@ -58,7 +72,7 @@ void GcodeSuite::M290() {
   #else
     if (parser.seenval('Z') || parser.seenval('S')) {
       const float offs = constrain(parser.value_axis_units(Z_AXIS), -2, 2);
-      thermalManager.babystep_axis(Z_AXIS, offs * planner.axis_steps_per_mm[Z_AXIS]);
+      thermalManager.babystep_axis(Z_AXIS, offs * planner.settings.axis_steps_per_mm[Z_AXIS]);
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         if (!parser.seen('P') || parser.value_bool()) mod_zprobe_zoffset(offs);
       #endif

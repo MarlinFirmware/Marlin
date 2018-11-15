@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __SNMM_H__
-#define __SNMM_H__
+#pragma once
 
 void select_multiplexed_stepper(const uint8_t e);
-
-#endif // __SNMM_H__

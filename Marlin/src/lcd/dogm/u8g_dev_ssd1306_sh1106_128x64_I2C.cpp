@@ -67,7 +67,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
 
 #include <U8glib.h>
 #include "HAL_LCD_com_defines.h"
@@ -281,4 +281,4 @@ uint8_t u8g_WriteEscSeqP_2_wire(u8g_t *u8g, u8g_dev_t *dev, const uint8_t *esc_s
   return 1;
 }
 
-#endif // DOGLCD
+#endif // HAS_GRAPHICAL_LCD

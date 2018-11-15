@@ -60,12 +60,10 @@
  */
 
 #ifndef __SAM3X8E__
-  #error "Oops!  Make sure you have 'Arduino Due' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME       "RAMPS-SMART"
-#endif
+#define BOARD_NAME "RAMPS-SMART"
 
 #define IS_RAMPS_SMART
 #include "pins_RAMPS.h"

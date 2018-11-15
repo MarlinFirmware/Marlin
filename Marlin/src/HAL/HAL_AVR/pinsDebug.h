@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * PWM print routines for Atmel 8 bit AVR CPUs
  */
-
-#ifndef _PINSDEBUG_AVR_8_BIT_
-#define _PINSDEBUG_AVR_8_BIT_
 
 #include "../../inc/MarlinConfig.h"
 
@@ -406,5 +404,3 @@ static void pwm_details(uint8_t pin) {
 #endif
 
 #define PRINT_PIN(p) do {sprintf_P(buffer, PSTR("%3d "), p); SERIAL_ECHO(buffer);} while (0)
-
-#endif // _PINSDEBUG_AVR_8_BIT_

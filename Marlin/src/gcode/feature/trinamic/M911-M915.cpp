@@ -30,130 +30,177 @@
 #include "../../../module/planner.h"
 #include "../../queue.h"
 
-#define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || (AXIS_DRIVER_TYPE(ST, TMC2208) && PIN_EXISTS(ST##_SERIAL_RX)))
-#define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
+#if ENABLED(MONITOR_DRIVER_STATUS)
 
-/**
- * M911: Report TMC stepper driver overtemperature pre-warn flag
- *       This flag is held by the library, persisting until cleared by M912
- */
-void GcodeSuite::M911() {
-  #if M91x_USE(X)
-    tmc_report_otpw(stepperX, TMC_X);
-  #endif
-  #if M91x_USE(X2)
-    tmc_report_otpw(stepperX2, TMC_X2);
-  #endif
-  #if M91x_USE(Y)
-    tmc_report_otpw(stepperY, TMC_Y);
-  #endif
-  #if M91x_USE(Y2)
-    tmc_report_otpw(stepperY2, TMC_Y2);
-  #endif
-  #if M91x_USE(Z)
-    tmc_report_otpw(stepperZ, TMC_Z);
-  #endif
-  #if M91x_USE(Z2)
-    tmc_report_otpw(stepperZ2, TMC_Z2);
-  #endif
-  #if M91x_USE_E(0)
-    tmc_report_otpw(stepperE0, TMC_E0);
-  #endif
-  #if M91x_USE_E(1)
-    tmc_report_otpw(stepperE1, TMC_E1);
-  #endif
-  #if M91x_USE_E(2)
-    tmc_report_otpw(stepperE2, TMC_E2);
-  #endif
-  #if M91x_USE_E(3)
-    tmc_report_otpw(stepperE3, TMC_E3);
-  #endif
-  #if M91x_USE_E(4)
-    tmc_report_otpw(stepperE4, TMC_E4);
-  #endif
-}
+  #define M91x_USE(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208) || AXIS_DRIVER_TYPE(ST, TMC2660))
+  #define M91x_USE_E(N) (E_STEPPERS > N && M91x_USE(E##N))
 
-/**
- * M912: Clear TMC stepper driver overtemperature pre-warn flag held by the library
- *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, and E[index].
- *       If no axes are given, clear all.
- *
- * Examples:
- *       M912 X   ; clear X and X2
- *       M912 X1  ; clear X1 only
- *       M912 X2  ; clear X2 only
- *       M912 X E ; clear X, X2, and all E
- *       M912 E1  ; clear E1 only
- */
-void GcodeSuite::M912() {
-    const bool hasX = parser.seen(axis_codes[X_AXIS]),
-               hasY = parser.seen(axis_codes[Y_AXIS]),
-               hasZ = parser.seen(axis_codes[Z_AXIS]),
-               hasE = parser.seen(axis_codes[E_AXIS]),
-               hasNone = !hasX && !hasY && !hasZ && !hasE;
+  #define M91x_SOME_X (M91x_USE(X) || M91x_USE(X2))
+  #define M91x_SOME_Y (M91x_USE(Y) || M91x_USE(Y2))
+  #define M91x_SOME_Z (M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3))
+  #define M91x_SOME_E (M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5))
 
-    #if M91x_USE(X) || M91x_USE(X2)
-      const uint8_t xval = parser.byteval(axis_codes[X_AXIS], 10);
+  #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_SOME_E
+    #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, TMC2208, or TMC2660."
+  #endif
+
+  /**
+   * M911: Report TMC stepper driver overtemperature pre-warn flag
+   *       This flag is held by the library, persisting until cleared by M912
+   */
+  void GcodeSuite::M911() {
+    #if M91x_USE(X)
+      tmc_report_otpw(stepperX);
+    #endif
+    #if M91x_USE(X2)
+      tmc_report_otpw(stepperX2);
+    #endif
+    #if M91x_USE(Y)
+      tmc_report_otpw(stepperY);
+    #endif
+    #if M91x_USE(Y2)
+      tmc_report_otpw(stepperY2);
+    #endif
+    #if M91x_USE(Z)
+      tmc_report_otpw(stepperZ);
+    #endif
+    #if M91x_USE(Z2)
+      tmc_report_otpw(stepperZ2);
+    #endif
+    #if M91x_USE(Z3)
+      tmc_report_otpw(stepperZ3);
+    #endif
+    #if M91x_USE_E(0)
+      tmc_report_otpw(stepperE0);
+    #endif
+    #if M91x_USE_E(1)
+      tmc_report_otpw(stepperE1);
+    #endif
+    #if M91x_USE_E(2)
+      tmc_report_otpw(stepperE2);
+    #endif
+    #if M91x_USE_E(3)
+      tmc_report_otpw(stepperE3);
+    #endif
+    #if M91x_USE_E(4)
+      tmc_report_otpw(stepperE4);
+    #endif
+    #if M91x_USE_E(5)
+      tmc_report_otpw(stepperE5);
+    #endif
+  }
+
+  /**
+   * M912: Clear TMC stepper driver overtemperature pre-warn flag held by the library
+   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3 and E[index].
+   *       If no axes are given, clear all.
+   *
+   * Examples:
+   *       M912 X   ; clear X and X2
+   *       M912 X1  ; clear X1 only
+   *       M912 X2  ; clear X2 only
+   *       M912 X E ; clear X, X2, and all E
+   *       M912 E1  ; clear E1 only
+   */
+  void GcodeSuite::M912() {
+    #if M91x_SOME_X
+      const bool hasX = parser.seen(axis_codes[X_AXIS]);
+    #else
+      constexpr bool hasX = false;
+    #endif
+
+    #if M91x_SOME_Y
+      const bool hasY = parser.seen(axis_codes[Y_AXIS]);
+    #else
+      constexpr bool hasY = false;
+    #endif
+
+    #if M91x_SOME_Z
+      const bool hasZ = parser.seen(axis_codes[Z_AXIS]);
+    #else
+      constexpr bool hasZ = false;
+    #endif
+
+    #if M91x_SOME_E
+      const bool hasE = parser.seen(axis_codes[E_AXIS]);
+    #else
+      constexpr bool hasE = false;
+    #endif
+
+    const bool hasNone = !hasX && !hasY && !hasZ && !hasE;
+
+    #if M91x_SOME_X
+      const int8_t xval = int8_t(parser.byteval(axis_codes[X_AXIS], 0xFF));
       #if M91x_USE(X)
-        if (hasNone || xval == 1 || (hasX && xval == 10)) tmc_clear_otpw(stepperX, TMC_X);
+        if (hasNone || xval == 1 || (hasX && xval < 0)) tmc_clear_otpw(stepperX);
       #endif
       #if M91x_USE(X2)
-        if (hasNone || xval == 2 || (hasX && xval == 10)) tmc_clear_otpw(stepperX2, TMC_X2);
+        if (hasNone || xval == 2 || (hasX && xval < 0)) tmc_clear_otpw(stepperX2);
       #endif
     #endif
 
-    #if M91x_USE(Y) || M91x_USE(Y2)
-      const uint8_t yval = parser.byteval(axis_codes[Y_AXIS], 10);
+    #if M91x_SOME_Y
+      const int8_t yval = int8_t(parser.byteval(axis_codes[Y_AXIS], 0xFF));
       #if M91x_USE(Y)
-        if (hasNone || yval == 1 || (hasY && yval == 10)) tmc_clear_otpw(stepperY, TMC_Y);
+        if (hasNone || yval == 1 || (hasY && yval < 0)) tmc_clear_otpw(stepperY);
       #endif
       #if M91x_USE(Y2)
-        if (hasNone || yval == 2 || (hasY && yval == 10)) tmc_clear_otpw(stepperY2, TMC_Y2);
+        if (hasNone || yval == 2 || (hasY && yval < 0)) tmc_clear_otpw(stepperY2);
       #endif
     #endif
 
-    #if M91x_USE(Z) || M91x_USE(Z2)
-      const uint8_t zval = parser.byteval(axis_codes[Z_AXIS], 10);
+    #if M91x_SOME_Z
+      const int8_t zval = int8_t(parser.byteval(axis_codes[Z_AXIS], 0xFF));
       #if M91x_USE(Z)
-        if (hasNone || zval == 1 || (hasZ && zval == 10)) tmc_clear_otpw(stepperZ, TMC_Z);
+        if (hasNone || zval == 1 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ);
       #endif
       #if M91x_USE(Z2)
-        if (hasNone || zval == 2 || (hasZ && zval == 10)) tmc_clear_otpw(stepperZ2, TMC_Z2);
+        if (hasNone || zval == 2 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ2);
+      #endif
+      #if M91x_USE(Z3)
+        if (hasNone || zval == 3 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ3);
       #endif
     #endif
 
-    #if M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4)
-      const uint8_t eval = parser.byteval(axis_codes[E_AXIS], 10);
+    #if M91x_SOME_E
+      const int8_t eval = int8_t(parser.byteval(axis_codes[E_AXIS], 0xFF));
       #if M91x_USE_E(0)
-        if (hasNone || eval == 0 || (hasE && eval == 10)) tmc_clear_otpw(stepperE0, TMC_E0);
+        if (hasNone || eval == 0 || (hasE && eval < 0)) tmc_clear_otpw(stepperE0);
       #endif
       #if M91x_USE_E(1)
-        if (hasNone || eval == 1 || (hasE && eval == 10)) tmc_clear_otpw(stepperE1, TMC_E1);
+        if (hasNone || eval == 1 || (hasE && eval < 0)) tmc_clear_otpw(stepperE1);
       #endif
       #if M91x_USE_E(2)
-        if (hasNone || eval == 2 || (hasE && eval == 10)) tmc_clear_otpw(stepperE2, TMC_E2);
+        if (hasNone || eval == 2 || (hasE && eval < 0)) tmc_clear_otpw(stepperE2);
       #endif
       #if M91x_USE_E(3)
-        if (hasNone || eval == 3 || (hasE && eval == 10)) tmc_clear_otpw(stepperE3, TMC_E3);
+        if (hasNone || eval == 3 || (hasE && eval < 0)) tmc_clear_otpw(stepperE3);
       #endif
       #if M91x_USE_E(4)
-        if (hasNone || eval == 4 || (hasE && eval == 10)) tmc_clear_otpw(stepperE4, TMC_E4);
+        if (hasNone || eval == 4 || (hasE && eval < 0)) tmc_clear_otpw(stepperE4);
+      #endif
+      #if M91x_USE_E(5)
+        if (hasNone || eval == 5 || (hasE && eval < 0)) tmc_clear_otpw(stepperE5);
       #endif
     #endif
-}
+  }
+
+#endif // MONITOR_DRIVER_STATUS
 
 /**
  * M913: Set HYBRID_THRESHOLD speed.
  */
 #if ENABLED(HYBRID_THRESHOLD)
   void GcodeSuite::M913() {
-    #define TMC_SAY_PWMTHRS(A,Q) tmc_get_pwmthrs(stepper##Q, TMC_##Q, planner.axis_steps_per_mm[_AXIS(A)])
-    #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, value, planner.axis_steps_per_mm[_AXIS(A)])
-    #define TMC_SAY_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_get_pwmthrs(stepperE##E, TMC_E##E, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
-    #define TMC_SET_PWMTHRS_E(E) do{ const uint8_t extruder = E; tmc_set_pwmthrs(stepperE##E, value, planner.axis_steps_per_mm[E_AXIS_N]); }while(0)
+    #define TMC_SAY_PWMTHRS(A,Q) tmc_get_pwmthrs(stepper##Q, planner.settings.axis_steps_per_mm[_AXIS(A)])
+    #define TMC_SET_PWMTHRS(A,Q) tmc_set_pwmthrs(stepper##Q, value, planner.settings.axis_steps_per_mm[_AXIS(A)])
+    #define TMC_SAY_PWMTHRS_E(E) tmc_get_pwmthrs(stepperE##E, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
+    #define TMC_SET_PWMTHRS_E(E) tmc_set_pwmthrs(stepperE##E, value, planner.settings.axis_steps_per_mm[E_AXIS_N(E)])
 
     bool report = true;
-    const uint8_t index = parser.byteval('I');
+    #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3)
+      const uint8_t index = parser.byteval('I');
+    #endif
     LOOP_XYZE(i) if (int32_t value = parser.longval(axis_codes[i])) {
       report = false;
       switch (i) {
@@ -178,11 +225,15 @@ void GcodeSuite::M912() {
             if (index < 2) TMC_SET_PWMTHRS(Z,Z);
           #endif
           #if AXIS_HAS_STEALTHCHOP(Z2)
-            if (!(index & 1)) TMC_SET_PWMTHRS(Z,Z2);
+            if (index == 0 || index == 2) TMC_SET_PWMTHRS(Z,Z2);
+          #endif
+          #if AXIS_HAS_STEALTHCHOP(Z3)
+            if (index == 0 || index == 3) TMC_SET_PWMTHRS(Z,Z3);
           #endif
           break;
         case E_AXIS: {
-          if (get_target_extruder_from_command()) return;
+          const int8_t target_extruder = get_target_extruder_from_command();
+          if (target_extruder < 0) return;
           switch (target_extruder) {
             #if AXIS_HAS_STEALTHCHOP(E0)
               case 0: TMC_SET_PWMTHRS_E(0); break;
@@ -198,6 +249,9 @@ void GcodeSuite::M912() {
             #endif
             #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
               case 4: TMC_SET_PWMTHRS_E(4); break;
+            #endif
+            #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
+              case 5: TMC_SET_PWMTHRS_E(5); break;
             #endif
           }
         } break;
@@ -223,6 +277,9 @@ void GcodeSuite::M912() {
       #if AXIS_HAS_STEALTHCHOP(Z2)
         TMC_SAY_PWMTHRS(Z,Z2);
       #endif
+      #if AXIS_HAS_STEALTHCHOP(Z3)
+        TMC_SAY_PWMTHRS(Z,Z3);
+      #endif
       #if AXIS_HAS_STEALTHCHOP(E0)
         TMC_SAY_PWMTHRS_E(0);
       #endif
@@ -238,16 +295,19 @@ void GcodeSuite::M912() {
       #if E_STEPPERS > 4 && AXIS_HAS_STEALTHCHOP(E4)
         TMC_SAY_PWMTHRS_E(4);
       #endif
+      #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
+        TMC_SAY_PWMTHRS_E(5);
+      #endif
     }
   }
 #endif // HYBRID_THRESHOLD
 
 /**
- * M914: Set SENSORLESS_HOMING sensitivity.
+ * M914: Set StallGuard sensitivity.
  */
-#if ENABLED(SENSORLESS_HOMING)
+#if USE_SENSORLESS
   void GcodeSuite::M914() {
-    #define TMC_SAY_SGT(Q) tmc_get_sgt(stepper##Q, TMC_##Q)
+    #define TMC_SAY_SGT(Q) tmc_get_sgt(stepper##Q)
     #define TMC_SET_SGT(Q) tmc_set_sgt(stepper##Q, value)
 
     bool report = true;
@@ -282,7 +342,10 @@ void GcodeSuite::M912() {
               if (index < 2) TMC_SET_SGT(Z);
             #endif
             #if AXIS_HAS_STALLGUARD(Z2)
-              if (!(index & 1)) TMC_SET_SGT(Z2);
+              if (index == 0 || index == 2) TMC_SET_SGT(Z2);
+            #endif
+            #if AXIS_HAS_STALLGUARD(Z3)
+              if (index == 0 || index == 3) TMC_SET_SGT(Z3);
             #endif
             break;
         #endif
@@ -313,10 +376,13 @@ void GcodeSuite::M912() {
         #if AXIS_HAS_STALLGUARD(Z2)
           TMC_SAY_SGT(Z2);
         #endif
+        #if AXIS_HAS_STALLGUARD(Z3)
+          TMC_SAY_SGT(Z3);
+        #endif
       #endif
     }
   }
-#endif // SENSORLESS_HOMING
+#endif // USE_SENSORLESS
 
 /**
  * TMC Z axis calibration routine
@@ -332,12 +398,16 @@ void GcodeSuite::M912() {
     }
 
     #if AXIS_IS_TMC(Z)
-      const uint16_t Z_current_1 = stepperZ.getCurrent();
-      stepperZ.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
+      const uint16_t Z_current_1 = stepperZ.getMilliamps();
+      stepperZ.rms_current(_rms);
     #endif
     #if AXIS_IS_TMC(Z2)
-      const uint16_t Z2_current_1 = stepperZ2.getCurrent();
-      stepperZ2.setCurrent(_rms, R_SENSE, HOLD_MULTIPLIER);
+      const uint16_t Z2_current_1 = stepperZ2.getMilliamps();
+      stepperZ2.rms_current(_rms);
+    #endif
+    #if AXIS_IS_TMC(Z3)
+      const uint16_t Z3_current_1 = stepperZ3.getMilliamps();
+      stepperZ3.rms_current(_rms);
     #endif
 
     SERIAL_ECHOPAIR("\nCalibration current: Z", _rms);
@@ -347,10 +417,13 @@ void GcodeSuite::M912() {
     do_blocking_move_to_z(Z_MAX_POS+_z);
 
     #if AXIS_IS_TMC(Z)
-      stepperZ.setCurrent(Z_current_1, R_SENSE, HOLD_MULTIPLIER);
+      stepperZ.rms_current(Z_current_1);
     #endif
     #if AXIS_IS_TMC(Z2)
-      stepperZ2.setCurrent(Z2_current_1, R_SENSE, HOLD_MULTIPLIER);
+      stepperZ2.rms_current(Z2_current_1);
+    #endif
+    #if AXIS_IS_TMC(Z3)
+      stepperZ3.rms_current(Z3_current_1);
     #endif
 
     do_blocking_move_to_z(Z_MAX_POS);

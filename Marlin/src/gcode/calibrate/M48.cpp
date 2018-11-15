@@ -28,9 +28,7 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 
-
 #include "../../feature/bedlevel/bedlevel.h"
-
 
 #if HAS_LEVELING
   #include "../../module/planner.h"

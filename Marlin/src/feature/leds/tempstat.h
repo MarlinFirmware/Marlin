@@ -19,14 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Marlin general RGB LED support
  */
 
-#ifndef __TEMPSTAT_H__
-#define __TEMPSTAT_H__
-
 void handle_status_leds(void);
-
-#endif // __TEMPSTAT_H__

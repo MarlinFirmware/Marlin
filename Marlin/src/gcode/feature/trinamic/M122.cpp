@@ -31,10 +31,14 @@
  * M122: Debug TMC drivers
  */
 void GcodeSuite::M122() {
-  if (parser.seen('S'))
-    tmc_set_report_status(parser.value_bool());
-  else
-    tmc_report_all();
+
+  #if ENABLED(MONITOR_DRIVER_STATUS)
+    if (parser.seen('S'))
+      tmc_set_report_status(parser.value_bool());
+    else
+  #endif
+      tmc_report_all();
+
 }
 
 #endif // TMC_DEBUG

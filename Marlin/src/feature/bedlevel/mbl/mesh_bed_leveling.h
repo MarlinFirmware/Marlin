@@ -19,19 +19,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _MESH_BED_LEVELING_H_
-#define _MESH_BED_LEVELING_H_
+#pragma once
 
 #include "../../../inc/MarlinConfig.h"
 
 enum MeshLevelingState : char {
-  MeshReport,
-  MeshStart,
-  MeshNext,
-  MeshSet,
-  MeshSetZOffset,
-  MeshReset
+  MeshReport,     // G29 S0
+  MeshStart,      // G29 S1
+  MeshNext,       // G29 S2
+  MeshSet,        // G29 S3
+  MeshSetZOffset, // G29 S4
+  MeshReset       // G29 S5
 };
 
 #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (GRID_MAX_POINTS_X - 1))
@@ -121,4 +119,4 @@ public:
 
 extern mesh_bed_leveling mbl;
 
-#endif // _MESH_BED_LEVELING_H_
+#define Z_VALUES(X,Y) mbl.z_values[X][Y]

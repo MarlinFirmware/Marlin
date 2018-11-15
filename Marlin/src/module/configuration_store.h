@@ -19,11 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef CONFIGURATION_STORE_H
-#define CONFIGURATION_STORE_H
+#pragma once
 
 #include "../inc/MarlinConfig.h"
+
+#if ENABLED(EEPROM_SETTINGS)
+  #include "../HAL/shared/persistent_store_api.h"
+#endif
 
 #define ADD_PORT_ARG ENABLED(EEPROM_CHITCHAT) && NUM_SERIAL > 1
 
@@ -56,6 +58,11 @@ class MarlinSettings {
         return true;
       #endif
     }
+
+    #if ENABLED(SD_FIRMWARE_UPDATE)
+      static bool sd_update_status();                       // True if the SD-Firmware-Update EEPROM flag is set
+      static bool set_sd_update_status(const bool enable);  // Return 'true' after EEPROM is set (-> always true)
+    #endif
 
     #if ENABLED(EEPROM_SETTINGS)
       static bool load(PORTINIT_SOLO);      // Return 'true' if data was loaded ok
@@ -96,11 +103,10 @@ class MarlinSettings {
 
       static bool eeprom_error, validating;
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL) // Eventually make these available if any leveling system
-                                         // That can store is enabled
-        static constexpr uint16_t meshes_end = E2END - 128; // 128 is a placeholder for the size of the MAT; the MAT will always
-                                                            // live at the very end of the eeprom
-
+      #if ENABLED(AUTO_BED_LEVELING_UBL)  // Eventually make these available if any leveling system
+                                          // That can store is enabled
+        static const uint16_t meshes_end; // 128 is a placeholder for the size of the MAT; the MAT will always
+                                          // live at the very end of the eeprom
       #endif
 
       static bool _load(PORTINIT_SOLO);
@@ -112,5 +118,3 @@ extern MarlinSettings settings;
 
 #undef PORTINIT_SOLO
 #undef PORTINIT_AFTER
-
-#endif // CONFIGURATION_STORE_H

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Japanese (Kana)
@@ -28,9 +29,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-
-#ifndef LANGUAGE_KANA_UTF_H
-#define LANGUAGE_KANA_UTF_H
 
 #define DISPLAY_CHARSET_ISO10646_KANA
 #define CHARSIZE 3
@@ -60,15 +58,15 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("キジュンオフセットセッテイ")         // "Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("オフセットガテキヨウサレマシタ")       // "Offsets applied"
 #define MSG_SET_ORIGIN                      _UxGT("キジュンセット")                 // "Set origin"
-#define MSG_PREHEAT_1                       _UxGT("PLA ヨネツ")                   // "Preheat PLA"
+#define MSG_PREHEAT_1                       _UxGT(PREHEAT_1_LABEL " ヨネツ")       // "Preheat " PREHEAT_1_LABEL
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
-#define MSG_PREHEAT_1_ALL                   _UxGT("PLA スベテヨネツ")              // " All"
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("PLA ベッドヨネツ")              // " Bed"
+#define MSG_PREHEAT_1_ALL                   _UxGT(PREHEAT_1_LABEL " スベテヨネツ")  // " All"
+#define MSG_PREHEAT_1_BEDONLY               _UxGT(PREHEAT_1_LABEL " ベッドヨネツ")  // " Bed"
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT("セッテイ")       // " conf"
-#define MSG_PREHEAT_2                       _UxGT("ABS ヨネツ")                  // "Preheat ABS"
+#define MSG_PREHEAT_2                       _UxGT(PREHEAT_2_LABEL " ヨネツ")      // "Preheat " PREHEAT_2_LABEL
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
-#define MSG_PREHEAT_2_ALL                   _UxGT("ABS スベテヨネツ")              // " All"
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("ABS ベッドヨネツ")              // " Bed"
+#define MSG_PREHEAT_2_ALL                   _UxGT(PREHEAT_2_LABEL " スベテヨネツ")  // " All"
+#define MSG_PREHEAT_2_BEDONLY               _UxGT(PREHEAT_2_LABEL " ベッドヨネツ")  // " Bed"
 #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT("セッテイ")       // " conf"
 #define MSG_COOLDOWN                        _UxGT("カネツテイシ")                  // "Cooldown"
 #define MSG_SWITCH_PS_ON                    _UxGT("デンゲン オン")                 // "Switch power on"
@@ -78,6 +76,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("ジクイドウ")                    // "Move axis"
 #define MSG_BED_LEVELING                    _UxGT("ベッドレベリング")                // "Bed leveling"
 #define MSG_LEVEL_BED                       _UxGT("ベッドレベリング")                // "Level bed"
+
 #define MSG_MOVING                          _UxGT("イドウチュウ")                   // "Moving..."
 #define MSG_FREE_XY                         _UxGT("XYジク カイホウ")                // "Free XY"
 #define MSG_MOVE_X                          _UxGT("Xジク イドウ")                  // "Move X"
@@ -98,8 +97,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" サイコウ") // " Max"
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ファクター") // " Fact"
 #define MSG_AUTOTEMP                        _UxGT("ジドウオンドセイギョ")               // "Autotemp"
-#define MSG_ON                              _UxGT("オン ")                         // "On "
-#define MSG_OFF                             _UxGT("オフ ")                         // "Off"
+#define MSG_LCD_ON                          _UxGT("オン")                         // "On"
+#define MSG_LCD_OFF                         _UxGT("オフ")                         // "Off"
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -151,14 +150,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("ヒキコミリョウ mm")                // "Retract mm"
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("ヒキコミリョウS mm")               // "Swap Re.mm"
 #define MSG_CONTROL_RETRACTF                _UxGT("ヒキコミソクド mm/s")             // "Retract  V"
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("ノズルタイヒ mm")                // "Hop mm"
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("ノズルタイヒ mm")                // "Hop mm"
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("ホショウリョウ mm")               // "UnRet mm"
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("ホショウリョウS mm")              // "S UnRet mm"
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("ホショウソクド mm/s")            // "UnRet  V"
 #define MSG_AUTORETRACT                     _UxGT("ジドウヒキコミ")                 // "AutoRetr."
 #define MSG_FILAMENTCHANGE                  _UxGT("フィラメントコウカン")              // "Change filament"
 #define MSG_INIT_SDCARD                     _UxGT("SDカードサイヨミコミ")             // "Init. SD card"
-#define MSG_CNG_SDCARD                      _UxGT("SDカードコウカン")               // "Change SD card"
+#define MSG_CHANGE_SDCARD                   _UxGT("SDカードコウカン")               // "Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Zプローブ ベッドガイ")            // "Z probe out. bed"
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch ジコシンダン")          // "BLTouch Self-Test"
 #define MSG_BLTOUCH_RESET                   _UxGT("BLTouch リセット")             // "Reset BLTouch"
@@ -220,5 +219,3 @@
 #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("シバラクオマチクダサイ")            // "filament load"
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("プリントヲサイカイシマス")           // "Wait for print"
 #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("シバラクオマチクダサイ")            // "to resume"
-
-#endif // LANGUAGE_KANA_UTF_H

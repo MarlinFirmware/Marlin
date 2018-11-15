@@ -30,14 +30,14 @@
  * Adapted to the STM32F4 HAL
  */
 
-#if defined(STM32F4) || defined(STM32F4xx)
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
 
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
 
 #include "HAL.h"
-#include "../HAL_SPI.h"
+#include "../shared/HAL_SPI.h"
 #include "pins_arduino.h"
 #include "spi_pins.h"
 #include "../../core/macros.h"

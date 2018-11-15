@@ -24,8 +24,7 @@
  * delta.h - Delta-specific functions
  */
 
-#ifndef __DELTA_H__
-#define __DELTA_H__
+#pragma once
 
 extern float delta_height,
              delta_endstop_adj[ABC],
@@ -78,7 +77,11 @@ void recalc_delta_settings();
   delta[C_AXIS] = DELTA_Z(V, C_AXIS); \
 }while(0)
 
-void inverse_kinematics(const float raw[XYZ]);
+void inverse_kinematics(const float (&raw)[XYZ]);
+FORCE_INLINE void inverse_kinematics(const float (&raw)[XYZE]) {
+  const float raw_xyz[XYZ] = { raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS] };
+  inverse_kinematics(raw_xyz);
+}
 
 /**
  * Calculate the highest Z position where the
@@ -118,5 +121,3 @@ FORCE_INLINE void forward_kinematics_DELTA(const float (&point)[ABC]) {
 }
 
 void home_delta();
-
-#endif // __DELTA_H__

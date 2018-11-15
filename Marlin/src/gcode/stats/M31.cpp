@@ -40,7 +40,7 @@ void GcodeSuite::M31() {
   char buffer[21];
   duration_t elapsed = print_job_timer.duration();
   elapsed.toString(buffer);
-  lcd_setstatus(buffer);
+  ui.setstatus(buffer);
 
   SERIAL_ECHO_START_P(port);
   SERIAL_ECHOLNPAIR_P(port, "Print time: ", buffer);

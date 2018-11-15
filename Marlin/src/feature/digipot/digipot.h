@@ -19,11 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __DIGIPOT_H__
-#define __DIGIPOT_H__
+#pragma once
 
 void digipot_i2c_set_current(const uint8_t channel, const float current);
 void digipot_i2c_init();
-
-#endif // __DIGIPOT_H__

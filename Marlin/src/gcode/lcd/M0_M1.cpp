@@ -27,15 +27,14 @@
 #include "../gcode.h"
 #include "../../module/stepper.h"
 
-#if ENABLED(ULTIPANEL)
+#if HAS_LCD_MENU
   #include "../../lcd/ultralcd.h"
 #endif
 
 #include "../../sd/cardreader.h"
 
-#if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
-  bool GcodeSuite::lights_off_after_print;
-  #include "../../feature/leds/leds.h"
+#if HAS_LEDS_OFF_FLAG
+  #include "../../feature/leds/printer_event_leds.h"
 #endif
 
 /**
@@ -60,14 +59,14 @@ void GcodeSuite::M0_M1() {
 
   planner.synchronize();
 
-  #if ENABLED(ULTIPANEL)
+  #if HAS_LCD_MENU
 
     if (has_message)
-      lcd_setstatus(args, true);
+      ui.setstatus(args, true);
     else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
-        dontExpireStatus();
+        ui.reset_progress_bar_timeout();
       #endif
     }
 
@@ -90,15 +89,12 @@ void GcodeSuite::M0_M1() {
   else
     while (wait_for_user) idle();
 
-  #if ENABLED(PRINTER_EVENT_LEDS) && ENABLED(SDSUPPORT)
-    if (lights_off_after_print) {
-      leds.set_off();
-      lights_off_after_print = false;
-    }
+  #if HAS_LEDS_OFF_FLAG
+    printerEventLEDs.onResumeAfterWait();
   #endif
 
-  #if ENABLED(ULTIPANEL)
-    lcd_reset_status();
+  #if HAS_LCD_MENU
+    ui.reset_status();
   #endif
 
   wait_for_user = false;

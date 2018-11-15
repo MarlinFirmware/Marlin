@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _CARDREADER_H_
-#define _CARDREADER_H_
+#pragma once
 
 #include "../inc/MarlinConfig.h"
 
@@ -32,6 +30,8 @@
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
 #include "SdFile.h"
+
+enum LsAction : uint8_t { LS_SerialPrint, LS_Count, LS_GetFilename };
 
 class CardReader {
 public:
@@ -101,6 +101,8 @@ public:
       FORCE_INLINE void setSortFolders(int i) { sort_folders = i; presort(); }
       //FORCE_INLINE void setSortReverse(bool b) { sort_reverse = b; }
     #endif
+  #else
+    FORCE_INLINE void getfilename_sorted(const uint16_t nr) { getfilename(nr); }
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
@@ -112,25 +114,22 @@ public:
     void removeJobRecoveryFile();
   #endif
 
-  FORCE_INLINE void pauseSDPrint() { sdprinting = false; }
-  FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
-  FORCE_INLINE bool eof() { return sdpos >= filesize; }
-  FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
-  FORCE_INLINE void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
-  FORCE_INLINE uint32_t getIndex() { return sdpos; }
-  FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
-  FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
-
-  #if defined(__STM32F1__) && ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
-    FORCE_INLINE int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
-    FORCE_INLINE int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
-  #endif
+  inline void pauseSDPrint() { sdprinting = false; }
+  inline bool isFileOpen() { return file.isOpen(); }
+  inline bool eof() { return sdpos >= filesize; }
+  inline int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
+  inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
+  inline uint32_t getIndex() { return sdpos; }
+  inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
+  inline char* getWorkDirName() { workDir.getFilename(filename); return filename; }
+  inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
+  inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
   Sd2Card& getSd2Card() { return sd2card; }
 
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     void auto_report_sd_status(void);
-    FORCE_INLINE void set_auto_report_interval(uint8_t v
+    inline void set_auto_report_interval(uint8_t v
       #if NUM_SERIAL > 1
         , int8_t port
       #endif
@@ -144,12 +143,22 @@ public:
     }
   #endif
 
-  FORCE_INLINE char* longest_filename() { return longFilename[0] ? longFilename : filename; }
+  inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
 
 public:
-  bool saving, logging, sdprinting, cardOK, filenameIsDir;
+  bool saving, logging, sdprinting, cardOK, filenameIsDir, abort_sd_printing;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   int8_t autostart_index;
+
+  #if ENABLED(FAST_FILE_TRANSFER)
+    bool binary_mode;
+    #if NUM_SERIAL > 1
+      uint8_t transfer_port;
+    #else
+      static constexpr uint8_t transfer_port = 0;
+    #endif
+  #endif
+
 private:
   SdFile root, workDir, workDirParents[MAX_DIR_DEPTH];
   uint8_t workDirDepth;
@@ -241,27 +250,27 @@ private:
   #endif
 };
 
-#if PIN_EXISTS(SD_DETECT)
+#if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #define IS_SD_INSERTED() Sd2Card::isInserted()
+#elif PIN_EXISTS(SD_DETECT)
   #if ENABLED(SD_DETECT_INVERTED)
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == HIGH)
+    #define IS_SD_INSERTED()  READ(SD_DETECT_PIN)
   #else
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == LOW)
+    #define IS_SD_INSERTED() !READ(SD_DETECT_PIN)
   #endif
 #else
   // No card detect line? Assume the card is inserted.
-  #define IS_SD_INSERTED true
+  #define IS_SD_INSERTED() true
 #endif
+
+#define IS_SD_PRINTING()  card.sdprinting
+#define IS_SD_FILE_OPEN() card.isFileOpen()
 
 extern CardReader card;
 
-#endif // SDSUPPORT
+#else // !SDSUPPORT
 
-#if ENABLED(SDSUPPORT)
-  #define IS_SD_PRINTING (card.sdprinting)
-  #define IS_SD_FILE_OPEN (card.isFileOpen())
-#else
-  #define IS_SD_PRINTING (false)
-  #define IS_SD_FILE_OPEN (false)
-#endif
+#define IS_SD_PRINTING()  false
+#define IS_SD_FILE_OPEN() false
 
-#endif // _CARDREADER_H_
+#endif // !SDSUPPORT

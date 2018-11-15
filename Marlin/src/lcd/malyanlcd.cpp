@@ -45,6 +45,7 @@
 
 #if ENABLED(MALYAN_LCD)
 
+#include "ultralcd.h"
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/stepper.h"
@@ -81,7 +82,7 @@ int inbound_count;
 bool last_printing_status = false;
 
 // Everything written needs the high bit set.
-void write_to_lcd_P(const char * const message) {
+void write_to_lcd_P(PGM_P const message) {
   char encoded_message[MAX_CURLY_COMMAND];
   uint8_t message_length = MIN(strlen_P(message), sizeof(encoded_message));
 
@@ -254,9 +255,7 @@ void process_lcd_p_command(const char* command) {
         quickstop_stepper();
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
-        #if FAN_COUNT > 0
-          for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
-        #endif
+        zero_fan_speeds();
         wait_for_heatup = false;
         write_to_lcd_P(PSTR("{SYS:STARTED}"));
       #endif
@@ -419,7 +418,7 @@ void update_usb_status(const bool forceUpdate) {
  * The optimize attribute fixes a register Compile
  * error for amtel.
  */
-void lcd_update() {
+void MarlinUI::update() {
   static char inbound_buffer[MAX_CURLY_COMMAND];
 
   // First report USB status.
@@ -446,13 +445,13 @@ void lcd_update() {
     // If there was a print in progress, we need to emit the final
     // print status as {TQ:100}. Reset last percent done so a new print will
     // issue a percent of 0.
-    const uint8_t percent_done = card.sdprinting ? card.percentDone() : last_printing_status ? 100 : 0;
+    const uint8_t percent_done = IS_SD_PRINTING() ? card.percentDone() : last_printing_status ? 100 : 0;
     if (percent_done != last_percent_done) {
       char message_buffer[10];
       sprintf_P(message_buffer, PSTR("{TQ:%03i}"), percent_done);
       write_to_lcd(message_buffer);
       last_percent_done = percent_done;
-      last_printing_status = card.sdprinting;
+      last_printing_status = IS_SD_PRINTING();
     }
   #endif
 }
@@ -463,7 +462,7 @@ void lcd_update() {
  * it and translate into gcode, which then gets injected into
  * the command queue where possible.
  */
-void lcd_init() {
+void MarlinUI::init() {
   inbound_count = 0;
   LCD_SERIAL.begin(500000);
 
@@ -481,10 +480,10 @@ void lcd_init() {
 /**
  * Set an alert.
  */
-void lcd_setalertstatusPGM(const char* message) {
-  char message_buffer[MAX_CURLY_COMMAND];
-  sprintf_P(message_buffer, PSTR("{E:%s}"), message);
-  write_to_lcd(message_buffer);
+void MarlinUI::setalertstatusPGM(PGM_P const message) {
+  write_to_lcd_P(PSTR("{E:"));
+  write_to_lcd_P(message);
+  write_to_lcd_P("}");
 }
 
 #endif // MALYAN_LCD

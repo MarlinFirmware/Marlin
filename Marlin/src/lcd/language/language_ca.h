@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Catalan
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_CA_H
-#define LANGUAGE_CA_H
 
 #define CHARSIZE 2
 
@@ -53,12 +52,12 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ajusta decalatge")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Decalatge aplicat")
 #define MSG_SET_ORIGIN                      _UxGT("Estableix origen")
-#define MSG_PREHEAT_1                       _UxGT("Preescalfa PLA")
+#define MSG_PREHEAT_1                       _UxGT("Preescalfa " PREHEAT_1_LABEL)
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" Tot")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Llit")
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" Conf.")
-#define MSG_PREHEAT_2                       _UxGT("Preescalfa ABS")
+#define MSG_PREHEAT_2                       _UxGT("Preescalfa " PREHEAT_2_LABEL)
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" Tot")
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Llit")
@@ -71,6 +70,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("Mou eixos")
 #define MSG_BED_LEVELING                    _UxGT("Anivella llit")
 #define MSG_LEVEL_BED                       _UxGT("Anivella llit")
+
 #define MSG_MOVING                          _UxGT("Movent..")
 #define MSG_FREE_XY                         _UxGT("XY lliures")
 #define MSG_MOVE_X                          _UxGT("Mou X")
@@ -91,8 +91,8 @@
 #define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")
-#define MSG_ON                              _UxGT("On ")
-#define MSG_OFF                             _UxGT("Off")
+#define MSG_LCD_ON                          _UxGT("On")
+#define MSG_LCD_OFF                         _UxGT("Off")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -132,6 +132,7 @@
 #define MSG_E3STEPS                         _UxGT("E3passos/mm")
 #define MSG_E4STEPS                         _UxGT("E4passos/mm")
 #define MSG_E5STEPS                         _UxGT("E5passos/mm")
+#define MSG_E6STEPS                         _UxGT("E6passos/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Moviment")
 #define MSG_FILAMENT                        _UxGT("Filament")
@@ -159,14 +160,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retreu mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Swap Retreure mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retreu V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Aixeca mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Aixeca mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("DesRet +mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Swap DesRet +mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("DesRet V")
 #define MSG_AUTORETRACT                     _UxGT("Auto retraccio")
 #define MSG_FILAMENTCHANGE                  _UxGT("Canvia filament")
 #define MSG_INIT_SDCARD                     _UxGT("Inicialitza SD")
-#define MSG_CNG_SDCARD                      _UxGT("Canvia SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Canvia SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z fora")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reinicia BLTouch")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
@@ -259,5 +260,3 @@
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Carregant...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Reprenent...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_CA_H

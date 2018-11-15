@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Fast I/O Routines for SAM3X8E
@@ -36,9 +37,6 @@
  * leads to less efficient compiled code!!
  */
 
-#ifndef _FASTIO_DUE_H
-#define _FASTIO_DUE_H
-
 #include <pins_arduino.h>
 
 /**
@@ -47,7 +45,7 @@
 
 // Due has 12 PWMs assigned to logical pins 2-13.
 // 6, 7, 8 & 9 come from the PWM controller. The others come from the timers.
-#define USEABLE_HARDWARE_PWM(p) ((2 <= p) && (p <= 13))
+#define USEABLE_HARDWARE_PWM(p) WITHIN(p, 2, 13)
 
 #ifndef MASK
   #define MASK(PIN) (1 << PIN)
@@ -495,5 +493,3 @@
   #define DIO100_PIN 11
   #define DIO100_WPORT PIOC
 #endif
-
-#endif // _FASTIO_DUE_H

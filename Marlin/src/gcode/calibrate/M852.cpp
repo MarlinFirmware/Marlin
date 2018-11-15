@@ -42,8 +42,8 @@ void GcodeSuite::M852() {
     ++ijk;
     const float value = parser.value_linear_units();
     if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
-      if (planner.xy_skew_factor != value) {
-        planner.xy_skew_factor = value;
+      if (planner.skew_factor.xy != value) {
+        planner.skew_factor.xy = value;
         ++setval;
       }
     }
@@ -57,8 +57,8 @@ void GcodeSuite::M852() {
       ++ijk;
       const float value = parser.value_linear_units();
       if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
-        if (planner.xz_skew_factor != value) {
-          planner.xz_skew_factor = value;
+        if (planner.skew_factor.xz != value) {
+          planner.skew_factor.xz = value;
           ++setval;
         }
       }
@@ -70,8 +70,8 @@ void GcodeSuite::M852() {
       ++ijk;
       const float value = parser.value_linear_units();
       if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
-        if (planner.yz_skew_factor != value) {
-          planner.yz_skew_factor = value;
+        if (planner.skew_factor.yz != value) {
+          planner.skew_factor.yz = value;
           ++setval;
         }
       }
@@ -87,18 +87,18 @@ void GcodeSuite::M852() {
   // When skew is changed the current position changes
   if (setval) {
     set_current_from_steppers_for_axis(ALL_AXES);
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
     report_current_position();
   }
 
   if (!ijk) {
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(MSG_SKEW_FACTOR " XY: ");
-    SERIAL_ECHO_F(planner.xy_skew_factor, 6);
+    SERIAL_ECHO_F(planner.skew_factor.xy, 6);
     SERIAL_EOL();
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      SERIAL_ECHOPAIR(" XZ: ", planner.xz_skew_factor);
-      SERIAL_ECHOLNPAIR(" YZ: ", planner.yz_skew_factor);
+      SERIAL_ECHOPAIR(" XZ: ", planner.skew_factor.xz);
+      SERIAL_ECHOLNPAIR(" YZ: ", planner.skew_factor.yz);
     #else
       SERIAL_EOL();
     #endif

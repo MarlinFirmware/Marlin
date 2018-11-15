@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef PRINTCOUNTER_H
-#define PRINTCOUNTER_H
+#pragma once
 
 #include "../libs/stopwatch.h"
 #include "../libs/duration_t.h"
@@ -72,7 +70,7 @@ class PrintCounter: public Stopwatch {
      * @note The max value for this option is 60(s), otherwise integer
      * overflow will happen.
      */
-    static const uint16_t updateInterval;
+    static constexpr uint16_t updateInterval = 10;
 
     /**
      * @brief Interval in seconds between EEPROM saves
@@ -80,7 +78,7 @@ class PrintCounter: public Stopwatch {
      * EEPROM save cycle, the development team recommends to set this value
      * no lower than 3600 secs (1 hour).
      */
-    static const uint16_t saveInterval;
+    static constexpr uint16_t saveInterval = 3600;
 
     /**
      * @brief Timestamp of the last call to deltaDuration()
@@ -193,5 +191,3 @@ class PrintCounter: public Stopwatch {
 #else
   extern Stopwatch print_job_timer;
 #endif
-
-#endif // PRINTCOUNTER_H

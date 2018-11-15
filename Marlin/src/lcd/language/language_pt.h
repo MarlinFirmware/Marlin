@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Portuguese
@@ -28,8 +29,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_PT_UTF_H
-#define LANGUAGE_PT_UTF_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
@@ -52,16 +51,16 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Definir desvio")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offsets aplicados")
 #define MSG_SET_ORIGIN                      _UxGT("Definir origem")
-#define MSG_PREHEAT_1                       _UxGT("Pre-aquecer PLA")
-#define MSG_PREHEAT_1_N                     _UxGT("Pre-aquecer PLA")
-#define MSG_PREHEAT_1_ALL                   _UxGT("Pre-aq. PLA Tudo")
-#define MSG_PREHEAT_1_BEDONLY               _UxGT("Pre-aq. PLA ") LCD_STR_THERMOMETER _UxGT("Base")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("Definições PLA")
-#define MSG_PREHEAT_2                       _UxGT("Pre-aquecer ABS")
-#define MSG_PREHEAT_2_N                     _UxGT("Pre-aquecer ABS ")
-#define MSG_PREHEAT_2_ALL                   _UxGT("Pre-aq. ABS Tudo")
-#define MSG_PREHEAT_2_BEDONLY               _UxGT("Pre-aq. ABS ") LCD_STR_THERMOMETER _UxGT("Base")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("Definições ABS")
+#define MSG_PREHEAT_1                       _UxGT("Pre-aquecer " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_N                     _UxGT("Pre-aquecer " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_1_ALL                   _UxGT("Pre-aq. " PREHEAT_1_LABEL " Tudo")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Pre-aq. " PREHEAT_1_LABEL " ") LCD_STR_THERMOMETER _UxGT("Base")
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Definições " PREHEAT_1_LABEL)
+#define MSG_PREHEAT_2                       _UxGT("Pre-aquecer " PREHEAT_2_LABEL)
+#define MSG_PREHEAT_2_N                     _UxGT("Pre-aquecer " PREHEAT_2_LABEL " ")
+#define MSG_PREHEAT_2_ALL                   _UxGT("Pre-aq. " PREHEAT_2_LABEL " Tudo")
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Pre-aq. " PREHEAT_2_LABEL " ") LCD_STR_THERMOMETER _UxGT("Base")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Definições " PREHEAT_2_LABEL)
 #define MSG_COOLDOWN                        _UxGT("Arrefecer")
 #define MSG_SWITCH_PS_ON                    _UxGT("Ligar")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Desligar")
@@ -86,8 +85,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Temp. Automática")
-#define MSG_ON                              _UxGT("On ")
-#define MSG_OFF                             _UxGT("Off")
+#define MSG_LCD_ON                          _UxGT("On")
+#define MSG_LCD_OFF                         _UxGT("Off")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -126,6 +125,7 @@
 #define MSG_E3STEPS                         _UxGT("E3 passo/mm")
 #define MSG_E4STEPS                         _UxGT("E4 passo/mm")
 #define MSG_E5STEPS                         _UxGT("E5 passo/mm")
+#define MSG_E6STEPS                         _UxGT("E6 passo/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movimento")
 #define MSG_FILAMENT                        _UxGT("Filamento")
@@ -153,14 +153,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT(" Retrair mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Troca Retrair mm")
 #define MSG_CONTROL_RETRACTF                _UxGT(" Retrair  V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT(" Levantar mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT(" Levantar mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT(" DesRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Troca DesRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT(" DesRet  V")
 #define MSG_AUTORETRACT                     _UxGT(" AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Trocar filamento")
 #define MSG_INIT_SDCARD                     _UxGT("Inici. cartão SD")
-#define MSG_CNG_SDCARD                      _UxGT("Trocar cartão SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Trocar cartão SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Sensor fora/base")
 #define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("first")
@@ -185,5 +185,3 @@
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrar Centro")
 
 #define MSG_LCD_ENDSTOPS                    _UxGT("Fim de curso")
-
-#endif // LANGUAGE_PT_UTF_H

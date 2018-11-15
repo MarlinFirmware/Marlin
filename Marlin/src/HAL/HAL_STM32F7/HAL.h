@@ -20,12 +20,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _HAL_STM32F7_H
-#define _HAL_STM32F7_H
+#pragma once
 
 #define CPU_32_BIT
-#undef DEBUG_NONE
 
 #ifndef vsnprintf_P
   #define vsnprintf_P vsnprintf
@@ -39,8 +36,8 @@
 
 #include "Arduino.h"
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 
 #include "fastio_STM32F7.h"
 #include "watchdog_STM32F7.h"
@@ -114,6 +111,8 @@
 #define ISRS_ENABLED() (!__get_PRIMASK())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
+#define cli() __disable_irq()
+#define sei() __enable_irq()
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -150,12 +149,6 @@ extern uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 // Public functions
 // --------------------------------------------------------------------------
-
-// Disable interrupts
-#define cli() do {  DISABLE_TEMPERATURE_INTERRUPT(); DISABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
-
-// Enable interrupts
-#define sei() do {  ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
 // Memory related
 #define __bss_end __bss_end__
@@ -202,8 +195,8 @@ uint8_t spiRec(uint32_t chan);
  * TODO: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
  * Wire library should work for i2c eeproms.
  */
-void eeprom_write_byte(unsigned char *pos, unsigned char value);
-unsigned char eeprom_read_byte(unsigned char *pos);
+void eeprom_write_byte(uint8_t *pos, unsigned char value);
+uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
@@ -238,5 +231,3 @@ void HAL_enable_AdcFreerun(void);
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
-
-#endif // _HAL_STM32F7_H

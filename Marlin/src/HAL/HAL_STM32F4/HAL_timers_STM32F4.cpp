@@ -20,7 +20,7 @@
  *
  */
 
-#if defined(STM32F4) || defined(STM32F4xx)
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
 
 // --------------------------------------------------------------------------
 // Includes
@@ -69,11 +69,11 @@ stm32f4_timer_t TimerHandle[NUM_HARDWARE_TIMERS];
 // Public functions
 // --------------------------------------------------------------------------
 
-bool timers_initialised[NUM_HARDWARE_TIMERS] = {false};
+bool timers_initialized[NUM_HARDWARE_TIMERS] = {false};
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
-  if (!timers_initialised[timer_num]) {
+  if (!timers_initialized[timer_num]) {
     constexpr uint32_t step_prescaler = STEPPER_TIMER_PRESCALE - 1,
                        temp_prescaler = TEMP_TIMER_PRESCALE - 1;
     switch (timer_num) {
@@ -91,7 +91,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
           TimerHandle[timer_num].irqHandle = TC5_Handler;
           TimerHandleInit(&TimerHandle[timer_num], (((HAL_TIMER_RATE) / step_prescaler) / frequency) - 1, step_prescaler);
         #endif
-        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_ID, 6, 0);
+        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_ID, 1, 0);
         break;
 
       case TEMP_TIMER_NUM:
@@ -111,7 +111,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
         HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_ID, 2, 0);
         break;
     }
-    timers_initialised[timer_num] = true;
+    timers_initialized[timer_num] = true;
   }
 
   #ifdef STM32GENERIC

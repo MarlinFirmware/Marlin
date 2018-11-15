@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Greek (Greece)
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_EL_GR_H
-#define LANGUAGE_EL_GR_H
 
 #define DISPLAY_CHARSET_ISO10646_GREEK
 #define CHARSIZE 2
@@ -52,12 +51,12 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ορισμός βασικών μετατοπίσεων")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Εφαρμόστηκαν οι μετατοπίσεις")
 #define MSG_SET_ORIGIN                      _UxGT("Ορισμός προέλευσης")
-#define MSG_PREHEAT_1                       _UxGT("Προθέρμανση PLA")
+#define MSG_PREHEAT_1                       _UxGT("Προθέρμανση " PREHEAT_1_LABEL)
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" όλα")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" κλίνη")
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" επιβεβαίωση")
-#define MSG_PREHEAT_2                       _UxGT("Προθέρμανση ABS")
+#define MSG_PREHEAT_2                       _UxGT("Προθέρμανση " PREHEAT_2_LABEL)
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" όλα")
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
@@ -88,8 +87,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Αυτομ. ρύθμιση θερμοκρασίας")
-#define MSG_ON                              _UxGT("Ενεργοποιημένο")
-#define MSG_OFF                             _UxGT("Απενεργοποιημένο")
+#define MSG_LCD_ON                          _UxGT("Ενεργοποιημένο")
+#define MSG_LCD_OFF                         _UxGT("Απενεργοποιημένο")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -156,14 +155,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Ανάσυρση μμ")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Εναλλαγή ανάσυρσης μμ")
 #define MSG_CONTROL_RETRACTF                _UxGT("Ανάσυρση V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Μεταπήδηση μμ")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Μεταπήδηση μμ")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("Αυτόματη ανάσυρση")
 #define MSG_FILAMENTCHANGE                  _UxGT("Αλλαγή νήματος")
 #define MSG_INIT_SDCARD                     _UxGT("Προετοιμασία κάρτας SD")
-#define MSG_CNG_SDCARD                      _UxGT("Αλλαγή κάρτας SD")
+#define MSG_CHANGE_SDCARD                   _UxGT("Αλλαγή κάρτας SD")
 #define MSG_ZPROBE_OUT                      _UxGT("Διερεύνηση Z εκτός κλίνης")
 #define MSG_YX_UNHOMED                      _UxGT("Επαναφορά Χ/Υ πριν από Ζ")
 #define MSG_XYZ_UNHOMED                     _UxGT("Επαναφορά ΧΥΖ πρώτα")
@@ -186,5 +185,3 @@
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Βαθμονόμηση Y")
 #define MSG_DELTA_CALIBRATE_Z               _UxGT("Βαθμονόμηση Z")
 #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Βαθμονόμηση κέντρου")
-
-#endif // LANGUAGE_EL_GR_H

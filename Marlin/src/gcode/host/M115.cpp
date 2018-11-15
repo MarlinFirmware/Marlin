@@ -28,7 +28,7 @@
 #endif
 
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
-  static void cap_line(const char * const name, bool ena=false) {
+  static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_PROTOCOLPGM("Cap:");
     serialprintPGM(name);
     SERIAL_CHAR(':');
@@ -149,6 +149,20 @@ void GcodeSuite::M115() {
     // THERMAL_PROTECTION
     cap_line(PSTR("THERMAL_PROTECTION")
       #if ENABLED(THERMAL_PROTECTION_HOTENDS) && ENABLED(THERMAL_PROTECTION_BED)
+        , true
+      #endif
+    );
+
+    // PAREN_COMMENTS
+    cap_line(PSTR("PAREN_COMMENTS")
+      #if ENABLED(PAREN_COMMENTS)
+        , true
+      #endif
+    );
+
+    // MOTION_MODES (M80-M89)
+    cap_line(PSTR("MOTION_MODES")
+      #if ENABLED(GCODE_MOTION_MODES)
         , true
       #endif
     );

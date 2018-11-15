@@ -27,6 +27,7 @@
 
 #ifdef ARDUINO_ARCH_SAM
 
+#include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 #include "HAL_timers_Due.h"
 
