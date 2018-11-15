@@ -10,7 +10,7 @@ The Einstart S is a commercial machine that ships with a proprietary firmware an
  - Genuine Minebea NEMA17 motors (200 steps/rev)
  - THC7128 3A Stepper Drivers (configured for 16 microsteps, loud)
  - 160x160 magnetically coupled non-heated bed
- - PLA Only Direct Drive extruder
+ - PLA-only, Direct Drive extruder
  - SH1106 OLED Display w/ Cardinal navigation
  - 9533 I2C PWM RGB LED Chassis illumination
  - Onboard SD-Card Support
@@ -84,7 +84,7 @@ PF      Part Fan    (PWM)
 ZS      Z-Endstop   (Max)
 YS      Y-Endstop   (Min)
 XS      X-Endstop   (Min)
-PS      SPST Switch to enable DC 24v 
+PS      SPST Switch to enable DC 24v
 BT      Bed Thermistor (header not populated)
 ET      Extruder Thermistor
 PT1     PT100 Thermocouple (not populated)

@@ -60,8 +60,8 @@
 #include <avr/interrupt.h>
 #include <Arduino.h>
 
-#include "../servo.h"
-#include "../servo_private.h"
+#include "../shared/servo.h"
+#include "../shared/servo_private.h"
 
 static volatile int8_t Channel[_Nbr_16timers];              // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 

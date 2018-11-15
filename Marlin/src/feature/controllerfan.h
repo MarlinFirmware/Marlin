@@ -19,10 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef __CONTROLLERFAN_H__
-#define __CONTROLLERFAN_H__
+#pragma once
 
 void controllerfan_update();
-
-#endif // __CONTROLLERFAN_H__

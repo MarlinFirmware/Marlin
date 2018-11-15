@@ -19,12 +19,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // adapted from  I2C/master/master.c example
 //   https://www-users.cs.york.ac.uk/~pcc/MCP/HAPR-Course-web/CMSIS/examples/html/master_8c_source.html
-
-#ifndef _DIGIPOT_MCP4451_I2C_ROUTINES_H_
-#define _DIGIPOT_MCP4451_I2C_ROUTINES_H_
 
 #define USEDI2CDEV_M  1  // use I2C1 controller
 
@@ -53,5 +51,3 @@ uint8_t digipot_mcp4451_send_byte(uint8_t data);
 #ifdef __cplusplus
   }
 #endif
-
-#endif // _DIGIPOT_MCP4451_I2C_ROUTINES_H_

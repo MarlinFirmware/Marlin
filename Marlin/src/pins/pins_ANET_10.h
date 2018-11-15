@@ -89,12 +89,10 @@
  */
 
 #ifndef __AVR_ATmega1284P__
-  #error "Oops!  Make sure you have 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' selected in the 'Tools -> Boards' menu and ATmega1284P selected in 'Tools -> Processor' menu."
+  #error "Oops! Select 'Anet V1.0', 'Anet V1.0 (Optiboot)' or 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Anet"
-#endif
+#define BOARD_NAME "Anet 1.0"
 
 //
 // Limit Switches
@@ -153,7 +151,7 @@
  *  REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
  */
 
-#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#if ENABLED(ULTRA_LCD)
   #define LCD_SDSS           28
   #if ENABLED(ADC_KEYPAD)
     #define SERVO0_PIN       27   // free for BLTouch/3D-Touch
@@ -193,7 +191,7 @@
   #endif
 #else
   #define SERVO0_PIN         27
-#endif  // ULTRA_LCD && NEWPANEL
+#endif
 
 /**
  * ====================================================================

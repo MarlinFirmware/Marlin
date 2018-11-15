@@ -33,13 +33,13 @@
  *   S[+units]    retract_length
  *   W[+units]    swap_retract_length (multi-extruder)
  *   F[units/min] retract_feedrate_mm_s
- *   Z[units]     retract_zlift
+ *   Z[units]     retract_zraise
  */
 void GcodeSuite::M207() {
-  if (parser.seen('S')) fwretract.retract_length = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) fwretract.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('Z')) fwretract.retract_zlift = parser.value_linear_units();
-  if (parser.seen('W')) fwretract.swap_retract_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('S')) fwretract.settings.retract_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) fwretract.settings.retract_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('Z')) fwretract.settings.retract_zraise = parser.value_linear_units();
+  if (parser.seen('W')) fwretract.settings.swap_retract_length = parser.value_axis_units(E_AXIS);
 }
 
 /**
@@ -51,23 +51,24 @@ void GcodeSuite::M207() {
  *   R[units/min] swap_retract_recover_feedrate_mm_s
  */
 void GcodeSuite::M208() {
-  if (parser.seen('S')) fwretract.retract_recover_length = parser.value_axis_units(E_AXIS);
-  if (parser.seen('F')) fwretract.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('R')) fwretract.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
-  if (parser.seen('W')) fwretract.swap_retract_recover_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('S')) fwretract.settings.retract_recover_length = parser.value_axis_units(E_AXIS);
+  if (parser.seen('F')) fwretract.settings.retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('R')) fwretract.settings.swap_retract_recover_feedrate_mm_s = MMM_TO_MMS(parser.value_axis_units(E_AXIS));
+  if (parser.seen('W')) fwretract.settings.swap_retract_recover_length = parser.value_axis_units(E_AXIS);
 }
 
-/**
- * M209: Enable automatic retract (M209 S1)
- *   For slicers that don't support G10/11, reversed extrude-only
- *   moves will be classified as retraction.
- */
-void GcodeSuite::M209() {
-  if (MIN_AUTORETRACT <= MAX_AUTORETRACT) {
-    if (parser.seen('S')) {
+#if ENABLED(FWRETRACT_AUTORETRACT)
+
+  /**
+   * M209: Enable automatic retract (M209 S1)
+   *   For slicers that don't support G10/11, reversed extrude-only
+   *   moves will be classified as retraction.
+   */
+  void GcodeSuite::M209() {
+    if (MIN_AUTORETRACT <= MAX_AUTORETRACT && parser.seen('S'))
       fwretract.enable_autoretract(parser.value_bool());
-    }
   }
-}
+
+#endif // FWRETRACT_AUTORETRACT
 
 #endif // FWRETRACT

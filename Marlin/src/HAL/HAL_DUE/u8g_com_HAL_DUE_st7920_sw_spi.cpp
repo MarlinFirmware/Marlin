@@ -57,11 +57,11 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(DOGLCD)
+#if HAS_GRAPHICAL_LCD
 
 #include <U8glib.h>
 #include <Arduino.h>
-#include "../Delay.h"
+#include "../shared/Delay.h"
 
 void u8g_SetPIOutput_DUE(u8g_t *u8g, uint8_t pin_index) {
    PIO_Configure(g_APinDescription[u8g->pin_list[pin_index]].pPort, PIO_OUTPUT_1,
@@ -180,6 +180,6 @@ uint8_t u8g_com_HAL_DUE_ST7920_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_va
   return 1;
 }
 
-#endif // DOGLCD
+#endif // HAS_GRAPHICAL_LCD
 
 #endif // ARDUINO_ARCH_SAM

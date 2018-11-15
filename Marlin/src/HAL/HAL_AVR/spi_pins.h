@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _SPI_PINS_H_
-#define _SPI_PINS_H_
+#pragma once
 
 /**
  * Define SPI Pins: SCK, MISO, MOSI, SS
@@ -65,6 +63,3 @@
 #ifndef SS_PIN
   #define SS_PIN   AVR_SS_PIN
 #endif
-
-
-#endif // _SPI_PINS_H_

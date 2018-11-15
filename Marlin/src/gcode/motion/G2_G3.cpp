@@ -35,10 +35,6 @@
   #include "../../module/scara.h"
 #endif
 
-#if HAS_FEEDRATE_SCALING && ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #include "../../feature/bedlevel/abl/abl.h"
-#endif
-
 #if N_ARC_CORRECTION < 1
   #undef N_ARC_CORRECTION
   #define N_ARC_CORRECTION 1
@@ -74,6 +70,9 @@ void plan_arc(
   float r_P = -offset[0], r_Q = -offset[1];
 
   const float radius = HYPOT(r_P, r_Q),
+              #if ENABLED(AUTO_BED_LEVELING_UBL)
+                start_L  = current_position[l_axis],
+              #endif
               center_P = current_position[p_axis] - r_P,
               center_Q = current_position[q_axis] - r_Q,
               rt_X = cart[p_axis] - center_P,
@@ -139,19 +138,11 @@ void plan_arc(
 
   const float fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
-  millis_t next_idle_ms = millis() + 200UL;
-
-  #if HAS_FEEDRATE_SCALING
-    // SCARA needs to scale the feed rate from mm/s to degrees/s
-    const float inv_segment_length = 1.0f / float(MM_PER_ARC_SEGMENT),
-                inverse_secs = inv_segment_length * fr_mm_s;
-    float oldA = planner.position_float[A_AXIS],
-          oldB = planner.position_float[B_AXIS]
-          #if ENABLED(DELTA_FEEDRATE_SCALING)
-            , oldC = planner.position_float[C_AXIS]
-          #endif
-          ;
+  #if ENABLED(SCARA_FEEDRATE_SCALING)
+    const float inv_duration = fr_mm_s / MM_PER_ARC_SEGMENT;
   #endif
+
+  millis_t next_idle_ms = millis() + 200UL;
 
   #if N_ARC_CORRECTION > 1
     int8_t arc_recalc_count = N_ARC_CORRECTION;
@@ -191,62 +182,47 @@ void plan_arc(
     // Update raw location
     raw[p_axis] = center_P + r_P;
     raw[q_axis] = center_Q + r_Q;
-    raw[l_axis] += linear_per_segment;
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      raw[l_axis] = start_L;
+    #else
+      raw[l_axis] += linear_per_segment;
+    #endif
     raw[E_AXIS] += extruder_per_segment;
 
     clamp_to_software_endstops(raw);
 
-    #if HAS_FEEDRATE_SCALING
-      inverse_kinematics(raw);
-      ADJUST_DELTA(raw);
+    #if HAS_LEVELING && !PLANNER_LEVELING
+      planner.apply_leveling(raw);
     #endif
 
-    #if ENABLED(SCARA_FEEDRATE_SCALING)
-      // For SCARA scale the feed rate from mm/s to degrees/s
-      // i.e., Complete the angular vector in the given time.
-      if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], raw[Z_AXIS], raw[E_AXIS], HYPOT(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB) * inverse_secs, active_extruder))
-        break;
-      oldA = delta[A_AXIS]; oldB = delta[B_AXIS];
-    #elif ENABLED(DELTA_FEEDRATE_SCALING)
-      // For DELTA scale the feed rate from Effector mm/s to Carriage mm/s
-      // i.e., Complete the linear vector in the given time.
-      if (!planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], raw[E_AXIS], SQRT(sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC)) * inverse_secs, active_extruder))
-        break;
-      oldA = delta[A_AXIS]; oldB = delta[B_AXIS]; oldC = delta[C_AXIS];
-    #elif HAS_UBL_AND_CURVES
-      float pos[XYZ] = { raw[X_AXIS], raw[Y_AXIS], raw[Z_AXIS] };
-      planner.apply_leveling(pos);
-      if (!planner.buffer_segment(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], raw[E_AXIS], fr_mm_s, active_extruder))
-        break;
-    #else
-      if (!planner.buffer_line_kinematic(raw, fr_mm_s, active_extruder))
-        break;
-    #endif
+    if (!planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+      #if ENABLED(SCARA_FEEDRATE_SCALING)
+        , inv_duration
+      #endif
+    ))
+      break;
   }
 
   // Ensure last segment arrives at target location.
-  #if HAS_FEEDRATE_SCALING
-    inverse_kinematics(cart);
-    ADJUST_DELTA(cart);
+  COPY(raw, cart);
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    raw[l_axis] = start_L;
   #endif
 
-  #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float diff2 = HYPOT2(delta[A_AXIS] - oldA, delta[B_AXIS] - oldB);
-    if (diff2)
-      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], cart[Z_AXIS], cart[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
-  #elif ENABLED(DELTA_FEEDRATE_SCALING)
-    const float diff2 = sq(delta[A_AXIS] - oldA) + sq(delta[B_AXIS] - oldB) + sq(delta[C_AXIS] - oldC);
-    if (diff2)
-      planner.buffer_segment(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], cart[E_AXIS], SQRT(diff2) * inverse_secs, active_extruder);
-  #elif HAS_UBL_AND_CURVES
-    float pos[XYZ] = { cart[X_AXIS], cart[Y_AXIS], cart[Z_AXIS] };
-    planner.apply_leveling(pos);
-    planner.buffer_segment(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], cart[E_AXIS], fr_mm_s, active_extruder);
-  #else
-    planner.buffer_line_kinematic(cart, fr_mm_s, active_extruder);
+  #if HAS_LEVELING && !PLANNER_LEVELING
+    planner.apply_leveling(raw);
   #endif
 
-  COPY(current_position, cart);
+  planner.buffer_line(raw, fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+    #if ENABLED(SCARA_FEEDRATE_SCALING)
+      , inv_duration
+    #endif
+  );
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    raw[l_axis] = start_L;
+  #endif
+  COPY(current_position, raw);
 } // plan_arc
 
 /**

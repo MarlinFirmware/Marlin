@@ -31,7 +31,8 @@
 #include "emergency_parser.h"
 
 // Static data members
-bool EmergencyParser::killed_by_M112; // = false
+bool EmergencyParser::killed_by_M112, // = false
+     EmergencyParser::enabled;
 
 // Global instance
 EmergencyParser emergency_parser;

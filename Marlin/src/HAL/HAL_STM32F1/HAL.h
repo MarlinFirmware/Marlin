@@ -20,16 +20,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
 
-#ifndef _HAL_STM32F1_H
-#define _HAL_STM32F1_H
-
 #define CPU_32_BIT
-#undef DEBUG_NONE
 
 #ifndef vsnprintf_P
   #define vsnprintf_P vsnprintf
@@ -40,24 +37,15 @@
 // --------------------------------------------------------------------------
 
 #include <stdint.h>
-#include <libmaple/atomic.h>
+#include <util/atomic.h>
 #include <Arduino.h>
-
-// --------------------------------------------------------------------------
-// Undefine DEBUG_ settings
-// --------------------------------------------------------------------------
-
-
-#undef DEBUG_NONE
-#undef DEBUG_FAULT
-#undef DEBUG_ALL
 
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 
 #include "fastio_Stm32f1.h"
 #include "watchdog_Stm32f1.h"
@@ -73,7 +61,7 @@
   #error "SERIAL_PORT must be from -1 to 3"
 #endif
 #if SERIAL_PORT == -1
-extern USBSerial SerialUSB;
+  extern USBSerial SerialUSB;
   #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 0
   #define MYSERIAL0 Serial
@@ -93,7 +81,7 @@ extern USBSerial SerialUSB;
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-  extern USBSerial SerialUSB;
+    extern USBSerial SerialUSB;
     #define MYSERIAL1 SerialUSB
   #elif SERIAL_PORT_2 == 0
     #define MYSERIAL1 Serial
@@ -212,8 +200,8 @@ uint8_t spiRec(uint32_t chan);
  * TODO: Write all this eeprom stuff. Can emulate eeprom in flash as last resort.
  * Wire library should work for i2c eeproms.
  */
-void eeprom_write_byte(unsigned char *pos, unsigned char value);
-unsigned char eeprom_read_byte(unsigned char *pos);
+void eeprom_write_byte(uint8_t *pos, unsigned char value);
+uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
@@ -249,4 +237,5 @@ void HAL_enable_AdcFreerun(void);
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
-#endif // _HAL_STM32F1_H
+#define JTAG_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY)
+#define JTAGSWD_DISABLE() afio_cfg_debug_ports(AFIO_DEBUG_NONE)

@@ -20,8 +20,7 @@
  *
  */
 
-// use this file to select the com driver for device drivers that are NOT in the U8G library
-
+// Use this file to select the com driver for device drivers that are NOT in the U8G library
 
 #ifndef U8G_HAL_LINKS
 

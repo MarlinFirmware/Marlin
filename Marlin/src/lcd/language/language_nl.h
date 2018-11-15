@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Dutch
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_NL_H
-#define LANGUAGE_NL_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define NOT_EXTENDED_ISO10646_1_5X7
@@ -55,18 +54,18 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Zet home offsets")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("H offset toegep.")
 #define MSG_SET_ORIGIN                      _UxGT("Nulpunt instellen")
-#define MSG_PREHEAT_1                       _UxGT("PLA voorverwarmen")
-#define MSG_PREHEAT_1_N                     _UxGT("PLA voorverw. ")
+#define MSG_PREHEAT_1                       _UxGT(PREHEAT_1_LABEL " voorverwarmen")
+#define MSG_PREHEAT_1_N                     _UxGT(PREHEAT_1_LABEL " voorverw. ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1_N _UxGT("aan")
 #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" Einde")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1_N _UxGT("Bed")
-#define MSG_PREHEAT_1_SETTINGS              _UxGT("PLA verw. conf")
-#define MSG_PREHEAT_2                       _UxGT("ABS voorverwarmen")
-#define MSG_PREHEAT_2_N                     _UxGT("ABS voorverw. ")
+#define MSG_PREHEAT_1_SETTINGS              _UxGT(PREHEAT_1_LABEL " verw. conf")
+#define MSG_PREHEAT_2                       _UxGT(PREHEAT_2_LABEL " voorverwarmen")
+#define MSG_PREHEAT_2_N                     _UxGT(PREHEAT_2_LABEL " voorverw. ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2_N _UxGT("aan")
 #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" Einde")
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2_N _UxGT("Bed")
-#define MSG_PREHEAT_2_SETTINGS              _UxGT("ABS verw. conf")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT(PREHEAT_2_LABEL " verw. conf")
 #define MSG_COOLDOWN                        _UxGT("Afkoelen")
 #define MSG_SWITCH_PS_ON                    _UxGT("Stroom aan")
 #define MSG_SWITCH_PS_OFF                   _UxGT("Stroom uit")
@@ -75,6 +74,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("As verplaatsen")
 #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #define MSG_LEVEL_BED                       _UxGT("Level bed")
+
 #define MSG_MOVING                          _UxGT("Verplaatsen...")
 #define MSG_FREE_XY                         _UxGT("Vrij XY")
 #define MSG_MOVE_X                          _UxGT("Verplaats X")
@@ -95,8 +95,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")
-#define MSG_ON                              _UxGT("Aan ")
-#define MSG_OFF                             _UxGT("Uit")
+#define MSG_LCD_ON                          _UxGT("Aan")
+#define MSG_LCD_OFF                         _UxGT("Uit")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -136,6 +136,7 @@
 #define MSG_E3STEPS                         _UxGT("E3steps/mm")
 #define MSG_E4STEPS                         _UxGT("E4steps/mm")
 #define MSG_E5STEPS                         _UxGT("E5steps/mm")
+#define MSG_E6STEPS                         _UxGT("E6steps/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatuur")
 #define MSG_MOTION                          _UxGT("Beweging")
 #define MSG_FILAMENT                        _UxGT("Filament")
@@ -164,14 +165,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retract mm")  //accepted English term in Dutch
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Ruil Retract mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retract  F")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Hop mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Ruil UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  F")
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Verv. Filament")
 #define MSG_INIT_SDCARD                     _UxGT("Init. SD kaart")
-#define MSG_CNG_SDCARD                      _UxGT("Verv. SD Kaart")
+#define MSG_CHANGE_SDCARD                   _UxGT("Verv. SD Kaart")
 #define MSG_ZPROBE_OUT                      _UxGT("Z probe uit. bed")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Zelf-Test")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reset BLTouch")
@@ -279,5 +280,3 @@
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Wacht voor")
   #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("printing...")
 #endif // LCD_HEIGHT < 4
-
-#endif // LANGUAGE_NL_H

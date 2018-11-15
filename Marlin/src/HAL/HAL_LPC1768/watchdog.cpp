@@ -30,7 +30,29 @@
 #include "watchdog.h"
 
 void watchdog_init(void) {
-  WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
+  #if ENABLED(WATCHDOG_RESET_MANUAL)
+    // We enable the watchdog timer, but only for the interrupt.
+
+    // Configure WDT to only trigger an interrupt
+    // Disable WDT interrupt (just in case, to avoid triggering it!)
+    NVIC_DisableIRQ(WDT_IRQn);
+
+    // We NEED memory barriers to ensure Interrupts are actually disabled!
+    // ( https://dzone.com/articles/nvic-disabling-interrupts-on-arm-cortex-m-and-the )
+    __DSB();
+    __ISB();
+
+    // Configure WDT to only trigger an interrupt
+    // Initialize WDT with the given parameters
+    WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_INT_ONLY);
+
+    // Configure and enable WDT interrupt.
+    NVIC_ClearPendingIRQ(WDT_IRQn);
+    NVIC_SetPriority(WDT_IRQn, 0); // Use highest priority, so we detect all kinds of lockups
+    NVIC_EnableIRQ(WDT_IRQn);
+  #else
+    WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
+  #endif
   WDT_Start(WDT_TIMEOUT);
 }
 
@@ -45,14 +67,16 @@ uint8_t HAL_get_reset_source(void) {
 
 void watchdog_reset() {
   WDT_Feed();
-  #if PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heart beat indicator
+  #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
+    TOGGLE(LED_PIN);  // heartbeat indicator
   #endif
 }
 
 #else
+
   void HAL_clear_reset_source(void) {}
   uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
+
 #endif // USE_WATCHDOG
 
 #endif // TARGET_LPC1768

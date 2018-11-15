@@ -52,7 +52,7 @@ DN_WORK=./tmp1
 
 (cd ${DN_EXEC}; gcc -o genpages genpages.c getline.c)
 
-LANGS_DEFAULT="an bg ca zh_CN zh_TW cz da de el el-gr en es eu fi fr gl hr it jp-kana nl pl pt pt-br ru sk tr uk test"
+LANGS_DEFAULT="an bg ca cz da de el el-gr en es eu fi fr gl hr it jp-kana ko_KR nl pl pt pt-br ru sk tr uk zh_CN zh_TW test"
 
 for LANG in ${MARLIN_LANGS:=$LANGS_DEFAULT} ; do
   echo "Generating Marlin language data for '${LANG}'" >&2
@@ -64,13 +64,13 @@ for LANG in ${MARLIN_LANGS:=$LANGS_DEFAULT} ; do
   ${EXEC_WXGGEN} "${FN_FONT}"
   sed -i fontutf8-data.h -e 's|fonts//|fonts/|g' -e 's|fonts//|fonts/|g' -e 's|[/0-9a-zA-Z_\-]*buildroot/share/fonts|buildroot/share/fonts|' 2>/dev/null
   cd ../
-  mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/language_data_${LANG}.h
+  mv ${DN_WORK}/fontutf8-data.h src/lcd/dogm/fontdata/langdata_${LANG}.h
   rm -rf ${DN_WORK}/
 done
 
 #
 # Generate default ASCII font (char range 0-255):
-#   Marlin/src/lcd/dogm/dogm_font_data_ISO10646_1.h
+#   Marlin/src/lcd/dogm/fontdata/fontdata_ISO10646_1.h
 #
 #if [ "${MARLIN_LANGS}" == "${LANGS_DEFAULT}" ]; then
 if [ 1 = 1 ]; then
@@ -82,13 +82,10 @@ if [ 1 = 1 ]; then
   TMP1=$(cat tmp1.h) ; rm tmp1.h
   TMP2=$(cat tmp2.h) ; rm tmp2.h
 
-  cat <<EOF >../src/lcd/dogm/dogm_font_data_ISO10646_1.h
+  cat <<EOF >../src/lcd/dogm/fontdata/fontdata_ISO10646_1.h
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (C) 2018 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

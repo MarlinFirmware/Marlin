@@ -19,33 +19,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifndef __ABL_H__
-#define __ABL_H__
+#include "../../../inc/MarlinConfigPre.h"
 
-#include "../../../inc/MarlinConfig.h"
+extern int bilinear_grid_spacing[2], bilinear_start[2];
+extern float bilinear_grid_factor[2],
+             z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+float bilinear_z_offset(const float raw[XYZ]);
 
-#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+void extrapolate_unprobed_bed_level();
+void print_bilinear_leveling_grid();
+void refresh_bed_level();
+#if ENABLED(ABL_BILINEAR_SUBDIVISION)
+  void print_bilinear_leveling_grid_virt();
+  void bed_level_virt_interpolate();
+#endif
 
-  #include "../bedlevel.h"
+#if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
+  void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
+#endif
 
-  extern int bilinear_grid_spacing[2], bilinear_start[2];
-  extern float bilinear_grid_factor[2],
-               z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-  float bilinear_z_offset(const float raw[XYZ]);
-
-  void extrapolate_unprobed_bed_level();
-  void print_bilinear_leveling_grid();
-  void refresh_bed_level();
-  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-    void print_bilinear_leveling_grid_virt();
-    void bed_level_virt_interpolate();
-  #endif
-
-  #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
-    void bilinear_line_to_destination(const float fr_mm_s, uint16_t x_splits=0xFFFF, uint16_t y_splits=0xFFFF);
-  #endif
-
-#endif // AUTO_BED_LEVELING_BILINEAR
-
-#endif // __ABL_H__
+#define Z_VALUES(X,Y) z_values[X][Y]

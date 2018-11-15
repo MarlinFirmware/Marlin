@@ -19,13 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * probe.h - Move, deploy, enable, etc.
  */
-
-#ifndef PROBE_H
-#define PROBE_H
 
 #include "../inc/MarlinConfig.h"
 
@@ -53,7 +51,6 @@
 #endif
 
 #if HAS_Z_SERVO_PROBE
-  extern const int z_servo_angle[2];
   void servo_probe_init();
 #endif
 
@@ -74,5 +71,3 @@
     set_bltouch_deployed(false);
   }
 #endif
-
-#endif // PROBE_H

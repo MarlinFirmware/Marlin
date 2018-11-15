@@ -13,13 +13,6 @@ After these lines:
 #endif
 <>
 
-Add the following 3 lines:
-<>
-#undef DEBUG_NONE
-#undef DEBUG_FAULT
-#undef DEBUG_ALL
-<>
-
 ### Main developers:
 Victorpv
 xC000005
@@ -30,5 +23,3 @@ https://github.com/victorpv/Marlin/tree/bugfix-2.0.x
 
 PRs should only be sent to Marlin bugfix-2.0.x branch once tested in printing so not to introduce new bugs.
 For testing/dev, you can submit to the above branch
-
-

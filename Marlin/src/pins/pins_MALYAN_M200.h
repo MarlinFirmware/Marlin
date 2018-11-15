@@ -88,4 +88,3 @@
 // If someone hacks to put a direct power fan on the controller, PB3 could
 // be used as a separate print cooling fan.
 #define ORIG_E0_AUTO_FAN_PIN PB8
-

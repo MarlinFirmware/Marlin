@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _HAL_TIMERS_STM32F7_H
-#define _HAL_TIMERS_STM32F7_H
+#pragma once
 
 // --------------------------------------------------------------------------
 // Includes
@@ -61,6 +59,8 @@
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
+#define STEPPER_ISR_ENABLED() HAL_timer_interrupt_enabled(STEP_TIMER_NUM)
+#define TEMP_ISR_ENABLED() HAL_timer_interrupt_enabled(TEMP_TIMER_NUM)
 // TODO change this
 
 
@@ -92,13 +92,10 @@ typedef struct {
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
+bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_set_compare(const uint8_t timer_num, const uint32_t compare);
 hal_timer_t HAL_timer_get_compare(const uint8_t timer_num);
 uint32_t HAL_timer_get_count(const uint8_t timer_num);
-void HAL_timer_restrain(const uint8_t timer_num, const uint16_t interval_ticks);
-
 void HAL_timer_isr_prologue(const uint8_t timer_num);
 #define HAL_timer_isr_epilogue(TIMER_NUM)
-
-#endif // _HAL_TIMERS_STM32F7_H

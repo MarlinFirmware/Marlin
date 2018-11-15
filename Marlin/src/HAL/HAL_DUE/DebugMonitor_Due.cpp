@@ -26,8 +26,8 @@
 #include "../../core/serial.h"
 #include <stdarg.h>
 
-#include "../backtrace/unwinder.h"
-#include "../backtrace/unwmemaccess.h"
+#include "../shared/backtrace/unwinder.h"
+#include "../shared/backtrace/unwmemaccess.h"
 
 // Debug monitor that dumps to the Programming port all status when
 // an exception or WDT timeout happens - And then resets the board
@@ -145,8 +145,8 @@ static const UnwindCallbacks UnwCallbacks = {
   UnwReadW,
   UnwReadH,
   UnwReadB
-  #if defined(UNW_DEBUG)
-   ,UnwPrintf
+  #ifdef UNW_DEBUG
+   , UnwPrintf
   #endif
 };
 

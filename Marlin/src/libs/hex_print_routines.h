@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef HEX_PRINT_ROUTINES_H
-#define HEX_PRINT_ROUTINES_H
+#pragma once
 
 #include <stdint.h>
 
@@ -46,5 +44,3 @@ void print_hex_address(const void * const w);
 #else
   typedef uint16_t ptr_int_t;
 #endif
-
-#endif // HEX_PRINT_ROUTINES_H

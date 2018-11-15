@@ -45,7 +45,7 @@ void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
   encoderAxis = axis;
   i2cAddress = address;
 
-  initialised++;
+  initialized++;
 
   SERIAL_ECHOPAIR("Setting up encoder on ", axis_codes[encoderAxis]);
   SERIAL_ECHOLNPAIR(" axis, addr = ", address);
@@ -54,7 +54,7 @@ void I2CPositionEncoder::init(const uint8_t address, const AxisEnum axis) {
 }
 
 void I2CPositionEncoder::update() {
-  if (!initialised || !homed || !active) return; //check encoder is set up and active
+  if (!initialized || !homed || !active) return; //check encoder is set up and active
 
   position = get_position();
 
@@ -98,7 +98,7 @@ void I2CPositionEncoder::update() {
         SERIAL_ECHOLNPGM(" axis has been fault-free for set duration, reinstating error correction.");
 
         //the encoder likely lost its place when the error occured, so we'll reset and use the printer's
-        //idea of where it the axis is to re-initialise
+        //idea of where it the axis is to re-initialize
         const float pos = planner.get_axis_position_mm(encoderAxis);
         int32_t positionInTicks = pos * get_ticks_unit();
 
@@ -163,8 +163,8 @@ void I2CPositionEncoder::update() {
     //SERIAL_ECHOLN(error);
 
     #ifdef I2CPE_ERR_THRESH_ABORT
-      if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.axis_steps_per_mm[encoderAxis]) {
-        //kill("Significant Error");
+      if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.settings.axis_steps_per_mm[encoderAxis]) {
+        //kill(PSTR("Significant Error"));
         SERIAL_ECHOPGM("Axis error greater than set threshold, aborting!");
         SERIAL_ECHOLN(error);
         safe_delay(5000);
@@ -175,7 +175,7 @@ void I2CPositionEncoder::update() {
       if (errIdx == 0) {
         // In order to correct for "error" but avoid correcting for noise and non-skips
         // it must be > threshold and have a difference average of < 10 and be < 2000 steps
-        if (ABS(error) > threshold * planner.axis_steps_per_mm[encoderAxis] &&
+        if (ABS(error) > threshold * planner.settings.axis_steps_per_mm[encoderAxis] &&
             diffSum < 10 * (I2CPE_ERR_ARRAY_SIZE - 1) && ABS(error) < 2000) { // Check for persistent error (skip)
           errPrst[errPrstIdx++] = error; // Error must persist for I2CPE_ERR_PRST_ARRAY_SIZE error cycles. This also serves to improve the average accuracy
           if (errPrstIdx >= I2CPE_ERR_PRST_ARRAY_SIZE) {
@@ -193,14 +193,14 @@ void I2CPositionEncoder::update() {
           errPrstIdx = 0;
       }
     #else
-      if (ABS(error) > threshold * planner.axis_steps_per_mm[encoderAxis]) {
+      if (ABS(error) > threshold * planner.settings.axis_steps_per_mm[encoderAxis]) {
         //SERIAL_ECHOLN(error);
         //SERIAL_ECHOLN(position);
         thermalManager.babystepsTodo[encoderAxis] = -LROUND(error / 2);
       }
     #endif
 
-    if (ABS(error) > I2CPE_ERR_CNT_THRESH * planner.axis_steps_per_mm[encoderAxis]) {
+    if (ABS(error) > I2CPE_ERR_CNT_THRESH * planner.settings.axis_steps_per_mm[encoderAxis]) {
       const millis_t ms = millis();
       if (ELAPSED(ms, nextErrorCountTime)) {
         SERIAL_ECHOPAIR("Large error on ", axis_codes[encoderAxis]);
@@ -230,6 +230,16 @@ void I2CPositionEncoder::set_homed() {
       SERIAL_ECHOLNPGM(" ticks.");
     #endif
   }
+}
+
+void I2CPositionEncoder::set_unhomed() {
+  zeroOffset = 0;
+  homed = trusted = false;
+
+  #ifdef I2CPE_DEBUG
+    SERIAL_ECHO(axis_codes[encoderAxis]);
+    SERIAL_ECHOLNPGM(" axis encoder unhomed.");
+  #endif
 }
 
 bool I2CPositionEncoder::passes_test(const bool report) {
@@ -284,7 +294,7 @@ int32_t I2CPositionEncoder::get_axis_error_steps(const bool report) {
   //int32_t stepperTicks = stepper.position(encoderAxis);
 
   // With a rotary encoder we're concerned with ticks/rev; whereas with a linear we're concerned with ticks/mm
-  stepperTicksPerUnit = (type == I2CPE_ENC_TYPE_ROTARY) ? stepperTicks : planner.axis_steps_per_mm[encoderAxis];
+  stepperTicksPerUnit = (type == I2CPE_ENC_TYPE_ROTARY) ? stepperTicks : planner.settings.axis_steps_per_mm[encoderAxis];
 
   //convert both 'ticks' into same units / base
   encoderCountInStepperTicksScaled = LROUND((stepperTicksPerUnit * encoderTicks) / encoderTicksPerUnit);
@@ -444,14 +454,14 @@ void I2CPositionEncoder::calibrate_steps_mm(const uint8_t iter) {
     SERIAL_ECHOLNPGM("mm.");
 
     //Calculate new axis steps per unit
-    old_steps_mm = planner.axis_steps_per_mm[encoderAxis];
+    old_steps_mm = planner.settings.axis_steps_per_mm[encoderAxis];
     new_steps_mm = (old_steps_mm * travelDistance) / travelledDistance;
 
     SERIAL_ECHOLNPAIR("Old steps per mm: ", old_steps_mm);
     SERIAL_ECHOLNPAIR("New steps per mm: ", new_steps_mm);
 
     //Save new value
-    planner.axis_steps_per_mm[encoderAxis] = new_steps_mm;
+    planner.settings.axis_steps_per_mm[encoderAxis] = new_steps_mm;
 
     if (iter > 1) {
       total += new_steps_mm;
@@ -646,6 +656,37 @@ void I2CPositionEncodersMgr::init() {
       encoders[i].set_homed();
     #endif
   #endif
+
+  #if I2CPE_ENCODER_CNT > 5
+    i++;
+
+    encoders[i].init(I2CPE_ENC_6_ADDR, I2CPE_ENC_6_AXIS);
+
+    #ifdef I2CPE_ENC_6_TYPE
+      encoders[i].set_type(I2CPE_ENC_6_TYPE);
+    #endif
+    #ifdef I2CPE_ENC_6_TICKS_UNIT
+      encoders[i].set_ticks_unit(I2CPE_ENC_6_TICKS_UNIT);
+    #endif
+    #ifdef I2CPE_ENC_6_TICKS_REV
+      encoders[i].set_stepper_ticks(I2CPE_ENC_6_TICKS_REV);
+    #endif
+    #ifdef I2CPE_ENC_6_INVERT
+      encoders[i].set_inverted(I2CPE_ENC_6_INVERT);
+    #endif
+    #ifdef I2CPE_ENC_6_EC_METHOD
+      encoders[i].set_ec_method(I2CPE_ENC_6_EC_METHOD);
+    #endif
+    #ifdef I2CPE_ENC_6_EC_THRESH
+      encoders[i].set_ec_threshold(I2CPE_ENC_6_EC_THRESH);
+    #endif
+
+    encoders[i].set_active(encoders[i].passes_test(true));
+
+    #if I2CPE_ENC_6_AXIS == E_AXIS
+      encoders[i].set_homed();
+    #endif
+  #endif
 }
 
 void I2CPositionEncodersMgr::report_position(const int8_t idx, const bool units, const bool noOffset) {
@@ -712,7 +753,7 @@ void I2CPositionEncodersMgr::change_module_address(const uint8_t oldaddr, const 
   SERIAL_ECHOLNPGM("Address change successful!");
 
   // Now, if this module is configured, find which encoder instance it's supposed to correspond to
-  // and enable it (it will likely have failed initialisation on power-up, before the address change).
+  // and enable it (it will likely have failed initialization on power-up, before the address change).
   const int8_t idx = idx_from_addr(newaddr);
   if (idx >= 0 && !encoders[idx].get_active()) {
     SERIAL_ECHO(axis_codes[encoders[idx].get_axis()]);

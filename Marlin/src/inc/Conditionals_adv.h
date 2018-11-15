@@ -19,30 +19,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Conditionals_adv.h
  * Defines that depend on advanced configuration.
  */
 
-#ifndef CONDITIONALS_ADV_H
-#define CONDITIONALS_ADV_H
-
-  #if !defined(__AVR__) || !defined(USBCON)
-    // Define constants and variables for buffering serial data.
-    // Use only 0 or powers of 2 greater than 1
-    // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
-    #ifndef RX_BUFFER_SIZE
-      #define RX_BUFFER_SIZE 128
-    #endif
-    // 256 is the max TX buffer limit due to uint8_t head and tail
-    // : [0, 4, 8, 16, 32, 64, 128, 256]
-    #ifndef TX_BUFFER_SIZE
-      #define TX_BUFFER_SIZE 32
-    #endif
-  #else
-    // SERIAL_XON_XOFF not supported on USB-native devices
-    #undef SERIAL_XON_XOFF
+#if !defined(__AVR__) || !defined(USBCON)
+  // Define constants and variables for buffering serial data.
+  // Use only 0 or powers of 2 greater than 1
+  // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
+  #ifndef RX_BUFFER_SIZE
+    #define RX_BUFFER_SIZE 128
   #endif
-
-#endif // CONDITIONALS_ADV_H
+  // 256 is the max TX buffer limit due to uint8_t head and tail
+  // : [0, 4, 8, 16, 32, 64, 128, 256]
+  #ifndef TX_BUFFER_SIZE
+    #define TX_BUFFER_SIZE 32
+  #endif
+#else
+  // SERIAL_XON_XOFF not supported on USB-native devices
+  #undef SERIAL_XON_XOFF
+#endif

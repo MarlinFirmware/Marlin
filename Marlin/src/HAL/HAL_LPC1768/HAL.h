@@ -19,55 +19,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * HAL_LPC1768/HAL.h
  * Hardware Abstraction Layer for NXP LPC1768
  */
 
-#ifndef _HAL_LPC1768_H_
-#define _HAL_LPC1768_H_
-
 #define CPU_32_BIT
+#define HAL_INIT
 
-// --------------------------------------------------------------------------
-// Includes
-// --------------------------------------------------------------------------
+void HAL_init();
 
 #include <stdint.h>
 #include <stdarg.h>
-
-#undef min
-#undef max
-
 #include <algorithm>
 
-void _printf (const  char *format, ...);
-void _putc(uint8_t c);
-uint8_t _getc();
-
-extern "C" volatile uint32_t _millis;
-
-//arduino: Print.h
-#define DEC 10
-#define HEX 16
-#define OCT 8
-#define BIN 2
-//arduino: binary.h (weird defines)
-#define B01 1
-#define B10 2
+extern "C" volatile millis_t _millis;
 
 #include <Arduino.h>
 #include <pinmapping.h>
+#include <CDCSerial.h>
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 #include "fastio.h"
+#include <adc.h>
 #include "watchdog.h"
-#include "serial.h"
 #include "HAL_timers.h"
-#include "HardwareSerial.h"
+#include "MarlinSerial.h"
 
+//
+// Default graphical display delays
+//
 #ifndef ST7920_DELAY_1
   #define ST7920_DELAY_1 DELAY_NS(600)
 #endif
@@ -78,26 +62,20 @@ extern "C" volatile uint32_t _millis;
   #define ST7920_DELAY_3 DELAY_NS(750)
 #endif
 
-extern HalSerial usb_serial;
-
 #if !WITHIN(SERIAL_PORT, -1, 3)
   #error "SERIAL_PORT must be from -1 to 3"
 #endif
 
 #if SERIAL_PORT == -1
-  #define MYSERIAL0 usb_serial
+  #define MYSERIAL0 UsbSerial
 #elif SERIAL_PORT == 0
-  extern HardwareSerial Serial;
-  #define MYSERIAL0 Serial
+  #define MYSERIAL0 MSerial
 #elif SERIAL_PORT == 1
-  extern HardwareSerial Serial1;
-  #define MYSERIAL0 Serial1
+  #define MYSERIAL0 MSerial1
 #elif SERIAL_PORT == 2
-  extern HardwareSerial Serial2;
-  #define MYSERIAL0 Serial2
+  #define MYSERIAL0 MSerial2
 #elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
-  extern HardwareSerial Serial3;
+  #define MYSERIAL0 MSerial3
 #endif
 
 #ifdef SERIAL_PORT_2
@@ -108,51 +86,71 @@ extern HalSerial usb_serial;
   #endif
   #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
-    #define MYSERIAL1 usb_serial
+    #define MYSERIAL1 UsbSerial
   #elif SERIAL_PORT_2 == 0
-    extern HardwareSerial Serial;
-    #define MYSERIAL1 Serial
+    #define MYSERIAL1 MSerial
   #elif SERIAL_PORT_2 == 1
-    extern HardwareSerial Serial1;
-    #define MYSERIAL1 Serial1
+    #define MYSERIAL1 MSerial1
   #elif SERIAL_PORT_2 == 2
-    extern HardwareSerial Serial2;
-    #define MYSERIAL1 Serial2
+    #define MYSERIAL1 MSerial2
   #elif SERIAL_PORT_2 == 3
-    extern HardwareSerial Serial3;
-    #define MYSERIAL1 Serial3
+    #define MYSERIAL1 MSerial3
   #endif
 #else
   #define NUM_SERIAL 1
 #endif
 
+//
+// Interrupts
+//
 #define CRITICAL_SECTION_START  uint32_t primask = __get_PRIMASK(); __disable_irq()
 #define CRITICAL_SECTION_END    if (!primask) __enable_irq()
 #define ISRS_ENABLED() (!__get_PRIMASK())
 #define ENABLE_ISRS()  __enable_irq()
 #define DISABLE_ISRS() __disable_irq()
 
-//Utility functions
+//
+// Utility functions
+//
 int freeMemory(void);
 
-// SPI: Extended functions which take a channel number (hardware SPI only)
-/** Write single byte to specified SPI channel */
+//
+// SPI: Extended functions taking a channel number (Hardware SPI only)
+//
+
+// Write single byte to specified SPI channel
 void spiSend(uint32_t chan, byte b);
-/** Write buffer to specified SPI channel */
+// Write buffer to specified SPI channel
 void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
-/** Read single byte from specified SPI channel */
+// Read single byte from specified SPI channel
 uint8_t spiRec(uint32_t chan);
 
-// ADC
-#define HAL_ANALOG_SELECT(pin) HAL_adc_enable_channel(pin)
-#define HAL_START_ADC(pin)     HAL_adc_start_conversion(pin)
-#define HAL_READ_ADC()         HAL_adc_get_result()
-#define HAL_ADC_READY()        HAL_adc_finished()
+//
+// ADC API
+//
 
-void HAL_adc_init(void);
-void HAL_adc_enable_channel(int pin);
-void HAL_adc_start_conversion(const uint8_t adc_pin);
-uint16_t HAL_adc_get_result(void);
-bool HAL_adc_finished(void);
+#define ADC_MEDIAN_FILTER_SIZE (23) // Higher values increase step delay (phase shift),
+                                    // (ADC_MEDIAN_FILTER_SIZE + 1) / 2 sample step delay (12 samples @ 500Hz: 24ms phase shift)
+                                    // Memory usage per ADC channel (bytes): (6 * ADC_MEDIAN_FILTER_SIZE) + 16
+                                    // 8 * ((6 * 23) + 16 ) = 1232 Bytes for 8 channels
 
-#endif // _HAL_LPC1768_H_
+#define ADC_LOWPASS_K_VALUE    (6)  // Higher values increase rise time
+                                    // Rise time sample delays for 100% signal convergence on full range step
+                                    // (1 : 13, 2 : 32, 3 : 67, 4 : 139, 5 : 281, 6 : 565, 7 : 1135, 8 : 2273)
+                                    // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
+                                    // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
+
+using FilteredADC = LPC176x::ADC<ADC_LOWPASS_K_VALUE, ADC_MEDIAN_FILTER_SIZE>;
+#define HAL_adc_init()         FilteredADC::init()
+#define HAL_ANALOG_SELECT(pin) FilteredADC::enable_channel(pin)
+#define HAL_START_ADC(pin)     FilteredADC::start_conversion(pin)
+#define HAL_READ_ADC()         FilteredADC::get_result()
+#define HAL_ADC_READY()        FilteredADC::finished_conversion()
+
+// Parse a G-code word into a pin index
+int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
+// P0.6 thru P0.9 are for the onboard SD card
+#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
+
+#define HAL_IDLETASK 1
+void HAL_idletask(void);

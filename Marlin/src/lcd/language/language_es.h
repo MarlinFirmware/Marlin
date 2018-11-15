@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
  * Spanish
@@ -27,8 +28,6 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifndef LANGUAGE_ES_UTF_H
-#define LANGUAGE_ES_UTF_H
 
 #define DISPLAY_CHARSET_ISO10646_1
 #define CHARSIZE 2
@@ -55,13 +54,13 @@
 #define MSG_SET_HOME_OFFSETS                _UxGT("Ajustar desfases")
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Desfase aplicado")
 #define MSG_SET_ORIGIN                      _UxGT("Establecer origen")
-#define MSG_PREHEAT_1                       _UxGT("Precalentar PLA")
+#define MSG_PREHEAT_1                       _UxGT("Precalentar " PREHEAT_1_LABEL)
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" Todo")
 #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" End")
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Cama")
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" Config")
-#define MSG_PREHEAT_2                       _UxGT("Precalentar ABS")
+#define MSG_PREHEAT_2                       _UxGT("Precalentar " PREHEAT_2_LABEL)
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" Todo")
 #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" End")
@@ -75,6 +74,7 @@
 #define MSG_MOVE_AXIS                       _UxGT("Mover ejes")
 #define MSG_BED_LEVELING                    _UxGT("Nivelar cama")
 #define MSG_LEVEL_BED                       _UxGT("Nivelar cama")
+
 #define MSG_MOVING                          _UxGT("Moviendo...")
 #define MSG_FREE_XY                         _UxGT("Libre XY")
 #define MSG_MOVE_X                          _UxGT("Mover X")
@@ -95,8 +95,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Temperatura Auto.")
-#define MSG_ON                              _UxGT("Encender")
-#define MSG_OFF                             _UxGT("Apagar")
+#define MSG_LCD_ON                          _UxGT("Encender")
+#define MSG_LCD_OFF                         _UxGT("Apagar")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")
@@ -125,6 +125,7 @@
 #define MSG_E3STEPS                         _UxGT("E3 pasos/mm")
 #define MSG_E4STEPS                         _UxGT("E4 pasos/mm")
 #define MSG_E5STEPS                         _UxGT("E5 pasos/mm")
+#define MSG_E6STEPS                         _UxGT("E6 pasos/mm")
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movimiento")
 #define MSG_FILAMENT                        _UxGT("Filamento")
@@ -153,14 +154,14 @@
 #define MSG_CONTROL_RETRACT                 _UxGT("Retraer mm")
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Interc. Retraer mm")
 #define MSG_CONTROL_RETRACTF                _UxGT("Retraer  V")
-#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Levantar mm")
+#define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Levantar mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("DesRet mm")
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("Interc. DesRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("DesRet V")
 #define MSG_AUTORETRACT                     _UxGT("Retracción Auto.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Cambiar filamento")
 #define MSG_INIT_SDCARD                     _UxGT("Iniciando tarjeta")
-#define MSG_CNG_SDCARD                      _UxGT("Cambiar tarjeta")
+#define MSG_CHANGE_SDCARD                   _UxGT("Cambiar tarjeta")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z fuera")
 #define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Auto-Prueba")
 #define MSG_BLTOUCH_RESET                   _UxGT("Reiniciar BLTouch")
@@ -203,7 +204,7 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocolo")
 #define MSG_CASE_LIGHT                      _UxGT("Luz cabina")
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Conteo de impresión")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Completadas")
   #define MSG_INFO_PRINT_TIME               _UxGT("Tiempo total de imp.")
@@ -260,5 +261,3 @@
 #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("Calentar la boquilla")
 #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Calentando boquilla")
 #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Espere por favor")
-
-#endif // LANGUAGE_ES_UTF_H

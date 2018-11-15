@@ -16,13 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 
 /**
  * Description: HAL for Espressif ESP32 WiFi
  */
-
-#ifndef _HAL_ESP32_H
-#define _HAL_ESP32_H
 
 #define CPU_32_BIT
 
@@ -40,8 +38,8 @@
 #undef DISABLED
 #define DISABLED(b) (!_CAT(SWITCH_ENABLED_, b))
 
-#include "../math_32bit.h"
-#include "../HAL_SPI.h"
+#include "../shared/math_32bit.h"
+#include "../shared/HAL_SPI.h"
 
 #include "fastio_ESP32.h"
 #include "watchdog_ESP32.h"
@@ -98,8 +96,8 @@ int freeMemory(void);
 void analogWrite(int pin, int value);
 
 // EEPROM
-void eeprom_write_byte(unsigned char *pos, unsigned char value);
-unsigned char eeprom_read_byte(unsigned char *pos);
+void eeprom_write_byte(uint8_t *pos, unsigned char value);
+uint8_t eeprom_read_byte(uint8_t *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
@@ -123,5 +121,3 @@ void HAL_adc_start_conversion (uint8_t adc_pin);
 #define HAL_INIT 1
 void HAL_idletask(void);
 void HAL_init(void);
-
-#endif // _HAL_ESP32_H

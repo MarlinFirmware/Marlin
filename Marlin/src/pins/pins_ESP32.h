@@ -24,9 +24,7 @@
  * Espressif ESP32 (Tensilica Xtensa LX6) pin assignments
  */
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Espressif ESP32"
-#endif
+#define BOARD_NAME "Espressif ESP32"
 
 //
 // Limit Switches

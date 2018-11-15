@@ -108,7 +108,7 @@ void ac_cleanup(
   #endif
 }
 
-void print_signed_float(const char * const prefix, const float &f) {
+void print_signed_float(PGM_P const prefix, const float &f) {
   SERIAL_PROTOCOLPGM("  ");
   serialprintPGM(prefix);
   SERIAL_PROTOCOLCHAR(':');
@@ -204,7 +204,7 @@ static float calibration_probe(const float &nx, const float &ny, const bool stow
   #endif
 }
 
-#if HAS_BED_PROBE
+#if HAS_BED_PROBE && HAS_LCD_MENU
   static float probe_z_shift(const float center) {
     STOW_PROBE();
     endstops.enable_z_probe(false);
@@ -273,7 +273,7 @@ static bool probe_calibration_points(float z_pt[NPP + 1], const int8_t probe_poi
         for (int8_t circle = 0; circle <= offset; circle++) {
           const float a = RADIANS(210 + (360 / NPP) *  (rad - 1)),
                       r = delta_calibration_radius * (1 - 0.1 * (zig_zag ? offset - circle : circle)),
-                      interpol = fmod(rad, 1);
+                      interpol = FMOD(rad, 1);
           const float z_temp = calibration_probe(cos(a) * r, sin(a) * r, stow_after_each, set_up);
           if (isnan(z_temp)) return false;
           // split probe point to neighbouring calibration points
@@ -517,12 +517,12 @@ void GcodeSuite::G33() {
   }
 
   // Report settings
-  const char* checkingac = PSTR("Checking... AC");
+  PGM_P checkingac = PSTR("Checking... AC");
   serialprintPGM(checkingac);
   if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
   if (set_up) SERIAL_PROTOCOLPGM("  (SET-UP)");
   SERIAL_EOL();
-  lcd_setstatusPGM(checkingac);
+  ui.setstatusPGM(checkingac);
 
   print_calibration_settings(_endstop_results, _angle_results);
 
@@ -588,7 +588,7 @@ void GcodeSuite::G33() {
 
       switch (probe_points) {
         case -1:
-          #if HAS_BED_PROBE
+          #if HAS_BED_PROBE && HAS_LCD_MENU
             zprobe_zoffset += probe_z_shift(z_at_pt[CEN]);
           #endif
 
@@ -643,7 +643,7 @@ void GcodeSuite::G33() {
 
     if (verbose_level != 0) {                                    // !dry run
 
-      // normalise angles to least squares
+      // Normalize angles to least-squares
       if (_angle_results) {
         float a_sum = 0.0;
         LOOP_XYZ(axis) a_sum += delta_tower_angle_trim[axis];
@@ -651,7 +651,7 @@ void GcodeSuite::G33() {
       }
 
       // adjust delta_height and endstops by the max amount
-      const float z_temp = MAX3(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
+      const float z_temp = MAX(delta_endstop_adj[A_AXIS], delta_endstop_adj[B_AXIS], delta_endstop_adj[C_AXIS]);
       delta_height -= z_temp;
       LOOP_XYZ(axis) delta_endstop_adj[axis] -= z_temp;
     }
@@ -683,7 +683,7 @@ void GcodeSuite::G33() {
           sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev_min * 1000.0));
         else
           sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev_min));
-        lcd_setstatus(mess);
+        ui.setstatus(mess);
         print_calibration_settings(_endstop_results, _angle_results);
         serialprintPGM(save_message);
         SERIAL_EOL();
@@ -699,13 +699,13 @@ void GcodeSuite::G33() {
         SERIAL_PROTOCOLPGM("std dev:");
         SERIAL_PROTOCOL_F(zero_std_dev, 3);
         SERIAL_EOL();
-        lcd_setstatus(mess);
+        ui.setstatus(mess);
         if (verbose_level > 1)
           print_calibration_settings(_endstop_results, _angle_results);
       }
     }
     else { // dry run
-      const char *enddryrun = PSTR("End DRY-RUN");
+      PGM_P enddryrun = PSTR("End DRY-RUN");
       serialprintPGM(enddryrun);
       SERIAL_PROTOCOL_SP(35);
       SERIAL_PROTOCOLPGM("std dev:");
@@ -719,7 +719,7 @@ void GcodeSuite::G33() {
         sprintf_P(&mess[15], PSTR("0.%03i"), (int)LROUND(zero_std_dev * 1000.0));
       else
         sprintf_P(&mess[15], PSTR("%03i.x"), (int)LROUND(zero_std_dev));
-      lcd_setstatus(mess);
+      ui.setstatus(mess);
     }
     ac_home();
   }

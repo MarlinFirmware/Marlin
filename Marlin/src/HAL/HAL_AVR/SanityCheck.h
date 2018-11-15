@@ -19,9 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef _SANITYCHECK_AVR_8_BIT_H_
-#define _SANITYCHECK_AVR_8_BIT_H_
+#pragma once
 
 /**
  * Test AVR specific configuration values for errors at compile-time.
@@ -78,6 +76,8 @@
       #error "SPINDLE_LASER_PWM_PIN is used by E3_AUTO_FAN_PIN."
     #elif PIN_EXISTS(E4_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E4_AUTO_FAN_PIN
       #error "SPINDLE_LASER_PWM_PIN is used by E4_AUTO_FAN_PIN."
+    #elif PIN_EXISTS(E5_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E5_AUTO_FAN_PIN
+      #error "SPINDLE_LASER_PWM_PIN is used by E5_AUTO_FAN_PIN."
     #elif PIN_EXISTS(FAN) && SPINDLE_LASER_PWM_PIN == FAN_PIN
       #error "SPINDLE_LASER_PWM_PIN is used FAN_PIN."
     #elif PIN_EXISTS(FAN1) && SPINDLE_LASER_PWM_PIN == FAN1_PIN
@@ -106,6 +106,7 @@
     || defined(Y2_HARDWARE_SERIAL) \
     || defined(Z_HARDWARE_SERIAL ) \
     || defined(Z2_HARDWARE_SERIAL) \
+    || defined(Z3_HARDWARE_SERIAL) \
     || defined(E0_HARDWARE_SERIAL) \
     || defined(E1_HARDWARE_SERIAL) \
     || defined(E2_HARDWARE_SERIAL) \
@@ -113,5 +114,3 @@
     || defined(E4_HARDWARE_SERIAL) )
   #error "Select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
 #endif
-
-#endif // _SANITYCHECK_AVR_8_BIT_H_

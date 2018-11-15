@@ -103,6 +103,10 @@
  *
  *  S  Set the XY travel speed between probe points (in units/min)
  *
+ *  H  Set bounds to a centered square H x H units in size
+ *
+ *     -or-
+ *
  *  F  Set the Front limit of the probing grid
  *  B  Set the Back limit of the probing grid
  *  L  Set the Left limit of the probing grid
@@ -153,7 +157,7 @@ G29_TYPE GcodeSuite::G29() {
   // G29 Q is also available if debugging
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     const uint8_t old_debug_flags = marlin_debug_flags;
-    if (seenQ) marlin_debug_flags |= DEBUG_LEVELING;
+    if (seenQ) marlin_debug_flags |= MARLIN_DEBUG_LEVELING;
     if (DEBUGGING(LEVELING)) {
       DEBUG_POS(">>> G29", current_position);
       log_machine_info();
@@ -381,10 +385,19 @@ G29_TYPE GcodeSuite::G29() {
 
       xy_probe_feedrate_mm_s = MMM_TO_MMS(parser.linearval('S', XY_PROBE_SPEED));
 
-      left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
-      right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
-      front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
-      back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
+      if (parser.seen('H')) {
+        const int16_t size = (int16_t)parser.value_linear_units();
+        left_probe_bed_position  = MAX((MIN_PROBE_X + MAX_PROBE_X - size) / 2, MIN_PROBE_X);
+        right_probe_bed_position = MIN(left_probe_bed_position + size,         MAX_PROBE_X);
+        front_probe_bed_position = MAX((MIN_PROBE_Y + MAX_PROBE_Y - size) / 2, MIN_PROBE_Y);
+        back_probe_bed_position  = MIN(front_probe_bed_position + size,        MAX_PROBE_Y);
+      }
+      else {
+        left_probe_bed_position  = parser.seenval('L') ? (int)RAW_X_POSITION(parser.value_linear_units()) : LEFT_PROBE_BED_POSITION;
+        right_probe_bed_position = parser.seenval('R') ? (int)RAW_X_POSITION(parser.value_linear_units()) : RIGHT_PROBE_BED_POSITION;
+        front_probe_bed_position = parser.seenval('F') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : FRONT_PROBE_BED_POSITION;
+        back_probe_bed_position  = parser.seenval('B') ? (int)RAW_Y_POSITION(parser.value_linear_units()) : BACK_PROBE_BED_POSITION;
+      }
 
       if (
         #if IS_SCARA || ENABLED(DELTA)
@@ -485,7 +498,7 @@ G29_TYPE GcodeSuite::G29() {
       set_bed_leveling_enabled(abl_should_enable);
       g29_in_progress = false;
       #if ENABLED(LCD_BED_LEVELING)
-        lcd_wait_for_move = false;
+        ui.wait_for_bl_move = false;
       #endif
     }
 
@@ -677,8 +690,8 @@ G29_TYPE GcodeSuite::G29() {
         // Inner loop is Y with PROBE_Y_FIRST enabled
         for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
 
-          float xBase = left_probe_bed_position + xGridSpacing * xCount,
-                yBase = front_probe_bed_position + yGridSpacing * yCount;
+          const float xBase = left_probe_bed_position + xGridSpacing * xCount,
+                      yBase = front_probe_bed_position + yGridSpacing * yCount;
 
           xProbe = FLOOR(xBase + (xBase < 0 ? 0 : 0.5));
           yProbe = FLOOR(yBase + (yBase < 0 ? 0 : 0.5));
@@ -777,7 +790,7 @@ G29_TYPE GcodeSuite::G29() {
   #if ENABLED(PROBE_MANUALLY)
     g29_in_progress = false;
     #if ENABLED(LCD_BED_LEVELING)
-      lcd_wait_for_move = false;
+      ui.wait_for_bl_move = false;
     #endif
   #endif
 
@@ -989,7 +1002,7 @@ G29_TYPE GcodeSuite::G29() {
   KEEPALIVE_STATE(IN_HANDLER);
 
   if (planner.leveling_active)
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
   #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
     move_z_after_probing();

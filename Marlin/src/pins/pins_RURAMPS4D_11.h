@@ -33,12 +33,10 @@
  */
 
 #ifndef __SAM3X8E__
-  #error "Oops!  Make sure you have 'Arduino Due' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME       "RuRAMPS4Due v1.1"
-#endif
+#define BOARD_NAME "RuRAMPS4Due v1.1"
 
 //
 // Servos
@@ -119,9 +117,6 @@
 //#define E3_MS1_PIN         ?
 //#define E3_MS2_PIN         ?
 //#define E3_MS3_PIN         ?
-//#define Z2_MS1_PIN         ?   // shared with E3_MS1_PIN
-//#define Z2_MS2_PIN         ?   // shared with E3_MS2_PIN
-//#define Z2_MS3_PIN         ?   // shared with E3_MS3_PIN
 
 #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
   #define Z_MIN_PROBE_PIN  49

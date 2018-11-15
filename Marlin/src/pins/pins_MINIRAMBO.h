@@ -21,17 +21,17 @@
  */
 
 /**
- * Mini-Rambo pin assignments
+ * Mini-RAMBo pin assignments
  */
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops!  Make sure you have 'Rambo' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'RAMBo' in 'Tools > Board.'"
 #endif
 
 #if MB(MINIRAMBO_10A)
-  #define BOARD_NAME "Mini Rambo 1.0a"
+  #define BOARD_NAME "Mini RAMBo 1.0a"
 #else
-  #define BOARD_NAME "Mini Rambo"
+  #define BOARD_NAME "Mini RAMBo"
 #endif
 
 //

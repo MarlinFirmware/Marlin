@@ -17,8 +17,8 @@ cache:
 
 env:
   - TEST_PLATFORM="megaatmega2560"
-  - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="DUE"
+  - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="STM32F1"
   - TEST_PLATFORM="teensy35"
 
@@ -45,8 +45,8 @@ before_script:
   - cd ${TRAVIS_BUILD_DIR}
   #
   # Generate custom version include
-  - generate_version_header_for_marlin ${TRAVIS_BUILD_DIR}/Marlin/src/inc
+  - generate_version ${TRAVIS_BUILD_DIR}/Marlin/src/inc
   - cat ${TRAVIS_BUILD_DIR}/Marlin/src/inc/_Version.h
   #
 script:
-  - start_tests ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}
+  - run_tests ${TRAVIS_BUILD_DIR} ${TEST_PLATFORM}

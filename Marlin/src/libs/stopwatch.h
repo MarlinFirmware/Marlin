@@ -19,15 +19,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#ifndef STOPWATCH_H
-#define STOPWATCH_H
+#pragma once
 
 // Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
 //#define DEBUG_STOPWATCH
 
-#include "../core/macros.h"
-#include "../core/types.h"
+#include "../core/macros.h" // for FORCE_INLINE
+#include "../core/millis_t.h"
 
 /**
  * @brief Stopwatch class
@@ -36,11 +34,7 @@
  */
 class Stopwatch {
   private:
-    enum State : char {
-      STOPPED,
-      RUNNING,
-      PAUSED
-    };
+    enum State : char { STOPPED, RUNNING, PAUSED };
 
     static Stopwatch::State state;
     static millis_t accumulator;
@@ -120,5 +114,3 @@ class Stopwatch {
 
     #endif
 };
-
-#endif // STOPWATCH_H
