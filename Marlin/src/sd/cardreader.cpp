@@ -478,7 +478,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
 void CardReader::removeFile(const char * const name) {
   if (!cardOK) return;
 
-  stopSDPrint();
+  //stopSDPrint();
 
   SdFile *curDir;
   const char * const fname = diveToFile(curDir, name, false);
@@ -549,7 +549,7 @@ void CardReader::checkautostart() {
 
   if (cardOK
     #if ENABLED(POWER_LOSS_RECOVERY)
-      && !jobRecoverFileExists() // Don't run auto#.g when a resume file exists
+      && !recovery.valid() // Don't run auto#.g when a resume file exists
     #endif
   ) {
     char autoname[8];
@@ -577,6 +577,7 @@ void CardReader::closefile(const bool store_location) {
   file.sync();
   file.close();
   saving = logging = false;
+  sdpos = 0;
   #if ENABLED(EMERGENCY_PARSER)
     emergency_parser.enable();
   #endif
@@ -622,8 +623,12 @@ uint16_t CardReader::getnrfilenames() {
 }
 
 /**
- * Dive to the given file path, with optional echo.
- * On exit set curDir and return the name part of the path.
+ * Dive to the given DOS 8.3 file path, with optional echo of the dive paths.
+ *
+ * On exit, curDir contains an SdFile reference to the file's directory.
+ *
+ * Returns a pointer to the last segment (filename) of the given DOS 8.3 path.
+ *
  * A NULL result indicates an unrecoverable error.
  */
 const char* CardReader::diveToFile(SdFile*& curDir, const char * const path, const bool echo) {
@@ -993,12 +998,18 @@ void CardReader::printingHasFinished() {
 
 #if ENABLED(POWER_LOSS_RECOVERY)
 
-  char job_recovery_file_name[4] = "bin";
+  constexpr char job_recovery_file_name[4] = "BIN";
+
+  bool CardReader::jobRecoverFileExists() {
+    const bool exists = recovery.file.open(&root, job_recovery_file_name, O_READ);
+    if (exists) recovery.file.close();
+    return exists;
+  }
 
   void CardReader::openJobRecoveryFile(const bool read) {
     if (!cardOK) return;
-    if (jobRecoveryFile.isOpen()) return;
-    if (!jobRecoveryFile.open(&root, job_recovery_file_name, read ? O_READ : O_CREAT | O_WRITE | O_TRUNC | O_SYNC)) {
+    if (recovery.file.isOpen()) return;
+    if (!recovery.file.open(&root, job_recovery_file_name, read ? O_READ : O_CREAT | O_WRITE | O_TRUNC | O_SYNC)) {
       SERIAL_PROTOCOLPAIR(MSG_SD_OPEN_FILE_FAIL, job_recovery_file_name);
       SERIAL_PROTOCOLCHAR('.');
       SERIAL_EOL();
@@ -1007,31 +1018,12 @@ void CardReader::printingHasFinished() {
       SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, job_recovery_file_name);
   }
 
-  void CardReader::closeJobRecoveryFile() { jobRecoveryFile.close(); }
-
-  bool CardReader::jobRecoverFileExists() {
-    const bool exists = jobRecoveryFile.open(&root, job_recovery_file_name, O_READ);
-    if (exists) jobRecoveryFile.close();
-    return exists;
-  }
-
-  int16_t CardReader::saveJobRecoveryInfo() {
-    jobRecoveryFile.seekSet(0);
-    const int16_t ret = jobRecoveryFile.write(&job_recovery_info, sizeof(job_recovery_info));
-    #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-      if (ret == -1) SERIAL_PROTOCOLLNPGM("Power-loss file write failed.");
-    #endif
-    return ret;
-  }
-
-  int16_t CardReader::loadJobRecoveryInfo() {
-    return jobRecoveryFile.read(&job_recovery_info, sizeof(job_recovery_info));
-  }
-
+  // Removing the job recovery file currently requires closing
+  // the file being printed, so during SD printing the file should
+  // be zeroed and written instead of deleted.
   void CardReader::removeJobRecoveryFile() {
-    job_recovery_info.valid_head = job_recovery_info.valid_foot = job_recovery_commands_count = 0;
     if (jobRecoverFileExists()) {
-      closefile();
+      //closefile();
       removeFile(job_recovery_file_name);
       #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
         SERIAL_PROTOCOLPGM("Power-loss file delete");

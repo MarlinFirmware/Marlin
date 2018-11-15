@@ -268,7 +268,7 @@
 #define MSG_PAUSE_PRINT                     _UxGT("SD-Druck pausieren")
 #define MSG_RESUME_PRINT                    _UxGT("SD-Druck fortsetzen")
 #define MSG_STOP_PRINT                      _UxGT("SD-Druck abbrechen")
-#define MSG_POWER_LOSS_RECOVERY             _UxGT("Wiederh. n. Stroma.")
+#define MSG_OUTAGE_RECOVERY                 _UxGT("Wiederh. n. Stroma.")
 #define MSG_CARD_MENU                       _UxGT("Druck v. SD-Karte")
 #define MSG_NO_CARD                         _UxGT("Keine SD-Karte")
 #define MSG_DWELL                           _UxGT("Warten...")

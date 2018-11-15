@@ -809,22 +809,6 @@ inline void get_serial_commands() {
     }
   }
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-
-    inline bool drain_job_recovery_commands() {
-      static uint8_t job_recovery_commands_index = 0; // Resets on reboot
-      if (job_recovery_commands_count) {
-        if (_enqueuecommand(job_recovery_commands[job_recovery_commands_index])) {
-          ++job_recovery_commands_index;
-          if (!--job_recovery_commands_count) job_recovery_phase = JOB_RECOVERY_DONE;
-        }
-        return true;
-      }
-      return false;
-    }
-
-  #endif
-
 #endif // SDSUPPORT
 
 /**
@@ -839,11 +823,6 @@ void get_available_commands() {
   if (drain_injected_commands_P()) return;
 
   get_serial_commands();
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    // Commands for power-loss recovery take precedence
-    if (job_recovery_phase == JOB_RECOVERY_YES && drain_job_recovery_commands()) return;
-  #endif
 
   #if ENABLED(SDSUPPORT)
     get_sdcard_commands();
@@ -890,7 +869,7 @@ void advance_command_queue() {
     else {
       gcode.process_next_command();
       #if ENABLED(POWER_LOSS_RECOVERY)
-        if (card.cardOK && IS_SD_PRINTING()) save_job_recovery_info();
+        if (IS_SD_PRINTING()) recovery.save();
       #endif
     }
 

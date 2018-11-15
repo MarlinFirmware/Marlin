@@ -34,58 +34,8 @@
 #include "../../feature/power_loss_recovery.h"
 
 static void lcd_power_loss_recovery_resume() {
-  char cmd[20];
-
-  // Return to status now
   ui.return_to_status();
-
-  // Turn leveling off and home
-  enqueue_and_echo_commands_P(PSTR("M420 S0\nG28 R0"
-    #if ENABLED(MARLIN_DEV_MODE)
-      " S"
-    #elif !IS_KINEMATIC
-      " X Y"
-    #endif
-  ));
-
-  #if HAS_HEATED_BED
-    const int16_t bt = job_recovery_info.target_temperature_bed;
-    if (bt) {
-      // Restore the bed temperature
-      sprintf_P(cmd, PSTR("M190 S%i"), bt);
-      enqueue_and_echo_command(cmd);
-    }
-  #endif
-
-  // Restore all hotend temperatures
-  HOTEND_LOOP() {
-    const int16_t et = job_recovery_info.target_temperature[e];
-    if (et) {
-      #if HOTENDS > 1
-        sprintf_P(cmd, PSTR("T%i"), e);
-        enqueue_and_echo_command(cmd);
-      #endif
-      sprintf_P(cmd, PSTR("M109 S%i"), et);
-      enqueue_and_echo_command(cmd);
-    }
-  }
-
-  #if HOTENDS > 1
-    sprintf_P(cmd, PSTR("T%i"), job_recovery_info.active_hotend);
-    enqueue_and_echo_command(cmd);
-  #endif
-
-  // Restore print cooling fan speeds
-  for (uint8_t i = 0; i < FAN_COUNT; i++) {
-    uint8_t f = job_recovery_info.fan_speed[i];
-    if (f) {
-      sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
-      enqueue_and_echo_command(cmd);
-    }
-  }
-
-  // Start draining the job recovery command queue
-  job_recovery_phase = JOB_RECOVERY_YES;
+  enqueue_and_echo_commands_P(PSTR("M1000"));
 }
 
 static void lcd_power_loss_recovery_cancel() {
@@ -97,7 +47,7 @@ static void lcd_power_loss_recovery_cancel() {
 void menu_job_recovery() {
   ui.defer_status_screen(true);
   START_MENU();
-  STATIC_ITEM(MSG_POWER_LOSS_RECOVERY);
+  STATIC_ITEM(MSG_OUTAGE_RECOVERY);
   MENU_ITEM(function, MSG_RESUME_PRINT, lcd_power_loss_recovery_resume);
   MENU_ITEM(function, MSG_STOP_PRINT, lcd_power_loss_recovery_cancel);
   END_MENU();
