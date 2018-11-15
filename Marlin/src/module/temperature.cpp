@@ -2464,7 +2464,7 @@ void Temperature::isr() {
       #if HOTENDS > 1
         ui.status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), int(e + 1));
       #else
-        ui.setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
+        ui.set_status_P(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
       #endif
     }
   #endif

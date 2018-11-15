@@ -55,8 +55,7 @@ namespace ExtUI {
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
   void onFilamentRunout() {}
-  void onStatusChanged(const char* msg) {}
-  void onStatusChanged(progmem_str msg) {}
+  void onStatusChanged(const char * const msg) {}
   void onFactoryReset() {}
   void onLoadSettings() {}
   void onStoreSettings() {}

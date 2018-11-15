@@ -371,7 +371,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
     ui.return_to_status();       // To display the new status message
-    ui.setstatusPGM(ds_str, 99);
+    ui.set_status_P(ds_str, 99);
     serialprintPGM(ds_str);
     SERIAL_EOL();
 

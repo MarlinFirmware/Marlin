@@ -59,7 +59,7 @@
   void lcd_sdcard_stop() {
     wait_for_heatup = wait_for_user = false;
     card.flag.abort_sd_printing = true;
-    ui.setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
+    ui.set_status_P(PSTR(MSG_PRINT_ABORTED), -1);
     ui.return_to_status();
   }
 
