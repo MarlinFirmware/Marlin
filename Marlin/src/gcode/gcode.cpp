@@ -65,9 +65,8 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     const int8_t e = parser.value_byte();
     if (e >= EXTRUDERS) {
       SERIAL_ECHO_START();
-      SERIAL_CHAR('M');
-      SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", e);
+      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
       return -1;
     }
     return e;
