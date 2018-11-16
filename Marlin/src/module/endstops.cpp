@@ -42,7 +42,7 @@
 
 Endstops endstops;
 
-// public:
+// private:
 
 bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load()
 volatile uint8_t Endstops::hit_state;
@@ -259,34 +259,18 @@ void Endstops::poll() {
 
 void Endstops::enable_globally(const bool onoff) {
   enabled_globally = enabled = onoff;
-
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    update();
-  #endif
+  resync();
 }
 
 // Enable / disable endstop checking
 void Endstops::enable(const bool onoff) {
   enabled = onoff;
-
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    update();
-  #endif
+  resync();
 }
 
 // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
 void Endstops::not_homing() {
   enabled = enabled_globally;
-
-  // Still 'enabled'? Then endstops are always on and kept in sync.
-  // Otherwise reset 'live's variables to let axes move in both directions.
-  if (!enabled) {
-    #if ENDSTOP_NOISE_THRESHOLD
-      endstop_poll_count = 0;   // Stop filtering (MUST be done first to prevent race condition)
-      validated_live_state = 0;
-    #endif
-    live_state = 0;
-  }
 }
 
 #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
@@ -301,12 +285,23 @@ void Endstops::not_homing() {
 #if HAS_BED_PROBE
   void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
-
-    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-      update();
-    #endif
+    resync();
   }
 #endif
+
+// Get the stable endstop states when enabled
+void Endstops::resync() {
+  if (!abort_enabled()) return;     // If endstops/probes are disabled the loop below can hang
+
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    update();
+  #else
+    safe_delay(2);  // Wait for Temperature ISR to run at least once (runs at 1KHz)
+  #endif
+  #if ENDSTOP_NOISE_THRESHOLD
+    while (endstop_poll_count) safe_delay(1);
+  #endif
+}
 
 #if ENABLED(PINS_DEBUGGING)
   void Endstops::run_monitor() {
@@ -353,7 +348,7 @@ void Endstops::event_handler() {
     SERIAL_EOL();
 
     #if ENABLED(ULTRA_LCD)
-      lcd_status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
+      ui.status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)

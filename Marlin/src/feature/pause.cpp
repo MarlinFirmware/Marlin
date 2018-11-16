@@ -586,7 +586,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   #endif
 
   #if ENABLED(ULTRA_LCD)
-    lcd_reset_status();
+    ui.reset_status();
   #endif
 }
 

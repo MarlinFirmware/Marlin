@@ -404,8 +404,14 @@ else ifeq ($(HARDWARE_MOTHERBOARD),88)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
 
+# UltiMachine Archim1 (with DRV8825 drivers)
+else ifeq ($(HARDWARE_MOTHERBOARD),1591)
+  HARDWARE_VARIANT ?= archim
+  MCPU              = cortex-m3
+  F_CPU             = 84000000L
+  IS_MCU            = 0
 # UltiMachine Archim2 (with TMC2130 drivers)
-else ifeq ($(HARDWARE_MOTHERBOARD),1590)
+else ifeq ($(HARDWARE_MOTHERBOARD),1592)
   HARDWARE_VARIANT ?= archim
   MCPU              = cortex-m3
   F_CPU             = 84000000L

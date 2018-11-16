@@ -47,7 +47,7 @@
 
 typedef const __FlashStringHelper *progmem_str;
 
-namespace UI {
+namespace ExtUI {
 
   enum axis_t     : uint8_t { X, Y, Z };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5 };
@@ -257,8 +257,8 @@ namespace UI {
  *   UI_INCREMENT(TargetTemp_celsius, E0)
  *
  */
-#define UI_INCREMENT_BY(method, inc, ...) UI::set ## method(UI::get ## method (__VA_ARGS__) + inc, ##__VA_ARGS__)
-#define UI_DECREMENT_BY(method, inc, ...) UI::set ## method(UI::get ## method (__VA_ARGS__) - inc, ##__VA_ARGS__)
+#define UI_INCREMENT_BY(method, inc, ...) ExtUI::set ## method(ExtUI::get ## method (__VA_ARGS__) + inc, ##__VA_ARGS__)
+#define UI_DECREMENT_BY(method, inc, ...) ExtUI::set ## method(ExtUI::get ## method (__VA_ARGS__) - inc, ##__VA_ARGS__)
 
 #define UI_INCREMENT(method, ...) UI_INCREMENT_BY(method, increment, ##__VA_ARGS__)
 #define UI_DECREMENT(method, ...) UI_DECREMENT_BY(method, increment, ##__VA_ARGS__)

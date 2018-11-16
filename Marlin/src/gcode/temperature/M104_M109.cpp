@@ -39,10 +39,15 @@
  * M104: Set hot end temperature
  */
 void GcodeSuite::M104() {
-  if (get_target_extruder_from_command()) return;
+
   if (DEBUGGING(DRYRUN)) return;
 
-  const uint8_t e = target_extruder;
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    constexpr int8_t e = 0;
+  #else
+    const int8_t e = get_target_extruder_from_command();
+    if (e < 0) return;
+  #endif
 
   if (parser.seenval('S')) {
     const int16_t temp = parser.value_celsius();
@@ -66,7 +71,7 @@ void GcodeSuite::M104() {
        */
       if (temp <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        lcd_reset_status();
+        ui.reset_status();
       }
     #endif
   }
@@ -82,8 +87,14 @@ void GcodeSuite::M104() {
  */
 void GcodeSuite::M109() {
 
-  if (get_target_extruder_from_command()) return;
   if (DEBUGGING(DRYRUN)) return;
+
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    constexpr int8_t target_extruder = 0;
+  #else
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
+  #endif
 
   const bool no_wait_for_cooling = parser.seenval('S'),
              set_temp = no_wait_for_cooling || parser.seenval('R');
@@ -108,7 +119,7 @@ void GcodeSuite::M109() {
        */
       if (parser.value_celsius() <= (EXTRUDE_MINTEMP) / 2) {
         print_job_timer.stop();
-        lcd_reset_status();
+        ui.reset_status();
       }
       else
         print_job_timer.start();

@@ -15,7 +15,6 @@
 #include "../fontutils.h"
 #include "u8g_fontutf8.h"
 
-////////////////////////////////////////////////////////////
 typedef void font_t;
 
 /**
@@ -31,7 +30,6 @@ typedef void font_t;
  */
 typedef int (* fontgroup_cb_draw_t)(void *userdata, const font_t *fnt_current, const char *msg);
 
-////////////////////////////////////////////////////////////
 /* return v1 - v2 */
 static int fontinfo_compare(uxg_fontinfo_t * v1, uxg_fontinfo_t * v2) {
   if (v1->page < v2->page)      return -1;
@@ -115,7 +113,6 @@ static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default,
   }
 }
 
-////////////////////////////////////////////////////////////
 static bool flag_fontgroup_was_inited = false;
 static font_group_t g_fontgroup_root = {NULL, 0};
 

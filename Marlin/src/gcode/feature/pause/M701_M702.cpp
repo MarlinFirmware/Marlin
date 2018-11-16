@@ -55,7 +55,9 @@ void GcodeSuite::M701() {
     if (axis_unhomed_error()) park_point.z = 0;
   #endif
 
-  if (get_target_extruder_from_command()) return;
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
+
 
   // Z axis lift
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
@@ -121,7 +123,8 @@ void GcodeSuite::M702() {
     if (axis_unhomed_error()) park_point.z = 0;
   #endif
 
-  if (get_target_extruder_from_command()) return;
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
 
   // Z axis lift
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
@@ -154,8 +157,8 @@ void GcodeSuite::M702() {
   #endif
   {
     // Unload length
-    const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS) :
-                                                        fc_settings[target_extruder].unload_length);
+    const float unload_length = -ABS(parser.seen('U') ? parser.value_axis_units(E_AXIS)
+                                                      : fc_settings[target_extruder].unload_length);
 
     unload_filament(unload_length, true, ADVANCED_PAUSE_MODE_UNLOAD_FILAMENT);
   }

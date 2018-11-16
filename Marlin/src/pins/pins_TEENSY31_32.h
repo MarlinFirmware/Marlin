@@ -27,7 +27,7 @@
 ****************************************************************************************/
 
 #if !IS_32BIT_TEENSY
-  #error "Oops!  Make sure you have 'Teensy 3.1' or 'Teensy 3.2' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Teensy 3.1' or 'Teensy 3.2' in 'Tools > Board.'"
 #endif
 
 #if IS_TEENSY32

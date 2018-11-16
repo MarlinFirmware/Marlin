@@ -31,21 +31,22 @@
  */
 void GcodeSuite::M92() {
 
-  GET_TARGET_EXTRUDER();
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
 
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
       if (i == E_AXIS) {
-        const float value = parser.value_per_axis_units((AxisEnum)(E_AXIS + TARGET_EXTRUDER));
+        const float value = parser.value_per_axis_units((AxisEnum)(E_AXIS_N(target_extruder)));
         if (value < 20) {
-          float factor = planner.settings.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] / value; // increase e constants if M92 E14 is given for netfab.
+          float factor = planner.settings.axis_steps_per_mm[E_AXIS_N(target_extruder)] / value; // increase e constants if M92 E14 is given for netfab.
           #if HAS_CLASSIC_JERK && (DISABLED(JUNCTION_DEVIATION) || DISABLED(LIN_ADVANCE))
             planner.max_jerk[E_AXIS] *= factor;
           #endif
-          planner.settings.max_feedrate_mm_s[E_AXIS + TARGET_EXTRUDER] *= factor;
-          planner.max_acceleration_steps_per_s2[E_AXIS + TARGET_EXTRUDER] *= factor;
+          planner.settings.max_feedrate_mm_s[E_AXIS_N(target_extruder)] *= factor;
+          planner.max_acceleration_steps_per_s2[E_AXIS_N(target_extruder)] *= factor;
         }
-        planner.settings.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] = value;
+        planner.settings.axis_steps_per_mm[E_AXIS_N(target_extruder)] = value;
       }
       else {
         planner.settings.axis_steps_per_mm[i] = parser.value_per_axis_units((AxisEnum)i);

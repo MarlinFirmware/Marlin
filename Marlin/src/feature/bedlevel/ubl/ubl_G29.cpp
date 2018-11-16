@@ -53,7 +53,6 @@
   extern float destination[XYZE], current_position[XYZE];
 
   #if HAS_LCD_MENU
-    void lcd_return_to_status();
     void _lcd_ubl_output_map_lcd();
   #endif
 
@@ -127,9 +126,6 @@
    *
    *   J #   Grid       Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side.
    *                    Not specifying a grid size will invoke the 3-Point leveling function.
-   *
-   *   K #   Kompare    Kompare current Mesh with stored Mesh # replacing current Mesh with the result. This
-   *                    command literally performs a diff between two Meshes.
    *
    *   L     Load       Load Mesh from the previously activated location in the EEPROM.
    *
@@ -266,11 +262,19 @@
    *
    *   V #   Verbosity  Set the verbosity level (0-4) for extra details. (Default 0)
    *
-   *   W     What?      Display valuable Unified Bed Leveling System data.
-   *
    *   X #              X Location for this command
    *
    *   Y #              Y Location for this command
+   *
+   * With UBL_DEVEL_DEBUGGING:
+   *
+   *   K #  Kompare     Kompare current Mesh with stored Mesh #, replacing current Mesh with the result.
+   *                    This command literally performs a diff between two Meshes.
+   *
+   *   Q-1  Dump EEPROM Dump the UBL contents stored in EEPROM as HEX format. Useful for developers to help
+   *                    verify correct operation of the UBL.
+   *
+   *   W    What?       Display valuable UBL data.
    *
    *
    *   Release Notes:
@@ -345,9 +349,13 @@
       }
       SERIAL_PROTOCOLLNPGM("Loading test_pattern values.\n");
       switch (test_pattern) {
-        case -1:
-          g29_eeprom_dump();
-          break;
+
+        #if ENABLED(UBL_DEVEL_DEBUGGING)
+          case -1:
+            g29_eeprom_dump();
+            break;
+        #endif
+
         case 0:
           for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {   // Create a bowl shape - similar to
             for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) { // a poorly calibrated Delta.
@@ -357,12 +365,14 @@
             }
           }
           break;
+
         case 1:
           for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {  // Create a diagonal line several Mesh cells thick that is raised
             z_values[x][x] += 9.999f;
             z_values[x][x + (x < GRID_MAX_POINTS_Y - 1) ? 1 : -1] += 9.999f; // We want the altered line several mesh points thick
           }
           break;
+
         case 2:
           // Allow the user to specify the height because 10mm is a little extreme in some cases.
           for (uint8_t x = (GRID_MAX_POINTS_X) / 3; x < 2 * (GRID_MAX_POINTS_X) / 3; x++)   // Create a rectangular raised area in
@@ -554,19 +564,24 @@
       }
     }
 
-    //
-    // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
-    // good to have the extra information. Soon... we prune this to just a few items
-    //
-    if (parser.seen('W')) g29_what_command();
+    #if ENABLED(UBL_DEVEL_DEBUGGING)
 
-    //
-    // When we are fully debugged, this may go away. But there are some valid
-    // use cases for the users. So we can wait and see what to do with it.
-    //
+      //
+      // Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
+      // good to have the extra information. Soon... we prune this to just a few items
+      //
+      if (parser.seen('W')) g29_what_command();
 
-    if (parser.seen('K')) // Kompare Current Mesh Data to Specified Stored Mesh
-      g29_compare_current_mesh_to_stored_mesh();
+      //
+      // When we are fully debugged, this may go away. But there are some valid
+      // use cases for the users. So we can wait and see what to do with it.
+      //
+
+      if (parser.seen('K')) // Kompare Current Mesh Data to Specified Stored Mesh
+        g29_compare_current_mesh_to_stored_mesh();
+
+    #endif // UBL_DEVEL_DEBUGGING
+
 
     //
     // Load a Mesh from the EEPROM
@@ -629,10 +644,10 @@
     LEAVE:
 
     #if HAS_LCD_MENU
-      lcd_reset_alert_level();
-      lcd_quick_feedback(true);
-      lcd_reset_status();
-      lcd_external_control = false;
+      ui.reset_alert_level();
+      ui.quick_feedback();
+      ui.reset_status();
+      ui.release();
     #endif
 
     return;
@@ -683,32 +698,6 @@
           z_values[x][y] += g29_constant;
   }
 
-  #if HAS_LCD_MENU
-
-    typedef void (*clickFunc_t)();
-
-    bool click_and_hold(const clickFunc_t func=NULL) {
-      if (is_lcd_clicked()) {
-        lcd_quick_feedback(false); // Do NOT clear button status!  If cleared, the code
-                                   // code can not look for a 'click and hold'
-        const millis_t nxt = millis() + 1500UL;
-        while (is_lcd_clicked()) {                // Loop while the encoder is pressed. Uses hardware flag!
-          idle();                                 // idle, of course
-          if (ELAPSED(millis(), nxt)) {           // After 1.5 seconds
-            lcd_quick_feedback(true);
-            if (func) (*func)();
-            wait_for_release();
-            safe_delay(50);                       // Debounce the Encoder wheel
-            return true;
-          }
-        }
-      }
-      safe_delay(15);
-      return false;
-    }
-
-  #endif // HAS_LCD_MENU
-
   #if HAS_BED_PROBE
     /**
      * Probe all invalidated locations of the mesh that can be reached by the probe.
@@ -718,10 +707,10 @@
       mesh_index_pair location;
 
       #if HAS_LCD_MENU
-        lcd_external_control = true;
+        ui.capture();
       #endif
 
-      save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
+      save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       DEPLOY_PROBE();
 
       uint16_t count = GRID_MAX_POINTS;
@@ -730,15 +719,14 @@
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
         #if HAS_LCD_MENU
-          if (is_lcd_clicked()) {
+          if (ui.button_pressed()) {
+            ui.quick_feedback(false); // Preserve button state for click-and-hold
             SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
-            lcd_quick_feedback(false);
             STOW_PROBE();
-            while (is_lcd_clicked()) idle();
-            lcd_external_control = false;
+            ui.wait_for_release();
+            ui.quick_feedback();
+            ui.release();
             restore_ubl_active_state_and_leave();
-            lcd_quick_feedback(true);
-            safe_delay(50);  // Debounce the Encoder wheel
             return;
           }
         #endif
@@ -772,14 +760,33 @@
       );
     }
 
-
   #endif // HAS_BED_PROBE
 
   #if HAS_LCD_MENU
 
+    typedef void (*clickFunc_t)();
+
+    bool click_and_hold(const clickFunc_t func=NULL) {
+      if (ui.button_pressed()) {
+        ui.quick_feedback(false);                // Preserve button state for click-and-hold
+        const millis_t nxt = millis() + 1500UL;
+        while (ui.button_pressed()) {                // Loop while the encoder is pressed. Uses hardware flag!
+          idle();                                 // idle, of course
+          if (ELAPSED(millis(), nxt)) {           // After 1.5 seconds
+            ui.quick_feedback();
+            if (func) (*func)();
+            ui.wait_for_release();
+            return true;
+          }
+        }
+      }
+      safe_delay(15);
+      return false;
+    }
+
     void unified_bed_leveling::move_z_with_encoder(const float &multiplier) {
-      wait_for_release();
-      while (!is_lcd_clicked()) {
+      ui.wait_for_release();
+      while (!ui.button_pressed()) {
         idle();
         gcode.reset_stepper_timeout(); // Keep steppers powered
         if (encoder_diff) {
@@ -799,7 +806,7 @@
     static void echo_and_take_a_measurement() { SERIAL_PROTOCOLLNPGM(" and take a measurement."); }
 
     float unified_bed_leveling::measure_business_card_thickness(float in_height) {
-      lcd_external_control = true;
+      ui.capture();
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
@@ -808,7 +815,7 @@
 
       SERIAL_PROTOCOLPGM("Place shim under nozzle");
       LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
-      lcd_return_to_status();
+      ui.return_to_status();
       echo_and_take_a_measurement();
 
       const float z1 = measure_point_with_encoder();
@@ -831,7 +838,7 @@
         SERIAL_PROTOCOLLNPGM("mm thick.");
       }
 
-      lcd_external_control = false;
+      ui.release();
 
       restore_ubl_active_state_and_leave();
 
@@ -841,20 +848,20 @@
     void abort_manual_probe_remaining_mesh() {
       SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
       do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-      lcd_external_control = false;
+      ui.release();
       KEEPALIVE_STATE(IN_HANDLER);
-      lcd_quick_feedback(true);
+      ui.quick_feedback();
       ubl.restore_ubl_active_state_and_leave();
     }
 
     void unified_bed_leveling::manually_probe_remaining_mesh(const float &rx, const float &ry, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
 
-      lcd_external_control = true;
+      ui.capture();
 
-      save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
+      save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_clearance);
 
-      lcd_return_to_status();
+      ui.return_to_status();
 
       mesh_index_pair location;
       do {
@@ -873,7 +880,7 @@
         do_blocking_move_to_z(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        lcd_external_control = true;
+        ui.capture();
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
@@ -887,7 +894,7 @@
         if (click_and_hold()) {
           SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
-          lcd_external_control = false;
+          ui.release();
           KEEPALIVE_STATE(IN_HANDLER);
           restore_ubl_active_state_and_leave();
           return;
@@ -908,14 +915,127 @@
       KEEPALIVE_STATE(IN_HANDLER);
       do_blocking_move_to(rx, ry, Z_CLEARANCE_DEPLOY_PROBE);
     }
+
+    inline void set_message_with_feedback(PGM_P const msg_P) {
+      ui.setstatusPGM(msg_P);
+      ui.quick_feedback();
+    }
+
+    void abort_fine_tune() {
+      ui.return_to_status();
+      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+      set_message_with_feedback(PSTR(MSG_EDITING_STOPPED));
+    }
+
+    void unified_bed_leveling::fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) {
+      if (!parser.seen('R'))    // fine_tune_mesh() is special. If no repetition count flag is specified
+        g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
+
+      #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+        const float h_offset = parser.seenval('H') ? parser.value_linear_units() : 0;
+        if (!WITHIN(h_offset, 0, 10)) {
+          SERIAL_PROTOCOLLNPGM("Offset out of bounds. (0 to 10mm)\n");
+          return;
+        }
+      #endif
+
+      mesh_index_pair location;
+
+      if (!position_is_reachable(rx, ry)) {
+        SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
+        return;
+      }
+
+      save_ubl_active_state_and_disable();
+
+      LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
+      ui.capture();                                                 // Take over control of the LCD encoder
+
+      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);      // Move to the given XY with probe clearance
+
+      #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+        do_blocking_move_to_z(h_offset);                            // Move Z to the given 'H' offset
+      #endif
+
+      uint16_t not_done[16];
+      memset(not_done, 0xFF, sizeof(not_done));
+      do {
+        location = find_closest_mesh_point_of_type(SET_IN_BITMAP, rx, ry, USE_NOZZLE_AS_REFERENCE, not_done);
+
+        if (location.x_index < 0) break;                            // Stop when there are no more reachable points
+
+        bitmap_clear(not_done, location.x_index, location.y_index); // Mark this location as 'adjusted' so a new
+                                                                    // location is used on the next loop
+
+        const float rawx = mesh_index_to_xpos(location.x_index),
+                    rawy = mesh_index_to_ypos(location.y_index);
+
+        if (!position_is_reachable(rawx, rawy)) break;              // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
+
+        do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point with probe clearance
+
+        #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+          do_blocking_move_to_z(h_offset);                          // Move Z to the given 'H' offset before editing
+        #endif
+
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+
+        if (do_ubl_mesh_map) display_map(g29_map_type);             // Display the current point
+
+        ui.refresh();
+
+        float new_z = z_values[location.x_index][location.y_index];
+        if (isnan(new_z)) new_z = 0;                                // Invalid points begin at 0
+        new_z = FLOOR(new_z * 1000) * 0.001f;                       // Chop off digits after the 1000ths place
+
+        lcd_mesh_edit_setup(new_z);
+
+        do {
+          new_z = lcd_mesh_edit();
+          #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
+            do_blocking_move_to_z(h_offset + new_z);                // Move the nozzle as the point is edited
+          #endif
+          idle();
+          SERIAL_FLUSH();                                           // Prevent host M105 buffer overrun.
+        } while (!ui.button_pressed());
+
+        if (!lcd_map_control) ui.return_to_status();               // Just editing a single point? Return to status
+
+        if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
+
+        z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
+
+        safe_delay(20);                                             // No switch noise
+        ui.refresh();
+
+      } while (location.x_index >= 0 && --g29_repetition_cnt > 0);
+
+      FINE_TUNE_EXIT:
+
+      ui.release();
+      KEEPALIVE_STATE(IN_HANDLER);
+
+      if (do_ubl_mesh_map) display_map(g29_map_type);
+      restore_ubl_active_state_and_leave();
+
+      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
+
+      LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
+      SERIAL_ECHOLNPGM("Done Editing Mesh");
+
+      if (lcd_map_control)
+        ui.goto_screen(_lcd_ubl_output_map_lcd);
+      else
+        ui.return_to_status();
+    }
+
   #endif // HAS_LCD_MENU
 
   bool unified_bed_leveling::g29_parameter_parsing() {
     bool err_flag = false;
 
     #if HAS_LCD_MENU
-      LCD_MESSAGEPGM(MSG_UBL_DOING_G29);
-      lcd_quick_feedback(true);
+      set_message_with_feedback(PSTR(MSG_UBL_DOING_G29));
     #endif
 
     g29_constant = 0;
@@ -1037,8 +1157,7 @@
       if (ubl_state_recursion_chk != 1) {
         SERIAL_ECHOLNPGM("save_ubl_active_state_and_disabled() called multiple times in a row.");
         #if HAS_LCD_MENU
-          LCD_MESSAGEPGM(MSG_UBL_SAVE_ERROR);
-          lcd_quick_feedback(true);
+          set_message_with_feedback(PSTR(MSG_UBL_SAVE_ERROR));
         #endif
         return;
       }
@@ -1052,177 +1171,12 @@
       if (--ubl_state_recursion_chk) {
         SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
         #if HAS_LCD_MENU
-          LCD_MESSAGEPGM(MSG_UBL_RESTORE_ERROR);
-          lcd_quick_feedback(true);
+          set_message_with_feedback(PSTR(MSG_UBL_RESTORE_ERROR));
         #endif
         return;
       }
     #endif
     set_bed_leveling_enabled(ubl_state_at_invocation);
-  }
-
-  /**
-   * Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
-   * good to have the extra information. Soon... we prune this to just a few items
-   */
-  void unified_bed_leveling::g29_what_command() {
-    report_state();
-
-    if (storage_slot == -1)
-      SERIAL_PROTOCOLPGM("No Mesh Loaded.");
-    else {
-      SERIAL_PROTOCOLPAIR("Mesh ", storage_slot);
-      SERIAL_PROTOCOLPGM(" Loaded.");
-    }
-    SERIAL_EOL();
-    safe_delay(50);
-
-    SERIAL_PROTOCOLLNPAIR("UBL object count: ", (int)ubl_cnt);
-
-    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-      SERIAL_PROTOCOLPGM("planner.z_fade_height : ");
-      SERIAL_PROTOCOL_F(planner.z_fade_height, 4);
-      SERIAL_EOL();
-    #endif
-
-    adjust_mesh_to_mean(g29_c_flag, g29_constant);
-
-    #if HAS_BED_PROBE
-      SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
-      SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
-      SERIAL_EOL();
-    #endif
-
-    SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X);
-    safe_delay(50);
-    SERIAL_ECHOLNPAIR("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y);
-    safe_delay(50);
-    SERIAL_ECHOLNPAIR("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X);
-    safe_delay(50);
-    SERIAL_ECHOLNPAIR("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y);
-    safe_delay(50);
-    SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);
-    safe_delay(50);
-    SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);
-    safe_delay(50);
-    SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
-    SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);
-    safe_delay(50);
-
-    SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(mesh_index_to_xpos(i)), 3);
-      SERIAL_PROTOCOLPGM("  ");
-      safe_delay(25);
-    }
-    SERIAL_EOL();
-
-    SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
-    for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(mesh_index_to_ypos(i)), 3);
-      SERIAL_PROTOCOLPGM("  ");
-      safe_delay(25);
-    }
-    SERIAL_EOL();
-
-    #if HAS_KILL
-      SERIAL_PROTOCOLPAIR("Kill pin on :", KILL_PIN);
-      SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
-    #endif
-    SERIAL_EOL();
-    safe_delay(50);
-
-    #if ENABLED(UBL_DEVEL_DEBUGGING)
-      SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
-      SERIAL_EOL();
-      SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
-      SERIAL_EOL();
-      safe_delay(50);
-
-      SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()));
-      SERIAL_PROTOCOLLNPAIR(" to ", hex_address((void*)settings.meshes_end_index()));
-      safe_delay(50);
-
-      SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
-      SERIAL_EOL();
-      SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
-      SERIAL_EOL();
-      safe_delay(25);
-
-      SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
-      safe_delay(50);
-
-      SERIAL_PROTOCOLPAIR("EEPROM can hold ", settings.calc_num_meshes());
-      SERIAL_PROTOCOLLNPGM(" meshes.\n");
-      safe_delay(25);
-    #endif // UBL_DEVEL_DEBUGGING
-
-    if (!sanity_check()) {
-      echo_name();
-      SERIAL_PROTOCOLLNPGM(" sanity checks passed.");
-    }
-  }
-
-  /**
-   * When we are fully debugged, the EEPROM dump command will get deleted also. But
-   * right now, it is good to have the extra information. Soon... we prune this.
-   */
-  void unified_bed_leveling::g29_eeprom_dump() {
-    uint8_t cccc;
-
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPGM("EEPROM Dump:");
-    persistentStore.access_start();
-    for (uint16_t i = 0; i < persistentStore.capacity(); i += 16) {
-      if (!(i & 0x3)) idle();
-      print_hex_word(i);
-      SERIAL_ECHOPGM(": ");
-      for (uint16_t j = 0; j < 16; j++) {
-        persistentStore.read_data(i + j, &cccc, sizeof(uint8_t));
-        print_hex_byte(cccc);
-        SERIAL_ECHO(' ');
-      }
-      SERIAL_EOL();
-    }
-    SERIAL_EOL();
-    persistentStore.access_finish();
-  }
-
-  /**
-   * When we are fully debugged, this may go away. But there are some valid
-   * use cases for the users. So we can wait and see what to do with it.
-   */
-  void unified_bed_leveling::g29_compare_current_mesh_to_stored_mesh() {
-    int16_t a = settings.calc_num_meshes();
-
-    if (!a) {
-      SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
-      return;
-    }
-
-    if (!parser.has_value()) {
-      SERIAL_PROTOCOLLNPGM("?Storage slot # required.");
-      SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
-      return;
-    }
-
-    g29_storage_slot = parser.value_int();
-
-    if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-      SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
-      SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
-      return;
-    }
-
-    float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
-    settings.load_mesh(g29_storage_slot, &tmp_z_values);
-
-    SERIAL_PROTOCOLPAIR("Subtracting mesh in slot ", g29_storage_slot);
-    SERIAL_PROTOCOLLNPGM(" from current mesh.");
-
-    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-      for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-        z_values[x][y] -= tmp_z_values[x][y];
   }
 
   mesh_index_pair unified_bed_leveling::find_furthest_invalid_mesh_point() {
@@ -1338,119 +1292,6 @@
 
     return out_mesh;
   }
-
-  #if HAS_LCD_MENU
-
-    void abort_fine_tune() {
-      lcd_return_to_status();
-      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
-      LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
-      lcd_quick_feedback(true);
-    }
-
-    void unified_bed_leveling::fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) {
-      if (!parser.seen('R'))    // fine_tune_mesh() is special. If no repetition count flag is specified
-        g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
-
-      #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
-        const float h_offset = parser.seenval('H') ? parser.value_linear_units() : 0;
-        if (!WITHIN(h_offset, 0, 10)) {
-          SERIAL_PROTOCOLLNPGM("Offset out of bounds. (0 to 10mm)\n");
-          return;
-        }
-      #endif
-
-      mesh_index_pair location;
-
-      if (!position_is_reachable(rx, ry)) {
-        SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
-        return;
-      }
-
-      save_ubl_active_state_and_disable();
-
-      LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
-      lcd_external_control = true;                                  // Take over control of the LCD encoder
-
-      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);      // Move to the given XY with probe clearance
-
-      #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
-        do_blocking_move_to_z(h_offset);                            // Move Z to the given 'H' offset
-      #endif
-
-      uint16_t not_done[16];
-      memset(not_done, 0xFF, sizeof(not_done));
-      do {
-        location = find_closest_mesh_point_of_type(SET_IN_BITMAP, rx, ry, USE_NOZZLE_AS_REFERENCE, not_done);
-
-        if (location.x_index < 0) break;                            // Stop when there are no more reachable points
-
-        bitmap_clear(not_done, location.x_index, location.y_index); // Mark this location as 'adjusted' so a new
-                                                                    // location is used on the next loop
-
-        const float rawx = mesh_index_to_xpos(location.x_index),
-                    rawy = mesh_index_to_ypos(location.y_index);
-
-        if (!position_is_reachable(rawx, rawy)) break;              // SHOULD NOT OCCUR because find_closest_mesh_point_of_type will only return reachable
-
-        do_blocking_move_to(rawx, rawy, Z_CLEARANCE_BETWEEN_PROBES); // Move the nozzle to the edit point with probe clearance
-
-        #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
-          do_blocking_move_to_z(h_offset);                          // Move Z to the given 'H' offset before editing
-        #endif
-
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-
-        if (do_ubl_mesh_map) display_map(g29_map_type);             // Display the current point
-
-        lcd_refresh();
-
-        float new_z = z_values[location.x_index][location.y_index];
-        if (isnan(new_z)) new_z = 0;                                // Invalid points begin at 0
-        new_z = FLOOR(new_z * 1000) * 0.001f;                       // Chop off digits after the 1000ths place
-
-        lcd_mesh_edit_setup(new_z);
-
-        do {
-          new_z = lcd_mesh_edit();
-          #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
-            do_blocking_move_to_z(h_offset + new_z);                // Move the nozzle as the point is edited
-          #endif
-          idle();
-          SERIAL_FLUSH();                                           // Prevent host M105 buffer overrun.
-        } while (!is_lcd_clicked());
-
-        if (!lcd_map_control) lcd_return_to_status();               // Just editing a single point? Return to status
-
-        if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
-
-        z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
-
-        safe_delay(20);                                             // No switch noise
-        lcd_refresh();
-
-      } while (location.x_index >= 0 && --g29_repetition_cnt > 0);
-
-      FINE_TUNE_EXIT:
-
-      lcd_external_control = false;
-      KEEPALIVE_STATE(IN_HANDLER);
-
-      if (do_ubl_mesh_map) display_map(g29_map_type);
-      restore_ubl_active_state_and_leave();
-
-      do_blocking_move_to(rx, ry, Z_CLEARANCE_BETWEEN_PROBES);
-
-      LCD_MESSAGEPGM(MSG_UBL_DONE_EDITING_MESH);
-      SERIAL_ECHOLNPGM("Done Editing Mesh");
-
-      if (lcd_map_control)
-        lcd_goto_screen(_lcd_ubl_output_map_lcd);
-      else
-        lcd_return_to_status();
-    }
-
-  #endif // HAS_LCD_MENU
 
   /**
    * 'Smart Fill': Scan from the outward edges of the mesh towards the center.
@@ -1824,5 +1665,159 @@
       SERIAL_ECHOLNPGM("done");
     }
   #endif // UBL_G29_P31
+
+  #if ENABLED(UBL_DEVEL_DEBUGGING)
+    /**
+     * Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
+     * good to have the extra information. Soon... we prune this to just a few items
+     */
+    void unified_bed_leveling::g29_what_command() {
+      report_state();
+
+      if (storage_slot == -1)
+        SERIAL_PROTOCOLPGM("No Mesh Loaded.");
+      else {
+        SERIAL_PROTOCOLPAIR("Mesh ", storage_slot);
+        SERIAL_PROTOCOLPGM(" Loaded.");
+      }
+      SERIAL_EOL();
+      safe_delay(50);
+
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        SERIAL_PROTOCOLPGM("planner.z_fade_height : ");
+        SERIAL_PROTOCOL_F(planner.z_fade_height, 4);
+        SERIAL_EOL();
+      #endif
+
+      adjust_mesh_to_mean(g29_c_flag, g29_constant);
+
+      #if HAS_BED_PROBE
+        SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
+        SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
+        SERIAL_EOL();
+      #endif
+
+      SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); safe_delay(50);
+      SERIAL_ECHOLNPAIR("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y); safe_delay(50);
+      SERIAL_ECHOLNPAIR("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X); safe_delay(50);
+      SERIAL_ECHOLNPAIR("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y); safe_delay(50);
+      SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             safe_delay(50);
+      SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             safe_delay(50);
+      SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
+      SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);                         safe_delay(50);
+
+      SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
+      for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
+        SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(mesh_index_to_xpos(i)), 3);
+        SERIAL_PROTOCOLPGM("  ");
+        safe_delay(25);
+      }
+      SERIAL_EOL();
+
+      SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
+      for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
+        SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(mesh_index_to_ypos(i)), 3);
+        SERIAL_PROTOCOLPGM("  ");
+        safe_delay(25);
+      }
+      SERIAL_EOL();
+
+      #if HAS_KILL
+        SERIAL_PROTOCOLPAIR("Kill pin on :", KILL_PIN);
+        SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
+      #endif
+      SERIAL_EOL();
+      safe_delay(50);
+
+      #if ENABLED(UBL_DEVEL_DEBUGGING)
+        SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation); SERIAL_EOL();
+        SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk); SERIAL_EOL();
+        safe_delay(50);
+
+        SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()));
+        SERIAL_PROTOCOLLNPAIR(" to ", hex_address((void*)settings.meshes_end_index()));
+        safe_delay(50);
+
+        SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));         SERIAL_EOL();
+        SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values)); SERIAL_EOL();
+        safe_delay(25);
+
+        SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
+        safe_delay(50);
+
+        SERIAL_PROTOCOLPAIR("EEPROM can hold ", settings.calc_num_meshes());
+        SERIAL_PROTOCOLLNPGM(" meshes.\n");
+        safe_delay(25);
+      #endif // UBL_DEVEL_DEBUGGING
+
+      if (!sanity_check()) {
+        echo_name();
+        SERIAL_PROTOCOLLNPGM(" sanity checks passed.");
+      }
+    }
+
+    /**
+     * When we are fully debugged, the EEPROM dump command will get deleted also. But
+     * right now, it is good to have the extra information. Soon... we prune this.
+     */
+    void unified_bed_leveling::g29_eeprom_dump() {
+      uint8_t cccc;
+
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPGM("EEPROM Dump:");
+      persistentStore.access_start();
+      for (uint16_t i = 0; i < persistentStore.capacity(); i += 16) {
+        if (!(i & 0x3)) idle();
+        print_hex_word(i);
+        SERIAL_ECHOPGM(": ");
+        for (uint16_t j = 0; j < 16; j++) {
+          persistentStore.read_data(i + j, &cccc, sizeof(uint8_t));
+          print_hex_byte(cccc);
+          SERIAL_ECHO(' ');
+        }
+        SERIAL_EOL();
+      }
+      SERIAL_EOL();
+      persistentStore.access_finish();
+    }
+
+    /**
+     * When we are fully debugged, this may go away. But there are some valid
+     * use cases for the users. So we can wait and see what to do with it.
+     */
+    void unified_bed_leveling::g29_compare_current_mesh_to_stored_mesh() {
+      int16_t a = settings.calc_num_meshes();
+
+      if (!a) {
+        SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
+        return;
+      }
+
+      if (!parser.has_value()) {
+        SERIAL_PROTOCOLLNPGM("?Storage slot # required.");
+        SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+        return;
+      }
+
+      g29_storage_slot = parser.value_int();
+
+      if (!WITHIN(g29_storage_slot, 0, a - 1)) {
+        SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
+        SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+        return;
+      }
+
+      float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+      settings.load_mesh(g29_storage_slot, &tmp_z_values);
+
+      SERIAL_PROTOCOLPAIR("Subtracting mesh in slot ", g29_storage_slot);
+      SERIAL_PROTOCOLLNPGM(" from current mesh.");
+
+      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
+        for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
+          z_values[x][y] -= tmp_z_values[x][y];
+    }
+
+  #endif // UBL_DEVEL_DEBUGGING
 
 #endif // AUTO_BED_LEVELING_UBL

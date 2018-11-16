@@ -31,10 +31,8 @@
  * M250: Read and optionally set the LCD contrast
  */
 void GcodeSuite::M250() {
-  if (parser.seen('C')) set_lcd_contrast(parser.value_int());
-  SERIAL_PROTOCOLPGM("lcd contrast value: ");
-  SERIAL_PROTOCOL(lcd_contrast);
-  SERIAL_EOL();
+  if (parser.seen('C')) ui.set_contrast(parser.value_int());
+  SERIAL_PROTOCOLLNPAIR("LCD Contrast: ", ui.contrast);
 }
 
 #endif // HAS_LCD_CONTRAST

@@ -78,7 +78,7 @@
  * M3   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to clockwise
  * M4   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to counter-clockwise
  * M5   - Turn laser/spindle off
- * M12  - Set up closed loop control system. More features coming soon. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
+ * M12  - Set up closed loop control system. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
  * M20  - List SD card. (Requires SDSUPPORT)
@@ -196,6 +196,7 @@
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
+ * M412 - Enable / Disable filament runout detection. (Requires FILAMENT_RUNOUT_SENSOR)
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
@@ -211,8 +212,9 @@
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M665 - Set delta configurations: "M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim> (Requires DELTA)
  * M666 - Set/get offsets for delta (Requires DELTA) or dual endstops (Requires [XYZ]_DUAL_ENDSTOPS).
- * M701 - Load filament (requires FILAMENT_LOAD_UNLOAD_GCODES)
- * M702 - Unload filament (requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ * M810-M819 - Define/execute a G-code macro (Requires GCODE_MACROS)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
  * M852 - Set skew factors: "M852 [I<xy>] [J<xz>] [K<yz>]". (Requires SKEW_CORRECTION_GCODE, and SKEW_CORRECTION_FOR_Z for IJ)
  * M860 - Report the position of position encoder modules.
@@ -265,8 +267,6 @@ public:
 
   GcodeSuite() {}
 
-  static uint8_t target_extruder;
-
   static bool axis_relative_modes[];
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -288,8 +288,9 @@ public:
   static millis_t previous_move_ms;
   FORCE_INLINE static void reset_stepper_timeout() { previous_move_ms = millis(); }
 
-  static bool get_target_extruder_from_command();
+  static int8_t get_target_extruder_from_command();
   static void get_destination_from_command();
+
   static void process_parsed_command(
     #if USE_EXECUTE_COMMANDS_IMMEDIATE
       const bool no_ok = false
@@ -303,17 +304,6 @@ public:
   #endif
 
   FORCE_INLINE static void home_all_axes() { G28(true); }
-
-  /**
-   * Multi-stepper support for M92, M201, M203
-   */
-  #if ENABLED(DISTINCT_E_FACTORS)
-    #define GET_TARGET_EXTRUDER() if (gcode.get_target_extruder_from_command()) return
-    #define TARGET_EXTRUDER gcode.target_extruder
-  #else
-    #define GET_TARGET_EXTRUDER() NOOP
-    #define TARGET_EXTRUDER 0
-  #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     /**
@@ -667,7 +657,9 @@ private:
     static void M302();
   #endif
 
-  static void M303();
+  #if HAS_PID_HEATING
+    static void M303();
+  #endif
 
   #if ENABLED(PIDTEMPBED)
     static void M304();
@@ -705,6 +697,10 @@ private:
     static void M405();
     static void M406();
     static void M407();
+  #endif
+
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    static void M412();
   #endif
 
   #if HAS_LEVELING
@@ -758,6 +754,10 @@ private:
 
   #if ENABLED(MAX7219_GCODE)
     static void M7219();
+  #endif
+
+  #if ENABLED(GCODE_MACROS)
+    static void M810_819();
   #endif
 
   #if HAS_BED_PROBE
@@ -822,7 +822,7 @@ private:
 
   static void M999();
 
-  static void T(const uint8_t tmp_extruder);
+  static void T(const uint8_t tool_index);
 
 };
 

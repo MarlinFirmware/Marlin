@@ -28,6 +28,6 @@
  */
 void GcodeSuite::M117() {
 
-  lcd_setstatus(parser.string_arg);
+  ui.setstatus(parser.string_arg);
 
 }

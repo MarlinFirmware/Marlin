@@ -25,10 +25,10 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops!  Make sure you have 'Arduino Mega 2560 or Rambo' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME         "Einsy Rambo"
+#define BOARD_NAME "Einsy Rambo"
 
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo

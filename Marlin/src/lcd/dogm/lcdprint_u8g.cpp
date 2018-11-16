@@ -1,5 +1,5 @@
 /**
- * @file    lcdprint_u8g.c
+ * @file    lcdprint_u8g.cpp
  * @brief   LCD print api for u8glib
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0

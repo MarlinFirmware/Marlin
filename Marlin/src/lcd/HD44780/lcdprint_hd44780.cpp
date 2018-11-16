@@ -1,5 +1,5 @@
 /**
- * @file    lcdprint_hd44780.c
+ * @file    lcdprint_hd44780.cpp
  * @brief   LCD print api for HD44780
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
@@ -19,7 +19,7 @@
 #include "../ultralcd.h"
 #include "../../Marlin.h"
 
-#include "ultralcd_common_HD44780.h"
+#include "ultralcd_HD44780.h"
 
 #include <string.h>
 
@@ -32,14 +32,13 @@ LCD_CLASS *plcd = &lcd;
 
 int lcd_glyph_height(void) { return 1; }
 
-////////////////////////////////////////////////////////////
 typedef struct _hd44780_charmap_t {
   wchar_t uchar; // the unicode char
   uint8_t idx;   // the glyph of the char in the ROM
   uint8_t idx2;  // the char used to be combined with the idx to simulate a single char
 } hd44780_charmap_t;
 
-#if defined(__AVR__)
+#ifdef __AVR__
   #define IV(a) U##a
 #else
   #define IV(a) L##a

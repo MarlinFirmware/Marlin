@@ -30,8 +30,10 @@
 #if HAS_GRAPHICAL_LCD && DISABLED(LIGHTWEIGHT_UI)
 
 #include "dogm_Statusscreen.h"
+#include "ultralcd_DOGM.h"
 #include "../ultralcd.h"
 #include "../lcdprint.h"
+
 #include "../../module/motion.h"
 #include "../../module/temperature.h"
 
@@ -135,35 +137,29 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
-FORCE_INLINE void lcd_implementation_status_message(const bool blink) {
+void MarlinUI::draw_status_message(const bool blink) {
+
+  // Get the UTF8 character count of the string
+  uint8_t slen = utf8_strlen(status_message);
+
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
+
     static bool last_blink = false;
 
-    // Get the UTF8 character count of the string
-    uint8_t slen = utf8_strlen(lcd_status_message);
-
-    // If the string fits into the LCD, just print it and do not scroll it
     if (slen <= LCD_WIDTH) {
-
-      // The string isn't scrolling and may not fill the screen
-      lcd_put_u8str(lcd_status_message);
-
-      // Fill the rest with spaces
-      while (slen < LCD_WIDTH) {
-        lcd_put_wchar(' ');
-        ++slen;
-      }
+      // The string fits within the line. Print with no scrolling
+      lcd_put_u8str(status_message);
+      for (; slen < LCD_WIDTH; ++slen) lcd_put_wchar(' ');
     }
     else {
-      // String is larger than the available space in screen.
+      // String is longer than the available space
 
       // Get a pointer to the next valid UTF8 character
-      const char *stat = lcd_status_message + status_scroll_offset;
+      const char *stat = status_message + status_scroll_offset;
 
       // Get the string remaining length
       const uint8_t rlen = utf8_strlen(stat);
 
-      // If we have enough characters to display
       if (rlen >= LCD_WIDTH) {
         // The remaining string fills the screen - Print it
         lcd_put_u8str_max(stat, LCD_PIXEL_WIDTH);
@@ -178,7 +174,7 @@ FORCE_INLINE void lcd_implementation_status_message(const bool blink) {
           lcd_put_wchar('.');
           if (--chars) {
             // Print a second copy of the message
-            lcd_put_u8str_max(lcd_status_message, LCD_PIXEL_WIDTH - ((rlen+2) * MENU_FONT_WIDTH));
+            lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH - (rlen + 2) * (MENU_FONT_WIDTH));
           }
         }
       }
@@ -188,36 +184,33 @@ FORCE_INLINE void lcd_implementation_status_message(const bool blink) {
         // Adjust by complete UTF8 characters
         if (status_scroll_offset < slen) {
           status_scroll_offset++;
-          while (!START_OF_UTF8_CHAR(lcd_status_message[status_scroll_offset]))
+          while (!START_OF_UTF8_CHAR(status_message[status_scroll_offset]))
             status_scroll_offset++;
         }
         else
           status_scroll_offset = 0;
       }
     }
-  #else
+
+  #else // !STATUS_MESSAGE_SCROLLING
+
     UNUSED(blink);
 
-    // Get the UTF8 character count of the string
-    uint8_t slen = utf8_strlen(lcd_status_message);
-
     // Just print the string to the LCD
-    lcd_put_u8str_max(lcd_status_message, LCD_PIXEL_WIDTH);
+    lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH);
 
-    // Fill the rest with spaces if there are missing spaces
-    while (slen < LCD_WIDTH) {
-      lcd_put_wchar(' ');
-      ++slen;
-    }
-  #endif
+    // Fill the rest with spaces
+    for (; slen < LCD_WIDTH; ++slen) lcd_put_wchar(' ');
+
+  #endif // !STATUS_MESSAGE_SCROLLING
 }
 
-void lcd_impl_status_screen_0() {
+void MarlinUI::draw_status_screen() {
 
-  const bool blink = lcd_blink();
+  const bool blink = get_blink();
 
   // Status Menu Font
-  lcd_setFont(FONT_STATUSMENU);
+  set_font(FONT_STATUSMENU);
 
   //
   // Fan Animation
@@ -318,11 +311,9 @@ void lcd_impl_status_screen_0() {
         PROGRESS_BAR_WIDTH, 4
       );
 
-    #if DISABLED(LCD_SET_PROGRESS_MANUALLY)
-      const uint8_t progress_bar_percent = card.percentDone();
-    #endif
+    const uint8_t progress = get_progress();
 
-    if (progress_bar_percent > 1) {
+    if (progress > 1) {
 
       //
       // Progress bar solid part
@@ -331,7 +322,7 @@ void lcd_impl_status_screen_0() {
       if (PAGE_CONTAINS(50, 51))     // 50-51 (or just 50)
         u8g.drawBox(
           PROGRESS_BAR_X + 1, 50,
-          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress_bar_percent * 0.01), 2
+          (uint16_t)((PROGRESS_BAR_WIDTH - 2) * progress * 0.01), 2
         );
 
       //
@@ -342,7 +333,7 @@ void lcd_impl_status_screen_0() {
         if (PAGE_CONTAINS(41, 48)) {
           // Percent complete
           lcd_moveto(55, 48);
-          lcd_put_u8str(itostr3(progress_bar_percent));
+          lcd_put_u8str(itostr3(progress));
           lcd_put_wchar('%');
         }
       #endif
@@ -449,11 +440,11 @@ void lcd_impl_status_screen_0() {
   #define EXTRAS_BASELINE 50
 
   if (PAGE_CONTAINS(EXTRAS_BASELINE - (INFO_FONT_HEIGHT - 1), EXTRAS_BASELINE)) {
-    lcd_setFont(FONT_MENU);
+    set_font(FONT_MENU);
     lcd_moveto(3, EXTRAS_BASELINE);
     lcd_put_wchar(LCD_STR_FEEDRATE[0]);
 
-    lcd_setFont(FONT_STATUSMENU);
+    set_font(FONT_STATUSMENU);
     lcd_moveto(12, EXTRAS_BASELINE);
     lcd_put_u8str(itostr3(feedrate_percentage));
     lcd_put_wchar('%');
@@ -467,7 +458,7 @@ void lcd_impl_status_screen_0() {
       lcd_moveto(102, EXTRAS_BASELINE);
       lcd_put_u8str(mstring);
       lcd_put_wchar('%');
-      lcd_setFont(FONT_MENU);
+      set_font(FONT_MENU);
       lcd_moveto(47, EXTRAS_BASELINE);
       lcd_put_wchar(LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
       lcd_moveto(93, EXTRAS_BASELINE);
@@ -485,9 +476,9 @@ void lcd_impl_status_screen_0() {
     lcd_moveto(0, STATUS_BASELINE);
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
-      if (PENDING(millis(), previous_lcd_status_ms + 5000UL)) {  //Display both Status message line and Filament display on the last line
-        lcd_implementation_status_message(blink);
-      }
+      // Alternate Status message and Filament display
+      if (PENDING(millis(), next_filament_display))
+        draw_status_message(blink);
       else {
         lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
         lcd_put_wchar(':');
@@ -498,7 +489,7 @@ void lcd_impl_status_screen_0() {
         lcd_put_wchar('%');
       }
     #else
-      lcd_implementation_status_message(blink);
+      draw_status_message(blink);
     #endif
   }
 }

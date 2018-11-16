@@ -39,14 +39,13 @@
 
 #if HAS_GRAPHICAL_LCD
 
-#include "../ultralcd.h"
-
-#include <U8glib.h>
-#include "HAL_LCD_class_defines.h"
+#include "ultralcd_DOGM.h"
 #include "u8g_fontutf8.h"
+#include "dogm_Bootscreen.h"
+
 #include "../lcdprint.h"
 #include "../fontutils.h"
-#include "dogm_Bootscreen.h"
+#include "../ultralcd.h"
 
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"
@@ -75,16 +74,16 @@ U8GLIB *pu8g = &u8g;
 
 #if HAS_LCD_CONTRAST
 
-  int16_t lcd_contrast; // Initialized by settings.load()
+  int16_t MarlinUI::contrast; // Initialized by settings.load()
 
-  void set_lcd_contrast(const int16_t value) {
-    lcd_contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
-    u8g.setContrast(lcd_contrast);
+  void MarlinUI::set_contrast(const int16_t value) {
+    contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
+    u8g.setContrast(contrast);
   }
 
 #endif
 
-void lcd_setFont(const MarlinFont font_nr) {
+void MarlinUI::set_font(const MarlinFont font_nr) {
   static char currentfont = 0;
   if (font_nr != currentfont) {
     switch ((currentfont = font_nr)) {
@@ -141,7 +140,7 @@ void lcd_setFont(const MarlinFont font_nr) {
 
   #endif // SHOW_CUSTOM_BOOTSCREEN
 
-  void lcd_bootscreen() {
+  void MarlinUI::show_bootscreen() {
     #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
       lcd_custom_bootscreen();
     #endif
@@ -160,7 +159,7 @@ void lcd_setFont(const MarlinFont font_nr) {
     u8g.firstPage();
     do {
       u8g.drawBitmapP(offx, offy, (START_BMPWIDTH + 7) / 8, START_BMPHEIGHT, start_bmp);
-      lcd_setFont(FONT_MENU);
+      ui.set_font(FONT_MENU);
       #ifndef STRING_SPLASH_LINE2
         const uint8_t txt1X = width - (sizeof(STRING_SPLASH_LINE1) - 1) * (MENU_FONT_WIDTH);
         u8g.drawStr(txt1X, (height + MENU_FONT_HEIGHT) / 2, STRING_SPLASH_LINE1);
@@ -177,11 +176,11 @@ void lcd_setFont(const MarlinFont font_nr) {
 #endif // SHOW_BOOTSCREEN
 
 #if ENABLED(LIGHTWEIGHT_UI)
-  #include "status_screen_lite_ST7920_class.h"
+  #include "status_screen_lite_ST7920.h"
 #endif
 
 // Initialize or re-initialize the LCD
-void lcd_implementation_init() {
+void MarlinUI::init_lcd() {
 
   #if PIN_EXISTS(LCD_BACKLIGHT) // Enable LCD backlight
     OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
@@ -206,7 +205,7 @@ void lcd_implementation_init() {
   #endif
 
   #if HAS_LCD_CONTRAST
-    set_lcd_contrast(lcd_contrast);
+    refresh_contrast();
   #endif
 
   #if ENABLED(LCD_SCREEN_ROT_90)
@@ -221,16 +220,16 @@ void lcd_implementation_init() {
 }
 
 // The kill screen is displayed for unrecoverable conditions
-void lcd_kill_screen() {
+void MarlinUI::draw_kill_screen() {
   #if ENABLED(LIGHTWEIGHT_UI)
     ST7920_Lite_Status_Screen::clear_text_buffer();
   #endif
   const uint8_t h4 = u8g.getHeight() / 4;
   u8g.firstPage();
   do {
-    lcd_setFont(FONT_MENU);
+    set_font(FONT_MENU);
     lcd_moveto(0, h4 * 1);
-    lcd_put_u8str(lcd_status_message);
+    lcd_put_u8str(status_message);
     lcd_moveto(0, h4 * 2);
     lcd_put_u8str_P(PSTR(MSG_HALTED));
     lcd_moveto(0, h4 * 3);
@@ -238,7 +237,7 @@ void lcd_kill_screen() {
   } while (u8g.nextPage());
 }
 
-void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
+void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #if HAS_LCD_MENU
 
@@ -246,7 +245,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
 
-    void lcd_implementation_hotend_status(const uint8_t row, const uint8_t extruder) {
+    void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       row_y1 = row * (MENU_FONT_HEIGHT) + 1;
       row_y2 = row_y1 + MENU_FONT_HEIGHT - 1;
 
@@ -259,20 +258,20 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       lcd_put_u8str(itostr3(thermalManager.degHotend(extruder)));
       lcd_put_wchar('/');
 
-      if (lcd_blink() || !thermalManager.is_heater_idle(extruder))
+      if (get_blink() || !thermalManager.is_heater_idle(extruder))
         lcd_put_u8str(itostr3(thermalManager.degTargetHotend(extruder)));
     }
 
   #endif // ADVANCED_PAUSE_FEATURE
 
   // Set the colors for a menu item based on whether it is selected
-  static bool mark_as_selected(const uint8_t row, const bool isSelected) {
+  static bool mark_as_selected(const uint8_t row, const bool sel) {
     row_y1 = row * (MENU_FONT_HEIGHT) + 1;
     row_y2 = row_y1 + MENU_FONT_HEIGHT - 1;
 
     if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return false;
 
-    if (isSelected) {
+    if (sel) {
       #if ENABLED(MENU_HOLLOW_FRAME)
         u8g.drawHLine(0, row_y1 + 1, LCD_PIXEL_WIDTH);
         u8g.drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
@@ -295,7 +294,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void lcd_implementation_drawmenu_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char* valstr/*=NULL*/) {
+  void draw_menu_item_static(const uint8_t row, PGM_P pstr, const bool center/*=true*/, const bool invert/*=false*/, const char* valstr/*=NULL*/) {
 
     if (mark_as_selected(row, invert)) {
 
@@ -315,10 +314,10 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a generic menu item
-  void lcd_implementation_drawmenu_generic(const bool isSelected, const uint8_t row, PGM_P pstr, const char pre_char, const char post_char) {
+  void draw_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char) {
     UNUSED(pre_char);
 
-    if (mark_as_selected(row, isSelected)) {
+    if (mark_as_selected(row, sel)) {
       uint8_t n = LCD_WIDTH - 2;
       n *= MENU_FONT_WIDTH;
       n -= lcd_put_u8str_max_P(pstr, n);
@@ -330,8 +329,8 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a menu item with an editable value
-  void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, PGM_P pstr, const char* const data, const bool pgm) {
-    if (mark_as_selected(row, isSelected)) {
+  void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
+    if (mark_as_selected(row, sel)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
       uint8_t n = LCD_WIDTH - 2 - vallen;
       n *= MENU_FONT_WIDTH;
@@ -343,7 +342,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     }
   }
 
-  void lcd_implementation_drawedit(PGM_P const pstr, const char* const value/*=NULL*/) {
+  void draw_edit_screen(PGM_P const pstr, const char* const value/*=NULL*/) {
     const uint8_t labellen = utf8_strlen_P(pstr), vallen = utf8_strlen(value);
 
     bool extra_row = labellen > LCD_WIDTH - 2 - vallen;
@@ -356,12 +355,12 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
         if (labellen + vallen + 1 > lcd_edit_width) extra_row = true;
         lcd_chr_fit = lcd_edit_width + 1;
         one_chr_width = EDIT_FONT_WIDTH;
-        lcd_setFont(FONT_EDIT);
+        ui.set_font(FONT_EDIT);
       }
       else {
         lcd_chr_fit = LCD_WIDTH;
         one_chr_width = MENU_FONT_WIDTH;
-        lcd_setFont(FONT_MENU);
+        ui.set_font(FONT_MENU);
       }
     #else
       constexpr uint8_t lcd_chr_fit = LCD_WIDTH,
@@ -397,10 +396,10 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
   #if ENABLED(SDSUPPORT)
 
-    void _drawmenu_sd(const bool isSelected, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
+    void draw_sd_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
       UNUSED(pstr);
 
-      mark_as_selected(row, isSelected);
+      mark_as_selected(row, sel);
 
       if (!PAGE_CONTAINS(row_y1, row_y2)) return;
 
@@ -409,17 +408,17 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
       if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)
           static uint8_t filename_scroll_hash;
-          if (isSelected) {
+          if (sel) {
             uint8_t name_hash = row;
             for (uint8_t l = FILENAME_LENGTH; l--;)
               name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor
             if (filename_scroll_hash != name_hash) {                            // If the hash changed...
               filename_scroll_hash = name_hash;                                 // Save the new hash
-              filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
-              filename_scroll_pos = 0;                                          // Reset scroll to the start
-              lcd_status_update_delay = 8;                                      // Don't scroll right away
+              ui.filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
+              ui.filename_scroll_pos = 0;                                       // Reset scroll to the start
+              ui.lcd_status_update_delay = 8;                                   // Don't scroll right away
             }
-            outstr += filename_scroll_pos;
+            outstr += ui.filename_scroll_pos;
           }
         #else
           theCard.longFilename[maxlen] = '\0'; // cutoff at screen edge
@@ -428,8 +427,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
       if (isDir) lcd_put_wchar(LCD_STR_FOLDER[0]);
 
-      int n;
-      n = lcd_put_u8str_max(outstr, maxlen * (MENU_FONT_WIDTH));
+      uint8_t n = lcd_put_u8str_max(outstr, maxlen * (MENU_FONT_WIDTH));
       n = maxlen * (MENU_FONT_WIDTH) - n;
       while (n - MENU_FONT_WIDTH > 0) { n -= lcd_put_wchar(' '); }
     }
@@ -446,7 +444,7 @@ void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
     #define MAP_MAX_PIXELS_X        53
     #define MAP_MAX_PIXELS_Y        49
 
-    void lcd_implementation_ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
+    void MarlinUI::ubl_plot(const uint8_t x_plot, const uint8_t y_plot) {
       // Scale the box pixels appropriately
       uint8_t x_map_pixels = ((MAP_MAX_PIXELS_X - 4) / (GRID_MAX_POINTS_X)) * (GRID_MAX_POINTS_X),
               y_map_pixels = ((MAP_MAX_PIXELS_Y - 4) / (GRID_MAX_POINTS_Y)) * (GRID_MAX_POINTS_Y),

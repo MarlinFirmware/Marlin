@@ -31,12 +31,10 @@
  */
 
 #ifndef TARGET_LPC1768
-  #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
+  #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "BIQU BQ111-A4"
-#endif
+#define BOARD_NAME "BIQU BQ111-A4"
 
 //
 // Limit Switches

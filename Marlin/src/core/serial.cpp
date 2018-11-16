@@ -21,6 +21,7 @@
  */
 
 #include "serial.h"
+#include "language.h"
 
 uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
@@ -52,6 +53,9 @@ void serialprintPGM(PGM_P str) {
   while (char ch = pgm_read_byte(str++)) SERIAL_CHAR(ch);
 }
 
+void serial_echo_start()  { serialprintPGM(echomagic); }
+void serial_error_start() { serialprintPGM(errormagic); }
+
 void serial_echopair_PGM(PGM_P s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_PGM(PGM_P s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
 void serial_echopair_PGM(PGM_P s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
@@ -63,8 +67,8 @@ void serial_echopair_PGM(PGM_P s_P, unsigned long v) { serialprintPGM(s_P); SERI
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
-void serial_echo_start()  { serialprintPGM(echomagic); }
-void serial_error_start() { serialprintPGM(errormagic); }
+void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(MSG_ON) : PSTR(MSG_OFF)); }
+void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
 

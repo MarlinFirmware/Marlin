@@ -27,10 +27,10 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME         "Cheaptronic v2.0"
+#define BOARD_NAME "Cheaptronic v2.0"
 
 //
 // Limit Switches

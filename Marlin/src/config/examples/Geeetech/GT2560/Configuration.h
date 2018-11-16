@@ -2035,8 +2035,8 @@
  */
 #if ENABLED(ULTIMAKERCONTROLLER) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL) || ENABLED(MKS_MINI_12864)
   #define SDSUPPORT   // Force SD Card support on for these displays
-#else
-  #define LCD_WIDTH_OVERRIDE 20 // Default is 22. For this Geeetech use 20.
+#elif DISABLED(LIGHTWEIGHT_UI)
+  #define LCD_WIDTH 20 // Default is 22. For this Geeetech use 20.
 #endif
 
 // Allow servo angle to be edited and saved to EEPROM

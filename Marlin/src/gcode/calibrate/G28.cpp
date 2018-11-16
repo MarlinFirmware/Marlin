@@ -425,7 +425,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     tool_change(old_tool_index, 0, NO_FETCH);
   #endif
 
-  lcd_refresh();
+  ui.refresh();
 
   report_current_position();
   #if ENABLED(NANODLP_Z_SYNC)

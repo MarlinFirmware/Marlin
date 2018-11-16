@@ -46,9 +46,6 @@
 
 extern millis_t manual_move_start_time;
 extern int8_t manual_move_axis;
-#if ENABLED(DUAL_X_CARRIAGE) || E_MANUAL > 1
-  extern int8_t manual_move_e_index;
-#endif
 #if ENABLED(MANUAL_E_MOVES_RELATIVE)
   float manual_move_e_origin = 0;
 #endif
@@ -57,18 +54,15 @@ extern int8_t manual_move_axis;
 #endif
 
 //
-// Tell lcd_update() to start a move to current_position" after a short delay.
+// Tell ui.update() to start a move to current_position" after a short delay.
 //
 inline void manual_move_to_current(AxisEnum axis
   #if E_MANUAL > 1
     , const int8_t eindex=-1
   #endif
 ) {
-  #if ENABLED(DUAL_X_CARRIAGE) || E_MANUAL > 1
-    #if E_MANUAL > 1
-      if (axis == E_AXIS)
-    #endif
-        manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
+  #if E_MANUAL > 1
+    if (axis == E_AXIS) ui.manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
   #endif
   manual_move_start_time = millis() + (move_menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
   manual_move_axis = (int8_t)axis;
@@ -79,9 +73,9 @@ inline void manual_move_to_current(AxisEnum axis
 //
 
 static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
-  if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
-  ENCODER_DIRECTION_NORMAL();
-  if (encoderPosition && !processing_manual_move) {
+  if (ui.use_click()) return ui.goto_previous_screen_no_defer();
+  ui.encoder_direction_normal();
+  if (ui.encoderPosition && !ui.processing_manual_move) {
 
     // Start with no limits to movement
     float min = current_position[axis] - 1000,
@@ -127,32 +121,32 @@ static void _lcd_move_xyz(PGM_P name, AxisEnum axis) {
     #endif
 
     // Get the new position
-    const float diff = float((int32_t)encoderPosition) * move_menu_scale;
+    const float diff = float((int32_t)ui.encoderPosition) * move_menu_scale;
     #if IS_KINEMATIC
       manual_move_offset += diff;
-      if ((int32_t)encoderPosition < 0)
+      if ((int32_t)ui.encoderPosition < 0)
         NOLESS(manual_move_offset, min - current_position[axis]);
       else
         NOMORE(manual_move_offset, max - current_position[axis]);
     #else
       current_position[axis] += diff;
-      if ((int32_t)encoderPosition < 0)
+      if ((int32_t)ui.encoderPosition < 0)
         NOLESS(current_position[axis], min);
       else
         NOMORE(current_position[axis], max);
     #endif
 
     manual_move_to_current(axis);
-    lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+    ui.refresh(LCDVIEW_REDRAW_NOW);
   }
-  encoderPosition = 0;
-  if (lcdDrawUpdate) {
-    const float pos = NATIVE_TO_LOGICAL(processing_manual_move ? destination[axis] : current_position[axis]
+  ui.encoderPosition = 0;
+  if (ui.should_draw()) {
+    const float pos = NATIVE_TO_LOGICAL(ui.processing_manual_move ? destination[axis] : current_position[axis]
       #if IS_KINEMATIC
         + manual_move_offset
       #endif
     , axis);
-    lcd_implementation_drawedit(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
+    draw_edit_screen(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
   }
 }
 void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
@@ -163,11 +157,11 @@ static void _lcd_move_e(
     const int8_t eindex=-1
   #endif
 ) {
-  if (use_click()) { return lcd_goto_previous_menu_no_defer(); }
-  ENCODER_DIRECTION_NORMAL();
-  if (encoderPosition) {
-    if (!processing_manual_move) {
-      const float diff = float((int32_t)encoderPosition) * move_menu_scale;
+  if (ui.use_click()) return ui.goto_previous_screen_no_defer();
+  ui.encoder_direction_normal();
+  if (ui.encoderPosition) {
+    if (!ui.processing_manual_move) {
+      const float diff = float((int32_t)ui.encoderPosition) * move_menu_scale;
       #if IS_KINEMATIC
         manual_move_offset += diff;
       #else
@@ -178,11 +172,11 @@ static void _lcd_move_e(
           , eindex
         #endif
       );
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+      ui.refresh(LCDVIEW_REDRAW_NOW);
     }
-    encoderPosition = 0;
+    ui.encoderPosition = 0;
   }
-  if (lcdDrawUpdate) {
+  if (ui.should_draw()) {
     PGM_P pos_label;
     #if E_MANUAL == 1
       pos_label = PSTR(MSG_MOVE_E);
@@ -205,7 +199,7 @@ static void _lcd_move_e(
       }
     #endif // E_MANUAL > 1
 
-    lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_AXIS]
+    draw_edit_screen(pos_label, ftostr41sign(current_position[E_AXIS]
       #if IS_KINEMATIC
         + manual_move_offset
       #endif
@@ -241,9 +235,9 @@ inline void lcd_move_e() { _lcd_move_e(); }
 screenFunc_t _manual_move_func_ptr;
 
 void _goto_manual_move(const float scale) {
-  set_defer_return_to_status(true);
+  ui.defer_status_screen(true);
   move_menu_scale = scale;
-  lcd_goto_screen(_manual_move_func_ptr);
+  ui.goto_screen(_manual_move_func_ptr);
 }
 void menu_move_10mm() { _goto_manual_move(10); }
 void menu_move_1mm()  { _goto_manual_move( 1); }
@@ -305,7 +299,7 @@ void lcd_move_get_e_amount() { _menu_move_distance(E_AXIS, lcd_move_e, -1); }
 #if ENABLED(DELTA)
   void lcd_lower_z_to_clip_height() {
     line_to_z(delta_clip_start_height);
-    lcd_synchronize();
+    ui.synchronize();
   }
 #endif
 
