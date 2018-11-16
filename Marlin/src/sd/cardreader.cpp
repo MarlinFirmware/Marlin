@@ -45,7 +45,84 @@
   #include "../feature/pause.h"
 #endif
 
-#include <ctype.h>
+// public:
+
+bool CardReader::saving, CardReader::logging, CardReader::sdprinting, CardReader::cardOK, CardReader::filenameIsDir, CardReader::abort_sd_printing;
+char CardReader::filename[FILENAME_LENGTH + 1], CardReader::longFilename[LONG_FILENAME_LENGTH + 1];
+int8_t CardReader::autostart_index;
+
+#if ENABLED(FAST_FILE_TRANSFER)
+  bool CardReader::binary_mode;
+  #if NUM_SERIAL > 1
+    uint8_t CardReader::transfer_port;
+  #endif
+#endif
+
+// private:
+
+SdFile CardReader::root, CardReader::workDir, CardReader::workDirParents[MAX_DIR_DEPTH];
+uint8_t CardReader::workDirDepth;
+
+#if ENABLED(SDCARD_SORT_ALPHA)
+  uint16_t CardReader::sort_count;
+  #if ENABLED(SDSORT_GCODE)
+    bool CardReader::sort_alpha;
+    int CardReader::sort_folders;
+    //bool CardReader::sort_reverse;
+  #endif
+
+  #if ENABLED(SDSORT_DYNAMIC_RAM)
+    uint8_t *CardReader::sort_order;
+  #else
+    uint8_t CardReader::sort_order[SDSORT_LIMIT];
+  #endif
+
+  #if ENABLED(SDSORT_USES_RAM)
+
+    #if ENABLED(SDSORT_CACHE_NAMES)
+      #if ENABLED(SDSORT_DYNAMIC_RAM)
+        char **CardReader::sortshort, **CardReader::sortnames;
+      #else
+        char CardReader::sortshort[SDSORT_LIMIT][FILENAME_LENGTH + 1];
+        char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN + 1];
+      #endif
+    #elif DISABLED(SDSORT_USES_STACK)
+      char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN + 1];
+    #endif
+
+    #if HAS_FOLDER_SORTING
+      #if ENABLED(SDSORT_DYNAMIC_RAM)
+        uint8_t *CardReader::isDir;
+      #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
+        uint8_t CardReader::isDir[(SDSORT_LIMIT+7)>>3];
+      #endif
+    #endif
+
+  #endif // SDSORT_USES_RAM
+
+#endif // SDCARD_SORT_ALPHA
+
+Sd2Card CardReader::sd2card;
+SdVolume CardReader::volume;
+SdFile CardReader::file;
+
+uint8_t CardReader::file_subcall_ctr;
+uint32_t CardReader::filespos[SD_PROCEDURE_DEPTH];
+char CardReader::proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH + 1];
+
+uint32_t CardReader::filesize, CardReader::sdpos;
+
+LsAction CardReader::lsAction; //stored for recursion.
+uint16_t CardReader::nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
+char *CardReader::diveDirName;
+
+#if ENABLED(AUTO_REPORT_SD_STATUS)
+  uint8_t CardReader::auto_report_sd_interval;
+  millis_t CardReader::next_sd_report_ms;
+  #if NUM_SERIAL > 1
+    int8_t CardReader::serialport;
+  #endif
+#endif
 
 CardReader::CardReader() {
   #if ENABLED(SDCARD_SORT_ALPHA)
@@ -57,8 +134,7 @@ CardReader::CardReader() {
     #endif
   #endif
   sdprinting = cardOK = saving = logging = false;
-  filesize = 0;
-  sdpos = 0;
+  filesize = sdpos = 0;
   file_subcall_ctr = 0;
 
   workDirDepth = 0;
@@ -73,7 +149,7 @@ CardReader::CardReader() {
   #endif
 }
 
-char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
+char *createFilename(char *buffer, const dir_t &p) {
   char *pos = buffer;
   for (uint8_t i = 0; i < 11; i++) {
     if (p.name[i] == ' ') continue;
@@ -108,7 +184,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
     if (DIR_IS_SUBDIR(&p) && lsAction != LS_Count && lsAction != LS_GetFilename) {
 
       // Get the short name for the item, which we know is a folder
-      char dosFilename[FILENAME_LENGTH];
+      char dosFilename[FILENAME_LENGTH + 1];
       createFilename(dosFilename, p);
 
       // Allocate enough stack space for the full path to a folder, trailing slash, and nul
@@ -120,8 +196,8 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       // It contains the full path to the "parent" argument.
       // We now have the full path to the item in this folder.
       strcpy(path, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
-      strcat(path, dosFilename); // FILENAME_LENGTH-1 characters maximum
-      strcat(path, "/");       // 1 character
+      strcat(path, dosFilename);                      // FILENAME_LENGTH characters maximum
+      strcat(path, "/");                              // 1 character
 
       // Serial.print(path);
 
@@ -275,7 +351,7 @@ void CardReader::printFilename(
   #endif
 ) {
   if (file.isOpen()) {
-    char dosFilename[FILENAME_LENGTH];
+    char dosFilename[FILENAME_LENGTH + 1];
     file.getFilename(dosFilename);
     SERIAL_ECHO_P(port, dosFilename);
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -380,7 +456,7 @@ void CardReader::getAbsFilename(char *t) {
   for (uint8_t i = 0; i < workDirDepth; i++)                // Loop to current work dir
     appendAtom(workDirParents[i], t, cnt);
 
-  if (cnt < MAXPATHNAMELENGTH - (FILENAME_LENGTH)) {
+  if (cnt < MAXPATHNAMELENGTH - (FILENAME_LENGTH) - 1) {    // Leave room for filename and nul
     appendAtom(file, t, cnt);
     --t;
   }
@@ -712,6 +788,33 @@ void CardReader::setroot() {
     );
   }
 
+  #if ENABLED(SDSORT_USES_RAM)
+    #if ENABLED(SDSORT_DYNAMIC_RAM)
+      // Use dynamic method to copy long filename
+      #define SET_SORTNAME(I) (sortnames[I] = strdup(longest_filename()))
+      #if ENABLED(SDSORT_CACHE_NAMES)
+        // When caching also store the short name, since
+        // we're replacing the getfilename() behavior.
+        #define SET_SORTSHORT(I) (sortshort[I] = strdup(filename))
+      #else
+        #define SET_SORTSHORT(I) NOOP
+      #endif
+    #else
+      // Copy filenames into the static array
+      #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
+        #define SET_SORTNAME(I) do{ strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN); \
+                                    sortnames[I][SORTED_LONGNAME_MAXLEN] = '\0'; }while(0)
+      #else
+        #define SET_SORTNAME(I) strncpy(sortnames[I], longest_filename(), SORTED_LONGNAME_MAXLEN)
+      #endif
+      #if ENABLED(SDSORT_CACHE_NAMES)
+        #define SET_SORTSHORT(I) strcpy(sortshort[I], filename)
+      #else
+        #define SET_SORTSHORT(I) NOOP
+      #endif
+    #endif
+  #endif
+
   /**
    * Read all the files and produce a sort key
    *
@@ -754,7 +857,7 @@ void CardReader::setroot() {
             sortnames = new char*[fileCnt];
           #endif
         #elif ENABLED(SDSORT_USES_STACK)
-          char sortnames[fileCnt][SORTED_LONGNAME_MAXLEN];
+          char sortnames[fileCnt][SORTED_LONGNAME_MAXLEN + 1];
         #endif
 
         // Folder sorting needs 1 bit per entry for flags.
@@ -783,26 +886,8 @@ void CardReader::setroot() {
           // If using RAM then read all filenames now.
           #if ENABLED(SDSORT_USES_RAM)
             getfilename(i);
-            #if ENABLED(SDSORT_DYNAMIC_RAM)
-              // Use dynamic method to copy long filename
-              sortnames[i] = strdup(longest_filename());
-              #if ENABLED(SDSORT_CACHE_NAMES)
-                // When caching also store the short name, since
-                // we're replacing the getfilename() behavior.
-                sortshort[i] = strdup(filename);
-              #endif
-            #else
-              // Copy filenames into the static array
-              #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
-                strncpy(sortnames[i], longest_filename(), SORTED_LONGNAME_MAXLEN);
-                sortnames[i][SORTED_LONGNAME_MAXLEN - 1] = '\0';
-              #else
-                strncpy(sortnames[i], longest_filename(), SORTED_LONGNAME_MAXLEN);
-              #endif
-              #if ENABLED(SDSORT_CACHE_NAMES)
-                strcpy(sortshort[i], filename);
-              #endif
-            #endif
+            SET_SORTNAME(i);
+            SET_SORTSHORT(i);
             // char out[30];
             // sprintf_P(out, PSTR("---- %i %s %s"), i, filenameIsDir ? "D" : " ", sortnames[i]);
             // SERIAL_ECHOLN(out);
@@ -885,26 +970,16 @@ void CardReader::setroot() {
       else {
         sort_order[0] = 0;
         #if ENABLED(SDSORT_USES_RAM) && ENABLED(SDSORT_CACHE_NAMES)
-          getfilename(0);
           #if ENABLED(SDSORT_DYNAMIC_RAM)
             sortnames = new char*[1];
-            sortnames[0] = strdup(longest_filename()); // malloc
             #if ENABLED(SDSORT_CACHE_NAMES)
               sortshort = new char*[1];
-              sortshort[0] = strdup(filename);       // malloc
             #endif
             isDir = new uint8_t[1];
-          #else
-            #if SORTED_LONGNAME_MAXLEN != LONG_FILENAME_LENGTH
-              strncpy(sortnames[0], longest_filename(), SORTED_LONGNAME_MAXLEN);
-              sortnames[0][SORTED_LONGNAME_MAXLEN - 1] = '\0';
-            #else
-              strncpy(sortnames[0], longest_filename(), SORTED_LONGNAME_MAXLEN);
-            #endif
-            #if ENABLED(SDSORT_CACHE_NAMES)
-              strcpy(sortshort[0], filename);
-            #endif
           #endif
+          getfilename(0);
+          SET_SORTNAME(0);
+          SET_SORTSHORT(0);
           isDir[0] = filenameIsDir ? 0x01 : 0x00;
         #endif
       }
