@@ -511,6 +511,30 @@ bool set_probe_deployed(const bool deploy) {
   }
 #endif
 
+#if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
+  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #define TEST_PROBE_PIN (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
+  #else
+    #define TEST_PROBE_PIN (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+  #endif
+
+  extern float backlash_measured_mm[];
+  extern uint8_t backlash_measured_num[];
+
+  /* Measure Z backlash by raising nozzle in increments until probe deactivates */
+  static void measure_backlash_with_probe() {
+    if (backlash_measured_num[Z_AXIS] == 255) return;
+
+    float start_height = current_position[Z_AXIS];
+    while (current_position[Z_AXIS] < (start_height + BACKLASH_MEASUREMENT_LIMIT) && TEST_PROBE_PIN)
+      do_blocking_move_to_z(current_position[Z_AXIS] + BACKLASH_MEASUREMENT_RESOLUTION, MMM_TO_MMS(BACKLASH_MEASUREMENT_FEEDRATE));
+
+    // The backlash from all probe points is averaged, so count the number of measurements
+    backlash_measured_mm[Z_AXIS] += current_position[Z_AXIS] - start_height;
+    backlash_measured_num[Z_AXIS]++;
+  }
+#endif
+
 /**
  * @brief Used by run_z_probe to do a single Z probe move.
  *
@@ -677,6 +701,10 @@ static float run_z_probe() {
         #endif
         return NAN;
       }
+
+      #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
+        measure_backlash_with_probe();
+      #endif
 
   #if MULTIPLE_PROBING > 2
       probes_total += current_position[Z_AXIS];

@@ -576,6 +576,10 @@ void GcodeSuite::process_parsed_command(
         case 421: M421(); break;                                  // M421: Set a Mesh Bed Leveling Z coordinate
       #endif
 
+      #if ENABLED(BACKLASH_GCODE)
+        case 425: M425(); break;                                  // M425: Tune backlash compensation
+      #endif
+
       #if HAS_M206_COMMAND
         case 428: M428(); break;                                  // M428: Apply current_position to home_offset
       #endif

@@ -1978,3 +1978,7 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
 #if ENABLED(GCODE_MACROS) && !WITHIN(GCODE_MACROS_SLOTS, 1, 10)
   #error "GCODE_MACROS_SLOTS must be a number from 1 to 10."
 #endif
+
+#if ENABLED(BACKLASH_COMPENSATION) && IS_CORE
+  #error "BACKLASH_COMPENSATION is incompatible with CORE kinematics."
+#endif
