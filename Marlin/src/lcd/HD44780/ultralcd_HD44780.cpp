@@ -363,10 +363,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
       // Fits into,
       lcd_moveto(col, line);
       lcd_put_u8str_max_P(text, len);
-      while (slen < len) {
-        lcd_put_wchar(' ');
-        ++slen;
-      }
+      for (; slen < len; ++slen) lcd_put_wchar(' ');
       safe_delay(time);
     }
     else {
@@ -381,11 +378,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
         lcd_put_u8str_max_P(p, len);
 
         // Fill with spaces
-        uint8_t ix = slen - i;
-        while (ix < len) {
-          lcd_put_wchar(' ');
-          ++ix;
-        }
+        for (uint8_t ix = slen - i; ix < len; ++ix) lcd_put_wchar(' ');
 
         // Delay
         safe_delay(dly);
@@ -995,7 +988,7 @@ void MarlinUI::draw_status_screen() {
     lcd_moveto(0, row);
     lcd_put_wchar(sel ? pre_char : ' ');
     n -= lcd_put_u8str_max_P(pstr, n);
-    while (n--) lcd_put_wchar(' ');
+    for (; n; --n) lcd_put_wchar(' ');
     lcd_put_wchar(post_char);
   }
 
@@ -1005,7 +998,7 @@ void MarlinUI::draw_status_screen() {
     lcd_put_wchar(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
     n -= lcd_put_u8str_max_P(pstr, n);
     lcd_put_wchar(':');
-    while (n--) lcd_put_wchar(' ');
+    for (; n; --n) lcd_put_wchar(' ');
     if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str(data);
   }
 
@@ -1025,40 +1018,14 @@ void MarlinUI::draw_status_screen() {
   #if ENABLED(SDSUPPORT)
 
     void draw_sd_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
-      const char post_char = isDir ? LCD_STR_FOLDER[0] : ' ',
-                 sel_char = sel ? LCD_STR_ARROW_RIGHT[0] : ' ';
       UNUSED(pstr);
-      lcd_moveto(0, row);
-      lcd_put_wchar(sel_char);
-
-      uint8_t n = LCD_WIDTH - 2;
-      const char *outstr = theCard.longest_filename();
-      if (theCard.longFilename[0]) {
-        #if ENABLED(SCROLL_LONG_FILENAMES)
-          static uint8_t filename_scroll_hash;
-          if (sel) {
-            uint8_t name_hash = row;
-            for (uint8_t l = FILENAME_LENGTH; l--;)
-              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor
-            if (filename_scroll_hash != name_hash) {                            // If the hash changed...
-              filename_scroll_hash = name_hash;                                 // Save the new hash
-              ui.filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - n); // Update the scroll limit
-              ui.filename_scroll_pos = 0;                                       // Reset scroll to the start
-              ui.lcd_status_update_delay = 8;                                   // Don't scroll right away
-            }
-            outstr += ui.filename_scroll_pos;
-          }
-        #else
-          theCard.longFilename[n] = '\0'; // cutoff at screen edge
-        #endif
-      }
 
       lcd_moveto(0, row);
-      lcd_put_wchar(sel_char);
-      n -= lcd_put_u8str_max(outstr, n);
-
+      lcd_put_wchar(sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
+      constexpr uint8_t maxlen = LCD_WIDTH - 2;
+      uint8_t n = maxlen - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
       for (; n; --n) lcd_put_wchar(' ');
-      lcd_put_wchar(post_char);
+      lcd_put_wchar(isDir ? LCD_STR_FOLDER[0] : ' ');
     }
 
   #endif // SDSUPPORT
