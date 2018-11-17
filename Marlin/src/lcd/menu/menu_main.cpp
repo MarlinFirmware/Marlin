@@ -63,12 +63,6 @@
     ui.return_to_status();
   }
 
-  #if ENABLED(MENU_ADDAUTOSTART)
-
-    inline void lcd_autostart_sd() { card.beginautostart(); }
-
-  #endif
-
 #endif // SDSUPPORT
 
 void menu_tune();
@@ -157,7 +151,7 @@ void menu_main() {
   //
   #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
     if (!busy)
-      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
+      MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
   #endif
 
   END_MENU();
