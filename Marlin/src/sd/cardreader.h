@@ -35,6 +35,19 @@
 
 enum LsAction : uint8_t { LS_SerialPrint, LS_Count, LS_GetFilename };
 
+typedef struct {
+  bool saving:1,
+       logging:1,
+       sdprinting:1,
+       cardOK:1,
+       filenameIsDir:1,
+       abort_sd_printing:1
+       #if ENABLED(FAST_FILE_TRANSFER)
+         , binary_mode:1
+       #endif
+    ;
+} card_flags_t;
+
 class CardReader {
 public:
   CardReader();
@@ -113,7 +126,7 @@ public:
     static void removeJobRecoveryFile();
   #endif
 
-  static inline void pauseSDPrint() { sdprinting = false; }
+  static inline void pauseSDPrint() { flag.sdprinting = false; }
   static inline bool isFileOpen() { return file.isOpen(); }
   static inline bool eof() { return sdpos >= filesize; }
   static inline int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
@@ -145,12 +158,11 @@ public:
   static inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
 
 public:
-  static bool saving, logging, sdprinting, cardOK, filenameIsDir, abort_sd_printing;
+  static card_flags_t flag;
   static char filename[FILENAME_LENGTH + 1], longFilename[LONG_FILENAME_LENGTH + 1];
   static int8_t autostart_index;
 
   #if ENABLED(FAST_FILE_TRANSFER)
-    static bool binary_mode;
     #if NUM_SERIAL > 1
       static uint8_t transfer_port;
     #else
@@ -261,7 +273,7 @@ private:
   #define IS_SD_INSERTED() true
 #endif
 
-#define IS_SD_PRINTING()  card.sdprinting
+#define IS_SD_PRINTING()  card.flag.sdprinting
 #define IS_SD_FILE_OPEN() card.isFileOpen()
 
 extern CardReader card;
