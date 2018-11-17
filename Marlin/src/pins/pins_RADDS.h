@@ -193,7 +193,6 @@
 //
 // Misc. Functions
 //
-#define SDSS                4
 #define SD_DETECT_PIN      14
 #define PS_ON_PIN          40   // SERVO3_PIN
 
@@ -227,7 +226,6 @@
 
     #define BTN_BACK        71
 
-    #undef SDSS
     #define SDSS            10
     #define SD_DETECT_PIN   14
 
@@ -246,7 +244,6 @@
     #define BTN_EN2         52
     #define BTN_ENC         48
 
-    #undef SDSS
     #define SDSS            10
     #define SD_DETECT_PIN   14
 
@@ -272,3 +269,7 @@
   #endif // SPARK_FULL_GRAPHICS
 
 #endif // ULTRA_LCD
+
+#ifndef SDSS
+  #define SDSS              4
+#endif
