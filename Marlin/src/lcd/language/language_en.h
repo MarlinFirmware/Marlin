@@ -539,11 +539,11 @@
 #ifndef MSG_AUTOTEMP
   #define MSG_AUTOTEMP                        _UxGT("Autotemp")
 #endif
-#ifndef MSG_ON
-  #define MSG_ON                              _UxGT("On ")
+#ifndef MSG_LCD_ON
+  #define MSG_LCD_ON                          _UxGT("On")
 #endif
-#ifndef MSG_OFF
-  #define MSG_OFF                             _UxGT("Off")
+#ifndef MSG_LCD_OFF
+  #define MSG_LCD_OFF                         _UxGT("Off")
 #endif
 #ifndef MSG_PID_P
   #define MSG_PID_P                           _UxGT("PID-P")
@@ -728,8 +728,8 @@
 #ifndef MSG_STOP_PRINT
   #define MSG_STOP_PRINT                      _UxGT("Stop print")
 #endif
-#ifndef MSG_POWER_LOSS_RECOVERY
-  #define MSG_POWER_LOSS_RECOVERY             _UxGT("Power-Loss Recovery")
+#ifndef MSG_OUTAGE_RECOVERY
+  #define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #endif
 #ifndef MSG_CARD_MENU
   #define MSG_CARD_MENU                       _UxGT("Print from SD")

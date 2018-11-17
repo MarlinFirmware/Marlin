@@ -29,9 +29,7 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Cohesion3D Mini"
-#endif
+#define BOARD_NAME "Cohesion3D Mini"
 
 //
 // Servos

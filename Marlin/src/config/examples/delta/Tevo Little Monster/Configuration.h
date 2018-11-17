@@ -416,7 +416,7 @@
   //E3D with 30MM fan
   #define DEFAULT_Kp 41.09
   #define DEFAULT_Ki 7.60
-  #define DEFAULT_Kd 55.54			 
+  #define DEFAULT_Kd 55.54
 #endif // PIDTEMP
 
 //===========================================================================
@@ -715,7 +715,7 @@
 
 // delta speeds must be the same on xyz
 #define DEFAULT_XYZ_STEPS_PER_UNIT ((XYZ_FULL_STEPS_PER_ROTATION) * (XYZ_MICROSTEPS) / double(XYZ_BELT_PITCH) / double(XYZ_PULLEY_TEETH))
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 376.04 } 
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 376.04 }
 
 /**
  * Default Max Feed Rate (mm/s)

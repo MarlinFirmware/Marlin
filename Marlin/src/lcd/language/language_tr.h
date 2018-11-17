@@ -95,8 +95,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")                //  Max
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Çarpan")             //  Çarpan
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")                                           //  Autotemp
-#define MSG_ON                              _UxGT("On ")                                                // On
-#define MSG_OFF                             _UxGT("Off")                                                // Off
+#define MSG_LCD_ON                          _UxGT("On")                                                 // On
+#define MSG_LCD_OFF                         _UxGT("Off")                                                // Off
 #define MSG_PID_P                           _UxGT("PID-P")                                              // PID-P
 #define MSG_PID_I                           _UxGT("PID-I")                                              // PID-I
 #define MSG_PID_D                           _UxGT("PID-D")                                              // PID-D

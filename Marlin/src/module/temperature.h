@@ -311,13 +311,13 @@ class Temperature {
     /**
      * Static (class) methods
      */
-    static float analog2temp(const int raw, const uint8_t e);
+    static float analog_to_celsius_hotend(const int raw, const uint8_t e);
 
     #if HAS_HEATED_BED
-      static float analog2tempBed(const int raw);
+      static float analog_to_celsius_bed(const int raw);
     #endif
     #if HAS_TEMP_CHAMBER
-      static float analog2tempChamber(const int raw);
+      static float analog_to_celsiusChamber(const int raw);
     #endif
 
     /**
@@ -358,7 +358,7 @@ class Temperature {
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
-      static float analog2widthFil();         // Convert raw Filament Width to millimeters
+      static float analog_to_mm_fil_width();         // Convert raw Filament Width to millimeters
       static int8_t widthFil_to_size_ratio(); // Convert Filament Width (mm) to an extrusion ratio
     #endif
 
@@ -601,9 +601,9 @@ class Temperature {
     #endif // HEATER_IDLE_HANDLER
 
     #if HAS_TEMP_SENSOR
-      static void print_heaterstates(
+      static void print_heater_states(const uint8_t target_extruder
         #if NUM_SERIAL > 1
-          const int8_t port = -1
+          , const int8_t port = -1
         #endif
       );
       #if ENABLED(AUTO_REPORT_TEMPERATURES)
@@ -632,8 +632,23 @@ class Temperature {
 
     static void updateTemperaturesFromRawValues();
 
-    #if ENABLED(HEATER_0_USES_MAX6675)
-      static int read_max6675();
+    #define HAS_MAX6675 (ENABLED(HEATER_0_USES_MAX6675) || ENABLED(HEATER_1_USES_MAX6675))
+    #if HAS_MAX6675
+      #if ENABLED(HEATER_0_USES_MAX6675) && ENABLED(HEATER_1_USES_MAX6675)
+        #define COUNT_6675 2
+      #else
+        #define COUNT_6675 1
+      #endif
+      #if COUNT_6675 > 1
+        #define READ_MAX6675(N) read_max6675(N)
+      #else
+        #define READ_MAX6675(N) read_max6675()
+      #endif
+      static int read_max6675(
+        #if COUNT_6675 > 1
+          const uint8_t hindex=0
+        #endif
+      );
     #endif
 
     static void checkExtruderAutoFans();

@@ -23,7 +23,7 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#if ENABLED(DEBUG_LEVELING_FEATURE) || HOTENDS > 1
+#if ENABLED(DEBUG_LEVELING_FEATURE) || EXTRUDERS > 1
   #include "../../module/motion.h"
 #endif
 
@@ -33,27 +33,27 @@
  *   F[units/min] Set the movement feedrate
  *   S1           Don't move the tool in XY after change
  */
-void GcodeSuite::T(const uint8_t tmp_extruder) {
+void GcodeSuite::T(const uint8_t tool_index) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> T(", tmp_extruder);
+      SERIAL_ECHOPAIR(">>> T(", tool_index);
       SERIAL_CHAR(')');
       SERIAL_EOL();
       DEBUG_POS("BEFORE", current_position);
     }
   #endif
 
-  #if HOTENDS == 1 || (ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1)
+  #if EXTRUDERS < 2
 
-    tool_change(tmp_extruder);
+    tool_change(tool_index);
 
-  #elif HOTENDS > 1
+  #else
 
     tool_change(
-      tmp_extruder,
+      tool_index,
       MMM_TO_MMS(parser.linearval('F')),
-      (tmp_extruder == active_extruder) || parser.boolval('S')
+      (tool_index == active_extruder) || parser.boolval('S')
     );
 
   #endif

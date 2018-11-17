@@ -21,53 +21,53 @@
  */
 
 /**
- * ARCHIM2 pin assignment (pins_ARCHIM2.h)
+ * ARCHIM2 pin assignment
  *
- * The Archim2 board requires Arduino Archim addons installed.
- * Add the following URL to Arduino IDE's Additional Board Manager URLs:
- * https://raw.githubusercontent.com/ultimachine/ArduinoAddons/master/package_ultimachine_index.json
- * In the Arduino IDE Board Manager search for Archim and install the package.
- * Change your target board to "Archim".
+ * The Archim 2.0 board requires Arduino Archim addons installed.
  *
- * Further information is provided by UltiMachine
- * https://github.com/ultimachine/Archim/wiki/Archim-v2.0
- * https://github.com/ultimachine/Archim/wiki
+ * - Add the following URL to Arduino IDE's Additional Board Manager URLs:
+ *   https://raw.githubusercontent.com/ultimachine/ArduinoAddons/master/package_ultimachine_index.json
  *
+ * - In the Arduino IDE Board Manager search for Archim and install the package.
+ *
+ * - Change your target board to "Archim".
+ *
+ * Further information on the UltiMachine website...
+ *   https://github.com/ultimachine/Archim/wiki
  */
 
 #ifndef __SAM3X8E__
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #endif
 
+#define BOARD_NAME "Archim 2.0"
+
 //
 // Items marked * have been altered from Archim v1.0
 //
 
-// TMC2130 Diag Pins (currently just for reference)
-#define X_DIAG_PIN         59   // PA4 X_DIAG
-#define Y_DIAG_PIN         48   // PC15 Y_DIAG
-#define Z_DIAG_PIN         36   // PC4 Z_DIAG
-#define E0_DIAG_PIN        78   // PB23 E1_DIAG
-#define E1_DIAG_PIN        25   // PD0 E2_DIAG
-
 //
 // Servos
 //
-#define SERVO0_PIN          20   // D20 PB12 (Header J20 20)
-#define SERVO1_PIN          21   // D21 PB13 (Header J20 19)
+#define SERVO0_PIN         20   // D20 PB12 (Header J20 20)
+#define SERVO1_PIN         21   // D21 PB13 (Header J20 19)
 
 //
 // Limit Switches
 //
-// Only use Diag Pins when SENSORLESS_HOMING is enabled for the TMC2130 drivers.
-// Otherwise use a physical endstop based configuration.
 
-#if DISABLED(SENSORLESS_HOMING)
- #define X_MIN_PIN          14   // PD4 MIN ES1
- #define X_MAX_PIN          32   // PD10 MAX ES1
- #define Y_MIN_PIN          29   // PD6 MIN ES2
- #define Y_MAX_PIN          15   // PD5 MAX ES2
-#else
+#if ENABLED(SENSORLESS_HOMING)
+
+  // Only use Diag Pins when SENSORLESS_HOMING is enabled for the TMC2130 drivers.
+  // Otherwise use a physical endstop based configuration.
+
+  // TMC2130 Diag Pins
+  #define X_DIAG_PIN       59   // PA4
+  #define Y_DIAG_PIN       48   // PC15
+  #define Z_DIAG_PIN       36   // PC4
+  #define E0_DIAG_PIN      78   // PB23
+  #define E1_DIAG_PIN      25   // PD0
+
   #if X_HOME_DIR == -1
     #define X_MIN_PIN      X_DIAG_PIN
     #define X_MAX_PIN      32
@@ -83,16 +83,31 @@
     #define Y_MIN_PIN      29
     #define Y_MAX_PIN      Y_DIAG_PIN
   #endif
+
+#else
+
+  #define X_MIN_PIN        14   // PD4 MIN ES1
+  #define X_MAX_PIN        32   // PD10 MAX ES1
+  #define Y_MIN_PIN        29   // PD6 MIN ES2
+  #define Y_MAX_PIN        15   // PD5 MAX ES2
+
 #endif
 
- #define Z_MIN_PIN          31   // PA7 MIN ES3
- #define Z_MAX_PIN          30   // PD9 MAX ES3
+#define Z_MIN_PIN          31   // PA7 MIN ES3
+#define Z_MAX_PIN          30   // PD9 MAX ES3
 
 //
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  32
+#endif
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN   66   // D66 PB15 (Header J20 15)
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN  67   // D67 PB16 (Header J20 16)
 #endif
 
 //
@@ -154,45 +169,39 @@
 //
 // Heaters / Fans
 //
-#ifndef FAN_PIN
-  #define FAN_PIN           4   // D4 PC26 FET_PWM1
-#endif
-#define FAN1_PIN            5   // D5 PC25 FET_PWM2
-
 #define HEATER_0_PIN        6   // D6 PC24 FET_PWM3
 #define HEATER_1_PIN        7   // D7 PC23 FET_PWM4
 #define HEATER_2_PIN        8   // D8 PC22 FET_PWM5
 #define HEATER_BED_PIN      9   // D9 PC21 BED_PWM
+
+#ifndef FAN_PIN
+  #define FAN_PIN           4   // D4 PC26 FET_PWM1
+#endif
+#define FAN1_PIN            5   // D5 PC25 FET_PWM2
 
 //
 // Misc. Functions
 //
 
 // Internal MicroSD card reader on the PCB
-#define INT_SCK_PIN         42   // D42 PA19/MCCK
-#define INT_MISO_PIN        43   // D43 PA20/MCCDA
-#define INT_MOSI_PIN        73   // D73 PA21/MCDA0
-#define INT_SDSS            55   // D55 PA24/MCDA3
+#define INT_SCK_PIN        42   // D42 PA19/MCCK
+#define INT_MISO_PIN       43   // D43 PA20/MCCDA
+#define INT_MOSI_PIN       73   // D73 PA21/MCDA0
+#define INT_SDSS           55   // D55 PA24/MCDA3
 
-// The external SD card reader on SC2, as well as 2 Mbyte SPI Flash
-#define SCK_PIN             76   // D76 PA27
-#define MISO_PIN            74   // D74 PA25
-#define MOSI_PIN            75   // D75 PA26
-#define SDSS                87   // D87 PA29
-#define SPI_FLASH_SS        52   // D52 PB21
+// External SD card reader on SC2
+#define SCK_PIN            76   // D76 PA27
+#define MISO_PIN           74   // D74 PA25
+#define MOSI_PIN           75   // D75 PA26
+#define SDSS               87   // D87 PA29
 
-// Filament runout sensor pins (or GPIO)
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN    66   // D66 PB15 (Header J20 15)
-#endif
-#ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN   67   // D67 PB16 (Header J20 16)
-#endif
+// 2MB SPI Flash
+#define SPI_FLASH_SS       52   // D52 PB21
 
 //
 // LCD / Controller
 //
-#if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+#if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN       23   // D24 PA15_CTS1
   #define LCD_PINS_RS      17   // D17 PA12_RXD1
   #define LCD_PINS_ENABLE  24   // D23 PA14_RTS1
@@ -209,4 +218,4 @@
     #define BTN_EN2        13   // D13 PB27_TIOB0
     #define BTN_ENC        16   // D16 PA13_TXD1 // the click
   #endif // NEWPANEL
-#endif // ULTRA_LCD || EXTENSIBLE_UI
+#endif // ULTRA_LCD

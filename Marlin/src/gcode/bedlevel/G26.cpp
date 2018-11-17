@@ -227,11 +227,11 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
   if (z != last_z) {
     last_z = z;
-    feed_value = planner.settings.max_feedrate_mm_s[Z_AXIS]/(3.0);  // Base the feed rate off of the configured Z_AXIS feed rate
+    feed_value = planner.settings.max_feedrate_mm_s[Z_AXIS]/(2.0);  // Base the feed rate off of the configured Z_AXIS feed rate
 
     destination[X_AXIS] = current_position[X_AXIS];
     destination[Y_AXIS] = current_position[Y_AXIS];
-    destination[Z_AXIS] = z;                          // We know the last_z==z or we wouldn't be in this block of code.
+    destination[Z_AXIS] = z;                          // We know the last_z!=z or we wouldn't be in this block of code.
     destination[E_AXIS] = current_position[E_AXIS];
 
     G26_line_to_destination(feed_value);
@@ -240,7 +240,7 @@ void move_to(const float &rx, const float &ry, const float &z, const float &e_de
 
   // Check if X or Y is involved in the movement.
   // Yes: a 'normal' movement. No: a retract() or recover()
-  feed_value = has_xy_component ? PLANNER_XY_FEEDRATE() / 10.0 : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
+  feed_value = has_xy_component ? PLANNER_XY_FEEDRATE() / 3.0 : planner.settings.max_feedrate_mm_s[E_AXIS] / 1.5;
 
   if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to() feed_value for XY:", feed_value);
 
@@ -819,6 +819,19 @@ void GcodeSuite::G26() {
         recover_filament(destination);
         const float save_feedrate = feedrate_mm_s;
         feedrate_mm_s = PLANNER_XY_FEEDRATE() / 10.0;
+
+        if (g26_debug_flag) {
+          SERIAL_ECHOPAIR(" plan_arc(ex=", endpoint[X_AXIS]);
+          SERIAL_ECHOPAIR(", ey=", endpoint[Y_AXIS]);
+          SERIAL_ECHOPAIR(", ez=", endpoint[Z_AXIS]);
+          SERIAL_ECHOPAIR(", len=", arc_offset);
+          SERIAL_ECHOPAIR(") -> (ex=", current_position[X_AXIS]);
+          SERIAL_ECHOPAIR(", ey=", current_position[Y_AXIS]);
+          SERIAL_ECHOPAIR(", ez=", current_position[Z_AXIS]);
+          SERIAL_CHAR(')');
+          SERIAL_EOL();
+        }
+
         plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
         feedrate_mm_s = save_feedrate;
         set_destination_from_current();

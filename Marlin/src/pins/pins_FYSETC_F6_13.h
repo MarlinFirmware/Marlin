@@ -25,12 +25,10 @@
 //
 
 #ifndef __AVR_ATmega2560__
-  #error "Oops! Select 'FYSETC_F6' in 'Tools > Board.'"
+  #error "Oops! Select 'FYSETC F6' in 'Tools > Board.'"
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "FYSETC_F6_13"
-#endif
+#define BOARD_NAME "FYSETC F6 1.3"
 
 //
 // Servos
