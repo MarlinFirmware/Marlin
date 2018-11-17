@@ -273,7 +273,7 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pausar impressão")
 #define MSG_RESUME_PRINT                    _UxGT("Resumir impressão")
 #define MSG_STOP_PRINT                      _UxGT("Parar impressão")
-#define MSG_POWER_LOSS_RECOVERY             _UxGT("Recuperar Impressão")
+#define MSG_OUTAGE_RECOVERY                 _UxGT("Recuperar Impressão")
 #define MSG_CARD_MENU                       _UxGT("Imprimir do SD")
 #define MSG_NO_CARD                         _UxGT("Sem cartão SD")
 #define MSG_DWELL                           _UxGT("Dormindo...")

@@ -65,7 +65,7 @@
 
   #if ENABLED(MENU_ADDAUTOSTART)
 
-    void lcd_autostart_sd() { card.beginautostart(); }
+    inline void lcd_autostart_sd() { card.beginautostart(); }
 
   #endif
 

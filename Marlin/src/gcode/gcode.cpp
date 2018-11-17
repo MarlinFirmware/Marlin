@@ -695,6 +695,11 @@ void GcodeSuite::process_parsed_command(
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped
 
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
+        case 1000: M1000(); break;                                // M1000: Resume from power-loss
+      #endif
+
       default: parser.unknown_command_error(); break;
     }
     break;

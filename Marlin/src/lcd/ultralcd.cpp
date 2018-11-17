@@ -659,13 +659,6 @@ void MarlinUI::update() {
 
   #endif // SDSUPPORT && SD_DETECT_PIN
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    if (job_recovery_commands_count && job_recovery_phase == JOB_RECOVERY_IDLE) {
-      goto_screen(menu_job_recovery);
-      job_recovery_phase = JOB_RECOVERY_MAYBE; // Waiting for a response
-    }
-  #endif
-
   const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
     #if HAS_GRAPHICAL_LCD

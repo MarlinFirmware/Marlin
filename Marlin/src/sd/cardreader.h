@@ -106,11 +106,8 @@ public:
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void openJobRecoveryFile(const bool read);
-    void closeJobRecoveryFile();
     bool jobRecoverFileExists();
-    int16_t saveJobRecoveryInfo();
-    int16_t loadJobRecoveryInfo();
+    void openJobRecoveryFile(const bool read);
     void removeJobRecoveryFile();
   #endif
 
@@ -216,10 +213,6 @@ private:
   Sd2Card sd2card;
   SdVolume volume;
   SdFile file;
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    SdFile jobRecoveryFile;
-  #endif
 
   #define SD_PROCEDURE_DEPTH 1
   #define MAXPATHNAMELENGTH (FILENAME_LENGTH*MAX_DIR_DEPTH + MAX_DIR_DEPTH + 1)
