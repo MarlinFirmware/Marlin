@@ -575,7 +575,7 @@ namespace ExtUI {
   }
 
   bool isPrintingFromMedia() {
-    return IFSD(card.cardOK && card.isFileOpen(), false);
+    return IFSD(card.flag.cardOK && card.isFileOpen(), false);
   }
 
   bool isPrinting() {
@@ -583,7 +583,7 @@ namespace ExtUI {
   }
 
   bool isMediaInserted() {
-    return IFSD(IS_SD_INSERTED() && card.cardOK, false);
+    return IFSD(IS_SD_INSERTED() && card.flag.cardOK, false);
   }
 
   void pausePrint() {
@@ -612,7 +612,7 @@ namespace ExtUI {
   void stopPrint() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
-      card.abort_sd_printing = true;
+      card.flag.abort_sd_printing = true;
       ExtUI::onStatusChanged(PSTR(MSG_PRINT_ABORTED));
     #endif
   }
@@ -648,7 +648,7 @@ namespace ExtUI {
   }
 
   bool FileList::isDir() {
-    return IFSD(card.filenameIsDir, false);
+    return IFSD(card.flag.filenameIsDir, false);
   }
 
   uint16_t FileList::count() {
@@ -697,13 +697,13 @@ void MarlinUI::update() {
       last_sd_status = sd_status;
       if (sd_status) {
         card.initsd();
-        if (card.cardOK)
+        if (card.flag.cardOK)
           ExtUI::onMediaInserted();
         else
           ExtUI::onMediaError();
       }
       else {
-        const bool ok = card.cardOK;
+        const bool ok = card.flag.cardOK;
         card.release();
         if (ok) ExtUI::onMediaRemoved();
       }

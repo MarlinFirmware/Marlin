@@ -196,7 +196,8 @@
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
- * M412 - Enable / Disable filament runout detection. (Requires FILAMENT_RUNOUT_SENSOR)
+ * M412 - Enable / Disable Filament Runout Detection. (Requires FILAMENT_RUNOUT_SENSOR)
+ * M413 - Enable / Disable Power-Loss Recovery. (Requires POWER_LOSS_RECOVERY)
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
@@ -821,6 +822,11 @@ private:
   #endif
 
   static void M999();
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static void M413();
+    static void M1000();
+  #endif
 
   static void T(const uint8_t tool_index);
 

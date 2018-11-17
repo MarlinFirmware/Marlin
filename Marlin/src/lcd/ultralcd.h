@@ -23,6 +23,12 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if HAS_BUZZER
+  #include "../libs/buzzer.h"
+#endif
+
+#define HAS_ENCODER_ACTION (HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY))
+
 #if HAS_SPI_LCD
 
   #include "../Marlin.h"
@@ -31,16 +37,6 @@
     #include "../feature/pause.h"
     #include "../module/motion.h" // for active_extruder
   #endif
-
-#endif
-
-#if HAS_BUZZER
-  #include "../libs/buzzer.h"
-#endif
-
-#define HAS_ENCODER_ACTION (HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY))
-
-#if HAS_SPI_LCD
 
   enum LCDViewAction : uint8_t {
     LCDVIEW_NONE,
@@ -65,6 +61,10 @@
   #define LCD_UPDATE_INTERVAL 100
 
   #if HAS_LCD_MENU
+
+    #if ENABLED(SDSUPPORT)
+      #include "../sd/cardreader.h"
+    #endif
 
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
@@ -212,9 +212,6 @@
     FONT_MENU
   };
 #endif
-
-#define LCD_MESSAGEPGM(x)      ui.setstatusPGM(PSTR(x))
-#define LCD_ALERTMESSAGEPGM(x) ui.setalertstatusPGM(PSTR(x))
 
 ////////////////////////////////////////////
 //////////// MarlinUI Singleton ////////////
@@ -379,8 +376,11 @@ public:
       static void enable_encoder_multiplier(const bool onoff);
     #endif
 
-    #if ENABLED(SCROLL_LONG_FILENAMES)
-      static uint8_t filename_scroll_pos, filename_scroll_max;
+    #if ENABLED(SDSUPPORT)
+      #if ENABLED(SCROLL_LONG_FILENAMES)
+        static uint8_t filename_scroll_pos, filename_scroll_max;
+      #endif
+      static const char * const scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
     #endif
 
     #if IS_KINEMATIC
@@ -524,3 +524,6 @@ private:
 };
 
 extern MarlinUI ui;
+
+#define LCD_MESSAGEPGM(x)      ui.setstatusPGM(PSTR(x))
+#define LCD_ALERTMESSAGEPGM(x) ui.setalertstatusPGM(PSTR(x))
