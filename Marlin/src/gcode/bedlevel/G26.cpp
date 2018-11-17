@@ -824,7 +824,7 @@ void GcodeSuite::G26() {
           SERIAL_ECHOPAIR(" plan_arc(ex=", endpoint[X_AXIS]);
           SERIAL_ECHOPAIR(", ey=", endpoint[Y_AXIS]);
           SERIAL_ECHOPAIR(", ez=", endpoint[Z_AXIS]);
-          SERIAL_ECHOPAIR(", len=", arc_offset);
+          SERIAL_ECHOPAIR(", len=", arc_length);
           SERIAL_ECHOPAIR(") -> (ex=", current_position[X_AXIS]);
           SERIAL_ECHOPAIR(", ey=", current_position[Y_AXIS]);
           SERIAL_ECHOPAIR(", ez=", current_position[Z_AXIS]);
