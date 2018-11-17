@@ -355,6 +355,7 @@ void MarlinSettings::postprocess() {
 }
 
 #if ENABLED(SD_FIRMWARE_UPDATE)
+  #include "../HAL/shared/persistent_store_api.h"
 
   #if ENABLED(EEPROM_SETTINGS)
     static_assert(
