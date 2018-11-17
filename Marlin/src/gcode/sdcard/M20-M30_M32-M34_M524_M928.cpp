@@ -118,7 +118,7 @@ void GcodeSuite::M25() {
  * M26: Set SD Card file index
  */
 void GcodeSuite::M26() {
-  if (card.cardOK && parser.seenval('S'))
+  if (card.flag.cardOK && parser.seenval('S'))
     card.setIndex(parser.value_long());
 }
 
@@ -178,7 +178,7 @@ void GcodeSuite::M28() {
     }
 
     // Binary transfer mode
-    if ((card.binary_mode = binary_mode)) {
+    if ((card.flag.binary_mode = binary_mode)) {
       SERIAL_ECHO_START_P(port);
       SERIAL_ECHO_P(port, " preparing to receive: ");
       SERIAL_ECHOLN_P(port, p);
@@ -202,14 +202,14 @@ void GcodeSuite::M28() {
  * Processed in write to file routine
  */
 void GcodeSuite::M29() {
-  // card.saving = false;
+  // card.flag.saving = false;
 }
 
 /**
  * M30 <filename>: Delete SD Card file
  */
 void GcodeSuite::M30() {
-  if (card.cardOK) {
+  if (card.flag.cardOK) {
     card.closefile();
     card.removeFile(parser.string_arg);
   }
@@ -228,7 +228,7 @@ void GcodeSuite::M30() {
 void GcodeSuite::M32() {
   if (IS_SD_PRINTING()) planner.synchronize();
 
-  if (card.cardOK) {
+  if (card.flag.cardOK) {
     const bool call_procedure = parser.boolval('P');
 
     card.openFile(parser.string_arg, true, call_procedure);
@@ -286,7 +286,7 @@ void GcodeSuite::M32() {
  * M524: Abort the current SD print job (started with M24)
  */
 void GcodeSuite::M524() {
-  if (IS_SD_PRINTING()) card.abort_sd_printing = true;
+  if (IS_SD_PRINTING()) card.flag.abort_sd_printing = true;
 }
 
 /**

@@ -503,7 +503,7 @@ static int read_serial(const uint8_t index) {
             break;
           case StreamState::STREAM_COMPLETE:
             stream_state = StreamState::STREAM_RESET;
-            card.binary_mode = false;
+            card.flag.binary_mode = false;
             card.closefile();
             CARD_ECHO_P("echo: ");
             CARD_ECHO_P(card.filename);
@@ -514,7 +514,7 @@ static int read_serial(const uint8_t index) {
             return;
           case StreamState::STREAM_FAILED:
             stream_state = StreamState::STREAM_RESET;
-            card.binary_mode = false;
+            card.flag.binary_mode = false;
             card.closefile();
             card.removeFile(card.filename);
             CARD_ECHOLN_P("echo: File transfer failed");
@@ -549,7 +549,7 @@ inline void get_serial_commands() {
             ;
 
   #if ENABLED(FAST_FILE_TRANSFER)
-    if (card.saving && card.binary_mode) {
+    if (card.flag.saving && card.flag.binary_mode) {
       /**
        * For binary stream file transfer, use serial_line_buffer as the working
        * receive buffer (which limits the packet size to MAX_CMD_SIZE).
@@ -630,7 +630,7 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
+          else if (card.flag.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
@@ -838,7 +838,7 @@ void advance_command_queue() {
 
   #if ENABLED(SDSUPPORT)
 
-    if (card.saving) {
+    if (card.flag.saving) {
       char* command = command_queue[cmd_queue_index_r];
       if (strstr_P(command, PSTR("M29"))) {
         // M29 closes the file
@@ -860,7 +860,7 @@ void advance_command_queue() {
       else {
         // Write the string from the read buffer to SD
         card.write_command(command);
-        if (card.logging)
+        if (card.flag.logging)
           gcode.process_next_command(); // The card is saving because it's logging
         else
           ok_to_send();

@@ -125,7 +125,7 @@ void menu_sdcard() {
 
       card.getfilename_sorted(nr);
 
-      if (card.filenameIsDir)
+      if (card.flag.filenameIsDir)
         MENU_ITEM(sdfolder, MSG_CARD_MENU, card);
       else
         MENU_ITEM(sdfile, MSG_CARD_MENU, card);
