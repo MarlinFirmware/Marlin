@@ -125,7 +125,9 @@ void plan_arc(
   // Vector rotation matrix values
   float raw[XYZE];
   const float theta_per_segment = angular_travel / segments,
-              linear_per_segment = linear_travel / segments,
+              #if DISABLED(AUTO_BED_LEVELING_UBL)
+                linear_per_segment = linear_travel / segments,
+              #endif
               extruder_per_segment = extruder_travel / segments,
               sin_T = theta_per_segment,
               cos_T = 1 - 0.5f * sq(theta_per_segment); // Small angle approximation
