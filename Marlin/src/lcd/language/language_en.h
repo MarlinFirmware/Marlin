@@ -728,8 +728,8 @@
 #ifndef MSG_STOP_PRINT
   #define MSG_STOP_PRINT                      _UxGT("Stop print")
 #endif
-#ifndef MSG_POWER_LOSS_RECOVERY
-  #define MSG_POWER_LOSS_RECOVERY             _UxGT("Power-Loss Recovery")
+#ifndef MSG_OUTAGE_RECOVERY
+  #define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #endif
 #ifndef MSG_CARD_MENU
   #define MSG_CARD_MENU                       _UxGT("Print from SD")

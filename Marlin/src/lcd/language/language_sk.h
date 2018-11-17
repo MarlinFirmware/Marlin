@@ -278,7 +278,7 @@
 #define MSG_PAUSE_PRINT                     _UxGT("Pozastaviť tlač")
 #define MSG_RESUME_PRINT                    _UxGT("Obnoviť tlač")
 #define MSG_STOP_PRINT                      _UxGT("Zastaviť tlač")
-#define MSG_POWER_LOSS_RECOVERY             _UxGT("Obnova po výp. nap.")
+#define MSG_OUTAGE_RECOVERY                 _UxGT("Obnova po výp. nap.")
 #define MSG_CARD_MENU                       _UxGT("Tlačiť z SD")
 #define MSG_NO_CARD                         _UxGT("Žiadna SD karta")
 #define MSG_DWELL                           _UxGT("Spím...")

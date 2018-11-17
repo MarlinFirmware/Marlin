@@ -112,9 +112,37 @@ millis_t next_button_update_ms;
 
 #if HAS_LCD_MENU
   #include "menu/menu.h"
+  #include "../sd/cardreader.h"
 
-  #if ENABLED(SDSUPPORT) && ENABLED(SCROLL_LONG_FILENAMES)
-    uint8_t MarlinUI::filename_scroll_pos, MarlinUI::filename_scroll_max;
+  #if ENABLED(SDSUPPORT)
+
+    #if ENABLED(SCROLL_LONG_FILENAMES)
+      uint8_t MarlinUI::filename_scroll_pos, MarlinUI::filename_scroll_max;
+    #endif
+
+    const char * const MarlinUI::scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll) {
+      const char *outstr = theCard.longest_filename();
+      if (theCard.longFilename[0]) {
+        #if ENABLED(SCROLL_LONG_FILENAMES)
+          if (doScroll) {
+            for (uint8_t l = FILENAME_LENGTH; l--;)
+              hash = ((hash << 1) | (hash >> 7)) ^ theCard.filename[l];      // rotate, xor
+            static uint8_t filename_scroll_hash;
+            if (filename_scroll_hash != hash) {                              // If the hash changed...
+              filename_scroll_hash = hash;                                   // Save the new hash
+              filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
+              filename_scroll_pos = 0;                                       // Reset scroll to the start
+              lcd_status_update_delay = 8;                                   // Don't scroll right away
+            }
+            outstr += filename_scroll_pos;
+          }
+        #else
+          theCard.longFilename[maxlen] = '\0'; // cutoff at screen edge
+        #endif
+      }
+      return outstr;
+    }
+
   #endif
 
   screenFunc_t MarlinUI::currentScreen; // Initialized in CTOR
@@ -658,13 +686,6 @@ void MarlinUI::update() {
     }
 
   #endif // SDSUPPORT && SD_DETECT_PIN
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    if (job_recovery_commands_count && job_recovery_phase == JOB_RECOVERY_IDLE) {
-      goto_screen(menu_job_recovery);
-      job_recovery_phase = JOB_RECOVERY_MAYBE; // Waiting for a response
-    }
-  #endif
 
   const millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)
