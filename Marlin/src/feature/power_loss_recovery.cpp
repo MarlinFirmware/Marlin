@@ -213,9 +213,11 @@ void PrintJobRecovery::write() {
 
   open(false);
   file.seekSet(0);
+  const int16_t ret = file.write(&info, sizeof(info));
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-    const int16_t ret = file.write(&info, sizeof(info));
     if (ret == -1) SERIAL_ECHOLNPGM("Power-loss file write failed.");
+  #else
+    UNUSED(ret);
   #endif
 }
 
