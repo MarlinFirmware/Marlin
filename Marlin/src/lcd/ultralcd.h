@@ -88,7 +88,7 @@
 
 #endif
 
-#if HAS_DIGITAL_ENCODER
+#if HAS_DIGITAL_BUTTONS
 
   // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
   #define BLEN_A 0
