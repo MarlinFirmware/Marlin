@@ -66,6 +66,10 @@
 #include "../gcode/gcode.h"
 #include "../Marlin.h"
 
+#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
+  #include "../HAL/shared/persistent_store_api.h"
+#endif
+
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
 #endif
@@ -381,7 +385,6 @@ void MarlinSettings::postprocess() {
 #endif // SD_FIRMWARE_UPDATE
 
 #if ENABLED(EEPROM_SETTINGS)
-  #include "../HAL/shared/persistent_store_api.h"
 
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
   #define EEPROM_FINISH() persistentStore.access_finish()

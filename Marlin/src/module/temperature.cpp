@@ -1436,7 +1436,7 @@ void Temperature::init() {
     #if HOTENDS == 1
       UNUSED(e);
     #endif
-    if (degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
+    if (degTargetHotend(HOTEND_INDEX) && degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
       watch_target_temp[HOTEND_INDEX] = degHotend(HOTEND_INDEX) + WATCH_TEMP_INCREASE;
       watch_heater_next_ms[HOTEND_INDEX] = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
     }
@@ -1452,7 +1452,7 @@ void Temperature::init() {
    * This is called when the temperature is set. (M140, M190)
    */
   void Temperature::start_watching_bed() {
-    if (degBed() < degTargetBed() - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
+    if (degTargetBed() && degBed() < degTargetBed() - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
       watch_target_bed_temp = degBed() + WATCH_BED_TEMP_INCREASE;
       watch_bed_next_ms = millis() + (WATCH_BED_TEMP_PERIOD) * 1000UL;
     }
@@ -2464,7 +2464,7 @@ void Temperature::isr() {
       #if HOTENDS > 1
         ui.status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), int(e + 1));
       #else
-        ui.setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
+        ui.set_status_P(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
       #endif
     }
   #endif

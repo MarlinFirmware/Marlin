@@ -480,7 +480,7 @@ void MarlinUI::init() {
 /**
  * Set an alert.
  */
-void MarlinUI::setalertstatusPGM(PGM_P const message) {
+void MarlinUI::set_alert_status_P(PGM_P const message) {
   write_to_lcd_P(PSTR("{E:"));
   write_to_lcd_P(message);
   write_to_lcd_P("}");
