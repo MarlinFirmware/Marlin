@@ -186,7 +186,7 @@ void MarlinUI::init() {
 
   init_lcd();
 
-  #if HAS_DIGITAL_ENCODER
+  #if HAS_DIGITAL_BUTTONS
 
     #if BUTTON_EXISTS(EN1)
       SET_INPUT_PULLUP(BTN_EN1);
@@ -217,7 +217,7 @@ void MarlinUI::init() {
       SET_INPUT(BTN_RT);
     #endif
 
-  #else // !HAS_DIGITAL_ENCODER
+  #else // !HAS_DIGITAL_BUTTONS
 
     #if ENABLED(SR_LCD_2W_NL) // Non latching 2 wire shift register
       SET_OUTPUT(SR_DATA_PIN);
@@ -229,7 +229,7 @@ void MarlinUI::init() {
       SET_INPUT_PULLUP(SHIFT_OUT);
     #endif // SR_LCD_2W_NL
 
-  #endif // !HAS_DIGITAL_ENCODER
+  #endif // !HAS_DIGITAL_BUTTONS
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
@@ -295,8 +295,8 @@ bool MarlinUI::get_blink() {
           refresh(LCDVIEW_REDRAW_NOW);
           if (encoderDirection == -1) { // side effect which signals we are inside a menu
             #if HAS_LCD_MENU
-              if      (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
-              else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+              if      (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))   encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+              else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))     encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
               else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
             #endif
@@ -809,7 +809,7 @@ void MarlinUI::update() {
           break;
       } // switch
 
-      #if ENABLED(ADC_KEYPAD) && HAS_ENCODER_ACTION
+      #if ENABLED(ADC_KEYPAD)
         buttons_reprapworld_keypad = 0;
       #endif
 
@@ -918,7 +918,7 @@ void MarlinUI::update() {
 
 #if HAS_ENCODER_ACTION
 
-  #if DISABLED(ADC_KEYPAD) && (ENABLED(REPRAPWORLD_KEYPAD) || !HAS_DIGITAL_ENCODER)
+  #if DISABLED(ADC_KEYPAD) && (ENABLED(REPRAPWORLD_KEYPAD) || !HAS_DIGITAL_BUTTONS)
 
     /**
      * Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
@@ -939,13 +939,6 @@ void MarlinUI::update() {
 
   #endif
 
-  #if defined(EN_A) && defined(EN_B)
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
-  #endif
-
   /**
    * Read encoder buttons from the hardware registers
    * Warning: This function is called from interrupt context!
@@ -955,22 +948,20 @@ void MarlinUI::update() {
     const millis_t now = millis();
     if (ELAPSED(now, next_button_update_ms)) {
 
-      #if HAS_DIGITAL_ENCODER
-        #if HAS_BUTTON
-          uint8_t newbutton = 0;
+      #if HAS_DIGITAL_BUTTONS
+        uint8_t newbutton = 0;
 
-          #if BUTTON_EXISTS(EN1)
-            if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-          #endif
-          #if BUTTON_EXISTS(EN2)
-            if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-          #endif
-          #if BUTTON_EXISTS(ENC)
-            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-          #endif
-          #if BUTTON_EXISTS(BACK)
-            if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-          #endif
+        #if BUTTON_EXISTS(EN1)
+          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+        #endif
+        #if BUTTON_EXISTS(EN2)
+          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+        #endif
+        #if BUTTON_EXISTS(ENC)
+          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+        #endif
+        #if BUTTON_EXISTS(BACK)
+          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
         #endif
 
         //
@@ -1033,7 +1024,7 @@ void MarlinUI::update() {
 
         #endif
 
-      #else // !HAS_DIGITAL_ENCODER
+      #else // !HAS_DIGITAL_BUTTONS
 
         GET_SHIFT_BUTTON_STATES(buttons);
 
@@ -1041,27 +1032,36 @@ void MarlinUI::update() {
 
     } // next_button_update_ms
 
-    // Manage encoder rotation
-    #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
+    #if HAS_ENCODER_WHEEL
 
-    uint8_t enc = 0;
-    if (buttons & EN_A) enc |= B01;
-    if (buttons & EN_B) enc |= B10;
-    if (enc != lastEncoderBits) {
-      switch (enc) {
-        case encrot0: ENCODER_SPIN(encrot3, encrot1); break;
-        case encrot1: ENCODER_SPIN(encrot0, encrot2); break;
-        case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
-        case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
+      #define encrot0 0
+      #define encrot1 2
+      #define encrot2 3
+      #define encrot3 1
+
+      // Manage encoder rotation
+      #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
+
+      uint8_t enc = 0;
+      if (buttons & EN_A) enc |= B01;
+      if (buttons & EN_B) enc |= B10;
+      if (enc != lastEncoderBits) {
+        switch (enc) {
+          case encrot0: ENCODER_SPIN(encrot3, encrot1); break;
+          case encrot1: ENCODER_SPIN(encrot0, encrot2); break;
+          case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
+          case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
+        }
+        if (external_control) {
+          #if ENABLED(AUTO_BED_LEVELING_UBL)
+            ubl.encoder_diff = encoderDiff;   // Make encoder rotation available to UBL G29 mesh editing.
+          #endif
+          encoderDiff = 0;                    // Hide the encoder event from the current screen handler.
+        }
+        lastEncoderBits = enc;
       }
-      if (external_control) {
-        #if ENABLED(AUTO_BED_LEVELING_UBL)
-          ubl.encoder_diff = encoderDiff;   // Make encoder rotation available to UBL G29 mesh editing.
-        #endif
-        encoderDiff = 0;                    // Hide the encoder event from the current screen handler.
-      }
-      lastEncoderBits = enc;
-    }
+
+    #endif // HAS_ENCODER_WHEEL
   }
 
   #if ENABLED(LCD_HAS_SLOW_BUTTONS)
