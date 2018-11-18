@@ -197,7 +197,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
 
     // KILL now if the power-loss pin was triggered
     #if PIN_EXISTS(POWER_LOSS)
-      if (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) kill(MSG_OUTAGE_RECOVERY);
+      if (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) kill(PSTR(MSG_OUTAGE_RECOVERY));
     #endif
   }
 }
