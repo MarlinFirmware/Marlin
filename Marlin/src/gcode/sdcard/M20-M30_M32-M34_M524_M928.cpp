@@ -28,6 +28,7 @@
 #include "../../sd/cardreader.h"
 #include "../../module/printcounter.h"
 #include "../../module/stepper.h"
+#include "../../lcd/ultralcd.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../feature/power_loss_recovery.h"
@@ -100,6 +101,8 @@ void GcodeSuite::M24() {
     else
   #endif
       print_job_timer.start();
+
+  ui.reset_status();
 }
 
 /**
