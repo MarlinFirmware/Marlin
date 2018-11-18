@@ -27,7 +27,7 @@
   #include "../libs/buzzer.h"
 #endif
 
-#define HAS_ENCODER_ACTION (HAS_LCD_MENU || ENABLED(ULTIPANEL_FEEDMULTIPLY))
+#define HAS_ENCODER_ACTION (HAS_LCD_MENU)
 
 #if HAS_SPI_LCD
 
@@ -99,6 +99,7 @@
 
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
+  #define HAS_BUTTON() (BUTTON_EXISTS(EN1) || BUTTON_EXISTS(EN2) || BUTTON_EXISTS(ENC) || BUTTON_EXISTS(BACK))
 
   #if BUTTON_EXISTS(ENC)
     #define BLEN_C 2

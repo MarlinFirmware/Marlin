@@ -262,7 +262,7 @@ bool MarlinUI::get_blink() {
 ///////////// Keypad Handling //////////////
 ////////////////////////////////////////////
 
-#if ENABLED(REPRAPWORLD_KEYPAD)
+#if ENABLED(REPRAPWORLD_KEYPAD) && HAS_ENCODER_ACTION
 
   volatile uint8_t MarlinUI::buttons_reprapworld_keypad;
 
@@ -443,7 +443,7 @@ void MarlinUI::status_screen() {
 
   #endif // HAS_LCD_MENU
 
-  #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
+  #if ENABLED(ULTIPANEL_FEEDMULTIPLY) && HAS_ENCODER_ACTION
 
     const int16_t new_frm = feedrate_percentage + (int32_t)encoderPosition;
     // Dead zone at 100% feedrate
@@ -708,17 +708,12 @@ void MarlinUI::update() {
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
 
-        if (
-          #if ENABLED(ADC_KEYPAD)
-            handle_keypad()
-          #else
-            handle_keypad()
-          #endif
-        ) {
+        if (handle_keypad()) {
           #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
             return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
           #endif
         }
+
       #endif
 
       const float abs_diff = ABS(encoderDiff);
@@ -814,7 +809,7 @@ void MarlinUI::update() {
           break;
       } // switch
 
-      #if ENABLED(ADC_KEYPAD)
+      #if ENABLED(ADC_KEYPAD) && HAS_ENCODER_ACTION
         buttons_reprapworld_keypad = 0;
       #endif
 
@@ -961,19 +956,21 @@ void MarlinUI::update() {
     if (ELAPSED(now, next_button_update_ms)) {
 
       #if HAS_DIGITAL_ENCODER
-        uint8_t newbutton = 0;
+        #if HAS_BUTTON
+          uint8_t newbutton = 0;
 
-        #if BUTTON_EXISTS(EN1)
-          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-        #endif
-        #if BUTTON_EXISTS(EN2)
-          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-        #endif
-        #if BUTTON_EXISTS(ENC)
-          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-        #endif
-        #if BUTTON_EXISTS(BACK)
-          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
+          #if BUTTON_EXISTS(EN1)
+            if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+          #endif
+          #if BUTTON_EXISTS(EN2)
+            if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+          #endif
+          #if BUTTON_EXISTS(ENC)
+            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+          #endif
+          #if BUTTON_EXISTS(BACK)
+            if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
+          #endif
         #endif
 
         //
