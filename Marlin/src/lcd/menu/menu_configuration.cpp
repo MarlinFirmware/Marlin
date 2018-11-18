@@ -58,7 +58,7 @@ static void lcd_factory_settings() {
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
-      ui.set_custom_characters(CHARSET_MENU);
+      ui.LCD_SET_CHARSET(ui.CHARSET_MENU);
       return;
     }
     bar_percent += (int8_t)ui.encoderPosition;
@@ -72,7 +72,7 @@ static void lcd_factory_settings() {
 
   void _progress_bar_test() {
     ui.goto_screen(progress_bar_test);
-    ui.set_custom_characters(CHARSET_INFO);
+    ui.LCD_SET_CHARSET(ui.CHARSET_INFO);
   }
 
 #endif // LCD_PROGRESS_BAR_TEST

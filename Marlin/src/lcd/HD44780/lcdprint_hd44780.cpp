@@ -960,6 +960,10 @@ void lcd_moveto(int col, int row) {
   plcd->setCursor(col, row);
 }
 
+void lcd_put_int(int i) {
+  plcd->print(i);
+}
+
 // return < 0 on error
 // return the advanced cols
 int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {

@@ -25,7 +25,7 @@
 #if HAS_CHARACTER_LCD
 
 /**
- * ultralcd_impl_HD44780.cpp
+ * ultralcd_HD44780.cpp
  *
  * LCD display implementations for Hitachi HD44780.
  * These are the most common LCD character displays.

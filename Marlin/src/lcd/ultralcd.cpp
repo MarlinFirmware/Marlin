@@ -310,8 +310,9 @@ bool MarlinUI::get_blink() {
               else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
             #endif
           }
-          else if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))     encoderPosition += ENCODER_PULSES_PER_STEP;
-          else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))       encoderPosition -= ENCODER_PULSES_PER_STEP;
+          else if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))     encoderPosition -= ENCODER_PULSES_PER_STEP;
+          else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))       encoderPosition += ENCODER_PULSES_PER_STEP;
+          else if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))     { MenuItem_back::action(); quick_feedback(); }
           else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))    encoderPosition = 0;
         #endif
         next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
@@ -408,7 +409,9 @@ void MarlinUI::status_screen() {
     // share the same line on the display.
     //
 
-    millis_t ms = millis();
+    #if DISABLED(PROGRESS_MSG_ONCE) || (PROGRESS_MSG_EXPIRE > 0)
+      millis_t ms = millis();
+    #endif
 
     // If the message will blink rather than expire...
     #if DISABLED(PROGRESS_MSG_ONCE)
@@ -953,26 +956,33 @@ void MarlinUI::update() {
    * Warning: This function is called from interrupt context!
    */
   void MarlinUI::update_buttons() {
-    static uint8_t lastEncoderBits;
     const millis_t now = millis();
     if (ELAPSED(now, next_button_update_ms)) {
 
       #if HAS_DIGITAL_BUTTONS
-        uint8_t newbutton = 0;
 
-        #if BUTTON_EXISTS(EN1)
-          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-        #endif
-        #if BUTTON_EXISTS(EN2)
-          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-        #endif
-        #if BUTTON_EXISTS(ENC)
-          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-        #endif
-        #if BUTTON_EXISTS(BACK)
-          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-        #endif
+        #if DISABLED(ADC_KEYPAD) || \
+            BUTTON_EXISTS(EN1)   || \
+            BUTTON_EXISTS(EN2)   || \
+            BUTTON_EXISTS(ENC)   || \
+            BUTTON_EXISTS(BACK)
 
+          uint8_t newbutton = 0;
+
+          #if BUTTON_EXISTS(EN1)
+            if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+          #endif
+          #if BUTTON_EXISTS(EN2)
+            if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+          #endif
+          #if BUTTON_EXISTS(ENC)
+            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+          #endif
+          #if BUTTON_EXISTS(BACK)
+            if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
+          #endif
+          
+        #endif
         //
         // Directional buttons
         //
@@ -1042,6 +1052,7 @@ void MarlinUI::update() {
     } // next_button_update_ms
 
     #if HAS_ENCODER_WHEEL
+      static uint8_t lastEncoderBits;
 
       #define encrot0 0
       #define encrot1 2
