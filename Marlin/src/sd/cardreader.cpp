@@ -521,7 +521,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
 
       getfilename(0, fname);
-      ui.setstatus(longFilename[0] ? longFilename : fname);
+      ui.set_status(longFilename[0] ? longFilename : fname);
       //if (longFilename[0]) {
       //  SERIAL_PROTOCOLPAIR(MSG_SD_FILE_LONG_NAME, longFilename);
       //}
@@ -545,7 +545,7 @@ void CardReader::openFile(char * const path, const bool read, const bool subcall
         emergency_parser.disable();
       #endif
       SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, fname);
-      ui.setstatus(fname);
+      ui.set_status(fname);
     }
   }
 }

@@ -917,7 +917,7 @@
     }
 
     inline void set_message_with_feedback(PGM_P const msg_P) {
-      ui.setstatusPGM(msg_P);
+      ui.set_status_P(msg_P);
       ui.quick_feedback();
     }
 

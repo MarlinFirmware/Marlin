@@ -99,10 +99,6 @@ void ST7920_Lite_Status_Screen::write_str_P(PGM_P const str) {
   while (char c = pgm_read_byte(p_str++)) write_byte(c);
 }
 
-void ST7920_Lite_Status_Screen::write_str(progmem_str str) {
-  write_str_P((PGM_P)str);
-}
-
 void ST7920_Lite_Status_Screen::write_number(const int16_t value, const uint8_t digits/*=3*/) {
   char str[7];
   PGM_P fmt;
@@ -501,11 +497,11 @@ void ST7920_Lite_Status_Screen::draw_progress_bar(const uint8_t value) {
   // Draw centered
   if (value > 9) {
     write_number(value, 4);
-    write_str(F("% "));
+    write_str_P(PSTR("% "));
   }
   else {
     write_number(value, 3);
-    write_str(F("%  "));
+    write_str_P(PSTR("%  "));
   }
 }
 
@@ -558,12 +554,12 @@ void ST7920_Lite_Status_Screen::draw_temps(uint8_t line, const int16_t temp, con
   write_number(temp);
 
   if (showTarget) {
-    write_str(F("\x1A"));
+    write_byte('\x1A');
     write_number(target);
   };
 
   if (targetStateChange) {
-    if (!showTarget) write_str(F("    "));
+    if (!showTarget) write_str_P(PSTR("    "));
     draw_degree_symbol(5, line, !showTarget);
     draw_degree_symbol(9, line,  showTarget);
   }

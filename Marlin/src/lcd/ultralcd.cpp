@@ -29,6 +29,16 @@
     #include "../sd/cardreader.h"
   #endif
   MarlinUI ui;
+  #if ENABLED(SDSUPPORT)
+    #include "../sd/cardreader.h"
+  #endif
+  #if ENABLED(EXTENSIBLE_UI)
+    #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
+  #endif
+
+  #define MAX_MESSAGE_LENGTH 63
+  uint8_t MarlinUI::status_message_level; // = 0
+  char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
 
 #if HAS_SPI_LCD
@@ -86,9 +96,7 @@
   bool MarlinUI::defer_return_to_status;
 #endif
 
-char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
-uint8_t MarlinUI::status_message_level; // = 0
 
 #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
   millis_t MarlinUI::next_filament_display; // = 0
@@ -475,7 +483,7 @@ void MarlinUI::status_screen() {
 
 void MarlinUI::kill_screen(PGM_P lcd_msg) {
   init();
-  setalertstatusPGM(lcd_msg);
+  set_alert_status_P(lcd_msg);
   draw_kill_screen();
 }
 
@@ -674,11 +682,11 @@ void MarlinUI::update() {
         if (old_sd_status == 2)
           card.beginautostart();  // Initial boot
         else
-          setstatusPGM(PSTR(MSG_SD_INSERTED));
+          set_status_P(PSTR(MSG_SD_INSERTED));
       }
       else {
         card.release();
-        if (old_sd_status != 2) setstatusPGM(PSTR(MSG_SD_REMOVED));
+        if (old_sd_status != 2) set_status_P(PSTR(MSG_SD_REMOVED));
       }
 
       refresh();
@@ -1083,110 +1091,118 @@ void MarlinUI::update() {
 
 #endif // HAS_ENCODER_ACTION
 
-////////////////////////////////////////////
-/////////////// Status Line ////////////////
-////////////////////////////////////////////
-
-void MarlinUI::finishstatus(const bool persist) {
-
-  #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
-    UNUSED(persist);
-  #endif
-
-  #if ENABLED(LCD_PROGRESS_BAR)
-    progress_bar_ms = millis();
-    #if PROGRESS_MSG_EXPIRE > 0
-      expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
-    #endif
-  #endif
-
-  #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
-    next_filament_display = millis() + 5000UL; // Show status message for 5s
-  #endif
-
-  #if ENABLED(STATUS_MESSAGE_SCROLLING)
-    status_scroll_offset = 0;
-  #endif
-
-  refresh();
-}
-
-bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
-
-void MarlinUI::setstatus(const char * const message, const bool persist) {
-  if (status_message_level > 0) return;
-
-  // Here we have a problem. The message is encoded in UTF8, so
-  // arbitrarily cutting it will be a problem. We MUST be sure
-  // that there is no cutting in the middle of a multibyte character!
-
-  // Get a pointer to the null terminator
-  const char* pend = message + strlen(message);
-
-  //  If length of supplied UTF8 string is greater than
-  // our buffer size, start cutting whole UTF8 chars
-  while ((pend - message) > MAX_MESSAGE_LENGTH) {
-    --pend;
-    while (!START_OF_UTF8_CHAR(*pend)) --pend;
-  };
-
-  // At this point, we have the proper cut point. Use it
-  uint8_t maxLen = pend - message;
-  strncpy(status_message, message, maxLen);
-  status_message[maxLen] = '\0';
-
-  finishstatus(persist);
-}
-
-#include <stdarg.h>
-
-void MarlinUI::status_printf_P(const uint8_t level, PGM_P const fmt, ...) {
-  if (level < status_message_level) return;
-  status_message_level = level;
-  va_list args;
-  va_start(args, fmt);
-  vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
-  va_end(args);
-  finishstatus(level > 0);
-}
-
-void MarlinUI::setstatusPGM(PGM_P const message, int8_t level) {
-  if (level < 0) level = status_message_level = 0;
-  if (level < status_message_level) return;
-  status_message_level = level;
-
-  // Here we have a problem. The message is encoded in UTF8, so
-  // arbitrarily cutting it will be a problem. We MUST be sure
-  // that there is no cutting in the middle of a multibyte character!
-
-  // Get a pointer to the null terminator
-  PGM_P pend = message + strlen_P(message);
-
-  //  If length of supplied UTF8 string is greater than
-  // our buffer size, start cutting whole UTF8 chars
-  while ((pend - message) > MAX_MESSAGE_LENGTH) {
-    --pend;
-    while (!START_OF_UTF8_CHAR(pgm_read_byte(pend))) --pend;
-  };
-
-  // At this point, we have the proper cut point. Use it
-  uint8_t maxLen = pend - message;
-  strncpy_P(status_message, message, maxLen);
-  status_message[maxLen] = '\0';
-
-  finishstatus(level > 0);
-}
-
-void MarlinUI::setalertstatusPGM(PGM_P const message) {
-  setstatusPGM(message, 1);
-  #if HAS_LCD_MENU
-    return_to_status();
-  #endif
-}
-
 #endif // HAS_SPI_LCD
 
 #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
+
+  #if ENABLED(EXTENSIBLE_UI)
+    #include "extensible_ui/ui_api.h"
+  #endif
+
+  ////////////////////////////////////////////
+  /////////////// Status Line ////////////////
+  ////////////////////////////////////////////
+
+  void MarlinUI::finishstatus(const bool persist) {
+
+    #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
+      UNUSED(persist);
+    #endif
+
+    #if ENABLED(LCD_PROGRESS_BAR)
+      progress_bar_ms = millis();
+      #if PROGRESS_MSG_EXPIRE > 0
+        expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
+      #endif
+    #endif
+
+    #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
+      next_filament_display = millis() + 5000UL; // Show status message for 5s
+    #endif
+
+    #if ENABLED(STATUS_MESSAGE_SCROLLING)
+      status_scroll_offset = 0;
+    #endif
+
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onStatusChanged(status_message);
+    #endif
+
+    refresh();
+  }
+
+  bool MarlinUI::has_status() { return (status_message[0] != '\0'); }
+
+  void MarlinUI::set_status(const char * const message, const bool persist) {
+    if (status_message_level > 0) return;
+
+    // Here we have a problem. The message is encoded in UTF8, so
+    // arbitrarily cutting it will be a problem. We MUST be sure
+    // that there is no cutting in the middle of a multibyte character!
+
+    // Get a pointer to the null terminator
+    const char* pend = message + strlen(message);
+
+    //  If length of supplied UTF8 string is greater than
+    // our buffer size, start cutting whole UTF8 chars
+    while ((pend - message) > MAX_MESSAGE_LENGTH) {
+      --pend;
+      while (!START_OF_UTF8_CHAR(*pend)) --pend;
+    };
+
+    // At this point, we have the proper cut point. Use it
+    uint8_t maxLen = pend - message;
+    strncpy(status_message, message, maxLen);
+    status_message[maxLen] = '\0';
+
+    finishstatus(persist);
+  }
+
+  #include <stdarg.h>
+
+  void MarlinUI::status_printf_P(const uint8_t level, PGM_P const fmt, ...) {
+    if (level < status_message_level) return;
+    status_message_level = level;
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf_P(status_message, MAX_MESSAGE_LENGTH, fmt, args);
+    va_end(args);
+    finishstatus(level > 0);
+  }
+
+  void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
+    if (level < 0) level = status_message_level = 0;
+    if (level < status_message_level) return;
+    status_message_level = level;
+
+    // Here we have a problem. The message is encoded in UTF8, so
+    // arbitrarily cutting it will be a problem. We MUST be sure
+    // that there is no cutting in the middle of a multibyte character!
+
+    // Get a pointer to the null terminator
+    PGM_P pend = message + strlen_P(message);
+
+    //  If length of supplied UTF8 string is greater than
+    // our buffer size, start cutting whole UTF8 chars
+    while ((pend - message) > MAX_MESSAGE_LENGTH) {
+      --pend;
+      while (!START_OF_UTF8_CHAR(pgm_read_byte(pend))) --pend;
+    };
+
+    // At this point, we have the proper cut point. Use it
+    uint8_t maxLen = pend - message;
+    strncpy_P(status_message, message, maxLen);
+    status_message[maxLen] = '\0';
+
+    finishstatus(level > 0);
+  }
+
+  void MarlinUI::set_alert_status_P(PGM_P const message) {
+    set_status_P(message, 1);
+    #if HAS_LCD_MENU
+      return_to_status();
+    #endif
+  }
 
   #include "../module/printcounter.h"
 
@@ -1202,14 +1218,14 @@ void MarlinUI::setalertstatusPGM(PGM_P const message) {
       msg = paused;
     #if ENABLED(SDSUPPORT)
       else if (IS_SD_PRINTING())
-        return setstatus(card.longest_filename(), true);
+        return set_status(card.longest_filename(), true);
     #endif
     else if (print_job_timer.isRunning())
       msg = printing;
     else
       msg = welcome;
 
-    setstatusPGM(msg, -1);
+    set_status_P(msg, -1);
   }
 
 #endif

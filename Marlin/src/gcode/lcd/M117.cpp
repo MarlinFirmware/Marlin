@@ -28,6 +28,6 @@
  */
 void GcodeSuite::M117() {
 
-  ui.setstatus(parser.string_arg);
+  ui.set_status(parser.string_arg);
 
 }
