@@ -64,5 +64,5 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
 
 size_t PersistentStore::capacity() { return E2END + 1; }
 
-#endif // EEPROM_SETTINGS | SD_FIRMWARE_UPDATE
+#endif // EEPROM_SETTINGS || SD_FIRMWARE_UPDATE
 #endif // __AVR__
