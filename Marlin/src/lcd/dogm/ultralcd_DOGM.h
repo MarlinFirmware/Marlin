@@ -21,7 +21,7 @@
  */
 
 /**
- * ultralcd_impl_DOGM.h
+ * ultralcd_DOGM.h
  */
 
 #include "../../inc/MarlinConfigPre.h"

@@ -207,12 +207,6 @@ void MarlinUI::init() {
       SET_INPUT_PULLUP(BTN_ENC);
     #endif
 
-    #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(ADC_KEYPAD)
-      SET_OUTPUT(SHIFT_CLK);
-      OUT_WRITE(SHIFT_LD, HIGH);
-      SET_INPUT_PULLUP(SHIFT_OUT);
-    #endif
-
     #if BUTTON_EXISTS(UP)
       SET_INPUT(BTN_UP);
     #endif
@@ -226,19 +220,27 @@ void MarlinUI::init() {
       SET_INPUT(BTN_RT);
     #endif
 
-  #else // !HAS_DIGITAL_BUTTONS
+  #endif // !HAS_DIGITAL_BUTTONS
+
+  #if HAS_SHIFT_ENCODER
 
     #if ENABLED(SR_LCD_2W_NL) // Non latching 2 wire shift register
+
       SET_OUTPUT(SR_DATA_PIN);
       SET_OUTPUT(SR_CLK_PIN);
+
     #elif defined(SHIFT_CLK)
+
       SET_OUTPUT(SHIFT_CLK);
       OUT_WRITE(SHIFT_LD, HIGH);
-      OUT_WRITE(SHIFT_EN, LOW);
+      #if defined(SHIFT_EN) && SHIFT_EN >= 0
+        OUT_WRITE(SHIFT_EN, LOW);
+      #endif
       SET_INPUT_PULLUP(SHIFT_OUT);
-    #endif // SR_LCD_2W_NL
 
-  #endif // !HAS_DIGITAL_BUTTONS
+    #endif
+
+  #endif // HAS_SHIFT_ENCODER
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
@@ -273,9 +275,9 @@ bool MarlinUI::get_blink() {
 
 #if ENABLED(REPRAPWORLD_KEYPAD) && HAS_ENCODER_ACTION
 
-  volatile uint8_t MarlinUI::buttons_reprapworld_keypad;
+  volatile uint8_t MarlinUI::keypad_buttons;
 
-  #if DISABLED(ADC_KEYPAD) && HAS_LCD_MENU
+  #if HAS_LCD_MENU && !HAS_ADC_BUTTONS
 
     void lcd_move_x();
     void lcd_move_y();
@@ -296,10 +298,10 @@ bool MarlinUI::get_blink() {
 
   bool MarlinUI::handle_keypad() {
 
-    #if ENABLED(ADC_KEYPAD)
+    #if HAS_ADC_BUTTONS
 
       #define ADC_MIN_KEY_DELAY 100
-      if (buttons_reprapworld_keypad) {
+      if (keypad_buttons) {
         #if HAS_ENCODER_ACTION
           refresh(LCDVIEW_REDRAW_NOW);
           if (encoderDirection == -1) { // side effect which signals we are inside a menu
@@ -310,15 +312,16 @@ bool MarlinUI::get_blink() {
               else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
             #endif
           }
-          else if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))     encoderPosition += ENCODER_PULSES_PER_STEP;
-          else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))       encoderPosition -= ENCODER_PULSES_PER_STEP;
+          else if (RRK(EN_REPRAPWORLD_KEYPAD_DOWN))     encoderPosition -= ENCODER_PULSES_PER_STEP;
+          else if (RRK(EN_REPRAPWORLD_KEYPAD_UP))       encoderPosition += ENCODER_PULSES_PER_STEP;
+          else if (RRK(EN_REPRAPWORLD_KEYPAD_LEFT))     { MenuItem_back::action(); quick_feedback(); }
           else if (RRK(EN_REPRAPWORLD_KEYPAD_RIGHT))    encoderPosition = 0;
         #endif
         next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
         return true;
       }
 
-    #else // !ADC_KEYPAD
+    #else // !HAS_ADC_BUTTONS
 
       static uint8_t keypad_debounce = 0;
 
@@ -408,7 +411,9 @@ void MarlinUI::status_screen() {
     // share the same line on the display.
     //
 
-    millis_t ms = millis();
+    #if DISABLED(PROGRESS_MSG_ONCE) || (PROGRESS_MSG_EXPIRE > 0)
+      millis_t ms = millis();
+    #endif
 
     // If the message will blink rather than expire...
     #if DISABLED(PROGRESS_MSG_ONCE)
@@ -818,8 +823,8 @@ void MarlinUI::update() {
           break;
       } // switch
 
-      #if ENABLED(ADC_KEYPAD)
-        buttons_reprapworld_keypad = 0;
+      #if HAS_ADC_BUTTONS
+        keypad_buttons = 0;
       #endif
 
       #if HAS_GRAPHICAL_LCD
@@ -890,7 +895,7 @@ void MarlinUI::update() {
   } // ELAPSED(ms, next_lcd_update_ms)
 }
 
-#if ENABLED(ADC_KEYPAD)
+#if HAS_ADC_BUTTONS
 
   typedef struct {
     uint16_t ADCKeyValueMin, ADCKeyValueMax;
@@ -953,30 +958,38 @@ void MarlinUI::update() {
    * Warning: This function is called from interrupt context!
    */
   void MarlinUI::update_buttons() {
-    static uint8_t lastEncoderBits;
     const millis_t now = millis();
     if (ELAPSED(now, next_button_update_ms)) {
 
       #if HAS_DIGITAL_BUTTONS
-        uint8_t newbutton = 0;
 
-        #if BUTTON_EXISTS(EN1)
-          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-        #endif
-        #if BUTTON_EXISTS(EN2)
-          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-        #endif
-        #if BUTTON_EXISTS(ENC)
-          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-        #endif
-        #if BUTTON_EXISTS(BACK)
-          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
+        #if BUTTON_EXISTS(EN1) || BUTTON_EXISTS(EN2) || BUTTON_EXISTS(ENC) || BUTTON_EXISTS(BACK)
+
+          uint8_t newbutton = 0;
+
+          #if BUTTON_EXISTS(EN1)
+            if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+          #endif
+          #if BUTTON_EXISTS(EN2)
+            if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+          #endif
+          #if BUTTON_EXISTS(ENC)
+            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+          #endif
+          #if BUTTON_EXISTS(BACK)
+            if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
+          #endif
+
+        #else
+
+          constexpr uint8_t newbutton = 0;
+
         #endif
 
         //
         // Directional buttons
         //
-        #if LCD_HAS_DIRECTIONAL_BUTTONS
+        #if BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT)
 
           const int8_t pulses = (ENCODER_PULSES_PER_STEP) * encoderDirection;
 
@@ -1008,40 +1021,40 @@ void MarlinUI::update() {
             }
           #endif
 
-        #endif // LCD_HAS_DIRECTIONAL_BUTTONS
+        #endif // UP || DWN || LFT || RT
 
-        #if ENABLED(ADC_KEYPAD)
-
-          buttons = 0;
-          if (buttons_reprapworld_keypad == 0) {
-            uint8_t newbutton_reprapworld_keypad = get_ADC_keyValue();
-            if (WITHIN(newbutton_reprapworld_keypad, 1, 8))
-              buttons_reprapworld_keypad = _BV(newbutton_reprapworld_keypad - 1);
-          }
-
-        #else
-
-          buttons = newbutton
-            #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-              | slow_buttons
-            #endif
-          ;
-
-          #if ENABLED(REPRAPWORLD_KEYPAD)
-            GET_SHIFT_BUTTON_STATES(buttons_reprapworld_keypad);
+        buttons = newbutton
+          #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+            | slow_buttons
           #endif
+        ;
 
-        #endif
+      #elif HAS_ADC_BUTTONS
 
-      #else // !HAS_DIGITAL_BUTTONS
+        buttons = 0;
+        if (keypad_buttons == 0) {
+          const uint8_t b = get_ADC_keyValue();
+          if (WITHIN(b, 1, 8)) keypad_buttons = _BV(b - 1);
+        }
 
-        GET_SHIFT_BUTTON_STATES(buttons);
+      #endif
+
+      #if HAS_SHIFT_ENCODER
+
+        GET_SHIFT_BUTTON_STATES(
+          #if ENABLED(REPRAPWORLD_KEYPAD)
+            keypad_buttons
+          #else
+            buttons
+          #endif
+        );
 
       #endif
 
     } // next_button_update_ms
 
     #if HAS_ENCODER_WHEEL
+      static uint8_t lastEncoderBits;
 
       #define encrot0 0
       #define encrot1 2

@@ -21,7 +21,7 @@
  */
 
 /**
- * ultralcd_impl_DOGM.cpp
+ * ultralcd_DOGM.cpp
  *
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
