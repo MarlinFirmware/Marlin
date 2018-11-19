@@ -134,7 +134,6 @@ namespace ExtUI {
       // The ms count is
       return (uint32_t)(currTime / (F_CPU / 8000));
     }
-
   #endif // __SAM3X8E__
 
   void delay_us(unsigned long us) {
