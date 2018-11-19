@@ -211,6 +211,12 @@
     FONT_EDIT,
     FONT_MENU
   };
+#else
+  enum HD44780CharSet : uint8_t {
+    CHARSET_MENU,
+    CHARSET_INFO,
+    CHARSET_BOOT
+  };
 #endif
 
 ////////////////////////////////////////////
@@ -282,23 +288,15 @@ public:
 
         static constexpr bool drawing_screen = false, first_page = true;
 
-        enum HD44780CharSet : uint8_t { CHARSET_MENU, CHARSET_INFO, CHARSET_BOOT };
-
-        static void set_custom_characters(
-          #if ENABLED(LCD_PROGRESS_BAR) || ENABLED(SHOW_BOOTSCREEN)
-            const HD44780CharSet screen_charset=CHARSET_INFO
-          #endif
-        );
+        static void set_custom_characters(const HD44780CharSet screen_charset=CHARSET_INFO);
 
         #if ENABLED(LCD_PROGRESS_BAR)
           static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
+          static void draw_progress_bar(const uint8_t percent);
           #if PROGRESS_MSG_EXPIRE > 0
             static millis_t MarlinUI::expire_status_ms; // = 0
             static inline void reset_progress_bar_timeout() { expire_status_ms = 0; }
           #endif
-          #define LCD_SET_CHARSET(C) set_custom_characters(C)
-        #else
-          #define LCD_SET_CHARSET(C) set_custom_characters()
         #endif
 
       #endif

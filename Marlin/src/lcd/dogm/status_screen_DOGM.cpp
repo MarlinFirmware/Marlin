@@ -37,6 +37,12 @@
 #include "../../module/motion.h"
 #include "../../module/temperature.h"
 
+#if ENABLED(FILAMENT_LCD_DISPLAY)
+  #include "../../feature/filwidth.h"
+  #include "../../module/planner.h"
+  #include "../../gcode/parser.h"
+#endif
+
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
 #endif
@@ -477,9 +483,7 @@ void MarlinUI::draw_status_screen() {
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
       // Alternate Status message and Filament display
-      if (PENDING(millis(), next_filament_display))
-        draw_status_message(blink);
-      else {
+      if (ELAPSED(millis(), next_filament_display)) {
         lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
         lcd_put_wchar(':');
         lcd_put_u8str(wstring);
@@ -488,9 +492,9 @@ void MarlinUI::draw_status_screen() {
         lcd_put_u8str(mstring);
         lcd_put_wchar('%');
       }
-    #else
-      draw_status_message(blink);
+      else
     #endif
+        draw_status_message(blink);
   }
 }
 

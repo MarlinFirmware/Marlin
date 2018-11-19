@@ -29,9 +29,8 @@ before_install:
   #
   # Publish the buildroot script folder
   - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/bin/*
-  - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${PATH}
   - chmod +x ${TRAVIS_BUILD_DIR}/buildroot/share/tests/*
-  - export PATH=${TRAVIS_BUILD_DIR}/buildroot/share/tests/:${PATH}
+  - export PATH=${TRAVIS_BUILD_DIR}/buildroot/bin/:${TRAVIS_BUILD_DIR}/buildroot/share/tests/:${PATH}
 
 install:
   #- pip install -U platformio
