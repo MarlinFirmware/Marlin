@@ -68,7 +68,6 @@
 #endif
 
 U8G_CLASS u8g(U8G_PARAM);
-U8GLIB *pu8g = &u8g;
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
