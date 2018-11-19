@@ -276,7 +276,7 @@ void save_job_recovery_info() {
 
     // If power-loss pin was triggered, write just once then kill
     #if PIN_EXISTS(POWER_LOSS)
-      if (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) kill(MSG_POWER_LOSS_RECOVERY);
+      if (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) kill(PSTR(MSG_POWER_LOSS_RECOVERY));
     #endif
   }
 }
