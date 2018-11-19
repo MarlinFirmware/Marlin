@@ -23,13 +23,11 @@ extern U8GLIB *pu8g;
 #include "u8g_fontutf8.h"
 #include "../lcdprint.h"
 
-int lcd_glyph_height(void) {
-  return u8g_GetFontBBXHeight(pu8g->getU8g());
-}
+int lcd_glyph_height(void) { return u8g_GetFontBBXHeight(pu8g->getU8g()); }
 
-void lcd_moveto(int col, int row) {
-  _lcd_setcursor(col, row);
-}
+void lcd_moveto(const uint8_t col, const uint8_t row) { _lcd_setcursor(col, row); }
+
+void lcd_put_int(const int i) { pu8g->print(i); }
 
 // return < 0 on error
 // return the advanced pixels
