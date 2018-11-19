@@ -11,8 +11,7 @@
 
 #if HAS_GRAPHICAL_LCD
 
-#include <U8glib.h>
-extern U8GLIB u8g;
+#include "ultralcd_DOGM.h"
 
 #include "../ultralcd.h"
 #include "../../Marlin.h"
