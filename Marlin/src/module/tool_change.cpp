@@ -479,6 +479,8 @@ inline void invalid_extruder_error(const uint8_t e) {
         active_extruder_parked = true;
         delayed_move_time = 0;
         break;
+      default:
+        break;
     }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
