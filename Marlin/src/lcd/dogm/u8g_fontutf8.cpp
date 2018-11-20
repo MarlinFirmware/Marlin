@@ -42,7 +42,7 @@ static int fontinfo_compare(uxg_fontinfo_t * v1, uxg_fontinfo_t * v2) {
 }
 
 /*"data_list[idx] - *data_pin"*/
-static int pf_bsearch_cb_comp_fntifo_pgm (void *userdata, size_t idx, void *data_pin) {
+static int pf_bsearch_cb_comp_fntifo_pgm(void *userdata, const size_t idx, void *data_pin) {
   uxg_fontinfo_t *fntinfo = (uxg_fontinfo_t*)userdata;
   uxg_fontinfo_t localval;
   memcpy_P(&localval, fntinfo + idx, sizeof(localval));
@@ -103,7 +103,7 @@ static void fontgroup_drawwchar(font_group_t *group, const font_t *fnt_default, 
  *
  * Get the screen pixel width of a ROM UTF-8 string
  */
-static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default, const char *utf8_msg, read_byte_cb_t cb_read_byte, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
+static void fontgroup_drawstring(font_group_t *group, const font_t *fnt_default, const char * const utf8_msg, read_byte_cb_t cb_read_byte, void * userdata, fontgroup_cb_draw_t cb_draw_ram) {
   uint8_t *p = (uint8_t*)utf8_msg;
   for (;;) {
     wchar_t val = 0;
@@ -196,7 +196,7 @@ unsigned int uxg_DrawWchar(u8g_t *pu8g, unsigned int x, unsigned int y, wchar_t 
  *
  * Draw a UTF-8 string at the specified position
  */
-unsigned int uxg_DrawUtf8Str(u8g_t *pu8g, unsigned int x, unsigned int y, const char *utf8_msg, pixel_len_t max_width) {
+unsigned int uxg_DrawUtf8Str(u8g_t *pu8g, unsigned int x, unsigned int y, const char * const utf8_msg, pixel_len_t max_width) {
   struct _uxg_drawu8_data_t data;
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);
@@ -230,7 +230,7 @@ unsigned int uxg_DrawUtf8Str(u8g_t *pu8g, unsigned int x, unsigned int y, const 
  *
  * Draw a ROM UTF-8 string at the specified position
  */
-unsigned int uxg_DrawUtf8StrP(u8g_t *pu8g, unsigned int x, unsigned int y, PGM_P utf8_msg, pixel_len_t max_width) {
+unsigned int uxg_DrawUtf8StrP(u8g_t *pu8g, unsigned int x, unsigned int y, PGM_P const utf8_msg, pixel_len_t max_width) {
   struct _uxg_drawu8_data_t data;
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);
@@ -273,7 +273,7 @@ static int fontgroup_cb_draw_u8gstrlen(void *userdata, const font_t *fnt_current
  *
  * Get the screen pixel width of a UTF-8 string
  */
-int uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, const char *utf8_msg) {
+int uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, const char * const utf8_msg) {
   struct _uxg_drawu8_data_t data;
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);
@@ -299,7 +299,7 @@ int uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, const char *utf8_msg) {
  *
  * Get the screen pixel width of a ROM UTF-8 string
  */
-int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, PGM_P utf8_msg) {
+int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, PGM_P const utf8_msg) {
   struct _uxg_drawu8_data_t data;
   font_group_t *group = &g_fontgroup_root;
   const font_t *fnt_default = uxg_GetFont(pu8g);

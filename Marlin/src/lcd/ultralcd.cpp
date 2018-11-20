@@ -130,7 +130,7 @@ millis_t next_button_update_ms;
       uint8_t MarlinUI::filename_scroll_pos, MarlinUI::filename_scroll_max;
     #endif
 
-    const char * const MarlinUI::scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll) {
+    const char * MarlinUI::scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll) {
       const char *outstr = theCard.longest_filename();
       if (theCard.longFilename[0]) {
         #if ENABLED(SCROLL_LONG_FILENAMES)

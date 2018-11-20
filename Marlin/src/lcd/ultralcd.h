@@ -380,7 +380,7 @@ public:
       #if ENABLED(SCROLL_LONG_FILENAMES)
         static uint8_t filename_scroll_pos, filename_scroll_max;
       #endif
-      static const char * const scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
+      static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
     #endif
 
     #if IS_KINEMATIC
