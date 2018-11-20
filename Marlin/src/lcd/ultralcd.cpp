@@ -840,13 +840,13 @@ void MarlinUI::update() {
         #endif
 
         if (do_u8g_loop) {
-          if (!drawing_screen) {                        // If not already drawing pages
-            u8g.firstPage();                            // Start the first page
-            drawing_screen = first_page = true;         // Flag as drawing pages
+          if (!drawing_screen) {                // If not already drawing pages
+            u8g.firstPage();                    // Start the first page
+            drawing_screen = first_page = true; // Flag as drawing pages
           }
-          set_font(FONT_MENU);                       // Setup font for every page draw
-          u8g.setColorIndex(1);                         // And reset the color
-          run_current_screen();                         // Draw and process the current screen
+          set_font(FONT_MENU);                  // Setup font for every page draw
+          u8g.setColorIndex(1);                 // And reset the color
+          run_current_screen();                 // Draw and process the current screen
           first_page = false;
 
           // The screen handler can clear drawing_screen for an action that changes the screen.
