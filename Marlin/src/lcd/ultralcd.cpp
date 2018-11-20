@@ -60,7 +60,7 @@
  #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if DISABLED(LCD_USE_I2C_BUZZER)
+#if HAS_BUZZER
   #include "../libs/buzzer.h"
 #endif
 
@@ -665,11 +665,13 @@ void MarlinUI::update() {
     }
     else wait_for_unclick = false;
 
-    #if BUTTON_EXISTS(BACK)
-      if (LCD_BACK_CLICKED()) {
-        quick_feedback();
-        goto_previous_screen();
-      }
+    #if HAS_DIGITAL_BUTTONS
+      #if BUTTON_EXISTS(BACK)
+        if (LCD_BACK_CLICKED()) {
+          quick_feedback();
+          goto_previous_screen();
+        }
+      #endif
     #endif
 
   #endif // HAS_LCD_MENU

@@ -180,7 +180,10 @@
     #endif
 
   #endif
+#elif HAS_ADC_BUTTONS
 
+  #define BUTTON_CLICK() RRK(EN_REPRAPWORLD_KEYPAD_MIDDLE)
+  
 #else
 
   #define BUTTON_EXISTS(BN) 0
