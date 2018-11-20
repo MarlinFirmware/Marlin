@@ -48,7 +48,7 @@
 // public:
 
 card_flags_t CardReader::flag;
-char CardReader::filename[FILENAME_LENGTH + 1], CardReader::longFilename[LONG_FILENAME_LENGTH + 1];
+char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
 int8_t CardReader::autostart_index;
 
 #if ENABLED(FAST_FILE_TRANSFER)
@@ -82,11 +82,11 @@ uint8_t CardReader::workDirDepth;
       #if ENABLED(SDSORT_DYNAMIC_RAM)
         char **CardReader::sortshort, **CardReader::sortnames;
       #else
-        char CardReader::sortshort[SDSORT_LIMIT][FILENAME_LENGTH + 1];
-        char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN + 1];
+        char CardReader::sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
+        char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
       #endif
     #elif DISABLED(SDSORT_USES_STACK)
-      char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN + 1];
+      char CardReader::sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
     #endif
 
     #if HAS_FOLDER_SORTING
@@ -107,7 +107,7 @@ SdFile CardReader::file;
 
 uint8_t CardReader::file_subcall_ctr;
 uint32_t CardReader::filespos[SD_PROCEDURE_DEPTH];
-char CardReader::proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH + 1];
+char CardReader::proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
 
 uint32_t CardReader::filesize, CardReader::sdpos;
 
@@ -183,7 +183,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
     if (DIR_IS_SUBDIR(&p) && lsAction != LS_Count && lsAction != LS_GetFilename) {
 
       // Get the short name for the item, which we know is a folder
-      char dosFilename[FILENAME_LENGTH + 1];
+      char dosFilename[FILENAME_LENGTH];
       createFilename(dosFilename, p);
 
       // Allocate enough stack space for the full path to a folder, trailing slash, and nul
@@ -350,7 +350,7 @@ void CardReader::printFilename(
   #endif
 ) {
   if (file.isOpen()) {
-    char dosFilename[FILENAME_LENGTH + 1];
+    char dosFilename[FILENAME_LENGTH];
     file.getFilename(dosFilename);
     SERIAL_ECHO_P(port, dosFilename);
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -856,7 +856,7 @@ void CardReader::setroot() {
             sortnames = new char*[fileCnt];
           #endif
         #elif ENABLED(SDSORT_USES_STACK)
-          char sortnames[fileCnt][SORTED_LONGNAME_MAXLEN + 1];
+          char sortnames[fileCnt][SORTED_LONGNAME_MAXLEN];
         #endif
 
         // Folder sorting needs 1 bit per entry for flags.
@@ -873,7 +873,7 @@ void CardReader::setroot() {
         // By default re-read the names from SD for every compare
         // retaining only two filenames at a time. This is very
         // slow but is safest and uses minimal RAM.
-        char name1[LONG_FILENAME_LENGTH + 1];
+        char name1[LONG_FILENAME_LENGTH];
 
       #endif
 

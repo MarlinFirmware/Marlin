@@ -159,7 +159,7 @@ public:
 
 public:
   static card_flags_t flag;
-  static char filename[FILENAME_LENGTH + 1], longFilename[LONG_FILENAME_LENGTH + 1];
+  static char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   static int8_t autostart_index;
 
   #if ENABLED(FAST_FILE_TRANSFER)
@@ -204,11 +204,11 @@ private:
         #if ENABLED(SDSORT_DYNAMIC_RAM)
           static char **sortshort, **sortnames;
         #else
-          static char sortshort[SDSORT_LIMIT][FILENAME_LENGTH + 1];
-          static char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN + 1];
+          static char sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
+          static char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
         #endif
       #elif DISABLED(SDSORT_USES_STACK)
-        static char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN + 1];
+        static char sortnames[SDSORT_LIMIT][SORTED_LONGNAME_MAXLEN];
       #endif
 
       // Folder sorting uses an isDir array when caching items.
@@ -234,7 +234,7 @@ private:
 
   static uint8_t file_subcall_ctr;
   static uint32_t filespos[SD_PROCEDURE_DEPTH];
-  static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH + 1];
+  static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
 
   static uint32_t filesize, sdpos;
 
