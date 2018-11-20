@@ -665,13 +665,11 @@ void MarlinUI::update() {
     }
     else wait_for_unclick = false;
 
-    #if HAS_DIGITAL_BUTTONS
-      #if BUTTON_EXISTS(BACK)
-        if (LCD_BACK_CLICKED()) {
-          quick_feedback();
-          goto_previous_screen();
-        }
-      #endif
+    #if HAS_DIGITAL_BUTTONS && BUTTON_EXISTS(BACK)
+      if (LCD_BACK_CLICKED()) {
+        quick_feedback();
+        goto_previous_screen();
+      }
     #endif
 
   #endif // HAS_LCD_MENU
