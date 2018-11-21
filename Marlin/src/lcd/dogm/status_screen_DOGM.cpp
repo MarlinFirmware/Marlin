@@ -305,18 +305,26 @@ void MarlinUI::draw_status_screen() {
 
       #else
 
+        #if ANIM_END && defined(STATUS_HOTEND_INVERTED)
+          #define OFF_BMP(N) status_hotend##N##_b_bmp
+          #define ON_BMP(N)  status_hotend##N##_a_bmp
+        #else
+          #define OFF_BMP(N) status_hotend##N##_a_bmp
+          #define ON_BMP(N)  status_hotend##N##_b_bmp
+        #endif
+
         #if STATUS_HOTEND_BITMAPS > 1
-          static const unsigned char* const status_hotend_gfx[STATUS_HOTEND_BITMAPS] PROGMEM = ARRAY_N(STATUS_HOTEND_BITMAPS, status_hotend1_bmp, status_hotend2_bmp, status_hotend3_bmp, status_hotend4_bmp, status_hotend5_bmp, status_hotend6_bmp);
+          static const unsigned char* const status_hotend_gfx[STATUS_HOTEND_BITMAPS] PROGMEM = ARRAY_N(STATUS_HOTEND_BITMAPS, OFF_BMP(1), OFF_BMP(2), OFF_BMP(3), OFF_BMP(4), OFF_BMP(5), OFF_BMP(6));
           #if ANIM_END
-            static const unsigned char* const status_hotend_on_gfx[STATUS_HOTEND_BITMAPS] PROGMEM = ARRAY_N(STATUS_HOTEND_BITMAPS, status_hotend1_on_bmp, status_hotend2_on_bmp, status_hotend3_on_bmp, status_hotend4_on_bmp, status_hotend5_on_bmp, status_hotend6_on_bmp);
+            static const unsigned char* const status_hotend_on_gfx[STATUS_HOTEND_BITMAPS] PROGMEM = ARRAY_N(STATUS_HOTEND_BITMAPS, ON_BMP(1), ON_BMP(2), ON_BMP(3), ON_BMP(4), ON_BMP(5), ON_BMP(6));
             #define HOTEND_BITMAP(N,S) (unsigned char*)pgm_read_ptr((S) ? &status_hotend_on_gfx[(N) % (STATUS_HOTEND_BITMAPS)] : &status_hotend_gfx[(N) % (STATUS_HOTEND_BITMAPS)])
           #else
             #define HOTEND_BITMAP(N,S) (unsigned char*)pgm_read_ptr(&status_hotend_gfx[(N) % (STATUS_HOTEND_BITMAPS)])
           #endif
         #elif ANIM_END
-          #define HOTEND_BITMAP(N,S) ((S) ? status_hotend_on_bmp : status_hotend_bmp)
+          #define HOTEND_BITMAP(N,S) ((S) ? ON_BMP() : OFF_BMP())
         #else
-          #define HOTEND_BITMAP(N,S) status_hotend_bmp
+          #define HOTEND_BITMAP(N,S) status_hotend_a_bmp
         #endif
 
         #define MAX_HOTEND_DRAW MIN(HOTENDS, ((128 - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))

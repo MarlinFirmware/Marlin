@@ -49,8 +49,9 @@
 
 #else // !CUSTOM_STATUS_SCREEN_IMAGE
 
-  //#define COMBINED_HEATER_BITMAP
+  //#define STATUS_COMBINE_HEATERS
   //#define STATUS_HOTEND_NUMBERLESS
+  #define STATUS_HOTEND_INVERTED
   #define STATUS_HOTEND_ANIM
   #define STATUS_BED_ANIM
   //#define ALTERNATE_BED_BITMAP
@@ -63,7 +64,7 @@
 
 #if !STATUS_HEATERS_WIDTH && !STATUS_HOTEND1_WIDTH
 
-  #ifdef COMBINED_HEATER_BITMAP
+  #ifdef STATUS_COMBINE_HEATERS
 
     //
     // Status Screen Combined Heater bitmaps
@@ -235,7 +236,7 @@
 
     #endif // !HAS_HEATED_BED || HOTENDS > 3
 
-  #else // !COMBINED_HEATER_BITMAP
+  #else // !STATUS_COMBINE_HEATERS
 
     //
     // Status Screen Hotends bitmaps
@@ -247,7 +248,7 @@
 
       #if HOTENDS == 1 || defined(STATUS_HOTEND_NUMBERLESS)
 
-        const unsigned char status_hotend_bmp[] PROGMEM = {
+        const unsigned char status_hotend_a_bmp[] PROGMEM = {
           B00011111,B11100000,
           B00111111,B11110000,
           B00111111,B11110000,
@@ -264,7 +265,7 @@
 
         #ifdef STATUS_HOTEND_ANIM
 
-          const unsigned char status_hotend_on_bmp[] PROGMEM = {
+          const unsigned char status_hotend_b_bmp[] PROGMEM = {
             B00011111,B11100000,
             B00100000,B00010000,
             B00100000,B00010000,
@@ -298,7 +299,7 @@
 
           #ifdef STATUS_HOTEND_ANIM
 
-            const unsigned char status_hotend1_bmp[] PROGMEM = {
+            const unsigned char status_hotend1_a_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00111111,B11110000,
               B00111110,B11110000,
@@ -313,7 +314,7 @@
               B00000011,B00000000
             };
 
-            const unsigned char status_hotend1_on_bmp[] PROGMEM = {
+            const unsigned char status_hotend1_b_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00100000,B00010000,
               B00100001,B00010000,
@@ -328,7 +329,7 @@
               B00000011,B00000000
             };
 
-            const unsigned char status_hotend2_bmp[] PROGMEM = {
+            const unsigned char status_hotend2_a_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00111111,B11110000,
               B00111100,B11110000,
@@ -343,7 +344,7 @@
               B00000011,B00000000
             };
 
-            const unsigned char status_hotend2_on_bmp[] PROGMEM = {
+            const unsigned char status_hotend2_b_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00100000,B00010000,
               B00100011,B00010000,
@@ -360,7 +361,7 @@
 
           #else
 
-            const unsigned char status_hotend1_bmp[] PROGMEM = {
+            const unsigned char status_hotend1_a_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00111110,B11110000,
               B00111100,B11110000,
@@ -375,7 +376,7 @@
               B00000011,B00000000
             };
 
-            const unsigned char status_hotend2_bmp[] PROGMEM = {
+            const unsigned char status_hotend2_a_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00111100,B11110000,
               B00111011,B01110000,
@@ -394,11 +395,11 @@
 
         #endif
 
-        #if HOTENDS >= 3
+        #if STATUS_HOTEND_BITMAPS >= 3
 
           #ifdef STATUS_HOTEND_ANIM
 
-            const unsigned char status_hotend3_bmp[] PROGMEM = {
+            const unsigned char status_hotend3_a_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00111111,B11110000,
               B00111100,B11110000,
@@ -413,7 +414,7 @@
               B00000011,B00000000
             };
 
-            const unsigned char status_hotend3_on_bmp[] PROGMEM = {
+            const unsigned char status_hotend3_b_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00100000,B00010000,
               B00100011,B00010000,
@@ -430,7 +431,7 @@
 
           #else
 
-            const unsigned char status_hotend3_bmp[] PROGMEM = {
+            const unsigned char status_hotend3_a_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00111100,B11110000,
               B00111011,B01110000,
@@ -449,11 +450,11 @@
 
         #endif
 
-        #if HOTENDS >= 4 && !HAS_HEATED_BED
+        #if STATUS_HOTEND_BITMAPS >= 4 && !HAS_HEATED_BED
 
           #ifdef STATUS_HOTEND_ANIM
 
-            const unsigned char status_hotend4_bmp[] PROGMEM = {
+            const unsigned char status_hotend4_a_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00111111,B11110000,
               B00111011,B01110000,
@@ -468,7 +469,7 @@
               B00000011,B00000000
             };
 
-            const unsigned char status_hotend4_on_bmp[] PROGMEM = {
+            const unsigned char status_hotend4_b_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00100000,B00010000,
               B00100100,B10010000,
@@ -485,7 +486,7 @@
 
           #else
 
-            const unsigned char status_hotend4_bmp[] PROGMEM = {
+            const unsigned char status_hotend4_a_bmp[] PROGMEM = {
               B00011111,B11100000,
               B00111011,B01110000,
               B00111011,B01110000,
@@ -494,6 +495,61 @@
               B00011000,B00100000,
               B00111111,B01110000,
               B00111111,B01110000,
+              B00111111,B11110000,
+              B00001111,B11000000,
+              B00000111,B10000000,
+              B00000011,B00000000
+            };
+
+          #endif
+
+        #endif
+
+        #if STATUS_HOTEND_BITMAPS >= 5 && !HAS_HEATED_BED
+
+          #ifdef STATUS_HOTEND_ANIM
+
+            const unsigned char status_hotend5_a_bmp[] PROGMEM = {
+              B00011111,B11100000,
+              B00111111,B11110000,
+              B00111000,B01110000,
+              B00111011,B11110000,
+              B00011000,B11100000,
+              B00011111,B01100000,
+              B00111111,B01110000,
+              B00111011,B01110000,
+              B00111100,B11110000,
+              B00001111,B11000000,
+              B00000111,B10000000,
+              B00000011,B00000000
+            };
+
+            const unsigned char status_hotend5_b_bmp[] PROGMEM = {
+              B00011111,B11100000,
+              B00100000,B00010000,
+              B00100111,B10010000,
+              B00100100,B00010000,
+              B00010111,B00100000,
+              B00010000,B10100000,
+              B00100000,B10010000,
+              B00100100,B10010000,
+              B00110011,B00110000,
+              B00001000,B01000000,
+              B00000100,B10000000,
+              B00000011,B00000000
+            };
+
+          #else
+
+            const unsigned char status_hotend5_a_bmp[] PROGMEM = {
+              B00011111,B11100000,
+              B00111000,B01110000,
+              B00111011,B11110000,
+              B00111000,B11110000,
+              B00011111,B01100000,
+              B00011111,B01100000,
+              B00111011,B01110000,
+              B00111100,B11110000,
               B00111111,B11110000,
               B00001111,B11000000,
               B00000111,B10000000,
@@ -516,7 +572,7 @@
 // Default Status Screen Bed bitmaps
 //
 
-#if !STATUS_BED_WIDTH && !defined(COMBINED_HEATER_BITMAP) && HAS_HEATED_BED && HOTENDS < 4
+#if !STATUS_BED_WIDTH && !defined(STATUS_COMBINE_HEATERS) && HAS_HEATED_BED && HOTENDS < 4
 
   #ifdef ALTERNATE_BED_BITMAP
 
@@ -602,7 +658,7 @@
 
   #endif
 
-#endif // !STATUS_BED_WIDTH && !COMBINED_HEATER_BITMAP && HAS_HEATED_BED && HOTENDS < 4
+#endif // !STATUS_BED_WIDTH && !STATUS_COMBINE_HEATERS && HAS_HEATED_BED && HOTENDS < 4
 
 // Can also be overridden in Configuration.h
 // If you can afford it, try the 3-frame fan animation!
@@ -982,11 +1038,11 @@
   #endif
 
   #if STATUS_HOTEND_BITMAPS > 1
-    #define TEST_BITMAP_OFF status_hotend1_bmp
-    #define TEST_BITMAP_ON  status_hotend1_on_bmp
+    #define TEST_BITMAP_OFF status_hotend1_a_bmp
+    #define TEST_BITMAP_ON  status_hotend1_b_bmp
   #else
-    #define TEST_BITMAP_OFF status_hotend_bmp
-    #define TEST_BITMAP_ON  status_hotend_on_bmp
+    #define TEST_BITMAP_OFF status_hotend_a_bmp
+    #define TEST_BITMAP_ON  status_hotend_b_bmp
   #endif
   #ifndef STATUS_HEATERS_HEIGHT
     #define STATUS_HEATERS_HEIGHT (sizeof(TEST_BITMAP_OFF) / (STATUS_HOTEND1_BYTEWIDTH))
