@@ -92,7 +92,6 @@ bool PersistentStore::access_finish() {
     if (--current_slot < 0) {
       // all slots have been used, erase everything and start again
       __disable_irq();
-      PrepareSector(EEPROM_SECTOR, EEPROM_SECTOR);
       status = EraseSector(EEPROM_SECTOR, EEPROM_SECTOR);
       __enable_irq();
 
@@ -100,7 +99,6 @@ bool PersistentStore::access_finish() {
     }
 
     __disable_irq();
-    PrepareSector(EEPROM_SECTOR, EEPROM_SECTOR);
     status = CopyRAM2Flash(SLOT_ADDRESS(EEPROM_SECTOR, current_slot), ram_eeprom, IAP_WRITE_4096);
     __enable_irq();
 
