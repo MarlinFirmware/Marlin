@@ -103,13 +103,6 @@
   #define Z_MIN_PROBE_PIN  32
 #endif
 
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   66   // D66 PB15 (Header J20 15)
-#endif
-#ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN  67   // D67 PB16 (Header J20 16)
-#endif
-
 //
 // Steppers
 //
@@ -195,8 +188,36 @@
 #define MOSI_PIN           75   // D75 PA26
 #define SDSS               87   // D87 PA29
 
+// Unused Digital GPIO J20 Pins
+#define GPIO_PB1_J20_5     94   // D94 PB1 (Header J20 5)
+#define GPIO_PB0_J20_6     95   // D95 PB0 (Header J20 6)
+#define GPIO_PB3_J20_7    103   // D103 PB3 (Header J20 7)
+#define GPIO_PB2_J20_8     93   // D93 PB2 (Header J20 8)
+#define GPIO_PB6_J20_9     99   // D99 PB6 (Header J20 9)
+#define GPIO_PB5_J20_10   101   // D101 PB5 (Header J20 10)
+#define GPIO_PB8_J20_11   100   // D100 PB8 (Header J20 11)
+#define GPIO_PB4_J20_12   102   // D102 PB4 (Header J20 12)
+#define GPIO_PB9_J20_13   108   // D108 PB9 (Header J20 13)
+#define GPIO_PB7_J20_14    98   // D98 PB7 (Header J20 14)
+#define GPIO_PB15_J20_15   66   // D66 PB15 (Header J20 15)
+#define GPIO_PB16_J20_16   67   // D67 PB16 (Header J20 16)
+#define GPIO_PB14_J20_17   53   // D53 PB14 (Header J20 17)
+#define GPIO_PA18_J20_21   71   // D71 PA17 (Header J20 21)
+#define GPIO_PA17_J20_22   70   // D70 PA17 (Header J20 22)
+
 // 2MB SPI Flash
 #define SPI_FLASH_SS       52   // D52 PB21
+
+//
+// Filament Runout Sensor
+//
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN GPIO_PB15_J20_15
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN GPIO_PB16_J20_16
+#endif
 
 //
 // LCD / Controller
