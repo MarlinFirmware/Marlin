@@ -57,7 +57,7 @@ extern "C" {
 #define EEPROM_ERASE (0xff)
 #define SLOT_ADDRESS(sector, slot) (((uint8_t *)SECTOR_START(sector)) + slot * EEPROM_SIZE)
 
-static uint8_t ram_eeprom[EEPROM_SIZE];
+static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;
 static int current_slot = 0;
 
