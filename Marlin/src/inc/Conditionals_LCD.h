@@ -309,6 +309,9 @@
 #define HAS_SHIFT_ENCODER   (!HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL))))
 #define HAS_ENCODER_WHEEL   (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL))
 
+// I2C buttons must be read in the main thread
+#define HAS_SLOW_BUTTONS (ENABLED(LCD_I2C_VIKI) || ENABLED(LCD_I2C_PANELOLU2))
+
 #if HAS_GRAPHICAL_LCD
   /**
    * Default LCD contrast for Graphical LCD displays
