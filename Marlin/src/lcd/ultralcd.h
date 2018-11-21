@@ -188,7 +188,10 @@
   #define B_DW (_BV(BL_DW))
   #define B_RI (_BV(BL_RI))
   #define B_ST (_BV(BL_ST))
-  #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
+
+  #ifndef BUTTON_CLICK
+    #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
+  #endif
 
 #endif
 

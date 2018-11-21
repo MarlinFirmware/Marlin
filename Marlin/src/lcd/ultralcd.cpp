@@ -305,18 +305,26 @@ bool MarlinUI::get_blink() {
       if (keypad_buttons) {
         #if HAS_ENCODER_ACTION
           refresh(LCDVIEW_REDRAW_NOW);
-          if (encoderDirection == -1) { // side effect which signals we are inside a menu
-            #if HAS_LCD_MENU
-              if      (RRK(EN_KEYPAD_DOWN))   encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
-              else if (RRK(EN_KEYPAD_UP))     encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
+          #if HAS_LCD_MENU
+            if (encoderDirection == -1) {     // ADC_KEYPAD forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
+                   if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
               else if (RRK(EN_KEYPAD_RIGHT))  { return_to_status(); quick_feedback(); }
+            }
+            else
+          #endif
+          {
+            #if HAS_LCD_MENU
+                   if (RRK(EN_KEYPAD_UP))     encoderPosition -= ENCODER_PULSES_PER_STEP;
+              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += ENCODER_PULSES_PER_STEP;
+              else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
+              else if (RRK(EN_KEYPAD_RIGHT))  encoderPosition = 0;
+            #else
+                   if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= ENCODER_PULSES_PER_STEP;
+              else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += ENCODER_PULSES_PER_STEP;
             #endif
           }
-          else if (RRK(EN_KEYPAD_DOWN))     encoderPosition -= ENCODER_PULSES_PER_STEP;
-          else if (RRK(EN_KEYPAD_UP))       encoderPosition += ENCODER_PULSES_PER_STEP;
-          else if (RRK(EN_KEYPAD_LEFT))     { MenuItem_back::action(); quick_feedback(); }
-          else if (RRK(EN_KEYPAD_RIGHT))    encoderPosition = 0;
         #endif
         next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
         return true;
