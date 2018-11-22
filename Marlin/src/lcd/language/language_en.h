@@ -32,6 +32,7 @@
 #define en 1234
 #if LCD_LANGUAGE == en
   #define NOT_EXTENDED_ISO10646_1_5X7
+  #define THIS_LANGUAGES_SPECIAL_SYMBOLS _UxGT("³")
 #endif
 #undef en
 
@@ -672,7 +673,7 @@
   #define MSG_FILAMENT                        _UxGT("Filament")
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
-  #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
+  #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm³")
 #endif
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
