@@ -42,6 +42,8 @@
 #define DISPLAY_CHARSET_ISO10646_SK
 #define CHARSIZE 2
 
+#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("³")
+
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pripravená.")
 #define MSG_BACK                            _UxGT("Naspäť")
 #define MSG_SD_INSERTED                     _UxGT("Karta vložená")
@@ -218,7 +220,7 @@
 #define MSG_PID_D                           _UxGT("PID-D")
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("Vybrať")
-#define MSG_ACC                             _UxGT("Zrýchl")
+#define MSG_ACC                             _UxGT("Zrýchlenie")
 #define MSG_JERK                            _UxGT("Skok")
 #if IS_KINEMATIC
   #define MSG_VA_JERK                       _UxGT("Va-skok")
@@ -259,7 +261,7 @@
 #define MSG_TEMPERATURE                     _UxGT("Teplota")
 #define MSG_MOTION                          _UxGT("Pohyb")
 #define MSG_FILAMENT                        _UxGT("Filament")
-#define MSG_VOLUMETRIC_ENABLED              _UxGT("E na mm3")
+#define MSG_VOLUMETRIC_ENABLED              _UxGT("E na mm³")
 #define MSG_FILAMENT_DIAM                   _UxGT("Priem. fil.")
 #define MSG_FILAMENT_UNLOAD                 _UxGT("Vysunúť mm")
 #define MSG_FILAMENT_LOAD                   _UxGT("Zaviesť mm")
@@ -343,8 +345,8 @@
 #define MSG_SHORT_MINUTE                    _UxGT("m")
 #define MSG_HEATING                         _UxGT("Ohrev...")
 #define MSG_COOLING                         _UxGT("Ochladzovanie...")
-#define MSG_BED_HEATING                     _UxGT("Ohrev podl...")
-#define MSG_BED_COOLING                     _UxGT("Ochladzovanie podl..")
+#define MSG_BED_HEATING                     _UxGT("Ohrev podložky...")
+#define MSG_BED_COOLING                     _UxGT("Ochladz. podložky...")
 #define MSG_DELTA_CALIBRATE                 _UxGT("Delta kalibrácia")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibrovať X")
 #define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibrovať Y")
