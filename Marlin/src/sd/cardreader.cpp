@@ -115,14 +115,6 @@ LsAction CardReader::lsAction; //stored for recursion.
 uint16_t CardReader::nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
 char *CardReader::diveDirName;
 
-#if ENABLED(AUTO_REPORT_SD_STATUS)
-  uint8_t CardReader::auto_report_sd_interval;
-  millis_t CardReader::next_sd_report_ms;
-  #if NUM_SERIAL > 1
-    int8_t CardReader::serialport;
-  #endif
-#endif
-
 CardReader::CardReader() {
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
