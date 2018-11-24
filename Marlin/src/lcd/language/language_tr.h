@@ -27,9 +27,9 @@
  * LCD Menu Messages
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
- * Bu çeviri dosyasındaki sorunlar ve düzeltmeler için;
- * For issues and corrections in this translation file;
- * Yücel Temel - (info@elektromanyetix.com)
+ * Bu çeviri dosyasındaki sorunlar ve düzeltmeler için iletişim;
+ * Contact for issues and corrections in this translation file;
+ * Yücel Temel - (info@elektromanyetix.com) - https://elektromanyetix.com/
  *
  */
 
@@ -44,7 +44,7 @@
 #define MSG_LCD_ENDSTOPS                    _UxGT("Enstops") // Max length 8 characters
 #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Yazılımsal Endstops")
 #define MSG_MAIN                            _UxGT("Ana")
-#define MSG_ADVANCED_SETTINGS               _UxGT("Gelişmiş Ayarlar")
+#define MSG_ADVANCED_SETTINGS				_UxGT("Gelişmiş Ayarlar")
 #define MSG_CONFIGURATION                   _UxGT("Yapılandırma")
 #define MSG_AUTOSTART                       _UxGT("Oto. Başlat")
 #define MSG_DISABLE_STEPPERS                _UxGT("Motorları Durdur")
@@ -318,7 +318,7 @@
 #define MSG_BABYSTEP_Z                      _UxGT("Miniadım Z")
 #define MSG_ENDSTOP_ABORT                   _UxGT("Endstop iptal")
 #define MSG_HEATING_FAILED_LCD              _UxGT("Isınma başarısız")
-#define MSG_HEATING_FAILED_LCD_BED          _UxGT("Yatak Isınma Başarısız")
+#define MSG_HEATING_FAILED_LCD_BED          _UxGT("Yatak Isınma Başrsız")
 #define MSG_ERR_REDUNDANT_TEMP              _UxGT("Hata: Sıcaklık Aşımı")
 #define MSG_THERMAL_RUNAWAY                 _UxGT("TERMAL PROBLEM")
 #define MSG_THERMAL_RUNAWAY_BED             _UxGT("TABLA TERMAL PROBLEM")
@@ -362,7 +362,7 @@
 #define MSG_INFO_BAUDRATE                   _UxGT("İletişim Hızı")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokol")
 #define MSG_CASE_LIGHT                      _UxGT("Aydınlatmayı Aç")
-#define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Aydınlatma Parlaklığı")
+#define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("Aydınlatma Parlaklğı")
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Baskı Sayısı")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Tamamlanan")
@@ -418,11 +418,11 @@
   #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("için bekle")
   #define MSG_FILAMENT_CHANGE_CONT_PURGE_1  _UxGT("Filaman Temizlemesi")
   #define MSG_FILAMENT_CHANGE_CONT_PURGE_2  _UxGT("bitirmek için tıkla")
-  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Baskının sürdürülmesini")
-  #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("bekle")
+  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Baskının devam ")
+  #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("etmesi için bekle")
 #else // LCD_HEIGHT < 4
   // Up to 2 lines allowed
-  #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("Devam Etmek İçin Tıkla")
+  #define MSG_ADVANCED_PAUSE_WAITING_1      _UxGT("Sürdürmek İçin Tıkla")
   #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Lütfen bekleyiniz...")
   #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Yükle ve bas")
   #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("Isıtmak için Tıkla")
