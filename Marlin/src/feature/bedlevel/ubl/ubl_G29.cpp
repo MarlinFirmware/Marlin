@@ -780,7 +780,7 @@
           }
         }
       }
-      safe_delay(15);
+      serial_delay(15);
       return false;
     }
 
@@ -999,13 +999,13 @@
           SERIAL_FLUSH();                                           // Prevent host M105 buffer overrun.
         } while (!ui.button_pressed());
 
-        if (!lcd_map_control) ui.return_to_status();               // Just editing a single point? Return to status
+        if (!lcd_map_control) ui.return_to_status();                // Just editing a single point? Return to status
 
         if (click_and_hold(abort_fine_tune)) goto FINE_TUNE_EXIT;   // If the click is held down, abort editing
 
         z_values[location.x_index][location.y_index] = new_z;       // Save the updated Z value
 
-        safe_delay(20);                                             // No switch noise
+        serial_delay(20);                                           // No switch noise
         ui.refresh();
 
       } while (location.x_index >= 0 && --g29_repetition_cnt > 0);
@@ -1509,7 +1509,7 @@
               SERIAL_PROTOCOLCHAR(',');
               SERIAL_PROTOCOL_F(z_tmp, 7);
               SERIAL_ECHOPGM("]   ---> ");
-              safe_delay(20);
+              serial_delay(20);
             }
           #endif
 
@@ -1524,7 +1524,7 @@
               SERIAL_PROTOCOLCHAR(',');
               SERIAL_PROTOCOL_F(z_tmp, 7);
               SERIAL_ECHOLNPGM("]");
-              safe_delay(55);
+              serial_delay(55);
             }
           #endif
 
@@ -1542,7 +1542,7 @@
           SERIAL_ECHOPGM("  D=");
           SERIAL_PROTOCOL_F(lsf_results.D, 7);
           SERIAL_EOL();
-          safe_delay(55);
+          serial_delay(55);
 
           SERIAL_ECHOPGM("bed plane normal = [");
           SERIAL_PROTOCOL_F(normal.x, 7);
@@ -1681,7 +1681,7 @@
         SERIAL_PROTOCOLPGM(" Loaded.");
       }
       SERIAL_EOL();
-      safe_delay(50);
+      serial_delay(50);
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_PROTOCOLPGM("planner.z_fade_height : ");
@@ -1697,20 +1697,20 @@
         SERIAL_EOL();
       #endif
 
-      SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); safe_delay(50);
-      SERIAL_ECHOLNPAIR("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y); safe_delay(50);
-      SERIAL_ECHOLNPAIR("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X); safe_delay(50);
-      SERIAL_ECHOLNPAIR("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y); safe_delay(50);
-      SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             safe_delay(50);
-      SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             safe_delay(50);
+      SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);
+      SERIAL_ECHOLNPAIR("MESH_MIN_Y  " STRINGIFY(MESH_MIN_Y) "=", MESH_MIN_Y); serial_delay(50);
+      SERIAL_ECHOLNPAIR("MESH_MAX_X  " STRINGIFY(MESH_MAX_X) "=", MESH_MAX_X); serial_delay(50);
+      SERIAL_ECHOLNPAIR("MESH_MAX_Y  " STRINGIFY(MESH_MAX_Y) "=", MESH_MAX_Y); serial_delay(50);
+      SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_X  ", GRID_MAX_POINTS_X);             serial_delay(50);
+      SERIAL_ECHOLNPAIR("GRID_MAX_POINTS_Y  ", GRID_MAX_POINTS_Y);             serial_delay(50);
       SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
-      SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);                         safe_delay(50);
+      SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);                         serial_delay(50);
 
       SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
       for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
         SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(mesh_index_to_xpos(i)), 3);
         SERIAL_PROTOCOLPGM("  ");
-        safe_delay(25);
+        serial_delay(25);
       }
       SERIAL_EOL();
 
@@ -1718,7 +1718,7 @@
       for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
         SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(mesh_index_to_ypos(i)), 3);
         SERIAL_PROTOCOLPGM("  ");
-        safe_delay(25);
+        serial_delay(25);
       }
       SERIAL_EOL();
 
@@ -1727,27 +1727,27 @@
         SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
       #endif
       SERIAL_EOL();
-      safe_delay(50);
+      serial_delay(50);
 
       #if ENABLED(UBL_DEVEL_DEBUGGING)
         SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation); SERIAL_EOL();
         SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk); SERIAL_EOL();
-        safe_delay(50);
+        serial_delay(50);
 
         SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()));
         SERIAL_PROTOCOLLNPAIR(" to ", hex_address((void*)settings.meshes_end_index()));
-        safe_delay(50);
+        serial_delay(50);
 
         SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));         SERIAL_EOL();
         SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values)); SERIAL_EOL();
-        safe_delay(25);
+        serial_delay(25);
 
         SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
-        safe_delay(50);
+        serial_delay(50);
 
         SERIAL_PROTOCOLPAIR("EEPROM can hold ", settings.calc_num_meshes());
         SERIAL_PROTOCOLLNPGM(" meshes.\n");
-        safe_delay(25);
+        serial_delay(25);
       #endif // UBL_DEVEL_DEBUGGING
 
       if (!sanity_check()) {
