@@ -901,12 +901,12 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
     return 1;
   }
   copy_address = NULL;
-  ret = pf_bsearch_r((void *)g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
+  ret = pf_bsearch_r((void *)g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
   if (ret >= 0) {
     copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_device + idx);
   }
   else {
-    ret = pf_bsearch_r((void *)g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
+    ret = pf_bsearch_r((void *)g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
     if (ret >= 0) copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_common + idx);
   }
 
@@ -1014,13 +1014,13 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 
   int test_hd44780_charmap_all(void) {
     int flg_error = 0;
-    if (test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
+    if (test_hd44780_charmap(g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
       flg_error = 1;
-      test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device", 1);
+      test_hd44780_charmap(g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), "g_hd44780_charmap_device", 1);
     }
-    if (test_hd44780_charmap(g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), "g_hd44780_charmap_common", 0) < 0) {
+    if (test_hd44780_charmap(g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), "g_hd44780_charmap_common", 0) < 0) {
       flg_error = 1;
-      test_hd44780_charmap(g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), "g_hd44780_charmap_common", 1);
+      test_hd44780_charmap(g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), "g_hd44780_charmap_common", 1);
     }
     if (flg_error) {
       TRACE("\nFAILED in hd44780 tests!\n");

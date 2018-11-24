@@ -72,7 +72,7 @@ const u8g_fntpgm_uint8_t fontpage_64_166_166[24] U8G_FONT_SECTION("fontpage_64_1
   0x00,0x06,0x0c,0x00,0xfe,0x00,0x00,0x00,0x00,0x00,0xa6,0xa6,0x00,0x01,0x00,0x00,
   0x00,0x05,0x01,0x01,0x06,0x00,0x00,0xa8};
 
-#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
+#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
     FONTDATA_ITEM(7, 136, 136, fontpage_7_136_136), // 'Έ' -- 'Έ'
     FONTDATA_ITEM(7, 145, 157, fontpage_7_145_157), // 'Α' -- 'Ν'
