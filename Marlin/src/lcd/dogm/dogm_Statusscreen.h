@@ -47,16 +47,7 @@
     #error "Your custom _Statusscreen.h needs to be converted for Marlin 2.0."
   #endif
 
-#else // !CUSTOM_STATUS_SCREEN_IMAGE
-
-  //#define STATUS_COMBINE_HEATERS
-  //#define STATUS_HOTEND_NUMBERLESS
-  #define STATUS_HOTEND_INVERTED
-  #define STATUS_HOTEND_ANIM
-  #define STATUS_BED_ANIM
-  //#define ALTERNATE_BED_BITMAP
-
-#endif // !CUSTOM_STATUS_SCREEN_IMAGE
+#endif
 
 //
 // Default Status Screen Heater or Hotends bitmaps
@@ -574,7 +565,7 @@
 
 #if !STATUS_BED_WIDTH && !defined(STATUS_COMBINE_HEATERS) && HAS_HEATED_BED && HOTENDS < 4
 
-  #ifdef ALTERNATE_BED_BITMAP
+  #ifdef STATUS_ALT_BED_BITMAP
 
     #define STATUS_BED_ANIM
     #define STATUS_BED_WIDTH  24
@@ -662,25 +653,23 @@
 
 // Can also be overridden in Configuration.h
 // If you can afford it, try the 3-frame fan animation!
-#ifndef FAN_ANIM_FRAMES
-  #define FAN_ANIM_FRAMES 2
-#elif FAN_ANIM_FRAMES > 3
-  #error "Only 3 fan animation frames currently supported."
-#endif
-
 // Don't compile in the fan animation with no fan
 #if !HAS_FAN0
-  #undef FAN_ANIM_FRAMES
+  #undef STATUS_FAN_FRAMES
+#elif !defined(STATUS_FAN_FRAMES)
+  #define STATUS_FAN_FRAMES 2
+#elif STATUS_FAN_FRAMES > 3
+  #error "Only 3 fan animation frames currently supported."
 #endif
 
 //
 // Provide default Fan Bitmaps
 //
-#if !defined(STATUS_FAN_WIDTH) && FAN_ANIM_FRAMES > 0
+#if !defined(STATUS_FAN_WIDTH) && STATUS_FAN_FRAMES > 0
 
   // Provide a fan animation if none exists
 
-  #if FAN_ANIM_FRAMES <= 2
+  #if STATUS_FAN_FRAMES <= 2
 
     #define STATUS_FAN_Y      2
     #define STATUS_FAN_WIDTH 20
@@ -706,7 +695,7 @@
       B00111111,B11111111,B11110000
     };
 
-    #if FAN_ANIM_FRAMES == 2
+    #if STATUS_FAN_FRAMES == 2
       const unsigned char status_fan1_bmp[] PROGMEM = {
         B00111111,B11111111,B11110000,
         B00111000,B00000000,B01110000,
@@ -729,7 +718,7 @@
       };
     #endif
 
-  #elif FAN_ANIM_FRAMES == 3
+  #elif STATUS_FAN_FRAMES == 3
 
     #define STATUS_FAN_WIDTH 21
 
@@ -797,7 +786,7 @@
       B00111111,B11111111,B11111000
     };
 
-  #elif FAN_ANIM_FRAMES == 4
+  #elif STATUS_FAN_FRAMES == 4
 
     #define STATUS_FAN_WIDTH 21
 
@@ -1138,7 +1127,7 @@
 #ifndef STATUS_FAN_BYTEWIDTH
   #define STATUS_FAN_BYTEWIDTH ((STATUS_FAN_WIDTH + 7) / 8)
 #endif
-#if FAN_ANIM_FRAMES
+#if STATUS_FAN_FRAMES
   #ifndef STATUS_FAN_X
     #define STATUS_FAN_X (128 - (STATUS_FAN_BYTEWIDTH) * 8)
   #endif
@@ -1156,11 +1145,11 @@
   #endif
   #define FAN_BMP_SIZE (STATUS_FAN_BYTEWIDTH) * (STATUS_FAN_HEIGHT)
   static_assert(sizeof(status_fan0_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan0_bmp) dimensions don't match data.");
-  #if FAN_ANIM_FRAMES > 1
+  #if STATUS_FAN_FRAMES > 1
     static_assert(sizeof(status_fan1_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan1_bmp) dimensions don't match data.");
-    #if FAN_ANIM_FRAMES > 2
+    #if STATUS_FAN_FRAMES > 2
       static_assert(sizeof(status_fan2_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan2_bmp) dimensions don't match data.");
-      #if FAN_ANIM_FRAMES > 3
+      #if STATUS_FAN_FRAMES > 3
         static_assert(sizeof(status_fan3_bmp) == FAN_BMP_SIZE, "Status fan bitmap (status_fan3_bmp) dimensions don't match data.");
       #endif
     #endif

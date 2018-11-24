@@ -229,7 +229,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 void MarlinUI::draw_status_screen() {
 
   #define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH)
-  #define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && FAN_ANIM_FRAMES)
+  #define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && STATUS_FAN_FRAMES)
   #define ANIM_END (HOTENDS && defined(STATUS_HOTEND_ANIM))
   #define ANIM_BED (DO_DRAW_BED && defined(STATUS_BED_ANIM))
   #if ANIM_END || ANIM_BED
@@ -361,25 +361,25 @@ void MarlinUI::draw_status_screen() {
   #endif
 
   #if DO_DRAW_FAN
-    #if FAN_ANIM_FRAMES > 2
+    #if STATUS_FAN_FRAMES > 2
       static bool old_blink;
       static uint8_t fan_frame;
       if (old_blink != blink) {
         old_blink = blink;
-        if (!fan_speed[0] || ++fan_frame >= FAN_ANIM_FRAMES) fan_frame = 0;
+        if (!fan_speed[0] || ++fan_frame >= STATUS_FAN_FRAMES) fan_frame = 0;
       }
     #endif
     if (PAGE_CONTAINS(STATUS_FAN_Y, STATUS_FAN_Y + STATUS_FAN_HEIGHT - 1))
       u8g.drawBitmapP(
         STATUS_FAN_X, STATUS_FAN_Y,
         STATUS_FAN_BYTEWIDTH, STATUS_FAN_HEIGHT,
-        #if FAN_ANIM_FRAMES > 2
+        #if STATUS_FAN_FRAMES > 2
           fan_frame == 1 ? status_fan1_bmp :
           fan_frame == 2 ? status_fan2_bmp :
-          #if FAN_ANIM_FRAMES > 3
+          #if STATUS_FAN_FRAMES > 3
             fan_frame == 3 ? status_fan3_bmp :
           #endif
-        #elif FAN_ANIM_FRAMES > 1
+        #elif STATUS_FAN_FRAMES > 1
           blink && fan_speed[0] ? status_fan1_bmp :
         #endif
         status_fan0_bmp
