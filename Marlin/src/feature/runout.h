@@ -217,6 +217,7 @@ class FilamentSensorBase {
       static bool poll_runout_pin(const uint8_t extruder) {
         const uint8_t runout_bits = poll_runout_pins();
         #if NUM_RUNOUT_SENSORS == 1
+          UNUSED(extruder);
           return runout_bits;                     // A single sensor applying to all extruders
         #else
           #if ENABLED(DUAL_X_CARRIAGE)
@@ -233,7 +234,7 @@ class FilamentSensorBase {
       }
 
     public:
-      static inline void block_completed(const block_t* const b) {}
+      static inline void block_completed(const block_t* const b) { UNUSED(b); }
 
       static inline void run() {
         const bool out = poll_runout_pin(active_extruder);
@@ -313,7 +314,7 @@ class FilamentSensorBase {
       static inline void reset()                                  { runout_count = runout_threshold; }
       static inline void run()                                    { runout_count--; }
       static inline bool has_run_out()                            { return runout_count < 0; }
-      static inline void block_completed(const block_t* const b)  {}
+      static inline void block_completed(const block_t* const b)  { UNUSED(b); }
       static inline void filament_present(const uint8_t extruder) { runout_count = runout_threshold; UNUSED(extruder); }
   };
 

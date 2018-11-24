@@ -405,6 +405,10 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     do_blocking_move_to_x(deploy ? Z_PROBE_DEPLOY_X : Z_PROBE_RETRACT_X);
 
+  #elif DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
+
+    UNUSED(deploy);
+
   #endif
 }
 
