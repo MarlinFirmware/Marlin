@@ -28,7 +28,9 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#define THIS_LANGUAGES_SPECIAL_SYMBOLS        _UxGT("³")
+#ifdef THIS_LANGUAGES_SPECIAL_SYMBOLS
+  #define THIS_LANGUAGES_SPECIAL_SYMBOLS        _UxGT("³")
+#endif
 
 #define en 1234
 #if LCD_LANGUAGE == en
