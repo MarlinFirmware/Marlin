@@ -210,6 +210,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),95)
 else ifeq ($(HARDWARE_MOTHERBOARD),96)
 # Formbot Raptor
 else ifeq ($(HARDWARE_MOTHERBOARD),97)
+# Formbot Raptor 2
+else ifeq ($(HARDWARE_MOTHERBOARD),98)
 # bq ZUM Mega 3D
 else ifeq ($(HARDWARE_MOTHERBOARD),503)
 # MakeBoard Mini v2.1.2 is a control board sold by MicroMake

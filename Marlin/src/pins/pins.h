@@ -132,6 +132,8 @@
   #include "pins_ULTIMAIN_2.h"        // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_RAPTOR)
   #include "pins_FORMBOT_RAPTOR.h"    // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_RAPTOR2)
+  #include "pins_FORMBOT_RAPTOR2.h"   // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_TREX2PLUS)
   #include "pins_FORMBOT_TREX2PLUS.h" // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_TREX3)
