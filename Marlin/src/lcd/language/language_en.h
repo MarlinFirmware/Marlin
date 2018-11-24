@@ -28,7 +28,7 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#ifdef THIS_LANGUAGES_SPECIAL_SYMBOLS
+#ifndef THIS_LANGUAGES_SPECIAL_SYMBOLS
   #define THIS_LANGUAGES_SPECIAL_SYMBOLS        _UxGT("³")
 #endif
 
