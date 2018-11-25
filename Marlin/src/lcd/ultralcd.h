@@ -46,7 +46,7 @@
     LCDVIEW_CALL_NO_REDRAW
   };
 
-  #if ENABLED(ADC_KEYPAD)
+  #if HAS_ADC_BUTTONS
     uint8_t get_ADC_keyValue();
   #endif
 
@@ -88,6 +88,38 @@
 
 #endif
 
+// REPRAPWORLD_KEYPAD (and ADC_KEYPAD)
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  #define BTN_OFFSET          0 // Bit offset into buttons for shift register values
+
+  #define BLEN_KEYPAD_F3      0
+  #define BLEN_KEYPAD_F2      1
+  #define BLEN_KEYPAD_F1      2
+  #define BLEN_KEYPAD_DOWN    3
+  #define BLEN_KEYPAD_RIGHT   4
+  #define BLEN_KEYPAD_MIDDLE  5
+  #define BLEN_KEYPAD_UP      6
+  #define BLEN_KEYPAD_LEFT    7
+
+  #define EN_KEYPAD_F1      _BV(BTN_OFFSET + BLEN_KEYPAD_F1)
+  #define EN_KEYPAD_F2      _BV(BTN_OFFSET + BLEN_KEYPAD_F2)
+  #define EN_KEYPAD_F3      _BV(BTN_OFFSET + BLEN_KEYPAD_F3)
+  #define EN_KEYPAD_DOWN    _BV(BTN_OFFSET + BLEN_KEYPAD_DOWN)
+  #define EN_KEYPAD_RIGHT   _BV(BTN_OFFSET + BLEN_KEYPAD_RIGHT)
+  #define EN_KEYPAD_MIDDLE  _BV(BTN_OFFSET + BLEN_KEYPAD_MIDDLE)
+  #define EN_KEYPAD_UP      _BV(BTN_OFFSET + BLEN_KEYPAD_UP)
+  #define EN_KEYPAD_LEFT    _BV(BTN_OFFSET + BLEN_KEYPAD_LEFT)
+
+  #define RRK(B) (keypad_buttons & (B))
+
+  #ifdef EN_C
+    #define BUTTON_CLICK() ((buttons & EN_C) || RRK(EN_KEYPAD_MIDDLE))
+  #else
+    #define BUTTON_CLICK() RRK(EN_KEYPAD_MIDDLE)
+  #endif
+
+#endif
+
 #if HAS_DIGITAL_BUTTONS
 
   // Wheel spin pins where BA is 00, 10, 11, 01 (1 bit always changes)
@@ -105,47 +137,12 @@
     #define EN_C _BV(BLEN_C)
   #endif
 
-  #if BUTTON_EXISTS(BACK)
-    #define BLEN_D 3
-    #define EN_D _BV(BLEN_D)
-    #define LCD_BACK_CLICKED() (buttons & EN_D)
-  #endif
-
-  #if ENABLED(REPRAPWORLD_KEYPAD)
-    #define REPRAPWORLD_BTN_OFFSET          0 // Bit offset into buttons for shift register values
-
-    #define BLEN_REPRAPWORLD_KEYPAD_F3      0
-    #define BLEN_REPRAPWORLD_KEYPAD_F2      1
-    #define BLEN_REPRAPWORLD_KEYPAD_F1      2
-    #define BLEN_REPRAPWORLD_KEYPAD_DOWN    3
-    #define BLEN_REPRAPWORLD_KEYPAD_RIGHT   4
-    #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE  5
-    #define BLEN_REPRAPWORLD_KEYPAD_UP      6
-    #define BLEN_REPRAPWORLD_KEYPAD_LEFT    7
-
-    #define EN_REPRAPWORLD_KEYPAD_F1        (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F1))
-    #define EN_REPRAPWORLD_KEYPAD_F2        (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F2))
-    #define EN_REPRAPWORLD_KEYPAD_F3        (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F3))
-    #define EN_REPRAPWORLD_KEYPAD_DOWN      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_DOWN))
-    #define EN_REPRAPWORLD_KEYPAD_RIGHT     (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_RIGHT))
-    #define EN_REPRAPWORLD_KEYPAD_MIDDLE    (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_MIDDLE))
-    #define EN_REPRAPWORLD_KEYPAD_UP        (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_UP))
-    #define EN_REPRAPWORLD_KEYPAD_LEFT      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_LEFT))
-
-    #define RRK(B) (buttons_reprapworld_keypad & (B))
-
-    #ifdef EN_C
-      #define BUTTON_CLICK() ((buttons & EN_C) || RRK(EN_REPRAPWORLD_KEYPAD_MIDDLE))
-    #else
-      #define BUTTON_CLICK() RRK(EN_REPRAPWORLD_KEYPAD_MIDDLE)
-    #endif
-
-  #elif ENABLED(LCD_I2C_VIKI)
+  #if ENABLED(LCD_I2C_VIKI)
 
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
     // button and encoder bit positions within 'buttons'
-    #define B_LE (BUTTON_LEFT   << B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
+    #define B_LE (BUTTON_LEFT   << B_I2C_BTN_OFFSET)      // The remaining normalized buttons are all read via I2C
     #define B_UP (BUTTON_UP     << B_I2C_BTN_OFFSET)
     #define B_MI (BUTTON_SELECT << B_I2C_BTN_OFFSET)
     #define B_DW (BUTTON_DOWN   << B_I2C_BTN_OFFSET)
@@ -153,13 +150,12 @@
 
     #if BUTTON_EXISTS(ENC)                                // The pause/stop/restart button is connected to BTN_ENC when used
       #define B_ST (EN_C)                                 // Map the pause/stop/resume button into its normalized functional name
-      #define BUTTON_CLICK() (buttons & (B_MI|B_RI|B_ST))  // Pause/stop also acts as click until a proper pause/stop is implemented.
+      #define BUTTON_CLICK() (buttons & (B_MI|B_RI|B_ST)) // Pause/stop also acts as click until a proper pause/stop is implemented.
     #else
       #define BUTTON_CLICK() (buttons & (B_MI|B_RI))
     #endif
 
     // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
-    #define LCD_HAS_SLOW_BUTTONS
 
   #elif ENABLED(LCD_I2C_PANELOLU2)
 
@@ -171,14 +167,13 @@
 
       #define BUTTON_CLICK() (buttons & B_MI)
 
-      // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
-      #define LCD_HAS_SLOW_BUTTONS
-
     #endif
 
   #endif
 
 #else
+
+  #define BUTTON_EXISTS(BN) false
 
   // Shift register bits correspond to buttons:
   #define BL_LE 7   // Left
@@ -193,8 +188,19 @@
   #define B_DW (_BV(BL_DW))
   #define B_RI (_BV(BL_RI))
   #define B_ST (_BV(BL_ST))
-  #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
 
+  #ifndef BUTTON_CLICK
+    #define BUTTON_CLICK() (buttons & (B_MI|B_ST))
+  #endif
+
+#endif
+
+#if BUTTON_EXISTS(BACK)
+  #define BLEN_D 3
+  #define EN_D _BV(BLEN_D)
+  #define LCD_BACK_CLICKED() (buttons & EN_D)
+#else
+  #define LCD_BACK_CLICKED() false
 #endif
 
 #ifndef BUTTON_CLICK
@@ -210,6 +216,12 @@
     FONT_STATUSMENU = 1,
     FONT_EDIT,
     FONT_MENU
+  };
+#else
+  enum HD44780CharSet : uint8_t {
+    CHARSET_MENU,
+    CHARSET_INFO,
+    CHARSET_BOOT
   };
 #endif
 
@@ -282,23 +294,15 @@ public:
 
         static constexpr bool drawing_screen = false, first_page = true;
 
-        enum HD44780CharSet : uint8_t { CHARSET_MENU, CHARSET_INFO, CHARSET_BOOT };
-
-        static void set_custom_characters(
-          #if ENABLED(LCD_PROGRESS_BAR) || ENABLED(SHOW_BOOTSCREEN)
-            const HD44780CharSet screen_charset=CHARSET_INFO
-          #endif
-        );
+        static void set_custom_characters(const HD44780CharSet screen_charset=CHARSET_INFO);
 
         #if ENABLED(LCD_PROGRESS_BAR)
           static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
+          static void draw_progress_bar(const uint8_t percent);
           #if PROGRESS_MSG_EXPIRE > 0
             static millis_t MarlinUI::expire_status_ms; // = 0
             static inline void reset_progress_bar_timeout() { expire_status_ms = 0; }
           #endif
-          #define LCD_SET_CHARSET(C) set_custom_characters(C)
-        #else
-          #define LCD_SET_CHARSET(C) set_custom_characters()
         #endif
 
       #endif
@@ -377,7 +381,7 @@ public:
       #if ENABLED(SCROLL_LONG_FILENAMES)
         static uint8_t filename_scroll_pos, filename_scroll_max;
       #endif
-      static const char * const scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
+      static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
     #endif
 
     #if IS_KINEMATIC
@@ -465,10 +469,10 @@ public:
 
     static volatile uint8_t buttons;
     #if ENABLED(REPRAPWORLD_KEYPAD)
-      static volatile uint8_t buttons_reprapworld_keypad;
+      static volatile uint8_t keypad_buttons;
       static bool handle_keypad();
     #endif
-    #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+    #if HAS_SLOW_BUTTONS
       static volatile uint8_t slow_buttons;
       static uint8_t read_slow_buttons();
     #endif

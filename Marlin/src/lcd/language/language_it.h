@@ -247,7 +247,7 @@
 #define MSG_TEMPERATURE                     _UxGT("Temperatura")
 #define MSG_MOTION                          _UxGT("Movimento")
 #define MSG_FILAMENT                        _UxGT("Filamento")
-#define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
+#define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm³")
 #define MSG_FILAMENT_DIAM                   _UxGT("Diam. filo")
 #define MSG_FILAMENT_UNLOAD                 _UxGT("Rimuovi mm")
 #define MSG_FILAMENT_LOAD                   _UxGT("Carica mm")

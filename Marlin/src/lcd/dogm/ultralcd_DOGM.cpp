@@ -21,7 +21,7 @@
  */
 
 /**
- * ultralcd_impl_DOGM.cpp
+ * ultralcd_DOGM.cpp
  *
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
@@ -68,7 +68,6 @@
 #endif
 
 U8G_CLASS u8g(U8G_PARAM);
-U8GLIB *pu8g = &u8g;
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
@@ -216,7 +215,7 @@ void MarlinUI::init_lcd() {
     u8g.setRot270();  // Rotate screen by 270°
   #endif
 
-  uxg_SetUtf8Fonts(g_fontinfo, NUM_ARRAY(g_fontinfo));
+  uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
 }
 
 // The kill screen is displayed for unrecoverable conditions

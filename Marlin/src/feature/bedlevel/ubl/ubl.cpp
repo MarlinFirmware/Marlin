@@ -59,7 +59,7 @@
           SERIAL_ECHOPGM_P(port, " Z");
           SERIAL_ECHO_F_P(port, z_values[x][y], 2);
           SERIAL_EOL_P(port);
-          safe_delay(75); // Prevent Printrun from exploding
+          serial_delay(75); // Prevent Printrun from exploding
         }
   }
 
@@ -76,7 +76,7 @@
     SERIAL_PROTOCOLPGM_P(port, " System v" UBL_VERSION " ");
     if (!planner.leveling_active) SERIAL_PROTOCOLPGM_P(port, "in");
     SERIAL_PROTOCOLLNPGM_P(port, "active.");
-    safe_delay(50);
+    serial_delay(50);
   }
 
   #if ENABLED(UBL_DEVEL_DEBUGGING)
@@ -173,7 +173,7 @@
     if (y < 100) { SERIAL_CHAR(' '); if (y < 10) SERIAL_CHAR(' '); }
     SERIAL_ECHO(y);
     SERIAL_CHAR(')');
-    safe_delay(5);
+    serial_delay(5);
   }
 
   static void serial_echo_column_labels(const uint8_t sp) {
@@ -183,7 +183,7 @@
       SERIAL_ECHO(i);
       SERIAL_ECHO_SP(sp);
     }
-    safe_delay(10);
+    serial_delay(10);
   }
 
   /**

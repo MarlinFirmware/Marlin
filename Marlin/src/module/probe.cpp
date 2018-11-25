@@ -405,6 +405,10 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     do_blocking_move_to_x(deploy ? Z_PROBE_DEPLOY_X : Z_PROBE_RETRACT_X);
 
+  #elif DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
+
+    UNUSED(deploy);
+
   #endif
 }
 
@@ -526,7 +530,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (thermalManager.isHeatingBed()) {
       serialprintPGM(msg_wait_for_bed_heating);
       LCD_MESSAGEPGM(MSG_BED_HEATING);
-      while (thermalManager.isHeatingBed()) safe_delay(200);
+      thermalManager.wait_for_bed();
       ui.reset_status();
     }
   #endif

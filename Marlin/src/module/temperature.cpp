@@ -217,7 +217,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
   bool Temperature::heater_idle_timeout_exceeded[HOTENDS] = { false };
 #endif
 
-#if ENABLED(ADC_KEYPAD)
+#if HAS_ADC_BUTTONS
   uint32_t Temperature::current_ADCKey_raw = 0;
   uint8_t Temperature::ADCKey_count = 0;
 #endif
@@ -1171,6 +1171,13 @@ void Temperature::init() {
     #endif
   #endif
 
+  #if ENABLED(USE_CONTROLLER_FAN)
+    SET_OUTPUT(CONTROLLER_FAN_PIN);
+    #if ENABLED(FAST_PWM_FAN)
+      setPwmFrequency(CONTROLLER_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+    #endif
+  #endif
+
   #if ENABLED(HEATER_0_USES_MAX6675)
 
     OUT_WRITE(SCK_PIN, LOW);
@@ -1869,7 +1876,7 @@ void Temperature::isr() {
   // avoid multiple loads of pwm_count
   uint8_t pwm_count_tmp = pwm_count;
 
-  #if ENABLED(ADC_KEYPAD)
+  #if HAS_ADC_BUTTONS
     static unsigned int raw_ADCKey_value = 0;
   #endif
 
@@ -2290,7 +2297,7 @@ void Temperature::isr() {
       break;
     #endif
 
-    #if ENABLED(ADC_KEYPAD)
+    #if HAS_ADC_BUTTONS
       case Prepare_ADC_KEY:
         HAL_START_ADC(ADC_KEYPAD_PIN);
         break;
