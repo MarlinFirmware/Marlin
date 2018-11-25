@@ -58,16 +58,10 @@
 
   void lcd_sdcard_stop() {
     wait_for_heatup = wait_for_user = false;
-    card.abort_sd_printing = true;
-    ui.setstatusPGM(PSTR(MSG_PRINT_ABORTED), -1);
+    card.flag.abort_sd_printing = true;
+    ui.set_status_P(PSTR(MSG_PRINT_ABORTED), -1);
     ui.return_to_status();
   }
-
-  #if ENABLED(MENU_ADDAUTOSTART)
-
-    void lcd_autostart_sd() { card.beginautostart(); }
-
-  #endif
 
 #endif // SDSUPPORT
 
@@ -86,7 +80,7 @@ void menu_main() {
   MENU_BACK(MSG_WATCH);
 
   #if ENABLED(SDSUPPORT)
-    if (card.cardOK) {
+    if (card.flag.cardOK) {
       if (card.isFileOpen()) {
         if (IS_SD_PRINTING())
           MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
@@ -157,7 +151,7 @@ void menu_main() {
   //
   #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
     if (!busy)
-      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
+      MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
   #endif
 
   END_MENU();

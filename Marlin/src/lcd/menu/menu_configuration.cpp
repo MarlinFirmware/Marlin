@@ -36,6 +36,10 @@
   #include "../../feature/runout.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/power_loss_recovery.h"
+#endif
+
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
@@ -48,11 +52,14 @@ static void lcd_factory_settings() {
 
 #if ENABLED(LCD_PROGRESS_BAR_TEST)
 
+  #include "../lcdprint.h"
+
   static void progress_bar_test() {
+    ui.encoder_direction_normal();
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
-      LCD_SET_CHARSET(CHARSET_MENU);
+      ui.set_custom_characters(CHARSET_MENU);
       return;
     }
     bar_percent += (int8_t)ui.encoderPosition;
@@ -60,13 +67,13 @@ static void lcd_factory_settings() {
     ui.encoderPosition = 0;
     draw_menu_item_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
     lcd_moveto((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-    lcd_put_u8str(int(bar_percent)); lcd_put_wchar('%');
-    lcd_moveto(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
+    lcd_put_int(bar_percent); lcd_put_wchar('%');
+    lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
 
   void _progress_bar_test() {
     ui.goto_screen(progress_bar_test);
-    LCD_SET_CHARSET(CHARSET_INFO);
+    ui.set_custom_characters(CHARSET_INFO);
   }
 
 #endif // LCD_PROGRESS_BAR_TEST
@@ -348,6 +355,10 @@ void menu_configuration() {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled, runout.reset);
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_OUTAGE_RECOVERY, &recovery.enabled, recovery.changed);
   #endif
 
   #if DISABLED(SLIM_LCD_MENUS)

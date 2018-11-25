@@ -28,7 +28,6 @@
   #define LCD_CLASS LiquidCrystal
 #endif
 extern LCD_CLASS lcd;
-LCD_CLASS *plcd = &lcd;
 
 int lcd_glyph_height(void) { return 1; }
 
@@ -868,11 +867,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
 
 /* return v1 - v2 */
 static int hd44780_charmap_compare(hd44780_charmap_t * v1, hd44780_charmap_t * v2) {
-  if (v1->uchar < v2->uchar)
-    return -1;
-  else if (v1->uchar > v2->uchar)
-    return 1;
-  return 0;
+  return (v1->uchar < v2->uchar) ? -1 : (v1->uchar > v2->uchar) ? 1 : 0;
 }
 
 static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data_pin) {
@@ -882,83 +877,9 @@ static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data
   return hd44780_charmap_compare(&localval, (hd44780_charmap_t *)data_pin);
 }
 
-#if DEBUG
+void lcd_moveto(const uint8_t col, const uint8_t row) { lcd.setCursor(col, row); }
 
-int test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents) {
-  int ret;
-  size_t idx = 0;
-  hd44780_charmap_t preval = {0, 0, 0};
-  hd44780_charmap_t pinval = {0, 0, 0};
-  char flg_error = 0;
-
-  int i;
-
-  TRACE("Test %s\n", name);
-
-  for (i = 0; i < size; i ++) {
-    memcpy_P (&pinval, &(data[i]), sizeof(pinval));
-
-    if (flg_show_contents) {
-    #if 1
-      TRACE("[% 4d] % 6" PRIu32 "(0x%04" PRIX32 ") --> 0x%02X,0x%02X%s\n", i, pinval.uchar, pinval.uchar, (unsigned int)(pinval.idx), (unsigned int)(pinval.idx2), (preval.uchar < pinval.uchar?"":" <--- ERROR"));
-    #else
-      TRACE("[% 4d]", i);
-      TRACE("% 6" PRIu32 "(0x%04" PRIX32 "),", pinval.uchar, pinval.uchar);
-      TRACE("0x%02X,", (unsigned int)(pinval.idx));
-      TRACE("0x%02X,", (unsigned int)(pinval.idx2));
-      TRACE("%s", (preval.uchar < pinval.uchar?"":" <--- ERROR"));
-    #endif
-    }
-    if (preval.uchar >= pinval.uchar) {
-      flg_error = 1;
-    //  TRACE("Error: out of order in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
-    //  return -1;
-    }
-    memcpy (&preval, &pinval, sizeof(pinval));
-
-    ret = pf_bsearch_r((void *)data, size, pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
-    if (ret < 0) {
-      flg_error = 1;
-      TRACE("Error: not found item in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
-      //return -1;
-    }
-    if (idx != i) {
-      flg_error = 1;
-      TRACE("Error: wrong index found item in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
-      //return -1;
-    }
-  }
-  if (flg_error) {
-    TRACE("\nError: in array %s\n\n", name);
-    return -1;
-  }
-  TRACE("\nPASS array %s\n\n", name);
-  return 0;
-}
-
-int test_hd44780_charmap_all(void) {
-  int flg_error = 0;
-  if (test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
-    flg_error = 1;
-    test_hd44780_charmap(g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), "g_hd44780_charmap_device", 1);
-  }
-  if (test_hd44780_charmap(g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), "g_hd44780_charmap_common", 0) < 0) {
-    flg_error = 1;
-    test_hd44780_charmap(g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), "g_hd44780_charmap_common", 1);
-  }
-  if (flg_error) {
-    TRACE("\nFAILED in hd44780 tests!\n");
-    return -1;
-  }
-  TRACE("\nPASS in hd44780 tests.\n");
-  return 0;
-}
-
-#endif // DEBUG
-
-void lcd_moveto(int col, int row) {
-  plcd->setCursor(col, row);
-}
+void lcd_put_int(const int i) { lcd.print(i); }
 
 // return < 0 on error
 // return the advanced cols
@@ -976,16 +897,16 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
 
   // TODO: fix the '\\' that doesnt exist in the HD44870
   if (c < 128) {
-    plcd->write((uint8_t)c);
+    lcd.write((uint8_t)c);
     return 1;
   }
   copy_address = NULL;
-  ret = pf_bsearch_r((void *)g_hd44780_charmap_device, NUM_ARRAY(g_hd44780_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
+  ret = pf_bsearch_r((void *)g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
   if (ret >= 0) {
     copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_device + idx);
   }
   else {
-    ret = pf_bsearch_r((void *)g_hd44780_charmap_common, NUM_ARRAY(g_hd44780_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
+    ret = pf_bsearch_r((void *)g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
     if (ret >= 0) copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_common + idx);
   }
 
@@ -993,16 +914,16 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
     hd44780_charmap_t localval;
     // found
     memcpy_P(&localval, copy_address, sizeof(localval));
-    plcd->write(localval.idx);
+    lcd.write(localval.idx);
     if (max_length >= 2 && localval.idx2 > 0) {
-      plcd->write(localval.idx2);
+      lcd.write(localval.idx2);
       return 2;
     }
     return 1;
   }
 
   // Not found, print '?' instead
-  plcd->write((uint8_t)'?');
+  lcd.write((uint8_t)'?');
   return 1;
 }
 
@@ -1036,5 +957,79 @@ int lcd_put_u8str_max(const char * utf8_str, pixel_len_t max_length) {
 int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
   return lcd_put_u8str_max_cb(utf8_str_P, read_byte_rom, max_length);
 }
+
+#if ENABLED(DEBUG_LCDPRINT)
+
+  int test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents) {
+    int ret;
+    size_t idx = 0;
+    hd44780_charmap_t preval = {0, 0, 0};
+    hd44780_charmap_t pinval = {0, 0, 0};
+    char flg_error = 0;
+
+    int i;
+
+    TRACE("Test %s\n", name);
+
+    for (i = 0; i < size; i ++) {
+      memcpy_P(&pinval, &(data[i]), sizeof(pinval));
+
+      if (flg_show_contents) {
+        #if 1
+          TRACE("[% 4d] % 6" PRIu32 "(0x%04" PRIX32 ") --> 0x%02X,0x%02X%s\n", i, pinval.uchar, pinval.uchar, (unsigned int)(pinval.idx), (unsigned int)(pinval.idx2), (preval.uchar < pinval.uchar?"":" <--- ERROR"));
+        #else
+          TRACE("[% 4d]", i);
+          TRACE("% 6" PRIu32 "(0x%04" PRIX32 "),", pinval.uchar, pinval.uchar);
+          TRACE("0x%02X,", (unsigned int)(pinval.idx));
+          TRACE("0x%02X,", (unsigned int)(pinval.idx2));
+          TRACE("%s", (preval.uchar < pinval.uchar?"":" <--- ERROR"));
+        #endif
+      }
+      if (preval.uchar >= pinval.uchar) {
+        flg_error = 1;
+        //TRACE("Error: out of order in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
+        //return -1;
+      }
+      memcpy(&preval, &pinval, sizeof(pinval));
+
+      ret = pf_bsearch_r((void *)data, size, pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
+      if (ret < 0) {
+        flg_error = 1;
+        TRACE("Error: not found item in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
+        //return -1;
+      }
+      if (idx != i) {
+        flg_error = 1;
+        TRACE("Error: wrong index found item in array %s: idx=%d, val=%d(0x%x)\n", name, i, pinval.uchar, pinval.uchar);
+        //return -1;
+      }
+    }
+    if (flg_error) {
+      TRACE("\nError: in array %s\n\n", name);
+      return -1;
+    }
+    TRACE("\nPASS array %s\n\n", name);
+    return 0;
+  }
+
+  int test_hd44780_charmap_all(void) {
+    int flg_error = 0;
+    if (test_hd44780_charmap(g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
+      flg_error = 1;
+      test_hd44780_charmap(g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), "g_hd44780_charmap_device", 1);
+    }
+    if (test_hd44780_charmap(g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), "g_hd44780_charmap_common", 0) < 0) {
+      flg_error = 1;
+      test_hd44780_charmap(g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), "g_hd44780_charmap_common", 1);
+    }
+    if (flg_error) {
+      TRACE("\nFAILED in hd44780 tests!\n");
+      return -1;
+    }
+    TRACE("\nPASS in hd44780 tests.\n");
+    return 0;
+  }
+
+#endif // DEBUG_LCDPRINT
 
 #endif // HAS_CHARACTER_LCD

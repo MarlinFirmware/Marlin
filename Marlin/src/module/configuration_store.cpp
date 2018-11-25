@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V62"
+#define EEPROM_VERSION "V63"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -66,6 +66,10 @@
 #include "../gcode/gcode.h"
 #include "../Marlin.h"
 
+#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
+  #include "../HAL/shared/persistent_store_api.h"
+#endif
+
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
 #endif
@@ -82,6 +86,11 @@
 #endif
 
 #include "../feature/fwretract.h"
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
+
 #include "../feature/pause.h"
 
 #if EXTRUDERS > 1
@@ -222,6 +231,11 @@ typedef struct SettingsDataStruct {
   int16_t lcd_contrast;                                 // M250 C
 
   //
+  // POWER_LOSS_RECOVERY
+  //
+  bool recovery_enabled;                                // M413 S
+
+  //
   // FWRETRACT
   //
   fwretract_settings_t fwretract_settings;              // M207 S F Z W, M208 S F W R
@@ -269,7 +283,7 @@ typedef struct SettingsDataStruct {
   // Tool-change settings
   //
   #if EXTRUDERS > 1
-    toolchange_settings_t toolchange_settings;                // M217 S P R
+    toolchange_settings_t toolchange_settings;          // M217 S P R
   #endif
 
 } SettingsData;
@@ -371,7 +385,6 @@ void MarlinSettings::postprocess() {
 #endif // SD_FIRMWARE_UPDATE
 
 #if ENABLED(EEPROM_SETTINGS)
-  #include "../HAL/shared/persistent_store_api.h"
 
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
   #define EEPROM_FINISH() persistentStore.access_finish()
@@ -744,6 +757,22 @@ void MarlinSettings::postprocess() {
         #endif
       ;
       EEPROM_WRITE(lcd_contrast);
+    }
+
+    //
+    // Power-Loss Recovery
+    //
+    {
+      _FIELD_TEST(recovery_enabled);
+
+      const bool recovery_enabled =
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          recovery.enabled
+        #else
+          true
+        #endif
+      ;
+      EEPROM_WRITE(recovery_enabled);
     }
 
     //
@@ -1384,6 +1413,20 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(lcd_contrast);
         #if HAS_LCD_CONTRAST
           ui.set_contrast(lcd_contrast);
+        #endif
+      }
+
+      //
+      // Power-Loss Recovery
+      //
+      {
+        _FIELD_TEST(recovery_enabled);
+
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          EEPROM_READ(recovery.enabled);
+        #else
+          bool recovery_enabled;
+          EEPROM_READ(recovery_enabled);
         #endif
       }
 
@@ -2075,6 +2118,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     ui.set_contrast(DEFAULT_LCD_CONTRAST);
   #endif
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.enable(true);
+  #endif
+
   #if ENABLED(FWRETRACT)
     fwretract.reset();
   #endif
@@ -2643,6 +2690,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       SERIAL_ECHOLNPAIR_P(port, "  M250 C", ui.contrast);
     #endif
 
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM_P(port, "Power-Loss Recovery:");
+      }
+      CONFIG_ECHO_START;
+      SERIAL_ECHOLNPAIR_P(port, "  M413 S", int(recovery.enabled));
+    #endif
+
     #if ENABLED(FWRETRACT)
 
       if (!forReplay) {
@@ -2683,7 +2739,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #if HAS_BED_PROBE
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPGM_P(port, "Z-Probe Offset (mm):");
+        SERIAL_ECHOPGM_P(port, "Z-Probe Offset");
         SAY_UNITS_P(port, true);
       }
       CONFIG_ECHO_START;

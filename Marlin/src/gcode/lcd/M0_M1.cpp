@@ -62,7 +62,7 @@ void GcodeSuite::M0_M1() {
   #if HAS_LCD_MENU
 
     if (has_message)
-      ui.setstatus(args, true);
+      ui.set_status(args, true);
     else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0

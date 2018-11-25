@@ -21,7 +21,7 @@
  */
 
 /**
- * ultralcd_impl_DOGM.h
+ * ultralcd_DOGM.h
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -170,5 +170,6 @@
 #endif
 #define INFO_FONT_DESCENT 2
 #define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
+#define INFO_FONT_WIDTH   6
 
 extern U8G_CLASS u8g;

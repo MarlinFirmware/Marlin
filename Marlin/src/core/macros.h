@@ -196,7 +196,7 @@
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0f)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0f)
 
-#define NOOP do{} while(0)
+#define NOOP (void(0))
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 

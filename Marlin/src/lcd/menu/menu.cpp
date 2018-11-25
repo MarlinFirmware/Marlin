@@ -243,7 +243,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint32_t encoder/*=0*/) {
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         if (!ubl.lcd_map_control)
       #endif
-          LCD_SET_CHARSET(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
+          set_custom_characters(screen == status_screen ? CHARSET_INFO : CHARSET_MENU);
     #endif
 
     refresh(LCDVIEW_CALL_REDRAW_NEXT);
