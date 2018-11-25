@@ -37,7 +37,7 @@
 #define CHARSIZE 2
 
 // Characters that can be displayed with M117
-#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("äAÄáAÁčČďĎéEÉíÍĺĹľĽňŇóOÓôOÔŕRŔšŠťŤúÚýYÝžŽ³")
+#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("äÄáÁčČďĎéÉíÍĺĹľĽňŇóÓôÔŕŔšŠťŤúÚýYÝžŽ³")
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pripravená.")
 #define MSG_BACK                            _UxGT("Naspäť")
