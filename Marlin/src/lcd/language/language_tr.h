@@ -44,7 +44,7 @@
 #define MSG_LCD_ENDSTOPS                    _UxGT("Enstops") // Max length 8 characters
 #define MSG_LCD_SOFT_ENDSTOPS               _UxGT("Yazılımsal Endstops")
 #define MSG_MAIN                            _UxGT("Ana")
-#define MSG_ADVANCED_SETTINGS				_UxGT("Gelişmiş Ayarlar")
+#define MSG_ADVANCED_SETTINGS               _UxGT("Gelişmiş Ayarlar")
 #define MSG_CONFIGURATION                   _UxGT("Yapılandırma")
 #define MSG_AUTOSTART                       _UxGT("Oto. Başlat")
 #define MSG_DISABLE_STEPPERS                _UxGT("Motorları Durdur")
@@ -286,9 +286,9 @@
 #define MSG_CONTROL_RETRACTF                _UxGT("Geri Çekme V")
 #define MSG_CONTROL_RETRACT_ZHOP            _UxGT("Atlama mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
-//#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
-//#define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
-//#define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V")
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
+#define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
+#define MSG_CONTROL_RETRACT_RECOVER_SWAPF   _UxGT("S UnRet V")
 #define MSG_AUTORETRACT                     _UxGT("Oto. Geri Çekme")
 #define MSG_FILAMENT_SWAP_LENGTH            _UxGT("G.Çekme Boyu")
 #define MSG_TOOL_CHANGE                     _UxGT("Takım Değişimi")
@@ -326,7 +326,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("Hata: MIN.SICAKLIK")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("Hata: MAX.SIC. TABLA")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("Hata: MIN.SIC. TABLA")
-#define MSG_ERR_Z_HOMING                    MSG_FIRST _UxGT(" ")  MSG_X MSG_Y _UxGT(" ")  MSG_HOME
+#define MSG_ERR_Z_HOMING                    _UxGT("Önce XY Sıfırla")
 #define MSG_HALTED                          _UxGT("YAZICI DURDURULDU")
 #define MSG_PLEASE_RESET                    _UxGT("Lütfen Resetleyin")
 #define MSG_SHORT_DAY                       _UxGT("G") // One character only
