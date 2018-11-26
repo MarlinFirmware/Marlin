@@ -28,13 +28,16 @@
  * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
-#define THIS_LANGUAGES_SPECIAL_SYMBOLS        _UxGT("³")
 
 #define en 1234
 #if LCD_LANGUAGE == en
   #define NOT_EXTENDED_ISO10646_1_5X7
 #endif
 #undef en
+
+#ifndef THIS_LANGUAGES_SPECIAL_SYMBOLS
+  #define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("³")
+#endif
 
 #ifdef NOT_EXTENDED_ISO10646_1_5X7
   #define MSG_CUBED                           _UxGT("^3")
