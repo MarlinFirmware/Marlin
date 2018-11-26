@@ -132,12 +132,16 @@
   #include "pins_ULTIMAIN_2.h"        // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_RAPTOR)
   #include "pins_FORMBOT_RAPTOR.h"    // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_RAPTOR2)
+  #include "pins_FORMBOT_RAPTOR2.h"   // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_TREX2PLUS)
   #include "pins_FORMBOT_TREX2PLUS.h" // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_TREX3)
   #include "pins_FORMBOT_TREX3.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RUMBA)
   #include "pins_RUMBA.h"             // ATmega2560                                 env:megaatmega2560
+#elif MB(RUMBA_RAISE3D)
+  #include "pins_RUMBA_RAISE3D.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"    // ATmega2560                                 env:megaatmega2560
 #elif MB(MAKEBOARD_MINI)
