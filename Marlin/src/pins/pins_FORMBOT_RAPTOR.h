@@ -140,9 +140,7 @@
 //
 #define HEATER_0_PIN       10
 #define HEATER_1_PIN        7
-#define HEATER_BED_PIN     8
-
-#define LED4_PIN            5
+#define HEATER_BED_PIN      8
 
 #define FAN_PIN             9
 
@@ -155,6 +153,7 @@
 //
 #define SDSS               53
 #define LED_PIN            13
+#define LED4_PIN            5
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input
