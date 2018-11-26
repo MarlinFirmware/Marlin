@@ -204,12 +204,16 @@ else ifeq ($(HARDWARE_MOTHERBOARD),68)
 else ifeq ($(HARDWARE_MOTHERBOARD),72)
 # Rumba
 else ifeq ($(HARDWARE_MOTHERBOARD),80)
+# Raise3D Rumba
+else ifeq ($(HARDWARE_MOTHERBOARD),333)
 # Formbot T-Rex 2 Plus
 else ifeq ($(HARDWARE_MOTHERBOARD),95)
 # Formbot T-Rex 3
 else ifeq ($(HARDWARE_MOTHERBOARD),96)
 # Formbot Raptor
 else ifeq ($(HARDWARE_MOTHERBOARD),97)
+# Formbot Raptor 2
+else ifeq ($(HARDWARE_MOTHERBOARD),98)
 # bq ZUM Mega 3D
 else ifeq ($(HARDWARE_MOTHERBOARD),503)
 # MakeBoard Mini v2.1.2 is a control board sold by MicroMake
