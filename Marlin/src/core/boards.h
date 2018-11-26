@@ -73,6 +73,7 @@
 #define BOARD_AZTEEG_X3_PRO     68    // Azteeg X3 Pro
 #define BOARD_ULTIMAIN_2        72    // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
 #define BOARD_RUMBA             80    // Rumba
+#define BOARD_RUMBA_RAISE3D     333   // Raise3D N series Rumba derivative
 #define BOARD_FORMBOT_TREX2PLUS 95    // Formbot T-Rex 2 Plus
 #define BOARD_FORMBOT_TREX3     96    // Formbot T-Rex 3
 #define BOARD_FORMBOT_RAPTOR    97    // Formbot Raptor

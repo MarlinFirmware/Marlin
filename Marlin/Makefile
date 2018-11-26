@@ -204,6 +204,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),68)
 else ifeq ($(HARDWARE_MOTHERBOARD),72)
 # Rumba
 else ifeq ($(HARDWARE_MOTHERBOARD),80)
+# Raise3D Rumba
+else ifeq ($(HARDWARE_MOTHERBOARD),333)
 # Formbot T-Rex 2 Plus
 else ifeq ($(HARDWARE_MOTHERBOARD),95)
 # Formbot T-Rex 3
