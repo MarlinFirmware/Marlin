@@ -27,8 +27,11 @@
 #include "../gcode.h"
 #include "../../Marlin.h" // for fan_speed — should move those to Planner
 
-#if ENABLED(SINGLENOZZLE)
+#if EXTRUDERS > 1
   #include "../../module/motion.h"
+#endif
+
+#if ENABLED(SINGLENOZZLE)
   #include "../../module/tool_change.h"
 #endif
 
@@ -46,17 +49,24 @@
  *           3-255 = Set the speed for use with T2
  */
 void GcodeSuite::M106() {
-  const uint8_t p = parser.byteval('P');
+  #if EXTRUDERS > 1 
+      uint8_t p = active_extruder;
+    #else
+      uint8_t p = 0;
+    #endif
+  if( parser.seenval('P') ) {
+     p = parser.byteval('P');
+  }
+
   const uint16_t s = parser.ushortval('S', 255);
 
   #if ENABLED(SINGLENOZZLE)
-    if (p != active_extruder) {
-      if (p < EXTRUDERS) singlenozzle_fan_speed[p] = MIN(s, 255U);
-      return;
-    }
+    const bool fan_valid = (p < EXTRUDERS);
+  #else
+    const bool fan_valid = (p < FAN_COUNT);
   #endif
 
-  if (p < FAN_COUNT) {
+  if (fan_valid) {
     #if ENABLED(EXTRA_FAN_SPEED)
       const int16_t t = parser.intval('T');
       if (t > 0) {
@@ -75,7 +85,16 @@ void GcodeSuite::M106() {
         return;
       }
     #endif // EXTRA_FAN_SPEED
-    fan_speed[p] = MIN(s, 255U);
+
+  #if ENABLED(SINGLENOZZLE)
+    if (p != active_extruder) {
+      if (p < EXTRUDERS) singlenozzle_fan_speed[p] = MIN(s, 255U);
+      return;
+    }
+    p = 0; // For single nozzle, always set the output to 0 as its the only physical fan in use
+  #endif
+
+  fan_speed[p] = MIN(s, 255U);
   }
 }
 
@@ -91,7 +110,12 @@ void GcodeSuite::M107() {
     }
   #endif
 
-  if (p < FAN_COUNT) fan_speed[p] = 0;
+  #if ENABLED(SINGLENOZZLE)
+    const bool fan_valid = (p < EXTRUDERS);
+  #else
+    const bool fan_valid = (p < FAN_COUNT);
+  #endif
+  if (fan_valid) fan_speed[p] = 0;
 }
 
 #endif // FAN_COUNT > 0
