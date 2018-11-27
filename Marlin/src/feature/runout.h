@@ -296,9 +296,8 @@ class FilamentSensorBase {
       }
 
       static inline void block_completed(const block_t* const b) {
-        if(b->steps[X_AXIS] || b->steps[Y_AXIS] || b->steps[Z_AXIS]) {
-          // Only count extrusions while moving to avoid
-          // triggering on filament change or retractions.
+        if (b->steps[X_AXIS] || b->steps[Y_AXIS] || b->steps[Z_AXIS]) {
+          // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
           const uint8_t e = b->extruder;
           const int32_t steps = b->steps[E_AXIS];
           runout_mm_countdown[e] -= (TEST(b->direction_bits, E_AXIS) ? -steps : steps) * planner.steps_to_mm[E_AXIS_N(e)];
