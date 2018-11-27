@@ -186,8 +186,8 @@ class FilamentSensorBase {
         old_state = new_state;
 
         #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
-          for(uint8_t e = 0; e < EXTRUDERS; e++)
-            if(change & (1 << e)) SERIAL_PROTOCOLLNPAIR("Motion detected T", e);
+          for (uint8_t e = 0; e < EXTRUDERS; e++)
+            if (TEST(change, e)) SERIAL_PROTOCOLLNPAIR("Motion detected T", e);
         #endif
 
         motion_detected |= change;
