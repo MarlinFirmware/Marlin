@@ -37,7 +37,14 @@
   #include "../../gcode/queue.h"
   #include "../../module/printcounter.h"
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    #include "../../feature/power_loss_recovery.h"
+  #endif
+
   void lcd_sdcard_pause() {
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (recovery.enabled) recovery.save(true, false);
+    #endif
     card.pauseSDPrint();
     print_job_timer.pause();
     #if ENABLED(PARK_HEAD_ON_PAUSE)
