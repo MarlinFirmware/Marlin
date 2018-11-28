@@ -45,10 +45,7 @@
   #include "../feature/runout.h"
 #endif
 
-#if HAS_LCD_MENU
-  #include "../lcd/ultralcd.h"
-#endif
-
+#include "../lcd/ultralcd.h"
 #include "../libs/buzzer.h"
 #include "../libs/nozzle.h"
 #include "pause.h"
@@ -531,7 +528,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   SERIAL_ECHOPAIR("\nextruder_duplication_enabled:", extruder_duplication_enabled);
   SERIAL_ECHOPAIR("\nactive_extruder:", active_extruder);
   SERIAL_ECHOPGM("\n\n");
-  */
+  //*/
 
   if (!did_pause_print) return;
 
@@ -590,9 +587,10 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     }
   #endif
 
-  #if ENABLED(ULTRA_LCD)
-    ui.reset_status();
-  #endif
+  // Resume the print job timer if it was running
+  if (print_job_timer.isPaused()) print_job_timer.start();
+
+  ui.reset_status();
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

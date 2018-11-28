@@ -45,12 +45,7 @@
     #if ENABLED(POWER_LOSS_RECOVERY)
       if (recovery.enabled) recovery.save(true, false);
     #endif
-    card.pauseSDPrint();
-    print_job_timer.pause();
-    #if ENABLED(PARK_HEAD_ON_PAUSE)
-      enqueue_and_echo_commands_P(PSTR("M125"));
-    #endif
-    ui.reset_status();
+    enqueue_and_echo_commands_P(PSTR("M25"));
   }
 
   void lcd_sdcard_resume() {

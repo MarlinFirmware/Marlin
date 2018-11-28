@@ -113,7 +113,7 @@ void GcodeSuite::M25() {
   print_job_timer.pause();
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    enqueue_and_echo_commands_P(PSTR("M125")); // Must be enqueued with pauseSDPrint set to be last in the buffer
+    enqueue_and_echo_commands_P(PSTR("M125 S")); // To be last in the buffer, must enqueue after pauseSDPrint
   #endif
 }
 
