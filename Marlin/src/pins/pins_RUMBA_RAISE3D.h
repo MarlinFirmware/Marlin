@@ -20,36 +20,11 @@
  *
  */
 
-/**
- * feature/pause.cpp - Pause feature support functions
- * This may be combined with related G-codes if features are consolidated.
- */
+#define DEFAULT_MACHINE_NAME "Raise3D N Series"
+#define BOARD_NAME           "Raise3D Rumba"
 
-#include "../inc/MarlinConfig.h"
+// Raise3D uses thermocouples on the standard input pins
+#define TEMP_0_PIN         15   // Analog Input
+#define TEMP_1_PIN         14   // Analog Input
 
-#if HAS_FANMUX
-
-#include "fanmux.h"
-
-void fanmux_switch(const uint8_t e) {
-  WRITE(FANMUX0_PIN, TEST(e, 0) ? HIGH : LOW);
-  #if PIN_EXISTS(FANMUX1)
-    WRITE(FANMUX1_PIN, TEST(e, 1) ? HIGH : LOW);
-    #if PIN_EXISTS(FANMUX2)
-      WRITE(FANMUX2_PIN, TEST(e, 2) ? HIGH : LOW);
-    #endif
-  #endif
-}
-
-void fanmux_init(void) {
-  SET_OUTPUT(FANMUX0_PIN);
-  #if PIN_EXISTS(FANMUX1)
-    SET_OUTPUT(FANMUX1_PIN);
-    #if PIN_EXISTS(FANMUX2)
-      SET_OUTPUT(FANMUX2_PIN);
-    #endif
-  #endif
-  fanmux_switch(0);
-}
-
-#endif // HAS_FANMUX
+#include "pins_RUMBA.h"

@@ -465,7 +465,7 @@ class Temperature {
         static void start_watching_bed();
       #endif
 
-      static bool wait_for_bed(const bool no_wait_for_cooling
+      static bool wait_for_bed(const bool no_wait_for_cooling=true
         #if G26_CLICK_CAN_CANCEL
           , const bool click_to_cancel=false
         #endif
