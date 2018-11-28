@@ -36,7 +36,7 @@ void fanmux_switch(const uint8_t e) {
   #if PIN_EXISTS(FANMUX1)
     WRITE(FANMUX1_PIN, TEST(e, 1) ? HIGH : LOW);
     #if PIN_EXISTS(FANMUX2)
-      WRITE(FANMUX2, TEST(e, 2) ? HIGH : LOW);
+      WRITE(FANMUX2_PIN, TEST(e, 2) ? HIGH : LOW);
     #endif
   #endif
 }

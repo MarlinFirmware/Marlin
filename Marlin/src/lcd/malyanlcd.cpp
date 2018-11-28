@@ -278,7 +278,7 @@ void process_lcd_p_command(const char* command) {
         // There may be a difference in how V1 and V2 LCDs handle subdirectory
         // prints. Investigate more. This matches the V1 motion controller actions
         // but the V2 LCD switches to "print" mode on {SYS:DIR} response.
-        if (card.filenameIsDir) {
+        if (card.flag.filenameIsDir) {
           card.chdir(card.filename);
           write_to_lcd_P(PSTR("{SYS:DIR}"));
         }
@@ -330,7 +330,7 @@ void process_lcd_s_command(const char* command) {
 
     case 'L': {
       #if ENABLED(SDSUPPORT)
-        if (!card.cardOK) card.initsd();
+        if (!card.flag.cardOK) card.initsd();
 
         // A more efficient way to do this would be to
         // implement a callback in the ls_SerialPrint code, but
@@ -342,7 +342,7 @@ void process_lcd_s_command(const char* command) {
         uint16_t file_count = card.get_num_Files();
         for (uint16_t i = 0; i < file_count; i++) {
           card.getfilename(i);
-          sprintf_P(message_buffer, card.filenameIsDir ? PSTR("{DIR:%s}") : PSTR("{FILE:%s}"), card.longest_filename());
+          sprintf_P(message_buffer, card.flag.filenameIsDir ? PSTR("{DIR:%s}") : PSTR("{FILE:%s}"), card.longest_filename());
           write_to_lcd(message_buffer);
         }
 
@@ -480,7 +480,7 @@ void MarlinUI::init() {
 /**
  * Set an alert.
  */
-void MarlinUI::setalertstatusPGM(PGM_P const message) {
+void MarlinUI::set_alert_status_P(PGM_P const message) {
   write_to_lcd_P(PSTR("{E:"));
   write_to_lcd_P(message);
   write_to_lcd_P("}");

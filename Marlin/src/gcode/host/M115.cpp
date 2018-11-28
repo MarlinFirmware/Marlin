@@ -153,13 +153,6 @@ void GcodeSuite::M115() {
       #endif
     );
 
-    // PAREN_COMMENTS
-    cap_line(PSTR("PAREN_COMMENTS")
-      #if ENABLED(PAREN_COMMENTS)
-        , true
-      #endif
-    );
-
     // MOTION_MODES (M80-M89)
     cap_line(PSTR("MOTION_MODES")
       #if ENABLED(GCODE_MOTION_MODES)

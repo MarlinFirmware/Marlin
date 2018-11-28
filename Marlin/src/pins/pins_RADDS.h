@@ -172,9 +172,9 @@
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS       53
+  #define MAX6675_SS_PIN   53
 #else
-  #define MAX6675_SS       49
+  #define MAX6675_SS_PIN   49
 #endif
 
 //
@@ -193,7 +193,6 @@
 //
 // Misc. Functions
 //
-#define SDSS                4
 #define SD_DETECT_PIN      14
 #define PS_ON_PIN          40   // SERVO3_PIN
 
@@ -227,7 +226,6 @@
 
     #define BTN_BACK        71
 
-    #undef SDSS
     #define SDSS            10
     #define SD_DETECT_PIN   14
 
@@ -245,6 +243,9 @@
     #define BTN_EN1         50
     #define BTN_EN2         52
     #define BTN_ENC         48
+
+    #define SDSS            10
+    #define SD_DETECT_PIN   14
 
   #elif ENABLED(SSD1306_OLED_I2C_CONTROLLER)
 
@@ -268,3 +269,7 @@
   #endif // SPARK_FULL_GRAPHICS
 
 #endif // ULTRA_LCD
+
+#ifndef SDSS
+  #define SDSS              4
+#endif

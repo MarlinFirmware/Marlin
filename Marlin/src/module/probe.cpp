@@ -371,7 +371,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
 
     PGM_P const ds_str = deploy ? PSTR(MSG_MANUAL_DEPLOY) : PSTR(MSG_MANUAL_STOW);
     ui.return_to_status();       // To display the new status message
-    ui.setstatusPGM(ds_str, 99);
+    ui.set_status_P(ds_str, 99);
     serialprintPGM(ds_str);
     SERIAL_EOL();
 
@@ -404,6 +404,10 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #elif ENABLED(RACK_AND_PINION_PROBE)
 
     do_blocking_move_to_x(deploy ? Z_PROBE_DEPLOY_X : Z_PROBE_RETRACT_X);
+
+  #elif DISABLED(PAUSE_BEFORE_DEPLOY_STOW)
+
+    UNUSED(deploy);
 
   #endif
 }
@@ -526,7 +530,7 @@ static bool do_probe_move(const float z, const float fr_mm_s) {
     if (thermalManager.isHeatingBed()) {
       serialprintPGM(msg_wait_for_bed_heating);
       LCD_MESSAGEPGM(MSG_BED_HEATING);
-      while (thermalManager.isHeatingBed()) safe_delay(200);
+      thermalManager.wait_for_bed();
       ui.reset_status();
     }
   #endif

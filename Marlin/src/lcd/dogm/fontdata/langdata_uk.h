@@ -76,7 +76,7 @@ const u8g_fntpgm_uint8_t fontpage_8_214_214[29] U8G_FONT_SECTION("fontpage_8_214
   0x00,0x06,0x0c,0x00,0xfe,0x00,0x00,0x00,0x00,0x00,0xd6,0xd6,0x00,0x06,0x00,0x00,
   0x00,0x03,0x06,0x06,0x06,0x01,0x00,0x40,0x00,0xc0,0x40,0x40,0xe0};
 
-#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
+#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
     FONTDATA_ITEM(8, 134, 134, fontpage_8_134_134), // 'І' -- 'І'
     FONTDATA_ITEM(8, 144, 146, fontpage_8_144_146), // 'А' -- 'В'

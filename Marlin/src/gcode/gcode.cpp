@@ -65,9 +65,8 @@ int8_t GcodeSuite::get_target_extruder_from_command() {
     const int8_t e = parser.value_byte();
     if (e >= EXTRUDERS) {
       SERIAL_ECHO_START();
-      SERIAL_CHAR('M');
-      SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", e);
+      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
       return -1;
     }
     return e;
@@ -695,6 +694,11 @@ void GcodeSuite::process_parsed_command(
       #endif
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped
+
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
+        case 1000: M1000(); break;                                // M1000: Resume from power-loss
+      #endif
 
       default: parser.unknown_command_error(); break;
     }

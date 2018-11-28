@@ -43,22 +43,22 @@ void GcodeSuite::M104() {
   if (DEBUGGING(DRYRUN)) return;
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-    constexpr int8_t e = 0;
+    constexpr int8_t target_extruder = 0;
   #else
-    const int8_t e = get_target_extruder_from_command();
-    if (e < 0) return;
+    const int8_t target_extruder = get_target_extruder_from_command();
+    if (target_extruder < 0) return;
   #endif
 
   if (parser.seenval('S')) {
     const int16_t temp = parser.value_celsius();
     #if ENABLED(SINGLENOZZLE)
-      singlenozzle_temp[e] = temp;
-      if (e != active_extruder) return;
+      singlenozzle_temp[target_extruder] = temp;
+      if (target_extruder != active_extruder) return;
     #endif
-    thermalManager.setTargetHotend(temp, e);
+    thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dxc_is_duplicating() && e == 0)
+      if (dxc_is_duplicating() && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 

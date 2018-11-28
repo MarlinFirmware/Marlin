@@ -46,7 +46,7 @@ const u8g_fntpgm_uint8_t fontpage_2_253_254[47] U8G_FONT_SECTION("fontpage_2_253
   0x00,0x05,0x0a,0x0a,0x06,0x00,0x00,0x50,0x20,0x00,0xf8,0x08,0x10,0x20,0x40,0x80,
   0xf8,0x05,0x08,0x08,0x06,0x00,0x00,0x50,0x20,0x00,0xf8,0x10,0x20,0x40,0xf8};
 
-#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
+#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
     FONTDATA_ITEM(2, 140, 143, fontpage_2_140_143), // 'Č' -- 'ď'
     FONTDATA_ITEM(2, 185, 186, fontpage_2_185_186), // 'Ĺ' -- 'ĺ'

@@ -21,7 +21,7 @@
  */
 
 /**
- * ultralcd_impl_DOGM.cpp
+ * ultralcd_DOGM.cpp
  *
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
@@ -68,7 +68,6 @@
 #endif
 
 U8G_CLASS u8g(U8G_PARAM);
-U8GLIB *pu8g = &u8g;
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
@@ -216,7 +215,7 @@ void MarlinUI::init_lcd() {
     u8g.setRot270();  // Rotate screen by 270°
   #endif
 
-  uxg_SetUtf8Fonts(g_fontinfo, NUM_ARRAY(g_fontinfo));
+  uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
 }
 
 // The kill screen is displayed for unrecoverable conditions
@@ -305,11 +304,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         while (--pad >= 0) { lcd_put_wchar(' '); n--; }
       }
       n -= lcd_put_u8str_max_P(pstr, n);
-      if (NULL != valstr) {
-        n -= lcd_put_u8str_max(valstr, n);
-      }
-
-      while (n - MENU_FONT_WIDTH > 0) { n -= lcd_put_wchar(' '); }
+      if (valstr) n -= lcd_put_u8str_max(valstr, n);
+      while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
     }
   }
 
@@ -318,10 +314,9 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     UNUSED(pre_char);
 
     if (mark_as_selected(row, sel)) {
-      uint8_t n = LCD_WIDTH - 2;
-      n *= MENU_FONT_WIDTH;
+      uint8_t n = (LCD_WIDTH - 2) * (MENU_FONT_WIDTH);
       n -= lcd_put_u8str_max_P(pstr, n);
-      while (n - MENU_FONT_WIDTH > 0) { n -= lcd_put_wchar(' '); }
+      while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
       lcd_moveto(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2);
       lcd_put_wchar(post_char);
       lcd_put_wchar(' ');
@@ -332,11 +327,10 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   void _draw_menu_item_edit(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
     if (mark_as_selected(row, sel)) {
       const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data));
-      uint8_t n = LCD_WIDTH - 2 - vallen;
-      n *= MENU_FONT_WIDTH;
+      uint8_t n = (LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
       n -= lcd_put_u8str_max_P(pstr, n);
       lcd_put_wchar(':');
-      while (n - MENU_FONT_WIDTH > 0) { n -= lcd_put_wchar(' '); }
+      while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
       lcd_moveto(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH) * vallen, row_y2);
       if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str((char*)data);
     }
@@ -368,7 +362,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     #endif
 
     // Center the label and value lines on the middle line
-    uint8_t baseline = extra_row ? (LCD_PIXEL_HEIGHT) / 2
+    uint8_t baseline = extra_row ? (LCD_PIXEL_HEIGHT) / 2 - 1
                                  : (LCD_PIXEL_HEIGHT + EDIT_FONT_ASCENT) / 2;
 
     // Assume the label is alpha-numeric (with a descender)
@@ -383,7 +377,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_wchar(':');
       if (extra_row) {
         // Assume the value is numeric (with no descender)
-        baseline += EDIT_FONT_ASCENT;
+        baseline += EDIT_FONT_ASCENT + 2;
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
       if (onpage) {
@@ -399,37 +393,13 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     void draw_sd_menu_item(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir) {
       UNUSED(pstr);
 
-      mark_as_selected(row, sel);
-
-      if (!PAGE_CONTAINS(row_y1, row_y2)) return;
-
-      constexpr uint8_t maxlen = LCD_WIDTH - 1;
-      const char *outstr = theCard.longest_filename();
-      if (theCard.longFilename[0]) {
-        #if ENABLED(SCROLL_LONG_FILENAMES)
-          static uint8_t filename_scroll_hash;
-          if (sel) {
-            uint8_t name_hash = row;
-            for (uint8_t l = FILENAME_LENGTH; l--;)
-              name_hash = ((name_hash << 1) | (name_hash >> 7)) ^ theCard.filename[l];  // rotate, xor
-            if (filename_scroll_hash != name_hash) {                            // If the hash changed...
-              filename_scroll_hash = name_hash;                                 // Save the new hash
-              ui.filename_scroll_max = MAX(0, utf8_strlen(theCard.longFilename) - maxlen); // Update the scroll limit
-              ui.filename_scroll_pos = 0;                                       // Reset scroll to the start
-              ui.lcd_status_update_delay = 8;                                   // Don't scroll right away
-            }
-            outstr += ui.filename_scroll_pos;
-          }
-        #else
-          theCard.longFilename[maxlen] = '\0'; // cutoff at screen edge
-        #endif
+      if (mark_as_selected(row, sel)) {
+        if (isDir) lcd_put_wchar(LCD_STR_FOLDER[0]);
+        constexpr uint8_t maxlen = LCD_WIDTH - 1;
+        const uint8_t pixw = maxlen * (MENU_FONT_WIDTH);
+        uint8_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
+        while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
       }
-
-      if (isDir) lcd_put_wchar(LCD_STR_FOLDER[0]);
-
-      uint8_t n = lcd_put_u8str_max(outstr, maxlen * (MENU_FONT_WIDTH));
-      n = maxlen * (MENU_FONT_WIDTH) - n;
-      while (n - MENU_FONT_WIDTH > 0) { n -= lcd_put_wchar(' '); }
     }
 
   #endif // SDSUPPORT

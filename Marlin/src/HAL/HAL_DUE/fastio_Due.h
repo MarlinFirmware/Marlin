@@ -465,6 +465,9 @@
 
   #define DIO107_PIN 10
   #define DIO107_WPORT PIOB
+
+  #define DIO108_PIN 9
+  #define DIO108_WPORT PIOB
 #else
   #define DIO92_PIN 5
   #define DIO92_WPORT PIOA
