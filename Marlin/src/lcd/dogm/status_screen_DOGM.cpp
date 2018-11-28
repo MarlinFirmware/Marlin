@@ -37,6 +37,12 @@
 #include "../../module/motion.h"
 #include "../../module/temperature.h"
 
+#if ENABLED(FILAMENT_LCD_DISPLAY)
+  #include "../../feature/filwidth.h"
+  #include "../../module/planner.h"
+  #include "../../gcode/parser.h"
+#endif
+
 #if ENABLED(SDSUPPORT)
   #include "../../sd/cardreader.h"
 #endif
@@ -45,74 +51,152 @@
   #include "../../module/printcounter.h"
 #endif
 
-FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t x, const uint8_t y) {
-  const char * const str = itostr3(temp);
-  lcd_moveto(x - (str[0] != ' ' ? 0 : str[1] != ' ' ? 1 : 2) * MENU_FONT_WIDTH / 2, y);
-  lcd_put_u8str(str);
-  lcd_put_u8str_P(PSTR(LCD_STR_DEGREE " "));
+FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
+  const char *str = itostr3(temp);
+  const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
+  lcd_moveto(tx - len * (INFO_FONT_WIDTH) / 2 + 1, ty);
+  lcd_put_u8str(&str[3-len]);
+  lcd_put_wchar(LCD_STR_DEGREE[0]);
 }
 
-#ifndef HEAT_INDICATOR_X
-  #define HEAT_INDICATOR_X 8
+#define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 3 && DISABLED(STATUS_COMBINE_HEATERS))
+#define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && STATUS_FAN_FRAMES)
+#define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
+#define ANIM_BED (DO_DRAW_BED && ENABLED(STATUS_BED_ANIM))
+
+#if ANIM_HOTEND || ANIM_BED
+  uint8_t heat_bits;
+#endif
+#if ANIM_HOTEND
+  #define HOTEND_ALT(N) TEST(heat_bits, N)
+#else
+  #define HOTEND_ALT(N) false
+#endif
+#if ANIM_BED
+  #define BED_ALT() TEST(heat_bits, 7)
+#else
+  #define BED_ALT() false
 #endif
 
-FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater, const bool blink) {
+#define MAX_HOTEND_DRAW MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
+#define STATUS_HEATERS_BOT (STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1)
+
+FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
   #endif
 
   #if HAS_HEATED_BED
     const bool isBed = heater < 0;
+    #define IFBED(A,B) (isBed ? (A) : (B))
   #else
-    constexpr bool isBed = false;
+    #define IFBED(A,B) (B)
   #endif
+
+  const bool isHeat = IFBED(BED_ALT(), HOTEND_ALT(heater));
+  const uint8_t tx = IFBED(STATUS_BED_TEXT_X, STATUS_HOTEND_TEXT_X(heater));
+  const float temp = IFBED(thermalManager.degBed(), thermalManager.degHotend(heater)),
+              target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
+
+  #if DISABLED(STATUS_HOTEND_ANIM)
+    #define STATIC_HOTEND true
+    #define HOTEND_DOT    isHeat
+  #else
+    #define STATIC_HOTEND false
+    #define HOTEND_DOT    false
+  #endif
+
+  #if HAS_HEATED_BED && DISABLED(STATUS_BED_ANIM)
+    #define STATIC_BED    true
+    #define BED_DOT       isHeat
+  #else
+    #define STATIC_BED    false
+    #define BED_DOT       false
+  #endif
+
+  #if ANIM_HOTEND && ENABLED(STATUS_HOTEND_INVERTED)
+    #define OFF_BMP(N) status_hotend##N##_b_bmp
+    #define ON_BMP(N)  status_hotend##N##_a_bmp
+  #else
+    #define OFF_BMP(N) status_hotend##N##_a_bmp
+    #define ON_BMP(N)  status_hotend##N##_b_bmp
+  #endif
+
+  #if STATUS_HOTEND_BITMAPS > 1
+    static const unsigned char* const status_hotend_gfx[STATUS_HOTEND_BITMAPS] PROGMEM = ARRAY_N(STATUS_HOTEND_BITMAPS, OFF_BMP(1), OFF_BMP(2), OFF_BMP(3), OFF_BMP(4), OFF_BMP(5), OFF_BMP(6));
+    #if ANIM_HOTEND
+      static const unsigned char* const status_hotend_on_gfx[STATUS_HOTEND_BITMAPS] PROGMEM = ARRAY_N(STATUS_HOTEND_BITMAPS, ON_BMP(1), ON_BMP(2), ON_BMP(3), ON_BMP(4), ON_BMP(5), ON_BMP(6));
+      #define HOTEND_BITMAP(N,S) (unsigned char*)pgm_read_ptr((S) ? &status_hotend_on_gfx[(N) % (STATUS_HOTEND_BITMAPS)] : &status_hotend_gfx[(N) % (STATUS_HOTEND_BITMAPS)])
+    #else
+      #define HOTEND_BITMAP(N,S) (unsigned char*)pgm_read_ptr(&status_hotend_gfx[(N) % (STATUS_HOTEND_BITMAPS)])
+    #endif
+  #elif ANIM_HOTEND
+    #define HOTEND_BITMAP(N,S) ((S) ? ON_BMP() : OFF_BMP())
+  #else
+    #define HOTEND_BITMAP(N,S) status_hotend_a_bmp
+  #endif
+
+  if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_BOT)) {
+
+    #define BAR_TALL (STATUS_HEATERS_HEIGHT - 2)
+
+    const float prop = target - 20,
+                perc = prop > 0 && temp >= 20 ? (temp - 20) / prop : 0;
+    uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
+    NOMORE(tall, BAR_TALL);
+
+    #ifdef STATUS_HOTEND_ANIM
+      // Draw hotend bitmap, either whole or split by the heating percent
+      if (IFBED(0, 1)) {
+        const uint8_t hx = STATUS_HOTEND_X(heater), bw = STATUS_HOTEND_BYTEWIDTH(heater);
+        #if ENABLED(STATUS_HEAT_PERCENT)
+          if (isHeat && tall <= BAR_TALL) {
+            const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(heater, false));
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(heater, true) + ph * bw);
+          }
+          else
+        #endif
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(heater, isHeat));
+      }
+    #endif
+
+    // Draw a heating progress bar, if specified
+    #if ENABLED(STATUS_HEAT_PERCENT)
+
+      if (IFBED(true, STATIC_HOTEND) && isHeat) {
+        const uint8_t bx = IFBED(STATUS_BED_X + STATUS_BED_WIDTH, STATUS_HOTEND_X(heater) + STATUS_HOTEND_WIDTH(heater)) + 1;
+        u8g.drawFrame(bx, STATUS_HEATERS_Y, 3, STATUS_HEATERS_HEIGHT);
+        if (tall) {
+          const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
+          if (PAGE_OVER(STATUS_HEATERS_Y + ph))
+            u8g.drawVLine(bx + 1, STATUS_HEATERS_Y + ph, tall);
+        }
+      }
+
+    #endif
+
+  } // PAGE_CONTAINS
 
   if (PAGE_UNDER(7)) {
     #if HEATER_IDLE_HANDLER
-      const bool is_idle = (
-        #if HAS_HEATED_BED
-          isBed ? thermalManager.is_bed_idle() :
-        #endif
-        thermalManager.is_heater_idle(heater)
-      );
-
-      if (blink || !is_idle)
+      const bool is_idle = IFBED(thermalManager.is_bed_idle(), thermalManager.is_heater_idle(heater)),
+                 dodraw = (blink || !is_idle);
+    #else
+      constexpr bool dodraw = true;
     #endif
-        _draw_centered_temp(0.5 + (
-            #if HAS_HEATED_BED
-              isBed ? thermalManager.degTargetBed() :
-            #endif
-            thermalManager.degTargetHotend(heater)
-          ), x, 7
-        );
+    if (dodraw) _draw_centered_temp(target + 0.5, tx, 7);
   }
 
-  if (PAGE_CONTAINS(21, 28)) {
-    _draw_centered_temp(0.5f + (
-        #if HAS_HEATED_BED
-          isBed ? thermalManager.degBed() :
-        #endif
-        thermalManager.degHotend(heater)
-      ), x, 28
-    );
+  if (PAGE_CONTAINS(28 - INFO_FONT_ASCENT, 28 - 1))
+    _draw_centered_temp(temp + 0.5f, tx, 28);
 
-    if (PAGE_CONTAINS(17, 20)) {
-      const uint8_t h = isBed ? 7 : HEAT_INDICATOR_X,
-                    y = isBed ? 18 : 17;
-      if (
-        #if HAS_HEATED_BED
-          isBed ? thermalManager.isHeatingBed() :
-        #endif
-        thermalManager.isHeatingHotend(heater)
-      ) {
-        u8g.setColorIndex(0); // white on black
-        u8g.drawBox(x + h, y, 2, 2);
-        u8g.setColorIndex(1); // black on white
-      }
-      else
-        u8g.drawBox(x + h, y, 2, 2);
-    }
+  if (IFBED(STATIC_BED && BED_DOT, STATIC_HOTEND && HOTEND_DOT) && PAGE_CONTAINS(17, 19)) {
+    u8g.setColorIndex(0); // set to white on black
+    u8g.drawBox(tx, IFBED(20-2, 20-3), 2, 2);
+    u8g.setColorIndex(1); // restore black on white
   }
+
 }
 
 //
@@ -137,144 +221,112 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
-void MarlinUI::draw_status_message(const bool blink) {
-
-  // Get the UTF8 character count of the string
-  uint8_t slen = utf8_strlen(status_message);
-
-  #if ENABLED(STATUS_MESSAGE_SCROLLING)
-
-    static bool last_blink = false;
-
-    if (slen <= LCD_WIDTH) {
-      // The string fits within the line. Print with no scrolling
-      lcd_put_u8str(status_message);
-      for (; slen < LCD_WIDTH; ++slen) lcd_put_wchar(' ');
-    }
-    else {
-      // String is longer than the available space
-
-      // Get a pointer to the next valid UTF8 character
-      const char *stat = status_message + status_scroll_offset;
-
-      // Get the string remaining length
-      const uint8_t rlen = utf8_strlen(stat);
-
-      if (rlen >= LCD_WIDTH) {
-        // The remaining string fills the screen - Print it
-        lcd_put_u8str_max(stat, LCD_PIXEL_WIDTH);
-      }
-      else {
-        // The remaining string does not completely fill the screen
-        lcd_put_u8str_max(stat, LCD_PIXEL_WIDTH);         // The string leaves space
-        uint8_t chars = LCD_WIDTH - rlen;                 // Amount of space left in characters
-
-        lcd_put_wchar('.');                               // Always at 1+ spaces left, draw a dot
-        if (--chars) {                                    // Draw a second dot if there's space
-          lcd_put_wchar('.');
-          if (--chars) {
-            // Print a second copy of the message
-            lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH - (rlen + 2) * (MENU_FONT_WIDTH));
-          }
-        }
-      }
-      if (last_blink != blink) {
-        last_blink = blink;
-
-        // Adjust by complete UTF8 characters
-        if (status_scroll_offset < slen) {
-          status_scroll_offset++;
-          while (!START_OF_UTF8_CHAR(status_message[status_scroll_offset]))
-            status_scroll_offset++;
-        }
-        else
-          status_scroll_offset = 0;
-      }
-    }
-
-  #else // !STATUS_MESSAGE_SCROLLING
-
-    UNUSED(blink);
-
-    // Just print the string to the LCD
-    lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH);
-
-    // Fill the rest with spaces
-    for (; slen < LCD_WIDTH; ++slen) lcd_put_wchar(' ');
-
-  #endif // !STATUS_MESSAGE_SCROLLING
-}
-
 void MarlinUI::draw_status_screen() {
+
+  static char xstring[5], ystring[5], zstring[8];
+  #if ENABLED(FILAMENT_LCD_DISPLAY)
+    static char wstring[5], mstring[4];
+  #endif
+
+  // At the first page, generate new display values
+  if (first_page) {
+    #if ANIM_HOTEND || ANIM_BED
+      uint8_t new_bits = 0;
+      #if ANIM_HOTEND
+        HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, e);
+      #endif
+      #if ANIM_BED
+        if (thermalManager.isHeatingBed()) SBI(new_bits, 7);
+      #endif
+      heat_bits = new_bits;
+    #endif
+    strcpy(xstring, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
+    strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
+    strcpy(zstring, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])));
+    #if ENABLED(FILAMENT_LCD_DISPLAY)
+      strcpy(wstring, ftostr12ns(filament_width_meas));
+      strcpy(mstring, itostr3(100.0 * (
+          parser.volumetric_enabled
+            ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+            : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
+        )
+      ));
+    #endif
+  }
 
   const bool blink = get_blink();
 
   // Status Menu Font
   set_font(FONT_STATUSMENU);
 
-  //
-  // Fan Animation
-  //
-  // Draw the entire heading image bitmap rather than each element
-  // separately. This is an optimization because it's slower to draw
-  // multiple elements than a single bitmap.
-  //
-  // The bitmap:
-  //  - May be offset in X
-  //  - Includes all nozzle(s), bed(s), and the fan.
-  //
-  // TODO:
-  //
-  //  - Only draw the whole header on the first
-  //    entry to the status screen. Nozzle, bed, and
-  //    fan outline bits don't change.
-  //
-  #if FAN_ANIM_FRAMES > 2
-    static bool old_blink;
-    static uint8_t fan_frame;
-    if (old_blink != blink) {
-      old_blink = blink;
-      if (!fan_speed[0] || ++fan_frame >= FAN_ANIM_FRAMES) fan_frame = 0;
-    }
+  #if STATUS_LOGO_WIDTH
+    if (PAGE_CONTAINS(STATUS_LOGO_Y, STATUS_LOGO_Y + STATUS_LOGO_HEIGHT - 1))
+      u8g.drawBitmapP(STATUS_LOGO_X, STATUS_LOGO_Y, STATUS_LOGO_BYTEWIDTH, STATUS_LOGO_HEIGHT, status_logo_bmp);
   #endif
 
-  if (PAGE_UNDER(STATUS_SCREENHEIGHT + 1))
-    u8g.drawBitmapP(
-      STATUS_SCREEN_X, STATUS_SCREEN_Y,
-      (STATUS_SCREENWIDTH + 7) / 8, STATUS_SCREENHEIGHT,
-      #if HAS_FAN0
-        #if FAN_ANIM_FRAMES > 2
-          fan_frame == 1 ? status_screen1_bmp :
-          fan_frame == 2 ? status_screen2_bmp :
-          #if FAN_ANIM_FRAMES > 3
-            fan_frame == 3 ? status_screen3_bmp :
+  #if STATUS_HEATERS_WIDTH
+    // Draw all heaters (and maybe the bed) in one go
+    if (PAGE_CONTAINS(STATUS_HEATERS_Y, STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1))
+      u8g.drawBitmapP(STATUS_HEATERS_X, STATUS_HEATERS_Y, STATUS_HEATERS_BYTEWIDTH, STATUS_HEATERS_HEIGHT, status_heaters_bmp);
+  #endif
+
+  #if DO_DRAW_BED
+    #if ANIM_BED
+      #define BED_BITMAP(S) ((S) ? status_bed_on_bmp : status_bed_bmp)
+    #else
+      #define BED_BITMAP(S) status_bed_bmp
+    #endif
+    const uint8_t bedy = STATUS_BED_Y(BED_ALT()), bedh = STATUS_BED_HEIGHT(BED_ALT());
+    if (PAGE_CONTAINS(bedy, bedy + bedh - 1))
+      u8g.drawBitmapP(STATUS_BED_X, bedy, STATUS_BED_BYTEWIDTH, bedh, BED_BITMAP(BED_ALT()));
+  #endif
+
+  #if DO_DRAW_FAN
+    #if STATUS_FAN_FRAMES > 2
+      static bool old_blink;
+      static uint8_t fan_frame;
+      if (old_blink != blink) {
+        old_blink = blink;
+        if (!fan_speed[0] || ++fan_frame >= STATUS_FAN_FRAMES) fan_frame = 0;
+      }
+    #endif
+    if (PAGE_CONTAINS(STATUS_FAN_Y, STATUS_FAN_Y + STATUS_FAN_HEIGHT - 1))
+      u8g.drawBitmapP(
+        STATUS_FAN_X, STATUS_FAN_Y,
+        STATUS_FAN_BYTEWIDTH, STATUS_FAN_HEIGHT,
+        #if STATUS_FAN_FRAMES > 2
+          fan_frame == 1 ? status_fan1_bmp :
+          fan_frame == 2 ? status_fan2_bmp :
+          #if STATUS_FAN_FRAMES > 3
+            fan_frame == 3 ? status_fan3_bmp :
           #endif
-        #else
-          blink && fan_speed[0] ? status_screen1_bmp :
+        #elif STATUS_FAN_FRAMES > 1
+          blink && fan_speed[0] ? status_fan1_bmp :
         #endif
-      #endif
-      status_screen0_bmp
-    );
+        status_fan0_bmp
+      );
+  #endif
 
   //
   // Temperature Graphics and Info
   //
 
-  if (PAGE_UNDER(28)) {
+  if (PAGE_UNDER(6 + 1 + 12 + 1 + 6 + 1)) {
     // Extruders
-    HOTEND_LOOP() _draw_heater_status(STATUS_SCREEN_HOTEND_TEXT_X(e), e, blink);
+    for (uint8_t e = 0; e < MAX_HOTEND_DRAW; ++e)
+      _draw_heater_status(e, blink);
 
     // Heated bed
-    #if HOTENDS < 4 && HAS_HEATED_BED
-      _draw_heater_status(STATUS_SCREEN_BED_TEXT_X, -1, blink);
+    #if HAS_HEATED_BED && HOTENDS < 4
+      _draw_heater_status(-1, blink);
     #endif
 
-    #if HAS_FAN0
-      if (PAGE_CONTAINS(STATUS_SCREEN_FAN_TEXT_Y - 7, STATUS_SCREEN_FAN_TEXT_Y)) {
-        // Fan
+    // Fan, if a bitmap was provided
+    #if DO_DRAW_FAN
+      if (PAGE_CONTAINS(STATUS_FAN_TEXT_Y - INFO_FONT_ASCENT, STATUS_FAN_TEXT_Y)) {
         const int per = ((int(fan_speed[0]) + 1) * 100) / 256;
         if (per) {
-          lcd_moveto(STATUS_SCREEN_FAN_TEXT_X, STATUS_SCREEN_FAN_TEXT_Y);
+          lcd_moveto(STATUS_FAN_TEXT_X, STATUS_FAN_TEXT_Y);
           lcd_put_u8str(itostr3(per));
           lcd_put_wchar('%');
         }
@@ -305,11 +357,8 @@ void MarlinUI::draw_status_screen() {
     #define PROGRESS_BAR_X 54
     #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
 
-    if (PAGE_CONTAINS(49, 52))       // 49-52 (or 49-51)
-      u8g.drawFrame(
-        PROGRESS_BAR_X, 49,
-        PROGRESS_BAR_WIDTH, 4
-      );
+    if (PAGE_CONTAINS(49, 52))
+      u8g.drawFrame(PROGRESS_BAR_X, 49, PROGRESS_BAR_WIDTH, 4);
 
     const uint8_t progress = get_progress();
 
@@ -368,7 +417,7 @@ void MarlinUI::draw_status_screen() {
 
   #define X_LABEL_POS  3
   #define X_VALUE_POS 11
-  #define XYZ_SPACING 40
+  #define XYZ_SPACING 37
 
   #if ENABLED(XYZ_HOLLOW_FRAME)
     #define XYZ_FRAME_TOP 29
@@ -377,27 +426,6 @@ void MarlinUI::draw_status_screen() {
     #define XYZ_FRAME_TOP 30
     #define XYZ_FRAME_HEIGHT INFO_FONT_ASCENT + 1
   #endif
-
-  static char xstring[5], ystring[5], zstring[8];
-  #if ENABLED(FILAMENT_LCD_DISPLAY)
-    static char wstring[5], mstring[4];
-  #endif
-
-  // At the first page, regenerate the XYZ strings
-  if (first_page) {
-    strcpy(xstring, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])));
-    strcpy(ystring, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])));
-    strcpy(zstring, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])));
-    #if ENABLED(FILAMENT_LCD_DISPLAY)
-      strcpy(wstring, ftostr12ns(filament_width_meas));
-      strcpy(mstring, itostr3(100.0 * (
-          parser.volumetric_enabled
-            ? planner.volumetric_area_nominal / planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
-            : planner.volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]
-        )
-      ));
-    #endif
-  }
 
   if (PAGE_CONTAINS(XYZ_FRAME_TOP, XYZ_FRAME_TOP + XYZ_FRAME_HEIGHT - 1)) {
 
@@ -477,9 +505,7 @@ void MarlinUI::draw_status_screen() {
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
       // Alternate Status message and Filament display
-      if (PENDING(millis(), next_filament_display))
-        draw_status_message(blink);
-      else {
+      if (ELAPSED(millis(), next_filament_display)) {
         lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
         lcd_put_wchar(':');
         lcd_put_u8str(wstring);
@@ -488,10 +514,78 @@ void MarlinUI::draw_status_screen() {
         lcd_put_u8str(mstring);
         lcd_put_wchar('%');
       }
-    #else
-      draw_status_message(blink);
+      else
     #endif
+        draw_status_message(blink);
   }
+}
+
+void MarlinUI::draw_status_message(const bool blink) {
+
+  // Get the UTF8 character count of the string
+  uint8_t slen = utf8_strlen(status_message);
+
+  #if ENABLED(STATUS_MESSAGE_SCROLLING)
+
+    static bool last_blink = false;
+
+    if (slen <= LCD_WIDTH) {
+      // The string fits within the line. Print with no scrolling
+      lcd_put_u8str(status_message);
+      for (; slen < LCD_WIDTH; ++slen) lcd_put_wchar(' ');
+    }
+    else {
+      // String is longer than the available space
+
+      // Get a pointer to the next valid UTF8 character
+      const char *stat = status_message + status_scroll_offset;
+
+      // Get the string remaining length
+      const uint8_t rlen = utf8_strlen(stat);
+
+      if (rlen >= LCD_WIDTH) {
+        // The remaining string fills the screen - Print it
+        lcd_put_u8str_max(stat, LCD_PIXEL_WIDTH);
+      }
+      else {
+        // The remaining string does not completely fill the screen
+        lcd_put_u8str_max(stat, LCD_PIXEL_WIDTH);         // The string leaves space
+        uint8_t chars = LCD_WIDTH - rlen;                 // Amount of space left in characters
+
+        lcd_put_wchar('.');                               // Always at 1+ spaces left, draw a dot
+        if (--chars) {                                    // Draw a second dot if there's space
+          lcd_put_wchar('.');
+          if (--chars) {
+            // Print a second copy of the message
+            lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH - (rlen + 2) * (MENU_FONT_WIDTH));
+          }
+        }
+      }
+      if (last_blink != blink) {
+        last_blink = blink;
+
+        // Adjust by complete UTF8 characters
+        if (status_scroll_offset < slen) {
+          status_scroll_offset++;
+          while (!START_OF_UTF8_CHAR(status_message[status_scroll_offset]))
+            status_scroll_offset++;
+        }
+        else
+          status_scroll_offset = 0;
+      }
+    }
+
+  #else // !STATUS_MESSAGE_SCROLLING
+
+    UNUSED(blink);
+
+    // Just print the string to the LCD
+    lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH);
+
+    // Fill the rest with spaces
+    for (; slen < LCD_WIDTH; ++slen) lcd_put_wchar(' ');
+
+  #endif // !STATUS_MESSAGE_SCROLLING
 }
 
 #endif // HAS_GRAPHICAL_LCD && !LIGHTWEIGHT_UI

@@ -112,7 +112,7 @@ enum ADCSensorState : char {
     Prepare_FILWIDTH,
     Measure_FILWIDTH,
   #endif
-  #if ENABLED(ADC_KEYPAD)
+  #if HAS_ADC_BUTTONS
     Prepare_ADC_KEY,
     Measure_ADC_KEY,
   #endif
@@ -291,7 +291,7 @@ class Temperature {
     #endif
 
   public:
-    #if ENABLED(ADC_KEYPAD)
+    #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
       static uint8_t ADCKey_count;
     #endif
@@ -465,7 +465,7 @@ class Temperature {
         static void start_watching_bed();
       #endif
 
-      static bool wait_for_bed(const bool no_wait_for_cooling
+      static bool wait_for_bed(const bool no_wait_for_cooling=true
         #if G26_CLICK_CAN_CANCEL
           , const bool click_to_cancel=false
         #endif
@@ -632,8 +632,23 @@ class Temperature {
 
     static void updateTemperaturesFromRawValues();
 
-    #if ENABLED(HEATER_0_USES_MAX6675)
-      static int read_max6675();
+    #define HAS_MAX6675 (ENABLED(HEATER_0_USES_MAX6675) || ENABLED(HEATER_1_USES_MAX6675))
+    #if HAS_MAX6675
+      #if ENABLED(HEATER_0_USES_MAX6675) && ENABLED(HEATER_1_USES_MAX6675)
+        #define COUNT_6675 2
+      #else
+        #define COUNT_6675 1
+      #endif
+      #if COUNT_6675 > 1
+        #define READ_MAX6675(N) read_max6675(N)
+      #else
+        #define READ_MAX6675(N) read_max6675()
+      #endif
+      static int read_max6675(
+        #if COUNT_6675 > 1
+          const uint8_t hindex=0
+        #endif
+      );
     #endif
 
     static void checkExtruderAutoFans();

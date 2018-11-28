@@ -83,9 +83,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         65   // THERM_2
-#define TEMP_1_PIN         66   // THERM_3
-#define TEMP_BED_PIN       64   // THERM_1
+#define TEMP_0_PIN         64   // THERM_1
+#define TEMP_1_PIN         65   // THERM_2
+#define TEMP_BED_PIN       66   // THERM_3
 
 //
 // Heaters / Fans

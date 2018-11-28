@@ -259,7 +259,7 @@
 #define MSG_PAUSE_PRINT                     _UxGT("일시정지")
 #define MSG_RESUME_PRINT                    _UxGT("재시작")
 #define MSG_STOP_PRINT                      _UxGT("출력중지")
-#define MSG_POWER_LOSS_RECOVERY             _UxGT("Power-Loss Recovery")
+#define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #define MSG_CARD_MENU                       _UxGT("SD 카드출력")
 #define MSG_NO_CARD                         _UxGT("SD 카드없음")
 #define MSG_DWELL                           _UxGT("슬립모드...")

@@ -217,7 +217,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
   bool Temperature::heater_idle_timeout_exceeded[HOTENDS] = { false };
 #endif
 
-#if ENABLED(ADC_KEYPAD)
+#if HAS_ADC_BUTTONS
   uint32_t Temperature::current_ADCKey_raw = 0;
   uint8_t Temperature::ADCKey_count = 0;
 #endif
@@ -775,8 +775,13 @@ void Temperature::manage_heater() {
   updateTemperaturesFromRawValues(); // also resets the watchdog
 
   #if ENABLED(HEATER_0_USES_MAX6675)
-    if (current_temperature[0] > MIN(HEATER_0_MAXTEMP, MAX6675_TMAX - 1.0)) max_temp_error(0);
-    if (current_temperature[0] < MAX(HEATER_0_MINTEMP, MAX6675_TMIN + .01)) min_temp_error(0);
+    if (current_temperature[0] > MIN(HEATER_0_MAXTEMP, HEATER_0_MAX6675_TMAX - 1.0)) max_temp_error(0);
+    if (current_temperature[0] < MAX(HEATER_0_MINTEMP, HEATER_0_MAX6675_TMIN + .01)) min_temp_error(0);
+  #endif
+
+  #if ENABLED(HEATER_1_USES_MAX6675)
+    if (current_temperature[1] > MIN(HEATER_1_MAXTEMP, HEATER_1_MAX6675_TMAX - 1.0)) max_temp_error(1);
+    if (current_temperature[1] < MAX(HEATER_1_MINTEMP, HEATER_1_MAX6675_TMIN + .01)) min_temp_error(1);
   #endif
 
   #if WATCH_HOTENDS || WATCH_THE_BED || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN || HEATER_IDLE_HANDLER
@@ -953,7 +958,9 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
         break;
       #endif
     case 1:
-      #if ENABLED(HEATER_1_USES_AD595)
+      #if ENABLED(HEATER_1_USES_MAX6675)
+        return raw * 0.25;
+      #elif ENABLED(HEATER_1_USES_AD595)
         return TEMP_AD595(raw);
       #elif ENABLED(HEATER_1_USES_AD8495)
         return TEMP_AD8495(raw);
@@ -1036,7 +1043,10 @@ float Temperature::analog_to_celsius_hotend(const int raw, const uint8_t e) {
  */
 void Temperature::updateTemperaturesFromRawValues() {
   #if ENABLED(HEATER_0_USES_MAX6675)
-    current_temperature_raw[0] = read_max6675();
+    current_temperature_raw[0] = READ_MAX6675(0);
+  #endif
+  #if ENABLED(HEATER_1_USES_MAX6675)
+    current_temperature_raw[1] = READ_MAX6675(1);
   #endif
   HOTEND_LOOP() current_temperature[e] = analog_to_celsius_hotend(current_temperature_raw[e], e);
   #if HAS_HEATED_BED
@@ -1161,6 +1171,13 @@ void Temperature::init() {
     #endif
   #endif
 
+  #if ENABLED(USE_CONTROLLER_FAN)
+    SET_OUTPUT(CONTROLLER_FAN_PIN);
+    #if ENABLED(FAST_PWM_FAN)
+      setPwmFrequency(CONTROLLER_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+    #endif
+  #endif
+
   #if ENABLED(HEATER_0_USES_MAX6675)
 
     OUT_WRITE(SCK_PIN, LOW);
@@ -1170,9 +1187,13 @@ void Temperature::init() {
     max6675_spi.init();
 
     OUT_WRITE(SS_PIN, HIGH);
-    OUT_WRITE(MAX6675_SS, HIGH);
+    OUT_WRITE(MAX6675_SS_PIN, HIGH);
 
   #endif // HEATER_0_USES_MAX6675
+
+  #if ENABLED(HEATER_1_USES_MAX6675)
+    OUT_WRITE(MAX6675_SS2_PIN, HIGH);
+  #endif
 
   HAL_adc_init();
 
@@ -1422,7 +1443,7 @@ void Temperature::init() {
     #if HOTENDS == 1
       UNUSED(e);
     #endif
-    if (degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
+    if (degTargetHotend(HOTEND_INDEX) && degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
       watch_target_temp[HOTEND_INDEX] = degHotend(HOTEND_INDEX) + WATCH_TEMP_INCREASE;
       watch_heater_next_ms[HOTEND_INDEX] = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
     }
@@ -1438,7 +1459,7 @@ void Temperature::init() {
    * This is called when the temperature is set. (M140, M190)
    */
   void Temperature::start_watching_bed() {
-    if (degBed() < degTargetBed() - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
+    if (degTargetBed() && degBed() < degTargetBed() - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
       watch_target_bed_temp = degBed() + WATCH_BED_TEMP_INCREASE;
       watch_bed_next_ms = millis() + (WATCH_BED_TEMP_PERIOD) * 1000UL;
     }
@@ -1595,47 +1616,71 @@ void Temperature::disable_all_heaters() {
 
 #endif // PROBING_HEATERS_OFF
 
-#if ENABLED(HEATER_0_USES_MAX6675)
+#if HAS_MAX6675
 
-  #define MAX6675_HEAT_INTERVAL 250u
+  int Temperature::read_max6675(
+    #if COUNT_6675 > 1
+      const uint8_t hindex
+    #endif
+  ) {
+    #if COUNT_6675 == 1
+      constexpr uint8_t hindex = 0;
+    #endif
 
-  #if ENABLED(MAX6675_IS_MAX31855)
-    uint32_t max6675_temp = 2000;
-    #define MAX6675_ERROR_MASK 7
-    #define MAX6675_DISCARD_BITS 18
-    #define MAX6675_SPEED_BITS 3  // (_BV(SPR1)) // clock ÷ 64
-  #else
-    uint16_t max6675_temp = 2000;
-    #define MAX6675_ERROR_MASK 4
-    #define MAX6675_DISCARD_BITS 3
-    #define MAX6675_SPEED_BITS 2 // (_BV(SPR0)) // clock ÷ 16
-  #endif
+    #define MAX6675_HEAT_INTERVAL 250UL
 
-  int Temperature::read_max6675() {
+    #if ENABLED(MAX6675_IS_MAX31855)
+      static uint32_t max6675_temp = 2000;
+      #define MAX6675_ERROR_MASK    7
+      #define MAX6675_DISCARD_BITS 18
+      #define MAX6675_SPEED_BITS    3  // (_BV(SPR1)) // clock ÷ 64
+    #else
+      static uint16_t max6675_temp = 2000;
+      #define MAX6675_ERROR_MASK    4
+      #define MAX6675_DISCARD_BITS  3
+      #define MAX6675_SPEED_BITS    2  // (_BV(SPR0)) // clock ÷ 16
+    #endif
 
-    static millis_t next_max6675_ms = 0;
-
+    // Return last-read value between readings
+    static millis_t next_max6675_ms[COUNT_6675] = { 0 };
     millis_t ms = millis();
+    if (PENDING(ms, next_max6675_ms[hindex])) return int(max6675_temp);
+    next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
-    if (PENDING(ms, next_max6675_ms)) return (int)max6675_temp;
+    //
+    // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
+    //
+    #if MB(MIGHTYBOARD_REVE)
+      spiBegin();
+      spiInit(MAX6675_SPEED_BITS);
+    #endif
 
-    next_max6675_ms = ms + MAX6675_HEAT_INTERVAL;
+    #if COUNT_6675 > 1
+      #define WRITE_MAX6675(V) do{ switch (hindex) { case 1: WRITE(MAX6675_SS2_PIN, V); break; default: WRITE(MAX6675_SS_PIN, V); } }while(0)
+    #elif ENABLED(HEATER_1_USES_MAX6675)
+      #define WRITE_MAX6675(V) WRITE(MAX6675_SS2_PIN, V)
+    #else
+      #define WRITE_MAX6675(V) WRITE(MAX6675_SS_PIN, V)
+    #endif
 
-    spiBegin();
-    spiInit(MAX6675_SPEED_BITS);
-
-    WRITE(MAX6675_SS, 0); // enable TT_MAX6675
+    WRITE_MAX6675(LOW);  // enable TT_MAX6675
 
     DELAY_NS(100);       // Ensure 100ns delay
 
     // Read a big-endian temperature value
     max6675_temp = 0;
     for (uint8_t i = sizeof(max6675_temp); i--;) {
-      max6675_temp |= spiRec();
+      max6675_temp |= (
+        #if MB(MIGHTYBOARD_REVE)
+          max6675_spi.receive()
+        #else
+          spiRec()
+        #endif
+      );
       if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
     }
 
-    WRITE(MAX6675_SS, 1); // disable TT_MAX6675
+    WRITE_MAX6675(HIGH); // disable TT_MAX6675
 
     if (max6675_temp & MAX6675_ERROR_MASK) {
       SERIAL_ERROR_START();
@@ -1651,7 +1696,17 @@ void Temperature::disable_all_heaters() {
       #else
         SERIAL_ERRORLNPGM("MAX6675");
       #endif
-      max6675_temp = MAX6675_TMAX * 4; // thermocouple open
+
+      // Thermocouple open
+      max6675_temp = 4 * (
+        #if COUNT_6675 > 1
+          hindex ? HEATER_1_MAX6675_TMAX : HEATER_0_MAX6675_TMAX
+        #elif ENABLED(HEATER_1_USES_MAX6675)
+          HEATER_1_MAX6675_TMAX
+        #else
+          HEATER_0_MAX6675_TMAX
+        #endif
+      );
     }
     else
       max6675_temp >>= MAX6675_DISCARD_BITS;
@@ -1660,24 +1715,28 @@ void Temperature::disable_all_heaters() {
         if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000;
       #endif
 
-    return (int)max6675_temp;
+    return int(max6675_temp);
   }
 
-#endif // HEATER_0_USES_MAX6675
+#endif // HAS_MAX6675
 
 /**
  * Get raw temperatures
  */
 void Temperature::set_current_temp_raw() {
+
   #if HAS_TEMP_ADC_0 && DISABLED(HEATER_0_USES_MAX6675)
     current_temperature_raw[0] = raw_temp_value[0];
   #endif
+
   #if HAS_TEMP_ADC_1
+
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       redundant_temperature_raw = raw_temp_value[1];
-    #else
+    #elif DISABLED(HEATER_1_USES_MAX6675)
       current_temperature_raw[1] = raw_temp_value[1];
     #endif
+
     #if HAS_TEMP_ADC_2
       current_temperature_raw[2] = raw_temp_value[2];
       #if HAS_TEMP_ADC_3
@@ -1690,6 +1749,7 @@ void Temperature::set_current_temp_raw() {
         #endif // HAS_TEMP_ADC_4
       #endif // HAS_TEMP_ADC_3
     #endif // HAS_TEMP_ADC_2
+
   #endif // HAS_TEMP_ADC_1
 
   #if HAS_HEATED_BED
@@ -1771,17 +1831,17 @@ void Temperature::readings_ready() {
 
   #if HAS_HEATED_BED
     #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
-      #define GEBED <=
+      #define BEDCMP(A,B) ((A)<=(B))
     #else
-      #define GEBED >=
+      #define BEDCMP(A,B) ((A)>=(B))
     #endif
     const bool bed_on = (target_temperature_bed > 0)
       #if ENABLED(PIDTEMPBED)
         || (soft_pwm_amount_bed > 0)
       #endif
     ;
-    if (current_temperature_bed_raw GEBED bed_maxttemp_raw) max_temp_error(-1);
-    if (bed_minttemp_raw GEBED current_temperature_bed_raw && bed_on) min_temp_error(-1);
+    if (BEDCMP(current_temperature_bed_raw, bed_maxttemp_raw)) max_temp_error(-1);
+    if (BEDCMP(bed_minttemp_raw, current_temperature_bed_raw) && bed_on) min_temp_error(-1);
   #endif
 }
 
@@ -1816,7 +1876,7 @@ void Temperature::isr() {
   // avoid multiple loads of pwm_count
   uint8_t pwm_count_tmp = pwm_count;
 
-  #if ENABLED(ADC_KEYPAD)
+  #if HAS_ADC_BUTTONS
     static unsigned int raw_ADCKey_value = 0;
   #endif
 
@@ -2237,7 +2297,7 @@ void Temperature::isr() {
       break;
     #endif
 
-    #if ENABLED(ADC_KEYPAD)
+    #if HAS_ADC_BUTTONS
       case Prepare_ADC_KEY:
         HAL_START_ADC(ADC_KEYPAD_PIN);
         break;
@@ -2411,7 +2471,7 @@ void Temperature::isr() {
       #if HOTENDS > 1
         ui.status_printf_P(0, heating ? PSTR("E%i " MSG_HEATING) : PSTR("E%i " MSG_COOLING), int(e + 1));
       #else
-        ui.setstatusPGM(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
+        ui.set_status_P(heating ? PSTR("E " MSG_HEATING) : PSTR("E " MSG_COOLING));
       #endif
     }
   #endif
@@ -2547,7 +2607,7 @@ void Temperature::isr() {
       #define MIN_COOLING_SLOPE_TIME_BED 60
     #endif
 
-    bool Temperature::wait_for_bed(const bool no_wait_for_cooling
+    bool Temperature::wait_for_bed(const bool no_wait_for_cooling/*=true*/
       #if G26_CLICK_CAN_CANCEL
         , const bool click_to_cancel/*=false*/
       #endif

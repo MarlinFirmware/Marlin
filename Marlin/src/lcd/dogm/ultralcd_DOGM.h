@@ -21,7 +21,7 @@
  */
 
 /**
- * ultralcd_impl_DOGM.h
+ * ultralcd_DOGM.h
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -133,8 +133,9 @@
 #endif
 
 // For selective rendering within a Y range
-#define PAGE_UNDER(yb) (u8g.getU8g()->current_page.y0 <= (yb))
-#define PAGE_CONTAINS(ya, yb) (PAGE_UNDER(yb) && u8g.getU8g()->current_page.y1 >= (ya))
+#define PAGE_OVER(ya)         ((ya) <= u8g.getU8g()->current_page.y1) // Does the current page follow a region top?
+#define PAGE_UNDER(yb)        ((yb) >= u8g.getU8g()->current_page.y0) // Does the current page precede a region bottom?
+#define PAGE_CONTAINS(ya, yb) ((yb) >= u8g.getU8g()->current_page.y0 && (ya) <= u8g.getU8g()->current_page.y1) // Do two vertical regions overlap?
 
 // Only Western languages support big / small fonts
 #if DISABLED(DISPLAY_CHARSET_ISO10646_1)
@@ -170,5 +171,6 @@
 #endif
 #define INFO_FONT_DESCENT 2
 #define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
+#define INFO_FONT_WIDTH   6
 
 extern U8G_CLASS u8g;

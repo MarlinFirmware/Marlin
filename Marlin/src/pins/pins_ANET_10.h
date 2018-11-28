@@ -161,9 +161,6 @@
     #define LCD_PINS_D5      11
     #define LCD_PINS_D6      16
     #define LCD_PINS_D7      17
-    #define BTN_EN1          -1
-    #define BTN_EN2          -1
-    #define BTN_ENC          -1
     #define ADC_KEYPAD_PIN    1
   #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) || ENABLED(ANET_FULL_GRAPHICS_LCD)
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics

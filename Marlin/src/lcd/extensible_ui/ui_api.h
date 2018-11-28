@@ -45,8 +45,6 @@
 
 #include "../../inc/MarlinConfig.h"
 
-typedef const __FlashStringHelper *progmem_str;
-
 namespace ExtUI {
 
   enum axis_t     : uint8_t { X, Y, Z };
@@ -62,13 +60,13 @@ namespace ExtUI {
   bool isAxisPositionKnown(const axis_t);
   bool canMove(const axis_t);
   bool canMove(const extruder_t);
-  void enqueueCommands(progmem_str);
+  void enqueueCommands_P(PGM_P const);
 
   /**
    * Getters and setters
    * Should be used by the EXTENSIBLE_UI to query or change Marlin's state.
    */
-  progmem_str getFirmwareName_str();
+  PGM_P getFirmwareName_str();
 
   float getActualTemp_celsius(const heater_t);
   float getActualTemp_celsius(const extruder_t);
@@ -178,7 +176,12 @@ namespace ExtUI {
    * safe_millis must be called at least every 1 sec to guarantee time
    * yield should be called within lengthy loops
    */
-  uint32_t safe_millis();
+  #ifdef __SAM3X8E__
+    uint32_t safe_millis();
+  #else
+    FORCE_INLINE uint32_t safe_millis() { return millis(); } // TODO: Implement for AVR
+  #endif
+
   void delay_us(unsigned long us);
   void delay_ms(unsigned long ms);
   void yield();
@@ -205,14 +208,14 @@ namespace ExtUI {
     public:
       FileList();
       void refresh();
-      bool seek(uint16_t, bool skip_range_check = false);
+      bool seek(const uint16_t, const bool skip_range_check = false);
 
       const char *longFilename();
       const char *shortFilename();
       const char *filename();
       bool isDir();
 
-      void changeDir(const char *dirname);
+      void changeDir(const char * const dirname);
       void upDir();
       bool isAtRootDir();
       uint16_t    count();
@@ -234,8 +237,7 @@ namespace ExtUI {
   void onPrintTimerPaused();
   void onPrintTimerStopped();
   void onFilamentRunout();
-  void onStatusChanged(const char* msg);
-  void onStatusChanged(progmem_str msg);
+  void onStatusChanged(const char * const msg);
   void onFactoryReset();
   void onStoreSettings();
   void onLoadSettings();

@@ -1093,7 +1093,7 @@ const u8g_fntpgm_uint8_t fontpage_510_154_154[30] U8G_FONT_SECTION("fontpage_510
   0x00,0x06,0x0c,0x00,0xfe,0x00,0x00,0x00,0x00,0x00,0x9a,0x9a,0x00,0x08,0x00,0x00,
   0x00,0x02,0x07,0x07,0x0c,0x06,0x01,0xc0,0xc0,0x00,0x00,0x00,0xc0,0xc0};
 
-#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
+#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
     FONTDATA_ITEM(69, 191, 191, fontpage_69_191_191), // '⊿' -- '⊿'
     FONTDATA_ITEM(156, 128, 128, fontpage_156_128_128), // '一' -- '一'
