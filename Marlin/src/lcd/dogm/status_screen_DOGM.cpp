@@ -94,8 +94,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
   #endif
 
   const bool isHeat = IFBED(BED_ALT(), HOTEND_ALT(heater));
-  const uint8_t ix = IFBED(STATUS_BED_X, STATUS_HOTEND_X(heater)),
-                tx = IFBED(STATUS_BED_TEXT_X, STATUS_HOTEND_TEXT_X(heater));
+  const uint8_t tx = IFBED(STATUS_BED_TEXT_X, STATUS_HOTEND_TEXT_X(heater));
   const float temp = IFBED(thermalManager.degBed(), thermalManager.degHotend(heater)),
               target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
 
@@ -166,7 +165,7 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
     #if ENABLED(STATUS_HEAT_PERCENT)
 
       if (IFBED(true, STATIC_HOTEND) && isHeat) {
-        const uint8_t bx = ix + IFBED(STATUS_BED_WIDTH, STATUS_HOTEND_WIDTH(heater)) + 1;
+        const uint8_t bx = IFBED(STATUS_BED_X + STATUS_BED_WIDTH, STATUS_HOTEND_X(heater) + STATUS_HOTEND_WIDTH(heater)) + 1;
         u8g.drawFrame(bx, STATUS_HEATERS_Y, 3, STATUS_HEATERS_HEIGHT);
         if (tall) {
           const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
