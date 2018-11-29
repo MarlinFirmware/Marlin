@@ -129,8 +129,6 @@ void GcodeSuite::M600() {
     #endif
   );
 
-  const bool job_running = print_job_timer.isRunning();
-
   if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
     wait_for_confirmation(true, beep_count DXC_PASS);
     resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
@@ -141,9 +139,6 @@ void GcodeSuite::M600() {
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, 0, true);
   #endif
-
-  // Resume the print job timer if it was running
-  if (job_running) print_job_timer.start();
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

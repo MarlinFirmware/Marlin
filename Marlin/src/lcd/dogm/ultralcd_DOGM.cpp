@@ -362,7 +362,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     #endif
 
     // Center the label and value lines on the middle line
-    uint8_t baseline = extra_row ? (LCD_PIXEL_HEIGHT) / 2
+    uint8_t baseline = extra_row ? (LCD_PIXEL_HEIGHT) / 2 - 1
                                  : (LCD_PIXEL_HEIGHT + EDIT_FONT_ASCENT) / 2;
 
     // Assume the label is alpha-numeric (with a descender)
@@ -377,7 +377,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_wchar(':');
       if (extra_row) {
         // Assume the value is numeric (with no descender)
-        baseline += EDIT_FONT_ASCENT;
+        baseline += EDIT_FONT_ASCENT + 2;
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
       if (onpage) {

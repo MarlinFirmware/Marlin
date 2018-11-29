@@ -817,6 +817,7 @@
   #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
+  //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
 
 #endif // HAS_GRAPHICAL_LCD
 

@@ -64,7 +64,7 @@ typedef struct {
   #endif
 
   // Command queue
-  uint8_t cmd_queue_index_r, commands_in_queue;
+  uint8_t commands_in_queue, cmd_queue_index_r;
   char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
   // SD Filename and position
@@ -104,6 +104,7 @@ class PrintJobRecovery {
       #else
         false
       #endif
+      , const bool save_queue=true
     );
 
   static inline bool valid() { return info.valid_head && info.valid_head == info.valid_foot; }
