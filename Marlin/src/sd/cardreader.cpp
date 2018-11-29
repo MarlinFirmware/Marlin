@@ -1027,15 +1027,20 @@ void CardReader::printingHasFinished() {
     #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
       planner.finish_and_disable();
     #endif
+
     print_job_timer.stop();
-    if (print_job_timer.duration() > 60)
-      enqueue_and_echo_commands_P(PSTR("M31"));
+    if (print_job_timer.duration() > 60) enqueue_and_echo_commands_P(PSTR("M31"));
+
     #if ENABLED(SDCARD_SORT_ALPHA)
       presort();
     #endif
+
     #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
       ui.progress_bar_percent = 0;
     #endif
+
+    ui.reset_status();
+
     #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
       ui.reselect_last_file();
     #endif
