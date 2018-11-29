@@ -93,7 +93,7 @@ bool GET_ARRAY_IS_DIGITAL(int8_t pin) {
 void pwm_details(int32_t pin) {
   if (pwm_status(pin)) {
     uint32_t chan = g_APinDescription[pin].ulPWMChannel;
-    SERIAL_PROTOCOLPAIR("PWM = ", PWM_INTERFACE->PWM_CH_NUM[chan].PWM_CDTY);
+    SERIAL_ECHOPAIR("PWM = ", PWM_INTERFACE->PWM_CH_NUM[chan].PWM_CDTY);
   }
 }
 

@@ -1661,8 +1661,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
             position_float[E_AXIS] = target_float[E_AXIS];
           #endif
           de = 0; // no difference
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+          SERIAL_ECHO_MSG(MSG_ERR_COLD_EXTRUDE_STOP);
         }
       #endif // PREVENT_COLD_EXTRUSION
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
@@ -1672,8 +1671,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
             position_float[E_AXIS] = target_float[E_AXIS];
           #endif
           de = 0; // no difference
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
+          SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
         }
       #endif // PREVENT_LENGTHY_EXTRUDE
     }

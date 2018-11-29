@@ -94,9 +94,7 @@ void GcodeSuite::M502() {
    * M504: Validate EEPROM Contents
    */
   void GcodeSuite::M504() {
-    if (settings.validate(CHAT_PORT)) {
-      SERIAL_ECHO_START_P(command_queue_port[cmd_queue_index_r]);
-      SERIAL_ECHOLNPGM_P(command_queue_port[cmd_queue_index_r], "EEPROM OK");
-    }
+    if (settings.validate(CHAT_PORT))
+      SERIAL_ECHO_MSG_P(command_queue_port[cmd_queue_index_r], "EEPROM OK");
   }
 #endif

@@ -56,14 +56,10 @@ void GcodeSuite::M421() {
     iy = location.y_index;
   }
 
-  if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ || hasN)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
-  }
-  else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
-  }
+  if (int(hasC) + int(hasI && hasJ) != 1 || !(hasZ || hasQ || hasN))
+    SERIAL_ERROR_MSG(MSG_ERR_M421_PARAMETERS);
+  else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))
+    SERIAL_ERROR_MSG(MSG_ERR_MESH_XY);
   else
     ubl.z_values[ix][iy] = hasN ? NAN : parser.value_linear_units() + (hasQ ? ubl.z_values[ix][iy] : 0);
 }

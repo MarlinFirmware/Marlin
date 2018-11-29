@@ -95,13 +95,13 @@ void GcodeSuite::M420() {
         const int16_t a = settings.calc_num_meshes();
 
         if (!a) {
-          SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
+          SERIAL_ECHOLNPGM("?EEPROM storage not available.");
           return;
         }
 
         if (!WITHIN(storage_slot, 0, a - 1)) {
-          SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
-          SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+          SERIAL_ECHOLNPGM("?Invalid storage slot.");
+          SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
           return;
         }
 
@@ -110,7 +110,7 @@ void GcodeSuite::M420() {
 
       #else
 
-        SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
+        SERIAL_ECHOLNPGM("?EEPROM storage not available.");
         return;
 
       #endif
@@ -206,10 +206,8 @@ void GcodeSuite::M420() {
   set_bed_leveling_enabled(to_enable);
 
   // Error if leveling failed to enable or reenable
-  if (to_enable && !planner.leveling_active) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_M420_FAILED);
-  }
+  if (to_enable && !planner.leveling_active)
+    SERIAL_ERROR_MSG(MSG_ERR_M420_FAILED);
 
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM("Bed Leveling ");

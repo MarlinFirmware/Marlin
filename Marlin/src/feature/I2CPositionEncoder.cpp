@@ -66,8 +66,7 @@ void I2CPositionEncoder::update() {
     /*
     if (trusted) { //commented out as part of the note below
       trusted = false;
-      SERIAL_ECHOPGM("Fault detected on ");
-      SERIAL_ECHO(axis_codes[encoderAxis]);
+      SERIAL_ECHOPAIR("Fault detected on ", axis_codes[encoderAxis]);
       SERIAL_ECHOLNPGM(" axis encoder. Disengaging error correction until module is trusted again.");
     }
     */
@@ -93,8 +92,7 @@ void I2CPositionEncoder::update() {
       if (millis() - lastErrorTime > I2CPE_TIME_TRUSTED) {
         trusted = true;
 
-        SERIAL_ECHOPGM("Untrusted encoder module on ");
-        SERIAL_ECHO(axis_codes[encoderAxis]);
+        SERIAL_ECHOPAIR("Untrusted encoder module on ", axis_codes[encoderAxis]);
         SERIAL_ECHOLNPGM(" axis has been fault-free for set duration, reinstating error correction.");
 
         //the encoder likely lost its place when the error occured, so we'll reset and use the printer's
@@ -106,17 +104,10 @@ void I2CPositionEncoder::update() {
         zeroOffset -= (positionInTicks - get_position());
 
         #ifdef I2CPE_DEBUG
-          SERIAL_ECHOPGM("Current position is ");
-          SERIAL_ECHOLN(pos);
-
-          SERIAL_ECHOPGM("Position in encoder ticks is ");
-          SERIAL_ECHOLN(positionInTicks);
-
-          SERIAL_ECHOPGM("New zero-offset of ");
-          SERIAL_ECHOLN(zeroOffset);
-
-          SERIAL_ECHOPGM("New position reads as ");
-          SERIAL_ECHO(get_position());
+          SERIAL_ECHOLNPAIR("Current position is ", pos);
+          SERIAL_ECHOLNPAIR("Position in encoder ticks is ", positionInTicks);
+          SERIAL_ECHOLNPAIR("New zero-offset of ", zeroOffset);
+          SERIAL_ECHOPAIR("New position reads as ", get_position());
           SERIAL_CHAR('(');
           SERIAL_ECHO(mm_from_count(get_position()));
           SERIAL_ECHOLNPGM(")");
@@ -159,14 +150,12 @@ void I2CPositionEncoder::update() {
       const int32_t error = get_axis_error_steps(false);
     #endif
 
-    //SERIAL_ECHOPGM("Axis error steps: ");
-    //SERIAL_ECHOLN(error);
+    //SERIAL_ECHOLNPAIR("Axis error steps: ", error);
 
     #ifdef I2CPE_ERR_THRESH_ABORT
       if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.settings.axis_steps_per_mm[encoderAxis]) {
         //kill(PSTR("Significant Error"));
-        SERIAL_ECHOPGM("Axis error greater than set threshold, aborting!");
-        SERIAL_ECHOLN(error);
+        SERIAL_ECHOLNPAIR("Axis error greater than set threshold, aborting!", error);
         safe_delay(5000);
       }
     #endif
@@ -800,33 +789,33 @@ int8_t I2CPositionEncodersMgr::parse() {
   if (parser.seen('A')) {
 
     if (!parser.has_value()) {
-      SERIAL_PROTOCOLLNPGM("?A seen, but no address specified! [30-200]");
+      SERIAL_ECHOLNPGM("?A seen, but no address specified! [30-200]");
       return I2CPE_PARSE_ERR;
     };
 
     I2CPE_addr = parser.value_byte();
     if (!WITHIN(I2CPE_addr, 30, 200)) { // reserve the first 30 and last 55
-      SERIAL_PROTOCOLLNPGM("?Address out of range. [30-200]");
+      SERIAL_ECHOLNPGM("?Address out of range. [30-200]");
       return I2CPE_PARSE_ERR;
     }
 
     I2CPE_idx = idx_from_addr(I2CPE_addr);
     if (I2CPE_idx >= I2CPE_ENCODER_CNT) {
-      SERIAL_PROTOCOLLNPGM("?No device with this address!");
+      SERIAL_ECHOLNPGM("?No device with this address!");
       return I2CPE_PARSE_ERR;
     }
   }
   else if (parser.seenval('I')) {
 
     if (!parser.has_value()) {
-      SERIAL_PROTOCOLLNPAIR("?I seen, but no index specified! [0-", I2CPE_ENCODER_CNT - 1);
-      SERIAL_PROTOCOLLNPGM("]");
+      SERIAL_ECHOLNPAIR("?I seen, but no index specified! [0-", I2CPE_ENCODER_CNT - 1);
+      SERIAL_ECHOLNPGM("]");
       return I2CPE_PARSE_ERR;
     };
 
     I2CPE_idx = parser.value_byte();
     if (I2CPE_idx >= I2CPE_ENCODER_CNT) {
-      SERIAL_PROTOCOLLNPAIR("?Index out of range. [0-", I2CPE_ENCODER_CNT - 1);
+      SERIAL_ECHOLNPAIR("?Index out of range. [0-", I2CPE_ENCODER_CNT - 1);
       SERIAL_ECHOLNPGM("]");
       return I2CPE_PARSE_ERR;
     }
@@ -984,18 +973,18 @@ void I2CPositionEncodersMgr::M864() {
 
   if (parser.seen('S')) {
     if (!parser.has_value()) {
-      SERIAL_PROTOCOLLNPGM("?S seen, but no address specified! [30-200]");
+      SERIAL_ECHOLNPGM("?S seen, but no address specified! [30-200]");
       return;
     };
 
     newAddress = parser.value_byte();
     if (!WITHIN(newAddress, 30, 200)) {
-      SERIAL_PROTOCOLLNPGM("?New address out of range. [30-200]");
+      SERIAL_ECHOLNPGM("?New address out of range. [30-200]");
       return;
     }
   }
   else if (!I2CPE_anyaxis) {
-    SERIAL_PROTOCOLLNPGM("?You must specify S or [XYZE].");
+    SERIAL_ECHOLNPGM("?You must specify S or [XYZE].");
     return;
   }
   else {
