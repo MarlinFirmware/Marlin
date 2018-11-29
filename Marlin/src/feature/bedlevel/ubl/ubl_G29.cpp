@@ -331,23 +331,23 @@
             // meant to invalidate the ENTIRE mesh, which cannot be done with
             // find_closest_mesh_point loop which only returns REACHABLE points.
             set_all_mesh_points_to_value(NAN);
-            SERIAL_PROTOCOLLNPGM("Entire Mesh invalidated.\n");
+            SERIAL_ECHOLNPGM("Entire Mesh invalidated.\n");
             break;            // No more invalid Mesh Points to populate
           }
           z_values[location.x_index][location.y_index] = NAN;
           cnt++;
         }
       }
-      SERIAL_PROTOCOLLNPGM("Locations invalidated.\n");
+      SERIAL_ECHOLNPGM("Locations invalidated.\n");
     }
 
     if (parser.seen('Q')) {
       const int test_pattern = parser.has_value() ? parser.value_int() : -99;
       if (!WITHIN(test_pattern, -1, 2)) {
-        SERIAL_PROTOCOLLNPGM("Invalid test_pattern value. (-1 to 2)\n");
+        SERIAL_ECHOLNPGM("Invalid test_pattern value. (-1 to 2)\n");
         return;
       }
-      SERIAL_PROTOCOLLNPGM("Loading test_pattern values.\n");
+      SERIAL_ECHOLNPGM("Loading test_pattern values.\n");
       switch (test_pattern) {
 
         #if ENABLED(UBL_DEVEL_DEBUGGING)
@@ -405,7 +405,7 @@
     if (parser.seen('P')) {
       if (WITHIN(g29_phase_value, 0, 1) && storage_slot == -1) {
         storage_slot = 0;
-        SERIAL_PROTOCOLLNPGM("Default storage slot 0 selected.");
+        SERIAL_ECHOLNPGM("Default storage slot 0 selected.");
       }
 
       switch (g29_phase_value) {
@@ -414,7 +414,7 @@
           // Zero Mesh Data
           //
           reset();
-          SERIAL_PROTOCOLLNPGM("Mesh zeroed.");
+          SERIAL_ECHOLNPGM("Mesh zeroed.");
           break;
 
         #if HAS_BED_PROBE
@@ -425,13 +425,13 @@
             //
             if (!parser.seen('C')) {
               invalidate();
-              SERIAL_PROTOCOLLNPGM("Mesh invalidated. Probing mesh.");
+              SERIAL_ECHOLNPGM("Mesh invalidated. Probing mesh.");
             }
             if (g29_verbose_level > 1) {
-              SERIAL_PROTOCOLPAIR("Probing Mesh Points Closest to (", g29_x_pos);
-              SERIAL_PROTOCOLCHAR(',');
-              SERIAL_PROTOCOL(g29_y_pos);
-              SERIAL_PROTOCOLLNPGM(").\n");
+              SERIAL_ECHOPAIR("Probing Mesh Points Closest to (", g29_x_pos);
+              SERIAL_CHAR(',');
+              SERIAL_ECHO(g29_y_pos);
+              SERIAL_ECHOLNPGM(").\n");
             }
             probe_entire_mesh(g29_x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, g29_y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
                               parser.seen('T'), parser.seen('E'), parser.seen('U'));
@@ -446,7 +446,7 @@
             //
             // Manually Probe Mesh in areas that can't be reached by the probe
             //
-            SERIAL_PROTOCOLLNPGM("Manually probing unreachable mesh locations.");
+            SERIAL_ECHOLNPGM("Manually probing unreachable mesh locations.");
             do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
             if (parser.seen('C') && !g29_x_flag && !g29_y_flag) {
@@ -469,26 +469,26 @@
             if (parser.seen('B')) {
               g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness((float) Z_CLEARANCE_BETWEEN_PROBES);
               if (ABS(g29_card_thickness) > 1.5f) {
-                SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.");
+                SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
                 return;
               }
             }
 
             if (!position_is_reachable(g29_x_pos, g29_y_pos)) {
-              SERIAL_PROTOCOLLNPGM("XY outside printable radius.");
+              SERIAL_ECHOLNPGM("XY outside printable radius.");
               return;
             }
 
             const float height = parser.floatval('H', Z_CLEARANCE_BETWEEN_PROBES);
             manually_probe_remaining_mesh(g29_x_pos, g29_y_pos, height, g29_card_thickness, parser.seen('T'));
 
-            SERIAL_PROTOCOLLNPGM("G29 P2 finished.");
+            SERIAL_ECHOLNPGM("G29 P2 finished.");
 
             report_current_position();
 
           #else
 
-            SERIAL_PROTOCOLLNPGM("?P2 is only available when an LCD is present.");
+            SERIAL_ECHOLNPGM("?P2 is only available when an LCD is present.");
             return;
 
           #endif
@@ -553,7 +553,7 @@
           #if HAS_LCD_MENU
             fine_tune_mesh(g29_x_pos, g29_y_pos, parser.seen('T'));
           #else
-            SERIAL_PROTOCOLLNPGM("?P4 is only available when an LCD is present.");
+            SERIAL_ECHOLNPGM("?P4 is only available when an LCD is present.");
             return;
           #endif
           break;
@@ -593,20 +593,20 @@
       int16_t a = settings.calc_num_meshes();
 
       if (!a) {
-        SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
+        SERIAL_ECHOLNPGM("?EEPROM storage not available.");
         return;
       }
 
       if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
-        SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+        SERIAL_ECHOLNPGM("?Invalid storage slot.");
+        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
         return;
       }
 
       settings.load_mesh(g29_storage_slot);
       storage_slot = g29_storage_slot;
 
-      SERIAL_PROTOCOLLNPGM("Done.");
+      SERIAL_ECHOLNPGM("Done.");
     }
 
     //
@@ -622,20 +622,20 @@
       int16_t a = settings.calc_num_meshes();
 
       if (!a) {
-        SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
+        SERIAL_ECHOLNPGM("?EEPROM storage not available.");
         goto LEAVE;
       }
 
       if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
-        SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+        SERIAL_ECHOLNPGM("?Invalid storage slot.");
+        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
         goto LEAVE;
       }
 
       settings.store_mesh(g29_storage_slot);
       storage_slot = g29_storage_slot;
 
-      SERIAL_PROTOCOLLNPGM("Done.");
+      SERIAL_ECHOLNPGM("Done.");
     }
 
     if (parser.seen('T'))
@@ -675,14 +675,10 @@
           sum_of_diff_squared += sq(z_values[x][y] - mean);
 
     SERIAL_ECHOLNPAIR("# of samples: ", n);
-    SERIAL_ECHOPGM("Mean Mesh Height: ");
-    SERIAL_ECHO_F(mean, 6);
-    SERIAL_EOL();
+    SERIAL_ECHOLNPAIR_F("Mean Mesh Height: ", mean, 6);
 
     const float sigma = SQRT(sum_of_diff_squared / (n + 1));
-    SERIAL_ECHOPGM("Standard Deviation: ");
-    SERIAL_ECHO_F(sigma, 6);
-    SERIAL_EOL();
+    SERIAL_ECHOLNPAIR_F("Standard Deviation: ", sigma, 6);
 
     if (cflag)
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
@@ -721,7 +717,7 @@
         #if HAS_LCD_MENU
           if (ui.button_pressed()) {
             ui.quick_feedback(false); // Preserve button state for click-and-hold
-            SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
+            SERIAL_ECHOLNPGM("\nMesh only partially populated.\n");
             STOW_PROBE();
             ui.wait_for_release();
             ui.quick_feedback();
@@ -803,7 +799,7 @@
       return current_position[Z_AXIS];
     }
 
-    static void echo_and_take_a_measurement() { SERIAL_PROTOCOLLNPGM(" and take a measurement."); }
+    static void echo_and_take_a_measurement() { SERIAL_ECHOLNPGM(" and take a measurement."); }
 
     float unified_bed_leveling::measure_business_card_thickness(float in_height) {
       ui.capture();
@@ -813,7 +809,7 @@
         //, MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f);
       planner.synchronize();
 
-      SERIAL_PROTOCOLPGM("Place shim under nozzle");
+      SERIAL_ECHOPGM("Place shim under nozzle");
       LCD_MESSAGEPGM(MSG_UBL_BC_INSERT);
       ui.return_to_status();
       echo_and_take_a_measurement();
@@ -822,7 +818,7 @@
       do_blocking_move_to_z(current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE);
       planner.synchronize();
 
-      SERIAL_PROTOCOLPGM("Remove shim");
+      SERIAL_ECHOPGM("Remove shim");
       LCD_MESSAGEPGM(MSG_UBL_BC_REMOVE);
       echo_and_take_a_measurement();
 
@@ -833,9 +829,8 @@
       const float thickness = ABS(z1 - z2);
 
       if (g29_verbose_level > 1) {
-        SERIAL_PROTOCOLPGM("Business Card is ");
-        SERIAL_PROTOCOL_F(thickness, 4);
-        SERIAL_PROTOCOLLNPGM("mm thick.");
+        SERIAL_ECHOPAIR_F("Business Card is ", thickness, 4);
+        SERIAL_ECHOLNPGM("mm thick.");
       }
 
       ui.release();
@@ -846,7 +841,7 @@
     }
 
     void abort_manual_probe_remaining_mesh() {
-      SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
+      SERIAL_ECHOLNPGM("\nMesh only partially populated.");
       do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
       ui.release();
       KEEPALIVE_STATE(IN_HANDLER);
@@ -892,7 +887,7 @@
         move_z_with_encoder(z_step);
 
         if (click_and_hold()) {
-          SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
+          SERIAL_ECHOLNPGM("\nMesh only partially populated.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
           ui.release();
           KEEPALIVE_STATE(IN_HANDLER);
@@ -901,11 +896,8 @@
         }
 
         z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - thick;
-        if (g29_verbose_level > 2) {
-          SERIAL_PROTOCOLPGM("Mesh Point Measured at: ");
-          SERIAL_PROTOCOL_F(z_values[location.x_index][location.y_index], 6);
-          SERIAL_EOL();
-        }
+        if (g29_verbose_level > 2)
+          SERIAL_ECHOLNPAIR_F("Mesh Point Measured at: ", z_values[location.x_index][location.y_index], 6);
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
       } while (location.x_index >= 0 && location.y_index >= 0);
 
@@ -934,7 +926,7 @@
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
         const float h_offset = parser.seenval('H') ? parser.value_linear_units() : 0;
         if (!WITHIN(h_offset, 0, 10)) {
-          SERIAL_PROTOCOLLNPGM("Offset out of bounds. (0 to 10mm)\n");
+          SERIAL_ECHOLNPGM("Offset out of bounds. (0 to 10mm)\n");
           return;
         }
       #endif
@@ -942,7 +934,7 @@
       mesh_index_pair location;
 
       if (!position_is_reachable(rx, ry)) {
-        SERIAL_PROTOCOLLNPGM("(X,Y) outside printable radius.");
+        SERIAL_ECHOLNPGM("(X,Y) outside printable radius.");
         return;
       }
 
@@ -1050,14 +1042,14 @@
       g29_repetition_cnt = parser.has_value() ? parser.value_int() : GRID_MAX_POINTS;
       NOMORE(g29_repetition_cnt, GRID_MAX_POINTS);
       if (g29_repetition_cnt < 1) {
-        SERIAL_PROTOCOLLNPGM("?(R)epetition count invalid (1+).\n");
+        SERIAL_ECHOLNPGM("?(R)epetition count invalid (1+).\n");
         return UBL_ERR;
       }
     }
 
     g29_verbose_level = parser.seen('V') ? parser.value_int() : 0;
     if (!WITHIN(g29_verbose_level, 0, 4)) {
-      SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0-4).\n");
+      SERIAL_ECHOLNPGM("?(V)erbose level is implausible (0-4).\n");
       err_flag = true;
     }
 
@@ -1065,7 +1057,7 @@
       const int pv = parser.value_int();
       #if !HAS_BED_PROBE
         if (pv == 1) {
-          SERIAL_PROTOCOLLNPGM("G29 P1 requires a probe.\n");
+          SERIAL_ECHOLNPGM("G29 P1 requires a probe.\n");
           err_flag = true;
         }
         else
@@ -1073,7 +1065,7 @@
         {
           g29_phase_value = pv;
           if (!WITHIN(g29_phase_value, 0, 6)) {
-            SERIAL_PROTOCOLLNPGM("?(P)hase value invalid (0-6).\n");
+            SERIAL_ECHOLNPGM("?(P)hase value invalid (0-6).\n");
             err_flag = true;
           }
         }
@@ -1083,17 +1075,17 @@
       #if HAS_BED_PROBE
         g29_grid_size = parser.has_value() ? parser.value_int() : 0;
         if (g29_grid_size && !WITHIN(g29_grid_size, 2, 9)) {
-          SERIAL_PROTOCOLLNPGM("?Invalid grid size (J) specified (2-9).\n");
+          SERIAL_ECHOLNPGM("?Invalid grid size (J) specified (2-9).\n");
           err_flag = true;
         }
       #else
-        SERIAL_PROTOCOLLNPGM("G29 J action requires a probe.\n");
+        SERIAL_ECHOLNPGM("G29 J action requires a probe.\n");
         err_flag = true;
       #endif
     }
 
     if (g29_x_flag != g29_y_flag) {
-      SERIAL_PROTOCOLLNPGM("Both X & Y locations must be specified.\n");
+      SERIAL_ECHOLNPGM("Both X & Y locations must be specified.\n");
       err_flag = true;
     }
 
@@ -1111,7 +1103,7 @@
      */
     if (parser.seen('A')) {
       if (parser.seen('D')) {
-        SERIAL_PROTOCOLLNPGM("?Can't activate and deactivate at the same time.\n");
+        SERIAL_ECHOLNPGM("?Can't activate and deactivate at the same time.\n");
         return UBL_ERR;
       }
       set_bed_leveling_enabled(true);
@@ -1130,7 +1122,7 @@
       if (parser.seenval('F')) {
         const float fh = parser.value_float();
         if (!WITHIN(fh, 0, 100)) {
-          SERIAL_PROTOCOLLNPGM("?(F)ade height for Bed Level Correction not plausible.\n");
+          SERIAL_ECHOLNPGM("?(F)ade height for Bed Level Correction not plausible.\n");
           return UBL_ERR;
         }
         set_z_fade_height(fh);
@@ -1139,7 +1131,7 @@
 
     g29_map_type = parser.intval('T');
     if (!WITHIN(g29_map_type, 0, 2)) {
-      SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
+      SERIAL_ECHOLNPGM("Invalid map type.\n");
       return UBL_ERR;
     }
     return UBL_OK;
@@ -1435,29 +1427,23 @@
               #if ENABLED(DEBUG_LEVELING_FEATURE)
                 if (DEBUGGING(LEVELING)) {
                   SERIAL_CHAR('(');
-                  SERIAL_PROTOCOL_F(rx, 7);
+                  SERIAL_ECHO_F(rx, 7);
                   SERIAL_CHAR(',');
-                  SERIAL_PROTOCOL_F(ry, 7);
+                  SERIAL_ECHO_F(ry, 7);
                   SERIAL_ECHOPGM(")   logical: ");
                   SERIAL_CHAR('(');
-                  SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 7);
+                  SERIAL_ECHO_F(LOGICAL_X_POSITION(rx), 7);
                   SERIAL_CHAR(',');
-                  SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ry), 7);
-                  SERIAL_ECHOPGM(")   measured: ");
-                  SERIAL_PROTOCOL_F(measured_z, 7);
-                  SERIAL_ECHOPGM("   correction: ");
-                  SERIAL_PROTOCOL_F(get_z_correction(rx, ry), 7);
+                  SERIAL_ECHO_F(LOGICAL_Y_POSITION(ry), 7);
+                  SERIAL_ECHOPAIR_F(")   measured: ", measured_z, 7);
+                  SERIAL_ECHOPAIR_F("   correction: ", get_z_correction(rx, ry), 7);
                 }
               #endif
 
               measured_z -= get_z_correction(rx, ry) /* + zprobe_zoffset */ ;
 
               #if ENABLED(DEBUG_LEVELING_FEATURE)
-                if (DEBUGGING(LEVELING)) {
-                  SERIAL_ECHOPGM("   final >>>---> ");
-                  SERIAL_PROTOCOL_F(measured_z, 7);
-                  SERIAL_EOL();
-                }
+                if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR_F("   final >>>---> ", measured_z, 7);
               #endif
               if (g29_verbose_level > 3) {
                 serial_spaces(16);
@@ -1483,12 +1469,11 @@
       vector_3 normal = vector_3(lsf_results.A, lsf_results.B, 1).get_normal();
 
       if (g29_verbose_level > 2) {
-        SERIAL_ECHOPGM("bed plane normal = [");
-        SERIAL_PROTOCOL_F(normal.x, 7);
-        SERIAL_PROTOCOLCHAR(',');
-        SERIAL_PROTOCOL_F(normal.y, 7);
-        SERIAL_PROTOCOLCHAR(',');
-        SERIAL_PROTOCOL_F(normal.z, 7);
+        SERIAL_ECHOPAIR_F("bed plane normal = [", normal.x, 7);
+        SERIAL_CHAR(',');
+        SERIAL_ECHO_F(normal.y, 7);
+        SERIAL_CHAR(',');
+        SERIAL_ECHO_F(normal.z, 7);
         SERIAL_ECHOLNPGM("]");
       }
 
@@ -1502,12 +1487,11 @@
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPGM("before rotation = [");
-              SERIAL_PROTOCOL_F(x_tmp, 7);
-              SERIAL_PROTOCOLCHAR(',');
-              SERIAL_PROTOCOL_F(y_tmp, 7);
-              SERIAL_PROTOCOLCHAR(',');
-              SERIAL_PROTOCOL_F(z_tmp, 7);
+              SERIAL_ECHOPAIR_F("before rotation = [", x_tmp, 7);
+              SERIAL_CHAR(',');
+              SERIAL_ECHO_F(y_tmp, 7);
+              SERIAL_CHAR(',');
+              SERIAL_ECHO_F(z_tmp, 7);
               SERIAL_ECHOPGM("]   ---> ");
               serial_delay(20);
             }
@@ -1517,12 +1501,11 @@
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPGM("after rotation = [");
-              SERIAL_PROTOCOL_F(x_tmp, 7);
-              SERIAL_PROTOCOLCHAR(',');
-              SERIAL_PROTOCOL_F(y_tmp, 7);
-              SERIAL_PROTOCOLCHAR(',');
-              SERIAL_PROTOCOL_F(z_tmp, 7);
+              SERIAL_ECHOPAIR_F("after rotation = [", x_tmp, 7);
+              SERIAL_CHAR(',');
+              SERIAL_ECHO_F(y_tmp, 7);
+              SERIAL_CHAR(',');
+              SERIAL_ECHO_F(z_tmp, 7);
               SERIAL_ECHOLNPGM("]");
               serial_delay(55);
             }
@@ -1535,22 +1518,17 @@
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
           rotation.debug(PSTR("rotation matrix:\n"));
-          SERIAL_ECHOPGM("LSF Results A=");
-          SERIAL_PROTOCOL_F(lsf_results.A, 7);
-          SERIAL_ECHOPGM("  B=");
-          SERIAL_PROTOCOL_F(lsf_results.B, 7);
-          SERIAL_ECHOPGM("  D=");
-          SERIAL_PROTOCOL_F(lsf_results.D, 7);
-          SERIAL_EOL();
+          SERIAL_ECHOPAIR_F("LSF Results A=", lsf_results.A, 7);
+          SERIAL_ECHOPAIR_F("  B=", lsf_results.B, 7);
+          SERIAL_ECHOLNPAIR_F("  D=", lsf_results.D, 7);
           serial_delay(55);
 
-          SERIAL_ECHOPGM("bed plane normal = [");
-          SERIAL_PROTOCOL_F(normal.x, 7);
-          SERIAL_PROTOCOLCHAR(',');
-          SERIAL_PROTOCOL_F(normal.y, 7);
-          SERIAL_PROTOCOLCHAR(',');
-          SERIAL_PROTOCOL_F(normal.z, 7);
-          SERIAL_ECHOPGM("]\n");
+          SERIAL_ECHOPAIR_F("bed plane normal = [", normal.x, 7);
+          SERIAL_CHAR(',');
+          SERIAL_ECHO_F(normal.y, 7);
+          SERIAL_CHAR(',');
+          SERIAL_ECHO_F(normal.z, 7);
+          SERIAL_ECHOLNPGM("]");
           SERIAL_EOL();
 
           /**
@@ -1565,45 +1543,31 @@
           float t, t1, d;
           t = normal.x * (PROBE_PT_1_X) + normal.y * (PROBE_PT_1_Y);
           d = t + normal.z * z1;
-          SERIAL_ECHOPGM("D from 1st point: ");
-          SERIAL_ECHO_F(d, 6);
-          SERIAL_ECHOPGM("   Z error: ");
-          SERIAL_ECHO_F(normal.z*z1-get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y), 6);
-          SERIAL_EOL();
+          SERIAL_ECHOPAIR_F("D from 1st point: ", d, 6);
+          SERIAL_ECHOLNPAIR_F("   Z error: ", normal.z*z1-get_z_correction(PROBE_PT_1_X, PROBE_PT_1_Y), 6);
 
           t = normal.x * (PROBE_PT_2_X) + normal.y * (PROBE_PT_2_Y);
           d = t + normal.z * z2;
           SERIAL_EOL();
-          SERIAL_ECHOPGM("D from 2nd point: ");
-          SERIAL_ECHO_F(d, 6);
-          SERIAL_ECHOPGM("   Z error: ");
-          SERIAL_ECHO_F(normal.z*z2-get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y), 6);
-          SERIAL_EOL();
+          SERIAL_ECHOPAIR_F("D from 2nd point: ", d, 6);
+          SERIAL_ECHOLNPAIR_F("   Z error: ", normal.z*z2-get_z_correction(PROBE_PT_2_X, PROBE_PT_2_Y), 6);
 
           t = normal.x * (PROBE_PT_3_X) + normal.y * (PROBE_PT_3_Y);
           d = t + normal.z * z3;
-          SERIAL_ECHOPGM("D from 3rd point: ");
-          SERIAL_ECHO_F(d, 6);
-          SERIAL_ECHOPGM("   Z error: ");
-          SERIAL_ECHO_F(normal.z*z3-get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y), 6);
-          SERIAL_EOL();
+          SERIAL_ECHOPAIR_F("D from 3rd point: ", d, 6);
+          SERIAL_ECHOLNPAIR_F("   Z error: ", normal.z*z3-get_z_correction(PROBE_PT_3_X, PROBE_PT_3_Y), 6);
 
           t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
           d = t + normal.z * 0;
-          SERIAL_ECHOPGM("D from home location with Z=0 : ");
-          SERIAL_ECHO_F(d, 6);
-          SERIAL_EOL();
+          SERIAL_ECHOLNPAIR_F("D from home location with Z=0 : ", d, 6);
 
           t = normal.x * (Z_SAFE_HOMING_X_POINT) + normal.y * (Z_SAFE_HOMING_Y_POINT);
           d = t + get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT); // normal.z * 0;
-          SERIAL_ECHOPGM("D from home location using mesh value for Z: ");
-          SERIAL_ECHO_F(d, 6);
+          SERIAL_ECHOPAIR_F("D from home location using mesh value for Z: ", d, 6);
 
           SERIAL_ECHOPAIR("   Z error: (", Z_SAFE_HOMING_X_POINT);
-          SERIAL_ECHOPAIR(",", Z_SAFE_HOMING_Y_POINT );
-          SERIAL_ECHOPGM(") = ");
-          SERIAL_ECHO_F(get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT), 6);
-          SERIAL_EOL();
+          SERIAL_ECHOPAIR(",", Z_SAFE_HOMING_Y_POINT);
+          SERIAL_ECHOLNPAIR_F(") = ", get_z_correction(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT), 6);
           #endif
         } // DEBUGGING(LEVELING)
       #endif
@@ -1675,26 +1639,22 @@
       report_state();
 
       if (storage_slot == -1)
-        SERIAL_PROTOCOLPGM("No Mesh Loaded.");
+        SERIAL_ECHOPGM("No Mesh Loaded.");
       else {
-        SERIAL_PROTOCOLPAIR("Mesh ", storage_slot);
-        SERIAL_PROTOCOLPGM(" Loaded.");
+        SERIAL_ECHOPAIR("Mesh ", storage_slot);
+        SERIAL_ECHOPGM(" Loaded.");
       }
       SERIAL_EOL();
       serial_delay(50);
 
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-        SERIAL_PROTOCOLPGM("planner.z_fade_height : ");
-        SERIAL_PROTOCOL_F(planner.z_fade_height, 4);
-        SERIAL_EOL();
+        SERIAL_ECHOLNPAIR_F("planner.z_fade_height : ", planner.z_fade_height, 4);
       #endif
 
       adjust_mesh_to_mean(g29_c_flag, g29_constant);
 
       #if HAS_BED_PROBE
-        SERIAL_PROTOCOLPGM("zprobe_zoffset: ");
-        SERIAL_PROTOCOL_F(zprobe_zoffset, 7);
-        SERIAL_EOL();
+        SERIAL_ECHOLNPAIR_F("zprobe_zoffset: ", zprobe_zoffset, 7);
       #endif
 
       SERIAL_ECHOLNPAIR("MESH_MIN_X  " STRINGIFY(MESH_MIN_X) "=", MESH_MIN_X); serial_delay(50);
@@ -1706,53 +1666,53 @@
       SERIAL_ECHOLNPAIR("MESH_X_DIST  ", MESH_X_DIST);
       SERIAL_ECHOLNPAIR("MESH_Y_DIST  ", MESH_Y_DIST);                         serial_delay(50);
 
-      SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
+      SERIAL_ECHOPGM("X-Axis Mesh Points at: ");
       for (uint8_t i = 0; i < GRID_MAX_POINTS_X; i++) {
-        SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(mesh_index_to_xpos(i)), 3);
-        SERIAL_PROTOCOLPGM("  ");
+        SERIAL_ECHO_F(LOGICAL_X_POSITION(mesh_index_to_xpos(i)), 3);
+        SERIAL_ECHOPGM("  ");
         serial_delay(25);
       }
       SERIAL_EOL();
 
-      SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
+      SERIAL_ECHOPGM("Y-Axis Mesh Points at: ");
       for (uint8_t i = 0; i < GRID_MAX_POINTS_Y; i++) {
-        SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(mesh_index_to_ypos(i)), 3);
-        SERIAL_PROTOCOLPGM("  ");
+        SERIAL_ECHO_F(LOGICAL_Y_POSITION(mesh_index_to_ypos(i)), 3);
+        SERIAL_ECHOPGM("  ");
         serial_delay(25);
       }
       SERIAL_EOL();
 
       #if HAS_KILL
-        SERIAL_PROTOCOLPAIR("Kill pin on :", KILL_PIN);
-        SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
+        SERIAL_ECHOPAIR("Kill pin on :", KILL_PIN);
+        SERIAL_ECHOLNPAIR("  state:", READ(KILL_PIN));
       #endif
       SERIAL_EOL();
       serial_delay(50);
 
       #if ENABLED(UBL_DEVEL_DEBUGGING)
-        SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation); SERIAL_EOL();
-        SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk); SERIAL_EOL();
+        SERIAL_ECHOLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation); SERIAL_EOL();
+        SERIAL_ECHOLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk); SERIAL_EOL();
         serial_delay(50);
 
-        SERIAL_PROTOCOLPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()));
-        SERIAL_PROTOCOLLNPAIR(" to ", hex_address((void*)settings.meshes_end_index()));
+        SERIAL_ECHOPAIR("Meshes go from ", hex_address((void*)settings.meshes_start_index()));
+        SERIAL_ECHOLNPAIR(" to ", hex_address((void*)settings.meshes_end_index()));
         serial_delay(50);
 
-        SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));         SERIAL_EOL();
-        SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values)); SERIAL_EOL();
+        SERIAL_ECHOLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));         SERIAL_EOL();
+        SERIAL_ECHOLNPAIR("z_value[][] size: ", (int)sizeof(z_values)); SERIAL_EOL();
         serial_delay(25);
 
-        SERIAL_PROTOCOLLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
+        SERIAL_ECHOLNPAIR("EEPROM free for UBL: ", hex_address((void*)(settings.meshes_end_index() - settings.meshes_start_index())));
         serial_delay(50);
 
-        SERIAL_PROTOCOLPAIR("EEPROM can hold ", settings.calc_num_meshes());
-        SERIAL_PROTOCOLLNPGM(" meshes.\n");
+        SERIAL_ECHOPAIR("EEPROM can hold ", settings.calc_num_meshes());
+        SERIAL_ECHOLNPGM(" meshes.\n");
         serial_delay(25);
       #endif // UBL_DEVEL_DEBUGGING
 
       if (!sanity_check()) {
         echo_name();
-        SERIAL_PROTOCOLLNPGM(" sanity checks passed.");
+        SERIAL_ECHOLNPGM(" sanity checks passed.");
       }
     }
 
@@ -1763,8 +1723,7 @@
     void unified_bed_leveling::g29_eeprom_dump() {
       uint8_t cccc;
 
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM("EEPROM Dump:");
+      SERIAL_ECHO_MSG("EEPROM Dump:");
       persistentStore.access_start();
       for (uint16_t i = 0; i < persistentStore.capacity(); i += 16) {
         if (!(i & 0x3)) idle();
@@ -1773,7 +1732,7 @@
         for (uint16_t j = 0; j < 16; j++) {
           persistentStore.read_data(i + j, &cccc, sizeof(uint8_t));
           print_hex_byte(cccc);
-          SERIAL_ECHO(' ');
+          SERIAL_CHAR(' ');
         }
         SERIAL_EOL();
       }
@@ -1789,29 +1748,29 @@
       int16_t a = settings.calc_num_meshes();
 
       if (!a) {
-        SERIAL_PROTOCOLLNPGM("?EEPROM storage not available.");
+        SERIAL_ECHOLNPGM("?EEPROM storage not available.");
         return;
       }
 
       if (!parser.has_value()) {
-        SERIAL_PROTOCOLLNPGM("?Storage slot # required.");
-        SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+        SERIAL_ECHOLNPGM("?Storage slot # required.");
+        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
         return;
       }
 
       g29_storage_slot = parser.value_int();
 
       if (!WITHIN(g29_storage_slot, 0, a - 1)) {
-        SERIAL_PROTOCOLLNPGM("?Invalid storage slot.");
-        SERIAL_PROTOCOLLNPAIR("?Use 0 to ", a - 1);
+        SERIAL_ECHOLNPGM("?Invalid storage slot.");
+        SERIAL_ECHOLNPAIR("?Use 0 to ", a - 1);
         return;
       }
 
       float tmp_z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
       settings.load_mesh(g29_storage_slot, &tmp_z_values);
 
-      SERIAL_PROTOCOLPAIR("Subtracting mesh in slot ", g29_storage_slot);
-      SERIAL_PROTOCOLLNPGM(" from current mesh.");
+      SERIAL_ECHOPAIR("Subtracting mesh in slot ", g29_storage_slot);
+      SERIAL_ECHOLNPGM(" from current mesh.");
 
       for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
         for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)

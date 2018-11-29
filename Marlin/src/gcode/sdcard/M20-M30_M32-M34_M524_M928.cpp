@@ -50,13 +50,13 @@ void GcodeSuite::M20() {
     const int16_t port = command_queue_port[cmd_queue_index_r];
   #endif
 
-  SERIAL_PROTOCOLLNPGM_P(port, MSG_BEGIN_FILE_LIST);
+  SERIAL_ECHOLNPGM_P(port, MSG_BEGIN_FILE_LIST);
   card.ls(
     #if NUM_SERIAL > 1
       port
     #endif
   );
-  SERIAL_PROTOCOLLNPGM_P(port, MSG_END_FILE_LIST);
+  SERIAL_ECHOLNPGM_P(port, MSG_END_FILE_LIST);
 }
 
 /**

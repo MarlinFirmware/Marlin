@@ -109,28 +109,28 @@ void ac_cleanup(
 }
 
 void print_signed_float(PGM_P const prefix, const float &f) {
-  SERIAL_PROTOCOLPGM("  ");
+  SERIAL_ECHOPGM("  ");
   serialprintPGM(prefix);
-  SERIAL_PROTOCOLCHAR(':');
+  SERIAL_CHAR(':');
   if (f >= 0) SERIAL_CHAR('+');
-  SERIAL_PROTOCOL_F(f, 2);
+  SERIAL_ECHO_F(f, 2);
 }
 
 /**
  *  - Print the delta settings
  */
 static void print_calibration_settings(const bool end_stops, const bool tower_angles) {
-  SERIAL_PROTOCOLPAIR(".Height:", delta_height);
+  SERIAL_ECHOPAIR(".Height:", delta_height);
   if (end_stops) {
     print_signed_float(PSTR("Ex"), delta_endstop_adj[A_AXIS]);
     print_signed_float(PSTR("Ey"), delta_endstop_adj[B_AXIS]);
     print_signed_float(PSTR("Ez"), delta_endstop_adj[C_AXIS]);
   }
   if (end_stops && tower_angles) {
-    SERIAL_PROTOCOLPAIR("  Radius:", delta_radius);
+    SERIAL_ECHOPAIR("  Radius:", delta_radius);
     SERIAL_EOL();
     SERIAL_CHAR('.');
-    SERIAL_PROTOCOL_SP(13);
+    SERIAL_ECHO_SP(13);
   }
   if (tower_angles) {
     print_signed_float(PSTR("Tx"), delta_tower_angle_trim[A_AXIS]);
@@ -138,11 +138,11 @@ static void print_calibration_settings(const bool end_stops, const bool tower_an
     print_signed_float(PSTR("Tz"), delta_tower_angle_trim[C_AXIS]);
   }
   if ((!end_stops && tower_angles) || (end_stops && !tower_angles)) { // XOR
-    SERIAL_PROTOCOLPAIR("  Radius:", delta_radius);
+    SERIAL_ECHOPAIR("  Radius:", delta_radius);
   }
   #if HAS_BED_PROBE
     if (!end_stops && !tower_angles) {
-      SERIAL_PROTOCOL_SP(30);
+      SERIAL_ECHO_SP(30);
       print_signed_float(PSTR("Offset"), zprobe_zoffset);
     }
   #endif
@@ -153,7 +153,7 @@ static void print_calibration_settings(const bool end_stops, const bool tower_an
  *  - Print the probe results
  */
 static void print_calibration_results(const float z_pt[NPP + 1], const bool tower_points, const bool opposite_points) {
-  SERIAL_PROTOCOLPGM(".    ");
+  SERIAL_ECHOPGM(".    ");
   print_signed_float(PSTR("c"), z_pt[CEN]);
   if (tower_points) {
     print_signed_float(PSTR(" x"), z_pt[__A]);
@@ -163,7 +163,7 @@ static void print_calibration_results(const float z_pt[NPP + 1], const bool towe
   if (tower_points && opposite_points) {
     SERIAL_EOL();
     SERIAL_CHAR('.');
-    SERIAL_PROTOCOL_SP(13);
+    SERIAL_ECHO_SP(13);
   }
   if (opposite_points) {
     print_signed_float(PSTR("yz"), z_pt[_BC]);
@@ -438,7 +438,7 @@ void GcodeSuite::G33() {
 
   const int8_t probe_points = set_up ? 2 : parser.intval('P', DELTA_CALIBRATION_DEFAULT_POINTS);
   if (!WITHIN(probe_points, -1, 10)) {
-    SERIAL_PROTOCOLLNPGM("?(P)oints is implausible (-1 - 10).");
+    SERIAL_ECHOLNPGM("?(P)oints is implausible (-1 - 10).");
     return;
   }
 
@@ -446,19 +446,19 @@ void GcodeSuite::G33() {
 
   const float calibration_precision = set_up ? Z_CLEARANCE_BETWEEN_PROBES / 5.0 : parser.floatval('C', 0.0);
   if (calibration_precision < 0) {
-    SERIAL_PROTOCOLLNPGM("?(C)alibration precision is implausible (>=0).");
+    SERIAL_ECHOLNPGM("?(C)alibration precision is implausible (>=0).");
     return;
   }
 
   const int8_t force_iterations = parser.intval('F', 0);
   if (!WITHIN(force_iterations, 0, 30)) {
-    SERIAL_PROTOCOLLNPGM("?(F)orce iteration is implausible (0 - 30).");
+    SERIAL_ECHOLNPGM("?(F)orce iteration is implausible (0 - 30).");
     return;
   }
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 3)) {
-    SERIAL_PROTOCOLLNPGM("?(V)erbose level is implausible (0 - 3).");
+    SERIAL_ECHOLNPGM("?(V)erbose level is implausible (0 - 3).");
     return;
   }
 
@@ -503,14 +503,14 @@ void GcodeSuite::G33() {
           delta_tower_angle_trim[C_AXIS]
         };
 
-  SERIAL_PROTOCOLLNPGM("G33 Auto Calibrate");
+  SERIAL_ECHOLNPGM("G33 Auto Calibrate");
 
   if (!_1p_calibration && !_0p_calibration) { // test if the outer radius is reachable
     LOOP_CAL_RAD(axis) {
       const float a = RADIANS(210 + (360 / NPP) *  (axis - 1)),
                   r = delta_calibration_radius;
       if (!position_is_reachable(cos(a) * r, sin(a) * r)) {
-        SERIAL_PROTOCOLLNPGM("?(M665 B)ed radius is implausible.");
+        SERIAL_ECHOLNPGM("?(M665 B)ed radius is implausible.");
         return;
       }
     }
@@ -519,8 +519,8 @@ void GcodeSuite::G33() {
   // Report settings
   PGM_P checkingac = PSTR("Checking... AC");
   serialprintPGM(checkingac);
-  if (verbose_level == 0) SERIAL_PROTOCOLPGM(" (DRY-RUN)");
-  if (set_up) SERIAL_PROTOCOLPGM("  (SET-UP)");
+  if (verbose_level == 0) SERIAL_ECHOPGM(" (DRY-RUN)");
+  if (set_up) SERIAL_ECHOPGM("  (SET-UP)");
   SERIAL_EOL();
   ui.set_status_P(checkingac);
 
@@ -540,7 +540,7 @@ void GcodeSuite::G33() {
     // Probe the points
     zero_std_dev_old = zero_std_dev;
     if (!probe_calibration_points(z_at_pt, probe_points, towers_set, stow_after_each, set_up)) {
-      SERIAL_PROTOCOLLNPGM("Correct delta settings with M665 and M666");
+      SERIAL_ECHOLNPGM("Correct delta settings with M665 and M666");
       return AC_CLEANUP();
     }
     zero_std_dev = std_dev_points(z_at_pt, _0p_calibration, _1p_calibration, _4p_calibration, _4p_opposite_points);
@@ -665,16 +665,15 @@ void GcodeSuite::G33() {
 
     if (verbose_level != 0) { // !dry run
       if ((zero_std_dev >= test_precision && iterations > force_iterations) || zero_std_dev <= calibration_precision) { // end iterations
-        SERIAL_PROTOCOLPGM("Calibration OK");
-        SERIAL_PROTOCOL_SP(32);
+        SERIAL_ECHOPGM("Calibration OK");
+        SERIAL_ECHO_SP(32);
         #if HAS_BED_PROBE
           if (zero_std_dev >= test_precision && !_1p_calibration && !_0p_calibration)
-            SERIAL_PROTOCOLPGM("rolling back.");
+            SERIAL_ECHOPGM("rolling back.");
           else
         #endif
           {
-            SERIAL_PROTOCOLPGM("std dev:");
-            SERIAL_PROTOCOL_F(zero_std_dev_min, 3);
+            SERIAL_ECHOPAIR_F("std dev:", zero_std_dev_min, 3);
           }
         SERIAL_EOL();
         char mess[21];
@@ -694,11 +693,9 @@ void GcodeSuite::G33() {
           sprintf_P(mess, PSTR("Iteration : %02i"), (int)iterations);
         else
           strcpy_P(mess, PSTR("No convergence"));
-        SERIAL_PROTOCOL(mess);
-        SERIAL_PROTOCOL_SP(32);
-        SERIAL_PROTOCOLPGM("std dev:");
-        SERIAL_PROTOCOL_F(zero_std_dev, 3);
-        SERIAL_EOL();
+        SERIAL_ECHO(mess);
+        SERIAL_ECHO_SP(32);
+        SERIAL_ECHOLNPAIR_F("std dev:", zero_std_dev, 3);
         ui.set_status(mess);
         if (verbose_level > 1)
           print_calibration_settings(_endstop_results, _angle_results);
@@ -707,10 +704,8 @@ void GcodeSuite::G33() {
     else { // dry run
       PGM_P enddryrun = PSTR("End DRY-RUN");
       serialprintPGM(enddryrun);
-      SERIAL_PROTOCOL_SP(35);
-      SERIAL_PROTOCOLPGM("std dev:");
-      SERIAL_PROTOCOL_F(zero_std_dev, 3);
-      SERIAL_EOL();
+      SERIAL_ECHO_SP(35);
+      SERIAL_ECHOLNPAIR_F("std dev:", zero_std_dev, 3);
 
       char mess[21];
       strcpy_P(mess, enddryrun);

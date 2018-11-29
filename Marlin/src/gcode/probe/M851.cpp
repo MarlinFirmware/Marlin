@@ -32,18 +32,13 @@ void GcodeSuite::M851() {
   if (parser.seenval('Z')) {
     const float value = parser.value_linear_units();
     if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
-    {
       zprobe_zoffset = value;
-    }
-    else {
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM("?Z out of range (" STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " to " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX) ")");
-    }
+    else
+      SERIAL_ERROR_MSG("?Z out of range (" STRINGIFY(Z_PROBE_OFFSET_RANGE_MIN) " to " STRINGIFY(Z_PROBE_OFFSET_RANGE_MAX) ")");
     return;
   }
   SERIAL_ECHO_START();
-  SERIAL_ECHOPGM(MSG_PROBE_Z_OFFSET);
-  SERIAL_ECHOLNPAIR(": ", zprobe_zoffset);
+  SERIAL_ECHOLNPAIR(MSG_PROBE_Z_OFFSET ": ", zprobe_zoffset);
 }
 
 #endif // HAS_BED_PROBE

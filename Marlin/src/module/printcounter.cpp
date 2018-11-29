@@ -111,7 +111,7 @@ void PrintCounter::saveStats() {
 void PrintCounter::showStats() {
   char buffer[21];
 
-  SERIAL_PROTOCOLPGM(MSG_STATS);
+  SERIAL_ECHOPGM(MSG_STATS);
 
   SERIAL_ECHOPGM("Prints: ");
   SERIAL_ECHO(data.totalPrints);
@@ -124,7 +124,7 @@ void PrintCounter::showStats() {
     - ((isRunning() || isPaused()) ? 1 : 0));
 
   SERIAL_EOL();
-  SERIAL_PROTOCOLPGM(MSG_STATS);
+  SERIAL_ECHOPGM(MSG_STATS);
 
   duration_t elapsed = data.printTime;
   elapsed.toString(buffer);
@@ -151,7 +151,7 @@ void PrintCounter::showStats() {
   #endif
 
   SERIAL_EOL();
-  SERIAL_PROTOCOLPGM(MSG_STATS);
+  SERIAL_ECHOPGM(MSG_STATS);
 
   SERIAL_ECHOPGM("Filament used: ");
   SERIAL_ECHO(data.filamentUsed / 1000);

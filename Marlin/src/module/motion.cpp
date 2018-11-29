@@ -163,14 +163,10 @@ float cartes[XYZ];
  * Output the current position to serial
  */
 void report_current_position() {
-  SERIAL_PROTOCOLPGM("X:");
-  SERIAL_PROTOCOL(LOGICAL_X_POSITION(current_position[X_AXIS]));
-  SERIAL_PROTOCOLPGM(" Y:");
-  SERIAL_PROTOCOL(LOGICAL_Y_POSITION(current_position[Y_AXIS]));
-  SERIAL_PROTOCOLPGM(" Z:");
-  SERIAL_PROTOCOL(LOGICAL_Z_POSITION(current_position[Z_AXIS]));
-  SERIAL_PROTOCOLPGM(" E:");
-  SERIAL_PROTOCOL(current_position[E_AXIS]);
+  SERIAL_ECHOPAIR("X:", LOGICAL_X_POSITION(current_position[X_AXIS]));
+  SERIAL_ECHOPAIR(" Y:", LOGICAL_Y_POSITION(current_position[Y_AXIS]));
+  SERIAL_ECHOPAIR(" Z:", LOGICAL_Z_POSITION(current_position[Z_AXIS]));
+  SERIAL_ECHOPAIR(" E:", current_position[E_AXIS]);
 
   stepper.report_positions();
 
@@ -967,15 +963,13 @@ void prepare_move_to_destination() {
         #if ENABLED(PREVENT_COLD_EXTRUSION)
           if (thermalManager.tooColdToExtrude(active_extruder)) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-            SERIAL_ECHO_START();
-            SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+            SERIAL_ECHO_MSG(MSG_ERR_COLD_EXTRUDE_STOP);
           }
         #endif // PREVENT_COLD_EXTRUSION
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
           if (ABS(destination[E_AXIS] - current_position[E_AXIS]) * planner.e_factor[active_extruder] > (EXTRUDE_MAXLENGTH)) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-            SERIAL_ECHO_START();
-            SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
+            SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
           }
         #endif // PREVENT_LENGTHY_EXTRUDE
       }
@@ -1046,8 +1040,7 @@ inline float get_homing_bump_feedrate(const AxisEnum axis) {
   uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
   if (hbd < 1) {
     hbd = 10;
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPGM("Warning: Homing Bump Divisor < 1");
+    SERIAL_ECHO_MSG("Warning: Homing Bump Divisor < 1");
   }
   return homing_feedrate(axis) / hbd;
 }

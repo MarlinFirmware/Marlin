@@ -192,7 +192,7 @@ class FilamentSensorBase {
 
         #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
           if (change) {
-            SERIAL_PROTOCOLPGM("Motion detected:");
+            SERIAL_ECHOPGM("Motion detected:");
             for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; e++)
               if (TEST(change, e)) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + e); }
             SERIAL_EOL();
@@ -253,7 +253,7 @@ class FilamentSensorBase {
           static bool was_out = false;
           if (out != was_out) {
             was_out = out;
-            SERIAL_PROTOCOL("Filament ");
+            SERIAL_ECHOPGM("Filament ");
             serialprintPGM(out ? PSTR("OUT\n") : PSTR("IN\n"));
           }
         #endif
@@ -289,7 +289,7 @@ class FilamentSensorBase {
             t = millis() + 1000UL;
             LOOP_L_N(i, EXTRUDERS) {
               serialprintPGM(i ? PSTR(", ") : PSTR("Remaining mm: "));
-              SERIAL_PROTOCOL(runout_mm_countdown[i]);
+              SERIAL_ECHO(runout_mm_countdown[i]);
             }
             SERIAL_EOL();
           }

@@ -102,7 +102,7 @@ bool HAL_pwm_status(int8_t pin) {
     default:
       return false;
   }
-  SERIAL_PROTOCOLPGM("  ");
+  SERIAL_ECHOPGM("  ");
 }
 
 static void HAL_pwm_details(uint8_t pin) { /* TODO */ }

@@ -365,13 +365,13 @@ void Endstops::event_handler() {
 
 static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
   if (label) serialprintPGM(label);
-  SERIAL_PROTOCOLPGM(": ");
+  SERIAL_ECHOPGM(": ");
   serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN));
   SERIAL_EOL();
 }
 
 void _O2 Endstops::M119() {
-  SERIAL_PROTOCOLLNPGM(MSG_M119_REPORT);
+  SERIAL_ECHOLNPGM(MSG_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
   #if HAS_X_MIN
     ES_REPORT(X_MIN);
@@ -441,7 +441,7 @@ void _O2 Endstops::M119() {
             #endif
           #endif
         }
-        SERIAL_PROTOCOLPGM(MSG_FILAMENT_RUNOUT_SENSOR);
+        SERIAL_ECHOPGM(MSG_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + i); }
         print_es_state(digitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
@@ -825,51 +825,51 @@ void Endstops::update() {
 
     if (endstop_change) {
       #if HAS_X_MIN
-        if (TEST(endstop_change, X_MIN)) SERIAL_PROTOCOLPAIR("  X_MIN:", TEST(live_state_local, X_MIN));
+        if (TEST(endstop_change, X_MIN)) SERIAL_ECHOPAIR("  X_MIN:", TEST(live_state_local, X_MIN));
       #endif
       #if HAS_X_MAX
-        if (TEST(endstop_change, X_MAX)) SERIAL_PROTOCOLPAIR("  X_MAX:", TEST(live_state_local, X_MAX));
+        if (TEST(endstop_change, X_MAX)) SERIAL_ECHOPAIR("  X_MAX:", TEST(live_state_local, X_MAX));
       #endif
       #if HAS_Y_MIN
-        if (TEST(endstop_change, Y_MIN)) SERIAL_PROTOCOLPAIR("  Y_MIN:", TEST(live_state_local, Y_MIN));
+        if (TEST(endstop_change, Y_MIN)) SERIAL_ECHOPAIR("  Y_MIN:", TEST(live_state_local, Y_MIN));
       #endif
       #if HAS_Y_MAX
-        if (TEST(endstop_change, Y_MAX)) SERIAL_PROTOCOLPAIR("  Y_MAX:", TEST(live_state_local, Y_MAX));
+        if (TEST(endstop_change, Y_MAX)) SERIAL_ECHOPAIR("  Y_MAX:", TEST(live_state_local, Y_MAX));
       #endif
       #if HAS_Z_MIN
-        if (TEST(endstop_change, Z_MIN)) SERIAL_PROTOCOLPAIR("  Z_MIN:", TEST(live_state_local, Z_MIN));
+        if (TEST(endstop_change, Z_MIN)) SERIAL_ECHOPAIR("  Z_MIN:", TEST(live_state_local, Z_MIN));
       #endif
       #if HAS_Z_MAX
-        if (TEST(endstop_change, Z_MAX)) SERIAL_PROTOCOLPAIR("  Z_MAX:", TEST(live_state_local, Z_MAX));
+        if (TEST(endstop_change, Z_MAX)) SERIAL_ECHOPAIR("  Z_MAX:", TEST(live_state_local, Z_MAX));
       #endif
       #if HAS_Z_MIN_PROBE_PIN
-        if (TEST(endstop_change, Z_MIN_PROBE)) SERIAL_PROTOCOLPAIR("  PROBE:", TEST(live_state_local, Z_MIN_PROBE));
+        if (TEST(endstop_change, Z_MIN_PROBE)) SERIAL_ECHOPAIR("  PROBE:", TEST(live_state_local, Z_MIN_PROBE));
       #endif
       #if HAS_X2_MIN
-        if (TEST(endstop_change, X2_MIN)) SERIAL_PROTOCOLPAIR("  X2_MIN:", TEST(live_state_local, X2_MIN));
+        if (TEST(endstop_change, X2_MIN)) SERIAL_ECHOPAIR("  X2_MIN:", TEST(live_state_local, X2_MIN));
       #endif
       #if HAS_X2_MAX
-        if (TEST(endstop_change, X2_MAX)) SERIAL_PROTOCOLPAIR("  X2_MAX:", TEST(live_state_local, X2_MAX));
+        if (TEST(endstop_change, X2_MAX)) SERIAL_ECHOPAIR("  X2_MAX:", TEST(live_state_local, X2_MAX));
       #endif
       #if HAS_Y2_MIN
-        if (TEST(endstop_change, Y2_MIN)) SERIAL_PROTOCOLPAIR("  Y2_MIN:", TEST(live_state_local, Y2_MIN));
+        if (TEST(endstop_change, Y2_MIN)) SERIAL_ECHOPAIR("  Y2_MIN:", TEST(live_state_local, Y2_MIN));
       #endif
       #if HAS_Y2_MAX
-        if (TEST(endstop_change, Y2_MAX)) SERIAL_PROTOCOLPAIR("  Y2_MAX:", TEST(live_state_local, Y2_MAX));
+        if (TEST(endstop_change, Y2_MAX)) SERIAL_ECHOPAIR("  Y2_MAX:", TEST(live_state_local, Y2_MAX));
       #endif
       #if HAS_Z2_MIN
-        if (TEST(endstop_change, Z2_MIN)) SERIAL_PROTOCOLPAIR("  Z2_MIN:", TEST(live_state_local, Z2_MIN));
+        if (TEST(endstop_change, Z2_MIN)) SERIAL_ECHOPAIR("  Z2_MIN:", TEST(live_state_local, Z2_MIN));
       #endif
       #if HAS_Z2_MAX
-        if (TEST(endstop_change, Z2_MAX)) SERIAL_PROTOCOLPAIR("  Z2_MAX:", TEST(live_state_local, Z2_MAX));
+        if (TEST(endstop_change, Z2_MAX)) SERIAL_ECHOPAIR("  Z2_MAX:", TEST(live_state_local, Z2_MAX));
       #endif
       #if HAS_Z3_MIN
-        if (TEST(endstop_change, Z3_MIN)) SERIAL_PROTOCOLPAIR("  Z3_MIN:", TEST(live_state_local, Z3_MIN));
+        if (TEST(endstop_change, Z3_MIN)) SERIAL_ECHOPAIR("  Z3_MIN:", TEST(live_state_local, Z3_MIN));
       #endif
       #if HAS_Z3_MAX
-        if (TEST(endstop_change, Z3_MAX)) SERIAL_PROTOCOLPAIR("  Z3_MAX:", TEST(live_state_local, Z3_MAX));
+        if (TEST(endstop_change, Z3_MAX)) SERIAL_ECHOPAIR("  Z3_MAX:", TEST(live_state_local, Z3_MAX));
       #endif
-      SERIAL_PROTOCOLPGM("\n\n");
+      SERIAL_ECHOPGM("\n\n");
       analogWrite(LED_PIN, local_LED_status);
       local_LED_status ^= 255;
       old_live_state_local = live_state_local;

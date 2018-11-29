@@ -70,10 +70,8 @@ void GcodeSuite::M301() {
     #endif
     SERIAL_EOL();
   }
-  else {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_INVALID_EXTRUDER);
-  }
+  else
+    SERIAL_ERROR_MSG(MSG_INVALID_EXTRUDER);
 }
 
 #endif // PIDTEMP
