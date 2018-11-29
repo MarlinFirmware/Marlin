@@ -59,6 +59,10 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
   lcd_put_wchar(LCD_STR_DEGREE[0]);
 }
 
+#define XYZ_BASELINE    (30 + INFO_FONT_ASCENT)
+#define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
+#define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
+
 #define DO_DRAW_BED (HAS_HEATED_BED && STATUS_BED_WIDTH && HOTENDS <= 3 && DISABLED(STATUS_COMBINE_HEATERS))
 #define DO_DRAW_FAN (HAS_FAN0 && STATUS_FAN_WIDTH && STATUS_FAN_FRAMES)
 #define ANIM_HOTEND (HOTENDS && ENABLED(STATUS_HOTEND_ANIM))
@@ -323,7 +327,7 @@ void MarlinUI::draw_status_screen() {
 
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
-      if (PAGE_CONTAINS(STATUS_FAN_TEXT_Y - INFO_FONT_ASCENT, STATUS_FAN_TEXT_Y)) {
+      if (PAGE_CONTAINS(STATUS_FAN_TEXT_Y - INFO_FONT_ASCENT, STATUS_FAN_TEXT_Y - 1)) {
         const int per = ((int(fan_speed[0]) + 1) * 100) / 256;
         if (per) {
           lcd_moveto(STATUS_FAN_TEXT_X, STATUS_FAN_TEXT_Y);
@@ -398,12 +402,12 @@ void MarlinUI::draw_status_screen() {
       #define SD_DURATION_X (LCD_PIXEL_WIDTH - len * MENU_FONT_WIDTH)
     #endif
 
-    if (PAGE_CONTAINS(41, 48)) {
+    if (PAGE_CONTAINS(EXTRAS_BASELINE - INFO_FONT_ASCENT, EXTRAS_BASELINE - 1)) {
       char buffer[13];
       duration_t elapsed = print_job_timer.duration();
       bool has_days = (elapsed.value >= 60*60*24L);
       uint8_t len = elapsed.toDigital(buffer, has_days);
-      lcd_moveto(SD_DURATION_X, 48);
+      lcd_moveto(SD_DURATION_X, EXTRAS_BASELINE);
       lcd_put_u8str(buffer);
     }
 
@@ -412,8 +416,6 @@ void MarlinUI::draw_status_screen() {
   //
   // XYZ Coordinates
   //
-
-  #define XYZ_BASELINE (30 + INFO_FONT_ASCENT)
 
   #define X_LABEL_POS  3
   #define X_VALUE_POS 11
@@ -465,15 +467,16 @@ void MarlinUI::draw_status_screen() {
   //
   // Feedrate
   //
-  #define EXTRAS_BASELINE 50
 
-  if (PAGE_CONTAINS(EXTRAS_BASELINE - (INFO_FONT_HEIGHT - 1), EXTRAS_BASELINE)) {
+  #define EXTRAS_2_BASELINE (EXTRAS_BASELINE + 3)
+
+  if (PAGE_CONTAINS(EXTRAS_2_BASELINE - INFO_FONT_ASCENT, EXTRAS_2_BASELINE - 1)) {
     set_font(FONT_MENU);
-    lcd_moveto(3, EXTRAS_BASELINE);
+    lcd_moveto(3, EXTRAS_2_BASELINE);
     lcd_put_wchar(LCD_STR_FEEDRATE[0]);
 
     set_font(FONT_STATUSMENU);
-    lcd_moveto(12, EXTRAS_BASELINE);
+    lcd_moveto(12, EXTRAS_2_BASELINE);
     lcd_put_u8str(itostr3(feedrate_percentage));
     lcd_put_wchar('%');
 
@@ -481,15 +484,15 @@ void MarlinUI::draw_status_screen() {
     // Filament sensor display if SD is disabled
     //
     #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
-      lcd_moveto(56, EXTRAS_BASELINE);
+      lcd_moveto(56, EXTRAS_2_BASELINE);
       lcd_put_u8str(wstring);
-      lcd_moveto(102, EXTRAS_BASELINE);
+      lcd_moveto(102, EXTRAS_2_BASELINE);
       lcd_put_u8str(mstring);
       lcd_put_wchar('%');
       set_font(FONT_MENU);
-      lcd_moveto(47, EXTRAS_BASELINE);
+      lcd_moveto(47, EXTRAS_2_BASELINE);
       lcd_put_wchar(LCD_STR_FILAM_DIA[0]); // lcd_put_u8str_P(PSTR(LCD_STR_FILAM_DIA));
-      lcd_moveto(93, EXTRAS_BASELINE);
+      lcd_moveto(93, EXTRAS_2_BASELINE);
       lcd_put_wchar(LCD_STR_FILAM_MUL[0]);
     #endif
   }
@@ -498,9 +501,7 @@ void MarlinUI::draw_status_screen() {
   // Status line
   //
 
-  #define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
-
-  if (PAGE_CONTAINS(STATUS_BASELINE - (INFO_FONT_ASCENT - 1), STATUS_BASELINE)) {
+  if (PAGE_CONTAINS(STATUS_BASELINE - INFO_FONT_ASCENT, STATUS_BASELINE + INFO_FONT_DESCENT)) {
     lcd_moveto(0, STATUS_BASELINE);
 
     #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
