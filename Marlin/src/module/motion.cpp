@@ -1550,10 +1550,8 @@ void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, delta_endstop_adj[axis] - (MIN_STEPS_PER_SEGMENT + 1) * planner.steps_to_mm[axis] * Z_HOME_DIR);
     }
 
-  #else
+  #else // CARTESIAN / CORE
 
-    // For cartesian/core machines,
-    // set the axis to its home position
     set_axis_is_at_home(axis);
     sync_plan_position();
 
