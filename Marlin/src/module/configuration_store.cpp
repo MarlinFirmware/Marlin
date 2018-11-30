@@ -76,9 +76,9 @@
 
 #if HAS_SERVOS
   #include "servo.h"
+  #define EEPROM_NUM_SERVOS NUM_SERVOS
 #else
-  #undef NUM_SERVOS
-  #define NUM_SERVOS NUM_SERVO_PLUGS
+  #define EEPROM_NUM_SERVOS NUM_SERVO_PLUGS
 #endif
 
 #if HAS_BED_PROBE
@@ -187,7 +187,7 @@ typedef struct SettingsDataStruct {
   //
   // SERVO_ANGLES
   //
-  uint16_t servo_angles[NUM_SERVOS][2];                 // M281 P L U
+  uint16_t servo_angles[EEPROM_NUM_SERVOS][2];          // M281 P L U
 
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -632,36 +632,11 @@ void MarlinSettings::postprocess() {
     // Servo Angles
     //
     {
-      #if !(HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES))
+      _FIELD_TEST(servo_angles);
 
-        uint16_t servo_angles[NUM_SERVOS][2] = { { 0, 0 } };
-
-        #if ENABLED(SWITCHING_EXTRUDER)
-
-          constexpr uint16_t sesa[][2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
-          servo_angles[SWITCHING_EXTRUDER_SERVO_NR][0] = sesa[0][0];
-          servo_angles[SWITCHING_EXTRUDER_SERVO_NR][1] = sesa[0][1];
-          #if EXTRUDERS > 3
-            servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][0] = sesa[1][0];
-            servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][1] = sesa[1][1];
-          #endif
-
-        #elif ENABLED(SWITCHING_NOZZLE)
-
-          constexpr uint16_t snsa[] = SWITCHING_NOZZLE_SERVO_ANGLES;
-          servo_angles[SWITCHING_NOZZLE_SERVO_NR][0] = snsa[0];
-          servo_angles[SWITCHING_NOZZLE_SERVO_NR][1] = snsa[1];
-
-        #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
-
-          constexpr uint16_t zsa[] = Z_SERVO_ANGLES;
-          servo_angles[Z_PROBE_SERVO_NR][0] = zsa[0];
-          servo_angles[Z_PROBE_SERVO_NR][1] = zsa[1];
-
-        #endif
-
-      #endif // !HAS_SERVOS || !EDITABLE_SERVO_ANGLES
-
+      #if !HAS_SERVOS
+        uint16_t servo_angles[NUM_SERVO_PLUGS][2] = { { 0, 0 } };
+      #endif
       EEPROM_WRITE(servo_angles);
     }
 
@@ -1311,10 +1286,14 @@ void MarlinSettings::postprocess() {
       // SERVO_ANGLES
       //
       {
-        #if !(HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES))
-          uint16_t servo_angles[NUM_SERVOS][2];
+        _FIELD_TEST(servo_angles);
+
+        #if ENABLED(EDITABLE_SERVO_ANGLES)
+          uint16_t (&servo_angles_arr)[EEPROM_NUM_SERVOS][2] = servo_angles;
+        #else
+          uint16_t servo_angles_arr[EEPROM_NUM_SERVOS][2];
         #endif
-        EEPROM_READ(servo_angles);
+        EEPROM_READ(servo_angles_arr);
       }
 
       //
@@ -1992,39 +1971,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   // Servo Angles
   //
 
-  #if HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES)
+  #if ENABLED(EDITABLE_SERVO_ANGLES)
+    COPY(servo_angles, base_servo_angles);
+  #endif
 
-    #if ENABLED(SWITCHING_EXTRUDER)
-
-      #if EXTRUDERS > 3
-        #define REQ_ANGLES 4
-      #else
-        #define REQ_ANGLES 2
-      #endif
-      constexpr uint16_t sesa[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
-      static_assert(COUNT(sesa) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
-      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][0] = sesa[0];
-      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][1] = sesa[1];
-      #if EXTRUDERS > 3
-        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][0] = sesa[2];
-        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][1] = sesa[3];
-      #endif
-
-    #elif ENABLED(SWITCHING_NOZZLE)
-
-      constexpr uint16_t snsa[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
-      servo_angles[SWITCHING_NOZZLE_SERVO_NR][0] = snsa[0];
-      servo_angles[SWITCHING_NOZZLE_SERVO_NR][1] = snsa[1];
-
-    #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
-
-      constexpr uint16_t zsa[2] = Z_SERVO_ANGLES;
-      servo_angles[Z_PROBE_SERVO_NR][0] = zsa[0];
-      servo_angles[Z_PROBE_SERVO_NR][1] = zsa[1];
-
-    #endif
-
-  #endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
+  //
+  // Endstop Adjustments
+  //
 
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ, dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
@@ -2083,6 +2036,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   #endif
 
+  //
+  // Preheat parameters
+  //
+
   #if HAS_LCD_MENU
     ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
@@ -2091,6 +2048,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
     ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
   #endif
+
+  //
+  // Hotend PID
+  //
 
   #if ENABLED(PIDTEMP)
     HOTEND_LOOP() {
@@ -2101,10 +2062,19 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         PID_PARAM(Kc, e) = DEFAULT_Kc;
       #endif
     }
-    #if ENABLED(PID_EXTRUSION_SCALING)
-      thermalManager.lpq_len = 20; // default last-position-queue size
-    #endif
-  #endif // PIDTEMP
+  #endif
+
+  //
+  // PID Extrusion Scaling
+  //
+
+  #if ENABLED(PID_EXTRUSION_SCALING)
+    thermalManager.lpq_len = 20;  // Default last-position-queue size
+  #endif
+
+  //
+  // Heated Bed PID
+  //
 
   #if ENABLED(PIDTEMPBED)
     thermalManager.bed_pid.Kp = DEFAULT_bedKp;
@@ -2112,17 +2082,33 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     thermalManager.bed_pid.Kd = scalePID_d(DEFAULT_bedKd);
   #endif
 
+  //
+  // LCD Contrast
+  //
+
   #if HAS_LCD_CONTRAST
     ui.set_contrast(DEFAULT_LCD_CONTRAST);
   #endif
+
+  //
+  // Power-Loss Recovery
+  //
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.enable(true);
   #endif
 
+  //
+  // Firmware Retraction
+  //
+
   #if ENABLED(FWRETRACT)
     fwretract.reset();
   #endif
+
+  //
+  // Volumetric & Filament Size
+  //
 
   #if DISABLED(NO_VOLUMETRICS)
 
@@ -2148,15 +2134,35 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   reset_stepper_drivers();
 
+  //
+  // Linear Advance
+  //
+
   #if ENABLED(LIN_ADVANCE)
     LOOP_L_N(i, EXTRUDERS) planner.extruder_advance_K[i] = LIN_ADVANCE_K;
   #endif
+
+  //
+  // Motor Current PWM
+  //
 
   #if HAS_MOTOR_CURRENT_PWM
     uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
     for (uint8_t q = 3; q--;)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
   #endif
+
+  //
+  // CNC Coordinate System
+  //
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    (void)gcode.select_coordinate_system(-1); // Go back to machine space
+  #endif
+
+  //
+  // Skew Correction
+  //
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
     planner.skew_factor.xy = XY_SKEW_FACTOR;
@@ -2165,6 +2171,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       planner.skew_factor.yz = YZ_SKEW_FACTOR;
     #endif
   #endif
+
+  //
+  // Advanced Pause filament load & unload lengths
+  //
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     for (uint8_t e = 0; e < EXTRUDERS; e++) {
@@ -2491,7 +2501,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #endif // HAS_LEVELING
 
-    #if HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES)
+    #if ENABLED(EDITABLE_SERVO_ANGLES)
 
       CONFIG_ECHO_HEADING("Servo Angles:");
       for (uint8_t i = 0; i < NUM_SERVOS; i++) {
@@ -2515,7 +2525,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         }
       }
 
-    #endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
+    #endif // EDITABLE_SERVO_ANGLES
 
     #if HAS_SCARA_OFFSET
 

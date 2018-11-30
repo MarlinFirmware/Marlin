@@ -970,7 +970,9 @@
 #define HAS_SERVO_3 (PIN_EXISTS(SERVO3))
 #define HAS_SERVOS (defined(NUM_SERVOS) && NUM_SERVOS > 0)
 
-#if HAS_SERVOS && !defined(Z_PROBE_SERVO_NR)
+#if !HAS_SERVOS
+  #undef EDITABLE_SERVO_ANGLES
+#elif !defined(Z_PROBE_SERVO_NR)
   #define Z_PROBE_SERVO_NR -1
 #endif
 
