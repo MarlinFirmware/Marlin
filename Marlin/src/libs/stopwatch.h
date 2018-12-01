@@ -75,7 +75,7 @@ class Stopwatch {
      * @brief Resume the stopwatch
      * @details Resume a timer from a given duration
      */
-    static void resume(const millis_t duration);
+    static void resume(const millis_t with_time);
 
     /**
      * @brief Reset the stopwatch

@@ -59,8 +59,7 @@ void enable_solenoid(const uint8_t num) {
           break;
       #endif
     default:
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM(MSG_INVALID_SOLENOID);
+      SERIAL_ECHO_MSG(MSG_INVALID_SOLENOID);
       break;
   }
 }

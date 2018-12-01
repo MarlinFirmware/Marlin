@@ -68,12 +68,13 @@ void GcodeSuite::M125() {
     park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
   #endif
 
+  #if ENABLED(SDSUPPORT)
+    const bool sd_printing = IS_SD_PRINTING();
+  #else
+    constexpr bool sd_printing = false;
+  #endif
+
   if (pause_print(retract, park_point)) {
-    #if ENABLED(SDSUPPORT)
-      const bool sd_printing = IS_SD_PRINTING() || parser.boolval('S'); // Undocumented parameter
-    #else
-      constexpr bool sd_printing = false;
-    #endif
     if (!sd_printing) {
       wait_for_confirmation();
       resume_print();

@@ -255,12 +255,6 @@ void MarlinUI::init() {
   #if HAS_ENCODER_ACTION
     encoderDiff = 0;
   #endif
-
-  #if ENABLED(MARLIN_DEV_MODE)
-    // Start timer 5 at full speed
-    SET_CS(5, PRESCALER_1);
-    SET_COM(5, A, NORMAL);
-  #endif
 }
 
 bool MarlinUI::get_blink() {

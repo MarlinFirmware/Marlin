@@ -54,8 +54,8 @@
     #else
       card.startFileprint();
       print_job_timer.start();
+      ui.reset_status();
     #endif
-    ui.reset_status();
   }
 
   void lcd_sdcard_stop() {
@@ -98,7 +98,7 @@ void menu_main() {
       }
     }
     else {
-      MENU_ITEM(submenu, MSG_NO_CARD, menu_sdcard);
+      MENU_ITEM(function, MSG_NO_CARD, NULL);
       #if !PIN_EXISTS(SD_DETECT)
         MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
       #endif

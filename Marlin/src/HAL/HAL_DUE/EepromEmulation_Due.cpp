@@ -121,7 +121,7 @@ static uint8_t buffer[256] = {0},   // The RAM buffer to accumulate writes
     char buffer[80];
 
     sprintf(buffer, "Page: %d (0x%04x)\n", page, page);
-    SERIAL_PROTOCOL(buffer);
+    SERIAL_ECHO(buffer);
 
     char* p = &buffer[0];
     for (int i = 0; i< PageSize; ++i) {
@@ -131,7 +131,7 @@ static uint8_t buffer[256] = {0},   // The RAM buffer to accumulate writes
       if ((i & 0xF) == 0xF) {
         *p++ = '\n';
         *p = 0;
-        SERIAL_PROTOCOL(buffer);
+        SERIAL_ECHO(buffer);
         p = &buffer[0];
       }
     }

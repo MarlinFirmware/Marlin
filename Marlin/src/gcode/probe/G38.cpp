@@ -108,10 +108,7 @@ void GcodeSuite::G38(const bool is_38_2) {
     if (ABS(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
       if (!parser.seenval('F')) feedrate_mm_s = homing_feedrate((AxisEnum)i);
       // If G38.2 fails throw an error
-      if (!G38_run_probe() && is_38_2) {
-        SERIAL_ERROR_START();
-        SERIAL_ERRORLNPGM("Failed to reach target");
-      }
+      if (!G38_run_probe() && is_38_2) SERIAL_ERROR_MSG("Failed to reach target");
       break;
     }
 

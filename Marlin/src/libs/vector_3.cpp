@@ -84,13 +84,9 @@ void vector_3::apply_rotation(const matrix_3x3 &matrix) {
 
 void vector_3::debug(PGM_P const title) {
   serialprintPGM(title);
-  SERIAL_PROTOCOLPGM(" x: ");
-  SERIAL_PROTOCOL_F(x, 6);
-  SERIAL_PROTOCOLPGM(" y: ");
-  SERIAL_PROTOCOL_F(y, 6);
-  SERIAL_PROTOCOLPGM(" z: ");
-  SERIAL_PROTOCOL_F(z, 6);
-  SERIAL_EOL();
+  SERIAL_ECHOPAIR_F(" x: ", x, 6);
+  SERIAL_ECHOPAIR_F(" y: ", y, 6);
+  SERIAL_ECHOLNPAIR_F(" z: ", z, 6);
 }
 
 void apply_rotation_xyz(const matrix_3x3 &matrix, float &x, float &y, float &z) {
@@ -151,9 +147,9 @@ void matrix_3x3::debug(PGM_P const title) {
   uint8_t count = 0;
   for (uint8_t i = 0; i < 3; i++) {
     for (uint8_t j = 0; j < 3; j++) {
-      if (matrix[count] >= 0.0) SERIAL_PROTOCOLCHAR('+');
-      SERIAL_PROTOCOL_F(matrix[count], 6);
-      SERIAL_PROTOCOLCHAR(' ');
+      if (matrix[count] >= 0.0) SERIAL_CHAR('+');
+      SERIAL_ECHO_F(matrix[count], 6);
+      SERIAL_CHAR(' ');
       count++;
     }
     SERIAL_EOL();

@@ -264,8 +264,7 @@ bool pin_is_protected(const pin_t pin) {
 }
 
 void protected_pin_err() {
-  SERIAL_ERROR_START();
-  SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
+  SERIAL_ERROR_MSG(MSG_ERR_PROTECTED_PIN);
 }
 
 void quickstop_stepper() {
@@ -400,8 +399,7 @@ void manage_inactivity(const bool ignore_stepper_queue/*=false*/) {
     // KILL the machine
     // ----------------------------------------------------------------
     if (killCount >= KILL_DELAY) {
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_KILL_BUTTON);
+      SERIAL_ERROR_MSG(MSG_KILL_BUTTON);
       kill();
     }
   #endif
@@ -606,8 +604,7 @@ void idle(
 void kill(PGM_P const lcd_msg/*=NULL*/) {
   thermalManager.disable_all_heaters();
 
-  SERIAL_ERROR_START();
-  SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
+  SERIAL_ERROR_MSG(MSG_ERR_KILLED);
 
   #if HAS_SPI_LCD || ENABLED(EXTENSIBLE_UI)
     ui.kill_screen(lcd_msg ? lcd_msg : PSTR(MSG_KILLED));
@@ -663,8 +660,7 @@ void stop() {
 
   if (IsRunning()) {
     Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
+    SERIAL_ERROR_MSG(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
     safe_delay(350);       // allow enough time for messages to get out before stopping
     Running = false;
@@ -745,7 +741,7 @@ void setup() {
     #endif
   #endif
 
-  SERIAL_PROTOCOLLNPGM("start");
+  SERIAL_ECHOLNPGM("start");
   SERIAL_ECHO_START();
 
   #if TMC_HAS_SPI
@@ -781,8 +777,7 @@ void setup() {
     SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
     SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
     SERIAL_ECHOLNPGM(MSG_AUTHOR STRING_CONFIG_H_AUTHOR);
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPGM("Compiled: " __DATE__);
+    SERIAL_ECHO_MSG("Compiled: " __DATE__);
   #endif
 
   SERIAL_ECHO_START();
