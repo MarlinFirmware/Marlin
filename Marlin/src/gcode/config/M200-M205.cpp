@@ -147,10 +147,8 @@ void GcodeSuite::M205() {
           planner.recalculate_max_e_jerk();
         #endif
       }
-      else {
-        SERIAL_ERROR_START();
-        SERIAL_ERRORLNPGM("?J out of range (0.01 to 0.3)");
-      }
+      else
+        SERIAL_ERROR_MSG("?J out of range (0.01 to 0.3)");
     }
   #endif
   #if HAS_CLASSIC_JERK

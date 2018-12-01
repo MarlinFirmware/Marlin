@@ -140,11 +140,11 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
             if (pin == 46 || pin == 47) {
               if (pin == 46) {
                 print_input_or_output(GET_OUTPUT(46));
-                SERIAL_PROTOCOL(READ(46));
+                SERIAL_ECHO(READ(46));
               }
               else if (pin == 47) {
                 print_input_or_output(GET_OUTPUT(47));
-                SERIAL_PROTOCOL(READ(47));
+                SERIAL_ECHO(READ(47));
               }
             }
             else
@@ -160,14 +160,14 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
                                                // because this could interfere with inductive/capacitive
                                                // sensors (high impedance voltage divider) and with PT100 amplifier
                 print_input_or_output(false);
-                SERIAL_PROTOCOL(digitalRead_mod(pin));
+                SERIAL_ECHO(digitalRead_mod(pin));
               }
               else if (pwm_status(pin)) {
                 // do nothing
               }
               else {
                 print_input_or_output(true);
-                SERIAL_PROTOCOL(digitalRead_mod(pin));
+                SERIAL_ECHO(digitalRead_mod(pin));
               }
             }
             if (!multi_name_pin && extended) pwm_details(pin);  // report PWM capabilities only on the first pass & only if doing an extended report
@@ -193,23 +193,23 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
     if (extended) {
       #if AVR_AT90USB1286_FAMILY  //Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == 46 || pin == 47) {
-          SERIAL_PROTOCOL_SP(12);
+          SERIAL_ECHO_SP(12);
           if (pin == 46) {
             print_input_or_output(GET_OUTPUT(46));
-            SERIAL_PROTOCOL(READ(46));
+            SERIAL_ECHO(READ(46));
           }
           else {
             print_input_or_output(GET_OUTPUT(47));
-            SERIAL_PROTOCOL(READ(47));
+            SERIAL_ECHO(READ(47));
           }
         }
         else
       #endif
       {
         if (GET_PINMODE(pin)) {
-          SERIAL_PROTOCOL_SP(MAX_NAME_LENGTH - 16);
+          SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);
           print_input_or_output(true);
-          SERIAL_PROTOCOL(digitalRead_mod(pin));
+          SERIAL_ECHO(digitalRead_mod(pin));
         }
         else {
           if (IS_ANALOG(pin)) {
@@ -221,7 +221,7 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
           SERIAL_ECHO_SP(MAX_NAME_LENGTH - 16);   // add padding if not an analog pin
 
           print_input_or_output(false);
-          SERIAL_PROTOCOL(digitalRead_mod(pin));
+          SERIAL_ECHO(digitalRead_mod(pin));
         }
         //if (!pwm_status(pin)) SERIAL_CHAR(' ');    // add padding if it's not a PWM pin
         if (extended) pwm_details(pin);  // report PWM capabilities only if doing an extended report

@@ -358,12 +358,12 @@
 
   template <typename TMC>
   static void tmc_status(TMC &st, const TMC_debug_enum i, const float spmm) {
-    SERIAL_ECHO('\t');
+    SERIAL_CHAR('\t');
     switch (i) {
       case TMC_CODES: st.printLabel(); break;
       case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
       case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
-      case TMC_RMS_CURRENT: SERIAL_PROTOCOL(st.rms_current()); break;
+      case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
       case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
       case TMC_IRUN:
         SERIAL_PRINT(st.irun(), DEC);
@@ -408,12 +408,12 @@
   #if HAS_DRIVER(TMC2660)
     template<char AXIS_LETTER, char DRIVER_ID>
     void tmc_status(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const TMC_debug_enum i, const float) {
-      SERIAL_ECHO('\t');
+      SERIAL_CHAR('\t');
       switch (i) {
         case TMC_CODES: st.printLabel(); break;
         case TMC_ENABLED: serialprintPGM(st.isEnabled() ? PSTR("true") : PSTR("false")); break;
         case TMC_CURRENT: SERIAL_ECHO(st.getMilliamps()); break;
-        case TMC_RMS_CURRENT: SERIAL_PROTOCOL(st.rms_current()); break;
+        case TMC_RMS_CURRENT: SERIAL_ECHO(st.rms_current()); break;
         case TMC_MAX_CURRENT: SERIAL_PRINT((float)st.rms_current() * 1.41, 0); break;
         case TMC_IRUN:
           SERIAL_PRINT(st.cs(), DEC);

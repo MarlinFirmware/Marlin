@@ -38,7 +38,9 @@
 #include "../gcode/gcode.h"
 #include "../lcd/ultralcd.h"
 
-#include "../Marlin.h"
+#if ENABLED(BLTOUCH) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
+  #include "../Marlin.h" // for stop()
+#endif
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
@@ -61,6 +63,10 @@ float zprobe_zoffset; // Initialized by settings.load()
 #if ENABLED(SENSORLESS_PROBING)
   #include "stepper.h"
   #include "../feature/tmc_util.h"
+#endif
+
+#if QUIET_PROBING
+  #include "stepper_indirection.h"
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -320,8 +326,7 @@ float zprobe_zoffset; // Initialized by settings.load()
                                          //  (Measured completion time was 0.65 seconds
                                          //   after reset, deploy, and stow sequence)
       if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
-        SERIAL_ERROR_START();
-        SERIAL_ERRORLNPGM(MSG_STOP_BLTOUCH);
+        SERIAL_ERROR_MSG(MSG_STOP_BLTOUCH);
         stop();                          // punt!
         return true;
       }
@@ -450,8 +455,7 @@ bool set_probe_deployed(const bool deploy) {
       #define _AUE_ARGS
     #endif
     if (axis_unhomed_error(_AUE_ARGS)) {
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_STOP_UNHOMED);
+      SERIAL_ERROR_MSG(MSG_STOP_UNHOMED);
       stop();
       return true;
     }
@@ -479,8 +483,7 @@ bool set_probe_deployed(const bool deploy) {
 
     if (PROBE_STOWED() == deploy) {                // Unchanged after deploy/stow action?
       if (IsRunning()) {
-        SERIAL_ERROR_START();
-        SERIAL_ERRORLNPGM("Z-Probe failed");
+        SERIAL_ERROR_MSG("Z-Probe failed");
         LCD_ALERTMESSAGEPGM("Err: ZPROBE");
       }
       stop();
@@ -771,13 +774,9 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   }
 
   if (verbose_level > 2) {
-    SERIAL_PROTOCOLPGM("Bed X: ");
-    SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(rx), 3);
-    SERIAL_PROTOCOLPGM(" Y: ");
-    SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ry), 3);
-    SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOL_F(measured_z, 3);
-    SERIAL_EOL();
+    SERIAL_ECHOPAIR_F("Bed X: ", LOGICAL_X_POSITION(rx), 3);
+    SERIAL_ECHOPAIR_F(" Y: ", LOGICAL_Y_POSITION(ry), 3);
+    SERIAL_ECHOLNPAIR_F(" Z: ", measured_z, 3);
   }
 
   feedrate_mm_s = old_feedrate_mm_s;
@@ -785,8 +784,7 @@ float probe_pt(const float &rx, const float &ry, const ProbePtRaise raise_after/
   if (isnan(measured_z)) {
     STOW_PROBE();
     LCD_MESSAGEPGM(MSG_ERR_PROBING_FAILED);
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_PROBING_FAILED);
+    SERIAL_ERROR_MSG(MSG_ERR_PROBING_FAILED);
   }
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)

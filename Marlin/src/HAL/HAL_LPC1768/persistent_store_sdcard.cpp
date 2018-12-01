@@ -80,23 +80,23 @@ bool PersistentStore::access_finish() {
 // to see errors that are happening in read_data / write_data
 static void debug_rw(const bool write, int &pos, const uint8_t *value, const size_t size, const FRESULT s, const size_t total=0) {
   PGM_P const rw_str = write ? PSTR("write") : PSTR("read");
-  SERIAL_PROTOCOLCHAR(' ');
+  SERIAL_CHAR(' ');
   serialprintPGM(rw_str);
-  SERIAL_PROTOCOLPAIR("_data(", pos);
-  SERIAL_PROTOCOLPAIR(",", (int)value);
-  SERIAL_PROTOCOLPAIR(",", (int)size);
-  SERIAL_PROTOCOLLNPGM(", ...)");
+  SERIAL_ECHOPAIR("_data(", pos);
+  SERIAL_ECHOPAIR(",", (int)value);
+  SERIAL_ECHOPAIR(",", (int)size);
+  SERIAL_ECHOLNPGM(", ...)");
   if (total) {
-    SERIAL_PROTOCOLPGM(" f_");
+    SERIAL_ECHOPGM(" f_");
     serialprintPGM(rw_str);
-    SERIAL_PROTOCOLPAIR("()=", (int)s);
-    SERIAL_PROTOCOLPAIR("\n size=", size);
-    SERIAL_PROTOCOLPGM("\n bytes_");
+    SERIAL_ECHOPAIR("()=", (int)s);
+    SERIAL_ECHOPAIR("\n size=", size);
+    SERIAL_ECHOPGM("\n bytes_");
     serialprintPGM(write ? PSTR("written=") : PSTR("read="));
-    SERIAL_PROTOCOLLN(total);
+    SERIAL_ECHOLN(total);
   }
   else
-    SERIAL_PROTOCOLLNPAIR(" f_lseek()=", (int)s);
+    SERIAL_ECHOLNPAIR(" f_lseek()=", (int)s);
 }
 
 // File function return codes for type FRESULT. This goes away soon, but

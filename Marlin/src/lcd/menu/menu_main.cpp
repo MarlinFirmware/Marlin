@@ -54,8 +54,8 @@
     #else
       card.startFileprint();
       print_job_timer.start();
+      ui.reset_status();
     #endif
-    ui.reset_status();
   }
 
   void lcd_sdcard_stop() {

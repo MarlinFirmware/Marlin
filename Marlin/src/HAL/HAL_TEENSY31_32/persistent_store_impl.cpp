@@ -21,8 +21,7 @@ bool write_data(int &pos, const uint8_t *value, uint16_t size, uint16_t *crc) {
     if (v != eeprom_read_byte(p)) {
       eeprom_write_byte(p, v);
       if (eeprom_read_byte(p) != v) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+        SERIAL_ECHO_MSG(MSG_ERR_EEPROM_WRITE);
         return true;
       }
     }

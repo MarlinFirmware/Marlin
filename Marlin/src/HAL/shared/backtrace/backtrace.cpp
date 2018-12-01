@@ -88,8 +88,7 @@ void backtrace(void) {
   btf.pc = pc | 1; // Force Thumb, as CORTEX only support it
 
   // Perform a backtrace
-  SERIAL_ERROR_START();
-  SERIAL_ERRORLNPGM("Backtrace:");
+  SERIAL_ERROR_MSG("Backtrace:");
   int ctr = 0;
   UnwindStart(&btf, &UnwCallbacks, &ctr);
 }

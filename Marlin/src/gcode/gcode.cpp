@@ -790,16 +790,13 @@ void GcodeSuite::process_next_command() {
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_BUSY_PROCESSING);
+          SERIAL_ECHO_MSG(MSG_BUSY_PROCESSING);
           break;
         case PAUSED_FOR_USER:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER);
+          SERIAL_ECHO_MSG(MSG_BUSY_PAUSED_FOR_USER);
           break;
         case PAUSED_FOR_INPUT:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_INPUT);
+          SERIAL_ECHO_MSG(MSG_BUSY_PAUSED_FOR_INPUT);
           break;
         default:
           break;
