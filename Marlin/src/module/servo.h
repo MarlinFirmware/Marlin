@@ -28,13 +28,60 @@
 #include "../inc/MarlinConfig.h"
 #include "../HAL/shared/servo.h"
 
-extern HAL_SERVO_LIB servo[NUM_SERVOS];
-extern uint16_t servo_angles[NUM_SERVOS][2];
-extern void servo_init();
+#if HAS_SERVO_ANGLES
+
+  #if ENABLED(SWITCHING_EXTRUDER)
+    #ifndef SWITCHING_EXTRUDER_E23_SERVO_NR
+      #define SWITCHING_EXTRUDER_E23_SERVO_NR -1
+    #endif
+    #if EXTRUDERS > 3
+      #define REQ_ANGLES 4
+    #else
+      #define REQ_ANGLES 2
+    #endif
+    #define SADATA    SWITCHING_EXTRUDER_SERVO_ANGLES
+    #define ASRC(N,E) (SWITCHING_EXTRUDER_SERVO_NR == N ? asrc[E] : SWITCHING_EXTRUDER_E23_SERVO_NR == N ? asrc[E+2] : 0)
+  #elif ENABLED(SWITCHING_NOZZLE)
+    #define SADATA    SWITCHING_NOZZLE_SERVO_ANGLES
+    #define ASRC(N,E) (SWITCHING_NOZZLE_SERVO_NR == N ? asrc[E] : 0)
+  #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
+    #define SADATA    Z_SERVO_ANGLES
+    #define ASRC(N,E) (Z_PROBE_SERVO_NR == N ? asrc[E] : 0)
+  #endif
+
+  #if ENABLED(EDITABLE_SERVO_ANGLES)
+    extern uint16_t servo_angles[NUM_SERVOS][2];
+    #define BASE_SERVO_ANGLES base_servo_angles
+  #else
+    #define BASE_SERVO_ANGLES servo_angles
+  #endif
+
+  constexpr uint16_t asrc[] = SADATA;
+  #if REQ_ANGLES
+    static_assert(COUNT(asrc) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
+  #endif
+
+  constexpr uint16_t BASE_SERVO_ANGLES [NUM_SERVOS][2] = {
+      { ASRC(0,0), ASRC(0,1) }
+    #if NUM_SERVOS > 1
+      , { ASRC(1,0), ASRC(1,1) }
+      #if NUM_SERVOS > 2
+        , { ASRC(2,0), ASRC(2,1) }
+        #if NUM_SERVOS > 3
+          , { ASRC(3,0), ASRC(3,1) }
+        #endif
+      #endif
+    #endif
+  };
+
+  #if HAS_Z_SERVO_PROBE
+    #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][0])
+    #define STOW_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][1])
+  #endif
+
+#endif // HAS_SERVO_ANGLES
 
 #define MOVE_SERVO(I, P) servo[I].move(P)
 
-#if HAS_Z_SERVO_PROBE
-  #define DEPLOY_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][0])
-  #define STOW_Z_SERVO() MOVE_SERVO(Z_PROBE_SERVO_NR, servo_angles[Z_PROBE_SERVO_NR][1])
-#endif
+extern HAL_SERVO_LIB servo[NUM_SERVOS];
+extern void servo_init();

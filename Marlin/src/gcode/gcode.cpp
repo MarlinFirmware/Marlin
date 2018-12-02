@@ -38,7 +38,6 @@ GcodeSuite gcode;
 
 #include "../Marlin.h" // for idle() and suspend_auto_report
 
-uint8_t GcodeSuite::target_extruder;
 millis_t GcodeSuite::previous_move_ms;
 
 bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -58,26 +57,21 @@ bool GcodeSuite::axis_relative_modes[] = AXIS_RELATIVE_MODES;
 #endif
 
 /**
- * Set target_extruder from the T parameter or the active_extruder
- *
- * Returns TRUE if the target is invalid
+ * Get the target extruder from the T parameter or the active_extruder
+ * Return -1 if the T parameter is out of range
  */
-bool GcodeSuite::get_target_extruder_from_command() {
+int8_t GcodeSuite::get_target_extruder_from_command() {
   if (parser.seenval('T')) {
     const int8_t e = parser.value_byte();
     if (e >= EXTRUDERS) {
       SERIAL_ECHO_START();
-      SERIAL_CHAR('M');
-      SERIAL_ECHO(parser.codenum);
-      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", e);
-      return true;
+      SERIAL_CHAR('M'); SERIAL_ECHO(parser.codenum);
+      SERIAL_ECHOLNPAIR(" " MSG_INVALID_EXTRUDER " ", int(e));
+      return -1;
     }
-    target_extruder = e;
+    return e;
   }
-  else
-    target_extruder = active_extruder;
-
-  return false;
+  return active_extruder;
 }
 
 /**
@@ -539,7 +533,9 @@ void GcodeSuite::process_parsed_command(
         case 302: M302(); break;                                  // M302: Allow cold extrudes (set the minimum extrude temperature)
       #endif
 
-      case 303: M303(); break;                                    // M303: PID autotune
+      #if HAS_PID_HEATING
+        case 303: M303(); break;                                  // M303: PID autotune
+      #endif
 
       #if ENABLED(MORGAN_SCARA)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
@@ -566,6 +562,10 @@ void GcodeSuite::process_parsed_command(
         case 405: M405(); break;                                  // M405: Turn on filament sensor for control
         case 406: M406(); break;                                  // M406: Turn off filament sensor for control
         case 407: M407(); break;                                  // M407: Display measured filament diameter
+      #endif
+
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+        case 412: M412(); break;                                  // M412: Enable/Disable filament runout detection
       #endif
 
       #if HAS_LEVELING
@@ -695,6 +695,11 @@ void GcodeSuite::process_parsed_command(
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped
 
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
+        case 1000: M1000(); break;                                // M1000: Resume from power-loss
+      #endif
+
       default: parser.unknown_command_error(); break;
     }
     break;
@@ -785,16 +790,13 @@ void GcodeSuite::process_next_command() {
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_BUSY_PROCESSING);
+          SERIAL_ECHO_MSG(MSG_BUSY_PROCESSING);
           break;
         case PAUSED_FOR_USER:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER);
+          SERIAL_ECHO_MSG(MSG_BUSY_PAUSED_FOR_USER);
           break;
         case PAUSED_FOR_INPUT:
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_INPUT);
+          SERIAL_ECHO_MSG(MSG_BUSY_PAUSED_FOR_INPUT);
           break;
         default:
           break;

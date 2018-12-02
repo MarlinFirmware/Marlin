@@ -25,9 +25,19 @@
 
 constexpr char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
 
+// Delay that ensures heaters and watchdog are kept alive
 void safe_delay(millis_t ms);
 
-#if ENABLED(EEPROM_SETTINGS)
+// A delay to provide brittle hosts time to receive bytes
+inline void serial_delay(const millis_t ms) {
+  #if ENABLED(SERIAL_OVERRUN_PROTECTION)
+    safe_delay(ms);
+  #else
+    UNUSED(ms);
+  #endif
+}
+
+#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
   void crc16(uint16_t *crc, const void * const data, uint16_t cnt);
 #endif
 

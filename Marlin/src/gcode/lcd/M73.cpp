@@ -38,10 +38,8 @@
  *   This has no effect during an SD print job
  */
 void GcodeSuite::M73() {
-  if (!IS_SD_PRINTING() && parser.seen('P')) {
-    progress_bar_percent = parser.value_byte();
-    NOMORE(progress_bar_percent, 100);
-  }
+  if (parser.seen('P') && !IS_SD_PRINTING())
+    ui.set_progress(parser.value_byte());
 }
 
 #endif // ULTRA_LCD && LCD_SET_PROGRESS_MANUALLY

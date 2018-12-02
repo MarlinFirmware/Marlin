@@ -24,12 +24,11 @@
  * ReprapWorld ULTRATRONICS v1.0
  */
 
-#define KNOWN_BOARD
-#define BOARD_NAME "Ultratronics v1.0"
-
 #ifndef ARDUINO_ARCH_SAM
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
+
+#define BOARD_NAME "Ultratronics v1.0"
 
 //
 // Servos
@@ -126,7 +125,7 @@
 #define SPI_FLASH_CS       -1
 
 // SPI for Max6675 or Max31855 Thermocouple
-#define MAX6675_SS         65
+#define MAX6675_SS_PIN     65
 #define MAX31855_SS0       65
 #define MAX31855_SS1       52
 #define MAX31855_SS2       50

@@ -142,7 +142,7 @@ UnwResult UnwStartArm(UnwState * const state) {
 
     /* MRS */
     else if ((instr & 0xFFBF0FFF) == 0xE10F0000) {
-#if defined(UNW_DEBUG)
+#ifdef UNW_DEBUG
       bool R     = (instr & 0x00400000) ? true : false;
 #endif
       uint8_t rd = (instr & 0x0000F000) >> 12;
@@ -154,7 +154,7 @@ UnwResult UnwStartArm(UnwState * const state) {
     }
     /* MSR */
     else if ((instr & 0xFFB0F000) == 0xE120F000) {
-#if defined(UNW_DEBUG)
+#ifdef UNW_DEBUG
       bool R = (instr & 0x00400000) ? true : false;
 
       UnwPrintd2("MSR %s_?, ???", R ? "SPSR" : "CPSR");
@@ -172,7 +172,7 @@ UnwResult UnwStartArm(UnwState * const state) {
     else if (isDataProc(instr)) {
       bool            I = (instr & 0x02000000) ? true : false;
       uint8_t    opcode = (instr & 0x01E00000) >> 21;
-#if defined(UNW_DEBUG)
+#ifdef UNW_DEBUG
       bool            S = (instr & 0x00100000) ? true : false;
 #endif
       uint8_t        rn = (instr & 0x000F0000) >> 16;
@@ -220,7 +220,7 @@ UnwResult UnwStartArm(UnwState * const state) {
         uint8_t  regShift  = (operand2 & 0x0010) ? true : false;
         uint8_t  shiftType = (operand2 & 0x0060) >> 5;
         uint32_t shiftDist;
-#if defined(UNW_DEBUG)
+#ifdef UNW_DEBUG
         const char * const shiftMnu[4] = { "LSL", "LSR", "ASR", "ROR" };
 #endif
         UnwPrintd2("r%d ", rm);
@@ -453,7 +453,7 @@ UnwResult UnwStartArm(UnwState * const state) {
       bool     addrValid = M_IsOriginValid(state->regData[baseReg].o);
       int8_t r;
 
-#if defined(UNW_DEBUG)
+#ifdef UNW_DEBUG
       /* Display the instruction */
       if (L) {
         UnwPrintd6("LDM%c%c r%d%s, {reglist}%s\n", P ? 'E' : 'F', U ? 'D' : 'A', baseReg, W ? "!" : "", S ? "^" : "");

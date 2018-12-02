@@ -26,8 +26,6 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
-#define LCD_HAS_DIRECTIONAL_BUTTONS (BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT))
-
 #if ENABLED(CARTESIO_UI)
 
   #define DOGLCD
@@ -49,10 +47,10 @@
   #define ULTIPANEL
 
   // this helps to implement ADC_KEYPAD menus
+  #define REVERSE_MENU_DIRECTION
   #define ENCODER_PULSES_PER_STEP 1
   #define ENCODER_STEPS_PER_MENU_ITEM 1
   #define ENCODER_FEEDRATE_DEADZONE 2
-  #define REVERSE_MENU_DIRECTION
 
 #elif ENABLED(RADDS_DISPLAY)
   #define ULTIPANEL
@@ -296,91 +294,37 @@
   #define ULTIPANEL
 #endif
 
-#define HAS_GRAPHICAL_LCD ENABLED(DOGLCD)
-
-#if HAS_GRAPHICAL_LCD
-  #ifndef LCD_WIDTH
-    #ifdef LCD_WIDTH_OVERRIDE
-      #define LCD_WIDTH LCD_WIDTH_OVERRIDE
-    #else
-      #define LCD_WIDTH 22
-    #endif
-  #endif
-  #ifndef LCD_HEIGHT
-    #define LCD_HEIGHT 5
-  #endif
-#endif
-
 #if ENABLED(ULTIPANEL)
   #define NEWPANEL  // Disable this if you actually have no click-encoder panel
   #define ULTRA_LCD
-  #ifndef LCD_WIDTH
-    #define LCD_WIDTH 20
-  #endif
-  #ifndef LCD_HEIGHT
-    #define LCD_HEIGHT 4
-  #endif
-#elif ENABLED(ULTRA_LCD)  // no panel but just LCD
-  #ifndef LCD_WIDTH
-    #define LCD_WIDTH 16
-  #endif
-  #ifndef LCD_HEIGHT
-    #define LCD_HEIGHT 2
-  #endif
 #endif
 
 // Aliases for LCD features
 #define HAS_SPI_LCD          ENABLED(ULTRA_LCD)
-#define HAS_CHARACTER_LCD   (ENABLED(ULTRA_LCD) && DISABLED(DOGLCD))
+#define HAS_GRAPHICAL_LCD    ENABLED(DOGLCD)
+#define HAS_CHARACTER_LCD   (HAS_SPI_LCD && !HAS_GRAPHICAL_LCD)
 #define HAS_LCD_MENU        (ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS))
 
+#define HAS_ADC_BUTTONS     ENABLED(ADC_KEYPAD)
+#define HAS_DIGITAL_BUTTONS (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL))
+#define HAS_SHIFT_ENCODER   (!HAS_ADC_BUTTONS && (ENABLED(REPRAPWORLD_KEYPAD) || (HAS_SPI_LCD && DISABLED(NEWPANEL))))
+#define HAS_ENCODER_WHEEL   (!HAS_ADC_BUTTONS && ENABLED(NEWPANEL))
+
+// I2C buttons must be read in the main thread
+#define HAS_SLOW_BUTTONS (ENABLED(LCD_I2C_VIKI) || ENABLED(LCD_I2C_PANELOLU2))
+
 #if HAS_GRAPHICAL_LCD
-  /* Custom characters defined in font Marlin_symbols.fon which was merged to ISO10646-0-3.bdf */
-  // \x00 intentionally skipped to avoid problems in strings
-  #define LCD_STR_REFRESH     "\x01"
-  #define LCD_STR_FOLDER      "\x02"
-  #define LCD_STR_ARROW_RIGHT "\x03"
-  #define LCD_STR_UPLEVEL     "\x04"
-  #define LCD_STR_CLOCK       "\x05"
-  #define LCD_STR_FEEDRATE    "\x06"
-  #define LCD_STR_BEDTEMP     "\x07"
-  #define LCD_STR_THERMOMETER "\x08"
-  #define LCD_STR_DEGREE      "\x09"
-
-  #define LCD_STR_SPECIAL_MAX '\x09'
-  // Maximum here is 0x1F because 0x20 is ' ' (space) and the normal charsets begin.
-  // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
-
-  // Symbol characters
-  #define LCD_STR_FILAM_DIA   "\xf8"
-  #define LCD_STR_FILAM_MUL   "\xa4"
-#else
-  // Custom characters defined in the first 8 characters of the LCD
-  #define LCD_BEDTEMP_CHAR     0x00  // Print only as a char. This will have 'unexpected' results when used in a string!
-  #define LCD_DEGREE_CHAR      0x01
-  #define LCD_STR_THERMOMETER "\x02" // Still used with string concatenation
-  #define LCD_UPLEVEL_CHAR     0x03
-  #define LCD_STR_REFRESH     "\x04"
-  #define LCD_STR_FOLDER      "\x05"
-  #define LCD_FEEDRATE_CHAR    0x06
-  #define LCD_CLOCK_CHAR       0x07
-  #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
-#endif
-
-/**
- * Default LCD contrast for dogm-like LCD displays
- */
-#if HAS_GRAPHICAL_LCD
-
-  #define HAS_LCD_CONTRAST ( \
-      ENABLED(MAKRPANEL) \
-   || ENABLED(CARTESIO_UI) \
-   || ENABLED(VIKI2) \
-   || ENABLED(AZSMZ_12864) \
-   || ENABLED(miniVIKI) \
-   || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+  /**
+   * Default LCD contrast for Graphical LCD displays
+   */
+  #define HAS_LCD_CONTRAST (                \
+       ENABLED(MAKRPANEL)                   \
+    || ENABLED(CARTESIO_UI)                 \
+    || ENABLED(VIKI2)                       \
+    || ENABLED(AZSMZ_12864)                 \
+    || ENABLED(miniVIKI)                    \
+    || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
   )
-
   #if HAS_LCD_CONTRAST
     #ifndef LCD_CONTRAST_MIN
       #define LCD_CONTRAST_MIN 0
@@ -471,11 +415,11 @@
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define XYZE_N (XYZ + E_STEPPERS)
-  #define E_AXIS_N(E) (E_AXIS + E)
+  #define E_AXIS_N(E) (uint8_t(E_AXIS) + E)
 #else
   #undef DISTINCT_E_FACTORS
   #define XYZE_N XYZE
-  #define E_AXIS_N(E) E_AXIS
+  #define E_AXIS_N(E) uint8_t(E_AXIS)
 #endif
 
 /**

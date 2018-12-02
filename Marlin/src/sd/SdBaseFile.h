@@ -108,7 +108,7 @@ static inline uint16_t FAT_YEAR(uint16_t fatDate) { return 1980 + (fatDate >> 9)
  *
  * \return Extracted month [1,12]
  */
-static inline uint8_t FAT_MONTH(uint16_t fatDate) { return (fatDate >> 5) & 0XF; }
+static inline uint8_t FAT_MONTH(uint16_t fatDate) { return (fatDate >> 5) & 0xF; }
 
 /**
  * day part of FAT directory date field

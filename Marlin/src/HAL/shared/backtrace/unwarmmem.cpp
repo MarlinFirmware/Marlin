@@ -90,7 +90,7 @@ bool UnwMemHashWrite(MemData * const memData, uint32_t addr, uint32_t val, bool 
       M_SetIdxUsed(memData->tracked, i);
     }
     else {
-      #if defined(UNW_DEBUG)
+      #ifdef UNW_DEBUG
         memData->v[i] = 0xDEADBEEF;
       #endif
       M_ClrIdxUsed(memData->tracked, i);

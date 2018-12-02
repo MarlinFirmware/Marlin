@@ -118,7 +118,7 @@ static const UnwindCallbacks UnwCallbacks = {
   UnwReadW,
   UnwReadH,
   UnwReadB
-  #if defined(UNW_DEBUG)
+  #ifdef UNW_DEBUG
    ,UnwPrintf
   #endif
 };

@@ -97,8 +97,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" サイコウ") // " Max"
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ファクター") // " Fact"
 #define MSG_AUTOTEMP                        _UxGT("ジドウオンドセイギョ")               // "Autotemp"
-#define MSG_ON                              _UxGT("オン ")                         // "On "
-#define MSG_OFF                             _UxGT("オフ ")                         // "Off"
+#define MSG_LCD_ON                          _UxGT("オン")                         // "On"
+#define MSG_LCD_OFF                         _UxGT("オフ")                         // "Off"
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")

@@ -28,7 +28,7 @@
   #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME         "Einsy Rambo"
+#define BOARD_NAME "Einsy Rambo"
 
 //
 // TMC2130 Configuration_adv defaults for EinsyRambo

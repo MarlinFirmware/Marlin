@@ -221,17 +221,17 @@ void ok_to_send() {
     if (port < 0) return;
   #endif
   if (!send_ok[cmd_queue_index_r]) return;
-  SERIAL_PROTOCOLPGM_P(port, MSG_OK);
+  SERIAL_ECHOPGM_P(port, MSG_OK);
   #if ENABLED(ADVANCED_OK)
     char* p = command_queue[cmd_queue_index_r];
     if (*p == 'N') {
-      SERIAL_PROTOCOL_P(port, ' ');
+      SERIAL_ECHO_P(port, ' ');
       SERIAL_ECHO_P(port, *p++);
       while (NUMERIC_SIGNED(*p))
         SERIAL_ECHO_P(port, *p++);
     }
-    SERIAL_PROTOCOLPGM_P(port, " P"); SERIAL_PROTOCOL_P(port, int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
-    SERIAL_PROTOCOLPGM_P(port, " B"); SERIAL_PROTOCOL_P(port, BUFSIZE - commands_in_queue);
+    SERIAL_ECHOPGM_P(port, " P"); SERIAL_ECHO_P(port, int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
+    SERIAL_ECHOPGM_P(port, " B"); SERIAL_ECHO_P(port, BUFSIZE - commands_in_queue);
   #endif
   SERIAL_EOL_P(port);
 }
@@ -246,15 +246,15 @@ void flush_and_request_resend() {
     if (port < 0) return;
   #endif
   SERIAL_FLUSH_P(port);
-  SERIAL_PROTOCOLPGM_P(port, MSG_RESEND);
-  SERIAL_PROTOCOLLN_P(port, gcode_LastN + 1);
+  SERIAL_ECHOPGM_P(port, MSG_RESEND);
+  SERIAL_ECHOLN_P(port, gcode_LastN + 1);
   ok_to_send();
 }
 
 void gcode_line_error(PGM_P err, uint8_t port) {
   SERIAL_ERROR_START_P(port);
   serialprintPGM_P(port, err);
-  SERIAL_ERRORLN_P(port, gcode_LastN);
+  SERIAL_ECHOLN_P(port, gcode_LastN);
   flush_and_request_resend();
   serial_count[port] = 0;
 }
@@ -503,7 +503,7 @@ static int read_serial(const uint8_t index) {
             break;
           case StreamState::STREAM_COMPLETE:
             stream_state = StreamState::STREAM_RESET;
-            card.binary_mode = false;
+            card.flag.binary_mode = false;
             card.closefile();
             CARD_ECHO_P("echo: ");
             CARD_ECHO_P(card.filename);
@@ -514,7 +514,7 @@ static int read_serial(const uint8_t index) {
             return;
           case StreamState::STREAM_FAILED:
             stream_state = StreamState::STREAM_RESET;
-            card.binary_mode = false;
+            card.flag.binary_mode = false;
             card.closefile();
             card.removeFile(card.filename);
             CARD_ECHOLN_P("echo: File transfer failed");
@@ -549,7 +549,7 @@ inline void get_serial_commands() {
             ;
 
   #if ENABLED(FAST_FILE_TRANSFER)
-    if (card.saving && card.binary_mode) {
+    if (card.flag.saving && card.flag.binary_mode) {
       /**
        * For binary stream file transfer, use serial_line_buffer as the working
        * receive buffer (which limits the packet size to MAX_CMD_SIZE).
@@ -630,7 +630,7 @@ inline void get_serial_commands() {
           gcode_LastN = gcode_N;
         }
         #if ENABLED(SDSUPPORT)
-          else if (card.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
+          else if (card.flag.saving && strcmp(command, "M29") != 0) // No line number with M29 in Pronterface
             return gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM), i);
         #endif
 
@@ -648,7 +648,7 @@ inline void get_serial_commands() {
               #if ENABLED(BEZIER_CURVE_SUPPORT)
                 case 5:
               #endif
-                SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
+                SERIAL_ECHOLNPGM(MSG_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;
             }
@@ -754,7 +754,7 @@ inline void get_serial_commands() {
           if (IS_SD_PRINTING())
             sd_count = 0; // If a sub-file was printing, continue from call point
           else {
-            SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+            SERIAL_ECHOLNPGM(MSG_FILE_PRINTED);
             #if ENABLED(PRINTER_EVENT_LEDS)
               printerEventLEDs.onPrintCompleted();
               #if HAS_RESUME_CONTINUE
@@ -769,10 +769,9 @@ inline void get_serial_commands() {
             #endif // PRINTER_EVENT_LEDS
           }
         }
-        else if (n == -1) {
-          SERIAL_ERROR_START();
-          SERIAL_ECHOLNPGM(MSG_SD_ERR_READ);
-        }
+        else if (n == -1)
+          SERIAL_ERROR_MSG(MSG_SD_ERR_READ);
+
         if (sd_char == '#') stop_buffering = true;
 
         sd_comment_mode = false; // for new command
@@ -809,22 +808,6 @@ inline void get_serial_commands() {
     }
   }
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-
-    inline bool drain_job_recovery_commands() {
-      static uint8_t job_recovery_commands_index = 0; // Resets on reboot
-      if (job_recovery_commands_count) {
-        if (_enqueuecommand(job_recovery_commands[job_recovery_commands_index])) {
-          ++job_recovery_commands_index;
-          if (!--job_recovery_commands_count) job_recovery_phase = JOB_RECOVERY_DONE;
-        }
-        return true;
-      }
-      return false;
-    }
-
-  #endif
-
 #endif // SDSUPPORT
 
 /**
@@ -840,11 +823,6 @@ void get_available_commands() {
 
   get_serial_commands();
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    // Commands for power-loss recovery take precedence
-    if (job_recovery_phase == JOB_RECOVERY_YES && drain_job_recovery_commands()) return;
-  #endif
-
   #if ENABLED(SDSUPPORT)
     get_sdcard_commands();
   #endif
@@ -859,12 +837,12 @@ void advance_command_queue() {
 
   #if ENABLED(SDSUPPORT)
 
-    if (card.saving) {
+    if (card.flag.saving) {
       char* command = command_queue[cmd_queue_index_r];
       if (strstr_P(command, PSTR("M29"))) {
         // M29 closes the file
         card.closefile();
-        SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+        SERIAL_ECHOLNPGM(MSG_FILE_SAVED);
 
         #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
@@ -881,7 +859,7 @@ void advance_command_queue() {
       else {
         // Write the string from the read buffer to SD
         card.write_command(command);
-        if (card.logging)
+        if (card.flag.logging)
           gcode.process_next_command(); // The card is saving because it's logging
         else
           ok_to_send();
@@ -890,7 +868,7 @@ void advance_command_queue() {
     else {
       gcode.process_next_command();
       #if ENABLED(POWER_LOSS_RECOVERY)
-        if (card.cardOK && IS_SD_PRINTING()) save_job_recovery_info();
+        if (IS_SD_PRINTING()) recovery.save();
       #endif
     }
 

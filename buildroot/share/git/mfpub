@@ -97,6 +97,8 @@ fi
 echo
 echo "Generating MarlinDocumentation..."
 
+rm -rf _site
+
 # build the site statically and proof it
 bundle exec jekyll build --profile --trace --no-watch
 bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --check-favicon --check-html --url-swap ".*marlinfw.org/:/"

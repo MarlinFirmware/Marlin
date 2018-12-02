@@ -70,6 +70,9 @@ void plan_arc(
   float r_P = -offset[0], r_Q = -offset[1];
 
   const float radius = HYPOT(r_P, r_Q),
+              #if ENABLED(AUTO_BED_LEVELING_UBL)
+                start_L  = current_position[l_axis],
+              #endif
               center_P = current_position[p_axis] - r_P,
               center_Q = current_position[q_axis] - r_Q,
               rt_X = cart[p_axis] - center_P,
@@ -179,7 +182,11 @@ void plan_arc(
     // Update raw location
     raw[p_axis] = center_P + r_P;
     raw[q_axis] = center_Q + r_Q;
-    raw[l_axis] += linear_per_segment;
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      raw[l_axis] = start_L;
+    #else
+      raw[l_axis] += linear_per_segment;
+    #endif
     raw[E_AXIS] += extruder_per_segment;
 
     clamp_to_software_endstops(raw);
@@ -198,6 +205,9 @@ void plan_arc(
 
   // Ensure last segment arrives at target location.
   COPY(raw, cart);
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    raw[l_axis] = start_L;
+  #endif
 
   #if HAS_LEVELING && !PLANNER_LEVELING
     planner.apply_leveling(raw);
@@ -209,6 +219,9 @@ void plan_arc(
     #endif
   );
 
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    raw[l_axis] = start_L;
+  #endif
   COPY(current_position, raw);
 } // plan_arc
 
@@ -280,10 +293,9 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       #if ENABLED(ARC_P_CIRCLES)
         // P indicates number of circles to do
         int8_t circles_to_do = parser.byteval('P');
-        if (!WITHIN(circles_to_do, 0, 100)) {
-          SERIAL_ERROR_START();
-          SERIAL_ERRORLNPGM(MSG_ERR_ARC_ARGS);
-        }
+        if (!WITHIN(circles_to_do, 0, 100))
+          SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
+
         while (circles_to_do--)
           plan_arc(current_position, arc_offset, clockwise);
       #endif
@@ -292,11 +304,8 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       plan_arc(destination, arc_offset, clockwise);
       reset_stepper_timeout();
     }
-    else {
-      // Bad arguments
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_ERR_ARC_ARGS);
-    }
+    else
+      SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
   }
 }
 

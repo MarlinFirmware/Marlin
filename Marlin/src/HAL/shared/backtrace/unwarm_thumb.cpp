@@ -680,7 +680,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
       uint8_t rs = (instr & 0x0038) >> 3;
       uint8_t rd = (instr & 0x0007);
 
-#if defined(UNW_DEBUG)
+#ifdef UNW_DEBUG
       static const char * const mnu[16] = {
         "AND", "EOR", "LSL", "LSR",
         "ASR", "ADC", "SBC", "ROR",

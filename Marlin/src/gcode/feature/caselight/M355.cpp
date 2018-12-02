@@ -63,7 +63,6 @@ void GcodeSuite::M355() {
       else SERIAL_ECHOLNPAIR("Case light: ", case_light_brightness);
     }
   #else
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_M355_NONE);
+    SERIAL_ERROR_MSG(MSG_ERR_M355_NONE);
   #endif
 }

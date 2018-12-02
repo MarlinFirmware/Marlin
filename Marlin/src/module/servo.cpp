@@ -31,7 +31,10 @@
 #include "servo.h"
 
 HAL_SERVO_LIB servo[NUM_SERVOS];
-uint16_t servo_angles[NUM_SERVOS][2];
+
+#if ENABLED(EDITABLE_SERVO_ANGLES)
+  uint16_t servo_angles[NUM_SERVOS][2];
+#endif
 
 void servo_init() {
   #if NUM_SERVOS >= 1 && HAS_SERVO_0

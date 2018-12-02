@@ -180,8 +180,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 最大")  //" " LCD_STR_THERMOMETER " Max"
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 系數")  //" " LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        _UxGT("自動控溫")  //"Autotemp"
-#define MSG_ON                              _UxGT("開 ")  //"On "
-#define MSG_OFF                             _UxGT("關 ")  //"Off"
+#define MSG_LCD_ON                          _UxGT("開")  //"On"
+#define MSG_LCD_OFF                         _UxGT("關")  //"Off"
 #define MSG_PID_P                           _UxGT("PID-P")  //"PID-P"
 #define MSG_PID_I                           _UxGT("PID-I")  //"PID-I"
 #define MSG_PID_D                           _UxGT("PID-D")  //"PID-D"
@@ -324,7 +324,7 @@
 #define MSG_CASE_LIGHT                      _UxGT("外殼燈") // "Case light"
 #define MSG_CASE_LIGHT_BRIGHTNESS           _UxGT("燈亮度") // "Light BRIGHTNESS"
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("列印計數")  //"Print Count"
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("已完成")  //"Completed"
   #define MSG_INFO_PRINT_TIME               _UxGT("總列印時間")  //"Total print time"

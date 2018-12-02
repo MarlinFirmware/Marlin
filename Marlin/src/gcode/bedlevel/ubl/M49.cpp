@@ -33,7 +33,7 @@
 
 void GcodeSuite::M49() {
   g26_debug_flag ^= true;
-  SERIAL_PROTOCOLPGM("G26 Debug: ");
+  SERIAL_ECHOPGM("G26 Debug: ");
   serialprintPGM(g26_debug_flag ? PSTR("On\n") : PSTR("Off\n"));
 }
 

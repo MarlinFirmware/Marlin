@@ -751,19 +751,19 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#if ENABLED(X_SpreadCycle) || !ENABLED(X_2208)
-  #define DEFAULT_XJERK                 20.0
+#if ENABLED(X_SpreadCycle) || DISABLED(X_2208)
+  #define DEFAULT_XJERK   20.0
 #else
-  #define DEFAULT_XJERK                 10.0
+  #define DEFAULT_XJERK   10.0
 #endif
 
-#if ENABLED(Y_SpreadCycle) || !ENABLED(Y_2208)
-  #define DEFAULT_YJERK                 10.0
+#if ENABLED(Y_SpreadCycle) || DISABLED(Y_2208)
+  #define DEFAULT_YJERK   10.0
 #else
-  #define DEFAULT_YJERK                 5.0
+  #define DEFAULT_YJERK    5.0
 #endif
-#define DEFAULT_ZJERK                  0.4
-#define DEFAULT_EJERK                  5.0
+#define DEFAULT_ZJERK      0.4
+#define DEFAULT_EJERK      5.0
 
 /**
  * S-Curve Acceleration

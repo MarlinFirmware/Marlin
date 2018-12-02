@@ -220,7 +220,7 @@
  * Define one or both of these to override the default 0-255 range.
  */
 #define FAN_MIN_PWM 64
-//#define FAN_MAX_PWM 128
+//#define FAN_MAX_PWM 255
 
 // @section extruder
 
@@ -236,8 +236,14 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN -1
-#define E1_AUTO_FAN_PIN -1
+#if ENABLED(TREX3)
+  #define E0_AUTO_FAN_PIN  6
+  #define E1_AUTO_FAN_PIN  45
+#else
+  #define E0_AUTO_FAN_PIN -1
+  #define E1_AUTO_FAN_PIN -1
+#endif
+
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
 #define E4_AUTO_FAN_PIN -1
@@ -245,7 +251,6 @@
 #define CHAMBER_AUTO_FAN_PIN -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED 255   // 255 == full speed
-
 /**
  * Part-Cooling Fan Multiplexer
  *
@@ -262,7 +267,9 @@
  */
 #define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
-  #define CASE_LIGHT_PIN 8
+  #if DISABLED(TREX3)
+    #define CASE_LIGHT_PIN 8
+  #endif
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 255   // Set default power-up brightness (0-255, requires PWM pin)
@@ -364,7 +371,12 @@
   #define X1_MIN_POS X_MIN_POS     // set minimum to ensure first x-carriage doesn't hit the parked second X-carriage
   #define X1_MAX_POS X_BED_SIZE    // set maximum to ensure first x-carriage doesn't hit the parked second X-carriage
   #define X2_MIN_POS 0     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
-  #define X2_MAX_POS 442    // set maximum to the distance between toolheads when both heads are homed
+  // set maximum to the distance between toolheads when both heads are homed
+  #if ENABLED(TREX3)
+    #define X2_MAX_POS 438.5 
+  #else
+    #define X2_MAX_POS 442 
+  #endif
   #define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
   #define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position
       // However: In this mode the HOTEND_OFFSET_X value for the second extruder provides a software
@@ -485,7 +497,7 @@
 //
 // Use Junction Deviation instead of traditional Jerk Limiting
 //
-//#define JUNCTION_DEVIATION
+#define JUNCTION_DEVIATION
 #if ENABLED(JUNCTION_DEVIATION)
   #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
 #endif
@@ -575,10 +587,10 @@
 #define LCD_INFO_MENU
 
 // Scroll a longer status message into view
-//#define STATUS_MESSAGE_SCROLLING
+#define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
-//#define LCD_DECIMAL_SMALL_XY
+#define LCD_DECIMAL_SMALL_XY
 
 // The timeout (in ms) to return to the status screen from sub-menus
 #define LCD_TIMEOUT_TO_STATUS 15000
@@ -883,10 +895,29 @@
 
 #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_UBL)
   // Override the mesh area if the automatic (max) area is too large
-  //#define MESH_MIN_X MESH_INSET
-  //#define MESH_MIN_Y MESH_INSET
-  //#define MESH_MAX_X X_BED_SIZE - (MESH_INSET)
-  //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
+  #if( (X_PROBE_OFFSET_FROM_EXTRUDER + 10) > 0 )
+    #define MESH_MIN_X (X_PROBE_OFFSET_FROM_EXTRUDER + 5)
+  #else
+   #define MESH_MIN_X 10
+  #endif
+
+  #if( (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - 10) < X_BED_SIZE)
+    #define MESH_MAX_X (X_BED_SIZE + X_PROBE_OFFSET_FROM_EXTRUDER - 5)
+  #else
+      #define MESH_MAX_X (X_BED_SIZE - 10)
+  #endif
+
+  #if ( (Y_PROBE_OFFSET_FROM_EXTRUDER + 10) > 5 )
+    #define MESH_MIN_Y (Y_PROBE_OFFSET_FROM_EXTRUDER + 10)
+  #else
+    #define MESH_MIN_Y 25
+  #endif
+
+  #if( (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER - 10) < Y_BED_SIZE)
+    #define MESH_MAX_Y (Y_BED_SIZE + Y_PROBE_OFFSET_FROM_EXTRUDER - 10)
+  #else
+   #define MESH_MAX_Y (Y_BED_SIZE - 10)
+  #endif
 #endif
 
 /**
@@ -918,7 +949,7 @@
 //
 // G2/G3 Arc Support
 //
-//#define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
+#define ARC_SUPPORT               // Disable this feature to save ~3226 bytes
 #if ENABLED(ARC_SUPPORT)
   #define MM_PER_ARC_SEGMENT  1   // Length of each arc segment
   #define N_ARC_CORRECTION   25   // Number of intertpolated segments between corrections
@@ -927,7 +958,7 @@
 #endif
 
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
-//#define BEZIER_CURVE_SUPPORT
+#define BEZIER_CURVE_SUPPORT
 
 // G38.2 and G38.3 Probe Target
 // Set MULTIPLE_PROBING if you want G38 to double touch
@@ -1162,7 +1193,7 @@
 
                                                   // Filament Unload does a Retract, Delay, and Purge first:
   #define FILAMENT_UNLOAD_RETRACT_LENGTH       4  // (mm) Unload initial retract length.
-  #define FILAMENT_UNLOAD_DELAY             5000  // (ms) Delay for the filament to cool after retract.
+  #define FILAMENT_UNLOAD_DELAY             2000  // (ms) Delay for the filament to cool after retract.
   #define FILAMENT_UNLOAD_PURGE_LENGTH         0  // (mm) An unretract is done, then this length is purged.
   #define PAUSE_PARK_NOZZLE_TIMEOUT           45  // (seconds) Time limit before the nozzle is turned off for safety.
   #define FILAMENT_CHANGE_ALERT_BEEPS          1  // Number of alert beeps to play when a response is needed.
@@ -1550,17 +1581,19 @@
  *
  * See http://marlinfw.org/docs/configuration/laser_spindle.html for more config details.
  */
-//#define SPINDLE_LASER_ENABLE
+#if ENABLED(TREX3)
+  #define SPINDLE_LASER_ENABLE
+#endif
 #if ENABLED(SPINDLE_LASER_ENABLE)
 
-  #define SPINDLE_LASER_ENABLE_INVERT   false  // set to "true" if the on/off function is reversed
-  #define SPINDLE_LASER_PWM             true   // set to true if your controller supports setting the speed/power
+  #define SPINDLE_LASER_ENABLE_INVERT   true  // set to "true" if the on/off function is reversed
+  #define SPINDLE_LASER_PWM             false   // set to true if your controller supports setting the speed/power
   #define SPINDLE_LASER_PWM_INVERT      true   // set to "true" if the speed/power goes up when you want it to go slower
-  #define SPINDLE_LASER_POWERUP_DELAY   5000   // delay in milliseconds to allow the spindle/laser to come up to speed/power
-  #define SPINDLE_LASER_POWERDOWN_DELAY 5000   // delay in milliseconds to allow the spindle to stop
-  #define SPINDLE_DIR_CHANGE            true   // set to true if your spindle controller supports changing spindle direction
+  #define SPINDLE_LASER_POWERUP_DELAY   1   // delay in milliseconds to allow the spindle/laser to come up to speed/power
+  #define SPINDLE_LASER_POWERDOWN_DELAY 1   // delay in milliseconds to allow the spindle to stop
+  #define SPINDLE_DIR_CHANGE            false   // set to true if your spindle controller supports changing spindle direction
   #define SPINDLE_INVERT_DIR            false
-  #define SPINDLE_STOP_ON_DIR_CHANGE    true   // set to true if Marlin should stop the spindle before changing rotation direction
+  #define SPINDLE_STOP_ON_DIR_CHANGE    false   // set to true if Marlin should stop the spindle before changing rotation direction
 
   /**
    *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
@@ -1582,7 +1615,7 @@
   //#define SPEED_POWER_MAX      100      // 0-100%
 #endif
 
-#if(DISABLED(FilamentSensor))
+#if DISABLED(FilamentSensor) && DISABLED(TREX3)
   #define FAN_AS_LASER
 #endif
 #if ENABLED(FAN_AS_LASER)
@@ -1635,7 +1668,7 @@
 /**
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
-//#define PINS_DEBUGGING
+#define PINS_DEBUGGING
 
 /**
  * Auto-report temperatures with M155 S<seconds>
@@ -1723,10 +1756,10 @@
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   #define USER_SCRIPT_RETURN  // Return to status screen after a script
 
-  #define USER_DESC_1 "UBL Commission Step 1"
+  #define USER_DESC_1 "UBL Commission 1"
   #define USER_GCODE_1 "M502 \n M500 \n M501 \n T0 \n M190 S75 \n M106 S128 \n M104 S225 \n G28 \n G29 P1 \n G29 S1 \n M117 Run Step 2 \n"
 
-  #define USER_DESC_2 "UBL Commission Step 2"
+  #define USER_DESC_2 "UBL Commission 2"
   #define USER_GCODE_2 "G29 S1 \n G29 S0 \n G29 F 10.0 \n G29 A \n M500 \n G28 \n G29 L1 \n T0 \n M106 S128 \n M109 S225 \n G1 X150 Y 150 \n G1 Z0 \n M117 Set Z Offset \n"
 
   #define USER_DESC_3 "Prep for Z Adjust"

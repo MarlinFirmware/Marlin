@@ -45,6 +45,7 @@
 
 #if ENABLED(MALYAN_LCD)
 
+#include "ultralcd.h"
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/stepper.h"
@@ -277,7 +278,7 @@ void process_lcd_p_command(const char* command) {
         // There may be a difference in how V1 and V2 LCDs handle subdirectory
         // prints. Investigate more. This matches the V1 motion controller actions
         // but the V2 LCD switches to "print" mode on {SYS:DIR} response.
-        if (card.filenameIsDir) {
+        if (card.flag.filenameIsDir) {
           card.chdir(card.filename);
           write_to_lcd_P(PSTR("{SYS:DIR}"));
         }
@@ -329,7 +330,7 @@ void process_lcd_s_command(const char* command) {
 
     case 'L': {
       #if ENABLED(SDSUPPORT)
-        if (!card.cardOK) card.initsd();
+        if (!card.flag.cardOK) card.initsd();
 
         // A more efficient way to do this would be to
         // implement a callback in the ls_SerialPrint code, but
@@ -341,7 +342,7 @@ void process_lcd_s_command(const char* command) {
         uint16_t file_count = card.get_num_Files();
         for (uint16_t i = 0; i < file_count; i++) {
           card.getfilename(i);
-          sprintf_P(message_buffer, card.filenameIsDir ? PSTR("{DIR:%s}") : PSTR("{FILE:%s}"), card.longest_filename());
+          sprintf_P(message_buffer, card.flag.filenameIsDir ? PSTR("{DIR:%s}") : PSTR("{FILE:%s}"), card.longest_filename());
           write_to_lcd(message_buffer);
         }
 
@@ -417,7 +418,7 @@ void update_usb_status(const bool forceUpdate) {
  * The optimize attribute fixes a register Compile
  * error for amtel.
  */
-void lcd_update() {
+void MarlinUI::update() {
   static char inbound_buffer[MAX_CURLY_COMMAND];
 
   // First report USB status.
@@ -461,7 +462,7 @@ void lcd_update() {
  * it and translate into gcode, which then gets injected into
  * the command queue where possible.
  */
-void lcd_init() {
+void MarlinUI::init() {
   inbound_count = 0;
   LCD_SERIAL.begin(500000);
 
@@ -479,10 +480,10 @@ void lcd_init() {
 /**
  * Set an alert.
  */
-void lcd_setalertstatusPGM(PGM_P message) {
-  char message_buffer[MAX_CURLY_COMMAND];
-  sprintf_P(message_buffer, PSTR("{E:%s}"), message);
-  write_to_lcd(message_buffer);
+void MarlinUI::set_alert_status_P(PGM_P const message) {
+  write_to_lcd_P(PSTR("{E:"));
+  write_to_lcd_P(message);
+  write_to_lcd_P("}");
 }
 
 #endif // MALYAN_LCD

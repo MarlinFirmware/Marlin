@@ -288,7 +288,7 @@ class I2CPositionEncodersMgr {
       CHECK_IDX();
       encoders[idx].set_ec_threshold(newThreshold);
       SERIAL_ECHOPAIR("Error correct threshold for ", axis_codes[axis]);
-      SERIAL_ECHOPAIR_F(" axis set to ", newThreshold);
+      SERIAL_ECHOPAIR(" axis set to ", FIXFLOAT(newThreshold));
       SERIAL_ECHOLNPGM("mm.");
     }
 
@@ -296,7 +296,7 @@ class I2CPositionEncodersMgr {
       CHECK_IDX();
       const float threshold = encoders[idx].get_ec_threshold();
       SERIAL_ECHOPAIR("Error correct threshold for ", axis_codes[axis]);
-      SERIAL_ECHOPAIR_F(" axis is ", threshold);
+      SERIAL_ECHOPAIR(" axis is ", FIXFLOAT(threshold));
       SERIAL_ECHOLNPGM("mm.");
     }
 

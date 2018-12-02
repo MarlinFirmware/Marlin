@@ -26,8 +26,8 @@
 
 //#define X_2208
 //#define X_Spreadcycle
-#define Y_2208 // Highly recommended as large prints with high mass can cause layer shifts with stealthchop at high speed
-#define Y_Spreadcycle
+//#define Y_2208 // Highly recommended as large prints with high mass can cause layer shifts with stealthchop at high speed
+//#define Y_Spreadcycle
 //#define Z_2208 // NOT Recommended! Dual stepper current draw is above the recommended limit for this driver
 //#define Y_Spreadcycle
 //#define E_2208 // Not Recommended! Stealthchop mode faults with linear advance
@@ -40,7 +40,7 @@
 /*
  * Enables a filament sensor plugged into the laser pin. Disables the laser
  */
-#define FilamentSensor // Standard older TM3D runout sensor
+//#define FilamentSensor // Standard older TM3D runout sensor
 //#define lerdgeFilSensor // Newer inverted logic TM3D Runout Sensor
 
 
@@ -176,7 +176,11 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "TM3D T-REX 2+"
+#if ENABLED(TREX3)
+  #define CUSTOM_MACHINE_NAME "TM3D T-REX 3"
+#else
+  #define CUSTOM_MACHINE_NAME "TM3D T-REX 2+"
+#endif
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -278,6 +282,11 @@
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
+  #if ENABLED(TREX3)
+    #define HOTEND_OFFSET_X {0.0, 438.5} // (mm) relative X-offset for each nozzle
+  #else
+    #define HOTEND_OFFSET_X {0.0, 442.0} // (mm) relative X-offset for each nozzle
+  #endif
 //#define HOTEND_OFFSET_X {0.0, 20.00} // (mm) relative X-offset for each nozzle
 //#define HOTEND_OFFSET_Y {0.0, 5.00}  // (mm) relative Y-offset for each nozzle
 //#define HOTEND_OFFSET_Z {0.0, 0.00}  // (mm) relative Z-offset for each nozzle
@@ -702,19 +711,31 @@
  */
 
 
- #if(ENABLED(Y_2208))
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1600, 93 }
+#if(ENABLED(Y_2208))
+  #define Y_STEPSMM 80
 #else
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 160, 1600, 93 }
+  #define Y_STEPSMM 160
 #endif
 
+#if(ENABLED(Z_2208))
+  #define Z_STEPSMM 800
+#else
+  #define Z_STEPSMM 1600
+#endif
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, Y_STEPSMM, Z_STEPSMM, 93 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3[, E4[, E5]]]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 250, 150, 5, 25 }
+#if ENABLED(Y_2208) && DISABLED(Y_Spreadcycle)
+  #define Y_MAXFEED 100
+#else
+  #define Y_MAXFEED 150
+#endif
+#define DEFAULT_MAX_FEEDRATE          { 250, Y_MAXFEED, 5, 25 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -861,12 +882,18 @@
  *      O-- FRONT --+
  *    (0,0)
  */
-#define X_PROBE_OFFSET_FROM_EXTRUDER -7  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 29  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -1.5   // Z offset: -below +above  [the nozzle]
 
+#if ENABLED(TREX3)
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -3      // X offset: -left  +right  [of the nozzle]
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 31      // Y offset: -front +behind [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.25   // Z offset: -below +above  [the nozzle]
+#else
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -7  // X offset: -left  +right  [of the nozzle]
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 29  // Y offset: -front +behind [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.5   // Z offset: -below +above  [the nozzle]
+#endif
 // Certain types of probes need to stay away from edges
-#define MIN_PROBE_EDGE 10
+#define MIN_PROBE_EDGE 3
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
@@ -899,7 +926,7 @@
 #define Z_CLEARANCE_DEPLOY_PROBE   5 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
-//#define Z_AFTER_PROBING           5 // Z position after probing is done
+#define Z_AFTER_PROBING           5 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -3 // Farthest distance below the trigger-point to go before stopping
 
@@ -952,12 +979,12 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#if(ENABLED(X_2208))
+#if ENABLED(X_2208)
   #define INVERT_X_DIR true
 #else
   #define INVERT_X_DIR false
 #endif
-#if(ENABLED(Y_2208))
+#if ENABLED(Y_2208)
   #define INVERT_Y_DIR true
 #else
   #define INVERT_Y_DIR false
@@ -1052,7 +1079,7 @@
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
- #if(ENABLED(FilamentSensor))
+ #if ENABLED(FilamentSensor)
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -1061,14 +1088,16 @@
  #else
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
  #endif
- #if ENABLED(lerdgeFilSensor)
+ #if ENABLED(lerdgeFilSensor) || ENABLED(TREX3)
    #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
  #else
    #define FIL_RUNOUT_INVERTING true // set to true to invert the logic of the sensor.
  #endif
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
-  #define FIL_RUNOUT_PIN 4
+  #if DISABLED(TREX3)
+    #define FIL_RUNOUT_PIN 4
+  #endif
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 
   // After a runout is detected, continue printing this length of filament
@@ -1150,8 +1179,8 @@
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
   // contours of the bed more closely than edge-to-edge straight moves.
-  #define SEGMENT_LEVELED_MOVES
-  #define LEVELED_SEGMENT_LENGTH 5.0 // (mm) Length of all segments (except the last one)
+  //#define SEGMENT_LEVELED_MOVES
+  //#define LEVELED_SEGMENT_LENGTH 5.0 // (mm) Length of all segments (except the last one)
 
   /**
    * Enable the G26 Mesh Validation Pattern tool.
@@ -1207,7 +1236,7 @@
 
   #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 30              // Set Mesh bounds as an inset region of the bed
+  #define MESH_INSET 5              // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 15      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
@@ -1236,12 +1265,12 @@
  * Override if the automatically selected points are inadequate.
  */
 #if ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
-  #define PROBE_PT_1_X 30
+  #define PROBE_PT_1_X 40
   #define PROBE_PT_1_Y 365
-  #define PROBE_PT_2_X 30
-  #define PROBE_PT_2_Y 30
+  #define PROBE_PT_2_X 40
+  #define PROBE_PT_2_Y 40
   #define PROBE_PT_3_X 365
-  #define PROBE_PT_3_Y 30
+  #define PROBE_PT_3_Y 40
 #endif
 
 /**

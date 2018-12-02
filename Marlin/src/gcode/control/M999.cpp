@@ -38,7 +38,7 @@
  */
 void GcodeSuite::M999() {
   Running = true;
-  lcd_reset_alert_level();
+  ui.reset_alert_level();
 
   if (parser.boolval('S')) return;
 
