@@ -103,8 +103,7 @@ void dac_current_set_percents(const uint8_t pct[XYZE]) {
 void dac_print_values() {
   if (!dac_present) return;
 
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPGM("Stepper current values in % (Amps):");
+  SERIAL_ECHO_MSG("Stepper current values in % (Amps):");
   SERIAL_ECHO_START();
   SERIAL_ECHOPAIR(" X:",  dac_perc(X_AXIS));
   SERIAL_ECHOPAIR(" (",   dac_amps(X_AXIS));

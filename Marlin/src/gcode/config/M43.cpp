@@ -89,22 +89,20 @@ inline void toggle_pins() {
 inline void servo_probe_test() {
   #if !(NUM_SERVOS > 0 && HAS_SERVO_0)
 
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM("SERVO not setup");
+    SERIAL_ERROR_MSG("SERVO not setup");
 
   #elif !HAS_Z_SERVO_PROBE
 
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM("Z_PROBE_SERVO_NR not setup");
+    SERIAL_ERROR_MSG("Z_PROBE_SERVO_NR not setup");
 
   #else // HAS_Z_SERVO_PROBE
 
     const uint8_t probe_index = parser.byteval('P', Z_PROBE_SERVO_NR);
 
-    SERIAL_PROTOCOLLNPGM("Servo probe test");
-    SERIAL_PROTOCOLLNPAIR(".  using index:  ", probe_index);
-    SERIAL_PROTOCOLLNPAIR(".  deploy angle: ", servo_angles[probe_index][0]);
-    SERIAL_PROTOCOLLNPAIR(".  stow angle:   ", servo_angles[probe_index][1]);
+    SERIAL_ECHOLNPGM("Servo probe test");
+    SERIAL_ECHOLNPAIR(".  using index:  ", probe_index);
+    SERIAL_ECHOLNPAIR(".  deploy angle: ", servo_angles[probe_index][0]);
+    SERIAL_ECHOLNPAIR(".  stow angle:   ", servo_angles[probe_index][1]);
 
     bool probe_inverting;
 
@@ -112,14 +110,14 @@ inline void servo_probe_test() {
 
       #define PROBE_TEST_PIN Z_MIN_PIN
 
-      SERIAL_PROTOCOLLNPAIR(". probe uses Z_MIN pin: ", PROBE_TEST_PIN);
-      SERIAL_PROTOCOLLNPGM(". uses Z_MIN_ENDSTOP_INVERTING (ignores Z_MIN_PROBE_ENDSTOP_INVERTING)");
-      SERIAL_PROTOCOLPGM(". Z_MIN_ENDSTOP_INVERTING: ");
+      SERIAL_ECHOLNPAIR(". probe uses Z_MIN pin: ", PROBE_TEST_PIN);
+      SERIAL_ECHOLNPGM(". uses Z_MIN_ENDSTOP_INVERTING (ignores Z_MIN_PROBE_ENDSTOP_INVERTING)");
+      SERIAL_ECHOPGM(". Z_MIN_ENDSTOP_INVERTING: ");
 
       #if Z_MIN_ENDSTOP_INVERTING
-        SERIAL_PROTOCOLLNPGM("true");
+        SERIAL_ECHOLNPGM("true");
       #else
-        SERIAL_PROTOCOLLNPGM("false");
+        SERIAL_ECHOLNPGM("false");
       #endif
 
       probe_inverting = Z_MIN_ENDSTOP_INVERTING;
@@ -127,21 +125,21 @@ inline void servo_probe_test() {
     #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
 
       #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
-      SERIAL_PROTOCOLLNPAIR(". probe uses Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
-      SERIAL_PROTOCOLLNPGM(". uses Z_MIN_PROBE_ENDSTOP_INVERTING (ignores Z_MIN_ENDSTOP_INVERTING)");
-      SERIAL_PROTOCOLPGM(". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
+      SERIAL_ECHOLNPAIR(". probe uses Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
+      SERIAL_ECHOLNPGM(". uses Z_MIN_PROBE_ENDSTOP_INVERTING (ignores Z_MIN_ENDSTOP_INVERTING)");
+      SERIAL_ECHOPGM(". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
 
       #if Z_MIN_PROBE_ENDSTOP_INVERTING
-        SERIAL_PROTOCOLLNPGM("true");
+        SERIAL_ECHOLNPGM("true");
       #else
-        SERIAL_PROTOCOLLNPGM("false");
+        SERIAL_ECHOLNPGM("false");
       #endif
 
       probe_inverting = Z_MIN_PROBE_ENDSTOP_INVERTING;
 
     #endif
 
-    SERIAL_PROTOCOLLNPGM(". deploy & stow 4 times");
+    SERIAL_ECHOLNPGM(". deploy & stow 4 times");
     SET_INPUT_PULLUP(PROBE_TEST_PIN);
     uint8_t i = 0;
     bool deploy_state, stow_state;
@@ -153,26 +151,26 @@ inline void servo_probe_test() {
       safe_delay(500);
       stow_state = READ(PROBE_TEST_PIN);
     } while (++i < 4);
-    if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
+    if (probe_inverting != deploy_state) SERIAL_ECHOLNPGM("WARNING - INVERTING setting probably backwards");
 
     if (deploy_state != stow_state) {
-      SERIAL_PROTOCOLLNPGM("BLTouch clone detected");
+      SERIAL_ECHOLNPGM("BLTouch clone detected");
       if (deploy_state) {
-        SERIAL_PROTOCOLLNPGM(".  DEPLOYED state: HIGH (logic 1)");
-        SERIAL_PROTOCOLLNPGM(".  STOWED (triggered) state: LOW (logic 0)");
+        SERIAL_ECHOLNPGM(".  DEPLOYED state: HIGH (logic 1)");
+        SERIAL_ECHOLNPGM(".  STOWED (triggered) state: LOW (logic 0)");
       }
       else {
-        SERIAL_PROTOCOLLNPGM(".  DEPLOYED state: LOW (logic 0)");
-        SERIAL_PROTOCOLLNPGM(".  STOWED (triggered) state: HIGH (logic 1)");
+        SERIAL_ECHOLNPGM(".  DEPLOYED state: LOW (logic 0)");
+        SERIAL_ECHOLNPGM(".  STOWED (triggered) state: HIGH (logic 1)");
       }
       #if ENABLED(BLTOUCH)
-        SERIAL_PROTOCOLLNPGM("ERROR: BLTOUCH enabled - set this device up as a Z Servo Probe with inverting as true.");
+        SERIAL_ECHOLNPGM("ERROR: BLTOUCH enabled - set this device up as a Z Servo Probe with inverting as true.");
       #endif
     }
     else {                                           // measure active signal length
       MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][0]); // Deploy
       safe_delay(500);
-      SERIAL_PROTOCOLLNPGM("please trigger probe");
+      SERIAL_ECHOLNPGM("please trigger probe");
       uint16_t probe_counter = 0;
 
       // Allow 30 seconds max for operator to trigger probe
@@ -188,11 +186,11 @@ inline void servo_probe_test() {
             safe_delay(2);
 
           if (probe_counter == 50)
-            SERIAL_PROTOCOLLNPGM("Z Servo Probe detected"); // >= 100mS active time
+            SERIAL_ECHOLNPGM("Z Servo Probe detected"); // >= 100mS active time
           else if (probe_counter >= 2)
-            SERIAL_PROTOCOLLNPAIR("BLTouch compatible probe detected - pulse width (+/- 4mS): ", probe_counter * 2); // allow 4 - 100mS pulse
+            SERIAL_ECHOLNPAIR("BLTouch compatible probe detected - pulse width (+/- 4mS): ", probe_counter * 2); // allow 4 - 100mS pulse
           else
-            SERIAL_PROTOCOLLNPGM("noise detected - please re-run test"); // less than 2mS pulse
+            SERIAL_ECHOLNPGM("noise detected - please re-run test"); // less than 2mS pulse
 
           MOVE_SERVO(probe_index, servo_angles[Z_PROBE_SERVO_NR][1]); // Stow
 
@@ -200,7 +198,7 @@ inline void servo_probe_test() {
 
       } // for loop waiting for trigger
 
-      if (probe_counter == 0) SERIAL_PROTOCOLLNPGM("trigger not detected");
+      if (probe_counter == 0) SERIAL_ECHOLNPGM("trigger not detected");
 
     } // measure active signal length
 
@@ -245,9 +243,9 @@ void GcodeSuite::M43() {
   // Enable or disable endstop monitoring
   if (parser.seen('E')) {
     endstops.monitor_flag = parser.value_bool();
-    SERIAL_PROTOCOLPGM("endstop monitor ");
+    SERIAL_ECHOPGM("endstop monitor ");
     serialprintPGM(endstops.monitor_flag ? PSTR("en") : PSTR("dis"));
-    SERIAL_PROTOCOLLNPGM("abled");
+    SERIAL_ECHOLNPGM("abled");
     return;
   }
 
@@ -266,7 +264,7 @@ void GcodeSuite::M43() {
 
   // Watch until click, M108, or reset
   if (parser.boolval('W')) {
-    SERIAL_PROTOCOLLNPGM("Watching pins");
+    SERIAL_ECHOLNPGM("Watching pins");
 
     #ifdef ARDUINO_ARCH_SAM
       NOLESS(first_pin, 2);  // don't hijack the UART pins

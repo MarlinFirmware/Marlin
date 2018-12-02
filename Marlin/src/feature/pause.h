@@ -92,4 +92,4 @@ bool load_filament(const float &slow_load_length=0, const float &fast_load_lengt
 
 bool unload_filament(const float &unload_length, const bool show_lcd=false, const AdvancedPauseMode mode=ADVANCED_PAUSE_MODE_PAUSE_PRINT);
 
-#endif //ADVANCED_PAUSE_FEATURE
+#endif // ADVANCED_PAUSE_FEATURE

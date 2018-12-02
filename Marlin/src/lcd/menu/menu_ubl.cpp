@@ -296,7 +296,7 @@ void _menu_ubl_fillin() {
 
 void _lcd_ubl_invalidate() {
   ubl.invalidate();
-  SERIAL_PROTOCOLLNPGM("Mesh invalidated.");
+  SERIAL_ECHOLNPGM("Mesh invalidated.");
 }
 
 /**

@@ -69,8 +69,7 @@ void GcodeSuite::M428() {
     if (!WITHIN(diff[i], -20, 20) && home_dir((AxisEnum)i) > 0)
       diff[i] = -current_position[i];
     if (!WITHIN(diff[i], -20, 20)) {
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
+      SERIAL_ERROR_MSG(MSG_ERR_M428_TOO_FAR);
       LCD_ALERTMESSAGEPGM("Err: Too far!");
       BUZZ(200, 40);
       return;

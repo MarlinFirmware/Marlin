@@ -221,17 +221,17 @@ void ok_to_send() {
     if (port < 0) return;
   #endif
   if (!send_ok[cmd_queue_index_r]) return;
-  SERIAL_PROTOCOLPGM_P(port, MSG_OK);
+  SERIAL_ECHOPGM_P(port, MSG_OK);
   #if ENABLED(ADVANCED_OK)
     char* p = command_queue[cmd_queue_index_r];
     if (*p == 'N') {
-      SERIAL_PROTOCOL_P(port, ' ');
+      SERIAL_ECHO_P(port, ' ');
       SERIAL_ECHO_P(port, *p++);
       while (NUMERIC_SIGNED(*p))
         SERIAL_ECHO_P(port, *p++);
     }
-    SERIAL_PROTOCOLPGM_P(port, " P"); SERIAL_PROTOCOL_P(port, int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
-    SERIAL_PROTOCOLPGM_P(port, " B"); SERIAL_PROTOCOL_P(port, BUFSIZE - commands_in_queue);
+    SERIAL_ECHOPGM_P(port, " P"); SERIAL_ECHO_P(port, int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
+    SERIAL_ECHOPGM_P(port, " B"); SERIAL_ECHO_P(port, BUFSIZE - commands_in_queue);
   #endif
   SERIAL_EOL_P(port);
 }
@@ -246,15 +246,15 @@ void flush_and_request_resend() {
     if (port < 0) return;
   #endif
   SERIAL_FLUSH_P(port);
-  SERIAL_PROTOCOLPGM_P(port, MSG_RESEND);
-  SERIAL_PROTOCOLLN_P(port, gcode_LastN + 1);
+  SERIAL_ECHOPGM_P(port, MSG_RESEND);
+  SERIAL_ECHOLN_P(port, gcode_LastN + 1);
   ok_to_send();
 }
 
 void gcode_line_error(PGM_P err, uint8_t port) {
   SERIAL_ERROR_START_P(port);
   serialprintPGM_P(port, err);
-  SERIAL_ERRORLN_P(port, gcode_LastN);
+  SERIAL_ECHOLN_P(port, gcode_LastN);
   flush_and_request_resend();
   serial_count[port] = 0;
 }
@@ -648,7 +648,7 @@ inline void get_serial_commands() {
               #if ENABLED(BEZIER_CURVE_SUPPORT)
                 case 5:
               #endif
-                SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
+                SERIAL_ECHOLNPGM(MSG_ERR_STOPPED);
                 LCD_MESSAGEPGM(MSG_STOPPED);
                 break;
             }
@@ -754,7 +754,7 @@ inline void get_serial_commands() {
           if (IS_SD_PRINTING())
             sd_count = 0; // If a sub-file was printing, continue from call point
           else {
-            SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+            SERIAL_ECHOLNPGM(MSG_FILE_PRINTED);
             #if ENABLED(PRINTER_EVENT_LEDS)
               printerEventLEDs.onPrintCompleted();
               #if HAS_RESUME_CONTINUE
@@ -769,10 +769,9 @@ inline void get_serial_commands() {
             #endif // PRINTER_EVENT_LEDS
           }
         }
-        else if (n == -1) {
-          SERIAL_ERROR_START();
-          SERIAL_ECHOLNPGM(MSG_SD_ERR_READ);
-        }
+        else if (n == -1)
+          SERIAL_ERROR_MSG(MSG_SD_ERR_READ);
+
         if (sd_char == '#') stop_buffering = true;
 
         sd_comment_mode = false; // for new command
@@ -843,7 +842,7 @@ void advance_command_queue() {
       if (strstr_P(command, PSTR("M29"))) {
         // M29 closes the file
         card.closefile();
-        SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+        SERIAL_ECHOLNPGM(MSG_FILE_SAVED);
 
         #if !defined(__AVR__) || !defined(USBCON)
           #if ENABLED(SERIAL_STATS_DROPPED_RX)

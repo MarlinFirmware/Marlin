@@ -277,7 +277,7 @@ void PrintJobRecovery::resume() {
   }
 
   // Restore print cooling fan speeds
-  for (uint8_t i = 0; i < FAN_COUNT; i++) {
+  FANS_LOOP(i) {
     uint8_t f = info.fan_speed[i];
     if (f) {
       sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);

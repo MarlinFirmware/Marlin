@@ -175,13 +175,9 @@ typedef struct {
         min_travel_feedrate_mm_s;               // (mm/s) M205 T - Minimum travel feedrate
 } planner_settings_t;
 
-#ifndef XY_SKEW_FACTOR
+#if DISABLED(SKEW_CORRECTION)
   #define XY_SKEW_FACTOR 0
-#endif
-#ifndef XZ_SKEW_FACTOR
   #define XZ_SKEW_FACTOR 0
-#endif
-#ifndef YZ_SKEW_FACTOR
   #define YZ_SKEW_FACTOR 0
 #endif
 

@@ -45,12 +45,7 @@
     #if ENABLED(POWER_LOSS_RECOVERY)
       if (recovery.enabled) recovery.save(true, false);
     #endif
-    card.pauseSDPrint();
-    print_job_timer.pause();
-    #if ENABLED(PARK_HEAD_ON_PAUSE)
-      enqueue_and_echo_commands_P(PSTR("M125"));
-    #endif
-    ui.reset_status();
+    enqueue_and_echo_commands_P(PSTR("M25"));
   }
 
   void lcd_sdcard_resume() {
@@ -59,8 +54,8 @@
     #else
       card.startFileprint();
       print_job_timer.start();
+      ui.reset_status();
     #endif
-    ui.reset_status();
   }
 
   void lcd_sdcard_stop() {
@@ -103,7 +98,7 @@ void menu_main() {
       }
     }
     else {
-      MENU_ITEM(submenu, MSG_NO_CARD, menu_sdcard);
+      MENU_ITEM(function, MSG_NO_CARD, NULL);
       #if !PIN_EXISTS(SD_DETECT)
         MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
       #endif

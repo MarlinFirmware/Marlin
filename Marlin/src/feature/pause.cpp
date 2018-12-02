@@ -45,10 +45,7 @@
   #include "../feature/runout.h"
 #endif
 
-#if HAS_LCD_MENU
-  #include "../lcd/ultralcd.h"
-#endif
-
+#include "../lcd/ultralcd.h"
 #include "../libs/buzzer.h"
 #include "../libs/nozzle.h"
 #include "pause.h"
@@ -96,8 +93,7 @@ static bool ensure_safe_temperature(const AdvancedPauseMode mode=ADVANCED_PAUSE_
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder)) {
-      SERIAL_ERROR_START();
-      SERIAL_ERRORLNPGM(MSG_ERR_HOTEND_TOO_COLD);
+      SERIAL_ERROR_MSG(MSG_ERR_HOTEND_TOO_COLD);
       return false;
     }
   #endif
@@ -145,8 +141,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     #if HAS_LCD_MENU
       if (show_lcd) lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INSERT, mode);
     #endif
-    SERIAL_ECHO_START();
-    SERIAL_ECHOLNPGM(MSG_FILAMENT_CHANGE_INSERT);
+    SERIAL_ECHO_MSG(MSG_FILAMENT_CHANGE_INSERT);
 
     #if HAS_BUZZER
       filament_change_beep(max_beep_count, true);
@@ -339,8 +334,7 @@ bool pause_print(const float &retract, const point_t &park_point, const float &u
   #endif
 
   if (!DEBUGGING(DRYRUN) && unload_length && thermalManager.targetTooColdToExtrude(active_extruder)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_HOTEND_TOO_COLD);
+    SERIAL_ERROR_MSG(MSG_ERR_HOTEND_TOO_COLD);
 
     #if HAS_LCD_MENU
       if (show_lcd) { // Show status screen
@@ -467,8 +461,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       #if HAS_LCD_MENU
         lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_HEAT);
       #endif
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM(_PMSG(MSG_FILAMENT_CHANGE_HEAT));
+      SERIAL_ECHO_MSG(_PMSG(MSG_FILAMENT_CHANGE_HEAT));
 
       // Wait for LCD click or M108
       while (wait_for_user) idle(true);
@@ -531,7 +524,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   SERIAL_ECHOPAIR("\nextruder_duplication_enabled:", extruder_duplication_enabled);
   SERIAL_ECHOPAIR("\nactive_extruder:", active_extruder);
   SERIAL_ECHOPGM("\n\n");
-  */
+  //*/
 
   if (!did_pause_print) return;
 
@@ -590,9 +583,10 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     }
   #endif
 
-  #if ENABLED(ULTRA_LCD)
-    ui.reset_status();
-  #endif
+  // Resume the print job timer if it was running
+  if (print_job_timer.isPaused()) print_job_timer.start();
+
+  ui.reset_status();
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

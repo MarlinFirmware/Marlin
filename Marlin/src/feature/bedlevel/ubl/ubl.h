@@ -308,19 +308,13 @@ class unified_bed_leveling {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(MESH_ADJUST)) {
           SERIAL_ECHOPAIR(" raw get_z_correction(", rx0);
-          SERIAL_CHAR(',');
-          SERIAL_ECHO(ry0);
-          SERIAL_ECHOPGM(") = ");
-          SERIAL_ECHO_F(z0, 6);
+          SERIAL_CHAR(','); SERIAL_ECHO(ry0);
+          SERIAL_ECHOPAIR_F(") = ", z0, 6);
         }
       #endif
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(MESH_ADJUST)) {
-          SERIAL_ECHOPGM(" >>>---> ");
-          SERIAL_ECHO_F(z0, 6);
-          SERIAL_EOL();
-        }
+        if (DEBUGGING(MESH_ADJUST)) SERIAL_ECHOLNPAIR_F(" >>>---> ", z0, 6);
       #endif
 
       if (isnan(z0)) { // if part of the Mesh is undefined, it will show up as NAN

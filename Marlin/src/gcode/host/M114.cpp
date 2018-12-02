@@ -34,7 +34,7 @@
       SERIAL_CHAR(' ');
       SERIAL_CHAR(axis_codes[i]);
       SERIAL_CHAR(':');
-      SERIAL_PROTOCOL(dtostrf(pos[i], 8, precision, str));
+      SERIAL_ECHO(dtostrf(pos[i], 8, precision, str));
     }
     SERIAL_EOL();
   }
@@ -43,7 +43,7 @@
 
   void report_current_position_detail() {
 
-    SERIAL_PROTOCOLPGM("\nLogical:");
+    SERIAL_ECHOPGM("\nLogical:");
     const float logical[XYZ] = {
       LOGICAL_X_POSITION(current_position[X_AXIS]),
       LOGICAL_Y_POSITION(current_position[Y_AXIS]),
@@ -51,17 +51,17 @@
     };
     report_xyz(logical);
 
-    SERIAL_PROTOCOLPGM("Raw:    ");
+    SERIAL_ECHOPGM("Raw:    ");
     report_xyz(current_position);
 
     float leveled[XYZ] = { current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] };
 
     #if HAS_LEVELING
-      SERIAL_PROTOCOLPGM("Leveled:");
+      SERIAL_ECHOPGM("Leveled:");
       planner.apply_leveling(leveled);
       report_xyz(leveled);
 
-      SERIAL_PROTOCOLPGM("UnLevel:");
+      SERIAL_ECHOPGM("UnLevel:");
       float unleveled[XYZ] = { leveled[X_AXIS], leveled[Y_AXIS], leveled[Z_AXIS] };
       planner.unapply_leveling(unleveled);
       report_xyz(unleveled);
@@ -69,9 +69,9 @@
 
     #if IS_KINEMATIC
       #if IS_SCARA
-        SERIAL_PROTOCOLPGM("ScaraK: ");
+        SERIAL_ECHOPGM("ScaraK: ");
       #else
-        SERIAL_PROTOCOLPGM("DeltaK: ");
+        SERIAL_ECHOPGM("DeltaK: ");
       #endif
       inverse_kinematics(leveled);  // writes delta[]
       report_xyz(delta);
@@ -79,12 +79,12 @@
 
     planner.synchronize();
 
-    SERIAL_PROTOCOLPGM("Stepper:");
+    SERIAL_ECHOPGM("Stepper:");
     LOOP_XYZE(i) {
       SERIAL_CHAR(' ');
       SERIAL_CHAR(axis_codes[i]);
       SERIAL_CHAR(':');
-      SERIAL_PROTOCOL(stepper.position((AxisEnum)i));
+      SERIAL_ECHO(stepper.position((AxisEnum)i));
     }
     SERIAL_EOL();
 
@@ -93,11 +93,11 @@
         planner.get_axis_position_degrees(A_AXIS),
         planner.get_axis_position_degrees(B_AXIS)
       };
-      SERIAL_PROTOCOLPGM("Degrees:");
+      SERIAL_ECHOPGM("Degrees:");
       report_xyze(deg, 2);
     #endif
 
-    SERIAL_PROTOCOLPGM("FromStp:");
+    SERIAL_ECHOPGM("FromStp:");
     get_cartesian_from_steppers();  // writes cartes[XYZ] (with forward kinematics)
     const float from_steppers[XYZE] = { cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS], planner.get_axis_position_mm(E_AXIS) };
     report_xyze(from_steppers);
@@ -108,7 +108,7 @@
       from_steppers[Z_AXIS] - leveled[Z_AXIS],
       from_steppers[E_AXIS] - current_position[E_AXIS]
     };
-    SERIAL_PROTOCOLPGM("Differ: ");
+    SERIAL_ECHOPGM("Differ: ");
     report_xyze(diff);
   }
 
