@@ -92,6 +92,12 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 #define MAX_HOTEND_DRAW MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
 #define STATUS_HEATERS_BOT (STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1)
 
+#if ENABLED(MARLIN_DEV_MODE)
+  #define SHOW_ON_STATE READ(X_MIN_PIN)
+#else
+  #define SHOW_ON_STATE false
+#endif
+
 FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
@@ -104,10 +110,21 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
     #define IFBED(A,B) (B)
   #endif
 
-  const bool isHeat = IFBED(BED_ALT(), HOTEND_ALT(heater));
+  #if ENABLED(MARLIN_DEV_MODE)
+    constexpr bool isHeat = true;
+  #else
+    const bool isHeat = IFBED(BED_ALT(), HOTEND_ALT(heater));
+  #endif
+
   const uint8_t tx = IFBED(STATUS_BED_TEXT_X, STATUS_HOTEND_TEXT_X(heater));
-  const float temp = IFBED(thermalManager.degBed(), thermalManager.degHotend(heater)),
-              target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    const float temp = 20 + (millis() >> 8) % IFBED(100, 200);
+    const float target = IFBED(100, 200);
+  #else
+    const float temp = IFBED(thermalManager.degBed(), thermalManager.degHotend(heater)),
+                target = IFBED(thermalManager.degTargetBed(), thermalManager.degTargetHotend(heater));
+  #endif
 
   #if DISABLED(STATUS_HOTEND_ANIM)
     #define STATIC_HOTEND true
@@ -236,7 +253,16 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
+#if ENABLED(MARLIN_DEV_MODE)
+  uint16_t count_renders = 0;
+  uint32_t total_cycles = 0;
+#endif
+
 void MarlinUI::draw_status_screen() {
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    if (first_page) count_renders++;
+  #endif
 
   static char xstring[5], ystring[5], zstring[8];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
@@ -248,10 +274,10 @@ void MarlinUI::draw_status_screen() {
     #if ANIM_HOTEND || ANIM_BED
       uint8_t new_bits = 0;
       #if ANIM_HOTEND
-        HOTEND_LOOP() if (thermalManager.isHeatingHotend(e)) SBI(new_bits, e);
+        HOTEND_LOOP() if (thermalManager.isHeatingHotend(e) ^ SHOW_ON_STATE) SBI(new_bits, e);
       #endif
       #if ANIM_BED
-        if (thermalManager.isHeatingBed()) SBI(new_bits, 7);
+        if (thermalManager.isHeatingBed() ^ SHOW_ON_STATE) SBI(new_bits, 7);
       #endif
       heat_bits = new_bits;
     #endif
@@ -273,6 +299,10 @@ void MarlinUI::draw_status_screen() {
 
   // Status Menu Font
   set_font(FONT_STATUSMENU);
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    TCNT5 = 0;
+  #endif
 
   #if STATUS_LOGO_WIDTH
     if (PAGE_CONTAINS(STATUS_LOGO_Y, STATUS_LOGO_Y + STATUS_LOGO_HEIGHT - 1))
@@ -355,6 +385,10 @@ void MarlinUI::draw_status_screen() {
       }
     #endif
   }
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    total_cycles += TCNT5;
+  #endif
 
   #if ENABLED(SDSUPPORT)
     //
@@ -556,6 +590,17 @@ void MarlinUI::draw_status_screen() {
 }
 
 void MarlinUI::draw_status_message(const bool blink) {
+
+  #if ENABLED(MARLIN_DEV_MODE)
+    if (PAGE_CONTAINS(64-8, 64-1)) {
+      lcd_put_int(total_cycles);
+      lcd_put_wchar('/');
+      lcd_put_int(count_renders);
+      lcd_put_wchar('=');
+      lcd_put_int(int(total_cycles / count_renders));
+      return;
+    }
+  #endif
 
   // Get the UTF8 character count of the string
   uint8_t slen = utf8_strlen(status_message);
