@@ -30,7 +30,7 @@
  * Adapted to the STM32F4 HAL
  */
 
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
+#if defined(STM32GENERIC) && defined(STM32F4)
 
 // --------------------------------------------------------------------------
 // Includes
@@ -173,4 +173,4 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
 
 #endif // SOFTWARE_SPI
 
-#endif // STM32F4 || STM32F4xx
+#endif // STM32GENERIC && STM32F4
