@@ -559,6 +559,7 @@ void MarlinUI::draw_status_message(const bool blink) {
           if (--chars) {
             // Print a second copy of the message
             lcd_put_u8str_max(status_message, LCD_PIXEL_WIDTH - (rlen + 2) * (MENU_FONT_WIDTH));
+            lcd_put_wchar(' ');
           }
         }
       }
