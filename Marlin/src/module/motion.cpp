@@ -88,7 +88,7 @@ bool relative_mode; // = false;
  *   Used by 'buffer_line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-float current_position[XYZE] = { 0 };
+float current_position[XYZE] = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
 
 /**
  * Cartesian Destination
@@ -96,7 +96,7 @@ float current_position[XYZE] = { 0 };
  *   and expected by functions like 'prepare_move_to_destination'.
  *   Set with 'get_destination_from_command' or 'set_destination_from_current'.
  */
-float destination[XYZE] = { 0 };
+float destination[XYZE]; // = { 0 }
 
 // The active extruder (tool). Set with T<extruder> command.
 #if EXTRUDERS > 1
