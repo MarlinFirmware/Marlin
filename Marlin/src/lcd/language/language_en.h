@@ -89,7 +89,7 @@
   #define MSG_PROGRESS_BAR_TEST               _UxGT("Progress Bar Test")
 #endif
 #ifndef MSG_AUTO_HOME
-  #define MSG_AUTO_HOME                       _UxGT("Auto home")
+  #define MSG_AUTO_HOME                       _UxGT("Home ALL [XYZ]")
 #endif
 #ifndef MSG_AUTO_HOME_X
   #define MSG_AUTO_HOME_X                     _UxGT("Home X")
@@ -700,13 +700,13 @@
   #define MSG_CONTRAST                        _UxGT("LCD contrast")
 #endif
 #ifndef MSG_STORE_EEPROM
-  #define MSG_STORE_EEPROM                    _UxGT("Store settings")
+  #define MSG_STORE_EEPROM                    _UxGT("Save Changes")
 #endif
 #ifndef MSG_LOAD_EEPROM
-  #define MSG_LOAD_EEPROM                     _UxGT("Load settings")
+  #define MSG_LOAD_EEPROM                     _UxGT("Load Previous")
 #endif
 #ifndef MSG_RESTORE_FAILSAFE
-  #define MSG_RESTORE_FAILSAFE                _UxGT("Restore failsafe")
+  #define MSG_RESTORE_FAILSAFE                _UxGT("Reset Firmware Defaults")
 #endif
 #ifndef MSG_INIT_EEPROM
   #define MSG_INIT_EEPROM                     _UxGT("Initialize EEPROM")
@@ -727,7 +727,7 @@
   #define MSG_PREPARE                         _UxGT("Prepare")
 #endif
 #ifndef MSG_TUNE
-  #define MSG_TUNE                            _UxGT("Tune")
+  #define MSG_TUNE                            _UxGT("Live Adjust")
 #endif
 #ifndef MSG_PAUSE_PRINT
   #define MSG_PAUSE_PRINT                     _UxGT("Pause print")
@@ -826,10 +826,10 @@
   #define MSG_FILAMENTUNLOAD_ALL              _UxGT("Unload All")
 #endif
 #ifndef MSG_INIT_SDCARD
-  #define MSG_INIT_SDCARD                     _UxGT("Init. SD card")
+  #define MSG_INIT_SDCARD                     _UxGT("Initialize SD card")
 #endif
 #ifndef MSG_CHANGE_SDCARD
-  #define MSG_CHANGE_SDCARD                   _UxGT("Change SD card")
+  #define MSG_CHANGE_SDCARD                   _UxGT("Refresh SD card")
 #endif
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      _UxGT("Z Probe past bed")

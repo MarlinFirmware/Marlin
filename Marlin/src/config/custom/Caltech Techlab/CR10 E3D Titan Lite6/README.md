@@ -10,12 +10,18 @@ __Hictop CR-20 (Creality CR-10)__
   + Buildtak FlexPlate System w/ PEI sheet
 
 ----------------------------------------------------------
-#### 12.03.18
+#### 12.04.18
   - Updated custom configs from 1.1.9 to 2.0.x
+    - _Bootscreen.h
+    - Configuration.h
+    - Configuration_adv.h
+    - language_en.h
+    - README&#46;md
+  - Flashed to CR10B using PIO on vscode [__env:melzi_optiboot__]
 
 ----------------------------------------------------------  
 __Caltech Library TechLab__  
 Web | [library.caltech.edu/techlab](https://www.library.caltech.edu/resources/techlab)  
 Instagram | [@caltechlibrarytechlab](http://instagram.com/caltechlibrarytechlab/)
 
-Last updated 12.03.18 by Aucoeur Ngo [[@aucoeurngo](https://github.com/aucoeurngo)]
+Last updated 12.04.18 by Aucoeur Ngo [[@aucoeurngo](https://github.com/aucoeurngo)]
