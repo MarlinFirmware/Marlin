@@ -20,7 +20,7 @@
  *
  */
 
-#ifdef ARDUINO_ARCH_STM32
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
