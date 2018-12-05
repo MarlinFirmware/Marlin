@@ -136,16 +136,20 @@ namespace ExtUI {
   extruder_t getActiveTool();
   void setActiveTool(const extruder_t, bool no_move);
 
+  #if ENABLED(BABYSTEPPING)
+    void babystepAxis_mm(const float, const axis_t, bool linked_nozzles = true);
+    void babystepAxis_steps(const int16_t, const axis_t, bool linked_nozzles = true);
+  #endif
 
   #if HOTENDS > 1
     float getNozzleOffset_mm(const axis_t, const extruder_t);
     void setNozzleOffset_mm(const float, const axis_t, const extruder_t);
+    void normalizeNozzleOffset(const axis_t axis);
   #endif
 
-  #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+  #if HAS_BED_PROBE
     float getZOffset_mm();
     void setZOffset_mm(const float);
-    void addZOffset_steps(const int16_t);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
