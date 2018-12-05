@@ -67,19 +67,32 @@
 
 #endif // SDSUPPORT
 
-void menu_tune();
-void menu_motion();
-void menu_temperature();
-void menu_configuration();
-void menu_user();
+// void menu_tune();
+// void menu_motion();
+// void menu_temperature();
+// void menu_configuration();
+// void menu_user();
 void menu_temp_e0_filament_change();
-void menu_change_filament();
+//void menu_change_filament();
+// void menu_info();
+// void menu_led();
+
+void menu_tune();
+void menu_prepare();
 void menu_info();
-void menu_led();
+void menu_configuration();
 
 void menu_main() {
   START_MENU();
   MENU_BACK(MSG_WATCH);
+
+  const bool busy = printer_busy();
+  if (busy)
+    MENU_ITEM(submenu, MSG_TUNE, menu_tune);
+  else {
+    MENU_ITEM(submenu, MSG_PREPARE, menu_prepare);
+    // MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
+  }
 
   #if ENABLED(SDSUPPORT)
     if (card.flag.cardOK) {
@@ -105,14 +118,10 @@ void menu_main() {
     }
   #endif // SDSUPPORT
 
-  const bool busy = printer_busy();
-  if (busy)
-    MENU_ITEM(submenu, MSG_TUNE, menu_tune);
-  else {
-    MENU_ITEM(submenu, MSG_MOTION, menu_motion);
-    MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
-  }
-
+  #if ENABLED(LCD_INFO_MENU)
+    MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
+  #endif
+  
   MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);
 
   #if ENABLED(CUSTOM_USER_MENUS)
@@ -128,10 +137,6 @@ void menu_main() {
     #else
       MENU_ITEM(submenu, MSG_FILAMENTCHANGE, menu_change_filament);
     #endif
-  #endif
-
-  #if ENABLED(LCD_INFO_MENU)
-    MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
   #endif
 
   #if ENABLED(LED_CONTROL_MENU)
