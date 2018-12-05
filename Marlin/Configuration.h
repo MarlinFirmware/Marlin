@@ -22,7 +22,7 @@
 #pragma once
 
  // If you have a trex 3, stock is this option plus 2208 on all axis. None in spreadcycle.
-//#define TREX3
+#define TREX3
 
 //#define X_2208
 //#define X_Spreadcycle
@@ -33,9 +33,9 @@
 //#define E_2208 // Not Recommended! Stealthchop mode faults with linear advance
 //#define E_Spreadcycle
 
-//#define BedAC
+#define BedAC
 
-//#define tallVersion
+#define tallVersion
 
 /*
  * Enables a filament sensor plugged into the laser pin. Disables the laser
@@ -443,7 +443,7 @@
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
-  //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
+  #define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
@@ -451,10 +451,15 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  #define DEFAULT_Kp 22.2
-  #define DEFAULT_Ki 1.08
-  #define DEFAULT_Kd 114
-
+  #if ENABLED(TREX3)
+    #define DEFAULT_Kp 14.64
+    #define DEFAULT_Ki 1.08
+    #define DEFAULT_Kd 53.36
+  #else
+    #define DEFAULT_Kp 22.2
+    #define DEFAULT_Ki 1.08
+    #define DEFAULT_Kd 114
+  #endif
   // MakerGear
   //#define DEFAULT_Kp 7.0
   //#define DEFAULT_Ki 0.1
@@ -997,7 +1002,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#if ENABLED(E_2208)
+#if ENABLED(E_2208) && DISABLED(TREX3)
   #define INVERT_E0_DIR true
   #define INVERT_E1_DIR false
 #else
