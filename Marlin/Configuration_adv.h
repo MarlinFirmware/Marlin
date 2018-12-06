@@ -373,7 +373,7 @@
   #define X2_MIN_POS 0     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
   // set maximum to the distance between toolheads when both heads are homed
   #if ENABLED(TREX3)
-    #define X2_MAX_POS 438.5 
+    #define X2_MAX_POS 446 
   #else
     #define X2_MAX_POS 442 
   #endif
