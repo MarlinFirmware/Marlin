@@ -140,7 +140,8 @@
 #endif // TMC26X
 
 #if HAS_TRINAMIC
-  #define _TMC_INIT(ST, SPMM) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, SPMM)
+  enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
+  #define _TMC_INIT(ST, SPMM_INDEX, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, planner.settings.axis_steps_per_mm[SPMM_INDEX], stealthchop_by_axis[STEALTH_INDEX])
 #endif
 
 //
@@ -201,11 +202,7 @@
   #endif
 
   template<char AXIS_LETTER, char DRIVER_ID>
-  void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
-    #if DISABLED(STEALTHCHOP) || DISABLED(HYBRID_THRESHOLD)
-      UNUSED(thrs);
-      UNUSED(spmm);
-    #endif
+  void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
     st.begin();
 
     CHOPCONF_t chopconf{0};
@@ -221,20 +218,22 @@
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
 
-    #if ENABLED(STEALTHCHOP)
-      st.en_pwm_mode(true);
+    st.en_pwm_mode(stealth);
 
-      PWMCONF_t pwmconf{0};
-      pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
-      pwmconf.pwm_autoscale = true;
-      pwmconf.pwm_grad = 5;
-      pwmconf.pwm_ampl = 180;
-      st.PWMCONF(pwmconf.sr);
+    PWMCONF_t pwmconf{0};
+    pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
+    pwmconf.pwm_autoscale = true;
+    pwmconf.pwm_grad = 5;
+    pwmconf.pwm_ampl = 180;
+    st.PWMCONF(pwmconf.sr);
 
-      #if ENABLED(HYBRID_THRESHOLD)
-        st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
-      #endif
+    #if ENABLED(HYBRID_THRESHOLD)
+      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
+    #else
+      UNUSED(thrs);
+      UNUSED(spmm);
     #endif
+
     st.GSTAT(); // Clear GSTAT
   }
 #endif // TMC2130
@@ -440,16 +439,13 @@
   }
 
   template<char AXIS_LETTER, char DRIVER_ID>
-  void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm) {
-    #if DISABLED(STEALTHCHOP) || DISABLED(HYBRID_THRESHOLD)
-      UNUSED(thrs);
-      UNUSED(spmm);
-    #endif
-
+  void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
     TMC2208_n::GCONF_t gconf{0};
     gconf.pdn_disable = true; // Use UART
     gconf.mstep_reg_select = true; // Select microsteps with UART
     gconf.i_scale_analog = false;
+    gconf.en_spreadcycle = !stealth;
+    st.GCONF(gconf.sr);
 
     TMC2208_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 0b01; // blank_time = 24
@@ -463,25 +459,24 @@
     st.microsteps(microsteps);
     st.iholddelay(10);
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
-    #if ENABLED(STEALTHCHOP)
-      gconf.en_spreadcycle = false;
 
-      TMC2208_n::PWMCONF_t pwmconf{0};
-      pwmconf.pwm_lim = 12;
-      pwmconf.pwm_reg = 8;
-      pwmconf.pwm_autograd = true;
-      pwmconf.pwm_autoscale = true;
-      pwmconf.pwm_freq = 0b01;
-      pwmconf.pwm_grad = 14;
-      pwmconf.pwm_ofs = 36;
-      st.PWMCONF(pwmconf.sr);
-      #if ENABLED(HYBRID_THRESHOLD)
-        st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
-      #endif
+    TMC2208_n::PWMCONF_t pwmconf{0};
+    pwmconf.pwm_lim = 12;
+    pwmconf.pwm_reg = 8;
+    pwmconf.pwm_autograd = true;
+    pwmconf.pwm_autoscale = true;
+    pwmconf.pwm_freq = 0b01;
+    pwmconf.pwm_grad = 14;
+    pwmconf.pwm_ofs = 36;
+    st.PWMCONF(pwmconf.sr);
+
+    #if ENABLED(HYBRID_THRESHOLD)
+      st.TPWMTHRS(12650000UL*microsteps/(256*thrs*spmm));
     #else
-      gconf.en_spreadcycle = true;
+      UNUSED(thrs);
+      UNUSED(spmm);
     #endif
-    st.GCONF(gconf.sr);
+
     st.GSTAT(0b111); // Clear
     delay(200);
   }
@@ -543,7 +538,7 @@
   #endif
 
   template<char AXIS_LETTER, char DRIVER_ID>
-  void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const float) {
+  void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const float, const bool) {
     st.begin();
     st.rms_current(mA);
     st.microsteps(microsteps);
@@ -605,44 +600,66 @@ void reset_stepper_drivers() {
     L6470_init_to_defaults();
   #endif
 
+  #if HAS_TRINAMIC
+    static constexpr bool stealthchop_by_axis[] = {
+      #if ENABLED(STEALTHCHOP_XY)
+        true
+      #else
+        false
+      #endif
+      ,
+      #if ENABLED(STEALTHCHOP_Z)
+        true
+      #else
+        false
+      #endif
+      ,
+      #if ENABLED(STEALTHCHOP_E)
+        true
+      #else
+        false
+      #endif
+    };
+  #endif
+
   #if AXIS_IS_TMC(X)
-    _TMC_INIT(X, planner.settings.axis_steps_per_mm[X_AXIS]);
+    _TMC_INIT(X, X_AXIS, STEALTH_AXIS_XY);
   #endif
   #if AXIS_IS_TMC(X2)
-    _TMC_INIT(X2, planner.settings.axis_steps_per_mm[X_AXIS]);
+    _TMC_INIT(X2, X_AXIS, STEALTH_AXIS_XY);
   #endif
   #if AXIS_IS_TMC(Y)
-    _TMC_INIT(Y, planner.settings.axis_steps_per_mm[Y_AXIS]);
+    _TMC_INIT(Y, Y_AXIS, STEALTH_AXIS_XY);
   #endif
   #if AXIS_IS_TMC(Y2)
-    _TMC_INIT(Y2, planner.settings.axis_steps_per_mm[Y_AXIS]);
+    _TMC_INIT(Y2, Y_AXIS, STEALTH_AXIS_XY);
   #endif
   #if AXIS_IS_TMC(Z)
-    _TMC_INIT(Z, planner.settings.axis_steps_per_mm[Z_AXIS]);
+    _TMC_INIT(Z, Z_AXIS, STEALTH_AXIS_Z);
   #endif
   #if AXIS_IS_TMC(Z2)
-    _TMC_INIT(Z2, planner.settings.axis_steps_per_mm[Z_AXIS]);
+    _TMC_INIT(Z2, Z_AXIS, STEALTH_AXIS_Z);
   #endif
   #if AXIS_IS_TMC(Z3)
-    _TMC_INIT(Z3, planner.settings.axis_steps_per_mm[Z_AXIS]);
+    _TMC_INIT(Z3, Z_AXIS, STEALTH_AXIS_Z);
   #endif
   #if AXIS_IS_TMC(E0)
-    _TMC_INIT(E0, planner.settings.axis_steps_per_mm[E_AXIS_N(0)]);
+    _TMC_INIT(E0, E_AXIS, STEALTH_AXIS_E);
   #endif
   #if AXIS_IS_TMC(E1)
-    _TMC_INIT(E1, planner.settings.axis_steps_per_mm[E_AXIS_N(1)]);
+    _TMC_INIT(E1, E_AXIS_N(1), STEALTH_AXIS_E);
   #endif
   #if AXIS_IS_TMC(E2)
-    _TMC_INIT(E2, planner.settings.axis_steps_per_mm[E_AXIS_N(2)]);
+    _TMC_INIT(E2, E_AXIS_N(2), STEALTH_AXIS_E);
   #endif
   #if AXIS_IS_TMC(E3)
-    _TMC_INIT(E3, planner.settings.axis_steps_per_mm[E_AXIS_N(3)]);
+    _TMC_INIT(E3, E_AXIS_N(3), STEALTH_AXIS_E);
   #endif
   #if AXIS_IS_TMC(E4)
-    _TMC_INIT(E4, planner.settings.axis_steps_per_mm[E_AXIS_N(4)]);
+    _TMC_INIT(E4, E_AXIS_N(4), STEALTH_AXIS_E);
   #endif
   #if AXIS_IS_TMC(E5)
-    _TMC_INIT(E5, planner.settings.axis_steps_per_mm[E_AXIS_N(5)]);
+    _TMC_INIT(E5, E_AXIS_N(5), STEALTH_AXIS_E);
   #endif
 
   #if USE_SENSORLESS
