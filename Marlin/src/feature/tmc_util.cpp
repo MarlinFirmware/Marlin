@@ -217,8 +217,9 @@
 
   void monitor_tmc_driver() {
     static millis_t next_poll = 0;
-    if (ELAPSED(millis(), next_poll)) {
-      next_poll = millis() + 500;
+    const millis_t ms = millis();
+    if (ELAPSED(ms, next_poll)) {
+      next_poll = ms + 500;
       #if HAS_HW_COMMS(X)
         monitor_tmc_driver(stepperX);
       #endif
