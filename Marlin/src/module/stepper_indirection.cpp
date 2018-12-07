@@ -141,7 +141,7 @@
 
 #if HAS_TRINAMIC
   enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
-  #define _TMC_INIT(ST, SPMM_INDEX, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, planner.settings.axis_steps_per_mm[SPMM_INDEX], stealthChop_by_axis[STEALTH_INDEX])
+  #define _TMC_INIT(ST, SPMM_INDEX, STEALTH_INDEX) tmc_init(stepper##ST, ST##_CURRENT, ST##_MICROSTEPS, ST##_HYBRID_THRESHOLD, planner.settings.axis_steps_per_mm[SPMM_INDEX], stealthchop_by_axis[STEALTH_INDEX])
 #endif
 
 //
@@ -601,16 +601,25 @@ void reset_stepper_drivers() {
   #endif
 
   #if HAS_TRINAMIC
-    bool stealthChop_by_axis[3] = {false, false, false};
-    #if ENABLED(STEALTHCHOP_XY)
-      stealthChop_by_axis[STEALTH_AXIS_XY] = true;
-    #endif
-    #if ENABLED(STEALTHCHOP_Z)
-      stealthChop_by_axis[STEALTH_AXIS_Z] = true;
-    #endif
-    #if ENABLED(STEALTHCHOP_E)
-      stealthChop_by_axis[STEALTH_AXIS_E] = true;
-    #endif
+    static constexpr bool stealthchop_by_axis[] = {
+      #if ENABLED(STEALTHCHOP_XY)
+        true
+      #else
+        false
+      #endif
+      ,
+      #if ENABLED(STEALTHCHOP_Z)
+        true
+      #else
+        false
+      #endif
+      ,
+      #if ENABLED(STEALTHCHOP_E)
+        true
+      #else
+        false
+      #endif
+    };
   #endif
 
   #if AXIS_IS_TMC(X)
