@@ -1900,17 +1900,35 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
- * Require 4 or more elements in per-axis initializers
+ * Check per-axis initializers for errors
  */
 constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
                 sanity_arr_2[] = DEFAULT_MAX_FEEDRATE,
                 sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
+
 static_assert(COUNT(sanity_arr_1) >= XYZE, "DEFAULT_AXIS_STEPS_PER_UNIT requires 4 (or more) elements.");
-static_assert(COUNT(sanity_arr_2) >= XYZE, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
-static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
 static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+static_assert(sanity_arr_1[0] > 0 && sanity_arr_1[1] > 0 && sanity_arr_1[2] > 0
+  && (XYZE_N <= 3 || sanity_arr_1[3] > 0) && (XYZE_N <= 4 || sanity_arr_1[4] > 0)
+  && (XYZE_N <= 5 || sanity_arr_1[5] > 0) && (XYZE_N <= 6 || sanity_arr_1[6] > 0)
+  && (XYZE_N <= 7 || sanity_arr_1[7] > 0) && (XYZE_N <= 8 || sanity_arr_1[8] > 0),
+  "DEFAULT_AXIS_STEPS_PER_UNIT values must be positive.");
+
+static_assert(COUNT(sanity_arr_2) >= XYZE, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
 static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+static_assert(sanity_arr_2[0] > 0 && sanity_arr_2[1] > 0 && sanity_arr_2[2] > 0
+  && (XYZE_N <= 3 || sanity_arr_2[3] > 0) && (XYZE_N <= 4 || sanity_arr_2[4] > 0)
+  && (XYZE_N <= 5 || sanity_arr_2[5] > 0) && (XYZE_N <= 6 || sanity_arr_2[6] > 0)
+  && (XYZE_N <= 7 || sanity_arr_2[7] > 0) && (XYZE_N <= 8 || sanity_arr_2[8] > 0),
+  "DEFAULT_MAX_FEEDRATE values must be positive.");
+
+static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+static_assert(sanity_arr_3[0] > 0 && sanity_arr_3[1] > 0 && sanity_arr_3[2] > 0
+  && (XYZE_N <= 3 || sanity_arr_3[3] > 0) && (XYZE_N <= 4 || sanity_arr_3[4] > 0)
+  && (XYZE_N <= 5 || sanity_arr_3[5] > 0) && (XYZE_N <= 6 || sanity_arr_3[6] > 0)
+  && (XYZE_N <= 7 || sanity_arr_3[7] > 0) && (XYZE_N <= 8 || sanity_arr_3[8] > 0),
+  "DEFAULT_MAX_ACCELERATION values must be positive.");
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS) && ENABLED(NO_WORKSPACE_OFFSETS)
   #error "CNC_COORDINATE_SYSTEMS is incompatible with NO_WORKSPACE_OFFSETS."
