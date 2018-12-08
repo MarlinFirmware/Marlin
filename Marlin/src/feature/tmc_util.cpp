@@ -81,7 +81,7 @@
       static uint8_t get_status_response(TMC2208Stepper &st, uint32_t drv_status) {
         uint8_t gstat = st.GSTAT();
         uint8_t response = 0;
-        response |= (drv_status >> (31-3)) & 0b1000;
+        response |= (drv_status >> (31 - 3)) & 0b1000;
         response |= gstat & 0b11;
         return response;
       }
