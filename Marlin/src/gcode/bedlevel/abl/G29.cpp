@@ -385,9 +385,9 @@ G29_TYPE GcodeSuite::G29() {
 
       if (parser.seen('H')) {
         const int16_t size = (int16_t)parser.value_linear_units();
-        left_probe_bed_position  = MAX((MIN_PROBE_X + MAX_PROBE_X - size) / 2, MIN_PROBE_X);
+        left_probe_bed_position  = MAX((X_BED_SIZE - size) / 2 , MIN_PROBE_X);
         right_probe_bed_position = MIN(left_probe_bed_position + size,         MAX_PROBE_X);
-        front_probe_bed_position = MAX((MIN_PROBE_Y + MAX_PROBE_Y - size) / 2, MIN_PROBE_Y);
+        front_probe_bed_position = MAX((Y_BED_SIZE - size) / 2, MIN_PROBE_Y);
         back_probe_bed_position  = MIN(front_probe_bed_position + size,        MAX_PROBE_Y);
       }
       else {
