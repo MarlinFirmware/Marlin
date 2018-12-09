@@ -1547,6 +1547,99 @@ void Planner::synchronize() {
 }
 
 /**
+ * The following implements axis backlash correction. To minimize seams
+ * on the printed part, the backlash correction only adds steps to the
+ * current segment (instead of creating a new segment, which causes
+ * discontinuities and print artifacts).
+ *
+ * When BACKLASH_SMOOTHING_MM is enabled and non-zero, the backlash
+ * correction is spread over multiple segments, smoothing out print
+ * artifacts even more.
+ */
+#if ENABLED(BACKLASH_COMPENSATION)
+  #if ENABLED(BACKLASH_GCODE)
+    extern float backlash_distance_mm[], backlash_correction;
+    #ifdef BACKLASH_SMOOTHING_MM
+      extern float backlash_smoothing_mm;
+    #endif
+  #else
+    constexpr float backlash_distance_mm[XYZ] = BACKLASH_DISTANCE_MM,
+                    backlash_correction = BACKLASH_CORRECTION;
+    #ifdef BACKLASH_SMOOTHING_MM
+      constexpr float backlash_smoothing_mm = BACKLASH_SMOOTHING_MM;
+    #endif
+  #endif
+
+  void Planner::add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block, float (&delta_mm)[ABCE]) {
+    static uint8_t last_direction_bits;
+    uint8_t changed_dir = last_direction_bits ^ dm;
+    // Ignore direction change if no steps are taken in that direction
+    if (da == 0) CBI(changed_dir, X_AXIS);
+    if (db == 0) CBI(changed_dir, Y_AXIS);
+    if (dc == 0) CBI(changed_dir, Z_AXIS);
+    last_direction_bits ^= changed_dir;
+
+    if (backlash_correction == 0) return;
+
+    #ifdef BACKLASH_SMOOTHING_MM
+      // The segment proportion is a value greater than 0.0 indicating how much residual_error
+      // is corrected for in this segment. The contribution is based on segment length and the
+      // smoothing distance. Since the computation of this proportion involves a floating point
+      // division, defer computation until needed.
+      float segment_proportion = 0;
+
+      // Residual error carried forward across multiple segments, so correction can be applied
+      // to segments where there is no direction change.
+      static int32_t residual_error[XYZ] = { 0 };
+    #else
+      // No leftover residual error from segment to segment
+      int32_t residual_error[XYZ] = { 0 };
+      // No direction change, no correction.
+      if (!changed_dir) return;
+    #endif
+
+    const bool positive[XYZ] = {  da > 0,  db > 0, dc > 0 },
+               non_zero[XYZ] = { da != 0, db != 0, dc != 0 };
+    bool made_adjustment = false;
+
+    LOOP_XYZ(i) {
+      if (backlash_distance_mm[i]) {
+        // When an axis changes direction, add axis backlash to the residual error
+        if (TEST(changed_dir, i))
+          residual_error[i] += backlash_correction * (positive[i] ? 1.0f : -1.0f) * backlash_distance_mm[i] * planner.settings.axis_steps_per_mm[i];
+
+        // Decide how much of the residual error to correct in this segment
+        int32_t error_correction = residual_error[i];
+        #ifdef BACKLASH_SMOOTHING_MM
+          if (error_correction && backlash_smoothing_mm != 0) {
+            // Take up a portion of the residual_error in this segment, but only when
+            // the current segment travels in the same direction as the correction
+            if (non_zero[i] && positive[i] == (error_correction > 0)) {
+              if (segment_proportion == 0)
+                segment_proportion = MIN(1.0f, block->millimeters / backlash_smoothing_mm);
+              error_correction *= segment_proportion;
+            }
+            else
+              error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
+          }
+        #endif
+        // Making a correction reduces the residual error and modifies delta_mm
+        if (error_correction) {
+          block->steps[i] += ABS(error_correction);
+          residual_error[i] -= error_correction;
+          delta_mm[i] = (positive[i] ? 1.0f : -1.0f) * block->steps[i] * steps_to_mm[i];
+          made_adjustment = true;
+        }
+      }
+    }
+
+    // If any of the axes were adjusted, recompute block->millimeters
+    if (made_adjustment)
+      block->millimeters = SQRT(sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS]));
+  }
+#endif // BACKLASH_COMPENSATION
+
+/**
  * Planner::_buffer_steps
  *
  * Add a new linear movement to the planner queue (in terms of steps).
@@ -1738,6 +1831,70 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     block->steps[C_AXIS] = ABS(dc);
   #endif
 
+  /**
+   * This part of the code calculates the total length of the movement.
+   * For cartesian bots, the X_AXIS is the real X movement and same for Y_AXIS.
+   * But for corexy bots, that is not true. The "X_AXIS" and "Y_AXIS" motors (that should be named to A_AXIS
+   * and B_AXIS) cannot be used for X and Y length, because A=X+Y and B=X-Y.
+   * So we need to create other 2 "AXIS", named X_HEAD and Y_HEAD, meaning the real displacement of the Head.
+   * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
+   */
+  #if IS_CORE
+    float delta_mm[Z_HEAD + 1];
+    #if CORE_IS_XY
+      delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
+      delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
+      delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
+      delta_mm[A_AXIS] = (da + db) * steps_to_mm[A_AXIS];
+      delta_mm[B_AXIS] = CORESIGN(da - db) * steps_to_mm[B_AXIS];
+    #elif CORE_IS_XZ
+      delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
+      delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
+      delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
+      delta_mm[A_AXIS] = (da + dc) * steps_to_mm[A_AXIS];
+      delta_mm[C_AXIS] = CORESIGN(da - dc) * steps_to_mm[C_AXIS];
+    #elif CORE_IS_YZ
+      delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
+      delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
+      delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
+      delta_mm[B_AXIS] = (db + dc) * steps_to_mm[B_AXIS];
+      delta_mm[C_AXIS] = CORESIGN(db - dc) * steps_to_mm[C_AXIS];
+    #endif
+  #else
+    float delta_mm[ABCE];
+    delta_mm[A_AXIS] = da * steps_to_mm[A_AXIS];
+    delta_mm[B_AXIS] = db * steps_to_mm[B_AXIS];
+    delta_mm[C_AXIS] = dc * steps_to_mm[C_AXIS];
+  #endif
+  delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
+
+  if (block->steps[A_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[B_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[C_AXIS] < MIN_STEPS_PER_SEGMENT) {
+    block->millimeters = ABS(delta_mm[E_AXIS]);
+  }
+  else {
+    if (millimeters)
+      block->millimeters = millimeters;
+    else
+      block->millimeters = SQRT(
+        #if CORE_IS_XY
+          sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_AXIS])
+        #elif CORE_IS_XZ
+          sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_HEAD])
+        #elif CORE_IS_YZ
+          sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_HEAD])
+        #else
+          sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS])
+        #endif
+      );
+
+    #if ENABLED(BACKLASH_COMPENSATION)
+      // If we make it here, at least one of the axes has more steps than
+      // MIN_STEPS_PER_SEGMENT, so the segment won't get dropped by Marlin
+      // and it is okay to add steps for backlash correction.
+      add_backlash_correction_steps(da, db, dc, dm, block, delta_mm);
+    #endif
+  }
+
   block->steps[E_AXIS] = esteps;
   block->step_event_count = MAX(block->steps[A_AXIS], block->steps[B_AXIS], block->steps[C_AXIS], esteps);
 
@@ -1924,62 +2081,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     NOLESS(fr_mm_s, settings.min_feedrate_mm_s);
   else
     NOLESS(fr_mm_s, settings.min_travel_feedrate_mm_s);
-
-  /**
-   * This part of the code calculates the total length of the movement.
-   * For cartesian bots, the X_AXIS is the real X movement and same for Y_AXIS.
-   * But for corexy bots, that is not true. The "X_AXIS" and "Y_AXIS" motors (that should be named to A_AXIS
-   * and B_AXIS) cannot be used for X and Y length, because A=X+Y and B=X-Y.
-   * So we need to create other 2 "AXIS", named X_HEAD and Y_HEAD, meaning the real displacement of the Head.
-   * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
-   */
-  #if IS_CORE
-    float delta_mm[Z_HEAD + 1];
-    #if CORE_IS_XY
-      delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
-      delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
-      delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
-      delta_mm[A_AXIS] = (da + db) * steps_to_mm[A_AXIS];
-      delta_mm[B_AXIS] = CORESIGN(da - db) * steps_to_mm[B_AXIS];
-    #elif CORE_IS_XZ
-      delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
-      delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
-      delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
-      delta_mm[A_AXIS] = (da + dc) * steps_to_mm[A_AXIS];
-      delta_mm[C_AXIS] = CORESIGN(da - dc) * steps_to_mm[C_AXIS];
-    #elif CORE_IS_YZ
-      delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
-      delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
-      delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
-      delta_mm[B_AXIS] = (db + dc) * steps_to_mm[B_AXIS];
-      delta_mm[C_AXIS] = CORESIGN(db - dc) * steps_to_mm[C_AXIS];
-    #endif
-  #else
-    float delta_mm[ABCE];
-    delta_mm[A_AXIS] = da * steps_to_mm[A_AXIS];
-    delta_mm[B_AXIS] = db * steps_to_mm[B_AXIS];
-    delta_mm[C_AXIS] = dc * steps_to_mm[C_AXIS];
-  #endif
-  delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS_N(extruder)];
-
-  if (block->steps[A_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[B_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[C_AXIS] < MIN_STEPS_PER_SEGMENT) {
-    block->millimeters = ABS(delta_mm[E_AXIS]);
-  }
-  else if (!millimeters) {
-    block->millimeters = SQRT(
-      #if CORE_IS_XY
-        sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_AXIS])
-      #elif CORE_IS_XZ
-        sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_HEAD])
-      #elif CORE_IS_YZ
-        sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_HEAD])
-      #else
-        sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS])
-      #endif
-    );
-  }
-  else
-    block->millimeters = millimeters;
 
   const float inverse_millimeters = 1.0f / block->millimeters;  // Inverse millimeters to remove multiple divides
 

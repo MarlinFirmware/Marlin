@@ -140,11 +140,11 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
             if (pin == 46 || pin == 47) {
               if (pin == 46) {
                 print_input_or_output(GET_OUTPUT(46));
-                SERIAL_ECHO(READ(46));
+                SERIAL_CHAR('0' + READ(46));
               }
               else if (pin == 47) {
                 print_input_or_output(GET_OUTPUT(47));
-                SERIAL_ECHO(READ(47));
+                SERIAL_CHAR('0' + READ(47));
               }
             }
             else
@@ -196,11 +196,11 @@ inline void report_pin_state_extended(pin_t pin, bool ignore, bool extended = fa
           SERIAL_ECHO_SP(12);
           if (pin == 46) {
             print_input_or_output(GET_OUTPUT(46));
-            SERIAL_ECHO(READ(46));
+            SERIAL_CHAR('0' + READ(46));
           }
           else {
             print_input_or_output(GET_OUTPUT(47));
-            SERIAL_ECHO(READ(47));
+            SERIAL_CHAR('0' + READ(47));
           }
         }
         else

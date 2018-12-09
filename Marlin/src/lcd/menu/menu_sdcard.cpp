@@ -33,8 +33,8 @@
 
 #if !PIN_EXISTS(SD_DETECT)
   void lcd_sd_refresh() {
-    card.initsd();
     encoderTopLine = 0;
+    card.initsd();
   }
 #endif
 

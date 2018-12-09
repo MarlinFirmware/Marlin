@@ -52,7 +52,8 @@ class TMCStorage {
 
   public:
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      uint8_t otpw_count = 0;
+      uint8_t otpw_count = 0,
+              error_count = 0;
       bool flag_otpw = false;
       bool getOTPW() { return flag_otpw; }
       void clear_otpw() { flag_otpw = 0; }
@@ -105,7 +106,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
     }
 };
 
-constexpr uint32_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
+constexpr uint16_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
   return 12650000UL * msteps / (256 * thrs * spmm);
 }
 
@@ -170,8 +171,16 @@ void monitor_tmc_driver();
  * Defined here because of limitations with templates and headers.
  */
 #if USE_SENSORLESS
-  void tmc_stallguard(TMC2130Stepper &st, const bool enable=true);
-  void tmc_stallguard(TMC2660Stepper &st, const bool enable=true);
+  // Track enabled status of stealthChop and only re-enable where applicable
+  struct sensorless_t {
+    bool x, y, z;
+  };
+
+  bool tmc_enable_stallguard(TMC2130Stepper &st);
+  void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth);
+
+  bool tmc_enable_stallguard(TMC2660Stepper);
+  void tmc_disable_stallguard(TMC2660Stepper, const bool);
 #endif
 
 #if TMC_HAS_SPI
