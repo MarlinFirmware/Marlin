@@ -496,11 +496,11 @@
       case TMC_DRV_OTPW:      if (st.otpw())         SERIAL_CHAR('X'); break;
       case TMC_OT:            if (st.ot())           SERIAL_CHAR('X'); break;
       case TMC_DRV_STATUS_HEX: {
-        uint32_t drv_status = st.DRV_STATUS();
+        const uint32_t drv_status = st.DRV_STATUS();
         SERIAL_CHAR('\t');
         st.printLabel();
         SERIAL_CHAR('\t');
-        print_hex_address(st.DRV_STATUS(), ':');
+        print_hex_long(drv_status, ':');
         if (drv_status == 0xFFFFFFFF || drv_status == 0) SERIAL_ECHOPGM("\t Bad response!");
         SERIAL_EOL();
         break;
@@ -697,14 +697,14 @@
     SERIAL_EOL();
   }
 
-  #define PRINT_TMC_REGISTER(REG_CASE) case TMC_GET_##REG_CASE: print_hex_address(st.REG_CASE(), ':'); break;
+  #define PRINT_TMC_REGISTER(REG_CASE) case TMC_GET_##REG_CASE: print_hex_long(st.REG_CASE(), ':'); break
 
   #if HAS_DRIVER(TMC2130)
     static void tmc_get_ic_registers(TMC2130Stepper &st, const TMC_get_registers_enum i) {
       switch (i) {
-        PRINT_TMC_REGISTER(TCOOLTHRS)
-        PRINT_TMC_REGISTER(THIGH)
-        PRINT_TMC_REGISTER(COOLCONF)
+        PRINT_TMC_REGISTER(TCOOLTHRS);
+        PRINT_TMC_REGISTER(THIGH);
+        PRINT_TMC_REGISTER(COOLCONF);
         default: SERIAL_CHAR('\t'); break;
       }
     }
@@ -718,17 +718,17 @@
     static void tmc_get_registers(TMC &st, const TMC_get_registers_enum i) {
       switch (i) {
         case TMC_AXIS_CODES: SERIAL_CHAR('\t'); st.printLabel(); break;
-        PRINT_TMC_REGISTER(GCONF)
-        PRINT_TMC_REGISTER(IHOLD_IRUN)
-        PRINT_TMC_REGISTER(GSTAT)
-        PRINT_TMC_REGISTER(IOIN)
-        PRINT_TMC_REGISTER(TPOWERDOWN)
-        PRINT_TMC_REGISTER(TSTEP)
-        PRINT_TMC_REGISTER(TPWMTHRS)
-        PRINT_TMC_REGISTER(CHOPCONF)
-        PRINT_TMC_REGISTER(PWMCONF)
-        PRINT_TMC_REGISTER(PWM_SCALE)
-        PRINT_TMC_REGISTER(DRV_STATUS)
+        PRINT_TMC_REGISTER(GCONF);
+        PRINT_TMC_REGISTER(IHOLD_IRUN);
+        PRINT_TMC_REGISTER(GSTAT);
+        PRINT_TMC_REGISTER(IOIN);
+        PRINT_TMC_REGISTER(TPOWERDOWN);
+        PRINT_TMC_REGISTER(TSTEP);
+        PRINT_TMC_REGISTER(TPWMTHRS);
+        PRINT_TMC_REGISTER(CHOPCONF);
+        PRINT_TMC_REGISTER(PWMCONF);
+        PRINT_TMC_REGISTER(PWM_SCALE);
+        PRINT_TMC_REGISTER(DRV_STATUS);
         default: tmc_get_ic_registers(st, i); break;
       }
       SERIAL_CHAR('\t');
@@ -739,12 +739,12 @@
     static void tmc_get_registers(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const TMC_get_registers_enum i) {
       switch (i) {
         case TMC_AXIS_CODES: SERIAL_CHAR('\t'); st.printLabel(); break;
-        PRINT_TMC_REGISTER(DRVCONF)
-        PRINT_TMC_REGISTER(DRVCTRL)
-        PRINT_TMC_REGISTER(CHOPCONF)
-        PRINT_TMC_REGISTER(DRVSTATUS)
-        PRINT_TMC_REGISTER(SGCSCONF)
-        PRINT_TMC_REGISTER(SMARTEN)
+        PRINT_TMC_REGISTER(DRVCONF);
+        PRINT_TMC_REGISTER(DRVCTRL);
+        PRINT_TMC_REGISTER(CHOPCONF);
+        PRINT_TMC_REGISTER(DRVSTATUS);
+        PRINT_TMC_REGISTER(SGCSCONF);
+        PRINT_TMC_REGISTER(SMARTEN);
         default: SERIAL_CHAR('\t'); break;
       }
       SERIAL_CHAR('\t');
@@ -807,22 +807,23 @@
   }
 
   void tmc_get_registers(bool print_x, bool print_y, bool print_z, bool print_e) {
-    #define TMC_GET_REG(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_get_registers(ITEM, print_x, print_y, print_z, print_e); }while(0)
-    TMC_GET_REG("\t",             TMC_AXIS_CODES);
-    TMC_GET_REG("GCONF\t\t",      TMC_GET_GCONF);
-    TMC_GET_REG("IHOLD_IRUN\t",   TMC_GET_IHOLD_IRUN);
-    TMC_GET_REG("GSTAT\t\t",      TMC_GET_GSTAT);
-    TMC_GET_REG("IOIN\t\t",       TMC_GET_IOIN);
-    TMC_GET_REG("TPOWERDOWN\t",   TMC_GET_TPOWERDOWN);
-    TMC_GET_REG("TSTEP\t\t",      TMC_GET_TSTEP);
-    TMC_GET_REG("TPWMTHRS\t",     TMC_GET_TPWMTHRS);
-    TMC_GET_REG("TCOOLTHRS\t",    TMC_GET_TCOOLTHRS);
-    TMC_GET_REG("THIGH\t\t",      TMC_GET_THIGH);
-    TMC_GET_REG("CHOPCONF\t",     TMC_GET_CHOPCONF);
-    TMC_GET_REG("COOLCONF\t",     TMC_GET_COOLCONF);
-    TMC_GET_REG("PWMCONF\t",      TMC_GET_PWMCONF);
-    TMC_GET_REG("PWM_SCALE\t",    TMC_GET_PWM_SCALE);
-    TMC_GET_REG("DRV_STATUS\t",   TMC_GET_DRV_STATUS);
+    #define _TMC_GET_REG(LABEL, ITEM) do{ SERIAL_ECHOPGM(LABEL); tmc_get_registers(ITEM, print_x, print_y, print_z, print_e); }while(0)
+    #define TMC_GET_REG(NAME, TABS) _TMC_GET_REG(STRINGIFY(NAME) TABS, TMC_GET_##NAME)
+    _TMC_GET_REG("\t", TMC_AXIS_CODES);
+    TMC_GET_REG(GCONF, "\t\t");
+    TMC_GET_REG(IHOLD_IRUN, "\t");
+    TMC_GET_REG(GSTAT, "\t\t");
+    TMC_GET_REG(IOIN, "\t\t");
+    TMC_GET_REG(TPOWERDOWN, "\t");
+    TMC_GET_REG(TSTEP, "\t\t");
+    TMC_GET_REG(TPWMTHRS, "\t");
+    TMC_GET_REG(TCOOLTHRS, "\t");
+    TMC_GET_REG(THIGH, "\t\t");
+    TMC_GET_REG(CHOPCONF, "\t");
+    TMC_GET_REG(COOLCONF, "\t");
+    TMC_GET_REG(PWMCONF, "\t");
+    TMC_GET_REG(PWM_SCALE, "\t");
+    TMC_GET_REG(DRV_STATUS, "\t");
   }
 
 #endif // TMC_DEBUG
@@ -911,6 +912,7 @@ static bool test_connection(TMC &st) {
 
   const char *stat;
   switch (test_result) {
+    default:
     case 0: stat = PSTR("OK"); break;
     case 1: stat = PSTR("HIGH"); break;
     case 2: stat = PSTR("LOW"); break;
