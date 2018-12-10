@@ -792,9 +792,7 @@ private:
   #endif
 
   #if HAS_TRINAMIC
-    #if ENABLED(TMC_DEBUG)
-      static void M122();
-    #endif
+    static void M122();
     static void M906();
     #if ENABLED(MONITOR_DRIVER_STATUS)
       static void M911();

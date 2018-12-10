@@ -205,12 +205,14 @@
   void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
     st.begin();
 
+    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
+
     CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = 3;
+    chopconf.toff = timings[0];
     chopconf.intpol = INTERPOLATE;
-    chopconf.hstrt = 2;
-    chopconf.hend = 5;
+    chopconf.hend = timings[1] + 3;
+    chopconf.hstrt = timings[2] - 1;
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -440,6 +442,8 @@
 
   template<char AXIS_LETTER, char DRIVER_ID>
   void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
+    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
+
     TMC2208_n::GCONF_t gconf{0};
     gconf.pdn_disable = true; // Use UART
     gconf.mstep_reg_select = true; // Select microsteps with UART
@@ -449,10 +453,10 @@
 
     TMC2208_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 0b01; // blank_time = 24
-    chopconf.toff = 5;
+    chopconf.toff = timings[0];
     chopconf.intpol = INTERPOLATE;
-    chopconf.hstrt = 2;
-    chopconf.hend = 5;
+    chopconf.hend = timings[1] + 3;
+    chopconf.hstrt = timings[2] - 1;
     st.CHOPCONF(chopconf.sr);
 
     st.rms_current(mA, HOLD_MULTIPLIER);
@@ -540,13 +544,20 @@
   template<char AXIS_LETTER, char DRIVER_ID>
   void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const float, const bool) {
     st.begin();
+
+    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
+
+    TMC2660_n::CHOPCONF_t chopconf{0};
+    chopconf.tbl = 1;
+    chopconf.toff = timings[0];
+    chopconf.hend = timings[1] + 3;
+    chopconf.hstrt = timings[2] - 1;
+    st.CHOPCONF(chopconf.sr);
+
     st.rms_current(mA);
     st.microsteps(microsteps);
-    st.blank_time(24);
-    st.toff(5); // Only enables the driver if used with stealthChop
     st.intpol(INTERPOLATE);
-    //st.hysteresis_start(3);
-    //st.hysteresis_end(2);
+    st.diss2g(true); // Disable short to ground protection. Too many false readings?
   }
 #endif // TMC2660
 
