@@ -109,7 +109,7 @@
 #elif MB(MKS_GEN_L)
   #include "pins_MKS_GEN_L.h"         // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 #elif MB(KFB_2)
-  #include "pins_KFB_2.h"             // ATmega2560                                 env:megaatmega2560
+  #include "pins_BIQU_KFB_2.h"        // ATmega2560                                 env:megaatmega2560
 #elif MB(ZRIB_V20)
   #include "pins_ZRIB_V20.h"          // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560 (MKS_GEN_13)
 #elif MB(FELIX2)
