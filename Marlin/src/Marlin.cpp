@@ -841,6 +841,9 @@ void setup() {
 
   #if ENABLED(USE_CONTROLLER_FAN)
     SET_OUTPUT(CONTROLLER_FAN_PIN);
+    #if ENABLED(FAST_PWM_FAN)
+      Temperature::setPwmFrequency(CONTROLLER_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+    #endif
   #endif
 
   #if HAS_STEPPER_RESET
