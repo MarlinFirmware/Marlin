@@ -450,17 +450,20 @@ namespace ExtUI {
   void setTravelAcceleration_mm_s2(const float acc)   { planner.settings.travel_acceleration = acc; }
 
   #if ENABLED(BABYSTEPPING)
-    /**
-     * Converts a mm displacement to a number of steps that is
-     * greater or equal to that displacement (but not less)
-     */
-    inline int16_t nearestSteps(const float mm, const axis_t axis) {
-      const float steps = mm / planner.steps_to_mm[axis];
-      return steps > 0 ? ceil(steps) : floor(steps);
+    bool babystepAxis_steps(const int16_t steps, const axis_t axis) {
+      switch (axis) {
+        #if ENABLED(BABYSTEP_XY)
+          case X: thermalManager.babystep_axis(X_AXIS, steps); break;
+          case Y: thermalManager.babystep_axis(Y_AXIS, steps); break;
+        #endif
+        case Z: thermalManager.babystep_axis(Z_AXIS, steps); break;
+        default: return false;
+      };
+      return true;
     }
 
     /**
-     * This function babysteps an axis during a print.
+     * This function adjusts an axis during a print.
      *
      * When linked_nozzles is false, each nozzle in a multi-nozzle
      * printer can be babystepped independently of the others. This
@@ -468,17 +471,10 @@ namespace ExtUI {
      * while observing the first layer of a print, regardless of
      * what nozzle is printing.
      */
-    void babystepAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles) {
+    void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles) {
       const float mm = steps * planner.steps_to_mm[axis];
 
-      switch (axis) {
-        #if ENABLED(BABYSTEP_XY)
-          case X: thermalManager.babystep_axis(X_AXIS, steps); break;
-          case Y: thermalManager.babystep_axis(Y_AXIS, steps); break;
-        #endif
-        case Z: thermalManager.babystep_axis(Z_AXIS, steps); break;
-        default: return;
-      };
+      if(!babystepAxis_steps(steps, axis)) return;
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         // Make it so babystepping in Z adjusts the Z probe offset.
@@ -500,21 +496,22 @@ namespace ExtUI {
             if (e != active_extruder)
               hotend_offset[axis][e] += mm;
 
-          #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-            // Transfer any Z offset in the zeroth hotend to zprobe_zoffset
-            if (axis == Z) {
-              zprobe_zoffset += hotend_offset[Z_AXIS][0];
-              normalizeNozzleOffset(Z);
-            }
-          #endif
+          normalizeNozzleOffset(X);
+          normalizeNozzleOffset(Y);
+          normalizeNozzleOffset(Z);
         }
       #else
         UNUSED(linked_nozzles);
       #endif
     }
 
-    void babystepAxis_mm(const float mm, const axis_t axis, bool linked_nozzles) {
-      babystepAxis_steps(nearestSteps(mm, axis), axis, linked_nozzles);
+    /**
+     * Converts a mm displacement to a number of whole number of
+     * steps that is at least mm long.
+     */
+    int16_t mmToWholeSteps(const float mm, const axis_t axis) {
+      const float steps = mm / planner.steps_to_mm[axis];
+      return steps > 0 ? ceil(steps) : floor(steps);
     }
   #endif
 

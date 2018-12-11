@@ -137,8 +137,10 @@ namespace ExtUI {
   void setActiveTool(const extruder_t, bool no_move);
 
   #if ENABLED(BABYSTEPPING)
-    void babystepAxis_mm(const float, const axis_t, bool linked_nozzles = true);
-    void babystepAxis_steps(const int16_t, const axis_t, bool linked_nozzles = true);
+    int16_t mmToWholeSteps(const float mm, const axis_t axis);
+
+    bool babystepAxis_steps(const int16_t steps, const axis_t axis);
+    void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles);
   #endif
 
   #if HOTENDS > 1
