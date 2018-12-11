@@ -622,11 +622,11 @@ class Temperature {
       static void set_heating_message(const uint8_t e);
     #endif
 
+  private:
+
     #if ENABLED(FAST_PWM_FAN)
       static void setPwmFrequency(const pin_t pin, int val);
     #endif
-
-  private:
 
     static void set_current_temp_raw();
 
