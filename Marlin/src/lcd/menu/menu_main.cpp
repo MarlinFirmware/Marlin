@@ -29,7 +29,6 @@
 #if HAS_LCD_MENU
 
 #include "menu.h"
-#include "../../module/temperature.h"
 
 #if ENABLED(SDSUPPORT)
 
@@ -37,50 +36,11 @@
   #include "../../gcode/queue.h"
   #include "../../module/printcounter.h"
 
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    #include "../../feature/power_loss_recovery.h"
-  #endif
-
-  void lcd_sdcard_pause() {
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      if (recovery.enabled) recovery.save(true, false);
-    #endif
-    enqueue_and_echo_commands_P(PSTR("M25"));
-  }
-
-  void lcd_sdcard_resume() {
-    #if ENABLED(PARK_HEAD_ON_PAUSE)
-      enqueue_and_echo_commands_P(PSTR("M24"));
-    #else
-      card.startFileprint();
-      print_job_timer.start();
-      ui.reset_status();
-    #endif
-  }
-
-  void lcd_sdcard_stop() {
-    wait_for_heatup = wait_for_user = false;
-    card.flag.abort_sd_printing = true;
-    ui.set_status_P(PSTR(MSG_PRINT_ABORTED), -1);
-    ui.return_to_status();
-  }
-
 #endif // SDSUPPORT
-
-// void menu_tune();
-// void menu_motion();
-// void menu_temperature();
-// void menu_configuration();
-// void menu_user();
-void menu_temp_e0_filament_change();
-//void menu_change_filament();
-// void menu_info();
-// void menu_led();
 
 void menu_tune();
 void menu_prepare();
 void menu_info();
-void menu_configuration();
 
 void menu_main() {
   START_MENU();
@@ -91,74 +51,10 @@ void menu_main() {
     MENU_ITEM(submenu, MSG_TUNE, menu_tune);
   else {
     MENU_ITEM(submenu, MSG_PREPARE, menu_prepare);
-    // MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
   }
-
-  #if ENABLED(SDSUPPORT)
-    if (card.flag.cardOK) {
-      if (card.isFileOpen()) {
-        if (IS_SD_PRINTING())
-          MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
-        else
-          MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
-        MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
-      }
-      else {
-        MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
-        #if !PIN_EXISTS(SD_DETECT)
-          MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
-        #endif
-      }
-    }
-    else {
-      MENU_ITEM(function, MSG_NO_CARD, NULL);
-      #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
-      #endif
-    }
-  #endif // SDSUPPORT
 
   #if ENABLED(LCD_INFO_MENU)
     MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
-  #endif
-  
-  MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);
-
-  #if ENABLED(CUSTOM_USER_MENUS)
-    MENU_ITEM(submenu, MSG_USER_MENU, menu_user);
-  #endif
-
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
-        MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-      else
-        MENU_ITEM(submenu, MSG_FILAMENTCHANGE, menu_temp_e0_filament_change);
-    #else
-      MENU_ITEM(submenu, MSG_FILAMENTCHANGE, menu_change_filament);
-    #endif
-  #endif
-
-  #if ENABLED(LED_CONTROL_MENU)
-    MENU_ITEM(submenu, MSG_LED_CONTROL, menu_led);
-  #endif
-
-  //
-  // Switch power on/off
-  //
-  #if HAS_POWER_SWITCH
-    if (powersupply_on)
-      MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
-    else
-      MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
-  #endif
-
-  //
-  // Autostart
-  //
-  #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
-    if (!busy)
-      MENU_ITEM(function, MSG_AUTOSTART, card.beginautostart);
   #endif
 
   END_MENU();
