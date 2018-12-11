@@ -512,6 +512,15 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
+ * LCD Lightweight Screen Style
+ */
+#if DISABLED(U8GLIB_ST7920)
+  #if ENABLED(LIGHTWEIGHT_UI)
+      #error "LIGHTWEIGHT_UI requires U8GLIB_ST7920-based display."
+  #endif
+#endif
+
+/**
  * SD File Sorting
  */
 #if ENABLED(SDCARD_SORT_ALPHA)
