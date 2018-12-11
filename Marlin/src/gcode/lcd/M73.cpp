@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+#if (ENABLED(EXTENSIBLE_UI) || ENABLED(ULTRA_LCD)) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
 #include "../../lcd/ultralcd.h"
@@ -42,4 +42,4 @@ void GcodeSuite::M73() {
     ui.set_progress(parser.value_byte());
 }
 
-#endif // ULTRA_LCD && LCD_SET_PROGRESS_MANUALLY
+#endif // (ENABLED(EXTENSIBLE_UI) || ENABLED(ULTRA_LCD)) && LCD_SET_PROGRESS_MANUALLY
