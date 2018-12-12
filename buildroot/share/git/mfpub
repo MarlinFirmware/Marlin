@@ -115,10 +115,28 @@ git clean -d -f
 git checkout gh-pages || { echo "Something went wrong!"; exit 1; }
 rsync -av ${TMPFOLDER}/ ./
 
+opensite() {
+  TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+  URL="http://marlinfw.org/"
+  if [ -z "$TOOL" ]; then
+    echo "Can't find a tool to open the URL:"
+    echo $URL
+  else
+    echo "Opening the site in the browser..."
+    "$TOOL" "$URL"
+  fi
+}
+
 # Commit and push the new live site directly
 git add --all
 git commit --message "Built from ${COMMIT}"
-git push upstream
+git push upstream | {
+  while IFS= read -r line
+  do
+    [[ $line =~ "gh-pages -> gh-pages" ]] && opensite
+    echo "$line"
+  done
+}
 
 # remove the temporary folder
 rm -rf ${TMPFOLDER}

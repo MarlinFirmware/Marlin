@@ -384,6 +384,8 @@ void CardReader::initsd() {
     SERIAL_ECHO_MSG(MSG_SD_CARD_OK);
   }
   setroot();
+
+  ui.refresh();
 }
 
 void CardReader::release() {

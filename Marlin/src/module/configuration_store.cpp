@@ -76,6 +76,9 @@
 
 #if HAS_SERVOS
   #include "servo.h"
+#endif
+
+#if HAS_SERVOS && HAS_SERVO_ANGLES
   #define EEPROM_NUM_SERVOS NUM_SERVOS
 #else
   #define EEPROM_NUM_SERVOS NUM_SERVO_PLUGS
@@ -634,8 +637,8 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(servo_angles);
 
-      #if !HAS_SERVOS
-        uint16_t servo_angles[NUM_SERVO_PLUGS][2] = { { 0, 0 } };
+      #if !HAS_SERVO_ANGLES
+        uint16_t servo_angles[EEPROM_NUM_SERVOS][2] = { { 0, 0 } };
       #endif
       EEPROM_WRITE(servo_angles);
     }

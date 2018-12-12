@@ -38,6 +38,8 @@
 
 #ifndef __SAM3X8E__
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
+#elif DISABLED(TMC_USE_SW_SPI)
+  #error "Archim2 requires Software SPI. Enable TMC_USE_SW_SPI in Configuration_adv.h."
 #endif
 
 #define BOARD_NAME "Archim 2.0"
