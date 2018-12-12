@@ -2820,74 +2820,74 @@ void Stepper::report_positions() {
   void Stepper::microstep_readings() {
     SERIAL_ECHOPGM("MS1,MS2,MS3 Pins\nX: ");
     #if HAS_X_MICROSTEPS
-      SERIAL_ECHO(READ(X_MS1_PIN));
-      SERIAL_ECHO(READ(X_MS2_PIN));
+      SERIAL_CHAR('0' + READ(X_MS1_PIN));
+      SERIAL_CHAR('0' + READ(X_MS2_PIN));
       #if PIN_EXISTS(X_MS3)
-        SERIAL_ECHOLN(READ(X_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(X_MS3_PIN));
       #endif
     #endif
     #if HAS_Y_MICROSTEPS
       SERIAL_ECHOPGM("Y: ");
-      SERIAL_ECHO(READ(Y_MS1_PIN));
-      SERIAL_ECHO(READ(Y_MS2_PIN));
+      SERIAL_CHAR('0' + READ(Y_MS1_PIN));
+      SERIAL_CHAR('0' + READ(Y_MS2_PIN));
       #if PIN_EXISTS(Y_MS3)
-        SERIAL_ECHOLN(READ(Y_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(Y_MS3_PIN));
       #endif
     #endif
     #if HAS_Z_MICROSTEPS
       SERIAL_ECHOPGM("Z: ");
-      SERIAL_ECHO(READ(Z_MS1_PIN));
-      SERIAL_ECHO(READ(Z_MS2_PIN));
+      SERIAL_CHAR('0' + READ(Z_MS1_PIN));
+      SERIAL_CHAR('0' + READ(Z_MS2_PIN));
       #if PIN_EXISTS(Z_MS3)
-        SERIAL_ECHOLN(READ(Z_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(Z_MS3_PIN));
       #endif
     #endif
     #if HAS_E0_MICROSTEPS
       SERIAL_ECHOPGM("E0: ");
-      SERIAL_ECHO(READ(E0_MS1_PIN));
-      SERIAL_ECHO(READ(E0_MS2_PIN));
+      SERIAL_CHAR('0' + READ(E0_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E0_MS2_PIN));
       #if PIN_EXISTS(E0_MS3)
-        SERIAL_ECHOLN(READ(E0_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E0_MS3_PIN));
       #endif
     #endif
     #if HAS_E1_MICROSTEPS
       SERIAL_ECHOPGM("E1: ");
-      SERIAL_ECHO(READ(E1_MS1_PIN));
-      SERIAL_ECHO(READ(E1_MS2_PIN));
+      SERIAL_CHAR('0' + READ(E1_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E1_MS2_PIN));
       #if PIN_EXISTS(E1_MS3)
-        SERIAL_ECHOLN(READ(E1_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E1_MS3_PIN));
       #endif
     #endif
     #if HAS_E2_MICROSTEPS
       SERIAL_ECHOPGM("E2: ");
-      SERIAL_ECHO(READ(E2_MS1_PIN));
-      SERIAL_ECHO(READ(E2_MS2_PIN));
+      SERIAL_CHAR('0' + READ(E2_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E2_MS2_PIN));
       #if PIN_EXISTS(E2_MS3)
-        SERIAL_ECHOLN(READ(E2_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E2_MS3_PIN));
       #endif
     #endif
     #if HAS_E3_MICROSTEPS
       SERIAL_ECHOPGM("E3: ");
-      SERIAL_ECHO(READ(E3_MS1_PIN));
-      SERIAL_ECHO(READ(E3_MS2_PIN));
+      SERIAL_CHAR('0' + READ(E3_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E3_MS2_PIN));
       #if PIN_EXISTS(E3_MS3)
-        SERIAL_ECHOLN(READ(E3_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E3_MS3_PIN));
       #endif
     #endif
     #if HAS_E4_MICROSTEPS
       SERIAL_ECHOPGM("E4: ");
-      SERIAL_ECHO(READ(E4_MS1_PIN));
-      SERIAL_ECHO(READ(E4_MS2_PIN));
+      SERIAL_CHAR('0' + READ(E4_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E4_MS2_PIN));
       #if PIN_EXISTS(E4_MS3)
-        SERIAL_ECHOLN(READ(E4_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E4_MS3_PIN));
       #endif
     #endif
     #if HAS_E5_MICROSTEPS
       SERIAL_ECHOPGM("E5: ");
-      SERIAL_ECHO(READ(E5_MS1_PIN));
-      SERIAL_ECHOLN(READ(E5_MS2_PIN));
+      SERIAL_CHAR('0' + READ(E5_MS1_PIN));
+      SERIAL_ECHOLN((int)READ(E5_MS2_PIN));
       #if PIN_EXISTS(E5_MS3)
-        SERIAL_ECHOLN(READ(E5_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E5_MS3_PIN));
       #endif
     #endif
   }

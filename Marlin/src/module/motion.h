@@ -216,10 +216,6 @@ void set_axis_is_not_at_home(const AxisEnum axis);
 
 void homeaxis(const AxisEnum axis);
 
-#if ENABLED(SENSORLESS_HOMING)
-  void sensorless_homing_per_axis(const AxisEnum axis, const bool enable=true);
-#endif
-
 /**
  * Workspace offsets
  */

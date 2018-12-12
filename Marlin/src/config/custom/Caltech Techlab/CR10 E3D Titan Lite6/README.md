@@ -10,12 +10,6 @@ __Hictop CR-20 (Creality CR-10)__
   + Buildtak FlexPlate System w/ PEI sheet
 
 ----------------------------------------------------------
-#### 12.11.18
-  - Edited LCD menu tree
-    - menu_main.cpp
-    - menu_prepare.cpp
-  - Flashed to CR10B
-    
 #### 12.04.18
   - Updated custom configs from 1.1.9 to 2.0.x
     - _Bootscreen.h

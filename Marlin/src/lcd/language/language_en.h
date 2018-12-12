@@ -678,9 +678,6 @@
 #ifndef MSG_MOTION
   #define MSG_MOTION                          _UxGT("Motion")
 #endif
-#ifndef MSG_MANUAL_MOTION
-  #define MSG_MANUAL_MOTION                   _UxGT("Manual Control")
-#endif
 #ifndef MSG_FILAMENT
   #define MSG_FILAMENT                        _UxGT("Filament")
 #endif
@@ -727,7 +724,7 @@
   #define MSG_WATCH                           _UxGT("Info screen")
 #endif
 #ifndef MSG_PREPARE
-  #define MSG_PREPARE                         _UxGT("Prepare Printer")
+  #define MSG_PREPARE                         _UxGT("Prepare")
 #endif
 #ifndef MSG_TUNE
   #define MSG_TUNE                            _UxGT("Live Adjust")
