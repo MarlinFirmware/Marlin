@@ -1214,6 +1214,15 @@
 #endif
 
 /**
+ * FAST PWM FAN Settings
+ */
+#if ENABLED(FAST_PWM_FAN)
+  #ifndef FAST_PWM_FAN_FREQUENCY
+    #define FAST_PWM_FAN_FREQUENCY F_CPU/(2*255*1) // Fan frequency default
+  #endif
+#endif
+
+/**
  * Bed Probe dependencies
  */
 #if HAS_BED_PROBE
