@@ -49,6 +49,15 @@
   #define CHARSIZE 1
 #endif
 
+// Custom Caltech Techlab
+#ifndef MSG_BASIC
+  #define MSG_BASIC                           _UxGT("Basic Setup")
+#endif
+#ifndef MSG_MANUAL_CONTROL
+  #define MSG_MANUAL_CONTROL                  _UxGT("Manual Control")
+#endif
+// End Custom Caltech Techlab
+
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Ready.")
 #endif
@@ -116,7 +125,7 @@
   #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Next Point")
 #endif
 #ifndef MSG_LEVEL_BED_DONE
-  #define MSG_LEVEL_BED_DONE                  _UxGT("Leveling Done!")
+  #define MSG_LEVEL_BED_DONE                  _UxGT("Done")
 #endif
 #ifndef MSG_Z_FADE_HEIGHT
   #define MSG_Z_FADE_HEIGHT                   _UxGT("Fade Height")
@@ -191,10 +200,10 @@
   #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #endif
 #ifndef MSG_LEVEL_BED
-  #define MSG_LEVEL_BED                       _UxGT("Level bed")
+  #define MSG_LEVEL_BED                       _UxGT("Level Bed")
 #endif
 #ifndef MSG_LEVEL_CORNERS
-  #define MSG_LEVEL_CORNERS                   _UxGT("Level corners")
+  #define MSG_LEVEL_CORNERS                   _UxGT("Level Corners")
 #endif
 #ifndef MSG_NEXT_CORNER
   #define MSG_NEXT_CORNER                     _UxGT("Next corner")
@@ -742,7 +751,7 @@
   #define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #endif
 #ifndef MSG_CARD_MENU
-  #define MSG_CARD_MENU                       _UxGT("Print from SD")
+  #define MSG_CARD_MENU                       _UxGT("SDcard Menu")
 #endif
 #ifndef MSG_NO_CARD
   #define MSG_NO_CARD                         _UxGT("No SD card")
