@@ -43,6 +43,13 @@
 #define TMC_E4_LABEL 'E', '4'
 #define TMC_E5_LABEL 'E', '5'
 
+#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }
+#define CHOPPER_DEFAULT_19V  { 4,  1, 1 }
+#define CHOPPER_DEFAULT_24V  { 4,  2, 1 }
+#define CHOPPER_DEFAULT_36V  { 5,  2, 4 }
+#define CHOPPER_PRUSAMK3_24V { 4,  1, 4 }
+#define CHOPPER_MARLIN_119   { 5,  2, 3 }
+
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCStorage {
   protected:
