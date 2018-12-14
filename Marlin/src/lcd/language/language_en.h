@@ -191,7 +191,7 @@
   #define MSG_BED_LEVELING                    _UxGT("Bed Leveling")
 #endif
 #ifndef MSG_LEVEL_BED
-  #define MSG_LEVEL_BED                       _UxGT("Level bed")
+  #define MSG_LEVEL_BED                       _UxGT("Level Bed")
 #endif
 #ifndef MSG_LEVEL_CORNERS
   #define MSG_LEVEL_CORNERS                   _UxGT("Level corners")
@@ -724,7 +724,7 @@
   #define MSG_WATCH                           _UxGT("Info screen")
 #endif
 #ifndef MSG_PREPARE
-  #define MSG_PREPARE                         _UxGT("Prepare")
+  #define MSG_PREPARE                         _UxGT("Basic Setup")
 #endif
 #ifndef MSG_TUNE
   #define MSG_TUNE                            _UxGT("Live Adjust")
@@ -742,7 +742,7 @@
   #define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #endif
 #ifndef MSG_CARD_MENU
-  #define MSG_CARD_MENU                       _UxGT("Print from SD")
+  #define MSG_CARD_MENU                       _UxGT("SD card menu")
 #endif
 #ifndef MSG_NO_CARD
   #define MSG_NO_CARD                         _UxGT("No SD card")

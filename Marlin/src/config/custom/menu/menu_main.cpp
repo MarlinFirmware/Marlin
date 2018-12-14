@@ -67,23 +67,12 @@
 #endif // SDSUPPORT
 
 void menu_tune();
-//void menu_motion();
-//void menu_temperature();
-//void menu_configuration();
-//void menu_user();
-//void menu_temp_e0_filament_change();
-//void menu_change_filament();
 void menu_info();
-//void menu_led();
 void menu_basic();
 void menu_control();
 
 void menu_main() {
   START_MENU();
-  
-  STATIC_ITEM(MSG_SKIPWARN_1, false);
-  STATIC_ITEM(MSG_SKIPWARN_2, false);
-
   MENU_BACK(MSG_WATCH);
 
   const bool busy = printer_busy();
@@ -93,7 +82,7 @@ void menu_main() {
     // MENU_ITEM(submenu, MSG_MOTION, menu_motion);
     // MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
 
-    MENU_ITEM(submenu, MSG_BASIC, menu_basic);
+    MENU_ITEM(submenu, MSG_PREPARE, menu_basic);
     #if ENABLED(SDSUPPORT)
       if (card.flag.cardOK) {
         if (card.isFileOpen()) {
@@ -104,7 +93,7 @@ void menu_main() {
           MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
         }
         else {
-          MENU_ITEM(submenu, MSG_SD_MENU, menu_sdcard);
+          MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
           // #if !PIN_EXISTS(SD_DETECT)
           //   MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
           // #endif
@@ -117,7 +106,7 @@ void menu_main() {
       //   #endif
       // }
     #endif // SDSUPPORT
-    MENU_ITEM(submenu, MSG_MANUAL_CONTROL, menu_control);
+    MENU_ITEM(submenu, MSG_CONTROL, menu_control);
   }
 
   //MENU_ITEM(submenu, MSG_CONFIGURATION, menu_configuration);
