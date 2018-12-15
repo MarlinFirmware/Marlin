@@ -99,26 +99,12 @@ class MenuItem_sdfolder {
 };
 
 void menu_sdcard() {
+  ui.encoder_direction_menus();
+  const uint16_t fileCnt = card.get_num_Files();
+
   START_MENU();
   MENU_BACK(MSG_MAIN);
 
-  // pulled from menu_main 
-   if (card.flag.cardOK) {
-     MENU_ITEM(submenu, MSG_SD_MENU, menu_sdcard);
-      #if !PIN_EXISTS(SD_DETECT)
-        MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
-      #endif
-    }
-  else {
-    MENU_ITEM(function, MSG_NO_CARD, NULL);
-    #if !PIN_EXISTS(SD_DETECT)
-      MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
-    #endif
-  }  
-  // end of clip from menu_main
-
-  ui.encoder_direction_menus();
-  const uint16_t fileCnt = card.get_num_Files();
   card.getWorkDirName();
 
   if (card.filename[0] == '/') {
@@ -128,6 +114,8 @@ void menu_sdcard() {
   }
   else if (card.flag.cardOK)
     MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
+  else
+    MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));
 
   for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {

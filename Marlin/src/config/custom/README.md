@@ -17,6 +17,7 @@ __Hictop CR-20 (Creality CR-10)__
     - menu_filament.cpp
     - menu_main.cpp
     - menu_sdcard.cpp
+    - language_en.h
   - Change Advanced Pause length to 600
   - Flashed to CR10B
 ----------------------------------------------------------

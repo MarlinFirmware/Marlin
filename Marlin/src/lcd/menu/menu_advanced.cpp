@@ -29,13 +29,7 @@
 #if HAS_LCD_MENU
 
 #include "menu.h"
-#include "../../module/configuration_store.h"
 #include "../../module/planner.h"
-
-static void lcd_factory_settings() {
-  settings.reset();
-  ui.completion_feedback();
-}
 
 #if DISABLED(NO_VOLUMETRICS)
   #include "../../gcode/parser.h"
@@ -347,7 +341,7 @@ void menu_advanced_temperature() {
   END_MENU();
 }
 
-#if !DISABLED(SLIM_LCD_MENUS)
+#if DISABLED(SLIM_LCD_MENUS)
 
   void _reset_acceleration_rates() { planner.reset_acceleration_rates(); }
   #if ENABLED(DISTINCT_E_FACTORS)
@@ -540,23 +534,23 @@ void menu_advanced_temperature() {
     END_MENU();
   }
 
-  // #if ENABLED(EEPROM_SETTINGS)
+  #if ENABLED(EEPROM_SETTINGS)
 
-  //   #include "../../module/configuration_store.h"
+    #include "../../module/configuration_store.h"
 
-  //   static void lcd_init_eeprom() {
-  //     ui.completion_feedback(settings.init_eeprom());
-  //     ui.goto_previous_screen();
-  //   }
+    static void lcd_init_eeprom() {
+      ui.completion_feedback(settings.init_eeprom());
+      ui.goto_previous_screen();
+    }
 
-  //   static void lcd_init_eeprom_confirm() {
-  //     START_MENU();
-  //     MENU_BACK(MSG_ADVANCED_SETTINGS);
-  //     MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
-  //     END_MENU();
-  //   }
+    static void lcd_init_eeprom_confirm() {
+      START_MENU();
+      MENU_BACK(MSG_ADVANCED_SETTINGS);
+      MENU_ITEM(function, MSG_INIT_EEPROM, lcd_init_eeprom);
+      END_MENU();
+    }
 
-  // #endif
+  #endif
 
 #endif // !SLIM_LCD_MENUS
 
@@ -570,7 +564,7 @@ void menu_advanced_settings() {
     MENU_ITEM_EDIT(float52, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
-  #if !DISABLED(SLIM_LCD_MENUS)
+  #if DISABLED(SLIM_LCD_MENUS)
 
     #if HAS_M206_COMMAND
       //
@@ -592,14 +586,6 @@ void menu_advanced_settings() {
       // M92 - Steps Per mm
       MENU_ITEM(submenu, MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
     }
-
-   #if ENABLED(EEPROM_SETTINGS)
-    MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
-    //if (!busy)
-    //  MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
-   #endif
-  
-    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
 
   #endif // !SLIM_LCD_MENUS
 

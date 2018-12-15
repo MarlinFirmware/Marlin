@@ -30,8 +30,6 @@
 
 #include "menu.h"
 
-void menu_tune();
-void menu_basic();
 #if ENABLED(SDSUPPORT)
 
   #include "../../sd/cardreader.h"
@@ -67,6 +65,9 @@ void menu_basic();
   }
 
 #endif // SDSUPPORT
+
+void menu_tune();
+void menu_basic();
 void menu_control();
 void menu_info();
 
@@ -78,28 +79,26 @@ void menu_main() {
   if (busy)
     MENU_ITEM(submenu, MSG_TUNE, menu_tune);
   else {
-    // MENU_ITEM(submenu, MSG_MOTION, menu_motion);
-    // MENU_ITEM(submenu, MSG_TEMPERATURE, menu_temperature);
 
   MENU_ITEM(submenu, MSG_PREPARE, menu_basic);
-  #if ENABLED(SDSUPPORT)
-      if (card.flag.cardOK) {
-        if (card.isFileOpen()) {
-          if (IS_SD_PRINTING())
-            MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
-          else
-            MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
-          MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
-        }
-        else {
-          MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
-        }
-      }
-  #endif // SDSUPPORT
-  MENU_ITEM(submenu, MSG_CONTROL, menu_control);
+
+ #if ENABLED(SDSUPPORT)
+    if (card.isFileOpen()) {
+      if (IS_SD_PRINTING())
+        MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
+      else
+        MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
+      MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+    }
+    else {
+      MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
+    }
+ #endif // SDSUPPORT
+
+  MENU_ITEM(submenu, MSG_MANUAL_CONTROL, menu_control);
   
   #if ENABLED(LCD_INFO_MENU)
-    MENU_ITEM(submenu, MSG_INFO_MENU, menu_info);
+    MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, menu_info);
   #endif
   }
   END_MENU();

@@ -100,12 +100,13 @@ class MenuItem_sdfolder {
 
 void menu_sdcard() {
   ui.encoder_direction_menus();
-
   const uint16_t fileCnt = card.get_num_Files();
 
   START_MENU();
   MENU_BACK(MSG_MAIN);
+
   card.getWorkDirName();
+
   if (card.filename[0] == '/') {
     #if !PIN_EXISTS(SD_DETECT)
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
@@ -113,6 +114,8 @@ void menu_sdcard() {
   }
   else if (card.flag.cardOK)
     MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
+  else
+    MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));
 
   for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {

@@ -49,15 +49,6 @@
   #define CHARSIZE 1
 #endif
 
-// Custom Caltech Techlab
-#ifndef MSG_BASIC
-  #define MSG_BASIC                           _UxGT("Basic Setup")
-#endif
-#ifndef MSG_MANUAL_CONTROL
-  #define MSG_MANUAL_CONTROL                  _UxGT("Manual Control")
-#endif
-// End Custom Caltech Techlab
-
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Ready.")
 #endif
@@ -80,10 +71,10 @@
   #define MSG_MAIN                            _UxGT("Main")
 #endif
 #ifndef MSG_ADVANCED_SETTINGS
-  #define MSG_ADVANCED_SETTINGS               _UxGT("Advanced Settings")
+  #define MSG_ADVANCED_SETTINGS               _UxGT("Advanced Config")
 #endif
 #ifndef MSG_CONFIGURATION
-  #define MSG_CONFIGURATION                   _UxGT("Configuration")
+  #define MSG_CONFIGURATION                   _UxGT("Edit Presets")
 #endif
 #ifndef MSG_AUTOSTART
   #define MSG_AUTOSTART                       _UxGT("Autostart")
@@ -125,7 +116,7 @@
   #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Next Point")
 #endif
 #ifndef MSG_LEVEL_BED_DONE
-  #define MSG_LEVEL_BED_DONE                  _UxGT("Done")
+  #define MSG_LEVEL_BED_DONE                  _UxGT("Leveling Done!")
 #endif
 #ifndef MSG_Z_FADE_HEIGHT
   #define MSG_Z_FADE_HEIGHT                   _UxGT("Fade Height")
@@ -155,7 +146,7 @@
   #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Bed")
 #endif
 #ifndef MSG_PREHEAT_1_SETTINGS
-  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" conf")
+  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" config")
 #endif
 #ifndef MSG_PREHEAT_2
   #define MSG_PREHEAT_2                       _UxGT("Preheat " PREHEAT_2_LABEL)
@@ -173,7 +164,7 @@
   #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
 #endif
 #ifndef MSG_PREHEAT_2_SETTINGS
-  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" conf")
+  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" config")
 #endif
 #ifndef MSG_PREHEAT_CUSTOM
   #define MSG_PREHEAT_CUSTOM                  _UxGT("Preheat Custom")
@@ -203,7 +194,7 @@
   #define MSG_LEVEL_BED                       _UxGT("Level Bed")
 #endif
 #ifndef MSG_LEVEL_CORNERS
-  #define MSG_LEVEL_CORNERS                   _UxGT("Level Corners")
+  #define MSG_LEVEL_CORNERS                   _UxGT("Level corners")
 #endif
 #ifndef MSG_NEXT_CORNER
   #define MSG_NEXT_CORNER                     _UxGT("Next corner")
@@ -546,6 +537,9 @@
 #ifndef MSG_CONTROL
   #define MSG_CONTROL                         _UxGT("Control")
 #endif
+#ifndef MSG_MANUAL_CONTROL
+  #define MSG_MANUAL_CONTROL                  _UxGT("Manual Control")
+#endif
 #ifndef MSG_MIN
   #define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
 #endif
@@ -730,10 +724,10 @@
   #define MSG_REFRESH                         _UxGT("Refresh")
 #endif
 #ifndef MSG_WATCH
-  #define MSG_WATCH                           _UxGT("Info screen")
+  #define MSG_WATCH                           _UxGT("Status Screen")
 #endif
 #ifndef MSG_PREPARE
-  #define MSG_PREPARE                         _UxGT("Prepare")
+  #define MSG_PREPARE                         _UxGT("Basic Setup")
 #endif
 #ifndef MSG_TUNE
   #define MSG_TUNE                            _UxGT("Live Adjust")
@@ -751,7 +745,7 @@
   #define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #endif
 #ifndef MSG_CARD_MENU
-  #define MSG_CARD_MENU                       _UxGT("SDcard Menu")
+  #define MSG_CARD_MENU                       _UxGT("SD card menu")
 #endif
 #ifndef MSG_NO_CARD
   #define MSG_NO_CARD                         _UxGT("No SD card")

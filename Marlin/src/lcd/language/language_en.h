@@ -71,10 +71,10 @@
   #define MSG_MAIN                            _UxGT("Main")
 #endif
 #ifndef MSG_ADVANCED_SETTINGS
-  #define MSG_ADVANCED_SETTINGS               _UxGT("Advanced Settings")
+  #define MSG_ADVANCED_SETTINGS               _UxGT("Advanced Config")
 #endif
 #ifndef MSG_CONFIGURATION
-  #define MSG_CONFIGURATION                   _UxGT("Configuration")
+  #define MSG_CONFIGURATION                   _UxGT("Edit Presets")
 #endif
 #ifndef MSG_AUTOSTART
   #define MSG_AUTOSTART                       _UxGT("Autostart")
@@ -146,7 +146,7 @@
   #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Bed")
 #endif
 #ifndef MSG_PREHEAT_1_SETTINGS
-  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" conf")
+  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" config")
 #endif
 #ifndef MSG_PREHEAT_2
   #define MSG_PREHEAT_2                       _UxGT("Preheat " PREHEAT_2_LABEL)
@@ -164,7 +164,7 @@
   #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
 #endif
 #ifndef MSG_PREHEAT_2_SETTINGS
-  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" conf")
+  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" config")
 #endif
 #ifndef MSG_PREHEAT_CUSTOM
   #define MSG_PREHEAT_CUSTOM                  _UxGT("Preheat Custom")
@@ -537,6 +537,9 @@
 #ifndef MSG_CONTROL
   #define MSG_CONTROL                         _UxGT("Control")
 #endif
+#ifndef MSG_MANUAL_CONTROL
+  #define MSG_MANUAL_CONTROL                  _UxGT("Manual Control")
+#endif
 #ifndef MSG_MIN
   #define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
 #endif
@@ -721,7 +724,7 @@
   #define MSG_REFRESH                         _UxGT("Refresh")
 #endif
 #ifndef MSG_WATCH
-  #define MSG_WATCH                           _UxGT("Info screen")
+  #define MSG_WATCH                           _UxGT("Status Screen")
 #endif
 #ifndef MSG_PREPARE
   #define MSG_PREPARE                         _UxGT("Basic Setup")
