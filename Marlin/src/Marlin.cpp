@@ -684,11 +684,30 @@ void minkill() {
     suicide();
   #endif
 
+  #if !HAS_KILL
   while (1) {
     #if ENABLED(USE_WATCHDOG)
       watchdog_reset();
     #endif
   } // Wait for reset
+
+  #else // HAS_KILL
+
+  while (!READ(KILL_PIN)) {
+    #if ENABLED(USE_WATCHDOG)
+      watchdog_reset();
+    #endif
+  } // Wait for the kill pin to be released.
+
+  while (READ(KILL_PIN)) {
+    #if ENABLED(USE_WATCHDOG)
+      watchdog_reset();
+    #endif
+  } // Once the kill pin is pressed again, we'll reset
+
+  void(* resetFunc) (void) = 0;//declare reset function at address 0
+  resetFunc(); // The kill switch was pushed again... reset/restart the application.
+  #endif // HAS_KILL
 }
 
 /**
