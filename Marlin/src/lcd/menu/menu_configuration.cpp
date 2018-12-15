@@ -294,7 +294,7 @@ static void lcd_factory_settings() {
 
 void menu_configuration() {
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  MENU_BACK(MSG_MANUAL_CONTROL);
 
   //
   // Debug Menu when certain options are enabled

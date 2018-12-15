@@ -50,7 +50,7 @@
 #endif
 
 #ifndef WELCOME_MSG
-  #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Ready.")
+  #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Ready")
 #endif
 #ifndef MSG_BACK
   #define MSG_BACK                            _UxGT("Back")
@@ -140,7 +140,7 @@
   #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" All")
 #endif
 #ifndef MSG_PREHEAT_1_END
-  #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" End")
+  #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" HotEnd")
 #endif
 #ifndef MSG_PREHEAT_1_BEDONLY
   #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Bed")
@@ -158,7 +158,7 @@
   #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" All")
 #endif
 #ifndef MSG_PREHEAT_2_END
-  #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" End")
+  #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" HotEnd")
 #endif
 #ifndef MSG_PREHEAT_2_BEDONLY
   #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
@@ -745,7 +745,7 @@
   #define MSG_OUTAGE_RECOVERY                 _UxGT("Outage Recovery")
 #endif
 #ifndef MSG_CARD_MENU
-  #define MSG_CARD_MENU                       _UxGT("SD card menu")
+  #define MSG_CARD_MENU                       _UxGT("SD Card Menu")
 #endif
 #ifndef MSG_NO_CARD
   #define MSG_NO_CARD                         _UxGT("No SD card")
