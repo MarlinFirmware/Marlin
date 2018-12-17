@@ -52,6 +52,10 @@
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
 
+#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  uint8_t MarlinUI::progress_bar_percent; // = 0
+#endif
+
 #if HAS_SPI_LCD
 
 #if HAS_GRAPHICAL_LCD
@@ -100,10 +104,6 @@ uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
 
 #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
   millis_t MarlinUI::next_filament_display; // = 0
-#endif
-
-#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-  uint8_t MarlinUI::progress_bar_percent; // = 0
 #endif
 
 millis_t next_button_update_ms;

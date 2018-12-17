@@ -22,20 +22,22 @@
 #pragma once
 
  // If you have a trex 3, stock is this option plus 2208 on all axis. None in spreadcycle.
-#define TREX3
+//#define TREX3
 
 //#define X_2208
 //#define X_Spreadcycle
 //#define Y_2208 // Highly recommended as large prints with high mass can cause layer shifts with stealthchop at high speed
 //#define Y_Spreadcycle
+//#define Y_4988 // Some machines shipped with 4988 drivers across the board. Set this if you arent sure what you have and all the drivers look identical
 //#define Z_2208 // NOT Recommended! Dual stepper current draw is above the recommended limit for this driver
+//#define Z_4988 // Some machines shipped with 4988 drivers across the board. Set this if you arent sure what you have and all the drivers look identical
 //#define Y_Spreadcycle
 //#define E_2208 // Not Recommended! Stealthchop mode faults with linear advance
 //#define E_Spreadcycle
 
-#define BedAC
+//#define BedAC
 
-#define tallVersion
+//#define tallVersion
 
 /*
  * Enables a filament sensor plugged into the laser pin. Disables the laser
@@ -353,6 +355,7 @@
  *    15 : 100k thermistor calibration for JGAurora A5 hotend
  *    20 : the PT100 circuit found in the Ultimainboard V2.x
  *    60 : 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
+ *    61 : 100k Formbot / Vivedino 3950 350C thermistor 4.7k pullup
  *    66 : 4.7M High Temperature thermistor from Dyze Design
  *    70 : the 100K thermistor found in the bq Hephestos 2
  *    75 : 100k Generic Silicon Heat Pad with NTC 100K MGB18-104F39050L32 thermistor
@@ -374,8 +377,14 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '501':"100K Zonestar (Tronxy X3A)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-4':"Thermocouple + AD8495", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 1
-#define TEMP_SENSOR_1 1
+#if ENABLED(TREX3)
+  #define TEMP_SENSOR_0 61
+  #define TEMP_SENSOR_1 61
+#else
+
+  #define TEMP_SENSOR_0 1
+  #define TEMP_SENSOR_1 1
+#endif
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -648,11 +657,15 @@
 #endif
 #if ENABLED(Y_2208)
   #define Y_DRIVER_TYPE  TMC2208_STANDALONE
+#elif ENABLED(Y_4988)
+  #define Y_DRIVER_TYPE  A4988
 #else
   #define Y_DRIVER_TYPE  DRV8825
 #endif
 #if ENABLED(Z_2208)
   #define Z_DRIVER_TYPE  TMC2208_STANDALONE
+#elif ENABLED(Z_4988)
+  #define Z_DRIVER_TYPE  A4988
 #else
   #define Z_DRIVER_TYPE  DRV8825
 #endif
@@ -716,13 +729,13 @@
  */
 
 
-#if(ENABLED(Y_2208))
+#if(ENABLED(Y_2208) || ENABLED(Y_4988))
   #define Y_STEPSMM 80
 #else
   #define Y_STEPSMM 160
 #endif
 
-#if(ENABLED(Z_2208))
+#if(ENABLED(Z_2208) || ENABLED(Z_4988))
   #define Z_STEPSMM 800
 #else
   #define Z_STEPSMM 1600
@@ -740,7 +753,7 @@
 #else
   #define Y_MAXFEED 150
 #endif
-#define DEFAULT_MAX_FEEDRATE          { 250, Y_MAXFEED, 5, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 200, Y_MAXFEED, 5, 25 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s

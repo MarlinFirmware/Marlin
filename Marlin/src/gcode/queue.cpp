@@ -378,8 +378,8 @@ static int read_serial(const uint8_t index) {
     template<const size_t buffer_size>
     void receive(char (&buffer)[buffer_size]) {
       uint8_t data = 0;
-      millis_t tranfer_timeout = millis() + RX_TIMESLICE;
-      while (PENDING(millis(), tranfer_timeout)) {
+      millis_t transfer_timeout = millis() + RX_TIMESLICE;
+      while (PENDING(millis(), transfer_timeout)) {
         switch (stream_state) {
           case StreamState::STREAM_RESET:
             stream_reset();

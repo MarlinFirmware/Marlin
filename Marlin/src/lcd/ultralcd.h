@@ -271,6 +271,16 @@ public:
     static uint8_t status_message_level;      // Higher levels block lower levels
     static inline void reset_alert_level() { status_message_level = 0; }
 
+    #if HAS_PRINT_PROGRESS
+      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        static uint8_t progress_bar_percent;
+        static void set_progress(const uint8_t progress) { progress_bar_percent = MIN(progress, 100); }
+      #endif
+      static uint8_t get_progress();
+    #else
+      static constexpr uint8_t get_progress() { return 0; }
+    #endif
+
     #if HAS_SPI_LCD
 
       static bool detected();
@@ -311,16 +321,6 @@ public:
         static uint8_t status_scroll_offset;
       #endif
       static uint8_t lcd_status_update_delay;
-
-      #if HAS_PRINT_PROGRESS
-        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-          static uint8_t progress_bar_percent;
-          static void set_progress(const uint8_t progress) { progress_bar_percent = MIN(progress, 100); }
-        #endif
-        static uint8_t get_progress();
-      #else
-        static constexpr uint8_t get_progress() { return 0; }
-      #endif
 
       #if HAS_LCD_CONTRAST
         static int16_t contrast;
