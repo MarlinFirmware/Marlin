@@ -112,7 +112,7 @@ enum ADCSensorState : char {
     Prepare_FILWIDTH,
     Measure_FILWIDTH,
   #endif
-  #if ENABLED(ADC_KEYPAD)
+  #if HAS_ADC_BUTTONS
     Prepare_ADC_KEY,
     Measure_ADC_KEY,
   #endif
@@ -291,7 +291,7 @@ class Temperature {
     #endif
 
   public:
-    #if ENABLED(ADC_KEYPAD)
+    #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
       static uint8_t ADCKey_count;
     #endif
@@ -465,7 +465,7 @@ class Temperature {
         static void start_watching_bed();
       #endif
 
-      static bool wait_for_bed(const bool no_wait_for_cooling
+      static bool wait_for_bed(const bool no_wait_for_cooling=true
         #if G26_CLICK_CAN_CANCEL
           , const bool click_to_cancel=false
         #endif

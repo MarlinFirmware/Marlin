@@ -38,6 +38,7 @@ void print_hex_nybble(const uint8_t n);
 void print_hex_byte(const uint8_t b);
 void print_hex_word(const uint16_t w);
 void print_hex_address(const void * const w);
+void print_hex_long(const uint32_t w, const char delimiter);
 
 #ifdef CPU_32_BIT
   typedef uint32_t ptr_int_t;

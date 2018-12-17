@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#ifdef ARDUINO_ARCH_STM32
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -62,8 +62,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
       if (v != eeprom_read_byte(p)) {
         eeprom_write_byte(p, v);
         if (eeprom_read_byte(p) != v) {
-          SERIAL_ECHO_START();
-          SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+          SERIAL_ECHO_MSG(MSG_ERR_EEPROM_WRITE);
           return true;
         }
       }

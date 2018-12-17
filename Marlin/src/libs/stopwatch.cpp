@@ -71,13 +71,13 @@ bool Stopwatch::start() {
   else return false;
 }
 
-void Stopwatch::resume(const millis_t duration) {
+void Stopwatch::resume(const millis_t with_time) {
   #if ENABLED(DEBUG_STOPWATCH)
     Stopwatch::debug(PSTR("resume"));
   #endif
 
   reset();
-  if ((accumulator = duration)) state = RUNNING;
+  if ((accumulator = with_time)) state = RUNNING;
 }
 
 void Stopwatch::reset() {

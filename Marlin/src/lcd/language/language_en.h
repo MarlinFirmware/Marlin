@@ -35,6 +35,16 @@
 #endif
 #undef en
 
+#ifndef THIS_LANGUAGES_SPECIAL_SYMBOLS
+  #define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("³")
+#endif
+
+#ifdef NOT_EXTENDED_ISO10646_1_5X7
+  #define MSG_CUBED                           _UxGT("^3")
+#else
+  #define MSG_CUBED                           _UxGT("³")
+#endif
+
 #ifndef CHARSIZE
   #define CHARSIZE 1
 #endif
@@ -672,7 +682,7 @@
   #define MSG_FILAMENT                        _UxGT("Filament")
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
-  #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
+  #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm") MSG_CUBED
 #endif
 #ifndef MSG_FILAMENT_DIAM
   #define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")

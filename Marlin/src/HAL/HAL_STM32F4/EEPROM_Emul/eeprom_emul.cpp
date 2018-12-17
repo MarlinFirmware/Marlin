@@ -47,7 +47,7 @@
 /** @addtogroup EEPROM_Emulation
   * @{
   */
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F4xx))
+#if defined(STM32GENERIC) && (defined(STM32F4))
 
 /* Includes ------------------------------------------------------------------*/
 #include "eeprom_emul.h"

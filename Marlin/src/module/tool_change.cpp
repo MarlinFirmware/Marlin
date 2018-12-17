@@ -96,13 +96,11 @@
 #endif // DO_SWITCH_EXTRUDER
 
 #if ENABLED(SWITCHING_NOZZLE)
-
   void move_nozzle_servo(const uint8_t e) {
     planner.synchronize();
     MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][e]);
     safe_delay(500);
   }
-
 #endif // SWITCHING_NOZZLE
 
 #if ENABLED(PARKING_EXTRUDER)
@@ -479,6 +477,8 @@ inline void invalid_extruder_error(const uint8_t e) {
         active_extruder_parked = true;
         delayed_move_time = 0;
         break;
+      default:
+        break;
     }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -553,8 +553,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #endif
       if (should_swap) {
         if (too_cold) {
-          SERIAL_ERROR_START();
-          SERIAL_ERRORLNPGM(MSG_ERR_HOTEND_TOO_COLD);
+          SERIAL_ERROR_MSG(MSG_ERR_HOTEND_TOO_COLD);
           #if ENABLED(SINGLENOZZLE)
             active_extruder = tmp_extruder;
             return;
@@ -594,8 +593,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       #endif
 
+      set_destination_from_current();
+
       if (!no_move) {
-        set_destination_from_current();
         #if DISABLED(SWITCHING_NOZZLE)
           // Do a small lift to avoid the workpiece in the move back (below)
           #if ENABLED(TOOLCHANGE_PARK)

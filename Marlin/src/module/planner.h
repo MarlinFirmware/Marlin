@@ -175,13 +175,9 @@ typedef struct {
         min_travel_feedrate_mm_s;               // (mm/s) M205 T - Minimum travel feedrate
 } planner_settings_t;
 
-#ifndef XY_SKEW_FACTOR
+#if DISABLED(SKEW_CORRECTION)
   #define XY_SKEW_FACTOR 0
-#endif
-#ifndef XZ_SKEW_FACTOR
   #define XZ_SKEW_FACTOR 0
-#endif
-#ifndef YZ_SKEW_FACTOR
   #define YZ_SKEW_FACTOR 0
 #endif
 
@@ -340,6 +336,10 @@ class Planner {
 
     #if ENABLED(ULTRA_LCD)
       volatile static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
+    #endif
+
+    #if ENABLED(BACKLASH_COMPENSATION)
+      static void add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block, float (&delta_mm)[ABCE]);
     #endif
 
   public:

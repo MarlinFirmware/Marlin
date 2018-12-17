@@ -45,14 +45,10 @@ void GcodeSuite::M421() {
              hasZ = parser.seen('Z'),
              hasQ = !hasZ && parser.seen('Q');
 
-  if (!hasI || !hasJ || !(hasZ || hasQ)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
-  }
-  else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
-  }
+  if (!hasI || !hasJ || !(hasZ || hasQ))
+    SERIAL_ERROR_MSG(MSG_ERR_M421_PARAMETERS);
+  else if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1) || !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))
+    SERIAL_ERROR_MSG(MSG_ERR_MESH_XY);
   else {
     z_values[ix][iy] = parser.value_linear_units() + (hasQ ? z_values[ix][iy] : 0);
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)

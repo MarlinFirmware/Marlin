@@ -21,7 +21,7 @@
  */
 
 /**
- * Formbot pin assignments
+ * Formbot Raptor pin assignments
  */
 
 #ifndef __AVR_ATmega2560__
@@ -32,8 +32,12 @@
   #error "Formbot supports up to 3 hotends / E-steppers. Comment this line to keep going."
 #endif
 
-#define DEFAULT_MACHINE_NAME "Formbot Raptor"
-#define BOARD_NAME           "Formbot Raptor"
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "Formbot Raptor"
+#endif
+#ifndef BOARD_NAME
+  #define BOARD_NAME           "Formbot Raptor"
+#endif
 
 //
 // Servos
@@ -41,7 +45,6 @@
 #define SERVO0_PIN         11
 #define SERVO1_PIN          6
 #define SERVO2_PIN          5
-#define SERVO3_PIN         -1
 
 //
 // Limit Switches
@@ -140,11 +143,11 @@
 //
 #define HEATER_0_PIN       10
 #define HEATER_1_PIN        7
-#define HEATER_BED_PIN     8
+#define HEATER_BED_PIN      8
 
-#define LED4_PIN            5
-
-#define FAN_PIN             9
+#ifndef FAN_PIN
+  #define FAN_PIN           9
+#endif
 
 #if DISABLED(FILAMENT_RUNOUT_SENSOR)
   #define FAN1_PIN          4
@@ -153,8 +156,11 @@
 //
 // Misc. Functions
 //
-#define SDSS               53
+#ifndef SDSS
+  #define SDSS             53
+#endif
 #define LED_PIN            13
+#define LED4_PIN            5
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input

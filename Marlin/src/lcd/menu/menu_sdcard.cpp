@@ -33,8 +33,8 @@
 
 #if !PIN_EXISTS(SD_DETECT)
   void lcd_sd_refresh() {
-    card.initsd();
     encoderTopLine = 0;
+    card.initsd();
   }
 #endif
 
@@ -111,9 +111,8 @@ void menu_sdcard() {
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
     #endif
   }
-  else {
+  else if (card.flag.cardOK)
     MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
-  }
 
   for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {

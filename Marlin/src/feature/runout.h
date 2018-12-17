@@ -111,7 +111,7 @@ class FilamentSensorBase {
     static void filament_present(const uint8_t extruder);
 
   public:
-    static void setup() {
+    static inline void setup() {
       #if ENABLED(FIL_RUNOUT_PULLUP)
         #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLUP(P)
       #elif ENABLED(FIL_RUNOUT_PULLDOWN)
@@ -138,14 +138,8 @@ class FilamentSensorBase {
       #endif
     }
 
-    #if FIL_RUNOUT_INVERTING
-      #define FIL_RUNOUT_INVERT_MASK (_BV(NUM_RUNOUT_SENSORS) - 1)
-    #else
-      #define FIL_RUNOUT_INVERT_MASK 0
-    #endif
-
-    // Return a bitmask of all runout sensor states
-    static uint8_t poll_runout_pins() {
+    // Return a bitmask of runout pin states
+    static inline uint8_t poll_runout_pins() {
       return (
         (READ(FIL_RUNOUT_PIN ) ? _BV(0) : 0)
         #if NUM_RUNOUT_SENSORS > 1
@@ -163,7 +157,18 @@ class FilamentSensorBase {
             #endif
           #endif
         #endif
-      ) ^ FIL_RUNOUT_INVERT_MASK;
+      );
+    }
+
+    // Return a bitmask of runout flag states (1 bits always indicates runout)
+    static inline uint8_t poll_runout_states() {
+      return poll_runout_pins() ^ uint8_t(
+        #if DISABLED(FIL_RUNOUT_INVERTING)
+          _BV(NUM_RUNOUT_SENSORS) - 1
+        #else
+          0
+        #endif
+      );
     }
 };
 
@@ -186,7 +191,12 @@ class FilamentSensorBase {
         old_state = new_state;
 
         #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
-          if (change) SERIAL_PROTOCOLLNPAIR("Motion detected: ", int(change));
+          if (change) {
+            SERIAL_ECHOPGM("Motion detected:");
+            for (uint8_t e = 0; e < NUM_RUNOUT_SENSORS; e++)
+              if (TEST(change, e)) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + e); }
+            SERIAL_EOL();
+          }
         #endif
 
         motion_detected |= change;
@@ -214,35 +224,36 @@ class FilamentSensorBase {
    */
   class FilamentSensorSwitch : public FilamentSensorBase {
     private:
-      static bool poll_runout_pin(const uint8_t extruder) {
-        const uint8_t runout_bits = poll_runout_pins();
+      static inline bool poll_runout_state(const uint8_t extruder) {
+        const uint8_t runout_states = poll_runout_states();
         #if NUM_RUNOUT_SENSORS == 1
-          return runout_bits;                     // A single sensor applying to all extruders
+          UNUSED(extruder);
+          return runout_states;                     // A single sensor applying to all extruders
         #else
           #if ENABLED(DUAL_X_CARRIAGE)
             if (dual_x_carriage_mode == DXC_DUPLICATION_MODE || dual_x_carriage_mode == DXC_SCALED_DUPLICATION_MODE)
-              return runout_bits;                 // Any extruder
+              return runout_states;                 // Any extruder
             else
           #elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
             if (extruder_duplication_enabled)
-              return runout_bits;                 // Any extruder
+              return runout_states;                 // Any extruder
             else
           #endif
-              return TEST(runout_bits, extruder); // Specific extruder
+              return TEST(runout_states, extruder); // Specific extruder
         #endif
       }
 
     public:
-      static inline void block_completed(const block_t* const b) {}
+      static inline void block_completed(const block_t* const b) { UNUSED(b); }
 
       static inline void run() {
-        const bool out = poll_runout_pin(active_extruder);
+        const bool out = poll_runout_state(active_extruder);
         if (!out) filament_present(active_extruder);
         #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
           static bool was_out = false;
           if (out != was_out) {
             was_out = out;
-            SERIAL_PROTOCOL("Filament ");
+            SERIAL_ECHOPGM("Filament ");
             serialprintPGM(out ? PSTR("OUT\n") : PSTR("IN\n"));
           }
         #endif
@@ -266,7 +277,7 @@ class FilamentSensorBase {
     public:
       static float runout_distance_mm;
 
-      static void reset() {
+      static inline void reset() {
         LOOP_L_N(i, EXTRUDERS) filament_present(i);
       }
 
@@ -278,7 +289,7 @@ class FilamentSensorBase {
             t = millis() + 1000UL;
             LOOP_L_N(i, EXTRUDERS) {
               serialprintPGM(i ? PSTR(", ") : PSTR("Remaining mm: "));
-              SERIAL_PROTOCOL(runout_mm_countdown[i]);
+              SERIAL_ECHO(runout_mm_countdown[i]);
             }
             SERIAL_EOL();
           }
@@ -294,9 +305,12 @@ class FilamentSensorBase {
       }
 
       static inline void block_completed(const block_t* const b) {
-        const uint8_t e = b->extruder;
-        const int32_t steps = b->steps[E_AXIS];
-        runout_mm_countdown[e] -= (TEST(b->direction_bits, E_AXIS) ? -steps : steps) * planner.steps_to_mm[E_AXIS_N(e)];
+        if (b->steps[X_AXIS] || b->steps[Y_AXIS] || b->steps[Z_AXIS]) {
+          // Only trigger on extrusion with XYZ movement to allow filament change and retract/recover.
+          const uint8_t e = b->extruder;
+          const int32_t steps = b->steps[E_AXIS];
+          runout_mm_countdown[e] -= (TEST(b->direction_bits, E_AXIS) ? -steps : steps) * planner.steps_to_mm[E_AXIS_N(e)];
+        }
       }
   };
 
@@ -313,7 +327,7 @@ class FilamentSensorBase {
       static inline void reset()                                  { runout_count = runout_threshold; }
       static inline void run()                                    { runout_count--; }
       static inline bool has_run_out()                            { return runout_count < 0; }
-      static inline void block_completed(const block_t* const b)  {}
+      static inline void block_completed(const block_t* const b)  { UNUSED(b); }
       static inline void filament_present(const uint8_t extruder) { runout_count = runout_threshold; UNUSED(extruder); }
   };
 

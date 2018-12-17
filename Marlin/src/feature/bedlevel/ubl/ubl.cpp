@@ -39,7 +39,7 @@
       const int8_t port/*= -1*/
     #endif
   ) {
-    SERIAL_PROTOCOLPGM_P(port, "Unified Bed Leveling");
+    SERIAL_ECHOPGM_P(port, "Unified Bed Leveling");
   }
 
   void unified_bed_leveling::report_current_mesh(
@@ -48,18 +48,16 @@
     #endif
   ) {
     if (!leveling_is_valid()) return;
-    SERIAL_ECHO_START_P(port);
-    SERIAL_ECHOLNPGM_P(port, "  G29 I99");
+    SERIAL_ECHO_MSG_P(port, "  G29 I99");
     for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
       for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
         if (!isnan(z_values[x][y])) {
           SERIAL_ECHO_START_P(port);
           SERIAL_ECHOPAIR_P(port, "  M421 I", x);
           SERIAL_ECHOPAIR_P(port, " J", y);
-          SERIAL_ECHOPGM_P(port, " Z");
-          SERIAL_ECHO_F_P(port, z_values[x][y], 2);
+          SERIAL_ECHOPAIR_F_P(port, " Z", z_values[x][y], 2);
           SERIAL_EOL_P(port);
-          safe_delay(75); // Prevent Printrun from exploding
+          serial_delay(75); // Prevent Printrun from exploding
         }
   }
 
@@ -73,10 +71,10 @@
         port
       #endif
     );
-    SERIAL_PROTOCOLPGM_P(port, " System v" UBL_VERSION " ");
-    if (!planner.leveling_active) SERIAL_PROTOCOLPGM_P(port, "in");
-    SERIAL_PROTOCOLLNPGM_P(port, "active.");
-    safe_delay(50);
+    SERIAL_ECHOPGM_P(port, " System v" UBL_VERSION " ");
+    if (!planner.leveling_active) SERIAL_ECHOPGM_P(port, "in");
+    SERIAL_ECHOLNPGM_P(port, "active.");
+    serial_delay(50);
   }
 
   #if ENABLED(UBL_DEVEL_DEBUGGING)
@@ -105,16 +103,16 @@
       if (xy_dist == 0.0) return;
 
       const float fpmm = de / xy_dist;
-      SERIAL_ECHOPGM("   fpmm="); SERIAL_ECHO_F(fpmm, 6);
-      SERIAL_ECHOPGM("    current=( ");
-      SERIAL_ECHO_F(current_position[X_AXIS], 6); SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[Y_AXIS], 6); SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[Z_AXIS], 6); SERIAL_ECHOPGM(", ");
-      SERIAL_ECHO_F(current_position[E_AXIS], 6); SERIAL_ECHOPGM(" )   destination=( ");
-      debug_echo_axis(X_AXIS); SERIAL_ECHOPGM(", ");
-      debug_echo_axis(Y_AXIS); SERIAL_ECHOPGM(", ");
-      debug_echo_axis(Z_AXIS); SERIAL_ECHOPGM(", ");
-      debug_echo_axis(E_AXIS); SERIAL_ECHOPGM(" )   ");
+      SERIAL_ECHOPAIR_F("   fpmm=", fpmm, 6);
+      SERIAL_ECHOPAIR_F("    current=( ", current_position[X_AXIS], 6);
+      SERIAL_ECHOPAIR_F(", ", current_position[Y_AXIS], 6);
+      SERIAL_ECHOPAIR_F(", ", current_position[Z_AXIS], 6);
+      SERIAL_ECHOPAIR_F(", ", current_position[E_AXIS], 6);
+      SERIAL_ECHOPGM(" )   destination=( "); debug_echo_axis(X_AXIS);
+      SERIAL_ECHOPGM(", "); debug_echo_axis(Y_AXIS);
+      SERIAL_ECHOPGM(", "); debug_echo_axis(Z_AXIS);
+      SERIAL_ECHOPGM(", "); debug_echo_axis(E_AXIS);
+      SERIAL_ECHOPGM(" )   ");
       serialprintPGM(title);
       SERIAL_EOL();
     }
@@ -173,7 +171,7 @@
     if (y < 100) { SERIAL_CHAR(' '); if (y < 10) SERIAL_CHAR(' '); }
     SERIAL_ECHO(y);
     SERIAL_CHAR(')');
-    safe_delay(5);
+    serial_delay(5);
   }
 
   static void serial_echo_column_labels(const uint8_t sp) {
@@ -183,7 +181,7 @@
       SERIAL_ECHO(i);
       SERIAL_ECHO_SP(sp);
     }
-    safe_delay(10);
+    serial_delay(10);
   }
 
   /**
@@ -279,7 +277,7 @@
     uint8_t error_flag = 0;
 
     if (settings.calc_num_meshes() < 1) {
-      SERIAL_PROTOCOLLNPGM("?Mesh too big for EEPROM.");
+      SERIAL_ECHOLNPGM("?Mesh too big for EEPROM.");
       error_flag++;
     }
 

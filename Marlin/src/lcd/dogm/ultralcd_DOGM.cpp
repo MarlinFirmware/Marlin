@@ -21,7 +21,7 @@
  */
 
 /**
- * ultralcd_impl_DOGM.cpp
+ * ultralcd_DOGM.cpp
  *
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
@@ -59,6 +59,10 @@
   #include "../../feature/bedlevel/ubl/ubl.h"
 #endif
 
+/**
+ * Include all needed font files
+ * (See http://marlinfw.org/docs/development/fonts.html)
+ */
 #include "fontdata/fontdata_ISO10646_1.h"
 #if ENABLED(USE_SMALL_INFOFONT)
   #include "fontdata/fontdata_6x9_marlin.h"
@@ -68,7 +72,6 @@
 #endif
 
 U8G_CLASS u8g(U8G_PARAM);
-U8GLIB *pu8g = &u8g;
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 
@@ -216,7 +219,7 @@ void MarlinUI::init_lcd() {
     u8g.setRot270();  // Rotate screen by 270°
   #endif
 
-  uxg_SetUtf8Fonts(g_fontinfo, NUM_ARRAY(g_fontinfo));
+  uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
 }
 
 // The kill screen is displayed for unrecoverable conditions
@@ -363,7 +366,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     #endif
 
     // Center the label and value lines on the middle line
-    uint8_t baseline = extra_row ? (LCD_PIXEL_HEIGHT) / 2
+    uint8_t baseline = extra_row ? (LCD_PIXEL_HEIGHT) / 2 - 1
                                  : (LCD_PIXEL_HEIGHT + EDIT_FONT_ASCENT) / 2;
 
     // Assume the label is alpha-numeric (with a descender)
@@ -378,7 +381,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_wchar(':');
       if (extra_row) {
         // Assume the value is numeric (with no descender)
-        baseline += EDIT_FONT_ASCENT;
+        baseline += EDIT_FONT_ASCENT + 2;
         onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline);
       }
       if (onpage) {

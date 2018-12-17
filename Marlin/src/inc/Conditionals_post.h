@@ -860,6 +860,7 @@
   #define AXIS_HAS_STALLGUARD(ST)  (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2660))
   #define AXIS_HAS_STEALTHCHOP(ST) (AXIS_DRIVER_TYPE(ST, TMC2130) || AXIS_DRIVER_TYPE(ST, TMC2208))
 
+  #define STEALTHCHOP_ENABLED (ENABLED(STEALTHCHOP_XY) || ENABLED(STEALTHCHOP_Z) || ENABLED(STEALTHCHOP_E))
   #define USE_SENSORLESS (ENABLED(SENSORLESS_HOMING) || ENABLED(SENSORLESS_PROBING))
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
   #if HOMING_Z_WITH_PROBE
@@ -972,6 +973,12 @@
 
 #if HAS_SERVOS && !defined(Z_PROBE_SERVO_NR)
   #define Z_PROBE_SERVO_NR -1
+#endif
+
+#define HAS_SERVO_ANGLES (ENABLED(SWITCHING_EXTRUDER) || ENABLED(SWITCHING_NOZZLE) || (HAS_Z_SERVO_PROBE && defined(Z_PROBE_SERVO_NR)))
+
+#if !HAS_SERVO_ANGLES
+  #undef EDITABLE_SERVO_ANGLES
 #endif
 
 // Sensors
@@ -1208,34 +1215,28 @@
   #define _SKEW_FACTOR(a,b,c) _SKEW_SIDE(float(a),_GET_SIDE(float(a),float(b),float(c)),float(c))
 
   #ifndef XY_SKEW_FACTOR
-    constexpr float XY_SKEW_FACTOR = (
-      #if defined(XY_DIAG_AC) && defined(XY_DIAG_BD) && defined(XY_SIDE_AD)
-        _SKEW_FACTOR(XY_DIAG_AC, XY_DIAG_BD, XY_SIDE_AD)
-      #else
-        0.0
-      #endif
-    );
+    #if defined(XY_DIAG_AC) && defined(XY_DIAG_BD) && defined(XY_SIDE_AD)
+      #define XY_SKEW_FACTOR _SKEW_FACTOR(XY_DIAG_AC, XY_DIAG_BD, XY_SIDE_AD)
+    #else
+      #define XY_SKEW_FACTOR 0.0
+    #endif
   #endif
   #ifndef XZ_SKEW_FACTOR
     #if defined(XY_SIDE_AD) && !defined(XZ_SIDE_AD)
       #define XZ_SIDE_AD XY_SIDE_AD
     #endif
-    constexpr float XZ_SKEW_FACTOR = (
-      #if defined(XZ_DIAG_AC) && defined(XZ_DIAG_BD) && defined(XZ_SIDE_AD)
-        _SKEW_FACTOR(XZ_DIAG_AC, XZ_DIAG_BD, XZ_SIDE_AD)
-      #else
-        0.0
-      #endif
-    );
+    #if defined(XZ_DIAG_AC) && defined(XZ_DIAG_BD) && defined(XZ_SIDE_AD)
+      #define XZ_SKEW_FACTOR _SKEW_FACTOR(XZ_DIAG_AC, XZ_DIAG_BD, XZ_SIDE_AD)
+    #else
+      #define XZ_SKEW_FACTOR 0.0
+    #endif
   #endif
   #ifndef YZ_SKEW_FACTOR
-    constexpr float YZ_SKEW_FACTOR = (
-      #if defined(YZ_DIAG_AC) && defined(YZ_DIAG_BD) && defined(YZ_SIDE_AD)
-        _SKEW_FACTOR(YZ_DIAG_AC, YZ_DIAG_BD, YZ_SIDE_AD)
-      #else
-        0.0
-      #endif
-    );
+    #if defined(YZ_DIAG_AC) && defined(YZ_DIAG_BD) && defined(YZ_SIDE_AD)
+      #define YZ_SKEW_FACTOR _SKEW_FACTOR(YZ_DIAG_AC, YZ_DIAG_BD, YZ_SIDE_AD)
+    #else
+      #define YZ_SKEW_FACTOR 0.0
+    #endif
   #endif
 #endif // SKEW_CORRECTION
 
@@ -1641,9 +1642,7 @@
 
 // Get LCD character width/height, which may be overridden by pins, configs, etc.
 #ifndef LCD_WIDTH
-  #if ENABLED(LIGHTWEIGHT_UI)
-    #define LCD_WIDTH 16
-  #elif HAS_GRAPHICAL_LCD
+  #if HAS_GRAPHICAL_LCD
     #define LCD_WIDTH 22
   #elif ENABLED(ULTIPANEL)
     #define LCD_WIDTH 20
@@ -1652,9 +1651,7 @@
   #endif
 #endif
 #ifndef LCD_HEIGHT
-  #if ENABLED(LIGHTWEIGHT_UI)
-    #define LCD_HEIGHT 4
-  #elif HAS_GRAPHICAL_LCD
+  #if HAS_GRAPHICAL_LCD
     #define LCD_HEIGHT 5
   #elif ENABLED(ULTIPANEL)
     #define LCD_HEIGHT 4

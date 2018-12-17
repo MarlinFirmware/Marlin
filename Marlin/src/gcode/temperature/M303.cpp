@@ -37,7 +37,7 @@
  */
 void GcodeSuite::M303() {
 
-  const int8_t e = parser.byteval('E');
+  const int8_t e = parser.intval('E');
 
   if (!WITHIN(e, 0
     #if ENABLED(PIDTEMPBED)

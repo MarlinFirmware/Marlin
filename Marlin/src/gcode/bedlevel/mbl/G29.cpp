@@ -39,7 +39,7 @@
 #include "../../../module/stepper.h"
 
 // Save 130 bytes with non-duplication of PSTR
-inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_PROTOCOLLNPGM(" not entered."); }
+inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" not entered."); }
 
 /**
  * G29: Mesh-based Z probe, probes a grid and produces a
@@ -47,19 +47,12 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_PROTOCOLLNPG
  *
  * Parameters With MESH_BED_LEVELING:
  *
- *  S0              Produce a mesh report
+ *  S0              Report the current mesh values
  *  S1              Start probing mesh points
  *  S2              Probe the next mesh point
- *  S3 Xn Yn Zn.nn  Manually modify a single point
+ *  S3 In Jn Zn.nn  Manually modify a single point
  *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
  *  S5              Reset and disable mesh
- *
- * The S0 report the points as below
- *
- *  +----> X-axis  1-n
- *  |
- *  |
- *  v Y-axis  1-n
  *
  */
 void GcodeSuite::G29() {
@@ -71,21 +64,21 @@ void GcodeSuite::G29() {
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
   if (!WITHIN(state, 0, 5)) {
-    SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
+    SERIAL_ECHOLNPGM("S out of range (0-5).");
     return;
   }
 
-  int8_t px, py;
+  int8_t ix, iy;
 
   switch (state) {
     case MeshReport:
-      SERIAL_PROTOCOLPGM("Mesh Bed Leveling ");
+      SERIAL_ECHOPGM("Mesh Bed Leveling ");
       if (leveling_is_valid()) {
         serialprintln_onoff(planner.leveling_active);
         mbl.report_mesh();
       }
       else
-        SERIAL_PROTOCOLLNPGM("has no data.");
+        SERIAL_ECHOLNPGM("has no data.");
       break;
 
     case MeshStart:
@@ -99,7 +92,7 @@ void GcodeSuite::G29() {
 
     case MeshNext:
       if (mbl_probe_index < 0) {
-        SERIAL_PROTOCOLLNPGM("Start mesh probing with \"G29 S1\" first.");
+        SERIAL_ECHOLNPGM("Start mesh probing with \"G29 S1\" first.");
         return;
       }
       // For each G29 S2...
@@ -126,8 +119,8 @@ void GcodeSuite::G29() {
           soft_endstops_enabled = false;
         #endif
 
-        mbl.zigzag(mbl_probe_index++, px, py);
-        _manual_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
+        mbl.zigzag(mbl_probe_index++, ix, iy);
+        _manual_goto_xy(mbl.index_to_xpos[ix], mbl.index_to_ypos[iy]);
       }
       else {
         // One last "return to the bed" (as originally coded) at completion
@@ -137,7 +130,7 @@ void GcodeSuite::G29() {
 
         // After recording the last point, activate home and activate
         mbl_probe_index = -1;
-        SERIAL_PROTOCOLLNPGM("Mesh probing done.");
+        SERIAL_ECHOLNPGM("Mesh probing done.");
         BUZZ(100, 659);
         BUZZ(100, 698);
 
@@ -158,30 +151,30 @@ void GcodeSuite::G29() {
       break;
 
     case MeshSet:
-      if (parser.seenval('X')) {
-        px = parser.value_int() - 1;
-        if (!WITHIN(px, 0, GRID_MAX_POINTS_X - 1)) {
-          SERIAL_PROTOCOLPAIR("X out of range (0-", int(GRID_MAX_POINTS_X));
-          SERIAL_PROTOCOLLNPGM(")");
+      if (parser.seenval('I')) {
+        ix = parser.value_int();
+        if (!WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) {
+          SERIAL_ECHOPAIR("I out of range (0-", int(GRID_MAX_POINTS_X - 1));
+          SERIAL_ECHOLNPGM(")");
           return;
         }
       }
       else
-        return echo_not_entered('X');
+        return echo_not_entered('J');
 
-      if (parser.seenval('Y')) {
-        py = parser.value_int() - 1;
-        if (!WITHIN(py, 0, GRID_MAX_POINTS_Y - 1)) {
-          SERIAL_PROTOCOLPAIR("Y out of range (0-", int(GRID_MAX_POINTS_Y));
-          SERIAL_PROTOCOLLNPGM(")");
+      if (parser.seenval('J')) {
+        iy = parser.value_int();
+        if (!WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1)) {
+          SERIAL_ECHOPAIR("J out of range (0-", int(GRID_MAX_POINTS_Y - 1));
+          SERIAL_ECHOLNPGM(")");
           return;
         }
       }
       else
-        return echo_not_entered('Y');
+        return echo_not_entered('J');
 
       if (parser.seenval('Z'))
-        mbl.z_values[px][py] = parser.value_linear_units();
+        mbl.z_values[ix][iy] = parser.value_linear_units();
       else
         return echo_not_entered('Z');
       break;
@@ -200,8 +193,8 @@ void GcodeSuite::G29() {
   } // switch(state)
 
   if (state == MeshNext) {
-    SERIAL_PROTOCOLPAIR("MBL G29 point ", MIN(mbl_probe_index, GRID_MAX_POINTS));
-    SERIAL_PROTOCOLLNPAIR(" of ", int(GRID_MAX_POINTS));
+    SERIAL_ECHOPAIR("MBL G29 point ", MIN(mbl_probe_index, GRID_MAX_POINTS));
+    SERIAL_ECHOLNPAIR(" of ", int(GRID_MAX_POINTS));
   }
 
   report_current_position();

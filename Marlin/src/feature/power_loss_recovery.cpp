@@ -118,7 +118,7 @@ void PrintJobRecovery::load() {
 /**
  * Save the current machine state to the power-loss recovery file
  */
-void PrintJobRecovery::save(const bool force/*=false*/) {
+void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=true*/) {
 
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
@@ -182,8 +182,8 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
     #endif
 
     // Commands in the queue
+    info.commands_in_queue = save_queue ? commands_in_queue : 0;
     info.cmd_queue_index_r = cmd_queue_index_r;
-    info.commands_in_queue = commands_in_queue;
     COPY(info.command_queue, command_queue);
 
     // Elapsed print job time
@@ -197,7 +197,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
 
     // KILL now if the power-loss pin was triggered
     #if PIN_EXISTS(POWER_LOSS)
-      if (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) kill(MSG_OUTAGE_RECOVERY);
+      if (READ(POWER_LOSS_PIN) == POWER_LOSS_STATE) kill(PSTR(MSG_OUTAGE_RECOVERY));
     #endif
   }
 }
@@ -216,6 +216,8 @@ void PrintJobRecovery::write() {
   const int16_t ret = file.write(&info, sizeof(info));
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     if (ret == -1) SERIAL_ECHOLNPGM("Power-loss file write failed.");
+  #else
+    UNUSED(ret);
   #endif
 }
 
@@ -275,7 +277,7 @@ void PrintJobRecovery::resume() {
   }
 
   // Restore print cooling fan speeds
-  for (uint8_t i = 0; i < FAN_COUNT; i++) {
+  FANS_LOOP(i) {
     uint8_t f = info.fan_speed[i];
     if (f) {
       sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
@@ -330,7 +332,7 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Process commands from the old pending queue
-  uint8_t r = info.cmd_queue_index_r, c = info.commands_in_queue;
+  uint8_t c = info.commands_in_queue, r = info.cmd_queue_index_r;
   for (; c--; r = (r + 1) % BUFSIZE)
     gcode.process_subcommands_now(info.command_queue[r]);
 

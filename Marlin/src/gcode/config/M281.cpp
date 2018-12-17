@@ -21,7 +21,7 @@
  */
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES)
+#if ENABLED(EDITABLE_SERVO_ANGLES)
 
 #include "../gcode.h"
 #include "../../module/servo.h"
@@ -53,4 +53,4 @@ void GcodeSuite::M281() {
   }
 }
 
-#endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
+#endif // EDITABLE_SERVO_ANGLES
