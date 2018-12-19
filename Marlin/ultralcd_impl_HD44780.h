@@ -801,14 +801,31 @@ static void lcd_implementation_status_screen() {
     #if LCD_WIDTH < 20
 
       #if ENABLED(SDSUPPORT)
-        lcd.setCursor(0, 2);
-        lcd_printPGM(PSTR("SD"));
-        if (IS_SD_PRINTING())
+        if (IS_SD_PRINTING()) {
+          lcd.setCursor(0, 2);
+          lcd_printPGM(PSTR("SD"));
           lcd.print(itostr3(card.percentDone()));
-        else
-          lcd_printPGM(PSTR("---"));
           lcd.write('%');
+        }
+
+        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+
+        // If both SDSUPPORT and LCD_SET_PROGRESS_MANUALLY are enabled,
+        // IS_SD_PRINTING have priority
+        else
+
+        #endif // LCD_SET_PROGRESS_MANUALLY
+
       #endif // SDSUPPORT
+
+      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        if (progress_bar_percent > 0) {
+          lcd.setCursor(0, 2);
+          lcd_printPGM(PSTR("P:"));
+          lcd.print(itostr3(progress_bar_percent));
+          lcd.write('%');
+        }
+      #endif // LCD_SET_PROGRESS_MANUALLY
 
     #else // LCD_WIDTH >= 20
 
@@ -863,17 +880,36 @@ static void lcd_implementation_status_screen() {
     lcd.print(itostr3(feedrate_percentage));
     lcd.write('%');
 
-    #if LCD_WIDTH >= 20 && ENABLED(SDSUPPORT)
+    #if LCD_WIDTH >= 20
 
-      lcd.setCursor(7, 2);
-      lcd_printPGM(PSTR("SD"));
-      if (IS_SD_PRINTING())
-        lcd.print(itostr3(card.percentDone()));
-      else
-        lcd_printPGM(PSTR("---"));
-      lcd.write('%');
+      #if ENABLED(SDSUPPORT)
+        if (IS_SD_PRINTING()) {
+          lcd.setCursor(7, 2);
+          lcd_printPGM(PSTR("SD"));
+          lcd.print(itostr3(card.percentDone()));
+          lcd.write('%');
+        }
 
-    #endif // LCD_WIDTH >= 20 && SDSUPPORT
+        #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+
+        // If both SDSUPPORT and LCD_SET_PROGRESS_MANUALLY are enabled,
+        // IS_SD_PRINTING have priority
+        else
+
+        #endif // LCD_SET_PROGRESS_MANUALLY
+
+      #endif // SDSUPPORT
+
+      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+        if (progress_bar_percent > 0) {
+          lcd.setCursor(7, 2);
+          lcd_printPGM(PSTR("P:"));
+          lcd.print(itostr3(progress_bar_percent));
+          lcd.write('%');
+        }
+      #endif // LCD_SET_PROGRESS_MANUALLY
+
+    #endif // LCD_WIDTH >= 20
 
     char buffer[10];
     duration_t elapsed = print_job_timer.duration();
