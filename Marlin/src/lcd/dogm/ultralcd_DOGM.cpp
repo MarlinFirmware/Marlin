@@ -59,6 +59,10 @@
   #include "../../feature/bedlevel/ubl/ubl.h"
 #endif
 
+/**
+ * Include all needed font files
+ * (See http://marlinfw.org/docs/development/fonts.html)
+ */
 #include "fontdata/fontdata_ISO10646_1.h"
 #if ENABLED(USE_SMALL_INFOFONT)
   #include "fontdata/fontdata_6x9_marlin.h"
