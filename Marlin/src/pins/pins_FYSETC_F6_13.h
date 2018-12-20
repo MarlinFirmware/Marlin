@@ -197,4 +197,9 @@
   #define BTN_EN1          31
   #define BTN_EN2          33
   #define BTN_ENC          35
+
+  #if ENABLED(MKS_MINI_12864)
+    #define DOGLCD_A0      27
+    #define DOGLCD_CS      25
+  #endif
 #endif
