@@ -286,13 +286,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
       next_auto_fan_check_ms = next_temp_ms + 2500UL;
     #endif
 
-    if (
-      #ifdef BED_MAXTEMP
-        target > ((heater < 0 ? BED_MAXTEMP : maxttemp[heater]) - 15)
-      #else
-        heater >= 0 && target > maxttemp[heater] - 15
-      #endif
-    ) {
+    if (target > GHV(BED_MAXTEMP, maxttemp[heater]) - 15)) {
       SERIAL_ECHOLNPGM(MSG_PID_TEMP_TOO_HIGH);
       return;
     }
