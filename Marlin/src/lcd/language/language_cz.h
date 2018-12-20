@@ -48,9 +48,9 @@
 #define MSG_DISABLE_STEPPERS                _UxGT("Uvolnit motory")
 #define MSG_DEBUG_MENU                      _UxGT("Nabídka ladění")
 #if LCD_WIDTH >= 20
-  #define MSG_PROGRESS_BAR_TEST               _UxGT("Test ukaz. průběhu")
+  #define MSG_PROGRESS_BAR_TEST             _UxGT("Test ukaz. průběhu")
 #else
-  #define MSG_PROGRESS_BAR_TEST               _UxGT("Test uk. průběhu")
+  #define MSG_PROGRESS_BAR_TEST             _UxGT("Test uk. průběhu")
 #endif
 #define MSG_AUTO_HOME                       _UxGT("Domovská pozice")
 #define MSG_AUTO_HOME_X                     _UxGT("Domů osa X")
@@ -317,14 +317,14 @@
 #define MSG_HEATING                         _UxGT("Zahřívání...")
 #define MSG_COOLING                         _UxGT("Chlazení...")
 #if LCD_WIDTH >= 20
-    #define MSG_BED_HEATING                     _UxGT("Zahřívání podložky")
+  #define MSG_BED_HEATING                   _UxGT("Zahřívání podložky")
 #else
-    #define MSG_BED_HEATING                     _UxGT("Zahřívání podl.")
+  #define MSG_BED_HEATING                   _UxGT("Zahřívání podl.")
 #endif
 #if LCD_WIDTH >= 20
-    #define MSG_BED_COOLING                     _UxGT("Chlazení podložky")
+  #define MSG_BED_COOLING                   _UxGT("Chlazení podložky")
 #else
-    #define MSG_BED_COOLING                     _UxGT("Chlazení podl.")
+  #define MSG_BED_COOLING                   _UxGT("Chlazení podl.")
 #endif
 #define MSG_DELTA_CALIBRATE                 _UxGT("Delta Kalibrace")
 #define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibrovat X")
@@ -387,34 +387,34 @@
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Čekejte prosím")
-  #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("na zahájení")
-  #define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("výměny filamentu")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Čekejte prosím")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("na vysunuti")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_3        _UxGT("filamentu")
-  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vložte filament")
-  #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("a stiskněte")
-  #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("tlačítko...")
-  #define MSG_FILAMENT_CHANGE_HEAT_1          _UxGT("Klikněte pro")
-  #define MSG_FILAMENT_CHANGE_HEAT_2          _UxGT("nahřátí trysky")
-  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Čekejte prosím")
-  #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("na nahřátí tr.")
-  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Čekejte prosím")
-  #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("na zavedení")
-  #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("filamentu")
-  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Vyčkejte na")
-  #define MSG_FILAMENT_CHANGE_PURGE_2         _UxGT("vytlačení")
-  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Čekejte prosím")
-  #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("na pokračování")
-  #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("tisku")
+  #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Čekejte prosím")
+  #define MSG_FILAMENT_CHANGE_INIT_2        _UxGT("na zahájení")
+  #define MSG_FILAMENT_CHANGE_INIT_3        _UxGT("výměny filamentu")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Čekejte prosím")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2      _UxGT("na vysunuti")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_3      _UxGT("filamentu")
+  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Vložte filament")
+  #define MSG_FILAMENT_CHANGE_INSERT_2      _UxGT("a stiskněte")
+  #define MSG_FILAMENT_CHANGE_INSERT_3      _UxGT("tlačítko...")
+  #define MSG_FILAMENT_CHANGE_HEAT_1        _UxGT("Klikněte pro")
+  #define MSG_FILAMENT_CHANGE_HEAT_2        _UxGT("nahřátí trysky")
+  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Čekejte prosím")
+  #define MSG_FILAMENT_CHANGE_HEATING_2     _UxGT("na nahřátí tr.")
+  #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Čekejte prosím")
+  #define MSG_FILAMENT_CHANGE_LOAD_2        _UxGT("na zavedení")
+  #define MSG_FILAMENT_CHANGE_LOAD_3        _UxGT("filamentu")
+  #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Vyčkejte na")
+  #define MSG_FILAMENT_CHANGE_PURGE_2       _UxGT("vytlačení")
+  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Čekejte prosím")
+  #define MSG_FILAMENT_CHANGE_RESUME_2      _UxGT("na pokračování")
+  #define MSG_FILAMENT_CHANGE_RESUME_3      _UxGT("tisku")
 #else // LCD_HEIGHT < 4
   // Up to 2 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Čekejte...")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Vysouvání...")
-  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vložte, klikněte")
-  #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Nahřívání...")
-  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Zavádění...")
-  #define MSG_FILAMENT_CHANGE_PURGE_1         _UxGT("Vytlačování...")
-  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Pokračování...")
+  #define MSG_FILAMENT_CHANGE_INIT_1        _UxGT("Čekejte...")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      _UxGT("Vysouvání...")
+  #define MSG_FILAMENT_CHANGE_INSERT_1      _UxGT("Vložte, klikněte")
+  #define MSG_FILAMENT_CHANGE_HEATING_1     _UxGT("Nahřívání...")
+  #define MSG_FILAMENT_CHANGE_LOAD_1        _UxGT("Zavádění...")
+  #define MSG_FILAMENT_CHANGE_PURGE_1       _UxGT("Vytlačování...")
+  #define MSG_FILAMENT_CHANGE_RESUME_1      _UxGT("Pokračování...")
 #endif // LCD_HEIGHT < 4
