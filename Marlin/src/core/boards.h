@@ -85,6 +85,7 @@
 #define BOARD_RAMPS_ENDER_4     243   // Creality: Ender-4, CR-8
 #define BOARD_RAMPS_CREALITY    244   // Creality: CR10S, CR20, CR-X
 #define BOARD_FYSETC_F6_13      541   // Fysetc F6
+#define BOARD_DUPLICATOR_I3_PLUS 31   // Wanhao Duplicator i3 Plus
 
 //
 // Other ATmega1280, ATmega2560
@@ -99,6 +100,7 @@
 #define BOARD_MEGATRONICS_2     701   // Megatronics v2.0
 #define BOARD_MEGATRONICS_3     703   // Megatronics v3.0
 #define BOARD_MEGATRONICS_31    704   // Megatronics v3.1
+#define BOARD_MEGATRONICS_32    705   // Megatronics v3.2
 #define BOARD_RAMBO             301   // Rambo
 #define BOARD_MINIRAMBO         302   // Mini-Rambo
 #define BOARD_MINIRAMBO_10A     303   // Mini-Rambo 1.0a
