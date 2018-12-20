@@ -21,7 +21,6 @@
  *
  */
 
-
 #ifndef TARGET_LPC1768
   #error "Oops!  Make sure you have the LPC1768 environment selected in your IDE."
 #endif
@@ -43,17 +42,17 @@
 //
 // Steppers
 //
-#define X_STEP_PIN         P0_04   //
-#define X_DIR_PIN          P0_05   //
-#define X_ENABLE_PIN       P4_28   //
+#define X_STEP_PIN         P0_04
+#define X_DIR_PIN          P0_05
+#define X_ENABLE_PIN       P4_28
 
-#define Y_STEP_PIN         P2_01   //
-#define Y_DIR_PIN          P2_02   //
-#define Y_ENABLE_PIN       P2_00   //
+#define Y_STEP_PIN         P2_01
+#define Y_DIR_PIN          P2_02
+#define Y_ENABLE_PIN       P2_00
 
-#define Z_STEP_PIN         P0_20   //
-#define Z_DIR_PIN          P0_21   //
-#define Z_ENABLE_PIN       P0_19   //
+#define Z_STEP_PIN         P0_20
+#define Z_DIR_PIN          P0_21
+#define Z_ENABLE_PIN       P0_19
 
 #define E0_STEP_PIN        P0_11
 #define E0_DIR_PIN         P2_13
@@ -63,9 +62,6 @@
 #define E1_DIR_PIN         P0_00
 #define E1_ENABLE_PIN      P0_10
 
-
-
-
 //
 // Temperature Sensors
 //  3.3V max when defined as an analog input
@@ -74,18 +70,18 @@
 #define TEMP_0_PIN         1   // A1 (T1) - (68) - TEMP_0_PIN
 #define TEMP_1_PIN         2   // A2 (T2) - (69) - TEMP_1_PIN
 
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       P2_07
+#define HEATER_1_PIN       P2_04
+#define FAN_PIN            P2_03
+#define HEATER_BED_PIN     P2_05
 
-
-#define HEATER_0_PIN     P2_07
-#define HEATER_1_PIN     P2_04
-#define FAN_PIN          P2_03
-#define HEATER_BED_PIN   P2_05
-
-
-#define SDSS              P1_23   // (53)
-
-
-
+//
+// Misc. Functions
+//
+#define SDSS               P1_23   // (53)
 
 /**
  * LCD / Controller
@@ -115,76 +111,76 @@
     // 10-pin IDC connector trimmed or replaced with a 12-pin IDC connector to fit J3.
     // Requires REVERSE_ENCODER_DIRECTION in Configuration.h
 
-    #define BEEPER_PIN          P2_11   // J3-3 & AUX-4
+    #define BEEPER_PIN     P2_11   // J3-3 & AUX-4
 
-    #define BTN_EN1             P0_16   // J3-7 & AUX-4
-    #define BTN_EN2             P1_23   // J3-5 & AUX-4
-    #define BTN_ENC             P3_25   // J3-4 & AUX-4
+    #define BTN_EN1        P0_16   // J3-7 & AUX-4
+    #define BTN_EN2        P1_23   // J3-5 & AUX-4
+    #define BTN_ENC        P3_25   // J3-4 & AUX-4
 
-    #define LCD_PINS_RS         P0_15   // J3-9 & AUX-4 (CS)
-    #define LCD_PINS_ENABLE     P0_18   // J3-10 & AUX-3 (SID, MOSI)
-    #define LCD_PINS_D4         P2_06   // J3-8 & AUX-3 (SCK, CLK)
+    #define LCD_PINS_RS    P0_15   // J3-9 & AUX-4 (CS)
+    #define LCD_PINS_ENABLE P0_18  // J3-10 & AUX-3 (SID, MOSI)
+    #define LCD_PINS_D4    P2_06   // J3-8 & AUX-3 (SCK, CLK)
 
   #else
 
-    #define BEEPER_PIN          P1_30   // (37) not 5V tolerant
+    #define BEEPER_PIN     P1_30   // (37) not 5V tolerant
 
-    #define BTN_EN1             P3_26   // (31) J3-2 & AUX-4
-    #define BTN_EN2             P3_25   // (33) J3-4 & AUX-4
-    #define BTN_ENC             P2_11   // (35) J3-3 & AUX-4
+    #define BTN_EN1        P3_26   // (31) J3-2 & AUX-4
+    #define BTN_EN2        P3_25   // (33) J3-4 & AUX-4
+    #define BTN_ENC        P2_11   // (35) J3-3 & AUX-4
 
-    #define SD_DETECT_PIN       P1_31   // (49) not 5V tolerant   J3-1 & AUX-3
-    #define KILL_PIN            P1_22   // (41) J5-4 & AUX-4
-    #define LCD_PINS_RS         P0_16   // (16) J3-7 & AUX-4
-    #define LCD_SDSS            P0_16   // (16) J3-7 & AUX-4
+    #define SD_DETECT_PIN  P1_31   // (49) not 5V tolerant   J3-1 & AUX-3
+    #define KILL_PIN       P1_22   // (41) J5-4 & AUX-4
+    #define LCD_PINS_RS    P0_16   // (16) J3-7 & AUX-4
+    #define LCD_SDSS       P0_16   // (16) J3-7 & AUX-4
 
     #if ENABLED(NEWPANEL)
       #if ENABLED(REPRAPWORLD_KEYPAD)
-        #define SHIFT_OUT         P0_18   // (51)  (MOSI) J3-10 & AUX-3
-        #define SHIFT_CLK         P0_15   // (52)  (SCK)  J3-9 & AUX-3
-        #define SHIFT_LD          P1_31   // (49)  not 5V tolerant   J3-1 & AUX-3
+        #define SHIFT_OUT  P0_18   // (51)  (MOSI) J3-10 & AUX-3
+        #define SHIFT_CLK  P0_15   // (52)  (SCK)  J3-9 & AUX-3
+        #define SHIFT_LD   P1_31   // (49)  not 5V tolerant   J3-1 & AUX-3
       #endif
     #else
-      //#define SHIFT_CLK           P3_26   // (31)  J3-2 & AUX-4
-      //#define SHIFT_LD            P3_25   // (33)  J3-4 & AUX-4
-      //#define SHIFT_OUT           P2_11   // (35)  J3-3 & AUX-4
-      //#define SHIFT_EN            P1_22   // (41)  J5-4 & AUX-4
+      //#define SHIFT_CLK  P3_26   // (31)  J3-2 & AUX-4
+      //#define SHIFT_LD   P3_25   // (33)  J3-4 & AUX-4
+      //#define SHIFT_OUT  P2_11   // (35)  J3-3 & AUX-4
+      //#define SHIFT_EN   P1_22   // (41)  J5-4 & AUX-4
     #endif
 
     #if ENABLED(VIKI2) || ENABLED(miniVIKI)
       // #define LCD_SCREEN_ROT_180
 
-      #define BTN_EN1             P3_26   // (31) J3-2 & AUX-4
-      #define BTN_EN2             P3_25   // (33) J3-4 & AUX-4
-      #define BTN_ENC             P2_11   // (35) J3-3 & AUX-4
+      #define BTN_EN1      P3_26   // (31) J3-2 & AUX-4
+      #define BTN_EN2      P3_25   // (33) J3-4 & AUX-4
+      #define BTN_ENC      P2_11   // (35) J3-3 & AUX-4
 
-      #define SD_DETECT_PIN       P1_31   // (49) not 5V tolerant   J3-1 & AUX-3
-      #define KILL_PIN            P1_22   // (41) J5-4 & AUX-4
+      #define SD_DETECT_PIN P1_31  // (49) not 5V tolerant   J3-1 & AUX-3
+      #define KILL_PIN     P1_22   // (41) J5-4 & AUX-4
 
-      #define DOGLCD_CS           P0_16   // (16)
-      #define DOGLCD_A0           P2_06   // (59) J3-8 & AUX-2
-      #define DOGLCD_SCK          SCK_PIN
-      #define DOGLCD_MOSI         MOSI_PIN
+      #define DOGLCD_CS    P0_16   // (16)
+      #define DOGLCD_A0    P2_06   // (59) J3-8 & AUX-2
+      #define DOGLCD_SCK   SCK_PIN
+      #define DOGLCD_MOSI  MOSI_PIN
 
       #define STAT_LED_BLUE_PIN   P0_26   // (63)  may change if cable changes
       #define STAT_LED_RED_PIN    P1_21   // ( 6)  may change if cable changes
     #else
-      #define DOGLCD_CS           P0_26   // (63) J5-3 & AUX-2
-      #define DOGLCD_A0           P2_06   // (59) J3-8 & AUX-2
-      #define LCD_BACKLIGHT_PIN   P0_16   // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
-      #define LCD_PINS_ENABLE     P0_18   // (51) (MOSI) J3-10 & AUX-3
-      #define LCD_PINS_D4         P0_15   // (52) (SCK)  J3-9 & AUX-3
+      #define DOGLCD_CS    P0_26   // (63) J5-3 & AUX-2
+      #define DOGLCD_A0    P2_06   // (59) J3-8 & AUX-2
+      #define LCD_BACKLIGHT_PIN P0_16 // (16) J3-7 & AUX-4 - only used on DOGLCD controllers
+      #define LCD_PINS_ENABLE P0_18   // (51) (MOSI) J3-10 & AUX-3
+      #define LCD_PINS_D4  P0_15   // (52) (SCK)  J3-9 & AUX-3
       #if ENABLED(ULTIPANEL)
-        #define LCD_PINS_D5       P1_17   // (71) ENET_MDIO
-        #define LCD_PINS_D6       P1_14   // (73) ENET_RX_ER
-        #define LCD_PINS_D7       P1_10   // (75) ENET_RXD1
+        #define LCD_PINS_D5 P1_17  // (71) ENET_MDIO
+        #define LCD_PINS_D6 P1_14  // (73) ENET_RX_ER
+        #define LCD_PINS_D7 P1_10  // (75) ENET_RXD1
       #endif
     #endif
 
-    //#define MISO_PIN            P0_17   // (50)  system defined J3-10 & AUX-3
-    //#define MOSI_PIN            P0_18   // (51)  system defined J3-10 & AUX-3
-    //#define SCK_PIN             P0_15   // (52)  system defined J3-9 & AUX-3
-    //#define SS_PIN              P1_23   // (53)  system defined J3-5 & AUX-3 - sometimes called SDSS
+    //#define MISO_PIN      P0_17   // (50)  system defined J3-10 & AUX-3
+    //#define MOSI_PIN      P0_18   // (51)  system defined J3-10 & AUX-3
+    //#define SCK_PIN       P0_15   // (52)  system defined J3-9 & AUX-3
+    //#define SS_PIN        P1_23   // (53)  system defined J3-5 & AUX-3 - sometimes called SDSS
 
     #if ENABLED(MINIPANEL)
       // GLCD features
