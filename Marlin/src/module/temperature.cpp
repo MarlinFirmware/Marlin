@@ -289,7 +289,7 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
     #ifdef BED_MAXTEMP
       if (target > ((heater < 0 ? BED_MAXTEMP : maxttemp[heater]) - 15)) {
     #else
-      if ((heater >= 0) && (target > (maxttemp[heater] - 15))) {
+      if (heater >= 0 && target > maxttemp[heater] - 15) {
     #endif
       SERIAL_ECHOLNPGM(MSG_PID_TEMP_TOO_HIGH);
       return;
