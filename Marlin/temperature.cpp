@@ -46,6 +46,19 @@
   #include "watchdog.h"
 #endif
 
+//===========================================================================
+//================================== LCD_RTS =================================
+//===========================================================================
+#if ENABLED(CREALITY_DWIN)
+ #include "Creality_DWIN.h"
+ extern RTSSHOW rtscheck;
+ extern char PrintStatue[2];
+ extern char PrinterStatusKey[2];
+ int room_temperature = 0;
+#endif
+
+//===========================================================================
+
 #if ENABLED(EMERGENCY_PARSER)
   #include "emergency_parser.h"
 #endif
@@ -495,6 +508,9 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
         }
         return;
       }
+      #if ENABLED(CREALITY_DWIN)
+        RTSUpdate();
+      #endif
       lcd_update();
     }
     disable_all_heaters();
@@ -608,6 +624,31 @@ float Temperature::get_pid_output(const int8_t e) {
       pid_error[HOTEND_INDEX] = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
       dTerm[HOTEND_INDEX] = PID_K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + float(PID_K1) * dTerm[HOTEND_INDEX];
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
+      #if ENABLED(CREALITY_DWIN)
+        static unsigned char count = 0;
+        if(!room_temperature)
+          room_temperature = current_temperature[0];
+          
+        if(pid_error[e] <= 0 && PrinterStatusKey[1] == 1)
+        {
+          if(LanguageRecbuf != 0)
+            rtscheck.RTS_SndData(7,IconPrintstatus);	// 7 for Heating Done
+          else
+            rtscheck.RTS_SndData(7 + CEIconGrap,IconPrintstatus);	
+          Update_Time_Value = RTS_UPDATE_VALUE;
+          PrinterStatusKey[1] = 0;
+        }
+        else if( PrinterStatusKey[1] == 2 && ((!target_temperature[e] && pid_error[e] >= -(room_temperature +5) ) ||(target_temperature[e] && pid_error[e] >= 0)))
+        {
+          if(LanguageRecbuf != 0)
+            rtscheck.RTS_SndData(9,IconPrintstatus);	// 9 for Cooling Done
+          else
+            rtscheck.RTS_SndData(9 + CEIconGrap,IconPrintstatus);	
+          Update_Time_Value = RTS_UPDATE_VALUE;
+          PrinterStatusKey[1] = 0;
+        }
+      #endif //RTS_AVAILABLE
+
       #if HEATER_IDLE_HANDLER
         if (heater_idle_timeout_exceeded[HOTEND_INDEX]) {
           pid_output = 0;

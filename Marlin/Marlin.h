@@ -471,6 +471,10 @@ void report_current_position();
 #endif
 
 #if HAS_BED_PROBE
+  #if ENABLED(CREALITY_DWIN)
+    extern float rts_probe_zoffset;
+  #endif
+  extern float last_zoffset;
   extern float zprobe_zoffset;
   bool set_probe_deployed(const bool deploy);
   #ifdef Z_AFTER_PROBING

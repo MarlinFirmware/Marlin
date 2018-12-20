@@ -272,6 +272,14 @@
 #include "types.h"
 #include "parser.h"
 
+#ifdef CREALITY_DWIN
+ #include "Creality_DWIN.h"
+ extern RTSSHOW rtscheck;
+ extern char PrintStatue[2];
+ extern char PrinterStatusKey[2];
+ extern void RTS_line_to_current(AxisEnum axis);
+#endif
+
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "power.h"
 #endif
@@ -373,7 +381,10 @@
   float coordinate_system[MAX_COORDINATE_SYSTEMS][XYZ];
 #endif
 
+bool	PreheatStatus[] ={false,false};
 bool Running = true;
+unsigned char Average_count = 0;
+bool Temp_conditions = false;
 
 uint8_t marlin_debug_flags = DEBUG_NONE;
 
@@ -431,7 +442,7 @@ char command_queue[BUFSIZE][MAX_CMD_SIZE];
  * Used by Marlin internally to ensure that commands initiated from within
  * are enqueued ahead of any pending serial or sd card commands.
  */
-static const char *injected_commands_P = NULL;
+const char *injected_commands_P = NULL;
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   TempUnit input_temp_units = TEMPUNIT_C;
@@ -553,6 +564,8 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 uint8_t target_extruder;
 
 #if HAS_BED_PROBE
+  float rts_probe_zoffset;
+  float last_zoffset = 0.0;
   float zprobe_zoffset; // Initialized by settings.load()
 #endif
 
@@ -766,6 +779,10 @@ void process_parsed_command();
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 
+#if ENABLED(CREALITY_DWIN)
+  void RTSInit();
+#endif
+
 #if ENABLED(ARC_SUPPORT)
   void plan_arc(const float (&cart)[XYZE], const float (&offset)[2], const bool clockwise);
 #endif
@@ -854,6 +871,18 @@ extern "C" {
  */
 static bool drain_injected_commands_P() {
   if (injected_commands_P != NULL) {
+    #if ENABLED(CREALITY_DWIN)
+      if(waitway == 1)
+      {
+        if (enqueue_and_echo_command(commandbuf))     // success?
+          {
+              injected_commands_P = NULL; // next command or done	
+              waitway= 7;
+          }
+      }
+      else
+      {
+    #endif
     size_t i = 0;
     char c, cmd[30];
     strncpy_P(cmd, injected_commands_P, sizeof(cmd) - 1);
@@ -862,6 +891,9 @@ static bool drain_injected_commands_P() {
     cmd[i] = '\0';
     if (enqueue_and_echo_command(cmd))     // success?
       injected_commands_P = c ? injected_commands_P + i + 1 : NULL; // next command or done
+    #if ENABLED(CREALITY_DWIN)
+     }
+    #endif
   }
   return (injected_commands_P != NULL);    // return whether any more remain
 }
@@ -1213,6 +1245,36 @@ inline void get_serial_commands() {
                 leds.set_off();
               #endif
             #endif // PRINTER_EVENT_LEDS
+
+            #if ENABLED(CREALITY_DWIN)
+              if(PrinterStatusKey[0] == 1)	//the printing results
+              {
+                PrinterStatusKey[0] = 0;
+                rtscheck.RTS_SndData(100,Percentage);
+                delay(1);
+                rtscheck.RTS_SndData(100 ,PrintscheduleIcon);
+                delay(1);
+                rtscheck.RTS_SndData(100 ,PrintscheduleIcon+1);	
+                
+                if(LanguageRecbuf != 0)
+                {
+                  //rtscheck.RTS_SndData(3,IconPrintstatus); // the printing done
+                  rtscheck.RTS_SndData(ExchangePageBase + 9, ExchangepageAddr); //exchange to 9 page
+                }
+                else
+                {
+                  //rtscheck.RTS_SndData(3+CEIconGrap,IconPrintstatus); // the printing done
+                rtscheck.RTS_SndData(ExchangePageBase + 51, ExchangepageAddr); //exchange to 51 page
+                }
+                if(rts_probe_zoffset != last_zoffset)
+                {
+                  settings.save();
+                last_zoffset = rts_probe_zoffset;
+                } 
+                FilementStatus[1] = PrintStatue[1] = 0;
+                CardCheckStatus[0] = 0;
+              }
+            #endif
           }
         }
         else if (n == -1) {
@@ -2264,13 +2326,13 @@ void clean_up_after_endstop_or_probe_move() {
     do_blocking_move_to_z(z, fr_mm_s);
 
     // Check to see if the probe was triggered
-    const bool probe_triggered = TEST(endstops.trigger_state(),
+    
       #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-        Z_MIN
+        const bool probe_triggered = TEST(endstops.trigger_state(), Z_MIN);
       #else
-        Z_MIN_PROBE
+        const bool probe_triggered = TEST(endstops.trigger_state(), Z_MIN_PROBE);
       #endif
-    );
+    
 
     #if QUIET_PROBING
       probing_pause(false);
@@ -3449,6 +3511,43 @@ inline void gcode_G0_G1(
         SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
       }
     #endif
+    #if ENABLED(CREALITY_DWIN)
+      if(waitway == 7)
+      {
+        InforShowStatus = true;
+        thermalManager.setTargetHotend(0, 0);
+        
+        if(LanguageRecbuf != 0)
+        {
+          rtscheck.RTS_SndData(4,IconPrintstatus);	// 4 for Pause
+          rtscheck.RTS_SndData(ExchangePageBase + 12, ExchangepageAddr); //exchange to 12 page
+        }
+        else
+        {
+          rtscheck.RTS_SndData(4+CEIconGrap,IconPrintstatus);	// 4 for Pause
+          rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr); 
+        }
+        waitway = 0;
+        //disable_X();
+        //disable_Y();
+      }	
+      else if(waitway == 5)
+      {
+        InforShowStatus = true;
+        thermalManager.setTargetHotend(0, 0);
+        waitway = 0;
+        
+        if(LanguageRecbuf != 0)
+          rtscheck.RTS_SndData(ExchangePageBase + 44, ExchangepageAddr); //exchange to 38 page
+        else
+          rtscheck.RTS_SndData(ExchangePageBase + 81, ExchangepageAddr); //exchange to 78 page
+      }
+      else if(waitway == 2)
+        waitway = 0;
+      
+      if(FilementStatus[1] == 1)
+        FilementStatus[1] = 2;	
+    #endif
   }
 }
 
@@ -4392,7 +4491,51 @@ inline void gcode_G28(const bool always_home_all) {
     SYNC_PLAN_POSITION_KINEMATIC();
 
   #endif // !DELTA (gcode_G28)
+#if ENABLED(CREALITY_DWIN)
+//SERIAL_ECHOLNPGM(" ****");
+	if(waitway == 1)
+	{
+		InforShowStatus = true;
+		thermalManager.setTargetHotend(0, 0);
+		
+		if(LanguageRecbuf != 0)
+		{
+			rtscheck.RTS_SndData(4,IconPrintstatus);	// 4 for Pause
+			rtscheck.RTS_SndData(ExchangePageBase + 12, ExchangepageAddr); //exchange to 12 page
+		}
+		else
+		{
+			rtscheck.RTS_SndData(4+CEIconGrap,IconPrintstatus);	// 4 for Pause
+			rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr); 
+		}
+		waitway = 0;
+		//disable_X();
+		//disable_Y();
+	}	
+	else if(waitway == 5)
+	{
+		InforShowStatus = true;
+		thermalManager.setTargetHotend(0, 0);
+		waitway = 0;
+		
+		if(LanguageRecbuf != 0)
+			rtscheck.RTS_SndData(ExchangePageBase + 38, ExchangepageAddr); //exchange to 38 page
+		else
+			rtscheck.RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); //exchange to 78 page
+	}
+	else if(waitway == 2)
+		waitway = 0;
 
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    if(PoweroffContinue)
+    {
+      PoweroffContinue = false;
+      enqueue_and_echo_command(power_off_commands[3]);
+      card.startFileprint();
+      print_job_timer.power_off_start();
+    }
+  #endif
+#endif	//RTS_AVAILABLE
   endstops.not_homing();
 
   #if ENABLED(DELTA) && ENABLED(DELTA_HOME_TO_SAFE_ZONE)
@@ -4433,6 +4576,26 @@ inline void gcode_G28(const bool always_home_all) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< G28");
   #endif
+
+  #if ENABLED(CREALITY_DWIN)
+   if(waitway > 1)
+  {
+	if(AutohomeKey)
+	{
+		InforShowStatus = AutohomeKey = false;
+		if(LanguageRecbuf != 0)
+			rtscheck.RTS_SndData(ExchangePageBase + 29 + AxisPagenum, ExchangepageAddr);
+		else
+			rtscheck.RTS_SndData(ExchangePageBase + 71 + AxisPagenum, ExchangepageAddr);
+	}
+	waitway = 0;
+
+   }
+	rtscheck.RTS_SndData(10*current_position[X_AXIS], DisplayXaxis);
+	rtscheck.RTS_SndData(10*current_position[Y_AXIS], DisplayYaxis);
+	rtscheck.RTS_SndData(10*current_position[Z_AXIS], DisplayZaxis);
+#endif
+
 } // G28
 
 void home_all_axes() { gcode_G28(true); }
@@ -4733,7 +4896,9 @@ void home_all_axes() { gcode_G28(true); }
    *
    */
   inline void gcode_G29() {
-
+    #if ENABLED(CREALITY_DWIN)
+      if(AutoLevelStatus &&PrinterStatusKey[0] == 1 ) return;
+    #endif
     #if ENABLED(DEBUG_LEVELING_FEATURE) || ENABLED(PROBE_MANUALLY)
       const bool seenQ = parser.seen('Q');
     #else
@@ -5127,7 +5292,13 @@ void home_all_axes() { gcode_G28(true); }
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
           z_values[xCount][yCount] = measured_z + zoffset;
-
+          #if ENABLED(CREALITY_DWIN)
+	          if((showcount++) < 16 && waitway == 3)
+	      	  {
+			        rtscheck.RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
+			        rtscheck.RTS_SndData(showcount,AutolevelIcon);
+		        }
+          #endif
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_PROTOCOLPAIR("Save X", xCount);
@@ -5265,8 +5436,11 @@ void home_all_axes() { gcode_G28(true); }
           zig ^= true; // zag
 
           // Inner loop is Y with PROBE_Y_FIRST enabled
-          for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
-
+          #if ENABLED(CREALITY_DWIN)
+            for (int8_t PR_INNER_VAR = inStart, showcount=0; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
+          #else
+            for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
+          #endif
             float xBase = left_probe_bed_position + xGridSpacing * xCount,
                   yBase = front_probe_bed_position + yGridSpacing * yCount;
 
@@ -5302,7 +5476,13 @@ void home_all_axes() { gcode_G28(true); }
             #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
               z_values[xCount][yCount] = measured_z + zoffset;
-
+              #if ENABLED(CREALITY_DWIN)
+                if((showcount++) < 16 && waitway == 3)
+                {
+                  rtscheck.RTS_SndData(z_values[xCount][yCount] *10000, AutolevelVal + (showcount-1)*2);
+                  rtscheck.RTS_SndData(showcount,AutolevelIcon);
+                }
+              #endif
             #endif
 
             abl_should_enable = false;
@@ -5377,7 +5557,17 @@ void home_all_axes() { gcode_G28(true); }
 
         if (!dryrun) extrapolate_unprobed_bed_level();
         print_bilinear_leveling_grid();
-
+        #if ENABLED(CREALITY_DWIN)
+          if(waitway == 3)
+          {
+            waitway = 0;
+            if(LanguageRecbuf != 0)
+              rtscheck.RTS_SndData(ExchangePageBase + 22, ExchangepageAddr);	// Autolevel
+            else
+              rtscheck.RTS_SndData(ExchangePageBase + 64, ExchangepageAddr); 
+          }
+          settings.save();
+        #endif
         refresh_bed_level();
 
         #if ENABLED(ABL_BILINEAR_SUBDIVISION)
@@ -14913,6 +15103,9 @@ void idle(
     max7219.idle_tasks();
   #endif
 
+  #if ENABLED(CREALITY_DWIN)
+    RTSUpdate();
+  #endif
   lcd_update();
 
   host_keepalive();
@@ -15012,6 +15205,13 @@ void stop() {
     Running = false;
   }
 }
+
+#if ENABLED(CREALITY_DWIN)
+ void RTSInit()
+{
+   	rtscheck.RTS_Init();
+}
+#endif
 
 /**
  * Marlin entry-point: Set up before the program loop
@@ -15278,6 +15478,10 @@ void setup() {
     card.beginautostart();
   #endif
 }
+
+  #if ENABLED(CREALITY_DWIN)
+	  void RTSInit();
+  #endif
 
 /**
  * The main Marlin program loop

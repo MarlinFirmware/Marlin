@@ -91,7 +91,7 @@
 #if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif
-
+extern char waitway;
 Stepper stepper; // Singleton
 
 // public:

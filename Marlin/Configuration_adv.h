@@ -590,8 +590,9 @@
    * an option on the LCD screen to continue the print from the last-known
    * point in the file.
    */
-  //#define POWER_LOSS_RECOVERY
-
+  #if ENABLED(CREALITY_DWIN)
+    //#define POWER_LOSS_RECOVERY
+  #endif
   /**
    * Sort SD file listings in alphabetical order.
    *
