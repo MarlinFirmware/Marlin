@@ -33,10 +33,8 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN          54   // PF0 / A0
-#define X_MAX_PIN          -1   // NC
-#define Y_MIN_PIN          24   // PA2 / AD2
-#define Y_MAX_PIN          -1   // NC
+#define X_STOP_PIN         54   // PF0 / A0
+#define Y_STOP_PIN         24   // PA2 / AD2
 #define Z_MIN_PIN          23   // PA1 / AD1
 #define Z_MAX_PIN          25   // PA3 / AD3
 #define SERVO0_PIN         40   // PG1 / !RD
@@ -64,16 +62,16 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          1   // PF1 / A1
-#define TEMP_BED_PIN       14   // PK6 / A14
+#define TEMP_0_PIN          1   // PF1 / A1   Analog
+#define TEMP_BED_PIN       14   // PK6 / A14  Analog
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       4    // PG5 / PWM4
-#define HEATER_BED_PIN     3    // PE5 / PWM3
+#define HEATER_0_PIN        4   // PG5 / PWM4
+#define HEATER_BED_PIN      3   // PE5 / PWM3
 
-#define FAN_PIN            5    // PE3 / PWM5
+#define FAN_PIN             5   // PE3 / PWM5
 
 //
 // Misc. Functions
@@ -90,13 +88,13 @@
 //
 #if ENABLED(ULTRA_LCD)
   #if ENABLED(ZONESTAR_LCD)
-      #define LCD_PINS_RS        2
-      #define LCD_PINS_ENABLE   36
-      #define LCD_PINS_D4       37
-      #define LCD_PINS_D5       34
-      #define LCD_PINS_D6       35
-      #define LCD_PINS_D7       32
-      #define ADC_KEYPAD_PIN    12 // analog
+    #define LCD_PINS_RS        2
+    #define LCD_PINS_ENABLE   36
+    #define LCD_PINS_D4       37
+    #define LCD_PINS_D5       34
+    #define LCD_PINS_D6       35
+    #define LCD_PINS_D7       32
+    #define ADC_KEYPAD_PIN    12   // Analog
   #endif
 #endif
 
@@ -180,6 +178,6 @@
  * #  6  |       GND      |     -   #
  * ##################################
  *
- * pictogram by Ludy https://github.com/Ludy87
- * Quelle: https://sebastien.andrivet.com/en/posts/wanhao-duplicator-i3-plus-3d-printer/
+ * Pictogram by Ludy https://github.com/Ludy87
+ * See: https://sebastien.andrivet.com/en/posts/wanhao-duplicator-i3-plus-3d-printer/
  */
