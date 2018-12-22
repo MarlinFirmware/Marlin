@@ -22,10 +22,11 @@
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work, need to map pin
 //#define MachineCR10Std
+//#define MachineCR10SPro // Has not seen real hardware yet!
 #define MachineCRX
-#define CREALITY_DWIN
 //#define MachineS4
 //#define MachineS5
+
 
 //#define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
 //#define GraphicLCD //Full graphics LCD for Ender 4
@@ -95,6 +96,9 @@
 #define ABL_BI
 //#define ABL_UBL
 
+// Totally untested with the creality dwin touchscreen as of yet. Might kinda sorta almost work, but
+// as it sits wont even compile. A few variables have changed and need remapping and sanity checks still need work.
+
 //#define POWER_LOSS_RECOVERY //Large and does not fit with any other features on Melzi, or UBL on Atmega
 /*
 
@@ -161,6 +165,23 @@
    Advanced settings can be found in Configuration_adv.h
 
 */
+#if(ENABLED(MachineCR10SPro))
+  #if DISABLED(GraphicLCD)
+    #define CREALITY_DWIN
+  #endif
+  #define MachineCR10Std
+#endif
+
+
+#if(ENABLED(MachineCRX))
+  #if DISABLED(GraphicLCD)
+    #define CREALITY_DWIN
+  #endif
+  #define MachineCR10Std
+  #define Dual_BowdenSplitterY
+#endif
+
+
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 #define CONFIGURATION_H_VERSION 010107
@@ -314,10 +335,7 @@
 #endif
 
 #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " TM3D " VerChar1 VerChar2 VerChar3 VerChar4 VerChar5 VerChar6
-#if(ENABLED(MachineCRX))
-  #define MachineCR10Std
-  #define Dual_BowdenSplitterY
-#endif
+
 /**
    Select the serial port on the board to use for communication with the host.
    This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -639,7 +657,7 @@
 // #define  DEFAULT_Kd 59.93
 #if ENABLED(HotendStock)
 
-    #if(ENABLED(MachineCRX))
+    #if(ENABLED(MachineCRX) || ENABLED(MachineCR10SPro))
       #define  DEFAULT_Kp 20.84
       #define  DEFAULT_Ki 1.96
       #define  DEFAULT_Kd 55.47
@@ -812,7 +830,7 @@
 #if(ENABLED(MachineEnder4))
 #define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #else
-#define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+  #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #endif
 #define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -820,14 +838,14 @@
 #define Z_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 
 #if (DISABLED(ABL_EZABL)&& DISABLED(ABL_BLTOUCH))
-#define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
+  #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
 #elif (ENABLED(ABL_NCSW))
-#define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
+  #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 #else
-#define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
+  #define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
 #endif
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
@@ -859,7 +877,9 @@
                                         X, Y, Z, E0 [, E1[, E2[, E3[, E4]]]]
 */
 #if(ENABLED(Bondtech) || ENABLED(E3DTitan))
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 415 }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 415 }
+#elif ENABLED(MachineCR10SPro)
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 415 }
 #else
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
 #endif
@@ -996,7 +1016,7 @@
      (e.g., an inductive probe or a nozzle-based probe-switch.)
 */
 #if ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)
-#define FIX_MOUNTED_PROBE
+  #define FIX_MOUNTED_PROBE
 #endif
 /**
    Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -1008,10 +1028,10 @@
    The BLTouch probe uses a Hall effect sensor and emulates a servo.
 */
 #if ENABLED(ABL_BLTOUCH)
-#define BLTOUCH
+  #define BLTOUCH
 #endif
 #if ENABLED(BLTOUCH)
-#define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
+  #define BLTOUCH_DELAY 375   // (ms) Enable and increase if needed
 #endif
 
 /**
@@ -1023,11 +1043,11 @@
    readings with inductive probes and piezo sensors.
 */
 #if ((ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)) && ENABLED(BED_AC))
-#define PROBING_HEATERS_OFF       // Turn heaters off when probing
+  #define PROBING_HEATERS_OFF       // Turn heaters off when probing
 #endif
 
 #if ENABLED(PROBING_HEATERS_OFF)
-#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
+  #define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
 #endif
 //#define PROBING_FANS_OFF          // Turn fans off when probing
 
@@ -1035,14 +1055,14 @@
 
 // A probe that is deployed and stowed with a solenoid pin (SOL1_PIN)
 #if ENABLED(ABL_BLTOUCH)
-#define PROBING_FANS_OFF          // Turn fans off when probing
+  #define PROBING_FANS_OFF          // Turn fans off when probing
 #if(ENABLED(MachineCR10Orig))
-#define SOLENOID_PROBE PIN_27
-#define SERVO0_PIN 27
+  #define SOLENOID_PROBE PIN_27
+  #define SERVO0_PIN 27
 #elif(ENABLED(MachineEnder4))
-#define SOLENOID_PROBE PIN_15
+  #define SOLENOID_PROBE PIN_15
 #else
-#define SOLENOID_PROBE PIN_11
+  #define SOLENOID_PROBE PIN_11
 #endif
 #endif
 // A sled-mounted probe like those designed by Charles Bell.
@@ -1076,6 +1096,18 @@
   #if ENABLED(ABL_BLTOUCH)
     #define X_PROBE_OFFSET_FROM_EXTRUDER -41  // X offset: -left  +right  [of the nozzle]
     #define Y_PROBE_OFFSET_FROM_EXTRUDER -8  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #endif
+
+  #if ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -44  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -10  // Y offset: -front +behind [the nozzle]
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+  #endif
+#elif ENABLED(MachineCR10SPro) && ENABLED(HotendStock)
+  #if ENABLED(ABL_BLTOUCH)
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -27  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -0  // Y offset: -front +behind [the nozzle]
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
   #endif
 
@@ -1185,10 +1217,10 @@
   #define INVERT_Z_DIR false
   #if(ENABLED(E3DTitan))
     #define INVERT_E0_DIR false
-    #define INVERT_E1_DIR false
+    #define INVERT_E1_DIR true
   #else
   #define INVERT_E0_DIR true
-  #define INVERT_E1_DIR true
+  #define INVERT_E1_DIR false
 #endif
 #elif(ENABLED(MachineEnder4))
   #define INVERT_X_DIR true
@@ -1196,9 +1228,9 @@
   #define INVERT_Z_DIR true
   #if(ENABLED(E3DTitan))
     #define INVERT_E0_DIR false
-    #define INVERT_E1_DIR false
+    #define INVERT_E1_DIR true
   #else
-    #define INVERT_E0_DIR true
+    #define INVERT_E0_DIR false
     #define INVERT_E1_DIR true
   #endif
 #else
@@ -1211,10 +1243,10 @@
   #define INVERT_Z_DIR true
   #if(ENABLED(E3DTitan))
     #define INVERT_E0_DIR true
-    #define INVERT_E1_DIR true
+    #define INVERT_E1_DIR false
   #else
     #define INVERT_E0_DIR false
-    #define INVERT_E1_DIR false
+    #define INVERT_E1_DIR true
   #endif
 #endif
 
