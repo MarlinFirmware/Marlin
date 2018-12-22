@@ -201,7 +201,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "TinyMachines3D" // Who made the changes.
-#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && DISABLED(CREALITY_DWIN))
 #define SHOW_BOOTSCREEN
 #endif
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
@@ -218,7 +218,7 @@
 // boot image unmodified. For an example have a look at the bq Hephestos 2
 // example configuration folder.
 //
-#if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+#if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && DISABLED(CREALITY_DWIN))
 #define SHOW_CUSTOM_BOOTSCREEN
 #endif
 // Enable to show the bitmap in Marlin/_Statusscreen.h on the status screen.
@@ -228,7 +228,7 @@
 // Displayed in the LCD "Ready" message
 
 
-#if(DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4))
+#if(DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4) && DISABLED(CREALITY_DWIN))
 #define CUSTOM_STATUS_SCREEN_IMAGE
 #endif
 
@@ -336,8 +336,11 @@
 
    :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
 */
-#define BAUDRATE 115200
-
+#if ENABLED(CREALITY_DWIN)
+  #define BAUDRATE 250000
+#else
+  #define BAUDRATE 115200
+#endif
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
 
@@ -2200,7 +2203,7 @@ GRID_MAX_POINTS_X 3
 #define MINIPANEL
 #elif ENABLED(MachineCR20)
   #define MKS_MINI_12864
-#elif(DISABLED(OrigLCD))
+#elif(DISABLED(OrigLCD) && DISABLED(CREALITY_DWIN))
 #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 #if(ENABLED(OrigLCD))

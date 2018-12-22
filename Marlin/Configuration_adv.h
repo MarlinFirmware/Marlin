@@ -423,7 +423,7 @@
 
 // @section lcd
 
-#if ENABLED(ULTIPANEL)
+#if ENABLED(ULTIPANEL) || ENABLED(CREALITY_DWIN)
   #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
   #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
@@ -528,7 +528,7 @@
 #define LCD_TIMEOUT_TO_STATUS 15000
 
 // Add an 'M73' G-code to set the current percentage
- #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+ #if(DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && DISABLED(CREALITY_DWIN))
 #define LCD_SET_PROGRESS_MANUALLY
 #endif
 #if ENABLED(SDSUPPORT) || ENABLED(LCD_SET_PROGRESS_MANUALLY)
@@ -751,7 +751,7 @@
   #define BABYSTEP_MULTIPLICATOR 10   // Babysteps are very small. Increase for faster motion.
   #if(ENABLED(ABL_EZABL) || ENABLED(ABL_BLTOUCH))
     #define BABYSTEP_ZPROBE_OFFSET   // Enable to combine M851 and Babystepping
-     #if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard))
+     #if(DISABLED(MachineEnder4) && DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && DISABLED(CREALITY_DWIN))
     #define BABYSTEP_ZPROBE_GFX_OVERLAY // Enable graphical overlay on Z-offset editor
     #endif
   #endif

@@ -15477,11 +15477,10 @@ void setup() {
   #if ENABLED(SDSUPPORT) && DISABLED(ULTRA_LCD)
     card.beginautostart();
   #endif
-}
-
   #if ENABLED(CREALITY_DWIN)
-	  void RTSInit();
+	  RTSInit();
   #endif
+}
 
 /**
  * The main Marlin program loop

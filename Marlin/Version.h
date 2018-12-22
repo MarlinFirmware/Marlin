@@ -43,7 +43,7 @@
    */
 
 
-  #define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " TM3D "
+  //#define DETAILED_BUILD_VERSION SHORT_BUILD_VERSION " TM3D "
 
   /**
    * The STRING_DISTRIBUTION_DATE represents when the binary file was built,

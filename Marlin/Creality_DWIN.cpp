@@ -29,6 +29,10 @@ CRec CardRecbuf;
 int temphot=0;
 int tempbed=0;
 float pause_z = 0;
+#if DISABLED(POWER_LOSS_RECOVERY)
+	int power_off_type_yes = 0;
+	int power_off_commands_count = 0;
+#endif
 
 float PLA_ABSModeTemp = 195;
 millis_t next_rts_update_ms = 0;
@@ -224,19 +228,23 @@ void RTSSHOW::RTS_SDCardUpate(void)
 			RTS_SndData(10,FilenameIcon1+1+i);
 		}
 		CardUpdate = false;
-		//SERIAL_ECHO("====end====");
+		SERIAL_ECHO("====end====");
 	}
 }
 
 int RTSSHOW::RTS_CheckFilement(int mode)
 {
-	//SERIAL_ECHO("   ****RTS_CheckFilement***   ");
+	#if DISABLED(FILAMENT_RUNOUT_SENSOR)
+		return 0;
+	#endif
+	SERIAL_ECHO("   ****RTS_CheckFilement***   ");
 	waitway = 4;
 	for(Checkfilenum= 0; 0==READ(FIL_RUNOUT_PIN) && Checkfilenum < 50;Checkfilenum++)// no filements check
 		delay(15);
 	
 	if(49 <= Checkfilenum ) //no filements
 	{
+		SERIAL_ECHO("\n Check Filament Setting Screen ");
 		if(mode)
 		{
 			FilementStatus[0] = mode; // for mode status of no filement . the sentence can be canceled, which isn't neccessary?
@@ -261,8 +269,10 @@ void RTSSHOW::RTS_Init()
 {
 	Serial2.begin(115200);
 
-	LanguageRecbuf =eeprom_read_byte((unsigned char*)FONT_EEPROM);
-	AutoLevelStatus = eeprom_read_byte((unsigned char*)FONT_EEPROM+2);
+	//LanguageRecbuf =eeprom_read_byte((unsigned char*)FONT_EEPROM);
+	//AutoLevelStatus = eeprom_read_byte((unsigned char*)FONT_EEPROM+2);
+	LanguageRecbuf = 0;
+	AutoLevelStatus = 1;
 	if(AutoLevelStatus) 
 	{
 		RTS_SndData(2, AutoLevelIcon);/*Off*/
@@ -275,8 +285,8 @@ void RTSSHOW::RTS_Init()
 	}
 	last_zoffset = rts_probe_zoffset;
 	RTS_SndData(rts_probe_zoffset*100, 0x1026); 
-	VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
-	if(VolumeSet < 0 || VolumeSet > 0xFF)
+	//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
+	//if(VolumeSet < 0 || VolumeSet > 0xFF)
 		VolumeSet = 0x80;
 		
 	if(PrintMode)RTS_SndData(3, FanKeyIcon+1);	// saving mode
@@ -616,6 +626,7 @@ void RTSSHOW::RTS_SDcard_Stop()
 	for(int j = 0;j < 8;j++)
 		RTS_SndData(0,FilenameCount+j);
 	TPShowStatus = false;
+	SERIAL_ECHO("\n SD Stop Setting Screen ");
 	if(LanguageRecbuf != 0)
 	{
 		RTS_SndData(0,IconPrintstatus);	// 0 for ready 
@@ -635,20 +646,20 @@ void RTSSHOW::RTS_SDcard_Stop()
 void RTSSHOW::RTS_HandleData()
 {
 	int Checkkey = -1;
-	//SERIAL_PROTOCOLLN("  *******RTS_HandleData********\n ");
+	SERIAL_PROTOCOLLN("  *******RTS_HandleData********\n ");
 	if(waitway > 0)	//for waiting
 	{
-		//SERIAL_ECHO("\n   waitway ==");
-		//SERIAL_ECHO((int)waitway);
+		SERIAL_ECHO("\n   waitway ==");
+		SERIAL_ECHO((int)waitway);
 		memset(&recdat,0 , sizeof(recdat));
 		recdat.head[0] = FHONE;
 		recdat.head[1] = FHTWO;
 		return;
 	}
-	//SERIAL_ECHO("\n   recdat.data[0] ==");
-	//SERIAL_ECHO(recdat.data[0]);
-	//SERIAL_ECHO("\n   recdat.addr ==");
-	//SERIAL_ECHO(recdat.addr);
+	SERIAL_ECHO("\n   recdat.data[0] ==");
+	SERIAL_ECHO(recdat.data[0]);
+	SERIAL_ECHO("\n   recdat.addr ==");
+	SERIAL_ECHO(recdat.addr);
     for(int i = 0;Addrbuf[i] != 0;i++)
     {
 	  if(recdat.addr == Addrbuf[i])
@@ -677,8 +688,8 @@ void RTSSHOW::RTS_HandleData()
 	recdat.head[1] = FHTWO;
 	return;
     }
-//SERIAL_ECHO("== Checkkey==");
-//SERIAL_ECHO(Checkkey);
+SERIAL_ECHO("== Checkkey==");
+SERIAL_ECHO(Checkkey);
     switch(Checkkey)
     {
 	case Printfile :
@@ -688,6 +699,7 @@ void RTSSHOW::RTS_HandleData()
 			CardUpdate = true;
 			CardRecbuf.recordcount = -1;
 			RTS_SDCardUpate();
+			SERIAL_ECHO("\n Handle Data PrintFile 1 Setting Screen ");
 			if(LanguageRecbuf != 0)
 				RTS_SndData(ExchangePageBase + 2, ExchangepageAddr); //exchange to 2 page
 			else
@@ -708,7 +720,7 @@ void RTSSHOW::RTS_HandleData()
 			RTS_SndData(0,Timemin);
 			print_job_timer.reset();
 			
-			
+			SERIAL_ECHO("\n Handle Data PrintFile 2 Setting Screen ");
 			if(LanguageRecbuf != 0)
 				RTS_SndData(ExchangePageBase + 1, ExchangepageAddr); //exchange to 1 page
 			else
@@ -718,6 +730,7 @@ void RTSSHOW::RTS_HandleData()
 		{
 			InforShowStatus = true;
 		      TPShowStatus = false;
+			  SERIAL_ECHO("\n Handle Data PrintFile 3 Setting Screen ");
 			if(LanguageRecbuf != 0)
 			{
 				if(FanStatus)
@@ -745,6 +758,7 @@ void RTSSHOW::RTS_HandleData()
 		}
 		else if(recdat.data[0] == 2)
 		{
+			SERIAL_ECHO("\n Handle Data Adjust 2 Setting Screen ");
 			InforShowStatus = true;
 			if(PrinterStatusKey[1] == 3)// during heating
 			{
@@ -835,6 +849,7 @@ void RTSSHOW::RTS_HandleData()
 			}
 			//FilementStatus[0]  =  0; // recover the status waiting to check filements
 			
+
 			if(LanguageRecbuf != 0)
 				RTS_SndData(ExchangePageBase + 86, ExchangepageAddr);	
 			else
@@ -1283,7 +1298,7 @@ void RTSSHOW::RTS_HandleData()
 			}
 			last_zoffset = rts_probe_zoffset;
 			RTS_SndData(rts_probe_zoffset*100, 0x1026); 
-			eeprom_write_byte((unsigned char*)FONT_EEPROM+2, AutoLevelStatus);
+			//eeprom_write_byte((unsigned char*)FONT_EEPROM+2, AutoLevelStatus);
 		}
 		
 		RTS_SndData(10, FilenameIcon); 
@@ -1498,7 +1513,7 @@ void RTSSHOW::RTS_HandleData()
 
 	case LanguageChoice:
 		LanguageRecbuf = recdat.data[0];
-		eeprom_write_byte((unsigned char*)FONT_EEPROM, LanguageRecbuf);
+		//eeprom_write_byte((unsigned char*)FONT_EEPROM, LanguageRecbuf);
 		/*next step:record the data to EEPROM*/
 		if(card.cardOK)
 		{
@@ -1518,6 +1533,7 @@ void RTSSHOW::RTS_HandleData()
 		
 	case No_Filement:
 		char comdbuf[30];
+		SERIAL_ECHO("\n No Filament");
 		if(recdat.data[0] == 1)
 		{
 			/**************checking filement status during changing filement************/
@@ -1731,7 +1747,7 @@ void RTSSHOW::RTS_HandleData()
 			RTS_SndData((VolumeSet+1)/32 - 1, VolumeIcon);
 			RTS_SndData(8, SoundIcon);
 		}
-		eeprom_write_byte((unsigned char*)FONT_EEPROM+4, VolumeSet);
+		//eeprom_write_byte((unsigned char*)FONT_EEPROM+4, VolumeSet);
 		RTS_SndData(VolumeSet<<8, SoundAddr+1);
 		break;
 		
@@ -1866,20 +1882,17 @@ void EachMomentUpdate()
 	millis_t ms = millis();
 	if(ms > next_rts_update_ms && InforShowStatus)
 	{
-		#if DISABLED(POWER_LOSS_RECOVERY)
-			int power_off_type_yes = 0;
-			int power_off_commands_count = 0;
-		#endif
+		
 		if ((power_off_type_yes == 0)  && lcd_sd_status && (power_off_commands_count > 0)) // print the file before the power is off.
 		{
-			//SERIAL_PROTOCOLLN("  ***test1*** ");
+			SERIAL_PROTOCOLLN("  ***test1*** ");
 			if(startprogress == 0)
 			{
 				rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
 				
-				//rtscheck.RTS_SndData(5, VolumeIcon);
-				//rtscheck.RTS_SndData(8, SoundIcon);
-				//rtscheck.RTS_SndData(0xC0, VolumeIcon-2);
+				rtscheck.RTS_SndData(5, VolumeIcon);
+				rtscheck.RTS_SndData(8, SoundIcon);
+				rtscheck.RTS_SndData(0xC0, VolumeIcon-2);
 				if(VolumeSet == 0)
 				{
 					rtscheck.RTS_SndData(0, VolumeIcon);
@@ -1960,6 +1973,7 @@ void EachMomentUpdate()
 			delay(30);
 			if((startprogress +=1) > 200)
 			{
+				SERIAL_PROTOCOLLN("  startprogress ");
 			   	power_off_type_yes = 1;
 				InforShowStatus = true;
 				TPShowStatus = false;
@@ -1968,11 +1982,8 @@ void EachMomentUpdate()
 					rtscheck.RTS_SndData(ExchangePageBase + 1, ExchangepageAddr); //exchange to 1 page
 				else
 					rtscheck.RTS_SndData(ExchangePageBase + 45, ExchangepageAddr); 
-
 			}
-			
 			return;
-		
 		}
 		else
 		{
@@ -2069,7 +2080,7 @@ void EachMomentUpdate()
 				}
 				else if(thermalManager.current_temperature[0] >= thermalManager.target_temperature[0] && NozzleTempStatus[2])
 				{
-					//SERIAL_ECHOPAIR("\n ***NozzleTempStatus[2] =",(int)NozzleTempStatus[2]);
+					SERIAL_ECHOPAIR("\n ***NozzleTempStatus[2] =",(int)NozzleTempStatus[2]);
 					startprogress = NozzleTempStatus[2] = 0;
 					TPShowStatus = true;
 					rtscheck.RTS_SndData(4, ExchFlmntIcon);
@@ -2102,13 +2113,14 @@ void RTSUpdate()	//looping at the loop function
 	/*Check the status of card*/
 	rtscheck.RTS_SDCardUpate();
 	
-#if CHECKFILEMENT
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 	/*checking filement status during printing */
 	if(FilementStatus[1] == 2 && true==card.sdprinting)
 	{	
 		char cmd[2][30];
-		if(0==READ(FIL_RUNOUT_PIN))
+		if(READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING)
 		{
+			SERIAL_PROTOCOLLN("  Filament out check ");
 			Checkfilenum++;
 			delay(5);
 			if(Checkfilenum>50)
@@ -2149,7 +2161,9 @@ void RTSUpdate()	//looping at the loop function
 
 	EachMomentUpdate();
 
+//SERIAL_ECHOPAIR("\n RTSUpdate Waitway",waitway);
 	/*wait to receive massage and response*/
 	if(!waitway && rtscheck.RTS_RecData() > 0)
+		//SERIAL_PROTOCOLLN("  Handle Data ");
 	    rtscheck.RTS_HandleData();
 }
