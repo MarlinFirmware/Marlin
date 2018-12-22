@@ -1189,119 +1189,164 @@ SERIAL_ECHO(Checkkey);
 		break;
 		
 	case Bedlevel:
-		if(recdat.data[0] == 1)// Z-axis to home
-		{
-			 // Disallow Z homing if X or Y are unknown
-			if (!all_axes_known())
-				enqueue_and_echo_commands_P(PSTR("G28")); 
-			else
-				enqueue_and_echo_commands_P(PSTR("G28 Z0")); 
-			 set_bed_leveling_enabled(false);
-			enqueue_and_echo_commands_P(PSTR("G1  F150 Z0.2")); 
-			set_bed_leveling_enabled(true);
-			rts_probe_zoffset = 0;
-			RTS_SndData(rts_probe_zoffset*100, 0x1026); 
-		}
-		else if(recdat.data[0] == 2)// Z-axis to Up
-		{
-			current_position[Z_AXIS] += 0.1; 
-			RTS_line_to_current(Z_AXIS);
-		}
-		else if(recdat.data[0] == 3)// Z-axis to Down
-		{
-			current_position[Z_AXIS] -= 0.1; 
-			RTS_line_to_current(Z_AXIS);
-		}
-		else if(recdat.data[0] == 4) 	// Assitant Level
-		{
-			waitway = 4;		//only for prohibiting to receive massage
-			enqueue_and_echo_commands_P((PSTR("G28 X0 Y0 Z0")));
-			enqueue_and_echo_commands_P((PSTR("G90")));
-			waitway = 2;
-			 set_bed_leveling_enabled(false);
-			enqueue_and_echo_commands_P((PSTR("G1 F200 Z0.2")));
-			set_bed_leveling_enabled(true);
-			if(LanguageRecbuf != 0)
-				RTS_SndData(ExchangePageBase + 28, ExchangepageAddr); 
-			else
-				RTS_SndData(ExchangePageBase + 84, ExchangepageAddr); 
-		}
-		else if(recdat.data[0] == 5) 	// AutoLevel
-		{
-			waitway = 3;		//only for prohibiting to receive massage
-			RTS_SndData(1, AutolevelIcon); 
-			if(LanguageRecbuf != 0)
-				RTS_SndData(ExchangePageBase + 43, ExchangepageAddr); // Autoleve ... ,please wait
-			else
-				RTS_SndData(ExchangePageBase + 85, ExchangepageAddr); 
-			enqueue_and_echo_commands_P(PSTR("G29")); 
-			//stepper.synchronize();
-			 set_bed_leveling_enabled(false);
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2;"))); 
-			enqueue_and_echo_commands_P(PSTR("G1 X150 Y150 F5000")); 
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z0.2")));
-			 set_bed_leveling_enabled(true);
-		}
-		else if(recdat.data[0] == 6) 	// Assitant Level ,  Centre 1
-		{
-			waitway = 4;		//only for prohibiting to receive massage
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-			enqueue_and_echo_commands_P((PSTR("G1 X150 Y150 F5000")));
-			waitway = 2;
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
-		}
-		else if(recdat.data[0] == 7) 	// Assitant Level , Front Left 2
-		{
-			waitway = 4;		//only for prohibiting to receive massage
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-			enqueue_and_echo_commands_P((PSTR("G1 X30 Y30 F5000")));
-			waitway = 2;
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
-		}
-		else if(recdat.data[0] == 8) 	// Assitant Level , Front Right 3
-		{
-			waitway = 4;		//only for prohibiting to receive massage
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-			enqueue_and_echo_commands_P((PSTR("G1 X270 Y30 F5000")));
-			waitway = 2;
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
-		}
-		else if(recdat.data[0] == 9) 	// Assitant Level , Back Right 4
-		{
-			waitway = 4;		//only for prohibiting to receive massage
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-			enqueue_and_echo_commands_P((PSTR("G1 X270 Y270 F5000")));
-			waitway = 2;
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
-		}
-		else if(recdat.data[0] == 10) 	// Assitant Level , Back Left 5
-		{
-			waitway = 4;		//only for prohibiting to receive massage
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
-			enqueue_and_echo_commands_P((PSTR("G1 X30 Y270 F5000")));
-			waitway = 2;
-			enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
-		}
-		else if(recdat.data[0] == 11) 	// Autolevel switch
-		{
-			if(AutoLevelStatus)	//turn on the Autolevel
+		#if ENABLED(MachineCRX)
+			if(recdat.data[0] == 1) // Top Left
 			{
-				RTS_SndData(3, AutoLevelIcon);	
-				AutoLevelStatus = false;
-				settings.load();
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
+				enqueue_and_echo_commands_P((PSTR("G1 X30 Y30 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+				
 			}
-			else//turn off the Autolevel
+			else if(recdat.data[0] == 2) // Top Right
 			{
-				RTS_SndData(2, AutoLevelIcon);
-				AutoLevelStatus = true;
-				settings.reset();
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z3"))); 
+				enqueue_and_echo_commands_P((PSTR("G1 X270 Y30 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z-3")));
 			}
-			last_zoffset = rts_probe_zoffset;
-			RTS_SndData(rts_probe_zoffset*100, 0x1026); 
-			//eeprom_write_byte((unsigned char*)FONT_EEPROM+2, AutoLevelStatus);
-		}
-		
-		RTS_SndData(10, FilenameIcon); 
+			else if(recdat.data[0] == 3) //  Centre
+			{
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z3"))); 
+				enqueue_and_echo_commands_P((PSTR("G1 X150 Y150 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z-3")));
+			}
+			else if(recdat.data[0] == 4) // Bottom Left
+			{
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z3")));
+				enqueue_and_echo_commands_P((PSTR("G1 X30 Y270 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z-3")));
+			}
+			else if(recdat.data[0] == 5) //  Bottom Right
+			{
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z3")));
+				enqueue_and_echo_commands_P((PSTR("G1 X270 Y270 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z-3")));
+			}
+			break;
+		#else
+			if(recdat.data[0] == 1)// Z-axis to home
+			{
+				// Disallow Z homing if X or Y are unknown
+				if (!all_axes_known())
+					enqueue_and_echo_commands_P(PSTR("G28")); 
+				else
+					enqueue_and_echo_commands_P(PSTR("G28 Z0")); 
+				set_bed_leveling_enabled(false);
+				enqueue_and_echo_commands_P(PSTR("G1  F150 Z0.2")); 
+				set_bed_leveling_enabled(true);
+				rts_probe_zoffset = 0;
+				RTS_SndData(rts_probe_zoffset*100, 0x1026); 
+			}
+			else if(recdat.data[0] == 2)// Z-axis to Up
+			{
+				current_position[Z_AXIS] += 0.1; 
+				RTS_line_to_current(Z_AXIS);
+			}
+			else if(recdat.data[0] == 3)// Z-axis to Down
+			{
+				current_position[Z_AXIS] -= 0.1; 
+				RTS_line_to_current(Z_AXIS);
+			}
+			else if(recdat.data[0] == 4) 	// Assitant Level
+			{
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G28 X0 Y0 Z0")));
+				enqueue_and_echo_commands_P((PSTR("G90")));
+				waitway = 2;
+				set_bed_leveling_enabled(false);
+				enqueue_and_echo_commands_P((PSTR("G1 F200 Z0.2")));
+				set_bed_leveling_enabled(true);
+				if(LanguageRecbuf != 0)
+					RTS_SndData(ExchangePageBase + 28, ExchangepageAddr); 
+				else
+					RTS_SndData(ExchangePageBase + 84, ExchangepageAddr); 
+			}
+			else if(recdat.data[0] == 5) 	// AutoLevel
+			{
+				waitway = 3;		//only for prohibiting to receive massage
+				RTS_SndData(1, AutolevelIcon); 
+				if(LanguageRecbuf != 0)
+					RTS_SndData(ExchangePageBase + 43, ExchangepageAddr); // Autoleve ... ,please wait
+				else
+					RTS_SndData(ExchangePageBase + 85, ExchangepageAddr); 
+				enqueue_and_echo_commands_P(PSTR("G29")); 
+				//stepper.synchronize();
+				set_bed_leveling_enabled(false);
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z10.2;"))); 
+				enqueue_and_echo_commands_P(PSTR("G1 X150 Y150 F5000")); 
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z0.2")));
+				set_bed_leveling_enabled(true);
+			}
+			else if(recdat.data[0] == 6) 	// Assitant Level ,  Centre 1
+			{
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
+				enqueue_and_echo_commands_P((PSTR("G1 X150 Y150 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+			}
+			else if(recdat.data[0] == 7) 	// Assitant Level , Front Left 2
+			{
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
+				enqueue_and_echo_commands_P((PSTR("G1 X30 Y30 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+			}
+			else if(recdat.data[0] == 8) 	// Assitant Level , Front Right 3
+			{
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
+				enqueue_and_echo_commands_P((PSTR("G1 X270 Y30 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+			}
+			else if(recdat.data[0] == 9) 	// Assitant Level , Back Right 4
+			{
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
+				enqueue_and_echo_commands_P((PSTR("G1 X270 Y270 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+			}
+			else if(recdat.data[0] == 10) 	// Assitant Level , Back Left 5
+			{
+				waitway = 4;		//only for prohibiting to receive massage
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z3;"))); 
+				enqueue_and_echo_commands_P((PSTR("G1 X30 Y270 F5000")));
+				waitway = 2;
+				enqueue_and_echo_commands_P((PSTR("G1 F100 Z-3")));
+			}
+			else if(recdat.data[0] == 11) 	// Autolevel switch
+			{
+				if(AutoLevelStatus)	//turn on the Autolevel
+				{
+					RTS_SndData(3, AutoLevelIcon);	
+					AutoLevelStatus = false;
+					settings.load();
+				}
+				else//turn off the Autolevel
+				{
+					RTS_SndData(2, AutoLevelIcon);
+					AutoLevelStatus = true;
+					settings.reset();
+				}
+				last_zoffset = rts_probe_zoffset;
+				RTS_SndData(rts_probe_zoffset*100, 0x1026); 
+				//eeprom_write_byte((unsigned char*)FONT_EEPROM+2, AutoLevelStatus);
+			}
+			
+			RTS_SndData(10, FilenameIcon); 
+			#endif
 		break;
 
 	case XYZEaxis:
