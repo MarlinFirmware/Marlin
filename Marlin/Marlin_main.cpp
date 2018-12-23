@@ -5412,13 +5412,15 @@ void home_all_axes() { gcode_G28(true); }
       measured_z = 0;
 
       #if ABL_GRID
-
-        bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
-
+        #if ENABLED(CREALITY_DWIN)
+          bool zig =true;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+        #else
+          bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+        #endif
         measured_z = 0;
 
         // Outer loop is Y with PROBE_Y_FIRST disabled
-        for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END && !isnan(measured_z); PR_OUTER_VAR++) {
+        for (uint8_t PR_OUTER_VAR = 0, showcount=0; PR_OUTER_VAR < PR_OUTER_END && !isnan(measured_z); PR_OUTER_VAR++) {
 
           int8_t inStart, inStop, inInc;
 
@@ -5436,11 +5438,8 @@ void home_all_axes() { gcode_G28(true); }
           zig ^= true; // zag
 
           // Inner loop is Y with PROBE_Y_FIRST enabled
-          #if ENABLED(CREALITY_DWIN)
-            for (int8_t PR_INNER_VAR = inStart, showcount=0; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
-          #else
-            for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
-          #endif
+          
+          for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
             float xBase = left_probe_bed_position + xGridSpacing * xCount,
                   yBase = front_probe_bed_position + yGridSpacing * yCount;
 
