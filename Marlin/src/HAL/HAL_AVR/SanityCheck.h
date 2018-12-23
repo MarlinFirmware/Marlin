@@ -79,11 +79,11 @@
     #elif PIN_EXISTS(E5_AUTO_FAN) && SPINDLE_LASER_PWM_PIN == E5_AUTO_FAN_PIN
       #error "SPINDLE_LASER_PWM_PIN is used by E5_AUTO_FAN_PIN."
     #elif PIN_EXISTS(FAN) && SPINDLE_LASER_PWM_PIN == FAN_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used FAN_PIN."
+      #error "SPINDLE_LASER_PWM_PIN is used by FAN_PIN."
     #elif PIN_EXISTS(FAN1) && SPINDLE_LASER_PWM_PIN == FAN1_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used FAN1_PIN."
+      #error "SPINDLE_LASER_PWM_PIN is used by FAN1_PIN."
     #elif PIN_EXISTS(FAN2) && SPINDLE_LASER_PWM_PIN == FAN2_PIN
-      #error "SPINDLE_LASER_PWM_PIN is used FAN2_PIN."
+      #error "SPINDLE_LASER_PWM_PIN is used by FAN2_PIN."
     #elif PIN_EXISTS(CONTROLLERFAN) && SPINDLE_LASER_PWM_PIN == CONTROLLERFAN_PIN
       #error "SPINDLE_LASER_PWM_PIN is used by CONTROLLERFAN_PIN."
     #elif PIN_EXISTS(MOTOR_CURRENT_PWM_XY) && SPINDLE_LASER_PWM_PIN == MOTOR_CURRENT_PWM_XY_PIN
@@ -97,20 +97,8 @@
 #endif // SPINDLE_LASER_ENABLE
 
 /**
- * TMC2208 software UART and ENDSTOP_INTERRUPTS both use pin change interrupts (PCI)
+ * The Trinamic library includes SoftwareSerial.h, leading to a compile error.
  */
-#if HAS_DRIVER(TMC2208) && ENABLED(ENDSTOP_INTERRUPTS_FEATURE) && !( \
-       defined(X_HARDWARE_SERIAL ) \
-    || defined(X2_HARDWARE_SERIAL) \
-    || defined(Y_HARDWARE_SERIAL ) \
-    || defined(Y2_HARDWARE_SERIAL) \
-    || defined(Z_HARDWARE_SERIAL ) \
-    || defined(Z2_HARDWARE_SERIAL) \
-    || defined(Z3_HARDWARE_SERIAL) \
-    || defined(E0_HARDWARE_SERIAL) \
-    || defined(E1_HARDWARE_SERIAL) \
-    || defined(E2_HARDWARE_SERIAL) \
-    || defined(E3_HARDWARE_SERIAL) \
-    || defined(E4_HARDWARE_SERIAL) )
-  #error "Select hardware UART for TMC2208 to use both TMC2208 and ENDSTOP_INTERRUPTS_FEATURE."
+#if HAS_TRINAMIC && ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+  #error "TMCStepper includes SoftwareSerial.h which is incompatible with ENDSTOP_INTERRUPTS_FEATURE. Disable ENDSTOP_INTERRUPTS_FEATURE to continue."
 #endif

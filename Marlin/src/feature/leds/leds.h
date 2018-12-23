@@ -146,7 +146,7 @@ public:
     #endif
   );
 
-  FORCE_INLINE void set_color(uint8_t r, uint8_t g, uint8_t b
+  inline void set_color(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
       #if ENABLED(NEOPIXEL_LED)
@@ -164,23 +164,23 @@ public:
     );
   }
 
-  FORCE_INLINE static void set_off()   { set_color(LEDColorOff()); }
-  FORCE_INLINE static void set_green() { set_color(LEDColorGreen()); }
-  FORCE_INLINE static void set_white() { set_color(LEDColorWhite()); }
+  static inline void set_off()   { set_color(LEDColorOff()); }
+  static inline void set_green() { set_color(LEDColorGreen()); }
+  static inline void set_white() { set_color(LEDColorWhite()); }
 
   #if ENABLED(LED_COLOR_PRESETS)
     static const LEDColor defaultLEDColor;
-    FORCE_INLINE static void set_default()  { set_color(defaultLEDColor); }
-    FORCE_INLINE static void set_red()      { set_color(LEDColorRed()); }
-    FORCE_INLINE static void set_orange()   { set_color(LEDColorOrange()); }
-    FORCE_INLINE static void set_yellow()   { set_color(LEDColorYellow()); }
-    FORCE_INLINE static void set_blue()     { set_color(LEDColorBlue()); }
-    FORCE_INLINE static void set_indigo()   { set_color(LEDColorIndigo()); }
-    FORCE_INLINE static void set_violet()   { set_color(LEDColorViolet()); }
+    static inline void set_default()  { set_color(defaultLEDColor); }
+    static inline void set_red()      { set_color(LEDColorRed()); }
+    static inline void set_orange()   { set_color(LEDColorOrange()); }
+    static inline void set_yellow()   { set_color(LEDColorYellow()); }
+    static inline void set_blue()     { set_color(LEDColorBlue()); }
+    static inline void set_indigo()   { set_color(LEDColorIndigo()); }
+    static inline void set_violet()   { set_color(LEDColorViolet()); }
   #endif
 
   #if ENABLED(PRINTER_EVENT_LEDS)
-    FORCE_INLINE static LEDColor get_color() { return lights_on ? color : LEDColorOff(); }
+    static inline LEDColor get_color() { return lights_on ? color : LEDColorOff(); }
   #endif
 
   #if ENABLED(LED_CONTROL_MENU) || ENABLED(PRINTER_EVENT_LEDS)
@@ -189,7 +189,7 @@ public:
   #endif
   #if ENABLED(LED_CONTROL_MENU)
     static void toggle();  // swap "off" with color
-    FORCE_INLINE static void update() { set_color(color); }
+    static inline void update() { set_color(color); }
   #endif
 };
 

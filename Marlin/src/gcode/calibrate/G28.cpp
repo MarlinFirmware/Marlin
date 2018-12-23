@@ -67,8 +67,9 @@
                 fr_mm_s = MIN(homing_feedrate(X_AXIS), homing_feedrate(Y_AXIS)) * SQRT(sq(mlratio) + 1.0);
 
     #if ENABLED(SENSORLESS_HOMING)
-      sensorless_homing_per_axis(X_AXIS);
-      sensorless_homing_per_axis(Y_AXIS);
+      sensorless_t stealth_states { false, false, false };
+      stealth_states.x = tmc_enable_stallguard(stepperX);
+      stealth_states.y = tmc_enable_stallguard(stepperY);
     #endif
 
     do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
@@ -78,8 +79,8 @@
     current_position[X_AXIS] = current_position[Y_AXIS] = 0.0;
 
     #if ENABLED(SENSORLESS_HOMING)
-      sensorless_homing_per_axis(X_AXIS, false);
-      sensorless_homing_per_axis(Y_AXIS, false);
+      tmc_disable_stallguard(stepperX, stealth_states.x);
+      tmc_disable_stallguard(stepperY, stealth_states.y);
     #endif
   }
 
@@ -92,8 +93,7 @@
     // Disallow Z homing if X or Y are unknown
     if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
       LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM(MSG_ERR_Z_HOMING);
+      SERIAL_ECHO_MSG(MSG_ERR_Z_HOMING);
       return;
     }
 
@@ -135,8 +135,7 @@
     }
     else {
       LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
+      SERIAL_ECHO_MSG(MSG_ZPROBE_OUT);
     }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -425,7 +424,7 @@ void GcodeSuite::G28(const bool always_home_all) {
     tool_change(old_tool_index, 0, NO_FETCH);
   #endif
 
-  lcd_refresh();
+  ui.refresh();
 
   report_current_position();
   #if ENABLED(NANODLP_Z_SYNC)

@@ -67,7 +67,6 @@ jobs:
 
             echo testing megaatmega2560 targets...
             export TEST_PLATFORM="-e megaatmega2560"
-            restore_configs
             echo use_example_configs adafruit/ST7565
             use_example_configs adafruit/ST7565
             build_marlin_pio ./ ${TEST_PLATFORM}
@@ -88,10 +87,10 @@ jobs:
             use_example_configs AliExpress/CL-260
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
-            echo use_example_configs Cartesio
-            use_example_configs Cartesio
-            build_marlin_pio ./ ${TEST_PLATFORM}
-            restore_configs
+            #echo use_example_configs Cartesio
+            #use_example_configs Cartesio
+            #build_marlin_pio ./ ${TEST_PLATFORM}
+            #restore_configs
             echo use_example_configs delta/FLSUN/auto_calibrate
             use_example_configs delta/FLSUN/auto_calibrate
             build_marlin_pio ./ ${TEST_PLATFORM}
@@ -120,6 +119,10 @@ jobs:
             use_example_configs Felix/DUAL
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
+            echo use_example_configs FolgerTech/i3-2020
+            use_example_configs FolgerTech/i3-2020
+            build_marlin_pio ./ ${TEST_PLATFORM}
+            restore_configs
             echo use_example_configs gCreate/gMax1.5+
             use_example_configs gCreate/gMax1.5+
             build_marlin_pio ./ ${TEST_PLATFORM}
@@ -128,20 +131,17 @@ jobs:
             use_example_configs Geeetech/GT2560
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
-            echo use_example_configs Geeetech/I3_Pro_X-GT2560
-            use_example_configs Geeetech/I3_Pro_X-GT2560
-            build_marlin_pio ./ ${TEST_PLATFORM}
-            restore_configs
+            #echo use_example_configs Geeetech/I3_Pro_X-GT2560
+            #use_example_configs Geeetech/I3_Pro_X-GT2560
+            #build_marlin_pio ./ ${TEST_PLATFORM}
+            #restore_configs
             echo use_example_configs Infitary/i3-M508
             use_example_configs Infitary/i3-M508
             build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
-            #
-            # Disabled due to compile failure on E0_AUTO_FAN_PIN PB8
-            #
-            #  use_example_configs Malyan/M200
-            #  build_marlin_pio ./ ${TEST_PLATFORM}
-            #  restore_configs
+            use_example_configs Malyan/M200
+            build_marlin_pio ./ ${TEST_PLATFORM}
+            restore_configs
             echo use_example_configs Micromake/C1/basic
             use_example_configs Micromake/C1/basic
             build_marlin_pio ./ ${TEST_PLATFORM}
@@ -177,18 +177,13 @@ jobs:
             echo use_example_configs Wanhao/Duplicator6
             use_example_configs Wanhao/Duplicator6
             build_marlin_pio ./ ${TEST_PLATFORM}
-            #
-            # Disabled due to compile failure on https://github.com/stawel/SlowSoftI2CMaster
-            #
-            #  - Requires https://github.com/stawel/SlowSoftI2CMaster
-            #  restore_configs
-            #  use_example_configs wt150
-            #  build_marlin_pio ./ ${TEST_PLATFORM}
-
-
-            echo testing anet10 targets...
-            export TEST_PLATFORM="-e anet10"
             restore_configs
+            # Requires manual load of https://github.com/stawel/SlowSoftI2CMaster
+            #use_example_configs wt150
+            #build_marlin_pio ./ ${TEST_PLATFORM}
+            #restore_configs
+            echo testing melzi targets...
+            export TEST_PLATFORM="-e melzi"
             echo use_example_configs Anet/A6
             use_example_configs Anet/A6
             build_marlin_pio ./ ${TEST_PLATFORM}
@@ -212,70 +207,57 @@ jobs:
             echo use_example_configs TinyBoy2
             use_example_configs TinyBoy2
             build_marlin_pio ./ ${TEST_PLATFORM}
-
+            restore_configs
 
             echo testing rambo targets...
             export TEST_PLATFORM="-e rambo"
-            restore_configs
             echo use_example_configs AlephObjects/TAZ4
             use_example_configs AlephObjects/TAZ4
             build_marlin_pio ./ ${TEST_PLATFORM}
-
-
-            echo testing teensy20 targets...
-            export TEST_PLATFORM="-e teensy20"
-            #
-            # Disabled due to Z_MIN_PIN related compile failure
-            #
-            #  restore_configs
-            #  use_example_configs delta/kossel_pro
-            #  build_marlin_pio ./ ${TEST_PLATFORM}
             restore_configs
+
+            echo testing at90usb1286_* targets...
+            export TEST_PLATFORM="-e at90usb1286_dfu"
+            #echo se_example_configs delta/kossel_pro
+            #use_example_configs delta/kossel_pro
+            #build_marlin_pio ./ ${TEST_PLATFORM}
+            #restore_configs
             echo use_example_configs makibox
             use_example_configs makibox
             build_marlin_pio ./ ${TEST_PLATFORM}
-
+            restore_configs
 
             echo testing sanguino_atmega644p targets...
             export TEST_PLATFORM="-e sanguino_atmega644p"
-            restore_configs
             echo use_example_configs tvrrug/Round2
             use_example_configs tvrrug/Round2
             build_marlin_pio ./ ${TEST_PLATFORM}
-
+            restore_configs
 
             echo testing LPC1768 targets...
             export TEST_PLATFORM="-e LPC1768"
-            restore_configs
-            echo use_example_configs FolgerTech/i3-2020
-            use_example_configs FolgerTech/i3-2020
-            build_marlin_pio ./ ${TEST_PLATFORM}
-            restore_configs
             echo use_example_configs Mks/Sbase
             use_example_configs Mks/Sbase
             build_marlin_pio ./ ${TEST_PLATFORM}
+            restore_configs
+            echo testing STM32F1 targets...
+            export TEST_PLATFORM="-e STM32F1"
+            restore_configs
+            echo use_example_configs STM32F10
+            use_example_configs STM32F10
+            build_marlin_pio ./ ${TEST_PLATFORM}
+            restore_configs
+            echo use_example_configs stm32f103ret6
+            use_example_configs stm32f103ret6
+            build_marlin_pio ./ ${TEST_PLATFORM}
+            restore_configs
 
-            #
-            # Disabled due to numerous compile failures
-            #
-            #  echo testing STM32F1 targets...
-            #  export TEST_PLATFORM="-e STM32F1"
-            #  restore_configs
-            #  use_example_configs STM32F10
-            #  build_marlin_pio ./ ${TEST_PLATFORM}
-            #  restore_configs
-            #  use_example_configs stm32f103ret6
-            #  build_marlin_pio ./ ${TEST_PLATFORM}
-
-
-            #
-            # Disabled due do pin related compile failures
-            #
-            #  echo testing DUE targets...
-            #  export TEST_PLATFORM="-e DUE"
-            #  restore_configs
-            #  use_example_configs UltiMachine/Archim2
-            #  build_marlin_pio ./ ${TEST_PLATFORM}
+            echo testing DUE targets...
+            export TEST_PLATFORM="-e DUE"
+            #echo use_example_configs UltiMachine/Archim2
+            #use_example_configs UltiMachine/Archim2
+            #build_marlin_pio ./ ${TEST_PLATFORM}
+            #restore_configs
 
             #
             # Remove temp files from dependencies tree prior to caching

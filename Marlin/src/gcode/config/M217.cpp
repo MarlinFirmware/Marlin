@@ -48,6 +48,10 @@ void M217_report(const bool eeprom=false) {
       SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(toolchange_settings.change_point.y));
     #endif
 
+  #else
+
+    UNUSED(eeprom);
+
   #endif
 
   SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(toolchange_settings.z_raise));

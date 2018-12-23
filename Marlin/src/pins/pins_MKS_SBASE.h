@@ -29,18 +29,8 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "MKS SBASE"
-  #define DEFAULT_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
-#endif
-
-// unused
-/*
-#define PIN_P0_27          P0_27   // EXP2/Onboard SD
-#define PIN_P0_28          P0_28   // EXP2
-#define PIN_P0_02          P0_02   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
-#define PIN_P0_03          P0_03   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
-*/
+#define BOARD_NAME          "MKS SBASE"
+#define DEFAULT_WEBSITE_URL "https://github.com/makerbase-mks/MKS-SBASE"
 
 #define LED_PIN            P1_18   // Used as a status indicator
 #define LED2_PIN           P1_19
@@ -64,6 +54,10 @@
 #define Y_MAX_PIN          P1_27   // 10k pullup to 3.3V, 1K series
 #define Z_MIN_PIN          P1_28   // The original Mks Sbase DIO19 has a 10k pullup to 3.3V or 5V, 1K series, so when using a Zprobe we must use DIO41 (J8 P1.22)
 #define Z_MAX_PIN          P1_29   // 10k pullup to 3.3V, 1K series
+
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  P4_28   // Connector J8
+#endif
 
 //
 // Steppers
@@ -129,7 +123,6 @@
 #define PIN_P1_23          P1_23   // PWM Capable
 #define PIN_P2_12          P2_12   // Interrupt Capable
 #define PIN_P2_11          P2_11   // Interrupt Capable
-#define PIN_P4_28          P4_28
 
 //
 // Prusa i3 MK2 Multi Material Multiplexer Support
@@ -302,6 +295,12 @@
   #define E0_SERIAL_TX_PIN P4_28   // J8-6
   #define E0_SERIAL_RX_PIN P0_26   // TH4
 #endif
+
+// UNUSED
+#define PIN_P0_27          P0_27   // EXP2/Onboard SD
+#define PIN_P0_28          P0_28   // EXP2
+#define PIN_P0_02          P0_02   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
+#define PIN_P0_03          P0_03   // AUX1 (Interrupt Capable/ADC/Serial Port 0)
 
 /**
  *  PWMs

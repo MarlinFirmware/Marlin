@@ -38,10 +38,8 @@ void GcodeSuite::M404() {
     filament_width_nominal = parser.value_linear_units();
     planner.volumetric_area_nominal = CIRCLE_AREA(filament_width_nominal * 0.5);
   }
-  else {
-    SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
-    SERIAL_PROTOCOLLN(filament_width_nominal);
-  }
+  else
+    SERIAL_ECHOLNPAIR("Filament dia (nominal mm):", filament_width_nominal);
 }
 
 /**
@@ -79,8 +77,7 @@ void GcodeSuite::M406() {
  * M407: Get measured filament diameter on serial output
  */
 void GcodeSuite::M407() {
-  SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
-  SERIAL_PROTOCOLLN(filament_width_meas);
+  SERIAL_ECHOLNPAIR("Filament dia (measured mm):", filament_width_meas);
 }
 
 #endif // FILAMENT_WIDTH_SENSOR

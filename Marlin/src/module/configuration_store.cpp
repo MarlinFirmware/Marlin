@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V62"
+#define EEPROM_VERSION "V63"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -66,15 +66,22 @@
 #include "../gcode/gcode.h"
 #include "../Marlin.h"
 
+#if ENABLED(EEPROM_SETTINGS) || ENABLED(SD_FIRMWARE_UPDATE)
+  #include "../HAL/shared/persistent_store_api.h"
+#endif
+
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
 #if HAS_SERVOS
   #include "servo.h"
+#endif
+
+#if HAS_SERVOS && HAS_SERVO_ANGLES
+  #define EEPROM_NUM_SERVOS NUM_SERVOS
 #else
-  #undef NUM_SERVOS
-  #define NUM_SERVOS NUM_SERVO_PLUGS
+  #define EEPROM_NUM_SERVOS NUM_SERVO_PLUGS
 #endif
 
 #if HAS_BED_PROBE
@@ -82,6 +89,11 @@
 #endif
 
 #include "../feature/fwretract.h"
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../feature/power_loss_recovery.h"
+#endif
+
 #include "../feature/pause.h"
 
 #if EXTRUDERS > 1
@@ -178,7 +190,7 @@ typedef struct SettingsDataStruct {
   //
   // SERVO_ANGLES
   //
-  uint16_t servo_angles[NUM_SERVOS][2];                 // M281 P L U
+  uint16_t servo_angles[EEPROM_NUM_SERVOS][2];          // M281 P L U
 
   //
   // DELTA / [XYZ]_DUAL_ENDSTOPS
@@ -201,9 +213,9 @@ typedef struct SettingsDataStruct {
   //
   // ULTIPANEL
   //
-  int16_t lcd_preheat_hotend_temp[2],                   // M145 S0 H
-          lcd_preheat_bed_temp[2];                      // M145 S0 B
-  uint8_t lcd_preheat_fan_speed[2];                     // M145 S0 F
+  int16_t ui_preheat_hotend_temp[2],                    // M145 S0 H
+          ui_preheat_bed_temp[2];                       // M145 S0 B
+  uint8_t ui_preheat_fan_speed[2];                      // M145 S0 F
 
   //
   // PIDTEMP
@@ -220,6 +232,11 @@ typedef struct SettingsDataStruct {
   // HAS_LCD_CONTRAST
   //
   int16_t lcd_contrast;                                 // M250 C
+
+  //
+  // POWER_LOSS_RECOVERY
+  //
+  bool recovery_enabled;                                // M413 S
 
   //
   // FWRETRACT
@@ -269,7 +286,7 @@ typedef struct SettingsDataStruct {
   // Tool-change settings
   //
   #if EXTRUDERS > 1
-    toolchange_settings_t toolchange_settings;                // M217 S P R
+    toolchange_settings_t toolchange_settings;          // M217 S P R
   #endif
 
 } SettingsData;
@@ -370,8 +387,37 @@ void MarlinSettings::postprocess() {
 
 #endif // SD_FIRMWARE_UPDATE
 
+#if ENABLED(EEPROM_CHITCHAT)
+  #define CHITCHAT_ECHO(V)                      SERIAL_ECHO(V)
+  #define CHITCHAT_ECHOLNPGM(STR)               SERIAL_ECHOLNPGM(STR)
+  #define CHITCHAT_ECHOPAIR(STR,V)              SERIAL_ECHOPAIR(STR,V)
+  #define CHITCHAT_ECHOLNPAIR(STR,V)            SERIAL_ECHOLNPAIR(STR,V)
+  #define CHITCHAT_ECHO_START_P(port)           SERIAL_ECHO_START_P(port)
+  #define CHITCHAT_ERROR_START_P(port)          SERIAL_ERROR_START_P(port)
+  #define CHITCHAT_ERROR_MSG_P(port, STR)       SERIAL_ERROR_MSG_P(port, STR)
+  #define CHITCHAT_ECHO_P(port, VAL)            SERIAL_ECHO_P(port, VAL)
+  #define CHITCHAT_ECHOPGM_P(port, STR)         SERIAL_ECHOPGM_P(port, STR)
+  #define CHITCHAT_ECHOLNPGM_P(port, STR)       SERIAL_ECHOLNPGM_P(port, STR)
+  #define CHITCHAT_ECHOPAIR_P(port, STR, VAL)   SERIAL_ECHOPAIR_P(port, STR, VAL)
+  #define CHITCHAT_ECHOLNPAIR_P(port, STR, VAL) SERIAL_ECHOLNPAIR_P(port, STR, VAL)
+  #define CHITCHAT_EOL()                        SERIAL_EOL()
+#else
+  #define CHITCHAT_ECHO(V)                      NOOP
+  #define CHITCHAT_ECHOLNPGM(STR)               NOOP
+  #define CHITCHAT_ECHOPAIR(STR,V)              NOOP
+  #define CHITCHAT_ECHOLNPAIR(STR,V)            NOOP
+  #define CHITCHAT_ECHO_START_P(port)           NOOP
+  #define CHITCHAT_ERROR_START_P(port)          NOOP
+  #define CHITCHAT_ERROR_MSG_P(port, STR)       NOOP
+  #define CHITCHAT_ECHO_P(port, VAL)            NOOP
+  #define CHITCHAT_ECHOPGM_P(port, STR)         NOOP
+  #define CHITCHAT_ECHOLNPGM_P(port, STR)       NOOP
+  #define CHITCHAT_ECHOPAIR_P(port, STR, VAL)   NOOP
+  #define CHITCHAT_ECHOLNPAIR_P(port, STR, VAL) NOOP
+  #define CHITCHAT_EOL()                        NOOP
+#endif
+
 #if ENABLED(EEPROM_SETTINGS)
-  #include "../HAL/shared/persistent_store_api.h"
 
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET; persistentStore.access_start()
   #define EEPROM_FINISH() persistentStore.access_finish()
@@ -379,7 +425,7 @@ void MarlinSettings::postprocess() {
   #define EEPROM_WRITE(VAR) persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
   #define EEPROM_READ(VAR) persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating)
   #define EEPROM_READ_ALWAYS(VAR) persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc)
-  #define EEPROM_ASSERT(TST,ERR) do{ if (!(TST)) { SERIAL_ERROR_START_P(port); SERIAL_ERRORLNPGM_P(port, ERR); eeprom_error = true; } }while(0)
+  #define EEPROM_ASSERT(TST,ERR) do{ if (!(TST)) { SERIAL_ERROR_MSG_P(port, ERR); eeprom_error = true; } }while(0)
 
   #if ENABLED(DEBUG_EEPROM_READWRITE)
     #define _FIELD_TEST(FIELD) \
@@ -397,10 +443,7 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::size_error(const uint16_t size PORTARG_AFTER) {
     if (size != datasize()) {
-      #if ENABLED(EEPROM_CHITCHAT)
-        SERIAL_ERROR_START_P(port);
-        SERIAL_ERRORLNPGM_P(port, "EEPROM datasize error.");
-      #endif
+      CHITCHAT_ERROR_MSG_P(port, "EEPROM datasize error.");
       return true;
     }
     return false;
@@ -592,36 +635,11 @@ void MarlinSettings::postprocess() {
     // Servo Angles
     //
     {
-      #if !(HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES))
+      _FIELD_TEST(servo_angles);
 
-        uint16_t servo_angles[NUM_SERVOS][2] = { { 0, 0 } };
-
-        #if ENABLED(SWITCHING_EXTRUDER)
-
-          constexpr uint16_t sesa[][2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
-          servo_angles[SWITCHING_EXTRUDER_SERVO_NR][0] = sesa[0][0];
-          servo_angles[SWITCHING_EXTRUDER_SERVO_NR][1] = sesa[0][1];
-          #if EXTRUDERS > 3
-            servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][0] = sesa[1][0];
-            servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][1] = sesa[1][1];
-          #endif
-
-        #elif ENABLED(SWITCHING_NOZZLE)
-
-          constexpr uint16_t snsa[] = SWITCHING_NOZZLE_SERVO_ANGLES;
-          servo_angles[SWITCHING_NOZZLE_SERVO_NR][0] = snsa[0];
-          servo_angles[SWITCHING_NOZZLE_SERVO_NR][1] = snsa[1];
-
-        #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
-
-          constexpr uint16_t zsa[] = Z_SERVO_ANGLES;
-          servo_angles[Z_PROBE_SERVO_NR][0] = zsa[0];
-          servo_angles[Z_PROBE_SERVO_NR][1] = zsa[1];
-
-        #endif
-
-      #endif // !HAS_SERVOS || !EDITABLE_SERVO_ANGLES
-
+      #if !HAS_SERVO_ANGLES
+        uint16_t servo_angles[EEPROM_NUM_SERVOS][2] = { { 0, 0 } };
+      #endif
       EEPROM_WRITE(servo_angles);
     }
 
@@ -680,15 +698,19 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(lcd_preheat_hotend_temp);
 
-      #if !HAS_LCD_MENU
-        constexpr int16_t lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
-                          lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
-        constexpr uint8_t lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
+      #if HAS_LCD_MENU
+        const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
+                      (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
+        const uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
+      #else
+        constexpr int16_t ui_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
+                          ui_preheat_bed_temp[2]    = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
+        constexpr uint8_t ui_preheat_fan_speed[2]   = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
       #endif
 
-      EEPROM_WRITE(lcd_preheat_hotend_temp);
-      EEPROM_WRITE(lcd_preheat_bed_temp);
-      EEPROM_WRITE(lcd_preheat_fan_speed);
+      EEPROM_WRITE(ui_preheat_hotend_temp);
+      EEPROM_WRITE(ui_preheat_bed_temp);
+      EEPROM_WRITE(ui_preheat_fan_speed);
     }
 
     //
@@ -717,6 +739,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(bedPID);
+
       #if DISABLED(PIDTEMPBED)
         const PID_t bed_pid = { DUMMY_PID_VALUE, DUMMY_PID_VALUE, DUMMY_PID_VALUE };
         EEPROM_WRITE(bed_pid);
@@ -731,10 +754,30 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(lcd_contrast);
 
-      #if !HAS_LCD_CONTRAST
-        const int16_t lcd_contrast = 32;
-      #endif
+      const int16_t lcd_contrast =
+        #if HAS_LCD_CONTRAST
+          ui.contrast
+        #else
+          32
+        #endif
+      ;
       EEPROM_WRITE(lcd_contrast);
+    }
+
+    //
+    // Power-Loss Recovery
+    //
+    {
+      _FIELD_TEST(recovery_enabled);
+
+      const bool recovery_enabled =
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          recovery.enabled
+        #else
+          true
+        #endif
+      ;
+      EEPROM_WRITE(recovery_enabled);
     }
 
     //
@@ -1012,12 +1055,10 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(final_crc);
 
       // Report storage size
-      #if ENABLED(EEPROM_CHITCHAT)
-        SERIAL_ECHO_START_P(port);
-        SERIAL_ECHOPAIR_P(port, "Settings Stored (", eeprom_size);
-        SERIAL_ECHOPAIR_P(port, " bytes; crc ", (uint32_t)final_crc);
-        SERIAL_ECHOLNPGM_P(port, ")");
-      #endif
+      CHITCHAT_ECHO_START_P(port);
+      CHITCHAT_ECHOPAIR_P(port, "Settings Stored (", eeprom_size);
+      CHITCHAT_ECHOPAIR_P(port, " bytes; crc ", (uint32_t)final_crc);
+      CHITCHAT_ECHOLNPGM_P(port, ")");
 
       eeprom_error |= size_error(eeprom_size);
     }
@@ -1054,12 +1095,10 @@ void MarlinSettings::postprocess() {
         stored_ver[0] = '?';
         stored_ver[1] = '\0';
       }
-      #if ENABLED(EEPROM_CHITCHAT)
-        SERIAL_ECHO_START_P(port);
-        SERIAL_ECHOPGM_P(port, "EEPROM version mismatch ");
-        SERIAL_ECHOPAIR_P(port, "(EEPROM=", stored_ver);
-        SERIAL_ECHOLNPGM_P(port, " Marlin=" EEPROM_VERSION ")");
-      #endif
+      CHITCHAT_ECHO_START_P(port);
+      CHITCHAT_ECHOPGM_P(port, "EEPROM version mismatch ");
+      CHITCHAT_ECHOPAIR_P(port, "(EEPROM=", stored_ver);
+      CHITCHAT_ECHOLNPGM_P(port, " Marlin=" EEPROM_VERSION ")");
       eeprom_error = true;
     }
     else {
@@ -1250,10 +1289,14 @@ void MarlinSettings::postprocess() {
       // SERVO_ANGLES
       //
       {
-        #if !(HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES))
-          uint16_t servo_angles[NUM_SERVOS][2];
+        _FIELD_TEST(servo_angles);
+
+        #if ENABLED(EDITABLE_SERVO_ANGLES)
+          uint16_t (&servo_angles_arr)[EEPROM_NUM_SERVOS][2] = servo_angles;
+        #else
+          uint16_t servo_angles_arr[EEPROM_NUM_SERVOS][2];
         #endif
-        EEPROM_READ(servo_angles);
+        EEPROM_READ(servo_angles_arr);
       }
 
       //
@@ -1304,15 +1347,19 @@ void MarlinSettings::postprocess() {
       // LCD Preheat settings
       //
       {
-        _FIELD_TEST(lcd_preheat_hotend_temp);
+        _FIELD_TEST(ui_preheat_hotend_temp);
 
-        #if !HAS_LCD_MENU
-          int16_t lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2];
-          uint8_t lcd_preheat_fan_speed[2];
+        #if HAS_LCD_MENU
+          int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
+                  (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
+          uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
+        #else
+          int16_t ui_preheat_hotend_temp[2], ui_preheat_bed_temp[2];
+          uint8_t ui_preheat_fan_speed[2];
         #endif
-        EEPROM_READ(lcd_preheat_hotend_temp); // 2 floats
-        EEPROM_READ(lcd_preheat_bed_temp);    // 2 floats
-        EEPROM_READ(lcd_preheat_fan_speed);   // 2 floats
+        EEPROM_READ(ui_preheat_hotend_temp); // 2 floats
+        EEPROM_READ(ui_preheat_bed_temp);    // 2 floats
+        EEPROM_READ(ui_preheat_fan_speed);   // 2 floats
       }
 
       //
@@ -1366,10 +1413,26 @@ void MarlinSettings::postprocess() {
       //
       {
         _FIELD_TEST(lcd_contrast);
-        #if !HAS_LCD_CONTRAST
-          int16_t lcd_contrast;
-        #endif
+
+        int16_t lcd_contrast;
         EEPROM_READ(lcd_contrast);
+        #if HAS_LCD_CONTRAST
+          ui.set_contrast(lcd_contrast);
+        #endif
+      }
+
+      //
+      // Power-Loss Recovery
+      //
+      {
+        _FIELD_TEST(recovery_enabled);
+
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          EEPROM_READ(recovery.enabled);
+        #else
+          bool recovery_enabled;
+          EEPROM_READ(recovery_enabled);
+        #endif
       }
 
       //
@@ -1646,31 +1709,25 @@ void MarlinSettings::postprocess() {
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
-        #if ENABLED(EEPROM_CHITCHAT)
-          SERIAL_ECHO_START_P(port);
-          SERIAL_ECHOPAIR_P(port, "Index: ", int(eeprom_index - (EEPROM_OFFSET)));
-          SERIAL_ECHOLNPAIR_P(port, " Size: ", datasize());
-        #endif
+        CHITCHAT_ECHO_START_P(port);
+        CHITCHAT_ECHOPAIR_P(port, "Index: ", int(eeprom_index - (EEPROM_OFFSET)));
+        CHITCHAT_ECHOLNPAIR_P(port, " Size: ", datasize());
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
-        #if ENABLED(EEPROM_CHITCHAT)
-          SERIAL_ERROR_START_P(port);
-          SERIAL_ERRORPGM_P(port, "EEPROM CRC mismatch - (stored) ");
-          SERIAL_ERROR_P(port, stored_crc);
-          SERIAL_ERRORPGM_P(port, " != ");
-          SERIAL_ERROR_P(port, working_crc);
-          SERIAL_ERRORLNPGM_P(port, " (calculated)!");
-        #endif
+        CHITCHAT_ERROR_START_P(port);
+        CHITCHAT_ECHOPGM_P(port, "EEPROM CRC mismatch - (stored) ");
+        CHITCHAT_ECHO_P(port, stored_crc);
+        CHITCHAT_ECHOPGM_P(port, " != ");
+        CHITCHAT_ECHO_P(port, working_crc);
+        CHITCHAT_ECHOLNPGM_P(port, " (calculated)!");
       }
       else if (!validating) {
-        #if ENABLED(EEPROM_CHITCHAT)
-          SERIAL_ECHO_START_P(port);
-          SERIAL_ECHO_P(port, version);
-          SERIAL_ECHOPAIR_P(port, " stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
-          SERIAL_ECHOPAIR_P(port, " bytes; crc ", (uint32_t)working_crc);
-          SERIAL_ECHOLNPGM_P(port, ")");
-        #endif
+        CHITCHAT_ECHO_START_P(port);
+        CHITCHAT_ECHO_P(port, version);
+        CHITCHAT_ECHOPAIR_P(port, " stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
+        CHITCHAT_ECHOPAIR_P(port, " bytes; crc ", (uint32_t)working_crc);
+        CHITCHAT_ECHOLNPGM_P(port, ")");
       }
 
       if (!validating && !eeprom_error) postprocess();
@@ -1683,31 +1740,27 @@ void MarlinSettings::postprocess() {
             SERIAL_EOL_P(port);
             #if ENABLED(EEPROM_CHITCHAT)
               ubl.echo_name();
-              SERIAL_ECHOLNPGM_P(port, " initialized.\n");
+              CHITCHAT_ECHOLNPGM_P(port, " initialized.\n");
             #endif
           }
           else {
             eeprom_error = true;
             #if ENABLED(EEPROM_CHITCHAT)
-              SERIAL_PROTOCOLPGM_P(port, "?Can't enable ");
+              CHITCHAT_ECHOPGM_P(port, "?Can't enable ");
               ubl.echo_name();
-              SERIAL_PROTOCOLLNPGM_P(port, ".");
+              CHITCHAT_ECHOLNPGM_P(port, ".");
             #endif
             ubl.reset();
           }
 
           if (ubl.storage_slot >= 0) {
             load_mesh(ubl.storage_slot);
-            #if ENABLED(EEPROM_CHITCHAT)
-              SERIAL_ECHOPAIR_P(port, "Mesh ", ubl.storage_slot);
-              SERIAL_ECHOLNPGM_P(port, " loaded from storage.");
-            #endif
+            CHITCHAT_ECHOPAIR_P(port, "Mesh ", ubl.storage_slot);
+            CHITCHAT_ECHOLNPGM_P(port, " loaded from storage.");
           }
           else {
             ubl.reset();
-            #if ENABLED(EEPROM_CHITCHAT)
-              SERIAL_ECHOLNPGM_P(port, "UBL System reset()");
-            #endif
+            CHITCHAT_ECHOLNPGM_P(port, "UBL System reset()");
           }
         }
       #endif
@@ -1736,13 +1789,15 @@ void MarlinSettings::postprocess() {
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-    #if ENABLED(EEPROM_CHITCHAT)
-      void ubl_invalid_slot(const int s) {
-        SERIAL_PROTOCOLLNPGM("?Invalid slot.");
-        SERIAL_PROTOCOL(s);
-        SERIAL_PROTOCOLLNPGM(" mesh slots available.");
-      }
-    #endif
+    inline void ubl_invalid_slot(const int s) {
+      #if ENABLED(EEPROM_CHITCHAT)
+        CHITCHAT_ECHOLNPGM("?Invalid slot.");
+        CHITCHAT_ECHO(s);
+        CHITCHAT_ECHOLNPGM(" mesh slots available.");
+      #else
+        UNUSED(s);
+      #endif
+    }
 
     const uint16_t MarlinSettings::meshes_end = persistentStore.capacity() - 129; // 128 (+1 because of the change to capacity rather than last valid address)
                                                                                   // is a placeholder for the size of the MAT; the MAT will always
@@ -1766,32 +1821,24 @@ void MarlinSettings::postprocess() {
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         const int16_t a = calc_num_meshes();
         if (!WITHIN(slot, 0, a - 1)) {
-          #if ENABLED(EEPROM_CHITCHAT)
-            ubl_invalid_slot(a);
-            SERIAL_PROTOCOLPAIR("E2END=", persistentStore.capacity() - 1);
-            SERIAL_PROTOCOLPAIR(" meshes_end=", meshes_end);
-            SERIAL_PROTOCOLLNPAIR(" slot=", slot);
-            SERIAL_EOL();
-          #endif
+          ubl_invalid_slot(a);
+          CHITCHAT_ECHOPAIR("E2END=", persistentStore.capacity() - 1);
+          CHITCHAT_ECHOPAIR(" meshes_end=", meshes_end);
+          CHITCHAT_ECHOLNPAIR(" slot=", slot);
+          CHITCHAT_EOL();
           return;
         }
 
         int pos = mesh_slot_offset(slot);
         uint16_t crc = 0;
 
+        // Write crc to MAT along with other data, or just tack on to the beginning or end
         persistentStore.access_start();
         const bool status = persistentStore.write_data(pos, (uint8_t *)&ubl.z_values, sizeof(ubl.z_values), &crc);
         persistentStore.access_finish();
 
-        if (status)
-          SERIAL_PROTOCOLPGM("?Unable to save mesh data.\n");
-
-        // Write crc to MAT along with other data, or just tack on to the beginning or end
-
-        #if ENABLED(EEPROM_CHITCHAT)
-          if (!status)
-            SERIAL_PROTOCOLLNPAIR("Mesh saved in slot ", slot);
-        #endif
+        if (status) SERIAL_ECHOPGM("?Unable to save mesh data.\n");
+        else        CHITCHAT_ECHOLNPAIR("Mesh saved in slot ", slot);
 
       #else
 
@@ -1807,9 +1854,7 @@ void MarlinSettings::postprocess() {
         const int16_t a = settings.calc_num_meshes();
 
         if (!WITHIN(slot, 0, a - 1)) {
-          #if ENABLED(EEPROM_CHITCHAT)
-            ubl_invalid_slot(a);
-          #endif
+          ubl_invalid_slot(a);
           return;
         }
 
@@ -1821,13 +1866,9 @@ void MarlinSettings::postprocess() {
         const uint16_t status = persistentStore.read_data(pos, dest, sizeof(ubl.z_values), &crc);
         persistentStore.access_finish();
 
-        if (status)
-          SERIAL_PROTOCOLPGM("?Unable to load mesh data.\n");
+        if (status) SERIAL_ECHOPGM("?Unable to load mesh data.\n");
+        else        CHITCHAT_ECHOLNPAIR("Mesh loaded from slot ", slot);
 
-        #if ENABLED(EEPROM_CHITCHAT)
-          else
-            SERIAL_PROTOCOLLNPAIR("Mesh loaded from slot ", slot);
-        #endif
         EEPROM_FINISH();
 
       #else
@@ -1845,10 +1886,7 @@ void MarlinSettings::postprocess() {
 #else // !EEPROM_SETTINGS
 
   bool MarlinSettings::save(PORTARG_SOLO) {
-    #if ENABLED(EEPROM_CHITCHAT)
-      SERIAL_ERROR_START_P(port);
-      SERIAL_ERRORLNPGM_P(port, "EEPROM disabled");
-    #endif
+    CHITCHAT_ERROR_MSG_P(port, "EEPROM disabled");
     return false;
   }
 
@@ -1936,39 +1974,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   // Servo Angles
   //
 
-  #if HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES)
+  #if ENABLED(EDITABLE_SERVO_ANGLES)
+    COPY(servo_angles, base_servo_angles);
+  #endif
 
-    #if ENABLED(SWITCHING_EXTRUDER)
-
-      #if EXTRUDERS > 3
-        #define REQ_ANGLES 4
-      #else
-        #define REQ_ANGLES 2
-      #endif
-      constexpr uint16_t sesa[] = SWITCHING_EXTRUDER_SERVO_ANGLES;
-      static_assert(COUNT(sesa) == REQ_ANGLES, "SWITCHING_EXTRUDER_SERVO_ANGLES needs " STRINGIFY(REQ_ANGLES) " angles.");
-      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][0] = sesa[0];
-      servo_angles[SWITCHING_EXTRUDER_SERVO_NR][1] = sesa[1];
-      #if EXTRUDERS > 3
-        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][0] = sesa[2];
-        servo_angles[SWITCHING_EXTRUDER_E23_SERVO_NR][1] = sesa[3];
-      #endif
-
-    #elif ENABLED(SWITCHING_NOZZLE)
-
-      constexpr uint16_t snsa[2] = SWITCHING_NOZZLE_SERVO_ANGLES;
-      servo_angles[SWITCHING_NOZZLE_SERVO_NR][0] = snsa[0];
-      servo_angles[SWITCHING_NOZZLE_SERVO_NR][1] = snsa[1];
-
-    #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
-
-      constexpr uint16_t zsa[2] = Z_SERVO_ANGLES;
-      servo_angles[Z_PROBE_SERVO_NR][0] = zsa[0];
-      servo_angles[Z_PROBE_SERVO_NR][1] = zsa[1];
-
-    #endif
-
-  #endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
+  //
+  // Endstop Adjustments
+  //
 
   #if ENABLED(DELTA)
     const float adj[ABC] = DELTA_ENDSTOP_ADJ, dta[ABC] = DELTA_TOWER_ANGLE_TRIM;
@@ -2027,14 +2039,22 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   #endif
 
+  //
+  // Preheat parameters
+  //
+
   #if HAS_LCD_MENU
-    lcd_preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
-    lcd_preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
-    lcd_preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
-    lcd_preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
-    lcd_preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
-    lcd_preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+    ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
+    ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+    ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
+    ui.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+    ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
+    ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
   #endif
+
+  //
+  // Hotend PID
+  //
 
   #if ENABLED(PIDTEMP)
     HOTEND_LOOP() {
@@ -2045,10 +2065,19 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         PID_PARAM(Kc, e) = DEFAULT_Kc;
       #endif
     }
-    #if ENABLED(PID_EXTRUSION_SCALING)
-      thermalManager.lpq_len = 20; // default last-position-queue size
-    #endif
-  #endif // PIDTEMP
+  #endif
+
+  //
+  // PID Extrusion Scaling
+  //
+
+  #if ENABLED(PID_EXTRUSION_SCALING)
+    thermalManager.lpq_len = 20;  // Default last-position-queue size
+  #endif
+
+  //
+  // Heated Bed PID
+  //
 
   #if ENABLED(PIDTEMPBED)
     thermalManager.bed_pid.Kp = DEFAULT_bedKp;
@@ -2056,13 +2085,33 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     thermalManager.bed_pid.Kd = scalePID_d(DEFAULT_bedKd);
   #endif
 
+  //
+  // LCD Contrast
+  //
+
   #if HAS_LCD_CONTRAST
-    lcd_contrast = DEFAULT_LCD_CONTRAST;
+    ui.set_contrast(DEFAULT_LCD_CONTRAST);
   #endif
+
+  //
+  // Power-Loss Recovery
+  //
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.enable(true);
+  #endif
+
+  //
+  // Firmware Retraction
+  //
 
   #if ENABLED(FWRETRACT)
     fwretract.reset();
   #endif
+
+  //
+  // Volumetric & Filament Size
+  //
 
   #if DISABLED(NO_VOLUMETRICS)
 
@@ -2088,15 +2137,35 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   reset_stepper_drivers();
 
+  //
+  // Linear Advance
+  //
+
   #if ENABLED(LIN_ADVANCE)
     LOOP_L_N(i, EXTRUDERS) planner.extruder_advance_K[i] = LIN_ADVANCE_K;
   #endif
+
+  //
+  // Motor Current PWM
+  //
 
   #if HAS_MOTOR_CURRENT_PWM
     uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
     for (uint8_t q = 3; q--;)
       stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
   #endif
+
+  //
+  // CNC Coordinate System
+  //
+
+  #if ENABLED(CNC_COORDINATE_SYSTEMS)
+    (void)gcode.select_coordinate_system(-1); // Go back to machine space
+  #endif
+
+  //
+  // Skew Correction
+  //
 
   #if ENABLED(SKEW_CORRECTION_GCODE)
     planner.skew_factor.xy = XY_SKEW_FACTOR;
@@ -2105,6 +2174,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       planner.skew_factor.yz = YZ_SKEW_FACTOR;
     #endif
   #endif
+
+  //
+  // Advanced Pause filament load & unload lengths
+  //
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     for (uint8_t e = 0; e < EXTRUDERS; e++) {
@@ -2115,15 +2188,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
   postprocess();
 
-  #if ENABLED(EEPROM_CHITCHAT)
-    SERIAL_ECHO_START_P(port);
-    SERIAL_ECHOLNPGM_P(port, "Hardcoded Default Settings Loaded");
-  #endif
+  CHITCHAT_ECHO_START_P(port);
+  CHITCHAT_ECHOLNPGM_P(port, "Hardcoded Default Settings Loaded");
 }
 
 #if DISABLED(DISABLE_M503)
 
-  #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START_P(port); }while(0)
+  #define CONFIG_ECHO_START()       do{ if (!forReplay) SERIAL_ECHO_START_P(port); }while(0)
+  #define CONFIG_ECHO_MSG(STR)      do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(port, STR); }while(0)
+  #define CONFIG_ECHO_HEADING(STR)  do{ if (!forReplay) { CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(port, STR); } }while(0)
 
   #if HAS_TRINAMIC
     void say_M906(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M906"); }
@@ -2172,7 +2245,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     /**
      * Announce current units, in case inches are being displayed
      */
-    CONFIG_ECHO_START;
+    CONFIG_ECHO_START();
     #if ENABLED(INCH_MODE_SUPPORT)
       SERIAL_ECHOPGM_P(port, "  G2");
       SERIAL_CHAR_P(port, parser.linear_unit_factor == 1.0 ? '1' : '0');
@@ -2188,7 +2261,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
       // Temperature units - for Ultipanel temperature options
 
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_START();
       #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
         SERIAL_ECHOPGM_P(port, "  M149 ");
         SERIAL_CHAR_P(port, parser.temp_units_code());
@@ -2208,7 +2281,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
        * Volumetric extrusion M200
        */
       if (!forReplay) {
-        CONFIG_ECHO_START;
+        CONFIG_ECHO_START();
         SERIAL_ECHOPGM_P(port, "Filament settings:");
         if (parser.volumetric_enabled)
           SERIAL_EOL_P(port);
@@ -2216,27 +2289,27 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_ECHOLNPGM_P(port, " Disabled");
       }
 
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_START();
       SERIAL_ECHOPAIR_P(port, "  M200 D", LINEAR_UNIT(planner.filament_size[0]));
       SERIAL_EOL_P(port);
       #if EXTRUDERS > 1
-        CONFIG_ECHO_START;
+        CONFIG_ECHO_START();
         SERIAL_ECHOPAIR_P(port, "  M200 T1 D", LINEAR_UNIT(planner.filament_size[1]));
         SERIAL_EOL_P(port);
         #if EXTRUDERS > 2
-          CONFIG_ECHO_START;
+          CONFIG_ECHO_START();
           SERIAL_ECHOPAIR_P(port, "  M200 T2 D", LINEAR_UNIT(planner.filament_size[2]));
           SERIAL_EOL_P(port);
           #if EXTRUDERS > 3
-            CONFIG_ECHO_START;
+            CONFIG_ECHO_START();
             SERIAL_ECHOPAIR_P(port, "  M200 T3 D", LINEAR_UNIT(planner.filament_size[3]));
             SERIAL_EOL_P(port);
             #if EXTRUDERS > 4
-              CONFIG_ECHO_START;
+              CONFIG_ECHO_START();
               SERIAL_ECHOPAIR_P(port, "  M200 T4 D", LINEAR_UNIT(planner.filament_size[4]));
               SERIAL_EOL_P(port);
               #if EXTRUDERS > 5
-                CONFIG_ECHO_START;
+                CONFIG_ECHO_START();
                 SERIAL_ECHOPAIR_P(port, "  M200 T5 D", LINEAR_UNIT(planner.filament_size[5]));
                 SERIAL_EOL_P(port);
               #endif // EXTRUDERS > 5
@@ -2245,18 +2318,13 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         #endif // EXTRUDERS > 2
       #endif // EXTRUDERS > 1
 
-      if (!parser.volumetric_enabled) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "  M200 D0");
-      }
+      if (!parser.volumetric_enabled)
+        CONFIG_ECHO_MSG("  M200 D0");
 
     #endif // !NO_VOLUMETRICS
 
-    if (!forReplay) {
-      CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM_P(port, "Steps per unit:");
-    }
-    CONFIG_ECHO_START;
+    CONFIG_ECHO_HEADING("Steps per unit:");
+    CONFIG_ECHO_START();
     SERIAL_ECHOPAIR_P(port, "  M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
     SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
     SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
@@ -2265,18 +2333,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif
     SERIAL_EOL_P(port);
     #if ENABLED(DISTINCT_E_FACTORS)
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M92 T", (int)i);
         SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS + i]));
       }
     #endif
 
-    if (!forReplay) {
-      CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM_P(port, "Maximum feedrates (units/s):");
-    }
-    CONFIG_ECHO_START;
+    CONFIG_ECHO_HEADING("Maximum feedrates (units/s):");
+    CONFIG_ECHO_START();
     SERIAL_ECHOPAIR_P(port, "  M203 X", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[X_AXIS]));
     SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Y_AXIS]));
     SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.max_feedrate_mm_s[Z_AXIS]));
@@ -2285,18 +2350,15 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif
     SERIAL_EOL_P(port);
     #if ENABLED(DISTINCT_E_FACTORS)
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M203 T", (int)i);
         SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS + i]));
       }
     #endif
 
-    if (!forReplay) {
-      CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM_P(port, "Maximum Acceleration (units/s2):");
-    }
-    CONFIG_ECHO_START;
+    CONFIG_ECHO_HEADING("Maximum Acceleration (units/s2):");
+    CONFIG_ECHO_START();
     SERIAL_ECHOPAIR_P(port, "  M201 X", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[X_AXIS]));
     SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Y_AXIS]));
     SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.max_acceleration_mm_per_s2[Z_AXIS]));
@@ -2305,24 +2367,21 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif
     SERIAL_EOL_P(port);
     #if ENABLED(DISTINCT_E_FACTORS)
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M201 T", (int)i);
         SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS + i]));
       }
     #endif
 
-    if (!forReplay) {
-      CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM_P(port, "Acceleration (units/s2): P<print_accel> R<retract_accel> T<travel_accel>");
-    }
-    CONFIG_ECHO_START;
+    CONFIG_ECHO_HEADING("Acceleration (units/s2): P<print_accel> R<retract_accel> T<travel_accel>");
+    CONFIG_ECHO_START();
     SERIAL_ECHOPAIR_P(port, "  M204 P", LINEAR_UNIT(planner.settings.acceleration));
     SERIAL_ECHOPAIR_P(port, " R", LINEAR_UNIT(planner.settings.retract_acceleration));
     SERIAL_ECHOLNPAIR_P(port, " T", LINEAR_UNIT(planner.settings.travel_acceleration));
 
     if (!forReplay) {
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_START();
       SERIAL_ECHOPGM_P(port, "Advanced: B<min_segment_time_us> S<min_feedrate> T<min_travel_feedrate>");
       #if ENABLED(JUNCTION_DEVIATION)
         SERIAL_ECHOPGM_P(port, " J<junc_dev>");
@@ -2335,7 +2394,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif
       SERIAL_EOL_P(port);
     }
-    CONFIG_ECHO_START;
+    CONFIG_ECHO_START();
     SERIAL_ECHOPAIR_P(port, "  M205 B", LINEAR_UNIT(planner.settings.min_segment_time_us));
     SERIAL_ECHOPAIR_P(port, " S", LINEAR_UNIT(planner.settings.min_feedrate_mm_s));
     SERIAL_ECHOPAIR_P(port, " T", LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s));
@@ -2355,29 +2414,21 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     SERIAL_EOL_P(port);
 
     #if HAS_M206_COMMAND
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Home offset:");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Home offset:");
+      CONFIG_ECHO_START();
       SERIAL_ECHOPAIR_P(port, "  M206 X", LINEAR_UNIT(home_offset[X_AXIS]));
       SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(home_offset[Y_AXIS]));
       SERIAL_ECHOLNPAIR_P(port, " Z", LINEAR_UNIT(home_offset[Z_AXIS]));
     #endif
 
     #if HAS_HOTEND_OFFSET
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Hotend offsets:");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Hotend offsets:");
+      CONFIG_ECHO_START();
       for (uint8_t e = 1; e < HOTENDS; e++) {
         SERIAL_ECHOPAIR_P(port, "  M218 T", (int)e);
         SERIAL_ECHOPAIR_P(port, " X", LINEAR_UNIT(hotend_offset[X_AXIS][e]));
         SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(hotend_offset[Y_AXIS][e]));
-        SERIAL_ECHO_P(port, " Z");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(hotend_offset[Z_AXIS][e]), 3);
-        SERIAL_EOL_P(port);
+        SERIAL_ECHOLNPAIR_F_P(port, " Z", LINEAR_UNIT(hotend_offset[Z_AXIS][e]), 3);
       }
     #endif
 
@@ -2388,29 +2439,23 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
       #if ENABLED(MESH_BED_LEVELING)
 
-        if (!forReplay) {
-          CONFIG_ECHO_START;
-          SERIAL_ECHOLNPGM_P(port, "Mesh Bed Leveling:");
-        }
+        CONFIG_ECHO_HEADING("Mesh Bed Leveling:");
 
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
         if (!forReplay) {
-          CONFIG_ECHO_START;
+          CONFIG_ECHO_START();
           ubl.echo_name();
           SERIAL_ECHOLNPGM_P(port, ":");
         }
 
       #elif HAS_ABL
 
-        if (!forReplay) {
-          CONFIG_ECHO_START;
-          SERIAL_ECHOLNPGM_P(port, "Auto Bed Leveling:");
-        }
+        CONFIG_ECHO_HEADING("Auto Bed Leveling:");
 
       #endif
 
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_START();
       SERIAL_ECHOPAIR_P(port, "  M420 S", planner.leveling_active ? 1 : 0);
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
         SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.z_fade_height));
@@ -2422,12 +2467,10 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         if (leveling_is_valid()) {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
-              CONFIG_ECHO_START;
+              CONFIG_ECHO_START();
               SERIAL_ECHOPAIR_P(port, "  G29 S3 X", (int)px + 1);
               SERIAL_ECHOPAIR_P(port, " Y", (int)py + 1);
-              SERIAL_ECHOPGM_P(port, " Z");
-              SERIAL_ECHO_F_P(port, LINEAR_UNIT(mbl.z_values[px][py]), 5);
-              SERIAL_EOL_P(port);
+              SERIAL_ECHOLNPAIR_F_P(port, " Z", LINEAR_UNIT(mbl.z_values[px][py]), 5);
             }
           }
         }
@@ -2442,19 +2485,17 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           SERIAL_ECHOLNPGM_P(port, " meshes.\n");
         }
 
-//      ubl.report_current_mesh(PORTVAR_SOLO);   // This is too verbose for large mesh's.   A better (more terse)
-                                                 // solution needs to be found.
+       //ubl.report_current_mesh(PORTVAR_SOLO);   // This is too verbose for large meshes. A better (more terse)
+                                                  // solution needs to be found.
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         if (leveling_is_valid()) {
           for (uint8_t py = 0; py < GRID_MAX_POINTS_Y; py++) {
             for (uint8_t px = 0; px < GRID_MAX_POINTS_X; px++) {
-              CONFIG_ECHO_START;
+              CONFIG_ECHO_START();
               SERIAL_ECHOPAIR_P(port, "  G29 W I", (int)px);
               SERIAL_ECHOPAIR_P(port, " J", (int)py);
-              SERIAL_ECHOPGM_P(port, " Z");
-              SERIAL_ECHO_F_P(port, LINEAR_UNIT(z_values[px][py]), 5);
-              SERIAL_EOL_P(port);
+              SERIAL_ECHOLNPAIR_F_P(port, " Z", LINEAR_UNIT(z_values[px][py]), 5);
             }
           }
         }
@@ -2463,12 +2504,9 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #endif // HAS_LEVELING
 
-    #if HAS_SERVOS && ENABLED(EDITABLE_SERVO_ANGLES)
+    #if ENABLED(EDITABLE_SERVO_ANGLES)
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Servo Angles:");
-      }
+      CONFIG_ECHO_HEADING("Servo Angles:");
       for (uint8_t i = 0; i < NUM_SERVOS; i++) {
         switch (i) {
           #if ENABLED(SWITCHING_EXTRUDER)
@@ -2481,7 +2519,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
           #elif defined(Z_SERVO_ANGLES) && defined(Z_PROBE_SERVO_NR)
             case Z_PROBE_SERVO_NR:
           #endif
-            CONFIG_ECHO_START;
+            CONFIG_ECHO_START();
             SERIAL_ECHOPAIR_P(port, "  M281 P", int(i));
             SERIAL_ECHOPAIR_P(port, " L", servo_angles[i][0]);
             SERIAL_ECHOPAIR_P(port, " U", servo_angles[i][1]);
@@ -2490,15 +2528,12 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         }
       }
 
-    #endif // HAS_SERVOS && EDITABLE_SERVO_ANGLES
+    #endif // EDITABLE_SERVO_ANGLES
 
     #if HAS_SCARA_OFFSET
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "SCARA settings: S<seg-per-sec> P<theta-psi-offset> T<theta-offset>");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("SCARA settings: S<seg-per-sec> P<theta-psi-offset> T<theta-offset>");
+      CONFIG_ECHO_START();
       SERIAL_ECHOPAIR_P(port, "  M665 S", delta_segments_per_second);
       SERIAL_ECHOPAIR_P(port, " P", scara_home_offset[A_AXIS]);
       SERIAL_ECHOPAIR_P(port, " T", scara_home_offset[B_AXIS]);
@@ -2507,19 +2542,14 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #elif ENABLED(DELTA)
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Endstop adjustment:");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Endstop adjustment:");
+      CONFIG_ECHO_START();
       SERIAL_ECHOPAIR_P(port, "  M666 X", LINEAR_UNIT(delta_endstop_adj[X_AXIS]));
       SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(delta_endstop_adj[Y_AXIS]));
       SERIAL_ECHOLNPAIR_P(port, " Z", LINEAR_UNIT(delta_endstop_adj[Z_AXIS]));
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> B<calibration radius> XYZ<tower angle corrections>");
-      }
-      CONFIG_ECHO_START;
+
+      CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> B<calibration radius> XYZ<tower angle corrections>");
+      CONFIG_ECHO_START();
       SERIAL_ECHOPAIR_P(port, "  M665 L", LINEAR_UNIT(delta_diagonal_rod));
       SERIAL_ECHOPAIR_P(port, " R", LINEAR_UNIT(delta_radius));
       SERIAL_ECHOPAIR_P(port, " H", LINEAR_UNIT(delta_height));
@@ -2532,11 +2562,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #elif ENABLED(X_DUAL_ENDSTOPS) || ENABLED(Y_DUAL_ENDSTOPS) || ENABLED(Z_DUAL_ENDSTOPS)
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Endstop adjustment:");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Endstop adjustment:");
+      CONFIG_ECHO_START();
       SERIAL_ECHOPGM_P(port, "  M666");
       #if ENABLED(X_DUAL_ENDSTOPS)
         SERIAL_ECHOPAIR_P(port, " X", LINEAR_UNIT(endstops.x2_endstop_adj));
@@ -2546,7 +2573,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif
       #if ENABLED(Z_TRIPLE_ENDSTOPS)
         SERIAL_ECHOLNPAIR_P(port, "S1 Z", LINEAR_UNIT(endstops.z2_endstop_adj));
-        CONFIG_ECHO_START;
+        CONFIG_ECHO_START();
         SERIAL_ECHOPAIR_P(port, "  M666 S2 Z", LINEAR_UNIT(endstops.z3_endstop_adj));
       #elif ENABLED(Z_DUAL_ENDSTOPS)
         SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(endstops.z2_endstop_adj));
@@ -2557,31 +2584,25 @@ void MarlinSettings::reset(PORTARG_SOLO) {
 
     #if HAS_LCD_MENU
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Material heatup parameters:");
-      }
-      for (uint8_t i = 0; i < COUNT(lcd_preheat_hotend_temp); i++) {
-        CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Material heatup parameters:");
+      for (uint8_t i = 0; i < COUNT(ui.preheat_hotend_temp); i++) {
+        CONFIG_ECHO_START();
         SERIAL_ECHOPAIR_P(port, "  M145 S", (int)i);
-        SERIAL_ECHOPAIR_P(port, " H", TEMP_UNIT(lcd_preheat_hotend_temp[i]));
-        SERIAL_ECHOPAIR_P(port, " B", TEMP_UNIT(lcd_preheat_bed_temp[i]));
-        SERIAL_ECHOLNPAIR_P(port, " F", int(lcd_preheat_fan_speed[i]));
+        SERIAL_ECHOPAIR_P(port, " H", TEMP_UNIT(ui.preheat_hotend_temp[i]));
+        SERIAL_ECHOPAIR_P(port, " B", TEMP_UNIT(ui.preheat_bed_temp[i]));
+        SERIAL_ECHOLNPAIR_P(port, " F", int(ui.preheat_fan_speed[i]));
       }
 
     #endif
 
     #if HAS_PID_HEATING
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "PID settings:");
-      }
+      CONFIG_ECHO_HEADING("PID settings:");
       #if ENABLED(PIDTEMP)
         #if HOTENDS > 1
           if (forReplay) {
             HOTEND_LOOP() {
-              CONFIG_ECHO_START;
+              CONFIG_ECHO_START();
               SERIAL_ECHOPAIR_P(port, "  M301 E", e);
               SERIAL_ECHOPAIR_P(port, " P", PID_PARAM(Kp, e));
               SERIAL_ECHOPAIR_P(port, " I", unscalePID_i(PID_PARAM(Ki, e)));
@@ -2597,7 +2618,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         #endif // HOTENDS > 1
         // !forReplay || HOTENDS == 1
         {
-          CONFIG_ECHO_START;
+          CONFIG_ECHO_START();
           SERIAL_ECHOPAIR_P(port, "  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echo values for E0
           SERIAL_ECHOPAIR_P(port, " I", unscalePID_i(PID_PARAM(Ki, 0)));
           SERIAL_ECHOPAIR_P(port, " D", unscalePID_d(PID_PARAM(Kd, 0)));
@@ -2610,7 +2631,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #endif // PIDTEMP
 
       #if ENABLED(PIDTEMPBED)
-        CONFIG_ECHO_START;
+        CONFIG_ECHO_START();
         SERIAL_ECHOPAIR_P(port, "  M304 P", thermalManager.bed_pid.Kp);
         SERIAL_ECHOPAIR_P(port, " I", unscalePID_i(thermalManager.bed_pid.Ki));
         SERIAL_ECHOPAIR_P(port, " D", unscalePID_d(thermalManager.bed_pid.Kd));
@@ -2620,42 +2641,36 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif // PIDTEMP || PIDTEMPBED
 
     #if HAS_LCD_CONTRAST
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "LCD Contrast:");
-      }
-      CONFIG_ECHO_START;
-      SERIAL_ECHOLNPAIR_P(port, "  M250 C", lcd_contrast);
+      CONFIG_ECHO_HEADING("LCD Contrast:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR_P(port, "  M250 C", ui.contrast);
+    #endif
+
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      CONFIG_ECHO_HEADING("Power-Loss Recovery:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR_P(port, "  M413 S", int(recovery.enabled));
     #endif
 
     #if ENABLED(FWRETRACT)
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Retract: S<length> F<units/m> Z<lift>");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Retract: S<length> F<units/m> Z<lift>");
+      CONFIG_ECHO_START();
       SERIAL_ECHOPAIR_P(port, "  M207 S", LINEAR_UNIT(fwretract.settings.retract_length));
       SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.settings.swap_retract_length));
       SERIAL_ECHOPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.settings.retract_feedrate_mm_s)));
       SERIAL_ECHOLNPAIR_P(port, " Z", LINEAR_UNIT(fwretract.settings.retract_zraise));
 
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Recover: S<length> F<units/m>");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Recover: S<length> F<units/m>");
+      CONFIG_ECHO_START();
       SERIAL_ECHOPAIR_P(port, "  M208 S", LINEAR_UNIT(fwretract.settings.retract_recover_length));
       SERIAL_ECHOPAIR_P(port, " W", LINEAR_UNIT(fwretract.settings.swap_retract_recover_length));
       SERIAL_ECHOLNPAIR_P(port, " F", MMS_TO_MMM(LINEAR_UNIT(fwretract.settings.retract_recover_feedrate_mm_s)));
 
       #if ENABLED(FWRETRACT_AUTORETRACT)
 
-        if (!forReplay) {
-          CONFIG_ECHO_START;
-          SERIAL_ECHOLNPGM_P(port, "Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
-        }
-        CONFIG_ECHO_START;
+        CONFIG_ECHO_HEADING("Auto-Retract: S=0 to disable, 1 to interpret E-only moves as retract/recover");
+        CONFIG_ECHO_START();
         SERIAL_ECHOLNPAIR_P(port, "  M209 S", fwretract.autoretract_enabled ? 1 : 0);
 
       #endif // FWRETRACT_AUTORETRACT
@@ -2667,11 +2682,11 @@ void MarlinSettings::reset(PORTARG_SOLO) {
      */
     #if HAS_BED_PROBE
       if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOPGM_P(port, "Z-Probe Offset (mm):");
+        CONFIG_ECHO_START();
+        SERIAL_ECHOPGM_P(port, "Z-Probe Offset");
         SAY_UNITS_P(port, true);
       }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(port, "  M851 Z", LINEAR_UNIT(zprobe_zoffset));
     #endif
 
@@ -2679,23 +2694,14 @@ void MarlinSettings::reset(PORTARG_SOLO) {
      * Bed Skew Correction
      */
     #if ENABLED(SKEW_CORRECTION_GCODE)
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Skew Factor: ");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Skew Factor: ");
+      CONFIG_ECHO_START();
       #if ENABLED(SKEW_CORRECTION_FOR_Z)
-        SERIAL_ECHOPGM_P(port, "  M852 I");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.xy), 6);
-        SERIAL_ECHOPGM_P(port, " J");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.xz), 6);
-        SERIAL_ECHOPGM_P(port, " K");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.yz), 6);
-        SERIAL_EOL_P(port);
+        SERIAL_ECHOPAIR_F_P(port, "  M852 I", LINEAR_UNIT(planner.skew_factor.xy), 6);
+        SERIAL_ECHOPAIR_F_P(port, " J", LINEAR_UNIT(planner.skew_factor.xz), 6);
+        SERIAL_ECHOLNPAIR_F_P(port, " K", LINEAR_UNIT(planner.skew_factor.yz), 6);
       #else
-        SERIAL_ECHOPGM_P(port, "  M852 S");
-        SERIAL_ECHO_F_P(port, LINEAR_UNIT(planner.skew_factor.xy), 6);
-        SERIAL_EOL_P(port);
+        SERIAL_ECHOLNPAIR_F_P(port, "  M852 S", LINEAR_UNIT(planner.skew_factor.xy), 6);
       #endif
     #endif
 
@@ -2704,11 +2710,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       /**
        * TMC stepper driver current
        */
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Stepper driver current:");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Stepper driver current:");
+      CONFIG_ECHO_START();
       #if AXIS_IS_TMC(X) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Z)
         say_M906(PORTVAR_SOLO);
       #endif
@@ -2777,11 +2780,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
        * TMC Hybrid Threshold
        */
       #if ENABLED(HYBRID_THRESHOLD)
-        if (!forReplay) {
-          CONFIG_ECHO_START;
-          SERIAL_ECHOLNPGM_P(port, "Hybrid Threshold:");
-        }
-        CONFIG_ECHO_START;
+        CONFIG_ECHO_HEADING("Hybrid Threshold:");
+        CONFIG_ECHO_START();
         #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Z)
           say_M913(PORTVAR_SOLO);
         #endif
@@ -2852,11 +2852,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
        * TMC Sensorless homing thresholds
        */
       #if USE_SENSORLESS
-        if (!forReplay) {
-          CONFIG_ECHO_START;
-          SERIAL_ECHOLNPGM_P(port, "TMC2130 StallGuard threshold:");
-        }
-        CONFIG_ECHO_START;
+        CONFIG_ECHO_HEADING("TMC2130 StallGuard threshold:");
+        CONFIG_ECHO_START();
         #if X_SENSORLESS || Y_SENSORLESS || Z_SENSORLESS
           say_M914(PORTVAR_SOLO);
           #if X_SENSORLESS
@@ -2904,12 +2901,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
      * Linear Advance
      */
     #if ENABLED(LIN_ADVANCE)
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Linear Advance:");
-      }
-
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Linear Advance:");
+      CONFIG_ECHO_START();
       #if EXTRUDERS < 2
         SERIAL_ECHOLNPAIR_P(port, "  M900 K", planner.extruder_advance_K[0]);
       #else
@@ -2921,11 +2914,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM
-      CONFIG_ECHO_START;
-      if (!forReplay) {
-        SERIAL_ECHOLNPGM_P(port, "Stepper motor currents:");
-        CONFIG_ECHO_START;
-      }
+      CONFIG_ECHO_HEADING("Stepper motor currents:");
+      CONFIG_ECHO_START();
       SERIAL_ECHOPAIR_P(port, "  M907 X", stepper.motor_current_setting[0]);
       SERIAL_ECHOPAIR_P(port, " Z", stepper.motor_current_setting[1]);
       SERIAL_ECHOPAIR_P(port, " E", stepper.motor_current_setting[2]);
@@ -2936,11 +2926,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
      * Advanced Pause filament load & unload lengths
      */
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM_P(port, "Filament load/unload lengths:");
-      }
-      CONFIG_ECHO_START;
+      CONFIG_ECHO_HEADING("Filament load/unload lengths:");
+      CONFIG_ECHO_START();
       #if EXTRUDERS == 1
         say_M603(PORTVAR_SOLO);
         SERIAL_ECHOPAIR_P(port, "L", LINEAR_UNIT(fc_settings[0].load_length));
@@ -2949,27 +2936,27 @@ void MarlinSettings::reset(PORTARG_SOLO) {
         say_M603(PORTVAR_SOLO);
         SERIAL_ECHOPAIR_P(port, "T0 L", LINEAR_UNIT(fc_settings[0].load_length));
         SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[0].unload_length));
-        CONFIG_ECHO_START;
+        CONFIG_ECHO_START();
         say_M603(PORTVAR_SOLO);
         SERIAL_ECHOPAIR_P(port, "T1 L", LINEAR_UNIT(fc_settings[1].load_length));
         SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[1].unload_length));
         #if EXTRUDERS > 2
-          CONFIG_ECHO_START;
+          CONFIG_ECHO_START();
           say_M603(PORTVAR_SOLO);
           SERIAL_ECHOPAIR_P(port, "T2 L", LINEAR_UNIT(fc_settings[2].load_length));
           SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[2].unload_length));
           #if EXTRUDERS > 3
-            CONFIG_ECHO_START;
+            CONFIG_ECHO_START();
             say_M603(PORTVAR_SOLO);
             SERIAL_ECHOPAIR_P(port, "T3 L", LINEAR_UNIT(fc_settings[3].load_length));
             SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[3].unload_length));
             #if EXTRUDERS > 4
-              CONFIG_ECHO_START;
+              CONFIG_ECHO_START();
               say_M603(PORTVAR_SOLO);
               SERIAL_ECHOPAIR_P(port, "T4 L", LINEAR_UNIT(fc_settings[4].load_length));
               SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[4].unload_length));
               #if EXTRUDERS > 5
-                CONFIG_ECHO_START;
+                CONFIG_ECHO_START();
                 say_M603(PORTVAR_SOLO);
                 SERIAL_ECHOPAIR_P(port, "T5 L", LINEAR_UNIT(fc_settings[5].load_length));
                 SERIAL_ECHOLNPAIR_P(port, " U", LINEAR_UNIT(fc_settings[5].unload_length));
@@ -2981,11 +2968,8 @@ void MarlinSettings::reset(PORTARG_SOLO) {
     #endif // ADVANCED_PAUSE_FEATURE
 
     #if EXTRUDERS > 1
-      CONFIG_ECHO_START;
-      if (!forReplay) {
-        SERIAL_ECHOLNPGM_P(port, "Tool-changing:");
-        CONFIG_ECHO_START;
-      }
+      CONFIG_ECHO_HEADING("Tool-changing:");
+      CONFIG_ECHO_START();
       M217_report(true);
     #endif
   }

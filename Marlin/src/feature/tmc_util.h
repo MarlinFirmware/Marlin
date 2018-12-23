@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
+#include "../lcd/ultralcd.h"
 #if HAS_TRINAMIC
   #include <TMCStepper.h>
 #endif
@@ -42,6 +43,13 @@
 #define TMC_E4_LABEL 'E', '4'
 #define TMC_E5_LABEL 'E', '5'
 
+#define CHOPPER_DEFAULT_12V  { 3, -1, 1 }
+#define CHOPPER_DEFAULT_19V  { 4,  1, 1 }
+#define CHOPPER_DEFAULT_24V  { 4,  2, 1 }
+#define CHOPPER_DEFAULT_36V  { 5,  2, 4 }
+#define CHOPPER_PRUSAMK3_24V { 4,  1, 4 }
+#define CHOPPER_MARLIN_119   { 5,  2, 3 }
+
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCStorage {
   protected:
@@ -52,7 +60,8 @@ class TMCStorage {
 
   public:
     #if ENABLED(MONITOR_DRIVER_STATUS)
-      uint8_t otpw_count = 0;
+      uint8_t otpw_count = 0,
+              error_count = 0;
       bool flag_otpw = false;
       bool getOTPW() { return flag_otpw; }
       void clear_otpw() { flag_otpw = 0; }
@@ -105,7 +114,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
     }
 };
 
-constexpr uint32_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
+constexpr uint16_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
   return 12650000UL * msteps / (256 * thrs * spmm);
 }
 
@@ -154,12 +163,14 @@ void tmc_set_sgt(TMC &st, const int8_t sgt_val) {
 }
 
 void monitor_tmc_driver();
+void test_tmc_connection(const bool test_x, const bool test_y, const bool test_z, const bool test_e);
 
 #if ENABLED(TMC_DEBUG)
   #if ENABLED(MONITOR_DRIVER_STATUS)
     void tmc_set_report_status(const bool status);
   #endif
-  void tmc_report_all();
+  void tmc_report_all(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
+  void tmc_get_registers(const bool print_x, const bool print_y, const bool print_z, const bool print_e);
 #endif
 
 /**
@@ -170,8 +181,16 @@ void monitor_tmc_driver();
  * Defined here because of limitations with templates and headers.
  */
 #if USE_SENSORLESS
-  void tmc_stallguard(TMC2130Stepper &st, const bool enable=true);
-  void tmc_stallguard(TMC2660Stepper &st, const bool enable=true);
+  // Track enabled status of stealthChop and only re-enable where applicable
+  struct sensorless_t {
+    bool x, y, z;
+  };
+
+  bool tmc_enable_stallguard(TMC2130Stepper &st);
+  void tmc_disable_stallguard(TMC2130Stepper &st, const bool restore_stealth);
+
+  bool tmc_enable_stallguard(TMC2660Stepper);
+  void tmc_disable_stallguard(TMC2660Stepper, const bool);
 #endif
 
 #if TMC_HAS_SPI

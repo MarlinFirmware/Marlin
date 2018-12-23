@@ -219,7 +219,7 @@
  *
  * Define one or both of these to override the default 0-255 range.
  */
-#define FAN_MIN_PWM 64
+#define FAN_MIN_PWM 45
 //#define FAN_MAX_PWM 128
 
 // @section extruder
@@ -365,12 +365,12 @@
  */
 #define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
-  #define X1_MIN_POS X_MIN_POS  // set minimum to ensure first x-carriage doesn't hit the parked second X-carriage
-  #define X1_MAX_POS X_BED_SIZE // set maximum to ensure first x-carriage doesn't hit the parked second X-carriage
-  #define X2_MIN_POS  0     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
-  #define X2_MAX_POS (442-4.0) // set maximum to the distance between toolheads when both heads are homed
-  #define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
-  #define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position
+  #define X1_MIN_POS X_MIN_POS        // set minimum to ensure first x-carriage doesn't hit the parked second X-carriage
+  #define X1_MAX_POS (X_BED_SIZE)     // set maximum to ensure first x-carriage doesn't hit the parked second X-carriage
+  #define X2_MIN_POS  0               // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
+  #define X2_MAX_POS (442-4.0)        // set maximum to the distance between toolheads when both heads are homed
+  #define X2_HOME_DIR 1               // the second X-carriage always homes to the maximum endstop position
+  #define X2_HOME_POS X2_MAX_POS      // default home position is the maximum carriage position
       // However: In this mode the HOTEND_OFFSET_X value for the second extruder provides a software
       // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
       // without modifying the firmware (through the "M218 T1 X???" command).
@@ -492,6 +492,39 @@
 //#define JUNCTION_DEVIATION
 #if ENABLED(JUNCTION_DEVIATION)
   #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
+#endif
+
+//
+// Backlash Compensation
+// Adds extra movement to axes on direction-changes to account for backlash.
+//
+//#define BACKLASH_COMPENSATION
+#if ENABLED(BACKLASH_COMPENSATION)
+  // Define values for backlash distance and correction.
+  // If BACKLASH_GCODE is enabled these values are the defaults.
+  #define BACKLASH_DISTANCE_MM { 0, 0, 0 } // (mm)
+  #define BACKLASH_CORRECTION    0.0       // 0.0 = no correction; 1.0 = full correction
+
+  // Set BACKLASH_SMOOTHING_MM to spread backlash correction over multiple segments
+  // to reduce print artifacts. (Enabling this is costly in memory and computation!)
+  //#define BACKLASH_SMOOTHING_MM 3 // (mm)
+
+  // Add runtime configuration and tuning of backlash values (M425)
+  //#define BACKLASH_GCODE
+
+  #if ENABLED(BACKLASH_GCODE)
+    // Measure the Z backlash when probing (G29) and set with "M425 Z"
+    #define MEASURE_BACKLASH_WHEN_PROBING
+
+    #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
+      // When measuring, the probe will move up to BACKLASH_MEASUREMENT_LIMIT
+      // mm away from point of contact in BACKLASH_MEASUREMENT_RESOLUTION
+      // increments while checking for the contact to be broken.
+      #define BACKLASH_MEASUREMENT_LIMIT       0.5   // (mm)
+      #define BACKLASH_MEASUREMENT_RESOLUTION  0.005 // (mm)
+      #define BACKLASH_MEASUREMENT_FEEDRATE    Z_PROBE_SPEED_SLOW // (mm/m)
+    #endif
+  #endif
 #endif
 
 /**
@@ -790,26 +823,41 @@
   // Swap the CW/CCW indicators in the graphics overlay
   //#define OVERLAY_GFX_REVERSE
 
+  /**
+   * ST7920-based LCDs can emulate a 16 x 4 character display using
+   * the ST7920 character-generator for very fast screen updates.
+   * Enable LIGHTWEIGHT_UI to use this special display mode.
+   *
+   * Since LIGHTWEIGHT_UI has limited space, the position and status
+   * message occupy the same line. Set STATUS_EXPIRE_SECONDS to the
+   * length of time to display the status message before clearing.
+   *
+   * Set STATUS_EXPIRE_SECONDS to zero to never clear the status.
+   * This will prevent position updates from being displayed.
+   */
   #if ENABLED(U8GLIB_ST7920)
-    /**
-     * ST7920-based LCDs can emulate a 16 x 4 character display using
-     * the ST7920 character-generator for very fast screen updates.
-     * Enable LIGHTWEIGHT_UI to use this special display mode.
-     *
-     * Since LIGHTWEIGHT_UI has limited space, the position and status
-     * message occupy the same line. Set STATUS_EXPIRE_SECONDS to the
-     * length of time to display the status message before clearing.
-     *
-     * Set STATUS_EXPIRE_SECONDS to zero to never clear the status.
-     * This will prevent position updates from being displayed.
-     */
     //#define LIGHTWEIGHT_UI
     #if ENABLED(LIGHTWEIGHT_UI)
       #define STATUS_EXPIRE_SECONDS 20
     #endif
   #endif
 
-#endif // DOGLCD
+  /**
+   * Status (Info) Screen customizations
+   * These options may affect code size and screen render time.
+   * Custom status screens can forcibly override these settings.
+   */
+  //#define STATUS_COMBINE_HEATERS    // Use combined heater images instead of separate ones
+  //#define STATUS_HOTEND_NUMBERLESS  // Use plain hotend icons instead of numbered ones (with 2+ hotends)
+  #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
+  #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
+  #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
+  //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
+  //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
+  //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
+  //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
+
+#endif // HAS_GRAPHICAL_LCD
 
 // @section safety
 
@@ -849,6 +897,7 @@
   #if ENABLED(MOVE_Z_WHEN_IDLE)
     #define MOVE_Z_IDLE_MULTIPLICATOR 1     // Multiply 1mm by this factor for the move step size.
   #endif
+
   //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     #define BABYSTEP_HOTEND_Z_OFFSET        // For multiple hotends, babystep relative Z offsets
@@ -1052,6 +1101,10 @@
 // Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
 //#define ADVANCED_OK
 
+// Printrun may have trouble receiving long strings all at once.
+// This option inserts short delays between lines of serial output.
+#define SERIAL_OVERRUN_PROTECTION
+
 // @section extras
 
 /**
@@ -1061,7 +1114,7 @@
  *   'M106 P<fan> T2'     : Use the set secondary speed
  *   'M106 P<fan> T1'     : Restore the previous fan speed
  */
-#define EXTRA_FAN_SPEED
+//#define EXTRA_FAN_SPEED
 
 /**
  * Firmware-based and LCD-controlled retract
@@ -1162,19 +1215,19 @@
                                                   //   until extrusion is consistent, and to purge old filament.
 
                                                   // Filament Unload does a Retract, Delay, and Purge first:
-  #define FILAMENT_UNLOAD_RETRACT_LENGTH       4  // (mm) Unload initial retract length.
-  #define FILAMENT_UNLOAD_DELAY             5000  // (ms) Delay for the filament to cool after retract.
+  #define FILAMENT_UNLOAD_RETRACT_LENGTH       0  // (mm) Unload initial retract length.
+  #define FILAMENT_UNLOAD_DELAY              500  // (ms) Delay for the filament to cool after retract.
   #define FILAMENT_UNLOAD_PURGE_LENGTH         0  // (mm) An unretract is done, then this length is purged.
 
-  #define PAUSE_PARK_NOZZLE_TIMEOUT           45  // (seconds) Time limit before the nozzle is turned off for safety.
-  #define FILAMENT_CHANGE_ALERT_BEEPS          1  // Number of alert beeps to play when a response is needed.
+  #define PAUSE_PARK_NOZZLE_TIMEOUT       (3*60)  // (seconds) Time limit before the nozzle is turned off for safety.
+  #define FILAMENT_CHANGE_ALERT_BEEPS          3  // Number of alert beeps to play when a response is needed.
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT           // Enable for XYZ steppers to stay powered on during filament change.
 
   #define PARK_HEAD_ON_PAUSE                      // Park the nozzle during pause and filament change.
   #define HOME_BEFORE_FILAMENT_CHANGE             // Ensure homing has been completed prior to parking for filament change
 
-  //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
-  //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
+  #define FILAMENT_LOAD_UNLOAD_GCODES             // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
+  #define FILAMENT_UNLOAD_ALL_EXTRUDERS           // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
 
 // @section tmc
@@ -1249,17 +1302,14 @@
  * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
  * You may also use software SPI if you wish to use general purpose IO pins.
  *
- * The TMC2130Stepper library is required for this stepper driver.
- * https://github.com/teemuatlut/TMC2130Stepper
- *
  * To use TMC2208 stepper UART-configurable stepper drivers
  * connect #_SERIAL_TX_PIN to the driver side PDN_UART pin with a 1K resistor.
  * To use the reading capabilities, also connect #_SERIAL_RX_PIN
  * to PDN_UART without a resistor.
  * The drivers can also be used with hardware serial.
  *
- * The TMC2208Stepper library is required for this stepper driver.
- * https://github.com/teemuatlut/TMC2208Stepper
+ * TMCStepper library is required for connected TMC stepper drivers.
+ * https://github.com/teemuatlut/TMCStepper
  */
 #if HAS_TRINAMIC
 
@@ -1307,6 +1357,24 @@
   #define E5_MICROSTEPS       16
 
   /**
+   * Override default SPI pins for TMC2130 and TMC2660 drivers here.
+   * The default pins can be found in your board's pins file.
+   */
+  //#define X_CS_PIN          -1
+  //#define Y_CS_PIN          -1
+  //#define Z_CS_PIN          -1
+  //#define X2_CS_PIN         -1
+  //#define Y2_CS_PIN         -1
+  //#define Z2_CS_PIN         -1
+  //#define Z3_CS_PIN         -1
+  //#define E0_CS_PIN         -1
+  //#define E1_CS_PIN         -1
+  //#define E2_CS_PIN         -1
+  //#define E3_CS_PIN         -1
+  //#define E4_CS_PIN         -1
+  //#define E5_CS_PIN         -1
+
+  /**
    * Use software SPI for TMC2130.
    * The default SW SPI pins are defined the respective pins files,
    * but you can override or define them here.
@@ -1320,7 +1388,25 @@
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
-  #define STEALTHCHOP
+  #define STEALTHCHOP_XY
+  #define STEALTHCHOP_Z
+  #define STEALTHCHOP_E
+
+  /**
+   * Optimize spreadCycle chopper parameters by using predefined parameter sets
+   * or with the help of an example included in the library.
+   * Provided parameter sets are
+   * CHOPPER_DEFAULT_12V
+   * CHOPPER_DEFAULT_19V
+   * CHOPPER_DEFAULT_24V
+   * CHOPPER_DEFAULT_36V
+   * CHOPPER_PRUSAMK3_24V // Imported parameters from the official Prusa firmware for MK3 (24V)
+   * CHOPPER_MARLIN_119   // Old defaults from Marlin v1.1.9
+   *
+   * Define you own with
+   * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
+   */
+  #define CHOPPER_TIMING CHOPPER_DEFAULT_12V
 
   /**
    * Monitor Trinamic TMC2130 and TMC2208 drivers for error conditions,
@@ -1344,7 +1430,7 @@
   /**
    * The driver will switch to spreadCycle when stepper speed is over HYBRID_THRESHOLD.
    * This mode allows for faster movements at the expense of higher noise levels.
-   * STEALTHCHOP needs to be enabled.
+   * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
    */
   //#define HYBRID_THRESHOLD
@@ -1712,20 +1798,24 @@
 //#define CUSTOM_USER_MENUS
 #if ENABLED(CUSTOM_USER_MENUS)
   //#define CUSTOM_USER_MENU_TITLE "Custom Commands"
-  //#define USER_SCRIPT_AUDIBLE_FEEDBACK
-  #define USER_SCRIPT_RETURN  // Return to status screen after a script
+  #define USER_SCRIPT_DONE "M117 User Script Done"
+  #define USER_SCRIPT_AUDIBLE_FEEDBACK
+  //#define USER_SCRIPT_RETURN  // Return to status screen after a script
 
-  #define USER_DESC_1  "User cmd 1"
-  #define USER_GCODE_1 "G28 X \n"
+  #define USER_DESC_1 "Home & UBL Info"
+  #define USER_GCODE_1 "G28\nG29 W"
 
-  #define USER_DESC_2  "User cmd 2"
-  #define USER_GCODE_2 "G28 \nG1 X100 \n"
+  #define USER_DESC_2 "Preheat for " PREHEAT_1_LABEL
+  #define USER_GCODE_2 "M140 S" STRINGIFY(PREHEAT_1_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_1_TEMP_HOTEND)
 
-  #define USER_DESC_3  "User cmd 3"
-  #define USER_GCODE_3 "M48 \n"
+  #define USER_DESC_3 "Preheat for " PREHEAT_2_LABEL
+  #define USER_GCODE_3 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nM104 S" STRINGIFY(PREHEAT_2_TEMP_HOTEND)
 
-  #define USER_DESC_4  "User cmd 4"
-  #define USER_GCODE_4 "M114 \n"
+  #define USER_DESC_4 "Heat Bed/Home/Level"
+  #define USER_GCODE_4 "M140 S" STRINGIFY(PREHEAT_2_TEMP_BED) "\nG28\nG29"
+
+  #define USER_DESC_5 "Home & Info"
+  #define USER_GCODE_5 "G28\nM503"
 #endif
 
 /**
@@ -1851,7 +1941,7 @@
 
   #define MAX7219_GCODE            // Add the M7219 G-code to control the LED matrix
   #define MAX7219_INIT_TEST    2   // Do a test pattern at initialization (Set to 2 for spiral)
-  #define MAX7219_NUMBER_UNITS 2   // Number of Max7219 units in chain.
+  #define MAX7219_NUMBER_UNITS 3   // Number of Max7219 units in chain.
   #define MAX7219_ROTATE       0   // Rotate the display clockwise (in multiples of +/- 90°)
                                    // connector at:  right=0   bottom=-90  top=90  left=180
   #define MAX7219_REVERSE_ORDER   // The individual LED matrix units may be in reversed order

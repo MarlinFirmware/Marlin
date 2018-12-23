@@ -54,7 +54,8 @@
 void GcodeSuite::M600() {
   point_t park_point = NOZZLE_PARK_POINT;
 
-  if (get_target_extruder_from_command()) return;
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
 
   #if ENABLED(DUAL_X_CARRIAGE)
     int8_t DXC_ext = target_extruder;
@@ -128,8 +129,6 @@ void GcodeSuite::M600() {
     #endif
   );
 
-  const bool job_running = print_job_timer.isRunning();
-
   if (pause_print(retract, park_point, unload_length, true DXC_PASS)) {
     wait_for_confirmation(true, beep_count DXC_PASS);
     resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
@@ -140,9 +139,6 @@ void GcodeSuite::M600() {
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, 0, true);
   #endif
-
-  // Resume the print job timer if it was running
-  if (job_running) print_job_timer.start();
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

@@ -43,7 +43,8 @@
  */
 void GcodeSuite::M603() {
 
-  if (get_target_extruder_from_command()) return;
+  const int8_t target_extruder = get_target_extruder_from_command();
+  if (target_extruder < 0) return;
 
   // Unload length
   if (parser.seen('U')) {

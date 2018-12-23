@@ -162,6 +162,8 @@ class Endstops {
       static void enable_z_probe(const bool onoff=true);
     #endif
 
+    static void resync();
+
     // Debugging of endstops
     #if ENABLED(PINS_DEBUGGING)
       static bool monitor_flag;

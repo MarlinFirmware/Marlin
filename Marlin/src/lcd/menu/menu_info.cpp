@@ -47,7 +47,7 @@
   // About Printer > Printer Stats
   //
   void menu_info_stats() {
-    if (use_click()) { return lcd_goto_previous_menu(); }
+    if (ui.use_click()) return ui.goto_previous_screen();
 
     char buffer[21];
     printStatistics stats = print_job_timer.getStats();
@@ -80,7 +80,7 @@
 // About Printer > Thermistors
 //
 void menu_info_thermistors() {
-  if (use_click()) { return lcd_goto_previous_menu(); }
+  if (ui.use_click()) return ui.goto_previous_screen();
   START_SCREEN();
   #define THERMISTOR_ID TEMP_SENSOR_0
   #include "../thermistornames.h"
@@ -139,7 +139,7 @@ void menu_info_thermistors() {
 // About Printer > Board Info
 //
 void menu_info_board() {
-  if (use_click()) { return lcd_goto_previous_menu(); }
+  if (ui.use_click()) return ui.goto_previous_screen();
   START_SCREEN();
   STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
   STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
@@ -158,7 +158,7 @@ void menu_info_board() {
 // About Printer > Printer Info
 //
 void menu_info_printer() {
-  if (use_click()) { return lcd_goto_previous_menu(); }
+  if (ui.use_click()) return ui.goto_previous_screen();
   START_SCREEN();
   STATIC_ITEM(MSG_MARLIN, true, true);                             // Marlin
   STATIC_ITEM(SHORT_BUILD_VERSION, true);                          // x.x.x-Branch

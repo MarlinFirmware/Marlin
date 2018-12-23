@@ -66,7 +66,7 @@
 #define STRG_ASCII_2 _UxGT(" !\"#$%&'()*+,-./")
 #define STRG_ASCII_3 _UxGT("0123456789:;<=>?")
 #define STRG_ASCII_4 _UxGT("@ABCDEFGHIJKLMNO")
-#define STRG_ASCII_5 _UxGT("PQRSTUVWXYZ[\]^_")
+#define STRG_ASCII_5 _UxGT("PQRSTUVWXYZ[\\]^_")
 #define STRG_ASCII_6 _UxGT("`abcdefghijklmno")
 #define STRG_ASCII_7 _UxGT("pqrstuvwxyz{|}~")
 

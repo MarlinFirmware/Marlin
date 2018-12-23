@@ -65,7 +65,7 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME         "Printrboard"
+#define BOARD_NAME "Printrboard"
 
 // Disable JTAG pins so they can be used for the Extrudrboard
 #define DISABLE_JTAG

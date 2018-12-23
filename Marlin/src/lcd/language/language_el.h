@@ -87,8 +87,8 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Αυτομ ρύθμιση θερ/σίας") //SHORTEN
-#define MSG_ON                              _UxGT("Ενεργοποιημένο")
-#define MSG_OFF                             _UxGT("Απενεργοποιημένο")
+#define MSG_LCD_ON                          _UxGT("Ενεργοποιημένο")
+#define MSG_LCD_OFF                         _UxGT("Απενεργοποιημένο")
 #define MSG_PID_P                           _UxGT("PID-P")
 #define MSG_PID_I                           _UxGT("PID-I")
 #define MSG_PID_D                           _UxGT("PID-D")

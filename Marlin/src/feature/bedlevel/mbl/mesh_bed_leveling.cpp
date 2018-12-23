@@ -119,9 +119,8 @@
   #endif // IS_CARTESIAN && !SEGMENT_LEVELED_MOVES
 
   void mesh_bed_leveling::report_mesh() {
-    SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(GRID_MAX_POINTS_X) "," STRINGIFY(GRID_MAX_POINTS_Y));
-    SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(z_offset, 5);
-    SERIAL_PROTOCOLLNPGM("\nMeasured points:");
+    SERIAL_ECHOPAIR_F(STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh. Z offset: ", z_offset, 5);
+    SERIAL_ECHOLNPGM("\nMeasured points:");
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5,
       [](const uint8_t ix, const uint8_t iy) { return z_values[ix][iy]; }
     );

@@ -117,7 +117,7 @@ inline int32_t count_test_bytes(const char * const ptr) {
         print_hex_byte(ptr[i]);
         SERIAL_CHAR(' ');
       }
-      safe_delay(25);
+      serial_delay(25);
       SERIAL_CHAR('|');                   // Point out non test bytes
       for (uint8_t i = 0; i < 16; i++) {
         char ccc = (char)ptr[i]; // cast to char before automatically casting to char on assignment, in case the compiler is broken
@@ -131,7 +131,7 @@ inline int32_t count_test_bytes(const char * const ptr) {
       }
       SERIAL_EOL();
       ptr += 16;
-      safe_delay(25);
+      serial_delay(25);
       idle();
     }
   }
@@ -170,7 +170,7 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
     // safe_delay(20);                 // boards.
     // while ( !READ(63))
     //   idle();
-    safe_delay(20);
+    serial_delay(20);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
       M100_dump_routine(PSTR("   Memory corruption detected with sp<Heap\n"), (char*)0x1B80, (char*)0x21FF);
     #endif

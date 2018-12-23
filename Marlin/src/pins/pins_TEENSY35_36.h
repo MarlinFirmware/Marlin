@@ -62,7 +62,7 @@ AUX2                                       25 |   41 * * 52   |    A21 DAC0
 AUX2  FAN_PIN             SCL2    TX1      26 |   42 * * 51   | 39 A20      MISO0             SDSS
 AUX2  Z-PROBE PWR         SCK0    RX1      27 | *  *  *  *  * | 38 A19 PWM        SDA1
 AUX2  SOL1_PIN            MOSI0            28 |   43 * * 50   | 37 A18 PWM        SCL1
-D10   CONTROLLERFAN_PIN   CAN0TX       PWM 29 |   44 * * 49   | 36 A17 PWM
+D10   CONTROLLER_FAN_PIN  CAN0TX       PWM 29 |   44 * * 49   | 36 A17 PWM
 D9    HEATER_0_PIN        CAN0RX       PWM 30 |   45 * * 48   | 35 A16 PWM                    E1_ENABLE_PIN
 D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM        SDA0  RX5   E1_DIR_PIN
                           SCK1    TX4  A13 32 |__GND_*_*_3.3V_| 33 A14 PWM        SCL0  TX5   E1_STEP_PIN
@@ -146,7 +146,16 @@ D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM      
   #define LCD_PINS_D5      43
   #define LCD_PINS_D6      44
   #define LCD_PINS_D7      45
+#endif
+
+#if ENABLED(NEWPANEL)
   #define BTN_EN1          46
   #define BTN_EN2          47
   #define BTN_ENC          48
+#endif
+
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  #define SHIFT_OUT        40
+  #define SHIFT_CLK        44
+  #define SHIFT_LD         42
 #endif

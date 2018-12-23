@@ -36,41 +36,44 @@
   #include "../../feature/runout.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/power_loss_recovery.h"
+#endif
+
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
 void menu_delta_calibrate();
 
-#if HAS_LCD_CONTRAST
-  void lcd_callback_set_contrast() { set_lcd_contrast(lcd_contrast); }
-#endif
-
 static void lcd_factory_settings() {
   settings.reset();
-  lcd_completion_feedback();
+  ui.completion_feedback();
 }
 
 #if ENABLED(LCD_PROGRESS_BAR_TEST)
 
+  #include "../lcdprint.h"
+
   static void progress_bar_test() {
+    ui.encoder_direction_normal();
     static int8_t bar_percent = 0;
-    if (use_click()) {
-      lcd_goto_previous_menu();
-      LCD_SET_CHARSET(CHARSET_MENU);
+    if (ui.use_click()) {
+      ui.goto_previous_screen();
+      ui.set_custom_characters(CHARSET_MENU);
       return;
     }
-    bar_percent += (int8_t)encoderPosition;
+    bar_percent += (int8_t)ui.encoderPosition;
     bar_percent = constrain(bar_percent, 0, 100);
-    encoderPosition = 0;
-    lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
+    ui.encoderPosition = 0;
+    draw_menu_item_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
     lcd_moveto((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
-    lcd_put_u8str(int(bar_percent)); lcd_put_wchar('%');
-    lcd_moveto(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
+    lcd_put_int(bar_percent); lcd_put_wchar('%');
+    lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
 
   void _progress_bar_test() {
-    lcd_goto_screen(progress_bar_test);
-    LCD_SET_CHARSET(CHARSET_INFO);
+    ui.goto_screen(progress_bar_test);
+    ui.set_custom_characters(CHARSET_INFO);
   }
 
 #endif // LCD_PROGRESS_BAR_TEST
@@ -271,12 +274,12 @@ static void lcd_factory_settings() {
     #endif
     START_MENU();
     MENU_BACK(MSG_CONFIGURATION);
-    MENU_ITEM_EDIT(int8, MSG_FAN_SPEED, &lcd_preheat_fan_speed[material], 0, 255);
+    MENU_ITEM_EDIT(int8, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
     #if HAS_TEMP_HOTEND
-      MENU_ITEM_EDIT(int3, MSG_NOZZLE, &lcd_preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
+      MENU_ITEM_EDIT(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
     #endif
     #if HAS_HEATED_BED
-      MENU_ITEM_EDIT(int3, MSG_BED, &lcd_preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 15);
+      MENU_ITEM_EDIT(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 15);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
@@ -338,7 +341,7 @@ void menu_configuration() {
   #endif
 
   #if HAS_LCD_CONTRAST
-    MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &lcd_contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, lcd_callback_set_contrast, true);
+    MENU_ITEM_EDIT_CALLBACK(int3, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
   #endif
   #if ENABLED(FWRETRACT)
     MENU_ITEM(submenu, MSG_RETRACT, menu_config_retract);
@@ -351,7 +354,11 @@ void menu_configuration() {
   #endif
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    MENU_ITEM_EDIT(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_RUNOUT_SENSOR_ENABLE, &runout.enabled, runout.reset);
+  #endif
+
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_OUTAGE_RECOVERY, &recovery.enabled, recovery.changed);
   #endif
 
   #if DISABLED(SLIM_LCD_MENUS)

@@ -35,12 +35,8 @@
 void GcodeSuite::M211() {
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
-  #if HAS_SOFTWARE_ENDSTOPS
-    if (parser.seen('S')) soft_endstops_enabled = parser.value_bool();
-    serialprintPGM(soft_endstops_enabled ? PSTR(MSG_ON) : PSTR(MSG_OFF));
-  #else
-    SERIAL_ECHOPGM(MSG_OFF);
-  #endif
+  if (parser.seen('S')) soft_endstops_enabled = parser.value_bool();
+  serialprint_onoff(soft_endstops_enabled);
   SERIAL_ECHOPGM(MSG_SOFT_MIN);
   SERIAL_ECHOPAIR(    MSG_X, LOGICAL_X_POSITION(soft_endstop_min[X_AXIS]));
   SERIAL_ECHOPAIR(" " MSG_Y, LOGICAL_Y_POSITION(soft_endstop_min[Y_AXIS]));

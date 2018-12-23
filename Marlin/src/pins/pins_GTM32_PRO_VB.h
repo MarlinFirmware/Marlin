@@ -59,17 +59,17 @@
 #define Z_DIR_PIN          PD3
 #define Z_ENABLE_PIN       PB3
 
-#define E0_STEP_PIN        PC14
-#define E0_DIR_PIN         PC13
-#define E0_ENABLE_PIN      PC15
+#define E0_STEP_PIN        PB2
+#define E0_DIR_PIN         PB11
+#define E0_ENABLE_PIN      PC4
 
 #define E1_STEP_PIN        PA0
 #define E1_DIR_PIN         PB6
 #define E1_ENABLE_PIN      PA1
 
-#define E2_STEP_PIN        PB2
-#define E2_DIR_PIN         PB11
-#define E2_ENABLE_PIN      PC4
+#define E2_STEP_PIN        PC14
+#define E2_DIR_PIN         PC13
+#define E2_ENABLE_PIN      PC15
 
 #define NUM_SERIAL 2
 //
@@ -80,7 +80,7 @@
 #define HEATER_2_PIN       PB5
 #define HEATER_BED_PIN     PB1
 
-#define FAN0_PIN           PB7   // TODO: Add functionality
+#define FAN_PIN            PB7   // TODO: Add functionality
 #define FAN1_PIN           PB8   // TODO: Add functionality
 #define FAN2_PIN           PB9   // TODO: Add functionality
 

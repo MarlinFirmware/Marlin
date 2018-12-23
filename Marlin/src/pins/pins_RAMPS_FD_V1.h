@@ -32,7 +32,7 @@
 #endif
 
 #ifndef BOARD_NAME
-  #define BOARD_NAME       "RAMPS-FD"
+  #define BOARD_NAME "RAMPS-FD v1"
 #endif
 
 #define INVERTED_HEATER_PINS
@@ -112,9 +112,9 @@
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS       53
+  #define MAX6675_SS_PIN   53
 #else
-  #define MAX6675_SS       49
+  #define MAX6675_SS_PIN   49
 #endif
 
 //

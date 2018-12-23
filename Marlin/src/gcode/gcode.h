@@ -78,7 +78,7 @@
  * M3   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to clockwise
  * M4   - Turn laser/spindle on, set spindle/laser speed/power, set rotation to counter-clockwise
  * M5   - Turn laser/spindle off
- * M12  - Set up closed loop control system. More features coming soon. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
+ * M12  - Set up closed loop control system. (Requires EXTERNAL_CLOSED_LOOP_CONTROLLER)
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
  * M20  - List SD card. (Requires SDSUPPORT)
@@ -196,9 +196,12 @@
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
+ * M412 - Enable / Disable Filament Runout Detection. (Requires FILAMENT_RUNOUT_SENSOR)
+ * M413 - Enable / Disable Power-Loss Recovery. (Requires POWER_LOSS_RECOVERY)
  * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
+ * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
@@ -266,8 +269,6 @@ public:
 
   GcodeSuite() {}
 
-  static uint8_t target_extruder;
-
   static bool axis_relative_modes[];
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -289,8 +290,9 @@ public:
   static millis_t previous_move_ms;
   FORCE_INLINE static void reset_stepper_timeout() { previous_move_ms = millis(); }
 
-  static bool get_target_extruder_from_command();
+  static int8_t get_target_extruder_from_command();
   static void get_destination_from_command();
+
   static void process_parsed_command(
     #if USE_EXECUTE_COMMANDS_IMMEDIATE
       const bool no_ok = false
@@ -304,17 +306,6 @@ public:
   #endif
 
   FORCE_INLINE static void home_all_axes() { G28(true); }
-
-  /**
-   * Multi-stepper support for M92, M201, M203
-   */
-  #if ENABLED(DISTINCT_E_FACTORS)
-    #define GET_TARGET_EXTRUDER() if (gcode.get_target_extruder_from_command()) return
-    #define TARGET_EXTRUDER gcode.target_extruder
-  #else
-    #define GET_TARGET_EXTRUDER() NOOP
-    #define TARGET_EXTRUDER 0
-  #endif
 
   #if ENABLED(HOST_KEEPALIVE_FEATURE)
     /**
@@ -497,7 +488,7 @@ private:
     static void M49();
   #endif
 
-  #if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY) && (ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI))
     static void M73();
   #endif
 
@@ -668,7 +659,9 @@ private:
     static void M302();
   #endif
 
-  static void M303();
+  #if HAS_PID_HEATING
+    static void M303();
+  #endif
 
   #if ENABLED(PIDTEMPBED)
     static void M304();
@@ -708,9 +701,17 @@ private:
     static void M407();
   #endif
 
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    static void M412();
+  #endif
+
   #if HAS_LEVELING
     static void M420();
     static void M421();
+  #endif
+
+  #if ENABLED(BACKLASH_GCODE)
+    static void M425();
   #endif
 
   #if HAS_M206_COMMAND
@@ -791,9 +792,7 @@ private:
   #endif
 
   #if HAS_TRINAMIC
-    #if ENABLED(TMC_DEBUG)
-      static void M122();
-    #endif
+    static void M122();
     static void M906();
     #if ENABLED(MONITOR_DRIVER_STATUS)
       static void M911();
@@ -827,7 +826,12 @@ private:
 
   static void M999();
 
-  static void T(const uint8_t tmp_extruder);
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static void M413();
+    static void M1000();
+  #endif
+
+  static void T(const uint8_t tool_index);
 
 };
 

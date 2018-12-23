@@ -96,13 +96,11 @@
 #endif // DO_SWITCH_EXTRUDER
 
 #if ENABLED(SWITCHING_NOZZLE)
-
   void move_nozzle_servo(const uint8_t e) {
     planner.synchronize();
     MOVE_SERVO(SWITCHING_NOZZLE_SERVO_NR, servo_angles[SWITCHING_NOZZLE_SERVO_NR][e]);
     safe_delay(500);
   }
-
 #endif // SWITCHING_NOZZLE
 
 #if ENABLED(PARKING_EXTRUDER)
@@ -417,10 +415,8 @@
 
 inline void invalid_extruder_error(const uint8_t e) {
   SERIAL_ECHO_START();
-  SERIAL_CHAR('T');
-  SERIAL_ECHO_F(e, DEC);
-  SERIAL_CHAR(' ');
-  SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
+  SERIAL_CHAR('T'); SERIAL_ECHO(int(e));
+  SERIAL_CHAR(' '); SERIAL_ECHOLNPGM(MSG_INVALID_EXTRUDER);
 }
 
 #if ENABLED(DUAL_X_CARRIAGE)
@@ -481,6 +477,8 @@ inline void invalid_extruder_error(const uint8_t e) {
         active_extruder_parked = true;
         delayed_move_time = 0;
         break;
+      default:
+        break;
     }
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -498,25 +496,28 @@ inline void invalid_extruder_error(const uint8_t e) {
  * previous tool out of the way and the new tool into place.
  */
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
-  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+  #if ENABLED(MIXING_EXTRUDER)
 
-      if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
-        return invalid_extruder_error(tmp_extruder);
+    UNUSED(fr_mm_s); UNUSED(no_move);
+
+    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
+      return invalid_extruder_error(tmp_extruder);
+
+    #if MIXING_VIRTUAL_TOOLS >  1
       // T0-Tnnn: Switch virtual tool by changing the index to the mix
       mixer.T(uint_fast8_t(tmp_extruder));
-      UNUSED(fr_mm_s);
-      UNUSED(no_move);
+    #endif
 
   #elif EXTRUDERS < 2
+
+    UNUSED(fr_mm_s); UNUSED(no_move);
 
     if (tmp_extruder) invalid_extruder_error(tmp_extruder);
     return;
 
-  #else
+  #else // EXTRUDERS > 1
 
-    #if DISABLED(MIXING_EXTRUDER)
-      planner.synchronize();
-    #endif
+    planner.synchronize();
 
     #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_SCALED_DUPLICATION_MODE
       if (tmp_extruder != 0 && dxc_is_duplicating())
@@ -540,7 +541,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     }
 
     #if HAS_LCD_MENU
-      lcd_return_to_status();
+      ui.return_to_status();
     #endif
 
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
@@ -552,8 +553,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       #endif
       if (should_swap) {
         if (too_cold) {
-          SERIAL_ERROR_START();
-          SERIAL_ERRORLNPGM(MSG_ERR_HOTEND_TOO_COLD);
+          SERIAL_ERROR_MSG(MSG_ERR_HOTEND_TOO_COLD);
           #if ENABLED(SINGLENOZZLE)
             active_extruder = tmp_extruder;
             return;
@@ -593,8 +593,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
       #endif
 
+      set_destination_from_current();
+
       if (!no_move) {
-        set_destination_from_current();
         #if DISABLED(SWITCHING_NOZZLE)
           // Do a small lift to avoid the workpiece in the move back (below)
           #if ENABLED(TOOLCHANGE_PARK)
@@ -748,5 +749,5 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, int(active_extruder));
 
-  #endif // EXTRUDERS <= 1 && (!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1)
+  #endif // EXTRUDERS > 1
 }

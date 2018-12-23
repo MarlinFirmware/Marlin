@@ -109,7 +109,7 @@
 #elif MB(MKS_GEN_L)
   #include "pins_MKS_GEN_L.h"         // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 #elif MB(KFB_2)
-  #include "pins_KFB_2.h"             // ATmega2560                                 env:megaatmega2560
+  #include "pins_BIQU_KFB_2.h"        // ATmega2560                                 env:megaatmega2560
 #elif MB(ZRIB_V20)
   #include "pins_ZRIB_V20.h"          // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560 (MKS_GEN_13)
 #elif MB(FELIX2)
@@ -132,12 +132,16 @@
   #include "pins_ULTIMAIN_2.h"        // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_RAPTOR)
   #include "pins_FORMBOT_RAPTOR.h"    // ATmega2560                                 env:megaatmega2560
+#elif MB(FORMBOT_RAPTOR2)
+  #include "pins_FORMBOT_RAPTOR2.h"   // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_TREX2PLUS)
   #include "pins_FORMBOT_TREX2PLUS.h" // ATmega2560                                 env:megaatmega2560
 #elif MB(FORMBOT_TREX3)
   #include "pins_FORMBOT_TREX3.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RUMBA)
   #include "pins_RUMBA.h"             // ATmega2560                                 env:megaatmega2560
+#elif MB(RUMBA_RAISE3D)
+  #include "pins_RUMBA_RAISE3D.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"    // ATmega2560                                 env:megaatmega2560
 #elif MB(MAKEBOARD_MINI)
@@ -149,9 +153,11 @@
 #elif MB(RAMPS_ENDER_4)
   #include "pins_RAMPS_ENDER_4.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMPS_CREALITY)
-  #include "pins_RAMPS_CREALITY.h"     // ATmega2560                                 env:megaatmega2560
+  #include "pins_RAMPS_CREALITY.h"    // ATmega2560                                 env:megaatmega2560
 #elif MB(FYSETC_F6_13)
   #include "pins_FYSETC_F6_13.h"      // ATmega2560                                 env:megaatmega2560
+#elif MB(DUPLICATOR_I3_PLUS)
+  #include "pins_DUPLICATOR_I3_PLUS.h" // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -171,7 +177,7 @@
   #include "pins_MEGATRONICS.h"       // ATmega2560                                 env:megaatmega2560
 #elif MB(MEGATRONICS_2)
   #include "pins_MEGATRONICS_2.h"     // ATmega2560                                 env:megaatmega2560
-#elif MB(MEGATRONICS_3) || MB(MEGATRONICS_31)
+#elif MB(MEGATRONICS_3) || MB(MEGATRONICS_31) || MB(MEGATRONICS_32)
   #include "pins_MEGATRONICS_3.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMBO)
   #include "pins_RAMBO.h"             // ATmega2560                                 env:rambo
@@ -365,6 +371,8 @@
   #include "pins_RAMPS4DUE.h"         // SAM3X8E                                    env:DUE env:DUE_USB env:DUE_debug
 #elif MB(ULTRATRONICS_PRO)
   #include "pins_ULTRATRONICS_PRO.h"  // SAM3X8E                                    env:DUE env:DUE_debug
+#elif MB(ARCHIM1)
+  #include "pins_ARCHIM1.h"           // SAM3X8E                                    env:DUE env:DUE_debug
 #elif MB(ARCHIM2)
   #include "pins_ARCHIM2.h"           // SAM3X8E                                    env:DUE env:DUE_debug
 #elif MB(ALLIGATOR)
@@ -386,6 +394,8 @@
   #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1
 #elif MB(MORPHEUS)
   #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
+#elif MB(MKS_ROBIN)
+  #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:STM32F1
 
 //
 // STM32 ARM Cortex-M4F

@@ -142,7 +142,7 @@
   #error "FILAMENT_CHANGE_NOZZLE_TIMEOUT is now PAUSE_PARK_NOZZLE_TIMEOUT. Please update your configuration."
 #elif defined(FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS)
   #error "FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS is now FILAMENT_CHANGE_ALERT_BEEPS. Please update your configuration."
-#elif ENABLED(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
+#elif defined(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
   #error "FILAMENT_CHANGE_NO_STEPPER_TIMEOUT is now PAUSE_PARK_NO_STEPPER_TIMEOUT. Please update your configuration."
 #elif defined(PLA_PREHEAT_HOTEND_TEMP)
   #error "PLA_PREHEAT_HOTEND_TEMP is now PREHEAT_1_TEMP_HOTEND. Please update your configuration."
@@ -264,6 +264,8 @@
   #error "MEASURED_(UPPER|LOWER)_LIMIT is now FILWIDTH_ERROR_MARGIN. Please update your configuration."
 #elif defined(HAVE_TMCDRIVER)
   #error "HAVE_TMCDRIVER is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
+#elif defined(STEALTHCHOP)
+  #error "STEALTHCHOP is now STEALTHCHOP_(XY|Z|E). Please update your Configuration_adv.h."
 #elif defined(HAVE_TMC26X)
   #error "HAVE_TMC26X is now [AXIS]_DRIVER_TYPE TMC26X. Please update your Configuration.h."
 #elif defined(HAVE_TMC2130)
@@ -335,6 +337,10 @@
   #error "MBL_Z_STEP is now MESH_EDIT_Z_STEP. Please update your configuration."
 #elif defined(CHDK)
   #error "CHDK is now CHDK_PIN. Please update your Configuration_adv.h."
+#elif defined(MAX6675_SS)
+  #error "MAX6675_SS is now MAX6675_SS_PIN. Please update your configuration and/or pins."
+#elif defined(MAX6675_SS2)
+  #error "MAX6675_SS2 is now MAX6675_SS2_PIN. Please update your configuration and/or pins."
 #endif
 
 #define BOARD_MKS_13     -47
@@ -491,9 +497,11 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "LCD_PROGRESS_BAR does not apply to graphical displays."
   #elif ENABLED(FILAMENT_LCD_DISPLAY)
     #error "LCD_PROGRESS_BAR and FILAMENT_LCD_DISPLAY are not fully compatible. Comment out this line to use both."
+  #elif PROGRESS_MSG_EXPIRE < 0
+    #error "PROGRESS_MSG_EXPIRE must be greater than or equal to 0."
   #endif
-#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && !HAS_GRAPHICAL_LCD
-  #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR or Graphical LCD."
+#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && !HAS_GRAPHICAL_LCD && DISABLED(EXTENSIBLE_UI)
+  #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Graphical LCD, or EXTENSIBLE_UI."
 #endif
 
 /**
@@ -501,6 +509,13 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #if DISABLED(DOGLCD) && (ENABLED(SHOW_CUSTOM_BOOTSCREEN) || ENABLED(CUSTOM_STATUS_SCREEN_IMAGE))
   #error "Graphical LCD is required for SHOW_CUSTOM_BOOTSCREEN and CUSTOM_STATUS_SCREEN_IMAGE."
+#endif
+
+/**
+ * LCD Lightweight Screen Style
+ */
+#if ENABLED(LIGHTWEIGHT_UI) && DISABLED(U8GLIB_ST7920)
+  #error "LIGHTWEIGHT_UI requires a U8GLIB_ST7920-based display."
 #endif
 
 /**
@@ -1003,9 +1018,6 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
     #error "Z_PROBE_LOW_POINT must be less than or equal to 0."
   #endif
 
-  static_assert(int(X_PROBE_OFFSET_FROM_EXTRUDER) == (X_PROBE_OFFSET_FROM_EXTRUDER), "X_PROBE_OFFSET_FROM_EXTRUDER must be an integer value.");
-  static_assert(int(Y_PROBE_OFFSET_FROM_EXTRUDER) == (Y_PROBE_OFFSET_FROM_EXTRUDER), "Y_PROBE_OFFSET_FROM_EXTRUDER must be an integer value.");
-
 #else
 
   /**
@@ -1278,7 +1290,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
  */
 #if !HAS_HEATER_0
   #error "HEATER_0_PIN not defined for this board."
-#elif !PIN_EXISTS(TEMP_0) && !(defined(MAX6675_SS) && MAX6675_SS >= 0)
+#elif !PIN_EXISTS(TEMP_0) && !PIN_EXISTS(MAX6675_SS)
   #error "TEMP_0_PIN not defined for this board."
 #elif ((defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)) && (!PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR)))
   #error "E0_STEP_PIN or E0_DIR_PIN not defined for this board."
@@ -1289,16 +1301,18 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 // Pins are required for heaters
-#if ENABLED(HEATER_0_USES_MAX6675) && !(defined(MAX6675_SS) && MAX6675_SS >= 0)
-  #error "MAX6675_SS (required for TEMP_SENSOR_0) not defined for this board."
+#if ENABLED(HEATER_0_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS)
+  #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
 #elif (HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)) && !HAS_HEATER_1
   #error "HEATER_1_PIN not defined for this board."
 #endif
 
 #if HOTENDS > 1
-  #if TEMP_SENSOR_1 == 0
+  #if ENABLED(HEATER_1_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS2)
+    #error "MAX6675_SS2_PIN (required for TEMP_SENSOR_1) not defined for this board."
+  #elif TEMP_SENSOR_1 == 0
     #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
-  #elif !PIN_EXISTS(TEMP_1)
+  #elif !PIN_EXISTS(TEMP_1) && !PIN_EXISTS(MAX6675_SS2)
     #error "TEMP_1_PIN not defined for this board."
   #endif
   #if HOTENDS > 2
@@ -1685,6 +1699,7 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
       && DISABLED(MKS_12864OLED_SSD1306) ) \
   + (ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER)) \
   + ENABLED(LCD_FOR_MELZI) \
+  + ENABLED(MALYAN_LCD) \
   + ENABLED(MKS_12864OLED) \
   + ENABLED(MKS_12864OLED_SSD1306) \
   + ENABLED(MAKEBOARD_MINI_2_LINE_DISPLAY_1602) \
@@ -1827,8 +1842,8 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
   // is necessary in order to reset the stallGuard indication between the initial movement of all three
   // towers to +Z and the individual homing of each tower. This restriction can be removed once a means of
   // clearing the stallGuard activated status is found.
-  #if ENABLED(DELTA) && DISABLED(STEALTHCHOP)
-    #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP."
+  #if ENABLED(DELTA) && !(ENABLED(STEALTHCHOP_XY) && ENABLED(STEALTHCHOP_Z))
+    #error "SENSORLESS_HOMING on DELTA currently requires STEALTHCHOP_XY and STEALTHCHOP_Z."
   #elif X_SENSORLESS && X_HOME_DIR == -1 && (!X_MIN_ENDSTOP_INVERTING || DISABLED(ENDSTOPPULLUP_XMIN))
     #error "SENSORLESS_HOMING requires X_MIN_ENDSTOP_INVERTING and ENDSTOPPULLUP_XMIN when homing to X_MIN."
   #elif X_SENSORLESS && X_HOME_DIR ==  1 && (!X_MAX_ENDSTOP_INVERTING || DISABLED(ENDSTOPPULLUP_XMAX))
@@ -1865,16 +1880,20 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 // Other TMC feature requirements
-#if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
-  #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
+#if ENABLED(HYBRID_THRESHOLD) && !STEALTHCHOP_ENABLED
+  #error "Enable STEALTHCHOP_(XY|Z|E) to use HYBRID_THRESHOLD."
 #elif ENABLED(TMC_Z_CALIBRATION) && !AXIS_IS_TMC(Z) && !AXIS_IS_TMC(Z2) && !AXIS_IS_TMC(Z3)
   #error "TMC_Z_CALIBRATION requires at least one TMC driver on Z axis"
 #elif ENABLED(SENSORLESS_HOMING) && !HAS_STALLGUARD
   #error "SENSORLESS_HOMING requires TMC2130 stepper drivers."
 #elif ENABLED(SENSORLESS_PROBING) && !HAS_STALLGUARD
   #error "SENSORLESS_PROBING requires TMC2130 stepper drivers."
-#elif ENABLED(STEALTHCHOP) && !HAS_STEALTHCHOP
+#elif STEALTHCHOP_ENABLED && !HAS_STEALTHCHOP
   #error "STEALTHCHOP requires TMC2130 or TMC2208 stepper drivers."
+#endif
+
+#if ENABLED(DELTA) && (ENABLED(STEALTHCHOP_XY) != ENABLED(STEALTHCHOP_Z))
+  #error "STEALTHCHOP_XY and STEALTHCHOP_Z must be the same on DELTA."
 #endif
 
 /**
@@ -1888,17 +1907,35 @@ static_assert(X_MAX_LENGTH >= X_BED_SIZE && Y_MAX_LENGTH >= Y_BED_SIZE,
 #endif
 
 /**
- * Require 4 or more elements in per-axis initializers
+ * Check per-axis initializers for errors
  */
 constexpr float sanity_arr_1[] = DEFAULT_AXIS_STEPS_PER_UNIT,
                 sanity_arr_2[] = DEFAULT_MAX_FEEDRATE,
                 sanity_arr_3[] = DEFAULT_MAX_ACCELERATION;
+
 static_assert(COUNT(sanity_arr_1) >= XYZE, "DEFAULT_AXIS_STEPS_PER_UNIT requires 4 (or more) elements.");
-static_assert(COUNT(sanity_arr_2) >= XYZE, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
-static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
 static_assert(COUNT(sanity_arr_1) <= XYZE_N, "DEFAULT_AXIS_STEPS_PER_UNIT has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+static_assert(sanity_arr_1[0] > 0 && sanity_arr_1[1] > 0 && sanity_arr_1[2] > 0
+  && (XYZE_N <= 3 || sanity_arr_1[3] > 0) && (XYZE_N <= 4 || sanity_arr_1[4] > 0)
+  && (XYZE_N <= 5 || sanity_arr_1[5] > 0) && (XYZE_N <= 6 || sanity_arr_1[6] > 0)
+  && (XYZE_N <= 7 || sanity_arr_1[7] > 0) && (XYZE_N <= 8 || sanity_arr_1[8] > 0),
+  "DEFAULT_AXIS_STEPS_PER_UNIT values must be positive.");
+
+static_assert(COUNT(sanity_arr_2) >= XYZE, "DEFAULT_MAX_FEEDRATE requires 4 (or more) elements.");
 static_assert(COUNT(sanity_arr_2) <= XYZE_N, "DEFAULT_MAX_FEEDRATE has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+static_assert(sanity_arr_2[0] > 0 && sanity_arr_2[1] > 0 && sanity_arr_2[2] > 0
+  && (XYZE_N <= 3 || sanity_arr_2[3] > 0) && (XYZE_N <= 4 || sanity_arr_2[4] > 0)
+  && (XYZE_N <= 5 || sanity_arr_2[5] > 0) && (XYZE_N <= 6 || sanity_arr_2[6] > 0)
+  && (XYZE_N <= 7 || sanity_arr_2[7] > 0) && (XYZE_N <= 8 || sanity_arr_2[8] > 0),
+  "DEFAULT_MAX_FEEDRATE values must be positive.");
+
+static_assert(COUNT(sanity_arr_3) >= XYZE, "DEFAULT_MAX_ACCELERATION requires 4 (or more) elements.");
 static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too many elements. (Did you forget to enable DISTINCT_E_FACTORS?)");
+static_assert(sanity_arr_3[0] > 0 && sanity_arr_3[1] > 0 && sanity_arr_3[2] > 0
+  && (XYZE_N <= 3 || sanity_arr_3[3] > 0) && (XYZE_N <= 4 || sanity_arr_3[4] > 0)
+  && (XYZE_N <= 5 || sanity_arr_3[5] > 0) && (XYZE_N <= 6 || sanity_arr_3[6] > 0)
+  && (XYZE_N <= 7 || sanity_arr_3[7] > 0) && (XYZE_N <= 8 || sanity_arr_3[8] > 0),
+  "DEFAULT_MAX_ACCELERATION values must be positive.");
 
 #if ENABLED(CNC_COORDINATE_SYSTEMS) && ENABLED(NO_WORKSPACE_OFFSETS)
   #error "CNC_COORDINATE_SYSTEMS is incompatible with NO_WORKSPACE_OFFSETS."
@@ -1965,4 +2002,8 @@ static_assert(COUNT(sanity_arr_3) <= XYZE_N, "DEFAULT_MAX_ACCELERATION has too m
 
 #if ENABLED(GCODE_MACROS) && !WITHIN(GCODE_MACROS_SLOTS, 1, 10)
   #error "GCODE_MACROS_SLOTS must be a number from 1 to 10."
+#endif
+
+#if ENABLED(BACKLASH_COMPENSATION) && IS_CORE
+  #error "BACKLASH_COMPENSATION is incompatible with CORE kinematics."
 #endif

@@ -153,7 +153,8 @@
     planner.synchronize();
     extruder_duplication_enabled = parser.intval('S') == (int)DXC_DUPLICATION_MODE;
     SERIAL_ECHO_START();
-    SERIAL_ECHOLNPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
+    SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
+    serialprintln_onoff(extruder_duplication_enabled);
   }
 
 #endif // DUAL_NOZZLE_DUPLICATION_MODE

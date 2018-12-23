@@ -42,7 +42,7 @@
 
 Endstops endstops;
 
-// public:
+// private:
 
 bool Endstops::enabled, Endstops::enabled_globally; // Initialized by settings.load()
 volatile uint8_t Endstops::hit_state;
@@ -259,15 +259,13 @@ void Endstops::poll() {
 
 void Endstops::enable_globally(const bool onoff) {
   enabled_globally = enabled = onoff;
-
-  update();
+  resync();
 }
 
 // Enable / disable endstop checking
 void Endstops::enable(const bool onoff) {
   enabled = onoff;
-
-  update();
+  resync();
 }
 
 // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
@@ -287,10 +285,23 @@ void Endstops::not_homing() {
 #if HAS_BED_PROBE
   void Endstops::enable_z_probe(const bool onoff) {
     z_probe_enabled = onoff;
-
-    update();
+    resync();
   }
 #endif
+
+// Get the stable endstop states when enabled
+void Endstops::resync() {
+  if (!abort_enabled()) return;     // If endstops/probes are disabled the loop below can hang
+
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    update();
+  #else
+    safe_delay(2);  // Wait for Temperature ISR to run at least once (runs at 1KHz)
+  #endif
+  #if ENDSTOP_NOISE_THRESHOLD
+    while (endstop_poll_count) safe_delay(1);
+  #endif
+}
 
 #if ENABLED(PINS_DEBUGGING)
   void Endstops::run_monitor() {
@@ -337,7 +348,7 @@ void Endstops::event_handler() {
     SERIAL_EOL();
 
     #if ENABLED(ULTRA_LCD)
-      lcd_status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
+      ui.status_printf_P(0, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
     #endif
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
@@ -354,13 +365,13 @@ void Endstops::event_handler() {
 
 static void print_es_state(const bool is_hit, PGM_P const label=NULL) {
   if (label) serialprintPGM(label);
-  SERIAL_PROTOCOLPGM(": ");
+  SERIAL_ECHOPGM(": ");
   serialprintPGM(is_hit ? PSTR(MSG_ENDSTOP_HIT) : PSTR(MSG_ENDSTOP_OPEN));
   SERIAL_EOL();
 }
 
 void _O2 Endstops::M119() {
-  SERIAL_PROTOCOLLNPGM(MSG_M119_REPORT);
+  SERIAL_ECHOLNPGM(MSG_M119_REPORT);
   #define ES_REPORT(S) print_es_state(READ(S##_PIN) != S##_ENDSTOP_INVERTING, PSTR(MSG_##S))
   #if HAS_X_MIN
     ES_REPORT(X_MIN);
@@ -430,7 +441,7 @@ void _O2 Endstops::M119() {
             #endif
           #endif
         }
-        SERIAL_PROTOCOLPGM(MSG_FILAMENT_RUNOUT_SENSOR);
+        SERIAL_ECHOPGM(MSG_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) { SERIAL_CHAR(' '); SERIAL_CHAR('0' + i); }
         print_es_state(digitalRead(pin) != FIL_RUNOUT_INVERTING);
       }
@@ -764,101 +775,104 @@ void Endstops::update() {
     static uint8_t local_LED_status = 0;
     uint16_t live_state_local = 0;
 
+    #define ES_GET_STATE(S) if (READ(S##_PIN)) SBI(live_state_local, S)
+
     #if HAS_X_MIN
-      if (READ(X_MIN_PIN)) SBI(live_state_local, X_MIN);
+      ES_GET_STATE(X_MIN);
     #endif
     #if HAS_X_MAX
-      if (READ(X_MAX_PIN)) SBI(live_state_local, X_MAX);
+      ES_GET_STATE(X_MAX);
     #endif
     #if HAS_Y_MIN
-      if (READ(Y_MIN_PIN)) SBI(live_state_local, Y_MIN);
+      ES_GET_STATE(Y_MIN);
     #endif
     #if HAS_Y_MAX
-      if (READ(Y_MAX_PIN)) SBI(live_state_local, Y_MAX);
+      ES_GET_STATE(Y_MAX);
     #endif
     #if HAS_Z_MIN
-      if (READ(Z_MIN_PIN)) SBI(live_state_local, Z_MIN);
+      ES_GET_STATE(Z_MIN);
     #endif
     #if HAS_Z_MAX
-      if (READ(Z_MAX_PIN)) SBI(live_state_local, Z_MAX);
+      ES_GET_STATE(Z_MAX);
     #endif
     #if HAS_Z_MIN_PROBE_PIN
-      if (READ(Z_MIN_PROBE_PIN)) SBI(live_state_local, Z_MIN_PROBE);
+      ES_GET_STATE(Z_MIN_PROBE);
     #endif
     #if HAS_X2_MIN
-      if (READ(X2_MIN_PIN)) SBI(live_state_local, X2_MIN);
+      ES_GET_STATE(X2_MIN);
     #endif
     #if HAS_X2_MAX
-      if (READ(X2_MAX_PIN)) SBI(live_state_local, X2_MAX);
+      ES_GET_STATE(X2_MAX);
     #endif
     #if HAS_Y2_MIN
-      if (READ(Y2_MIN_PIN)) SBI(live_state_local, Y2_MIN);
+      ES_GET_STATE(Y2_MIN);
     #endif
     #if HAS_Y2_MAX
-      if (READ(Y2_MAX_PIN)) SBI(live_state_local, Y2_MAX);
+      ES_GET_STATE(Y2_MAX);
     #endif
     #if HAS_Z2_MIN
-      if (READ(Z2_MIN_PIN)) SBI(live_state_local, Z2_MIN);
+      ES_GET_STATE(Z2_MIN);
     #endif
     #if HAS_Z2_MAX
-      if (READ(Z2_MAX_PIN)) SBI(live_state_local, Z2_MAX);
+      ES_GET_STATE(Z2_MAX);
     #endif
     #if HAS_Z3_MIN
-      if (READ(Z3_MIN_PIN)) SBI(live_state_local, Z3_MIN);
+      ES_GET_STATE(Z3_MIN);
     #endif
     #if HAS_Z3_MAX
-      if (READ(Z3_MAX_PIN)) SBI(live_state_local, Z3_MAX);
+      ES_GET_STATE(Z3_MAX);
     #endif
 
     uint16_t endstop_change = live_state_local ^ old_live_state_local;
+    #define ES_REPORT_CHANGE(S) if (TEST(endstop_change, S)) SERIAL_ECHOPAIR("  " STRINGIFY(S) ":", TEST(live_state_local, S))
 
     if (endstop_change) {
       #if HAS_X_MIN
-        if (TEST(endstop_change, X_MIN)) SERIAL_PROTOCOLPAIR("  X_MIN:", TEST(live_state_local, X_MIN));
+        ES_REPORT_CHANGE(X_MIN);
       #endif
       #if HAS_X_MAX
-        if (TEST(endstop_change, X_MAX)) SERIAL_PROTOCOLPAIR("  X_MAX:", TEST(live_state_local, X_MAX));
+        ES_REPORT_CHANGE(X_MAX);
       #endif
       #if HAS_Y_MIN
-        if (TEST(endstop_change, Y_MIN)) SERIAL_PROTOCOLPAIR("  Y_MIN:", TEST(live_state_local, Y_MIN));
+        ES_REPORT_CHANGE(Y_MIN);
       #endif
       #if HAS_Y_MAX
-        if (TEST(endstop_change, Y_MAX)) SERIAL_PROTOCOLPAIR("  Y_MAX:", TEST(live_state_local, Y_MAX));
+        ES_REPORT_CHANGE(Y_MAX);
       #endif
       #if HAS_Z_MIN
-        if (TEST(endstop_change, Z_MIN)) SERIAL_PROTOCOLPAIR("  Z_MIN:", TEST(live_state_local, Z_MIN));
+        ES_REPORT_CHANGE(Z_MIN);
       #endif
       #if HAS_Z_MAX
-        if (TEST(endstop_change, Z_MAX)) SERIAL_PROTOCOLPAIR("  Z_MAX:", TEST(live_state_local, Z_MAX));
+        ES_REPORT_CHANGE(Z_MAX);
       #endif
       #if HAS_Z_MIN_PROBE_PIN
-        if (TEST(endstop_change, Z_MIN_PROBE)) SERIAL_PROTOCOLPAIR("  PROBE:", TEST(live_state_local, Z_MIN_PROBE));
+        ES_REPORT_CHANGE(Z_MIN_PROBE);
       #endif
       #if HAS_X2_MIN
-        if (TEST(endstop_change, X2_MIN)) SERIAL_PROTOCOLPAIR("  X2_MIN:", TEST(live_state_local, X2_MIN));
+        ES_REPORT_CHANGE(X2_MIN);
       #endif
       #if HAS_X2_MAX
-        if (TEST(endstop_change, X2_MAX)) SERIAL_PROTOCOLPAIR("  X2_MAX:", TEST(live_state_local, X2_MAX));
+        ES_REPORT_CHANGE(X2_MAX);
       #endif
       #if HAS_Y2_MIN
-        if (TEST(endstop_change, Y2_MIN)) SERIAL_PROTOCOLPAIR("  Y2_MIN:", TEST(live_state_local, Y2_MIN));
+        ES_REPORT_CHANGE(Y2_MIN);
       #endif
       #if HAS_Y2_MAX
-        if (TEST(endstop_change, Y2_MAX)) SERIAL_PROTOCOLPAIR("  Y2_MAX:", TEST(live_state_local, Y2_MAX));
+        ES_REPORT_CHANGE(Y2_MAX);
       #endif
       #if HAS_Z2_MIN
-        if (TEST(endstop_change, Z2_MIN)) SERIAL_PROTOCOLPAIR("  Z2_MIN:", TEST(live_state_local, Z2_MIN));
+        ES_REPORT_CHANGE(Z2_MIN);
       #endif
       #if HAS_Z2_MAX
-        if (TEST(endstop_change, Z2_MAX)) SERIAL_PROTOCOLPAIR("  Z2_MAX:", TEST(live_state_local, Z2_MAX));
+        ES_REPORT_CHANGE(Z2_MAX);
       #endif
       #if HAS_Z3_MIN
-        if (TEST(endstop_change, Z3_MIN)) SERIAL_PROTOCOLPAIR("  Z3_MIN:", TEST(live_state_local, Z3_MIN));
+        ES_REPORT_CHANGE(Z3_MIN);
       #endif
       #if HAS_Z3_MAX
-        if (TEST(endstop_change, Z3_MAX)) SERIAL_PROTOCOLPAIR("  Z3_MAX:", TEST(live_state_local, Z3_MAX));
+        ES_REPORT_CHANGE(Z3_MAX);
       #endif
-      SERIAL_PROTOCOLPGM("\n\n");
+      SERIAL_ECHOPGM("\n\n");
       analogWrite(LED_PIN, local_LED_status);
       local_LED_status ^= 255;
       old_live_state_local = live_state_local;

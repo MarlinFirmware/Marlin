@@ -24,9 +24,7 @@
  * Arduino Mega with RAMPS v1.4 for Anycubic
  */
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "Anycubic RAMPS 1.4"
-#endif
+#define BOARD_NAME "Anycubic RAMPS 1.4"
 
 // Labeled pins
 #define TRIGORILLA_HEATER_BED_PIN  8

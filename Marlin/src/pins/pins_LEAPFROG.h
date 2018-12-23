@@ -28,7 +28,7 @@
   #error "Oops! Select 'Mega 1280' or 'Mega 2560' in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME         "Leapfrog"
+#define BOARD_NAME "Leapfrog"
 
 //
 // Limit Switches

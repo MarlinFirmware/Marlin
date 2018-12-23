@@ -323,15 +323,15 @@ static PGM_P advanced_pause_header() {
 // Portions from STATIC_ITEM...
 #define HOTEND_STATUS_ITEM() do { \
   if (_menuLineNr == _thisItemNr) { \
-    if (lcdDrawUpdate) { \
-      lcd_implementation_drawmenu_static(_lcdLineNr, PSTR(MSG_FILAMENT_CHANGE_NOZZLE), false, true); \
-      lcd_implementation_hotend_status(_lcdLineNr, hotend_status_extruder); \
+    if (ui.should_draw()) { \
+      draw_menu_item_static(_lcdLineNr, PSTR(MSG_FILAMENT_CHANGE_NOZZLE), false, true); \
+      ui.draw_hotend_status(_lcdLineNr, hotend_status_extruder); \
     } \
     if (_skipStatic && encoderLine <= _thisItemNr) { \
-      encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
+      ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
       ++encoderLine; \
     } \
-    lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
+    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT); \
   } \
   ++_thisItemNr; \
 }while(0)
@@ -507,11 +507,11 @@ void lcd_advanced_pause_show_message(
   hotend_status_extruder = extruder;
   const screenFunc_t next_screen = ap_message_screen(message);
   if (next_screen) {
-    set_defer_return_to_status(true);
-    lcd_goto_screen(next_screen);
+    ui.defer_status_screen(true);
+    ui.goto_screen(next_screen);
   }
   else
-    lcd_return_to_status();
+    ui.return_to_status();
 }
 
 #endif // HAS_LCD_MENU && ADVANCED_PAUSE_FEATURE

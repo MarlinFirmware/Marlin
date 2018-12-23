@@ -80,7 +80,7 @@ inline void GcodeSuite::G53() {
 void G54_59(uint8_t subcode=0) {
   const int8_t _space = parser.codenum - 54 + subcode;
   if (gcode.select_coordinate_system(_space)) {
-    SERIAL_PROTOCOLLNPAIR("Select workspace ", _space);
+    SERIAL_ECHOLNPAIR("Select workspace ", _space);
     report_current_position();
   }
 }

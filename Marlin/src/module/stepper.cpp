@@ -590,29 +590,29 @@ void Stepper::set_directions() {
    *        uint16_t t;
    *        umul24x24to16hi(t, bezier_AV, curr_step);   // t: Range 0 - 1^16 = 16 bits
    *        uint16_t f = t;
-   *        umul16x16to16hi(f, f, t);           // Range 16 bits (unsigned)
-   *        umul16x16to16hi(f, f, t);           // Range 16 bits : f = t^3  (unsigned)
-   *        uint24_t acc = bezier_F;          // Range 20 bits (unsigned)
+   *        umul16x16to16hi(f, f, t);                   // Range 16 bits (unsigned)
+   *        umul16x16to16hi(f, f, t);                   // Range 16 bits : f = t^3  (unsigned)
+   *        uint24_t acc = bezier_F;                    // Range 20 bits (unsigned)
    *        if (A_negative) {
    *          uint24_t v;
-   *          umul16x24to24hi(v, f, bezier_C);    // Range 21bits
+   *          umul16x24to24hi(v, f, bezier_C);          // Range 21bits
    *          acc -= v;
-   *          umul16x16to16hi(f, f, t);         // Range 16 bits : f = t^4  (unsigned)
-   *          umul16x24to24hi(v, f, bezier_B);    // Range 22bits
+   *          umul16x16to16hi(f, f, t);                 // Range 16 bits : f = t^4  (unsigned)
+   *          umul16x24to24hi(v, f, bezier_B);          // Range 22bits
    *          acc += v;
-   *          umul16x16to16hi(f, f, t);         // Range 16 bits : f = t^5  (unsigned)
-   *          umul16x24to24hi(v, f, bezier_A);    // Range 21bits + 15 = 36bits (plus sign)
+   *          umul16x16to16hi(f, f, t);                 // Range 16 bits : f = t^5  (unsigned)
+   *          umul16x24to24hi(v, f, bezier_A);          // Range 21bits + 15 = 36bits (plus sign)
    *          acc -= v;
    *        }
    *        else {
    *          uint24_t v;
-   *          umul16x24to24hi(v, f, bezier_C);    // Range 21bits
+   *          umul16x24to24hi(v, f, bezier_C);          // Range 21bits
    *          acc += v;
-   *          umul16x16to16hi(f, f, t);       // Range 16 bits : f = t^4  (unsigned)
-   *          umul16x24to24hi(v, f, bezier_B);    // Range 22bits
+   *          umul16x16to16hi(f, f, t);                 // Range 16 bits : f = t^4  (unsigned)
+   *          umul16x24to24hi(v, f, bezier_B);          // Range 22bits
    *          acc -= v;
-   *          umul16x16to16hi(f, f, t);               // Range 16 bits : f = t^5  (unsigned)
-   *          umul16x24to24hi(v, f, bezier_A);    // Range 21bits + 15 = 36bits (plus sign)
+   *          umul16x16to16hi(f, f, t);                 // Range 16 bits : f = t^5  (unsigned)
+   *          umul16x24to24hi(v, f, bezier_A);          // Range 21bits + 15 = 36bits (plus sign)
    *          acc += v;
    *        }
    *        return acc;
@@ -1492,7 +1492,7 @@ uint32_t Stepper::stepper_block_phase_isr() {
     // If current block is finished, reset pointer
     if (step_events_completed >= step_event_count) {
       #if FILAMENT_RUNOUT_DISTANCE_MM > 0
-        runout.block_complete(current_block);
+        runout.block_completed(current_block);
       #endif
       axis_did_move = 0;
       current_block = NULL;
@@ -2218,25 +2218,25 @@ void Stepper::report_positions() {
   if (was_enabled) ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
-    SERIAL_PROTOCOLPGM(MSG_COUNT_A);
+    SERIAL_ECHOPGM(MSG_COUNT_A);
   #else
-    SERIAL_PROTOCOLPGM(MSG_COUNT_X);
+    SERIAL_ECHOPGM(MSG_COUNT_X);
   #endif
-  SERIAL_PROTOCOL(xpos);
+  SERIAL_ECHO(xpos);
 
   #if CORE_IS_XY || CORE_IS_YZ || ENABLED(DELTA) || IS_SCARA
-    SERIAL_PROTOCOLPGM(" B:");
+    SERIAL_ECHOPGM(" B:");
   #else
-    SERIAL_PROTOCOLPGM(" Y:");
+    SERIAL_ECHOPGM(" Y:");
   #endif
-  SERIAL_PROTOCOL(ypos);
+  SERIAL_ECHO(ypos);
 
   #if CORE_IS_XZ || CORE_IS_YZ || ENABLED(DELTA)
-    SERIAL_PROTOCOLPGM(" C:");
+    SERIAL_ECHOPGM(" C:");
   #else
-    SERIAL_PROTOCOLPGM(" Z:");
+    SERIAL_ECHOPGM(" Z:");
   #endif
-  SERIAL_PROTOCOL(zpos);
+  SERIAL_ECHO(zpos);
 
   SERIAL_EOL();
 }
@@ -2407,13 +2407,13 @@ void Stepper::report_positions() {
   void Stepper::refresh_motor_power() {
     LOOP_L_N(i, COUNT(motor_current_setting)) {
       switch (i) {
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY) || PIN_EXISTS(MOTOR_CURRENT_PWM_X) || PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
           case 0:
         #endif
         #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
           case 1:
         #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E) || PIN_EXISTS(MOTOR_CURRENT_PWM_E0) || PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
           case 2:
         #endif
             digipot_current(i, motor_current_setting[i]);
@@ -2426,7 +2426,7 @@ void Stepper::report_positions() {
 
 #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
 
-  void Stepper::digipot_current(const uint8_t driver, const int current) {
+  void Stepper::digipot_current(const uint8_t driver, const int16_t current) {
 
     #if HAS_DIGIPOTSS
 
@@ -2440,15 +2440,33 @@ void Stepper::report_positions() {
 
       #define _WRITE_CURRENT_PWM(P) analogWrite(MOTOR_CURRENT_PWM_## P ##_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
       switch (driver) {
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-          case 0: _WRITE_CURRENT_PWM(XY); break;
-        #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-          case 1: _WRITE_CURRENT_PWM(Z); break;
-        #endif
-        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-          case 2: _WRITE_CURRENT_PWM(E); break;
-        #endif
+        case 0:
+          #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
+            _WRITE_CURRENT_PWM(X);
+          #endif
+          #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
+            _WRITE_CURRENT_PWM(Y);
+          #endif
+          #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+            _WRITE_CURRENT_PWM(XY);
+          #endif
+          break;
+        case 1:
+          #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+            _WRITE_CURRENT_PWM(Z);
+          #endif
+          break;
+        case 2:
+          #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+            _WRITE_CURRENT_PWM(E);
+          #endif
+          #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
+            _WRITE_CURRENT_PWM(E0);
+          #endif
+          #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
+            _WRITE_CURRENT_PWM(E1);
+          #endif
+          break;
       }
     #endif
   }
@@ -2469,6 +2487,12 @@ void Stepper::report_positions() {
 
     #elif HAS_MOTOR_CURRENT_PWM
 
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_X)
+        SET_OUTPUT(MOTOR_CURRENT_PWM_X_PIN);
+      #endif
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_Y)
+        SET_OUTPUT(MOTOR_CURRENT_PWM_Y_PIN);
+      #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
         SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
       #endif
@@ -2478,12 +2502,19 @@ void Stepper::report_positions() {
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
         SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
       #endif
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E0)
+        SET_OUTPUT(MOTOR_CURRENT_PWM_E0_PIN);
+      #endif
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E1)
+        SET_OUTPUT(MOTOR_CURRENT_PWM_E1_PIN);
+      #endif
 
       refresh_motor_power();
 
       // Set Timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
-      SET_CS5(PRESCALER_1);
-
+      #ifdef __AVR__
+        SET_CS5(PRESCALER_1);
+      #endif
     #endif
   }
 
@@ -2587,6 +2618,7 @@ void Stepper::report_positions() {
         SET_OUTPUT(E5_MS3_PIN);
       #endif
     #endif
+
     static const uint8_t microstep_modes[] = MICROSTEP_MODES;
     for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
       microstep_mode(i, microstep_modes[i]);
@@ -2781,82 +2813,81 @@ void Stepper::report_positions() {
         case 128: microstep_ms(driver, MICROSTEP128); break;
       #endif
 
-      default: SERIAL_ERROR_START(); SERIAL_ERRORLNPGM("Microsteps unavailable"); break;
+      default: SERIAL_ERROR_MSG("Microsteps unavailable"); break;
     }
   }
 
   void Stepper::microstep_readings() {
-    SERIAL_PROTOCOLLNPGM("MS1,MS2,MS3 Pins");
-    SERIAL_PROTOCOLPGM("X: ");
+    SERIAL_ECHOPGM("MS1,MS2,MS3 Pins\nX: ");
     #if HAS_X_MICROSTEPS
-      SERIAL_PROTOCOL(READ(X_MS1_PIN));
-      SERIAL_PROTOCOL(READ(X_MS2_PIN));
+      SERIAL_CHAR('0' + READ(X_MS1_PIN));
+      SERIAL_CHAR('0' + READ(X_MS2_PIN));
       #if PIN_EXISTS(X_MS3)
-        SERIAL_PROTOCOLLN(READ(X_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(X_MS3_PIN));
       #endif
     #endif
     #if HAS_Y_MICROSTEPS
-      SERIAL_PROTOCOLPGM("Y: ");
-      SERIAL_PROTOCOL(READ(Y_MS1_PIN));
-      SERIAL_PROTOCOL(READ(Y_MS2_PIN));
+      SERIAL_ECHOPGM("Y: ");
+      SERIAL_CHAR('0' + READ(Y_MS1_PIN));
+      SERIAL_CHAR('0' + READ(Y_MS2_PIN));
       #if PIN_EXISTS(Y_MS3)
-        SERIAL_PROTOCOLLN(READ(Y_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(Y_MS3_PIN));
       #endif
     #endif
     #if HAS_Z_MICROSTEPS
-      SERIAL_PROTOCOLPGM("Z: ");
-      SERIAL_PROTOCOL(READ(Z_MS1_PIN));
-      SERIAL_PROTOCOL(READ(Z_MS2_PIN));
+      SERIAL_ECHOPGM("Z: ");
+      SERIAL_CHAR('0' + READ(Z_MS1_PIN));
+      SERIAL_CHAR('0' + READ(Z_MS2_PIN));
       #if PIN_EXISTS(Z_MS3)
-        SERIAL_PROTOCOLLN(READ(Z_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(Z_MS3_PIN));
       #endif
     #endif
     #if HAS_E0_MICROSTEPS
-      SERIAL_PROTOCOLPGM("E0: ");
-      SERIAL_PROTOCOL(READ(E0_MS1_PIN));
-      SERIAL_PROTOCOL(READ(E0_MS2_PIN));
+      SERIAL_ECHOPGM("E0: ");
+      SERIAL_CHAR('0' + READ(E0_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E0_MS2_PIN));
       #if PIN_EXISTS(E0_MS3)
-        SERIAL_PROTOCOLLN(READ(E0_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E0_MS3_PIN));
       #endif
     #endif
     #if HAS_E1_MICROSTEPS
-      SERIAL_PROTOCOLPGM("E1: ");
-      SERIAL_PROTOCOL(READ(E1_MS1_PIN));
-      SERIAL_PROTOCOL(READ(E1_MS2_PIN));
+      SERIAL_ECHOPGM("E1: ");
+      SERIAL_CHAR('0' + READ(E1_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E1_MS2_PIN));
       #if PIN_EXISTS(E1_MS3)
-        SERIAL_PROTOCOLLN(READ(E1_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E1_MS3_PIN));
       #endif
     #endif
     #if HAS_E2_MICROSTEPS
-      SERIAL_PROTOCOLPGM("E2: ");
-      SERIAL_PROTOCOL(READ(E2_MS1_PIN));
-      SERIAL_PROTOCOL(READ(E2_MS2_PIN));
+      SERIAL_ECHOPGM("E2: ");
+      SERIAL_CHAR('0' + READ(E2_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E2_MS2_PIN));
       #if PIN_EXISTS(E2_MS3)
-        SERIAL_PROTOCOLLN(READ(E2_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E2_MS3_PIN));
       #endif
     #endif
     #if HAS_E3_MICROSTEPS
-      SERIAL_PROTOCOLPGM("E3: ");
-      SERIAL_PROTOCOL(READ(E3_MS1_PIN));
-      SERIAL_PROTOCOL(READ(E3_MS2_PIN));
+      SERIAL_ECHOPGM("E3: ");
+      SERIAL_CHAR('0' + READ(E3_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E3_MS2_PIN));
       #if PIN_EXISTS(E3_MS3)
-        SERIAL_PROTOCOLLN(READ(E3_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E3_MS3_PIN));
       #endif
     #endif
     #if HAS_E4_MICROSTEPS
-      SERIAL_PROTOCOLPGM("E4: ");
-      SERIAL_PROTOCOL(READ(E4_MS1_PIN));
-      SERIAL_PROTOCOL(READ(E4_MS2_PIN));
+      SERIAL_ECHOPGM("E4: ");
+      SERIAL_CHAR('0' + READ(E4_MS1_PIN));
+      SERIAL_CHAR('0' + READ(E4_MS2_PIN));
       #if PIN_EXISTS(E4_MS3)
-        SERIAL_PROTOCOLLN(READ(E4_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E4_MS3_PIN));
       #endif
     #endif
     #if HAS_E5_MICROSTEPS
-      SERIAL_PROTOCOLPGM("E5: ");
-      SERIAL_PROTOCOL(READ(E5_MS1_PIN));
-      SERIAL_PROTOCOLLN(READ(E5_MS2_PIN));
+      SERIAL_ECHOPGM("E5: ");
+      SERIAL_CHAR('0' + READ(E5_MS1_PIN));
+      SERIAL_ECHOLN((int)READ(E5_MS2_PIN));
       #if PIN_EXISTS(E5_MS3)
-        SERIAL_PROTOCOLLN(READ(E5_MS3_PIN));
+        SERIAL_ECHOLN((int)READ(E5_MS3_PIN));
       #endif
     #endif
   }
