@@ -109,7 +109,7 @@
 //
 #define TEMP_0_PIN         13   // Analog Input
 #define TEMP_1_PIN         15   // Analog Input
-#define TEMP_BED_PIN        3   // Analog Input
+#define TEMP_BED_PIN       14   // Analog Input
 
 // SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
@@ -118,22 +118,7 @@
   #define MAX6675_SS_PIN   66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
-//
-// Augmentation for auto-assigning RAMPS plugs
-//
-#if DISABLED(IS_RAMPS_EEB) && DISABLED(IS_RAMPS_EEF) && DISABLED(IS_RAMPS_EFB) && DISABLED(IS_RAMPS_EFF) && DISABLED(IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HOTENDS > 1
-    #if TEMP_SENSOR_BED
-      #define IS_RAMPS_EEB
-    #else
-      #define IS_RAMPS_EEF
-    #endif
-  #elif TEMP_SENSOR_BED
-    #define IS_RAMPS_EFB
-  #else
-    #define IS_RAMPS_EFF
-  #endif
-#endif
+
 
 //
 // Heaters / Fans
@@ -143,8 +128,9 @@
 #define HEATER_BED_PIN      8
 
 #define FAN_PIN             9
-//#define FAN1_PIN          4
+#define FAN1_PIN           12
 
+#define NUM_RUNOUT_SENSORS  2
 #define FIL_RUNOUT_PIN     23
 #define FIL_RUNOUT2_PIN    21
 
@@ -156,6 +142,9 @@
 #ifndef ROXYs_TRex
   #define LED_PIN          13
 #endif
+
+#define SPINDLE_LASER_PWM_PIN     7   // MUST BE HARDWARE PWM
+#define SPINDLE_LASER_ENABLE_PIN  4   // Pin should have a pullup!
 
 // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
 #define FILWIDTH_PIN        5   // Analog Input
