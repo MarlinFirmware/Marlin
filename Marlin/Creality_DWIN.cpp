@@ -876,6 +876,9 @@ SERIAL_ECHO(Checkkey);
 			pause_z = current_position[Z_AXIS];
  			card.pauseSDPrint();
 			print_job_timer.pause();
+			#ifdef ACTION_ON_PAUSE
+    		  SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+    		#endif
  			temphot=thermalManager.degTargetHotend(0); //thermalManager.target_temperature[0];
  			tempbed=thermalManager.degTargetBed();//thermalManager.target_temperature_bed;
 			//thermalManager.setTargetHotend(0, 0);
@@ -931,7 +934,9 @@ SERIAL_ECHO(Checkkey);
 			
 			card.startFileprint();
 			print_job_timer.start();
-			
+			#ifdef ACTION_ON_RESUME
+      			SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
+    		#endif
 			if(LanguageRecbuf != 0)
 				RTS_SndData(1,IconPrintstatus);	// 1 for Heating
 			else
