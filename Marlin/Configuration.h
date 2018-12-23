@@ -270,6 +270,8 @@
 #define CUSTOM_MACHINE_NAME "SuPeR CR-10"
 #elif(ENABLED(MachineCRX))
 #define CUSTOM_MACHINE_NAME "CR-Xtreme"
+#elif(ENABLED(MachineCR10SPro))
+#define CUSTOM_MACHINE_NAME "TM3D 10S Pro"
 #elif(ENABLED(MachineCR10Std))
 #define CUSTOM_MACHINE_NAME "300 SuPeR"
 #elif(ENABLED(MachineS4))
@@ -1235,7 +1237,7 @@
   #endif
 #else
   #define INVERT_X_DIR false
-  #if(ENABLED(MachineCRX))
+  #if(ENABLED(MachineCRX) || ENABLED(MachineCR10SPro))
     #define INVERT_Y_DIR true
   #else
     #define INVERT_Y_DIR false
@@ -1528,7 +1530,11 @@
 #if ENABLED(MeshFast)
 #define GRID_MAX_POINTS_X 3
 #elif (ENABLED(MeshStd) )
-#define GRID_MAX_POINTS_X 5
+  #if ENABLED(CREALITY_DWIN)
+    #define GRID_MAX_POINTS_X 4
+  #else
+    #define GRID_MAX_POINTS_X 5
+  #endif
 #elif ENABLED( MeshFine)
 #define GRID_MAX_POINTS_X 8
 #elif ENABLED(MeshExtreme)
