@@ -563,7 +563,7 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 
 uint8_t target_extruder;
 
-#if HAS_BED_PROBE
+#if HAS_BED_PROBE || ENABLED(CREALITY_DWIN)
   float rts_probe_zoffset;
   float last_zoffset = 0.0;
   float zprobe_zoffset; // Initialized by settings.load()

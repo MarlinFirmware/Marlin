@@ -22,8 +22,8 @@
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work, need to map pin
 //#define MachineCR10Std
-#define MachineCR10SPro // Has not seen real hardware yet!
-//#define MachineCRX
+//#define MachineCR10SPro // Has not seen real hardware yet!
+#define MachineCRX
 //#define MachineS4
 //#define MachineS5
 
@@ -31,7 +31,7 @@
 #define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
 //#define GraphicLCD //Full graphics LCD for Ender 4
 //#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
-#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
+//#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
 //#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 /*
    Hotend Type
@@ -1727,7 +1727,7 @@ GRID_MAX_POINTS_X 3
    Use the LCD controller for bed leveling
    Requires MESH_BED_LEVELING or PROBE_MANUALLY
 */
-#if (!ENABLED(ABL_EZABL)&& !ENABLED(ABL_BLTOUCH) &&!ENABLED(OrigLA) && DISABLED(ABL_NCSW))
+#if (!ENABLED(ABL_EZABL)&& !ENABLED(ABL_BLTOUCH) &&!ENABLED(OrigLA) && DISABLED(ABL_NCSW) && DISABLED(CREALITY_DWIN))
 #define LCD_BED_LEVELING
 #endif
 
