@@ -22,16 +22,16 @@
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work, need to map pin
 //#define MachineCR10Std
-//#define MachineCR10SPro // Has not seen real hardware yet!
-#define MachineCRX
+#define MachineCR10SPro // Has not seen real hardware yet!
+//#define MachineCRX
 //#define MachineS4
 //#define MachineS5
 
 
-//#define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
+#define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
 //#define GraphicLCD //Full graphics LCD for Ender 4
 #define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
-#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
+//#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
 //#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 /*
    Hotend Type
@@ -86,14 +86,14 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-#define ABL_BLTOUCH
+//#define ABL_BLTOUCH
 
 /*
    Choose bed leveling type here
    Requires a sensor from above
    Melzi board users may only select ABL_BI for bilinear leveling
 */
-#define ABL_BI
+//#define ABL_BI
 //#define ABL_UBL
 
 // Totally untested with the creality dwin touchscreen as of yet. Might kinda sorta almost work, but
@@ -170,6 +170,9 @@
     #define CREALITY_DWIN
   #endif
   #define MachineCR10Std
+  #define ABL_NCSW
+  #define ABL_BI
+  #define MeshStd
 #endif
 
 
@@ -839,9 +842,6 @@
 
 #if (DISABLED(ABL_EZABL)&& DISABLED(ABL_BLTOUCH))
   #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
-  #define Z_MIN_PROBE_ENDSTOP_INVERTING true // set to true to invert the logic of the probe.
-#elif (ENABLED(ABL_NCSW))
-  #define Z_MIN_ENDSTOP_INVERTING false  // set to true to invert the logic of the endstop.
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 #else
   #define Z_MIN_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
@@ -1106,14 +1106,14 @@
   #endif
 #elif ENABLED(MachineCR10SPro) && ENABLED(HotendStock)
   #if ENABLED(ABL_BLTOUCH)
-    #define X_PROBE_OFFSET_FROM_EXTRUDER -27  // X offset: -left  +right  [of the nozzle]
-    #define Y_PROBE_OFFSET_FROM_EXTRUDER -0  // Y offset: -front +behind [the nozzle]
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -41  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER -8  // Y offset: -front +behind [the nozzle]
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
   #endif
 
   #if ENABLED(ABL_EZABL) || ENABLED(ABL_NCSW)
-    #define X_PROBE_OFFSET_FROM_EXTRUDER -44  // X offset: -left  +right  [of the nozzle]
-    #define Y_PROBE_OFFSET_FROM_EXTRUDER -10  // Y offset: -front +behind [the nozzle]
+    #define X_PROBE_OFFSET_FROM_EXTRUDER -27  // X offset: -left  +right  [of the nozzle]
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle]
     #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
   #endif
 #else
@@ -1715,7 +1715,7 @@ GRID_MAX_POINTS_X 3
    Use the LCD controller for bed leveling
    Requires MESH_BED_LEVELING or PROBE_MANUALLY
 */
-#if (!ENABLED(ABL_EZABL)&& !ENABLED(ABL_BLTOUCH) &&!ENABLED(OrigLA))
+#if (!ENABLED(ABL_EZABL)&& !ENABLED(ABL_BLTOUCH) &&!ENABLED(OrigLA) && DISABLED(ABL_NCSW))
 #define LCD_BED_LEVELING
 #endif
 
