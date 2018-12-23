@@ -8744,6 +8744,46 @@ inline void gcode_M109() {
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
   if (wait_for_heatup) {
+    #if ENABLED(CREALITY_DWIN)
+      if(PreheatStatus[0])
+		{
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        if(PoweroffContinue)
+        {
+          //sprintf_P(power_off_commands[0], PSTR("G92 Z%s E%s"), str_Z, str_E);
+          enqueue_and_echo_command(power_off_commands[0]);
+          //sprintf_P(power_off_commands[1], PSTR("G0 Z%s"), str_Z_up);
+          enqueue_and_echo_command(power_off_commands[1]);
+          enqueue_and_echo_commands_P((PSTR("G28 X0 Y0")));
+        }
+			#endif
+			if(PrinterStatusKey[1] == 3)
+			{
+				PrinterStatusKey[1] = 0;
+				InforShowStatus = true;
+				Update_Time_Value = RTS_UPDATE_VALUE;
+				if(LanguageRecbuf != 0)
+				{
+					rtscheck.RTS_SndData(2,IconPrintstatus);	// 2 for Printing...
+					delay(1);
+					rtscheck.RTS_SndData(ExchangePageBase + 11, ExchangepageAddr); //exchange to 11 page
+				}
+				else
+				{
+					rtscheck.RTS_SndData(2+CEIconGrap,IconPrintstatus);	
+					delay(1);
+					rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr); 
+				}
+				CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
+				FilementStatus[1] = 1; 	//begin to check filement status.
+			}
+			
+			PreheatStatus[1] = PreheatStatus[0] = false;
+		}
+		else
+			PreheatStatus[1] = true;
+		
+    #endif
     lcd_reset_status();
     #if ENABLED(PRINTER_EVENT_LEDS)
       leds.set_white();
@@ -8889,7 +8929,49 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-    if (wait_for_heatup) lcd_reset_status();
+    if (wait_for_heatup){ 
+      #if ENABLED(CREALITY_DWIN)
+        if(PreheatStatus[1])
+      {
+        #if ENABLED(POWER_LOSS_RECOVERY)
+          if(PoweroffContinue)
+          {
+            //sprintf_P(power_off_commands[0], PSTR("G92 Z%s E%s"), str_Z, str_E);
+            enqueue_and_echo_command(power_off_commands[0]);
+            //sprintf_P(power_off_commands[1], PSTR("G0 Z%s"), str_Z_up);
+            enqueue_and_echo_command(power_off_commands[1]);
+            enqueue_and_echo_commands_P((PSTR("G28 X0 Y0")));
+          }
+        #endif
+        if(PrinterStatusKey[1] == 3)
+        {
+          PrinterStatusKey[1] = 0;
+          InforShowStatus = true;
+          Update_Time_Value = RTS_UPDATE_VALUE;
+          if(LanguageRecbuf != 0)
+          {
+            rtscheck.RTS_SndData(2,IconPrintstatus);	// 2 for Printing...
+            delay(1);
+            rtscheck.RTS_SndData(ExchangePageBase + 11, ExchangepageAddr); //exchange to 11 page
+          }
+          else
+          {
+            rtscheck.RTS_SndData(2+CEIconGrap,IconPrintstatus);	
+            delay(1);
+            rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr); 
+          }
+
+          CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
+          FilementStatus[1] = 1; 	//begin to check filement status.
+        }
+        
+        PreheatStatus[1] = PreheatStatus[0] = false;
+      }
+      else
+        PreheatStatus[0] = true;
+      #endif
+     lcd_reset_status();
+    }
     #if DISABLED(BUSY_WHILE_HEATING)
       KEEPALIVE_STATE(IN_HANDLER);
     #endif
@@ -10780,8 +10862,15 @@ void quickstop_stepper() {
             set_bed_leveling_enabled(false);
             // Subtract the mean from all values
             for (uint8_t x = GRID_MAX_POINTS_X; x--;)
-              for (uint8_t y = GRID_MAX_POINTS_Y; y--;)
+              for (uint8_t y = GRID_MAX_POINTS_Y; y--;){
                 Z_VALUES(x, y) -= zmean;
+                #if ENABLED(CREALITY_DWIN)
+                  if((x+y) < 16) {
+                    rtscheck.RTS_SndData(Z_VALUES(x, y) *10000, AutolevelVal + (x+y)*2);
+                    rtscheck.RTS_SndData((x+y),AutolevelIcon);
+                  }
+                #endif
+              }
             #if ENABLED(ABL_BILINEAR_SUBDIVISION)
               bed_level_virt_interpolate();
             #endif

@@ -30,8 +30,8 @@
 
 #define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
 //#define GraphicLCD //Full graphics LCD for Ender 4
-#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
-//#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
+//#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
+#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
 //#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 /*
    Hotend Type
@@ -173,6 +173,7 @@
   #define ABL_NCSW
   #define ABL_BI
   #define MeshStd
+  #define BoardRev2
 #endif
 
 
@@ -182,6 +183,7 @@
   #endif
   #define MachineCR10Std
   #define Dual_BowdenSplitterY
+  #define BoardRev2
 #endif
 
 
@@ -881,7 +883,7 @@
 #if(ENABLED(Bondtech) || ENABLED(E3DTitan))
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 415 }
 #elif ENABLED(MachineCR10SPro)
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 415 }
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 140 }
 #else
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
 #endif

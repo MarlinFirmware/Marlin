@@ -778,7 +778,7 @@
  * See http://marlinfw.org/docs/features/lin_advance.html for full instructions.
  * Mention @Sebastianv650 on GitHub to alert the author of any issues.
  */
-  #if((DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard)) || ENABLED(OrigLA))
+  #if((DISABLED(MachineCR10Orig) && DISABLED(LowMemoryBoard) && DISABLED(MachineCR10SPro) ) || ENABLED(OrigLA))
 #define LIN_ADVANCE
 #endif
 #if ENABLED(LIN_ADVANCE)
@@ -1506,7 +1506,7 @@
  * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  */
  #if(DISABLED(MachineCR10Orig))
-#define PINS_DEBUGGING
+  #define PINS_DEBUGGING
 #endif
 /**
  * Auto-report temperatures with M155 S<seconds>

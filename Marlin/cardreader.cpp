@@ -34,7 +34,9 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "power_loss_recovery.h"
 #endif
-
+#if ENABLED(CREALITY_DWIN)
+  extern char CardCheckStatus[2];
+#endif
 CardReader::CardReader() {
   #if ENABLED(SDCARD_SORT_ALPHA)
     sort_count = 0;
