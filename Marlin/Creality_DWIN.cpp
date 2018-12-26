@@ -160,6 +160,7 @@ void RTSSHOW::RTS_SDCardInit(void)
 
 void RTSSHOW::RTS_SDCardUpate(void)
 {	
+	//SERIAL_ECHO("\n SDUpdate ");
 	const bool sd_status = IS_SD_INSERTED;
     	if (sd_status != lcd_sd_status)
 	{
@@ -212,9 +213,12 @@ void RTSSHOW::RTS_SDCardUpate(void)
 
 	}
 			
-
+	//SERIAL_ECHOPAIR("\n ***CardUpdate = ",CardUpdate);
+	//SERIAL_ECHOPAIR("\n ***lcd_sd_status = ",lcd_sd_status);
+	//SERIAL_ECHOPAIR("\n ***card.cardOK = ",card.cardOK);
 	if (CardUpdate && lcd_sd_status &&  card.cardOK) // represents to update file list
 	{
+		//SERIAL_PROTOCOLLN("  ***test7*** ");
 		for(int j = 0;j < 10;j++)	//clean filename
 			RTS_SndData(0,Choosefilename+j);
 		for(int j = 0;j < 8;j++)
@@ -2164,7 +2168,7 @@ void EachMomentUpdate()
 void RTSUpdate()	//looping at the loop function
 {
 	/*Check the status of card*/
-	rtscheck.RTS_SDCardUpate();
+	//rtscheck.RTS_SDCardUpate();
 	
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 	/*checking filement status during printing */

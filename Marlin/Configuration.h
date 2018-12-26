@@ -174,6 +174,7 @@
   #define ABL_BI
   #define MeshStd
   #define BoardRev2
+  #define SD_DETECT_PIN     49
 #endif
 
 
@@ -184,6 +185,7 @@
   #define MachineCR10Std
   #define Dual_BowdenSplitterY
   #define BoardRev2
+  #define SD_DETECT_PIN     49
 #endif
 
 
