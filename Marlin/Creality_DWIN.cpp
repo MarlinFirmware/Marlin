@@ -21,7 +21,7 @@
   #include "endstops.h"
 #endif
 
-#define CHECKFILEMENT true
+
 const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
 
 int startprogress = 0;
@@ -232,39 +232,40 @@ void RTSSHOW::RTS_SDCardUpate(void)
 	}
 }
 
-int RTSSHOW::RTS_CheckFilement(int mode)
-{
-	#if DISABLED(FILAMENT_RUNOUT_SENSOR)
-		return 0;
-	#endif
-	SERIAL_ECHO("   ****RTS_CheckFilement***   ");
-	waitway = 4;
-	for(Checkfilenum= 0; 0==READ(FIL_RUNOUT_PIN) && Checkfilenum < 50;Checkfilenum++)// no filements check
-		delay(15);
-	
-	if(49 <= Checkfilenum ) //no filements
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+	int RTSSHOW::RTS_CheckFilement(int mode)
 	{
-		SERIAL_ECHO("\n Check Filament Setting Screen ");
-		if(mode)
+		#if DISABLED(FILAMENT_RUNOUT_SENSOR)
+			return 0;
+		#endif
+		SERIAL_ECHO("   ****RTS_CheckFilement***   ");
+		waitway = 4;
+		for(Checkfilenum= 0; 0==READ(FIL_RUNOUT_PIN) && Checkfilenum < 50;Checkfilenum++)// no filements check
+			delay(15);
+		
+		if(49 <= Checkfilenum ) //no filements
 		{
-			FilementStatus[0] = mode; // for mode status of no filement . the sentence can be canceled, which isn't neccessary?
-			if(LanguageRecbuf != 0)
-				RTS_SndData(ExchangePageBase + 38, ExchangepageAddr); //exchange to 38 page
-			else
-				RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); 
+			SERIAL_ECHO("\n Check Filament Setting Screen ");
+			if(mode)
+			{
+				FilementStatus[0] = mode; // for mode status of no filement . the sentence can be canceled, which isn't neccessary?
+				if(LanguageRecbuf != 0)
+					RTS_SndData(ExchangePageBase + 38, ExchangepageAddr); //exchange to 38 page
+				else
+					RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); 
+			}
+			Checkfilenum = 0;
+			waitway = 0;
+			return 1;
 		}
-		Checkfilenum = 0;
+		else
+			Checkfilenum = 0;
+		
 		waitway = 0;
-		return 1;
+		return 0;
+		
 	}
-	else
-		Checkfilenum = 0;
-	
-	waitway = 0;
-	return 0;
-	
-}
-
+#endif
 void RTSSHOW::RTS_Init()
 {
 	Serial2.begin(115200);
@@ -395,7 +396,7 @@ int RTSSHOW::RTS_RecData()
             recdat.addr = databuf[4];
             recdat.addr = (recdat.addr << 8 ) | databuf[5];
             recdat.bytelen = databuf[6];
-	     for(int i = 0;i < recdat.bytelen;i+=2)
+	     for(int i = 0;i < (int)recdat.bytelen;i+=2)
 	     {
 			recdat.data[i/2]= databuf[7+i];
 			recdat.data[i/2]= (recdat.data[i/2] << 8 )| databuf[8+i];
@@ -405,7 +406,7 @@ int RTSSHOW::RTS_RecData()
 	{
             recdat.addr = databuf[4];
             recdat.bytelen = databuf[5];
-	     for(int i = 0;i < recdat.bytelen;i++)
+	     for(int i = 0;i < (int)recdat.bytelen;i++)
 	     {
 			recdat.data[i]= databuf[6+i];
 	            //recdat.data[i]= (recdat.data[i] << 8 )| databuf[7+i];
@@ -520,7 +521,7 @@ void RTSSHOW::RTS_SndData(int n, unsigned long addr, unsigned char cmd/*= VarAdd
 {
 	if(cmd == VarAddr_W )
 	{
-		if(n > 0xFFFF)
+		if(n > (int)65535)
 		{
 			snddat.data[0] = n >> 16;
 			snddat.data[1] = n & 0xFFFF;
@@ -904,7 +905,7 @@ SERIAL_ECHO(Checkkey);
 		}
 		else if(recdat.addr == Resumeprint && recdat.data[0] == 1)
 		{				
-			#if CHECKFILEMENT
+			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 			/**************checking filement status during printing************/
 			if(RTS_CheckFilement(0)) 
 			{
@@ -1420,7 +1421,7 @@ SERIAL_ECHO(Checkkey);
 
 	case Filement:
 		
-		#if CHECKFILEMENT
+		#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 		/**************checking filement status during changing filement************/
 		if(RTS_CheckFilement(3)) break;
 		#endif
@@ -1802,30 +1803,32 @@ SERIAL_ECHO(Checkkey);
 		break;
 		
 	case Filename :
-	       //if(card.cardOK && recdat.data[0] > 0 && recdat.data[0] <= CardRecbuf.Filesum && recdat.addr != 0x20D2)
-		/*SERIAL_ECHO("\n   recdat.data[0] ==");
+			SERIAL_ECHO("\n   DebugFilename");
+	       if(card.cardOK && recdat.data[0] > 0 && recdat.data[0] <= CardRecbuf.Filesum && recdat.addr != 0x20D2)
+		SERIAL_ECHO("\n   recdat.data[0] ==");
 		SERIAL_ECHO(recdat.data[0]);
 		SERIAL_ECHO("\n   recdat.addr ==");
-		SERIAL_ECHO(recdat.addr); */
+		SERIAL_ECHO(recdat.addr); 
 		if(card.cardOK && recdat.addr == FilenameChs)
 	       {
-	       	if(recdat.data[0] > CardRecbuf.Filesum) break;
+	       	if(recdat.data[0] > (unsigned short)CardRecbuf.Filesum) break;
 			
 			CardRecbuf.recordcount = recdat.data[0] - 1;
 			for(int j = 0;j < 10;j++)
 				RTS_SndData(0,Choosefilename+j);
-			int filelen = strlen(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+			int filelen = strlen(CardRecbuf.Cardshowfilename[(unsigned int)CardRecbuf.recordcount]);
 			filelen = (TEXTBYTELEN - filelen)/2;
 			if(filelen > 0)
 			{
 				char buf[20];
 				memset(buf,0,sizeof(buf));
 				strncpy(buf,"         ",filelen);
-				strcpy(&buf[filelen],CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+				strcpy(&buf[filelen],CardRecbuf.Cardshowfilename[(unsigned int)CardRecbuf.recordcount]);
 				RTS_SndData(buf, Choosefilename);
 			}
-			else
-				RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Choosefilename);
+			else {
+				RTS_SndData(CardRecbuf.Cardshowfilename[(unsigned int)CardRecbuf.recordcount], Choosefilename);
+			}
 			
 			for(int j = 0;j < 8;j++)
 				RTS_SndData(0,FilenameCount+j);
@@ -1854,7 +1857,7 @@ SERIAL_ECHO(Checkkey);
 				//SERIAL_ECHO("*************suceed1**********");
 				char cmd[30];
 				char* c;
-				sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[CardRecbuf.recordcount]);
+				sprintf_P(cmd, PSTR("M23 %s"), CardRecbuf.Cardfilename[(unsigned int)CardRecbuf.recordcount]);
 				for (c = &cmd[4]; *c; c++) *c = tolower(*c);
 
 				FilenamesCount = CardRecbuf.recordcount;
@@ -1872,18 +1875,18 @@ SERIAL_ECHO(Checkkey);
 				for(int j = 0;j < 10;j++)	//clean screen.
 					RTS_SndData(0,Printfilename+j);
 				
-				int filelen = strlen(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+				int filelen = strlen(CardRecbuf.Cardshowfilename[(unsigned int)CardRecbuf.recordcount]);
 				filelen = (TEXTBYTELEN - filelen)/2;
 				if(filelen > 0)
 				{
 					char buf[20];
 					memset(buf,0,sizeof(buf));
 					strncpy(buf,"         ",filelen);
-					strcpy(&buf[filelen],CardRecbuf.Cardshowfilename[CardRecbuf.recordcount]);
+					strcpy(&buf[filelen],CardRecbuf.Cardshowfilename[(unsigned int)CardRecbuf.recordcount]);
 					RTS_SndData(buf, Printfilename);
 				}
 				else
-					RTS_SndData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], Printfilename);
+					RTS_SndData(CardRecbuf.Cardshowfilename[(unsigned int)CardRecbuf.recordcount], Printfilename);
 				delay(2);
 				
 				#if FAN_COUNT > 0
