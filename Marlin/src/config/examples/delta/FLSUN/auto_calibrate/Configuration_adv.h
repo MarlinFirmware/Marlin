@@ -484,21 +484,6 @@
 // if unwanted behavior is observed on a user's machine when running at very slow speeds.
 #define MINIMUM_PLANNER_SPEED 0.05 // (mm/s)
 
-/**
- * Default Jerk (mm/s)
- * Override with M205 X Y Z E
- *
- * "Jerk" specifies the minimum speed change that requires acceleration.
- * When changing speed and direction, if the difference is less than the
- * value set here, it may happen instantaneously.
- */
-#if DISABLED(JUNCTION_DEVIATION)
-  #define DEFAULT_XJERK               10.0
-  #define DEFAULT_YJERK               DEFAULT_XJERK
-  #define DEFAULT_ZJERK               DEFAULT_XJERK // Must be same as XY for delta
-  #define DEFAULT_EJERK                5.0
-#endif
-
 //
 // Backlash Compensation
 // Adds extra movement to axes on direction-changes to account for backlash.

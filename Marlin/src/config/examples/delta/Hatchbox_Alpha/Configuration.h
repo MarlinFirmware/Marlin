@@ -765,6 +765,22 @@
 #endif
 
 /**
+ * Default Jerk (mm/s)
+ * Override with M205 X Y Z E
+ *
+ * "Jerk" specifies the minimum speed change that requires acceleration.
+ * When changing speed and direction, if the difference is less than the
+ * value set here, it may happen instantaneously.
+ */
+#if DISABLED(JUNCTION_DEVIATION)
+  #define DEFAULT_XJERK 20.0
+  #define DEFAULT_YJERK DEFAULT_XJERK
+  #define DEFAULT_ZJERK DEFAULT_XJERK // Must be same as XY for delta
+#endif
+
+#define DEFAULT_EJERK    5.0  // May be used by Linear Advance
+
+/**
  * S-Curve Acceleration
  *
  * This option eliminates vibration during printing by fitting a Bézier
