@@ -185,6 +185,7 @@
 #define BOARD_COHESION3D_MINI     1756  // Cohesion3D Mini
 #define BOARD_SMOOTHIEBOARD       1757  // Smoothieboard
 #define BOARD_AZTEEG_X5_MINI_WIFI 1758  // Azteeg X5 Mini (Power outputs: Hotend0, Bed, Fan)
+#define BOARD_BIQU_SKR_1          1759  // Bigtreetech - BIQU SKR V1.1
 
 //
 // SAM3X8E ARM Cortex M3
