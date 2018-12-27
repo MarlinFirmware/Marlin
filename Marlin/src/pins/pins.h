@@ -320,6 +320,10 @@
   #include "pins_COHESION3D_MINI.h"   // LPC1769                                    env:LPC1769
 #elif MB(SMOOTHIEBOARD)
   #include "pins_SMOOTHIEBOARD.h"     // LPC1769                                    env:LPC1769
+#elif MB(BIQU_SKR_V1_1)
+  #include "pins_BIQU_SKR_V1.1.h"     // LPC1768                                    env:LPC1768
+#elif MB(BIQU_B300_V1_0)
+  #include "pins_BIQU_B300_V1.0.h"    // LPC1768                                    env:LPC1768
 
 //
 // Other 32-bit Boards
