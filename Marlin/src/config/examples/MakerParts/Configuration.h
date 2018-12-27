@@ -689,6 +689,14 @@
 #define DEFAULT_RETRACT_ACCELERATION  100                 // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   MAX_XYAXIS_ACCEL    // X, Y, Z acceleration for travel (non printing) moves
 
+//
+// Use Junction Deviation instead of traditional Jerk Limiting
+//
+//#define JUNCTION_DEVIATION
+#if ENABLED(JUNCTION_DEVIATION)
+  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
+#endif
+
 /**
  * Default Jerk (mm/s)
  * Override with M205 X Y Z E
@@ -697,10 +705,13 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define DEFAULT_XJERK                  2.0
-#define DEFAULT_YJERK                  2.0
-#define DEFAULT_ZJERK                  0.4
-#define DEFAULT_EJERK                  8.0
+#if DISABLED(JUNCTION_DEVIATION)
+  #define DEFAULT_XJERK  2.0
+  #define DEFAULT_YJERK  2.0
+  #define DEFAULT_ZJERK  0.4
+#endif
+
+#define DEFAULT_EJERK    8.0  // May be used by Linear Advance
 
 /**
  * S-Curve Acceleration
