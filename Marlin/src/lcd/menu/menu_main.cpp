@@ -67,8 +67,8 @@
 
   void menu_sdcard_abort_confirm() {
     START_MENU();
-    MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
     MENU_BACK(MSG_MAIN);
+    MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
     END_MENU();
   }
 
