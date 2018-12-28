@@ -5657,12 +5657,10 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
          if(currentScreen == lcd_status_screen) lcd_buzz(BEEP_ON_FEEDRATE_CHANGE_DURATION , BEEP_ON_FEEDRATE_CHANGE_FREQUENCY);
       #endif
       switch (enc) {
-        
         case encrot0: ENCODER_SPIN(encrot3, encrot1); break;
         case encrot1: ENCODER_SPIN(encrot0, encrot2); break;
         case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
-        case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
-        
+        case encrot3: ENCODER_SPIN(encrot2, encrot0); break;  
       }
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         if (lcd_external_control) {
