@@ -89,7 +89,7 @@
 //
 #define TEMP_0_PIN         PC2   // PORT NUMBERING
 #define TEMP_1_PIN         PC0   // PORT NUMBERING
-#define TEMP_2_PIN	       PC1  // PORT NUMBERING
+#define TEMP_2_PIN         PC1   // PORT NUMBERING
 #define TEMP_BED_PIN       PC3   // PORT NUMBERING
 
 //
