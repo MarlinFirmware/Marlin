@@ -22,8 +22,8 @@
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work, need to map pin
 //#define MachineCR10Std
-//#define MachineCR10SPro // Has not seen real hardware yet!
-#define MachineCRX
+#define MachineCR10SPro // Has not seen real hardware yet!
+//#define MachineCRX
 //#define MachineS4
 //#define MachineS5
 
@@ -62,7 +62,7 @@
   * If any dual extruder is used, define type here
   */
 
-  //#define Dual_BowdenSplitterY
+  #define Dual_BowdenSplitterY
   //#define Dual_CyclopsSingleNozzle
   //#define Dual_ChimeraDualNozzle
 
@@ -94,7 +94,7 @@
    Melzi board users may only select ABL_BI for bilinear leveling
 */
 //#define ABL_BI
-#define ABL_UBL
+//#define ABL_UBL
 
 // Totally untested with the creality dwin touchscreen as of yet. Might kinda sorta almost work, but
 // as it sits wont even compile. A few variables have changed and need remapping and sanity checks still need work.
@@ -170,8 +170,12 @@
     #define CREALITY_DWIN
   #endif
   #define MachineCR10Std
-  #define ABL_NCSW
-  #define ABL_BI
+  #if DISABLED(ABL_BLTOUCH)
+    #define ABL_NCSW
+  #endif
+  #if DISABLED(ABL_UBL)
+    #define ABL_BI
+  #endif
   #define MeshStd
   #define BoardRev2
   #define SD_DETECT_PIN     49
