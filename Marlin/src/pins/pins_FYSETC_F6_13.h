@@ -30,6 +30,9 @@
 
 #define BOARD_NAME "FYSETC F6 1.3"
 
+#define RESET_PIN          30
+#define SPI_FLASH_CS       83
+
 //
 // Servos
 //
@@ -109,12 +112,6 @@
 // the jumper next to the limit switch socket when using sensorless homing.
 //
 
-#define X_TMC2130_DIAG     -1
-#define Y_TMC2130_DIAG     -1
-#define Z_TMC2130_DIAG     -1
-#define E0_TMC2130_DIAG    -1
-#define E1_TMC2130_DIAG    -1
-#define E2_TMC2130_DIAG    -1
 
 #if HAS_DRIVER(TMC2208)
   // Software serial
@@ -129,7 +126,7 @@
   #define E1_SERIAL_RX_PIN 80
   #define E1_SERIAL_TX_PIN 81
   #define E2_SERIAL_RX_PIN 22
-  #define E2_SERIAL_TX_PIN 83
+  #define E2_SERIAL_TX_PIN 82
 #endif
 
 //
@@ -197,4 +194,9 @@
   #define BTN_EN1          31
   #define BTN_EN2          33
   #define BTN_ENC          35
+
+  #if ENABLED(MKS_MINI_12864)
+    #define DOGLCD_A0      27
+    #define DOGLCD_CS      25
+  #endif
 #endif

@@ -84,7 +84,7 @@
 #define HEATER_2_PIN       PB4
 #define HEATER_BED_PIN     PB1
 
-#define FAN0_PIN           PB7   // TODO: Add functionality
+#define FAN_PIN            PB7   // TODO: Add functionality
 #define FAN1_PIN           PB8   // TODO: Add functionality
 #define FAN2_PIN           PB9   // TODO: Add functionality
 

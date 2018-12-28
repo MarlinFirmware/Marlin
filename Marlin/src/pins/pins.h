@@ -156,6 +156,8 @@
   #include "pins_RAMPS_CREALITY.h"    // ATmega2560                                 env:megaatmega2560
 #elif MB(FYSETC_F6_13)
   #include "pins_FYSETC_F6_13.h"      // ATmega2560                                 env:megaatmega2560
+#elif MB(DUPLICATOR_I3_PLUS)
+  #include "pins_DUPLICATOR_I3_PLUS.h" // ATmega2560                                 env:megaatmega2560
 
 //
 // Other ATmega1280, ATmega2560
@@ -175,7 +177,7 @@
   #include "pins_MEGATRONICS.h"       // ATmega2560                                 env:megaatmega2560
 #elif MB(MEGATRONICS_2)
   #include "pins_MEGATRONICS_2.h"     // ATmega2560                                 env:megaatmega2560
-#elif MB(MEGATRONICS_3) || MB(MEGATRONICS_31)
+#elif MB(MEGATRONICS_3) || MB(MEGATRONICS_31) || MB(MEGATRONICS_32)
   #include "pins_MEGATRONICS_3.h"     // ATmega2560                                 env:megaatmega2560
 #elif MB(RAMBO)
   #include "pins_RAMBO.h"             // ATmega2560                                 env:rambo
@@ -396,6 +398,8 @@
   #include "pins_GTM32_PRO_VB.h"      // STM32F1                                    env:STM32F1
 #elif MB(MORPHEUS)
   #include "pins_MORPHEUS.h"          // STM32F1                                    env:STM32F1
+#elif MB(MKS_ROBIN)
+  #include "pins_MKS_ROBIN.h"         // STM32F1                                    env:STM32F1
 
 //
 // STM32 ARM Cortex-M4F
