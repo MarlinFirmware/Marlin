@@ -27,6 +27,8 @@
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"
 #define BOARD_NAME "GTM32 Pro VB"
 
+#define NUM_SERIAL 2
+
 //#define DISABLE_DEBUG
 //#define DISABLE_JTAG
 //#define DISABLE_JTAGSWD
@@ -71,7 +73,6 @@
 #define E2_DIR_PIN         PC13
 #define E2_ENABLE_PIN      PC15
 
-#define NUM_SERIAL 2
 //
 // Heaters / Fans
 //
@@ -148,7 +149,6 @@
 #define SPI2_MISO          PB14
 #define SPI2_SCK           PB13
 #define SPI2_NSS           PB12
-
 
 //
 // SD Card on LCD
