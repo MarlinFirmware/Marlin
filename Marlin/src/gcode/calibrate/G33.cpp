@@ -649,7 +649,7 @@ void GcodeSuite::G33() {
       else { // !end iterations
         char mess[15];
         if (iterations < 31)
-          sprintf_P(mess, PSTR("Iteration : %02i"), (int)iterations);
+          sprintf_P(mess, PSTR("Iteration : %02i"), (unsigned int)iterations);
         else
           strcpy_P(mess, PSTR("No convergence"));
         SERIAL_ECHO(mess);
