@@ -487,6 +487,9 @@ void MarlinSettings::postprocess() {
           dummy = float(DEFAULT_EJERK);
           EEPROM_WRITE(dummy);
         #endif
+       #else
+          dummy = float(DEFAULT_EJERK);
+          EEPROM_WRITE(dummy);
       #endif
 
       #if ENABLED(JUNCTION_DEVIATION)
