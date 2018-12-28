@@ -30,8 +30,8 @@
 
 #define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
 //#define GraphicLCD //Full graphics LCD for Ender 4
-//#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
-//#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
+#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
+#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
 //#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 /*
    Hotend Type
@@ -48,7 +48,7 @@
    Enable this if you have an all metal hotend capable of 300c
 
 */
-//#define HotendAllMetal
+#define HotendAllMetal
 
 /*
  * Select these if you have changed to a high performance extruder
@@ -86,7 +86,7 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-//#define ABL_BLTOUCH
+#define ABL_BLTOUCH
 
 /*
    Choose bed leveling type here
@@ -94,7 +94,7 @@
    Melzi board users may only select ABL_BI for bilinear leveling
 */
 //#define ABL_BI
-//#define ABL_UBL
+#define ABL_UBL
 
 // Totally untested with the creality dwin touchscreen as of yet. Might kinda sorta almost work, but
 // as it sits wont even compile. A few variables have changed and need remapping and sanity checks still need work.
@@ -1624,7 +1624,7 @@ GRID_MAX_POINTS_X 3
 //========================= Unified Bed Leveling ============================
 //===========================================================================
 
-#if(DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4))
+#if(DISABLED(MachineCR10Orig) && DISABLED(MachineEnder4) && DISABLED(CREALITY_DWIN))
 #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 #endif
 #if ENABLED(MachineMini)

@@ -21,7 +21,6 @@
   #include "endstops.h"
 #endif
 
-#define CHECKFILEMENT true
 const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
 
 int startprogress = 0;
@@ -236,39 +235,41 @@ void RTSSHOW::RTS_SDCardUpate(void)
 	}
 }
 
-int RTSSHOW::RTS_CheckFilement(int mode)
-{
-	#if DISABLED(FILAMENT_RUNOUT_SENSOR)
-		return 0;
-	#endif
-	SERIAL_ECHO("   ****RTS_CheckFilement***   ");
-	waitway = 4;
-	for(Checkfilenum= 0; 0==READ(FIL_RUNOUT_PIN) && Checkfilenum < 50;Checkfilenum++)// no filements check
-		delay(15);
-	
-	if(49 <= Checkfilenum ) //no filements
-	{
-		SERIAL_ECHO("\n Check Filament Setting Screen ");
-		if(mode)
-		{
-			FilementStatus[0] = mode; // for mode status of no filement . the sentence can be canceled, which isn't neccessary?
-			if(LanguageRecbuf != 0)
-				RTS_SndData(ExchangePageBase + 38, ExchangepageAddr); //exchange to 38 page
-			else
-				RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); 
-		}
-		Checkfilenum = 0;
-		waitway = 0;
-		return 1;
-	}
-	else
-		Checkfilenum = 0;
-	
-	waitway = 0;
-	return 0;
-	
-}
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
+	int RTSSHOW::RTS_CheckFilement(int mode)
+	{
+		#if DISABLED(FILAMENT_RUNOUT_SENSOR)
+			return 0;
+		#endif
+		SERIAL_ECHO("   ****RTS_CheckFilement***   ");
+		waitway = 4;
+		for(Checkfilenum= 0; 0==READ(FIL_RUNOUT_PIN) && Checkfilenum < 50;Checkfilenum++)// no filements check
+			delay(15);
+		
+		if(49 <= Checkfilenum ) //no filements
+		{
+			SERIAL_ECHO("\n Check Filament Setting Screen ");
+			if(mode)
+			{
+				FilementStatus[0] = mode; // for mode status of no filement . the sentence can be canceled, which isn't neccessary?
+				if(LanguageRecbuf != 0)
+					RTS_SndData(ExchangePageBase + 38, ExchangepageAddr); //exchange to 38 page
+				else
+					RTS_SndData(ExchangePageBase + 78, ExchangepageAddr); 
+			}
+			Checkfilenum = 0;
+			waitway = 0;
+			return 1;
+		}
+		else
+			Checkfilenum = 0;
+		
+		waitway = 0;
+		return 0;
+		
+	}
+#endif
 void RTSSHOW::RTS_Init()
 {
 	Serial2.begin(115200);
@@ -908,7 +909,7 @@ SERIAL_ECHO(Checkkey);
 		}
 		else if(recdat.addr == Resumeprint && recdat.data[0] == 1)
 		{				
-			#if CHECKFILEMENT
+			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 			/**************checking filement status during printing************/
 			if(RTS_CheckFilement(0)) 
 			{
@@ -1424,7 +1425,7 @@ SERIAL_ECHO(Checkkey);
 
 	case Filement:
 		
-		#if CHECKFILEMENT
+		#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 		/**************checking filement status during changing filement************/
 		if(RTS_CheckFilement(3)) break;
 		#endif
@@ -1865,7 +1866,7 @@ SERIAL_ECHO(Checkkey);
 				memset(cmdbuf,0,sizeof(cmdbuf));
 				strcpy(cmdbuf,cmd);
 
-				#if CHECKFILEMENT
+				#if ENABLED(FILAMENT_RUNOUT_SENSOR)
 				/**************checking filement status during printing beginning ************/
 				if(RTS_CheckFilement(1)) break;
 				#endif
