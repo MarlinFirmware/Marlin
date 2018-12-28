@@ -62,10 +62,10 @@ class Sd2Card {
   private:
 
     typedef enum {
-      USB_HOST_DELAY_INIT,
-      USB_HOST_WAITING,
       USB_HOST_UNINITIALIZED,
-      USB_HOST_INITIALIZED
+      USB_HOST_INITIALIZED,
+      USB_HOST_DELAY_INIT,
+      USB_HOST_WAITING
     } state_t;
 
     static state_t state;

@@ -31,6 +31,10 @@
 
 #include "Sd2Card_FlashDrive.h"
 
+#if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/ultralcd.h"
+#endif
+
 USB usb;
 BulkOnly bulk(&usb);
 
@@ -46,19 +50,22 @@ void Sd2Card::idle() {
 
   switch (state) {
     case USB_HOST_DELAY_INIT:
-      next_retry = millis() + 10000;
+      next_retry = millis() + 2000;
       state = USB_HOST_WAITING;
       break;
     case USB_HOST_WAITING:
       if (ELAPSED(millis(), next_retry)) {
-        next_retry = millis() + 10000;
+        next_retry = millis() + 2000;
         state = USB_HOST_UNINITIALIZED;
       }
       break;
     case USB_HOST_UNINITIALIZED:
       SERIAL_ECHOLNPGM("Starting USB host");
       if (!usb.start()) {
-        SERIAL_ECHOLNPGM("USB host failed to start. Will retry in 10 seconds.");
+        SERIAL_ECHOLNPGM("USB host failed to start. Will retry in 2 seconds.");
+        #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
+          ui.set_status_P(PSTR("USB failed to start"));
+        #endif
         state = USB_HOST_DELAY_INIT;
       }
       else {
