@@ -2470,7 +2470,7 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       #if HOTENDS > 1
