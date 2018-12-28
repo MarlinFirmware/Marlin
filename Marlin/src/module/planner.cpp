@@ -1598,8 +1598,10 @@ void Planner::synchronize() {
       if (!changed_dir) return;
     #endif
 
-    const bool positive[XYZ] = {  da > 0,  db > 0, dc > 0 },
-               non_zero[XYZ] = { da != 0, db != 0, dc != 0 };
+    const bool positive[XYZ] = {  da > 0,  db > 0, dc > 0 };
+    #ifdef BACKLASH_SMOOTHING_MM
+      const bool non_zero[XYZ] = { da != 0, db != 0, dc != 0 };
+    #endif
     bool made_adjustment = false;
 
     LOOP_XYZ(i) {

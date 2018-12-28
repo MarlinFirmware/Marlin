@@ -483,14 +483,6 @@
 #define MINIMUM_PLANNER_SPEED 0.05 // (mm/s)
 
 //
-// Use Junction Deviation instead of traditional Jerk Limiting
-//
-//#define JUNCTION_DEVIATION
-#if ENABLED(JUNCTION_DEVIATION)
-  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge
-#endif
-
-//
 // Backlash Compensation
 // Adds extra movement to axes on direction-changes to account for backlash.
 //
