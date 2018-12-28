@@ -133,7 +133,6 @@
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_RAMPS_14_EFB
 #endif
-
 // The following define selects whether you want a beep when you change the feedrate on the main LCD screen, using the rotary encoder.
 //#define BEEP_ON_FEEDRATE_CHANGE
 #ifdef BEEP_ON_FEEDRATE_CHANGE
@@ -141,8 +140,6 @@
   #define BEEP_ON_FEEDRATE_CHANGE_DURATION 20
   #define BEEP_ON_FEEDRATE_CHANGE_FREQUENCY 600
 #endif
-
-
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
 //#define CUSTOM_MACHINE_NAME "3D Printer"
