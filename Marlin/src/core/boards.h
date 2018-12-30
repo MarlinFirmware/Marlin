@@ -57,6 +57,7 @@
 #define BOARD_BAM_DICE          401   // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402   // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_MKS_BASE          40    // MKS BASE v1.0
+#define BOARD_MKS_BASE_14       404   // MKS v1.4 A4982 stepper drivers
 #define BOARD_MKS_BASE_15       405   // MKS v1.5 with Allegro A4982 stepper drivers
 #define BOARD_MKS_BASE_HEROIC   41    // MKS BASE 1.0 with Heroic HR4982 stepper drivers
 #define BOARD_MKS_GEN_13        47    // MKS GEN v1.3 or 1.4

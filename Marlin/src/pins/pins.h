@@ -100,6 +100,8 @@
   #include "pins_BAM_DICE_DUE.h"      // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_BASE)
   #include "pins_MKS_BASE.h"          // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
+#elif MB(MKS_BASE_14)
+  #include "pins_MKS_BASE_14.h"       // ATmega2560                                 env:megaatmega2560 
 #elif MB(MKS_BASE_15)
   #include "pins_MKS_BASE_15.h"       // ATmega1280, ATmega2560                     env:megaatmega1280 env:megaatmega2560
 #elif MB(MKS_BASE_HEROIC)
