@@ -1075,6 +1075,10 @@ void MarlinUI::update() {
       if (buttons & EN_A) enc |= B01;
       if (buttons & EN_B) enc |= B10;
       if (enc != lastEncoderBits) {
+        #if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
+          if (currentScreen == lcd_status_screen)
+            lcd_buzz(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
+        #endif
         switch (enc) {
           case encrot0: ENCODER_SPIN(encrot3, encrot1); break;
           case encrot1: ENCODER_SPIN(encrot0, encrot2); break;
