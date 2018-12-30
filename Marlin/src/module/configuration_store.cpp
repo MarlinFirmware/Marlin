@@ -488,7 +488,7 @@ void MarlinSettings::postprocess() {
           EEPROM_WRITE(dummy);
         #endif
       #else
-        const float planner_max_jerk[XYZE] = { float(DEFAULT_EJERK) };	
+        const float planner_max_jerk[XYZE] = { float(DEFAULT_EJERK) };
         EEPROM_WRITE(planner_max_jerk);
       #endif
 
