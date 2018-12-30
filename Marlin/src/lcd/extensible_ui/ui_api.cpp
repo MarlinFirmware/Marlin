@@ -551,7 +551,7 @@ namespace ExtUI {
         thermalManager.setTargetBed(clamp(value, 0, BED_MAXTEMP - 15));
       else
     #endif
-        thermalManager.setTargetHotend(clamp(value, 0,heater_maxtemp[e] - 15), e);
+        thermalManager.setTargetHotend(clamp(value, 0, heater_maxtemp[e] - 15), e);
   }
 
   void setTargetTemp_celsius(float value, const extruder_t extruder) {
