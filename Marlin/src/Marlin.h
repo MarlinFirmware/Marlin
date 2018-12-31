@@ -90,6 +90,9 @@ extern millis_t max_inactive_time, stepper_inactive_time;
     extern bool fans_paused;
     extern uint8_t paused_fan_speed[FAN_COUNT];
   #endif
+  #if ENABLED(ADAPTIVE_FAN_SLOWING)
+    extern uint8_t fan_setpoint[FAN_COUNT];
+  #endif
   #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
 #endif
 

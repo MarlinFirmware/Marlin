@@ -503,6 +503,10 @@
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 
+#if ENABLED(THERMAL_PROTECTION_HOTENDS)
+  //#define ADAPTIVE_FAN_SLOWING     // Slows part cooling fan if temperature begins to drop from setpoint
+#endif
+
 //===========================================================================
 //============================= Mechanical Settings =========================
 //===========================================================================
