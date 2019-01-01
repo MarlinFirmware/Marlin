@@ -28,6 +28,7 @@
 SDIO_CardInfoTypeDef SdCard;
 
 bool SDIO_Init(void) {
+  uint32_t count = 0U;
   SdCard.CardType = SdCard.CardVersion = SdCard.Class = SdCard.RelCardAdd = SdCard.BlockNbr = SdCard.BlockSize = SdCard.LogBlockNbr = SdCard.LogBlockSize = 0;
 
   sdio_begin();
@@ -37,7 +38,6 @@ bool SDIO_Init(void) {
   dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
   dma_set_priority(SDIO_DMA_DEV, SDIO_DMA_CHANNEL, DMA_PRIORITY_VERY_HIGH);
 
-  __IO uint32_t count = 0U;
 
   if (!SDIO_CmdGoIdleState()) { return false; }
   if (!SDIO_CmdGoIdleState()) { return false; } /* Hotplugged cards tends to miss first CMD0, so give them a second chance. */
