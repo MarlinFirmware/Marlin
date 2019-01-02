@@ -215,7 +215,9 @@ void GcodeSuite::M420() {
   // Enable leveling if specified, or if previously active
   set_bed_leveling_enabled(to_enable);
 
-  EXIT_M420:
+  #if HAS_MESH
+    EXIT_M420:
+  #endif
 
   // Error if leveling failed to enable or reenable
   if (to_enable && !planner.leveling_active)
