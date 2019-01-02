@@ -82,7 +82,7 @@ void GcodeSuite::M106() {
       }
     #endif // EXTRA_FAN_SPEED
 
-     fan_speed[np] = s;
+    fan_speed[np] = s;
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
       fan_setpoint[np] = fan_speed[np];
     #endif
