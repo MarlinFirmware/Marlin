@@ -890,6 +890,12 @@
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
     //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
   #endif
+
+
+  // Uncomment the following to perform babystepping in the planner (rather than
+  // in the temperature ISR). Required on the DUE. Limitation: babystepping will
+  // only happen when already moving and will be delayed until after queued moves.
+  //#define BABYSTEP_IN_PLANNER
 #endif
 
 // @section extruder
