@@ -31,7 +31,7 @@
 #if ENABLED(USE_WATCHDOG)
 
 #include <libmaple/iwdg.h>
-#include "watchdog_Stm32f1.h"
+#include "watchdog_STM32F1.h"
 
 void watchdogSetup(void) {
   // do whatever. don't remove this function.

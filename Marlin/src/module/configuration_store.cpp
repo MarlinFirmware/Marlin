@@ -487,6 +487,9 @@ void MarlinSettings::postprocess() {
           dummy = float(DEFAULT_EJERK);
           EEPROM_WRITE(dummy);
         #endif
+      #else
+        const float planner_max_jerk[XYZE] = { float(DEFAULT_EJERK) };
+        EEPROM_WRITE(planner_max_jerk);
       #endif
 
       #if ENABLED(JUNCTION_DEVIATION)
@@ -693,7 +696,7 @@ void MarlinSettings::postprocess() {
     // LCD Preheat settings
     //
     {
-      _FIELD_TEST(lcd_preheat_hotend_temp);
+      _FIELD_TEST(ui_preheat_hotend_temp);
 
       #if HAS_LCD_MENU
         const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
