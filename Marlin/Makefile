@@ -228,6 +228,10 @@ else ifeq ($(HARDWARE_MOTHERBOARD),243)
 else ifeq ($(HARDWARE_MOTHERBOARD),244)
 # Fysetc F6
 else ifeq ($(HARDWARE_MOTHERBOARD),541)
+# Duplicator i3 Plus
+else ifeq ($(HARDWARE_MOTHERBOARD),31)
+# VORON
+else ifeq ($(HARDWARE_MOTHERBOARD),441)
 
 #
 # Other ATmega1280, ATmega2560
