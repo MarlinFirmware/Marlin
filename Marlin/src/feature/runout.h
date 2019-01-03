@@ -84,13 +84,13 @@ class TFilamentMonitor : public FilamentMonitorBase {
     static inline void run() {
       if (enabled && !filament_ran_out && (IS_SD_PRINTING() || print_job_timer.isRunning())) {
         #if FILAMENT_RUNOUT_DISTANCE_MM > 0
-          cli(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
+          DISABLE_ISRS(); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         #endif
         response.run();
         sensor.run();
         const bool ran_out = response.has_run_out();
         #if FILAMENT_RUNOUT_DISTANCE_MM > 0
-          sei();
+          ENABLE_ISRS();
         #endif
         if (ran_out) {
           filament_ran_out = true;
