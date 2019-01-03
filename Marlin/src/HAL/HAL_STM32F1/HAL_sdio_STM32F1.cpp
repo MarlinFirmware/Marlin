@@ -38,38 +38,38 @@ bool SDIO_Init(void) {
   dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
   dma_set_priority(SDIO_DMA_DEV, SDIO_DMA_CHANNEL, DMA_PRIORITY_VERY_HIGH);
 
-
-  if (!SDIO_CmdGoIdleState()) { return false; }
-  if (!SDIO_CmdGoIdleState()) { return false; } /* Hotplugged cards tends to miss first CMD0, so give them a second chance. */
+  if (!SDIO_CmdGoIdleState()) return false;
+  if (!SDIO_CmdGoIdleState()) return false; /* Hotplugged cards tends to miss first CMD0, so give them a second chance. */
 
   SdCard.CardVersion = SDIO_CmdOperCond() ? CARD_V2_X : CARD_V1_X;
 
   do {
-    if (count++ == SDMMC_MAX_VOLT_TRIAL) { return false; }
+    if (count++ == SDMMC_MAX_VOLT_TRIAL) return false;
     SDIO_CmdAppOperCommand(SdCard.CardVersion == CARD_V2_X ? SDMMC_HIGH_CAPACITY : SDMMC_STD_CAPACITY);
   } while ((SDIO_GetResponse(SDIO_RESP1) & 0x80000000) == 0);
 
   SdCard.CardType = (SDIO_GetResponse(SDIO_RESP1) & SDMMC_HIGH_CAPACITY) ? CARD_SDHC_SDXC : CARD_SDSC;
 
-  if (!SDIO_CmdSendCID()) { return false; }
-  if (!SDIO_CmdSetRelAdd(&SdCard.RelCardAdd)) { return false; } /* Send CMD3 SET_REL_ADDR with argument 0. SD Card publishes its RCA. */
-  if (!SDIO_CmdSendCSD(SdCard.RelCardAdd << 16U)) { return false; }
+  if (!SDIO_CmdSendCID()) return false;
+  if (!SDIO_CmdSetRelAdd(&SdCard.RelCardAdd)) return false; /* Send CMD3 SET_REL_ADDR with argument 0. SD Card publishes its RCA. */
+  if (!SDIO_CmdSendCSD(SdCard.RelCardAdd << 16U)) return false;
 
   SdCard.Class = (SDIO_GetResponse(SDIO_RESP2) >> 20U);
 
   if (SdCard.CardType == CARD_SDHC_SDXC) {
     SdCard.LogBlockNbr = SdCard.BlockNbr = (((SDIO_GetResponse(SDIO_RESP2) & 0x0000003FU) << 26U) | ((SDIO_GetResponse(SDIO_RESP3) & 0xFFFF0000U) >> 6U)) + 1024;
     SdCard.LogBlockSize = SdCard.BlockSize = 512U;
-  } else {
+  }
+  else {
     SdCard.BlockNbr  = ((((SDIO_GetResponse(SDIO_RESP2) & 0x000003FFU) << 2U ) | ((SDIO_GetResponse(SDIO_RESP3) & 0xC0000000U) >> 30U)) + 1U) * (4U << ((SDIO_GetResponse(SDIO_RESP3) & 0x00038000U) >> 15U));
     SdCard.BlockSize = 1U << ((SDIO_GetResponse(SDIO_RESP2) >> 16) & 0x0FU);
     SdCard.LogBlockNbr =  (SdCard.BlockNbr) * ((SdCard.BlockSize) / 512U);
     SdCard.LogBlockSize = 512U;
   }
 
-  if (!SDIO_CmdSelDesel(SdCard.RelCardAdd << 16U)) { return false; }
-  if (!SDIO_CmdAppSetClearCardDetect(SdCard.RelCardAdd << 16U)) { return false; }
-  if (!SDIO_CmdAppSetBusWidth(SdCard.RelCardAdd << 16U, 2)) { return false; }
+  if (!SDIO_CmdSelDesel(SdCard.RelCardAdd << 16U)) return false;
+  if (!SDIO_CmdAppSetClearCardDetect(SdCard.RelCardAdd << 16U)) return false;
+  if (!SDIO_CmdAppSetBusWidth(SdCard.RelCardAdd << 16U, 2)) return false;
 
   sdio_set_dbus_width(SDIO_CLKCR_WIDBUS_4BIT);
   sdio_set_clock(SDIO_CLOCK);
@@ -77,9 +77,9 @@ bool SDIO_Init(void) {
 }
 
 bool SDIO_ReadBlock(uint32_t blockAddress, uint8_t *data) {
-  if (SDIO_GetCardState() != SDIO_CARD_TRANSFER) { return false; }
-  if (blockAddress >= SdCard.LogBlockNbr) { return false; }
-  if ((0x03 & (uint32_t)data)) { return false; } // misaligned data
+  if (SDIO_GetCardState() != SDIO_CARD_TRANSFER) return false;
+  if (blockAddress >= SdCard.LogBlockNbr) return false;
+  if ((0x03 & (uint32_t)data)) return false; // misaligned data
 
   if (SdCard.CardType != CARD_SDHC_SDXC) { blockAddress *= 512U; }
 
@@ -109,9 +109,9 @@ bool SDIO_ReadBlock(uint32_t blockAddress, uint8_t *data) {
 }
 
 bool SDIO_WriteBlock(uint32_t blockAddress, const uint8_t *data) {
-  if (SDIO_GetCardState() != SDIO_CARD_TRANSFER) { return false; }
-  if (blockAddress >= SdCard.LogBlockNbr) { return false; }
-  if ((0x03 & (uint32_t)data)) { return false; } // misaligned data
+  if (SDIO_GetCardState() != SDIO_CARD_TRANSFER) return false;
+  if (blockAddress >= SdCard.LogBlockNbr) return false;
+  if ((0x03 & (uint32_t)data)) return false; // misaligned data
 
   if (SdCard.CardType != CARD_SDHC_SDXC) { blockAddress *= 512U; }
 
@@ -169,27 +169,28 @@ bool SDIO_CmdWriteSingleBlock(uint32_t address) { SDIO_SendCommand(CMD24_WRITE_S
 bool SDIO_CmdAppCommand(uint32_t rsa) { SDIO_SendCommand(CMD55_APP_CMD, rsa); return SDIO_GetCmdResp1(SDMMC_CMD_APP_CMD); }
 
 bool SDIO_CmdAppSetBusWidth(uint32_t rsa, uint32_t argument) {
-  if (!SDIO_CmdAppCommand(rsa)) { return false; }
+  if (!SDIO_CmdAppCommand(rsa)) return false;
   SDIO_SendCommand(ACMD6_APP_SD_SET_BUSWIDTH, argument);
   return SDIO_GetCmdResp2();
 }
 
 bool SDIO_CmdAppOperCommand(uint32_t sdType) {
-  if (!SDIO_CmdAppCommand(0)) { return false; }
+  if (!SDIO_CmdAppCommand(0)) return false;
   SDIO_SendCommand(ACMD41_SD_APP_OP_COND , SDMMC_VOLTAGE_WINDOW_SD | sdType);
   return SDIO_GetCmdResp3();
 }
 
 bool SDIO_CmdAppSetClearCardDetect(uint32_t rsa) {
-  if (!SDIO_CmdAppCommand(rsa)) { return false; }
+  if (!SDIO_CmdAppCommand(rsa)) return false;
   SDIO_SendCommand(ACMD42_SD_APP_SET_CLR_CARD_DETECT, 0);
   return SDIO_GetCmdResp2();
 }
 
 
 bool SDIO_GetCmdError(void) {
-  register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
-  do { if (count-- == 0U) { return false; }
+  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
+  do {
+    if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CMDSENT));
 
   SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS);
@@ -199,14 +200,14 @@ bool SDIO_GetCmdError(void) {
 bool SDIO_GetCmdResp1(uint8_t command) {
   register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
-    if (count-- == 0U) { return false; }
+    if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
 
   if (SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT)) {
     SDIO_CLEAR_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT);
     return false;
   }
-  if (SDIO_GetCommandResponse() != command) { return false; }
+  if (SDIO_GetCommandResponse() != command) return false;
 
   SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS);
   return (SDIO_GetResponse(SDIO_RESP1) & SDMMC_OCR_ERRORBITS) == SDMMC_ALLZERO;
@@ -215,7 +216,7 @@ bool SDIO_GetCmdResp1(uint8_t command) {
 bool SDIO_GetCmdResp2(void) {
   register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
-    if (count-- == 0U) { return false; }
+    if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
 
   if (SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT)) {
@@ -230,7 +231,7 @@ bool SDIO_GetCmdResp2(void) {
 bool SDIO_GetCmdResp3(void) {
   register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
-    if (count-- == 0U) { return false; }
+    if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
 
   if (SDIO_GET_FLAG(SDIO_STA_CTIMEOUT)) {
@@ -245,17 +246,17 @@ bool SDIO_GetCmdResp3(void) {
 bool SDIO_GetCmdResp6(uint8_t command, uint32_t *rca) {
   register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
-    if (count-- == 0U) { return false; }
+    if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
 
   if (SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT)) {
     SDIO_CLEAR_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT);
     return false;
   }
-  if (SDIO_GetCommandResponse() != command) { return false; }
+  if (SDIO_GetCommandResponse() != command) return false;
 
   SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS);
-  if (SDIO_GetResponse(SDIO_RESP1) & (SDMMC_R6_GENERAL_UNKNOWN_ERROR | SDMMC_R6_ILLEGAL_CMD | SDMMC_R6_COM_CRC_FAILED)) { return false; }
+  if (SDIO_GetResponse(SDIO_RESP1) & (SDMMC_R6_GENERAL_UNKNOWN_ERROR | SDMMC_R6_ILLEGAL_CMD | SDMMC_R6_COM_CRC_FAILED)) return false;
 
   *rca = SDIO_GetResponse(SDIO_RESP1) >> 16;
   return true;
@@ -264,7 +265,7 @@ bool SDIO_GetCmdResp6(uint8_t command, uint32_t *rca) {
 bool SDIO_GetCmdResp7(void) {
   register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
-    if (count-- == 0U) { return false; }
+    if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
 
   if (SDIO_GET_FLAG(SDIO_STA_CTIMEOUT)) {
