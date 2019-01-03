@@ -81,3 +81,16 @@ public:
   : U8GLIB(&u8g_dev_ssd1306_128x64_2x_i2c_2_wire, options)
   {  }
 };
+
+//
+// Very basic support for 320x240 TFT screen
+// Tested on MKS Robin TFT_V2.0 with ST7789V controller
+//
+extern u8g_dev_t u8g_dev_tft_320x240_upscale_from_128x64;
+
+class U8GLIB_TFT_320X240_UPSCALE_FROM_128X64 : public U8GLIB {
+public:
+  U8GLIB_TFT_320X240_UPSCALE_FROM_128X64(uint8_t cs, uint8_t rs, uint8_t reset = U8G_PIN_NONE)
+  : U8GLIB(&u8g_dev_tft_320x240_upscale_from_128x64, cs, rs, reset)
+  { }
+};
