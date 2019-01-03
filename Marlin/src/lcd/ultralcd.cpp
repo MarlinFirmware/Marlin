@@ -464,30 +464,33 @@ void MarlinUI::status_screen() {
 
   #endif // HAS_LCD_MENU
 
-  #if ENABLED(ULTIPANEL_FEEDMULTIPLY) && HAS_ENCODER_ACTION
+  #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
 
-    const int16_t new_frm = feedrate_percentage + (int32_t)encoderPosition;
+    const int16_t old_frm = feedrate_percentage;
+          int16_t new_frm = old_frm + (int32_t)encoderPosition;
+
     // Dead zone at 100% feedrate
-    if ((feedrate_percentage < 100 && new_frm > 100) || (feedrate_percentage > 100 && new_frm < 100)) {
-      feedrate_percentage = 100;
-      encoderPosition = 0;
+    if (old_frm == 100) {
+      if ((int32_t)encoderPosition > ENCODER_FEEDRATE_DEADZONE)
+        new_frm -= ENCODER_FEEDRATE_DEADZONE;
+      else if ((int32_t)encoderPosition < -(ENCODER_FEEDRATE_DEADZONE))
+        new_frm += ENCODER_FEEDRATE_DEADZONE;
+      else
+        new_frm = old_frm;
     }
-    else if (feedrate_percentage == 100) {
-      if ((int32_t)encoderPosition > ENCODER_FEEDRATE_DEADZONE) {
-        feedrate_percentage += (int32_t)encoderPosition - (ENCODER_FEEDRATE_DEADZONE);
-        encoderPosition = 0;
-      }
-      else if ((int32_t)encoderPosition < -(ENCODER_FEEDRATE_DEADZONE)) {
-        feedrate_percentage += (int32_t)encoderPosition + ENCODER_FEEDRATE_DEADZONE;
-        encoderPosition = 0;
-      }
-    }
-    else {
+    else if ((old_frm < 100 && new_frm > 100) || (old_frm > 100 && new_frm < 100))
+      new_frm = 100;
+
+    new_frm = constrain(new_frm, 10, 999);
+
+    if (old_frm != new_frm) {
       feedrate_percentage = new_frm;
       encoderPosition = 0;
+      #if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
+        if (currentScreen == lcd_status_screen)
+          BUZZ(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
+      #endif
     }
-
-    feedrate_percentage = constrain(feedrate_percentage, 10, 999);
 
   #endif // ULTIPANEL_FEEDMULTIPLY
 
@@ -1075,10 +1078,6 @@ void MarlinUI::update() {
       if (buttons & EN_A) enc |= B01;
       if (buttons & EN_B) enc |= B10;
       if (enc != lastEncoderBits) {
-        #if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
-          if (currentScreen == lcd_status_screen)
-            lcd_buzz(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
-        #endif
         switch (enc) {
           case encrot0: ENCODER_SPIN(encrot3, encrot1); break;
           case encrot1: ENCODER_SPIN(encrot0, encrot2); break;
