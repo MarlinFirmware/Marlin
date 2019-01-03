@@ -236,7 +236,6 @@ void Planner::init() {
 }
 
 #if ENABLED(S_CURVE_ACCELERATION)
-
   #ifdef __AVR__
     /**
      * This routine returns 0x1000000 / d, getting the inverse as fast as possible.
@@ -1546,6 +1545,18 @@ void Planner::synchronize() {
   ) idle();
 }
 
+#if defined(BABYSTEP_IN_PLANNER)
+  void Planner::add_babystep_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block) {
+      LOOP_XYZ(axis) {
+        const int16_t correction = Temperature::babystepsTodo[axis]; // get rid of volatile for performance
+        if (correction && (TEST(dm,axis) == (correction > 0))) {
+            block->steps[axis] += ABS(correction);
+            Temperature::babystepsTodo[axis] -= correction;
+        }
+      }
+  }
+#endif
+
 /**
  * The following implements axis backlash correction. To minimize seams
  * on the printed part, the backlash correction only adds steps to the
@@ -1889,11 +1900,20 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         #endif
       );
 
+    /**
+     * If we make it here, at least one of the axes has more steps than
+     * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped as
+     * a zero-length segment. It is important to not apply corrections
+     * to blocks that would get dropped!
+     *
+     * A correction function is permitted to add steps to an axis, it
+     * should *never* remove steps!
+     */
     #if ENABLED(BACKLASH_COMPENSATION)
-      // If we make it here, at least one of the axes has more steps than
-      // MIN_STEPS_PER_SEGMENT, so the segment won't get dropped by Marlin
-      // and it is okay to add steps for backlash correction.
       add_backlash_correction_steps(da, db, dc, dm, block, delta_mm);
+    #endif
+    #if ENABLED(BABYSTEP_IN_PLANNER)
+      add_babystep_correction_steps(da, db, dc, dm, block);
     #endif
   }
 
@@ -2344,7 +2364,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   float vmax_junction_sqr; // Initial limit on the segment entry velocity (mm/s)^2
 
   #if ENABLED(JUNCTION_DEVIATION)
-
     /**
      * Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
      * Let a circle be tangent to both previous and current path line segments, where the junction
