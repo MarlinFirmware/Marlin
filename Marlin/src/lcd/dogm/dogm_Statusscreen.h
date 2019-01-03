@@ -668,8 +668,8 @@
   #undef STATUS_FAN_FRAMES
 #elif !defined(STATUS_FAN_FRAMES)
   #define STATUS_FAN_FRAMES 2
-#elif STATUS_FAN_FRAMES > 3
-  #error "Only 3 fan animation frames currently supported."
+#elif STATUS_FAN_FRAMES > 4
+  #error "A maximum of 4 fan animation frames is currently supported."
 #endif
 
 //

@@ -47,7 +47,7 @@
   #include "../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_AXIS_UNHOMED_ERR && ENABLED(ULTRA_LCD)
+#if HAS_AXIS_UNHOMED_ERR && (ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI))
   #include "../lcd/ultralcd.h"
 #endif
 
@@ -1019,7 +1019,7 @@ void prepare_move_to_destination() {
       if (zz) SERIAL_ECHOPGM(MSG_Z);
       SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
-      #if ENABLED(ULTRA_LCD)
+      #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
         ui.status_printf_P(0, PSTR(MSG_HOME " %s%s%s " MSG_FIRST), xx ? MSG_X : "", yy ? MSG_Y : "", zz ? MSG_Z : "");
       #endif
       return true;

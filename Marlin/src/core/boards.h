@@ -87,6 +87,7 @@
 #define BOARD_RAMPS_CREALITY    244   // Creality: CR10S, CR20, CR-X
 #define BOARD_FYSETC_F6_13      541   // Fysetc F6
 #define BOARD_DUPLICATOR_I3_PLUS 31   // Wanhao Duplicator i3 Plus
+#define BOARD_VORON             441   // VORON Design
 
 //
 // Other ATmega1280, ATmega2560

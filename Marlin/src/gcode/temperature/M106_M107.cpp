@@ -51,7 +51,7 @@ void GcodeSuite::M106() {
 
   if (p < MIN(EXTRUDERS, FAN_COUNT)) {
     uint16_t s = parser.ushortval('S', 255);
-    NOMORE(s, 255);
+    NOMORE(s, 255U);
 
     uint8_t np = p;
 
