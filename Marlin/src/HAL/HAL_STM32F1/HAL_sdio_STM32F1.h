@@ -93,7 +93,7 @@
 #define SDIO_RESP3                           2
 #define SDIO_RESP4                           3
 
-#define SDIO_GET_FLAG(__FLAG__)              (((SDIO->STA) & (__FLAG__)) != 0)
+#define SDIO_GET_FLAG(__FLAG__)              !!((SDIO->STA) & (__FLAG__))
 #define SDIO_CLEAR_FLAG(__FLAG__)            (SDIO->ICR = (__FLAG__))
 
 #define SDMMC_MAX_VOLT_TRIAL                 0x00000FFFU
@@ -110,14 +110,14 @@
 // --------------------------------------------------------------------------
 
 typedef struct {
-  uint32_t CardType;                     /* Specifies the card Type */
-  uint32_t CardVersion;                  /* Specifies the card version */
-  uint32_t Class;                        /* Specifies the class of the card class */
-  uint32_t RelCardAdd;                   /* Specifies the Relative Card Address */
-  uint32_t BlockNbr;                     /* Specifies the Card Capacity in blocks */
-  uint32_t BlockSize;                    /* Specifies one block size in bytes */
-  uint32_t LogBlockNbr;                  /* Specifies the Card logical Capacity in blocks */
-  uint32_t LogBlockSize;                 /* Specifies logical block size in bytes */
+  uint32_t CardType;      // Card Type
+  uint32_t CardVersion;   // Card version
+  uint32_t Class;         // Class of the card class
+  uint32_t RelCardAdd;    // Relative Card Address
+  uint32_t BlockNbr;      // Card Capacity in blocks
+  uint32_t BlockSize;     // One block size in bytes
+  uint32_t LogBlockNbr;   // Card logical Capacity in blocks
+  uint32_t LogBlockSize;  // Logical block size in bytes
 } SDIO_CardInfoTypeDef;
 
 // --------------------------------------------------------------------------

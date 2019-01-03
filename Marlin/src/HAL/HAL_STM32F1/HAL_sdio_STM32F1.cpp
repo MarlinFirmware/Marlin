@@ -186,22 +186,21 @@ bool SDIO_CmdAppSetClearCardDetect(uint32_t rsa) {
   return SDIO_GetCmdResp2();
 }
 
+// Wait until given flags are unset or till timeout
+#define SDIO_WAIT(FLAGS) do{ \
+  uint32_t count = 1 + (SDIO_CMDTIMEOUT) * ((F_CPU) / 8U / 1000U); \
+  do { if (!--count) return false; } while (!SDIO_GET_FLAG(FLAGS)); \
+}while(0)
 
 bool SDIO_GetCmdError(void) {
-  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
-  do {
-    if (count-- == 0U) return false;
-  } while (!SDIO_GET_FLAG(SDIO_STA_CMDSENT));
+  SDIO_WAIT(SDIO_STA_CMDSENT);
 
   SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS);
   return true;
 }
 
 bool SDIO_GetCmdResp1(uint8_t command) {
-  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
-  do {
-    if (count-- == 0U) return false;
-  } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
+  SDIO_WAIT(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT);
 
   if (SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT)) {
     SDIO_CLEAR_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT);
@@ -214,10 +213,7 @@ bool SDIO_GetCmdResp1(uint8_t command) {
 }
 
 bool SDIO_GetCmdResp2(void) {
-  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
-  do {
-    if (count-- == 0U) return false;
-  } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
+  SDIO_WAIT(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT);
 
   if (SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT)) {
     SDIO_CLEAR_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT);
@@ -229,10 +225,7 @@ bool SDIO_GetCmdResp2(void) {
 }
 
 bool SDIO_GetCmdResp3(void) {
-  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
-  do {
-    if (count-- == 0U) return false;
-  } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
+  SDIO_WAIT(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT);
 
   if (SDIO_GET_FLAG(SDIO_STA_CTIMEOUT)) {
     SDIO_CLEAR_FLAG(SDIO_STA_CTIMEOUT);
@@ -244,10 +237,7 @@ bool SDIO_GetCmdResp3(void) {
 }
 
 bool SDIO_GetCmdResp6(uint8_t command, uint32_t *rca) {
-  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
-  do {
-    if (count-- == 0U) return false;
-  } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
+  SDIO_WAIT(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT);
 
   if (SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT)) {
     SDIO_CLEAR_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CTIMEOUT);
@@ -263,10 +253,7 @@ bool SDIO_GetCmdResp6(uint8_t command, uint32_t *rca) {
 }
 
 bool SDIO_GetCmdResp7(void) {
-  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
-  do {
-    if (count-- == 0U) return false;
-  } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
+  SDIO_WAIT(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT);
 
   if (SDIO_GET_FLAG(SDIO_STA_CTIMEOUT)) {
     SDIO_CLEAR_FLAG(SDIO_STA_CTIMEOUT);
