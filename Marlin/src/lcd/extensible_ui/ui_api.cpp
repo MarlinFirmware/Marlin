@@ -635,14 +635,14 @@ namespace ExtUI {
       pos;
 
       card.getfilename_sorted(nr);
-      return card.filename != nullptr && card.filename[0] != '\0';
+      return card.filename[0] != '\0';
     #else
       return false;
     #endif
   }
 
   const char* FileList::filename() {
-    return IFSD(card.longFilename != nullptr && card.longFilename[0] ? card.longFilename : card.filename, "");
+    return IFSD(card.longFilename[0] ? card.longFilename : card.filename, "");
   }
 
   const char* FileList::shortFilename() {
