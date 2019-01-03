@@ -60,11 +60,13 @@ Proposed patches should be submitted as a Pull Request against the ([bugfix-2.0.
 ## Credits
 
 The current Marlin dev team consists of:
- - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - English
- - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - English
- - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - English
- - Chris Pepper [[@p3p](https://github.com/p3p)] - English
- - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Portuguese, English
+
+ - Scott Lahteine [[@thinkyhead](https://github.com/thinkyhead)] - USA &nbsp; [![Flattr Scott](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=thinkhead&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+ - Roxanne Neufeld [[@Roxy-3D](https://github.com/Roxy-3D)] - USA
+ - Bob Kuhn [[@Bob-the-Kuhn](https://github.com/Bob-the-Kuhn)] - USA
+ - Chris Pepper [[@p3p](https://github.com/p3p)] - UK
+ - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Brazil
+ - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 
 ## License
 
