@@ -194,10 +194,10 @@
 #endif // ULTRA_LCD
 
 //
-// SD Support
+// SD Support (as with the AZTEEG_X5_MINI_WIFI)
 //
 //#define USB_SD_DISABLED     // Disable host access to SD card as mass storage device through USB
-#define USB_SD_ONBOARD      // Enable host access to SD card as mass storage device through USB
+#define USB_SD_ONBOARD        // Enable host access to SD card as mass storage device through USB
 
 //#define LPC_SD_LCD          // Marlin uses the SD drive attached to the LCD
 #define LPC_SD_ONBOARD        // Marlin uses the SD drive on the control board.  There is no SD detect pin
@@ -227,4 +227,3 @@
   #define ONBOARD_SD_CS      P0_06   // Chip select for "System" SD card
 
 #endif
-
