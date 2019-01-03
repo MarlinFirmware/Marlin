@@ -860,29 +860,29 @@
  *    (0,0)
  */
 //#define X_PROBE_OFFSET_FROM_EXTRUDER 10   // X offset: -left  +right  [of the nozzle]
-//#define Y_PROBE_OFFSET_FROM_EXTRUDER 10   // Y offset: -front +behind [the nozzle]
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER  0   // Z offset: -below +above  [the nozzle]
+//#define Y_PROBE_OFFSET_FROM_EXTRUDER 10   // Y offset: -front +behind [of the nozzle]
+//#define Z_PROBE_OFFSET_FROM_EXTRUDER  0   // Z offset: -below +above  [of the nozzle]
 
 // ANET A8: FRONT-MOUNTED SENSOR WITH 3D PRINTED MOUNT
 //#define X_PROBE_OFFSET_FROM_EXTRUDER -28  // X offset: -left  +right  [of the nozzle]
-//#define Y_PROBE_OFFSET_FROM_EXTRUDER -45  // Y offset: -front +behind [the nozzle]
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER   0  // Z offset: -below +above  [the nozzle]
+//#define Y_PROBE_OFFSET_FROM_EXTRUDER -45  // Y offset: -front +behind [of the nozzle]
+//#define Z_PROBE_OFFSET_FROM_EXTRUDER   0  // Z offset: -below +above  [of the nozzle]
 
 // THESE ARE FOR THE OFFICIAL ANET REAR-MOUNTED SENSOR
 //#define X_PROBE_OFFSET_FROM_EXTRUDER -1   // X offset: -left  +right  [of the nozzle]
-//#define Y_PROBE_OFFSET_FROM_EXTRUDER  3   // Y offset: -front +behind [the nozzle]
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER  0   // Z offset: -below +above  [the nozzle]
+//#define Y_PROBE_OFFSET_FROM_EXTRUDER  3   // Y offset: -front +behind [of the nozzle]
+//#define Z_PROBE_OFFSET_FROM_EXTRUDER  0   // Z offset: -below +above  [of the nozzle]
 
 // ANET A6 with BLTouch/3D-Touch mounted right to the nozzle
 #define X_PROBE_OFFSET_FROM_EXTRUDER 39   // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER  0   // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER  0   // Z offset: -below +above  [the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER  0   // Y offset: -front +behind [of the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER  0   // Z offset: -below +above  [of the nozzle]
 
 //ANET A6 with BLTouch/3D-Touch betwen Fan and Belt
 // (mount: https://github.com/ralf-e/ANET_A6_modifications/tree/master/A6_X-Axis)
 //#define X_PROBE_OFFSET_FROM_EXTRUDER -30      // X offset: -left  +right  [of the nozzle]
-//#define Y_PROBE_OFFSET_FROM_EXTRUDER  15      // Y offset: -front +behind [the nozzle]
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER   0.75   // Z offset: -below +above  [the nozzle]
+//#define Y_PROBE_OFFSET_FROM_EXTRUDER  15      // Y offset: -front +behind [of the nozzle]
+//#define Z_PROBE_OFFSET_FROM_EXTRUDER   0.75   // Z offset: -below +above  [of the nozzle]
 
 // Certain types of probes need to stay away from edges
 #define MIN_PROBE_EDGE 10
