@@ -198,7 +198,7 @@ bool SDIO_GetCmdError(void) {
 }
 
 bool SDIO_GetCmdResp1(uint8_t command) {
-  register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
+  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
     if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
@@ -214,7 +214,7 @@ bool SDIO_GetCmdResp1(uint8_t command) {
 }
 
 bool SDIO_GetCmdResp2(void) {
-  register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
+  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
     if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
@@ -229,7 +229,7 @@ bool SDIO_GetCmdResp2(void) {
 }
 
 bool SDIO_GetCmdResp3(void) {
-  register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
+  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
     if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
@@ -244,7 +244,7 @@ bool SDIO_GetCmdResp3(void) {
 }
 
 bool SDIO_GetCmdResp6(uint8_t command, uint32_t *rca) {
-  register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
+  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
     if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
@@ -263,7 +263,7 @@ bool SDIO_GetCmdResp6(uint8_t command, uint32_t *rca) {
 }
 
 bool SDIO_GetCmdResp7(void) {
-  register uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
+  uint32_t count = SDIO_CMDTIMEOUT * (F_CPU / 8U / 1000U);
   do {
     if (count-- == 0U) return false;
   } while (!SDIO_GET_FLAG(SDIO_STA_CCRCFAIL | SDIO_STA_CMDREND | SDIO_STA_CTIMEOUT));
