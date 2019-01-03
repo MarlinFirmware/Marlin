@@ -22,33 +22,23 @@
 
 /**
  * VORON Design v2 pin assignments
- * see: https://github.com/mzbotreprap/VORON/blob/master/Firmware/Marlin/pins_RAMPS_VORON.h
+ * See https://github.com/mzbotreprap/VORON/blob/master/Firmware/Marlin/pins_RAMPS_VORON.h
  */
 
-#include "pins_RAMPS.h"
-
-#undef BOARD_NAME
 #define BOARD_NAME "VORON Design v2"
+
+#define RAMPS_D8_PIN       11
+
+#include "pins_RAMPS.h"
 
 //
 // Heaters / Fans
 //
-#define CONTROLLER_FAN_PIN  8
-
-#undef E0_AUTO_FAN_PIN
-#define E0_AUTO_FAN_PIN     6   // Servo pin 6 for E3D Fan
-#undef E1_AUTO_FAN_PIN
-#define E1_AUTO_FAN_PIN     6   // Servo pin 6 for E3D Fan (same pin for both extruders since it's the same fan)
-
 #undef FAN_PIN
 #define FAN_PIN             5   // Using the pin for the controller fan since controller fan is always on.
-
-#undef HEATER_0_PIN
-#define HEATER_0_PIN       10
-#undef HEATER_1_PIN
-#define HEATER_1_PIN        9
-#undef HEATER_BED_PIN
-#define HEATER_BED_PIN     11
+#define CONTROLLER_FAN_PIN  8
+#define ORIG_E0_AUTO_FAN_PIN 6  // Servo pin 6 for E3D Fan
+#define ORIG_E1_AUTO_FAN_PIN 6  // Servo pin 6 for E3D Fan (same pin for both extruders since it's the same fan)
 
 //
 // LCDs and Controllers
