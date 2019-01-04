@@ -1879,9 +1879,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       );
 
     /**
-     * If we make it here, at least one of the axes has more steps than
+     * At this point at least one of the axes has more steps than
      * MIN_STEPS_PER_SEGMENT, ensuring the segment won't get dropped as
-     * a zero-length segment. It is important to not apply corrections
+     * zero-length. It's important to not apply corrections
      * to blocks that would get dropped!
      *
      * A correction function is permitted to add steps to an axis, it
