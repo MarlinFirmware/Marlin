@@ -1549,7 +1549,8 @@ void Planner::synchronize() {
   void Planner::add_babystep_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block) {
       LOOP_XYZ(axis) {
         const int16_t correction = Temperature::babystepsTodo[axis]; // get rid of volatile for performance
-        if (correction && (TEST(dm,axis) == (correction > 0))) {
+        const bool reversing = TEST(dm,axis);
+        if (correction && (reversing == (correction < 0))) {
             block->steps[axis] += ABS(correction);
             Temperature::babystepsTodo[axis] -= correction;
         }
