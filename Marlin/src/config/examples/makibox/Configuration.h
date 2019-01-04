@@ -992,7 +992,21 @@
   #define FIL_RUNOUT_INVERTING false // set to true to invert the logic of the sensor.
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
+
+  // The FILAMENT_RUNOUT_SCRIPT will execute when a runout is detected. If
+  // ACTION_ON_FILAMENT_RUNOUT is defined, it will only execute when a runout
+  // happens when printing from an SD card.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
+
+  // When ACTION_ON_FILAMENT_RUNOUT is declared and printing from the host (i.e, not
+  // a SD print), the host will be notified and will be responsible for pausing
+  // the print (the FILAMENT_RUNOUT_SCRIPT will not run in this case).
+  //
+  // The notification will be '//action:ACTION_ON_FILAMENT_RUNOUT <extruder_number>',
+  // e.g. '//action:filament_runout 0'. The host must be configured to handle
+  // the action command and execute a pause (i.e. by stopping to send commands).
+  //
+  //#define ACTION_ON_FILAMENT_RUNOUT "pause: filament_runout"
 
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
