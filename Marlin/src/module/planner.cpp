@@ -1599,11 +1599,11 @@ void Planner::synchronize() {
 
     LOOP_XYZ(axis) {
       if (backlash_distance_mm[axis]) {
-        const bool positive = TEST(dm,axis);
+        const bool reversing = TEST(dm,axis);
 
         // When an axis changes direction, add axis backlash to the residual error
         if (TEST(changed_dir, axis))
-          residual_error[axis] += backlash_correction * (positive ? 1.0f : -1.0f) * backlash_distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
+          residual_error[axis] += backlash_correction * (reversing ? -1.0f : 1.0f) * backlash_distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
 
         // Decide how much of the residual error to correct in this segment
         int32_t error_correction = residual_error[axis];
@@ -1611,7 +1611,7 @@ void Planner::synchronize() {
           if (error_correction && backlash_smoothing_mm != 0) {
             // Take up a portion of the residual_error in this segment, but only when
             // the current segment travels in the same direction as the correction
-            if (positive == (error_correction > 0)) {
+            if (reversing == (error_correction < 0)) {
               if (segment_proportion == 0)
                 segment_proportion = MIN(1.0f, block->millimeters / backlash_smoothing_mm);
               error_correction *= segment_proportion;
