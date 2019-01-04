@@ -419,7 +419,8 @@ void MarlinUI::status_screen() {
     //
 
     #if DISABLED(PROGRESS_MSG_ONCE) || (PROGRESS_MSG_EXPIRE > 0)
-      millis_t ms = millis();
+      #define GOT_MS
+      const millis_t ms = millis();
     #endif
 
     // If the message will blink rather than expire...
@@ -487,8 +488,14 @@ void MarlinUI::status_screen() {
       feedrate_percentage = new_frm;
       encoderPosition = 0;
       #if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
-        if (currentScreen == lcd_status_screen)
+        static millis_t next_beep;
+        #ifndef GOT_MS
+          const millis_t ms = millis();
+        #endif
+        if (ELAPSED(ms, next_beep)) {
           BUZZ(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
+          next_beep = ms + 500UL;
+        }
       #endif
     }
 
