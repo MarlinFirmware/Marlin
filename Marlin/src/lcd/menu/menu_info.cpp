@@ -53,8 +53,8 @@
     printStatistics stats = print_job_timer.getStats();
 
     START_SCREEN();                                                                                // 12345678901234567890
-    STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, itostr3left(stats.totalPrints));          // Print Count: 999
-    STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS": ", false, false, itostr3left(stats.finishedPrints));   // Completed  : 666
+    STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, i16tostr3left(stats.totalPrints));        // Print Count: 999
+    STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS": ", false, false, i16tostr3left(stats.finishedPrints)); // Completed  : 666
 
     duration_t elapsed = stats.printTime;
     elapsed.toString(buffer);
