@@ -107,5 +107,4 @@ void GcodeSuite::M107() {
       fan_setpoint[p] = fan_speed[p];
   #endif
 }
-
 #endif // FAN_COUNT > 0
