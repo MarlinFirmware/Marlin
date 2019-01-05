@@ -1535,18 +1535,20 @@ void Temperature::init() {
         *state = TRStable;
       // While the temperature is stable watch for a bad temperature
       case TRStable:
-        #if ENABLED(ADAPTIVE_FAN_SLOWING)
-          if (heater_index >=0) {
-            if (current <= tr_target_temperature[heater_index] - (hysteresis_degc / 1.25))
-              fan_speed[heater_index] = 0;
-            else if (current <= tr_target_temperature[heater_index] - (hysteresis_degc / 2))
-              fan_speed[heater_index] = (fan_setpoint[heater_index] / 3);
-            else if (current <= tr_target_temperature[heater_index] - (hysteresis_degc / 3))
-              fan_speed[heater_index] = (fan_setpoint[heater_index] / 2);
-            else if (current <= tr_target_temperature[heater_index] - (hysteresis_degc / 4))
-              fan_speed[heater_index] = (fan_setpoint[heater_index] / 1.5);
+        #if ENABLED(ADAPTIVE_FAN_SLOWING) && FAN_COUNT > 0
+          if (heater_id >=0) {
+            const int fan_index = MIN(heater_id, FAN_COUNT - 1);
+            if(fan_setpoint[fan_index] == 0 && fan_speed[fan_index] != 0) fan_setpoint[fan_index] = fan_speed[fan_index];
+            if (current <= tr_target_temperature[fan_index] - (hysteresis_degc / 1.25))
+              fan_speed[fan_index] = 0;
+            else if (current <= tr_target_temperature[fan_index] - (hysteresis_degc / 2))
+              fan_speed[fan_index] = (fan_setpoint[fan_index] / 3);
+            else if (current <= tr_target_temperature[fan_index] - (hysteresis_degc / 3))
+              fan_speed[fan_index] = (fan_setpoint[fan_index] / 2);
+            else if (current <= tr_target_temperature[fan_index] - (hysteresis_degc / 4))
+              fan_speed[fan_index] = (fan_setpoint[fan_index] / 1.5);
             else
-              fan_speed[heater_index] = fan_setpoint[heater_index];
+              fan_speed[fan_index] = fan_setpoint[fan_index];
           }
         #endif
         if (current >= tr_target_temperature[heater_index] - hysteresis_degc) {
