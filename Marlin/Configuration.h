@@ -178,7 +178,7 @@
   #endif
   #define MeshStd
   #define BoardRev2
-  #define SD_DETECT_PIN     49
+  #define SD_DETECT_PIN 49
 #endif
 
 
