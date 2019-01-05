@@ -47,7 +47,7 @@
  *           3-255 = Set the speed for use with T2
  */
 void GcodeSuite::M106() {
-  const uint8_t p = parser.byteval('P', active_extruder);
+  const uint8_t p = parser.byteval('P', MIN(active_extruder, FAN_COUNT - 1));
 
   if (p < MIN(EXTRUDERS, FAN_COUNT)) {
     uint16_t s = parser.ushortval('S', 255);
