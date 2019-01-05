@@ -1545,6 +1545,8 @@ void Temperature::init() {
               fan_speed[heater_index] = (fan_setpoint[heater_index] / 2);
             else if (current <= tr_target_temperature[heater_index] - (hysteresis_degc / 4))
               fan_speed[heater_index] = (fan_setpoint[heater_index] / 1.5);
+            else
+              fan_speed[heater_index] = fan_setpoint[heater_index];
           }
         #endif
         if (current >= tr_target_temperature[heater_index] - hysteresis_degc) {
