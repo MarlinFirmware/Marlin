@@ -121,4 +121,5 @@
 #define FSMC_CS_PIN        PG12  // NE4
 #define FSMC_RS_PIN        PF0   // A0
 
+#define SD_DETECT_PIN      PF12
 #define SDSS               -1

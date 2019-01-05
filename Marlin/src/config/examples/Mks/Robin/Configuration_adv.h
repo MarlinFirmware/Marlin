@@ -596,6 +596,13 @@
   #define ENCODER_100X_STEPS_PER_SEC  80  // (steps/s) Encoder rate for 100x speed
 #endif
 
+// Play a beep when the feedrate is changed from the Status Screen
+//#define BEEP_ON_FEEDRATE_CHANGE
+#if ENABLED(BEEP_ON_FEEDRATE_CHANGE)
+  #define FEEDRATE_CHANGE_BEEP_DURATION   10
+  #define FEEDRATE_CHANGE_BEEP_FREQUENCY 440
+#endif
+
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
 
@@ -646,7 +653,7 @@
   // as SD_DETECT_PIN in your board's pins definitions.
   // This setting should be disabled unless you are using a push button, pulling the pin to ground.
   // Note: This is always disabled for ULTIPANEL (except ELB_FULL_GRAPHIC_CONTROLLER).
-  #define SD_DETECT_INVERTED
+  //#define SD_DETECT_INVERTED
 
   #define SD_FINISHED_STEPPERRELEASE true          // Disable steppers when SD Print is finished
   #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the Z enabled so your bed stays in place.
