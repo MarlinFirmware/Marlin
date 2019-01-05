@@ -2166,7 +2166,7 @@ void EachMomentUpdate()
 void RTSUpdate()	//looping at the loop function
 {
 	/*Check the status of card*/
-	//rtscheck.RTS_SDCardUpate();
+	rtscheck.RTS_SDCardUpate();
 	
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 	/*checking filement status during printing */
