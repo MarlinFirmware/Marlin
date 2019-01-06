@@ -451,7 +451,7 @@ namespace ExtUI {
 
     void setZOffset_mm(const float value) {
       const float diff = (value - getZOffset_mm()) / planner.steps_to_mm[Z_AXIS];
-      addZOffset_steps(diff > 0 ? ceil(diff) : floor(diff));
+      addZOffset_steps(diff > 0 ? CEIL(diff) : FLOOR(diff));
     }
 
     void addZOffset_steps(int16_t babystep_increment) {
