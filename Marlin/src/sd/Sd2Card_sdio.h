@@ -21,24 +21,19 @@
  */
 #pragma once
 
-/**
- * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
- */
+#include "../inc/MarlinConfig.h"
 
-#include <libmaple/iwdg.h>
+#if ENABLED(SDIO_SUPPORT)
 
-/**
- *  The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and
- *  625 reload value (counts down to 0)
- *  use 1250 for 8 seconds
- */
-#define STM32F1_WD_RELOAD 625
+bool SDIO_Init(void);
+bool SDIO_ReadBlock(uint32_t block, uint8_t *dst);
+bool SDIO_WriteBlock(uint32_t block, const uint8_t *src);
 
-// Arduino STM32F1 core now has watchdog support
+class Sd2Card {
+  public:
+    bool init(uint8_t sckRateID = 0, uint8_t chipSelectPin = 0) { return SDIO_Init(); }
+    bool readBlock(uint32_t block, uint8_t *dst) { return SDIO_ReadBlock(block, dst); }
+    bool writeBlock(uint32_t block, const uint8_t *src) { return SDIO_WriteBlock(block, src); }
+};
 
-// Initialize watchdog with a 4 second countdown time
-void watchdog_init();
-
-// Reset watchdog. MUST be called at least every 4 seconds after the
-// first watchdog_init or STM32F1 will reset.
-void watchdog_reset();
+#endif // SDIO_SUPPORT

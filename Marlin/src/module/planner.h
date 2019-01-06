@@ -339,7 +339,7 @@ class Planner {
     #endif
 
     #if ENABLED(BACKLASH_COMPENSATION)
-      static void add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block, float (&delta_mm)[ABCE]);
+      static void add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block);
     #endif
 
   public:
