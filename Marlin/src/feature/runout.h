@@ -99,7 +99,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
           #endif
           #ifdef FILAMENT_RUNOUT_ACTION
             SERIAL_ECHOLNPAIR("//action:" FILAMENT_RUNOUT_ACTION " ", active_extruder);
-            if(!IS_SD_PRINTING())
+            if (!IS_SD_PRINTING())
               reset();
             else
           #endif
