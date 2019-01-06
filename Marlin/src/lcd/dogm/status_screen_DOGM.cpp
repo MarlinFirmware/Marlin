@@ -328,11 +328,18 @@ void MarlinUI::draw_status_screen() {
     // Fan, if a bitmap was provided
     #if DO_DRAW_FAN
       if (PAGE_CONTAINS(STATUS_FAN_TEXT_Y - INFO_FONT_ASCENT, STATUS_FAN_TEXT_Y - 1)) {
-        const int per = ((int(fan_speed[0]) + 1) * 100) / 256;
+        char c = '%';
+        int per = ((int(fan_speed[0]) + 1) * 100) / 256;
         if (per) {
+          #if ENABLED(ADAPTIVE_FAN_SLOWING)
+            if(fan_speed_multiplier[0] < 100 && !blink){ 
+              per = ((int(fan_speed[0] * (fan_speed_multiplier[0]/100.0f)) + 1) * 100) / 256;
+              c = '*';
+            }
+          #endif
           lcd_moveto(STATUS_FAN_TEXT_X, STATUS_FAN_TEXT_Y);
           lcd_put_u8str(itostr3(per));
-          lcd_put_wchar('%');
+          lcd_put_wchar(c);
         }
       }
     #endif

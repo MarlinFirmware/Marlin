@@ -1178,10 +1178,12 @@ void Planner::check_axes_activity() {
   #endif
 
   if (has_blocks_queued()) {
-
     #if FAN_COUNT > 0
-      FANS_LOOP(i)
-        tail_fan_speed[i] = block_buffer[block_buffer_tail].fan_speed[i];
+      FANS_LOOP(i) tail_fan_speed[i] = block_buffer[block_buffer_tail].fan_speed[i]
+        #if ENABLED(ADAPTIVE_FAN_SLOWING)
+        * ((float)fan_speed_multiplier[i]/100.0f)
+        #endif
+        ;
     #endif
 
     block_t* block;
@@ -1203,7 +1205,11 @@ void Planner::check_axes_activity() {
   }
   else {
     #if FAN_COUNT > 0
-      FANS_LOOP(i) tail_fan_speed[i] = fan_speed[i];
+      FANS_LOOP(i) tail_fan_speed[i] = fan_speed[i]
+      #if ENABLED(ADAPTIVE_FAN_SLOWING)
+      * ((float)fan_speed_multiplier[i]/100.0f)
+      #endif
+      ;
     #endif
 
     #if ENABLED(BARICUDA)

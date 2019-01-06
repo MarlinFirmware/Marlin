@@ -872,6 +872,13 @@ void MarlinUI::draw_status_screen() {
               c = 'F';
               per = ((int(fan_speed[0]) + 1) * 100) / 256;
             }
+            #if ENABLED(ADAPTIVE_FAN_SLOWING)
+              else if(fan_speed_multiplier[0] < 100)
+              {
+                c = '*';
+                per = ((int(fan_speed[0] * (fan_speed_multiplier[0]/100.0f)) + 1) * 100) / 256;
+              }
+            #endif
             else
           #endif
             {

@@ -320,6 +320,27 @@ class Temperature {
       static float analog_to_celsiusChamber(const int raw);
     #endif
 
+    #if FAN_COUNT > 0
+      static void set_fanspeed(const uint8_t target, const uint16_t speed);
+      static uint8_t lcd_tmpfan_speed[MAX(FAN_COUNT, 
+        #if ENABLED(SINGLENOZZLE)
+          EXTRUDERS
+        #else
+          0
+        #endif
+        )];
+      static void lcd_setFanSpeed(const uint8_t target);
+      #if HAS_FAN0
+        static void lcd_setFan0Speed();
+      #endif
+      #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
+        static void lcd_setFan1Speed();
+      #endif
+      #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
+        static void lcd_setFan2Speed();
+      #endif
+    #endif
+
     /**
      * Called from the Temperature ISR
      */

@@ -55,6 +55,10 @@
   #include "../feature/leds/printer_event_leds.h"
 #endif
 
+#if ENABLED(SINGLENOZZLE)
+  #include "tool_change.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static void* heater_ttbl_map[2] = { (void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
@@ -99,6 +103,51 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
 #if ENABLED(AUTO_POWER_E_FANS)
   uint8_t Temperature::autofan_speed[HOTENDS] = { 0 };
 #endif
+
+#if FAN_COUNT > 0
+  void Temperature::set_fanspeed(uint8_t target, uint16_t speed) {
+    
+
+    NOMORE(speed, 255U);
+
+    #if ENABLED(SINGLENOZZLE)
+      if (target != active_extruder) {
+        if (target < EXTRUDERS) singlenozzle_fan_speed[target] = speed;
+        return;
+      }
+      target = 0; // Always use fan index 0 with SINGLENOZZLE
+    #endif
+
+    if (target >= FAN_COUNT) return;
+    
+    fan_speed[target] = speed;
+    #if ENABLED(ULTRA_LCD)
+      lcd_tmpfan_speed[target] = speed;
+    #endif
+  }
+
+  uint8_t Temperature::lcd_tmpfan_speed[MAX(FAN_COUNT, 
+        #if ENABLED(SINGLENOZZLE)
+          EXTRUDERS
+        #else
+          0
+        #endif
+        )] = { 0 };
+  void Temperature::lcd_setFanSpeed(const uint8_t target) {
+    set_fanspeed(target, lcd_tmpfan_speed[target]);
+  }
+
+  #if HAS_FAN0
+    void Temperature::lcd_setFan0Speed() { lcd_setFanSpeed(0); }
+  #endif
+  #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
+    void Temperature::lcd_setFan1Speed() { lcd_setFanSpeed(1); }
+  #endif
+  #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
+    void Temperature::lcd_setFan2Speed() { lcd_setFanSpeed(2); }
+  #endif
+
+#endif // FAN_COUNT > 0
 
 #if HAS_HEATED_BED
   float Temperature::current_temperature_bed = 0.0;
@@ -1529,18 +1578,38 @@ void Temperature::init() {
     switch (*state) {
       // Inactive state waits for a target temperature to be set
       case TRInactive: break;
+
       // When first heating, wait for the temperature to be reached then go to Stable state
       case TRFirstHeating:
         if (current < tr_target_temperature[heater_index]) break;
         *state = TRStable;
+
       // While the temperature is stable watch for a bad temperature
       case TRStable:
+
+        #if ENABLED(ADAPTIVE_FAN_SLOWING) && FAN_COUNT > 0
+          if (heater_id >= 0) {
+            const int fan_index = MIN(heater_id, FAN_COUNT - 1);
+            if (fan_speed[fan_index]==0 || current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.25f))
+              fan_speed_multiplier[fan_index] = 100;
+            else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.3335f))
+              fan_speed_multiplier[fan_index] = 75;
+            else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.5f))
+              fan_speed_multiplier[fan_index] = 50;
+            else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.8f))
+              fan_speed_multiplier[fan_index] = 25;
+            else
+              fan_speed_multiplier[fan_index] = 0;
+          }
+        #endif
+
         if (current >= tr_target_temperature[heater_index] - hysteresis_degc) {
           *timer = millis() + period_seconds * 1000UL;
           break;
         }
         else if (PENDING(millis(), *timer)) break;
         *state = TRRunaway;
+
       case TRRunaway:
         _temp_error(heater_id, PSTR(MSG_T_THERMAL_RUNAWAY), TEMP_ERR_PSTR(MSG_THERMAL_RUNAWAY, heater_id));
     }

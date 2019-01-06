@@ -753,6 +753,10 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #if HAS_HEATED_BED
       draw_bed_temp(bed_temp, bed_target, forceUpdate);
     #endif
+    #if ENABLED(ADAPTIVE_FAN_SLOWING)
+      if(fan_speed_multiplier[0] < 100 && !blink)
+        fs = ((int(fan_speed[0] * (fan_speed_multiplier[0]/100.0f)) + 1) * 100) / 256;
+    #endif
     draw_fan_speed(fs);
     draw_print_time(elapsed);
     draw_feedrate_percentage(feedrate_perc);

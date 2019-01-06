@@ -26,12 +26,9 @@
 
 #include "../gcode.h"
 #include "../../Marlin.h" // for fan_speed
-
 #include "../../module/motion.h"
+#include "../../module/temperature.h"
 
-#if ENABLED(SINGLENOZZLE)
-  #include "../../module/tool_change.h"
-#endif
 
 /**
  * M106: Set Fan Speed
@@ -53,36 +50,26 @@ void GcodeSuite::M106() {
     uint16_t s = parser.ushortval('S', 255);
     NOMORE(s, 255U);
 
-    uint8_t np = p;
-
-    #if ENABLED(SINGLENOZZLE)
-      if (p != active_extruder) {
-        if (p < EXTRUDERS) singlenozzle_fan_speed[p] = s;
-        return;
-      }
-      np = 0; // Always use fan index 0 with SINGLENOZZLE
-    #endif
-
     #if ENABLED(EXTRA_FAN_SPEED)
       const int16_t t = parser.intval('T');
       if (t > 0) {
         switch (t) {
           case 1:
-            fan_speed[np] = old_fan_speed[np];
+            thermalManager.set_fanspeed(p, old_fan_speed[p]);
             break;
           case 2:
-            old_fan_speed[np] = fan_speed[np];
-            fan_speed[np] = new_fan_speed[np];
+            old_fan_speed[p] = fan_speed[p];
+            thermalManager.set_fanspeed(p, new_fan_speed[p]);
             break;
           default:
-            new_fan_speed[np] = MIN(t, 255U);
+            new_fan_speed[p] = MIN(t, 255U);
             break;
         }
         return;
       }
     #endif // EXTRA_FAN_SPEED
 
-    fan_speed[np] = s;
+    thermalManager.set_fanspeed(p, s);
   }
 }
 
@@ -91,15 +78,7 @@ void GcodeSuite::M106() {
  */
 void GcodeSuite::M107() {
   const uint16_t p = parser.byteval('P', active_extruder);
-
-  #if ENABLED(SINGLENOZZLE)
-    if (p != active_extruder) {
-      if (p < EXTRUDERS) singlenozzle_fan_speed[p] = 0;
-      return;
-    }
-  #endif
-
-  if (p < MIN(EXTRUDERS, FAN_COUNT)) fan_speed[p] = 0;
+  thermalManager.set_fanspeed(p, 0);
 }
 
 #endif // FAN_COUNT > 0

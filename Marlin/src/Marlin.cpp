@@ -173,6 +173,9 @@ bool Running = true;
     bool fans_paused; // = false;
     uint8_t paused_fan_speed[FAN_COUNT] = { 0 };
   #endif
+  #if ENABLED(ADAPTIVE_FAN_SLOWING)
+    uint8_t fan_speed_multiplier[FAN_COUNT] = ARRAY_N(FAN_COUNT, 100, 100, 100, 100, 100, 100 );
+  #endif
 #endif
 
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop

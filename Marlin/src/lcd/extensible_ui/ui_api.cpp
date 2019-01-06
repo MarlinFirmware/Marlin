@@ -180,7 +180,15 @@ namespace ExtUI {
     return thermalManager.degTargetHotend(extruder - E0);
   }
 
-  float getFan_percent(const fan_t fan) { return ((float(fan_speed[fan - FAN0]) + 1) * 100) / 256; }
+  float getTargetFan_percent(const fan_t fan) { return ((float(fan_speed[fan - FAN0]) + 1) * 100) / 256; }
+
+  float getActualFan_percent(const fan_t fan) { 
+    #if ENABLED(ADAPTIVE_FAN_SLOWING)
+      return ((int(fan_speed[fan - FAN0] * (fan_speed_multiplier[fan - FAN0]/100.0f)) + 1) * 100) / 256;
+    #else
+      return getTargetFan_percent(fan);
+    #endif
+    }
 
   float getAxisPosition_mm(const axis_t axis) {
     return flags.manual_motion ? destination[axis] : current_position[axis];
@@ -560,9 +568,9 @@ namespace ExtUI {
     thermalManager.setTargetHotend(clamp(value, 0, heater_maxtemp[e] - 15), e);
   }
 
-  void setFan_percent(float value, const fan_t fan) {
+  void setTargetFan_percent(float value, const fan_t fan) {
     if (fan < FAN_COUNT)
-      fan_speed[fan - FAN0] = clamp(round(value * 255 / 100), 0, 255);
+      thermalManager.set_fanspeed(fan - FAN0, clamp(round(value * 255 / 100), 0, 255));
   }
 
   void setFeedrate_percent(const float value) {
