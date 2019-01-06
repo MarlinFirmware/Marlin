@@ -23,16 +23,51 @@
 #include "../gcode.h"
 #include "../../module/planner.h"
 
+void report_M92(
+  #if NUM_SERIAL > 1
+    const int8_t port,
+  #endif
+  const bool echo=true, const int8_t e=-1
+) {
+  if (echo) SERIAL_ECHO_START_P(port); else SERIAL_CHAR(' ');
+  SERIAL_ECHOPAIR_P(port, " M92 X", LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]));
+  SERIAL_ECHOPAIR_P(port, " Y", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]));
+  SERIAL_ECHOPAIR_P(port, " Z", LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]));
+  #if DISABLED(DISTINCT_E_FACTORS)
+    SERIAL_ECHOPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS]));
+  #endif
+  SERIAL_EOL_P(port);
+
+  #if ENABLED(DISTINCT_E_FACTORS)
+    for (uint8_t i = 0; i < E_STEPPERS; i++) {
+      if (e >= 0 && i != e) continue;
+      if (echo) SERIAL_ECHO_START_P(port); else SERIAL_CHAR(' ');
+      SERIAL_ECHOPAIR_P(port, " M92 T", (int)i);
+      SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.axis_steps_per_mm[E_AXIS_N(i)]));
+    }
+  #endif
+}
+
 /**
  * M92: Set axis steps-per-unit for one or more axes, X, Y, Z, and E.
  *      (Follows the same syntax as G92)
  *
  *      With multiple extruders use T to specify which one.
+ *
+ *      If no argument is given print the current values.
  */
 void GcodeSuite::M92() {
 
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
+
+  // No arguments? Show M92 report.
+  if (!parser.seen("XYZE")) return report_M92(
+    #if NUM_SERIAL > 1
+      command_queue_port[cmd_queue_index_r],
+    #endif
+    true, target_extruder
+  );
 
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
