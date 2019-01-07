@@ -130,6 +130,8 @@
   #include "pins_ULTIMAIN_2.h"        // ATmega2560                                 env:megaatmega2560
 #elif MB(RUMBA)
   #include "pins_RUMBA.h"             // ATmega2560                                 env:megaatmega2560
+#elif MB(RL200)
+  #include "pins_RL200.h"             // ATmega2560                                 env:megaatmega2560
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"    // ATmega2560                                 env:megaatmega2560
 #elif MB(MAKEBOARD_MINI)
