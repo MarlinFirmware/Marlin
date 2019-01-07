@@ -972,6 +972,10 @@ SERIAL_ECHO(Checkkey);
 			rts_probe_zoffset = ((float)recdat.data[0]-65536)/100;
 		else
 			rts_probe_zoffset = ((float)recdat.data[0])/100;
+        if (WITHIN((zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * ((int32_t)rts_probe_zoffset * (BABYSTEP_MULTIPLICATOR))), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        	thermalManager.babystep_axis(Z_AXIS, ((int32_t)rts_probe_zoffset * (BABYSTEP_MULTIPLICATOR)));
+        	zprobe_zoffset = (zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * ((int32_t)rts_probe_zoffset * (BABYSTEP_MULTIPLICATOR)));
+		}
 		break;
 		
 	case TempControl:
@@ -1258,13 +1262,23 @@ SERIAL_ECHO(Checkkey);
 			}
 			else if(recdat.data[0] == 2)// Z-axis to Up
 			{
-				current_position[Z_AXIS] += 0.1; 
-				RTS_line_to_current(Z_AXIS);
+				//current_position[Z_AXIS] += 0.1; 
+				//RTS_line_to_current(Z_AXIS);
+				int16_t babystep_increment = (int32_t)(BABYSTEP_MULTIPLICATOR);
+				float new_zoffset = zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * babystep_increment;
+				if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+					thermalManager.babystep_axis(Z_AXIS, babystep_increment);
+					zprobe_zoffset = new_zoffset;
+				}
 			}
 			else if(recdat.data[0] == 3)// Z-axis to Down
 			{
-				current_position[Z_AXIS] -= 0.1; 
-				RTS_line_to_current(Z_AXIS);
+				int16_t babystep_increment = (int32_t)0-(BABYSTEP_MULTIPLICATOR);
+				float new_zoffset = zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * babystep_increment;
+				if (WITHIN(new_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+					thermalManager.babystep_axis(Z_AXIS, babystep_increment);
+					zprobe_zoffset = new_zoffset;
+				}
 			}
 			else if(recdat.data[0] == 4) 	// Assitant Level
 			{
