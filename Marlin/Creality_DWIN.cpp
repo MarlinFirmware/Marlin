@@ -982,6 +982,7 @@ SERIAL_ECHO(Checkkey);
 			SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 		}
 		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
+		settings.save();
 		break;
 		
 	case TempControl:
