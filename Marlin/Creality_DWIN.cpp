@@ -969,6 +969,8 @@ SERIAL_ECHO(Checkkey);
 		break;
 		
 	case Zoffset:
+		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
+		SERIAL_ECHOPAIR("\n rcv data = ",recdat.data[0]);
 		if(recdat.data[0]>= 32768) {
 			rts_probe_zoffset = ((float)recdat.data[0]-65536)/100;
 		}
@@ -979,12 +981,13 @@ SERIAL_ECHO(Checkkey);
 		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
         if (WITHIN((rts_probe_zoffset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
         	thermalManager.babystep_axis(Z_AXIS, (int32_t)(planner.steps_to_mm[Z_AXIS] * (zprobe_zoffset - rts_probe_zoffset)));
-        	zprobe_zoffset = (zprobe_zoffset + rts_probe_zoffset);
+        	zprobe_zoffset = rts_probe_zoffset;
 			SERIAL_ECHOPAIR("\n StepsMoved = ",(planner.steps_to_mm[Z_AXIS] * (zprobe_zoffset - rts_probe_zoffset)));
 			SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 		}
 		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
 		settings.save();
+		SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 		break;
 		
 	case TempControl:

@@ -1141,7 +1141,9 @@ void MarlinSettings::postprocess() {
         float zprobe_zoffset;
       #endif
       EEPROM_READ(zprobe_zoffset);
-
+      #if HAS_BED_PROBE || ENABLED(CREALITY_DWIN)
+        rts_probe_zoffset = zprobe_zoffset;
+      #endif
       //
       // Planar Bed Leveling matrix
       //
