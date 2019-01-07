@@ -969,14 +969,14 @@ SERIAL_ECHO(Checkkey);
 		
 	case Zoffset:
 		if(recdat.data[0]>= 32768) {
-			rts_probe_zoffset = ((float)recdat.data[0]-65536);
+			rts_probe_zoffset = ((float)recdat.data[0]-65536)/100;
 		}
 			
 		else {
-			rts_probe_zoffset = ((float)recdat.data[0]);
+			rts_probe_zoffset = ((float)recdat.data[0])/100;
 		}
         if (WITHIN((zprobe_zoffset + (planner.steps_to_mm[Z_AXIS] * rts_probe_zoffset)), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        	thermalManager.babystep_axis(Z_AXIS, (int32_t)rts_probe_zoffset * (BABYSTEP_MULTIPLICATOR));
+        	thermalManager.babystep_axis(Z_AXIS, ((int32_t)rts_probe_zoffset * BABYSTEP_MULTIPLICATOR));
         	zprobe_zoffset = (zprobe_zoffset + rts_probe_zoffset);
 			SERIAL_ECHOPAIR("\n StepsMoved = ",(planner.steps_to_mm[Z_AXIS] * rts_probe_zoffset));
 			SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
