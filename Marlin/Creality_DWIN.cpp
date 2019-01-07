@@ -968,10 +968,15 @@ SERIAL_ECHO(Checkkey);
 		break;
 		
 	case Zoffset:
-		if(recdat.data[0]>= 32768)
+		if(recdat.data[0]>= 32768) {
 			rts_probe_zoffset = ((float)recdat.data[0]-65536)/100;
-		else
+			SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
+		}
+			
+		else {
 			rts_probe_zoffset = ((float)recdat.data[0])/100;
+			SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
+		}
 		break;
 		
 	case TempControl:
