@@ -1484,16 +1484,9 @@ void unified_bed_leveling::adjust_z_probe_offset() {
     lcd_quick_feedback(true);
   } else {
     zprobe_zoffset = new_z-orig_z;
-    //enqueue_and_echo_commands_P(PSTR("G28 Z\n"));
-    //homeaxis(Z_AXIS);
-    //current_position[Z_AXIS] = 0;
-    // set_axis_is_at_home(Z_AXIS);
-    // sync_plan_position();
-    // current_position[axis] = base_home_pos(axis);
-    //float diff = base_home_pos(Z_AXIS) - current_position[Z_AXIS];
-    //set_home_offset(Z_AXIS, diff)
   }
 
+  //Restore original position
   do_blocking_move_to_z(orig_z);
   do_blocking_move_to_xy(orig_x, orig_x);
 
