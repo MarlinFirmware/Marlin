@@ -1144,8 +1144,14 @@
 //#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+  //Try to home on a grid point to better allow checking mesh center
+    #define Z_SAFE_HOMING_X_POINT ((GRID_MAX_POINTS_X/2)*(X_BED_SIZE-2*MESH_INSET)/(GRID_MAX_POINTS_X-1)+MESH_INSET) // X point for Z homing when homing all axes (G28).
+    #define Z_SAFE_HOMING_Y_POINT ((GRID_MAX_POINTS_Y/2)*(Y_BED_SIZE-2*MESH_INSET)/(GRID_MAX_POINTS_Y-1)+MESH_INSET) // Y point for Z homing when homing all axes (G28).
+  #else
+    #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)    // X point for Z homing when homing all axes (G28).
+    #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)    // Y point for Z homing when homing all axes (G28).
+  #endif
 #endif
 
 // Homing speeds (mm/m)
