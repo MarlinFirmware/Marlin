@@ -69,6 +69,7 @@
     int  unified_bed_leveling::g29_grid_size;
   #endif
 
+
   /**
    *   G29: Unified Bed Leveling by Roxy
    *
@@ -617,6 +618,11 @@
 
     if (parser.seen('T'))
       display_map(g29_map_type);
+
+    #if HAS_BED_PROBE && ENABLED(NEWPANEL)
+      if (parser.seen('Z')) 
+        adjust_z_probe_offset();
+    #endif
 
     LEAVE:
 
@@ -1441,6 +1447,61 @@
       else
         lcd_return_to_status();
     }
+
+void unified_bed_leveling::adjust_z_probe_offset() {
+  home_all_axes();
+
+  LCD_MESSAGEPGM(MSG_ZPROBE_ZOFFSET);
+  lcd_external_control = true; 
+  KEEPALIVE_STATE(PAUSED_FOR_USER);                                 // Take over control of the LCD encoder
+  lcd_refresh();
+
+  //save_ubl_active_state_and_disable();
+  float orig_z = current_position[Z_AXIS];
+  float orig_x = current_position[X_AXIS];
+  float orig_y = current_position[Y_AXIS];
+
+  //Move nozzle to where the probe measured z.
+  do_blocking_move_to_xy(orig_x+X_PROBE_OFFSET_FROM_EXTRUDER,
+    orig_x+Y_PROBE_OFFSET_FROM_EXTRUDER);
+  //Move nozzle close above the bed
+  do_blocking_move_to_z(0.5);
+  float new_z = current_position[Z_AXIS];
+  lcd_mesh_edit_setup(new_z);
+  
+  do {
+      new_z = lcd_mesh_edit();
+      do_blocking_move_to_z(new_z);                // Move the nozzle as the point is edited
+      idle();
+      SERIAL_FLUSH();                                           // Prevent host M105 buffer overrun.
+    } while (!is_lcd_clicked());
+
+  if (click_and_hold()) {
+  // If the click is held down, restore original pos
+    lcd_return_to_status();
+    do_blocking_move_to_z(orig_z);
+    LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
+    lcd_quick_feedback(true);
+  } else {
+    zprobe_zoffset = new_z-orig_z;
+    //enqueue_and_echo_commands_P(PSTR("G28 Z\n"));
+    //homeaxis(Z_AXIS);
+    //current_position[Z_AXIS] = 0;
+    // set_axis_is_at_home(Z_AXIS);
+    // sync_plan_position();
+    // current_position[axis] = base_home_pos(axis);
+    //float diff = base_home_pos(Z_AXIS) - current_position[Z_AXIS];
+    //set_home_offset(Z_AXIS, diff)
+  }
+
+  do_blocking_move_to_z(orig_z);
+  do_blocking_move_to_xy(orig_x, orig_x);
+
+  lcd_external_control = false;
+  KEEPALIVE_STATE(IN_HANDLER);
+  //restore_ubl_active_state_and_leave();
+  lcd_return_to_status();
+  }
 
   #endif // NEWPANEL
 
