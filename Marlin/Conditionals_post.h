@@ -191,10 +191,20 @@
  */
 #if ENABLED(Z_SAFE_HOMING)
   #ifndef Z_SAFE_HOMING_X_POINT
-    #define Z_SAFE_HOMING_X_POINT X_CENTER
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      // Home at grid point close to bed center so this grid point will have z height very close to 0
+      #define Z_SAFE_HOMING_X_POINT ((GRID_MAX_POINTS_X/2)*(X_BED_SIZE-2*MESH_INSET)/(GRID_MAX_POINTS_X-1)+MESH_INSET)
+    #else
+      #define Z_SAFE_HOMING_X_POINT X_CENTER
+    #endif
   #endif
   #ifndef Z_SAFE_HOMING_Y_POINT
-    #define Z_SAFE_HOMING_Y_POINT Y_CENTER
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      // Home at grid point close to bed center so this grid point will have z height very close to 0
+      #define Z_SAFE_HOMING_Y_POINT ((GRID_MAX_POINTS_Y/2)*(Y_BED_SIZE-2*MESH_INSET)/(GRID_MAX_POINTS_Y-1)+MESH_INSET)
+    #else
+      #define Z_SAFE_HOMING_Y_POINT Y_CENTER
+    #endif
   #endif
   #define X_TILT_FULCRUM Z_SAFE_HOMING_X_POINT
   #define Y_TILT_FULCRUM Z_SAFE_HOMING_Y_POINT
