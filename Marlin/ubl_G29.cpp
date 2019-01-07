@@ -1448,6 +1448,7 @@
         lcd_return_to_status();
     }
 
+#if HAS_BED_PROBE
 void unified_bed_leveling::adjust_z_probe_offset() {
   home_all_axes();
 
@@ -1494,7 +1495,7 @@ void unified_bed_leveling::adjust_z_probe_offset() {
   //restore_ubl_active_state_and_leave();
   lcd_return_to_status();
   }
-
+  #endif // HAS_BED_PROBE
   #endif // NEWPANEL
 
   /**

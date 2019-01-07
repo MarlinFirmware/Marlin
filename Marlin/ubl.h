@@ -89,7 +89,9 @@ class unified_bed_leveling {
       static float measure_business_card_thickness(float in_height);
       static void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool) _O0;
       static void fine_tune_mesh(const float &rx, const float &ry, const bool do_ubl_mesh_map) _O0;
+      #if HAS_BED_PROBE
       static void adjust_z_probe_offset();
+      #endif
     #endif
 
     static bool g29_parameter_parsing() _O0;
