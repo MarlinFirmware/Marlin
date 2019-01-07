@@ -1477,9 +1477,8 @@ void unified_bed_leveling::adjust_z_probe_offset() {
     } while (!is_lcd_clicked());
 
   if (click_and_hold()) {
-  // If the click is held down, restore original pos
+  // If the click is held down, cancel the editing
     lcd_return_to_status();
-    do_blocking_move_to_z(orig_z);
     LCD_MESSAGEPGM(MSG_EDITING_STOPPED);
     lcd_quick_feedback(true);
   } else {
