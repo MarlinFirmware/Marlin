@@ -975,10 +975,11 @@ SERIAL_ECHO(Checkkey);
 		else {
 			rts_probe_zoffset = ((float)recdat.data[0])/100;
 		}
-        if (WITHIN((zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * ((int32_t)rts_probe_zoffset * (BABYSTEP_MULTIPLICATOR))), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        if (WITHIN((zprobe_zoffset + (planner.steps_to_mm[Z_AXIS] * ((int32_t)rts_probe_zoffset * (BABYSTEP_MULTIPLICATOR)))), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
         	thermalManager.babystep_axis(Z_AXIS, ((int32_t)rts_probe_zoffset * (BABYSTEP_MULTIPLICATOR)));
         	zprobe_zoffset = (zprobe_zoffset + planner.steps_to_mm[Z_AXIS] * ((int32_t)rts_probe_zoffset * (BABYSTEP_MULTIPLICATOR)));
-			
+			SERIAL_ECHOPAIR("\n StepsMoved = ",((int32_t)rts_probe_zoffset * (BABYSTEP_MULTIPLICATOR)));
+			SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 		}
 		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
 		break;
