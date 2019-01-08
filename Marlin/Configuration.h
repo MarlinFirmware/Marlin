@@ -190,7 +190,7 @@
   #if DISABLED(GraphicLCD)
     #define CREALITY_DWIN
     #define FIL_RUNOUT_PIN 2
-    #define FIL_RUNOUT_INVERTING true
+    #define FIL_RUNOUT_INVERTING false
   #endif
   #define MachineCR10Std
   #define Dual_BowdenSplitterY
