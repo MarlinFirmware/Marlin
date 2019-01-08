@@ -2205,8 +2205,14 @@ void RTSUpdate()	//looping at the loop function
 	
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 	/*checking filement status during printing */
+	
+	SERIAL_ECHOPAIR("\n ***FilementStatus[1] =",FilementStatus[1]);
+	SERIAL_ECHOPAIR("\n ***card.sdprinting =",card.sdprinting);
+
 	if(FilementStatus[1] == 2 && true==card.sdprinting)
 	{	
+		
+	SERIAL_ECHOPAIR("\n FIL_RUNOUT_PIN =",READ(FIL_RUNOUT_PIN));
 		char cmd[2][30];
 		if(READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING)
 		{

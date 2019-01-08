@@ -22,19 +22,19 @@
 //#define MachineMini
 //#define MachineCR20 //Buzzer doesnt work, need to map pin
 //#define MachineCR10Std
-//#define MachineCR10SPro // Has not seen real hardware yet!
-#define MachineCRX
+#define MachineCR10SPro // Has not seen real hardware yet!
+//#define MachineCRX
 //#define MachineS4
 //#define MachineS5
 
 
-#define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
+//#define BoardRev2 //Enable for SD detect function on Rev 2.1 boards or Ender 4
 //#define GraphicLCD //Full graphics LCD for Ender 4
 //#define ForceCRXDisplay
-#define Force10SProDisplay
-#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
-#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
-#define DualFilSensors //Using dual filament sensors on XMax and YMAX
+//#define Force10SProDisplay
+//#define AddonFilSensor //Adds a filamnt runout sensor to the CR20 or Ender 4
+//#define lerdgeFilSensor //Using lerdge filament sensor, which is opposite polarity to stock
+//#define DualFilSensors //Using dual filament sensors on XMax and YMAX
 /*
    Hotend Type
    Choose one option below.
@@ -88,14 +88,14 @@
 */
 //#define ABL_EZABL // TH3D EZABL or Any NO Sensor
 //#define ABL_NCSW //Creality ABL or Any NC Sensor
-#define ABL_BLTOUCH
+//#define ABL_BLTOUCH
 
 /*
    Choose bed leveling type here
    Requires a sensor from above
    Melzi board users may only select ABL_BI for bilinear leveling
 */
-#define ABL_BI
+//#define ABL_BI
 //#define ABL_UBL
 
 // Totally untested with the creality dwin touchscreen as of yet. Might kinda sorta almost work, but
@@ -1454,7 +1454,7 @@
 #else
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
-#define FIL_RUNOUT_PIN 2
+  #define FIL_RUNOUT_PIN 2
 #endif
 
 //===========================================================================
