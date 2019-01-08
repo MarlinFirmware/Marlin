@@ -51,6 +51,10 @@
   #include "../../module/printcounter.h"
 #endif
 
+#if DUAL_MIXING_EXTRUDER
+  #include "../../feature/mixing.h"
+#endif
+
 FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, const uint8_t ty) {
   const char *str = i16tostr3(temp);
   const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
@@ -59,6 +63,9 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
   lcd_put_wchar(LCD_STR_DEGREE[0]);
 }
 
+#define X_LABEL_POS      3
+#define X_VALUE_POS     11
+#define XYZ_SPACING     37
 #define XYZ_BASELINE    (30 + INFO_FONT_ASCENT)
 #define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
 #define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
@@ -209,6 +216,10 @@ FORCE_INLINE void _draw_heater_status(const int8_t heater, const bool blink) {
 // Homed and known, display constantly.
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
+  const uint8_t offs = (XYZ_SPACING) * axis;
+  lcd_moveto(X_LABEL_POS + offs, XYZ_BASELINE);
+  lcd_put_wchar('X' + axis);
+  lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
   if (blink)
     lcd_put_u8str(value);
   else {
@@ -450,19 +461,35 @@ void MarlinUI::draw_status_screen() {
         u8g.setColorIndex(0); // white on black
       #endif
 
-      lcd_moveto(0 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      lcd_put_wchar('X');
-      lcd_moveto(0 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      _draw_axis_value(X_AXIS, xstring, blink);
+      #if DUAL_MIXING_EXTRUDER
 
-      lcd_moveto(1 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      lcd_put_wchar('Y');
-      lcd_moveto(1 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
-      _draw_axis_value(Y_AXIS, ystring, blink);
+        // Two-component mix / gradient instead of XY
 
-      lcd_moveto(2 * XYZ_SPACING + X_LABEL_POS, XYZ_BASELINE);
-      lcd_put_wchar('Z');
-      lcd_moveto(2 * XYZ_SPACING + X_VALUE_POS, XYZ_BASELINE);
+        lcd_moveto(X_LABEL_POS, XYZ_BASELINE);
+
+        char mixer_messages[12];
+        const char *mix_label;
+        #if ENABLED(GRADIENT_MIX)
+          if (mixer.gradient.enabled) {
+            mixer.update_mix_from_gradient();
+            mix_label = "Gr";
+          }
+          else
+        #endif
+          {
+            mixer.update_mix_from_vtool();
+            mix_label = "Mx";
+          }
+        sprintf_P(mixer_messages, PSTR("%s %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
+        lcd_put_u8str(mixer_messages);
+
+      #else
+
+        _draw_axis_value(X_AXIS, xstring, blink);
+        _draw_axis_value(Y_AXIS, ystring, blink);
+
+      #endif
+
       _draw_axis_value(Z_AXIS, zstring, blink);
 
       #if DISABLED(XYZ_HOLLOW_FRAME)

@@ -443,6 +443,9 @@ void GcodeSuite::process_parsed_command(
         #if ENABLED(DIRECT_MIXING_IN_G1)
           case 165: M165(); break;                                // M165: Set multiple mix weights
         #endif
+        #if ENABLED(GRADIENT_MIX)
+          case 166: M166(); break;                                // M166: Set Gradient Mix
+        #endif
       #endif
 
       #if DISABLED(NO_VOLUMETRICS)

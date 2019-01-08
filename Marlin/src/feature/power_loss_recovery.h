@@ -28,6 +28,10 @@
 #include "../sd/cardreader.h"
 #include "../inc/MarlinConfigPre.h"
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../feature/mixing.h"
+#endif
+
 #define SAVE_INFO_INTERVAL_MS 0
 //#define SAVE_EACH_CMD_MODE
 //#define DEBUG_POWER_LOSS_RECOVERY
@@ -61,6 +65,15 @@ typedef struct {
 
   #if ENABLED(FWRETRACT)
     float retract[EXTRUDERS], retract_hop;
+  #endif
+
+  // Mixing extruder and gradient
+  #if ENABLED(MIXING_EXTRUDER)
+    //uint_fast8_t selected_vtool;
+    //mixer_comp_t color[NR_MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
+    #if ENABLED(GRADIENT_MIX)
+      gradient_t gradient;
+    #endif
   #endif
 
   // Command queue
