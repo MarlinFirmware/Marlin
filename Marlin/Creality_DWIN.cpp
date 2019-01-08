@@ -985,9 +985,9 @@ SERIAL_ECHO(Checkkey);
 		SERIAL_ECHOPAIR("\n target axis = ",Z_AXIS);
 		SERIAL_ECHOPAIR("\n steps mm = ",planner.steps_to_mm[Z_AXIS]);
         if (WITHIN((rts_probe_zoffset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        	thermalManager.babystep_axis(Z_AXIS, (400 * (zprobe_zoffset + rts_probe_zoffset)));
+        	thermalManager.babystep_axis(Z_AXIS, (400 * (zprobe_zoffset - rts_probe_zoffset)));
         	zprobe_zoffset = rts_probe_zoffset;
-			SERIAL_ECHOPAIR("\n StepsMoved = ",(400 * (zprobe_zoffset + rts_probe_zoffset)));
+			SERIAL_ECHOPAIR("\n StepsMoved = ",(400 * (zprobe_zoffset - rts_probe_zoffset)));
 			SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 			RTS_SndData(zprobe_zoffset*100, 0x1026);  
 		}
