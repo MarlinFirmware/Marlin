@@ -1732,7 +1732,7 @@
 //https://github.com/mikeshub/SailfishLCD
 //uses the code directly from Sailfish
 //
-#define FF_INTERFACEBOARD
+// #define FF_INTERFACEBOARD
 
 //=============================================================================
 //=======================   LCD / Controller Selection  =======================
@@ -1965,7 +1965,7 @@
 
 // Support for PCA9533 PWM LED driver
 //https://github.com/mikeshub/SailfishRGB_LED
-#define PCA9533
+// #define PCA9533
 
 /**
  * RGB LED / LED Strip Control
