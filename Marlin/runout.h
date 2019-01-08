@@ -57,6 +57,7 @@ class FilamentRunoutSensor {
     FORCE_INLINE static void run() {
       if ((IS_SD_PRINTING || print_job_timer.isRunning()) && check() && !filament_ran_out) {
         filament_ran_out = true;
+        SERIAL_ECHOPAIR("\n ***Runout.h",(int)filament_ran_out);
         #if ENABLED(CREALITY_DWIN)
           char pause_str_Z[16];
 				current_position[Z_AXIS] += 5;
