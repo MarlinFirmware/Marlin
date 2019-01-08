@@ -170,6 +170,7 @@
 #if(ENABLED(MachineCR10SPro))
   #if DISABLED(GraphicLCD)
     #define CREALITY_DWIN
+     #define FIL_RUNOUT_PIN 2
   #endif
   #define MachineCR10Std
   #if DISABLED(ABL_BLTOUCH)
@@ -187,6 +188,7 @@
 #if(ENABLED(MachineCRX))
   #if DISABLED(GraphicLCD)
     #define CREALITY_DWIN
+     #define FIL_RUNOUT_PIN 2
   #endif
   #define MachineCR10Std
   #define Dual_BowdenSplitterY
@@ -1433,7 +1435,7 @@
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
-#if (DISABLED(MachineCR10Orig) && (DISABLED(MachineCR20) && DISABLED(MachineEnder4) && DISABLED(MachineCRX)) || ENABLED(AddonFilSensor)
+#if (DISABLED(MachineCR10Orig) && DISABLED(MachineCR20) && DISABLED(MachineEnder4) && DISABLED(MachineCRX)) || (ENABLED(AddonFilSensor) && DISABLED(CREALITY_DWIN))
   #define FILAMENT_RUNOUT_SENSOR
 #endif
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
