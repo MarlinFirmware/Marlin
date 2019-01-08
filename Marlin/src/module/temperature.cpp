@@ -1630,6 +1630,9 @@ void Temperature::disable_all_heaters() {
   ) {
     #if COUNT_6675 == 1
       constexpr uint8_t hindex = 0;
+  #else
+      //needed to return the correct temp when this is called too soon
+      static uint16_t max6675_temp_previous[COUNT_6675] = { 0 };
     #endif
 
     #define MAX6675_HEAT_INTERVAL 250UL
@@ -1649,7 +1652,9 @@ void Temperature::disable_all_heaters() {
     // Return last-read value between readings
     static millis_t next_max6675_ms[COUNT_6675] = { 0 };
     millis_t ms = millis();
-    if (PENDING(ms, next_max6675_ms[hindex])) return int(max6675_temp);
+    if (PENDING(ms, next_max6675_ms[hindex])) {
+      return int(max6675_temp_previous[hindex]);//need to return the right previous value
+    }
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
     //
@@ -1719,6 +1724,8 @@ void Temperature::disable_all_heaters() {
         // Support negative temperature
         if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000;
       #endif
+
+    max6675_temp_previous[hindex] = max6675_temp;
 
     return int(max6675_temp);
   }
