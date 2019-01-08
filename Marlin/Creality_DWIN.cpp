@@ -2203,8 +2203,8 @@ void RTSUpdate()	//looping at the loop function
 #if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 	/*checking filement status during printing */
 	
-	SERIAL_ECHOPAIR("\n ***FilementStatus[1] =",FilementStatus[1]);
-	SERIAL_ECHOPAIR("\n ***card.sdprinting =",card.sdprinting);
+	//SERIAL_ECHOPAIR("\n ***FilementStatus[1] =",FilementStatus[1]);
+	//SERIAL_ECHOPAIR("\n ***card.sdprinting =",card.sdprinting);
 
 	if(FilementStatus[1] == 2 && true==card.sdprinting)
 	{	
