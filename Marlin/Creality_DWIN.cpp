@@ -281,7 +281,7 @@ void RTSSHOW::RTS_Init()
 	if(AutoLevelStatus) 
 	{
 		RTS_SndData(2, AutoLevelIcon);/*Off*/
-		settings.reset();
+		//settings.reset();
 	}
 	else 
 	{
@@ -289,8 +289,6 @@ void RTSSHOW::RTS_Init()
 		settings.load();
 	}
 	
-	rts_probe_zoffset = zprobe_zoffset;
-	RTS_SndData(rts_probe_zoffset*100, 0x1026);  
 	//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
 	//if(VolumeSet < 0 || VolumeSet > 0xFF)
 		VolumeSet = 0x80;
@@ -355,7 +353,11 @@ void RTSSHOW::RTS_Init()
 		RTS_SndData(10,FilenameIcon+j);
 		RTS_SndData(10,FilenameIcon1+j);
 	}
-
+	
+	rts_probe_zoffset = zprobe_zoffset;
+		SERIAL_ECHOPAIR("\n init rts_probe_zoffset = ",rts_probe_zoffset);
+		SERIAL_ECHOPAIR("\n init zprobe_zoffset = ",zprobe_zoffset);
+	RTS_SndData(zprobe_zoffset*100, 0x1026);  
 	/************************EEPROM*******************************/
 	//settings.load();
 	
@@ -979,10 +981,13 @@ SERIAL_ECHO(Checkkey);
 		}
 		
 		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
+		SERIAL_ECHOPAIR("\n target = ",(zprobe_zoffset - rts_probe_zoffset));
+		SERIAL_ECHOPAIR("\n target axis = ",Z_AXIS);
+		SERIAL_ECHOPAIR("\n steps mm = ",planner.steps_to_mm[Z_AXIS]);
         if (WITHIN((rts_probe_zoffset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        	thermalManager.babystep_axis(Z_AXIS, (int32_t)(planner.steps_to_mm[Z_AXIS] * (zprobe_zoffset - rts_probe_zoffset)));
+        	thermalManager.babystep_axis(Z_AXIS, (400 * (zprobe_zoffset - rts_probe_zoffset)));
         	zprobe_zoffset = rts_probe_zoffset;
-			SERIAL_ECHOPAIR("\n StepsMoved = ",(planner.steps_to_mm[Z_AXIS] * (zprobe_zoffset - rts_probe_zoffset)));
+			SERIAL_ECHOPAIR("\n StepsMoved = ",(400 * (zprobe_zoffset - rts_probe_zoffset)));
 			SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 		}
 		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
@@ -1215,7 +1220,7 @@ SERIAL_ECHO(Checkkey);
 		break;
 		
 	case Bedlevel:
-		#if ENABLED(MachineCRX)
+		#if (ENABLED(MachineCRX) && DISABLED(Force10SProDisplay)) || ENABLED(ForceCRXDisplay)
 			if(recdat.data[0] == 1) // Top Left
 			{
 				waitway = 4;		//only for prohibiting to receive massage
@@ -1270,26 +1275,26 @@ SERIAL_ECHO(Checkkey);
 				enqueue_and_echo_commands_P(PSTR("G1  F150 Z0.2")); 
 				set_bed_leveling_enabled(true);
 				rts_probe_zoffset = zprobe_zoffset;
-				RTS_SndData(rts_probe_zoffset*100, 0x1026); 
+				RTS_SndData(zprobe_zoffset*100, 0x1026); 
 			}
 			else if(recdat.data[0] == 2)// Z-axis to Up
 			{
 				//current_position[Z_AXIS] += 0.1; 
 				//RTS_line_to_current(Z_AXIS);
 				if (WITHIN((zprobe_zoffset + (planner.steps_to_mm[Z_AXIS] * 0.1)), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        			thermalManager.babystep_axis(Z_AXIS, (int32_t)(planner.steps_to_mm[Z_AXIS] * rts_probe_zoffset));
+        			thermalManager.babystep_axis(Z_AXIS, (int16_t)(400 * rts_probe_zoffset));
         			zprobe_zoffset = (zprobe_zoffset + 0.1);
 					rts_probe_zoffset = zprobe_zoffset;
-					RTS_SndData(rts_probe_zoffset*100, 0x1026); 
+					RTS_SndData(zprobe_zoffset*100, 0x1026); 
 				}
 			}
 			else if(recdat.data[0] == 3)// Z-axis to Down
 			{
 				if (WITHIN((zprobe_zoffset - (planner.steps_to_mm[Z_AXIS] * 0.1)), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        			thermalManager.babystep_axis(Z_AXIS, (0-(int32_t)(planner.steps_to_mm[Z_AXIS] * rts_probe_zoffset)));
+        			thermalManager.babystep_axis(Z_AXIS, (0-(int16_t)(400 * rts_probe_zoffset)));
         			zprobe_zoffset = (zprobe_zoffset - 0.1);
 					rts_probe_zoffset = zprobe_zoffset;
-					RTS_SndData(rts_probe_zoffset*100, 0x1026); 
+					RTS_SndData(zprobe_zoffset*100, 0x1026); 
 				}
 			}
 			else if(recdat.data[0] == 4) 	// Assitant Level
@@ -1377,7 +1382,7 @@ SERIAL_ECHO(Checkkey);
 					settings.reset();
 				}
 				last_zoffset = rts_probe_zoffset;
-				RTS_SndData(rts_probe_zoffset*100, 0x1026); 
+				RTS_SndData(zprobe_zoffset*100, 0x1026); 
 				//eeprom_write_byte((unsigned char*)FONT_EEPROM+2, AutoLevelStatus);
 			}
 			
@@ -2100,7 +2105,8 @@ void EachMomentUpdate()
 					last_cardpercentValue = card.percentDone();
 				}
 			}
-
+			
+			rtscheck.RTS_SndData(zprobe_zoffset*100, 0x1026); 
 			//float temp_buf = thermalManager.current_temperature[0];
 			rtscheck.RTS_SndData(thermalManager.current_temperature[0],NozzleTemp);
 			rtscheck.RTS_SndData(thermalManager.current_temperature_bed,Bedtemp);
