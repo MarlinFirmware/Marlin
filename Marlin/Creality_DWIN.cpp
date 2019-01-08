@@ -74,7 +74,7 @@ int Update_Time_Value = 0;
 unsigned long VolumeSet = 0x80;
 extern char power_off_commands[9][96];
 bool PoweroffContinue = false;
-extern const char *injected_commands_P;
+
 char commandbuf[30];
 
 inline void RTS_line_to_current(AxisEnum axis) {
@@ -2202,7 +2202,7 @@ void RTSUpdate()	//looping at the loop function
 {
 	/*Check the status of card*/
 	rtscheck.RTS_SDCardUpate();
-	
+	return;
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 	/*checking filement status during printing */
 	

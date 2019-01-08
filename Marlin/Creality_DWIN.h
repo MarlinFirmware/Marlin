@@ -184,4 +184,11 @@ extern bool PoweroffContinue;
 extern char FilementStatus[2];
 extern char commandbuf[30];
 
+extern int temphot;
+extern int tempbed;
+extern float pause_z;
+extern char PrintStatue[2];
+extern char PrinterStatusKey[2];
+extern const char *injected_commands_P;
+
 #endif// RTS_H
