@@ -74,7 +74,7 @@ int Update_Time_Value = 0;
 unsigned long VolumeSet = 0x80;
 extern char power_off_commands[9][96];
 bool PoweroffContinue = false;
-
+extern const char *injected_commands_P;
 char commandbuf[30];
 
 inline void RTS_line_to_current(AxisEnum axis) {
@@ -235,13 +235,10 @@ void RTSSHOW::RTS_SDCardUpate(void)
 	}
 }
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 
 	int RTSSHOW::RTS_CheckFilement(int mode)
 	{
-		#if DISABLED(FILAMENT_RUNOUT_SENSOR)
-			return 0;
-		#endif
 		SERIAL_ECHO("   ****RTS_CheckFilement***   ");
 		waitway = 4;
 		for(Checkfilenum= 0; 0==READ(FIL_RUNOUT_PIN) && Checkfilenum < 50;Checkfilenum++)// no filements check
@@ -912,7 +909,7 @@ SERIAL_ECHO(Checkkey);
 		}
 		else if(recdat.addr == Resumeprint && recdat.data[0] == 1)
 		{				
-			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+			#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 			/**************checking filement status during printing************/
 			if(RTS_CheckFilement(0)) 
 			{
@@ -1459,7 +1456,7 @@ SERIAL_ECHO(Checkkey);
 
 	case Filement:
 		
-		#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+		#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 		/**************checking filement status during changing filement************/
 		if(RTS_CheckFilement(3)) break;
 		#endif
@@ -1900,7 +1897,7 @@ SERIAL_ECHO(Checkkey);
 				memset(cmdbuf,0,sizeof(cmdbuf));
 				strcpy(cmdbuf,cmd);
 
-				#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+				#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 				/**************checking filement status during printing beginning ************/
 				if(RTS_CheckFilement(1)) break;
 				#endif
@@ -2202,8 +2199,8 @@ void RTSUpdate()	//looping at the loop function
 {
 	/*Check the status of card*/
 	rtscheck.RTS_SDCardUpate();
-	return;
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+	
+#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 	/*checking filement status during printing */
 	
 	SERIAL_ECHOPAIR("\n ***FilementStatus[1] =",FilementStatus[1]);
@@ -2212,7 +2209,7 @@ void RTSUpdate()	//looping at the loop function
 	if(FilementStatus[1] == 2 && true==card.sdprinting)
 	{	
 		
-	SERIAL_ECHOPAIR("\n FIL_RUNOUT_PIN =",READ(FIL_RUNOUT_PIN));
+	SERIAL_ECHOPAIR("\n FIL_RUNOUT_PIN =",card.sdprinting);
 		char cmd[2][30];
 		if(READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING)
 		{

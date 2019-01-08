@@ -27,23 +27,13 @@
 #ifndef _RUNOUT_H_
 #define _RUNOUT_H_
 
-#include "temperature.h"
-#include "planner.h"
 #include "cardreader.h"
 #include "printcounter.h"
 #include "stepper.h"
 #include "Marlin.h"
 
-#include "types.h"
-#include "language.h"
-#include "configuration_store.h"
-#include "duration_t.h"
-
 #include "MarlinConfig.h"
 
-#if ENABLED(CREALITY_DWIN)
- #include "Creality_DWIN.h"
-#endif
 #define FIL_RUNOUT_THRESHOLD 5
 
 class FilamentRunoutSensor {
@@ -57,34 +47,8 @@ class FilamentRunoutSensor {
     FORCE_INLINE static void run() {
       if ((IS_SD_PRINTING || print_job_timer.isRunning()) && check() && !filament_ran_out) {
         filament_ran_out = true;
-        SERIAL_ECHOPAIR("\n ***Runout.h",(int)filament_ran_out);
         #if ENABLED(CREALITY_DWIN)
-          char pause_str_Z[16];
-				current_position[Z_AXIS] += 5;
-				pause_z = current_position[Z_AXIS];
-				waitway = 5;		//reject to receive cmd and jump to the corresponding page
-	 			card.pauseSDPrint();
-				print_job_timer.pause();
-	 			temphot=thermalManager.degTargetHotend(0); //thermalManager.target_temperature[0];
-	 			tempbed=thermalManager.degTargetBed();//thermalManager.target_temperature_bed;
-				//thermalManager.setTargetHotend(0, 0);
-				thermalManager.setTargetBed(0);
-			//	enqueue_and_echo_commands_P(PSTR("G1 X10 Y10"));
-
-	 			PrintStatue[1] = 1;	// for returning the corresponding page
-	 	//		FilementStatus[0] = 2;  // no filements during printing
-				FilementStatus[1] = 0;
-				PrinterStatusKey[1] = 4;
-				
-				TPShowStatus = false;
-				Update_Time_Value = 0;
-				memset(commandbuf,0,sizeof(commandbuf));
-				dtostrf(pause_z, 3, 2, pause_str_Z);
-				sprintf(commandbuf,"G0 X10 Y10  Z%s",pause_str_Z);
-	   			//strncpy_P(commandbuf, PSTR("G28 X0 Y0"), sizeof(commandbuf) - 1);
-				injected_commands_P =commandbuf;// PSTR("G28 X0 Y0");//commandbuf;
-
-				enqueue_and_echo_commands_P(PSTR("G0 X10 Y10 F3000"));
+          return;
         #else
           enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
         #endif
