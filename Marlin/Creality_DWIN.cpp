@@ -1281,20 +1281,22 @@ SERIAL_ECHO(Checkkey);
 			{
 				//current_position[Z_AXIS] += 0.1; 
 				//RTS_line_to_current(Z_AXIS);
-				if (WITHIN((zprobe_zoffset + (planner.steps_to_mm[Z_AXIS] * 0.1)), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        			thermalManager.babystep_axis(Z_AXIS, (int16_t)(400 * rts_probe_zoffset));
+				if (WITHIN((zprobe_zoffset +  0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        			thermalManager.babystep_axis(Z_AXIS, 40);
         			zprobe_zoffset = (zprobe_zoffset + 0.1);
 					rts_probe_zoffset = zprobe_zoffset;
-					RTS_SndData(zprobe_zoffset*100, 0x1026); 
+					RTS_SndData(zprobe_zoffset*100, 0x1026);
+					settings.save();
 				}
 			}
 			else if(recdat.data[0] == 3)// Z-axis to Down
 			{
-				if (WITHIN((zprobe_zoffset - (planner.steps_to_mm[Z_AXIS] * 0.1)), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
-        			thermalManager.babystep_axis(Z_AXIS, (0-(int16_t)(400 * rts_probe_zoffset)));
+				if (WITHIN((zprobe_zoffset -  0.1), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
+        			thermalManager.babystep_axis(Z_AXIS, -40);
         			zprobe_zoffset = (zprobe_zoffset - 0.1);
 					rts_probe_zoffset = zprobe_zoffset;
-					RTS_SndData(zprobe_zoffset*100, 0x1026); 
+					RTS_SndData(zprobe_zoffset*100, 0x1026);
+					settings.save();
 				}
 			}
 			else if(recdat.data[0] == 4) 	// Assitant Level
