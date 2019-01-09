@@ -1707,11 +1707,6 @@
 //#define CNC_COORDINATE_SYSTEMS
 
 /**
- * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
- */
-//#define PINS_DEBUGGING
-
-/**
  * Auto-report temperatures with M155 S<seconds>
  */
 #define AUTO_REPORT_TEMPERATURES
@@ -1965,6 +1960,13 @@
   #define WIFI_SSID "Wifi SSID"
   #define WIFI_PWD  "Wifi Password"
 #endif
+
+// @section develop
+
+/**
+ * M43 - display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
+ */
+//#define PINS_DEBUGGING
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
