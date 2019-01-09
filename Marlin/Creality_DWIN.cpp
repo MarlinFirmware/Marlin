@@ -935,7 +935,7 @@ SERIAL_ECHO(Checkkey);
 			memset(commandbuf,0,sizeof(commandbuf));
 			sprintf_P(commandbuf, PSTR("M109 S%i"), temphot);
 			enqueue_and_echo_command(commandbuf);
-			enqueue_and_echo_commands_P(PSTR("G28 X0 Y0"));
+			//enqueue_and_echo_commands_P(PSTR("G28 X0 Y0"));
 			planner.synchronize();
 			//memset(commandbuf,0,sizeof(commandbuf));
 			//sprintf_P(commandbuf, PSTR("G0 Z%s"), pause_str_Z);
@@ -946,9 +946,11 @@ SERIAL_ECHO(Checkkey);
 			#ifdef ACTION_ON_RESUME
       			SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
     		#endif
+
 			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
       			runout.reset();
     		#endif
+			FilementStatus[1] = 2;
 			if(LanguageRecbuf != 0)
 				RTS_SndData(1,IconPrintstatus);	// 1 for Heating
 			else
@@ -967,6 +969,7 @@ SERIAL_ECHO(Checkkey);
 			NozzleTempStatus[2] = 1;
 			thermalManager.target_temperature[0] = temphot;
 			startprogress  = 0;
+			FilementStatus[1] = 2;
 			if(LanguageRecbuf != 0)
 				RTS_SndData(ExchangePageBase + 7, ExchangepageAddr); //exchange to 12 page
 			else
