@@ -26,8 +26,8 @@ const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
 int startprogress = 0;
 CRec CardRecbuf;
 int temphot=0;
-int tempbed=0;
-float pause_z = 0;
+//int tempbed=0;
+//float pause_z = 0;
 #if DISABLED(POWER_LOSS_RECOVERY)
 	int power_off_type_yes = 0;
 	int power_off_commands_count = 0;
@@ -352,7 +352,7 @@ void RTSSHOW::RTS_Init()
 	}
 	
 	rts_probe_zoffset = zprobe_zoffset;
-		SERIAL_ECHOPAIR("\n init rts_probe_zoffset = ",rts_probe_zoffset);
+		//SERIAL_ECHOPAIR("\n init rts_probe_zoffset = ",rts_probe_zoffset);
 		SERIAL_ECHOPAIR("\n init zprobe_zoffset = ",zprobe_zoffset);
 	RTS_SndData(zprobe_zoffset*100, 0x1026);  
 	/************************EEPROM*******************************/
@@ -875,20 +875,20 @@ SERIAL_ECHO(Checkkey);
 			else
 				RTS_SndData(ExchangePageBase + 87, ExchangepageAddr); 
 			
-			char pause_str_Z[16];
+			//char pause_str_Z[16];
 			waitway = 1;		//reject to receive cmd
 			//current_position[Z_AXIS] += 5;
-			pause_z = current_position[Z_AXIS];
+			//pause_z = current_position[Z_AXIS];
  			card.pauseSDPrint();
 			print_job_timer.pause();
 			#ifdef ACTION_ON_PAUSE
     		  SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
-			SERIAL_ECHOLNPGM("From Pauseprint");
+			//SERIAL_ECHOLNPGM("From Pauseprint");
     		#endif
  			temphot=thermalManager.degTargetHotend(0); //thermalManager.target_temperature[0];
- 			tempbed=thermalManager.degTargetBed();//thermalManager.target_temperature_bed;
+ 			//tempbed=thermalManager.degTargetBed();//thermalManager.target_temperature_bed;
 			//thermalManager.setTargetHotend(0, 0);
-			thermalManager.setTargetBed(0);
+			//thermalManager.setTargetBed(0);
 
  			PrintStatue[1] = 1;	//for return the corresponding page
  			PrinterStatusKey[1] = 4;
@@ -904,7 +904,7 @@ SERIAL_ECHO(Checkkey);
 			//enqueue_and_echo_commands_P(PSTR("G28 X0 Y0"));
 
 		      // Wait for planner moves to finish!
-		      // stepper.synchronize();
+		       planner.synchronize();
 			enqueue_and_echo_commands_P(PSTR("M25"));
 			//enqueue_and_echo_commands_P(PSTR("G1 Z +5"));
 			//enqueue_and_echo_commands_P(PSTR("G0 X10 Y10 F3000"));
@@ -930,8 +930,8 @@ SERIAL_ECHO(Checkkey);
 			//dtostrf(pause_z-5, 3, 2, pause_str_Z);
 			//memset(commandbuf,0,sizeof(commandbuf));
 			enqueue_and_echo_commands_P(PSTR("M24"));
-			sprintf_P(commandbuf, PSTR("M190 S%i"), tempbed);
-			enqueue_and_echo_command(commandbuf);
+			//sprintf_P(commandbuf, PSTR("M190 S%i"), tempbed);
+			//enqueue_and_echo_command(commandbuf);
 			memset(commandbuf,0,sizeof(commandbuf));
 			sprintf_P(commandbuf, PSTR("M109 S%i"), temphot);
 			enqueue_and_echo_command(commandbuf);
@@ -975,8 +975,8 @@ SERIAL_ECHO(Checkkey);
 		break;
 		
 	case Zoffset:
-		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
-		SERIAL_ECHOPAIR("\n rcv data = ",recdat.data[0]);
+		//SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
+		//SERIAL_ECHOPAIR("\n rcv data = ",recdat.data[0]);
 		if(recdat.data[0]>= 32768) {
 			rts_probe_zoffset = ((float)recdat.data[0]-65536)/100;
 		}
@@ -984,20 +984,20 @@ SERIAL_ECHO(Checkkey);
 			rts_probe_zoffset = ((float)recdat.data[0])/100;
 		}
 		
-		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
-		SERIAL_ECHOPAIR("\n target = ",(zprobe_zoffset - rts_probe_zoffset));
-		SERIAL_ECHOPAIR("\n target axis = ",Z_AXIS);
-		SERIAL_ECHOPAIR("\n steps mm = ",planner.steps_to_mm[Z_AXIS]);
+		//SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
+		//SERIAL_ECHOPAIR("\n target = ",(zprobe_zoffset - rts_probe_zoffset));
+		//SERIAL_ECHOPAIR("\n target axis = ",Z_AXIS);
+		//SERIAL_ECHOPAIR("\n steps mm = ",planner.steps_to_mm[Z_AXIS]);
         if (WITHIN((rts_probe_zoffset), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
         	thermalManager.babystep_axis(Z_AXIS, (400 * (zprobe_zoffset - rts_probe_zoffset) * -1));
         	zprobe_zoffset = rts_probe_zoffset;
-			SERIAL_ECHOPAIR("\n StepsMoved = ",(400 * (zprobe_zoffset - rts_probe_zoffset) * -1));
-			SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
+			//SERIAL_ECHOPAIR("\n StepsMoved = ",(400 * (zprobe_zoffset - rts_probe_zoffset) * -1));
+			//SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 			RTS_SndData(zprobe_zoffset*100, 0x1026);  
 		}
-		SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
+		//SERIAL_ECHOPAIR("\n rts_probe_zoffset = ",rts_probe_zoffset);
 		settings.save();
-		SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
+		//SERIAL_ECHOPAIR("\n probe_zoffset = ",zprobe_zoffset);
 		break;
 		
 	case TempControl:
@@ -1675,17 +1675,17 @@ SERIAL_ECHO(Checkkey);
 			}
 			else if(FilementStatus[0] == 2)   // check filements status during printing
 			{
-				char pause_str_Z[16];
-				memset(pause_str_Z, 0, sizeof(pause_str_Z));
-				dtostrf(pause_z, 3, 2, pause_str_Z);
-				sprintf_P(comdbuf, PSTR("M190 S%i"), tempbed);
-				enqueue_and_echo_command(comdbuf);
+				//char pause_str_Z[16];
+				//memset(pause_str_Z, 0, sizeof(pause_str_Z));
+				//dtostrf(pause_z, 3, 2, pause_str_Z);
+				//sprintf_P(comdbuf, PSTR("M190 S%i"), tempbed);
+				//enqueue_and_echo_command(comdbuf);
 				memset(comdbuf,0,sizeof(comdbuf));
 				sprintf_P(comdbuf, PSTR("M109 S%i"), temphot);
 				enqueue_and_echo_command(comdbuf);
-				memset(comdbuf,0,sizeof(comdbuf));
-				sprintf_P(comdbuf, PSTR("G0 Z%s"), pause_str_Z);
-			   	enqueue_and_echo_command(comdbuf);
+				//memset(comdbuf,0,sizeof(comdbuf));
+				//sprintf_P(comdbuf, PSTR("G0 Z%s"), pause_str_Z);
+			   	//enqueue_and_echo_command(comdbuf);
 				
 				card.startFileprint();
 				print_job_timer.start();
@@ -2220,22 +2220,22 @@ void RTSUpdate()	//looping at the loop function
 		//char cmd[2][30];
 		if(READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING)
 		{
-			SERIAL_PROTOCOLLN("  Filament runout debounce");
+			//SERIAL_PROTOCOLLN("  Filament runout debounce");
 			Checkfilenum++;
 			delay(5);
 			if(Checkfilenum>50)
 			{
-				SERIAL_PROTOCOLLN("  Filament runout > 50");
-				char pause_str_Z[16];
-				current_position[Z_AXIS] += 5;
-				pause_z = current_position[Z_AXIS];
+				//SERIAL_PROTOCOLLN("  Filament runout > 50");
+				//char pause_str_Z[16];
+				//current_position[Z_AXIS] += 5;
+				//pause_z = current_position[Z_AXIS];
 				waitway = 5;		//reject to receive cmd and jump to the corresponding page
 	 			card.pauseSDPrint();
 				print_job_timer.pause();
 	 			temphot=thermalManager.degTargetHotend(0); //thermalManager.target_temperature[0];
-	 			tempbed=thermalManager.degTargetBed();//thermalManager.target_temperature_bed;
+	 			//tempbed=thermalManager.degTargetBed();//thermalManager.target_temperature_bed;
 				//thermalManager.setTargetHotend(0, 0);
-				thermalManager.setTargetBed(0);
+				//thermalManager.setTargetBed(0);
 			//	enqueue_and_echo_commands_P(PSTR("G1 X10 Y10"));
 
 	 			PrintStatue[1] = 1;	// for returning the corresponding page
@@ -2254,8 +2254,9 @@ void RTSUpdate()	//looping at the loop function
 
 				#ifdef ACTION_ON_PAUSE
 					SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
-					SERIAL_ECHOLNPGM("From Runout");
+					//SERIAL_ECHOLNPGM("From Runout");
 				#endif
+				planner.synchronize();
 				enqueue_and_echo_commands_P(PSTR("M25"));
 
 			}
