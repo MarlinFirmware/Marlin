@@ -1937,7 +1937,7 @@ GRID_MAX_POINTS_X 3
 #if(ENABLED(MachineEnder2))
 #define NOZZLE_PARK_POINT { (0), (0), 20 }
 #else
-#define NOZZLE_PARK_POINT { (15), (15), 20 }
+#define NOZZLE_PARK_POINT { (20), (20), 20 }
 #endif
 #define NOZZLE_PARK_XY_FEEDRATE 100   // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
 #define NOZZLE_PARK_Z_FEEDRATE 5      // Z axis feedrate in mm/s (not used for delta printers)
