@@ -2216,7 +2216,7 @@ void RTSUpdate()	//looping at the loop function
 	if(FilementStatus[1] == 2 && true==card.sdprinting)
 	{	
 		
-	SERIAL_ECHOPAIR("\n FIL_RUNOUT_PIN =",card.sdprinting);
+	//SERIAL_ECHOPAIR("\n FIL_RUNOUT_PIN =",card.sdprinting);
 		//char cmd[2][30];
 		if(READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING)
 		{
