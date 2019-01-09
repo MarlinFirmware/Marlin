@@ -3546,7 +3546,7 @@ inline void gcode_G0_G1(
         waitway = 0;
       
       
-	SERIAL_ECHOPAIR("\n ***G1 Status =",FilementStatus[1]);
+	    //SERIAL_ECHOPAIR("\n ***G1 Status =",FilementStatus[1]);
       if(FilementStatus[1] == 1)
         FilementStatus[1] = 2;	
 
@@ -8781,9 +8781,9 @@ inline void gcode_M109() {
 				}
 				CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
 				FilementStatus[1] = 1; 	//begin to check filement status.
-	SERIAL_ECHOPAIR("\n ***M109 Status[1] =",FilementStatus[1]);
+	//SERIAL_ECHOPAIR("\n ***M109 Status[1] =",FilementStatus[1]);
 			}
-				SERIAL_ECHOPAIR("\n ***PrinterStatusKey[1] =",PrinterStatusKey[1]);
+				//SERIAL_ECHOPAIR("\n ***PrinterStatusKey[1] =",PrinterStatusKey[1]);
 			PreheatStatus[1] = PreheatStatus[0] = false;
 		}
 		else
@@ -8970,10 +8970,10 @@ inline void gcode_M109() {
           CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
           FilementStatus[1] = 1; 	//begin to check filement status.
           
-	SERIAL_ECHOPAIR("\n ***M190 Status[1] =",FilementStatus[1]);
+	//SERIAL_ECHOPAIR("\n ***M190 Status[1] =",FilementStatus[1]);
         }
         
-	SERIAL_ECHOPAIR("\n ***PrinterStatusKey[1] =",PrinterStatusKey[1]);
+	//SERIAL_ECHOPAIR("\n ***PrinterStatusKey[1] =",PrinterStatusKey[1]);
         PreheatStatus[1] = PreheatStatus[0] = false;
       }
       else

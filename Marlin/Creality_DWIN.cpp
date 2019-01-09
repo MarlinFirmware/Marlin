@@ -883,6 +883,7 @@ SERIAL_ECHO(Checkkey);
 			print_job_timer.pause();
 			#ifdef ACTION_ON_PAUSE
     		  SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+					SERIAL_ECHOLNPGM("From Pauseprint");
     		#endif
  			temphot=thermalManager.degTargetHotend(0); //thermalManager.target_temperature[0];
  			tempbed=thermalManager.degTargetBed();//thermalManager.target_temperature_bed;
@@ -2253,6 +2254,7 @@ void RTSUpdate()	//looping at the loop function
 
 				#ifdef ACTION_ON_PAUSE
 					SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+					SERIAL_ECHOLNPGM("From Runout");
 				#endif
 				enqueue_and_echo_commands_P(PSTR("M25"));
 
