@@ -2220,12 +2220,12 @@ void RTSUpdate()	//looping at the loop function
 		//char cmd[2][30];
 		if(READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING)
 		{
-			SERIAL_PROTOCOLLN("  Filament out check ");
+			SERIAL_PROTOCOLLN("  Filament runout debounce");
 			Checkfilenum++;
 			delay(5);
 			if(Checkfilenum>50)
 			{
-				
+				SERIAL_PROTOCOLLN("  Filament runout > 50");
 				char pause_str_Z[16];
 				current_position[Z_AXIS] += 5;
 				pause_z = current_position[Z_AXIS];
