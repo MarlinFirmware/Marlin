@@ -877,7 +877,7 @@ SERIAL_ECHO(Checkkey);
 			
 			char pause_str_Z[16];
 			waitway = 1;		//reject to receive cmd
-			current_position[Z_AXIS] += 5;
+			//current_position[Z_AXIS] += 5;
 			pause_z = current_position[Z_AXIS];
  			card.pauseSDPrint();
 			print_job_timer.pause();
@@ -895,16 +895,18 @@ SERIAL_ECHO(Checkkey);
 			
 
 			Update_Time_Value = 0;
-			memset(commandbuf,0,sizeof(commandbuf));
-			dtostrf(pause_z, 3, 2, pause_str_Z);
-			sprintf(commandbuf,"G0 X10 Y10  Z%s",pause_str_Z);
+			//memset(commandbuf,0,sizeof(commandbuf));
+			//dtostrf(pause_z, 3, 2, pause_str_Z);
+			//sprintf(commandbuf,"G0 X10 Y10  Z%s",pause_str_Z);
    			//strncpy_P(commandbuf, PSTR("G28 X0 Y0"), sizeof(commandbuf) - 1);
-			injected_commands_P =commandbuf;// PSTR("G28 X0 Y0");//commandbuf;
+			//injected_commands_P =commandbuf;// PSTR("G28 X0 Y0");//commandbuf;
 			//enqueue_and_echo_commands_P(PSTR("G28 X0 Y0"));
 
 		      // Wait for planner moves to finish!
 		      // stepper.synchronize();
-			enqueue_and_echo_commands_P(PSTR("G0 X10 Y10 F3000"));
+			enqueue_and_echo_commands_P(PSTR("M25"));
+			//enqueue_and_echo_commands_P(PSTR("G1 Z +5"));
+			//enqueue_and_echo_commands_P(PSTR("G0 X10 Y10 F3000"));
 
 		}
 		else if(recdat.addr == Resumeprint && recdat.data[0] == 1)
@@ -923,24 +925,28 @@ SERIAL_ECHO(Checkkey);
 			#endif
 			
 			char pause_str_Z[16];
-			memset(pause_str_Z, 0, sizeof(pause_str_Z));
-			dtostrf(pause_z-5, 3, 2, pause_str_Z);
-			memset(commandbuf,0,sizeof(commandbuf));
+			//memset(pause_str_Z, 0, sizeof(pause_str_Z));
+			//dtostrf(pause_z-5, 3, 2, pause_str_Z);
+			//memset(commandbuf,0,sizeof(commandbuf));
+			enqueue_and_echo_commands_P(PSTR("M24"));
 			sprintf_P(commandbuf, PSTR("M190 S%i"), tempbed);
 			enqueue_and_echo_command(commandbuf);
 			memset(commandbuf,0,sizeof(commandbuf));
 			sprintf_P(commandbuf, PSTR("M109 S%i"), temphot);
 			enqueue_and_echo_command(commandbuf);
-			//enqueue_and_echo_commands_P(PSTR("G28 X0 Y0"));
+			enqueue_and_echo_commands_P(PSTR("G28 X0 Y0"));
 			planner.synchronize();
-			memset(commandbuf,0,sizeof(commandbuf));
-			sprintf_P(commandbuf, PSTR("G0 Z%s"), pause_str_Z);
-		   	enqueue_and_echo_command(commandbuf);
+			//memset(commandbuf,0,sizeof(commandbuf));
+			//sprintf_P(commandbuf, PSTR("G0 Z%s"), pause_str_Z);
+		   	//enqueue_and_echo_command(commandbuf);
 			
 			card.startFileprint();
 			print_job_timer.start();
 			#ifdef ACTION_ON_RESUME
       			SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
+    		#endif
+			#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+      			runout.reset();
     		#endif
 			if(LanguageRecbuf != 0)
 				RTS_SndData(1,IconPrintstatus);	// 1 for Heating
