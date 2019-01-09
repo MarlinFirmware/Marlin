@@ -29,10 +29,13 @@
 #endif
 
 #define DEFAULT_MACHINE_NAME "Arm'ed"
-#define BOARD_NAME "Arm'ed"
+#ifndef BOARD_NAME
+#define BOARD_NAME "ARMED_V1"
+#endif
 
 #define I2C_EEPROM
 
+#undef E2END
 #define E2END 0xFFF // EEPROM end address (4kB)
 
 #if HOTENDS > 2 || E_STEPPERS > 2
