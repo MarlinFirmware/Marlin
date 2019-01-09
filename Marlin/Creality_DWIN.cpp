@@ -288,7 +288,7 @@ void RTSSHOW::RTS_Init()
 	
 	//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
 	//if(VolumeSet < 0 || VolumeSet > 0xFF)
-		VolumeSet = 0x80;
+		VolumeSet = 0x30;
 		
 	if(PrintMode)RTS_SndData(3, FanKeyIcon+1);	// saving mode
 	else RTS_SndData(2, FanKeyIcon+1);	// normal
@@ -1905,7 +1905,7 @@ SERIAL_ECHO(Checkkey);
 
 				#if ENABLED(MachineCR10SPro) || ENABLED(AddonFilSensor)
 				/**************checking filement status during printing beginning ************/
-				if(RTS_CheckFilement(1)) break;
+					if(RTS_CheckFilement(1)) break;
 				#endif
 					
 				//InforShowoStatus = true;
@@ -2216,7 +2216,7 @@ void RTSUpdate()	//looping at the loop function
 	{	
 		
 	SERIAL_ECHOPAIR("\n FIL_RUNOUT_PIN =",card.sdprinting);
-		char cmd[2][30];
+		//char cmd[2][30];
 		if(READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING)
 		{
 			SERIAL_PROTOCOLLN("  Filament out check ");
@@ -2245,13 +2245,16 @@ void RTSUpdate()	//looping at the loop function
 				
 				TPShowStatus = false;
 				Update_Time_Value = 0;
-				memset(commandbuf,0,sizeof(commandbuf));
-				dtostrf(pause_z, 3, 2, pause_str_Z);
-				sprintf(commandbuf,"G0 X10 Y10  Z%s",pause_str_Z);
+				//memset(commandbuf,0,sizeof(commandbuf));
+				//dtostrf(pause_z, 3, 2, pause_str_Z);
+				//sprintf(commandbuf,"G0 X10 Y10  Z%s",pause_str_Z);
 	   			//strncpy_P(commandbuf, PSTR("G28 X0 Y0"), sizeof(commandbuf) - 1);
-				injected_commands_P =commandbuf;// PSTR("G28 X0 Y0");//commandbuf;
+				//injected_commands_P =commandbuf;// PSTR("G28 X0 Y0");//commandbuf;
 
-				enqueue_and_echo_commands_P(PSTR("G0 X10 Y10 F3000"));
+				#ifdef ACTION_ON_PAUSE
+					SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+				#endif
+				enqueue_and_echo_commands_P(PSTR("M25"));
 
 			}
 		}
