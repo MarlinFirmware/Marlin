@@ -43,7 +43,6 @@ void FastIO_init(); // Must be called before using fast io macros
 // Defines
 // --------------------------------------------------------------------------
 
-#define _BV(b) (1 << (b))
 #define _BV32(b) (1UL << (b))
 
 #if defined(STM32F0xx) || defined(STM32F1xx) || defined(STM32F3xx) || defined(STM32L0xx) || defined(STM32L4xx)
