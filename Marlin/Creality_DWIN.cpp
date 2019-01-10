@@ -967,6 +967,9 @@ SERIAL_ECHO(Checkkey);
 		if(recdat.addr == Resumeprint && recdat.data[0] == 2)	// warming
 		{ 
 			NozzleTempStatus[2] = 1;
+			PrinterStatusKey[1] = 0;
+			InforShowStatus = true;
+			Update_Time_Value = RTS_UPDATE_VALUE;
 			thermalManager.target_temperature[0] = temphot;
 			startprogress  = 0;
 			FilementStatus[1] = 2;
