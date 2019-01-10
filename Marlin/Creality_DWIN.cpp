@@ -925,7 +925,7 @@ SERIAL_ECHO(Checkkey);
 			}
 			#endif
 			
-			char pause_str_Z[16];
+			//char pause_str_Z[16];
 			//memset(pause_str_Z, 0, sizeof(pause_str_Z));
 			//dtostrf(pause_z-5, 3, 2, pause_str_Z);
 			//memset(commandbuf,0,sizeof(commandbuf));
@@ -941,8 +941,8 @@ SERIAL_ECHO(Checkkey);
 			//sprintf_P(commandbuf, PSTR("G0 Z%s"), pause_str_Z);
 		   	//enqueue_and_echo_command(commandbuf);
 			
-			card.startFileprint();
-			print_job_timer.start();
+			//card.startFileprint();
+			//print_job_timer.start();
 			#ifdef ACTION_ON_RESUME
       			SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
     		#endif
@@ -951,13 +951,18 @@ SERIAL_ECHO(Checkkey);
       			runout.reset();
     		#endif
 			FilementStatus[1] = 2;
+			
+			PrinterStatusKey[1] = 0;
+			InforShowStatus = true;
+			Update_Time_Value = RTS_UPDATE_VALUE;
+
 			if(LanguageRecbuf != 0)
-				RTS_SndData(1,IconPrintstatus);	// 1 for Heating
+				RTS_SndData(0,IconPrintstatus);	// 1 for Heating
 			else
-				RTS_SndData(1+CEIconGrap,IconPrintstatus);
+				RTS_SndData(0+CEIconGrap,IconPrintstatus);
 			PrintStatue[1] = 0;
 			Update_Time_Value = 0;
-			PrinterStatusKey[1] = 3;
+			//PrinterStatusKey[1] = 3;
 			CardCheckStatus[0] = 1;	// open the key of  checking card in  printing
 			if(LanguageRecbuf != 0)
 				RTS_SndData(ExchangePageBase + 10, ExchangepageAddr); //exchange to 10 page
