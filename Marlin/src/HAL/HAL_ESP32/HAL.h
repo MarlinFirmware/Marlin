@@ -31,7 +31,7 @@
 #include <stdint.h>
 
 #undef DISABLED
-#undef _BV
+#undef M_PI
 
 #include <Arduino.h>
 
@@ -43,6 +43,7 @@
 
 #include "fastio_ESP32.h"
 #include "watchdog_ESP32.h"
+#include "i2s.h"
 
 #include "HAL_timers_ESP32.h"
 
