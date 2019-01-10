@@ -286,6 +286,11 @@ uint8_t Temperature::soft_pwm_amount[HOTENDS];
       next_auto_fan_check_ms = next_temp_ms + 2500UL;
     #endif
 
+    if (target > GHV(BED_MAXTEMP, maxttemp[heater]) - 15) {
+      SERIAL_ECHOLNPGM(MSG_PID_TEMP_TOO_HIGH);
+      return;
+    }
+
     SERIAL_ECHOLNPGM(MSG_PID_AUTOTUNE_START);
 
     disable_all_heaters();
@@ -2465,7 +2470,7 @@ void Temperature::isr() {
 
   #endif // AUTO_REPORT_TEMPERATURES
 
-  #if ENABLED(ULTRA_LCD)
+  #if ENABLED(ULTRA_LCD) || ENABLED(EXTENSIBLE_UI)
     void Temperature::set_heating_message(const uint8_t e) {
       const bool heating = isHeatingHotend(e);
       #if HOTENDS > 1

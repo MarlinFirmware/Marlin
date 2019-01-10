@@ -19,35 +19,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
- */
+#include "../inc/MarlinConfig.h"
 
-#ifdef __STM32F1__
+#if ENABLED(SDIO_SUPPORT)
 
-#include "../../inc/MarlinConfig.h"
+bool SDIO_Init(void);
+bool SDIO_ReadBlock(uint32_t block, uint8_t *dst);
+bool SDIO_WriteBlock(uint32_t block, const uint8_t *src);
 
-#if ENABLED(USE_WATCHDOG)
+class Sd2Card {
+  public:
+    bool init(uint8_t sckRateID = 0, uint8_t chipSelectPin = 0) { return SDIO_Init(); }
+    bool readBlock(uint32_t block, uint8_t *dst) { return SDIO_ReadBlock(block, dst); }
+    bool writeBlock(uint32_t block, const uint8_t *src) { return SDIO_WriteBlock(block, src); }
+};
 
-#include <libmaple/iwdg.h>
-#include "watchdog_Stm32f1.h"
-
-void watchdogSetup(void) {
-  // do whatever. don't remove this function.
-}
-
-/**
- * @brief  Initialized the independent hardware watchdog.
- *
- * @return No return
- *
- * @details The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and 625 reload value (counts down to 0)
- */
-void watchdog_init(void) {
-  //iwdg_init(IWDG_PRE_256, STM32F1_WD_RELOAD);
-}
-
-#endif // USE_WATCHDOG
-
-#endif // __STM32F1__
+#endif // SDIO_SUPPORT

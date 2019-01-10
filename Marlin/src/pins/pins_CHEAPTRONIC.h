@@ -77,10 +77,3 @@
 // LCD / Controller
 //
 // Cheaptronic v1.0 doesn't support LCD
-#define LCD_PINS_RS        -1
-#define LCD_PINS_ENABLE    -1
-
-// Cheaptronic v1.0 doesn't support keypad
-#define BTN_EN1            -1
-#define BTN_EN2            -1
-#define BTN_ENC            -1

@@ -256,6 +256,18 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
     A##3_STEP_WRITE(V);                                                                                                     \
   }
 
+#define TRIPLE_SEPARATE_APPLY_STEP(A,V)           \
+  if (separate_multi_axis) {                      \
+    if (!locked_##A##_motor) A##_STEP_WRITE(V);   \
+    if (!locked_##A##2_motor) A##2_STEP_WRITE(V); \
+    if (!locked_##A##3_motor) A##3_STEP_WRITE(V); \
+  }                                               \
+  else {                                          \
+    A##_STEP_WRITE(V);                            \
+    A##2_STEP_WRITE(V);                           \
+    A##3_STEP_WRITE(V);                           \
+  }
+
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -301,6 +313,8 @@ int8_t Stepper::count_direction[NUM_AXIS] = { 0, 0, 0, 0 };
   #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); Z3_DIR_WRITE(v); }while(0)
   #if ENABLED(Z_TRIPLE_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) TRIPLE_ENDSTOP_APPLY_STEP(Z,v)
+  #elif ENABLED(Z_STEPPER_AUTO_ALIGN)
+    #define Z_APPLY_STEP(v,Q) TRIPLE_SEPARATE_APPLY_STEP(Z,v)
   #else
     #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); Z3_STEP_WRITE(v); }while(0)
   #endif

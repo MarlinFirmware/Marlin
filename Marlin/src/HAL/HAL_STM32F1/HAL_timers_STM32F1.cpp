@@ -32,7 +32,7 @@
 
 #include "HAL.h"
 
-#include "HAL_timers_Stm32f1.h"
+#include "HAL_timers_STM32F1.h"
 
 // --------------------------------------------------------------------------
 // Externals
