@@ -27,6 +27,8 @@
 
 #include <libmaple/iwdg.h>
 
+#include "../../inc/MarlinConfig.h"
+
 /**
  *  The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and
  *  625 reload value (counts down to 0)
@@ -41,4 +43,9 @@ void watchdog_init();
 
 // Reset watchdog. MUST be called at least every 4 seconds after the
 // first watchdog_init or STM32F1 will reset.
-void watchdog_reset();
+inline void watchdog_reset() {
+  #if PIN_EXISTS(LED)
+    TOGGLE(LED_PIN);  // heart beat indicator
+  #endif
+  iwdg_feed();
+}
