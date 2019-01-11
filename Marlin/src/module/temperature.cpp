@@ -96,17 +96,60 @@ Temperature thermalManager;
 
 // public:
 
-float Temperature::current_temperature[HOTENDS] = { 0.0 };
-int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
-        Temperature::target_temperature[HOTENDS] = { 0 };
+float Temperature::current_temperature[HOTENDS]; // = { 0.0 };
+int16_t Temperature::current_temperature_raw[HOTENDS], // = { 0 }
+        Temperature::target_temperature[HOTENDS]; // = { 0 }
 
 #if ENABLED(AUTO_POWER_E_FANS)
-  uint8_t Temperature::autofan_speed[HOTENDS] = { 0 };
+  uint8_t Temperature::autofan_speed[HOTENDS]; // = { 0 }
 #endif
 
 #if FAN_COUNT > 0
-  void Temperature::set_fanspeed(uint8_t target, uint16_t speed) {
-    
+
+  uint8_t Temperature::fan_speed[FAN_COUNT]; // = { 0 }
+
+  #if ENABLED(EXTRA_FAN_SPEED)
+    uint8_t Temperature::old_fan_speed[FAN_COUNT], Temperature::new_fan_speed[FAN_COUNT];
+
+    void Temperature::set_temp_fan_speed(const uint8_t fan, const int16_t tmp_temp) {
+      switch (tmp_temp) {
+        case 1:
+          set_fan_speed(fan, old_fan_speed[fan]);
+          break;
+        case 2:
+          old_fan_speed[fan] = fan_speed[fan];
+          set_fan_speed(fan, new_fan_speed[fan]);
+          break;
+        default:
+          new_fan_speed[fan] = MIN(tmp_temp, 255U);
+          break;
+      }
+    }
+
+  #endif
+
+  #if ENABLED(PROBING_FANS_OFF)
+    bool Temperature::fans_paused; // = false;
+    uint8_t Temperature::paused_fan_speed[FAN_COUNT]; // = { 0 }
+  #endif
+
+  #if ENABLED(ADAPTIVE_FAN_SLOWING)
+    uint8_t Temperature::fan_speed_scaler[FAN_COUNT] = ARRAY_N(FAN_COUNT, 128, 128, 128, 128, 128, 128);
+  #endif
+
+  #if HAS_LCD_MENU
+
+    uint8_t Temperature::lcd_tmpfan_speed[
+      #if ENABLED(SINGLENOZZLE)
+        MAX(EXTRUDERS, FAN_COUNT)
+      #else
+        FAN_COUNT
+      #endif
+    ]; // = { 0 }
+
+  #endif
+
+  void Temperature::set_fan_speed(uint8_t target, uint16_t speed) {
 
     NOMORE(speed, 255U);
 
@@ -126,26 +169,23 @@ int16_t Temperature::current_temperature_raw[HOTENDS] = { 0 },
     #endif
   }
 
-  uint8_t Temperature::lcd_tmpfan_speed[MAX(FAN_COUNT, 
-        #if ENABLED(SINGLENOZZLE)
-          EXTRUDERS
-        #else
-          0
-        #endif
-        )] = { 0 };
-  void Temperature::lcd_setFanSpeed(const uint8_t target) {
-    set_fanspeed(target, lcd_tmpfan_speed[target]);
-  }
+  #if ENABLED(PROBING_FANS_OFF)
 
-  #if HAS_FAN0
-    void Temperature::lcd_setFan0Speed() { lcd_setFanSpeed(0); }
-  #endif
-  #if HAS_FAN1 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 1)
-    void Temperature::lcd_setFan1Speed() { lcd_setFanSpeed(1); }
-  #endif
-  #if HAS_FAN2 || (ENABLED(SINGLENOZZLE) && EXTRUDERS > 2)
-    void Temperature::lcd_setFan2Speed() { lcd_setFanSpeed(2); }
-  #endif
+    void Temperature::set_fans_paused(const bool p) {
+      if (p != fans_paused) {
+        fans_paused = p;
+        if (p)
+          for (uint8_t x = 0; x < FAN_COUNT; x++) {
+            paused_fan_speed[x] = fan_speed[x];
+            fan_speed[x] = 0;
+          }
+        else
+          for (uint8_t x = 0; x < FAN_COUNT; x++)
+            fan_speed[x] = paused_fan_speed[x];
+      }
+    }
+
+  #endif // PROBING_FANS_OFF
 
 #endif // FAN_COUNT > 0
 
@@ -1590,16 +1630,16 @@ void Temperature::init() {
         #if ENABLED(ADAPTIVE_FAN_SLOWING) && FAN_COUNT > 0
           if (heater_id >= 0) {
             const int fan_index = MIN(heater_id, FAN_COUNT - 1);
-            if (fan_speed[fan_index]==0 || current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.25f))
-              fan_speed_multiplier[fan_index] = 100;
+            if (fan_speed[fan_index] == 0 || current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.25f))
+              fan_speed_scaler[fan_index] = 128;
             else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.3335f))
-              fan_speed_multiplier[fan_index] = 75;
+              fan_speed_scaler[fan_index] = 96;
             else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.5f))
-              fan_speed_multiplier[fan_index] = 50;
+              fan_speed_scaler[fan_index] = 64;
             else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.8f))
-              fan_speed_multiplier[fan_index] = 25;
+              fan_speed_scaler[fan_index] = 32;
             else
-              fan_speed_multiplier[fan_index] = 0;
+              fan_speed_scaler[fan_index] = 0;
           }
         #endif
 

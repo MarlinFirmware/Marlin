@@ -866,19 +866,16 @@ void MarlinUI::draw_status_screen() {
           _draw_print_progress();
         #else
           char c;
-          int per;
+          uint16_t per;
           #if HAS_FAN0
-            if (blink) {
-              c = 'F';
-              per = ((int(fan_speed[0]) + 1) * 100) / 256;
+            if (blink || thermalManager.fan_speed_scaler[0] < 128) {
+              uint16_t spd = thermalManager.fan_speed[0];
+              if (blink) c = 'F';
+              #if ENABLED(ADAPTIVE_FAN_SLOWING)
+                else { c = '*'; spd = (spd * thermalManager.fan_speed_scaler[0]) >> 7; }
+              #endif
+              per = thermalManager.fanPercent(spd);
             }
-            #if ENABLED(ADAPTIVE_FAN_SLOWING)
-              else if(fan_speed_multiplier[0] < 100)
-              {
-                c = '*';
-                per = ((int(fan_speed[0] * (fan_speed_multiplier[0]/100.0f)) + 1) * 100) / 256;
-              }
-            #endif
             else
           #endif
             {
@@ -1056,13 +1053,13 @@ void MarlinUI::draw_status_screen() {
       #if FAN_COUNT > 0
         if (0
           #if HAS_FAN0
-            || fan_speed[0]
+            || thermalManager.fan_speed[0]
           #endif
           #if HAS_FAN1
-            || fan_speed[1]
+            || thermalManager.fan_speed[1]
           #endif
           #if HAS_FAN2
-            || fan_speed[2]
+            || thermalManager.fan_speed[2]
           #endif
         ) leds |= LED_C;
       #endif // FAN_COUNT > 0

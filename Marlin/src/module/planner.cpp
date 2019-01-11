@@ -1179,11 +1179,8 @@ void Planner::check_axes_activity() {
 
   if (has_blocks_queued()) {
     #if FAN_COUNT > 0
-      FANS_LOOP(i) tail_fan_speed[i] = block_buffer[block_buffer_tail].fan_speed[i]
-        #if ENABLED(ADAPTIVE_FAN_SLOWING)
-        * ((float)fan_speed_multiplier[i]/100.0f)
-        #endif
-        ;
+      FANS_LOOP(i)
+        tail_fan_speed[i] = (block_buffer[block_buffer_tail].fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
     #endif
 
     block_t* block;
@@ -1205,11 +1202,8 @@ void Planner::check_axes_activity() {
   }
   else {
     #if FAN_COUNT > 0
-      FANS_LOOP(i) tail_fan_speed[i] = fan_speed[i]
-      #if ENABLED(ADAPTIVE_FAN_SLOWING)
-      * ((float)fan_speed_multiplier[i]/100.0f)
-      #endif
-      ;
+      FANS_LOOP(i)
+        tail_fan_speed[i] = (thermalManager.fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1909,7 +1903,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if FAN_COUNT > 0
-    FANS_LOOP(i) block->fan_speed[i] = fan_speed[i];
+    FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 
   #if ENABLED(BARICUDA)

@@ -25,7 +25,6 @@
 #if FAN_COUNT > 0
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for fan_speed
 #include "../../module/motion.h"
 #include "../../module/temperature.h"
 
@@ -47,29 +46,16 @@ void GcodeSuite::M106() {
   const uint8_t p = parser.byteval('P', MIN(active_extruder, FAN_COUNT - 1));
 
   if (p < MIN(EXTRUDERS, FAN_COUNT)) {
-    uint16_t s = parser.ushortval('S', 255);
-    NOMORE(s, 255U);
 
     #if ENABLED(EXTRA_FAN_SPEED)
       const int16_t t = parser.intval('T');
-      if (t > 0) {
-        switch (t) {
-          case 1:
-            thermalManager.set_fanspeed(p, old_fan_speed[p]);
-            break;
-          case 2:
-            old_fan_speed[p] = fan_speed[p];
-            thermalManager.set_fanspeed(p, new_fan_speed[p]);
-            break;
-          default:
-            new_fan_speed[p] = MIN(t, 255U);
-            break;
-        }
-        return;
-      }
-    #endif // EXTRA_FAN_SPEED
+      if (t > 0) return thermalManager.set_temp_fan_speed(p, t);
+    #endif
 
-    thermalManager.set_fanspeed(p, s);
+    uint16_t s = parser.ushortval('S', 255);
+    NOMORE(s, 255U);
+
+    thermalManager.set_fan_speed(p, s);
   }
 }
 
@@ -77,8 +63,7 @@ void GcodeSuite::M106() {
  * M107: Fan Off
  */
 void GcodeSuite::M107() {
-  const uint16_t p = parser.byteval('P', active_extruder);
-  thermalManager.set_fanspeed(p, 0);
+  thermalManager.set_fan_speed(parser.byteval('P', active_extruder), 0);
 }
 
 #endif // FAN_COUNT > 0

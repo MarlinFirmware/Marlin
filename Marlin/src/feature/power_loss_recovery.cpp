@@ -162,7 +162,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const bool save_queue/*=
     #endif
 
     #if FAN_COUNT
-      COPY(info.fan_speed, fan_speed);
+      COPY(info.fan_speed, thermalManager.fan_speed);
     #endif
 
     #if HAS_LEVELING

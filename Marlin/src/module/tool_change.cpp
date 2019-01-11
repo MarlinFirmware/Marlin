@@ -674,8 +674,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
         #if ENABLED(SINGLENOZZLE)
           #if FAN_COUNT > 0
-            singlenozzle_fan_speed[active_extruder] = fan_speed[0];
-            fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
+            singlenozzle_fan_speed[active_extruder] = thermalManager.fan_speed[0];
+            thermalManager.fan_speed[0] = singlenozzle_fan_speed[tmp_extruder];
           #endif
 
           singlenozzle_temp[active_extruder] = thermalManager.target_temperature[0];
