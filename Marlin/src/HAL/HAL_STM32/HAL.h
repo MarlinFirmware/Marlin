@@ -171,7 +171,7 @@ void _delay_ms(const int delay);
 
 extern "C" char* _sbrk(int incr);
 
-inline static int freeMemory() {
+static inline int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
