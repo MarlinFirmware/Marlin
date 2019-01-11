@@ -46,7 +46,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Origine X Auto.")
 #define MSG_AUTO_HOME_Y                     _UxGT("Origine Y Auto.")
 #define MSG_AUTO_HOME_Z                     _UxGT("Origine Z Auto.")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Calibrer Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Origine XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Clic pour commencer")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Point suivant")

@@ -39,7 +39,6 @@
 #define MSG_AUTOSTART                       _UxGT("Automaatti")
 #define MSG_DISABLE_STEPPERS                _UxGT("Vapauta moottorit")
 #define MSG_AUTO_HOME                       _UxGT("Aja referenssiin")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibroi Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Click to Begin")
 #define MSG_LEVEL_BED_DONE                  _UxGT("Leveling Done!")

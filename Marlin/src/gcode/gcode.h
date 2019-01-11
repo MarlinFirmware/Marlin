@@ -804,9 +804,6 @@ private:
     #if USE_SENSORLESS
       static void M914();
     #endif
-    #if ENABLED(TMC_Z_CALIBRATION)
-      static void M915();
-    #endif
   #endif
 
   #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM || ENABLED(DIGIPOT_I2C) || ENABLED(DAC_STEPPER_CURRENT)

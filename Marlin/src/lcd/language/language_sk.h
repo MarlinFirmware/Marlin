@@ -57,7 +57,6 @@
 #define MSG_AUTO_HOME_Y                     _UxGT("Domov os Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Domov os Z")
 #define MSG_AUTO_Z_ALIGN                    _UxGT("Auto-zarovn. Z")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibrovať Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Parkovanie XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Kliknutím spusťte")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Ďalší bod")

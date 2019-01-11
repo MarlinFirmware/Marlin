@@ -55,7 +55,6 @@
 #define MSG_AUTO_HOME_Y                     _UxGT("Y Sıfırla")
 #define MSG_AUTO_HOME_Z                     _UxGT("Z Sıfırla")
 #define MSG_AUTO_Z_ALIGN                    _UxGT("Oto. Z-Hizalama")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Z Ayarla")
 #define MSG_LEVEL_BED_HOMING                _UxGT("XYZ Sıfırlanıyor")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Başlatmak için tıkla")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Sonraki Nokta")
