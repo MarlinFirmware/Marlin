@@ -85,18 +85,26 @@ void GcodeSuite::M23() {
  * M24: Start or Resume SD Print
  */
 void GcodeSuite::M24() {
-  #if ENABLED(PARK_HEAD_ON_PAUSE)
-    resume_print();
-  #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     if (parser.seenval('S')) card.setIndex(parser.value_long());
     if (parser.seenval('T')) print_job_timer.resume(parser.value_long());
   #endif
 
-  card.startFileprint();
-  print_job_timer.start();
-  ui.reset_status();
+  #if ENABLED(PARK_HEAD_ON_PAUSE)
+    resume_print();
+  #else
+    if (card.isFileOpen()) {
+      card.startFileprint();
+      print_job_timer.start();
+    }
+
+    ui.reset_status();
+    
+    #ifdef ACTION_ON_RESUME
+      SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
+    #endif
+  #endif
 }
 
 /**
@@ -106,9 +114,16 @@ void GcodeSuite::M25() {
   #if ENABLED(PARK_HEAD_ON_PAUSE)
     M125();
   #else
-    card.pauseSDPrint();
+    #if ENABLED(SDSUPPORT)
+      if (IS_SD_PRINTING()) card.pauseSDPrint();
+    #endif
+
     print_job_timer.pause();
     ui.reset_status();
+
+    #ifdef ACTION_ON_PAUSE
+      SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
+    #endif
   #endif
 }
 
