@@ -154,8 +154,8 @@ template<typename NAME>
 class TMenuItem : MenuItemBase {
   private:
     typedef typename NAME::type_t type_t;
-    inline static float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
-    inline static float scale(const float value)      { return value * NAME::scale;           }
+    static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
+    static inline float scale(const float value)      { return value * NAME::scale;           }
     static void  load(void *ptr, const int32_t value) { *((type_t*)ptr) = unscale(value);     }
     static char* to_string(const int32_t value)       { return NAME::strfunc(unscale(value)); }
   public:

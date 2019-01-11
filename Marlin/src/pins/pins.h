@@ -419,6 +419,8 @@
   #include "pins_STM32F4.h"           // STM32F4                                    env:STM32F4
 #elif MB(ARMED)
   #include "pins_ARMED.h"             // STM32F4                                    env:ARMED
+#elif MB(RUMBA32)
+  #include "pins_RUMBA32.h"           // STM32F4                                    env:RUMBA32
 
 //
 // ARM Cortex M7
