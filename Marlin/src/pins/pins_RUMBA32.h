@@ -24,10 +24,7 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
-#ifndef RUMBA32_V1_0
-  #define RUMBA32_V1_0
-#endif
-
+#define RUMBA32_V1_0
 #define DEFAULT_MACHINE_NAME "RUMBA32"
 #define BOARD_NAME "RUMBA32"
 
