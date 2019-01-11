@@ -57,7 +57,7 @@
 
 // Remove compiler warning on an unused variable
 #if !defined(ARDUINO_ARCH_STM32) || defined(STM32GENERIC)
-#define UNUSED(x) ((void)(x))
+  #define UNUSED(x) ((void)(x))
 #endif
 
 // Macros to make a string from a macro
