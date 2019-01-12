@@ -283,7 +283,7 @@ void RTSSHOW::RTS_Init()
 	else 
 	{
 		RTS_SndData(3, AutoLevelIcon);/*On*/
-		settings.load();
+		//settings.load();
 	}
 	
 	//VolumeSet = eeprom_read_byte((unsigned char*)FONT_EEPROM+4);
