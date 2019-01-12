@@ -43,9 +43,11 @@ bool printer_busy();
     static inline char* strfunc(const float value) { return STRFUNC((TYPE) value); } \
   };
 
-DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        itostr3,         1     );
-DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        itostr4sign,     1     );
-DECLARE_MENU_EDIT_TYPE(uint8_t,  int8,        i8tostr3,        1     );
+DECLARE_MENU_EDIT_TYPE(int16_t,  int3,        i16tostr3,       1     );
+DECLARE_MENU_EDIT_TYPE(int16_t,  int4,        i16tostr4sign,   1     );
+DECLARE_MENU_EDIT_TYPE(int8_t,   int8,        i8tostr3,        1     );
+DECLARE_MENU_EDIT_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );
+DECLARE_MENU_EDIT_TYPE(uint16_t, uint16,      ui16tostr3,      1     );
 DECLARE_MENU_EDIT_TYPE(float,    float3,      ftostr3,         1     );
 DECLARE_MENU_EDIT_TYPE(float,    float52,     ftostr52,      100     );
 DECLARE_MENU_EDIT_TYPE(float,    float43,     ftostr43sign, 1000     );
@@ -102,6 +104,8 @@ FORCE_INLINE void draw_menu_item_edit_P(const bool sel, const uint8_t row, PGM_P
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int3);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int4);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(int8);
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint8);
+DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(uint16);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float3);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float52);
 DEFINE_DRAW_MENU_ITEM_SETTING_EDIT(float43);
@@ -171,6 +175,8 @@ class TMenuItem : MenuItemBase {
 DECLARE_MENU_EDIT_ITEM(int3);
 DECLARE_MENU_EDIT_ITEM(int4);
 DECLARE_MENU_EDIT_ITEM(int8);
+DECLARE_MENU_EDIT_ITEM(uint8);
+DECLARE_MENU_EDIT_ITEM(uint16);
 DECLARE_MENU_EDIT_ITEM(float3);
 DECLARE_MENU_EDIT_ITEM(float52);
 DECLARE_MENU_EDIT_ITEM(float43);
