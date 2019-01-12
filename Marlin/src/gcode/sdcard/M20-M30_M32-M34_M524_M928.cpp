@@ -145,7 +145,7 @@ void GcodeSuite::M27() {
   #endif
 
   else
-    card.getStatus(
+    card.report_status(
       #if NUM_SERIAL > 1
         port
       #endif

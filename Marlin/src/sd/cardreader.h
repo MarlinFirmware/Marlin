@@ -70,7 +70,7 @@ public:
       const bool re_sort=false
     #endif
   );
-  static void getStatus(
+  static void report_status(
     #if NUM_SERIAL > 1
       const int8_t port = -1
     #endif

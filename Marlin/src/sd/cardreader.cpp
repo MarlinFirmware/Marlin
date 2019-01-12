@@ -556,7 +556,7 @@ void CardReader::removeFile(const char * const name) {
   }
 }
 
-void CardReader::getStatus(
+void CardReader::report_status(
   #if NUM_SERIAL > 1
     const int8_t port/*= -1*/
   #endif
@@ -1045,7 +1045,7 @@ void CardReader::printingHasFinished() {
     millis_t current_ms = millis();
     if (auto_report_sd_interval && ELAPSED(current_ms, next_sd_report_ms)) {
       next_sd_report_ms = current_ms + 1000UL * auto_report_sd_interval;
-      getStatus(
+      report_status(
         #if NUM_SERIAL > 1
           serialport
         #endif
