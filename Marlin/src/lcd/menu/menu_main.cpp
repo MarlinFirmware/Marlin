@@ -44,7 +44,7 @@ void lcd_pause() {
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
     lcd_advanced_pause_show_message(ADVANCED_PAUSE_MESSAGE_INIT, ADVANCED_PAUSE_MODE_PAUSE_PRINT, active_extruder);
-    if (pause_print(PAUSE_PARK_RETRACT_LENGTH, NOZZLE_PARK_POINT, 0, true) ) {
+    if (pause_print(PAUSE_PARK_RETRACT_LENGTH, NOZZLE_PARK_POINT, 0, true)) {
       wait_for_confirmation(false, 0);
       resume_print(0, 0, ADVANCED_PAUSE_PURGE_LENGTH, 0);
       ui.return_to_status();
