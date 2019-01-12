@@ -330,7 +330,7 @@ void process_lcd_s_command(const char* command) {
 
     case 'L': {
       #if ENABLED(SDSUPPORT)
-        if (!card.flag.cardOK) card.initsd();
+        if (!card.isDetected()) card.initsd();
 
         // A more efficient way to do this would be to
         // implement a callback in the ls_SerialPrint code, but
