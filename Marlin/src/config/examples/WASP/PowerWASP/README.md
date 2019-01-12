@@ -1,5 +1,5 @@
 # Modifications to PowerWASP firmware with a few extras
-The later versions of the PowerWASP controller board have power loss detection on pin 65 ( low on loss). this has been configured in POWER_LOSS_RECOVERY. Because of this there is no need to save each command line just in case of a power loss to the machine. The board will hold enough power to allow the print to be saved to the SD card.
+The later versions of the PowerWASP controller board have power loss detection on pin 65 (low on loss). this has been configured in POWER_LOSS_RECOVERY. Because of this there is no need to save each command line just in case of a power loss to the machine. The board will hold enough power to allow the print to be saved to the SD card.
 
 The retract position on finishing the print has been set at Z190 X0 Y0
 
