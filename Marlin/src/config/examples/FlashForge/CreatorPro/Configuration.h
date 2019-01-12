@@ -927,17 +927,12 @@
 
 
 //these values are used in your slicer
-//#define X_BED_SIZE 227
-//#define Y_BED_SIZE 148
-//these values are use for the actual limits of the machine so you can do the nozzle wipes, heat away from the bed, etc
-//DON'T PUT THESE INTO YOUR SLICER!!!
-#define X_BED_SIZE 304
-#define Y_BED_SIZE 154
+#define X_BED_SIZE 227
+#define Y_BED_SIZE 148
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-
-#define X_MIN_POS -152
-#define Y_MIN_POS -77
+#define X_MIN_POS -120
+#define Y_MIN_POS -84
 #define Z_MIN_POS 0
 #define X_MAX_POS 152
 #define Y_MAX_POS 77
