@@ -92,18 +92,19 @@ void GcodeSuite::M24() {
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    #if(did_pause_print) {
+    if (did_pause_print) {
       resume_print();
       return;
     }
   #endif
+
   if (card.isFileOpen()) {
     card.startFileprint();
     print_job_timer.start();
   }
 
   ui.reset_status();
-    
+
   #ifdef ACTION_ON_RESUME
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
   #endif
