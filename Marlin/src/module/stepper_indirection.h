@@ -66,7 +66,7 @@
   #define _TMC_CLASS(MODEL, L) __TMC_CLASS(MODEL, L)
   #define TMC_CLASS(ST) _TMC_CLASS(ST##_DRIVER_TYPE, TMC_##ST##_LABEL)
 
-  static constexpr int8_t chopper_settings[] = CHOPPER_TIMING;
+  static constexpr int8_t chopper_timing[] = CHOPPER_TIMING;
 
   #if HAS_DRIVER(TMC2208)
     void tmc2208_serial_begin();
@@ -103,7 +103,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define X_ENABLE_READ stepperX.isEnabled()
   #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(X)
     #define X_ENABLE_INIT NOOP
-    #define X_ENABLE_WRITE(STATE) stepperX.toff((STATE)==X_ENABLE_ON ? chopper_settings[0] : 0)
+    #define X_ENABLE_WRITE(STATE) stepperX.toff((STATE)==X_ENABLE_ON ? chopper_timing[0] : 0)
     #define X_ENABLE_READ stepperX.isEnabled()
   #else
     #define X_ENABLE_INIT SET_OUTPUT(X_ENABLE_PIN)
@@ -138,7 +138,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Y_ENABLE_READ stepperY.isEnabled()
   #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y)
     #define Y_ENABLE_INIT NOOP
-    #define Y_ENABLE_WRITE(STATE) stepperY.toff((STATE)==Y_ENABLE_ON ? chopper_settings[0] : 0)
+    #define Y_ENABLE_WRITE(STATE) stepperY.toff((STATE)==Y_ENABLE_ON ? chopper_timing[0] : 0)
     #define Y_ENABLE_READ stepperY.isEnabled()
   #else
     #define Y_ENABLE_INIT SET_OUTPUT(Y_ENABLE_PIN)
@@ -173,7 +173,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define Z_ENABLE_READ stepperZ.isEnabled()
   #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z)
     #define Z_ENABLE_INIT NOOP
-    #define Z_ENABLE_WRITE(STATE) stepperZ.toff((STATE)==Z_ENABLE_ON ? chopper_settings[0] : 0)
+    #define Z_ENABLE_WRITE(STATE) stepperZ.toff((STATE)==Z_ENABLE_ON ? chopper_timing[0] : 0)
     #define Z_ENABLE_READ stepperZ.isEnabled()
   #else
     #define Z_ENABLE_INIT SET_OUTPUT(Z_ENABLE_PIN)
@@ -209,7 +209,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
       #define X2_ENABLE_READ stepperX2.isEnabled()
     #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(X2)
       #define X2_ENABLE_INIT NOOP
-      #define X2_ENABLE_WRITE(STATE) stepperX2.toff((STATE)==X_ENABLE_ON ? chopper_settings[0] : 0)
+      #define X2_ENABLE_WRITE(STATE) stepperX2.toff((STATE)==X_ENABLE_ON ? chopper_timing[0] : 0)
       #define X2_ENABLE_READ stepperX2.isEnabled()
     #else
       #define X2_ENABLE_INIT SET_OUTPUT(X2_ENABLE_PIN)
@@ -246,7 +246,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
       #define Y2_ENABLE_READ stepperY2.isEnabled()
     #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y2)
       #define Y2_ENABLE_INIT NOOP
-      #define Y2_ENABLE_WRITE(STATE) stepperY2.toff((STATE)==Y_ENABLE_ON ? chopper_settings[0] : 0)
+      #define Y2_ENABLE_WRITE(STATE) stepperY2.toff((STATE)==Y_ENABLE_ON ? chopper_timing[0] : 0)
       #define Y2_ENABLE_READ stepperY2.isEnabled()
     #else
       #define Y2_ENABLE_INIT SET_OUTPUT(Y2_ENABLE_PIN)
@@ -283,7 +283,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
       #define Z2_ENABLE_READ stepperZ2.isEnabled()
     #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z2)
       #define Z2_ENABLE_INIT NOOP
-      #define Z2_ENABLE_WRITE(STATE) stepperZ2.toff((STATE)==Z_ENABLE_ON ? chopper_settings[0] : 0)
+      #define Z2_ENABLE_WRITE(STATE) stepperZ2.toff((STATE)==Z_ENABLE_ON ? chopper_timing[0] : 0)
       #define Z2_ENABLE_READ stepperZ2.isEnabled()
     #else
       #define Z2_ENABLE_INIT SET_OUTPUT(Z2_ENABLE_PIN)
@@ -320,7 +320,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
       #define Z3_ENABLE_READ stepperZ3.isEnabled()
     #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z3)
       #define Z3_ENABLE_INIT NOOP
-      #define Z3_ENABLE_WRITE(STATE) stepperZ3.toff((STATE)==Z_ENABLE_ON ? chopper_settings[0] : 0)
+      #define Z3_ENABLE_WRITE(STATE) stepperZ3.toff((STATE)==Z_ENABLE_ON ? chopper_timing[0] : 0)
       #define Z3_ENABLE_READ stepperZ3.isEnabled()
     #else
       #define Z3_ENABLE_INIT SET_OUTPUT(Z3_ENABLE_PIN)
@@ -356,7 +356,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E0_ENABLE_READ stepperE0.isEnabled()
   #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E0)
     #define E0_ENABLE_INIT NOOP
-    #define E0_ENABLE_WRITE(STATE) stepperE0.toff((STATE)==E_ENABLE_ON ? chopper_settings[0] : 0)
+    #define E0_ENABLE_WRITE(STATE) stepperE0.toff((STATE)==E_ENABLE_ON ? chopper_timing[0] : 0)
     #define E0_ENABLE_READ stepperE0.isEnabled()
   #else
     #define E0_ENABLE_INIT SET_OUTPUT(E0_ENABLE_PIN)
@@ -391,7 +391,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E1_ENABLE_READ stepperE1.isEnabled()
   #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1)
     #define E1_ENABLE_INIT NOOP
-    #define E1_ENABLE_WRITE(STATE) stepperE1.toff((STATE)==E_ENABLE_ON ? chopper_settings[0] : 0)
+    #define E1_ENABLE_WRITE(STATE) stepperE1.toff((STATE)==E_ENABLE_ON ? chopper_timing[0] : 0)
     #define E1_ENABLE_READ stepperE1.isEnabled()
   #else
     #define E1_ENABLE_INIT SET_OUTPUT(E1_ENABLE_PIN)
@@ -426,7 +426,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E2_ENABLE_READ stepperE2.isEnabled()
   #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2)
     #define E2_ENABLE_INIT NOOP
-    #define E2_ENABLE_WRITE(STATE) stepperE2.toff((STATE)==E_ENABLE_ON ? chopper_settings[0] : 0)
+    #define E2_ENABLE_WRITE(STATE) stepperE2.toff((STATE)==E_ENABLE_ON ? chopper_timing[0] : 0)
     #define E2_ENABLE_READ stepperE2.isEnabled()
   #else
     #define E2_ENABLE_INIT SET_OUTPUT(E2_ENABLE_PIN)
@@ -461,7 +461,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E3_ENABLE_READ stepperE3.isEnabled()
   #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3)
     #define E3_ENABLE_INIT NOOP
-    #define E3_ENABLE_WRITE(STATE) stepperE3.toff((STATE)==E_ENABLE_ON ? chopper_settings[0] : 0)
+    #define E3_ENABLE_WRITE(STATE) stepperE3.toff((STATE)==E_ENABLE_ON ? chopper_timing[0] : 0)
     #define E3_ENABLE_READ stepperE3.isEnabled()
   #else
     #define E3_ENABLE_INIT SET_OUTPUT(E3_ENABLE_PIN)
@@ -496,7 +496,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E4_ENABLE_READ stepperE4.isEnabled()
   #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4)
     #define E4_ENABLE_INIT NOOP
-    #define E4_ENABLE_WRITE(STATE) stepperE4.toff((STATE)==E_ENABLE_ON ? chopper_settings[0] : 0)
+    #define E4_ENABLE_WRITE(STATE) stepperE4.toff((STATE)==E_ENABLE_ON ? chopper_timing[0] : 0)
     #define E4_ENABLE_READ stepperE4.isEnabled()
   #else
     #define E4_ENABLE_INIT SET_OUTPUT(E4_ENABLE_PIN)
@@ -531,7 +531,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
     #define E5_ENABLE_READ stepperE5.isEnabled()
   #elif ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5)
     #define E5_ENABLE_INIT NOOP
-    #define E5_ENABLE_WRITE(STATE) stepperE5.toff((STATE)==E_ENABLE_ON ? chopper_settings[0] : 0)
+    #define E5_ENABLE_WRITE(STATE) stepperE5.toff((STATE)==E_ENABLE_ON ? chopper_timing[0] : 0)
     #define E5_ENABLE_READ stepperE5.isEnabled()
   #else
     #define E5_ENABLE_INIT SET_OUTPUT(E5_ENABLE_PIN)
