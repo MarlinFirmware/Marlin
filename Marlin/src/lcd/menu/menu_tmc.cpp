@@ -32,7 +32,7 @@
 #include "../../module/stepper_indirection.h"
 #include "../../feature/tmc_util.h"
 
-#define TMC_EDIT_STORED_I_RMS(ST) MENU_ITEM_EDIT_CALLBACK(uint16_1, MSG_##ST, &stepper##ST.val_mA, 100, 3000, refresh_stepper_current_##ST)
+#define TMC_EDIT_STORED_I_RMS(ST) MENU_ITEM_EDIT_CALLBACK(uint16_4, MSG_##ST, &stepper##ST.val_mA, 100, 3000, refresh_stepper_current_##ST)
 
 #if AXIS_IS_TMC(X)
   void refresh_stepper_current_X()  { stepperX.refresh_stepper_current();  }
