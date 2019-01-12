@@ -2391,12 +2391,13 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         delta_mm[E_AXIS] * inverse_millimeters
       };
     #endif
-    #if IS_CORE
+
+    #if IS_CORE && ENABLED(JUNCTION_DEVIATION)
       /**
-       * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y]. So taking Z and E into
-       * account, we cannot scale to a unit vector with "inverse_millimeters".
+       * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
+       * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
        * => normalize the complete junction vector
-      */
+       */
       normalize_junction_vector(unit_vec);
     #endif
 
