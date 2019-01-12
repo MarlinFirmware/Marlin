@@ -205,7 +205,7 @@
   void tmc_init(TMCMarlin<TMC2130Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
     st.begin();
 
-    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
+    static constexpr int timings[] = CHOPPER_TIMING; // Default 4, -2, 1
 
     CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
@@ -443,7 +443,7 @@
 
   template<char AXIS_LETTER, char DRIVER_ID>
   void tmc_init(TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t thrs, const float spmm, const bool stealth) {
-    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
+    static constexpr int timings[] = CHOPPER_TIMING; // Default 4, -2, 1
 
     TMC2208_n::GCONF_t gconf{0};
     gconf.pdn_disable = true; // Use UART
@@ -547,7 +547,7 @@
   void tmc_init(TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> &st, const uint16_t mA, const uint16_t microsteps, const uint32_t, const float, const bool) {
     st.begin();
 
-    static constexpr int8_t timings[] = CHOPPER_TIMING; // Default 4, -2, 1
+    static constexpr int timings[] = CHOPPER_TIMING; // Default 4, -2, 1
 
     TMC2660_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
