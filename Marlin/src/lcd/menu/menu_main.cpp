@@ -54,7 +54,7 @@ void lcd_pause() {
 void lcd_resume() {
   #if ENABLED(SDSUPPORT)
     if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
-  #elif ENABLED(ACTION_ON_RESUME)
+  #elif defined(ACTION_ON_RESUME)
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
   #endif
 }

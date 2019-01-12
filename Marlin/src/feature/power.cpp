@@ -39,7 +39,7 @@ millis_t Power::lastPowerOn;
 
 bool Power::is_power_needed() {
   #if ENABLED(AUTO_POWER_FANS)
-    FANS_LOOP(i) if (fan_speed[i]) return true;
+    FANS_LOOP(i) if (thermalManager.fan_speed[i]) return true;
   #endif
 
   #if ENABLED(AUTO_POWER_E_FANS)
