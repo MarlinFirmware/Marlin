@@ -2353,7 +2353,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M203 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_feedrate_mm_s[E_AXIS_N(i)]));
       }
     #endif
 
@@ -2370,7 +2370,7 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       CONFIG_ECHO_START();
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
         SERIAL_ECHOPAIR_P(port, "  M201 T", (int)i);
-        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS + i]));
+        SERIAL_ECHOLNPAIR_P(port, " E", VOLUMETRIC_UNIT(planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(i)]));
       }
     #endif
 

@@ -368,7 +368,7 @@ void menu_advanced_temperature() {
       if (e == active_extruder)
         _planner_refresh_positioning();
       else
-        planner.steps_to_mm[E_AXIS + e] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS + e];
+        planner.steps_to_mm[E_AXIS_N(e)] = 1.0f / planner.settings.axis_steps_per_mm[E_AXIS_N(e)];
     }
     void _planner_refresh_e0_positioning() { _planner_refresh_e_positioning(0); }
     void _planner_refresh_e1_positioning() { _planner_refresh_e_positioning(1); }

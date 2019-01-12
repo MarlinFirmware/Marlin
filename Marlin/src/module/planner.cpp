@@ -2646,8 +2646,8 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
 
   // When changing extruders recalculate steps corresponding to the E position
   #if ENABLED(DISTINCT_E_FACTORS)
-    if (last_extruder != extruder && settings.axis_steps_per_mm[E_AXIS_N(extruder)] != settings.axis_steps_per_mm[E_AXIS + last_extruder]) {
-      position[E_AXIS] = LROUND(position[E_AXIS] * settings.axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS + last_extruder]);
+    if (last_extruder != extruder && settings.axis_steps_per_mm[E_AXIS_N(extruder)] != settings.axis_steps_per_mm[E_AXIS_N(last_extruder)]) {
+      position[E_AXIS] = LROUND(position[E_AXIS] * settings.axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS_N(last_extruder)]);
       last_extruder = extruder;
     }
   #endif
