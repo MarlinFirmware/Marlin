@@ -100,10 +100,10 @@ void GcodeSuite::M81() {
   planner.finish_and_disable();
 
   #if FAN_COUNT > 0
-    zero_fan_speeds();
+    thermalManager.zero_fan_speeds();
     #if ENABLED(PROBING_FANS_OFF)
-      fans_paused = false;
-      ZERO(paused_fan_speed);
+      thermalManager.fans_paused = false;
+      ZERO(thermalManager.paused_fan_speed);
     #endif
   #endif
 

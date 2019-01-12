@@ -29,9 +29,9 @@
 #endif
 
 #define DEFAULT_MACHINE_NAME "Arm'ed"
-#ifndef BOARD_NAME
-#define BOARD_NAME "ARMED_V1"
-#endif
+
+#undef BOARD_NAME
+#define BOARD_NAME "Arm'ed"
 
 #define I2C_EEPROM
 

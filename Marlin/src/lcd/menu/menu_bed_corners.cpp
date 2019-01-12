@@ -32,12 +32,18 @@
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 
+#ifndef LEVEL_CORNERS_Z_HOP
+  #define LEVEL_CORNERS_Z_HOP 4.0
+#endif
+
+static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
+
 /**
  * Level corners, starting in the front-left corner.
  */
 static int8_t bed_corner;
 void _lcd_goto_next_corner() {
-  line_to_z(4.0);
+  line_to_z(LEVEL_CORNERS_Z_HOP);
   switch (bed_corner) {
     case 0:
       current_position[X_AXIS] = X_MIN_BED + LEVEL_CORNERS_INSET;

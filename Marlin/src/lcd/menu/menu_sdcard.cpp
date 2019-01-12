@@ -111,10 +111,10 @@ void menu_sdcard() {
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
     #endif
   }
-  else if (card.flag.cardOK)
+  else if (card.isDetected())
     MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
 
-  for (uint16_t i = 0; i < fileCnt; i++) {
+  if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
       const uint16_t nr =
         #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)

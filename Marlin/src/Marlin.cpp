@@ -164,17 +164,6 @@ bool Running = true;
   TempUnit input_temp_units = TEMPUNIT_C;
 #endif
 
-#if FAN_COUNT > 0
-  uint8_t fan_speed[FAN_COUNT] = { 0 };
-  #if ENABLED(EXTRA_FAN_SPEED)
-    uint8_t old_fan_speed[FAN_COUNT], new_fan_speed[FAN_COUNT];
-  #endif
-  #if ENABLED(PROBING_FANS_OFF)
-    bool fans_paused; // = false;
-    uint8_t paused_fan_speed[FAN_COUNT] = { 0 };
-  #endif
-#endif
-
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 volatile bool wait_for_heatup = true;
 
@@ -655,7 +644,7 @@ void stop() {
   print_job_timer.stop();
 
   #if ENABLED(PROBING_FANS_OFF)
-    if (fans_paused) fans_pause(false); // put things back the way they were
+    if (thermalManager.fans_paused) thermalManager.set_fans_paused(false); // put things back the way they were
   #endif
 
   if (IsRunning()) {
@@ -976,7 +965,7 @@ void loop() {
         quickstop_stepper();
         print_job_timer.stop();
         thermalManager.disable_all_heaters();
-        zero_fan_speeds();
+        thermalManager.zero_fan_speeds();
         wait_for_heatup = false;
         #if ENABLED(POWER_LOSS_RECOVERY)
           card.removeJobRecoveryFile();
