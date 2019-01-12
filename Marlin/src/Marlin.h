@@ -81,24 +81,6 @@ extern volatile bool wait_for_heatup;
 // Inactivity shutdown timer
 extern millis_t max_inactive_time, stepper_inactive_time;
 
-#if FAN_COUNT > 0
-  extern uint8_t fan_speed[FAN_COUNT];
-  #if ENABLED(EXTRA_FAN_SPEED)
-    extern uint8_t old_fan_speed[FAN_COUNT], new_fan_speed[FAN_COUNT];
-  #endif
-  #if ENABLED(PROBING_FANS_OFF)
-    extern bool fans_paused;
-    extern uint8_t paused_fan_speed[FAN_COUNT];
-  #endif
-  #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
-#endif
-
-inline void zero_fan_speeds() {
-  #if FAN_COUNT > 0
-    FANS_LOOP(i) fan_speed[i] = 0;
-  #endif
-}
-
 #if ENABLED(USE_CONTROLLER_FAN)
   extern uint8_t controllerfan_speed;
 #endif

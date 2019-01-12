@@ -1178,10 +1178,9 @@ void Planner::check_axes_activity() {
   #endif
 
   if (has_blocks_queued()) {
-
     #if FAN_COUNT > 0
       FANS_LOOP(i)
-        tail_fan_speed[i] = block_buffer[block_buffer_tail].fan_speed[i];
+        tail_fan_speed[i] = (block_buffer[block_buffer_tail].fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
     #endif
 
     block_t* block;
@@ -1203,7 +1202,8 @@ void Planner::check_axes_activity() {
   }
   else {
     #if FAN_COUNT > 0
-      FANS_LOOP(i) tail_fan_speed[i] = fan_speed[i];
+      FANS_LOOP(i)
+        tail_fan_speed[i] = (thermalManager.fan_speed[i] * uint16_t(thermalManager.fan_speed_scaler[i])) >> 7;
     #endif
 
     #if ENABLED(BARICUDA)
@@ -1903,7 +1903,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   #if FAN_COUNT > 0
-    FANS_LOOP(i) block->fan_speed[i] = fan_speed[i];
+    FANS_LOOP(i) block->fan_speed[i] = thermalManager.fan_speed[i];
   #endif
 
   #if ENABLED(BARICUDA)
@@ -2392,6 +2392,15 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       };
     #endif
 
+    #if IS_CORE && ENABLED(JUNCTION_DEVIATION)
+      /**
+       * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
+       * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
+       * => normalize the complete junction vector
+       */
+      normalize_junction_vector(unit_vec);
+    #endif
+
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
     if (moves_queued && !UNEAR_ZERO(previous_nominal_speed_sqr)) {
       // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
@@ -2637,8 +2646,8 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
 
   // When changing extruders recalculate steps corresponding to the E position
   #if ENABLED(DISTINCT_E_FACTORS)
-    if (last_extruder != extruder && settings.axis_steps_per_mm[E_AXIS_N(extruder)] != settings.axis_steps_per_mm[E_AXIS + last_extruder]) {
-      position[E_AXIS] = LROUND(position[E_AXIS] * settings.axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS + last_extruder]);
+    if (last_extruder != extruder && settings.axis_steps_per_mm[E_AXIS_N(extruder)] != settings.axis_steps_per_mm[E_AXIS_N(last_extruder)]) {
+      position[E_AXIS] = LROUND(position[E_AXIS] * settings.axis_steps_per_mm[E_AXIS_N(extruder)] * steps_to_mm[E_AXIS_N(last_extruder)]);
       last_extruder = extruder;
     }
   #endif

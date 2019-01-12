@@ -119,7 +119,7 @@ class TMC26XStepper {
      * You can select a different stepping with setMicrosteps() to aa different value.
      * \sa start(), setMicrosteps()
      */
-    TMC26XStepper(int16_t number_of_steps, int16_t cs_pin, int16_t dir_pin, int16_t step_pin, uint16_t current, uint16_t resistor=100); //resistor=150
+    TMC26XStepper(const int16_t in_steps, int16_t cs_pin, int16_t dir_pin, int16_t step_pin, uint16_t current, uint16_t resistor=100); //resistor=150
 
     /*!
      * \brief configures and starts the TMC26X stepper driver. Before you called this function the stepper driver is in nonfunctional mode.
@@ -163,7 +163,7 @@ class TMC26XStepper {
      * If you give any other value it will be rounded to the next smaller number (3 would give a microstepping of 2).
      * You can always check the current microstepping with getMicrosteps().
      */
-    void setMicrosteps(int16_t number_of_steps);
+    void setMicrosteps(const int16_t in_steps);
 
     /*!
      * \brief returns the effective current number of microsteps selected.

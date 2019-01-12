@@ -709,7 +709,10 @@ void MarlinUI::update() {
       }
       else {
         card.release();
-        if (old_sd_status != 2) set_status_P(PSTR(MSG_SD_REMOVED));
+        if (old_sd_status != 2) {
+          set_status_P(PSTR(MSG_SD_REMOVED));
+          if (!on_status_screen()) return_to_status();
+        }
       }
 
       refresh();

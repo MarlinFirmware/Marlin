@@ -58,10 +58,6 @@
   void probing_pause(const bool p);
 #endif
 
-#if ENABLED(PROBING_FANS_OFF)
-  void fans_pause(const bool p);
-#endif
-
 #if ENABLED(BLTOUCH)
   void bltouch_command(int angle);
   bool set_bltouch_deployed(const bool deploy);
