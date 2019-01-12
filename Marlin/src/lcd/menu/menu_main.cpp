@@ -47,9 +47,7 @@ void lcd_pause() {
     if (pause_print(PAUSE_PARK_RETRACT_LENGTH, NOZZLE_PARK_POINT, 0, true) ) {
       wait_for_confirmation(false, 0);
       resume_print(0, 0, ADVANCED_PAUSE_PURGE_LENGTH, 0);
-      ui.defer_status_screen(false);
       ui.return_to_status();
-      ui.refresh();
     }
   #elif ENABLED(SDSUPPORT)
     enqueue_and_echo_commands_P(PSTR("M25"));
