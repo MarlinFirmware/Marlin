@@ -131,7 +131,7 @@ void GcodeSuite::M25() {
  * M26: Set SD Card file index
  */
 void GcodeSuite::M26() {
-  if (card.flag.cardOK && parser.seenval('S'))
+  if (card.isDetected() && parser.seenval('S'))
     card.setIndex(parser.value_long());
 }
 
@@ -222,7 +222,7 @@ void GcodeSuite::M29() {
  * M30 <filename>: Delete SD Card file
  */
 void GcodeSuite::M30() {
-  if (card.flag.cardOK) {
+  if (card.isDetected()) {
     card.closefile();
     card.removeFile(parser.string_arg);
   }
@@ -241,7 +241,7 @@ void GcodeSuite::M30() {
 void GcodeSuite::M32() {
   if (IS_SD_PRINTING()) planner.synchronize();
 
-  if (card.flag.cardOK) {
+  if (card.isDetected()) {
     const bool call_procedure = parser.boolval('P');
 
     card.openFile(parser.string_arg, true, call_procedure);

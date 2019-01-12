@@ -41,7 +41,7 @@ char HAL_STM32F1_eeprom_content[HAL_STM32F1_EEPROM_SIZE];
 char eeprom_filename[] = "eeprom.dat";
 
 bool PersistentStore::access_start() {
-  if (!card.flag.cardOK) return false;
+  if (!card.isDetected()) return false;
   int16_t bytes_read = 0;
   constexpr char eeprom_zero = 0xFF;
   card.openFile(eeprom_filename, true);
@@ -54,7 +54,7 @@ bool PersistentStore::access_start() {
 }
 
 bool PersistentStore::access_finish() {
-  if (!card.flag.cardOK) return false;
+  if (!card.isDetected()) return false;
   card.openFile(eeprom_filename, true);
   int16_t bytes_written = card.write(HAL_STM32F1_eeprom_content, HAL_STM32F1_EEPROM_SIZE);
   card.closefile();

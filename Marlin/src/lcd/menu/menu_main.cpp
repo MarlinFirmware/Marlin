@@ -53,8 +53,7 @@ void lcd_pause() {
 
 void lcd_resume() {
   #if ENABLED(SDSUPPORT)
-    if (card.flag.cardOK && card.isFileOpen() && !IS_SD_PRINTING())
-      enqueue_and_echo_commands_P(PSTR("M24"));
+    if (card.isPaused()) enqueue_and_echo_commands_P(PSTR("M24"));
   #elif ENABLED(ACTION_ON_RESUME)
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_RESUME);
   #endif
@@ -103,7 +102,7 @@ void menu_main() {
   else {
     MENU_ITEM(function, MSG_RESUME_PRINT, lcd_resume);
     #if ENABLED(SDSUPPORT)
-      if (card.flag.cardOK && card.isFileOpen())
+      if (card.isFileOpen())
         MENU_ITEM(submenu, MSG_STOP_PRINT, menu_sdcard_abort_confirm);
     #endif
     MENU_ITEM(submenu, MSG_MOTION, menu_motion);
@@ -154,7 +153,7 @@ void menu_main() {
   #endif
 
 #if ENABLED(SDSUPPORT)
-    if (card.flag.cardOK && !card.isFileOpen()) {
+    if (card.isDetected() && !card.isFileOpen()) {
       MENU_ITEM(submenu, MSG_CARD_MENU, menu_sdcard);
       #if !PIN_EXISTS(SD_DETECT)
         MENU_ITEM(gcode, MSG_CHANGE_SDCARD, PSTR("M21"));  // SD-card changed by user
