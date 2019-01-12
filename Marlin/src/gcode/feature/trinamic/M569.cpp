@@ -41,23 +41,6 @@ void tmc_set_stealthChop(TMC &st, const bool enable) {
   st.refresh_stepping_mode();
 }
 
-static void set_stealth_status(const bool enable, const int8_t target_extruder);
-static void say_stealth_status();
-
-/**
- * M569: Enable stealthChop on an axis
- * S[1|0] to enable or disable
- * XYZE to target an axis
- * No arguments reports the stealthChop status of all capable drivers.
- */
-void GcodeSuite::M569() {
-  if (parser.seen('S')) {
-    set_stealth_status(parser.value_bool(), get_target_extruder_from_command());
-  } else {
-    say_stealth_status();
-  }
-}
-
 static void set_stealth_status(const bool enable, const int8_t target_extruder) {
   #define TMC_SET_STEALTH(Q) tmc_set_stealthChop(stepper##Q, enable)
 
@@ -120,6 +103,7 @@ static void set_stealth_status(const bool enable, const int8_t target_extruder) 
     }
   }
 }
+
 static void say_stealth_status() {
   #define TMC_SAY_STEALTH_STATUS(Q) tmc_say_stealth_status(stepper##Q)
 
@@ -164,4 +148,18 @@ static void say_stealth_status() {
   #endif
 }
 
-#endif
+/**
+ * M569: Enable stealthChop on an axis
+ *
+ *   S[1|0] to enable or disable
+ *   XYZE to target an axis
+ *   No arguments reports the stealthChop status of all capable drivers.
+ */
+void GcodeSuite::M569() {
+  if (parser.seen('S'))
+    set_stealth_status(parser.value_bool(), get_target_extruder_from_command());
+  else
+    say_stealth_status();
+}
+
+#endif // HAS_STEALTHCHOP
