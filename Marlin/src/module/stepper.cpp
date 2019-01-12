@@ -350,24 +350,71 @@ void Stepper::wake_up() {
  */
 void Stepper::set_directions() {
 
-  #define SET_STEP_DIR(A) \
-    if (motor_direction(_AXIS(A))) { \
-      A##_APPLY_DIR(INVERT_## A##_DIR, false); \
-      count_direction[_AXIS(A)] = -1; \
-    } \
-    else { \
-      A##_APPLY_DIR(!INVERT_## A##_DIR, false); \
-      count_direction[_AXIS(A)] = 1; \
+  #if HAS_DRIVER(ST_L6470)
+
+    #include "../module/L6470/L6470_Marlin.h"
+
+    uint8_t L6470_buf[MAX_L6470 + 1];   // chip command sequence - element 0 not used
+
+    // 1. set direction bits using same logic as done with all other drivers
+    // 2. scan chain and find all matches for this axis
+    // 3. save direction command(s) based on invert options
+
+    // ASSUMES ALL DRIVERS ON AN AXIS ARE THE SAME
+
+    #define L6470_SET_STEP_DIR(A) \
+      if (motor_direction(_AXIS(A))) {\
+        count_direction[_AXIS(A)] = -1;\
+      }\
+      else {\
+        count_direction[_AXIS(A)] = 1;\
+      }\
+      \
+      for (uint8_t j = 1; j <= L6470_chain[0] ; j++)\
+        if ( ((AxisEnum)A##_AXIS) == L6470_axis_xref[L6470_chain[j]]) {\
+          if ( motor_direction(_AXIS(A)) == L6470_index_to_DIR[L6470_chain[j]] ) {\
+            L6470_buf[j] = dSPIN_STEP_CLOCK_REV;\
+          }\
+          else {\
+              L6470_buf[j] = dSPIN_STEP_CLOCK_FWD;\
+          }\
+        }
+
+
+  #endif
+
+  #define SET_STEP_DIR(A)\
+    if (motor_direction(_AXIS(A))) {\
+      A##_APPLY_DIR(INVERT_## A##_DIR, false);\
+      count_direction[_AXIS(A)] = -1;\
+    }\
+    else {\
+      A##_APPLY_DIR(!INVERT_## A##_DIR, false);\
+      count_direction[_AXIS(A)] = 1;\
     }
 
   #if HAS_X_DIR
-    SET_STEP_DIR(X); // A
+    #if AXIS_DRIVER_TYPE_X(ST_L6470)
+      L6470_SET_STEP_DIR(X); // A
+    #else
+      SET_STEP_DIR(X); // A
+    #endif
   #endif
+
   #if HAS_Y_DIR
-    SET_STEP_DIR(Y); // B
+    #if AXIS_DRIVER_TYPE_Y(ST_L6470)
+      L6470_SET_STEP_DIR(Y); // B
+    #else
+      SET_STEP_DIR(Y); // B
+    #endif
   #endif
+
   #if HAS_Z_DIR
-    SET_STEP_DIR(Z); // C
+    #if AXIS_DRIVER_TYPE_Z(ST_L6470)
+      L6470_SET_STEP_DIR(Z); // C
+    #else
+      SET_STEP_DIR(Z); // C
+    #endif
   #endif
 
   #if DISABLED(LIN_ADVANCE)
@@ -393,6 +440,24 @@ void Stepper::set_directions() {
       }
     #endif
   #endif // !LIN_ADVANCE
+
+  #if HAS_DRIVER(ST_L6470)
+
+    #if HAS_L6470_EXTRUDER
+
+      // L6470_E_dir_commands[6] is an array that holds direction command for each extruder
+
+      //scan E command array and copy matches into L6470_Transfer
+      for (uint8_t j = 1; j <= L6470_chain[0] ; j++)
+        if (L6470_chain[j] >= L6470_E0_INDEX)
+          L6470_buf[j] = L6470_E_dir_commands[L6470_chain[j] - L6470_E0_INDEX];
+
+    #endif
+
+    void L6470_Transfer(uint8_t L6470_buf[] , uint8_t length);
+    L6470_Transfer(L6470_buf, L6470_chain[0]);  // send the command stream to the drivers
+
+  #endif
 
   // A small delay may be needed after changing direction
   #if MINIMUM_STEPPER_DIR_DELAY > 0
@@ -1766,17 +1831,22 @@ uint32_t Stepper::stepper_block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if (current_block->direction_bits != last_direction_bits
+
+
+      #if !HAS_DRIVER(ST_L6470)   // always set direction if using L6470 driver(s) - this also enables the chips
+        if (current_block->direction_bits != last_direction_bits
           #if DISABLED(MIXING_EXTRUDER)
             || stepper_extruder != last_moved_extruder
           #endif
-      ) {
-        last_direction_bits = current_block->direction_bits;
-        #if EXTRUDERS > 1
-          last_moved_extruder = stepper_extruder;
+          )
         #endif
-        set_directions();
-      }
+        {
+          last_direction_bits = current_block->direction_bits;
+          #if EXTRUDERS > 1
+            last_moved_extruder = stepper_extruder;
+          #endif
+          set_directions();
+        }
 
       // At this point, we must ensure the movement about to execute isn't
       // trying to force the head against a limit switch. If using interrupt-
@@ -2113,7 +2183,11 @@ void Stepper::init() {
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   sei();
-  set_directions(); // Init directions to last_direction_bits = 0  Keeps Z from being reversed
+
+  Z_DIR_WRITE(0);    // Init directions to last_direction_bits = 0  Keeps Z from being reversed
+  Z2_DIR_WRITE(0);
+  Z3_DIR_WRITE(0);
+
 }
 
 /**

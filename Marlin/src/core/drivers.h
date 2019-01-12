@@ -27,7 +27,7 @@
 #define _A5984              0x002
 #define _DRV8825            0x003
 #define _LV8729             0x004
-#define _L6470              0x105
+#define _ST_L6470           0x105
 #define _TB6560             0x006
 #define _TB6600             0x007
 #define _TMC2100            0x008
@@ -73,3 +73,13 @@
 #define AXIS_IS_TMC(A) ( AXIS_DRIVER_TYPE_##A(TMC2130) || \
                          AXIS_DRIVER_TYPE_##A(TMC2208) || \
                          AXIS_DRIVER_TYPE_##A(TMC2660) )
+
+// Test if an axis has any L6470 drivers on it
+#define AXIS_IS_ST_L6470(A) (    defined(AXIS_DRIVER_TYPE_##A(ST_L6470)) \
+                              || defined(AXIS_DRIVER_TYPE_##A##0(ST_L6470)) \
+                              || defined(AXIS_DRIVER_TYPE_##A##1(ST_L6470)) \
+                              || defined(AXIS_DRIVER_TYPE_##A##2(ST_L6470)) \
+                              || defined(AXIS_DRIVER_TYPE_##A##3(ST_L6470)) \
+                              || defined(AXIS_DRIVER_TYPE_##A##4(ST_L6470)) \
+                              || defined(AXIS_DRIVER_TYPE_##A##5(ST_L6470)) \
+                            )

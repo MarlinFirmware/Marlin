@@ -43,6 +43,26 @@ enum AxisEnum : unsigned char {
   NO_AXIS   = 0xFF
 };
 
+#if HAS_DRIVER(ST_L6470)
+  enum L6470_driver_enum : byte {
+    X     = 0,
+    Y     = 1,
+    Z     = 2,
+    X2    = 3,
+    Y2    = 4,
+    Z2    = 5,
+    Z3    = 6,
+    E0    = 7,
+    E1    = 8,
+    E2    = 9,
+    E3    = 10,
+    E4    = 11,
+    E5    = 12,
+  };
+#endif
+
+
+
 #define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
 #define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
 #define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
