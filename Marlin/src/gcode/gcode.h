@@ -209,6 +209,7 @@
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M524 - Abort the current SD print job (started with M24)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+ * M569 - Enable stealthChop on an axis. (Requires at least one #_X_DRIVER_TYPE to be TMC2130 or TMC2208)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: "M603 T<tool> U<unload_length> L<load_length>". (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
@@ -796,6 +797,9 @@ private:
   #if HAS_TRINAMIC
     static void M122();
     static void M906();
+    #if HAS_STEALTHCHOP
+      static void M569();
+    #endif
     #if ENABLED(MONITOR_DRIVER_STATUS)
       static void M911();
       static void M912();

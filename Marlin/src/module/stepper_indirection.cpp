@@ -221,6 +221,7 @@
     st.TPOWERDOWN(128); // ~2s until driver lowers to hold current
 
     st.en_pwm_mode(stealth);
+    st.stored.stealthChop_enabled = stealth;
 
     PWMCONF_t pwmconf{0};
     pwmconf.pwm_freq = 0b01; // f_pwm = 2/683 f_clk
@@ -450,6 +451,7 @@
     gconf.i_scale_analog = false;
     gconf.en_spreadcycle = !stealth;
     st.GCONF(gconf.sr);
+    st.stored.stealthChop_enabled = stealth;
 
     TMC2208_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 0b01; // blank_time = 24

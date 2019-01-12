@@ -652,6 +652,9 @@ void GcodeSuite::process_parsed_command(
       #if HAS_TRINAMIC
         case 122: M122(); break;
         case 906: M906(); break;                                  // M906: Set motor current in milliamps using axis codes X, Y, Z, E
+        #if HAS_STEALTHCHOP
+          case 569: M569(); break;                                // M569: Enable stealthChop on an axis.
+        #endif
         #if ENABLED(MONITOR_DRIVER_STATUS)
           case 911: M911(); break;                                // M911: Report TMC2130 prewarn triggered flags
           case 912: M912(); break;                                // M912: Clear TMC2130 prewarn triggered flags

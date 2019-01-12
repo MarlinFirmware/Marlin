@@ -50,15 +50,19 @@
 #define CHOPPER_PRUSAMK3_24V { 4,  1, 4 }
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
 
+constexpr uint16_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
+  return 12650000UL * msteps / (256 * thrs * spmm);
+}
+
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCStorage {
   protected:
     // Only a child class has access to constructor => Don't create on its own! "Poor man's abstract class"
     TMCStorage() {}
 
+  public:
     uint16_t val_mA = 0;
 
-  public:
     #if ENABLED(MONITOR_DRIVER_STATUS)
       uint8_t otpw_count = 0,
               error_count = 0;
@@ -73,6 +77,12 @@ class TMCStorage {
       SERIAL_CHAR(AXIS_LETTER);
       if (DRIVER_ID > '0') SERIAL_CHAR(DRIVER_ID);
     }
+
+    struct {
+      #if STEALTHCHOP_ENABLED
+        bool stealthChop_enabled = false;
+      #endif
+    } stored;
 };
 
 template<class TMC, char AXIS_LETTER, char DRIVER_ID>
@@ -93,6 +103,11 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
       this->val_mA = mA;
       TMC::rms_current(mA, mult);
     }
+
+    #if STEALTHCHOP_ENABLED
+      void refresh_stepping_mode() { this->en_pwm_mode(this->stored.stealthChop_enabled); }
+      bool get_stealthChop_status() { return this->en_pwm_mode(); }
+    #endif
 };
 template<char AXIS_LETTER, char DRIVER_ID>
 class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
@@ -112,11 +127,28 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2208Stepper,
       this->val_mA = mA;
       TMC2208Stepper::rms_current(mA, mult);
     }
-};
 
-constexpr uint16_t _tmc_thrs(const uint16_t msteps, const int32_t thrs, const uint32_t spmm) {
-  return 12650000UL * msteps / (256 * thrs * spmm);
-}
+    #if STEALTHCHOP_ENABLED
+      void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
+      bool get_stealthChop_status() { !this->en_spreadCycle(); }
+    #endif
+};
+template<char AXIS_LETTER, char DRIVER_ID>
+class TMCMarlin<TMC2660Stepper, AXIS_LETTER, DRIVER_ID> : public TMC2660Stepper, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
+  public:
+    TMCMarlin(uint16_t cs_pin, float RS) :
+      TMC2660Stepper(cs_pin, RS)
+      {}
+    TMCMarlin(uint16_t CS, float RS, uint16_t pinMOSI, uint16_t pinMISO, uint16_t pinSCK) :
+      TMC2660Stepper(CS, RS, pinMOSI, pinMISO, pinSCK)
+      {}
+    uint16_t rms_current() { return TMC2660Stepper::rms_current(); }
+    void rms_current(uint16_t mA) {
+      this->val_mA = mA;
+      TMC2660Stepper::rms_current(mA);
+    }
+
+};
 
 template<typename TMC>
 void tmc_get_current(TMC &st) {
@@ -127,6 +159,7 @@ template<typename TMC>
 void tmc_set_current(TMC &st, const int mA) {
   st.rms_current(mA);
 }
+
 #if ENABLED(MONITOR_DRIVER_STATUS)
   template<typename TMC>
   void tmc_report_otpw(TMC &st) {
