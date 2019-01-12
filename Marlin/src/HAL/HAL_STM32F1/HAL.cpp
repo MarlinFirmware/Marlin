@@ -100,7 +100,7 @@ uint16_t HAL_adc_result;
 // --------------------------------------------------------------------------
 STM32ADC adc(ADC1);
 
-uint8 adc_pins[] = {
+uint8_t adc_pins[] = {
   #if HAS_TEMP_ADC_0
     TEMP_0_PIN,
   #endif
