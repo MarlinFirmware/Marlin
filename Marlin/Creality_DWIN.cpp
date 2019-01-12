@@ -1391,13 +1391,13 @@ SERIAL_ECHO(Checkkey);
 				{
 					RTS_SndData(3, AutoLevelIcon);	
 					AutoLevelStatus = false;
-					settings.load();
+					enqueue_and_echo_commands_P((PSTR("M420 S1")));
 				}
 				else//turn off the Autolevel
 				{
 					RTS_SndData(2, AutoLevelIcon);
 					AutoLevelStatus = true;
-					settings.reset();
+					enqueue_and_echo_commands_P((PSTR("M420 0")));
 				}
 				last_zoffset = rts_probe_zoffset;
 				RTS_SndData(zprobe_zoffset*100, 0x1026); 
