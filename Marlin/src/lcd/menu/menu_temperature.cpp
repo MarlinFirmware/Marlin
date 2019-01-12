@@ -299,6 +299,16 @@ void _lcd_preheat(const int16_t endnum, const int16_t temph, const int16_t tempb
 
 #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
+#if ENABLED(SPINDLE_LASER_ENABLE) && DISABLED(SPINDLE_LASER_PWM)
+void menu_LASER() {
+    START_MENU();
+    MENU_BACK(MSG_MAIN);
+    MENU_ITEM(gcode, MSG_LASER_ON,  PSTR("M3"));
+    MENU_ITEM(gcode, MSG_LASER_OFF, PSTR("M5"));
+    END_MENU();
+  }
+#endif
+
 void menu_temperature() {
   START_MENU();
   MENU_BACK(MSG_MAIN);
@@ -382,6 +392,10 @@ void menu_temperature() {
     #endif
 
   #endif // HAS_TEMP_HOTEND
+
+  #if ENABLED(SPINDLE_LASER_ENABLE) && DISABLED(SPINDLE_LASER_PWM)
+    MENU_ITEM(submenu, MSG_LASER_MENU, menu_LASER);
+  #endif
 
   END_MENU();
 }
