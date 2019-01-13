@@ -48,12 +48,16 @@
 
 #if ADD_PORT_ARG
   #define PORTARG_SOLO     const int8_t port
+  #define PORTARG_BEFORE   const int8_t port,
   #define PORTARG_AFTER   ,const int8_t port
   #define PORTVAR_SOLO     port
+  #define PORTVAR_BEFORE   port,
 #else
   #define PORTARG_SOLO
+  #define PORTARG_BEFORE
   #define PORTARG_AFTER
   #define PORTVAR_SOLO
+  #define PORTVAR_BEFORE
 #endif
 
 #include "endstops.h"
@@ -2321,7 +2325,14 @@ void MarlinSettings::reset(PORTARG_SOLO) {
   #if HAS_TRINAMIC
     void say_M906(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M906"); }
     #if HAS_STEALTHCHOP
-      void say_M569(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M569 S1"); }
+      void say_M569(PORTARG_BEFORE const char * const etc=NULL) {
+        SERIAL_ECHOPGM_P(port, "  M569 S1");
+        if (etc) {
+          SERIAL_CHAR_P(port, ' ');
+          serialprintPGM_P(port, etc);
+          SERIAL_EOL_P(port);
+        }
+      }
     #endif
     #if ENABLED(HYBRID_THRESHOLD)
       void say_M913(PORTARG_SOLO) { SERIAL_ECHOPGM_P(port, "  M913"); }
@@ -3024,69 +3035,73 @@ void MarlinSettings::reset(PORTARG_SOLO) {
       #if HAS_STEALTHCHOP
         CONFIG_ECHO_HEADING("Driver stepping mode:");
         CONFIG_ECHO_START();
-        #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Z)
-          say_M569(PORTVAR_SOLO);
-        #endif
         #if AXIS_HAS_STEALTHCHOP(X)
-          if (stepperX.get_stealthChop_status()) SERIAL_ECHOPGM_P(port, " X");
+          const bool chop_x = stepperX.get_stealthChop_status();
+        #else
+          constexpr bool chop_x = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          if (stepperY.get_stealthChop_status()) SERIAL_ECHOPGM_P(port, " Y");
+          const bool chop_y = stepperY.get_stealthChop_status();
+        #else
+          constexpr bool chop_y = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          if (stepperZ.get_stealthChop_status()) SERIAL_ECHOPGM_P(port, " Z");
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X) || AXIS_HAS_STEALTHCHOP(Y) || AXIS_HAS_STEALTHCHOP(Z)
-          SERIAL_EOL_P(port);
+          const bool chop_z = stepperZ.get_stealthChop_status();
+        #else
+          constexpr bool chop_z = false;
         #endif
 
-        #if AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z2)
-          say_M569(PORTVAR_SOLO);
-          SERIAL_ECHOPGM_P(port, " I1");
-        #endif
+        if (chop_x || chop_y || chop_z) say_M569(PORTVAR_SOLO);
+        if (chop_x) SERIAL_ECHOPGM_P(port, " X");
+        if (chop_y) SERIAL_ECHOPGM_P(port, " Y");
+        if (chop_z) SERIAL_ECHOPGM_P(port, " Z");
+        if (chop_x || chop_y || chop_z) SERIAL_EOL_P(port);
+
         #if AXIS_HAS_STEALTHCHOP(X2)
-          if (stepperX2.get_stealthChop_status()) SERIAL_ECHOPGM_P(port, " X");
+          const bool chop_x2 = stepperX2.get_stealthChop_status();
+        #else
+          constexpr bool chop_x2 = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          if (stepperY2.get_stealthChop_status()) SERIAL_ECHOPGM_P(port, " Y");
+          const bool chop_y2 = stepperY2.get_stealthChop_status();
+        #else
+          constexpr bool chop_y2 = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          if (stepperZ2.get_stealthChop_status()) SERIAL_ECHOPGM_P(port, " Z");
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X2) || AXIS_HAS_STEALTHCHOP(Y2) || AXIS_HAS_STEALTHCHOP(Z2)
-          SERIAL_EOL_P(port);
+          const bool chop_z2 = stepperZ2.get_stealthChop_status();
+        #else
+          constexpr bool chop_z2 = false;
         #endif
 
+        if (chop_x2 || chop_y2 || chop_z2) say_M569(PORTVAR_BEFORE PSTR("I1"));
+        if (chop_x2) SERIAL_ECHOPGM_P(port, " X");
+        if (chop_y2) SERIAL_ECHOPGM_P(port, " Y");
+        if (chop_z2) SERIAL_ECHOPGM_P(port, " Z");
+        if (chop_x2 || chop_y2 || chop_z2) SERIAL_EOL_P(port);
+
         #if AXIS_HAS_STEALTHCHOP(Z3)
-          say_M569(PORTVAR_SOLO);
-          if (stepperZ3.get_stealthChop_status()) SERIAL_ECHOLNPGM_P(port, " I2 Z");
+          if (stepperZ3.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("I2 Z")); }
         #endif
 
         #if AXIS_HAS_STEALTHCHOP(E0)
-          say_M569(PORTVAR_SOLO);
-          if (stepperE0.get_stealthChop_status()) SERIAL_ECHOLNPGM_P(port, " T0 E");
+          if (stepperE0.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T0 E")); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E1)
-          say_M569(PORTVAR_SOLO);
-          if (stepperE1.get_stealthChop_status()) SERIAL_ECHOLNPGM_P(port, " T1 E");
+          if (stepperE1.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T1 E")); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E2)
-          say_M569(PORTVAR_SOLO);
-          if (stepperE2.get_stealthChop_status()) SERIAL_ECHOLNPGM_P(port, " T2 E");
+          if (stepperE2.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T2 E")); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E3)
-          say_M569(PORTVAR_SOLO);
-          if (stepperE3.get_stealthChop_status()) SERIAL_ECHOLNPGM_P(port, " T3 E");
+          if (stepperE3.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T3 E")); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E4)
-          say_M569(PORTVAR_SOLO);
-          if (stepperE4.get_stealthChop_status()) SERIAL_ECHOLNPGM_P(port, " T4 E");
+          if (stepperE4.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T4 E")); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E5)
-          say_M569(PORTVAR_SOLO);
-          if (stepperE5.get_stealthChop_status()) SERIAL_ECHOLNPGM_P(port, " T5 E");
+          if (stepperE5.get_stealthChop_status()) { say_M569(PORTVAR_BEFORE PSTR("T5 E")); }
         #endif
-        SERIAL_EOL_P(port);
+
       #endif // HAS_STEALTHCHOP
 
     #endif // HAS_TRINAMIC
