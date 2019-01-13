@@ -43,8 +43,13 @@ void lcd_pause() {
     if (recovery.enabled) recovery.save(true, false);
   #endif
 
+  // Set initial pause flag to prevent more commands from landing in the queue while we try to pause
+  #if ENABLED(SDSUPPORT)
+    if (IS_SD_PRINTING()) { card.pauseSDPrint(); }
+  #endif
+
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    enqueue_and_echo_commands_P(PSTR("M25 P"));
+    enqueue_and_echo_commands_P(PSTR("M25 P; \n M24"));
   #elif ENABLED(SDSUPPORT)
     enqueue_and_echo_commands_P(PSTR("M25"));
   #elif defined(ACTION_ON_PAUSE)
