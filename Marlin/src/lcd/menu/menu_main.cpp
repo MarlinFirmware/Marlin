@@ -55,7 +55,6 @@ void lcd_pause() {
   #elif defined(ACTION_ON_PAUSE)
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_PAUSE);
   #endif
-  ui.return_to_status();
   planner.synchronize();
 }
 
