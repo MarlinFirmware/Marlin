@@ -45,7 +45,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("回X原點")  //"Home X"
 #define MSG_AUTO_HOME_Y                     _UxGT("回Y原點")  //"Home Y"
 #define MSG_AUTO_HOME_Z                     _UxGT("回Z原點")  //"Home Z"
-#define MSG_TMC_Z_CALIBRATION               _UxGT("⊿校準Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("平台調平XYZ歸原點")  //"Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               _UxGT("單擊開始熱床調平")  //"Click to Begin"
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("下個熱床調平點")  //"Next Point"

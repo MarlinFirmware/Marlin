@@ -46,7 +46,6 @@
 #define MSG_AUTO_HOME_X                     _UxGT("Home X")
 #define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
 #define MSG_AUTO_HOME_Z                     _UxGT("Home Z")
-#define MSG_TMC_Z_CALIBRATION               _UxGT("Kalibreer Z")
 #define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
 #define MSG_LEVEL_BED_WAITING               _UxGT("Klik voor begin")
 #define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Volgende Plaats")

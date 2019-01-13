@@ -41,9 +41,9 @@
  *       object. On resume (M24) the head will be moved back and the
  *       print will resume.
  *
- *       If Marlin is compiled without SD Card support, M125 can be
- *       used directly to pause the print and move to park position,
- *       resuming with a button click or M108.
+ *       When not actively SD printing, M125 simply moves to the park
+ *       position and waits, resuming with a button click or M108.
+ *       Without PARK_HEAD_ON_PAUSE the M125 command does nothing.
  *
  *    L = override retract length
  *    X = override X
